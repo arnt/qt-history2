@@ -475,7 +475,7 @@ void FormWindowManager::slotUpdateActions()
     m_breakLayout = false;
 
     if (!m_activeFormWindow
-            || m_activeFormWindow->currentTool() != 0) {
+            || m_activeFormWindow->currentTool() != 0) { // ### FormWindow::currentTool() doesn't make sense anymore!
         m_actionCut->setEnabled(false);
         m_actionCopy->setEnabled(false);
         m_actionPaste->setEnabled(false);
@@ -523,8 +523,10 @@ void FormWindowManager::slotUpdateActions()
     m_actionSplitHorizontal->setEnabled(false);
     m_actionSplitVertical->setEnabled(false);
 
-    if (selectedWidgets == 0 && m_activeFormWindow->mainContainer() != 0)
+    if (selectedWidgets == 0 && m_activeFormWindow->mainContainer() != 0) {
         widgets.append(m_activeFormWindow->mainContainer());
+        selectedWidgets = 1;
+    }
 
     enable = false;
     if (selectedWidgets > 1) {
@@ -555,7 +557,7 @@ void FormWindowManager::slotUpdateActions()
         m_actionAdjustSize->setEnabled(!w->parentWidget()
             || LayoutInfo::layoutType(m_core, w->parentWidget()) == LayoutInfo::NoLayout);
 
-        if (!isContainer) {
+        if (isContainer == false) {
             m_actionHorizontalLayout->setEnabled(false);
             m_actionVerticalLayout->setEnabled(false);
             m_actionGridLayout->setEnabled(false);
@@ -567,18 +569,12 @@ void FormWindowManager::slotUpdateActions()
             }
         } else {
             if (LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout) {
-                if (!m_activeFormWindow->hasInsertedChildren(w)) {
-                    m_actionHorizontalLayout->setEnabled(false);
-                    m_actionVerticalLayout->setEnabled(false);
-                    m_actionGridLayout->setEnabled(false);
-                    m_actionBreakLayout->setEnabled(false);
-                } else {
-                    m_actionHorizontalLayout->setEnabled(true);
-                    m_actionVerticalLayout->setEnabled(true);
-                    m_actionGridLayout->setEnabled(true);
-                    m_actionBreakLayout->setEnabled(false);
-                    m_layoutChilds = true;
-                }
+                m_layoutChilds = m_activeFormWindow->hasInsertedChildren(w);
+
+                m_actionHorizontalLayout->setEnabled(m_layoutChilds);
+                m_actionVerticalLayout->setEnabled(m_layoutChilds);
+                m_actionGridLayout->setEnabled(m_layoutChilds);
+                m_actionBreakLayout->setEnabled(m_layoutChilds);
 
                 if (w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout) {
                     m_actionBreakLayout->setEnabled(m_activeFormWindow->widgets(w->parentWidget()).isEmpty() == false);
@@ -607,7 +603,7 @@ void FormWindowManager::layoutContainerHorizontal()
     if (l.count() == 1)
         w = l.first();
 
-    if (w)
+    if (w != 0)
         m_activeFormWindow->layoutHorizontalContainer(w);
 }
 
