@@ -982,6 +982,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	axTakeServer( hWnd );
 	break;
 
+    case WM_QUERYENDSESSION:
     case WM_DESTROY:
 	if ( that->qt.widget ) {
 	    if ( that->aggregatedObject )
