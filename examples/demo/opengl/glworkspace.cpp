@@ -62,7 +62,7 @@ void GLWorkspace::setupSceneActions()
     menu->insertSeparator();
     QActionGroup *printGroup = new QActionGroup( this );
     printGroup->setMenuText( tr( "&Print" ) );
-    printGroup->setText( tr( "New" ) );
+    printGroup->setText( tr( "Print" ) );
     printGroup->setUsesDropDown( TRUE );
     printGroup->setExclusive( FALSE );
     printGroup->setIconSet( QPixmap( "textdrawing/fileprint.xpm" ) );
