@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 2.9 1999/01/28 15:40:17 warwick Exp $
+** $Id: collect.doc,v 2.10 1999/04/07 17:50:19 warwick Exp $
 **
 ** Qt collection classes documentation
 **
@@ -193,9 +193,9 @@ on the list.  When a list entry is removed, the list updates all iterators
 to point to this entry.
 
 The \link QDict QDict\endlink and \link QCache QCache\endlink collections
-have no traversal functions. To traverse the these collections, you must
+have no traversal functions. To traverse these collections, you must
 use \link QDictIterator QDictIterator\endlink or \link QCacheIterator
-QCacheIterator\endlink .
+QCacheIterator\endlink.
 
 
 <h2>Predefined Collections</h2>
