@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#29 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -40,7 +40,7 @@
   themselves.  Widgets should not use colors like "red" and "turqoise"
   but rather "foreground" and "base", where possible.
 
-  We have identified eight distinct color roles:
+  We have identified fourty-two distinct color roles:
   <ol>
   <li>Foreground (graphics foreground color)
   <li>Button (general button color)
@@ -51,9 +51,14 @@
     effects)
   <li>Text (usually the same as the foreground color, but sometimes text
     and other foreground are not the same)
+  <li>BrightText (a text color that contrasts to the Dark color)
+  <li>ButtonText (a text color that contrasts to the Button  color)
   <li>Base (used as background color for some widgets). Usually white or
     another light color.
   <li>Background (general background color)
+  <li>Shadow (a very dark color used for shadow effects, usually black)
+  <li>Highlight  (a color to indicate a selected or highlighted item)
+  <li>HighlightedText  (a text color that contrasts to Highlight)
   </ol>
 
   We have not seen any good, well-made and usable widgets that use more
@@ -94,6 +99,7 @@ plain colors for each parameter.
      mid_brush = mid;
      text_brush = text;
      bright_text_brush = bright_text;
+     button_text_brush = text;
      base_brush = base;
      background_brush = background;
      midlight_brush = QBrush(button_brush.color().light(115));
@@ -116,6 +122,7 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
     dark_brush  = QBrush(dark);
     text_brush  = QBrush(text);
     bright_text_brush  = text_brush;
+    button_text_brush  = text_brush;
     background_brush    = QBrush(button);
     button_brush = QBrush( button);
     light_brush = QBrush( light);
@@ -179,6 +186,11 @@ QColorGroup::~QColorGroup()
 */
 
 /*!
+  \fn const QColor & QColorGroup::buttonText() const
+  Returns the button text foreground color of the color group.
+*/
+
+/*!
   \fn const QColor & QColorGroup::base() const
   Returns the base color of the color group.
 */
@@ -232,6 +244,11 @@ QColorGroup::~QColorGroup()
 */
 
 /*!
+  \fn const QBrush & QColorGroup::fillButtonText() const
+  Returns the button text foreground brush of the color group.
+*/
+
+/*!
   \fn const QBrush & QColorGroup::fillBase() const
   Returns the base brush of the color group.
 */
@@ -260,7 +277,8 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
 	   background_brush == g.background_brush   &&
 		light_brush == g.light_brush && dark_brush == g.dark_brush &&
 		mid_brush   == g.mid_brush   && text_brush == g.text_brush &&
-	  bright_text_brush == g.bright_text_brush && base_brush  == g.base_brush &&
+	  bright_text_brush == g.bright_text_brush && button_text_brush == g.button_text_brush &&
+		base_brush  == g.base_brush &&
 	     midlight_brush == g.midlight_brush && shadow_brush == g.shadow_brush &&
 	    highlight_brush == g.highlight_brush && highlighted_text_brush == g.highlighted_text_brush;
 }

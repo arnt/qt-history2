@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#172 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#173 $
 **
 ** Implementation of QApplication class
 **
@@ -262,7 +262,7 @@ QApplication::QApplication( int &argc, char **argv )
     (void)new QKoi8Codec;
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
-    
+
     qt_init( &argc, argv );
     process_cmdline( &argc, argv );
     initialize( argc, argv );
@@ -323,7 +323,7 @@ void QApplication::initialize( int argc, char **argv )
 	app_font->setCharSet( QFont::defaultFont().charSet() );
 	CHECK_PTR( app_font );
     }
-    
+
     QWidget::createMapper();			// create widget mapper
     is_app_running = TRUE;			// no longer starting up
 
@@ -550,14 +550,14 @@ void QApplication::setColorSpec( int spec )
   Returns a pointer to the default application palette.	 There is
   always an application palette, i.e. the returned pointer is
   guaranteed to be non-null.
-  
+
   If a widget is passed as argument, the default palette for the
   widget's class is returned. This may or may not be the application
   palette, but in most cases there won't be a special palette for
   certain types of widgets. An exception is the popup menu under
   Windows, when the user defined a special background color for menus
   in the display settings.
-  
+
   \sa setPalette(), QWidget::palette()
 */
 
@@ -595,11 +595,11 @@ QPalette *QApplication::palette(const QWidget* w)
 
   If \e updateAllWidgets is TRUE, then the palette of all existing
   widgets is set to \e palette.
-  
+
   If a className is passed, then the palette is only set for widgets
   that inherit this class in the sense of QObject::inherits()
-  
-  Widgets created after this call get \e   palette as their 
+
+  Widgets created after this call get \e   palette as their
   \link QWidget::palette() palette\endlink when they
   access it.
 

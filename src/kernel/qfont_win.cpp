@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#76 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -32,7 +32,7 @@
 #include <limits.h>
 
 #if defined(_CC_BOOL_DEF_)
-#undef	bool
+#undef	bool	
 #include <windows.h>
 #define bool int
 #else
@@ -215,7 +215,7 @@ void QFont::initialize()
     fontDict  = new QFontDict( 29, TRUE, FALSE );
     CHECK_PTR( fontDict );
     if ( !defFont )
-	defFont = new QFont( TRUE );		// create the default font
+	defFont = new QFont( QFI0 );		// create the default font
 }
 
 void QFont::cleanup()
@@ -427,9 +427,9 @@ HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
     LOGFONT lf;
     memset( &lf, 0, sizeof(LOGFONT) );
     if ( hdc )
-	lf.lfHeight = -(d->req.pointSize*GetDeviceCaps(hdc,LOGPIXELSY)/720);
+	lf.lfHeight = -int((float)(d->req.pointSize*GetDeviceCaps(hdc,LOGPIXELSY))/(float)720+0.5);
     else
-	lf.lfHeight = -(d->req.pointSize/10);
+	lf.lfHeight = -int((float)d->req.pointSize*GetDeviceCaps(shared_dc, LOGPIXELSY)/(float)720+0.5);
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;
     lf.lfOrientation	= 0;

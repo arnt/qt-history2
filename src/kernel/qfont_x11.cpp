@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#126 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -254,7 +254,7 @@ void QFont::initialize()
     CHECK_PTR( fontNameDict );
     fontNameDict->setAutoDelete( TRUE );
     if ( !defFont )
-	defFont = new QFont( TRUE );		// create the default font
+	defFont = new QFont( QFI0 );		// create the default font
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#199 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#200 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -249,6 +249,37 @@ static void outColor(const char* s, const QColor& col) {
 }
 static void qt_set_windows_resources()
 {
+
+    // windows supports special fonts for the menus
+    NONCLIENTMETRICS ncm;
+    ncm.cbSize = sizeof( NONCLIENTMETRICS );
+    SystemParametersInfo( SPI_GETNONCLIENTMETRICS, 
+			  sizeof( NONCLIENTMETRICS), 
+			  &ncm, 
+			  NULL);
+    
+    QString menuFontName = qt_winQString(ncm.lfMenuFont.lfFaceName);
+    QFont menuFont(menuFontName);
+    if (ncm.lfMenuFont.lfItalic)
+	menuFont.setItalic( TRUE );
+    if (ncm.lfMenuFont.lfWeight != FW_DONTCARE) {
+	menuFont.setWeight(ncm.lfMenuFont.lfWeight*99/900);
+    }
+    float mps = ((float) -ncm.lfMenuFont.lfHeight*72)/ ((float) GetDeviceCaps(qt_display_dc(), LOGPIXELSY));
+    menuFont.setPointSize(int(mps+0.5));
+    
+    if (menuFont != QFont::defaultFont()) {
+	QApplication::setFont( menuFont, FALSE, "QPopupMenu");
+	QApplication::setFont( menuFont, TRUE, "QMenuBar");
+    }
+    
+    // same technique could apply to set the statusbar or tooltip
+    // font, but since windows does not allow to change them, we do
+    // not care for now.
+    
+    
+    // do the color settings
+    
     /*
     debug("Windows:");
 
@@ -1681,7 +1712,7 @@ void QApplication::closePopup( QWidget *popup )
 	if ( !qt_nograb() )			// grabbing not disabled
 	    releaseAutoCapture();
 	active_window = activeBeforePopup; // windows does not have
-	// a reasonable focus handling for ours popups => we have 
+	// a reasonable focus handling for ours popups => we have
 	// to restore the focus manually.
 	if (active_window && active_window->focusWidget())
 	    active_window->focusWidget()->setFocus();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#14 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#15 $
 **
 ** Definition of QStyle class
 **
@@ -51,7 +51,7 @@ public:
     virtual void drawItem( QPainter *p, int x, int y, int w, int h,
 		    int flags, const QColorGroup &g, bool enabled,
 		    const QPixmap *pixmap, const QString& text,
-			   int len=-1, bool bright_text = FALSE );
+			   int len=-1, const QColor* penColor = 0 );
 
 
     virtual void drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
@@ -108,7 +108,7 @@ public:
     // "combo box"
     virtual void drawComboButton( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool sunken = FALSE,
-				  bool editable = FALSE, 
+				  bool editable = FALSE,
 				  bool enabled = TRUE,
 				  const QBrush *fill = 0 );
     virtual QRect comboButtonRect( int x, int y, int w, int h);

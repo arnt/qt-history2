@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#19 $
 **
 ** Implementation of QStyle class
 **
@@ -131,9 +131,9 @@ QStyle::itemRect( QPainter *p, int x, int y, int w, int h,
 void
 QStyle::drawItem( QPainter *p, int x, int y, int w, int h,
 		int flags, const QColorGroup &g, bool enabled,
-		const QPixmap *pixmap, const QString& text, int len, bool bright_text )
+		const QPixmap *pixmap, const QString& text, int len, const QColor* penColor )
 {
-    qDrawItem( p, gs, x, y, w, h, flags, g, enabled, pixmap, text, len, bright_text );
+    qDrawItem( p, gs, x, y, w, h, flags, g, enabled, pixmap, text, len, penColor );
 }
 
 
@@ -220,7 +220,7 @@ void QStyle::drawButtonMask( QPainter *, int , int , int , int )
 
 void QStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool sunken,
-			      bool editable,
+			      bool /* editable */,
 			      bool /*enabled */,
 			      const QBrush *fill )
 {
@@ -244,7 +244,7 @@ QRect QStyle::comboButtonRect( int x, int y, int w, int h)
 */
 QRect QStyle::comboButtonFocusRect( int x, int y, int w, int h)
 {
-    return buttonRect(x+3, y+3, w-6-21, h-6);
+    return buttonRect(x+4, y+4, w-8-21, h-8);
 }
 
 /*!

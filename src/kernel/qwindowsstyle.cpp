@@ -13,6 +13,15 @@
 #include "qscrollbar.h"
 #include <limits.h>
 
+/*!
+  \class QWindowsStyle qwindowsstyle.h
+  \brief Windows Look and Feel
+*/
+
+
+/*!
+    Constructs a QWindowsStyle 
+*/
 QWindowsStyle::QWindowsStyle() : QStyle(WindowsStyle)
 {
 }
@@ -396,7 +405,7 @@ void QWindowsStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     drawItem( p, x, y, w, h,
 	       AlignCenter|ShowPrefix,
 	       btn->colorGroup(), btn->isEnabled(),
-	       btn->pixmap(), btn->text() );
+	       btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
 
     if ( dx || dy )
 	p->translate( -dx, -dy );
@@ -437,7 +446,7 @@ QRect QWindowsStyle::comboButtonRect( int x, int y, int w, int h){
   */
 QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h)
 {
-    return buttonRect(x+3, y+3, w-2-21, h-6);
+    return QRect(x+3, y+3, w-6-16, h-6);
 }
 
 

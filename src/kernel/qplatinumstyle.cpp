@@ -13,6 +13,15 @@
 #include "qscrollbar.h"
 #include <limits.h>
 
+/*!
+  \class QPlatinumStyle qplatinumstyle.h
+  \brief Platinum Look and Feel
+*/
+
+
+/*!
+    Constructs a QPlatinumStyle 
+*/
 QPlatinumStyle::QPlatinumStyle()
 {
 }
@@ -436,7 +445,8 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     drawItem( p, x, y, w, h,
 	      AlignCenter|ShowPrefix,
 	      btn->colorGroup(), btn->isEnabled(),
-	      btn->pixmap(), btn->text(), -1, btn->isDown() || btn->isOn());
+	      btn->pixmap(), btn->text(), -1, 
+	      (btn->isDown() || btn->isOn())?&btn->colorGroup().brightText():&btn->colorGroup().buttonText());
     if ( dx || dy )
 	p->translate( -dx, -dy );
 
@@ -1043,7 +1053,17 @@ void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
   \sa QStyle
   */
 QRect QPlatinumStyle::comboButtonRect( int x, int y, int w, int h){
-    return QRect(x+4, y+4, w-8-18, h-8);
+    return QRect(x+4, y+4, w-8-16, h-8);
+}
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+QRect QPlatinumStyle::comboButtonFocusRect( int x, int y, int w, int h)
+{
+    return QRect(x+5, y+5, w-10-16, h-10);
 }
 
 

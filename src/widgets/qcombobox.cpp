@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#161 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#162 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1058,25 +1058,30 @@ void QComboBox::paintEvent( QPaintEvent *event )
 // 	    r.setRect( r.left()-1, r.top()-1, r.width()+2, r.height()+2 );
 // 	    qDrawShadePanel( &p, r, g, TRUE, d->ed ? 1 : 2, isEnabled()?&g.fillBase():&g.fillButton());
 //  	}
-	QRect arrowR = arrowRect();
+	//	QRect arrowR = arrowRect();
 // 	qDrawWinPanel(&p, arrowR, g, d->arrowDown );
 // 	qDrawArrow( &p, DownArrow, WindowsStyle, d->arrowDown,
 // 		    arrowR.x() + 2, arrowR.y() + 2,
 // 		    arrowR.width() - 4, arrowR.height() - 4, g );
 
-	QRect textR( 5, 4, width()  - 5 - 4 - arrowR.width(),
-		     height() - 4 - 4 );
+// 	QRect textR( 5, 4, width()  - 5 - 4 - arrowR.width(),
+// 		     height() - 4 - 4 );
 
+	QRect tmpR = style().comboButtonRect(0,0,width(),height()); 
+	QRect textR(tmpR.x()+1, tmpR.y()+1, tmpR.width()-2, tmpR.height()-2);
+	    
 	if ( hasFocus()) {
 	    if (!d->ed) {
-		p.fillRect( textR.x()-1, textR.y(),
-			    textR.width(), textR.height(), g.fillHighlight() );
+ 		p.fillRect( textR.x(), textR.y(),
+ 			    textR.width(), textR.height(), g.fillHighlight() );
+		
 	    }
-	    style().drawFocusRect(&p, style().comboButtonFocusRect(0,0,width(),height()), g);
+	    style().drawFocusRect(&p, style().comboButtonFocusRect(0,0,width(),height()), g, &g.highlight());
 // 	    p.drawWinFocusRect( textR.x()-2, textR.y()-1,
 // 				textR.width()+2, textR.height()+2, backgroundColor() );
 	}
 
+	textR.setRect(tmpR.x()+2, tmpR.y()+1, tmpR.width()-4, tmpR.height()-2);
 	p.setClipRect( textR );
 
 	if ( hasFocus() ) {

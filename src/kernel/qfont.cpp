@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#108 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -188,7 +188,7 @@ void QFont::detach()
 QFont::QFont()
 {
     if ( !defFont )
-	defFont = new QFont( TRUE );
+	defFont = new QFont( QFI0 );
     d = defFont->d;
     d->ref();
 }
@@ -808,7 +808,7 @@ bool QFont::operator!=( const QFont &f ) const
 const QFont &QFont::defaultFont()
 {
     if ( !defFont )
-	defFont = new QFont( TRUE );
+	defFont = new QFont( QFI0 );
     return *defFont;
 }
 
@@ -819,7 +819,7 @@ const QFont &QFont::defaultFont()
 void  QFont::setDefaultFont( const QFont &f )
 {
     if ( !defFont )
-	defFont = new QFont( TRUE );
+	defFont = new QFont( QFI0 );
     *defFont = f;
 }
 

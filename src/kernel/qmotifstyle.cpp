@@ -13,6 +13,15 @@
 #include "qscrollbar.h"
 #include <limits.h>
 
+/*!
+  \class QMotifStyle qmotifstyle.h
+  \brief Motif Look and Feel
+*/
+
+
+/*!
+    Constructs a QMotifStyle 
+*/
 QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
 {
 }
@@ -479,7 +488,7 @@ void QMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     drawItem( p, x, y, w, h,
 	      AlignCenter|ShowPrefix,
 	      btn->colorGroup(), btn->isEnabled(),
-	      btn->pixmap(), btn->text() );
+	      btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
     if ( dx || dy )
 	p->translate( -dx, -dy );
 

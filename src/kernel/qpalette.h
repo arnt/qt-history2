@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#35 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#36 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -54,6 +54,7 @@ public:
     const QColor &mid()		const	{ return mid_brush.color(); }
     const QColor &text()	const	{ return text_brush.color(); }
     const QColor &brightText()	const	{ return bright_text_brush.color(); }
+    const QColor &buttonText()	const	{ return button_text_brush.color(); }
     const QColor &base()	const	{ return base_brush.color(); }
     const QColor &background()	const	{ return background_brush.color(); }
     const QColor &shadow()	const	{ return shadow_brush.color(); }
@@ -68,6 +69,7 @@ public:
     const QBrush &fillMid() const {return mid_brush; }
     const QBrush &fillText() const {return text_brush; }
     const QBrush &fillBrightText() const {return bright_text_brush; }
+    const QBrush &fillButtonText() const {return button_text_brush; }
     const QBrush &fillBase() const {return base_brush; }
     const QBrush &fillBackground() const {return background_brush; }
     const QBrush &fillShadow() const {return shadow_brush; }
@@ -82,6 +84,7 @@ public:
     void setMid( const QBrush& b) { mid_brush = b; }
     void setText( const QBrush& b) { text_brush = b; }
     void setBrightText( const QBrush& b) { bright_text_brush = b; }
+    void setButtonText( const QBrush& b) { button_text_brush = b; }
     void setBase( const QBrush& b) { base_brush = b; }
     void setBackground( const QBrush& b) { background_brush = b; }
     void setShadow( const QBrush& b) { shadow_brush = b; }
@@ -100,6 +103,7 @@ private:
     QBrush mid_brush;
     QBrush text_brush;
     QBrush bright_text_brush;
+    QBrush button_text_brush;
     QBrush base_brush;
     QBrush background_brush;
     QBrush midlight_brush;
