@@ -718,7 +718,9 @@ public:
 	Picture = 0x04,
 	System = 0x05,
 	DeviceTypeMask = 0x0f,
-	ExternalDevice = 0x10
+	ExternalDevice = 0x10,
+	// used to emulate some of the behaviour different between Qt2 and Qt3 (mainly for printing)
+	CompatibilityMode = 0x20
     };
 };
 
