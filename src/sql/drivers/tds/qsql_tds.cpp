@@ -79,6 +79,9 @@
 #define QTDSTEXT SQLTEXT
 #define QTDSVARCHAR SQLVARCHAR
 #define QTDSBIT SQLBIT
+#define QTDSBINARY SQLBINARY
+#define QTDSVARBINARY SQLVARBINARY
+#define QTDSIMAGE SQLIMAGE
 #else
 #define QMSGHANDLE MHANDLEFUNC
 #define QERRHANDLE EHANDLEFUNC
@@ -98,10 +101,15 @@
 #define QTDSMONEY SYBMONEY
 #define QTDSMONEY_N SYBMONEYN
 #define QTDSNUMERIC SYBNUMERIC
-#define QTDSNUMERIC_2 63  //magic number not defined in sybase's headers
 #define QTDSTEXT SYBTEXT
 #define QTDSVARCHAR SYBVARCHAR
 #define QTDSBIT SYBBIT
+#define QTDSBINARY SYBBINARY
+#define QTDSVARBINARY SYBVARBINARY
+#define QTDSIMAGE SYBIMAGE
+// magic numbers not defined anywhere in Sybase headers
+#define QTDSDECIMAL_2 55
+#define QTDSNUMERIC_2 63
 #endif  //DBNTWIN32
 
 #define TDS_CURSOR_SIZE 50
@@ -266,6 +274,9 @@ QVariant::Type qDecodeTDSType( int type )
 #ifdef QTDSNUMERIC_2
     case QTDSNUMERIC_2:
 #endif
+#ifdef QTDSDECIMAL_2
+    case QTDSDECIMAL_2:
+#endif
     case QTDSMONEY_N:
 	t = QVariant::Double;
 	break;
@@ -273,7 +284,12 @@ QVariant::Type qDecodeTDSType( int type )
     case QTDSDATETIME:
     case QTDSDATETIME_N:
 	t = QVariant::DateTime;
-    break;
+	break;
+    case QTDSBINARY:
+    case QTDSVARBINARY:
+    case QTDSIMAGE:
+	t = QVariant::ByteArray;
+	break;
     default:
 	t = QVariant::Invalid;
 	break;
@@ -367,7 +383,7 @@ bool QTDSResult::reset ( const QString& query )
 		ret = dbbind( d->dbproc, i+1, INTBIND, (DBINT) 4, (unsigned char *)p );
 	    break;
 	case QVariant::Double:
-	    // use string binding to prevent lossof precision
+	    // use string binding to prevent loss of precision
 	    p = buf->append( 50, QVariant::CString, nd );
 	    if ( p )
 		ret = dbbind( d->dbproc, i+1, STRINGBIND, 50, (unsigned char *)p );
@@ -381,6 +397,11 @@ bool QTDSResult::reset ( const QString& query )
 	    p = buf->append( 8, vType, nd );
 	    if ( p )
 		ret = dbbind( d->dbproc, i+1, DATETIMEBIND, (DBINT) 8, (unsigned char *)p );
+	    break;
+	case QVariant::ByteArray:
+	    p = buf->append( dbcollen( d->dbproc, i+1 ) + 1, vType, nd );
+	    if ( p )
+		ret = dbbind( d->dbproc, i+1, BINARYBIND, DBINT(dbcollen( d->dbproc, i+1 ) + 1), (unsigned char *)p );
 	    break;
 	default: //don't bind the field since we do not support it
 	    delete nd;
@@ -458,7 +479,7 @@ bool QTDSDriver::hasFeature( DriverFeature f ) const
     case QuerySize:
 	return FALSE;
     case BLOB:
-	return FALSE;
+	return TRUE;
     case Unicode:
 	return FALSE;
     default:
@@ -721,6 +742,16 @@ QString QTDSDriver::formatValue( const QSqlField* field,
 	    r = field->value().toDateTime().toString( "'yyyyMMdd hh:mm:ss'" );
 	} else
 	    r = nullText();
+    } else if ( field->type() == QVariant::ByteArray ) {
+	QByteArray ba = field->value().toByteArray();
+	QString res;
+	static const char hexchars[] = "0123456789abcdef";
+	for ( uint i = 0; i < ba.size(); ++i ) {
+	    uchar s = (uchar) ba[(int)i];
+	    res += hexchars[s >> 4];
+	    res += hexchars[s & 0x0f];
+	}
+	r = "0x" + res;
     } else {
 	r = QSqlDriver::formatValue( field );
     }

@@ -41,7 +41,7 @@ QSqlClientData::~QSqlClientData()
 {
 }
 
-QVariant QSqlClientData::format( void* buf, int /*size*/, QVariant::Type type ) const
+QVariant QSqlClientData::format( void* buf, int size, QVariant::Type type ) const
 {
     QVariant v;
     switch ( type ) {
@@ -66,6 +66,13 @@ QVariant QSqlClientData::format( void* buf, int /*size*/, QVariant::Type type ) 
     case QVariant::DateTime:
 	v = *( (QDateTime*)buf );
 	break;
+    case QVariant::ByteArray: {
+	// deep copy because lifespan of the variant is bigger than buf
+	QByteArray ba( size );
+	memcpy( ba.data(), (const char*)buf, ba.size() );
+	v = ba;
+	break;
+    }
     default:
 	v = QString( (char*)buf );
 	break;
