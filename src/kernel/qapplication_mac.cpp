@@ -1333,7 +1333,7 @@ int QApplication::macProcessEvent(MSG * m)
 	if(er->modifiers & 0x01) {
 	    if(widget) {
 		widget->raise();
-		if(widget->isTopLevel() && !widget->isPopup() && !widget->isDialog()) 
+		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || !tlw->isDialog()))
 		    setActiveWindow(widget);
 		if (widget->focusWidget())
 		    widget->focusWidget()->setFocus();
@@ -1446,7 +1446,7 @@ int QApplication::macProcessEvent(MSG * m)
 		    }
 		    if(QWidget *tlw = widget->topLevelWidget()) {
 			tlw->raise();
-			if(tlw->isTopLevel() && !tlw->isPopup() && !tlw->isDialog())
+			if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || !tlw->isDialog()))
 			    setActiveWindow(tlw);
 		    }
 		}
