@@ -141,7 +141,7 @@ void QColor::initialize()
 	for( int i = 0; i < numPalEntries; i++ ) {
 	    palArray[i].pix = qRgb( pal.entries[i].peRed,
 				    pal.entries[i].peGreen,
-				    pal.entries[i].peBlue );
+				    pal.entries[i].peBlue ) & RGB_MASK;
 	    palArray[i].ctx = 0;
 	}
 	hpal = CreatePalette( (LOGPALETTE*)&pal );
@@ -201,7 +201,7 @@ uint QColor::alloc()
 		// # Should speed up this using a dict into palArray
 		PALETTEENTRY fe;
 		GetPaletteEntries( hpal, idx, 1, &fe );
-		QRgb fc = qRgb( fe.peRed, fe.peGreen, fe.peBlue );
+		QRgb fc = qRgb( fe.peRed, fe.peGreen, fe.peBlue ) & RGB_MASK;
 		if ( fc != rgbVal ) {	// Color not found in palette
 		    // Find a free palette entry
 		    bool found = FALSE;

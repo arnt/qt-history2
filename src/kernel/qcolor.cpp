@@ -24,7 +24,6 @@
 *****************************************************************************/
 
 #include "qcolor.h"
-#include "qpaintdevice.h"
 #include "qnamespace.h"
 #include "qdatastream.h"
 #include <stdlib.h>
@@ -227,7 +226,7 @@ QColor::QColor( QRgb rgb, uint pixel )
     if ( pixel == 0xffffffff ) {
 	setRgb( rgb );
     } else {
-	rgbVal = rgb | RGB_DIRECT;
+	rgbVal = (rgb & RGB_MASK) | RGB_DIRECT;
 	pix    = pixel;
     }
 }
@@ -554,7 +553,7 @@ void QColor::setRgb( int r, int g, int b )
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
 	qWarning( "QColor::setRgb: RGB parameter(s) out of range" );
 #endif
-    rgbVal = qRgb(r,g,b);
+    rgbVal = ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
     if ( lazy_alloc || !color_init ) {
 	rgbVal |= RGB_DIRTY;			// alloc later
 	pix = 0;
@@ -575,7 +574,7 @@ void QColor::setRgb( int r, int g, int b )
 void QColor::setRgb( QRgb rgb )
 {
     if ( lazy_alloc || !color_init ) {
-	rgbVal = (rgb & RGB_MASK) | RGB_DIRTY;// alloc later
+	rgbVal = (rgb & RGB_MASK) | RGB_DIRTY;	// alloc later
 	pix = 0;
     } else {
 	rgbVal = (rgb & RGB_MASK);

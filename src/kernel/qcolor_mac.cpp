@@ -30,5 +30,3 @@ void QColor::setSystemNamedColor(const QString& name)
 {
     setRgb(256,0,0);
 }
-
-

@@ -49,10 +49,10 @@ Q_EXPORT inline int qAlpha( QRgb rgb )		// get alpha part of RGBA
 { return (int)((rgb >> 24) & 0xff); }
 
 Q_EXPORT inline QRgb qRgb( int r, int g, int b )// set RGB value
-{ return (uint)((uint)(r & 0xff) << 16) |((uint)(g & 0xff) << 8) |(b & 0xff); }
+{ return (0xff << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff); }
 
 Q_EXPORT inline QRgb qRgba( int r, int g, int b, int a )// set RGBA value
-{ return qRgb(r,g,b) | ((uint)(a & 0xff) << 24); }
+{ return ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff); }
 
 Q_EXPORT inline int qGray( int r, int g, int b )// convert R,G,B to gray 0..255
 { return (r*11+g*16+b*5)/32; }
@@ -149,7 +149,7 @@ inline bool QColor::isDirty() const
 { return (rgbVal & RGB_DIRTY) != 0; }
 
 inline QRgb QColor::rgb() const
-{ return rgbVal & RGB_MASK; }
+{ return rgbVal | ~RGB_MASK; }
 
 inline int QColor::red() const
 { return qRed(rgbVal); }

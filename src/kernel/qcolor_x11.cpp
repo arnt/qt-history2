@@ -215,8 +215,8 @@ void QColor::initialize()
 
   // Initialize global color objects
 
-    globalColors()[blackIdx].rgbVal = qRgb( 0, 0, 0 );
-    globalColors()[whiteIdx].rgbVal = qRgb( 255, 255, 255 );
+    globalColors()[blackIdx].rgbVal = qRgb( 0, 0, 0 ) & RGB_MASK;
+    globalColors()[whiteIdx].rgbVal = qRgb( 255, 255, 255 ) & RGB_MASK;
     if ( QPaintDevice::x11AppDefaultVisual() &&
 	 QPaintDevice::x11AppDefaultColormap() ) {
 	globalColors()[blackIdx].pix = (uint)BlackPixel( dpy, scr );
