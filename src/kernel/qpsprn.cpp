@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#23 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#23 $")
 
 
 #if !defined(QT_HEADER_PS)
@@ -168,6 +168,7 @@ static void hexOut( QTextStream &stream, int i )
 
 static void ps_dumpTransparentBitmapData( QTextStream &stream, QImage &img )
 {
+    stream.unsetf( ~0 );
     stream.setf( QTextStream::hex );
 
     int width  = img.width();
@@ -187,12 +188,14 @@ static void ps_dumpTransparentBitmapData( QTextStream &stream, QImage &img )
     if ( --count % 66 )
 	stream << '\n';
 
+    stream.unsetf( ~0 );
     stream.setf( QTextStream::dec );
 }
 
 static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 			       QColor fgCol, QColor bgCol )
 {
+    stream.unsetf( ~0 );
     stream.setf( QTextStream::hex );
 
     if ( img.depth() == 1 ) {
@@ -208,9 +211,9 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 
     int width  = img.width();
     int height = img.height();
-    int pixWidth = img.depth() == 8 ? 1 : 3;
+    int pixWidth = img.depth() == 8 ? 1 : 4;
     uchar *scanLine;
-    ulong cval;
+    uint cval;
     int x,y;
     int count = -1;
     for( y = 0 ; y < height ; y++ ) {
@@ -222,9 +225,9 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 		hexOut( stream, qGreen(cval) );
 		hexOut( stream, qBlue(cval) );
 	    } else {
-		hexOut( stream, scanLine[3*x] );
-		hexOut( stream, scanLine[3*x + 1] );
-		hexOut( stream, scanLine[3*x + 2] );
+		hexOut( stream, scanLine[4*x] );
+		hexOut( stream, scanLine[4*x + 1] );
+		hexOut( stream, scanLine[4*x + 2] );
 	    }
 	    if ( !(count++ % 11) )
 		stream << '\n';
@@ -233,6 +236,7 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
     if ( --count % 11 )
 	stream << '\n';
 
+    stream.unsetf( ~0 );
     stream.setf( QTextStream::dec );
 }
 
@@ -299,6 +303,10 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 #endif
 
 	stream << "\n%%Page: " << pageCount << ' ' << pageCount << endl;
+	if ( printer->orientation() == QPrinter::Landscape ) {
+	    stream << "PageW 0 TR 90 rotate\n";
+	    stream << "/defM matrix CM def\n";
+	}
 	return TRUE;
     }
 
