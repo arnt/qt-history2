@@ -87,30 +87,7 @@ public:
 
 	QPlugIn* plugin = new QPlugIn( file, appInterface, defPol );
 	bool useful = FALSE;
-/*
-	if ( plugin->load() ) {
-	    QStringList il = plugin->interfaceList();
-	    for ( QStringList::Iterator i = il.begin(); i != il.end(); ++i ) {
-		QUnknownInterface *iFace = plugin->queryInterface( *i );
-		if ( iFace && iFace->interfaceID() == interfaceID() ) {
-		    Type* typedIFace = (Type*)iFace;
-		    QStringList al = typedIFace->featureList();
-		    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
-			useful = TRUE;
-			if ( !interfaceDict[*a] ) {
-			    interfaceDict.insert( *a, typedIFace );
-			}
-#ifdef CHECK_RANGE
-			else
-			    qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*a).latin1() );
-#endif
-		    }
-		    if ( useful )
-			plugDict.insert( typedIFace, plugin );
-		}
-	    }
-	}
-*/
+
 	if ( plugin->load() ) {
 	    Type* iFace = (Type*)plugin->queryInterface( interfaceID() );
 	    if ( iFace ) {
