@@ -11,6 +11,7 @@
 #include "qpainter.h"
 #include "qregion.h"
 #include "qevent.h"
+#include "qcursor.h"
 #include "qgfx_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qwsregionmanager_qws.h"

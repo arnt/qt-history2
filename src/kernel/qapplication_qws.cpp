@@ -69,6 +69,7 @@
 #include "qwindowsystem_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qnetwork.h"
+#include "qcursor.h"
 
 #include <stdio.h>
 #include <limits.h>
