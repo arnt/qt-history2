@@ -699,7 +699,7 @@ for plat in mac win x11 qws; do
 		rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
 		rm -f "$PLATDIR/src/widgets/qcompactstyle.h"
 		rm -f "$PLATDIR/src/widgets/qcompactstyle.cpp"
-            elif [ "$plat" = "mac" ]; then
+	    elif [ "$plat" = "mac" ]; then
 		rm -rf "$PLATDIR/examples/biff"
 		rm -rf "$PLATDIR/examples/desktop"
 		rm -rf "$PLATDIR/examples/overlay_x11"
@@ -751,6 +751,12 @@ for plat in mac win x11 qws; do
 	    mv $PLATDIR/doc/html/* $PLATDIR/doc
 	    rm -rf $PLATDIR/doc/html
 	fi
+
+	#remove excess files needed to generate documentation, but no longer needed for package
+	#find $PLATDIR/tools/designer/manual/sgml/eg/book -name book.h | xargs rm -f
+	#find $PLATDIR/tools/designer/manual/sgml/eg/book -name book.cpp | xargs rm -f
+	#find $PLATDIR/tools/designer/manual/sgml/eg/book -name editbook.h | xargs rm -f
+	#find $PLATDIR/tools/designer/manual/sgml/eg/book -name editbook.cpp | xargs rm -f
 
 	#copy the platform dist stuff
 	copy_platform_files "$platformname" $plat $PLATDIR #platform specific
