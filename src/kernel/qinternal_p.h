@@ -81,6 +81,7 @@ public:
     void flush();
 
     static bool isDisabled() { return !dblbufr; }
+    static void setDisabled( bool off ) { dblbufr = !off; }
     static QPixmap* getRawPixmap( int w, int h );
     static void cleanup();
 

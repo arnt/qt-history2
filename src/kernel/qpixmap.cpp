@@ -45,6 +45,7 @@
 #include "qbuffer.h"
 #include "qobjectlist.h"
 #include "qapplication.h"
+#include <private/qinternal_p.h>
 
 /*!
   \class QPixmap qpixmap.h
@@ -987,8 +988,11 @@ static QPixmap grabChildWidgets( QWidget * w )
     QPixmap res( w->width(), w->height() );
     res.fill( w, QPoint( 0, 0 ) );
     QPainter::redirect( w, &res ); // ### overwrites earlier redirect
+    bool dblbfr = QSharedDoubleBuffer::isDisabled();
+    QSharedDoubleBuffer::setDisabled( TRUE );
     QPaintEvent e( w->rect(), FALSE );
     QApplication::sendEvent( w, &e );
+    QSharedDoubleBuffer::setDisabled( dblbfr );
     QPainter::redirect( w, 0 );
     if ( w->testWFlags( Qt::WRepaintNoErase ) )
 	w->repaint( FALSE );
