@@ -441,6 +441,7 @@ void Uic::createFormImpl( const QDomElement &e )
     QStringList globalIncludes, localIncludes;
     QStringList::Iterator it;
 
+    QMap<QString, CustomInclude> customWidgetIncludes;
     QMap<QString, QString> functionImpls;
     // find additional slots and functions
     QStringList publicSlots, protectedSlots;
@@ -474,12 +475,19 @@ void Uic::createFormImpl( const QDomElement &e )
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "customwidget" ) {
 		    QDomElement n3 = n2.firstChild().toElement();
+		    QString cl;
 		    WidgetDatabaseRecord *r = new WidgetDatabaseRecord;
 		    while ( !n3.isNull() ) {
-			if ( n3.tagName() == "class" )
-			    r->name = n3.firstChild().toText().data();
-			else if ( n3.tagName() == "header" )
-			    r->includeFile = n3.firstChild().toText().data();
+			if ( n3.tagName() == "class" ) {
+			    cl = n3.firstChild().toText().data();
+			    r->name = cl;
+			} else if ( n3.tagName() == "header" ) {
+			    CustomInclude ci;
+			    ci.header = n3.firstChild().toText().data();
+			    ci.location = n3.attribute( "location", "global" );
+			    r->includeFile = ci.header;
+			    customWidgetIncludes.insert( cl, ci );
+			}
 			WidgetDatabase::append( r );
 			n3 = n3.nextSibling().toElement();
 		    }
@@ -547,10 +555,14 @@ void Uic::createFormImpl( const QDomElement &e )
 	nl = e.parentNode().toElement().elementsByTagName( *it );
 	for ( i = 1; i < (int) nl.length(); i++ ) { // start at 1, 0 is the toplevel widget
 	    QString name = getClassName( nl.item(i).toElement() );
-	    if ( name != objClass )
-		globalIncludes += getInclude( name );
 	    if ( name.mid( 1 ) == "ListView" )
 		globalIncludes += "qheader.h";
+	    if ( name != objClass ) {
+		int wid = WidgetDatabase::idFromClassName( name );
+		QMap<QString, CustomInclude>::Iterator it = customWidgetIncludes.find( name );
+		if ( it == customWidgetIncludes.end() )
+		    globalIncludes += WidgetDatabase::includeFile( wid );
+	    }
 	}
     }
 
