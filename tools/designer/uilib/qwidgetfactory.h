@@ -92,6 +92,7 @@ private:
     QAction *findAction( const QString &name );
     void loadExtraSource();
     QString translate( const char *sourceText, const char *comment = "" );
+    QString translate( const QString& sourceText, const QString& comment = QString::null );
 
     void unpackUInt16( QDataStream& in, Q_UINT16& n );
     void unpackUInt32( QDataStream& in, Q_UINT32& n );

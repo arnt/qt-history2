@@ -730,7 +730,7 @@ void QWidgetFactory::inputColumnOrRow( const UibStrTable& strings,
 	    unpackCString( strings, in, name );
 	    unpackCString( strings, in, value.asCString() );
 	    unpackCString( strings, in, comment );
-	    str = translate( value.asCString(), comment );
+	    str = translate( value.asCString().data(), comment.data() );
 
 	    if ( name == "field" ) {
 		field = str;
@@ -806,7 +806,7 @@ void QWidgetFactory::inputItem( const UibStrTable& strings, QDataStream& in,
 	    unpackCString( strings, in, comment );
 
 	    if ( name == "text" )
-		texts << translate( value.asCString(), comment );
+		texts << translate( value.asCString().data(), comment.data() );
 	    break;
 	case Object_VariantProperty:
 	    unpackCString( strings, in, name );
@@ -891,7 +891,7 @@ void QWidgetFactory::inputMenuItem( QObject **objects,
 	}
 	in >> objectTag;
     }
-    menuBar->insertItem( translate(text), popupMenu );
+    menuBar->insertItem( translate(text.data()), popupMenu );
 }
 
 QObject *QWidgetFactory::inputObject( QObject **objects, int& numObjects,
@@ -1107,7 +1107,7 @@ QObject *QWidgetFactory::inputObject( QObject **objects, int& numObjects,
 	    unpackCString( strings, in, name );
 	    unpackCString( strings, in, value.asCString() );
 	    unpackCString( strings, in, comment );
-	    str = translate( value.asCString(), comment );
+	    str = translate( value.asCString().data(), comment.data() );
 
 	    if ( metAttribute > 0 ) {
 		if ( name == "title" ) {
@@ -1678,7 +1678,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    if ( parent ) {
 		if ( parent->inherits( "QTabWidget" ) ) {
 		    if ( attrib == "title" )
-			( (QTabWidget*)parent )->insertTab( w, v.toString() );
+			( (QTabWidget*)parent )->insertTab( w, translate( v.toString() ) );
 		} else if ( parent->inherits( "QWidgetStack" ) ) {
 		    if ( attrib == "id" )
 			( (QWidgetStack*)parent )->addWidget( w, v.toInt() );
@@ -1687,7 +1687,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 			( (QToolBox*)parent )->addPage( w, v.toString() );
 		} else if ( parent->inherits( "QWizard" ) ) {
 		    if ( attrib == "title" )
-			( (QWizard*)parent )->addPage( w, v.toString() );
+			( (QWizard*)parent )->addPage( w, translate( v.toString() ) );
 #ifdef QT_CONTAINER_CUSTOM_WIDGETS
 		} else if ( isPlugin ) {
 		    if ( attrib == "label" ) {
@@ -1699,7 +1699,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 						   (QUnknownInterface**)&iface2 );
 			    if ( iface2 ) {
 				iface2->insertPage( parentClassName,
-						    (QWidget*)parent, v.toString(), -1, w );
+						    (QWidget*)parent, translate( v.toString() ), -1, w );
 				iface2->release();
 			    }
 			    iface->release();
@@ -1836,10 +1836,10 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop,
 	if ( obj->isWidgetType() ) {
 	    if ( prop == "toolTip" ) {
 		if ( !value.toString().isEmpty() )
-		    QToolTip::add( (QWidget*)obj, value.toString() );
+		    QToolTip::add( (QWidget*)obj, translate( value.toString() ) );
 	    } else if ( prop == "whatsThis" ) {
 		if ( !value.toString().isEmpty() )
-		    QWhatsThis::add( (QWidget*)obj, value.toString() );
+		    QWhatsThis::add( (QWidget*)obj, translate( value.toString() ) );
 	    } else if ( prop == "buddy" ) {
 		buddies.insert( obj->name(), value.toCString() );
 	    } else if ( prop == "buttonGroupId" ) {
@@ -1877,7 +1877,7 @@ void QWidgetFactory::setProperty( QObject* widget, const QString &prop, const QD
     QVariant value( DomTool::elementToVariant( e, QVariant(), comment ) );
 
     if ( e.tagName() == "string" ) {
-	value = translate( value.asString().utf8(), comment.utf8() );
+	value = translate( value.asString(), comment );
     } else if ( e.tagName() == "pixmap" ) {
 	QPixmap pix = loadPixmap( value.toString() );
 	if ( !pix.isNull() )
@@ -2255,7 +2255,7 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 		QString attrib = n.attribute( "name" );
 		QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
 		if ( attrib == "text" )
-		    txt = v.toString();
+		    txt = translate( v.toString() );
 		else if ( attrib == "pixmap" )
 		    pix = loadPixmap( n.firstChild().toElement().toElement() );
 		else if ( attrib == "clickable" )
@@ -2281,12 +2281,12 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 		QString attrib = n.attribute( "name" );
 		QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
 		if ( attrib == "text" )
-		    txt = v.toString();
+		    txt = translate( v.toString() );
 		else if ( attrib == "pixmap" ) {
 		    if ( !n.firstChild().firstChild().toText().data().isEmpty() )
 			pix = loadPixmap( n.firstChild().toElement().toElement() );
 		} else if ( attrib == "field" )
-		    field = v.toString();
+		    field = translate( v.toString() );
 	    }
 	    n = n.nextSibling().toElement();
 	}
@@ -2304,7 +2304,7 @@ void QWidgetFactory::loadItem( const QDomElement &e, QPixmap &pix, QString &txt,
 	    QString attrib = n.attribute( "name" );
 	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
 	    if ( attrib == "text" )
-		txt = v.toString();
+		txt = translate( v.toString() );
 	    else if ( attrib == "pixmap" ) {
 		pix = loadPixmap( n.firstChild().toElement() );
 		hasPixmap = !pix.isNull();
@@ -2359,7 +2359,7 @@ void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListVie
 		QString attrib = n.attribute( "name" );
 		QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
 		if ( attrib == "text" )
-		    textes << v.toString();
+		    textes << translate( v.toString() );
 		else if ( attrib == "pixmap" ) {
 		    QString s = v.toString();
 		    if ( s.isEmpty() ) {
@@ -2474,7 +2474,7 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
 	    QPopupMenu *popup = new QPopupMenu( mw );
 	    loadPopupMenu( popup, n );
 	    popup->setName( n.attribute( "name" ) );
-	    mb->insertItem( translate( n.attribute( "text" ).utf8() ), popup );
+	    mb->insertItem( translate( n.attribute( "text" ) ), popup );
 	} else if ( n.tagName() == "property" ) {
 	    setProperty( mb, n.attribute( "name" ), n.firstChild().toElement() );
 	} else if ( n.tagName() == "separator" ) {
@@ -2568,6 +2568,12 @@ void QWidgetFactory::loadExtraSource()
 	QTextStream ts( &f );
 	code = ts.read();
     }
+}
+
+QString QWidgetFactory::translate( const QString& sourceText, const QString& comment )
+{
+    return qApp->translate( d->translationContext, sourceText.utf8(), comment.utf8(),
+			    QApplication::UnicodeUTF8 );
 }
 
 QString QWidgetFactory::translate( const char *sourceText, const char *comment )
