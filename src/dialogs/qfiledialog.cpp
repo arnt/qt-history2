@@ -2522,7 +2522,9 @@ void QFileDialog::init()
     d->typeL = new QLabel( d->types, tr("File &type:"), this, "qt_filetype_lbl" );
 
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
-    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
+    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP )
+#endif
+    {
 	d->goBack = new QToolButton( this, "go back" );
 	d->goBack->setAutoRaise( TRUE );
 	d->goBack->setEnabled( FALSE );
@@ -2533,18 +2535,14 @@ void QFileDialog::init()
 	QToolTip::add( d->goBack, tr( "Back" ) );
 #endif
 	d->goBack->setIconSet( *goBackIcon );
-    } else {
+    }
+#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
+    else {
 	d->goBack = 0;
     }
-#else
-    d->goBack = 0;
 #endif
 
     d->cdToParent = new QToolButton( this, "cd to parent" );
-#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
-    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
-	d->cdToParent->setAutoRaise( TRUE );
-#endif
     d->cdToParent->setFocusPolicy( TabFocus );
 #ifndef QT_NO_TOOLTIP
     QToolTip::add( d->cdToParent, tr( "One directory up" ) );
@@ -2554,10 +2552,6 @@ void QFileDialog::init()
 	     this, SLOT(cdUpClicked()) );
 
     d->newFolder = new QToolButton( this, "new folder" );
-#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
-    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
-	d->newFolder->setAutoRaise( TRUE );
-#endif
     d->newFolder->setFocusPolicy( TabFocus );
 #ifndef QT_NO_TOOLTIP
     QToolTip::add( d->newFolder, tr( "Create New Folder" ) );
@@ -2576,10 +2570,6 @@ void QFileDialog::init()
 	     this, SLOT(changeMode(int)) );
 
     d->mcView = new QToolButton( this, "mclistbox view" );
-#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
-    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
-	d->mcView->setAutoRaise( TRUE );
-#endif
     d->mcView->setFocusPolicy( TabFocus );
 #ifndef QT_NO_TOOLTIP
     QToolTip::add( d->mcView, tr( "List View" ) );
@@ -2588,10 +2578,6 @@ void QFileDialog::init()
     d->mcView->setToggleButton( TRUE );
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
     d->detailView = new QToolButton( this, "list view" );
-#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
-    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
-	d->detailView->setAutoRaise( TRUE );
-#endif
     d->detailView->setFocusPolicy( TabFocus );
 #ifndef QT_NO_TOOLTIP
     QToolTip::add( d->detailView, tr( "Detail View" ) );
@@ -2601,10 +2587,6 @@ void QFileDialog::init()
     d->stack->addWidget( files, d->modeButtons->insert( d->detailView ) );
 
     d->previewInfo = new QToolButton( this, "preview info view" );
-#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
-    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
-	d->previewInfo->setAutoRaise( TRUE );
-#endif
     d->previewInfo->setFocusPolicy( TabFocus );
 #ifndef QT_NO_TOOLTIP
     QToolTip::add( d->previewInfo, tr( "Preview File Info" ) );
@@ -2616,8 +2598,15 @@ void QFileDialog::init()
     d->previewContents = new QToolButton( this, "preview info view" );
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
-	d->previewContents->setAutoRaise( TRUE );
 #endif
+    {
+	d->cdToParent->setAutoRaise( TRUE );
+	d->newFolder->setAutoRaise( TRUE );
+	d->mcView->setAutoRaise( TRUE );
+	d->detailView->setAutoRaise( TRUE );
+	d->previewInfo->setAutoRaise( TRUE );
+	d->previewContents->setAutoRaise( TRUE );
+    }
     d->previewContents->setFocusPolicy( TabFocus );
 #ifndef QT_NO_TOOLTIP
     QToolTip::add( d->previewContents, tr( "Preview File Contents" ) );
