@@ -954,6 +954,9 @@ void QTextCursor::deletePreviousChar()
 */
 void QTextCursor::select(SelectionType selection)
 {
+    if (!d || !d->priv)
+        return;
+
     clearSelection();
     if (selection == LineUnderCursor) {
         movePosition(StartOfLine);
