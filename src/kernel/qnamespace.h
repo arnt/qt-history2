@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#36 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#37 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -173,7 +173,7 @@ public:
 	ThresholdAlphaDither	= 0x00000000,
 	OrderedAlphaDither	= 0x00000004,
 	DiffuseAlphaDither	= 0x00000008,
-	//	  ReservedAlphaDither	= 0x0000000c,
+	NoAlpha			= 0x0000000c, // Not supported
 
 	Dither_Mask		= 0x00000030,
 	DiffuseDither		= 0x00000000,
