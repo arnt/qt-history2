@@ -2394,7 +2394,8 @@ void qt_format_text( const QFont& font, const QRect &r,
 	reg.translate( (int)painter->translationX(), (int)painter->translationY() );
 	painter->setClipRegion( reg );
   	painter->translate( xoff, yoff);
-	parag->paint( *painter, cg );
+	if(!(tf & QPainter::DontPrint))
+	    parag->paint( *painter, cg );
 	painter->restore();
     }
     if ( encode ) {
