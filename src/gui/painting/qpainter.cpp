@@ -760,7 +760,7 @@ void QPainter::setClipping(bool enable)
 
 /*!
     Returns the currently set clip region. Note that the clip region
-    is given in physical device coordinates and \e not subject to any
+    is given in logical coordinates and \e subject to
     \link coordsys.html coordinate transformation \endlink.
 
     \sa setClipRegion(), setClipRect(), setClipping()
@@ -800,8 +800,8 @@ void QPainter::setClipRect(const QRect &rect)
 /*!
     Sets the clip region to \a r and enables clipping.
 
-    Note that the clip region is given in physical device coordinates
-    and \e not subject to any \link coordsys.html coordinate
+    Note that the clip region is given in logical coordinates
+    and \e subject to \link coordsys.html coordinate
     transformation.\endlink
 
     \sa setClipRect(), clipRegion(), setClipping()
