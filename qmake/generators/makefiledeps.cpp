@@ -42,7 +42,7 @@ inline bool qmake_endOfLine(const char &c) { return (c == '\r' || c == '\n'); }
 
 QMakeLocalFileName::QMakeLocalFileName(const QString &name) : is_null(name.isNull())
 {
-    if(!is_null) {
+    if(!name.isEmpty()) {
         if(name.at(0) == QLatin1Char('"') && name.at(name.length()-2) == QLatin1Char('"'))
             real_name = name.mid(1, name.length()-2);
         else
