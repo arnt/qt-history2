@@ -859,9 +859,9 @@ void FormDefinitionView::refresh()
     }
 
     itemFunct->setOpen( TRUE );
-    itemFunctPriv->setOpen( fuPub );
+    itemFunctPubl->setOpen( fuPub );
     itemFunctProt->setOpen( fuProt );
-    itemFunctPubl->setOpen( fuPriv );
+    itemFunctPriv->setOpen( fuPriv );
 
     itemSlots->setOpen( TRUE );
     itemPublic->setOpen( slPub );
