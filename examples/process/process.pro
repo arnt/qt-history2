@@ -9,4 +9,3 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, large-config)"
 HEADERS		=
 SOURCES		= process.cpp
 INTERFACES	=
-QT	+= compat
