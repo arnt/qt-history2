@@ -359,7 +359,7 @@ int main( int argc, char **argv )
     Frame frame;
     a.setMainWidget( &frame );
 
-    QPtrList<CategoryInterface> categories;
+    QList<CategoryInterface *> categories;
     categories.append( new WidgetCategory( frame.widgetStack() ) );
 #if defined(QT_MODULE_SQL)
     categories.append( new DatabaseCategory( frame.widgetStack() ) );

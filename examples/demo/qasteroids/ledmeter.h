@@ -8,7 +8,7 @@
 #define __LEDMETER_H__
 
 #include <qframe.h>
-#include <qptrlist.h>
+#include <qlist.h>
 
 
 class KALedMeter : public QFrame
@@ -47,7 +47,7 @@ protected:
     int mCount;
     int mCurrentCount;
     int mValue;
-    QPtrList<ColorRange> mCRanges;
+    QList<ColorRange *> mCRanges;
 };
 
 #endif

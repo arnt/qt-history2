@@ -2,10 +2,10 @@
 
 #include <qcanvas.h>
 #include <qdatetime.h>
+#include <qvector.h>
 #include <qhbox.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#include <qmemarray.h>
 #include <qpushbutton.h>
 #include <qslider.h>
 #include <qvaluelist.h>
@@ -419,7 +419,7 @@ void FigureEditor::initialize()
     int rows = 3;
     int cols = 3;
 
-    QMemArray<NodeItem*> lastRow(cols);
+    QVector<NodeItem*> lastRow(cols);
     for ( int r = 0; r < rows; r++ ) {
 	NodeItem *prev = 0;
 	for ( int c = 0; c < cols; c++ ) {

@@ -76,7 +76,7 @@ void KALedMeter::drawContents( QPainter *p )
     unsigned cidx = 0;
     int ncol = mCount;
     QColor col = colorGroup().foreground();
-   
+
     if ( !mCRanges.isEmpty() )
     {
         col = mCRanges.at( cidx )->mColor;
@@ -108,8 +108,9 @@ void KALedMeter::calcColorRanges()
 {
     int prev = 0;
     ColorRange *cr;
-    for ( cr = mCRanges.first(); cr; cr = mCRanges.next() )
+    for (int i = 0; i < mCRanges.size(); ++i)
     {
+	cr = mCRanges.at(i);
         cr->mValue = prev + cr->mPc * mCount / 100;
         prev = cr->mValue;
     }

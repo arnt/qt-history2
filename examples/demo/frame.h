@@ -11,8 +11,8 @@
 ****************************************************************************/
 
 #include <qmainwindow.h>
-#include <qintdict.h>
-#include <qptrlist.h>
+#include <qhash.h>
+#include <qlist.h>
 #include "categoryinterface.h"
 
 class QToolBox;
@@ -25,7 +25,7 @@ class Frame : public QMainWindow
 
 public:
     Frame( QWidget *parent=0, const char *name=0 );
-    void setCategories( const QPtrList<CategoryInterface> &l );
+    void setCategories( const QList<CategoryInterface *> &l );
 
     static void updateTranslators();
 
@@ -43,7 +43,7 @@ private:
 private:
     QToolBox *toolBox;
     QWidgetStack *stack;
-    QIntDict<QWidget> categoryPages;
-    QPtrList<CategoryInterface> categories;
+    QHash<int, QWidget *> categoryPages;
+    QList<CategoryInterface *> categories;
 
 };

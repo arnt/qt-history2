@@ -51,20 +51,20 @@ Frame::Frame( QWidget *parent, const char *name )
 
     QStringList list = QStyleFactory::keys();
     list.sort();
-    QDict<int> stylesDict( 17, FALSE );
+    QHash<QString, int> stylesDict;
     for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 	QString style = *it;
 	QString styleAccel = style;
 	if ( stylesDict[styleAccel.left(1)] ) {
 	    for ( uint i = 0; i < styleAccel.length(); i++ ) {
 		if ( !stylesDict[styleAccel.mid( i, 1 )] ) {
-		    stylesDict.insert(styleAccel.mid( i, 1 ), (const int *)1);
+		    stylesDict.insert(styleAccel.mid( i, 1 ), 1);
 		    styleAccel = styleAccel.insert( i, '&' );
 		    break;
 		}
 	    }
 	} else {
-	    stylesDict.insert(styleAccel.left(1), (const int *)1);
+	    stylesDict.insert(styleAccel.left(1), 1);
 	    styleAccel = "&"+styleAccel;
 	}
 	QAction *a = new QAction( style, QIconSet(),
@@ -82,7 +82,7 @@ Frame::Frame( QWidget *parent, const char *name )
     setCentralWidget( stack );
 }
 
-void Frame::setCategories( const QPtrList<CategoryInterface> &l )
+void Frame::setCategories( const QList<CategoryInterface *> &l )
 {
     categories = l;
     QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );

@@ -8,7 +8,7 @@
 #define __KAST_TOPLEVEL_H__
 
 #include <qmainwindow.h>
-#include <qdict.h>
+#include <qhash.h>
 #include <qmap.h>
 
 #include "view.h"
@@ -58,7 +58,7 @@ private:
     KALedMeter *powerMeter;
 
     bool   sound;
-    QDict<QString> soundDict;
+    QHash<QString, QString> soundDict;
 
     // waiting for user to press Enter to launch a ship
     bool waitShip;

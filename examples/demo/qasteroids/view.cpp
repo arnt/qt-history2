@@ -351,11 +351,12 @@ void KAsteroidsView::timerEvent( QTimerEvent * )
 {
     field.advance();
 
+    int i;
     QCanvasSprite *rock;
 
     // move rocks forward
-    for ( rock = rocks.first(); rock; rock = rocks.next() ) {
-	((KRock *)rock)->nextFrame();
+    for (int i = 0; i < rocks.size(); ++i ) {
+	((KRock *)rocks.at(i))->nextFrame();
 	wrapSprite( rock );
     }
 
@@ -365,11 +366,12 @@ void KAsteroidsView::timerEvent( QTimerEvent * )
     processMissiles();
 
     // these are generated when a ship explodes
-    for ( KBit *bit = bits.first(); bit; bit = bits.next() )
+    for (int i = 0; i < bits.size(); ++i)
     {
+	KBit *bit = bits.at(i);
 	if ( bit->expired() )
 	{
-	    bits.removeRef( bit );
+	    bits.remove(bit);
 	}
 	else
 	{
@@ -378,8 +380,11 @@ void KAsteroidsView::timerEvent( QTimerEvent * )
 	}
     }
 
-    for ( KExhaust *e = exhaust.first(); e; e = exhaust.next() )
-	exhaust.removeRef( e );
+    for (int i = 0; i < exhaust.size(); ++i)
+	exhaust.remove(exhaust.at(i));
+//     for ( KExhaust *e = exhaust.first(); e; e = exhaust.next() ) {
+// 	exhaust.removeRef( e );
+//     }
 
     // move / rotate ship.
     // check for collision with a rock.
@@ -510,7 +515,7 @@ void KAsteroidsView::rockHit( QCanvasItem *hit )
     }
     else if ( hit->rtti() == ID_ROCK_SMALL )
 	emit rockHit( 2 );
-    rocks.removeRef( (QCanvasSprite *)hit );
+    rocks.remove( (QCanvasSprite *)hit );
     if ( rocks.count() == 0 )
 	emit rocksRemoved();
 }
@@ -550,16 +555,15 @@ void KAsteroidsView::processMissiles()
 
     // if a missile has hit a rock, remove missile and break rock into smaller
     // rocks or remove completely.
-    QPtrListIterator<KMissile> it(missiles);
 
-    for ( ; it.current(); ++it )
+    for (int i = 0; i < missiles.size(); ++i)
     {
-	missile = it.current();
+	missile = missiles.at(i);
 	missile->growOlder();
 
 	if ( missile->expired() )
 	{
-	    missiles.removeRef( missile );
+	    missiles.remove( missile );
 	    continue;
 	}
 
@@ -574,7 +578,7 @@ void KAsteroidsView::processMissiles()
 	    {
 		shotsHit++;
 		rockHit( *hit );
-		missiles.removeRef( missile );
+		missiles.remove( missile );
 		break;
 	    }
 	}
@@ -806,16 +810,14 @@ void KAsteroidsView::processPowerups()
 	// destroy it
 
 	KPowerup *pup;
-	QPtrListIterator<KPowerup> it( powerups );
-
-	for( ; it.current(); ++it )
+	for(int i = 0; i < powerups.size(); ++i)
 	{
-	    pup = it.current();
+	    pup = powerups.at(i);
 	    pup->growOlder();
 
 	    if( pup->expired() )
 	    {
-		powerups.removeRef( pup );
+		powerups.remove( pup );
 		continue;
 	    }
 
@@ -851,18 +853,18 @@ void KAsteroidsView::processPowerups()
 			break;
 		    }
 
-		    powerups.removeRef( pup );
+		    powerups.remove( pup );
 		    vitalsChanged = TRUE;
 		}
 		else if ( (*it) == shield )
 		{
-		    powerups.removeRef( pup );
+		    powerups.remove( pup );
 		}
 		else if ( (*it)->rtti() == ID_MISSILE )
 		{
 		    if ( can_destroy_powerups )
 		    {
-		      powerups.removeRef( pup );
+		      powerups.remove( pup );
 		    }
 		}
 	    }

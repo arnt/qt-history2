@@ -8,8 +8,8 @@
 #define __AST_VIEW_H__
 
 #include <qwidget.h>
-#include <qptrlist.h>
-#include <qintdict.h>
+#include <qlist.h>
+#include <qhash.h>
 #include <qtimer.h>
 #include <qcanvas.h>
 #include "sprites.h"
@@ -83,12 +83,12 @@ protected:
 private:
     QCanvas field;
     QCanvasView view;
-    QIntDict<QCanvasPixmapArray> animation;
-    QPtrList<QCanvasSprite> rocks;
-    QPtrList<KMissile> missiles;
-    QPtrList<KBit> bits;
-    QPtrList<KExhaust> exhaust;
-    QPtrList<KPowerup> powerups;
+    QHash<int, QCanvasPixmapArray *> animation;
+    QList<QCanvasSprite *> rocks;
+    QList<KMissile *> missiles;
+    QList<KBit *> bits;
+    QList<KExhaust *> exhaust;
+    QList<KPowerup *> powerups;
     KShield *shield;
     QCanvasSprite *ship;
     QCanvasText *textSprite;
