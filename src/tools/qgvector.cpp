@@ -217,6 +217,11 @@ QGVector& QGVector::operator=( const QGVector &v )
 */
 
 /*!
+  \fn uint QGVector::count() const
+  \internal
+*/
+
+/*!
   \fn Item QGVector::take( uint index )
   \internal
 */
