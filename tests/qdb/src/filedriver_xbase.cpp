@@ -182,7 +182,7 @@ public:
 	    break;
 	case 'C': /* character */
 	default:
-	    QString utf8 = QString::fromUtf8( buf );
+	    QString utf8 = QString::fromUtf8( buf ).simplifyWhiteSpace();
 	    v = utf8;
 	    break;
 	}
