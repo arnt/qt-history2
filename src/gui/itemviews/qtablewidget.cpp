@@ -279,12 +279,18 @@ QVariant QTableModel::data(const QModelIndex &index, int role) const
 bool QTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     QTableWidgetItem *itm = item(index);
-    if (!itm) {
-        itm = new QTableWidgetItem();
-        setItem(index, itm);
+
+    if (itm) {
+        itm->setData(role, value);
+        return true;
     }
+    
+    QTableWidget *view = qt_cast<QTableWidget*>(QObject::parent());
+    if (!view)
+        return false;
+    itm = view->createItem();
     itm->setData(role, value);
-    emit dataChanged(index, index);
+    view->setItem(index.row(), index.column(), itm);
     return true;
 }
 
@@ -785,7 +791,7 @@ void QTableWidget::setVerticalHeaderLabels(const QStringList &labels)
     for (int i = 0; i < model->rowCount() && i < labels.count(); ++i) {
         item = model->verticalHeaderItem(i);
         if (!item) {
-            item = new QTableWidgetItem();
+            item = createItem();
             setVerticalHeaderItem(i, item);
         }
         item->setText(labels.at(i));
@@ -802,7 +808,7 @@ void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
     for (int i = 0; i < model->columnCount() && i < labels.count(); ++i) {
         item = model->horizontalHeaderItem(i);
         if (!item) {
-            item = new QTableWidgetItem();
+            item = createItem();
             setHorizontalHeaderItem(i, item);
         }
         item->setText(labels.at(i));
@@ -968,6 +974,16 @@ void QTableWidget::removeColumn(int column)
 void QTableWidget::clear()
 {
     d->model()->clear();
+}
+
+/*!
+  Returns a new QTableWidgetItem.
+  This is called whenever the table widget creates a new item internally.
+*/
+
+QTableWidgetItem *QTableWidget::createItem() const
+{
+    return new QTableWidgetItem();
 }
 
 /*!

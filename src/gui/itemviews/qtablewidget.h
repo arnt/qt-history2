@@ -106,6 +106,7 @@ class Q_GUI_EXPORT QTableWidget : public QTableView
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTableWidget)
 
+    friend class QTableModel;
 public:
     QTableWidget(QWidget *parent = 0);
     QTableWidget(int rows, int columns, QWidget *parent = 0);
@@ -173,6 +174,7 @@ signals:
     void itemChanged(QTableWidgetItem *item);
 
 protected:
+    virtual QTableWidgetItem *createItem() const;
     void setModel(QAbstractItemModel *model);
     void setup();
 
