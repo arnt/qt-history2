@@ -1359,10 +1359,10 @@ void QFileDialogPrivate::setUnsorted()
 void QFileDialogPrivate::showHidden()
 {
     QDir::Filters filters = model->filter();
-    if(showHiddenAction->isChecked())
-        filters &= ~(int)QDir::Hidden;
-    else
+    if (showHiddenAction->isChecked())
         filters |= QDir::Hidden;
+    else
+        filters &= ~(int)QDir::Hidden;
     setDirFilter(filters);
 }
 
