@@ -40,7 +40,7 @@ HEADERS        += helpwindow.h \
         tabbedbrowser.h \
         config.h
 
-RESOURCES += assistant.res
+RESOURCES += assistant.qrc
 
 DEFINES += QT_KEYWORDS
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
