@@ -1608,22 +1608,16 @@ extern QString qt_win_get_open_file_name(const QFileDialogArgs &args,
                                          QString *initialDirectory,
                                          QString *selectedFilter);
 
-extern QString qt_win_get_save_file_name(const QString &initialSelection,
-                                         const QString &filter,
+extern QString qt_win_get_save_file_name(const QFileDialogArgs &args,
                                          QString *initialDirectory,
-                                         QWidget *parent,
-                                         const QString &caption,
                                          QString *selectedFilter);
 
-extern QStringList qt_win_get_open_file_names(const QString &filter,
+extern QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
                                               QString *initialDirectory,
-                                              QWidget *parent,
-                                              const QString &caption,
                                               QString *selectedFilter);
 
-extern QString qt_win_get_existing_directory(const QString &initialDirectory,
-                                             QWidget *parent,
-                                             const QString& caption);
+extern QString qt_win_get_existing_directory(const QFileDialogArgs &args);
+
 #elif defined(Q_WS_MAC)
 extern QStringList qt_mac_get_open_file_names(const QString &filter,
                                               QString *pwd,
@@ -1855,15 +1849,18 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     QString selection = QFileDialogPrivate::initialSelection(dir);
     qt_working_dir = QFileDialogPrivate::workingDirectory(dir);
 
+    QFileDialogArgs args;
+    args.parent = parent;
+    args.caption = caption;
+    args.directory = qt_working_dir;
+    args.selection = selection;
+    args.filter = filter;
+    args.options = options;
+    
     QString result;
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style())) {
-        result = qt_win_get_save_file_name(selection,
-                                           filter,
-                                           &qt_working_dir,
-                                           parent,
-                                           caption,
-                                           selectedFilter);
+        result = qt_win_get_save_file_name(args, &qt_working_dir, selectedFilter);
         return result;
     }
 #elif defined(Q_WS_MAC)
@@ -1946,13 +1943,18 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
                                           const QString &dir,
                                           Options options)
 {
+    QFileDialogArgs args;
+    args.parent = parent;
+    args.caption = caption;
+    args.directory = qt_working_dir;
+    args.options = options;
+    
     QString result;
 #if defined(Q_WS_WIN)
-    QString initialDir;
     if (!dir.isEmpty() && QFileInfo(dir).isDir())
-        initialDir = dir;
+        args.directory = dir;
     if (qt_cast<QWindowsStyle *>(qApp->style()) && (options & ShowDirsOnly)) {
-        result = qt_win_get_existing_directory(initialDir, parent, caption);
+        result = qt_win_get_existing_directory(args);
         return result;
     }
 #elif defined(Q_WS_MAC)
@@ -2049,14 +2051,17 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
 {
     qt_working_dir = QFileDialogPrivate::workingDirectory(dir);
 
+    QFileDialogArgs args;
+    args.parent = parent;
+    args.caption = caption;
+    args.directory = qt_working_dir;
+    args.filter = filter;
+    args.options = options;
+    
     QStringList result;
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style())) {
-        result = qt_win_get_open_file_names(filter,
-                                            &qt_working_dir,
-                                            parent,
-                                            caption,
-                                            selectedFilter);
+        result = qt_win_get_open_file_names(args, &qt_working_dir, selectedFilter);
         return result;
     }
 #elif defined(Q_WS_MAC)

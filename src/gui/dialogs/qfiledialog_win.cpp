@@ -365,16 +365,13 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
     return fi.absoluteFilePath();
 }
 
-QString qt_win_get_save_file_name(const QString &initialSelection,
-                                  const QString &filter,
+QString qt_win_get_save_file_name(const QFileDialogArgs &args,
                                   QString *initialDirectory,
-                                  QWidget *parent,
-                                  const QString &caption,
-                                  QString *selectedFilter)
+				  QString *selectedFilter)
 {
     QString result;
 
-    QString isel = initialSelection;
+    QString isel = args.selection;
     if (initialDirectory && initialDirectory->left(5) == "file:")
         initialDirectory->remove(0, 5);
     QFileInfo fi(*initialDirectory);
@@ -388,7 +385,7 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
     if (!fi.exists())
         *initialDirectory = QDir::homePath();
 
-    QString title = caption;
+    QString title = args.caption;
     if (title.isNull())
         title = QObject::tr("Save As");
 
@@ -396,20 +393,20 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
 
     int idx = 0;
     if (selectedFilter) {
-        QStringList filterLst = qt_win_make_filters_list(filter);
+        QStringList filterLst = qt_win_make_filters_list(args.filter);
         idx = filterLst.indexOf(*selectedFilter);
     }
 
-    if (parent) {
+    if (args.parent) {
         QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(parent, &e);
-        qt_enter_modal(parent);
+        QApplication::sendEvent(args.parent, &e);
+        qt_enter_modal(args.parent);
     }
     QT_WA({
         // Use Unicode strings and API
-        OPENFILENAME *ofn = qt_win_make_OFN(parent, isel,
+        OPENFILENAME *ofn = qt_win_make_OFN(args.parent, isel,
                                             *initialDirectory, title,
-                                            qt_win_filter(filter),
+                                            qt_win_filter(args.filter),
 					    QFileDialog::AnyFile);
         if (idx)
             ofn->nFilterIndex = idx + 1;
@@ -420,9 +417,9 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
         qt_win_clean_up_OFN(&ofn);
     } , {
         // Use ANSI strings and API
-        OPENFILENAMEA *ofn = qt_win_make_OFNA(parent, isel,
+        OPENFILENAMEA *ofn = qt_win_make_OFNA(args.parent, isel,
                                               *initialDirectory, title,
-                                              qt_win_filter(filter),
+                                              qt_win_filter(args.filter),
 					      QFileDialog::AnyFile);
         if (idx)
             ofn->nFilterIndex = idx + 1;
@@ -432,10 +429,10 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
         }
         qt_win_clean_up_OFNA(&ofn);
     });
-    if (parent) {
-        qt_leave_modal(parent);
+    if (args.parent) {
+        qt_leave_modal(args.parent);
         QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(parent, &e);
+        QApplication::sendEvent(args.parent, &e);
     }
 
     qt_win_eatMouseMove();
@@ -446,14 +443,12 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
     fi = result;
     *initialDirectory = fi.path();
     if (selectedFilter)
-        *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
+        *selectedFilter = qt_win_selected_filter(args.filter, selFilIdx);
     return fi.absoluteFilePath();
 }
 
-QStringList qt_win_get_open_file_names(const QString &filter,
+QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
                                        QString *initialDirectory,
-                                       QWidget *parent,
-                                       const QString &caption,
                                        QString *selectedFilter)
 {
     QStringList result;
@@ -473,7 +468,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
     if (!fi.exists())
         *initialDirectory = QDir::homePath();
 
-    QString title = caption;
+    QString title = args.caption;
     if (title.isNull())
         title = QObject::tr("Open ");
 
@@ -481,19 +476,19 @@ QStringList qt_win_get_open_file_names(const QString &filter,
 
     int idx = 0;
     if (selectedFilter) {
-        QStringList filterLst = qt_win_make_filters_list(filter);
+        QStringList filterLst = qt_win_make_filters_list(args.filter);
         idx = filterLst.indexOf(*selectedFilter);
     }
 
-    if (parent) {
+    if (args.parent) {
         QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(parent, &e);
-        qt_enter_modal(parent);
+        QApplication::sendEvent(args.parent, &e);
+        qt_enter_modal(args.parent);
     }
     QT_WA({
-        OPENFILENAME* ofn = qt_win_make_OFN(parent, isel,
+        OPENFILENAME* ofn = qt_win_make_OFN(args.parent, isel,
                                             *initialDirectory, title,
-                                            qt_win_filter(filter),
+                                            qt_win_filter(args.filter),
 					    QFileDialog::ExistingFiles);
         if (idx)
             ofn->nFilterIndex = idx + 1;
@@ -523,9 +518,9 @@ QStringList qt_win_get_open_file_names(const QString &filter,
         }
         qt_win_clean_up_OFN(&ofn);
     } , {
-        OPENFILENAMEA* ofn = qt_win_make_OFNA(parent, isel,
+        OPENFILENAMEA* ofn = qt_win_make_OFNA(args.parent, isel,
                                               *initialDirectory, title,
-                                              qt_win_filter(filter),
+                                              qt_win_filter(args.filter),
 					      QFileDialog::ExistingFiles);
         if (idx)
             ofn->nFilterIndex = idx + 1;
@@ -555,10 +550,10 @@ QStringList qt_win_get_open_file_names(const QString &filter,
             qt_win_clean_up_OFNA(&ofn);
         }
     });
-    if (parent) {
-        qt_leave_modal(parent);
+    if (args.parent) {
+        qt_leave_modal(args.parent);
         QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(parent, &e);
+        QApplication::sendEvent(args.parent, &e);
     }
 
     qt_win_eatMouseMove();
@@ -566,7 +561,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
     if (!result.isEmpty()) {
         *initialDirectory = fi.path();    // only save the path if there is a result
         if (selectedFilter)
-            *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
+            *selectedFilter = qt_win_selected_filter(args.filter, selFilIdx);
     }
     return result;
 }
@@ -620,18 +615,17 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 #endif
 
 
-QString qt_win_get_existing_directory(const QString &initialDirectory,
-                                      QWidget *parent,
-                                      const QString& caption)
+QString qt_win_get_existing_directory(const QFileDialogArgs &args)
 {
 #ifndef Q_OS_TEMP
     QString currentDir = QDir::currentPath();
     QString result;
+    QWidget *parent = args.parent;
     if (parent)
         parent = parent->topLevelWidget();
     else
         parent = qApp->mainWidget();
-    QString title = caption;
+    QString title = args.caption;
     if (title.isNull())
         title = QObject::tr("Select a Directory");
 
@@ -642,7 +636,7 @@ QString qt_win_get_existing_directory(const QString &initialDirectory,
     }
     QT_WA({
         qt_win_resolve_libs();
-        QString initDir = QDir::convertSeparators(initialDirectory);
+        QString initDir = QDir::convertSeparators(args.directory);
         TCHAR path[MAX_PATH];
         TCHAR initPath[MAX_PATH];
         initPath[0] = 0;
@@ -671,7 +665,7 @@ QString qt_win_get_existing_directory(const QString &initialDirectory,
             result = QString();
         tTitle = QString();
     } , {
-        QString initDir = QDir::convertSeparators(initialDirectory);
+        QString initDir = QDir::convertSeparators(args.directory);
         char path[MAX_PATH];
         char initPath[MAX_PATH];
         QByteArray ctitle = title.toLocal8Bit();
