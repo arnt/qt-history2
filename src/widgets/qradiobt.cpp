@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#9 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#9 $";
 #endif
 
 
@@ -67,7 +67,7 @@ void QRadioButton::setChecked( bool checked )
 
 void QRadioButton::resizeFitLabel()
 {
-    QFontMetrics  fm( font() );
+    QFontMetrics fm = fontMetrics();
     int w = fm.width( label() );
     int h = fm.height();
     int wbm, hbm;
@@ -88,7 +88,7 @@ void QRadioButton::drawButton( QPainter *paint )
     register QPainter *p = paint;
     GUIStyle gs = style();
     QSize sz = clientSize();
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
     int x=0, y, w, h;
     getSizeOfBitMap( gs, &w, &h );
     y = sz.height()/2 - w/2;
@@ -258,7 +258,7 @@ void QRadioButton::drawButton( QPainter *paint )
     }
 #endif
     if ( label() ) {
-	QFontMetrics fm( font() );
+	QFontMetrics fm = fontMetrics();
 	p->pen().setColor( foregroundColor() );
 	p->drawText( w+6, sz.height()/2+fm.height()/2-fm.descent(), label() );
     }

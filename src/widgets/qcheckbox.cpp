@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#10 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#10 $";
 #endif
 
 
@@ -63,7 +63,7 @@ void QCheckBox::setChecked( bool checked )
 
 void QCheckBox::resizeFitLabel()
 {
-    QFontMetrics  fm( font() );
+    QFontMetrics fm = fontMetrics();
     int w = fm.width( label() );
     int h = fm.height();
     int wbm, hbm;
@@ -79,7 +79,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     register QPainter *p = paint;
     GUIStyle gs = style();
     QSize sz = clientSize();
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
     int x=0, y, w, h;
     getSizeOfBitMap( gs, &w, &h );
     y = sz.height()/2 - w/2;

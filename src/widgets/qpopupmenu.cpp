@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#12 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,7 +20,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#12 $";
 #endif
 
 
@@ -260,7 +260,7 @@ void QPopupMenu::updateSize()			// update popup size params
 {
     int height    = 0;
     int max_width = 10;
-    QFontMetrics    fm( font() );
+    QFontMetrics fm = fontMetrics();
     QMenuItemListIt it( *mitems );
     register QMenuItem *mi;
     bool hasSubMenu = FALSE;
@@ -355,7 +355,7 @@ int QPopupMenu::cellHeight( long row )
     else if ( mi->bitmap() )			// bitmap height
 	h = mi->bitmap()->size().height() + 2*motifItemFrame;
     else {					// text height
-	QFontMetrics fm( font() );
+        QFontMetrics fm = fontMetrics();
 	h = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
     }
     return h;
@@ -390,7 +390,7 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	const char *s = mi->string();
 	const char *t = strchr( s, '\t' );
 	int x = motifItemFrame + motifItemHMargin;
-	QFontMetrics fm( font() );
+        QFontMetrics fm = fontMetrics();
 	int bo = fm.descent() + motifItemVMargin/2;
 	if ( mi->isDisabled() )
 	    p->setPen( darkGray );

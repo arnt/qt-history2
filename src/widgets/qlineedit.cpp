@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#9 $
 **
 ** Implementation of QLineEdit class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#9 $";
 #endif
 
 
@@ -29,9 +29,9 @@ static const int blinkTime = 500;
 #define BOTTOM_MARGIN 4
 
 
-static uint xPosToCursorPos( char *s, const QFont &f, uint xPos, uint width )
+static uint xPosToCursorPos( char *s, const QFontMetrics &fm, 
+                             uint xPos, uint width )
 {
-    QFontMetrics  fm( f );
     char	 *tmp;
     int		  dist;
 
@@ -47,12 +47,11 @@ static uint xPosToCursorPos( char *s, const QFont &f, uint xPos, uint width )
     return tmp - s;
 }
 
-static uint showLastPartOffset( char *s, const QFont &f, int width )
+static uint showLastPartOffset( char *s, const QFontMetrics &fm, int width )
 {
     if ( !s || s[0] == '\0' )
 	return 0;
 
-    QFontMetrics  fm( f );
     char	 *tmp = &s[strlen( s ) - 1];
 
     do {
@@ -249,7 +248,7 @@ void QLineEdit::resizeEvent( QResizeEvent *e )
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     cursorPos = offset +
-	xPosToCursorPos( &t[ offset ], font(),
+	xPosToCursorPos( &t[ offset ], fontMetrics(),
 			 e->pos().x() - LEFT_MARGIN,
 			 clientSize().width() - LEFT_MARGIN - RIGHT_MARGIN );
     if ( inTextFocus )
@@ -265,7 +264,6 @@ void QLineEdit::paint( bool frame )
 	pixmapPaint();
     } else {
 	p.begin( this );
-	p.setFont( font() );
 	if ( !frame )
 	    p.eraseRect( LEFT_MARGIN, TOP_MARGIN,
 			 clientWidth()	- LEFT_MARGIN - RIGHT_MARGIN,
@@ -281,7 +279,7 @@ void QLineEdit::pixmapPaint()
     QPainter p;
 
     p.begin( pm );
-    p.setFont( font() );
+    p.setFont( fontRef() );
     p.fillRect( clientRect(), backgroundColor() );
     paintText( &p, pm->size() , TRUE );
     p.end();
@@ -293,7 +291,7 @@ void QLineEdit::pixmapPaint()
 
 void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 {
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
     char *displayText = &t[ offset ];
 
     if ( frame )
@@ -305,7 +303,7 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 		    sz.height() - TOP_MARGIN - BOTTOM_MARGIN + 1 );
 
     int tDispWidth = sz.width() - LEFT_MARGIN - RIGHT_MARGIN;
-    int displayLength = xPosToCursorPos( displayText, font(),
+    int displayLength = xPosToCursorPos( displayText, fontMetrics(),
 					 tDispWidth, tDispWidth );
     if ( displayText[ displayLength ] != '\0' )
 	displayLength++;
@@ -352,7 +350,7 @@ bool QLineEdit::cursorLeft()
 
 bool QLineEdit::cursorRight()
 {
-    QFontMetrics fm(font());
+    QFontMetrics fm = fontMetrics();
 
     if ( strlen( t ) > cursorPos ) {
 	killTimers();
@@ -403,7 +401,7 @@ bool QLineEdit::home()
 bool QLineEdit::end()
 {
     if ( cursorPos != strlen(t) ) {
-	offset += showLastPartOffset( &t[offset], font(),
+	offset += showLastPartOffset( &t[offset], fontMetrics(),
 		      clientSize().width() - LEFT_MARGIN - RIGHT_MARGIN );
 	cursorPos = strlen( t );
 	return TRUE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#14 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#14 $";
 #endif
 
 
@@ -114,7 +114,7 @@ void QPushButton::setDefault( bool def )	// set default on/off
 
 void QPushButton::resizeFitLabel()
 {
-    QFontMetrics  fm( font() );
+    QFontMetrics fm = fontMetrics();
     int w = fm.width( label() );
     int h = fm.height();
     resize( w+6, h+6 );

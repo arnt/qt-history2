@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#10 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#10 $";
 #endif
 
 
@@ -230,7 +230,7 @@ void QMenuBar::updateRects()
     }
     irects = new QRect[ mitems->count() ];	// create rectangle array
     CHECK_PTR( irects );
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
     int max_width = clientSize().width();
     int max_height = 0;
     int nlines = 1;				// number of lines
@@ -302,7 +302,7 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
     QPainter paint;
     QPixMap *pm = 0;
     register QPainter *p = &paint;
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
     QSize sz = clientSize();
     p->begin( this );
     

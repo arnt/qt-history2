@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#6 $
 **
 ** Implementation of QListBox class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#6 $";
 #endif
 
 #include "qstring.h"
@@ -442,7 +442,7 @@ bool QListBox::itemVisible( int index )
 void QListBox::paintCell( QPainter *p, long row, long column )
 {
     debug("Painting %i, current = %i", row, current );
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
 
     if ( column )
         debug( "QListBox::paintCell: Column = %i!", column );
@@ -629,7 +629,7 @@ void QListBox::init()
 {
     initMetaObject();
 
-    QFontMetrics fm( font() );
+    QFontMetrics fm = fontMetrics();
 
     doDrag        = TRUE;
     doAutoScroll  = TRUE;
