@@ -48,7 +48,6 @@
 #include "qtooltip.h"
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
-#include "qdesktopwidget.h"
 
 /*!
   \class QWhatsThis qwhatsthis.h
@@ -602,8 +601,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 
     whatsThat = new QWidget(
 #if defined(Q_WS_X11)
-			    ((QDesktopWidget *) QApplication::desktop())->
-			    screen( widget ? widget->x11Screen() :
+			    QApplication::desktop()->screen( widget ? widget->x11Screen() :
 				    QCursor::x11Screen() ),
 #else
 			    0,

@@ -39,7 +39,7 @@
 #define QAPPLICATION_H
 
 #ifndef QT_H
-#include "qwidget.h"
+#include "qdesktopwidget.h"
 #include "qasciidict.h"
 #include "qpalette.h"
 #include "qtranslator.h"
@@ -121,7 +121,7 @@ public:
     static QWidgetList *allWidgets();
     static QWidgetList *topLevelWidgets();
 
-    static QWidget  *desktop();
+    static QDesktopWidget   *desktop();
 
     static QWidget     *activePopupWidget();
     static QWidget     *activeModalWidget();
@@ -256,7 +256,7 @@ public:
     void	     lock();
     void	     unlock(bool wakeUpGui = TRUE);
     bool 	     locked();
-    bool             trylock();
+    bool             tryLock();
 #endif
 
 signals:

@@ -42,7 +42,6 @@
 #include "qwidgetintdict.h"
 #include "qptrdict.h"
 #include "qcleanuphandler.h"
-#include "qdesktopwidget.h"
 
 #include "qtranslator.h"
 #include "qtextcodec.h"
@@ -316,7 +315,7 @@ QAsciiDict<QFont>    *QApplication::app_fonts = 0;
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
 static bool makeqdevel	 = FALSE;	// developer tool needed?
-static QWidget *desktopWidget = 0;		// root window widgets
+static QDesktopWidget *desktopWidget = 0;	// root window widgets
 #ifndef QT_NO_TRANSLATION
 static QTextCodec *default_codec = 0;		// root window widget
 #endif
@@ -2580,17 +2579,13 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
   some machines and not on others.
 
   \code
-    QWidget *d = QApplication::desktop();
-    int w=d->width();			// returns screen width
-    int h=d->height();			// returns screen height
+    QDesktopWidget *d = QApplication::desktop();
+    int w=d->width();			// returns desktop width
+    int h=d->height();			// returns desktop height
   \endcode
-
-  On multi-head X11 systems, the desktop widget depends on the \a
-  screen number. When passing invalid screen numbers, the
-  application's main desktop is returned.
 */
 
-QWidget *QApplication::desktop()
+QDesktopWidget *QApplication::desktop()
 {
     if ( !desktopWidget || // not created yet
 	 !desktopWidget->isDesktop() ) { // reparented away
@@ -2768,9 +2763,9 @@ bool QApplication::locked()
     return qt_mutex->locked();
 }
 
-bool QApplication::trylock()
+bool QApplication::tryLock()
 {
-    return qt_mutex->trylock();
+    return qt_mutex->tryLock();
 }
 
 #endif

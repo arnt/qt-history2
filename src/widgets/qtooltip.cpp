@@ -40,7 +40,6 @@
 #include "qapplication.h"
 #include "qguardedptr.h"
 #include "qtimer.h"
-#include "qdesktopwidget.h"
 #include "qeffects_p.h"
 
 static bool globally_enabled = TRUE;
@@ -475,7 +474,7 @@ void QTipManager::showTip()
     } else {
 #if defined(Q_WS_X11)
 	delete label;
-	label = new QTipLabel( ((QDesktopWidget *) QApplication::desktop())->screen(widget->x11Screen()), t->text);
+	label = new QTipLabel( QApplication::desktop()->screen( widget->x11Screen() ), t->text);
 #else
 	label = new QTipLabel( 0, t->text);
 #endif

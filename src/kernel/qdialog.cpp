@@ -45,7 +45,6 @@
 #include "qwidgetlist.h"
 #include "qlayout.h"
 #include "qsizegrip.h"
-#include "qdesktopwidget.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qpopupmenu.h" // ######## dependency
 
@@ -436,8 +435,7 @@ void QDialog::show()
 	int extraw = 0, extrah = 0;
 	if ( w )
 	    w = w->topLevelWidget();
-	QDesktopWidget *desktop = (QDesktopWidget*)QApplication::desktop();
-	QRect desk = desktop->geometry( desktop->screenNumber( w ? w : qApp->mainWidget() ) );
+	QRect desk = QApplication::desktop()->geometry( QApplication::desktop()->screenNumber( w ? w : qApp->mainWidget() ) );
 
 	QWidgetList  *list = QApplication::topLevelWidgets();
 	QWidgetListIt it( *list );

@@ -44,7 +44,6 @@
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
 #include "qcursor.h"
-#include "qdesktopwidget.h"
 #include "qt_x11.h"
 
 // NOT REVISED
@@ -627,8 +626,7 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
     int	   x, y;
     Window child;
     XTranslateCoordinates( x11Display(), winId(),
-			   ((QDesktopWidget *) QApplication::desktop())->
-			   screen(x11Screen())->winId(),
+			   QApplication::desktop()->screen(x11Screen())->winId(),
 			   pos.x(), pos.y(), &x, &y, &child );
     return QPoint( x, y );
 }
@@ -643,8 +641,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     int	   x, y;
     Window child;
     XTranslateCoordinates( x11Display(),
-			   ((QDesktopWidget *) QApplication::desktop())->
-			   screen(x11Screen())->winId(),
+			   QApplication::desktop()->screen(x11Screen())->winId(),
 			   winId(), pos.x(), pos.y(), &x, &y, &child );
     return QPoint( x, y );
 }
