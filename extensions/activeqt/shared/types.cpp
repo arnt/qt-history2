@@ -973,6 +973,12 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     case VT_CY|VT_BYREF:
 	var = arg.pcyVal->int64;
 	break;
+    case VT_R4:
+	var = arg.fltVal;
+	break;
+    case VT_R4|VT_BYREF:
+	var = *arg.pfltVal;
+	break;
     case VT_R8:
 	var = arg.dblVal;
 	break;
@@ -1235,6 +1241,9 @@ static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
 	    break;
 	case VT_CY:
 	    *dest.pcyVal = src.cyVal;
+	    break;
+	case VT_R4:
+	    *dest.pfltVal = src.fltVal;
 	    break;
 	case VT_R8:
 	    *dest.pdblVal = src.dblVal;
