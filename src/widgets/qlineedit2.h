@@ -138,8 +138,10 @@ public:
     int characterAt( int xpos, QChar *chr ) const;
 
     bool isValidInput() const;
-    void setMask( const QString & );
+    void setMask( const QString &mask = QString::null );
     bool hasMask() const;
+    void clearMask();
+    QString mask() const;
 
 public slots:
     virtual void setText( const QString &);
@@ -224,11 +226,17 @@ private:
     int nextSeparator( uint pos );
     int nextSeparator( uint pos, QChar sep );
     int nextBlank( uint pos );
+    int prevBlank( uint pos );
     bool isValidInput( QChar key, QChar mask ) const;
-    QString maskString( uint pos, const QString &str );
+    QString maskString( uint pos, const QString &str, bool clear = FALSE );
     QString clearString( uint pos, uint len );
     QString stripString( const QString &str ) const;
     QString text( bool strip ) const;
+    void insert( const QString &newText, bool paste);
+    bool validateAndSet( const QString &, int, int, int, bool );
+    void updateOverwriteSelection();
+    bool hasSelectedText( bool ignore ) const;
+    bool hasOverWriteSelection() const;
 
     QLineEditPrivate * d;
 
