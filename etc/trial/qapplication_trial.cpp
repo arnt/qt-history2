@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/trial/qapplication_trial.cpp#8 $
+** $Id: //depot/qt/main/etc/trial/qapplication_trial.cpp#9 $
 **
 **		     ***   STRICTLY CONFIDENTIAL   ***
 **
@@ -8,7 +8,7 @@
 ** Implementation of Windows trial routines.
 ** This file is included by qapplication_win.cpp if QT_TRIAL is defined.
 **
-** IMPORTANT: Change FINAL_TRIALDATE before March 15th 1997.
+** IMPORTANT: Change FINAL_TRIALDATE before May 15th 2000.
 **
 ** Created : 970421
 **
@@ -17,7 +17,7 @@
 *****************************************************************************/
 
 
-#define FINAL_TRIALDATE 2450935	    // May 1st 1998
+#define FINAL_TRIALDATE 2451727	    // July 1st 1998
 
 
 #if defined(UNIX)
@@ -57,9 +57,9 @@ static inline void scramble( uchar *data, int length )
     }
 }
 
-static QString unscrambleString( int seed, const uchar *data, int len )
+static QCString unscrambleString( int seed, const uchar *data, int len )
 {
-    QString s( len+1 );
+    QCString s( len+1 );
     memcpy( s.data(), data, len );
     setRandomSeed( seed );
     scramble( (uchar *)s.data(), len );
@@ -73,15 +73,15 @@ static QString unscrambleString( int seed, const uchar *data, int len )
 
 static const int keyLen = 7;
 
-static QString simplifyUserString( const char* str )
+static QCString simplifyUserString( const char* str )
 {
     if ( !str ) str = "dummy";
-    QString qsi( str );
+    QCString qsi( str );
     if ( qsi.isEmpty() )
 	qsi = "dummy";
     qsi.simplifyWhiteSpace();
     qsi = qsi.lower();
-    QString qso;
+    QCString qso;
     for( int i = 0; i < (int)qsi.length(); i++ ) {
 	char c = qsi[i];
 	if( ((c >= 'a') && (c <='z')) || ((c >= '0') && (c <='9')) )
@@ -121,7 +121,7 @@ static bool checkTrialInfo( const char* name, const char* company,
     if ( kc != crc )
 	res = FALSE;
 
-    QString x = simplifyUserString( name );
+    QCString x = simplifyUserString( name );
     x = x + simplifyUserString( company );
     x = x + simplifyUserString( email );
 
@@ -364,9 +364,9 @@ TrialInfo::TrialInfo( const char *message,
 
     l2->setPalette( QPalette(ga,ga,ga) );
     l2->setFont( QFont("arial",14) );
-    QString s = unscrambleString( 57113,
-				  trial_data_regto,
-				  trial_len_regto );
+    QCString s = unscrambleString( 57113,
+				   trial_data_regto,
+				   trial_len_regto );
     s += name; s += '\n'; s += company; s += '\n'; s += email;
     l2->setText( s );
     l2->setAlignment( AlignCenter );
@@ -424,16 +424,16 @@ TrialInfo::TrialInfo( const char *message,
 bool TrialInfo::event( QEvent *e )
 {
     switch ( e->type() ) {
-	case Event_Paint:
+	case QEvent::Paint:
 	    paintEvent( (QPaintEvent*)e );
 	    break;
-	case Event_Move:
+	case QEvent::Move:
 	    moveEvent( (QMoveEvent*)e );
 	    break;
-	case Event_Resize:
+	case QEvent::Resize:
 	    resizeEvent( (QResizeEvent*)e );
 	    break;
-	case Event_Close: {
+	case QEvent::Close: {
 	    QCloseEvent *c = (QCloseEvent *)e;
 	    closeEvent( c );
 	    if ( !c->isAccepted() )
@@ -475,11 +475,11 @@ static void extract_trial_info()
 
     if ( strncmp(trial_data,"2502200483trial",15)== 0 ) {
 #if defined(_OS_WIN32_)
-	MessageBox( 0,
-		    "Incomplete trial registration data.\n"
-		    "Please report to qt-bugs@troll.no.",
-		    "Qt Internal Error",
-		    MB_OK | MB_ICONERROR );
+	MessageBoxA( 0,
+		     "Incomplete trial registration data.\n"
+		     "Please report to qt-bugs@troll.no.",
+		     "Qt Internal Error",
+		     MB_OK | MB_ICONERROR );
 	ExitProcess( 1 );
 #else
 	fprintf( stderr, "Qt Internal Error:\n  "
@@ -519,10 +519,10 @@ static void extract_trial_info()
 	ok = checkTrialInfo( trial_name, trial_company, trial_email,trial_key);
     if ( !ok ) {
 #if defined(_OS_WIN32_)
-	MessageBox( 0,
-		    "The trial registration data is invalid.\n"
-		    "Please report to qt-bugs@troll.no.",
-		    "Qt Internal Error",
+	MessageBoxA( 0,
+		     "The trial registration data is invalid.\n"
+		     "Please report to qt-bugs@troll.no.",
+		     "Qt Internal Error",
 		    MB_OK | MB_ICONERROR );
 	ExitProcess( 1 );
 #else
@@ -539,7 +539,7 @@ static void extract_trial_info()
     int ndays = today_date.daysTo( trial_date );
     if ( ndays < 0 ) {
 #if defined(_OS_WIN32_)
-	MessageBox(
+	MessageBoxA(
 	  0,
 	  "This software is using the trial version of the Qt GUI toolkit.\n"
 	  "The 30 day trial period has expired.  If you need more time to\n"
@@ -558,10 +558,10 @@ static void extract_trial_info()
 	exit( 1 );
 #endif
     }
-    QString msg(1024);
+    QCString msg(1024);
     msg.sprintf( unscrambleString(37391,trial_data_header,trial_len_header),
 		 qVersion() );
-    QString expire;
+    QCString expire;
     expire.sprintf( unscrambleString(91573,trial_data_expire,
 				     trial_len_expire), ndays );
     trial_messup_2 = 1;

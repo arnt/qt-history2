@@ -1,6 +1,6 @@
---- orig\qapplication.cpp	Mon Oct 13 21:20:27 1997
-+++ qapplication.cpp	Mon Oct 13 21:22:39 1997
-@@ -224,6 +224,11 @@
+--- qapplication.cpp.orig	Thu Jul 01 14:45:32 1999
++++ qapplication.cpp	Thu Jul 01 14:52:33 1999
+@@ -483,6 +483,11 @@
      }
      QWidget::createMapper();			// create widget mapper
      is_app_running = TRUE;			// no longer starting up
@@ -9,6 +9,6 @@
 +    if ( qt_init_usr() != 50033 )
 +	qApp = 0;
 +#endif
- }
  
- 
+     if (!app_style) {
+ #if defined(_WS_WIN_)
