@@ -46,11 +46,11 @@
     model. In the following example, the contents of a directory are
     supplied by a QDirModel and displayed as a tree:
 
-    \code
-        QDirModel *model = new QDirModel(QDir(), parent);
-        QTreeView *tree = new QTreeView(parent);
-        tree->setModel(model);
-    \endcode
+    \quotefromfile snippets/shareddirmodel/main.cpp
+    \skipto QDirModel *model
+    \printuntil QTreeView *tree
+    \skipto tree->setModel(
+    \printuntil tree->setModel(
 
     The model/view architecture ensures that the contents of the tree view
     are updated as the model changes.
@@ -62,6 +62,8 @@
 
     The amount of indentation used to indicate levels of hierarchy is
     controlled by the \l indentation property.
+
+    Headers in a tree view are constructed using the QHeaderView class.
 
     \omit
     Describe the opening/closing concept if not covered elsewhere.
