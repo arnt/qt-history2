@@ -162,6 +162,11 @@ void QFont::initialize()
     QFontPrivate::fontCache = new QFontCache();
 }
 
+#ifndef Q_OS_TEMP
+static MAT2 *mat = 0;
+#endif
+static HFONT last_font = 0;
+
 void QFont::cleanup()
 {
     delete QFontPrivate::fontCache;
@@ -169,6 +174,9 @@ void QFont::cleanup()
     Q_ASSERT( shared_dc_font == 0 );
     DeleteDC( shared_dc );
     shared_dc = 0;
+    delete mat;
+    mat = 0;
+    last_font = 0;
 }
 
 // If d->req.dirty is not TRUE the font must have been loaded
@@ -179,15 +187,14 @@ void QFont::cleanup()
 
 HFONT QFont::handle() const
 {
-    static HFONT last = 0;
     if ( DIRTY_FONT ) {
 	d->load();
     } else {
-	if ( d->fin->font() != last )
-		QFontPrivate::fontCache->find( d->fin->key() );
+	if ( d->fin->font() != last_font )
+	    QFontPrivate::fontCache->find( d->fin->key() );
     }
-    last = d->fin->font();
-    return last;
+    last_font = d->fin->font();
+    return last_font;
 }
 
 QString QFont::rawName() const
@@ -206,9 +213,6 @@ bool QFont::dirty() const
     return DIRTY_FONT;
 }
 
-#ifndef Q_OS_TEMP
-static MAT2 *mat = 0;
-#endif
 
 QRect QFontPrivate::boundingRect( const QChar &ch )
 {
@@ -216,16 +220,16 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
     GLYPHMETRICS gm;
     memset( &gm, 0, sizeof(GLYPHMETRICS) );
     if ( !mat ) {
-	    mat = new MAT2;
-	    mat->eM11.value = mat->eM22.value = 1;
-	    mat->eM11.fract = mat->eM22.fract = 0;
-	    mat->eM21.value = mat->eM12.value = 0;
-	    mat->eM21.fract = mat->eM12.fract = 0;
+	mat = new MAT2;
+	mat->eM11.value = mat->eM22.value = 1;
+	mat->eM11.fract = mat->eM22.fract = 0;
+	mat->eM21.value = mat->eM12.value = 0;
+	mat->eM21.fract = mat->eM12.fract = 0;
     }
     uint chr = 0;
 #ifdef UNICODE
     if ( qt_winver & Qt::WV_NT_based ) {
-       chr = ch.unicode();
+	chr = ch.unicode();
     } else
 #else
     {
