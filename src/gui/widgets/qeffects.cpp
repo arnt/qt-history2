@@ -18,6 +18,7 @@
 #include "qevent.h"
 #include "qeffects_p.h"
 #include "qpixmap.h"
+#include "qpainter.h"
 #include "qimage.h"
 #include "qtimer.h"
 #include "qdatetime.h"
