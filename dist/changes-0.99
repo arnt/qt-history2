@@ -29,20 +29,16 @@ QApplication:
 -------------
 Added beep() to make a sound.
 
-Not yet implemented: lastWindowClosed
-
 QFileInfo
 ---------
 
 Added readLink() to return the name of the file a symlink points to,
 fixed bug in isSymlink().
 
-
 QPrinter:
 ---------
 
 The X11 version now supports landscape printing and different paper sizes.
-
 
 QTableView:
 -----------
