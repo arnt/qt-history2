@@ -9,7 +9,8 @@ class QObject;
 class ActionInterface : public QUnknownInterface
 {
 public:
-    ActionInterface( QUnknownInterface *parent = 0 ) : QUnknownInterface( parent ) {}
+    ActionInterface( QUnknownInterface *parent = 0, const char *name = 0 ) 
+	: QUnknownInterface( parent, name ) {}
 
     virtual QStringList featureList() const = 0;
 

@@ -6,7 +6,8 @@
 class FilterInterface : public QUnknownInterface
 {
 public:
-    FilterInterface( QUnknownInterface *parent = 0 ) : QUnknownInterface( parent ) {}
+    FilterInterface( QUnknownInterface *parent = 0, const char *name = 0 ) 
+	: QUnknownInterface( parent, name ) {}
 
     virtual QStringList featureList() const = 0;
 
