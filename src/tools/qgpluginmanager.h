@@ -3,7 +3,7 @@
 **
 ** Definition of QGPluginManager class
 **
-** Copyright (C) 2000-2001 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **

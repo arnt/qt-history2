@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Tutorial
 **
@@ -2201,7 +2201,7 @@ We have made some changes in the GameBoard constructor.
 \printline cannonField
 
 \c cannonField is now a member variable, so we carefully change the
-constructor to use it.  (The \e good programmers at Troll Tech never
+constructor to use it.  (The \e good programmers at Trolltech never
 forget this, but I do.  Caveat programmor - if "programmor" is Latin,
 at least.  Anyway, back to the code.)
 
