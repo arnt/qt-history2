@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#10 $
 **
 ** Low-level support for Netscape Plugins under X11.
 **
@@ -131,6 +131,7 @@ int qt_event_handler( XEvent* event )
 	    }
 	}
         qt_reset_color_avail();
+	qt_x11SendPostedEvents();
         return True;
     }
 }

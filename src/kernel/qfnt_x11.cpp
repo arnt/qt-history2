@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#103 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1473,30 +1473,16 @@ void QFontInternal::computeLineWidth()
 // Converts a weight string to a value
 //
 
-Q_DECLARE(QDictM,int);
-QDictM(int) *weightDict = 0;
-
-static void cleanupWeightDict()
-{
-    delete weightDict;
-    weightDict = 0;
-}
-
 static int getWeight( const char *weightString, bool adjustScore )
 {
-    if ( !weightDict ) {
-	qAddPostRoutine( cleanupWeightDict );
-	weightDict = new QDictM(int)( 17, FALSE ); // case insensitive
-	CHECK_PTR( weightDict );
-	weightDict->insert( "medium",   (int*)((int)QFont::Normal+1) );
-	weightDict->insert( "bold",     (int*)((int)QFont::Bold+1) );
-	weightDict->insert( "demibold", (int*)((int)QFont::DemiBold+1) );
-	weightDict->insert( "black",    (int*)((int)QFont::Black+1) );
-	weightDict->insert( "light",    (int*)((int)QFont::Light+1) );
-    }
-    int *p = weightDict->find(weightString);
-    if ( p )
-	return (int)p - 1;
+    // Test in decreasing order of commonness
+    //
+    if (!qstricmp( weightString, "medium" ))       return QFont::Normal;
+    else if (!qstricmp( weightString, "bold" ))    return QFont::Bold;
+    else if (!qstricmp( weightString, "demibold")) return QFont::DemiBold;
+    else if (!qstricmp( weightString, "black" ))   return QFont::Black;
+    else if (!qstricmp( weightString, "light" ))   return QFont::Light;
+
     QString s = weightString;
     s = s.lower();
     if ( s.contains("bold") ) {

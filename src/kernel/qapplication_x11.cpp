@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#315 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#316 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2914,7 +2914,7 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
 };
 
 
-static QIntDict<int>     *keyDict   = 0;
+static QIntDict<void>    *keyDict   = 0;
 static QIntDict<QString> *asciiDict = 0;
 
 static void deleteKeyDicts()
@@ -2938,7 +2938,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     KeySym key = 0;
 
     if ( !keyDict ) {
-	keyDict = new QIntDict<int>( 13 );
+	keyDict = new QIntDict<void>( 13 );
 	keyDict->setAutoDelete( FALSE );
 	asciiDict = new QIntDict<QString>( 13 );
 	asciiDict->setAutoDelete( TRUE );
@@ -2984,13 +2984,13 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    keycode = composingKeycode;
 	    composingKeycode = 0;
 	}
-	keyDict->replace( keycode, (int*)key );
+	keyDict->replace( keycode, (void*)key );
 	if ( count < 15 )
 	    ascii[count] = '\0';
 	if ( count )
 	    asciiDict->replace( keycode, new QString(ascii) );
     } else {
-	key = (int)keyDict->find( keycode );
+	key = (int)(long)keyDict->find( keycode );
 	if ( key )
 	    keyDict->take( keycode );
 	QString * s = asciiDict->find( keycode );
