@@ -15,8 +15,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>382</width>
-            <height>283</height>
+            <width>370</width>
+            <height>277</height>
         </rect>
     </property>
     <property name="caption">
@@ -143,12 +143,6 @@
 </widget>
 <connections>
     <connection>
-        <sender>buttonClose</sender>
-        <signal>clicked()</signal>
-        <receiver>PixmapCollectionEditor</receiver>
-        <slot>accept()</slot>
-    </connection>
-    <connection>
         <sender>PushButton2</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
@@ -161,6 +155,18 @@
         <slot>removePixmap()</slot>
     </connection>
     <connection>
+        <sender>viewPixmaps</sender>
+        <signal>currentChanged(QIconViewItem*)</signal>
+        <receiver>PixmapCollectionEditor</receiver>
+        <slot>currentChanged(QIconViewItem*)</slot>
+    </connection>
+    <connection>
+        <sender>buttonOk</sender>
+        <signal>clicked()</signal>
+        <receiver>PixmapCollectionEditor</receiver>
+        <slot>save()</slot>
+    </connection>
+    <connection>
         <sender>buttonOk</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
@@ -170,16 +176,29 @@
         <sender>buttonCancel</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
+        <slot>save()</slot>
+    </connection>
+    <connection>
+        <sender>buttonCancel</sender>
+        <signal>clicked()</signal>
+        <receiver>PixmapCollectionEditor</receiver>
         <slot>reject()</slot>
     </connection>
     <connection>
-        <sender>viewPixmaps</sender>
-        <signal>currentChanged(QIconViewItem*)</signal>
+        <sender>buttonClose</sender>
+        <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
-        <slot>currentChanged(QIconViewItem*)</slot>
+        <slot>save()</slot>
+    </connection>
+    <connection>
+        <sender>buttonClose</sender>
+        <signal>clicked()</signal>
+        <receiver>PixmapCollectionEditor</receiver>
+        <slot>accept()</slot>
     </connection>
     <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">destroy()</slot>
+    <slot access="public" language="C++">save()</slot>
     <slot access="protected" language="C++">addPixmap()</slot>
     <slot access="protected" language="C++">removePixmap()</slot>
     <slot access="public" language="C++">updateView()</slot>
@@ -194,7 +213,9 @@
     setChooserMode( FALSE );
 }</function>
     <function name="destroy()" >{
-    
+}</function>
+    <function name="save()" >{
+    project-&gt;pixmapCollection()-&gt;createCppFile();     
 }</function>
     <function name="addPixmap()" >{
     if ( !project )

@@ -329,6 +329,7 @@ void Project::setDatabaseDescription( const QString &db )
 void Project::setImageFile( const QString &f )
 {
     imgFile = f;
+    pixCollection->createCppFile();
 }
 
 void Project::setDescription( const QString &s )
@@ -454,6 +455,7 @@ void Project::save()
     }
 
     remove_contents( contents, "DBFILE" );
+    remove_contents( contents, "IMAGEFILE" );
     remove_contents( contents, "PROJECTNAME" );
     remove_contents( contents, "LANGUAGE" );
     if ( !dbFile.isEmpty() )
@@ -569,7 +571,7 @@ void Project::saveConnections()
     if ( inSaveConnections )
 	return;
     inSaveConnections = TRUE;
-    if ( !QFile::exists( dbFile ) ) {
+    if ( !QFile::exists( makeAbsolute( dbFile ) ) ) {
 	QFileInfo fi( fileName() );
 	setDatabaseDescription( fi.baseName() + ".db" );
     }

@@ -48,6 +48,7 @@ public:
     void setActive();
 
     void load();
+    void createCppFile();
 
 private:
     QString unifyName( const QString &n );

@@ -102,7 +102,7 @@ void ProjectSettings::chooseDatabaseFile()
 
 void ProjectSettings::chooseImageFile()
 {
-    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Header Files (*.db);;All Files (*)" ), this );
+    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "C++ Files (*.cpp);;All Files (*)" ), this );
     if ( fn.isEmpty() )
 	return;
     editImageFile->setText( fn );
