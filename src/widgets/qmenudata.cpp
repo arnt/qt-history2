@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#66 $
 **
 ** Implementation of QMenuData class
 **
@@ -285,7 +285,7 @@ void QMenuData::setAllDirty( bool dirty )
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
@@ -310,7 +310,7 @@ int QMenuData::insertItem( const char *text,
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
@@ -336,7 +336,7 @@ int QMenuData::insertItem( const QPixmap &pixmap,
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
@@ -373,7 +373,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
@@ -410,7 +410,7 @@ int QMenuData::insertItem( const char *text,
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
@@ -447,7 +447,7 @@ int QMenuData::insertItem( const QPixmap &pixmap,
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
@@ -479,7 +479,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -510,7 +510,7 @@ int QMenuData::insertItem( const char *text, int id, int index )
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -536,7 +536,7 @@ int QMenuData::insertItem( const char *text, QPopupMenu *popup,
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -567,7 +567,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -594,7 +594,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -626,7 +626,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, eg. <t>(QObject*)0</tt>.
+	Cast the 0 to what you mean, eg. <tt>(QObject*)0</tt>.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -903,7 +903,7 @@ bool QMenuData::isItemChecked( int id ) const
   Checks the menu item with id \a id if \a check is TRUE, or unchecks
   it if \a check is FALSE, and calls setCheckable( TRUE ) if
   necessary.
-  
+
   \sa isItemChecked()
 */
 
