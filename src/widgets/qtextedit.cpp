@@ -64,6 +64,8 @@
 #include "qregexp.h"
 #include "qpopupmenu.h"
 #include "qptrstack.h"
+#include "qmetaobject.h"
+#include <private/qucom_p.h>
 
 #ifndef QT_NO_ACCEL
 #include <qkeysequence.h>
@@ -90,6 +92,8 @@ public:
     uint ensureCursorVisibleInShowEvent : 1;
     uint allowTabs : 1;
     QString scrollToAnchor; // used to deferr scrollToAnchor() until the show event when we are resized
+    QString pressedName;
+    QString onName;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     QTextEditOptimPrivate * od;
     bool optimMode : 1;
@@ -652,6 +656,7 @@ void QTextEdit::init()
     inDoubleClick = FALSE;
     modified = FALSE;
     onLink = QString::null;
+    d->onName = QString::null;
     overWrite = FALSE;
     wrapMode = WidgetWidth;
     wrapWidth = -1;
@@ -1711,6 +1716,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
     mousePos = e->pos();
     mightStartDrag = FALSE;
     pressedLink = QString::null;
+    d->pressedName = QString::null;
 
     if ( e->button() == LeftButton ) {
 	mousePressed = TRUE;
@@ -1724,6 +1730,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	    if ( c.parag() && c.parag()->at( c.index() ) &&
 		 c.parag()->at( c.index() )->isAnchor() ) {
 		pressedLink = c.parag()->at( c.index() )->anchorHref();
+		d->pressedName = c.parag()->at( c.index() )->anchorName();
 	    }
 	}
 
@@ -1897,9 +1904,23 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
     inDoubleClick = FALSE;
 
 #ifndef QT_NO_NETWORKPROTOCOL
-    if ( !onLink.isEmpty() && onLink == pressedLink && linksEnabled() ) {
-	QUrl u( doc->context(), onLink, TRUE );
-	emitLinkClicked( u.toString( FALSE, FALSE ) );
+    if ( (   (!onLink.isEmpty() && onLink == pressedLink) 
+	  || (!d->onName.isEmpty() && d->onName == d->pressedName)) 
+	 && linksEnabled() ) {
+	if (!onLink.isEmpty()) { 
+	    QUrl u( doc->context(), onLink, TRUE );
+	    emitLinkClicked( u.toString( FALSE, FALSE ) );
+	}
+	if (inherits("QTextBrowser")) { // change for 4.0
+	    QConnectionList *clist = receivers( 
+			"anchorClicked(const QString&,const QString&)");
+	    if (!signalsBlocked() && clist) {
+		QUObject o[3];
+		static_QUType_QString.set(o+1, d->onName);
+		static_QUType_QString.set(o+2, onLink);
+		activate_signal( clist, o);
+	    }
+	}
 
 	// emitting linkClicked() may result in that the cursor winds
 	// up hovering over a different valid link - check this and
@@ -3950,7 +3971,7 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
     case Key_Return:
     case Key_Enter:
     case Key_Space: {
-	if ( !doc->focusIndicator.href.isEmpty() ) {
+	if (!doc->focusIndicator.href.isEmpty()) {
 	    QUrl u( doc->context(), doc->focusIndicator.href, TRUE );
 	    emitLinkClicked( u.toString( FALSE, FALSE ) );
 #ifndef QT_NO_CURSOR
@@ -4902,18 +4923,26 @@ void QTextEdit::updateCursor( const QPoint & pos )
 
 #ifndef QT_NO_NETWORKPROTOCOL
 	if ( c.parag() && c.parag()->at( c.index() ) &&
-	     c.parag()->at( c.index() )->isAnchor() &&
-	     !c.parag()->at( c.index() )->anchorHref().isEmpty() ) {
-	    if ( c.index() < c.parag()->length() - 1 )
+		c.parag()->at( c.index() )->isAnchor()) {
+	    if (!c.parag()->at( c.index() )->anchorHref().isEmpty() 
+		    && c.index() < c.parag()->length() - 1 )
 		onLink = c.parag()->at( c.index() )->anchorHref();
 	    else
 		onLink = QString::null;
 
+	    if (!c.parag()->at( c.index() )->anchorName().isEmpty() 
+		    && c.index() < c.parag()->length() - 1 )
+		d->onName = c.parag()->at( c.index() )->anchorName();
+	    else
+		d->onName = QString::null;
+
+	    if (!c.parag()->at( c.index() )->anchorHref().isEmpty() ) {
 #ifndef QT_NO_CURSOR
-	    viewport()->setCursor( onLink.isEmpty() ? arrowCursor : pointingHandCursor );
+		viewport()->setCursor( onLink.isEmpty() ? arrowCursor : pointingHandCursor );
 #endif
-	    QUrl u( doc->context(), onLink, TRUE );
-	    emitHighlighted( u.toString( FALSE, FALSE ) );
+		QUrl u( doc->context(), onLink, TRUE );
+		emitHighlighted( u.toString( FALSE, FALSE ) );
+	    }
 	} else {
 #ifndef QT_NO_CURSOR
 	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );

@@ -81,6 +81,7 @@ signals:
     void sourceChanged( const QString& );
     void highlighted( const QString& );
     void linkClicked( const QString& );
+    void anchorClicked( const QString&, const QString& );
 
 protected:
     void keyPressEvent( QKeyEvent * e);

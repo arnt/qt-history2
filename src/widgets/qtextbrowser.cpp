@@ -307,9 +307,21 @@ void QTextBrowser::setSource(const QString& name)
 
     This signal is emitted when the user clicks a link. The \a link is
     the value of the \c href i.e. the name of the target document.
+    The \a link will be the absolute location of the document, based on the
+    value of the anchor's href tag and the current context of the document.
 
+    \sa anchorClicked()
 */
 
+/*!
+    \fn void QTextBrowser::anchorClicked( const QString& link, const QString &name)
+
+    This signal is emitted when the user clicks a an anchor. The \a link is
+    the value of the \c href i.e. the name of the target document.  The \a name
+    is the name of the anchor.
+
+    \sa linkClicked()
+*/
 
 /*!  Changes the document displayed to the previous document in the
   list of documents built by navigating links. Does nothing if there is

@@ -1980,7 +1980,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			curpar->at(index + i)->setAnchor( QString::null, curtag.anchorHref );
 		}
 		if ( !anchorName.isEmpty()  ) {
-		    curpar->at(index)->setAnchor( anchorName, curpar->at(index)->anchorHref() );
+		    for ( int i = 0; i < int(s.length()); i++ )
+			curpar->at(index + i)->setAnchor( anchorName, curpar->at(index + i)->anchorHref() );
 		    anchorName = QString::null;
 		}
 	    }
