@@ -2184,12 +2184,12 @@ Image Formats:
 
 Third Party Image Loading Libraries:
 
- *  -qt-libpng ......... Use the libpng bundled with Qt.
-    -system-libpng ..... Use libpng from the operating system.
+    -qt-libpng ......... Use the libpng bundled with Qt.
+ *  -system-libpng ..... Use libpng from the operating system.
 			 See http://www.libpng.org/pub/png
 
- *  -qt-libjpeg ........ Use the libjpeg bundled with Qt.
-    -system-libjpeg .... Use jpeglib from the operating system.
+    -qt-libjpeg ........ Use the libjpeg bundled with Qt.
+ *  -system-libjpeg .... Use jpeglib from the operating system.
 			 See http://www.ijg.org
 
 EOF
