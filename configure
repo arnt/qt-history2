@@ -931,7 +931,7 @@ fi
 cat >$relpath/config.status << EOF
 #!/bin/sh
 
-$CONFIG_CMDLINE \$@
+yes yes | $CONFIG_CMDLINE \$@
 EOF
 chmod +x $relpath/config.status
 
