@@ -48,7 +48,7 @@
     \ingroup shared
     \mainclass
     \reentrant
-  
+
     QValueList is a Qt implementation of an STL-like list container.
     It can be used in your application if the standard \c list is not
     available for your target platform(s). QValueList is part of the
@@ -204,12 +204,12 @@
     several flavors and can be used to add one or more items at
     specific positions within the list.
 
-    Items can be also be removed from the list in several ways. There
+    Items can also be removed from the list in several ways. There
     are several variants of the remove() function, which removes a
     specific item from the list. The remove() function will find and
     remove items according to a specific item value.
 
-    Lists can be also sorted with the sort() function, or can be
+    Lists can also be sorted with the sort() function, or can be
     sorted using the \link qtl.html Qt Template Library\endlink. For
     example with qHeapSort():
 
@@ -226,21 +226,21 @@
     \sa QValueListIterator
 */
 
-/*! \enum QValueList::iterator 
+/*! \enum QValueList::iterator
 	The list's iterator type, QValueListIterator. */
-/*! \enum QValueList::const_iterator 
+/*! \enum QValueList::const_iterator
 	The list's const iterator type, QValueListConstIterator. */
-/*! \enum QValueList::value_type 
+/*! \enum QValueList::value_type
 	The type of the object stored in the list, T. */
-/*! \enum QValueList::pointer 
+/*! \enum QValueList::pointer
 	The pointer to T type. */
-/*! \enum QValueList::const_pointer 
+/*! \enum QValueList::const_pointer
 	The const pointer to T type. */
-/*! \enum QValueList::reference 
+/*! \enum QValueList::reference
 	The reference to T type. */
-/*! \enum QValueList::const_reference 
+/*! \enum QValueList::const_reference
 	The const reference to T type. */
-/*! \enum QValueList::size_type 
+/*! \enum QValueList::size_type
 	An unsigned integral type, used to represent various sizes. */
 /*! \enum QValueList::difference_type
     \internal
@@ -382,7 +382,7 @@
 
     Returns an iterator pointing to the first item in the list. This
     iterator equals end() if the list is empty.
-    
+
     \sa first(), end()
 */
 
@@ -480,7 +480,7 @@
     This function is provided for STL compatibility. It is equivalent
     to prepend().
 */
- 
+
 /*!
     \fn void QValueList::push_back( const T& x )
 
@@ -503,7 +503,7 @@
 */
 
 /*!
-    \fn iterator QValueList::erase( iterator first, iterator last ) 
+    \fn iterator QValueList::erase( iterator first, iterator last )
 
     \overload
 
@@ -527,7 +527,7 @@
 
 /*!
     \fn const_reference QValueList::front() const
-    
+
     \overload
 */
 
@@ -545,7 +545,7 @@
 
 /*!
     \fn const_reference QValueList::back() const
-    
+
     \overload
 */
 
@@ -559,7 +559,7 @@
 */
 
 /*!
-    \fn void QValueList::pop_back() 
+    \fn void QValueList::pop_back()
 
     Removes the last item. If there is no last item, this operation is
     undefined.
@@ -681,7 +681,7 @@
 
 /*!
     \fn QValueList<T>& QValueList::operator+= ( const QValueList<T>& l )
-    
+
     Appends the items of \a l to this list. Returns a reference to
     this list.
 */
@@ -777,7 +777,7 @@
 
     Finds the first occurrence of \a x in the list starting at the
     position given by \a it.
-    
+
     Returns end() if no item matched.
 */
 
@@ -789,7 +789,7 @@
 
 /*!
     \fn int QValueList::findIndex( const T& x ) const
-    
+
     Returns the index of the first occurrence of the value \a x.
     Returns -1 if no item matched.
 */
@@ -806,7 +806,7 @@
 
 /*!
     \fn const T& QValueList::first() const
-    
+
     \overload
 */
 
@@ -819,7 +819,7 @@
 
 /*!
     \fn const T& QValueList::last() const
-    
+
     \overload
 */
 
@@ -843,7 +843,7 @@
 
     The QValueListIterator class is an iterator for QValueList
     instantiations. You can create the appropriate iterator type by
-    using the \c iterator typedef provided by QValueList. 
+    using the \c iterator typedef provided by QValueList.
 
     The only way to access the items in a QValueList is to use an
     iterator.
@@ -1031,7 +1031,7 @@
     the list since that would break const semantics.
 
     You can create the appropriate const iterator type by using the \c
-    const_iterator typedef provided by QValueList. 
+    const_iterator typedef provided by QValueList.
 
     For more information on QValueList iterators, see
     QValueListIterator.
@@ -1123,8 +1123,8 @@
 */
 
 /*!
-    \fn QValueListConstIterator<T>& QValueListConstIterator::operator--() 
-    
+    \fn QValueListConstIterator<T>& QValueListConstIterator::operator--()
+
     Prefix -- makes the previous item current and returns an iterator
     pointing to the new current item. The iterator cannot check
     whether it reached the beginning of the list. Decrementing the
@@ -1132,10 +1132,10 @@
 */
 
 /*!
-    \fn QValueListConstIterator<T> QValueListConstIterator::operator--(int) 
+    \fn QValueListConstIterator<T> QValueListConstIterator::operator--(int)
 
     \overload
-    
+
     Postfix -- makes the previous item current and returns an iterator
     pointing to the new current item. The iterator cannot check
     whether it reached the beginning of the list. Decrementing the
@@ -1143,14 +1143,14 @@
 */
 
 /*!
-    \fn bool QValueListConstIterator::operator==( const QValueListConstIterator<T>& it ) const 
+    \fn bool QValueListConstIterator::operator==( const QValueListConstIterator<T>& it ) const
 
     Compares this iterator with \a it and returns TRUE if they point
     to the same item; otherwise returns FALSE.
 */
 
 /*!
-    \fn bool QValueListConstIterator::operator!=( const QValueListConstIterator<T>& it ) const 
+    \fn bool QValueListConstIterator::operator!=( const QValueListConstIterator<T>& it ) const
 
     Compares this iterator with \a it and returns TRUE if they point
     to different items; otherwise returns FALSE.
