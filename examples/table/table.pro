@@ -1,5 +1,4 @@
 TEMPLATE	= subdirs
-SUBDIRS		= euroconversion \
-		  small-table-demo
+SUBDIRS		= small-table-demo
 CONFIG += ordered
 
