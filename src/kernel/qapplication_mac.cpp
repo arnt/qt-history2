@@ -1299,11 +1299,16 @@ static int get_key(int key, int scan)
     return Qt::Key_unknown;
 }
 
-
+static bool mouse_down_unhandled = FALSE;
 bool QApplication::do_mouse_down( Point *pt )
 {
     QWidget *widget;
     short windowPart = qt_mac_find_window( pt->h, pt->v, &widget);
+    mouse_down_unhandled = FALSE;
+    if(windowPart != inMenuBar && !widget) {
+	mouse_down_unhandled = TRUE;
+	return FALSE;
+    }
     bool in_widget = FALSE;
 
     switch( windowPart ) {
@@ -1829,6 +1834,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 	    }
 	    if(!app->do_mouse_down( &where )) {
+		if(!mouse_down_unhandled) {
+		    handled_event = FALSE;
+		    break;
+		} 
 		mouse_button_state = 0;
 		return 0;
 	    }
@@ -2056,16 +2065,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	widget = QWidget::find( (WId)wid );
 
 	if(!widget) {
-	    if(ekind == kEventWindowShown )
+	    if(ekind == kEventWindowShown ) {
 		unhandled_dialogs.insert((void *)wid, (void *)1);
-	    else if(ekind == kEventWindowHidden)
+	    } else if(ekind == kEventWindowHidden) {
 		unhandled_dialogs.remove((void *)wid);
-#if 0
-	    else if(!unhandled_dialogs.find((void *)wid))
-		qWarning("Couldn't find EventClassWindow widget for %d %d", (int)wid, ekind);
-	    else
-		return 1;
-#endif
+	    } else if(unhandled_dialogs.find((void *)wid)) {
+		handled_event = FALSE;
+	    } 
 	    break;
 	}
 

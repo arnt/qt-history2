@@ -1431,7 +1431,7 @@ QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
 			       const char *name )
 {
 #if defined(Q_WS_MAC)
-//    return macGetColor(initial, parent, name);
+    return macGetColor(initial, parent, name);
 #endif
 
     int allocContext = QColor::enterAllocContext();
@@ -1471,7 +1471,7 @@ QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
 			    QWidget *parent, const char* name )
 {
 #if defined(Q_WS_MAC)
-//    return macGetRgba(initial, ok, parent, name);
+    return macGetRgba(initial, ok, parent, name);
 #endif
 
     int allocContext = QColor::enterAllocContext();
