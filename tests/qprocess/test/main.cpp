@@ -38,12 +38,15 @@ int main( int argc, char **argv )
 	cb = new QCheckBox( "Stdout", &vb );
 	QObject::connect( cb, SIGNAL(toggled(bool)),
 		&factory, SLOT(connectStdout(bool)) );
+	cb->setChecked( TRUE );
 	cb = new QCheckBox( "Stderr", &vb );
 	QObject::connect( cb, SIGNAL(toggled(bool)),
 		&factory, SLOT(connectStderr(bool)) );
+	cb->setChecked( TRUE );
 	cb = new QCheckBox( "Exit Notify", &vb );
 	QObject::connect( cb, SIGNAL(toggled(bool)),
 		&factory, SLOT(connectExit(bool)) );
+	cb->setChecked( TRUE );
 
 	a.setMainWidget( &vb );
 	vb.show();
