@@ -118,6 +118,7 @@ class Q_CORE_EXPORT QMutexLocker
 {
 public:
     inline QMutexLocker(QMutex *) {}
+    inline QMutexLocker(QStaticMutex &) {}
     inline ~QMutexLocker() {}
 
     static inline void unlock() {}
