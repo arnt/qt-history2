@@ -5,7 +5,7 @@
 #include <qstringlist.h>
 #include <qwindowdefs.h>
 
-class QPlugIn : public QPlugInInterface
+class QPlugIn : virtual public QPlugInInterface
 {
 public:
     enum LibraryPolicy
@@ -33,10 +33,11 @@ public:
     QStringList featureList();
 
 protected:
-    bool loadInterface();
     bool use();
     QPlugInInterface* plugInterface() { return ifc; }
+
 private:
+    bool loadInterface();
     QPlugInInterface* ifc;
 
     typedef QPlugInInterface* (*LoadInterfaceProc)();
