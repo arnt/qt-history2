@@ -1184,8 +1184,8 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
 {
     setReplaceable( FALSE );
     if ( !QComboTableItem::fakeCombo ) {
-	QComboTableItem::fakeComboWidget = new QWidget( 0, 0 );
-	QComboTableItem::fakeCombo = new QComboBox( FALSE, QComboTableItem::fakeComboWidget, 0 );
+	QComboTableItem::fakeComboWidget = new QWidget;
+	QComboTableItem::fakeCombo = new QComboBox( FALSE, QComboTableItem::fakeComboWidget );
 	QComboTableItem::fakeCombo->hide();
     }
     ++QComboTableItem::fakeRef;
@@ -6664,7 +6664,7 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 		    table->currentSel->init( secAt, 0 );
 		    table->currentSel->expandTo( secAt, table->numCols() );
 		    table->setCurrentCell( secAt, 0 );
-		} else {		    
+		} else {
 		    table->currentSel->init( secAt, 0 );
 		    table->setCurrentCell( secAt, 0 );
 		}
