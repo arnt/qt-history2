@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#128 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qimage.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#127 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#128 $");
 
 
 /*!
@@ -2103,11 +2103,6 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	p_alloc = FALSE;
     }
 
-    // We do the rectangle ourselves.
-    // ### need to check efficiency
-    BGMode oldmode = painter->backgroundMode();
-    painter->setBackgroundMode(TransparentMode);
-
     if ( br.x() >= x && br.y() >= y && br.width() < w && br.height() < h )
 	tf |= DontClip;				// no need to clip
 
@@ -2147,9 +2142,6 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	pp = 0;
 	pm = 0;
     }
-
-    if ( oldmode == OpaqueMode )
-	painter->fillRect(QRect(x,y,w,h).unite(br),painter->backgroundColor());
 
     yp += fascent;
 
@@ -2244,8 +2236,6 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	delete [] p;
     if ( code_alloc )
 	free( codes );
-
-    painter->setBackgroundMode(oldmode);
 }
 
 
