@@ -43,6 +43,7 @@ DLLDESTDIR	= $$QT_INSTALL_PREFIX/bin
 
 CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache target_qt debug_and_release
+contains(QT_CONFIG, largefile):CONFIG += largefile
 
 mac {
    #QMAKE_LFLAGS += -undefined suppress -flat_namespace
@@ -92,8 +93,6 @@ DEPENDPATH += ;$$NETWORK_H;$$KERNEL_H;$$WIDGETS_H;$$SQL_H;$$TABLE_H;$$DIALOGS_H;
 DEPENDPATH += $$ICONVIEW_H;$$OPENGL_H;$$THREAD_H;$$TOOLS_H;$$CODECS_H;
 DEPENDPATH += $$WORKSPACE_H;$$XML_H;$$CANVAS_H;$$STYLES_H;$$COMPAT_H
 embedded:DEPENDPATH += ;$$EMBEDDED_H
-
-contains(QT_CONFIG, largefile):unix:!darwin:DEFINES += _LARGEFILE_SOURCE _LARGE_FILES _FILE_OFFSET_BITS=64
 
 !staticlib:PRL_EXPORT_DEFINES += QT_SHARED
 
