@@ -232,8 +232,9 @@ void FormWindow::setCursorToAll(const QCursor &c, QWidget *start)
     QListIterator<QWidget*> it(l);
     while (it.hasNext()) {
         QWidget *w = it.next();
-        if (!qt_cast<SizeHandle*>(w))
-            start->setCursor(c);
+        if (!qt_cast<SizeHandle*>(w)) {
+            w->setCursor(c);
+        }
     }
 }
 
@@ -1887,7 +1888,7 @@ FormWindow *FormWindow::findFormWindow(QWidget *w)
     while (w) {
         if (FormWindow *fw = qt_cast<FormWindow*>(w)) {
             return fw;
-        } else if (QMainWindow *mainWindow = qt_cast<QMainWindow*>(w)) {
+        } else if (qt_cast<QMainWindow*>(w)) {
             /* skip me */
         } else if (w->isTopLevel())
             break;
