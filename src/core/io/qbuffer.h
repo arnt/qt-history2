@@ -25,7 +25,6 @@ class Q_CORE_EXPORT QBuffer : public QIODevice
 #ifndef QT_NO_QOBJECT
     Q_OBJECT
 #endif
-    Q_DECLARE_PRIVATE(QBuffer)
 
 public:
     QBuffer();
@@ -61,7 +60,10 @@ protected:
     Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
 
 private:
+    Q_DECLARE_PRIVATE(QBuffer)
     Q_DISABLE_COPY(QBuffer)
+
+    Q_PRIVATE_SLOT(d, void emitSignals())
 };
 
 #endif // QBUFFER_H

@@ -13,6 +13,8 @@
 
 #include "qbuffer.h"
 #include "private/qiodevice_p.h"
+#include "qsignal.h"
+#include "qtimer.h"
 
 /** QBufferPrivate **/
 class QBufferPrivate : public QIODevicePrivate
@@ -20,8 +22,16 @@ class QBufferPrivate : public QIODevicePrivate
     Q_DECLARE_PUBLIC(QBuffer)
 
 public:
-    QBufferPrivate() : ioIndex(0), isOpen(false), buf(0)  { }
+    QBufferPrivate()
+        : signalsEmitted(false), writtenSinceLastEmit(0),
+          ioIndex(0), isOpen(false), buf(0)  { }
     ~QBufferPrivate() { }
+
+    // private slots
+    void emitSignals();
+
+    bool signalsEmitted;
+    Q_LONGLONG writtenSinceLastEmit;
 
     int ioIndex;
     bool isOpen;
@@ -29,6 +39,15 @@ public:
 
     QByteArray defaultBuf;
 };
+
+void QBufferPrivate::emitSignals()
+{
+    Q_Q(QBuffer);
+    emit q->bytesWritten(writtenSinceLastEmit);
+    writtenSinceLastEmit = 0;
+    emit q->readyRead();
+    signalsEmitted = false;
+}
 
 /*!
     \class QBuffer
@@ -361,22 +380,10 @@ Q_LONGLONG QBuffer::readData(char *data, Q_LONGLONG len)
 /*!
   \reimp
 */
-
 Q_LONGLONG QBuffer::writeData(const char *data, Q_LONGLONG len)
 {
     Q_D(QBuffer);
-    if (len <= 0) // nothing to do
-        return 0;
     Q_CHECK_PTR(data);
-    if (!isOpen()) {                                // file not open
-        qWarning("QBuffer::write: File not open");
-        return -1;
-    }
-    if (!isWritable()) {                        // writing not permitted
-        qWarning("QBuffer::write: Write operation not permitted");
-        return -1;
-    }
-
     if (d->ioIndex + len > d->buf->size()) {             // overflow
         d->buf->resize(d->ioIndex + len);
         if (d->buf->size() != (int)(d->ioIndex + len)) {           // could not resize
@@ -384,7 +391,18 @@ Q_LONGLONG QBuffer::writeData(const char *data, Q_LONGLONG len)
             return -1;
         }
     }
+
     memcpy(d->buf->data() + d->ioIndex, (uchar *)data, len);
     d->ioIndex += len;
+
+    d->writtenSinceLastEmit += len;
+    if (!d->signalsEmitted) {
+        d->signalsEmitted = true;
+        qInvokeMetaMember(this, "emitSignals", Qt::QueuedConnection);
+    }
     return len;
 }
+
+#define d d_func()
+#define q q_func()
+#include "moc_qbuffer.cpp"
