@@ -96,8 +96,8 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     Note: This function does not process events continuously; it
     returns after all available events are processed.
 
-    Note: Specifying the \c WaitForMore flag makes no sense and will
-    be ignored.
+    Note: Specifying the \c WaitForMoreEvents flag makes no sense 
+    and will be ignored.
 */
 void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
 {
