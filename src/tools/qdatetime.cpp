@@ -838,8 +838,8 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 	    int year = s.right( 4 ).toInt();
 	    return QDate( year, month, day );
 	}
-#endif
 	break;
+#endif
     }
     return QDate();
 }
@@ -1317,18 +1317,11 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 #endif
 	return QTime();
     }
-    switch ( f ) {
-    default:
-    case Qt::TextDate:
-    case Qt::ISODate:
-	{
-	    int hour( s.mid( 0, 2 ).toInt() );
-	    int minute( s.mid( 3, 2 ).toInt() );
-	    int second( s.mid( 6, 2 ).toInt() );
-	    return QTime( hour, minute, second );
-	}
-    }
-    return QTime();
+    
+    int hour( s.mid( 0, 2 ).toInt() );
+    int minute( s.mid( 3, 2 ).toInt() );
+    int second( s.mid( 6, 2 ).toInt() );
+    return QTime( hour, minute, second );
 }
 
 /*!
