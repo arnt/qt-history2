@@ -340,20 +340,20 @@ QTranslator::~QTranslator()
 }
 
 /*!
-    Loads \a filename, which may be an absolute file name or relative
+    Loads \a filename + \a suffix (".qm" if the \a suffix is
+    not specified), which may be an absolute file name or relative
     to \a directory. The previous contents of this translator object
     is discarded.
 
-    If the full file name does not exist, other file names are tried
+    If the file name does not exist, other file names are tried
     in the following order:
 
     \list 1
-    \i File name with \a suffix appended (".qm" if the \a suffix is
-       QString::null).
+    \i File name without \a suffix appended.
     \i File name with text after a character in \a search_delimiters
        stripped ("_." is the default for \a search_delimiters if it is
-       QString::null).
-    \i File name stripped and \a suffix appended.
+       QString::null) and \a suffix.
+    \i File name stripped without \a suffix appended.
     \i File name stripped further, etc.
     \endlist
 
@@ -363,12 +363,12 @@ QTranslator::~QTranslator()
     readable file from this list:
 
     \list 1
-    \i /opt/foolib/foo.fr_ca
     \i /opt/foolib/foo.fr_ca.qm
-    \i /opt/foolib/foo.fr
+    \i /opt/foolib/foo.fr_ca
     \i /opt/foolib/foo.fr.qm
-    \i /opt/foolib/foo
+    \i /opt/foolib/foo.fr
     \i /opt/foolib/foo.qm
+    \i /opt/foolib/foo
     \endlist
 
     \sa save()
@@ -399,18 +399,17 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     QString fname = filename;
     QString realname;
     QString delims;
-    delims = search_delimiters.isNull() ?
-	     QString::fromLatin1( "_." ) : search_delimiters;
+    delims = search_delimiters.isNull() ? QString::fromLatin1( "_." ) : search_delimiters;
 
     for ( ;; ) {
 	QFileInfo fi;
 
-	realname = prefix + fname;
+	realname = prefix + fname + (suffix.isNull() ? QString::fromLatin1(".qm") : suffix);
 	fi.setFile( realname );
 	if ( fi.isReadable() )
 	    break;
 
-	realname += suffix.isNull() ? QString::fromLatin1( ".qm" ) : suffix;
+	realname = prefix + fname;
 	fi.setFile( realname );
 	if ( fi.isReadable() )
 	    break;
