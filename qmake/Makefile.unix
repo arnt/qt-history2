@@ -7,7 +7,7 @@ QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastr
 	qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o qlibrary.o
 
 CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I@OUT_QTDIR@/include \
-	-I@OUT_QTDIR@/src/tools -DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -I@QMAKESPEC@
+	-I@OUT_QTDIR@/src/tools -DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NO_STL -I@QMAKESPEC@
 LFLAGS=@QMAKE_LIBRARIES@
 
 qmake: $(OBJS) $(QOBJS)
@@ -23,82 +23,82 @@ distclean:: clean
 
 # don't use optimization for these
 qtextstream.o: @REL_QTDIR@/src/tools/qtextstream.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qtextstream.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qtextstream.cpp
 
 qlibrary.o: @REL_QTDIR@/src/kernel/qlibrary.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/kernel/qlibrary.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/kernel/qlibrary.cpp
 
 qiodevice.o: @REL_QTDIR@/src/tools/qiodevice.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qiodevice.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qiodevice.cpp
 
 qglobal.o: @REL_QTDIR@/src/tools/qglobal.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qglobal.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qglobal.cpp
 
 qgdict.o: @REL_QTDIR@/src/tools/qgdict.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qgdict.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qgdict.cpp
 
 qcstring.o: @REL_QTDIR@/src/tools/qcstring.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qcstring.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qcstring.cpp
 
 qstring.o: @REL_QTDIR@/src/tools/qstring.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qstring.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qstring.cpp
 
 qdatastream.o: @REL_QTDIR@/src/tools/qdatastream.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qdatastream.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qdatastream.cpp
 
 qgarray.o: @REL_QTDIR@/src/tools/qgarray.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qgarray.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qgarray.cpp
 
 qbuffer.o: @REL_QTDIR@/src/tools/qbuffer.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qbuffer.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qbuffer.cpp
 
 qglist.o: @REL_QTDIR@/src/tools/qglist.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qglist.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qglist.cpp
 
 qptrcollection.o: @REL_QTDIR@/src/tools/qptrcollection.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qptrcollection.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qptrcollection.cpp
 
 qfile.o: @REL_QTDIR@/src/tools/qfile.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qfile.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qfile.cpp
 
 qfile_unix.o: @REL_QTDIR@/src/tools/qfile_unix.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qfile_unix.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qfile_unix.cpp
 
 qregexp.o: @REL_QTDIR@/src/tools/qregexp.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qregexp.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qregexp.cpp
 
 qgvector.o: @REL_QTDIR@/src/tools/qgvector.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qgvector.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qgvector.cpp
 
 qgcache.o: @REL_QTDIR@/src/tools/qgcache.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qgcache.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qgcache.cpp
 
 qbitarray.o: @REL_QTDIR@/src/tools/qbitarray.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qbitarray.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qbitarray.cpp
 
 qdir.o: @REL_QTDIR@/src/tools/qdir.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qdir.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qdir.cpp
 
 qfileinfo_unix.o: @REL_QTDIR@/src/tools/qfileinfo_unix.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qfileinfo_unix.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qfileinfo_unix.cpp
 
 qdir_unix.o: @REL_QTDIR@/src/tools/qdir_unix.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qdir_unix.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qdir_unix.cpp
 
 qfileinfo.o: @REL_QTDIR@/src/tools/qfileinfo.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qfileinfo.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qfileinfo.cpp
 
 qdatetime.o: @REL_QTDIR@/src/tools/qdatetime.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qdatetime.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qdatetime.cpp
 
 qstringlist.o: @REL_QTDIR@/src/tools/qstringlist.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qstringlist.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qstringlist.cpp
 
 qmap.o: @REL_QTDIR@/src/tools/qmap.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qmap.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qmap.cpp
 
 winmakefile.o: generators/win32/winmakefile.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) generators/win32/winmakefile.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) generators/win32/winmakefile.cpp
 
 project.o: project.cpp project.h option.h
 	$(CXX) -c -o $@ $(CFLAGS) project.cpp
@@ -107,7 +107,7 @@ main.o: main.cpp project.h
 	$(CXX) -c -o $@ $(CFLAGS) main.cpp
 
 option.o: option.cpp option.h
-	$(CXX) -c -O2 -o $@ $(CFLAGS) option.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) option.cpp
 
 makefile.o: generators/makefile.cpp
 	$(CXX) -c -o $@ $(CFLAGS) generators/makefile.cpp
@@ -129,7 +129,7 @@ projectgenerator.o: generators/projectgenerator.cpp
 
 #default rules
 .c.o:
-	$(CXX) -c -o $@ $(CFLAGS) -O2 $<
+	$(CXX) -c -o $@ $(CFLAGS) -O $<
 
 .cpp.o:
-	$(CXX) -c -o $@ $(CFLAGS) -O2 $<
+	$(CXX) -c -o $@ $(CFLAGS) -O $<
