@@ -2024,7 +2024,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 #ifndef QT_NO_STRINGLIST
 		QStringList list = QStringList::split( QChar('\n'), t, TRUE );
 		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
-		    QString z = (*it).latin1();
+		    QString z = *it;
 		    if ( fm.width( z ) + pw > width ) {
 			ci->truncated = TRUE;
 			QString tempText = "...";
