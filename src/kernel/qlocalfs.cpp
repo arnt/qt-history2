@@ -30,7 +30,6 @@
 #include "qapplication.h"
 #include "qurloperator.h"
 
-#define QLOCALFS_MAX_BYTES 1024
 //#define QLOCALFS_DEBUG
 
 // NOT REVISED
@@ -216,7 +215,8 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 
     QByteArray s;
     emit dataTransferProgress( 0, f.size(), op );
-    if ( f.size() < QLOCALFS_MAX_BYTES ) {
+    int blockSize = calcBlockSize( f.size() );
+    if ( f.size() < blockSize ) {
 	s.resize( f.size() );
 	f.readBlock( s.data(), f.size() );
 	emit data( s, op );
@@ -225,16 +225,16 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 	qDebug( "QLocalFs: got all %d bytes at once", f.size() );
 #endif
     } else {
-	s.resize( QLOCALFS_MAX_BYTES );
+	s.resize( blockSize );
 	int remaining = f.size();
 	while ( remaining > 0 ) {
 	    if ( operationInProgress() != op )
 		return;
-	    if ( remaining >= QLOCALFS_MAX_BYTES ) {
-		f.readBlock( s.data(), QLOCALFS_MAX_BYTES );
+	    if ( remaining >= blockSize ) {
+		f.readBlock( s.data(), blockSize );
 		emit data( s, op );
 		emit dataTransferProgress( f.size() - remaining, f.size(), op );
-		remaining -= QLOCALFS_MAX_BYTES;
+		remaining -= blockSize;
 	    } else {
 		s.resize( remaining );
 		f.readBlock( s.data(), remaining );
@@ -278,18 +278,19 @@ void QLocalFs::operationPut( QNetworkOperation *op )
 
     QByteArray ba( op->rawArg( 1 ) );
     emit dataTransferProgress( 0, ba.size(), op );
-    if ( ba.size() < QLOCALFS_MAX_BYTES ) {
+    int blockSize = calcBlockSize( ba.size() );
+    if ( ba.size() < blockSize ) {
 	f.writeBlock( ba.data(), ba.size() );
 	emit dataTransferProgress( ba.size(), ba.size(), op );
     } else {
 	int i = 0;
-	while ( i + QLOCALFS_MAX_BYTES < (int)ba.size() - 1 ) {
+	while ( i + blockSize < (int)ba.size() - 1 ) {
 	    if ( operationInProgress() != op )
 		return;
-	    f.writeBlock( &ba.data()[ i ], QLOCALFS_MAX_BYTES );
+	    f.writeBlock( &ba.data()[ i ], blockSize );
 	    f.flush();
-	    emit dataTransferProgress( i + QLOCALFS_MAX_BYTES, ba.size(), op );
-	    i += QLOCALFS_MAX_BYTES;
+	    emit dataTransferProgress( i + blockSize, ba.size(), op );
+	    i += blockSize;
 	    qApp->processEvents();
 	}
 	if ( i < (int)ba.size() - 1 )
@@ -308,4 +309,21 @@ void QLocalFs::operationPut( QNetworkOperation *op )
 int QLocalFs::supportedOperations() const
 {
     return OpListChildren | OpMkdir | OpRemove | OpRename | OpGet | OpPut;
+}
+
+/*!
+  \internal
+*/
+
+int QLocalFs::calcBlockSize( int totalSize ) const
+{
+    if ( totalSize == 0 )
+	return 1024;
+    int s = totalSize / 100;
+    // we want a block size between 1KB and 1MB
+    if ( s < 1024 )
+	s = 1024;
+    if ( s > 1048576 )
+	s = 1048576;
+    return s;
 }

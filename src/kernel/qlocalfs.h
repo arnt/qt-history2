@@ -48,6 +48,7 @@ protected:
     virtual void operationPut( QNetworkOperation *op );
 
 private:
+    int calcBlockSize( int totalSize ) const;
     QDir dir;
 
 };
