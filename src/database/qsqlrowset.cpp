@@ -43,6 +43,9 @@ QSqlRowset& QSqlRowset::operator=( const QSqlRowset & s )
     QSql::operator=( s );
     lastAt = s.lastAt;
     nm = s.nm;
+    srt = s.srt;
+    ftr = s.ftr;
+    
     return *this;
 }
 

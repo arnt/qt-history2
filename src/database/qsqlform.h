@@ -4,13 +4,12 @@
 #ifndef QT_H
 #include "qwidget.h"
 #include "qmap.h"
-#include "qsqlpropertymanager.h"
 #include "qsqlview.h"
+#include "qsqlfieldmapper.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
-class QSqlField;
 class QSqlPrivate;
 
 class Q_EXPORT QSqlForm : public QWidget
@@ -20,17 +19,15 @@ public:
     QSqlForm( QWidget * parent = 0, const char * name = 0 );
     ~QSqlForm();
     
-    void        associate( QWidget * widget, int field );
-    int         whichField( QWidget * widget ) const;
-    QWidget *   whichWidget( int field ) const;
-    
-    void        setQuery( const QSql & query );
-    void        setRowset( const QSqlRowset & rset );
-    void        setView( const QSqlView & view );
+    void associate( QWidget * widget, int field );
+
+    void setQuery( const QSql & query );
+    void setRowset( const QSqlRowset & rset );
+    void setView( const QSqlView & view );
    
 public slots:
-    virtual void refresh();
-    virtual void refreshFields();
+    virtual void syncWidgets();
+    virtual void syncFields();
     virtual void first();    
     virtual void previous();
     virtual void next();
@@ -38,15 +35,14 @@ public slots:
     virtual void insert();
     virtual void update();
     virtual void del();
-    virtual void commitAll();
-    virtual void rejectAll();
+    virtual void seek( int i );
         
-protected:
-
+signals:
+    void recordChanged( int i );
+    
 private:
     QSqlPrivate * d;
-    QMap< QWidget *, int > fieldMap;
-    QSqlPropertyManager m;
+    QSqlFieldMapper * fieldMap;
 };
 
 #endif // QT_NO_SQL

@@ -23,6 +23,7 @@ QSqlForm::QSqlForm( QWidget * parent, const char * name )
     : QWidget( parent, name )
 {
     d = new QSqlPrivate();
+    fieldMap = new QSqlFieldMapper();
 }
 /*!
   
@@ -31,6 +32,7 @@ QSqlForm::QSqlForm( QWidget * parent, const char * name )
 QSqlForm::~QSqlForm()
 {
     delete d;
+    delete fieldMap;
 }
 
 /*!
@@ -39,37 +41,7 @@ QSqlForm::~QSqlForm()
 */
 void QSqlForm::associate( QWidget * widget, int field )
 {
-    fieldMap[ widget ] = field;
-}
-
-/*!
-  
-  Returns index of the field associated with \a widget. -1 is returned
-  if no field is associated with \a widget.
-*/
-int QSqlForm::whichField( QWidget * widget ) const
-{
-    if( fieldMap.contains( widget ) )
-	return fieldMap[ widget ];
-    else
-	return -1;
-}
-
-
-/*!
-  
-  Returns a pointer to the QWidget associated with \a field. 0 is
-  returned if no widget is associated with \a field.
-*/
-QWidget * QSqlForm::whichWidget( int field ) const
-{
-    QMap< QWidget *, int >::ConstIterator it;
-    for( it = fieldMap.begin(); it != fieldMap.end(); ++it ){
-	if( *it == field )
-	    return it.key();
-    }
-
-    return 0;
+    fieldMap->add( widget, field );
 }
 
 /*!
@@ -82,6 +54,7 @@ void QSqlForm::setQuery( const QSql & query )
     d->resetMode( QSqlPrivate::Sql );
     QSql * s = d->sql();
     (*s) = query;
+    fieldMap->setQuery( s );
 }
 
 /*!
@@ -93,7 +66,8 @@ void QSqlForm::setRowset( const QSqlRowset & rset )
 {
     d->resetMode( QSqlPrivate::Rowset );
     QSqlRowset * r = d->rowset();
-    (*r) = rset;
+    (*r) = rset;    
+    fieldMap->setQuery( r );
 }
 
 /*!
@@ -106,57 +80,35 @@ void QSqlForm::setView( const QSqlView & view )
     d->resetMode( QSqlPrivate::View );
     QSqlView * v = d->view();
     (*v) = view;
+    fieldMap->setQuery( v );
 }
 
 /*!
   
-  Refresh the properties of the widgets in the form that are associated
-  with SQL fields.
+  Refresh the widgets in the form with values from the associated SQL
+  fields.
 */
-void QSqlForm::refresh()
+void QSqlForm::syncWidgets()
 {
     QSql * s = d->sql();
-    QObjectListIt it( *children() );
-    QObject * obj;
-    QSqlField f;
-    
-    if( !s ) return;
- 
-    for( ; it.current(); ++it ){
-	obj = it.current();
-	int i = whichField( (QWidget *) obj );
-	if( i < 0 ) continue;
-	f = s->fields().field( i );
-	if( obj->isWidgetType() ){
-	    m.setProperty( obj, f.value() );
-	}
-    }   
+    fieldMap->syncWidgets();
+    emit recordChanged( s->at() );
 }
 
-void QSqlForm::refreshFields()
+/*!
+  
+  Refresh the SQL fields with values from the associated widgets.
+*/
+void QSqlForm::syncFields()
 {
-    QSqlRowset * s = d->rowset();
-    QObjectListIt it( *children() );
-    QObject * obj;
-    
-    if( !s ) return;
- 
-    for( ; it.current(); ++it ){
-	obj = it.current();
-	int i = whichField( (QWidget *) obj );
-	if( i < 0 ) continue;
-	if( obj->isWidgetType() ){
-	    s->setValue( i, m.property( obj ) );
-	}
-    }
-    
+    fieldMap->syncFields();
 }
 
 void QSqlForm::first()
 {
     QSql * s = d->sql();
     if( s && s->first() ){
-	refresh();
+	syncWidgets();
     }
 }
 
@@ -164,7 +116,7 @@ void QSqlForm::last()
 {
     QSql * s = d->sql();
     if( s && s->last() ){
-	refresh();
+	syncWidgets();
     }
 }
 
@@ -172,7 +124,7 @@ void QSqlForm::next()
 {
     QSql * s = d->sql();
     if( s && s->next() ){
-	refresh();
+	syncWidgets();
     }
 }
 
@@ -180,7 +132,7 @@ void QSqlForm::previous()
 {
     QSql * s = d->sql();
     if( s && s->previous() ){
-	refresh();
+	syncWidgets();
     }
 }
 
@@ -194,9 +146,11 @@ void QSqlForm::update()
     QSqlView * v = d->view();
     
     if( v ){
-	refreshFields();
+	syncFields();
+	int at = v->at();
 	v->update( v->primaryIndex() );
 	v->select( v->sort() );
+	v->seek( at );
     }
 }
 
@@ -205,14 +159,11 @@ void QSqlForm::del()
     qDebug("delete(): not implemented!");    
 }
 
-void QSqlForm::commitAll()
+void QSqlForm::seek( int i )
 {
-    qDebug("commitAll(): not implemented!");
+    QSql * s = d->sql();
+    if( s && s->seek(i) ){
+	syncWidgets();
+    }
 }
-
-void QSqlForm::rejectAll()
-{
-    qDebug("rejectAll(): not implemented!");
-}
-
 #endif // QT_NO_SQL
