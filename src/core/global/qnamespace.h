@@ -971,6 +971,12 @@ public:
         QueuedConnection
     };
 
+    // Documented in qshortcutmap.cpp
+    enum ShortcutType {
+        WhereFocusWidget,
+        WhereActiveWindow
+    };
+
     // "handle" type for system objects. Documented as \internal in
     // qapplication.cpp
 #if defined(Q_WS_MAC)
