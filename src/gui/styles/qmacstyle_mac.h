@@ -77,6 +77,22 @@ public:
     QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                         const QStyleOption *opt) const;
 
+    virtual void drawItem(QPainter *p, const QRect &r,
+                          int flags, const QPalette &pal, bool enabled,
+                          const QString &text, int len = -1,
+                          const QColor *penColor = 0) const;
+    virtual void drawItem(QPainter *p, const QRect &r,
+                          int flags, const QPalette &pal, bool enabled,
+                          const QPixmap &pixmap,
+                          const QColor *penColor = 0) const { QWindowsStyle::drawItem(p, r, flags, pal, enabled, pixmap, penColor); }
+    inline void drawItem(QPainter *p, const QRect &r,
+                  int flags, const QPalette &pal, bool enabled,
+                  const QPixmap &pixmap,
+                  const QString &text, int len = -1,
+                  const QColor *penColor = 0) const {
+        QWindowsStyle::drawItem(p, r, flags, pal, enabled, pixmap, text, len, penColor);
+    }
+
 private:
     Q_DISABLE_COPY(QMacStyle)
 

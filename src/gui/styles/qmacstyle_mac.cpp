@@ -5134,4 +5134,14 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
     return d->AppManSizeFromContents(ct, opt, sz, fm, w);
 }
 
+
+void QMacStyle::drawItem(QPainter *p, const QRect &r,
+                          int flags, const QPalette &pal, bool enabled,
+                          const QString &text, int len, const QColor *penColor) const
+{
+    QWindowsStyle::drawItem(p, r, flags | Qt::NoAccel, pal, enabled, text, len, penColor);
+}
+
+
+
 #endif

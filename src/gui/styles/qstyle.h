@@ -68,7 +68,7 @@ public:
                           const QPixmap &pixmap,
                           const QColor *penColor = 0) const;
 
-    void drawItem(QPainter *p, const QRect &r,
+    inline void drawItem(QPainter *p, const QRect &r,
                   int flags, const QPalette &pal, bool enabled,
                   const QPixmap &pixmap,
                   const QString &text, int len = -1,
