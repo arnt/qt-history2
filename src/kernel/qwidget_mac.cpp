@@ -326,10 +326,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 
     bg_col = pal.normal().background();
 
+#if 0
     const char *c = name();
     if( c && isTopLevel()) {
 	setCaption( QString( c ));
     }
+#endif
 
     setWState( WState_MouseTracking );
     setMouseTracking( FALSE );                  // also sets event mask
