@@ -1005,19 +1005,24 @@ bool QXPathParser::reduce( QXPathAtom* &act )
 	case QXPathAtom::Operator:
 	    switch ( act->numberOfChildren() ) {
 		case 0:
-		    tmp1 = stack->pop();
-		    if ( stack->isEmpty() ) {
-			act->addChild( tmp1 );
-		    } else {
-			tmp2 = stack->top();
-			NonTerminal r_act = act->rightmostDescendantNt();
-			NonTerminal r_tmp2 = tmp2->rightmostDescendantNt();
-			if ( nonTerminalIsA( tmp1->nonTerminal(), r_tmp2 ) &&
-				nonTerminalIsA( tmp2->nonTerminal(), r_act ) ) {
-			    tmp2->addChild( tmp1 ); // ### error handling
-			    act->addChild( stack->pop() );
-			} else {
+		    while ( TRUE ) {
+			tmp1 = stack->pop(); // stack is never empty here
+			if ( stack->isEmpty() ) {
 			    act->addChild( tmp1 );
+			    break;
+			} else {
+			    tmp2 = stack->top();
+			    // we need the non-terminal of the left child of
+			    // act; this is the same as the non-terminal of act
+			    NonTerminal r_act = act->nonTerminal();
+			    NonTerminal r_tmp2 = tmp2->rightmostDescendantNt();
+			    if ( nonTerminalIsA( tmp1->nonTerminal(), r_tmp2 ) &&
+				    nonTerminalIsA( tmp2->nonTerminal(), r_act ) ) {
+				tmp2->addChild( tmp1 ); // ### error handling
+			    } else {
+				act->addChild( tmp1 );
+				break;
+			    }
 			}
 		    }
 		    break;
