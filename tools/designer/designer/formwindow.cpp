@@ -1576,12 +1576,11 @@ void FormWindow::resizeEvent( QResizeEvent *e )
 void FormWindow::windowsRepaintWorkaroundTimerTimeout()
 {
 #if defined(Q_WS_WIN32)
-    QObjectList *l = queryList( "QWidget" );
-    for ( QObject *o = l->first(); o; o = l->next() ) {
-	flickerfree_update( (QWidget*)o );
+    QObjectList l = queryList( "QWidget" );
+    for ( int i = 0; i < l.count(); ++i ) {
+	flickerfree_update( (QWidget*)l.at(i) );
     }
     flickerfree_update( this );
-    delete l;
 #endif
 }
 

@@ -8,7 +8,7 @@
 class PropertyObject : public QObject
 {
 public:
-    QMetaObject *metaObject() const { return (QMetaObject*)mobj; }
+    const QMetaObject *metaObject() const { return (QMetaObject*)mobj; }
     const char *className() const { return "PropertyObject"; }
     QObject* qObject() { return (QObject*)this; }
 private:

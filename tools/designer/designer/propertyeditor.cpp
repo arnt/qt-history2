@@ -2395,10 +2395,10 @@ void PropertyCursorItem::setValue()
 {
     if ( !comb )
 	return;
-    if ( QVariant( QCursor( (Qt::CursorShape)combo()->currentItem() ) ) == val )
+    if ( QVariant( QCursor( (QObject::CursorShape)combo()->currentItem() ) ) == val )
 	return;
     setText( 1, combo()->currentText() );
-    PropertyItem::setValue( QCursor( (Qt::CursorShape)combo()->currentItem() ) );
+    PropertyItem::setValue( QCursor( (QObject::CursorShape)combo()->currentItem() ) );
     notifyValueChange();
 }
 

@@ -133,16 +133,16 @@ bool DesignerApplication::winEventFilter( MSG *msg )
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	    QString arg = (*it).stripWhiteSpace();
 	    if ( arg[0] != '-' ) {
-		QObjectList* l = MainWindow::self->queryList( "FormWindow" );
-		FormWindow* fw = (FormWindow*) l->first();
+		QObjectList l = MainWindow::self->queryList( "FormWindow" );
+		
+		FormWindow* fw = 0;
 		FormWindow* totop = 0;
 		bool haveit = FALSE;
-		while ( fw ) {
+		for ( int i = 0; i < l.count(); ++i ) {
+		    fw = (FormWindow*)l.at(i);
 		    haveit = haveit || fw->fileName() == arg;
 		    if ( haveit )
 			totop = fw;
-
-		    fw = (FormWindow*) l->next();
 		}
 
 		if ( !haveit ) {
@@ -151,7 +151,6 @@ bool DesignerApplication::winEventFilter( MSG *msg )
 		} else if ( totop ) {
 		    totop->setFocus();
 		}
-		delete l;
 	    }
 	}
 	return TRUE;
