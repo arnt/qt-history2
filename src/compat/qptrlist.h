@@ -24,10 +24,10 @@ template<class type>
 class QPtrListStdIterator : public QGListStdIterator
 {
 public:
-    inline QPtrListStdIterator( QLNode* n ): QGListStdIterator(n){}
+    inline QPtrListStdIterator( QLNode* n ): QGListStdIterator(n) {}
     type *operator*() { return node ? (type *)node->getData() : 0; }
     inline QPtrListStdIterator<type> operator++()
-    { return node = next(); return *this; }
+    { node = next(); return *this; }
     inline QPtrListStdIterator<type> operator++(int)
     { QLNode* n = node; node = next(); return QPtrListStdIterator<type>( n ); }
     inline bool operator==( const QPtrListStdIterator<type>& it ) const { return node == it.node; }
