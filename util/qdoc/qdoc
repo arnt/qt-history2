@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#47 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#48 $
 #
 # this is a massive hack, written very quickly
 #
@@ -239,7 +239,8 @@ sub processdocs {
 	$doc =~ s!\\c\s+(\S+)!<code>$1</code>!gs;
 
 	$doc =~ s/\.?\s*$/.\n/s;
-	$doc =~ s/^.\n//s;
+	$doc =~ s/^\s*\n//s;
+	$doc =~ s/>\.\n/$>\n/s;
 	$doc =~ s/\s*\\sa\s+/\n\nmagicwordthatyoushouldavoid /g;
 	$doc =~ s-\s*\n\s*\n\s*-\n<p>-gs;
 	$doc =~ s/<linebreak>//gs;
