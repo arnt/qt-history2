@@ -63,12 +63,12 @@ public:
     QGroupBox( QWidget* parent=0, const char* name=0 );
     QGroupBox( const QString &title,
 	       QWidget* parent=0, const char* name=0 );
-    QGroupBox( int columns, Orientation o,
+    QGroupBox( int strips, Orientation o,
 	       QWidget* parent=0, const char* name=0 );
-    QGroupBox( int columns, Orientation o, const QString &title,
+    QGroupBox( int strips, Orientation o, const QString &title,
 	       QWidget* parent=0, const char* name=0 );
 
-    virtual void setColumnLayout(int columns, Orientation o);
+    virtual void setColumnLayout(int strips, Orientation o);
 
     QString title() const { return str; }
     virtual void setTitle( const QString &);
