@@ -428,6 +428,10 @@ QMakeProject::isActiveConfig(const QString &x)
     if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_UNIX_MODE) && 
        x == "unix") 
 	return TRUE;
+    else if(Option::target_mode == Option::TARG_MACX_MODE && x == "macx")
+	return TRUE;
+    else if(Option::target_mode == Option::TARG_MAC9_MODE && x == "mac9")
+	return TRUE;
     else if((Option::target_mode == Option::TARG_MAC9_MODE || Option::target_mode == Option::TARG_MACX_MODE) && 
 	    x == "mac") 
 	return TRUE;

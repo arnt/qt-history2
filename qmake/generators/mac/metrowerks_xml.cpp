@@ -81,18 +81,17 @@ MetrowerksMakefileGenerator::writeMakefile(QTextStream &t)
 bool
 MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 {
-    QString xmlfile;
-    if ( !project->variables()["XML_TEMPLATE"].isEmpty() ) {
-	xmlfile = project->first("XML_TEMPLATE");
-    } else {
-	xmlfile = project->first("MWERKS_XML_TEMPLATE");
-    }
-    xmlfile = findTemplate(xmlfile);
+    QString xmltmpl;
+    if ( !project->variables()["XML_TEMPLATE"].isEmpty() ) 
+	xmltmpl = project->first("XML_TEMPLATE");
+    else 
+	xmltmpl = project->first("MWERKS_XML_TEMPLATE");
+    QString xmlfile = findTemplate(xmltmpl);
     createFork(Option::output.name());
 
     QFile file(xmlfile);
     if(!file.open(IO_ReadOnly )) {
-	fprintf(stderr, "Cannot open XML file: %s\n", xmlfile.latin1());
+	fprintf(stderr, "Cannot open XML file: %s\n", xmltmpl.latin1());
 	return FALSE;
     }
     QTextStream xml(&file);
@@ -154,6 +153,19 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			  << "\t\t\t\t</FILEREF>" << endl;
 		    }
 		}
+	    } else if(variable == "CODEWARRIOR_FRAMEWORKS") {
+		if(!project->isEmpty("FRAMEWORKS")) {
+		    QStringList &list = project->variables()["FRAMEWORKS"];
+		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+			t << "\t\t\t\t<FRAMEWORK>" << endl
+			  << "\t\t\t\t\t<FILEREF>" << endl
+			  << "\t\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
+			  << "\t\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
+			  << "\t\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
+			  << "\t\t\t\t\t</FILEREF>" << endl
+			  << "\t\t\t\t</FRAMEWORK>" << endl;
+		    }
+		}
 	    } else if(variable == "CODEWARRIOR_DEPENDPATH" || variable == "CODEWARRIOR_INCLUDEPATH") {
 		QString arg=variable.right(variable.length()-variable.find('_')-1);
 		QStringList list;
@@ -197,10 +209,8 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			continue;
 
 		    QString recursive = "false";
-#if 0
 		    if(p.right(11) == ".framework:")
 			recursive = "true";
-#endif
 		    t << "\t\t\t\t\t<SETTING>" << endl
 		      << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
 		      << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
@@ -339,14 +349,17 @@ MetrowerksMakefileGenerator::init()
 	    ++val_it;
 	    if(val_it == l.end())
 		break;
-#if 0
-	    QString dir = "/System/Library/Frameworks/" + (*val_it) + ".framework/";
+
+	    if(project->isEmpty("QMAKE_FRAMEWORKDIR"))
+		project->variables()["QMAKE_FRAMEWORKDIR"].append("/System/Library/Frameworks/");
+	    QString dir = project->first("QMAKE_FRAMEWORKDIR");
 	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
 	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
 		project->variables()["INCLUDEPATH"].append(dir);
-	    if(project->variables()["LIBRARIES"].findIndex((*val_it)) == -1)
-		project->variables()["LIBRARIES"].append((*val_it));
-#endif
+
+	    QString frmwrk = (*val_it) + ".framework";
+	    if(project->variables()["FRAMEWORKS"].findIndex(frmwrk) == -1)
+		project->variables()["FRAMEWORKS"].append(frmwrk);
 	} else if((*val_it).left(1) != "-") {
 	    QString lib=(*val_it);
 	    int s = lib.findRev('/');
@@ -375,8 +388,10 @@ QString
 MetrowerksMakefileGenerator::findTemplate(QString file)
 {
     QString ret;
-    if(!QFile::exists(ret = file) && !QFile::exists((ret = (QString(getenv("HOME")) + "/.tmake/" + file))) &&
-	!QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/mac-mwerks/" + file)))
+    if(!QFile::exists(ret = file) && 
+       !QFile::exists((ret = Option::mkfile::qmakespec + QDir::separator() + file)) && 
+       !QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/mac-mwerks/" + file)) &&
+       !QFile::exists((ret = (QString(getenv("HOME")) + "/.tmake/" + file))))
 	return "";
     return ret;
 }
