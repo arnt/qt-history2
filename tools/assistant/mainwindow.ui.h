@@ -80,8 +80,14 @@ void MainWindow::init()
     sh->item( "tt" )->setFontFamily( family );
     browser->setStyleSheet( sh );
 
-    if ( !config.readBoolEntry( keybase + "ShowSideBar", TRUE ) )
-	helpDock->parentWidget()->hide();
+    QApplication::sendPostedEvents();
+    QString fn = QDir::homeDirPath() + "/.assistanttbrc";
+    QFile f( fn );
+    if ( f.open( IO_ReadOnly ) ) {
+	QTextStream ts( &f );
+	ts >> *this;
+	f.close();
+    }
 
     helpDock->tabWidget->setCurrentPage( config.readNumEntry( keybase + "SideBarPage", 0 ) );
 
@@ -288,9 +294,11 @@ void MainWindow::showSettingsDialog()
 
 void MainWindow::hide()
 {
-    QString keybase("/Qt Assistant/3.0/");
-    QSettings config;
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    config.writeEntry( keybase + "ShowSideBar", helpDock->parentWidget()->isVisible() );
+    QString fn = QDir::homeDirPath() + "/.assistanttbrc";
+    QFile f( fn );
+    f.open( IO_WriteOnly );
+    QTextStream ts( &f );
+    ts << *this;
+    f.close();
     QMainWindow::hide();
 }
