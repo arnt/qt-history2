@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#34 $
 **
 ** Implementation of QProcess class
 **
@@ -329,8 +329,8 @@ bool QProcess::canReadLineStderr() const
 
 /*!
   Reads a line of text from standard output, excluding any treailing newline or
-  carriage return characters and returns it. Returns "" if canReadLineStdout()
-  returns FALSE.
+  carriage return characters and returns it. Returns QString::null if
+  canReadLineStdout() returns FALSE.
 
   \sa canReadLineStdout() readLineStderr()
 */
@@ -339,15 +339,18 @@ QString QProcess::readLineStdout()
     QByteArray a;
     QString s;
     if ( scanNewline( TRUE, &a ) ) {
-	s = QString( a );
+	if ( a.isEmpty() )
+	    s = "";
+	else
+	    s = QString( a );
     }
     return s;
 }
 
 /*!
   Reads a line of text from standard error, excluding any treailing newline or
-  carriage return characters and returns it. Returns "" if canReadLineStderr()
-  returns FALSE.
+  carriage return characters and returns it. Returns QString::null if
+  canReadLineStderr() returns FALSE.
 
   \sa canReadLineStderr() readLineStdout()
 */
@@ -356,7 +359,10 @@ QString QProcess::readLineStderr()
     QByteArray a;
     QString s;
     if ( scanNewline( FALSE, &a ) ) {
-	s = QString( a );
+	if ( a.isEmpty() )
+	    s = "";
+	else
+	    s = QString( a );
     }
     return s;
 }
