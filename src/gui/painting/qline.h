@@ -46,10 +46,11 @@ public:
     void setLength(float len);
 
     QLineF unitVector() const;
-
     QLineF normalVector() const;
 
     IntersectType intersect(const QLineF &l, QPointF *intersectionPoint) const;
+
+    float angle(const QLineF &l) const;
 
     inline void moveBy(const QLineF &p);
 

@@ -15,6 +15,10 @@
 
 #include <math.h>
 
+#ifndef M_2PI
+#define M_2PI 6.28318530717958647692528676655900576
+#endif
+
 /*!
     \class QLineF
 
@@ -256,6 +260,21 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
     Translates this line by the vector specified by the line \a l.
 
 */
+
+/*!
+
+  Returns the smallest angel between the this line and \a l, not
+  taking into accound wether the lines intersect or not. The angle is
+  specified in degrees.
+
+*/
+float QLineF::angle(const QLineF &l) const
+{
+    Q_ASSERT(!isNull());
+    Q_ASSERT(!l.isNull());
+    float rad = acos( (vx()*l.vx() + vy()*l.vy()) / (length()*l.length()) );
+    return rad * 360 / M_2PI;
+}
 
 
 #ifndef QT_NO_DEBUG
