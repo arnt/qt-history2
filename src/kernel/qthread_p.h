@@ -52,16 +52,17 @@
 //
 
 
+#ifndef QT_H
 #include "qglobal.h"
-
-#include <errno.h>
-#include <unistd.h>
 #ifdef QWS
 #include <qptrdict.h>
 #else
 #include <qintdict.h>
 #endif
+#endif // QT_H
 
+#include <errno.h>
+#include <unistd.h>
 
 // Thread definitions for UNIX platforms
 

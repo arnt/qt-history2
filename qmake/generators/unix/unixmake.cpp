@@ -251,7 +251,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "echo '#include \"" << qt_dot_h << "\"' >" << outdir << "allmoc.cpp" << "\n\t"
 	  << "$(CXX) -E -DQT_MOC_CPP $(CXXFLAGS) $(INCPATH) >" << outdir << "allmoc.h " << outdir << "allmoc.cpp" << "\n\t"
 	  << "$(MOC) -o " << outdir << "allmoc.cpp " << outdir << "allmoc.h" << "\n\t"
-	  << "perl -pi -e 's{\"allmoc.h\"}{\"" << qt_dot_h << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
+	  << "perl -pi -e 's{#include \"allmoc.h\"}{#define QT_H_CPP\\n#include \"" << qt_dot_h << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
 	  << "rm " << outdir << "allmoc.h" << endl << endl;
     }
 }
@@ -318,6 +318,7 @@ UnixMakefileGenerator::init()
     }
 
     bool extern_libs = !project->isActiveConfig("dll")  || (project->variables()["TARGET"].first() == "qt" ||
+							    project->variables()["TARGET"].first() == "qte" ||
 							    project->variables()["TARGET"].first() == "qt-mt");
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if ( (!project->variables()["QMAKE_LIB_FLAG"].isEmpty() && !project->isActiveConfig("staticlib") ) ||
@@ -376,6 +377,7 @@ UnixMakefileGenerator::init()
 	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
 	}
 	if ( !(((project->variables()["TARGET"].first() == "qt") ||
+		(project->variables()["TARGET"].first() == "qte") ||
 		(project->variables()["TARGET"].first() == "qt-mt")) &&
                !project->variables()["QMAKE_LIB_FLAG"].isEmpty())) {
 	    if(!project->variables()["QMAKE_LIBDIR_QT"].isEmpty())
@@ -394,6 +396,7 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" +
 							  project->variables()["QMAKE_LIBDIR_OPENGL"].first());
 	if ( (project->variables()["TARGET"].first() == "qt") ||
+	     (project->variables()["TARGET"].first() == "qte") ||
 	     (project->variables()["TARGET"].first() == "qt-mt") ) {
 	    	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
 	} else {

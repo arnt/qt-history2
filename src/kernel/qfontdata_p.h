@@ -38,8 +38,10 @@
 #ifndef QFONTDATA_P_H
 #define QFONTDATA_P_H
 
+#ifndef QT_H
 #include <qcache.h>
 #include <qobject.h>
+#endif // QT_H
 
 
 //

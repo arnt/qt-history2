@@ -33,7 +33,9 @@
 #define __QWS_KDE_DECORATION_QWS_H__
 
 
+#ifndef QT_H
 #include "qwsdefaultdecoration_qws.h"
+#endif // QT_H
 
 
 #ifndef QT_NO_QWS_KDE_WM_STYLE

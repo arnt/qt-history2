@@ -33,7 +33,9 @@
 #define __QWS_WINDOWS_DECORATION_QWS_H__
 
 
+#ifndef QT_H
 #include "qwsdefaultdecoration_qws.h"
+#endif // QT_H
 
 
 #ifndef QT_NO_QWS_WINDOWS_WM_STYLE

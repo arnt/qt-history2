@@ -51,6 +51,8 @@
 //
 //
 
+#ifndef QT_H
+#endif // QT_H
 
 #if defined(Q_CC_MWERKS)
 # include <stdlib.h>

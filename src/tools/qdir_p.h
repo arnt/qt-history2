@@ -1,4 +1,6 @@
 /****************************************************************************
+#ifndef QT_H
+#endif // QT_H
 ** $Id: //depot/qt/main/src/tools/qdir_p.h#1 $
 **
 ** Definition of some private QDir functions.

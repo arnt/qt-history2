@@ -32,7 +32,9 @@
 #ifndef __QWS_DEFAULT_DECORATION_H__
 #define __QWS_DEFAULT_DECORATION_H__
 
+#ifndef QT_H
 #include "qwsmanager_qws.h"
+#endif // QT_H
 
 #ifndef QT_NO_QWS_MANAGER
 

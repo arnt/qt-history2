@@ -52,7 +52,9 @@
 //
 //
 
+#ifndef QT_H
 #include "qnamespace.h"
+#endif // QT_H
 
 #ifndef QT_NO_EFFECTS
 class QWidget;

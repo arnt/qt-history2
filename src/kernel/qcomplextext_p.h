@@ -1,12 +1,14 @@
 #ifndef QCOMPLEXTEXT_H
 #define QCOMPLEXTEXT_H
 
+#ifndef QT_H
 #include <qstring.h>
 #include <qpointarray.h>
 #include <qfont.h>
 #include <qpainter.h>
 #include <qlist.h>
 #include <qshared.h>
+#endif // QT_H
 
 // bidi helper classes. Internal to Qt
 struct Q_EXPORT QBidiStatus {

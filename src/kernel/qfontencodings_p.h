@@ -50,10 +50,11 @@
 //
 //
 
+#ifndef QT_H
 #include <qfeatures.h>
 #include <qtextcodec.h>
-
 #include <qjpunicode.h>
+#endif // QT_H
 
 #ifndef QT_NO_CODECS
 

@@ -33,7 +33,9 @@
 #define __QWS_HYDRO_DECORATION_QWS_H__
 
 
+#ifndef QT_H
 #include "qwsdefaultdecoration_qws.h"
+#endif // QT_H
 
 
 #ifndef QT_NO_QWS_HYDRO_WM_STYLE

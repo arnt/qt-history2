@@ -52,6 +52,9 @@
 //
 //
 
+#ifndef QT_H
+#endif // QT_H
+
 class QWidget;
 class QObject;
 class QKeyEvent;

@@ -53,6 +53,8 @@
 //
 //
 
+#ifndef QT_H
+#endif // QT_H 
 
 extern uint qt_get_rgb_val( const char *name );
 extern void qt_reset_color_avail();
