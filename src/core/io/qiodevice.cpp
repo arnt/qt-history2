@@ -219,6 +219,9 @@ QIODevicePrivate::~QIODevicePrivate()
     \value Text When reading lines using readLine(), end-of-line
                      terminators are translated to the local encoding.
     \value Unbuffered Any buffer in the device is bypassed.
+
+    Certain modes, such as Unbuffered and Truncate, depend on support for
+    these features in specific subclasses of QIODevice.
 */
 
 /*!     \fn QIODevice::bytesWritten(Q_LONGLONG bytes)
