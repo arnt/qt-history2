@@ -40,7 +40,7 @@ private:
     QVector<const QShortcutEntry *> matches() const;
     void createNewSequence(QKeyEvent *e, QKeySequence &seq);
     void clearSequence(QKeySequence &seq);
-    bool correctSubWindow(const QShortcutEntry &item);
+    bool correctContext(const QShortcutEntry &item);
     int translateModifiers(Qt::ButtonState state);
 };
 
