@@ -1592,6 +1592,12 @@ Configure options:
  $SHN  -no-stl ............ Do not compile STL support.
  $SHY  -stl ............... Compile STL support.
 
+    -verbose .............. Print verbose information about each step of the
+    -v .................... configure process.
+
+    -help ................. Print help and usage information.
+    -h .................... Print help and usage information.
+
 Image Formats:
 
     -plugin-imgfmt-<format> Enable format (png, jpeg, or mng) to
