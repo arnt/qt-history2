@@ -35,7 +35,7 @@ CLEAN :
 
 qmsdev.dll: $(DEF_FILE) $(OBJS)
    $(LINK) $(LINKOPTS) $(OBJS)
-   $(COPY) qmsdev.dll "$(MSVCADDINS)"
+   $(COPY) qmsdev.dll "$(MSDEVDIR)\Addins"
 
 QMsDev.tlb: QMsDev.odl
 	$(MTL) $(MTLOPTIONS) QMsDev.odl
