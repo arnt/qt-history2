@@ -173,7 +173,7 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
 
     Q_ASSERT(d->engine->isActive());
     d->engine->updateState(d->state);
-
+    ++d->device->painters;
     return true;
 }
 
@@ -194,6 +194,7 @@ bool QPainter::end()
     if (ended)
 	d->engine = 0;
 
+    --d->device->painters;
     return ended;
 }
 

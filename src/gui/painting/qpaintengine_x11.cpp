@@ -565,7 +565,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclippe
         setf(UsePrivateCx);
     }
 
-//     pdev->painters++;                           // also tell paint device
 //     if ( reinit ) {
 //         d->bg_mode = TransparentMode;              // default background mode
 //         d->rop = CopyROP;                          // default ROP
