@@ -1429,6 +1429,7 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
     detailMode->setFixedSize(tools);
     QObject::connect(detailMode, SIGNAL(clicked()), q, SLOT(showDetail()));
     box->addWidget(detailMode);
+    box->setResizeMode(QLayout::Fixed);
 
     grid->addLayout(box, 0, 4, 1, 2);
 }
@@ -1462,10 +1463,12 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
                      q, SLOT(lookInChanged(QString)));
     QObject::connect(lookInEdit, SIGNAL(returnPressed()), q, SLOT(lookIn()));
     lookIn->setLineEdit(lookInEdit);
+    lookIn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     grid->addWidget(d->lookIn, 0, 1, 1, 3);
 
     // filename
     fileName = new QFileDialogLineEdit(q);
+    fileName->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     QObject::connect(fileName, SIGNAL(textChanged(QString)),
                      q, SLOT(fileNameChanged(QString)));
     grid->addWidget(fileName, 2, 1, 1, 3);
@@ -1473,6 +1476,7 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
     // filetype
     fileType = new QComboBox(q);
     fileType->setDuplicatesEnabled(false);
+    fileType->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     QObject::connect(fileType, SIGNAL(activated(QString)),
                      q, SLOT(useFilter(QString)));
     grid->addWidget(fileType, 3, 1, 1, 3);
