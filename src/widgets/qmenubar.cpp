@@ -349,8 +349,8 @@ void QMenuBar::menuContentsChanged()
     if( pendingDelayedContentsChanges )
         return;
     pendingDelayedContentsChanges = 1;
-    if( !pendingDelayedStateChanges ) // if the timer hasn't been started yet
-	QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+    if( !pendingDelayedStateChanges )// if the timer hasn't been started yet
+        QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
 }
 
 void QMenuBar::performDelayedContentsChanged()
@@ -411,12 +411,16 @@ void QMenuBar::performDelayedStateChanged()
 
 void QMenuBar::performDelayedChanges()
 {
+#if defined(Q_WS_MAC) && !defined(QMAC_MENUBAR_NO_NATIVE)
+    // I must do this here as the values change in the function below.
+    bool needMacUpdate = (pendingDelayedContentsChanges || pendingDelayedStateChanges);
+#endif
     if( pendingDelayedContentsChanges )
         performDelayedContentsChanged();
     if( pendingDelayedStateChanges )
         performDelayedStateChanged();
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-    if(mac_eaten_menubar) {
+    if(mac_eaten_menubar && needMacUpdate) {
 	macDirtyNativeMenubar();
 
 	bool all_hidden = TRUE;
