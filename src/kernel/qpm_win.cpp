@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#29 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#29 $")
 
 
 bool QPixmap::optimAll = TRUE;
@@ -135,8 +135,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	    for ( x=0; x<pad; x++ )
 		*p++ = 0;
 	}
-    }
-    else {					// invert all bits
+    } else {					// invert all bits
 	for ( y=0; y<h; y++ ) {
 	    for ( x=0; x<bitsbpl; x++ )
 		*p++ = ~(*bits++);
@@ -301,16 +300,15 @@ void QPixmap::fill( const QColor &fillColor )
 }
 
 
-long QPixmap::metric( int m ) const		// get metric information
+int QPixmap::metric( int m ) const
 {
-    long val;
+    int val;
     if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
 	if ( m == PDM_WIDTH )
 	    val = width();
 	else
 	    val = height();
-    }
-    else {
+    } else {
 	HDC gdc = GetDC( 0 );
 	switch ( m ) {
 	    // !!!hanord: return widget mm width/height
@@ -332,7 +330,7 @@ long QPixmap::metric( int m ) const		// get metric information
 	    default:
 		val = 0;
 #if defined(CHECK_RANGE)
-		warning( "QWidget::metric: Invalid metric command" );
+		warning( "QPixmap::metric: Invalid metric command" );
 #endif
 	}
 	ReleaseDC( 0, gdc );
@@ -359,11 +357,12 @@ QImage QPixmap::convertToImage() const
     if ( d > 1 && d <= 8 ) {			// set to nearest valid depth
 	d = 8;					//   2..7 ==> 8
 	ncols = 256;
-    }
-    else if ( d > 8 ) {
+    } else if ( d > 8 ) {
 	d = 24;					//   > 8  ==> 24
 	ncols = 0;
     }
+
+#error Fix dette
 
     QImage image( w, h, d, ncols, QImage::BigEndian );
 
@@ -381,13 +380,13 @@ QImage QPixmap::convertToImage() const
     bmh->biSizeImage	  = image.numBytes();
     bmh->biClrUsed	  = ncols;
     bmh->biClrImportant	  = 0;
-    ulong *coltbl = (ulong*)(bmi_data + sizeof(BITMAPINFOHEADER));
+    QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
 
     GetDIBits( handle(), hbm(), 0, h, image.bits(), bmi, DIB_RGB_COLORS );
 
     for ( int i=0; i<ncols; i++ ) {		// copy color table
 	RGBQUAD *r = (RGBQUAD*)&coltbl[i];
-	image.setColor( i, QRGB(r->rgbRed,
+	image.setColor( i, qRgb(r->rgbRed,
 				r->rgbGreen,
 				r->rgbBlue) );
     }
@@ -423,9 +422,9 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	if ( mode == Color )			// native depth wanted
 	    conv8 = d == 1;
 	else if ( d == 1 && image.numColors() == 2 ) {
-	    ulong c0 = image.color(0);		// mode==Auto: convert to best
-	    ulong c1 = image.color(1);
-	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != QRGB(255,255,255);
+	    QRgb c0 = image.color(0);		// mode==Auto: convert to best
+	    QRgb c1 = image.color(1);
+	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
 	}
 	if ( conv8 ) {
 	    image = image.convertDepth( 8 );
@@ -451,7 +450,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     bool native = qt_image_did_native_bmp();
 
     int	  ncols	   = image.numColors();
-    char *bmi_data = new char[sizeof(BITMAPINFO)+sizeof(ulong)*ncols];
+    char *bmi_data = new char[sizeof(BITMAPINFO)+sizeof(QRgb)*ncols];
     BITMAPINFO	     *bmi = (BITMAPINFO*)bmi_data;
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     bmh->biSize		  = sizeof(BITMAPINFOHEADER);
@@ -465,16 +464,16 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     bmh->biYPelsPerMeter  = 0;
     bmh->biClrUsed	  = ncols;
     bmh->biClrImportant	  = ncols;
-    ulong *coltbl = (ulong*)(bmi_data + sizeof(BITMAPINFOHEADER));
+    QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
     for ( int i=0; i<ncols; i++ ) {		// copy color table
 	RGBQUAD *r = (RGBQUAD*)&coltbl[i];
-	ulong c = image.color(i);
-	r->rgbBlue  = QBLUE( c );
-	r->rgbGreen = QGREEN( c );
-	r->rgbRed   = QRED( c );
+	QRgb     c = image.color(i);
+	r->rgbBlue  = qBlue ( c );
+	r->rgbGreen = qGreen( c );
+	r->rgbRed   = qRed  ( c );
 	r->rgbReserved = 0;
     }
-
+#error Fix dette
     uchar *bits = image.bits();
     if ( image.depth() == 24 && !native ) {
 	ASSERT( ncols == 0 );
@@ -535,8 +534,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	plg = FALSE;
 	w = qRound( matrix.m11()*ws );
 	h = qRound( matrix.m22()*hs );
-    }
-    else {					// rotation/shearing
+    } else {					// rotation/shearing
 	plg = TRUE;
 	const float dt = 0.0001F;
 	float x1,y1, x2,y2, x3,y3, x4,y4;	// get corners
@@ -571,8 +569,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 	if ( !invertible ) {			// not invertible
 	    w = 0;
-	}
-	else {
+	} else {
 	    p[0].x = qRound(x1 - xmin);
 	    p[0].y = qRound(y1 - ymin);
 	    p[1].x = qRound(x2 - xmin);

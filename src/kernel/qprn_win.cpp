@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#11 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#11 $")
 
 
 // QPrinter states
@@ -174,7 +174,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 }
 
 
-long QPrinter::metric( int m ) const
+int QPrinter::metric( int m ) const
 {
     if ( handle() == 0 )			// not ready
 	return 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#47 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#47 $")
 
 
 /*----------------------------------------------------------------------------
@@ -512,7 +512,7 @@ void QColor::setLazyAlloc( bool enable )
 
 
 /*----------------------------------------------------------------------------
-  \fn ulong QColor::pixel() const
+  \fn uint QColor::pixel() const
   Returns the pixel value.
 
   This value is used by the underlying window system to refer to a color.

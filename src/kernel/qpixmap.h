@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#55 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#56 $
 **
 ** Definition of QPixmap class
 **
@@ -83,7 +83,7 @@ public:
 
 protected:
     QPixmap( int w, int h, const uchar *data, bool isXbitmap );
-    long	metric( int ) const;
+    int		metric( int ) const;
 
 #if defined(_WS_WIN_)
     HANDLE	allocMemDC();

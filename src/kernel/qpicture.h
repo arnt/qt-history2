@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#10 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#11 $
 **
 ** Definition of QPicture class
 **
@@ -25,17 +25,17 @@ public:
 
     bool	play( QPainter * );
 
-    bool	load( const char *fileName );	// read from file
-    bool	save( const char *fileName );	// write to file
+    bool	load( const char *fileName );
+    bool	save( const char *fileName );
 
 protected:
     bool	cmd( int, QPainter *, QPDevCmdParam * );
-    long	metric( int ) const;
+    int		metric( int ) const;
 
 private:
-    bool	exec( QPainter *, QDataStream &, long );
-    QBuffer	pictb;				// internal buffer
-    long	trecs;
+    bool	exec( QPainter *, QDataStream &, int );
+    QBuffer	pictb;
+    int		trecs;
     bool	formatOk;
 };
 

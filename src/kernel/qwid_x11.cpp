@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#126 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#125 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#126 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -40,7 +40,7 @@ void qt_updated_rootinfo();
 
 extern Atom q_wm_delete_window;			// defined in qapp_x11.cpp
 
-const ulong stdWidgetEventMask =		// X event mask
+const uint stdWidgetEventMask =			// X event mask
 	KeyPressMask | KeyReleaseMask |
 	ButtonPressMask | ButtonReleaseMask |
 	KeymapStateMask |
@@ -447,7 +447,7 @@ void QWidget::setMouseTracking( bool enable )
 {
     if ( enable == testWFlags(WMouseTracking) )
 	return;
-    ulong m;
+    uint m;
     if ( enable ) {
 	m = PointerMotionMask;
 	setWFlags( WMouseTracking );
@@ -1273,24 +1273,23 @@ void QWidget::drawText( int x, int y, const char *str )
   Use the QPaintDeviceMetrics class instead.
  ----------------------------------------------------------------------------*/
 
-long QWidget::metric( int m ) const		// return widget metrics
+int QWidget::metric( int m ) const
 {
-    long val;
+    int val;
     if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
 	if ( m == PDM_WIDTH )
 	    val = crect.width();
 	else
 	    val = crect.height();
-    }
-    else {
+    } else {
 	int scr = qt_xscreen();
 	switch ( m ) {
 	    case PDM_WIDTHMM:
-		val = ((long)DisplayWidthMM(dpy,scr)*crect.width())/
+		val = (DisplayWidthMM(dpy,scr)*crect.width())/
 		      DisplayWidth(dpy,scr);
 		break;
 	    case PDM_HEIGHTMM:
-		val = ((long)DisplayHeightMM(dpy,scr)*crect.height())/
+		val = (DisplayHeightMM(dpy,scr)*crect.height())/
 		      DisplayHeight(dpy,scr);
 		break;
 	    case PDM_NUMCOLORS:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#37 $
 **
 ** Implementation of QPicture class
 **
@@ -17,10 +17,10 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#37 $")
 
 
-/*!
+/*----------------------------------------------------------------------------
   \class QPicture qpicture.h
   \brief The QPicture class is a paint device that records and replays QPainter
   commands.
@@ -58,7 +58,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#36 $")
     p.drawPicture( pic );			// draw the picture
     p.end();					// painting done
   \endcode
-*/
+ ----------------------------------------------------------------------------*/
 
 
 static const char  *mfhdr_tag = "QPIC";		// header tag
@@ -66,23 +66,23 @@ static const UINT16 mfhdr_maj = 1;		// major version #
 static const UINT16 mfhdr_min = 0;		// minor version #
 
 
-/*!
+/*----------------------------------------------------------------------------
   \fn QPicture::QPicture()
   Constructs an empty picture.
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn QPicture::~QPicture()
   Destroys the picture.
-*/
+ ----------------------------------------------------------------------------*/
 
 
-/*!
+/*----------------------------------------------------------------------------
   Loads a picture from the file specified by \e fileName and returns TRUE
   if successful, otherwise FALSE.
 
   \sa save()
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QPicture::load( const char *fileName )
 {
@@ -98,12 +98,12 @@ bool QPicture::load( const char *fileName )
     return TRUE;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Saves a picture to the file specified by \e fileName and returns TRUE
   if successful, otherwise FALSE.
 
   \sa load()
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QPicture::save( const char *fileName )
 {
@@ -116,12 +116,12 @@ bool QPicture::save( const char *fileName )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Replays the picture using \e painter and returns TRUE if successful, or
   FALSE if the internal picture data is inconsistent.
 
   This function does exactly the same as QPainter::drawPicture().
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QPicture::play( QPainter *painter )
 {
@@ -195,13 +195,13 @@ bool QPicture::play( QPainter *painter )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   \internal
   Iterates over the internal picture data and draws the picture using
   \e painter.
-*/
+ ----------------------------------------------------------------------------*/
 
-bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
+bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 {
     UINT8	c;				// command id
     UINT8	tiny_len;			// 8-bit length descriptor
@@ -209,7 +209,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
     INT16	i_16, i1_16, i2_16;		// parameters...
     INT8	i_8;
     UINT32	ul;
-    long	strm_pos;
+    int		strm_pos;
     char       *str;
     QPoint	p, p1, p2;
     QRect	r;
@@ -411,10 +411,10 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   \internal
   Records painter commands and stores them in the pictb buffer.
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 {
@@ -439,7 +439,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	int cs_start = sizeof(UINT32);		// pos of checksum word
 	int data_start = cs_start + sizeof(UINT16);
 	int nrecs_start = data_start + 2*sizeof(INT16) + 2*sizeof(UINT8);
-	long pos = pictb.at();
+	int pos = pictb.at();
 	pictb.at( nrecs_start );
 	s << (UINT32)trecs;			// write number of records
 	pictb.at( cs_start );
@@ -561,7 +561,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Internal implementation of the virtual QPaintDevice::metric() function.
 
   Use the QPaintDeviceMetrics class instead.
@@ -569,11 +569,11 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
   A picture has the following hard coded values:
   width=640, height=480. widthMM=236, heightMM=176, numcolors=16777216
   and depth=24.
-*/
+ ----------------------------------------------------------------------------*/
 
-long QPicture::metric( int m ) const
+int QPicture::metric( int m ) const
 {
-    long val;
+    int val;
     switch ( m ) {
 	case PDM_WIDTH:
 	    val = 640;
@@ -603,15 +603,15 @@ long QPicture::metric( int m ) const
 }
 
 
-// --------------------------------------------------------------------------
-// QPainter member functions
-//
+/*****************************************************************************
+  QPainter member functions
+ *****************************************************************************/
 
-/*!
+/*----------------------------------------------------------------------------
   Replays the picture \e pic.
 
   This function does exactly the same as QPicture::play().
-*/
+ ----------------------------------------------------------------------------*/
 
 void QPainter::drawPicture( const QPicture &pic )
 {

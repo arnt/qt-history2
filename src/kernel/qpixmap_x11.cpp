@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#77 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#76 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#77 $")
 
 
 /*****************************************************************************
@@ -136,10 +136,10 @@ static uchar *flip_bits( const uchar *bits, int len )
     return newdata;
 }
 
-static int highest_bit( ulong v )
+static int highest_bit( uint v )
 {
     int i;
-    ulong b = (uint)1 << 31;			// get pos of highest set bit
+    uint b = (uint)1 << 31;			// get pos of highest set bit
     for ( i=31; ((b & v) == 0) && i>=0;	 i-- )
 	b >>= 1;
     return i;
@@ -443,24 +443,23 @@ void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
   Use the QPaintDeviceMetrics class instead.
  ----------------------------------------------------------------------------*/
 
-long QPixmap::metric( int m ) const		// get metric information
+int QPixmap::metric( int m ) const
 {
-    long val;
+    int val;
     if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
 	if ( m == PDM_WIDTH )
 	    val = width();
 	else
 	    val = height();
-    }
-    else {
+    } else {
 	int scr = qt_xscreen();
 	switch ( m ) {
 	    case PDM_WIDTHMM:
-		val = ((long)DisplayWidthMM(dpy,scr)*width())/
+		val = (DisplayWidthMM(dpy,scr)*width())/
 		      DisplayWidth(dpy,scr);
 		break;
 	    case PDM_HEIGHTMM:
-		val = ((long)DisplayHeightMM(dpy,scr)*height())/
+		val = (DisplayHeightMM(dpy,scr)*height())/
 		      DisplayHeight(dpy,scr);
 		break;
 	    case PDM_NUMCOLORS:
@@ -552,7 +551,7 @@ QImage QPixmap::convertToImage() const
 
 	QRgb  *dst;
 	uchar *src;
-	ulong  pixel;
+	uint   pixel;
 	int    bppc = xi->bits_per_pixel;
 
 	if ( bppc > 8 && xi->byte_order == LSBFirst )
@@ -576,22 +575,22 @@ QImage QPixmap::convertToImage() const
 			break;
 		    case 24:			// 24 bit MSB
 			pixel = src[2] | (ushort)src[1] << 8 |
-				(ulong)src[0] << 16;
+				(uint)src[0] << 16;
 			src += 3;
 			break;
 		    case 25:			// 24 bit LSB
 			pixel = src[0] | (ushort)src[1] << 8 |
-				(ulong)src[2] << 16;
+				(uint)src[2] << 16;
 			src += 3;
 			break;
 		    case 32:			// 32 bit MSB
 			pixel = src[3] | (ushort)src[2] << 8 |
-				(ulong)src[1] << 16 | (ulong)src[0] << 24;
+				(uint)src[1] << 16 | (uint)src[0] << 24;
 			src += 4;
 			break;
 		    case 33:			// 32 bit LSB
 			pixel = src[0] | (ushort)src[1] << 8 |
-				(ulong)src[2] << 16 | (ulong)src[3] << 24;
+				(uint)src[2] << 16 | (uint)src[3] << 24;
 			src += 4;
 			break;
 		    default:			// should not really happen
@@ -776,8 +775,8 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	if ( mode == Color )			// native depth wanted
 	    conv8 = d == 1;
 	else if ( d == 1 && image.numColors() == 2 ) {
-	    ulong c0 = image.color(0);		// mode==Auto: convert to best
-	    ulong c1 = image.color(1);
+	    QRgb c0 = image.color(0);		// mode==Auto: convert to best
+	    QRgb c1 = image.color(1);
 	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
 	}
 	if ( conv8 ) {
@@ -838,7 +837,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     register uchar *p;
 
     if ( trucol ) {				// truecolor display
-	ulong pix[256];				// pixel translation table
+	QRgb  pix[256];				// pixel translation table
 	bool  d8 = d == 8;
 	uint  red_mask	  = visual->red_mask;
 	uint  green_mask  = visual->green_mask;
@@ -865,7 +864,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	newbits = (uchar *)malloc( xi->bytes_per_line*h );
 	uchar *src;
 	uchar *dst;
-	ulong  pixel;
+	QRgb   pixel;
 	int    bppc = xi->bits_per_pixel;
 
 	if ( bppc > 8 && xi->byte_order == LSBFirst )
@@ -1039,7 +1038,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	    pixarr[minpix].use = 0;
 	}
 
-	ulong pix[256];				// pixel translation table
+	uint pix[256];				// pixel translation table
 	px = &pixarr_sorted[0];
 	for ( i=0; i<ncols; i++ ) {		// allocate colors
 	    QColor c( px->r, px->g, px->b );
@@ -1357,8 +1356,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     int dy  = qRound((double)mat.dy() *65536.0);
 
     int	  m21ydx = dx + (xi->xoffset<<16), m22ydy = dy;
-    ulong trigx, trigy;
-    ulong maxws = ws<<16, maxhs=hs<<16;
+    uint  trigx, trigy;
+    uint  maxws = ws<<16, maxhs=hs<<16;
     uchar *p	= dptr;
     int	  xbpl, p_inc;
     bool  msbfirst = xi->bitmap_bit_order == MSBFirst;
@@ -1423,7 +1422,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		case 32:			// 32 bpp transform
 		while ( p < maxp ) {
 		    if ( trigx < maxws && trigy < maxhs )
-			*((ulong*)p) = *((ulong *)(sptr+sbpl*(trigy>>16) +
+			*((uint*)p) = *((uint *)(sptr+sbpl*(trigy>>16) +
 						   ((trigx>>16)<<2)));
 		    trigx += m11;
 		    trigy += m12;

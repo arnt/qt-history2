@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#172 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#173 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#172 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#173 $")
 
 
 /*****************************************************************************
@@ -213,7 +213,7 @@ static void free_gc( Display *dpy, GC gc )
 struct QGCC					// cached GC
 {
     GC	    gc;
-    ulong   pix;
+    uint    pix;
     int	    count;
     int	    hits;
 };
@@ -276,7 +276,7 @@ static void cleanup_gc_cache()
 }
 
 
-static bool obtain_gc( void **ref, GC *gc, ulong pix, Display *dpy, HANDLE hd )
+static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, HANDLE hd )
 {
     if ( !gc_cache_init )
 	init_gc_cache();

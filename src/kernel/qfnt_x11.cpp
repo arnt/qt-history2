@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#55 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#54 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#55 $")
 
 
 static const int fontFields = 14;
@@ -101,7 +101,7 @@ typedef declare(QDictIteratorM,QXFontData)  QFontDictIt;
 class QFontCache : public QCacheM(QXFontData)
 {
 public:
-    QFontCache( long maxCost, int size=17, bool cs=TRUE, bool ck=TRUE )
+    QFontCache( int maxCost, int size=17, bool cs=TRUE, bool ck=TRUE )
 	: QCacheM(QXFontData)(maxCost,size,cs,ck) {}
     void deleteItem( GCI d );
 };
@@ -992,7 +992,7 @@ static QXFontData *loadXFont( const QString &fontName, bool *newFont )
     xfd->f    = tmp;
     xfd->name = fontName;			// used by QFontInfo
     XFontStruct *f = xfd->f;
-    long sz = (f->max_bounds.ascent + f->max_bounds.descent)
+    int sz = (f->max_bounds.ascent + f->max_bounds.descent)
 	      *f->max_bounds.width
 	      *(f->max_char_or_byte2 - f->min_char_or_byte2) / 8;
     if ( sz > fontCache->maxCost() + reserveCost )	// make room for this

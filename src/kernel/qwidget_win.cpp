@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#35 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#35 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -677,16 +677,15 @@ void QWidget::drawText( int x, int y, const char *str )
 }
 
 
-long QWidget::metric( int m ) const		// return widget metrics
+int QWidget::metric( int m ) const		// return widget metrics
 {
-    long val;
+    int val;
     if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
 	if ( m == PDM_WIDTH )
 	    val = crect.width();
 	else
 	    val = crect.height();
-    }
-    else {
+    } else {
 	HDC gdc = GetDC( 0 );
 	switch ( m ) {
 	    // !!!hanord: return widget mm width/height

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#13 $
 **
 ** Implementation of QTimer class
 **
@@ -12,7 +12,7 @@
 
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#13 $")
 
 
 /*----------------------------------------------------------------------------
@@ -99,7 +99,7 @@ QTimer::~QTimer()
   \sa stop(), changeInterval(), isActive()
  ----------------------------------------------------------------------------*/
 
-int QTimer::start( long msec, bool sshot )
+int QTimer::start( int msec, bool sshot )
 {
     if ( id != INV_TIMER )			// stop running timer
 	stop();
@@ -117,7 +117,7 @@ int QTimer::start( long msec, bool sshot )
   \sa start(), isActive()
  ----------------------------------------------------------------------------*/
 
-void QTimer::changeInterval( long msec )
+void QTimer::changeInterval( int msec )
 {
     if ( id == INV_TIMER )			// create new timer
 	start( msec );

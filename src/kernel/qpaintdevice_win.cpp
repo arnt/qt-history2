@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#18 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#18 $")
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -58,7 +58,7 @@ bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
     return FALSE;
 }
 
-long QPaintDevice::metric( int ) const
+int QPaintDevice::metric( int ) const
 {
 #if defined(CHECK_STATE)
     warning( "QPaintDevice::metrics: Device has no metric information" );
@@ -134,7 +134,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 #endif
 	return;
     }
-    static long ropCodes[] =			// ROP translation table
+    static uint ropCodes[] =			// ROP translation table
 	{ SRCCOPY, SRCPAINT, SRCINVERT, 0x00220326 /* DSna */,
 	  NOTSRCCOPY, MERGEPAINT, 0x00990066 /* DSnx */,
 	  SRCAND, DSTINVERT };

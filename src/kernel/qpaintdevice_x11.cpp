@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#57 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#56 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#57 $")
 
 
 /*----------------------------------------------------------------------------
@@ -167,7 +167,7 @@ bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
   Please use the QPaintDeviceMetrics class instead.
  ----------------------------------------------------------------------------*/
 
-long QPaintDevice::metric( int ) const
+int QPaintDevice::metric( int ) const
 {
 #if defined(CHECK_STATE)
     warning( "QPaintDevice::metrics: Device has no metric information" );

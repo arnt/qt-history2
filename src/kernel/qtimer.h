@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.h#9 $
+** $Id: //depot/qt/main/src/kernel/qtimer.h#10 $
 **
 ** Definition of QTimer class
 **
@@ -23,10 +23,10 @@ public:
     QTimer( QObject *parent=0, const char *name=0 );
    ~QTimer();
 
-    bool	isActive() const { return id >= 0; }
+    bool	isActive() const;
 
-    int		start( long msec, bool sshot = FALSE );
-    void	changeInterval( long msec );
+    int		start( int msec, bool sshot = FALSE );
+    void	changeInterval( int msec );
     void	stop();
 
 signals:
@@ -39,6 +39,12 @@ private:
     int		id;
     bool	single;
 };
+
+
+inline bool QTimer::isActive() const
+{
+    return id >= 0;
+}
 
 
 #endif // QTIMER_H

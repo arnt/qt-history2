@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#39 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#39 $")
 
 
 /*****************************************************************************
@@ -47,7 +47,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#38 $")
 struct QHDCObj					// cached pen or brush
 {
     HANDLE  obj;
-    ulong   pix;
+    uint    pix;
     int	    count;
     int	    hits;
 };
@@ -147,7 +147,7 @@ static void cleanup_cache()
 }
 
 
-static bool obtain_obj( void **ref, HANDLE *obj, ulong pix, QHDCObj **cache,
+static bool obtain_obj( void **ref, HANDLE *obj, uint pix, QHDCObj **cache,
 			bool is_pen )
 {
     if ( !cache_init )
@@ -239,10 +239,10 @@ static inline void release_obj( void *ref )
     ((QHDCObj*)ref)->count--;
 }
 
-static inline bool obtain_pen( void **ref, HANDLE *pen, ulong pix )
+static inline bool obtain_pen( void **ref, HANDLE *pen, uint pix )
 { return obtain_obj( ref, pen, pix, pen_cache, TRUE ); }
 
-static inline bool obtain_brush( void **ref, HANDLE *brush, ulong pix )
+static inline bool obtain_brush( void **ref, HANDLE *brush, uint pix )
 { return obtain_obj( ref, brush, pix, brush_cache, FALSE ); }
 
 #define release_pen	release_obj
@@ -377,7 +377,7 @@ void QPainter::updatePen()
     }
 
     int	   ps	   = cpen.style();
-    ulong  pix	   = cpen.color().pixel();
+    uint   pix	   = cpen.color().pixel();
     bool   cacheIt = ps == NoPen || (ps == SolidLine && cpen.width() == 0);
     HANDLE hpen_old;
 
@@ -1600,10 +1600,10 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    pa = xForm( a );
     }
 
-    int x1, y1, x2, y2;
+    int  x1, y1, x2, y2;
     uint i = index;
-    bool  solid = cpen.style() == SolidLine;
-    ulong pixel = cpen.color().pixel();
+    bool solid = cpen.style() == SolidLine;
+    uint pixel = cpen.color().pixel();
 
     while ( nlines-- ) {
 	pa.point( i++, &x1, &y1 );

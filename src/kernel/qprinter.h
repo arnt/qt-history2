@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#10 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#11 $
 **
 ** Definition of QPrinter class
 **
@@ -62,7 +62,7 @@ public:
 
 protected:
     bool	cmd( int, QPainter *, QPDevCmdParam * );
-    long	metric( int ) const;
+    int		metric( int ) const;
 
 private:
 #if defined(_WS_X11_)

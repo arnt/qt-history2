@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#76 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#77 $
 **
 ** Definition of QWidget class
 **
@@ -221,7 +221,7 @@ protected:
 
     bool	 acceptFocus()	const;
     void	 setAcceptFocus( bool );
-    long	 metric( int )	const;
+    int		 metric( int )	const;
 
     WFlags	 getWFlags()	const;
     void	 setWFlags( WFlags );
