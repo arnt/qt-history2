@@ -254,8 +254,9 @@ QVariant MetaDataBase::fakeProperty( QObject * o, const QString &property)
 	return ( (PropertyObject*)o )->mdFakeProperty( property );
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
+	if ( !o->isA( "QDesignerPopupMenu" ) )
+	    qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		      o, o->name(), o->className() );
 	return QVariant();
     }
     QMap<QString, QVariant>::Iterator it = r->fakeProperties.find( property );
