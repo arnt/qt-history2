@@ -141,7 +141,8 @@
 
     QAbstractSocket stops receiving data (and no longer emits
     readyRead()) after closing() has been emitted. Any pending data is
-    still available
+    still available, and can still be read, but no more data will be
+    read from the network.
 
     \sa closed()
 */
