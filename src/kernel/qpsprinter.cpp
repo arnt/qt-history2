@@ -2283,9 +2283,9 @@ void QPSPrinterFontPrivate::restore()
     //qDebug("restore for font %s\n",psname.latin1());
 }
 
-static inline const char *toHex( uchar u ) 
+static inline const char *toHex( uchar u )
 {
-    char hexVal[3];
+    static char hexVal[3];
     int i = 1;
     while ( i >= 0 ) {
 	ushort hex = (u & 0x000f);
@@ -2302,7 +2302,7 @@ static inline const char *toHex( uchar u )
 
 static inline const char *toHex( ushort u ) 
 {
-    char hexVal[5];
+    static char hexVal[5];
     int i = 3;
     while ( i >= 0 ) {
 	ushort hex = (u & 0x000f);
