@@ -103,15 +103,7 @@ QStringList QDecorationFactory::keys()
 #endif
 #ifndef QT_NO_QWS_DECORATION_STYLED
     if (!list.contains("Styled"))
-        list << "KDE2";
-#endif
-#ifndef QT_NO_QWS_DECORATION_BEOS
-    if (!list.contains("BeOS"))
-        list << "BeOS";
-#endif
-#ifndef QT_NO_QWS_DECORATION_HYDRO
-    if (!list.contains("Hydro"))
-        list << "Hydro";
+        list << "Styled";
 #endif
 
     return list;
