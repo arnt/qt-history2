@@ -2,45 +2,7 @@
 
 #include "renderthread.h"
 
-static const int ColormapSize = 512;
-static uint colormap[ColormapSize];
-
-static uint rgbFromWaveLength(float wave)
-{
-    float r = 0.0;
-    float g = 0.0;
-    float b = 0.0;
-
-    if (wave >= 380.0 && wave <= 440.0) {
-        r = -1.0 * (wave - 440.0) / (440.0 - 380.0);
-        b = 1.0;
-    } else if (wave >= 440.0 && wave <= 490.0) {
-        g = (wave - 440.0) / (490.0 - 440.0);
-        b = 1.0;
-    } else if (wave >= 490.0 && wave <= 510.0) {
-        g = 1.0;
-        b = -1.0 * (wave - 510.0) / (510.0 - 490.0);
-    } else if (wave >= 510.0 && wave <= 580.0) {
-        r = (wave - 510.0) / (580.0 - 510.0);
-        g = 1.0;
-    } else if (wave >= 580.0 && wave <= 645.0) {
-        r = 1.0;
-        g = -1.0 * (wave - 645.0) / (645.0 - 580.0);
-    } else if (wave >= 645.0 && wave <= 780.0) {
-        r = 1.0;
-    }
-
-    float s = 1.0;
-    if (wave > 700.0)
-        s = 0.3 + 0.7 * (780.0 - wave) / (780.0 - 700.0);
-    else if (wave <  420.0)
-        s = 0.3 + 0.7 * (wave - 380.0) / (420.0 - 380.0);
-
-    r = pow(r * s, 0.8);
-    g = pow(g * s, 0.8);
-    b = pow(b * s, 0.8);
-    return qRgb(int(r * 255), int(g * 255), int(b * 255));
-}
+uint RenderThread::colormap[ColormapSize];
 
 RenderThread::RenderThread(QObject *parent)
     : QThread(parent)
@@ -85,8 +47,8 @@ void RenderThread::run()
             if (abort)
                 return;
 
-            QRgb *scanLine =
-                   reinterpret_cast<QRgb *>(image.scanLine(y + halfHeight));
+            uint *scanLine =
+                    reinterpret_cast<uint *>(image.scanLine(y + halfHeight));
             for (int x = -halfWidth; x < halfWidth; ++x) {
                 float ax = centerX + (x * scaleFactor);
                 float ay = centerY + (y * scaleFactor);
@@ -96,24 +58,24 @@ void RenderThread::run()
 
                 do {
                     ++numPasses;
-                    float a2 = a1 * a1 - b1 * b1 + ax;
-                    float b2 = 2 * a1 * b1 + ay;
+                    float a2 = (a1 * a1) - (b1 * b1) + ax;
+                    float b2 = (2 * a1 * b1) + ay;
                     a1 = a2;
                     b1 = b2;
-                } while (numPasses <= MaxPrecision
+                } while (numPasses < MaxPrecision
                          && (a1 * a1) + (b1 * b1) <= limit);
 
-                if (numPasses > MaxPrecision)
-                    *scanLine++ = qRgb(0, 0, 0);
-                else
-                    *scanLine++ = colormap[numPasses % ColormapSize];
+                *scanLine++ = colormap[numPasses % ColormapSize];
             }
-            emit finishedRendering(image);
         }
+
+        if (!restart)
+            emit finishedRendering(image);
 
         mutex.lock();
         if (!restart)
             condition.wait(&mutex);
+        restart = false;
         mutex.unlock();
     }
 }
@@ -134,4 +96,41 @@ void RenderThread::render(float centerX, float centerY, float scaleFactor,
         restart = true;
         condition.wakeOne();
     }
+}
+
+uint RenderThread::rgbFromWaveLength(float wave)
+{
+    float r = 0.0;
+    float g = 0.0;
+    float b = 0.0;
+
+    if (wave >= 380.0 && wave <= 440.0) {
+        r = -1.0 * (wave - 440.0) / (440.0 - 380.0);
+        b = 1.0;
+    } else if (wave >= 440.0 && wave <= 490.0) {
+        g = (wave - 440.0) / (490.0 - 440.0);
+        b = 1.0;
+    } else if (wave >= 490.0 && wave <= 510.0) {
+        g = 1.0;
+        b = -1.0 * (wave - 510.0) / (510.0 - 490.0);
+    } else if (wave >= 510.0 && wave <= 580.0) {
+        r = (wave - 510.0) / (580.0 - 510.0);
+        g = 1.0;
+    } else if (wave >= 580.0 && wave <= 645.0) {
+        r = 1.0;
+        g = -1.0 * (wave - 645.0) / (645.0 - 580.0);
+    } else if (wave >= 645.0 && wave <= 780.0) {
+        r = 1.0;
+    }
+
+    float s = 1.0;
+    if (wave > 700.0)
+        s = 0.3 + 0.7 * (780.0 - wave) / (780.0 - 700.0);
+    else if (wave <  420.0)
+        s = 0.3 + 0.7 * (wave - 380.0) / (420.0 - 380.0);
+
+    r = pow(r * s, 0.8);
+    g = pow(g * s, 0.8);
+    b = pow(b * s, 0.8);
+    return qRgb(int(r * 255), int(g * 255), int(b * 255));
 }

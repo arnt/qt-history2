@@ -26,6 +26,8 @@ protected:
     void run();
 
 private:
+    uint rgbFromWaveLength(float wave);
+
     QMutex mutex;
     QWaitCondition condition;
     float centerX;
@@ -34,6 +36,9 @@ private:
     QSize resultSize;
     bool restart;
     bool abort;
+
+    enum { ColormapSize = 512 };
+    static uint colormap[ColormapSize];
 };
 
 #endif
