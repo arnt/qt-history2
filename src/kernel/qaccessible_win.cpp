@@ -10,7 +10,9 @@
 
 #include <winable.h>
 #include <oleacc.h>
+#ifndef Q_CC_BOR
 #include <comdef.h>
+#endif
 
 void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 {
@@ -320,6 +322,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfo( unsigned int itinfo, 
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &riid, wchar_t **rgszNames, unsigned int cNames, unsigned long lcid, long *rgdispid )
 {
+#ifndef Q_CC_BOR
     // PROPERTIES:  Hierarchical
     if ( _bstr_t(rgszNames[0]) == _bstr_t(L"accParent") ) 
 	rgdispid[0] = DISPID_ACC_PARENT;
@@ -367,6 +370,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &riid, 
 	return DISP_E_UNKNOWNINTERFACE;
 
     return S_OK;
+#else
+    return DISP_E_MEMBERNOTFOUND;
+#endif
 }
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::Invoke( long dispIdMember, const _GUID &riid, unsigned long lcid, unsigned short wFlags, tagDISPPARAMS *pDispParams, tagVARIANT *pVarResult, tagEXCEPINFO *pExcepInfo, unsigned int *puArgErr )
