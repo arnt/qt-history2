@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#10 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#11 $
 **
 ** Definition of QTabBar class
 **
@@ -21,6 +21,7 @@ struct QTabPrivate;
 
 struct QTab
 {
+    QTab(): enabled( TRUE ), id( 0 ) {}
     virtual ~QTab();
 
     QString label;
