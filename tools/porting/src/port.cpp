@@ -28,7 +28,6 @@
 using std::cout;
 using std::endl;
 
-QString rulesFileName;
 QString rulesFilePath;
 QString applicationDirPath;
 
@@ -123,57 +122,100 @@ int projectMode(QString inFile)
 void usage(char **argv)
 {
     using namespace std;
-    cout << "Usage: " << argv[0] << " infile.cpp/h/pro/pri" << endl;
     cout << "Tool for porting Qt 3 applications to Qt 4, using the compatibility library" << endl;
     cout << "and compatibility functions in the core library." << endl;
+    cout << "Usage: " << argv[0] << " [options] <Infile>" << endl;
     cout << endl;
-    cout << "qt3to4 has two usage modes: " << endl;
-    cout << "* File mode:     qt3to4 infile.cpp/h" << endl;
-    cout << "* Project mode:  qt3to4 infile.pro/pri " << endl;
+    cout << "Infile can be a source file or a project file." << endl;
+    cout << "If you specify a project file, ending with .pro or .pri," << endl;
+    cout << "qt3to4 will port all files specified in that project" << endl;
     cout << endl;
-    cout << "In file mode a single file is ported, while in project mode all files specified" << endl;
-    cout << "in the .pro or .pri file are ported." << endl;
+    cout << "Options:" << endl;
+    cout << "-h        Display this help" << endl;
+    cout << "-f file   Specify the location for the rules file." << endl;
     cout << endl;
-    cout << "See README for more info." << endl;
+    cout << "The porting documentation contains more information on how " << endl;
+    cout << "to use qt3to4 as wall as general porting information." << endl;
+
 }
+
+/*
+    Syntax for override file:
+    Same as main, with the addition that you can specify
+    <item Type = "..." disable ="true">
+    ...
+    </item>
+    To include the main file, use the following syntax:
+    <include name="foo/bar.xml">
+*/
 
 int main(int argc, char**argv)
 {
     QApplication app(argc, argv);
     applicationDirPath = app.applicationDirPath();
+    QString defualtRulesFileName = "q3porting.xml";
 
-    QString in;
-    QString out;
-    if(argc !=2) {
+    if(argc > 4) {
         usage(argv);
         return 0;
     }
 
-    in = argv[1];
-    if (in == "--help" || in == "/h" || in == "-help" || in == "-h"
-        || in == "-?" || in == "/?") {
+    QString in = argv[1];
+    if (in == "--help" || in == "/h" || in == "-help"
+        || in == "-h"  || in == "-?" || in == "/?") {
         usage(argv);
         return 0;
     }
 
-    rulesFileName="q3porting.xml";
-    rulesFilePath=findRulesFile(rulesFileName, argv[0]);
-    if (rulesFilePath.isEmpty()) {
-        cout << "Error: Could not find rules file: " << rulesFileName.toLocal8Bit().constData() << endl;
-        cout << "Please try setting the QTDIR environment variable" << endl;
+    QString inFileName;
+    if(in == "-f") {
+        if(argc < 4) {
+            usage(argv);
+            return 0;
+        }
+        rulesFilePath = argv[2];
+        //Set defualtRulesFileName here so we can reference
+        //it when printing the "not found" error.
+        defualtRulesFileName = argv[2];
+        inFileName = argv[3];
+    } else {
+        if(argc != 2) {
+            usage(argv);
+            return 0;
+        }
+        rulesFilePath = findRulesFile(defualtRulesFileName, argv[0]);
+        inFileName = in;
+    }
+
+    //Check if we have a rules file
+    if (!QFile::exists(rulesFilePath)) {
+        cout << "Error: Could not find rules file: ";
+        cout << defualtRulesFileName.toLocal8Bit().constData() << endl;
+        cout << "Please try setting the QTDIR environment variable," << endl;
+        cout << "or specifying the file with the -f option" << endl;
         return 0;
     } else {
-        cout << "Using rules file: " << QDir::convertSeparators(rulesFilePath).toLocal8Bit().constData() <<endl;
+        cout << "Using rules file: ";
+        cout << QDir::convertSeparators(rulesFilePath).toLocal8Bit().constData() <<endl;
+    }
+
+    //check if we have an infile
+    if (!QFile::exists(inFileName)) {
+        cout << "Could not find infile: ";
+        cout << QDir::convertSeparators(inFileName).toLocal8Bit().constData() <<endl;
+        return 0;
     }
 
     PortingRules::createInstance(rulesFilePath);
 
+    //determine mode and do the port
     int retval;
     if(in.endsWith(".pro") || in.endsWith(".pri"))
-        retval = projectMode(in);
+        retval = projectMode(inFileName);
     else
-        retval = fileMode(in);
+        retval = fileMode(inFileName);
 
+    //write log
     QStringList report = Logger::instance()->fullReport();
     QString logFileName =  "portinglog.txt";
     cout << "Writing log to " << logFileName.toLocal8Bit().constData() << endl;
