@@ -1512,7 +1512,7 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *d)
     EventLoopTimerRef otc = mac_trap_context;
     RemoveEventLoopTimer(mac_trap_context);
     mac_trap_context = NULL;
-    if(r != otc || w != qt_button_down || request_context_pending)
+    if(r != otc || w != qt_button_down || request_context_pending || qt_mac_in_drag)
 	return;
     request_context_pending = TRUE;
 

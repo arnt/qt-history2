@@ -406,8 +406,10 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode mode )
     killTimer( tid );
     DisposeDrag( theDrag );
     qt_mac_in_drag = FALSE;
+
     return ((result == noErr)  && drag_received &&
-            (current_drag_action == QDropEvent::Move) && widget->extraData()->macDndExtra->acceptact);
+            (current_drag_action == QDropEvent::Move) && 
+	    !widget->extraData()->macDndExtra->acceptact);
 }
 
 void QDragManager::updatePixmap()
@@ -484,7 +486,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 #endif
 	qAddPostRoutine( qt_mac_dnd_cleanup );
     }
-    QCursor *cursor = NULL;
+    const QCursor *cursor = NULL;
     if (widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget ) {
         QDragMoveEvent de( widget->mapFromGlobal( globalMouse ) );
 	de.setAction(current_drag_action);
