@@ -3892,13 +3892,25 @@ QFileIconProvider::QFileIconProvider( QObject * parent, const char* name )
 
   If pixmap() returns 0, QFileDialog draws nothing.
 
-  The default implementation returns 0 in Qt 2.1.  In future versions
-  of Qt it may be extended.
+  The default implementation returns particular icons for files, directories,
+  link-files, link-directories, and blank for other types.
+  Future versions of Qt may extend this further.
 */
 
-const QPixmap * QFileIconProvider::pixmap( const QFileInfo & )
+const QPixmap * QFileIconProvider::pixmap( const QFileInfo & info )
 {
-    return 0;
+    if ( info.isSymLink() ) {
+	if ( info.isFile() )
+	    return symLinkFileIcon;
+	else
+	    return symLinkDirIcon;
+    } else if ( info.isDir() ) {
+	return closedFolderIcon;
+    } else if ( info.isFile() ) {
+	return fileIcon;
+    } else {
+	return fifteenTransparentPixels;
+    }
 }
 
 /*!  Sets all file dialogs to use \a provider to select icons to draw
