@@ -491,10 +491,10 @@ flag explicitly.
 /*! \enum QScrollView::ResizePolicy
 
   This enum type is used to control QScrollView's reaction to resize
-  events.  There are three possible settings:
+  events.  There are four possible settings:
 
   \value Default  QScrollView selects one of the other settings
-  automatically when it has to.  In this version, QScrollView
+  automatically when it has to.  In this version of Qt, QScrollView
   changes to \c Manual if you resize the contents with resizeContents()
   and to \c AutoOne if a child is added.
 
@@ -503,9 +503,10 @@ flag explicitly.
   \value AutoOne  if there is only one child widget the view stays
   the size of that widget.  Otherwise the behaviour is undefined.
 
-  \value AutoOneFit  if there is only one child widget the child
-  will be stretched to fit the QScrollView.
-  Otherwise the behaviour is undefined.
+  \value AutoOneFit - if there is only one child widget the view stays
+  the size of that widget's sizeHint(). If the scrollview is resized bigger
+  than the child's sizeHint(), the child will be resized to fit.
+  If there is more than one child, the behaviour is undefined.
 
 */
 //####  The widget will be resized to its sizeHint() when a LayoutHint event
