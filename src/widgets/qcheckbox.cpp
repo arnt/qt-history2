@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#23 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#23 $";
 #endif
 
 
@@ -133,12 +133,10 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	}
     }
     else if ( gs == PMStyle ) {			// PM check box
-	QPen   pen( g.dark() );
-	QBrush brush( g.background() );
-	p->setPen( pen );
-	p->setBrush( brush );
+	p->setPen( g.dark() );
+	p->setBrush( g.background() );
 	p->drawRect( x, y, w, h );
-	brush.setStyle( NoBrush );
+	p->brush().setStyle( NoBrush );
 	int x1 = x+1, y1=y+1, x2=x+w-2, y2=y+h-2;
 	QPointArray atop, abottom;
 	atop.setPoints( 3, x1,y2-1, x1,y1, x2,y1 );
@@ -152,11 +150,11 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	    tc = g.light();
 	    bc = g.dark();
 	}
-	pen.setColor( tc );
+	p->pen().setColor( tc );
 	p->drawPolyline( atop );
-	pen.setColor( bc );
+	p->pen().setColor( bc );
 	p->drawPolyline( abottom );
-	pen.setColor( g.background() );
+	p->pen().setColor( g.background() );
 	p->drawPoint( x1, y2 );
 	p->drawPoint( x2, y1 );
 	static QCOORD check_mark[] = {
@@ -177,9 +175,9 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	    QPointArray amark( sizeof(check_mark)/(sizeof(QCOORD)*2),
 			       check_mark );
 	    amark.move( x1, y1 );
-	    pen.setColor( g.foreground() );
+	    p->pen().setColor( g.foreground() );
 	    p->drawLineSegments( amark );
-	    pen.setColor( g.dark() );
+	    p->pen().setColor( g.dark() );
 	    for ( int i=0; i<sizeof(check_mark_pix)/sizeof(QCOORD); i+=2 )
 		p->drawPoint( x1 + check_mark_pix[i],
 			      y1 + check_mark_pix[i+1] );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#24 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#24 $";
 #endif
 
 
@@ -178,8 +178,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	    6,4, 8,4, 10,6, 10,8, 8,10, 6,10, 4,8, 4,6 };
 	static QCOORD pts6[] = {		// check mark extras
 	    4,5, 5,4,  9,4, 10,5,  10,9, 9,10,	5,10, 4,9 };
-	QPen pen( g.dark() );
-	p->setPen( pen );
+	p->setPen( g.dark() );
 	QPointArray a( QCOORDARRLEN(pts1), pts1 );
 	a.move( x, y );
 	p->eraseRect( x, y, w, h );
@@ -199,11 +198,11 @@ void QRadioButton::drawButton( QPainter *paint )
 	    bp = pts3;
 	    bl = QCOORDARRLEN(pts3);
 	}
-	pen.setColor( tc );
+	p->pen().setColor( tc );
 	a.setPoints( QCOORDARRLEN(pts2), pts2 );
 	a.move( x, y );
 	p->drawLineSegments( a );		// draw top shadow
-	pen.setColor( bc );
+	p->pen().setColor( bc );
 	a.setPoints( bl, bp );
 	a.move( x, y );
 	p->drawLineSegments( a );
@@ -213,14 +212,13 @@ void QRadioButton::drawButton( QPainter *paint )
 		x1++;
 		y1++;
 	    }
-	    QBrush brush( g.foreground() );
-	    p->setBrush( brush );
-	    pen.setColor( g.foreground() );
+	    p->setBrush( g.foreground() );
+	    p->pen().setColor( g.foreground() );
 	    a.setPoints( QCOORDARRLEN(pts5), pts5 );
 	    a.move( x1, y1 );
 	    p->drawPolygon( a );
-	    brush.setStyle( NoBrush );
-	    pen.setColor( g.dark() );
+	    p->brush().setStyle( NoBrush );
+	    p->pen().setColor( g.dark() );
 	    a.setPoints( QCOORDARRLEN(pts6), pts6 );
 	    a.move( x1, y1 );
 	    p->drawLineSegments( a );
@@ -233,23 +231,20 @@ void QRadioButton::drawButton( QPainter *paint )
 	    { 0,6, 6,0 , 11,5, 10,5, 6,1, 1,6, 2,6, 6,2, 9,5 };
 	static QCOORD bottom_pts[] =		// bottom (V) of diamond
 	    { 1,7, 6,12, 12,6, 11,6, 6,11, 2,7, 3,7, 6,10, 10,6 };
-	QPen   pen( NoPen );
-	bool   showUp = (isUp() && !isOn()) || (isDown() && isOn());
-	QColor bgc    = g.background();
-	QBrush brush( showUp ? bgc : g.mid() );
+	bool showUp = (isUp() && !isOn()) || (isDown() && isOn());
 	QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
 	p->eraseRect( x, y, w, h );
-	p->setPen( pen );
-	p->setBrush( brush );
+	p->setPen( NoPen );
+	p->setBrush( showUp ? g.background() : g.mid() );
 	a.move( x, y );
 	p->drawPolygon( a );			// clear inner area
-	pen.setStyle( SolidLine );
-	pen.setColor( showUp ? g.light() : g.dark() );
-	brush.setStyle( NoBrush );
+	p->pen().setStyle( SolidLine );
+	p->pen().setColor( showUp ? g.light() : g.dark() );
+	p->brush().setStyle( NoBrush );
 	a.setPoints( QCOORDARRLEN(top_pts), top_pts );
 	a.move( x, y );
 	p->drawPolyline( a );			// draw top part
-	pen.setColor( showUp ? g.dark() : g.light() );
+	p->pen().setColor( showUp ? g.dark() : g.light() );
 	a.setPoints( QCOORDARRLEN(bottom_pts), bottom_pts );
 	a.move( x, y );
 	p->drawPolyline( a );			// draw bottom part
