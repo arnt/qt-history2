@@ -327,7 +327,7 @@ static int parsePrintcap(QList<QPrinterDescription> *printers, const QString& fi
         QString line = line_ascii;
         line = line.trimmed();
         if (line.length() >= 1 && line[int(line.length()) - 1] == '\\')
-            line.truncate(line.length() - 1);
+            line.chop(1);
         if (line[0] == '#') {
             if (!atEnd)
                 continue;
@@ -838,7 +838,7 @@ static void parseQconfig(QList<QPrinterDescription> *printers)
                     perhapsAddPrinter(printers, stanzaName, QString::null,
                                        QString::null);
             }
-            line.truncate(line.length()-1);
+            line.chop(1);
             if (line.length() >= 1 && line.length() <= 20)
                 stanzaName = line;
             up = true;

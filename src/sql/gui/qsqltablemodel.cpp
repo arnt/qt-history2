@@ -98,7 +98,7 @@ QString QSqlTableModelPrivate::whereClause() const
     if (!clause.isEmpty()) {
         clause.prepend(" where ");
         // remove tailing "and"
-        clause.truncate(clause.length() - 5);
+        clause.chop(5);
     }
     return clause;
 }
@@ -299,7 +299,7 @@ QString QSqlTableModel::updateStatement(const QSqlRecord &values) const
     if (stmt.at(stmt.length() - 2) != QLatin1Char(',')) // nothing to update
         return QString();
 
-    stmt.truncate(stmt.length() - 2);
+    stmt.chop(2);
 
     stmt.append(d->whereClause());
 

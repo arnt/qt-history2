@@ -868,7 +868,7 @@ void QFtpPI::readyRead()
         }
         replyText += line.mid(4); // strip reply code 'xyz '
         if (replyText.endsWith("\r\n"))
-            replyText.truncate(replyText.length()-2);
+            replyText.chop(2);
 
         if (processReply())
             replyText = "";

@@ -133,8 +133,8 @@ search_keys::search_keys(QString path, QString key, const char *where)
 #else
     QString oldkey = key, oldpath = path;
 #endif
-    while(key.right(1) == "/")
-	key.truncate(key.length() -1);
+    while(key.endsWith("/"))
+	key.chop(1);
     qi = path;
     qk = key;
     while(qk.startsWith("/"))
@@ -306,8 +306,8 @@ void QSettingsPrivate::sysInsertSearchPath(QSettings::System s, const QString &p
     }
 
     QString realpath = path;
-    while(realpath.right(1) == "/")
-        realpath.truncate(realpath.length() -1);
+    while(realpath.endsWith("/"))
+        realpath.chop(1);
     if (!realpath.isEmpty())
         sysd->searchPaths.append(realpath);
 }
@@ -317,8 +317,8 @@ void QSettingsPrivate::sysRemoveSearchPath(QSettings::System s, const QString &p
     if(s != QSettings::Mac)
         return;
     QString realpath = path;
-    while(realpath.right(1) == "/")
-        realpath.truncate(realpath.length() -1);
+    while(realpath.endsWith("/"))
+        realpath.chop(1);
     sysd->searchPaths.removeAll(realpath);
 }
 

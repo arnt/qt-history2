@@ -4326,7 +4326,7 @@ QPSPrintEngineFont::QPSPrintEngineFont(const QFont &f, int script, QPSPrintEngin
                 }
                 xfontname = rawName.mid(0,index);
                 if (xfontname.endsWith("*"))
-                    xfontname.truncate(xfontname.length() - 1);
+                    xfontname.chop(1);
                 xlfd = true;
             }
         }

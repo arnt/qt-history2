@@ -328,7 +328,7 @@ QString QSqlDriver::whereClause(const QSqlRecord &rec, bool preparedStatement) c
             s.append(rec.fieldName(i)).append(" = ? AND ");
     }
     if (!s.isEmpty())
-        s.truncate(s.length() - 5); // remove trailing AND
+        s.chop(5); // remove trailing AND
     return s;
 }
 

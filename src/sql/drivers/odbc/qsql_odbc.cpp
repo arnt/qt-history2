@@ -1617,7 +1617,7 @@ QStringList QODBCDriver::tables(QSql::TableType type) const
         tableType += "SYSTEM TABLE,";
     if (tableType.isEmpty())
         return tl;
-    tableType.truncate(tableType.length() - 1);
+    tableType.chop(1);
 
     r = SQLTables(hStmt,
                    NULL,

@@ -684,7 +684,7 @@ QStringList QTDSDriver::tables(QSql::TableType type) const
 
     if (typeFilter.isEmpty())
         return list;
-    typeFilter.truncate(typeFilter.length() - 4);
+    typeFilter.chop(4);
 
     QSqlQuery t = createQuery();
     t.setForwardOnly(true);

@@ -1041,7 +1041,7 @@ QStringList QIBaseDriver::tables(QSql::TableType type) const
         if (!(type & QSql::Tables))
             typeFilter += "RDB$VIEW_BLR IS NOT NULL AND ";
         if (!typeFilter.isEmpty())
-            typeFilter.truncate(typeFilter.length() - 5);
+            typeFilter.chop(5);
     }
     if (!typeFilter.isEmpty())
         typeFilter.prepend("where ");

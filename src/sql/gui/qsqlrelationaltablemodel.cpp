@@ -133,12 +133,12 @@ QString QSqlRelationalTableModel::selectStatement() const
         return query;
     tList.prepend(",").prepend(tableName());
     // truncate tailing comma
-    tList.truncate(tList.length() - 1);
-    fList.truncate(fList.length() - 1);
+    tList.chop(1);
+    fList.chop(1);
     query.append("SELECT ");
     query.append(fList).append(" FROM ").append(tList);
     if (!where.isEmpty())
-        where.truncate(where.length() - 5);
+        where.chop(5);
     qAppendWhereClause(query, where, filter());
 
 //    qDebug("query: %s", query.ascii());

@@ -846,7 +846,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
                             retVal = QLatin1String("0");
                         } else if (type.endsWith("&")) {
                             do {
-                                type.truncate(type.length() - 1);
+                                type.chop(1);
                             } while (type.endsWith(" "));
                             retVal = QLatin1String("uic_temp_var");
                             out << indent << "static " << type << " " << retVal << ";" << endl;

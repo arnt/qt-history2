@@ -235,7 +235,7 @@ QCoreVariant QPSQLResult::data(int i)
         // remove the timezone
         QString dtval = val;
         if (dtval.at(dtval.length() - 3) == '+')
-            dtval.truncate(dtval.length() - 3);
+            dtval.chop(3);
         // milliseconds are sometimes returned with 2 digits only
         if (dtval.at(dtval.length() - 3).isPunct())
             dtval += '0';
