@@ -30,6 +30,7 @@
 #include <qfont.h>
 #include <qstylefactory.h>
 #include <qaction.h>
+#include <q3action.h>
 #include <qsignalmapper.h>
 #include <qdict.h>
 
@@ -57,7 +58,7 @@ Themes::Themes( QWidget *parent, const char *name, WFlags f )
     menuBar()->insertItem( "&Style" , style );
 
     style->setCheckable( TRUE );
-    QActionGroup *ag = new QActionGroup( this, 0 );
+    Q3ActionGroup *ag = new Q3ActionGroup( this, 0 );
     ag->setExclusive( TRUE );
     QSignalMapper *styleMapper = new QSignalMapper( this );
     connect( styleMapper, SIGNAL( mapped( const QString& ) ), this, SLOT( makeStyle( const QString& ) ) );
@@ -83,7 +84,7 @@ Themes::Themes( QWidget *parent, const char *name, WFlags f )
 	    stylesDict.insert(styleAccel.left(1), (const int *)1);
 	    styleAccel = "&"+styleAccel;
 	}
-	QAction *a = new QAction( styleStr, QIconSet(), styleAccel, 0, ag, 0, ag->isExclusive() );
+	Q3Action *a = new Q3Action( styleStr, QIconSet(), styleAccel, 0, ag, 0, ag->isExclusive() );
 	connect( a, SIGNAL( activated() ), styleMapper, SLOT(map()) );
 	styleMapper->setMapping( a, a->text() );
     }
