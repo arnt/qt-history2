@@ -219,8 +219,11 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 bool FormFile::saveAs( bool ignoreModified )
 {
     QString f = pro->makeAbsolute( fileName() );
-    if ( fileNameTemp && formWindow() )
-	f = pro->makeAbsolute( QString( formWindow()->name() ).lower() + ".ui" );
+    if ( fileNameTemp && formWindow() ) {
+	f = QString( formWindow()->name() ).lower();
+	f.replace( "::", "_" );
+	f = pro->makeAbsolute( f + ".ui" );
+    }
     bool saved = FALSE;
     if ( ignoreModified ) {
 	QString dir = QStringList::split( ':', pro->iFace()->customSetting( "QTSCRIPT_PACKAGES" ) ).first();

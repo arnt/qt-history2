@@ -161,6 +161,9 @@ Uic::Uic( const QString &fn, const char *outputFn, QTextStream &outStream,
 
     if ( nameOfClass.isEmpty() )
 	nameOfClass = getObjectName( e );
+    namespaces = QStringList::split( "::", nameOfClass );
+    bareNameOfClass = namespaces.last();
+    namespaces.remove( namespaces.fromLast() );
 
     if ( subcl ) {
 	if ( decl )
@@ -248,14 +251,16 @@ QString Uic::getObjectName( const QDomElement& e )
 QString Uic::getLayoutName( const QDomElement& e )
 {
     QDomElement p = e.parentNode().toElement();
-    QString tail = QString::null;
+    QString name;
 
     if ( getClassName(p) != "QLayoutWidget" )
-	tail = "Layout";
+	name = "Layout";
 
     QDomElement n = getObjectProperty( p, "name" );
-    if ( n.firstChild().toElement().tagName() == "cstring" )
-	return n.firstChild().toElement().firstChild().toText().data() + tail;
+    if ( n.firstChild().toElement().tagName() == "cstring" ) {
+	name.prepend( n.firstChild().toElement().firstChild().toText().data() );
+	return QStringList::split( "::", name ).last();
+    }
     return e.tagName();
 }
 

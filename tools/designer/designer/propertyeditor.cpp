@@ -578,7 +578,7 @@ QLineEdit *PropertyTextItem::lined()
 
     if ( asciiOnly ) {
 	if ( PropertyItem::name() == "name" ) {
-	    lin->setValidator( new AsciiValidator( lin, "ascii_validator" ) );
+	    lin->setValidator( new AsciiValidator( QString(":"), lin, "ascii_validator" ) );
 	    if ( listview->propertyEditor()->formWindow()->isFake() )
 		lin->setEnabled( FALSE );
 	} else {

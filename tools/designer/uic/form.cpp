@@ -172,6 +172,7 @@ void Uic::createFormDecl( const QDomElement &e )
     // register the object and unify its name
     objName = registerObject( objName );
     QString protector = objName.upper() + "_H";
+    protector.replace( "::", "_" );
     out << "#ifndef " << protector << endl;
     out << "#define " << protector << endl;
     out << endl;
@@ -324,29 +325,37 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     out << endl;
-    out << "class " << ( !exportMacro.isEmpty() ? QString( exportMacro + " " ) : QString( "" ) ) <<
-	nameOfClass << " : public " << objClass << endl;
-    out << "{" << endl;
 
-/* tmake ignore Q_OBJECT */
+    QStringList::ConstIterator ns = namespaces.begin();
+    while ( ns != namespaces.end() ) {
+	out << "namespace " << *ns << " {" << endl;
+	++ns;
+    }
+
+    out << "class ";
+    if ( !exportMacro.isEmpty() )
+	out << exportMacro << " ";
+    out << bareNameOfClass << " : public " << objClass << endl << "{" << endl;
+
+    /* qmake ignore Q_OBJECT */
     out << "    Q_OBJECT" << endl;
     out << endl;
     out << "public:" << endl;
 
-    // constructor(s)
+    // constructor
     if ( objClass == "QDialog" || objClass == "QWizard" ) {
-	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );" << endl;
+	out << "    " << bareNameOfClass << "( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );" << endl;
     } else if ( objClass == "QWidget" ) {
-	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );" << endl;
+	out << "    " << bareNameOfClass << "( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );" << endl;
     } else if ( objClass == "QMainWindow" ) {
-	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );" << endl;
+	out << "    " << bareNameOfClass << "( QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );" << endl;
 	isMainWindow = TRUE;
     } else {
-	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0 );" << endl;
+	out << "    " << bareNameOfClass << "( QWidget* parent = 0, const char* name = 0 );" << endl;
     }
 
     // destructor
-    out << "    ~" << nameOfClass << "();" << endl;
+    out << "    ~" << bareNameOfClass << "();" << endl;
     out << endl;
 
     // children
@@ -568,6 +577,9 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     out << "};" << endl;
+    for ( i = 0; i < (int) namespaces.count(); i++ )
+	out << "}" << endl;
+
     out << endl;
     out << "#endif // " << protector << endl;
 }
@@ -876,31 +888,31 @@ void Uic::createFormImpl( const QDomElement &e )
 	pixmapLoaderFunction = "QPixmap::fromMimeSource";
     }
 
-    // constructor(s)
+    // constructor
     if ( objClass == "QDialog" || objClass == "QWizard" ) {
 	out << "/* " << endl;
-	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
+	out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the " << endl;
 	out << " *  name 'name' and widget flags set to 'f'." << endl;
 	out << " *" << endl;
 	out << " *  The " << objClass.mid(1).lower() << " will by default be modeless, unless you set 'modal' to" << endl;
 	out << " *  TRUE to construct a modal " << objClass.mid(1).lower() << "." << endl;
 	out << " */" << endl;
-	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, bool modal, WFlags fl )";
+	out << nameOfClass << "::" << bareNameOfClass << "( QWidget* parent, const char* name, bool modal, WFlags fl )" << endl;
 	out << "    : " << objClass << "( parent, name, modal, fl )" << endl;
     } else if ( objClass == "QWidget" )  {
 	out << "/* " << endl;
-	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
+	out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the " << endl;
 	out << " *  name 'name' and widget flags set to 'f'." << endl;
 	out << " */" << endl;
-	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, WFlags fl )" << endl;
+	out << nameOfClass << "::" << bareNameOfClass << "( QWidget* parent, const char* name, WFlags fl )" << endl;
 	out << "    : " << objClass << "( parent, name, fl )";
     } else if ( objClass == "QMainWindow" ) {
 	out << "/* " << endl;
-	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
+	out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the " << endl;
 	out << " *  name 'name' and widget flags set to 'f'." << endl;
 	out << " *" << endl;
 	out << " */" << endl;
-	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, WFlags fl )" << endl;
+	out << nameOfClass << "::" << bareNameOfClass << "( QWidget* parent, const char* name, WFlags fl )" << endl;
 	out << "    : " << objClass << "( parent, name, fl )";
 	isMainWindow = TRUE;
     } else {
@@ -908,7 +920,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
 	out << " *  name 'name'.' " << endl;
 	out << " */" << endl;
-	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name )" << endl;
+	out << nameOfClass << "::" << bareNameOfClass << "( QWidget* parent,  const char* name )" << endl;
 	out << "    : " << objClass << "( parent, name )";
     }
 
@@ -1156,7 +1168,7 @@ void Uic::createFormImpl( const QDomElement &e )
     out << "/*" << endl;
     out << " *  Destroys the object and frees any allocated resources" << endl;
     out << " */" << endl;
-    out << nameOfClass << "::~" << nameOfClass << "()" << endl;
+    out << nameOfClass << "::~" << bareNameOfClass << "()" << endl;
     out << "{" << endl;
     if ( extraFuncts.find( "destroy()" ) != extraFuncts.end() )
 	out << indent << "destroy();" << endl;

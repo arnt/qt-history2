@@ -125,6 +125,8 @@ private:
     uint externPixmaps : 1;
 
     QString nameOfClass;
+    QStringList namespaces;
+    QString bareNameOfClass;
     QString pixmapLoaderFunction;
 
     void registerDatabases( const QDomElement& e );
