@@ -1,4 +1,4 @@
-!contains(QT_PRODUCT,qt-enterprise) {
+contains(QT_PRODUCT,qt-professional) {
 	CONFIG += xml network
 	NETWORK_CPP = $(QTDIR)/src/network
 	XML_CPP = $(QTDIR)/src/xml
