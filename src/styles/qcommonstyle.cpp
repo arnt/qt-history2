@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#56 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#57 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -1161,8 +1161,10 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	int sliderlen;
 	int sbstart;
 
-	if (data)
-	    sliderstart = *((int*) data);
+	void ** sdata = (void **) data;
+	
+	if (sdata)
+	    sliderstart = *((int*) sdata[0]);
 	else
 	    sliderstart = sbextent;
 
