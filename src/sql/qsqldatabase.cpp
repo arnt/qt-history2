@@ -34,6 +34,9 @@
 #ifdef QT_SQL_DB2
 #include "drivers/db2/qsql_db2.h"
 #endif
+#ifdef QT_SQL_SQLITE
+#include "drivers/sqlite/qsql_sqlite.h"
+#endif
 
 #include "qapplication.h"
 #include "qsqlresult.h"
