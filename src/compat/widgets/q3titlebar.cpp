@@ -168,6 +168,7 @@ Q3TitleBar::Q3TitleBar(QWidget *w, QWidget *parent)
     d->readColors();
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     setMouseTracking(true);
+    setAutoRaise(style().styleHint(QStyle::SH_TitleBar_AutoRaise, 0, this));
 }
 
 Q3TitleBar::~Q3TitleBar()

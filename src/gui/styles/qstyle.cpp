@@ -1471,6 +1471,9 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
      use the border of the buttons (computed as half the button height) for the spacing
      of the button in a message box.
 
+     \value SH_TitleBar_AutoRaise A boolean indicating whether
+     controls on a title bar ought to update when the mouse is over them.
+
     \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()

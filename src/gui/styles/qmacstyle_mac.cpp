@@ -4665,6 +4665,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
 {
     SInt32 ret = 0;
     switch(sh) {
+    case SH_TitleBar_AutoRaise:
+        ret = true;
+        break;
     case SH_Menu_AllowActiveAndDisabled:
         ret = false;
         break;

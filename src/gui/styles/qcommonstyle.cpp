@@ -2594,6 +2594,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = Qt::AlignLeft;
         break;
 
+    case SH_TitleBar_AutoRaise:
+        ret = false;
+        break;
+
     case SH_Menu_SubMenuPopupDelay:
         ret = 256;
         break;

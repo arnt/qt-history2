@@ -667,6 +667,9 @@ public:
         // bool - Use the button border as the button spacing for a message box
         SH_MessageBox_UseBorderForButtonSpacing,
 
+        // bool - Auto Raise for title bars
+        SH_TitleBar_AutoRaise,
+
         // do not add any values below/greater than this
         SH_CustomBase = 0xf0000000
     };
