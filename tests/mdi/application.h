@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/application.h#2 $
+** $Id: //depot/qt/main/tests/mdi/application.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -28,7 +28,7 @@ public:
     ~MDIWindow();
 protected:
     void closeEvent( QCloseEvent* );
-    
+
 private:
     QMultiLineEdit* medit;
 };
@@ -57,7 +57,7 @@ private slots:
 
     void windowsMenuAboutToShow();
     void windowsMenuActivated( int id );
-    
+
     void childDestroyed();
 
 private:

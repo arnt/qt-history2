@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/application.cpp#2 $
+** $Id: //depot/qt/main/tests/mdi/application.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -160,7 +160,7 @@ void ApplicationWindow::newDoc()
 
 void ApplicationWindow::load()
 {
-    QMultiLineEdit* m = (QMultiLineEdit*)ws->activeClient();
+    MDIWindow* m = (MDIWindow*)ws->activeClient();
     if ( !m )
 	return;
     qDebug("set caption to hallo ");

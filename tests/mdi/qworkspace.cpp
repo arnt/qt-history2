@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/qworkspace.cpp#2 $
+** $Id: //depot/qt/main/tests/mdi/qworkspace.cpp#3 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -27,6 +27,7 @@
 #include <qobjectlist.h>
 #include "qworkspacechild.h"
 
+
 //
 //  W A R N I N G
 //  -------------
@@ -42,20 +43,32 @@
 
 #define OFFSET 20
 
+
+class QWorkspaceData {
+public:
+    QWorkspaceChild* active;
+    QList<QWorkspaceChild> windows;
+    QList<QWidget> icons;
+    QWorkspaceChild* maxClient;
+    QRect maxRestore;
+
+    int px;
+    int py;
+};
 QWorkspace::QWorkspace( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-    active = 0;
+    d = new QWorkspaceData;
+    d->active = 0;
 
-    px = 0;
-    py = 0;
+    d->px = 0;
+    d->py = 0;
 
-    maxClient = 0;
-
-}
+}	
 
 QWorkspace::~QWorkspace()
 {
+    delete d;
 }
 
 
@@ -65,48 +78,52 @@ void QWorkspace::childEvent( QChildEvent * e)
     if (e->inserted() && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
 	if ( w->testWFlags( WStyle_Customize | WStyle_NoBorder )
-	      || icons.contains( w ) )
+	      || d->icons.contains( w ) )
 	    return; 	    // nothing to do
 	
 	bool doShow = w->isVisible();
 	
 	QWorkspaceChild* child = new QWorkspaceChild( w, this );
-	windows.append( child );
+	d->windows.append( child );
 	place( child );
 	child->raise();
 	if ( doShow ) {
-	  child->show();
+	  showClient( w );
 	  activateClient( w );
 	}
     } else if (e->removed() ) {
-	if ( maxClient == e->child() ) {
-	    maxClient = 0;
+	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) )
+	    d->windows.remove( (QWorkspaceChild*)e->child() );
+	if ( d->windows.isEmpty() )
 	    hideMaxHandles();
-	}
-	if ( windows.contains( (QWorkspaceChild*)e->child() ) )
-	    windows.remove( (QWorkspaceChild*)e->child() );
-	if ( icons.contains( (QWidget*)e->child() ) ){
-	    icons.remove( (QWidget*)e->child() );
+	if ( d->icons.contains( (QWidget*)e->child() ) ){
+	    d->icons.remove( (QWidget*)e->child() );
 	    layoutIcons();
 	}
-	if(active == e->child())
-	    active = 0;
+	if( e->child() == d->active )
+	    d->active = 0;
+	if ( e->child() == d->maxClient  && !d->windows.isEmpty() ) {
+	    activateClient( d->windows.first()->clientWidget() );
+	}
     }
 }
 
 
 void QWorkspace::activateClient( QWidget* w)
 {
-    for (QWorkspaceChild* c = windows.first(); c; c = windows.next() ) {
+    for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
 	c->setActive( c->clientWidget() == w );
 	if (c->clientWidget() == w)
-	    active = c;
+	    d->active = c;
     }
 
-    if (!active)
+    if (!d->active)
 	return;
+    
+    if ( d->maxClient && d->maxClient != d->active )
+	maximizeClient( d->active->clientWidget() );
 
-    active->raise();
+    d->active->raise();
 
     emit clientActivated( w );
 }
@@ -114,50 +131,51 @@ void QWorkspace::activateClient( QWidget* w)
 
 QWidget* QWorkspace::activeClient() const
 {
-    return active?active->clientWidget():0;
+    return d->active?d->active->clientWidget():0;
 }
 
 
 
-void QWorkspace::place( QWorkspaceChild* c)
+void QWorkspace::place( QWidget* w)
 {
     int tx,ty;
+    QWorkspaceChild* c = (QWorkspaceChild*) w;
 
     QRect maxRect = rect();
-    if (px < maxRect.x())
-	px = maxRect.x();
-    if (py < maxRect.y())
-	py = maxRect.y();
+    if (d->px < maxRect.x())
+	d->px = maxRect.x();
+    if (d->py < maxRect.y())
+	d->py = maxRect.y();
 
-    px += OFFSET;
-    py += 2*OFFSET;
+    d->px += OFFSET;
+    d->py += 2*OFFSET;
 
-    if (px > maxRect.width()/2)
-	px =  maxRect.x() + OFFSET;
-    if (py > maxRect.height()/2)
-	py =  maxRect.y() + OFFSET;
-    tx = px;
-    ty = py;
+    if (d->px > maxRect.width()/2)
+	d->px =  maxRect.x() + OFFSET;
+    if (d->py > maxRect.height()/2)
+	d->py =  maxRect.y() + OFFSET;
+    tx = d->px;
+    ty = d->py;
     if (tx + c->width() > maxRect.right()){
 	tx = maxRect.right() - c->width();
 	if (tx < 0)
 	    tx = 0;
-	px =  maxRect.x();
+	d->px =  maxRect.x();
     }
     if (ty + c->height() > maxRect.bottom()){
 	ty = maxRect.bottom() - c->height();
 	if (ty < 0)
 	    ty = 0;
-	py =  maxRect.y();
+	d->py =  maxRect.y();
     }
     c->move( tx, ty );
 }
 
 void QWorkspace::insertIcon( QWidget* w )
 {
-    if (icons.contains(w) )
+    if (d->icons.contains(w) )
 	return;
-    icons.append( w );
+    d->icons.append( w );
     if (w->parentWidget() != this )
 	w->reparent( this, 0, QPoint(0,0), FALSE);
     layoutIcons();
@@ -168,14 +186,16 @@ void QWorkspace::insertIcon( QWidget* w )
 
 void QWorkspace::removeIcon( QWidget* w)
 {
-    if (!icons.contains( w ) )
+    if (!d->icons.contains( w ) )
 	return;
-    icons.remove( w );
+    d->icons.remove( w );
     w->hide();
  }
 
 void QWorkspace::resizeEvent( QResizeEvent * )
 {
+    if ( d->maxClient )
+	d->maxClient->adjustToFullscreen();
     layoutIcons();
 }
 
@@ -183,7 +203,7 @@ void QWorkspace::layoutIcons()
 {
     int x = 0;
     int y = height();
-    for (QWidget* w = icons.first(); w ; w = icons.next() ) {
+    for (QWidget* w = d->icons.first(); w ; w = d->icons.next() ) {
 	
 	if ( x > 0 && x + w->width() > width() ){
 	    x = 0;
@@ -201,9 +221,9 @@ void QWorkspace::minimizeClient( QWidget* w)
     if ( c ) {
 	c->hide();
 	insertIcon( c->iconWidget() );
-	if ( c == maxClient ) {
-	    c->setGeometry( maxRestore );
-	    maxClient = 0;
+	if ( d->maxClient == c ) {
+	    c->setGeometry( d->maxRestore );
+	    d->maxClient = 0;
 	    hideMaxHandles();
 	}
 	
@@ -214,8 +234,9 @@ void QWorkspace::normalizeClient( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
     if ( c ) {
-	if ( c == maxClient ) {
-	    c->setGeometry( maxRestore );
+	if ( c == d->maxClient ) {
+	    c->setGeometry( d->maxRestore );
+	    d->maxClient = 0;
 	}
 	else {
 	    removeIcon( c->iconWidget() );
@@ -227,24 +248,40 @@ void QWorkspace::normalizeClient( QWidget* w)
 void QWorkspace::maximizeClient( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
-    if (maxClient == c) {
-	normalizeClient( w ); // hack for now, should not toggle
+    
+    if ( c &&  c == d->maxClient ) {
+	normalizeClient( w );
 	return;
     }
+    
     if ( c ) {
-	if (icons.contains(c->iconWidget()) )
+	if (d->icons.contains(c->iconWidget()) )
 	    normalizeClient( w );
-	maxRestore = c->geometry();
-	c->setGeometry( rect() );
-	maxClient = c;
+	QRect r( c->geometry() );
+	c->adjustToFullscreen();
 	c->show();
+	if ( d->maxClient && d->maxClient != c ) {
+	    d->maxClient->setGeometry( d->maxRestore );
+	}
+	d->maxClient = c;
+	d->maxRestore = r;
+	
+	activateClient( w);
     }
 }
 
+void QWorkspace::showClient( QWidget* w)
+{
+    if ( d->maxClient )
+	maximizeClient( w );
+    else
+	normalizeClient( w );
+}
+
+
 QWorkspaceChild* QWorkspace::findChild( QWidget* w)
 {
-    for (QWorkspaceChild* c = windows.first(); c; c = windows.next() ) {
-	c->setActive( c->clientWidget() == w );
+    for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
 	if (c->clientWidget() == w)
 	    return c;
     }

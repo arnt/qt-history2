@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/qworkspace.h#1 $
+** $Id: //depot/qt/main/tests/mdi/qworkspace.h#2 $
 **
 ** Definition of the QWorkspace class
 **
@@ -41,17 +41,10 @@
 
 #include <qframe.h>
 #include <qlist.h>
-
 #include "qworkspacechild.h"
-#include "qwidgetlist.h"
 
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT QList<QWorkspaceChild>;
-// MOC_SKIP_END
-#endif
-
+class QWorkspaceData;
 
 class Q_EXPORT QWorkspace : public QWidget
 {
@@ -61,6 +54,7 @@ public:
     ~QWorkspace();
 
     void activateClient( QWidget* w);
+    void showClient( QWidget* w);
     void maximizeClient( QWidget* w);
     void minimizeClient( QWidget* w);
     void normalizeClient( QWidget* w);
@@ -74,23 +68,16 @@ protected:
     void resizeEvent( QResizeEvent * );
 
 private:
-    QWorkspaceChild* active;
-    QList<QWorkspaceChild> windows;
     void insertIcon( QWidget* w);
     void removeIcon( QWidget* w);
-    QList<QWidget> icons;
-    void place( QWorkspaceChild* );
+    void place( QWidget* );
 
     QWorkspaceChild* findChild( QWidget* w);
     void showMaxHandles();
     void hideMaxHandles();
-    QWorkspaceChild* maxClient;
-    QRect maxRestore;
-
-    int px;
-    int py;
-
     void layoutIcons();
+    QWorkspaceData* d;
+    
 
 };
 #endif
