@@ -32,7 +32,7 @@
 */
 
 ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
-    : QFrame(parent), ignoreMousePress(false), list(listView), top(0), bottom(0)
+    : QFrame(parent), list(listView), top(0), bottom(0)
 {
     // setup container
     setFrameStyle(QFrame::Box|QFrame::Plain);
@@ -145,21 +145,6 @@ QListView *ListViewContainer::listView() const
     return list;
 }
 
-/*
-  \internal
-
-  returns if the next mouspress should be ignore by the combobox
-  (replay of mousepress on arrowrect when listview is visible) and
-  resets ignoreMousePress to false
-*/
-bool ListViewContainer::ignoreNextMousePress()
-{
-    if (ignoreMousePress) {
-        ignoreMousePress = false;
-        return true;
-    }
-    return false;
-}
 
 /*!
     \internal
@@ -234,9 +219,8 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
         }
         ignoreRect = QRect(comboBox->mapToGlobal(ignoreRect.topLeft()),
                            comboBox->mapToGlobal(ignoreRect.bottomRight()));
-        if (ignoreRect.contains(e->globalPos())) {
-            ignoreMousePress = true; // ignore next mousepress (replayed) if click on arrowrect
-        }
+        if (ignoreRect.contains(e->globalPos()))
+            setAttribute(Qt::WA_NoMouseReplay);
     }
     QFrame::mousePressEvent(e);
 }
@@ -1389,7 +1373,7 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
     QStyleOptionComboBox opt = d->getStyleOption();
     QStyle::SubControl sc = style().querySubControl(QStyle::CC_ComboBox, &opt, e->pos(), this);
     if ((sc == QStyle::SC_ComboBoxArrow || (sc == QStyle::SC_ComboBoxEditField && !isEditable()))
-        && !d->container->isVisible() && !d->container->ignoreNextMousePress()) {
+        && !d->container->isVisible()) {
         if (sc == QStyle::SC_ComboBoxArrow)
             d->arrowDown = true;
         popup();

@@ -6211,6 +6211,12 @@ const QPixmap *QWidget::icon() const
     \value WA_Mapped Indicates that the widget is mapped on screen.
     This is set/cleared by the Qt kernel.
 
+    \value WA_NoMouseReplay Used for popup widgets. Indicates that the
+    most recent mouse press event should not be replayed when the
+    popup widget closes. The flag is set by the widget's author and
+    cleared by the Qt kernel every time the widget receives a new
+    mouse event.
+
     \value WA_OutsideWSRange Indicates that the widget is outside
     the valid range of the window system's coordinate system. A widget
     outside the valid range cannot be mapped on screen. This is

@@ -2685,6 +2685,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 res = true;
                 break;
             }
+            w->setAttribute(Qt::WA_NoMouseReplay, false);
             res = notify_helper(w, w == receiver ? mouse : &me);
             e->spont = false;
             if (res || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation)

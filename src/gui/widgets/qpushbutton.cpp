@@ -527,6 +527,7 @@ void QPushButtonPrivate::popupPressed()
     if (!down || !menu)
         return;
 
+    menu->setNoReplayFor(q);
     bool horizontal = true;
     bool topLeft = true;                        // ### always true
 #ifndef QT_NO_TOOLBAR

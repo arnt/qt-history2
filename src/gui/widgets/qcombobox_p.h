@@ -88,7 +88,6 @@ class ListViewContainer : public QFrame
 public:
     ListViewContainer(QListView *listView, QWidget *parent = 0);
     QListView *listView() const;
-    bool ignoreNextMousePress();
 
 public slots:
     void scrollListView(int action);
@@ -106,7 +105,6 @@ signals:
     void containerDisappearing();
 
 private:
-    bool ignoreMousePress;
     QListView *list;
     Scroller *top;
     Scroller *bottom;
@@ -239,7 +237,6 @@ public:
           arrowDown(false),
           sizeLimit(10),
           maxCount(INT_MAX),
-          ignoreMousePressEvent(false),
           skipCompletion(false) {}
     ~QComboBoxPrivate() {}
     void init();
@@ -263,7 +260,6 @@ public:
     bool arrowDown;
     int sizeLimit;
     int maxCount;
-    bool ignoreMousePressEvent;
     bool skipCompletion;
     mutable QSize sizeHint;
     QPersistentModelIndex currentItem;

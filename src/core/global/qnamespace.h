@@ -304,6 +304,7 @@ public:
         WA_TransparentForMouseEvents,
         WA_PaintUnclipped,
         WA_SetWindowIcon,
+        WA_NoMouseReplay,
 
         // Add new attributes above this!
         WA_AttributeCount

@@ -295,6 +295,8 @@ public:
         return -1;
     }
 
+    void setNoReplayFor(QWidget *widget);
+
 protected:
     inline QT_COMPAT int itemAtPos(const QPoint &p, bool ignoreSeparator = true) {
         return findIdForAction(actionAtPos(p, ignoreSeparator));

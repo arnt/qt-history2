@@ -41,7 +41,7 @@ public:
     void popupTimerDone();
     QStyleOptionToolButton getStyleOption() const;
     QPointer<QMenu> menu; //the menu set by the user (setMenu)
-    QPointer<QMenu> popupMenu; //the menu being displayed (could be the same as menu above)
+    QPointer<QMenu> actualMenu; //the menu being displayed (could be the same as menu above)
     QBasicTimer popupTimer;
     int delay;
     Qt::ArrowType arrow;
@@ -534,7 +534,7 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
         d->instantPopup = false;
         return;
     }
-    if (e->button() == Qt::LeftButton && d->delay <= 0 && d->instantPopup && !d->popupMenu
+    if (e->button() == Qt::LeftButton && d->delay <= 0 && d->instantPopup && !d->actualMenu
         && (d->menu || !actions().isEmpty())) {
         showMenu();
         return;
@@ -544,27 +544,6 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
     QAbstractButton::mousePressEvent(e);
 }
 
-/*!
-    \reimp
-*/
-bool QToolButton::eventFilter(QObject *o, QEvent *e)
-{
-    if (o != d->popupMenu)
-        return QAbstractButton::eventFilter(o, e);
-    switch (e->type()) {
-    case QEvent::MouseButtonPress:
-    case QEvent::MouseButtonDblClick: {
-        //when we click on the button and the menu is up just discardNextMouseEvent
-        QMouseEvent *me = (QMouseEvent*)e;
-        QPoint p = me->globalPos();
-        if (QApplication::widgetAt(p) == this)
-            d->discardNextMouseEvent = true;
-    break; }
-    default:
-        break;
-    }
-    return false;
-}
 
 /*!
     \internal
@@ -576,7 +555,7 @@ bool QToolButton::uses3D() const
 {
     return style().styleHint(QStyle::SH_ToolButton_Uses3D)
         && (!d->autoRaise || (underMouse() && isEnabled())
-            || (d->popupMenu && d->delay <= 0) || d->instantPopup);
+            || (d->menu && d->delay <= 0) || d->instantPopup);
 }
 
 
@@ -665,16 +644,17 @@ QIconSet QToolButton::iconSet(bool /* on */) const
 #endif
 
 /*!
-    Associates the given popup \a menu with this tool button.
+    Associates the given \a menu with this tool button.
 
-    The popup will be shown each time the tool button has been pressed
-    down for a certain amount of time. A typical application example
-    is the "back" button in some web browsers's tool bars. If the user
-    clicks it, the browser simply browses back to the previous page.
-    If the user presses and holds the button down for a while, the
-    tool button shows a menu containing the current history list.
+    The menu will be shown each time the tool button has been pressed
+    down for \l popupDelay amount of time. A typical application
+    example is the "back" button in some web browsers's tool bars. If
+    the user clicks it, the browser simply browses back to the
+    previous page.  If the user presses and holds the button down for
+    a while, the tool button shows a menu containing the current
+    history list.
 
-    Ownership of the popup menu is not transferred to the tool button.
+    Ownership of the menu is not transferred to the tool button.
 
     \sa menu()
 */
@@ -685,8 +665,7 @@ void QToolButton::setMenu(QMenu* menu)
 }
 
 /*!
-    Returns the associated popup menu, or 0 if no popup menu has been
-    defined.
+    Returns the associated menu, or 0 if no menu has been defined.
 
     \sa setMenu()
 */
@@ -720,8 +699,6 @@ void QToolButtonPrivate::popupPressed()
 {
     if (delay > 0)
         popupTimer.start(delay, q);
-    else
-        popupTimerDone();
 }
 
 void QToolButtonPrivate::popupTimerDone()
@@ -731,65 +708,62 @@ void QToolButtonPrivate::popupTimerDone()
         return;
 
     if(menu) {
-        popupMenu = menu;
+        actualMenu = menu;
         if(!q->actions().isEmpty())
             qWarning("QToolButton: menu in setMenu() overriding actions set in addAction!");
     } else {
-        popupMenu = new QMenu(q);
+        actualMenu = new QMenu(q);
         QList<QAction*> actions = q->actions();
         for(int i = 0; i < actions.size(); i++) //skip the first
-            popupMenu->addAction(actions[i]);
+            actualMenu->addAction(actions[i]);
     }
     repeat = q->autoRepeat();
     q->setAutoRepeat(false);
     bool horizontal = true;
 #ifndef QT_NO_TOOLBAR
     QToolBar *tb = qt_cast<QToolBar*>(q->parentWidget());
-    if (tb && tb->area() == Qt::ToolBarAreaLeft || tb->area() == Qt::ToolBarAreaRight)
+    if (tb && (tb->area() == Qt::ToolBarAreaLeft || tb->area() == Qt::ToolBarAreaRight))
         horizontal = false;
 #endif
     QPoint p;
     QRect screen = qApp->desktop()->availableGeometry(q);
     if (horizontal) {
         if (QApplication::reverseLayout()) {
-            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + popupMenu->sizeHint().height() <= screen.height()) {
+            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + actualMenu->sizeHint().height() <= screen.height()) {
                 p = q->mapToGlobal(q->rect().bottomRight());
             } else {
-                p = q->mapToGlobal(q->rect().topRight() - QPoint(0, popupMenu->sizeHint().height()));
+                p = q->mapToGlobal(q->rect().topRight() - QPoint(0, actualMenu->sizeHint().height()));
             }
-            p.rx() -= popupMenu->sizeHint().width();
+            p.rx() -= actualMenu->sizeHint().width();
         } else {
-            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + popupMenu->sizeHint().height() <= screen.height()) {
+            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + actualMenu->sizeHint().height() <= screen.height()) {
                 p = q->mapToGlobal(q->rect().bottomLeft());
             } else {
-                p = q->mapToGlobal(q->rect().topLeft() - QPoint(0, popupMenu->sizeHint().height()));
+                p = q->mapToGlobal(q->rect().topLeft() - QPoint(0, actualMenu->sizeHint().height()));
             }
         }
     } else {
         if (QApplication::reverseLayout()) {
-            if (q->mapToGlobal(QPoint(q->rect().left(), 0)).x() - popupMenu->sizeHint().width() <= screen.x()) {
+            if (q->mapToGlobal(QPoint(q->rect().left(), 0)).x() - actualMenu->sizeHint().width() <= screen.x()) {
                 p = q->mapToGlobal(q->rect().topRight());
             } else {
                 p = q->mapToGlobal(q->rect().topLeft());
-                p.rx() -= popupMenu->sizeHint().width();
+                p.rx() -= actualMenu->sizeHint().width();
             }
         } else {
-            if (q->mapToGlobal(QPoint(q->rect().right(), 0)).x() + popupMenu->sizeHint().width() <= screen.width()) {
+            if (q->mapToGlobal(QPoint(q->rect().right(), 0)).x() + actualMenu->sizeHint().width() <= screen.width()) {
                 p = q->mapToGlobal(q->rect().topRight());
             } else {
-                p = q->mapToGlobal(q->rect().topLeft() - QPoint(popupMenu->sizeHint().width(), 0));
+                p = q->mapToGlobal(q->rect().topLeft() - QPoint(actualMenu->sizeHint().width(), 0));
             }
         }
     }
     QPointer<QToolButton> that = q;
-    //we filter the menu because we do not want to replay the event when the button is
-    //clicked on while the menu is up (see discardNextMouseEvent)
-    popupMenu->installEventFilter(q);
-    popupMenu->exec(p);
-    popupMenu->removeEventFilter(q);
-    if (popupMenu != menu)
-        delete popupMenu;
-    popupMenu = 0; //no longer a popup menu
+    actualMenu->setNoReplayFor(q);
+    actualMenu->exec(p);
+    if (actualMenu != menu)
+        delete actualMenu;
+    actualMenu = 0; //no longer a popup menu
     if (!that)
         return;
 
@@ -800,11 +774,13 @@ void QToolButtonPrivate::popupTimerDone()
 
 /*!
     \property QToolButton::popupDelay
-    \brief the time delay between pressing the button and the appearance of the associated popup menu in milliseconds.
+
+    \brief the time delay between pressing the button and the moment
+    the associated menu pops up in milliseconds.
 
     Usually this is around half a second. A value of 0 will add a
-    special section to the toolbutton that can be used to open the
-    popupmenu.
+    special section to the tool button that can be used to open the
+    menu.
 
     \sa setMenu()
 */

@@ -84,8 +84,6 @@ protected:
 
     bool uses3D() const;
 
-    bool eventFilter(QObject *o, QEvent *e);
-
 private:
     Q_PRIVATE_SLOT(d, void popupPressed())
 

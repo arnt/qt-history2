@@ -270,7 +270,7 @@ static bool        sm_cancel;
 static bool replayPopupMouseEvent = false; // replay handling when popups close
 
 // ignore the next release event if return from a modal widget
-Q_GUI_EXPORT bool qt_win_ignoreNextMouseReleaseEvent = false; 
+Q_GUI_EXPORT bool qt_win_ignoreNextMouseReleaseEvent = false;
 
 #if defined(QT_DEBUG)
 static bool        appNoGrab        = false;        // mouse/keyboard grabbing
@@ -2086,7 +2086,9 @@ void QApplication::closePopup(QWidget *popup)
     popupWidgets->removeAll(popup);
     POINT curPos;
     GetCursorPos(&curPos);
-    replayPopupMouseEvent = !popup->geometry().contains(QPoint(curPos.x, curPos.y));
+    replayPopupMouseEvent = (!popup->geometry().contains(QPoint(curPos.x, curPos.y))
+                             && !popup->testAttribute(Qt::WA_NoMouseReplay));
+
     if (popupWidgets->count() == 0) {                // this was the last popup
         popupCloseDownMode = true;                // control mouse events
         delete popupWidgets;

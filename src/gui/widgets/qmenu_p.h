@@ -144,6 +144,8 @@ public:
     } *mac_menu;
     MenuRef macMenu(MenuRef merge);
 #endif
+
+    QPointer<QWidget> noReplayFor;
 };
 
 #endif // QMENU_P_H

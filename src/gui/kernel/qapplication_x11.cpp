@@ -3316,7 +3316,8 @@ void QApplication::closePopup(QWidget *popup)
         if (!qt_nograb() && popupGrabOk) {        // grabbing not disabled
             Display *dpy = popup->x11Info().display();
             if (mouseButtonState != 0
-                 || popup->geometry(). contains(QPoint(mouseGlobalXPos, mouseGlobalYPos)))
+                || popup->geometry(). contains(QPoint(mouseGlobalXPos, mouseGlobalYPos))
+                || popup->testAttribute(Qt::WA_NoMouseReplay))
                 {        // mouse release event or inside
                     XAllowEvents(dpy, AsyncPointer, CurrentTime);
             } else {                                // mouse press event

@@ -86,6 +86,8 @@ public:
     QApplicationPrivate(int &argc, char **argv, QApplication::Type type);
     ~QApplicationPrivate() {}
 
+    bool lastMousePressAccepted;
+
     void createEventLoop();
 
 #ifndef QT_NO_SESSIONMANAGER

@@ -1391,6 +1391,9 @@ void QMenu::mousePressEvent(QMouseEvent *e)
     if(e->button() != Qt::LeftButton)
         return;
     if(!rect().contains(e->pos())) {
+         if (d->noReplayFor
+             && QRect(d->noReplayFor->mapToGlobal(QPoint()), d->noReplayFor->size()).contains(e->globalPos()))
+             setAttribute(Qt::WA_NoMouseReplay);
         d->hideUpToMenuBar();
         return;
     }
@@ -1903,6 +1906,14 @@ void QMenu::internalDelayedPopup()
 
     \sa triggered(), QAction::hovered()
 */
+
+
+/*!\internal
+*/
+void QMenu::setNoReplayFor(QWidget *noReplayFor)
+{
+    d->noReplayFor = noReplayFor;
+}
 
 #ifdef QT_COMPAT
 
