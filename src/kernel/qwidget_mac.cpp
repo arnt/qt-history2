@@ -86,7 +86,7 @@ extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region
 extern void qt_clear_paintevent_clipping();
 
 WId parentw, destroyw = 0;
-WId myactive = -1;
+WId myactive = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 
@@ -164,18 +164,18 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
 			      visible, procid, behind, goaway, 0);
 	hd = (void *)id;
 	SetPortWindowPort((WindowPtr)hd);
+
+	setWinId( id );
     } else {
+	setWinId(-1);
+
 	mytop = topLevelWidget( );
 	id = (WId)mytop->hd;
 	hd = mytop->hd;
+//	winid = id;
     }
 
     bg_col = pal.normal().background();
-    if ( isTopLevel() ) {
-	setWinId( id );
-    } else {
-	winid = id;
-    }
 
     const char *c = name();
     if( c && isTopLevel()) {
@@ -228,7 +228,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     QWidget * mya;
     mya=QWidget::find(myactive);
     if(mya==this) {
-	myactive=-1;
+	myactive=0;
     }
     hd=0;
     setWinId( 0 );
@@ -253,7 +253,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
     if ( parentObj ) {				// remove from parent
 	parentObj->removeChild( this );
-	if ( old_winid && isTopLevel() && mytop == this ) {
+	if ( old_winid && old_winid != -1 && isTopLevel() ) {
 	    DisposeWindow( (WindowPtr)old_winid );
 	    setWinId( 0 );
 	}
@@ -476,9 +476,9 @@ void QWidget::setActiveWindow()
         widget = NULL;
 
     if ( isTopLevel() ) {
-	SelectWindow( (WindowPtr)winid );  // FIXME: Also brings to front - naughty?
+	SelectWindow( (WindowPtr)hd );  // FIXME: Also brings to front - naughty?
 	update();
-	myactive = winid;
+	myactive = (WId) hd;
     }
     if ( widget && !isPopup() )
 	widget->setActiveWindow();
