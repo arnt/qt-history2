@@ -54,7 +54,7 @@
 
 #include <freetype/freetype.h>
 
-#define QFONTDATABASE_DEBUG
+// #define QFONTDATABASE_DEBUG
 #ifdef QFONTDATABASE_DEBUG
 #  include <qdatetime.h>
 #endif // QFONTDATABASE_DEBUG
@@ -763,7 +763,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 #ifdef _POSIX_MAPPED_FILES
     QCString ext = family->fontFilename.mid( family->fontFilename.findRev( '.' ) ).lower();
     if ( family->fontFileIndex == 0 && ( ext == ".ttf" || ext == ".otf" ) ) {
-	qDebug("using own ttf code coverage checking of '%s'!", family->name.latin1() );
+// 	qDebug("using own ttf code coverage checking of '%s'!", family->name.latin1() );
 	int fd = open( family->fontFilename.data(), O_RDONLY );
 
 	if ( fd == -1 )
@@ -856,7 +856,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 #endif
  xftCheck:
 
-    qDebug("using Freetype for checking of '%s'", family->name.latin1() );
+//     qDebug("using Freetype for checking of '%s'", family->name.latin1() );
 
     FT_Library ft_lib;
     FT_Error error = FT_Init_FreeType( &ft_lib );
@@ -1210,9 +1210,9 @@ static unsigned int bestFoundry( unsigned int score, int styleStrategy,
 	}
 
 	unsigned int this_score = 0;
-	if ( ! ( pitch == 'm' && pt == 'c' ) || pitch != pt )
+	if ( !( pitch == 'm' && pt == 'c' ) && pitch != pt )
 	    this_score += 200;
-	if ( ! ( styleKey == sty->key ) )
+	if ( !( styleKey == sty->key ) )
 	    this_score += 100;
 	if ( px != size->pixelSize && !sty->smoothScalable ) // bitmap scaled
 	    this_score += 50;
@@ -1250,8 +1250,8 @@ FontEngineIface *QFontDatabase::findFont( QFont::Script script,
 					  int weight, bool italic,
 					  int pixelSize, char pitch, int x11Screen )
 {
-    qDebug( "---> QFontDatabase::findFont: looking for script %d '%s'",
-	    script, scriptName( script ).latin1() );
+//     qDebug( "---> QFontDatabase::findFont: looking for font '%s' with script %d '%s'",
+// 	    family.latin1(), script, scriptName( script ).latin1() );
 
     FontEngineIface *fe = 0;
 
@@ -1269,50 +1269,56 @@ FontEngineIface *QFontDatabase::findFont( QFont::Script script,
     // qDebug( "  trying script %d (index %d)",
     // scriptlist[script_index], script_index );
 
-    load( family, script );
-
     unsigned int score = ~0;
-    for ( int x = 0; x < db->count; ++x ) {
-	QtFontFamily *fam = db->families[x];
-	if ( !family.isEmpty() && ucstricmp( fam->name, family ) != 0 )
-	    continue;
+    int loop = 0;
 
-	if ( family.isNull() )
-	    load( fam->name, script );
+    while ( loop++ < 2 ) {
+	if ( loop == 2 || !family.isEmpty() )
+	    load( family, script );
 
-	if ( !(fam->scripts[script] & QtFontFamily::Supported) ) {
-	    // should never get here with partial loads
-	    Q_ASSERT( fam->scripts[script] == QtFontFamily::UnSupported );
-	    if ( !(fam->scripts[QFont::UnknownScript] & QtFontFamily::Supported) )
+	for ( int x = 0; x < db->count; ++x ) {
+	    QtFontFamily *fam = db->families[x];
+	    if ( !family.isEmpty() && ucstricmp( fam->name, family ) != 0 )
 		continue;
-	}
 
-	// as we know the script is supported, we can be sure to find a matching font here.
+	    if ( loop == 2 && family.isNull() )
+		load( fam->name, script );
 
-	unsigned int newscore =
-	    bestFoundry( score, styleStrategy,
-			 fam, foundry, styleKey, pixelSize, pitch,
-			 &best_fnd, &best_sty, best_px, best_pt,
-			 best_encoding_id );
-	if ( best_fnd == 0 ) {
-	    newscore =  bestFoundry( score, styleStrategy,
-				     fam, QString::null, styleKey, pixelSize, pitch,
-				     &best_fnd, &best_sty, best_px, best_pt,
-				     best_encoding_id );
-	}
+	    if ( !(fam->scripts[script] & QtFontFamily::Supported) &&
+		 !(fam->scripts[QFont::UnknownScript] & QtFontFamily::Supported) )
+		    continue;
 
-	if ( newscore < score ) {
-	    score = newscore;
-	    best_fam = fam;
+	    // as we know the script is supported, we can be sure to find a matching font here.
+
+	    unsigned int newscore =
+		bestFoundry( score, styleStrategy,
+			     fam, foundry, styleKey, pixelSize, pitch,
+			     &best_fnd, &best_sty, best_px, best_pt,
+			     best_encoding_id );
+	    if ( best_fnd == 0 ) {
+		newscore =  bestFoundry( score, styleStrategy,
+					 fam, QString::null, styleKey, pixelSize, pitch,
+					 &best_fnd, &best_sty, best_px, best_pt,
+					 best_encoding_id );
+	    }
+
+	    if ( newscore < score ) {
+		score = newscore;
+		best_fam = fam;
+	    }
+	    if ( newscore < 10 )
+		break;
 	}
-	if ( newscore < 10 )
+	if ( score < 10 )
 	    break;
+// 	qDebug("couldn't find a matching font in first loop: score=%d, best=%s",  score,
+// 	       best_fam ? best_fam->name.latin1(): "(null)");
     }
     if ( best_fam == 0 || best_fnd == 0 || best_sty == 0 )
 	return 0;
 
-    qDebug( "BEST: family '%s' foundry '%s'",
-	    best_fam->name.latin1(), best_fnd->name.latin1() );
+//     qDebug( "BEST: family '%s' foundry '%s'",
+// 	    best_fam->name.latin1(), best_fnd->name.latin1() );
     // qDebug( "  using weight %d italic %d oblique %d",
     // best_sty->key.weight, best_sty->key.italic, best_sty->key.oblique );
     // qDebug( "  using size %d pitch '%c' encoding id %d '%s'",
