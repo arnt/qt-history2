@@ -2088,9 +2088,10 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             bdi.state = kThemeStateActive;
             QStyle::State flags = header->state;
             QRect ir = header->rect;
-            if (w && (qobject_cast<QTreeView *>(w->parentWidget())
+            QWidget *pw = w ? w->parentWidget() : 0;
+            if (pw && (qobject_cast<QTreeView *>(pw)
 #ifdef QT3_SUPPORT
-                        || w->parentWidget()->inherits("Q3ListView")
+                       || pw->inherits("Q3ListView")
 #endif
                 )) {
                 bdi.kind = kThemeListHeaderButton;
@@ -3656,9 +3657,10 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             QRect ir = header->rect;
             bool scaleHeader = false;
             SInt32 headerHeight = 0;
-            if (widget && (qobject_cast<QTreeView *>(widget->parentWidget())
+            QWidget *pw = widget ? widget->parentWidget() : 0;
+            if (pw && (qobject_cast<QTreeView *>(pw)
 #ifdef QT3_SUPPORT
-                        || widget->parentWidget()->inherits("Q3ListView")
+                       || pw->inherits("Q3ListView")
 #endif
                 )) {
                 bkind = kThemeListHeaderButton;
