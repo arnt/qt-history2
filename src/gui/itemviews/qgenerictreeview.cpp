@@ -96,9 +96,6 @@ public:
     int viewIndex(const QModelIndex &index) const;
     QModelIndex modelIndex(int i) const;
 
-    void drawRow(QPainter *painter, QItemOptions *options, QItemDelegate *delegate, int i) const;
-    void drawBranches(QPainter *painter, int i, int height) const;
-
     QGenericHeader *header;
     int indent;
 
@@ -110,8 +107,10 @@ public:
     int layout_from_index;
     int layout_count;
 
+    // used for drawing
     int from;
     int to;
+    int current;
 };
 
 #define d d_func()
@@ -166,6 +165,16 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
     resizeContents(size.width(), 0);
 }
 
+int QGenericTreeView::indentation() const
+{
+    return d->indent;
+}
+
+void QGenericTreeView::setIndentation(int i)
+{
+    d->indent = i;
+}
+
 bool QGenericTreeView::isColumnHidden(int column) const
 {
     return d->header->isSectionHidden(column);
@@ -187,22 +196,25 @@ void QGenericTreeView::drawContents(QPainter *painter, int cx, int cy, int cw, i
 	return;
 
     QGenericTreeViewItem *items = d->items.data();
-    QItemDelegate *delegate = itemDelegate();
     QItemOptions options;
     getViewOptions(&options);
     QFontMetrics fontMetrics(this->fontMetrics());
+    QItemDelegate *delegate = itemDelegate();
 
     int view_index = d->viewIndex(cy);
     QModelIndex model_index = d->modelIndex(view_index);
+    static QPoint pt(0, 0);
     options.itemRect = itemRect(model_index);
+    options.itemRect.moveTopLeft(pt);
     int height = options.itemRect.height();
     int bottom = cy + ch;
     int x = d->indentation(view_index);
     int y = d->coordinate(view_index);
     while (y < bottom && model_index.isValid()) {
+	d->current = view_index;
 	// draw row
 	painter->translate(0, y);
-	d->drawRow(painter, &options, delegate, view_index);
+	drawRow(painter, &options, d->modelIndex(view_index));
 	painter->translate(0, -y);
 	// next row
 	++view_index;
@@ -210,9 +222,77 @@ void QGenericTreeView::drawContents(QPainter *painter, int cx, int cy, int cw, i
 	x = d->indentation(view_index);
 	height = delegate->sizeHint(fontMetrics, options, model_index).height();
 	y += height;
-	options.itemRect.setY(y);
 	options.itemRect.setHeight(height);
     }
+}
+
+void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const
+{
+    // FIXME: clean this up!
+    int pos;
+    int column = d->from;
+    int width, height = options->itemRect.height();
+    QColor base = options->palette.base();
+
+    int x = d->indentation(d->current);
+    QModelIndex parent = model()->parent(index);
+    QGenericHeader *header = d->header;
+    
+    if (column == 0 && !header->isSectionHidden(column)) {
+	pos = header->sectionPosition(column);
+	width = header->sectionSize(column);
+	options->selected = selectionModel()->isSelected(index);
+	options->itemRect.setWidth(width - x);
+	options->focus = (q->viewport()->hasFocus() && selectionModel()->currentItem() == index);
+	painter->translate(pos, 0);
+	painter->fillRect(0, 0, width - pos, height, base);
+	drawBranches(painter, options, index);
+	painter->translate(x, 0);
+	itemDelegate()->paint(painter, *options, index);
+	painter->translate(-(pos + x), 0);
+	++column;
+    }
+    
+    options->focus = false;
+    QModelIndex i = index;
+    for (; column < model()->columnCount(root()); ++column) {
+	if (header->isSectionHidden(column))
+	    continue;
+	pos = header->sectionPosition(column);
+	i = model()->index(i.row(), column, parent);
+	width = header->sectionSize(column);
+	options->itemRect.setRect(0, 0, width, height);
+	options->selected = selectionModel()->isSelected(i);
+	painter->fillRect(pos, 0, width, height, base);
+	painter->translate(pos, 0);
+	itemDelegate()->paint(painter, *options, i);
+	painter->translate(-pos, 0);
+    }
+}
+
+void QGenericTreeView::drawBranches(QPainter *painter, QItemOptions *options, const QModelIndex &index) const
+{
+    QModelIndex parent = model()->parent(index);
+    QModelIndex current = parent;
+    QModelIndex ancestor = model()->parent(current);
+    QRect rect(0, 0, d->indent, options->itemRect.height());
+    int x = d->indentation(d->current);
+    int indent = d->indent;
+    painter->translate(x - indent * 2, 0);
+    for (int level = d->items.at(d->current).level - 1; level >= 0; --level) {
+	style().drawPrimitive(QStyle::PE_TreeBranch, painter, rect, options->palette,
+			      model()->rowCount(ancestor) - 1 > current.row() ? QStyle::Style_Sibling : 0);
+	current = ancestor;
+	ancestor = model()->parent(current);
+	painter->translate(-indent, 0);
+    }
+    painter->translate(x, 0);
+    QStyle::SFlags flags = QStyle::Style_Item |
+			   (model()->rowCount(parent) - 1 > index.row() ? QStyle::Style_Sibling : 0) |
+			   (model()->hasChildren(index) ? QStyle::Style_Children : 0) |
+			   (d->isOpen(d->current) ? QStyle::Style_Open : 0);
+    style().drawPrimitive(QStyle::PE_TreeBranch, painter, rect, options->palette, flags);
+    painter->translate(d->indent - x, 0);
 }
 
 void QGenericTreeView::contentsMousePressEvent(QMouseEvent *e)
@@ -598,75 +678,4 @@ QModelIndex QGenericTreeViewPrivate::modelIndex(int i) const
     if (i < 0 || i >= items.count())
 	return QModelIndex();
     return items.at(i).index;
-}
-
-void QGenericTreeViewPrivate::drawRow(QPainter *painter, QItemOptions *options, QItemDelegate *delegate, int i) const
-{
-    // FIXME: clean this up!
-    int pos;
-    int column = from;
-    int width, height = options->itemRect.height();
-    QGenericItemModel *model = q->model();
-    QColor base = options->palette.base();
-
-    int x = indentation(i);
-    QModelIndex index = modelIndex(i);
-    QModelIndex parent = model->parent(index);
-
-    if (column == 0 && !header->isSectionHidden(column)) {
-	pos = header->sectionPosition(column);
-	width = header->sectionSize(column);
-	options->selected = q->selectionModel()->isSelected(index);
-	options->itemRect.setWidth(width - x);
-	options->focus = (q->viewport()->hasFocus() && q->selectionModel()->currentItem() == index);
-	painter->translate(pos, 0);
-	painter->fillRect(0, 0, width - pos, height, base);
-	drawBranches(painter, i, height);
-	painter->translate(x, 0);
-	delegate->paint(painter, *options, index);
-	painter->translate(-(pos + x), 0);
-	++column;
-    }
-
-    options->focus = false;
-    for (; header->index(column) < to; ++column) {
-//    for (; column < model->columnCount(q->root()); ++column) {
-	if (header->isSectionHidden(column))
-	    continue;
-	pos = header->sectionPosition(column);
-	index = model->index(index.row(), column, parent);
-	width = header->sectionSize(column);
-	options->itemRect.setRect(0, 0, width, height);
-	options->selected = q->selectionModel()->isSelected(index);
-	painter->fillRect(pos, 0, width, height, base);
-	painter->translate(pos, 0);
-	delegate->paint(painter, *options, index);
-	painter->translate(-pos, 0);
-    }
-}
-
-void QGenericTreeViewPrivate::drawBranches(QPainter *painter, int i, int height) const
-{
-    QGenericItemModel *model = q->model();
-    QModelIndex index = modelIndex(i);
-    QModelIndex parent = model->parent(index);
-    QModelIndex current = parent;
-    QModelIndex ancestor = model->parent(current);
-    QRect rect(0, 0, indent, height);
-    int x = indentation(i);
-    painter->translate(x - indent * 2, 0);
-    for (int level = items.at(i).level - 1; level >= 0; --level) {
-	q->style().drawPrimitive(QStyle::PE_TreeBranch, painter, rect, q->palette(),
-				 model->rowCount(ancestor) - 1 > current.row() ? QStyle::Style_Sibling : 0);
-	current = ancestor;
-	ancestor = model->parent(current);
-	painter->translate(-indent, 0);
-    }
-    painter->translate(x, 0);
-    QStyle::SFlags flags = QStyle::Style_Item |
-			   (model->rowCount(parent) - 1 > index.row() ? QStyle::Style_Sibling : 0) |
-			   (model->hasChildren(index) ? QStyle::Style_Children : 0) |
-			   (isOpen(i) ? QStyle::Style_Open : 0);
-    q->style().drawPrimitive(QStyle::PE_TreeBranch, painter, rect, q->palette(), flags);
-    painter->translate(indent - x, 0);
 }

@@ -68,16 +68,16 @@ public:
 				      const QModelIndex &item) const;
 
     // for non-widget editors
-//     virtual void event( QEvent *e, QItemOptions *options );
-//     virtual void keyPressEvent( QKeyEvent *e, QItemOptions *options );
-//     virtual void keyReleaseEvent( QKeyEvent *e, QItemOptions *options );
-//     virtual void mousePressEvent( QMouseEvent *e, QItemOptions *options );
-//     virtual void mouseReleaseEvent( QMouseEvent *e, QItemOptions *options );
-//     virtual void mouseDoubleClickEvent( QMouseEvent *e, QItemOptions *options );
-//     virtual void mouseMoveEvent( QMouseEvent *e, QItemOptions *options );
-//     virtual void dragEnterEvent( QDragEnterEvent *e, QItemOptions *options );
-//     virtual void dragMoveEvent( QDragMoveEvent *e, QItemOptions *options );
-//     virtual void dropEvent( QDropEvent *e, QItemOptions *options );
+//     virtual void event( QEvent *e, QItemOptions *options, const QModelIndex &item );
+//     virtual void keyPressEvent( QKeyEvent *e, QItemOptions *options, const QModelIndex &item );
+//     virtual void keyReleaseEvent( QKeyEvent *e, QItemOptions *options, const QModelIndex &item );
+//     virtual void mousePressEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
+//     virtual void mouseReleaseEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
+//     virtual void mouseDoubleClickEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
+//     virtual void mouseMoveEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
+//     virtual void dragEnterEvent( QDragEnterEvent *e, QItemOptions *options, const QModelIndex &item );
+//     virtual void dragMoveEvent( QDragMoveEvent *e, QItemOptions *options, const QModelIndex &item );
+//     virtual void dropEvent( QDropEvent *e, QItemOptions *options, const QModelIndex &item );
 
 protected:
     QRect textRect(const QItemOptions &options, const QModelIndex &item) const;

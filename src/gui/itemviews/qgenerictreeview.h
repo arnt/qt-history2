@@ -20,6 +20,9 @@ public:
     QGenericHeader *header() const;
     void setHeader(QGenericHeader *header);
 
+    int indentation() const;
+    void setIndentation(int i);
+
     bool isColumnHidden(int column) const;
 
 public slots:
@@ -36,7 +39,10 @@ protected:
     void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void startItemsLayout();
     bool doItemsLayout(int num);
-    void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
+    
+    void drawContents(QPainter *painter, int cx, int cy, int cw, int ch);    
+    virtual void drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const;
+    virtual void drawBranches(QPainter *painter, QItemOptions *options, const QModelIndex &index) const;
 
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QModelIndex itemAt(int x, int y) const;
@@ -46,9 +52,8 @@ protected:
     QItemSelectionModel::SelectionBehavior selectionBehavior() const;
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
     QRect selectionRect(const QItemSelection *selection) const;
-
+    
     void contentsMousePressEvent(QMouseEvent *e);
-
     void updateGeometries();
 };
 
