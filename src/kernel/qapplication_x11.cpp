@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#457 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#458 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3313,20 +3313,25 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     }
 
     if ( type == QEvent::KeyPress ) {
+	bool mb=FALSE;
 	if ( qt_xim ) {
 	    QTLWExtra*  xd = tlw->extraData()?tlw->extraData()->topextra:0;
 	    if ( !xd ) {
 		tlw->createTLExtra();
 		xd = tlw->extraData()->topextra;
 	    }
-	    count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
-				     chars.data(), chars.size(), &key, &status );
-	    if ( status == XBufferOverflow ) {
-		chars.resize(count+1);
+	    if ( xd->xic ) {
+		mb=TRUE;
 		count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
-				     chars.data(), chars.size(), &key, &status );
+					 chars.data(), chars.size(), &key, &status );
+		if ( status == XBufferOverflow ) {
+		    chars.resize(count+1);
+		    count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
+					 chars.data(), chars.size(), &key, &status );
+		}
 	    }
-	} else {
+	}
+	if ( !mb ) {
 	    count = XLookupString( &((XEvent*)event)->xkey,
 				   chars.data(), chars.size(), &key, 0 );
 	}
