@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#134 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#135 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,8 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#134 $");
-
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#135 $");
 
 // Motif style parameters
 
@@ -1138,14 +1137,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	}
     }
 
-    if ( gs == WindowsStyle ) {
+    if ( gs == WindowsStyle )
 	p->setPen( act ? white : g.text() );
-	if ( act )
-	    debug( "Active: white" );
-	else
-	    debug( "Not active: %i, %i, %i", g.text().red(), 
-		   g.text().green(), g.text().blue() );
-    }
     else
 	p->setPen( g.text() );
 
