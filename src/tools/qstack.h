@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstack.h#3 $
+** $Id: //depot/qt/main/src/tools/qstack.h#4 $
 **
 ** Definition of QStack template/macro class
 **
 ** Author  : Haavard Nord
 ** Created : 920917
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -44,7 +44,7 @@ public:									      \
     void  setAutoDelete( bool del )	{ QCollection::setAutoDelete(del); }  \
     uint  count()   const		{ return QGList::count(); }	      \
     bool  isEmpty() const		{ return QGList::count() == 0; }      \
-    bool  push( const type *d )		{ return QGList::insert(GCI(d)); }    \
+    void  push( const type *d )		{ QGList::insert(GCI(d)); }	      \
     type *pop()				{ return (type *)QGList::takeFirst();}\
     bool  remove()			{ return QGList::removeFirst(); }     \
     void  clear()			{ QGList::clear(); }		      \
@@ -77,7 +77,7 @@ public:
     void  setAutoDelete( bool del )	{ QCollection::setAutoDelete(del); }
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
-    bool  push( const type *d )		{ return QGList::insert(GCI(d)); }
+    void  push( const type *d )		{ QGList::insert(GCI(d)); }
     type *pop()				{ return (type *)QGList::takeFirst(); }
     bool  remove()			{ return QGList::removeFirst(); }
     void  clear()			{ QGList::clear(); }
