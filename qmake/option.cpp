@@ -75,10 +75,12 @@ bool usage(const char *a0)
 bool
 Option::parseCommandLine(int argc, char **argv)
 {
-    QString mkspecs = QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator();
     if(argc == 1)
 	return usage(argv[0]);
 
+    QString mkspecs;
+    if(getenv("QTDIR"))
+	mkspecs = QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator();
     for(int x = 1; x < argc; x++) {
 	if(*argv[x] == '-') { /* options */
 	    QString opt = argv[x] + 1;
@@ -119,8 +121,18 @@ Option::parseCommandLine(int argc, char **argv)
     }
     if(!(Option::output.state() & IO_Open))
 	Option::output.open(IO_WriteOnly, stdout);
-    if(Option::specfile.isNull() || Option::specfile.isEmpty())
+    if(Option::specfile.isNull() || Option::specfile.isEmpty()) {
+	if(!getenv("MKSPEC")) {
+	    fprintf(stderr, "MKSPEC has not been set, so mkspec cannot be deduced.\n");
+	    return FALSE;
+	}
 	Option::specfile = mkspecs + getenv("MKSPEC");
+    }
+
+    if(Option::specfile.find(QDir::separator()) == -1) {
+	fprintf(stderr, "QTDIR has not been set, so mkspec cannot be deduced.\n");
+	return FALSE;
+    }
 
     Option::ui_ext = ".ui";
     Option::h_ext = ".h";

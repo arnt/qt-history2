@@ -104,41 +104,30 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
     if(!*d)
 	return var.isEmpty(); /* allow just a scope */
 
-    QStringList &varlist = place[var.stripWhiteSpace()];
-
     SKIP_WS(d);
     for( ; *d && op.find('=') == -1; op += *(d++));
     op.replace(QRegExp("\\s"), "");
 
     SKIP_WS(d);
-    val = QStringList::split(' ', d);
+    QString vals(d); /* vals now contains the space separated list of values */
+    int rep, rep_len;
+    QRegExp reg_var("\\$\\$[a-zA-Z0-9_-]*");
+    while((rep = reg_var.match(vals, 0, &rep_len)) != -1) {
+	const QString &replacement = place[vals.mid(rep + 2, rep_len - 2)].join(" ");
+	if(Option::debug_level >= 2)
+	    printf("Project parser: (%s) :: %s -> %s\n", vals.latin1(), 
+		   vals.mid(rep, rep_len).latin1(), replacement.latin1());
+	vals.replace(rep, rep_len, replacement);
+    }
 #undef SKIP_WS
 
-    if(Option::debug_level)
-	printf("Project Parser: %s %s (%s)\n", var.latin1(), op.latin1(), val.join(" :: ").latin1());
+    QStringList &varlist = place[var = var.stripWhiteSpace()]; /* varlist is the list in the symbol table */
+    QStringList vallist = QStringList::split(' ', vals);  /* vallist is the broken up list of values */
 
+    /* now do the operation */
     if(op == "=")
 	varlist.clear();
-    for(QStringList::Iterator valit = val.begin(); valit != val.end(); ++valit) {
-	int rep;
-	while((rep = (*valit).find(QRegExp("\\$\\$[a-zA-Z0-9_-]*"))) != -1) {
-	    QString torep = (*valit).mid(rep, (*valit).find(QRegExp("[^\\$a-zA-Z0-9_-]"), rep) - rep);
-	    QStringList &l = place[torep.right(torep.length()-2)];
-	    if(Option::debug_level >= 2)
-		printf("Project parser: (%s) :: %s -> %s\n", (*valit).latin1(), torep.latin1(), l.join(" ").latin1());
-	    if(l.count() > 1) {
-		(*valit).replace(rep, torep.length(), "");
-
-		for(QStringList::Iterator lit = l.begin(); lit != l.end(); ++lit) {
-		    if(op == "=" || op == "+=")
-			varlist.append((*lit));
-		    else if(op == "-=")
-			varlist.remove((*lit));
-		}
-	    }
-	    else
-		(*valit).replace(rep, torep.length(), l.first());
-	}
+    for(QStringList::Iterator valit = vallist.begin(); valit != vallist.end(); ++valit) {
 	if((*valit).isEmpty())
 	    continue;
 
@@ -147,6 +136,10 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 	else if(op == "-=")
 	    varlist.remove((*valit));
     }
+
+    if(Option::debug_level)
+	printf("Project Parser: :%s: :%s: (%s)\n", var.latin1(), op.latin1(), val.join(" :: ").latin1());
+
     return TRUE;
 }
 
