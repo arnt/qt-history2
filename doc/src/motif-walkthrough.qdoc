@@ -140,7 +140,7 @@
 
     \contentspage motif-walkthrough.html Home
     \previouspage motif-walkthrough.html Home
-    \nextpage motif-walkthorugh-2.html Chapter 2
+    \nextpage motif-walkthrough-2.html Chapter 2
 
     \section1 Starting with QMotif and QApplication
 
@@ -266,8 +266,8 @@
     \section1 Removing the \e Help Dialog
 
     The \e Help dialog is also special. Instead of replacing the \e Help
-    dialog with a custom QDialog, we will use the \link helpsystem.html Qt
-    Help System\endlink classes to provide a more advanced online help.
+    dialog with a custom QDialog, we will use the Qt \l{Help System}
+    classes to provide a more advanced online help.
     However, we cannot start using classes like QToolTip and QWhatsThis
     until we replace the \e {Main Window} and \e View widgets.
 
@@ -307,9 +307,9 @@
     \previouspage motif-walkthrough-2.html Preparing to Migrate the User Interface
     \nextpage motif-walkthrough-4.html Using Custom QDialogs
 
-    We start by using two of the \link dialogs.html Qt Standard
-    Dialogs\endlink: QFileDialog and QMessageBox. Both of these classes
-    provide useful static convenience functions.
+    We start by using two of Qt's \l{Standard Dialog Classes}{standard
+    dialogs}: QFileDialog and QMessageBox. Both of these classes provide
+    useful static convenience functions.
 
     \table
     \row \o QFileDialog::getOpenFileName() \o replacement for the \e Open dialog
@@ -1497,8 +1497,9 @@
 
     \section1 Writing Platform-Independent Code
 
-    Qt provides many \link io.html input and output\endlink classes. We
-    can use these in \c MainWindow::readDB() and \c MainWindow::saveDB().
+    Qt provides many \l{Input/Output and Networking}{input and output}
+    classes. We can use these in \c MainWindow::readDB() and
+    \c MainWindow::saveDB().
     Currently, these functions use functions only found on UNIX machines.
     Using QFile and QTextStream removes this dependency on UNIX, and we can
     begin building and testing our application on Microsoft Windows and
