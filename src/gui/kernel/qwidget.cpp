@@ -744,6 +744,8 @@ void QWidgetPrivate::init(Qt::WFlags f)
     QEvent e(QEvent::Create);
     QApplication::sendEvent(q, &e);
     QApplication::postEvent(q, new QEvent(QEvent::PolishRequest));
+
+    extraPaintEngine = 0;
 }
 
 

@@ -840,12 +840,19 @@ void QWidget::repaint(const QRegion& rgn)
     if (do_clipping)
         rasterEngine->setSystemClip(QRegion());
 
+    // as a result of a recursive paint event...
+    if (d->extraPaintEngine) {
+        delete d->extraPaintEngine;
+        d->extraPaintEngine = 0;
+    }
+
     setAttribute(Qt::WA_WState_InPaintEvent, false);
     if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())
         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 
     if (testAttribute(Qt::WA_ContentsPropagated))
         d->updatePropagatedBackground(&rgn);
+
 }
 
 
@@ -1657,13 +1664,13 @@ QPaintEngine *QWidget::paintEngine() const
         qt_widget_paintengine->setFlushOnEnd(false);
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
     }
-
     if (qt_widget_paintengine->isActive()) {
-        QRasterPaintEngine *extraEngine = new QRasterPaintEngine();
-        extraEngine->setAutoDestruct(true);
-        extraEngine->setFlushOnEnd(false);
-        return extraEngine;
+        if (d->extraPaintEngine)
+            return d->extraPaintEngine;
+        QRasterPaintEngine *engine = new QRasterPaintEngine();
+        engine->setFlushOnEnd(false);
+        const_cast<QWidget *>(this)->d->extraPaintEngine = engine;
+        return d->extraPaintEngine;
     }
-
     return qt_widget_paintengine;
 }

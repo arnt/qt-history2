@@ -252,7 +252,6 @@ public:
     static int instanceCounter;  // Current number of widget instances
     static int maxInstances;     // Maximum number of widget instances
 
-
     QWidgetData data;
 
     QWExtra *extra;
@@ -318,6 +317,8 @@ public:
     inline QRect mapToWS(const QRect &r) const { QRect rr(r); rr.translate(-data.wrect.topLeft()); return rr; }
     inline QRect mapFromWS(const QRect &r) const { QRect rr(r); rr.translate(data.wrect.topLeft()); return rr; }
 #endif
+
+    QPaintEngine *extraPaintEngine;
 
     mutable const QMetaObject *polished;
 };
