@@ -1023,7 +1023,8 @@ QString Q3Url::path( bool correct ) const
                     if ( qt_resolve_symlinks && !canPath.isNull() )
                        dir = QDir::cleanDirPath( canPath );
                     else
-                       dir = QDir::cleanDirPath( QDir( d->path ).absPath() + "/" );
+                       dir = QDir::cleanDirPath( QDir( d->path ).absPath() );
+                    dir += "/";
 		    if ( dir == "//" )
 			d->cleanPath = "/";
 		    else
