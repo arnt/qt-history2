@@ -1578,8 +1578,7 @@ QString QFont::toString() const
 	QString::number( (int) underline() ) + comma +
 	QString::number( (int) strikeOut() ) + comma +
 	QString::number( (int)fixedPitch() ) + comma +
-	QString::number( (int)   rawMode() ) + comma +
-	QString::number( (int)  overline() );
+	QString::number( (int)   rawMode() );
 }
 
 
@@ -1628,7 +1627,7 @@ bool QFont::fromString(const QString &descrip)
 	setStrikeOut(l[6].toInt());
 	setFixedPitch(l[7].toInt());
 	setRawMode(l[8].toInt());
-    } else if ( count >= 10 ) {
+    } else if ( count == 10 ) {
 	if ( l[2].toInt() > 0 )
 	    setPixelSize( l[2].toInt() );
 	setStyleHint((StyleHint) l[3].toInt());
@@ -1638,8 +1637,6 @@ bool QFont::fromString(const QString &descrip)
 	setStrikeOut(l[7].toInt());
 	setFixedPitch(l[8].toInt());
 	setRawMode(l[9].toInt());
-        if ( count == 11 )
-	    setOverline( l[10].toInt() );
     }
 
     return TRUE;
@@ -2176,6 +2173,8 @@ int QFontMetrics::width( const QString &str, int len ) const
 	len = str.length();
     if (len == 0)
 	return 0;
+    if ( len == 1 )
+	return width( *str.unicode() );
 
     QTextEngine layout( str, d );
     layout.itemize( QTextEngine::WidthOnly );
