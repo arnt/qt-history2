@@ -232,7 +232,9 @@ void QSqlForm::clearValues( bool nullify )
 {
     QMap< QWidget *, QSqlField * >::Iterator it;
     for( it = d->map.begin(); it != d->map.end(); ++it ){
-	(*it)->clear( nullify );
+	QSqlField* f = (*it);
+	if ( f )
+	    f->clear( nullify );
     }
     readFields();
 }
