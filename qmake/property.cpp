@@ -59,8 +59,11 @@ QMakeProperty::value(QString v, bool just_check)
 	int slash = v.findRev('/');
 	QString ret = sett->readEntry(keyBase(slash == -1) + v, QString::null, &ok);
 	if(!ok) {
-	    if(slash != -1)
+	    QString version = qmake_version();
+	    if(slash != -1) {
+		version = v.left(slash-1);
 		v = v.mid(slash+1);
+	    }
 	    QStringList subs = sett->subkeyList(keyBase(FALSE));
 	    subs.sort();
 	    for(QStringList::Iterator it = subs.fromLast(); it != subs.end(); --it) {
@@ -69,7 +72,7 @@ QMakeProperty::value(QString v, bool just_check)
 		ret = sett->readEntry(keyBase(FALSE) + (*it) + "/" + v, QString::null, &ok);
 		if(ok) {
 		    if(!just_check)
-			debug_msg(1, "Fell back from %s -> %s for '%s'.", qmake_version(),
+			debug_msg(1, "Fell back from %s -> %s for '%s'.", version.latin1(),
 				  (*it).latin1(), v.latin1());
 		    return ret;
 		}
@@ -139,11 +142,6 @@ QMakeProperty::exec()
 	    if(!var.startsWith("."))
 		setValue(var, (*it));
 	}
-    }
-    if(Option::debug_level && initSettings()) {
-	QStringList lst = sett->entryList(keyBase());
-	for(QStringList::Iterator it = lst.begin();  it != lst.end(); it++) 
-	    qDebug("%s === %s", (*it).latin1(), value((*it)).latin1());
     }
     return ret;
 }
