@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#8 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#9 $
 **
 ** Definition of QValueList class
 **
@@ -23,8 +23,8 @@
 **
 *****************************************************************************/
 
-#ifndef __Q_VALUELIST_H__
-#define __Q_VALUELIST_H__
+#ifndef QVALUELIST_H
+#define QVALUELIST_H
 
 #ifndef QT_H
 #include "qglobal.h"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#4 $
+** $Id: //depot/qt/main/src/tools/qmap.h#5 $
 **
 ** Definition of QMap class
 **
@@ -23,8 +23,8 @@
 **
 *****************************************************************************/
 
-#ifndef __Q_MAP_H__
-#define __Q_MAP_H__
+#ifndef QMAP_H
+#define QMAP_H
 
 #ifndef QT_H
 #include "qshared.h"
