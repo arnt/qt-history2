@@ -71,6 +71,9 @@ private:
 	QString text;
 	QPixmap pixmap;
 	bool clickable, resizable;
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+	bool operator==( const Column& ) const { return FALSE; }
+#endif                                                                       
     };
 
 private:
