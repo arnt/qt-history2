@@ -1,3 +1,17 @@
+/****************************************************************************
+**
+** Definition of some Qt private functions.
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QABSTRACTSPINBOX_P_H
 #define QABSTRACTSPINBOX_P_H
 
@@ -15,6 +29,7 @@
 #define DATE_MAX QDate(7999, 12, 31)
 #define DATETIME_MIN QDateTime(DATE_MIN, TIME_MIN)
 #define DATETIME_MAX QDateTime(DATE_MAX, TIME_MAX)
+#define DATE_INITIAL QDate(1753, 1, 1)
 
 enum EmitPolicy {
     EmitIfChanged,
@@ -59,8 +74,6 @@ public:
     void calculateSizeHints() const;
 
     QStyleOptionSpinBox styleOption() const;
-
-    void setRange(const QCoreVariant &min, const QCoreVariant &max);
 
     QCoreVariant valueForPosition(int pos) const;
 

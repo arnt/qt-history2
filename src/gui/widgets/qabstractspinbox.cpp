@@ -1,3 +1,17 @@
+/****************************************************************************
+**
+** Implementation of QAbstractSpinBox class.
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <private/qabstractspinbox_p.h>
 #include <qabstractspinbox.h>
 #include <qapplication.h>
@@ -1027,22 +1041,22 @@ QCoreVariant QAbstractSpinBoxPrivate::bound(const QCoreVariant &val, const QCore
             v = wrapping ? minimum : maximum;
 	}
     } else {
-	const bool wasMin = old == minimum;
+        const bool wasMin = old == minimum;
 	const bool wasMax = old == maximum;
 	const bool wrapped = (v > old && steps < 0) || (v < old && steps > 0);
 	if (v > maximum) {
 	    v = ((wasMax && !wrapped && steps > 0) || (steps < 0 && !wasMin && wrapped))
-		? minimum : maximum;
+                ? minimum : maximum;
 	} else if (wrapped && (v > maximum || v < minimum)) {
 	    v = (wasMax && steps > 0 || (!wasMin && steps < 0)) ? minimum : maximum;
 	} else if (v < minimum) {
 	    v = (!wasMax && !wasMin ? minimum : maximum);
-	} 
-	/*else if (wasMin && steps < 0 || wasMax && steps > 0) {
-	    v = (wasMax ? minimum : maximum);
-	}*/
+//  	} else if (wasMin && steps < 0 || wasMax && steps > 0) {
+//  	    v = (wasMax ? minimum : maximum);
+ 	}
     }
 
+//    qDebug("(%s) %s =(%d)=> %s", old.toTime().toString().latin1(), val.toTime().toString().latin1(), steps, v.toString().latin1());
     return v;
 }
 
@@ -1144,19 +1158,13 @@ QString QAbstractSpinBoxPrivate::mapValueToText(const QCoreVariant &) const
 void QAbstractSpinBoxPrivate::setBoundary(Boundary b, const QCoreVariant &val)
 {
     if (b == Minimum) {
-	if (maximum < val) {
-	    minimum = maximum;
-	    maximum = val;
-	} else {
-	    minimum = val;
-	}
+        minimum = val;
+	if (maximum < minimum)
+            maximum = minimum;
     } else {
-	if (minimum > val) {
-	    maximum = minimum;
-	    minimum = val;
-	} else {
-	    maximum = val;
-	}
+        maximum = val;
+	if (minimum > maximum)
+            minimum = maximum;
     }
     setValue(bound(value), EmitIfChanged);
     resetState();
@@ -1175,7 +1183,9 @@ QCoreVariant QAbstractSpinBoxPrivate::getZeroVariant() const
     switch (type) {
     case QCoreVariant::Int: ret = QCoreVariant((int)0); break;
     case QCoreVariant::Double: ret = QCoreVariant((double)0); break;
-    case QCoreVariant::DateTime: ret = QCoreVariant(QDateTime(QDate(1999, 1, 1), QTime())); break;
+    case QCoreVariant::Time: ret = QCoreVariant(QTime()); break;
+    case QCoreVariant::Date: ret = QCoreVariant(DATE_INITIAL); break;
+    case QCoreVariant::DateTime: ret = QCoreVariant(QDateTime(DATE_INITIAL, QTime())); break;
     default: break;
     }
     return ret;
@@ -1214,15 +1224,6 @@ QValidator::State QAbstractSpinBoxPrivate::validate(QString *input, int *, QCore
         *input = prefix + *input + suffix;
 
     return state;
-}
-
-void QAbstractSpinBoxPrivate::setRange(const QCoreVariant &min, const QCoreVariant &max)
-{
-    minimum = qMin(min, max);
-    maximum = qMax(min, max);
-    setValue(qMin(qMax(minimum, value), maximum), EmitIfChanged);
-    resetState();
-    update();
 }
 
 /*!
@@ -1286,6 +1287,8 @@ bool operator<(const QCoreVariant &arg1, const QCoreVariant &arg2)
     switch (arg1.type()) {
     case QCoreVariant::Int: return arg1.toInt() < arg2.toInt();
     case QCoreVariant::Double: return arg1.toDouble() < arg2.toDouble();
+    case QCoreVariant::Date: return arg1.toDate() < arg2.toDate();
+    case QCoreVariant::Time: return arg1.toTime() < arg2.toTime();
     case QCoreVariant::DateTime: return arg1.toDateTime() < arg2.toDateTime();
     default: break;
     }
@@ -1305,6 +1308,8 @@ bool operator>(const QCoreVariant &arg1, const QCoreVariant &arg2)
     switch (arg1.type()) {
     case QCoreVariant::Int: return arg1.toInt() > arg2.toInt();
     case QCoreVariant::Double: return arg1.toDouble() > arg2.toDouble();
+    case QCoreVariant::Time: return arg1.toTime() > arg2.toTime();
+    case QCoreVariant::Date: return arg1.toDate() > arg2.toDate();
     case QCoreVariant::DateTime: return arg1.toDateTime() > arg2.toDateTime();
     default: break;
     }
@@ -1325,6 +1330,18 @@ QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2)
     switch (arg1.type()) {
     case QCoreVariant::Int: ret = QCoreVariant(arg1.toInt() + arg2.toInt()); break;
     case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() + arg2.toDouble()); break;
+    case QCoreVariant::Time: {
+        QTime a2 = arg2.toTime();
+        QTime a1 = arg1.toTime();
+        ret = QCoreVariant(a1.addMSecs(QTime().msecsTo(a2)));
+        break;
+    }
+    case QCoreVariant::Date: {
+        QDate a2 = arg2.toDate();
+        QDate a1 = arg1.toDate().addDays(DATETIME_MIN.daysTo(a2));
+        ret = QCoreVariant(a1);
+        break;
+    }
     case QCoreVariant::DateTime: {
         QDateTime a2 = arg2.toDateTime();
         QDateTime a1 = arg1.toDateTime().addDays(DATETIME_MIN.daysTo(a2));
@@ -1351,6 +1368,33 @@ QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2)
     switch (arg1.type()) {
     case QCoreVariant::Int: ret = QCoreVariant(arg1.toInt() - arg2.toInt()); break;
     case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() - arg2.toDouble()); break;
+    case QCoreVariant::Time: {
+        QTime a1 = arg1.toTime();
+        QTime a2 = arg2.toTime();
+        int secs = a2.secsTo(a2);
+        int msecs = qMax(0, a1.msec() - a2.msec());
+        if (secs < 0 || msecs < 0) {
+            ret = arg1;
+        } else {
+            QTime dt = a2.addSecs(secs);
+            if (msecs > 0)
+                dt = dt.addMSecs(msecs);
+            ret = QCoreVariant(dt);
+        }
+        break;
+    }
+    case QCoreVariant::Date: {
+        QDate a1 = arg1.toDate();
+        QDate a2 = arg2.toDate();
+        int days = a2.daysTo(a1);
+        if (days < 0) {
+            ret = arg1;
+        } else {
+            QDate dt = a2.addDays(days);
+            ret = QCoreVariant(dt);
+        }
+        break;
+    }
     case QCoreVariant::DateTime: {
         QDateTime a1 = arg1.toDateTime();
         QDateTime a2 = arg2.toDateTime();
@@ -1358,7 +1402,6 @@ QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2)
         int secs = a2.secsTo(a2);
         int msecs = qMax(0, a1.time().msec() - a2.time().msec());
         if (days < 0 || secs < 0 || msecs < 0) {
-            qDebug("%s %d: if (days < 0 || secs < 0 || msecs < 0) {", __FILE__, __LINE__);
             ret = arg1;
         } else {
             QDateTime dt = a2.addDays(days).addSecs(secs);
@@ -1384,6 +1427,18 @@ QCoreVariant operator*(const QCoreVariant &arg1, double multiplier) // should pr
     switch (arg1.type()) {
     case QCoreVariant::Int: ret = QCoreVariant((int)(arg1.toInt() * multiplier)); break;
     case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() * multiplier); break;
+    case QCoreVariant::Time: {
+        long msecs = (long)((TIME_MIN.msecsTo(arg1.toDateTime().time()) * multiplier));
+        ret = QTime().addMSecs(msecs);
+        break;
+    }
+    case QCoreVariant::Date: {
+        double days = DATE_MIN.daysTo(arg1.toDateTime().date()) * multiplier;
+        int daysInt = (int)days;
+        days -= daysInt;
+        ret = QDate().addDays(int(days));
+        break;
+    }
     case QCoreVariant::DateTime: {
         double days = DATE_MIN.daysTo(arg1.toDateTime().date()) * multiplier;
         int daysInt = (int)days;
@@ -1414,6 +1469,14 @@ double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2)
         a1 = arg1.toDouble();
         a2 = arg2.toDouble();
         break;
+    case QVariant::Time: {
+        a1 = (double)TIME_MIN.msecsTo(arg1.toTime()) / (long)(3600 * 24 * 1000);
+        a2 = (double)TIME_MIN.msecsTo(arg2.toTime()) / (long)(3600 * 24 * 1000);
+    }
+    case QVariant::Date: {
+        a1 = DATE_MIN.daysTo(arg1.toDate());
+        a2 = DATE_MIN.daysTo(arg2.toDate());
+    }
     case QVariant::DateTime: {
         a1 = DATE_MIN.daysTo(arg1.toDate());
         a2 = DATE_MIN.daysTo(arg2.toDate());

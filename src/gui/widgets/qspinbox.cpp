@@ -1,5 +1,19 @@
-#include "qabstractspinbox_p.h"
-#include "qspinbox.h"
+/****************************************************************************
+**
+** Implementation of the QSpinBox and QDoubleSpinBox classes.
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include <private/qabstractspinbox_p.h>
+#include <qspinbox.h>
 #include <qlineedit.h>
 #include <qvalidator.h>
 
@@ -393,7 +407,8 @@ void QSpinBox::setMaximum(int max)
 
 void QSpinBox::setRange(int min, int max)
 {
-    d->setRange(min, max);
+    d->setBoundary(Minimum, QCoreVariant(min));
+    d->setBoundary(Maximum, QCoreVariant(max));
 }
 
 /*!
@@ -757,7 +772,8 @@ void QDoubleSpinBox::setMaximum(double max)
 
 void QDoubleSpinBox::setRange(double min, double max)
 {
-    d->setRange(min, max);
+    d->setBoundary(Minimum, QCoreVariant(min));
+    d->setBoundary(Maximum, QCoreVariant(max));
 }
 
 /*!
