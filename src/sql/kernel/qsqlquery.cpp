@@ -334,7 +334,7 @@ bool QSqlQuery::exec(const QString& query)
         return false;
     }
 #ifdef QT_DEBUG_SQL
-    qDebug("\n QSqlQuery: %s", query.ascii());
+    qDebug("\n QSqlQuery: %s", query.toLocal8Bit().constData());
 #endif
     return d->sqlResult->reset(query);
 }
@@ -841,7 +841,7 @@ bool QSqlQuery::prepare(const QString& query)
         return false;
     }
 #ifdef QT_DEBUG_SQL
-    qDebug("\n QSqlQuery::prepare: %s", query.ascii());
+    qDebug("\n QSqlQuery::prepare: %s", query.toLocal8Bit().constData());
 #endif
     return d->sqlResult->savePrepare(query);
 }
