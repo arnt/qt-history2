@@ -399,11 +399,7 @@ void QWSPaintEngine::drawEllipse(const QRect &r)
     drawPolyInternal(a);
 }
 
-void QWSPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
-{
-}
-
-void QWSPaintEngine::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
+void QWSPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
 {
 #if 0
 #ifndef QT_NO_TRANSFORMATIONS
