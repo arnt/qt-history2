@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#319 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#320 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2653,7 +2653,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		    clearWState( WState_Withdrawn );
 		    QHideEvent e( TRUE );
 		    QApplication::sendEvent( this, &e );
-		    widget->sendHideEventsToChildren( TRUE );
+		    sendHideEventsToChildren( TRUE );
 		}
 	    } else if ( extra->topextra->iconic ) {
 		// being shown
@@ -2662,7 +2662,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		    setWState( WState_Visible );
 		    clearWState( WState_Withdrawn );
 		    clearWState( WState_ForceHide );
-		    widget->sendShowEventsToChildren( TRUE );
+		    sendShowEventsToChildren( TRUE );
 		    QShowEvent e( TRUE );
 		    QApplication::sendEvent( this, &e );
 		}
