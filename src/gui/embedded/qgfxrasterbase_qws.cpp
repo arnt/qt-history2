@@ -180,7 +180,7 @@ void QGfxRasterBase::setPen(const QPen &p)
     static char dash_dot_dot_line[] = { 7, 3, 2, 3, 2, 3 };
 
     cpen=p;
-    penColor = p.color().rgb();
+    penColor = p.color().rgba();
     switch (cpen.style()) {
         case Qt::DashLine:
             setDashes(dash_line, sizeof(dash_line));
@@ -228,7 +228,7 @@ void QGfxRasterBase::setPen(const QPen &p)
 void QGfxRasterBase::setBrush(const QBrush &b)
 {
     cbrush = b;
-    brushColor = b.color().rgb();
+    brushColor = b.color().rgba();
     if((cbrush.style() != Qt::NoBrush) && (cbrush.style() != Qt::SolidPattern))
         patternedbrush = true;
     else
