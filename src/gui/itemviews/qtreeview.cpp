@@ -1169,7 +1169,8 @@ void QTreeView::updateGeometries()
     d->header->setGeometry(geometryRect);
 
     // make sure that the header sections are resized, even if the header is hidden
-    if (d->header->isExplicitlyHidden() && d->header->stretchSectionCount()) {
+    if (d->header->isExplicitlyHidden()
+        && (d->header->stretchSectionCount() || d->header->stretchLastSection())) {
         d->header->viewport()->setGeometry(geometryRect);
         qInvokeMetaMember(d->header, "resizeSections");
     }
