@@ -2555,12 +2555,20 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
 
+    bool dontclip  = (tf & Qt::DontClip)  == Qt::DontClip;
     bool wordbreak  = (tf & Qt::WordBreak)  == Qt::WordBreak;
     bool expandtabs = (tf & Qt::ExpandTabs) == Qt::ExpandTabs;
     bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
     bool breakany = (tf & Qt::BreakAnywhere ) == Qt::BreakAnywhere;
     bool noaccel = ( tf & Qt::NoAccel ) == Qt::NoAccel;
+
+    bool restoreClipping = FALSE;
+    if ( dontclip  && painter->hasClipping() ){
+	painter->save();
+	restoreClipping = TRUE;
+	painter->setClipping( FALSE );
+    }
 
     if ( !singleline && str.length() < 30 )
 	singleline = str.find( '\n' ) == -1;
@@ -2613,11 +2621,13 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    QRegion reg = r;
 	    reg.translate( painter->xlatex, painter->xlatey );
 #endif
-	    if ( painter->hasClipping() )
-		reg &= painter->clipRegion();
+	    if ( !dontclip ) {
+		if ( painter->hasClipping() )
+		    reg &= painter->clipRegion();
 
-	    painter->save();
-	    painter->setClipRegion( reg );
+		painter->save();
+		painter->setClipRegion( reg );
+	    }
 
 	    if ( !noaccel ) {
 		parStr = str.left( len );
@@ -2659,8 +2669,11 @@ void qt_format_text( const QFont& font, const QRect &r,
 			painter->drawText( xoff, yoff, parStr.mid( lastPos, parStr.length() - lastPos ) );
 		}
 	    }
-	    painter->restore();
+	    if ( !dontclip )
+    		painter->restore();
 	}
+	if ( restoreClipping )
+	    painter->restore();
 	return;
     }
 
@@ -2790,13 +2803,16 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    QRegion reg = rect;
 	    reg.translate( painter->xlatex, painter->xlatey );
 #endif
-	    if ( painter->hasClipping() )
-		reg &= painter->clipRegion();
+	    if ( !dontclip ) {
+		if ( painter->hasClipping() )
+		    reg &= painter->clipRegion();
 
-	    painter->setClipRegion( reg );
+		painter->setClipRegion( reg );
+	    }
 	    painter->translate( xoff, yoff );
 	    parag->paint( *painter, cg );
-	    painter->restore();
+	    if ( !dontclip )
+    		painter->restore();
 	}
     }
     if ( encode ) {
