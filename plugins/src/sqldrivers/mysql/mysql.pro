@@ -5,16 +5,13 @@ SOURCES		= main.cpp \
 		  ../../../../src/sql/drivers/mysql/qsql_mysql.cpp 
 
 unix {
-	OBJECTS_DIR	= .obj
-	isEmpty(LIBS) {
-		LIBS	+= -lmysqlclient
-	}
+	OBJECTS_DIR = .obj
+	LIBS	*= -lmysqlclient
+
 }
 win32 {
-	OBJECTS_DIR	= obj
-	isEmpty(LIBS) {
-		LIBS	+= libmysql.lib
-	}
+	OBJECTS_DIR = obj
+	LIBS	*= libmysql.lib
 }
 
 REQUIRES	= sql
