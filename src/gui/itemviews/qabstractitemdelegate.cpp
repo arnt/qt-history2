@@ -23,6 +23,9 @@
 
     \ingroup model-view
 
+    A QAbstractItemDelegate provides the interface and common functionality
+    for delegates in the Model/View architecture. 
+
     To render an item in a custom way, reimplement paint() and sizeHint().
 
     To provide custom editing, there are two approaches that can be
@@ -36,7 +39,7 @@
     it is no longer needed. The second approach is to handle user
     events directly. To do this you could reimplement event().
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+    \sa \link model-view-programming.html Model/View Programming\endlink
 */
 
 /*!
@@ -218,7 +221,7 @@ void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
 }
 
 /*!
-    Whenever an event occurs this function is called with the \a e
+    Whenever an event occurs, this function is called with the \a e
     and the model \a index in the \a model.
 
     The base implementation returns false (indicating that it has not

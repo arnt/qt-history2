@@ -53,15 +53,42 @@ static const char * const checked_xpm[] = {
 "                ",
 "                ",};
 
+/*!
+    \class QItemDelegate
+
+    \brief The QItemDelegate class provides display and editing facilities for item views.
+
+    \ingroup model-view
+
+    A QItemDelegate 
+
+    \sa \link model-view-programming.html Model/View Programming\endlink
+        QAbstractItemDelegate
+
+*/
+
+/*!
+    Constructs an item delegate with the given \a parent.
+*/
+
 QItemDelegate::QItemDelegate(QObject *parent)
     : QAbstractItemDelegate(parent)
 {
 
 }
 
+/*!
+    Destroys the item delegate.
+*/
+
 QItemDelegate::~QItemDelegate()
 {
 }
+
+/*!
+    Renders the delegate using the given \a painter and style \a option for
+    the item specified by the \a model and the item \a index.
+*/
 
 void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                           const QAbstractItemModel *model, const QModelIndex &index) const
@@ -81,6 +108,13 @@ void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     drawFocus(painter, option, textRect);
 }
 
+/*!
+Returns the size needed by the delegate to display the item specified by
+the \a model and item \a index, taking into account the visual
+information provided by the font metrics in \a fontMetrics, and the given
+style \a option.
+*/
+
 QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
                               const QAbstractItemModel *model, const QModelIndex &index) const
 {
@@ -98,11 +132,29 @@ QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptio
     return pixmapRect.unite(textRect).size();
 }
 
+/*!
+    \fn QItemDelegate::EditorType QItemDelegate::editorType(const QAbstractItemModel *model, const QModelIndex &index) const
+
+    Returns the type of editor that this delegate implements for the item at
+    the given \a index in the \a model.
+
+    \sa QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType()
+*/
+
 QItemDelegate::EditorType QItemDelegate::editorType(const QAbstractItemModel *,
                                                     const QModelIndex &) const
 {
     return Widget;
 }
+
+/*!
+    Returns the widget used to edit the item specified by the \a model and
+    item \a index for the editing \a action given. The \a parent widget and
+    style \a option are used to control how the editor widget appears.
+
+    \sa QAbstractItemDelegate::BeginEditAction QAbstractItemDelegate::editor()
+
+*/
 
 QWidget *QItemDelegate::editor(BeginEditAction action, QWidget *parent,
                                const QStyleOptionViewItem &option,
@@ -122,11 +174,26 @@ QWidget *QItemDelegate::editor(BeginEditAction action, QWidget *parent,
     return 0;
 }
 
+/*!
+    \fn void QItemDelegate::releaseEditor(EndEditAction action, QWidget *editor, QAbstractItemModel *model, const QModelIndex &index)
+
+    Releases the \a editor that was created to edit the item specified by the
+    \a model and item \a index. The \a action specifies whether the editing
+    operation was completed successfully.
+
+    \sa QAbstractItemDelegate::EndEditAction QAbstractItemDelegate::releaseEditor()
+*/
+
 void QItemDelegate::releaseEditor(EndEditAction, QWidget *editor,
                                   QAbstractItemModel *, const QModelIndex &)
 {
     delete editor;
 }
+
+/*!
+    Sets the data to be displayed and edited by the \a editor for the
+    item specified by the \a model and item \a index.
+*/
 
 void QItemDelegate::setEditorData(QWidget *editor,
                                   const QAbstractItemModel *model, const QModelIndex &index) const
@@ -136,6 +203,11 @@ void QItemDelegate::setEditorData(QWidget *editor,
         lineEdit->setText(model->data(index, QAbstractItemModel::Role_Edit).toString());
 }
 
+/*!
+    Sets the data for the specified \a model and item \a index from that
+    supplied by the \a editor.
+*/
+
 void QItemDelegate::setModelData(QWidget *editor,
                                  QAbstractItemModel *model, const QModelIndex &index) const
 {
@@ -143,6 +215,11 @@ void QItemDelegate::setModelData(QWidget *editor,
     if (lineEdit)
         model->setData(index, QAbstractItemModel::Role_Edit, lineEdit->text());
 }
+
+/*!
+    Updates the \a editor for the item specified by the \a model and
+    item \a index according to the style \a option given.
+ */
 
 void QItemDelegate::updateEditorGeometry(QWidget *editor,
                                          const QStyleOptionViewItem &option,
@@ -159,6 +236,11 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
         editor->setGeometry(textRect);
     }
 }
+
+/*!
+   Renders the item view \a text within the rectangle specified by \a rect
+   using the given \a painter and style \a option.
+*/
 
 void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &option,
                                 const QRect &rect, const QString &text) const
@@ -182,6 +264,11 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     painter->setPen(old);
 }
 
+/*!
+    Renders the decoration \a pixmap within the rectangle specified by
+    \a rect using the given \a painter and style \a option.
+*/
+
 void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QRect &rect, const QPixmap &pixmap) const
 {
@@ -189,6 +276,10 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
         painter->fillRect(rect, QBrush(option.palette.highlight(), Qt::Dense4Pattern));
     painter->drawPixmap(rect.topLeft(), pixmap);
 }
+
+/*!
+    Renders the region within the rectangle specified by \a rect, indicating
+    that it has the focus, using the given \a painter and style \a option.*/
 
 void QItemDelegate::drawFocus(QPainter *painter, const QStyleOptionViewItem &option,
                               const QRect &rect) const
@@ -201,6 +292,10 @@ void QItemDelegate::drawFocus(QPainter *painter, const QStyleOptionViewItem &opt
         QApplication::style().drawPrimitive(QStyle::PE_FocusRect, &o, painter);
     }
 }
+
+/*!
+    \internal
+*/
 
 void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRect,
                              QRect *textRect, bool hint) const
@@ -253,6 +348,11 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
     }
 }
 
+/*!
+    \internal
+
+*/
+
 void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect *rect) const
 {
     if (alignment == Qt::AlignCenter) {
@@ -295,6 +395,13 @@ void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect 
         return;
     }
 }
+
+/*!
+    \internal
+
+    Returns the pixmap used to decorate the root of the item view.
+    The style \a option controls the appearance of the root; the \a variant
+    refers to the data associated with an item.  */
 
 QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVariant &variant) const
 {

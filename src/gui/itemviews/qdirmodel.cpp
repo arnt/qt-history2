@@ -261,7 +261,7 @@ QFileIconProvider::~QFileIconProvider()
 }
 
 /*!
-  Returns an icon set for the file described by \a fileInfo.
+  Returns an icon set for the file described by \a info.
 */
 
 QIconSet QFileIconProvider::icons(const QFileInfo &info) const
