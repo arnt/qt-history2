@@ -571,6 +571,8 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	;
     } else if ( p->isEnumType() ) {
 	widget->setProperty( propName, p->keyToValue( currentItemText ) );
+    } else if ( qstrcmp( p->name(), "buddy" ) == 0 ) {
+	widget->setProperty( propName, currentItemText );
     } else {
 	QVariant ov;
 	if ( propName == "name" || propName == "itemName" )

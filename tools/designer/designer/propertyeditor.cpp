@@ -2775,6 +2775,24 @@ void PropertyList::setupProperties()
 
 bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, QVariant::Type t )
 {
+    if ( name == "buddy" ) {
+	PropertyListItem *itm = new PropertyListItem( this, item, 0, name, TRUE );
+	QPtrDict<QWidget> *widgets = editor->formWindow()->widgets();
+	QPtrDictIterator<QWidget> it( *widgets );
+	QStringList l;
+	l << "";
+	while ( it.current() ) {
+	    if ( it.current()->focusPolicy() != QWidget::NoFocus ) {
+		if ( l.find( it.current()->name() ) == l.end() )
+		    l << it.current()->name();
+	    }
+	    ++it;
+	}
+	itm->setValue( l );
+	item = itm;
+	return TRUE;
+    }
+
     switch ( t ) {
     case QVariant::String:
 	item = new PropertyTextItem( this, item, 0, name, TRUE,
@@ -3100,6 +3118,8 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	;
     else if ( p->isEnumType() )
 	( (PropertyListItem*)i )->setCurrentItem( p->valueToKey( editor->widget()->property( i->name() ).toInt() ) );
+    else if ( qstrcmp( p->name(), "buddy" ) == 0 )
+	( (PropertyListItem*)i )->setCurrentItem( editor->widget()->property( i->name() ).toString() );
     else
 	i->setValue( editor->widget()->property( i->name() ) );
 }
