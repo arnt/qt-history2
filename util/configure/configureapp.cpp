@@ -1136,7 +1136,7 @@ void Configure::generateConfigfiles()
 	outStream << "const char *qInstallPath()        { return QT_INSTALL_PREFIX  + 11; }" << endl;
 	outStream << "const char *qInstallPathDocs()    { return QT_INSTALL_DOCS    + 11; }" << endl;
 	outStream << "const char *qInstallPathHeaders() { return QT_INSTALL_HEADERS + 11; }" << endl;
-	outStream << "const char *qInstallPathLibs()    { return QT_INSTALL_LIBS;   + 11; }" << endl;
+	outStream << "const char *qInstallPathLibs()    { return QT_INSTALL_LIBS    + 11; }" << endl;
 	outStream << "const char *qInstallPathBins()    { return QT_INSTALL_BINS    + 11;    }" << endl;
 	outStream << "const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS + 11; }" << endl;
 	outStream << "const char *qInstallPathData()    { return QT_INSTALL_DATA    + 11;    }" << endl;
