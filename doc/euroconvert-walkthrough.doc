@@ -1,0 +1,367 @@
+/*
+$Id$
+*/
+
+/*! \page euroconvert-walkthrough.html
+
+\ingroup walkthroughs
+
+\title Walkthrough: An EURO converter using the Qt table module
+
+The following example shows how to manipulate headers of a QTable
+spreadsheet, prevent columns from being modified by the user and
+adjust the size of the spreadsheet widget.
+
+To do this we write a \link euroconvert-example.html small program 
+\endlink that converts the native currencies
+of the member countries deploying the EURO to EURO.
+
+<h3><a name="converter.h">The EuroConverter class API</a></h3>
+ 
+For the widget -- a tiny spreadsheet that we implement in a
+new class with the name \e EuroConverter -- we need the following API:
+
+\walkthrough table/euroconversion/converter.h
+\skipto include
+\printline include
+
+As we derive the class from \l QTable, the
+first thing to do is to include the QTable API.
+
+\printuntil Q_OBJECT
+
+To react to user input in the spreadsheet cells 
+the new class gets a slot, thus the \e Q_OBJECT macro is needed.
+
+\printuntil EuroConverter()
+
+This is our constructor. It is the only function of the
+\e EuroConverter class that can be called from outside --
+for example from the \link #euroconvert.cpp main program \endlink.
+
+\printuntil processValueChange
+
+When the user changes figure and currency of what he or she
+wants to convert to EUR, the table sends a signal that we
+wish to react to. Therefore we introduce the 
+\link #processValueChange() processValueChange() \endlink
+slot.
+
+\printuntil };
+
+Last but not least we have one more private function \link
+#calculate() calculate() \endlink (the one that
+actually does the conversion job) and declare two variables used
+in more than one  \e EuroConverter functions.
+
+<h3><a name="converter.cpp">A simple EURO converter</a></h3>
+
+Now let's fill this framework with functionality.
+
+\walkthrough table/euroconversion/converter.cpp
+\skipto include
+\printuntil qstring.h
+
+First we include the APIs of the classes we use in the 
+\e EuroConverter implementation.
+
+\printline static const struct {
+\printuntil rate
+
+We need something to store currencies and exchange rates. For this
+reason we create a \e struct datatype that files currencies in
+a \l QString and the exchange rates in a \e double.
+
+\printline rates[
+
+We need this structure only once: for an array that holds
+the twelve currency-rate pairs. Thus we don't bother with
+declaring ...
+
+\printuntil };
+
+... and defining it separately, and simply add
+Austrian Schilling, Belgian Franc,
+German Mark, Spanish Peseta, Finnish Finnmark, French
+Franc, Greek Drachm, Irish Pound, Italian Lira, Luxembourg 
+Franc, Dutch Gulden and Portuguese Escudo each accompanied
+by the official
+exchange rate. There is only one official exchange rate 
+based on the 1 EUR, i.e. 1 EUR equals 200.482 PTE.
+
+\printline numcurrencies
+
+This list might be extended when new members enter the
+EURO community. To avoid changing code at more than one place
+we calculate each time how many currencies we have to take
+into consideration, i.e. the length of the \e rates array.
+
+This is done by dividing the size of the entire array
+by the size of a single item.
+
+\printline EuroConverter() 
+\printuntil {
+
+Now let's start with the \e EuroConverter constructor.
+
+As already mentioned we derive the class from QTable: a 
+\e EuroConverter object is a spreadsheet with \e 1
+line and \e 5 columns. As a main widget it will have a
+\e 0 parent and the name \e euroconverter.
+
+By default each \l QTable object comes with a
+horizontal header and one to the left of the actual
+table grid.
+
+\printline setLeftMargin(
+\printline verticalHeader()->
+
+The latter we don't really want to be there -- overall the
+EURO converter is a one line form.
+
+To safely get rid of the vertical header we first set its width to zero and hide
+it afterwards. Note that \e setLeftMargin() is a QTable function
+whilst for the hiding we have to obtain the topmost \l QHeader using 
+\e  verticalHeader() and use the QHeader function \e hide() on the
+returned header object.
+
+\printline "Value" 
+\printuntil setLabel( 4
+
+The horizontal header on top of the table is more valuable
+for us but we better change the column titles to something
+more descriptive. This is done by changing the label
+of each QHeader. Thus we obtain a pointer to the
+horizontal QHeader and apply QHeader::setLabel() on it.
+
+This way we end up with a first column titled \e Value,
+a second column with the title \e{Currency (Country)},
+and a fourth named \e{Value in Euro}. For the third and the last
+column we change the label to an empty string.
+
+Note that -- contrary to what the default labels suggest --
+the first column (and of course the first row as well) are
+addressed by \e 0.
+
+\printline QStringList
+
+To give the user a choice between the various national currencies
+we use a combo box. Fortunately the Qt table module provides
+us with a class named \l QComboTableItem to easily fill a cell
+with a combo box.
+
+The QComboTableItem constructor expects us to provide it with
+all combo box menu entries in one string list.
+
+\printline for
+\printline << rates[i].currency; 
+
+This \e currencylist variable we fill with the \e currency part of
+the \e rates[] structure. In the first round of the \e for loop
+we add the text denoting Austrian Schilling; \e{PTE (PT)}
+comes as the last entry of the string list.
+
+Note how easy it is to add a string to a \l QStringList: simply
+use the \e << operator. 
+
+\printline new QComboTableItem
+
+Now we create the combo box table item with the menu entries
+from \e currencylist as a child
+of the respective \e EuroConverter object.
+
+\printline setItem
+
+To place the combo box in the second cell of the one and only
+row of our \e EuroConverter table we explicitly make
+\e currencies the table item of this cell.
+
+\printline inputcurrency
+
+The \e inputcurrency variable holds an internal counter indicating
+the currency to be used for the calculation.
+To begin with this is -- by \l QComboTableItem default --
+the first item of the \e rates[] list.
+ 
+\printline setText
+\printline setText
+
+Apart from this the initial form has a blank first
+column (the user should define a value not we) 
+and consequently a blank result
+in the fourth column.
+
+In column \e 2 we place the string \e equals and in the last column
+the string \e EUR.
+
+\printline setColumnReadOnly
+\printuntil 4, TRUE ); 
+
+Neither of them is to be changed by the user -- and we will
+of course not provide the user with an opportunity to 
+manipulate the result of the calculation in column \e 3
+either. That's why we set these three columns read-only.
+
+\printline adjust
+\printuntil ( 4 )
+
+Finally we adjust the size of all columns apart from the first one 
+according to their longest entry -- which in case of
+column \e 1 and \e 3 is the respective header title. 
+
+The first column we don't adjust: its headline \e Value
+is very short, and the user might easily decide to enter
+a longer number.
+
+\printline adjustSize
+
+A table widget with plenty of whitespace to the right of
+and below the table grid is not very nice in our case of
+a table main widget. Therefore we adjust the size of the
+\e EuroConverter widget to the size of the table.
+
+\printline connect
+\printuntil }
+
+Last but not least we want an \e EuroConverter object to
+react to user input. Therefore we connect the table's
+\e valueChanged() signal to our custom slot  
+\link #processValueChange() processValueChange() \endlink.
+
+The signal carries two integer arguments denoting the 
+row and the column of the cell and is issued when the user 
+is done with editing the cell in question.
+
+<a name="processValueChange()"></a>
+\printline processValueChange( 
+\printline {
+
+\e processValueChange() is the slot we use to react to
+changes the user applies to the spreadsheet. As we have 
+one row only we can forget about the row information
+and simply deal with the column number the slot gets from
+the \e valueChanged signal.
+
+\printline col == 0
+
+As we set the last three columns read-only it is getting
+even easier: we have to take care of only column \e 0 and
+column 1. Column 0 is the one where the user enters a numerical
+value.
+
+\printuntil double
+
+The local variable \e value we use to store the value
+the user entered. With the help of \e ok we check
+whether the user entered a numerical value indeed.
+
+\printline toDouble
+
+To find out \e what exactly the user has entered we obtain
+the \e text() of cell \e 0,0 and convert this \l QString
+to a double value.
+
+If the cell contains letters or other non-numerical characters
+which don't make sense in a number \e ok is set to FALSE.
+
+\printline if
+
+Thus we can check whether the user typed in something meaningful.
+If this is the case...
+
+\printline calculate
+
+... we use our own \link #calculate() calculate() \endlink function
+to convert the \e value to EUR...
+
+\printline number( euro )
+
+... and set the fourth cell to display exactly this
+result. As \e setText() expects a \l QString as its third argument
+we transform the double value \e euro to a QString using
+QString::number().
+
+\printline else
+
+If the user entered something non-numerical...
+
+\printuntil 0, 3
+\printline }
+
+... we wipe out the content of the first and the fourth column
+so that he or she realizes that the entry wasn't something
+that can be converted to EUR.
+
+\printline col == 1
+
+If the user changes the active entry of the combo box in column \e 1 ...
+
+\printline inputcurrency
+
+... we set the intern variable \e inputcurrency to the number of the
+entry. To find out which entry the user switched to we use
+QComboTableItem::currentItem().
+
+\printline emit
+\printline }
+\printline }
+
+Additionally we fake a value change in cell 0,0 to make the
+EuroConverter recalculate the EUR value in column 3. Note that
+because the signal \e valueChanged() is connected to
+\e processValueChange() this causes a recursive function call.
+
+
+<a name="calculate()"></a>
+
+\printline calculate(
+\printline {
+
+To actually calculate the appropriate EUR equivalent of the numerical
+value the user enters we take the respective double \e value, ...
+
+\printline rates[inputcurrency].rate
+\printline }
+
+... devide it by the rate the \e inputcurrency variable points out
+in the \e rates[] array, and return the result.
+
+<h3><a name="euroconvert.cpp">The main program</a></h3>
+
+For those who have already written GUI programs with Qt the 
+main program does not bear any news.
+
+\walkthrough table/euroconversion/euroconvert.cpp
+
+\skipto include
+\printline include
+\printline qapplication.h
+
+First we include the API of the \e EuroConverter 
+and the \e QApplication class.
+
+\printline main
+\printuntil app
+
+The command line arguments (even if not used in this example)
+are handed over to the new application object \e app.
+
+\printline EuroConverter
+
+
+We create an instance of the \link #converter.cpp EuroConverter \endlink
+class,
+
+\printline MainWidget
+
+make it the main widget of the application,
+
+\printline show
+
+make it visible for the user,
+
+\printline return
+\printline }
+
+and start the execution loop of the application.
+*/

@@ -14,10 +14,8 @@ $Id$
   It illustrates the use of QTable and teaches how to manipulate
   table headers.
 
-  <!--
   This example is thoroughly explained in a 
-  \link small-table-demo-walkthrough.html walkthrough \endlink.
-  -->
+  \link euroconvert-walkthrough.html walkthrough \endlink.
  
   <hr>
 

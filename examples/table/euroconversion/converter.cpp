@@ -38,13 +38,13 @@ EuroConverter::EuroConverter()
     horizontalHeader()->setLabel( 4, "" );
 
     QStringList currencylist;
-    for ( int i=0; i < numcurrencies; i++ ) 
+    for ( int i = 0; i < numcurrencies; i++ ) 
 	currencylist << rates[i].currency;
 
-    inputcurrency = 0;
     currencies = new QComboTableItem( this, currencylist );
     setItem( 0, 1, currencies );
-    
+    inputcurrency = 0;
+
     setText( 0, 2, "equals" );
     setText( 0, 4, "EUR" );
 
@@ -56,10 +56,10 @@ EuroConverter::EuroConverter()
     adjustColumn( 2 );
     adjustColumn( 3 );
     adjustColumn( 4 );
+    adjustSize();         
 
     connect( this, SIGNAL( valueChanged( int, int ) ), 
              this, SLOT( processValueChange( int, int ) ) );
-    adjustSize();         
 }
 
 void EuroConverter::processValueChange( int, int col )
