@@ -325,7 +325,7 @@
                                         <cstring>noteLabel</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>Note: These other compilers are not supported by Trolltech</string>
+                                        <string>Note: The compilers specified in the 'Other' section are not officially supported.</string>
                                     </property>
                                 </widget>
                             </vbox>
@@ -393,6 +393,7 @@
                                 </widget>
                             </vbox>
                         </widget>
+
                     </grid>
                 </widget>
                 <spacer>
