@@ -5116,7 +5116,9 @@ static const unsigned short uc_decomposition_trie[] = {
 #define GET_DECOMPOSITION_INDEX(ucs4) \
        (ucs4 < 0x3400 \
         ? (uc_decomposition_trie[uc_decomposition_trie[ucs4>>4] + (ucs4 & 0xf)]) \
-        : (uc_decomposition_trie[uc_decomposition_trie[((ucs4 - 0x3400)>>8) + 0x340] + (ucs4 & 0xff)]))
+        : (ucs4 < 0x30000\
+           ? uc_decomposition_trie[uc_decomposition_trie[((ucs4 - 0x3400)>>8) + 0x340] + (ucs4 & 0xff)]\
+           : 0xffff))
 
 static const unsigned short uc_decomposition_map[] = {
 
@@ -6965,7 +6967,7 @@ static const unsigned short uc_ligature_trie[] = {
     0xffff, 0x6f4, 0x755, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
 };
 
-#define GET_LIGATURE_INDEX(u2) (uc_ligature_trie[uc_ligature_trie[u2>>5] + (u2 & 0x1f)]);
+#define GET_LIGATURE_INDEX(u2) (u2 < 0x3100 ? uc_ligature_trie[uc_ligature_trie[u2>>5] + (u2 & 0x1f)] : 0xffff);
 
 static const unsigned short uc_ligature_map [] = {
 
