@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#27 $
 **
 **  Splitter widget
 **
@@ -74,7 +74,7 @@ void QInternalSplitter::setOrientation( QSplitter::Orientation o )
     orient = o;
     if ( o == QSplitter::Horizontal )
 	setCursor( splitHCursor );
-    else if ( vSplitterCur )
+    else
 	setCursor( splitVCursor );
 }
 
