@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#39 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#40 $
 **
 ** Definition of QButtonGroup class
 **
@@ -40,9 +40,12 @@ class Q_EXPORT QButtonGroup : public QGroupBox
     Q_OBJECT
 public:
     QButtonGroup( QWidget *parent=0, const char *name=0 );
-    QButtonGroup( const QString &title, QWidget *parent=0, const char* name=0 );
-    QButtonGroup( int columns, Orientation o, QWidget *parent=0, const char *name=0 );
-    QButtonGroup( int columns, Orientation o, const QString &title, QWidget *parent=0, const char* name=0 );
+    QButtonGroup( const QString &title,
+		  QWidget *parent=0, const char* name=0 );
+    QButtonGroup( int columns, Orientation o,
+		  QWidget *parent=0, const char *name=0 );
+    QButtonGroup( int columns, Orientation o, const QString &title,
+		  QWidget *parent=0, const char* name=0 );
    ~QButtonGroup();
 
     bool	isExclusive() const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#70 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -28,6 +28,7 @@
 #include "qlist.h"
 #include "qradiobutton.h"
 #include "qapplication.h"
+
 
 
 /*!
@@ -77,12 +78,16 @@ struct QButtonItem
     int	     id;
 };
 
+
 class QButtonList: public QList<QButtonItem>
 {
 public:
     QButtonList() {}
    ~QButtonList() {}
 };
+
+
+typedef QListIterator<QButtonItem> QButtonListIt;
 
 
 /*!
@@ -152,20 +157,24 @@ void QButtonGroup::init()
     radio_excl = FALSE;
 }
 
-/*!
-  Destroys the button group and its child widgets.
-*/
+/*! \reimp */
 
 QButtonGroup::~QButtonGroup()
 {
-    for ( register QButtonItem *bi=buttons->first(); bi; bi=buttons->next() )
+    QButtonList * tmp = buttons;
+    QButtonItem *bi = tmp->first();
+    buttons = 0;
+    while( bi ) {
 	bi->button->setGroup(0);
-    delete buttons;
+	bi = tmp->next();
+    }
+    delete tmp;
 }
 
 
 /*!
   Returns TRUE if the button group is exclusive, otherwise FALSE.
+
   \sa setExclusive()
 */
 
@@ -219,24 +228,34 @@ int QButtonGroup::insert( QButton *button, int id )
 {
     if ( button->group() )
 	button->group()->remove( button );
+
     static int seq_no = -2;
-    register QButtonItem *bi = new QButtonItem;
+    QButtonItem *bi = new QButtonItem;
     CHECK_PTR( bi );
+
     if ( id < -1 )
 	bi->id = seq_no--;
     else if ( id == -1 )
 	bi->id = buttons->count();
     else
 	bi->id = id;
+
     bi->button = button;
     button->setGroup(this);
     buttons->append( bi );
+
     connect( button, SIGNAL(pressed()) , SLOT(buttonPressed()) );
     connect( button, SIGNAL(released()), SLOT(buttonReleased()) );
     connect( button, SIGNAL(clicked()) , SLOT(buttonClicked()) );
     connect( button, SIGNAL(toggled(bool)) , SLOT(buttonToggled(bool)) );
+
     if ( button->inherits( "QRadioButton" ) )
 	setRadioButtonExclusive( TRUE );
+    if ( button->isToggleButton() && !button->isOn() &&
+	 selected() && (selected()->focusPolicy() & TabFocus) != 0 )
+	button->setFocusPolicy( (FocusPolicy)(button->focusPolicy() &
+					      ~TabFocus) );
+
     return bi->id;
 }
 
@@ -255,13 +274,18 @@ int QButtonGroup::count() const
 
 void QButtonGroup::remove( QButton *button )
 {
-    for ( QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
+    if ( !buttons )
+	return;
+
+    QButtonListIt it( *buttons );
+    QButtonItem *i;
+    while ( (i=it.current()) != 0 ) {
+	++it;
 	if ( i->button == button ) {
-	    buttons->remove();
+	    buttons->remove( i );
 	    button->setGroup(0);
 	    button->disconnect( this );
-	    button->removeEventFilter( this );
-	    break;
+	    return;
 	}
     }
 }
@@ -276,6 +300,7 @@ void QButtonGroup::remove( QButton *button )
 
 QButton *QButtonGroup::find( int id ) const
 {
+    // introduce a QButtonListIt if calling anything
     for ( QButtonItem *i=buttons->first(); i; i=buttons->next() )
 	if ( i->id == id )
 	    return i->button;
@@ -313,6 +338,7 @@ QButton *QButtonGroup::find( int id ) const
 
 void QButtonGroup::buttonPressed()
 {
+    // introduce a QButtonListIt if calling anything
     int id = -1;
     QButton *bt = (QButton *)sender();		// object that sent the signal
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() )
@@ -332,6 +358,7 @@ void QButtonGroup::buttonPressed()
 
 void QButtonGroup::buttonReleased()
 {
+    // introduce a QButtonListIt if calling anything
     int id = -1;
     QButton *bt = (QButton *)sender();		// object that sent the signal
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() )
@@ -351,6 +378,7 @@ void QButtonGroup::buttonReleased()
 
 void QButtonGroup::buttonClicked()
 {
+    // introduce a QButtonListIt if calling anything
     int id = -1;
     QButton *bt = (QButton *)sender();		// object that sent the signal
 #if defined(CHECK_NULL)
@@ -375,6 +403,7 @@ void QButtonGroup::buttonClicked()
 
 void QButtonGroup::buttonToggled( bool on )
 {
+    // introduce a QButtonListIt if calling anything
     if ( !on || !excl_grp && !radio_excl )
 	return;
     QButton *bt = (QButton *)sender();		// object that sent the signal
@@ -385,18 +414,33 @@ void QButtonGroup::buttonToggled( bool on )
 
     if ( !excl_grp && !bt->inherits("QRadioButton") )
 	return;
-    QButtonItem *i = buttons->first();
+    QButtonItem * i = buttons->first();
+    bool hasTabFocus = FALSE;
+
+    while( i != 0 && hasTabFocus == FALSE ) {
+	if ( ( excl_grp || i->button->inherits("QRadioButton") ) &&
+	     (i->button->focusPolicy() & TabFocus) )
+	    hasTabFocus = TRUE;
+	i = buttons->next();
+    }
+
+    i = buttons->first();
     while( i ) {
 	if ( bt != i->button &&
 	     i->button->isToggleButton() &&
 	     i->button->isOn() &&
-	     (excl_grp || i->button->inherits("QRadioButton") ) ) {
+	     ( excl_grp || i->button->inherits( "QRadioButton" ) ) )
 	    i->button->setOn( FALSE );
-	    if ( i->button->hasFocus() )
-		bt->setFocus();
-	}
+	if ( ( excl_grp || i->button->inherits( "QRadioButton" ) ) &&
+	     i->button->isToggleButton() &&
+	     hasTabFocus )
+	    i->button->setFocusPolicy( (FocusPolicy)(i->button->focusPolicy() &
+						     ~TabFocus) );
 	i = buttons->next();
     }
+
+    if ( hasTabFocus )
+	bt->setFocusPolicy( (FocusPolicy)(bt->focusPolicy() | TabFocus) );
 }
 
 
@@ -464,7 +508,6 @@ void QButtonGroup::moveFocus( int key )
     i = buttons->first();
     while( i && i->button ) {
 	if ( i->button != f &&
-	     i->button->focusPolicy() &&
 	     i->button->isEnabled() ) {
 	    QPoint p(i->button->mapToGlobal(i->button->geometry().center()));
 	    int score = (p.y() - goal.y())*(p.y() - goal.y()) +
@@ -507,10 +550,18 @@ void QButtonGroup::moveFocus( int key )
 	i = buttons->next();
     }
 
-    if ( candidate && f && f->inherits( "QRadioButton" ) &&
-	 ((QRadioButton*)f)->isChecked() &&
-	 candidate->inherits( "QRadioButton" ) ) {
-	((QRadioButton*)candidate)->setChecked( TRUE );
+    if ( candidate && f && f->inherits( "QButton" ) &&
+	 ((QButton*)f)->isOn() &&
+	 candidate->inherits( "QButton" ) &&
+	 ((QButton*)candidate)->isToggleButton() &&
+	 ( isExclusive() || ( f->inherits( "QRadioButton" ) &&
+			      candidate->inherits( "QRadioButton" )))) {
+	if ( f->focusPolicy() & TabFocus ) {
+	    f->setFocusPolicy( (FocusPolicy)(f->focusPolicy() & ~TabFocus) );
+	    candidate->setFocusPolicy( (FocusPolicy)(candidate->focusPolicy()|
+						     TabFocus) );
+	}
+	((QButton*)candidate)->setOn( TRUE );
 	((QButton*)candidate)->animateClick();
 	((QButton*)candidate)->animateTimeout(); // ### crude l&f hack
     }
@@ -526,11 +577,17 @@ void QButtonGroup::moveFocus( int key )
 
 QButton * QButtonGroup::selected()
 {
-    QButtonItem *i = buttons->first();
-    while ( i && !( i->button && i->button->inherits("QRadioButton") &&
-		    i->button->isToggleButton() && i->button->isOn() ) )
-	i = buttons->next();
-    return i ? i->button : 0;
+    if ( !buttons )
+	return 0;
+    QButtonListIt it( *buttons );
+    QButtonItem *i;
+    while( (i=it.current()) != 0 ) {
+	++it;
+	if ( i->button && i->button->inherits("QRadioButton") &&
+	     i->button->isToggleButton() && i->button->isOn() )
+	    return i->button;
+    }
+    return 0;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#117 $
 **
 ** Implementation of QRadioButton class
 **
@@ -81,6 +81,7 @@ QRadioButton::QRadioButton( const QString &text, QWidget *parent,
     init();
     setText( text );
 }
+
 
 /*!
   Initializes the radio button.
@@ -347,13 +348,7 @@ void QRadioButton::updateMask()
 
 /*! \reimp */
 
-void QRadioButton::focusInEvent( QFocusEvent * e )
+void QRadioButton::focusInEvent( QFocusEvent *e  )
 {
-    QButton * b = 0;
-    if ( group() && !isOn() )
-	b = group()->selected();
-    if ( b && b->isEnabled() )
-	b->setFocus();
-    else
-	QButton::focusInEvent( e );
+    QButton::focusInEvent( e ); // ### 3.0 remove
 }

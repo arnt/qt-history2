@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#148 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#149 $
 **
 ** Implementation of QButton widget class
 **
@@ -232,7 +232,7 @@ QButton::QButton( QWidget *parent, const char *name, WFlags f )
 
 QButton::~QButton()
 {
-    if ( group() )				// remove from button group
+    if ( group() )
 	group()->remove( this );
     delete bpixmap;
     delete d;
@@ -694,32 +694,8 @@ void QButton::keyPressEvent( QKeyEvent *e )
 
 bool QButton::focusNextPrevChild( bool next )
 {
-    if ( !group() || !inherits( "QRadioButton" ) )
-	return QWidget::focusNextPrevChild( next );
-
-    QFocusData *f = focusData();
-
-    QWidget *startingPoint = f->home();
-    QWidget *candidate = 0;
-    QWidget *w = next ? f->prev() : f->next();
-
-    do {
-	if ( w != startingPoint &&
-	     !( w->inherits( "QRadioButton" ) &&
-		((QButton*)w)->group() == group() ) &&
-	     ( ( w->focusPolicy() & TabFocus ) == TabFocus ) &&
-	     !w->focusProxy() &&
-	     w->isVisible() &&
-	     w->isEnabled() )
-	    candidate = w;
-	w = next ? f->prev() : f->next();
-    } while( w && !(candidate && w==startingPoint) );
-
-    if ( !candidate )
-	return QButton::focusNextPrevChild( next );
-
-    candidate->setFocus();
-    return TRUE;
+    // we do not want this any more
+    return QWidget::focusNextPrevChild( next );
 }
 
 
@@ -878,6 +854,7 @@ void QButton::animateTimeout()
     emit clicked();
 }
 
+
 void QButton::nextState()
 {
     bool t = isToggleButton() && !( isOn() && isExclusiveToggle() );
@@ -931,9 +908,8 @@ void QButton::toggle()
 void QButton::setToggleType( ToggleType type )
 {
     toggleTyp = type;
-    if ( type != Tristate && stat == NoChange ) {
-	setState(On);
-    }
+    if ( type != Tristate && stat == NoChange )
+	setState( On );
 }
 
 
@@ -941,7 +917,7 @@ void QButton::setToggleType( ToggleType type )
 /*!
   Returns TRUE if this button behaves exclusively inside a QButtonGroup.
   In that case, this button can only be toggled off by another buton
-  beinhg toggled on.
+  being toggled on.
 */
 
 bool QButton::isExclusiveToggle() const
