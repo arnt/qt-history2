@@ -47,7 +47,7 @@ navigate to where you want to create the new project, ideally creating
 a new folder for it (e.g. called "metric"), using the \Button{Create
 New Folder} toolbar button.
 \i Enter a filename of "metric.pro", then
-click \Save. The project's name will now be "metric"; click \OK to
+click \Button Save. The project's name will now be "metric"; click \OK to
 close the \Widget{Project Settings} dialog.
 \i Click \Menu File|Save to save the project. 
 \endlist
@@ -186,7 +186,7 @@ property to "True".
 and its text to "\&Quit".
 \endlist
 
-\img qspush.png
+\img qsaddpush.png
 
 \section3 Adding Spacers 
 

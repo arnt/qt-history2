@@ -649,7 +649,7 @@ Databases often have pairs of tables that are related. For
 
 	\endlist
 
-	Run the form by clicking \Menu {Preview|Preview Form}.
+	Preview the form by clicking \Menu {Preview|Preview Form}.
 	All the authors are displayed in the top \Class QDataTable
 	and all the books are displayed in the bottom
 	\Class QDataTable. However we only want the books of the
@@ -731,13 +731,11 @@ To filter the book table's records we need to capture the author
 
 		\i
 
-		    Click \Menu {Connect Signals/Slots}, then click
-		    the AuthorDataTable \Class QDataTable and drag to
-		    the form; release the mouse on the form. The
-		    \Dialog {Edit Connections} dialog will appear. Click the
-		    \index currentChanged()
-\SignalOrSlot currentChanged() signal and the
-		    \SignalOrSlot newCurrentAuthor slot. Click \OK.
+		    Click \Menu{Edit|Connections} to invoke the
+		    \Widget{View and Edit Connections} dialog. Create
+		    a new connection, connecting the AuthorDataTable's
+		    currentChanged() signal to the form's
+		    newCurrentAuthor() slot. Click \OK.
 
 		\i
 
@@ -807,13 +805,9 @@ QuitPushButton -- \&Quit
 
 		    We will provide the Quit button with functionality
 		    now and work on the rest shortly.
-		    Click \Menu {Connect Signals/Slots}, then click
-		    the Quit button and drag to the form; release the
-		    mouse on the form. The \Dialog {Edit Connections} dialog will
-		    appear. Click the \index clicked()
-\Func clicked() signal
-		    and the \index accept()
-\SignalOrSlot accept() slot. Click \OK.
+		    Click \Menu{Edit|Connections}, then connect the
+		    the Quit button's clicked() signal to the form's
+		    accept() slot. Click \OK.
 
 	    \endlist
 
@@ -917,7 +911,7 @@ We will now create a new form to allow users to edit book
 	    \i
 
 		The \Class QDataBrowser will now appear on the form.
-		Resize the form to make it shorter. Click
+		Resize the form to make it smaller. Click
 		the \Class QDataBrowser then click the \Button {Break
 		Layout} toolbar button. Click the buttons then click
 		the \Toolbutton {Break Layout} toolbar button. Add
@@ -998,7 +992,8 @@ We will now create a new form to allow users to edit book
 	    \list
 		\i
 
-		\INS is initiated by pressing the \Key Ins (Insert) button. The
+		\INS is initiated by pressing the \Key Ins (Insert)
+		key. The
 		user moves between fields using \Key Tab and \Key Shift+Tab. If
 		the user presses the Update button the \INS will take
 		place and the user will be taken to the record they have
@@ -1008,7 +1003,7 @@ We will now create a new form to allow users to edit book
 		\INS will take place if the user navigates to another
 		record. \INS is cancelled by pressing the
 		\Key Esc
-		key or by pressing the \Key Del (Delete) button. If autoEdit is
+		key or by pressing the \Key Del (Delete) key. If autoEdit is
 		FALSE then navigating to another record also cancels the
 		\INS. Setting confirmInsert to TRUE will require the
 		user to confirm each \INS.
@@ -1028,7 +1023,7 @@ We will now create a new form to allow users to edit book
 
 		\i
 
-		\DEL is achieved by pressing the \Key Del button.
+		\DEL is achieved by pressing the \Key Del key.
 		Setting confirmDelete to TRUE will require the user to
 		confirm each \DEL.
 
@@ -1055,12 +1050,9 @@ We now have a working form for editing book records. We need to
 		form to make it \QD's active form. Invoke the
 		\Dialog {Edit Slots}
 		dialog and create a new slot called \SignalOrSlot editClicked(). Now
-		click the \Toolbutton {Connect Signals/Slots} toolbar button.
-		Click the Edit Books button and drag to the form; release
-		the mouse on the form. In the \Dialog {Edit Connections} dialog
-		connect the \index clicked()
-\SignalOrSlot clicked() signal to the
-		\SignalOrSlot editClicked() slot. Click \OK to leave the
+		click \Menu{Edit|Connections}. Connect the Edit Books
+		button's clicked() signal to the form's editClicked()
+		slot. Clicked() slot. Click \OK to leave the
 		dialog.
 
 	    \index Object Hierarchy
@@ -1165,7 +1157,7 @@ We now have a working form for editing book records. We need to
 	\index Foreign Keys
 \index Databases!Foreign Keys
 Qt's SQL module provides two approaches to dealing with foreign
-	keys. The most powerful and flexible is to subclass widgets and
+	keys. The most powerful and flexible approach is to subclass widgets and
 	use property maps to relate the widgets to the database. This
 	approach is described in the \link http://doc.trolltech.com/sql.html#Custom_Editor_Widgets Qt SQL Module documentation \endlink, particularly the StatusPicker
 	example. A simpler approach that can be taken wholly within \QD
@@ -1244,7 +1236,7 @@ Qt's SQL module provides two approaches to dealing with foreign
 	All that remains is to write the underlying code. All the
 	code snippets are taken from
 	\File qt/tools/designer/examples/book/book7/editbook.ui.
-	    \list 1
+	    \list
 	    \i
 
 	    We start with the \index init()

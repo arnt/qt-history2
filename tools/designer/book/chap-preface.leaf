@@ -9,8 +9,8 @@
     code required to reproduce the user interface from the files \QD produces,
     changing your design as often as you like. If you used the previous
     version you will find yourself immediately productive in the new version
-    since the interface is fundamentally unchanged. But you will find new
-    widgets and new and improved functionality which have been developed as a
+    since the interface is very similar. But you will find new widgets
+    and new and improved functionality which have been developed as a
     result of your feedback.
 
     \QD helps you build user interfaces with layout tools that move
@@ -26,10 +26,10 @@
     \index Controls!Widgets
 
     The manual introduces you to \QD by leading you through the
-    development of example applications. The first six chapters are
+    development of example applications. The first seven chapters are
     tutorials, each designed to be as self-contained as possible.
     Every chapter, except the first three, assumes that you are familiar with
-    the material in the chapter's two and three which cover the basics
+    the material in chapters two and three which cover the basics
     of building a Qt application with \QD. Here's a brief overview of
     the chapters:
     \list 
@@ -170,5 +170,5 @@
     Bug reports on Qt or \QD should be sent to
     \c {qt-bugs@trolltech.com}. You might also like to join the
     \e qt-interest mailing list, which \QD's developers read and
-    contribute to; see \link http://www.trolltech.com http://www.trolltech.com \endlink
+    contribute to; see \link http://lists.trolltech.com http://lists.trolltech.com \endlink
     for further details.

@@ -258,40 +258,24 @@ release. Press \Key Ctrl+H. Click the form then press \Key Ctrl+L.
 \endlist
 
 \index Signals and Slots
-We'll now connect the signals and slots. Press \Key F3
-(connect signals/slots), then click the OK button. Drag to the form and
-release. In the \Dialog {Edit Connections} dialog that pops up connect the
-\index clicked()
-\SignalOrSlot clicked() signal to the \index accept()
-\SignalOrSlot accept() slot. (Click the
-\index clicked()
-\SignalOrSlot clicked() signal, click the \index accept()
-\SignalOrSlot accept() slot, then click \OK.)
-Connect the Cancel button to the \index reject()
-\SignalOrSlot reject() slot using the same
-technique.
+We'll now connect the signals and slots.
+Click \Menu{Edit|Connections} to invoke the \Widget{View and Edit
+Connections} dialog.
+
+Create a new connection that connects the OK button's clicked() signal
+to the form's accept() slot. Create a second connection that connects
+the Cancel button's clicked() signal to the form's reject() slot. (See
+\l{Creating Signals and Slots Connections}.)
 
 We want the amount spin box to be enabled only if the special radio
-button is checked. Press \Key F3 (connect signals/slots),
-then click the
-special radio button. Drag to the spin box and release. In the
-\Dialog {Edit Connections} dialog that pops up click the \index toggled()
-\SignalOrSlot toggled()
-signal and the \index setEnabled()
-\SignalOrSlot setEnabled() slot.
+button is checked. Create another connection, this time connecting the
+special radio button's toggled() signal to the amount spin box's
+setEnabled() slot.
 
-If the user checks the standard or none radio buttons we want to set the
-amount accordingly. Press \Key F3,
-then click the credit rating button group. Drag to the form and release.
-Click the \index clicked()
-\SignalOrSlot clicked() signal.
-We want to connect this signal to our own custom slot, but we
-haven't created one yet. Click the \Button {Edit Slots}
-button and the Edit Slots dialog will pop up. Click
-\Button {New Slot} and change the Slot's name to
-'setAmount()'. Click \OK. This new slot is now
-available in the list of slots. Click the
-\SignalOrSlot setAmount() slot then click \OK.
+If the user checks the standard or none radio buttons we want to set
+the amount accordingly. Connect the credit rating button group's
+clicked() signal to a new custom setAmount() slot (which you create by
+clicking the \Button{Edit Slots...} button).
 
 We'll subclass the form to set the amount in the spin box depending on
 which radio button is checked. Save the form as 'creditformbase.ui' (press
@@ -493,25 +477,15 @@ widget, show it and enter the event loop in the
     \i
 
 	\index Signals and Slots!Connecting to Close a Dialog
-We'll now handle the signals and slots connections. Press
-	\Key F3 (connect signals/slots). Click the Credit Dialog
-	button, drag to the form and release. Click the
-	\index clicked()
-\SignalOrSlot clicked() signal. We'll need to implement a custom
-	slot. Click \Button {Edit Slots} to invoke the \Dialog {Edit Slots}
-	dialog. Click \Button {New Slot} and type in the Slot name
-	'creditDialog()'. Click \OK. The new slot is now in
-	the list of slots; click the \SignalOrSlot creditDialog() slot to
-	make the connection then click \OK. Connect the Quit button's
+We'll now handle the signals and slots connections. Invoke the
+\Widget{View and Edit Connections} dialog and connect the credit
+dialog button's clicked() signal to a new creditDialog() custom slot
+(which is created by clicking the \Button{Edit Slots...} button).
+	Now connect the Quit button's
 	\index clicked()
 \SignalOrSlot clicked() signal to the
 	dialog's \index accept()
-\SignalOrSlot accept() function. (Press
-	\Key F3. Click the Quit button and drag to the form;
-	release. Click the \index clicked()
-\SignalOrSlot clicked() signal and the
-	\index accept()
-\SignalOrSlot accept() slot, then click \OK.)
+\SignalOrSlot accept() function.
 
     \endlist
 
@@ -755,7 +729,7 @@ compiled dialog you must change the \index .ui
 \File .ui file and
 recompile. If you are building an application and want your customers to
 be able to customize aspects of the user interface you can give them a
-copy of \QD and use dynamic dialogs.
+copy of \QD (if your license permits this) and use dynamic dialogs.
 
 \endlist
 

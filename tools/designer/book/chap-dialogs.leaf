@@ -89,7 +89,7 @@ cursors, fonts, etc.
 \index Absolute positioning
 Layouts provide a means of laying out widgets, groups of widgets, and
 layouts into horizontal and vertical pairs and into grids. If
-you use layouts your forms and the widgets they contain will scale
+you use layouts your forms, and the widgets they contain, will scale
 automatically when the user resizes the window. This is better than
 using absolute sizes and positions since you don't have to write any
 code to achieve the scaling and your users can make the most of their
@@ -243,7 +243,7 @@ in-between the line edit and the buttons and drag vertically. The
 Spacer is already selected but we need to extend
 the selection to include both the layouts. \Key Shift+Click the
 layouts in Object Explorer's Objects tab. Now click \Button{Lay Out
-Vertically} (or pres \Key Ctrl+L).
+Vertically} (or press \Key Ctrl+L).
 
 Now we'll lay out the form itself. Click the form to deselect any
 selected widgets or layouts. Then click \Button{Lay Out Horizontally}.
@@ -268,7 +268,7 @@ override this if you wish.) The size you make the form in \QD will
 become the form's default size.
 
 When previewing the form, try pressing \Key Tab to move between
-widgets that can accept focus. In all probability the tab order is
+widgets that can accept focus. It is most likely that the tab order is
 correct. If it isn't, we can easily change it: see the \l{Changing the
 Tab Order} sidebar.
 
@@ -575,7 +575,7 @@ There are two approaches we can take for a find dialog. One approach
 is to use a modal dialog: the user enters a term, clicks "Find" and we
 then close the form with the found item highlighted. The other
 approach is to use a modeless dialog: the user can enter the term and
-click "Find" as often as they like; each time the click the next
+click "Find" as often as they like; each time they click the next
 matching term is found. We are going to use the second approach. 
 
 Since the searching takes place through the data held by the main
@@ -591,7 +591,7 @@ Invoke the \Widget{View and Edit Connections} dialog. (Click
 Connect the closePushButton's \Func{clicked()} signal to the form's
 \Func{accept()} slot. (Click \Button{New}, then change the Sender to
 "closePushButton", change the Signal to "clicked()", change the form
-to "FindForm" and change the slot to "accept()".) Because this
+to "FindForm" and change the slot to "accept()".) Since this
 functionality is achieved purely through signal and slot connections
 it will work in preview mode, i.e. if you preview and click the
 "Close" button, the form will close.
@@ -601,7 +601,8 @@ created "find()" slot. (Click \Button{New}, then change the Sender to
 "findPushButton", change the Signal to "clicked()", change the form to
 "FindForm". Click \Button{Edit Slots} to invoke the \Widget{Edit
 Functions} dialog; change the slot's name to "find()", then click \OK.
-Now change the slot to the newly created "find()" slot.)
+Back in the \Widget{View and Edit Connections} dialog, change the slot
+to the newly created "find()" slot.)
 
 Close the \Widget{View and Edit Connections} dialog. (Click \OK.)
 
@@ -973,9 +974,9 @@ example:
 (0..255), scaled RGB values (0.00..1.00), HSV values, etc.
 \i Providing a case sensitive checkbox in the Find dialog and updating
 the code to make use of it.
-\i Creating your own color selection dialog that provided the same
+\i Creating your own color selection dialog that provides the same
 functionality as the built-in color selection dialog, but which also
-allowed the user to name the color. 
+allows the user to name the color. 
 \endlist
 
 \QD's primary benefit is that it makes designing (and redesigning)

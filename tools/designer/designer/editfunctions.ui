@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
 <class>EditFunctionsBase</class>
 <comment>*********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
@@ -58,7 +58,7 @@
                 <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property name="resizeable">
+                <property name="resizable">
                     <bool>true</bool>
                 </property>
             </column>
@@ -69,7 +69,7 @@
                 <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property name="resizeable">
+                <property name="resizable">
                     <bool>true</bool>
                 </property>
             </column>
@@ -80,7 +80,7 @@
                 <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property name="resizeable">
+                <property name="resizable">
                     <bool>true</bool>
                 </property>
             </column>
@@ -91,7 +91,7 @@
                 <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property name="resizeable">
+                <property name="resizable">
                     <bool>true</bool>
                 </property>
             </column>
@@ -102,7 +102,7 @@
                 <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property name="resizeable">
+                <property name="resizable">
                     <bool>true</bool>
                 </property>
             </column>
@@ -113,7 +113,7 @@
                 <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property name="resizeable">
+                <property name="resizable">
                     <bool>true</bool>
                 </property>
             </column>
@@ -163,7 +163,7 @@
                         <enum>StrongFocus</enum>
                     </property>
                     <property name="text">
-                        <string>d&amp;isplay only Slots</string>
+                        <string>Only d&amp;isplay slots</string>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Change displaying mode for functions</string>
@@ -182,6 +182,12 @@
                     </property>
                     <property name="sizeType">
                         <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
                     </property>
                 </spacer>
                 <widget class="QPushButton">
@@ -501,6 +507,12 @@
                                     <property name="sizeType">
                                         <enum>Expanding</enum>
                                     </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>20</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
                                 </spacer>
                             </hbox>
                         </widget>
@@ -542,6 +554,12 @@
                     </property>
                     <property name="sizeType">
                         <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
                     </property>
                 </spacer>
                 <widget class="QPushButton">

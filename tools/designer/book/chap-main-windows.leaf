@@ -1,8 +1,8 @@
 \chapter Creating a Main Window Application
 
-In this chapter and in chapter two we will create a small but complete
-Qt application. This chapter will cover the main window, and the next
-chapter covers the dialogs.
+In this chapter and in chapter three we will create a small but
+complete Qt application. This chapter will cover the main window, and
+the next chapter covers the dialogs.
 
 The application is called \c colortool; it is used to associate names
 with colors. The application is a standard main window application
@@ -14,7 +14,7 @@ with some custom dialogs to facilitate some of the user interaction.
 
 The \c colortool application is a multiplatform application that
 allows users to create, edit and save lists of colors. Each color has
-a user defined name and an RGB (Red, Green Blue) value. 
+a user defined name and an RGB (Red, Green, Blue) value. 
 
 This application presents the user with a view of a set of colors and
 their names. We will provide two views (using a \l QWidgetStack)
@@ -59,7 +59,7 @@ or Linux operating system you can either double click the \QD icon or enter
 
 When \QD starts it shows the \Widget{New/Open} dialog. (If you prefer
 the old behavior, check the "Don't show this dialog in the future"
-checkbox.) We'll just click \CANCEL to skip past it.
+checkbox.) We'll just click \CANCEL to skip over it.
 
 \omit \img qd-newopen-dlg.png New/Open Dialog \endomit
 \img newopendialog.png
@@ -786,7 +786,7 @@ application's design -- we could have placed any number of widgets on
 each page.
 
 Click the Toolbox's Containers button, then click WidgetStack. Click
-roughly in the middle of the form to place the widget stack. Change
+approximately in the middle of the form to place the widget stack. Change
 the widget stack's \Property{name} property to "colorWidgetStack".
 
 \img addmainwidg.png
@@ -815,7 +815,8 @@ ready to populate the widget stack's pages with widgets.
 
 \img laymainwidg.png
 
-Click the Toolbox's Views button. Click Table, then click roughly in the
+Click the Toolbox's Views button. Click Table, then click
+approximately in the
 middle of the widget stack. Change the table's \Property{name} property
 to "colorTable", change its \Property{numRows} property to "0", and
 its \Property{readOnly} property to "True". 
@@ -848,7 +849,7 @@ We're now ready to create the next page. Right click the widget stack,
 then click \Menu{Add Page} on the context menu. The table has
 "disappeared", or rather the new widget stack page obscures the
 first widget stack page which contains the table. Click IconView in the
-Toolbox, then click roughly in the middle of the widget stack. Change
+Toolbox, then click approximately in the middle of the widget stack. Change
 the IconView's \Property{name} property to "colorIconView" and change
 its \Property{resizeMode} property to "Adjust". We want our color
 swatches to appear in neat columns so change the \Property{gridX}
@@ -931,7 +932,7 @@ You should now have the following variables:
 \i bool m_icons_dirty;
 \i bool m_show_web;
 \i int m_clip_as;
-\i QClipboard clipboard;
+\i QClipboard *clipboard;
 \i QStringList m_comments;
 \endlist
 
@@ -1012,14 +1013,11 @@ go.)
 \endsidebar
 
 We want to update the status bar so that the user can see information
-about the color they're on.
-
-Click \Menu{Edit|Connections} to invoke the \Widget{View and Edit
-Connections} dialog.
-
-Click \Button{New} to create a new connection. Change the Sender to
-"colorTable" and the Signal to "currentChanged(int,int)". Change the
-Receiver to "MainForm".
+about the color they're on. Click \Menu{Edit|Connections} to invoke
+the \Widget{View and Edit Connections} dialog. Click \Button{New} to
+create a new connection. Change the Sender to "colorTable" and the
+Signal to "currentChanged(int,int)". Change the Receiver to
+"MainForm".
 
 \img editconn1.png
 
@@ -1200,7 +1198,7 @@ Having populated the table we call \Func{adjustColumn()} to ensure
 that each column is just wide enough to show its widest entry, and
 show or hide the "Web" column depending on the user's preference.
 
-Finally we set \c{m_table_dirty} to "FALSE", since it is now
+Finally we set \c{m_table_dirty} to FALSE, since it is now
 up-to-date.
 
 If the icon view is "dirty" we \Func{clear()} it of any existing data.
@@ -1430,7 +1428,7 @@ familiar to many users.
 This function doesn't load or save any data; it simply checks to see
 if it is okay to clear the existing data (with the call to
 \Func{okToClear()} which we'll look at next), and if it is okay, it
-initialises the form.
+initializes the form.
 
 \section3 okToClear()
 
@@ -1626,8 +1624,8 @@ the \l{Troubleshooting} section.)
 \section2 Editing the Code: The Edit Options
 
 Adding a new color, finding a color and handling user options all
-require custom dialogs, so we'll defer them until chapter two when we
-deal with dialogs.
+require custom dialogs, so we'll defer them until chapter three when
+we deal with dialogs.
 
 \section3 editCut()
 
@@ -1639,10 +1637,10 @@ deal with dialogs.
 If the user is viewing the table view we delete the current row. We
 set the new current cell to be the one following the deleted row, or
 if the one we deleted was last, its predecessor. We mark the \e other
-view (the icon view) as dirty, to make sure that is updated if the
+view (the icon view) as dirty, to make sure that it is updated if the
 user switches views. Similarly, if the user is viewing the icon view,
 we make the next (or previous if there is no next) item current and
-delete the one they are on. We then mark the table view as dirty. If
+delete the one they were on. We then mark the table view as dirty. If
 we deleted a color (i.e. there was a current color in one of the
 views), we remove it from the \c{m_colors} map and mark the data as
 changed.
@@ -1659,4 +1657,12 @@ In this function we retrieve the name of the color from the current
 table row (or current icon, depending on the view). We then set a \l
 QString to the text we want to copy into the clipboard and copy it.
 
+\section1 Summary
+
+In this chapter we have created a standard main-window style
+application. We have implemented menus, a toolbar and a main widget (a
+QWidgetStack). We've also created signal and slot connections and
+implemented many custom slots. In the following chapter we will
+complete the application by implementing custom dialogs, and by making
+use of common dialogs where appropriate.
 

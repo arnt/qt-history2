@@ -29,7 +29,7 @@ eliminates the need for sub-classing (although you can still subclass
 if you prefer);
 
 \i \e{dynamic form loading} allows you to load \File{.ui}
-files at runtime which provides great scope for design customisation
+files at runtime which provides great scope for design customization
 separate from the underlying code.
 
 \endlist

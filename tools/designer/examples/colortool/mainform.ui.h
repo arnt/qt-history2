@@ -107,7 +107,7 @@ void MainForm::populate()
     }
 }
 
-QPixmap MainForm::colorSwatch( QColor color )
+QPixmap MainForm::colorSwatch( const QColor color )
 {
     QPixmap pixmap( 80, 80 );
     pixmap.fill( white );
