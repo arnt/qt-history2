@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#168 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#169 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1181,9 +1181,12 @@ void QPainter::updateXForm()
 
     txinv = FALSE;				// no inverted matrix
     txop  = TxNone;
-    if ( m12() == 0.0 && m21() == 0.0 && m11() >= 0.0 && m22() >= 0.0 ) {
-	if ( m11() == 1.0 && m22() == 1.0 ) {
-	    if ( dx() != 0.0 || dy() != 0.0 )
+    const double eps = 0.0; // ##### can we get away with this?
+    #define FZ(x) ((x)<eps&&(x)>-eps)
+    #define FEQ(x,y) (((x)-(y))<eps&&((x)-(y))>-eps)
+    if ( FZ(m12()) && FZ(m21()) && m11() >= -eps && m22() >= -eps ) {
+	if ( FEQ(m11(),1.0) && FEQ(m22(),1.0) ) {
+	    if ( !FZ(dx()) || !FZ(dy()) )
 		txop = TxTranslate;
 	} else {
 	    txop = TxScale;
@@ -1197,6 +1200,8 @@ void QPainter::updateXForm()
 	setf(DirtyFont);
 #endif
     }
+    #undef FZ
+    #undef FEQ
 }
 
 
