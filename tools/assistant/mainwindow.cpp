@@ -192,7 +192,7 @@ void MainWindow::setupGoActions()
             }
             action = new QAction(this);
             action->setText(title);
-            action->setIcon(QIconSet(pix));
+            action->setIcon(QIcon(pix));
             ui.goMenu->addAction(action);
             ui.goActionToolbar->addAction(action);
             goActions.append(action);
