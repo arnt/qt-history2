@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#18 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#19 $
 **
 ** Definition of QFont class
 **
@@ -16,7 +16,9 @@
 #include "qwindefs.h"
 #include "qstring.h"
 
+
 struct QFontData;
+
 
 class QFont
 {
@@ -38,29 +40,28 @@ public:
     QFont      &operator=( const QFont & );
     QFont	copy() const;
 
-    void	setFamily( const char * );
-    void	setPointSize( int pointSize );
-    void	setItalic( bool );
-    void	setWeight( int );
-    void	setUnderline( bool );
-    void	setStrikeOut( bool );
-    void	setFixedPitch( bool );
-    void	setStyleHint( StyleHint );
-    void	setCharSet( CharSet );
-
     const char *family()	const;
+    void	setFamily( const char * );
     int		pointSize()	const;
+    void	setPointSize( int );
     bool	italic()	const;
+    void	setItalic( bool );
     int		weight()	const;
+    void	setWeight( int );
     bool	underline()	const;
+    void	setUnderline( bool );
     bool	strikeOut()	const;
+    void	setStrikeOut( bool );
     bool	fixedPitch()	const;
+    void	setFixedPitch( bool );
     StyleHint	styleHint()	const;
+    void	setStyleHint( StyleHint );
     CharSet	charSet()	const;
-    bool	exactMatch()	const;
-
-    void	setRawMode( bool );
+    void	setCharSet( CharSet );
     bool	rawMode()	const;
+    void	setRawMode( bool );
+
+    bool	exactMatch()	const;
 
     bool	operator==( const QFont &f ) const;
     bool	operator!=( const QFont &f ) const;
@@ -70,36 +71,35 @@ public:
 #endif
 
     static const QFont &defaultFont();
-    static void	 setDefaultFont( const QFont & );
-    static void initialize();			// initialize font system
-    static void cacheStatistics();		// output cache statistics
-    static void cleanup();			// cleanup font system
+    static void	setDefaultFont( const QFont & );
+    static void initialize();
+    static void cleanup();
+    static void cacheStatistics();
 
 protected:
     bool	dirty() const;
 
-    QString defaultFamily() const;
-    QString lastResortFamily() const;
-    QString lastResortFont() const;
-    int	    deciPointSize() const;
+    QString	defaultFamily()		const;
+    QString	lastResortFamily()	const;
+    QString	lastResortFont()	const;
+    int		deciPointSize()		const;
 
 private:
-    void detach();
-    QFont( QFontData * );		// used by QFont::copy()
-    QFont( bool );			// creates default font
-    void updateFontInfo() const;
-    void init();
-    void loadFont() const;
+    QFont( QFontData * );
+    QFont( bool );
+    void	detach();
+    void	updateFontInfo() const;
+    void	init();
+    void	loadFont() const;
 
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QPainter;
-//    friend class QWidget;
     friend QDataStream &operator<<( QDataStream &, const QFont & );
     friend QDataStream &operator>>( QDataStream &, QFont & );
 
-    QFontData *d;	// font data
-    static QFont defFont;
+    QFontData 	*d;				// internal font data
+    static QFont *defFont;
 };
 
 
