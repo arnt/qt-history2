@@ -10,26 +10,26 @@ template<class T> class QList;
 class QByteArray;
 class QString;
 
-inline uint qHash(char key) { return (uint) key; }
-inline uint qHash(signed char key) { return (uint) key; }
-inline uint qHash(unsigned char key) { return (uint) key; }
-inline uint qHash(signed short key) { return (uint) key; }
-inline uint qHash(unsigned short key) { return (uint) key; }
-inline uint qHash(signed int key) { return (uint) key; }
-inline uint qHash(unsigned int key) { return (uint) key; }
-inline uint qHash(signed long key) { return (uint) key; }
-inline uint qHash(unsigned long key) { return (uint) key; }
+inline ulong qHash(char key) { return (ulong) key; }
+inline ulong qHash(signed char key) { return (ulong) key; }
+inline ulong qHash(unsigned char key) { return (ulong) key; }
+inline ulong qHash(signed short key) { return (ulong) key; }
+inline ulong qHash(unsigned short key) { return (ulong) key; }
+inline ulong qHash(signed int key) { return (ulong) key; }
+inline ulong qHash(unsigned int key) { return (ulong) key; }
+inline ulong qHash(signed long key) { return (ulong) key; }
+inline ulong qHash(unsigned long key) { return (ulong) key; }
 
-Q_CORE_EXPORT uint qHash(const QByteArray &key);
-Q_CORE_EXPORT uint qHash(const QString &key);
+Q_CORE_EXPORT ulong qHash(const QByteArray &key);
+Q_CORE_EXPORT ulong qHash(const QString &key);
 
-template <class T> inline uint qHash(const T *key) { return (uint) key; }
+template <class T> inline ulong qHash(const T *key) { return (ulong) key; }
 
 struct Q_CORE_EXPORT QHashData
 {
     struct Node {
 	Node *next;
-	uint h;
+	ulong h;
     };
 
     Node *fakeNext;
@@ -104,13 +104,13 @@ template <class Key, class T>
 struct QHashNode
 {
     QHashNode *next;
-    uint h;
+    ulong h;
     Key key;
     T value;
 
     inline QHashNode(const Key &key0, const T &value0)
 	: key(key0), value(value0) { }
-    inline bool same_key(uint h0, const Key &key0)
+    inline bool same_key(ulong h0, const Key &key0)
     { return h0 == h && key0 == key; }
 };
 
@@ -119,10 +119,10 @@ struct QHashNode
     template <class T> \
     struct QHashNode<key_type, T> { \
 	QHashNode *next; \
-	union { uint h; key_type key; }; \
+	union { ulong h; key_type key; }; \
 	T value; \
 	inline QHashNode(key_type, const T &value0) : value(value0) { } \
-	inline bool same_key(uint h0, key_type) { return h0 == h; } \
+	inline bool same_key(ulong h0, key_type) { return h0 == h; } \
     };
 
 Q_HASH_DECLARE_INT_NODE(signed int)
@@ -250,9 +250,9 @@ public:
 private:
     void detach_helper();
     void free(QHashData* d);
-    Node * &node_find(const Key &key, uint *hp = 0) const;
-    Node *node_create(uint h, const Key &key, const T &value);
-    Node *node_create(uint h, const Key &key, const T &value, Node *&nextNode);
+    Node * &node_find(const Key &key, ulong *hp = 0) const;
+    Node *node_create(ulong h, const Key &key, const T &value);
+    Node *node_create(ulong h, const Key &key, const T &value, Node *&nextNode);
     static QHashData::Node *node_duplicate(QHashData::Node *node);
 };
 
@@ -264,7 +264,7 @@ QHashData::Node *QHash<Key, T>::node_duplicate(QHashData::Node *node)
 }
 
 template <class Key, class T>
-inline typename QHash<Key, T>::Node *QHash<Key, T>::node_create(uint h, const Key &key,
+inline typename QHash<Key, T>::Node *QHash<Key, T>::node_create(ulong h, const Key &key,
 								const T &value, Node *&nextNode)
 {
     Node *node = new Node(key, value);
@@ -275,7 +275,7 @@ inline typename QHash<Key, T>::Node *QHash<Key, T>::node_create(uint h, const Ke
 }
 
 template <class Key, class T>
-inline typename QHash<Key, T>::Node *QHash<Key, T>::node_create(uint h, const Key &key,
+inline typename QHash<Key, T>::Node *QHash<Key, T>::node_create(ulong h, const Key &key,
 								const T &value)
 {
     return node_create(h, key, value, *reinterpret_cast<Node **>(&d->buckets[h % d->numBuckets]));
@@ -377,7 +377,7 @@ inline T &QHash<Key, T>::operator[](const Key &key)
 {
     detach();
 
-    uint h;
+    ulong h;
     Node *node = node_find(key, &h);
     if (node == e) {
 	d->grow();
@@ -391,7 +391,7 @@ inline void QHash<Key, T>::insert(const Key &key, const T &value)
 {
     detach();
 
-    uint h;
+    ulong h;
     Node *node = node_find(key, &h);
     if (node == e) {
 	d->grow();
@@ -408,7 +408,7 @@ inline void QHash<Key, T>::insertMulti(const Key &key, const T &value)
 {
     detach();
 
-    uint h;
+    ulong h;
     d->grow();
     Node * &nextNode = node_find(key, &h);
     node_create(h, key, value, nextNode);
@@ -512,10 +512,10 @@ inline bool QHash<Key, T>::contains(const Key &key) const
 
 template <class Key, class T>
 typename QHash<Key, T>::Node * &QHash<Key, T>::node_find(const Key &key,
-							 uint *hp) const
+							 ulong *hp) const
 {
     Node **node;
-    uint h = qHash(key);
+    ulong h = qHash(key);
 
     if (d->numBuckets) {
 	node = (Node **) &d->buckets[h % d->numBuckets];

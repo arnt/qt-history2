@@ -10,7 +10,7 @@
     "a", "aa", "aaa", "aaaa", ...
 */
 
-uint qHash(const QByteArray& key)
+ulong qHash(const QByteArray& key)
 {
     const uchar *p = (const uchar *) key.data();
     int n = key.size();
@@ -26,7 +26,7 @@ uint qHash(const QByteArray& key)
     return h;
 }
 
-uint qHash(const QString& key)
+ulong qHash(const QString& key)
 {
     const QChar *p = key.unicode();
     int n = key.length();
