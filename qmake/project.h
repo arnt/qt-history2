@@ -42,6 +42,7 @@ class QMakeProject
 
     QString pfile, cfile;
     QMakeProperty *prop;
+    void reset();
     QMap<QString, QStringList> vars, base_vars, cache;
     bool parse(const QString &text, QMap<QString, QStringList> &place);
     bool doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place, 

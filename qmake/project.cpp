@@ -265,6 +265,15 @@ QMakeProject::init(QMakeProperty *p)
     prop = p;
 }
 
+void
+QMakeProject::reset()
+{
+    /* scope_blocks starts with one non-ignoring entity */
+    scope_blocks.clear();
+    scope_blocks.push(ScopeBlock());
+    iterator = 0;
+}
+
 bool
 QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 {
@@ -669,6 +678,9 @@ QMakeProject::read(QTextStream &file, QMap<QString, QStringList> &place)
 bool
 QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 {
+    parser_info pi = parser;
+    reset();
+
     QString filename = Option::fixPathToLocalOS(file);
     doVariableReplace(filename, place);
     bool ret = FALSE, using_stdin = FALSE;
@@ -686,16 +698,16 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 	parser.from_file = TRUE;
 	parser.file = filename;
 	parser.line_no = 0;
-	/* scope_blocks starts with one non-ignoring entity */
-	scope_blocks.clear();
-	scope_blocks.push(ScopeBlock());
-	iterator = 0;
 	QTextStream t(&qfile);
 	ret = read(t, place);
 	if(!using_stdin)
 	    qfile.close();
 	parser = pi;
     }
+    parser = pi;
+    if(scope_blocks.count() != 1)
+	warn_msg(WarnParser, "%s: Unterminated conditional at end of file.",
+		 file.latin1());
     return ret;
 }
 
@@ -794,6 +806,7 @@ QMakeProject::read(uchar cmd)
 	    parser.file = "(internal)";
 	    parser.from_file = FALSE;
 	    parser.line_no = 1; //really arg count now.. duh
+	    reset();
 	    for(QStringList::Iterator it = Option::before_user_vars.begin();
 		it != Option::before_user_vars.end(); ++it) {
 		if(!parse((*it), base_vars)) {
@@ -825,6 +838,7 @@ QMakeProject::read(uchar cmd)
 	parser.file = "(internal)";
 	parser.from_file = FALSE;
 	parser.line_no = 1; //really arg count now.. duh
+	reset();
 	for(QStringList::Iterator it = Option::after_user_vars.begin();
 	    it != Option::after_user_vars.end(); ++it) {
 	    if(!parse((*it), vars)) {
