@@ -67,6 +67,8 @@
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include "qmenubar.h"
+#else
+#  include "qmessagebox.h"
 #endif
 
 #include <stdio.h>
@@ -336,7 +338,9 @@ static EventTypeSpec events[] = {
     { kEventClassQt, kEventQtRequestWakeup },
     { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestContext },
+#ifndef QMAC_QMENUBAR_NO_NATIVE
     { kEventClassQt, kEventQtRequestMenubarUpdate },
+#endif
     { kEventClassQt, kEventQtRequestPropagateWindowUpdates },
     { kEventClassQt, kEventQtRequestPropagateWidgetUpdates },
 
