@@ -1250,7 +1250,7 @@ QCoreGraphicsPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
-void 
+void
 QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 {
     CGMutablePathRef path = CGPathCreateMutable();
@@ -1271,20 +1271,20 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
             }
             case QPainterPathElement::Bezier: {
                 CGPathAddCurveToPoint(path, 0, elm.bezierData.x2, elm.bezierData.y2,
-                                      elm.bezierData.x3, elm.bezierData.y3, 
+                                      elm.bezierData.x3, elm.bezierData.y3,
                                       elm.bezierData.x4, elm.bezierData.y4);
                 break;
             }
             case QPainterPathElement::Arc: {
                 CGMutablePathRef subpath = CGPathCreateMutable();
-                CGAffineTransform transform = CGAffineTransformMake(((float)elm.arcData.w)/elm.arcData.h, 
+                CGAffineTransform transform = CGAffineTransformMake(((float)elm.arcData.w)/elm.arcData.h,
                                                                     0, 0, -1, 1, (elm.arcData.y*2)+elm.arcData.h);
-                float begin_radians = ((float)elm.arcData.start/16) * (M_PI/180), 
+                float begin_radians = ((float)elm.arcData.start/16) * (M_PI/180),
                         end_radians = ((float)((elm.arcData.start+elm.arcData.length)/16)) * (M_PI/180);
-                CGPathAddArc(subpath, &transform, 
-                             (elm.arcData.x+(elm.arcData.w/2))/((float)elm.arcData.w/elm.arcData.h), 
+                CGPathAddArc(subpath, &transform,
+                             (elm.arcData.x+(elm.arcData.w/2))/((float)elm.arcData.w/elm.arcData.h),
                              elm.arcData.y + (elm.arcData.h/2),
-                             elm.arcData.h/2, begin_radians, end_radians, 
+                             elm.arcData.h/2, begin_radians, end_radians,
                              elm.arcData.start < 0 || elm.arcData.length < 0);
                 CGPathAddPath(path, 0, subpath);
                 CGPathRelease(subpath);
@@ -1296,14 +1296,12 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
         }
         CGPathCloseSubpath(path);
     }
-    CGContextBeginPath(d->hd);
-    CGContextAddPath(d->hd, path);
     uchar ops = QCoreGraphicsPaintEnginePrivate::CGStroke;
     if(p.fillMode() == QPainterPath::Winding)
         ops |= QCoreGraphicsPaintEnginePrivate::CGFill;
     else
         ops |= QCoreGraphicsPaintEnginePrivate::CGEOFill;
-    d->drawPath(ops);
+    d->drawPath(ops, path);
     CGPathRelease(path);
 }
 
@@ -1609,4 +1607,52 @@ void QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     CGContextSetShouldAntialias(d->hd, hints & QPainter::LineAntialiasing);
     CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
+}
+
+static inline void qt_setMutablePath(CGContextRef cg, CGMutablePathRef path)
+{
+    if (path) {
+        CGContextBeginPath(cg);
+        CGContextAddPath(cg, path);
+    }
+}
+
+void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
+{
+    Q_ASSERT((ops & (CGFill | CGEOFill)) != (CGFill | CGEOFill)); //can't really happen
+    qt_setMutablePath(hd, path);
+    if ((ops & (CGFill | CGEOFill))) {
+        if (current.brush.style() == Qt::LinearGradientPattern) {
+            CGContextSaveGState(hd);
+            if (ops & CGFill)
+                CGContextClip(hd);
+            else if (ops & CGEOFill)
+                CGContextEOClip(hd);
+            CGContextDrawShading(hd, shading);
+            CGContextRestoreGState(hd);
+            qt_setMutablePath(hd, path);
+            ops &= ~CGFill;
+            ops &= ~CGEOFill;
+        } else if (current.brush.style() == Qt::NoBrush) {
+            ops &= ~CGFill;
+            ops &= ~CGEOFill;
+        }
+    }
+    if ((ops & CGStroke) && current.pen.style() == Qt::NoPen)
+        ops &= ~CGStroke;
+
+    CGPathDrawingMode mode;
+    if ((ops & (CGStroke | CGFill)) == (CGStroke | CGFill))
+        mode = kCGPathFillStroke;
+    else if ((ops & (CGStroke | CGEOFill)) == (CGStroke | CGEOFill))
+        mode = kCGPathEOFillStroke;
+    else if (ops & CGStroke)
+        mode = kCGPathStroke;
+    else if (ops & CGEOFill)
+        mode = kCGPathEOFill;
+    else if (ops & CGFill)
+        mode = kCGPathFill;
+    else //nothing to do..
+        return;
+    CGContextDrawPath(hd, mode);
 }
