@@ -421,7 +421,7 @@ bool Q3SocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	return FALSE;
     }
 
-    int r = qt_socket_connect( fd, aa, aalen );
+    int r = QT_SOCKET_CONNECT( fd, aa, aalen );
     if ( r == 0 ) {
 	fetchConnectionParameters();
 	return TRUE;
@@ -489,7 +489,7 @@ bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	Q_IPV6ADDR tmp = address.toIPv6Address();
 	memcpy( &a6.sin6_addr.s6_addr, &tmp, sizeof(tmp) );
 
-	r = qt_socket_bind( fd, (struct sockaddr *)&a6, sizeof(a6) );
+	r = QT_SOCKET_BIND( fd, (struct sockaddr *)&a6, sizeof(a6) );
     } else
 #endif
     if ( address.isIPv4Address() ) {
@@ -498,7 +498,7 @@ bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	a4.sin_port = htons( port );
 	a4.sin_addr.s_addr = htonl( address.toIPv4Address() );
 
-	r = qt_socket_bind( fd, (struct sockaddr*)&a4, sizeof(a4) );
+	r = QT_SOCKET_BIND( fd, (struct sockaddr*)&a4, sizeof(a4) );
     } else {
 	e = Impossible;
 	return FALSE;
