@@ -17,6 +17,7 @@
 #include <qpushbutton.h>
 #include <qcombobox.h>
 #include <qmessagebox.h>
+#include <qregexp.h>
 
 #define BUFFERSIZE 64 * 1024
 
@@ -423,6 +424,10 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	sysGroup->setButton( 0 );
 	setInstallStep( 2 );
     }
+    else if( newPage == licensePage ) {
+	setInstallStep( 3 );
+	readLicense( installPath->text() + "/.qt-license" );
+    }
     else if( newPage == foldersPage ) {
 	QByteArray buffer( 256 );
 	unsigned long buffSize( buffer.size() );
@@ -492,7 +497,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    folderGroups->setEnabled( true );
 	else
 	    folderGroups->setDisabled( true );
-	setInstallStep( 3 );
+	setInstallStep( 4 );
     }
     else if( newPage == configPage ) {
 	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
@@ -594,7 +599,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    }
 	    --sqlsrcDirIterator;
 	}
-	setInstallStep( 4 );
+	setInstallStep( 5 );
     }
     else if( newPage == progressPage ) {
 	int totalSize( 0 );
@@ -602,7 +607,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	totalRead = 0;
 	bool copySuccessful( true );
 
-	setInstallStep( 5 );
+	setInstallStep( 6 );
 	if( !filesCopied ) {
 #if defined (USE_ARCHIVES)
 	    fi.setFile( "qt.arq" );
@@ -684,6 +689,10 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\nThe build will start automatically in 30 seconds", true );
 	    else
 		logFiles( "One or more errors occurred during file copying,\nplease review the log and try to amend the situation.\n", true );
+
+	    // Now make sure that the current license information is saved
+	    writeLicense( installPath->text() + "/.qt-license" );
+
 	}
 	setNextEnabled( progressPage, copySuccessful );
     }
@@ -784,7 +793,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    doFinalIntegration();
 	    showPage( finishPage );
 	}
-	setInstallStep( 6 );
+	setInstallStep( 7 );
     }
     else if( newPage == finishPage ) {
 	QString finishMsg;
@@ -800,7 +809,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    finishMsg += QString( "To build Qt, please double-click to \"Build Qt " ) + QString( DISTVER ) + "\" icon which has been installed into your Start-Menu.";
 	}
 	finishText->setText( finishMsg );
-	setInstallStep( 7 );
+	setInstallStep( 8 );
     }
 }
 
@@ -1039,7 +1048,7 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 
 void SetupWizardImpl::setInstallStep( int step )
 {
-    setCaption( QString( "Qt Installation Wizard - Step %1 of 7" ).arg( step ) );
+    setCaption( QString( "Qt Installation Wizard - Step %1 of 8" ).arg( step ) );
 }
 
 void SetupWizardImpl::timerFired()
@@ -1054,4 +1063,59 @@ void SetupWizardImpl::timerFired()
 	next();
 	autoContTimer.stop();
     }
+}
+
+void SetupWizardImpl::readLicense( QString filePath)
+{
+    QFile licenseFile( filePath );
+    QMap<QString,QString> licenseInfo;
+
+    if( licenseFile.open( IO_ReadOnly ) ) {
+	QString buffer;
+
+	while( licenseFile.readLine( buffer, 1024 ) != -1 ) {
+	    if( buffer[ 0 ] != '#' ) {
+		QStringList components = QStringList::split( '=', buffer );
+		QStringList::Iterator it = components.begin();
+		QString key = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null ).upper();
+		QString value = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null );
+
+		licenseInfo[ key ] = value;
+	    }
+	}
+	licenseFile.close();
+
+	customerID->setText( licenseInfo[ "CUSTOMERID" ] );
+	licenseID->setText( licenseInfo[ "LICENSEID" ] );
+	licenseeName->setText( licenseInfo[ "LICENSEE" ] );
+	productsString->setText( licenseInfo[ "PRODUCTS" ] );
+	expiryDate->setText( licenseInfo[ "EXPIRYDATE" ] );
+    }
+}
+
+void SetupWizardImpl::writeLicense( QString filePath )
+{
+    QFile licenseFile( filePath );
+
+    if( licenseFile.open( IO_WriteOnly | IO_Translate ) ) {
+	QTextStream licStream( &licenseFile );
+	
+	licStream << "# Toolkit license file" << endl;
+	licStream << "CustomerID=\"" << customerID->text().latin1() << "\"" << endl;
+	licStream << "LicenseID=\"" << licenseID->text().latin1() << "\"" << endl;
+	licStream << "Licensee=\"" << licenseeName->text().latin1() << "\"" << endl;
+	licStream << "Products=\"" << productsString->text().latin1() << "\"" << endl;
+	licStream << "ExpiryDate=" << expiryDate->text().latin1() << endl;
+
+	licenseFile.close();
+    }
+}
+
+void SetupWizardImpl::clickedLicenseFile()
+{
+    QString licensePath = QFileDialog::getOpenFileName( installPath->text(), QString::null, this, NULL, "Browse for license file" );
+
+    if( !licensePath.isEmpty() )
+	readLicense( licensePath );
+
 }

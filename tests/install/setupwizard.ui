@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>532</width>
-            <height>322</height>
+            <width>560</width>
+            <height>336</height>
         </rect>
     </property>
     <property name="caption">
@@ -339,6 +339,267 @@
                 </property>
             </spacer>
         </grid>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>licensePage</cstring>
+        </property>
+        <attribute name="title">
+            <string>License information</string>
+        </attribute>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
+                <number>11</number>
+            </property>
+            <property name="spacing">
+                <number>6</number>
+            </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>page1Pixmap_4</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>0</hsizetype>
+                        <vsizetype>1</vsizetype>
+                    </sizepolicy>
+                </property>
+                <property name="pixmap">
+                    <pixmap>image1</pixmap>
+                </property>
+                <property name="scaledContents">
+                    <bool>false</bool>
+                </property>
+                <property name="alignment">
+                    <set>AlignAuto|AlignTop</set>
+                </property>
+                <property name="vAlign" stdset="0">
+                </property>
+            </widget>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>Layout6</cstring>
+                </property>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>0</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>Layout4</cstring>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLineEdit" row="2" column="1">
+                                <property name="name">
+                                    <cstring>licenseID</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>7</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="3" column="0">
+                                <property name="name">
+                                    <cstring>LicenseeLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Licensee</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="1" column="0">
+                                <property name="name">
+                                    <cstring>customerIDLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Customer ID</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="4" column="1">
+                                <property name="name">
+                                    <cstring>productsString</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>7</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="2" column="0">
+                                <property name="name">
+                                    <cstring>licenseIDLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>License ID</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="1" column="1">
+                                <property name="name">
+                                    <cstring>customerID</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>7</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="5" column="1">
+                                <property name="name">
+                                    <cstring>expiryDate</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>7</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="5" column="0">
+                                <property name="name">
+                                    <cstring>expiryLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Expiry date</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="3" column="1">
+                                <property name="name">
+                                    <cstring>licenseeName</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>7</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>licenseInfoHeader</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>7</hsizetype>
+                                        <vsizetype>1</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Enter the supplied license information here, License ID and Products String are mandatory, the rest are optional.
+Alternatively, the installation wizard may read them from a license file.</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>WordBreak|AlignAuto|AlignVCenter</set>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="4" column="0">
+                                <property name="name">
+                                    <cstring>productsLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Products string</string>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>Layout5</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>Spacer5</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>readLicenseButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Read from file</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>Spacer6</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
+                    <spacer>
+                        <property name="name">
+                            <cstring>Spacer7</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </vbox>
+            </widget>
+        </hbox>
     </widget>
     <widget class="QWidget">
         <property name="name">
@@ -904,17 +1165,52 @@
         <receiver>SetupWizard</receiver>
         <slot>licenseAction(int)</slot>
     </connection>
+    <connection language="C++">
+        <sender>readLicenseButton</sender>
+        <signal>clicked()</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>clickedLicenseFile()</slot>
+    </connection>
     <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">clickedDevSysPath()</slot>
     <slot access="public" language="C++" returnType="void">clickedEnvironmentButton()</slot>
     <slot access="public" language="C++" returnType="void">clickedFolderPath()</slot>
     <slot access="public" language="C++" returnType="void">clickedPath()</slot>
-    <slot access="public" language="C++" returnType="void">clickedSystem(int)</slot>
-    <slot access="public" language="C++" returnType="void">licenseAction(int)</slot>
+    <slot access="public" language="C++" returnType="void">clickedSystem( int )</slot>
+    <slot access="public" language="C++" returnType="void">licenseAction( int )</slot>
+    <slot access="public" language="C++" returnType="void">clickedLicenseFile()</slot>
 </connections>
+<functions>
+    <function name="init()" >{
+
+}</function>
+    <function name="destroy()" >{
+
+}</function>
+    <function name="clickedDevSysPath()" >{
+
+}</function>
+    <function name="clickedEnvironmentButton()" >{
+
+}</function>
+    <function name="clickedFolderPath()" >{
+
+}</function>
+    <function name="clickedPath()" >{
+
+}</function>
+    <function name="clickedSystem(int)" >{
+
+}</function>
+    <function name="licenseAction(int)" >{
+
+}</function>
+    <function name="" ></function>
+</functions>
 <tabstops>
     <tabstop>introText</tabstop>
+    <tabstop>rejectLicense</tabstop>
     <tabstop>installPath</tabstop>
     <tabstop>installPathButton</tabstop>
     <tabstop>installDocs</tabstop>
@@ -922,12 +1218,23 @@
     <tabstop>installTutorials</tabstop>
     <tabstop>sysMsvc</tabstop>
     <tabstop>sysBorland</tabstop>
-    <tabstop>configList</tabstop>
-    <tabstop>advancedList</tabstop>
+    <tabstop>customerID</tabstop>
+    <tabstop>licenseID</tabstop>
+    <tabstop>licenseeName</tabstop>
+    <tabstop>productsString</tabstop>
+    <tabstop>expiryDate</tabstop>
     <tabstop>folderPath</tabstop>
     <tabstop>folderPathButton</tabstop>
+    <tabstop>qtDirCheck</tabstop>
+    <tabstop>readLicenseButton</tabstop>
     <tabstop>devSysPath</tabstop>
     <tabstop>devSysPathButton</tabstop>
+    <tabstop>folderGroups</tabstop>
+    <tabstop>configList</tabstop>
+    <tabstop>advancedList</tabstop>
     <tabstop>configTabs</tabstop>
+    <tabstop>filesDisplay</tabstop>
+    <tabstop>outputDisplay</tabstop>
+    <tabstop>finishText</tabstop>
 </tabstops>
 </UI>

@@ -12,11 +12,13 @@ class SetupWizardImpl : public SetupWizard
 public:
     SetupWizardImpl( QWidget* pParent = NULL, const char* pName = NULL, bool modal = FALSE, WFlags f = 0 );
 
+// Slots reimplementations
     virtual void clickedPath();
     virtual void clickedSystem( int );
     virtual void licenseAction( int );
     virtual void clickedFolderPath();
     virtual void clickedDevSysPath();
+    virtual void clickedLicenseFile();
 //    virtual void clickedEnvironmentButton();
 
     virtual void showPage( QWidget* );
@@ -87,11 +89,14 @@ private:
     void logOutput( const QString& entry, bool close = false );
 
     void setInstallStep( int step );
+    void readLicense( QString filePath );
+    void writeLicense( QString filePath );
     QFile fileLog;
     QFile outputLog;
 
     QTimer autoContTimer;
     int timeCounter;
+
 public:
     void stopProcesses();
 };
