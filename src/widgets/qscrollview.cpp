@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#24 $
 **
 ** Implementation of QScrollView class
 **
@@ -575,6 +575,8 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 */
 void QScrollView::setContentsPos( int x, int y )
 {
+    if ( x < 0 ) x = 0;
+    if ( y < 0 ) y = 0;
     // Choke signal handling while we update BOTH sliders.
     signal_choke=TRUE;
     moveContents( x, y );
@@ -583,6 +585,14 @@ void QScrollView::setContentsPos( int x, int y )
     updateScrollBars();
     signal_choke=FALSE;
     updateScrollBars();
+}
+
+/*!
+ Scrolls the widget or area by \a x to the left and \a y upwards.
+*/
+void QScrollView::scrollBy( int dx, int dy )
+{
+    setContentsPos( contentsX()+dx, contentsY()+dy );
 }
 
 /*!
@@ -692,22 +702,36 @@ int QScrollView::contentsHeight() const
 
 /*!
   Set the size of the contents area to \a w pixesls wide and \a h
-  pixels high, and updates the viewport if \a update is TRUE (as it is
-  by default).
+  pixels high, and updates the viewport accordingly.
 */
-void QScrollView::contentsResize( int w, int h, bool update )
+void QScrollView::contentsResize( int w, int h )
 {
     if ( d->contents ) {
 	// Strange.  Why did the programmer do that.  Oh well, do it.
 	d->contents->resize(w,h);
-    }
-    d->vwidth = w;
-    d->vheight = h;
+    } else {
+	int ow = d->vwidth;
+	int oh = d->vheight;
+	d->vwidth = w;
+	d->vheight = h;
 
-    // Could more efficiently scroll if shrinking, repaint if growing, etc.
-    updateScrollBars();
-    if ( update )
-	viewport()->update();
+	// Could more efficiently scroll if shrinking, repaint if growing, etc.
+	updateScrollBars();
+
+	if ( ow > w ) { int t=w; w=ow; ow=t; }
+	if ( ow < viewport()->width() && w >= 0 ) {
+	    if ( ow < 0 ) ow = 0;
+	    if ( w > viewport()->width() < 0 ) w = viewport()->width();
+	    viewport()->update( contentsX()+ow, 0, w-ow, viewport()->height() );
+	}
+
+	if ( oh > h ) { int t=h; h=oh; oh=t; }
+	if ( oh < viewport()->height() && h >= 0 ) {
+	    if ( oh < 0 ) oh = 0;
+	    if ( h > viewport()->height() < 0 ) h = viewport()->height();
+	    viewport()->update( 0, contentsY()+oh, viewport()->width(), h-oh);
+	}
+    }
 }
 
 /*!
