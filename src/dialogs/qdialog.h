@@ -112,7 +112,6 @@ private:
     uint 	has_relpos : 1;
     uint	did_resize : 1;
     uint	in_loop: 1;
-    uint 	in_close : 1;
     void adjustPositionInternal( QWidget*, bool useRelPos = FALSE );
     QDialogPrivate* d;
 
