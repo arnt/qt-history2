@@ -35,11 +35,11 @@
 
 #define hash( ch, len ) ( (ch) | ((len) << 8) )
 #define check( target ) \
-	if ( strcmp(target, command.latin1()) != 0 ) \
-	    break;
+    if ( strcmp(target, command.latin1()) != 0 ) \
+	break;
 #define consume( target ) \
-	check( target ); \
-	consumed = TRUE;
+    check( target ); \
+    consumed = TRUE;
 
 static bool isCppSym( QChar ch )
 {
@@ -253,6 +253,10 @@ private:
 Doc *DocParser::parse( const Location& loc, const QString& in )
 {
     static QRegExp unfriendly( QString("[^0-9A-Z_a-z]+") );
+    static Resolver defaultResolver;
+
+    if ( Doc::resolver() == 0 )
+	Doc::setResolver( &defaultResolver );
 
     kindIs = Doc::Null;
     kindHasToBe = Doc::Null;
@@ -1030,10 +1034,7 @@ void Doc::printHtmlIncludeHeader( HtmlWriter& out, const QString& fileName )
 
 QString Doc::href( const QString& name, const QString& text )
 {
-    if ( res == 0 )
-	return text;
-    else
-	return res->href( name, text );
+    return res->href( name, text );
 }
 
 QString Doc::htmlQuoteList()
@@ -1382,8 +1383,7 @@ QString Doc::htmlExtensionList()
 }
 
 Doc::Doc( Kind kind, const Location& loc, const QString& htmlText )
-    : ki( kind ), lo( loc ), html( htmlText ), inter( FALSE ), obs( FALSE ),
-      changed( FALSE )
+    : ki( kind ), lo( loc ), html( htmlText ), inter( FALSE ), obs( FALSE )
 {
 }
 
@@ -1436,10 +1436,15 @@ void Doc::setLink( const QString& link, const QString& title )
     lnk = link;
 }
 
+bool Doc::changedSinceLastRun() const
+{
+    return resolver()->changedSinceLastRun( lnk, html );
+}
+
 QString Doc::htmlSeeAlso() const
 {
     QValueStack<QString> seps = separators( sa.count(), QString(".\n") );
-    QString html = QString( "<p>See also " );
+    QString html( "<p>See also " );
 
     QStringList::ConstIterator s = sa.begin();
     while ( s != sa.end() ) {
@@ -1487,8 +1492,7 @@ void Doc::printHtml( HtmlWriter& out ) const
 	    fileName.truncate( k );
 
 	if ( fileName == out.fileName() )
-	    ((Doc *) this)->changed
-		    = resolver()->changedSinceLastRun( location(), lnk, t );
+	    resolver()->warnChangedSinceLastRun( location(), lnk, t );
     }
 }
 

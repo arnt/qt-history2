@@ -20,20 +20,23 @@ class Location;
   convenience.  It returns a string of the style
   '<a href=qregexp.html#search>QRegExp::search</a>()'.
 
-  Finally, there's a member function changedSinceLastRun() that hardly belongs
-  here.  It is reimplemented in DeclResolver to check whether a piece of
-  documentation has changed since the last qdoc run.
+  Finally, the functions changedSinceLastRun() and warnChangedSinceLastRun()
+  hardly belong here.  They are reimplemented in DeclResolver to check whether
+  a piece of documentation has changed since the last qdoc run.
 */
 class Resolver
 {
 public:
-    Resolver();
+    Resolver() { }
     virtual ~Resolver() { }
 
     virtual QString resolve( const QString& name ) const;
     virtual QString resolvefn( const QString& name ) const;
-    virtual bool changedSinceLastRun( const Location& loc, const QString& link,
+    virtual bool changedSinceLastRun( const QString& link,
 				      const QString& html ) const;
+    virtual void warnChangedSinceLastRun( const Location& loc,
+					  const QString& link,
+					  const QString& html ) const;
 
     QString href( const QString& name,
 		  const QString& text = QString::null ) const;

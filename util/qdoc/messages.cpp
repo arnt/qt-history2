@@ -75,9 +75,9 @@ static QString currentDirectory;
 
 void warning( int level, const Location& loc, const char *message, ... )
 {
-    if ( warningLevel < level )
+    if ( warningLevel < level && !paranoia )
 	return;
-    if ( !paranoia && level > 0 && omit(message) )
+    if ( level > 0 && omit(message) )
 	return;
 
     QString filename = loc.shortFilePath();

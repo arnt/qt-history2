@@ -2,5 +2,6 @@ I also want to add those features:
 
   * automatic correction of British speling ("colour" -> "color")
   * automatic correction of "occurence" and other common mistakes
+  * rename Steering Emitter.  Whole history:  Bazaar -> Steering -> Emitter.
 
 Jasmin Blanchette (jasmin@trolltech.com)

@@ -2,6 +2,8 @@
   declresolver.cpp
 */
 
+#include <stdlib.h>
+
 #include "config.h"
 #include "decl.h"
 #include "declresolver.h"
@@ -51,23 +53,26 @@ QString DeclResolver::resolvefn( const QString& name ) const
     }
 }
 
-bool DeclResolver::changedSinceLastRun( const Location& loc,
-					const QString& link,
+bool DeclResolver::changedSinceLastRun( const QString& link,
 					const QString& html ) const
+{
+    QMap<QString, HtmlChunk>::ConstIterator chk = chkmap.find( link );
+    return chk == chkmap.end() || !(*chk).isSame( html );
+}
+
+void DeclResolver::warnChangedSinceLastRun( const Location& loc,
+					    const QString& link,
+					    const QString& html ) const
 {
     QMap<QString, HtmlChunk>::ConstIterator chk = chkmap.find( link );
     if ( chk == chkmap.end() ) {
 	warning( 0, loc, "New documentation at %s%s (%d byte%s)",
 		 config->base().latin1(), link.latin1(), html.length(),
 		 html.length() == 1 ? "" : "s" );
-	return TRUE;
     } else if ( !(*chk).isSame(html) ) {
 	int delta = html.length() - (*chk).length();
 	warning( 0, loc, "Modified documentation at %s%s (%+d byte%s)",
 		 config->base().latin1(), link.latin1(), delta,
-		 (delta == 1 || delta == -1) ? "" : "s" );
-	return TRUE;
-    } else {
-	return FALSE;
+		 abs(delta) == 1 ? "" : "s" );
     }
 }

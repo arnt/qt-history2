@@ -812,7 +812,10 @@ static void checkParams( const FnDoc *fn, const StringSet& declared )
     StringSet diff;
     StringSet::ConstIterator s;
 
-    setParanoiaEnabled( fn->changedSinceLastRun() );
+// ### this is at the wrong place... has to be done later, when all the
+// information is gathered
+
+//    setParanoiaEnabled( fn->changedSinceLastRun() );
 
     diff = difference( declared, fn->parameterNames() );
     s = diff.begin();
@@ -821,7 +824,7 @@ static void checkParams( const FnDoc *fn, const StringSet& declared )
 		 (*s).latin1() );
 	++s;
     }
-    setParanoiaEnabled( FALSE );
+//    setParanoiaEnabled( FALSE );
 }
 
 void ClassDecl::fillInDocsThis()

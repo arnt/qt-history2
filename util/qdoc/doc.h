@@ -16,7 +16,7 @@ class HtmlWriter;
 class Resolver;
 
 /*
-  The Doc class represents a doc comment (a slashasterbang comment).
+  The Doc class represents a doc comment.
 */
 class Doc
 {
@@ -26,7 +26,7 @@ public:
 
     static Doc *create( const Location& loc, const QString& text );
 
-    static void setHtmlResolver( const Resolver *resolver ) { res = resolver; }
+    static void setResolver( const Resolver *resolver ) { res = resolver; }
     static void setHeaderFileList( const StringSet& headerFiles ); // ### need?
     static void setClassList( const QMap<QString, QString>& classList ); // ###
     static void setFunctionIndex( const QMap<QString, StringSet>& index );
@@ -58,7 +58,7 @@ public:
     const Location& location() const { return lo; }
     bool internal() const { return inter; }
     bool obsolete() const { return obs; }
-    bool changedSinceLastRun() const { return changed; }
+    bool changedSinceLastRun() const;
     QString htmlSeeAlso() const;
 
     void printHtml( HtmlWriter& out ) const;
@@ -80,7 +80,6 @@ private:
     QStringList sa;
     bool inter;
     bool obs;
-    bool changed;
     QString q;
     StringSet idx;
     QString lnk;
