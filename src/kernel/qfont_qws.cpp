@@ -130,7 +130,6 @@ void QFontPrivate::load( QFont::Script )
 
     // load the font
     engineData->engine = new QFontEngine(req, paintdevice);
-    qDebug( "loading fontengine with paintdev %p, res %d", paintdevice, paintdevice ? paintdevice->resolution() : 1 );
     engineData->engine->ref();
 }
 
