@@ -4224,12 +4224,10 @@ void QListView::doAutoScroll()
 		// also (de)select the ones in between
 		QListViewItem * b = d->focusItem;
 		bool down = ( itemPos( c ) > itemPos( b ) );
-		if ( itemAt( QCursor::pos() ) ) {
-		    while( b && b != c ) {
-			if ( b->isSelectable() )
-			    setSelected( b, d->select );
-			b = down ? b->itemBelow() : b->itemAbove();
-		    }
+		while( b && b != c ) {
+		    if ( b->isSelectable() )
+			setSelected( b, d->select );
+		    b = down ? b->itemBelow() : b->itemAbove();
 		}
 		if ( c->isSelectable() )
 		    setSelected( c, d->select );
