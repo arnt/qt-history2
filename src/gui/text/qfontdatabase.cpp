@@ -457,7 +457,7 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
     // Ogham,
     0x1680,
     // SpacingModifiers,
-    0x02c7,
+    0x02c6,
     // CombiningMarks,
     0x0300,
 
@@ -587,7 +587,7 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
 static inline bool requiresOpenType(QFont::Script s)
 {
     return (s >= QFont::Syriac && s <= QFont::Sinhala)
-                 || (s >= QFont::Tibetan && s <= QFont::Khmer);
+                 || (s >= QFont::Myanmar && s <= QFont::Khmer);
 }
 #endif
 
