@@ -38,6 +38,8 @@
 #include "qwsdisplay_qws.h"
 #include "qgfxdriverfactory_qws.h"
 
+#define QT_QWS_REVERSE_BYTE_ENDIANNESS
+
 #ifdef Q_CC_EDG_
 // Hacky workaround for KCC/linux include files.
 // Fine! But could you please explain what actually happens here?
@@ -3492,7 +3494,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    while ( frontadd-- ) {
 	      if(myrop==XorROP) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(srctype==SourceImage) {
+		  if(is_screen_gfx) {
 		      *((((unsigned long)myptr) & 0x1) ?
 			myptr-1 : myptr+1)^=get_value_16(srcdepth,&srcdata);
 		  } else {
@@ -3505,7 +3507,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		myptr++;
 	      } else if(myrop==NotROP) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(srctype==SourceImage) {
+		  if(is_screen_gfx) {
 		      *((((unsigned long)myptr) & 0x1) ?
 			myptr-1 : myptr+1)=~get_value_16(srcdepth,&srcdata);
 		  } else {
@@ -3518,7 +3520,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		myptr++;
 	      } else {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(srctype==SourceImage) {
+		  if(is_screen_gfx) {
 		      *((((unsigned long)myptr) & 0x1) ?
 			myptr-1 : myptr+1)=get_value_16(srcdepth,&srcdata);
 		  } else {
@@ -3534,7 +3536,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    while ( count-- ) {
 # ifdef QWS_PACKING_4BYTE
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		if(srctype==SourceImage) {
+		if(is_screen_gfx) {
 		    dput = (get_value_16(srcdepth,&srcdata) << 16);
 		    dput |= get_value_16(srcdepth,&srcdata);
 		} else {
@@ -3571,7 +3573,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    while ( backadd-- ) {
 	      if(myrop==XorROP) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(srctype==SourceImage) {
+		  if(is_screen_gfx) {
 		      *((((unsigned long)myptr) & 0x1) ?
 			myptr-1 : myptr+1)^=get_value_16(srcdepth,&srcdata);
 		  } else {
@@ -3584,7 +3586,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		myptr++;
 	      } else if(myrop==NotROP) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(srctype==SourceImage) {
+		  if(is_screen_gfx) {
 		      *((((unsigned long)myptr) & 0x1) ?
 			myptr-1 : myptr+1)=~get_value_16(srcdepth,&srcdata);
 		  } else {
@@ -3597,7 +3599,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		myptr++;
 	      } else {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		  if(srctype==SourceImage) {
+		  if(is_screen_gfx) {
 		      *((((unsigned long)myptr) & 0x1) ?
 			myptr-1 : myptr+1)=get_value_16(srcdepth,&srcdata);
 		  } else {
@@ -3621,13 +3623,13 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		GET_MASKED(reverse);
 		if ( !masked ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    if(srctype==SourceImage) {
+		    if(is_screen_gfx) {
 			if(myrop==XorROP) {
 			    *((((unsigned long)myptr) & 0x1) ?
 			      myptr-1 : myptr+1)^=gv;
 			} else if(myrop==NotROP) {
 			    *((((unsigned long)myptr) & 0x1) ?
-			      myptr-1 : myptr+1)= ~(*((((unsigned long)myptr) 
+			      myptr-1 : myptr+1)= ~(*((((unsigned long)myptr)
 	      			& 0x1) ? myptr-1 : myptr+1));		
 			} else {
 			    *((((unsigned long)myptr) & 0x1) ?
