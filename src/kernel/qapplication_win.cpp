@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#5 $
 **
 ** Implementation of Windows + NT startup routines and event handling
 **
@@ -19,7 +19,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#5 $";
 #endif
 
 
@@ -196,7 +196,7 @@ struct QWinConfigRequest {
 };
 
 declare(QQueueM,QWinConfigRequest);
-QQueue(QWinConfigRequest) *configRequests = 0;
+static QQueue(QWinConfigRequest) *configRequests = 0;
 
 void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
 {
@@ -626,7 +626,7 @@ bool qKillTimer( QObject *obj )			// kill timer for obj
 // Non-client mouse messages are not translated
 //
 
-ushort mouseTbl[] = {
+static ushort mouseTbl[] = {
     WM_MOUSEMOVE,	Event_MouseMove,		0,
     WM_LBUTTONDOWN,	Event_MouseButtonPress,		LeftButton,
     WM_LBUTTONUP,	Event_MouseButtonRelease,	LeftButton,
@@ -711,7 +711,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 
 #include "qkeycode.h"
 
-ushort KeyTbl[] = {				// keyboard mapping table
+static ushort KeyTbl[] = {			// keyboard mapping table
     VK_ESCAPE,		Key_Escape,		// misc keys
     VK_TAB,		Key_Tab,
     VK_BACK,		Key_Backspace,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#3 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#3 $";
 #endif
 
 
@@ -223,7 +223,7 @@ struct QWinConfigRequest {
 };
 
 declare(QQueueM,QWinConfigRequest);
-QQueue(QWinConfigRequest) *configRequests = 0;
+static QQueue(QWinConfigRequest) *configRequests = 0;
 
 void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
 {
@@ -569,7 +569,7 @@ bool qKillTimer( QObject *obj )			// kill timer for obj
 // Mouse event translation
 //
 
-ushort mouseTbl[] = {
+static ushort mouseTbl[] = {
     WM_MOUSEMOVE,	Event_MouseMove,		0,
     WM_BUTTON1DOWN,	Event_MouseButtonPress,		LeftButton,
     WM_BUTTON1UP,	Event_MouseButtonRelease,	LeftButton,
@@ -671,7 +671,7 @@ bool QETWidget::translateMouseEvent( const QMSG &msg )
 
 #include "qkeycode.h"
 
-ushort KeyTbl[] = {				// keyboard mapping table
+static ushort KeyTbl[] = {			// keyboard mapping table
     VK_ESC,		Key_Escape,		// misc keys
     VK_TAB,		Key_Tab,
     VK_BACKSPACE,	Key_Backspace,
