@@ -94,7 +94,8 @@ void ConnectionViewer::readConnections()
     QValueList<MetaDataBase::Connection> connectionlist
 	= MetaDataBase::connections( formWindow );
     for ( QValueList<MetaDataBase::Connection>::Iterator it = connectionlist.begin(); it != connectionlist.end(); ++it ) {
-	if ( formWindow->isMainContainer( (QWidget*)(*it).receiver ) && !MetaDataBase::hasSlot( formWindow, (*it).slot ) )
+	if ( formWindow->isMainContainer( (QWidget*)(*it).receiver ) &&
+	     !MetaDataBase::hasSlot( formWindow, MetaDataBase::normalizeSlot( (*it).slot ).latin1() ) )
 	    continue;
 	QListViewItem *i = new QListViewItem( connectionListView );
 	MetaDataBase::Connection conn = *it;

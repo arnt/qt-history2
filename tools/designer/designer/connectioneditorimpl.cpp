@@ -121,7 +121,8 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
     if ( !oldConnections.isEmpty() ) {
 	QValueList<MetaDataBase::Connection>::Iterator it = oldConnections.begin();
 	for ( ; it != oldConnections.end(); ++it ) {
-	    if ( formWindow->isMainContainer( (QWidget*)(*it).receiver ) && !MetaDataBase::hasSlot( formWindow, (*it).slot ) )
+	    if ( formWindow->isMainContainer( (QWidget*)(*it).receiver ) &&
+		 !MetaDataBase::hasSlot( formWindow, MetaDataBase::normalizeSlot( (*it).slot ).latin1() ) )
 		continue;
 	    MetaDataBase::Connection conn = *it;
 	    QListViewItem *i = new QListViewItem( connectionView );
@@ -318,7 +319,7 @@ void ConnectionEditor::addSlotClicked()
     QListViewItem *i = 0;
     while ( ( i = it.current() ) ) {
 	++it;
-	if ( !MetaDataBase::hasSlot( formWindow, i->text( 3 ).latin1() ) )
+	if ( !MetaDataBase::hasSlot( formWindow, MetaDataBase::normalizeSlot( i->text( 3 ) ).latin1() ) )
 	    delete i;
     }
 }

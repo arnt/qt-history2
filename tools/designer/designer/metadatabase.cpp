@@ -564,7 +564,7 @@ bool MetaDataBase::hasSlot( QObject *o, const QCString &slot )
 
     for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
 	Slot s = *it;
-	if ( s.slot == slot )
+	if ( normalizeSlot( s.slot ) == normalizeSlot( slot ) )
 	    return TRUE;
     }
 
@@ -604,7 +604,7 @@ bool MetaDataBase::addCustomWidget( CustomWidget *wid )
 		    w->lstSignals.append( *it );
 	    }
 	    for ( QValueList<MetaDataBase::Slot>::ConstIterator it2 = wid->lstSlots.begin(); it2 != wid->lstSlots.end(); ++it2 ) {
-		if ( !w->hasSlot( (*it2).slot ) )
+		if ( !w->hasSlot( MetaDataBase::normalizeSlot( (*it2).slot ).latin1() ) )
 		    w->lstSlots.append( *it2 );
 	    }
 	    for ( QValueList<MetaDataBase::Property>::ConstIterator it3 = wid->lstProperties.begin(); it3 != wid->lstProperties.end(); ++it3 ) {
