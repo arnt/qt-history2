@@ -77,6 +77,7 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("^extensions/nsplugin"),
 			  new RegExp("^include/QtNsPlugin"),
 			  new RegExp("^src/plugins/gfxdrivers"),
+			  new RegExp("^tools/qtconfig"),
 			  new RegExp("_x11"),
 			  new RegExp("_unix"),
 			  new RegExp("_qws"),
@@ -681,9 +682,7 @@ function replaceTags(packageDir, fileList, platform, edition, platName)
 	fileName = fileList[i];
 	absFileName = packageDir + "/" + fileName;
 	//only replace in non binaries but not for .html files
-	if (File.isFile(absFileName) &&
-	    !binaryFile(absFileName) &&
-	    !absFileName.endsWith(".html")) {
+	if (File.isFile(absFileName) &&  !binaryFile(absFileName)) {
 	    content = File.read(absFileName);
 	    for (var i in replace)
 		content = content.replace(replace[i], i);
