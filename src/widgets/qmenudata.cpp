@@ -226,7 +226,8 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 {
     if ( index < 0 ) {	// append, but not if the rightmost item is an mdi separator in the menubar
 	index = mitems->count();
-	if ( isMenuBar && mitems->last() && mitems->last()->widget() && mitems->last()->isSeparator() )
+	if ( isMenuBar && !mitems->isEmpty() && mitems->last()->widget()
+	     && mitems->last()->isSeparator() )
 	    index--;
     } else if ( index > (int) mitems->count() ) { // append
 	index = mitems->count();
