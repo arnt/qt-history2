@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/canvas/qcanvas.cpp#58 $
+** $Id: //depot/qt/main/src/canvas/qcanvas.cpp#59 $
 **
 ** Implementation of QCanvas and associated classes
 **
@@ -1621,8 +1621,9 @@ void QCanvas::setDoubleBuffering(bool y)
 void QCanvas::setTiles( QPixmap p,
 			int h, int v, int tilewidth, int tileheight )
 {
-    if ( p.width() % tilewidth != 0 || p.height() % tileheight != 0 )
-	return;
+    if ( !tilewidth || !tileheight ||
+	 p.width() % tilewidth != 0 || p.height() % tileheight != 0 )
+    	return;
 
     htiles = h;
     vtiles = v;
@@ -3912,7 +3913,7 @@ void QCanvasSpline::setControlPoints(QPointArray ctrl, bool close)
 	int numCurves = (ctrl.count() - (close ? 0 : 1 ))/ 3;
 	ctrl.resize( numCurves*3 + ( close ? 0 : 1 ) );
     }
-	
+
     cl = close;
     bez = ctrl;
     recalcPoly();
@@ -4900,11 +4901,11 @@ void QCanvasSprite::setFrame(int f)
 /*!
     \enum QCanvasSprite::FrameAnimationType
 
-    This enum is used to identify the different types of frame 
+    This enum is used to identify the different types of frame
     animation of QCanvasSprite.
 
     \value Cycle at each advance the frame number will be incremented by
-    1 (modulo the frame count) 
+    1 (modulo the frame count)
     \value Oscillate at each advance the frame number will be
     incremented by 1 up to the frame count then decremented to by 1 to
     0, repeating this sequence indefinitely
