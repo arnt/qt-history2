@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#12 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#13 $
 **
 ** Implementation of QFileDialog class
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#13 $")
 
 
 /*----------------------------------------------------------------------------
@@ -36,7 +36,20 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#12 $")
 	...
     }
   \endcode
- ----------------------------------------------------------------------------*/
+
+  There are two ready-made convenience functions, getOpenFileDialog()
+  and getSaveFileName(), which may be used like this:
+
+  \code
+    QString s( QFileDialog::getOpenFileName() );
+    if ( s.isNull() )
+	return;
+
+    open( s ); // open() being your function to read the file
+  \endcode
+
+  \sa QPrintDialog
+  ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
@@ -83,11 +96,11 @@ QFileDialog::QFileDialog( const char *dirName, const char *filter,
 
 void QFileDialog::init()
 {
-    files      = new QListBox(		     this, "fileList"	  );
-    dirs       = new QListBox(		     this, "dirList"	  );
     filterEdit = new QLineEdit(		     this, "filterEdit"	  );
-    nameEdit   = new QLineEdit(		     this, "nameEdit"	);
     pathBox    = new QComboBox(		     this, "pathBox"	  );
+    dirs       = new QListBox(		     this, "dirList"	  );
+    files      = new QListBox(		     this, "fileList"	  );
+    nameEdit   = new QLineEdit(		     this, "nameEdit"	);
     filterL    = new QLabel( "Filter:"	   , this, "filterLabel"  );
     nameL      = new QLabel( "Name:"	   , this, "filterLabel"  );
     dirL       = new QLabel( "Directories:", this, "dirLabel"	  );
@@ -161,7 +174,8 @@ QString QFileDialog::selectedFile() const
 
 /*----------------------------------------------------------------------------
   Returns the active directory path string in the file dialog.
-  \sa setDir()
+
+  \sa setDir() set
  ----------------------------------------------------------------------------*/
 
 const char *QFileDialog::dirPath() const
@@ -211,10 +225,12 @@ void QFileDialog::setDir( const QDir &dir )
 /*----------------------------------------------------------------------------
   Re-reads the active directory in the file dialog.
 
-  It is normally not required to call this function, unless you suspect
-  that the directory contents has changed and want to refresh the
+  It is seldom necessary to call this function.  It is provided in
+  case the directory contents change and you want to refresh the
   directory list box.
- ----------------------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
+  
+  
 
 void QFileDialog::rereadDir()
 {
@@ -249,7 +265,9 @@ void QFileDialog::rereadDir()
   Opens a modal file dialog and returns the name of the file to be opened.
   Returns a \link QString::isNull() null string\endlink if the user cancelled
   the dialog.
- ----------------------------------------------------------------------------*/
+
+  \sa getSaveFileName()
+  ----------------------------------------------------------------------------*/
 
 #if defined(_WS_WIN_)
 static char *win_filter[] = {
@@ -308,7 +326,10 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
   Opens a modal file dialog and returns the name of the file to be saved.
   Returns a \link QString::isNull() null string\endlink if the user cancelled
   the dialog.
- ----------------------------------------------------------------------------*/
+
+  \sa getOpenFileName()
+  ----------------------------------------------------------------------------*/
+  
 
 QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 				      QWidget *parent, const char *name )
