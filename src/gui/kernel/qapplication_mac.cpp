@@ -43,6 +43,7 @@
 #include "private/qcolor_p.h"
 #include "private/qwidget_p.h"
 #include "qeventdispatcher_mac_p.h"
+#include "qtextformat.h"
 
 #ifndef QT_NO_ACCESSIBILITY
 #  include "qaccessible.h"
@@ -165,6 +166,13 @@ public:
 
     void setInputWidget(QWidget *w) { act = w; }
     QWidget *inputWidget() const { return act; }
+
+    QTextFormat editingFormat() const {
+        QTextCharFormat ret;
+        ret.setFontItalic(true);
+        ret.setFontUnderline(true);
+        return ret;
+    }
 };
 
 typedef QHash<WindowPtr, QTSMDocumentWrapper *> TsmHash;
@@ -2111,7 +2119,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         if(!(widget = QApplicationPrivate::focus_widget)) {
             handled_event = false;
         } else if(ekind == kEventTextInputOffsetToPos) {
-            if(qt_mac_input_spot != QT_MAC_ONTHESPOT) {
+            if(qt_mac_input_spot != QT_MAC_ONTHESPOT ||
+               !widget->testAttribute(Qt::WA_InputMethodEnabled)) {
                 handled_event = false;
                 break;
             }
@@ -2127,7 +2136,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 handled_event = true;
             }
         } else if(ekind == kEventTextInputUpdateActiveInputArea) {
-            if(qt_mac_input_spot != QT_MAC_ONTHESPOT) {
+            if(qt_mac_input_spot != QT_MAC_ONTHESPOT ||
+               !widget->testAttribute(Qt::WA_InputMethodEnabled)) {
                 handled_event = false;
                 break;
             }
@@ -2136,7 +2146,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             GetEventParameter(event, kEventParamTextInputSendRefCon, typeLongInteger, 0,
                               sizeof(refcon), 0, &refcon);
             if(QTSMDocumentWrapper *doc = (QTSMDocumentWrapper*)refcon) {
-		Q_UNUSED(doc); // #### IME
                 UInt32 unilen = 0;
                 GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
                                   0, 0, &unilen, 0);
@@ -2145,50 +2154,45 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                                   0, unilen, 0, unicode);
                 QString text((QChar*)unicode, unilen / sizeof(UniChar));
                 DisposePtr((char*)unicode);
-#if 0 // #### IME
                 if(doc->inputWidget()) {
                     long fixed_length = 0;
                     GetEventParameter(event, kEventParamTextInputSendFixLen, typeLongInteger, 0,
                                       sizeof(fixed_length), 0, &fixed_length);
                     if(fixed_length == -1 || fixed_length == (long)unilen) {
-                        QInputMethodEvent imend(QEvent::InputMethodEnd, text, text.length());
-                        QApplication::sendSpontaneousEvent(doc->inputWidget(), &imend);
-                        if(imend.isAccepted()) {
-                            doc->setInputWidget(0);
-                            handled_event = true;
-                        }
+                        QInputMethodEvent e;
+                        e.setCommitString(text);
+                        QApplication::sendSpontaneousEvent(doc->inputWidget(), &e);
+                        handled_event = true;
+                        doc->setInputWidget(0);
                     } else {
                         if(fixed_length > 0) {
-                            QInputMethodEvent imend(QEvent::InputMethodEnd, text.left(fixed_length / sizeof(UniChar)),
-                                           fixed_length / sizeof(UniChar));
-                            QApplication::sendSpontaneousEvent(doc->inputWidget(), &imend);
-                            if(imend.isAccepted()) {
-                                handled_event = true;
-                                QInputMethodEvent imstart(QEvent::InputMethodStart,
-                                                          text.mid(fixed_length / sizeof(UniChar)),
-                                                          (fixed_length - text.length()) / sizeof(UniChar));
-                                QApplication::sendSpontaneousEvent(doc->inputWidget(), &imstart);
-                                if(imstart.isAccepted())
-                                    handled_event = true;
-                            }
+                            const int qFixedLength = fixed_length / sizeof(UniChar);
+                            QList<QInputMethodEvent::Attribute> attrs;
+                            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
+                                                                  qFixedLength, text.length()-qFixedLength,
+                                                                  doc->editingFormat());
+                            QInputMethodEvent e(text, attrs);
+                            e.setCommitString(text.left(qFixedLength), 0, qFixedLength);
+                            QApplication::sendSpontaneousEvent(doc->inputWidget(), &e);
+                            handled_event = true;
                         } else {
-                            QInputMethodEvent imcompose(QEvent::InputMethodCompose, text, 0, text.length());
-                            QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
-                            if(imcompose.isAccepted())
-                                handled_event = true;
+                            QList<QInputMethodEvent::Attribute> attrs;
+                            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
+                                                                  0, text.length(), doc->editingFormat());
+                            QInputMethodEvent e(text, attrs);
+                            QApplication::sendSpontaneousEvent(doc->inputWidget(), &e);
+                            handled_event = true;
                         }
                     }
                 } else {
-                    QInputMethodEvent imstart(QEvent::InputMethodStart, text, text.length());
-                    QApplication::sendSpontaneousEvent(widget, &imstart);
-                    if(imstart.isAccepted()) {
-                        handled_event = true;
-                        doc->setInputWidget(widget);
-                        QInputMethodEvent imcompose(QEvent::InputMethodCompose, text, text.length(), 0);
-                        QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
-                    }
+                    QList<QInputMethodEvent::Attribute> attrs;
+                    attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
+                                                          0, text.length(), doc->editingFormat());
+                    QInputMethodEvent e(text, attrs);
+                    QApplication::sendSpontaneousEvent(widget, &e);
+                    handled_event = true;
+                    doc->setInputWidget(widget);
                 }
-#endif
             }
         } else if(ekind == kEventTextInputUnicodeForKeyEvent) {
             EventRef key_ev = 0;
@@ -2204,17 +2208,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             }
             unsigned char chr = 0;
             GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, 0, sizeof(chr), 0, &chr);
-#if 0 // #### IME
-            if(!chr || chr >= 128 || (text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr)))) {
-                QInputMethodEvent imstart(QEvent::InputMethodStart, QString::null, -1);
-                QApplication::sendSpontaneousEvent(widget, &imstart);
-                if(imstart.isAccepted()) { //wants the event
-                    handled_event = true;
-                    QInputMethodEvent imend(QEvent::InputMethodEnd, text, 1);
-                    QApplication::sendSpontaneousEvent(widget, &imend);
-                }
-            }
-#endif
+            if(!chr || chr >= 128 || (text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr))))
+                handled_event = !widget->testAttribute(Qt::WA_InputMethodEnabled);
         }
         if(!handled_event) //just bail now
             return eventNotHandledErr;
