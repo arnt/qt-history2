@@ -78,7 +78,7 @@ QMakeProperty::value(QString v, bool just_check)
 
     if(initSettings()) {
 	bool ok;
-	int slash = v.findRev('/');
+	int slash = v.lastIndexOf('/');
 	QString ret = sett->readEntry(keyBase(slash == -1) + v, QString::null, &ok);
 	if(!ok) {
 	    QString version = qmake_version();
@@ -88,7 +88,7 @@ QMakeProperty::value(QString v, bool just_check)
 	    }
 	    QStringList subs = sett->subkeyList(keyBase(FALSE));
 	    subs.sort();
-	    for(QStringList::Iterator it = subs.fromLast(); it != subs.end(); --it) {
+	    for(QStringList::Iterator it = subs.end()-1; it != subs.end(); --it) {
 		if((*it).isEmpty() || (*it) > version)
 		    continue;
 		ret = sett->readEntry(keyBase(FALSE) + (*it) + "/" + v, QString::null, &ok);
@@ -128,7 +128,7 @@ QMakeProperty::exec()
 	if(Option::prop::properties.isEmpty() && initSettings()) {
 	    QStringList subs = sett->subkeyList(keyBase(FALSE));
 	    subs.sort();
-	    for(QStringList::Iterator it = subs.fromLast(); it != subs.end(); --it) {
+	    for(QStringList::Iterator it = subs.end()-1; it != subs.end(); --it) {
 		if((*it).isEmpty())
 		    continue;
 		QStringList keys = sett->entryList(keyBase(FALSE) + (*it));

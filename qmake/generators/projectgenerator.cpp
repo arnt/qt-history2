@@ -89,7 +89,7 @@ ProjectGenerator::init()
 		    regex = builtin_regex;
 		} else {
 		    QString file = (*pd);
-		    int s = file.findRev(Option::dir_sep);
+		    int s = file.lastIndexOf(Option::dir_sep);
 		    if(s != -1)
 			dir = file.left(s+1);
 		    if(addFile(file)) {
@@ -101,7 +101,7 @@ ProjectGenerator::init()
 		regex = (*pd);
 	    }
 	    if(!regex.isEmpty()) {
-		int s = regex.findRev(Option::dir_sep);
+		int s = regex.lastIndexOf(Option::dir_sep);
 		if(s != -1) {
 		    dir = regex.left(s+1);
 		    regex = regex.right(regex.length() - (s+1));
@@ -172,7 +172,7 @@ ProjectGenerator::init()
 		}
 	    } else { //regexp
 		QString regx = (*pd), dir;
-		int s = regx.findRev(Option::dir_sep);
+		int s = regx.lastIndexOf(Option::dir_sep);
 		if(s != -1) {
 		    dir = regx.left(s+1);
 		    regx = regx.right(regx.length() - (s+1));
@@ -210,7 +210,7 @@ ProjectGenerator::init()
 	return;
     }
 
-    QPtrList<MakefileDependDir> deplist;
+    QList<MakefileDependDir*> deplist;
     deplist.setAutoDelete(TRUE);
     {
 	QStringList &d = v["DEPENDPATH"];
@@ -232,12 +232,12 @@ ProjectGenerator::init()
 			QString file_dir = (*dep_it).section(Option::dir_sep, 0, -2),
 			    file_no_path = (*dep_it).section(Option::dir_sep, -1);
 			if(!file_dir.isEmpty()) {
-			    for(MakefileDependDir *mdd = deplist.first(); mdd; mdd = deplist.next()) {
-				if(mdd->local_dir == file_dir && !v["INCLUDEPATH"].contains(mdd->real_dir))
-				    v["INCLUDEPATH"] += mdd->real_dir;
+			    for(QList<MakefileDependDir*>::Iterator it = deplist.begin(); it != deplist.end(); ++it) {
+				if((*it)->local_dir == file_dir && !v["INCLUDEPATH"].contains((*it)->real_dir))
+				    v["INCLUDEPATH"] += (*it)->real_dir;
 			    }
 			}
-			if(no_qt_files && file_no_path.find(QRegExp("^q[a-z_0-9].h$")) != -1)
+			if(no_qt_files && file_no_path.indexOf(QRegExp("^q[a-z_0-9].h$")) != -1)
 			    no_qt_files = FALSE;
 			QString h_ext;
 			for(QStringList::Iterator hit = Option::h_ext.begin();
@@ -248,8 +248,8 @@ ProjectGenerator::init()
 			    }
 			}
 			if(!h_ext.isEmpty()) {
-			    if((*dep_it).left(1).lower() == "q") {
-				QString qhdr = (*dep_it).lower();
+			    if((*dep_it).startsWith("q")) {
+				QString qhdr = (*dep_it).toLower();
 				if(file_no_path == "qthread.h")
 				    addConfig("thread");
 			    }
@@ -262,7 +262,7 @@ ProjectGenerator::init()
 				    QStringList &srcl = v["SOURCES"];
 				    for(QStringList::Iterator src_it = srcl.begin();
 					src_it != srcl.end(); ++src_it) {
-					if((*src_it).lower() == src.lower()) {
+					if((*src_it).toLower() == src.toLower()) {
 					    exists = TRUE;
 					    break;
 					}
@@ -296,10 +296,10 @@ ProjectGenerator::init()
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ) {
 		bool found = FALSE;
 		for(QStringList::Iterator ui_it = u.begin(); ui_it != u.end(); ++ui_it) {
-		    QString s1 = (*val_it).right((*val_it).length() - ((*val_it).findRev(Option::dir_sep) + 1));
-		    if(s1.findRev('.') != -1)
-			s1 = s1.left(s1.findRev('.')) + Option::ui_ext;
-		    QString u1 = (*ui_it).right((*ui_it).length() - ((*ui_it).findRev(Option::dir_sep) + 1));
+		    QString s1 = (*val_it).right((*val_it).length() - ((*val_it).lastIndexOf(Option::dir_sep) + 1));
+		    if(s1.lastIndexOf('.') != -1)
+			s1 = s1.left(s1.lastIndexOf('.')) + Option::ui_ext;
+		    QString u1 = (*ui_it).right((*ui_it).length() - ((*ui_it).lastIndexOf(Option::dir_sep) + 1));
 		    if(s1 == u1) {
 			found = TRUE;
 			break;
@@ -308,7 +308,7 @@ ProjectGenerator::init()
 		if(!found && (*val_it).endsWith(Option::cpp_moc_ext))
 		    found = TRUE;
 		if(found)
-		    val_it = l.remove(val_it);
+		    val_it = l.erase(val_it);
 		else
 		    ++val_it;
 	    }
@@ -369,7 +369,7 @@ ProjectGenerator::addFile(QString file)
 {
     file = fileFixify(file, QDir::currentDirPath());
     QString dir;
-    int s = file.findRev(Option::dir_sep);
+    int s = file.lastIndexOf(Option::dir_sep);
     if(s != -1)
 	dir = file.left(s+1);
     if(file.mid(dir.length(), Option::h_moc_mod.length()) == Option::h_moc_mod)
@@ -458,7 +458,7 @@ ProjectGenerator::openOutput(QFile &file) const
     }
     if(!outdir.isEmpty() || file.name().isEmpty()) {
 	QString dir = QDir::currentDirPath();
-	int s = dir.findRev('/');
+	int s = dir.lastIndexOf('/');
 	if(s != -1)
 	    dir = dir.right(dir.length() - (s + 1));
 	file.setName(outdir + dir + ".pro");

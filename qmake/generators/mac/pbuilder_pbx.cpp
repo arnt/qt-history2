@@ -126,13 +126,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QString src_key = keyFor(file), name = file;
 	    if(project->isActiveConfig("flat")) {
 		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, TRUE);
-		if(flat_file.find(Option::dir_sep) != -1) {
+		if(flat_file.indexOf(Option::dir_sep) != -1) {
 		    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
 		    name = dirs.back();
 		}
 	    } else {
 		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, TRUE);
-		if(QDir::isRelativePath(flat_file) && flat_file.find(Option::dir_sep) != -1) {
+		if(QDir::isRelativePath(flat_file) && flat_file.indexOf(Option::dir_sep) != -1) {
 		    QString last_grp("QMAKE_PBX_" + srcs[i] + "_HEIR_GROUP");
 		    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
 		    name = dirs.back();
@@ -206,7 +206,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    }
 	    QString grp_key = keyFor(grp);
 	    QStringList &grp_list = project->variables()["QMAKE_PBX_GROUPS"];
-	    if(grp_list.findIndex(grp_key) == -1)
+	    if(grp_list.indexOf(grp_key) == -1)
 		grp_list += grp_key;
 	    groups[grp] += src_list;
 	}
@@ -353,7 +353,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    tmp = project->variables()[libs[i]];
 	    for(QStringList::Iterator it = tmp.begin(); it != tmp.end();) {
 		bool remove = FALSE;
-		QString library, name, opt = (*it).stripWhiteSpace();
+		QString library, name, opt = (*it).trimmed();
 		if(opt.startsWith("-L")) {
 		    QString r = opt.right(opt.length() - 2);
 		    fixEnvVariables(r);
@@ -409,7 +409,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		    for(QStringList::Iterator fit = fdirs.begin(); fit != fdirs.end(); ++fit) {
 			if(QFile::exists((*fit) + QDir::separator() + (*it) + ".framework")) {
 			    --it;
-			    it = tmp.remove(it);
+			    it = tmp.erase(it);
 			    remove = TRUE;
 			    library = (*fit) + Option::dir_sep + (*it) + ".framework";
 			    break;
@@ -423,7 +423,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		}
 		if(!library.isEmpty()) {
 		    if(name.isEmpty()) {
-			int slsh = library.findRev(Option::dir_sep);
+			int slsh = library.lastIndexOf(Option::dir_sep);
 			if(slsh != -1)
 			    name = library.right(library.length() - slsh - 1);
 		    }
@@ -448,7 +448,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		    project->variables()["QMAKE_PBX_BUILD_LIBRARIES"].append(obj_key);
 		}
 		if(remove)
-		    it = tmp.remove(it);
+		    it = tmp.erase(it);
 		else
 		    ++it;
 	    }
@@ -556,7 +556,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	   (project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
 	    project->isActiveConfig("frameworklib")))
 	    targ = project->first("QMAKE_ORIG_TARGET");
-	int slsh = targ.findRev(Option::dir_sep);
+	int slsh = targ.lastIndexOf(Option::dir_sep);
 	if(slsh != -1)
 	    targ = targ.right(targ.length() - slsh - 1);
 	fixEnvVariables(targ);
@@ -569,7 +569,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QString li[] = { "TARGET_", "TARGET_x", "TARGET_x.y", QString::null };
 	    for(int n = 0; !li[n].isNull(); n++) {
 		QString t = project->first(li[n]);
-		slsh = t.findRev(Option::dir_sep);
+		slsh = t.lastIndexOf(Option::dir_sep);
 		if(slsh != -1)
 		    t = t.right(t.length() - slsh);
 		fixEnvVariables(t);
@@ -592,7 +592,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		    targ = project->first("TARGET");
 		else
 		    targ = project->first("TARGET_");
-		int slsh = targ.findRev(Option::dir_sep);
+		int slsh = targ.lastIndexOf(Option::dir_sep);
 		if(slsh != -1)
 		    targ = targ.right(targ.length() - slsh - 1);
 	    }
@@ -674,7 +674,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    else
 		lib = project->first("TARGET_");
 	}
-	int slsh = lib.findRev(Option::dir_sep);
+	int slsh = lib.lastIndexOf(Option::dir_sep);
 	if(slsh != -1)
 	    lib = lib.right(lib.length() - slsh - 1);
 	t << "\t\t\t" << "isa = PBXLibraryReference;" << "\n"
@@ -773,7 +773,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		    lib = project->first("TARGET_");
 	    }
 	}
-	int slsh = lib.findRev(Option::dir_sep);
+	int slsh = lib.lastIndexOf(Option::dir_sep);
 	if(slsh != -1)
 	    lib = lib.right(lib.length() - slsh - 1);
 	t << "\t\t\t\t" << "PRODUCT_NAME = " << lib << ";" << "\n";
@@ -920,7 +920,7 @@ ProjectBuilderMakefileGenerator::fixEnvs(const QString &file)
 {
     QRegExp reg_var("\\$\\((.*)\\)");
     for(int rep = 0; (rep = reg_var.search(file, rep)) != -1; ) {
-	if(project->variables()["QMAKE_PBX_VARS"].findIndex(reg_var.cap(1)) == -1)
+	if(project->variables()["QMAKE_PBX_VARS"].indexOf(reg_var.cap(1)) == -1)
 	    project->variables()["QMAKE_PBX_VARS"].append(reg_var.cap(1));
 	rep += reg_var.matchedLength();
     }
@@ -968,7 +968,7 @@ ProjectBuilderMakefileGenerator::keyFor(const QString &block)
 	}
 	ret.sprintf("%08x%08x%08x", r.a1, r.a2, r.a3);
 #endif
-	ret = ret.upper();
+	ret = ret.toUpper();
 	keys.insert(block, ret);
     } else {
 	ret = keys[block];
@@ -1034,7 +1034,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
 	    QString current_key;
 	    QRegExp keyreg("^<key>(.*)</key>$"), stringreg("^<string>(.*)</string>$");
 	    while(!plist.eof()) {
-		QString line = plist.readLine().stripWhiteSpace();
+		QString line = plist.readLine().trimmed();
 		if(line == "<dict>")
 		    in_dict = TRUE;
 		else if(line == "</dict>")

@@ -1848,7 +1848,7 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     QString uiSources;
     
     // Determining the paths for the output files.
-    int slash = str.findRev( '\\' );
+    int slash = str.lastIndexOf( '\\' );
     QString pname = ( slash != -1 ) ? str.left( slash+1 ) : QString( ".\\" );
     if( !uiDir.isEmpty() ) {
 	uiHeaders = uiDir;
@@ -1867,7 +1867,7 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
 	uiSources += "\\";
 
     // Determine the file name.
-    int dot = fname.findRev( '.' );
+    int dot = fname.lastIndexOf( '.' );
     if( dot != -1 )
 	fname.truncate( dot );
 

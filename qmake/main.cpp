@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 	    //setup pwd properly
 	    debug_msg(1, "Resetting dir to: %s", oldpwd.latin1());
 	    QDir::setCurrent(oldpwd); //reset the old pwd
-	    int di = fn.findRev(Option::dir_sep);
+	    int di = fn.lastIndexOf(Option::dir_sep);
 	    if(di != -1) {
 		debug_msg(1, "Changing dir to: %s", fn.left(di).latin1());
 		if(!QDir::setCurrent(fn.left(di)))

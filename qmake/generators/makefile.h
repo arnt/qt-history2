@@ -17,7 +17,7 @@
 #include "option.h"
 #include "project.h"
 #include <qtextstream.h>
-#include <qptrlist.h>
+#include <qlist.h>
 
 #ifdef Q_OS_WIN32
 #define QT_POPEN _popen
@@ -55,7 +55,7 @@ protected:
 	MakefileDependDir(const QString &r, const QString &l) : real_dir(r), local_dir(l) { }
 	QString real_dir, local_dir;
     };
-    bool generateDependencies(QPtrList<MakefileDependDir> &dirs, const QString &x, bool recurse);
+    bool generateDependencies(QList<MakefileDependDir*> &dirs, const QString &x, bool recurse);
 
     QString buildArgs();
 

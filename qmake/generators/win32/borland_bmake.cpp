@@ -246,7 +246,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 	    deps += " " + dep;
 	}
 	if(!project->variables()["QMAKE_NOFORCE"].isEmpty() && 
-	   project->variables()[(*it) + ".CONFIG"].findIndex("phony") != -1)
+	   project->variables()[(*it) + ".CONFIG"].indexOf("phony") != -1)
 	    deps += QString(" ") + "FORCE";
 	t << "\n\n" << targ << ":" << deps << "\n\t"
 	  << cmd;
@@ -381,10 +381,10 @@ BorlandMakefileGenerator::init()
     for( QStringList::Iterator stIt = libList.begin(); stIt != libList.end(); ) {
 	QString s = *stIt;
 	if( s.startsWith( "-l" ) ) {
-	    stIt = libList.remove( stIt );
+	    stIt = libList.erase( stIt );
 	    stIt = libList.insert( stIt, s.mid( 2 ) + ".lib" );
         } else if( s.startsWith( "-L" ) ) {
-	    stIt = libList.remove( stIt );
+	    stIt = libList.erase( stIt );
 	    project->variables()["QMAKE_LIBDIR"].append(QDir::convertSeparators(s.mid( 2 )));
 	} else {
 	    stIt++;
@@ -445,7 +445,7 @@ BorlandMakefileGenerator::init()
 		    out = tmp_out;
 		out.replace("${QMAKE_FILE_BASE}", fi.baseName());
 		out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-		if(project->variables()[(*it) + ".CONFIG"].findIndex("no_link") == -1)
+		if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
 		    project->variables()["OBJCOMP"] += out;
 	    }
 	}

@@ -83,7 +83,7 @@ QString Option::mkfile::qmakespec_commandline;
 
 static Option::QMAKE_MODE default_mode(QString progname)
 {
-    int s = progname.findRev(Option::dir_sep);
+    int s = progname.lastIndexOf(Option::dir_sep);
     if(s != -1)
 	progname = progname.right(progname.length() - (s + 1));
     if(progname == "qmakegen")
@@ -251,7 +251,7 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
 	    }
 	} else {
 	    QString arg = argv[x];
-	    if(arg.find('=') != -1) {
+	    if(arg.indexOf('=') != -1) {
 		if(before)
 		    Option::before_user_vars.append(arg);
 		else
@@ -362,7 +362,7 @@ Option::parseCommandLine(int argc, char **argv)
 	//try REALLY hard to do it for them, lazy..
 	if(Option::mkfile::project_files.isEmpty()) {
 	    QString pwd = QDir::currentDirPath(), 
-		   proj = pwd + "/" + pwd.right(pwd.length() - (pwd.findRev('/') + 1)) + ".pro";
+		   proj = pwd + "/" + pwd.right(pwd.length() - (pwd.lastIndexOf('/') + 1)) + ".pro";
 	    if(QFile::exists(proj)) {
 		Option::mkfile::project_files.append(proj);
 	    } else { //last try..

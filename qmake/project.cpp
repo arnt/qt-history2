@@ -19,7 +19,7 @@
 #include <qdir.h>
 #include <qregexp.h>
 #include <qtextstream.h>
-#include <qvaluestack.h>
+#include <qstack.h>
 #include <qcstring.h>
 #include <qhash.h>
 #ifdef Q_OS_UNIX
@@ -204,7 +204,7 @@ static QStringList split_arg_list(const QString &params)
     QStringList args;
     for(int x = 0, last = 0, parens = 0; x <= (int)params.length(); x++) {
 	if(x == (int)params.length()) {
-	    QString mid = params.mid(last, x - last).stripWhiteSpace();
+	    QString mid = params.mid(last, x - last).trimmed();
 	    if(quote.unicode()) {
 		if(mid[(int)mid.length()-1] == quote)
 		    mid = mid.left(mid.length()-1);
@@ -221,7 +221,7 @@ static QStringList split_arg_list(const QString &params)
 	} else if(params[x] == '\'' || params[x] == '"') {
 	    quote = params[x];
 	} else if(!parens && !quote.unicode() && params[x] == ',') {
-	    args << params.mid(last, x - last).stripWhiteSpace();
+	    args << params.mid(last, x - last).trimmed();
 	    last = x+1;
 	} 
     }
@@ -232,7 +232,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=FALSE
 {
     QString build;
     QStringList ret;
-    QValueStack<QChar> quote;
+    QStack<QChar> quote;
     for(int x = 0; x < (int)vals.length(); x++) {
 #if 0
 	//I don't think I can do this, because you could have a trailing slash before your next
@@ -280,8 +280,8 @@ QMakeProject::reset()
 bool
 QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 {
-    QString s = t.simplifyWhiteSpace();
-    int hash_mark = s.find("#");
+    QString s = t.simplified();
+    int hash_mark = s.indexOf("#");
     if(hash_mark != -1) //good bye comments
 	s = s.left(hash_mark);
     if(s.isEmpty()) /* blank_line */
@@ -300,7 +300,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 		if(!scope_blocks.top().ignore) {
 		    debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
 			      parser.line_no, scope_blocks.count()+1);
-		    s = s.mid(i+1).stripWhiteSpace();
+		    s = s.mid(i+1).trimmed();
 		    continue_parsing = !s.isEmpty();
 		    break;
 		}
@@ -378,13 +378,13 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 
 	if(!parens && (*d == ':' || *d == '{' || *d == ')' || *d == '|')) {
 	    scope_count++;
-	    scope = var.stripWhiteSpace();
+	    scope = var.trimmed();
 	    if(*d == ')')
 		scope += *d; /* need this */
 	    var = "";
 
 	    bool test = scope_failed;
-	    if(scope.lower() == "else") { //else is a builtin scope here as it modifies state
+	    if(scope.toLower() == "else") { //else is a builtin scope here as it modifies state
 		if(scope_count != 1 || scope_blocks.top().else_status == ScopeBlock::TestNone) {
 		    qmake_error_msg("Unexpected " + scope + " ('" + s + "')");
 		    return FALSE;
@@ -399,10 +399,10 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 		bool invert_test = (comp_scope.left(1) == "!");
 		if(invert_test)
 		    comp_scope = comp_scope.right(comp_scope.length()-1);
-		int lparen = comp_scope.find('(');
+		int lparen = comp_scope.indexOf('(');
 		if(or_op || !scope_failed) {
 		    if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
-			int rparen = comp_scope.findRev(')');
+			int rparen = comp_scope.lastIndexOf(')');
 			if(rparen == -1) {
 			    QCString error;
 			    error.sprintf("Function missing right paren: %s ('%s')",
@@ -413,7 +413,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 			QString func = comp_scope.left(lparen);
 			QStringList args = split_arg_list(comp_scope.mid(lparen+1, rparen - lparen - 1));
 			for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
-			    QString tmp = (*arit).stripWhiteSpace();
+			    QString tmp = (*arit).trimmed();
 			    if((tmp[0] == '\'' || tmp[0] == '"') && tmp.right(1) == tmp.left(1))
 				tmp = tmp.mid(1, tmp.length() - 2);
 			}
@@ -445,7 +445,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 				if(it_list == "forever") {
 				    iterator->loop_forever = TRUE;
 				} else {
-				    int dotdot = it_list.find("..");
+				    int dotdot = it_list.indexOf("..");
 				    if(dotdot != -1) {
 					bool ok;
 					int start = it_list.left(dotdot).toInt(&ok);
@@ -480,9 +480,9 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 			    }
 			}
 		    } else {
-			QString cscope = comp_scope.stripWhiteSpace();
+			QString cscope = comp_scope.trimmed();
 			doVariableReplace(cscope, place);
-			test = isActiveConfig(cscope.stripWhiteSpace(), TRUE, &place);
+			test = isActiveConfig(cscope.trimmed(), TRUE, &place);
 		    }
 		    if(invert_test)
 			test = !test;
@@ -512,7 +512,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	}
 	d++;
     }
-    var = var.stripWhiteSpace();
+    var = var.trimmed();
 
     if(!else_line || (else_line && !scope_failed)) 
 	scope_blocks.top().else_status = (!scope_failed ? ScopeBlock::TestFound : ScopeBlock::TestSeek);
@@ -540,13 +540,13 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     if(scope_failed)
 	return TRUE; /* oh well */
     if(!*d) {
-	if(!var.stripWhiteSpace().isEmpty())
+	if(!var.trimmed().isEmpty())
 	    qmake_error_msg("Parse Error ('" + s + "')");
 	return var.isEmpty(); /* allow just a scope */
     }
 
     SKIP_WS(d);
-    for(; *d && op.find('=') == -1; op += *(d++))
+    for(; *d && op.indexOf('=') == -1; op += *(d++))
 	;
     op.replace(QRegExp("\\s"), "");
 
@@ -610,10 +610,10 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	}
 	bool global = FALSE, case_sense = TRUE;
 	if(func.count() == 4) {
-	    global = func[3].find('g') != -1;
-	    case_sense = func[3].find('i') == -1;
+	    global = func[3].indexOf('g') != -1;
+	    case_sense = func[3].indexOf('i') == -1;
 	}
-	QRegExp regexp(func[1], case_sense);
+	QRegExp regexp(func[1], case_sense ? QString::CaseSensitive : QString::CaseInsensitive);
 	for(QStringList::Iterator varit = varlist.begin();
 	    varit != varlist.end(); ++varit) {
 	    if((*varit).contains(regexp)) {
@@ -652,12 +652,12 @@ QMakeProject::read(QTextStream &file, QMap<QString, QStringList> &place)
     QString s, line;
     while(!file.eof()) {
 	parser.line_no++;
-	line = file.readLine().stripWhiteSpace();
+	line = file.readLine().trimmed();
 	int prelen = line.length();
 
-	int hash_mark = line.find("#");
+	int hash_mark = line.indexOf("#");
 	if(hash_mark != -1) //good bye comments
-	    line = line.left(hash_mark).stripWhiteSpace();
+	    line = line.left(hash_mark).trimmed();
 	if(!line.isEmpty() && line.right(1) == "\\") {
 	    if(!line.startsWith("#")) {
 		line.truncate(line.length() - 1);
@@ -736,8 +736,8 @@ QMakeProject::read(uchar cmd)
 		QString dir = QDir::convertSeparators(Option::output_dir);
 		while(!QFile::exists((Option::mkfile::cachefile = dir +
 				      QDir::separator() + ".qmake.cache"))) {
-		    dir = dir.left(dir.findRev(QDir::separator()));
-		    if(dir.isEmpty() || dir.find(QDir::separator()) == -1) {
+		    dir = dir.left(dir.lastIndexOf(QDir::separator()));
+		    if(dir.isEmpty() || dir.indexOf(QDir::separator()) == -1) {
 			Option::mkfile::cachefile = "";
 			break;
 		    }
@@ -863,7 +863,7 @@ QMakeProject::read(uchar cmd)
 	    configs.clear();
 	    QStringList new_configs = vars["CONFIG"];
 	    for(QStringList::ConstIterator it = new_configs.begin(); it != new_configs.end(); ++it) {
-		if(processed.findIndex((*it)) == -1) {
+		if(processed.indexOf((*it)) == -1) {
 		    configs.append((*it));
 		    processed.append((*it));
 		}
@@ -895,10 +895,10 @@ QMakeProject::read(uchar cmd)
 	// QFileInfo fi(pfile);
 	// fi.baseName();
 	QString tmp = pfile;
-	if(tmp.findRev('/') != -1)
-	    tmp = tmp.right(tmp.length() - tmp.findRev('/') - 1);
-	if(tmp.findRev('.') != -1)
-	    tmp = tmp.left(tmp.findRev('.'));
+	if(tmp.lastIndexOf('/') != -1)
+	    tmp = tmp.right(tmp.length() - tmp.lastIndexOf('/') - 1);
+	if(tmp.lastIndexOf('.') != -1)
+	    tmp = tmp.left(tmp.lastIndexOf('.'));
 	vars["TARGET"].append(tmp);
     }
 
@@ -939,9 +939,9 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
 	return TRUE;
 
 
-    QRegExp re(x, FALSE, TRUE);
+    QRegExp re(x, QString::CaseInsensitive);
     QString spec = Option::mkfile::qmakespec.right(Option::mkfile::qmakespec.length() -
-						   (Option::mkfile::qmakespec.findRev(QDir::separator())+1));
+						   (Option::mkfile::qmakespec.lastIndexOf(QDir::separator())+1));
     if((regex && re.exactMatch(spec)) || (!regex && spec == x))
 	return TRUE;
 #ifdef Q_OS_UNIX
@@ -953,8 +953,8 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
 	if(l != -1) {
 	    buffer[l] = '\0';
 	    QString r = buffer;
-	    if(r.findRev('/') != -1)
-		r = r.mid(r.findRev('/') + 1);
+	    if(r.lastIndexOf('/') != -1)
+		r = r.mid(r.lastIndexOf('/') + 1);
 	    if((regex && re.exactMatch(r)) || (!regex && r == x))
 		return TRUE;
 	}
@@ -976,11 +976,11 @@ QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QSt
 {
     QStringList args = split_arg_list(params);
     for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
-	QString tmp = (*arit).stripWhiteSpace();
+	QString tmp = (*arit).trimmed();
 	if((tmp[0] == '\'' || tmp[0] == '"') && tmp.right(1) == tmp.left(1))
 	    tmp = tmp.mid(1, tmp.length() - 2);
     }
-    return doProjectTest(func.stripWhiteSpace(), args, place);
+    return doProjectTest(func.trimmed(), args, place);
 }
 
 /* If including a feature it will look in:
@@ -1004,7 +1004,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
     if(feature) {
 	if(!file.endsWith(Option::prf_ext))
 	    file += Option::prf_ext;
-	if(file.find(Option::dir_sep) == -1 || !QFile::exists(file)) {
+	if(file.indexOf(Option::dir_sep) == -1 || !QFile::exists(file)) {
 	    bool found = FALSE;
 	    QStringList concat;
 	    {
@@ -1043,7 +1043,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 	    }
 	    if(!Option::mkfile::cachefile.isEmpty()) {
 		QString path;
-		int last_slash = Option::mkfile::cachefile.findRev(Option::dir_sep);
+		int last_slash = Option::mkfile::cachefile.lastIndexOf(Option::dir_sep);
 		if(last_slash != -1)
 		    path = Option::fixPathToLocalOS(Option::mkfile::cachefile.left(last_slash));
 		for(QStringList::Iterator concat_it = concat.begin();
@@ -1107,7 +1107,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 	    }
 	    if(!found)
 		return FALSE;
-	    if(vars["QMAKE_INTERNAL_INCLUDED_FEATURES"].findIndex(file) != -1)
+	    if(vars["QMAKE_INTERNAL_INCLUDED_FEATURES"].indexOf(file) != -1)
 		return TRUE;
 	    vars["QMAKE_INTERNAL_INCLUDED_FEATURES"].append(file);
 
@@ -1136,11 +1136,11 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 		parser.file.latin1(), parser.line_no);
     debug_msg(1, "Project Parser: %s'ing file %s.", feature ? "load" : "include", file.latin1());
     QString orig_file = file;
-    int di = file.findRev(Option::dir_sep);
+    int di = file.lastIndexOf(Option::dir_sep);
     QDir sunworkshop42workaround = QDir::current();
     QString oldpwd = sunworkshop42workaround.currentDirPath();
     if(di != -1) {
-	if(!QDir::setCurrent(file.left(file.findRev(Option::dir_sep)))) {
+	if(!QDir::setCurrent(file.left(file.lastIndexOf(Option::dir_sep)))) {
 	    fprintf(stderr, "Cannot find directory: %s\n", file.left(di).latin1());
 	    return FALSE;
 	}
@@ -1171,7 +1171,7 @@ bool
 QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString, QStringList> &place)
 {
     for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
-	(*arit) = (*arit).stripWhiteSpace(); // blah, get rid of space
+	(*arit) = (*arit).trimmed(); // blah, get rid of space
 	doVariableReplace((*arit), place);
     }
     debug_msg(1, "Running project test: %s(%s)", func.latin1(), args.join("::").latin1());
@@ -1202,7 +1202,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	    return TRUE;
 	//regular expression I guess
 	QString dirstr = QDir::currentDirPath();
-	int slsh = file.findRev(Option::dir_sep);
+	int slsh = file.lastIndexOf(Option::dir_sep);
 	if(slsh != -1) {
 	    dirstr = file.left(slsh+1);
 	    file = file.right(file.length() - slsh - 1);
@@ -1270,11 +1270,11 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	QString file = args[0];
 	doVariableReplace(file, place);
 	fixEnvVariables(file);
-	int di = file.findRev(Option::dir_sep);
+	int di = file.lastIndexOf(Option::dir_sep);
 	QDir sunworkshop42workaround = QDir::current();
 	QString oldpwd = sunworkshop42workaround.currentDirPath();
 	if(di != -1) {
-	    if(!QDir::setCurrent(file.left(file.findRev(Option::dir_sep)))) {
+	    if(!QDir::setCurrent(file.left(file.lastIndexOf(Option::dir_sep)))) {
 		fprintf(stderr, "Cannot find directory: %s\n", file.left(di).latin1());
 		return FALSE;
 	    }
@@ -1325,7 +1325,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 		seek_var = args[1];
 	    } else {
 		QString sarg = args[1];
-		ignore_error = (sarg.lower() == "true" || sarg.toInt());
+		ignore_error = (sarg.toLower() == "true" || sarg.toInt());
 	    }
 	} else if(args.count() != 1) {
 	    QString func_desc = "load(feature)";
@@ -1355,7 +1355,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	    msg = msg.mid(1, msg.length()-2);
 	doVariableReplace(msg, place);
 	fixEnvVariables(msg);
-	fprintf(stderr, "Project %s: %s\n", func.upper().latin1(), msg.latin1());
+	fprintf(stderr, "Project %s: %s\n", func.toUpper().latin1(), msg.latin1());
 	if(func == "error")
 	    exit(2);
 	return TRUE;
@@ -1379,9 +1379,9 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 	    chk = chk.right(chk.length() - 1);
 
 	bool test;
-	int lparen = chk.find('(');
+	int lparen = chk.indexOf('(');
 	if(lparen != -1) { /* if there is an lparen in the chk, it IS a function */
-	    int rparen = chk.findRev(')');
+	    int rparen = chk.lastIndexOf(')');
 	    if(rparen == -1) {
 		QCString error;
 		error.sprintf("Function (in REQUIRES) missing right paren: %s", chk.latin1());
@@ -1411,7 +1411,7 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 QString
 QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &place)
 {
-    for(int var_begin, var_last=0; (var_begin = str.find("$$", var_last)) != -1; var_last = var_begin) {
+    for(int var_begin, var_last=0; (var_begin = str.indexOf("$$", var_last)) != -1; var_last = var_begin) {
 	if(var_begin >= (int)str.length() + 2) {
 	    break;
 	} else if(var_begin != 0 && str[var_begin-1] == '\\') {
@@ -1445,7 +1445,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		var_incr++;
 		warn_msg(WarnParser, "%s:%d: Unterminated env-variable replacement '%s' (%s)",
 			 parser.file.latin1(), parser.line_no,
-			 str.mid(var_begin, QMAX(var_incr - var_begin,
+			 str.mid(var_begin, qMax(var_incr - var_begin,
 						 (int)str.length())).latin1(), str.latin1());
 		var_begin += var_incr;
 		continue;
@@ -1456,7 +1456,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		var_incr++;
 		warn_msg(WarnParser, "%s:%d: Unterminated prop-variable replacement '%s' (%s)",
 			 parser.file.latin1(), parser.line_no,
-			 str.mid(var_begin, QMAX(var_incr - var_begin, int(str.length()))).latin1(), str.latin1());
+			 str.mid(var_begin, qMax(var_incr - var_begin, int(str.length()))).latin1(), str.latin1());
 		var_begin += var_incr;
 		continue;
 	    }
@@ -1481,7 +1481,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	    var_incr++;
 	    warn_msg(WarnParser, "%s:%d: Unterminated variable replacement '%s' (%s)",
 		     parser.file.latin1(), parser.line_no,
-		     str.mid(var_begin, QMAX(var_incr - var_begin,
+		     str.mid(var_begin, qMax(var_incr - var_begin,
 					     (int)str.length())).latin1(), str.latin1());
 	    var_begin += var_incr;
 	    continue;
@@ -1519,7 +1519,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	} else {
 	    QStringList arg_list = split_arg_list(doVariableReplace(args, place));
 	    debug_msg(1, "Running function: %s(%s)", val.latin1(), arg_list.join("::").latin1());
-	    if(val.lower() == "member") {
+	    if(val.toLower() == "member") {
 		if(arg_list.count() < 1 || arg_list.count() > 3) {
 		    fprintf(stderr, "%s:%d: member(var, start, end) requires three arguments.\n",
 			    parser.file.latin1(), parser.line_no);
@@ -1532,7 +1532,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			start = start_str.toInt(&ok);
 			if(!ok) {
 			    if(arg_list.count() == 2) {
-				int dotdot = start_str.find("..");
+				int dotdot = start_str.indexOf("..");
 				if(dotdot != -1) {
 				    start = start_str.left(dotdot).toInt(&ok);
 				    if(ok)
@@ -1571,7 +1571,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			}
 		    }
 		}
-	    } else if(val.lower() == "fromfile") {
+	    } else if(val.toLower() == "fromfile") {
 		if(arg_list.count() != 2) {
 		    fprintf(stderr, "%s:%d: fromfile(file, variable) requires two arguments.\n",
 			    parser.file.latin1(), parser.line_no);
@@ -1584,14 +1584,14 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    if(doProjectInclude(file, FALSE, tmp, seek_var))
 			replacement = tmp[seek_var].join(QString(Option::field_sep));
 		}
-	    } else if(val.lower() == "eval") {
+	    } else if(val.toLower() == "eval") {
 		for(QStringList::ConstIterator arg_it = arg_list.begin();
 		    arg_it != arg_list.end(); ++arg_it) {
 		    if(!replacement.isEmpty())
 			replacement += Option::field_sep;
 		    replacement += place[(*arg_it)].join(QString(Option::field_sep));
 		}
-	    } else if(val.lower() == "list") {
+	    } else if(val.toLower() == "list") {
 		static int x = 0;
 		replacement.sprintf(".QMAKE_INTERNAL_TMP_VAR_%d", x++);
 		QStringList &lst = (*((QMap<QString, QStringList>*)&place))[replacement];
@@ -1599,7 +1599,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		for(QStringList::ConstIterator arg_it = arg_list.begin();
 		    arg_it != arg_list.end(); ++arg_it)
 		    lst += split_value_list((*arg_it));
-	    } else if(val.lower() == "printf") {
+	    } else if(val.toLower() == "printf") {
 		if(arg_list.count() < 1) {
 		    fprintf(stderr, "%s:%d: printf(format, ...) requires one argument.\n",
 			    parser.file.latin1(), parser.line_no);
@@ -1610,7 +1610,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    for(; arg_it != arg_list.end(); ++arg_it) 
 			replacement = replacement.arg((*arg_it).replace("\"", ""));
 		}
-	    } else if(val.lower() == "join") {
+	    } else if(val.toLower() == "join") {
 		if(arg_list.count() < 1 || arg_list.count() > 4) {
 		    fprintf(stderr, "%s:%d: join(var, glue, before, after) requires four"
 			    "arguments.\n", parser.file.latin1(), parser.line_no);
@@ -1626,7 +1626,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    if(!var.isEmpty())
 			replacement = before + var.join(glue) + after;
 		}
-	    } else if(val.lower() == "split") {
+	    } else if(val.toLower() == "split") {
 		if(arg_list.count() < 2 || arg_list.count() > 3) {
 		    fprintf(stderr, "%s:%d split(var, sep, join) requires three arguments\n",
 			    parser.file.latin1(), parser.line_no);
@@ -1644,7 +1644,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			}
 		    }
 		}
-	    } else if(val.lower() == "find") {
+	    } else if(val.toLower() == "find") {
 		if(arg_list.count() != 2) {
 		    fprintf(stderr, "%s:%d find(var, str) requires two arguments\n",
 			    parser.file.latin1(), parser.line_no);
@@ -1660,7 +1660,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			}
 		    }
 		}
-	    } else if(val.lower() == "system") {
+	    } else if(val.toLower() == "system") {
 		if(arg_list.count() != 1) {
 		    fprintf(stderr, "%s:%d system(execut) requires one argument\n",
 			    parser.file.latin1(), parser.line_no);
@@ -1694,18 +1694,18 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    }
 #endif
 		}
-	    } else if(val.lower() == "quote") {
+	    } else if(val.toLower() == "quote") {
 		replacement = arg_list.join(" ");
 		replacement = replacement.replace("\\n", "\n");
 		replacement = replacement.replace("\\t", "\t");
 		replacement = replacement.replace("\\r", "\r");
-	    } else if(val.lower() == "upper" || val.lower() == "lower") {
+	    } else if(val.toLower() == "upper" || val.toLower() == "lower") {
 		replacement = arg_list.join(QString(Option::field_sep));
-		if(val.lower() == "upper")
-		    replacement = replacement.upper();
+		if(val.toLower() == "upper")
+		    replacement = replacement.toUpper();
 		else
-		    replacement = replacement.lower();
-	    } else if(val.lower() == "files") {
+		    replacement = replacement.toLower();
+	    } else if(val.toLower() == "files") {
 		if(arg_list.count() != 1) {
 		    fprintf(stderr, "%s:%d files(pattern) requires one argument\n",
 			    parser.file.latin1(), parser.line_no);
@@ -1713,8 +1713,8 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    QString dir, regex = arg_list[0];
 		    regex = Option::fixPathToLocalOS(regex);
 		    regex.replace("\"", "");
-		    if(regex.findRev(QDir::separator()) != -1) {
-			dir = regex.left(regex.findRev(QDir::separator()) + 1);
+		    if(regex.lastIndexOf(QDir::separator()) != -1) {
+			dir = regex.left(regex.lastIndexOf(QDir::separator()) + 1);
 			regex = regex.right(regex.length() - dir.length());
 		    }
 		    QDir d(dir, regex);
@@ -1724,7 +1724,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			replacement += dir + d[i];
 		    }
 		}
-	    } else if(val.lower() == "prompt") {
+	    } else if(val.toLower() == "prompt") {
 		if(arg_list.count() != 1) {
 		    fprintf(stderr, "%s:%d prompt(question) requires one argument\n",
 			    parser.file.latin1(), parser.line_no);
@@ -1739,7 +1739,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    fixEnvVariables(msg);
 		    if(!msg.endsWith("?"))
 			msg += "?";
-		    fprintf(stderr, "Project %s: %s ", val.upper().latin1(), msg.latin1());
+		    fprintf(stderr, "Project %s: %s ", val.toUpper().latin1(), msg.latin1());
 
 		    QFile qfile;
 		    if(qfile.open(IO_ReadOnly, stdin)) {

@@ -43,7 +43,7 @@ UnixMakefileGenerator::init()
 	    project->variables()["MAKEFILE"].append("Makefile");
 	if(project->isEmpty("QMAKE"))
 	    project->variables()["QMAKE"].append("qmake");
-	if(project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].findIndex("qmake_all") == -1)
+	if(project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].indexOf("qmake_all") == -1)
 	    project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].append("qmake_all");
 	return; /* subdirs is done */
     }
@@ -66,7 +66,7 @@ UnixMakefileGenerator::init()
     //If the TARGET looks like a path split it into DESTDIR and the resulting TARGET
     if(!project->isEmpty("TARGET")) {
 	QString targ = project->first("TARGET");
-	int slsh = QMAX(targ.findRev('/'), targ.findRev(Option::dir_sep));
+	int slsh = qMax(targ.lastIndexOf('/'), targ.lastIndexOf(Option::dir_sep));
 	if(slsh != -1) {
 	    if(project->isEmpty("DESTDIR"))
 		project->values("DESTDIR").append("");
@@ -81,7 +81,7 @@ UnixMakefileGenerator::init()
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if ( (!project->isEmpty("QMAKE_LIB_FLAG") && !project->isActiveConfig("staticlib") ) ||
 	 (project->isActiveConfig("qt") &&  project->isActiveConfig( "plugin" ) )) {
-	if(configs.findIndex("dll") == -1) configs.append("dll");
+	if(configs.indexOf("dll") == -1) configs.append("dll");
     } else if ( !project->isEmpty("QMAKE_APP_FLAG") || project->isActiveConfig("dll") ) {
 	configs.remove("staticlib");
     }
@@ -234,7 +234,7 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
 	for(QStringList::ConstIterator it = lst->begin(); it != lst->end(); ++it) {
 	    if((*it).startsWith("-")) {
 		if((*it).startsWith("-L")) {
-		    if(ret.findIndex((*it)) == -1)
+		    if(ret.indexOf((*it)) == -1)
 			ret.append((*it));
 		} else if((*it).startsWith("-l")) {
 		    ret.remove(*it);
@@ -268,7 +268,7 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
 				    }
 				}
 				for(int i = 0; i < found; i++)
-				    outit = ret.remove(outit);
+				    outit = ret.erase(outit);
 			    }
 			}
 			if(as_one) {
@@ -280,12 +280,7 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
 		    }
 		} else {
 #if 1
-		    while(1) {
-			QStringList::Iterator idx = ret.find((*it));
-			if(idx == ret.end())
-			    break;
-			ret.remove(idx);
-		    }
+		    remove((*it));
 #endif
 		    ret.append((*it));
 		}
@@ -349,13 +344,13 @@ UnixMakefileGenerator::findDependency(const QString &dep)
 bool
 UnixMakefileGenerator::findLibraries()
 {
-    QPtrList<MakefileDependDir> libdirs;
+    QList<MakefileDependDir*> libdirs;
     libdirs.setAutoDelete(TRUE);
     const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
     for(int i = 0; !lflags[i].isNull(); i++) {
 	QStringList &l = project->variables()[lflags[i]];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	    QString stub, dir, extn, opt = (*it).stripWhiteSpace();
+	    QString stub, dir, extn, opt = (*it).trimmed();
 	    if(opt.startsWith("-")) {
 		if(opt.startsWith("-L")) {
 		    QString r = opt.right(opt.length() - 2), l = r;
@@ -378,7 +373,7 @@ UnixMakefileGenerator::findLibraries()
 	    } else {
 		extn = dir = "";
 		stub = opt;
-		int slsh = opt.findRev(Option::dir_sep);
+		int slsh = opt.lastIndexOf(Option::dir_sep);
 		if(slsh != -1) {
 		    dir = opt.left(slsh);
 		    stub = opt.mid(slsh+1);
@@ -399,8 +394,8 @@ UnixMakefileGenerator::findLibraries()
 		for(QStringList::Iterator extit = extens.begin(); extit != extens.end(); ++extit) {
 		    if(dir.isNull()) {
 			QString lib_stub;
-			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
-			    if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub +
+			for(QList<MakefileDependDir*>::Iterator dep_it = libdirs.begin(); dep_it != libdirs.end(); ++dep_it) {
+			    if(QFile::exists((*dep_it)->local_dir + Option::dir_sep + "lib" + stub +
 					     "." + (*extit))) {
 				lib_stub = stub;
 				break;
@@ -420,9 +415,9 @@ UnixMakefileGenerator::findLibraries()
 		    }
 		}
 		if(!found && project->isActiveConfig("compile_libtool")) {
-		    for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
-			if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub + Option::libtool_ext)) {
-			    (*it) = mdd->real_dir + Option::dir_sep + "lib" + stub + Option::libtool_ext;
+		    for(QList<MakefileDependDir*>::Iterator dep_it = libdirs.begin(); dep_it != libdirs.end(); ++dep_it) {
+			if(QFile::exists((*dep_it)->local_dir + Option::dir_sep + "lib" + stub + Option::libtool_ext)) {
+			    (*it) = (*dep_it)->real_dir + Option::dir_sep + "lib" + stub + Option::libtool_ext;
 			    found = TRUE;
 			    break;
 			}
@@ -448,7 +443,7 @@ void
 UnixMakefileGenerator::processPrlFiles()
 {
     QDict<void> processed;
-    QPtrList<MakefileDependDir> libdirs;
+    QList<MakefileDependDir*> libdirs;
     libdirs.setAutoDelete(TRUE);
     const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
     for(int i = 0; !lflags[i].isNull(); i++) {
@@ -457,7 +452,7 @@ UnixMakefileGenerator::processPrlFiles()
 	    QStringList &l = project->variables()[lflags[i]];
 	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 		project->variables()["QMAKE_CURRENT_PRL_LIBS"].clear();
-		QString opt = (*it).stripWhiteSpace();
+		QString opt = (*it).trimmed();
 		if(opt.startsWith("-")) {
 		    if(opt.startsWith("-L")) {
 			QString r = opt.right(opt.length() - 2), l = r;
@@ -466,20 +461,20 @@ UnixMakefileGenerator::processPrlFiles()
 							     l.replace("\"","")));
 		    } else if(opt.startsWith("-l") && !processed[opt]) {
 			QString lib = opt.right(opt.length() - 2);
-			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
+			for(QList<MakefileDependDir*>::Iterator dep_it = libdirs.begin(); dep_it != libdirs.end(); ++dep_it) {
  			    if(!project->isActiveConfig("compile_libtool")) { //give them the .libs..
- 				QString la = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::libtool_ext;
- 				if(QFile::exists(la) && QFile::exists(mdd->local_dir + Option::dir_sep + ".libs")) {
- 				    l_out.append("-L" + mdd->real_dir + Option::dir_sep + ".libs");
- 				    libdirs.append(new MakefileDependDir(mdd->real_dir +  Option::dir_sep + ".libs",
- 									 mdd->local_dir + Option::dir_sep + ".libs"));
+ 				QString la = (*dep_it)->local_dir + Option::dir_sep + "lib" + lib + Option::libtool_ext;
+ 				if(QFile::exists(la) && QFile::exists((*dep_it)->local_dir + Option::dir_sep + ".libs")) {
+ 				    l_out.append("-L" + (*dep_it)->real_dir + Option::dir_sep + ".libs");
+ 				    libdirs.append(new MakefileDependDir((*dep_it)->real_dir +  Option::dir_sep + ".libs",
+ 									 (*dep_it)->local_dir + Option::dir_sep + ".libs"));
  				}
  			    }
 
-			    QString prl = mdd->local_dir + Option::dir_sep + "lib" + lib;
+			    QString prl = (*dep_it)->local_dir + Option::dir_sep + "lib" + lib;
 			    if(processPrlFile(prl)) {
-				if(prl.startsWith(mdd->local_dir))
-				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
+				if(prl.startsWith((*dep_it)->local_dir))
+				    prl.replace(0, (*dep_it)->local_dir.length(), (*dep_it)->real_dir);
 				opt = linkLib(prl, lib);
 				if(!opt.isNull())
 				    processed.insert(opt, (void*)1);
@@ -556,7 +551,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	if(project->isActiveConfig("create_prl") && !project->isActiveConfig("no_install_prl") &&
 	   !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
 	    QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");
-	    int slsh = dst_prl.findRev('/');
+	    int slsh = dst_prl.lastIndexOf('/');
 	    if(slsh != -1)
 		dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
 	    dst_prl = root + targetdir + dst_prl;
@@ -567,10 +562,10 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	}
 	if(project->isActiveConfig("create_libtool") && !project->isActiveConfig("compile_libtool")) {
 	    QString src_lt = var("QMAKE_ORIG_TARGET");
-	    int slsh = src_lt.findRev(Option::dir_sep);
+	    int slsh = src_lt.lastIndexOf(Option::dir_sep);
 	    if(slsh != -1)
 		src_lt = src_lt.right(src_lt.length() - slsh);
-	    int dot = src_lt.find('.');
+	    int dot = src_lt.indexOf('.');
 	    if(dot != -1)
 		src_lt = src_lt.left(dot);
 	    src_lt += Option::libtool_ext;
@@ -590,10 +585,10 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	}
 	if(project->isActiveConfig("create_pc")) {
 	    QString src_pc = var("QMAKE_ORIG_TARGET");
-	    int slsh = src_pc.findRev(Option::dir_sep);
+	    int slsh = src_pc.lastIndexOf(Option::dir_sep);
 	    if(slsh != -1)
 		src_pc = src_pc.right(src_pc.length() - slsh);
-	    int dot = src_pc.find('.');
+	    int dot = src_pc.indexOf('.');
 	    if(dot != -1)
 		src_pc = src_pc.left(dot);
 	    src_pc += ".pc";
@@ -670,7 +665,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		} else if(Option::target_mode == Option::TARG_UNIX_MODE ||
 			  Option::target_mode == Option::TARG_MACX_MODE) {
 		    QString link = Option::fixPathToTargetOS(destdir + (*it), FALSE);
-		    int lslash = link.findRev(Option::dir_sep);
+		    int lslash = link.lastIndexOf(Option::dir_sep);
 		    if(lslash != -1)
 			link = link.right(link.length() - (lslash + 1));
 		    QString dst_link = root + fileFixify(targetdir + link);

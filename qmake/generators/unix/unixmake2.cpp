@@ -79,7 +79,7 @@ UnixMakefileGenerator::writeExtraVariables(QTextStream &t)
     QStringList &exports = project->variables()["QMAKE_EXTRA_UNIX_VARIABLES"];
     for(QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
 	for(QStringList::Iterator exp_it = exports.begin(); exp_it != exports.end(); ++exp_it) {
-	    QRegExp rx((*exp_it), FALSE, TRUE);
+	    QRegExp rx((*exp_it), QString::CaseInsensitive, TRUE);
 	    if(rx.exactMatch(it.key())) {
 		if(first) {
 		    t << "\n####### Custom Variables" << endl;
@@ -169,7 +169,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
 	    bool increment = FALSE;
 	    for(QStringList::Iterator incrit = incrs.begin(); incrit != incrs.end(); ++incrit) {
-		if((*objit).find(QRegExp((*incrit), TRUE, TRUE)) != -1) {
+		if((*objit).indexOf(QRegExp((*incrit), QString::CaseSensitive, TRUE)) != -1) {
 		    increment = TRUE;
 		    incrs_out.append((*objit));
 		    break;
@@ -202,7 +202,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
 	    bool increment = FALSE;
 	    for(QStringList::Iterator incrit = incrs.begin(); incrit != incrs.end(); ++incrit) {
-		if((*objit).find(QRegExp((*incrit), TRUE, TRUE)) != -1) {
+		if((*objit).indexOf(QRegExp((*incrit), QString::CaseSensitive, TRUE)) != -1) {
 		    increment = TRUE;
 		    incrs_out.append((*objit));
 		    break;
@@ -347,7 +347,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QMakeMetaInfo libinfo;
 	    if(libinfo.readLib((*it)) && !libinfo.isEmpty("QMAKE_PRL_BUILD_DIR")) {
 		QString dir;
-		int slsh = (*it).findRev(Option::dir_sep);
+		int slsh = (*it).lastIndexOf(Option::dir_sep);
 		if(slsh != -1)
 		    dir = (*it).left(slsh + 1);
 		QString targ = dir + libinfo.first("QMAKE_PRL_TARGET");
@@ -364,9 +364,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(do_incremental) {
 	    //incremental target
 	    QString incr_target = var("TARGET") + "_incremental";
-	    if(incr_target.find(Option::dir_sep) != -1)
+	    if(incr_target.indexOf(Option::dir_sep) != -1)
 		incr_target = incr_target.right(incr_target.length() -
-						(incr_target.findRev(Option::dir_sep) + 1));
+						(incr_target.lastIndexOf(Option::dir_sep) + 1));
 	    QString incr_deps, incr_objs;
 	    if(project->first("QMAKE_INCREMENTAL_STYLE") == "ld") {
 		QString incr_target_dir = var("OBJECTS_DIR") + incr_target + Option::obj_ext;
@@ -444,9 +444,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QString s_ext = project->variables()["QMAKE_EXTENSION_SHLIB"].first();
 	    QString incr_target = var("QMAKE_ORIG_TARGET").replace(
 		QRegExp("\\." + s_ext), "").replace(QRegExp("^lib"), "") + "_incremental";
-	    if(incr_target.find(Option::dir_sep) != -1)
+	    if(incr_target.indexOf(Option::dir_sep) != -1)
 		incr_target = incr_target.right(incr_target.length() -
-						(incr_target.findRev(Option::dir_sep) + 1));
+						(incr_target.lastIndexOf(Option::dir_sep) + 1));
 
 	    if(project->first("QMAKE_INCREMENTAL_STYLE") == "ld") {
 		QString incr_target_dir = var("OBJECTS_DIR") + incr_target + Option::obj_ext;
@@ -863,7 +863,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		dep = (*dep_it);
 	    deps += " " + dep;
 	}
-	if(project->variables()[(*it) + ".CONFIG"].findIndex("phony") != -1)
+	if(project->variables()[(*it) + ".CONFIG"].indexOf("phony") != -1)
 	    deps += QString(" ") + "FORCE";
 	t << targ << ":" << deps << "\n\t"
 	  << cmd << endl << endl;
@@ -933,7 +933,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	t << "include " << (*qeui_it) << endl;
     writeExtraVariables(t);
 
-    QPtrList<SubDir> subdirs;
+    QList<SubDir*> subdirs;
     {
 	QStringList subdirs_in = project->variables()["SUBDIRS"];
 	for(QStringList::Iterator it = subdirs_in.begin(); it != subdirs_in.end(); ++it) {
@@ -943,7 +943,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	    subdirs.append(sd);
 	    sd->makefile = "$(MAKEFILE)";
 	    if((*it).right(4) == ".pro") {
-		int slsh = file.findRev(Option::dir_sep);
+		int slsh = file.lastIndexOf(Option::dir_sep);
 		if(slsh != -1) {
 		    sd->directory = file.left(slsh+1);
 		    sd->profile = file.mid(slsh+1);
@@ -959,7 +959,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 		sd->directory = sd->directory.left(sd->directory.length() - 1);
 	    if(!sd->profile.isEmpty()) {
 		QString basename = sd->directory;
-		int new_slsh = basename.findRev(Option::dir_sep);
+		int new_slsh = basename.lastIndexOf(Option::dir_sep);
 		if(new_slsh != -1)
 		    basename = basename.mid(new_slsh+1);
 		if(sd->profile != basename + ".pro")
@@ -970,24 +970,23 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	    sd->target.replace('.', '_');
 	}
     }
-    QPtrListIterator<SubDir> it(subdirs);
 
     QString ofile = Option::output.name();
-    if(ofile.findRev(Option::dir_sep) != -1)
-	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
+    if(ofile.lastIndexOf(Option::dir_sep) != -1)
+	ofile = ofile.right(ofile.length() - ofile.lastIndexOf(Option::dir_sep) -1);
     t << "MAKEFILE =	" << var("MAKEFILE") << endl;
     t << "QMAKE    =	" << var("QMAKE") << endl;
     t << "DEL_FILE =    " << var("QMAKE_DEL_FILE") << endl;
     t << "CHK_DIR_EXISTS= " << var("QMAKE_CHK_DIR_EXISTS") << endl;
     t << "MKDIR    = " << var("QMAKE_MKDIR") << endl;
     t << "SUBTARGETS =	";     // subdirectory targets are sub-directory
-    for( it.toFirst(); it.current(); ++it)
-	t << " \\\n\t\t" << it.current()->target;
+    for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it)
+	t << " \\\n\t\t" << (*it)->target;
     t << endl << endl;
     t << "first: all\n\nall: " << ofile << " $(SUBTARGETS)" << endl << endl;
 
     // generate target rules
-    for( it.toFirst(); it.current(); ++it) {
+    for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
 	bool have_dir = !(*it)->directory.isEmpty();
 	QString mkfile = (*it)->makefile, out;
 	if(have_dir)
@@ -1009,11 +1008,11 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     }
 
     if (project->isActiveConfig("ordered")) { 	// generate dependencies
-	for( it.toFirst(); it.current(); ) {
-	    QString tar = it.current()->target;
+	for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ) {
+	    QString tar = (*it)->target;
 	    ++it;
-	    if (it.current())
-		t << it.current()->target << ": " << tar << endl;
+	    if ((*it))
+		t << (*it)->target << ": " << tar << endl;
 	}
 	t << endl;
     }
@@ -1026,13 +1025,13 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     } else {
 	t << "all: $(SUBTARGETS)" << endl;
 	t << "qmake_all:";
-	for( it.toFirst(); it.current(); ++it) {
+	for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
 	    t << " ";
 	    if(!(*it)->directory.isEmpty())
 		t << (*it)->directory << Option::dir_sep;
 	    t << (*it)->makefile;
 	}
-	for( it.toFirst(); it.current(); ++it) {
+	for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
 	    t << "\n\t ( ";
 	    if(!(*it)->directory.isEmpty())
 		t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
@@ -1042,7 +1041,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	t << endl;
 	t << "clean uicables mocables uiclean mocclean lexclean yaccclean " 
 	  << var("SUBDIR_TARGETS") << ": qmake_all FORCE";
-	for( it.toFirst(); it.current(); ++it) {
+	for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
 	    t << "\n\t ( ";
 	    if(!(*it)->directory.isEmpty())
 		t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
@@ -1050,7 +1049,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	}
 	t << endl;
 	t << "uninstall_subdirs: qmake_all FORCE";
-	for( it.toFirst(); it.current(); ++it) {
+	for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
 	    t << "\n\t ( ";
 	    if(!(*it)->directory.isEmpty())
 		t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
@@ -1058,7 +1057,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	}
 	t << endl;
 	t << "install_subdirs: qmake_all FORCE";
-	for( it.toFirst(); it.current(); ++it) {
+	for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
 	    t << "\n\t ( ";
 	    if(!(*it)->directory.isEmpty())
 		t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
@@ -1066,7 +1065,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	}
 	t << endl;
 	t << "distclean: qmake_all FORCE";
-	for( it.toFirst(); it.current(); ++it) {
+	for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
 	    t << "\n\t ( ";
 	    if(!(*it)->directory.isEmpty())
 		t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
@@ -1094,7 +1093,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 		dep = (*dep_it);
 	    deps += " " + dep;
 	}
-	if(project->variables()[(*qut_it) + ".CONFIG"].findIndex("phony") != -1)
+	if(project->variables()[(*qut_it) + ".CONFIG"].indexOf("phony") != -1)
 	    deps += QString(" ") + "FORCE";
 	t << targ << ":" << deps << "\n\t"
 	  << cmd << endl << endl;
@@ -1315,7 +1314,7 @@ void UnixMakefileGenerator::init2()
 		       out = tmp_out;
 		out.replace("${QMAKE_FILE_BASE}", fi.baseName());
 		out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-		if(project->variables()[(*it) + ".CONFIG"].findIndex("no_link") == -1)
+		if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
 		    project->variables()["OBJCOMP"] += out;
 	    }
 	}
@@ -1326,10 +1325,10 @@ QString
 UnixMakefileGenerator::libtoolFileName()
 {
     QString ret = var("TARGET");
-    int slsh = ret.findRev(Option::dir_sep);
+    int slsh = ret.lastIndexOf(Option::dir_sep);
     if(slsh != -1)
 	ret = ret.right(ret.length() - slsh);
-    int dot = ret.find('.');
+    int dot = ret.indexOf('.');
     if(dot != -1)
 	ret = ret.left(dot);
     ret += Option::libtool_ext;
@@ -1342,7 +1341,7 @@ void
 UnixMakefileGenerator::writeLibtoolFile()
 {
     QString fname = libtoolFileName(), lname = fname;
-    int slsh = lname.findRev(Option::dir_sep);
+    int slsh = lname.lastIndexOf(Option::dir_sep);
     if(slsh != -1)
 	lname = lname.right(lname.length() - slsh);
     QFile ft(fname);
@@ -1411,12 +1410,12 @@ QString
 UnixMakefileGenerator::pkgConfigFileName()
 {
     QString ret = var("TARGET");
-    int slsh = ret.findRev(Option::dir_sep);
+    int slsh = ret.lastIndexOf(Option::dir_sep);
     if(slsh != -1)
 	ret = ret.right(ret.length() - slsh);
     if(ret.startsWith("lib"))
 	ret = ret.mid(3);
-    int dot = ret.find('.');
+    int dot = ret.indexOf('.');
     if(dot != -1)
 	ret = ret.left(dot);
     ret += Option::pkgcfg_ext;
@@ -1448,7 +1447,7 @@ void
 UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for libqt so far
 {
     QString fname = pkgConfigFileName(), lname = fname;
-    int slsh = lname.findRev(Option::dir_sep);
+    int slsh = lname.lastIndexOf(Option::dir_sep);
     if(slsh != -1)
 	lname = lname.right(lname.length() - slsh);
     QFile ft(fname);

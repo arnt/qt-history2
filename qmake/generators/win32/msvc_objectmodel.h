@@ -16,6 +16,7 @@
 #define __MSVC_OBJECTMODEL_H__
 
 #include "project.h"
+#include <qlist.h>
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qtextstream.h>
@@ -711,7 +712,7 @@ public:
     triState		ParseFiles;
     QStringList		Files;
     VcprojGenerator*	Project;
-    QValueList<VCConfiguration> *Config;
+    QList<VCConfiguration> *Config;
     customBuildCheck	CustomBuild;
 };
 
@@ -731,7 +732,7 @@ public:
     QString		PlatformName;
 
     // XML sub-parts
-    QValueList<VCConfiguration> Configuration;
+    QList<VCConfiguration> Configuration;
     VCFilter		SourceFiles;
     VCFilter		HeaderFiles;
     VCFilter		MOCFiles;

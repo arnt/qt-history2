@@ -117,7 +117,7 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
 	    QString dir = v["libdir"].first();
 	    if((dir.startsWith("'") || dir.startsWith("\"")) && dir.endsWith(QString(dir[0])))
 		dir = dir.mid(1, dir.length() - 2);
-	    dir = dir.stripWhiteSpace();
+	    dir = dir.trimmed();
 	    if(!dir.isEmpty() && !dir.endsWith(Option::dir_sep))
 		dir += Option::dir_sep;
 	    if(lst.count() == 1)
@@ -142,7 +142,7 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
 		QString dep = lst.first();
 		if((dep.startsWith("'") || dep.startsWith("\"")) && dep.endsWith(QString(dep[0])))
 		    dep = dep.mid(1, dep.length() - 2);
-		lst = QStringList::split(" ", dep.stripWhiteSpace());
+		lst = QStringList::split(" ", dep.trimmed());
 	    }
 	    QMakeProject *conf = NULL;
 	    for(QStringList::Iterator lit = lst.begin(); lit != lst.end(); ++lit) {

@@ -367,16 +367,16 @@ MingwMakefileGenerator::init()
     if (project->isActiveConfig("qt") && project->isActiveConfig("shared"))
 	project->variables()["DEFINES"].append("QT_DLL");
     if (project->isActiveConfig("qt_dll"))
-	if(configs.findIndex("qt") == -1) configs.append("qt");
+	if(configs.indexOf("qt") == -1) configs.append("qt");
     if ( project->isActiveConfig("qt") ) {
 	if ( project->isActiveConfig( "plugin" ) ) {
 	    project->variables()["CONFIG"].append("dll");
 	    if(project->isActiveConfig("qt"))
 		project->variables()["DEFINES"].append("QT_PLUGIN");
 	}
-	if ( (project->variables()["DEFINES"].findIndex("QT_NODLL") == -1) &&
-         ((project->variables()["DEFINES"].findIndex("QT_MAKEDLL") != -1 ||
-           project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
+	if ( (project->variables()["DEFINES"].indexOf("QT_NODLL") == -1) &&
+         ((project->variables()["DEFINES"].indexOf("QT_MAKEDLL") != -1 ||
+           project->variables()["DEFINES"].indexOf("QT_DLL") != -1) ||
           (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
 	    if ( project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
@@ -618,7 +618,7 @@ MingwMakefileGenerator::init()
 		       out = tmp_out;
 		out.replace("${QMAKE_FILE_BASE}", fi.baseName());
 		out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-		if(project->variables()[(*it) + ".CONFIG"].findIndex("no_link") == -1)
+		if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
 		    project->variables()["OBJCOMP"] += out;
 	    }
 	}

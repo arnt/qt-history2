@@ -80,7 +80,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "LINK	=	" << var("QMAKE_LINK") << endl;
 	t << "LFLAGS	=	" << var("QMAKE_LFLAGS");
-	if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() )
+	if(!project->variables()["QMAKE_LIBDIR"].isEmpty())
 	  t << " " << varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\"");
 	t << endl;
 	t << "LIBS	=	";
@@ -144,7 +144,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     t << "DIST	=	" << varList("DISTFILES") << endl;
     t << "TARGET	=	";
-    if( !project->variables()[ "DESTDIR" ].isEmpty() )
+    if(!project->variables()[ "DESTDIR" ].isEmpty())
 	t << varGlue("TARGET",project->first("DESTDIR"),"",project->first("TARGET_EXT"));
     else
 	t << project->variables()[ "TARGET" ].first() << project->variables()[ "TARGET_EXT" ].first();
@@ -175,7 +175,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	    QStringList &l = project->variables()[srcs[x]];
 	    for(QStringList::Iterator sit = l.begin(); sit != l.end(); ++sit) {
 		QString sep = "\\";
-		if((*sit).find(sep) == -1)
+		if((*sit).indexOf(sep) == -1)
 		    sep = "/";
 		QString dir = (*sit).section(sep, 0, -2);
 		if(!dir.isEmpty() && !source_directories[dir])
@@ -188,9 +188,9 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 		continue;
 	    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
 		t << "{" << it.currentKey() << "}" << (*cppit) << "{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
-		  << var("QMAKE_RUN_CXX_IMP_BATCH").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << "\t$<" << endl << "<<" << endl << endl;
+		  << var("QMAKE_RUN_CXX_IMP_BATCH").replace(QRegExp("\\$@"), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
 	    t << "{" << it.currentKey() << "}" << ".c{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
-	      << var("QMAKE_RUN_CC_IMP_BATCH").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << "\t$<" << endl << "<<" << endl << endl;
+	      << var("QMAKE_RUN_CC_IMP_BATCH").replace(QRegExp("\\$@"), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
 	}
     } else {
 	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
@@ -212,11 +212,11 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << endl << "<<" << endl;
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
-	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir )
+	for(QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir)
 	    t << "\n\t" << "-$(COPY_FILE) $(TARGET) " << *dlldir;
     }
-    if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() )
-	t << "\t" << var( "QMAKE_POST_LINK" ) << endl;
+    if(!project->variables()["QMAKE_POST_LINK"].isEmpty())
+	t << "\t" << var("QMAKE_POST_LINK") << endl;
     t << endl << endl;
 
     if(!project->variables()["RC_FILE"].isEmpty()) {
@@ -238,7 +238,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	QStringList &forms = project->variables()["FORMS"];
 	for(QStringList::Iterator formit = forms.begin(); formit != forms.end(); ++formit) {
 	    QString ui_h = fileFixify((*formit) + Option::h_ext.first());
-	    if(QFile::exists(ui_h) )
+	    if(QFile::exists(ui_h))
 		dist_files << ui_h;
 	}
     }
@@ -279,7 +279,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	    deps += " " + dep;
 	}
 	if(!project->variables()["QMAKE_NOFORCE"].isEmpty() &&
-	   project->variables()[(*it) + ".CONFIG"].findIndex("phony") != -1)
+	   project->variables()[(*it) + ".CONFIG"].indexOf("phony") != -1)
 	    deps += QString(" ") + "FORCE";
 	t << "\n\n" << targ << ":" << deps << "\n\t"
 	  << cmd;
@@ -365,24 +365,24 @@ NmakeMakefileGenerator::init()
 	return;
     }
 
-    if (!project->isActiveConfig("debug"))
+    if(!project->isActiveConfig("debug"))
 	project->variables()["DEFINES"] += "QT_NO_DEBUG";
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
     QStringList &configs = project->variables()["CONFIG"];
-    if ( project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
+    if(project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	project->variables()["CONFIG"].remove("staticlib");
 	project->variables()["QMAKE_APP_OR_DLL"].append("1");
     } else {
 	project->variables()["CONFIG"].append("staticlib");
     }
-    if ( !project->variables()["QMAKE_INCDIR"].isEmpty())
+    if(!project->variables()["QMAKE_INCDIR"].isEmpty())
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
-    if ( project->isActiveConfig("qt") ) {
-	if ( project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
+    if(project->isActiveConfig("qt")) {
+	if(project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
 	} else {
-	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
+	    if(!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
 		if(hver != -1) {
 		    QString ver;
@@ -392,44 +392,44 @@ NmakeMakefileGenerator::init()
 			(*libit).replace(QRegExp("qt\\.lib"), ver);
 		}
 	    }
-	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") )
+	    if(!project->isActiveConfig("dll") && !project->isActiveConfig("plugin"))
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	}
     }
-    if ( project->isActiveConfig("dll") ) {
-	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
+    if(project->isActiveConfig("dll")) {
+	if(!project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
 	    project->variables()["TARGET_EXT"].append(
 		QStringList::split('.',project->first("VERSION")).join("") + ".dll");
 	} else {
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
     } else {
-	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	    project->variables()["TARGET_EXT"].append(".exe");
 	} else {
 	    project->variables()["TARGET_EXT"].append(".lib");
 	}
     }
 
-    if ( project->isActiveConfig("rtti") ) {
+    if(project->isActiveConfig("rtti")) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_ON"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_ON"];
     } else {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_OFF"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_OFF"];
     }
-    if ( project->isActiveConfig("moc") )
+    if(project->isActiveConfig("moc"))
 	setMocAware(TRUE);
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
 
     QStringList &libs = project->variables()["QMAKE_LIBS"];
-    for ( QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit ) {
-	if (  (*libit).startsWith( "-l" ) ) {
-	    (*libit) = (*libit).mid( 2 ) + ".lib";
-	} else if ( (*libit).startsWith( "-L" ) ) {
+    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit) {
+	if( (*libit).startsWith("-l")) {
+	    (*libit) = (*libit).mid(2) + ".lib";
+	} else if((*libit).startsWith("-L")) {
 	    project->variables()["QMAKE_LIBDIR"] += (*libit).mid(2);
-	    libit = libs.remove( libit );
-	    if ( libit == libs.end() )
+	    libit = libs.erase(libit);
+	    if(libit == libs.end())
 		break;
 	}
     }
@@ -444,19 +444,19 @@ NmakeMakefileGenerator::init()
 	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
     }
 
-    if ( !project->variables()["DEF_FILE"].isEmpty() )
+    if(!project->variables()["DEF_FILE"].isEmpty())
 	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
 
-    if ( !project->variables()["VERSION"].isEmpty() ) {
+    if(!project->variables()["VERSION"].isEmpty()) {
 	QString version = project->variables()["VERSION"][0];
-	int firstDot = version.find( "." );
-	QString major = version.left( firstDot );
-	QString minor = version.right( version.length() - firstDot - 1 );
-	minor.replace( ".", "" );
-	project->variables()["QMAKE_LFLAGS"].append( "/VERSION:" + major + "." + minor );
+	int firstDot = version.indexOf(".");
+	QString major = version.left(firstDot);
+	QString minor = version.right(version.length() - firstDot - 1);
+	minor.replace(".", "");
+	project->variables()["QMAKE_LFLAGS"].append("/VERSION:" + major + "." + minor);
     }
-    if ( !project->variables()["RC_FILE"].isEmpty()) {
-	if ( !project->variables()["RES_FILE"].isEmpty()) {
+    if(!project->variables()["RC_FILE"].isEmpty()) {
+	if(!project->variables()["RES_FILE"].isEmpty()) {
 	    fprintf(stderr, "Both .rc and .res file specified.\n");
 	    fprintf(stderr, "Please specify one of them, not both.");
 	    exit(666);
@@ -466,11 +466,11 @@ NmakeMakefileGenerator::init()
 	project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
 	project->variables()["CLEAN_FILES"] += project->variables()["RES_FILE"];
     }
-    if ( !project->variables()["RES_FILE"].isEmpty())
+    if(!project->variables()["RES_FILE"].isEmpty())
 	project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
 
     MakefileGenerator::init();
-    if ( !project->variables()["VERSION"].isEmpty()) {
+    if(!project->variables()["VERSION"].isEmpty()) {
 	QStringList l = QStringList::split('.', project->first("VERSION"));
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
@@ -500,7 +500,7 @@ NmakeMakefileGenerator::init()
 		       out = tmp_out;
 		out.replace("${QMAKE_FILE_BASE}", fi.baseName());
 		out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-		if(project->variables()[(*it) + ".CONFIG"].findIndex("no_link") == -1)
+		if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
 		    project->variables()["OBJCOMP"] += out;
 	    }
 	}
