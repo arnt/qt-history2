@@ -32,7 +32,7 @@ public:
 
     int rowCount() const;
     int columnCount() const;
-    QSqlRecord record() const;
+    QSqlRecord record(int row = -1) const;
 
     QVariant data(const QModelIndex &item, int role = QAbstractItemModel::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation,

@@ -852,3 +852,26 @@ QSqlTableModel::ItemFlags QSqlTableModel::flags(const QModelIndex &index) const
         return ItemIsSelectable | ItemIsEnabled;
     return ItemIsSelectable | ItemIsEnabled | ItemIsEditable;
 }
+
+/*!
+    Sets the values at the specified \a row to the values of \a record.
+    Returns false if the values could not be set, otherwise true.
+
+    Fields that are marked as not generated (isGenerated() returns false)
+    will be ignored.
+
+    \sa record()
+ */
+bool QSqlTableModel::setRecord(int row, const QSqlRecord &record)
+{
+    bool isOk = false;
+    for (int i = 0; i < record.count(); ++i) {
+        if (!record.isGenerated(i))
+            continue;
+        int idx = d->rec.indexOf(record.fieldName(i));
+        if (idx == -1 || !d->rec.isGenerated(idx))
+            continue;
+        isOk |= setData(createIndex(row, idx), QAbstractItemModel::EditRole, record.value(i));
+    }
+    return isOk;
+}

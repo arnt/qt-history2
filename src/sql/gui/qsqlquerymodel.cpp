@@ -275,12 +275,21 @@ void QSqlQueryModel::setLastError(const QSqlError &error)
 }
 
 /*!
-   Returns the record containing information about the fields
-   that are currently displayed. Returns an empty record if
-   the model has not yet been initialized.
+    Returns the record containing information about the fields
+    in the database. If \a row points to a valid row, the
+    record will be populated with values from that row.
+
+    If the model is not initialized, en empty record will be
+    returned.
 */
-QSqlRecord QSqlQueryModel::record() const
+QSqlRecord QSqlQueryModel::record(int row) const
 {
+    if (row < 0)
+        return d->rec;
+
+    QSqlRecord rec = d->rec;
+    for (int i = 0; i < rec.count(); ++i)
+        rec.setValue(i, data(createIndex(row, i), EditRole));
     return d->rec;
 }
 
