@@ -1577,7 +1577,7 @@ void QPainter::resetMatrix()
     d->state->wh = d->state->vh = d->device->metric(QPaintDeviceMetrics::PdmHeight);
     d->state->worldMatrix = QMatrix();
     setMatrixEnabled(false);
-    setViewXForm(false);
+    setViewTransformEnabled(false);
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyTransform);
 }
@@ -3572,10 +3572,10 @@ QPainter::RenderHints QPainter::renderHints() const
     Returns true if view transformation is enabled; otherwise returns
     false.
 
-    \sa setViewXForm(), xForm()
+    \sa setViewTransformEnabled(), matrix()
 */
 
-bool QPainter::hasViewXForm() const
+bool QPainter::viewTransformEnabled() const
 {
     Q_D(const QPainter);
 #ifndef QT_NO_TRANSFORMATIONS
@@ -3608,7 +3608,7 @@ bool QPainter::hasViewXForm() const
     rectangle. See the \link coordsys.html Coordinate System Overview
     \endlink for an overview of coordinate transformation.
 
-    \sa window(), setViewport(), setViewXForm(), setMatrix(),
+    \sa window(), setViewport(), setViewTransformEnabled(), setMatrix(),
     setMatrixEnabled()
 */
 
@@ -3637,13 +3637,13 @@ void QPainter::setWindow(const QRect &r)
     if (d->state->VxF)
         d->updateMatrix();
     else
-        setViewXForm(true);
+        setViewTransformEnabled(true);
 }
 
 /*!
     Returns the window rectangle.
 
-    \sa setWindow(), setViewXForm()
+    \sa setWindow(), setViewTransformEnabled()
 */
 
 QRect QPainter::window() const
@@ -3675,7 +3675,7 @@ QRect QPainter::window() const
     rectangle. See the \link coordsys.html Coordinate System Overview
     \endlink for an overview of coordinate transformation.
 
-    \sa viewport(), setWindow(), setViewXForm(), setMatrix(),
+    \sa viewport(), setWindow(), setViewTransformEnabled(), setMatrix(),
     setMatrixEnabled()
 */
 
@@ -3705,13 +3705,13 @@ void QPainter::setViewport(const QRect &r)
     if (d->state->VxF)
         d->updateMatrix();
     else
-        setViewXForm(true);
+        setViewTransformEnabled(true);
 }
 
 /*!
     Returns the viewport rectangle.
 
-    \sa setViewport(), setViewXForm()
+    \sa setViewport(), setViewTransformEnabled()
 */
 
 QRect QPainter::viewport() const
@@ -3724,19 +3724,19 @@ QRect QPainter::viewport() const
     Enables view transformations if \a enable is true, or disables
     view transformations if \a enable is false.
 
-    \sa hasViewXForm(), setWindow(), setViewport(), setMatrix(),
+    \sa viewTransformEnabled(), setWindow(), setViewport(), setMatrix(),
     setMatrixEnabled()
 */
 
-void QPainter::setViewXForm(bool enable)
+void QPainter::setViewTransformEnabled(bool enable)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::setViewXForm(), enable=%d\n", enable);
+        printf("QPainter::setViewTransformEnabled(), enable=%d\n", enable);
 #endif
 
     if (!isActive()) {
-        qWarning("QPainter::setViewXForm(), painter not active");
+        qWarning("QPainter::setViewTransformEnabled(), painter not active");
         return;
     }
     Q_D(QPainter);

@@ -123,6 +123,7 @@ public:
     void shear(double sh, double sv);
     void rotate(double a);
 #endif
+
     inline void translate(const QPoint &offset);
     void translate(double dx, double dy);
 
@@ -134,8 +135,8 @@ public:
     void setViewport(const QRect &viewport);
     inline void setViewport(int x, int y, int w, int h);
 
-    void setViewXForm(bool enable);
-    bool hasViewXForm() const;
+    void setViewTransformEnabled(bool enable);
+    bool viewTransformEnabled() const;
 
     // drawing functions
     void strokePath(const QPainterPath &path, const QPen &pen);
@@ -313,6 +314,9 @@ public:
     inline QT_COMPAT void setWorldXForm(bool enabled) { setMatrixEnabled(enabled); }
     inline QT_COMPAT bool hasWorldXForm() const { return matrixEnabled(); }
     inline QT_COMPAT void resetXForm() { resetMatrix(); }
+
+    inline QT_COMPAT void setViewXForm(bool enabled) { setViewTransformEnabled(enabled); }
+    inline QT_COMPAT bool hasViewXForm() const { return viewTransformEnabled(); }
 
     QT_COMPAT void map(int x, int y, int *rx, int *ry) const;
     QT_COMPAT QPoint xForm(const QPoint &) const; // map virtual -> deviceb
