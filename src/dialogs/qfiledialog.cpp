@@ -3166,9 +3166,9 @@ void QFileDialog::setDir( const QString & pathstr )
 	if ( i == 1 ) {
 #if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
 
-#  ifndef _POSOX_LOGIN_NAME_MAX
+#  ifndef _POSIX_LOGIN_NAME_MAX
 #    define _POSIX_LOGIN_NAME_MAX 9
-#  endif // _POSIX_LOGIN_NAME_MAX
+#  endif
 
 	    char name[_POSIX_LOGIN_NAME_MAX];
 	    if ( ::getlogin_r( name, _POSIX_LOGIN_NAME_MAX ) == 0 )
