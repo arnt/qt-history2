@@ -92,37 +92,41 @@
 */
 
 /*!
-    \fn void QHeaderView::sectionMoved(int section, int oldVisualIndex, int newVisualIndex);
+    \fn void QHeaderView::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex)
 
-    This signal is emitted when a section is moved. The section's
-    number is specified by \a section, the old index position by \a
-    oldVisualIndex, and the new index position by \a newVisualIndex.
+    This signal is emitted when a section is moved. The section's logical
+    index is specified by \a logicalIndex, the old index by \a oldVisualIndex,
+    and the new index position by \a newVisualIndex.
 */
 
 /*!
-    \fn void QHeaderView::sectionResized(int section, int oldSize, int newSize);
+    \fn void QHeaderView::sectionResized(int logicalIndex, int oldSize, int newSize)
 
-    This signal is emitted when a section is resized. The section's
-    number is specified by \a section, the old size by \a oldSize, and the
+    This signal is emitted when a section is resized. The section's logical
+    number is specified by \a logicalIndex, the old size by \a oldSize, and the
     new size by \a newSize.
 */
 
 /*!
-  \fn void QHeaderView::sectionPressed(int section, const QMouseEvent *event);
+    \fn void QHeaderView::sectionPressed(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
-  This signal is emitted when a section is pressed. The section's
-  number is specified by \a section, and the button by \a state.
+    This signal is emitted when a section is pressed. The section's logical
+    index is specified by \a logicalIndex.
+    The state of the mouse buttons is specified by \a button, and the
+    \a modifiers reflect the state of the keyboard's modifier keys.
 */
 
 /*!
-    \fn void QHeaderView::sectionClicked(int section, const QMouseEvent *event);
+    \fn void QHeaderView::sectionClicked(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
-    This signal is emitted when a section is clicked. The section's
-    number is specified by \a section.
+    This signal is emitted when a section is clicked. The section's logical
+    index is specified by \a logicalIndex.
+    The state of the mouse buttons is specified by \a button, and the
+    \a modifiers reflect the state of the keyboard's modifier keys.
 */
 
 /*!
-    \fn void QHeaderView::sectionCountChanged(int oldCount, int newCount);
+    \fn void QHeaderView::sectionCountChanged(int oldCount, int newCount)
 
     This signal is emitted when the number of sections changes; i.e.
     when sections are added or deleted. The original count is specified by
@@ -130,18 +134,18 @@
 */
 
 /*!
-    \fn void QHeaderView::sectionHandleDoubleClicked(int section, const QMouseEvent *event);
+    \fn void QHeaderView::sectionHandleDoubleClicked(int logicalIndex)
 
     This signal is emitted when a section is double-clicked. The
-    section's number is specified by \a section.
+    section's logical index is specified by \a logicalIndex.
 */
 
 /*!
-    \fn void QHeaderView::sectionAutoResize(int section, ResizeMode mode);
+    \fn void QHeaderView::sectionAutoResize(int logicalIndex, ResizeMode mode)
 
     This signal is emitted when a section is automatically resized.
-    The section's number is specified by \a section, and the resize mode by
-    \a mode.
+    The section's logical index is specified by \a logicalIndex, and the
+    resize mode by \a mode.
 */
 
 /*!
