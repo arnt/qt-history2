@@ -1146,8 +1146,7 @@ void QObject::setParent_helper(QObject *parent)
             QChildEvent e(QEvent::ChildAdded, this);
             QCoreApplication::sendEvent(d->parent, &e);
 #ifdef QT_COMPAT
-            QChildEvent ei(QEvent::ChildInserted, this);
-            QCoreApplication::sendEvent(d->parent, &ei);
+            QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));
 #endif
         }
 #ifdef QT_COMPAT
