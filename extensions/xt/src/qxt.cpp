@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#14 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#15 $
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -359,7 +359,8 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
     if (parent ) {
 	ASSERT(!qparent);
 	xtw = XtCreateWidget(name, widget_class, parent, args, num_args);
-	((QWidgetRec*)xtw)->qwidget.qxtwidget = this;
+	if ( widget_class == qWidgetClass )
+	    ((QWidgetRec*)xtw)->qwidget.qxtwidget = this;
 	xtparent = parent;
 	if (managed)
 	    XtManageChild(xtw);
@@ -370,7 +371,8 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 	XtGetApplicationNameAndClass(qt_xdisplay(), &n, &c);
 	xtw = XtAppCreateShell(n, c, widget_class, qt_xdisplay(),
 			       args, num_args);
-	((QWidgetRec*)xtw)->qwidget.qxtwidget = this;
+	if ( widget_class == qWidgetClass )
+	    ((QWidgetRec*)xtw)->qwidget.qxtwidget = this;
     }
 
     if ( qparent ) {
