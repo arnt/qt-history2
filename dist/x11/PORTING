@@ -1,4 +1,4 @@
-		    PORTING QT TO OTHER PLATFORMS
+		    PORTING Qt TO OTHER PLATFORMS
 
 Read this file if you want to port Qt to a new platform or C++
 compiler.  If you come across any problems, feel free to send mail to

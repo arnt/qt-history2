@@ -1,4 +1,4 @@
-                        PORTING QT TO OTHER PLATFORMS
+                        PORTING Qt TO OTHER PLATFORMS
 
 Read this file if you want to port Qt to other NT platforms or C++
 compilers. Our internal development environment is Windows 95 and NT
