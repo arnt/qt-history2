@@ -408,7 +408,7 @@ QByteArray QIconDrag::encodedData( const char* mime ) const
 	    k = k.arg( (*it).item.pixmapRect().x() ).arg( (*it).item.pixmapRect().y() ).arg( (*it).item.pixmapRect().width() ).
 		arg( (*it).item.pixmapRect().height() ).arg( (*it).item.textRect().x() ).arg( (*it).item.textRect().y() ).
 		arg( (*it).item.textRect().width() ).arg( (*it).item.textRect().height() );
-	    k += (*it).data.data() + "$@@$";
+	    k += QString( (*it).data.data() ) + "$@@$";
 	    s += k;
 	}
 	a.resize( s.length() );

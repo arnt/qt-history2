@@ -47,7 +47,7 @@ public:
 
 class QToolBarSeparator : public QFrame
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     QToolBarSeparator( Orientation, QToolBar *parent, const char* name=0 );
 

@@ -85,6 +85,8 @@ private:
 class Q_EXPORT QIconDrag : public QDragObject
 {
     Q_OBJECT
+    friend class QIconView;
+    friend class QIconViewPrivate;
 
 private:
     struct IconDragItem
@@ -127,7 +129,6 @@ private:
     QValueList<Item> items;
     QChar endMark;
 
-    friend class QIconView;
 };
 
 /*****************************************************************************

@@ -255,10 +255,13 @@ void QDial::repaintScreen( const QRect *cr )
     if ( style() == MotifStyle )
 	p.setBrush( colorGroup().brush( QColorGroup::Mid ) );
     else {
-	p.setBrush( colorGroup().brush( QColorGroup::Light ).pixmap() ?
-		    colorGroup().brush( QColorGroup::Light ) :	
-		    QBrush( colorGroup().light(), Dense4Pattern ) );
-	p.setBackgroundMode( OpaqueMode );
+      QBrush b;
+      if ( colorGroup().brush( QColorGroup::Light ).pixmap() )
+	b = QBrush( colorGroup().brush( QColorGroup::Light ) );
+      else
+	b = QBrush( colorGroup().light(), Dense4Pattern );
+      p.setBrush( b );
+      p.setBackgroundMode( OpaqueMode );
     }
     // erase background of dial
     if ( !d->onlyOutside )
