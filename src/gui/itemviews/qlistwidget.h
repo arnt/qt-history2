@@ -19,7 +19,16 @@
 #include <qwidgetbaseitem.h>
 #endif
 
-typedef QWidgetCellItem QListWidgetItem;
+class QListWidget;
+
+class QListWidgetItem : public QWidgetCellItem
+{
+public:
+    QListWidgetItem(QListWidget *view);
+    ~QListWidgetItem();
+protected:
+    QListWidget *view;
+};
 
 class QListWidgetPrivate;
 
@@ -28,6 +37,7 @@ class Q_GUI_EXPORT QListWidget : public QListView
     Q_OBJECT
     Q_DECLARE_PRIVATE(QListWidget)
 
+    friend class QListWidgetItem;
 public:
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QListWidget(QWidget *parent, const char* name);
@@ -38,7 +48,10 @@ public:
     QListWidgetItem *itemAt(int row) const;
     void insertItem(int row, QListWidgetItem *item);
     void appendItem(QListWidgetItem *item);
-    void removeItem(int row);
+    QListWidgetItem *takeItem(int row);
+
+protected:
+    void removeItem(QListWidgetItem *item);
 };
 
 #endif

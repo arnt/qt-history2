@@ -17,12 +17,13 @@
 class QListModel : public QAbstractListModel
 {
 public:
-    QListModel(QObject *parent = 0);
+    QListModel(QListWidget *parent = 0);
 
     QListWidgetItem *at(int row) const;
     void insert(int row, QListWidgetItem *item);
     void append(QListWidgetItem *item);
-    void remove(int row);
+    void remove(QListWidgetItem *item);
+    QListWidgetItem *take(int row);
 
     int rowCount() const;
 
@@ -42,7 +43,7 @@ private:
     QList<QListWidgetItem*> lst;
 };
 
-QListModel::QListModel(QObject *parent)
+QListModel::QListModel(QListWidget *parent)
     : QAbstractListModel(parent)
 {
 }
@@ -61,6 +62,13 @@ void QListModel::append(QListWidgetItem *item)
     emit rowsInserted(QModelIndex::Null, row, row);
 }
 
+void QListModel::remove(QListWidgetItem *item)
+{
+    int row = lst.indexOf(item);
+    if (row != -1)
+        lst.removeAt(row);
+}
+
 void QListModel::insert(int row, QListWidgetItem *item)
 {
     if (row >= 0 && row <= lst.count()) {
@@ -69,12 +77,13 @@ void QListModel::insert(int row, QListWidgetItem *item)
     }
 }
 
-void QListModel::remove(int row)
+QListWidgetItem *QListModel::take(int row)
 {
     if (row >= 0 && row <= lst.count()) {
         emit rowsRemoved(QModelIndex::Null, row, row);
-        delete lst.takeAt(row);
+        return lst.takeAt(row);
     }
+    return 0;
 }
 
 int QListModel::rowCount() const
@@ -109,12 +118,13 @@ bool QListModel::setData(const QModelIndex &index, int role, const QVariant &val
 
 bool QListModel::insertRows(int row, const QModelIndex &, int count)
 {
+    QListWidget *view = ::qt_cast<QListWidget*>(QObject::parent());
     if (row < rowCount())
         for (int r = row; r < row + count; ++r)
-            lst.insert(r, new QListWidgetItem());
+            lst.insert(r, new QListWidgetItem(view));
     else
         for (int r = 0; r < count; ++r)
-            lst.append(new QListWidgetItem());
+            lst.append(new QListWidgetItem(view));
     emit rowsInserted(QModelIndex::Null, row, row + count - 1);
     return true;
 }
@@ -153,17 +163,23 @@ bool QListModel::isEditable(const QModelIndex &index) const
 */
 
 /*!
-    \fn QListWidgetItem::QListWidgetItem()
-
     Creates a new list widget item that isEditable() and
     isSelectable(), but which has no text() or icon().
 */
 
-/*!
-    \fn QListWidgetItem::~QListWidgetItem()
+QListWidgetItem::QListWidgetItem(QListWidget *view)
+    : view(view)
+{
+}
 
+/*!
     Destructs this list widget item.
 */
+
+QListWidgetItem::~QListWidgetItem()
+{
+    view->removeItem(this);
+}
 
 /*!
     \fn QString QListWidgetItem::text() const
@@ -333,12 +349,21 @@ void QListWidget::appendItem(QListWidgetItem *item)
 }
 
 /*!
-    Removes the item at \a row from the list.
+    Removes the item at \a row from the list without deleting it.
 
     \sa insertItem() appendItem()
 */
 
-void QListWidget::removeItem(int row)
+QListWidgetItem *QListWidget::takeItem(int row)
 {
-    d->model()->remove(row);
+    return d->model()->take(row);
+}
+
+/*!
+  Removes the \a item from the list.
+*/
+
+void QListWidget::removeItem(QListWidgetItem *item)
+{
+    d->model()->remove(item);
 }

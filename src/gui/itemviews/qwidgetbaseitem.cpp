@@ -241,7 +241,7 @@ void QWidgetBaseItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     QStyleOptionViewItem opt = option;
     // enabled
     QWidgetBaseItem *item = static_cast<QWidgetBaseItem*>(index.data());
-    if (!item->isEnabled()) // FIXME: this will crash when used with other models
+    if (item && !item->isEnabled()) // FIXME: this will crash when used with other models
         opt.state &= ~QStyle::Style_Enabled;
     // set font
     QVariant value = model->data(index, QWidgetBaseItem::FontRole);

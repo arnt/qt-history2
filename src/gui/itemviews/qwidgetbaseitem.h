@@ -26,9 +26,6 @@
 class QWidgetBaseItem
 {
 public:
-    QWidgetBaseItem() : editable(true), selectable(true), enabled(true) {}
-    virtual ~QWidgetBaseItem() {}
-
     inline bool isEditable() const { return editable; }
     inline void setEditable(bool enable) { editable = enable; }
     inline bool isSelectable() const { return selectable; }
@@ -51,8 +48,10 @@ public:
         PartiallyChecked = 1,
         Checked = 2
     };
-
+    
 protected:
+    QWidgetBaseItem() : editable(true), selectable(true), enabled(true) {}
+    virtual ~QWidgetBaseItem() {}
     
     struct Data {
         Data() : role(-1) {}
@@ -68,11 +67,7 @@ protected:
 };
 
 class Q_GUI_EXPORT QWidgetCellItem : public QWidgetBaseItem
-{
-public:
-    QWidgetCellItem() {}
-    ~QWidgetCellItem() {}
-    
+{    
 public:    
     virtual QString text() const;
     virtual void setText(const QString &text);
@@ -102,6 +97,9 @@ public:
     virtual void setData(int role, const QVariant &value);
 
 protected:
+    QWidgetCellItem() {}
+    ~QWidgetCellItem() {}
+
     void store(int role, const QVariant &value);
     QVariant retrieve(int role) const;
 

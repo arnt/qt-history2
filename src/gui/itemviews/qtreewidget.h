@@ -40,6 +40,7 @@ public:
 
 protected:
     void appendItem(QTreeWidgetItem *item);
+    void removeItem(QTreeWidgetItem *item);
     bool isSelected(QTreeWidgetItem *item) const;
 };
 

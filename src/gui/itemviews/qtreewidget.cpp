@@ -47,6 +47,7 @@ public:
 
 protected:
     void append(QTreeWidgetItem *item);
+    void remove(QTreeWidgetItem *item);
     void emitRowsInserted(QTreeWidgetItem *item);
 
 private:
@@ -83,8 +84,11 @@ QTreeModel::QTreeModel(int columns, QObject *parent)
 
 QTreeModel::~QTreeModel()
 {
-    for (int i = 0; i < tree.count(); ++i)
+    for (int i = 0; i < tree.count(); ++i) {
+        tree.at(i)->par = 0;
+        tree.at(i)->view = 0;
         delete tree.at(i);
+    }
     delete header;
 }
 
@@ -339,6 +343,21 @@ void QTreeModel::append(QTreeWidgetItem *item)
 }
 
 /*!
+  \internal
+
+  Remove the treeview \a item to the tree model.
+*/
+
+void QTreeModel::remove(QTreeWidgetItem *item)
+{
+    int r = tree.indexOf(item);
+    if (r != -1) {
+        tree.removeAt(r);
+        emit rowsRemoved(QModelIndex::Null, r, r);
+    }
+}
+
+/*!
 \internal
 
 Emits the rowsInserted() signal for the rows containing the given \a item.
@@ -397,8 +416,16 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
 
 QTreeWidgetItem::~QTreeWidgetItem()
 {
-    for (int i = 0; i < children.count(); ++i)
+    for (int i = 0; i < children.count(); ++i) {
+        children.at(i)->par = 0;
+        children.at(i)->view = 0;
         delete children.at(i);
+    }
+
+    if (par)
+        par->children.remove(this);
+    else if (view)
+        view->removeItem(this);
 }
 
 QTreeWidgetItem::CheckedState QTreeWidgetItem::checkedState() const
@@ -772,6 +799,15 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
 void QTreeWidget::appendItem(QTreeWidgetItem *item)
 {
     d->model()->append(item);
+}
+
+/*!
+  Removes a tree view \a item from tree view.
+*/
+
+void QTreeWidget::removeItem(QTreeWidgetItem *item)
+{
+    d->model()->remove(item);
 }
 
 /*!

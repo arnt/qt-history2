@@ -19,7 +19,16 @@
 #include <qwidgetbaseitem.h>
 #endif
 
-typedef QWidgetCellItem QTableWidgetItem;
+class QTableWidget;
+
+class Q_GUI_EXPORT QTableWidgetItem : public QWidgetCellItem
+{
+public:
+    QTableWidgetItem(QTableWidget *view);
+    ~QTableWidgetItem();
+protected:
+    QTableWidget *view;
+};
 
 class QTableWidgetPrivate;
 
@@ -37,12 +46,16 @@ public:
 
     QTableWidgetItem *item(int row, int column) const;
     void setItem(int row, int column, QTableWidgetItem *item);
+    QTableWidgetItem *takeItem(int row, int column);
 
     QTableWidgetItem *verticalHeaderItem(int row) const;
     void setVerticalHeaderItem(int row, QTableWidgetItem *item);
 
     QTableWidgetItem *horizontalHeaderItem(int column) const;
     void setHorizontalHeaderItem(int column, QTableWidgetItem *item);
+
+protected:
+    void removeItem(QTableWidgetItem *item);
 };
 
 #endif
