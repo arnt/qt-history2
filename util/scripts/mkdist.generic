@@ -59,19 +59,26 @@ echo "Removing beta code..." >&2
 cd ${DISTDIR}/qt/src
 for d in `make showdirs`; do cd $d ; rm -f `make showbeta`; cd .. ; done
 
-echo "Generating documentation" >&2
-export QTDIR=${DISTDIR}/qt
-make -s -C ${QTDIR}/src include
-mkdir -p ${DISTDIR}/qt/doc/html
-${DISTDIR}/qt/util/qdoc/qdoc
-mkdir -p ${DISTDIR}/qt/doc/man/man1  ${DISTDIR}/qt/doc/man/man3
-${DISTDIR}/qt/util/qdoc/man
-mv ${DISTDIR}/qt/doc/html ${DISTDIR}/qt/doc/man ${DISTDIR}/qt
-mv ${DISTDIR}/qt/src/moc/moc.1 ${DISTDIR}/qt/man/man1
-cd ${DISTDIR}
-mv ${DISTDIR}/qt/gif/*.gif ${DISTDIR}/qt/html
+if [ "$NODOC" = "yes" ]; then
+  echo "Documentation won't be generated" >& 2
+else
+  echo "Generating documentation" >&2
+  export QTDIR=${DISTDIR}/qt
+  make -s -C ${QTDIR}/src include
+  mkdir -p ${DISTDIR}/qt/doc/html
+  ${DISTDIR}/qt/util/qdoc/qdoc
+  if [ "${platform}" = "x11" ]; then
+    mkdir -p ${DISTDIR}/qt/doc/man/man1  ${DISTDIR}/qt/doc/man/man3
+    ${DISTDIR}/qt/util/qdoc/man
+    mv ${DISTDIR}/qt/doc/html ${DISTDIR}/qt/doc/man ${DISTDIR}/qt
+    mv ${DISTDIR}/qt/src/moc/moc.1 ${DISTDIR}/qt/man/man1
+  fi
+  cd ${DISTDIR}
+  mv ${DISTDIR}/qt/gif/*.gif ${DISTDIR}/qt/html
+fi
 
 echo "Removing local files..." >&2
+cd ${DISTDIR}
 find qt -name .cvsignore | xargs rm -f
 rm -rf qt/doc qt/etc qt/gif
 rm -f qt/TODO
@@ -107,6 +114,7 @@ if [ "${platform}" = "win" ]; then
   make moc
   cd ..
   echo "Moving source and include files..." >&2
+  rm -f ../include/*
   mv tools/q*.h kernel/q*.h widgets/q*.h dialogs/q*.h ../include
   mkdir win
   mv tools/*.cpp kernel/*.cpp widgets/*.cpp dialogs/*.cpp win
