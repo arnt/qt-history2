@@ -193,7 +193,7 @@ QSocket::~QSocket()
 
 
 /*!
-  Returns a pointer to the internal socket device.  
+  Returns a pointer to the internal socket device.
 
   There is normally no need to manipulate the socket device directly
   since this class does the necessary setup for most applications.
@@ -207,7 +207,7 @@ QSocketDevice *QSocket::socketDevice()
 /*!
   Set the internal socket device.  Setting this to NULL will return
   it to the default platform socket device, any existing connection
-  will be disconnected before using this new device. 
+  will be disconnected before using this new device.
 
   The new device should not be connected before being attached to a
   QSocket, instead use /c connectToHost following this.
@@ -237,7 +237,7 @@ void QSocket::setSocketDevice( QSocketDevice *device )
   <li> \c QSocket::Idle if there is no connection
   <li> \c QSocket::HostLookup during a DNS lookup
   <li> \c QSocket::Connecting during TCP connection establishment
-  <li> \c QSocket::Connection when there is an operational connection
+  <li> \c QSocket::Connected when there is an operational connection
   <li> \c QSocket::Closing if the socket is closing down, but is not
   yet closed.
   </ul>
@@ -264,7 +264,7 @@ QSocket::State QSocket::state() const
   QSocket goes into \c HostLookup state. When the lookup succeeds, it
   emits hostFound(), starts a TCP connection and goes into \c
   Connecting state.  Finally, when the connection succeeds, it emits
-  connected() and goes into \c Connection state.  If there is an error
+  connected() and goes into \c Connected state.  If there is an error
   at any point, it emits error().
 
   \sa state()
@@ -1103,7 +1103,7 @@ void QSocket::sn_write()
 void QSocket::tryConnection()
 {
     if ( d->socket->connect( d->addr, d->port ) ) {
-	d->state = Connection;
+	d->state = Connected;
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket (%s): sn_write: Got connection to %s",
 		name(), peerName().ascii() );
@@ -1141,7 +1141,7 @@ void QSocket::setSocket( int socket )
 {
     if ( state() != Idle )
 		close();
-    d->state = Connection;
+    d->state = Connected;
 
 	d->socket->setSocket(socket, QSocketDevice::Stream );
     d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,

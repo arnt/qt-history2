@@ -63,7 +63,8 @@ public:
     virtual ~QSocket();
 
     enum State { Idle, HostLookup, Connecting,
-		 Listening, Connection, Closing };
+		 Listening, Connected, Closing,
+		 Connection=Connected };
     State	 state() const;
 
     int		socket() const;
