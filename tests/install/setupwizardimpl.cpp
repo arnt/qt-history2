@@ -247,6 +247,9 @@ void SetupWizardImpl::integratorDone()
     shell.createShortcut( dirName, common, "Reconfigure Qt", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configurator.exe", "Reconfigure the Qt library" );
     shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE\"" );
     shell.createShortcut( dirName, common, "On-line documentation", QEnvironment::getEnv( "QTDIR" ) + "\\doc\\index.html", "Browse the On-line documentation" );
+    if( int( qWinVersion() ) & int( WV_DOS_based ) )
+	shell.createShortcut( dirName, common, QString( "Build Qt " ) + DISTVER, QEnvironment::getEnv( "QTDIR" ) + "\\build.bat", "Build the Qt library" );
+
     if( installTutorials->isChecked() ) {
 	tutorialsName = shell.createFolder( folderPath->text() + "\\Tutorials", common );
 	installIcons( tutorialsName, QEnvironment::getEnv( "QTDIR" ) + "\\tutorial", common );
@@ -624,44 +627,91 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	bool settingsOK;
 
 	saveSettings();
-	outputDisplay->append( "Execute configure...\n" );
+	if( int( qWinVersion() ) & int( WV_NT_based ) ) {
+	    outputDisplay->append( "Execute configure...\n" );
 
-	args << QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe";
-	entry = settings.readEntry( "/Trolltech/Qt/Mode", "Debug", &settingsOK );
-	if ( entry == "Debug" )
-	    args += "-debug";
-	else
-	    args += "-release";
+	    args << QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe";
+	    entry = settings.readEntry( "/Trolltech/Qt/Mode", "Debug", &settingsOK );
+	    if ( entry == "Debug" )
+		args += "-debug";
+	    else
+		args += "-release";
 
-	entry = settings.readEntry( "/Trolltech/Qt/Build", "Shared", &settingsOK );
-	if ( entry == "Static" )
-	    args += "-static";
-	else
-	    args += "-shared";
+	    entry = settings.readEntry( "/Trolltech/Qt/Build", "Shared", &settingsOK );
+	    if ( entry == "Static" )
+		args += "-static";
+	    else
+		args += "-shared";
 
-	entry = settings.readEntry( "/Trolltech/Qt/Threading", QString::null, &settingsOK );
-	if ( entry == "Threaded" )
-	    args += "-thread";
+	    entry = settings.readEntry( "/Trolltech/Qt/Threading", QString::null, &settingsOK );
+	    if ( entry == "Threaded" )
+		args += "-thread";
 
-	entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
-	for( it = entries.begin(); it != entries.end(); ++it ) {
-	    entry = *it;
-	    args += QString( "-enable-" ) + entry;
+	    entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
+	    for( it = entries.begin(); it != entries.end(); ++it ) {
+		entry = *it;
+		args += QString( "-enable-" ) + entry;
+	    }
+
+	    entries = settings.readListEntry( "/Trolltech/Qt/SQL Drivers", ',', &settingsOK );
+	    for( it = entries.begin(); it != entries.end(); ++it ) {
+		entry = *it;
+		args += QString( "-sql-" ) + entry;
+	    }
+
+	    args += "-no-qmake";
+
+	    outputDisplay->append( args.join( " " ) + "\n" );
+	    configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
+	    configure.setArguments( args );
+
+	    // Start the configure process
+	    configure.start();
+	    compileProgress->setTotalSteps( filesToCompile );
 	}
+	else {
+	    QFile outFile( installPath->text() + "\\build.bat" );
+	    QTextStream outStream( &outFile );
 
-	entries = settings.readListEntry( "/Trolltech/Qt/SQL Drivers", ',', &settingsOK );
-	for( it = entries.begin(); it != entries.end(); ++it ) {
-	    entry = *it;
-	    args += QString( "-sql-" ) + entry;
+	    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+		outStream << "cd " << QEnvironment::getEnv( "QTDIR" ).latin1() << endl;
+		outStream << QEnvironment::getEnv( "QTDIR" ).latin1() << "\\bin\\configure.exe ";
+		entry = settings.readEntry( "/Trolltech/Qt/Mode", "Debug", &settingsOK );
+		if ( entry == "Debug" )
+		    outStream << "-debug ";
+		else
+		    outStream << "-release ";
+
+		entry = settings.readEntry( "/Trolltech/Qt/Build", "Shared", &settingsOK );
+		if ( entry == "Static" )
+		    outStream << "-static ";
+		else
+		    outStream << "-shared ";
+
+		entry = settings.readEntry( "/Trolltech/Qt/Threading", QString::null, &settingsOK );
+		if ( entry == "Threaded" )
+		    outStream << "-thread ";
+
+		entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
+		for( it = entries.begin(); it != entries.end(); ++it ) {
+		    entry = *it;
+		    outStream << "-enable-" << entry.latin1() << " ";
+		}
+
+		entries = settings.readListEntry( "/Trolltech/Qt/SQL Drivers", ',', &settingsOK );
+		for( it = entries.begin(); it != entries.end(); ++it ) {
+		    entry = *it;
+		    outStream << "-sql-" << entry.latin1() << " ";
+		}
+		outStream << "-no-qmake" << endl;
+	        QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
+		outStream << makeCmds[ sysID ].latin1() << endl;
+
+		outFile.close();
+	    }
+	    integratorDone();
+	    showPage( finishPage );
 	}
-
-	outputDisplay->append( args.join( " " ) + "\n" );
-	configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
-	configure.setArguments( args );
-
-	// Start the configure process
-	configure.start();
-	compileProgress->setTotalSteps( filesToCompile );
     }
     else if( newPage == finishPage ) {
 	QString finishMsg;
@@ -669,10 +719,12 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    finishMsg = QString( "Qt has been installed to " ) + installPath->text() + " and is ready to use.";
 	}
 	else {
-	    finishMsg = QString( "Qt has been installed to " ) + installPath->text() + " and is ready to use.\n";
-	    finishMsg += "The environment variables needed to use Qt have been recorded into your AUTOEXEC.BAT file.\n";
-	    finishMsg += "Please review this file, and take action as appropriate depending on your operating system \
-to get them into the persistent environment. (Windows Me users, run MsConfig)";
+	    finishMsg = QString( "The Qt files have installed to " ) + installPath->text() + " and is ready to be compiled.\n";
+	    if( persistentEnv ) {
+		finishMsg += "The environment variables needed to use Qt have been recorded into your AUTOEXEC.BAT file.\n";
+		finishMsg += "Please review this file, and take action as appropriate depending on your operating system to get them into the persistent environment. (Windows Me users, run MsConfig)\n\n";
+	    }
+	    finishMsg += QString( "To build Qt, please double-click to \"Build Qt " ) + QString( DISTVER ) + "\" icon which has been installed into your Start-Menu.";
 	}
 	finishText->setText( finishMsg );
     }
