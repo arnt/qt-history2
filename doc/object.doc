@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Explanation of the Qt object model
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -33,7 +33,8 @@
 **
 **********************************************************************/
 
-/*! \page object.html
+/*!
+\page object.html
 
 \title Qt Object Model
 
@@ -82,7 +83,8 @@ slots? \endlink.
 
 
 
-/*! \page timers.html
+/*!
+\page timers.html
 
 \title Timers
 
@@ -205,7 +207,8 @@ single-threaded application without blocking the user interface.
 */
 
 
-/*! \page properties.html
+/*!
+\page properties.html
 
 \title Properties
 
@@ -429,7 +432,8 @@ buttons.
 
 */
 
-/*! \page eventsandfilters.html
+/*!
+\page eventsandfilters.html
 
 \title Events and Event Filters
 
@@ -566,7 +570,9 @@ details.
 
 */
 
-/*! \page objecttrees.html
+
+/*!
+\page objecttrees.html
 
 \title Object Trees and Object Ownership
 
@@ -602,7 +608,9 @@ acts strangely.
 
 */
 
-/*! \page templates.html
+
+/*!
+\page templates.html
 
 \title Why doesn't Qt use templates for signals and slots?
 
@@ -752,4 +760,3 @@ maintaining C++'s unique performance and scalability advantages. It is
 what makes Qt the flexible and comfortable tool we have today.
 
 */
-

@@ -33,7 +33,9 @@
 **
 **********************************************************************/
 
-/*! \page aboutqt.html
+/*!
+\page aboutqt.html
+
 \title About Qt
 
 Qt is a multiplatform C++ GUI application framework. It provides

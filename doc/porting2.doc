@@ -33,7 +33,8 @@
 **
 **********************************************************************/
 
-/*! \page porting2.html
+/*!
+\page porting2.html
 
 \title Porting to Qt 2.x
 

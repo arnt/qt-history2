@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Documentation to some of the modules
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -33,7 +33,8 @@
 **
 **********************************************************************/
 
-/*! \page modules.html
+/*!
+\page modules.html
 
 \title About Modules
 
@@ -66,7 +67,8 @@ with each Edition.
 
 */
 
-/*! \page iconview.html
+/*!
+\page iconview.html
 
 \title IconView Module
 
@@ -79,9 +81,11 @@ can select, drag around, rename, delete, etc.
 
 Please see the \link qiconview.html class documentation \endlink for
 details.
+
 */
 
-/*! \page workspace.html
+/*!
+\page workspace.html
 
 \title Workspace Module
 
@@ -92,4 +96,5 @@ It is implemented in a single class \l QWorkspace.
 
 Please see the \link qworkspace.html class documentation \endlink for
 details.
+
 */

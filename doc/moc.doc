@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Moc usage, expanded from the manual page
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -36,7 +36,8 @@
 // Note: Text in this file must also be copied to the moc man page:
 // src/moc/moc.1
 
-/*! \page moc.html
+/*!
+\page moc.html
 
 \title Using the Meta Object Compiler
 
