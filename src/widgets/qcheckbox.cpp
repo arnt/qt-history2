@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#67 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#67 $");
 
 
 /*!
@@ -32,7 +32,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#66 $");
 */
 
 
-static void getSizeOfBitmap( int gs, int *w, int *h )
+static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
 {
     switch ( gs ) {				// calculate coords
 	case WindowsStyle:
@@ -102,10 +102,19 @@ static int extraWidth( int gs )
 
 QSize QCheckBox::sizeHint() const
 {
-    QFontMetrics fm = fontMetrics();
-    int w = fm.width( text() );
-    int h = fm.height();
-    int gs = style();
+    // Any more complex, and we will use qItemRect()
+    // NB: QCheckBox::sizeHint() is similar
+
+    int w, h;
+    if (pixmap()) {
+	w = pixmap()->width();
+	h = pixmap()->height();
+    } else {
+	QFontMetrics fm = fontMetrics();
+	w = fm.width( text() );
+	h = fm.height();
+    }
+    GUIStyle gs = style();
     int wbm, hbm;
     getSizeOfBitmap( gs, &wbm, &hbm );
     if ( h < hbm )

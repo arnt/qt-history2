@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#69 $
 **
 ** Implementation of QRadioButton class
 **
@@ -18,7 +18,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#69 $");
 
 
 /*!
@@ -38,7 +38,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#68 $");
 */
 
 
-static void getSizeOfBitmap( int gs, int *w, int *h )
+static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
 {
     switch ( gs ) {
 	case WindowsStyle:
@@ -118,13 +118,24 @@ void QRadioButton::init()
 
 QSize QRadioButton::sizeHint() const
 {
-    QFontMetrics fm = fontMetrics();
-    int w = fm.width( text() );
-    int h = fm.height();
+    // Any more complex, and we will use qItemRect()
+    // NB: QCheckBox::sizeHint() is similar
+
+    int w, h;
+    if (pixmap()) {
+	w = pixmap()->width();
+	h = pixmap()->height();
+    } else {
+	QFontMetrics fm = fontMetrics();
+	w = fm.width( text() );
+	h = fm.height();
+    }
+    GUIStyle gs = style();
     int wbm, hbm;
-    getSizeOfBitmap( style(), &wbm, &hbm );
+    getSizeOfBitmap( gs, &wbm, &hbm );
     if ( h < hbm )
 	h = hbm;
+    w += wbm+extraWidth( gs );
 
     return QSize( w + wbm + 8, h + 4 );
 }
