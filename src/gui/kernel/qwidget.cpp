@@ -1183,13 +1183,13 @@ void QPixmap::fill( const QWidget *widget, const QPoint &offset )
 #else
     QBrush brush(red); //############
 #endif
-    fill(brush.color());
-    if (brush.pixmap()) {
+
+    if (brush.style() == Qt::SolidPattern) {
+        fill(brush.color());
+    } else {
         QPainter p;
         p.begin(this);
-        p.setPen(Qt::NoPen);
-        p.drawTiledPixmap(rect(), *brush.pixmap(), offs);
-        p.end();
+        p.fillRect(rect(), brush);
     }
 
     if (parents.size() == 0)
@@ -4017,7 +4017,7 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
     case QEvent::MouseMove:
     {
         QMouseEvent *c = (QMouseEvent*)e;
-        QMouseEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), 
+        QMouseEvent s(c->type(), c->pos() - w->pos(), c->globalPos(),
                       c->button(), c->buttons(), c->modifiers());
         return QApplication::sendEvent(w, &s);
     }
