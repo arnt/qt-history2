@@ -93,8 +93,9 @@ void Canvas::mouseMoveEvent( QMouseEvent *e )
 
 void Canvas::tabletEvent( QTabletEvent *e )
 {
-    // change the width based on range of pressure
-    if ( e->device() == QTabletEvent::STYLUS )	{
+    e->accept();
+	// change the width based on range of pressure
+    if ( e->device() == QTabletEvent::Stylus )	{
 	if ( e->pressure() >= 0 && e->pressure() <= 32 )
 	    pen.setColor( saveColor.light(175) );
 	else if ( e->pressure() > 32 && e->pressure() <= 64 )
@@ -111,7 +112,7 @@ void Canvas::tabletEvent( QTabletEvent *e )
 	    pen.setColor( saveColor.dark(250) );
 	else // pressure > 224
 	    pen.setColor( saveColor.dark(300) );
-    } else if ( e->device() == QTabletEvent::ERASER
+    } else if ( e->device() == QTabletEvent::Eraser
 		&& pen.color() != backgroundColor() ) {
 	pen.setColor( backgroundColor() );
     }
@@ -127,7 +128,7 @@ void Canvas::tabletEvent( QTabletEvent *e )
 	      ((yt < -30 && yt > -45) || (yt > 30 && yt < 45)) )
 	pen.setWidth( 9 );
     else if (  (xt < -45 || xt > 45 ) && ( yt < -45 || yt > 45 ) )
-	pen.setWidth( 12 );
+	pen.setWidth( 12 );	
 }
 
 void Canvas::resizeEvent( QResizeEvent *e )

@@ -50,14 +50,15 @@ TabletStats::~TabletStats()
 
 void TabletStats::tabletEvent( QTabletEvent *e )
 {
+	e->accept();
 	lblXTilt->setNum( e->xTilt() );
 	lblYTilt->setNum( e->yTilt() );
 	lblPressure->setNum( e->pressure() );
 	switch( e->device() ) {
-	case QTabletEvent::STYLUS:
+	case QTabletEvent::Stylus:
 		lblDev->setText( "Stylus" );
 		break;
-	case QTabletEvent::ERASER:
+	case QTabletEvent::Eraser:
 		lblDev->setText( "Eraser" );
 		break;
 	default:

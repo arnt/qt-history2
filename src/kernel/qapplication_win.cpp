@@ -2220,7 +2220,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #endif
 #if defined (QT_WINTAB_SUPPORT)	
 	case WT_PACKET:
-		if ( (nPackets = WTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
+		widget = (QETWidget*)QWidget::find( hwnd );
+		if ( (nPackets = WTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {			
 			result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
 		}
 		break;
@@ -3564,11 +3565,11 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	for ( i = 0; i < numPackets; i++ ) {
 		DWORD btnChange;
 		if ( localPacketBuf[i].pkCursor == 2 ) {
-			dev = QTabletEvent::ERASER;
+			dev = QTabletEvent::Eraser;
 		} else if ( localPacketBuf[i].pkCursor == 1 ){
-			dev = QTabletEvent::STYLUS;
+			dev = QTabletEvent::Stylus;
 		} else {
-			dev = QTabletEvent::NONE;
+			dev = QTabletEvent::None;
 		}
 
 		btnOld = btnNew;
@@ -3604,7 +3605,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 			double degX = atan( tmpX / sin(radAlt) );
 			double degY = atan( tmpY / sin(radAlt) );
 			tiltX = degX * ( 180 / PI );
-			tiltY = degY * ( 180 / PI );
+			tiltY = -degY * ( 180 / PI );
 		}
 
 		QTabletEvent e( globalPos, globalPos, dev, prsNew, tiltX, tiltY );
