@@ -24,7 +24,6 @@ FormWindowDnDItem::FormWindowDnDItem(QWidget *widget, const QPoint &pos)
     m_widget = widget;
     QLabel *label = new QLabel(0, Qt::ToolTip);
     label->setPixmap(QPixmap::grabWidget(m_widget));
-    label->setWindowOpacity(0.8);
 
     QRect geometry = widget->geometry();
     geometry.moveTopLeft(widget->mapToGlobal(QPoint(0, 0)));

@@ -707,6 +707,7 @@ void FormWindowManager::beginDrag(const QList<AbstractDnDItem*> &item_list)
         p.end();
         deco->setMask(bitmap);
         deco->show();
+        deco->setWindowOpacity(0.8);
     }
 
     m_core->topLevel()->installEventFilter(this);
