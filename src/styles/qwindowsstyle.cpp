@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#66 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#67 $
 **
 ** Implementation of Windows-like style class
 **
@@ -524,6 +524,7 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	break; }
 
     default:
+	sz = QCommonStyle::sizeFromContents(contents, widget, sz, data);
 	break;
     }
 
