@@ -1398,8 +1398,10 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    hidePopups();
 	    if ( singleSingleShot )
 		singleSingleShot->stop();
-	    popup->setFirstItemActive();
-	    subMenuTimer();
+            // ### The next two lines were switched to fix the problem with the first item of the 
+            // submenu not being highlighted...any reason why they should have been the other way??
+            subMenuTimer();
+            popup->setFirstItemActive();
 	    break;
 	} else if ( actItem == -1 && ( parentMenu && !parentMenu->isMenuBar )) {
 	    dy = 1;
