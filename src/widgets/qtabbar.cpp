@@ -38,6 +38,7 @@
 #include "qaccel.h"
 #include "qbitmap.h"
 #include "qtoolbutton.h"
+#include "qtooltip.h"
 #include "qapplication.h"
 
 #include <ctype.h>
@@ -137,6 +138,8 @@ QTab::~QTab()
   the spreadsheet Excel, for example
 */
 
+class QTabBarToolTip;
+
 struct QTabPrivate {
     int id;
     int focus;
@@ -145,6 +148,65 @@ struct QTabPrivate {
     QToolButton* rightB;
     QToolButton* leftB;
     bool  scrolls;
+    QTabBarToolTip * toolTips;
+};
+
+/* \internal
+*/
+class QTabBarToolTip : public QToolTip 
+{
+public:
+    QTabBarToolTip( QWidget * parent ) 
+	: QToolTip( parent ) {}
+    virtual ~QTabBarToolTip() {}
+    
+    void add( QTab * tab, const QString & tip )
+    {		
+	tabTips.replace( tab, tip );
+    }
+    
+    void remove( QTab * tab )
+    {
+	tabTips.erase( tab );
+    }
+    
+    QString tipForTab( QTab * tab ) const
+    {
+	QMapConstIterator<QTab *, QString> it;
+	it = tabTips.find( tab );
+	if ( it != tabTips.end() )
+	    return it.data();
+	else
+	    return QString();
+    }
+    
+protected:
+    void maybeTip( const QPoint & p )
+    {
+	QTabBar * tb = (QTabBar *) parentWidget();
+	if ( !tb )
+	    return;
+	
+	// check if the scroll buttons in the tab bar are visible -
+	// don't display any tips if the pointer is over one of them
+	QRect rectL, rectR;
+	rectL.setRect( tb->d->leftB->x(), tb->d->leftB->y(),
+		       tb->d->leftB->width(), tb->d->leftB->height() );
+	rectR.setRect( tb->d->rightB->x(), tb->d->rightB->y(),
+		       tb->d->rightB->width(), tb->d->rightB->height() );
+	if ( tb->d->scrolls && (rectL.contains( p ) || rectR.contains( p )) )
+	     return;
+
+	// find and show the tool tip for the tab under the point p
+	QMapIterator<QTab *, QString> it;
+	for ( it = tabTips.begin(); it != tabTips.end(); ++it ) {
+	    if ( it.key()->rect().contains( p ) )
+		tip( it.key()->rect(), it.data() );
+	}
+    }
+    
+private:
+    QMap<QTab *, QString> tabTips;
 };
 
 
@@ -171,6 +233,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d = new QTabPrivate;
     d->id = 0;
     d->focus = 0;
+    d->toolTips = 0;
     d->a = new QAccel( this, "tab accelerators" );
     d->s = RoundedAbove;
     d->scrolls = FALSE;
@@ -196,6 +259,8 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
 
 QTabBar::~QTabBar()
 {
+    if ( d->toolTips )
+	delete d->toolTips;
     delete d;
     d = 0;
     delete l;
@@ -259,6 +324,8 @@ int QTabBar::insertTab( QTab * newTab, int index )
 void QTabBar::removeTab( QTab * t )
 {
     //#### accelerator labels??
+    if ( d->toolTips )
+	d->toolTips->remove( t );
     l->remove( t );
     lstatic->remove( t );
     layoutTabs();
@@ -434,7 +501,8 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
     void *data[1];
     data[0] = (void *) t;
-    style().drawControl( QStyle::CE_TabBarLabel, p, this, r, colorGroup(),
+    style().drawControl( QStyle::CE_TabBarLabel, p, this, r, 
+			 t->isEnabled() ? colorGroup(): palette().disabled(),
 			 flags, data );
 }
 
@@ -989,4 +1057,37 @@ void QTabBar::updateArrowButtons()
 	d->rightB->hide();
     }
 }
+
+/*! Removes the tab tool tip for the tab at index \a index.
+ */
+void QTabBar::removeTabTip( int index )
+{
+    QTab * tab = tabAt( index ); 
+    if ( !tab || !d->toolTips )
+	return;
+    d->toolTips->remove( tab );
+}
+
+/*! Sets the tab tool tip for the tab at index \a index to \a tip.
+ */
+void QTabBar::setTabTip( int index, const QString & tip )
+{
+    QTab * tab = tabAt( index ); 
+    if ( !tab )
+	return;
+    if ( d->toolTips == 0 )
+	d->toolTips = new QTabBarToolTip( this );
+    d->toolTips->add( tab, tip );
+}
+
+/*! Returns the tab tool tip for the tab at index \a index.
+ */
+QString QTabBar::tabTip( int index ) const
+{
+    if ( d->toolTips )
+	return d->toolTips->tipForTab( tabAt( index ) );
+    else
+	return QString();
+}
+
 #endif

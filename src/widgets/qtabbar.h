@@ -126,6 +126,10 @@ public:
     virtual void layoutTabs();
     virtual QTab * selectTab( const QPoint & p ) const;
     
+    void 	removeTabTip( int id );
+    void     	setTabTip( int id, const QString & tip );
+    QString 	tabTip( int id ) const;
+    
 public slots:
     virtual void setCurrentTab( int );
     virtual void setCurrentTab( QTab * );
@@ -159,6 +163,8 @@ private:
     void makeVisible( QTab* t  );
     void updateArrowButtons();
     QTabPrivate * d;
+    
+    friend class QTabBarToolTip;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
