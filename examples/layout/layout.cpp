@@ -139,8 +139,6 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
     topLayout->addWidget( sb );
 
     topLayout->activate();
-
-    dumpObjectTree(); // ###
 }
 
 ExampleWidget::~ExampleWidget()
