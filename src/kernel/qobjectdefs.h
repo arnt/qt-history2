@@ -172,6 +172,7 @@ struct QMetaObject
 			   int membcode, int member_index);
     // internal index-based signal activation
     static void activate(QObject *obj, int signal_index, void **argv);
+    static void activate(QObject *obj, const QMetaObject *, int local_signal_index, void **argv);
 
 #ifndef QT_NO_COMPAT
     const char *superClassName() const;

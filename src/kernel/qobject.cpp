@@ -2095,6 +2095,13 @@ void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
     } while ((c = nc));
 }
 
+/*!\internal
+ */
+void QMetaObject::activate(QObject *obj, const QMetaObject *m, int local_signal_index, void **argv)
+{
+    activate(obj, m->signalOffset() + local_signal_index, argv);
+}
+
 /*****************************************************************************
   Properties
  *****************************************************************************/

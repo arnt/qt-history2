@@ -2334,7 +2334,7 @@ void generateMetacall()
 		fprintf(out, "\n            if (_o[0]) *(%s*)_o[0] = _r; } ",
 			 (const char *)rmRef(f->type));
 	    }
-	    fprintf(out, "break;\n");
+	    fprintf(out, " break;\n");
 	}
 	fprintf(out,
 		 "        }\n"
@@ -2366,7 +2366,7 @@ void generateMetacall()
 		fprintf(out, "\n            if (_o[0]) *(%s*)_o[0] = _r; } ",
 			 (const char *)rmRef(f->type));
 	    }
-	    fprintf(out, "break;\n");
+	    fprintf(out, " break;\n");
 	}
 	fprintf(out,
 		 "        }\n"
@@ -2532,8 +2532,7 @@ void generateSignal(Function *f, int index)
 
     if ((!f->args || f->args->isEmpty()) && f->type.isEmpty()) {
 	fprintf(out, ")\n{\n"
-		 "    QMetaObject::activate(this, %d + "
-		 "staticMetaObject.signalOffset(), 0);\n"
+		 "    QMetaObject::activate(this, &staticMetaObject, %d, 0);\n"
 		 "};\n", index);
 	return;
     }
@@ -2562,8 +2561,7 @@ void generateSignal(Function *f, int index)
     if (f->args)
 	n += f->args->defaultArguments();
     for (i = 0; i < n; ++i)
-	fprintf(out, "    QMetaObject::activate(this, %d + "
-		"staticMetaObject.signalOffset(), _o);\n",
+	fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _o);\n",
 		index + i);
     if (!f->type.isEmpty())
 	fprintf(out, "    return _t0;\n");
@@ -3143,11 +3141,12 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf(out, "\nvoid *%s::qt_metacast(const char *clname)\n{\n",
 	     (const char*)qualifiedClassName());
-    fprintf(out, "    if (!qstrcmp(clname, \"%s\"))\n"
+    fprintf(out, "    if (!clname) return 0;\n");
+    fprintf(out, "    if (!strcmp(clname, qt_meta_stringdata_%s))\n"
 		  "\treturn this;\n",
 	     (const char*)qualifiedClassName());
     for (const char* cname = g->multipleSuperClasses.first(); cname; cname = g->multipleSuperClasses.next())
-	fprintf(out, "    if (!qstrcmp(clname, \"%s\"))\n"
+	fprintf(out, "    if (!strcmp(clname, \"%s\"))\n"
 		      "\treturn (%s*)this;\n", cname, cname);
     if (!g->superClassName.isEmpty() && !isQObject)
 	fprintf(out, "    return %s::qt_metacast(clname);\n",
