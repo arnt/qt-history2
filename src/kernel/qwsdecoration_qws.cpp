@@ -42,70 +42,72 @@
 
 
 /*!
-  \class QWSDecoration qwsdecoration_qws.h
-  \ingroup qws
-  \brief The QWSDecoration class allows the appearance of the Qt/Embedded Window
-  Manager to be customized.
+    \class QWSDecoration qwsdecoration_qws.h
+    \brief The QWSDecoration class allows the appearance of the Qt/Embedded Window
+    Manager to be customized.
 
-  Qt/Embedded provides window management to top level windows.  The
-  appearance of the borders and buttons (the decoration) around the
-  managed windows can be customized by creating your own class derived
-  from QWSDecoration and overriding a few methods.
+    \ingroup qws
 
-  This class is non-portable.  It is available \e only in Qt/Embedded.
+    Qt/Embedded provides window management to top level windows. The
+    appearance of the borders and buttons (the decoration) around the
+    managed windows can be customized by creating your own class
+    derived from QWSDecoration and overriding a few methods.
 
-  \sa QApplication::qwsSetDecoration()
+    This class is non-portable. It is available \e only in Qt/Embedded.
+
+    \sa QApplication::qwsSetDecoration()
 */
 
 /*!
-  \fn QWSDecoration::QWSDecoration()
+    \fn QWSDecoration::QWSDecoration()
 
-  Constructs a decorator.
+    Constructs a decorator.
 */
 
 /*!
-  \fn QWSDecoration::~QWSDecoration()
+    \fn QWSDecoration::~QWSDecoration()
 
-  Destroys a decorator.
+    Destroys a decorator.
 */
 
 /*!
-  \enum QWSDecoration::Region
+    \enum QWSDecoration::Region
 
-  This enum describes the regions in the window decorations.
+    This enum describes the regions in the window decorations.
 
-  \value None - used internally.
-  \value All - the entire region used by the window decoration.
-  \value Title - Displays the window title and allows the window to be
-	  moved by dragging.
-  \value Top - allows the top of the window to be resized.
-  \value Bottom - allows the bottom of the window to be resized.
-  \value Left - allows the left edge of the window to be resized.
-  \value Right - allows the right edge of the window to be resized.
-  \value TopLeft - allows the top-left of the window to be resized.
-  \value TopRight - allows the top-right of the window to be resized.
-  \value BottomLeft - allows the bottom-left of the window to be resized.
-  \value BottomRight - allows the bottom-right of the window to be resized.
-  \value Close - clicking in this region closes the window.
-  \value Minimize - clicking in this region minimizes the window.
-  \value Maximize - clicking in this region maximizes the window.
-  \value Normalize - returns a maximized window to previous size.
-  \value Menu - clicking in this region opens the window operations menu.
+    \value None - used internally.
+    \value All - the entire region used by the window decoration.
+    \value Title - Displays the window title and allows the window to be
+	    moved by dragging.
+    \value Top - allows the top of the window to be resized.
+    \value Bottom - allows the bottom of the window to be resized.
+    \value Left - allows the left edge of the window to be resized.
+    \value Right - allows the right edge of the window to be resized.
+    \value TopLeft - allows the top-left of the window to be resized.
+    \value TopRight - allows the top-right of the window to be resized.
+    \value BottomLeft - allows the bottom-left of the window to be resized.
+    \value BottomRight - allows the bottom-right of the window to be resized.
+    \value Close - clicking in this region closes the window.
+    \value Minimize - clicking in this region minimizes the window.
+    \value Maximize - clicking in this region maximizes the window.
+    \value Normalize - returns a maximized window to its previous size.
+    \value Menu - clicking in this region opens the window operations
+	    (system) menu.
 */
 
 /*!
-  \fn QRegion QWSDecoration::region( const QWidget *widget, const QRect &rect, Region type )
+    \fn QRegion QWSDecoration::region( const QWidget *widget, const QRect &rect, Region type )
 
-  Returns the requested region \a type which will contain \a widget
-  with geometry \a rect.
+    Returns the requested region \a type which will contain \a widget
+    with geometry \a rect.
 */
 
 /*!
-  Called when the user clicks in the \c Close region.
+    Called when the user clicks in the \c Close region.
 
-  \a widget is the QWidget to be closed.
+    \a widget is the widget to be closed.
 
-  The default behaviour is to close the widget.
+    The default behaviour is to close the widget.
 */
 void QWSDecoration::close( QWidget *widget )
 {
@@ -122,7 +124,7 @@ void QWSDecoration::close( QWidget *widget )
 class MinimisedWindow : public QWidget
 {
 public:
-    MinimisedWindow( QWidget *restore ) : 
+    MinimisedWindow( QWidget *restore ) :
 	QWidget( (QWidget *)restore->parent(), restore->caption(), WStyle_Customize | WStyle_NoBorder ),
 	w(restore)
     {
@@ -133,7 +135,7 @@ public:
 	setMask( p.createHeuristicMask() );
 	show();
     }
- 
+
     void mouseDoubleClickEvent( QMouseEvent * ) { w->show(); delete this; }
     void mousePressEvent( QMouseEvent *e ) { clickPos = e->pos(); }
     void mouseMoveEvent( QMouseEvent *e ) { move( e->globalPos() - clickPos ); }
@@ -146,27 +148,28 @@ public:
 
 
 /*!
-  Called when the user clicks in the \c Minimize region.
+    Called when the user clicks in the \c Minimize region.
 
-  \a widget is the QWidget to be minimized.
+    \a widget is the widget to be minimized.
 
-  The default behaviour is to ignore this action.
+    The default behaviour is to ignore this action.
 */
 void QWSDecoration::minimize( QWidget * /* widget */ )
 {
 //      new MinimisedWindow( w );
-    
+
     //    qDebug("No minimize functionality provided");
 }
 
 
 /*!
-  Called when the user clicks in the \c Maximize region.
+    Called when the user clicks in the \c Maximize region.
 
-  \a widget is the QWidget to be maximized.
+    \a widget is the widget to be maximized.
 
-  The default behaviour is to resize the widget to be full-screen.
-  This method can be overridden to, e.g. avoid launch panels.
+    The default behaviour is to resize the widget to be full-screen.
+    This method can be overridden e.g. to allow room for launch
+    panels.
 */
 void QWSDecoration::maximize( QWidget *widget )
 {
@@ -199,9 +202,9 @@ void QWSDecoration::maximize( QWidget *widget )
 }
 
 /*!
-  Called to create a QPopupMenu containing the valid menu operations.
+    Called to create a QPopupMenu containing the valid menu operations.
 
-  The default implementation adds all possible window operations.
+    The default implementation adds all possible window operations.
 */
 
 #ifndef QT_NO_POPUPMENU
@@ -222,26 +225,25 @@ QPopupMenu *QWSDecoration::menu(const QWidget *, const QPoint &)
 #endif
 
 /*!
-  \fn void QWSDecoration::paint( QPainter *painter, const QWidget *widget )
+    \fn void QWSDecoration::paint( QPainter *painter, const QWidget *widget )
 
-  Override to paint the border and title decoration around \a widget using
-  \a painter.
-
+    Override to paint the border and title decoration around \a widget
+    using \a painter.
 */
 
 /*!
-  \fn void QWSDecoration::paintButton( QPainter *painter, const QWidget *widget, Region type, int state )
+    \fn void QWSDecoration::paintButton( QPainter *painter, const QWidget *widget, Region type, int state )
 
-  Override to paint a button \a type using \a painter.
+    Override to paint a button of type \a type using \a painter.
 
-  \a widget is the widget whose button is to be drawn.
-  \a state is the state of the button.  It can be a combination of the
-  following ORed together:
-  <ul>
-  <li> \c QWSButton::MouseOver
-  <li> \c QWSButton::Clicked
-  <li> \c QWSButton::On
-  </ul>
+    \a widget is the widget whose button is to be drawn.
+    \a state is the state of the button. It can be a combination of the
+    following OR-ed together:
+    \list
+    \i \c QWSButton::MouseOver
+    \i \c QWSButton::Clicked
+    \i \c QWSButton::On
+    \endlist
 */
 
 

@@ -809,7 +809,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
     d->selfnest = nesting;
 }
 
-/*
+/*!
    \internal
     Sets the linespacing to be at least \a ls pixels.
 

@@ -76,29 +76,30 @@ QHostAddressPrivate::QHostAddressPrivate( Q_UINT8 *a_ ) : a(0), isIp4(FALSE)
 }
 
 /*!
-  \class QHostAddress qhostaddress.h
+    \class QHostAddress qhostaddress.h
+    \brief The QHostAddress class provides an IP address.
+
     \ingroup io
-  \brief The QHostAddress class provides an IP address.
+    \module network
 
-  \module network
+    This class contains an IP address in a platform and protocol
+    independent manner. It stores both IPv4 and IPv6 addresses in a
+    way that you can easily access on any platform. (Qt does not
+    currently provide IPv6 support.)
 
-  This class contains an IP address in a platform and protocol independent
-  manner. It stores both IPv4 and IPv6 addresses in a way that you
-  can easily access on any platform. (Qt does not currently provide
-  IPv6 support.)
+    QHostAddress is normally used with the classes QSocket,
+    QServerSocket and QSocketDevice to set up a server or to connect
+    to a host.
 
-  QHostAddress is normally used with the classes QSocket, QServerSocket and
-  QSocketDevice to set up a server or to connect to a host.
+    Host addresses may be set with setAddress() and retrieved with
+    ip4Addr() or toString().
 
-  Host addresses may be set with setAddress() and retrieved with
-  ip4Addr() or toString().
-
-  \sa QSocket, QServerSocket, QSocketDevice
+    \sa QSocket, QServerSocket, QSocketDevice
 */
 
 
 /*!
-  Creates a host address object with the IP address 0.0.0.0.
+    Creates a host address object with the IP address 0.0.0.0.
 */
 QHostAddress::QHostAddress()
     : d( new QHostAddressPrivate )
@@ -107,7 +108,7 @@ QHostAddress::QHostAddress()
 
 
 /*!
-  Creates a host address object for the IPv4 address \a ip4Addr.
+    Creates a host address object for the IPv4 address \a ip4Addr.
 */
 QHostAddress::QHostAddress( Q_UINT32 ip4Addr )
     : d( new QHostAddressPrivate( ip4Addr ) )
@@ -116,10 +117,10 @@ QHostAddress::QHostAddress( Q_UINT32 ip4Addr )
 
 
 /*!
-  Creates a host address object with the specified IPv6 address.
+    Creates a host address object with the specified IPv6 address.
 
-  \a ip6Addr must be a 16 byte array in network byte order (high-order byte
-  first)
+    \a ip6Addr must be a 16 byte array in network byte order
+    (high-order byte first).
 */
 QHostAddress::QHostAddress( Q_UINT8 *ip6Addr )
     : d( new QHostAddressPrivate( ip6Addr ) )
@@ -128,7 +129,7 @@ QHostAddress::QHostAddress( Q_UINT8 *ip6Addr )
 
 
 /*!
-  Creates a copy of \a address.
+    Creates a copy of \a address.
 */
 QHostAddress::QHostAddress( const QHostAddress &address )
     : d( new QHostAddressPrivate )
@@ -138,7 +139,7 @@ QHostAddress::QHostAddress( const QHostAddress &address )
 
 
 /*!
-  Destroys the host address object.
+    Destroys the host address object.
 */
 QHostAddress::~QHostAddress()
 {
@@ -147,8 +148,8 @@ QHostAddress::~QHostAddress()
 
 
 /*!
-  Assigns another host address object \a address to this object and
-  returns a reference to this object.
+    Assigns another host address object \a address to this object and
+    returns a reference to this object.
 */
 QHostAddress & QHostAddress::operator=( const QHostAddress & address )
 {
@@ -158,7 +159,7 @@ QHostAddress & QHostAddress::operator=( const QHostAddress & address )
 
 
 /*!
-  Set the IPv4 address specified by \a ip4Addr.
+    Set the IPv4 address specified by \a ip4Addr.
 */
 void QHostAddress::setAddress( Q_UINT32 ip4Addr )
 {
@@ -167,11 +168,13 @@ void QHostAddress::setAddress( Q_UINT32 ip4Addr )
 }
 
 
-/*!  \overload
-  Set the IPv6 address specified by \a ip6Addr.
+/*!
+    \overload
 
-  \a ip6Addr must be a 16 byte array in network byte order (high-order byte
-  first)
+    Set the IPv6 address specified by \a ip6Addr.
+
+    \a ip6Addr must be a 16 byte array in network byte order
+    (high-order byte first).
 */
 void QHostAddress::setAddress( Q_UINT8 *ip6Addr )
 {
@@ -180,11 +183,13 @@ void QHostAddress::setAddress( Q_UINT8 *ip6Addr )
 }
 
 #ifndef QT_NO_STRINGLIST
-/*!  \overload
-  Sets the IPv4 or IPv6 address specified by the string representation
-  \a address (e.g. "127.0.0.1"). Returns TRUE and sets the address if
-  the address was successfully parsed; otherwise returns FALSE and
-  leaves the address unchanged.
+/*!
+    \overload
+
+    Sets the IPv4 or IPv6 address specified by the string
+    representation \a address (e.g. "127.0.0.1"). Returns TRUE and
+    sets the address if the address was successfully parsed; otherwise
+    returns FALSE and leaves the address unchanged.
 */
 bool QHostAddress::setAddress( const QString& address )
 {
@@ -267,8 +272,8 @@ bool QHostAddress::setAddress( const QString& address )
 #endif
 
 /*!
-  Returns TRUE if the host address represents a IPv4 address;
-  otherwise returns FALSE.
+    Returns TRUE if the host address represents an IPv4 address;
+    otherwise returns FALSE.
 */
 bool QHostAddress::isIp4Addr() const
 {
@@ -277,14 +282,14 @@ bool QHostAddress::isIp4Addr() const
 
 
 /*!
-  Returns the IPv4 address as a number.
+    Returns the IPv4 address as a number.
 
-  For example, if the address is 127.0.0.1, the returned value is
-  2130706433 (hex: 7f000001).
+    For example, if the address is 127.0.0.1, the returned value is
+    2130706433 (i.e. 0x7f000001).
 
-  This value is only valid when isIp4Addr() returns TRUE.
+    This value is only valid when isIp4Addr() returns TRUE.
 
-  \sa toString()
+    \sa toString()
 */
 Q_UINT32 QHostAddress::ip4Addr() const
 {
@@ -293,12 +298,12 @@ Q_UINT32 QHostAddress::ip4Addr() const
 
 #ifndef QT_NO_SPRINTF
 /*!
-  Returns the address as a string.
+    Returns the address as a string.
 
-  For example, if the address is the IPv4 address 127.0.0.1, the
-  returned string is "127.0.0.1".
+    For example, if the address is the IPv4 address 127.0.0.1, the
+    returned string is "127.0.0.1".
 
-  \sa ip4Addr()
+    \sa ip4Addr()
 */
 QString QHostAddress::toString() const
 {
@@ -325,8 +330,8 @@ QString QHostAddress::toString() const
 
 
 /*!
-  Returns TRUE if this host address is the same as \a other;
-  otherwise returns FALSE.
+    Returns TRUE if this host address is the same as \a other;
+    otherwise returns FALSE.
 */
 bool QHostAddress::operator==( const QHostAddress & other ) const
 {
