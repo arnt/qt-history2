@@ -1192,8 +1192,13 @@ bool QSqlDatabase::isDriverAvailable( const QString& name )
     \row
     \i QDB2 \i QDB2 \i SQLHANDLE environment, SQLHANDLE connection \i qsql_db2.cpp
     \row
-    \i QTDS7 \i QTDSDriver \i LOGINREC* loginRecord, DBPROCESS* dbProcess \i qsql_tds.cpp
+    \i QTDS7 \i QTDSDriver \i LOGINREC* loginRecord, DBPROCESS* dbProcess, const QString& hostName \i qsql_tds.cpp
     \endtable
+    
+    NOTE: The host name (or service name) is needed when constructing
+    the QTDSDriver for creating new connections for internal
+    queries. This is to prevent the simultaneous usage of several
+    QSqlQuery/QSqlCursor objects from blocking each other.
     
     \warning The framework takes ownership of the \a driver pointer,
     and it should not be deleted. The returned QSqlDatabase object is
