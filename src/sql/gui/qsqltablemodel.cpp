@@ -912,7 +912,11 @@ bool QSqlTableModel::insertRecord(int row, const QSqlRecord &record)
         row = rowCount();
     if (!insertRows(row))
         return false;
-    return setRecord(row, record);
+    if (!setRecord(row, record))
+        return false;
+    if (d->strategy == OnFieldChange || d->strategy == OnRowChange)
+        return submitChanges();
+    return true;
 }
 
 /*! \reimp
