@@ -177,7 +177,7 @@ QActionPrivate::QActionPrivate()
       key( 0 ), accel( 0 ), accelid( 0 ),
 #endif
       enabled( TRUE ), visible( TRUE ), toggleaction( FALSE ), on( FALSE ),
-      tipGroup( 0 ), d_group( 0 ), forceDisabled( FALSE )
+      forceDisabled( FALSE ), tipGroup( 0 ), d_group( 0 )
 {
     menuitems.setAutoDelete( TRUE );
     comboitems.setAutoDelete( TRUE );
@@ -251,7 +251,7 @@ void QActionPrivate::update( uint upd )
 	}
 	if ( upd & Visibility )
 	    mi->popup->setItemVisible( mi->id, visible );
-	
+
 	if ( upd & Icons )
 	    if ( iconset )
 		mi->popup->changeItem( mi->id, *iconset, t );
@@ -512,7 +512,7 @@ QString QAction::text() const
     \sa text
 */
 void QAction::setMenuText( const QString& text )
-{ 	
+{
     if ( d->menutext == text )
 	return;
 
@@ -756,7 +756,7 @@ bool QAction::isOn() const
 void QAction::setEnabled( bool enable )
 {
     d->forceDisabled = !enable;
-	
+
     if ( (bool)d->enabled == enable )
 	return;
 
