@@ -97,10 +97,9 @@ void DDListBox::dropEvent( QDropEvent *evt )
 }
 
 
-void DDIconView::startDrag()
+QDragObject *DDIconView::dragObject()
 {
-    QDragObject *d = new QTextDrag( currentItem()->text(), this );
-    d->dragCopy(); // do NOT delete d.
+  return new QTextDrag( currentItem()->text(), this );
 }
 
 
