@@ -274,7 +274,10 @@ public:
 	if ( !checkStack(env, 1) )
 	    return 0;
 	QVariant v1 = env->stack()->pop();
-	env->stack()->push( un(v1) );
+	if ( v1.type() == LOCALSQL_NULL_TYPE )
+	    env->stack()->push( LOCALSQL_NULL );
+	else
+	    env->stack()->push( un(v1) );
 	return 1;
     }
 
@@ -345,7 +348,11 @@ public:
 	    return 0;
 	QVariant v2 = env->stack()->pop();
 	QVariant v1 = env->stack()->pop();
-	env->program()->setCounter( pred(v1, v2) ? p1.toInt() : p2.toInt() );
+	if ( v1.type() == LOCALSQL_NULL_TYPE ||
+	     v2.type() == LOCALSQL_NULL_TYPE )
+	    env->program()->setCounter( p2.toInt() );
+	else
+	    env->program()->setCounter( pred(v1, v2) ? p1.toInt() : p2.toInt() );
 	return 1;
     }
 
