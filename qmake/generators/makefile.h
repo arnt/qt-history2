@@ -44,6 +44,7 @@ class MakefileGenerator
 {
     bool init_already, moc_aware;
     QStringList createObjectList(const QString &var);
+    QString build_args();
     void writeObj(QTextStream &, const QString &obj, const QString &src);
     void writeUicSrc(QTextStream &, const QString &ui);
     void writeMocObj(QTextStream &, const QString &obj);
