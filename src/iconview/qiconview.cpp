@@ -376,6 +376,7 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
     } else {
 	QTextEdit::keyPressEvent( e );
 	resize( wrapColumnOrWidth() + 6, heightForWidth( wrapColumnOrWidth() ) + 6 );
+
     }
 }
 
@@ -3590,9 +3591,10 @@ QIconViewItem* QIconView::findLastVisibleItem( const QRect &r ) const
 void QIconView::clear()
 {
     d->clearing = TRUE;
+    bool block = signalsBlocked();
     blockSignals( TRUE );
     clearSelection();
-    blockSignals( FALSE );
+    blockSignals( block );
     setContentsPos( 0, 0 );
     d->currentItem = 0;
 
@@ -5155,9 +5157,10 @@ void QIconView::findItemByName( const QString &text )
 	setCurrentItem( item );
 	if ( d->selectionMode == Extended ) {
 	    bool changed = FALSE;
+	    bool block = signalsBlocked();
 	    blockSignals( TRUE );
 	    selectAll( FALSE );
-	    blockSignals( FALSE );
+	    blockSignals( block );
 	    if ( !item->selected && item->isSelectable() ) {
 		changed = TRUE;
 		item->selected = TRUE;
@@ -5670,10 +5673,11 @@ void QIconView::movedContents( int, int )
 void QIconView::handleItemChange( QIconViewItem *old, bool shift, bool control )
 {
     if ( d->selectionMode == Single ) {
+	bool block = signalsBlocked();
 	blockSignals( TRUE );
 	if ( old )
 	    old->setSelected( FALSE );
-	blockSignals( FALSE );
+	blockSignals( block );
 	d->currentItem->setSelected( TRUE, TRUE );
     } else if ( d->selectionMode == Extended ) {
 	if ( control ) {

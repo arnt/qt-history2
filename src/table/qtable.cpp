@@ -5048,6 +5048,7 @@ void QTableHeader::updateStretches()
 	int pw = width() -
 		 ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) ) -
 		 1;
+	bool block = signalsBlocked();
 	blockSignals( TRUE );
 	for ( i = 0; i < (int)stretchable.count(); ++i ) {
 	    if ( !stretchable[ i ] )
@@ -5063,7 +5064,7 @@ void QTableHeader::updateStretches()
 		pw = width() - sectionPos( i );
 	    resizeSection( i, QMAX( 20, pw ) );
 	}
-	blockSignals( FALSE );
+	blockSignals( block );
 	table->viewport()->repaint( FALSE );
 	widgetStretchTimer->start( 100, TRUE );
     } else {
@@ -5071,6 +5072,7 @@ void QTableHeader::updateStretches()
 	    return;
 	int i;
 	int ph = height() - ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) ) - 1;
+	bool block = signalsBlocked();
 	blockSignals( TRUE );
 	for ( i = 0; i < (int)stretchable.count(); ++i ) {
 	    if ( !stretchable[ i ] )
@@ -5085,7 +5087,7 @@ void QTableHeader::updateStretches()
 		ph = height() - sectionPos( i );
 	    resizeSection( i, QMAX( 20, ph ) );
 	}
-	blockSignals( FALSE );
+	blockSignals( block );
 	table->viewport()->repaint( FALSE );
 	widgetStretchTimer->start( 100, TRUE );
     }

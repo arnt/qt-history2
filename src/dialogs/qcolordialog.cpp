@@ -971,9 +971,10 @@ public:
     void setNum( int i ) {
 	QString s;
 	s.setNum(i);
+	bool block = signalsBlocked();
 	blockSignals(TRUE);
 	setText( s );
-	blockSignals(FALSE);
+	blockSignals(block);
     }
     int val() const { return text().toInt(); }
 };

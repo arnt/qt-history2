@@ -359,10 +359,11 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
     d->tabs->layoutTabs();
 
     int ct = d->tabs->currentTab();
+    bool block = d->tabs->signalsBlocked();
     d->tabs->blockSignals( TRUE );
     d->tabs->setCurrentTab( 0 );
     d->tabs->setCurrentTab( ct );
-    d->tabs->blockSignals( FALSE );
+    d->tabs->blockSignals( block );
 
     d->tabs->update();
     setUpLayout();
@@ -387,10 +388,11 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
     d->tabs->layoutTabs();
 
     int ct = d->tabs->currentTab();
+    bool block = d->tabs->signalsBlocked();
     d->tabs->blockSignals( TRUE );
     d->tabs->setCurrentTab( 0 );
     d->tabs->setCurrentTab( ct );
-    d->tabs->blockSignals( FALSE );
+    d->tabs->blockSignals( block );
 
     d->tabs->update();
     setUpLayout();

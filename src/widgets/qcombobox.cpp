@@ -1375,9 +1375,10 @@ void QComboBox::popup()
 
 	d->listBox()->move( x,y );
 	d->listBox()->raise();
+	bool block = d->listBox()->signalsBlocked();
 	d->listBox()->blockSignals( TRUE );
 	d->listBox()->setCurrentItem( d->listBox()->item( d->current ) );
-	d->listBox()->blockSignals( FALSE );
+	d->listBox()->blockSignals( block );
 	d->listBox()->setAutoScrollBar( TRUE );
 
 #ifndef QT_NO_EFFECTS

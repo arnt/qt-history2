@@ -1311,6 +1311,7 @@ void QListBox::removeItem( int index )
 
 void QListBox::clear()
 {
+    bool blocked = signalsBlocked();
     blockSignals( TRUE );
     d->clearing = TRUE;
     d->current = 0;
@@ -1333,7 +1334,7 @@ void QListBox::clear()
     d->mouseMoveColumn = -1;
     d->selectable.clear();
     clearSelection();
-    blockSignals( FALSE );
+    blockSignals( blocked );
     triggerUpdate( TRUE );
     d->last = 0;
     d->clearing = FALSE;
@@ -3729,9 +3730,10 @@ void QListBoxPrivate::findItemByName( const QString &text )
 	listBox->setCurrentItem( item );
 	if ( selectionMode == QListBox::Extended ) {
 	    bool changed = FALSE;
+	    bool block = listBox->signalsBlocked();
 	    listBox->blockSignals( TRUE );
 	    listBox->selectAll( FALSE );
-	    listBox->blockSignals( FALSE );
+	    listBox->blockSignals( block );
 	    if ( !item->s && item->isSelectable() ) {
 		changed = TRUE;
 		item->s = TRUE;
@@ -3903,6 +3905,8 @@ void QListBox::sort( bool ascending )
     if ( count() == 0 )
 	return;
 
+    d->cache = 0;
+
     QListBoxPrivate::SortableItem *items = new QListBoxPrivate::SortableItem[ count() ];
 
     QListBoxItem *item = d->head;
@@ -3960,9 +3964,10 @@ void QListBox::handleItemChange( QListBoxItem *old, bool shift, bool control )
 	    selectRange( d->selectAnchor ? d->selectAnchor : old,
 			 d->current, FALSE, TRUE, d->selectAnchor ? TRUE : FALSE );
 	} else {
+	    bool block = signalsBlocked();
 	    blockSignals( TRUE );
 	    selectAll( FALSE );
-	    blockSignals( FALSE );
+	    blockSignals( block );
 	    setSelected( d->current, TRUE );
 	}
     } else if ( d->selectionMode == Multi ) {

@@ -2799,6 +2799,7 @@ void QListView::insertItem( QListViewItem * i )
 
 void QListView::clear()
 {
+    bool block = signalsBlocked();
     blockSignals( TRUE );
     d->clearing = TRUE;
     clearSelection();
@@ -2836,7 +2837,7 @@ void QListView::clear()
     r->is_root = TRUE;
     d->r = r;
     d->r->setSelectable( FALSE );
-    blockSignals( FALSE );
+    blockSignals( block );
     triggerUpdate();
     d->clearing = FALSE;
 }
@@ -6315,9 +6316,10 @@ void QListView::handleItemChange( QListViewItem *old, bool shift, bool control )
 	    selectRange( d->selectAnchor ? d->selectAnchor : old,
 			 d->focusItem, FALSE, TRUE, d->selectAnchor ? TRUE : FALSE );
 	} else {
+	    bool block = signalsBlocked();
 	    blockSignals( TRUE );
 	    selectAll( FALSE );
-	    blockSignals( FALSE );
+	    blockSignals( block );
 	    setSelected( d->focusItem, TRUE );
 	}
     } else if ( d->selectionMode == Multi ) {
