@@ -46,16 +46,61 @@
 */
 
 /*!
+    \enum QAbstractItemDelegate::EndEditHint
+
+    This enum describes the different hints that the delegate can give to the
+    model and view components to make editing data in a model a comfortable
+    experience for the user.
+
+    \value NoHint           There is no recommended action to be performed.
+
+    These hints let the delegate influence the behavior of the view:
+
+    \value EditNextItem     The view should use the delegate to open an
+                            editor on the next item in the view.
+    \value EditPreviousItem The view should use the delegate to open an
+                            editor on the previous item in the view.
+
+    Note that custom views may interpret the concepts of next and previous
+    differently.
+
+    The following hints are most useful when models are used that cache
+    data, such as those that manipulate date locally in order to increase
+    performance or conserve network bandwidth.
+
+    \value SubmitModelCache If the model caches data, it should write out
+                            cached data to the underlying data store.
+    \value RevertModelCache If the model caches data, it should discard
+                            cached data and replace it with data from the
+                            underlying data store.
+
+    Although models and views should respond to these hints in appropriate
+    ways, custom components may ignore any or all of them if they are not
+    relevant.
+*/
+
+/*!
   \fn void QAbstractItemDelegate::commitData(QWidget *editor)
 
-  This signal is emitted when... ### FIXME ###
+  This signal is emitted when the \a editor widget has completed editing the
+  data, and wants to write it back into the model.
+  ... ### FIXME ###
 */
 
 /*!
     \fn void QAbstractItemDelegate::closeEditor(QWidget *editor, EndEditHint hint)
 
-    This signal is emitted when the user has finished editing an item.
-    The arguments are the \a editor that was used.
+    This signal is emitted when the user has finished editing an item using
+    the specified \a editor.
+
+    The \a hint provides a way for the delegate to influence how the model and
+    view behave after editing is completed. It indicates to these components
+    what action should be performed next to provide a comfortable editing
+    experience for the user. For example, if \c EditNextItem is specified,
+    the view should use a delegate to open an editor on the next item in the
+    model.
+
+    \sa EndEditHint
 */
 
 /*!
@@ -68,6 +113,8 @@ QAbstractItemDelegate::QAbstractItemDelegate(QObject *parent)
 }
 
 /*!
+    \internal
+
     Creates a new abstract item delegate with the given \a parent.
 */
 QAbstractItemDelegate::QAbstractItemDelegate(QObjectPrivate &dd, QObject *parent)

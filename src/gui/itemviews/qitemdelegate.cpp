@@ -150,10 +150,9 @@ void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 }
 
 /*!
-Returns the size needed by the delegate to display the item specified by
-the \a model and item \a index, taking into account the visual
-information provided by the font metrics in \a fontMetrics, and the given
-style \a option.
+    Returns the size needed by the delegate to display the item specified by
+    the \a model and item \a index, taking into account the style information
+    provided by \a option.
 */
 
 QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
@@ -179,8 +178,8 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
 /*!
     Returns the widget used to edit the item specified by the \a model and
-    item \a index for the editing \a action given. The \a parent widget and
-    style \a option are used to control how the editor widget appears.
+    item \a index for editing. The \a parent widget and style \a option are
+    used to control how the editor widget appears.
 
     \sa QAbstractItemDelegate::editor()
 */
@@ -268,8 +267,9 @@ QItemEditorFactory *QItemDelegate::itemEditorFactory() const
 }
 
 /*!
-  Sets the editor factory to be used by the item delegate.
-  If no editor factory is set, the item delegate will use the default editor factory.
+  Sets the editor factory to be used by the item delegate to be the \a factory
+  specified. If no editor factory is set, the item delegate will use the
+  default editor factory.
 */
 void QItemDelegate::setItemEditorFactory(QItemEditorFactory *factory)
 {
