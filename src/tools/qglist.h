@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#36 $
+** $Id: //depot/qt/main/src/tools/qglist.h#37 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -70,53 +70,53 @@ protected:
 
     QGList &operator=( const QGList & );	// assign from other list
 
-    void inSort( Item );			// add item sorted in list
-    void append( Item );			// add item at end of list
-    bool insertAt( uint index, Item );		// add item at i'th position
+    void inSort( QCollection::Item );		// add item sorted in list
+    void append( QCollection::Item );		// add item at end of list
+    bool insertAt( uint index, QCollection::Item ); // add item at i'th position
     void relinkNode( QLNode * );		// relink as first item
     bool removeNode( QLNode * );		// remove node
-    bool remove( Item = 0 );			// remove item (0=current)
-    bool removeRef( Item = 0 );			// remove item (0=current)
+    bool remove( QCollection::Item = 0 );	// remove item (0=current)
+    bool removeRef( QCollection::Item = 0 );	// remove item (0=current)
     bool removeFirst();				// remove first item
     bool removeLast();				// remove last item
     bool removeAt( uint index );		// remove item at i'th position
-    Item takeNode( QLNode * );			// take out node
-    Item take();				// take out current item
-    Item takeAt( uint index );			// take out item at i'th pos
-    Item takeFirst();				// take out first item
-    Item takeLast();				// take out last item
+    QCollection::Item takeNode( QLNode * );	// take out node
+    QCollection::Item take();			// take out current item
+    QCollection::Item takeAt( uint index );	// take out item at i'th pos
+    QCollection::Item takeFirst();		// take out first item
+    QCollection::Item takeLast();		// take out last item
 
-    void sort();                               // sort all items;
-    void clear();				// remove all items
+    void sort();                        // sort all items;
+    void clear();			// remove all items
 
-    int	 findRef( Item, bool = TRUE );		// find exact item in list
-    int	 find( Item, bool = TRUE );		// find equal item in list
+    int	 findRef( QCollection::Item, bool = TRUE ); // find exact item in list
+    int	 find( QCollection::Item, bool = TRUE ); // find equal item in list
 
-    uint containsRef( Item )	const;		// get number of exact matches
-    uint contains( Item )	const;		// get number of equal matches
+    uint containsRef( QCollection::Item ) const; // get number of exact matches
+    uint contains( QCollection::Item )	const;	// get number of equal matches
 
-    Item	  at( uint index );			// access item at i'th pos
+    QCollection::Item at( uint index );		// access item at i'th pos
     int	  at() const;				// get current index
     QLNode *currentNode() const;		// get current node
 
-    Item	  get() const;				// get current item
+    QCollection::Item get() const;		// get current item
 
-    Item	  cfirst() const;			// get ptr to first list item
-    Item	  clast()  const;			// get ptr to last list item
-    Item	  first();				// set first item in list curr
-    Item	  last();				// set last item in list curr
-    Item	  next();				// set next item in list curr
-    Item	  prev();				// set prev item in list curr
+    QCollection::Item cfirst() const;	// get ptr to first list item
+    QCollection::Item clast()  const;	// get ptr to last list item
+    QCollection::Item first();		// set first item in list curr
+    QCollection::Item last();		// set last item in list curr
+    QCollection::Item next();		// set next item in list curr
+    QCollection::Item prev();		// set prev item in list curr
 
     void  toVector( QGVector * ) const;		// put items in vector
 
-    virtual int compareItems( Item, Item );
+    virtual int compareItems( QCollection::Item, QCollection::Item );
 
-    virtual QDataStream &read( QDataStream &, Item & );
-    virtual QDataStream &write( QDataStream &, Item ) const;
+    virtual QDataStream &read( QDataStream &, QCollection::Item & );
+    virtual QDataStream &write( QDataStream &, QCollection::Item ) const;
 
 private:
-    void  prepend( Item );			// add item at start of list
+    void  prepend( QCollection::Item ); // add item at start of list
 
     void heapSortPushDown( QCollection::Item* heap, int first, int last );
 

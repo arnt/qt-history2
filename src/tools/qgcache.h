@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#27 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#28 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -42,7 +42,7 @@ class Q_EXPORT QGCache : public QCollection	// generic LRU cache
 {
 friend class QGCacheIterator;
 protected:
-    enum KeyType { StringKey, AsciiKey, IntKey, PtrKey }; 
+    enum KeyType { StringKey, AsciiKey, IntKey, PtrKey };
       // identical to QGDict's, but PtrKey is not used at the moment
 
     QGCache( int maxCost, uint size, KeyType kt, bool caseSensitive,
@@ -58,15 +58,17 @@ protected:
     void    setMaxCost( int maxCost );
     void    clear();
 
-    bool    insert_string( const QString &key, Item, int cost, int priority );
-    bool    insert_other( const char *key, Item, int cost, int priority );
+    bool    insert_string( const QString &key, QCollection::Item,
+			   int cost, int priority );
+    bool    insert_other( const char *key, QCollection::Item,
+			  int cost, int priority );
     bool    remove_string( const QString &key );
     bool    remove_other( const char *key );
-    Item    take_string( const QString &key );
-    Item    take_other( const char *key );
+    QCollection::Item take_string( const QString &key );
+    QCollection::Item take_other( const char *key );
 
-    Item    find_string( const QString &key, bool ref=TRUE ) const;
-    Item    find_other( const char *key, bool ref=TRUE ) const;
+    QCollection::Item find_string( const QString &key, bool ref=TRUE ) const;
+    QCollection::Item find_other( const char *key, bool ref=TRUE ) const;
 
     void    statistics() const;
 

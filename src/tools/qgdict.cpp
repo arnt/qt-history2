@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#82 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#83 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -142,7 +142,7 @@ int QGDict::hashKeyAscii( const char *key )
   \sa write()
 */
 
-QDataStream& QGDict::read( QDataStream &s, Item &item )
+QDataStream& QGDict::read( QDataStream &s, QCollection::Item &item )
 {
     item = 0;
     return s;
@@ -157,7 +157,7 @@ QDataStream& QGDict::read( QDataStream &s, Item &item )
   \sa read()
 */
 
-QDataStream& QGDict::write( QDataStream &s, Item ) const
+QDataStream& QGDict::write( QDataStream &s, QCollection::Item ) const
 {
     return s;
 }
@@ -302,7 +302,7 @@ QGDict &QGDict::operator=( const QGDict &dict )
   The do-it-all function; op is one of op_find, op_insert, op_replace
 */
 
-QCollection::Item QGDict::look_string( const QString &key, Item d, int op )
+QCollection::Item QGDict::look_string( const QString &key, QCollection::Item d, int op )
 {
     QStringBucket *n;
     int	index = hashKeyString(key) % vlen;
@@ -339,7 +339,10 @@ QCollection::Item QGDict::look_string( const QString &key, Item d, int op )
     return n->getData();
 }
 
-QCollection::Item QGDict::look_ascii( const char *key, Item d, int op )
+
+/*!  \internal */
+
+QCollection::Item QGDict::look_ascii( const char *key, QCollection::Item d, int op )
 {
     QAsciiBucket *n;
     int	index = hashKeyAscii(key) % vlen;
@@ -375,7 +378,10 @@ QCollection::Item QGDict::look_ascii( const char *key, Item d, int op )
     return n->getData();
 }
 
-QCollection::Item QGDict::look_int( long key, Item d, int op )
+
+/*!  \internal */
+
+QCollection::Item QGDict::look_int( long key, QCollection::Item d, int op )
 {
     QIntBucket *n;
     int index = (int)((ulong)key % vlen);	// simple hash
@@ -404,7 +410,9 @@ QCollection::Item QGDict::look_int( long key, Item d, int op )
 }
 
 
-QCollection::Item QGDict::look_ptr( void *key, Item d, int op )
+/*!  \internal */
+
+QCollection::Item QGDict::look_ptr( void *key, QCollection::Item d, int op )
 {
     QPtrBucket *n;
     int index = (int)((ulong)key % vlen);	// simple hash
@@ -539,7 +547,7 @@ void QGDict::unlink_common( int index, QBaseBucket *node, QBaseBucket *prev )
     numItems--;
 }
 
-QStringBucket *QGDict::unlink_string( const QString &key, Item d )
+QStringBucket *QGDict::unlink_string( const QString &key, QCollection::Item d )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
@@ -575,7 +583,7 @@ QStringBucket *QGDict::unlink_string( const QString &key, Item d )
     return 0;
 }
 
-QAsciiBucket *QGDict::unlink_ascii( const char *key, Item d )
+QAsciiBucket *QGDict::unlink_ascii( const char *key, QCollection::Item d )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
@@ -596,7 +604,7 @@ QAsciiBucket *QGDict::unlink_ascii( const char *key, Item d )
     return 0;
 }
 
-QIntBucket *QGDict::unlink_int( long key, Item d )
+QIntBucket *QGDict::unlink_int( long key, QCollection::Item d )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
@@ -616,7 +624,7 @@ QIntBucket *QGDict::unlink_int( long key, Item d )
     return 0;
 }
 
-QPtrBucket *QGDict::unlink_ptr( void *key, Item d )
+QPtrBucket *QGDict::unlink_ptr( void *key, QCollection::Item d )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
@@ -644,7 +652,7 @@ QPtrBucket *QGDict::unlink_ptr( void *key, Item d )
   item when several items have the same key).
 */
 
-bool QGDict::remove_string( const QString &key, Item item )
+bool QGDict::remove_string( const QString &key, QCollection::Item item )
 {
     QStringBucket *n = unlink_string( key, item );
     if ( n ) {
@@ -654,7 +662,10 @@ bool QGDict::remove_string( const QString &key, Item item )
     return n != 0;
 }
 
-bool QGDict::remove_ascii( const char *key, Item item )
+
+/*!  \internal */
+
+bool QGDict::remove_ascii( const char *key, QCollection::Item item )
 {
     QAsciiBucket *n = unlink_ascii( key, item );
     if ( n ) {
@@ -666,7 +677,10 @@ bool QGDict::remove_ascii( const char *key, Item item )
     return n != 0;
 }
 
-bool QGDict::remove_int( long key, Item item )
+
+/*!  \internal */
+
+bool QGDict::remove_int( long key, QCollection::Item item )
 {
     QIntBucket *n = unlink_int( key, item );
     if ( n ) {
@@ -676,7 +690,10 @@ bool QGDict::remove_int( long key, Item item )
     return n != 0;
 }
 
-bool QGDict::remove_ptr( void *key, Item item )
+
+/*!  \internal */
+
+bool QGDict::remove_ptr( void *key, QCollection::Item item )
 {
     QPtrBucket *n = unlink_ptr( key, item );
     if ( n ) {
@@ -685,6 +702,9 @@ bool QGDict::remove_ptr( void *key, Item item )
     }
     return n != 0;
 }
+
+
+/*!  \internal */
 
 QCollection::Item QGDict::take_string( const QString &key )
 {
@@ -698,6 +718,9 @@ QCollection::Item QGDict::take_string( const QString &key )
     }
     return d;
 }
+
+
+/*!  \internal */
 
 QCollection::Item QGDict::take_ascii( const char *key )
 {
@@ -714,6 +737,9 @@ QCollection::Item QGDict::take_ascii( const char *key )
     return d;
 }
 
+
+/*!  \internal */
+
 QCollection::Item QGDict::take_int( long key )
 {
     QIntBucket *n = unlink_int( key );
@@ -726,6 +752,9 @@ QCollection::Item QGDict::take_int( long key )
     }
     return d;
 }
+
+
+/*!  \internal */
 
 QCollection::Item QGDict::take_ptr( void *key )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#50 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -332,8 +332,8 @@ void QGCache::setMaxCost( int maxCost )
   invalid.
 */
 
-bool QGCache::insert_string( const QString &key, Item data, int cost,
-			     int priority)
+bool QGCache::insert_string( const QString &key, QCollection::Item data,
+			     int cost, int priority)
 {
     if ( tCost + cost > mCost ) {
 	if ( !makeRoomFor(tCost + cost - mCost, priority) ) {
@@ -360,7 +360,11 @@ bool QGCache::insert_string( const QString &key, Item data, int cost,
     return TRUE;
 }
 
-bool QGCache::insert_other( const char *key, Item data, int cost, int priority)
+
+/*! \internal */
+
+bool QGCache::insert_other( const char *key, QCollection::Item data,
+			    int cost, int priority)
 {
     if ( tCost + cost > mCost ) {
 	if ( !makeRoomFor(tCost + cost - mCost, priority) ) {
@@ -406,6 +410,9 @@ bool QGCache::remove_string( const QString &key )
     return d != 0;
 }
 
+
+/*! \internal */
+
 bool QGCache::remove_other( const char *key )
 {
     Item d = take_other( key );
@@ -413,6 +420,7 @@ bool QGCache::remove_other( const char *key )
 	deleteItem( d );
     return d != 0;
 }
+
 
 /*!
   \internal
@@ -435,6 +443,10 @@ QCollection::Item QGCache::take_string( const QString &key )
     return d;
 }
 
+
+
+/*! \internal */
+
 QCollection::Item QGCache::take_other( const char *key )
 {
     QCacheItem *ci;
@@ -455,6 +467,7 @@ QCollection::Item QGCache::take_other( const char *key )
     }
     return d;
 }
+
 
 /*!
   \internal
@@ -510,6 +523,9 @@ QCollection::Item QGCache::find_string( const QString &key, bool ref ) const
     }
     return 0;
 }
+
+
+/*! \internal */
 
 QCollection::Item QGCache::find_other( const char *key, bool ref ) const
 {

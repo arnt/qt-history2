@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#30 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -36,12 +36,12 @@
   collection.html collection classes\endlink QDict, QList etc. via QGDict,
   QGList etc.
 
-  A QCollection knows only about the number of objects in the collection and
-  the \link setAutoDelete() deletion strategy\endlink.
+  A QCollection knows only about the number of objects in the
+  collection and the deletion strategy (see setAutoDelete()).
 
-  A collection is implemented using the \c Item (generic collection item)
-  type, which is a \c void*.  The template (or macro) classes that
-  create the real collections cast the \c Item to the required type.
+  A collection is implemented using the \c Item (generic collection
+  item) type, which is a \c void*.  The template classes that create
+  the real collections cast the \c Item to the required type.
 
   \sa \link collection.html Collection Classes\endlink
 */
@@ -85,6 +85,7 @@
 
 /*!
   \fn void QCollection::setAutoDelete( bool enable )
+
   Sets the auto-delete option of the collection.
 
   Enabling auto-delete (\e enable is TRUE) will delete objects that
@@ -146,12 +147,13 @@ QCollection::Item QCollection::newItem( Item d )
   This function is always reimplemented in the collection template
   classes.
 
-  ***NOTE*** If you reimplement this function you must also reimplement the
-  destructor and call the virtual function clear() from your
-  destructor. This is due to the way virtual functions and destructors
-  work in C++, virtual functions in derived classes cannot be called from
-  a destructor. If you do not do this your deleteItem() function will not
-  be called if the container is not empty when it is destructed.
+  \warning If you reimplement this function you must also reimplement
+  the destructor and call the virtual function clear() from your
+  destructor.  This is due to the way virtual functions and
+  destructors work in C++: virtual functions in derived classes cannot
+  be called from a destructor.  If you do not do this your
+  deleteItem() function will not be called when the container is
+  destructed.
 
   \sa newItem(), setAutoDelete()
 */

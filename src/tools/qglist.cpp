@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#56 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#57 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -109,7 +109,7 @@
   \endcode
 */
 
-int QGList::compareItems( Item item1, Item item2 )
+int QGList::compareItems( QCollection::Item item1, QCollection::Item item2 )
 {
     return item1 != item2;			// compare pointers
 }
@@ -123,7 +123,7 @@ int QGList::compareItems( Item item1, Item item2 )
   \sa write()
 */
 
-QDataStream &QGList::read( QDataStream &s, Item &item )
+QDataStream &QGList::read( QDataStream &s, QCollection::Item &item )
 {
     item = 0;
     return s;
@@ -138,7 +138,7 @@ QDataStream &QGList::read( QDataStream &s, Item &item )
   \sa read()
 */
 
-QDataStream &QGList::write( QDataStream &s, Item ) const
+QDataStream &QGList::write( QDataStream &s, QCollection::Item ) const
 {
     return s;
 }
@@ -284,7 +284,7 @@ QLNode *QGList::locate( uint index )
   Inserts an item at its sorted position in the list.
 */
 
-void QGList::inSort( Item d )
+void QGList::inSort( QCollection::Item d )
 {
     int index = 0;
     register QLNode *n = firstNode;
@@ -301,7 +301,7 @@ void QGList::inSort( Item d )
   Inserts an item at the start of the list.
 */
 
-void QGList::prepend( Item d )
+void QGList::prepend( QCollection::Item d )
 {
     register QLNode *n = new QLNode( newItem(d) );
     CHECK_PTR( n );
@@ -321,7 +321,7 @@ void QGList::prepend( Item d )
   Inserts an item at the end of the list.
 */
 
-void QGList::append( Item d )
+void QGList::append( QCollection::Item d )
 {
     register QLNode *n = new QLNode( newItem(d) );
     CHECK_PTR( n );
@@ -341,7 +341,7 @@ void QGList::append( Item d )
   Inserts an item at position \e index in the list.
 */
 
-bool QGList::insertAt( uint index, Item d )
+bool QGList::insertAt( uint index, QCollection::Item d )
 {
     if ( index == 0 ) {				// insert at head of list
 	prepend( d );
@@ -461,7 +461,7 @@ bool QGList::removeNode( QLNode *n )
   Removes the item \e d from the list.	Uses compareItems() to find the item.
 */
 
-bool QGList::remove( Item d )
+bool QGList::remove( QCollection::Item d )
 {
     if ( d ) {					// find the item
 	if ( find(d) == -1 )
@@ -480,7 +480,7 @@ bool QGList::remove( Item d )
   Removes the item \e d from the list.
 */
 
-bool QGList::removeRef( Item d )
+bool QGList::removeRef( QCollection::Item d )
 {
     if ( d ) {					// find the item
 	if ( findRef(d) == -1 )
@@ -640,7 +640,7 @@ void QGList::clear()
   Finds an item in the list.
 */
 
-int QGList::findRef( Item d, bool fromStart )
+int QGList::findRef( QCollection::Item d, bool fromStart )
 {
     register QLNode *n;
     int	     index;
@@ -665,7 +665,7 @@ int QGList::findRef( Item d, bool fromStart )
   Finds an item in the list.  Uses compareItems().
 */
 
-int QGList::find( Item d, bool fromStart )
+int QGList::find( QCollection::Item d, bool fromStart )
 {
     register QLNode *n;
     int	     index;
@@ -691,7 +691,7 @@ int QGList::find( Item d, bool fromStart )
   Counts the number an item occurs in the list.
 */
 
-uint QGList::containsRef( Item d ) const
+uint QGList::containsRef( QCollection::Item d ) const
 {
     register QLNode *n = firstNode;
     uint     count = 0;
@@ -708,7 +708,7 @@ uint QGList::containsRef( Item d ) const
   Counts the number an item occurs in the list.	 Uses compareItems().
 */
 
-uint QGList::contains( Item d ) const
+uint QGList::contains( QCollection::Item d ) const
 {
     register QLNode *n = firstNode;
     uint     count = 0;
