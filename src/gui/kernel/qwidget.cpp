@@ -681,6 +681,9 @@ void QWidgetPrivate::init(Qt::WFlags f)
     data.is_closing = 0;
     data.in_show = 0;
     data.in_set_window_state = 0;
+
+    q->setAttribute(Qt::WA_QuitOnClose); // might be cleared in create()
+
     q->create();                                        // platform-dependent init
 #if defined(Q_WS_X11)
     data.fnt.x11SetScreen(xinfo.screen());
@@ -738,8 +741,6 @@ void QWidgetPrivate::init(Qt::WFlags f)
 
     if (++QWidgetPrivate::instanceCounter > QWidgetPrivate::maxInstances)
         QWidgetPrivate::maxInstances = QWidgetPrivate::instanceCounter;
-
-    q->setAttribute(Qt::WA_QuitOnClose);
 
     QEvent e(QEvent::Create);
     QApplication::sendEvent(q, &e);
