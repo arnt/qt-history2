@@ -9,8 +9,9 @@ SOURCES		= main.cpp \
 unix:OBJECTS_DIR	= .obj
 
 win32 {
-	OBJECTS_DIR	= obj
-	LIBS	+= odbc32.lib
+	OBJECTS_DIR		= obj
+	!win32-borland:LIBS	+= odbc32.lib
+	win32-borland:LIBS	+= $(BCB)/lib/PSDK/odbc32.lib
 }
 
 !isEmpty(LIBS) {

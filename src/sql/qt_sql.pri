@@ -84,7 +84,8 @@ sql {
 			LIBS += -lodbc
 		}
 		win32 {
-			LIBS += odbc32.lib
+			!win32-borland:LIBS += odbc32.lib
+			win32-borland:LIBS  += $(BCB)/lib/PSDK/odbc32.lib
 		}
 	}
 
