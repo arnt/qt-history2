@@ -1117,17 +1117,27 @@ QString QListViewItem::key( int column, bool ) const
   ascending order. Returns -1 if this item is less than \a i, 0 if
   they are equal and 1 if this item is greater than \a i.
 
-  The default implementation uses QIListViewItem::key() to compare the
-  items. A reimplementation may use different values.
-
   This function is used for sorting.
 
-  \sa key()
+  The default implementation compares the item keys (key()) using
+  QString::localeAwareCompare(). A reimplementation may use different
+  values and a different comparison function. Here is a
+  reimplementation that uses plain Unicode comparison:
+
+  \code
+    int MyListViewItem::compare( QListViewItem *i, int col,
+				 bool ascending ) const
+    {
+	return key( col, ascending ).compare( i->key(col, ascending) );
+    }
+  \endcode
+
+  \sa key() QString::localeAwareCompare() QString::compare()
 */
 
 int QListViewItem::compare( QListViewItem *i, int col, bool ascending ) const
 {
-    return key( col, ascending ).compare( i->key( col, ascending ) );
+    return key( col, ascending ).localeAwareCompare( i->key( col, ascending ) );
 }
 
 /*!  Sorts the children of this item by the return values of
@@ -1189,7 +1199,6 @@ void QListViewItem::sortChildItems( int column, bool ascending )
 	childItem = siblings[nChildren-1].item;
     }
 
-    // we don't want no steenking memory leaks.
     delete[] siblings;
 }
 
@@ -1252,9 +1261,7 @@ void QListViewItem::invalidateHeight()
   \skipto setOpen
   \printline setOpen
 
-  (c.f. \link xml/tagreader-with-features/structureparser.cpp
-  xml/tagreader-with-features/structureparser.cpp \endlink )
-
+  (cf. \l xml/tagreader-with-features/structureparser.cpp)
 
   Also does some bookkeeping.
 

@@ -1598,15 +1598,24 @@ void QIconViewItem::rename()
   is less than \a i, 0 if they are equal, and 1 if this icon view item
   is greater than \a i.
 
-  The default implementation uses QIconViewItem::key() to compare the
-  items. A reimplementation may use different values.
+  The default implementation compares the item keys (key()) using
+  QString::localeAwareCompare(). A reimplementation may use different
+  values and a different comparison function. Here is a
+  reimplementation that uses plain Unicode comparison:
 
-  \sa key()
+  \code
+    int MyIconViewItem::compare( QIconViewItem *i ) const
+    {
+	return key().compare( i->key() );
+    }
+  \endcode
+
+  \sa key() QString::localeAwareCompare() QString::compare()
 */
 
 int QIconViewItem::compare( QIconViewItem *i ) const
 {
-    return key().compare( i->key() );
+    return key().localeAwareCompare( i->key() );
 }
 
 /*!
@@ -2067,7 +2076,7 @@ void QIconViewItem::checkRect()
 /*!
   \class QIconView qiconview.h
   \brief The QIconView class provides an area with movable labelled icons.
-  \module iconview
+  \module icon view
 
   \ingroup advanced
 
@@ -2993,7 +3002,7 @@ void QIconView::setSelected( QIconViewItem *item, bool s, bool cb )
 }
 
 /*! \property QIconView::count
-  \brief the number of items in the iconview
+  \brief the number of items in the icon view
 */
 
 uint QIconView::count() const
@@ -3347,7 +3356,7 @@ void QIconView::showEvent( QShowEvent * )
 }
 
 /*! \property QIconView::selectionMode
-  \brief the selection mode of the iconview
+  \brief the selection mode of the icon view
 
   This can be \c Single (the default), \c Extended, \c Multi or \c
   NoSelection. The default mode is \c Single.
@@ -3715,7 +3724,7 @@ void QIconView::clear()
 }
 
 /*!  \property QIconView::gridX
-  \brief the horizontal grid  of the iconview
+  \brief the horizontal grid  of the icon view
 
   If the value is -1, (the default), QIconView computes suitable
   column widths based on the icon view's contents.
@@ -3729,7 +3738,7 @@ void QIconView::setGridX( int rx )
 }
 
 /*!  \property QIconView::gridY
-  \brief the vertical grid  of the iconview
+  \brief the vertical grid  of the icon view
 
   If the value is -1, (the default), QIconView computes suitable
   column heights based on the icon view's contents.

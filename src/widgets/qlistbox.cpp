@@ -3962,11 +3962,7 @@ static int cmpListBoxItems( const void *n1, const void *n2 )
     QListBoxPrivate::SortableItem *i1 = (QListBoxPrivate::SortableItem *)n1;
     QListBoxPrivate::SortableItem *i2 = (QListBoxPrivate::SortableItem *)n2;
 
-    if ( i1->item->text() < i2->item->text() )
-	return -1;
-    else if ( i1->item->text() == i2->item->text() )
-	return 0;
-    return 1;
+    return i1->item->key().localeAwareCompare( i2->item->key() );
 }
 
 #if defined(Q_C_CALLBACKS)

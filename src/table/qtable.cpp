@@ -4123,7 +4123,7 @@ static int cmpTableItems( const void *n1, const void *n2 )
     SortableTableItem *i1 = (SortableTableItem *)n1;
     SortableTableItem *i2 = (SortableTableItem *)n2;
 
-    return i1->item->key().compare( i2->item->key() );
+    return i1->item->key().localeAwareCompare( i2->item->key() );
 }
 
 #if defined(Q_C_CALLBACKS)
