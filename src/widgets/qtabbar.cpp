@@ -1081,6 +1081,8 @@ void QTabBar::layoutTabs()
 
     if ( sizeHint() != oldSh )
 	updateGeometry();
+
+    emit layoutChanged();
 }
 
 /*!
@@ -1175,7 +1177,10 @@ void QTabBar::makeVisible( QTab* tab  )
     if ( !d->scrolls || ( !tooFarLeft && ! tooFarRight ) )
 	return;
 
+    bool bs = signalsBlocked();
+    blockSignals(TRUE);
     layoutTabs();
+    blockSignals(bs);
 
     int offset = 0;
 
@@ -1198,6 +1203,7 @@ void QTabBar::makeVisible( QTab* tab  )
 	d->rightB->setDown( FALSE );
 
     update();
+    emit layoutChanged();
 }
 
 void QTabBar::updateArrowButtons()

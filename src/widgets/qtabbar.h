@@ -134,7 +134,8 @@ public slots:
     virtual void setCurrentTab( QTab * );
 
 signals:
-    void  selected( int );
+    void selected( int );
+    void layoutChanged();
 
 protected:
     virtual void paint( QPainter *, QTab *, bool ) const; // ### not const
@@ -162,7 +163,7 @@ private slots:
 private:
     QPtrList<QTab> * l;
     QPtrList<QTab> * lstatic;
-    void makeVisible( QTab* t  );
+    void makeVisible( QTab* t = 0 );
     void updateArrowButtons();
     QTabPrivate * d;
 
