@@ -36,79 +36,46 @@
 --
 --        xdb.sourceforge.net
 
--- create table alltypes (
--- n1 numeric,
--- n2 numeric( 19, 3 ),
--- c1 char( 50 ),
--- c2 char( 10 ),
--- d1 date
--- );
+create table alltypes (
+n1 numeric,
+n2 numeric( 19, 3 ),
+c1 char( 50 ),
+c2 char( 10 ),
+d1 date
+);
 
--- create unique index alltypesindex_primary on alltypes ( n1 ); 
--- create index alltypesindex_1 on alltypes ( n1, n2 ); 
--- create index alltypesindex_2 on alltypes ( c1 ); 
--- create index alltypesindex_3 on alltypes ( d1 ); 
--- 
--- insert into alltypes values( 1, 12, 'non-latin1: ικλε ”™', 'more', '2001-01-11'); 
--- insert into alltypes values( 91, 12, 'csdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 92, 22, 'csdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 93, 32, 'xsdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 94, 42, 'csdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 95, 52, 'csdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 96, 62, 'xsdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 97, 72, 'swdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 98, 82, 'sdsddfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 99, 92, 'sfdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 910, 32, 'dsddfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 921, 32, 'fsdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 922, 32, 'dsdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 923, 32, 'dsdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 924, 32, 'gsdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 925, 32, 'sdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 926, 32, 'sfdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 927, 32, 'sddfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 928, 32, 'sddfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 929, 32, 'sdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 9210, 32, 'scdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 931, 24, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 932, 24, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 933, 24, 'sdcfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 934, 24, 'sddfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 935, 24, 'sdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 936, 24, 'sdfcsdf', 'more', '2000-01-01');
--- insert into alltypes values( 937, 24, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 938, 24, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 939, 24, 'sdfvsdf', 'more', '2000-01-01');
--- insert into alltypes values( 9310, 24, 'sbdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 941, 52, 'sdgfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 942, 52, 'sddfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 943, 52, 'sddfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 944, 52, 'sddfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 945, 52, 'sddfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 946, 52, 'sdgfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 947, 52, 'sdgfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 948, 52, 'sdgfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 949, 52, 'sdfgsdf', 'more', '2000-01-01');
--- insert into alltypes values( 9410, 52, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 951, 62, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 952, 62, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 953, 62, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 954, 62, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 955, 62, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 956, 62, 'sdfsfdf', 'more', '2000-01-01');
--- insert into alltypes values( 957, 62, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 958, 62, 'sdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 959, 62, 'sfdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 9510, 62, 'sdfdfgsdf', 'more', '2000-01-01');
--- insert into alltypes values( 961, 72, 'sdfdfgsdf', 'more', '2000-01-01');
--- insert into alltypes values( 962, 72, 'sdfdfgsdf', 'more', '2000-01-01');
--- insert into alltypes values( 963, 72, 'sdfdfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 964, 72, 'sdfsddf', 'more', '2000-01-01');
--- insert into alltypes values( 965, 72, 'sdrtfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 966, 72, 'sdrfsdf', 'more', '2000-01-01');
--- insert into alltypes values( 967, 72, 'sdfssdfsdfdf', 'more', '2000-01-01');
--- insert into alltypes values( 968, 72, 'sdfsdsdfsdff', 'more', '2000-01-01');
--- insert into alltypes values( 969, 72, 'sdsdffsdf', 'more', '2000-01-01');
--- insert into alltypes values( 9699, 72, 'sdfssdfsdfdf', 'more', '2000-01-01');
+create unique index alltypesindex_primary on alltypes ( n1 ); 
+create index alltypesindex_1 on alltypes ( n1, n2 ); 
+create index alltypesindex_2 on alltypes ( c1 ); 
+create index alltypesindex_3 on alltypes ( d1 ); 
 
-update alltypes set c2 = 'updated' where id = 1;
+insert into alltypes values( 1, 12, 'non-latin1: ικλε ”™', 'more', '2001-01-11'); 
+insert into alltypes values( 91, 12, 'csdfsdf', 'more', '2000-01-01');
+insert into alltypes values( 92, 22, 'csdfsdf', 'more', '2000-01-01');
+insert into alltypes values( 93, 32, 'xsdfsdf', 'more', '2000-01-01');
+insert into alltypes values( 94, 42, 'csdfsdf', 'more', '2000-01-01');
+insert into alltypes values( 95, 52, 'csdfsdf', 'more', '2000-01-01');
+insert into alltypes values( 96, 62, 'xsdfsdf', 'more', '2000-01-01');
+insert into alltypes values( 97, 72, 'swdfsdf', 'more', '2000-01-01');
+insert into alltypes values( 98, 82, 'sdsddfsdf', 'more', '2000-01-01');
+insert into alltypes values( 99, 92, 'sfdfsdf', 'more', '2000-01-01');
+
+update alltypes set c2 = 'updated' where n1 = 1;
+update alltypes set c2 = 'updated1' where n1 = 1;
+update alltypes set c2 = 'updated2' where n1 = 1;
+update alltypes set c2 = 'updated3' where n1 = 1;
+update alltypes set c2 = 'updated4' where n1 = 1;
+update alltypes set n2 = 999 where n1 = 1;
+update alltypes set d1 = '1972-04-18' where n1 = 1;
+
+-- actually change a primary key
+update alltypes set n1 = 999 where n1 = 1;
+
+-- change a whole bunch of records
+-- ## jasmin: generates wrong code
+update alltypes set c1 = 'mass update' where n1 > 1;
+
+-- complex where clause
+-- ## jasmin: parens seem to generate wrong code
+update alltypes set c1 = 'complex update' where n1 = 91 OR ( n1+n2 > 189 );
+

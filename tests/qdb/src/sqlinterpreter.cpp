@@ -323,6 +323,15 @@ QStringList ResultSet::columnNames() const
     return cols;
 }
 
+bool ResultSet::field( const QString& name, QVariant& v )
+{
+    for ( uint i = 0; i < head->fields.count(); ++i ) {
+	if ( head->fields[i].name == name )
+	    return field( i, v );
+    }
+    return FALSE;
+}
+
 bool ResultSet::field( uint i, QVariant& v )
 {
     if ( i > count() ) {

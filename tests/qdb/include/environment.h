@@ -102,6 +102,8 @@ namespace localsql {
 	virtual QValueList<QVariant::Type> columnTypes() const = 0;
 	/*! Returns the value of field \a i (zero-based) */
 	virtual bool field( uint i, QVariant& v ) = 0;
+	/*! Returns the value of field named \a name */
+	virtual bool field( const QString& name, QVariant& v ) = 0;
     };
 
     /*! \struct ResultSet

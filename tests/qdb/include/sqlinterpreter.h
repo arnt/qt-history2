@@ -71,6 +71,7 @@ public:
     bool deleteMarked();
     bool commit();
     bool field( uint i, QVariant& v );
+    bool field( const QString& name, QVariant& v );
     bool updateMarked( const localsql::List& data );
     bool rewindMarked();
     bool nextMarked();
@@ -125,6 +126,7 @@ public:
     uint count() const;
     QStringList columnNames() const;
     bool field( uint i, QVariant& v );
+    bool field( const QString& name, QVariant& v );
     QValueList<QVariant::Type> columnTypes() const;
 
 private:

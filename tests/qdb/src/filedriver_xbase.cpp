@@ -55,6 +55,35 @@
 //#define DEBUG_XBASE 1
 //#define VERBOSE_DEBUG_XBASE
 
+static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
+{
+   switch ( t1 ) {
+    case QVariant::Int:
+    case QVariant::UInt:
+    case QVariant::String:
+    case QVariant::CString:
+    case QVariant::Double:
+    case QVariant::Bool:
+	return TRUE;
+    case QVariant::Date:
+	switch ( t2 ) {
+	case QVariant::Int:
+	case QVariant::UInt:
+	case QVariant::Double:
+	case QVariant::Bool:
+	    return FALSE;
+	case QVariant::String:
+	case QVariant::CString:
+	case QVariant::Date:
+	    return TRUE;
+	default:
+	    return FALSE;
+	}
+    default:
+	return 0;
+    }
+}
+
 static QVariant::Type xbaseTypeToVariant( char type )
 {
     switch ( type ) {
@@ -493,6 +522,17 @@ bool FileDriver::commit()
     return TRUE;
 }
 
+bool FileDriver::field( const QString& name, QVariant& v )
+{
+    if ( !isOpen() )
+	return FALSE;
+    int i = d->file.GetFieldNo( name.latin1() );
+    if ( i == -1 ) {
+	ERROR_RETURN( "Field not found:" + name );
+    }
+    return field( i, v );
+}
+
 bool FileDriver::field( uint i, QVariant& v )
 {
     if ( !isOpen() )
@@ -645,7 +685,7 @@ bool FileDriver::update( const localsql::List& data )
 	if ( !name.length() ) {
 	    ERROR_RETURN( "Internal error: Unknown field number:" + QString::number(pos) );
 	}
-	if ( variantToXbaseType( updateData[1].type() ) != d->file.GetFieldType( pos ) ) {
+	if ( !canConvert( updateData[1].type(), xbaseTypeToVariant( d->file.GetFieldType( pos ) ) ) ) {
 	    QVariant v; v.cast( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) );
 	    ERROR_RETURN( "Internal error: Invalid field type:" + QString(updateData[1].typeName()) +
 			  ", expected:" + QString( v.typeName() ) );

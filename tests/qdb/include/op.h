@@ -245,7 +245,7 @@ public:
     }
 
 protected:
-    virtual bool pred( const QVariant& v1, const QVariant& v2 ) = 0; 
+    virtual bool pred( const QVariant& v1, const QVariant& v2 ) = 0;
 };
 
 /* Pop the top two elements from the stack.  If they are equal, then
@@ -571,8 +571,13 @@ public:
     {
 	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	QVariant v;
-	if ( !drv->field( p2.toInt(), v ) )
-	    return FALSE;
+	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
+	    if ( !drv->field( p2.toString(), v ) )
+		return FALSE;
+	} else {
+	    if ( !drv->field( p2.toInt(), v ) )
+		return FALSE;
+	}
 	env->stack()->push( v );
 	return TRUE;
     }
