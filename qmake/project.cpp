@@ -1162,12 +1162,12 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    if(arg_list.count() >= 2)
 			start = arg_list[1].toInt();
 		    if(start < 0)
-			start += var.count() - 1;
+			start += var.count();
 		    int end = start;
 		    if(arg_list.count() == 3)
 			end = arg_list[2].toInt();
 		    if(end < 0)
-			end += var.count() - 1;
+			end += var.count();
 		    if(end < start)
 			end = start;
 		    for(int i = start; i <= end && (int)var.count() >= i; i++) {
