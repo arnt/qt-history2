@@ -678,7 +678,8 @@ function if you want to provide a widget-based editor.
 
 In this example, when the table view needs to provide an editor, it
 asks the delegate to provide an editor widget that is appropriate
-for the item being modified. The \c editor() function is supplied
+for the item being modified. The
+\l{QAbstractItemDelegate::editor()}{editor()} function is supplied
 with everything that the delegate needs to be able to set up a
 suitable widget.
 
@@ -708,15 +709,17 @@ the model.
 \section2 Submitting data to the model
 
 When the user has finished editing the value in the spin box, the view
-informs the delegate through the \c releaseEditor() function whether
-the editor was
+informs the delegate through the
+\l{QAbstractItemDelegate::releaseEditor()}{releaseEditor()} function
+whether the edited value was
 \l{QAbstractItemDelegate::EndEditAction}{accepted or cancelled}.
 
 \quotefile spinbox-delegate/delegate.cpp
 \skipto void SpinBoxDelegate::releaseEditor
 \printuntil }
 
-If the value was accepted then we use the \c setModelData() function
+If the value was accepted then we use
+\l{QAbstractItemDelegate::setModelData()}{setModelData()}
 (implemented below) to write the value to the model. If the editing
 operation was cancelled, the value is ignored.
 The way we handle the editor widget is the same for both cases: we
