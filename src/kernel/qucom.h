@@ -368,7 +368,7 @@ struct Q_EXPORT QUType_QString : public QUType
 };
 extern Q_EXPORT QUType_QString * pQUType_QString;
 
-
+#ifndef  QT_NO_VARIANT
 // 6dc75d58-a1d9-4417-b591-d45c63a3a4ea
 extern const QUuid TID_QUType_QVariant;
 
@@ -389,7 +389,7 @@ struct Q_EXPORT QUType_QVariant : public QUType
     void clear( QUObject * );
 };
 extern Q_EXPORT QUType_QVariant * pQUType_QVariant;
-
+#endif //QT_NO_VARIANT
 
 #endif // QUCOM_H
 

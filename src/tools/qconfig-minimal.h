@@ -26,7 +26,7 @@
 #define QT_NO_TRANSLATION
 #define QT_NO_MIME
 #define QT_NO_SOUND
-#define QT_NO_PROPERTIES
+//#define QT_NO_PROPERTIES
 #define QT_NO_QWS_CURSOR
 #define QT_NO_QWS_GFX_SPEED
 #define QT_NO_NETWORK
@@ -71,3 +71,7 @@
 #define QT_NO_REGEXP
 
 #define QT_NO_IMAGEIO
+
+#define QT_NO_VARIANT
+
+#define QT_NO_QUUID_STRING

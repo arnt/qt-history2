@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#64 $
+** $Id$
 **
 ** Implementation of QSignal class
 **
@@ -108,7 +108,9 @@ QSignal::QSignal( QObject *parent, const char *name )
     : QObject( parent, name )
 {
     isSignal = TRUE;
+#ifndef QT_NO_VARIANT
     val = 0;
+#endif
 }
 
 /*!
@@ -118,15 +120,15 @@ QSignal::QSignal( QObject *parent, const char *name )
 QSignal::~QSignal()
 {
 }
-
-// Does it match ".+(.*int.*"?
+#ifndef QT_NO_VARIANT
+// Returns TRUE if it matches ".+(.*int.*"
 static inline bool intSignature( const char *member )
 {
     QCString s(member); 
     int p = s.find('('); 
     return p > 0 && p < s.find( "int" );
 }
-
+#endif
 /*!
   Connects the signal to \e member in object \e receiver.
   \sa disconnect(), QObject::connect()
@@ -134,10 +136,14 @@ static inline bool intSignature( const char *member )
 
 bool QSignal::connect( const QObject *receiver, const char *member )
 {
+#ifndef QT_NO_VARIANT
     if ( intSignature( member ) )
+#endif
 	return QObject::connect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
+#ifndef QT_NO_VARIANT
     return QObject::connect( (QObject *)this, SIGNAL(signal(const QVariant&)),
 			     receiver, member );
+#endif
 }
 
 /*!
@@ -147,10 +153,14 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 
 bool QSignal::disconnect( const QObject *receiver, const char *member )
 {
+#ifndef QT_NO_VARIANT
     if ( intSignature( member ) )
+#endif
 	return QObject::disconnect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
+#ifndef QT_NO_VARIANT
     return QObject::disconnect( (QObject *)this, SIGNAL(signal(const QVariant&)),
 				receiver, member );
+#endif
 }
 
 
@@ -181,8 +191,12 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 */
 void  QSignal::activate()
 {
+#ifndef QT_NO_VARIANT    
     emit intSignal( val.toInt() );
     emit signal( val );
+#else
+    emit intSignal(0);
+#endif    
 }
 
 /*!
@@ -192,6 +206,7 @@ void  QSignal::activate()
   Returns the signal's parameter.
 */
 
+#ifndef QT_NO_VARIANT
 /*!
   Sets the signal's parameter to \a value
 */
@@ -207,7 +222,6 @@ QVariant QSignal::value() const
 {
     return val;
 }
-
 /*! \internal void signal( const QVariant & ) */
 /*! \internal void intSignal( int ) */
 
@@ -224,3 +238,4 @@ int QSignal::parameter() const
     return val.toInt();
 }
 #endif
+#endif //QT_NO_VARIANT

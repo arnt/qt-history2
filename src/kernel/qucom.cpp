@@ -441,7 +441,7 @@ void QUType_QString::clear( QUObject *o )
     o->payload.ptr = 0;
 }
 
-
+#ifndef QT_NO_VARIANT
 // 6dc75d58-a1d9-4417-b591-d45c63a3a4ea
 const QUuid TID_QUType_QVariant( 0x6dc75d58, 0xa1d9, 0x4417, 0xb5, 0x91, 0xd4, 0x5c, 0x63, 0xa3, 0xa4, 0xea );
 static QUType_QVariant static_QUType_QVariant;
@@ -480,5 +480,5 @@ void QUType_QVariant::clear( QUObject *o )
     delete (QVariant*)o->payload.ptr;
     o->payload.ptr = 0;
 }
-
+#endif
 

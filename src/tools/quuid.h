@@ -45,10 +45,10 @@ struct Q_EXPORT QUuid
     {
 	memcpy( this, &uuid, sizeof(QUuid) );
     }
-
+#ifndef QT_NO_QUUID_STRING
     QUuid( const QString & );
     QString toString() const;
-
+#endif
     bool isNull() const;
 
     QUuid operator=(const QUuid &orig )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.h#36 $
+** $Id: //depot/qt/main/src/kernel/qsignal.h#37 $
 **
 ** Definition of QSignal class
 **
@@ -60,21 +60,26 @@ public:
 #ifndef QT_NO_COMPAT
     bool	isBlocked()	 const		{ return QObject::signalsBlocked(); }
     void	block( bool b )		{ QObject::blockSignals( b ); }
-
+#ifndef QT_NO_VARIANT
     void	setParameter( int value );
     int		parameter() const;
 #endif
+#endif
 
+#ifndef QT_NO_VARIANT
     void	setValue( const QVariant &value );
     QVariant	value() const;
-
+#endif
 signals:
+#ifndef QT_NO_VARIANT
     void signal( const QVariant& );
+#endif
     void intSignal( int );
 
 private:
+#ifndef QT_NO_VARIANT
     QVariant val;
-
+#endif
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QSignal( const QSignal & );

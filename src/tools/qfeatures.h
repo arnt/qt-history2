@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfeatures.h#87 $
+** $Id: //depot/qt/main/src/tools/qfeatures.h#88 $
 **
 ** Global feature selection
 **
@@ -84,7 +84,7 @@
 #ifndef QT_MODULE_OPENGL
 # define QT_NO_OPENGL
 #endif
-#if !defined(QT_MODULE_SQL) || defined(QT_NO_PROPERTIES)
+#if !defined(QT_MODULE_SQL)
 # define QT_NO_SQL
 #endif
 
@@ -123,6 +123,8 @@
   QString::sprintf() -- dependencies not done yet
  */
 //#define QT_NO_SPRINTF
+
+//#define QT_NO_QUUID_STRING
 
 #if defined(QT_NO_IMAGE_SMOOTHSCALE)
 /*!
@@ -362,11 +364,18 @@
 /*!
     Properties
 */
-#if defined(QT_NO_STRINGLIST) || defined(QT_NO_ICONSET)
+#if defined(QT_NO_STRINGLIST) || defined(QT_NO_ICONSET) || defined(QT_NO_VARIANT)
 # define QT_NO_PROPERTIES
 #endif
 
-
+#if defined(QT_NO_PROPERTIES)
+/*!
+  SQL classes
+*/
+# ifndef QT_NO_SQL
+#   define QT_NO_SQL
+# endif
+#endif
 
 // Networking
 

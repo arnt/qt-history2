@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qvariant.h#56 $
+** $Id: //depot/qt/main/src/kernel/qvariant.h#57 $
 **
 ** Definition of QVariant class
 **
@@ -42,6 +42,7 @@
 #include "qstring.h"
 #endif // QT_H
 
+#ifndef QT_NO_VARIANT
 class QString;
 class QCString;
 class QFont;
@@ -354,4 +355,6 @@ Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant& p );
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant::Type& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant::Type p );
 #endif
+
+#endif //QT_NO_VARIANT
 #endif // QVARIANT_H

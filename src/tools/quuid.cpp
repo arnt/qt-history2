@@ -41,7 +41,7 @@
 
   Creates a copy of the QUuid \a orig.
 */
-
+#ifndef QT_NO_QUUID_STRING
 /*!
   Creates a QUuid object from the string \a text. Right now, the function
   can only convert the format {12345678-1234-1234-1234-123456789ABC} and
@@ -86,7 +86,7 @@ QUuid::QUuid( const QString &text )
 	}
     }
 }
-
+#endif
 /*!
   \fn QUuid QUuid::operator=(const QUuid &uuid )
 
@@ -104,7 +104,7 @@ QUuid::QUuid( const QString &text )
 
   Returns TRUE if this QUuid and the \a other QUuid are different, otherwise returns FALSE.
 */
-
+#ifndef QT_NO_QUUID_STRING
 /*!
   QString QUuid::toString() const
 
@@ -124,7 +124,7 @@ QString QUuid::toString() const
 
     return result + "}";
 }
-
+#endif
 /*!
   Returns TRUE if this is the null UUID {00000000-0000-0000-0000-000000000000}, otherwise returns FALSE.
 */
