@@ -15,11 +15,11 @@ public:
 
     void init();
 
-    inline bool shouldEdit(QAbstractItemDelegate::StartEditAction action, const QModelIndex &index)
-        { return model->isEditable(index) && (state != QAbstractItemView::Editing)
-                 && ((action == QAbstractItemDelegate::AlwaysEdit) || (action & startEditActions)); }
+    bool shouldEdit(QAbstractItemDelegate::StartEditAction action, const QModelIndex &index);
+    bool shouldAutoScroll(const QPoint &pos);
 
-    QWidget *createEditor(QAbstractItemDelegate::StartEditAction action, QEvent *event, const QModelIndex &index);
+    QWidget *createEditor(QAbstractItemDelegate::StartEditAction action,
+                          QEvent *event, const QModelIndex &index);
     QWidget *persistentEditor(const QModelIndex &index) const;
     void setPersistentEditor(QWidget *editor, const QModelIndex &index);
 
@@ -28,7 +28,8 @@ public:
     QModelIndex editItem;
     mutable QAbstractItemDelegate *delegate;
     QItemSelectionModel *selectionModel;
-    int selectionMode, selectionBehavior;
+    int selectionMode;
+    int selectionBehavior;
 
     // #### this datastructur is far to inefficient. We need a faster
     // #### way to associate data with an item and look it up.
@@ -48,6 +49,10 @@ public:
     QString keyboardInput;
     QTime keyboardInputTime;
     int inputInterval;
+
+    int autoScrollTimer;
+    int autoScrollMargin;
+    int autoScrollInterval;
 };
 
 /*

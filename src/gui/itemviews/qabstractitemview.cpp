@@ -39,7 +39,10 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         state(QAbstractItemView::NoState),
         startEditActions(QAbstractItemDelegate::DoubleClicked
                          |QAbstractItemDelegate::EditKeyPressed),
-        inputInterval(400)
+        inputInterval(400),
+        autoScrollTimer(0),
+        autoScrollMargin(16),
+        autoScrollInterval(30)
 {
 }
 
@@ -385,7 +388,14 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
         return;
     }
     e->accept();
-    autoScroll(e->pos());
+    
+    if (d->shouldAutoScroll(e->pos()))
+        startAutoScroll();
+}
+
+void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
+{
+    stopAutoScroll();
 }
 
 void QAbstractItemView::dropEvent(QDropEvent *e)
@@ -393,6 +403,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
     QModelIndex index = itemAt(e->pos());
     if (model()->decode(e, (index.isValid() ? index : root())))
         e->accept();
+    stopAutoScroll();
 }
 
 void QAbstractItemView::focusInEvent(QFocusEvent *e)
@@ -485,7 +496,11 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         e->accept();
         return;
     case Key_Space:
-        d->selectionModel->select(currentItem(), selectionCommand(e->state(), currentItem(), e->type(),(Key)e->key()));
+        d->selectionModel->select(currentItem(),
+                                  selectionCommand(e->state(),
+                                                   currentItem(),
+                                                   e->type(),
+                                                   (Key)e->key()));
         emit spacePressed(currentItem());
         e->accept();
         return;
@@ -522,18 +537,10 @@ void QAbstractItemView::showEvent(QShowEvent *e)
     updateGeometries();
 }
 
-void QAbstractItemView::autoScroll(int x, int y)
+void QAbstractItemView::timerEvent(QTimerEvent *e)
 {
-    const int border = 20;
-    QRect area = d->viewport->geometry();
-    if (y - area.top() < border)
-        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); // scroll up
-    else if (area.bottom() - y < border)
-        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); // scroll down
-    else if (x - area.left() < border)
-        horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); // scroll left
-    else if (area.right() - x < border)
-        horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); // scroll right
+    if (e->timerId() == d->autoScrollTimer)
+        autoScroll();
 }
 
 bool QAbstractItemView::startEdit(const QModelIndex &index,
@@ -868,6 +875,38 @@ void QAbstractItemView::setState(State state)
     d->state = state;
 }
 
+void QAbstractItemView::startAutoScroll()
+{
+    if (d->autoScrollTimer)
+        killTimer(d->autoScrollTimer);
+    d->autoScrollTimer = startTimer(d->autoScrollInterval);
+}
+
+void QAbstractItemView::stopAutoScroll()
+{
+    killTimer(d->autoScrollTimer);
+    d->autoScrollTimer = 0;
+}
+
+void QAbstractItemView::autoScroll()
+{    
+    QPoint pos = d->viewport->mapFromGlobal(QCursor::pos());
+    int margin = d->autoScrollMargin;
+    int v = verticalScrollBar()->value();
+    int h = horizontalScrollBar()->value();
+    QRect area = d->viewport->clipRegion().boundingRect();
+    if (pos.y() - area.top() < margin)
+        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); // scroll up
+    else if (area.bottom() - pos.y() < margin)
+        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); // scroll down
+    else if (pos.x() - area.left() < margin)
+        horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); // scroll left
+    else if (area.right() - pos.x() < margin)
+        horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); // scroll right
+    if (v == verticalScrollBar()->value() && h == horizontalScrollBar()->value())
+        stopAutoScroll();
+}
+
 /*!
   Returns the SelectionCommand to be used when
   updating selections. Reimplement this function to add your own
@@ -998,6 +1037,23 @@ int QAbstractItemView::selectionCommand(ButtonState state,
     if (QAbstractItemView::state() == Selecting)
         return QItemSelectionModel::SelectCurrent | behavior;
     return QItemSelectionModel::ClearAndSelect | behavior;
+}
+
+bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemDelegate::StartEditAction action,
+                                          const QModelIndex &index)
+{
+    bool stateOk = (state != QAbstractItemView::Editing);
+    bool actionOk = ((action == QAbstractItemDelegate::AlwaysEdit) || (action & startEditActions));
+    return model->isEditable(index) && stateOk && actionOk;
+}
+
+bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
+{
+    QRect area = viewport->clipRegion().boundingRect();
+    return (pos.y() - area.top() < autoScrollMargin)
+        || (area.bottom() - pos.y() < autoScrollMargin)
+        || (pos.x() - area.left() < autoScrollMargin)
+        || (area.right() - pos.x() < autoScrollMargin);
 }
 
 QWidget *QAbstractItemViewPrivate::createEditor(QAbstractItemDelegate::StartEditAction action,

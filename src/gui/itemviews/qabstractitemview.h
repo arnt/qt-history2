@@ -128,9 +128,6 @@ protected:
 
     virtual int horizontalOffset() const = 0;
     virtual int verticalOffset() const = 0;
-    
-    inline void autoScroll(const QPoint &p) { autoScroll(p.x(), p.y()); }
-    virtual void autoScroll(int x, int y);
 
     virtual void setSelection(const QRect&, int command) = 0;
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
@@ -157,6 +154,10 @@ protected:
     State state() const;
     void setState(State state);
 
+    void startAutoScroll();
+    void stopAutoScroll();
+    void autoScroll();    
+
     bool event(QEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
@@ -165,12 +166,14 @@ protected:
     void contextMenuEvent(QContextMenuEvent *e);
     void dragEnterEvent(QDragEnterEvent *e);
     void dragMoveEvent(QDragMoveEvent *e);
+    void dragLeaveEvent(QDragLeaveEvent *e);
     void dropEvent(QDropEvent *e);
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
     void keyPressEvent(QKeyEvent *e);
     void resizeEvent(QResizeEvent *e);
     void showEvent(QShowEvent *e);
+    void timerEvent(QTimerEvent *e);
 
 private slots:
     void fetchMore();

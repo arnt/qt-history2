@@ -459,6 +459,7 @@ void QGenericListView::timerEvent(QTimerEvent *e)
         d->layoutTimer = 0;
         doItemsLayout();
     }
+    QAbstractItemView::timerEvent(e);
 }
 
 void QGenericListView::resizeEvent(QResizeEvent *e)
@@ -480,8 +481,9 @@ void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
     }
 
     QPoint pos = e->pos();
-    QAbstractItemView::autoScroll(pos);
-    d->draggedItemsPos = e->pos();
+    if (d->shouldAutoScroll(pos))
+        startAutoScroll();
+    d->draggedItemsPos = pos;
     d->viewport->update(d->draggedItemsRect); // erase area
 
     QModelIndex item = itemAt(pos.x(), pos.y());
@@ -518,6 +520,7 @@ void QGenericListView::dropEvent(QDropEvent *e)
             d->viewport->update(d->mapToViewport(rect));
             updateItem(index);
         }
+        stopAutoScroll();
     } else {
         QAbstractItemView::dropEvent(e);
     }
