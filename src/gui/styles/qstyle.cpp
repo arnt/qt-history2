@@ -1638,17 +1638,11 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn int QStyle::styleHint(StyleHint stylehint, const QWidget *widget = 0, const Q3StyleOption &opt = Q3StyleOption::Default, QStyleHintReturn *returnData = 0) const;
+    \fn int QStyle::styleHint(StyleHint stylehint, const QStyleOption *opt = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const;
 
-    \warning This function will be replaced in Qt 4.0
-
-    The functionality will be replaced by a new styleHint() that is
-    not dependent on the \a widget argument nor on \a opt.
-
-    Returns the style hint \a stylehint for \a widget. Currently, \a
-    widget, \a opt, and \a returnData are unused; they're included to
-    allow for future enhancements.
-
+    Returns the style hint \a stylehint for \a widget descriped in the QStyleOption \a opt.
+    Currently \a returnData and \a widget are not used, it is allowed for future enhancement.
+    The \a opt parameters is used only in SH_ComboBox_Popup and SH_GroupBox_TextLabelColor
     For an explanation of the return value see \l StyleHint.
 */
 

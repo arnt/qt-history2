@@ -48,7 +48,8 @@ public:
 
     int pixelMetric(PixelMetric m, const QWidget *widget = 0) const;
 
-    int styleHint(StyleHint sh, const QWidget *, const Q3StyleOption & = Q3StyleOption::Default, QStyleHintReturn * = 0) const;
+    int styleHint(StyleHint sh, const QStyleOption *opt = 0, const QWidget *w = 0,
+                  QStyleHintReturn *shret = 0) const;
 
     QPixmap stylePixmap(StylePixmap sp,
                          const QWidget *widget = 0,

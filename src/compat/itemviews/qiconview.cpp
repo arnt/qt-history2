@@ -3364,7 +3364,7 @@ void QIconView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 
             QPalette pal = palette();
             d->drawActiveSelection = hasFocus() || d->inMenuMode
-                || !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this);
+                || !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this);
             if (!d->drawActiveSelection)
                 pal.setCurrentColorGroup(QPalette::Inactive);
 
@@ -5231,7 +5231,7 @@ void QIconView::focusInEvent(QFocusEvent*)
         repaintItem(d->currentItem);
     }
 
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this))
+    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
         repaintSelectedItems();
 
     if (d->currentItem)
@@ -5244,7 +5244,7 @@ void QIconView::focusInEvent(QFocusEvent*)
 
 void QIconView::focusOutEvent(QFocusEvent*)
 {
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this)) {
+    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         d->inMenuMode =
             QFocusEvent::reason() == QFocusEvent::Popup ||
             (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));

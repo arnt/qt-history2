@@ -694,10 +694,8 @@ public:
         SH_CustomBase = 0xf0000000
     };
 
-    virtual int styleHint(StyleHint stylehint,
-                          const QWidget *widget = 0,
-                          const Q3StyleOption& = Q3StyleOption::Default,
-                          QStyleHintReturn* returnData = 0) const = 0;
+    virtual int styleHint(StyleHint stylehint, const QStyleOption *opt = 0,
+                          const QWidget *widget = 0, QStyleHintReturn* returnData = 0) const = 0;
 
 
     enum StylePixmap {

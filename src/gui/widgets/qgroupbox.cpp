@@ -219,6 +219,17 @@ void QGroupBox::paintEvent(QPaintEvent *event)
 
     QRect frameRect = rect();
     frameRect.setTop(d->topMargin);
+    QStyleOptionFrame opt(0);
+    opt.rect = frameRect;
+    opt.palette = palette();
+
+    opt.state = QStyle::Style_Default | QStyle::Style_Sunken;
+    if (hasFocus())
+        opt.state |= QStyle::Style_HasFocus;
+    if (testAttribute(Qt::WA_UnderMouse))
+        opt.state |= QStyle::Style_MouseOver;
+    opt.lineWidth = 1;
+    opt.midLineWidth = 0;
 
     if (d->title.size() && !d->checkbox) {        // draw title
         QFontMetrics fm = paint.fontMetrics();
@@ -239,11 +250,11 @@ void QGroupBox::paintEvent(QPaintEvent *event)
                 x = marg;
         }
         QRect r(x, 0, tw, h);
-        int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
+        int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, &opt, this);
         if(va & Qt::AlignTop)
             r.moveBy(0, fm.descent());
-        QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, this));
-        if (!style().styleHint(QStyle::SH_UnderlineShortcut, this))
+        QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this));
+        if (!style().styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
             va |= Qt::TextHideMnemonic;
         style().drawItem(&paint, r, Qt::TextShowMnemonic | Qt::AlignHCenter | va, palette(),
                           isEnabled(), d->title, -1, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
@@ -261,17 +272,6 @@ void QGroupBox::paintEvent(QPaintEvent *event)
             // ### This should probably be a style primitive.
             qDrawShadeLine(&paint, p1, p2, palette(), true, 1, 0);
     } else {
-        QStyleOptionFrame opt(0);
-        opt.rect = frameRect;
-        opt.palette = palette();
-
-        opt.state = QStyle::Style_Default | QStyle::Style_Sunken;
-        if (hasFocus())
-            opt.state |= QStyle::Style_HasFocus;
-        if (testAttribute(Qt::WA_UnderMouse))
-            opt.state |= QStyle::Style_MouseOver;
-        opt.lineWidth = 1;
-        opt.midLineWidth = 0;
         style().drawPrimitive(QStyle::PE_PanelGroupBox, &opt, &paint, this);
     }
 }
@@ -363,7 +363,7 @@ void QGroupBoxPrivate::fixFocus()
 */
 void QGroupBoxPrivate::calculateFrame()
 {
-    int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, q);
+    int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, q);
 
     d->topMargin = 0;
     QFontMetrics fm = q->fontMetrics();

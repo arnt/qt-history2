@@ -215,7 +215,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
         fill = &pal.color(foregroundRole());
 
     int alignment = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic;
-    if (!style().styleHint(QStyle::SH_UnderlineShortcut, this))
+    if (!style().styleHint(QStyle::SH_UnderlineShortcut, 0, this))
         alignment |= Qt::TextHideMnemonic;
     style().drawItem(p, tr, alignment, pal,
                       isEnabled(), QPixmap(), txt, -1, fill);

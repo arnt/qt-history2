@@ -2669,7 +2669,7 @@ void QTable::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 
     drawActiveSelection = hasFocus() || viewport()->hasFocus() || d->inMenuMode
                         || is_child_of(qApp->focusWidget(), viewport())
-                        || !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this);
+                        || !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this);
     if (rowlast == -1)
         rowlast = numRows() - 1;
     if (collast == -1)
@@ -2856,7 +2856,7 @@ void QTable::paintCell(QPainter *p, int row, int col,
     if (sGrid) {
         // Draw our lines
         QPen pen(p->pen());
-        int gridColor =	style().styleHint( QStyle::SH_Table_GridLineColor, this	);
+        int gridColor =	style().styleHint(QStyle::SH_Table_GridLineColor, 0, this);
         if (gridColor != -1) {
             if (palette() != pal)
                 p->setPen(pal.mid());
@@ -4142,7 +4142,7 @@ void QTable::focusInEvent(QFocusEvent*)
     d->inMenuMode = false;
     QWidget *editorWidget = cellWidget(editRow, editCol);
     updateCell(curRow, curCol);
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this))
+    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
         repaintSelections();
     if (isEditing() && editorWidget)
         editorWidget->setFocus();
@@ -4159,7 +4159,7 @@ void QTable::focusInEvent(QFocusEvent*)
 void QTable::focusOutEvent(QFocusEvent*)
 {
     updateCell(curRow, curCol);
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this)) {
+    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         d->inMenuMode =
             QFocusEvent::reason() == QFocusEvent::Popup ||
             (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));

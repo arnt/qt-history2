@@ -780,7 +780,7 @@ void QLabel::paintEvent(QPaintEvent *)
             yo = cr.height()-rh;
         QAbstractTextDocumentLayout::PaintContext context;
         context.textColorFromPalette = true;
-        if (!isEnabled() && style().styleHint(QStyle::SH_EtchDisabledText, this)) {
+        if (!isEnabled() && style().styleHint(QStyle::SH_EtchDisabledText)) {
             context.palette = palette();
             context.palette.setColor(QPalette::Text, context.palette.light());
             QRect r = cr;
@@ -850,7 +850,8 @@ void QLabel::paintEvent(QPaintEvent *)
         }
 #endif
         int alignment = d->align;
-        if ((alignment & Qt::TextShowMnemonic) && !style().styleHint(QStyle::SH_UnderlineShortcut, this))
+        if ((alignment & Qt::TextShowMnemonic)
+                && !style().styleHint(QStyle::SH_UnderlineShortcut))
             alignment |= Qt::TextHideMnemonic;
         // ordinary text or pixmap label
         style().drawItem(&paint, cr, alignment, palette(), isEnabled(), pix, d->ltext);

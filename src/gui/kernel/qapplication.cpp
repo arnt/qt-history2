@@ -1938,7 +1938,7 @@ void QApplication::setActiveWindow(QWidget* act)
     if (active_window) {
         QWidgetList deacts;
 #ifndef QT_NO_STYLE
-        if (style().styleHint(QStyle::SH_Widget_ShareActivation, active_window)) {
+        if (style().styleHint(QStyle::SH_Widget_ShareActivation, 0, active_window)) {
             QWidgetList list = topLevelWidgets();
             for (int i = 0; i < list.size(); ++i) {
                 QWidget *w = list.at(i);
@@ -1961,7 +1961,7 @@ void QApplication::setActiveWindow(QWidget* act)
         QEvent e(QEvent::WindowActivate);
         QWidgetList acts;
 #ifndef QT_NO_STYLE
-        if (style().styleHint(QStyle::SH_Widget_ShareActivation, active_window)) {
+        if (style().styleHint(QStyle::SH_Widget_ShareActivation, 0, active_window)) {
             QWidgetList list = topLevelWidgets();
             for (int i = 0; i < list.size(); ++i) {
                 QWidget *w = list.at(i);

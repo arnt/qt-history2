@@ -39,15 +39,15 @@
 
 #include <limits.h>
 
-static const int windowsItemFrame 	 =  2; // menu item frame width
-static const int windowsSepHeight 	 =  2; // separator item height
-static const int windowsItemHMargin 	 =  3; // menu item hor text margin
-static const int windowsItemVMargin 	 =  2; // menu item ver text margin
-static const int windowsArrowHMargin 	 =  6; // arrow horizontal margin
-static const int windowsTabSpacing 	 = 12; // space between text and tab
+static const int windowsItemFrame        =  2; // menu item frame width
+static const int windowsSepHeight        =  2; // separator item height
+static const int windowsItemHMargin      =  3; // menu item hor text margin
+static const int windowsItemVMargin      =  2; // menu item ver text margin
+static const int windowsArrowHMargin	 =  6; // arrow horizontal margin
+static const int windowsTabSpacing	 = 12; // space between text and tab
 static const int windowsCheckMarkHMargin =  2; // horiz. margins of check mark
-static const int windowsRightBorder 	 = 15; // right border on windows
-static const int windowsCheckMarkWidth 	 = 12; // checkmarks width on windows
+static const int windowsRightBorder      = 15; // right border on windows
+static const int windowsCheckMarkWidth   = 12; // checkmarks width on windows
 
 static bool use2000style = true;
 
@@ -102,7 +102,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
             for (int pos=0; pos<l.size(); ++pos) {
                 QWidget *w = l.at(pos);
                 if (w->isTopLevel() || !w->isVisible() ||
-                    w->style().styleHint(SH_UnderlineShortcut, w))
+                    w->style().styleHint(SH_UnderlineShortcut, 0, w))
                     l.removeAt(pos);
             }
             // Update states before repainting
@@ -890,10 +890,8 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
 }
 
 /*! \reimp */
-int QWindowsStyle::styleHint(StyleHint hint,
-                              const QWidget *widget,
-                              const Q3StyleOption &opt,
-                              QStyleHintReturn *returnData) const
+int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *widget,
+                             QStyleHintReturn *returnData) const
 {
     int ret;
 
@@ -911,7 +909,6 @@ int QWindowsStyle::styleHint(StyleHint hint,
     case SH_ScrollBar_StopMouseOverSlider:
         ret = 1;
         break;
-
     case SH_ItemView_ChangeHighlightOnFocus:
 #if defined(Q_WS_WIN)
         if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT)
@@ -920,7 +917,6 @@ int QWindowsStyle::styleHint(StyleHint hint,
 #endif
             ret = 0;
         break;
-
     case SH_ToolBox_SelectedPageTitleBold:
         ret = 0;
         break;
@@ -935,19 +931,16 @@ int QWindowsStyle::styleHint(StyleHint hint,
             SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &cues, 0);
             ret = cues ? 1 : 0;
             // Do nothing if we always paint underlines
-            if (!ret && widget && d) {
+            if (!ret && opt && d) {
                 ret = 1;
             }
-
         }
         break;
 #endif
-
     default:
-        ret = QCommonStyle::styleHint(hint, widget, opt, returnData);
+        ret = QCommonStyle::styleHint(hint, opt, widget, returnData);
         break;
     }
-
     return ret;
 }
 
@@ -1517,7 +1510,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 p->save();
                 int t = s.indexOf('\t');
                 int text_flags = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
-                if (!styleHint(SH_UnderlineShortcut, widget))
+                if (!styleHint(SH_UnderlineShortcut, menuitem, widget))
                     text_flags |= Qt::TextHideMnemonic;
                 text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {
@@ -1637,7 +1630,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 x2++;
                 p->drawLine(x2, r2.top() + 2, x2, r2.bottom() - (selected ? 1 : 2));
             } else if (tab->shape == QTabBar::RoundedBelow){
-                bool rightAligned = styleHint(SH_TabBar_Alignment, widget)== Qt::AlignRight;
+                bool rightAligned = styleHint(SH_TabBar_Alignment, tab, widget)== Qt::AlignRight;
                 //        bool firstTab = tb->indexOf(t->identifier())== 0;
                 if (selected){
                     p->fillRect(QRect(r2.left() + 1, r2.top(), r2.width() - 3, 1),

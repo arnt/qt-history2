@@ -306,7 +306,7 @@ void QScrollBar::sliderChange(SliderChange change)
        QStyleOptionSlider opt = d->getStyleOption();
         if((d->pressedControl == QStyle::SC_ScrollBarAddPage
             || d->pressedControl == QStyle::SC_ScrollBarSubPage)
-           && style().styleHint(QStyle::SH_ScrollBar_StopMouseOverSlider, this)
+           && style().styleHint(QStyle::SH_ScrollBar_StopMouseOverSlider, 0, this)
            && style().querySubControl(QStyle::CC_ScrollBar, &opt, mapFromGlobal(QCursor::pos()),
                                    this) == QStyle::SC_ScrollBarSlider) {
             setRepeatAction(SliderNoAction);
@@ -333,7 +333,8 @@ void QScrollBar::paintEvent(QPaintEvent *)
 */
 void QScrollBar::mousePressEvent(QMouseEvent *e)
 {
-    bool midButtonAbsPos = style().styleHint(QStyle::SH_ScrollBar_MiddleClickAbsolutePosition, this);
+    bool midButtonAbsPos = style().styleHint(QStyle::SH_ScrollBar_MiddleClickAbsolutePosition,
+                                             0, this);
     QStyleOptionSlider opt = d->getStyleOption();
 
     if (d->maximum == d->minimum // no range
@@ -400,7 +401,7 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
 
     if (!(e->state() & Qt::LeftButton
           ||  ((e->state() & Qt::MidButton)
-               && style().styleHint(QStyle::SH_ScrollBar_MiddleClickAbsolutePosition, this))))
+               && style().styleHint(QStyle::SH_ScrollBar_MiddleClickAbsolutePosition, 0, this))))
         return;
 
     if (d->pressedControl == QStyle::SC_ScrollBarSlider) {

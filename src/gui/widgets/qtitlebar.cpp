@@ -13,13 +13,8 @@
 
 #include "qplatformdefs.h"
 
-#include "qtitlebar_p.h"
-
 #ifndef QT_NO_TITLEBAR
 
-#include "private/qapplication_p.h"
-#include "private/qinternal_p.h"
-#include "private/qwidget_p.h"
 #include "qapplication.h"
 #include "qcursor.h"
 #include "qdatetime.h"
@@ -31,12 +26,18 @@
 #include "qstyleoption.h"
 #include "qtimer.h"
 #include "qtooltip.h"
+#include "qwindowsstyle.h"
 #ifndef QT_NO_WORKSPACE
 #include "qworkspace.h"
 #endif
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
+
+#include "private/qapplication_p.h"
+#include "private/qinternal_p.h"
+#include "private/qtitlebar_p.h"
+#include "private/qwidget_p.h"
 
 #if 0
 class QTitleBarTip : public QToolTip
@@ -528,8 +529,7 @@ void QTitleBar::cutText()
         return;
 
     QString txt = d->window->windowTitle();
-    if ((style().styleHint(QStyle::SH_GUIStyle, this) == Qt::WindowsStyle)
-        && d->window && d->window->isWindowModified())
+    if (qt_cast<QWindowsStyle *>(&style()) && d->window && d->window->isWindowModified())
         txt += " *";
 
     QString cuttext = txt;

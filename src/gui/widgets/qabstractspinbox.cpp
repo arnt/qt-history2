@@ -535,7 +535,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 	    return;
 	if (!up)
 	    steps *= -1;
-	if (style().styleHint(QStyle::SH_SpinBox_AnimateButton, this)) {
+	if (style().styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)) {
 	    d->buttonstate = (Keyboard | (up ? Up : Down));
 	}
 	stepBy(steps);
@@ -562,7 +562,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 
 void QAbstractSpinBox::keyReleaseEvent(QKeyEvent *e)
 {
-    if (style().styleHint(QStyle::SH_SpinBox_AnimateButton, this)
+    if (style().styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)
 	&& d->buttonstate & Keyboard && !e->isAutoRepeat()) {
 	d->resetState();
     } else {
@@ -892,8 +892,8 @@ void QAbstractSpinBoxPrivate::editorCursorPositionChanged(int oldpos, int newpos
 
 void QAbstractSpinBoxPrivate::init()
 {
-    spinclicktimerinterval = q->style().styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, q);
-    spinkeytimerinterval = q->style().styleHint(QStyle::SH_SpinBox_KeyPressAutoRepeatRate, q);
+    spinclicktimerinterval = q->style().styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, q);
+    spinkeytimerinterval = q->style().styleHint(QStyle::SH_SpinBox_KeyPressAutoRepeatRate, 0, q);
     lineEdit()->setAttribute(Qt::WA_CompositeChild);
     edit->setFrame(false);
     q->setAttribute(Qt::WA_CompositeParent);
@@ -902,7 +902,8 @@ void QAbstractSpinBoxPrivate::init()
     if (useprivate) {
         edit->setValidator(new QSpinBoxValidator(this, q));
 	QObject::connect(edit, SIGNAL(textChanged(QString)), q, SLOT(editorTextChanged(QString)));
-        QObject::connect(edit, SIGNAL(cursorPositionChanged(int, int)), q, SLOT(editorCursorPositionChanged(int, int)));
+        QObject::connect(edit, SIGNAL(cursorPositionChanged(int, int)),
+                         q, SLOT(editorCursorPositionChanged(int, int)));
     }
 }
 

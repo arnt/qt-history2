@@ -346,6 +346,16 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
     QRect frameRect = rect();
     frameRect.setTop(d->topMargin);
 
+    QStyleOptionFrame opt(0);
+    opt.rect = frameRect;
+    opt.palette = palette();
+    opt.lineWidth = 1;
+    opt.midLineWidth = 0;
+    opt.state = QStyle::Style_Default | QStyle::Style_Sunken;
+    if (hasFocus())
+        opt.state |= QStyle::Style_HasFocus;
+    if (testAttribute(Qt::WA_UnderMouse))
+        opt.state |= QStyle::Style_MouseOver;
     if (d->lenvisible && !isCheckable()) {        // draw title
         QFontMetrics fm = paint.fontMetrics();
         int h = fm.height();
@@ -365,11 +375,11 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
                 x = marg;
         }
         QRect r(x, 0, tw, h);
-        int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
+        int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, &opt, this);
         if(va & Qt::AlignTop)
             r.moveBy(0, fm.descent());
-        QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, this));
-        if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
+        QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this));
+        if (!style().styleHint(QStyle::SH_UnderlineAccelerator, &opt, this))
             va |= Qt::NoAccel;
         style().drawItem(&paint, r, Qt::ShowPrefix | Qt::AlignHCenter | va, palette(),
                           isEnabled(), QPixmap(), d->str, -1,
@@ -383,22 +393,12 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
         paint.setClipRegion(event->region().subtract(cbClip));
     }
     if (d->bFlat) {
-            QRect fr = frameRect;
-            QPoint p1(fr.x(), fr.y() + 1);
-            QPoint p2(fr.x() + fr.width(), p1.y());
-            // ### This should probably be a style primitive.
-            qDrawShadeLine(&paint, p1, p2, palette(), true, 1, 0);
+        QRect fr = frameRect;
+        QPoint p1(fr.x(), fr.y() + 1);
+        QPoint p2(fr.x() + fr.width(), p1.y());
+        // ### This should probably be a style primitive.
+        qDrawShadeLine(&paint, p1, p2, palette(), true, 1, 0);
     } else {
-        QStyleOptionFrame opt(0);
-        opt.rect = frameRect;
-        opt.palette = palette();
-        opt.lineWidth = 1;
-        opt.midLineWidth = 0;
-        opt.state = QStyle::Style_Default | QStyle::Style_Sunken;
-        if (hasFocus())
-            opt.state |= QStyle::Style_HasFocus;
-        if (testAttribute(Qt::WA_UnderMouse))
-            opt.state |= QStyle::Style_MouseOver;
         style().drawPrimitive(QStyle::PE_PanelGroupBox, &opt, &paint, this);
     }
 }
@@ -726,7 +726,7 @@ void Q3GroupBoxPrivate::calculateFrame()
             lenvisible--;
         }
         if (lenvisible) { // but do we also have a visible label?
-            int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, q);
+            int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, q);
             if(va & Qt::AlignVCenter)
                 topMargin = fm.height()/2;
             else if(va & Qt::AlignTop)
@@ -734,7 +734,7 @@ void Q3GroupBoxPrivate::calculateFrame()
         }
     }
     else if (checkbox) {
-        int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, q);
+        int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, q);
         if(va & Qt::AlignVCenter)
             topMargin = checkbox->height()/2;
         else if(va & Qt::AlignTop)

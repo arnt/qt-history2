@@ -1538,7 +1538,7 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
     int tw = (orient == Qt::Horizontal ? ssh.width() : ssh.height());
     int ew = 0;
 
-    if (style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & Qt::AlignRight)
+    if (style().styleHint(QStyle::SH_Header_ArrowAlignment, 0, this) & Qt::AlignRight)
         ew = fr.width() - tw - 8;
     if (d->sortSection == section && tw <= fr.width()) {
         if (reverse()) {

@@ -52,11 +52,10 @@ public:
     QSize sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 
-    int pixelMetric(PixelMetric metric,
-                     const QWidget *widget = 0) const;
+    int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
-    int styleHint(StyleHint sh, const QWidget *, const Q3StyleOption & = Q3StyleOption::Default,
-                  QStyleHintReturn* = 0) const;
+    int styleHint(StyleHint hint, const QStyleOption *opt = 0, const QWidget *widget = 0,
+                  QStyleHintReturn *returnData = 0) const;
 
     QPixmap stylePixmap(StylePixmap stylepixmap,
                          const QWidget *widget = 0,

@@ -1381,7 +1381,7 @@ void Q3MainWindow::setUpLayout()
 #ifndef QT_NO_MENUBAR
     if (d->mb && d->mb->isVisibleTo(this)) {
         d->tll->setMenuBar(d->mb);
-        if (style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this))
+        if (style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this))
             d->tll->addSpacing(d->movable ? 1 : 2);
     }
 #endif
@@ -1514,7 +1514,7 @@ QWidget * Q3MainWindow::centralWidget() const
 void Q3MainWindow::paintEvent(QPaintEvent *)
 {
     if (d->mb &&
-        style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this)) {
+        style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this)) {
         QPainter p(this);
         int y = d->mb->height() + 1;
         QStyleOption opt(0, QStyleOption::SO_Default);

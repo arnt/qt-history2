@@ -592,7 +592,7 @@ QSize QTabBar::sizeHint() const
  */
 QSize QTabBar::minimumSizeHint() const
 {
-    if(style().styleHint(QStyle::SH_TabBar_PreferNoArrows, this))
+    if(style().styleHint(QStyle::SH_TabBar_PreferNoArrows, 0, this))
         return sizeHint();
     return QSize(d->rightB->sizeHint().width() * 2 + 75, sizeHint().height());
 }
@@ -709,7 +709,7 @@ void QTabBar::mousePressEvent (QMouseEvent *e)
     }
     d->pressedIndex = d->indexAtPos(e->pos());
     if (d->pressedIndex >= 0) {
-        if(e->type() == style().styleHint(QStyle::SH_TabBar_SelectMouseType, this))
+        if(e->type() == style().styleHint(QStyle::SH_TabBar_SelectMouseType, 0, this))
             setCurrentIndex(d->pressedIndex);
         else
             repaint(tabRect(d->pressedIndex));
@@ -724,7 +724,8 @@ void QTabBar::mouseMoveEvent (QMouseEvent *e)
         e->ignore();
         return;
     }
-    if(style().styleHint(QStyle::SH_TabBar_SelectMouseType, this) == QEvent::MouseButtonRelease) {
+    if(style().styleHint(QStyle::SH_TabBar_SelectMouseType, 0, this)
+            == QEvent::MouseButtonRelease) {
         int i = d->indexAtPos(e->pos());
         if(i != d->pressedIndex) {
             if (d->pressedIndex >= 0)
@@ -744,7 +745,7 @@ void QTabBar::mouseReleaseEvent (QMouseEvent *e)
 
     int i = d->indexAtPos(e->pos()) == d->pressedIndex ? d->pressedIndex : -1;
     d->pressedIndex = -1;
-    if (e->type() == style().styleHint(QStyle::SH_TabBar_SelectMouseType, this))
+    if (e->type() == style().styleHint(QStyle::SH_TabBar_SelectMouseType, 0, this))
         setCurrentIndex(i);
 }
 

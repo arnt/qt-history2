@@ -324,7 +324,7 @@ QString QLineEdit::displayText() const
         return QString::fromLatin1("");
     QString res = d->text;
     if (d->echoMode == Password)
-        res.fill(style().styleHint(QStyle::SH_LineEdit_PasswordCharacter, this));
+        res.fill(style().styleHint(QStyle::SH_LineEdit_PasswordCharacter));
     return (res.isNull() ? QString::fromLatin1("") : res);
 }
 

@@ -787,7 +787,7 @@ void QWorkspace::resizeEvent(QResizeEvent *)
 /*! \reimp */
 void QWorkspace::showEvent(QShowEvent *e)
 {
-    if (d->maxWindow && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
+    if (d->maxWindow && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
         d->showMaximizeControls();
     QWidget::showEvent(e);
     if (d->becomeActive) {
@@ -811,7 +811,7 @@ void QWorkspace::showEvent(QShowEvent *e)
 /*! \reimp */
 void QWorkspace::hideEvent(QHideEvent *)
 {
-    if (!isVisibleTo(0) && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
+    if (!isVisibleTo(0) && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
         d->hideMaximizeControls();
 }
 
@@ -841,7 +841,7 @@ void QWorkspacePrivate::minimizeWindow(QWidget* w)
             if (d->topTitle.size())
                 q->topLevelWidget()->setWindowTitle(d->topTitle);
             inTitleChange = false;
-            if (!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, q))
+            if (!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
                 hideMaximizeControls();
             for (QList<QWorkspaceChild *>::Iterator it(d->windows.begin()); it != d->windows.end(); ++it) {
                 QWorkspaceChild* c = *it;
@@ -877,7 +877,8 @@ void QWorkspacePrivate::normalizeWindow(QWidget* w)
     if (c) {
         QWorkspace *fake = (QWorkspace*)w;
         fake->clearWState(Qt::WState_Minimized | Qt::WState_Maximized);
-        if (!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, q) && d->maxWindow) {
+        if (!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)
+            && d->maxWindow) {
             hideMaximizeControls();
         } else {
             if (w->minimumSize() != w->maximumSize())
@@ -901,7 +902,7 @@ void QWorkspacePrivate::normalizeWindow(QWidget* w)
             c->show();
         }
 
-        if (!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, q))
+        if (!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
             hideMaximizeControls();
         for (QList<QWorkspaceChild *>::Iterator it(d->windows.begin()); it != d->windows.end(); ++it) {
             QWorkspaceChild* c = *it;
@@ -943,7 +944,7 @@ void QWorkspacePrivate::maximizeWindow(QWidget* w)
         }
 
         activateWindow(w);
-        if(!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, q)) {
+        if(!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
             showMaximizeControls();
         } else {
             c->widgetResizeHandler->setActive(false);
@@ -1089,7 +1090,7 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
 
             if (!d->maxWindow) {
 
-                if (style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
+                if (style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this)) {
                     QWorkspaceChild *wc = static_cast<QWorkspaceChild *>(o);
                     wc->widgetResizeHandler->setActive(true);
                     if (wc->titlebar)
@@ -1759,7 +1760,7 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::WFlags
             }
             titlebar->setWindowIcon(pm);
         }
-        if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, titlebar))
+        if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
             th += frameWidth();
         else
             th -= contentsRect().y();
@@ -1826,7 +1827,7 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
             tbrect = QRect(r.x(), r.y(), r.width(), th);
         titlebar->setGeometry(tbrect);
 
-        if (style().styleHint(QStyle::SH_TitleBar_NoBorder, titlebar))
+        if (style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
             th -= frameWidth();
         cr = QRect(r.x(), r.y() + th + (shademode ? (frameWidth() * 3) : 0),
                     r.width(), r.height() - th);
@@ -1850,7 +1851,7 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
 QSize QWorkspaceChild::baseSize() const
 {
     int th = titlebar ? titlebar->sizeHint().height() : 0;
-    if (style().styleHint(QStyle::SH_TitleBar_NoBorder, titlebar))
+    if (style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
         th -= frameWidth();
     return QSize(2*frameWidth(), 2*frameWidth() + th);
 }
@@ -1920,7 +1921,7 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
             windowWidget()->resize(windowWidget()->maximumSize());
             ((QWorkspace*)windowWidget())->clearWState(Qt::WState_Maximized);
             if (titlebar)
-                titlebar->repaint(FALSE);
+                titlebar->repaint(false);
             break;
         }
         if (windowWidget()->testWFlags(Qt::WStyle_Maximize) && !windowWidget()->testWFlags(Qt::WStyle_Tool))
@@ -2294,7 +2295,7 @@ void QWorkspaceChild::adjustToFullscreen()
     qApp->sendPostedEvents(this, QEvent::Resize);
     qApp->sendPostedEvents(childWidget, QEvent::Resize);
     qApp->sendPostedEvents(childWidget, QEvent::Move);
-    if(style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
+    if(style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this)) {
         setGeometry(0, 0, parentWidget()->width(), parentWidget()->height());
     } else {
         int w = parentWidget()->width() + width() - childWidget->width();
@@ -2555,7 +2556,7 @@ void QWorkspace::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange) {
         if (isVisibleTo(0) && d->maxWindow) {
-            if(style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
+            if(style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
                 d->hideMaximizeControls();
             else
                 d->showMaximizeControls();

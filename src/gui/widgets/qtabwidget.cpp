@@ -576,7 +576,7 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     }
 
     // do alignment
-    int alignment = style().styleHint(QStyle::SH_TabBar_Alignment, this);
+    int alignment = style().styleHint(QStyle::SH_TabBar_Alignment, 0, this);
     if (alignment != Qt::AlignLeft && t.width() < width()) {
         if (alignment == Qt::AlignHCenter)
             tabx += (width()-lcw-rcw)/2 - t.width()/2;
@@ -615,6 +615,10 @@ void QTabWidget::setUpLayout(bool onlyCheck)
 QSize QTabWidget::sizeHint() const
 {
     QSize lc(0, 0), rc(0, 0);
+    QStyleOption opt(0);
+    opt.rect = rect();
+    opt.palette = palette();
+    opt.state = QStyle::Style_Default;
 
     if (d->leftCornerWidget)
         lc = d->leftCornerWidget->sizeHint();
@@ -626,16 +630,12 @@ QSize QTabWidget::sizeHint() const
     }
     QSize s(d->stack->sizeHint());
     QSize t(d->tabs->sizeHint());
-    if(!style().styleHint(QStyle::SH_TabBar_PreferNoArrows, d->tabs))
+    if(!style().styleHint(QStyle::SH_TabBar_PreferNoArrows, &opt, d->tabs))
         t = t.boundedTo(QSize(200,200));
     else
         t = t.boundedTo(QApplication::desktop()->size());
     QSize sz(qMax(s.width(), t.width() + rc.width() + lc.width()),
               s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))));
-    QStyleOption opt(0);
-    opt.rect = rect();
-    opt.palette = palette();
-    opt.state = QStyle::Style_Default;
     return style().sizeFromContents(QStyle::CT_TabWidget, &opt, sz, fontMetrics(), this)
                     .expandedTo(QApplication::globalStrut());
 }

@@ -737,7 +737,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             bool isRadio = (ce == CE_RadioButtonLabel);
             uint alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
-            if (!styleHint(SH_UnderlineShortcut, widget, Q3StyleOption::Default, 0))
+            if (!styleHint(SH_UnderlineShortcut, btn, widget))
                 alignment |= Qt::TextHideMnemonic;
             QPixmap pix;
             if (btn->icon.isNull())
@@ -771,7 +771,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
     case CE_MenuBarItem:
         if (const QStyleOptionMenuItem *mbi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
             uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
-            if (!styleHint(SH_UnderlineShortcut, widget, Q3StyleOption(), 0))
+            if (!styleHint(SH_UnderlineShortcut, mbi, widget))
                 alignment |= Qt::TextHideMnemonic;
             QPixmap pix = mbi->icon.pixmap(QIconSet::Small, QIconSet::Normal);
             drawItem(p, mbi->rect, alignment, mbi->palette, mbi->state & Style_Enabled,
@@ -930,7 +930,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 if (tb->icon.isNull() && !tb->text.isEmpty()
                         && !(tb->features & QStyleOptionToolButton::TextLabel)) {
                     int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
-                    if (!styleHint(SH_UnderlineShortcut, widget, Q3StyleOption::Default, 0))
+                    if (!styleHint(SH_UnderlineShortcut, opt, widget))
                         alignment |= Qt::TextHideMnemonic;
                     rect.moveBy(shiftX, shiftY);
                     drawItem(p, rect, alignment, tb->palette,
@@ -957,7 +957,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                         QRect pr = rect,
                         tr = rect;
                         int alignment = Qt::TextShowMnemonic;
-                        if (!styleHint(SH_UnderlineShortcut, widget, Q3StyleOption::Default, 0))
+                        if (!styleHint(SH_UnderlineShortcut, opt, widget))
                             alignment |= Qt::TextHideMnemonic;
 
                         if (tb->textPosition == QToolButton::Under) {
@@ -1067,7 +1067,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_DefaultFrameWidth, widget));
 
             int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
-            if (!styleHint(SH_UnderlineShortcut, widget))
+            if (!styleHint(SH_UnderlineShortcut, opt, widget))
                 alignment |= Qt::TextHideMnemonic;
             drawItem(p, tr, alignment, tab->palette, tab->state & Style_Enabled, tab->text);
 
@@ -2492,7 +2492,8 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
 
 
 /*! \reimp */
-int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const Q3StyleOption &, QStyleHintReturn *) const
+int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *,
+                            QStyleHintReturn *) const
 {
     int ret;
 
@@ -2507,7 +2508,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const Q3StyleOption
         break;
 
     case SH_GroupBox_TextLabelColor:
-        ret = (int) (w ? w->palette().color(w->foregroundRole()).rgb() : 0);
+        ret = int(opt ? opt->palette.foreground().color().rgb() : 0);
         break;
 
     case SH_ListViewExpand_SelectMouseType:

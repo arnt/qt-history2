@@ -2465,7 +2465,7 @@ void QListBox::focusInEvent(QFocusEvent*)
         emit highlighted(tmp2);
         emit currentChanged(i);
     }
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this))
+    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
         repaintSelection();
 
     if (d->current) {
@@ -2481,7 +2481,7 @@ void QListBox::focusInEvent(QFocusEvent*)
 */
 void QListBox::focusOutEvent(QFocusEvent*)
 {
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this)) {
+    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         d->inMenuMode =
             QFocusEvent::reason() == QFocusEvent::Popup ||
             (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
@@ -3825,7 +3825,7 @@ void QListBox::adjustItems()
 void QListBox::paintCell(QPainter * p, int row, int col)
 {
     bool drawActiveSelection = hasFocus() || d->inMenuMode ||
-        !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this);
+        !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this);
     QPalette pal = palette();
     if(!drawActiveSelection)
         pal.setCurrentColorGroup(QPalette::Inactive);

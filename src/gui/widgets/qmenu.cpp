@@ -272,7 +272,8 @@ void QMenuPrivate::setFirstActionActive()
                 continue;
         }
         if(!act->isSeparator() &&
-           (q->style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, q) || act->isEnabled())) {
+           (q->style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, 0, q)
+            || act->isEnabled())) {
             setCurrentAction(act);
             break;
         }
@@ -680,7 +681,7 @@ QMenu::QMenu(QWidget *parent)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
-    if(style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
+    if(style().styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
         d->scroll = new QMenuPrivate::QMenuScroller;
         d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
     }
@@ -702,7 +703,7 @@ QMenu::QMenu(const QString &title, QWidget *parent)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
-    if(style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
+    if(style().styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
         d->scroll = new QMenuPrivate::QMenuScroller;
         d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
     }
@@ -1441,7 +1442,7 @@ void QMenu::changeEvent(QEvent *e)
         setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
         if(isVisible())
             resize(sizeHint() + contentsMarginSize());
-        if(!style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
+        if(!style().styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
             delete d->scroll;
             d->scroll = 0;
         } else if(!d->scroll) {
@@ -1518,7 +1519,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                                 break;
                             if(next->isSeparator() ||
                                (!next->isEnabled() &&
-                                !style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, this)))
+                                !style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, 0, this)))
                                 continue;
                             nextAction = next;
                             if(d->scroll && (d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)) {
@@ -1544,7 +1545,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                                 break;
                             if(next->isSeparator() ||
                                (!next->isEnabled() &&
-                                !style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, this)))
+                                !style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, 0, this)))
                                 continue;
                             nextAction = next;
                             if(d->scroll && (d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollDown)) {
@@ -1625,7 +1626,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         break;
 
     case Qt::Key_Space:
-        if(!style().styleHint(QStyle::SH_Menu_SpaceActivatesItem, this))
+        if(!style().styleHint(QStyle::SH_Menu_SpaceActivatesItem, 0, this))
             break;
         // for motif, fall through
     case Qt::Key_Return:
@@ -1741,10 +1742,10 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
         sloppyDelayTimer->disconnect(SIGNAL(timeout()));
         QObject::connect(sloppyDelayTimer, SIGNAL(timeout()),
                          q, SLOT(internalSetSloppyAction()));
-        sloppyDelayTimer->start(style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, this)*6, true);
+        sloppyDelayTimer->start(style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, 0, this)*6, true);
         d->sloppyAction = action;
     } else {
-        d->setCurrentAction(action, style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, this));
+        d->setCurrentAction(action, style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, 0, this));
     }
 }
 
@@ -1851,7 +1852,7 @@ void QMenu::internalDelayedPopup()
         pos.rx() = x() - menuSize.width();
 
     //calc sloppy focus buffer
-    if(style().styleHint(QStyle::SH_Menu_SloppySubMenus, this)) {
+    if(style().styleHint(QStyle::SH_Menu_SloppySubMenus, 0, this)) {
         QPoint cur = QCursor::pos();
         if(actionRect.contains(mapFromGlobal(cur))) {
             QPoint pts[4];

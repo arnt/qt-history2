@@ -377,7 +377,7 @@ void QTableView::paintEvent(QPaintEvent *e)
 
     bool showGrid = d->showGrid;
     int gridSize = showGrid ? 1 : 0;
-    int gridHint = style().styleHint(QStyle::SH_Table_GridLineColor, this);
+    int gridHint = style().styleHint(QStyle::SH_Table_GridLineColor, 0, this);
     QColor gridColor = gridHint != -1
                        ? static_cast<QRgb>(gridHint)
                        : palette().color(QPalette::Mid);

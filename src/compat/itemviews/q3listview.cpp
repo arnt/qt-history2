@@ -2858,8 +2858,9 @@ void Q3ListView::drawContentsOffset(QPainter * p, int ox, int oy,
             // draw to last interesting column
 
             bool drawActiveSelection = hasFocus() || d->inMenuMode ||
-                            !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this) ||
-                            (currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus());
+                            !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)
+                            || (currentItem() && currentItem()->renameBox
+                                && currentItem()->renameBox->hasFocus());
             QPalette pal = palette();
             if(!drawActiveSelection)
                 pal.setCurrentColorGroup(QPalette::Inactive);
@@ -4173,7 +4174,8 @@ void Q3ListView::contentsMousePressEventEx(QMouseEvent * e)
             QStyle::SubControl ctrl = style().querySubControl(QStyle::CC_ListView, &opt,
                                                               QPoint(x1, e->pos().y()), this);
             if (ctrl == QStyle::SC_ListViewExpand &&
-                e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, this)) {
+                e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, 0,
+                                               this)) {
                 d->buttonDown = false;
                 if (e->button() == Qt::LeftButton) {
                     bool close = i->isOpen();
@@ -4372,7 +4374,7 @@ void Q3ListView::contentsMouseReleaseEventEx(QMouseEvent * e)
 
     if (i && i == d->pressedItem && (i->isExpandable() || i->childCount()) &&
          !d->h->mapToLogical(d->h->cellAt(vp.x())) && e->button() == Qt::LeftButton &&
-         e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, this)) {
+         e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, 0, this)) {
         int draw = 0;
         for (; draw < d->drawables.size(); ++draw)
             if (d->drawables.at(draw).i == i)
@@ -4680,7 +4682,7 @@ void Q3ListView::focusInEvent(QFocusEvent*)
         d->ignoreEditAfterFocus = true;
         d->startEdit = false;
     }
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this)) {
+    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         viewport()->repaint();
     }
 
@@ -4702,7 +4704,7 @@ void Q3ListView::focusOutEvent(QFocusEvent*)
 {
     if (QFocusEvent::reason() == QFocusEvent::Popup && d->buttonDown)
         d->buttonDown = false;
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, this)) {
+    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         d->inMenuMode =
             QFocusEvent::reason() == QFocusEvent::Popup
             || (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));

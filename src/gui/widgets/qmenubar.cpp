@@ -15,9 +15,9 @@
 #include <qstyle.h>
 #include <qlayout.h>
 #include <qapplication.h>
-#include "qdesktopwidget.h"
+#include <qdesktopwidget.h>
 #ifndef QT_NO_ACCESSIBILITY
-# include "qaccessible.h"
+# include <qaccessible.h>
 #endif
 #include <qpainter.h>
 #include <qevent.h>
@@ -187,9 +187,11 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
 
         //calc what I think the size is..
         if(action->isSeparator()) {
-            if(q->style().styleHint(QStyle::SH_GUIStyle, q) == Qt::MotifStyle)
+            /* ### FIX THIS  Need a real style hint -- TWS
+            if(qt_cast<QMotifStyle *>(&q->style()))
                 separator = actionRects.count();
             continue; //we don't really position these!
+            */
         } else {
             QString s = action->text();
             int w = fm.width(s);
@@ -702,7 +704,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Enter:
     case Qt::Key_Space:
     case Qt::Key_Return: {
-        if(!style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) || !d->currentAction)
+        if(!style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, 0, this) || !d->currentAction)
            break;
         if(d->currentAction->menu()) {
             d->popupAction(d->currentAction, true);
@@ -945,7 +947,7 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
         return false;
     } else if(!(event->type() == QEvent::ShortcutOverride ||
                 event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) ||
-              !style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this)) {
+              !style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, 0, this)) {
         return false;
     }
 

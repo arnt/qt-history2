@@ -4793,8 +4793,8 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 }
 
 /*! \reimp */
-int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
-                         const Q3StyleOption &opt, QStyleHintReturn *shret) const
+int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w,
+                         QStyleHintReturn *shret) const
 {
     SInt32 ret = 0;
     switch(sh) {
@@ -4819,9 +4819,6 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
         ret = QDialogButtons::Reject;
         break;
 	*/
-    case QStyle::SH_GroupBox_TextLabelColor:
-        ret = (int) (w ? w->palette().foreground().color().rgb() : 0);
-        break;
     case QStyle::SH_Menu_SloppySubMenus:
         ret = true;
         break;
@@ -4829,7 +4826,7 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
         ret = Qt::AlignTop;
         break;
     case QStyle::SH_ScrollView_FrameOnlyAroundContents:
-        if(w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel())
+        if (w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel())
             && (qt_cast<const QViewport *>(w)
 #ifdef QT_COMPAT
                 || w->inherits("QScrollView")
@@ -4837,7 +4834,7 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
                 || w->inherits("QWorkspaceChild")))
             ret = true;
         else
-            ret = QWindowsStyle::styleHint(sh, w, opt, shret);
+            ret = QWindowsStyle::styleHint(sh, opt, w, shret);
         break;
     case QStyle::SH_Menu_FillScreenWithScroll:
         ret = (QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER);
@@ -4859,7 +4856,10 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
         ret = QEvent::MouseButtonRelease;
         break;
     case QStyle::SH_ComboBox_Popup:
-        ret = (!w || !static_cast<const QComboBox *>(w)->isEditable());
+        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt))
+            ret = cmb->editable;
+        else
+            ret = 0;
         break;
     case QStyle::SH_Workspace_FillSpaceOnMaximize:
         ret = true;
@@ -4880,7 +4880,7 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
         ret = 242; // About 95%
         break;
     default:
-        ret = QWindowsStyle::styleHint(sh, w, opt, shret);
+        ret = QWindowsStyle::styleHint(sh, opt, w, shret);
         break;
     }
     return ret;
