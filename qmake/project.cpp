@@ -963,6 +963,8 @@ QMakeProject::read(uchar cmd)
 
             if(QDir::isRelativePath(Option::mkfile::qmakespec)) {
                 bool found_mkspec = false;
+                debug_msg(2, "Looking for mkspec %s in (%s)", Option::mkfile::qmakespec.latin1(),
+                          mkspec_roots.join("::").latin1());
                 for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
                     QString mkspec = (*it) + QDir::separator() + Option::mkfile::qmakespec;
                     if(QFile::exists(mkspec)) {
@@ -1185,14 +1187,15 @@ QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QSt
    1) environment variable QMAKEFEATURES (as separated by colons)
    2) property variable QMAKEFEATURES (as separated by colons)
    3) <project_root> (where .qmake.cache lives) + FEATURES_DIR
-   4) environment variable QMAKEPATH (as separated by colons) + /mkspecs/ + FEATURES_DIR
+   4) environment variable QMAKEPATH (as separated by colons) + /mkspecs/FEATURES_DIR
    5) your QMAKESPEC/features dir
-   6) environment variable QTDIR + /mkspecs/ + FEATURES_DIR
+   6) your data_install/mkspecs/FEATURES_DIR 
+   7) environment variable QTDIR/mkspecs/FEATURES_DIR
 
    FEATURES_DIR is defined as:
 
-   1) features/(unix|win32|macx)
-   2) features
+   1) features/(unix|win32|macx)/
+   2) features/
 */
 QMakeProject::IncludeStatus
 QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place,
