@@ -27,8 +27,6 @@
 #include "widgetdatabase.h"
 #include "widgetfactory.h"
 #include "propertyeditor.h"
-#include "qmetaobject.h"
-#include "qaction.h"
 #include "metadatabase.h"
 #include "resource.h"
 #include "pixmapchooser.h"
@@ -50,19 +48,15 @@
 #include <qinputdialog.h>
 #if defined(HAVE_KDE)
 #include <ktoolbar.h>
-#include <kmenubar.h>
 #else
 #include <qtoolbar.h>
-#include <qmenubar.h>
 #endif
 #include <qfeatures.h>
+#include <qmetaobject.h>
+#include <qaction.h>
 #include <qpixmap.h>
-#include <qbuttongroup.h>
-#include <qapplication.h>
 #include <qworkspace.h>
 #include <qfiledialog.h>
-#include <qapplication.h>
-#include <qworkspace.h>
 #include <qclipboard.h>
 #include <qmessagebox.h>
 #include <qbuffer.h>
@@ -72,16 +66,11 @@
 #include <qcombobox.h>
 #include <qstatusbar.h>
 #include <qfile.h>
-#include <qmessagebox.h>
 #include <qcheckbox.h>
 #include <qspinbox.h>
-#include <qradiobutton.h>
 #include <qtoolbutton.h>
-#include <qobjectlist.h>
-#include <qurl.h>
 #include <qwhatsthis.h>
 #include <qwizard.h>
-#include <qpushbutton.h>
 #include <qdir.h>
 #include <qtimer.h>
 #include <qlistbox.h>
@@ -100,9 +89,7 @@
 #endif
 #include "../resource/qwidgetfactory.h"
 #include <qvbox.h>
-#include <qtimer.h>
 #include <qtooltip.h>
-#include <qspinbox.h>
 #include "finddialog.h"
 #include "replacedialog.h"
 #include "gotolinedialog.h"
@@ -209,7 +196,7 @@ MainWindow::MainWindow( bool asClient )
 
     setupFileActions();
     setupEditActions();
-    setupSerachActions();
+    setupSearchActions();
 #if defined(HAVE_KDE)
     layoutToolBar = new KToolBar( this, "Layout" );
     ( (KToolBar*)layoutToolBar )->setFullSize( FALSE );
@@ -513,7 +500,7 @@ void MainWindow::setupEditActions()
     actionEditPreferences->addTo( menu );
 }
 
-void MainWindow::setupSerachActions()
+void MainWindow::setupSearchActions()
 {
     actionSearchFind = new QAction( tr( "Find" ), createIconSet( "searchfind.xpm" ),
 				    tr( "&Find..." ), CTRL + Key_F, this, 0 );
@@ -3135,7 +3122,7 @@ QWorkspace *MainWindow::workSpace() const
     return workspace;
 }
 
-void MainWindow::popupFormWindoMenu( const QPoint & gp, FormWindow *fw )
+void MainWindow::popupFormWindowMenu( const QPoint & gp, FormWindow *fw )
 {
     QValueList<int> ids;
     QMap<QString, int> commands;

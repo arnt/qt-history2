@@ -104,7 +104,7 @@ public:
     void insertFormWindow( FormWindow *fw );
     QWorkspace *workSpace() const;
 
-    void popupFormWindoMenu( const QPoint &gp, FormWindow *fw );
+    void popupFormWindowMenu( const QPoint &gp, FormWindow *fw );
     void popupWidgetMenu( const QPoint &gp, FormWindow *fw, QWidget *w );
 
     QPopupMenu *setupNormalHierarchyMenu( QWidget *parent );
@@ -256,7 +256,7 @@ private:
     void setupMDI();
     void setupMenuBar();
     void setupEditActions();
-    void setupSerachActions();
+    void setupSearchActions();
     void setupToolActions();
     void setupLayoutActions();
     void setupFileActions();

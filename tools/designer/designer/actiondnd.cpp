@@ -686,7 +686,7 @@ void QDesignerMenuBar::mousePressEvent( QMouseEvent *e )
 	int itm = itemAtPos( e->pos() );
 	if ( itm == -1 ) {
 	    if ( formWindow )
-		formWindow->mainWindow()->popupFormWindoMenu( e->globalPos(), formWindow );
+		formWindow->mainWindow()->popupFormWindowMenu( e->globalPos(), formWindow );
 	    return;
 	}
 	QPopupMenu menu( this );

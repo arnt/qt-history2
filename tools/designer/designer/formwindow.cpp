@@ -536,7 +536,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 	    } else if ( e->button() == RightButton ) { // RMB menu
 		if ( mainContainer()->inherits( "QMainWindow" ) &&
 		     ( (QMainWindow*)mainContainer() )->centralWidget() == realWidget )
-		    mainwindow->popupFormWindoMenu( e->globalPos(), this );
+		    mainwindow->popupFormWindowMenu( e->globalPos(), this );
 		else
 		    mainwindow->popupWidgetMenu( e->globalPos(), this, realWidget);
 	    }
@@ -554,7 +554,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		startRectDraw( mapFromGlobal( e->globalPos() ), e->globalPos(), this, Rubber );
 	    } else if ( e->button() == RightButton ) { // RMB menu
 		clearSelection();
-		mainwindow->popupFormWindoMenu( e->globalPos(), this );
+		mainwindow->popupFormWindowMenu( e->globalPos(), this );
 	    }
 	}
 	break;
