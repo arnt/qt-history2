@@ -43,6 +43,70 @@ void QTableViewPrivate::init()
     q->setHorizontalHeader(horizontal);
 }
 
+void QTableViewPrivate::updateVerticalScrollbar(int itemHeight)
+{
+    int factor = q->verticalFactor();
+    int height = viewport->height();
+    int count = model->rowCount(q->root());
+
+    // if we have no viewport or no rows, there is nothing to do
+    if (height <= 0 || count <= 0)
+        return;
+
+    // set page step size
+    int visibleItems = height / itemHeight;
+    int pageStepSize = visibleItems * factor;
+    q->verticalScrollBar()->setPageStep(pageStepSize);
+
+    // set the scroller range
+    int y = height;
+    int r = count;
+    while (y > 0 && r > 0)
+        y -= verticalHeader->sectionSize(--r);
+    int max = r * factor;
+
+    if (y < 0) { // if the last item starts above the viewport, we have to backtrack
+        int backtracking = factor * -y;
+        int sectionSize = verticalHeader->sectionSize(r);
+        if (sectionSize > 0) // avoid division by zero
+            max += (backtracking / sectionSize) + 1;
+    }
+
+    q->verticalScrollBar()->setRange(0, max);
+}
+
+void QTableViewPrivate::updateHorizontalScrollbar(int itemWidth)
+{
+    int factor = q->horizontalFactor();
+    int width = viewport->width();
+    int count = model->columnCount(q->root());
+
+    // if we have no viewport or no columns, there is nothing to do
+    if (width <= 0 || count <= 0)
+        return;
+
+    // set page step size
+    int visibleItems = width / itemWidth;
+    int pageStepSize = visibleItems * factor;
+    q->horizontalScrollBar()->setPageStep(pageStepSize);
+
+    // set the scroller range
+    int x = width;
+    int c = count;
+    while (x > 0 && c > 0)
+        x -= horizontalHeader->sectionSize(--c);
+    int max = c * factor;
+
+    if (x < 0) { // if the last item starts left of the viewport, we have to backtrack
+        int backtracking = factor * -x;
+        int sectionSize = horizontalHeader->sectionSize(c);
+        if (sectionSize > 0) // avoid division by zero
+            max += (backtracking / sectionSize) + 1;
+    }
+
+    q->horizontalScrollBar()->setRange(0, max);
+}
+
 /*!
     \class QTableView qtableview.h
 
@@ -561,37 +625,14 @@ void QTableView::updateGeometries()
     d->horizontalHeader->setGeometry(vg.left(), vg.top() - topHint.height(),
                               vg.width(), topHint.height());
 
-    if (!d->model)
-        return;
-
-    // update sliders
-    QStyleOptionViewItem option = viewOptions();
-
-    int h = d->viewport->height();
-    int row = d->model->rowCount(root());
-    if (h <= 0 || row <= 0) // if we have no viewport or no rows, there is nothing to do
-        return;
-    QSize def = itemDelegate()->sizeHint(fontMetrics(), option, d->model, d->model->index(0, 0));
-    verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
-    while (h > 0 && row > 0)
-        h -= d->verticalHeader->sectionSize(--row);
-    int max = row * verticalFactor();
-    if (h < 0)
-        max += 1 + (verticalFactor() * -h / d->verticalHeader->sectionSize(row));
-    verticalScrollBar()->setRange(0, max);
-
-    int w = d->viewport->width();
-    int col = d->model->columnCount(root());
-    int factor = horizontalFactor();
-    if (def.width() && factor)
-        horizontalScrollBar()->setPageStep(w / def.width() * factor);
-    while (w > 0 && col > 0)
-        w -= d->horizontalHeader->sectionSize(--col);
-    max = col * factor;
-    if (w < 0)
-        max += (factor * -w / d->horizontalHeader->sectionSize(col));
-    horizontalScrollBar()->setRange(0, max);
-
+    if (d->model) {
+        QStyleOptionViewItem option = viewOptions();
+        QModelIndex topLeft = d->model->index(0, 0);
+        QSize size = itemDelegate()->sizeHint(fontMetrics(), option, d->model, topLeft);
+        d->updateVerticalScrollbar(size.height());
+        d->updateHorizontalScrollbar(size.width());
+    }
+ 
     QAbstractItemView::updateGeometries();
 }
 
