@@ -38,7 +38,6 @@
 
 #include "qeventloop.h"
 #include "qwindowdefs.h"
-#include "qptrlist.h"
 
 class QSocketNotifier;
 #ifdef Q_OS_MAC
@@ -68,20 +67,19 @@ class QSockNotType
 public:
     QSockNotType();
 
-    QList<QSockNot *> list;
+    QList<QSockNot*> list;
     fd_set select_fds;
     fd_set enabled_fds;
     fd_set pending_fds;
 
 };
 
-struct TimerInfo {				// internal timer info
-    int	     id;				// - timer identifier
-    timeval  interval;				// - timer interval
-    timeval  timeout;				// - when to sent event
-    QObject *obj;				// - object to receive event
-};
-typedef QPtrList<TimerInfo> TimerList;	// list of TimerInfo structs
+// internal timer info
+struct QTimerInfo;
+
+// list of TimerInfo structs
+typedef QList<QTimerInfo*> QTimerList;
+
 class QBitArray;
 
 #endif // Q_OS_UNIX
@@ -108,7 +106,7 @@ typedef QIntDict<TimerInfo> TimerDict;		// fast dict of timers
 class QEventLoopPrivate : public QObjectPrivate
 {
     Q_DECL_PUBLIC(QEventLoop);
-public:
+ public:
     QEventLoopPrivate()
 	: QObjectPrivate()
     {
@@ -136,30 +134,27 @@ public:
     int xfd;
 #endif // Q_WS_X11
 
+    // pending socket notifiers list
+    QList<QSockNot*> sn_pending_list;
+
 #if defined(Q_OS_UNIX)
     int eventloopSelect(uint, timeval *);
     int thread_pipe[2];
 
-    // pending socket notifiers list
-    QList<QSockNot *> sn_pending_list;
+    // watch if time is turned back
+    timeval watchtime;
+
     // highest fd for all socket notifiers
     int sn_highest;
     // 3 socket notifier types - read, write and exception
     QSockNotType sn_vec[3];
 
-    QBitArray *timerBitVec;			// timer bit vector
-    TimerList *timerList;	  	        // timer list
-    timeval *timerWait();
-    void     timerInsert(const TimerInfo *);
-    void     timerRepair(const timeval &);
-
+    QBitArray *timerBitVec;
+    QTimerList *timerList;
+    bool timerWait(timeval &);
+    void timerInsert(QTimerInfo *);
+    void timerRepair(const timeval &);
 #endif
-
-#ifdef Q_WS_WIN
-    // pending socket notifiers list
-    QList<QSockNot *> sn_pending_list;
-#endif // Q_WS_WIN
-
 };
 
 #endif // QEVENTLOOP_P_H
