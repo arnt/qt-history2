@@ -651,13 +651,15 @@ bool QKeySequence::operator!= (const QKeySequence& keysequence) const
 */
 QDataStream &operator<<(QDataStream &s, const QKeySequence &keysequence)
 {
-    QList<int> list;
-    list += keysequence.d->key[0];
-    list += keysequence.d->key[1];
-    list += keysequence.d->key[2];
-    list += keysequence.d->key[3];
-    s << list;
+    QList<Q_UINT32> list;
+    list << keysequence.d->key[0];
 
+    if (s.version() >= 5 && keysequence.count() > 1) {
+        list << keysequence.d->key[1];
+        list << keysequence.d->key[2];
+        list << keysequence.d->key[3];
+    }
+    s << list;
     return s;
 }
 
@@ -672,25 +674,10 @@ QDataStream &operator<<(QDataStream &s, const QKeySequence &keysequence)
 */
 QDataStream &operator>>(QDataStream &s, QKeySequence &keysequence)
 {
-    QList<int> list;
+    QList<Q_UINT32> list;
     s >> list;
-
-    if (1 != list.count() && 4 != list.count()) {
-	qWarning("Invalid QKeySequence data in the datastream.");
-	return s;
-    }
-
-    if (1 == list.size()) {
-	keysequence.d->key[0] = list.at(0);
-	keysequence.d->key[1] =
-	    keysequence.d->key[2] =
-	    keysequence.d->key[3] = 0;
-    } else {
-	keysequence.d->key[0] = list.at(0);
-	keysequence.d->key[1] = list.at(1);
-	keysequence.d->key[2] = list.at(2);
-	keysequence.d->key[3] = list.at(3);
-    }
+    for (int i = 0; i < 4; ++i)
+	keysequence.d->key[i] = list.value(i);
     return s;
 }
 
