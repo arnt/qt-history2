@@ -47,7 +47,6 @@
 
 static const int GRIPMARGIN  = 4;	// half the size of the resize area
 static const int MARKSIZE = 32;
-static const int QH_MARGIN = 4;
 
 
 class QHeaderData
@@ -1106,7 +1105,8 @@ QSize QHeader::sectionSizeHint( int section, const QFontMetrics& fm ) const
     if ( d->sortColumn == section )
 	arrowWidth = ( ( orient == Qt::Horizontal ? height() : width() ) / 2 ) + 8;
     int height = QMAX( bound.height() + 2, ih ) + 4;
-    int width = bound.width() + QH_MARGIN * 4 + iw + arrowWidth;
+    int width = bound.width() + style().pixelMetric( QStyle::PM_HeaderMargin ) * 4
+	+ iw + arrowWidth;
     return QSize( width, height );
 }
 
@@ -1530,36 +1530,23 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     int section = mapToSection( index );
     if ( section < 0 )
 	return;
-    QString s;
-    if ( d->labels[section] )
-	s = *(d->labels[section]);
-    else if ( orient == Horizontal )
-	s = tr("%1").arg(section + 1);
-    else
-	s = tr("%1").arg(section + 1);
 
     int dx = 0, dy = 0;
-    if (index==handleIdx && ( state == Pressed || state == Moving ) ) {
-	dx = style().pixelMetric(QStyle::PM_ButtonShiftVertical, this);
-	dy = style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, this);
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if ( index == handleIdx && ( state == Pressed || state == Moving ) ) {
+	dx = style().pixelMetric( QStyle::PM_ButtonShiftVertical, this );
+	dy = style().pixelMetric( QStyle::PM_ButtonShiftHorizontal, this );
+	flags |= QStyle::Style_Sunken;
     }
+    if ( isEnabled() )
+	flags |= QStyle::Style_Enabled;
 
-    QRect r( fr.x() + QH_MARGIN + dx, fr.y() + 2 + dy, fr.width() - 6,
-	     fr.height() - 4 );
 
-    if ( d->iconsets[section] ) {
-	QIconSet::Mode mode = isEnabled() ? QIconSet::Normal
-			      : QIconSet::Disabled;
-	QPixmap pixmap = d->iconsets[section]->pixmap( QIconSet::Small, mode );
-	int pixw = pixmap.width();
-	int pixh = pixmap.height();
-	// "pixh - 1" because of tricky integer division
-	p->drawPixmap( r.left(), r.center().y() - (pixh - 1) / 2, pixmap );
-	r.setLeft( r.left() + pixw + 2 );
-    }
+    QRect r( fr.x() + style().pixelMetric( QStyle::PM_HeaderMargin ) + dx, fr.y() + 2 + dy,
+	     fr.width() - 6, fr.height() - 4 );
 
-    p->setPen(colorGroup().buttonText());
-    p->drawText( r, AlignVCenter, s );
+    style().drawControl( QStyle::CE_HeaderLabel, p, this, r, colorGroup(), flags,
+			 QStyleOption( section ) );
 
     int arrowWidth = ( orient == Qt::Horizontal ? height() : width() ) / 2;
     int arrowHeight = fr.height() - 6;

@@ -59,6 +59,8 @@ public:
 
     // Note: we don't use default arguments since that is unnecessary
     // initialization.
+    QStyleOption(int in1) :
+	def(FALSE), i1(in1) {}
     QStyleOption(int in1, int in2) :
 	def(FALSE), i1(in1), i2(in2) {}
     QStyleOption(int in1, int in2, int in3, int in4) :
@@ -71,8 +73,8 @@ public:
     QStyleOption(QListViewItem* i) : def(FALSE), li(i) {}
     QStyleOption(QCheckListItem* i) : def(FALSE), cli(i) {}
     QStyleOption(Qt::ArrowType a) : def(FALSE), i1((int)a) {}
-    QStyleOption( const QRect& r ) : def(FALSE), i1(r.x()), i2(r.y()), i3(r.width()),i4(r.height()){}
-    QStyleOption( QWidget *w ) : def(FALSE), p1((void*)w) {}
+    QStyleOption(const QRect& r) : def(FALSE), i1(r.x()), i2(r.y()), i3(r.width()),i4(r.height()){}
+    QStyleOption(QWidget *w) : def(FALSE), p1((void*)w) {}
 
     bool isDefault() const { return def; }
 
@@ -81,6 +83,7 @@ public:
     int frameShape() const { return i3; }
     int frameShadow() const { return i4; }
 
+    int headerSection() const { return i1; }
     QMenuItem* menuItem() const { return mi; }
     int maxIconWidth() const { return i1; }
     int tabWidth() const { return i2; }
@@ -275,6 +278,7 @@ public:
 	CE_DockWindowEmptyArea,
 
 	CE_ToolBoxTab,
+	CE_HeaderLabel,
 
 	// do not add any values below/greater than this
 	CE_CustomBase =		0xf0000000
@@ -473,6 +477,7 @@ public:
 
 	PM_MDIFrameWidth,
 	PM_MDIMinimizedWidth,
+	PM_HeaderMargin,
 
 	// do not add any values below/greater than this
 	PM_CustomBase =		0xf0000000

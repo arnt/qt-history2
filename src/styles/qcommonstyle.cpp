@@ -50,6 +50,7 @@
 #include "qtoolbutton.h"
 #include "qtoolbar.h"
 #include "qdockarea.h"
+#include "qheader.h"
 #include "qspinbox.h"
 #include "qrangecontrol.h"
 #include "qgroupbox.h"
@@ -1003,6 +1004,31 @@ void QCommonStyle::drawControl( ControlElement element,
 	    break;
 	}
 #endif // QT_NO_TOOLBUTTON
+        case CE_HeaderLabel:
+	{
+	    QRect rect = r;
+	    const QHeader* header = (const QHeader *) widget;
+	    int section = opt.headerSection();
+
+	    QIconSet* icon = header->iconSet( section );
+	    if ( icon ) {
+		QPixmap pixmap = icon->pixmap( QIconSet::Small,
+					       flags & Style_Enabled ?
+					       QIconSet::Normal : QIconSet::Disabled );
+		int pixw = pixmap.width();
+		int pixh = pixmap.height();
+		// "pixh - 1" because of tricky integer division
+
+		QRect pixRect = rect;
+		pixRect.setY( rect.center().y() - (pixh - 1) / 2 );
+		drawItem ( p, pixRect, AlignVCenter, cg, flags & Style_Enabled,
+			   &pixmap, QString::null );
+		rect.setLeft( rect.left() + pixw + 2 );
+	    }
+
+	    drawItem ( p, rect, AlignVCenter, cg, flags & Style_Enabled,
+		       0, header->label( section ), -1, &(cg.buttonText()) );
+	}
     default:
 	break;
     }
@@ -2332,6 +2358,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 0;
 	break;
 
+    case PM_HeaderMargin:
+	ret = 4;
+	break;
     default:
 	ret = 0;
 	break;
