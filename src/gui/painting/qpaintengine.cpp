@@ -975,16 +975,11 @@ QPainter::RenderHints QPaintEngine::renderHints() const
 void QPaintEngine::setRenderHint(QPainter::RenderHint hint, bool on)
 {
     if (on) {
-        if (QPainter::RenderHints(d->renderhints & hint) != hint) {
-            d->renderhints |= hint;
-            setDirty(DirtyHints);
-        }
+        d->renderhints |= hint;
     } else {
-        if (QPainter::RenderHints(d->renderhints & hint) != 0) {
-            d->renderhints &= ~hint;
-            setDirty(DirtyHints);
-        }
+        d->renderhints &= ~hint;
     }
+    setDirty(DirtyHints);
 }
 
 /*!
