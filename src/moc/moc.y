@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#266 $
+** $Id: //depot/qt/main/src/moc/moc.y#267 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -191,7 +191,7 @@ struct Argument					// single arg meta data
 
 class ArgList : public QPtrList<Argument> {	// member function arg list
 public:
-    ArgList() { setAutoDelete( TRUE ); overload = FALSE;  }
+    ArgList() { setAutoDelete( TRUE ); qoverload = FALSE;  }
    ~ArgList() { clear(); }
 
     /* the clone has one default argument less, the orignal has all default arguments removed */
@@ -212,7 +212,7 @@ public:
 	    else
 		next();
 	}
-	overload = TRUE;
+	qoverload = TRUE;
 	return l;
     }
 
@@ -224,7 +224,7 @@ public:
 	return FALSE;
     }
 
-    bool overload;
+    bool qoverload;
 };
 
 
@@ -2684,7 +2684,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#266 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#267 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2874,7 +2874,7 @@ void generateClass()		      // generate C++ source code for a class
     int sigindex = 0;
     int overloads = 0;
     while ( f ) {
-	if( f->args->overload ) {
+	if( f->args->qoverload ) {
 	    overloads++;
 	    f = g->signals.next();
 	    sigindex++;
