@@ -46,7 +46,8 @@ public:
     virtual void restore();
     virtual void setMode(int nw,int nh,int nd);
 
-    void setDirty() { hdr->dirty = true; }
+    void setDirty( QRect r )
+	{ hdr->dirty = true; hdr->update = hdr->update.unite( r ); }
 
     bool success;
     unsigned char *shmrgn;
@@ -70,14 +71,24 @@ QVFbScreenCursor::QVFbScreenCursor() : QScreenCursor()
 
 void QVFbScreenCursor::set( const QImage &image, int hotx, int hoty )
 {
+    QWSDisplay::grab();
+    qvfb_screen->setDirty( QRect( data->x - QMAX( data->hotx, hotx ),
+				  data->y - QMAX( data->hoty, hoty ),
+				  QMAX( image.width(), data->width ),
+				  QMAX( image.height(), data->height ) ) );
     QScreenCursor::set( image, hotx, hoty );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 void QVFbScreenCursor::move( int x, int y )
 {
+    QWSDisplay::grab();
+    QRect r( data->x - data->hotx, data->y - data->hoty,
+	     data->width, data->height );
+    r |= QRect( x - data->hotx, y - data->hoty, data->width, data->height );
+    qvfb_screen->setDirty( r );
     QScreenCursor::move( x, y );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 
@@ -108,71 +119,96 @@ QGfxVFb<depth,type>::QGfxVFb(unsigned char *b,int w,int h)
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::drawPoint( int x, int y )
 {
+    QWSDisplay::grab();
+    qvfb_screen->setDirty( QRect( x+xoffs, y+yoffs, 1, 1 ) );
     QGfxRaster<depth,type>::drawPoint( x, y );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::drawPoints( const QPointArray &pa,int x,int y )
 {
+    QWSDisplay::grab();
+    qvfb_screen->setDirty( clipbounds );
     QGfxRaster<depth,type>::drawPoints( pa, x, y );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::drawLine( int x1,int y1,int x2,int y2 )
 {
+    QWSDisplay::grab();
+    QRect r;
+    r.setCoords( x1+xoffs, y1+yoffs, x2+xoffs, y2+yoffs );
+    qvfb_screen->setDirty( r );
     QGfxRaster<depth,type>::drawLine( x1, y1, x2, y2 );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::drawRect( int x,int y,int w,int h )
 {
+    QWSDisplay::grab();
+    qvfb_screen->setDirty( QRect( x+xoffs, y+yoffs, w, h ) );
     QGfxRaster<depth,type>::drawRect( x, y, w, h );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::drawPolyline( const QPointArray &pa,int x,int y )
 {
+    QWSDisplay::grab();
+    qvfb_screen->setDirty( clipbounds );
     QGfxRaster<depth,type>::drawPolyline( pa, x, y );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::drawPolygon( const QPointArray &pa,bool w,int x,int y )
 {
+    QWSDisplay::grab();
+    qvfb_screen->setDirty( clipbounds );
     QGfxRaster<depth,type>::drawPolygon( pa, w, x, y );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::blt( int x,int y,int w,int h )
 {
+    QWSDisplay::grab();
+    qvfb_screen->setDirty( QRect( x+xoffs, y+yoffs, w, h ) );
     QGfxRaster<depth,type>::blt( x, y, w, h );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::scroll( int x,int y,int w,int h,int sx,int sy )
 {
+    QWSDisplay::grab();
+    int dy = sy - y;
+    int dx = sx - x;
+    qvfb_screen->setDirty( QRect(QMIN(x,sx) + xoffs, QMIN(y,sy) + yoffs,
+			   w+abs(dx), h+abs(dy)) );
     QGfxRaster<depth,type>::scroll( x, y, w, h, sx, sy );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::stretchBlt( int x,int y,int w,int h,int sx,int sy )
 {
+    QWSDisplay::grab();
+    qvfb_screen->setDirty( QRect( x + xoffs, y + yoffs, w, h) );
     QGfxRaster<depth,type>::stretchBlt( x, y, w, h, sx, sy );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::tiledBlt( int x,int y,int w,int h )
 {
+    QWSDisplay::grab();
+    qvfb_screen->setDirty( QRect(x + xoffs, y + yoffs, w, h) );
     QGfxRaster<depth,type>::tiledBlt( x, y, w, h );
-    qvfb_screen->setDirty();
+    QWSDisplay::ungrab();
 }
 
 

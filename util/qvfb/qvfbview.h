@@ -23,11 +23,15 @@ protected slots:
     void timeout();
 
 protected:
+    void initLock();
+    void lock();
+    void unlock();
     void drawScreen();
     void sendMouseData( const QPoint &pos, int buttons );
     void sendKeyboardData( int unicode, int keycode, int modifiers,
 			   bool press, bool repeat );
-    virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
+    virtual bool eventFilter( QObject *obj, QEvent *e );
+    virtual void viewportPaintEvent( QPaintEvent *pe );
     virtual void contentsMousePressEvent( QMouseEvent *e );
     virtual void contentsMouseReleaseEvent( QMouseEvent *e );
     virtual void contentsMouseMoveEvent( QMouseEvent *e );
@@ -38,7 +42,7 @@ private:
     int shmId;
     unsigned char *data;
     QVFbHeader *hdr;
-    QImage *image;
+    int lockId;
     QTimer *timer;
     int mouseFd;
     int keyboardFd;

@@ -11,10 +11,10 @@ struct QVFbHeader
     int depth;
     int linestep;
     int dataoffset;
-    QRgb clut[256];
-    int  numcols;
     QRect update;
     bool dirty;
+    int  numcols;
+    QRgb clut[256];
 };
 
 struct QVFbKeyData

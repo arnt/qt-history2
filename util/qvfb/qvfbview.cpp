@@ -4,7 +4,9 @@
 #include <sys/types.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
+#include <sys/sem.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include <qimage.h>
 #include <qtimer.h>
@@ -14,7 +16,7 @@
 
 QVFbView::QVFbView( int w, int h, int d, QWidget *parent, const char *name,
 			uint flags )
-    : QScrollView( parent, name, flags )
+    : QScrollView( parent, name, flags ), lockId(-1)
 {
     viewport()->setMouseTracking( true );
     viewport()->setFocusPolicy( StrongFocus );
@@ -64,10 +66,8 @@ QVFbView::QVFbView( int w, int h, int d, QWidget *parent, const char *name,
     hdr->depth = d;
     hdr->linestep = bpl;
     hdr->dataoffset = 1024;
+    hdr->update = QRect();
 
-    image = new QImage( data + hdr->dataoffset, w, h, d, hdr->clut, 256,
-			QImage::LittleEndian );
-    
     resizeContents( w, h );
 
     timer = new QTimer( this );
@@ -92,6 +92,48 @@ void QVFbView::setRate( int r )
     timer->start( 1000/r );
 }
 
+void QVFbView::initLock()
+{
+    int semkey = ftok( "/dev/fb0", 'd' );
+    lockId = semget( semkey, 0, 0 );
+}
+
+void QVFbView::lock()
+{
+    if ( lockId == -1 )
+	initLock();
+
+    sembuf sops;
+    sops.sem_num = 0;
+    sops.sem_flg = SEM_UNDO;
+    sops.sem_op = -1;
+    int rv;
+    do {
+	rv = semop(lockId,&sops,1);
+	if (rv == -1 && errno != EINTR)
+	    qDebug("Semop unlock failure %s",strerror(errno));
+    } while ( rv == -1 && errno == EINTR );
+
+    if ( rv == -1 )
+	lockId = -1;
+}
+
+void QVFbView::unlock()
+{
+    if ( lockId >= 0 ) {
+	sembuf sops;
+	sops.sem_num = 0;
+	sops.sem_op = 1;
+	sops.sem_flg = SEM_UNDO;
+	int rv;
+	do {
+	    rv = semop(lockId,&sops,1);
+	    if (rv == -1 && errno != EINTR)
+		qDebug("Semop unlock failure %s",strerror(errno));
+	} while ( rv == -1 && errno == EINTR );
+    }
+}
+
 void QVFbView::sendMouseData( const QPoint &pos, int buttons )
 {
     write( mouseFd, &pos, sizeof( QPoint ) );
@@ -113,17 +155,52 @@ void QVFbView::sendKeyboardData( int unicode, int keycode, int modifiers,
 void QVFbView::timeout()
 {
     if ( hdr->dirty ) {
-	hdr->dirty = false;
-	repaintContents( 0, 0, hdr->width, hdr->height, false );
+	drawScreen();
     }
 }
 
-void QVFbView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
+void QVFbView::drawScreen()
 {
-    QPixmap pm;
-    pm.convertFromImage( *image );
+    QPainter p( viewport() );
 
-    p->drawPixmap( cx, cy, pm, cx, cy, cw, ch );
+    p.translate( -contentsX(), -contentsY() );
+
+    lock();
+    QRect r( hdr->update );
+    hdr->dirty = FALSE;
+    hdr->update = QRect();
+//    qDebug( "update %d, %d, %dx%d", r.y(), r.x(), r.width(), r.height() );
+    r = r.intersect( QRect(0, 0, hdr->width, hdr->height ) );
+    if ( !r.isEmpty() )  {
+	QImage img( data + hdr->dataoffset + r.y() * hdr->linestep,
+		    hdr->width, r.height(), hdr->depth, hdr->clut,
+		    256, QImage::LittleEndian );
+	QPixmap pm;
+	pm.convertFromImage( img );
+	unlock();
+	p.drawPixmap( r.x(), r.y(), pm, r.x(), 0, r.width(), r.height() );
+    } else
+	unlock();
+}
+
+bool QVFbView::eventFilter( QObject *obj, QEvent *e )
+{
+    if ( obj == viewport() &&
+	 (e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut) )
+	return TRUE;
+
+    return QScrollView::eventFilter( obj, e );
+}
+
+void QVFbView::viewportPaintEvent( QPaintEvent *pe )
+{
+    lock();
+    QRect r( pe->rect() );
+    r.moveBy( contentsX(), contentsY() );
+    hdr->update = hdr->update.unite( r );
+    hdr->dirty = TRUE;
+    unlock();
+    drawScreen();
 }
 
 void QVFbView::contentsMousePressEvent( QMouseEvent *e )
