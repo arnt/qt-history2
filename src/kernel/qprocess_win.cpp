@@ -35,13 +35,15 @@
 **
 **********************************************************************/
 
-#include <qprocess.h>
+#include "qprocess.h"
+#include "qapplication.h"
+#include "qqueue.h"
+#include "qtimer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <Windows.h>
 
-#include <qtimer.h>
-#include <qapplication.h>
 
 extern Qt::WindowsVersion qt_winver;
 

@@ -35,9 +35,11 @@
 **
 **********************************************************************/
 
-#include "qapplication.h"
-#include "qlist.h"
 #include "qprocess.h"
+#include "qapplication.h"
+#include "qqueue.h"
+#include "qlist.h"
+#include "qsocketnotifier.h"
 
 //### 3.0: remove -D_BSD from tmake and remove this AIX preprocessor stuff
 #if defined(_OS_AIX_) && defined(_BSD)
@@ -46,8 +48,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
+#include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 //#define QPROCESS_DEBUG
 

@@ -42,21 +42,7 @@
 #include "qobject.h"
 #include "qstring.h"
 #include "qdir.h"
-#include "qsocketnotifier.h"
-#include "qqueue.h"
-#if defined(_OS_UNIX_)
-#include "qlist.h"
-#endif
 #endif // QT_H
-
-#if defined(_OS_UNIX_)
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#else
-#include <Windows.h>
-#endif
 
 class QProcessPrivate;
 
