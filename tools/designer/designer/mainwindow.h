@@ -175,6 +175,7 @@ public slots:
     void editAccels();
     void editSlots();
     void editConnections();
+    void editSource();
     void editFormSettings();
     void editProjectSettings();
     void editDatabaseConnections();
@@ -305,6 +306,7 @@ private:
     QAction *actionWindowNext, *actionWindowPrevious;
     QAction *actionEditFormSettings, *actionEditAccels;
     QAction *actionEditDatabaseConnections;
+    QAction *actionEditSource;
 
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;

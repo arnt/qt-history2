@@ -191,8 +191,8 @@ public:
     static void setEventsEnabled( bool b );
     static bool hasEvents();
 
-    static void setEditor( bool b );
-    static bool hasEditor();
+    static void setEditor( const QStringList &langs );
+    static bool hasEditor( const QString &lang );
 
     static QValueList<EventDescription> events( QObject *o );
     static bool setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function, bool = TRUE );

@@ -69,8 +69,8 @@ static QPtrDict<MetaDataBaseRecord> *db = 0;
 static QList<MetaDataBase::CustomWidget> *cWidgets = 0;
 static bool doUpdate = TRUE;
 static bool haveEvents = FALSE;
-static bool editorInstalled = FALSE;
-QStringList langList;
+static QStringList langList;
+static QStringList editorLangList;
 static QInterfaceManager<EventInterface> *eventInterfaceManager = 0;
 static QInterfaceManager<LanguageInterface> *languageInterfaceManager = 0;
 
@@ -1107,14 +1107,14 @@ QMap<QString, QString> MetaDataBase::eventFunctions( QObject *o )
     return r->eventFunctions;
 }
 
-void MetaDataBase::setEditor( bool b )
+void MetaDataBase::setEditor( const QStringList &langs )
 {
-    editorInstalled = b;
+    editorLangList = langs;
 }
 
-bool MetaDataBase::hasEditor()
+bool MetaDataBase::hasEditor( const QString &lang )
 {
-    return editorInstalled;
+    return editorLangList.find( lang ) != editorLangList.end();
 }
 
 static QString make_pretty( const QString &s )

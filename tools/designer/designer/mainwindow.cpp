@@ -358,6 +358,15 @@ void MainWindow::setupEditActions()
     connect( actionEditConnections, SIGNAL( activated() ), this, SLOT( editConnections() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), actionEditConnections, SLOT( setEnabled(bool) ) );
 
+    actionEditSource = new QAction( tr( "Source" ), QIconSet(),
+					 tr( "&Source..." ), 0, this, 0 );
+    actionEditConnections->setStatusTip( tr("Opens an editor to edit the source of the form") );
+    actionEditConnections->setWhatsThis( tr("<b>Edit source</b>"
+					    "<p>Opens an editor where the source of the current form can be "
+					    "edited.</p>") );
+    connect( actionEditSource, SIGNAL( activated() ), this, SLOT( editSource() ) );
+    connect( this, SIGNAL( hasActiveForm(bool) ), actionEditSource, SLOT( setEnabled(bool) ) );
+
     actionEditFormSettings = new QAction( tr( "Form Settings" ), QPixmap(),
 					  tr( "&Form Settings..." ), 0, this, 0 );
     actionEditFormSettings->setStatusTip( tr("Opens a dialog to change the settings of the form") );
@@ -1203,6 +1212,7 @@ void MainWindow::setupRMBMenus()
     actionEditBreakLayout->addTo( rmbWidgets );
     rmbWidgets->insertSeparator();
     actionEditConnections->addTo( rmbWidgets );
+    actionEditSource->addTo( rmbWidgets );
 
     rmbFormWindow = new QPopupMenu( this );
     actionEditPaste->addTo( rmbFormWindow );
@@ -1217,6 +1227,7 @@ void MainWindow::setupRMBMenus()
     rmbFormWindow->insertSeparator();
     actionEditSlots->addTo( rmbFormWindow );
     actionEditConnections->addTo( rmbFormWindow );
+    actionEditSource->addTo( rmbFormWindow );
     actionEditFormSettings->addTo( rmbFormWindow );
 }
 
@@ -1756,6 +1767,36 @@ void MainWindow::editConnections()
     ConnectionViewer dlg( this, formWindow() );
     dlg.exec();
     statusBar()->clear();
+}
+
+void MainWindow::editSource()
+{
+    if ( !formWindow() )
+	return;
+    SourceEditor *editor = 0;
+    QString lang = currentProject->language();
+    if ( !MetaDataBase::hasEditor( lang ) ) {
+	QMessageBox::information( this, tr( "Edit Source" ),
+				  tr( "There is no editor plugin to edit " + lang + "code installed" ) );
+	return;
+    }
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->language() == lang ) {
+	    editor = e;
+	    break;
+	}
+    }
+    if ( !editor ) {
+	EditorInterface *eIface = (EditorInterface*)editorPluginManager->queryInterface( lang );
+	if ( !eIface )
+	    return;
+	editor = new SourceEditor( workSpace(), eIface );
+	editor->setLanguage( lang );
+	sourceEditors.append( editor );
+    }
+    editor->show();
+    editor->setFocus();
+    editor->setForm( formWindow() );
 }
 
 void MainWindow::editFormSettings()
@@ -3768,10 +3809,12 @@ void MainWindow::setupActionManager()
 
 void MainWindow::editFunction( const QString &func )
 {
-    if ( !lastActiveFormWindow || !MetaDataBase::hasEditor() )
+    if ( !lastActiveFormWindow )
 	return;
     SourceEditor *editor = 0;
     QString lang = MetaDataBase::languageOfSlot( formWindow(), func.latin1() );
+    if ( !MetaDataBase::hasEditor( lang ) )
+	return;
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	if ( e->language() == lang ) {
 	    editor = e;
@@ -3842,7 +3885,7 @@ TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& cl
 void MainWindow::setupPluginManagers()
 {
     editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, pluginDir, "*.dll; *.so; *.dylib" );
-    MetaDataBase::setEditor( !editorPluginManager->libraryList().isEmpty() );
+    MetaDataBase::setEditor( editorPluginManager->featureList() );
     templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, pluginDir, "*.dll; *.so" );
     MetaDataBase::setupInterfaceManagers();
     programPluginManager = new QInterfaceManager<ProgramInterface>( IID_ProgramInterface, pluginDir, "*.dll; *.so; *.dylib" );
