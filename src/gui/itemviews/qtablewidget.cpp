@@ -963,8 +963,6 @@ public:
     void emitItemChanged(const QModelIndex &index);
     // selection signals
     void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
-    // to be removed
-    void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
     // data
     bool sortingEnabled;
 };
@@ -1005,11 +1003,6 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     emit q->currentItemChanged(model()->item(current), model()->item(previous));
 }
 
-void QTableWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
-{
-    emit q->aboutToShowContextMenu(menu, model()->item(index));
-}
-
 /*!
     \fn void QTableWidget::keyPressed(QTableWidgetItem *item, QKeyEvent *event)
 
@@ -1047,16 +1040,6 @@ void QTableWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIn
 
     This signal is only emitted when mouseTracking is turned on, or when a
     mouse button is pressed while moving into an item.
-*/
-
-/*!
-    \fn void QTableWidget::aboutToShowContextMenu(QMenu *menu, QTableWidgetItem *item)
-
-    This signal is emitted when the widget is about to show a context
-    menu. The \a menu is the menu about to be shown, and the \a item is the
-    clicked item the context menu was called for.
-
-    \sa QMenu::addAction()
 */
 
 /*!
@@ -1586,9 +1569,6 @@ void QTableWidget::setup()
             this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SIGNAL(itemSelectionChanged()));
-    // to be removed
-    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
-            SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
 }
 
 QTableWidgetItemCreatorBase::~QTableWidgetItemCreatorBase() {}

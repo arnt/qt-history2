@@ -197,8 +197,6 @@ signals:
     void currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void itemSelectionChanged();
 
-    void aboutToShowContextMenu(QMenu *menu, QTreeWidgetItem *item, int column);
-
 protected:
     void setModel(QAbstractItemModel *model);
 
@@ -214,7 +212,7 @@ private:
     Q_PRIVATE_SLOT(d, void emitItemExpanded(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitItemCollapsed(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
-    Q_PRIVATE_SLOT(d, void emitAboutToShowContextMenu(QMenu *meny, const QModelIndex &index))
+
 };
 
 #endif

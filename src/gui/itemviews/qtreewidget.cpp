@@ -1246,9 +1246,7 @@ public:
     void emitItemChanged(const QModelIndex &index);
     void emitItemExpanded(const QModelIndex &index);
     void emitItemCollapsed(const QModelIndex &index);
-    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
-    void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
-
+    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &index);
     bool sortingEnabled;
 };
 
@@ -1296,11 +1294,6 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
                                                 const QModelIndex &previous)
 {
     emit q->currentItemChanged(model()->item(current), model()->item(previous));
-}
-
-void QTreeWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
-{
-    emit q->aboutToShowContextMenu(menu, model()->item(index), index.column());
 }
 
 /*!
@@ -1458,14 +1451,6 @@ void QTreeWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelInd
 */
 
 /*!
-    \fn void QTreeWidget::aboutToShowContextMenu(QMenu *menu, QTreeWidgetItem *item, int column)
-
-    This signal is emitted when the tree widget is about to show a context
-    menu specified by \a menu. The menu is actived for the specified \a item
-    and \a column.
-*/
-
-/*!
     \fn void QTreeWidget::itemChanged(QTreeWidgetItem *item, int column)
 
     This signal is emitted when the contents of the \a column in the specified
@@ -1499,9 +1484,6 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     // header signals
     connect(header(), SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
             this, SLOT(sortItems(int)));
-    // to be removed
-    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
-            SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
 }
 
 /*!

@@ -240,7 +240,6 @@ private:
     Q_PRIVATE_SLOT(d, void emitItemEntered(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitItemChanged(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
-    Q_PRIVATE_SLOT(d, void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index))
 };
 
 #endif

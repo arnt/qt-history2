@@ -621,7 +621,6 @@ public:
     void emitItemEntered(const QModelIndex &index);
     void emitItemChanged(const QModelIndex &index);
     void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
-    void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
 };
 
 void QListWidgetPrivate::emitItemPressed(const QModelIndex &index)
@@ -660,11 +659,6 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     QListWidgetItem *currentItem = model()->at(current.row());
     emit q->currentItemChanged(currentItem, model()->at(previous.row()));
     emit q->currentTextChanged(currentItem ? currentItem->text() : QString());
-}
-
-void QListWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
-{
-    emit q->aboutToShowContextMenu(menu, model()->at(index.row()));
 }
 
 /*!
@@ -819,22 +813,10 @@ void QListWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelInd
 */
 
 /*!
-    \fn void QListWidget::aboutToShowContextMenu(QMenu *menu, QListWidgetItem *item)
-
-    This signal is emitted when the widget is about to show a context
-    menu. The \a menu is the menu about to be shown, and the \a item
-    is the clicked item the context menu was called for.
-
-    \sa QMenu::addAction()
-*/
-
-/*!
     \fn void QListWidget::itemChanged(QListWidgetItem *item)
 
     This signal is emitted whenever the data of \a item has changed.
 */
-
-
 
 /*!
     Constructs an empty QListWidget with the given \a parent.
@@ -1126,9 +1108,6 @@ void QListWidget::setup()
             this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SIGNAL(itemSelectionChanged()));
-    // to be removed    
-    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
-            SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
 }
 
 #include "moc_qlistwidget.cpp"
