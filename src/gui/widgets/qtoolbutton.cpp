@@ -231,7 +231,6 @@ void QToolButtonPrivate::init()
     hasArrow = false;
 
     q->setFocusPolicy(Qt::NoFocus);
-    q->setAttribute(Qt::WA_BackgroundInherited);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     QObject::connect(q, SIGNAL(pressed()), q, SLOT(popupPressed()));
@@ -282,7 +281,6 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         opt.features |= QStyleOptionToolButton::PopupDelay;
     if (usesBigPixmap)
         opt.features |= QStyleOptionToolButton::BigPixmap;
-    opt.bgRole = q->backgroundRole();
     opt.textPosition = textPos;
     opt.pos = q->pos();
     opt.font = q->font();

@@ -312,17 +312,11 @@ public:
 
     QString text;
     QIcon icon;
-    QPalette::ColorRole bgRole;
-    QPalette::ColorRole currentWidgetBGRole;
-    QPalette currentWidgetPalette;
 
     QStyleOptionToolBox();
 
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(QIcon icon);
-    QDOC_PROPERTY(QPalette::ColorRole bgRole);
-    QDOC_PROPERTY(QPalette::ColorRole currentWidgetBGRole);
-    QDOC_PROPERTY(QPalette currentWidgetPalette);
 
 protected:
     QStyleOptionToolBox(int version);
@@ -447,7 +441,6 @@ public:
     QIcon icon;
     QString text;
     Qt::ArrowType arrowType;
-    QPalette::ColorRole bgRole;
     QPoint pos;
     QFont font;
     QToolButton::TextPosition textPosition;
@@ -458,7 +451,6 @@ public:
     QDOC_PROPERTY(QIcon icon);
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(Qt::ArrowType arrowType);
-    QDOC_PROPERTY(QPalette::ColorRole bgRole);
     QDOC_PROPERTY(QPoint pos);
     QDOC_PROPERTY(QFont font);
     QDOC_PROPERTY(QToolButton::TextPosition textPosition);

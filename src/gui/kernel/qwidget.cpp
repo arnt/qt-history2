@@ -1044,17 +1044,13 @@ bool QWidgetPrivate::isForegroundInherited() const
   A widget does not inherit its parent's background if
   setBackgroundRole() was called, or a brush is defined for the
   background role.
-
-  If the Qt::WA_BackgroundInherited attribute is set, a widget always
-  inherits its parent's background.
 */
 
 bool QWidgetPrivate::isBackgroundInherited() const
 {
     return (q->testWFlags(Qt::WType_TopLevel|Qt::WSubWindow) == 0
-            && (q->testAttribute(Qt::WA_BackgroundInherited)
-                || (!q->testAttribute(Qt::WA_SetPalette)
-                    && !q->testAttribute(Qt::WA_SetBackgroundRole))));
+            && (!q->testAttribute(Qt::WA_SetPalette)
+                    && !q->testAttribute(Qt::WA_SetBackgroundRole)));
 }
 
 /*
@@ -6247,7 +6243,6 @@ const QPixmap *QWidget::icon() const
     \omitvalue WA_LaidOut
     \omitvalue WA_GrabbedShortcut
     \omitvalue WA_ForegroundInherited
-    \omitvalue WA_BackgroundInherited
     \omitvalue WA_TransparentForMouseEvents
     \omitvalue WA_InvalidSize
 

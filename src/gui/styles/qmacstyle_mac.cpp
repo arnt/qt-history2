@@ -1937,9 +1937,6 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
     case QStyle::CE_ProgressBarLabel:
     case QStyle::CE_ProgressBarGroove:
         break;
-    case QStyle::CE_ToolBoxTab:
-        q->QCommonStyle::drawControl(ce, opt, p, w);
-        break;
     case QStyle::CE_TabBarTab:
         if (const QStyleOptionTab *tabOpt = qt_cast<const QStyleOptionTab *>(opt)) {
             HIThemeTabDrawInfo tdi;
@@ -2504,12 +2501,6 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                                     int(macRect.size.width - myRect.size.width),
                                     int(macRect.size.height - myRect.size.height));
 
-                    // If the background color is set then make the toolbutton
-                    // translucent so the background color is visible
-                    if (tb->palette.color(tb->bgRole) != Qt::white) {
-                        p->fillRect(tb->rect, tb->palette.color(tb->bgRole));
-                        bdi.state = kThemeStateInactive;
-                    }
                     myRect = qt_hirectForQRect(button, p, false, off_rct);
                     HIThemeDrawButton(&myRect, &bdi, cg, kHIThemeOrientationNormal, 0);
                 }
@@ -3559,9 +3550,6 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             DrawThemeTrack(&tdi, 0, 0, 0);
         }
         break;
-    case QStyle::CE_ToolBoxTab:
-        q->QCommonStyle::drawControl(ce, opt, p, widget);
-        break;
     case QStyle::CE_TabBarTab:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             ThemeTabStyle tts = kThemeTabNonFront;
@@ -3892,12 +3880,6 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                                 (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
                     }
 
-                    // If the background color is set then make the toolbutton
-                    // translucent so the background color is visible
-                    if (tb->palette.color(tb->bgRole) != Qt::white) {
-                        p->fillRect(tb->rect, tb->palette.color(tb->bgRole));
-                        info.state = kThemeStateInactive;
-                    }
                     qt_mac_set_port(p);
                     DrawThemeButton(qt_glb_mac_rect(button, p, false, off_rct),
                                     bkind, &info, 0, 0, 0, 0);
@@ -4987,6 +4969,9 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             drawItem(p, textr, Qt::AlignVCenter, header->palette,
                      header->state & QStyle::Style_Enabled, header->text, -1, &penColor);
         }
+        break;
+    case CE_ToolBoxTab:
+        QCommonStyle::drawControl(ce, opt, p, w);
         break;
     default:
         if (d->useHITheme)

@@ -1120,13 +1120,6 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 */
 
 /*!
-    \property QStyleOptionToolButton::bgRole
-    \brief The background role of the tool button
-
-    \sa QWidget::backgroundRole()
-*/
-
-/*!
     \property QStyleOptionToolButton::pos
     \brief The position of the tool button
 */
@@ -1197,7 +1190,7 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 */
 
 QStyleOptionToolBox::QStyleOptionToolBox()
-    : QStyleOption(Version, SO_ToolBox), bgRole(QPalette::Foreground)
+    : QStyleOption(Version, SO_ToolBox)
 {
 }
 
@@ -1205,7 +1198,7 @@ QStyleOptionToolBox::QStyleOptionToolBox()
     \internal
 */
 QStyleOptionToolBox::QStyleOptionToolBox(int version)
-    : QStyleOption(version, SO_ToolBox), bgRole(QPalette::Foreground)
+    : QStyleOption(version, SO_ToolBox)
 {
 }
 
@@ -1217,25 +1210,6 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 /*!
     \property QStyleOptionToolBox::text
     \brief The text for the tool box tab.
-*/
-
-/*!
-    \property QStyleOptionToolBox::bgRole
-    \brief The background role for the tool box tab.
-*/
-
-/*!
-    \property QStyleOptionToolBox::currentWidgetBGRole
-    \brief The background role for the current widget.
-
-    This may be useful if you want to draw the selected tab differently.
-*/
-
-/*!
-    \property QStyleOptionToolBox::currentWidgetPalette
-    \brief The palette for the current widget.
-
-    This may be useful if you want the draw the selected tab differently.
 */
 
 /*!

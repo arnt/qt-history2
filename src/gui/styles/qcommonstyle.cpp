@@ -1008,12 +1008,6 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             a.setPoint(5, tb->rect.width() - 1, tb->rect.height() + 1);
             a.setPoint(6, -1, tb->rect.height() + 1);
 
-            if (tb->state & Style_Selected) {
-                p->setBrush(tb->currentWidgetPalette.brush(tb->currentWidgetBGRole));
-            } else {
-                p->setBrush(tb->palette.brush(tb->bgRole));
-            }
-
             p->setPen(tb->palette.mid().color().dark(150));
             p->drawPolygon(a);
             p->setPen(tb->palette.light());

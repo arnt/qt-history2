@@ -261,7 +261,6 @@ void QPushButtonPrivate::init()
 #ifndef QT_NO_DIALOG
     d->autoDefault = (qt_cast<QDialog*>(q->topLevelWidget()) != 0);
 #endif
-    q->setAttribute(Qt::WA_BackgroundInherited);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 

@@ -159,14 +159,6 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_Down;
     opt.text = text;
     opt.icon = icon();
-    if (const QToolBox *tool = qt_cast<const QToolBox *>(parentWidget())) {
-        opt.bgRole = tool->backgroundRole();
-        QWidget *w = tool->widget(tool->currentIndex());
-        if (w) {
-            opt.currentWidgetBGRole = w->backgroundRole();
-            opt.currentWidgetPalette = w->palette();
-        }
-    }
     style().drawControl(QStyle::CE_ToolBoxTab, &opt, p, parentWidget());
 
     QPixmap pm = icon().pixmap(QIcon::Small, isEnabled() ? QIcon::Normal : QIcon::Disabled);
