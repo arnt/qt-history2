@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#1 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#2 $
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -327,11 +327,14 @@ void QXtApplication::init()
     qt_np_count++;
 }
 
+/*!
+  Reimplemented to pass client messages to Xt.
+*/
 bool QXtApplication::x11EventFilter(XEvent* ev)
 {
     if ( ev->type == ClientMessage ) {
 	// #### needed?
-	qt_np_cascade_event_handler[ev->type](ev);
+	//qt_np_cascade_event_handler[ev->type](ev);
     }
     return QApplication::x11EventFilter(ev);
 }
@@ -443,6 +446,11 @@ QXtWidget::~QXtWidget()
 }
 
 /*!
+  \fn Widget QXtWidget::xtWidget() const
+  Returns the Xt widget equivalent for the Qt widget.
+*/
+
+/*!
   Reimplemented to pass the new geometry to Xt via XtSetValues().
 */
 void QXtWidget::setGeometry( int x, int y, int w, int h )
@@ -466,6 +474,9 @@ void QXtWidget::setGeometry( const QRect & r )
     QWidget::setGeometry(r);
 }
 
+/*!
+  Reimplemented to pass events to Xt.
+*/
 bool QXtWidget::x11Event( XEvent* ev )
 {
     qt_np_cascade_event_handler[ev->type]( ev );
@@ -474,7 +485,7 @@ bool QXtWidget::x11Event( XEvent* ev )
 
 /*!
   Reimplemented to produce the Xt effect of losing focus when the
-  mouse goes out of the widget. <em>WWA: This may be changed.</em>
+  mouse goes out of the widget. <em>This may be changed.</em>
 */
 void QXtWidget::leaveEvent( QEvent* ev )
 {

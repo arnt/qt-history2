@@ -56,6 +56,8 @@ main(int argc, char** argv)
     XtSetArg(args[nargs], XmNtopAttachment, XmATTACH_FORM);    nargs++;
     XtSetArg(args[nargs], XmNbottomAttachment, XmATTACH_FORM); nargs++;
     XtSetArg(args[nargs], XmNleftAttachment, XmATTACH_FORM);   nargs++;
+/*
+*/
     XtSetValues(qtchild.xtWidget(), args, nargs);
 
     nargs=0;
@@ -68,8 +70,10 @@ main(int argc, char** argv)
     XtSetArg(args[nargs], XmNtopAttachment, XmATTACH_FORM);    nargs++;
     XtSetArg(args[nargs], XmNbottomAttachment, XmATTACH_FORM); nargs++;
     XtSetArg(args[nargs], XmNrightAttachment, XmATTACH_FORM);  nargs++;
+/*
     XtSetArg(args[nargs], XmNleftAttachment, XmATTACH_WIDGET); nargs++;
     XtSetArg(args[nargs], XmNleftWidget, qtchild.xtWidget());  nargs++;
+*/
     Widget xtchild = XtCreateManagedWidget("editor", xmTextWidgetClass,
 	form, args, nargs);
 
