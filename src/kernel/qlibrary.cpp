@@ -304,8 +304,12 @@ QLibrary::QLibrary( const QString& filename, Policy pol )
 */
 QLibrary::~QLibrary()
 {
-    if ( libPol != Manual )
-	unload();
+    if ( libPol != Manual ) {
+	if (!unload() ) {
+	    info->release();
+	    info = 0;
+	}
+    }
 }
 
 /*!
@@ -335,19 +339,28 @@ QUnknownInterface* QLibrary::load()
 	infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
 #if defined(QT_DEBUG_COMPONENT)
 	if ( !infoProc )
-	    qDebug( "Symbol \"qt_load_interface\" not found." );
+	    qDebug( "%s: Symbol \"qt_load_interface\" not found.", libfile.latin1() );
 #endif
 	info = infoProc ? infoProc() : 0;
 	if ( info ) {
 	    QLibraryInterface *piface = (QLibraryInterface*)info->queryInterface( IID_QLibraryInterface );
 	    if ( piface ) {
-		// ### some init function?
+		bool ok = piface->init();
 		piface->release();
+		if ( !ok ) {
+		    info->release();
+		    info = 0;
+#if defined(QT_DEBUG_COMPONENT)
+		    qDebug( "%s: QLibraryInterface::init() failed.", libfile.latin1() );
+#endif
+		    unload();
+		    return 0;
+		}
 	    }
 	}
 #if defined(QT_DEBUG_COMPONENT)
 	else {
-	    qDebug( "No interface implemented." );
+	    qDebug( "%s: No interface implemented.", libfile.latin1() );
 	}
 #endif
     }

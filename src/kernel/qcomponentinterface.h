@@ -25,6 +25,7 @@ struct Q_EXPORT QComponentInterface : public QUnknownInterface
 
 struct Q_EXPORT QLibraryInterface : public QUnknownInterface
 {
+    virtual bool init() = 0;
     virtual bool canUnload() const = 0;
 };
 
