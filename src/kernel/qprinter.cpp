@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#31 $
 **
 ** Implementation of QPrinter class
 **
@@ -11,7 +11,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#31 $");
 
 
 /*!
@@ -56,13 +56,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#30 $");
     #include <qapp.h>
     #include <qpainter.h>
     #include <qprinter.h>
+    #include <qprndlg.h>
 
     int main( int argc, char **argv )
     {
 	QApplication a( argc, argv );
 
 	QPrinter prt;
-	if ( prt.setup(0) ) {
+	if ( QPrintDialog::getPrinterSetup( &prt ) ) {
 	    QPainter p;
 	    p.begin( &prt );
 	    p.rotate( 55 );
@@ -283,7 +284,7 @@ void QPrinter::setOrientation( Orientation orientation )
 */
 
 /*!
-  Sets the printer page size.
+  Sets the printer page size to \a newPageSize.
 
   The page size can be one of:
   <ul>
@@ -297,9 +298,33 @@ void QPrinter::setOrientation( Orientation orientation )
   \sa pageSize()
 */
 
-void QPrinter::setPageSize( PageSize pageSize )
+void QPrinter::setPageSize( PageSize newPageSize )
 {
-    page_size = pageSize;
+    page_size = (PageSize)(newPageSize + 256 * pageOrder());
+}
+
+
+/*!  Sets the page order to \a newPageOrder.
+  
+  The page order can be \c QPrinter::FirstPageFirst or \c
+  QPrinter::LastPageFirst.  The application programmer is responsible
+  for reading the page order and printing accordingly.
+*/
+
+void QPrinter::setPageOrder( PageOrder newPageOrder )
+{
+    page_size = (PageSize)(pageSize() + 256 * newPageOrder);
+}
+
+
+/*!  Returns the current page order.
+  
+  The default page order is \a FirstPageFirst.
+*/
+
+bool QPrinter::pageOrder() const
+{
+    return (PageOrder) ( ((int)page_size) >> 8 );
 }
 
 
