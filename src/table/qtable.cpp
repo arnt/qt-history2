@@ -691,7 +691,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
 QWidget *QTableItem::createEditor() const
 {
     QLineEdit *e = new QLineEdit( table()->viewport(), "qt_tableeditor" );
-//    e->setFrame( FALSE );
+    e->setFrame( FALSE );
     e->setText( text() );
     return e;
 }
