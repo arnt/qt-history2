@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#30 $
 **
 ** Implementation of QDataStream class
 **
@@ -20,7 +20,7 @@
 #include <netinet/in.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatastream.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatastream.cpp#30 $");
 
 
 /*!
@@ -717,9 +717,6 @@ QDataStream &QDataStream::writeBytes(const char *s, uint len)
 /*!
   Writes \e len bytes from \e s to the stream and returns a reference to the
   stream.
-
-  The \e len is serialized as an UINT32, followed by \e len bytes from
-  \e s.
 
   \sa writeBytes(), QIODevice::writeBlock(), readRawBytes()
 */
