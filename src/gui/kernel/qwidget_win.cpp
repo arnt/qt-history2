@@ -924,7 +924,9 @@ void QWidget::repaint(const QRegion& rgn)
 
 #ifdef QT_RASTER_PAINTENGINE
     double_buffer = false;
-    QRasterPaintEngine *rasterEngine = static_cast<QRasterPaintEngine *>(paintEngine());
+    QRasterPaintEngine *rasterEngine = 0;
+    if (paintEngine()->type() == QPaintEngine::Raster)
+	rasterEngine = static_cast<QRasterPaintEngine *>(paintEngine());
 #endif
 
     bool tmphdc = !d->hd;
@@ -963,7 +965,8 @@ void QWidget::repaint(const QRegion& rgn)
     QApplication::sendSpontaneousEvent(this, &e);
 
 #ifdef QT_RASTER_PAINTENGINE
-    rasterEngine->flush(this);
+    if (rasterEngine)
+	rasterEngine->flush(this);
 #endif
 
     if (do_clipping)
