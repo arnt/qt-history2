@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#14 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#14 $";
 #endif
 
 
@@ -75,25 +75,21 @@ void QLabel::setAlignment( int alignment )
     updateLabel();
 }
 
-void QLabel::setAutoResizing( bool b )
+void QLabel::setAutoResizing( bool enable )
 {
-    if ( autoResize == b )
-        return;
-
-    autoResize = b;
-    if ( autoResize )
-        adjustSize();        // will call resize which will repaint
-
+    if ( autoResize != enable ) {
+	autoResize = enable;
+	if ( autoResize )
+	    adjustSize();			// calls resize which repaints
+    }
 }
 
 void QLabel::adjustSize()
 {
     QFontMetrics fm( font() );
     resize( fm.width( str ) + 4 + frameWidth() + midLineWidth(),
-            fm.height()     + 4 + frameWidth() + midLineWidth() );
-
+	    fm.height()     + 4 + frameWidth() + midLineWidth() );
 }
-
 
 
 void QLabel::drawContents( QPainter *p )
