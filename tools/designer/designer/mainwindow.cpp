@@ -1209,11 +1209,6 @@ FormWindow* MainWindow::insertFormWindow( int type )
     fw->killAccels( fw );
     fw->project()->pixmapCollection()->createCppFile();
 
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->project() == fw->project() )
-	    e->resetContext();
-    }
-
     return fw;
 }
 
@@ -1261,6 +1256,10 @@ void MainWindow::insertFormWindow( FormWindow *fw )
     fw->mainContainer()->setCaption( fw->caption() );
     activeWindowChanged( fw );
     emit formWindowsChanged();
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->project() == fw->project() )
+	    e->resetContext();
+    }
 }
 
 bool MainWindow::unregisterClient( FormWindow *w )
