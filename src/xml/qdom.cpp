@@ -6911,35 +6911,4 @@ bool QDomHandler::notationDecl( const QString & name, const QString & publicId, 
     return TRUE;
 }
 
-#if 0
-bool QDomConsumer::entity( const QString& name, const QString& value )
-{
-    QDomEntityPrivate* e = new QDomEntityPrivate( doc, 0, name, QString::null, QString::null, QString::null );
-    e->value = value;
-    doc->doctype()->appendChild( e );
-
-    return TRUE;
-}
-
-bool QDomConsumer::entityRef( const QString& name )
-{
-    if ( node == doc )
-	return FALSE;
-
-    // TODO: Find corresponding entity
-    QDomNamedNodeMapPrivate* m = doc->doctype()->entities;
-    if ( !m )
-	return FALSE;
-    QDomNodePrivate* n = m->namedItem( name );
-    if ( !n || !n->isEntity() ) {
-	qWarning( "Entity of name %s unsupported", name.latin1() );
-	return FALSE;
-    }
-
-    node->appendChild( doc->createEntityReference( name ) );
-
-    return TRUE;
-}
-#endif
-
 #endif //QT_NO_DOM
