@@ -1678,6 +1678,11 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		    QString it = text( i );
 		    d->ed->validateAndSet( it, ct.length(),
 					   ct.length(), it.length() );
+		    d->current = i;
+                    // ### sets current item without emitting signals. This is to
+		    // make sure the right item is current if you change current with
+		    // wheel/up/down. While typing current is not valid anyway. Fix properly
+		    // in 4.0.
 		}
 	    }
 	}
