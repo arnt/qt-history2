@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#12 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#12 $")
 
 
 #if !defined(QT_HEADER_PS)
@@ -325,7 +325,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    if ( p[0].ptarr->size() > 0 ) {
 		QPointArray a = *p[0].ptarr;
 		QPoint pt;
-		for ( int i=0; i<a.size(); i+=2 ) {
+		for ( int i=0; i<(int)a.size(); i+=2 ) {
 		    pt = a.point( i );
 		    stream << XCOORD(pt.x()) << ' '
 			   << YCOORD(pt.y()) << " MT\n";
@@ -341,7 +341,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		QPointArray a = *p[0].ptarr;
 		QPoint pt = a.point( 0 );
 		stream << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
-		for ( int i=1; i<a.size(); i++ ) {
+		for ( int i=1; i<(int)a.size(); i++ ) {
 		    pt = a.point( i );
 		    stream << XCOORD(pt.x()) << ' '
 			   << YCOORD(pt.y()) << " LT\n";
@@ -419,7 +419,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << "[1 0 0 1 0 0] { currentfile sl readhexstring pop }\n";
 	    if ( mask ) {
 		stream << "imagemask\n";
-		QColor fgCol = paint->pen().color();
+//		QColor fgCol = paint->pen().color();
 		ps_dumpTransparentBitmapData( stream, img );
 	    } else {
 		stream << "false 3 colorimage\n";
