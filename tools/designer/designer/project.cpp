@@ -683,7 +683,7 @@ void Project::save()
 	}
     }
 
-    if ( !imageFile().isEmpty() )
+    if ( !imageFile().isEmpty() && !pixCollection->isEmpty() )
 	contents += "{SOURCES+=" + imageFile() + "}\n";
 
     for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {

@@ -46,6 +46,7 @@ public:
     QPixmap pixmap( const QString &name );
 
     QValueList<Pixmap> pixmaps() const;
+    bool isEmpty() const;
 
     void setActive( bool b);
 

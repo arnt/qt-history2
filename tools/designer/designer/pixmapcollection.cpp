@@ -202,6 +202,7 @@ void PixmapCollection::createCppFile()
     MainWindow::self->updateFormList();
     if ( project->projectName() == "<No Project>" )
 	return;
+    project->save();
     if ( block_create )
 	return;
     block_create = TRUE;
@@ -377,4 +378,9 @@ void PixmapCollection::createCppFile()
 DesignerPixmapCollection *PixmapCollection::iFace()
 {
     return iface;
+}
+
+bool PixmapCollection::isEmpty() const
+{
+    return pixList.isEmpty();
 }
