@@ -3737,7 +3737,7 @@ QTextParagraph::QTextParagraph( QTextDocument *d, QTextParagraph *pr, QTextParag
     bgcol = 0;
     list_val = -1;
     paintdevice = 0;
-    defFormat = formatCollection()->defaultFormat();
+    QTextFormat* defFormat = formatCollection()->defaultFormat();
     if ( !hasdoc ) {
 	tabStopWidth = defFormat->width( 'x' ) * 8;
 	pseudoDocument()->commandHistory = new QTextCommandHistory( 100 );
