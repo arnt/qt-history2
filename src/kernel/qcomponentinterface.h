@@ -21,16 +21,17 @@ public:
     virtual ~QUnknownInterface();
 
     virtual QString interfaceID() const;
-    QString demangledID( QString *unique = 0, QString *hierarchy = 0 ) const;
+    QString ID( QString *hierarchy = 0 ) const;
 
     virtual bool initialize( QApplicationInterface* = 0 );
     virtual bool cleanUp( QApplicationInterface* = 0 );
 
-    virtual bool hasInterface( const QRegExp&, bool rec = TRUE ) const;
-    virtual QUnknownInterface* queryInterface( const QRegExp&, bool rec = TRUE );
+    virtual bool hasInterface( const QString&, bool rec = TRUE ) const;
+    virtual QUnknownInterface* queryInterface( const QString&, bool rec = TRUE );
     virtual QStringList interfaceList( bool rec = TRUE) const;
 
-    bool release();
+    virtual bool ref();
+    virtual bool release();
 
     QApplicationInterface *applicationInterface() const;
 
@@ -41,7 +42,8 @@ public:
 protected:
     void insertChild( QUnknownInterface * );
     void removeChild( QUnknownInterface * );
-    bool ref();
+    QUnknownInterface *child( const QString & ) const;
+    QString createID( const QString& parent, const QString& that ) const;
 
 private:
     QInterfaceList* children;
@@ -99,6 +101,7 @@ public:
 
 protected:
     QObject* component() const { return comp; }
+    void setComponent( QObject* c ) { comp = c; }
 
 private:
     QGuardedPtr<QObject> comp;
@@ -115,5 +118,15 @@ private:
 #endif
 
 #endif
+
+#define Q_INTERFACE( ID, base )				    \
+    class Q_EXPORT ID : public base			    \
+    {							    \
+    public:						    \
+	QString interfaceID() const			    \
+	{						    \
+	    return createID( base::interfaceID(), ##ID );   \
+	}						    \
+    private:
 
 #endif //QCOMPONENTINTERFACE_H

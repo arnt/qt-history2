@@ -259,7 +259,7 @@ QString QPlugIn::library() const
 /*!
   Forwards the query to the QPlugInInterface and returns the result.
 */
-QUnknownInterface* QPlugIn::queryInterface( const QRegExp &request, bool rec )
+QUnknownInterface* QPlugIn::queryInterface( const QString &request, bool rec )
 {
     if ( !use() )
 	return 0;

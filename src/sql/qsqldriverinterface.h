@@ -12,7 +12,7 @@ class Q_EXPORT QSqlDriverInterface : public QUnknownInterface
 {
 public:
     QSqlDriverInterface( QUnknownInterface *parent = 0 ) : QUnknownInterface( parent ) {}
-    QString interfaceID() const { return "QSqlDriverInterface"; }
+    QString interfaceID() const { return createID( QUnknownInterface::interfaceID(), "QSqlDriverInterface" ); }
 
     virtual QSqlDriver* create( const QString& name ) = 0;
     virtual QStringList featureList() const { return QStringList(); }

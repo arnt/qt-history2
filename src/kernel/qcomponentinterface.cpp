@@ -163,34 +163,32 @@ bool QUnknownInterface::release()
 
 QString QUnknownInterface::interfaceID() const
 {
-    return "QUnknownInterface";
+    return createID( "","QUnknownInterface" );
 }
 
 /*!
   Returns a readable version of the interface identifier. If provided, \a unique
   will receive the unique part of the ID, and \a hierarchy will receive the interface
-  path.
+  path, including the ID of this interface.
 
   \sa interfaceID
 */
 
-QString QUnknownInterface::demangledID( QString *unique, QString *hierarchy ) const
+QString QUnknownInterface::ID( QString *hierarchy ) const
 {
     const QString id = interfaceID();
 
-    QString uni;
-    QString hier;
+    int last = id.findRev( '/' );
+    return ( last == -1 ) ? id : id.right( id.length() - last - 1 );
+}
 
-    int end = id.findRev( '%' );
-    uni = ( end == -1 ) ? QString::null : id.right( id.length() - end - 1 );
-    hier = ( end == -1 ) ? id : id.left( end );
-    if ( unique )
-	*unique = uni;
-    if ( hierarchy )
-	*hierarchy = hier;
+/*!
+  Returns a QString that represents the interface hierarchy
+*/
 
-    int last = hier.findRev( '/' );
-    return ( last == -1 ) ? hier : hier.right( hier.length() - last - 1 );
+QString QUnknownInterface::createID( const QString &parent, const QString &that ) const
+{
+    return parent + "/" + that;
 }
 
 /*!
@@ -225,22 +223,21 @@ bool QUnknownInterface::cleanUp( QApplicationInterface* )
   in the child interfaces, too.
 */
 
-bool QUnknownInterface::hasInterface( const QRegExp &request, bool rec ) const
+bool QUnknownInterface::hasInterface( const QString &request, bool rec ) const
 {
-    if ( request.match( interfaceID() ) )
+    QRegExp regexp( request, TRUE, TRUE );
+    if ( regexp.match( interfaceID() ) )
 	return TRUE;
     if ( !children )
 	return FALSE;
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
-	if ( request.match( it.current()->interfaceID() ) ) {
+	if ( regexp.match( it.current()->interfaceID() ) ) {
 	    return TRUE;
 	} else if ( rec ) {
-	    QUnknownInterface *iface;
-	    if ( ( iface = it.current()->queryInterface( request ) ) ) {
-		iface->release();
-		return iface;
-	    }
+	    bool has = it.current()->hasInterface( request, rec );
+	    if ( has )
+		return TRUE;
 	}
 	++it;
     }
@@ -283,9 +280,10 @@ QStringList QUnknownInterface::interfaceList( bool rec ) const
   with the requested interfaceID.
 */
 
-QUnknownInterface* QUnknownInterface::queryInterface( const QRegExp& request, bool rec )
+QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bool rec )
 {
-    if ( request.match( interfaceID() ) ) {
+    QRegExp regexp( request, TRUE, TRUE );
+    if ( regexp.match( interfaceID() ) ) {
 	if ( ref() )
 	    return this;
 	return 0;
@@ -294,18 +292,40 @@ QUnknownInterface* QUnknownInterface::queryInterface( const QRegExp& request, bo
 	return 0;
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
-	if ( request.match( it.current()->interfaceID() ) ) {
+	if ( regexp.match( it.current()->interfaceID() ) ) {
 	    it.current()->appInterface = appInterface;
 	    if ( it.current()->ref() )
 		return it.current();
 	    return 0;
 	} else if ( rec ) {
-	    QUnknownInterface *iface;
-	    if ( ( iface = it.current()->queryInterface( request ) ) )
+	    QUnknownInterface *iface = it.current()->queryInterface( request, rec );
+	    if ( iface )
 		return iface;
 	}
 	++it;
     }
+    return 0;
+}
+
+/*!
+  Returns the childinterface with ID \a request, or null if there is no such child interface 
+  The returned interface will not be referenced.
+*/
+
+QUnknownInterface* QUnknownInterface::child( const QString &request ) const
+{
+    if ( !children )
+	return 0;
+
+    QRegExp regexp( request, TRUE, TRUE );
+
+    QListIterator<QUnknownInterface> it( *children );
+    while ( it.current() ) {
+	if ( regexp.match( it.current()->interfaceID() ) )
+	    return it.current();
+	++it;
+    }
+
     return 0;
 }
 
@@ -341,7 +361,7 @@ QPlugInInterface::QPlugInInterface( const char* name )
 
 QString QPlugInInterface::interfaceID() const
 {
-    return "QPlugInInterface";
+    return createID( QUnknownInterface::interfaceID(), "QPlugInInterface" );
 }
 
 /*!
@@ -406,7 +426,7 @@ QApplicationInterface::QApplicationInterface( const char* name )
 
 QString QApplicationInterface::interfaceID() const
 {
-    return "QApplicationInterface";
+    return createID( QPlugInInterface::interfaceID(), "QApplicationInterface" );
 }
 
 /*!
@@ -455,8 +475,6 @@ QApplicationComponentInterface::QApplicationComponentInterface( QObject* object,
 #if defined(DEBUG)
     if ( !parent )
 	qWarning( "QApplicationComponentInterfaces can't be toplevel!" );
-    if ( !object )
-	qWarning( "Can't create interface with null-object!" );
 #endif //DEBUG
     comp = object;
 }
@@ -467,7 +485,7 @@ QApplicationComponentInterface::QApplicationComponentInterface( QObject* object,
 
 QString QApplicationComponentInterface::interfaceID() const
 {
-    return "QApplicationComponentInterface";
+    return createID( QUnknownInterface::interfaceID(), "QApplicationComponentInterface" );
 }
 
 /*!
