@@ -1,8 +1,8 @@
+#include "mainwindow.h"
+
 #include <qapplication.h>
 #include <qmotif.h>
 #include <qmotifeventloop.h>
-
-#include "mainwindow.h"
 
 
 int main( int argc, char **argv )
@@ -14,7 +14,7 @@ int main( int argc, char **argv )
     QMotifEventLoop eventloop( &integrator, &app );
     app.setEventLoop( &eventloop );
 
-    integrator.initialize( &argc, argv, "dialog", NULL, 0 );
+    integrator.initialize( &argc, argv, "customwidget", NULL, 0 );
 
     MainWindow mainwindow;
     app.setMainWidget( &mainwindow );
