@@ -57,6 +57,7 @@ bool QPicturePaintEngine::begin(QPaintDevice *pd)
     Q_ASSERT(pd);
     QPicture *pic = static_cast<QPicture *>(pd);
 
+    d->pdev = pd;
     pic_d = pic->d;
 
     d->s.setDevice(&pic_d->pictb);
@@ -81,6 +82,7 @@ bool QPicturePaintEngine::begin(QPaintDevice *pd)
 
 bool QPicturePaintEngine::end()
 {
+    d->pdev = 0;
     pic_d->trecs++;
     d->s << (Q_UINT8) PdcEnd << (Q_UINT8) 0;
     int cs_start = sizeof(Q_UINT32);                // pos of checksum word
