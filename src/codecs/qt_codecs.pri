@@ -8,7 +8,7 @@ tools {
 		  $$CODECS_H/qbig5codec.h \
 		  $$CODECS_H/qeucjpcodec.h \
 		  $$CODECS_H/qeuckrcodec.h \
-		  $$CODECS_H/qisciicodec_p.h \
+		  $$CODECS_P/qisciicodec_p.h \
 		  $$CODECS_H/qgb18030codec.h \
 		  $$CODECS_H/qjiscodec.h \
 		  $$CODECS_H/qjpunicode.h \
