@@ -113,7 +113,7 @@ private:
     QRegion winCombine( const QRegion &, int ) const;
 #endif
 #if defined(Q_WS_MAC)
-    friend class QApplication;
+    friend class QWidget;
     friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle,RgnHandle, void *);
     QRegion(const RgnHandle);
 #endif    

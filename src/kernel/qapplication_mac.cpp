@@ -1622,18 +1622,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	}
 
 	if(ekind == kEventWindowUpdate) {
-	    QMacSavedPortInfo savedInfo(widget);
-
-	    RgnHandle r = NewRgn();
-	    GetWindowRegion((WindowPtr)widget->handle(), kWindowUpdateRgn, r);
-	    ValidWindowRgn((WindowPtr)widget->handle(), r); 
-	    QRegion rgn(r);
-	    rgn.translate(-widget->x(), -widget->y());
-	    DisposeRgn(r);
-
-//	    BeginUpdate((WindowPtr)widget->handle());
-	    widget->propagateUpdates(rgn);
-//	    EndUpdate((WindowPtr)widget->handle());
+	    widget->propagateUpdates();
 	} else if(ekind == kEventWindowActivated) {
 	    if(widget) {
 		widget->raise();

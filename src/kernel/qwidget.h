@@ -468,7 +468,7 @@ protected:
     int back_type;                              // Type of background
 
     //mac event functions
-    void propagateUpdates(QRegion);
+    void propagateUpdates();
     friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle, RgnHandle, void *);
 
 #elif defined(Q_WS_WIN)

@@ -98,8 +98,11 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
 		p->erase(pa);
 	    }
 	}
-	if(!painted)
-	    QApplication::postEvent(p, new QPaintEvent(pa, erase));
+	if(!painted) {
+	    QRegion pa2(pa);
+	    pa2.translate(point.x(), point.y());
+	    InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)pa2.handle());
+	}
     }
 
     if(QObjectList * childObjects=(QObjectList*)p->children()) {
@@ -692,7 +695,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
     repaint(QRegion(r), erase); //general function..
 }
 
-#include <qradiobutton.h>
+#include <qbuttongroup.h>
 void QWidget::repaint( const QRegion &reg , bool erase )
 {
     if ( !testWState(WState_BlockUpdates) && isVisible() ) {
@@ -966,7 +969,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QPoint tp(posInWindow(parent));
 	    int px = tp.x(), py = tp.y();
 
-	    if( isMove && !isResize && !oldregion.isEmpty() ) {
+	    if( isMove && !oldregion.isEmpty() ) {
 		//save the window state, and do the grunt work
 		int ow = olds.width(), oh = olds.height();
 		QMacSavedPortInfo saveportstate(this);
@@ -983,10 +986,21 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
 
 		//setup the old clipped region..
-		bltregion = oldregion;
-		bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
-		bltregion &= clippedRegion(FALSE);
-		SetClip((RgnHandle)bltregion.handle());
+		QRegion rgn = oldregion;
+		rgn.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
+		rgn &= clippedRegion(FALSE);
+		{   //can't blt that which is dirty
+		    RgnHandle r = NewRgn();
+		    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
+		    if(!EmptyRgn(r)) {
+			QRegion dirty(r);
+			dirty.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
+			rgn -= dirty;
+		    }
+		}
+		SetClip((RgnHandle)rgn.handle());
+		if(!isResize || testWFlags(WNorthWestGravity))
+		    bltregion = rgn;
 
 		//now do the blt
 		BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
@@ -1309,9 +1323,18 @@ void QWidget::setName( const char * )
 }
 
 
-void QWidget::propagateUpdates(QRegion rgn)
+void QWidget::propagateUpdates()
 {
-    paint_children(this, rgn, TRUE, TRUE);
+    QMacSavedPortInfo savedInfo(this);
+    RgnHandle r = NewRgn();
+    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
+    if(!EmptyRgn(r)) {
+	ValidWindowRgn((WindowPtr)hd, r); 
+	QRegion rgn(r);
+	rgn.translate(-x(), -y());
+	paint_children(this, rgn, TRUE, TRUE);
+    }
+    DisposeRgn(r);
 }
 
 void QWidget::dirtyClippedRegion(bool dirty_myself)
