@@ -2588,9 +2588,6 @@ QPixmap QCommonStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
         painter.drawPixmap(0, 0, pixmapMask);
         painter.end();
 
-        if (!pixmapMask.mask())
-            pixmapMask.setMask(pixmapMask);
-
         QBitmap mask(ret.size());
         mask.fill(Qt::color0);
         painter.begin(&mask);
