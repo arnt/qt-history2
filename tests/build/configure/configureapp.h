@@ -37,7 +37,7 @@ private:
     QStringList qmakeConfig;
     QStringList qmakeSql;
     QStringList qmakeVars;
-
+    QStringList qmakeDefines;
     QStringList makeList;
     QStringList::Iterator makeListIterator;
     

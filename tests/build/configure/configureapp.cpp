@@ -130,6 +130,10 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "JPEG" ] = "yes";
 	else if( (*args) == "-internal" )
 	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
+	else if( (*args) == "-D" ) {
+	    ++args;
+            qmakeDefines += (*args);
+        }
 
 	// Scan to see if any specific modules and drivers are enabled or disabled
 	for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
@@ -193,10 +197,10 @@ bool ConfigureApp::displayHelp()
 	cout << "-system-mng         Enable MNG support." << endl;
 	cout << "-no-jpeg          * Disable JPEG support." << endl;
 	cout << "-system-jpeg        Enable JPEG support." << endl << endl;
+	cout << "-D <define>         Add <define> to the list of defines." << endl;
 	cout << "-enable-*           Enable the specified module." << endl;
 	cout << "-disable-*          Disable the specified module." << endl << endl;
 	cout << "-sql-*              Compile the specified SQL driver." << endl << endl;
-	
 	return true;
     }
     return false;
@@ -219,7 +223,7 @@ void ConfigureApp::generateOutputVars()
     }
     if( dictionary[ "SHARED" ] == "yes" ) {
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
-	qmakeVars += "DEFINES+=QT_DLL";
+	qmakeDefines += "QT_DLL";
     }
     else
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
@@ -228,7 +232,7 @@ void ConfigureApp::generateOutputVars()
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "sql-drivers+=" ) + qmakeSql.join( " " );
-
+    qmakeVars += QString( "DEFINES+=" ) + qmakeDefines.join( " " );
     if( dictionary[ "JPEG" ] == "yes" )
 	qmakeConfig += "jpeg";
     if( dictionary[ "MNG" ] == "yes" )
@@ -363,12 +367,28 @@ void ConfigureApp::generateMakefiles()
 {
     cout << "Creating makefiles in src..." << endl;
 
+    makeList += qtDir + "/src/moc";
+    makeList += "moc.pro";
+    makeList += "Makefile";
     makeList += qtDir + "/src";
     makeList += "qt.pro";
     makeList += "Makefile";
     makeList += qtDir + "/src";
     makeList += "qtmain.pro";
     makeList += "Makefile.main";
+    makeList += qtDir + "/src/codecs/src";
+    makeList += "qcodecslib.pro";
+    makeList += "Makefile";
+    makeList += qtDir + "/tools";
+    makeList += "tools.pro";
+    makeList += "Makefile";
+    makeList += qtDir + "/tutorial";
+    makeList += "tutorial.pro";
+    makeList += "Makefile";
+    makeList += qtDir + "/examples";
+    makeList += "examples.pro";
+    makeList += "Makefile";
+
 
     // Start the qmakes for the makelist.
     makeListIterator = makeList.begin();
