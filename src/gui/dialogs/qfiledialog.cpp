@@ -29,7 +29,9 @@
 #include <qsignal.h>
 #include <qtoolbutton.h>
 #include <qmessagebox.h>
-//#include <qwindowsstyle.h>
+#ifdef Q_WS_WIN
+#include <qwindowsstyle.h>
+#endif
 #include <qshortcut.h>
 #ifdef Q_WS_MAC
 #include <private/qunicodetables_p.h>
