@@ -248,8 +248,10 @@ QThread::~QThread()
     }
 
     QThreadIdHash *idHash = threadIdHash();
-    QWriteLocker locker(&idHash->lock);
-    idHash->table.remove(d->data.id);
+    if (idHash) {
+        QWriteLocker locker(&idHash->lock);
+        idHash->table.remove(d->data.id);
+    }
 }
 
 /*!
