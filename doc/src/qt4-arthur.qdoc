@@ -72,30 +72,23 @@
     and providing default implementations for unsupported ones has
     become much simpler.
 
-    \section2 What's Changed Since Qt 4 Technology Preview 2?
+    \section2 What's Changed Since Qt 4 Beta 1?
 
     As a result of user feedback and internal discussion, we have
     made some improvements to the Qt 4 Paint System:
 
     \list
 
-    \o We now support alpha channels in gradient fills on all platforms.
+    \o We extend our gradient support. It is now possible to specify
+    multiple colors at various positions in a gradient and different
+    spread methods. We have also added support for radial and conical
+    gradients
 
-    \o We now provide a floating-point API in addition to the
-       integer-based API in QPainter.
+    \o It is now possible specify a QBrush as the fill method for a
+    pen. This makes it possible to for instance, have textured text
+    quite easily.
 
-    \o It is possible to fill a pixmap with transparent pixels using QPixmap::fill().
-       (In Qt 3, you had to first create a QImage, fill it with alpha
-       pixels, and convert it to a QPixmap, which was both slow and
-       counter-intuitive.)
-
-    \o In Qt 4, rectangles are drawn as polygons instead of being handled specially.
-       This makes transformations work correctly on rectangles for the first time
-       in Qt history, but has the inconvenient side effect that it introduces
-       off-by-one issues in existing Qt applications. The Q3Painter class provides
-       the old painting behavior as a help to those who wish to port applications
-       to Qt 4 incrementally. (The Q3Painter documentation fully explains
-       why we made this change.)
+    \o QImage has become a paint device.
 
     \endlist
 
