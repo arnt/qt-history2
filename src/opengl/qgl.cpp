@@ -2031,6 +2031,11 @@ void QGLWidget::qglClearColor( const QColor& c ) const
     \printline glTexImage2D
     \printline tex1.bits
 
+    Note the dimension restrictions for texture images as described in
+    the glTexImage2D() documentation. The width must be 2^m + 2*border
+    and the height 2^n + 2*border where m and n are integers and
+    border is either 0 or 1.
+    
     Another function in the same example uses \e tex1 with OpenGL.
 */
 
