@@ -37,6 +37,8 @@ I18nDemo::I18nDemo(QWidget *parent, const char *name)
     workspace->setBackgroundMode(PaletteMid);
 
     setCentralWidget(box);
+
+    newSlot(2);
 }
 
 
@@ -87,7 +89,6 @@ void I18nDemo::initMenuBar()
 
     windowMenu->setCheckable(TRUE);
 
-    windowMenu->insertItem("&New", newMenu);
     actionClose->addTo(windowMenu);
     actionCloseAll->addTo(windowMenu);
     windowMenu->insertSeparator();
@@ -95,6 +96,7 @@ void I18nDemo::initMenuBar()
     actionCascade->addTo(windowMenu);
     windowMenu->insertSeparator();
 
+    menuBar()->insertItem("&New", newMenu);
     menuBar()->insertItem("&Window", windowMenu);
 }
 
