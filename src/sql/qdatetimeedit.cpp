@@ -684,7 +684,7 @@ QDateEdit::QDateEdit( QWidget * parent, const char * name )
 Constructs a date editor with the initial value \a date, parent \a
 parent and name \a name.
 
-   The date editor is initialize with \a date.
+   The date editor is initialized with \a date.
 */
 
 QDateEdit::QDateEdit( const QDate& date, QWidget * parent, const char * name )

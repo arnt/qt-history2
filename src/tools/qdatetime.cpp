@@ -93,14 +93,15 @@ static const char * const qt_weekdayNames[] = {
   A QDate object contains a calendar date, i.e. year, month, and day
   numbers in the modern western (Gregorian) calendar. It can read the
   current date from the system clock. It provides functions for
-  comparing dates and for manipulating a date by adding a number of
-  days.
+  comparing dates and for manipulating dates, e.g. by adding a number of
+  days or months or years.
 
   A QDate object is typically created either by giving the year, month
   and day numbers explicitly, or by using the static function
   currentDate(), which makes a QDate object which contains the
-  system's clock date. An explicit date can also be set using
-  setYMD().
+  system clock's date. An explicit date can also be set using
+  setYMD(). The fromString() function returns a QDate given a string and
+  a date format which is used to interpret the date within the string.
 
   The year(), month(), and day() functions provide access to the year,
   month, and day numbers. Also, dayOfWeek() and dayOfYear() functions
@@ -108,27 +109,26 @@ static const char * const qt_weekdayNames[] = {
   the toString(), dayName(), and monthName() functions.
 
   QDate provides a full set of operators to compare two QDate
-  objects. A date is considered smaller than another if it is earlier
-  than the other.
+  objects where smaller means earlier and larger means later.
 
-  The date a given number of days later than a given date can be found
-  using the addDays() function. Correspondingly, the number of days
-  between two dates can be found using the daysTo() function.
+    You can increment (or decrement) a date by a given number of days
+    using addDays(). Similarly you can use addMonths() and addYears().
+    The daysTo() function returns the number of days between two dates.
 
-  The daysInMonth() and daysInYear() functions tell how many days
+  The daysInMonth() and daysInYear() functions return how many days
   there are in this date's month and year, respectively. The
-  isLeapYear() function tells whether this date is in a leap year.
+  leapYear() function indicates whether this date is in a leap year.
 
-  Note that QDate may not be used for date calculations for dates in
-  the remote past, i.e. prior to the introduction of the Gregorian
-  calendar. This calendar was adopted by England Sep. 14. 1752 (hence
-  this is the earliest valid QDate), and subsequently by most other
-  western countries, until 1923.
+  Note that QDate should not be used for date calculations for dates
+  prior to the introduction of the Gregorian calendar. This calendar was
+  adopted by England from 14<sup><small>th</small></sup> September 1752
+  (hence this is the earliest valid QDate), and subsequently by most
+  other western countries, until 1923.
 
-  The end of time is reached around 8000AD, by which time we expect Qt
+  The end of time is reached around 8000, by which time we expect Qt
   to be obsolete.
 
-  \sa QTime, QDateTime
+  \sa QTime QDateTime QDateEdit QDateTimeEdit
 */
 
 
@@ -141,11 +141,11 @@ static const char * const qt_weekdayNames[] = {
 
 
 /*!
-  Constructs a date with the year \a y, month \a m and day \a d.
+  Constructs a date with year \a y, month \a m and day \a d.
 
-  \a y must be in the range 1752-ca. 8000, \a m must be in the range
-  1-12, and \a d must be in the range 1-31. Exception: if \a y is in
-  the range 0-99, it is interpreted as 1900-1999.
+  \a y must be in the range 1752..8000, \a m must be in the range
+  1..12, and \a d must be in the range 1..31. Exception: if \a y is in
+  the range 0..99, it is interpreted as 1900..1999.
 
   \sa isValid()
 */
@@ -160,14 +160,15 @@ QDate::QDate( int y, int m, int d )
 /*!
   \fn bool QDate::isNull() const
 
-  Returns TRUE if the date is null.  A null date is invalid.
+  Returns TRUE if the date is null; otherwise returns FALSE.  A null
+  date is invalid.
 
   \sa isValid()
 */
 
 
 /*!
-  Returns TRUE if this date is valid.
+  Returns TRUE if this date is valid; otherwise returns FALSE.
 
   \sa isNull()
 */
@@ -179,7 +180,7 @@ bool QDate::isValid() const
 
 
 /*!
-  Returns the year (>= 1752) of this date.
+  Returns the year (1752..8000) of this date.
 
   \sa month(), day()
 */
@@ -192,7 +193,7 @@ int QDate::year() const
 }
 
 /*!
-  Returns the month (January=1 .. December=12) of this date.
+  Returns the month (January=1..December=12) of this date.
 
   \sa year(), day()
 */
@@ -218,7 +219,7 @@ int QDate::day() const
 }
 
 /*!
-  Returns the weekday (Monday=1 .. Sunday=7) for this date.
+  Returns the weekday (Monday=1..Sunday=7) for this date.
 
   \sa day(), dayOfYear()
 */
@@ -272,7 +273,7 @@ int QDate::daysInYear() const
 /*!
   Returns the name of the \a month.
 
-  Month 1 == "Jan", month 2 == "Feb" etc.
+  1 = "Jan", 2 = "Feb", ... 12 = "Dec"
 
   \sa toString(), dayName()
 */
@@ -292,7 +293,7 @@ QString QDate::monthName( int month ) const
 /*!
   Returns the name of the \a weekday.
 
-  Weekday 1 == "Mon", day 2 == "Tue" etc.
+  1 = "Mon", 2 = "Tue", ... 7 = "Sun"
 
   \sa toString(), monthName()
 */
@@ -313,8 +314,8 @@ QString QDate::dayName( int weekday ) const
 /*!  Returns the date as a string.  The \a f parameter determines the
   format of the string.
 
-  If \a f is Qt::TextDate, the string format is "Sat May 20 1995" (using the
-  dayName() and monthName() functions to generate the string).
+  If \a f is Qt::TextDate, the string format is "Sat May 20 1995" (using
+  the dayName() and monthName() functions to generate the string).
 
   If \a f is Qt::ISODate, the string format corresponds to the ISO
   8601 specification for representations of dates, which is YYYY-MM-DD
@@ -351,13 +352,13 @@ QString QDate::toString( Qt::DateFormat f ) const
 #endif
 
 /*!
-  Sets the year \a y, month \a m and day \a d.
+  Sets the date's year \a y, month \a m and day \a d.
 
-  \a y must be in the range 1752-ca. 8000, \a m must be in the range
-  1-12, and \a d must be in the range 1-31. Exception: if \a y is in
-  the range 0-99, it is interpreted as 1900-1999.
+  \a y must be in the range 1752..8000, \a m must be in the range
+  1..12, and \a d must be in the range 1..31. Exception: if \a y is in
+  the range 0..99, it is interpreted as 1900..1999.
 
-  Returns TRUE if the date is valid, otherwise FALSE.
+  Returns TRUE if the date is valid, otherwise returns FALSE.
 */
 
 bool QDate::setYMD( int y, int m, int d )
@@ -443,10 +444,10 @@ QDate QDate::addYears( int nyears ) const
 
   Example:
   \code
-    QDate d1( 1995, 5, 17 );		// May 17th 1995
-    QDate d2( 1995, 5, 20 );		// May 20th 1995
-    d1.daysTo( d2 );			// returns 3
-    d2.daysTo( d1 );			// returns -3
+    QDate d1( 1995, 5, 17 );  // May 17th 1995
+    QDate d2( 1995, 5, 20 );  // May 20th 1995
+    d1.daysTo( d2 );          // returns 3
+    d2.daysTo( d1 );          // returns -3
   \endcode
 
   \sa addDays()
@@ -460,34 +461,32 @@ int QDate::daysTo( const QDate &d ) const
 
 /*!
   \fn bool QDate::operator==( const QDate &d ) const
-  Returns TRUE if this date is equal to \a d, or FALSE if
-  they are different.
+  Returns TRUE if this date is equal to \a d; otherwise returns FALSE.
 */
 
 /*!
   \fn bool QDate::operator!=( const QDate &d ) const
-  Returns TRUE if this date is different from \a d, or FALSE if
-  they are equal.
+  Returns TRUE if this date is different from \a d; otherwise returns FALSE.
 */
 
 /*!
   \fn bool QDate::operator<( const QDate &d ) const
-  Returns TRUE if this date is earlier than \a d, otherwise FALSE.
+  Returns TRUE if this date is earlier than \a d, otherwise returns FALSE.
 */
 
 /*!
   \fn bool QDate::operator<=( const QDate &d ) const
-  Returns TRUE if this date is earlier than or equal to \a d, otherwise FALSE.
+  Returns TRUE if this date is earlier than or equal to \a d, otherwise returns FALSE.
 */
 
 /*!
   \fn bool QDate::operator>( const QDate &d ) const
-  Returns TRUE if this date is later than \a d, otherwise FALSE.
+  Returns TRUE if this date is later than \a d, otherwise returns FALSE.
 */
 
 /*!
   \fn bool QDate::operator>=( const QDate &d ) const
-  Returns TRUE if this date is later than or equal to \a d, otherwise FALSE.
+  Returns TRUE if this date is later than or equal to \a d, otherwise returns FALSE.
 */
 
 
@@ -520,8 +519,8 @@ QDate QDate::currentDate()
 }
 
 /*!
-  Returns the representation \a s as a QDate using the format \a f, or
-  an invalid date if this is not possible.
+  Returns the QDate represented by the string \a s, using the format \a
+  f, or an invalid date if this is not possible.
  */
 QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 {
@@ -560,14 +559,14 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 
   Example:
   \code
-    QDate::isValid( 2002, 5, 17 );	// TRUE;  May 17th 2002 is OK.
-    QDate::isValid( 2002, 2, 30 );	// FALSE; Feb 30th does not exist
-    QDate::isValid( 2004, 2, 29 );	// TRUE; 2004 is a leap year
-    QDate::isValid( 1202, 6, 6 );	// FALSE; 1202 is pre-Gregorian
+    QDate::isValid( 2002, 5, 17 );  // TRUE   May 17th 2002 is valid
+    QDate::isValid( 2002, 2, 30 );  // FALSE  Feb 30th does not exist
+    QDate::isValid( 2004, 2, 29 );  // TRUE   2004 is a leap year
+    QDate::isValid( 1202, 6, 6 );   // FALSE  1202 is pre-Gregorian
   \endcode
 
-  Note that a \a y value in the range 00-99 is interpreted as
-  1900-1999.
+  Note that a \a y value in the range 00..99 is interpreted as
+  1900..1999.
 
   \sa isNull(), setYMD()
 */
