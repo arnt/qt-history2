@@ -463,11 +463,18 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
     }
     offx = offy = wx = wy = vx = vy = 0;                      // default view origins
 
+    bool pdev_init = FALSE;
     unclipped = unclipp;
     if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
 
-	initPaintDevice();
+	//offset painting in widget relative the tld
+	QPoint wp(posInWindow(w));
+	offx = wp.x();
+	offy = wp.y();
+
+	initPaintDevice(TRUE);
+	pdev_init = TRUE;
 	
         cfont = w->font();                      // use widget font
         cpen = QPen( w->foregroundColor() );    // use widget fg color
@@ -491,9 +498,9 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
         }
         ww = vw = pm->width();                  // default view size
         wh = vh = pm->height();
-
-	initPaintDevice();
     } 
+    if(!pdev_init)
+	initPaintDevice(TRUE);
 
     if ( testf(ExtDev) ) {               // external device
         ww = vw = pdev->metric( QPaintDeviceMetrics::PdmWidth ); // sanders
@@ -895,7 +902,6 @@ void QPainter::lineTo( int x, int y )
   }
 
   initPaintDevice();
-  updateBrush();
   updatePen();
   MoveTo(penx+offx,peny+offy);
   LineTo(x+offx,y+offy);
@@ -1772,14 +1778,46 @@ QPoint QPainter::pos() const
     return QPoint(penx, peny);
 }
 
-//#define TRY_CACHE 
+#define TRY_CACHE 
 #ifdef TRY_CACHE
-CGrafPtr lgraf = NULL;
+int ldev = QInternal::UndefinedDevice;
 #endif
 void QPainter::initPaintDevice(bool force) {
 #ifdef TRY_CACHE
-    if(!force && lgraf == GetQDGlobalsThePort()) 
-	return;
+    if(!force) {
+	if(ldev != QInternal::UndefinedDevice && pdev->devType() == ldev) {
+	    bool use_cache = FALSE;
+	    switch(pdev->devType()) {
+	    case QInternal::Pixmap:
+#ifndef ONE_PIXEL_LOCK
+		Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+		//fallthrough..
+#endif
+	    case QInternal::Printer:
+	    {
+		GWorldPtr g;
+		GDHandle h;
+		GetGWorld(&g, &h);
+		if(g == (GWorldPtr)pdev->handle())
+		    use_cache = TRUE;
+	    }
+	    break;
+	    case QInternal::Widget:
+	    {
+		CGrafPtr p;
+		GetPort(&p);
+		if(p == (CGrafPtr)pdev->handle())
+		    use_cache = TRUE;
+	    }
+	    break;
+	    default:
+		break;
+	    }
+	    if(use_cache) 
+		return;
+//	    else qDebug("resetting..");
+	}
+    }
 #endif
     
     clippedreg = QRegion(); //empty
@@ -1794,11 +1832,6 @@ void QPainter::initPaintDevice(bool force) {
 
 	//set the correct window prot
 	SetPortWindowPort((WindowPtr)w->handle());
-
-	//offset painting in widget relative the tld
-	QPoint wp(posInWindow(w));
-	offx = wp.x();
-	offy = wp.y();
 
 	if(!w->isVisible()) 
 	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
@@ -1837,7 +1870,7 @@ void QPainter::initPaintDevice(bool force) {
 
 #ifdef TRY_CACHE
     //save it
-    lgraf = GetQDGlobalsThePort();
+    ldev = pdev->devType();
 #endif
 }
 

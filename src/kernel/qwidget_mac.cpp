@@ -1214,8 +1214,8 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	}
     }
 
-    QRegion copied = (QRegion(0, 0, width(), height()) ^ clippedRegion());
-    QPoint p = mapToGlobal( QPoint() );
+    QRegion copied(clippedRegion());
+    QPoint p(posInWindow(this));
     copied.translate( -p.x(), -p.y() );
     copied &= QRegion(sr);
     copied.translate(dx,dy);
