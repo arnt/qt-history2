@@ -77,11 +77,15 @@ QCursorData::QCursorData( int s )
 QCursorData::~QCursorData()
 {
     Display *dpy = QPaintDevice::x11AppDisplay();
-    if ( hcurs )
+
+    // Add in checking for the display too as on HP-UX
+    // we seem to get a core dump as the cursor data is
+    // deleted again from main() on exit...
+    if ( hcurs && dpy )
 	XFreeCursor( dpy, hcurs );
-    if ( pm )
+    if ( pm && dpy )
 	XFreePixmap( dpy, pm );
-    if ( pmm )
+    if ( pmm && dpy )
 	XFreePixmap( dpy, pmm );
     if ( bm )
 	delete bm;
