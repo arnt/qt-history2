@@ -195,7 +195,7 @@ void QFontPrivate::load(QFont::Script script)
             if(ATSFontRef fontref = ATSFontFindFromName(cfstr, kATSOptionFlagsDefault)) {
                 QCFStringHelper actualName;
                 if(ATSFontGetName(fontref, kATSOptionFlagsDefault,
-                                  &actualName.dataRef()) == noErr) {
+                                  &actualName) == noErr) {
                     if(static_cast<QString>(actualName) == (*it)) {
                         engine->fontref = fontref;
                         break;
@@ -215,7 +215,7 @@ void QFontPrivate::load(QFont::Script script)
         {
             QCFStringHelper actualName;
             Q_ASSERT(engine->type() == QFontEngine::Mac);
-            if (ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName.dataRef())
+            if (ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName)
                 == noErr) {
                 engine->fontDef.family = actualName;
             }

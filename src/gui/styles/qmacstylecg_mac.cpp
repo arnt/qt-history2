@@ -295,7 +295,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         if (pe == PE_ExclusiveIndicatorMask) {
             QRegion saveRegion = p->clipRegion();
             QCFHelper<HIShapeRef> shape;
-            HIThemeGetButtonShape(mac_r, &info, &shape.dataRef());
+            HIThemeGetButtonShape(mac_r, &info, &shape);
             p->setClipRegion(qt_mac_convert_mac_region(shape));
             p->fillRect(r, color1);
             p->setClipRegion(saveRegion);
@@ -323,7 +323,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         if (pe == PE_IndicatorMask) {
             QRegion saveRegion = p->clipRegion();
             QCFHelper<HIShapeRef> shape;
-            HIThemeGetButtonShape(mac_r, &info, &shape.dataRef());
+            HIThemeGetButtonShape(mac_r, &info, &shape);
             p->setClipRegion(qt_mac_convert_mac_region(shape));
             p->fillRect(r, color1);
             p->setClipRegion(saveRegion);
@@ -787,7 +787,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
         if (!tracking) {
             // Small optimization, the same as querySubControlMetrics
             QCFHelper<HIShapeRef> shape;
-            HIThemeGetTrackThumbShape(&tdi, &shape.dataRef());
+            HIThemeGetTrackThumbShape(&tdi, &shape);
             HIShapeGetBounds(shape, &macRect);
             tdi.value = slider->value();
         }
@@ -918,7 +918,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
         wdi.titleWidth = r.width();
         QCFHelper<HIShapeRef> titleRegion;
         HIThemeGetWindowShape(qt_glb_mac_rect(r, p), &wdi, kWindowTitleBarRgn,
-                              &titleRegion.dataRef());
+                              &titleRegion);
         HIRect titleRect;
         HIShapeGetBounds(titleRegion, &titleRect);
         QRect newr = r;
@@ -931,7 +931,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
             if (!!titlebar->windowIcon()) {
                 QCFHelper<HIShapeRef> titleRegion2;
                 HIThemeGetWindowShape(&finalRect, &wdi, kWindowTitleProxyIconRgn,
-                                      &titleRegion2.dataRef());
+                                      &titleRegion2);
                 HIShapeGetBounds(titleRegion2, &titleRect);
                 if (titleRect.size.width != 1)
                     iw = titlebar->windowIcon().width();
@@ -940,7 +940,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                 p->save();
                 QCFHelper<HIShapeRef> titleRegion3;
                 HIThemeGetWindowShape(&finalRect, &wdi, kWindowTitleTextRgn,
-                                      &titleRegion3.dataRef());
+                                      &titleRegion3);
                 HIShapeGetBounds(titleRegion3, &titleRect);
                 p->setClipRect(qrectForHIRect(titleRect));
                 QRect br = p->clipRegion().boundingRect();
@@ -1111,7 +1111,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
             break;
         case SC_SliderHandle:
             QCFHelper<HIShapeRef> shape;
-            HIThemeGetTrackThumbShape(&tdi, &shape.dataRef());
+            HIThemeGetTrackThumbShape(&tdi, &shape);
             HIShapeGetBounds(shape, &macRect);
             rect = qrectForHIRect(macRect);
             break;
@@ -1128,7 +1128,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
             break;
         case SC_ScrollBarSlider:
             QCFHelper<HIShapeRef> shape;
-            HIThemeGetTrackThumbShape(&tdi, &shape.dataRef());
+            HIThemeGetTrackThumbShape(&tdi, &shape);
             HIShapeGetBounds(shape, &macRect);
             rect = qrectForHIRect(macRect);
             break;
