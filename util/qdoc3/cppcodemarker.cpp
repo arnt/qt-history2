@@ -92,7 +92,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 	break;
     case Node::Function:
 	func = (const FunctionNode *) node;
-	if ( !func->returnType().isEmpty() )
+	if (style != SeparateList && !func->returnType().isEmpty())
 	    synopsis = typified(func->returnType()) + " ";
 	synopsis += name + " (";
 	if ( !func->parameters().isEmpty() ) {
@@ -101,10 +101,11 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 	    while ( p != func->parameters().end() ) {
 		if ( p != func->parameters().begin() )
 		    synopsis += ", ";
-		synopsis += typified((*p).leftType()) + " <@param>" +
-			    protect( (*p).name() ) + "</@param>" +
-			    protect( (*p).rightType() );
-		if ( !(*p).defaultValue().isEmpty() )
+		synopsis += typified((*p).leftType());
+                if (style != SeparateList && !(*p).name().isEmpty())
+                    synopsis += " <@param>" + protect((*p).name()) + "</@param>";
+                synopsis += protect((*p).rightType());
+		if (style != SeparateList && !(*p).defaultValue().isEmpty())
 		    synopsis += " = " + protect( (*p).defaultValue() );
 		++p;
 	    }
@@ -119,7 +120,10 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 		synopsis.prepend( "virtual " );
 	    if ( func->virtualness() == FunctionNode::PureVirtual )
 		synopsis.append( " = 0" );
-	} else {
+	} else if ( style == SeparateList ) {
+            if (!func->returnType().isEmpty() && func->returnType() != "void")
+                synopsis += " : " + typified(func->returnType());
+        } else {
 	    QStringList bracketed;
 	    if ( func->isStatic() ) {
 		bracketed += "static";
