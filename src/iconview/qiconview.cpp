@@ -212,27 +212,27 @@ public:
     QFontMetrics *fm;
     int minLeftBearing, minRightBearing;
 
-    uint mousePressed		:1;
-    uint cleared		:1;
-    uint dropped		:1;
-    uint clearing		:1;
-    uint oldDragAcceptAction	:1;
-    uint isIconDrag		:1;
-    uint drawDragShapes		:1;
-    uint dirty			:1;
-    uint rearrangeEnabled	:1;
-    uint reorderItemsWhenInsert	:1;
-    uint drawAllBack		:1;
-    uint resortItemsWhenInsert	:1;
-    uint sortDirection		:1;
-    uint wordWrapIconText	:1;
-    uint containerUpdateLocked	:1;
+    uint mousePressed : 1;
+    uint cleared : 1;
+    uint dropped : 1;
+    uint clearing : 1;
+    uint oldDragAcceptAction : 1;
+    uint isIconDrag : 1;
+    uint drawDragShapes : 1;
+    uint dirty : 1;
+    uint rearrangeEnabled : 1;
+    uint reorderItemsWhenInsert : 1;
+    uint drawAllBack : 1;
+    uint resortItemsWhenInsert : 1;
+    uint sortDirection : 1;
+    uint wordWrapIconText : 1;
+    uint containerUpdateLocked : 1;
     uint firstSizeHint : 1;
-    uint showTips		:1;
-    uint pressedSelected	:1;
-    uint dragging		:1;
-    uint drawActiveSelection	:1;
-    uint inMenuMode		:1;
+    uint showTips : 1;
+    uint pressedSelected : 1;
+    uint dragging : 1;
+    uint drawActiveSelection : 1;
+    uint inMenuMode : 1;
 
     QIconViewToolTip *toolTip;
     QPixmapCache maskCache;
@@ -240,12 +240,12 @@ public:
 
     struct ItemContainer {
 	ItemContainer( ItemContainer *pr, ItemContainer *nx, const QRect &r )
-	    : p( pr ), n( nx ), rect( r ) {
-		items.setAutoDelete( FALSE );
-		if ( p )
-		    p->n = this;
-		if ( n )
-		    n->p = this;
+	    : p( pr ), n( nx ), rect( r )
+	{
+	    if ( p )
+		p->n = this;
+	    if ( n )
+		n->p = this;
 	}
 	ItemContainer *p, *n;
 	QRect rect;
