@@ -75,7 +75,7 @@ extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
                       PK_ORIENTATION | PK_CURSOR)
 #define PACKETMODE  0
 
-extern bool chokeMouse;
+extern bool tabletChokeMouse;
 
 #include <wintab.h>
 #ifndef CSR_TYPE
@@ -1395,7 +1395,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
         }
 
 #if defined(QT_TABLET_SUPPORT)
-        if (!chokeMouse) {
+        if (!tabletChokeMouse) {
 #endif
             widget->translateMouseEvent(msg);        // mouse event
 #if defined(QT_TABLET_SUPPORT)
@@ -1419,7 +1419,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                                        || msg1.message == WM_LBUTTONDOWN);
             }
             if (!is_mouse_move || (is_mouse_move && !next_is_button))
-                chokeMouse = false;
+                tabletChokeMouse = false;
         }
 #endif
     } else if (message == WM95_MOUSEWHEEL) {
@@ -1896,8 +1896,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
             // flush the QUEUE
             if (ptrWTPacketsGet)
                 ptrWTPacketsGet(qt_tablet_context, QT_TABLET_NPACKETQSIZE + 1, NULL);
-            if (chokeMouse)
-                chokeMouse = false;
+            if (tabletChokeMouse)
+                tabletChokeMouse = false;
             break;
 #endif
         case WM_KILLFOCUS:

@@ -366,9 +366,7 @@ bool QApplicationPrivate::fade_tooltip = false;
 bool QApplicationPrivate::animate_toolbox = false;
 bool QApplicationPrivate::widgetCount = false;
 
-#if defined(QT_TABLET_SUPPORT)
-bool chokeMouse = false;
-#endif
+bool tabletChokeMouse = false;
 
 
 int qt_double_buffer_timer = 0;
@@ -2834,7 +2832,6 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             context->ignore();
     }
     break;
-#if defined (QT_TABLET_SUPPORT)
     case QEvent::TabletMove:
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
@@ -2861,10 +2858,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             tablet->accept();
         else
             tablet->ignore();
-        chokeMouse = tablet->isAccepted();
+        tabletChokeMouse = tablet->isAccepted();
     }
     break;
-#endif
 
     case QEvent::ToolTip:
     case QEvent::WhatsThis:
