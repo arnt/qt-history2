@@ -97,25 +97,22 @@ static void delete_d( const QStyle* foo )
 
 /*! \enum QStyle::ScrollControl
   This enum type defines :<ul>
-
   <li> \c AddLine - control to scroll one line down, usually an arrow button
-
   <li> \c SubLine - control to scroll one line up, usually an arrow button
-
   <li> \c AddPage - control to scroll one page down
-
   <li> \c SubPage - control to scroll one page up
-
+  <li> \c First - control to scroll to top of the range
+  <li> \c Last - control to scroll to bottom of the range
   <li> \c Slider - the slider control
-
   <li> \c NoScroll - null value, indiciates none of the visible controls
-
   </ul>
 */
+
 /*!
   Constructs a QStyle that provides the style \a s.  This determines
   the default behavior of the virtual functions.
 */
+
 QStyle::QStyle(GUIStyle s) : gs(s)
 {
 }
@@ -280,7 +277,7 @@ QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
   \fn void QStyle::drawButton( QPainter *, int , int , int , int ,
 			     const QColorGroup &, bool, const QBrush* )
   Draws a press-sensitive shape in the style of a full featured  push button
-  
+
   \sa buttonRect()
 */
 
@@ -289,7 +286,7 @@ QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &, bool, const QBrush* )
 
   Draws a press-sensitive shape in the style of a bevel button.
-  
+
   \sa bevelButtonRect()
 */
 
@@ -298,7 +295,7 @@ QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
   Returns the rectangle available for contents in a bevel
   button. Usually this is the entire rectangle minus the border, but
   it may also be smaller when you think about rounded buttons.
-  
+
   \sa drawBevelButton()
 */
 QRect QStyle::bevelButtonRect( int x, int y, int w, int h){
@@ -323,9 +320,9 @@ void QStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
   Returns the rectangle available for contents in a tool
   button. Usually this is the entire rectangle minus the border, but
   it may also be smaller when you think about rounded buttons.
-  
+
   The default implementation returns bevelButtonRect()
-  
+
   \sa drawToolButton()
 */
 QRect QStyle::toolButtonRect( int x, int y, int w, int h){
@@ -338,7 +335,7 @@ QRect QStyle::toolButtonRect( int x, int y, int w, int h){
   Returns the rectangle available for contents in a push
   button. Usually this is the entire rectangle minus the border, but
   it may also be smaller when you think about rounded buttons.
-  
+
   \sa drawButton()
 */
 QRect QStyle::buttonRect( int x, int y, int w, int h){
@@ -349,7 +346,7 @@ QRect QStyle::buttonRect( int x, int y, int w, int h){
 /*!
   Draw the mask of a pushbutton. Useful if a rounded pushbuttons needs
   to be transparent because the style uses a fancy background pixmap.
-  
+
   \sa drawButtonMask()
 */
 void QStyle::drawButtonMask( QPainter *, int , int , int , int )
@@ -405,7 +402,7 @@ QRect QStyle::comboButtonRect( int x, int y, int w, int h)
   Draws the label of a pushbutton. This function will normally call
   drawItem() with arguments according to the current state of the
   pushbutton.
-  
+
   In reimplementions of this function, you will find
   pushButtonContentsRect() useful.
 
@@ -905,8 +902,8 @@ void QStyle::setButtonDefaultIndicatorWidth( int w )
 
   Auxiliary function to return the contents rectangle of a push button
   \a btn. The contents rectangle is the space available for the button
-  label. 
-  
+  label.
+
   The result depends on the look (buttonRect() ), whether the
   button needs space for a default indicator
   (buttonDefaultIndicatorWidth()) and whether it is pushed down and

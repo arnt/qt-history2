@@ -379,7 +379,7 @@ void QScrollBar::rangeChange()
 {
     positionSliderFromValue();
     drawControls( QStyle::AddLine | QStyle::AddPage | QStyle::Slider |
-		  QStyle::SubPage | QStyle::SubLine,
+		  QStyle::SubPage | QStyle::SubLine | QStyle::First | QStyle::Last,
 		  pressedControl );
 }
 
@@ -523,7 +523,7 @@ void QScrollBar::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
     drawControls( QStyle::AddLine | QStyle::SubLine | QStyle::AddPage |
-		  QStyle::SubPage | QStyle::Slider,
+		  QStyle::SubPage | QStyle::Slider | QStyle::First | QStyle::Last,
 		  pressedControl, &p );
 }
 
@@ -752,23 +752,31 @@ int QScrollBar::sliderPosToRangeValue( int pos ) const
 void QScrollBar::action( QStyle::ScrollControl control )
 {
     switch( control ) {
-	case QStyle::AddLine:
-	    emit nextLine();
-	    addLine();
-	    break;
-	case QStyle::SubLine:
-	    emit prevLine();
-	    subtractLine();
-	    break;
-	case QStyle::AddPage:
-	    emit nextPage();
-	    addPage();
-	    break;
-	case QStyle::SubPage:
-	    emit prevPage();
-	    subtractPage();
-	    break;
-	default:
+    case QStyle::AddLine:
+	emit nextLine();
+	addLine();
+	break;
+    case QStyle::SubLine:
+	emit prevLine();
+	subtractLine();
+	break;
+    case QStyle::AddPage:
+	emit nextPage();
+	addPage();
+	break;
+    case QStyle::SubPage:
+	emit prevPage();
+	subtractPage();
+	break;
+    case QStyle::First:
+	emit valueChanged( minValue() );
+	setValue( minValue() );
+	break;
+    case QStyle::Last:
+	emit valueChanged( maxValue() );
+	setValue( maxValue() );
+	break;
+    default:
 #if defined(CHECK_RANGE)
 	    qWarning( "QScrollBar::action: (%s) internal error", name() );
 #else
@@ -827,7 +835,7 @@ int QScrollBar::maxValue() const
 /*!
   A convenience function which just calls
   setRange( i, maxValue() )
-  
+
   \sa setRange()
 */
 void QScrollBar::setMinValue( int i )
@@ -838,7 +846,7 @@ void QScrollBar::setMinValue( int i )
 /*!
   A convenience function which just calls
   setRange( minValue(), i )
-  
+
   \sa setRange()
 */
 void QScrollBar::setMaxValue( int i )
