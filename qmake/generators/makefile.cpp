@@ -578,8 +578,8 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
     QStringList::Iterator sit = srcl.begin();
     QRegExp regexpSrc("\\$src");
     QRegExp regexpObj("\\$obj");
-    for( ;oit != objl.end(); oit++, sit++) {
-	if((*sit).isEmpty())
+    for( ;sit != srcl.end() && oit != objl.end(); oit++, sit++) {
+	if((*sit).isEmpty()) 
 	    continue;
 
 	t << (*oit) << ": " << (*sit) << " \\\n\t\t"
