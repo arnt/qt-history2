@@ -1596,16 +1596,14 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                     popup->close();
             }
 
+            qApp->winFocus(widget, LOWORD(wParam) != WA_INACTIVE);
             // Windows tries to activate a modally blocked window.
             // This happens when restoring an application after "Show Desktop"
             if (app_do_modal && LOWORD(wParam) == WA_ACTIVE) {
                 QWidget *top = 0;
-                if (!qt_tryModalHelper(widget, &top) && top && widget != top) {
+                if (!qt_tryModalHelper(widget, &top) && top && widget != top)
                     top->setActiveWindow();
-                    break;
-                }
             }
-	    qApp->winFocus(widget, LOWORD(wParam) != WA_INACTIVE);
 	    break;
 
 #ifndef Q_OS_TEMP
