@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#39 $
 **
 ** Implementation of QML classes
 **
@@ -4339,7 +4339,6 @@ void QMLBrowser::setDocument(const QString& name)
     QString path = provider()->path();
 
     if ( d->curmain != main ) {
-	d->curmain = main;
 	QString doc = provider()->document( main );
 	provider()->setReferenceDocument( main );
 	if ( isVisible() ) {
@@ -4350,6 +4349,7 @@ void QMLBrowser::setDocument(const QString& name)
 		return;
 	    }
 	}
+	d->curmain = main;
 	setContents( doc );
     }
 
