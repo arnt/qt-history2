@@ -685,7 +685,7 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
             newRect.translate(d->draggedItemsDelta());
             d->viewport->repaint(oldRect|newRect);
             // set the item under the cursor to current
-            QModelIndex index = QAbstractItemView::indexAt(e->pos());
+            QModelIndex index = indexAt(e->pos());
             // check if we allow drops here
             if (e->source() == this && d->draggedItems.contains(index))
                 e->accept(); // allow changing item position
