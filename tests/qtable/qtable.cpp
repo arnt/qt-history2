@@ -1108,7 +1108,8 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
 
     int left = QMIN( oldSelection->leftCol, newSelection->leftCol );
     int right = QMAX( oldSelection->rightCol, newSelection->rightCol );
-    for ( int i = left; i <= right; ++i ) {
+    int i;
+    for ( i = left; i <= right; ++i ) {
 	if ( !isColSelected( i ) )
 	    topHeader->setSectionState( i, QTableHeader::Normal );
 	else
@@ -1117,7 +1118,7 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
 
     int top = QMIN( oldSelection->topRow, newSelection->topRow );
     int bottom = QMAX( oldSelection->bottomRow, newSelection->bottomRow );
-    for ( int i = top; i <= bottom; ++i ) {
+    for ( i = top; i <= bottom; ++i ) {
 	if ( !isRowSelected( i ) )
 	    leftHeader->setSectionState( i, QTableHeader::Normal );
 	else
@@ -1140,14 +1141,15 @@ void QTable::clearSelections()
 
     currentSelection = 0;
     selections.clear();
-    for ( int i = 0; i <= cols(); ++i ) {
+    int i;
+    for ( i = 0; i <= cols(); ++i ) {
 	if ( !isColSelected( i ) )
 	    topHeader->setSectionState( i, QTableHeader::Normal );
 	else
 	    topHeader->setSectionState( i, QTableHeader::Bold );
     }
 
-    for ( int i = 0; i <= rows(); ++i ) {
+    for ( i = 0; i <= rows(); ++i ) {
 	if ( !isRowSelected( i ) )
 	    leftHeader->setSectionState( i, QTableHeader::Normal );
 	else
