@@ -1003,7 +1003,7 @@ fi
 # symlink or copy part of the sources
 if [ "$OPT_SHADOW" = "yes" ]; then
     echo "Preparing build tree..."
-    [ -d $outpath/bin ] ||  -p $outpath/bin
+    [ -d $outpath/bin ] || mkdir -p $outpath/bin
 
     # need a top level makefile, prefer gnu internally
     if [ -f $relpath/GNUmakefile ]; then
