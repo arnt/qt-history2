@@ -316,7 +316,8 @@ void Socket::sendFile()
 	s += "\n";
 	writeBlock( s.latin1(), s.length() );
     } else {
-	startOwnWindow();
+	s += "\n";
+	writeBlock( s.latin1(), s.length() );
     }
 }
 
