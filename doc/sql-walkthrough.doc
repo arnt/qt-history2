@@ -1,3 +1,37 @@
+/****************************************************************************
+**
+** Documentation for sql programming
+**
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 /*! \page sql-walkthrough.html
 
 \title Example SQL application walkthrough
@@ -111,12 +145,14 @@ database connection is opened with the following statement:
 \endcode
 
 If there was an error while opening the database it can be retrieved
-by using the lastError() call (see QSqlError).
+by using QSqlDatabase::lastError() call (also see \l QSqlError).
 
 The connection that has just been created is from this point on used
-by the low-level classes in the SQL modules to seamlessly access the
-database. You will most likely not need to use the QSqlDatabase class
-after the initialization.
+as the default database connection by the low-level classes in the SQL
+modules to seamlessly access the database. You will most likely not
+need to use the QSqlDatabase class after the initialization.  However,
+multiple database connections can be added by using
+QSqlDatabase::addDatabase().
 
 After the database connection is up and running - we create an
 instance of the main window widget, PingpongFrontEnd, and enter the
@@ -127,10 +163,10 @@ event loop as in any other Qt application.
 The main window consists of a tab widget that contains four different
 tabs:
 <ul>
-<li>Match table - a table used to view the match results</li>
-<li>Statistics - contains some simple statistical information about each team</li>
-<li>Hall of Fame - ranks each team in the database according to their number of wins</li>
-<li>Team editor - used to add/edit teams and players to the database</li>
+<li>Match table - a table used to view the match results
+<li>Statistics - contains some simple statistical information about each team
+<li>Hall of Fame - ranks each team in the database according to their number of wins
+<li>Team editor - used to add/edit teams and players in the database
 </ul>
 
 Except for the Match table, the definition and implementation of these
@@ -138,9 +174,9 @@ widgets can be found in the widgets.h/cpp files.
 
 <em><b>The Match table</b></em>
 
-The Match table is a QSqlTable object used to display the recordset
-defined by MatchView. MatchView is a QSqlCursor that is associated
-with the \a matchview view in our database.
+The Match table is a QSqlTable object used to display the MatchView
+cursor. MatchView is a QSqlCursor that is associated with the \a
+'matchview' view in our database.
 
 From cursors.h:
 \code
@@ -165,15 +201,15 @@ MatchView::MatchView()
 }
 \endcode
 
-The definition and implementation of the MatchView class is simple and
-straight forward. In the constructor a QSqlCursor is instantiated,
-with bindings to the \a matchview view. Also, a new set of display
-labels are assigned to the different fields in the cursor. These
-display labels are used by QSqlTable and QSqlForm when tables and
-forms are generated.
+The definition and implementation of the \c MatchView class is simple
+and straight forward. In the constructor a \l QSqlCursor is
+instantiated, with bindings to the \a matchview database view. Also, a
+new set of display labels are assigned to the different fields in the
+cursor. These display labels are used by QSqlTable and QSqlForm while
+displaying data on screen.
 
 The initialization of the Match table itself is done in the
-constructor of the PingpongFrontEnd class.
+constructor of the \c PingpongFrontEnd class.
 
 From pingpongfrontend.cpp:
 \code
@@ -190,14 +226,14 @@ From pingpongfrontend.cpp:
     matchTable->setReadOnly( TRUE );
 \endcode
 
-First, a \a select is issued on the MatchView cursor:
+First, a \c select is issued on the \c MatchView cursor:
+
 \code
     matchView.select( matchView.index( "date" ) );
 \endcode
 
 This will generate a resultset which contains all the records in the
-\a matchview view, sorted on the \a date field. In other words, a list
-of all the matches, sorted on the date they were played.
+\a matchview view, sorted on the \a date field. 
 
 \code
     matchTable->setCursor( &matchView, FALSE );
@@ -209,12 +245,13 @@ of all the matches, sorted on the date they were played.
     matchTable->addColumn( matchView.field( "sets" ) );
 \endcode
 
-The MatchView cursor acts as a datasource for the Match table.
-setCursor() is called to associate the MatchView cursor with the Match
-table. We call it with \a autoPopulate set to FALSE, because we want
-to set the order and number of columns to display in the table
-ourself. addColumn() is called to add the fields from the MatchView
-cursor we want to appear in the table.
+The \c MatchView cursor becomes the data source for the \c matchTable
+table.  \c setCursor() is called to associate the \c MatchView cursor
+with \c matchTable. The cursor is added to the table with \a
+autoPopulate set to FALSE, because we want to set the order and number
+of columns to display in the table ourselves. \c addColumn() is called
+to add the fields from the \c MatchView cursor which we want to appear
+in the table.
 
 \code
     matchTable->setSorting( TRUE );
@@ -223,26 +260,14 @@ cursor we want to appear in the table.
 
 We also want to be able to sort the table on any of the columns, and
 we don't want the user to insert/update/delete records directly in
-this table. This is because the Match table is associated with a view
-in the database, and in version 6.5 of Postgres it is not possible to
-perform inserts, updates or deletes on a database view. We use a
-separate cursor directly connected to the \a match table to perform
-these operations (see Inserting, Updating and Deleting matches).
+this table - we will be using a form for that (see below). 
 
-Our Match table widget has now been set up correctly to display a list
-of all the matches that have been played, sorted on the date.
+Our \c matchTable widget has now been set up correctly to display a
+list of all the matches that have been played, sorted by \a date.
 
-<em><b>The Statistics widget</b></em>
+<em><b>The TeamPicker custom editor</b></em>
 
-The Statistics widget is basically a collection of QLabel widgets that
-are used to display a name and a value. The statistics are team based
-and consists of sets won, matches won, sets lost, matches lost,
-percentage of wins/losses, total sets played, total matches played,
-who the team has lost most matches against, and who the team has beat
-the most times. All the interesting things take place in the update()
-function, where the database is queried and the values
-generated. Also, notice the TeamPicker widget, which is an example of
-a custom SQL field editor.
+The \c TeamPicker widget is an example of a custom SQL field editor.
 
 \code
 class TeamPicker : public QComboBox
@@ -265,10 +290,10 @@ different teams in the database. The Q_PROPERTY macro is used to
 define and associate the teamid property with the TeamPicker
 class. This is used by the QSqlPropertyMap to insert/extract values
 into/from the widget when it appears in a QSqlTable or a
-QSqlForm. This is not the case here though, but we will use the
-TeamPicker in a QSqlForm later on.
+QSqlForm. 
 
-From the TeamPicker constructor in widgets.cpp:
+From the \c TeamPicker constructor in widgets.cpp:
+
 \code
     QSqlCursor team( "team" );
     team.select( team.index("name") );
@@ -280,20 +305,27 @@ From the TeamPicker constructor in widgets.cpp:
     }
 \endcode
 
-When the TeamPicker widget is constructed, the database must be
-queried for the team names. This is done by creating a cursor
-associated with the \a team table, and by selecting all entries in
-that table, sorted on the team name. We then iterate through the
-resultset and insert the team names into the QComboBox. Notice also
-that we store the primary key for each of the entries. This is
-necessary if we later on want to use the \a teamid in queries, as the
-team name itself not necessarily uniquely identifies a team. The \a
-teamid is kept in a QMap, where the index of an item is mapped to a
-\a teamid.
+When the TeamPicker widget is constructed, the database is queried for
+the team names. This is done by creating a cursor associated with the
+\a team table, and by selecting all entries in that table, sorted on
+the team name. We then iterate through the cursor records and insert
+the team names into the QComboBox. Notice also that we store the
+primary key for each of these entries. This is necessary so that we
+can use these primary index values later in our program, as the team
+name itself does not necessarily uniquely identify a \a team
+record. 
+
+<em><b>The Statistics widget</b></em>
+
+The Statistics widget is a collection of QLabel widgets that are used
+to display statisticla information about our teams.  The statistics
+consists of sets won, matches won, sets lost, etc. All the interesting
+things take place in the \c Statistics::update() function, where the
+database is queried and the values generated and displayed. 
 
 To calculate the statistical values, a series of queries are used. We
-get the currently selected \a teamid from the TeamPicker to use as the
-basis for our queries:
+get the currently selected \a teamid from the \c TeamPicker (see
+above) to use as the basis for our queries:
 
 From the Statistics::update() function in widgets.cpp:
 \code
@@ -301,60 +333,36 @@ From the Statistics::update() function in widgets.cpp:
 \endcode
 
 Simple SQL queries are used to generate the values we need to display
-the statistical data. One of these values are the number of sets a
-team has won. The following lines queries the database and updates the
-label used to view the value.
+the statistical data. For example, the following lines query the
+database and update the label used to view 'total sets won':
 
 \code
     // Sets won
     QSqlQuery query( "select sum(winnerwins) from match where winnerid = " +
 		     QString::number( teamId ) + ";" );
-\endcode
-
-Instantiate a QSqlQuery object with the SQL query we want to execute.
-
-\code
     if( query.next() )
 	sets = query.value(0).toInt();
 \endcode
 
-If the query return a resultset, store the number of sets the team has
-won.
+Other statistics are calculated in a similar way, using QSqlQuery to
+send SQL statements to the database and retrieve query data.
 
-\code
-    // Remember the sets won in matches that has been lost
-    query.exec( "select sum(loserwins) from match where loserid = " +
-		QString::number( teamId ) + ";" );
-    if( query.next() )
-	sets += query.value(0).toInt();
-    setsWon->setText( QString::number( sets ) );
-    numSets = sets;
-\endcode
-
-Also query for the number of sets the team has won in matches the team
-has lost, add the numbers and update the label that is used to display
-the value.
-
-<em><b>The HighscoreList widget</b></em>
-
-The HighscoreList widget is used to display a list of the teams in the
-database, with the most winning team at the top of the list. The same
-technique to query the database as was described in the Statistics
-section above, is used. The result of the query is inserted into a
-QListView widget for display. Look at the HighscoreList::update()
-funtion in widgets.cpp to see how this is done.
+Similarly, the \c HallOfFame ### widget is used to display a list of the
+teams in the database, with the most winning team at the top of the
+list. The same technique to query the database is also used here. The
+result of the query is inserted into a QListView widget for display.
 
 <em><b>The TeamEditor widget</b></em>
 
 The Team editor is used to add/remove teams, add/remove players and
-add/remove players to teams. 
+add/remove players from teams. 
 
-The editor mainly consists of three QSqlTable widgets that are used to
+The editor consists of three QSqlTable widgets that are used to
 display a list of teams, players and the players that are on a
 specific team. QSqlTable widgets are used because we want the user to
 be able to insert, update and delete teams and players directly in the
 table. Once the QSqlTable widgets are initialized properly, they can
-handle inserts, updates and deletes themselves.
+handle inserts, updates and deletes all by themselves.
 
 From the TeamEditor constructor in widgets.cpp:
 \code
@@ -371,6 +379,7 @@ From the TeamEditor constructor in widgets.cpp:
     playerTable->setCursor( &playerCursor );
     playerTable->setSorting( TRUE );
 ...
+    player2teamView.select();
     player2teamTable = new QSqlTable( this );
     player2teamTable->setCursor( &player2teamView );
     player2teamTable->setReadOnly( TRUE );
@@ -378,38 +387,35 @@ From the TeamEditor constructor in widgets.cpp:
 ...
 \endcode
 
-Each table is created and the appropriate cursor is set. Notice that
-we use the \a autoPopulate (TRUE by default, in the setCursor()
-function) feature of the QSqlTable widget, to automatically generate
-the columns we want to display.
+Each table is created with the appropriate cursor as a data
+source. Notice that we use the \a autoPopulate (TRUE by default, in
+the setCursor() function) feature of the QSqlTable widget.  This
+automatically generates the columns we want to display.
 
 Also, we connect the currentChanged() signal that is emitted by the
 teamTable widget, to a slot named updateTeamMembers(). This is because
-we want to update the player2teamTable that shows which players that
-are on a specific team each time a new team is selected in the
-teamTable.
+we want to update the player2teamTable so that it only shows which
+players that are on the currently selected team each time a new team
+is selected in the teamTable.  
+
+\code
+### a new table was selected, so refresh this table to reflect new values
+### updateTeamMembers()
+\endcode
 
 <h2>Inserting, updating and deleting matches</h2>
 
 Inserting, updating and deleting match results are done using a
-separate dialog, MatchDialog. The MatchDialog is interesting because
-it is an example of how to use a manually layed out QSqlForm with a
-custom editor widget. The role of the QSqlForm in the dialog is to
-manage updates of widgets and database fields.
+separate dialog, \c MatchDialog. The \c MatchDialog is a good example
+of how to using a QSqlForm with a custom editor widget. The role of
+the QSqlForm in the dialog is to manage the synchronization of widgets
+and database fields.
 
 From the MatchDialog constructor in dialogs.cpp:
 \code
-...
-    // Lay out the editor widgets manually
-    QWidget * editor;
-    QLabel * fLabel;
-    QGridLayout * formLayout = new QGridLayout( w );
-
-    formLayout->setSpacing( 5 );
-    formLayout->setMargin( 5 );
-
     form = new QSqlForm( this, "matchform" );
 
+	### fix this in the code -- no editor factory!!!!!!
     QSqlEditorFactory * ef = QSqlEditorFactory::defaultFactory();
     QSqlPropertyMap * pm   = new QSqlPropertyMap();
 
@@ -424,6 +430,8 @@ From the MatchDialog constructor in dialogs.cpp:
     form->associate( wteam, buf->field("winnerid") );
 ...
 \endcode
+
+### line by line 
 
 To be able to use the readRecord() and writeRecord() functions in
 QSqlForm, we need to install a new property map to tell the form of
@@ -441,7 +449,9 @@ QSqlEditorFactory creates, this would not have been necessary.
 Above, we create a new QSqlProperyMap, add our TeamPicker class to the
 map, and install the new map in the form we just created.
 
+### 
 
-// ### Missing: explanation of the calculated fields in the MatchCursor
+
+### crap calculated field in matchcursor -- matchcursos only exists to update records.
 
 */
