@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#59 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#60 $
 **
 ** Definition of QPopupMenu class
 **
@@ -27,12 +27,12 @@
 #define QPOPUPMENU_H
 
 #ifndef QT_H
-#include "qtableview.h"
+#include "qframe.h"
 #include "qmenudata.h"
 #endif // QT_H
 
 
-class Q_EXPORT QPopupMenu : public QTableView, public QMenuData
+class Q_EXPORT QPopupMenu : public QFrame, public QMenuData
 {
     Q_OBJECT
 public:
@@ -53,11 +53,12 @@ public:
     int 	exec( const QPoint & pos, int indexAtPoint = 0 );// modal popup
 
     virtual void	setActiveItem( int );
+    QSize	sizeHint() const;
 
-    int idAt( int index ) const { return QMenuData::idAt( index ); }
-    int idAt( const QPoint& pos ) const;
+    int 	idAt( int index ) const { return QMenuData::idAt( index ); }
+    int 	idAt( const QPoint& pos ) const;
 
-    bool customWhatsThis() const;
+    bool 	customWhatsThis() const;
 
 signals:
     void	activated( int itemId );
@@ -67,18 +68,21 @@ signals:
     void	aboutToShow();
 
 protected:
-    int		cellHeight( int );
-    int		cellWidth( int );
-    void	paintCell( QPainter *, int, int );
+    int 	itemHeight( int ) const;
+    int 	itemWidth( int ) const;
+    void 	drawItem( QPainter* p, int tab, QMenuItem* mi,
+		   bool act, int x, int y, int w, int h);
 
-    void closeEvent( QCloseEvent *e );
+    void 	drawContents( QPainter * );
+
+    void 	closeEvent( QCloseEvent *e );
     void	paintEvent( QPaintEvent * );
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	timerEvent( QTimerEvent * );
-    void     styleChange( GUIStyle );
+    void 	styleChange( GUIStyle );
 
 private slots:
     void	subActivated( int itemId );
@@ -96,7 +100,6 @@ private:
     void	menuDelPopup( QPopupMenu * );
     void	frameChanged();
 
-    void	paintAll();
     void	actSig( int, bool = FALSE );
     void	hilitSig( int );
     virtual void	setFirstItemActive();
@@ -112,26 +115,21 @@ private:
     void	updateAccel( QWidget * );
     void	enableAccel( bool );
 
-    void	setTabMark( int );
-    int		tabMark();
-    void	setCheckableFlag( bool );
-
     QString 	accelString( int k );
 
     QMenuItem  *selfItem;
     QAccel     *autoaccel;
-    bool	accelDisabled;
-    int		popupActive;
-    int		tabCheck;
-    bool	hasDoubleItem;
-    int		maxPMWidth;
+    int popupActive;
+    int tab;
+    uint accelDisabled : 1;
+    uint checkable : 1;
+    int maxPMWidth;
+    int reserved;
 
     friend class QMenuData;
     friend class QMenuBar;
 
     void connectModal(QPopupMenu* receiver, bool doConnect);
-
-    int internalCellHeight( QMenuItem* );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
