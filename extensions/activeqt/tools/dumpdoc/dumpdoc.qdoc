@@ -1,8 +1,8 @@
 /*! \page activeqt-tools-dumpdoc.html
     \ingroup activeqt-tools
-    \title The DumpDoc Tool
+    \title The dumpdoc Tool
 
-    The \c dumpcoc tool generates Qt-style documentation for any
+    The \c dumpdoc tool generates Qt-style documentation for any
     COM object and writes it into the file specified.
 
     Call \c dumpdoc with the following command line parameters:
