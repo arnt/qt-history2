@@ -264,6 +264,7 @@ QWSServer::QWSServer( int sw, int sh, int simulate_depth,
     QServerSocket(QTFB_PORT,16,parent,name),
     mouseBuf(0), pending_region_acks(0)
 {
+    focusw = 0;
     mouseGrabber = 0;
     mouseGrabbing = FALSE;
     cursorNeedsUpdate=FALSE;
@@ -410,6 +411,9 @@ QWSCommand* QWSClient::readMoreCommand()
 	    case QWSCommand::RegionAck:
 		command = new QWSRegionAckCommand;
 		break;
+	    case QWSCommand::RequestFocus:
+		command = new QWSRequestFocusCommand;
+		break;
 	    case QWSCommand::ChangeAltitude:
 		command = new QWSChangeAltitudeCommand;
 		break;
@@ -498,6 +502,9 @@ void QWSServer::doClient()
 	    break;
 	case QWSCommand::RegionAck:
 	    qWarning( "QWSServer::doClient() uncaught RegionAck" );
+	    break;
+	case QWSCommand::RequestFocus:
+	    invokeSetFocus( (QWSRequestFocusCommand*)cs->command, cs->client );
 	    break;
 	case QWSCommand::ChangeAltitude:
 	    invokeSetAltitude( (QWSChangeAltitudeCommand*)cs->command,
@@ -596,7 +603,7 @@ void QWSServer::sendKeyEvent(int unicode, int modifiers, bool isPress,
 {
     QWSKeyEvent event;
     event.type = QWSEvent::Key;
-    event.window = 0; //##### not used yet
+    event.window = focusw ? focusw->winId() : 0;
     event.unicode = unicode;
     event.modifiers = modifiers;
     event.is_press = isPress;
@@ -652,6 +659,42 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
     setWindowRegion( changingw, region );
 }
 
+
+void QWSServer::invokeSetFocus( QWSRequestFocusCommand *cmd,
+				   QWSClient *client )
+{
+    int winId = cmd->simpleData.windowid;
+    int gain = cmd->simpleData.flag;
+#if 1
+    qDebug( "QWSServer::invokeSetFocus winId %d flag %d)", winId, gain );
+#endif
+
+    if ( gain != 0 && gain != 1 ) {
+	qWarning( "Only 0(lose) and 1(gain) supported" );
+	return;
+    }
+
+    QWSWindow* changingw = findWindow(winId, client);
+    if ( !changingw ) {
+	qWarning("Invalid window handle %08x", winId);
+	return;
+    }
+    if ( !changingw->forClient(client) ) {
+       qWarning("Disabled: clients changing other client's focus");
+        return;
+     }
+    if ( gain ) {
+	if ( focusw != changingw ) {
+	    if ( focusw ) focusw->focus(0);
+	    focusw = changingw;
+	    focusw->focus(1);
+	}
+    } else {
+	changingw->focus(0);
+	focusw = 0;
+	// ### pass focus to some other window...
+    }
+}
 
 void QWSServer::invokeSetAltitude( QWSChangeAltitudeCommand *cmd,
 				   QWSClient *client )
@@ -801,6 +844,16 @@ bool QWSWindow::removeAllocation(QRegion r)
 	return TRUE; // ack required
     }
     return FALSE;
+}
+
+void QWSWindow::focus(bool get)
+{
+    qDebug( "QWSWindow::focus" );
+    QWSFocusEvent event;
+    event.type = QWSEvent::Focus;
+    event.window = id;
+    event.get_focus = get;
+    c->sendSimpleEvent( &event, sizeof(event) );
 }
 
 QWSWindow* QWSServer::newWindow(int id, QWSClient* client)

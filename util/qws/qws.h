@@ -49,6 +49,8 @@ public:
     void addAllocation( QRegion, bool isAck = FALSE );
     bool removeAllocation( QRegion );
 
+    void focus(bool get);
+
 private:
     int id;
     QWSClient* c;
@@ -101,6 +103,7 @@ private:
     void invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client );
     void invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd );
     void invokeConvertSelection( QWSConvertSelectionCommand *cmd );
+    void invokeSetFocus( QWSRequestFocusCommand *cmd, QWSClient *client );
 
     void initIO();
     void handleMouseData();
@@ -141,6 +144,7 @@ private:
     } selectionOwner;
     QTime timer;
 
+    QWSWindow *focusw;
     QWSWindow *mouseGrabber;
     bool mouseGrabbing;
     int swidth, sheight, sdepth;
@@ -197,6 +201,7 @@ public:
     void sendRegionAddEvent( int winid, bool ack, QRegion );
     void sendRegionRemoveEvent( int winid, int eventid, QRegion );
     void sendMouseEvent( const QWSMouseEvent& );
+    void sendFocusEvent( int winid, bool get );
     void sendPropertyNotifyEvent( int property, int state );
     void sendPropertyReplyEvent( int property, int len, char *data );
     void sendSelectionClearEvent( int windowid );

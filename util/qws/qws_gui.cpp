@@ -63,6 +63,7 @@ public:
 	QWMatrix scale; scale.scale(s,s);
 	pm = pm.xForm(scale);
 	QPainter p(this);
+	p.setBackgroundMode(OpaqueMode);
 	p.drawPixmap(1,1,pm);
 	p.setPen(blue);
 	p.drawRect(rect());
@@ -73,6 +74,8 @@ DummyFramebuffer::DummyFramebuffer( QWidget* parent ) :
     QWidget(parent),
     server( 0 )
 {
+    setFocusPolicy(StrongFocus);
+    setFocus();
     setBackgroundMode(NoBackground);
     setMouseTracking(TRUE);
     showregions = FALSE;
@@ -102,7 +105,7 @@ void DummyFramebuffer::serve(int depth, int refresh_delay)
 	    nc = 1<<depth;
 	img = QImage( server->frameBuffer(),
 		    swidth, sheight, depth, 0, nc, QImage::BigEndian );
-	oldimg = QImage(swidth, sheight, depth, nc);
+	oldimg = QImage(swidth, sheight, depth, nc, QImage::BigEndian);
 	if ( nc ) {
 	    for (int i=0; i<nc; i++) {
 		qDebug("color %d: #%06x",i,qRgb(i*255/(nc-1),i*255/(nc-1),i*255/(nc-1)));
@@ -130,7 +133,7 @@ void DummyFramebuffer::setZoomBox(bool y)
 
 void DummyFramebuffer::timerEvent(QTimerEvent*)
 {
-    if ( showregions ) {
+    if ( showregions || img.depth() != 32 ) {
 	repaint(FALSE);
     } else {
 	int y;
@@ -197,6 +200,31 @@ void DummyFramebuffer::sendMouseEvent(QMouseEvent* e)
     //server->setMouse(e->pos(), e->stateAfter());
 
     server->sendMouseEvent(e->pos(), e->stateAfter());
+}
+
+void DummyFramebuffer::keyPressEvent(QKeyEvent* e)
+{
+    keyEvent(e);
+}
+void DummyFramebuffer::keyReleaseEvent(QKeyEvent* e)
+{
+    keyEvent(e);
+}
+
+void DummyFramebuffer::keyEvent(QKeyEvent* e)
+{
+    QString text = e->text();
+    int state = e->stateAfter();
+    int c=e->count(); if ( !c ) c=1;
+    for ( ; c; c-- ) {
+	int uc = text.isEmpty() ? 0x80000000+e->key() : text[0];
+	int i=0;
+qDebug("KEY %08x",uc);
+	while (uc) {
+	    server->sendKeyEvent(uc,state,e->type()==QEvent::KeyPress,e->isAutoRepeat());
+	    uc = text.isEmpty() ? 0 : text[++i];
+	}
+    }
 }
 
 void DummyFramebuffer::paintEvent(QPaintEvent* e)

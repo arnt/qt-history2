@@ -97,6 +97,7 @@ struct QWSCommand
 	SetSelectionOwner,
 	ConvertSelection,
 	RegionAck,
+	RequestFocus,
 	ChangeAltitude
     };
 
@@ -183,6 +184,17 @@ struct QWSRegionAckCommand : public QWSCommand
 
 };
 
+
+struct QWSRequestFocusCommand : public QWSCommand
+{
+    QWSRequestFocusCommand() :
+	QWSCommand( QWSCommand::RequestFocus, sizeof( simpleData ), (char*)&simpleData ) {}
+
+    struct SimpleData {
+	int windowid;
+	int flag;
+    } simpleData;
+};
 
 struct QWSChangeAltitudeCommand : public QWSCommand
 {

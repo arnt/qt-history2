@@ -50,6 +50,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent* e);
     void mouseMoveEvent(QMouseEvent* e);
     void sendMouseEvent(QMouseEvent* e);
+    void keyPressEvent(QKeyEvent* e);
+    void keyReleaseEvent(QKeyEvent* e);
+    void keyEvent(QKeyEvent* e);
     void paintEvent(QPaintEvent* e);
     QSize sizeHint() const;
     QSizePolicy sizePolicy() const;
