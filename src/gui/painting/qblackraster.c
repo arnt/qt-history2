@@ -1,6 +1,6 @@
 /***************************************************************************/
 /*                                                                         */
-/*  ftraster.c                                                             */
+/*  qblackraster.c, derived from ftraster.c                                */
 /*                                                                         */
 /*    The FreeType glyph rasterizer (body).                                */
 /*                                                                         */
@@ -9,9 +9,9 @@
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
 /*  modified, and distributed under the terms of the FreeType project      */
-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
-/*  this file you indicate that you have read the license and              */
-/*  understand and accept it fully.                                        */
+/*  license, ../../3rdparty/freetype/docs/FTL.TXT.  By continuing to use,  */
+/*  modify, or distribute this file you indicate that you have read        */
+/*  the license and understand and accept it fully.                        */
 /*                                                                         */
 /***************************************************************************/
 

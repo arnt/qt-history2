@@ -1,6 +1,6 @@
 /***************************************************************************/
 /*                                                                         */
-/*  ftgrays.h                                                              */
+/*  qgrayraster_p.h, derived from ftgrays.h                                */
 /*                                                                         */
 /*    FreeType smooth renderer declaration                                 */
 /*                                                                         */
@@ -9,10 +9,9 @@
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
 /*  modified, and distributed under the terms of the FreeType project      */
-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
-/*  this file you indicate that you have read the license and              */
-/*  understand and accept it fully.                                        */
-/*                                                                         */
+/*  license, ../../3rdparty/freetype/docs/FTL.TXT.  By continuing to use,  */
+/*  modify, or distribute this file you indicate that you have read        */
+/*  the license and understand and accept it fully.                        */
 /***************************************************************************/
 
 
@@ -29,7 +28,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* To make ftgrays.h independent from configuration files we check       */
-  /* whether QT_FT_EXPORT_VAR has been defined already.                       */
+  /* whether QT_FT_EXPORT_VAR has been defined already.                    */
   /*                                                                       */
   /* On some systems and compilers (Win32 mostly), an extra keyword is     */
   /* necessary to compile the library as a DLL.                            */

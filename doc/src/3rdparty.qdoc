@@ -43,6 +43,27 @@
     See also the files in \c src/3rdparty/opentype, which are used by
     FreeType.
 
+    Parts of the FreeType projects have been modified and put into Qt
+    for use in the painting subsystem. These files are ftraster.h,
+    ftraster.c, ftgrays.h and ftgrays.c. The following modifications
+    has been made to these files:
+
+    \list
+    \i Renamed FT_ and ft_ symbols to QT_FT_ and qt_ft_ to avoid name
+    conflicts.
+    \i Removed parts of code not relevant when compiled with
+    _STANDALONE_ defined.
+    \i Changed behaviour in ftraster.c to follow X polygon filling
+    rules.
+    \i Implemented support in ftraster.c for winding / odd even
+    polygon fill rules.
+    \i Replaced bitmap generation with span generation in ftraster.c
+    \i Renamed: ftraster.h to qblackraster_p.h
+    \i Renamed: ftraster.c to qblackraster.c
+    \i Renamed: ftgrays.h to qgrayraster_p.h
+    \i Renamed: ftgrays.c to qgrayraster.c
+    \endlist
+
     \section1 The Independent JPEG Group's JPEG Software (\c libjpeg)
 
     \e{This package contains C software to implement JPEG image compression and
