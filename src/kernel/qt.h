@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Tue Dec 12 20:17:45 CET 2000
+** Generated : Thu Dec 14 16:36:50 CET 2000
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -15,7 +15,7 @@
 
 #ifndef QT_H
 #define QT_H
-#include "qglobal.h"
+#include <qglobal.h>
 #include <limits.h>
 #include <qfeatures.h>
 #include <memory.h>
@@ -48,7 +48,7 @@
 #include "qfontmetrics.h"
 #include "qbrush.h"
 #include "qobject.h"
-#include "qcomponentinterface.h"
+#include <qguiddefs.h>
 #include "qconnection.h"
 #include "qdict.h"
 #include "qstyle.h"
@@ -93,6 +93,7 @@
 #include "qgrid.h"
 #include "qbuttongroup.h"
 #include "qcleanuphandler.h"
+#include "qcomponentinterface.h"
 #include "qgvector.h"
 #include "qhbox.h"
 #include "qhbuttongroup.h"
@@ -172,6 +173,7 @@
 #include "qprogressdialog.h"
 #include "qserversocket.h"
 #include "qsessionmanager.h"
+#include "qsettings.h"
 #include "qsgistyle.h"
 #include "qaquastyle.h"
 #include "qsignal.h"
