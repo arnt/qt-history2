@@ -1,5 +1,5 @@
-/****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#79 $
+****************************************************************************
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#80 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#80 $");
 
 
 /*
@@ -1747,6 +1747,11 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    nativeXForm( TRUE );
 	else if ( txop == TxTranslate )
 	    map( x, y, &x, &y );
+    }
+
+    if ( txop <= TxTranslate ) {		// use optimized bitBlt
+	bitBlt( this, x, y, &pixmap, sx, sy, sw, sh, rop );
+	return;
     }
 
     QPixmap *pm	  = (QPixmap*)&pixmap;
