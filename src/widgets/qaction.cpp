@@ -600,6 +600,7 @@ void QAction::setAccel( const QKeySequence& key )
     }
     if ( p ) {
 	d->accel = new QAccel( (QWidget*)p, this, "qt_action_accel" );
+	d->accel->setEnabled( d->enabled );
 	d->accelid = d->accel->insertItem( d->key );
 	d->accel->connectItem( d->accelid, this, SLOT( internalActivation() ) );
 	if ( !d->whatsthis.isEmpty() )
