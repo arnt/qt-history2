@@ -635,6 +635,10 @@ bool QSvgDevice::play( const QDomNode &node )
 	pt->save();
 
 	QDomNamedNodeMap attr = child.attributes();
+	if ( attr.contains( "style" ) )
+	    setStyle( attr.namedItem( "style" ).nodeValue() );
+	if ( attr.contains( "transform" ) )
+	    setTransform( attr.namedItem( "transform" ).nodeValue() );
 	uint i = attr.length();
 	if ( i > 0 ) {
 	    QPen pen = pt->pen();

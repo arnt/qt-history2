@@ -281,7 +281,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     customerID->setFocus();
 #if defined(EVAL)
     // ### improve text
-    licenseInfoHeader->setText( tr("Thank you for your intrest in Qt.\n"
+    licenseInfoHeader->setText( tr("Thank you for your interest in Qt.\n"
 		"Please enter the license information you got for this evaluation version of Qt.") );
 
     customerIDLabel->setText( tr("Name") );

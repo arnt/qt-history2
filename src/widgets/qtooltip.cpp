@@ -507,8 +507,11 @@ void QTipManager::showTip()
 	int h = label->heightForWidth( t->geometry.width() - 4 );
 	label->resize( label->width(), h );
     }
+#if defined(Q_WS_X11)
+    QRect screen = QApplication::desktop()->screenGeometry( widget->x11Screen() );
+#else // !Q_WS_X11
     QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( p ) );
-
+#endif // Q_WS_X11
     if ( p.x() + label->width() > screen.x() + screen.width() )
 	p.setX( screen.x() + screen.width() - label->width() );
     if ( p.y() + label->height() > screen.y() + screen.height() )
