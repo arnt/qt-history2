@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#53 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#52 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#53 $")
 
 
 /*----------------------------------------------------------------------------
@@ -66,6 +66,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#52 $")
  ----------------------------------------------------------------------------*/
 
 
+Display *QPaintDevice::dpy = 0;
+
+
 /*----------------------------------------------------------------------------
   Constructs a paint device with internal flags \e devflags.
   This constructor can only be invoked from subclasses of QPaintDevice.
@@ -81,7 +84,8 @@ QPaintDevice::QPaintDevice( uint devflags )
 	return;
     }
     devFlags = devflags;
-    dpy = qt_xdisplay();
+    if ( dpy == 0 )
+	dpy = qt_xdisplay();
     hd	= 0;
 }
 
@@ -113,27 +117,32 @@ QPaintDevice::~QPaintDevice()
   QPicture and QPrinter are external paint devices.
  ----------------------------------------------------------------------------*/
 
-
-/*!
+/*----------------------------------------------------------------------------
   \fn HANDLE QPaintDevice::handle() const
 
   Returns the window system handle of the paint device, for low-level
   access.  <em>Using this function is not portable.</em>
 
   The HANDLE type varies with platform; see qpaintd.h and qwindefs.h
-  for details. \sa xDisplay() */
+  for details.
 
+  \sa x11Display()
+ ----------------------------------------------------------------------------*/
 
-/*! \fn Display *QPaintDevice::xDisplay() const
+/*----------------------------------------------------------------------------
+  \fn Display *QPaintDevice::x11Display() const
 
-  Returns a pointer to the X display (X-Windows only).  <em>Using this
-  function is not portable.</em> \sa handle() */
+  Returns a pointer to the X display (X-Windows only).
+  <em>Using this function is not portable.</em>
 
+  \sa handle()
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QPaintDevice::paintingActive() const
   Returns TRUE if the device is being painted, i.e. someone has called
   QPainter::begin() and not yet QPainter::end() for this device.
+  \sa QPainter::isActive()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -270,7 +279,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
     int ts = src->devType();			// from device type
     int td = dst->devType();			// to device type
-    Display *dpy = src->xDisplay();
+    Display *dpy = src->x11Display();
 
     if ( sw <= 0 ) {				// special width
 	if ( sw < 0 )
