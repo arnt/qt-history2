@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#8 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#9 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -21,6 +21,7 @@
 
 class QtFileIconView;
 class QDragObject;
+class QResizeEvent;
 
 /*****************************************************************************
  *
@@ -114,15 +115,18 @@ protected:
 
     virtual void keyPressEvent( QKeyEvent *e );
     virtual void drawBackground( QPainter *p, const QRect &r );
-    static void makeGradient( QPixmap &pmCrop, const QColor &_color1, 
+    static void makeGradient( QPixmap &pmCrop, const QColor &_color1,
                               const QColor &_color2, int _xSize, int _ySize );
 
+    void resizeContents( int, int );
+    
     QDir viewDir;
     int newFolderNum;
     bool isDesktop;
     QSize sz;
     QPixmap pix;
-    
+    bool makeNewGradient;
+
 };
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#13 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#14 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -358,9 +358,10 @@ void QtFileIconViewItem::openFolder()
  *
  *****************************************************************************/
 
-QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop, 
+QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
                                 QWidget *parent, const char *name )
-    : QIconView( parent, name ), viewDir( dir ), newFolderNum( 0 ), isDesktop( isdesktop )
+    : QIconView( parent, name ), viewDir( dir ), newFolderNum( 0 ), 
+      isDesktop( isdesktop ), makeNewGradient( TRUE )
 {
     setRastX( 100 );
     setRastY( 75 );
@@ -408,6 +409,9 @@ void QtFileIconView::readDir( const QDir &dir )
     if ( !dir.isReadable() )
         return;
 
+    makeNewGradient = FALSE;
+    QSize cs( contentsWidth(), contentsHeight() );
+    
     clear();
 
     emit directoryChanged( dir.absPath() );
@@ -438,6 +442,17 @@ void QtFileIconView::readDir( const QDir &dir )
         qApp->processEvents();
     }
     emit readDirDone();
+    makeNewGradient = TRUE;
+    if ( isDesktop && cs != QSize( contentsWidth(), contentsHeight() ) ) {
+        int w = QMAX( contentsWidth(), viewport()->width() );
+        int h = QMAX( contentsHeight(), viewport()->height() );
+        if ( makeNewGradient ) {
+            QSize s = pix.size();
+            makeGradient( pix, Qt::blue, Qt::yellow, w, h );
+            if ( s != pix.size() )
+                viewport()->repaint( FALSE );
+        }
+    }
 }
 
 void QtFileIconView::itemDoubleClicked( QIconViewItem *i )
@@ -586,23 +601,17 @@ void QtFileIconView::drawBackground( QPainter *p, const QRect &r )
         QIconView::drawBackground( p, r );
         return;
     } else {
-        QSize s( viewport()->width(), viewport()->height() );
-        if ( sz != s ) {
-            makeGradient( pix, Qt::blue, Qt::yellow, s.width(), s.height() );
-            sz = s;
-        }
-        bitBlt(  p->device(), r.x(), r.y(),
-                 &pix, r.x(), r.y(), r.width(), r.height() );
+        QRegion rg( r );
+        p->setClipRegion( rg );
         
-        //p->fillRect( rect, QColor( 0, 139, 139 ) );
-
-        
+        p->drawTiledPixmap( 0, 0, viewport()->width(), viewport()->height(), pix, 
+                            contentsX(), contentsY() );
     }
-    
+
 }
 
 void QtFileIconView::makeGradient( QPixmap &pmCrop, const QColor &_color1,
-                                   const QColor &_color2, int _xSize, int _ySize ) 
+                                   const QColor &_color2, int _xSize, int _ySize )
 {
     QColor cRow;
     int rca, gca, bca;
@@ -612,7 +621,7 @@ void QtFileIconView::makeGradient( QPixmap &pmCrop, const QColor &_color1,
     unsigned int rgbRow;
 
     pmCrop.resize( _xSize, _ySize );
-    QImage image( _xSize, _ySize, 32 );
+    QImage image( 30, _ySize, 32 );
 
     rca = _color1.red();
     gca = _color1.green();
@@ -631,11 +640,20 @@ void QtFileIconView::makeGradient( QPixmap &pmCrop, const QColor &_color1,
 
         rgbRow = cRow.rgb();
 
-        for( int x = 0; x < _xSize; x++ ) {
+        for( int x = 0; x < 30; x++ ) {
             *p = rgbRow;
             p++;
         }
     }
 
     pmCrop.convertFromImage( image );
+}
+
+void QtFileIconView::resizeContents( int w, int h )
+{
+    QIconView::resizeContents( w, h );
+    w = QMAX( w, viewport()->width() );
+    h = QMAX( h, viewport()->height() );
+    if ( makeNewGradient )      
+        makeGradient( pix, Qt::blue, Qt::yellow, w, h );
 }
