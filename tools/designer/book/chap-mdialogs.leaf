@@ -286,7 +286,7 @@ change the font to Bold, Italic, or Underline by clicking the
 corresponding checkbox. Click the \Button Color button to invoke the
 \Dialog{Select Color Dialog}. As you make changes to each element, you
 can view the changes in the 'Preview' line edit. In the 'Options'
-section, the Wordwrap, Completion, and Paren Matching checkboxes are
+section, the Word Wrap, Completion, and Parentheses Matching checkboxes are
 checked as a default. Click the checkboxes to deselect them.  
 
 Click \OK to accept changes or click \CANCEL to leave the dialog

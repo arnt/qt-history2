@@ -291,7 +291,7 @@
                         <cstring>checkWordWrap</cstring>
                     </property>
                     <property name="text">
-                        <string>&amp;Wordwrap</string>
+                        <string>&amp;Word Wrap</string>
                     </property>
                 </widget>
                 <widget class="QCheckBox" row="0" column="1">
@@ -299,7 +299,7 @@
                         <cstring>checkParenMatching</cstring>
                     </property>
                     <property name="text">
-                        <string>&amp;Paren Matching</string>
+                        <string>&amp;Parentheses Matching</string>
                     </property>
                 </widget>
                 <widget class="QCheckBox" row="1" column="0">
