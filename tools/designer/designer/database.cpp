@@ -21,8 +21,11 @@
 #include "database.h"
 
 #ifndef QT_NO_SQL
+
+#if defined(DESIGNER)
 #include "formwindow.h"
 #include "mainwindow.h"
+#endif
 
 #include <qsqldatabase.h>
 #include <qsqlform.h>
