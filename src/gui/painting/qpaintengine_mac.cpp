@@ -1061,9 +1061,6 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     setActive(true);
     assignf(IsActive | DirtyFont);
 
-    if(d->pdev->devType() == QInternal::Pixmap)         // device is a pixmap
-        ((QPixmap*)d->pdev)->detach();             // will modify it
-
     if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
         QWidget *w = (QWidget*)d->pdev;
         { //offset painting in widget relative the tld (quickdraw compat!!!)
