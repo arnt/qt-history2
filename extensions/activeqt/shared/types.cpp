@@ -1022,7 +1022,6 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	if (arg.pvRecord && arg.pRecInfo) {
 	    QVariant var = VARIANTToQVariant(arg, 0);
 	    void *reference = static_QUType_varptr.get(obj);
-	    bool setValue = TRUE;
 	    switch(var.type()) {
 	    case QVariant::Rect:
 		if (reference)
@@ -1043,11 +1042,9 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		    reference = new QPoint(var.toPoint());
 		break;
 	    default:
-		setValue = FALSE;
 		break;
 	    }
-	    if (setValue)
-		static_QUType_varptr.set(obj, reference);
+	    static_QUType_varptr.set(obj, reference);
 	}
 	break;
     default:
