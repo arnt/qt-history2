@@ -26,6 +26,10 @@ protected:
 
 private:
     ClassNode *tryClass( const QString& className );
+    QString quickifiedDataType( const QString& leftType,
+				const QString& rightType = "" );
+    void merge( ClassNode *quickClass, const ClassNode *qtClass,
+		const ClassNode *wrapperClass );
 
     Tree *cppTre;
     Tree *quickTre;

@@ -461,7 +461,7 @@ void HtmlGenerator::generateSynopsis( const Node *node,
     marked.replace( QRegExp("@param>"), "u>" );
 
     if ( style == CodeMarker::Overview ) {
-	if ( node->status() == Node::Approved ||
+	if ( node->status() == Node::Commendable ||
 	     node->status() == Node::Preliminary ) {
 	    marked.replace( QRegExp("@name>"), "b>" );
 	} else {

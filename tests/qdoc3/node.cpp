@@ -23,7 +23,7 @@ void Node::setDoc( const Doc& doc )
 }
 
 Node::Node( Type type, InnerNode *parent, const QString& name )
-    : typ( type ), par( parent ), nam( name ), acc( Public ), sta( Approved )
+    : typ( type ), par( parent ), nam( name ), acc( Public ), sta( Commendable )
 {
     if ( par != 0 )
 	par->addChild( this );
@@ -31,7 +31,7 @@ Node::Node( Type type, InnerNode *parent, const QString& name )
 
 Node::Status Node::inheritedStatus() const
 {
-    Status parentStatus = Approved;
+    Status parentStatus = Commendable;
     if ( par != 0 )
 	parentStatus = inheritedStatus();
     return (Status) QMAX( (int) sta, (int) parentStatus );

@@ -99,8 +99,11 @@ static void processQdocFile( const QString& fileName )
 			 Qdoc::tr("Unknown source language '%1'")
 			 .arg(sourceLang) );
 
-    QStringList headers = config.getAllFiles( CONFIG_SOURCES, CONFIG_SOURCEDIRS,
+    QStringList headers = config.getAllFiles( CONFIG_HEADERS, CONFIG_HEADERDIRS,
 					      "*.h" );
+    if ( headers.isEmpty() )
+	headers = config.getAllFiles( CONFIG_SOURCES, CONFIG_SOURCEDIRS,
+				      "*.h" );
     QStringList::ConstIterator h = headers.begin();
     while ( h != headers.end() ) {
 	codeParser->parseHeaderFile( config.location(), *h, tree );
@@ -117,11 +120,10 @@ static void processQdocFile( const QString& fileName )
 
     QString targetLang = config.getString( CONFIG_TARGETLANGUAGE );
     CodeMarker *marker = CodeMarker::markerForLanguage( targetLang );
-    if ( marker == 0 ) {
+    if ( marker == 0 )
 	Messages::fatal( config.location(),
 			 Qdoc::tr("Unknown target language '%1'")
 			 .arg(targetLang) );
-    }
 
     Set<QString> formats = config.getStringSet( CONFIG_FORMATS );
     Set<QString>::ConstIterator f = formats.begin();
@@ -147,7 +149,6 @@ static void processQdocFile( const QString& fileName )
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv, FALSE );
-
 
     CodeParser *cppParser = new CppCodeParser;
     parsers.append( cppParser );

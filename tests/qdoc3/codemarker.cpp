@@ -88,7 +88,7 @@ CodeMarker *CodeMarker::markerForLanguage( const QString& lang )
 {
     QValueList<CodeMarker *>::ConstIterator m = markers.begin();
     while ( m != markers.end() ) {
-	if ( (*m)->recognizeLanguage(lang.lower()) )
+	if ( (*m)->recognizeLanguage(lang) )
 	    return *m;
 	++m;
     }

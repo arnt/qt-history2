@@ -22,7 +22,7 @@ public:
     enum Access { Public, Protected, Private };
 
     // the order is important for inheritedStatus()
-    enum Status { Approved, Preliminary, Deprecated, Obsolete };
+    enum Status { Commendable, Preliminary, Deprecated, Obsolete };
 
     virtual ~Node();
 

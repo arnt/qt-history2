@@ -160,7 +160,7 @@ void Generator::generateText( const Text& text, const Node *relative,
 
 void Generator::generateBody( const Node *node, CodeMarker *marker )
 {
-    if ( node->status() != Node::Approved )
+    if ( node->status() != Node::Commendable )
 	generateStatus( node, marker );
     if ( node->type() == Node::Function ) {
 	const FunctionNode *func = (const FunctionNode *) node;
@@ -343,7 +343,7 @@ void Generator::generateStatus( const Node *node, CodeMarker *marker )
 {
     Text text;
     switch ( node->status() ) {
-    case Node::Approved:
+    case Node::Commendable:
 	break;
     case Node::Preliminary:
 	text << Atom::ParagraphLeft << Atom( Atom::FormatLeft, "bold" )

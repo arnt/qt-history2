@@ -198,7 +198,6 @@ void Config::reset()
 
 void Config::load( Location location, const QString& fileName )
 {
-qDebug( "load: %s", fileName.latin1() );
 #define ADVANCE() \
 	location.advance( text[i++] )
 #define SKIP_SPACES() \
@@ -266,8 +265,6 @@ qDebug( "load: %s", fileName.latin1() );
 		SKIP_SPACES();
 		if ( text[i] != '#' && text[i] != '\n' )
 		    Messages::fatal( location, Qdoc::tr("Trailing garbage") );
-
-		
 
 		load( location,
 		      QFileInfo(QFileInfo(fileName).dir(), includeFile)
