@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#include <qapplication.h>
-#include <qevent.h>
+#include <QApplication>
+#include <QEvent>
 
 #include "mainwindow.h"
 #include "dialog.h"
@@ -49,7 +49,7 @@ static void quitCallback( Widget, XtPointer client_data, XtPointer )
 
 
 MainWindow::MainWindow()
-    : QMotifWidget( 0, xmMainWindowWidgetClass, NULL, 0, "mainwindow" )
+    : QMotifWidget("mainwindow", xmMainWindowWidgetClass, 0)
 {
     Widget menubar = XmCreateMenuBar( motifWidget(), "menubar", NULL, 0 );
     Widget filemenu = XmCreatePulldownMenu( menubar, "filemenu", NULL, 0 );
@@ -107,7 +107,7 @@ MainWindow::MainWindow()
 
 void MainWindow::showMotifDialog()
 {
-    QMotifDialog dialog( this, "custom dialog", true );
+    QMotifDialog dialog(this);
     dialog.setWindowTitle(tr("Custom Motif Dialog"));
 
     Widget form = XmCreateForm( dialog.shell(), "custom motif dialog", NULL, 0 );
@@ -155,6 +155,6 @@ void MainWindow::showMotifDialog()
 void MainWindow::showQtDialog()
 {
     // custom Qt-based dialog using a Motif-based parent
-    CustomDialog customdialog( motifWidget(), "custom dialog", true );
+    CustomDialog customdialog(motifWidget());
     customdialog.exec();
 }

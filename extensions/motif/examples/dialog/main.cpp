@@ -11,9 +11,10 @@
 **
 ****************************************************************************/
 
+#include <QApplication>
+
 #include "mainwindow.h"
 
-#include <QApplication>
 #include <QtMotif/QMotif>
 
 int main( int argc, char **argv )

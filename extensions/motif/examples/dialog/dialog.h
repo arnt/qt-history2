@@ -21,8 +21,7 @@ class CustomDialog : public QMotifDialog
     Q_OBJECT
 
 public:
-    CustomDialog( Widget parent, const char *name = 0,
-		  bool modal = false, WFlags flags = 0 );
+    CustomDialog(Widget parent, Qt::WFlags flags = 0);
 };
 
 #endif // DIALOG_H
