@@ -352,7 +352,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 	for (int i = 0; i < aet.size(); ++i) {
 	    if (aet.at(i)->p2.y() <= y) {
 		aet.removeAt(i);
- 		--i;
+ 	       --i;
 	    }
 	}
         if (aet.size()%2 != 0) {
@@ -490,12 +490,6 @@ void QX11PaintEnginePrivate::init()
     hd = 0;
     picture = 0;
     xinfo = 0;
-    if (!X11->use_xrender) {
-        q->gccaps &= ~(QPaintEngine::AlphaStroke
-                       | QPaintEngine::AlphaPixmap
-                       | QPaintEngine::FillAntialiasing
-                       | QPaintEngine::LineAntialiasing);
-    }
 }
 
 void QX11PaintEnginePrivate::setupAdaptedOrigin(const QPoint &p)
@@ -517,15 +511,15 @@ void QX11PaintEnginePrivate::resetAdaptedOrigin()
 
 static QPaintEngine::PaintEngineFeatures qt_decide_features()
 {
-    return UsesFontEngine
-        | PrimitiveTransform
-        | AlphaBlend
-        | PainterPaths
-#if !defined (QT_NO_XRENDER)
-        // ### this should be a runtime check
-        | Antialiasing
-#endif
-        ;
+    QPaintEngine::PaintEngineFeatures features =
+        QPaintEngine::PrimitiveTransform
+        | QPaintEngine::AlphaBlend
+        | QPaintEngine::PainterPaths;
+
+    if (!X11->use_xrender)
+        features |= QPaintEngine::Antialiasing;
+
+    return features;
 }
 
 /*
