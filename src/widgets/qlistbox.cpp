@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#209 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#210 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2172,12 +2172,13 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 /*
     Arnt!  REMEMBER: On Window there is no event queue protecting you
     from re-entrancy.  This causes resizes, causes layouts...
-    You've got enough experience to know that a "const" function with
-    "do" in its name (doLayout()) is just plain asking for trouble.
+    You know that a "const" function with "do" in its name (doLayout())
+    is just asking for trouble.  
+
+*/ d->layoutDirty = FALSE; // Foil the hacks.
 
     if ( d->layoutDirty )
 	doLayout();
-*/
 
     int x = contentsX();
     int y = contentsY();
