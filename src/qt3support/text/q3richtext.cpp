@@ -1493,8 +1493,8 @@ struct Q3TextDocumentTag {
     QString anchorHref;
     Q3StyleSheetItem::WhiteSpaceMode wsm;
     Q3TextFormat format;
-    int alignment : 16;
-    int direction : 5;
+    signed int alignment : 16;
+    signed int direction : 5;
     Q3StyleSheetItem::ListStyle liststyle;
 
     Q3TextDocumentTag( const Q3TextDocumentTag& t) {

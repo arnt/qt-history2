@@ -49,7 +49,7 @@ struct QShortcutEntry
     QKeySequence keyseq;
     Qt::ShortcutContext context;
     bool enabled : 1;
-    int id : 31;
+    signed int id : 31;
     QObject *owner;
 };
 

@@ -206,7 +206,7 @@ struct QtFontStyle
     bool bitmapScalable : 1;
     bool smoothScalable : 1;
     bool fakeOblique    : 1;
-    int count           : 29;
+    signed int count    : 29;
     QtFontSize *pixelSizes;
 
 #ifdef Q_WS_X11

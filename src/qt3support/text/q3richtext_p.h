@@ -1286,7 +1286,7 @@ private:
     uint hasdoc : 1;
     uint litem : 1; // whether the paragraph is a list item
     uint rtext : 1; // whether the paragraph needs rich text margin
-    int align : 5;
+    signed int align : 5;
     uint /*Q3StyleSheetItem::ListStyle*/ lstyle : 4;
     int invalid;
     int state, id;

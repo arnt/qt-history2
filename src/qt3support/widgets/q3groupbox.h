@@ -109,7 +109,7 @@ private:
     QVBoxLayout *vbox;
     QGridLayout *grid;
     int row;
-    int col : 30;
+    signed int col : 30;
     uint bFlat : 1;
     int nRows, nCols;
     Qt::Orientation dir;
