@@ -89,19 +89,14 @@
     decoder factories that have been installed; the format of the
     input is determined as the input is decoded.
 
-    The supported formats are MNG (if Qt is built with MNG support
-    enabled) and GIF (if Qt is built with GIF support enabled). For
-    MNG support, you need to have installed libmng from \link
-    http://www.libmng.com/ http://www.libmng.com\endlink.
+    The supported formats are MNG (if Qt is configured with MNG
+    support enabled) and GIF (if Qt is configured with GIF support
+    enabled, see qgif.h).
 
-    Archives of animated GIFs and tools for building them can be
-    found, for example, at \link
-    http://dir.yahoo.com/Arts/Visual_Arts/Animation/Computer_Animation/Animated_GIFs/
-    Yahoo\endlink.
-
-    We are required to state the following: The Graphics Interchange
-    Format(c) is the Copyright property of CompuServe Incorporated.
-    GIF(sm) is a Service Mark property of CompuServe Incorporated.
+    If Qt is configured to support GIF reading, we are required to
+    state that "The Graphics Interchange Format(c) is the Copyright
+    property of CompuServe Incorporated. GIF(sm) is a Service Mark
+    property of CompuServe Incorporated.
 
     \warning If you are in a country that recognizes software patents
     and in which Unisys holds a patent on LZW compression and/or

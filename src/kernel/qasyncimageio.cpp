@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of asynchronous image/movie loading classes
 **
 ** Created : 970617
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -179,6 +179,15 @@ extern void qt_init_image_plugins();
     "The Graphics Interchange Format(c) is the Copyright property of
     CompuServe Incorporated. GIF(sm) is a Service Mark property of
     CompuServe Incorporated."
+
+    \warning If you are in a country that recognizes software patents
+    and in which Unisys holds a patent on LZW compression and/or
+    decompression and you want to use GIF, Unisys may require you to
+    license that technology. Such countries include Canada, Japan,
+    the USA, France, Germany, Italy and the UK.
+
+    GIF support may be removed completely in a future version of Qt.
+    We recommend using the MNG or PNG format.
 */
 
 static const int max_header = 32;
