@@ -53,7 +53,7 @@ This module is part of the \link commercialeditions.html Qt Enterprise Edition
 Qt's SQL classes help you provide seamless database integration to
 your Qt applications.
 
-<blockquote>
+\citation
 This overview assumes that you have at least a basic knowledge of SQL.
 You should be able to understand simple \c SELECT, \c INSERT, \c UPDATE
 and \c DELETE commands. Although the \l QSqlTableModel class provides an
@@ -61,14 +61,7 @@ interface to database browsing and editing that does not \e require a
 knowledge of SQL, a basic understanding of SQL is highly recommended. A
 standard text covering SQL databases is \e {An Introduction to Database
 Systems (7th ed.)} by C. J. Date, ISBN 0201385902.
-</blockquote>
-
-Whilst this module overview presents the classes from a purely
-programmatic point of view the \link designer-manual.book Qt
-Designer\endlink manual's "Creating Database Applications" chapter
-takes a higher-level approach demonstrating how to set up
-master-detail relationships between widgets, perform drilldown and
-handle foreign key lookups.
+\endcitation
 
 This document is divided into six sections:
 
