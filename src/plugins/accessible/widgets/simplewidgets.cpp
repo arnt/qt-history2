@@ -19,6 +19,7 @@ QString Q_GUI_EXPORT qacc_hotKey(const QString &text);
 /*!
   \class QAccessibleButton qaccessible.h
   \brief The QAccessibleButton class implements the QAccessibleInterface for button type widgets.
+
   \ingroup accessibility
 */
 
@@ -149,7 +150,18 @@ int QAccessibleButton::state(int child) const
 /*!
   \class QAccessibleToolButton qaccessible.h
   \brief The QAccessibleToolButton class implements the QAccessibleInterface for tool buttons.
+
   \ingroup accessibility
+*/
+
+/*!
+    \enum QAccessibleToolButton::ToolButtonElements
+
+    This enum identifies the components of the tool button.
+
+    \value ToolButtonSelf The tool button as a whole.
+    \value ButtonExecute The button.
+    \value ButtonDropMenu The drop down menu.
 */
 
 /*!
@@ -205,6 +217,12 @@ int QAccessibleToolButton::childCount() const
     return isSplitButton() ? ButtonDropMenu : 0;
 }
 
+/*!
+    \internal
+
+    Returns the rectangle occupied by this button, depending on \a
+    child.
+*/
 QRect QAccessibleToolButton::rect(int child) const
 {
     if (!child)
@@ -221,6 +239,12 @@ QRect QAccessibleToolButton::rect(int child) const
     return subrect;
 }
 
+/*!
+    \internal
+
+    Returns the button's text label, depending on the text \a t, and
+    the \a child.
+*/
 QString QAccessibleToolButton::text(Text t, int child) const
 {
     QString str;
@@ -239,6 +263,12 @@ QString QAccessibleToolButton::text(Text t, int child) const
     return qacc_stripAmp(str);
 }
 
+/*!
+    \internal
+
+    Returns the number of actions which is 0, 1, or 2, in part
+    depending on \a child.
+*/
 int QAccessibleToolButton::actionCount(int child) const
 {
     // each subelement has one action
@@ -249,6 +279,14 @@ int QAccessibleToolButton::actionCount(int child) const
     return ac + (toolButton()->popup() ? 2 : 1);
 }
 
+/*!
+    \internal
+
+    If \a text is \c Name, then depending on the \a child or the \a
+    action, an action text is returned. This is a translated string
+    which in English is one of "Press", "Open", or "Set Focus". If \a
+    text is not \c Name, an empty string is returned.
+*/
 QString QAccessibleToolButton::actionText(int action, Text text, int child) const
 {
     if (text == Name) switch(child) {
@@ -271,6 +309,9 @@ QString QAccessibleToolButton::actionText(int action, Text text, int child) cons
     return QString();
 }
 
+/*!
+    \internal
+*/
 bool QAccessibleToolButton::doAction(int action, int child, const QVariantList &params)
 {
     if (!widget()->isEnabled())
@@ -288,6 +329,7 @@ bool QAccessibleToolButton::doAction(int action, int child, const QVariantList &
 /*!
   \class QAccessibleDisplay qaccessiblewidget.h
   \brief The QAccessibleDisplay class implements the QAccessibleInterface for widgets that display information.
+
   \ingroup accessibility
 */
 
@@ -395,6 +437,7 @@ int QAccessibleDisplay::navigate(Relation rel, int entry, QAccessibleInterface *
 /*!
   \class QAccessibleLineEdit qaccessiblewidget.h
   \brief The QAccessibleLineEdit class implements the QAccessibleInterface for widgets with editable text.
+
   \ingroup accessibility
 */
 

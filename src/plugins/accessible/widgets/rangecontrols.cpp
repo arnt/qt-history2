@@ -11,8 +11,20 @@ QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
 
 /*!
   \class QAccessibleSpinBox qaccessiblewidget.h
-  \brief The QAccessibleText class implements the QAccessibleInterface for spinbox widgets.
+  \brief The QAccessibleSpinBox class implements the QAccessibleInterface for spinbox widgets.
+
   \ingroup accessibility
+*/
+
+/*!
+    \enum QAccessibleSpinBox::SpinBoxElements
+
+    This enum identifies the components of the spin box.
+
+    \value SpinBoxSelf The spin box as a whole
+    \value Editor The line edit sub-widget.
+    \value ValueUp The up sub-widget (i.e. the up arrow or + button)
+    \value ValueDown The down sub-widget (i.e. the down arrow or - button)
 */
 
 /*!
@@ -163,7 +175,21 @@ bool QAccessibleSpinBox::doAction(int action, int child, const QVariantList &par
 /*!
   \class QAccessibleScrollBar qaccessiblewidget.h
   \brief The QAccessibleScrollBar class implements the QAccessibleInterface for scroll bars.
+
   \ingroup accessibility
+*/
+
+/*!
+    \enum QAccessibleScrollBar::ScrollBarElements
+
+    This enum identifies the components of the scroll bar.
+
+    \value ScrollBarSelf The scroll bar as a whole.
+    \value LineUp The up arrow button.
+    \value PageUp The area between the position and the up arrow button.
+    \value Position The position marking rectangle.
+    \value PageDown The area between the position and the down arrow button.
+    \value LineDown The down arrow button.
 */
 
 /*!
@@ -297,8 +323,26 @@ bool QAccessibleScrollBar::doAction(int action, int child, const QVariantList &p
 
 /*!
   \class QAccessibleSlider qaccessiblewidget.h
-  \brief The QAccessibleScrollBar class implements the QAccessibleInterface for sliders.
+  \brief The QAccessibleSlider class implements the QAccessibleInterface for sliders.
+
   \ingroup accessibility
+*/
+
+/*!
+    \enum QAccessibleSlider::SliderElements
+
+    This enum identifies the components of the slider.
+
+    \value SliderSelf The slider as a whole.
+    \value PageLeft The area to the left of the position.
+    \value Position The position indicator.
+    \value PageRight The area to the right of the position.
+*/
+
+/*!
+    \fn QString QAccessibleSlider::actionText(int action, Text t, int child)
+
+    \internal
 */
 
 /*!

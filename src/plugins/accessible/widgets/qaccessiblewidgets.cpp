@@ -118,13 +118,12 @@ QVector<int> QAccessibleViewport::selection() const
 /*!
   \class QAccessibleScrollView qaccessiblewidget.h
   \brief The QAccessibleScrollView class implements the QAccessibleInterface for scrolled widgets.
+
   \ingroup accessibility
 */
 
 /*!
-  \fn QAccessibleScrollView::QAccessibleScrollView(QWidget* widget, Role role)
-
-  Constructs a QAccessibleScrollView object for a \a widget.
+  Constructs a QAccessibleScrollView object for a widtet, \a w.
   The \a role is propagated to the QAccessibleWidget constructor.
 */
 QAccessibleScrollView::QAccessibleScrollView(QWidget *w, Role role)
@@ -141,7 +140,8 @@ int QAccessibleScrollView::itemAt(int /*x*/, int /*y*/) const
 }
 
 /*!
-  Returns the location in viewport coordinates of the item with ID \a id.
+  Returns the location in viewport coordinates of the item with ID \a
+  item.
 */
 QRect QAccessibleScrollView::itemRect(int /*item*/) const
 {
@@ -159,6 +159,7 @@ int QAccessibleScrollView::itemCount() const
 /*!
   \class QAccessibleListBox qaccessiblewidget.h
   \brief The QAccessibleListBox class implements the QAccessibleInterface for list boxes.
+
   \ingroup accessibility
 */
 
@@ -247,7 +248,7 @@ int QAccessibleListBox::state(int child) const
     return state;
 }
 
-/*! \reimp
+/* \reimp
 bool QAccessibleListBox::setFocus(int child)
 {
     bool res = QAccessibleScrollView::setFocus(0);

@@ -2245,9 +2245,14 @@ bool QGLWidget::autoBufferSwap() const
     return d->autoSwap;
 }
 
-/*! \internal */
 static QSingleCleanupHandler<QOpenGLPaintEngine> qt_paintengine_cleanup_handler;
 static QOpenGLPaintEngine *qt_widget_paintengine = 0;
+/*!
+    \internal
+
+    Returns the GL widget's paint engine. This is normally a
+    QOpenGLPaintEngine.
+*/
 QPaintEngine *QGLWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
