@@ -1757,10 +1757,10 @@ void QHttp::finishedWithSuccess()
 
     emit requestFinished( r->id, FALSE );
     d->pending.removeFirst();
-    if ( d->pending.isEmpty() ) {
-	emit done( FALSE );
+    if ( d->pending.isEmpty() ) {	
 	if ( bytesAvailable() )
 	    readAll(); // clear the data
+	emit done( FALSE );
     } else {
 	startNextRequest();
     }
@@ -2219,6 +2219,13 @@ void QHttp::clientReply( const QHttpResponseHeader &rep )
 
 void QHttp::clientDone( bool err )
 {
+    disconnect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
+	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
+    disconnect( this, SIGNAL(done(bool)),
+	    this, SLOT(clientDone(bool)) );
+    disconnect( this, SIGNAL(stateChanged(int)),
+	    this, SLOT(clientStateChanged(int)) );
+
     if ( err ) {
 	QNetworkOperation *op = operationInProgress();
 	if ( op ) {
@@ -2250,12 +2257,6 @@ void QHttp::clientDone( bool err )
 	    emit finished( op );
 	}
     }
-    disconnect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
-	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
-    disconnect( this, SIGNAL(done(bool)),
-	    this, SLOT(clientDone(bool)) );
-    disconnect( this, SIGNAL(stateChanged(int)),
-	    this, SLOT(clientStateChanged(int)) );
 
 }
 
