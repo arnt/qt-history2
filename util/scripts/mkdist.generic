@@ -69,7 +69,7 @@ ${DISTDIR}/qt/util/qdoc/man
 mv ${DISTDIR}/qt/doc/html ${DISTDIR}/qt/doc/man ${DISTDIR}/qt
 mv ${DISTDIR}/qt/src/moc/moc.1 ${DISTDIR}/qt/man/man1
 cd ${DISTDIR}
-mv ${DISTDIR}/qt/gif/*.gif ${DISTDIR}/qt/gif/html
+mv ${DISTDIR}/qt/gif/*.gif ${DISTDIR}/qt/html
 
 echo "Removing local files..." >&2
 find qt -name .cvsignore | xargs rm -f
@@ -136,7 +136,7 @@ fi
 
 echo "Copying the README, LICENSE etc. files..." >&2
 cd ${DISTDIR}/qt/dist
-cp [A-Z]* .. 2> /dev/null
+cp [A-Z]* changes-${VERSION} .. 2> /dev/null
 cd ${DISTDIR}/qt/dist/${disttype}
 tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}/qt/dist/${platform}
