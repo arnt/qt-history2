@@ -1101,7 +1101,10 @@ bool QApplication::do_mouse_down( EventRecord* es )
     case inDrag:
     {
 	DragWindow( wp, er->where, 0 );
+
 	int ox = widget->x(), oy = widget->y();
+	QMacSavedPortInfo savedInfo;
+	SetPortWindowPort( wp );
 	Point p = { 0, 0 };
 	LocalToGlobal(&p);
 	widget->setCRect( QRect( p.h, p.v, widget->width(), widget->height() ) );
@@ -1143,6 +1146,8 @@ bool QApplication::do_mouse_down( EventRecord* es )
 	    GetPortBounds( GetWindowPort( wp ), &bounds );
 	    InvalWindowRect( wp, &bounds );
 
+	    QMacSavedPortInfo savedInfo;
+	    SetPortWindowPort( wp );
 	    QRect orect(widget->x(), widget->y(), widget->width(), widget->height());
 	    Point p = { 0, 0 };
 	    LocalToGlobal(&p);
