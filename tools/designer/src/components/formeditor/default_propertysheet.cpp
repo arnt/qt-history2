@@ -19,18 +19,23 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     
     // ### disable the overrided properties
 
-    // fake properties
-    int focusPolicyIndex = -1;
-    if ((focusPolicyIndex = meta->indexOfProperty("focusPolicy")) != -1) {
-        QVariant focusPolicy = metaProperty(focusPolicyIndex);
-        setVisible(focusPolicyIndex, false);
-        m_fakeProperties.append(qMakePair(QString::fromLatin1("focusPolicy"), focusPolicy));
-    }
-    
+    createFakeProperty("focusPolicy");
+    createFakeProperty("cursor");
 }
 
 QDesignerPropertySheet::~QDesignerPropertySheet()
 {
+}
+
+void QDesignerPropertySheet::createFakeProperty(const QString &propertyName, const QVariant &value)
+{
+    // fake properties
+    int index = meta->indexOfProperty(propertyName);
+    if (index != -1) {
+        setVisible(index, false);
+        QVariant v = value.isValid() ? value : metaProperty(index);
+        m_fakeProperties.append(qMakePair(propertyName, v));
+    }
 }
 
 bool QDesignerPropertySheet::isFakeProperty(int index) const
@@ -100,8 +105,10 @@ QVariant QDesignerPropertySheet::property(int index) const
         e.value = v;
         QMetaEnum me = p.enumerator();
         for (int i=0; i<me.keyCount(); ++i) {
-            const char *k = me.key(i);
-            e.items.insert(QString::fromLatin1(k), me.keyToValue(k));
+            QString k = QString::fromLatin1(me.scope());
+            k += QString::fromLatin1("::");
+            k += me.key(i);
+            e.items.insert(k, me.keyToValue(k));
         }
 
         qVariantSet(v, e, "FlagType");
@@ -110,8 +117,10 @@ QVariant QDesignerPropertySheet::property(int index) const
         e.value = v;
         QMetaEnum me = p.enumerator();
         for (int i=0; i<me.keyCount(); ++i) {
-            const char *k = me.key(i);
-            e.items.insert(QString::fromLatin1(k), me.keyToValue(k));
+            QString k = QString::fromLatin1(me.scope());
+            k += QString::fromLatin1("::");
+            k += me.key(i);
+            e.items.insert(k, me.keyToValue(k));
         }
 
         qVariantSet(v, e, "EnumType");

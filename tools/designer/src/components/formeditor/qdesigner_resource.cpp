@@ -156,18 +156,18 @@ void QDesignerResource::changeObjectName(QObject *o, QString objName)
 
 void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
-    Resource::applyProperties(o, properties);
-
-    // handle special properties like `objectName'
-    QHash<QString, DomProperty*> m = propertyMap(properties);
-    if (m.contains(QLatin1String("objectName"))) {
-        changeObjectName(o, o->objectName());
-    }
-
     if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), o)) {
         for (int i=0; i<properties.size(); ++i) {
+            DomProperty *p = properties.at(i);
             QString propertyName = properties.at(i)->attributeName();
-            sheet->setChanged(sheet->indexOf(propertyName), true);
+            int index = sheet->indexOf(propertyName);
+            if (index != -1) {
+                sheet->setProperty(index, toVariant(o->metaObject(), p));
+                sheet->setChanged(index, true);
+            }
+            
+            if (propertyName == QLatin1String("objectName"))
+                changeObjectName(o, o->objectName());
         }
     }
 }
@@ -603,26 +603,6 @@ QList<QWidget*> QDesignerResource::paste(QIODevice *dev, QWidget *parentWidget)
     return paste(&ui, parentWidget);
 }
 
-QList<DomProperty*> QDesignerResource::computeProperties(QObject *obj)
-{
-    QList<DomProperty*> properties = Resource::computeProperties(obj);
-
-    if (qt_cast<Spacer*>(obj)) {
-        QListIterator<DomProperty*> it(properties);
-        while (it.hasNext()) {
-            DomProperty *p = it.next();
-
-            if (p->kind() != DomProperty::Enum || p->attributeName() != QLatin1String("sizeType"))
-                continue;
-
-            QString e = p->elementEnum();
-            p->setElementEnum(e.replace("Spacer::", ""));
-        }
-    }
-
-    return properties;
-}
-
 void QDesignerResource::layoutInfo(DomWidget *widget, QObject *parent, int *margin, int *spacing)
 {
     Resource::layoutInfo(widget, parent, margin, spacing);
@@ -674,3 +654,84 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
     return customWidgets;
 }
 
+/*
+QList<DomProperty*> QDesignerResource::computeProperties(QObject *obj)
+{
+    QList<DomProperty*> properties = Resource::computeProperties(obj);
+
+    if (qt_cast<Spacer*>(obj)) {
+        QListIterator<DomProperty*> it(properties);
+        while (it.hasNext()) {
+            DomProperty *p = it.next();
+
+            if (p->kind() != DomProperty::Enum || p->attributeName() != QLatin1String("sizeType"))
+                continue;
+
+            QString e = p->elementEnum();
+            p->setElementEnum(e.replace("Spacer::", ""));
+        }
+    }
+
+    return properties;
+}
+*/
+
+QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
+{
+    QList<DomProperty*> properties;
+    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), object)) {
+        for (int index = 0; index < sheet->count(); ++index) {
+            QString propertyName = sheet->propertyName(index);
+            QVariant value = sheet->property(index);
+            
+            if (!sheet->isChanged(index))
+                continue;
+                
+            if (DomProperty *p = createProperty(object, propertyName, value)) {
+                properties.append(p);
+            }
+        }
+    }
+    return properties;
+}
+
+DomProperty *QDesignerResource::createProperty(QObject *object, const QString &propertyName, const QVariant &value)
+{
+    EnumType e;
+    FlagType f;
+    
+    if (qVariantGet(value, e, "EnumType")) {
+        int v = e.value.toInt();
+        QMapIterator<QString, QVariant> it(e.items);
+        while (it.hasNext()) {
+            if (it.next().value().toInt() != v)
+                continue;
+                
+            DomProperty *p = new DomProperty;
+            p->setAttributeName(propertyName);
+            p->setElementEnum(it.key());
+            return p;
+        }
+        
+        return 0;
+    } else if (qVariantGet(value, f, "FlagType")) {
+#if 0
+        int v = f.value.toInt();
+        
+        QMapIterator<QString, QVariant> it(e.items);
+        while (it.hasNext()) {
+            if (it.next().value().toInt() != v)
+                continue;
+                
+            DomProperty *p = new DomProperty;
+            p->setAttributeName(propertyName);
+            p->setElementEnum(it.key());
+            return p;
+        }
+#endif
+        qWarning("createProperty for flags not implemented yet!");
+        return 0;
+    }
+    
+    return Resource::createProperty(object, propertyName, value);
+}

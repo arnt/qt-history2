@@ -38,6 +38,7 @@ protected:
     virtual QLayoutItem *create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget);
     virtual void applyProperties(QObject *o, const QList<DomProperty*> &properties);
     virtual QList<DomProperty*> computeProperties(QObject *obj);
+    virtual DomProperty *createProperty(QObject *object, const QString &propertyName, const QVariant &value);
 
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
     virtual QLayout *createLayout(const QString &layoutName, QObject *parent, const QString &name);

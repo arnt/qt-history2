@@ -29,6 +29,8 @@ public:
     virtual bool isChanged(int index) const;
     virtual void setChanged(int index, bool changed);
     
+    void createFakeProperty(const QString &propertyName, const QVariant &value = QVariant());
+    
 protected:
     bool isFakeProperty(int index) const;
     QVariant resolvePropertyValue(const QVariant &value) const;

@@ -14,12 +14,14 @@
 QLayoutWidgetPropertySheet::QLayoutWidgetPropertySheet(QLayoutWidget *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {
+    m_fakeProperties.clear();
+    
     for (int index = 0; index < count(); ++index) {
         QString pname = propertyName(index);
         setVisible(index, false);
         if (pname == QLatin1String("margin")
                 || pname == QLatin1String("spacing")
-                || pname == QLatin1String("objectName"))
+                /*|| pname == QLatin1String("objectName") ### */ )
             setVisible(index, true);
     }
 }

@@ -14,6 +14,8 @@
 SpacerPropertySheet::SpacerPropertySheet(Spacer *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {
+    m_fakeProperties.clear();
+    
     for (int i=0; i<count(); ++i)
         setVisible(i, false);
 

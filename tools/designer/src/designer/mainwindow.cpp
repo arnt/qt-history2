@@ -44,7 +44,7 @@
 #define IDE_NO_DEBUGVIEWS
 
 MainWindow::MainWindow()
-    : QMainWindow(0, Qt::WType_Dialog | Qt::WStyle_Tool),
+    : QMainWindow(0),
       mCloseForm(true), mSettingsSaved(false),
       mNewFormDialog(0), m_actionWindowList(0), m_actionWindowSeparator(0)
 {

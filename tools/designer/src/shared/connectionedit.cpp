@@ -1728,6 +1728,7 @@ void ConnectionEdit::deleteItems(ItemList item_list)
 
 void ConnectionEdit::dumpItems()
 {
+#if 0
     qDebug() << "========== Items ============";
     foreach (CEItem *item, m_item_list) {
         if (CEEndPointItem *ep_item = qt_cast<CEEndPointItem*>(item))
@@ -1737,6 +1738,7 @@ void ConnectionEdit::dumpItems()
         else
             qDebug() << item;
     }
+#endif
 }
 
 void ConnectionEdit::deleteItems()

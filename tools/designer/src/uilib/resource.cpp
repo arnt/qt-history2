@@ -742,11 +742,156 @@ DomSpacer *Resource::createDom(QSpacerItem *spacer, DomLayout *ui_layout, DomWid
     return ui_spacer;
 }
 
+DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const QVariant &v)
+{
+    if (!checkProperty(obj, pname)) {
+        return 0;
+    }
+
+    DomProperty *dom_prop = new DomProperty();
+
+    switch (v.type()) {
+        case QVariant::String: {
+            DomString *str = new DomString();
+            str->setText(v.toString());
+
+            if (pname == QLatin1String("objectName"))
+                str->setAttributeNotr("true");
+
+            dom_prop->setElementString(str);
+        } break;
+
+        case QVariant::ByteArray: {
+            dom_prop->setElementCstring(v.toByteArray());
+        } break;
+
+#if 0
+        case QVariant::Int: {
+            if (prop.isFlagType())
+                qWarning("flags property not supported yet!!");
+
+            if (prop.isEnumType()) {
+                QString scope = QString::fromUtf8(prop.enumerator().scope());
+                if (scope.size())
+                    scope += QString::fromUtf8("::");
+                QString e = prop.enumerator().valueToKey(v.toInt());
+                if (e.size())
+                    dom_prop->setElementEnum(scope + e);
+            } else
+                dom_prop->setElementNumber(v.toInt());
+        } break;
+#else
+        case QVariant::Int: {
+            dom_prop->setElementNumber(v.toInt());
+        } break;
+#endif
+
+        case QVariant::UInt: {
+            dom_prop->setElementNumber(v.toUInt());
+        } break;
+
+        case QVariant::Bool: {
+            dom_prop->setElementBool(v.toBool() ? QLatin1String("true") : QLatin1String("false"));
+        } break;
+
+        case QVariant::Point: {
+            DomPoint *pt = new DomPoint();
+            QPoint point = v.toPoint();
+            pt->setElementX(point.x());
+            pt->setElementY(point.y());
+            dom_prop->setElementPoint(pt);
+        } break;
+
+        case QVariant::Size: {
+            DomSize *sz = new DomSize();
+            QSize size = v.toSize();
+            sz->setElementWidth(size.width());
+            sz->setElementHeight(size.height());
+            dom_prop->setElementSize(sz);
+        } break;
+
+        case QVariant::Rect: {
+            DomRect *rc = new DomRect();
+            QRect rect = v.toRect();
+            rc->setElementX(rect.x());
+            rc->setElementY(rect.y());
+            rc->setElementWidth(rect.width());
+            rc->setElementHeight(rect.height());
+            dom_prop->setElementRect(rc);
+        } break;
+
+        case QVariant::Font: {
+            DomFont *fnt = new DomFont();
+            QFont font = v.toFont();
+            fnt->setElementBold(font.bold());
+            fnt->setElementFamily(font.family());
+            fnt->setElementItalic(font.italic());
+            fnt->setElementPointSize(font.pointSize());
+            fnt->setElementStrikeOut(font.strikeOut());
+            fnt->setElementUnderline(font.underline());
+            fnt->setElementWeight(font.weight());
+            dom_prop->setElementFont(fnt);
+        } break;
+
+        case QVariant::Cursor: {
+            dom_prop->setElementCursor(v.toCursor().shape());
+        } break;
+
+        case QVariant::KeySequence: {
+            DomString *s = new DomString();
+            s->setText(v.toKeySequence());
+            dom_prop->setElementString(s);
+        } break;
+
+        case QVariant::Palette: {
+            DomPalette *dom = new DomPalette();
+            QPalette palette = v.toPalette();
+
+            palette.setCurrentColorGroup(QPalette::Active);
+            dom->setElementActive(saveColorGroup(palette));
+
+            palette.setCurrentColorGroup(QPalette::Inactive);
+            dom->setElementInactive(saveColorGroup(palette));
+
+            palette.setCurrentColorGroup(QPalette::Disabled);
+            dom->setElementDisabled(saveColorGroup(palette));
+
+            dom_prop->setElementPalette(dom);
+        } break;
+        
+        case QVariant::SizePolicy: {
+            DomSizePolicy *dom = new DomSizePolicy();
+            QSizePolicy sizePolicy = v.toSizePolicy();
+            
+            dom->setElementHorStretch(sizePolicy.horizontalStretch());
+            dom->setElementVerStretch(sizePolicy.verticalStretch());
+            
+            dom->setElementHSizeType(sizePolicy.horizontalData());
+            dom->setElementVSizeType(sizePolicy.verticalData());
+            
+            dom_prop->setElementSizePolicy(dom);
+        } break;
+
+        default: {
+            qWarning("support for property `%s' of type `%d' not implemented yet!!",
+                pname.latin1(), v.type());
+        } break;
+    }
+
+    dom_prop->setAttributeName(pname);
+    // ### dom_prop->setAttributeStdset(true);
+
+    if (dom_prop->kind() == DomProperty::Unknown) {
+        delete dom_prop;
+        dom_prop = 0;
+    }
+
+    return dom_prop;
+}
+
 QList<DomProperty*> Resource::computeProperties(QObject *obj)
 {
     QList<DomProperty*> lst;
-
-    DomProperty *dom_prop = 0;
 
     const QMetaObject *meta = obj->metaObject();
 
@@ -764,134 +909,29 @@ QList<DomProperty*> Resource::computeProperties(QObject *obj)
             continue;
 
         QVariant v = prop.read(obj);
-        dom_prop = new DomProperty();
-
-        switch (v.type()) {
-            case QVariant::String: {
-                DomString *str = new DomString();
-                str->setText(v.toString());
-
-                if (pname == QLatin1String("objectName"))
-                    str->setAttributeNotr("true");
-
-                dom_prop->setElementString(str);
-            } break;
-
-            case QVariant::ByteArray: {
-                dom_prop->setElementCstring(v.toByteArray());
-            } break;
-
-            case QVariant::Int: {
-                if (prop.isFlagType())
-                    qWarning("flags property not supported yet!!");
-
-                if (prop.isEnumType()) {
-                    QString scope = QString::fromUtf8(prop.enumerator().scope());
-                    if (scope.size())
-                        scope += QString::fromUtf8("::");
-                    QString e = prop.enumerator().valueToKey(v.toInt());
-                    if (e.size())
-                        dom_prop->setElementEnum(scope + e);
-                } else
-                    dom_prop->setElementNumber(v.toInt());
-            } break;
-
-            case QVariant::UInt: {
-                dom_prop->setElementNumber(v.toUInt());
-            } break;
-
-            case QVariant::Bool: {
-                dom_prop->setElementBool(v.toBool() ? QLatin1String("true") : QLatin1String("false"));
-            } break;
-
-            case QVariant::Point: {
-                DomPoint *pt = new DomPoint();
-                QPoint point = v.toPoint();
-                pt->setElementX(point.x());
-                pt->setElementY(point.y());
-                dom_prop->setElementPoint(pt);
-            } break;
-
-            case QVariant::Size: {
-                DomSize *sz = new DomSize();
-                QSize size = v.toSize();
-                sz->setElementWidth(size.width());
-                sz->setElementHeight(size.height());
-                dom_prop->setElementSize(sz);
-            } break;
-
-            case QVariant::Rect: {
-                DomRect *rc = new DomRect();
-                QRect rect = v.toRect();
-                rc->setElementX(rect.x());
-                rc->setElementY(rect.y());
-                rc->setElementWidth(rect.width());
-                rc->setElementHeight(rect.height());
-                dom_prop->setElementRect(rc);
-            } break;
-
-            case QVariant::Font: {
-                DomFont *fnt = new DomFont();
-                QFont font = v.toFont();
-                fnt->setElementBold(font.bold());
-                fnt->setElementFamily(font.family());
-                fnt->setElementItalic(font.italic());
-                fnt->setElementPointSize(font.pointSize());
-                fnt->setElementStrikeOut(font.strikeOut());
-                fnt->setElementUnderline(font.underline());
-                fnt->setElementWeight(font.weight());
-                dom_prop->setElementFont(fnt);
-            } break;
-
-            case QVariant::Cursor: {
-                dom_prop->setElementCursor(v.toCursor().shape());
-            } break;
-
-            case QVariant::KeySequence: {
-                DomString *s = new DomString();
-                s->setText(v.toKeySequence());
-                dom_prop->setElementString(s);
-            } break;
-
-            case QVariant::Palette: {
-                DomPalette *dom = new DomPalette();
-                QPalette palette = v.toPalette();
-
-                palette.setCurrentColorGroup(QPalette::Active);
-                dom->setElementActive(saveColorGroup(palette));
-
-                palette.setCurrentColorGroup(QPalette::Inactive);
-                dom->setElementInactive(saveColorGroup(palette));
-
-                palette.setCurrentColorGroup(QPalette::Disabled);
-                dom->setElementDisabled(saveColorGroup(palette));
-
-                dom_prop->setElementPalette(dom);
-            } break;
+        
+        DomProperty *dom_prop = 0;
+        if (v.type() == QVariant::Int) {
+            dom_prop = new DomProperty();
             
-            case QVariant::SizePolicy: {
-                DomSizePolicy *dom = new DomSizePolicy();
-                QSizePolicy sizePolicy = v.toSizePolicy();
-                
-                dom->setElementHorStretch(sizePolicy.horizontalStretch());
-                dom->setElementVerStretch(sizePolicy.verticalStretch());
-                
-                dom->setElementHSizeType(sizePolicy.horizontalData());
-                dom->setElementVSizeType(sizePolicy.verticalData());
-                
-                dom_prop->setElementSizePolicy(dom);
-            } break;
+            if (prop.isFlagType())
+                qWarning("flags property not supported yet!!");
 
-            default: {
-                qWarning("support for property `%s' of type `%d' not implemented yet!!",
-                    pname.latin1(), v.type());
-            } break;
+            if (prop.isEnumType()) {
+                QString scope = QString::fromUtf8(prop.enumerator().scope());
+                if (scope.size())
+                    scope += QString::fromUtf8("::");
+                QString e = prop.enumerator().valueToKey(v.toInt());
+                if (e.size())
+                    dom_prop->setElementEnum(scope + e);
+            } else
+                dom_prop->setElementNumber(v.toInt());
+            dom_prop->setAttributeName(pname);
+        } else {
+            dom_prop = createProperty(obj, pname, v);
         }
-
-        dom_prop->setAttributeName(prop.name());
-        // ### dom_prop->setAttributeStdset(true);
-
-        if (dom_prop->kind() == DomProperty::Unknown)
+        
+        if (!dom_prop || dom_prop->kind() == DomProperty::Unknown)
             delete dom_prop;
         else
             lst.append(dom_prop);
