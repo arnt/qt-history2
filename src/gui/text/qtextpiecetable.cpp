@@ -836,6 +836,7 @@ void QTextPieceTable::changeGroupFormat(QTextGroup *group, int format)
 
 static QTextFrame *findChildFrame(QTextFrame *f, int pos)
 {
+    // ##### use binary search
     QList<QTextFrame *> children = f->children();
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);

@@ -193,6 +193,7 @@ public:
     inline void removeCursor(QTextCursorPrivate *c) { cursors.removeAll(c); }
 
     QTextFrame *frameAt(int pos) const;
+    QTextFrame *rootFrame() const { return frame; }
 
 private:
     QTextPieceTable(const QTextPieceTable& m);

@@ -718,3 +718,14 @@ int QTextFrame::end()
         return d->pieceTable()->length();
     return d->pieceTable()->fragmentMap().position(d->fragment_end);
 }
+
+QRect QTextFrame::rect() const
+{
+    return d->rect;
+}
+
+void QTextFrame::setRect(const QRect &r)
+{
+    d->rect = r;
+}
+

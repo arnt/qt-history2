@@ -5,6 +5,7 @@
 #include <private/qobject_p.h>
 #include <qvector.h>
 #include <qmap.h>
+#include <qrect.h>
 
 class QTextPieceTable;
 
@@ -135,6 +136,7 @@ public:
 
     QTextFrame *parentFrame;
     QList<QTextFrame *> childFrames;
+    QRect rect;
 };
 
 

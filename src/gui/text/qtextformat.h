@@ -86,6 +86,8 @@ public:
 
         // table properties
         TableBorder = 0x4000,
+        Width = 0x4100,
+        Height = 0x4101,
 
         // table cell properties
         TableCellEndOfRow = 0x4800,
@@ -416,6 +418,23 @@ public:
     { setProperty(CssFloat, (int)f); }
     inline Position position() const
     { return (Position)intProperty(CssFloat, None); }
+
+    inline void setBorder(int border)
+    { setProperty(TableBorder, border); }
+    inline int border() const
+    { return intProperty(TableBorder, 0); }
+
+    inline void setWidth(int border)
+    { setProperty(Width, border); }
+    inline int width() const
+    { return intProperty(Width, -1); }
+
+    inline void setHeight(int border)
+    { setProperty(Height, border); }
+    inline int height() const
+    { return intProperty(Height, -1); }
+
+
 };
 
 
@@ -468,6 +487,9 @@ public:
 
     int start();
     int end();
+
+    QRect rect() const;
+    void setRect(const QRect &r);
 
     QList<QTextFrame *> children();
     QTextFrame *parent();
