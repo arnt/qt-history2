@@ -102,15 +102,15 @@ static const char * logo[] = {
 "/$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$/",
 };
 
-QVFb::QVFb( int w, int h, int d, QWidget *parent, const char *name,
-			uint flags )
+QVFb::QVFb( int display_id, int w, int h, int d, QWidget *parent,
+	    const char *name, uint flags )
     : QMainWindow( parent, name, flags )
 {
-    setCaption( QString("Virtual framebuffer %1x%2 %3bpp")
-		    .arg(w).arg(h).arg(d) );
+    setCaption( QString("Virtual framebuffer %1x%2 %3bpp Display :%4")
+		    .arg(w).arg(h).arg(d).arg(display_id) );
     setIcon(QPixmap(logo));
     rateDlg = 0;
-    view = new QVFbView( w, h, d, this );
+    view = new QVFbView( display_id, w, h, d, this );
     setCentralWidget( view );
     createMenu();
 }

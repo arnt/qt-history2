@@ -56,6 +56,7 @@
 
 #include <qgfx_qws.h>
 
+extern char *qws_display_spec;
 extern void qt_init_display(); //qapplication_qws.cpp
 
 extern void qt_client_enqueue(const QWSEvent *); //qapplication_qws.cpp
@@ -63,12 +64,6 @@ typedef void MoveRegionF( const QWSRegionMoveCommand*);
 typedef void RequestRegionF( int, QRegion );
 typedef void SetAltitudeF( const QWSChangeAltitudeCommand* );
 extern QQueue<QWSCommand> *qt_get_server_queue();
-
-
-
-
-//const int sharedRamSize=4*1024*1024; // SHMMAX
-const int sharedRamSize=32*1024; // Small amount to fit on small devices.
 
 static int get_object_id()
 {
@@ -86,13 +81,13 @@ static int get_object_id()
  *
  *********************************************************************/
 //always use frame buffer
-QWSClient::QWSClient( QObject* parent, int socket ) 
+QWSClient::QWSClient( QObject* parent, int socket )
     : QObject( parent), s(socket), command(0)
 {
     if ( socket == -1 ) {
 	csocket = 0;
 	isClosed = FALSE;
-	
+
     } else {
 	csocket = new QWSSocket( this );
 	csocket->setSocket(socket);
@@ -108,7 +103,7 @@ QWSClient::QWSClient( QObject* parent, int socket )
 	csocket->flush();
 
 	connect( csocket, SIGNAL(readyRead()), this, SIGNAL(readyRead()) );
-	connect( csocket, SIGNAL(closed()), this, SLOT(closeHandler()) );
+	connect( csocket, SIGNAL(connectionClosed()), this, SLOT(closeHandler()) );
 	connect( csocket, SIGNAL(error(int)), this, SLOT(errorHandler(int)) );
     }
 }
@@ -158,6 +153,16 @@ void QWSClient::sendEvent( QWSEvent* event )
     } else {
 	qt_client_enqueue( event );
     }
+}
+
+void QWSClient::sendConnectedEvent( const char *display_spec )
+{
+    QWSConnectedEvent event;
+    event.simpleData.window = 0;
+    event.simpleData.len = strlen( display_spec+1 );
+    char * tmp=(char *)display_spec;
+    event.setData( tmp, event.simpleData.len );
+    sendEvent( &event );
 }
 
 void QWSClient::sendRegionModifyEvent( int winid, QRegion exposed, bool ack )
@@ -505,23 +510,21 @@ static void ignoreSignal( int )
 
 
 /*
-  INVARIANT: pending_region_acks is sum of the pending_acks
-  of the QWSWindow objects in the windows list.
-
-  QWSServer maintains the invariant.
 */
 
-QWSServer::QWSServer( int flags,
+QWSServer::QWSServer( int displayId, int flags,
 		      QObject *parent, const char *name ) :
-    QWSServerSocket(QTE_PIPE,16,parent,name),
+    QWSServerSocket(QString(QTE_PIPE).arg(displayId),16,parent,name),
     disablePainting(false)
 {
     ASSERT( !qwsServer );
     qwsServer = this;
 
+    QString pipe = QString(QTE_PIPE).arg(displayId);
+
     if ( !ok() ) {
 	perror("Error");
-	qWarning("Failed to bind to %s", QTE_PIPE );
+	qWarning("Failed to bind to %s", pipe.latin1() );
     } else {
 	struct linger tmp;
 	tmp.l_onoff=1;
@@ -531,7 +534,6 @@ QWSServer::QWSServer( int flags,
 
     signal(SIGPIPE, ignoreSignal); //we get it when we read
 
-    
     focusw = 0;
     mouseGrabber = 0;
     mouseGrabbing = FALSE;
@@ -549,37 +551,11 @@ QWSServer::QWSServer( int flags,
 	}
     }
 
-    if ( !QWSDisplay::initLock( "/dev/fb0", TRUE ) )
-	qFatal( "Cannot get display lock" );
-
-    openDisplay();
-
-    rgnMan = new QWSRegionManager( FALSE );
-
-    // Now we allocate a chunk of main ram for font cache and any
-    // other appropriate purposes
-
-    ramlen=sharedRamSize;        // 1 megabyte (ish) of main ram
-
-    key_t memkey = ftok( "/dev/fb0", 'm' );
-    int ramid=shmget(memkey,sharedRamSize,IPC_CREAT|0666);
-    if(ramid<0) {
-	perror("Cannot allocate main ram shared memory\n");
-    }
-    sharedram=(uchar *)shmat(ramid,0,0);
-    if(sharedram==(uchar *)-1) {
-	perror("Cannot attach to main ram shared memory\n");
-    }
-    // Need to zero index count at end of block, might as well zero
-    // the rest too
-    memset(sharedram,0,sharedRamSize);
-    //    int e=shmctl(ramid,IPC_RMID,0);  //############
-    //    if(e<0)
-    //	perror("shmctl main ram IPC_RMID");
-
     // no selection yet
     selectionOwner.windowid = -1;
     selectionOwner.time.set( -1, -1, -1, -1 );
+
+    openDisplay();
 
     // input devices
     if ( !(flags&DisableMouse) ) {
@@ -587,7 +563,7 @@ QWSServer::QWSServer( int flags,
 	initializeCursor();
     }
 
-    
+
     if ( !(flags&DisableKeyboard) ) {
 	openKeyboard();
     }
@@ -595,7 +571,6 @@ QWSServer::QWSServer( int flags,
     screenRegion = QRegion( 0, 0, swidth, sheight );
     paintBackground( screenRegion );
 
-    qt_init_display();
     client[-1] = new QWSClient( this, -1 );
 
 #ifndef QT_NO_SOUND
@@ -621,6 +596,8 @@ void QWSServer::newConnection( int socket )
 	     this, SLOT(doClient()) );
     connect( client[socket], SIGNAL(connectionClosed()),
 	     this, SLOT(clientClosed()) );
+
+    client[socket]->sendConnectedEvent( qws_display_spec );
 
     // pre-provide some object id's
     for (int i=0; i<20; i++)
@@ -736,11 +713,11 @@ void QWSServer::doClient()
     doClient( client );
     active = FALSE;
 }
- 
+
 void QWSServer::doClient( QWSClient *client )
 {
     QWSCommand* command=client->readMoreCommand();
-    
+
     while ( command ) {
 	QWSCommandStruct *cs = new QWSCommandStruct( command, client );
 	commandQueue.append( cs );
@@ -1637,8 +1614,8 @@ void QWSServer::openMouse()
     connect(mh, SIGNAL(mouseChanged(const QPoint&,int)),
 	    this, SLOT(setMouse(const QPoint&,int)));
     mousehandlers.append(mh);
-    
-#endif    
+
+#endif
 }
 
 QWSKeyboardHandler::QWSKeyboardHandler()
@@ -1711,23 +1688,14 @@ void QWSServer::request_region( int wid, QRegion region )
 }
 
 
-
-
-//previously in qws_linuxfb.cpp:
-
-
-static bool fb_open = FALSE;
-
 void QWSServer::openDisplay()
 {
-    fb_open=TRUE;
+    qt_init_display();
 
-    QScreen * s=qt_probe_bus();
-    s->initCard();
-
-    swidth=s->width();
-    sheight=s->height();
-    gfx=s->screenGfx();
+    rgnMan = qt_fbdpy->regionManager();
+    swidth = qt_screen->width();
+    sheight = qt_screen->height();
+    gfx = qt_screen->screenGfx();
 }
 
 
@@ -1744,7 +1712,7 @@ void QWSServer::paintServerRegion()
 void QWSServer::paintBackground( QRegion r )
 {
     if ( !r.isEmpty() ) {
-	ASSERT ( fb_open );
+	ASSERT ( qt_fbdpy );
 
 	gfx->setClipRegion( r );
 	QRect br( r.boundingRect() );
@@ -1782,13 +1750,12 @@ void QWSServer::paintBackground( QRegion r )
   Start the server
  */
 
-void QWSServer::startup(int flags)
+void QWSServer::startup(int display_id, int flags)
 {
     if ( qwsServer )
 	return;
-    unlink( QTE_PIPE );
-    (void)new QWSServer(flags);
-
+    unlink( QString(QTE_PIPE).arg(display_id).latin1() );
+    (void)new QWSServer(display_id, flags);
 }
 
 
@@ -1796,9 +1763,9 @@ void QWSServer::startup(int flags)
   Close down the server
 */
 
-void QWSServer::closedown()
+void QWSServer::closedown(int display_id)
 {
-    unlink( QTE_PIPE );
+    unlink( QString(QTE_PIPE).arg(display_id).latin1() );
     delete qwsServer;
 }
 

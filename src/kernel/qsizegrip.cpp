@@ -132,7 +132,7 @@ QSize QSizeGrip::sizeHint() const
 
 /*!
   Paints the resize grip - small diagonal textured lines in the
-  lower righthand corner.
+  lower right-hand corner.
 */
 void QSizeGrip::paintEvent( QPaintEvent *e )
 {

@@ -701,7 +701,7 @@ QFontMetrics QPainter::fontMetrics() const
 
 /*!
   Returns the font info for the painter, if the painter is active.  It
-  is not possibel to obtain font information for an inactive painter,
+  is not possible to obtain font information for an inactive painter,
   so the return value is undefined if the painter is not active.
 
   \sa fontMetrics(), isActive()
@@ -1187,7 +1187,7 @@ const QWMatrix &QPainter::worldMatrix() const
   with additional transformations.  Using translate(), scale(),
   etc. is safe.
 
-  For a brief verview of coordinate transformation, see the \link
+  For a brief overview of coordinate transformation, see the \link
   coordsys.html Coordinate System Overview. \endlink
 
   \sa worldMatrix() setWorldXForm() setWindow() setViewport()
@@ -2777,7 +2777,7 @@ QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
 
   The cap style defines how the end points of lines are drawn. The
   join style defines how the joins between two lines drawn when
-  multiple, conncted lines are drawn (QPainter::drawPolyLine() etc.).
+  multiple, connected lines are drawn (QPainter::drawPolyLine() etc.).
   The cap and join styles apply only to wide lines, i.e. when the
   width is 1 or greater.
 

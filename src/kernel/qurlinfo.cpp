@@ -188,7 +188,7 @@ void QUrlInfo::setSymLink( bool b )
 }
 
 /*!
-  Specifies if the URL is writeable.
+  Specifies if the URL is writable.
 */
 
 void QUrlInfo::setWritable( bool b )

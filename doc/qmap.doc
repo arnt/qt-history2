@@ -498,7 +498,7 @@
 /*!
   \fn QMapIterator<K,T> QMapIterator::operator--(int)
 
-  Postfix -- makes the previoius item current and returns an iterator
+  Postfix -- makes the previous item current and returns an iterator
   pointing to the new current item.  The iterator can not check
   whether it reached the beginning of the map. Decrementing the
   iterator as returned by begin() causes undefined results.
@@ -625,7 +625,7 @@
 /*!
   \fn QMapConstIterator<K,T> QMapConstIterator::operator--(int)
 
-  Postfix -- makes the previoius item current and returns an iterator
+  Postfix -- makes the previous item current and returns an iterator
   pointing to the new current item.  The iterator can not check
   whether it reached the beginning of the map. Decrementing the
   iterator as returned by begin() causes undefined results.

@@ -5,6 +5,9 @@ QWSEvent *QWSEvent::factory( int type )
 {
     QWSEvent *event = 0;
     switch ( type ) {
+    case QWSEvent::Connected:
+	event = new QWSConnectedEvent;
+	break;
     case QWSEvent::Mouse:
 	event = new QWSMouseEvent;
 	break;

@@ -768,6 +768,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	int curXPos = d->cursorRepaintRect.x() + 2;
 	if ( !d->readonly && cursorOn &&
 	     d->cursorRepaintRect.intersects( e->rect() ) ) {
+	    p.setPen( colorGroup().text() );
 	    p.drawLine( curXPos, curYTop, curXPos, curYBot );
 	    if ( style() != WindowsStyle ) {
 		p.drawLine( curXPos - 2, curYTop, curXPos + 2, curYTop );

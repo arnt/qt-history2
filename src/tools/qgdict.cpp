@@ -562,7 +562,7 @@ void QGDict::resize( uint newsize )
 
 /*!
   \internal
-  Unlinks the bucket with the specified key (and specifed data pointer,
+  Unlinks the bucket with the specified key (and specified data pointer,
   if it is set).
 */
 

@@ -503,7 +503,7 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     if ( x < 0 || y < 0 || x + w > width() || y + h > height() ) {
 	// bitBlt will not cover entire image - clear it.
-	// ### should deal with each side seperately for efficiency
+	// ### should deal with each side separately for efficiency
 	image.fill(0);
     }
 
@@ -2208,7 +2208,7 @@ void pnmscale(const QImage& src, QImage& dst)
 		if ( g > maxval ) g = maxval;
 		b /= SCALE;
 		if ( b > maxval ) b = maxval;
-		if (as) {
+		if ( as ) {
 		    a /= SCALE;
 		    if ( a > maxval ) a = maxval;
 		    *nxP = qRgba( (int)r, (int)g, (int)b, (int)a );

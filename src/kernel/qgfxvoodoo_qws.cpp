@@ -22,30 +22,32 @@
 
 #ifndef QT_NO_QWS_VOODOO3
 
-unsigned char * regbase=0;
+#include "qgfxlinuxfb_qws.h"
+
+static unsigned char *voodoo_regbase=0;
 
 //#define DEBUG_INIT
 
 #define LASTOP_RECT 0
 
-inline unsigned int regr(volatile unsigned int regindex)
+inline unsigned int voodoo_regr(volatile unsigned int regindex)
 {
     unsigned long int val;
-    val=*((volatile unsigned long *)(regbase+regindex));
+    val=*((volatile unsigned long *)(voodoo_regbase+regindex));
     return val;
 }
 
-inline void regw(volatile unsigned int regindex,unsigned long val)
+inline void voodoo_regw(volatile unsigned int regindex,unsigned long val)
 {
-    *((volatile unsigned long int *)(regbase+regindex))=val;
+    *((volatile unsigned long int *)(voodoo_regbase+regindex))=val;
 }
 
-inline void wait_for_fifo(short entries)
+inline void voodoo_wait_for_fifo(short entries)
 {
     int trycount=0;
 
     while(trycount++) {
-	int fifoval=regr(STATUS);
+	int fifoval=voodoo_regr(STATUS);
 	fifoval=fifoval & 0x1f;
 	if(fifoval>=entries) {
 	    return;
@@ -81,10 +83,10 @@ inline bool QGfxVoodoo<depth,type>::checkDest()
     if (depth!=16) {
 	return FALSE;
     }
-    wait_for_fifo(3);
-    regw(DSTBASEADDR,buffer_offset);
-    regw(DSTFORMAT,linestep() | (3 << 16));
-    regw(SRCFORMAT,3 << 16);
+    voodoo_wait_for_fifo(3);
+    voodoo_regw(DSTBASEADDR,buffer_offset);
+    voodoo_regw(DSTFORMAT,linestep() | (3 << 16));
+    voodoo_regw(SRCFORMAT,3 << 16);
     return TRUE;
 }
 
@@ -127,7 +129,7 @@ void QGfxVoodoo<depth,type>::drawRect(int rx,int ry,int w,int h)
     }
 
     if(optype!=1 || lastop!=LASTOP_RECT) {
-	wait_for_fifo(7);
+	voodoo_wait_for_fifo(7);
 	lastop=LASTOP_RECT;
     }
 
@@ -153,7 +155,7 @@ void QGfxVoodoo<depth,type>::drawRect(int rx,int ry,int w,int h)
 	int p=rects.size();
 	if(p<8 ) {
 	    // We can wait for all our fifos at once
-	    wait_for_fifo(p*2);
+	    voodoo_wait_for_fifo(p*2);
 	    for(loopc=0;loopc<p;loopc++) {
 		QRect r=rects[loopc];
 		if(xp<=r.right() && yp<=r.bottom() &&
@@ -164,14 +166,14 @@ void QGfxVoodoo<depth,type>::drawRect(int rx,int ry,int w,int h)
 		    y4=r.bottom() > y2 ? y2 : r.bottom();
 		    int ww=(x4-x3)+1;
 		    int hh=(y4-y3)+1;
-		    wait_for_fifo(7);
-		    regw(COLORFORE,tmp.alloc());
-		    regw(COMMANDEXTRA,0x0);
-		    regw(COMMAND,0x5 | (0xcc << 24));
-		    regw(CLIP0MIN,0);
-		    regw(CLIP0MAX,(1024 << 16) | 1280);
-		    regw(DSTSIZE,(hh << 16) | ww);
-		    regw(LAUNCHAREA,x3 | (y3 << 16));
+		    voodoo_wait_for_fifo(7);
+		    voodoo_regw(COLORFORE,tmp.alloc());
+		    voodoo_regw(COMMANDEXTRA,0x0);
+		    voodoo_regw(COMMAND,0x5 | (0xcc << 24));
+		    voodoo_regw(CLIP0MIN,0);
+		    voodoo_regw(CLIP0MAX,(1024 << 16) | 1280);
+		    voodoo_regw(DSTSIZE,(hh << 16) | ww);
+		    voodoo_regw(LAUNCHAREA,x3 | (y3 << 16));
 		}
 	    }
 	} else {
@@ -183,7 +185,7 @@ void QGfxVoodoo<depth,type>::drawRect(int rx,int ry,int w,int h)
 		    y3=r.top() > yp ? r.top() : yp;
 		    x4=r.right() > x2 ? x2 : r.right();
 		    y4=r.bottom() > y2 ? y2 : r.bottom();
-		    wait_for_fifo(2);
+		    voodoo_wait_for_fifo(2);
 		}
 	    }
 	}
@@ -191,28 +193,27 @@ void QGfxVoodoo<depth,type>::drawRect(int rx,int ry,int w,int h)
     GFX_END
 }
 
-class QVoodooScreen : public QScreen {
+class QVoodooScreen : public QLinuxFbScreen {
 
 public:
 
-    QVoodooScreen() { qDebug("No slot specified!"); }
-    QVoodooScreen(char *,unsigned char *);
+    QVoodooScreen( int display_id );
     virtual ~QVoodooScreen();
-    virtual bool connect();
+    virtual bool connect( const QString &spec, char *,unsigned char *);
     virtual bool initCard();
     virtual void shutdownCard();
     
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
 };
 
-QVoodooScreen::QVoodooScreen(char * graphics_card_slot,
-			     unsigned char * config)
+QVoodooScreen::QVoodooScreen( int display_id  )
+    : QLinuxFbScreen( display_id )
 {
 }
 
-bool QVoodooScreen::connect()
+bool QVoodooScreen::connect( const QString &spec, char *,unsigned char *config )
 {
-    if (!QScreen::connect())
+    if (!QLinuxFbScreen::connect( spec ))
 	return FALSE;
 
     unsigned char * bar=config+0x10;
@@ -223,7 +224,7 @@ bool QVoodooScreen::connect()
 #ifdef DEBUG_INIT
 	printf("IO space - not right\n");
 #endif
-	return;
+	return FALSE;
     } else {
 #ifdef DEBUG_INIT
 	qDebug("First address thing look right");
@@ -238,7 +239,7 @@ bool QVoodooScreen::connect()
 #ifdef DEBUG_INIT
 	    qDebug("Can't open /dev/mem");
 #endif
-	    return;
+	    return FALSE;
 	}
 	s=(s >> 4) << 4;
 #ifdef DEBUG_INIT
@@ -253,9 +254,9 @@ bool QVoodooScreen::connect()
 		   strerror(errno));
 #endif
 	    close(aperturefd);
-	    return;
+	    return FALSE;
 	}
-	regbase=membase+0x100000;
+	voodoo_regbase=membase+0x100000;
     }
 
     return TRUE;
@@ -268,13 +269,13 @@ QVoodooScreen::~QVoodooScreen()
 
 bool QVoodooScreen::initCard()
 {
-    QScreen::initCard();
+    QLinuxFbScreen::initCard();
     return true;
 }
 
 void QVoodooScreen::shutdownCard()
 {
-    QScreen::shutdownCard();
+    QLinuxFbScreen::shutdownCard();
 }
 
 QGfx * QVoodooScreen::createGfx(unsigned char * b,int w,int h,int d,
@@ -292,20 +293,23 @@ QGfx * QVoodooScreen::createGfx(unsigned char * b,int w,int h,int d,
 	    return ret;
 	}
     }
-    return QScreen::createGfx(b,w,h,d,linestep);
+    return QLinuxFbScreen::createGfx(b,w,h,d,linestep);
 }
 
 extern bool qws_accel;
 
-extern "C" QScreen * qt_get_screen(char * slot,unsigned char * config)
+extern "C" QScreen * qt_get_screen_voodoo3( int display_id, const char *spec,
+					   char *slot,unsigned char *config )
 {
     if ( !qt_screen && qws_accel && slot!=0 ) {
-	QVoodooScreen * ret=new QVoodooScreen(slot,config);
-	if(ret->connect())
+	QVoodooScreen * ret=new QVoodooScreen( display_id );
+	if(ret->connect( spec, slot, config ))
 	    qt_screen=ret;
     }
-    if ( !qt_screen )
-	qt_screen=new QScreen();
+    if ( !qt_screen ) {
+	qt_screen=new QLinuxFbScreen( display_id );
+	qt_screen->connect( spec );
+    }
     return qt_screen;
 }
 

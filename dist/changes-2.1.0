@@ -298,7 +298,7 @@ QPalette
  that it couldn't be fixed without nasty hacks, and that during five
  years nobody had discovered the bugs.  So, we've dropped our broken
  attempt at Tcl/Tk L&F compatibility, and added support for Windows
- 2000 and Macintosh L&F compatitibility instead.  The Macintosh and
+ 2000 and Macintosh L&F compatibility instead.  The Macintosh and
  Windows 2000 looks differentiate between the window with focus and
  other windows.  Qt calls the color groups QPalette::active() and
  QPalette::inactive() respectively.

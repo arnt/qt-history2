@@ -121,7 +121,7 @@ matrix. You can also use \l QWMatrix objects, \l
 QPainter::worldMatrix() and \l QPainter::setWorldMatrix() to store and
 use named matrices.
 
-The second step uses the window.  The window decribes the view
+The second step uses the window.  The window describes the view
 boundaries in model coordinates.  The matrix positions the \e objects
 and \l QPainter::setWindow() positions the \e window, deciding what
 coordinates will be visible.  (If you have 3D experience, the window

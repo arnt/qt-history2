@@ -25,6 +25,7 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
+#include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -271,8 +272,6 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     delete mygfx;
 }
-
-extern QWSDisplay *qt_fbdpy;
 
 QWSDisplay *QPaintDevice::qwsDisplay()
 {

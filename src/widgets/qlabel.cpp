@@ -61,7 +61,7 @@ public:
   QLabel is used for displaying information in the form of text or
   image to the user. No user interaction functionality is
   provided. The visual appearance of the label can be configured in
-  various ways, and it can be used for specifying a focus accellerator
+  various ways, and it can be used for specifying a focus accelerator
   key for another widget.
 
   A QLabel can contain any of the following content types:
@@ -93,7 +93,7 @@ public:
 
   A QLabel is often used as a label for another, interactive
   widget. For this use, QLabel provides a handy mechanism for adding
-  an accellerator key (see QAccel) that will set the keyboard focus to
+  an accelerator key (see QAccel) that will set the keyboard focus to
   the other widget (called the QLabel's "buddy"). Example:
 
   \code
@@ -849,9 +849,9 @@ void QLabel::updateLabel( QSize oldSizeHint )
 	updateGeometry();
     if ( autoresize ) {
 	adjustSize();
-    }
-    else {
-	update();
+        update();
+    } else {
+        update();
 	updateGeometry();
 	if ( autoMask() )
 	    updateMask();

@@ -16,6 +16,7 @@ struct QWSEvent : QWSProtocolItem {
     
     enum Type {
 	NoEvent,
+	Connected,
 	Mouse, Focus, Key,
 	RegionModified,
 	Creation,
@@ -36,6 +37,23 @@ struct QWSEvent : QWSProtocolItem {
 
 //All events must start with windowID
 
+struct QWSConnectedEvent : QWSEvent {
+    QWSConnectedEvent()
+	: QWSEvent( QWSEvent::Connected, sizeof( simpleData ),
+		(char*)&simpleData ) {}
+
+    void setData( char *d, int len, bool allocateMem = TRUE ) {
+	QWSEvent::setData( d, len, allocateMem );
+	display = (char*)rawDataPtr;
+    }
+
+    struct SimpleData {
+	int window;
+	int len;
+    } simpleData;
+
+    char *display;
+};
 
 
 struct QWSMouseEvent : QWSEvent {

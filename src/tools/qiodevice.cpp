@@ -107,7 +107,7 @@
   device operates.
 
   <li> CR/LF translation.  For simplicity, applications often like to
-  see jus a single CR/LF style, and QIODevice subclasses can provide
+  see just a single CR/LF style, and QIODevice subclasses can provide
   that.  isTranslated() returns TRUE if this object translates CR/LF
   to just LF.  (This can often be set by the application in the call
   to open().)
@@ -322,7 +322,7 @@ QIODevice::~QIODevice()
   <li>\c IO_ConnectError Could not connect to the device.
   <li>\c IO_AbortError The operation was unexpectedly aborted.
   <li>\c IO_TimeOutError The operation timed out.
-  <li>\c IO_OnCloseError An unspecified error happend on close.
+  <li>\c IO_OnCloseError An unspecified error happened on close.
   </ul>
 
   \sa resetStatus()

@@ -353,7 +353,7 @@ Here you have to return TRUE, if the connection is up and ok (this means
 operations on the protocol can be done). If the connection is not ok,
 return FALSE and start to try opening it. If you will not be able to open the
 connection at all (e.g. because the host is not found), emit a \c finished()
-signal and set an errorcode and the \c QNetworkProtocol::StFailed state to
+signal and set an error code and the \c QNetworkProtocol::StFailed state to
 the \c QNetworkOperation pointer you get here.
 
 Now, you never need to check before doing an operation yourself,
@@ -364,7 +364,7 @@ method if the connection is ok.
 
 Using this knowledge it should be possible to implement network protocols. Finally
 to be able to use it with a QUrlOperator (and so e.g. in the QFileDialog), you have to
-register the enwtork protocol implementation. This can be done like this:
+register the network protocol implementation. This can be done like this:
 
 \code
     QNetworkProtocol::registerNetworkProtocol( "myprot", new QNetworkProtocolFactory<MyProtocol> );
@@ -419,7 +419,7 @@ if you use an own network protocol implementation which defines additional error
 \c QNetworkOperation::protocolDetails() may also return a string which contains an error
 message then which could e.g. be displayed for the user.
 
-According tho this information it should be possible to react on errors.
+According to this information it should be possible to react on errors.
 
 Now, if you implement your own network protocol, you will need to tell about errors
 which occurred. First you always need to be able to access the \c QNetworkOperation

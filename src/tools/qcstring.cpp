@@ -360,7 +360,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
   Note that QCString is one of the weaker classes in Qt; its design is
   flawed (it tries to behave like a more convenient const char *) and
-  as a result, algorithims that use QCString heavily all too often
+  as a result, algorithms that use QCString heavily all too often
   perform badly.  For example, append() is O(length()) since it scans
   for a null terminator, which makes many algorithms that use QCString
   scale even worse.

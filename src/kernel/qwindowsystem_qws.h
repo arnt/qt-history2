@@ -118,7 +118,7 @@ class QWSServer : private QWSServerSocket
     Q_OBJECT
 
 public:
-    QWSServer( int flags = 0, QObject *parent=0, const char *name=0 );
+    QWSServer( int displayId, int flags = 0, QObject *parent=0, const char *name=0 );
     ~QWSServer();
     void newConnection( int socket );
 
@@ -183,8 +183,8 @@ public:
     static void move_region( const QWSRegionMoveCommand * );
     static void set_altitude( const QWSChangeAltitudeCommand * );
     static void request_region( int, QRegion );
-    static void startup(int flags);
-    static void closedown();
+    static void startup( int display_id, int flags );
+    static void closedown( int display_id );
 
     static void emergency_cleanup();
     
@@ -322,6 +322,7 @@ public:
     int socket() const;
 
     void sendEvent( QWSEvent* event );
+    void sendConnectedEvent( const char *display_spec );
     void sendRegionModifyEvent( int winid, QRegion exposed, bool ack );
     void sendFocusEvent( int winid, bool get );
     void sendPropertyNotifyEvent( int property, int state );

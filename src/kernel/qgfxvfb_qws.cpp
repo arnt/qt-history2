@@ -36,10 +36,10 @@ bool qvfbEnabled = FALSE;
 class QVFbScreen : public QScreen
 {
 public:
-    QVFbScreen();
+    QVFbScreen( int display_id );
     virtual ~QVFbScreen();
     virtual bool initCard();
-    virtual bool connect();
+    virtual bool connect( const QString &displaySpec );
     virtual void disconnect();
     virtual int initCursor(void*, bool);
     virtual void shutdownCard();
@@ -225,7 +225,7 @@ void QGfxVFb<depth,type>::tiledBlt( int x,int y,int w,int h )
 /*
 */
 
-QVFbScreen::QVFbScreen() : QScreen()
+QVFbScreen::QVFbScreen( int display_id ) : QScreen( display_id )
 {
 }
 
@@ -233,9 +233,9 @@ QVFbScreen::~QVFbScreen()
 {
 }
 
-bool QVFbScreen::connect()
+bool QVFbScreen::connect( const QString & )
 {
-    key_t key = ftok( QT_VFB_MOUSE_PIPE, 'b' );
+    key_t key = ftok( QString(QT_VFB_MOUSE_PIPE).arg(displayId).latin1(), 'b' );
 
     int shmId = shmget( key, 0, 0 );
     if ( shmId != -1 )
@@ -378,25 +378,18 @@ QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
     return ret;
 }
 
-extern "C" QScreen * qt_get_screen(char *,unsigned char *)
+extern "C" QScreen * qt_get_screen_qvfb( int display_id, const char *spec,
+					 char *,unsigned char *)
 {
     if ( !qt_screen ) {
-	qvfb_screen = new QVFbScreen();
-	if ( qvfb_screen->connect() ) {
+	qvfb_screen = new QVFbScreen( display_id );
+	if ( qvfb_screen->connect( spec ) ) {
 	    qt_screen = qvfb_screen;
 	    qvfbEnabled = TRUE;
 	} else {
 	    delete qvfb_screen;
+	    qFatal( "Could not connect to virtual framebuffer" );
 	}
-    }
-
-    if ( !qt_screen ) {
-	const char *term = getenv( "TERM" );
-	if ( QString( term ) == "xterm" ) {
-	    qFatal( "$TERM=xterm - To continue would corrupt X11 - aborting" );
-	}
-	qt_screen = new QScreen();
-	qt_screen->connect();
     }
 
     return qt_screen;

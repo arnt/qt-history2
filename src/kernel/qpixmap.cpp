@@ -837,7 +837,7 @@ bool QPixmap::save( const QString &fileName, const char *format, int quality ) c
 
   Returns a number that uniquely identifies the contents of this QPixmap object.
   This means that multiple QPixmaps objects can have the same serial number
-  as long as they refere to the same contents.
+  as long as they refer to the same contents.
   The serial number is for example very useful for caching.
 
   \sa QPixmapCache

@@ -464,7 +464,7 @@ QArray<QRect> QRegion::rects() const
     <li> All rectangles with a given top coordinate must have the same height.
     <li> No two rectangles may abut horizontally (they should be combined
 		into a single wider rectangle in that case).
-    <li> The rectangles must be sorted accendingly by Y as the major sort key
+    <li> The rectangles must be sorted ascendingly by Y as the major sort key
 		and X as the minor sort key.
    </ul>
   \internal

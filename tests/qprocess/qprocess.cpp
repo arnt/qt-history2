@@ -209,7 +209,7 @@ void QProcess::dataStdin( const QString& buf )
 /*!
   \fn void QProcess::socketRead( int fd )
 
-  The process has output data to either stdout or sderr.
+  The process has output data to either stdout or stderr.
 */
 
 /*!

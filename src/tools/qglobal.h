@@ -28,7 +28,7 @@
 
 
 #define QT_VERSION	220
-#define QT_VERSION_STR	"2.2.0-snapshot"
+#define QT_VERSION_STR	"2.2.0-beta1"
 
 
 //

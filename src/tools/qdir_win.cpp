@@ -90,7 +90,7 @@ QString QDir::homeDirPath()
     else
 	d = getenv("HOME");
     slashify( d );
-    if ( d.isNull() )
+    if ( d.isEmpty() )
 	d = rootDirPath();
     return d;
 }

@@ -89,7 +89,7 @@ static void paint_children(QWidget * p,const QRect& r)
 }
 
 
-#if 0    
+#if 0
 void QWidget::repaintUnclipped( const QRegion &r, bool erase_r )
 {
     if (r.isEmpty())
@@ -119,7 +119,7 @@ void QWidget::repaintUnclipped( const QRegion &r, bool erase_r )
 	}
     }
 }
-#endif    
+#endif
 
 /*****************************************************************************
   QWidget member functions
@@ -330,7 +330,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	oldcurs = cursor();
 	unsetCursor();
     }
-#endif    
+#endif
     WId old_winid = winid;
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
@@ -432,18 +432,18 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     return QPoint( x, y );
 }
 
-void QWidget::setMicroFocusHint( int /*x*/, int /*y*/, int /*width*/, int /*height*/, 
+void QWidget::setMicroFocusHint( int /*x*/, int /*y*/, int /*width*/, int /*height*/,
 				 bool /*text*/)
 {
     //XXX not implemented
-#if 0    
+#if 0
     if ( QRect( x, y, width, height ) != microFocusHint() )
 	extraData()->micro_focus_hint.setRect( x, y, width, height );
 
     if ( text ) {
 	
     }
-#endif    
+#endif
 }
 
 
@@ -506,7 +506,7 @@ void QWidget::setBackgroundEmpty()
     allow_null_pixmaps--;
 }
 
-#ifndef QT_NO_CURSOR    
+#ifndef QT_NO_CURSOR
 
 void QWidget::setCursor( const QCursor &cursor )
 {
@@ -540,7 +540,7 @@ void QWidget::setCaption( const QString &caption )
     createTLExtra();
     extra->topextra->caption = caption;
     // XXX XSetWMName( x11Display(), winId(), qstring_to_xtp(caption) );
-    QCustomEvent e( QEvent::CaptionChange, 0 );
+    QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );
 }
 
@@ -581,7 +581,7 @@ void QWidget::grabMouse()
     mouseGrb = this;
 }
 
-#ifndef QT_NO_CURSOR    
+#ifndef QT_NO_CURSOR
 void QWidget::grabMouse( const QCursor &cursor )
 {
     if ( mouseGrb )
@@ -753,14 +753,14 @@ void QWidget::showMaximized()
 #ifndef QT_NO_QWS_MANAGER
 	if ( extra && extra->topextra && extra->topextra->qwsManager ) {
 	    extra->topextra->qwsManager->maximize();
-	} else 
+	} else
 #endif
 	    {
 	    setGeometry( QApplication::desktop()->rect() );
 	}
     }
     show();
-    QCustomEvent e( QEvent::ShowMaximized, 0 );
+    QEvent e( QEvent::ShowMaximized );
     QApplication::sendEvent( this, &e );
 }
 
@@ -924,9 +924,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QMoveEvent e( r.topLeft(), oldp );
 	    QApplication::sendEvent( this, &e );
 #ifndef QT_NO_QWS_MANAGER
-	    if (extra && extra->topextra && extra->topextra->qwsManager) 
+	    if (extra && extra->topextra && extra->topextra->qwsManager)
 		QApplication::sendEvent( extra->topextra->qwsManager, &e );
-#endif	    
+#endif	
 	}
 	if ( isResize ) {
 	    QResizeEvent e( r.size(), olds );
@@ -936,7 +936,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		QResizeEvent e( r.size(), olds );
 		QApplication::sendEvent(topData()->qwsManager, &e);
 	    }
-#endif	    
+#endif	
 	    if ( !testWFlags( WNorthWestGravity ) ) {
 		QApplication::postEvent(this,new QPaintEvent(visibleRect(),
 					!testWFlags(WResizeNoErase) ) );

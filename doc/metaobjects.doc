@@ -75,10 +75,10 @@ class.
 While it is possible to use QObject as a base class without Q_OBJECT
 macro and without meta object code, neither signals and slots nor the
 other features described here will be available. From the meta object
-system's point of view, a QObject subcass without meta code is
+system's point of view, a QObject subclass without meta code is
 equivalent to its closest ancestor with meta object code. That means
 for example that className() will not return the actual name of your
-class, but the class name of this ancestor. We strongly recommenend to
+class, but the class name of this ancestor. We strongly recommend to
 use the macro in \e all subclasses of QObject regardless whether they
 actually use signals, slots and properties or not.
 

@@ -439,8 +439,7 @@ void QUrl::setRef( const QString& txt )
 }
 
 /*!
-  Returns TRUE, if the URL has a reference, else
-  it returnd FALSE;
+  Returns TRUE, if the URL has a reference, else it returns FALSE.
 */
 
 bool QUrl::hasRef() const
@@ -748,7 +747,7 @@ QUrl& QUrl::operator=( const QUrl& url )
 
 /*!
   Compares this URL with \a url and returns TRUE if
-  they are equal, ese FALSE.
+  they are equal, else FALSE.
 */
 
 bool QUrl::operator==( const QUrl& url ) const

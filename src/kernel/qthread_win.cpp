@@ -30,50 +30,116 @@
 #include "qapplication.h"
 #include "qobject.h"
 
-class QMutexPrivate {
+class QMutexPrivate
+{
+public:
+    MUTEX_HANDLE that;
+
+    QMutexPrivate();
+    ~QMutexPrivate();
+
+    int count;
+    THREAD_HANDLE thread;
 };
 
-class QThreadPrivate {
+class QThreadPrivate
+{
+public:
+    THREAD_HANDLE handle;
+    unsigned long id;
+};
+
+class QThreadEventPrivate
+{
 
 public:
 
 };
 
-class QThreadEventPrivate {
+QMutexPrivate::QMutexPrivate()
+{
+    SECURITY_ATTRIBUTES attr;
+    attr.nLength = sizeof(attr);
+    attr.bInheritHandle = TRUE;
+    attr.lpSecurityDescriptor = NULL;
 
-public:
+    that = (MUTEX_HANDLE)CreateMutex( &attr, TRUE, LPCTSTR("qt_mutex") );
 
-};
+    if ( !that )
+	qFatal( "Mutex init failure" );
+
+    count = 0;
+}
+
+QMutexPrivate::~QMutexPrivate()
+{
+    if( !CloseHandle( (HANDLE)that ) ) {
+	qWarning( "Mutex destroy failure" );
+    }
+}
 
 // Stub implementation
 
 QMutex::QMutex()
 {
+    d = new QMutexPrivate();
 }
 
 QMutex::~QMutex()
 {
+    delete d;
+
 }
 
 void QMutex::lock()
 {
+    switch ( WaitForSingleObject( (HANDLE)d->that, INFINITE ) ) {
+    case WAIT_ABANDONED:
+	break;
+    case WAIT_OBJECT_0:
+	if ( d->count > 0 && d->thread == QThread::currentThread() ) {
+	    d->count++;
+	} else {
+	    d->count++;
+	    d->thread=QThread::currentThread();
+	}
+	break;
+    case WAIT_TIMEOUT:
+	break;
+    }
 }
 
 void QMutex::unlock()
 {
+    if ( d->thread != QThread::currentThread() ) {
+	qWarning( "Attempt to unlock from different thread than locker\n");
+	qWarning( "Was locked by %ld, unlock attempt from %ld\n",
+		d->thread,QThread::currentThread());
+	return;
+    }
+
+    d->count--;
+
+    if ( d->count < 1 ) {
+	if ( !ReleaseMutex( (HANDLE)d->that ) )
+	    qFatal( "Mutex unlock failure" );
+	d->count = 0;
+    }
 }
 
 bool QMutex::locked()
 {
+    qDebug("QMutex::locked()");
     return true;
 }
 
 MUTEX_HANDLE QMutex::handle()
 {
+    qDebug("QMutex::handle()");
     return 0;
 }
 
-class Q_EXPORT QThreadQtEvent {
+class QThreadQtEvent {
 
 public:
 
@@ -82,12 +148,10 @@ public:
 
 };
 
-class Q_EXPORT QThreadEventsPrivate : public QObject {
-
+class QThreadEventsPrivate : public QObject
+{
     Q_OBJECT
-
 public:
-
     QThreadEventsPrivate();
 
     QList<QThreadQtEvent> myevents;
@@ -96,23 +160,23 @@ public:
     void add(QThreadQtEvent *);
 
 public slots:
-
     void sendEvents();
 
 private:
-
 };
 
 #include "qthread_win.moc"
 
 QThreadEventsPrivate::QThreadEventsPrivate()
 {
+    qDebug("Thread::QThreadEventsPrivate()");
     myevents.setAutoDelete( TRUE );
     connect( qApp, SIGNAL( guiThreadAwake() ), this, SLOT( sendEvents() ) );
 }
 
 void QThreadEventsPrivate::sendEvents()
 {
+    qDebug("Thread::sendEvents()");
     myeventmutex.lock();
     QThreadQtEvent * qte;
     for( qte = myevents.first(); qte != 0; qte = myevents.next() ) {
@@ -125,7 +189,8 @@ void QThreadEventsPrivate::sendEvents()
 
 void QThreadEventsPrivate::add(QThreadQtEvent * e)
 {
-   myevents.append( e );
+    qDebug("Thread::add()");
+    myevents.append( e );
 }
 
 static QThreadEventsPrivate * qthreadeventsprivate = 0;
@@ -133,22 +198,24 @@ static QThreadEventsPrivate * qthreadeventsprivate = 0;
 
 extern "C" static unsigned long start_thread(QThread * t)
 {
-  t->run();
-  return 0;
+    qDebug("Thread::start_thread()");
+    t->run();
+    return 0;
 }
 
 THREAD_HANDLE QThread::currentThread()
 {
-  return 0;
+    return (THREAD_HANDLE)GetCurrentThread();
 }
 
 void QThread::postEvent(QObject * o,QEvent * e)
 {
+    qDebug("Thread::postEvent()");
     if( !qthreadeventsprivate ) {
         qthreadeventsprivate = new QThreadEventsPrivate();
     }
     qthreadeventsprivate->myeventmutex.lock();
-    QThreadEvent * qte;
+    QThreadQtEvent * qte;
     qte = new QThreadQtEvent();
     qte->o = o;
     qte->e = e;
@@ -158,86 +225,114 @@ void QThread::postEvent(QObject * o,QEvent * e)
 
 }
 
-void QThread::wait(QThread &)
-{
-}
-
-void QThread::yield()
-{
-}
-
-void * QThread::threadData()
-{
-    return 0;
-}
-
-void QThread::setThreadData(void *)
-{
-}
-
 THREAD_HANDLE QThread::handle()
 {
-    return 0;
+    qDebug("QThread::handle()");
+    return d->handle;
 }
 
 QThread::QThread()
 {
+    qDebug("QThread::QThread()");
+    d = new QThreadPrivate();
 }
 
 QThread::~QThread()
 {
+    qDebug("QThread::~QThread()");
 }
 
 void QThread::start()
 {
-  // Error checking would be good
-  //_beginthread(start_thread,0,(void *)this);
-  unsigned long threadid;
-  if( CreateThread(0,0, (LPTHREAD_START_ROUTINE) start_thread, (void *) this,
-		   0,&threadid) == 0 ) {
-    qFatal("Eek! Couldn't make thread!");
-  }
+    d->handle = (THREAD_HANDLE) CreateThread(0,0, (LPTHREAD_START_ROUTINE) start_thread,
+	this,
+	0,
+	&(d->id) );
+
+    if ( !d->handle )
+	qFatal("Eek! Couldn't make thread!");
+}
+
+void QThread::wait()
+{
+    qDebug("Thread::wait()");
 }
 
 void QThread::run()
 {
+    qDebug("Thread::run()");
     // Default implementation does nothing
 }
 
 void QThread::runWrapper()
 {
+    qDebug("Thread::runWrapper()");
     run();
     // Tell any threads waiting for us to wake up
-    d->thread_done.wakeAll();
+//    d->thread_done.wakeAll();
 }
 
 QThreadEvent::QThreadEvent()
 {
+    d = new QThreadEventPrivate();
 }
 
 QThreadEvent::~QThreadEvent()
 {
+    delete d;
 }
 
 void QThreadEvent::wait()
 {
+    qDebug("QThreadEvent::wait()");
 }
 
-void QThreadEvent::wait(QTime &)
+void QThreadEvent::wait( const QTime & )
 {
+    qDebug("QThreadEvent::wait(const QTime &)");
 }
 
 void QThreadEvent::wakeOne()
 {
+    qDebug("QThreadEvent::wakeOne()");
+//    SwitchToThread(); only supported on NT
 }
 
 void QThreadEvent::wakeAll()
 {
+    qDebug("QThreadEvent::wakeAll()");
 }
 
 THREADEVENT_HANDLE QThreadEvent::handle()
 {
+    qDebug("QThreadEvent::handle()");
     return 0;
+}
+
+class QThreadDataPrivate {
+
+public:
+    
+    pthread_key_t mykey;
+    
+};
+
+QThreadData::QThreadData()
+{
+    d=new QThreadDataPrivate;
+}
+
+QThreadData::~QThreadData()
+{
+    delete d;
+}
+
+void QThreadData::setData(void * v)
+{
+}
+
+void * QThreadData::data()
+{
 }
 
 #endif

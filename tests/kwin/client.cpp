@@ -207,7 +207,7 @@ QPixmap KWM::icon(Window w, int width, int height){
   \brief The WindowWrapper class encapsulates a client's managed
   window.
 
-  There's not much to know about this class, it's completley handled by
+  There's not much to know about this class, it's completely handled by
   the abstract class Client. You get access to the window wrapper with
   Client:.windowWrapper(). The big advantage of WindowWrapper is,
   that you can use just like a normal QWidget, although it encapsulates
@@ -962,7 +962,7 @@ void Client::hideEvent( QHideEvent* )
 
 
 /*!
-  Late initialialize the client after the window has been managed.
+  Late initialize the client after the window has been managed.
   
   Ensure to call the superclasses init() implementation when subclassing.
  */

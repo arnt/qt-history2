@@ -258,7 +258,7 @@ void QTabBar::removeTab( QTab * tab )
   FALSE.  If \a id is currently selected, setTabEnabled() makes
   another tab selected.
 
-  setTabEnabled() updates the display respectivly if this causes a
+  setTabEnabled() updates the display respectively if this causes a
   change in \a id's status.
 
   \sa update(), isTabEnabled()

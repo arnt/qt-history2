@@ -45,7 +45,7 @@
   appear both in menus and tool bars.
 
   There are two basic kind of user interface actions, command actions
-  and options. QAction usally models a command action, for eample
+  and options. QAction usually models a command action, for example
   "open file". When the actual action shall be performed, it emits the
   activated() signal. Options, for example the drawing tools in a
   paint program, are represented by toggle actions (see
@@ -325,7 +325,7 @@ QString QAction::text() const
 
 /*!
   Sets a special text \a text for menu items. Use this to specify
-  elipses or keyboard shortcuts that should not show up in tooltips or
+  ellipses or keyboard shortcuts that should not show up in tooltips or
   as button text.
 
   \sa setText(), menuText()

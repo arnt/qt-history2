@@ -557,7 +557,7 @@ int QFile::handle() const
   is done to the file.
 
   Some "write-behind" filesystems may report an unspecified error on
-  closing the file. These errors only indiciate that something may
+  closing the file. These errors only indicate that something may
   have gone wrong since the previous open(). In such a case status()
   reports IO_UnspecifiedError after close(), otherwise IO_Ok.
 

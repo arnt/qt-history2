@@ -19,14 +19,11 @@ bool QDefaultPlugIn::load()
     if ( !QPlugIn::load() )
 	return FALSE;
 
-    createWidgetPtr = (CREATEWIDGETPROC) getSymbolAddress( "createWidget" );
-    enumerateWidgetsPtr = (STRINGPROC) getSymbolAddress( "enumerateWidgets" );
+    createWidgetPtr = (CreateWidgetProc) getSymbolAddress( "createWidget" );
+    widgetsPtr = (StringProc) getSymbolAddress( "widgets" );
 
-    processFilePtr = (PROCESSFILEPROC) getSymbolAddress( "processFile" );
-    enumerateFileTypesPtr = (STRINGPROC) getSymbolAddress( "enumerateFileTypes" );
-
-    createActionPtr = (CREATEACTIONPROC) getSymbolAddress( "createAction" );
-    enumerateActionsPtr = (STRINGPROC) getSymbolAddress( "enumerateActions" );
+    createActionPtr = (CreateActionProc) getSymbolAddress( "createAction" );
+    actionsPtr = (StringProc) getSymbolAddress( "actions" );
 
     return TRUE;
 }
@@ -37,7 +34,7 @@ bool QDefaultPlugIn::addToManager( QPlugInDict& dict )
 {
     bool useful = FALSE;
 
-    QStringList wl = QStringList::split( QRegExp("[;\\s]"), enumerateWidgets() );
+    QStringList wl = QStringList::split( QRegExp("[;\\s]"), widgets() );
     for ( QStringList::Iterator w = wl.begin(); w != wl.end(); w++ ) {
 	useful = TRUE;
 #ifdef CHECK_RANGE
@@ -48,7 +45,7 @@ bool QDefaultPlugIn::addToManager( QPlugInDict& dict )
 	    dict.insert( *w, this );
     }
 
-    QStringList al = QStringList::split( QRegExp("[;\\s]"), enumerateActions() );
+    QStringList al = QStringList::split( QRegExp("[;\\s]"), actions() );
     for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
 	useful = TRUE;
 #ifdef CHECK_RANGE
@@ -59,74 +56,54 @@ bool QDefaultPlugIn::addToManager( QPlugInDict& dict )
 	    dict.insert( *a, this );
     }
 
-    QString filter = enumerateFileTypes();
-    filter.replace( QRegExp("\n"), ";;" );
-    QStringList fl = QStringList::split( ";;", filter );
-    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
-	useful = TRUE;
-#ifdef CHECK_RANGE
-	if ( dict[*f] )
-	    qWarning("%s: File %s already supported!", library().latin1(), (*f).latin1() );
-	else
-#endif
-	    dict.insert( *f, this );
-    }
-
     return useful;
 }
 
-/*!
-  Calls the appropriate plugin's createWidget-method and returns the result.
+/*! \reimp
 */
-QWidget* QDefaultPlugIn::createWidget( const QString& classname, bool init, QWidget* parent, const char* name )
+bool QDefaultPlugIn::removeFromManager( QPlugInDict& dict )
+{
+    bool res = TRUE;
+
+    QStringList wl = QStringList::split( QRegExp("[;\\s]"), widgets() );
+    for ( QStringList::Iterator w = wl.begin(); w != wl.end(); w++ )
+        res = res && dict.remove( *w );
+
+    QStringList al = QStringList::split( QRegExp("[;\\s]"), actions() );
+    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
+        res = res && dict.remove( *a );
+
+    return res;
+}
+
+/*!
+  Calls the appropriate plugin's create-method and returns the result.
+*/
+QWidget* QDefaultPlugIn::create( const QString& classname, QWidget* parent, const char* name )
 {
     use();
 
     if ( createWidgetPtr )
-	return createWidgetPtr( classname, init, parent, name );
+	return createWidgetPtr( classname, parent, name );
     return 0;
 }
 
 /*!
-  Calls the appropriate plugin's enumerateWidgets-method and returns the result.
+  Calls the appropriate plugin's widgets-method and returns the result.
 */
-const char* QDefaultPlugIn::enumerateWidgets()
+const char* QDefaultPlugIn::widgets()
 {
     use();
 
-    if ( enumerateWidgetsPtr )
-	return enumerateWidgetsPtr();
+    if ( widgetsPtr )
+	return widgetsPtr();
     return "";
 }
 
 /*!
-  Calls the appropriate plugin's processFile-method and returns the result.
+  Calls the appropriate plugin's create-method and returns the result.
 */
-QWidget* QDefaultPlugIn::processFile( QIODevice *f, const QString& filetype )
-{
-    use();
-
-    if ( processFilePtr )
-	return processFilePtr( f, filetype );
-    return 0;
-}
-
-/*!
-  Calls the appropriate plugin's enumerateFileTypes-method and returns the result.
-*/
-const char* QDefaultPlugIn::enumerateFileTypes()
-{
-    use();
-
-    if ( enumerateFileTypesPtr )
-	return enumerateFileTypesPtr();
-    return "";
-}
-
-/*!
-  Calls the appropriate plugin's createAction-method and returns the result.
-*/
-QAction* QDefaultPlugIn::createAction( const QString& actionname, bool& self, QObject *parent )
+QAction* QDefaultPlugIn::create( const QString& actionname, bool& self, QObject *parent )
 {
     use();
 
@@ -136,14 +113,14 @@ QAction* QDefaultPlugIn::createAction( const QString& actionname, bool& self, QO
 }
 
 /*!
-  Calls the appropriate plugin's enumerateActions-method and returns the result.
+  Calls the appropriate plugin's actions-method and returns the result.
 */
-const char* QDefaultPlugIn::enumerateActions()
+const char* QDefaultPlugIn::actions()
 {
     use();
 
-    if ( enumerateActionsPtr )
-	return enumerateActionsPtr();
+    if ( actionsPtr )
+	return actionsPtr();
     return "";
 }
 
@@ -167,26 +144,25 @@ QDefaultPlugInManager::QDefaultPlugInManager( const QString& path, QPlugIn::Libr
 
 /*! \reimp
 */
-QWidget* QDefaultPlugInManager::newWidget( const QString& classname, bool init, QWidget* parent, const char* name )
+QWidget* QDefaultPlugInManager::newWidget( const QString& classname, QWidget* parent, const char* name )
 {
-    QDefaultPlugIn* plugin = (QDefaultPlugIn*)pHnds[ classname ];
+    QDefaultPlugIn* plugin = (QDefaultPlugIn*)plugDict[ classname ];
     if ( plugin )
-	return plugin->createWidget( classname, init, parent, name );
+	return plugin->create( classname, parent, name );
     return 0;
 }
 
 /*!
   Returns a list of all widget classes supported by registered plugins.
 */
-QStringList QDefaultPlugInManager::enumerateWidgets()
+QStringList QDefaultPlugInManager::widgets()
 {
     QStringList list;
-    QList<QPlugIn> plist = plugInList();
-    QListIterator<QPlugIn> it ( plist );
+    QDictIterator<QPlugIn> it (libDict);
    
     while( it.current() ) {
 	QDefaultPlugIn* plugin = (QDefaultPlugIn*)it.current();
-	QStringList widgets = QStringList::split( QRegExp("[;\\s]"), plugin->enumerateWidgets() );
+	QStringList widgets = QStringList::split( QRegExp("[;\\s]"), plugin->widgets() );
 	for ( QStringList::Iterator w = widgets.begin(); w != widgets.end(); w++ )
 	    list << *w;
 	++it;
@@ -197,57 +173,25 @@ QStringList QDefaultPlugInManager::enumerateWidgets()
 
 /*! \reimp
 */
-QWidget* QDefaultPlugInManager::processFile( QIODevice* file, const QString& filetype )
-{
-    QDefaultPlugIn* plugin = (QDefaultPlugIn*)pHnds[filetype.latin1()];
-    if ( plugin )
-	return plugin->processFile( file, filetype );
-
-    return 0;
-}
-
-/*! Returns a list of all file types supported by registered plugins.
-*/
-QStringList QDefaultPlugInManager::enumerateFileTypes()
-{
-    QStringList list;
-    QList<QPlugIn> plist = plugInList();
-    QListIterator<QPlugIn> it (plist);
-
-    while ( it.current() ) {
-	QDefaultPlugIn* plugin = (QDefaultPlugIn*)it.current();
-	QString filter = plugin->enumerateFileTypes();
-	filter.replace( QRegExp("\n"), ";;" );
-	QStringList ft = QStringList::split( ";;", filter );
-	for ( QStringList::Iterator f = ft.begin(); f != ft.end(); f++ )
-	    list << *f;
-	++it;
-    }
-
-    return list;
-}
-
-/*! \reimp
-*/
 QAction* QDefaultPlugInManager::newAction( const QString& actionname, bool& self, QObject* parent )
 {
-    QDefaultPlugIn* plugin = (QDefaultPlugIn*)pHnds[ actionname ];
+    QDefaultPlugIn* plugin = (QDefaultPlugIn*)plugDict[ actionname ];
     if ( plugin )
-	return plugin->createAction( actionname, self, parent );
+	return plugin->create( actionname, self, parent );
     return 0;
 }
 
 /*!
   Returns a list of all action names supported by registered plugins.
 */
-QStringList QDefaultPlugInManager::enumerateActions()
+QStringList QDefaultPlugInManager::actions()
 {
     QStringList list;
-    QDictIterator<QPlugIn> it( pHnds );
+    QDictIterator<QPlugIn> it (libDict);
 
     while( it.current() ) {
 	QDefaultPlugIn* plugin = (QDefaultPlugIn*)it.current();
-    	QStringList actions = QStringList::split( QRegExp("[;\\s]"), plugin->enumerateActions() );
+    	QStringList actions = QStringList::split( QRegExp("[;\\s]"), plugin->actions() );
 	for ( QStringList::Iterator a = actions.begin(); a != actions.end(); a++ )
 	    list << *a;
 	++it;

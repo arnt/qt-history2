@@ -2,6 +2,10 @@
 #include <qlabel.h>
 #include <qthread.h>
 
+#ifdef _WS_WIN_
+#include <qt_windows.h>
+#endif
+
 class MyWidget : public QLabel {
 
 
@@ -31,7 +35,6 @@ public:
 
     MyThread(QString s,int p) { myname=s; pause=p; }
     virtual void run();
-    
 };
 
 class WaitThread : public QThread {
@@ -76,7 +79,11 @@ void MyThread::run()
 	wibble->setData((void *)message);
 	QThread::postEvent(mywidget,wibble);
 	n++;
+#if defined(_WS_WIN_)
+	Sleep( pause );
+#else
 	sleep(pause);
+#endif
     }
 }
 
@@ -89,7 +96,11 @@ void WaitThread::run()
     QCustomEvent * wibble=new QCustomEvent(6666);
     wibble->setData((void *)message);
     QThread::postEvent(mywidget,wibble);
-    sleep(1);
+#if defined(_WS_WIN_)
+	Sleep( 1 );
+#else
+	sleep(1);
+#endif
     done_event->wakeOne();
 }
 
@@ -105,17 +116,17 @@ void FinalThread::run()
 
 int main(int argc,char ** argv)
 {
-  QApplication app(argc,argv);
-  mywidget=new MyWidget();
-  mywidget->show();
-  MyThread foo("Thread one",2);
-  MyThread bar("Thread two",3);
-  QThreadEvent qte;
-  WaitThread frobnitz(&foo,&bar,&qte);
-  FinalThread fooble(&qte);
-  foo.start();
-  bar.start();
-  frobnitz.start();
-  fooble.start();
-  app.exec();
+    QApplication app(argc,argv);
+    mywidget=new MyWidget();
+    mywidget->show();
+    MyThread foo("Thread one",2);
+    MyThread bar("Thread two",3);
+    QThreadEvent qte;
+    WaitThread frobnitz(&foo,&bar,&qte);
+    FinalThread fooble(&qte);
+    foo.start();
+    bar.start();
+    frobnitz.start();
+    fooble.start();
+    return app.exec();
 }

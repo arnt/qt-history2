@@ -816,7 +816,7 @@ void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 
 /*!
   \reimp
-  Present for bianry compatibility only!
+  Present for binary compatibility only!
 */
 
 void QMultiLineEdit::timerEvent( QTimerEvent * )
@@ -3218,7 +3218,7 @@ int QMultiLineEdit::length() const
 	if ( r->newline )
 	    ++l;
     }
-    return l;
+    return l-1;
 }
 
 

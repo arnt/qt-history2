@@ -48,6 +48,7 @@
 #include "qtooltip.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
+#include "qptrdict.h"
 
 #include <stdlib.h>
 #include <math.h>
@@ -240,7 +241,8 @@ public:
     QPixmapCache maskCache;
     bool pressedSelected;
     bool dragging;
-
+    QPtrDict<QIconViewItem> selectedItems;
+    
     struct ItemContainer {
 	ItemContainer( ItemContainer *pr, ItemContainer *nx, const QRect &r )
 	    : p( pr ), n( nx ), rect( r ) {
@@ -1773,7 +1775,7 @@ void QIconViewItem::dropped( QDropEvent *, const QValueList<QIconDragItem> & )
 /*!
   This method is called, when a drag entered the item's bounding rect.
 
-  The default implementation does nothing, subcasses should reimplement
+  The default implementation does nothing, subclasses should reimplement
   this method.
 */
 
@@ -1784,7 +1786,7 @@ void QIconViewItem::dragEntered()
 /*!
   This method is called, when a drag left the item's bounding rect.
 
-  The default implementation does nothing, subcasses should reimplement
+  The default implementation does nothing, subclasses should reimplement
   this method.
 */
 
@@ -2066,7 +2068,7 @@ void QIconViewItem::checkRect()
 
 /*! \enum QIconView::Arrangement
 
-   This enum type descides in which direction the items, which do not
+   This enum type decides in which direction the items, which do not
    fit onto the screen anymore flow.
 
    <ul>
@@ -2106,7 +2108,7 @@ void QIconViewItem::checkRect()
 */
 
 /*! \fn void  QIconView::doubleClicked (QIconViewItem * item)
-  This signal is emitted, if the user doubleclicked on the item \a item.
+  This signal is emitted, if the user double-clicked on the item \a item.
 */
 
 /*! \fn void  QIconView::returnPressed (QIconViewItem * item)
@@ -2441,7 +2443,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
   result of this is, that if lots of items are inserted in a short time
   (e.g. in a loop), the iconview is not redrawn after each inserted item,
   but after inserting all of them, which makes the operation much faster
-  and flickerfree.
+  and flicker-free.
 */
 
 void QIconView::slotUpdate()
@@ -2739,6 +2741,8 @@ void QIconView::doAutoScroll()
 	    alreadyIntersected = TRUE;
 	    QIconViewItem *item = c->items.first();
 	    for ( ; item; item = c->items.next() ) {
+		if ( d->selectedItems.find( item ) )
+		    continue;
 		if ( !item->intersects( nr ) ) {
 		    if ( item->isSelected() ) {
 			item->setSelected( FALSE );
@@ -3361,7 +3365,7 @@ void QIconView::setGridY( int ry )
 }
 
 /*!
-  Returns the horizonal grid.
+  Returns the horizontal grid.
 
   \sa QIconView::setGridX()
 */
@@ -3635,8 +3639,8 @@ bool QIconView::sorting() const
 }
 
 /*!
-  Returns TRUE if the sort dorection for inserting new items is ascending,
-  FALSE means descending. This sort dircction has only a meaning if re-sorting
+  Returns TRUE if the sort direction for inserting new items is ascending,
+  FALSE means descending. This sort direction has only a meaning if re-sorting
   and re-arranging of new inserted items is enabled.
 
   \sa QIconView::setSorting(), QIconView::setAutoArrange()
@@ -3652,7 +3656,7 @@ bool QIconView::sortDirection() const
   there are two possibilities how the QIconView can deal with this.
   Either it does a word wrap of the item text, so that it uses
   multiple lines. Or it truncates the item text so that it shrinks
-  to the maximal item width and appens three dots "..." to the
+  to the maximal item width and appends three dots "..." to the
   displayed text to indicate that not the full text is displayed.
 
   If you set \a b to TRUE, a word wrap is done, else the
@@ -3706,7 +3710,8 @@ void QIconView::setShowToolTips( bool b )
 }
 
 /*!
-  Returns TRUE if a tooltip is shown for truncated item textes or not.
+  Returns TRUE if a tooltip is shown for truncated item texts and
+  FALSE otherwise.
 
   \sa setShowToolTips(), setWordWrapIconText()
 */
@@ -3830,18 +3835,25 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 		delete d->rubber;
 	    d->rubber = 0;
 	    d->rubber = new QRect( e->x(), e->y(), 0, 0 );
+	    d->selectedItems.clear();
+	    if ( ( e->state() & ControlButton ) == ControlButton ) {
+		for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() )
+		    if ( item->isSelected() )
+			d->selectedItems.insert( item, item );
+	    }
 	}
 
 	d->mousePressed = TRUE;
     }
 
  emit_signals:
-    emit mouseButtonPressed( e->button(), item, e->globalPos() );
-    emit pressed( item );
-    emit pressed( item, e->globalPos() );
+    if ( !d->rubber ) {
+	emit mouseButtonPressed( e->button(), item, e->globalPos() );
+	emit pressed( item );
+	emit pressed( item, e->globalPos() );
 
-    if ( e->button() == RightButton ) {
-	emit rightButtonPressed( item, e->globalPos() );
+	if ( e->button() == RightButton )
+	    emit rightButtonPressed( item, e->globalPos() );
     }
 }
 
@@ -3852,12 +3864,14 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 {
     QIconViewItem *item = findItem( e->pos() );
-
+    d->selectedItems.clear();
+    
     bool emitClicked = TRUE;
     d->mousePressed = FALSE;
     d->startDragItem = 0;
 
     if ( d->rubber ) {
+	emitClicked = FALSE;
 	QPainter p;
 	p.begin( viewport() );
 	p.setRasterOp( NotROP );
@@ -4546,6 +4560,8 @@ void QIconView::startDrag()
 
 #endif
 
+#endif
+
 /*!
   Inserts an item in the grid of the iconview. You should never need
   to call this manually.
@@ -4616,7 +4632,7 @@ void QIconView::insertInGrid( QIconViewItem *item )
 }
 
 /*!
-  Emits signals, that indciate selection changes.
+  Emits signals, that indicate selection changes.
 */
 
 void QIconView::emitSelectionChanged( QIconViewItem *i )
@@ -4641,7 +4657,7 @@ void QIconView::emitRenamed( QIconViewItem *item )
 
 /*!
   If a drag enters the iconview, shapes of the objects, which the drag
-  contains are drawn, usnig \a pos as origin.
+  contains are drawn, using \a pos as origin.
 */
 
 void QIconView::drawDragShapes( const QPoint &pos )
@@ -5067,7 +5083,7 @@ static int cmpIconViewItems( const void *n1, const void *n2 )
   Sorts the items of the listview and re-arranges them afterwards. If
   \a ascending is TRUE, the items are sorted in increasing order, else
   in decreasing order. For sorting QIconViewItem::compare() is used.
-  The default sort direction is set to the sort dicrection you set
+  The default sort direction is set to the sort direction you set
   here.
 
   \sa QIconViewItem::key(), QIconViewItem::setKey(), QIconViewItem::compare(),
@@ -5263,7 +5279,7 @@ void QIconView::appendItemContainer()
   \internal
   Rebuilds the whole internal data structure. This is done when
   most certainly all items change their geometry (e.g. in arrangeItemsInGrid()), because
-  calling this is then more efiicient than calling updateItemContainer() for each
+  calling this is then more efficient than calling updateItemContainer() for each
   item
 */
 

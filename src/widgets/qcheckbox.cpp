@@ -46,7 +46,7 @@
   a "one of many" choice, while check-boxes provide "many of many"
   choices.
 
-  While it is technically possible to imlement radio-behaviour with
+  While it is technically possible to implement radio-behaviour with
   check boxes and vice versa, it's strongly recommended to stick with
   the well-known semantics. Otherwise your users would be pretty
   confused.

@@ -1058,7 +1058,7 @@ QValueList<int> QSplitter::sizes() const
   top to bottom.
   Extra values in \a list are ignored.
 
-  If \a list contains to few values, the result is undefined
+  If \a list contains too few values, the result is undefined
   but the program will still be well-behaved.
 */
 

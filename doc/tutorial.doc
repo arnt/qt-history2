@@ -55,7 +55,7 @@ Tutorial chapters:
 
 This little game doesn't look much like a modern GUI application.  It
 uses a good few of the GUI techniques, but after you've worked through
-it, we recommand reading the \link simple-application.html Simple
+it, we recommend reading the \link simple-application.html Simple
 Application Walkthrough \endlink too.  That discusses a very simple
 application with all the common features (menu bars, tool bars,
 on-line help, printing, a couple of dialogs) in detail.
@@ -1026,7 +1026,7 @@ custom palette for this widget.
 
 This palette uses the indicated color as background, and picks other
 colors suitably.  (For this widget, only the background and text
-colors wil be used.)
+colors will be used.)
 
 \skip ::setAngle
 \until emit
@@ -1307,7 +1307,7 @@ href="signalsandslots.html">signal/slot creation.</a>
 \skip ::paintEvent
 \until QPainter
 
-We'll now start to use QPainter in ernest.  We create a painter that
+We'll now start to use QPainter in earnest.  We create a painter that
 operates on this widget.
 
 \line setBrush
@@ -1603,7 +1603,7 @@ precisely right, but we still haven't painted on the screen.
 So we open the painter on the CannonField itself and then draw the pixmap.
 
 That's all.  A couple of extra lines at the top and a couple at the
-bottom, and the code is 100% flickerfree.
+bottom, and the code is 100% flicker-free.
 
 \skip cannonRect
 \until }
@@ -3092,12 +3092,12 @@ around the CannonField.
 
 Write a space invaders game.
 <p>
-(This excercise was first done by
+(This exercise was first done by
 <a href="mailto:igorr@ifi.uio.no">Igor Rafienko</a>.  You can
 <a href="http://www.stud.ifi.uio.no/~igorr/download.html">
 download his game</a>.)
 <p>
-The new excercise is:
+The new exercise is:
 <p>
 Write a Breakout game and give it to the
 <a href="http://www.kde.org">KDE project.</a>

@@ -1926,7 +1926,7 @@ static QStringList makeFiltersList( const QString &filter )
   \endcode
 
   Other convenient static methods are QFileDialog::getExistingDirectory() to let the user
-  choode a directory or QFileDialog::getOpenFileNames() to let the user select multiple
+  choose a directory or QFileDialog::getOpenFileNames() to let the user select multiple
   files.
 
   Additionally to these convenient static methods you can use one of QFileDialog's
@@ -1980,9 +1980,9 @@ static QStringList makeFiltersList( const QString &filter )
   <ul>
   <li> \c NoPreview - No preview is shown at all
   <li> \c Contents - Besides the view with the files a preview
-  widget is shown shich shows the contents of the currently selected file
+  widget is shown which shows the contents of the currently selected file
   <li> \c Info - Besides the view with the files a preview
-  widget is shown shich shows infos of the currently selected file
+  widget is shown which shows infos of the currently selected file
   </ul>
 
   Using setPreviewMode() this mode can be set to the file dialog.
@@ -3857,7 +3857,7 @@ void QFileDialog::done( int i )
 	    QString file = files[f];
 	    if ( file.isNull() )
 		continue;
-	    if ( !QFile::exists( file ) ) {
+	    if ( d->url.isLocalFile() && !QFile::exists( file ) ) {
 		QMessageBox::information( this, tr("Error"), tr("%1\nFile not found.\nCheck path and filename.").arg( file ) );
 		return;
 	    }
@@ -5326,7 +5326,7 @@ void QFileDialog::goBack()
   QFileDialog::setInfoPreview(), QFileDialog::setInfoPreviewEnabled(),
   QFileDialog::setContentsPreviewEnabled().
 
-  For an example documentation of a prview widget look at the example
+  For an example documentation of a preview widget look at the example
   qt/examples/qdir/qdir.cpp.
 */
 

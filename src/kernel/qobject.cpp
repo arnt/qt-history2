@@ -73,10 +73,10 @@
 
   QObject is the heart of the \link object.html Qt object model.
   \endlink The central feature in this model is a very powerful
-  mechnism for seamless object commuinication dubbed \link
+  mechanism for seamless object commuinication dubbed \link
   signalsandslots.html signals and slots \endlink. With connect(), you
   can connect a signal to a slot and destroy the connection again with
-  disconnect(). To avoid neverending notification loops, you can
+  disconnect(). To avoid never-ending notification loops, you can
   temporarily block signals with blockSignals(). The protected
   functions connectNotify() and disconnectNotify() make it possible to
   track connections.
@@ -108,7 +108,7 @@
   Notice that the \c Q_OBJECT macro is mandatory for any object that
   implement signals, slots or properties.  You also need to run the
   \link moc.html moc program (Meta Object Compiler) \endlink on the
-  source file. We strongly recommenend to use the macro in \e all
+  source file. We strongly recommend to use the macro in \e all
   subclasses of QObject regardless whether they actually use signals,
   slots and properties or not. Otherwise certain functions can show
   undefined behaviour.
@@ -504,7 +504,7 @@ bool QObject::inherits( const char *clname ) const
 /*! \obsolete
 
   This function is misleadingly named, and cannot be implemented in a
-  way that fulfils its name.  someQWidget->superClasses() should have
+  way that fulfills its name.  someQWidget->superClasses() should have
   returned QPaintDevice and QObject, obviously.  And it never can, so
   let us kill the function. <strong>It will be removed in Qt-3.0</strong>
 
@@ -1294,7 +1294,7 @@ static void err_info_about_candidates( int code,
   \fn const QObject *QObject::sender()
 
   Returns a pointer to the object that sent the signal, if called in a
-  slot before any function calls or signal emissions.  Returns an
+  slot before any function call or signal emission.  Returns an
   undefined value in all other cases.
 
   \warning This function will return something apparently correct in
@@ -2263,7 +2263,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     if ( !meta )
 	return FALSE;
     const QMetaProperty* p = meta->property( name, TRUE );
-    if ( !p || !p->writeable() )
+    if ( !p || !p->writable() )
 	return FALSE;
 
     if ( p->isEnumType() ) {

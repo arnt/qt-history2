@@ -82,7 +82,8 @@ CursorView::CursorView()			// construct view
 	{ SplitVCursor,		"splitVCursor" },
 	{ SplitHCursor,		"splitHCursor" },
 	{ PointingHandCursor,	"pointingHandCursor" },
-	{ ForbiddenCursor,		"forbiddenCursor" }
+	{ ForbiddenCursor,	"forbiddenCursor" },
+	{ BitmapCursor,		"" }		// sentinel
     };
 
     setCaption( "CursorView" );			// set window caption
@@ -93,15 +94,16 @@ CursorView::CursorView()			// construct view
     int i=0;
     for ( int y=0; y<4; y++ ) {			// create the small labels
 	for ( int x=0; x<4; x++ ) {
-	    if ( list[i].shape <= LastCursor ) {
-		label = new QLabel( this );
-		label->setCursor( QCursor( list[i].shape ) );
-		label->setText( list[i].name );
-		label->setAlignment( AlignCenter );
-		label->setFrameStyle( QFrame::Box | QFrame::Raised );
-		grid->addWidget( label, x, y );
-		i++;
-	    }
+	    if ( list[i].shape == BitmapCursor )
+		break;
+
+	    label = new QLabel( this );
+	    label->setCursor( QCursor( list[i].shape ) );
+	    label->setText( list[i].name );
+	    label->setAlignment( AlignCenter );
+	    label->setFrameStyle( QFrame::Box | QFrame::Raised );
+	    grid->addWidget( label, x, y );
+	    i++;
 	}
     }
 

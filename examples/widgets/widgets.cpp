@@ -49,7 +49,6 @@
 #include <qfiledialog.h>
 #include <qaccel.h>
 #include <qmetaobject.h>
-#include <qerrormessage.h>
 
 #include "widgets.h"
 
@@ -124,9 +123,6 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     : QMainWindow( parent, name )
 {
     QColor col;
-
-    // display error/debug messages in a nicer way
-    QErrorMessage::qtHandler();
 
     // Set the window caption/title
     setCaption( "Qt Widgets Demo Application" );
@@ -739,19 +735,19 @@ void WidgetView::showProperties()
 {
     if ( !qApp->focusWidget() )
 	return;
-    QStrList properties 
+    QStrList properties
 	= qApp->focusWidget()->metaObject()->propertyNames( TRUE );
     QCString output;
-    output.sprintf( "Properties for class '%s'", 
+    output.sprintf( "Properties for class '%s'",
 		    qApp->focusWidget()->className() );
     int i = 0;
     while( i < (int) properties.count() ) {
-	const QMetaProperty* p 
+	const QMetaProperty* p
 	    = qApp->focusWidget()->metaObject()->property( properties.at(i),
 							   TRUE );
 	QCString tmp;
-	tmp.sprintf( "\n %2d: %s (read-%s, %s)", ++i, p->name(), 
-		     p->writeable() ? "write" : "only", p->type() );
+	tmp.sprintf( "\n %2d: %s (read-%s, %s)", ++i, p->name(),
+		     p->writable() ? "write" : "only", p->type() );
 	output += tmp;
     }
     qDebug( output );

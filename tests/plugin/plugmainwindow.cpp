@@ -7,7 +7,10 @@
 PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
 : QMainWindow( parent, name, f )
 {
-    QPopupMenu* file = (QPopupMenu*)QWidgetFactory::createWidget( "QPopupMenu", TRUE, this );
+    QPopupMenu* file = (QPopupMenu*)QWidgetFactory::create( "QPopupMenu", this );
+    if ( !file )
+	return;
+
     file->insertItem( "&Open", this, SLOT(fileOpen()) );
     menuBar()->insertItem( "&File", file );
     statusBar();
@@ -15,10 +18,11 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
 
 void PlugMainWindow::fileOpen()
 {
-    QString file = QFileDialog::getOpenFileName( QString::null, QWidgetFactory::fileTypeList().join(";;"), this, 0, "File Open" );
+/*    QString file = QFileDialog::getOpenFileName( QString::null, QWidgetFactory::fileTypeList().join(";;"), this, 0, "File Open" );
 
     if ( file.isEmpty() )
 	return;
 
     QWidgetFactory::createWidget( file );
+*/    
 }

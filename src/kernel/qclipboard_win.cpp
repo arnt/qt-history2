@@ -118,7 +118,9 @@ public:
 		CloseClipboard();
 	    }
 	}
-	return mime;
+	if ( !n )
+	    return mime;
+	return 0;
     }
 
     QByteArray encodedData( const char* mime ) const

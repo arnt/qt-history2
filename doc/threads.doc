@@ -1,0 +1,260 @@
+/****************************************************************************
+** $Id: design.doc,v 2.6 1999/04/28 09:53:48 aavit Exp $
+**
+** Qt thread support
+**
+** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+** information about the Professional Edition licensing, or see
+** http://www.trolltech.com/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+/*! \page design.html
+
+\title Thread support in Qt
+
+  Qt 2.2 introduces thread support to Qt in the shape of some basic
+platform-independent threading classes, a thread-safe way of posting
+events, a global Qt library lock that allows you to call Qt methods
+from different threads and the ability to transfer the event loop from 
+thread to thread.
+
+<h2>Introduction to threading</h2>
+
+  A thread is a sequence of machine instructions executed in sequence,
+including function calls, exception throwing and so on. A normal
+(non-multithreaded) program consists of one such sequence of instructions,
+starting at main() and going from function to function until exit()
+or a similar function is called to terminate execution or until the
+end of main() is reached. A multi-processing operating system provides
+several such sequences of instructions executing at once (each being
+a separate program), with their own memory space, file handles and so forth.
+  Multithreading allows multiple sequences of control within one application;
+that is, it's a little like splitting a task up into several programs,
+except that all threads share the same memory space, open files,
+variables and so on; it's a little as if you could run two programs and
+each could access each other's variables freely. A multithreaded
+application begins with one thread starting at main(), just as with
+a singlethreaded application, but can start other threads which begin
+at a programmer-specified function other than main(). These new threads
+will stop executing when a thread exit function is called or when
+they return from the programmer-specified function.
+  Threads are useful for two main reasons: one is to get better
+performance out of SMP machines, since on many operating systems
+each thread can be run on a separate CPU. The other is to simplify
+the programming of a complicated calculation; in a single-threaded
+Qt application that does a complicated calculation you need to split
+up complex time-consuming calculations into small chunks and execute
+each chunk one at a time in a QTimer-driven method, otherwise the
+event loop will be blocked while you do your calculation and the
+application will appear to freeze up. Using QTimer-driven methods
+is also bad for applications that need to do things within strict
+time limits (e.g. a music player) - if the user does something
+with the application the QTimer can fire late, causing stuttering.
+
+<h2>The Qt thread classes</h2>
+
+  Qt supports this in a platform-independent way. The most important
+class, obviously, is QThread; this provides you with the means to
+start a new thread, and the programmer-specified function is easy to
+provide by subclassing QThread and reimplementing QThread::run.
+This is akin to the Java thread class.
+  However, a thread class alone is not sufficient. In order to write
+threaded programs it is necessary to protect acccess to data that
+two threads wish to access at once (if you have a complex structure
+with several elements which should be updated in sequence, and two
+threads simultaneously try to update that structure, then they will
+each alter individual elements in an unpredictable sequence and may
+leave the structure in an inconsistent state). Therefore there is also
+a QMutex class; a thread can lock the mutex, and while it has it locked
+no other thread can lock the mutex; an attempt to do so will block the
+other thread until the mutex is released. For instance:
+
+class MyClass {
+
+public:
+
+  void doStuff(int);
+
+private:
+
+  QMutex mutex;
+  int a;
+  int b;
+  
+};
+
+// This sets a to c, and b to c*2
+
+void MyClass::doStuff(int c)
+{
+  mutex.lock();
+  a=c;
+  b=c*2;
+  mutex.unlock();
+} 
+
+  This ensures that only one thread at a time can be in MyClass::doStuff,
+so b will always be equal to a*2. If there was no mutex, then two
+threads could be in doStuff at once, possibly resulting in a sequence
+of instructions like the following:
+
+Thread 1 does doStuff(2);
+Thread 2 does doStuff(50);
+
+Thread 1: a=2;
+Thread 2: a=50;
+Thread 2: b=100;
+Thread 1: b=4;
+
+  This would result in an inconsistent state - a is 50, b is 4.
+With the mutex, either a will be 2 and b 4, or a will be 50 and b 100.
+
+  Also necessary is a method of signalling threads that events have
+happened; the QThreadEvent class provides this. Threads wait
+for the QThreadEvent to signal that something has happened, blocking until
+it does. When a thread knows that something has happened, it can wake
+up all of the threads waiting for that event or one randomly selected
+thread (this is the same functionality as a Posix Threads condition variable 
+and is implemented as one on Unix). For instance:
+
+// Worker thread method
+
+QThreadEvent myevent;
+
+void WorkerThread::run()
+{
+  while(1) {
+	myevent.wait();
+	printf("Doing some work\n");
+	do_complicated_thing();
+  }
+}
+
+
+// Main thread code
+
+main()
+{
+  make_some_worker_threads();
+  while(1) {
+     printf("Press a key to try and do some work\n");
+     getchar();
+     myevent.wakeOne();
+  }
+}
+
+  This program will wake up a worker thread whenever you press a key;
+the thread will go off and do some work and then go back to waiting to
+be told to do some more work. If no worker threads are waiting for work
+then no threads will be started.
+  Finally there is support for thread-specific global data with
+QThreadData; each instance of this class can store a pointer per thread,
+and the pointer value each thread sets is private to itself. This is useful
+for storing data intended to be global for each thread; for instance
+each thread could be given its own copy of the global variable errno
+on Unix using this mechanism.
+
+<h2>Thread-safe posting of events</h2>
+
+  In Qt, one thread is always the event thread - that is, the thread
+that pulls events from the window system and dispatches them to widgets.
+A static method QThread::postEvent has been added. This allows you
+to post events from threads other than the current event thread. The
+event thread is woken up and the event delivered from within the event
+thread just as a normal window system event is. For instance, you could
+force a widget to repaint from a different thread by doing the following:
+
+  QWidget * mywidget;
+  QThread::postEvent(mywidget,new QPaintEvent(QRect(0,0,100,100)));
+
+  This would (asynchronously) force mywidget to repaint a 100x100
+square of its area. This functionality is layered on
+QApplication::wakeUpGuiThread/QApplication::guiThreadWoken, which were
+introduced in Qt 2.1 so that developers could write their own version
+of this functionality.
+
+<h2>The global Qt lock</h2>
+
+  The Qt lock provides a method for calling Qt methods from threads
+other than the event thread. For instance:
+
+  QWidget * mywidget;
+
+  qApp->lock();
+  mywidget->setGeometry(0,0,100,100);
+  QPainter p;
+  p.begin(mywidget);
+  p.drawLine(0,0,100,100);
+  p.end();
+  qApp->unlock();
+
+  Attempting to make calls to the Qt library without a mutex will
+result in unpredictable and hard to debug crashes, and if the call
+could end up attempting to draw on the screen or modify global
+Qt library structures you should use QApplication::lock. When accessing
+container classes, files and strings no lock is necessary if they
+are only accessed by one thread; if they are accessed by multiple threads
+you should protect them with your own mutex instead of the Qt mutex,
+since while the Qt mutex is locked no events can be processed
+(the event thread blocks for as long as you hold it). It isn't necessary
+to get the Qt mutex from within an event handler (e.g. a reimplementation
+of QWidget::paintEvent) - the event loop will lock and unlock the Qt
+mutex around event handler calls automatically. It does no harm, however,
+since Qt mutexes are recursive.
+
+<h2>Threads and the event loop</h2>
+
+  The event loop is by default in the application's initial thread
+(the one that starts at main()). However, if you call enter_loop
+from another thread to recursively enter the event loop the event
+loop is transferred to the other thread and the thread that was
+holding the event loop blocks until the loop is exited. This can happen
+any number of times. The main use of this to an applications programmer
+is modal dialogues; a thread can pop up a message box and this will
+block the event thread until the message box is dismissed. If a third
+thread also pops up a message box this will block the previous message box
+and the main application until it is dismissed, when the previous message
+box will return to being the event thread. You can also create a modal
+dialogue from another thread before the QApplication object is constructed,
+and you can make any thread the initial event thread by calling
+QApplication::exec from that thread.
+
+<h2>Caveats</h2>
+
+  Some things to watch out for when programming with threads:
+
+Don't do any blocking operations while holding the Qt mutex. This will
+freeze up the event loop.
+
+Make sure you lock QMutex as many times as you unlock it, no more and no
+less.
+
+Lock the Qt application mutex before calling anything but the Qt container
+and tool classes. This includes methods like QFileDialog::getOpenFileName
+which transfer the event loop.
+
+Be wary of classes which are implicitly shared; you should probably
+detach() them if you need to assign them between threads.
+
+Be wary of Qt classes which were not designed with thread safety in mind;
+for instance, QList's API is not threadsafe and if different threads
+need to iterate through a QList they should lock before calling
+QList::first() and unlock after reaching the end, rather than locking and
+unlocking around QList::next().
+
+ 
+
+

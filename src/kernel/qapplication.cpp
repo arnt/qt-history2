@@ -90,7 +90,7 @@
   events to widgets.
 
   <li> It parses common command line arguments and sets its internal
-  state accordintly. See the constructor documentation below for more
+  state accordingly. See the constructor documentation below for more
   details about this.
 
   <li> It defines the application's look and feel, which is
@@ -127,7 +127,7 @@
 
   </ul>
 
-  The <a href="simple-application.html">Application walktrough
+  The <a href="simple-application.html">Application walk-trough
   example</a> contains a typical complete main() that does the usual
   things with QApplication.
 
@@ -288,6 +288,10 @@ bool	  QApplication::fade_tooltip	= FALSE;
 QMutex * QApplication::qt_mutex=0;
 #endif
 
+#ifdef QT_THREAD_SUPPORT
+QMutex * QApplication::qt_mutex=0;
+#endif
+
 // Default application palettes and fonts (per widget type)
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
 QAsciiDict<QFont>    *QApplication::app_fonts = 0;
@@ -350,6 +354,36 @@ static void qt_fix_tooltips()
 
 
 #if defined(QT_THREAD_SUPPORT)
+
+// This class keeps track of which thread is the current
+// event-handling thread; whenever a new thread becomes
+// the event thread using enter_loop its thread ID is pushed
+// onto the stack. When that thread signals it's leaving the
+// event loop it's popped from the stack and threadevent is signalled.
+// All previous event threads wake up and check themselves against
+// the top of the stack; if it matches it was the immediately previous
+// event thread and wakes up, while if it doesn't the thread goes back
+// to waiting
+
+// Passing the event loop works like this:
+
+// Thread A is the event loop. It has a mechanism whereby it can be woken
+// up from waiting for events - a pipe on Unix, a special message on
+// Windows - this is the mechanism used for QApplication::wakeUpGuiThread.
+// This wakeup message is capable of carrying a byte of information;
+// if that byte is 0 then everything works as before and the event loop
+// is simply woken up. If it's 1 then it's treated as a transfer of event
+// loop control. If a thread wishes to take the event loop (i.e. enter_loop
+// is called) it first checks to see if it's the same thread as currently has
+// the event loop. If it is everything proceeds as in the single-threaded
+// case. Otherwise, it calls QExecStack::takeExec, which sends the wakeup
+// message to the current event-handling thread and pushes the new thread ID
+// onto the stack. It then waits for an acknowledgement from the event
+// thread through the condition variable pipereceive. The event thread,
+// meanwhile, is woken up from its select() or WaitMessage, realises
+// the event loop is being taken over, signals pipereceive and waits
+// on threadevent until the new event loop has finished. It then returns
+// and reenters the loop in order to make sure variables are not corrupted.
 
 class QExecStack {
 
@@ -654,6 +688,11 @@ QApplication::QApplication( int &argc, char **argv, Type type )
 
 void QApplication::construct( int &argc, char **argv, Type type )
 {
+
+#ifdef QT_THREAD_SUPPORT
+    qt_mutex=new QMutex();
+#endif
+
     qt_is_gui_used = type != Tty;
     init_precmdline();
     static char *empty = (char*)"";
@@ -664,9 +703,6 @@ void QApplication::construct( int &argc, char **argv, Type type )
     qt_init( &argc, argv, type );   // Must be called before initialize()
     process_cmdline( &argc, argv );
     initialize( argc, argv );
-#ifdef QT_THREAD_SUPPORT
-    qt_mutex=new QMutex();
-#endif
 }
 
 
@@ -767,7 +803,7 @@ void QApplication::initialize( int argc, char **argv )
     session_manager = new QSessionManager( qApp, session_id );
 #endif
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#if defined(QT_THREAD_SUPPORT)
     qApp->lock();
     qt_exec_stack=new QExecStack;
 #endif
@@ -883,9 +919,11 @@ QApplication::~QApplication()
 #ifndef QT_NO_TRANSLATION
     delete translators;
 #endif
+
 #ifdef QT_THREAD_SUPPORT
     delete qt_mutex;
 #endif
+
     // Cannot delete codecs until after QDict destructors
     // QTextCodec::deleteAllCodecs()
 }
@@ -958,7 +996,7 @@ QApplication::~QApplication()
   \endcode
 
   When switching application styles, the color palette is set back to
-  the initital colors or the system defaults. This is necessary since
+  the initial colors or the system defaults. This is necessary since
   certain styles have to adapt the color palette to be fully
   style-guide compliant.
 
@@ -1055,7 +1093,7 @@ int QApplication::colorSpec()
   Sets the color specification for the application to \a spec.
 
   The color specification controls how your application allocates colors
-  whn run on a display with a limited amount of colors, i.e. 8 bit / 256
+  when run on a display with a limited amount of colors, i.e. 8 bit / 256
   color displays.
 
   The color specification must be set before you create the QApplication
@@ -1247,7 +1285,7 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 	app_palettes->insert( className, new QPalette( pal ) );
     }
     if ( informWidgets && is_app_running && !is_app_closing ) {
-	QCustomEvent e( QEvent::ApplicationPaletteChange, 0 );
+	QEvent e( QEvent::ApplicationPaletteChange );
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
@@ -1331,7 +1369,7 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 	app_fonts->insert(className, fnt);
     }
     if ( informWidgets && is_app_running && !is_app_closing ) {
-	QCustomEvent e( QEvent::ApplicationFontChange, 0 );
+	QEvent e( QEvent::ApplicationFontChange );
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
@@ -1590,7 +1628,7 @@ void QApplication::closeAllWindows()
 
   This signal is emitted when the application is about to quit the
   main event loop.  This may happen either after a call to quit() from
-  inside the applicaton or when the users shuts down the entire
+  inside the application or when the users shuts down the entire
   desktop session.
 
   The signal is particularly useful if your application has to do some
@@ -2094,16 +2132,6 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     if ( !postedEvents || receiver && !receiver->pendEvent )
 	return;
 
-    // illegal combination:
-    if ( !receiver && event_type ) {
-#if defined(CHECK_NULL)
-	qWarning( "QApplication::sendPostedEvents(): Cannot send events of a "
-		  "specific type\n\t\t\t\t (%d) to all receivers.",
-		  event_type );
-#endif
-	return;
-    }
-
     QPostEventList ** l = &postedEvents;
     bool usingGlobalList = TRUE;
 
@@ -2387,12 +2415,12 @@ void QApplication::setActiveWindow( QWidget* act )
     // first the activation / deactivation events
     if ( old_active ) {
 	active_window = 0;
-	QCustomEvent e( QEvent::WindowDeactivate, 0 );
+	QEvent e( QEvent::WindowDeactivate );
 	QApplication::sendEvent( old_active, &e );
     }
     active_window = window;
     if ( active_window ) {
-	QCustomEvent e( QEvent::WindowActivate, 0 );
+	QEvent e( QEvent::WindowActivate );
 	QApplication::sendEvent( active_window, &e );
     }
 
@@ -2437,7 +2465,7 @@ void QApplication::setActiveWindow( QWidget* act )
 
   The desktop widget is useful for obtaining the size of the screen.
   It may also be possible to draw on the desktop. We recommend against
-  assuming that it's possible to draw on the deskop, as it works on
+  assuming that it's possible to draw on the desktop, as it works on
   some machines and not on others.
 
   \code
@@ -2700,7 +2728,7 @@ void QApplication::setStartDragTime( int ms )
   Qt internally uses also this delay e.g. in QMultiLineEdit for
   starting a drag.
 
-  The defaul value is set to 250 ms.
+  The default value is set to 250 ms.
 
   \sa setStartDragTime(), startDragDistance()
 */
@@ -2830,7 +2858,7 @@ bool QApplication::effectEnabled( Qt::UIEffect effect )
   During a session management action, i.e. within one of the two
   mentioned functions, no user interaction is possible, \e unless the
   application got explicit permission from the session manager. You
-  can ask for mermission by calling allowsInteraction() or, if it's
+  can ask for permission by calling allowsInteraction() or, if it's
   really urgent, allowsErrorInteraction(). Qt does not enforce this,
   but the session manager may. Perhaps.
 
@@ -2839,7 +2867,7 @@ bool QApplication::effectEnabled( Qt::UIEffect effect )
   rejected its closeEvent().
 
   For sophisticated session managers as provided on Unix/X11,
-  QSessionManager offers further possibilites to fine-tune an
+  QSessionManager offers further possibilities to fine-tune an
   application's session management behaviour: setRestartCommand(),
   setDiscardCommand(), setRestartHint(), setProperty(),
   requestPhase2().  Please see the respective function descriptions
@@ -2902,13 +2930,13 @@ bool QApplication::effectEnabled( Qt::UIEffect effect )
 
   The rationale behind this mechanism is to make it possible to
   synchronize user interaction during a shutdown. Advanced session
-  managers may ask all applications simultaniously to commit their
+  managers may ask all applications simultaneously to commit their
   data, resulting in a much faster shutdown.
 
-  When the interaction is done we strongyl recommend releasing the
+  When the interaction is done we strongly recommend releasing the
   user interaction semaphore with a call to release(). This way, other
   applications may get the chance to interact with the user while your
-  application is still busy saving data. (The sempahore is implictly
+  application is still busy saving data. (The semaphore is implicitly
   released when the application exits.)
 
   If the user decides to cancel the shutdown process during the

@@ -35,7 +35,7 @@ may require you to write small windowsystem-specific tasks.
 This page documents the windowsystem-specific parts of the Qt API.
 Note that any use of these features renders your application non-portable
 to other Qt-supported windowsystems, so protect such code with appropriate
-"#ifdef" directives (see below), preferrably with code for each platform to which
+"#ifdef" directives (see below), preferably with code for each platform to which
 you wish to retain portability.
 
 <a name=x11>

@@ -68,9 +68,9 @@ void TabDialog::setupTab2()
     if ( fileinfo.isReadable() )
         readable->setChecked( TRUE );
 
-    QCheckBox *writeable = new QCheckBox( "Writeable", bg );
+    QCheckBox *writable = new QCheckBox( "Writeable", bg );
     if ( fileinfo.isWritable() )
-        writeable->setChecked( TRUE );
+        writable->setChecked( TRUE );
 
     QCheckBox *executable = new QCheckBox( "Executable", bg );
     if ( fileinfo.isExecutable() )

@@ -91,7 +91,7 @@ public:
   in the input.
 
   <li> \c WhiteSpaceNoWrap - multiple spaces are collapsed as with 
-  WhiteSpaceNormal, but no  automatical line breaks occur. To break lines manually, 
+  WhiteSpaceNormal, but no  automatic line breaks occur. To break lines manually, 
   use the  \c&lt;br&gt; tag.
 
 </ul>
@@ -528,14 +528,14 @@ QStyleSheetItem::WhiteSpaceMode QStyleSheetItem::whiteSpaceMode() const
   Sets the white space mode to \a m. Possible values are
   <ul>
    <li> \c WhiteSpaceNormal
-	- white spaces in the document only serve as seperators.
+	- white spaces in the document only serve as separators.
 	Multiple spaces or indentation therefore is ignored.
    <li> \c WhiteSpacePre
-	  - white spaces are preserved. This is particulary useful to
+	  - white spaces are preserved. This is particularly useful to
 	  display programming code.
    <li> \c WhiteSpaceNoWrap
 	  - multiple spaces are collapsed as with WhiteSpaceNormal, but no 
-	  automatical line breaks occur. To break lines manually, use the 
+	  automatic line breaks occur. To break lines manually, use the 
 	  \c&lt;br&gt; tag.
   </ul>
  */
@@ -839,12 +839,12 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	normal character. Specify \c left or \c right to place the
 	image at the respective side.
     <li>\c &lt;hr/&gt;
-	- A horizonal line
+	- A horizontal line
     <li>\c &lt;br/&gt;
 	- A line break
   </ul>
 
-  Other tags not in any of the above cathegories are:
+  Other tags not in any of the above categories are:
   <ul>
   <li>\c &lt;nobr&gt;...&lt;/nobr&gt;
 	- No break. Prevents word wrap.
@@ -1274,7 +1274,7 @@ bool QStyleSheet::mightBeRichText( const QString& text)
 /*! \fn void QStyleSheet::error( const QString& msg) const
 
   This virtual function is called when an error occurs when
-  processsing rich text. Reimplement if if you need to catch
+  processing rich text. Reimplement if if you need to catch
   error messages.
 
   Errors might occur if some rich text strings contain tags that are

@@ -47,7 +47,7 @@
 // IO device open modes
 
 #define IO_ReadOnly		0x0001		// readable device
-#define IO_WriteOnly		0x0002		// writeable device
+#define IO_WriteOnly		0x0002		// writable device
 #define IO_ReadWrite		0x0003		// read+write device
 #define IO_Append		0x0004		// append
 #define IO_Truncate		0x0008		// truncate device

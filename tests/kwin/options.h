@@ -24,7 +24,7 @@ public:
       kdesktop can take the focus.
       
       Note that FocusUnderMouse and FocusStricklyUnderMouse are not
-      particulary useful. They are only provided for old-fashined
+      particularly useful. They are only provided for old-fashined
       die-hard UNIX people ;-)
       
       </ul>

@@ -486,7 +486,7 @@ int QHeader::findLine( int c )
 
   Use moveSection() instead!
 
-  Moves the section which is currently dispalyed at the index \a fromIndex
+  Moves the section which is currently displayed at the index \a fromIndex
   to the index \a toIdx.
 */
 
@@ -737,7 +737,7 @@ void QHeader::setLabel( int section, const QString &s, int size )
     d->labels.insert( section, new QString( s ) );
     if ( size >= 0 )
 	d->sizes[section] = size;
-    if ( isVisible() )
+    if ( isUpdatesEnabled() )
 	d->calculatePositions();
     update();
 }
@@ -1044,7 +1044,7 @@ void QHeader::setCellSize( int section, int s )
     if ( section < 0 || section >= count() )
 	return;
     d->sizes[ section ] = s;
-    if ( isVisible() )
+    if ( isUpdatesEnabled() )
 	d->calculatePositions();
 }
 
@@ -1300,7 +1300,7 @@ void QHeader::resizeSection( int section, int s )
     if ( section < 0 || section >= count() )
 	return;
     d->sizes[ section ] = s;
-    if ( isVisible() )
+    if ( isUpdatesEnabled() )
 	d->calculatePositions();
     update();
 }

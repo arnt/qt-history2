@@ -122,7 +122,7 @@ int QWindowsMime::registerMimeType(const char *mime)
 
 
 
-class Q_EXPORT QWindowsMimeAnyMime : public QWindowsMime {
+class QWindowsMimeAnyMime : public QWindowsMime {
 public:
     int		countCf();
     const char* convertorName();
@@ -206,7 +206,7 @@ QByteArray QWindowsMimeAnyMime::convertFromMime( QByteArray data, const char* , 
 
 
 
-class Q_EXPORT QWindowsMimeText : public QWindowsMime {
+class QWindowsMimeText : public QWindowsMime {
 public:
     int		countCf();
     const char* convertorName();
@@ -382,7 +382,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* /*mim
 
 
 
-class Q_EXPORT QWindowsMimeImage : public QWindowsMime {
+class QWindowsMimeImage : public QWindowsMime {
 public:
     int		countCf();
     const char* convertorName();
@@ -504,7 +504,7 @@ int htod(int h)
 }
 
 
-class Q_EXPORT QWindowsMimeUri : public QWindowsMime {
+class QWindowsMimeUri : public QWindowsMime {
 public:
     int		countCf();
     const char* convertorName();
@@ -727,7 +727,7 @@ QList<QWindowsMime> QWindowsMime::all()
   \fn int QWindowsMime::cf(int index)
 
   Returns the Windows Clipboard formats supported by this
-  convertor that is orderinally at \a index.  So cf(0) returns
+  convertor that is ordinarily at \a index.  So cf(0) returns
   the first Windows Clipboard format supported, cf(countCf()-1) returns
   the last.  Return values out of range are undefined.
 

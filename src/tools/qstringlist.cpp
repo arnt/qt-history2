@@ -85,7 +85,7 @@
 /*!
   \fn QStringList::QStringList (const QString & i)
   Constructs a string list consisting of the single string \a i.
-  To make longers lists easily, use:
+  To make longer lists easily, use:
   \code
     QString s1,s2,s3;
     ...
@@ -247,9 +247,11 @@ QStringList QStringList::grep( const QRegExp &expr ) const
 QString QStringList::join( const QString &sep ) const
 {
     QString res;
+    bool alredy = FALSE;
     for ( QStringList::ConstIterator it = begin(); it != end(); ++it ) {
-	if ( !res.isNull() )
+	if ( alredy )
 	    res += sep;
+	alredy = TRUE;
 	res += *it;
     }
 

@@ -2,7 +2,7 @@
 /* Test program for QRegExp to try to make sure that the 2.0 QRegExp
    behaves sensibly and like the 1.x QRegExp.
 
-   Not a full regexp tester, only a brief excercising of each of the
+   Not a full regexp tester, only a brief exercising of each of the
    case statements in QRegExp::compile() and ::match().
 */
 

@@ -410,7 +410,7 @@ QComboBox::~QComboBox()
 
 /*!
   If the combobox is editable and the user enters some text in
-  the lineedit of the combox and presses return (and the insertionPolicy()
+  the lineedit of the combobox and presses return (and the insertionPolicy()
   is different from \c NoInsertion), the entered text is inserted into the
   list of this combobox. Now, if you set \a enable to TRUE here,
   this new text is always inserted, else it's only inserted if it
@@ -1952,7 +1952,7 @@ void QComboBox::styleChange( QStyle& s )
 }
 
 /*!
-  Returns whether the combox is editable or not.
+  Returns whether the combobox is editable or not.
 
   \sa setEditable()
  */

@@ -97,7 +97,7 @@ static int object_emit_two()
 
 
 QPERF_BEGIN(object,"QObject operations, signals/slots, properties etc.")
-    QPERF(object_create,"Create and destory an object")
+    QPERF(object_create,"Create and destroy an object")
     QPERF(object_connect,"Connect and disconnect a signal")
     QPERF(object_emit_void,"Emit signal when nothing is connected")
     QPERF(object_emit_one,"Emit signal with one connection")

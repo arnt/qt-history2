@@ -28,7 +28,7 @@ then
 fi
 if [ ! -w /dev/fb0 ]
 then
-    echo "/dev/fb0 is not writeable."
+    echo "/dev/fb0 is not writable."
     exit 1
 fi
 if [ -f /tmp/.QtEmbedded -a ! -w /tmp/.QtEmbedded ]

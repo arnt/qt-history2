@@ -42,7 +42,7 @@
   \fn QBitVal::QBitVal (QBitArray* a, uint i)
 
   Constructs a reference to an element in a QBitArray.  This is
-  what QBitArray::operator[] contructs its return value with.
+  what QBitArray::operator[] constructs its return value with.
 */
 
 /*!

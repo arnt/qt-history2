@@ -184,7 +184,7 @@ QSizePolicy QToolBarSeparator::sizePolicy() const
   tool bar and word-wrapped as necessary. The main window can
   be resized to a smaller size than a toolbar would need to show all
   items. If this happens QToolbar shows a little arrow button at the
-  roght or bottom end. When clicking on that button, a popup menu is
+  right or bottom end. When clicking on that button, a popup menu is
   opened which shows all items of the toolbar which are
   outside the visible area of the mainwindow.
 

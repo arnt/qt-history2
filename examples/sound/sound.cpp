@@ -20,7 +20,7 @@ SoundPlayer::SoundPlayer() :
 	//
 	QMessageBox::warning(this,"No Sound",
 		"<p><b>Sorry, you are not running the Network Audio System.</b>"
-		"<p>If you have the `au' command, run it in the backgrounded before this program. "
+		"<p>If you have the `au' command, run it in the background before this program. "
 		"The latest release of the Network Audio System can be obtained from:"
 		"<pre>\n"
 		" &nbsp;\n"

@@ -287,7 +287,7 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 }
 
 
-/*! Destructs the drag object, cancelling any drag-and-drop operation
+/*! Destructs the drag object, canceling any drag-and-drop operation
   in which it is involved, and frees up the storage used. */
 
 QDragObject::~QDragObject()
@@ -1003,7 +1003,7 @@ QByteArray QStoredDrag::encodedData(const char* m) const
   filename, but more extensible.
 
   While presenting URIs to the user, use them in Unicode form so
-  that the user can confortably edit and view them.
+  that the user can comfortably edit and view them.
   For use in HTTP or other protocols, use the correctly escaped
   ASCII form (see
 */
@@ -1318,7 +1318,7 @@ bool QUriDrag::decodeToUnicodeUris( const QMimeSource* e, QStringList& l )
   operation is the first parameter to to drag object subclass.
 
   This is useful if your widget needs special behavior when dragging
-  to itelf, etc.
+  to itself, etc.
 
   See QDragObject::QDragObject() and subclasses.
 */
@@ -1335,7 +1335,7 @@ QWidget* QDropEvent::source() const
 
   \ingroup draganddrop
 
-  This class provides a drag object which can be used to transfere
+  This class provides a drag object which can be used to transfer
   data about colors for drag-and-drop and over the clipboard. It's
   e.g. used in the QColorDialog.
 

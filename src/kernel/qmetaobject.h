@@ -56,27 +56,28 @@ struct QMetaEnum 				// enumerator meta data
 	int value;
     };
     Item *items;				// - the name/value pairs
-    bool set;					// Wether enum has to be treated as a set
+    bool set;					// whether enum has to be treated as a set
 };
 
 #ifndef QT_NO_PROPERTIES
-class Q_EXPORT QMetaProperty 				// property meta data
+class Q_EXPORT QMetaProperty 			// property meta data
 {
 public:
     QMetaProperty();
     ~QMetaProperty();
 
-    const char 	*type() const { return t; }		// type of the property
-    const char*	name() const { return n; }		// name of the property
+    const char 	*type() const { return t; }	// type of the property
+    const char*	name() const { return n; }	// name of the property
 
-    bool writeable() const;
+    bool writable() const;
+    bool writeable() const;			// ### remove in 3.0
     bool isValid() const;
 
     bool isSetType() const;
     bool isEnumType() const;
     QStrList enumKeys() const;			// enumeration names
 
-    int keyToValue( const char* key ) const; 		// enum and set conversion functions
+    int keyToValue( const char* key ) const; 	// enum and set conversion functions
     const char* valueToKey( int value ) const;
     int keysToValue( const QStrList& keys ) const;
     QStrList valueToKeys( int value ) const;
@@ -186,7 +187,7 @@ public:
 					QMetaData *, int );
     static QMetaData		*new_metadata( int );
     static QMetaData::Access		*new_metaaccess( int ); // ### remove in 3.0
-    void set_slot_access( QMetaData::Access* ); // ### remove in 3.0
+    void set_slot_access( QMetaData::Access* ); 		// ### remove in 3.0
     QMetaData::Access slot_access(int index, bool super = FALSE ); // ### remove in 3.0
     static QMetaEnum 		*new_metaenum( int );
     static QMetaEnum::Item 	*new_metaenum_item( int );
@@ -219,6 +220,8 @@ private:	// Disabled copy constructor and operator=
 };
 
 #ifndef QT_NO_PROPERTIES
+inline bool QMetaProperty::writable() const
+{ return set != 0; }
 inline bool QMetaProperty::writeable() const
 { return set != 0; }
 inline bool QMetaProperty::testFlags( uint f ) const

@@ -36,10 +36,11 @@ public:
  Create a QWSRegionManger.  if c == TRUE the QWSRegionManager is for
  clients, else it is for use by a server.
 */
-QWSRegionManager::QWSRegionManager( bool c) : client( c )
+QWSRegionManager::QWSRegionManager( const QString &filename, bool c) :
+    client( c )
 {
     if ( client ) {
-	if ( !attach() )
+	if ( !attach( filename ) )
 	    qFatal( "Cannot attach region manager" );
 	regHdr = (QWSRegionHeader *)(data);
 	regIdx = (QWSRegionIndex *)(data + sizeof(QWSRegionHeader));
@@ -50,7 +51,7 @@ QWSRegionManager::QWSRegionManager( bool c) : client( c )
 	regHdr->maxRegions = 0;
 	regHdr->maxRects = QT_MAX_REGIONS * QT_RECTS_PER_REGION;
 	regIdx = new QWSRegionIndex[ QT_MAX_REGIONS ];
-	if ( !attach() )
+	if ( !attach( filename ) )
 	    qFatal( "Cannot attach region manager" );
 	commit();
     }
@@ -221,10 +222,10 @@ QRect *QWSRegionManager::rects( int offset )
  Attach to shared memory.  The server attaches with read/write priveliges.
  Clients attach with read privileges only.
 */
-bool QWSRegionManager::attach()
+bool QWSRegionManager::attach( const QString &filename )
 {
     int shmId;
-    key_t key = ftok( "/dev/fb0", 'r' );
+    key_t key = ftok( filename.latin1(), 'r' );
     if ( !client ) {
 	int dataSize = sizeof(QWSRegionHeader)                // header
 		    + sizeof(QWSRegionIndex) * QT_MAX_REGIONS // + index

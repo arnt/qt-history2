@@ -58,7 +58,7 @@ int main( int*, char**)
 		b = (b*255)/(max-min);
 	    }
 	    int a = 255-min;
-	    a -=  (max-min)/3; //hack more transparancy for colours.
+	    a -=  (max-min)/3; //hack more transparency for colours.
 	    line[x] = qRgba( r, g, b, a );
 	}
     }

@@ -69,7 +69,7 @@ extern void qt_init_image_handlers();
   when a frame of an animated image has ended and been revealed
   as changed().
 
-  When this funciton is called, the current image should be displayed.
+  When this function is called, the current image should be displayed.
 
   The decoder will not make
   any further changes to the image until the next call to
@@ -83,7 +83,7 @@ extern void qt_init_image_handlers();
   when a frame of an animated image has ended and been revealed
   as changed().
 
-  When this funciton is called, the area \a rect in the current image
+  When this function is called, the area \a rect in the current image
   should be moved by \a offset and displayed.
 
   The decoder will not make

@@ -1,78 +1,146 @@
 #include "previewstack.h"
 #include "styledbutton.h"
-#include "customaction.h"
-#include <qiodevice.h>
-#include <qfileinfo.h>
-#include <qtoolbar.h>
+#include "qdefaultinterface.h"
+#include "../../../qtable/qtable.h"
 
-#ifdef _OS_WIN32_
-#undef DLLEXPORT
-#define DLLEXPORT __declspec(dllexport)
+#include <qworkspace.h>
+#include <qscrollview.h>
+
+#ifdef _WS_WIN_
+#undef LIBEXPORT
+#define LIBEXPORT __declspec(dllexport)
 #else
-#define DLLEXPORT
+#define LIBEXPORT
 #endif
+
+class TestInterface : public QDefaultInterface
+{
+public:
+    QString plugInInfo();
+
+    QStringList widgets();
+    QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
+    QString iconSet( const QString &classname );
+    QCString includeFile( const QString &classname );
+    QString group( const QString &classname );
+    QString toolTip( const QString &classname );
+    QString whatsThis( const QString &classname );
+    bool isContainer( const QString &classname );
+};
+
+QString TestInterface::plugInInfo()
+{
+    return "Test Interface";
+}
+
+QStringList TestInterface::widgets()
+{
+    QStringList w;
+
+    w << "StyledButton";
+    w << "QTable";
+    w << "MyScrollView";
+    w << "MyWorkspace";
+    
+    return w;
+}
+
+QWidget* TestInterface::create( const QString &classname, QWidget* parent, const char* name )
+{
+    if ( classname == "StyledButton" )
+	return new StyledButton( parent, name );
+    else if ( classname == "QTable" )
+	return new QTable( parent, name );
+    else if ( classname == "MyScrollView" )
+	return new QScrollView( parent, name );
+    else if (classname == "MyWorkspace" )
+	return new QWorkspace( parent, name );
+    else
+	return 0;
+}
+
+QString TestInterface::iconSet( const QString& classname )
+{
+    if ( classname == "StyledButton" )
+	return "/home/reggie/uparrow.xbm";
+    else if ( classname == "QTable" )
+	return "/home/reggie/uparrow.xbm";
+    else 
+	return QString();
+}
+
+QCString TestInterface::includeFile( const QString &classname )
+{
+    if ( classname == "StyledButton" )
+	return "styledbutton.h";
+    else if ( classname == "QTable" )
+	return "qtable.h";
+    else if ( classname == "MyScrollView" )
+	return "qscrollview.h";
+    else if ( classname == "MyWorkspace" )
+	return "qworkspace.h";
+    return QCString("Bla");
+}
+
+QString TestInterface::group( const QString &classname )
+{
+    if ( classname == "StyledButton" )
+	return "Buttons";
+    else if ( classname == "QTable" )
+	return "Views";
+    else if ( classname == "MyScrollView" )
+	return "Managers";
+    return QDefaultInterface::group( classname );
+}
+
+QString TestInterface::toolTip( const QString &classname )
+{
+    if ( classname == "QTable" )
+	return "QTable";
+    return QDefaultInterface::toolTip( classname );
+}
+
+QString TestInterface::whatsThis( const QString &classname )
+{
+    if ( classname == "StyledButton" )
+	return "A StyledButton displays a color or pixmap and opens the appropriate dialog.";
+    return QDefaultInterface::whatsThis( classname );
+}
+
+bool TestInterface::isContainer( const QString &classname )
+{
+    if( classname == "MyScrollView" )
+	return TRUE;
+    else if ( classname == "MyWorkspace" )
+	return TRUE;
+    else
+	return FALSE;
+}
 
 #if defined(__cplusplus )
 extern "C"
 {
 #endif
 
-DLLEXPORT const char* infoString()
+LIBEXPORT QDefaultInterface* loadInterface()
 {
-    return "Test plugin";
+    return new TestInterface();
 }
 
-DLLEXPORT const char* enumerateWidgets()
+LIBEXPORT bool onConnect()
 {
-    return "PreviewStack;StyledButton";
+    qDebug("I've been loaded!");
+    return TRUE;
 }
 
-DLLEXPORT QWidget* createWidget( const QString& classname, bool init, QWidget* parent, const char* name )
+LIBEXPORT bool onDisconnect()
 {
-    if ( classname == "PreviewStack" ) {
-	return new PreviewStack( parent, name );
-    } else if ( classname == "StyledButton" ) {
-	return new StyledButton( parent, name );
-    }
-
-    return 0;
-}
-
-DLLEXPORT const char* enumerateActions()
-{
-    return "CustomAction";
-}
-
-DLLEXPORT QAction* createAction( const QString& actionname, bool& self, QObject* parent )
-{
-    if ( actionname == "CustomAction" ) {
-	CustomAction* a = new CustomAction( parent );
-	if ( self ) {
-	    if ( parent && parent->inherits( "QMainWindow" ) ) {
-		QMainWindow* mw = (QMainWindow*)parent;
-		QToolBar* mytoolbar = new QToolBar( mw, infoString() );
-		a->addTo( mytoolbar );
-		mw->addToolBar( mytoolbar );
-	    } else
-		self = FALSE;
-	}
-	return a;
-    }
-    return 0;
-}
-
-DLLEXPORT const char* enumerateFileTypes()
-{
-    return "Visual Studio Resource script (*.rc;*.rc2);;Visual Studio Resource (*.res)\n.bla";
-}
-
-DLLEXPORT QWidget* processFile( QIODevice* f, const QString& filetype )
-{
-    qDebug("Imagine I process %s", filetype.latin1() );
-
-    return 0;
+    qDebug("I've been unloaded!");
+    return TRUE;
 }
 
 #if defined(__cplusplus)
 }
 #endif // __cplusplus
+
+

@@ -10,7 +10,7 @@ class QWSRegionIndex;
 class QWSRegionManager
 {
 public:
-    QWSRegionManager( bool c = TRUE );
+    QWSRegionManager( const QString &filename, bool c = TRUE );
     ~QWSRegionManager();
 
     // for clients
@@ -27,7 +27,7 @@ public:
 
 private:
     QRect *rects( int offset );
-    bool attach();
+    bool attach( const QString &filename );
     void detach();
 
 private:

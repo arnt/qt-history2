@@ -10,30 +10,23 @@ public:
 
     bool load();
 
-    QWidget* createWidget( const QString& classname, bool init, QWidget* parent = 0, const char* name = 0 );
-    const char* enumerateWidgets();
+    QWidget* create( const QString& classname, QWidget* parent = 0, const char* name = 0 );
+    const char* widgets();
+    QAction* create( const QString &actionname, bool& self, QObject *parent );
+    const char* actions();
 
-    QWidget* processFile( QIODevice* f, const QString& filetype );
-    const char* enumerateFileTypes();
-
-    QAction* createAction( const QString &actionname, bool& self, QObject *parent );
-    const char* enumerateActions();
-
-    bool addToManager( QDict<QPlugIn>& dict );
+    bool addToManager( QPlugInDict& dict );
+    bool removeFromManager( QPlugInDict& dict );
 
 private:
-    typedef QWidget* (*CREATEWIDGETPROC)(const QString&, bool, QWidget* = 0, const char* = 0 );
-    typedef QWidget* (*PROCESSFILEPROC)( QIODevice*, const QString& );
-    typedef QAction* (*CREATEACTIONPROC)(const QString&, bool&, QObject* = 0 );
+    typedef QWidget* (*CreateWidgetProc)(const QString&, QWidget* = 0, const char* = 0 );
+    typedef QAction* (*CreateActionProc)(const QString&, bool&, QObject* = 0 );
 
-    CREATEWIDGETPROC createWidgetPtr;
-    STRINGPROC enumerateWidgetsPtr;
+    CreateWidgetProc createWidgetPtr;
+    StringProc widgetsPtr;
 
-    PROCESSFILEPROC processFilePtr;
-    STRINGPROC enumerateFileTypesPtr;
-
-    CREATEACTIONPROC createActionPtr;
-    STRINGPROC enumerateActionsPtr;
+    CreateActionProc createActionPtr;
+    StringProc actionsPtr;
 };
 
 class QDefaultPlugInManager : public QWidgetFactory, public QActionFactory, public QPlugInManager<QDefaultPlugIn>
@@ -44,14 +37,11 @@ public:
 private:
     QString factoryName() const { return "QPlugInManager"; }
 
-    QWidget* newWidget( const QString& classname, bool init, QWidget* parent = 0, const char* name = 0 );
-    QStringList enumerateWidgets();
-
-    QWidget* processFile( QIODevice* file, const QString& filetype );
-    QStringList enumerateFileTypes();    
+    QWidget* newWidget( const QString& classname, QWidget* parent = 0, const char* name = 0 );
+    QStringList widgets();
 
     QAction* newAction( const QString& actionname, bool& self, QObject* parent = 0 );
-    QStringList enumerateActions();
+    QStringList actions();
 };
 
 #endif // QDEFAULTPLUGIN_H

@@ -30,7 +30,7 @@
   The QEucKrCodec class subclasses QTextCodec to provide support for
   EUC-JP, the main legacy encoding for UNIX machines in Korea
 
-  It was margely written by Mizi Research Inc.; here is the copyright
+  It was largely written by Mizi Research Inc.; here is the copyright
   statement for the code as it was at the point of contribution.
   (Troll Tech's subsequent modifications are covered by the usual
   copyright for Qt.)

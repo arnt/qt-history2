@@ -468,7 +468,7 @@ void QFontSizeAction::setFontSize( int size )
     }
     else
     {
-	// Avoid dupes in combo boxes ...
+	// Avoid duplicates in combo boxes ...
 	setItems( items() );
 	setCurrentItem( index );
     }

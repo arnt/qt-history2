@@ -14,7 +14,7 @@
   and date.
 
 - fileiconview
-  This example implements a simple and not full functional filemanager using
+  This example implements a simple and not full functional file manager using
   a widget derived from QIconView to display the current directory and the
   widget of the DirectoryView example to display the directory tree.
 
@@ -35,7 +35,7 @@
   for details
 
 - qfd
-  This example program displayes all characters of a font.
+  This example program displays all characters of a font.
 
 - qmag
   This is a simple magnifier-type program.  It shows how one can do
@@ -87,7 +87,7 @@
   This example shows how to set a mouse cursor for a widget.
 
 - customlayout
-  This examples desmonstrates how to write a customized layout (geometry)
+  This examples demonstrates how to write a customized layout (geometry)
   manager, like a Card-Layout, Border-Layout and Flow-Layout.
 
 - desktop
@@ -144,13 +144,13 @@
   how to use different Echo Modes and Validators.
 
 - listboxcombo
-  This example program desmonstrates how to use Listboxes (with single
+  This example program demonstrates how to use Listboxes (with single
   selection and multi selection) and Comboboxes (editable and non-editable).
 
 - listviews
   This examples shows how to work with Listviews (hirarchical and
   multi-columns).  It also shows how to subclass Listview Items for
-  sepcial reasons. It looks and works like the mainwindow of a mail client.
+  special reasons. It looks and works like the mainwindow of a mail client.
 
 - mdi
   This example program is just like the application example, but designed as

@@ -572,7 +572,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 /*!
   \fn int QKeyEvent::ascii() const
   Returns the ASCII code of the key that was pressed or released.
-  We recomment using text() instead.
+  We recommend using text() instead.
 
   \sa text()
 */
@@ -1384,16 +1384,3 @@ QEvent::~QEvent()
 	QApplication::removePostedEvent( this );
 }
 
-/*!
-  \class QConfigureEvent qevent.h
-  \brief The event is sent when QObject::configure() is called
-
-  \sa QConfigureLayoutEvent
-*/
-
-/*!
-  \class QConfigureLayoutEvent qevent.h
-  \brief The event is sent when QLayout::configure() is called
-
-  \sa QConfigureLayoutEvent
-*/

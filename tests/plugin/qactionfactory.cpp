@@ -18,7 +18,7 @@ QDict<QActionFactory> QActionFactory::factories( prime[0] );
 
   \sa installActionFactory()
 */
-QAction* QActionFactory::createAction( const QString &actionname, bool& self, QObject *parent )
+QAction* QActionFactory::create( const QString &actionname, bool& self, QObject *parent )
 {
     QActionFactory* fact = factories[actionname];
 
@@ -36,7 +36,7 @@ QAction* QActionFactory::createAction( const QString &actionname, bool& self, QO
 */
 void QActionFactory::installActionFactory( QActionFactory* factory )
 {
-    QStringList actions = factory->enumerateActions();
+    QStringList actions = factory->actions();
     for ( QStringList::Iterator a = actions.begin(); a != actions.end(); a++ ) {
 	if ( factories[*a] && factories[*a] != factory )
 	    qWarning("More than one factory creating %s", (*a).latin1() );
@@ -50,10 +50,9 @@ void QActionFactory::installActionFactory( QActionFactory* factory )
 
 /*!
   Removes a factory.
-  All actions supported by \a factory are no longer available by
-  createAction()
+  All actions supported by \a factory are no longer available.
 
-  \sa installActionFactory()
+  \sa installActionFactory(), create()
 */
 void QActionFactory::removeActionFactory( QActionFactory* factory )
 {
@@ -91,7 +90,7 @@ QList<QActionFactory> QActionFactory::factoryList()
 /*!
   Returns a list of names of all supported actions.
 
-  \sa installActionFactory(), enumerateActions()
+  \sa installActionFactory(), actions()
 */
 QStringList QActionFactory::actionList()
 {
@@ -101,7 +100,7 @@ QStringList QActionFactory::actionList()
     QListIterator<QActionFactory> it( list );
 
     while ( it.current() ) {
-	QStringList actions = it.current()->enumerateActions();
+	QStringList actions = it.current()->actions();
 	for ( QStringList::Iterator a = actions.begin(); a != actions.end(); a++ ) {
 	    if ( !l.contains( *a ) )
 		l.append( *a );
@@ -135,11 +134,11 @@ QString QActionFactory::actionFactory( const QString& actionname )
   You have to reimplement this function in your factories to add support for custom actions.
   Note that newAction() is declared as private, so you musn't call the super class.
 
-  \sa enumerateActions()
+  \sa actions()
 */
 
 /*!
-  \fn QStringList QActionFactory::enumerateActions()
+  \fn QStringList QActionFactory::actions()
 
   Returns a list of names of actions supported by this factory.
   You have to reimplement this function in your factories to add support for custom actions.

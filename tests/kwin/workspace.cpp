@@ -239,7 +239,7 @@ bool Workspace::workspaceEvent( XEvent * e )
 }
 
 /*!
-  Finds the client that embedds the window \a w
+  Finds the client that embeds the window \a w
  */
 Client* Workspace::findClient( WId w ) const
 {
@@ -755,7 +755,7 @@ void Workspace::raiseTransientsOf( ClientList& safeset, Client* c )
 }
 
 /*!
-  Puts the focus on a dummy winodw
+  Puts the focus on a dummy window
  */
 void Workspace::focusToNull(){
   static Window w = 0;

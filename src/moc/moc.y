@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#185 $
+** $Id: //depot/qt/main/src/moc/moc.y#186 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1997,7 +1997,7 @@ int generateProps()
 		}
 		else if ( isEnumType( p->type ) ) {
 		    if ( tmp == "int" || tmp == "uint" || tmp == "unsigned int" ) {
-			// Test wether the enum is really a set (unfortunately we dont know enums of super classes)
+			// Test wether the enum is really a set (unfortunately we don't know enums of super classes)
 			bool ok = TRUE;
 			for( QListIterator<Enum> lit( enums ); lit.current(); ++lit )
 			    if ( lit.current()->name == p->type && !lit.current()->set )
@@ -2037,7 +2037,6 @@ int generateProps()
 			     "      int %s() const\n"
 			     "      uint %s() const\n"
 			     "      unsigned int %s() const\n",
-			     (const char*) p->get,
 			     (const char*) p->get,
 			     (const char*) p->get,
 			     (const char*) p->get );
@@ -2114,7 +2113,7 @@ int generateProps()
 		    if ( tmp == "int" || tmp == "uint" || tmp == "unsigned int" ) {
 		        if ( p->oredEnum == 0 )
 			    continue;
-			// Test wether the enum is really a set (unfortunately we dont know enums of super classes)
+			// Test wether the enum is really a set (unfortunately we don't know enums of super classes)
 			bool ok = TRUE;
 			for( QListIterator<Enum> lit( enums ); lit.current(); ++lit )
 			    if ( lit.current()->name == p->type && !lit.current()->set )
@@ -2436,7 +2435,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#185 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#186 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;

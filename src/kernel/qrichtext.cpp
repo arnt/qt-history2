@@ -1246,6 +1246,9 @@ int QTextParagraph::numberOfSubParagraph( QTextParagraph* subparagraph, bool onl
 {
     QTextParagraph* it = child;
     int i = 1;
+    if ( attributes_.contains( "start" ) )
+	i = attributes_["start"].toInt();
+    
     while ( it && it != subparagraph ) {
 	if ( !onlyListItems || it->style->displayMode() == QStyleSheetItem::DisplayListItem )
 	    ++i;

@@ -1151,7 +1151,7 @@ void NETRootInfo::update(unsigned long dirty) {
 		if (nitems_ret % 2 != 0) {
 		    fprintf(stderr,
 			    "NETRootInfo::update(): desktop geometry array "
-			    "size not a multipe of 2\n");
+			    "size not a multiple of 2\n");
 		}
 #endif
 	    }
@@ -1185,7 +1185,7 @@ void NETRootInfo::update(unsigned long dirty) {
 		if (nitems_ret % 2 != 0) {
 		    fprintf(stderr,
 			    "NETRootInfo::update(): desktop viewport array "
-			    "size not a multipe of 2\n");
+			    "size not a multiple of 2\n");
 		}
 #endif
 	    }

@@ -64,20 +64,20 @@ struct QUrlOperatorPrivate
 
   \ingroup misc
 
-  This class operates on hirachical structures (like filesystems)
+  This class operates on hierarchical structures (like filesystems)
   using URLs. Its API allows do all common operations on it
-  (listing childeren, removing children, renaimg, etc.). But
+  (listing children, removing children, renaming, etc.). But
   the class itself contains no functionality for that. It uses
   the functionality of registered network protocols. This means,
-  depending of the protocol of the URL, it uses an fitting
+  depending of the protocol of the URL, it uses a fitting
   network protocol class for the operations. In detail, each of
-  the operation methodes of QUrlOperator creates a
+  the operation methods of QUrlOperator create a
   QNetworkOperation object which describes the operation and
   puts it into the operation queue of the used network protocol.
   If no fitting protocol could be found (because no implementation
-  of the needed network protocol is registered),  the url operator
+  of the needed network protocol is registered), the url operator
   emits errors. Also not each protocol supports each operation -
-  but the error  handling deals with this problem.
+  but the error handling deals with this problem.
 
   A QUrlOperator can be used like this (for e.g. downloading a file)
   \code
@@ -88,9 +88,9 @@ struct QUrlOperatorPrivate
   Now, you also will connect to some signals of the QUrlOperator to get
   informed about success, errors, progress and more things.
 
-  Of course an implementation for the FTP protocol has to be registered for this example.
-  In the Qt Network Extension Library there is an implementation of the
-  FTP protocol.
+  Of course an implementation for the FTP protocol has to be registered for
+  this example.  In the Qt Network Extension Library there is an implementation
+  of the FTP protocol.
 
   For more information about the Qt Network Architecture take a look
   at the <a href="network.html">Qt Network Documentation</a>.
@@ -461,7 +461,7 @@ const QNetworkOperation *QUrlOperator::remove( const QString &filename )
   couldn't be created.
 
   This path of this QUrlOperator has to point to a directory, as \a oldname and
-  \a newname are handled relaitvie to this directory, and not to a file,
+  \a newname are handled relatively to this directory, and not to a file,
   else this operation might not work!
 */
 
@@ -607,7 +607,7 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
   the files are moved and not copied. \a dest has to point to a directory.
 
   This method is just a convenience function of the copy method above. It
-  calles the copy above for each entry in \a files one after the other. You
+  calls the copy above for each entry in \a files one after the other. You
   don't get a result from this method, but each time a new copy is started,
   startedNextCopy() is emitted, with a list of QNetworkOperations which
   describe the new copy operation.
@@ -625,7 +625,7 @@ void QUrlOperator::copy( const QStringList &files, const QString &dest,
 
 /*!
   Returns TRUE if the url is a directory, else
-  returns FALSE. This may not always work correcrly,
+  returns FALSE. This may not always work correctly,
   if the protocol of the URL is something else than file
   (local filesystem)! If you pass a bool as \a ok argument,
   this is set to TRUE, if the result of this method is correct
@@ -675,7 +675,7 @@ bool QUrlOperator::isDir( bool *ok )
   when you use this operation. If \a location is not empty, it can be relative (a child of
   the path to which the QUrlOperator points) or an absolute URL.
 
-  E.g. for getting a webpage you might do something like
+  E.g. for getting a Web page you might do something like
 
   \code
   QUrlOperator op( "http://www.whatever.org/cgi-bin/search.pl?cmd=Hallo" );
@@ -744,7 +744,7 @@ const QNetworkOperation *QUrlOperator::get( const QString &location )
 /*!
   Tells the network protocol to put \a data to \a location, or if this is
   empty (QString::null) it puts the \a data to the location to which the
-  URL points. What exaclty happens is depending on the network
+  URL points. What exactly happens is depending on the network
   protocol. Also depending on the network protocol
   after putting data some data might come back. In this case the
   data() signal is emitted.

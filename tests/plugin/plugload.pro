@@ -13,4 +13,4 @@ SOURCES		= main.cpp \
 		  qdefaultplugin.cpp \
 		  plugmainwindow.cpp
 
-unix:	LIBS	+= -ldl
+unix:LIBS	+= -ldl

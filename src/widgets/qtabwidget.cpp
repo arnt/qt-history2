@@ -523,11 +523,11 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     int lw = d->stack->lineWidth();
     if ( d->pos == Bottom ) {
 	d->tabs->setGeometry( QMAX(0, lw-2), height() - t.height(), t.width(), t.height() );
-	d->stack->setGeometry( 0, 0, width(), height()-t.height()+lw );
+	d->stack->setGeometry( 0, 0, width(), height()-t.height()+QMAX(0, lw-2) );
     }
     else { // Top
 	d->tabs->setGeometry( QMAX(0, lw-2), 0, t.width(), t.height() );
-	d->stack->setGeometry( 0, t.height()-lw, width(), height()-t.height()+lw );
+	d->stack->setGeometry( 0, t.height()-lw, width(), height()-t.height()+QMAX(0, lw-2));
     }
 
     d->dirty = FALSE;

@@ -769,8 +769,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
         show();
 
     reparentFocusWidgets( oldtlw );             // fix focus chains
-    
-    QCustomEvent e( QEvent::Reparent, 0 );
+
+    QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
 
 

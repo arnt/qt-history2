@@ -27,7 +27,7 @@ class QVFb: public QMainWindow
 {
     Q_OBJECT
 public:
-    QVFb( int w, int h, int d, QWidget *parent = 0,
+    QVFb( int display_id, int w, int h, int d, QWidget *parent = 0,
 		const char *name = 0, uint wflags = 0 );
     ~QVFb();
 

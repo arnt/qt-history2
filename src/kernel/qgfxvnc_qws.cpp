@@ -29,6 +29,7 @@
 #include <netinet/in.h>
 #include "qtimer.h"
 #include "qwindowsystem_qws.h"
+#include "qgfxlinuxfb_qws.h"
 #include "qgfxvnc_qws.h"
 
 #define MAP_TILE_SIZE	    16
@@ -44,13 +45,13 @@ struct QVNCHeader
     uchar map[MAP_HEIGHT][MAP_WIDTH];
 };
 
-class QVNCScreen : public QScreen
+class QVNCScreen : public QLinuxFbScreen
 {
 public:
-    QVNCScreen();
+    QVNCScreen( int display_id );
     virtual ~QVNCScreen();
     virtual bool initCard();
-    virtual bool connect();
+    virtual bool connect( const QString &displaySpec );
     virtual void disconnect();
     virtual int initCursor(void*, bool);
     virtual void shutdownCard();
@@ -119,7 +120,7 @@ static struct {
 
 /*
  */
-void QRfbRect::read( QWSSocket *s )
+void QRfbRect::read( QSocket *s )
 {
     Q_UINT16 buf[4];
     s->readBlock( (char*)buf, 8 );
@@ -129,7 +130,7 @@ void QRfbRect::read( QWSSocket *s )
     h = ntohs( buf[3] );
 }
 
-void QRfbRect::write( QWSSocket *s )
+void QRfbRect::write( QSocket *s )
 {
     Q_UINT16 buf[4];
     buf[0] = htons( x );
@@ -141,7 +142,7 @@ void QRfbRect::write( QWSSocket *s )
 
 /*
  */
-void QRfbPixelFormat::read( QWSSocket *s )
+void QRfbPixelFormat::read( QSocket *s )
 {
     char buf[16];
     s->readBlock( buf, 16 );
@@ -167,7 +168,7 @@ void QRfbPixelFormat::read( QWSSocket *s )
     blueShift = buf[12];
 }
 
-void QRfbPixelFormat::write( QWSSocket *s )
+void QRfbPixelFormat::write( QSocket *s )
 {
     char buf[16];
     buf[0] = bitsPerPixel;
@@ -203,7 +204,7 @@ void QRfbServerInit::setName( const char *n )
     strcpy( name, n );
 }
 
-void QRfbServerInit::read( QWSSocket *s )
+void QRfbServerInit::read( QSocket *s )
 {
     s->readBlock( (char *)&width, 2 );
     width = ntohs( width );
@@ -220,7 +221,7 @@ void QRfbServerInit::read( QWSSocket *s )
     name[len] = '\0';
 }
 
-void QRfbServerInit::write( QWSSocket *s )
+void QRfbServerInit::write( QSocket *s )
 {
     Q_UINT16 t = htons(width);
     s->writeBlock( (char *)&t, 2 );
@@ -235,7 +236,7 @@ void QRfbServerInit::write( QWSSocket *s )
 
 /*
  */
-bool QRfbSetEncodings::read( QWSSocket *s )
+bool QRfbSetEncodings::read( QSocket *s )
 {
     if ( s->bytesAvailable() < 3 )
 	return FALSE;
@@ -250,7 +251,7 @@ bool QRfbSetEncodings::read( QWSSocket *s )
 
 /*
  */
-bool QRfbFrameBufferUpdateRequest::read( QWSSocket *s )
+bool QRfbFrameBufferUpdateRequest::read( QSocket *s )
 {
     if ( s->bytesAvailable() < 9 )
 	return FALSE;
@@ -263,7 +264,7 @@ bool QRfbFrameBufferUpdateRequest::read( QWSSocket *s )
 
 /*
  */
-bool QRfbKeyEvent::read( QWSSocket *s )
+bool QRfbKeyEvent::read( QSocket *s )
 {
     if ( s->bytesAvailable() < 7 )
 	return FALSE;
@@ -299,7 +300,7 @@ bool QRfbKeyEvent::read( QWSSocket *s )
 
 /*
  */
-bool QRfbPointerEvent::read( QWSSocket *s )
+bool QRfbPointerEvent::read( QSocket *s )
 {
     if ( s->bytesAvailable() < 5 )
 	return FALSE;
@@ -325,7 +326,7 @@ bool QRfbPointerEvent::read( QWSSocket *s )
 
 /*
  */
-bool QRfbClientCutText::read( QWSSocket *s )
+bool QRfbClientCutText::read( QSocket *s )
 {
     if ( s->bytesAvailable() < 7 )
 	return FALSE;
@@ -341,7 +342,7 @@ bool QRfbClientCutText::read( QWSSocket *s )
 /*
  */
 QVNCServer::QVNCServer()
-    : QWSServerSocket( 5900, 0, 0 )
+    : QServerSocket( 5900, 0, 0 )
 {
     qDebug( "QVNCServer created" );
     handleMsg = FALSE;
@@ -365,12 +366,12 @@ void QVNCServer::newConnection( int socket )
 	qDebug( "Killing old client" );
 	delete client;
     }
-    client = new QWSSocket(this);
+    client = new QSocket(this);
     connect(client,SIGNAL(readyRead()),this,SLOT(readClient()));
     connect(client,SIGNAL(delayedCloseFinished()),this,SLOT(discardClient()));
-    connect(client,SIGNAL(closed()),this,SLOT(discardClient()));
+    connect(client,SIGNAL(connectionClosed()),this,SLOT(discardClient()));
     client->setSocket(socket);
-    client->setMode(QWSSocket::Binary);
+    client->setMode(QSocket::Binary);
     handleMsg = FALSE;
     encodingsPending = 0;
     cutTextPending = 0;
@@ -1030,7 +1031,7 @@ void QGfxVNC<depth,type>::tiledBlt( int x,int y,int w,int h )
 /*
 */
 
-QVNCScreen::QVNCScreen() : QScreen()
+QVNCScreen::QVNCScreen( int display_id ) : QLinuxFbScreen( display_id )
 {
 }
 
@@ -1038,11 +1039,11 @@ QVNCScreen::~QVNCScreen()
 {
 }
 
-bool QVNCScreen::connect()
+bool QVNCScreen::connect( const QString &displaySpec )
 {
-    QScreen::connect();
+    QLinuxFbScreen::connect( displaySpec );
 
-    key_t key = ftok( "/dev/fb0", 'v' );
+    key_t key = ftok( QString(QTE_PIPE).arg(displayId).latin1(), 'v' );
      
     int shmId = shmget( key, 0, 0 );
     if ( shmId != -1 )
@@ -1064,13 +1065,13 @@ bool QVNCScreen::connect()
 
 void QVNCScreen::disconnect()
 {
-    QScreen::disconnect();
+    QLinuxFbScreen::disconnect();
     shmdt( shmrgn );
 }
 
 bool QVNCScreen::initCard()
 {
-    QScreen::initCard();
+    QLinuxFbScreen::initCard();
 
     vncServer = new QVNCServer();
 
@@ -1083,7 +1084,7 @@ bool QVNCScreen::initCard()
 void QVNCScreen::shutdownCard()
 {
     delete vncServer;
-    QScreen::shutdownCard();
+    QLinuxFbScreen::shutdownCard();
 }
 
 int QVNCScreen::initCursor(void* e, bool init)
@@ -1110,13 +1111,13 @@ void QVNCScreen::setMode(int ,int ,int)
 // between linux virtual consoles.
 void QVNCScreen::save()
 {
-    QScreen::save();
+    QLinuxFbScreen::save();
 }
 
 // restore the state of the graphics card.
 void QVNCScreen::restore()
 {
-    QScreen::restore();
+    QLinuxFbScreen::restore();
 }
 
 QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
@@ -1163,11 +1164,12 @@ QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
     return ret;
 }
 
-extern "C" QScreen * qt_get_screen(char *,unsigned char *)
+extern "C" QScreen * qt_get_screen_vnc( int display_id, const char *spec,
+				    char *slot, unsigned char *config )
 {
     if ( !qt_screen ) {
-	qvnc_screen = new QVNCScreen();
-	if ( qvnc_screen->connect() ) {
+	qvnc_screen = new QVNCScreen( display_id );
+	if ( qvnc_screen->connect( spec ) ) {
 	    qt_screen = qvnc_screen;
 	    qvncEnabled = TRUE;
 	} else {
@@ -1176,12 +1178,8 @@ extern "C" QScreen * qt_get_screen(char *,unsigned char *)
     }
 
     if ( !qt_screen ) {
-	const char *term = getenv( "TERM" );
-	if ( QString( term ) == "xterm" ) {
-	    qFatal( "$TERM=xterm - To continue would corrupt X11 - aborting" );
-	}
-	qt_screen = new QScreen();
-	qt_screen->connect();
+	// VNC failed, but we can still try the hardware display
+	qt_screen = qt_get_screen_linuxfb( display_id, spec, slot, config );
     }
 
     return qt_screen;

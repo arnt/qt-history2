@@ -146,7 +146,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   <h1 align=center>Customized Layoutmanager</h1><br clear="all">
 
-  This examples desmonstrates how to write a customized layout (geometry) manager,
+  This examples demonstrates how to write a customized layout (geometry) manager,
   like a Card-Layout, Border-Layout and Flow-Layout.
 
   See also: <a href="layout.html">Documentation of Geometry Management</a>.
@@ -382,7 +382,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   <h1 align=center>Listboxes and Comboboxes</h1><br clear="all">
 
-  This example program desmonstrates how to use Listboxes (with single selection
+  This example program demonstrates how to use Listboxes (with single selection
   and multi selection) and Comboboxes (editable and non-editable).
 
   <hr>
@@ -433,7 +433,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
   <h1 align=center>Listviews</h1><br clear="all">
 
   This examples shows how to work with Listviews (hirarchical and multi-columns).
-  It also shows how to subclass Listview Items for sepcial reasons. It looks
+  It also shows how to subclass Listview Items for special reasons. It looks
   and works like the mainwindow of a mail client.
 
   <hr>
@@ -1056,7 +1056,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   <h1 align=center>Simple HTML Browser</h1><br clear="all">
 
-  The QBrowser exampple implements a simple HTML browser using Qt's Richtext widget.
+  The QBrowser example implements a simple HTML browser using Qt's Richtext widget.
 
   <hr>
 
@@ -1088,7 +1088,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   <h1 align=center>Font Displayer</h1><br clear="all">
 
-  This example program displayes all characters of a font.
+  This example program displays all characters of a font.
 
   <hr>
 
@@ -1112,7 +1112,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   <h1 align=center>Simple Filemanager</h1><br clear="all">
 
-  This example implements a simple and not full functional filemanager using
+  This example implements a simple and not full functional file manager using
   a widget derived from QIconView to display the current directory and the
   widget of the DirectoryView example to display the directory tree.
 

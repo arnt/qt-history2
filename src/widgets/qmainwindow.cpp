@@ -1327,7 +1327,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 
   Normally toolbars are moved transparently (this means while the user
   drags one, a rectangle is drawn on the screen). With setOpaqueMoving()
-  it's possible to switch betrween opaque and transparent moving
+  it's possible to switch between opaque and transparent moving
   of toolbars.
 
   The main window's menubar is static (on the top) by default. If you want a movable
@@ -1741,7 +1741,7 @@ void QMainWindow::addToolBar( QToolBar * toolBar, const QString &label,
 }
 
 /*!
-  Moves \a toolBar before the tollbar \a relative if \a after is FALSE, or after
+  Moves \a toolBar before the toolbar \a relative if \a after is FALSE, or after
   \a relative if \a after is TRUE.
 
   If \a toolBar is already managed by some main window, it is moved from

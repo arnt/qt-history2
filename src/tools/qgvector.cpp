@@ -56,7 +56,7 @@
   the QVector collection class.
 
   QGVector has some virtual functions that may be reimplemented in
-  subclasses to to customize behavor.
+  subclasses to to customize behavior.
 
   <ul>
   <li> compareItems() compares two collection/vector items.

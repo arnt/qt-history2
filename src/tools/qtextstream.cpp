@@ -190,7 +190,7 @@ public:
 };
 
 
-// skips whitespace and returns the first nonwhitespace character
+// skips whitespace and returns the first non-whitespace character
 QChar QTextStream::eat_ws()
 {
     QChar c;
@@ -568,7 +568,7 @@ QTextStream::~QTextStream()
 }
 
 /*!
-  Positions the read pointer at the first nonwhitespace character.
+  Positions the read pointer at the first non-whitespace character.
 */
 void QTextStream::skipWhiteSpace()
 {
@@ -585,10 +585,10 @@ void QTextStream::skipWhiteSpace()
 */
 
 /*!
-  Tries to read len characters from the stream and strores them in buf.
+  Tries to read len characters from the stream and stores them in \a buf.
   Returns the number of characters really read.
   Attention: There will no QEOF appended if the read reaches the end of
-  the file. EOF is reached when the return value does not equal len.
+  the file. EOF is reached when the return value does not equal \a len.
 */
 uint QTextStream::ts_getbuf( QChar* buf, uint len )
 {

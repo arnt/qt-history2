@@ -45,45 +45,41 @@
 static const unsigned int prime[6] = { 53, 151, 503, 1511, 5101, 15101 };
 static int primeSize = 0;
 QDict<QWidgetFactory> QWidgetFactory::factories( prime[0] );
+QWidgetFactory* QWidgetFactory::that = 0;
 
 /*!
   \class QWidgetFactory qwidgetfactory.h
   \brief Factory-class for widgets.
 
-  Normal use of this class is to call QWidgetFactory::create() with the
-  name of a file or widget class, and get a QWidget* in return.
+  Normal use of this class is to call QWidgetFactory::create() with a
+  widget description, and get a QWidget* in return.
 
-  As supplied, QWidgetFactory can create all the widgets in Qt, but it
-  can be extended with support for custom widgets. To do that, you must
-  subclass QWidgetFactory, reimplement newWidget() and make your
-  reimplementation create the widget types requested. QWidgetFactory
+  As supplied, QWidgetFactory can load ui-files and create all the widgets 
+  in Qt, but it can be extended with support for custom widgets. To do that, 
+  you must subclass QWidgetFactory, reimplement newWidget() and widgets() and 
+  make your reimplementation create the widget types requested. QWidgetFactory
   uses setProperties() to configure the widgets once they're created, so
   your custom widgets must support properties.
 */
 
 /*!
   Installs a QWidgetFactory.
-  Registers all widgets and filetypes \a factory provides.
+  Registers all widgets \a factory provides.
 
-  \sa widgetList(), fileTypeList()
+  \sa widgetList()
 */
 void QWidgetFactory::installWidgetFactory( QWidgetFactory* factory )
 {
-    QStringList widgets = factory->enumerateWidgets();
+    if ( !that )
+	that = factory;
+
+    QStringList widgets = factory->widgets();
     for ( QStringList::Iterator w = widgets.begin(); w != widgets.end(); w++ ) {
 #ifdef CHECK_RANGE
 	if ( factories[*w] && factories[*w] != factory )
 	    qWarning("More than one factory provides %s", (*w).latin1() );
 #endif
 	factories.insert( *w, factory );
-    }
-    QStringList filetypes = factory->enumerateFileTypes();
-    for ( QStringList::Iterator f = filetypes.begin(); f != filetypes.end(); f++ ) {
-#ifdef CHECK_RANGE
-	if ( factories[*f] && factories[*f] != factory )
-	    qWarning("More than one factory supports %s", (*f).latin1() );
-#endif
-	factories.insert( *f, factory );
     }
 
     if ( factories.count() > prime[primeSize] ) {
@@ -94,7 +90,7 @@ void QWidgetFactory::installWidgetFactory( QWidgetFactory* factory )
 
 /*!
   Removes a factory.
-  All widgets and filetypes supported by \a factory are no longer available. 
+  All widgets supported by \a factory are no longer available. 
 
   \sa installWidgetFactory(), createWidget()
 */
@@ -134,7 +130,7 @@ QList<QWidgetFactory> QWidgetFactory::factoryList()
 /*!
   Returns a list of names of all supported widgets.
 
-  \sa installWidgetFactory(), enumerateWidgets()
+  \sa installWidgetFactory(), widgets()
 */
 QStringList QWidgetFactory::widgetList()
 {
@@ -144,7 +140,7 @@ QStringList QWidgetFactory::widgetList()
     QListIterator<QWidgetFactory> it( list );
 
     while ( it.current() ) {
-	QStringList widgets = it.current()->enumerateWidgets();
+	QStringList widgets = it.current()->widgets();
 	for ( QStringList::Iterator w = widgets.begin(); w != widgets.end(); w++ ) {
 	    if ( !l.contains( *w ) )
 		l.append( *w );
@@ -152,27 +148,6 @@ QStringList QWidgetFactory::widgetList()
 	++it;
     }
     
-    return l;
-}
-
-/*!
-  Returns a list of supported filetypes
-*/
-QStringList QWidgetFactory::fileTypeList()
-{
-    QStringList l;
-    QList<QWidgetFactory> list = factoryList();
-    QListIterator<QWidgetFactory> it( list );
-
-    while ( it.current() ) {
-	QStringList types = it.current()->enumerateFileTypes();
-	for ( QStringList::Iterator lt = types.begin(); lt != types.end() ; ++lt ) {
-	    if ( !l.contains( *lt ) )
-		l.append( *lt );
-	}
-	++it;
-    }
-
     return l;
 }
 
@@ -191,258 +166,162 @@ QString QWidgetFactory::widgetFactory( const QString& classname )
 }
 
 /*!
-  Returns a widget of class \a classname.
-  Looks up the widget factory that provides \a classname and creates
-  the widget with \a parent and \a name. If \a init is TRUE the widget
-  gets initialized by the factory.
+  Returns a widget that matches \a description.
+
+  Tries to process a UI-description and returns the created widget
+  if successful, or looks up the widget factory that provides a widget
+  matching the description and creates the widget with \a parent and 
+  \a name.
   Returns 0 if the widget could not be created.
 
   \sa installWidgetFactory()
 */
-QWidget* QWidgetFactory::createWidget( const QString& classname, bool init, QWidget* parent, const char* name )
+QWidget* QWidgetFactory::create( const QString& description, QWidget* parent, const char* name )
 {
-    QWidgetFactory* fact = factories[classname];
-
-    if ( fact )
-	return fact->newWidget( classname, init, parent, name );
-    return 0;
-}
-
-/*!
-  Loads the file \a filename and calls processFile() to create the widget.
-  Returns the widget if successful or 0 if the widget could not be created.
-
-  \sa createWidget()
-*/
-QWidget* QWidgetFactory::createWidget( const QString &filename, QWidget *parent, const char *name, Qt::WFlags f )
-{
-    if ( filename.isEmpty() )
+    if ( description.isEmpty() )
 	return 0;
 
-    QFile file( filename );
-    if ( !file.open( IO_ReadOnly ) )
-	return 0;
+    if ( description[0] == "<" ) {
+	QWidget* w = 0;
+	if ( !that )
+	    installWidgetFactory( new QWidgetFactory );
+	w = that->compose( description );
 
-    QFileInfo fi( file );
-
-    QDictIterator<QWidgetFactory> it( factories );
-    QWidgetFactory* fact = 0;
-    QString type;
-    while ( it.current() && !fact ) {
-	QStringList types = it.current()->enumerateFileTypes();
-	for ( QStringList::Iterator t = types.begin(); t != types.end(); t++ ) {
-	    QString ext = *t;
-	    QRegExp r( QString::fromLatin1("([a-zA-Z0-9.*? +;#]*)$") );
-	    int len;
-	    int index = r.match( ext, 0, &len );
-	    if ( index >= 0 )
-		ext = ext.mid( index+1, len-2 );
-
-	    QStringList extensions = QStringList::split( QRegExp("[;\\s]"), ext );
-	    for ( QStringList::Iterator e = extensions.begin(); e != extensions.end() && !fact; e++ ) {
-		ext = *e;
-		ext.replace( QRegExp("[*]?[.]"), "" );
-		if ( ext == fi.extension() ) {
-		    fact = it.current();
-		    type = *t;
-		    continue;
-		}
-	    }
-	}
-
-	++it;
-    }
-
-    if ( fact ) {
-	QWidget* w = fact->processFile( &file, type );
-	file.close();
 	if ( w ) {
-	    if ( parent || f )
-		w->reparent( parent, f, w->pos() );
+	    if ( parent )
+		w->reparent( parent, w->pos() );
 	    w->setName( name );
 	}
-	return w;
     }
 
+    QWidgetFactory* fact = factories[description];
+    if ( fact )
+	return fact->newWidget( description, parent, name );
     return 0;
 }
 
 /*!
-  Processes the file \a f and returns a widget if successful.
-
-  This method gets called by createWidget().
-  Reimplement this function to add support for custom filetypes.
+  Processes \a description and returns a widget if successful.
 */
-QWidget* QWidgetFactory::processFile( QIODevice* f, const QString& filetype )
+QWidget* QWidgetFactory::compose( const QString& description )
 {
-    qDebug("Imagine I process %s", filetype.latin1() );
-
-    if ( filetype.contains( "*.ui" ) ) {
-    } else if ( filetype.contains( "*.pro" ) ) {
-/*	QStringList lst = getUIFiles( f );
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	    QString fn = QUrl( QFileInfo( filename ).dirPath(), *it ).path();
-	    openFile( fn );
-	}
-*/    }
-
-/*
-    QDomDocument doc;
-    if ( !doc.setContent( f ) ) {
-	return 0;
-    }
-*/
+    qDebug("Imagine I process %s", description );
+    
     // TODO: process doc
 
     return 0;
 }
 
 /*!
-  Returns a list of supported file types.
-
-  Reimplement this function to add support for custom filetypes.
-*/
-QStringList QWidgetFactory::enumerateFileTypes()
-{
-    QStringList list;
-
-    list << "Qt User Interface File (*.ui)";
-    list << "TMAKE Projectfile (*.pro)";
-
-    return list;
-}
-
-/*!
-  Creates and returns a widget registered with \a classname and passes \a parent and \a name
+  Creates and returns a widget registered with \a description and passes \a parent and \a name
   to the widgets's constructor if successful. Otherwise returns 0.
-  The widget gets initialized with by the factory if \a init is TRUE.
   
   You have to reimplement this function in your factories to add support for custom widgets.
   Note that newWidget() is declared as private, so you musn't call the super-class.
 
   \sa enumerateWidgets()
 */
-QWidget* QWidgetFactory::newWidget( const QString& classname, bool init, QWidget* parent, const char* name )
+QWidget* QWidgetFactory::newWidget( const QString& description, QWidget* parent, const char* name )
 {
-    if ( classname == "QButtonGroup" ) {
-	return init ? new QButtonGroup( QString(name), parent, name ) : 
-		      new QButtonGroup( parent, name );
-    } else if ( classname == "QCheckBox" ) {
-	return init ? new QCheckBox( QString(name), parent, name ) :
-		      new QCheckBox( parent, name );
-    } else if ( classname == "QComboBox" ) {
+    if ( description == "QButtonGroup" ) {
+	return new QButtonGroup( parent, name );
+    } else if ( description == "QCheckBox" ) {
+	return new QCheckBox( parent, name );
+    } else if ( description == "QComboBox" ) {
 	return new QComboBox( FALSE, parent, name );
-    } else if ( classname == "QDial" ) {
+    } else if ( description == "QDial" ) {
 	return new QDial( parent, name );
-    } else if ( classname == "QFrame" ) {
-	QFrame *widget = new QFrame( parent, name );
-	if ( init )
-	    widget->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-	return widget;
-    } else if ( classname == "QGroupBox" ) {
+    } else if ( description == "QFrame" ) {
+	return new QFrame( parent, name );
+    } else if ( description == "QGroupBox" ) {
 	return new QGroupBox( parent, name );
-    } else if ( classname == "QHBox" ) {
+    } else if ( description == "QHBox" ) {
 	return new QHBox( parent, name );
-    } else if ( classname == "QHButtonGroup" ) {
-	return init ? new QHButtonGroup( QString(name), parent, name ) :
-		      new QHButtonGroup( parent, name );
-    } else if ( classname == "QHeader" ) {
+    } else if ( description == "QHButtonGroup" ) {
+	return new QHButtonGroup( parent, name );
+    } else if ( description == "QHeader" ) {
 	return new QHeader( parent, name );
-    } else if ( classname == "QHGroupBox" ) {
-	return init ? new QHGroupBox( QString(name), parent, name ) :
-		      new QHGroupBox( parent, name );
-    } else if ( classname == "QIconView" ) {
-	return new QIconView( parent, name );
-    } else if ( classname == "QLabel" ) {
-	return init ? new QLabel( QString(name), parent, name ) :
-		      new QLabel( parent, name );
-    } else if ( classname == "QLCDNumber" ) {
+    } else if ( description == "QHGroupBox" ) {
+	return new QHGroupBox( parent, name );
+    } else if ( description == "QIconView" ) {
+	return new QIconView( parent, name ); // bug in QIconView ?
+    } else if ( description == "QLabel" ) {
+	return new QLabel( parent, name );
+    } else if ( description == "QLCDNumber" ) {
 	return new QLCDNumber( parent, name );
-    } else if ( classname == "QLineEdit" ) {
+    } else if ( description == "QLineEdit" ) {
 	return new QLineEdit( parent, name );
-    } else if ( classname == "QListBox" ) {
+    } else if ( description == "QListBox" ) {
 	return new QListBox( parent, name );
-    } else if ( classname == "QListView" ) {
-	QListView *widget = new QListView( parent, name );
-	if ( init )
-	    widget->addColumn( "Column 1" );
-	return widget;
-    } else if ( classname == "QMainWindow" ) {
+    } else if ( description == "QListView" ) {
+	return new QListView( parent, name );
+    } else if ( description == "QMainWindow" ) {
 	return new QMainWindow( parent, name );
-    } else if ( classname == "QMenuBar" ) {
+    } else if ( description == "QMenuBar" ) {
 	return new QMenuBar( parent, name );
-    } else if ( classname == "QMultiLineEdit" ) {
+    } else if ( description == "QMultiLineEdit" ) {
 	return new QMultiLineEdit( parent, name );
-    } else if ( classname == "QPopupMenu" ) {
+    } else if ( description == "QPopupMenu" ) {
 	return new QPopupMenu( parent, name );
-    } else if ( classname == "QProgressBar" ) {
+    } else if ( description == "QProgressBar" ) {
 	return new QProgressBar( parent, name );
-    } else if ( classname == "QPushButton" ) {
-	return init ? new QPushButton( QString(name), parent, name ) :
-		      new QPushButton( parent, name );
-    } else if ( classname == "QRadioButton" ) {
-	return init ? new QRadioButton( QString(name), parent, name ) :
-		      new QRadioButton( parent, name );
-    } else if ( classname == "QScrollBar" ) {
+    } else if ( description == "QPushButton" ) {
+	return new QPushButton( parent, name );
+    } else if ( description == "QRadioButton" ) {
+	return new QRadioButton( parent, name );
+    } else if ( description == "QScrollBar" ) {
 	return new QScrollBar( parent, name );
-    } else if ( classname == "QScrollView" ) {
+    } else if ( description == "QScrollView" ) {
 	return new QScrollView( parent, name );
-    } else if ( classname == "QSlider" ) {
+    } else if ( description == "QSlider" ) {
 	return new QSlider( parent, name );
-    } else if ( classname == "QSpinBox" ) {
+    } else if ( description == "QSpinBox" ) {
 	return new QSpinBox( parent, name );
-    } else if ( classname == "QSplitter" ) {
+    } else if ( description == "QSplitter" ) {
 	return new QSplitter( parent, name );
-    } else if ( classname == "QStatusBar" ) {
+    } else if ( description == "QStatusBar" ) {
 	return new QStatusBar( parent, name );
-    } else if ( classname == "QTabBar" ) {
+    } else if ( description == "QTabBar" ) {
 	return new QTabBar( parent, name );
-    } else if ( classname == "QTabWidget" ) {
-	QTabWidget *widget = new QTabWidget( parent, name );
-	return widget;
-    } else if ( classname == "QTextBrowser" ) {
+    } else if ( description == "QTabWidget" ) {
+	return new QTabWidget( parent, name );
+    } else if ( description == "QTextBrowser" ) {
 	return new QTextBrowser( parent, name );
-    } else if ( classname == "QTextView" ) {
+    } else if ( description == "QTextView" ) {
 	return new QTextView( parent, name );
-    } else if ( classname == "QToolBar" ) {
-	if (  parent &&  parent->inherits( "QMainWindow" ) ) {
-	    QToolBar *widget = new QToolBar( (QMainWindow*)parent, name );
-	    return widget;
-	}
-    } else if ( classname == "QToolButton" ) {
-	QToolButton *widget = new QToolButton( parent, name );
-	if ( init )
-	    widget->setText( "..." );
-	return widget;
-    } else if ( classname == "QVBox" ) {
+    } else if ( description == "QToolBar" ) {
+	if (  parent &&  parent->inherits( "QMainWindow" ) )
+	    return new QToolBar( (QMainWindow*)parent, name );
+    } else if ( description == "QToolButton" ) {
+	return new QToolButton( parent, name );
+    } else if ( description == "QVBox" ) {
 	return new QVBox( parent, name );
-    } else if ( classname == "QVButtonGroup" ) {
-	return init ? new QVButtonGroup( QString(name), parent, name ) :
-		      new QVButtonGroup( parent, name );
-    } else if ( classname == "QVGroupBox" ) {
-	return init ? new QVGroupBox( QString(name), parent, name ) :
-		      new QVGroupBox( parent, name );
-    } else if ( classname == "QWidgetStack" ) {
+    } else if ( description == "QVButtonGroup" ) {
+	return new QVButtonGroup( parent, name );
+    } else if ( description == "QVGroupBox" ) {
+	return new QVGroupBox( parent, name );
+    } else if ( description == "QWidgetStack" ) {
 	return new QWidgetStack( parent, name );
-    } else if ( classname == "QWorkspace" ) {
+    } else if ( description == "QWorkspace" ) {
 	return new QWorkspace( parent, name );
-    } else if ( classname == "QWidget" ) {
+    } else if ( description == "QWidget" ) {
 	return new QWidget( parent, name );
     } else {
-	qWarning("Widget class %s not supported by QWidgetFactory!", classname.latin1() );
+	qWarning("Widget class %s not supported by QWidgetFactory!", description.latin1() );
     }
 
     return 0;
 }
 
 /*!
-  Returns a list of widget-classes supported by this factory.
+  Returns a list of widget-description, e.g. classnames, supported by this factory.
+
   You have to reimplement this function in your factories to add support for custom widgets.
   Note that newWidget() is declared as private, so you musn't call the super-class.
 
   \sa newWidget()
 */
-QStringList QWidgetFactory::enumerateWidgets()
+QStringList QWidgetFactory::widgets()
 {
     QStringList list;
 

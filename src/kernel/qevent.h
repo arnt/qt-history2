@@ -68,13 +68,13 @@ public:
 	Close = 19,				// request to close widget
 	Quit = 20,				// request to quit application
 	Reparent = 21,				// widget has been reparented
-	ShowMaximized = 28,		       	// widget is shown maximized
 	ShowMinimized = 22,		       	// widget is shown minimized
 	ShowNormal = 23,	       		// widget is shown normal
 	WindowActivate = 24,	       		// window was activated
 	WindowDeactivate = 25,	       		// window was deactivated
 	ShowToParent = 26,	       		// widget is shown to parent
 	HideToParent = 27,	       		// widget is hidden to parent
+	ShowMaximized = 28,		       	// widget is shown maximized
 	Accel = 30,				// accelerator event
 	Wheel = 31,				// wheel event
 	AccelAvailable = 32,			// accelerator available event
@@ -94,10 +94,9 @@ public:
 	ChildInserted = 70,			// new child widget
 	ChildRemoved = 71,			// deleted child widget
 	LayoutHint = 72,			// child min/max size changed
+	ShowWindowRequest = 73,			// widget's window should be mapped
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
-	Configure = 82,				// configure an object
-	ConfigureLayout = 83,			// configure a layout
 	User = 1000				// first user event id
     };
 

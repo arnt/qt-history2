@@ -40,7 +40,7 @@
   programmer can also set selections and for information about
   selections this class is used as well. See QTable::addSelection()
   and QTable::selection().
-  
+
   If you construct a QTableSelection, it is initialized as a
   invalid-selection (isValid()). To make a selection valid, use the
   init() and expandTo() methods, which set the actual values of the
@@ -52,7 +52,7 @@
 */
 
 QTableSelection::QTableSelection()
-    : active( FALSE ), dirty( TRUE ), tRow( -1 ), lCol( -1 ), 
+    : active( FALSE ), dirty( TRUE ), tRow( -1 ), lCol( -1 ),
       bRow( -1 ), rCol( -1 ), aRow( -1 ), aCol( -1 )
 {
 }
@@ -106,15 +106,15 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 	     s.rCol == rCol );
 }
 
-/*! \fn int QTableSelection::topRow() const 
+/*! \fn int QTableSelection::topRow() const
   Returns the top row of the selection.
  */
 
-/*! \fn int QTableSelection::bottomRow() const 
+/*! \fn int QTableSelection::bottomRow() const
   Returns the bottom row of the selection.
  */
 
-/*! \fn int QTableSelection::leftCol() const 
+/*! \fn int QTableSelection::leftCol() const
   Returns the left column of the selection.
  */
 
@@ -131,11 +131,11 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
  */
 
 /*! \fn bool QTableSelection::isActive() const
-  Returns whether the selction is active or not.
+  Returns whether the selection is active or not.
  */
 
 /*! \fn bool QTableSelection::isValid() const
-  Returns whether the selction is valid or not.
+  Returns whether the selection is valid or not.
  */
 
 /*!
@@ -152,7 +152,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   setContentFromEditor() you can change this.
 
   To get rid of an item, just delete it. This does all the required
-  actions for remiving it from the table too.
+  actions for removing it from the table too.
 */
 
 /*! \fn QTable *QTableItem::table() const
@@ -237,6 +237,8 @@ void QTableItem::setText( const QString &t )
 
 void QTableItem::paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected )
 {
+    p->fillRect( 0, 0, cr.width(), cr.height(), selected ? cg.brush( QColorGroup::Highlight ) : cg.brush( QColorGroup::Base ) );
+
     int w = cr.width();
     int h = cr.height();
 
@@ -248,6 +250,8 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg, const QRect &cr, boo
 
     if ( selected )
 	p->setPen( cg.highlightedText() );
+    else
+	p->setPen( cg.text() );
     p->drawText( x, 0, w - x, h, wordwrap ? alignment() | WordBreak : alignment() , txt );
 }
 
@@ -255,7 +259,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg, const QRect &cr, boo
   of this item. Returning 0 means that this cell is not editable. If
   you reimplement this function to use a custom editor widget always
   create a new widget here as parent of table()->viewport(), as the
-  ownership of it is trasferred to the caller.
+  ownership of it is transferred to the caller.
 
   \sa QTable::createEditor()
 */
@@ -297,7 +301,7 @@ int QTableItem::alignment() const
     return ( num ? AlignRight : AlignLeft ) | AlignVCenter;
 }
 
-/*! If \a b is TRUE, the cell's text is wrapped into multible lines,
+/*! If \a b is TRUE, the cell's text is wrapped into multiple lines,
   else not.
 */
 
@@ -476,7 +480,7 @@ int QTableItem::col() const
   \brief Implementation of a flexible and editable table widget.
 
   This widget is the implementation of an editable table widget. The
-  conecpt is that initially there is no memory allocated for any
+  concept is that initially there is no memory allocated for any
   cell. But if a table cell should get a content create a QTableItem
   for that and set it using setItem(). There exist convenience
   functions for setting table text and pixmaps (setText(),
@@ -521,7 +525,7 @@ int QTableItem::col() const
   editing. Normally if the user starts typing text in-place editing
   (Replacing) for the current cell is started. If the user
   double-clicks on a cell also in-place editing is started for the
-  cell he doubleclicked on (Editing).  But it is sometimes required
+  cell he double-clicked on (Editing).  But it is sometimes required
   that a cell always shows an editor, shows the editor as soon as it
   gets the current cell or that it is not editable at all. This
   edit-type has to be specified in the constructor of a QTableItem.
@@ -544,7 +548,7 @@ int QTableItem::col() const
   reimplementing them.
 
   QTable also supports all needed selection types like range
-  selections, selectiongs through the header, selection with keyboard
+  selection, selection through the header, selection with keyboard
   and mouse, etc. You can manipulate them using addSelection() and
   removeSelection() and get information about it using
   numSelections(), selection() and currentChanged().
@@ -577,6 +581,33 @@ int QTableItem::col() const
   </ul>
  */
 
+/*! \enum QTable::SelectionMode
+  <ul>
+  <li>\c NoSelection - No cell can be selected by the user
+  <li>\c Single - Only one range of cells can be selected by the user
+  <li>\c Multi - Multiple ranges can be selected by the user
+  </ul>
+ */
+
+/*! \fn void QTable::clicked( int row, int col, int button )
+  This signal is emitted, if the user clicked with the \a button on \a
+  row and \a col.
+*/
+
+/*! \fn void QTable::doubleClicked( int row, int col, int button )
+  This signal is emitted, if the user double clicked with the \a button on \a
+  row and \a col.
+*/
+
+/*! \fn void QTable::pressed( int row, int col, int button )
+  This signal is emitted, if the user pressed with the \a button on \a
+  row and \a col.
+*/
+
+/*! \fn void QTable::selectionChanged()
+  This signal is emitted if the selection changed.
+*/
+
 /*!  Constructs a table with a range of 10 * 10 cells.
 */
 
@@ -604,7 +635,11 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 
 void QTable::init( int rows, int cols )
 {
+    viewport()->setFocusProxy( this );
+    viewport()->setFocusPolicy( WheelFocus );
     mousePressed = FALSE;
+
+    selMode = Multi;
 
     contents.setAutoDelete( TRUE );
     widgets.setAutoDelete( TRUE );
@@ -626,6 +661,8 @@ void QTable::init( int rows, int cols )
     topHeader->setMovingEnabled( TRUE );
     setMargins( 30, fontMetrics().height() + 4, 0, 0 );
 
+    topHeader->setUpdatesEnabled( FALSE );
+    leftHeader->setUpdatesEnabled( FALSE );
     // Initialize headers
     int i = 0;
     for ( i = 0; i < numCols(); ++i ) {
@@ -636,6 +673,8 @@ void QTable::init( int rows, int cols )
 	leftHeader->setLabel( i, QString::number( i + 1 ) );
 	leftHeader->resizeSection( i, 20 );
     }
+    topHeader->setUpdatesEnabled( TRUE );
+    leftHeader->setUpdatesEnabled( TRUE );
 
     // Prepare for contents
     contents.setAutoDelete( FALSE );
@@ -670,14 +709,30 @@ void QTable::init( int rows, int cols )
     resize( 640, 480 );
 }
 
-/*!
-  Destructor.
+/*!  Destructor.
 */
 
 QTable::~QTable()
 {
     contents.clear();
     widgets.clear();
+}
+
+/*!  Sets the selection mode of the table to \a mode. By default it is
+set to \c Multi.
+*/
+
+void QTable::setSelectionMode( SelectionMode mode )
+{
+    selMode = mode;
+}
+
+/*!  Returns the selection mode of the table.
+*/
+
+QTable::SelectionMode QTable::selectionMode() const
+{
+    return selMode;
 }
 
 /*!  Returns the QHeader which is used on the top.
@@ -818,6 +873,40 @@ void QTable::swapRows( int row1, int row2 )
 	editRow = row2;
     else if ( editRow == row2 )
 	editRow = row1;
+}
+
+/*!
+  Sets the left margin to \a m pixels.
+
+  If you want to get rid of the left header, do
+
+  \code
+  setLeftMargin( 0 );
+  verticalHeader()->hide();
+  \endcode
+*/
+
+void QTable::setLeftMargin( int m )
+{
+    setMargins( m, topMargin(), rightMargin(), bottomMargin() );
+    updateGeometries();
+}
+
+/*!
+  Sets the top margin to \a m pixels.
+
+  If you want to get rid of the top header, do
+
+  \code
+  setTopMargin( 0 );
+  topHeader()->hide();
+  \endcode
+*/
+
+void QTable::setTopMargin( int m )
+{
+    setMargins( leftMargin(), m, rightMargin(), bottomMargin() );
+    updateGeometries();
 }
 
 /*!  Swaps the data of \a col1 and \a col2. This is e.g. used when the
@@ -1025,12 +1114,12 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 }
 
 /*!  Paints the cell at the position \a row, \a col on the painter \a
-  p. \a cr describes the corrdinates of the cell in contents
+  p. \a cr describes the coordinates of the cell in contents
   coordinates. But the painter is already translated so that the cells
   origin is at (0/0).
 
   If you want to draw a custom cell content reimplement this functions
-  and do the custom drwaing here. If you use a custom table item, the
+  and do the custom drawing here. If you use a custom table item, the
   drawing for this item should be implemented there. See
   QTableItem::paint(). So only implement this function for drawing
   items if you e.g. directly retrieve the data which should be drawn
@@ -1050,8 +1139,15 @@ void QTable::paintCell( QPainter* p, int row, int col, const QRect &cr, bool sel
     int x2 = w - 1;
     int y2 = h - 1;
 
-    // Draw cell background
-    p->fillRect( 0, 0, w, h, selected ? colorGroup().brush( QColorGroup::Highlight ) : colorGroup().brush( QColorGroup::Base ) );
+
+    QTableItem *itm = item( row, col );
+    if ( itm ) {
+	p->save();
+	itm->paint( p, colorGroup(), cr, selected );
+	p->restore();
+    } else {
+	p->fillRect( 0, 0, w, h, selected ? colorGroup().brush( QColorGroup::Highlight ) : colorGroup().brush( QColorGroup::Base ) );
+    }
 
     if ( sGrid ) {
 	// Draw our lines
@@ -1060,13 +1156,6 @@ void QTable::paintCell( QPainter* p, int row, int col, const QRect &cr, bool sel
 	p->drawLine( x2, 0, x2, y2 );
 	p->drawLine( 0, y2, x2, y2 );
 	p->setPen( pen );
-    }
-
-    QTableItem *itm = item( row, col );
-    if ( itm ) {
-	p->save();
-	itm->paint( p, colorGroup(), cr, selected );
-	p->restore();
     }
 }
 
@@ -1175,7 +1264,7 @@ void QTable::setPixmap( int row, int col, const QPixmap &pix )
 }
 
 /*!  Returns the text which is set for the cell \a row, \a col, or an
-  emty string if the cell has no text.
+  empty string if the cell has no text.
 */
 
 QString QTable::text( int row, int col ) const
@@ -1447,27 +1536,40 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     fixCol( curCol, e->pos().x() );
 
     if ( ( e->state() & ShiftButton ) == ShiftButton ) {
-	if ( !currentSel ) {
-	    currentSel = new QTableSelection();
-	    selections.append( currentSel );
-	    currentSel->init( this->curRow, this->curCol );
+	if ( selMode != NoSelection ) {
+	    if ( !currentSel ) {
+		currentSel = new QTableSelection();
+		selections.append( currentSel );
+		currentSel->init( this->curRow, this->curCol );
+	    }
+	    QTableSelection oldSelection = *currentSel;
+	    currentSel->expandTo( curRow, curCol );
+	    repaintSelections( &oldSelection, currentSel );
+	    emit selectionChanged();
 	}
-	QTableSelection oldSelection = *currentSel;
-	currentSel->expandTo( curRow, curCol );
-	repaintSelections( &oldSelection, currentSel );
 	setCurrentCell( curRow, curCol );
     } else if ( ( e->state() & ControlButton ) == ControlButton ) {
-	currentSel = new QTableSelection();
-	selections.append( currentSel );
-	currentSel->init( curRow, curCol );
+	if ( selMode != NoSelection ) {
+	    if ( selMode == Single )
+		clearSelection();
+	    currentSel = new QTableSelection();
+	    selections.append( currentSel );
+	    currentSel->init( curRow, curCol );
+	    emit selectionChanged();
+	}
 	setCurrentCell( curRow, curCol );
     } else {
 	setCurrentCell( curRow, curCol );
 	clearSelection();
-	currentSel = new QTableSelection();
-	selections.append( currentSel );
-	currentSel->init( curRow, curCol );
+	if ( selMode != NoSelection ) {
+	    currentSel = new QTableSelection();
+	    selections.append( currentSel );
+	    currentSel->init( curRow, curCol );
+	    emit selectionChanged();
+	}
     }
+
+    emit pressed( curRow, curCol, e->button() );
 }
 
 /*!  \reimp
@@ -1484,6 +1586,8 @@ void QTable::contentsMouseDoubleClickEvent( QMouseEvent *e )
 	    editCol = curCol;
 	}
     }
+
+    emit doubleClicked( curRow, curCol, e->button() );
 }
 
 /*!  \reimp
@@ -1504,6 +1608,7 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
     doAutoScroll();
     if ( pos.x() < 0 || pos.x() > visibleWidth() || pos.y() < 0 || pos.y() > visibleHeight() )
 	autoScrollTimer->start( 100, TRUE );
+    emit doubleClicked( curRow, curCol, e->button() );
 }
 
 /*! \internal
@@ -1540,12 +1645,12 @@ void QTable::doAutoScroll()
 
     ensureCellVisible( curRow, curCol );
 
-    if ( !currentSel )
-	return;
-
-    QTableSelection oldSelection = *currentSel;
-    currentSel->expandTo( curRow, curCol );
-    repaintSelections( &oldSelection, currentSel );
+    if ( currentSel && selMode != NoSelection ) {
+	QTableSelection oldSelection = *currentSel;
+	currentSel->expandTo( curRow, curCol );
+	repaintSelections( &oldSelection, currentSel );
+	emit selectionChanged();
+    }
 
     if ( pos.x() < 0 || pos.x() > visibleWidth() || pos.y() < 0 || pos.y() > visibleHeight() )
 	autoScrollTimer->start( 100, TRUE );
@@ -1709,7 +1814,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
     }
 
     if ( navigationKey ) {
-	if ( ( e->state() & ShiftButton ) == ShiftButton ) {
+	if ( ( e->state() & ShiftButton ) == ShiftButton && selMode != NoSelection ) {
 	    setCurrentCell( curRow, curCol );
 	    bool justCreated = FALSE;
 	    if ( !currentSel ) {
@@ -1721,6 +1826,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	    QTableSelection oldSelection = *currentSel;
 	    currentSel->expandTo( curRow, curCol );
 	    repaintSelections( justCreated ? 0 : &oldSelection, currentSel );
+	    emit selectionChanged();
 	} else {
 	    clearSelection();
 	    setCurrentCell( curRow, curCol );
@@ -1826,7 +1932,7 @@ void QTable::columnWidthChanged( int col )
 	    moveChild( w, columnPos( j ) - 1, rowPos( i ) - 1 );
 	    w->resize( columnWidth( j ) + 1, rowHeight( i ) + 1 );
 	}
-	qApp->processEvents();
+ 	qApp->processEvents();
     }
 }
 
@@ -1854,9 +1960,8 @@ void QTable::rowHeightChanged( int row )
 	    moveChild( w, columnPos( i ) - 1, rowPos( j ) - 1 );
 	    w->resize( columnWidth( i ) + 1, rowHeight( j ) + 1 );
 	}
-	qApp->processEvents();
+ 	qApp->processEvents();
     }
-
 }
 
 /*!  This function is called if the order of the columns has been
@@ -1881,8 +1986,8 @@ void QTable::rowIndexChanged( int, int, int )
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
 }
 
-/*!  This function is called of the column \c col has been
-  clicked. The default implementation sorts this coumns then of
+/*!  This function is called when the column \c col has been
+  clicked. The default implementation sorts this column if
   sorting() is TRUE
 */
 
@@ -1922,11 +2027,16 @@ bool QTable::sorting() const
     return doSort;
 }
 
+static bool inUpdateGeometries = FALSE;
+
 /*!  This function updates the geometries of the left and top header.
 */
 
 void QTable::updateGeometries()
 {
+    if ( inUpdateGeometries )
+	return;
+    inUpdateGeometries = TRUE;
     QSize ts = tableSize();
     if ( topHeader->offset() &&
 	 ts.width() < topHeader->offset() + topHeader->width() )
@@ -1935,11 +2045,11 @@ void QTable::updateGeometries()
 	 ts.height() < leftHeader->offset() + leftHeader->height() )
 	verticalScrollBar()->setValue( ts.height() - leftHeader->height() );
 
-    leftHeader->setGeometry( leftMargin() - 30 + 2, topMargin() + 2,
-			     30, visibleHeight() );
-    topHeader->setGeometry( leftMargin() + 2, topMargin() + 2 - fontMetrics().height() - 4,
-			    visibleWidth(),
-			    fontMetrics().height() + 4 );
+    leftHeader->setGeometry( 2, topMargin() + 2,
+			     leftMargin(), visibleHeight() );
+    topHeader->setGeometry( leftMargin() + 2, 2,
+			    visibleWidth(), topMargin() );
+    inUpdateGeometries = FALSE;
 }
 
 /*!  Returns the width of the column \a col.
@@ -2051,6 +2161,7 @@ int QTable::numCols() const
 
 void QTable::setNumRows( int r )
 {
+    leftHeader->setUpdatesEnabled( FALSE );
     if ( r > numRows() ) {
 	clearSelection();
 	while ( numRows() < r ) {
@@ -2059,6 +2170,7 @@ void QTable::setNumRows( int r )
 	}
     } else {
 	qWarning( "decreasing the number of rows is not implemented yet!" );
+	leftHeader->setUpdatesEnabled( TRUE );
 	return;
     }
     resizeData( numRows() * numCols() );
@@ -2066,6 +2178,8 @@ void QTable::setNumRows( int r )
     resizeContents( r2.right() + 1, r2.bottom() + 1 );
     updateGeometries();
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
+    leftHeader->setUpdatesEnabled( TRUE );
+    leftHeader->repaint( FALSE );
 }
 
 /*!  Sets the number of columns to \a c.
@@ -2073,6 +2187,7 @@ void QTable::setNumRows( int r )
 
 void QTable::setNumCols( int c )
 {
+    topHeader->setUpdatesEnabled( FALSE );
     if ( c > numCols() ) {
 	clearSelection();
 	while ( numCols() < c ) {
@@ -2081,6 +2196,7 @@ void QTable::setNumCols( int c )
 	}
     } else {
 	qWarning( "decreasing the number of columns is not implemented yet!" );
+	topHeader->setUpdatesEnabled( TRUE );
 	return;
     }
     resizeData( numRows() * numCols() );
@@ -2088,6 +2204,8 @@ void QTable::setNumCols( int c )
     resizeContents( r.right() + 1, r.bottom() + 1 );
     updateGeometries();
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
+    topHeader->setUpdatesEnabled( TRUE );
+    topHeader->repaint( FALSE );
 }
 
 /*!  This function returns a widget which should be used as editor for
@@ -2394,6 +2512,7 @@ void QTable::clearSelection()
 	else
 	    leftHeader->setSectionState( i, QTableHeader::Bold );
     }
+    emit selectionChanged();
 }
 
 /*!  \internal
@@ -2633,7 +2752,7 @@ void QTable::adjustColumn( int col )
     setColumnWidth( col, w );
 }
 
-/*!  Resizes the row \a row to be exactly hight enough so that the
+/*!  Resizes the row \a row to be exactly high enough so that the
   whole contents is visible.
 */
 
@@ -2721,7 +2840,7 @@ void QTable::takeItem( QTableItem *i )
 
  By default widgets are inserted into a vector with numRows() *
  numCols() elements. In very big tables you probably want to store the
- widgets in a datastructre which needs less memory (like a
+ widgets in a datastructure which needs less memory (like a
  hash-table). To make this possible this functions calls
  insertWidget() to add the widget to the internal datastructure. So if
  you want to use your own datastructure, reimplement insertWidget(),
@@ -2834,6 +2953,10 @@ QTableHeader::QTableHeader( int i, QTable *t, QWidget *parent, const char *name 
 	     this, SLOT( sectionWidthChanged( int, int, int ) ) );
     connect( this, SIGNAL( indexChange( int, int, int ) ),
 	     this, SLOT( indexChanged( int, int, int ) ) );
+
+    stretchTimer = new QTimer( this );
+    connect( stretchTimer, SIGNAL( timeout() ),
+	     this, SLOT( updateStretches() ) );
 }
 
 void QTableHeader::addLabel( const QString &s )
@@ -2939,17 +3062,20 @@ void QTableHeader::mouseMoveEvent( QMouseEvent *e )
     int p = real_pos( e->pos(), orientation() ) + offset();
     if ( startPos == -1 ) {
 	startPos = p;
-	if ( ( e->state() & ControlButton ) != ControlButton )
+	if ( ( e->state() & ControlButton ) != ControlButton
+	     || table->selectionMode() == QTable::Single )
 	    table->clearSelection();
 	saveStates();
-	table->currentSel = new QTableSelection();
-	table->selections.append( table->currentSel );
-	if ( orientation() == Vertical ) {
-	    table->setCurrentCell( sectionAt( p ), 0 );
-	    table->currentSel->init( sectionAt( p ), 0 );
-	} else {
-	    table->setCurrentCell( 0, sectionAt( p ) );
-	    table->currentSel->init( 0, sectionAt( p ) );
+	if ( table->selectionMode() != QTable::NoSelection ) {
+	    table->currentSel = new QTableSelection();
+	    table->selections.append( table->currentSel );
+	    if ( orientation() == Vertical ) {
+		table->setCurrentCell( sectionAt( p ), 0 );
+		table->currentSel->init( sectionAt( p ), 0 );
+	    } else {
+		table->setCurrentCell( 0, sectionAt( p ) );
+		table->currentSel->init( 0, sectionAt( p ) );
+	    }
 	}
     }
     if ( sectionAt( p ) != -1 )
@@ -2996,38 +3122,64 @@ void QTableHeader::mouseDoubleClickEvent( QMouseEvent *e )
 
 void QTableHeader::resizeEvent( QResizeEvent *e )
 {
+    stretchTimer->stop();
     QHeader::resizeEvent( e );
     if ( numStretchs == 0 )
 	return;
+    stretchTimer->start( 0, TRUE );
+}
+
+void QTableHeader::updateStretches()
+{
     if ( orientation() == Horizontal ) {
 	if ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) == width() )
 	    return;
+	int i;
 	int pw = width() - ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) ) - 1;
-	pw /= numStretchs;
-	for ( int i = 0; i < (int)stretchable.count(); ++i ) {
+	blockSignals( TRUE );
+	for ( i = 0; i < (int)stretchable.count(); ++i ) {
 	    if ( !stretchable[ i ] )
 		continue;
-	    int nw = sectionSize( i ) + pw;
-	    if ( nw >= 20 )
-		table->setColumnWidth( i, nw );
+	    pw += sectionSize( i );
 	}
+	pw /= numStretchs;
+	for ( i = 0; i < (int)stretchable.count(); ++i ) {
+	    if ( !stretchable[ i ] )
+		continue;
+	    if ( i == (int)stretchable.count() - 1 && sectionPos( i ) + pw < width() )
+		pw = width() - sectionPos( i );
+	    resizeSection( i, QMAX( 20, pw ) );
+	}
+	blockSignals( FALSE );
+	table->viewport()->repaint( FALSE );
     } else {
 	if ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) == height() )
 	    return;
+	int i;
 	int ph = height() - ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) ) - 1;
-	ph /= numStretchs;
-	for ( int i = 0; i < (int)stretchable.count(); ++i ) {
+	blockSignals( TRUE );
+	for ( i = 0; i < (int)stretchable.count(); ++i ) {
 	    if ( !stretchable[ i ] )
 		continue;
-	    int nh = sectionSize( i ) + ph;
-	    if ( nh >= 20 )
-		table->setRowHeight( i, nh );
+	    ph += sectionSize( i );
 	}
+	ph /= numStretchs;
+	for ( i = 0; i < (int)stretchable.count(); ++i ) {
+	    if ( !stretchable[ i ] )
+		continue;
+	    if ( i == (int)stretchable.count() - 1 && sectionPos( i ) + ph < height() )
+		ph = height() - sectionPos( i );
+	    resizeSection( i, QMAX( 20, ph ) );
+	}
+	blockSignals( FALSE );
+	table->viewport()->repaint( FALSE );
     }
 }
 
 void QTableHeader::updateSelections()
 {
+    if ( table->selectionMode() == QTable::NoSelection )
+	return;
     int a = sectionAt( startPos );
     int b = sectionAt( endPos );
     int start = QMIN( a, b );

@@ -96,9 +96,19 @@
 #include <sys/select.h>
 #endif
 
+#if defined(QT_THREAD_SUPPORT)
+#include "qvaluestack.h"
+#include "qthread.h"
+#endif
+
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#include <sys/ioctl.h>
+static int qt_thread_pipe[2];
+#endif
+
+const int qwsSharedRamSize = 32 * 1024;	//Small amount to fit on small devices.
 
 QLock *QWSDisplay::lock = 0;
-
 
 
 //these used to be environment variables, they are initialized from
@@ -108,6 +118,9 @@ bool qws_smoothfonts = TRUE;
 bool qws_savefonts = FALSE;
 bool qws_shared_memory = FALSE;
 bool qws_sw_cursor = TRUE;
+bool qws_accel = TRUE;	    // ### never set
+char *qws_display_spec = "LinuxFb:/dev/fb0:0";
+int qws_display_id = 0;
 #ifndef QT_NO_QWS_MANAGER
 static QWSDecoration *qws_decoration = 0;
 #endif
@@ -255,12 +268,14 @@ public:
     //####public data members
 
     QWSRegionManager *rgnMan;
+    uchar *sharedRam;
+    int sharedRamSize;
 
 private:
     QWSSocket *csocket;
     QList<QWSEvent> queue;
-    uchar* offscreenaddress;
 
+    QWSConnectedEvent* connected_event;
     QWSMouseEvent* mouse_event;
     QWSRegionModifiedEvent *region_event;
     QWSRegionModifiedEvent *region_ack;
@@ -294,6 +309,7 @@ public:
     bool directServerConnection() { return csocket == 0; }
 
     void fillQueue();
+    void waitForConnection();
     void waitForRegionAck();
     void waitForCreation();
     void init();
@@ -340,55 +356,80 @@ public:
 
 void QWSDisplayData::init()
 {
+    connected_event = 0;
     region_ack = 0;
     mouse_event = 0;
     region_event = 0;
     current_event = 0;
 
-    if ( csocket )
-	csocket->connectToLocalFile(QTE_PIPE);
+    QString pipe = QString(QTE_PIPE).arg(qws_display_id);
+    key_t memkey =  ftok( pipe.latin1(), 'm' );
 
-    if ( !QWSDisplay::initLock( "/dev/fb0" ) )
-	qFatal( "Cannot get display lock" );
+    if ( !csocket ) {
+	// QWS server
+	if ( !QWSDisplay::initLock( pipe, TRUE ) )
+	    qFatal( "Cannot get display lock" );
 
-    key_t memkey =  ftok( "/dev/fb0", 'm' );
-    //    qDebug( "Trying shmid %x", memkey );
+	sharedRamSize = qwsSharedRamSize;
 
+	key_t memkey = ftok( pipe.latin1(), 'm' );
+	int ramid=shmget(memkey,sharedRamSize,IPC_CREAT|0666);
+	if(ramid<0) {
+	    perror("Cannot allocate main ram shared memory\n");
+	}
+	sharedRam=(uchar *)shmat(ramid,0,0);
+	if(sharedRam==(uchar *)-1) {
+	    perror("Cannot attach to main ram shared memory\n");
+	}
+	// Need to zero index count at end of block, might as well zero
+	// the rest too
+	memset(sharedRam,0,sharedRamSize);
 
-    int ramid=shmget(memkey,0,0);
-    if ( ramid == -1 ) {
-	perror( "Cannot find main shared memory" );
-	exit(1);
+	QScreen *s = qt_probe_bus( qws_display_id, qws_display_spec );
+	s->initCard();
+    } else {
+	// QWS client
+	csocket->connectToLocalFile(pipe);
+
+	// now we want to get the exact display spec to use
+	waitForConnection();
+	qws_display_spec = connected_event->display;
+
+	if ( !QWSDisplay::initLock( pipe, FALSE ) )
+	    qFatal( "Cannot get display lock" );
+	int ramid = shmget(memkey,0,0);
+	if ( ramid == -1 ) {
+	    perror( "Cannot find main shared memory" );
+	    exit(1);
+	}
+	struct shmid_ds shminfo;
+	if ( shmctl( ramid, IPC_STAT, &shminfo ) == -1 )
+	    qFatal( "Cannot get main ram memory status" );
+	sharedRamSize=shminfo.shm_segsz;
+
+	sharedRam = (uchar *)shmat(ramid,0,0);
+	if(sharedRam==(uchar *)-1) {
+	    perror("Can't attach to main ram memory.");
+	    exit(1);
+	}
+	qt_probe_bus( qws_display_id, qws_display_spec );
     }
-    struct shmid_ds shminfo;
-    if ( shmctl( ramid, IPC_STAT, &shminfo ) == -1 )
-	qFatal( "Cannot get main ram memory status" );
-    int ramsize=shminfo.shm_segsz;
-
-    offscreenaddress=(uchar *)shmat(ramid,0,0);
-    if(offscreenaddress==(uchar *)-1) {
-	perror("Can't attach to main ram memory.");
-	exit(1);
-    }
-
-    qt_probe_bus();
-
-    int screensize=qt_screen->screenSize();
 
     int mouseoffset = 0;
 
 #ifndef QT_NO_QWS_CURSOR
-    mouseoffset=qt_screen->initCursor(offscreenaddress + ramsize);
+    mouseoffset=qt_screen->initCursor(sharedRam + sharedRamSize, !csocket );
 #endif
 
-    ramsize-=mouseoffset;
+    sharedRamSize -= mouseoffset;
 
     /* Initialise framebuffer memory manager */
     /* Add 4k for luck and to avoid clobbering hardware cursor */
+    int screensize=qt_screen->screenSize();
     memorymanager=new QMemoryManager(qt_screen->base()+screensize+4096,
 	qt_screen->totalSize()-(screensize+4096),0);
 
-    rgnMan = new QWSRegionManager( TRUE );
+    rgnMan = new QWSRegionManager( pipe, csocket );
 
     // Create some object ID's in advance.
     // XXX server should just send some
@@ -431,7 +472,9 @@ void QWSDisplayData::fillQueue()
     QWSServer::processEventQueue();
     QWSEvent *e = readMore();
     while ( e ) {
-  	if ( e->type == QWSEvent::Creation ) {
+	if ( e->type == QWSEvent::Connected ) {
+	    connected_event = (QWSConnectedEvent *)e;
+  	} else if ( e->type == QWSEvent::Creation ) {
 	    QWSCreationEvent *ce = (QWSCreationEvent*)e;
 	    unused_identifiers.append(ce->simpleData.objectid);
 	    delete e;
@@ -475,6 +518,18 @@ void QWSDisplayData::fillQueue()
     }
 }
 
+void QWSDisplayData::waitForConnection()
+{
+    if ( csocket )
+	csocket->flush();
+    while ( 1 ) {
+	fillQueue();
+	if ( connected_event )
+	    break;
+	if ( csocket )
+	    csocket->waitForMore(1000);
+    }
+}
 
 
 void QWSDisplayData::waitForRegionAck()
@@ -512,12 +567,10 @@ QWSDisplay::QWSDisplay()
 
 QGfx * QWSDisplay::screenGfx()
 {
-    // We need something a little cleverer here when we get to hardware
-    // acceleration
     return qt_screen->screenGfx();
 }
 
-QWSRegionManager *QWSDisplay::regionManager()
+QWSRegionManager *QWSDisplay::regionManager() const
 {
     return d->rgnMan;
 }
@@ -546,6 +599,8 @@ int QWSDisplay::width() const { return qt_screen->width(); }
 int QWSDisplay::height() const { return qt_screen->height(); }
 int QWSDisplay::depth() const { return qt_screen->depth(); }
 int QWSDisplay::greenDepth() const { return qt_screen->depth()==16 ? 6 : 8; }
+uchar *QWSDisplay::sharedRam() const { return d->sharedRam; }
+int QWSDisplay::sharedRamSize() const { return d->sharedRamSize; }
 
 void QWSDisplay::addProperty( int winId, int property )
 {
@@ -854,7 +909,7 @@ static void init_display()
 
     // Connect to FB server
 
-    qt_fbdpy = new QWSDisplay;
+    qt_fbdpy = new QWSDisplay();
 
     // Get display parameters
 
@@ -899,6 +954,10 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 	qt_is_gui_used = FALSE; //we'll turn it on in a second
     qws_smoothfonts = getenv("QWS_NO_SMOOTH_FONTS") == 0;
     qws_sw_cursor = getenv("QWS_SW_CURSOR") != 0;
+
+    char *display = getenv("QWS_DISPLAY");
+    if ( display )
+	qws_display_spec = display;
 
     //qws_savefonts = getenv("QWS_SAVEFONTS") != 0;
     //qws_shared_memory = getenv("QWS_NOSHARED") == 0;
@@ -976,6 +1035,9 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 	    flags |= QWSServer::DisableMouse;
 	} else if ( arg == "-qws" ) {
 	    type = QApplication::GuiServer;
+	} else if ( arg == "-display" ) {
+	    if ( ++i < argc )
+		qws_display_spec = argv[i];
 	} else {
 	    argv[j++] = argv[i];
 	}
@@ -985,15 +1047,34 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 
     gettimeofday( &watchtime, 0 );
 
+    QRegExp r( ":[0-9]" );  // only supports 10 displays
+    int len;
+    int m = r.match( QString(qws_display_spec) , 0, &len );
+    if ( m >= 0 ) {
+	QString num = QString(qws_display_spec).mid( m+1, len-1 );
+	qws_display_id = num.toInt();
+    }
+
     if ( type == QApplication::GuiServer ) {
 	qws_single_process = TRUE;
-	QWSServer::startup(flags);
+	QWSServer::startup(qws_display_id, flags);
+	QString env = QString("QWS_DISPLAY=") + qws_display_spec;
+	putenv( env.latin1() );
     }
 
     if( qt_is_gui_used )
 	init_display();
+    
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+    pipe( qt_thread_pipe );
+#endif
+    
 }
 
+#if defined(QT_THREAD_SUPPORT)
+void qt_wait_for_exec();
+void qt_ack_pipe();
+#endif
 
 /*****************************************************************************
   qt_cleanup() - cleans up when the application is finished
@@ -1023,7 +1104,7 @@ void qt_cleanup()
     QFontManager::cleanup();
 
     if ( qws_single_process )
-	QWSServer::closedown();
+	QWSServer::closedown(qws_display_id);
     if ( qt_is_gui_used ) {
 	delete qt_fbdpy;
     }
@@ -1655,18 +1736,44 @@ bool QApplication::processNextEvent( bool canWait )
 
     int nsel;
 
+    int highest=sn_highest;
+    
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+    FD_SET( qt_thread_pipe[0], &app_readfds );
+    highest = QMAX( highest, qt_thread_pipe[0] );
+#endif
+    
 #if defined(_OS_WIN32_)
 #define FDCAST (fd_set*)
 #else
 #define FDCAST (void*)
 #endif
 
-    nsel = select( sn_highest+1,
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unlock();
+#endif
+    
+    nsel = select( highest+1,
 		   FDCAST (&app_readfds),
 		   FDCAST (sn_write  ? &app_writefds  : 0),
 		   FDCAST (sn_except ? &app_exceptfds : 0),
 		   tm );
 #undef FDCAST
+
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+    if ( FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
+	char c;
+	::read(qt_thread_pipe[0],&c,1);
+	if(c==1) {
+	    qt_ack_pipe();
+	    qt_wait_for_exec();
+	    qApp->lock();
+	    app_exit_loop=FALSE;
+	    return FALSE;
+	}
+    }
+    qApp->lock();
+#endif
 
     if ( nsel == -1 ) {
 	if ( errno == EINTR || errno == EAGAIN ) {
@@ -2915,4 +3022,32 @@ void QApplication::setWheelScrollLines(int)
 int QApplication::wheelScrollLines()
 {
     return 0;
+}
+
+/*!
+  Wakes up the GUI thread.
+
+  \sa guiThreadAwake()
+*/
+void QApplication::wakeUpGuiThread()
+{
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+    char c = 0;
+    int nbytes;
+    if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
+	::write(  qt_thread_pipe[1], &c, 1  );
+    }
+#endif
+}
+
+// We've now become the GUI thread
+void QApplication::guiThreadTaken()
+{
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+    char c = 1;
+    int nbytes;
+    if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
+	::write(  qt_thread_pipe[1], &c, 1  );
+    }
+#endif
 }

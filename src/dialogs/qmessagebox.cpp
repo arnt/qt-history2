@@ -560,7 +560,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   </ul>
 
   Use QMessageBox::NoButton for the later parameters to have less than
-  three buttons in your messagebox.
+  three buttons in your message box.
 
   One of the buttons can be combined with the \c QMessageBox::Default flag
   to make a default button.

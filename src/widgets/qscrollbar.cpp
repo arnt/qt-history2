@@ -254,7 +254,14 @@ void QScrollBar::init()
 
 void QScrollBar::setOrientation( Orientation orientation )
 {
+    if ( (uint) orientation == orient )
+	return;
+
+    QSizePolicy pol = sizePolicy();
+    setSizePolicy( QSizePolicy( pol.verData(), pol.horData() ) );
+	
     orient = orientation;
+
     positionSliderFromValue();
     update();
 }

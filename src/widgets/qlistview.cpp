@@ -244,7 +244,7 @@ static QPoint activatedP;
     }
   \endcode
 
-  Also there is now an interator class to traverse a tree of list view items.
+  Also there is now an iterator class to traverse a tree of list view items.
   To iterate over all items of a list view, do:
 
   \code
@@ -5157,9 +5157,9 @@ void QListView::takeItem( QListViewItem * i )
 
   \endcode
 
-  Using a QListViewItemIterator is a convinient way to traverse the
+  Using a QListViewItemIterator is a convenient way to traverse the
   tree of QListViewItems of a QListView. It makes especially operating
-  on a hirarchical QListView easy.
+  on a hierarchical QListView easy.
 
   Also, multiple QListViewItemIterators can operate on the tree of
   QListViewItems.  A QListView knows about all iterators which are
@@ -5304,7 +5304,7 @@ const QListViewItemIterator QListViewItemIterator::operator++( int )
 
 /*!
   Sets the current item to the item \e j positions after the current
-  item in the QListViewItem hirarchie. If this item is beyond the last
+  item in the QListViewItem hierarchy. If this item is beyond the last
   item, the current item is set to null.
 
   The new current item (or null, if the new current item is null) is returned.
@@ -5396,7 +5396,7 @@ const QListViewItemIterator QListViewItemIterator::operator--( int )
 }
 
 /*!  Sets the current item to the item \e j positions before the
-  current item in the QListViewItem hirarchie. If this item is above
+  current item in the QListViewItem hierarchy. If this item is above
   the first item, the current item is set to null.  The new current
   item (or null, if the new current item is null) is returned.
 */

@@ -1,7 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt warn_on release console
+CONFIG		= qt warn_on release console thread
 HEADERS		= 
 SOURCES		= threads.cpp
 TARGET		= threads
-DEFINES		+=QT_THREAD_SUPPORT
-unix:LIBS	+= -lpthread

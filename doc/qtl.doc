@@ -39,7 +39,7 @@ code, can often be a bit faster, require that the objects stored can
 be copied, and finally, have a worse record of compiler problems.
 
 Compared to the STL, the QTL contains only the most important features
-of the STL, has more regular funcion naming, has no platform
+of the STL, has more regular function naming, has no platform
 differences, is often a little slower and often expands to less object
 code.
 

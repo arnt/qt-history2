@@ -306,7 +306,7 @@ QSGIStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 }
 
 /*!
-    Draws a button with a stronger seperation from
+    Draws a button with a stronger separation from
     the user interface.
 */
 void
@@ -447,7 +447,7 @@ QSGIStyle::drawIndicator( QPainter* p, int x, int y, int w, int h,
 
 /*!
     Draws a fancy red checkmark indicating the state of choice
-    in checkboxes or checkable menuitems.
+    in checkboxes or checkable menu items.
 */
 void
 QSGIStyle::drawCheckMark( QPainter* p, int x, int y, int /*w*/, int /*h*/,
@@ -1260,8 +1260,7 @@ void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 }
 
 /*!
-    Reimplemented to enable the SGI-like effekt
-    of "glowing" widgets.
+    Reimplemented to enable the SGI-like effect of "glowing" widgets.
 */
 bool
 QSGIStyle::eventFilter( QObject* o, QEvent* e )

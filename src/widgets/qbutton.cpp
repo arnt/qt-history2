@@ -347,7 +347,7 @@ QButton::~QButton()
   Sets the button to display \e text.
 
   If the text contains an ampersand, QButton creates an automatic
-  acceleror for it, such as  Alt-c for "&Cancel".
+  accelerator for it, such as  Alt-c for "&Cancel".
 
   \sa text(), setPixmap(), setAccel(), QPixmap::mask()
 */

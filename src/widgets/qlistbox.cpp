@@ -1663,7 +1663,8 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 		} else if ( e->state() & ShiftButton ) {
 		    d->pressedSelected = FALSE;
 		    QListBoxItem *oldCurrent = item( currentItem() );
-		    bool down = itemRect( oldCurrent ).y() < itemRect( i ).y();
+		    bool down = index( oldCurrent ) < index( i );
+
 		    QListBoxItem *lit = down ? oldCurrent : i;
 		    bool select = d->select;
 		    bool blocked = signalsBlocked();

@@ -58,7 +58,7 @@ public:
 
     bool isActive() const { return active; }
     bool isValid() const { return !dirty; }
-    
+
 private:
     uint active : 1;
     uint dirty : 1;
@@ -138,6 +138,10 @@ public:
     QHeader *horizontalHeader() const;
     QHeader *verticalHeader() const;
 
+    enum SelectionMode { Single, Multi, NoSelection  };
+    virtual void setSelectionMode( SelectionMode mode );
+    SelectionMode selectionMode() const;
+
     virtual void setItem( int row, int col, QTableItem *item );
     virtual void setText( int row, int col, const QString &text );
     virtual void setPixmap( int row, int col, const QPixmap &pix );
@@ -178,13 +182,13 @@ public:
     virtual void removeSelection( const QTableSelection &s );
     virtual void removeSelection( int num );
     virtual int currentSelection() const;
-    
-    void setShowGrid( bool b );
+
+    virtual void setShowGrid( bool b );
     bool showGrid() const;
 
-    void setColumnMovingEnabled( bool b );
+    virtual void setColumnMovingEnabled( bool b );
     bool columnMovingEnabled() const;
-    void setRowMovingEnabled( bool b );
+    virtual void setRowMovingEnabled( bool b );
     bool rowMovingEnabled() const;
 
     virtual void sortColumn( int col, bool ascending = TRUE, bool wholeRows = FALSE );
@@ -217,9 +221,13 @@ public:
     virtual void swapColumns( int col1, int col2 );
     virtual void swapCells( int row1, int col1, int row2, int col2 );
 
+    virtual void setLeftMargin( int m );
+    virtual void setTopMargin( int m );
+
+    virtual void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
+
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
-    virtual void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
     void contentsMousePressEvent( QMouseEvent* );
     void contentsMouseMoveEvent( QMouseEvent* );
     void contentsMouseDoubleClickEvent( QMouseEvent* );
@@ -251,6 +259,10 @@ protected slots:
 
 signals:
     void currentChanged( int row, int col );
+    void clicked( int row, int col, int button );
+    void doubleClicked( int row, int col, int button );
+    void pressed( int row, int col, int button );
+    void selectionChanged();
 
 private slots:
     void doAutoScroll();
@@ -286,6 +298,7 @@ private:
     bool asc;
     bool doSort;
     bool mousePressed;
+    SelectionMode selMode;
 
 };
 
@@ -329,7 +342,8 @@ private slots:
     void doAutoScroll();
     void sectionWidthChanged( int col, int os, int ns );
     void indexChanged( int sec, int oldIdx, int newIdx );
-
+    void updateStretches();
+    
 private:
     void updateSelections();
     void saveStates();
@@ -349,7 +363,8 @@ private:
     int resizedSection;
     bool isResizing;
     int numStretchs;
-
+    QTimer *stretchTimer;
+    
 };
 
 #endif // TABLE_H

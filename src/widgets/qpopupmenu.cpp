@@ -101,7 +101,7 @@ static QTimer * preventAnimation = 0;
 
   A popup menu widget is a selection menu. It can be both, a pull-down
   menu in a menu bar or a standalone context menu.  Pull-down menus
-  are shown by the menu bar when the user clicks on the respecitive
+  are shown by the menu bar when the user clicks on the respective
   item or hits the specified shortcut key. Use QMenuBar::insertItem()
   to insert a popup menu into a menu bar. Show a context menu either
   asynchronously with popup() or synchronously with exec().
@@ -112,14 +112,14 @@ static QTimer * preventAnimation = 0;
   QCustomMenuItem). In addition, items can have an optional icon drawn
   on the very left side and an accelerator key, like "Ctrl-X".
 
-  There are three kind of menu items: seperators, those that perform
+  There are three kind of menu items: separators, those that perform
   an action and those that show a submenu.  Separators are inserted
   with insertSeparator(). For submenus, you pass a pointer to a
   QPopupMenu in your call to insertItem().  All other items are
   considered action items.
 
   When inserting actions items, you usually specify a receiver and a
-  slot. The receiver will be notifed whenever the item was
+  slot. The receiver will be notified whenever the item was
   selected. In addition, QPopupMenu provides two signals activated()
   and highlighted() that signal the identifier of the respective menu
   item. Sometimes it is practical to connect several items to one

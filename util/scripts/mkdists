@@ -114,7 +114,7 @@ if ( $local_qt ) {
     open O, "| p4 -s client -i | egrep -v '^(info|exit):'";
     print O $client;
     close O;
-    open( I1, "p4 -s -c $tmpclient sync $distdir/qt/...\@$label | grep -v '^info:' |" )
+    open( I1, "p4 -s -c $tmpclient sync $distdir/qt/... | grep -v '^info:' |" )
       || die "could not sync qt, stopped";
     open( I2, "p4 -s -c $tmpclient sync $distdir/tmake/... | grep -v '^info:' |" )
       || die "could not sync tmake, stopped";
@@ -705,7 +705,7 @@ sub public {
 	     # include (empty)
 	     || $file eq "include"
 
-	     # all doc files
+	     # all doc files except in tests
 	     || $basename =~ /.*\.doc$/
 
 	     # the changes files
@@ -757,7 +757,7 @@ sub public {
 	     || ( $file =~/src\/3rdparty\/zlib\// &&
 		  not $basename eq "Makefile" )
 	     # More  of nsplugin example
-	     || $file =~/extensions\/nsplugin\/examples\/.*\.((def)|(rc)|(cgi)|(g1n))$/
+	     || $file =~/extensions\/nsplugin\/examples\/.*\.((mng)|(def)|(rc)|(cgi)|(g1n))$/
 
 	     # some bins
 	     || $file =~/bin\/$/
@@ -766,6 +766,9 @@ sub public {
 	     || $file =~/bin\/qtrename140$/
 
 	    );
+
+    # but afterwards, change all the rules for the tests
+    $keep = 0 if ( $file =~ m-tests/- );
 
     $kill = (
 	     # no qdoc conf

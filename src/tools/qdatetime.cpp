@@ -706,7 +706,7 @@ bool QTime::setHMS( int h, int m, int s, int ms )
 }
 
 /*!
-  Returns a QTime object containg a time \a nsecs seconds later than
+  Returns a QTime object containing a time \a nsecs seconds later than
   the time of this object (or earlier if \a ms is negative).
 
   Note that the time will wrap if it passes midnight.

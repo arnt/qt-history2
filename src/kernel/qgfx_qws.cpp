@@ -38,6 +38,8 @@ QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
 
 #ifdef QT_LOADABLE_MODULES
 
+// ### needs update after driver init changes
+
 static QScreen * qt_dodriver(char * driver,char * a,unsigned char * b)
 
 {    
@@ -99,7 +101,7 @@ static QScreen * qt_do_entry(char * entry)
 
 extern bool qws_accel;
 
-QScreen * qt_probe_bus()
+QScreen * qt_probe_bus( int display_id, const QString &spec )
 {
     if(!qws_accel) {
 	return qt_dodriver("unaccel.so",0,0);
@@ -146,7 +148,7 @@ QScreen * qt_probe_bus()
 
 char * qt_qws_hardcoded_slot="/proc/bus/pci/01/00.0";
 
-QScreen * qt_probe_bus()
+QScreen * qt_probe_bus( int display_id, const char *spec )
 {
     if ( qt_qws_hardcoded_slot ) {
 	unsigned char config[256];
@@ -158,12 +160,13 @@ QScreen * qt_probe_bus()
 	    if(r<1)
 		qt_qws_hardcoded_slot=0;
 	    else
-		return qt_get_screen(qt_qws_hardcoded_slot,config);
+		return qt_get_screen( display_id, spec, qt_qws_hardcoded_slot,
+				      config );
 
 	    fclose(f);
 	}
     }
-    return qt_get_screen(0,0);
+    return qt_get_screen( display_id, spec, 0, 0 );
 }
 
 #endif

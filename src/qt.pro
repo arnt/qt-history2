@@ -4,9 +4,15 @@ CONFIG		= qt warn_on release
 # Comment out the next line if you don't want use png/zlib in 3rdparty
 CONFIG		+= png zlib
 
-MODULES		= opengl
+# All extension modules are listed here
+MODULES		= opengl network canvas table
 
-#CONFIG		+= png zlib cups
+# Add all "easy to build modules" (ie. don't need extra libraries, etc.):
+CONFIG		+= network canvas table
+
+# Use this line for configs specific to your work
+# CONFIG += opengl
+
 
 # Uncomment the next line if you want to use NAS sound
 #unix:DEFINES    += QT_NAS_SUPPORT
@@ -77,7 +83,6 @@ win32:DEPENDPATH = ../include
 unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 
 HEADERS		= $$DIALOGS_H/qcolordialog.h \
-		  $$DIALOGS_H/qerrormessage.h \
 		  $$DIALOGS_H/qfiledialog.h \
 		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
@@ -308,7 +313,7 @@ unix:SOURCES    = tools/qdir_unix.cpp \
 		  kernel/qpaintdevice_x11.cpp \
 		  kernel/qpainter_x11.cpp \
 		  kernel/qregion_x11.cpp \
-		  kernel/qwidget_x11.cpp \
+		  kernel/qwidget_x11.cpp
 
 unix:SOURCES   += dialogs/qprintdialog.cpp \
 		  kernel/qpsprinter.cpp \
@@ -467,7 +472,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qaction.cpp \
 		  widgets/qeffects.cpp \
 		  dialogs/qcolordialog.cpp \
-		  dialogs/qerrormessage.cpp \
 		  dialogs/qfiledialog.cpp \
 		  dialogs/qfontdialog.cpp \
 		  dialogs/qmessagebox.cpp \
@@ -518,8 +522,25 @@ opengl:HEADERS += opengl/qgl.h
 OPENGL_SOURCES	= opengl/qgl.cpp
 unix:OPENGL_SOURCES += opengl/qgl_x11.cpp
 win32:OPENGL_SOURCES += opengl/qgl_win.cpp
-
 opengl:SOURCES    += $$OPENGL_SOURCES
+
+network:HEADERS += network/qdns.h \
+		    network/qftp.h \
+		    network/qhostaddress.h \
+		    network/qnetwork.h \
+		    network/qserversocket.h \
+		    network/qsocket.h \
+		    network/qsocketdevice.h
+NETWORK_SOURCES	= network/qdns.cpp \
+		    network/qftp.cpp \
+		    network/qhostaddress.cpp \
+		    network/qnetwork.cpp \
+		    network/qserversocket.cpp \
+		    network/qsocket.cpp \
+		    network/qsocketdevice.cpp
+unix:NETWORK_SOURCES += network/qsocketdevice_unix.cpp
+win32:NETWORK_SOURCES += network/qsocketdevice_win.cpp
+network:SOURCES    += $$NETWORK_SOURCES
 
 TARGET		= qt
 VERSION		= 2.2.0

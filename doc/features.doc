@@ -60,7 +60,7 @@ The available options are:
     Conversions between Unicode and 8-bit encodings.
 <tr><td valign=top>QT_NO_UNICODETABLES <td valign=top>
     Large tables defining such things as upper and lowercase conversions
-    for all Unicode characetrs.
+    for all Unicode characters.
 
 <tr><th colspan=3>MIME
 <tr><td valign=top>QT_NO_MIME <td valign=top>
@@ -116,7 +116,7 @@ The available options are:
 <tr><th colspan=3>Networking
 <tr><td valign=top>QT_NO_NETWORKPROTOCOL <td valign=top>
     Abstract multi-protocol data retrieval,
-    with local file retrival included - \l QNetworkProtocol
+    with local file retrieval included - \l QNetworkProtocol
 
 <tr><td valign=top>QT_NO_NETWORKPROTOCOL_FTP <td valign=top>
     FTP-protocol data retrieval.

@@ -64,13 +64,17 @@ bool QPlugIn::load()
 	return FALSE;
 
     if ( !pHnd )
-#ifdef _WS_WIN_
+#if defined(_WS_WIN_)
 	pHnd = LoadLibrary( libfile );
-#else
+#elif defined(_WS_X11_)
 	pHnd = dlopen( libfile, (libPol == DefaultPolicy) ? RTLD_LAZY : RTLD_NOW );
-#endif	
+#endif
 
-    infoStringPtr = (STRINGPROC) getSymbolAddress( "infoString" );
+    infoStringPtr = (StringProc) getSymbolAddress( "infoString" );
+#ifdef CHECK_RANGE
+    if ( !infoStringPtr )
+	qWarning("QPlugIn: Library does not support an inforString method!");
+#endif
 
     return (bool)pHnd;
 }
@@ -81,7 +85,7 @@ bool QPlugIn::load()
 void QPlugIn::unload()
 {
     if ( pHnd )
-#ifdef _WS_WIN
+#ifdef _WS_WIN_
 	FreeLibrary( pHnd );
 #else
 	dlclose( pHnd );
@@ -166,9 +170,17 @@ const char* QPlugIn::infoString()
 /*!
   \fn bool QPlugIn::addToManager( QPlugInDict& dict )
 
-  Registers this plugin with all widgets and actions it provides in \a dict and
-  returns TRUE if successful.
+  Registers this plugin in \a dict and returns TRUE if successful.
   This pure virtual function gets called by QPlugInManager::addPlugIn() and has 
+  to be reimplemented for custom extensions.
+*/
+
+/*!
+  \fn bool QPlugIn::removeFromManager( QPlugInDict& dict )
+
+  Remove this plugin from \a dict and returns TRUE if successful.
+
+  This pure virtual function gets called by QPlugInManager::removePlugIn() and has 
   to be reimplemented for custom extensions.
 */
 

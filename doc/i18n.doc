@@ -75,7 +75,7 @@ in the following stages:
 
 	If the quoted text is \e not in a member function of a
 	QObject/QWidget subclass, use either
-	the tr() function of an approriate class, or the
+	the tr() function of an appropriate class, or the
 	QApplication::translate() function directly:
 	\code
 	void some_global_function(LoginWidget* logwid)
@@ -213,7 +213,7 @@ in the following stages:
 	<p>
 	<em>
 	Note that Qt itself contains a small number of strings that will
-	also need to be translated to the languages which you are targetting.
+	also need to be translated to the languages which you are targeting.
 	In the near future Qt will ship with translations for some languages.
 	We recommend that if you need to translate the Qt strings now
 	that you put the translations in separate .po and .qm files.  This
@@ -237,7 +237,7 @@ in the following stages:
 	encoding used when dealing with 8-bit data - such as for
 	font selection, text display, 8-bit text I/O, and character input.
 
-	The application may occassionally have need for encodings other
+	The application may occasionally have need for encodings other
 	than the default local 8-bit encoding.  For example, an application
         in a Cyrillic KOI8-R locale (the defacto-standard locale in Russia)
 	might need to output Cyrillic in the ISO 8859-5 encoding. Code for
@@ -292,8 +292,8 @@ in the following stages:
 	Since most Unix systems do not have built-in support for converting
 	between local 8-bit encodings and Unicode, it may be necessary to
 	write your own QTextCodec subclass. Depending on the urgency, it
-	may be useful to contact Troll Tech techical support or ask on
-	the qt-interest mailinglist to see if someone else is already working
+	may be useful to contact Troll Tech technical support or ask on
+	the qt-interest mailing list to see if someone else is already working
 	on supporting the encoding.  A useful interim measure can be to
 	use the QTextCodec::loadCharmapFile() function to build a data-driven
 	codec; this has a memory and speed penalty, especially with
@@ -433,7 +433,7 @@ support in Solaris<sup class="tm"><font size="-1">TM</font></sup> 7</a>.
 
 <h2>Notes about locales on X11</h2>
 
-Many Unix distributations contain only partial support for some locales -
+Many Unix distributions contain only partial support for some locales -
 for example, if you have a <tt>/usr/share/locale/ja_JP.EUC</tt>
 directory, this does not necessarily mean you can display Japanese text
 - you also need JIS encoded fonts (or Unicode fonts), and that

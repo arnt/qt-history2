@@ -53,7 +53,7 @@ In addition to C++, Qt provides
 </ul>
 
 Many of these Qt features are implemented with standard C++
-techniquees, based on inheritance from \l QObject. Others, like the
+techniques, based on inheritance from \l QObject. Others, like the
 object communication mechanism and the dynamic property system,
 require the <a href="metaobjects.html">Meta Object System</a> provided
 by Qt's own <a href="moc.html">Meta Object Compiler (moc)</a>. Think
@@ -79,7 +79,7 @@ the timer id.
 For this mechanism to work, the application has to run in an event
 loop. You start an event loop with \l QApplication::exec(). When a
 timer fires, the application sends a QTimerEvent, and the flow of
-control leaves the event loop until the timer event is prosessed. This
+control leaves the event loop until the timer event is processed. This
 implies that a timer cannot fire while your application is busy doing
 something else. In other words: the accuracy of timers depends on the
 granularity of your application.
@@ -252,10 +252,10 @@ available properties for any QObject through its \link QMetaObject
 metaObject() \endlink setProperty() can give you control over classes
 that weren't available at compile time.
 
-As well las QObject::setProperty(), there is a \l
-QObject::property(). \l QMetaObject::propertyNames() returns the names
-of all available properties.  \l QMetaObject::property() returns the
-property data for a named property: a \l QMetaProperty object.
+As well as QObject::setProperty(), there is a \l QObject::property().
+\l QMetaObject::propertyNames() returns the names of all available
+properties.  \l QMetaObject::property() returns the property data for
+a named property: a \l QMetaProperty object.
 
 Here's a simple example that shows the most important property
 functions in use/.
@@ -328,7 +328,7 @@ The remaining keywords in the \c Q_PROPERTY section are \c STORED, \c
 DESIGNABLE and \c RESET.
 
 \c STORED declares whether the property's value is stored in the
-object. Stored makes only sense for writeable properties. The default
+object. Stored makes only sense for writable properties. The default
 value is \c true.
 
 \c DESIGNABLE declares whether this property is suited for
@@ -435,7 +435,7 @@ An event filter gets to process events before the target object does.
 The filter's \l QObject::eventFilter() implementation is called, and
 can accept or reject the filter, and allow or deny further processing
 of the event.  If all the event filters allow further processing of an
-event, the event is sent to the target object iself.  If one of them
+event, the event is sent to the target object itself.  If one of them
 stops processing, the target and any later event filters don't get to
 see the event at all.
 
@@ -463,7 +463,7 @@ handler that was called.
 
 postEvent() posts the event on a queue for later dispatch.  The next
 time Qt's main event loop runs, it dispatches all posted events, with
-somke optimization.  For example, if there are several resize events,
+some optimization.  For example, if there are several resize events,
 they are are compacted into one.  The same applies to paint events: \l
 QWidget::update() calls postEvent(), which minimizes flickering and
 increases speed by avoiding multiple repaints.

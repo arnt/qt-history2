@@ -60,7 +60,7 @@ public:
   QPopupMenu, \code
   menubar->insertItem( "&File", filemenu );
   \endcode
-  inserts the menu into the menu bar. The ampercent in the item text declares
+  inserts the menu into the menu bar. The ampersand in the item text declares
   Alt-f as shortcut for this menu.
 
   Items are either enabled or disabled. You toggle their state with

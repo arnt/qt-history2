@@ -342,7 +342,7 @@ static bool inCaptionChange = FALSE;
 
 class QWorkspaceChildTitleBar;
 
-class Q_EXPORT QWorkspaceChildTitleLabel : public QFrame
+class QWorkspaceChildTitleLabel : public QFrame
 {
     Q_OBJECT
 public:
@@ -362,11 +362,14 @@ protected:
     void paintEvent( QPaintEvent* );
     void resizeEvent( QResizeEvent* );
 
+    bool event( QEvent* );
+
     void drawLabel();
     void frameChanged();
 
 private:
     void cutText();
+    void getColors();
 
     QPixmap buffer;
     QColor leftc, aleftc, ileftc;
@@ -378,7 +381,7 @@ private:
     QString cuttext;
 };
 
-class Q_EXPORT QWorkspaceChildTitleBar : public QWidget
+class QWorkspaceChildTitleBar : public QWidget
 {
     Q_OBJECT
 
@@ -438,14 +441,7 @@ private slots:
     void stopDblCloseTimer();
 };
 
-
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT QGuardedPtr<QWorkspaceChildTitleBar>;
-// MOC_SKIP_END
-#endif
-
-class Q_EXPORT QWorkspaceChild : public QFrame
+class QWorkspaceChild : public QFrame
 {
     Q_OBJECT
 public:
@@ -689,8 +685,21 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	return;
 
     if ( d->maxWindow && d->maxWindow != d->active &&
-	d->active->windowWidget()->testWFlags( WStyle_MinMax ) )
+	d->active->windowWidget()->testWFlags( WStyle_MinMax ) ) {
 	maximizeWindow( d->active->windowWidget() );
+	QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0,
+						       FALSE, TRUE );
+	QMenuBar * b = 0;
+	if ( l && l->count() )
+	    b = (QMenuBar *)l->first();
+	delete l;
+
+	if ( b ) {
+	    const QPixmap* pm = d->maxWindow->windowWidget()->icon();
+	    if ( pm )
+		b->changeItem( d->menuId, *pm );
+	}
+    }
 
     d->active->internalRaise();
 
@@ -1935,14 +1944,32 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     case QEvent::CaptionChange:
 	setCaption( childWidget->caption() );
 	break;
-    case QEvent::IconChange:
-	if ( !titlebar )
-	    break;
-	if ( childWidget->icon() ) {
-	    titlebar->setIcon( *childWidget->icon() );
-	} else {
-	    QPixmap pm;
-	    titlebar->setIcon( pm );
+    case QEvent::IconChange: 
+	{
+	    if ( !titlebar )
+		break;
+	    if ( childWidget->icon() ) {
+		titlebar->setIcon( *childWidget->icon() );
+	    } else {
+		QPixmap pm;
+		titlebar->setIcon( pm );
+	    }
+
+	    if ( ((QWorkspace*)parentWidget())->d->maxWindow != this )
+		break;
+
+	    QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0,
+							   FALSE, TRUE );
+	    QMenuBar * b = 0;
+	    if ( l && l->count() )
+		b = (QMenuBar *)l->first();
+	    delete l;
+
+	    if ( b ) {
+		const QPixmap* pm = childWidget->icon();
+		if ( pm )
+		    b->changeItem( ((QWorkspace*)parentWidget())->d->menuId, *pm );
+	    }
 	}
 	break;
     case QEvent::Resize:
@@ -2529,6 +2556,11 @@ void QWorkspaceChild::move( int x, int y )
 QWorkspaceChildTitleLabel::QWorkspaceChildTitleLabel( QWorkspaceChildTitleBar* parent, const char* name )
     : QFrame( parent, name, WRepaintNoErase | WResizeNoErase )
 {
+    getColors();
+}
+
+void QWorkspaceChildTitleLabel::getColors()
+{
     aleftc = arightc = palette().active().highlight();
     ileftc = irightc = palette().inactive().dark();
     atextc = palette().active().highlightedText();
@@ -2554,6 +2586,9 @@ QWorkspaceChildTitleLabel::QWorkspaceChildTitleLabel( QWorkspaceChildTitleBar* p
     #endif
     }
 #endif
+
+    
+    setActive( ((QWorkspaceChildTitleBar*)parentWidget())->isActive() );
 }
 
 void QWorkspaceChildTitleLabel::setText( const QString& text )
@@ -2650,6 +2685,16 @@ void QWorkspaceChildTitleLabel::resizeEvent( QResizeEvent* e )
 
     buffer.resize( size() );
     cutText();
+}
+
+bool QWorkspaceChildTitleLabel::event( QEvent* e )
+{
+    if ( e->type() == QEvent::ApplicationPaletteChange ) {
+	getColors();
+	return TRUE;
+    }
+
+    return QFrame::event( e );
 }
 
 void QWorkspaceChildTitleLabel::setActive( bool a )

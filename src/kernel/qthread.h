@@ -70,7 +70,6 @@ public:
 
     static THREAD_HANDLE currentThread();
     static void postEvent( QObject *,QEvent * );
-    static void yield();   // Only useful on MacOS
 
     static void exit();
 
@@ -81,8 +80,6 @@ public:
     virtual void run();
     THREAD_HANDLE handle();
     bool running();
-    void * threadData();
-    void setThreadData(void *);
 
     void runWrapper();
 
@@ -97,11 +94,26 @@ private:
 
 };
 
-// Is this the right name?
+class QThreadDataPrivate;
+
+class Q_EXPORT QThreadData {
+
+public:
+
+    QThreadData();
+    ~QThreadData();
+    void setData(void *);
+    void * data();
+
+private:
+
+    QThreadDataPrivate * d;
+
+};
 
 class Q_EXPORT QThreadEvent {
 
- public:
+public:
 
     QThreadEvent();
     ~QThreadEvent();
@@ -125,7 +137,6 @@ private:
 #endif
 
 #endif
-
 
 
 

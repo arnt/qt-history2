@@ -383,7 +383,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( accept_drops )
 	setAcceptDrops( TRUE );
 
-    QCustomEvent e( QEvent::Reparent, 0 );
+    QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
 
 }
@@ -543,7 +543,7 @@ void QWidget::setCaption( const QString &caption )
 	SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
     else
 	SetWindowTextA( winId(), caption.local8Bit() );
-    QCustomEvent e( QEvent::CaptionChange, 0 );
+    QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );
 }
 
@@ -601,7 +601,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
     SendMessageA( winId(), WM_SETICON, 1, /* ICON_BIG */
 		  (long)x->winIcon );
 
-    QCustomEvent e( QEvent::IconChange, 0 );
+    QEvent e( QEvent::IconChange );
     QApplication::sendEvent( this, &e );
 }
 
@@ -818,7 +818,7 @@ void QWidget::showMinimized()
 	    show();
 	}
     }
-    QCustomEvent e( QEvent::ShowMinimized, 0 );
+    QEvent e( QEvent::ShowMinimized );
     QApplication::sendEvent( this, &e );
 }
 
@@ -840,7 +840,7 @@ void QWidget::showMaximized()
 	}
     }  else
 	show();
-    QCustomEvent e( QEvent::ShowMaximized, 0 );
+    QEvent e( QEvent::ShowMaximized );
     QApplication::sendEvent( this, &e );
 }
 
@@ -864,7 +864,7 @@ void QWidget::showNormal()
 	    show();
     } else
 	show();
-    QCustomEvent e( QEvent::ShowNormal, 0 );
+    QEvent e( QEvent::ShowNormal );
     QApplication::sendEvent( this, &e );
 }
 

@@ -34,23 +34,23 @@
 #define XMLERR_QUOTATIONEXPECTED          "expected \" or ' but not found"
 #define XMLERR_ERRORPARSINGREFERENCE      "error while parsing reference"
 #define XMLERR_ERRORPARSINGPI             "error while parsing processing instruction"
-#define XMLERR_ERRORPARSINGATTLISTDECL    "error while parsing attribute list decleration"
-#define XMLERR_ERRORPARSINGATTTYPE        "error while parsing attribute type decleration"
-#define XMLERR_ERRORPARSINGATTVALUE       "error while parsing attribute value decleration"
-#define XMLERR_ERRORPARSINGELEMENTDECL    "error while parsing element decleration"
-#define XMLERR_ERRORPARSINGENTITYDECL     "error while parsing entity decleration"
-#define XMLERR_ERRORPARSINGNOTATIONDECL   "error while parsing notation decleration"
+#define XMLERR_ERRORPARSINGATTLISTDECL    "error while parsing attribute list declaration"
+#define XMLERR_ERRORPARSINGATTTYPE        "error while parsing attribute type declaration"
+#define XMLERR_ERRORPARSINGATTVALUE       "error while parsing attribute value declaration"
+#define XMLERR_ERRORPARSINGELEMENTDECL    "error while parsing element declaration"
+#define XMLERR_ERRORPARSINGENTITYDECL     "error while parsing entity declaration"
+#define XMLERR_ERRORPARSINGNOTATIONDECL   "error while parsing notation declaration"
 #define XMLERR_ERRORPARSINGEXTERNALID     "error while parsing external id"
 #define XMLERR_ERRORPARSINGCOMMENT        "error while parsing comment"
-#define XMLERR_ERRORPARSINGENTITYVALUE    "error while parsing entity value decleration"
+#define XMLERR_ERRORPARSINGENTITYVALUE    "error while parsing entity value declaration"
 #define XMLERR_CDSECTHEADEREXPECTED       "expected the header for a cdata section"
 #define XMLERR_MORETHANONEDOCTYPE         "more than one document type definition"
 #define XMLERR_ERRORPARSINGDOCTYPE        "error while parsing document type definition"
 #define XMLERR_INVALIDNAMEFORPI           "invalid name for processing instruction"
-#define XMLERR_VERSIONEXPECTED            "version expected while reading the xml decleration"
-#define XMLERR_EDECLORSDDECLEXPECTED      "EDecl or SDDecl expected while reading the xml decleration"
-#define XMLERR_SDDECLEXPECTED             "SDDecl expected while reading the xml decleration"
-#define XMLERR_WRONGVALUEFORSDECL         "wrong value for standalone decleration"
+#define XMLERR_VERSIONEXPECTED            "version expected while reading the xml declaration"
+#define XMLERR_EDECLORSDDECLEXPECTED      "EDecl or SDDecl expected while reading the xml declaration"
+#define XMLERR_SDDECLEXPECTED             "SDDecl expected while reading the xml declaration"
+#define XMLERR_WRONGVALUEFORSDECL         "wrong value for standalone declaration"
 #define XMLERR_UNPARSEDENTITYREFERENCE    "unparsed entity reference"
 #define XMLERR_INTERNALGENERALENTITYINDTD "internal general entity reference not allowed in DTD"
 #define XMLERR_EXTERNALGENERALENTITYINDTD "external parsed general entity reference not allowed in DTD"
@@ -328,7 +328,7 @@ void QXmlNamespaceSupport::splitName( const QString& qname,
   the prefix and looking it up among the prefixes currently declared.
 
   First parameter is the raw XML 1.0 name to be processed. The second parameter
-  is a flag wheter the name is the name of an attribute (TRUE) or not (FALSE).
+  is a flag whether the name is the name of an attribute (TRUE) or not (FALSE).
 
   The return values will be stored in the last two parameters as follows:
   <ul>
@@ -833,7 +833,7 @@ void QXmlInputSource::setData( const QString& d )
 /*!
   \fn bool QXmlContentHandler::skippedEntity( const QString& name )
 
-  Some readers may skip entities if they have not seen the declerations (e.g.
+  Some readers may skip entities if they have not seen the declarations (e.g.
   because they are in an external DTD). If they do so they will report it by
   calling this function.
 
@@ -1019,7 +1019,7 @@ void QXmlInputSource::setData( const QString& d )
 
 /*!
   \class QXmlDeclHandler qxml.h
-  \brief QXmlDeclHandler is an interface used to report decleration content
+  \brief QXmlDeclHandler is an interface used to report declaration content
   of an XML file to the user.
 
   \ingroup xml
@@ -1329,7 +1329,7 @@ private:
     { }
 
 
-    // used for entity declerations
+    // used for entity declarations
     struct ExternParameterEntity
     {
 	ExternParameterEntity( ) {}
@@ -1352,13 +1352,13 @@ private:
     QMap<QString,ExternEntity> externEntities;
     QMap<QString,QString> entities;
 
-    // used for standalone decleration
+    // used for standalone declaration
     enum Standalone { Yes, No, Unknown };
 
     QString doctype; // only used for the doctype
     QString xmlVersion; // only used to store the version information
     QString encoding; // only used to store the encoding
-    Standalone standalone; // used to store the value of the standalone decleration
+    Standalone standalone; // used to store the value of the standalone declaration
 
     QString publicId; // used by parseExternalID() to store the public ID
     QString systemId; // used by parseExternalID() to store the system ID
@@ -1380,7 +1380,7 @@ private:
     // error string
     QString error;
 
-    // friend declerations
+    // friend declarations
     friend class QXmlSimpleReader;
 };
 
@@ -1692,13 +1692,13 @@ QXmlLexicalHandler* QXmlSimpleReader::lexicalHandler() const
 { return lexicalHnd; }
 
 /*!
-  Sets a handler for DTD decleration events.
+  Sets a handler for DTD declaration events.
 */
 void QXmlSimpleReader::setDeclHandler( QXmlDeclHandler* handler )
 { declHnd = handler; }
 
 /*!
-  Returns the actual used handler for DTD decleration events.
+  Returns the actual used handler for DTD declaration events.
 */
 QXmlDeclHandler* QXmlSimpleReader::declHandler() const
 { return declHnd; }
@@ -1840,7 +1840,7 @@ bool QXmlSimpleReader::parseProlog()
 	// in some cases do special actions depending on state
 	switch ( state ) {
 	    case EatWS:
-		// xml decleration only on first position possible
+		// xml declaration only on first position possible
 		xmldecl_possible = FALSE;
 		// eat white spaces
 		eat_ws();
@@ -1850,7 +1850,7 @@ bool QXmlSimpleReader::parseProlog()
 		next();
 		break;
 	    case Em:
-		// xml decleration only on first position possible
+		// xml declaration only on first position possible
 		xmldecl_possible = FALSE;
 		// next character
 		next();
@@ -1908,7 +1908,7 @@ bool QXmlSimpleReader::parseProlog()
 			}
 		    }
 		}
-		// xml decleration only on first position possible
+		// xml declaration only on first position possible
 		xmldecl_possible = FALSE;
 		break;
 	    case Done:
@@ -2504,7 +2504,7 @@ parseError:
 /*!
   Parse a processing instruction [16].
 
-  If xmldec is TRUE, it tries to parse a PI or a xml decleration [23].
+  If xmldec is TRUE, it tries to parse a PI or a xml declaration [23].
 
   Precondition: the beginning '<' of the PI is already read and the head stand
   on the '?' of '<?'.
@@ -2634,7 +2634,7 @@ bool QXmlSimpleReader::parsePI(bool xmldecl)
 	    case SD:
 		// get the SDDecl (syntax like an attribute)
 		if ( d->standalone != QXmlSimpleReaderPrivate::Unknown ) {
-		    // already parsed the standalone decleration
+		    // already parsed the standalone declaration
 		    d->error = XMLERR_UNEXPECTEDCHARACTER;
 		    goto parseError;
 		}
@@ -4623,7 +4623,7 @@ parseError:
   Parse a Attribute [41].
 
   Precondition: the head stands on the first character of the name of the
-  attribute (i.e. all whitspaces are already parsed).
+  attribute (i.e. all whitespaces are already parsed).
 
   The head stand on the next character after the end quotes. The variable name
   contains the name of the attribute and the variable string contains the value

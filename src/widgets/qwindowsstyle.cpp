@@ -50,7 +50,7 @@
   \ingroup appearance
 
   This class implements the look and feel known from the Windows
-  plattform. Naturally it is also Qt's default GUI style on Windows.
+  platform. Naturally it is also Qt's default GUI style on Windows.
 */
 
 #if defined(_WS_WIN32_)

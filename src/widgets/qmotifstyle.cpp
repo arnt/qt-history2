@@ -51,7 +51,7 @@
   This class implements the Motif look and feel. It almost completely
   resembles the original Motif look as defined by the Open Group, but
   also contains minor improvements. The Motif style is Qt's default
-  GUI style on UNIX plattforms.
+  GUI style on UNIX platforms.
 */
 
 /*!

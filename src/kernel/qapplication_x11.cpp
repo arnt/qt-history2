@@ -1409,7 +1409,7 @@ bool qt_wstate_iconified( WId winid )
   manager or Qt' parent-child delete mechanism may be better.  Here is
   an example of a private class which uses the parent-child mechanism
   to call a cleanup function at the right time:
-  
+
   \code
     class MyPrivateInitStuff: public QObject {
     private:
@@ -1433,7 +1433,7 @@ bool qt_wstate_iconified( WId winid )
 
   By selecting the right parent widget/object, this can often be made
   to clean up the module's data at the exact right moment.
-*/  
+*/
 
 void qAddPostRoutine( Q_CleanUpFunction p )
 {
@@ -1594,7 +1594,7 @@ GC qt_xget_temp_gc( bool monochrome )		// get temporary GC
   The main widget is like any other, in most respects except that if
   it is deleted, the application exits.
 
-  You need not have a main widget; conecting lastWindowClosed() to quit() is
+  You need not have a main widget; connecting lastWindowClosed() to quit() is
   another alternative.
 
   For X11, this function also resizes and moves the main widget
@@ -4424,9 +4424,9 @@ bool QETWidget::translateCloseEvent( const XEvent * )
 
 /*!
   Sets the text cursor's flash time to \a msecs milliseconds.  The
-  flash time is the time requried to display, invert and restore the
+  flash time is the time required to display, invert and restore the
   caret display: A full flash cycle.  Usually, the text cursor is
-  displayed for \a msecs/2 millisecnds, then hidden for \a msecs/2
+  displayed for \a msecs/2 milliseconds, then hidden for \a msecs/2
   milliseconds, but this may vary.
 
   Note that on Microsoft Windows, calling this function sets the
@@ -4442,7 +4442,7 @@ void  QApplication::setCursorFlashTime( int msecs )
 
 /*!
   Returns the text cursor's flash time in milliseconds. The flash time
-  is the time requried to display, invert and restore the caret
+  is the time required to display, invert and restore the caret
   display.
 
   The default value on X11 is 1000 milliseconds. On Windows, the
@@ -4530,7 +4530,7 @@ public:
 };
 
 QSessionManager::QSessionManager( QApplication * app, QString &session )
-    : QObject( app, "session manager" )
+    : QObject( app, "qt_sessionmanager" )
 {
     d = new QSessionManagerData;
     d->sessionId = session;

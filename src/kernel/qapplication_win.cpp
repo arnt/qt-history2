@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#395 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#396 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -52,7 +52,7 @@
 
   -DQT_DLL code that #includes qapplication.h (ie. applications that want to
   use the Qt DLL) get a QApplication class which is a simple derived class
-  of the QBaseApplication which has all the funcitonality documented for
+  of the QBaseApplication which has all the functionality documented for
   QApplication.
 
   Qt code that does not declare any QApplication::* members works the same
@@ -1401,9 +1401,24 @@ void QApplication::processEvents( int maxtime )
 
 void QApplication::wakeUpGuiThread()
 {
-    PostThreadMessage( gui_thread_id , WM_USER+999, 0, 0 );
+    if ( !PostThreadMessage( gui_thread_id , WM_USER+999, 0, 0 ) ) {
+#ifdef CHECK_RANGE
+	if ( GetLastError() == ERROR_INVALID_THREAD_ID )
+	    qWarning("QApplication: Invalid thread ID");
+#endif
+    }
 }
 
+void QApplication::guiThreadTaken()
+{
+    if ( !PostThreadMessage( gui_thread_id , WM_USER+999, 0, 1 ) ) {
+#ifdef CHECK_RANGE
+	if ( GetLastError() == ERROR_INVALID_THREAD_ID )
+	    qWarning("QApplication: Invalid thread ID");
+#endif
+    }
+
+}
 
 bool QApplication::winEventFilter( MSG * )	// Windows event filter
 {

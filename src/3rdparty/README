@@ -7,5 +7,10 @@ have been removed:
     zlib/contrib - a collection of non-zlib code
     zlib/msdos   - Zlib for a platform never supported by Qt ;-)
 
+Some bug fixes and small changes are added from time to time:
+
+    libpng - __STR__ needs not be defined anymore in pngconf.h
+             on AIX platforms
+
 Qt applications assume that these libraries exist, and Qt cannot be
 compiled unless these libraries are installed on the system.

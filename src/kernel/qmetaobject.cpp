@@ -76,7 +76,7 @@
   The Meta Object System in Qt is responsible for the signal/slot
   mechanism for communication between objects, runtime type
   information and the property system. All meta information in Qt is
-  kept in a singla instance of QMetaObject per class.
+  kept in a single instance of QMetaObject per class.
 
   In general, you will not have to use this class directly in any
   application program. Most of the class members and functions are
@@ -835,7 +835,7 @@ bool QMetaObject::inherits( const char* clname ) const
   \ingroup objectmodel
 
   Property meta data mainly consists of a type(), a name() and the
-  fact, whether a property is writeable(), designable() or stored().
+  fact, whether a property is writable(), designable() or stored().
 
   The functions isSetType(), isEnumType() and enumKeys() provide
   further information about a property's type. The conversion
@@ -978,7 +978,7 @@ QMetaProperty::~QMetaProperty()
   Returns the name of the property.
  */
 
-/*! \fn bool QMetaProperty::writeable() const
+/*! \fn bool QMetaProperty::writable() const
 
   Returns whether the property is writable or not.
 

@@ -25,7 +25,8 @@
 
 void usage( const char *app )
 {
-    printf( "Usage: %s [-width width] [-height height] [-depth depth] [-nocursor]\n", app );
+    printf( "Usage: %s [-width width] [-height height] [-depth depth] "
+	    "[-nocursor] [-qwsdisplay :id]\n", app );
 }
 
 int main( int argc, char *argv[] )
@@ -36,6 +37,7 @@ int main( int argc, char *argv[] )
     int height = 320;
     int depth = 8;
     bool cursor = true;
+    QString displaySpec( ":0" );
 
     for ( int i = 1; i < argc; i++ ){
 	QString arg = argv[i];
@@ -47,6 +49,8 @@ int main( int argc, char *argv[] )
 	    depth = atoi( argv[++i] );
 	} else if ( arg == "-nocursor" ) {
 	    cursor = false;
+	} else if ( arg == "-qwsdisplay" ) {
+	    displaySpec = argv[++i];
 	} else {
 	    printf( "Unknown parameter %s\n", arg.latin1() );
 	    usage( argv[0] );
@@ -54,7 +58,17 @@ int main( int argc, char *argv[] )
 	}
     }
 
-    QVFb *mw = new QVFb( width, height, depth );
+    int displayId = 0;
+    QRegExp r( ":[0-9]" );
+    int len;
+    int m = r.match( displaySpec, 0, &len );
+    if ( m >= 0 ) {
+	displayId = displaySpec.mid( m+1, len-1 ).toInt();
+    }
+
+    qDebug( "Using display %d", displayId );
+
+    QVFb *mw = new QVFb( displayId, width, height, depth );
     app.setMainWidget( mw );
     mw->enableCursor(cursor);
     mw->show();

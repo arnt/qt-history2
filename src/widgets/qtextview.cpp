@@ -65,7 +65,7 @@
 
   Using QTextView is quite similar to QLabel. It's mainly a call to
   setText() to set the contents. Setting the background color is
-  slighty different from other widgets, since a text view is a
+  slightly different from other widgets, since a text view is a
   scrollable widget that naturally provides a scrolling background. You
   can specify the colorgroup of the displayed text with
   setPaperColorGroup() or directly define the paper background with
@@ -399,7 +399,7 @@ void QTextView::setMimeSourceFactory( QMimeSourceFactory* factory )
 /*!
   Sets the brush to use as the background to \a pap.
 
-  This may be a nice pergament or marble pixmap or simply another
+  This may be a nice parchment or marble pixmap or simply another
   plain color.
 
   Technically, setPaper() is just a convenience function to set the
@@ -504,7 +504,7 @@ int QTextView::heightForWidth( int w ) const
 }
 
 /*!
-  Returns the document defining the view as drawable and querable rich
+  Returns the document defining the view as drawable and queryable rich
   text object.  This is not currently useful for applications.
 */
 QRichText& QTextView::richText() const
@@ -953,7 +953,7 @@ Qt::TextFormat QTextView::textFormat() const
 /*!
   Sets the text format to \a format. Possible choices are
   <ul>
-  <li> \c PlainText - all characters are displayed verbatimely,
+  <li> \c PlainText - all characters are displayed verbatim,
   including all blanks and linebreaks.
   <li> \c RichText - rich text rendering. The available
   styles are defined in the default stylesheet

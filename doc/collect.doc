@@ -54,7 +54,7 @@ The value based collections are:
 The reference based collection classes work with pointers to items,
 while the value based classes store copies of their items. An
 exception is \l QArray. It is neither reference nor value based, but
-memory based. For maximum effiency with the simple data types usually
+memory based. For maximum efficiency with the simple data types usually
 used in arrays, it uses bitwise operations to copy and compare array
 elements.
 

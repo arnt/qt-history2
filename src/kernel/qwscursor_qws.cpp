@@ -226,7 +226,7 @@ void QWSServer::initializeCursor()
 {
     // setup system cursors
 #ifndef QT_NO_QWS_CURSOR
-    qt_screen->initCursor(sharedram + ramlen,TRUE);
+//    qt_screen->initCursor(sharedram + ramlen,TRUE);
 
     for ( int i = 0; i <= LastCursor; i++ )
 	systemCursorTable[i] = 0;

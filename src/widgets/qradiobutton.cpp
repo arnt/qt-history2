@@ -49,7 +49,7 @@
   be checked. If the user selects another button, the previously
   selected button is switched off.
 
-  While it is technically possible to imlement radio-behaviour with
+  While it is technically possible to implement radio-behaviour with
   check boxes and vice versa, it's strongly recommended to stick with
   the well-known semantics. Otherwise your users would be pretty
   confused.

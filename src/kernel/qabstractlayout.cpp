@@ -1024,10 +1024,6 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	break;
-    case QEvent::HideToParent:
-    case QEvent::ShowToParent:
-	QApplication::postEvent( o, new QEvent( QEvent::LayoutHint ) );
-	break;
     case QEvent::LayoutHint:
 	activate();
 	break;
@@ -1563,7 +1559,7 @@ QGLayoutIterator::~QGLayoutIterator()
 
   A QLayoutIterator is not protected against changes in its layout. If
   the layout is modified or deleted, the iterator will become invalid.
-  It is not posible to test for validity. It is safe to delete an
+  It is not possible to test for validity. It is safe to delete an
   invalid layout. Any other access may lead to an illegal memory
   reference, and the abnormal termination of the program.
 

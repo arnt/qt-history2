@@ -122,7 +122,7 @@
   It is save to have multiple iterators at the same time. If some member of the list is
   removed then only iterators pointing to the removed member become invalid. Inserting in
   the list does not invalidate any iterator. For convenience the function last() returns
-  an iterator for the last and first() for thge first element in the list.
+  an iterator for the last and first() for the first element in the list.
 
   In addition you can search items in the list with the find() function. It exists in a const
   and a non const version. It starts searching from the beginning of the list, but another
@@ -134,7 +134,7 @@
   list. The list holds its own copies and will free them if the corresponding member or
   the list itself is deleted. You can force the list to free all of its item with clear().
 
-  QValueList is implict shared. That means you can just make copies of the list
+  QValueList is implicitly shared. That means you can just make copies of the list
   in time O(1). If multiple QValueList instances share the same data and one
   is doing a modification of the lists data then this modifying instance makes a copy
   and modifies its private copy. So it does not affect the other instances.
@@ -197,7 +197,7 @@
   Assigns \e l to this list and returns a reference to this list.
 
   All iterators of the current list become invalidated by this operation.
-  The cost of such an assignment is O(1) since QValueList is implict shared.
+  The cost of such an assignment is O(1) since QValueList is implicitly shared.
 */
 
 /*!
@@ -556,7 +556,7 @@
   by what you are doing. QValueList does not know about all its iterators
   and the iterators dont even know to which list they belong. That makes
   things fast and slim but a bit dangerous because it is up to you to make
-  shure that iterators you are using are still valid. QListIterator will be able
+  sure that iterators you are using are still valid. QListIterator will be able
   to give warnings while QValueListIterator may end up in an undefined state.
 
   For every Iterator there is a ConstIterator. When accessing a QValueList
@@ -675,7 +675,7 @@
 
 /*!
   \fn QValueListConstIterator::QValueListConstIterator()
-  Creates un unitilaized iterator.
+  Creates un uninitialized iterator.
 */
 
 /*!

@@ -88,33 +88,34 @@ class QScreen {
 
 public:
 
-    QScreen();
+    QScreen( int display_id );
     virtual ~QScreen();
-    virtual bool initCard();
-    virtual bool connect();
-    virtual void disconnect();
-    virtual int initCursor(void *,bool=false);
+    virtual bool initCard() = 0;
+    virtual bool connect( const QString &displaySpec ) = 0;
+    virtual void disconnect() = 0;
+    virtual int initCursor(void *, bool=FALSE);
     virtual void shutdownCard();
-    virtual void setMode(int,int,int);
+    virtual void setMode(int,int,int) = 0;
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
     virtual QGfx * screenGfx();
     virtual void save();
     virtual void restore();
 
+    virtual bool onCard(unsigned char *) const;
+    virtual bool onCard(unsigned char *, ulong& out_offset) const;
+
+    // sets a single colour in the colour map
     virtual void set(unsigned int,unsigned int,unsigned int,unsigned int);
+    // allocates a colour
+    virtual int alloc(unsigned int,unsigned int,unsigned int);
 
     int width() const { return w; }
     int height() const { return h; }
     int depth() const { return d; }
     int linestep() const { return lstep; }
     uchar * base() const { return data; }
-    virtual bool onCard(unsigned char *) const;
-    virtual bool onCard(unsigned char *, ulong& out_offset) const;
-
-    virtual int screenSize();
-    virtual int totalSize();
-
-    virtual int alloc(unsigned int,unsigned int,unsigned int);
+    int screenSize() const { return size; }
+    int totalSize() const { return mapsize; }
 
     QRgb * clut() { return screenclut; }
     int numCols() { return screencols; }
@@ -131,12 +132,6 @@ protected:
     int lstep;
     int h;
     int d;
-    // Used by QWS server for mode restoring
-    int startupw;
-    int startuph;
-    int startupd;
-    fb_cmap *startcmap;
-    int fd;
 
     int hotx;
     int hoty;
@@ -144,6 +139,8 @@ protected:
 
     int size;	       // Screen size
     int mapsize;       // Total mapped memory
+
+    int displayId;
 };
 
 extern QScreen * qt_screen;
@@ -254,13 +251,14 @@ protected:
 // This lives in loadable modules
 
 #ifndef QT_LOADABLE_MODULES
-extern "C" QScreen * qt_get_screen(char *,unsigned char *);
+extern "C" QScreen * qt_get_screen( int display_id, const char *spec,
+				    char *,unsigned char *);
 #endif
 
 // This is in main lib, loads the right module, calls qt_get_screen
 // In non-loadable cases just aliases to qt_get_screen
 
-QScreen * qt_probe_bus();
+QScreen * qt_probe_bus( int display_id, const char *spec );
 
 #endif
 

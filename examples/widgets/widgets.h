@@ -87,7 +87,7 @@ private slots:
     void	movieUpdate( const QRect& );
     void	spinBoxValueChanged( const QString& );
     void	popupSelected( int );
-    
+
     void	open();
     void	dummy();
     void	showProperties();
@@ -106,6 +106,7 @@ private:
     QMultiLineEdit* edit;
     QPopupMenu *textStylePopup;
     int plainStyleID;
+    QWidget* bla;
 };
 
 #endif

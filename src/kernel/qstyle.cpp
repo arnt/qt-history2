@@ -43,14 +43,14 @@ class QStylePrivate
 public:
     QStylePrivate()
 	:sbextent(16,16),
-	 button_default_indiciator_width(0),
+	 button_default_indicator_width(0),
 	 button_margin( 6 ),
 	 slider_thickness(16)
     {
     }
 
     QSize sbextent;
-    int button_default_indiciator_width;
+    int button_default_indicator_width;
     int button_margin;
     int slider_thickness;
 };
@@ -182,7 +182,7 @@ void QStyle::polish( QWidget*)
 }
 
 /*!
-  Undos the initializataion of a widget's appearance
+  Undoes the initialization of a widget's appearance.
 
   This function is the counterpart to polish. Is is called for every
   polished widget when the style is dynamically changed. The former
@@ -430,7 +430,7 @@ QRect QStyle::comboButtonRect( int x, int y, int w, int h)
   drawItem() with arguments according to the current state of the
   pushbutton.
 
-  In reimplementions of this function, you will find
+  In reimplementations of this function, you will find
   pushButtonContentsRect() useful.
 
   \sa drawPushButton(), QPushButton::drawButtonLabel()
@@ -725,9 +725,9 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
   Returns the extra width of a menu item \a mi, that means all extra
   pixels besides the space the menu item text requires. \a checkable
   defines, whether the menu has a check column. \a maxpmw is the
-  maximium width of all iconsets within a check column and \a fm
+  maximum width of all iconsets within a check column and \a fm
   defines the font metrics used to draw the label. This is
-  particulary useful to calculate a suitable size for a submenu
+  particularly useful to calculate a suitable size for a submenu
   indicator or the column separation, including the tab column used to
   indicate item accelerators.
  */
@@ -751,7 +751,7 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
 
  Draws the menu item \a mi using the painter \a p. The painter is
  preset to the right font. \a maxpmw is the
- maximium width of all iconsets within a check column. \a tab
+ maximum width of all iconsets within a check column. \a tab
  specifies the minimum number of pixels necessary to draw all labels
  of the menu without their accelerators (which are separated by a tab
  character in the label text). \a pal is the palette, \a act and \a
@@ -922,7 +922,7 @@ void QStyle::setScrollBarExtent( int width, int height )
 */
 int QStyle::buttonDefaultIndicatorWidth() const
 {
-    return d(this)->button_default_indiciator_width;
+    return d(this)->button_default_indicator_width;
 }
 
 /*!
@@ -934,7 +934,7 @@ int QStyle::buttonDefaultIndicatorWidth() const
 //### TODO: pick up desktop settings on Windows
 void QStyle::setButtonDefaultIndicatorWidth( int w )
 {
-    d(this)->button_default_indiciator_width = w;
+    d(this)->button_default_indicator_width = w;
 }
 
 

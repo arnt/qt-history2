@@ -251,7 +251,7 @@ void QProgressBar::setCenterIndicator( bool on )
 
 /*!
   When set to TRUE (the default) the positioning of the indicator string
-  follows the GUI style. When set to FALSE the indicator posion is decided
+  follows the GUI style. When set to FALSE the indicator position is decided
   by the value of indicatorFollowsStyle().
 
   \sa indicatorFollowsStyle(), centerIndicator(), setCenterIndicator(),

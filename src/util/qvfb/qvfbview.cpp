@@ -31,11 +31,13 @@
 
 #include "qvfbview.h"
 #include <qvfbhdr_qws.h>
+#include <qwscommand_qws.h>	    // for QTE_PIPE
 
-QVFbView::QVFbView( int w, int h, int d, QWidget *parent, const char *name,
-			uint flags )
+QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
+		    const char *name, uint flags )
     : QScrollView( parent, name, flags ), lockId(-1)
 {
+    displayId = display_id;
     viewport()->setMouseTracking( true );
     viewport()->setFocusPolicy( StrongFocus );
 
@@ -48,21 +50,24 @@ QVFbView::QVFbView( int w, int h, int d, QWidget *parent, const char *name,
 	    qFatal( "Unsupported bit depth %d\n", d );
     }
 
-    unlink( QT_VFB_MOUSE_PIPE );
-    mknod( QT_VFB_MOUSE_PIPE, S_IFIFO | 0666, 0 );
-    mouseFd = open( QT_VFB_MOUSE_PIPE, O_RDWR | O_NDELAY );
+    mousePipe = QString(QT_VFB_MOUSE_PIPE).arg(display_id);
+    keyboardPipe = QString(QT_VFB_KEYBOARD_PIPE).arg(display_id);
+
+    unlink( mousePipe.latin1() );
+    mknod( mousePipe.latin1(), S_IFIFO | 0666, 0 );
+    mouseFd = open( mousePipe.latin1(), O_RDWR | O_NDELAY );
     if ( mouseFd == -1 ) {
 	qFatal( "Cannot open mouse pipe" );
     }
 
-    unlink( QT_VFB_KEYBOARD_PIPE );
-    mknod( QT_VFB_KEYBOARD_PIPE, S_IFIFO | 0666, 0 );
-    keyboardFd = open( QT_VFB_KEYBOARD_PIPE, O_RDWR | O_NDELAY );
+    unlink( keyboardPipe );
+    mknod( keyboardPipe, S_IFIFO | 0666, 0 );
+    keyboardFd = open( keyboardPipe, O_RDWR | O_NDELAY );
     if ( keyboardFd == -1 ) {
 	qFatal( "Cannot open keyboard pipe" );
     }
 
-    key_t key = ftok( QT_VFB_MOUSE_PIPE, 'b' );
+    key_t key = ftok( mousePipe.latin1(), 'b' );
 
     int bpl = ((w*d+31)/32)*4;
     
@@ -105,8 +110,8 @@ QVFbView::~QVFbView()
     sendKeyboardData( 0, 0, 0, TRUE, FALSE ); // magic die key
     ::close( mouseFd );
     ::close( keyboardFd );
-    unlink( QT_VFB_MOUSE_PIPE );
-    unlink( QT_VFB_KEYBOARD_PIPE );
+    unlink( mousePipe );
+    unlink( keyboardPipe );
 }
 
 void QVFbView::setRate( int r )
@@ -117,7 +122,8 @@ void QVFbView::setRate( int r )
 
 void QVFbView::initLock()
 {
-    int semkey = ftok( "/dev/fb0", 'd' );
+    QString pipe = QString( QTE_PIPE ).arg( displayId );
+    int semkey = ftok( pipe.latin1(), 'd' );
     lockId = semget( semkey, 0, 0 );
 }
 

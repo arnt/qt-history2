@@ -612,7 +612,7 @@ When processing a paintEvent, painting is only permitted within
 the update region specified in the event. Any painting outside will be
 clipped away. This shouldn't break any code (it was always like this
 on MS-Windows) but makes many explicit calls to
-QPainter::setClipRegion() superfluent. Apart from the improved
+QPainter::setClipRegion() superfluous. Apart from the improved
 consistency, the change is likely to reduce flicker and to make Qt
 event slightly faster.
 
@@ -720,7 +720,7 @@ Remove all such calls. The default size of toplevel widgets will be their
 
 <p> The default implementation of QWidget::sizeHint() will no longer
 return just an invalid size; if the widget has a layout, it will return
-the layout's preferrered size.
+the layout's preferred size.
 
 <p> The special maximum MaximumHeight/Width is now QWIDGETSIZE_MAX,
 not QCOORD_MAX.
@@ -981,7 +981,7 @@ such an object or deleting it is very likely a bug.
 File and directory names are now always Unicode strings (ie. QString).  If you used QString
 in the past for the simplicity it offers, you'll probably have little consequence.  However,
 if you pass filenames to system functions rather than using Qt functions (eg. if you use the
-Unix <tt>unlink()</tt> function rathern than <tt>QFile::remove()</tt>, your code will probably
+Unix <tt>unlink()</tt> function rather than <tt>QFile::remove()</tt>, your code will probably
 only work for Latin1 locales (eg. Western Europe, the U.S.).  To ensure your code will support
 filenames in other locales, either use the Qt functions, or convert the filenames via
 \code QFile::encodeFilename()\endcode and \code QFile::decodeFilename()\endcode - but do it

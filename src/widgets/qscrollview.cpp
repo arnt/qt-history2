@@ -414,7 +414,7 @@ QScrollView is clicked - and the only such part is the "corner" (if
 you don't set a cornerWidget()) and the frame, everything else being
 covered up by the viewport, clipper, or scrollbars.
 
-When you contruct a QScrollView, some of the widget flags apply to the
+When you construct a QScrollView, some of the widget flags apply to the
 viewport(), instead of being sent to the QWidget constructor for the
 QScrollView. This applies to \c WResizeNoErase, \c WNorthWestGravity,
 \c WRepaintNoErase and \c WPaintClever. See Qt::WidgetFlags for
@@ -510,7 +510,9 @@ QScrollView::~QScrollView()
 	d->clipped_viewport->removeEventFilter( this );
     else
 	d->viewport.removeEventFilter( this );
-    delete d;
+    QScrollViewData* d2 = d;
+    d = 0;
+    delete d2;
 }
 
 
@@ -1227,7 +1229,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	default:
 	    break;
 	}
-    } else if ( d->rec((QWidget*)obj) ) {  // must be a child
+    } else if ( d && d->rec((QWidget*)obj) ) {  // must be a child
 	if ( e->type() == QEvent::Resize )
 	    d->autoResize(this);
 	else if ( e->type() == QEvent::Move )
@@ -2368,10 +2370,10 @@ void QScrollView::doDragAutoScroll()
 
 
 /*!
-  If \a b is set to TRUE, the QScrollView automatically scrolles the contents
+  If \a b is set to TRUE, the QScrollView automatically scrolls the contents
   in drag move events if the user moves the cursor close to a border of the
-  view. This of course only works id the viewport accepts drops!.
-  Specifying FALSE here disables this autscroll feature.
+  view. This of course only works id the viewport accepts drops!
+  Specifying FALSE here disables this autoscroll feature.
 */
 
 void QScrollView::setDragAutoScroll( bool b )

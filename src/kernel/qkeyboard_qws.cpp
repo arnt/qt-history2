@@ -716,6 +716,7 @@ void QWSVr41xxButtonsHandler::readKeyboardData()
 
 #ifndef QT_NO_QWS_VFB
 #include "qvfbhdr_qws.h"
+extern int qws_display_id;
 #endif
 
 QWSVFbKeyboardHandler::QWSVFbKeyboardHandler()
@@ -726,7 +727,7 @@ QWSVFbKeyboardHandler::QWSVFbKeyboardHandler()
     kbdBufferLen = sizeof( QVFbKeyData ) * 5;
     kbdBuffer = new unsigned char [kbdBufferLen];
 
-    terminalName = QT_VFB_KEYBOARD_PIPE;
+    terminalName = QString(QT_VFB_KEYBOARD_PIPE).arg(qws_display_id);
 
     if ((kbdFD = open( terminalName.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
 	qDebug( "Cannot open %s (%s)", terminalName.latin1(),

@@ -143,7 +143,7 @@ public:
   As mentioned earlier, a factory can also be used as container to
   store data associated with a name. This technique is useful whenever
   rich text contains images that are stored in the program itself, not
-  loaded from the harddisk. Your program may for example define some
+  loaded from the hard disk. Your program may for example define some
   image data as
 
   \code
@@ -172,7 +172,7 @@ public:
 
 
 /*!
-  Constructs a QMimeSourceFactory which has no filepath and no stored
+  Constructs a QMimeSourceFactory which has no file path and no stored
   content.
 */
 QMimeSourceFactory::QMimeSourceFactory() :

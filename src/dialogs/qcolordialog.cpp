@@ -61,7 +61,7 @@
 
 struct QWellArrayData;
 
-class Q_EXPORT QWellArray : public QTableView
+class QWellArray : public QTableView
 {
     Q_OBJECT
     Q_PROPERTY( int numCols READ numCols )

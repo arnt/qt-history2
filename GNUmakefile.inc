@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#26 $
+# $Id: //depot/qt/main/GNUmakefile.inc#27 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -13,6 +13,7 @@ endif
 
 ifdef QT_EMBEDDED
 
+PROFLIBS=\$$(QTDIR)/src/.obj/$(PROJOBJ)profile/libfreetype.a \$$(QTDIR)/src/.obj/$(PROJOBJ)profile/libpng.a \$$(QTDIR)/src/.obj/$(PROJOBJ)profile/libz.a \$$(QTDIR)/src/3rdparty/libmng/libmng.a \$$(QTDIR)/src/3rdparty/jpgsrc/libjpeg.a
 ifeq ($(PROJECT),qt)
 PROJECT=qt-e
 endif
@@ -125,8 +126,7 @@ endif
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).profile \
 	    "CONFIG+=staticlib release" "OBJECTS_DIR=.obj/$(PROJOBJ)profile" $(TMAKEHACK)
 	perl -pi \
-	    -e 's/^([CL]X*)FLAGS\s*=/$$1FLAGS=-g -pg /; s|-lqt|\$$(QTDIR)/lib$(PROJMAK)/libqt.a \$$(QTDIR)/src/.obj/$(PROJOBJ)profile/libfreetype.a \$$(QTDIR)/src/.obj/$(PROJOBJ)profile/libpng.a \$$(QTDIR)/src/.obj/$(PROJOBJ)profile/libz.a \$$(QTDIR)/src/3rdparty/libmng/libmng.a \$$(QTDIR)/src/3rdparty/jpgsrc/libjpeg.a|' \
-		GNUmakefile$(PROJMAK).profile
+	    -e 's/^([CL]X*)FLAGS\s*=/$$1FLAGS=-g -pg /; s|-lqt|\$$(QTDIR)/lib$(PROJMAK)/libqt.a $(PROFLIBS) |' GNUmakefile$(PROJMAK).profile
 
 GNUmakefile$(PROJMAK).gcc-debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)

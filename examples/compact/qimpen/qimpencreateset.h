@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/qws/util/qws/qws.h#4 $
 **
-** Definition of pen input character set maintainence.
+** Definition of pen input character set maintenance.
 ** Probably a developer-only tool.
 **
 ** Created : 20000414

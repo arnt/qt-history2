@@ -231,6 +231,7 @@
 #include <qserversocket.h>
 #include <qftp.h>
 #include <qdns.h>
+#include <qwssocket_qws.h>
 #include "qfontmanager_qws.h"
 #include <qfontfactorybdf_qws.h>
 #include <qfontfactoryttf_qws.h>

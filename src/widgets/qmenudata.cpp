@@ -588,7 +588,7 @@ int QMenuData::insertItem( const QIconSet& icon,
   menubar.
   
   Theoretically, any widget can be inserted into a popup menu. In
-  practise, this only makes sense with certain widgets.
+  practice, this only makes sense with certain widgets.
 
   If a widget is not focus enabled ( see QWidget::isFocusEnabled() ),
   the menu treats it as a separator. This means, the item is not
@@ -1231,12 +1231,12 @@ QString QMenuData::whatsThis( int id ) const
 
   A custom menu item is a menu item that is defined by two purely
   virtual functions, paint() and sizeHint(). The size hint tells the
-  menu how much space it needs to reserve for this item, wheras paint
+  menu how much space it needs to reserve for this item, whereas paint
   is called whenever the item needs painting.
 
   This simply mechanism gives applications the possibility to create
   all kinds of application specific menu items. Examples are items
-  showing different fonts in a wordprocessor, or menus that allow the
+  showing different fonts in a word processor, or menus that allow the
   selection of drawing utilities in a vector drawing program.
 
   A custom item is inserted into a popup menu with
@@ -1252,7 +1252,7 @@ QString QMenuData::whatsThis( int id ) const
 
   Note that you can also insert pixmaps or bitmaps as items into a
   popup menu. A custom menu item, however, offers even more
-  flexibility and - which is especially implortant under windows style
+  flexibility and - which is especially important under windows style
   - the possibility to draw the item with a different color when it is
   highlighted.
 
@@ -1298,7 +1298,7 @@ void QCustomMenuItem::setFont( const QFont&  )
 /*!
   Returns whether this item wants to span the entire popup menu width.
   The default is FALSE, meaning that the menu may show an icon and/or
-  an accelerator key for this itemas well.
+  an accelerator key for this item as well.
  */
 bool QCustomMenuItem::fullSpan() const
 {

@@ -38,6 +38,7 @@
 #include <stdio.h>
 
 #include "qgfxraster_qws.h"
+#include "qgfxlinuxfb_qws.h"
 #include "qgfxmach64defs_qws.h"
 
 #define LASTOP_LINE 1
@@ -53,8 +54,8 @@
 #define LASTOP_TILEDBLTPEN 11
 
 
-unsigned char * regbase=0;
-unsigned char * regbase2=0;
+static unsigned char * regbase=0;
+static unsigned char * regbase2=0;
 
 inline unsigned int regr(volatile unsigned int regindex)
 {
@@ -1427,14 +1428,14 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
     GFX_END
 }
 
-class QMachScreen : public QScreen {
+class QMachScreen : public QLinuxFbScreen {
 
 public:
 
-    QMachScreen() { qDebug("No slot specified!"); }
-    QMachScreen(char *,unsigned char *);
+    QMachScreen( int display_id );
     virtual ~QMachScreen();
-    virtual bool connect();
+    virtual bool connect( const QString &spec, char *graphics_card_slot,
+			    unsigned char * config );
     virtual bool initCard();
     virtual int initCursor(void*, bool);
     virtual void shutdownCard();
@@ -1463,20 +1464,18 @@ public:
     virtual bool supportsAlphaCursor() { return false; }
 
     static bool enabled() { return false; }
-
-private:
-
 };
 #endif // QT_NO_QWS_CURSOR
 
-QMachScreen::QMachScreen(char * graphics_card_slot,unsigned char * config)
-    : QScreen()
+QMachScreen::QMachScreen( int display_id )
+    : QLinuxFbScreen( display_id )
 {
 }
 
-bool QMachScreen::connect()
+bool QMachScreen::connect( const QString &displaySpec, char *graphics_card_slot,
+			    unsigned char * config )
 {
-    if ( !QScreen::connect() )
+    if ( !QLinuxFbScreen::connect( displaySpec ) )
 	return FALSE;
 
     unsigned char * bar=config+0x10;
@@ -1487,7 +1486,7 @@ bool QMachScreen::connect()
 #ifdef DEBUG_INIT
 	printf("IO space - not right\n");
 #endif
-	return;
+	return FALSE;
     } else {
 #ifdef DEBUG_INIT
 	qDebug("First address thing look right");
@@ -1502,7 +1501,7 @@ bool QMachScreen::connect()
 #ifdef DEBUG_INIT
 	    qDebug("Can't open /dev/mem");
 #endif
-	    return;
+	    return FALSE;
 	}
 	s=(s >> 4) << 4;
 	membase=(unsigned char *)mmap(0,4096,PROT_READ |
@@ -1514,7 +1513,7 @@ bool QMachScreen::connect()
 		   strerror(errno));
 #endif
 	    close(aperturefd);
-	    return;
+	    return FALSE;
 	}
 	regbase=membase+1024;
 	regbase2=membase;
@@ -1529,7 +1528,7 @@ QMachScreen::~QMachScreen()
 
 bool QMachScreen::initCard()
 {
-    QScreen::initCard();
+    QLinuxFbScreen::initCard();
 
     // Lots of boilerplate from ATI manual, with some extra
     // from XFree Mach64 driver for good measure at the end
@@ -1630,7 +1629,7 @@ int QMachScreen::initCursor(void* e, bool init)
     extern bool qws_sw_cursor;
 
     if(qws_sw_cursor==true) {
-	return QScreen::initCursor(e,init);
+	return QLinuxFbScreen::initCursor(e,init);
     }
     qt_screencursor=new QMachCursor();
     SWCursorData *data = (SWCursorData *)e - 1;
@@ -1641,7 +1640,7 @@ int QMachScreen::initCursor(void* e, bool init)
 
 void QMachScreen::shutdownCard()
 {
-    QScreen::shutdownCard();
+    QLinuxFbScreen::shutdownCard();
 }
 
 int ngval(QRgb r)
@@ -1670,21 +1669,22 @@ QGfx * QMachScreen::createGfx(unsigned char * b,int w,int h,int d,int linestep)
 	    return ret;
 	}
     }
-    return QScreen::createGfx(b,w,h,d,linestep);
+    return QLinuxFbScreen::createGfx(b,w,h,d,linestep);
 }
 
 extern bool qws_accel;
 
-extern "C" QScreen * qt_get_screen(char * slot,unsigned char * config)
+extern "C" QScreen * qt_get_screen_mach64( int display_id, const char *spec,
+					char * slot,unsigned char * config )
 {
     if ( !qt_screen && qws_accel && slot!=0) {
-	QMachScreen * ret=new QMachScreen(slot,config);
-	if(ret->connect())
+	QMachScreen * ret=new QMachScreen( display_id );
+	if(ret->connect( spec, slot, config ))
 	    qt_screen=ret;
     }
     if( !qt_screen ) {
-	qt_screen=new QScreen();
-	qt_screen->connect();
+	qt_screen=new QLinuxFbScreen( display_id );
+	qt_screen->connect( spec );
     }
     return qt_screen;
 }

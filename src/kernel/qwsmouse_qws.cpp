@@ -596,6 +596,7 @@ void QEricTPanelHandlerPrivate::readMouseData()
 
 #ifndef QT_NO_QWS_VFB
 #include "qvfbhdr_qws.h"
+extern int qws_display_id;
 #endif
 
 class QVFbMouseHandlerPrivate : public QMouseHandler {
@@ -619,7 +620,7 @@ QVFbMouseHandlerPrivate::QVFbMouseHandlerPrivate( MouseProtocol, QString mouseDe
     mouseFD = -1;
 #ifndef QT_NO_QWS_VFB
     if ( mouseDev.isEmpty() )
-	mouseDev = QT_VFB_MOUSE_PIPE;
+	mouseDev = QString(QT_VFB_MOUSE_PIPE).arg(qws_display_id);
 
     static int init=0;
     if ( !init && qt_screen ) {

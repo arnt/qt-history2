@@ -22,8 +22,8 @@
 #include <qcolor.h>
 #include <qrect.h>
 
-#define QT_VFB_MOUSE_PIPE	"/tmp/.qtvfb_mouse"
-#define QT_VFB_KEYBOARD_PIPE	"/tmp/.qtvfb_keyboard"
+#define QT_VFB_MOUSE_PIPE	"/tmp/.qtvfb_mouse-%1"
+#define QT_VFB_KEYBOARD_PIPE	"/tmp/.qtvfb_keyboard-%1"
 
 struct QVFbHeader
 {

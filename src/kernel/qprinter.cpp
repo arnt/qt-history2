@@ -628,7 +628,7 @@ have perfect knowledge of the physical printer.)
 
 If you set it to TRUE, QPaintDeviceMetrics will report the exact same
 size as indicated by PageSize, but you cannot print on all of that -
-you have to take care of the ourput margins yourself.
+you have to take care of the output margins yourself.
 
 If the page-size mode is changed while the printer is active, the
 current print job may or may not be affected.

@@ -2219,7 +2219,7 @@ The fc parameter sets the number of frames to be
 loaded for this image.  If \a fc is not 0, the
 filenames should contain a "%1",
 strings such as "foo%1.png".  The actual
-filenames are formed by replaceing the %1 with each integer
+filenames are formed by replacing the %1 with each integer
 from 0 to fc-1, with leading zeroes sufficient for 4 digits.
 eg. foo0000.png, foo0001.png, foo0002.png, etc.
 */
@@ -2727,7 +2727,7 @@ QCanvasPolygonalItem::~QCanvasPolygonalItem()
 
 /*!
   Returns TRUE if the polygonal item uses the \e winding algorithm
-  for determinine the "inside" of the polygon, of FALSE if
+  for determine the "inside" of the polygon, of FALSE if
   it uses the odd-even algorithm.
 
   \sa setWinding()
@@ -2739,7 +2739,7 @@ bool QCanvasPolygonalItem::winding() const
 
 /*!
   Sets whether the polygonal item to use \e winding algorithm
-  for determinine the "inside" of the polygon, rather than
+  for determine the "inside" of the polygon, rather than
   the odd-even algorithm.
 
   \sa winding()
@@ -3664,7 +3664,7 @@ a QCanvas to be an efficient indexed storage mechanism.
 
 Make your derived classes return their own values for rtti(), and you
 can distinguish between objects returned by QCanvas::at().  You should
-use values greater than 1000 preferrably a large random number,
+use values greater than 1000 preferably a large random number,
 to allow for extensions to this class.
 
 However, it is important not to overuse this facility, as

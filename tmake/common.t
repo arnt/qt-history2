@@ -49,41 +49,54 @@ SYSCONF_LINK_TARGET_SHARED	= #${
     }
 #$}
 SYSCONF_LINK_LIB_SHARED	= #${
-    if ( Project('TMAKE_HPUX_SHLIB') ) {
+    if ( Project('TMAKE_LINK_SHLIB_CMD') ) {
+	$text .= Project('TMAKE_LINK_SHLIB_CMD');
+    } elsif ( Project('TMAKE_HPUX_SHLIB') ) {
 	$text .= ' $(SYSCONF_LINK_SHLIB) '
-		       . Project('TMAKE_LFLAGS_SHLIB') . ' '
-		       . ( Project('TMAKE_LFLAGS_SONAME')
-			     ? Project('TMAKE_LFLAGS_SONAME') . '$(SYSCONF_LINK_TARGET_SHARED)'
-			     : '' ) . " \\\n\t\t\t\t"
-		       . ' $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED)' . " \\\n\t\t\t\t"
-		       . ' $(OBJECTS) $(OBJMOC) $(LIBS) &&' . " \\\n\t\t\t\t"
-		       . ' chmod 555 $(SYSCONF_LINK_TARGET_SHARED) &&';
-
+	      . Project('TMAKE_LFLAGS_SHLIB') . ' '
+	      . ( Project('TMAKE_LFLAGS_SONAME')
+	        ? Project('TMAKE_LFLAGS_SONAME') . '$(SYSCONF_LINK_TARGET_SHARED)'
+	        : '' ) . " \\\n\t\t\t\t"
+	      . ' $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED)' . " \\\n\t\t\t\t"
+	      . ' $(OBJECTS) $(OBJMOC) $(LIBS) &&' . " \\\n\t\t\t\t"
+	      . ' chmod 555 $(SYSCONF_LINK_TARGET_SHARED) &&';
 	$text .= " \\\n\t\t\t\t";
 	$text .= ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);' . " \\\n\t\t\t\t"
-		    . ' cd $(DESTDIR) &&' . " \\\n\t\t\t\t"
-		    . ' rm -f lib$(TARGET).sl;' . " \\\n\t\t\t\t"
-		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).sl';
+	      . ' cd $(DESTDIR) &&' . " \\\n\t\t\t\t"
+	      . ' rm -f lib$(TARGET).sl;' . " \\\n\t\t\t\t"
+	      . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).sl';
+    } elsif ( Project('TMAKE_AIX_SHLIB') ) {
+	$text .= ' $(SYSCONF_LINK_SHLIB) '
+	      . Project('TMAKE_LFLAGS_SHLIB') . ' '
+	      . ( Project('TMAKE_LFLAGS_SONAME')
+	        ? Project('TMAKE_LFLAGS_SONAME') . 'lib$(TARGET).so.$(VER_MAJ)'
+	        : '' ) . " \\\n\t\t\t\t"
+	      . '     $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED)' . " \\\n\t\t\t\t"
+	      . '     $(OBJECTS) $(OBJMOC) $(LIBS) &&';
+	$text .= " \\\n\t\t\t\t";
+	$text .= ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);' . " \\\n\t\t\t\t"
+	      . ' cd $(DESTDIR) &&' . " \\\n\t\t\t\t"
+	      . ' rm -f lib$(TARGET).a lib$(TARGET).so.$(VER_MAJ)'
+	      . ' lib$(TARGET).so.$(VER_MAJ).$(VER_MIN);' . " \\\n\t\t\t\t"
+	      . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).a;' . " \\\n\t\t\t\t"
+	      . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ);' . " \\\n\t\t\t\t"
+	      . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ).$(VER_MIN)';
     } else {
-	if ( Project('TMAKE_LINK_SHLIB_CMD') ) {
-	    $text .= Project('TMAKE_LINK_SHLIB_CMD');
-	} else {
-	    $text .= ' $(SYSCONF_LINK_SHLIB) '
-			. Project('TMAKE_LFLAGS_SHLIB') . ' '
-			. ( Project('TMAKE_LFLAGS_SONAME')
-			     ? Project('TMAKE_LFLAGS_SONAME') . 'lib$(TARGET).so.$(VER_MAJ)'
-			     : '' ) . " \\\n\t\t\t\t"
-			. '     $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED)' . " \\\n\t\t\t\t"
-			. '     $(OBJECTS) $(OBJMOC) $(LIBS) &&';
-	    $text .= " \\\n\t\t\t\t";
-	    $text .= ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);' . " \\\n\t\t\t\t"
-		    . ' cd $(DESTDIR) &&' . " \\\n\t\t\t\t"
-		    . ' rm -f lib$(TARGET).so lib$(TARGET).so.$(VER_MAJ)'
-			. ' lib$(TARGET).so.$(VER_MAJ).$(VER_MIN);' . " \\\n\t\t\t\t"
-		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so;' . " \\\n\t\t\t\t"
-		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ);' . " \\\n\t\t\t\t"
-		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ).$(VER_MIN)';
-	}
+	$text .= ' $(SYSCONF_LINK_SHLIB) '
+	      . Project('TMAKE_LFLAGS_SHLIB') . ' '
+	      . ( Project('TMAKE_LFLAGS_SONAME')
+	        ? Project('TMAKE_LFLAGS_SONAME') . 'lib$(TARGET).so.$(VER_MAJ)'
+	        : '' ) . " \\\n\t\t\t\t"
+	      . '     $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED)' . " \\\n\t\t\t\t"
+	      . '     $(OBJECTS) $(OBJMOC) $(LIBS) &&';
+	$text .= " \\\n\t\t\t\t";
+	$text .= ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);' . " \\\n\t\t\t\t"
+	      . ' cd $(DESTDIR) &&' . " \\\n\t\t\t\t"
+	      . ' rm -f lib$(TARGET).so lib$(TARGET).so.$(VER_MAJ)'
+	      . ' lib$(TARGET).so.$(VER_MAJ).$(VER_MIN);' . " \\\n\t\t\t\t"
+	      . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so;' . " \\\n\t\t\t\t"
+	      . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ);' . " \\\n\t\t\t\t"
+	      . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ).$(VER_MIN)';
     }
 #$}
 

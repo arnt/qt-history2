@@ -7,10 +7,6 @@
 #include "qdict.h"
 #include <qdir.h>
 
-#ifndef HINSTANCE
-#define HINSTANCE void*
-#endif
-
 class QAction;
 class QPlugIn;
 
@@ -28,7 +24,8 @@ public:
     QPlugIn( const QString& filename, LibraryPolicy = DefaultPolicy );
     virtual ~QPlugIn();
 
-    virtual bool addToManager( QPlugInDict& dict ) = 0;
+    virtual bool addToManager( QPlugInDict& dict ) = 0;			// add yourself to manager's dict
+    virtual bool removeFromManager( QPlugInDict& dict ) = 0;		// remove yourself from manager's dict
     virtual bool load();
     void unload();
 
@@ -37,31 +34,35 @@ public:
 
     QString library() const;
 
-    virtual const char* infoString();
+    const char* infoString();
 
 protected:
     void use();
     void* getSymbolAddress( const QString& );
 
-    typedef const char* (*STRINGPROC)();
-    STRINGPROC infoStringPtr;
+private:
+    typedef const char* (*StringProc)();
+    StringProc infoStringPtr;
 
 private:
+#ifdef _WS_WIN_
     HINSTANCE pHnd;
+#else
+    void* pHnd;
+#endif
     QString libfile;
-
     LibraryPolicy libPol;
 };
 
 template<class Type>
-class QPlugInManager //: public QWidgetFactory, public QActionFactory
+class QPlugInManager
 {
 public:
     QPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy pol = QPlugIn::DefaultPolicy )
     : defPol( pol )
     {
-	pLibs.setAutoDelete( TRUE );
-	pHnds.setAutoDelete( FALSE );
+	libDict.setAutoDelete( TRUE );
+	plugDict.setAutoDelete( FALSE );
 	if ( !path.isEmpty() )
 	    addPlugInPath( path );
     }
@@ -80,21 +81,39 @@ public:
 	}
     }
 
+    bool removePlugIn( const QString& file )
+    {
+	if ( libDict.remove( file ) &&  
+	     plugin->removeFromManager( plugDict ) )
+		return TRUE;
+	return FALSE;
+    }
+
     bool addPlugIn( const QString& file )
     {
-	if ( pLibs[file] )
+	if ( libDict[file] )
 	    return TRUE;
 
 	Type* plugin = new Type( file, defPol );
 
-	bool result = plugin->addToManager( pHnds );
+	bool result = plugin->addToManager( plugDict );
     
-	if ( result )
-	    pLibs.insert( plugin->library(), plugin );
-	else
+	if ( result ) {
+#ifdef CHECK_RANGE
+	    if ( libDict[plugin->library()] )
+		qWarning("QPlugInManager: Tried to insert %s twice!", plugin->library().latin1() );
+#endif
+	    libDict.replace( plugin->library(), plugin );
+	} else {
 	    delete plugin;
+	}
 
 	return result;
+    }
+
+    QPlugIn* plugIn( const QString& library )
+    {
+	return libDict[library];
     }
 
     void setDefaultPolicy( QPlugIn::LibraryPolicy )
@@ -109,20 +128,23 @@ public:
 
     QList<QPlugIn> plugInList() {
 	QList<QPlugIn> list;
-	QDictIterator<QPlugIn> it( pLibs );
+	QDictIterator<QPlugIn> it( libDict );
 
 	while ( it.current() ) {
+#ifdef CHECK_RANGE
+	    if ( list.containsRef( it.current() ) )
+		qWarning("QPlugInManager: Library %s twice in dictionary!", it.current()->library().latin1() );
+#endif
 	    list.append( it.current() );
 	    ++it;
 	}
 	return list;
     }
-
 protected:
-    QPlugInDict pHnds;
+    QPlugInDict plugDict;	    // Dict to match requested interface with plugin
+    QPlugInDict libDict;	    // Dict to match library file with plugin
 
 private:
-    QPlugInDict pLibs;
     QPlugIn::LibraryPolicy defPol;
 };
 

@@ -519,7 +519,7 @@ inline bool QWidgetMapper::remove( WId id )
 <a name="widgetflags"></a>
 
 This enum type is used to specify various window-system properties
-of the widget.  Mostly they are fairly unusal, but necessary in a
+of the widget.  Mostly they are fairly unusual, but necessary in a
 few cases.
 
 The main types are <ul>
@@ -555,7 +555,7 @@ Cannot be combined with \c WStyle_NormalBorder or \c WStyle_NoBorder.
 user cannot move or resize a borderless window via the window system.
 Cannot be combined with \c WStyle_NormalBorder or \c
 WStyle_DialogBorder. On Windows, the flag works fine. On X11, it
-bypasses the window manager comletely. This results in a borderless
+bypasses the window manager completely. This results in a borderless
 window, but also in a window that is not managed at all (i.e. for
 example no keyboard focus unless you call setActiveWindow()
 manually. ) For compatibility, the flag was not changed for Qt-2.1. We
@@ -567,7 +567,7 @@ Cannot be combined with \c WStyle_NormalBorder or \c
 WStyle_DialogBorder. On X11, the result of the flag is depending on
 the window manager and its ability to understand MOTIF hints to some
 degree.  Most existing modern window managers do this. With \c
-WX11BypassWM, you can bypass the window manager comletely. This
+WX11BypassWM, you can bypass the window manager completely. This
 results in a borderless window for sure, but also in a window that is
 not managed at all (i.e. for example no keyboard input unless you call
 setActiveWindow() manually )
@@ -600,7 +600,7 @@ should stay on top of all other windows.
 subwindow of its parent, in other words: a dialog.  The window will
 not get its own taskbar entry and be kept on top of its parent by
 the window system.  Usually, it will also be minimized when the
-parent is minized.  If not customized, the window is decorated
+parent is minimized.  If not customized, the window is decorated
 with a slightly simpler title bar.  This is the flag QDialog uses.
 
 </ul> Finally, there are some modifier flags: <ul>
@@ -630,7 +630,7 @@ it wants mouse events for its entire rectangle.
 north-west aligned and static. On resize, such a widget will receive
 paint events only for the newly visible part of itself.
 
-<li> \c WRepaintNoErase - indacates that the widget paints all its
+<li> \c WRepaintNoErase - indicates that the widget paints all its
 pixels.  Updating, scrolling and focus changes should therefore not
 erase the widget.  This allows smart-repainting to avoid flicker.
 
@@ -2177,7 +2177,7 @@ void QWidget::setPalette( const QPalette &palette )
     setBackgroundFromMode();
     paletteChange( old );
     if ( children() ) {
-	QCustomEvent e( QEvent::ParentPaletteChange, 0 );
+	QEvent e( QEvent::ParentPaletteChange );
 	QObjectListIt it( *children() );
 	QWidget *w;
 	while( (w=(QWidget *)it.current()) != 0 ) {
@@ -2276,7 +2276,7 @@ void QWidget::setFont( const QFont &font )
     fnt.handle();				// force load font
     fontChange( old );
     if ( children() ) {
-	QCustomEvent e( QEvent::ParentFontChange, 0 );
+	QEvent e( QEvent::ParentFontChange );
 	QObjectListIt it( *children() );
 	QWidget *w;
 	while( (w=(QWidget *)it.current()) != 0 ) {
@@ -3231,7 +3231,7 @@ void QWidget::show()
 	// our immediate parent will call show() on us again during
 	// his own processing of show().
 	if ( sendLayoutHint ) {
-	    QCustomEvent e( QEvent::ShowToParent, 0 );
+	    QEvent e( QEvent::ShowToParent );
 	    QApplication::sendEvent( this, &e );
 	}
 	return;
@@ -3315,6 +3315,8 @@ void QWidget::show()
     }
 
 
+     bool sendShowWindowRequest = FALSE;
+     
      if ( !isTopLevel() && !parentWidget()->isVisible() ) {
 	// we should become visible, but somehow our parent is not
 	// visible, so we can't do that. Since it is not explicitly
@@ -3327,7 +3329,7 @@ void QWidget::show()
 	 showWindow();
 	 clearWState( WState_Visible );
 	 if ( sendLayoutHint ) {
-	     QCustomEvent e( QEvent::ShowToParent, 0 );
+	     QEvent e( QEvent::ShowToParent );
 	     QApplication::sendEvent( this, &e );
 	 }
      } else {
@@ -3340,7 +3342,14 @@ void QWidget::show()
 	     // stacking might be wrong
 	     qt_enter_modal( this );
 	 }
-	 showWindow();
+	 
+	 // do not show the window directly, but post a showWindow
+	 // request to reduce flicker with layouted widgets
+	 if ( !isTopLevel() )
+	     sendShowWindowRequest = TRUE;
+	 else
+	     showWindow();
+	 
 	 if ( testWFlags(WType_Popup) )
 	     qApp->openPopup( this );
      }
@@ -3348,6 +3357,8 @@ void QWidget::show()
     if ( sendLayoutHint )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint) );
+    if ( sendShowWindowRequest )
+	QApplication::postEvent( this, new QEvent( QEvent::ShowWindowRequest ) );
 }
 
 
@@ -3376,8 +3387,13 @@ void QWidget::hide()
     hideWindow();
 
     if ( !testWState(WState_Visible) ) {
-	QCustomEvent e( QEvent::HideToParent, 0 );
+	QEvent e( QEvent::HideToParent );
 	QApplication::sendEvent( this, &e );
+	// post layout hint for non toplevels. The parent widget check is
+	// necessary since the function is called in the destructor
+	if ( !isTopLevel() && parentWidget() )
+	    QApplication::postEvent( parentWidget(),
+				     new QEvent( QEvent::LayoutHint) );
 	return;
     }
     clearWState( WState_Visible );
@@ -3538,8 +3554,16 @@ bool QWidget::close( bool alsoDelete )
     } else {
 	if ( accept ) {
 	    hide();
-	    if ( alsoDelete || testWFlags(WDestructiveClose) )
+	    if ( alsoDelete || testWFlags(WDestructiveClose) ) {
+		if ( checkLastWindowClosed
+		     && qApp->receivers(SIGNAL(lastWindowClosed()))
+		     && noMoreToplevels() )
+		    emit qApp->lastWindowClosed();
+		if ( isMain )
+		    qApp->quit();
 		delete this;
+		return TRUE;
+	    }
 	}
     }
     if ( accept ) {	// last window closed?
@@ -3661,7 +3685,7 @@ bool QWidget::isVisibleToTLW() const
 /*!
   Returns the currently visible rectangle of the widget. This function
   is in particular useful to optimize immediate repainting of a
-  windget. Typical usage is
+  widget. Typical usage is
   \code
   repaint( w->visibleRect() );
   \endcode
@@ -3964,6 +3988,10 @@ bool QWidget::event( QEvent *e )
 	    break;
 	case QEvent::Hide:
 	    hideEvent( (QHideEvent*) e);
+	    break;
+	case QEvent::ShowWindowRequest:
+	    if ( !isHidden() )
+		showWindow();
 	    break;
 	case QEvent::ChildInserted:
 	case QEvent::ChildRemoved:
@@ -4754,7 +4782,7 @@ QSizePolicy QWidget::sizePolicy() const
   as QProgressBar).  A QToolButton on the other hand wants to be
   squared, therefore it allows growth in both directions. Widgets that
   support different directions (such as QSlider, QScrollBar or
-  QHeader) specify stretching in the respecitive direction
+  QHeader) specify stretching in the respective direction
   only. Widgets that can provide scrollbars (usually subclasses of
   QScrollView) tend to specify that they can use additional space, and
   that they can survive on less than sizeHint().
@@ -4830,7 +4858,7 @@ void QWidget::updateGeometry()
 
 /*!
   Sets the widget's GUI style to \a style. Ownership of the style
-  object is not transfered.
+  object is not transferred.
 
   If no style is set, the widget uses the application's style
   QApplication::style() instead.
@@ -4840,7 +4868,7 @@ void QWidget::updateGeometry()
 
   \warning This function is particularly useful for demonstration
   purposes, where you want to show Qt's styling capabilities.  Real
-  appliations should stay away from it and use one consistent GUI
+  applications should stay away from it and use one consistent GUI
   style instead.
 
   \sa style(), QStyle, QApplication::style(), QApplication::setStyle()

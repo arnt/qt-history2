@@ -211,7 +211,7 @@
   <tt>&#92;</tt> characters.  To match a <tt>$</tt> character, you should write
   <tt>"\\$"</tt> in C++ source, not <tt>"\$"</tt>.
 
-  If you want to know more abour regular expressions, read Jeffrey Friedl's
+  If you want to know more about regular expressions, read Jeffrey Friedl's
   \e Mastering \e Regular \e Expressions (O'Reilly).
 
   That's all, folks!  Well, almost.  We haven't seen wildcard mode yet.  In
@@ -3010,7 +3010,7 @@ int QRegExp::matchedLength() const
 
 #ifndef QT_NO_REGEXP_CAPTURE
 /*!  Returns the text captured by the \a nth parenthesized subexpression in the
-  regular expression.  Sub-expressions are numered in the order of occurrence of
+  regular expression.  Sub-expressions are numbered in the order of occurrence of
   their left parenthesis, starting at 1.  The whole regular expression is given
   number 0, making it possible to retrieve the full matched text easily.
 

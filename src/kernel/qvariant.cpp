@@ -250,7 +250,7 @@ void QVariantPrivate::clear()
   \ingroup misc
 
   Since C++ forbids unions from including types that have non-default
-  contructors or destructors, most interesting Qt classes cannot be
+  constructors or destructors, most interesting Qt classes cannot be
   used in unions.  This is a problem when using QObject::property(),
   among other things.
 
@@ -1922,7 +1922,7 @@ bool QVariant::canCast( Type t ) const
 }
 
 /*!  Compares this QVariant with \a v and returns TRUE if they are
-  equal, FALSE othervise.
+  equal, FALSE otherwise.
 */
 
 bool QVariant::operator==( const QVariant &v ) const
@@ -1995,7 +1995,7 @@ bool QVariant::operator==( const QVariant &v ) const
 }
 
 /*!  Compares this QVariant with \a v and returns TRUE if they are
-  not equal, FALSE othervise.
+  not equal, FALSE otherwise.
 */
 
 bool QVariant::operator!=( const QVariant &v ) const

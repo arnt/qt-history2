@@ -42,13 +42,16 @@ public:
     bool eventPending() const;
     QWSEvent *getEvent();
     QGfx * screenGfx();
-    QWSRegionManager *regionManager();
+    QWSRegionManager *regionManager() const;
 
     uchar* frameBuffer() const;
     int width() const;
     int height() const;
     int depth() const;
     int greenDepth() const;
+
+    uchar *sharedRam() const;
+    int sharedRamSize() const;
 
     void addProperty( int winId, int property );
     void setProperty( int winId, int property, int mode, const QByteArray &data );
@@ -85,6 +88,8 @@ private:
     char *getPropertyData;
     static QLock *lock;
 };
+
+extern QWSDisplay *qt_fbdpy;
 
 #endif // QWSDISPLAY_H
 

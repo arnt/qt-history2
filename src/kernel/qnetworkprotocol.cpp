@@ -255,7 +255,7 @@ struct QNetworkProtocolPrivate
   is always one of these values.
 
   <ul>
-  <li> \c OpListChildren - Listing the childrens of a URL, e.g. of a directory
+  <li> \c OpListChildren - Listing the children of a URL, e.g. of a directory
   <li> \c OpMkdir - Create a directory
   <li> \c OpRemove - remove a child (e.g. file)
   <li> \c OpRename - rename a child (e.g. file )
@@ -793,7 +793,7 @@ QNetworkOperation *QNetworkProtocol::operationInProgress() const
 }
 
 /*!
-  Clears the opeartion queue.
+  Clears the operation queue.
 */
 
 void QNetworkProtocol::clearOperationQueue()
@@ -824,7 +824,7 @@ void QNetworkProtocol::stop()
 
 /*!
   Because it's sometimes hard to care about removing network protocol
-  instances, QNetworkProtocol provides an autodelete meachnism. If
+  instances, QNetworkProtocol provides an autodelete mechanism. If
   you set \a b to TRUE, this network protocol instance gets removed
   after it has been \a i milliseconds inactive (this means \a i ms after
   the last operation has been processed).
@@ -1134,13 +1134,13 @@ QByteArray& QNetworkOperation::raw( int num ) const
 }
 
 /*!
-  If this method is called the QNetworkOperation deletes itself after it has been
-  1 sec unused, which means for 1 second no method of the QNetworkOperation
-  has been accessed.
+  If this method is called the QNetworkOperation deletes itself after it
+  has been 1 second unused, which means for 1 second no method of the
+  QNetworkOperation has been accessed.
 
   Because QNetworkOperation pointers are passed around a lot the QNetworkProtocol
   can't delete these at the correct time. So, if a QNetworkProtocol doesn't need an operation
-  anymore and calles this method, so that it gets deleted correctly.
+  anymore and calls this method, so that it gets deleted correctly.
 
   You should never need to call the method yourself!
 */

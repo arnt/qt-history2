@@ -263,12 +263,13 @@ void QTipManager::remove( QWidget *w, const QRect & r )
 	    delete d;
 	}
     }
-
+#if 0 // not needed, leads sometimes to crashes
     if ( tips->isEmpty() ) {
 	// the manager will be recreated if needed
 	delete tipManager;
 	tipManager = 0;
     }
+#endif
 }
 
 
@@ -310,10 +311,12 @@ void QTipManager::remove( QWidget *w )
 	t = d;
     }
 
+#if 0
     if ( tips->isEmpty() ) {
 	delete tipManager;
 	tipManager = 0;
     }
+#endif
 }
 
 

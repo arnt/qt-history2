@@ -22,7 +22,7 @@
 #ifndef QGFXVNC_QWS_H
 #define QGFXVNC_QWS_H
 
-#include <qwssocket_qws.h>
+#include <qserversocket.h>
 
 #ifndef QT_NO_QWS_VNC
 
@@ -36,8 +36,8 @@ public:
 	x = _x; y = _y; w = _w; h = _h;
     }
 
-    void read( QWSSocket *s );
-    void write( QWSSocket *s );
+    void read( QSocket *s );
+    void write( QSocket *s );
 
     Q_UINT16 x;
     Q_UINT16 y;
@@ -50,8 +50,8 @@ class QRfbPixelFormat
 public:
     static int size() { return 16; }
 
-    void read( QWSSocket *s );
-    void write( QWSSocket *s );
+    void read( QSocket *s );
+    void write( QSocket *s );
 
     int bitsPerPixel;
     int depth;
@@ -74,8 +74,8 @@ public:
     int size() const { return QRfbPixelFormat::size() + 8 + strlen( name ); }
     void setName( const char *n );
 
-    void read( QWSSocket *s );
-    void write( QWSSocket *s );
+    void read( QSocket *s );
+    void write( QSocket *s );
 
     Q_UINT16 width;
     Q_UINT16 height;
@@ -86,7 +86,7 @@ public:
 class QRfbSetEncodings
 {
 public:
-    bool read( QWSSocket *s );
+    bool read( QSocket *s );
 
     Q_UINT16 count;
 };
@@ -94,7 +94,7 @@ public:
 class QRfbFrameBufferUpdateRequest
 {
 public:
-    bool read( QWSSocket *s );
+    bool read( QSocket *s );
 
     char incremental;
     QRfbRect rect;
@@ -103,7 +103,7 @@ public:
 class QRfbKeyEvent
 {
 public:
-    bool read( QWSSocket *s );
+    bool read( QSocket *s );
 
     char down;
     int  keycode;
@@ -113,7 +113,7 @@ public:
 class QRfbPointerEvent
 {
 public:
-    bool read( QWSSocket *s );
+    bool read( QSocket *s );
 
     uint buttons;
     Q_UINT16 x;
@@ -123,13 +123,13 @@ public:
 class QRfbClientCutText
 {
 public:
-    bool read( QWSSocket *s );
+    bool read( QSocket *s );
 
     Q_UINT32 length;
 };
 
 
-class QVNCServer : public QWSServerSocket
+class QVNCServer : public QServerSocket
 {
     Q_OBJECT
 public:
@@ -169,7 +169,7 @@ private slots:
 private:
     enum ClientState { Protocol, Init, Connected };
     QTimer *timer;
-    QWSSocket *client;
+    QSocket *client;
     ClientState state;
     Q_UINT8 msgType;
     bool handleMsg;

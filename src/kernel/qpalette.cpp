@@ -93,7 +93,7 @@
   <li> \c Base - used as background color for e.g. text entry widgets,
   usually white or another light color.
 
-  <li> \c Text - the forground color used with \c Base. Usually this
+  <li> \c Text - the foreground color used with \c Base. Usually this
   is the same as the \c Foreground, in what case it must provide good
   contrast both with \c Background and \c Base.
 

@@ -25,7 +25,7 @@ void MyListBoxItem::paint( QPainter *p )
 {
     // evil trick: find out whether we are painted onto our listbox
     bool in_list_box = listBox() && listBox()->viewport() == p->device();
-    // ingore the indentation if we are drawn somewhere else
+    // ignore the indentation if we are drawn somewhere else
     int indentation = in_list_box?indent:0;
     
     p->translate( indentation, 0 );

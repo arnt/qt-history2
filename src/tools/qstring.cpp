@@ -10749,12 +10749,12 @@ QChar provides a full complement of testing/classification functions,
 conversion to and from other formats, from composed to decomposed
 unicode, and will try to compare and case-convert if you ask it to.
 
-The classification functions include functions like thise in ctype.h,
+The classification functions include functions like those in ctype.h,
 but operating on the full range of unicode characters.  They all
 return TRUE if the character is a certain type of character, and FALSE
 otherwise.
 
-These fuctions are: isNull() (returns TRUE if the character is
+These functions are: isNull() (returns TRUE if the character is
 U+0000), isPrint() (TRUE if the character is any sort of printable
 character, including whitespace), isPunct() (any sort of punctation),
 isMark() (Unicode Marks), isLetter (letters), isNumber() (any sort of
@@ -10781,7 +10781,7 @@ comparison based purely on the numeric Unicode value (code point) of
 the characters, and upper() and lower() will do case changes when the
 character has a well-defined upper/lower-case equivalent. There is no
 provision for locale-dependent case folding rules or comparison: These
-functions are meant to be fast, so they can be used unambigiously in
+functions are meant to be fast, so they can be used unambiguously in
 data structures.
 
 The conversion functions include unicode() (to a scalar), latin1() (to
@@ -10955,7 +10955,7 @@ Constructs a QChar for the character with Unicode code point \a rc.
 
 /*!
   \fn bool QChar::isNull() const
-  Returns TRUE if the charaters is the unicode character 0x0000,
+  Returns TRUE if the characters is the unicode character 0x0000,
   ie. ASCII NUL.
 */
 
@@ -11009,7 +11009,7 @@ bool QChar::isMark() const
 }
 
 /*!
-  Returns whether the character is puntuation (Punctuation_* categories).
+  Returns whether the character is punctuation (Punctuation_* categories).
 */
 bool QChar::isPunct() const
 {

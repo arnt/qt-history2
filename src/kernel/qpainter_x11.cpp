@@ -2088,7 +2088,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 
 /*!
   Draws \a nlines separate lines from points defined in \a a, starting
-  at a[\a index] (\a index detaults to 0). If \a nlines is -1 (the
+  at a[\a index] (\a index defaults to 0). If \a nlines is -1 (the
   defauls) all points until the end of the array are used
   (i.e. (a.size()-index)/2 lines are drawn).
 

@@ -50,7 +50,7 @@
   importantly, it can be drawn on any given QPainter with draw().
   QSimpleRichText can also be used to implement hypertext or active
   text facilities by using anchorAt().  A hit test through inText()
-  makes it possible to use simple righ text for text objects in
+  makes it possible to use simple rich text for text objects in
   editable drawing canvases.
 
   Once constructed from a string, the contents cannot be changed, only
@@ -73,7 +73,7 @@ public:
   and the font \a fnt.
 
   The font is used as basis for the text rendering. When using rich
-  text rendering on a certain widget \e w, you would regularily
+  text rendering on a certain widget \e w, you would regularly
   specify the widget's font as shown in the following code example:
 
   \code
@@ -203,7 +203,7 @@ int QSimpleRichText::height() const
   needed, and if not 0, *\a paper is used as the background brush.
 
   Note that the display code is highly optimized to reduce flicker, so
-  passing a brush for \a paper is preferrable to simply clearing the area
+  passing a brush for \a paper is preferable to simply clearing the area
   to be painted and then calling this without a brush.
 */
 void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegion,
@@ -218,7 +218,7 @@ void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegio
   needed, and if not 0, *\a paper is used as the background brush.
 
   Note that the display code is highly optimized to reduce flicker, so
-  passing a brush for \a paper is preferrable to simply clearing the area
+  passing a brush for \a paper is preferable to simply clearing the area
   to be painted and then calling this without a brush.
 
   This is a convenience function if there's no palette but just a

@@ -1,7 +1,7 @@
 
 /* png.h - header file for PNG reference library
  *
- * libpng version 1.0.7 - July 1, 2000
+ * libpng version 1.0.8 - July 24, 2000
  * Copyright (c) 1998, 1999, 2000 Glenn Randers-Pehrson
  * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
  * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
@@ -9,7 +9,7 @@
  * Authors and maintainers:
  *  libpng versions 0.71, May 1995, through 0.88, January 1996: Guy Schalnat
  *  libpng versions 0.89c, June 1996, through 0.96, May 1997: Andreas Dilger
- *  libpng versions 0.97, January 1998, through 1.0.7 - July 1, 2000: Glenn
+ *  libpng versions 0.97, January 1998, through 1.0.8 - July 24, 2000: Glenn
  *  See also "Contributing Authors", below.
  *
  * Note about libpng version numbers:
@@ -55,6 +55,9 @@
  *    1.0.7beta11-18                10007  2.1.0.7beta11-18 (binary compatible)
  *    1.0.7rc1-2                    10007  2.1.0.7rc1-2 (binary compatible)
  *    1.0.7                         10007  (still compatible)
+ *    1.0.8beta1-4                  10008  2.1.0.8beta1-4
+ *    1.0.8rc1                      10008  2.1.0.8rc1
+ *    1.0.8                         10008  2.1.0.8
  *
  *    Henceforth the source version will match the shared-library major
  *    and minor numbers; the shared-library major version number will be
@@ -81,9 +84,9 @@
  * If you modify libpng you may insert additional notices immediately following
  * this sentence.
  *
- * libpng version 1.0.7, July 1, 2000, is
- * Copyright (c) 2000 Glenn Randers-Pehrson
- * Distributed according to the same disclaimer and license as libpng-1.0.6
+ * libpng versions 1.0.7, July 1, 2000, through  1.0.8, July 24, 2000, are
+ * Copyright (c) 2000 Glenn Randers-Pehrson, and are
+ * distributed according to the same disclaimer and license as libpng-1.0.6
  * with the following individuals added to the list of Contributing Authors
  *
  *    Simon-Pierre Cadieux
@@ -166,7 +169,7 @@
  * printf("%s",png_get_copyright(NULL));
  *
  * Also, the PNG logo (in PNG format, of course) is supplied in the
- * file "pngnow.png".
+ * files "pngbar.png" and "pngbar.jpg (88x31) and "pngnow.png" (98x31).
  */
 
 /*
@@ -186,13 +189,13 @@
  * Y2K compliance in libpng:
  * =========================
  *
- *    July 1, 2000
+ *    July 24, 2000
  *
  *    Since the PNG Development group is an ad-hoc body, we can't make
  *    an official declaration.
  *
  *    This is your unofficial assurance that libpng from version 0.71 and
- *    upward through 1.0.7 are Y2K compliant.  It is my belief that earlier
+ *    upward through 1.0.8 are Y2K compliant.  It is my belief that earlier
  *    versions were also Y2K compliant.
  *
  *    Libpng only has three year fields.  One is a 2-byte unsigned integer
@@ -248,14 +251,14 @@
  */
 
 /* Version information for png.h - this should match the version in png.c */
-#define PNG_LIBPNG_VER_STRING "1.0.7"
+#define PNG_LIBPNG_VER_STRING "1.0.8"
 
 #define PNG_LIBPNG_VER_SONUM   2
 
 /* These should match the first 3 components of PNG_LIBPNG_VER_STRING: */
 #define PNG_LIBPNG_VER_MAJOR   1
 #define PNG_LIBPNG_VER_MINOR   0
-#define PNG_LIBPNG_VER_RELEASE 7
+#define PNG_LIBPNG_VER_RELEASE 8
 /* This should match the numeric part of the final component of
  * PNG_LIBPNG_VER_STRING, omitting any leading zero: */
 #define PNG_LIBPNG_VER_BUILD   0
@@ -265,7 +268,7 @@
  * Versions 0.7 through 1.0.0 were in the range 0 to 100 here (only
  * version 1.0.0 was mis-numbered 100 instead of 10000).  From
  * version 1.0.1 it's    xxyyzz, where x=major, y=minor, z=release */
-#define PNG_LIBPNG_VER 10007 /* 1.0.7 */
+#define PNG_LIBPNG_VER 10008 /* 1.0.8 */
 
 /* Note to maintainer: update this number in scripts/pngdef.pas as well */
 
@@ -663,11 +666,10 @@ defined(PNG_READ_BACKGROUND_SUPPORTED)
     * range given by [pcal_X0, pcal_X1], and are further transformed by a
     * (possibly non-linear) transformation function given by "pcal_type"
     * and "pcal_params" into "pcal_units".  Please see the PNG_EQUATION_
-    * defines below, and the PNG-Group's Scientific Visualization extension
-    * chunks document png-scivis-19970203 for a complete description of the
-    * transformations and how they should be implemented, as well as the
-    * png-extensions document for a description of the ASCII parameter
-    * strings.  Data values are valid if (valid & PNG_INFO_pCAL) non-zero.
+    * defines below, and the PNG-Group's PNG extensions document for a
+    * complete description of the transformations and how they should be
+    * implemented, and for a description of the ASCII parameter strings.
+    * Data values are valid if (valid & PNG_INFO_pCAL) non-zero.
     */
    png_charp pcal_purpose;  /* pCAL chunk description string */
    png_int_32 pcal_X0;      /* minimum value */
@@ -1147,9 +1149,9 @@ struct png_struct_def
 };
 
 /* This prevents a compiler error in png_get_copyright() in png.c if png.c
-and png.h are both at * version 1.0.7
+and png.h are both at * version 1.0.8
  */
-typedef png_structp version_1_0_7;
+typedef png_structp version_1_0_8;
 
 typedef png_struct FAR * FAR * png_structpp;
 
@@ -1248,6 +1250,8 @@ extern PNG_EXPORT(png_charp,png_convert_to_rfc1123)
    PNGARG((png_structp png_ptr, png_timep ptime));
 #endif
 
+#if !defined(_WIN32_WCE)
+/* "time.h" functions are not supported on WindowsCE */
 #if defined(PNG_WRITE_tIME_SUPPORTED)
 /* convert from a struct tm to png_time */
 extern PNG_EXPORT(void,png_convert_from_struct_tm) PNGARG((png_timep ptime,
@@ -1257,6 +1261,7 @@ extern PNG_EXPORT(void,png_convert_from_struct_tm) PNGARG((png_timep ptime,
 extern PNG_EXPORT(void,png_convert_from_time_t) PNGARG((png_timep ptime,
    time_t ttime));
 #endif /* PNG_WRITE_tIME_SUPPORTED */
+#endif /* _WIN32_WCE */
 
 #if defined(PNG_READ_EXPAND_SUPPORTED)
 /* Expand data to 24-bit RGB, or 8-bit grayscale, with alpha if available. */
@@ -1590,7 +1595,7 @@ extern PNG_EXPORT(void,png_set_compression_method) PNGARG((png_structp png_ptr,
 
 #if !defined(PNG_NO_STDIO)
 /* Initialize the input/output for the PNG file to the default functions. */
-extern PNG_EXPORT(void,png_init_io) PNGARG((png_structp png_ptr, FILE *fp));
+extern PNG_EXPORT(void,png_init_io) PNGARG((png_structp png_ptr, png_FILE_p fp));
 #endif
 
 /* Replace the (error and abort), and warning functions with user
@@ -2128,25 +2133,35 @@ extern PNG_EXPORT(void, png_write_png) PNGARG((png_structp png_ptr,
 #if (PNG_DEBUG > 0)
 #if !defined(PNG_DEBUG_FILE) && defined(_MSC_VER)
 #include <crtdbg.h>
-#define png_debug(l,m) if (PNG_DEBUG > l) _RPT0(_CRT_WARN,m)
-#define png_debug1(l,m,p1) if (PNG_DEBUG > l) _RPT1(_CRT_WARN,m,p1)
-#define png_debug2(l,m,p1,p2) if (PNG_DEBUG > l) _RPT2(_CRT_WARN,m,p1,p2)
+#if (PNG_DEBUG > 1)
+#define png_debug(l,m)  _RPT0(_CRT_WARN,m)
+#define png_debug1(l,m,p1)  _RPT1(_CRT_WARN,m,p1)
+#define png_debug2(l,m,p1,p2) _RPT2(_CRT_WARN,m,p1,p2)
+#endif
 #else /* PNG_DEBUG_FILE || !_MSC_VER */
 #ifndef PNG_DEBUG_FILE
 #define PNG_DEBUG_FILE stderr
 #endif /* PNG_DEBUG_FILE */
+#if (PNG_DEBUG > 1)
 #define png_debug(l,m) \
-   if (PNG_DEBUG > l)  \
-     fprintf(PNG_DEBUG_FILE,"%s"m,(l==1 ? "\t" : \
-       (l==2 ? "\t\t":(l>2 ? "\t\t\t":""))))
+{ \
+     int num_tabs=l; \
+     fprintf(PNG_DEBUG_FILE,"%s"m,(num_tabs==1 ? "\t" : \
+       (num_tabs==2 ? "\t\t":(num_tabs>2 ? "\t\t\t":"")))); \
+}
 #define png_debug1(l,m,p1) \
-   if (PNG_DEBUG > l) \
-     fprintf(PNG_DEBUG_FILE,"%s"m,(l==1 ? "\t" : \
-       (l==2 ? "\t\t":(l>2 ? "\t\t\t":""))),p1)
+{ \
+     int num_tabs=l; \
+     fprintf(PNG_DEBUG_FILE,"%s"m,(num_tabs==1 ? "\t" : \
+       (num_tabs==2 ? "\t\t":(num_tabs>2 ? "\t\t\t":""))),p1); \
+}
 #define png_debug2(l,m,p1,p2) \
-   if (PNG_DEBUG > l) \
-     fprintf(PNG_DEBUG_FILE,"%s"m,(l==1 ? "\t" : \
-       (l==2 ? "\t\t":(l>2 ? "\t\t\t":""))),p1,p2)
+{ \
+     int num_tabs=l; \
+     fprintf(PNG_DEBUG_FILE,"%s"m,(num_tabs==1 ? "\t" : \
+       (num_tabs==2 ? "\t\t":(num_tabs>2 ? "\t\t\t":""))),p1,p2); \
+}
+#endif /* (PNG_DEBUG > 1) */
 #endif /* _MSC_VER */
 #endif /* (PNG_DEBUG > 0) */
 #endif /* PNG_DEBUG */
@@ -2168,7 +2183,7 @@ extern PNG_EXPORT(png_charp,png_get_header_version) PNGARG((png_structp png_ptr)
 extern PNG_EXPORT(png_charp,png_get_libpng_ver) PNGARG((png_structp png_ptr));
 
 #define PNG_HEADER_VERSION_STRING \
-   " libpng version 1.0.7 - July 1, 2000 (header)\n"
+   " libpng version 1.0.8 - July 24, 2000 (header)\n"
 
 #ifdef PNG_READ_COMPOSITE_NODIV_SUPPORTED
 /* With these routines we avoid an integer divide, which will be slower on

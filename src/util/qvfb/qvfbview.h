@@ -27,7 +27,7 @@ class QVFbView : public QScrollView
 {
     Q_OBJECT
 public:
-    QVFbView( int w, int h, int d, QWidget *parent = 0,
+    QVFbView( int display_id, int w, int h, int d, QWidget *parent = 0,
 		const char *name = 0, uint wflags = 0 );
     ~QVFbView();
 
@@ -65,5 +65,8 @@ private:
     int mouseFd;
     int keyboardFd;
     int refreshRate;
+    QString mousePipe;
+    QString keyboardPipe;
+    int displayId;
 };
 

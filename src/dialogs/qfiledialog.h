@@ -75,7 +75,7 @@ class Q_EXPORT QFileDialog : public QDialog
 
     Q_OBJECT
     Q_ENUMS( Mode ViewMode PreviewMode )
-    // ##### Why are this readonly properties ?
+    // ##### Why are this read-only properties ?
     Q_PROPERTY( QString selectedFile READ selectedFile )
     Q_PROPERTY( QString selectedFilter READ selectedFilter )
     Q_PROPERTY( QStringList selectedFiles READ selectedFiles )
