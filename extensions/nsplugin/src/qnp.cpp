@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#26 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#27 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -327,8 +327,8 @@ public:
 
     bool notify( QObject* obj, QEvent* event )
     {
-	if ( event->type() == Event_Enter ||
-	     event->type() == Event_Leave )
+	if ( event->type() == QEvent::Enter ||
+	     event->type() == QEvent::Leave )
 	{
 	    checkFocussedWidget();
 	}
@@ -719,15 +719,10 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     } else if (This->widget) {
 	// ### Maybe need a geometry setter that bypasses some Qt code?
 	// ### position is always (0,0), so we get by by ignoring it.
-	//This->widget->setGeometry(window->x,window->y, window->width, window->height);
 	if ( This->widget->width() != (int)window->width
 	  || This->widget->height() != (int)window->height )
 	{
-//#ifdef _WS_WIN_
-	    //This->widget->setGeometry(window->x, window->y, window->width, window->height);
-//#else
-	    This->widget->resize(window->width, window->height);
-//#endif
+	    This->widget->setGeometry(window->x, window->y, window->width, window->height);
 	} else {
 	    This->widget->update();
 	}
@@ -1079,7 +1074,7 @@ BOOL   WINAPI   DllMain (HANDLE hInst,
     switch ( ul_reason_for_call ) {
 	case DLL_PROCESS_ATTACH:
 	case DLL_THREAD_ATTACH:
-	    WinMain( hInst, 0, "", SW_SHOW );
+	    WinMain( (HINSTANCE)hInst, 0, "", SW_SHOW );
 	    break;
 	case DLL_PROCESS_DETACH:
 	case DLL_THREAD_DETACH:
@@ -1273,11 +1268,7 @@ void QNPWidget::setWindow(bool delold)
 
     createNewWindowsForAllChildren(this);
 
-//#ifdef _WS_WIN_
-    //setGeometry( pi->x, pi->y, pi->width, pi->height );
-//#else
-    resize( pi->width, pi->height );
-//#endif
+    setGeometry( pi->x, pi->y, pi->width, pi->height );
 }
 
 /*!
