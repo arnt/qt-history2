@@ -41,7 +41,6 @@ public:
 
     static QTextDocumentFragment fromPlainText(const QString &plainText);
     static QTextDocumentFragment fromHTML(const QString &html);
-    static QTextDocumentFragment fromHTML(const QByteArray &html);
 
 private:
     QTextDocumentFragmentPrivate *d;

@@ -763,17 +763,3 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
     return res;
 }
 
-/*!
-    \overload
-
-    The text encoding of the string \a html is determined from encoding
-    attributes specified in the header.
-*/
-QTextDocumentFragment QTextDocumentFragment::fromHTML(const QByteArray &html)
-{
-    QTextCodec *codec = QText::codecForHtml(html);
-    QString unicode = codec->toUnicode(html);
-    return fromHTML(unicode);
-}
-
-
