@@ -4146,6 +4146,8 @@ void QTextEdit::append( const QString &text )
 	    doc->removeSelection( QTextDocument::Temp );
 	}
     } else {
+	cursor->paragraph()->setListItem( FALSE );
+	cursor->paragraph()->setListDepth( 0 );
 	if ( cursor->paragraph()->prev() )
 	    cursor->paragraph()->prev()->invalidate(0); // vertical margins might have to change
 	doc->setRichTextInternal( text );
