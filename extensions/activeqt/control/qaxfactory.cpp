@@ -14,6 +14,7 @@
 
 #include "qaxfactory.h"
 
+#include <qmetaobject.h>
 #include <qsettings.h>
 
 /*!
@@ -229,29 +230,71 @@ QUuid QAxFactory::appID() const
 */
 
 /*!
-    \fn QUuid QAxFactory::classID( const QString &key ) const
+    Reimplement this function return the QMetaObject corresponding to
+    \a key, or 0 if this factory doesn't support the value of \a key.
 
+    The default implementation returns the QMetaObject for the class
+    \a key.
+*/
+QMetaObject *QAxFactory::metaObject(const QString &key) const
+{
+    return QMetaObject::metaObject(key.latin1());
+}
+
+/*!
     Reimplement this function to return the class identifier for each
     \a key returned by the featureList() implementation, or an empty
     QUuid if this factory doesn't support the value of \a key.
+
+    The default implementation interprets \a key as the class name,
+    and returns the value of the classInfo entry "classID".
 */
+QUuid QAxFactory::classID( const QString &key ) const
+{
+    QMetaObject *mo = metaObject(key);
+    if (!mo)
+	return QUuid();
+    QString id = QString::fromLatin1(mo->classInfo("classID"));
+
+    return QUuid(id);
+}
 
 /*!
-    \fn QUuid QAxFactory::interfaceID( const QString &key ) const
-
     Reimplement this function to return the interface identifier for
     each \a key returned by the featureList() implementation, or an
     empty QUuid if this factory doesn't support the value of \a key.
+
+    The default implementation interprets \a key as the class name,
+    and returns the value of the classInfo entry "interfaceID".
 */
+QUuid QAxFactory::interfaceID( const QString &key ) const
+{
+    QMetaObject *mo = metaObject(key);
+    if (!mo)
+	return QUuid();
+    QString id = QString::fromLatin1(mo->classInfo("interfaceID"));
+
+    return QUuid(id);
+}
 
 /*!
-    \fn QUuid QAxFactory::eventsID( const QString &key ) const
-
     Reimplement this function to return the identifier of the event
     interface for each \a key returned by the featureList()
     implementation, or an empty QUuid if this factory doesn't support
     the value of \a key.
+
+    The default implementation interprets \a key as the class name,
+    and returns the value of the classInfo entry "eventsID".
 */
+QUuid QAxFactory::eventsID( const QString &key ) const
+{
+    QMetaObject *mo = metaObject(key);
+    if (!mo)
+	return QUuid();
+    QString id = QString::fromLatin1(mo->classInfo("eventsID"));
+
+    return QUuid(id);
+}
 
 /*!
     Registers additional values for the class \a key in the system

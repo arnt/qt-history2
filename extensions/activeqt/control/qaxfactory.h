@@ -30,6 +30,7 @@ struct QAxFactoryInterface : public QFeatureListInterface
 public:
 #ifndef Q_QDOC
     virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 ) = 0;
+    virtual QMetaObject *metaObject( const QString &key ) const = 0;
 
     virtual QUuid classID( const QString &key ) const = 0;
     virtual QUuid interfaceID( const QString &key ) const = 0;
@@ -60,22 +61,24 @@ public:
     virtual QStringList featureList() const = 0;
 
     virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 ) = 0;
-
-    virtual QUuid classID( const QString &key ) const = 0;
-    virtual QUuid interfaceID( const QString &key ) const = 0;
-    virtual QUuid eventsID( const QString &key ) const = 0;
 #endif
 
-    QUuid typeLibID() const;
-    QUuid appID() const;
+    virtual QMetaObject *metaObject( const QString &key ) const;
 
-    void registerClass( const QString &key, QSettings * ) const;
-    void unregisterClass( const QString &key, QSettings * ) const;
+    virtual QUuid classID( const QString &key ) const;
+    virtual QUuid interfaceID( const QString &key ) const;
+    virtual QUuid eventsID( const QString &key ) const;
 
-    QString exposeToSuperClass( const QString &key ) const;
-    bool stayTopLevel( const QString &key ) const;
-    bool hasStockEvents( const QString &key ) const;
-    bool isService() const;
+    virtual QUuid typeLibID() const;
+    virtual QUuid appID() const;
+
+    virtual void registerClass( const QString &key, QSettings * ) const;
+    virtual void unregisterClass( const QString &key, QSettings * ) const;
+
+    virtual QString exposeToSuperClass( const QString &key ) const;
+    virtual bool stayTopLevel( const QString &key ) const;
+    virtual bool hasStockEvents( const QString &key ) const;
+    virtual bool isService() const;
 
     static bool isServer();
     static bool startServer();
