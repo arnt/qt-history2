@@ -109,6 +109,7 @@ bool QLibraryPrivate::freeLibrary()
 			map = 0;
 		    }
 		}
+		delete lib;
 	    } else
 		ok = TRUE;
 	    break;
