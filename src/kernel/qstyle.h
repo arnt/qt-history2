@@ -474,6 +474,7 @@ public:
 	CT_Header,
 	CT_LineEdit,
 	CT_MenuBar,
+	CT_SpinBox,
 
 	// do not add any values below/greater than this
 	CT_CustomBase =		0xf0000000

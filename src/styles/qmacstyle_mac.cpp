@@ -1432,16 +1432,16 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	const int spinner_w = 15, spinner_h = 10; //isn't there some way to get this from the AppMan?
 	int fw = pixelMetric(PM_SpinBoxFrameWidth, w), y = fw, x = w->width() - fw - spinner_w;
 	switch(sc) {
-	case SC_SpinWidgetUp:
+	case SC_SpinWidgetUp: 
 	    return QRect(x, y + ((w->height() / 2) - spinner_h), spinner_w, spinner_h);
-	case SC_SpinWidgetDown:
+	case SC_SpinWidgetDown: 
 	    return QRect(x, y + (w->height() / 2), spinner_w, spinner_h);
 	case SC_SpinWidgetButtonField:
 	    return QRect(x, y, spinner_w, w->height() - (fw*2));
 	case SC_SpinWidgetEditField: 
-	    return QRect(fw, fw, (w->width() - spinner_w - (fw*3) - 3), w->height() - (fw*2)); 
+	    return QRect(fw, fw, w->width() - spinner_w - (fw*2) - 10, w->height() - (fw*2)); 
 	case SC_SpinWidgetFrame: 
-	    return QRect(0, 0, w->width() - spinner_w - fw - 3, w->height());
+	    return QRect(0, 0, w->width() - spinner_w - 10, w->height());
 	default:
 	    break;
 	}
@@ -1725,13 +1725,14 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 }
 
 /*! \reimp */
-QSize QMacStyle::sizeFromContents(ContentsType contents,
-				       const QWidget *widget,
-				       const QSize &contentsSize,
-				       const QStyleOption& opt) const
+QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
+				       const QSize &contentsSize, const QStyleOption& opt) const
 {
     QSize sz(contentsSize);
     switch(contents) {
+    case CT_SpinBox: 
+	sz.setWidth(sz.width() + 10); //10 pixels between the spinner and the editor
+	break;
     case CT_TabBarTab: {
 	SInt32 lth = kThemeLargeTabHeight;
 	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)

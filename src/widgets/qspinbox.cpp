@@ -495,8 +495,10 @@ QSize QSpinBox::sizeHint() const
 	s = specialValueText();
 	w = QMAX( w, fm.width( s ) + wx );
     }
-
-    return QSize( w + d->controls->downRect().width(), h + style().pixelMetric( QStyle::PM_DefaultFrameWidth ) * 2 ).expandedTo( QApplication::globalStrut() );
+    return style().sizeFromContents(QStyle::CT_SpinBox, this,
+				    QSize( w + d->controls->downRect().width(), 
+					   h + style().pixelMetric( QStyle::PM_DefaultFrameWidth ) * 2).
+				    expandedTo( QApplication::globalStrut() ));
 }
 
 
