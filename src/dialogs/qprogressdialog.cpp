@@ -592,6 +592,9 @@ void QProgressDialog::setProgress( int progress )
 		d->shown_once = TRUE;
 	    }
 	}
+#ifdef Q_WS_MACX
+	QApplication::flush();
+#endif
     }
 
     if ( progress == bar()->totalSteps() && d->autoReset )
