@@ -211,9 +211,6 @@ signals:
     void requestFinished(int, bool);
     void done(bool);
 
-protected:
-    void timerEvent(QTimerEvent *);
-
 private:
     Q_DISABLE_COPY(QHttp)
     Q_DECLARE_PRIVATE(QHttp)
@@ -224,6 +221,7 @@ private:
     Q_PRIVATE_SLOT(d, void slotError(QTcpSocket::SocketError))
     Q_PRIVATE_SLOT(d, void slotClosed())
     Q_PRIVATE_SLOT(d, void slotBytesWritten(Q_LONGLONG numBytes))
+    Q_PRIVATE_SLOT(d, void slotDoFinished());
 
     friend class QHttpNormalRequest;
     friend class QHttpSetHostRequest;

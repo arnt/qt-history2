@@ -25,7 +25,6 @@
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qbuffer.h"
-#include "qtimer.h"
 #include "private/qinternal_p.h"
 #include "qcoreevent.h"
 #include "qurl.h"
@@ -61,8 +60,7 @@ public:
 
     inline QHttpPrivate() : socket(0), state(QHttp::Unconnected),
           error(QHttp::NoError), port(0), toDevice(0),
-          postDevice(0), bytesDone(0), chunkedSize(-1),
-          idleTimer(0)
+          postDevice(0), bytesDone(0), chunkedSize(-1)
     {
     }
 
@@ -81,13 +79,12 @@ public:
     void slotError(QTcpSocket::SocketError);
     void slotClosed();
     void slotBytesWritten(Q_LONGLONG numBytes);
+    void slotDoFinished();
 
     int addRequest(QHttpRequest *);
     void sendRequest();
     void finishedWithSuccess();
     void finishedWithError(const QString &detail, int errorCode);
-
-    void killIdleTimer();
 
     void init();
     void setState(int);
@@ -117,8 +114,6 @@ public:
     bool readHeader;
     QString headerStr;
     QHttpResponseHeader response;
-
-    int idleTimer;
 
     QRingBuffer rba;
 
@@ -1417,7 +1412,7 @@ void QHttpPrivate::init()
 {
     Q_Q(QHttp);
     errorString = QT_TRANSLATE_NOOP(QHttp, "Unknown error");
-    idleTimer = q->startTimer(0);
+    qInvokeMetaMember(q, "slotDoFinished", Qt::QueuedConnection);
 }
 
 /*!
@@ -2113,8 +2108,6 @@ void QHttpPrivate::sendRequest()
         return;
     }
 
-    killIdleTimer();
-
     // Do we need to setup a new connection or can we reuse an
     // existing one?
     if (socket->peerName() != hostName || socket->peerPort() != port
@@ -2185,7 +2178,7 @@ void QHttpPrivate::slotClosed()
 
     postDevice = 0;
     setState(QHttp::Closing);
-    idleTimer = q->startTimer(0);
+    qInvokeMetaMember(q, "slotDoFinished", Qt::QueuedConnection);
 }
 
 void QHttpPrivate::slotConnected()
@@ -2444,11 +2437,22 @@ void QHttpPrivate::slotReadyRead()
                 setState(QHttp::Connected);
                 // Start a timer, so that we emit the keep alive signal
                 // "after" this method returned.
-                idleTimer = q->startTimer(0);
+                qInvokeMetaMember(q, "slotDoFinished", Qt::QueuedConnection);
             }
         }
     }
 }
+
+void QHttpPrivate::slotDoFinished()
+{
+    if (state == QHttp::Connected) {
+        finishedWithSuccess();
+    } else if (state != QHttp::Unconnected) {
+        setState(QHttp::Unconnected);
+        finishedWithSuccess();
+    }   
+}
+
 
 /*!
     Returns the current state of the object. When the state changes,
@@ -2487,34 +2491,6 @@ QString QHttp::errorString() const
     return d->errorString;
 }
 
-/*! \reimp
-*/
-void QHttp::timerEvent(QTimerEvent *e)
-{
-    Q_D(QHttp);
-    if (e->timerId() == d->idleTimer) {
-        killTimer(d->idleTimer);
-        d->idleTimer = 0;
-
-        if (d->state == Connected) {
-            d->finishedWithSuccess();
-        } else if (d->state != Unconnected) {
-            d->setState(Unconnected);
-            d->finishedWithSuccess();
-        }
-    } else {
-        QObject::timerEvent(e);
-    }
-}
-
-void QHttpPrivate::killIdleTimer()
-{
-    Q_Q(QHttp);
-    if (idleTimer > 0)
-        q->killTimer(idleTimer);
-    idleTimer = 0;
-}
-
 void QHttpPrivate::setState(int s)
 {
     Q_Q(QHttp);
@@ -2537,7 +2513,7 @@ void QHttpPrivate::closeConn()
 
     // Already closed ?
     if (!socket || !socket->isOpen()) {
-        idleTimer = q->startTimer(0);
+        qInvokeMetaMember(q, "slotDoFinished", Qt::QueuedConnection);
     } else {
         // Close now.
         socket->close();
@@ -2545,7 +2521,7 @@ void QHttpPrivate::closeConn()
         // Did close succeed immediately ?
         if (socket->state() == QTcpSocket::UnconnectedState) {
             // Prepare to emit the requestFinished() signal.
-            idleTimer = q->startTimer(0);
+            qInvokeMetaMember(q, "slotDoFinished", Qt::QueuedConnection);
         }
     }
 }
