@@ -64,7 +64,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg, const QRect &cr, boo
 
     if ( selected )
 	p->setPen( cg.highlightedText() );
-    p->drawText( x, 0, w - x, h, alignment(), txt );
+    p->drawText( x, 0, w - x, h, alignment() | wordwrap ? Qt::WordBreak : 0, txt );
 }
 
 /*!  Returns the editor which should be used for editing that
@@ -95,6 +95,7 @@ void QTableItem::setContentFromEditor( QWidget *w )
   normal text to the left and numbers to the right.
 */
 
+
 int QTableItem::alignment() const
 {
     bool num;
@@ -106,7 +107,15 @@ int QTableItem::alignment() const
     return ( num ? AlignRight : AlignLeft ) | AlignVCenter;
 }
 
+void QTableItem::setWordWrap( bool b )
+{
+    wordwrap = b;
+}
 
+bool QTableItem::wordWrap() const
+{
+    return wordwrap;
+}
 
 /*!
   \class QTable qtable.h
@@ -1448,7 +1457,7 @@ void QTableHeader::mousePressEvent( QMouseEvent *e )
 
 void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !mousePressed || cursor().shape() != ArrowCursor || 
+    if ( !mousePressed || cursor().shape() != ArrowCursor ||
 	 ( ( e->state() & ControlButton ) == ControlButton && ( orientation() == Horizontal ? table->colsMovable() : table->rowsMovable() ) ) ) {
 	QHeader::mouseMoveEvent( e );
 	return;

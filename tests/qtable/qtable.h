@@ -30,7 +30,7 @@ class QTableItem : public Qt
 
 public:
     QTableItem( QTable *table, const QString &t, const QPixmap p )
-	: txt( t ), pix( p ), t( table ) {}
+	: txt( t ), pix( p ), t( table ), wordwrap( FALSE ) {}
     virtual ~QTableItem() {}
 
     virtual QPixmap pixmap() const;
@@ -42,7 +42,9 @@ public:
     virtual void setContentFromEditor( QWidget *w );
 
     virtual int alignment() const;
-
+    virtual void setWordWrap( bool b );
+    bool wordWrap() const;
+    
 protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
 
@@ -50,7 +52,8 @@ private:
     QString txt;
     QPixmap pix;
     QTable *t;
-
+    bool wordwrap;
+    
 };
 
 class QTable : public QScrollView
@@ -115,7 +118,7 @@ public:
     bool colsMovable() const;
     void setRowsMovable( bool b );
     bool rowsMovable() const;
-    
+
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
@@ -136,7 +139,7 @@ protected slots:
     virtual void rowHeightChanged( int col, int os, int ns );
     virtual void columnIndexChanged( int s, int oi, int ni );
     virtual void rowIndexChanged( int s, int oi, int ni );
-    
+
 signals:
     void currentChanged( int row, int col );
 
