@@ -3264,6 +3264,50 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	d->updateInheritedBackground();
 }
 
+
+/*!
+  Sets the margins around the contents of the widget. The margins are used by
+  the layout system, and may be used by subclasses to specify the area to draw in
+  (eg. excluding the frame).
+
+  Changing the margins will trigger a resizeEvent().
+
+  \sa contentsRect()
+*/
+void QWidget::setContentsMargins(int left, int top, int right, int bottom)
+{
+    if ( left == d->leftmargin && top == d->topmargin
+	 && right == d->rightmargin && bottom == d->bottommargin )
+	return;
+    d->leftmargin = left;
+    d->topmargin = top;
+    d->rightmargin = right;
+    d->bottommargin = bottom;
+
+    if (QLayout *l=d->layout) {
+	l->update();
+    } else {
+	//trigger resize event, should we post instead???
+	QResizeEvent e(crect.size(), crect.size());
+	QApplication::sendEvent(this, &e);
+	if (testAttribute(WA_PendingResizeEvent))
+	    setAttribute(WA_PendingResizeEvent, false);
+	updateGeometry();
+    }
+}
+
+/*
+  Returns the area inside the margins.
+
+  \sa setContentsMargins()
+*/
+QRect QWidget::contentsRect() const
+{
+    return QRect(QPoint(d->leftmargin, d->topmargin),
+		 QPoint(crect.width() - 1 - d->rightmargin, crect.height() -1 - d->bottommargin));
+    
+ }
+
 /*!
     \property QWidget::focusEnabled
     \brief whether the widget accepts keyboard focus

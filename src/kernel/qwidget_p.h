@@ -141,6 +141,7 @@ public:
 #ifndef QT_NO_LAYOUT
         ,layout(0)
 #endif
+	,leftmargin(0), topmargin(0), rightmargin(0), bottommargin(0)
 #ifndef QT_NO_PALETTE
         ,fg_role(QPalette::Foreground)
 	,bg_role(QPalette::Background)
@@ -211,7 +212,8 @@ public:
     QLayout *layout;
 #endif
 
-    // ### TODO: reorganize private/extra/topextra to safe memory
+    int leftmargin, topmargin, rightmargin, bottommargin;
+    // ### TODO: reorganize private/extra/topextra to save memory
     QPointer<QWidget> compositeChildGrab;
     QString toolTip, statusTip, whatsThis;
 

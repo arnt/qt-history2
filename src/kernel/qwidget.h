@@ -373,6 +373,9 @@ public:
 
     QRegion	clipRegion() const;
 
+    void setContentsMargins(int left, int top, int right, int bottom);
+    QRect contentsRect() const;
+
 public:
 #ifndef QT_NO_LAYOUT
     QLayout *layout() const;

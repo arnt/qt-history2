@@ -832,8 +832,9 @@ void QLayout::widgetEvent(QEvent *e)
 	    mbh = menuBarHeightForWidth( menubar, r->size().width() );
 #endif
 	    int b = marginImpl ? 0 : outsideBorder;
-	    setGeometry( QRect( b, mbh + b, r->size().width() - 2 * b,
-				r->size().height() - mbh - 2 * b ) );
+	    QRect rect = parentWidget()->contentsRect();
+	    rect.addCoords(b, mbh + b, -b, -b);
+	    setGeometry(rect);
 	} else {
 	    activate();
 	}
@@ -914,7 +915,13 @@ int QLayout::totalHeightForWidth( int w ) const
     if ( topLevel )
 	parent()->ensurePolished();
     int b = ( topLevel && !marginImpl ) ? 2 * outsideBorder : 0;
-    int h = heightForWidth( w - b ) + b;
+    int side=b, top=b;
+    if ( topLevel ) {
+	QWidgetPrivate *wd = parentWidget()->d;
+	side += wd->leftmargin + wd->rightmargin;
+	top += wd->topmargin + wd->bottommargin;
+    }
+    int h = heightForWidth( w - side ) + top;
 #ifndef QT_NO_MENUBAR
     h += menuBarHeightForWidth( menubar, w );
 #endif
@@ -931,12 +938,18 @@ QSize QLayout::totalMinimumSize() const
 	parent()->ensurePolished();
     int b = ( topLevel && !marginImpl ) ? 2 * outsideBorder : 0;
 
+    int side=b, top=b;
+    if ( topLevel ) {
+	QWidgetPrivate *wd = parentWidget()->d;
+	side += wd->leftmargin + wd->rightmargin;
+	top += wd->topmargin + wd->bottommargin;
+    }
+
     QSize s = minimumSize();
-    int h = b;
 #ifndef QT_NO_MENUBAR
-    h += menuBarHeightForWidth( menubar, s.width() );
+    top += menuBarHeightForWidth( menubar, s.width() + side );
 #endif
-    return s + QSize( b, h );
+    return s + QSize(side, top);
 }
 
 /*!
@@ -948,15 +961,20 @@ QSize QLayout::totalSizeHint() const
     if ( topLevel )
 	parent()->ensurePolished();
     int b = ( topLevel && !marginImpl ) ? 2 * outsideBorder : 0;
+    int side=b, top=b;
+    if ( topLevel ) {
+	QWidgetPrivate *wd = parentWidget()->d;
+	side += wd->leftmargin + wd->rightmargin;
+	top += wd->topmargin + wd->bottommargin;
+    }
 
     QSize s = sizeHint();
     if ( hasHeightForWidth() )
-	s.setHeight( heightForWidth(s.width()) );
-    int h = b;
+	s.setHeight( heightForWidth(s.width() + side) );
 #ifndef QT_NO_MENUBAR
-    h += menuBarHeightForWidth( menubar, s.width() );
+    top += menuBarHeightForWidth( menubar, s.width() );
 #endif
-    return s + QSize( b, h );
+    return s + QSize( side, top );
 }
 
 /*!
@@ -968,16 +986,21 @@ QSize QLayout::totalMaximumSize() const
     if ( topLevel )
 	parent()->ensurePolished();
     int b = ( topLevel && !marginImpl ) ? 2 * outsideBorder : 0;
+    int side=b, top=b;
+    if ( topLevel ) {
+	QWidgetPrivate *wd = parentWidget()->d;
+	side += wd->leftmargin + wd->rightmargin;
+	top += wd->topmargin + wd->bottommargin;
+    }
 
     QSize s = maximumSize();
-    int h = b;
 #ifndef QT_NO_MENUBAR
-    h += menuBarHeightForWidth( menubar, s.width() );
+    top += menuBarHeightForWidth( menubar, s.width() );
 #endif
 
     if ( isTopLevel() )
-	s = QSize( qMin( s.width() + b, QLAYOUTSIZE_MAX ),
-		   qMin( s.height() + h, QLAYOUTSIZE_MAX ) );
+	s = QSize( qMin( s.width() + side, QLAYOUTSIZE_MAX ),
+		   qMin( s.height() + top, QLAYOUTSIZE_MAX ) );
     return s;
 }
 
@@ -1209,8 +1232,9 @@ bool QLayout::activate()
     mbh = menuBarHeightForWidth( menubar, s.width() );
 #endif
     int b = marginImpl ? 0 : outsideBorder;
-    setGeometry( QRect(b, mbh + b, s.width() - 2 * b,
-		       s.height() - mbh - 2 * b) );
+    QRect rect = mw->contentsRect();
+    rect.addCoords(b, mbh + b, -b, -b);
+    setGeometry(rect);
     if ( frozen ) {
 	// will trigger resize
 	mw->setFixedSize( totalSizeHint() );
