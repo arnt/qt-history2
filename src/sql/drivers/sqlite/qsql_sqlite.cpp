@@ -331,6 +331,7 @@ bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, c
 
     if (d->access) {
         setOpen(TRUE);
+	setOpenError(false);
         return TRUE;
     }
     setOpenError(TRUE);
