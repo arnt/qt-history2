@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#75 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -444,14 +444,14 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 	else
 	    handleIdx = i+1;
 	oldHIdxSize = cellSize( handleIdx - 1 );
-	if ( data->resize.testBit(handleIdx - 1) )
+	if ( data->resize.testBit(mapToLogical(handleIdx - 1)) )
 	    state = Sliding;
 	else
 	    state = Blocked;
     } else if ( i >= 0 ) {
 	handleIdx = i;
 	moveToIdx = -1;
-	if ( data->clicks.testBit(i) )
+	if ( data->clicks.testBit(mapToLogical(i)) )
 	    state = Pressed;
 	else
 	    state = Blocked;
@@ -510,7 +510,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	if (  s < p + GRIPMARGIN || s > p + pSize( i ) - GRIPMARGIN ) {
 	    if ( s < p + GRIPMARGIN )
 		i--;
-	    if ( i >= 0 && data->resize.testBit(i) ) {
+	    if ( i >= 0 && data->resize.testBit(mapToLogical(i)) ) {
 		hit = TRUE;
 		if ( orient == Horizontal )
 		    setCursor( splitHCursor );
@@ -627,7 +627,7 @@ QString QHeader::label( int i )
     if ( data->labels[i] )
 	return *(data->labels[i]);
     else
-	return ""; // ### or 0?
+	return QString::null;
 }
 
 /*!
@@ -800,7 +800,7 @@ void QHeader::setCellSize( int i, int s )
 
 
 /*!
-  Enable user resizing of column \a i if \a enable is TRUE, disable otherwise.
+  Enable user resizing of logical column \a i if \a enable is TRUE, disable otherwise.
   If \a i is negative, resizing is enabled/disabled for all columns.
 
   \sa setMovingEnabled(), setClickEnabled()
@@ -829,7 +829,7 @@ void QHeader::setMovingEnabled( bool enable )
 
 
 /*!
-  Enable clicking in column \a i if \a enable is TRUE, disable otherwise.
+  Enable clicking in logical column \a i if \a enable is TRUE, disable otherwise.
   If \a i is negative, clicking is enabled/disabled for all columns.
 
   If enabled, the sectionClicked() signal is emitted when the user clicks.
