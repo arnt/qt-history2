@@ -12,7 +12,7 @@ CFLAGS=/W3 /Zi /nologo /I. /Igenerators /Igenerators\unix /Igenerators\win32  /I
 LFLAGS=/DEBUG
 LIBS=ole32.lib
 
-qmake: $(OBJS) $(QTOBJS)
+qmake.exe: $(OBJS) $(QTOBJS)
 	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
 	-copy qmake.exe $(QTDIR)\bin\qmake.exe
 
