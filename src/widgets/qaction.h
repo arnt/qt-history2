@@ -47,6 +47,7 @@
 #ifndef QT_NO_ACTION
 
 class QActionPrivate;
+class QActionGroupPrivate;
 class QStatusBar;
 class QPopupMenu;
 
@@ -56,7 +57,6 @@ class Q_EXPORT QAction : public QObject
     Q_PROPERTY( bool toggleAction READ isToggleAction WRITE setToggleAction)
     Q_PROPERTY( bool on READ isOn WRITE setOn )
     Q_PROPERTY( bool enabled READ isEnabled WRITE setEnabled )
-    Q_PROPERTY( bool usesDropDown READ usesDropDown WRITE setUsesDropDown )
     Q_PROPERTY( QIconSet iconSet READ iconSet WRITE setIconSet )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( QString menuText READ menuText WRITE setMenuText )
@@ -66,23 +66,12 @@ class Q_EXPORT QAction : public QObject
     Q_PROPERTY( int accel READ accel WRITE setAccel )
 
 public:
-    enum Type { Command, Toggle, Separator, Group, ExclusiveGroup };
-
-    QAction( Type t, QObject* parent, const char* name = 0 );
-    ~QAction();
-
-#if !defined(QT_CLEAN_NAMESPACE)
     QAction( QObject* parent, const char* name = 0, bool toggle = FALSE  );
-    QAction( const QString& text, const QIconSet& icon,
-	     const QString& menuText, int accel,
+    QAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
 	     QObject* parent, const char* name = 0, bool toggle = FALSE );
-    QAction( const QString& text, const QString& menuText,
-	     int accel, QObject* parent,
+    QAction( const QString& text, const QString& menuText, int accel, QObject* parent,
 	     const char* name = 0, bool toggle = FALSE );
-#endif
-
-    virtual void setType( Type t );
-    Type type() const;
+    ~QAction();
 
     virtual void setIconSet( const QIconSet& );
     QIconSet iconSet() const;
@@ -98,30 +87,15 @@ public:
     QString whatsThis() const;
     virtual void setAccel( int key );
     int accel() const;
-
-#if !defined(QT_CLEAN_NAMESPACE)
-    // NOT virtual, so the ifdef won't change the vtbl
-    void setToggleAction( bool );
+    virtual void setToggleAction( bool );
     bool isToggleAction() const;
-#endif
-
-    void insert( QAction* );
-    void insertSeparator();
-
     virtual void setOn( bool );
     bool isOn() const;
     bool isEnabled() const;
     virtual bool addTo( QWidget* );
     virtual bool removeFrom( QWidget* );
 
-    virtual void setUsesDropDown( bool enable );
-    bool usesDropDown() const;
-
 protected:
-    void childEvent( QChildEvent* );
-    virtual void addedTo( QWidget *actionWidget, QWidget *container,
-			  QAction *a );
-    virtual void addedTo( int index, QPopupMenu *menu, QAction *a );
     virtual void addedTo( QWidget *actionWidget, QWidget *container );
     virtual void addedTo( int index, QPopupMenu *menu );
 
@@ -131,7 +105,6 @@ public slots:
 signals:
     void activated();
     void toggled( bool );
-    void selected( QAction* );
 
 private slots:
     void internalActivation();
@@ -140,32 +113,59 @@ private slots:
     void menuStatusText( int id );
     void showStatusText( const QString& );
     void clearStatusText();
-    void childToggled( bool );
-    void childDestroyed();
-    void internalComboBoxActivated( int );
-    void internalToggle( QAction* );
 
 private:
     void init();
-    void updateVectors();
 
     QActionPrivate* d;
-};
 
+};
 
 class Q_EXPORT QActionGroup : public QAction
 {
     Q_OBJECT
     Q_PROPERTY( bool exclusive READ isExclusive WRITE setExclusive )
+    Q_PROPERTY( bool usesDropDown READ usesDropDown WRITE setUsesDropDown )
 
 public:
-    QActionGroup( QObject* parent, const char* name = 0,
-		  bool exclusive = TRUE );
+    QActionGroup( QObject* parent, const char* name = 0, bool exclusive = TRUE );
     ~QActionGroup();
     void setExclusive( bool );
     bool isExclusive() const;
+    void insert( QAction* );
+    void insertSeparator();
+    bool addTo( QWidget* );
+    bool removeFrom( QWidget* );
+    void setEnabled( bool );
+
+    void setUsesDropDown( bool enable );
+    bool usesDropDown() const;
+
+    void setIconSet( const QIconSet& );
+    void setText( const QString& );
+    void setMenuText( const QString& );
+    void setToolTip( const QString& );
+    void setWhatsThis( const QString& );
+
+protected:
+    void childEvent( QChildEvent* );
+    virtual void addedTo( QWidget *actionWidget, QWidget *container, QAction *a );
+    virtual void addedTo( int index, QPopupMenu *menu, QAction *a );
+    virtual void addedTo( QWidget *actionWidget, QWidget *container );
+    virtual void addedTo( int index, QPopupMenu *menu );
+
+signals:
+    void selected( QAction* );
+
+private slots:
+    void childToggled( bool );
+    void childDestroyed();
+    void internalComboBoxActivated( int );
+    void internalToggle( QAction* );
+    void objectDestroyed();
 
 private:
+    QActionGroupPrivate* d;
 };
 
 #endif
