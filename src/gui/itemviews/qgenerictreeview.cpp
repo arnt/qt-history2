@@ -43,7 +43,7 @@ inline void collapse(QVector<T> &vec, int after, size_t n)
     }
     vec.resize(vec.size() - n);
 }
-  
+
 /*
 struct Expanded {
     QModelIndex index;
@@ -79,7 +79,7 @@ public:
     bool isOpen(int i) const;
     void open(int i);
     void close(int i);
-    
+
     int pageUp(int i) const;
     int pageDown(int i) const;
     int above(int i) const;
@@ -137,11 +137,11 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
 {
     if (d->header) {
 	QObject::disconnect(horizontalScrollBar(), SIGNAL(valueChanged(int)),
-			    d->header, SLOT(setOffset(int)));	
+			    d->header, SLOT(setOffset(int)));
 	QObject::disconnect(d->header, SIGNAL(sectionSizeChanged(int, int, int)),
 			    this, SLOT(columnWidthChanged(int, int, int)));
 	QObject::disconnect(d->header, SIGNAL(sectionIndexChanged(int, int, int)),
-			    this, SLOT(contentsChanged()));	
+			    this, SLOT(contentsChanged()));
 	QObject::disconnect(d->header, SIGNAL(sectionCountChanged(int, int)),
 			    this, SLOT(columnCountChanged(int, int)));
 	delete d->header; // FIXME ???
@@ -186,7 +186,7 @@ void QGenericTreeView::drawContents(QPainter *painter, int cx, int cy, int cw, i
     QItemDelegate *delegate = itemDelegate();
     QItemOptions options;
     getViewOptions(&options);
-    QFontMetrics fontMetrics(fontMetrics());
+    QFontMetrics fontMetrics(this->fontMetrics());
 
     int view_index = d->viewIndex(cy);
     QModelIndex model_index = d->modelIndex(view_index);
@@ -218,7 +218,7 @@ void QGenericTreeView::contentsMousePressEvent(QMouseEvent *e)
     int cx = e->x() - position;
     int vi = d->viewIndex(e->y());
     QModelIndex mi = d->modelIndex(vi);
-    
+
     if (mi.isValid()) {
 	int indent = d->indentation(vi);
    	if (column == 0 && cx < (indent - d->indent))
@@ -520,7 +520,7 @@ int QGenericTreeViewPrivate::indentation(int i) const
 }
 
 int QGenericTreeViewPrivate::coordinate(int i) const
-{    
+{
     return itemHeight * i;
     // FIXME: check if item is visible, if it is, get a coordinate on screen
 }
@@ -575,7 +575,7 @@ void QGenericTreeViewPrivate::drawRow(QPainter *painter, QItemOptions *options, 
     int x = indentation(i);
     QModelIndex index = modelIndex(i);
     QModelIndex parent = model->parent(index);
-    
+
     if (column == 0 && !header->isSectionHidden(column)) {
 	pos = header->sectionPosition(column);
 	width = header->sectionSize(column);
