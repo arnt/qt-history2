@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#437 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#438 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -456,7 +456,7 @@ static struct {
     { "ISO8859-9", QFont::ISO_8859_9 },
     { "KOI8-R", QFont::KOI8R },
     { "eucJP", QFont::Set_Ja },
-    { "eucKO", QFont::Set_Ko },
+    { "eucKR", QFont::Set_Ko },
     { "TACTIS", QFont::Set_Th_TH },
     { "eucCN", QFont::Set_Zh },
     { "eucTW", QFont::Set_Zh_TW },
