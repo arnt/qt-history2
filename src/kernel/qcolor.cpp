@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#2 $
 **
 ** Implementation of QColor class
 **
@@ -17,8 +17,31 @@
 #include "qstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#2 $";
 #endif
+
+
+// --------------------------------------------------------------------------
+// Global colors
+//
+
+const QColor black;
+const QColor white;
+const QColor darkGray;
+const QColor gray;
+const QColor lightGray;
+const QColor red;
+const QColor green;
+const QColor blue;
+const QColor cyan;
+const QColor magenta;
+const QColor yellow;
+const QColor darkRed;
+const QColor darkGreen;
+const QColor darkBlue;
+const QColor darkCyan;
+const QColor darkMagenta;
+const QColor darkYellow;
 
 
 // --------------------------------------------------------------------------
@@ -48,6 +71,8 @@ QColor QColor::light( double factor ) const	// get light color
     int m = r;					// find maximum value
     if ( g > m ) m = g;
     if ( b > m ) m = b;
+    if ( m == 0 )				// oops, black!
+	m++;
     if ( r > 255 || g > 255 || b > 255 ) {	// handle out-of-range
 	r = 255*r/m;
 	r += (255 - r) >> 1;
