@@ -2110,6 +2110,10 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 */
 QRegion QPainter::clipRegion( CoordinateMode m ) const
 {
+    // ### FIXME in 4.0:
+    // If the transformation mode is CoordPainter, we should transform the
+    // clip region with painter transformations.
+
 #ifndef QT_NO_TRANSFORMATIONS
     QRegion r;
     if ( m == CoordDevice ) {
