@@ -83,6 +83,7 @@ extern "C" int usleep(useconds_t);
 #endif
 
 #if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE-0 >= 400)
+// trying to detect Tru64 5.0 and better...
 #define QT_SNPRINTF		::snprintf
 #define QT_VSNPRINTF		::vsnprintf
 #endif
