@@ -736,14 +736,14 @@ static void init_layout_struct(const QMainWindowLayout * const layout,
 }
 
 /*
-  Returns the minimum size hint for the first user item in a tb
-  layout.
+  Returns the size hint for the first user item in a tb layout. This
+  is used to contrain the minimum size a tb can have.
 */
 static QSize get_min_item_sz(QLayout *layout)
 {
     QLayoutItem *item = layout->itemAt(1);
     if (item && item->widget())
-	return item->widget()->minimumSizeHint();
+	return item->widget()->sizeHint();
     else
 	return QSize(0, 0);
 }
@@ -857,7 +857,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     if (tb_layout_info.size() != 0) {
 	tb_fill = QApplication::style()->pixelMetric(QStyle::PM_ToolBarHandleExtent)
                   + QApplication::style()->pixelMetric(QStyle::PM_ToolBarFrameWidth) * 2
-		  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarItemSpacing) * 3
+		  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarItemSpacing) * 2
                   + QApplication::style()->pixelMetric(QStyle::PM_ToolBarExtensionExtent);
     }
 
@@ -891,9 +891,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		}
 	    } else {
 		ToolBarLayoutInfo &prev = lineInfo.list[i-1];
-		QSize min_size(0, 0);
-                if(info.item->widget()->layout()->itemAt(1))
-                    min_size = info.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint();
+		QSize min_size = get_min_item_sz(info.item->widget()->layout());
 		set_perp(where, min_size, pick_perp(where, min_size) + tb_fill);
  		const int cur_pt = pick_perp(where, prev.pos) + pick_perp(where, prev.size);
 		const int prev_min = pick_perp(where, get_min_item_sz(prev.item->widget()->layout())) + tb_fill;

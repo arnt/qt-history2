@@ -733,9 +733,9 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             }
 	} else {
 	    hide = pick(orientation, w->pos()) + pick(orientation, w->size())
-		   > pick(orientation, size()) - extension_size;
+		   >= pick(orientation, size()) - extension_size;
 	}
-	if (hide) {
+	if (hide && i > 1) { // never hide the first item in the tb
 	    w->hide();
 	    d->items[i - 1].hidden = true;
 	    ++hidden_count;
@@ -754,11 +754,13 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     }
 
     if (orientation == Qt::Horizontal) {
-        setMinimumSize(d->handle->sizeHint().width() + box->spacing() + extension_size + margin*2,
+        setMinimumSize(d->handle->sizeHint().width() + box->spacing()*2 + extension_size + margin*2
+                       + d->items[0].widget->sizeHint().width(),
                        max_item_extent + margin*2);
     } else {
         setMinimumSize(max_item_extent + margin*2,
-                       d->handle->sizeHint().height() + box->spacing() + extension_size + margin*2);
+                       d->handle->sizeHint().height() + box->spacing()*2 + extension_size + margin*2
+                       + d->items[0].widget->sizeHint().height());
     }
 
     if (hidden_count > 0) {
@@ -792,8 +794,16 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                 // ### the preview
             }
         }
-        if (pop->actions().size() > 0)
+        if (pop->actions().size() > 0) {
             d->extension->show();
+            d->extension->setEnabled(true);
+        } else {
+            // show a disabled ext btn in the case where widgets in
+            // the toolbar are hidden but not put into the ext menu -
+            // this indicates that some items in the tb is hidden
+            d->extension->show();
+            d->extension->setEnabled(false);
+        }
     } else if (d->extension->isShown()) {
 	if (d->extension->menu())
 	    d->extension->menu()->clear();
