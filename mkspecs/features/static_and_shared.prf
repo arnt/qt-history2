@@ -1,0 +1,3 @@
+!contains(TEMPLATE, subdirs):!macx-xcode {
+    addExclusiveBuild(staticlib, Static, dll, Shared)
+}

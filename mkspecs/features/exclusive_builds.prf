@@ -1,0 +1,52 @@
+# addExclusiveBuilds(1config, 1name, 2config, 2name)
+# Adds two BUILDS which are exclusive to each other.
+
+defineTest(addExclusiveBuilds) {
+    firstBuild = $$1
+    firstBuildName = $$2
+    secondBuild = $$3
+    secondBuildName = $$4
+
+    !build_pass {
+        first_BUILDS  =
+        second_BUILDS =
+        suffix_BUILDS = Build
+
+        isEmpty(BUILDS): BUILDPERMUTATIONS = $$suffix_BUILDS
+        else: BUILDPERMUTATIONS = $$BUILDS
+
+        for(permutation, BUILDPERMUTATIONS) {
+            permutation ~= s/$${suffix_BUILDS}$//
+            isEmpty(permutation): permutationName =
+            else: permutationName = -$$permutation
+            # Makefile target rule
+            eval($${firstBuildName}$${permutation}.target  = $${firstBuild}$$lower($${permutationName}))
+            # IDE name
+            eval($${firstBuildName}$${permutation}.name    = $${firstBuildName}$${permutationName})
+            # Individual CONFIG option
+            eval($${firstBuildName}$${permutation}.CONFIG  = $${firstBuild} $${firstBuildName}Build $$eval($${permutation}.CONFIG))
+            eval($${secondBuildName}$${permutation}.target = $${secondBuild}$$lower($${permutationName}))
+            eval($${secondBuildName}$${permutation}.name   = $${secondBuildName}$${permutationName})
+            eval($${secondBuildName}$${permutation}.CONFIG = $${secondBuild} $${secondBuildName}Build $$eval($${permutation}.CONFIG))
+ 
+            first_BUILDS += $${firstBuildName}$${permutation}
+            second_BUILDS += $${secondBuildName}$${permutation}
+        }
+ 
+        # A mutual exclusive block.
+        CONFIG($${firstBuild}, $${firstBuild}|$${secondBuild}): BUILDS = $$first_BUILDS  $$second_BUILDS 
+        else: BUILDS = $$second_BUILDS $$first_BUILDS
+    } else {
+        isEmpty(QMAKE_DIR_REPLACE):QMAKE_DIR_REPLACE += OBJECTS_DIR MOC_DIR RCC_DIR UI_DIR
+        eval($${firstBuild}_and_$${secondBuild}_target:QMAKE_DIR_REPLACE += DESTDIR)
+        for(fix, QMAKE_DIR_REPLACE) {
+            isEmpty($$fix) {
+                eval($${firstBuildName}Build:$$fix = $${firstBuild})
+                eval($${secondBuildName}Build:$$fix = $${secondBuild})
+            } else {
+                eval($${firstBuildName}Build:$$fix ~= s/$${secondBuild}/$${firstBuild}/gi)
+                eval($${secondBuildName}Build:$$fix ~= s/$${firstBuild}/$${secondBuild}/gi)
+            }
+        }
+    }
+}

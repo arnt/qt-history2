@@ -1,36 +1,3 @@
 !contains(TEMPLATE, subdirs):!macx-xcode {
-    !build_pass {
-        # This block is executed the first time qmake runs over the
-        # project, since build_pass in not set in CONFIG. As a result
-        # the BUILDS variable is populated with two build types which
-        # tells qmake to iterate over the project two times. During
-        # these two runs qmake defines build_pass and the name of the
-        # current build. (Eg. CONFIG += build_pass DebugPackage)
-        
-        DebugPackage.target = debug     # Makefile target rule
-        DebugPackage.name   = Debug     # IDE name
-        DebugPackage.CONFIG = debug     # Individual CONFIG option
-        ReleasePackage.target = release
-        ReleasePackage.name   = Release
-        ReleasePackage.CONFIG = release
-
-        # A mutual exclusive block. If debug is set in project, then
-        # the first build is set to DebugPackage, which is also what
-        # the makefiles will use as target 'first'
-
-        CONFIG(debug, debug|release): BUILDS += DebugPackage ReleasePackage
-        else: BUILDS += ReleasePackage DebugPackage
-    } else {
-        isEmpty(QMAKE_DEBUG_RELEASE):QMAKE_DEBUG_RELEASE += OBJECTS_DIR MOC_DIR RCC_DIR UI_DIR
-        debug_and_release_target:QMAKE_DEBUG_RELEASE += DESTDIR
-        for(fix, QMAKE_DEBUG_RELEASE) {
-            isEmpty($$fix) {
-                DebugPackage:eval($$fix = debug)
-                ReleasePackage:eval($$fix = release)
-            } else {
-                DebugPackage:eval($$fix ~= s/release/debug/gi)
-                ReleasePackage:eval($$fix ~= s/debug/release/gi)
-            }
-        }
-    }
+    addExclusiveBuilds(debug, Debug, release, Release)
 }
