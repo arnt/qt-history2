@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#132 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#133 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -522,9 +522,9 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \sa \link shclass.html Shared classes\endlink
 */
 
-QString::Data *QString::shared_null = 0;
-const QString QString::null;
-const QChar QChar::null;
+Q_EXPORT QString::Data *QString::shared_null = 0;
+QT_STATIC_CONST_IMPL QString QString::null;
+QT_STATIC_CONST_IMPL QChar QChar::null;
 
 #define Q2HELPER(x) x
 #ifdef Q2HELPER
@@ -552,23 +552,18 @@ void qt_qstring_stats()
 #endif
 
 /*!
+  \fn QString::QString()
+
   Constructs a null string.
   \sa isNull()
 */
-QString::QString() :
-    d(shared_null ? shared_null : shared_null=new Data)
-{
-    Q2HELPER(stat_construct_null++);
-    d->ref();
-}
 
 /*!
   Constructs a string containing the one character \a ch.
 */
-QString::QString( const QChar& ch ) :
-    d(shared_null ? shared_null : shared_null=new Data)
+QString::QString( const QChar& ch )
 {
-    d = new Data(new QChar[1],0,1);
+    d = new Data(new QChar[1],1,1);
     d->unicode[0] = ch;
 }
 

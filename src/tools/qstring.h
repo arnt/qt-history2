@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#74 $
+** $Id: //depot/qt/main/src/tools/qstring.h#75 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -154,7 +154,7 @@ public:
     QChar( uchar c, uchar r=0 ) : row(r), cell(c) { }
     QChar( const QChar& c ) : row(c.row), cell(c.cell) { }
 
-    static const QChar null;
+    QT_STATIC_CONST QChar null;
 
     operator char() const { return row?0:cell; }
 
@@ -219,7 +219,7 @@ public:
     QString    &operator=( const char * );	// deep copy
     QString    &operator=( const QByteArray& );	// deep copy
 
-    static const QString null;
+    QT_STATIC_CONST QString null;
 
     bool	isNull()	const;
     bool	isEmpty()	const;
@@ -366,6 +366,13 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QString & );
 /*****************************************************************************
   QString inline functions
  *****************************************************************************/
+
+// No safe way to pre-init shared_null on ALL compilers/linkers.
+inline QString::QString() :
+    d(shared_null ? shared_null : shared_null=new Data)
+{
+    d->ref();
+}
 
 //inline QString &QString::operator=( const QString &s )
 //{ return (const QString &)assign( s ); }

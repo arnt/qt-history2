@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#134 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#135 $
 **
 ** Global type declarations and definitions
 **
@@ -268,6 +268,18 @@ typedef const char     *pcchar;
 const bool FALSE = 0;
 const bool TRUE = !0;
 #endif
+
+#if defined(QT_STATIC_CONST)
+#error "what happened?  I am dazed and confused."
+#elif defined(_CC_MSVC_)
+// Can't do it.
+#define QT_STATIC_CONST static
+#define QT_STATIC_CONST_IMPL
+#else
+#define QT_STATIC_CONST static const
+#define QT_STATIC_CONST_IMPL const
+#endif
+
 
 
 //

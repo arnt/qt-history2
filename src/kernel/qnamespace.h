@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#5 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#6 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -32,36 +32,27 @@
 class QColor;
 
 
-#if defined(QT_MAYBE_CONST)
-#error "what happened?  I am dazed and confused."
-#elif defined(_CC_MSVC_)
-#define QT_MAYBE_CONST
-#else
-#define QT_MAYBE_CONST const
-#endif
-
-
 class Q_EXPORT Qt {
 public:
-    static QT_MAYBE_CONST QColor & color0;
-    static QT_MAYBE_CONST QColor & color1;
-    static QT_MAYBE_CONST QColor & black;
-    static QT_MAYBE_CONST QColor & white;
-    static QT_MAYBE_CONST QColor & darkGray;
-    static QT_MAYBE_CONST QColor & gray;
-    static QT_MAYBE_CONST QColor & lightGray;
-    static QT_MAYBE_CONST QColor & red;
-    static QT_MAYBE_CONST QColor & green;
-    static QT_MAYBE_CONST QColor & blue;
-    static QT_MAYBE_CONST QColor & cyan;
-    static QT_MAYBE_CONST QColor & magenta;
-    static QT_MAYBE_CONST QColor & yellow;
-    static QT_MAYBE_CONST QColor & darkRed;
-    static QT_MAYBE_CONST QColor & darkGreen;
-    static QT_MAYBE_CONST QColor & darkBlue;
-    static QT_MAYBE_CONST QColor & darkCyan;
-    static QT_MAYBE_CONST QColor & darkMagenta;
-    static QT_MAYBE_CONST QColor & darkYellow;
+    QT_STATIC_CONST QColor & color0;
+    QT_STATIC_CONST QColor & color1;
+    QT_STATIC_CONST QColor & black;
+    QT_STATIC_CONST QColor & white;
+    QT_STATIC_CONST QColor & darkGray;
+    QT_STATIC_CONST QColor & gray;
+    QT_STATIC_CONST QColor & lightGray;
+    QT_STATIC_CONST QColor & red;
+    QT_STATIC_CONST QColor & green;
+    QT_STATIC_CONST QColor & blue;
+    QT_STATIC_CONST QColor & cyan;
+    QT_STATIC_CONST QColor & magenta;
+    QT_STATIC_CONST QColor & yellow;
+    QT_STATIC_CONST QColor & darkRed;
+    QT_STATIC_CONST QColor & darkGreen;
+    QT_STATIC_CONST QColor & darkBlue;
+    QT_STATIC_CONST QColor & darkCyan;
+    QT_STATIC_CONST QColor & darkMagenta;
+    QT_STATIC_CONST QColor & darkYellow;
 
     enum ButtonState {				// mouse/keyboard state values
 	NoButton	= 0x00,
