@@ -998,8 +998,8 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 	if(!pat->im) {
 	    pat->im = new QMacPattern::ImageConv;
 	    pat->im->colorspace = 0;
-	    pat->im->provider = CGDataProviderCreateWithData(0, pat->mask.bytes, w*h, 0);
-	    pat->im->image = CGImageMaskCreate(w, h, 1, 1, w, pat->im->provider, 0, false);
+	    pat->im->provider = CGDataProviderCreateWithData(0, pat->mask.bytes, w, 0);
+	    pat->im->image = CGImageMaskCreate(w, h, 1, 1, w/8, pat->im->provider, 0, false);
 	}
     } else {
 	w = pat->pixmap->width();
@@ -1214,7 +1214,6 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
 	    height = qpattern->pixmap->height();
 	} else {
 	    qpattern->as_mask = true;
-	    qpattern->mask.bytes = pat_tbl[bs-Dense1Pattern];
 	    if(bs<=Dense7Pattern)
 		qpattern->mask.byte_per_line = 8;
 	    else if(bs<=CrossPattern)
@@ -1222,6 +1221,7 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
 	    else
 		qpattern->mask.byte_per_line = 16;
 	    width = height = qpattern->mask.byte_per_line;
+	    qpattern->mask.bytes = pat_tbl[bs-Dense1Pattern];
 	}
 
 	CGColorSpaceRef fill_colorspace = CGColorSpaceCreatePattern(0);
