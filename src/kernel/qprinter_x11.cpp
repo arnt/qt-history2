@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#5 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -20,7 +20,7 @@
 #include <unistd.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#5 $";
 #endif
 
 
@@ -109,11 +109,9 @@ bool QPrinter::aborted() const
 
   Returns TRUE if the user pressed "Ok" to print, or FALSE if the
   user cancelled the operation.
-
-  \warning Not yet fully implemented for X-Windows.
  ----------------------------------------------------------------------------*/
 
-bool QPrinter::select( QWidget *parent )
+bool QPrinter::setup( QWidget *parent )
 {
     QPrintDialog prndlg( this, parent );
     return prndlg.exec() == QDialog::Accepted;
@@ -204,4 +202,51 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	}
     }
     return FALSE;
+}
+
+
+/*!
+  Internal implementation of the virtual QPaintDevice::metric() function.
+
+  Use the QPaintDeviceMetrics class instead.
+
+  \internal
+  Hard coded return values for PostScrip under X.
+*/
+
+long QPrinter::metric( int m ) const
+{
+    long val;
+    PageSize s = pageSize();
+    ASSERT( s >= A4 && s <= Executive );
+    static int widths[]  = { 559, 480, 576, 576, 504 };
+    static int heights[] = { 806, 693, 756, 972, 684 };
+    static int widthsMM[]  = { 210, 182, 216, 216, 191 };
+    static int heightsMM[] = { 297, 257, 279, 356, 254 };
+    switch ( m ) {
+        case PDM_WIDTH:
+	    val = widths[ s ];
+	    break;
+	case PDM_HEIGHT:
+	    val = heights[ s ];
+	    break;
+	case PDM_WIDTHMM:
+	    val = widthsMM[ s ];
+	    break;
+	case PDM_HEIGHTMM:
+	    val = heightsMM[ s ];
+	    break;
+	case PDM_NUMCOLORS:
+	    val = 16777216;
+	    break;
+	case PDM_DEPTH:
+	    val = 24;
+	    break;
+	default:
+	    val = 0;
+#if defined(CHECK_RANGE)
+	    warning( "QPixmap::metric: Invalid metric command" );
+#endif
+    }
+    return val;
 }
