@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#116 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -765,19 +765,20 @@ int QFontMetrics::width( const QString &str, int len ) const
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
+    if ( len < 0 )
+	len = str.length();
+
     int cx = width(str,len);
 
     int l = len ? leftBearing(str[0]) : 0;
     int r = len ? -rightBearing(str[len-1]) : 0;
     // To be safer, check bearings of next-to-end characters too.
-    /* ### eaa: trenger aa fikse noe her.
     if (len > 1 ) {
 	int newl = width(str[0])+leftBearing(str[1]);
 	int newr = -width(str[len-1])-rightBearing(str[len-2]);
 	if ( newl < l ) l = newl;
 	if ( newr > r ) r = newr;
     }
-    */
     TEXTMETRICA *tm = TMX;
     return QRect(l, -tm->tmAscent, cx+r-l, tm->tmAscent+tm->tmDescent);
 }
@@ -785,7 +786,12 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
 HDC QFontMetrics::hdc() const
 {
-    return painter ? painter->handle() : fin->dc();
+    if ( painter ) {
+	painter->textMetric(); // ensure font is up-to-date
+	return painter->handle();
+    } else {
+	return fin->dc();
+    }
 }
 
 int QFontMetrics::maxWidth() const
