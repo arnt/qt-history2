@@ -344,18 +344,20 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	if(!d->isEnabled())
 	    DisableMenuItem(ret, 0);
 	SetMenuExcludesMarkColumn(ret, !d->isCheckable());
-	for(int id = 1, x = 0; x < (int)d->count(); x++) {
+	int id = 1, index = 0;
+	for(QMenuItemListIt it(*d->mitems); it.current(); ++it, ++index) {
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
 	    if(activeMenuBar->mac_d->commands) {
 		bool found = FALSE;
-		QIntDictIterator<QMenuBar::MacPrivate::CommandBinding> it(*(activeMenuBar->mac_d->commands));
-		for(; it.current() && !(found = (it.current()->index == x && it.current()->qpopup == d)); ++it);
+		for(QIntDictIterator<QMenuBar::MacPrivate::CommandBinding> cmd_it(*(activeMenuBar->mac_d->commands));
+		    cmd_it.current() && !found; ++cmd_it)
+		    found = (cmd_it.current()->index == index && cmd_it.current()->qpopup == d);
 		if(found)
 		    continue;
 	    }
 #endif
-	    QMenuItem *item = d->findItem(d->idAt(x));
 
+	    QMenuItem *item = (*it);
 #if defined(QMAC_QMENUBAR_NO_EVENT)
 	    if(item->custom())
 		continue;
@@ -374,7 +376,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 			activeMenuBar->mac_d->commands->setAutoDelete(TRUE);
 		    }
 		    activeMenuBar->mac_d->commands->insert(cmd,
-							   new QMenuBar::MacPrivate::CommandBinding(d, x));
+							   new QMenuBar::MacPrivate::CommandBinding(d, index));
 		    continue;
 		}
 #endif
@@ -386,10 +388,17 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		}
 	    }
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
-	    else if(x != (int)d->count()-1 &&
-		    ((x == (int)d->count() - 2 || d->findItem(d->idAt(x+2))->isSeparator()) &&
-		     isCommand(d->findItem(d->idAt(x+1)), TRUE)))
-		continue;
+	    else if(!it.atLast()) {
+		QMenuItemListIt it2 = it;
+		++it2;
+		if(isCommand((*it2))) {
+		    if(it2.atLast()) 
+			continue;
+		    ++it2;
+		    if((*it2)->isSeparator()) 
+			continue;
+		}
+	    }
 #endif
 
 	    MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
