@@ -275,8 +275,8 @@ static GC*	app_gc_ro_m	= 0;		// read-only GC (monochrome)
 static GC*	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
 Atom		qt_wm_protocols		= 0;	// window manager protocols
 Atom		qt_wm_delete_window	= 0;	// delete window protocol
-Atom 		qt_wm_take_focus	= 0;	// take focus window protocol
-static Atom	qt_qt_scrolldone 	= 0;	// scroll synchronization
+Atom		qt_wm_take_focus	= 0;	// take focus window protocol
+static Atom	qt_qt_scrolldone	= 0;	// scroll synchronization
 Atom		qt_net_wm_context_help	= 0;	// context help
 
 static Atom	qt_xsetroot_id		= 0;
@@ -285,19 +285,19 @@ Atom		qt_selection_property	= 0;
 Atom            qt_clipboard_sentinel   = 0;
 Atom		qt_selection_sentinel	= 0;
 Atom		qt_wm_state		= 0;
-static Atom 	qt_desktop_properties	= 0;	// Qt desktop properties
+static Atom	qt_desktop_properties	= 0;	// Qt desktop properties
 static Atom     qt_desktop_prop_stamp   = 0;    // Qt desktop properties timestamp
-static Atom 	qt_input_encoding 		= 0;	// Qt desktop properties
-static Atom 	qt_resource_manager	= 0;	// X11 Resource manager
-Atom 		qt_sizegrip		= 0;	// sizegrip
-Atom 		qt_wm_client_leader	= 0;
-Atom 		qt_window_role		= 0;
-Atom 		qt_sm_client_id		= 0;
-Atom 		qt_xa_motif_wm_hints	= 0;
-Atom 		qt_kwin_running	= 0;
-Atom 		qt_kwm_running	= 0;
-Atom 		qt_gbackground_properties	= 0;
-Atom 		qt_x_incr		= 0;
+static Atom	qt_input_encoding		= 0;	// Qt desktop properties
+static Atom	qt_resource_manager	= 0;	// X11 Resource manager
+Atom		qt_sizegrip		= 0;	// sizegrip
+Atom		qt_wm_client_leader	= 0;
+Atom		qt_window_role		= 0;
+Atom		qt_sm_client_id		= 0;
+Atom		qt_xa_motif_wm_hints	= 0;
+Atom		qt_kwin_running	= 0;
+Atom		qt_kwm_running	= 0;
+Atom		qt_gbackground_properties	= 0;
+Atom		qt_x_incr		= 0;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -379,8 +379,8 @@ static void	initTimers();
 static void	cleanupTimers();
 static timeval	watchtime;			// watch if time is turned back
 timeval		*qt_wait_timer();
-timeval 	*qt_wait_timer_max = 0;
-int 		qt_activate_timers();
+timeval	*qt_wait_timer_max = 0;
+int		qt_activate_timers();
 
 #if !defined(NO_XIM)
 XIM	qt_xim = 0;
@@ -944,7 +944,7 @@ static bool qt_set_desktop_properties()
 
 	QPalette pal;
 	QFont font;
-   	d >> pal >> font;
+	d >> pal >> font;
 
 	if (pal != *qt_std_pal && pal != QApplication::palette())
 	    QApplication::setPalette(pal, TRUE);
@@ -1776,10 +1776,12 @@ void qt_cleanup()
     if ( app_save_rootinfo )			// root window must keep state
 	qt_save_rootinfo();
     cleanupTimers();
-    QPixmapCache::clear();
-    QPainter::cleanup();
-    QFont::cleanup();
-    QColor::cleanup();
+    if ( qt_is_gui_used ) {
+	QPixmapCache::clear();
+	QPainter::cleanup();
+	QFont::cleanup();
+	QColor::cleanup();
+    }
 
 #if !defined(NO_XIM)
     if ( qt_xim )
@@ -1934,19 +1936,19 @@ QWidget *QApplication::desktop( int screen )
   \code
     class MyPrivateInitStuff: public QObject {
     private:
-        MyPrivateInitStuff( QObject * parent ): QObject( parent) {
+	MyPrivateInitStuff( QObject * parent ): QObject( parent) {
 	    // initialization goes here
 	}
 	MyPrivateInitStuff * p;
 
     public:
-        static MyPrivateInitStuff * initStuff( QObject * parent ) {
+	static MyPrivateInitStuff * initStuff( QObject * parent ) {
 	    if ( !p )
-	        p = new MyPrivateInitStuff( parent );
+		p = new MyPrivateInitStuff( parent );
 	    return p;
 	}
 
-        ~MyPrivateInitStuff() {
+	~MyPrivateInitStuff() {
 	    // cleanup (the "post routine") goes here
 	}
     }
@@ -1990,9 +1992,9 @@ void clean_post_routines(void *obj, unsigned long len, const char *name) {
     unsigned long objl = (unsigned long) obj, ptrl;
 
     while ((post = post_it.current()) != 0) {
-    	++post_it;
+	++post_it;
 
- 	ptrl = (unsigned long) post;
+	ptrl = (unsigned long) post;
 
 	if (ptrl >= objl && ptrl <= (objl + len)) {
 	    qDebug("clean_post_routines: cleaning post routine for '%s'", name);
@@ -2815,7 +2817,7 @@ bool QApplication::processNextEvent( bool canWait )
     if (qt_is_gui_used ) {
 	sendPostedEvents();
 
-       	// Two loops so that posted events accumulate
+	// Two loops so that posted events accumulate
 	while ( XPending(appDpy) ) {
 	    while ( XPending(appDpy) ) {	// also flushes output buffer
 		if ( app_exit_loop ) {          // quit between events
@@ -3063,7 +3065,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    if ( focus_widget )
 		keywidget = (QETWidget*)focus_widget;
 	    else if ( inPopupMode() )
- 		widget = (QETWidget*) activePopupWidget();
+		widget = (QETWidget*) activePopupWidget();
 	    if ( !keywidget && widget )
 		keywidget = widget->focusWidget()?(QETWidget*)widget->focusWidget():widget;
 	}
@@ -3131,8 +3133,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	} else {
 	    void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
- 	    if ( !activeModalWidget() ||
- 		 ( event->type != ButtonRelease &&
+	    if ( !activeModalWidget() ||
+		 ( event->type != ButtonRelease &&
 		   event->type != ButtonPress &&
 		   event->type != MotionNotify &&
 		   event->type != XKeyPress &&
@@ -3184,9 +3186,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case XFocusIn: {				// got focus
 	if ( widget == desktop() )
 	    break;
- 	if ( inPopupMode() ) // some delayed focus event to ignore
- 	    break;
- 	if ( !widget->isTopLevel() )
+	if ( inPopupMode() ) // some delayed focus event to ignore
+	    break;
+	if ( !widget->isTopLevel() )
 	    break;
 	if ( event->xfocus.mode != NotifyNormal )
 	    break;
@@ -3201,7 +3203,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case XFocusOut:				// lost focus
 	if ( widget == desktop() )
 	    break;
- 	if ( !widget->isTopLevel() )
+	if ( !widget->isTopLevel() )
 	    break;
 	if ( event->xfocus.mode != NotifyNormal )
 	    break;
@@ -3217,8 +3219,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	qt_x_time = event->xcrossing.time;
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
- 	if ( inPopupMode() && widget->topLevelWidget() != activePopupWidget() )
- 	    break;
+	if ( inPopupMode() && widget->topLevelWidget() != activePopupWidget() )
+	    break;
 	if ( event->xcrossing.mode != NotifyNormal ||
 	     event->xcrossing.detail == NotifyVirtual  ||
 	     event->xcrossing.detail == NotifyNonlinearVirtual )
@@ -3312,17 +3314,17 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		QRect& r = widget->crect;
 		QRect frect ( r );
 
- 		// help OL(V)WM to get things right: they sometimes
- 		// need a little bit longer, i.e. both a and x/y may
- 		// contain bogus values at this point in time.
- 		int count = 0;
- 		while ( count < 10 && a.x == 0 && a.y == 0 && ( a.width < r.width() || a.height < r.height() ) ) {
- 		    count++;
- 		    QApplication::syncX();
- 		    qt_ignore_badwindow();
- 		    XGetWindowAttributes( widget->x11Display(), parent, &a );
- 		    if (qt_badwindow())
- 			break;
+		// help OL(V)WM to get things right: they sometimes
+		// need a little bit longer, i.e. both a and x/y may
+		// contain bogus values at this point in time.
+		int count = 0;
+		while ( count < 10 && a.x == 0 && a.y == 0 && ( a.width < r.width() || a.height < r.height() ) ) {
+		    count++;
+		    QApplication::syncX();
+		    qt_ignore_badwindow();
+		    XGetWindowAttributes( widget->x11Display(), parent, &a );
+		    if (qt_badwindow())
+			break;
 		}
 
 		if ( x <= 4 && y <= 4 && a.width <= r.width()+8 && a.height <= r.height()+8 ) {
@@ -4165,7 +4167,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		type = QEvent::MouseButtonPress;
 		mouseButtonPressTime = event->xbutton.time;
 	    }
-	    mouseButtonPressed = button; 	// save event params for
+	    mouseButtonPressed = button;	// save event params for
 	    mouseXPos = pos.x();		// future double click tests
 	    mouseYPos = pos.y();
 	    mouseGlobalXPos = globalPos.x();
