@@ -343,12 +343,8 @@ uint QColor::alloc()
 {
     Display *dpy = QPaintDevice::x11AppDisplay();
     int      scr = QPaintDevice::x11AppScreen();
-    if ( colormodel == d8 && d.d8.invalid || !color_init ) {
-	d.d8.invalid = FALSE;
-	d.d8.dirty = FALSE;
-	d.d8.pix = dpy ? (uint)BlackPixel(dpy, scr) : 0;
-	return d.d8.pix;
-    }
+    if ( !color_init )
+	return dpy ? (uint)BlackPixel(dpy, scr) : 0;
     int r = qRed(d.argb);
     int g = qGreen(d.argb);
     int b = qBlue(d.argb);

@@ -145,7 +145,7 @@ uint QColor::alloc()
 	return d.d8.pix = qGray(r,g,b) < 128 ? 1 : 0;
 #if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
       } case 16: {
-	return d.d16.pix = qt_convRgbTo16(d.argb);
+	return d.d32.pix = qt_convRgbTo16(d.argb);
 #endif	
       } case 24:
         case 32: {

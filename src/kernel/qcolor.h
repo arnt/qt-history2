@@ -141,7 +141,8 @@ private:
 #if defined(Q_WS_WIN)
     static HPALETTE hpal;
 #endif
-    static enum ColorModel { d8, d16, d32 } colormodel;
+    static enum ColorModel { d8, d32 } colormodel;
+    enum { Dirt = 0x44495254, Invalid = 0x494E5641 };
     union {
 	QRgb argb;
 	struct {
@@ -153,19 +154,16 @@ private:
 	} d8;
 	struct {
 	    QRgb argb;
-	    ushort pix;
-	    uchar invalid;
-	} d16;
-	struct {
-	    QRgb argb;
-	    ulong pix; // invalid if they don't match
+	    ulong pix;
+	    bool invalid() const { return argb==Invalid && pix==Dirt; }
+	    bool probablyDirty() const { return pix==Dirt; }
 	} d32;
     } d;
 };
 
 
 inline QColor::QColor()
-{ d.d32.argb = 0; d.d32.pix = 0xffffffff; }
+{ d.d32.argb = Invalid; d.d32.pix = Dirt; }
 
 inline QColor::QColor( int r, int g, int b )
 { setRgb( r, g, b ); }
@@ -190,6 +188,14 @@ inline bool QColor::operator==( const QColor &c ) const
 inline bool QColor::operator!=( const QColor &c ) const
 {
     return !operator==(c);
+}
+
+inline bool QColor::isValid() const
+{
+    if ( colormodel == d8 )
+	return !d.d8.invalid;
+    else
+	return !d.d32.invalid();
 }
 
 

@@ -307,10 +307,6 @@ void QColor::setPixel( uint pixel )
 	d.d8.dirty = FALSE;
 	d.d8.pix = pixel;
 	break;
-    case d16:
-	d.d16.invalid = FALSE;
-	d.d16.pix = pixel;
-	break;
     case d32:
 	d.d32.pix = pixel;
 	break;
@@ -395,6 +391,8 @@ QColor &QColor::operator=( const QColor &c )
 
 
 /*!
+  \fn bool QColor::isValid() const
+
   Returns FALSE if the color is invalid, i.e., it was constructed using the
   default constructor.
 
@@ -402,23 +400,18 @@ QColor &QColor::operator=( const QColor &c )
   as it is slightly slow on Truecolor displays. If you need a "null" QColor,
   it may be better to use q QColor* where possible.
 */
-bool QColor::isValid() const
+
+/*!
+  \internal
+*/
+bool QColor::isDirty() const
 {
-    switch ( colormodel ) {
-      case d8:
-	return !d.d8.invalid;
-      case d16:
-	return !d.d16.invalid;
-      case d32:
-	// not very fast
-	QColor* o = (QColor*)this;
-	uint p = o->d.d32.pix;
-	if ( o->alloc() != p ) {
-	    o->d.d32.pix = p;
-	    return FALSE;
-	}
+    if ( colormodel == d8 ) {
+	return d.d8.dirty;
+    } else {
+	// waste caller's time 1 in a billion times.
+	return d.d32.probablyDirty();
     }
-    return TRUE;
 }
 
 /*!  Returns the name of the color in the format "#RRGGBB", i.e., a
@@ -657,7 +650,7 @@ void QColor::setRgb( int r, int g, int b )
 	d.d8.direct = FALSE;
 	d.d8.dirty = TRUE;
     } else {
-	alloc();				// alloc now
+	d.d32.pix = Dirt;
     }
 }
 
@@ -678,7 +671,7 @@ void QColor::setRgb( QRgb rgb )
 	d.d8.direct = FALSE;
 	d.d8.dirty = TRUE;
     } else {
-	alloc();				// alloc now
+	d.d32.pix = Dirt;
     }
 }
 
@@ -791,15 +784,12 @@ QColor QColor::dark( int factor ) const
 */
 uint QColor::pixel() const
 {
-    switch ( colormodel ) {
-      case d8:
-	return d.d8.dirty ? ((QColor*)this)->alloc() : d.d8.pix;
-      case d16:
-	return d.d16.pix;
-      case d32:
+    if ( isDirty() )
+	return ((QColor*)this)->alloc();
+    else if ( colormodel == d8 )
+	return d.d8.pix;
+    else
 	return d.d32.pix;
-    }
-    return 0;
 }
 
 
