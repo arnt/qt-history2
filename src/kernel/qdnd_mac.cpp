@@ -511,6 +511,12 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     }
     if(object == o)
 	return FALSE;
+#if 1
+    /* At the moment it seems clear that Mac OS X does not want to drag with a non-left button
+       so we just bail early to prevent it, however we need to find a better solution! FIXME! */
+    if(!(GetCurrentEventButtonState() & 0x1))
+	return FALSE;
+#endif
 
     if(object) {
 	cancel();
@@ -604,9 +610,12 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     //so we must fake an event
     EventRecord fakeEvent;
     GetGlobalMouse(&(fakeEvent.where));
+    fakeEvent.message = 0;
     fakeEvent.what = mouseDown;
-    fakeEvent.when = GetDblTime();
-    fakeEvent.modifiers = 0;
+    fakeEvent.when = EventTimeToTicks(GetCurrentEventTime());
+    fakeEvent.modifiers = GetCurrentKeyModifiers();
+    if(GetCurrentEventButtonState() & 2)
+	fakeEvent.modifiers |= controlKey;
 
     Rect boundsRect;
     Point boundsPoint;
@@ -665,11 +674,11 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     acceptact = FALSE;
     drag_received = FALSE;
     qt_mac_in_drag = TRUE;
-    //kick off the drag by calling the callback ourselves first..
     if(!widget->extraData()->macDndExtra) //never too late I suppose..
 	qt_macdnd_register(widget,  widget->extraData());
     set_drag_mode = mode;
     updateDragMode(theDrag);
+    //kick off the drag by calling the callback ourselves first..
     qt_mac_tracking_handler(kDragTrackingEnterWindow, (WindowPtr)widget->hd,
 			     (void *)widget->extraData()->macDndExtra, theDrag);
     //now let the mac take control..
@@ -753,12 +762,12 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
 {
     if(theMessage != kDragTrackingEnterWindow && theMessage != kDragTrackingLeaveWindow &&
        theMessage != kDragTrackingInWindow) {
-	return 1;
+	return noErr;
     } else if(!theDrag) {
 	qDebug("Qt: internal: DragReference null %s %d", __FILE__, __LINE__);
 	return 1;
     } else if(qt_mac_in_drag && drag_received) { //ignore these
-	return 0;
+	return noErr;
     }
     updateDragMode(theDrag);
     Point mouse;
@@ -861,7 +870,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
 	QApplication::sendPostedEvents();
 	QApplication::flush();
     }
-    return 0;
+    return noErr;
 }
 static DragTrackingHandlerUPP qt_mac_tracking_handlerUPP = NULL;
 static void cleanup_dnd_trackingUPP() 
