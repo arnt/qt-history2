@@ -809,6 +809,8 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
             this_score += 100;
         if (!style->smoothScalable && px != size->pixelSize) // bitmap scaled
             this_score += 50;
+        if (px != pixelSize) // close, but not exact, size match
+            this_score += 20;
 
         if (this_score < score) {
             FM_DEBUG("          found a match: score %u best score so far %u",
