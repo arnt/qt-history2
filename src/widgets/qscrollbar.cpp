@@ -265,7 +265,7 @@ void QScrollBar::init()
 
 void QScrollBar::setOrientation( Orientation orientation )
 {
-    if ( (uint) orientation == orient )
+    if ( orientation == orient )
 	return;
 
     QSizePolicy pol = sizePolicy();

@@ -59,7 +59,7 @@ class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
     Q_PROPERTY( bool tracking READ tracking WRITE setTracking )
     Q_PROPERTY( bool draggingSlider READ draggingSlider )
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
-	
+
 public:
     QScrollBar( QWidget *parent, const char *name=0 );
     QScrollBar( Orientation, QWidget *parent, const char *name=0 );
@@ -144,11 +144,11 @@ private:
     void drawControls( uint controls, uint activeControl ) const;
     void drawControls( uint controls, uint activeControl,
 				QPainter *p ) const;
-    
-    uint pressedControl	 : 8;
-    uint track		 : 1;
-    uint clickedAt	 : 1;
-    uint orient		 : 1;
+
+    uint pressedControl : 8;
+    uint track		: 1;
+    uint clickedAt	: 1;
+    Orientation orient;
 
     int slidePrevVal;
     QCOORD sliderPos;
@@ -177,7 +177,7 @@ inline bool QScrollBar::tracking() const
 
 inline QScrollBar::Orientation QScrollBar::orientation() const
 {
-    return (Orientation)orient;
+    return orient;
 }
 
 inline int QScrollBar::sliderStart() const
