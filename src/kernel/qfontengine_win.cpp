@@ -172,6 +172,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 {
     Q_UNUSED( p );
     HDC hdc = dc();
+    SelectObject( hdc, hfont );
     unsigned int options = ETO_NUMERICSLATIN;
     if ( ttf )
 	options |= ETO_GLYPH_INDEX;

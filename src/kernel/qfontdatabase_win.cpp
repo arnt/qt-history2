@@ -35,6 +35,7 @@ extern HDC   shared_dc;		// common dc for all fonts
 extern HFONT stock_sysfont  = 0;
 
 // #define QFONTDATABASE_DEBUG
+#define FONT_MATCH_DEBUG
 
 // see the Unicode subset bitfields in the MSDN docs
 static int requiredUnicodeBits[QFont::NScripts][2] = {
@@ -1024,9 +1025,12 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 #ifdef Q_WS_X11
 	 || best_size == 0 || best_encoding == 0 
 #endif
-	 )
+	 ) {
+#ifdef FONT_MATCH_DEBUG
+	qDebug( "  No matching font found" );
+#endif
 	return 0;
-
+    }
 #ifdef FONT_MATCH_DEBUG
     qDebug( "  BEST:\n"
 	    "    family: %s [%s]\n"
@@ -1037,7 +1041,13 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 	    best_family->name.latin1(),
 	    best_foundry->name.isEmpty() ? "-- none --" : best_foundry->name.latin1(),
 	    best_style->key.weight, best_style->key.italic, best_style->key.oblique,
-	    best_style->key.stretch, best_size->pixelSize, best_encoding->pitch );
+	    best_style->key.stretch, best_size ? best_size->pixelSize : 0xffff, 
+#ifdef Q_WS_X11
+	    best_encoding->pitch 
+#else
+	    'p'
+#endif
+	    );
 #endif // FONT_MATCH_DEBUG
 
     fe = loadEngine( script, request, best_family, best_foundry, best_style

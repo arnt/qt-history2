@@ -596,14 +596,15 @@ QShapedItem *QTextEngine::shape( int item ) const
     if ( !si.shaped )
 	si.shaped = new QShapedItem();
 
-    // ### fix script
-    if ( !si.fontEngine )
-	si.fontEngine = fnt->engineForScript( QFont::NoScript );
-    si.fontEngine->ref();
-    if ( si.fontEngine->type() == QFontEngine::Box ) {
-	// ######## fixme
-
-
+    if ( !si.fontEngine ) {
+	if ( hasUsp10 ) {
+	    const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
+	    script = scriptForWinLanguage( script_prop->langid );
+	} 
+	si.fontEngine = fnt->engineForScript( script );
+	if ( si.fontEngine->type() == QFontEngine::Box )
+	    si.fontEngine = fnt->engineForScript( QFont::NoScript );
+	si.fontEngine->ref();
     }
 
     if ( hasUsp10 ) {
@@ -611,26 +612,43 @@ QShapedItem *QTextEngine::shape( int item ) const
 	si.analysis.logicalOrder = TRUE;
 	HRESULT res = E_OUTOFMEMORY;
 	bool scriptChanged = FALSE;
+	HDC hdc = 0;
 	do {
 	    shaped_allocate( &si, l );
-	    res = ScriptShape( si.fontEngine->dc(), &si.fontEngine->script_cache, (WCHAR *)string.unicode() + from, len, 
+	    res = ScriptShape( hdc, &si.fontEngine->script_cache, (WCHAR *)string.unicode() + from, len, 
 			       l, &si.analysis, si.shaped->glyphs, si.shaped->logClusters, si.shaped->glyphAttributes, 
 			       &si.shaped->num_glyphs );
-	    if ( res == USP_E_SCRIPT_NOT_IN_FONT ) {
+	    if ( res == E_PENDING ) {
+		hdc = si.fontEngine->dc();
+		SelectObject( hdc, si.fontEngine->hfont );
+	    } else if ( res == USP_E_SCRIPT_NOT_IN_FONT ) {
 		const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
-		QFont::Script script = scriptForWinLanguage( script_prop->langid );
+		script = scriptForWinLanguage( script_prop->langid );
 		if ( scriptChanged || script == QFont::NScripts )
 		    si.analysis.script = 0;
-		 // ##### FIXME
+		else {
+		    si.fontEngine->deref();
+		    fnt->engineForScript( script );
+		    if ( si.fontEngine->type() == QFontEngine::Box )
+			si.fontEngine = fnt->engineForScript( QFont::NoScript );
+		    si.fontEngine->ref();
+		}
 		scriptChanged = true;
+		hdc = 0;
 	    } else {
 		l += 32;
 	    }
 	} while( res != S_OK );
 
 	ABC abc;
-	ScriptPlace( si.fontEngine->dc(), &si.fontEngine->script_cache, si.shaped->glyphs, si.shaped->num_glyphs, 
-		     si.shaped->glyphAttributes, &si.analysis, si.shaped->advances, si.shaped->offsets, &abc );
+	res = ScriptPlace( hdc, &si.fontEngine->script_cache, si.shaped->glyphs, si.shaped->num_glyphs, 
+		           si.shaped->glyphAttributes, &si.analysis, si.shaped->advances, si.shaped->offsets, &abc );
+	if ( res == E_PENDING ) {
+	    hdc = si.fontEngine->dc();
+	    SelectObject( hdc, si.fontEngine->hfont );
+	    ScriptPlace( hdc, &si.fontEngine->script_cache, si.shaped->glyphs, si.shaped->num_glyphs, 
+			 si.shaped->glyphAttributes, &si.analysis, si.shaped->advances, si.shaped->offsets, &abc );
+	}
 	si.ascent = si.fontEngine->ascent();
 	si.descent = si.fontEngine->descent();
 	si.width = abc.abcA + abc.abcB + abc.abcC;

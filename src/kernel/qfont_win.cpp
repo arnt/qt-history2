@@ -136,6 +136,7 @@ void QFont::cleanup()
 
 void QFontPrivate::load( QFont::Script script )
 {
+    qDebug("trying to load font for script %d", script );
 #ifdef QT_CHECK_STATE
     // sanity checks
     Q_ASSERT( QFontCache::instance != 0);
@@ -189,7 +190,7 @@ void QFontPrivate::load( QFont::Script script )
     for ( ; ! engine && it != end; ++it ) {
 	req.family = *it;
 
-#ifdef Q_WS_X11
+#if defined( Q_WS_X11 ) || defined (Q_WS_WIN )
 	QFontCache::Key key( req, script, screen );
 #else
 	QFontCache::Key key( req, QFont::NoScript, screen );
