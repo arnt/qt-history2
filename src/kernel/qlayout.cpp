@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#100 $
 **
 ** Implementation of layout classes
 **
@@ -1236,7 +1236,7 @@ void QGridLayout::addColSpacing( int col, int minsize )
   Returns the expansiveness of this layout
 */
 
-QSizePolicy::ExpandData QGridLayout::expanding()
+QSizePolicy::ExpandData QGridLayout::expanding() const
 {
     return array->expanding();
 }
@@ -1485,7 +1485,7 @@ QLayoutIterator QBoxLayout::iterator()
   Returns the expansiveness of this layout
 */
 
-QSizePolicy::ExpandData QBoxLayout::expanding()
+QSizePolicy::ExpandData QBoxLayout::expanding() const
 {
     return data->expanding();
 }

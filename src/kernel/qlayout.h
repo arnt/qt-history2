@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#41 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#42 $
 **
 ** Definition of layout classes
 **
@@ -59,7 +59,7 @@ public:
     int heightForWidth( int ) const;
 
 
-    QSizePolicy::ExpandData expanding();
+    QSizePolicy::ExpandData expanding() const;
     void invalidate();
 
     void addItem( QLayoutItem * );
@@ -133,7 +133,7 @@ public:
     bool hasHeightForWidth() const;
     int heightForWidth( int ) const;
 
-    QSizePolicy::ExpandData expanding();
+    QSizePolicy::ExpandData expanding() const;
     void invalidate();
     QLayoutIterator iterator();
     void setGeometry( const QRect& );
