@@ -16,6 +16,7 @@
 #include "qdatetime.h"
 #include "qdatastream.h"
 #include "qregexp.h"
+#include "qdebug.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2853,3 +2854,26 @@ QDataStream &operator>>(QDataStream &in, QDateTime &dt)
     Use the currentDateTime() overload that takes no parameters
     instead.
 */
+
+#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QDate &date)
+{
+    dbg.nospace() << "QDate(" << date.toString() << ")";
+    return dbg.space();
+}
+
+QDebug operator<<(QDebug dbg, const QTime &time)
+{
+    dbg.nospace() << "QTime(" << time.toString() << ")";
+    return dbg.space();
+}
+
+QDebug operator<<(QDebug dbg, const QDateTime &date)
+{
+    dbg.nospace() << "QDateTime(" << date.toString() << ")";
+    return dbg.space();
+}
+#endif
+#endif
+
