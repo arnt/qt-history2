@@ -617,7 +617,9 @@ void PopupMenuEditor::remove( int index )
 PopupMenuEditorItem * PopupMenuEditor::createItem( QAction * a )
 {
     ActionEditor * ae = (ActionEditor *) formWindow()->mainWindow()->child( 0, "ActionEditor" );
-    PopupMenuEditorItem * i = new PopupMenuEditorItem( a ? a : ae->newActionEx(), this );
+    if ( !a )
+	a = ae->newActionEx();
+    PopupMenuEditorItem * i = new PopupMenuEditorItem( a, this );
     QString n = QString( a->name() ) + "Item";
     formWindow()->unify( i, n, FALSE );
     i->setName( n );
