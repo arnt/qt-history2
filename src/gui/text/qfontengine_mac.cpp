@@ -751,22 +751,21 @@ QFontEngine::FECaps QFontEngineBox::capabilites() const
 }
 
 bool QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs,
-                                                int *nglyphs, QTextEngine::ShaperFlags) const
+                                  int *nglyphs, QTextEngine::ShaperFlags) const
 {
     if(*nglyphs < len) {
         *nglyphs = len;
         return false;
     }
 
-    for(int i = 0; i < len; i++)
-        glyphs[i].glyph = 0;
-    *nglyphs = len;
+    memset(glyphs, 0, len * sizeof(QGlyphLayout));
 
     for(int i = 0; i < len; i++) {
-        (glyphs++)->advance.rx() = _size;
-        (glyphs++)->advance.ry() = 0;
+        glyphs[i].advance.rx() = _size;
+        glyphs[i].advance.ry() = 0;
     }
 
+    *nglyphs = len;
     return true;
 }
 
