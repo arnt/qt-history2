@@ -145,7 +145,8 @@ public:
     QChar mirroredChar() const;
     QString decomposition() const;
     Decomposition decompositionTag() const;
-
+    unsigned char combiningClass() const;
+    
     char latin1() const { return rw ? 0 : cl; }
     ushort unicode() const { return (rw << 8) | cl; }
 #ifndef QT_NO_CAST_ASCII
@@ -600,6 +601,7 @@ public:
     QChar mirroredChar() const { return s.constref(p).mirroredChar(); }
     QString decomposition() const { return s.constref(p).decomposition(); }
     QChar::Decomposition decompositionTag() const { return s.constref(p).decompositionTag(); }
+    unsigned char combiningClass() const { return s.constref(p).combiningClass(); }
 
     // Not the non-const ones of these.
     uchar cell() const { return s.constref(p).cell(); }
