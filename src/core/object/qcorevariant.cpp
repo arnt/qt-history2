@@ -143,6 +143,10 @@ static void construct(QCoreVariant::Private *x, const void *v)
 	case QCoreVariant::ULongLong:
 	    x->value.ull = *static_cast<const Q_ULLONG *>(v);
 	    break;
+	case QCoreVariant::UserType:
+	    x->value.ptr = new QCoreVariant::UserData(static_cast<const QCoreVariant::UserData*>(v)->data(),
+		static_cast<const QCoreVariant::UserData*>(v)->description());
+	    break;
 	case QCoreVariant::Invalid:
 	    break;
 	default:
@@ -200,6 +204,9 @@ static void construct(QCoreVariant::Private *x, const void *v)
 	case QCoreVariant::ULongLong:
 	    x->value.ull = Q_ULLONG(0);
 	    break;
+	case QCoreVariant::UserType:
+	    x->value.ptr = new QCoreVariant::UserData(0, 0);
+	    break;
 	default:
 	    Q_ASSERT( 0 );
 	}
@@ -244,6 +251,9 @@ static void clear(QCoreVariant::Private *p)
 	break;
     case QCoreVariant::BitArray:
 	QCLEAR(QBitArray);
+	break;
+    case QCoreVariant::UserType:
+	delete static_cast<QCoreVariant::UserData*>(p->value.ptr);
 	break;
     case QCoreVariant::Invalid:
     case QCoreVariant::Int:
@@ -299,6 +309,7 @@ static bool isNull(const QCoreVariant::Private *d)
     case QCoreVariant::ULongLong:
     case QCoreVariant::Bool:
     case QCoreVariant::Double:
+    case QCoreVariant::UserType:
 	break;
     default:
 	qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
@@ -374,6 +385,9 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
     case QCoreVariant::BitArray:
 	QLOAD(QBitArray);
 	break;
+    case QCoreVariant::UserType:
+	qFatal("QCoreVariant cannot read user data from stream!");
+	break;
     default:
 	qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
     }
@@ -437,6 +451,9 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
 	break;
     case QCoreVariant::Invalid:
 	s << QString();
+	break;
+    case QCoreVariant::UserType:
+	qFatal("QCoreVariant cannot write user data to stream!");
 	break;
     default:
 	qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
@@ -502,6 +519,9 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
 	QCOMPARE(QBitArray);
     case QCoreVariant::Invalid:
         return true;
+	break;
+    case QCoreVariant::UserType:
+	QCOMPARE(QCoreVariant::UserData);
 	break;
     default:
 	qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
@@ -1285,7 +1305,7 @@ void QCoreVariant::clear()
 
    (Search for the word 'Attention' in moc.y.)
 */
-static const int ntypes = 35;
+enum { ntypes = 36 };
 static const char* const type_map[ntypes] =
 {
     0,
@@ -1326,7 +1346,8 @@ static const char* const type_map[ntypes] =
     "QKeySequence",
     "QPen",
     "Q_LLONG",
-    "Q_ULLONG"
+    "Q_ULLONG",
+    "UserType"
 };
 
 
@@ -1773,6 +1794,17 @@ QCoreVariantList QCoreVariant::toList() const
 #endif
 
 /*!
+    Returns the variant as a ###
+*/
+QCoreVariant::UserData QCoreVariant::toUserType() const
+{
+    if (d->type == UserType)
+	return *static_cast<UserData*>(d->value.ptr);
+
+    return UserData(0, 0);
+}
+
+/*!
     Returns true if the variant's type can be cast to the requested
     type, \a t. Such casting is done automatically when calling the
     toInt(), toBool(), ... or asInt(), asBool(), ... methods.
@@ -1933,6 +1965,8 @@ const void *QCoreVariant::constData() const
         QDATA(QByteArray);
     case QCoreVariant::BitArray:
         QDATA(QBitArray);
+    case QCoreVariant::UserType:
+	return static_cast<UserData*>(d->value.ptr)->data();
     default:
         return d->value.ptr;
     }

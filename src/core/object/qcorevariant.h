@@ -75,7 +75,40 @@ class Q_CORE_EXPORT QCoreVariant
 	KeySequence = 31,
 	Pen = 32,
 	LongLong = 33,
-	ULongLong = 34
+	ULongLong = 34,
+	UserType = 35
+    };
+
+    class UserData {
+    public:
+	inline UserData(void *data, const QByteArray &description)
+	    : ptr(data), desc(description)
+	{
+	}
+
+	inline UserData(const UserData &other)
+	    : ptr(other.ptr), desc(other.desc)
+	{
+	}
+
+	inline UserData &operator=(const UserData &other)
+	{
+	    ptr = other.ptr;
+	    desc = other.desc;
+	    return *this;
+	}
+
+	inline bool operator==(const UserData &other) const
+	{ return ptr == other.ptr && desc == other.desc; }
+	inline bool operator!=(const UserData &other) const
+	{ return ptr != other.ptr || desc != other.desc; }
+
+	inline void *data() const { return ptr; }
+	inline QByteArray description() const { return desc; }
+
+    private:
+	void *ptr;
+	QByteArray desc;
     };
 
     inline QCoreVariant();
@@ -107,6 +140,7 @@ class Q_CORE_EXPORT QCoreVariant
     inline QCoreVariant(const QList<QCoreVariant> &list);
     inline QCoreVariant(const QMap<QString,QCoreVariant> &map);
 #endif
+    inline QCoreVariant(const UserData &userData);
 
     QCoreVariant& operator=(const QCoreVariant &other);
 
@@ -146,6 +180,7 @@ class Q_CORE_EXPORT QCoreVariant
     QList<QCoreVariant> toList() const;
     QMap<QString,QCoreVariant> toMap() const;
 #endif
+    UserData toUserType() const;
 
 #ifdef QT_COMPAT
     inline QT_COMPAT int &asInt();
@@ -289,6 +324,8 @@ inline QCoreVariant::QCoreVariant(const QList<QCoreVariant> &val)
 inline QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &val)
 { d = create(Map, &val); }
 #endif
+inline QCoreVariant::QCoreVariant(const UserData &userData)
+{ d = create(UserType, &userData); }
 
 inline QCoreVariant::Type QCoreVariant::type() const
 { return (Type)d->type; }
@@ -346,7 +383,7 @@ template <class T> inline T qt_cast_helper(const QCoreVariant &v, const T *);
 template <class T>
 inline T qt_cast(const QCoreVariant &v)
 {
-    return qt_cast_helper<T>(object, (T *)0);
+    return qt_cast_helper<T>(v, (T *)0);
 }
 
 template<> inline int qt_cast_helper<int>(const QCoreVariant &v, const int*) { return v.toInt(); }
@@ -356,6 +393,8 @@ template<> inline Q_ULLONG qt_cast_helper<Q_ULLONG>(const QCoreVariant &v, const
 template<> inline bool qt_cast_helper<bool>(const QCoreVariant &v, const bool*) { return v.toBool(); }
 template<> inline double qt_cast_helper<double>(const QCoreVariant &v, const double*) { return v.toDouble(); }
 template<> inline QByteArray qt_cast_helper<QByteArray>(const QCoreVariant &v, const QByteArray*) { return v.toByteArray(); }
+template<> inline QCoreVariant::UserData qt_cast_helper<QCoreVariant::UserData>(const QCoreVariant &v, const QCoreVariant::UserData*)
+{ return v.toUserType(); }
 
 template<> QBitArray qt_cast_helper<QBitArray>(const QCoreVariant &v, const QBitArray*);
 template<> QString qt_cast_helper<QString>(const QCoreVariant &v, const QString*);
@@ -380,6 +419,7 @@ template<> inline Q_ULLONG qt_cast<Q_ULLONG>(const QCoreVariant &v) { return v.t
 template<> inline bool qt_cast<bool>(const QCoreVariant &v) { return v.toBool(); }
 template<> inline double qt_cast<double>(const QCoreVariant &v) { return v.toDouble(); }
 template<> inline QByteArray qt_cast<QByteArray>(const QCoreVariant &v) { return v.toByteArray(); }
+template<> inline QCoreVariant::UserData qt_cast<QCoreVariant::UserData>(const QCoreVariant &v) { return v.toUserType(); }
 
 template<> QBitArray qt_cast<QBitArray>(const QCoreVariant &v);
 template<> QString qt_cast<QString>(const QCoreVariant &v);
