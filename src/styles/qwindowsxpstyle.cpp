@@ -1165,7 +1165,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 		    // paint gripper if there is enough space
 		    SIZE size;
-		    GetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
+		    pGetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
 		    if ( sheight > size.cy ) {
 			QRect gr;
 			if ( flags & Style_Horizontal ) {
