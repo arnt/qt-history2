@@ -51,7 +51,9 @@ public:
 
     bool isColumnHidden(int column) const;
     void setColumnHidden(int column, bool hide);
-    bool isItemHidden(const QModelIndex &index) const;
+
+    bool isRowHidden(int row, const QModelIndex &parent) const;
+    void setRowHidden(int row, const QModelIndex &parent, bool hide);
 
     bool isOpen(const QModelIndex &index) const;
 
@@ -117,6 +119,8 @@ protected:
     void horizontalScrollbarAction(int action);
 
     int columnSizeHint(int column) const;
+ 
+    bool isIndexHidden(const QModelIndex &index) const;
 };
 
 #endif

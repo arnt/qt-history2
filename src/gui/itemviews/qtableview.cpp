@@ -783,15 +783,6 @@ void QTableView::setColumnHidden(int column, bool hide)
         showColumn(column);
 }
 
-/*!
-  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
-*/
-
-bool QTableView::isItemHidden(const QModelIndex &index) const
-{
-    return isRowHidden(index.row()) || isColumnHidden(index.column());
-}
-
 // ### DOC: What is the default?
 /*!
     \property QTableView::showGrid
@@ -1132,4 +1123,13 @@ void QTableView::horizontalScrollbarAction(int action)
             value += factor * -x / d->horizontalHeader->sectionSize(column);
         horizontalScrollBar()->setSliderPosition(value);
     }
+}
+
+/*!
+  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
+*/
+
+bool QTableView::isIndexHidden(const QModelIndex &index) const
+{
+    return isRowHidden(index.row()) || isColumnHidden(index.column());
 }

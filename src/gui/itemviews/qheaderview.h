@@ -133,7 +133,7 @@ protected:
     virtual QSize sectionSizeFromContents(int section) const;
 
     QModelIndex itemAt(int x, int y) const;
-    bool isItemHidden(const QModelIndex &index) const;
+    bool isIndexHidden(const QModelIndex &index) const;
 
     int horizontalOffset() const;
     int verticalOffset() const;

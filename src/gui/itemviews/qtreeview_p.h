@@ -33,7 +33,7 @@ public:
 
     QTreeViewPrivate()
         : QAbstractItemViewPrivate(),
-          header(0), indent(20), itemHeight(-1), reopen(-1), hiddenItemsCount(0),
+          header(0), indent(20), itemHeight(-1), reopen(-1),
           alternatingColors(false), oddColor(Qt::lightGray), evenColor(Qt::white) { }
 
     ~QTreeViewPrivate() {}

@@ -75,8 +75,6 @@ public:
 
     bool isRowHidden(int row) const;
     void setRowHidden(int row, bool hide);
-
-    bool isItemHidden(const QModelIndex &index) const;
     
     QRect itemViewportRect(const QModelIndex &index) const;
     void ensureItemVisible(const QModelIndex &index);
@@ -125,6 +123,8 @@ protected:
     QRect selectionViewportRect(const QItemSelection &selection) const;
 
     void updateGeometries();
+
+    bool isIndexHidden(const QModelIndex &index) const;
 };
 
 #endif

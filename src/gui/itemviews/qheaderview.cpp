@@ -1002,7 +1002,7 @@ QModelIndex QHeaderView::itemAt(int, int) const
   Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
 */
 
-bool QHeaderView::isItemHidden(const QModelIndex &) const
+bool QHeaderView::isIndexHidden(const QModelIndex &) const
 {
     return true; // the header view has no items, just sections
 }

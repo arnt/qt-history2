@@ -104,8 +104,6 @@ public:
     virtual int rowSizeHint(int row) const;
     virtual int columnSizeHint(int column) const;
 
-    virtual bool isItemHidden(const QModelIndex &index) const = 0;
-
     void openPersistentEditor(const QModelIndex &index);
     void closePersistentEditor(const QModelIndex &index);
 
@@ -160,6 +158,8 @@ protected:
 
     virtual int horizontalOffset() const = 0;
     virtual int verticalOffset() const = 0;
+
+    virtual bool isIndexHidden(const QModelIndex &index) const = 0;
 
     virtual void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command) = 0;
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;

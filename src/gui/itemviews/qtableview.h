@@ -51,8 +51,6 @@ public:
     bool isColumnHidden(int column) const;
     void setColumnHidden(int column, bool hide);
 
-    bool isItemHidden(const QModelIndex &index) const;
-
     bool showGrid() const;
 
     QRect itemViewportRect(const QModelIndex &index) const;
@@ -99,6 +97,8 @@ protected:
 
     void verticalScrollbarAction(int action);
     void horizontalScrollbarAction(int action);
+
+    bool isIndexHidden(const QModelIndex &index) const;
 };
 
 #endif

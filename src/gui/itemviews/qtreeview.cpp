@@ -279,13 +279,38 @@ void QTreeView::setColumnHidden(int column, bool hide)
 }
 
 /*!
-  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
+    Returns true if the \a column is hidden; otherwise returns false.
+
+    \sa setRowHidden()
 */
 
-bool QTreeView::isItemHidden(const QModelIndex &index) const
+bool QTreeView::isRowHidden(int row, const QModelIndex &parent) const
 {
-    // FIXME: update this
-    return isColumnHidden(index.column());
+    if (d->hidden.count() <= 0)
+        return false;
+    QModelIndex index = model()->index(row, 0, parent);
+    QPersistentModelIndex persistent(index, model());
+    return d->hidden.contains(persistent);
+}
+
+/*!
+  If \a hide is true the \a row with the given \a parent is hidden, otherwise the \a row is shown.
+
+  \sa isRowHidden()
+*/
+
+void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
+{
+    QModelIndex index = model()->index(row, 0, parent);
+    QPersistentModelIndex persistent(index, model());
+    if (hide) {
+        d->hidden.append(persistent);
+    } else {
+        int i = d->hidden.indexOf(persistent);
+        d->hidden.remove(i);
+    }
+
+    d->relayout(parent);
 }
 
 /*!
@@ -369,7 +394,7 @@ QRect QTreeView::itemViewportRect(const QModelIndex &index) const
     int x = columnViewportPosition(index.column());
     int w = columnWidth(index.column());
     int vi = d->viewIndex(index);
-    if (vi < 0)
+    if (vi < 0 || d->items.at(vi).hidden)
         return QRect();
     if (index.column() == 0) {
         int i = d->indentation(vi);
@@ -1170,6 +1195,16 @@ int QTreeView::columnSizeHint(int column) const
     return w;
 }
 
+/*!
+  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
+*/
+
+bool QTreeView::isIndexHidden(const QModelIndex &index) const
+{
+    return (isColumnHidden(index.column())
+            ||isRowHidden(index.row(), model()->parent(index)));
+}
+
 /*
   private implementation
 */
@@ -1243,7 +1278,7 @@ void QTreeViewPrivate::layout(int i)
         current = model->index(j - first, 0, parent);
         items[j].index = current;
         items[j].level = level;
-        //items[j].hidden = (j == 3); // FIXME: test code
+        items[j].hidden = q->isRowHidden(current.row(), parent); // FIXME: slow!!!
     }
 
     //hiddenItemsCount = 1; // FIXME: test code
@@ -1447,7 +1482,7 @@ void QTreeViewPrivate::updateVerticalScrollbar(int itemHeight)
 {
     int factor = q->verticalFactor();
     int height = viewport->height();
-    int itemCount = items.count() - hiddenItemsCount;
+    int itemCount = items.count() - hidden.count();
 
     // if we have no viewport or no items, there is nothing to do
     if (height <= 0 || itemCount <= 0 || itemHeight <= 0) {

@@ -525,15 +525,6 @@ void QListView::setRowHidden(int row, bool hide)
 }
 
 /*!
-  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
-*/
-
-bool QListView::isItemHidden(const QModelIndex &index) const
-{       
-    return d->hiddenRows.contains(index.row()) && (model()->parent(index) == root());
-}
-
-/*!
   \reimp
 */
 QRect QListView::itemViewportRect(const QModelIndex &index) const
@@ -1381,6 +1372,15 @@ void QListView::updateGeometries()
     verticalScrollBar()->setRange(0, d->contentsSize.height() - d->viewport->height() - 1);
 
     QAbstractItemView::updateGeometries();
+}
+
+/*!
+  Returns true if the item refered to by the given \a index is hidden, otherwise returns false.
+*/
+
+bool QListView::isIndexHidden(const QModelIndex &index) const
+{       
+    return d->hiddenRows.contains(index.row()) && (model()->parent(index) == root());
 }
 
 /*
