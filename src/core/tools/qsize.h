@@ -198,7 +198,6 @@ public:
     friend inline bool operator!=(const QSizeF &, const QSizeF &);
     friend inline const QSizeF operator+(const QSizeF &, const QSizeF &);
     friend inline const QSizeF operator-(const QSizeF &, const QSizeF &);
-    friend inline const QSizeF operator*(const QSizeF &, int);
     friend inline const QSizeF operator*(const QSizeF &, qreal);
     friend inline const QSizeF operator*(qreal, const QSizeF &);
     friend inline const QSizeF operator/(const QSizeF &, qreal);
