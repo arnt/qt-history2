@@ -291,8 +291,8 @@ bool LocalSQL::addFileDriverAlias( const List& drivers, const QString fieldname,
 	}
 	QStringList names = drv->columnNames();
 	if ( names.contains( fieldname ) ) {
-	    if ( aliasedFile > 0 ) {
-		setLastError( "Ambiguous column name:" + fieldname );
+	    if ( aliasedFile > -1 ) {
+		setLastError( "Ambiguous column name: " + fieldname );
 		return FALSE;
 	    }
 	    aliasedFile = drivers[i].toInt();
