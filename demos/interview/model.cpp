@@ -84,20 +84,10 @@ QVariant Model::headerData(int section, Qt::Orientation orientation, int role) c
 {
     static QIconSet service(QPixmap("services.png"));
 
-    if (orientation == Qt::Vertical) {
-        if (role == DisplayRole)
-            return QAbstractItemModelPrivate::i2s(strbuf, 65, section);
-        if (role == DecorationRole)
-            return service;
-        return QVariant();
-    } else {
-        if (role == DisplayRole)
-            return QAbstractItemModelPrivate::i2s(strbuf, 65, section);
-        if (role == DecorationRole)
-            return service;
-        return QVariant();
-    }
-
+    if (role == DisplayRole)
+        return QString::number(section);
+    if (role == DecorationRole)
+        return service;
     return QVariant();
 }
 

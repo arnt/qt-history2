@@ -56,8 +56,6 @@ private:
 
     int rc, cc, d;
     QVector<Node> *tree;
-
-    mutable QChar strbuf[65];
 };
 
 #endif
