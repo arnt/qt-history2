@@ -2954,7 +2954,8 @@ void QTextEdit::copy()
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode && optimHasSelection() )
 	QApplication::clipboard()->setText( optimSelectedText(), d->clipboard_mode );
-    normalCopy();
+    else
+	normalCopy();
 #else
     normalCopy();
 #endif
