@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#56 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#57 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#57 $");
 
 
 /*!
@@ -230,7 +230,7 @@ bool QFile::remove( const char *fileName )      // remove file
   file index manually using at() in append mode.
   <li>\c IO_Truncate truncates the file.
   <li>\c IO_Translate enables carriage returns and linefeed translation
-  for text files under MS-DOS, Window, OS/2 and Macintosh.
+  for text files under MS-DOS, Windows and OS/2.
   </ul>
 
   The raw access mode is best when I/O is block-operated using 4kB block size
