@@ -160,6 +160,7 @@ void PhraseBookBox::sourceChanged( const QString& source )
 				    source.stripWhiteSpace() );
 	lv->currentItem()->setText( PhraseLVI::SourceTextOriginal, source );
 	lv->sort();
+	lv->ensureItemVisible( lv->currentItem() );
     }
 }
 
@@ -169,13 +170,18 @@ void PhraseBookBox::targetChanged( const QString& target )
 	lv->currentItem()->setText( PhraseLVI::TargetTextShown,
 				    target.stripWhiteSpace() );
 	lv->currentItem()->setText( PhraseLVI::TargetTextOriginal, target );
+	lv->sort();
+	lv->ensureItemVisible( lv->currentItem() );
     }
 }
 
 void PhraseBookBox::definitionChanged( const QString& definition )
 {
-    if ( lv->currentItem() != 0 )
+    if ( lv->currentItem() != 0 ) {
 	lv->currentItem()->setText( PhraseLVI::DefinitionText, definition );
+	lv->sort();
+	lv->ensureItemVisible( lv->currentItem() );
+    }
 }
 
 void PhraseBookBox::selectionChanged( QListViewItem * /* item */ )
@@ -192,6 +198,11 @@ void PhraseBookBox::selectItem( QListViewItem *item )
 void PhraseBookBox::enableDisable()
 {
     QListViewItem *item = lv->currentItem();
+
+    sourceLed->blockSignals( TRUE );
+    targetLed->blockSignals( TRUE );
+    definitionLed->blockSignals( TRUE );
+
     if ( item == 0 ) {
 	sourceLed->setText( QString::null );
 	targetLed->setText( QString::null );
@@ -205,6 +216,10 @@ void PhraseBookBox::enableDisable()
     targetLed->setEnabled( item != 0 );
     definitionLed->setEnabled( item != 0 );
     removeBut->setEnabled( item != 0 );
+
+    sourceLed->blockSignals( FALSE );
+    targetLed->blockSignals( FALSE );
+    definitionLed->blockSignals( FALSE );
 
     QLineEdit *led = ( sourceLed->text() == NewPhrase ? sourceLed : targetLed );
     led->setFocus();

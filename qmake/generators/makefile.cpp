@@ -751,8 +751,12 @@ MakefileGenerator::init()
 	QStringList &impls = v["LEXIMPLS"];
 	QStringList &l = v["LEXSOURCES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QString dir;
 	    QFileInfo fi((*it));
-	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
+	    if(fi.dirPath() != ".")
+		dir = fi.dirPath() + Option::dir_sep;
+	    QString impl = dir + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
+	    logicWarn(impl, "SOURCES");
 	    logicWarn(impl, "SOURCES");
 	    impls.append(impl);
 	    if( ! project->isActiveConfig("lex_included")) {
@@ -775,12 +779,13 @@ MakefileGenerator::init()
 	QStringList &decls = v["YACCCDECLS"], &impls = v["YACCIMPLS"];
 	QStringList &l = v["YACCSOURCES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QString dir;
 	    QFileInfo fi((*it));
-	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + 
-			   Option::yacc_mod + Option::cpp_ext.first();
+	    if(fi.dirPath() != ".")
+		dir = fi.dirPath() + Option::dir_sep;
+	    QString impl = dir + fi.baseName() + Option::yacc_mod + Option::cpp_ext.first();
 	    logicWarn(impl, "SOURCES");
-	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + 
-			   Option::yacc_mod + Option::h_ext.first();
+	    QString decl = dir + fi.baseName() + Option::yacc_mod + Option::h_ext.first();
 	    logicWarn(decl, "HEADERS");
 
 	    decls.append(decl);
@@ -1303,14 +1308,19 @@ void
 MakefileGenerator::writeIdlSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
-    QString input = project->variables()["_ACTIVEQT"].first();
+    QString input = varGlue( "ACTIVEQT", "", " ", "" );
+    QString inputList = "ACTIVEQT";
+    if ( input.isEmpty() ) {
+	input = varGlue( "_ACTIVEQT", "", " ", "" );
+	inputList = "_ACTIVEQT";
+    }
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString file = *it;
 	if ( file.right( 4 ) != ".res" )
 	    continue;
 	QString idlfile = file.left( file.length()-3) += "idl";
 	QString rcfile = file.left( file.length()-3) += "rc";
-	t << file << ": " << findDependencies(file).join(" \\\n\t\t") << "\n\t"
+	t << file << ": " << project->variables()[inputList].join(" \\\n\t\t") << "\n\t"
 	    << "$(IDC) " << input << " -o " << idlfile << " -rc " << rcfile << "\n\t"
 	    << "midl " << idlfile << " /tlb " << file.left( file.length()-3) << "tlb"
 	    << " /iid tmp\\iid_i.c /dlldata tmp\\dlldata.c /cstub tmp\\cstub.c /header tmp\\cstub.h /proxy tmp\\proxy.c /sstub tmp\\sstub.c\n\t"
@@ -1349,8 +1359,6 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
  	if(!tmp.isEmpty()) {
 	    if(!target.isEmpty())
  		target += "\n\t";
- 	    if(Option::target_mode == Option::TARG_WIN_MODE || Option::target_mode == Option::TARG_MAC9_MODE) {
- 	    } else if(Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) {
 		do_default = FALSE;
 		for(QStringList::Iterator wild_it = tmp.begin(); wild_it != tmp.end(); ++wild_it) {
 		    QString wild = Option::fixPathToLocalOS((*wild_it)), wild_var = wild;
@@ -1392,7 +1400,6 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 			    target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
 		    }
 		}
- 	    }
  	}
  	//default?
 	if(do_default)

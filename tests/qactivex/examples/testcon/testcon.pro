@@ -1,7 +1,10 @@
-TEMPLATE    = app
-CONFIG	    += qt warn_off release
-SOURCES	    = main.cpp
+SOURCES	+= main.cpp 
 
 TARGET	    = testcon
-INCLUDEPATH += ..\..\container
-LIBS	    += $(QTDIR)\lib\qactivex.lib
+FORMS	= mainwindow.ui invokemethod.ui changeproperties.ui ambientproperties.ui controlinfo.ui 
+TEMPLATE	=app
+CONFIG	+= qt warn_off release
+INCLUDEPATH	+= ../../container
+LIBS	+= $(QTDIR)/lib/qactivex.lib
+DBFILE	= testcon.db
+LANGUAGE	= C++

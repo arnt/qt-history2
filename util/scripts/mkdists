@@ -29,6 +29,7 @@ DO_FREE=yes
 DO_WIN=yes
 DO_X11=yes
 DO_MAC=yes
+DO_QNX6=yes
 DO_EMBEDDED=yes
 DO_PKG=no
 #other
@@ -97,6 +98,7 @@ showhelp()
     echo "  -no-mac / -do-mac   (default $DO_MAC)"
     echo "  -no-win / -do-win   (default $DO_WIN)"
     echo "  -no-x11 / -do-x11   (default $DO_X11)"
+    echo "  -no-qnx6 / -do-qnx6   (default $DO_QNX6)"
     echo "  -no-embedded / -do-qws   (default $DO_EMBEDDED)"
     echo
 
@@ -190,6 +192,7 @@ while [ -n "$1" ]; do
    win) DO_WIN=$VAL ;;
    x11) DO_X11=$VAL ;;
    mac) DO_MAC=$VAL ;;
+   qnx6) DO_QNX6=$VAL ;;
    embedded) DO_EMBEDDED=$VAL ;;
    #paths
    qpkg_path)  QPKG_PATH=$VAL  ;;
@@ -275,6 +278,8 @@ if [ "x$DO_DOC" = "xyes" ]; then
     fi
     [ ! -x "$QDOC_PATH" ] && die "qdoc not found, failed (${QDOC_PATH})"
 fi
+[ ! -x "$QMAKE_PATH" ] && die "qmake not found, failed (${QMAKE_PATH})"
+
 if [ "x$DO_PKG" = "xyes" ]; then
     QPKG_SRC="`dirname $QPKG_PATH`"
     QPKG_SRC=`dirname $QPKG_SRC`
@@ -320,7 +325,7 @@ if [ -z $LOCAL_TREE ]; then
 else
     status "Copying Qt depot.."
     [ ! -d $DISTDIR/qt ] && mkdir -p $DISTDIR/qt
-    cp -ar $LOCAL_TREE $DISTDIR/qt
+    cp -ar $LOCAL_TREE/* $DISTDIR/qt
 fi
 
 #setup branch correctly..
@@ -349,7 +354,7 @@ done
 #pregenerate moc files
 status "Creating moc files.."
 pushd $DISTDIR/qt/src/moc >/dev/null 2>&1
-$QMAKE_PATH -spec $QTDIR/mkspecs/linux-g++ moc.pro -o Makefile >/dev/null 2>&1
+$QMAKE_PATH -spec $QTDIR/mkspecs/linux-g++ moc.pro -o Makefile
 status `make moc_lex.cpp >/dev/null`
 status `make moc_yacc.cpp >/dev/null`
 rm -f Makefile
@@ -393,7 +398,7 @@ for a in `find $DISTDIR/qt/extensions/nsplugin/src -name 'np*' -o -name 'jri*'`;
 done
 
 # qt.h
-if [ "x$DO_EMBEDDED" != "xyes" ]; then
+if [ "x$DO_EMBEDDED" != "xyes" ] && [ "x$DO_QNX6" != "xyes" ]; then
    rm -f "$DISTDIR/qt/include/qt.h"
 fi
 
@@ -625,7 +630,7 @@ copy_platform_files() {
 	o_file=$a_file
 	{ [ -z $a_file ] || [ -d $a ] ; } && continue
 
-	if [ "$platform" = "embedded" ]; then
+	if [ "$platform" = "embedded" ] || [ "$platform" = "qnx6" ]; then
 	    case `basename $a` in
 	    *.qws) o_file=`basename $a | sed "s,\.qws,,"` ;;
 	    *) [ -e "${a}.qws" ] && continue ;;
@@ -671,7 +676,7 @@ copy_platform_files() {
     return 0
 }
 
-for plat in mac win x11 embedded; do
+for plat in mac win x11 qnx6 embedded; do
     #handle commandline options
     platformname=$plat
     plat2=$plat
@@ -681,6 +686,12 @@ for plat in mac win x11 embedded; do
 	[ "x$DO_MAC" = "xyes" ] || continue
 	plat2=unix
 	plat3=mac9
+	;;
+    qnx6)
+	[ "x$DO_QNX6" = "xyes" ] || continue
+	platformname="embedded"
+	plat2=unix
+	plat3=qws
 	;;
     embedded)
 	[ "x$DO_EMBEDDED" = "xyes" ] || continue
@@ -775,7 +786,7 @@ for plat in mac win x11 embedded; do
 
 	mkdir -p $PLATDIR/lib
 	echo "If this directory is empty, you forgot to build the Qt library" >$PLATDIR/lib/README
-	if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ] || [ "$plat" = "mac" ]; then
+	if [ "$plat" = "x11" ] || [ "$plat" = "qnx6" ] || [ "$plat" = "embedded" ] || [ "$plat" = "mac" ]; then
 	    ### Windows build system things
 	    #configure.bat is for windows only
 	    rm -f "$PLATDIR/configure.bat"
@@ -787,7 +798,7 @@ for plat in mac win x11 embedded; do
 	    #Some code is specific to platform though..
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
 	    rm -f "$PLATDIR/src/kernel/qt_windows.h"
-	    if [ "$plat" = "embedded" ]; then
+	    if [ "$plat" = "embedded" ] || [ "$plat" = "qnx6" ]; then
 		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
 		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h"
 	    elif [ "$plat" = "x11" ]; then
@@ -854,7 +865,7 @@ for plat in mac win x11 embedded; do
 	    status "Running qdoc.."
 	    QTDIR=$PLATDIR $QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf --warning-level=0 >/dev/null 2>&1 || die "could not run qdoc, stopped"
 	    find $PLATDIR/gif -exec mv {} $PLATDIR/doc/html/ \; >/dev/null 2>&1
-	    if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ]; then
+	    if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ] || [ "$plat" = "qnx6" ]; then
 		QTDIR=$PLATDIR/ $DISTDIR/qt/util/qdoc/man  $PLATDIR/ >/dev/null 2>&1 || die "could not run man, stopped"
 	    fi
 	    for tdir in $DISTDIR/qt/tutorial/t*; do
@@ -889,7 +900,7 @@ for plat in mac win x11 embedded; do
 		[ -d $file ] && continue
 		match=`basename $file | sed "s,.*_,," | cut -d'.' -f1`
 		case $match in
-		unix|win|mac|x11|qws|mac9|wce)
+		unix|win|mac|x11|qws|mac9|wce|qnx6)
 		    if [ "$match" != "$plat" ] && [ "$match" != "$plat2" ] && [ "$match" != "$plat3" ]; then
 			rm -f $file
 			echo $file | sed "s,^${PLATDIR},,g" >>$PLAT_RM_FILE
@@ -907,7 +918,7 @@ for plat in mac win x11 embedded; do
 	#actually package
 	status "Packaging.." "1"
 	(cd "$DISTDIR"
-	if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ] || [ "$plat" = "mac" ]; then
+	if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ] || [ "$plat" = "qnx6" ] || [ "$plat" = "mac" ]; then
 	    status "Tar.."
 	    tar cf "$OUT_TREE/${PLATNAME}.tar" "${PLATNAME}"
 	    [ "$DO_GZIP" = "yes" ] && status "Gzip.." && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
@@ -986,7 +997,7 @@ if [ "$DO_QMAKE" = "yes" ]; then
     for plat in unix win; do
       case $plat in
       win) [ "x$DO_WIN"  = "xyes" ] || continue ;;
-      unix) [ "x$DO_X11" = "xno" ] && [ "x$DO_MAC" = "xno" ] && [ "x$DO_EMBEDDED" = "xno" ] && continue ;;
+      unix) [ "x$DO_X11" = "xno" ] && [ "x$DO_MAC" = "xno" ] && [ "x$DO_EMBEDDED" = "xno" ] [ "x$DO_QNX6" = "xno" ] && continue ;;
       esac
       status "** Packing for $plat **" "1"
 

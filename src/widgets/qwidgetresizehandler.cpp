@@ -77,11 +77,6 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
     if ( !active || !o->isWidgetType() )
 	return FALSE;
 
-    if ( buttonDown && ( ee->type() == QEvent::AccelOverride || ee->type() == QEvent::KeyPress ) ) {
-	((QKeyEvent*)ee)->accept();
-	return TRUE;
-    }
-
     QWidget *w = childOf( widget, (QWidget*)o );
     if ( !w || o->inherits( "QSizeGrip" ) )
 	return FALSE;
@@ -126,6 +121,12 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
     } break;
     case QEvent::KeyPress:
 	keyPressEvent( (QKeyEvent*)e );
+	break;
+    case QEvent::AccelOverride:
+	if ( buttonDown ) {
+	    ((QKeyEvent*)ee)->accept();
+	    return TRUE;
+	}
 	break;
     default:
 	break;

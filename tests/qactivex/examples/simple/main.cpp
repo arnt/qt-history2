@@ -96,9 +96,11 @@ int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
 
-    QSimpleAX w;
-    app.setMainWidget( &w );
-    w.show();
+    if ( !( argc>1 && !qstrcmp(argv[2],"-activex") ) ) {
+	QSimpleAX w;
+	app.setMainWidget( &w );
+	w.show();
+    }
 
     return app.exec();
 }

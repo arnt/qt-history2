@@ -1023,14 +1023,14 @@ void QScrollView::resizeEvent( QResizeEvent* event )
 */
 void  QScrollView::mousePressEvent( QMouseEvent * e)
 {
-    e->ignore();
+    e->accept();
 }
 
 /*! \reimp
 */
 void  QScrollView::mouseReleaseEvent( QMouseEvent *e )
 {
-    e->ignore();
+    e->accept();
 }
 
 
@@ -1038,14 +1038,14 @@ void  QScrollView::mouseReleaseEvent( QMouseEvent *e )
 */
 void  QScrollView::mouseDoubleClickEvent( QMouseEvent *e )
 {
-    e->ignore();
+    e->accept();
 }
 
 /*! \reimp
 */
 void  QScrollView::mouseMoveEvent( QMouseEvent *e )
 {
-    e->ignore();
+    e->accept();
 }
 
 /*! \reimp
@@ -1069,10 +1069,8 @@ void QScrollView::wheelEvent( QWheelEvent *e )
 */
 void QScrollView::contextMenuEvent( QContextMenuEvent *e )
 {
-    if ( e->reason() != QContextMenuEvent::Keyboard ) {
-	e->ignore();
+    if ( e->reason() != QContextMenuEvent::Keyboard )
         return;
-    }
 
     QContextMenuEvent ce( e->reason(), viewport()->mapFromGlobal( e->globalPos() ),
                           e->globalPos(), e->state() );
@@ -1423,9 +1421,8 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
   mousePressEvent() - the press position is translated to be a
   point on the contents.
 */
-void QScrollView::contentsMousePressEvent( QMouseEvent *e )
+void QScrollView::contentsMousePressEvent( QMouseEvent* )
 {
-    e->ignore();
 }
 
 /*!
@@ -1433,9 +1430,8 @@ void QScrollView::contentsMousePressEvent( QMouseEvent *e )
   mouseReleaseEvent() - the release position is translated to be a
   point on the contents.
 */
-void QScrollView::contentsMouseReleaseEvent( QMouseEvent *e )
+void QScrollView::contentsMouseReleaseEvent( QMouseEvent* )
 {
-    e->ignore();
 }
 
 /*!
@@ -1443,9 +1439,8 @@ void QScrollView::contentsMouseReleaseEvent( QMouseEvent *e )
   mouseDoubleClickEvent() - the click position is translated to be a
   point on the contents.
 */
-void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent *e )
+void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent* )
 {
-    e->ignore();
 }
 
 /*!
@@ -1453,9 +1448,8 @@ void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent *e )
   mouseMoveEvent() - the mouse position is translated to be a
   point on the contents.
 */
-void QScrollView::contentsMouseMoveEvent( QMouseEvent *e )
+void QScrollView::contentsMouseMoveEvent( QMouseEvent* )
 {
-    e->ignore();
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -1580,10 +1574,6 @@ void QScrollView::viewportMousePressEvent( QMouseEvent* e )
     QMouseEvent ce(e->type(), viewportToContents(e->pos()),
         e->globalPos(), e->button(), e->state());
     contentsMousePressEvent(&ce);
-    if (ce.isAccepted())
-	e->accept();
-    else
-	e->ignore();
 }
 
 /*!\internal
@@ -1599,10 +1589,6 @@ void QScrollView::viewportMouseReleaseEvent( QMouseEvent* e )
     QMouseEvent ce(e->type(), viewportToContents(e->pos()),
         e->globalPos(), e->button(), e->state());
     contentsMouseReleaseEvent(&ce);
-    if (ce.isAccepted())
-	e->accept();
-    else
-	e->ignore();
 }
 
 /*!\internal
@@ -1618,10 +1604,6 @@ void QScrollView::viewportMouseDoubleClickEvent( QMouseEvent* e )
     QMouseEvent ce(e->type(), viewportToContents(e->pos()),
         e->globalPos(), e->button(), e->state());
     contentsMouseDoubleClickEvent(&ce);
-    if (ce.isAccepted())
-	e->accept();
-    else
-	e->ignore();
 }
 
 /*!\internal
@@ -1637,10 +1619,6 @@ void QScrollView::viewportMouseMoveEvent( QMouseEvent* e )
     QMouseEvent ce(e->type(), viewportToContents(e->pos()),
         e->globalPos(), e->button(), e->state());
     contentsMouseMoveEvent(&ce);
-    if (ce.isAccepted())
-	e->accept();
-    else
-	e->ignore();
 }
 
 #ifndef QT_NO_DRAGANDDROP

@@ -61,3 +61,9 @@ void QActiveXSelect::setDesigner( DesignerInterface *des )
     designer = des;
     designer->addRef();
 }
+
+
+QString QActiveXSelect::selectedControl()
+{
+    return control;
+}

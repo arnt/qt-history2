@@ -52,6 +52,7 @@ public:
     virtual bool qt_property( int, int, QVariant* );
     virtual bool qt_emit( int, QUObject* ) = 0;
     virtual const char *className() const = 0;
+    virtual QObject *qObject() = 0;
 
     virtual bool allowPropertyChange( const QString& ) const { return TRUE; }
     PropertyBag propertyBag() const;
@@ -72,9 +73,9 @@ public:
 
 protected:
     QMetaObject *metaobj;
+    virtual bool initialize( IUnknown** ptr ) = 0;
 
 private:
-    virtual bool initialize( IUnknown** ptr ) = 0;
     virtual QMetaObject *parentMetaObject() const = 0;
 
     IUnknown *ptr;
@@ -103,6 +104,7 @@ inline QDataStream &operator <<( QDataStream &s, const QComBase &c )
 
 class QCOM_EXPORT QComObject : public QObject, public QComBase
 {
+    friend class QAxEventSink;
 public:
     QMetaObject *metaObject() const;
     const char *className() const;

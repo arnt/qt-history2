@@ -101,6 +101,7 @@ public:
     QTimer* screensavertimer;
     int* screensaverintervals;
     QWSScreenSaver* saver;
+    bool prevWin;
 };
 
 QWSScreenSaver::~QWSScreenSaver()
@@ -1374,6 +1375,8 @@ void QWSServer::setDefaultKeyboard( const char *k )
   pressed.
 */
 
+static bool prevWin;
+
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
     qwsServer->showCursor();
@@ -1393,13 +1396,18 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor->move(pos.x(),pos.y());
 
-    // Arrow cursor over desktop
-    if (!win) {
+    // Arrow cursor over desktop 
+    // prevWin remembers if the last event was over a window
+    if (!win && prevWin) {
 	if ( !qwsServer->mouseGrabber )
 	    qwsServer->setCursor(QWSCursor::systemCursor(ArrowCursor));
 	else
 	    qwsServer->nextCursor = QWSCursor::systemCursor(ArrowCursor);
+	prevWin = FALSE;
     }
+    // reset prevWin
+    if (win && !prevWin)
+	prevWin = TRUE;
 #endif
 
     if ( state && !qwsServer->mouseGrabbing ) {

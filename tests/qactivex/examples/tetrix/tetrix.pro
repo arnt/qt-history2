@@ -11,6 +11,6 @@ SOURCES	    = gtetrix.cpp \
 	      qtetrixb.cpp \
 	      tetrix.cpp \
 	      tpiece.cpp
-TARGET	    = tetrix
+TARGET	    = tetrixax
 
 INCLUDEPATH +=../../control

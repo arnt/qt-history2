@@ -238,6 +238,53 @@ static QString evilBytes( const QCString& str, bool utf8 )
     }
 }
 
+MetaTranslatorMessage::MetaTranslatorMessage()
+    : utfeight( FALSE ), ty( Unfinished )
+{
+}
+
+MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
+					      const char *sourceText,
+					      const char *comment,
+					      const QString& translation,
+					      bool utf8, Type type )
+    : QTranslatorMessage( context, sourceText, comment, translation ),
+      utfeight( FALSE ), ty( type )
+{
+    /*
+      Don't use UTF-8 if it makes no difference. UTF-8 should be
+      reserved for the real problematic case: non-ASCII (possibly
+      non-Latin-1) characters in .ui files.
+    */
+    if ( utf8 ) {
+	if ( sourceText != 0 ) {
+	    int i = 0;
+	    while ( sourceText[i] != '\0' ) {
+		if ( (uchar) sourceText[i] >= 0x80 ) {
+		    utfeight = TRUE;
+		    break;
+		}
+	    }
+	    i++;
+	}
+	if ( !utfeight && comment != 0 ) {
+	    int i = 0;
+	    while ( comment[i] != '\0' ) {
+		if ( (uchar) comment[i] >= 0x80 ) {
+		    utfeight = TRUE;
+		    break;
+		}
+	    }
+	    i++;
+	}
+    }
+}
+
+MetaTranslatorMessage::MetaTranslatorMessage( const MetaTranslatorMessage& m )
+    : QTranslatorMessage( m ), utfeight( m.utfeight ), ty( m.ty )
+{
+}
+
 MetaTranslatorMessage& MetaTranslatorMessage::operator=(
 	const MetaTranslatorMessage& m )
 {
@@ -496,5 +543,16 @@ QValueList<MetaTranslatorMessage> MetaTranslator::messages() const
 	val.append( t[i].key() );
 
     delete[] t;
+    return val;
+}
+
+QValueList<MetaTranslatorMessage> MetaTranslator::translatedMessages() const
+{
+    QValueList<MetaTranslatorMessage> val;
+    TMM::ConstIterator m;
+    for ( m = mm.begin(); m != mm.end(); ++m ) {
+	if ( m.key().type() == MetaTranslatorMessage::Finished )
+	    val.append( m.key() );
+    }
     return val;
 }

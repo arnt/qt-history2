@@ -1,14 +1,8 @@
 #include "qcomobject.h"
 
 #include <quuid.h>
-#include <qmetaobject.h>
-#include <private/qucomextra_p.h>
 #include <qdict.h>
 #include <qptrdict.h>
-#include <qstringlist.h>
-#include <qvariant.h>
-#include <qdatetime.h>
-#include <private/qcom_p.h>
 #include <qsettings.h>
 #include <ctype.h>
 
@@ -21,681 +15,7 @@ static QMetaObject *tempMetaObj = 0;
 #define PropScriptable	2000
 #define PropStored	4000
 
-/*! 
-    Helper functions 
-*/
-static inline QString vartypeToQt( VARTYPE vt )
-{
-    QString str;
-    switch ( vt ) {
-    case VT_EMPTY:
-	// str = "[Empty]";
-	break;
-    case VT_NULL:
-	// str = "[Null]";
-	break;
-    case VT_I2:
-    case VT_I4:
-	str = "int";
-	break;
-    case VT_R4:
-    case VT_R8:
-	str = "double";
-	break;
-    case VT_CY:
-	str = "long long"; // ### 64bit struct CY { ulong lo, long hi };
-	break;
-    case VT_DATE:
-	str = "QDateTime";
-	break;
-    case VT_BSTR:
-	str = "QString";
-	break;
-    case VT_DISPATCH:
-	str = "IDispatch*";
-	break;
-    case VT_ERROR:
-	str = "long";
-	break;
-    case VT_BOOL:
-	str = "bool";
-	break;
-    case VT_VARIANT:
-	str = "QVariant";
-	break;
-    case VT_DECIMAL:
-	// str = "[DECIMAL]";
-	break;
-    case VT_RECORD:
-	// str = "[Usertype]";
-	break;
-    case VT_UNKNOWN:
-	str = "IUnknown*";
-	break;
-    case VT_I1:
-	str = "char";
-	break;
-    case VT_UI1:
-	str = "unsigned char";
-	break;
-    case VT_UI2:
-	str = "unsigned short";
-	break;
-    case VT_UI4:
-	str = "unsigned int";
-	break;
-    case VT_INT:
-	str = "int";
-	break;
-    case VT_UINT:
-	str = "unsigned int";
-	break;
-    case VT_VOID:
-	str = "void";
-	break;
-    case VT_HRESULT:
-	str = "long";
-	break;
-
-    case VT_PTR:
-	// str = "[Pointer]";
-	break;
-    case VT_SAFEARRAY:
-	// str = "VT_ARRAY";
-	break;
-    case VT_CARRAY:
-	// str = "[C array]";
-	break;
-    case VT_USERDEFINED:
-	str = "USERDEFINED";
-	break;
-    case VT_LPSTR:
-	str = "const char*";
-	break;
-    case VT_LPWSTR:
-	str = "const unsigned short*";
-	break;
-
-    case VT_FILETIME:
-	// str = "[FILETIME]";
-	break;
-    case VT_BLOB:
-	// str = "[Blob]";
-	break;
-    case VT_STREAM:
-	// str = "[Stream]";
-	break;
-    case VT_STORAGE:
-	// str = "[Storage]";
-	break;
-    case VT_STREAMED_OBJECT:
-	// str = "[Streamed object]";
-	break;
-    case VT_STORED_OBJECT:
-	// str = "[Stored object]";
-	break;
-    case VT_BLOB_OBJECT:
-	// str = "[Blob object]";
-	break;
-    case VT_CF:
-	// str = "[Clipboard]";
-	break;
-    case VT_CLSID:
-	// str = "GUID";
-	break;
-    case VT_VECTOR:
-	// str = "[Vector]";
-	break;
-
-    case VT_ARRAY:
-	// str = "SAFEARRAY*";
-	break;
-    case VT_RESERVED:
-	// str = "[Reserved]";
-	break;
-
-    default:
-	// str = "[Unknown]";
-	break;
-    }
-
-    if ( vt & VT_BYREF )
-	str += "*";
-
-    return str;
-}
-
-static inline QString typedescToQString( TYPEDESC typedesc )
-{
-    QString ptype;
-
-    VARTYPE vt = typedesc.vt;
-    if ( vt == VT_PTR ) {
-	vt = typedesc.lptdesc->vt;
-	ptype = vartypeToQt( vt );
-	if ( !!ptype ) 
-	    ptype += "*";
-    } else if ( vt == VT_SAFEARRAY ) {
-	vt = typedesc.lpadesc->tdescElem.vt;
-	ptype = vartypeToQt( vt );
-	if ( !!ptype ) 
-	    ptype = ptype + "[" + QString::number( typedesc.lpadesc->cDims ) + "]";
-    } else {
-	ptype = vartypeToQt( vt );
-    }
-    if ( ptype.isEmpty() )
-	ptype = "UNSUPPORTED";
-    else if ( ptype == "USERDEFINED" ) // most USERDEFINED types are long or ints, or interfaces
-	ptype = "int";
-    else if ( ptype == "USERDEFINED*" )
-	ptype = "IUnknown*";
-	
-    return ptype;
-}
-
-static inline bool checkHRESULT( HRESULT hres )
-{
-    switch( hres ) {
-    case S_OK:
-	return TRUE;
-    case DISP_E_BADPARAMCOUNT:
-	return FALSE;
-    case DISP_E_BADVARTYPE:
-	return FALSE;
-    case DISP_E_EXCEPTION:
-	return FALSE;
-    case DISP_E_MEMBERNOTFOUND:
-	return FALSE;
-    case DISP_E_NONAMEDARGS:
-	return FALSE;
-    case DISP_E_OVERFLOW:
-	return FALSE;
-    case DISP_E_PARAMNOTFOUND:
-	return FALSE;
-    case DISP_E_TYPEMISMATCH:
-	return FALSE;
-    case DISP_E_UNKNOWNINTERFACE:
-	return FALSE;
-    case DISP_E_UNKNOWNLCID:
-	return FALSE;
-    case DISP_E_PARAMNOTOPTIONAL:
-	return FALSE;
-    default:
-	return FALSE;
-    }
-}
-
-
-// those functions are not ours
-static int monthdays[13] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
-#define HALF_SECOND  (1.0/172800.0)
-
-#include <math.h>
-
-static inline QDateTime DATEToQDateTime( DATE ole )
-{
-    int year, month, day, wday, yday;
-    int hour, min, sec;
-
-    long nDays;             // Number of days since Dec. 30, 1899
-    long nDaysAbsolute;     // Number of days since 1/1/0
-    long nSecsInDay;        // Time in seconds since midnight
-    long nMinutesInDay;     // Minutes in day
-    
-    long n400Years;         // Number of 400 year increments since 1/1/0
-    long n400Century;       // Century within 400 year block (0,1,2 or 3)
-    long n4Years;           // Number of 4 year increments since 1/1/0
-    long n4Day;             // Day within 4 year block
-    //  (0 is 1/1/yr1, 1460 is 12/31/yr4)
-    long n4Yr;              // Year within 4 year block (0,1,2 or 3)
-    BOOL bLeap4 = TRUE;     // TRUE if 4 year block includes leap year
-    
-    double dblDate = ole; // tempory serial date
-    
-    // If a valid date, then this conversion should not overflow
-    nDays = (long)dblDate;
-    
-    // Round to the second
-    dblDate += ((ole > 0.0) ? HALF_SECOND : -HALF_SECOND);
-    
-    nDaysAbsolute = (long)dblDate + 693959L; // Add days from 1/1/0 to 12/30/1899
-    
-    dblDate = fabs(dblDate);
-    nSecsInDay = (long)((dblDate - floor(dblDate)) * 86400.);
-    
-    // Calculate the day of week (sun=1, mon=2...)
-    //   -1 because 1/1/0 is Sat.  +1 because we want 1-based
-    wday = (int)((nDaysAbsolute - 1) % 7L) + 1;
-    
-    // Leap years every 4 yrs except centuries not multiples of 400.
-    n400Years = (long)(nDaysAbsolute / 146097L);
-    
-    // Set nDaysAbsolute to day within 400-year block
-    nDaysAbsolute %= 146097L;
-    
-    // -1 because first century has extra day
-    n400Century = (long)((nDaysAbsolute - 1) / 36524L);
-    
-    // Non-leap century
-    if (n400Century != 0) {
-	// Set nDaysAbsolute to day within century
-	nDaysAbsolute = (nDaysAbsolute - 1) % 36524L;
-	
-	// +1 because 1st 4 year increment has 1460 days
-	n4Years = (long)((nDaysAbsolute + 1) / 1461L);
-	
-	if (n4Years != 0) {
-	    n4Day = (long)((nDaysAbsolute + 1) % 1461L);
-	} else {
-	    bLeap4 = FALSE;
-	    n4Day = (long)nDaysAbsolute;
-	}
-    } else {
-	// Leap century - not special case!
-	n4Years = (long)(nDaysAbsolute / 1461L);
-	n4Day = (long)(nDaysAbsolute % 1461L);
-    }
-    
-    if (bLeap4) {
-	// -1 because first year has 366 days
-	n4Yr = (n4Day - 1) / 365;
-	
-	if (n4Yr != 0)
-	    n4Day = (n4Day - 1) % 365;
-    } else {
-	n4Yr = n4Day / 365;
-	n4Day %= 365;
-    }
-    
-    // n4Day is now 0-based day of year. Save 1-based day of year, year number
-    yday = (int)n4Day + 1;
-    year = n400Years * 400 + n400Century * 100 + n4Years * 4 + n4Yr;
-    
-    // Handle leap year: before, on, and after Feb. 29.
-    if (n4Yr == 0 && bLeap4) {
-	// Leap Year
-	if (n4Day == 59) {
-	    /* Feb. 29 */
-	    month = 2;
-	    day = 29;
-	    goto DoTime;
-	}
-	
-	// Pretend it's not a leap year for month/day comp.
-	if (n4Day >= 60)
-	    --n4Day;
-    }
-    
-    // Make n4DaY a 1-based day of non-leap year and compute
-    //  month/day for everything but Feb. 29.
-    ++n4Day;
-    
-    // Month number always >= n/32, so save some loop time */
-    for ( month = (n4Day >> 5) + 1; n4Day > monthdays[month]; month++ )
-	;
-    
-    day = (int)(n4Day - monthdays[month-1]);
-    
-DoTime:
-    if (nSecsInDay == 0) {
-	hour = min = sec = 0;
-    } else {
-	sec = (int)nSecsInDay % 60L;
-	nMinutesInDay = nSecsInDay / 60L;
-	min = (int)nMinutesInDay % 60;
-	hour = (int)nMinutesInDay / 60;
-    }
-
-    QDateTime dt;
-    dt.setDate( QDate( year, month, day ) );
-    dt.setTime( QTime( hour, min, sec ) );
-    return dt;
-}
-
-static inline DATE QDateTimeToDATE( const QDateTime &dt )
-{
-    QDate date = dt.date();
-    QTime time = dt.time();
-    int year = date.year();
-    int month = date.month();
-    int day = date.day();
-    int hour = time.hour();
-    int min = time.minute();
-    int sec = time.second();
-    int dim = date.daysInMonth();
-    bool leap = date.leapYear( year );
-
-    long oledate = year*365 + year/4 - year/100 + year/400 + monthdays[month-1] + day;
-    if ( month <= 2 && leap )
-	--oledate;
-    oledate -= 693959;
-
-    double oletime = (((long)hour * 3600L) + ((long)min * 60L) + ((long)sec)) / 86400.;
-
-    DATE ole = (double) oledate + ( ( oledate >= 0 ) ? oletime : -oletime );
-    return ole;
-}
-
-QString BSTRToQString( BSTR bstr )
-{
-    QString str;
-    if ( !bstr )
-	return str;
-
-    int len = wcslen( bstr );
-    str.setUnicode( (QChar*)bstr, len );
-    return str;
-}
-
-BSTR QStringToBSTR( const QString &str )
-{
-    BSTR bstrVal;
-
-    int wlen = str.length();
-    bstrVal = SysAllocStringByteLen( 0, wlen*2 );
-    memcpy( bstrVal, str.unicode(), sizeof(QChar)*(wlen) );
-    bstrVal[wlen] = 0;
-
-    return bstrVal;
-}
-
-static inline QString constRefify( const QString& type )
-{
-    QString crtype;
-
-    if ( type == "QString" )
-	crtype = "const QString&";
-    else if ( type == "QDateTime" )
-	crtype = "const QDateTime&";
-    else if ( type == "QVariant" )
-	crtype = "const QVariant&";
-    else 
-	crtype = type;
-
-    return crtype;
-}
-
-static inline void QStringToQUType( const QString& type, QUParameter *param )
-{
-    param->typeExtra = 0;
-    if ( type == "int" || type == "long" ) {
-	param->type = &static_QUType_int;
-    } else if ( type == "bool" ) {
-	param->type = &static_QUType_bool;
-    } else if ( type == "QString" || type == "const QString&" ) {
-	param->type = &static_QUType_QString;
-    } else if ( type == "double" ) {
-	param->type = &static_QUType_double;
-    } else if ( type == "QVariant" || type == "const QVariant&" ) {
-	param->type = &static_QUType_QVariant;
-    } else if ( type == "IUnknown*" ) {
-	param->type = &static_QUType_iface;
-	param->typeExtra = "QUnknownInterface";
-    } else if ( type == "IDispatch*" ) {
-	param->type = &static_QUType_idisp;
-	param->typeExtra = "QDispatchInterface";
-    } else {
-	param->type = &static_QUType_ptr;
-	QString ptype = type;
-	if ( ptype.right(1) == "*" )
-	    ptype.remove( ptype.length()-1, 1 );
-	param->typeExtra = new char[ ptype.length() + 1 ];
-	param->typeExtra = qstrcpy( (char*)param->typeExtra, ptype );
-    }
-}
-
-static inline void VARIANTToQUObject( VARIANT arg, QUObject *obj )
-{
-    if ( arg.vt & VT_BYREF ) {
-	VARTYPE vt2 = arg.vt & ~VT_BYREF;
-	switch ( vt2 ) {
-	case VT_UI1:
-	    static_QUType_ptr.set( obj, arg.pbVal );
-	    break;
-	case VT_I2:
-	    static_QUType_ptr.set( obj, arg.piVal );
-	    break;
-	case VT_I4:
-	    static_QUType_ptr.set( obj, arg.plVal );
-	    break;
-	case VT_ERROR:
-	    static_QUType_ptr.set( obj, arg.pscode );
-	    break;
-	case VT_R4:
-	    static_QUType_ptr.set( obj, arg.pfltVal );
-	    break;
-	case VT_R8:
-	    static_QUType_ptr.set( obj, arg.pdblVal );
-	    break;
-	case VT_DATE:
-	    static_QUType_ptr.set( obj, new QDateTime( DATEToQDateTime( *arg.pdate ) ) );
-	    break;
-	case VT_BOOL:
-	    static_QUType_ptr.set( obj, arg.pboolVal );
-	    break;
-	case VT_BSTR:
-	    static_QUType_ptr.set( obj, BSTRToQString( *arg.pbstrVal ) );
-	    break;
-	case VT_UNKNOWN:
-	    static_QUType_ptr.set( obj, *arg.ppunkVal );
-	    break;
-	case VT_DISPATCH:
-	    static_QUType_ptr.set( obj, *arg.ppdispVal );
-	    break;
-	default:
-	    break;
-	}
-    } else switch ( arg.vt ) {
-    case VT_UI1: // byte -> int
-	static_QUType_int.set( obj, arg.bVal );
-	break;
-    case VT_I2: // short -> int
-	static_QUType_int.set( obj, arg.iVal );
-	break;
-    case VT_I4: // long -> int
-	static_QUType_int.set( obj, arg.lVal );
-	break;
-    case VT_ERROR: // SCODE == long
-	static_QUType_int.set( obj, arg.scode );
-	break;
-    case VT_R4: // float -> double
-	static_QUType_double.set( obj, arg.fltVal );
-	break;
-    case VT_R8: // double -> double
-	static_QUType_double.set( obj, arg.dblVal );
-	break;
-    case VT_CY: // Currency -> ###
-	break;
-    case VT_DATE: // DATE -> QDateTime
-	static_QUType_ptr.set( obj, new QDateTime( DATEToQDateTime( arg.date ) ) );
-	break;
-    case VT_BOOL: // bool -> bool
-	static_QUType_bool.set( obj, arg.boolVal );
-	break;
-    case VT_BSTR: // bstr -> QString
-	static_QUType_QString.set( obj, BSTRToQString( arg.bstrVal ) );
-	break;
-    case VT_UNKNOWN:  // IUnknown -> void*
-	static_QUType_ptr.set( obj, arg.punkVal );
-	break;
-    case VT_DISPATCH: // IDispatch -> void*
-	static_QUType_ptr.set( obj, arg.pdispVal );
-	break;
-    default:
-	break;
-    }
-}
-
-static inline VARIANT QVariantToVARIANT( const QVariant &var, const char *type = 0 )
-{
-    VARIANT arg;
-    arg.vt = VT_EMPTY;
-
-    switch ( var.type() ) {
-    case QVariant::String:
-	arg.vt = VT_BSTR;
-	arg.bstrVal = QStringToBSTR( var.toString() );
-	break;
-    case QVariant::Int:
-	if( !qstrcmp( type, "bool" ) ) {
-	    arg.vt = VT_BOOL;
-	    arg.boolVal = var.toBool();
-	    break;
-	}
-	arg.vt = VT_I4;
-	arg.lVal = var.toInt();
-	break;
-    case QVariant::UInt:
-	arg.vt = VT_UI4;
-	arg.ulVal = var.toUInt();
-	break;
-    case QVariant::Bool:
-	arg.vt = VT_BOOL;
-	arg.boolVal = var.toBool();
-	break;
-    case QVariant::Double:
-	arg.vt = VT_R8;
-	arg.dblVal = var.toDouble();
-	break;
-    case QVariant::CString:
-	arg.vt = VT_BSTR;
-	arg.bstrVal = QStringToBSTR( var.toCString() );
-	break;
-    case QVariant::Date:
-    case QVariant::Time:
-    case QVariant::DateTime:
-	arg.vt = VT_DATE;
-	arg.date = QDateTimeToDATE( var.toDateTime() );
-	break;
-    default:
-	break;
-    }
-
-    return arg;
-}
-
-static inline QVariant VARIANTToQVariant( const VARIANT &arg )
-{
-    QVariant var;
-    switch( arg.vt ) {
-    case VT_UI1:
-	var = arg.bVal;
-	break;
-    case VT_I2:
-	var = arg.iVal;
-	break;
-    case VT_ERROR:
-    case VT_I4:
-	var = arg.lVal;
-	break;
-    case VT_R4:
-	var = (double)arg.fltVal;
-	break;
-    case VT_R8:
-	var = arg.dblVal;
-	break;
-    case VT_CY: // __int64 -> int ###
-	var = arg.cyVal.Hi;
-	break;
-    case VT_DATE: // DATE -> QDateTime
-	var = DATEToQDateTime( arg.date );
-	break;
-    case VT_BOOL:
-	var = QVariant( arg.boolVal, 42 );
-	break;
-    case VT_BSTR:
-	var = BSTRToQString( arg.bstrVal );
-	break;
-    case VT_I1:
-	var = arg.cVal;
-	break;
-    case VT_UI2:
-	var = arg.uiVal;
-	break;
-    case VT_UI4:
-	var = (long)arg.ulVal;
-	break;
-    case VT_INT:
-	var = arg.intVal;
-	break;
-    case VT_UINT:
-	var = arg.uintVal;
-	break;
-    case VT_DISPATCH: // IDispatch* -> int ###
-	var = (Q_LONG)arg.pdispVal;
-	break;
-    case VT_UNKNOWN: // IUnkonwn* -> int ###
-	var = (Q_LONG)arg.punkVal;
-	break;
-    case VT_EMPTY:
-	// empty VARIANT type return
-	break;
-    default:
-	break;
-    }
-    return var;
-}
-
-static inline void QVariantToQUObject( const QVariant &var, QUObject &obj )
-{
-    switch ( var.type() ) {
-    case QVariant::Invalid:
-    case QVariant::Map:
-    case QVariant::List:
-    break;
-    case QVariant::String:
-	static_QUType_QString.set( &obj, var.toString() );
-	break;
-    case QVariant::StringList:
-    case QVariant::Font:
-    case QVariant::Pixmap:
-    case QVariant::Brush:
-    case QVariant::Rect:
-    case QVariant::Size:
-    case QVariant::Color:
-    case QVariant::Palette:
-    case QVariant::ColorGroup:
-    case QVariant::IconSet:
-    case QVariant::Point:
-    case QVariant::Image:
-	break;
-    case QVariant::Int:
-	static_QUType_int.set( &obj, var.toInt() );
-	break;
-    case QVariant::UInt:
-	static_QUType_int.set( &obj, var.toUInt() );
-	break;
-    case QVariant::Bool:
-	static_QUType_bool.set( &obj, var.toDouble() );
-	break;
-    case QVariant::Double:
-	static_QUType_double.set( &obj, var.toDouble() );
-	break;
-    case QVariant::CString:
-	static_QUType_charstar.set( &obj, var.toCString() );
-	break;
-    case QVariant::PointArray:
-    case QVariant::Region:
-    case QVariant::Bitmap:
-    case QVariant::Cursor:
-    case QVariant::SizePolicy:
-	break;
-    case QVariant::Date:
-	static_QUType_ptr.set( &obj, new QDateTime( var.toDate() ) );
-	break;
-    case QVariant::Time:
-	static_QUType_ptr.set( &obj, new QDateTime( QDate(), var.toTime() ) );
-	break;
-    case QVariant::DateTime:
-	static_QUType_ptr.set( &obj, new QDateTime( var.toDateTime() ) );
-	break;
-    case QVariant::ByteArray:
-    case QVariant::BitArray:
-    case QVariant::KeySequence:
-    default:
-	break;
-    }
-}
+#include "../shared/types.h"
 
 /*
     \internal
@@ -741,6 +61,16 @@ public:
     void addSignal( DISPID memid, const QString &name )
     {
 	sigs.insert( memid, name );
+	QMap<DISPID,QString>::Iterator it;
+	DISPID id = -1;
+	for ( it = propsigs.begin(); it!= propsigs.end(); ++it ) {
+	    if ( it.data() == name ) {
+		id = it.key();
+		break;
+	    }
+	}
+	if ( id != -1 )
+	    propsigs.remove( id );
     }
     void addProperty( DISPID propid, const QString &name, const QString &signal )
     {
@@ -804,81 +134,95 @@ public:
 	if ( !meta || signame.isEmpty() )
 	    return DISP_E_MEMBERNOTFOUND;
 
+	QObject *qobject = combase->qObject();
+
 	// emit the signal "as is"
 	int index = meta->findSignal( "signal(const QString&,int,void*)" );
-	if ( index != -1 ) {
+	if ( index != -1 && ((QComObject*)qobject)->receivers( index ) ) {
 	    QUObject o[4];
 	    static_QUType_QString.set(o+1,signame);
 	    static_QUType_int.set(o+2,pDispParams->cArgs);
 	    static_QUType_ptr.set(o+3,pDispParams->rgvarg);
 	    combase->qt_emit( index, o );
+	    static_QUType_ptr.clear(o+3);
+	    static_QUType_int.clear(o+2);
+	    static_QUType_QString.clear(o+1);
 	}
 
 	// get the signal information from the metaobject
 	index = meta->findSignal( signame );
-	const QMetaData *signal = meta->signal( index - meta->signalOffset() );
-	if ( !signal )
-	    return DISP_E_MEMBERNOTFOUND;
+	if ( index != -1 && ((QComObject*)qobject)->receivers( index ) ) {
+	    const QMetaData *signal = meta->signal( index - meta->signalOffset() );
+	    if ( !signal )
+		return DISP_E_MEMBERNOTFOUND;
 
-	// verify parameter count
-	int pcount = signal->method->count;
-	int argcount = pDispParams->cArgs;
-	if ( pcount > argcount )
-	    return DISP_E_PARAMNOTOPTIONAL;
-	else if ( pcount < argcount )
-	    return DISP_E_BADPARAMCOUNT;
+	    // verify parameter count
+	    int pcount = signal->method->count;
+	    int argcount = pDispParams->cArgs;
+	    if ( pcount > argcount )
+		return DISP_E_PARAMNOTOPTIONAL;
+	    else if ( pcount < argcount )
+		return DISP_E_BADPARAMCOUNT;
 
-	// setup parameters
-	const QUParameter *params = signal->method->parameters;
-	QUObject *objects = pcount ? new QUObject[pcount+1] : 0;
-	for ( int p = 0; p < pcount; ++p ) // map the VARIANT to the QUObject
-	    VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1 );
+	    // setup parameters
+	    const QUParameter *params = signal->method->parameters;
+	    QUObject *objects = pcount ? new QUObject[pcount+1] : 0;
+	    int p;
+	    for ( p = 0; p < pcount; ++p ) // map the VARIANT to the QUObject
+		VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1 );
 
-	// emit the generated signal
-	bool ret = combase->qt_emit( index, objects );
+	    // emit the generated signal
+	    bool ret = combase->qt_emit( index, objects );
 
-	for ( p = 0; p < pcount; ++p ) { // update the VARIANT for references and free memory
-	    VARIANT *arg = &(pDispParams->rgvarg[ pcount-p-1 ]);
-	    VARTYPE vt = arg->vt;
-	    QUObject *obj = objects + p + 1;
-	    switch ( vt )
-	    {
-	    case VT_DATE:
-	    case VT_DATE|VT_BYREF:
+	    for ( p = 0; p < pcount; ++p ) { // update the VARIANT for references and free memory
+		VARIANT *arg = &(pDispParams->rgvarg[ pcount-p-1 ]);
+		VARTYPE vt = arg->vt;
+		QUObject *obj = objects + p + 1;
+		switch ( vt )
 		{
-		    QDateTime *dt = (QDateTime*)static_QUType_ptr.get( obj );
-		    if ( vt & VT_BYREF )
-			*arg->pdate = QDateTimeToDATE( *dt );
-		    delete dt;
-		}
-		break;
-	    case VT_BSTR|VT_BYREF:
-		{
-		    BSTR *bstr = arg->pbstrVal;
-		    QString *str = (QString*)static_QUType_ptr.get( obj );
-		    *bstr = QStringToBSTR( *str );
-		    delete str;
-		}
-	    case VT_UNKNOWN|VT_BYREF:
-		{
-		    IUnknown *iface = (IUnknown*)static_QUType_ptr.get( obj );
-		    *arg->ppunkVal = iface;
-		}
-		break;
+		case VT_DATE:
+		case VT_DATE|VT_BYREF:
+		    {
+			QDateTime *dt = (QDateTime*)static_QUType_ptr.get( obj );
+			if ( vt & VT_BYREF )
+			    *arg->pdate = QDateTimeToDATE( *dt );
+			delete dt;
+		    }
+		    break;
+		case VT_BSTR|VT_BYREF:
+		    {
+			BSTR *bstr = arg->pbstrVal;
+			QString *str = (QString*)static_QUType_ptr.get( obj );
+			*bstr = QStringToBSTR( *str );
+			delete str;
+		    }
+		case VT_UNKNOWN|VT_BYREF:
+		    {
+			IUnknown *iface = (IUnknown*)static_QUType_ptr.get( obj );
+			*arg->ppunkVal = iface;
+		    }
+		    break;
 
-	    case VT_DISPATCH|VT_BYREF:
-		{
-		    IDispatch *iface = (IDispatch*)static_QUType_ptr.get( obj );
-		    *arg->ppdispVal = iface;
-		}
-		break;
+		case VT_DISPATCH|VT_BYREF:
+		    {
+			IDispatch *iface = (IDispatch*)static_QUType_ptr.get( obj );
+			*arg->ppdispVal = iface;
+		    }
+		    break;
 
-	    default:
-		break;
+		default:
+		    break;
+		}
 	    }
+	    // cleanup
+	    for ( p = 0; p < pcount; ++p ) {
+		objects[p].type->clear(objects+p);
+	    }
+	    delete [] objects;
+	    return ret ? S_OK : DISP_E_MEMBERNOTFOUND;
+	} else {
+	    return S_OK;
 	}
-	delete [] objects;
-	return ret ? S_OK : DISP_E_MEMBERNOTFOUND;
     }
 
     // IPropertyNotifySink
@@ -890,39 +234,47 @@ public:
 	}
 
 	QMetaObject *meta = combase->metaObject();
-	QString signame = propsigs[dispID];
 	QString propname = props[dispID];
-	if ( !meta || signame.isEmpty() )
+	if ( !meta || propname.isEmpty() )
 	    return S_OK;
+
+	QObject *qobject = combase->qObject();
 
 	// emit the generic signal
 	int index = meta->findSignal( "propertyChanged(const QString&)" );
-	if ( index != -1 ) {
+	if ( index != -1 && ((QComObject*)qobject)->receivers( index ) ) {
 	    QUObject o[2];
 	    static_QUType_QString.set(o+1,propname);
 	    combase->qt_emit( index, o );
+	    static_QUType_QString.clear(o+1);
 	}
 
+	QString signame = propsigs[dispID];
+	if ( signame.isEmpty() )
+	    return S_OK;
 	// get the signal information from the metaobject
 	index = meta->findSignal( signame );
-	const QMetaData *signal = meta->signal( index - meta->signalOffset() );
-	if ( !signal || signal->method->count != 1 )
-	    return S_OK;
+	if ( index != -1 && ((QComObject*)qobject)->receivers( index ) ) {
+	    const QMetaData *signal = meta->signal( index - meta->signalOffset() );
+	    if ( !signal || signal->method->count != 1 )
+		return S_OK;
 
-	// setup parameters
-	int pindex = meta->findProperty( propname );
-	QUObject object;
-	QVariant var;
-	combase->qt_property( pindex + meta->propertyOffset(), 1, &var );
-	if ( !var.isValid() )
-	    return S_OK;
-	if ( QUType::isEqual( signal->method->parameters->type, &static_QUType_QVariant ) )
-	    static_QUType_QVariant.set( &object, var );
-	else
-	    QVariantToQUObject( var, object );
+	    // setup parameters
+	    int pindex = meta->findProperty( propname );
+	    QUObject o[2];
+	    QVariant var;
+	    combase->qt_property( pindex + meta->propertyOffset(), 1, &var );
+	    if ( !var.isValid() )
+		return S_OK;
+	    if ( QUType::isEqual( signal->method->parameters->type, &static_QUType_QVariant ) )
+		static_QUType_QVariant.set( o+1, var );
+	    else
+		QVariantToQUObject( var, o[1] );
 
-	// emit the "changed" signal
-	combase->qt_emit( index, &object );
+	    // emit the "changed" signal
+	    combase->qt_emit( index, o );
+	    o[1].type->clear(o+1);
+	}
 	return S_OK;
     }
     HRESULT __stdcall OnRequestEdit( DISPID dispID )
@@ -1175,6 +527,19 @@ void QComBase::clear()
 }
 
 /*!
+    \fn bool QComBase::initialize( IUnknown **ptr )
+
+    This virtual function is called by setControl. Reimplement this function to return
+    the IUnknown pointer of the COM object in \a ptr, and return TRUE if the object
+    initialization succeeded. Otherwise, return FALSE.
+
+    The interface returned in \a ptr should be referenced exactly once when this function
+    returns. The interface provided by e.g. CoCreateInstance is already referenced, and
+    there is no need to reference it again.
+*/
+
+
+/*!
     Requests the interface \a uuid from the COM object and sets the value of \a iface to the
     provided interface, or to null if the requested interface could not be provided.
     
@@ -1243,7 +608,7 @@ QMetaObject *QComBase::metaObject() const
     iidnames.insertSearchPath( QSettings::Windows, "/Classes" );
 
     QDict<QUMethod> slotlist; // QUMethods deleted in ~QActiveX
-    QDict<QUMethod< signallist; // QUMethods deleted in ~QActiveX
+    QDict<QUMethod> signallist; // QUMethods deleted in ~QActiveX
     QDict<QMetaProperty> proplist;
     proplist.setAutoDelete( TRUE ); // deep copied when creating metaobject
     QDict<QString> infolist; 
@@ -1332,6 +697,10 @@ QMetaObject *QComBase::metaObject() const
 			QString ptype;
 			TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ].tdesc;
 			ptype = typedescToQString( tdesc );
+			if ( ptype == "UNSUPPORTED" ) {
+			    tdesc = funcdesc->lprgelemdescParam[p - 1].tdesc;
+			    ptype = typedescToQString( tdesc );
+			}
 			if ( funcdesc->invkind == INVOKE_FUNC )
 			    ptype = constRefify( ptype );
 
@@ -1346,11 +715,8 @@ QMetaObject *QComBase::metaObject() const
 		    if ( !!prototype )
 			prototype += ")";
 
-		    bool bindable = FALSE;
-		    if ( funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE )
-			bindable = TRUE;
-		    if ( funcdesc->wFuncFlags & FUNCFLAG_FREQUESTEDIT )
-			bindable = TRUE;
+		    bool bindable = (funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE) || (funcdesc->wFuncFlags & FUNCFLAG_FREQUESTEDIT);
+		    QMetaProperty *prop = 0;
 
 		    // get type of function
 		    if ( !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) ) switch( funcdesc->invkind ) {
@@ -1361,33 +727,8 @@ QMetaObject *QComBase::metaObject() const
 				qWarning( "%s: Too many parameters in property", function.latin1() );
 				break;
 			    }
-			    QMetaProperty *prop = proplist[function];
+			    prop = proplist[function];
 			    if ( !prop ) {
-				if ( bindable ) {
-				    if ( !eventSink )
-					that->eventSink = new QAxEventSink( that );
-				    // generate changed signal
-				    QString signalName = function + "Changed";
-				    QString signalParam = constRefify( paramTypes[0] );
-				    QString signalProto = signalName + "(" + signalParam + ")";
-				    QString paramName = "value";
-				    if ( !signallist.find( signalProto ) ) {
-					QUMethod *signal = new QUMethod;
-					signal->name = new char[signalName.length()+1];
-					signal->name = qstrcpy( (char*)signal->name, signalName );
-					signal->count = 1;
-					QUParameter *param = new QUParameter;
-					param->name = new char[paramName.length()+1];
-					param->name = qstrcpy( (char*)param->name, paramName );
-					param->inOut = QUParameter::In;
-					QStringToQUType( signalParam, param );
-					signal->parameters = param;
-
-					signallist.insert( signalProto, signal );
-					eventSink->addProperty( funcdesc->memid, function, signalProto );
-				    }
-				}
-
 				prop = new QMetaProperty;
 				proplist.insert( function, prop );
 				prop->meta = (QMetaObject**)&metaobj;
@@ -1410,6 +751,31 @@ QMetaObject *QComBase::metaObject() const
 				}
 				prop->n = new char[function.length()+1];
 				prop->n = qstrcpy( (char*)prop->n, function );
+
+				if ( bindable ) {
+				    if ( !eventSink )
+					that->eventSink = new QAxEventSink( that );
+				    // generate changed signal
+				    QString signalName = function + "Changed";
+				    QString signalParam = constRefify( ptype );
+				    QString signalProto = signalName + "(" + signalParam + ")";
+				    QString paramName = "value";
+				    if ( !signallist.find( signalProto ) ) {
+					QUMethod *signal = new QUMethod;
+					signal->name = new char[signalName.length()+1];
+					signal->name = qstrcpy( (char*)signal->name, signalName );
+					signal->count = 1;
+					QUParameter *param = new QUParameter;
+					param->name = new char[paramName.length()+1];
+					param->name = qstrcpy( (char*)param->name, paramName );
+					param->inOut = QUParameter::In;
+					QStringToQUType( signalParam, param );
+					signal->parameters = param;
+
+					signallist.insert( signalProto, signal );
+				    }
+				    eventSink->addProperty( funcdesc->memid, function, signalProto );
+				}
 			    } else if ( !prop->t ) {
 				QString ptype = paramTypes[0];
 				if ( ptype.isEmpty() )
@@ -1430,18 +796,28 @@ QMetaObject *QComBase::metaObject() const
 				break;
 			    // fall through to generate put function as slot
 			}
+			if ( funcdesc->invkind != INVOKE_PROPERTYPUT )
+			    break;
 
 		    case INVOKE_FUNC: // method
 			{
-			    if ( funcdesc->invkind != INVOKE_FUNC ) {
-				function = "set" + function;
+			    if ( funcdesc->invkind == INVOKE_PROPERTYPUT && prop ) {
+				QString set;
+				QString firstletter = function.left(1);
+				if ( firstletter == firstletter.upper() ) {
+				    set = "Set";
+				} else {
+				    set = "set";
+				    function = firstletter.upper() + function.mid(1);
+				}
+				function = set + function;
 				if ( prototype.right( 2 ) == "()" ) {
-				    QString ptype = paramTypes[0];
+				    QString ptype = prop->type();
 				    if ( ptype.isEmpty() )
 					ptype = returnType;
 				    prototype = function + "(" + constRefify(ptype) + ")";
 				} else {
-				    prototype = "set" + prototype;
+				    prototype = set + prototype;
 				}
 				if ( slotlist.find( prototype ) )
 				    break;
@@ -1558,6 +934,24 @@ QMetaObject *QComBase::metaObject() const
 			// generate meta property
 			QMetaProperty *prop = proplist[variableName];
 			if ( !prop ) {
+			    prop = new QMetaProperty;
+			    proplist.insert( variableName, prop );
+			    prop->meta = (QMetaObject**)&metaobj;
+			    prop->_id = -1;
+			    prop->enumData = 0;
+			    prop->flags = QMetaProperty::Readable | PropStored;
+			    if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) )
+				prop->flags |= QMetaProperty::Writable;;
+			    if ( !(vardesc->wVarFlags & VARFLAG_FNONBROWSABLE) )
+				prop->flags |= PropDesignable;
+			    if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED) )
+				prop->flags |= PropScriptable;
+
+			    prop->t = new char[variableType.length()+1];
+			    prop->t = qstrcpy( (char*)prop->t, variableType );
+			    prop->n = new char[variableName.length()+1];
+			    prop->n = qstrcpy( (char*)prop->n, variableName );
+
 			    if ( bindable ) {
 				if ( !eventSink )
 				    that->eventSink = new QAxEventSink( that );
@@ -1579,34 +973,23 @@ QMetaObject *QComBase::metaObject() const
 				    signal->parameters = param;
 
 				    signallist.insert( signalProto, signal );
-				    eventSink->addProperty( vardesc->memid, variableName, signalProto );
 				}
+				eventSink->addProperty( vardesc->memid, variableName, signalProto );
 			    }
-
-			    prop = new QMetaProperty;
-			    proplist.insert( variableName, prop );
-			    prop->meta = (QMetaObject**)&metaobj;
-			    prop->_id = -1;
-			    prop->enumData = 0;
-			    prop->flags = QMetaProperty::Readable | PropStored;
-			    if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) )
-				prop->flags |= QMetaProperty::Writable;;
-			    if ( !(vardesc->wVarFlags & VARFLAG_FNONBROWSABLE) )
-				prop->flags |= PropDesignable;
-			    if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED) )
-				prop->flags |= PropScriptable;
-
-			    prop->t = new char[variableType.length()+1];
-			    prop->t = qstrcpy( (char*)prop->t, variableType );
-			    prop->n = new char[variableName.length()+1];
-			    prop->n = qstrcpy( (char*)prop->n, variableName );
 			}
 
 			// generate a set slot
 			if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) ) {
-			    variableType = constRefify( variableType );
+			    QString firstletter = variableName.left(1);
+			    QString set;
+			    if ( firstletter == firstletter.upper() ) {
+				set = "Set";
+			    } else {
+				set = "set";
+			    }
 
-			    QString function = "set" + variableName;
+			    variableType = constRefify( variableType );
+			    QString function = set + variableName;
 			    QString prototype = function + "(" + variableType + ")";
 
 			    if ( !slotlist.find( prototype ) ) {
@@ -1731,7 +1114,7 @@ QMetaObject *QComBase::metaObject() const
 				ushort nEvents = eventattr->cFuncs;
 
 				// get information about all event functions
-				for ( UINT fd = 0; fd < nEvents; ++fd ) {
+				for ( UINT fd = 0; fd < (UINT)nEvents; ++fd ) {
 				    FUNCDESC *funcdesc;
 				    eventinfo->GetFuncDesc( fd, &funcdesc );
 				    if ( !funcdesc )
@@ -1756,7 +1139,8 @@ QMetaObject *QComBase::metaObject() const
 				    UINT maxNames = 255;
 				    UINT maxNamesOut;
 				    eventinfo->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
-				    for ( int p = 0; p < (int)maxNamesOut; ++ p ) {
+				    int p;
+				    for ( p = 0; p < (int)maxNamesOut; ++ p ) {
 					QString paramName = BSTRToQString( bstrNames[p] );
 					SysFreeString( bstrNames[p] );
 
@@ -1810,8 +1194,8 @@ QMetaObject *QComBase::metaObject() const
 					}
 					signal->parameters = params;
 					signallist.insert( prototype, signal );
-					eventSink->addSignal( funcdesc->memid, prototype );
 				    }
+				    eventSink->addSignal( funcdesc->memid, prototype );
 
 #if 0 // documentation in metaobject would be cool?
 				    // get function documentation
@@ -1938,7 +1322,7 @@ QMetaObject *QComBase::metaObject() const
 }
 
 /*!
-    \reimp
+    \internal
 */
 bool QComBase::qt_invoke( int _id, QUObject* _o )
 {
@@ -1963,7 +1347,7 @@ bool QComBase::qt_invoke( int _id, QUObject* _o )
     // Get the Dispatch ID of the method to be called
     bool fakedslot = FALSE;
     DISPID dispid;
-    OLECHAR *names = (unsigned short*)qt_winTchar(slot->name, TRUE );
+    OLECHAR *names = (TCHAR*)qt_winTchar(slot->name, TRUE );
     disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
     if ( dispid == DISPID_UNKNOWN ) {
 	// see if we are calling a property set function as a slot
@@ -1971,7 +1355,7 @@ bool QComBase::qt_invoke( int _id, QUObject* _o )
 	    return FALSE;
 	QString realname = slot->name;
 	realname = realname.right( realname.length() - 3 );
-	OLECHAR *realnames = (unsigned short*)qt_winTchar(realname, TRUE );
+	OLECHAR *realnames = (TCHAR*)qt_winTchar(realname, TRUE );
 	disp->GetIDsOfNames( IID_NULL, &realnames, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
 	if ( dispid == DISPID_UNKNOWN )
 	    return FALSE;
@@ -1993,7 +1377,8 @@ bool QComBase::qt_invoke( int _id, QUObject* _o )
     params.cNamedArgs = fakedslot ? 1 : 0;
     params.rgdispidNamedArgs = fakedslot ? &dispidNamed : 0;
     params.rgvarg = slot->count ? new VARIANTARG[slotcount] : 0;
-    for ( int p = 0; p < slotcount; ++p ) {
+    int p;
+    for ( p = 0; p < slotcount; ++p ) {
 	QUObject *obj = _o + p + 1;
 	// map the QUObject's type to the VARIANT. ### Maybe it would be better 
 	// to convert the QUObject to what the VARIANT is supposed to be, since
@@ -2095,7 +1480,7 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 
 	//  get the Dispatch ID of the function to be called
 	DISPID dispid;
-	OLECHAR *names = (unsigned short*)qt_winTchar(prop->n, TRUE );
+	OLECHAR *names = (TCHAR*)qt_winTchar(prop->n, TRUE );
 	disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
 	if ( dispid == DISPID_UNKNOWN )
 	    return FALSE;
@@ -2166,48 +1551,6 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
     return FALSE;
 }
 
-static inline bool isIdentChar( char x )
-{						// Avoid bug in isalnum
-    return x == '_' || (x >= '0' && x <= '9') ||
-	 (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z');
-}
-
-static inline bool isSpace( char x )
-{
-#if defined(Q_CC_BOR)
-  /*
-    Borland C++ 4.5 has a weird isspace() bug.
-    isspace() usually works, but not here.
-    This implementation is sufficient for our internal use: rmWS()
-  */
-    return (uchar) x <= 32;
-#else
-    return isspace( (uchar) x );
-#endif
-}
-// this is copied from qobject.cpp
-static QCString qt_rmWS( const char *s )
-{
-    QCString result( qstrlen(s)+1 );
-    char *d = result.data();
-    char last = 0;
-    while( *s && isSpace(*s) )			// skip leading space
-	s++;
-    while ( *s ) {
-	while ( *s && !isSpace(*s) )
-	    last = *d++ = *s++;
-	while ( *s && isSpace(*s) )
-	    s++;
-	if ( *s && isIdentChar(*s) && isIdentChar(last) )
-	    last = *d++ = ' ';
-    }
-    result.truncate( (int)(d - result.data()) );
-    int void_pos = result.find("(void)");
-    if ( void_pos >= 0 )
-	result.remove( void_pos+1, (uint)strlen("void") );
-    return result;
-}
-
 /*!
     Calls the function \a id of the COM object passing the parameters \a var1 ... \a var8, 
     and returns the value, or an invalid variant if the function does not return a value.
@@ -2223,55 +1566,67 @@ QVariant QComBase::dynamicCall( int id, const QVariant &var1,
 							 const QVariant &var7, 
 							 const QVariant &var8 )
 {
-    QUObject obj[9];
-    // obj[0] is the result
-    QVariantToQUObject( var1, obj[1] );
-    QVariantToQUObject( var2, obj[2] );
-    QVariantToQUObject( var3, obj[3] );
-    QVariantToQUObject( var4, obj[4] );
-    QVariantToQUObject( var5, obj[5] );
-    QVariantToQUObject( var6, obj[6] );
-    QVariantToQUObject( var7, obj[7] );
-    QVariantToQUObject( var8, obj[8] );
-
-    QVariant result;
-
     const QMetaData *slot_data = 0;
     slot_data = metaObject()->slot( id, TRUE );
+    QVariant result;
+
     if ( slot_data ) {
 	const QUMethod *slot = 0;
 	slot = slot_data->method;
-	qt_invoke( id, obj );
-	if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
-	    result = static_QUType_int.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
-	    result = static_QUType_QString.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
-	    result = static_QUType_charstar.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
-	    result = static_QUType_bool.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
-	    result = static_QUType_double.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
-	    result = static_QUType_enum.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
-	    result = static_QUType_QVariant.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
-	    //###
-	} else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
-	    //###
-	} else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) && slot->parameters ) {
-	    const QUParameter *param = slot->parameters;
-	    const char *type = (const char*)param->typeExtra;
-	    if ( !qstrcmp( type, "int" ) ) {
-		result = *(int*)static_QUType_ptr.get( obj );
-	    } else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
-		result = *(QString*)static_QUType_ptr.get( obj );
-	    } else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
-		result = *(QDateTime*)static_QUType_ptr.get( obj );
-	    }
-	    //###
+
+	QUObject obj[9];
+	// obj[0] is the result
+	int o;
+	int ret = slot->count && slot->parameters[0].inOut == QUParameter::Out;
+	for ( o = 0; o < slot->count; ++o ) {
+	    obj[o+1].type = slot->parameters[o+ret].type;
 	}
+	QVariantToQUObject( var1, obj[1] );
+	QVariantToQUObject( var2, obj[2] );
+	QVariantToQUObject( var3, obj[3] );
+	QVariantToQUObject( var4, obj[4] );
+	QVariantToQUObject( var5, obj[5] );
+	QVariantToQUObject( var6, obj[6] );
+	QVariantToQUObject( var7, obj[7] );
+	QVariantToQUObject( var8, obj[8] );
+
+	qt_invoke( id, obj );
+
+	if ( !QUType::isEqual( obj->type, &static_QUType_Null ) ) {
+	    if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
+		result = static_QUType_int.get( obj );
+	    } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
+		result = static_QUType_QString.get( obj );
+	    } else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
+		result = static_QUType_charstar.get( obj );
+	    } else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
+		result = QVariant( static_QUType_bool.get( obj ), 0 );
+	    } else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
+		result = static_QUType_double.get( obj );
+	    } else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
+		result = static_QUType_enum.get( obj );
+	    } else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
+		result = static_QUType_QVariant.get( obj );
+	    } else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
+		//###
+	    } else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
+		//###
+	    } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) && slot->parameters ) {
+		const QUParameter *param = slot->parameters;
+		const char *type = (const char*)param->typeExtra;
+		if ( !qstrcmp( type, "int" ) ) {
+		    result = *(int*)static_QUType_ptr.get( obj );
+		} else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
+		    result = *(QString*)static_QUType_ptr.get( obj );
+		} else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
+		    result = *(QDateTime*)static_QUType_ptr.get( obj );
+		}
+		//###
+	    }
+	}
+
+	for ( o = 0; o < 9; ++o )
+	    obj[o].type->clear( obj+o );
     }
 #if defined(QT_CHECK_RANGE)
     else {
@@ -2345,14 +1700,14 @@ public:
     {
 	if ( !var )
 	    return E_POINTER;
-	*var = QVariantToVARIANT( map[BSTRToQString((unsigned short*)name)] );
+	*var = QVariantToVARIANT( map[BSTRToQString((TCHAR*)name)] );
 	return S_OK;
     }
     HRESULT __stdcall Write( LPCOLESTR name, VARIANT *var )
     {
 	if ( !var )
 	    return E_POINTER;
-	QString property = BSTRToQString((unsigned short*)name);
+	QString property = BSTRToQString((TCHAR*)name);
 	if ( !map.contains( property ) )
 	    return E_INVALIDARG;
 	QVariant qvar = VARIANTToQVariant( *var );
@@ -2434,6 +1789,11 @@ void QComBase::setPropertyBag( const PropertyBag &bag )
 
 /*!
     \fn const char *QComBase::className() const
+    \internal
+*/
+
+/*!
+    \fn QObject *QComBase::qObject()
     \internal
 */
 
@@ -2533,7 +1893,7 @@ const char *QComObject::className() const
 }
 
 /*!
-    Initializes the COM object.
+    \reimp
 */
 bool QComObject::initialize( IUnknown **ptr )
 {

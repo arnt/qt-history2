@@ -1,4 +1,5 @@
 //#define COCREATE
+//#define FORCECLIENTSITE
 
 #include "qactivex.h"
 
@@ -9,9 +10,9 @@ extern CComModule _Module;
 #include <atlhost.h>
 
 #include <qapplication.h>
-#include <qmetaobject.h>
 #include <qobjectlist.h>
 #include <qstatusbar.h>
+#include "../shared/types.h"
 
 static HHOOK hhook = 0;
 static int hhookref = 0;
@@ -118,9 +119,6 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     }
     return CallNextHookEx( hhook, nCode, wParam, lParam );
 }
-
-extern BSTR QStringToBSTR( const QString &str );
-extern QString BSTRToQString( BSTR bstr );
 
 // {D02B1C36-3607-4959-ADA0-C93E945A67CB}
 static const GUID IID_IQtClientSite = 
@@ -402,7 +400,7 @@ public:
 	    break;
 	case DISPID_AMBIENT_UIDEAD: // VT_BOOL
 	    pVarResult->vt = VT_BOOL;
-	    pVarResult->boolVal = FALSE;
+	    pVarResult->boolVal = !activex->isEnabled();
 	    break;
 	case DISPID_AMBIENT_SHOWGRABHANDLES: // VT_BOOL
 	    pVarResult->vt = VT_BOOL;
@@ -895,7 +893,7 @@ QActiveX::~QActiveX()
 }
 
 /*!
-    Initializes the ActiveX control.
+    \reimp
 */
 bool QActiveX::initialize( IUnknown **ptr )
 {
@@ -916,7 +914,7 @@ bool QActiveX::initialize( IUnknown **ptr )
 		CLSCTX_INPROC_HANDLER|CLSCTX_LOCAL_SERVER, IID_IUnknown, (void**)ptr );
 #else
     CAxWindow axWindow = winId();
-    axWindow.CreateControlEx( (unsigned short*)qt_winTchar( control(), TRUE ), 0, 0, ptr );
+    axWindow.CreateControlEx( (TCHAR*)qt_winTchar( control(), TRUE ), 0, 0, ptr );
 #endif
     if ( !*ptr ) {
 	_Module.Term();
@@ -933,14 +931,12 @@ bool QActiveX::initialize( IUnknown **ptr )
     setCaption( BSTRToQString( userType ) );
     CoTaskMemFree( userType );
 
-    metaObject();
-
     bool quickActivated = FALSE;
-#ifdef COCREATE
     // try to quickactivate control
     CComPtr<IQuickActivate> quick;
     (*ptr)->QueryInterface( IID_IQuickActivate, (void**)&quick );
     if ( quick ) {
+#ifdef COCREATE
 	QACONTAINER qaContainer;
 	memset( &qaContainer, 0, sizeof(QACONTAINER) );
 	qaContainer.cbSize = sizeof(QACONTAINER);
@@ -964,18 +960,20 @@ bool QActiveX::initialize( IUnknown **ptr )
 	QACONTROL qaControl;
 	qaControl.cbSize = sizeof(QACONTROL);
 	quickActivated = quick->QuickActivate( &qaContainer, &qaControl ) == S_OK;
-    }
 #else
-    quickActivated = TRUE;
+	quickActivated = TRUE;
 #endif
+    }
 
     DWORD miscStatus;
-#ifdef COCREATE
     // Set client site if quick activation was not successfull
+#ifndef FORCECLIENTSITE
     if ( !quickActivated ) {
+#endif
 	ole->GetMiscStatus( DVASPECT_CONTENT, &miscStatus );
 	if ( miscStatus & OLEMISC_SETCLIENTSITEFIRST && qtclient )
 	    qtclient->connect();
+#ifndef FORCECLIENTSITE
     }
 #endif
     // Initialize the control
@@ -1006,6 +1004,8 @@ bool QActiveX::initialize( IUnknown **ptr )
 }
 
 /*!
+    \reimp
+
     Shuts down the ActiveX control.
 */
 void QActiveX::clear()
@@ -1133,6 +1133,11 @@ void QActiveX::enabledChange( bool old )
 
     CAxWindow ax = winId();
     ax.EnableWindow( isEnabled() );
+    CComPtr<IOleControl> ole;
+    queryInterface( IID_IOleControl, (void**)&ole );
+    if ( ole ) {
+	ole->OnAmbientPropertyChange( DISPID_AMBIENT_UIDEAD );
+    }
 }
 
 /*!

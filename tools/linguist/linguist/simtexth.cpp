@@ -175,7 +175,7 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
     CoMatrix cmTarget( text );
     int targetLen = qstrlen( text );
 
-    TML all = tor->messages();
+    TML all = tor->translatedMessages();
     TML::Iterator it;
 
     for ( it = all.begin(); it != all.end(); ++it ) {
@@ -214,7 +214,7 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 	    scores.insert( scores.at(i), score );
 	    candidates.insert( candidates.at(i), cand );
 	}
-continue_outer_loop:
+    continue_outer_loop:
 	;
     }
     return candidates;

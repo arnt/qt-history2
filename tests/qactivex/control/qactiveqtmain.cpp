@@ -1,4 +1,3 @@
-#include <qapplication.h>
 #include <qt_windows.h>
 #include <qregexp.h>
 
@@ -60,10 +59,10 @@ bool CExeModule::StartMonitor()
     return (h != NULL);
 }
 
-BEGIN_OBJECT_MAP(ObjectMap)
-OBJECT_ENTRY(IID_QAxClass, QActiveQtBase )
-END_OBJECT_MAP()
-
+static _ATL_OBJMAP_ENTRY ObjectMap[] = {
+    OBJECT_ENTRY(IID_QAxClass, QActiveQtBase ) // {&clsid, class::UpdateRegistry, class::_ClassFactoryCreatorClass::CreateInstance, class::_CreatorClass::CreateInstance, NULL, 0, class::GetObjectDescription, class::GetCategoryMap, class::ObjectMain },
+    {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}
+};
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -127,8 +126,7 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 	    hRes = _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE);
 	    _ASSERTE(SUCCEEDED(hRes));
 
-	    QApplication app( argc, argv.data() );
-	    nRet = app.exec();
+	    nRet = main( argc, argv.data() );
 
 	    _Module.RevokeClassObjects();
 	    Sleep(dwPause); //wait for any threads to finish

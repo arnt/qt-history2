@@ -612,7 +612,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	}
 #endif
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);
-	if(testWFlags( WType_Popup )) 
+	if(testWFlags( WType_Popup ) || testWFlags( WStyle_Tool ) ) 
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
 	if(!mac_window_count++)

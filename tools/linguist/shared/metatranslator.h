@@ -29,15 +29,12 @@ class MetaTranslatorMessage : public QTranslatorMessage
 public:
     enum Type { Unfinished, Finished, Obsolete };
 
-    MetaTranslatorMessage() : ty( Unfinished ) { }
+    MetaTranslatorMessage();
     MetaTranslatorMessage( const char *context, const char *sourceText,
 			   const char *comment,
 			   const QString& translation = QString::null,
-			   bool utf8 = FALSE, Type type = Unfinished )
-	: QTranslatorMessage( context, sourceText, comment, translation ),
-	  utfeight( utf8 ), ty( type ) { }
-    MetaTranslatorMessage( const MetaTranslatorMessage& m )
-	: QTranslatorMessage( m ), utfeight( m.utfeight ), ty( m.ty ) { }
+			   bool utf8 = FALSE, Type type = Unfinished );
+    MetaTranslatorMessage( const MetaTranslatorMessage& m );
 
     MetaTranslatorMessage& operator=( const MetaTranslatorMessage& m );
 
@@ -84,6 +81,7 @@ public:
     QString toUnicode( const char *str, bool utf8 ) const;
 
     QValueList<MetaTranslatorMessage> messages() const;
+    QValueList<MetaTranslatorMessage> translatedMessages() const;
 
 private:
     typedef QMap<MetaTranslatorMessage, int> TMM;

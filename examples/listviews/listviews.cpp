@@ -128,7 +128,7 @@ ListViews::ListViews( QWidget *parent, const char *name )
     menu = new QPopupMenu( messages );
     for( int i = 1; i <= 10; i++ )
 	menu->insertItem( QString( "Context Item %1" ).arg( i ) );
-    connect(messages, SIGNAL( rightButtonPressed( QListViewItem *, const QPoint& , int ) ),
+    connect(messages, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint& , int ) ),
 	    this, SLOT( slotRMB( QListViewItem *, const QPoint &, int ) ) );
     vsplitter->setResizeMode( messages, QSplitter::KeepSize );
 

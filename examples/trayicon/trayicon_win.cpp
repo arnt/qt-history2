@@ -219,7 +219,8 @@ static HICON createIcon( const QPixmap &pm, HBITMAP &hbm )
     iconInfo.fIcon    = TRUE;
     iconInfo.hbmMask  = createIconMask(mask);
     hbm = iconInfo.hbmMask;
-    iconInfo.hbmColor = pm.hbm();
+    if ( qWinVersion() & Qt::WV_NT_based )
+	iconInfo.hbmColor = pm.hbm();
 
     return CreateIconIndirect( &iconInfo );
 }

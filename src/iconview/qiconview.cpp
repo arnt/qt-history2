@@ -2627,6 +2627,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->firstSizeHint = TRUE;
     d->selectAnchor = 0;
     d->drawActiveSelection = TRUE;
+    d->drawDragShapes = FALSE;
 
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );

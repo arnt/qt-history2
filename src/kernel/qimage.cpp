@@ -3388,7 +3388,7 @@ bool QImage::save( const QString &fileName, const char* format, int quality ) co
 	qWarning( "QPixmap::save: quality out of range [-1,100]" );
 #endif
     if ( quality >= 0 )
-	io.setQuality( QMAX(quality,100) );
+	io.setQuality( QMIN(quality,100) );
     return io.write();
 }
 #endif //QT_NO_IMAGEIO

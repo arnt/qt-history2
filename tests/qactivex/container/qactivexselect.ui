@@ -123,25 +123,26 @@
     </connection>
 </connections>
 <includes>
-    <include location="global" impldecl="in declaration">qguardedptr.h</include>
-    <include location="local" impldecl="in declaration">qactivex.h</include>
     <include location="global" impldecl="in implementation">designerinterface.h</include>
+    <include location="local" impldecl="in declaration">qactivex.h</include>
     <include location="local" impldecl="in implementation">qactivexselect.ui.h</include>
 </includes>
 <forwards>
     <forward>struct DesignerInterface</forward>
 </forwards>
 <variables>
-    <variable>DesignerInterface *designer;</variable>
-    <variable>QGuardedPtr&lt;QActiveX&gt; activex;</variable>
     <variable>QString control;</variable>
+    <variable>QActiveX *activex;</variable>
+    <variable>DesignerInterface *designer;</variable>
 </variables>
 <slots>
     <slot>init()</slot>
-    <slot>controlSelected(const QString &amp; ctrl)</slot>
+    <slot>controlSelected( const QString &amp; ctrl )</slot>
     <slot>openLater()</slot>
-    <slot>setActiveX(QActiveX * ax)</slot>
-    <slot>setDesigner(DesignerInterface * des)</slot>
+    <slot>setActiveX( QActiveX * ax )</slot>
+    <slot>setDesigner( DesignerInterface * des )</slot>
+    <slot returnType="QString">selectedControl()</slot>
 </slots>
+<exportmacro>QCOM_EXPORT</exportmacro>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

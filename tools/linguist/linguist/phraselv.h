@@ -35,6 +35,7 @@ public:
 
     PhraseLVI( PhraseLV *parent, const Phrase& phrase, int accelKey = 0 );
 
+    virtual void setText( int column, const QString& text );
     virtual QString key( int column, bool ascending ) const;
 
     void setPhrase( const Phrase& phrase );
@@ -42,7 +43,11 @@ public:
     int accelKey() const { return akey; }
 
 private:
+    QString makeKey( const QString& text ) const;
+
     int akey;
+    QString sourceTextKey;
+    QString targetTextKey;
 };
 
 class PhraseLV : public QListView

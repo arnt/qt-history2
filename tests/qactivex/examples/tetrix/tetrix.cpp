@@ -16,10 +16,12 @@ int main( int argc, char **argv )
 {
     QApplication::setColorSpec( QApplication::CustomColor );
     QDragApplication a(argc,argv);
-    QTetrix *tetrix = new QTetrix;
-    tetrix->setCaption("Tetrix");
-    a.setMainWidget(tetrix);
-    tetrix->setCaption("Qt Example - Tetrix");
-    tetrix->show();
+    if ( !( argc>1 && !qstrcmp(argv[2],"-activex") ) ) {
+	QTetrix *tetrix = new QTetrix;
+	tetrix->setCaption("Tetrix");
+	a.setMainWidget(tetrix);
+	tetrix->setCaption("Qt Example - Tetrix");
+	tetrix->show();
+    }
     return a.exec();
 }

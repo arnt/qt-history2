@@ -2,6 +2,7 @@
 #include <qtextstream.h>
 #include <qstringlist.h>
 #include <qregexp.h>
+#include <qmap.h>
 
 static const int ntypes = 32;
 static const char* const type_map[ntypes][2] =
@@ -364,7 +365,7 @@ static QString parseFile( QTextStream &in,
 	    break;
 
 	case Error:
-	    return FALSE;
+	    return error;
 	}
     }
 
@@ -376,7 +377,7 @@ static QString parseFile( QTextStream &in,
 
 int main( int argc, char **argv )
 {
-    QString input;
+    QStringList input;
     QString output;
     QString resource;
     QString error;
@@ -415,21 +416,17 @@ int main( int argc, char **argv )
 	    error = "Unknown option \"" + p + "\"";
 	    break;
 	} else {
-	    if ( !!input ) {
-		error = "Too many input files specified!";	
-		break;
-	    }
-	    input = argv[i];
-	    input = input.stripWhiteSpace();
+	    QString in = argv[i];
+	    input << in.stripWhiteSpace();
 	}
 	i++;
     }
     if ( input.isEmpty() )
-	error = "Missing input filename!";
+	error = "No input file specified!";
     if ( !!error ) {
 	qFatal( "Qt interface definition compiler\n"
 		"Invalid argument %d: %s\n"
-		"Usage:\tidc [options] <header-file>\n"
+		"Usage:\tidc [options] <files>\n"
 		      "\t-o file\t\tWrite output to file rather than stdout\n"
 		      "\t-r[c] file\tWrite resource file\n"
 		      "\t-v\t\tDisplay version of idc", i, error.latin1() );
@@ -438,18 +435,8 @@ int main( int argc, char **argv )
 
     QString filebase;
 
-    if ( !!output )
-	filebase = output;//.right( output.length() - output.findRev( "\\" )-1 );
-    else
-	filebase = input;//.right( input.length() - input.findRev( "\\" )-1 );
-
+    filebase = output;
     filebase = filebase.left( filebase.findRev( "." ) );
-
-    QFile infile( input );
-    if ( !infile.open( IO_ReadOnly ) )
-	qFatal( "Couldn't open %s for reading", input.latin1() );
-
-    QTextStream in( &infile );
 
     if ( !!resource ) {
 	QFile file( resource );
@@ -458,35 +445,72 @@ int main( int argc, char **argv )
 	QTextStream out( &file );
 	out << "1 TYPELIB \"" << filebase.replace( QRegExp("\\\\"), "\\\\" ) << ".tlb\"" << endl;
     }
-    {
-	QTextStream out;
-	QFile file;
-	if ( !!output ) {
-	    file.setName( output );
-	    if ( !file.open( IO_WriteOnly ) )
-		qFatal( "Couldn't open %s for writing", output.latin1() );
-	    out.setDevice( &file );
-	} else {
+
+    QStringList::Iterator it;
+
+    QStringList coclasses;
+    QMap<QString, QString> coclass_clsid;
+    QMap<QString, QString> coclass_iface;
+    QMap<QString, QString> coclass_events;
+    QMap<QString, QStringList> coclass_signals;
+    QMap<QString, QStringList> coclass_slots;
+    QMap<QString, QStringList> coclass_properties;
+    QString typelib_iid;
+    QString typelib = filebase.right( filebase.length() - filebase.findRev( "\\" )-1 );
+    for ( it = input.begin(); it != input.end(); ++it ) {
+	QFile infile( *it );
+	if ( !infile.open( IO_ReadOnly ) )
+	    qFatal( "Couldn't open %s for reading", (*it).latin1() );
+	
+	QTextStream in( &infile );
+	{
+	    QString coclass;
+	    QString iid_coclass;
+	    QString iid_iface;
+	    QString iid_events;
+	    QString iid_typelib;
+	    QStringList signallist;
+	    QStringList slotlist;
+	    QStringList proplist;
+	    
+	    QString error = parseFile( in, coclass, iid_coclass, iid_iface, iid_events, iid_typelib, signallist, slotlist, proplist );
+	    if ( !error.isEmpty() ) {
+		qFatal( "%s: Error parsing file: %s", (*it).latin1(), error.latin1() );
+	    }
+	    if ( !!typelib_iid && typelib_iid != iid_typelib ) {
+		qFatal( "%s: Multiple typelibraries are not supported" );
+	    }
+	    typelib_iid = iid_typelib;
+	    coclasses.append( coclass );
+	    coclass_clsid.insert( coclass, iid_coclass );
+	    coclass_iface.insert( coclass, iid_iface );
+	    coclass_events.insert( coclass, iid_events );
+	    coclass_signals.insert( coclass, signallist );
+	    coclass_slots.insert( coclass, slotlist );
+	    coclass_properties.insert( coclass, proplist );
 	}
+    }
+    QTextStream out;
+    QFile file;
+    if ( !!output ) {
+	file.setName( output );
+	if ( !file.open( IO_WriteOnly ) )
+	    qFatal( "Couldn't open %s for writing", output.latin1() );
+	out.setDevice( &file );
+    } else {
+	//### stdout
+    }
 
-	QString coclass;
-	QString iid_coclass;
-	QString iid_iface;
-	QString iid_events;
-	QString iid_typelib;
-	QStringList signallist;
-	QStringList slotlist;
-	QStringList proplist;
-	QString error = parseFile( in, coclass, iid_coclass, iid_iface, iid_events, iid_typelib, signallist, slotlist, proplist );
-	if ( !error.isEmpty() ) {
-	    qFatal( "%s: Error parsing file: %s", input.latin1(), error.latin1() );
-	}
+    out << "import \"oaidl.idl\";" << endl;
+    out << "import \"ocidl.idl\";" << endl;
+    out << "#include \"olectl.h\"" << endl << endl << endl;
 
-	QStringList::Iterator it;
-
-	out << "import \"oaidl.idl\";" << endl;
-	out << "import \"ocidl.idl\";" << endl;
-	out << "#include \"olectl.h\"" << endl << endl << endl;
+#ifndef QDISPATCH
+    for ( it = coclasses.begin(); it != coclasses.end(); ++it ) {
+	QString coclass = *it;
+	QString iid_iface = coclass_iface[coclass];
+	QStringList slotlist = coclass_slots[coclass];
+	QStringList proplist = coclass_properties[coclass];
 
 	out << "\t[" << endl;
 	out << "\t\tobject," << endl;
@@ -498,14 +522,15 @@ int main( int argc, char **argv )
 	out << "\tinterface I" << coclass << " : IDispatch" << endl;
 	out << "\t{" << endl;
 	int ifacemethod = 1;
-	for ( it = slotlist.begin(); it != slotlist.end(); ++it ) {
-	    QString slot = *it;
+	QStringList::iterator it2;
+	for ( it2 = slotlist.begin(); it2 != slotlist.end(); ++it2 ) {
+	    QString slot = *it2;
 	    out << "\t\t[id(" << ifacemethod << "), helpstring(\"method " << slot.left(slot.find("(")) << "\")] ";
 	    out << "HRESULT " << slot << ";" << endl;
 	    ++ifacemethod;
 	}
-	for ( it = proplist.begin(); it != proplist.end(); ++it ) {
-	    QString prop = *it;
+	for ( it2 = proplist.begin(); it2 != proplist.end(); ++it2 ) {
+	    QString prop = *it2;
 	    bool read = prop[0] != '0';
 	    bool write = prop[1] != '0';
 	    bool designable = prop[2] != '0';
@@ -532,27 +557,88 @@ int main( int argc, char **argv )
 	    ++ifacemethod;
 	}
 	out << "\t};" << endl << endl;
+    }
+#endif
 
-	out << "[" << endl;
-	out << "\tuuid(" << iid_typelib << ")," << endl;
-	out << "\tversion(1.0)," << endl;
-	out << "\thelpstring(\"" << coclass << " 1.0 Type Library\")" << endl;
-	out << "]" << endl;
-	out << "library " << coclass << "Lib" << endl;
-	out << "{" << endl;
-	out << "\timportlib(\"stdole32.tlb\");" << endl;
-	out << "\timportlib(\"stdole2.tlb\");" << endl << endl;
+    out << "[" << endl;
+    out << "\tuuid(" << typelib_iid << ")," << endl;
+    out << "\tversion(1.0)," << endl;
+    out << "\thelpstring(\"" << typelib << " 1.0 Type Library\")" << endl;
+    out << "]" << endl;
+    out << "library " << typelib << "Lib" << endl;
+    out << "{" << endl;
+    out << "\timportlib(\"stdole32.tlb\");" << endl;
+    out << "\timportlib(\"stdole2.tlb\");" << endl << endl;
+
+    for ( it = coclasses.begin(); it != coclasses.end(); ++it ) {
+	QString coclass = *it;
+	
+	QString iid_coclass = coclass_clsid[coclass];
+	QString iid_iface = coclass_iface[coclass];
+	QString	iid_events = coclass_events[coclass];
+	QStringList slotlist = coclass_slots[coclass];
+	QStringList proplist = coclass_properties[coclass];
+	QStringList signallist = coclass_signals[coclass];
+	QStringList::Iterator it2;
+
+#ifdef QDISPATCH
+
+	out << "\t[" << endl;
+	out << "\t\tuuid(" << iid_iface << ")," << endl;
+	out << "\t\thelpstring(\"" << coclass << " Interface\")," << endl;
+	out << "\t]" << endl;
+	out << "\tdispinterface I" << coclass << endl;
+	out << "\t{" << endl;
+	out << "\t\tproperties:" << endl;
+	out << "\t\tmethods:" << endl;
+	int ifacemethod = 1;
+	for ( it2 = slotlist.begin(); it2 != slotlist.end(); ++it2 ) {
+	    QString slot = *it2;
+	    out << "\t\t[id(" << ifacemethod << "), helpstring(\"method " << slot.left(slot.find("(")) << "\")] ";
+	    out << "HRESULT " << slot << ";" << endl;
+	    ++ifacemethod;
+	}
+	for ( it2 = proplist.begin(); it2 != proplist.end(); ++it2 ) {
+	    QString prop = *it2;
+	    bool read = prop[0] != '0';
+	    bool write = prop[1] != '0';
+	    bool designable = prop[2] != '0';
+	    bool scriptable = prop[3] != '0';
+	    prop = prop.mid( 5 );
+	    QString type = prop.left( prop.find(" ") );
+	    QString name = prop.mid( prop.find( " " ) + 1 );
+	    if ( write ) {
+		out << "\t\t[propput, id(" << ifacemethod << "), helpstring(\"property " << name << "\")";
+		if ( scriptable )
+		    out << ", bindable";
+		if ( !designable )
+		    out << ", nonbrowsable";
+		out << ", requestedit] HRESULT " << name << "([in] " << type << " newVal);" << endl;
+	    }
+	    if ( read ) {
+		out << "\t\t[propget, id(" << ifacemethod << "), helpstring(\"property " << name << "\")";
+		if ( scriptable )
+		    out << ", bindable";
+		if ( !designable )
+		    out << ", nonbrowsable";
+		out << ", requestedit] HRESULT " << name << "([out, retval] " << type << " *pVal);" << endl;
+	    }
+	    ++ifacemethod;
+	}
+	out << "\t};" << endl << endl;
+#endif
+	
 	out << "\t[" << endl;
 	out << "\t\tuuid(" << iid_events << ")," << endl;
-	out << "\t\thelpstring(\"_I" << coclass << "Events Interface\")" << endl;
+	out << "\t\thelpstring(\"" << coclass << " Events Interface\")" << endl;
 	out << "\t]" << endl;
 	out << "\tdispinterface _I" << coclass << "Events" << endl;
 	out << "\t{" << endl;
 	out << "\t\tproperties:" << endl;
 	out << "\t\tmethods:" << endl;
 	int eventmethod = 1;
-	for ( it = signallist.begin(); it != signallist.end(); ++it ) {
-	    QString signal = *it;
+	for ( it2 = signallist.begin(); it2 != signallist.end(); ++it2 ) {
+	    QString signal = *it2;
 	    out << "\t\t[id(" << eventmethod << ")] void " << signal << ";" << endl;
 	    ++eventmethod;
 	}
@@ -564,11 +650,11 @@ int main( int argc, char **argv )
 	out << "\t]" << endl;
 	out << "\tcoclass " << coclass << endl;
 	out << "\t{" << endl;
-	out << "\t\t[default] interface I" << coclass << ";" << endl;
+	out << "\t\t[default] dispinterface I" << coclass << ";" << endl;
 	out << "\t\t[default, source] dispinterface _I" << coclass << "Events;" << endl;
 	out << "\t};" << endl;
-	out << "};" << endl;
     }
+    out << "};" << endl;
 
     return 0;
 }

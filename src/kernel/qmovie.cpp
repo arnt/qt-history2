@@ -234,6 +234,7 @@ QMoviePrivate::QMoviePrivate(QDataSource* src, QMovie* movie, int bufsize) :
     frametimer = new QTimer(this);
     pump = src ? new QDataPump(src, this) : 0;
     QObject::connect(frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
+    dirty_cache = FALSE;
     source = src;
     buffer = 0;
     decoder = 0;

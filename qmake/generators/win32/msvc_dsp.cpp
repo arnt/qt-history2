@@ -449,18 +449,20 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		QStringList &l = project->variables()["IDLOUTPUT"];
 		if ( l.isEmpty() )
 		    continue;
-		QStringList &ax = project->variables()["_ACTIVEQT"];
-		if ( ax.isEmpty() )
-		    continue;
-		
-		QString axFile = ax.first();
+		QString axlist = "ACTIVEQT";
+		QString axFile = varGlue( "ACTIVEQT", "", " ", "" );
+		if ( axFile.isEmpty() ) {
+		    axFile = varGlue( "_ACTIVEQT", "", " ", "" );
+		    axlist = "_ACTIVEQT";
+		}
+
 		for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
 		    QString sourcefile = *it;
 		    t << "# Begin Source File\n\nSOURCE=" << sourcefile << endl;
 		    if ( sourcefile.right( 4 ).lower() == ".tlb" ) {
 			QString idcoutput = sourcefile.left( sourcefile.length()-4) + ".idl";
 			QString rcoutput = sourcefile.left( sourcefile.length()-4) + ".rc";
-			t << "USERDEP_" + sourcefile + "=\"" + axFile + "\"" << endl << endl;
+			t << "USERDEP_" << sourcefile << "=" << varGlue( axlist, "\"", "\"\t\"", "\"" ) << endl << endl;
 
 			QString build = "\n\n# Begin Custom Build - Generating IDL from " + axFile + "...\n"
 					"# InputPath=" + sourcefile + "\n\n"

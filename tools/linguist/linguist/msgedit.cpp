@@ -467,6 +467,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
 
     phraseLbl = new QLabel( tr("Phrases and guesses:"), w );
     phraseLv = new PhraseLV( w, "phrase list view" );
+    phraseLv->setSorting( PhraseLVI::DefinitionText );
     phraseLv->installEventFilter( this );
     hl->addLayout( vl );
     vl->addWidget( phraseLbl );

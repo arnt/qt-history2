@@ -594,7 +594,7 @@ void write_png_image(QImageIO* iio)
     QPNGImageWriter writer(iio->ioDevice());
     int quality = iio->quality();
     if ( quality >= 0 ) {
-	quality = QMAX( quality, 100 );
+	quality = QMIN( quality, 100 );
 	quality = (100-quality) * 9 / 91; // map [0,100] -> [9,0]
     }
     writer.setGamma(iio->gamma());

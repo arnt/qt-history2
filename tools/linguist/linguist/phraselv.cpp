@@ -71,18 +71,31 @@ PhraseLVI::PhraseLVI( PhraseLV *parent, const Phrase& phrase, int accelKey )
 
 QString PhraseLVI::key( int column, bool ascending ) const
 {
-    if ( text(column) == NewPhrase ) {
-	// always first
-	return ascending ? QString( "" ) : QString::null;
+    if ( column == SourceTextShown ) {
+	if ( sourceTextKey.isEmpty() ) {
+	    if ( ascending ) {
+		return "";
+	    } else {
+		return QString::null;
+	    }
+	} else {
+	    return sourceTextKey;	
+	}
+    } else if ( column == TargetTextShown ) {
+	return targetTextKey;
     } else {
-	QString k = QChar( '0' + akey );
-	// see Section 5, Exercise 4 of The Art of Computer Programming
-	k += text( column ).lower();
-	k.replace( QRegExp(QChar('&')), QString::null );
-	k += QChar::null;
-	k += text( column );
-	return k;
+	return QChar( '0' + akey ) + text( column );
     }
+}
+
+void PhraseLVI::setText( int column, const QString& text )
+{
+    if ( column == SourceTextShown ) {
+	sourceTextKey = makeKey( text );
+    } else if ( column == TargetTextShown ) {
+	targetTextKey = makeKey( text );
+    }
+    QListViewItem::setText( column, text );
 }
 
 void PhraseLVI::setPhrase( const Phrase& phrase )
@@ -98,6 +111,22 @@ Phrase PhraseLVI::phrase() const
 {
     return Phrase( text(SourceTextOriginal), text(TargetTextOriginal),
 		   text(DefinitionText) );
+}
+
+QString PhraseLVI::makeKey( const QString& text ) const
+{
+    if ( text == NewPhrase )
+	return QString::null;
+
+    QString key;
+    for ( int i = 0; i < (int) text.length(); i++ ) {
+	if ( text[i] != QChar('&') )
+	    key += text[i].lower();
+    }
+    // see Section 5, Exercise 4 of The Art of Computer Programming
+    key += QChar::null;
+    key += text;
+    return key;
 }
 
 PhraseLV::PhraseLV( QWidget *parent, const char *name )
