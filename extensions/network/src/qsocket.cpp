@@ -38,9 +38,10 @@
 
 class QSocketPrivate {
 public:
-    QSocketPrivate();
+    QSocketPrivate( QSocket *o );
    ~QSocketPrivate();
 
+    QSocket            *owner;			// the owner of the d pointer
     QSocket::State	state;			// connection state
     QSocket::Mode	mode;			// mode for reading
     QString		filename;
@@ -59,8 +60,9 @@ public:
 #endif
 };
 
-QSocketPrivate::QSocketPrivate()
-    : state(QSocket::Idle), mode(QSocket::Binary),
+QSocketPrivate::QSocketPrivate( QSocket *o )
+    : owner(o),
+      state(QSocket::Idle), mode(QSocket::Binary),
       host(QString::fromLatin1("")), port(0),
       socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0),
       newline(FALSE), ready_read_timer(0)
@@ -74,6 +76,8 @@ QSocketPrivate::QSocketPrivate()
 
 QSocketPrivate::~QSocketPrivate()
 {
+    if ( ready_read_timer )
+	owner->killTimer( ready_read_timer );
     // Order is important here - the socket notifiers must go away
     // before the socket does.
     delete rsn;
@@ -107,7 +111,7 @@ QSocketPrivate::~QSocketPrivate()
 QSocket::QSocket( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QSocketPrivate;
+    d = new QSocketPrivate( this );
     setFlags( IO_Direct );
     setStatus( IO_Ok );
 }
@@ -348,7 +352,8 @@ void QSocket::tryConnecting()
     d->state = Connecting;
     if ( d->socket->connect( l[0], d->port ) == FALSE ) {
 	if ( d->socket->error() == QSocketDevice::NoError ) {
-	    d->wsn->setEnabled( TRUE );
+	    if ( d->wsn )
+		d->wsn->setEnabled( TRUE );
 	    return; // not serious, try again later
 	}
 	d->state = Idle;
@@ -362,7 +367,8 @@ void QSocket::tryConnecting()
 	    name(), l[0].toString().ascii() );
 #endif
     // The socket write notifier will fire when the connection succeeds
-    d->wsn->setEnabled( TRUE );
+    if ( d->wsn )
+	d->wsn->setEnabled( TRUE );
 #endif
 }
 
@@ -502,8 +508,10 @@ void QSocket::close()
     d->mode = Binary;
     if ( d->socket && d->wsize ) {		// there's data to be written
 	d->state = Closing;
-	d->rsn->setEnabled( FALSE );
-	d->wsn->setEnabled( TRUE );
+	if ( d->rsn )
+	    d->rsn->setEnabled( FALSE );
+	if ( d->wsn )
+	    d->wsn->setEnabled( TRUE );
 	d->rba.clear();				// clear incoming data
 	d->rindex = d->rsize = 0;
 	return;
@@ -511,7 +519,7 @@ void QSocket::close()
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
     delete d;
-    d = new QSocketPrivate;
+    d = new QSocketPrivate( this );
     d->state = Idle;
     emit closed();
 }
@@ -705,13 +713,14 @@ void QSocket::flush()
 	    setFlags( IO_Sequential );
 	    setStatus( IO_Ok );
 	    delete d;
-	    d = new QSocketPrivate;
+	    d = new QSocketPrivate( this );
 	    d->state = Idle;
 	    emit delayedCloseFinished();
 	    return;
 	}
     }
-    d->wsn->setEnabled( d->wsize > 0 );		// write if there's data
+    if ( d->wsn )
+	d->wsn->setEnabled( d->wsize > 0 );		// write if there's data
 }
 
 
@@ -1007,8 +1016,10 @@ void QSocket::sn_read()
 #endif
 	    // We keep the open state in case there's unread incoming data
 	    d->state = Idle;
-	    d->rsn->setEnabled( FALSE );
-	    d->wsn->setEnabled( FALSE );
+	    if ( d->rsn )
+		d->rsn->setEnabled( FALSE );
+	    if ( d->wsn )
+		d->wsn->setEnabled( FALSE );
 	    d->socket->close();
 	    d->wba.clear();			// clear write buffer
 	    d->windex = d->wsize = 0;
@@ -1121,7 +1132,7 @@ void QSocket::setSocket( int socket, bool inet )
     // Act.
     delete d;
 
-    d = new QSocketPrivate;
+    d = new QSocketPrivate( this );
     if ( socket >= 0 )
 	d->socket = new QSocketDevice( socket, QSocketDevice::Stream, inet );
     else
