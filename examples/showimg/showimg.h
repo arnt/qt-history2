@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/showimg/showimg.h#2 $
+** $Id: //depot/qt/main/examples/showimg/showimg.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -73,6 +73,8 @@ private slots:
 
     void	copy();
     void	paste();
+
+    void	editText();
 
     void	newWindow();
     void	openFile();

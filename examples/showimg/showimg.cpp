@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/showimg/showimg.cpp#3 $
+** $Id: //depot/qt/main/examples/showimg/showimg.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -9,6 +9,7 @@
 *****************************************************************************/
 
 #include "showimg.h"
+#include "imagetexteditor.h"
 #include <qmenubar.h>
 #include <qfiledialog.h>
 #include <qmessagebox.h>
@@ -65,6 +66,8 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     menubar->insertItem( "&Edit", edit );
     edit->insertItem("&Copy", this, SLOT(copy()), ALT+Key_C);
     edit->insertItem("&Paste", this, SLOT(paste()), ALT+Key_V);
+    edit->insertSeparator();
+    edit->insertItem("&Text...", this, SLOT(editText()));
     edit->insertSeparator();
     t1 = edit->insertItem( "Convert to &1 bit", this, SLOT(to1Bit()) );
     t8 = edit->insertItem( "Convert to &8 bit", this, SLOT(to8Bit()) );
@@ -617,6 +620,12 @@ void ImageViewer::paste()
 	updateStatus();
 	setMenuItemFlags();
     }
+}
+
+void ImageViewer::editText()
+{
+    ImageTextEditor editor(image,this);
+    editor.exec();
 }
 
 void ImageViewer::to1Bit()
