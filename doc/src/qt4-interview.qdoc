@@ -11,7 +11,7 @@
 
     \tableofcontents
 
-    \section1 Overview of the Model/View Architecture
+    \section1 Overview of The Model/View Architecture
 
     Model-View-Controller (MVC) is a design pattern originating from
     Smalltalk that is often used when building user interfaces.
@@ -44,32 +44,36 @@
     interfaces for interoperability between each of the components.
 
     Interview provides ready-to-use implementations of views for the
-    common table, tree, and list widgets. These reimplement and extend
-    the interfaces provided by the abstract views to provide features
-    for particular use cases. 
+    common table, tree, and list widgets: \c QTableView, \c QTreeView,
+    and \c QListView. These reimplement and extend the interfaces
+    provided by the abstract views to provide features for particular
+    use cases. 
 
     Two specialized abstract models are provided for use with the
     view classes: \c QAbstractTableModel is a useful starting point for
     providing a model to use with \c QTableView; \c QAbstractListModel
     can be subclassed to produce a list-based model to use with
     \c QListView.
-
     The \c QDirModel is provided as an example model, providing
-    directory information for use with the \c QListView and \c
+    directory information for use with \c QListView and \c
     QTreeView.
 
     At the \bold{convenience level}, we find classes that are provided
     to help those who are familiar with the conventional list, tree,
-    and table widgets. These present a simplified interface to the
+    and table widgets: \c QListWidget, \c QTreeWidget, and
+    \c QTableWidget. These present a simplified interface to the
     developer that does not explicitly require a knowledge of the
     underlying model/view architecture.
 
-    The view widgets provided interact with selection objects to
-    ensure that items are selected in a consistent way, and that
-    selections can be shared between views of the same model.
+    The view widgets interact with selection objects to ensure that
+    items are selected in a consistent way, and that selections can be
+    shared between different views of the same model.
 
-    For details about the Model/View classes, see the
+    For details about how to use the model/view classes, see the
     \l{model-view-programming.html}{Model/View Programming} document.
+
+    See also the \{qt-sql.html}{Database GUI Layer} document for
+    information about Qt 4's database models.
 
     \section1 The Current State of Interview
 
@@ -105,6 +109,14 @@
     QItemSelectionRange -- classes to handle selections of items
     \endlist
 
+    Convenience classes that provide item-based functionality found
+    in Qt 3's item view widgets:
+
+    \list
+    \i \c QListWidget and \c QListWidgetItem
+    \i \c QTableWidget and \c QTableWidgetItem
+    \i \c QTreeWidget and \c QTreeWidgetItem
+    \endlist
 
     \section1 Example Code
 
@@ -112,7 +124,7 @@
     examples that show different aspects of the model/view
     architecture.
 
-    \section2 Sharing a Model Between two Views
+    \section2 Sharing a Model Between Two Views
 
     In this example, we display the contents of a model using two
     different views, and share the user's selection between
@@ -124,35 +136,9 @@
     principles involved in setting up the model, the views, and the
     selection:
 
-    \code
-    int main(int argc, char *argv[])
-    {
-        QApplication app(argc, argv);
-
-        QHBox *hbox = new QHBox;
-
-        // Create the model
-        QDirModel *model = new QDirModel(QDir(), hbox);
-
-        // Create the views
-        QTreeView *tree = new QTreeView(hbox);
-        QListView *list = new QListView(hbox);
-
-        // Set the model
-        tree->setModel(model);
-        list->setModel(model);
-
-        // Share the selections
-        QItemSelectionModel *selection = new QItemSelectionModel(model, model);
-        list->setSelectionModel(selection);
-        tree->setSelectionModel(selection);
-
-        hbox->show();
-
-        app.setMainWidget(hbox);
-        return app.exec();
-    }
-    \endcode
+    \quotefromfile snippets/shareddirmodel/main.cpp
+    \skipto int main(
+    \printuntil }
 
     In the above function, we constructed a directory model to display
     the contents of a default directory. The two views are constructed
@@ -181,21 +167,9 @@
 
     The complete declaration of our model is as follows:
 
-    \code
-    class StringListModel : public QAbstractListModel
-    {
-        Q_OBJECT
-    public:
-        StringListModel(const QStringList &strings, QObject *parent=0)
-            : QAbstractListModel(parent), stringList(strings) {}
-
-        int rowCount() const;
-        QVariant data(const QModelIndex &index, int role) const;
-
-    private:
-        QStringList stringList;
-    };
-    \endcode
+    \quotefromfile snippets/stringlistmodel/model.h
+    \skipto class StringListModel
+    \printuntil };
 
     Since the underlying data structure contains one row for each
     string, and one column of strings, only the \c rowCount() function
@@ -209,44 +183,33 @@
 
     These functions are implemented quite simply:
 
-    \code
-    int StringListModel::rowCount() const
-    {
-        return stringList.count();
-    }
+    \quotefromfile snippets/stringlistmodel/model.cpp
+    \skipto int StringListModel::rowCount() const
+    \printuntil }
 
-    QVariant StringListModel::data(const QModelIndex &index, int role) const
-    {
-        if (!index.isValid())
-            return QVariant();
-        if (index.type() == QModelIndex::HorizontalHeader)
-            return index.column();
-        if (index.type() == QModelIndex::VerticalHeader)
-            return index.row();
-        return stringList.at(index.row());
-    }
-    \endcode
+    \skipto QVariant StringListModel::data(
+    \printuntil }
 
     The \c data() function returns a \c QVariant containing the
     information referred to by the model index. If the view requests
     an item from the string list, this is returned to the view, but
     only after a number of checks are performed on the model index. If
     the view specified an invalid model index, the model indicates
-    this by returning an invalid \c QVariant. Vertical and horizontal
-    headers are identified by the model index's type; the value
-    returned for these items is the row or column number, depending on
-    the header.
+    this by returning an invalid \c QVariant.
+
+    Vertical and horizontal headers are supplied by the \c headerData()
+    function. In this model, the value returned for these items is the row
+    or column number, depending on the header:
+
+    \skipto QVariant StringListModel::headerData(
+    \printuntil }
 
     We only include an excerpt from the \c main() function for this
     example:
 
-    \code
-    QStringList numbers;
-    numbers << "One" << "Two" << "Three" << "Four";
-    QAbstractItemModel *model = new StringListModel(numbers);
-    QAbstractItemView *view = new QTableView();
-    view->setModel(model);
-    \endcode
+    \quotefromfile snippets/stringlistmodel/main.cpp
+    \skipto QStringList numbers;
+    \printuntil view->setModel(model);
 
     We created a string list to use with the model, and this is
     supplied to the model when it is constructed. The information in
@@ -255,41 +218,52 @@
     If we require an editable model, we only need to define the following
     functions in the class declaration:
 
-    \code
-    bool isEditable(const QModelIndex &index) const;
-    bool setData(const QModelIndex &index, int role, const QVariant &value);
-    \endcode
+    \quotefromfile snippets/stringlistmodel/model.h
+    \skipto ItemFlags flags(
+    \printuntil bool setData(
 
     These are implemented in the following way:
 
-    \code
-    bool StringListModel::isEditable(const QModelIndex &index) const
-    {
-        return true;
-    }
+    \quotefromfile snippets/stringlistmodel/model.cpp
+    \skipto QAbstractItemModel::ItemFlags StringListModel::flags(
+    \printuntil }
 
-    bool StringListModel::setData(const QModelIndex &index, int role,
-                                  const QVariant &value)
-    {
-        if (!index.isValid() || index.type() != QModelIndex::View
-            || role != EditRole)
-            return false;
-        stringList.replace(index.row(), value.toString());
-        emit dataChanged(index, index);
-        return true;
-    }
-    \endcode
+    \skipto bool StringListModel::setData(
+    \printuntil return false;
+    \printuntil }
 
-    In the \c isEditable() function, we ensure that the model is always
-    editable by returning true for all indexes. The \c setData() function
-    updates the data in the string list, but only if the specified index
-    refers to an item that is valid, can be shown, and is editable. The
-    \c dataChanged() signal ensures that the view is kept up-to-date.
+    In the \c flags() function, we ensure that every item in the model is
+    editable by returning the same combination of values for all indexes.
+    The \c setData() function updates the data in the string list, but
+    only if the specified index refers to an item that is valid, is enabled,
+    and is editable. The \c dataChanged() signal ensures that the view is
+    kept up-to-date.
 
     This example shows that it can be easy to populate views with data
-    from a simple model, although it is expected that the convenience
-    models and views provided with Qt 4 (not included with this preview)
-    will make the process even easier.
+    from a simple model. The standard models and views planned for
+    Qt 4 will make the process even easier.
+
+    \section1 What's Changed Since Qt 4 Technology Preview 1?
+
+    Convenience classes that correspond to Qt 3's item view classes are
+    now included with the model/view classes. These provide a familiar
+    item-based interface for developers who do not need the flexibility
+    of the pure model/view classes.
+    We introduce the \c QListWidget, \c QTreeWidget, and \c QTableWidget
+    classes. These correspond to the \c QListBox, \c QListView, and
+    \c QTable classes from Qt 3.
+
+    After feedback from the
+    \l{http://lists.trolltech.com/qt4-preview-feedback/}{Qt 4 preview
+    feedback mailing list} and some internal discussion, the concept of
+    a model index type was abandoned in favor of a separate mechnism for
+    supplying header data from models. This separates the task of
+    providing headers to views from the more common task of supplying
+    data to views, making the whole process more efficient.
+
+    The delegate classes have been simplified so that they are easier
+    to subclass, and to make it easier to implement new editor widgets
+    for delegates.
 
     \section1 What's Changed Since Qt 3?
 
@@ -350,8 +324,8 @@
 
     \list
     \i Support for right-to-left languages
-    \i Convenience models (supporting SQL, for example) to allow views to be
-       populated easily
+    \i Standard models to allow views to be easily populated with common
+       data types
     \i Convenience views for common kinds of widgets
     \i Support for freezing rows/columns in view widgets
     \i Persistent index-based selections

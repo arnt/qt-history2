@@ -90,6 +90,7 @@ by a section showing how you can create new components.
 
 \list
 \i \l{model-view-model.html}{Model Classes}
+\list \i \l{model-view-model.html}{Creating New Models} \endlist
 \i \l{model-view-view.html}{View Classes}
 \i \l{model-view-selection.html}{Handling Selections}
 \i \l{model-view-delegate.html}{Delegate Classes}
@@ -117,7 +118,7 @@ See also the \l{model-view.html}{list of model/view classes}.
 
 \tableofcontents
 
-\section1 Basic concepts
+\section1 Basic Concepts
 
 In the model/view architecture, the model's purpose is to manage data,
 and to provide a standard representation of that data to the other
@@ -132,7 +133,7 @@ This section describes some basic concepts that
 are central to the way models are accessed by other components. More
 advanced concepts are discussed later.
 
-\section2 Model indexes
+\section2 Model Indexes
 
 To ensure that representation of the data in the model
 is kept separate from the way it is accessed, the concept of a
@@ -151,18 +152,18 @@ Temporary model indexes are provided by the \l QModelIndex class, and
 persistent model indexes are provided by the \l QPersistentModelIndex
 class.
 
-To obtain a model index for an item in a model, four properties must
-be specified: a row number, a column number, the index of a parent item,
-and an item type. The following subsections describe and explain these
+To obtain a model index for an item in a model, three properties must
+be specified: a row number, a column number, and the model index of a
+parent item. The following sections describe and explain these
 properties in detail.
 
-\section2 Rows and columns
+\section2 Rows and Columns
 
 In its most basic form, an item model can be accessed as a simple table
 in which items are located by their row and column numbers. This does
 not mean that the data in the model has to be stored in a tabular
 structure; the use of row and column numbers is only a convention to
-allow components to interoperate.
+allow components to communicate with each other.
 We can retrieve information about any given item by specifying its row
 and column numbers to the model, and we receive an index that
 represents the item:
@@ -183,10 +184,11 @@ each item is located by a pair of row and column numbers.
 
 \img modelindex-no-parent.png
 
-The highlighted item is represented by a model index that was obtained by
-specifying the relevant row and column numbers to the model. 
+By specifying the relevant row and column numbers to the model we
+obtain a model index that represents an item (shown highlighted) in the
+model.
 
-\section2 Parents of items
+\section2 Parents of Items
 
 A simple tabular model is ideal for representing items in a table, or
 for representing lists of items (i.e. where there is only one
@@ -228,7 +230,7 @@ QModelIndex childIndex = model->index(3, 4, topLevelIndex);
 Note that we used \c QModelIndex::Null to construct an invalid model
 index.
 
-\section2 Item roles
+\section2 Item Roles
 
 Items in a model can perform various \e roles for other components,
 allowing different kinds of data to be supplied for different situations.
@@ -244,10 +246,11 @@ supply appropriate information for each role.
 We will examine roles in more detail when we
 \l{model-view-subclassing-model.html}{create an example model}.
 
-\section2 Summary of concepts
+\section2 Summary of Concepts
 
 Model indexes contain information about the location of items within a
-model. Items are referred to by their row and column numbers.
+model. Items are referred to by their row and column numbers, and by
+the model index of their parent item.
 Model indexes are constructed by models at the request of other
 components, such as views and delegates.
 
@@ -259,7 +262,7 @@ The \l{QAbstractItemModel::Role}{role} distinguishes between the
 different kinds of data associated with an item.
 
 
-\section1 Using an existing model
+\section1 Using an Existing Model
 
 One of the models provided by Qt is the \l QDirModel, a model that
 maintains information about the contents of a directory. This provides a
@@ -268,7 +271,7 @@ existing data. Using this model, we can show how to set up a model for
 use with ready-made views, and explore how to manipulate data using
 model indexes.
 
-\section2 Using views with a model
+\section2 Using Views with a Model
 
 The \l QListView and \l QTreeView classes are the most suitable views
 to use with QDirModel. The example presented below displays the
@@ -309,7 +312,7 @@ In the above example, we neglected to mention how to handle selections
 of items. This subject is covered in more detail in the
 \l{model-view-selection.html}{handling selections} section.
 
-\section2 Using model indexes
+\section2 Using Model Indexes
 
 To demonstrate how data can be retrieved from a model, using model
 indexes, we set up a QDirModel without a view and print out the
@@ -368,7 +371,7 @@ data from a model:
 \endlist
 
 
-\section1 Further reading
+\section1 Further Reading
 
 New models can be created by implementing the standard interface provided
 by QAbstractItemModel. We will demonstrate this by
@@ -423,7 +426,7 @@ the view, and usually display it in the form of a label. New headers
 can be subclassed from the \l QHeaderView class to provide more
 specialized labelling for views.
 
-\section1 Using an existing view
+\section1 Using an Existing View
 
 Qt provides three ready-to-use view classes that present data from
 models in ways that are familiar to most users.
@@ -441,7 +444,7 @@ sufficient for use in most applications. They provide basic editing
 facilities, and can be customized to suit the needs of more specialized
 user interfaces.
 
-\section2 Using a model 
+\section2 Using a Model 
 
 We take the \l{model-view-subclassing-model.html}{string list model}
 that we created as an example model, set it up with some data, and
@@ -481,7 +484,7 @@ The above image shows how a \l QListView represents the data in the
 string list model. Each item in the list can be edited with the default
 delegate.
 
-\section2 Using multiple views onto the same model
+\section2 Using Multiple Views Onto The Same Model
 
 Providing multiple views onto the same model is simply a matter of
 setting the same model for each view. In the following code, we create
@@ -507,7 +510,7 @@ is shown consistently across view, each view maintains its own internal
 selection model. This can be useful in certain situations but, for
 many applications, a shared selection model is desirable.
 
-\section1 Handling selections of items
+\section1 Handling Selections of Items
 
 The mechanism for handling selections of items within views is provided
 by the \l QItemSelectionModel class. All of the standard views construct
@@ -526,7 +529,7 @@ interface to the selection model can be accessed, if required, and
 this is explored in the section on
 \l{model-view-selection.html}{handling selections}.
 
-\section2 Sharing selections between views
+\section2 Sharing Selections Between Views
 
 Although it is convenient that the view classes provide their own
 selection models by default, when we use more than one view onto the
@@ -588,7 +591,7 @@ widgets to manage the editing process, or by handling events directly.
 The first approach is covered later in this section.
 
 
-\section1 Using an existing delegate
+\section1 Using an Existing Delegate
 
 The standard views provided with Qt use instances of \l QItemDelegate
 to provide editing facilities. This default implementation of the
@@ -602,7 +605,7 @@ necessary to use this function when setting the delegate for a custom
 view.
 
 
-\section1 A simple delegate
+\section1 A Simple Delegate
 
 The delegate implemented here uses a \l QSpinBox to provide editing
 facilities, and is mainly intended for use with models that display
@@ -625,22 +628,7 @@ functions to manage the editor widget:
 Note that no editor widgets are set up when the delegate is
 constructed. We only construct an editor widget when it is needed.
 
-\section2 The editor type
-
-The \c editorType() function returns a value describing the
-\l{QAbstractItemDelegate::EditorType}{type of editor} that the delegate
-provides. This delegate only supports widget-based editing, so the
-implementation of this function is very simple:
-
-\quotefile spinbox-delegate/delegate.cpp
-\skipto QItemDelegate::EditorType
-\printuntil }
-
-The default implementation of this function informs the view that it
-provides an event-based editor. Therefore, you must reimplement this
-function if you want to provide a widget-based editor.
-
-\section2 Providing an editor
+\section2 Providing an Editor
 
 In this example, when the table view needs to provide an editor, it
 asks the delegate to provide an editor widget that is appropriate
@@ -649,8 +637,8 @@ for the item being modified. The
 with everything that the delegate needs to be able to set up a
 suitable widget.
 
+\quotefile spinbox-delegate/delegate.cpp
 \skipto QWidget *SpinBoxDelegate::editor
-\printuntil return 0;
 \printuntil }
 
 We provide basic editing features with a spin box, checking only that
@@ -677,7 +665,7 @@ could have provided different editors for different types of data in
 the model, in which case we'd need to determine the type used and cast
 accordingly.
 
-\section2 Submitting data to the model
+\section2 Submitting Data to The Model
 
 When the user has finished editing the value in the spin box, the view
 informs the delegate through the
@@ -715,7 +703,7 @@ always contains integer values, but we can still use this
 delegate with different kinds of models because \l{QVariant}
 provides sensible default values for unexpected data.
 
-\section2 Updating the editor's geometry
+\section2 Updating The Editor's Geometry
 
 It is the responsibility of the delegate to manage the editor's
 geometry. The geometry must be set when the editor is created, and
@@ -792,7 +780,7 @@ other components can be informed of changes to the selection model
 via the signals and slots mechanism.
 
 
-\section1 Using a selection model
+\section1 Using a Selection Model
 
 The standard view classes provide default selection models that can
 be used in most applications. A selection model belonging to one view
@@ -812,7 +800,7 @@ each having a different effect on the selections already present in the
 selection model.
 
 
-\section2 Selecting items
+\section2 Selecting Items
 
 To demonstrate some of the principal features of selections, we construct
 an instance of a custom table model with 32 items in total, and open a
@@ -856,7 +844,7 @@ efficiently by the selection model. The use of different selection
 flags to manipulate the selected items is described when we examine
 how to update a selection.
 
-\section2 Reading the selection state
+\section2 Reading The Selection State
 
 The model indexes stored in the selection model can be read using
 the \l{QItemSelectionModel::selectedItems()}{selectedItems()}
@@ -878,9 +866,9 @@ model. We can connect the
 \l{QItemSelectionModel::selectionChanged()}{selectionChanged()}
 signal to a slot, and examine the items in the model that are selected or
 deselected when the selection changes. The slot is called with two
-\l{QItemSelection}s: one contains a list of indexes that correspond
-to newly selected items; the other contains indexes that correspond
-to newly deselected items.
+\l{QItemSelection} objects: one contains a list of indexes that
+correspond to newly selected items; the other contains indexes that
+correspond to newly deselected items.
 
 In the following code, we provide a slot that receives the
 \l{QItemSelectionModel::selectionChanged()}{selectionChanged()}
@@ -890,6 +878,7 @@ a string, and clears the contents of the deselected items.
 \quotefile updating-selections/window.cpp
 \skipto void MainWindow::updateSelection
 \printuntil model->setData
+\printuntil }
 \printuntil }
 
 We can keep track of the currently focused item by connecting the
@@ -908,7 +897,7 @@ and uses the information provided to update the status bar of a
 Monitoring selections made by the user is straightforward with these
 signals, but we can also update the selection model directly.
 
-\section2 Updating a selection
+\section2 Updating a Selection
 
 Selection commands are provided by a combination of selection flags,
 defined by \l{QItemSelectionModel::SelectionFlag}.
@@ -983,7 +972,7 @@ combine the other selection flags with the
 has the effect of resetting the selection model's collection of model
 indexes.
 
-\section2 Selecting all items in a model
+\section2 Selecting All Items in a Model
 
 To select all items in a model, it is necessary to create a
 selection for each level of the model that covers all items in that
@@ -1043,7 +1032,7 @@ items.
     later be adapted so that items can be modified with an editor.
 
 
-    \section1 A read-only example model
+    \section1 A Read-Only Example Model
 
     The model implemented here is a simple, non-hierarchical, read-only data
     model. It has a \l QStringList as its internal data source, and
@@ -1077,7 +1066,7 @@ items.
     \l{QAbstractItemModel::index()}{index()} and
     \l{QAbstractItemModel::parent()}{parent()} functions.
 
-    \section2 Dimensions of the model
+    \section2 Dimensions of The Model
 
     We want the number of rows in the model to be the same as the number of
     strings in the string list. We implement the
@@ -1094,7 +1083,7 @@ items.
     reimplement the \l{QAbstractItemModel::columnCount()}{columnCount()}
     function.
 
-    \section2 Model headers and data
+    \section2 Model Headers and Data
 
     For items in the view, we want to return the strings in our string list:
     The \l{QAbstractItemModel::data()}{data()} function is responsible for
@@ -1121,7 +1110,7 @@ items.
     \l{QAbstractItemModel::Role}{ToolTipRole} that views can use to
     display information about items in a tooltip.
 
-    \section1 An editable model
+    \section1 An Editable Model
 
     The read-only model shows how simple choices could be presented to the
     user but, for many applications, an editable list model is much more
@@ -1135,7 +1124,7 @@ items.
     \skipto bool flags
     \printuntil setData
 
-    \section2 Making the model editable
+    \section2 Making The Model Editable
 
     A delegate checks whether an item is editable before creating an
     editor. The model must let the delegate know that its items are
@@ -1173,7 +1162,7 @@ items.
     only one item has changed, the range of items specified in the signal
     is limited to just one item.
 
-    \section2 Inserting and removing rows
+    \section2 Inserting and Removing Rows
 
     It is possible to change the number of rows and columns in a model. In the
     string list model it only makes sense to change the number of rows, so we
@@ -1222,7 +1211,7 @@ items.
     last rows to be removed. This is to allow other components to access the
     data before it is removed.
 
-    \section1 Next steps
+    \section1 Next Steps
 
     We can display the contents of this model using the \l QListView class
     to present the model's items in the form of a vertical list. For the
@@ -1245,10 +1234,10 @@ items.
 
     \section1 Overview
 
-    Alongside the Model/View classes, Qt 4 also includes standard widgets to
+    Alongside the model/view classes, Qt 4 also includes standard widgets to
     provide classic item-based container widgets. These behave in a similar
     way to the item view classes in Qt 3, but have been rewritten to use the
-    underlying Model/View framework for performance and maintainability. The
+    underlying model/view framework for performance and maintainability. The
     old item view classes are still available in the compatibility library
     (see the \l{porting.html}{Porting Guide} for more information).
 
@@ -1259,7 +1248,7 @@ items.
     class which implements common behavior for item selection and header
     management.
 
-    \section1 List widgets
+    \section1 List Widgets
 
     Single level lists of items are typically displayed using a \c QListWidget
     and a number of \c{QListWidgetItem}s. A list widget is constructed in the
@@ -1294,6 +1283,9 @@ items.
     This?" help are all easily configured to ensure that the list is properly
     integrated into the application.
 
+    \skipto newItem->setToolTip(
+    \printuntil newItem->setWhatsThis(
+
     By default, items in a list are presented in the order of their creation.
     Lists of items can be sorted according to the criteria given in
     \l{Qt::SortOrder} to produce a list of items that is sorted in forward or
@@ -1306,19 +1298,7 @@ items.
     \printuntil listWidget->sortItems(Qt::Descend
 
 
-
-    \section1 Headers
-
-    Headers for the more sophisticated item-based widgets are provided by the
-    \c QHeaderWidget class. This class is not needed for the \c QListWidget
-    because it does not display a header.
-
-    Headers are divided into sections, each of which is occupied by a
-    \c QHeaderWidgetItem that provides a label. Depending on the orientation
-    of the header, each \c QHeaderWidgetItem corresponds to a column label
-    (for horizontal headers) or a row label (for vertical headers).
-
-    \section1 Tree widgets
+    \section1 Tree Widgets
 
     Trees or hierarchical lists of items are provided by the \c QTreeWidget
     and \c QTreeWidgetItem classes. Each item in the tree widget can have
@@ -1360,13 +1340,34 @@ items.
     \l{QTreeWidget::takeTopLevelItem()}{takeTopLevelItem()} function, but
     items from lower levels are removed by calling their parent item's
     \l{QTreeWidgetItem::takeChild()}{takeChild()} function.
-
     Items are inserted in the top level of the tree with the
     \l{QTreeWidget::insertTopLevelItem()}{insertTopLevelItem()} function.
     At lower levels in the tree, the parent item's 
     \l{QTreeWidgetItem::insertChild()}{insertChild()} function is used.
 
-    \section1 Table widgets
+    It is easy to move items around between the top level and lower levels
+    in the tree. We just need to check whether the items are top-level items
+    or not, and this information is supplied by each item's \c parent()
+    function. For example, we can remove the current item in the tree widget
+    regardless of its location:
+
+    \quotefile snippets/qtreewidget-using/mainwindow.cpp
+    \skipto void MainWindow::removeItem()
+    \skipto QTreeWidgetItem *parent
+    \printuntil treeWidget->takeTopLevelItem(
+    \printuntil }
+
+    Inserting the item somewhere else in the tree widget follows the same
+    pattern:
+
+    \quotefile snippets/qtreewidget-using/mainwindow.cpp
+    \skipto void MainWindow::insertItem()
+    \skipto QTreeWidgetItem *parent
+    \printuntil else
+    \printuntil newItem = new
+
+
+    \section1 Table Widgets
 
     Tables of items similar to those found in spreadsheet applications
     are constructed with the \c QTableWidget and \c QTableWidgetItem. These
@@ -1386,11 +1387,38 @@ items.
     at the required location:
 
     \skipto QTableWidgetItem *newItem
-    \printuntil tableWidget->setItem
+    \printuntil tableWidget->setItem(
 
+    Horizontal and vertical headers can be added to the table by constructing
+    items outside the table and using them as headers:
 
+    \quotefile snippets/qtablewidget-using/mainwindow.cpp
+    \skipto QTableWidgetItem *valuesHeaderItem
+    \printuntil tableWidget->setHorizontalHeaderItem(0
 
-    \section1 Common features
+    Note that the rows and columns in the table begin at zero.
+
+    \section1 Common Features
+
+    There are a number of item-based features common to each of the
+    convenience classes that are available through the same interfaces
+    in each class. We present these in the following sections with some
+    examples for different widgets.
+    Look at the \l{model-view.html}{class documentation} for each of the
+    widgets for more details about the use of each function used.
+
+    \section2 Hidden Items
+
+    It is sometimes useful to be able to hide items in an item view widget
+    rather than remove them. Items for all of the above widgets can be
+    hidden and later shown again. You can determine whether an item is hidden
+    by calling the isItemHidden() function, and items can be hidden with
+    \c setItemHidden(). 
+
+    Since this operation is item-based, the same function is available for
+    all three convenience classes.
+
+    \section2 Selections
 
     The way items are selected is controlled by the widget's selection mode
     (\l{QAbstractItemView::SelectionMode}).
@@ -1406,9 +1434,14 @@ items.
     Where the user needs to choose a single item from a widget, the
     default \c SingleSelection mode is most suitable. In this mode, the
     current item and the selected item are the same.
-    \endtable
 
-    \table
+    \row
+    \i \img selection-multi.png
+    \i \bold{Multi-item selections:}
+    In this mode, the user can toggle the selection state of any item in the
+    widget without changing the existing selection, much like the way
+    non-exclusive checkboxes can be toggled independently.
+
     \row
     \i \img selection-extended.png
     \i \bold{Extended selections:}
@@ -1424,12 +1457,44 @@ items.
     selection is cleared.
     \endtable
 
-    \table
-    \row
-    \i \img selection-multi.png
-    \i \bold{Multi-item selections:}
-    In this mode, the user can toggle the selection state of any item in the
-    widget without changing the existing selection.
-    \endtable
+    The selected items in a widget are read using the \c selectedItems()
+    function, providing a list of relevant items that can be iterated over.
+    For example, we can find the sum of all the numeric values within a
+    list of selected items with the following code:
+
+    \skipto void MainWindow::sumItems()
+    \skipto QList<QTableWidgetItem *>
+    \printto if (number > 0)
+
+    Note that for the single selection mode, the current item will be in
+    the selection. In the multi-selection and extended selection modes, the
+    current item may not lie within the selection, depending on the way the
+    user formed the selection.
+
+    \section2 Searching
+
+    It is often useful to be able to find items within an item view widget,
+    either as a developer or as a service to present to users. All three
+    item view convenience classes provide a common \c findItems() function
+    to make this as consistent and simple as possible.
+
+    Items are searched for by the text that they contain according to
+    criteria specified by a selection of values from
+    \l{QAbstractItemModel::MatchFlags}. We can obtain a list of matching
+    items with the \c findItems() function:
+
+    \quotefile snippets/qtreewidget-using/mainwindow.cpp
+    \skipto void MainWindow::findItems()
+    \skipto QTreeWidgetItem *
+    \printuntil QTreeWidgetItem *
+    \skipto QList<QTreeWidgetItem *> found
+    \printuntil }
+
+    The above code causes items in a tree widget to be selected if they
+    contain the text given in the search string. This pattern can also be
+    used in the list and table widgets.
+
+    \l{model-view-delegate.html}{[Delegate Classes]}
+    \l{model-view-programming.html}{[Up]}
 
 */

@@ -55,10 +55,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::fillSelection()
 {
-    QModelIndexList indices = selectionModel->selectedIndexes();
+    QModelIndexList indexes = selectionModel->selectedIndexes();
     QModelIndex index;
 
-    foreach(index, indices) {
+    foreach(index, indexes) {
         QString text = QString("(%1,%2)").arg(index.row()).arg(index.column());
         model->setData(index, QAbstractItemModel::EditRole, text);
     }
@@ -66,10 +66,10 @@ void MainWindow::fillSelection()
 
 void MainWindow::clearSelection()
 {
-    QModelIndexList indices = selectionModel->selectedIndexes();
+    QModelIndexList indexes = selectionModel->selectedIndexes();
     QModelIndex index;
 
-    foreach(index, indices)
+    foreach(index, indexes)
         model->setData(index, QAbstractItemModel::EditRole, "");
 }
 

@@ -63,13 +63,20 @@ void MainWindow::sortDescending()
 
 void MainWindow::insertItem()
 {
-    QString itemText = QInputDialog::getText(tr("Insert Item"),
+    QString itemText = QInputDialog::getText(this, tr("Insert Item"),
         tr("Input text for the new item:"));
 
     QListWidgetItem *newItem = new QListWidgetItem;
     newItem->setText(itemText);
     int row = listWidget->row(listWidget->currentItem());
     listWidget->insertItem(row, newItem);
+
+    QString toolTipText = tr("Tooltip:") + itemText;
+    QString statusTipText = tr("Status tip:") + itemText;
+    QString whatsThisText = tr("What's This?:") + itemText;
+    newItem->setToolTip(toolTipText);
+    newItem->setStatusTip(toolTipText);
+    newItem->setWhatsThis(whatsThisText);
 }
 
 void MainWindow::removeItem()
