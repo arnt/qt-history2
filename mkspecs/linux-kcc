@@ -21,7 +21,7 @@ QMAKE_CFLAGS_YACC	= --diag_supress 111,177
 QMAKE_CFLAGS_THREAD	= --thread_safe
 
 QMAKE_CXX		= $$QMAKE_CC
-QMAKE_CXXFLAGS		= --strict --display_error_number --backend -pipe
+QMAKE_CXXFLAGS		= --display_error_number --backend -pipe
 QMAKE_CXXFLAGS_WARN_ON	= $$QMAKE_CFLAGS_WARN_ON
 QMAKE_CXXFLAGS_WARN_OFF	= $$QMAKE_CFLAGS_WARN_OFF
 QMAKE_CXXFLAGS_RELEASE	= $$QMAKE_CFLAGS_RELEASE

@@ -460,7 +460,7 @@ void qt_deferred_map_add( QWidget* w)
 	qAddPostRoutine( qt_deferred_map_cleanup );
     }
     deferred_map_list->append( w );
-};
+}
 void qt_deferred_map_take( QWidget* w )
 {
     if (deferred_map_list ) {
