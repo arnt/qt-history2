@@ -47,6 +47,7 @@
 class QSplitterHandle;
 class QSplitterData;
 class QSplitterLayoutStruct;
+class QTextStream;
 
 class Q_EXPORT QSplitter : public QFrame
 {
@@ -120,12 +121,23 @@ private:
 
     Orientation orient;
     friend class QSplitterHandle;
+
+#ifndef QT_NO_TEXTSTREAM
+    friend Q_EXPORT QTextStream& operator<<( QTextStream&, const QSplitter& );
+    friend Q_EXPORT QTextStream& operator>>( QTextStream&, QSplitter& );
+#endif
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QSplitter( const QSplitter & );
     QSplitter& operator=( const QSplitter & );
 #endif
 };
+
+#ifndef QT_NO_TEXTSTREAM
+Q_EXPORT QTextStream& operator<<( QTextStream&, const QSplitter& );
+Q_EXPORT QTextStream& operator>>( QTextStream&, QSplitter& );
+#endif
 
 #endif // QT_NO_SPLITTER
 

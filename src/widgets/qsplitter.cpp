@@ -726,7 +726,6 @@ int QSplitter::adjustPos( int p, int id )
     return p;
 }
 
-
 void QSplitter::doResize()
 {
     QRect r = contentsRect();
@@ -761,9 +760,10 @@ void QSplitter::doResize()
 		  We divide per 8 to avoid problems caused by
 		  limitations in the layout engine code. You can
 		  still run into problems if you set an abnormally
-		  high stretch value in the QSizePolicy.
+		  high stretch value in the QSizePolicy or if you
+		  use a 5120 x 4096 monitor.
 		*/
-		a[i].stretch = ( s->sizer * stretch ) / 8;
+		a[i].stretch = stretch * ( 1 + s->sizer / 8 );
 		a[i].sizeHint = a[i].minimumSize;
 	    } else if ( mode == KeepSize ) {
 		a[i].sizeHint = s->sizer;
@@ -775,7 +775,7 @@ void QSplitter::doResize()
 
     qGeomCalc( a, 0, n, pick( r.topLeft() ), pick( r.size() ), 0 );
 
-    for ( i = 0; i< n; i++ ) {
+    for ( i = 0; i < n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
 	setG( s->wid, a[i].pos, a[i].size );
     }
@@ -791,6 +791,7 @@ void QSplitter::recalc( bool update )
     int mint = fi;
     int n = data->list.count();
     bool first = TRUE;
+
     /*
       The splitter before a hidden widget is always hidden.
       The splitter before the first visible widget is hidden.
@@ -801,12 +802,14 @@ void QSplitter::recalc( bool update )
 	if ( !s->isSplitter ) {
 	    QSplitterLayoutStruct *p = ( i > 0 ) ? p = data->list.at( i - 1 )
 					: 0;
-	    if ( p && p->isSplitter )
+	    if ( p && p->isSplitter ) {
 		// may trigger new recalc
-		if ( first || s->wid->isHidden() )
+		if ( first || s->wid->isHidden() ) {
 		    p->wid->hide(); 
-		else
+		} else {
 		    p->wid->show();
+		}
+	    }
 	    if ( !s->wid->isHidden() )
 		first = FALSE;
 	}
@@ -1160,5 +1163,89 @@ void QSplitter::styleChange( QStyle& old )
     doResize();
     QFrame::styleChange( old );
 }
+
+#ifndef QT_NO_TEXTSTREAM
+/*!
+    \relates QSplitter
+
+    Writes the sizes and the hidden state of the widgets in the
+    splitter \a splitter to the text stream \a ts.
+
+    \sa operator>>(), sizes(), QWidget::isHidden()
+*/
+
+QTextStream& operator<<( QTextStream& ts, const QSplitter& splitter )
+{
+    QSplitterLayoutStruct *s = splitter.data->list.first();
+    bool first = TRUE;
+    ts << "[";
+
+    while ( s != 0 ) {
+	if ( !s->isSplitter ) {
+	    if ( !first )
+		ts << ",";
+
+	    if ( s->wid->isHidden() ) {
+		ts << "H";
+	    } else {
+		ts << s->sizer;
+	    }
+	    first = FALSE;
+	}
+	s = splitter.data->list.next();
+    }
+    ts << "]" << endl;
+    return ts;
+}
+
+/*!
+    \relates QSplitter
+
+    Reads the sizes and the hidden state of the widgets in the
+    splitter \a splitter from the text stream \a ts. The sizes must
+    have been previously written by the operator<<() function.
+
+    \sa operator<<(), setSizes(), QWidget::hide()
+*/
+
+QTextStream& operator>>( QTextStream& ts, QSplitter& splitter )
+{
+#undef SKIP_SPACES
+#define SKIP_SPACES() \
+    while ( line[i].isSpace() ) \
+	i++
+
+    QSplitterLayoutStruct *s = splitter.data->list.first();
+    QString line = ts.readLine();
+    int i = 0;
+
+    SKIP_SPACES();
+    if ( line[i] == '[' ) {
+	i++;
+	SKIP_SPACES();
+	while ( line[i] != ']' && s != 0 ) {
+	    if ( line[i] == 'H' ) {
+		s->wid->hide();
+		i++;
+	    } else {
+		s->wid->show();
+		int dim = 0;
+		while ( line[i].digitValue() >= 0 ) {
+		    dim *= 10;
+		    dim += line[i].digitValue();
+		    i++;
+		}
+		s->sizer = dim;
+	    }
+	    SKIP_SPACES();
+	    if ( line[i] == ',' )
+		i++;
+	    SKIP_SPACES();
+	    s = splitter.data->list.next();
+	}
+    }
+    return ts;
+}
+#endif
 
 #endif
