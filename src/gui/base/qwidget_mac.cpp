@@ -366,12 +366,12 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 			else 
 			    p.fillRect(rr, bg.color());
 		    }
-
 		    QPaintEvent e(qrgn);
 		    QApplication::sendSpontaneousEvent(widget, &e);
 		    qt_clear_paintevent_clipping(widget);
 		    widget->clearWState(WState_InPaintEvent);
 		}
+		SetPort(qdref); //restore the state..
 
 		//remove the old pointers (this is just a hack of course..) --Sam
 		widget->d->clp_serial++;
@@ -381,9 +381,9 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 	    }
 	} else if(ekind == kEventControlInitialize) {
 	    UInt32 features = kControlSupportsDragAndDrop;
-	    if(QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER)
+	    if(QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER) 
 		features |= (kControlSupportsEmbedding|kControlSupportsGetRegion);
-	    SetEventParameter(event, kEventControlInitialize, typeUInt32, sizeof(features), &features);
+	    SetEventParameter(event, kEventParamControlFeatures, typeUInt32, sizeof(features), &features);
 	} else if(ekind == kEventControlGetPartRegion) {
 	    handled_event = false;
 	    if(widget && !widget->isTopLevel()) {
