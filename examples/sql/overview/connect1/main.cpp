@@ -18,14 +18,15 @@ int main( int argc, char *argv[] )
     QApplication app( argc, argv );
 
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( DB_SALES_DRIVER );
+    if ( defaultDB ) {
+	defaultDB->setDatabaseName( DB_SALES_DBNAME );
+	defaultDB->setUserName( DB_SALES_USER );
+	defaultDB->setPassword( DB_SALES_PASSWD );
+	defaultDB->setHostName( DB_SALES_HOST );
 
-    defaultDB->setDatabaseName( DB_SALES_DBNAME );
-    defaultDB->setUserName( DB_SALES_USER );
-    defaultDB->setPassword( DB_SALES_PASSWD );
-    defaultDB->setHostName( DB_SALES_HOST );
-
-    if ( defaultDB->open() ) {
-        // Database successfully opened; we can now issue SQL commands.
+	if ( defaultDB->open() ) {
+	    // Database successfully opened; we can now issue SQL commands.
+	}
     }
 
     return 0;

@@ -86,6 +86,10 @@ bool createConnections()
 {
     // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( DB_SALES_DRIVER );
+    if ( ! defaultDB ) {
+	qWarning( "Failed to connect to driver" );
+	return FALSE;
+    }
     defaultDB->setDatabaseName( DB_SALES_DBNAME );
     defaultDB->setUserName( DB_SALES_USER );
     defaultDB->setPassword( DB_SALES_PASSWD );
@@ -99,6 +103,10 @@ bool createConnections()
 
     // create a named connection to oracle
     QSqlDatabase *oracle = QSqlDatabase::addDatabase( DB_ORDERS_DRIVER, "ORACLE" );
+    if ( ! oracle ) {
+	qWarning( "Failed to connect to oracle driver" );
+	return FALSE;
+    }
     oracle->setDatabaseName( DB_ORDERS_DBNAME );
     oracle->setUserName( DB_ORDERS_USER );
     oracle->setPassword( DB_ORDERS_PASSWD );

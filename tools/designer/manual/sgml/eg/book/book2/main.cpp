@@ -34,7 +34,7 @@ bool createConnections()
 {
     // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( DB_BOOKS_DRIVER );
-    if ( ! *defaultDB ) {
+    if ( ! defaultDB ) {
 	qWarning( "Failed to connect to driver" );
 	return FALSE;
     }
