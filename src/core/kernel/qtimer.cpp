@@ -11,9 +11,10 @@
 **
 ****************************************************************************/
 
-#include "qcoreapplication.h"
-#include "qeventloop.h"
 #include "qtimer.h"
+
+#include "qabstracteventdispatcher.h"
+#include "qcoreapplication.h"
 #include "qsignal.h"
 
 /*!
@@ -226,7 +227,7 @@ protected:
 };
 
 QSingleShotTimer::QSingleShotTimer(int msec, QObject *receiver, const char *member)
-    : QObject(QEventLoop::instance())
+    : QObject(QAbstractEventDispatcher::instance())
 {
     connect(this, SIGNAL(timeout()), receiver, member);
     startTimer(msec);
@@ -236,10 +237,9 @@ void QSingleShotTimer::timerEvent(QTimerEvent *)
 {
     // need to unregister the timer _before_ we emit timeout() in case the slot connected
     // to timeout calls processEvents()
-    QEventLoop *eventloop = QEventLoop::instance(thread());
-    if (eventloop)
-        eventloop->unregisterTimers(this);
-
+    QAbstractEventDispatcher *eventDispather = QAbstractEventDispatcher::instance(thread());
+    if (eventDispather)
+        eventDispather->unregisterTimers(this);
     emit timeout();
     delete this;
 }

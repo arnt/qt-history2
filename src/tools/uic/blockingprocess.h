@@ -17,6 +17,8 @@
 #include <qprocess.h>
 #include <qbytearray.h>
 
+class QEventLoop;
+
 class BlockingProcess : public QProcess
 {
     Q_OBJECT
@@ -32,6 +34,7 @@ public slots:
     void exited();
 
 public:
+    QEventLoop *eventLoop;
     QByteArray out;
     QByteArray err;
     int outUsed;

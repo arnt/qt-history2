@@ -11,10 +11,13 @@
 **
 ****************************************************************************/
 
+#include "qthread.h"
+
 #include "qplatformdefs.h"
 
-#include "qthread.h"
+#include "qeventdispatcher_unix.h"
 #include "qthreadstorage.h"
+
 #include "qthread_p.h"
 
 #include <sched.h>
@@ -73,7 +76,13 @@ void *QThreadPrivate::start(void *arg)
     pthread_cleanup_push(QThreadPrivate::finish, arg);
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
-    QThreadData::setCurrent(&thr->d_func()->data);
+    QThreadData *data = &thr->d_func()->data;
+    QThreadData::setCurrent(data);
+
+    // ### TODO: allow the user to create a custom event dispatcher
+    (void) new QEventDispatcherUNIX;
+    Q_ASSERT(data->eventDispatcher != 0);
+    data->eventDispatcher->startingUp();
 
     emit thr->started();
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
@@ -88,6 +97,7 @@ void QThreadPrivate::finish(void *arg)
 {
     QThread *thr = reinterpret_cast<QThread *>(arg);
     QThreadPrivate *d = thr->d_func();
+    QThreadData *data = &d->data;
     QMutexLocker locker(&d->mutex);
 
     d->running = false;
@@ -97,8 +107,12 @@ void QThreadPrivate::finish(void *arg)
     d->terminated = false;
     emit thr->finished();
 
-    QThreadStorageData::finish(d->data.tls);
-    d->data.tls = 0;
+    data->eventDispatcher->closingDown();
+    delete data->eventDispatcher;
+    data->eventDispatcher = 0;
+
+    QThreadStorageData::finish(data->tls);
+    data->tls = 0;
 
     d->thread_id = 0;
     d->thread_done.wakeAll();

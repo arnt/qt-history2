@@ -20,6 +20,8 @@
 #include "qpixmap.h"
 #include "qpoint.h"
 
+class QEventLoop;
+
 class QDragPrivate
 {
 public:
@@ -79,6 +81,7 @@ private:
     bool beingCancelled;
     bool restoreCursor;
     bool willDrop;
+    QEventLoop *eventLoop;
 
     QPixmap *pm_cursor;
     int n_cursor;

@@ -27,7 +27,7 @@
 */
 
 QThreadData::QThreadData()
-    : eventLoop(0), tls(0)
+    : eventDispatcher(0), eventLoop(0), tls(0)
 { }
 
 QThreadData *QThreadData::get(QThread *thread)
@@ -248,9 +248,8 @@ uint QThread::stackSize() const
 void QThread::exit(int retcode)
 {
     Q_D(QThread);
-    QEventLoop *eventLoop = d->data.eventLoop;
-    if (eventLoop)
-        eventLoop->exit(retcode);
+    if (d->data.eventLoop)
+        d->data.eventLoop->exit(retcode);
 }
 
 /*!

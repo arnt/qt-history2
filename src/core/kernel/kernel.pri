@@ -1,6 +1,7 @@
 # Qt core object module
 
 HEADERS += \
+	kernel/qabstracteventdispatcher.h \
 	kernel/qbasictimer.h \
 	kernel/qeventloop.h\
 	kernel/qpointer.h \
@@ -17,12 +18,13 @@ HEADERS += \
 	kernel/qsocketnotifier.h \
 	kernel/qtimer.h \
 	kernel/qtranslator.h \
-	kernel/qeventloop_p.h \
 	kernel/qinternal_p.h \
+	kernel/qabstracteventdispatcher_p.h \
 	kernel/qcoreapplication_p.h \
 	kernel/qobjectcleanuphandler.h
 
 SOURCES += \
+	kernel/qabstracteventdispatcher.cpp \
 	kernel/qbasictimer.cpp \
 	kernel/qeventloop.cpp \
 	kernel/qinternal.cpp \
@@ -43,7 +45,6 @@ SOURCES += \
 win32 {
 	SOURCES += \
 		kernel/qprocess_win.cpp \
-		kernel/qeventloop_win.cpp \
 		kernel/qcoreapplication_win.cpp
 } 
 
@@ -56,10 +57,11 @@ mac {
 unix {
 	SOURCES += \
 		kernel/qcrashhandler.cpp \
-		kernel/qprocess_unix.cpp \
-		kernel/qeventloop_unix.cpp
+		kernel/qeventdispatcher_unix.cpp \
+		kernel/qprocess_unix.cpp 
 	HEADERS += \
-		kernel/qcrashhandler_p.h
+		kernel/qcrashhandler_p.h \
+		kernel/qeventdispatcher_unix.h
 }
 
 embedded:SOURCES += kernel/qsharedmemory_p.cpp

@@ -13,7 +13,7 @@
 
 #include "blockingprocess.h"
 
-#include <qcoreapplication.h>
+#include <qeventloop.h>
 
 BlockingProcess::BlockingProcess()
 {
@@ -21,6 +21,7 @@ BlockingProcess::BlockingProcess()
     connect(this, SIGNAL(readyReadStderr()), this, SLOT(readErr()));
     connect(this, SIGNAL(processExited()), this, SLOT(exited()));
     outUsed = errUsed = 0;
+    eventLoop = new QEventLoop(this);
 }
 
 void BlockingProcess::readOut()
@@ -43,14 +44,13 @@ void BlockingProcess::readErr()
 
 void BlockingProcess::exited()
 {
-    QCoreApplication::instance()->exit_loop();
+    eventLoop->exit();
 }
 
 bool BlockingProcess::start(QStringList *env)
 {
     bool returnValue = QProcess::start(env);
     if (returnValue)
-        QCoreApplication::instance()->enter_loop();
-
+        eventLoop->exec();
     return returnValue;
 }

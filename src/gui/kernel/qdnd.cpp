@@ -203,6 +203,7 @@ QDragManager::QDragManager()
     beingCancelled = false;
     restoreCursor = false;
     willDrop = false;
+    eventLoop = 0;
     dropData = new QDropData(this);
 }
 

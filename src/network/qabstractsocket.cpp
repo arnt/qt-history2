@@ -271,7 +271,6 @@
 #include "qabstractsocket.h"
 #include "qabstractsocket_p.h"
 #include "qdatetime.h"
-#include "qeventloop.h"
 #include "qhostaddress.h"
 #include "qpointer.h"
 #include "qsignal.h"
@@ -667,9 +666,6 @@ void QAbstractSocketPrivate::resetSocketLayer()
 */
 void QAbstractSocketPrivate::setupSocketNotifiers()
 {
-    if (!QEventLoop::instance())
-        return;
-
     readSocketNotifier = new QSocketNotifier(socketLayer.socketDescriptor(),
                                              QSocketNotifier::Read);
     writeSocketNotifier = new QSocketNotifier(socketLayer.socketDescriptor(),

@@ -46,6 +46,7 @@
 #include <private/qunicodetables_p.h>
 #include <private/qcrashhandler_p.h>
 
+#include "qeventdispatcher_x11.h"
 #include "qpaintengine_x11.h"
 
 // Input method stuff - UNFINISHED
@@ -413,6 +414,12 @@ public:
 };
 
 
+void QApplicationPrivate::createEventDispatcher()
+{
+    eventDispatcher = (q->type() != QApplication::Tty
+                       ? new QEventDispatcherX11(q)
+                       : new QEventDispatcherUNIX(q));
+}
 
 
 // ************************************************************************
@@ -5205,13 +5212,14 @@ class QSessionManagerPrivate : public QObjectPrivate
 {
 public:
     QSessionManagerPrivate(QSessionManager* mgr, QString& id, QString& key)
-        : QObjectPrivate(), sm(mgr), sessionId(id), sessionKey(key) {}
+        : QObjectPrivate(), sm(mgr), sessionId(id), sessionKey(key), eventLoop(0) {}
     QSessionManager* sm;
     QStringList restartCommand;
     QStringList discardCommand;
     QString& sessionId;
     QString& sessionKey;
     QSessionManager::RestartHint restartHint;
+    QEventLoop *eventLoop;
 };
 
 class QSmSocketReceiver : public QObject
@@ -5424,7 +5432,7 @@ static void sm_performSaveYourself(QSessionManagerPrivate* smd)
     }
 }
 
-static void sm_dieCallback(SmcConn smcConn, SmPointer /* clientData  */)
+static void sm_dieCallback(SmcConn smcConn, SmPointer /* clientData */)
 {
     if (smcConn != smcConnection)
         return;
@@ -5433,12 +5441,12 @@ static void sm_dieCallback(SmcConn smcConn, SmPointer /* clientData  */)
     QApplication::sendEvent(qApp, &quitEvent);
 }
 
-static void sm_shutdownCancelledCallback(SmcConn smcConn, SmPointer /* clientData */)
+static void sm_shutdownCancelledCallback(SmcConn smcConn, SmPointer clientData)
 {
     if (smcConn != smcConnection)
         return;
     if (sm_waitingForInteraction)
-        qApp->exit_loop();
+        ((QSessionManagerPrivate *) clientData)->eventLoop->exit();
     resetSmState();
 }
 
@@ -5449,12 +5457,12 @@ static void sm_saveCompleteCallback(SmcConn smcConn, SmPointer /*clientData */)
     resetSmState();
 }
 
-static void sm_interactCallback(SmcConn smcConn, SmPointer /* clientData */)
+static void sm_interactCallback(SmcConn smcConn, SmPointer clientData)
 {
     if (smcConn != smcConnection)
         return;
     if (sm_waitingForInteraction)
-        qApp->exit_loop();
+        ((QSessionManagerPrivate *) clientData)->eventLoop->exit();
 }
 
 static void sm_saveYourselfPhase2Callback(SmcConn smcConn, SmPointer clientData)
@@ -5560,7 +5568,11 @@ bool QSessionManager::allowsInteraction()
                                                         sm_interactCallback, (SmPointer*) this);
     }
     if (sm_waitingForInteraction) {
-        qApp->enter_loop();
+        QEventLoop eventLoop;
+        d->eventLoop = &eventLoop;
+        (void) eventLoop.exec();
+        d->eventLoop = 0;
+
         sm_waitingForInteraction = false;
         if (sm_smActive) { // not cancelled
             sm_interactionActive = true;
@@ -5584,7 +5596,11 @@ bool QSessionManager::allowsErrorInteraction()
                                                         sm_interactCallback, (SmPointer*) this);
     }
     if (sm_waitingForInteraction) {
-        qApp->enter_loop();
+        QEventLoop eventLoop;
+        d->eventLoop = &eventLoop;
+        (void) eventLoop.exec();
+        d->eventLoop = 0;
+
         sm_waitingForInteraction = false;
         if (sm_smActive) { // not cancelled
             sm_interactionActive = true;

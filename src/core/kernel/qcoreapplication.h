@@ -16,6 +16,7 @@
 
 #include <qobject.h>
 #include <qcoreevent.h>
+#include <qeventloop.h>
 
 #ifdef QT_INCLUDE_COMPAT
 #include <qstringlist.h>
@@ -28,7 +29,6 @@
 class QCoreApplicationPrivate;
 class QTextCodec;
 class QTranslator;
-class QEventLoop;
 class QPostEventList;
 class QStringList;
 
@@ -53,16 +53,10 @@ public:
     static QString applicationName();
 
     static QCoreApplication *instance() { return self; }
-    static QEventLoop *eventLoop();
 
     int exec();
     void processEvents();
     void processEvents(int maxtime);
-    void processOneEvent();
-    bool hasPendingEvents();
-    int enter_loop();
-    void exit_loop();
-    int loopLevel() const;
     static void exit(int retcode=0);
 
     static bool sendEvent(QObject *receiver, QEvent *event);
@@ -139,7 +133,6 @@ private:
     static QCoreApplication *self;
 
     friend class QEvent;
-    friend class QEventLoop;
     friend class QGuiEventLoop;
     friend class QApplication;
     friend class QApplicationPrivate;

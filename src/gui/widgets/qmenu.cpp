@@ -794,8 +794,8 @@ QMenu::QMenu(const QString &title, QWidget *parent)
 */
 QMenu::~QMenu()
 {
-    if(d->sync)
-        qApp->exit_loop();
+    if (d->eventLoop)
+        d->eventLoop->exit();
     if(d->tornPopup)
         d->tornPopup->close();
 }
@@ -1341,13 +1341,14 @@ QAction *QMenu::exec()
 */
 QAction *QMenu::exec(const QPoint &p, QAction *action)
 {
-    d->sync = 1;
+    QEventLoop eventLoop;
+    d->eventLoop = &eventLoop;
     popup(p, action);
-    qApp->enter_loop();
+    (void) eventLoop.exec();
 
     action = d->syncAction;
     d->syncAction = 0;
-    d->sync = 0;
+    d->eventLoop = 0;
     return action;
 }
 
@@ -1392,8 +1393,8 @@ void QMenu::hideEvent(QHideEvent *)
 #ifdef QT_COMPAT
     emit aboutToHide();
 #endif
-    if(d->sync)
-        qApp->exit_loop();
+    if (d->eventLoop)
+        d->eventLoop->exit();
     d->setCurrentAction(0);
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::PopupMenuEnd);
@@ -1544,7 +1545,7 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
     for(QWidget *caused = this; caused;) {
         if(QMenu *m = qt_cast<QMenu*>(caused)) {
             caused = m->d->causedPopup;
-            if(m->d->sync)
+            if (m->d->eventLoop) // synchronous operation
                 m->d->syncAction = action;
         } else {
             break;

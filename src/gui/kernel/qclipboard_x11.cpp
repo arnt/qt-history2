@@ -32,9 +32,9 @@
 
 #ifndef QT_NO_CLIPBOARD
 
+#include "qabstracteventdispatcher.h"
 #include "qapplication.h"
 #include "qdesktopwidget.h"
-#include "qeventloop.h"
 #include "qbitmap.h"
 #include "qdatetime.h"
 #include "qdragobject.h"
@@ -389,7 +389,7 @@ static int qt_xclb_event_filter(XEvent *event)
 }
 
 bool qt_xclb_wait_for_event(Display *dpy, Window win, int type, XEvent *event,
-                             int timeout)
+                            int timeout)
 {
     if (waiting_for_data)
         qFatal("QClipboard: internal error, qt_xclb_wait_for_event recursed");
@@ -417,9 +417,12 @@ bool qt_xclb_wait_for_event(Display *dpy, Window win, int type, XEvent *event,
             started = now;
 
         // 0x08 == ExcludeTimers for X11 only
-        qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput |
-                                          QEventLoop::ExcludeSocketNotifiers |
-                                          QEventLoop::WaitForMore | 0x08);
+        QEventLoop::ProcessEventsFlags flags(QEventLoop::ExcludeUserInputEvents
+                                             | QEventLoop::ExcludeSocketNotifiers
+                                             | QEventLoop::WaitForMoreEvents
+                                             | 0x08);
+        QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance();
+        eventDispatcher->processEvents(flags);
 
         if (has_captured_event) {
             waiting_for_data = false;

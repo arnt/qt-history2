@@ -18,8 +18,6 @@ HEADERS += \
 	kernel/qdnd_p.h \
 	kernel/qdragobject.h \
 	kernel/qevent.h \
-	kernel/qguieventloop.h\
-	kernel/qguieventloop_p.h \
 	kernel/qkeysequence.h \
 	kernel/qlayout.h \
 	kernel/qmime.h \
@@ -47,7 +45,6 @@ SOURCES += \
 	kernel/qdrag.cpp \
 	kernel/qdnd.cpp \
 	kernel/qevent.cpp \
-	kernel/qguieventloop.cpp \
 	kernel/qkeysequence.cpp \
 	kernel/qlayout.cpp \
 	kernel/qlayoutengine.cpp \
@@ -75,12 +72,12 @@ win32 {
 		kernel/qmime_win.cpp \
 		kernel/qsound_win.cpp \
 		kernel/qwidget_win.cpp \
-		kernel/qole_win.c \
-		kernel/qguieventloop_win.cpp
+		kernel/qole_win.c
 }
 
 unix:x11 {
 	HEADERS += \
+		kernel/qeventdispatcher_x11.h \
 		kernel/qx11info_x11.h \
 		kernel/qinputcontext.h
 
@@ -90,7 +87,7 @@ unix:x11 {
 		kernel/qcursor_x11.cpp \
 		kernel/qdnd_x11.cpp \
 		kernel/qdesktopwidget_x11.cpp \
-		kernel/qguieventloop_x11.cpp \
+		kernel/qeventdispatcher_x11.cpp \
 		kernel/qinputcontext.cpp \
 		kernel/qmotifdnd_x11.cpp \
 		kernel/qsound_x11.cpp \
@@ -108,7 +105,6 @@ embedded {
 		kernel/qcursor_qws.cpp \
 		kernel/qdesktopwidget_qws.cpp \
 		kernel/qdnd_qws.cpp \
-		kernel/qguieventloop_qws.cpp \
 		kernel/qinputcontext_qws.cpp \
 		kernel/qsound_qws.cpp \
 		kernel/qwidget_qws.cpp
@@ -128,8 +124,7 @@ embedded {
 		kernel/qmime_mac.cpp \
 		kernel/qdnd_mac.cpp \
 		kernel/qdesktopwidget_mac.cpp \
-		kernel/qwidget_mac.cpp \
-		kernel/qguieventloop_mac.cpp
+		kernel/qwidget_mac.cpp
 }
 
 

@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
+#include "qsocketnotifier.h"
+
 #include "qplatformdefs.h"
 
-#include "qsocketnotifier.h"
-#include "qstring.h"
+#include "qabstracteventdispatcher.h"
 #include "qcoreapplication.h"
-#include "qeventloop.h"
 
 
 /*!
@@ -144,10 +144,13 @@ QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent)
     sockfd = socket;
     sntype = type;
     snenabled = true;
-    QEventLoop *ev = QEventLoop::instance(thread());
-    Q_ASSERT_X(ev, "QSocketNotifier::QSocketNotifier()",
-               "Cannot create a socket notifier without an eventloop");
-    ev->registerSocketNotifier(this);
+
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
+    if (!eventDispatcher) {
+        qWarning("QSocketNotifier can only be used with threads started with QThread");
+    } else {
+        eventDispatcher->registerSocketNotifier(this);
+    }
 }
 
 #ifdef QT_COMPAT
@@ -178,7 +181,13 @@ QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent,
     sockfd = socket;
     sntype = type;
     snenabled = true;
-    QEventLoop::instance(thread())->registerSocketNotifier(this);
+
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
+    if (!eventDispatcher) {
+        qWarning("QSocketNotifier can only be used with threads started with QThread");
+    } else {
+        eventDispatcher->registerSocketNotifier(this);
+    }
 }
 #endif
 /*!
@@ -262,14 +271,13 @@ void QSocketNotifier::setEnabled(bool enable)
         return;
     snenabled = enable;
 
-    QEventLoop *eventloop = QEventLoop::instance(thread());
-    if (! eventloop) // perhaps application is shutting down
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
+    if (!eventDispatcher) // perhaps application/thread is shutting down
         return;
-
     if (snenabled)
-        eventloop->registerSocketNotifier(this);
+        eventDispatcher->registerSocketNotifier(this);
     else
-        eventloop->unregisterSocketNotifier(this);
+        eventDispatcher->unregisterSocketNotifier(this);
 }
 
 
@@ -307,7 +315,7 @@ QWinEventNotifier::QWinEventNotifier(QObject *parent)
 QWinEventNotifier::QWinEventNotifier(long hEvent, QObject *parent)
 : handleToEvent(hEvent), enabled(false), QObject(parent)
 {
-    QEventLoop *ev = QEventLoop::instance(thread());
+    QEventDispatcher *ev = QEventDispatcher::instance(thread());
     Q_ASSERT_X(ev, "QWinEventNotifier::QWinEventNotifier()",
                "Cannot create a win event notifier without an eventloop");
     ev->registerWinEventNotifier(this);
@@ -341,7 +349,7 @@ void QWinEventNotifier::setEnabled(bool enable)
         return;
     enabled = enable;
 
-    QEventLoop *eventloop = QEventLoop::instance(thread());
+    QEventDispatcher *eventloop = QEventDispatcher::instance(thread());
     if (!eventloop) // perhaps application is shutting down
         return;
 

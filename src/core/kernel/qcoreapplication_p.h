@@ -29,6 +29,8 @@ public:
     using QList<QTranslator*>::constEnd;
 };
 
+class QAbstractEventDispatcher;
+
 class Q_CORE_EXPORT QCoreApplicationPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QCoreApplication)
@@ -36,7 +38,7 @@ public:
     QCoreApplicationPrivate(int &aargc,  char **aargv);
     ~QCoreApplicationPrivate();
 
-    virtual void createEventLoop();
+    virtual void createEventDispatcher();
 
 #ifdef QT_COMPAT
     void removePostedChildInsertedEvents(QObject *receiver, QObject *child);
@@ -44,6 +46,7 @@ public:
 
     int &argc;
     char **argv;
+    QAbstractEventDispatcher *eventDispatcher;
     QEventLoop *eventLoop;
     QString organization, application;
 #ifndef QT_NO_TRANSLATION

@@ -111,7 +111,7 @@ public:
 
     bool lastMousePressAccepted;
 
-    void createEventLoop();
+    void createEventDispatcher();
 
 #ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;

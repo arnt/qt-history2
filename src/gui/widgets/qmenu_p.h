@@ -37,7 +37,7 @@ class QMenuPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(QMenu)
 public:
     QMenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), mouseDown(0), motions(0),
-                      currentAction(0), scroll(0), sync(0), tearoff(0), tornoff(0), tearoffHighlighted(0),
+                      currentAction(0), scroll(0), eventLoop(0), tearoff(0), tornoff(0), tearoffHighlighted(0),
                       checkable(0), sloppyAction(0)
 #ifdef Q_WS_MAC
                       ,mac_menu(0)
@@ -83,7 +83,7 @@ public:
     void scrollMenu(QAction *action, QMenuScroller::ScrollLocation location, bool active=false);
 
     //syncronous operation (ie exec())
-    uint sync : 1;
+    QEventLoop *eventLoop;
     QPointer<QAction> syncAction;
     QStyleOptionMenuItem getStyleOption(const QAction *action) const;
 

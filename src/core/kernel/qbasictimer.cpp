@@ -13,7 +13,7 @@
 
 #include "qbasictimer.h"
 #include "qcoreapplication.h"
-#include "qeventloop.h"
+#include "qabstracteventdispatcher.h"
 
 /*!
     \class QBasicTimer qbasictimer.h
@@ -92,7 +92,10 @@ void QBasicTimer::start(int msec, QObject *obj)
 */
 void QBasicTimer::stop()
 {
-    if (id && QCoreApplication::eventLoop())
-        QCoreApplication::eventLoop()->unregisterTimer(id);
+    if (id) {
+        QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance();
+        if (eventDispatcher)
+            eventDispatcher->unregisterTimer(id);
+    }
     id = 0;
 }

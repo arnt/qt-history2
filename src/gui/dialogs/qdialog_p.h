@@ -17,6 +17,7 @@
 #include <private/qwidget_p.h>
 #include <qdialog.h>
 
+class QEventLoop;
 class QPushButton;
 class QSizeGrip;
 
@@ -30,7 +31,7 @@ public:
 #ifndef QT_NO_SIZEGRIP
           resizer(0),
 #endif
-          rescode(0), in_loop(0)
+          rescode(0), eventLoop(0)
         {}
 
     QPushButton* mainDef;
@@ -51,7 +52,8 @@ public:
 #endif
 
     int                rescode;
-    uint        in_loop: 1;
+
+    QEventLoop *eventLoop;
 };
 
 #endif // QDIALOG_P_H

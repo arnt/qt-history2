@@ -20,6 +20,7 @@
 #include "qwaitcondition.h"
 #include "qthread.h"
 
+class QAbstractEventDispatcher;
 class QEventLoop;
 
 class QPostEvent
@@ -56,6 +57,7 @@ public:
 
     static QThreadData *get(QThread *thread);
 
+    QAbstractEventDispatcher *eventDispatcher;
     QEventLoop *eventLoop;
     QPostEventList postEventList;
     void **tls;

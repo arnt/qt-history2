@@ -357,7 +357,7 @@ void QDialog::setResult(int r)
 
 int QDialog::exec()
 {
-    if (d->in_loop) {
+    if (d->eventLoop) {
         qWarning("QDialog::exec: Recursive call detected");
         return -1;
     }
@@ -371,8 +371,10 @@ int QDialog::exec()
 
     show();
 
-    d->in_loop = true;
-    qApp->enter_loop();
+    QEventLoop eventLoop;
+    d->eventLoop = &eventLoop;
+    (void) eventLoop.exec();
+    d->eventLoop = 0;
 
     if (!wasShowModal)
         clearWFlags(Qt::WShowModal);
@@ -727,12 +729,10 @@ void QDialog::hide()
         QAccessible::updateAccessibility(this, 0, QAccessible::DialogEnd);
 #endif
 
-    // Reimplemented to exit a modal when the dialog is hidden.
+    // Reimplemented to exit a modal event loop when the dialog is hidden.
     QWidget::hide();
-    if (d->in_loop) {
-        d->in_loop = false;
-        qApp->exit_loop();
-    }
+    if (d->eventLoop)
+        d->eventLoop->exit();
 }
 
 

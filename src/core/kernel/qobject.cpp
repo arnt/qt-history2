@@ -14,9 +14,9 @@
 #include "qobject.h"
 #include "qobject_p.h"
 
+#include "qabstracteventdispatcher.h"
 #include "qcoreapplication.h"
 #include "qcorevariant.h"
-#include "qeventloop.h"
 #include "qmetaobject.h"
 #include <qregexp.h>
 #include <qthread.h>
@@ -603,10 +603,12 @@ QObject::~QObject()
         list->remove(this);
     }
 
-    // might have pending timers
-    QEventLoop *eventloop = QEventLoop::instance(d->thread);
-    if (eventloop && d->pendTimer)
-        eventloop->unregisterTimers(this);
+    if (d->pendTimer) {
+        // have pending timers
+        QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(d->thread);
+        if (eventDispatcher)
+            eventDispatcher->unregisterTimers(this);
+    }
 
     d->eventFilters.clear();
 
@@ -1058,9 +1060,12 @@ QThread *QObject::thread() const
 int QObject::startTimer(int interval)
 {
     d->pendTimer = true;                                // set timer flag
-    QEventLoop *eventloop = QEventLoop::instance(d->thread);
-    Q_ASSERT_X(eventloop, "QObject::startTimer", "Cannot start timer without an event loop");
-    return eventloop->registerTimer(interval, (QObject *)this);
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(d->thread);
+    if (!eventDispatcher) {
+        qWarning("QTimer can only be used with threads started with QThread");
+        return 0;
+    }
+    return eventDispatcher->registerTimer(interval, this);
 }
 
 /*!
@@ -1074,8 +1079,12 @@ int QObject::startTimer(int interval)
 
 void QObject::killTimer(int id)
 {
-    QEventLoop *eventloop = QEventLoop::instance(d->thread);
-    if (eventloop) eventloop->unregisterTimer(id);
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(d->thread);
+    if (!eventDispatcher) {
+        qWarning("QTimer can only be used with threads started with QThread");
+    } else {
+        eventDispatcher->unregisterTimer(id);
+    }
 }
 
 

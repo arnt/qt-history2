@@ -761,7 +761,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
             qApp->removeEventFilter(this);
             object = 0;
             beingCancelled = false;
-            qApp->exit_loop();
+            eventLoop->exit();
             return true; // block the key release
         }
         return false;
@@ -785,7 +785,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
             cancel();
         object = 0;
         beingCancelled = false;
-        qApp->exit_loop();
+        eventLoop->exit();
         return true;
     } else if (e->type() == QEvent::DragResponse) {
         if (((QDragResponseEvent *)e)->dragAccepted()) {
@@ -810,7 +810,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
             qApp->removeEventFilter(this);
             object = 0;
             beingCancelled = false;
-            qApp->exit_loop();
+            eventLoop->exit();
         } else {
             updateMode(ke->modifiers());
             qt_xdnd_source_sameanswer = QRect(); // force move
@@ -1428,7 +1428,10 @@ QDrag::DragOperation QDragManager::drag(QDragPrivate * o, QDrag::DragOperations 
     if (!QWidget::mouseGrabber())
         qt_xdnd_deco->grabMouse();
 
-    qApp->enter_loop(); // Do the DND.
+    eventLoop = new QEventLoop;
+    (void) eventLoop->exec();
+    delete eventLoop;
+    eventLoop = 0;
 
 #ifndef QT_NO_CURSOR
     qApp->restoreOverrideCursor();

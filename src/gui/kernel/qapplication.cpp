@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qabstracteventdispatcher.h"
 #include "qaccessible.h"
 #include "qapplication.h"
 #include "qcleanuphandler.h"
@@ -22,7 +23,6 @@
 #include "qevent.h"
 #include "qfile.h"
 #include "qfileinfo.h"
-#include "qguieventloop.h"
 #include "qhash.h"
 #include "qhash.h"
 #include "qlayout.h"
@@ -34,10 +34,8 @@
 #include "qtranslator.h"
 #include "qvariant.h"
 #include "qwidget.h"
+#include "qapplication_p.h"
 #include "qdnd_p.h"
-
-#include <private/qeventloop_p.h>
-
 
 #include <qthread.h>
 #include <private/qthread_p.h>
@@ -76,11 +74,6 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
     qt_dispatchAccelEvent = 0;
 #endif
 }
-
-void QApplicationPrivate::createEventLoop()
-{ eventLoop = q->type() != QApplication::Tty ? new QGuiEventLoop(q) : new QEventLoop(q); }
-
-
 
 /*!
   \class QApplication qapplication.h
@@ -720,7 +713,7 @@ void QApplication::construct()
     initialize();
     if (qt_is_gui_used)
         qt_maxWindowRect = desktop()->rect();
-    eventLoop()->appStartingUp();
+    d->eventDispatcher->startingUp();
 }
 
 #if defined(Q_WS_X11)
@@ -756,7 +749,7 @@ QApplication::QApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap)
 
     if (qt_is_gui_used)
         qt_maxWindowRect = desktop()->rect();
-    eventLoop()->appStartingUp();
+    d->eventDispatcher->startingUp();
 }
 
 /*!
@@ -786,7 +779,7 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
 
     if (qt_is_gui_used)
         qt_maxWindowRect = desktop()->rect();
-    eventLoop()->appStartingUp();
+    d->eventDispatcher->startingUp();
 }
 
 
@@ -889,7 +882,7 @@ QApplication::~QApplication()
     }
 #endif
 
-    eventLoop()->appClosingDown();
+    d->eventDispatcher->closingDown();
 
     delete qt_desktopWidget;
     qt_desktopWidget = 0;

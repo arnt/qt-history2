@@ -13,6 +13,8 @@
 
 #include "qcoreapplication.h"
 #include "qcoreapplication_p.h"
+
+#include "qabstracteventdispatcher.h"
 #include "qcoreevent.h"
 #include "qeventloop.h"
 #include <qdatastream.h>
@@ -24,6 +26,10 @@
 #include <qthread.h>
 #include <qthreadstorage.h>
 #include <private/qthread_p.h>
+
+#ifdef Q_OS_UNIX
+#  include "qeventdispatcher_unix.h"
+#endif
 
 #include <stdlib.h>
 
@@ -94,7 +100,7 @@ QCoreApplication *QCoreApplication::self = 0;
 Q_GLOBAL_STATIC(QThreadData, mainData)
 
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
-    : QObjectPrivate(), argc(aargc), argv(aargv), eventLoop(0)
+    : QObjectPrivate(), argc(aargc), argv(aargv), eventDispatcher(0), eventLoop(0)
 {
     static const char *empty = "";
     if (argc == 0 || argv == 0) {
@@ -119,8 +125,16 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
     data->postEventList.offset = 0;
 }
 
-void QCoreApplicationPrivate::createEventLoop()
-{ eventLoop = new QEventLoop; }
+void QCoreApplicationPrivate::createEventDispatcher()
+{
+#if defined(Q_OS_UNIX)
+    eventDispatcher = new QEventDispatcherUNIX;
+#elif defined(Q_OS_WIN)
+    eventDispatcher = new QEventDispatcherWin32;
+#else
+#  error "QEventDispatcher not yet ported to this platform"
+#endif
+}
 
 
 #ifdef QT_COMPAT
@@ -217,8 +231,8 @@ QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p)
 */
 void QCoreApplication::flush()
 {
-    if (self && self->d->eventLoop)
-        self->d->eventLoop->flush();
+    if (self && self->d->eventDispatcher)
+        self->d->eventDispatcher->flush();
 }
 
 /*!
@@ -254,10 +268,10 @@ void QCoreApplication::init()
 
     QThread::initialize();
 
-    if (!d->eventLoop)
-        d->createEventLoop();
-    Q_ASSERT(d->eventLoop != 0);
-    d->eventLoop->setParent(this);
+    if (!d->eventDispatcher)
+        d->createEventDispatcher();
+    Q_ASSERT(d->eventDispatcher != 0);
+    d->eventDispatcher->setParent(this);
 }
 
 /*!
@@ -277,18 +291,6 @@ QCoreApplication::~QCoreApplication()
 
     QThread::cleanup();
 }
-
-/*!
-    Returns the application event loop. This function will return
-    zero if called during and after destroying QCoreApplication.
-
-    To create your own instance of QEventLoop or QEventLoop subclass create
-    it before you create the QCoreApplication object.
-
-    \sa QEventLoop
-*/
-QEventLoop *QCoreApplication::eventLoop()
-{ return self ? self->d->eventLoop : 0; }
 
 /*!
   Sends event \a e to \a receiver: \a {receiver}->event(\a e).
@@ -406,8 +408,7 @@ bool QCoreApplication::closingDown()
 }
 
 
-/*!
-  \fn void QCoreApplication::processEvents()
+/*! \fn void QCoreApplication::processEvents()
 
     Processes pending events, for 3 seconds or until there are no more
     events to process, whichever is shorter.
@@ -431,24 +432,8 @@ bool QCoreApplication::closingDown()
 */
 void QCoreApplication::processEvents(int maxtime)
 {
-    eventLoop()->processEvents(QEventLoop::AllEvents, maxtime);
-}
-
-/*! \obsolete
-  Waits for an event to occur, processes it, then returns.
-
-  This function is useful for adapting Qt to situations where the
-  event processing must be grafted onto existing program loops.
-
-  Using this function in new applications may be an indication of design
-  problems.
-
-  \sa processEvents(), exec(), QTimer
-*/
-
-void QCoreApplication::processOneEvent()
-{
-    eventLoop()->processEvents(QEventLoop::AllEvents | QEventLoop::WaitForMore);
+    if (d->eventLoop)
+        d->eventLoop->processEvents(QEventLoop::AllEvents, maxtime);
 }
 
 /*****************************************************************************
@@ -478,7 +463,13 @@ void QCoreApplication::processOneEvent()
 */
 int QCoreApplication::exec()
 {
-    return eventLoop()->exec();
+    if (!self)
+        return -1;
+    QEventLoop eventLoop;
+    self->d->eventLoop = &eventLoop;
+    int returnCode = eventLoop.exec();
+    emit self->aboutToQuit();
+    return returnCode;
 }
 
 /*!
@@ -499,41 +490,10 @@ int QCoreApplication::exec()
 */
 void QCoreApplication::exit(int retcode)
 {
-    eventLoop()->exit(retcode);
+    QEventLoop *eventLoop = self ? self->d->eventLoop : 0;
+    if (eventLoop)
+        eventLoop->exit(retcode);
 }
-
-/*!
-    \obsolete
-
-    This function enters the main event loop (recursively). Do not call
-    it unless you really know what you are doing.
-*/
-int QCoreApplication::enter_loop()
-{
-    return eventLoop()->enterLoop();
-}
-
-/*!
-    \obsolete
-
-    This function exits from a recursive call to the main event loop.
-    Do not call it unless you are an expert.
-*/
-void QCoreApplication::exit_loop()
-{
-    eventLoop()->exitLoop();
-}
-
-/*!
-    \obsolete
-
-    Returns the current loop level.
-*/
-int QCoreApplication::loopLevel() const
-{
-    return eventLoop()->loopLevel();
-}
-
 
 /*****************************************************************************
   QCoreApplication management of posted events
@@ -605,8 +565,8 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
         data->postEventList.append(QPostEvent(receiver, event));
     }
 
-    if (data->eventLoop)
-        data->eventLoop->wakeUp();
+    if (data->eventDispatcher)
+        data->eventDispatcher->wakeUp();
 }
 
 /*!
@@ -844,16 +804,6 @@ void QCoreApplication::removePostedEvent(QEvent * event)
             return;
         }
     }
-}
-
-/*!
-    This function returns true if there are pending events; otherwise
-    returns false. Pending events can be either from the window system
-    or posted events using QApplication::postEvent().
-*/
-bool QCoreApplication::hasPendingEvents()
-{
-    return eventLoop()->hasPendingEvents();
 }
 
 /*!\reimp
