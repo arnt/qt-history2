@@ -465,11 +465,11 @@ bool Configure::displayHelp()
 	cout << "-qt-zlib           * Compile in zlib." << endl;
 	cout << "-system-zlib         Use existing zlib in system." << endl << endl;
 
-	cout << "-plugin-imgfmt-<format> Enable format (PNG, JPEG, or MNG) to" << endl;
+	cout << "-plugin-imgfmt-<format> Enable format (png, jpeg, or mng) to" << endl;
 	cout << "                        be linked to at runtime." << endl;
-	cout << "-qt-imgfmt-<format>     Enable format (PNG, JPEG, or MNG) to" << endl;
+	cout << "-qt-imgfmt-<format>     Enable format (png, jpeg, or mng) to" << endl;
 	cout << "                        be linked into Qt." << endl;
-	cout << "-no-imgfmt-<format>     Fully disable format (PNG, JPEG, or MNG)" << endl << endl;
+	cout << "-no-imgfmt-<format>     Fully disable format (png, jpeg, or mng)" << endl << endl;
 	cout << "                        from Qt." << endl;
 
 	cout << "-qt-png            * Use the libpng bundled with Qt." << endl;
