@@ -281,7 +281,7 @@ fi
 cat <<EOF
 
 depend:
-	makedepend \$(SOURCES) 2> /dev/null
+	makedepend -I\$(INCDIR) \$(SOURCES) 2> /dev/null
 
 dep: depend
 
