@@ -144,8 +144,8 @@ public:
     bool isParsed;
     bool isValidated;
 
-    QByteArray encodedNormilized;
-    const QByteArray & normilized();
+    QByteArray encodedNormalized;
+    const QByteArray & normalized();
 };
 
 // inline for speed
@@ -1054,7 +1054,7 @@ QString QUrlPrivate::removeDotsFromPath(const QString &dottedPath)
 void QUrlPrivate::validate() const
 {
     QUrlPrivate *that = (QUrlPrivate *)this;
-    that->encodedNormilized.clear(); // reset this so it will be regenerated
+    that->encodedNormalized.clear(); // reset this so it will be regenerated
     that->encodedOriginal = that->toEncoded(); // may detach
     parse(ParseOnly);
 }
@@ -1226,10 +1226,10 @@ QByteArray QUrlPrivate::toEncoded() const
 }
 
 
-const QByteArray & QUrlPrivate::normilized()
+const QByteArray & QUrlPrivate::normalized()
 {
     if (!isValidated) validate();
-    if (encodedNormilized.isEmpty()) {
+    if (encodedNormalized.isEmpty()) {
 	QUrlPrivate tmp = *this;
 	tmp.scheme = tmp.scheme.toLower();
 	tmp.host = tmp.host.toLower();
@@ -1245,10 +1245,10 @@ const QByteArray & QUrlPrivate::normilized()
 		tmp.query[i] = QChar(tmp.query[i]).toLower().ascii();
 	    }
 	}
-	encodedNormilized = tmp.toEncoded();
+	encodedNormalized = tmp.toEncoded();
     }
 
-    return encodedNormilized;
+    return encodedNormalized;
 }
 
 
@@ -2295,7 +2295,7 @@ bool QUrl::operator ==(const QUrl &url) const
 {
     if (!d->isParsed) d->parse();
     if (!url.d->isParsed) url.d->parse();
-    return d->normilized() == url.d->normilized();
+    return d->normalized() == url.d->normalized();
 }
 
 /*!
