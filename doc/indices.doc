@@ -277,7 +277,7 @@ including menus, toolbars, workspace, etc.
 
 \row
 \i \link model-view.html Model/View Classes \endlink
-\i Classes that use the Model/View design pattern.
+\i Classes that use the model/view design pattern.
 
 \row 
 \i \link objectmodel.html   Object Model \endlink
@@ -786,9 +786,9 @@ These classes are relevant to text processing. See also the
 
 \title Model/View Classes
 
-These classes use the Model/View design pattern in which the
-underlying data (in the Model) is kept separate from the way the data
-is presented and manipulated by the user (in the View). See also
+These classes use the model/view design pattern in which the
+underlying data (in the model) is kept separate from the way the data
+is presented and manipulated by the user (in the view). See also
 \link model-view-programming.html Model/View Programming\endlink.
 
 */
