@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#67 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#68 $
 **
 ** Implementation of QTextCodec class
 **
@@ -326,6 +326,73 @@ static bool try_locale_list( const char * locale[], const char * lang )
 
 static QTextCodec * localeMapper = 0;
 
+#ifdef _OS_WIN32_
+class QWindowsLocalCodec: public QTextCodec
+{
+public:
+    QWindowsLocalCodec();
+    ~QWindowsLocalCodec();
+
+    QString toUnicode(const char* chars, int len) const;
+    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    const char* name() const;
+    int mibEnum() const;
+
+    int heuristicContentMatch(const char* chars, int len) const;
+};
+
+QWindowsLocalCodec::QWindowsLocalCodec()
+{
+}
+
+QWindowsLocalCodec::~QWindowsLocalCodec()
+{
+}
+
+
+QString QWindowsLocalCodec::toUnicode(const char* chars, int len) const
+{
+    if ( len >= 0 ) {
+	QCString s(chars,len+1);
+	return qt_winMB2QString(s);
+    }
+    return qt_winMB2QString( chars );
+}
+
+QCString QWindowsLocalCodec::fromUnicode(const QString& uc, int& lenInOut ) const
+{
+    QCString r = qt_winQString2MB( uc, lenInOut );
+    lenInOut = r.length();
+    return r;
+}
+
+
+const char* QWindowsLocalCodec::name() const
+{
+    return "System";
+}
+
+int QWindowsLocalCodec::mibEnum() const
+{
+    return 0;
+}
+
+
+int QWindowsLocalCodec::heuristicContentMatch(const char* chars, int len) const
+{
+    // ### Not a bad default implementation?
+    QString t = toUnicode(chars,len);
+    int l = t.length();
+    QCString mb = fromUnicode(t,l);
+    int i=0;
+    while ( i < len )
+	if ( chars[i] == mb[i] )
+	    i++;
+    return i;
+}
+#endif
+
 /*!  Returns a pointer to the codec most suitable for this locale. */
 
 QTextCodec* QTextCodec::codecForLocale()
@@ -335,6 +402,9 @@ QTextCodec* QTextCodec::codecForLocale()
 
     setup();
 
+#ifdef _OS_WIN32_
+    localeMapper = new QWindowsLocalCodec;
+#else
     // Very poorly defined and followed standards causes lots of code
     // to try to get all the cases...
 
@@ -379,6 +449,8 @@ QTextCodec* QTextCodec::codecForLocale()
 	    localeMapper = codecForName( "ISO 8859-1" );
     }
     delete[] lang;
+#endif
+
     return localeMapper;
 }
 
@@ -1424,70 +1496,3 @@ static void setupBuiltinCodecs()
 }
 #endif // QT_NO_CODECS
 
-#ifdef _OS_WIN32_
-class QWindowsLocalCodec: public QTextCodec
-{
-public:
-    QWindowsLocalCodec();
-    ~QWindowsLocalCodec();
-
-    QString toUnicode(const char* chars, int len) const;
-    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
-
-    const char* name() const;
-    int mibEnum() const;
-
-    int heuristicContentMatch(const char* chars, int len) const;
-};
-
-QWindowsLocalCodec::QWindowsLocalCodec()
-{
-}
-
-QWindowsLocalCodec::~QWindowsLocalCodec()
-{
-}
-
-
-QString QWindowsLocalCodec::toUnicode(const char* chars, int len) const
-{
-    if ( len >= 0 ) {
-	QCString s(chars,len+1);
-	return qt_winMB2QString(s);
-    }
-    return qt_winMB2QString( chars );
-}
-
-QCString QWindowsLocalCodec::fromUnicode(const QString& uc, int& lenInOut ) const
-{
-    QCString r = qt_winQString2MB( uc, lenInOut );
-    lenInOut = r.length();
-    return r;
-}
-
-
-const char* QWindowsLocalCodec::name() const
-{
-    return "System";
-}
-
-int QWindowsLocalCodec::mibEnum() const
-{
-    return 0;
-}
-
-
-int QWindowsLocalCodec::heuristicContentMatch(const char* chars, int len) const
-{
-    // ### Not a bad default implementation?
-    QString t = toUnicode(chars,len);
-    int l = t.length();
-    QCString mb = fromUnicode(t,l);
-    int i=0;
-    while ( i < len )
-	if ( chars[i] == mb[i] )
-	    i++;
-    return i;
-}
-
-#endif
