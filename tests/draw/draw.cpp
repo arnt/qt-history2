@@ -39,10 +39,10 @@ static BrushStyle menuBrushStyles[15] = {		// menu brushes
     DiagCrossPattern };
 
 static QColor menuColors[17] = {		// menu colors
-    black,	white,	  darkGray,	gray,	    lightGray,
-    red,	green,	  blue,		cyan,	    magenta,
-    yellow,     darkRed,  darkGreen,	darkBlue,   darkCyan,
-    darkMagenta,darkYellow };
+    Qt::black,	Qt::white,	  Qt::darkGray,	Qt::gray,	    Qt::lightGray,
+    Qt::red,	Qt::green,	  Qt::blue,		Qt::cyan,	    Qt::magenta,
+    Qt::yellow,     Qt::darkRed,  Qt::darkGreen,	Qt::darkBlue,   Qt::darkCyan,
+    Qt::darkMagenta,Qt::darkYellow };
 
  class ToggleIconButton : public QPushButton
  {
@@ -634,7 +634,7 @@ void DrawView::drawShape( QPainter *p, const QPoint &pnt, Shape shape,
 
     if ( !pixLoaded && (shape == Pixmap || shape == Bitmap) ) {
 	QImageIO io;
-	QString tmp; 
+	QCString tmp; 
 	tmp.resize( doomSize + 1);     // doomSize and doomStr are defined
 	qmemmove( tmp.data(), doomStr, doomSize + 1 ); // in doom.cpp
 	QBuffer b( tmp );	      
