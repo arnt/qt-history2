@@ -2257,13 +2257,13 @@ QWidget *QApplication::topLevelAt(const QPoint &p)
 QWidget *QApplication::widgetAt_sys(int x, int y)
 {
     int screen = QCursor::x11Screen();
-    int lx, ly;
+    int unused;
 
     Window target;
     if (!XTranslateCoordinates(X11->display,
-                                QX11Info::appRootWindow(screen),
-                                QX11Info::appRootWindow(screen),
-                                x, y, &lx, &ly, &target)) {
+                               QX11Info::appRootWindow(screen),
+                               QX11Info::appRootWindow(screen),
+                               x, y, &unused, &unused, &target)) {
         return 0;
     }
     if (!target || target == QX11Info::appRootWindow(screen))
@@ -2277,34 +2277,30 @@ QWidget *QApplication::widgetAt_sys(int x, int y)
         if (X11->badwindow())
             return 0;
         w = QWidget::find((WId)target);
-#if 0
         if (!w) {
-            // Perhaps the widgets at (x,y) is inside a foreign application?
+            // Perhaps the widget at (x,y) is inside a foreign application?
             // Search all toplevel widgets to see if one is within target
-            QWidgetList *list   = topLevelWidgets();
-            QWidget     *widget = list->first();
-            while (widget && !w) {
-                Window        ctarget = target;
+            QWidgetList list = topLevelWidgets();
+            for (int i = 0; i < list.count(); ++i) {
+                QWidget *widget = list.at(i);
+                Window ctarget = target;
                 if (widget->isVisible() && !(widget->windowType() == Qt::Desktop)) {
                     Window wid = widget->winId();
                     while (ctarget && !w) {
                         XTranslateCoordinates(X11->display,
                                               QX11Info::appRootWindow(screen),
-                                              ctarget, x, y, &lx, &ly, &ctarget);
+                                              ctarget, x, y, &unused, &unused, &ctarget);
                         if (ctarget == wid) {
-                            // Found
+                            // Found!
                             w = widget;
-                            XTranslateCoordinates(X11->display,
-                                                  QX11Info::appRootWindow(screen),
-                                                  ctarget, x, y, &lx, &ly, &ctarget);
+                            break;
                         }
                     }
                 }
-                widget = list->next();
+                if (w)
+                    break;
             }
-            delete list;
         }
-#endif
     }
     if (w && (c = w->childAt(w->mapFromGlobal(QPoint(x, y)))))
         return c;
