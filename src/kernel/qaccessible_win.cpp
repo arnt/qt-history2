@@ -295,6 +295,18 @@ private:
     QAccessibleInterface *accessible;
 };
 
+static inline BSTR QStringToBSTR( const QString &str )
+{
+    BSTR bstrVal;
+
+    int wlen = str.length();
+    bstrVal = SysAllocStringByteLen( 0, wlen*2 );
+    memcpy( bstrVal, str.unicode(), sizeof(QChar)*(wlen) );
+    bstrVal[wlen] = 0;
+
+    return bstrVal;
+}
+
 /*
 */
 IAccessible *qt_createWindowsAccessible( QAccessibleInterface *access )
@@ -757,7 +769,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDefaultAction( VARIANT varI
 
     QString def = accessible->text( DefaultAction, varID.lVal );
     if ( !!def ) {
-	*pszDefaultAction = SysAllocString( (OLECHAR*)qt_winTchar( def, TRUE ) );
+	*pszDefaultAction = QStringToBSTR( def );
 	return S_OK;
     }
 
@@ -772,7 +784,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDescription( VARIANT varID,
 
     QString descr = accessible->text( Description, varID.lVal );
     if ( !!descr ) {
-	*pszDescription = SysAllocString( (OLECHAR*)qt_winTchar( descr, TRUE ) );
+	*pszDescription = QStringToBSTR( descr );
 	return S_OK;
     }
 
@@ -787,7 +799,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accHelp( VARIANT varID, BSTR *
 
     QString help = accessible->text( Help, varID.lVal );
     if ( !!help ) {
-	*pszHelp = SysAllocString( (OLECHAR*)qt_winTchar( help, TRUE ) );
+	*pszHelp = QStringToBSTR( help );
 	return S_OK;
     }
     
@@ -807,7 +819,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accKeyboardShortcut( VARIANT v
 
     QString sc = accessible->text( Accelerator, varID.lVal );
     if ( !!sc ) {
-	*pszKeyboardShortcut = SysAllocString( (OLECHAR*)qt_winTchar( sc, TRUE ) );
+	*pszKeyboardShortcut = QStringToBSTR( sc );
 	return S_OK;
     }
 
@@ -822,7 +834,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accName( VARIANT varID, BSTR* 
 
     QString n = accessible->text( Name, varID.lVal );
     if ( !!n ) {
-	*pszName = SysAllocString( (OLECHAR*)qt_winTchar( n, TRUE ) );
+	*pszName = QStringToBSTR( n );
 	return S_OK;
     }
 
@@ -867,7 +879,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accValue( VARIANT varID, BSTR*
 
     QString value = accessible->text( Value, varID.lVal );
     if ( !value.isNull() ) {
-	*pszValue = SysAllocString( (OLECHAR*)qt_winTchar( value, TRUE ) );
+	*pszValue = QStringToBSTR( value );
 	return S_OK;
     }
 
