@@ -78,8 +78,8 @@ public:
     Push buttons display a textual label, and optionally a small
     icon. These can be set using the constructors and changed later
     using setText() and setIcon().  If the button is disabled the
-    appearance of the text or pixmap and icon will be manipulated with
-    respect to the GUI style to make the button look "disabled".
+    appearance of the text and icon will be manipulated with respect
+    to the GUI style to make the button look "disabled".
 
     A push button emits the signal clicked() when it is activated by
     the mouse, the Spacebar or by a keyboard shortcut. Connect to

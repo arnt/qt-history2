@@ -22,7 +22,7 @@
 
 /*!
     \class QRadioButton
-    \brief The QRadioButton widget provides a radio button with a text or pixmap label.
+    \brief The QRadioButton widget provides a radio button with a text label.
 
     \ingroup basic
     \mainclass
