@@ -118,6 +118,10 @@ public:
         inline T &operator[](int j) const { return i[j].t(); }
         inline bool operator==(const iterator &o) const { return i == o.i; }
         inline bool operator!=(const iterator &o) const { return i != o.i; }
+        inline bool operator<(const iterator& other) const { return i < other.i; }
+        inline bool operator<=(const iterator& other) const { return i <= other.i; }
+        inline bool operator>(const iterator& other) const { return i > other.i; }
+        inline bool operator>=(const iterator& other) const { return i >= other.i; }
         inline iterator operator++() { ++i; return *this; }
         inline iterator operator++(int) { Node *n = i; ++i; return n; }
         inline iterator operator--() { i--; return *this; }
@@ -147,6 +151,10 @@ public:
         inline const T &operator[](int j) const { return i[j].t(); }
         inline bool operator==(const const_iterator &o) const { return i == o.i; }
         inline bool operator!=(const const_iterator &o) const { return i != o.i; }
+        inline bool operator<(const const_iterator& other) const { return i < other.i; }
+        inline bool operator<=(const const_iterator& other) const { return i <= other.i; }
+        inline bool operator>(const const_iterator& other) const { return i > other.i; }
+        inline bool operator>=(const const_iterator& other) const { return i >= other.i; }
         inline const_iterator operator++() { ++i; return *this; }
         inline const_iterator operator++(int) { Node *n = i; ++i; return n; }
         inline const_iterator operator--() { i--; return *this; }
