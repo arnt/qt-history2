@@ -1215,7 +1215,8 @@ MakefileGenerator::fileFixify(QString &file) const
 		match_dir = match_dir.left(sl);
 		if(match_dir.isEmpty())
 		    break;
-		if(file.left(match_dir.length()) == match_dir) {
+		if(file.left(match_dir.length()) == match_dir &&
+		   file.mid(match_dir.length()+1, Option::dir_sep.length()) == Option::dir_sep) {
 		    //concat
 		    int remlen = file.length() - (match_dir.length() + 1);
 		    if (remlen < 0)
