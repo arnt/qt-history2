@@ -57,6 +57,7 @@
 #endif // QT_H 
 
 extern uint qt_get_rgb_val( const char *name );
+extern bool qt_get_named_rgb( const char *, QRgb* );
 extern void qt_reset_color_avail();
 
 #endif

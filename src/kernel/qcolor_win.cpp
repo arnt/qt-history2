@@ -310,7 +310,7 @@ void QColor::setSystemNamedColor( const QString& name )
     {
 	d.argb = qt_get_rgb_val( name.latin1() );
 	QRgb rgb;
-	if ( qt_get_named_rgb( name.latin1(), rgb ) ) {
+	if ( qt_get_named_rgb( name.latin1(), &rgb ) ) {
 	    d.argb = rgb;
 	    if ( colormodel == d8 ) {
 		d.d8.invalid = FALSE;

@@ -101,7 +101,7 @@ void QColor::setSystemNamedColor( const QString& name )
 #endif
     {
 	QRgb rgb;
-	if ( qt_get_named_rgb( name.latin1(), rgb ) ) {
+	if ( qt_get_named_rgb( name.latin1(), &rgb ) ) {
 	    d.argb = rgb;
 	    alloc();
 	}
