@@ -1266,9 +1266,9 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
         }
         if (picmask)
             XRenderChangePicture(dpy, dst_pict, picmask, &pattr);
-        XRenderComposite(dpy, (src_pm->data->alpha && !ignoreMask ? PictOpOver : PictOpSrc),
-                         src_pict, XNone, dst_pict,
-                         sx, sy, sx, sy, dx, dy, sw, sh);
+        XRenderComposite(dpy, !ignoreMask ? PictOpOver : PictOpSrc, src_pict,
+                         (mask && !ignoreMask) ? mask->xftPictureHandle() : 0,
+                         dst_pict, sx, sy, sx, sy, dx, dy, sw, sh);
         // restore attributes
         pattr.subwindow_mode = ClipByChildren;
         pattr.graphics_exposures = false;
@@ -1492,9 +1492,11 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
         if (mode == Qt::ComposePixmap && pict && pixmap.xftPictureHandle()) {
-            XRenderComposite(d->dpy, (pixmap.data->alpha ? PictOpOver : PictOpSrc),
+            const QBitmap *mask = pixmap.mask();
+            XRenderComposite(d->dpy, ((pixmap.data->alpha || mask) ? PictOpOver : PictOpSrc),
                              pixmap.xftPictureHandle(),
-                             XNone, pict, sx, sy, sx, sy, x, y, sw, sh);
+                             mask ? mask->xftPictureHandle() : 0,
+                             pict, sx, sy, sx, sy, x, y, sw, sh);
         } else
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
             {
