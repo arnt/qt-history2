@@ -88,6 +88,11 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     Qt::RasterOp rop, bool imask, bool set_fore_colour)
 {
+    if(!dst || !src) {
+	qDebug("Qt: internal: Asked to paint to or from a null paintdevice, something is awry.");
+	return;
+    }
+
     if(rop == Qt::NotROP) { //this is the only way we can get a NotROP
 	sx = dx;
 	sy = dy;
@@ -106,11 +111,6 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	sh=src->metric(QPaintDeviceMetrics::PdmHeight)-sy;
     if(!sw || !sh)
 	return;
-
-    if(!dst || !src) {
-	qDebug("Qt: internal: Asked to paint to or from a null paintdevice, something is awry.");
-	return;
-    }
 
     switch (src->devType()) {
     case QInternal::Widget: // OK, can blt from these
