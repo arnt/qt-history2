@@ -93,9 +93,17 @@
     If you wish to control the "What's this?" behavior of a widget
     manually see Qt::WA_CustomWhatsThis.
 
-    ### todo explain QHelpEvent with type QEvent::WhatsThis and the
-    ### showText()/hideText() functions. Also explain
-    ### QEvent::WhatsThisClicked to handle hyper links.
+    It is also possible to show different help texts for different
+    regions of a widget, by using a QHelpEvent of type
+    QEvent::WhatsThis. Intercept the help event in your widget's
+    QWidget::event() function and call QWhatsThis::showText() with the
+    text you want to display for the position specified in
+    QHelpEvent::pos().  If the text is rich text and the user clicks
+    on a link, the widget also receives a QWhatsThisClickedEvent with
+    the link's reference as QWhatsThisClickedEvent::href(). If a
+    QWhatsThisClickedEvent is handled (i.e. QWidget::event() returns
+    true), the help window remains visible. Call
+    QWhatsThis::hideText() to hide it explicitly.
 
     \sa QToolTip
 */

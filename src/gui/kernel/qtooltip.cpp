@@ -19,7 +19,31 @@
 #include "qpointer.h"
 #include "qtimer.h"
 #include <private/qeffects_p.h>
-#include "qdebug.h"
+
+/*!
+    \class QToolTip
+
+    \brief The QToolTip class provides tool tips (balloon help) for
+    any widget
+
+    \ingroup helpsystem
+    \mainclass
+
+    The tip is a short piece of text reminding the user of the
+    widget's function. It is drawn immediately below the given
+    position in a distinctive black-on-yellow combination.  The tip
+    can be any Rich-Text formatted string.
+
+    The simplest and most common use of QToolTip is to set a widget's
+    \l QWidget::toolTip property.
+
+    It is also possible to show different tool tips for different
+    regions of a widget, by using a QHelpEvent of type
+    QEvent::ToolTip. Intercept the help event in your widget's
+    QWidget::event() function and call QToolTip::showText() with the
+    text you want to display.
+
+*/
 
 class QTipLabel : public QLabel
 {
@@ -100,6 +124,13 @@ bool QTipLabel::eventFilter(QObject *, QEvent *e)
     return false;
 }
 
+/*!
+
+    Shows \a text as tool tip, at global position \a pos for widget \a
+    w. The widget argument \a w is optional. It is used to determine
+    the appropriate screen on multi-head systems.
+
+ */
 void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 {
     if (QTipLabel::instance && QTipLabel::instance->text() == text)
@@ -162,6 +193,9 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 
 }
 
+/*!
+    Returns the palette used to render tooltips.
+ */
 QPalette QToolTip::palette()
 {
     return QApplication::palette("QTipLabel");
