@@ -310,7 +310,7 @@ QString QUtf16Codec::convertToUnicode(const char *chars, int len, ConverterState
     if (state) {
         if (endian != Detect)
             state->flags |= IgnoreHeader;
-        state->state_data[Endian] = e;
+        state->state_data[Endian] = endian;
         if (half) {
             state->remainingChars = 1;
             state->state_data[Data] = buf;
