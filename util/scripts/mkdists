@@ -195,6 +195,36 @@ for a in `find $DISTDIR/qt/dist/ -name 'changes-${major}*'`; do
     mv $a $DISTDIR/qt/`basename $a`
 done
 
+# fixify qglobal's version number
+qglobal="$DISTDIR/qt/src/tools/qglobal.h"
+sed -e "s,\(\#define\s*QT_VERSION\s*\)[0-9]*,\1$BRANCH_DIGITS,g" \
+    -e "s,\(\#define\s*QT_VERSION_STR\s+\"\)\([0-9.]*\),/1$BRANCH,g" $qglobal >${TMP_FILE}
+mv ${TMP_FILE} $qglobal
+type=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*\(-.*\)",\1,'`
+if [ "$type" != "-snapshot" ] && ! myexpr "$type" : "^-beta[0-9]*$"; then
+    die "The qt version is ${BRANCH}${type}, which confuses me terribly";
+fi
+
+#fix $Id
+echo "Marking \$ID\$..."
+for a in `find $DISTDIR/qt/`; do
+    if [ -f $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
+	execut="no"
+	[ -x $a ] && execut="yes"
+
+	mtime=`ls -l $a | sed "s,.* \([A-Z][a-z][a-z] [0-9]* [0-9][0-9]:[0-9][0-9]\).*,\1,"`
+	tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${REL_VERSION}${type}   edited $mtime"
+	sed "s,\(\$Id[:] \)[^\\$]*\\$,\1 ${tag_ID} \$,g" $a >${TMP_FILE}
+	rm -f $a
+	mv ${TMP_FILE} $a
+	if [ "$execut" = "yes" ]; then
+	    chmod 555 $a
+	else
+	    chmod 444 $a
+	fi
+    fi
+done
+
 myexpr () {
     echo "$1" | egrep "$3" >/dev/null 2>&1
     return
@@ -358,38 +388,6 @@ public_file () {
      [ "$KEEP" = "yes" ] && return 0
      return 1
 }
-
-# fixify qglobal's version number
-qglobal="$DISTDIR/qt/src/tools/qglobal.h"
-sed -e "s,\(\#define\s*QT_VERSION\s*\)[0-9]*,\1$BRANCH_DIGITS,g" \
-    -e "s,\(\#define\s*QT_VERSION_STR\s+\"\)\([0-9.]*\),/1$BRANCH,g" $qglobal >${TMP_FILE}
-mv ${TMP_FILE} $qglobal
-type=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*\(-.*\)",\1,'`
-if [ "$type" != "-snapshot" ] && ! myexpr "$type" : "^-beta[0-9]*$"; then
-    die "The qt version is ${BRANCH}${type}, which confuses me terribly";
-fi
-
-#fix $Id
-if false; then
-echo "Marking \$ID\$..."
-for a in `find $DISTDIR/qt/`; do
-    if [ -f $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
-	execut="no"
-	[ -x $a ] && execut="yes"
-
-	mtime=`ls -l $a | sed "s,.* \([A-Z][a-z][a-z] [0-9]* [0-9][0-9]:[0-9][0-9]\).*,\1,"`
-	tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${REL_VERSION}${type}   edited $mtime"
-	sed "s,\(\$Id[:] \)[^\\$]*\\$,\1 ${tag_ID} \$,g" $a >${TMP_FILE}
-	rm -f $a
-	mv ${TMP_FILE} $a
-	if [ "$execut" = "yes" ]; then
-	    chmod 555 $a
-	else
-	    chmod 444 $a
-	fi
-    fi
-done
-fi
 
 for plat in mac win x11 qws; do
     #handle commandline options
