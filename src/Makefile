@@ -24,15 +24,9 @@ AOUTTARGET	= $(LIBDIR)/libqt.a
 ELFTARGET	= $(LIBDIR)/libqt.so.0.9.2
 ELFTARGETPRE	= libqt.so.0
 
-####### Misc programs used
-
-RM		= /bin/rm
-MV		= /bin/mv
-MKDIR		= /bin/mkdir
-
 #######	Sub directories
 
-DIRS		= tools moc kernel widgets
+DIRS		= tools moc kernel widgets dialogs
 
 #######	Build rules
 
@@ -74,21 +68,14 @@ FORCE:
 #
 
 lib: FORCE
-	$(RM) -f tools/*.o
-	$(RM) -f kernel/*.o
-	$(RM) -f widgets/*.o
-	$(MKDIR) -p $(OBJDIR)/tools
-	$(MKDIR) -p $(OBJDIR)/kernel
-	$(MKDIR) -p $(OBJDIR)/widgets
-	-$(MV) -f $(OBJDIR)/tools/*.o tools
-	make -C tools obj 'CFLAGS=$(CFLAGS)'
-	$(MV) -f tools/*.o $(OBJDIR)/tools
-	-$(MV) -f $(OBJDIR)/kernel/*.o kernel
-	make -C kernel obj 'CFLAGS=$(CFLAGS)'
-	$(MV) -f kernel/*.o $(OBJDIR)/kernel	
-	-$(MV) -f $(OBJDIR)/widgets/*.o widgets
-	make -C widgets obj 'CFLAGS=$(CFLAGS)'
-	$(MV) -f widgets/*.o $(OBJDIR)/widgets
+	set -e ; for d in $(DIRS); do \
+		( \
+			mkdir -p $(OBJDIR)/tools ; \
+			cd $$d && \
+			ln -sf ../$(OBJDIR)/tools/*.o . ; \
+		) ; \
+		make -C $$d obj ; \
+	done
 
 aout:
 	make lib 'CFLAGS=$(CFLAGS) $(AOUTCFLAGS)' 'OBJDIR=obj/aout'
@@ -128,7 +115,7 @@ dist: clean include depend
 	    | grep -v RCS \
 	    | sed s@/local@$(DISTDIR)/lib@ \
 	    | xargs mkdir -p
-	$(MKDIR) -p $(DISTDIR)/{lib/qt/include,lib/qt/doc,bin,man}
+	mkdir -p $(DISTDIR)/{lib/qt/include,lib/qt/doc,bin,man}
 	cp -fR /local/qt/install-extra/. $(DISTDIR)
 	cp -f $(INCDIR)/*.h $(DISTDIR)/lib/qt/include
 	cp -f /local/qt/doc/html/*.html $(DISTDIR)/lib/qt/doc
