@@ -362,7 +362,7 @@ void QThread::msleep( unsigned long msecs )
 
 
 /*!
-  System independent sleep.  This causes the current rhead to sleep for
+  System independent sleep.  This causes the current thread to sleep for
   \a usecs microseconds
 */
 void QThread::usleep( unsigned long usecs )
@@ -877,3 +877,4 @@ int QSemaphore::total() const {
 #include "qthread_unix.moc"
 
 #endif
+
