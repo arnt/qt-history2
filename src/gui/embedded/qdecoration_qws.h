@@ -18,6 +18,13 @@
 
 class QPopupMenu;
 
+// Do not use other decoration styles at the moment. API in rapid change.
+#define QT_NO_QWS_DECORATION_BEOS
+#define QT_NO_QWS_DECORATION_HYDRO
+#define QT_NO_QWS_DECORATION_KDE
+#define QT_NO_QWS_DECORATION_KDE2
+#define QT_NO_QWS_DECORATION_WINDOWS
+
 /*
  Implements decoration styles
 */
