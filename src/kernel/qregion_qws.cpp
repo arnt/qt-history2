@@ -1673,11 +1673,15 @@ XEqualRegion( Region r1, Region r2 )
     else if ( r1->extents.right() != r2->extents.right() ) return FALSE;
     else if ( r1->extents.top() != r2->extents.top() ) return FALSE;
     else if ( r1->extents.bottom() != r2->extents.bottom() ) return FALSE;
-    else for( i=0; i < r1->numRects; i++ ) {
-    	if ( r1->rects[i].left() != r2->rects[i].left() ) return FALSE;
-    	else if ( r1->rects[i].right() != r2->rects[i].right() ) return FALSE;
-    	else if ( r1->rects[i].top() != r2->rects[i].top() ) return FALSE;
-    	else if ( r1->rects[i].bottom() != r2->rects[i].bottom() ) return FALSE;
+    else {
+	QRect *rr1 = r1->rects.data();
+	QRect *rr2 = r2->rects.data();
+	for( i=0; i < r1->numRects; i++, rr1++, rr2++ ) {
+	    if ( rr1->left() != rr2->left() ) return FALSE;
+	    else if ( rr1->right() != rr2->right() ) return FALSE;
+	    else if ( rr1->top() != rr2->top() ) return FALSE;
+	    else if ( rr1->bottom() != rr2->bottom() ) return FALSE;
+	}
     }
     return TRUE;
 }

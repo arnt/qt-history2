@@ -57,6 +57,7 @@ public:
 
     virtual void clearCalibration() {}
     virtual void calibrate( QWSPointerCalibrationData * ) {}
+    virtual void getCalibration( QWSPointerCalibrationData * ) {}
 
 protected:
     enum {mouseBufSize = 128};
@@ -78,6 +79,7 @@ public:
 
     virtual void clearCalibration();
     virtual void calibrate( QWSPointerCalibrationData * );
+    virtual void getCalibration( QWSPointerCalibrationData * );
 
 protected:
     void readCalibration();
@@ -152,6 +154,7 @@ private slots:
 
 private:
     int obstate;
+    QTimer *rtimer;
 };
 #endif
 
@@ -182,15 +185,16 @@ private:
 #endif
 
 
-#ifdef QT_QWS_IPAQ
-class QIpaqHandlerPrivate : public QCalibratedMouseHandler
+#if defined(QT_QWS_IPAQ) || defined(QT_QWS_EBX)
+class QTPanelHandlerPrivate : public QCalibratedMouseHandler
 {
      Q_OBJECT
 public:
-    QIpaqHandlerPrivate(MouseProtocol, QString dev);
-    ~QIpaqHandlerPrivate();
+    QTPanelHandlerPrivate(MouseProtocol, QString dev);
+    ~QTPanelHandlerPrivate();
 
 private:
+    static const int mouseBufSize = 2048;
     int mouseFD;
     QPoint oldmouse;
     bool waspressed;
@@ -199,9 +203,28 @@ private:
     unsigned int numSamples;
     int mouseIdx;
     uchar mouseBuf[mouseBufSize];
+    
+private slots:
+    void readMouseData();   
+};
+#endif
 
+#ifdef QT_QWS_YOPY
+// YOPY touch panel support based on changes contributed by Ron Victorelli
+// (victorrj at icubed.com) to Custom TP driver.
+//
+class QYopyTPanelHandlerPrivate : public QWSMouseHandler {
+    Q_OBJECT
+public:
+    QYopyTPanelHandlerPrivate(MouseProtocol, QString dev);
+    ~QYopyTPanelHandlerPrivate();
+
+private:
+    int mouseFD;
+    int prevstate;
 private slots:
     void readMouseData();
+
 };
 #endif
 

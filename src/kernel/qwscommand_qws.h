@@ -111,7 +111,9 @@ struct QWSCommand : QWSProtocolItem
 	PlaySound,
 	QCopRegisterChannel,
 	QCopSend,
-	RegionName
+	RegionName,
+	Identify,
+	GrabKeyboard
 #ifndef QT_NO_QWS_REPEATER
 	,RepaintRegion
 #endif
@@ -125,11 +127,37 @@ struct QWSCommand : QWSProtocolItem
  *
  *********************************************************************/
 
+struct QWSIdentifyCommand : public QWSCommand
+{
+    QWSIdentifyCommand() :
+	QWSCommand( QWSCommand::Identify,
+		    sizeof( simpleData ), (char *)&simpleData ) {}
+
+    void setData( char *d, int len, bool allocateMem ) {
+	QWSCommand::setData( d, len, allocateMem );
+	id = QString((QChar*)d, simpleData.idLen/2);
+    }
+
+    void setId( const QString& i )
+    {
+	id = i;
+	int l = simpleData.idLen = id.length()*2;
+	QByteArray ba(l);
+	char *d = ba.data();
+	memcpy( d, id.unicode(), simpleData.idLen );
+	setData( d, l, TRUE );
+    }
+
+    struct SimpleData {
+	int idLen;
+    } simpleData;
+    QString id;
+};
+
 struct QWSCreateCommand : public QWSCommand
 {
     QWSCreateCommand() :
 	QWSCommand( QWSCommand::Create, 0, 0 ) {}
-
 };
 
 struct QWSRegionNameCommand : public QWSCommand
@@ -375,6 +403,18 @@ struct QWSGrabMouseCommand : public QWSCommand
 {
     QWSGrabMouseCommand() :
 	QWSCommand( QWSCommand::GrabMouse,
+		    sizeof( simpleData ), (char *)&simpleData ) {}
+
+    struct SimpleData {
+	int windowid;
+	bool grab;  // grab or ungrab?
+    } simpleData;
+};
+
+struct QWSGrabKeyboardCommand : public QWSCommand
+{
+    QWSGrabKeyboardCommand() :
+	QWSCommand( QWSCommand::GrabKeyboard,
 		    sizeof( simpleData ), (char *)&simpleData ) {}
 
     struct SimpleData {

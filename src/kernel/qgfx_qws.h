@@ -300,12 +300,14 @@ public:
     virtual void setBrushOffset( int, int ) = 0;
     virtual void setClipRect( int,int,int,int )=0;
     virtual void setClipRegion( const QRegion & )=0;
+    virtual void setClipDeviceRegion( const QRegion & )=0;
     virtual void setClipping (bool)=0;
     // These will be called from qwidget_qws or qwidget_mac
     // to update the drawing area when a widget is moved
     virtual void setOffset( int,int )=0;
     virtual void setWidgetRect( int,int,int,int )=0;
     virtual void setWidgetRegion( const QRegion & )=0;
+    virtual void setWidgetDeviceRegion( const QRegion & )=0;
     virtual void setSourceWidgetOffset(int x, int y) = 0;
     virtual void setGlobalRegionIndex( int idx ) = 0;
 

@@ -755,6 +755,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     sizehint_forced = 0;
     is_closing = 0;
     in_show = 0;
+    in_show_maximized = 0;
 #ifndef QT_NO_LAYOUT
     lay_out = 0;
 #endif

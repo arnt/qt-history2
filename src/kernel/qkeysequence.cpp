@@ -158,7 +158,7 @@ QKeySequence::QKeySequence( const QString& key )
     } else {
 	name = key;
     }
-    int fnum;
+    int fnum=0;
     if ( name.length() == 1 ) {
 	if ( name.at(0).isLetterOrNumber() ) {
 	    QString uppname = name.upper();

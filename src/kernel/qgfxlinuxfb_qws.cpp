@@ -44,6 +44,7 @@
 #include <errno.h>
 
 #include "qgfxlinuxfb_qws.h"
+#include "qwindowsystem_qws.h"
 
 // Used when there's no hardware acceleration, since there's no point
 // in storing the state in shared memory
@@ -351,9 +352,9 @@ bool QLinuxFbScreen::initDevice()
 		// We'll setup a greyscale cmap for 4bpp linear
 		int val = 0;
 		for (int idx = 0; idx < 16; idx++, val += 17) {
-		    cmap.red[idx] = val;
-		    cmap.green[idx] = val;
-		    cmap.blue[idx] = val;
+		    cmap.red[idx] = (val<<8)|val;
+		    cmap.green[idx] = (val<<8)|val;
+		    cmap.blue[idx] = (val<<8)|val;
 		    screenclut[idx]=qRgb( val, val, val );
 		}
 	    } else {
@@ -365,9 +366,9 @@ bool QLinuxFbScreen::initDevice()
 		unsigned char blues[16]  = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0x11, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x7F, 0x00, 0x00 };
 
 		for (int idx = 0; idx < 16; idx++) {
-		    cmap.red[idx] = (reds[idx]) << 8;
-		    cmap.green[idx] = (greens[idx]) << 8;
-		    cmap.blue[idx] = (blues[idx]) << 8;
+		    cmap.red[idx] = ((reds[idx]) << 8)|reds[idx];
+		    cmap.green[idx] = ((greens[idx]) << 8)|greens[idx];
+		    cmap.blue[idx] = ((blues[idx]) << 8)|blues[idx];
 		    cmap.transp[idx] = 0;
 		    screenclut[idx]=qRgb( reds[idx], greens[idx], blues[idx] );
 		}
@@ -389,9 +390,9 @@ bool QLinuxFbScreen::initDevice()
 	    for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
 		for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
 		    for( int ib = 0x0; ib <= 0xff; ib+=0x33 ) {
-			cmap.red[idx] = ir << 8;
-			cmap.green[idx] = ig << 8;
-			cmap.blue[idx] = ib << 8;
+			cmap.red[idx] = (ir << 8)|ir;
+			cmap.green[idx] = (ig << 8)|ig;
+			cmap.blue[idx] = (ib << 8)|ib;
 			cmap.transp[idx] = 0;
 			screenclut[idx]=qRgb( ir, ig, ib );
 			idx++;
@@ -821,7 +822,7 @@ void QLinuxFbScreen::blank(bool on)
 {
 #if defined(QT_QWS_IPAQ)
     if ( on )
-	system("apm --suspend");
+	system("apm -suspend");
 #else
 // Some old kernel versions don't have this.  These defines should go
 // away eventually

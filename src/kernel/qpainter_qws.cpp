@@ -260,10 +260,11 @@ void QPainter::updateFont()
     if(testf(ExtDev)) {
 	QPDevCmdParam param[1];
 	param[0].font = &cfont;
-	if ( !pdev->cmd( QPaintDevice::PdcSetFont, this, param ) || !gfx )
+	if ( !pdev->cmd( QPaintDevice::PdcSetFont, this, param ) )
 	    return;
     }
-    gfx->setFont(cfont);
+    if ( gfx )
+	gfx->setFont(cfont);
 }
 
 
@@ -272,10 +273,11 @@ void QPainter::updatePen()
     if(testf(ExtDev)) {
 	QPDevCmdParam param[1];
 	param[0].pen = &cpen;
-	if ( !pdev->cmd( QPaintDevice::PdcSetPen, this, param ) || !gfx )
+	if ( !pdev->cmd( QPaintDevice::PdcSetPen, this, param ) )
 	    return;
     }
-    gfx->setPen(cpen);
+    if ( gfx )
+	gfx->setPen(cpen);
 }
 
 
@@ -326,12 +328,16 @@ static uchar *pat_tbl[] = {
     dense6_pat, dense7_pat,
     hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
 
+
    if(testf(ExtDev)) {
         QPDevCmdParam param[1];
         param[0].brush = &cbrush;
-        if ( !pdev->cmd( QPaintDevice::PdcSetBrush, this, param ) || !gfx )
+        if ( !pdev->cmd( QPaintDevice::PdcSetBrush, this, param ) )
 	    return;
    }
+
+   if ( !gfx )
+       return;
 
    uchar * pat=0;
    int bs=cbrush.style();
@@ -385,13 +391,6 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	return FALSE;
     }
 
-    gfx=((QPaintDevice *)pd)->graphicsContext();
-//  if gfx == 0 then we are dealing with the printer.
-//    if ( gfx == 0 ) {
-//	qWarning( "Unable to get graphics context" );
-//	return FALSE;
-//    }
-
     QWidget *copyFrom = 0;
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
@@ -423,6 +422,15 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	setf(ExtDev);
     else if ( dt == QInternal::Pixmap )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify it
+
+    gfx=((QPaintDevice *)pd)->graphicsContext();
+//  if gfx == 0 then we have an invalid pixmap
+    if ( gfx == 0 ) {
+#if defined(CHECK_NULL)
+	qWarning( "Unable to get graphics context" );
+#endif
+	return FALSE;
+    }
 
     if ( testf(ExtDev) ) {			// external device
 	if ( !pdev->cmd( QPaintDevice::PdcBegin, this, 0 ) ) {
@@ -580,9 +588,11 @@ void QPainter::setBackgroundColor( const QColor &c )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].color = &bg_col;
-	if ( !pdev->cmd( QPaintDevice::PdcSetBkColor, this, param ) || !gfx )
+	if ( !pdev->cmd( QPaintDevice::PdcSetBkColor, this, param )  )
 	    return;
     }
+    if ( !gfx )
+	return;
     if ( !penRef )
 	updatePen();				// update pen setting
     if ( !brushRef )
@@ -611,6 +621,8 @@ void QPainter::setBackgroundMode( BGMode m )
 	pdev->cmd( QPaintDevice::PdcSetBkMode, this, param );
 	return;
     }
+    if ( !gfx )
+	return;
     if ( !penRef )
 	updatePen();				// update pen setting
     if ( !brushRef )
@@ -636,9 +648,11 @@ void QPainter::setRasterOp( RasterOp r )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = r;
-	if ( !pdev->cmd( QPaintDevice::PdcSetROP, this, param ) || !gfx )
+	if ( !pdev->cmd( QPaintDevice::PdcSetROP, this, param ) )
 	    return;
     }
+    if ( !gfx )
+	return;
     if ( penRef )
 	updatePen();				// get non-cached pen GC
     if ( brushRef )
@@ -704,6 +718,8 @@ void QPainter::setClipping( bool enable )
 	pdev->cmd( QPaintDevice::PdcSetClip, this, param );
 	return;
     }
+    if ( !gfx )
+	return;
     if ( enable ) {
 	gfx->setClipRegion(crgn);
     } else {
@@ -753,7 +769,7 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 
 void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 {
-    if ( a.size() < 2 )
+    if ( a.size() < 2 || !gfx )
 	return;
 
     int x1, y1, x2, y2;				// connect last to first point
@@ -791,7 +807,8 @@ void QPainter::drawPoint( int x, int y )
 	    }
 	    map( x, y, &x, &y );
 	}
-	gfx->drawPoint(x,y);
+	if ( gfx )
+	    gfx->drawPoint(x,y);
     }
 }
 
@@ -830,7 +847,8 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 		}
 	    }
 	}
-	gfx->drawPoints(pa,index,npoints);
+	if ( gfx )
+	    gfx->drawPoints(pa,index,npoints);
     }
 }
 
@@ -849,7 +867,8 @@ void QPainter::moveTo( int x, int y )
 	}
 	map( x, y, &x, &y );
     }
-    gfx->moveTo(x,y);
+    if ( gfx )
+	gfx->moveTo(x,y);
 }
 
 void QPainter::lineTo( int x, int y )
@@ -866,7 +885,8 @@ void QPainter::lineTo( int x, int y )
 	}
 	map( x, y, &x, &y );
     }
-    gfx->lineTo(x, y);
+    if ( gfx )
+	gfx->lineTo(x, y);
 }
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
@@ -885,7 +905,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	map( x1, y1, &x1, &y1 );
 	map( x2, y2, &x2, &y2 );
     }
-    if ( cpen.style() != NoPen ) {
+    if ( cpen.style() != NoPen && gfx ) {
 	gfx->drawLine(x1,y1,x2,y2);
     }
 }
@@ -914,6 +934,8 @@ void QPainter::drawRect( int x, int y, int w, int h )
 #else
     map( x, y, w, h, &x, &y, &w, &h );
 #endif
+    if ( !gfx )
+	return;
     if ( w <= 0 || h <= 0 )
 	fix_neg_rect( &x, &y, &w, &h );
 
@@ -1001,6 +1023,9 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 #else
     map( x, y, w, h, &x, &y, &w, &h );
 #endif
+    if ( !gfx )
+	return;
+
     if ( w <= 0 || h <= 0 ) {
         if ( w == 0 || h == 0 )
             return;
@@ -1273,7 +1298,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	QPDevCmdParam param[1];
 	param[0].ptarr = (QPointArray*)&pa;
 	pdev->cmd(QPaintDevice::PdcDrawPolyline,this,param);
-    } else {
+    } else if ( gfx ) {
 	gfx->drawPolyline(pa,index,npoints);
     /*
 	int loopc;
@@ -1314,7 +1339,8 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	    npoints = pa.size();
 	}
     }
-    gfx->drawPolygon(pa,winding,index,npoints);
+    if ( gfx )
+	gfx->drawPolygon(pa,winding,index,npoints);
 }
 
 #ifndef QT_NO_BEZIER
@@ -1430,7 +1456,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 #else
     map( x, y, &x, &y );
 #endif
-
+    if ( !gfx )
+	return;
     //bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, CopyROP );
     gfx->setSource(&pixmap);
     if(sw>pixmap.width()) {
@@ -1458,7 +1485,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 {
     int sw = pixmap.width();
     int sh = pixmap.height();
-    if (!sw || !sh )
+    if (!sw || !sh || !gfx )
 	return;
     if ( sx < 0 )
 	sx = sw - -sx % sw;
@@ -1683,6 +1710,9 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
 
+	    if ( !gfx )
+		return;
+
 	    if ( memorymanager->fontSmooth(dfont.handle()) &&
 		 QPaintDevice::qwsDisplay()->supportsDepth(32) ) {
 		gfx->setSource( tpm );
@@ -1723,6 +1753,9 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
     param[1].str = &newstr;
     pdev->cmd(QPaintDevice::PdcDrawText2,this,param);
     */
+    if ( !gfx )
+	return;
+
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
     int width=cfont.d->textWidth( shaped, 0, len, cache );
     cfont.d->drawText( gfx, x, y, cache );

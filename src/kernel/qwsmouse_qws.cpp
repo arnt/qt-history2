@@ -53,14 +53,13 @@
 #include <errno.h>
 #include <termios.h>
 
-#include "qgfx_qws.h"
+#include <qgfx_qws.h>
 
 #ifdef QT_QWS_CASSIOPEIA
 #include <linux/tpanel.h>
-//#define QWS_TOUCHPANEL
 #endif
 
-#ifdef QT_QWS_IPAQ
+#if defined(QT_QWS_IPAQ)
 #define QT_QWS_IPAQ_RAW
 typedef struct {
 	unsigned short pressure;
@@ -68,6 +67,52 @@ typedef struct {
 	unsigned short y;
 	unsigned short pad;
 } TS_EVENT;
+#elif defined(QT_QWS_EBX)
+#define QT_QWS_EBX_RAW
+#ifndef QT_QWS_CUSTOM
+typedef struct {
+        unsigned short pressure;
+        unsigned short x;
+        unsigned short y;
+        unsigned short pad;
+} TS_EVENT;
+#else
+typedef struct {
+       long y;
+       long x;
+       long pressure;
+       long long millisecs;
+} TS_EVENT;
+#endif
+
+#define QT_QWS_TP_SAMPLE_SIZE 5
+#define QT_QWS_TP_PRESSURE_THRESHOLD 500
+#define QT_QWS_TP_MOVE_LIMIT 50
+
+#endif
+
+#ifndef QT_QWS_TP_SAMPLE_SIZE
+#define QT_QWS_TP_SAMPLE_SIZE 5
+#endif
+
+#ifndef QT_QWS_TP_PRESSURE_THRESHOLD
+#define QT_QWS_TP_PRESSURE_THRESHOLD 1
+#endif
+
+#ifndef QT_QWS_TP_MOVE_LIMIT
+#define QT_QWS_TP_MOVE_LIMIT 100
+#endif
+
+#ifndef QT_QWS_TP_SAMPLE_SIZE
+#define QT_QWS_TP_SAMPLE_SIZE 5
+#endif
+
+#ifndef QT_QWS_TP_PRESSURE_THRESHOLD
+#define QT_QWS_TP_PRESSURE_THRESHOLD 1
+#endif
+
+#ifndef QT_QWS_TP_MOVE_LIMIT
+#define QT_QWS_TP_MOVE_LIMIT 100
 #endif
 
 /*!
@@ -107,27 +152,6 @@ QWSMouseHandler::~QWSMouseHandler()
   mouse is at position \a pos and the mouse buttons are
   in state \a bstate.
 */
-void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
-{
-    QWSServer::sendMouseEvent(pos,bstate);
-}
-
-
-typedef struct {
-    char *name;
-    MouseProtocol id;
-} MouseConfig;
-
-static const MouseConfig mouseConfig[] = {
-    { "Auto",		Auto },
-    { "MouseMan",	MouseMan },
-    { "IntelliMouse",	IntelliMouse },
-    { "Microsoft",      Microsoft },
-    { "QVFbMouse",      QVFBMouse },
-    { "TPanel",         TPanel },
-    { "BusMouse",       BusMouse },
-    { 0,		Unknown }
-};
 
 static void limitToScreen( QPoint &pt )
 {
@@ -144,6 +168,26 @@ static void limitToScreen( QPoint &pt )
 
 static QPoint &mousePos = QWSServer::mousePosition;
 
+void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
+{
+    QWSServer::sendMouseEvent(pos,bstate);
+}
+
+typedef struct {
+    char *name;
+    MouseProtocol id;
+} MouseConfig;
+
+static const MouseConfig mouseConfig[] = {
+    { "Auto",		Auto },
+    { "MouseMan",	MouseMan },
+    { "IntelliMouse",	IntelliMouse },
+    { "Microsoft",      Microsoft },
+    { "QVFbMouse",      QVFBMouse },
+    { "TPanel",         TPanel },
+    { "BusMouse",       BusMouse },
+    { 0,		Unknown }
+};
 
 #ifndef QT_NO_QWS_MOUSE_AUTO
 /*
@@ -297,7 +341,7 @@ protected:
 	tty.c_oflag     = 0;
 	tty.c_lflag     = 0;
 	tty.c_cflag     = f | CREAD | CLOCAL | HUPCL;
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(QT_QWS_QNX)
 	tty.c_line      = 0;
 #endif
 	tty.c_cc[VTIME] = 0;
@@ -517,7 +561,7 @@ void QAutoMouseHandlerPrivate::openDevices()
 	sub[nsub++] = new QAutoMouseSubHandler_intellimouse(fd);
 	notify(fd);
     }
-
+#if !defined(QT_QWS_IPAQ) && !defined(QT_QWS_EBX)
     char fn[] = "/dev/ttyS?";
     for (int ch='0'; ch<='3'; ch++) {
 	fn[9] = ch;
@@ -529,7 +573,7 @@ void QAutoMouseHandlerPrivate::openDevices()
 	    notify(fd);
 	}
     }
-
+#endif
     // ...
 }
 
@@ -614,7 +658,6 @@ static const MouseData mouseData[] = {
     { 0 },  // TPanel,
     { 3 },  // BusMouse,
 };
-
 
 
 void QWSMouseHandlerPrivate::readMouseData()
@@ -775,7 +818,6 @@ QWSMouseHandlerPrivate::QWSMouseHandlerPrivate( MouseProtocol protocol,
 
     if ( mouseDev.isEmpty() )
 	mouseDev = "/dev/mouse";
-
     obstate = -1;
     mouseFD = -1;
     mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY);
@@ -786,13 +828,11 @@ QWSMouseHandlerPrivate::QWSMouseHandlerPrivate( MouseProtocol protocol,
 		    strerror(errno));
     } else {
 	// Clear pending input
-
 	tcflush(mouseFD,TCIFLUSH);
 
 	bool ps2 = false;
 
 	switch (mouseProtocol) {
-
 	    case MouseMan:
 		ps2 = true;
 		write(mouseFD,"",1);
@@ -817,10 +857,9 @@ QWSMouseHandlerPrivate::QWSMouseHandlerPrivate( MouseProtocol protocol,
 
 		tty.c_iflag = IGNBRK | IGNPAR;
 		tty.c_oflag = 0;
-		tty.c_lflag = 0;
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(QT_QWS_QNX)
 		tty.c_line = 0;
-#endif
+#endif // _OS_FREEBSD_
 		tty.c_cc[VTIME] = 0;
 		tty.c_cc[VMIN] = 1;
 		tty.c_cflag = B1200 | CS7 | CREAD | CLOCAL | HUPCL;
@@ -878,6 +917,19 @@ QCalibratedMouseHandler::QCalibratedMouseHandler()
 {
     clearCalibration();
     readCalibration();
+}
+
+void QCalibratedMouseHandler::getCalibration( QWSPointerCalibrationData *cd )
+{
+    QPoint screen_tl = cd->screenPoints[ QWSPointerCalibrationData::TopLeft ];
+    QPoint screen_br = cd->screenPoints[ QWSPointerCalibrationData::BottomRight ];
+
+    int tlx = ( s * screen_tl.x() - c ) / a;
+    int tly = ( s * screen_tl.y() - f ) / e;
+    cd->devPoints[ QWSPointerCalibrationData::TopLeft ] = QPoint(tlx,tly);
+    cd->devPoints[ QWSPointerCalibrationData::BottomRight ] =
+	QPoint( tlx - (s * (screen_tl.x() - screen_br.x() ) / a),
+		tly - (s * (screen_tl.y() - screen_br.y() ) / e) );
 }
 
 void QCalibratedMouseHandler::clearCalibration()
@@ -1099,10 +1151,12 @@ void QVrTPanelHandlerPrivate::readMouseData()
 #endif //QT_QWS_CASSIOPEIA
 
 
-#ifdef QT_QWS_IPAQ
-QIpaqHandlerPrivate::QIpaqHandlerPrivate( MouseProtocol, QString )
-    : samples(5), currSample(0), numSamples(0)
+#if defined(QT_QWS_IPAQ) || defined(QT_QWS_EBX)
+
+QTPanelHandlerPrivate::QTPanelHandlerPrivate( MouseProtocol, QString )
+    : samples(QT_QWS_TP_SAMPLE_SIZE), currSample(0), numSamples(0)
 {
+#if defined(QT_QWS_IPAQ)
 # ifdef QT_QWS_IPAQ_RAW
     if ((mouseFD = open( "/dev/h3600_tsraw", O_RDONLY | O_NDELAY)) < 0) {
 # else
@@ -1111,6 +1165,20 @@ QIpaqHandlerPrivate::QIpaqHandlerPrivate( MouseProtocol, QString )
 	qWarning( "Cannot open /dev/h3600_ts (%s)", strerror(errno));
 	return;
     }
+#elif defined(QT_QWS_EBX)
+//# ifdef QT_QWS_EBX_TSRAW
+# if 0
+    if ((mouseFD = open( "/dev/tsraw", O_RDONLY | O_NDELAY)) < 0) {
+        qWarning( "Cannot open /dev/tsraw (%s)", strerror(errno));
+       return;
+    }
+# else
+    if ((mouseFD = open( "/dev/ts", O_RDONLY | O_NDELAY)) < 0) {
+        qWarning( "Cannot open /dev/ts (%s)", strerror(errno));
+        return;
+     }
+# endif
+#endif
 
     QSocketNotifier *mouseNotifier;
     mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read,
@@ -1120,13 +1188,13 @@ QIpaqHandlerPrivate::QIpaqHandlerPrivate( MouseProtocol, QString )
     mouseIdx = 0;
 }
 
-QIpaqHandlerPrivate::~QIpaqHandlerPrivate()
+QTPanelHandlerPrivate::~QTPanelHandlerPrivate()
 {
     if (mouseFD >= 0)
 	close(mouseFD);
 }
 
-void QIpaqHandlerPrivate::readMouseData()
+void QTPanelHandlerPrivate::readMouseData()
 {
     if(!qt_screen)
 	return;
@@ -1143,10 +1211,14 @@ void QIpaqHandlerPrivate::readMouseData()
     while ( mouseIdx-idx >= (int)sizeof( TS_EVENT ) ) {
 	uchar *mb = mouseBuf+idx;
 	data = (TS_EVENT *) mb;
-	if(data->pressure > 0) {
+	if(data->pressure >= QT_QWS_TP_PRESSURE_THRESHOLD) {
+#ifdef QT_QWS_CUSTOM
+	    samples[currSample] = QPoint( 1000 - data->x, data->y );
+#else
 	    samples[currSample] = QPoint( data->x, data->y );
+#endif
 	    numSamples++;
-	    if ( numSamples > samples.count() ) {
+	    if ( numSamples >= samples.count() ) {
 		int maxd = 0;
 		unsigned int ignore = 0;
 		// throw away the "worst" sample
@@ -1170,21 +1242,32 @@ void QIpaqHandlerPrivate::readMouseData()
 		    }
 		}
 		mousePos /= (int)(samples.count() - 1);
-# ifdef QT_QWS_IPAQ_RAW
+# if defined(QT_QWS_IPAQ_RAW) || defined(QT_QWS_EBX_RAW)
 		mousePos = transform( mousePos );
 # endif
-		mouseChanged(mousePos,Qt::LeftButton);
-		oldmouse=mousePos;
-		waspressed=true;
+		if ( waspressed ) {
+		    if ( QABS(mousePos.x()-oldmouse.x()) < QT_QWS_TP_MOVE_LIMIT &&
+			 QABS(mousePos.y()-oldmouse.y()) < QT_QWS_TP_MOVE_LIMIT ) {
+			if ( oldmouse != mousePos ) {
+			    mouseChanged(mousePos,Qt::LeftButton);
+			    oldmouse=mousePos;
+			}
+		    }
+		} else {
+		    mouseChanged(mousePos,Qt::LeftButton);
+		    oldmouse=mousePos;
+		    waspressed=true;
+		}
 	    }
 	    currSample++;
 	    if ( currSample >= samples.count() )
 		currSample = 0;
 	} else {
-	    if(waspressed) {
+	    if ( waspressed ) {
 		currSample = 0;
 		numSamples = 0;
 		mouseChanged(oldmouse,0);
+		oldmouse = QPoint( -100, -100 );
 		waspressed=false;
 	    }
 	}
@@ -1196,7 +1279,92 @@ void QIpaqHandlerPrivate::readMouseData()
 	mouseBuf[i] = mouseBuf[idx+i];
     mouseIdx = surplus;
 }
+
 #endif //QT_QWS_IPAQ
+
+
+#ifdef QT_QWS_YOPY
+
+QYopyTPanelHandlerPrivate::QYopyTPanelHandlerPrivate( MouseProtocol, QString )
+{
+    if ((mouseFD = open( "/dev/ts", O_RDONLY)) < 0) {
+        qWarning( "Cannot open /dev/ts (%s)", strerror(errno));
+	return;
+    } else {
+        sleep(1);
+    }
+    prevstate=0;
+    QSocketNotifier *mouseNotifier;
+    mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read,
+					 this );
+    connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
+}
+
+QYopyTPanelHandlerPrivate::~QYopyTPanelHandlerPrivate()
+{
+    if (mouseFD >= 0)
+	close(mouseFD);
+}
+
+#define YOPY_XPOS(d) (d[1]&0x3FF)
+#define YOPY_YPOS(d) (d[2]&0x3FF)
+#define YOPY_PRES(d) (d[0]&0xFF)
+#define YOPY_STAT(d) (d[3]&0x01 )
+
+struct YopyTPdata {
+
+  unsigned char status;
+  unsigned short xpos;
+  unsigned short ypos;
+
+};
+
+void QYopyTPanelHandlerPrivate::readMouseData()
+{
+    if(!qt_screen)
+	return;
+    YopyTPdata data;
+
+    unsigned int yopDat[4];
+
+    int ret;
+
+    ret=read(mouseFD,&yopDat,sizeof(yopDat));
+
+    if(ret) {
+        data.status= ( YOPY_PRES(yopDat) ) ? 1 : 0;
+	data.xpos=YOPY_XPOS(yopDat);
+	data.ypos=YOPY_YPOS(yopDat);
+	QPoint q;
+	q.setX(data.xpos);
+	q.setY(data.ypos);
+	mousePos=q;
+	if(data.status && !prevstate) {
+          emit mouseChanged(mousePos,Qt::LeftButton);
+        } else if( !data.status && prevstate ) {
+	  emit mouseChanged(mousePos,0);
+        }
+        prevstate = data.status;
+    }
+    if(ret<0) {
+	qDebug("Error %s",strerror(errno));
+    }
+}
+
+#endif
+
+class QCustomTPanelHandlerPrivate : public QWSMouseHandler {
+    Q_OBJECT
+public:
+    QCustomTPanelHandlerPrivate(MouseProtocol, QString dev);
+    ~QCustomTPanelHandlerPrivate();
+
+private:
+    int mouseFD;
+private slots:
+    void readMouseData();
+
+};
 
 #ifdef QT_QWS_CUSTOMTOUCHPANEL
 QCustomTPanelHandlerPrivate::QCustomTPanelHandlerPrivate( MouseProtocol, QString )
@@ -1364,12 +1532,16 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
     handler=new QCustomTPanelHandlerPrivate(mouseProtocol,mouseDev);
 #endif
 
-#ifdef QT_QWS_IPAQ
-    handler=new QIpaqHandlerPrivate(mouseProtocol,mouseDev);
+#ifdef QT_QWS_YOPY
+    handler=new QYopyTPanelHandlerPrivate(mouseProtocol,mouseDev);
+#endif
+
+#if defined(QT_QWS_IPAQ) || defined(QT_QWS_EBX)
+    handler=new QTPanelHandlerPrivate(mouseProtocol,mouseDev);
 #endif
 
 #ifndef QWS_CUSTOMTOUCHPANEL
-#ifndef QT_QWS_IPAQ
+#if !defined(QT_QWS_IPAQ) && !defined(QT_QWS_EBX)
     switch ( mouseProtocol ) {
 #ifndef QT_NO_QWS_MOUSE_AUTO
     case Auto:
@@ -1405,7 +1577,6 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 
 /*!
   \fn QWSMouseHandler::clearCalibration()
-
   This method is reimplemented in the calibrated mouse handler
   to clear calibration information. This version does nothing.
 */
@@ -1417,3 +1588,4 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
   to set calibration information (from, for instance, the QPE
   calibration screen). This version does nothing.
 */
+

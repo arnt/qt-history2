@@ -165,6 +165,9 @@ QWSDecoration::Region QWSManager::pointInRegion(const QPoint &p)
 
 bool QWSManager::event(QEvent *e)
 {
+    if ( QObject::event( e ) )
+	return TRUE;
+
     switch (e->type()) {
 	case QEvent::MouseMove:
 	    mouseMoveEvent( (QMouseEvent*)e );
@@ -291,8 +294,23 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
 	qwsd->selectCursor(managed, shape[activeRegion]);
 #endif //QT_NO_CURSOR
     // resize/move regions
-    dx = e->globalX() - mousePos.x();
-    dy = e->globalY() - mousePos.y();
+
+    // don't allow dragging to where the user probably cannot click!
+    QPoint g = e->globalPos();
+    extern QRect qt_maxWindowRect;
+    if ( qt_maxWindowRect.isValid() ) {
+	if ( g.x() < qt_maxWindowRect.x() )
+	    g.setX(qt_maxWindowRect.x());
+	if ( g.y() < qt_maxWindowRect.y() )
+	    g.setY(qt_maxWindowRect.y());
+	if ( g.x() > qt_maxWindowRect.right() )
+	    g.setX(qt_maxWindowRect.right());
+	if ( g.y() > qt_maxWindowRect.bottom() )
+	    g.setY(qt_maxWindowRect.bottom());
+    }
+
+    dx = g.x() - mousePos.x();
+    dy = g.y() - mousePos.y();
 
     handleMove();
 
@@ -384,18 +402,21 @@ void QWSManager::paintEvent(QPaintEvent *)
     QRegion r = managed->topData()->decor_allocated_region;
     int rgnIdx = managed->alloc_region_index;
     if ( rgnIdx >= 0 ) {
+	QRegion newRegion;
+	bool changed = FALSE;
 	QWSDisplay::grab();
 	const int *rgnRev = qt_fbdpy->regionManager()->revision( rgnIdx );
 	if ( managed->alloc_region_revision != *rgnRev ) {
-	    QRegion newRegion = qt_fbdpy->regionManager()->region( rgnIdx );
-	    QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
-	    newRegion = qt_screen->mapFromDevice( newRegion, s );
-	    r &= newRegion;
+	     newRegion = qt_fbdpy->regionManager()->region( rgnIdx );
+	     changed = TRUE;
 	}
 	painter.internalGfx()->setGlobalRegionIndex( rgnIdx );
 	QWSDisplay::ungrab();
+	if ( changed ) {
+	    r &= newRegion;
+	}
     }
-    painter.internalGfx()->setWidgetRegion( r );
+    painter.internalGfx()->setWidgetDeviceRegion( r );
 
     painter.setClipRegion(dec.region(managed, managed->rect()));
     dec.paint(&painter, managed);

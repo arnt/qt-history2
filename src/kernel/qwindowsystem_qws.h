@@ -51,6 +51,7 @@ class QWSCursor;
 class QWSClient;
 class QWSRegionManager;
 class QGfx;
+class QWSServerData;
 
 class QWSInternalWindowInfo
 {
@@ -63,14 +64,21 @@ public:
 
 };
 
+struct QWSWindowData;
+
+class QWSScreenSaver
+{
+public:
+    virtual ~QWSScreenSaver();
+    virtual void restore()=0;
+    virtual bool save(int level)=0;
+};
+
 class QWSWindow
 {
     friend class QWSServer;
 public:
-    QWSWindow(int i, QWSClient* client)
-	: id(i), alloc_region_idx(-1), modified(FALSE), needAck(FALSE),
-	    onTop(FALSE), c(client), last_focus_time(0)
-	{ }
+    QWSWindow(int i, QWSClient* client);
     ~QWSWindow();
 
     int winId() const { return id; }
@@ -123,6 +131,7 @@ private:
     QRegion allocated_region;
     QRegion exposed;
     int last_focus_time;
+    QWSWindowData *d;
 };
 
 #ifndef QT_NO_SOUND
@@ -178,7 +187,7 @@ public:
 			     bool autoRepeat);
     static void processKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
 				bool autoRepeat);
-
+#ifndef QT_NO_QWS_KEYBOARD    
     typedef struct KeyMap {
 	ushort key_code;
 	ushort unicode;
@@ -186,9 +195,8 @@ public:
 	ushort ctrl_unicode;
     };
 
-
     static const KeyMap *keyMap();
-#ifndef QT_NO_QWS_KEYBOARD
+
     class KeyboardFilter
     {
     public:
@@ -223,6 +231,8 @@ public:
     void closeKeyboard();
 #endif
 
+    static void setScreenSaver(QWSScreenSaver*);
+    static void setScreenSaverIntervals(int* ms);
     static void setScreenSaverInterval(int);
     static bool screenSaverActive();
     static void screenSaverActivate(bool);
@@ -254,9 +264,11 @@ public:
 
 signals:
     void windowEvent( QWSWindow *w, QWSServer::WindowEvent e );
+
 #ifndef QT_NO_COP
     void newChannel( const QString& );
 #endif
+
 private:
 #ifndef QT_NO_COP
     static void sendQCopEvent( QWSClient *c, const QCString &ch,
@@ -265,7 +277,10 @@ private:
 #endif
     void move_region( const QWSRegionMoveCommand * );
     void set_altitude( const QWSChangeAltitudeCommand * );
+    void request_focus( const QWSRequestFocusCommand * );
     void request_region( int, QRegion );
+    void destroy_region( const QWSRegionDestroyCommand * );
+    void name_region( const QWSRegionNameCommand * );
 
     static void emergency_cleanup();
 
@@ -276,11 +291,12 @@ private:
 #ifndef QT_NO_QWS_MULTIPROCESS
     void newConnection( int socket );
 #endif
+    void invokeIdentify( QWSIdentifyCommand *cmd, QWSClient *client );
     void invokeCreate( QWSCreateCommand *cmd, QWSClient *client );
-    void invokeRegionName( QWSRegionNameCommand *cmd, QWSClient *client );
+    void invokeRegionName( const QWSRegionNameCommand *cmd, QWSClient *client );
     void invokeRegion( QWSRegionCommand *cmd, QWSClient *client );
     void invokeRegionMove( const QWSRegionMoveCommand *cmd, QWSClient *client );
-    void invokeRegionDestroy( QWSRegionDestroyCommand *cmd, QWSClient *client );
+    void invokeRegionDestroy( const QWSRegionDestroyCommand *cmd, QWSClient *client );
     void invokeSetAltitude( const QWSChangeAltitudeCommand *cmd, QWSClient *client );
 #ifndef QT_NO_QWS_PROPERTIES
     void invokeAddProperty( QWSAddPropertyCommand *cmd );
@@ -290,7 +306,7 @@ private:
 #endif //QT_NO_QWS_PROPERTIES
     void invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd );
     void invokeConvertSelection( QWSConvertSelectionCommand *cmd );
-    void invokeSetFocus( QWSRequestFocusCommand *cmd, QWSClient *client );
+    void invokeSetFocus( const QWSRequestFocusCommand *cmd, QWSClient *client );
 
     void initIO();
     void setFocus( QWSWindow*, bool gain );
@@ -299,6 +315,7 @@ private:
     void invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *client );
 #endif
     void invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client );
+    void invokeGrabKeyboard( QWSGrabKeyboardCommand *cmd, QWSClient *client );
 #ifndef QT_NO_SOUND
     void invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient *client );
 #endif
@@ -324,6 +341,7 @@ private:
     void initializeCursor();
     void paintServerRegion();
     void paintBackground( QRegion );
+    void clearRegion( const QRegion &r, const QColor &c );
     void refreshBackground();
 
 private slots:
@@ -334,11 +352,15 @@ private slots:
 
     void screenSaverWake();
     void screenSaverSleep();
+    void screenSaverTimeout();
 
 private:
+    void screenSave(int level);
     void doClient( QWSClient * );
     typedef QMapIterator<int,QWSClient*> ClientIterator;
     typedef QMap<int,QWSClient*> ClientMap;
+    void releaseMouse(QWSWindow* w);
+    void releaseKeyboard(QWSWindow* w);
 
     uchar* sharedram;
     int ramlen;
@@ -359,8 +381,8 @@ private:
 	} time;
     } selectionOwner;
     QTime timer;
-    QTimer* screensavertimer;
-    int screensaverinterval;
+    QWSServerData* d;
+    int* screensaverinterval;
 
     QWSWindow *focusw;
     QWSWindow *mouseGrabber;
@@ -388,7 +410,7 @@ private:
     QWSWindow* newWindow(int id, QWSClient* client);
     QWSWindow* findWindow(int windowid, QWSClient* client);
     void moveWindowRegion(QWSWindow*, int dx, int dy );
-    void setWindowRegion(QWSWindow*, QRegion r );
+    QRegion setWindowRegion(QWSWindow*, QRegion r );
     void raiseWindow( QWSWindow *, int = 0);
     void lowerWindow( QWSWindow *, int = -1);
     void exposeRegion( QRegion , int index = 0 );
@@ -428,6 +450,9 @@ public:
 
     int socket() const;
 
+    void setIdentity(const QString&);
+    QString identity() const { return id; }
+
     void sendEvent( QWSEvent* event );
     void sendConnectedEvent( const char *display_spec );
     void sendMaxWindowRectEvent();
@@ -453,6 +478,7 @@ private:
 #endif
     QWSCommand* command;
     uint isClosed : 1;
+    QString id;
 };
 
 #endif

@@ -181,6 +181,9 @@ QWSCommand *QWSCommand::factory( int type )
     case QWSCommand::GrabMouse:
 	command = new QWSGrabMouseCommand;
 	break;
+    case QWSCommand::GrabKeyboard:
+	command = new QWSGrabKeyboardCommand;
+	break;
 #ifndef QT_NO_SOUND
     case QWSCommand::PlaySound:
 	command = new QWSPlaySoundCommand;
@@ -196,6 +199,9 @@ QWSCommand *QWSCommand::factory( int type )
 #endif
     case QWSCommand::RegionName:
 	command = new QWSRegionNameCommand;
+	break;
+    case QWSCommand::Identify:
+	command = new QWSIdentifyCommand;
 	break;
 #ifndef QT_NO_QWS_REPEATER
     case QWSCommand::RepaintRegion:

@@ -534,6 +534,14 @@ void QWSDisplay::Data::init()
     if ( csocket )    {
 	// QWS client
 	csocket->connectToLocalFile(pipe);
+	QWSIdentifyCommand cmd;
+	cmd.setId(appName);
+#ifndef QT_NO_QWS_MULTIPROCESS
+	if  ( csocket )
+	    cmd.write( csocket );
+	else
+#endif
+	    qt_server_enqueue( &cmd );
 
 	// wait for connect confirmation
 	waitForConnection();
@@ -971,7 +979,10 @@ void QWSDisplay::requestFocus(int winId, bool get)
     QWSRequestFocusCommand cmd;
     cmd.simpleData.windowid = winId;
     cmd.simpleData.flag = get;
-    d->sendCommand( cmd );
+    if ( d->directServerConnection() )
+	qwsServer->request_focus( &cmd );
+    else
+	d->sendCommand( cmd );
 }
 
 void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
@@ -979,12 +990,14 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
     QWSRegionNameCommand cmd;
     cmd.simpleData.windowid = winId;
     cmd.setName(n, c);
-    d->sendCommand( cmd );
+    if ( d->directServerConnection() )
+	qwsServer->name_region( &cmd );
+    else
+	d->sendCommand( cmd );
 }
 
 void QWSDisplay::requestRegion(int winId, QRegion r)
 {
-    r = qt_screen->mapToDevice( r, QSize(qt_screen->width(), qt_screen->height()) );
     if ( d->directServerConnection() ) {
 	qwsServer->request_region( winId, r );
     } else {
@@ -1030,11 +1043,16 @@ void QWSDisplay::moveRegion( int winId, int dx, int dy )
     }
     d->waitForRegionAck();
 }
+
 void QWSDisplay::destroyRegion( int winId )
 {
     QWSRegionDestroyCommand cmd;
     cmd.simpleData.windowid = winId;
-    d->sendCommand( cmd );
+    if ( d->directServerConnection() ) {
+	qwsServer->destroy_region( &cmd );
+    } else {
+	d->sendCommand( cmd );
+    }
 }
 
 int QWSDisplay::takeId()
@@ -1170,6 +1188,15 @@ void QWSDisplay::grabMouse( QWidget *w, bool grab )
 {
     QWidget *top = w->topLevelWidget();
     QWSGrabMouseCommand cmd;
+    cmd.simpleData.windowid = top->winId();
+    cmd.simpleData.grab = grab;
+    d->sendCommand( cmd );
+}
+
+void QWSDisplay::grabKeyboard( QWidget *w, bool grab )
+{
+    QWidget *top = w->topLevelWidget();
+    QWSGrabKeyboardCommand cmd;
     cmd.simpleData.windowid = top->winId();
     cmd.simpleData.grab = grab;
     d->sendCommand( cmd );
@@ -1806,7 +1833,7 @@ QWidget *QApplication::findWidget( const QObjectList& list,
 	if ( it.current()->isWidgetType() ) {
 	    w = (QWidget*)it.current();
 	    if ( w->isVisible() && w->geometry().contains(pos)
-		 && w->requestedRegion().contains( w->mapToGlobal(w->mapFromParent(pos)) ) ) {
+		 && w->requestedRegion().contains( qt_screen->mapToDevice( w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height()) ) ) ) {
 		if ( !rec )
 		    return w;
 		QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
@@ -1844,7 +1871,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 		continue;
 	    }
 	    if ( w->isVisible() && w->geometry().contains(pos)
-		 && w->allocatedRegion().contains( w->mapToGlobal(w->mapFromParent(pos)) ) ) {
+		 && w->allocatedRegion().contains( qt_screen->mapToDevice( w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height()) ) ) ) {
 		if ( !child )
 		    return w;
 		QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
@@ -2249,7 +2276,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	if ( keywidget ) {
 	    grabbed = TRUE;
 	} else {
-	    if ( focus_widget )
+	    if ( focus_widget && focus_widget->isVisible() )
 		keywidget = (QETWidget*)focus_widget;
 	    else if ( widget )
 		keywidget = (QETWidget*)widget->topLevelWidget();
@@ -2634,11 +2661,13 @@ void QApplication::openPopup( QWidget *popup )
 	if ( !activeBeforePopup )
 	    activeBeforePopup = new QGuardedPtr<QWidget>;
 	(*activeBeforePopup) = active_window;
+
+	/* only grab if you are the first/parent popup */
+	QPaintDevice::qwsDisplay()->grabMouse(popup,TRUE);
+	QPaintDevice::qwsDisplay()->grabKeyboard(popup,TRUE);
+	popupGrabOk = TRUE;
     }
     popupWidgets->append( popup );		// add to end of list
-    QPaintDevice::qwsDisplay()->grabMouse(popup,TRUE);
-    popupGrabOk = TRUE;
-    // XXX grab keyboard
 
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
@@ -2668,6 +2697,7 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	if ( popupGrabOk ) {	// grabbing not disabled
 	    QPaintDevice::qwsDisplay()->grabMouse(popup,FALSE);
+	    QPaintDevice::qwsDisplay()->grabKeyboard(popup,FALSE);
 	    popupGrabOk = FALSE;
 	    // XXX ungrab keyboard
 	}
@@ -3197,29 +3227,6 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    if ( releaseAfter )
 		qt_button_down = 0;
 
-	    // XXX WWA: don't understand
-	    if ( qApp->inPopupMode() ) {			// still in popup mode
-		if ( popupGrabOk ) {
-		    QPaintDevice::qwsDisplay()->grabMouse( popupChild ? popupChild : popup, FALSE );
-		    popupGrabOk = FALSE;
-		}
-		//XXX if ( popupGrabOk )
-		    //XXX XAllowEvents( x11Display(), SyncPointer, CurrentTime );
-	    } else {
-		/* XXX
-		if ( type != QEvent::MouseButtonRelease && state != 0 &&
-		     QWidget::find((WId)mouseActWindow) ) {
-		    manualGrab = TRUE;		// need to manually grab
-		    XGrabPointer( x11Display(), mouseActWindow, FALSE,
-				  (uint)(ButtonPressMask | ButtonReleaseMask |
-				  ButtonMotionMask |
-				  EnterWindowMask | LeaveWindowMask),
-				  GrabModeAsync, GrabModeAsync,
-				  None, None, CurrentTime );
-		}
-		*/
-	    }
-
 	} else { //qApp not in popup mode
 	    QWidget *widget = this;
 	    QWidget *w = QWidget::mouseGrabber();
@@ -3359,7 +3366,8 @@ void QETWidget::repaintHierarchy(QRegion r)
 	    ++it;
 	    if ( obj->isWidgetType() ) {
 		QETWidget* w = (QETWidget*)obj;
-		w->repaintHierarchy(r);
+		if ( w->isVisible() )
+		    w->repaintHierarchy(r);
 	    }
 	}
     }
@@ -3401,13 +3409,15 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
     if ( revision != alloc_region_revision ) {
 	alloc_region_revision = revision;
 	QRegion newRegion = rgnMan->region( alloc_region_index );
-	QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
-	newRegion = qt_screen->mapFromDevice( newRegion, s );
 	QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_MANAGER
 	if ( testWFlags(WType_TopLevel) && topData()->qwsManager ) {
 	    extraExposed = topData()->decor_allocated_region;
+	    QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
+	    extraExposed = qt_screen->mapFromDevice( extraExposed, s );
+
 	    QRegion mr(topData()->qwsManager->region());
+	    mr = qt_screen->mapToDevice( mr, QSize(qt_screen->width(), qt_screen->height()) );
 	    topData()->decor_allocated_region = newRegion & mr;
 	    newRegion -= mr;
 	}

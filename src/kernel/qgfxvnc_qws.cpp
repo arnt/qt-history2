@@ -33,16 +33,25 @@
 
 #include "qgfxraster_qws.h"
 
-#ifndef QT_NO_QWS_VNC
+#if !defined(QT_NO_QWS_VNC)
 
 #include <sys/ipc.h>
 #include <sys/types.h>
-#include <sys/shm.h>
 #include <netinet/in.h>
 #include "qtimer.h"
 #include "qwindowsystem_qws.h"
-#include "qgfxlinuxfb_qws.h"
 #include "qgfxvnc_qws.h"
+#include "qsharedmemory.h"
+#include <qglobal.h>
+
+#if defined(_OS_QNX6_)
+#define VNCSCREEN_BASE QQnxScreen
+#include "qwsgfx_qnx.h"
+#else
+#define VNCSCREEN_BASE QLinuxFbScreen
+#include "qgfxlinuxfb_qws.h"
+#endif
+
 
 extern QString qws_qtePipeFilename();
 
@@ -58,8 +67,7 @@ struct QVNCHeader
     uchar map[MAP_HEIGHT][MAP_WIDTH];
 };
 
-class QVNCScreen : public QLinuxFbScreen
-{
+class QVNCScreen : public VNCSCREEN_BASE {
 public:
     QVNCScreen( int display_id );
     virtual ~QVNCScreen();
@@ -85,6 +93,7 @@ public:
     bool success;
     QVNCServer *vncServer;
     unsigned char *shmrgn;
+	QSharedMemory shm;
     QVNCHeader *hdr;
     bool virtualBuffer;
 };
@@ -1045,22 +1054,23 @@ void QGfxVNC<depth,type>::tiledBlt( int x,int y,int w,int h )
 /*
 */
 
-
-QVNCScreen::QVNCScreen( int display_id ) : QLinuxFbScreen( display_id )
+QVNCScreen::QVNCScreen( int display_id ) : VNCSCREEN_BASE( display_id )
 {
     virtualBuffer = FALSE;
     qvnc_screen = this;
+    optype = (int *)malloc(sizeof(int));
+    lastop = (int *)malloc(sizeof(int));
 }
 
-QVNCScreen::~QVNCScreen()
-{
+QVNCScreen::~QVNCScreen() {
+	shm.destroy();
 }
 
 bool QVNCScreen::connect( const QString &displaySpec )
 {
     int vsize = 0;
 
-    if ( displaySpec.find( ":LinuxFb" ) >= 0 )
+    if ( displaySpec.find( "Fb" ) >= 0 )
 	virtualBuffer = FALSE;
     else
 	virtualBuffer = TRUE;
@@ -1077,58 +1087,48 @@ bool QVNCScreen::connect( const QString &displaySpec )
 	    dh=h=480;
 	}
 	lstep = ( dw * d + 7 ) / 8;
+#if !defined(_OS_QNX6_)
 	dataoffset = 0;
-	size = h * lstep;
-	vsize = size;
-	mapsize = size;
 	canaccel = FALSE;
 	optype = &dummy_optype;
 	lastop = &dummy_lastop;
 	initted = TRUE;
+#endif
+	size = h * lstep;
+	vsize = size;
+	mapsize = size;
 	// We handle mouse and keyboard here
 	QWSServer::setDefaultMouse( "None" );
 	QWSServer::setDefaultKeyboard( "None" );
     } else {
-	QLinuxFbScreen::connect( displaySpec );
+		int next = displaySpec.find (':');
+		QString tmpSpec = displaySpec;
+		tmpSpec.remove (0, next + 1); 
+		VNCSCREEN_BASE::connect( tmpSpec );
     }
-
-    key_t key = ftok( qws_qtePipeFilename().latin1(), 'v' );
-     
-    int shmId = shmget( key, 0, 0 );
-    if ( shmId != -1 )
-	shmrgn = (unsigned char *)shmat( shmId, 0, 0 );
-    else {
-	struct shmid_ds shm;
-	shmctl( shmId, IPC_RMID, &shm );
-	shmId = shmget( key, sizeof(QVNCHeader) + vsize + 8, IPC_CREAT|0600);
-	shmrgn = (unsigned char *)shmat( shmId, 0, 0 );
-    }
-
-    if ( (int)shmrgn == -1 || shmrgn == 0 )
-	return FALSE;
+	shm = QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename() );
+	shm.create();
+	shm.attach();
+	shmrgn = (unsigned char*)shm.base();
 
     hdr = (QVNCHeader *) shmrgn;
 
     if ( virtualBuffer )
-	data = shmrgn + ( sizeof(QVNCHeader) + 7 ) / 8 * 8;
-
-    return TRUE;
+        data = shmrgn + ( sizeof(QVNCHeader) + 7 );
+	return TRUE;
 }
 
 void QVNCScreen::disconnect()
 {
     if ( !virtualBuffer )
-	QLinuxFbScreen::disconnect();
-    shmdt( shmrgn );
+		VNCSCREEN_BASE::disconnect();
+	shm.detach();
 }
 
 bool QVNCScreen::initDevice()
 {
-    if ( virtualBuffer ) {
-    } else {
-	QLinuxFbScreen::initDevice();
-    }
-
+    if ( !virtualBuffer ) 
+		VNCSCREEN_BASE::initDevice();
     vncServer = new QVNCServer();
 
     hdr->dirty = FALSE;
@@ -1141,7 +1141,7 @@ void QVNCScreen::shutdownDevice()
 {
     delete vncServer;
     if ( !virtualBuffer )
-	QLinuxFbScreen::shutdownDevice();
+		VNCSCREEN_BASE::shutdownDevice();
 }
 
 int QVNCScreen::initCursor(void* e, bool init)
@@ -1169,14 +1169,14 @@ void QVNCScreen::setMode(int ,int ,int)
 void QVNCScreen::save()
 {
     if ( !virtualBuffer )
-	QLinuxFbScreen::save();
+	VNCSCREEN_BASE::save();
 }
 
 // restore the state of the graphics card.
 void QVNCScreen::restore()
 {
     if ( !virtualBuffer )
-	QLinuxFbScreen::restore();
+	VNCSCREEN_BASE::restore();
 }
 
 QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)

@@ -46,7 +46,7 @@ static QCopServerMap *qcopServerMap = 0;
 typedef QMap<QString, QPtrList<QCopChannel> > QCopClientMap;
 static QCopClientMap *qcopClientMap = 0;
 
-class QCopChannel::Private
+class QCopChannelPrivate
 {
 public:
     QCString channel;
@@ -85,7 +85,7 @@ public:
 QCopChannel::QCopChannel( const QCString& channel, QObject* parent, const char* name ) :
     QObject( parent, name )
 {
-    d = new QCopChannel::Private;
+    d = new QCopChannelPrivate;
     d->channel = channel;
 
     if ( !qt_fbdpy ) {

@@ -37,9 +37,11 @@
 #include "qfile.h"
 #include "qdir.h"
 
-#if defined(Q_OS_UNIX) // always for now
+#if !defined(Q_OS_QNX6)
 #define QT_USE_MMAP
 #endif
+
+#include <stdlib.h>
 
 #ifdef QT_USE_MMAP
 // for mmap
@@ -55,36 +57,107 @@
 
 #define FM_SMOOTH 1
 
-//#define SMOOTH_HACK
+static void getProcessedGlyph(QGlyph& tmp, QGlyph& g, bool smooth)
+{
+    if ( tmp.metrics->width && tmp.metrics->height &&
+	 (qt_screen->isTransformed() ) ) {
+	int depth = 1;
+	int cols = 0;
+	QImage::Endian end = QImage::BigEndian;
+	if ( smooth ) {
+	    depth = 8;
+	    cols = 256;
+	    end = QImage::IgnoreEndian;
+	}
+	QImage img( tmp.data, tmp.metrics->width, tmp.metrics->height,
+		    depth, tmp.metrics->linestep, 0, cols, end );
+	img = qt_screen->mapToDevice( img );
+	g.metrics = tmp.metrics;
+	g.data = new uchar [img.numBytes()];
+
+	memcpy( g.data, img.bits(), img.numBytes() );
+	g.metrics->linestep = img.bytesPerLine();
+	delete [] tmp.data;
+    } else {
+
+#ifndef QT_NO_QWS_INTERLACE
+	if ( tmp.metrics->width && tmp.metrics->height &&
+	     qt_screen->isInterlaced() ) {
+	    int height = tmp.metrics->height + 1;
+	    int width = tmp.metrics->width;
+	    int pitch = tmp.metrics->linestep;
+	    if ( !smooth ) {
+		pitch=(width+3) & -4;
+	    }
+	    uchar *newdata = new uchar[height*pitch];
+	    uchar *olddata = tmp.data;
+	    memset(newdata,0,height*pitch);
+
+	    if (smooth) {
+		for(int y=0; y<height; y++) {
+		    unsigned char *src1 = y == height-1 ? 0 :olddata+y*pitch;
+		    unsigned char *src2 = y == 0 ? 0 :olddata+(y-1)*pitch;
+		    unsigned char *dst = newdata+y*pitch;
+
+		    for(int x=0;x<width;x++) {
+			*dst++ = (2*(src1?*src1++:0) + (src2?*src2++:0))/3;
+		    }
+		}
+	    } else {
+		QRgb colTable[2] = {0, 1};
+		QImage img( tmp.data, width, height,
+			    1, tmp.metrics->linestep, 
+			    colTable, 2, QImage::BigEndian);
+		for(int y=0; y<height; y++) {
+		    unsigned char *dst = newdata+y*pitch;
+
+		    for(int x=0;x<width;x++) {
+			*dst++ = ( y!=height-1 && img.pixel(x,y)? 170 :0)
+			 + ( y!=0 && img.pixel(x,y-1)? 85 :0);
+		    }
+		}
+	    
+	
+	    }
+	
+	    delete tmp.data;
+	    tmp.data = newdata;
+	    tmp.metrics->height = height;
+	    tmp.metrics->linestep = pitch;
+	}	      
+#endif //QT_NO_QWS_INTERLACE	    
+	g = tmp;
+    }
+}
 
 class QGlyphTree {
     /* Builds up a tree like this:
 
-	     root
-	     /
-	    Q
-	   / \
-	  /   \
-	 G     l
-	      / \
-	     /   \
-	    /     \
-	   T       y
-	    \     /
-	     e   p
-	        / \
-	       /   \
-	      h     r
+       root
+       /
+       Q
+       / \
+       /   \
+       G     l
+       / \
+       /   \
+       /     \
+       T       y
+       \     /
+       e   p
+       / \
+       /   \
+       h     r
 
-	etc.
+       etc.
 
        Which can be compressed into contiguous spans (when fuller):
 
-	     A-Z
-	    /   \
-	  0-9   a-z
+       A-Z
+       /   \
+       0-9   a-z
 
-	etc.
+       etc.
 
        such a compressed tree could then be stored in ROM.
     */
@@ -116,50 +189,7 @@ public:
 	for (int i=0; i<n; i++) {
 	    QChar ch(min.unicode()+i);
 	    QGlyph tmp = renderer->render(ch);
-	    if ( tmp.metrics->width && tmp.metrics->height &&
-		 (qt_screen->isTransformed()
-#ifdef SMOOTH_HACK
-		  ||renderer->smooth
-#endif
-		  ) ) {
-		int depth = 1;
-		int cols = 0;
-		QImage::Endian end = QImage::BigEndian;
-		if ( renderer->smooth ) {
-		    depth = 8;
-		    cols = 256;
-		    end = QImage::IgnoreEndian;
-		}
-		QImage img( tmp.data, tmp.metrics->width, tmp.metrics->height,
-			    depth, tmp.metrics->linestep, 0, cols, end );
-		img = qt_screen->mapToDevice( img );
-		glyph[i].metrics = tmp.metrics;
-		glyph[i].data = new uchar [img.numBytes()];
-
-#ifdef SMOOTH_HACK
-		if ( renderer->smooth ) {
-		    uchar * p = glyph[i].data;
-		    uchar * s = img.bits();
-		    for ( int i = 0; i < img.numBytes(); i++ ) {
-			uchar d = *s++;
-			if ( d > 128 )
-			    d = 255;
-			else if ( d > 64 )
-			    d = 127;
-			else if ( d > 32 )
-			    d = 63;
-			else
-			    d = 0;
-			*p++ = d;
-		    }
-		} else
-#endif		
-		memcpy( glyph[i].data, img.bits(), img.numBytes() );
-		glyph[i].metrics->linestep = img.bytesPerLine();
-		delete [] tmp.data;
-	    } else {
-		glyph[i] = tmp;
-	    }
+	    getProcessedGlyph(tmp,glyph[i],renderer->smooth);
 	}
     }
 
@@ -203,14 +233,14 @@ public:
     {
 	if ( ch < min ) {
 	    if ( !less ) {
-		if ( !renderer )
+		if ( !renderer || !renderer->inFont(ch) )
 		    return 0;
 		less = new QGlyphTree(ch,ch,renderer);
 	    }
 	    return less->get(ch,renderer);
 	} else if ( ch > max ) {
 	    if ( !more ) {
-		if ( !renderer )
+		if ( !renderer || !renderer->inFont(ch) )
 		    return 0;
 		more = new QGlyphTree(ch,ch,renderer);
 	    }
@@ -281,7 +311,7 @@ public:
 	for (int i=0; i<indent; i++) printf(" ");
 	printf("%d..%d",min.unicode(),max.unicode());
 	//if ( indent == 0 )
-	    printf(" (total %d)",totalChars());
+	printf(" (total %d)",totalChars());
 	printf("\n");
 	if ( less ) less->dump(indent+1);
 	if ( more ) more->dump(indent+1);
@@ -535,10 +565,26 @@ public:
 	    m->width = fm.maxwidth;
 	    m->linestep = (fm.flags & FM_SMOOTH) ? m->width : (m->width+7)/8;
 	    m->height = fm.ascent;
+	    m->bearingy = fm.ascent;
 	    m->advance = m->width+1+m->width/8;
 	    uchar* d = new uchar[m->linestep*m->height];
-	    memset(d,255,m->linestep*m->height);
-	    default_glyph = new QGlyph(m,d);
+	    memset(d,255,m->linestep);
+	    memset(d+m->linestep*(m->height-1),255,m->linestep);
+	    for (int i=1; i<m->height-1; i++) {
+		int j=m->linestep*i;
+		if ( fm.flags & FM_SMOOTH ) {
+		    memset(d+j,31,m->linestep); // semi-transparent
+		    d[j]=255;
+		    d[j+m->linestep-1]=255;
+		} else {
+		    memset(d+j,0,m->linestep);
+		    d[j]=128;
+		    d[j+m->linestep-1]|=128>>((m->width+7)%8);
+		}
+	    }
+	    QGlyph g(m,d);
+	    default_glyph = new QGlyph;
+	    getProcessedGlyph(g,*default_glyph,fm.flags & FM_SMOOTH);
 	}
 	return default_glyph;
     }
@@ -621,8 +667,9 @@ QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d,
 
 	xoffset = test_offset; // for testing
 
-	data = new uchar[siz];
-
+	data = (uchar*)malloc(siz);
+	if ( !data )
+	    return 0; //out of memory
 	// even id
 	id = next_pixmap_id;
 	next_pixmap_id += 2; // stay even
@@ -648,7 +695,7 @@ void QMemoryManager::deletePixmap(PixmapID id)
     if(id & 1) {
 	qt_screen->uncache((*it).data);
     } else {
-	delete [] (*it).data;
+	free((*it).data);
     }
     pixmap_map.remove(it);
 }
@@ -678,6 +725,9 @@ static QString fontKey(const QFontDef& font)
 	QPoint a = qt_screen->mapToDevice(QPoint(0,0),QSize(2,2));
 	QPoint b = qt_screen->mapToDevice(QPoint(1,1),QSize(2,2));
 	key += QString::number( a.x()*8+a.y()*4+(1-b.x())*2+(1-b.y()) );
+    }
+    if ( qt_screen->isInterlaced() ) {
+	key += "_I";
     }
     return key;
 }
@@ -806,7 +856,8 @@ QMemoryManager::FontID QMemoryManager::refFont(const QFontDef& font)
 	    mmf->fm.leading = mmf->renderer->fleading;
 	    mmf->fm.underlinepos = mmf->renderer->funderlinepos;
 	    mmf->fm.underlinewidth = mmf->renderer->funderlinewidth;
-	    mmf->fm.flags = (mmf->renderer->smooth) ? FM_SMOOTH : 0;
+	    mmf->fm.flags = (mmf->renderer->smooth||qt_screen->isInterlaced())
+			    ? FM_SMOOTH : 0;
 	}
 	font_map[key] = (FontID)mmf;
 #ifndef QT_NO_QWS_SAVEFONTS
@@ -841,7 +892,7 @@ bool QMemoryManager::inFont(FontID id, const QChar& ch) const
 {
     QMemoryManagerFont* font = (QMemoryManagerFont*)id;
     if ( font->renderer )
-	return font->renderer->inFont(ch);
+	return ch.unicode() < font->renderer->maxchar && font->renderer->inFont(ch);
     else
 	return font->tree->inFont(ch);
 }
@@ -851,6 +902,8 @@ QGlyph QMemoryManager::lockGlyph(FontID id, const QChar& ch)
     QMemoryManagerFont* font = (QMemoryManagerFont*)id;
     if ( !font->tree ) {
 	if(!font->renderer) {
+	    if ( ch.isSpace() && ch != ' ' )
+		return lockGlyph(id,' ');
 	    return *(font->defaultGlyph());
 	}
 	QChar c = ch;
@@ -859,8 +912,11 @@ QGlyph QMemoryManager::lockGlyph(FontID id, const QChar& ch)
 	font->tree = new QGlyphTree(c,c,font->renderer);
     }
     QGlyph* g = font->tree->get(ch,font->renderer);
-    if ( !g )
+    if ( !g ) {
+	if ( ch.isSpace() && ch != ' ' )
+	    return lockGlyph(id,' ');
 	g = font->defaultGlyph();
+    }
     return *g;
 }
 
@@ -910,7 +966,7 @@ void QMemoryManager::savePrerenderedFont(FontID id, bool all)
 	}
 	mmf->tree->compress();
 	QGlyphTree::balance(mmf->tree);
-	//mmf->tree->dump();
+	//qDebug("DUMP..."); mmf->tree->dump();
 	QFile f(fontFilename(mmf->def));
 	f.open(IO_WriteOnly);
 	f.writeBlock((char*)&mmf->fm,sizeof(mmf->fm));

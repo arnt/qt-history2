@@ -118,7 +118,7 @@ public:
 	if(err)
 	    qFatal("Load glyph error %x",err);
 
-	int width,height,pitch,size = 0;
+	int width=0,height=0,pitch=0,size=0;
 	FT_Glyph glyph;
 	err=FT_Get_Glyph( myface->glyph, &glyph );
 	if(err)

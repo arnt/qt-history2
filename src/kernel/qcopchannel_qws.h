@@ -40,6 +40,7 @@
 #ifndef QT_NO_COP
 
 class QWSClient;
+class QCopChannelPrivate;
 
 class QCopChannel : public QObject
 {
@@ -70,8 +71,7 @@ private:
     static void answer( QWSClient *cl, const QCString &ch,
 			const QCString &msg, const QByteArray &data );
     // client side
-    class Private;
-    Private *d;
+    QCopChannelPrivate* d;
 
     friend class QWSServer;
     friend class QApplication;

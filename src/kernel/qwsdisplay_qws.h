@@ -102,6 +102,7 @@ public:
 			int hotX, int hotY);
     void selectCursor( QWidget *w, unsigned int id );
     void grabMouse( QWidget *w, bool grab );
+    void grabKeyboard( QWidget *w, bool grab );
     void playSoundFile( const QString& );
     void registerChannel( const QCString& channel );
     void sendMessage(const QCString &channel, const QCString &msg,

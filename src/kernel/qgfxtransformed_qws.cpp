@@ -45,10 +45,15 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "qgfxlinuxfb_qws.h"
 
-
+#ifndef _OS_QNX6_
 #define QT_TRANS_SCREEN_BASE	QLinuxFbScreen
+#include "qgfxlinuxfb_qws.h"
+#else
+#define QT_TRANS_SCREEN_BASE	QQnxScreen
+#include "qwsgfx_qnx.h"
+#endif
+
 #define QT_TRANS_CURSOR_BASE	QScreenCursor
 #define QT_TRANS_GFX_BASE	QGfxRaster
 
@@ -244,11 +249,13 @@ QImage QTransformedScreen::mapToDevice( const QImage &img ) const
     if ( img.isNull() || trans == None )
 	return img;
 
-    int w = img.width();
-    int h = img.height();
+    int iw = img.width();
+    int ih = img.height();
+    int w = iw;
+    int h = ih;
     if ( trans == Rot90 || trans == Rot270 ) {
-	w = img.height();
-	h = img.width();
+	w = ih;
+	h = iw;
     }
 
     QImage rimg( w, h, img.depth(), img.numColors(), img.bitOrder() );
@@ -257,6 +264,61 @@ QImage QTransformedScreen::mapToDevice( const QImage &img ) const
 	rimg.colorTable()[i] = img.colorTable()[i];
     }
 
+    #define START_LOOP for ( int y = 0; y < ih; y++ ) { \
+			   for ( int x = 0; x < iw; x++ ) {
+    #define END_LOOP } }
+
+    int pixel;
+    if ( img.depth() > 8 ) {
+	switch ( trans ) {
+	    case Rot90:
+		START_LOOP
+		    pixel = img.pixel(x, y);
+		    rimg.setPixel( y, iw - x - 1, pixel );
+		END_LOOP
+		break;
+
+	    case Rot270:
+		START_LOOP
+		    pixel = img.pixel(x, y);
+		    rimg.setPixel( ih - y - 1, x, pixel );
+		END_LOOP
+		break;
+
+	    default:
+		START_LOOP
+		    pixel = img.pixel(x, y);
+		    rimg.setPixel( iw - x - 1, ih - y - 1, pixel );
+		END_LOOP
+	}
+    } else {
+	switch ( trans ) {
+	    case Rot90:
+		START_LOOP
+		    pixel = img.pixelIndex(x, y);
+		    rimg.setPixel( y, iw - x - 1, pixel );
+		END_LOOP
+		break;
+
+	    case Rot270:
+		START_LOOP
+		    pixel = img.pixelIndex(x, y);
+		    rimg.setPixel( ih - y - 1, x, pixel );
+		END_LOOP
+		break;
+
+	    default:
+		START_LOOP
+		    pixel = img.pixelIndex(x, y);
+		    rimg.setPixel( iw - x - 1, ih - y - 1, pixel );
+		END_LOOP
+	}
+    }
+
+    #undef START_LOOP
+    #undef END_LOOP
+
+/*
     for ( int y = 0; y < img.height(); y++ ) {
 	for ( int x = 0; x < img.width(); x++ ) {
 	    int pixel;
@@ -278,7 +340,7 @@ QImage QTransformedScreen::mapToDevice( const QImage &img ) const
 	    }
 	}
     }
-
+*/
     rimg.setAlphaBuffer( img.hasAlphaBuffer() );
     rimg.setOffset( img.offset() );
 
@@ -290,8 +352,10 @@ QImage QTransformedScreen::mapFromDevice( const QImage &img ) const
     if ( img.isNull() || trans == None )
 	return img;
 
-    int w = img.width();
-    int h = img.height();
+    int iw = img.width();
+    int ih = img.height();
+    int w = iw;
+    int h = ih;
     if ( trans == Rot90 || trans == Rot270 ) {
 	w = img.height();
 	h = img.width();
@@ -303,6 +367,57 @@ QImage QTransformedScreen::mapFromDevice( const QImage &img ) const
 	rimg.colorTable()[i] = img.colorTable()[i];
     }
 
+    #define START_LOOP for ( int y = 0; y < ih; y++ ) { \
+			   for ( int x = 0; x < iw; x++ ) {
+    #define END_LOOP } }
+
+    int pixel;
+    if ( img.depth() > 8 ) {
+	switch ( trans ) {
+	    case Rot90:
+		START_LOOP
+		    pixel = img.pixel(x, y);
+		    rimg.setPixel( ih - y - 1, x, pixel );
+		END_LOOP
+		break;
+	    case Rot270:
+		START_LOOP
+		    pixel = img.pixel(x, y);
+		    rimg.setPixel( y, iw - x - 1, pixel );
+		END_LOOP
+		break;
+	    default:
+		START_LOOP
+		    pixel = img.pixel(x, y);
+		    rimg.setPixel( iw - x - 1, ih - y - 1, pixel );
+		END_LOOP
+	}
+    } else {
+	switch ( trans ) {
+	    case Rot90:
+		START_LOOP
+		    pixel = img.pixelIndex(x, y);
+		    rimg.setPixel( ih - y - 1, x, pixel );
+		END_LOOP
+		break;
+	    case Rot270:
+		START_LOOP
+		    pixel = img.pixelIndex(x, y);
+		    rimg.setPixel( y, iw - x - 1, pixel );
+		END_LOOP
+		break;
+	    default:
+		START_LOOP
+		    pixel = img.pixelIndex(x, y);
+		    rimg.setPixel( iw - x - 1, ih - y - 1, pixel );
+		END_LOOP
+	}
+    }
+
+    #undef START_LOOP
+    #undef END_LOOP
+
+/*
     for ( int y = 0; y < img.height(); y++ ) {
 	for ( int x = 0; x < img.width(); x++ ) {
 	    int pixel;
@@ -324,7 +439,7 @@ QImage QTransformedScreen::mapFromDevice( const QImage &img ) const
 	    }
 	}
     }
-
+*/
     rimg.setAlphaBuffer( img.hasAlphaBuffer() );
     rimg.setOffset( img.offset() );
 
@@ -338,6 +453,39 @@ QRegion QTransformedScreen::mapToDevice( const QRegion &rgn, const QSize &s ) co
 
     QRegion trgn;
     QMemArray<QRect> a = rgn.rects();
+    QRect tr;
+    const QRect *r = a.data();
+
+    int w = s.width();
+    int h = s.height();
+    int size = a.size();
+
+    switch ( trans ) {
+	case Rot270:
+	    for ( int i = 0; i < size; i++, r++ ) {
+		tr.setCoords( h - r->y() - 1, r->x(),
+			      h - r->bottom() - 1, r->right() );
+		trgn |= tr.normalize();
+	    }
+	    break;
+	case Rot90:
+	    for ( int i = 0; i < size; i++, r++ ) {
+		tr.setCoords( r->y(), w - r->x() - 1,
+			      r->bottom(), w - r->right() - 1 );
+		trgn |= tr.normalize();
+	    }
+	    break;
+	case Rot180:
+	    for ( int i = 0; i < size; i++, r++ ) {
+		tr.setCoords( w - r->x() - 1, h - r->y() - 1,
+			      w - r->right() - 1, h - r->bottom() - 1 );
+		trgn |= tr.normalize();
+	    }
+	    break;
+	default:
+	    break;
+    }
+/*
     for ( int i = 0; i < (int)a.size(); i++ ) {
 	const QRect &r = a[i];
 	QRect tr;
@@ -359,7 +507,7 @@ QRegion QTransformedScreen::mapToDevice( const QRegion &rgn, const QSize &s ) co
 	}
 	trgn |= tr.normalize();
     }
-
+*/
     return trgn;
 }
 
@@ -370,6 +518,42 @@ QRegion QTransformedScreen::mapFromDevice( const QRegion &rgn, const QSize &s ) 
 
     QRegion trgn;
     QMemArray<QRect> a = rgn.rects();
+    const QRect *r = a.data();
+    QRect tr;
+
+    int w = s.width();
+    int h = s.height();
+    int size = a.size();
+
+    switch ( trans ) {
+	case Rot270:
+	    for ( int i = 0; i < size; i++, r++ ) {
+		tr.setCoords( r->y(), w - r->x() - 1,
+			      r->bottom(), w - r->right() - 1 );
+		trgn |= tr.normalize();
+	    }
+	    break;
+	case Rot90:
+	    for ( int i = 0; i < size; i++, r++ ) {
+		tr.setCoords( h - r->y() - 1, r->x(),
+			      h - r->bottom() - 1, r->right() );
+		trgn |= tr.normalize();
+	    }
+	    break;
+	case Rot180:
+	    for ( int i = 0; i < size; i++, r++ ) {
+		tr.setCoords( w - r->x() - 1, h - r->y() - 1,
+			      w - r->right() - 1, h - r->bottom() - 1 );
+		trgn |= tr.normalize();
+	    }
+	    break;
+	default:
+	    break;
+    }
+
+/*
+    QRegion trgn;
+    QArray<QRect> a = rgn.rects();
     for ( int i = 0; i < (int)a.size(); i++ ) {
 	const QRect &r = a[i];
 	QRect tr;
@@ -391,7 +575,7 @@ QRegion QTransformedScreen::mapFromDevice( const QRegion &rgn, const QSize &s ) 
 	}
 	trgn |= tr.normalize();
     }
-
+*/
     return trgn;
 }
 
@@ -699,6 +883,10 @@ QGfx *QTransformedScreen::createGfx(unsigned char * bytes,int w,int h,int d, int
 #ifndef QT_NO_QWS_DEPTH_8
     } else if (d==8) {
 	ret = new QGfxTransformedRaster<8,0>(bytes,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_4
+    } else if (d==4) {
+	ret = new QGfxTransformedRaster<4,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
     } else if (d==8) {

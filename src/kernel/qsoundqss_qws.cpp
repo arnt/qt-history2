@@ -62,7 +62,7 @@ struct QRiffChunk {
     char data[4/*size*/];
 };
 
-static const int sound_fragment_size = 11;
+static const int sound_fragment_size = 13;
 static const int sound_buffer_size=1<<sound_fragment_size;
 
 #ifdef QT_QWS_SOUND_STEREO
@@ -268,6 +268,7 @@ public:
 	fd = -1;
 	active.setAutoDelete(TRUE);
 	unwritten = 0;
+	can_GETOSPACE = TRUE;
     }
 
 public slots:
@@ -277,6 +278,8 @@ public slots:
 	if ( f->open(IO_ReadOnly) ) {
 	    if ( openDevice() )
 		active.append(new QWSSoundServerBucket(f));
+	    else
+		delete f;
 	} else {
 	    qDebug("Failed opening \"%s\"",filename.latin1());
 	}
@@ -284,8 +287,18 @@ public slots:
 
     void feedDevice(int fd)
     {
+	if ( !unwritten && active.count() == 0 ) {
+	    closeDevice();
+	    return;
+	}
+
 	audio_buf_info info;
-	ioctl(fd,SNDCTL_DSP_GETOSPACE,&info);
+	if ( can_GETOSPACE && ioctl(fd,SNDCTL_DSP_GETOSPACE,&info) ) {
+	    can_GETOSPACE = FALSE;
+	    fcntl( fd, F_SETFL, O_NONBLOCK );
+	}
+	if ( !can_GETOSPACE )
+	    info.fragments = 4; // #### configurable?
 	if ( info.fragments > 0 ) {
 	    if ( !unwritten ) {
 		QWSSoundServerBucket* bucket;
@@ -345,13 +358,19 @@ public slots:
 	    int w = ::write(fd,cursor,unwritten);
 
 	    if ( w < 0 )
-		return;
+		if ( !can_GETOSPACE )
+		    w = 0;
+		else
+		    return;
 
 	    cursor += w;
 	    unwritten -= w;
 
-	    if ( !unwritten && active.count() == 0 )
-		closeDevice();
+	    if ( !unwritten && active.count() == 0 ) {
+		killTimers();
+		int delay = 1000*(w>>(sound_stereo+sound_16bit))/sound_speed;
+		startTimer(delay);
+	    }
 	}
     }
 
@@ -374,7 +393,9 @@ private:
 
 	    // Setup soundcard at 16 bit mono
 	    int v;
-	    v=0x00010000+sound_fragment_size; ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v);
+	    v=0x00010000+sound_fragment_size;
+	    if ( ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v) )
+		qWarning("Could not set fragments to %08x",v);
 #ifdef QT_QWS_SOUND_16BIT
 	    v=AFMT_S16_LE; if ( ioctl(fd, SNDCTL_DSP_SETFMT, &v) )
 		qWarning("Could not set format %d",v);
@@ -399,7 +420,7 @@ private:
 		qDebug("Want speed %d got %d", v, sound_speed);
 
 	    int delay = 1000*(sound_buffer_size>>(sound_stereo+sound_16bit))
-			/sound_speed/2;
+				    /sound_speed/2;
 	    startTimer(delay);
 	}
 	return TRUE;
@@ -419,6 +440,7 @@ private:
     char* cursor;
     short d16[sound_buffer_size*2];
     signed char d8[sound_buffer_size*2];
+    bool can_GETOSPACE;
 #ifndef QT_NO_QWS_SOUNDSERVER
     QWSSoundServerSocket *server;
 #endif

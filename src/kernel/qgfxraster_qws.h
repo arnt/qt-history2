@@ -67,6 +67,7 @@ public:
 
     virtual void setClipRect( int,int,int,int );
     virtual void setClipRegion( const QRegion & );
+    virtual void setClipDeviceRegion( const QRegion & );
     virtual void setClipping(bool);
 
     // These will be called from qwidget_qws or qwidget_mac
@@ -74,6 +75,7 @@ public:
     virtual void setOffset( int,int );
     virtual void setWidgetRect( int,int,int,int );
     virtual void setWidgetRegion( const QRegion & );
+    virtual void setWidgetDeviceRegion( const QRegion & );
     virtual void setGlobalRegionIndex( int idx );
 
     virtual void setDashedLines(bool d);
@@ -299,6 +301,9 @@ protected:
     // Optimised horizontal line drawing
     void hline(int,int,int );
     void hlineUnclipped(int,int,unsigned char* );
+#if defined(_OS_QNX6_) // need a different signature for QNX acceleration, override to accel
+	virtual void hlineUnclipped(int x,int x1,int y){unsigned char *l=scanLine(y);hlineUnclipped(x,x1,l);};
+#endif
     void hImageLineUnclipped(int,int,unsigned char *,unsigned char *,bool);
     void hAlphaLineUnclipped(int,int,unsigned char *,unsigned char *,
 			     unsigned char *);

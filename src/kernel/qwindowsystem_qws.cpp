@@ -85,6 +85,28 @@
 
 QWSServer *qwsServer=0;
 
+class QWSServerData {
+public:
+    QWSServerData()
+    {
+	screensaverintervals = 0;
+	saver = 0;
+    }
+    ~QWSServerData()
+    {
+	delete [] screensaverintervals;
+	delete saver;
+    }
+    QTime screensavertime;
+    QTimer* screensavertimer;
+    int* screensaverintervals;
+    QWSScreenSaver* saver;
+};
+
+QWSScreenSaver::~QWSScreenSaver()
+{
+}
+
 extern char *qws_display_spec;
 extern void qt_init_display(); //qapplication_qws.cpp
 extern QString qws_qtePipeFilename();
@@ -99,6 +121,9 @@ static QRect maxwindow_rect;
 static const char *defaultMouse = "Auto";
 static const char *defaultKeyboard = "TTY";
 static int qws_keyModifiers = 0;
+
+static QWSWindow *keyboardGrabber;
+static bool keyboardGrabbing;
 
 static int get_object_id()
 {
@@ -197,6 +222,22 @@ static int get_object_id()
   Returns TRUE is the window is completely obsured by another window or
   by the bounds of the screen; otherwise returns FALSE.
 */
+
+
+struct QWSWindowData
+{
+    //bool fullScreen;
+    int altitude;
+};
+
+
+QWSWindow::QWSWindow(int i, QWSClient* client)
+	: id(i), alloc_region_idx(-1), modified(FALSE), needAck(FALSE),
+	    onTop(FALSE), c(client), last_focus_time(0)
+{
+    d = new QWSWindowData;
+    d->altitude = 0;
+}
 
 /*!
   Raises the window above all other windows except "Stay on top" windows.
@@ -316,6 +357,7 @@ void QWSWindow::operation( QWSWindowOperationEvent::Operation o )
 */
 QWSWindow::~QWSWindow()
 {
+    delete d;
 }
 
 
@@ -352,6 +394,10 @@ QWSClient::~QWSClient()
 {
 }
 
+void QWSClient::setIdentity(const QString& i)
+{
+    id = i;
+}
 
 void QWSClient::closeHandler()
 {
@@ -843,6 +889,7 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 #endif
     disablePainting(false)
 {
+    d = new QWSServerData;
     Q_ASSERT( !qwsServer );
     qwsServer = this;
 
@@ -864,6 +911,8 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
     focusw = 0;
     mouseGrabber = 0;
     mouseGrabbing = FALSE;
+    keyboardGrabber = 0;
+    keyboardGrabbing = FALSE;
 #ifndef QT_NO_QWS_CURSOR
     cursorNeedsUpdate=FALSE;
     nextCursor = 0;
@@ -889,9 +938,8 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 
     openDisplay();
 
-    screensavertimer = new QTimer(this);
-    connect( screensavertimer, SIGNAL(timeout()), this, SLOT(screenSaverSleep()) );
-    screensaverinterval = 0;
+    d->screensavertimer = new QTimer(this);
+    connect( d->screensavertimer, SIGNAL(timeout()), this, SLOT(screenSaverTimeout()) );
     screenSaverWake();
 
     // input devices
@@ -932,8 +980,39 @@ QWSServer::~QWSServer()
 #ifndef QT_NO_QWS_KEYBOARD
     closeKeyboard();
 #endif
+    delete d;
 }
 
+/*!
+  \internal
+*/
+void QWSServer::releaseMouse(QWSWindow* w)
+{
+    if ( w && mouseGrabber == w ) {
+	mouseGrabber = 0;
+	mouseGrabbing = FALSE;
+#ifndef QT_NO_QWS_CURSOR
+	if (nextCursor) {
+	    // Not grabbing -> set the correct cursor
+	    setCursor(nextCursor);
+	    nextCursor = 0;
+	}
+#endif
+    }
+}
+
+/*!
+  \internal
+*/
+void QWSServer::releaseKeyboard(QWSWindow* w)
+{
+    if ( keyboardGrabber == w ) {
+	keyboardGrabber = 0;
+	keyboardGrabbing = FALSE;
+    }
+}
+
+ 
 #ifndef QT_NO_QWS_MULTIPROCESS
 /*!
   \internal
@@ -995,17 +1074,8 @@ void QWSServer::clientClosed()
 	while (( w = it.current() )) {
 	    ++it;
 	    if ( w->forClient(cl) ) {
-		if ( mouseGrabber == w ) {
-		    mouseGrabber = 0;
-		    mouseGrabbing = FALSE;
-#ifndef QT_NO_QWS_CURSOR
-		    if (nextCursor) {
-			// Not grabbing -> set the correct cursor
-			setCursor(nextCursor);
-			nextCursor = 0;
-		    }
-#endif
-		}
+		releaseMouse(w);
+		releaseKeyboard(w);
 		exposed += w->allocation();
 		rgnMan->remove( w->allocationIndex() );
 		if ( focusw == w )
@@ -1102,6 +1172,9 @@ void QWSServer::doClient( QWSClient *client )
 	commandQueue.first();
 	QWSCommandStruct *cs = commandQueue.take();
 	switch ( cs->command->type ) {
+	case QWSCommand::Identify:
+	    invokeIdentify( (QWSIdentifyCommand*)cs->command, cs->client );
+	    break;
 	case QWSCommand::Create:
 	    invokeCreate( (QWSCreateCommand*)cs->command, cs->client );
 	    break;
@@ -1151,6 +1224,9 @@ void QWSServer::doClient( QWSClient *client )
 #endif
 	case QWSCommand::GrabMouse:
 	    invokeGrabMouse( (QWSGrabMouseCommand*)cs->command, cs->client );
+	    break;
+	case QWSCommand::GrabKeyboard:
+	    invokeGrabKeyboard( (QWSGrabKeyboardCommand*)cs->command, cs->client );
 	    break;
 #ifndef QT_NO_SOUND
 	case QWSCommand::PlaySound:
@@ -1297,7 +1373,8 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
     qwsServer->showCursor();
 
-    qwsServer->screenSaverWake();
+    if ( state )
+	qwsServer->screenSaverWake();
 
     mousePosition = pos;
 
@@ -1332,15 +1409,8 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     for (ClientIterator it = qwsServer->client.begin(); it != qwsServer->client.end(); ++it )
 	(*it)->sendEvent( &event );
 
-    if ( !state && !qwsServer->mouseGrabbing ) {
-#ifndef QT_NO_QWS_CURSOR
-	if (qwsServer->mouseGrabber && qwsServer->nextCursor) {
-	    qwsServer->setCursor(qwsServer->nextCursor);
-	    qwsServer->nextCursor = 0;
-	}
-#endif
-	qwsServer->mouseGrabber = 0;
-    }
+    if ( !state && !qwsServer->mouseGrabbing )
+	qwsServer->releaseMouse(qwsServer->mouseGrabber);
 }
 
 /*!
@@ -1472,19 +1542,18 @@ void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPre
   bool autoRepeat)
 {
     if ( isPress ) {
-#ifdef QT_QWS_IPAQ
-	// Temporary power control (should be done externally).
-	if ( keycode == Key_SysReq )
-	    QWSServer::screenSaverActivate( !QWSServer::screenSaverActive() );
-	else
-#endif
-	qwsServer->screenSaverWake();
+	if ( keycode != Key_F34 && keycode != Key_F35 )
+	    qwsServer->screenSaverWake();
     }
 
     qws_keyModifiers = modifiers;
 
     QWSKeyEvent event;
-    event.simpleData.window = qwsServer->focusw ? qwsServer->focusw->winId() : 0;
+    QWSWindow *win = keyboardGrabber ? keyboardGrabber : 
+	qwsServer->focusw;
+
+    event.simpleData.window = win ? win->winId() : 0;
+
     event.simpleData.unicode = unicode < 0 ? keyUnicode(keycode) : unicode;
     event.simpleData.keycode = keycode;
     event.simpleData.modifiers = modifiers;
@@ -1505,6 +1574,11 @@ void QWSServer::sendPropertyNotifyEvent( int property, int state )
 	( *it )->sendPropertyNotifyEvent( property, state );
 }
 #endif
+void QWSServer::invokeIdentify( QWSIdentifyCommand *cmd, QWSClient *client )
+{
+    client->setIdentity(cmd->id);
+}
+
 void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
 {
     QWSCreationEvent event;
@@ -1512,11 +1586,13 @@ void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
     client->sendEvent( &event );
 }
 
-void QWSServer::invokeRegionName( QWSRegionNameCommand *cmd, QWSClient *client )
+void QWSServer::invokeRegionName( const QWSRegionNameCommand *cmd, QWSClient *client )
 {
     QWSWindow* changingw = findWindow(cmd->simpleData.windowid, client);
-    changingw->setName( cmd->name );
-    changingw->setCaption( cmd->caption );
+    if ( changingw ) {
+	changingw->setName( cmd->name );
+	changingw->setCaption( cmd->caption );
+    }
 }
 
 void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
@@ -1526,7 +1602,7 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 	    cmd->simpleData.nrectangles, cmd->simpleData.windowid );
 #endif
 
-    QWSWindow* changingw = findWindow(cmd->simpleData.windowid, client);
+    QWSWindow* changingw = findWindow(cmd->simpleData.windowid, 0);
     if ( !changingw ) {
 	qWarning("Invalue window handle %08x",cmd->simpleData.windowid);
 	return;
@@ -1556,9 +1632,9 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 
 void QWSServer::invokeRegionMove( const QWSRegionMoveCommand *cmd, QWSClient *client )
 {
-    QWSWindow* changingw = findWindow(cmd->simpleData.windowid, client);
+    QWSWindow* changingw = findWindow(cmd->simpleData.windowid, 0);
     if ( !changingw ) {
-	qWarning("Invalue window handle %08x",cmd->simpleData.windowid);
+	qWarning("invokeRegionMove: Invalid window handle %d",cmd->simpleData.windowid);
 	return;
     }
     if ( !changingw->forClient(client) ) {
@@ -1571,11 +1647,11 @@ void QWSServer::invokeRegionMove( const QWSRegionMoveCommand *cmd, QWSClient *cl
     emit windowEvent( changingw, Geometry );
 }
 
-void QWSServer::invokeRegionDestroy( QWSRegionDestroyCommand *cmd, QWSClient *client )
+void QWSServer::invokeRegionDestroy( const QWSRegionDestroyCommand *cmd, QWSClient *client )
 {
-    QWSWindow* changingw = findWindow(cmd->simpleData.windowid, client);
+    QWSWindow* changingw = findWindow(cmd->simpleData.windowid, 0);
     if ( !changingw ) {
-	qWarning("Invalue window handle %08x",cmd->simpleData.windowid);
+	qWarning("invokeRegionDestroy: Invalid window handle %d",cmd->simpleData.windowid);
 	return;
     }
     if ( !changingw->forClient(client) ) {
@@ -1606,7 +1682,7 @@ void QWSServer::invokeRegionDestroy( QWSRegionDestroyCommand *cmd, QWSClient *cl
 }
 
 
-void QWSServer::invokeSetFocus( QWSRequestFocusCommand *cmd, QWSClient *client )
+void QWSServer::invokeSetFocus( const QWSRequestFocusCommand *cmd, QWSClient *client )
 {
     int winId = cmd->simpleData.windowid;
     int gain = cmd->simpleData.flag;
@@ -1616,7 +1692,9 @@ void QWSServer::invokeSetFocus( QWSRequestFocusCommand *cmd, QWSClient *client )
 	return;
     }
 
-    QWSWindow* changingw = findWindow(winId, client);
+    QWSWindow* changingw = findWindow(winId, 0);
+    if ( !changingw )
+	return;
 
     if ( !changingw->forClient(client) ) {
        qWarning("Disabled: clients changing other client's focus");
@@ -1664,21 +1742,23 @@ void QWSServer::invokeSetAltitude( const QWSChangeAltitudeCommand *cmd,
     qDebug( "QWSServer::invokeSetAltitude winId %d alt %d)", winId, alt );
 #endif
 
-    if ( alt < -1 || alt > 1 ) {
-	qWarning( "Only lower, raise, and stays-on-top supported" );
+    if ( alt < -1 || alt > 2 ) {
+	qWarning( "Only lower, raise, stays-on-top and full-screen supported" );
 	return;
     }
 
-    QWSWindow* changingw = findWindow(winId, client);
+    QWSWindow* changingw = findWindow(winId, 0);
     if ( !changingw ) {
-	qWarning("Invalid window handle %08x", winId);
+	qWarning("invokeSetAltitude: Invalid window handle %d", winId);
 	return;
     }
 
     changingw->setNeedAck( TRUE );
 
-    if ( fixed && alt == 1)
+    if ( fixed && alt >= 1) {
 	changingw->onTop = TRUE;
+	changingw->d->altitude = alt;
+    }
     if ( alt < 0 )
 	lowerWindow( changingw, alt );
     else
@@ -1803,7 +1883,7 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
 	// If the mouse is being grabbed, we don't want just anyone to
 	// be able to change the cursor.  We do want the cursor to be set
 	// correctly once mouse grabbing is stopped though.
-	QWSWindow* win = findWindow(cmd->simpleData.windowid, client);
+	QWSWindow* win = findWindow(cmd->simpleData.windowid, 0);
 	if (win != mouseGrabber)
 	    nextCursor = curs;
 	else
@@ -1818,7 +1898,7 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
 
 void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 {
-    QWSWindow* win = findWindow(cmd->simpleData.windowid, client);
+    QWSWindow* win = findWindow(cmd->simpleData.windowid, 0);
 
     if ( cmd->simpleData.grab ) {
 	if ( !mouseGrabber || ( mouseGrabber->client() == client ) ) {
@@ -1826,15 +1906,21 @@ void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 	    mouseGrabber = win;
 	}
     } else {
-#ifndef QT_NO_QWS_CURSOR
-	if (nextCursor) {
-	    // Not grabbing -> set the correct cursor
-	    setCursor(nextCursor);
-	    nextCursor = 0;
+	releaseMouse(mouseGrabber);
+    }
+}
+
+void QWSServer::invokeGrabKeyboard( QWSGrabKeyboardCommand *cmd, QWSClient *client )
+{
+    QWSWindow* win = findWindow(cmd->simpleData.windowid, 0);
+
+    if ( cmd->simpleData.grab ) {
+	if ( !keyboardGrabber || ( keyboardGrabber->client() == client ) ) {
+	    keyboardGrabbing = TRUE;
+	    keyboardGrabber = win;
 	}
-#endif
-	mouseGrabbing = FALSE;
-	mouseGrabber = 0;
+    } else {
+	releaseKeyboard(keyboardGrabber);
     }
 }
 
@@ -1878,6 +1964,7 @@ QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
     w->setAllocationIndex( idx );
     // insert after "stays on top" windows
     QWSWindow *win = windows.first();
+
     bool added = FALSE;
     while ( win ) {
 	if ( !win->onTop ) {
@@ -1907,8 +1994,50 @@ QWSWindow* QWSServer::findWindow(int windowid, QWSClient* client)
 }
 
 
-void QWSServer::raiseWindow( QWSWindow *changingw, int )
+void QWSServer::raiseWindow( QWSWindow *changingw, int alt )
 {
+    QWSWindow *win = windows.first();
+
+    // Find all the full-screen windows
+    while ( win && ( win->onTop || win->d->altitude == 2 ) ) {
+
+	// Not raising the foremost window, and
+	// Top window is in full-screen mode
+	if ( ( win != changingw ) && ( win->d->altitude == 2 ) ) {
+	    QWSWindow *next = windows.next();
+
+	    // Resize full-screen windows to the maximum window size.
+	    setWindowRegion( win, maxwindow_rect );
+
+	    // Set the position in the list to where we were before
+	    QWSWindow *w = windows.first();
+	    while ( w && ( w != win ) )
+		w = windows.next();
+
+	    // Move the full-screen windows to below the onTop windows.
+	    windows.take();
+	    w = windows.first();
+	    while ( w && ( w->onTop || w->d->altitude == 2 ) )
+		w = windows.next();
+	    windows.insert( windows.at(), win );
+	    win->onTop = FALSE;
+
+	    // Reset our position in the list again
+	    w = windows.first();
+	    while ( w && ( w != next ) )
+		w = windows.next();
+
+	    win = w;
+	} else {
+	    win = windows.next();
+	}
+    }
+    win = windows.first();
+
+    // Update the altitude for non-fullscreen windows
+    if ( changingw->d->altitude != 2 ) 
+	changingw->d->altitude = alt;
+
     if ( changingw == windows.first() ) {
 	rgnMan->commit();
 	changingw->updateAllocation(); // still need ack
@@ -1954,8 +2083,13 @@ void QWSServer::raiseWindow( QWSWindow *changingw, int )
     emit windowEvent( changingw, Raise );
 }
 
-void QWSServer::lowerWindow( QWSWindow *changingw, int )
+void QWSServer::lowerWindow( QWSWindow *changingw, int alt )
 {
+    // Update the altitude for non-fullscreen windows
+    QWSWindow *win = windows.first();
+    if ( ( win != changingw ) || ( win->d->altitude != 2 ) )
+        changingw->d->altitude = alt;
+
     if ( changingw == windows.last() ) {
 	rgnMan->commit();
 	changingw->updateAllocation(); // still need ack
@@ -2007,7 +2141,8 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
 	    oldAlloc.rects()[i].width(),
 	    oldAlloc.rects()[i].height() );
 */
-    setWindowRegion( changingw, newRegion );
+    QWSDisplay::grab( TRUE );
+    QRegion exposed = setWindowRegion( changingw, newRegion );
 /*
     for ( int i = 0; i < changingw->allocation().rects().count(); i++ )
 	qDebug( "newAlloc %d, %d %dx%d",
@@ -2019,7 +2154,6 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
     // add exposed areas
     changingw->exposed = changingw->allocation() - oldAlloc;
 
-    QWSDisplay::grab( TRUE );
     rgnMan->commit();
 
     // safe to blt now
@@ -2027,15 +2161,18 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
     cr &= oldAlloc;
 
     QSize s = QSize(swidth, sheight);
-    cr = qt_screen->mapFromDevice( cr, s );
     QPoint p1 = qt_screen->mapFromDevice( QPoint(0, 0), s );
     QPoint p2 = qt_screen->mapFromDevice( QPoint(dx, dy), s );
 
     QRect br( cr.boundingRect() );
-    gfx->setClipRegion( cr );
+    br = qt_screen->mapFromDevice( br, s );
+    gfx->setClipDeviceRegion( cr );
     gfx->scroll( br.x(), br.y(), br.width(), br.height(),
 		 br.x() - (p2.x() - p1.x()), br.y() - (p2.y() - p1.y()) );
-    gfx->setClipRegion( screenRegion );
+    gfx->setClipRegion( qt_screen->mapFromDevice( screenRegion, s ) );
+#ifndef QT_NO_PALETTE
+    clearRegion( exposed, qApp->palette().color( QPalette::Active, QColorGroup::Background ) );
+#endif
     QWSDisplay::ungrab();
 /*
     for ( int i = 0; i < changingw->exposed.rects().count(); i++ )
@@ -2056,8 +2193,10 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
   clients, and waits for all required acknowledgements.
 
   If \a changingw is 0, the server's reserved region is changed.
+
+  returns the exposed region.
 */
-void QWSServer::setWindowRegion( QWSWindow* changingw, QRegion r )
+QRegion QWSServer::setWindowRegion( QWSWindow* changingw, QRegion r )
 {
 #ifdef QWS_REGION_DEBUG
     qDebug("setWindowRegion %d", changingw ? changingw->winId() : -1 );
@@ -2101,12 +2240,19 @@ void QWSServer::setWindowRegion( QWSWindow* changingw, QRegion r )
 	}
     }
 
+    if ( r.isEmpty() ) {
+	// Invisible! Release grabs.
+	releaseMouse(changingw);
+	releaseKeyboard(changingw);
+    }
+
     if ( changingw && !changingw->requested_region.isEmpty() )
 	changingw->addAllocation( rgnMan, extra_allocation & screenRegion );
     else if ( !disablePainting )
 	paintServerRegion();
 
     exposeRegion( exposed, windex+1 );
+    return exposed;
 }
 
 void QWSServer::exposeRegion( QRegion r, int start )
@@ -2261,11 +2407,16 @@ void QWSServer::set_altitude( const QWSChangeAltitudeCommand *cmd )
     invokeSetAltitude( cmd, serverClient );
 }
 
+void QWSServer::request_focus( const QWSRequestFocusCommand *cmd )
+{
+    invokeSetFocus( cmd, client[-1] );
+}
+
 
 void QWSServer::request_region( int wid, QRegion region )
 {
-    QWSClient *serverClient = client[-1];
-    QWSWindow* changingw = findWindow( wid, serverClient );
+    //QWSClient *serverClient = client[-1];
+    QWSWindow* changingw = findWindow( wid, 0 );
     if ( !region.isEmpty() )
 	changingw->setNeedAck( TRUE );
     bool isShow = !changingw->isVisible() && !region.isEmpty();
@@ -2279,6 +2430,16 @@ void QWSServer::request_region( int wid, QRegion region )
 	emit windowEvent( changingw, Hide );
     if ( focusw == changingw && region.isEmpty() )
 	setFocus(changingw,FALSE);
+}
+
+void QWSServer::destroy_region( const QWSRegionDestroyCommand *cmd )
+{
+    invokeRegionDestroy( cmd, client[-1] );
+}
+
+void QWSServer::name_region( const QWSRegionNameCommand *cmd )
+{
+    invokeRegionName( cmd, client[-1] );
 }
 
 
@@ -2323,6 +2484,20 @@ void QWSServer::paintBackground( QRegion r )
 	    gfx->tiledBlt( br.x(), br.y(), br.width(), br.height() );
 	}
 	gfx->setClipRegion( QRegion() );
+    }
+}
+
+void QWSServer::clearRegion( const QRegion &r, const QColor &c )
+{
+    if ( !r.isEmpty() ) {
+	ASSERT ( qt_fbdpy );
+	gfx->setBrush( QBrush(c) );
+	QSize s( swidth, sheight );
+	QArray<QRect> a = r.rects();
+	for ( int i = 0; i < (int)a.count(); i++ ) {
+	    QRect r = qt_screen->mapFromDevice( a[i], s );
+	    gfx->fillRect( r.x(), r.y(), r.width(), r.height() );
+	}
     }
 }
 
@@ -2438,27 +2613,62 @@ void QWSServer::setKeyboardFilter( KeyboardFilter *f )
 #endif
 
 /*!
+  Sets an array of timeouts for the screensaver to a list of
+  \a ms milliseconds. A setting of zero turns off the screensaver.
+  The array must be 0-terminated.
+*/
+void QWSServer::setScreenSaverIntervals(int* ms)
+{
+    delete [] qwsServer->d->screensaverintervals;
+    if ( ms ) {
+	int* t=ms;
+	int n=0;
+	while (*t++) n++;
+	if ( n ) {
+	    n++; // the 0
+	    qwsServer->d->screensaverintervals = new int[n];
+	    memcpy( qwsServer->d->screensaverintervals, ms, n*sizeof(int));
+	} else {
+	    qwsServer->d->screensaverintervals = 0;
+	}
+    } else {
+	qwsServer->d->screensaverintervals = 0;
+    }
+    qwsServer->screensaverinterval = 0;
+
+    qwsServer->d->screensavertimer->stop();
+    qt_screen->blank(FALSE);
+    qwsServer->screenSaverWake();
+}
+
+/*!
   Sets the timeout for the screensaver to \a ms milliseconds. A setting
   of zero turns off the screensaver.
 */
 void QWSServer::setScreenSaverInterval(int ms)
 {
-    if ( ms < qwsServer->screensaverinterval )
-	qwsServer->screenSaverWake();
-    qwsServer->screensaverinterval = ms;
-    if ( !qwsServer->screensaverinterval )
-	if ( !qwsServer->screensavertimer->isActive() )
-	    qt_screen->blank(FALSE);
+    int v[2];
+    v[0] = ms;
+    v[1] = 0;
+    setScreenSaverIntervals(v);
 }
 
 extern bool qt_disable_lowpriority_timers;
 
 void QWSServer::screenSaverWake()
 {
-    if ( screensaverinterval ) {
-	if ( !screensavertimer->isActive() )
-	    qt_screen->blank(FALSE);
-	screensavertimer->start(screensaverinterval,TRUE);
+    if ( d->screensaverintervals ) {
+	if ( screensaverinterval != d->screensaverintervals ) {
+	    if ( d->saver ) d->saver->restore();
+	    screensaverinterval = d->screensaverintervals;
+	} else {
+	    if ( !d->screensavertimer->isActive() ) {
+		qt_screen->blank(FALSE);
+		if ( d->saver ) d->saver->restore();
+	    }
+	}
+	d->screensavertimer->start(*screensaverinterval,TRUE);
+	d->screensavertime.start();
     }
     qt_disable_lowpriority_timers=FALSE;
 }
@@ -2466,8 +2676,59 @@ void QWSServer::screenSaverWake()
 void QWSServer::screenSaverSleep()
 {
     qt_screen->blank(TRUE);
-    screensavertimer->stop();
+#if !defined(QT_QWS_IPAQ) && !defined(QT_QWS_EBX)
+    d->screensavertimer->stop();
+#else
+    if ( screensaverinterval ) {
+	d->screensavertimer->start(*screensaverinterval,TRUE);
+	d->screensavertime.start();
+    } else {
+	d->screensavertimer->stop();
+    }
+#endif
     qt_disable_lowpriority_timers=TRUE;
+}
+
+void QWSServer::setScreenSaver(QWSScreenSaver* ss)
+{
+    delete qwsServer->d->saver;
+    qwsServer->d->saver = ss;
+}
+
+void QWSServer::screenSave(int level)
+{
+    if ( d->saver ) {
+	if ( d->saver->save(level) ) {
+	    if ( screensaverinterval && screensaverinterval[1] ) {
+		d->screensavertimer->start(*++screensaverinterval,TRUE);
+		d->screensavertime.start();
+	    } else {
+		screensaverinterval = 0;
+	    }
+	} else {
+	    // for some reason, the saver don't want us to change to the
+	    // next level, so we'll stay at this level for another interval
+	    if ( screensaverinterval && *screensaverinterval ) {
+		d->screensavertimer->start(*screensaverinterval,TRUE);
+		d->screensavertime.start();
+	    }
+	}
+    } else {
+	screensaverinterval = 0;//d->screensaverintervals;
+	screenSaverSleep();
+    }
+}
+
+void QWSServer::screenSaverTimeout()
+{
+    if ( screensaverinterval ) {
+	if ( d->screensavertime.elapsed() > *screensaverinterval*2 ) {
+	    // bogus (eg. unsuspend, system time changed)
+	    screenSaverWake(); // try again
+	    return;
+	}
+	screenSave(screensaverinterval-d->screensaverintervals);
+    }
 }
 
 /*!
@@ -2477,7 +2738,7 @@ void QWSServer::screenSaverSleep()
 bool QWSServer::screenSaverActive()
 {
     return qwsServer->screensaverinterval
-	&& !qwsServer->screensavertimer->isActive();
+	&& !qwsServer->d->screensavertimer->isActive();
 }
 
 /*!

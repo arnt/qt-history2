@@ -205,6 +205,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->rh = qt_screen->mapToDevice( QSize(w,h) ).height();
 
     data->id=memorymanager->newPixmap(data->rw, data->rh, data->d, optim);
+    if ( data->id == 0 )
+	data->w = data->h = 0; // out of memory -- create null pixmap
 }
 
 
@@ -255,6 +257,11 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     }
 
     data->id=memorymanager->newPixmap(data->rw,data->rh,data->d, optimization());
+    if ( data->id == 0 ) {
+	// out of memory -- create null pixmap.
+	data->w = data->h = 0;
+	return;
+    }
     uchar *dest;
     int xoffset,linestep;
     memorymanager->findPixmap(data->id,data->rw,data->d,&dest,&xoffset,&linestep);
@@ -500,11 +507,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     init( w, h, dd, ibm, defOptim );
 
     QGfx * mygfx=graphicsContext();
-    mygfx->setAlphaType(QGfx::IgnoreAlpha);
-    mygfx->setSource(&rimg);
-    mygfx->blt(0,0,data->w,data->h,0,0);
-    delete mygfx;
-
+    if ( mygfx ) {
+	mygfx->setAlphaType(QGfx::IgnoreAlpha);
+	mygfx->setSource(&rimg);
+	mygfx->blt(0,0,data->w,data->h,0,0);
+	delete mygfx;
+    }
     if ( image.hasAlphaBuffer() ) {
 #ifndef QT_NO_IMAGE_DITHER_TO_1
 	if ( !partialalpha ) {
@@ -536,10 +544,12 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 	}
 	pm.resize(w, h);
 	QGfx *gfx=pm.graphicsContext();
-	gfx->setAlphaType(QGfx::IgnoreAlpha);
-	gfx->setSource(widget);
-	gfx->blt(0,0,w,h,x,y);
-	delete gfx;
+	if ( gfx ) {
+	    gfx->setAlphaType(QGfx::IgnoreAlpha);
+	    gfx->setSource(widget);
+	    gfx->blt(0,0,w,h,x,y);
+	    delete gfx;
+	}
     }
     return pm;
 }
@@ -584,11 +594,12 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 	QPixmap pm( w, h, depth(), NormalOptim );
 	QGfx * mygfx=pm.graphicsContext();
-	mygfx->setSource(this);
-	mygfx->setAlphaType(QGfx::IgnoreAlpha);
-	mygfx->stretchBlt(0,0,w,h,ws,hs);
-	delete mygfx;
-
+	if ( mygfx ) {
+	    mygfx->setSource(this);
+	    mygfx->setAlphaType(QGfx::IgnoreAlpha);
+	    mygfx->stretchBlt(0,0,w,h,ws,hs);
+	    delete mygfx;
+	}
 	if ( data->mask ) {
 	    QBitmap bm =
 		data->selfmask ? *((QBitmap*)(&pm)) :

@@ -603,6 +603,7 @@ private:
     uint 	 sizehint_forced :1;
     uint 	 is_closing :1;
     uint 	 in_show : 1;
+    uint 	 in_show_maximized : 1;
     uint	 fstrut_dirty : 1;
     QRect	 crect;
     QColor	 bg_col;

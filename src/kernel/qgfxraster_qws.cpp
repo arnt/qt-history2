@@ -79,9 +79,6 @@ typedef unsigned int __u32;
 # define GFX_INLINE
 #endif
 
-// Experimental - need to try on slow machine
-//#define QWS_SLOW_GFX_MEMORY
-
 //#if !defined(__i386__) || defined(QT_NO_QWS_GFX_SPEED)
 #if defined(QT_NO_QWS_GFX_SPEED)
 #define QWS_NO_WRITE_PACKING
@@ -91,6 +88,8 @@ typedef unsigned int __u32;
 #define QWS_PACKING_4BYTE
 #endif
 
+// Oh dear, can't do ROPs on doubles....
+/*
 #if defined(__i386__) || !defined(__GNUC__)
 # ifdef QWS_PACKING_4BYTE
 typedef unsigned int PackType;
@@ -98,12 +97,15 @@ typedef unsigned int PackType;
 typedef double PackType;
 # endif
 #else
+*/
+
 # ifdef QWS_PACKING_4BYTE
 typedef unsigned int PackType;
 # else
 typedef long long PackType;
 # endif
-#endif
+
+// #endif
 
 #define QGfxRaster_Generic 0
 #define QGfxRaster_VGA16   1
@@ -484,7 +486,15 @@ void QScreenCursor::saveUnder()
     if ( depth < 8 ) {
         gfxunder->gfx_swcursor = FALSE;   // prevent recursive call from blt
 	gfxunder->setAlphaType(QGfx::IgnoreAlpha);
-	gfxunder->setSource( qApp->desktop() );
+	gfxunder->srclinestep = gfx->linestep();
+	gfxunder->srcdepth = gfx->bitDepth();
+	gfxunder->srcbits = gfx->buffer;
+	gfxunder->srctype = QGfx::SourceImage;
+	gfxunder->srcpixeltype = QGfx::NormalPixel;
+	gfxunder->srcwidth = gfx->width;
+	gfxunder->srcheight = gfx->height;
+	gfxunder->setSourceWidgetOffset( 0, 0 );
+	gfxunder->src_normal_palette = TRUE;
 	gfxunder->blt(0,0,data->width,data->height,x,y);
 	gfxunder->gfx_swcursor = TRUE;
     } else {
@@ -852,6 +862,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     dashes = 0;
     numDashes = 0;
     widgetrgn=QRegion(0,0,w,h);
+    widgetrgn = qt_screen->mapToDevice( widgetrgn, QSize( w, h) );
     cliprect = new QRect[1]; // Will be freed in update_clip()
     ncliprect = 0;
     alphatype=IgnoreAlpha;
@@ -1003,6 +1014,7 @@ void QGfxRasterBase::setClipRegion( const QRegion & r )
     regionClip=TRUE;
     cliprgn=r;
     cliprgn.translate(xoffs,yoffs);
+    cliprgn = qt_screen->mapToDevice( cliprgn, QSize( width, height ) );
     update_clip();
 
 #ifdef QWS_EXTRA_DEBUG
@@ -1015,6 +1027,13 @@ void QGfxRasterBase::setClipRegion( const QRegion & r )
 #endif
 
 
+}
+
+void QGfxRasterBase::setClipDeviceRegion( const QRegion & r )
+{
+    regionClip=TRUE;
+    cliprgn=r;
+    update_clip();
 }
 
 /*!
@@ -1069,7 +1088,14 @@ by windows on top of it.
 
 void QGfxRasterBase::setWidgetRegion( const QRegion & r )
 {
-    widgetrgn=r; // screen coordinates
+    widgetrgn = qt_screen->mapToDevice( r, QSize( width, height ) );
+    update_clip();
+    hsync(r.boundingRect().bottom());
+}
+
+void QGfxRasterBase::setWidgetDeviceRegion( const QRegion & r )
+{
+    widgetrgn = r;
     update_clip();
     hsync(r.boundingRect().bottom());
 }
@@ -1111,9 +1137,7 @@ void QGfxRasterBase::setDashes(char *dashList, int n)
 void QGfxRasterBase::fixClip()
 {
     currentRegionRevision = *globalRegionRevision;
-    QSize s = gfx_screen->mapToDevice(QSize(gfx_screen->width(), gfx_screen->height()) );
     QRegion rgn = qt_fbdpy->regionManager()->region( globalRegionIndex );
-    rgn = gfx_screen->mapFromDevice( rgn, s );
     widgetrgn &= rgn;
     update_clip();
 }
@@ -1140,36 +1164,29 @@ void QGfxRasterBase::update_clip()
     if ( wr->numRects==1 && (!regionClip || cr->numRects==1) )
     {
 	// fastpath: just simple rectangles (90% of cases)
-	if ( wr->numRects == 0 ) {
+	QRect setrgn;
+
+	if(regionClip) {
+	    setrgn=wr->rects[0].intersect(cr->rects[0]);
+	} else {
+	    setrgn=wr->rects[0];
+	}
+
+	if ( setrgn.isEmpty() ) {
 	    ncliprect = 0;
 	    clipbounds = QRect();
 	} else {
-	    QRect setrgn;
+	    // cache bounding rect
+	    QRect sr( QPoint(0,0), qt_screen->mapToDevice( QSize(width, height) ) );
+	    clipbounds = sr.intersect(setrgn);
 
-	    if(regionClip) {
-		setrgn=wr->rects[0].intersect(cr->rects[0]);
-	    } else {
-		setrgn=wr->rects[0];
+	    // Convert to simple array for speed
+	    if ( ncliprect < 1 ) {
+		delete [] cliprect;
+		cliprect = new QRect[1];
 	    }
-
-	    if ( setrgn.isEmpty() ) {
-		ncliprect = 0;
-		clipbounds = QRect();
-	    } else {
-		QRect trgn = gfx_screen->mapToDevice( setrgn, QSize( width, height ) );
-
-		// cache bounding rect
-		QRect sr( QPoint(0,0), gfx_screen->mapToDevice( QSize(width, height) ) );
-		clipbounds = sr.intersect(trgn);
-
-		// Convert to simple array for speed
-		if ( ncliprect < 1 ) {
-		    delete [] cliprect;
-		    cliprect = new QRect[1];
-		}
-		cliprect[0] = trgn;
-		ncliprect = 1;
-	    }
+	    cliprect[0] = setrgn;
+	    ncliprect = 1;
 	}
     } else {
 	QRegion setrgn;
@@ -1179,19 +1196,18 @@ void QGfxRasterBase::update_clip()
 	    setrgn=widgetrgn;
 	}
 
-	QRegion trgn = gfx_screen->mapToDevice( setrgn, QSize( width, height ) );
-
 	// cache bounding rect
 	QRect sr( QPoint(0,0), gfx_screen->mapToDevice( QSize(width, height) ) );
-	clipbounds = sr.intersect(trgn.boundingRect());
+	clipbounds = sr.intersect(setrgn.boundingRect());
 
 	// Convert to simple array for speed
-	QMemArray<QRect> a = trgn.rects();
+	QMemArray<QRect> a = setrgn.rects();
 	delete [] cliprect;
 	cliprect = new QRect[a.size()];
 #ifdef QWS_EXTRA_DEBUG
 	qDebug( "QGfxRasterBase::update_clip" );
 #endif
+/*
 	for (int i=0; i<(int)a.size(); i++) {
 	    cliprect[i]=a[i];
 #ifdef QWS_EXTRA_DEBUG
@@ -1199,6 +1215,8 @@ void QGfxRasterBase::update_clip()
 		    a[i].width(), a[i].height() );
 #endif
 	}
+*/
+	memcpy( cliprect, a.data(), a.size()*sizeof(QRect) );
 	ncliprect = a.size();
     }
     clipcursor = 0;
@@ -3026,17 +3044,41 @@ drawing code. Performs clipping.
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 {
-    unsigned char *l=scanLine(y);
     QRect cr;
+#if !defined(_OS_QNX6_) // small optimisation for QNX by moving this lower
+	unsigned char *l=scanLine(y);
+#endif
     bool plot=inClip(x1,y,&cr);
     int x=x1;
     for (;;) {
 	int xr = cr.right();
 	if ( xr >= x2 ) {
-	    if (plot) hlineUnclipped(x,x2,l);
+	if (plot) {
+#if defined(_OS_QNX6_) // Qnx-style hline takes x,y not pointer
+		if (isScreenGfx()) {
+			hlineUnclipped(x,x2,y);
+		} else {
+			unsigned char *l=scanLine(y);
+#endif
+			hlineUnclipped(x,x2,l); // only call made for non-QNX
+#if defined(_OS_QNX6_)
+		}
+#endif
+	}
 	    break;
 	} else {
-	    if (plot) hlineUnclipped(x,xr,l);
+	    if (plot) {
+#if defined(_OS_QNX6_)
+			if (isScreenGfx()) {
+				hlineUnclipped(x,xr,y);
+			} else {
+				unsigned char *l=scanLine(y);
+#endif
+				hlineUnclipped(x,xr,l); // only call made for non-QNX
+#if defined(_OS_QNX6_)
+			}
+#endif
+		}
 	    x=xr+1;
 	    plot=inClip(x,y,&cr,plot);
 	}
@@ -3280,7 +3322,15 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    while ( w-- ) {
 		if (srctype==SourceImage)
 		    gv = get_value_32(srcdepth,&srcdata);
-		*(myptr++) = gv;
+		if(myrop==XorROP) {
+		  *(myptr)^=gv;
+		  myptr++;
+		} else if(myrop==NotROP) {
+		  *(myptr)=~(*myptr);
+		  myptr++;
+		} else {
+		  *(myptr++) = gv;
+		}
 	    }
 	} else {
 	    //masked 32bpp blt...
@@ -3290,8 +3340,15 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    gv = get_value_32( srcdepth, &srcdata, reverse );
 		bool masked = TRUE;
 		GET_MASKED(reverse);
-		if ( !masked )
-		  *(myptr) = gv;
+		if ( !masked ) {
+		  if(myrop==XorROP) {
+		    *(myptr)^=gv;
+		  } else if(myrop==NotROP) {
+		    *(myptr)=~(*myptr);
+		  } else {
+		    *(myptr) = gv;
+		  }
+		}
 		myptr += inc;
 	    }
 	}
@@ -3336,8 +3393,17 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	}
 	if(!ismasking) {
 #ifdef QWS_NO_WRITE_PACKING
-	    while ( w-- )
-		*(myptr++)=get_value_16(srcdepth,&srcdata);
+	  while ( w-- ) {
+	    if(myrop==XorROP) {
+	      *(myptr)^=get_value_16(srcdepth,&srcdata);
+	      myptr++;
+	    } else if(myrop==NotROP) {
+	      *(myptr)=~(*myptr);
+	      myptr++;
+	    } else {
+	      *(myptr++)=get_value_16(srcdepth,&srcdata);
+	    }
+	  }
 #else
 	    // 64-bit writes
 	    int frontadd;
@@ -3353,25 +3419,55 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    fun=(unsigned short int *)&dput;
 # endif
 
-	    while ( frontadd-- )
+	    while ( frontadd-- ) {
+	      if(myrop==XorROP) {
+		*(myptr)^=get_value_16(srcdepth,&srcdata);
+		myptr++;
+	      } else if(myrop==NotROP) {
+		*(myptr)=~(*myptr);
+		myptr++;
+	      } else {
 		*(myptr++)=get_value_16(srcdepth,&srcdata);
+	      }
+	    }
 	    while ( count-- ) {
 # ifdef QWS_PACKING_4BYTE
 		dput = get_value_16(srcdepth,&srcdata);
 		dput |= (get_value_16(srcdepth,&srcdata) << 16);
-		*((PackType*)myptr) = dput;
+		if(myrop==XorROP) {
+		  *((PackType*)myptr) ^= dput;
+		} else if(myrop==NotROP) {
+                  *((PackType*)myptr) = ~*((PackType*)myptr);
+		} else {
+		  *((PackType*)myptr) = dput;
+		}
 		myptr += 2;
 # else
 		*fun = get_value_16(srcdepth,&srcdata);
 		*(fun+1) = get_value_16(srcdepth,&srcdata);
 		*(fun+2) = get_value_16(srcdepth,&srcdata);
 		*(fun+3) = get_value_16(srcdepth,&srcdata);
-		*((PackType*)myptr) = dput;
+		if(myrop==XorROP) {
+		  *((PackType*)myptr) ^= dput;
+		} else if(myrop==NotROP) {
+                  *((PackType*)myptr) = ~*((PackType*)myptr);
+		} else {
+		  *((PackType*)myptr) = dput;
+		}
 		myptr += 4;
 # endif
 	    }
-	    while ( backadd-- )
+	    while ( backadd-- ) {
+	      if(myrop==XorROP) {
+		*(myptr)^=get_value_16(srcdepth,&srcdata);
+		myptr++;
+	      } else if(myrop==NotROP) {
+		*(myptr)=~(*myptr);
+		myptr++;
+	      } else {
 		*(myptr++)=get_value_16(srcdepth,&srcdata);
+	      }
+	    }
 #endif
 	} else {
 	    // Probably not worth trying to pack writes if there's a mask
@@ -3381,8 +3477,15 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    gv = get_value_16( srcdepth, &srcdata, reverse );
 		bool masked = TRUE;
 		GET_MASKED(reverse);
-		if ( !masked )
+		if ( !masked ) {
+		  if(myrop==XorROP) {
+		    *(myptr) ^= gv;
+		  } else if(myrop==NotROP) {
+		    *(myptr) = ~(*myptr);
+		  } else {
 		    *(myptr) = gv;
+		  }
+		}
 		myptr += inc;
 	    }
 	}
@@ -3397,8 +3500,17 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	}
 	if(!ismasking) {
 #ifdef QWS_NO_WRITE_PACKING
-	    while ( w-- )
-		*(myptr++)=get_value_8(srcdepth,&srcdata);
+	  while ( w-- ) {
+	    if(myrop==XorROP) {
+	      *(myptr)^=get_value_8(srcdepth,&srcdata);
+	      myptr++;
+	    } else if(myrop==NotROP) {
+	      *(myptr)=~(*myptr);
+	      myptr++;
+	    } else {
+	      *(myptr++)=get_value_8(srcdepth,&srcdata);
+	    }
+	  }
 #else
 	    // 64-bit writes
 	    int frontadd;
@@ -3411,16 +3523,30 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 # ifndef QWS_PACKING_4BYTE
 	    unsigned char *fun = (unsigned char *)&dput;
 # endif
-	    while ( frontadd-- )
+	    while ( frontadd-- ) {
+	      if(myrop==XorROP) {
+		*(myptr)^=get_value_8(srcdepth,&srcdata);
+		myptr++;
+	      } else if(myrop==NotROP) {
+		*(myptr)=~(*myptr);
+		myptr++;
+	      } else {
 		*(myptr++)=get_value_8(srcdepth,&srcdata);
-
+	      }
+	    }
 	    while ( count-- ) {
 # ifdef QWS_PACKING_4BYTE
 		dput = get_value_8(srcdepth,&srcdata);
 		dput |= (get_value_8(srcdepth,&srcdata) << 8);
 		dput |= (get_value_8(srcdepth,&srcdata) << 16);
 		dput |= (get_value_8(srcdepth,&srcdata) << 24);
-		*((PackType*)myptr) = dput;
+		if(myrop==XorROP) {
+		  *((PackType*)myptr) ^= dput;
+		} else if(myrop==NotROP) {
+                  *((PackType*)myptr) = ~*((PackType*)myptr);
+		} else {
+		  *((PackType*)myptr) = dput;
+		}
 		myptr += 4;
 # else
 		*(fun+0) = get_value_8(srcdepth,&srcdata);
@@ -3431,12 +3557,27 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		*(fun+5) = get_value_8(srcdepth,&srcdata);
 		*(fun+6) = get_value_8(srcdepth,&srcdata);
 		*(fun+7) = get_value_8(srcdepth,&srcdata);
-		*((PackType*)myptr) = dput;
+		if(myrop==XorROP) {
+		  *((PackType*)myptr) ^= dput;
+		} else if(myrop==NotROP) {
+                  *((PackType*)myptr) = ~*((PackType*)myptr);
+		} else {
+		  *((PackType*)myptr) = dput;
+		}
 		myptr += 8;
 # endif
 	    }
-	    while ( backadd-- )
+	    while ( backadd-- ) {
+	      if(myrop==XorROP) {
+		*(myptr)^=get_value_8(srcdepth,&srcdata);
+		myptr++;
+	      } else if(myrop==NotROP) {
+		*(myptr)=~(*myptr);
+		myptr++;
+	      } else {
 		*(myptr++)=get_value_8(srcdepth,&srcdata);
+	      }
+	    }
 #endif
 	} else {
 	    // Probably not worth trying to pack writes if there's a mask
@@ -3446,8 +3587,15 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    gv = get_value_8( srcdepth, &srcdata, reverse);
 		bool masked = TRUE;
 		GET_MASKED(reverse);
-		if (!masked)
-		    *(myptr) = gv;    //gv;
+		if ( !masked ) {
+		  if(myrop==XorROP) {
+		    *(myptr) ^= gv;
+		  } else if(myrop==NotROP) {
+		    *(myptr) = ~(*myptr);
+		  } else {
+		    *(myptr) = gv;
+		  }
+		}	
 		myptr += inc;
 	    }
 	}
@@ -3677,8 +3825,14 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 #ifdef QWS_NO_WRITE_PACKING
 	myptr += x1;
-	while ( w-- )
+	while ( w-- ) {
+	    // NotROP really doesn't make sense for an alpha blt
+	  if(myrop==XorROP) {
+	    *(myptr++)^=(*(alphaptr++));
+	  } else {
 	    *(myptr++)=*(alphaptr++);
+	  }
+	}
 #else
 	PackType put;
 	unsigned int *fun = (unsigned int*)&put;
@@ -3690,18 +3844,30 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	myptr+=x1;
 
 	for ( loopc2=0;loopc2<frontadd;loopc2++ ) {
+	  if(myrop==XorROP) {
+	    *(myptr++)^=(*(alphaptr++));
+	  } else {
 	    *(myptr++)=*(alphaptr++);
+	  }
 	}
 
 	for ( loopc2=0;loopc2<count;loopc2++ ) {
 	    *(fun) = *(alphaptr++);
 	    *(fun+1) = *(alphaptr++);
-	    *((PackType*)myptr) = put;
+	    if(myrop==XorROP) {
+	      *((PackType*)myptr) ^= put;
+	    } else {
+	      *((PackType*)myptr) = put;
+	    }
 	    myptr += 2;
 	}
 
 	for ( loopc2=0;loopc2<backadd;loopc2++ ) {
+	  if(myrop==XorROP) {
+	    *(myptr++)^=(*(alphaptr++));
+	  } else {
 	    *(myptr++)=*(alphaptr++);
+	  }
 	}
 #endif
     } else if ( depth == 24 ) {
@@ -3865,16 +4031,19 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 #ifdef QWS_NO_WRITE_PACKING
 	myptr += x1;
-	while ( w-- )
-	    *(myptr++) = *(alphaptr++);
+	while ( w-- ) {
+	  if(myrop==XorROP) {
+	    *(myptr++)^=(*(alphaptr++));
+	  } else {
+	    *(myptr++)=*(alphaptr++);
+	  }
+	}
 #else
        
 # ifdef QWS_PACKING_4BYTE
 	PackType put;
 # endif
-	
-	//unsigned short int *fun = (unsigned short int*)&put;
-	
+
 	myptr=(unsigned short int *)l;
 
 	calcPacking(myptr,x1,x2,frontadd,backadd,count);
@@ -3882,14 +4051,22 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	myptr+=x1;
 
 	for ( loopc2=0;loopc2<frontadd;loopc2++ ) {
+	  if(myrop==XorROP) {
+	    *(myptr++)^=(*(alphaptr++));
+	  } else {
 	    *(myptr++)=*(alphaptr++);
+	  }
 	}
 
 	for ( loopc2=0;loopc2<count;loopc2++ ) {
 # ifdef QWS_PACKING_4BYTE
 	    put = *(alphaptr++);
 	    put |= (*(alphaptr++) << 16);
-	    *((PackType*)myptr) = put;
+	    if(myrop==XorROP) {
+	      *((PackType*)myptr) ^= put;
+	    } else {
+	      *((PackType*)myptr) = put;
+	    }
 	    myptr += 2;
 # else
 	    // ### temporary unoptimized fix for the problem code below
@@ -3913,7 +4090,11 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	}
 
 	for ( loopc2=0;loopc2<backadd;loopc2++ ) {
+	  if(myrop==XorROP) {
+	    *(myptr++)^=(*(alphaptr++));
+	  } else {
 	    *(myptr++)=*(alphaptr++);
+	  }
 	}
 #endif
 #endif
@@ -3971,13 +4152,24 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
 
-	    if(av==255) {
+	    if(myrop==XorROP) {
+	      if(av==255) {
+		*myptr ^= GFX_8BPP_PIXEL(r,g,b);
+	      } else if ( av > 0 ) {
+		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
+		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
+		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
+		*myptr ^= GFX_8BPP_PIXEL(r,g,b);
+	      }
+	    } else {
+	      if(av==255) {
 		*myptr = GFX_8BPP_PIXEL(r,g,b);
-	    } else if ( av > 0 ) {
+	      } else if ( av > 0 ) {
 		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
 		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
 		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
 		*myptr = GFX_8BPP_PIXEL(r,g,b);
+	      }
 	    }
 	    myptr++;
 	}
@@ -4105,9 +4297,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
     (*gfx_optype)=0;
     setAlphaType(IgnoreAlpha);
     if ( w <= 0 || h <= 0 ) return;
-
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
-
 #ifdef QWS_EXPERIMENTAL_FASTPATH
     // ### fix for 8bpp
     // This seems to be reliable now, at least for 16bpp
@@ -4167,20 +4357,63 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 # endif
 
 	    myptr=((unsigned short int *)scanLine(y1))+x1;
-	    for(loopc=0;loopc<h;loopc++) {
-		for(loopc2=0;loopc2<frontadd;loopc2++)
-		    *(myptr++)=pixel;
+
+	    if(myrop==XorROP) {
+	      for(loopc=0;loopc<h;loopc++) {
+		for(loopc2=0;loopc2<frontadd;loopc2++) {
+		  *(myptr)^=pixel;
+		  myptr++;
+		}
 		for(loopc2=0;loopc2<count;loopc2++) {
-		    *((PackType *)myptr)=put;
+		  *((PackType *)myptr)^=put;
 # ifdef QWS_PACKING_4BYTE
-		    myptr+=2;
+		  myptr+=2;
 # else
-		    myptr+=4;
+		  myptr+=4;
+# endif
+		}
+		for(loopc2=0;loopc2<backadd;loopc2++) {
+		  *(myptr)^=pixel;
+		  myptr++;
+		}
+		myptr+=add;
+	      }
+	    } else if(myrop==NotROP) {
+	      for(loopc=0;loopc<h;loopc++) {
+		for(loopc2=0;loopc2<frontadd;loopc2++) {
+		  *(myptr)=~(*myptr);
+		  myptr++;
+		}
+		for(loopc2=0;loopc2<count;loopc2++) {
+		  *((PackType *)myptr)=~*((PackType *)myptr);
+# ifdef QWS_PACKING_4BYTE
+		  myptr+=2;
+# else
+		  myptr+=4;
+# endif
+		}
+		for(loopc2=0;loopc2<backadd;loopc2++) {
+		  *(myptr++)=~(*myptr);
+		  myptr++;
+		}
+		myptr+=add;
+	      }
+	    } else {
+	      for(loopc=0;loopc<h;loopc++) {
+		for(loopc2=0;loopc2<frontadd;loopc2++)
+		  *(myptr++)=pixel;
+		for(loopc2=0;loopc2<count;loopc2++) {
+		  *((PackType *)myptr)=put;
+# ifdef QWS_PACKING_4BYTE
+		  myptr+=2;
+# else
+		  myptr+=4;
 # endif
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++)
-		    *(myptr++)=pixel;
+		  *(myptr++)=pixel;
 		myptr+=add;
+	      }
 	    }
 	    GFX_END
 	    return;
@@ -4226,16 +4459,45 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 
 	    myptr=((unsigned int *)scanLine(y1))+x1;
 
-	    for(loopc=0;loopc<h;loopc++) {
+	    if(myrop==XorROP) {
+	      for(loopc=0;loopc<h;loopc++) {
 		for(loopc2=0;loopc2<frontadd;loopc2++)
-		    *(myptr++)=pixel;
+		  *(myptr++)^=pixel;
 		for(loopc2=0;loopc2<count;loopc2++) {
-		    *((PackType *)myptr)=put;
-		    myptr+=2;
+		  *((PackType *)myptr)^=put;
+		  myptr+=2;
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++)
-		    *(myptr++)=pixel;
+		  *(myptr++)^=pixel;
 		myptr+=add;
+	      }
+	    } else if(myrop==NotROP) {
+	      for(loopc=0;loopc<h;loopc++) {
+		for(loopc2=0;loopc2<frontadd;loopc2++) {
+		  *(myptr)=~(*myptr);
+		}
+		  myptr++;
+		for(loopc2=0;loopc2<count;loopc2++) {
+		  *((PackType *)myptr)=~( *((PackType *)myptr));
+		  myptr+=2;
+		}
+		for(loopc2=0;loopc2<backadd;loopc2++) {
+		  *(myptr)=~(*myptr);
+		}
+		myptr+=add;
+	      }
+	    } else {
+	      for(loopc=0;loopc<h;loopc++) {
+		for(loopc2=0;loopc2<frontadd;loopc2++)
+		  *(myptr++)=pixel;
+		for(loopc2=0;loopc2<count;loopc2++) {
+		  *((PackType *)myptr)=put;
+		  myptr+=2;
+		}
+		for(loopc2=0;loopc2<backadd;loopc2++)
+		  *(myptr++)=pixel;
+		myptr+=add;
+	      }
 	    }
 	    GFX_END
 	    return;
@@ -4296,11 +4558,14 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 # endif
 
 	    myptr=((unsigned char *)scanLine(y1))+x1;
-	    for(loopc=0;loopc<h;loopc++) {
+
+
+	    if(myrop==XorROP) {
+	      for(loopc=0;loopc<h;loopc++) {
 		for(loopc2=0;loopc2<frontadd;loopc2++)
-		    *(myptr++)=pixel;
+		  *(myptr++)^=pixel;
 		for(loopc2=0;loopc2<count;loopc2++) {
-		    *((PackType *)myptr)=put;
+		  *((PackType *)myptr)^=put;
 # ifdef QWS_PACKING_4BYTE
 		    myptr+=4;
 # else
@@ -4308,8 +4573,44 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 # endif
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++)
-		    *(myptr++)=pixel;
+		  *(myptr++)^=pixel;
 		myptr+=add;
+	      }
+	    } else if(myrop==NotROP) {
+	      for(loopc=0;loopc<h;loopc++) {
+		for(loopc2=0;loopc2<frontadd;loopc2++) {
+		  *(myptr)=~(*myptr);
+		}
+		  myptr++;
+		for(loopc2=0;loopc2<count;loopc2++) {
+		  *((PackType *)myptr)=~( *((PackType *)myptr));
+# ifdef QWS_PACKING_4BYTE
+		    myptr+=4;
+# else
+		    myptr+=8;
+# endif		  
+		}
+		for(loopc2=0;loopc2<backadd;loopc2++) {
+		  *(myptr)=~(*myptr);
+		}
+		myptr+=add;
+	      }
+	    } else {
+	      for(loopc=0;loopc<h;loopc++) {
+		for(loopc2=0;loopc2<frontadd;loopc2++)
+		  *(myptr++)=pixel;
+		for(loopc2=0;loopc2<count;loopc2++) {
+		  *((PackType *)myptr)=put;
+# ifdef QWS_PACKING_4BYTE
+		    myptr+=4;
+# else
+		    myptr+=8;
+# endif
+		}
+		for(loopc2=0;loopc2<backadd;loopc2++)
+		  *(myptr++)=pixel;
+		myptr+=add;
+	      }
 	    }
 	    GFX_END
 	    return;
@@ -4318,7 +4619,6 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	}
     }
 #endif // QWS_EXPERIMENTAL_FASTPATH
-
     if( (cbrush.style()!=NoBrush) &&
 	(cbrush.style()!=SolidPattern) ) {
 	srcwidth=cbrushpixmap->width();
@@ -4365,8 +4665,8 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	if ( ry+h-1 > clipbounds.bottom() )
 	    h = clipbounds.bottom()-ry+1;
 	if ( w > 0 && h > 0 )
-	    for (int j=0; j<h; j++,ry++)
-		hline(rx,rx+w-1,ry);
+	    for (int j=0; j<h; j++,ry++) {
+		hline(rx,rx+w-1,ry); }
     }
     GFX_END
 }
@@ -4477,7 +4777,7 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 {
     while (n--) {
 	if ( *width > 0 ) {
-	    if ( patternedbrush ) {
+	    if ( patternedbrush && srcwidth != 0 && srcheight != 0 ) {
 		unsigned char * savealphabits=alphabits;
 		int offx = srcwidgetoffs.x() + brushoffs.x() + point->x();
 		int offy = srcwidgetoffs.y() + brushoffs.y() + point->y();
@@ -4695,7 +4995,7 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     int dry = 1;
     int tj;
     int j;
-    if ( srcoffs.y() < ry && srcbits == buffer ) {
+    if ( srcbits == buffer && srcoffs.y() < ry ) {
 	// Back-to-front
 	dj = -dj;
 	dl = -dl;
@@ -4709,6 +5009,8 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 	tj = h;
     }
 
+    bool xrev = (srcbits == buffer && srcoffs.x() < rx);
+
     QRect cr;
 
     unsigned char *l = scanLine(ry);
@@ -4719,42 +5021,50 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 	 pixeltype == srcpixeltype &&
 	 (depth > 8 || (depth == 8 && src_normal_palette)) ) {
 	int bytesPerPixel = depth/8;
-#ifdef QWS_SLOW_GFX_MEMORY
-	unsigned char *buffer = 0;
-	bool video2video = is_screen_gfx && srcbits == buffer;
-	if ( video2video )
-	    buffer = new unsigned char [w * bytesPerPixel];
-#endif
-	for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
-	    bool plot=inClip(rx,ry,&cr);
-	    int x=rx;
-	    for (;;) {
-		int x2 = cr.right();
-		if ( x2 > rx+w-1 ) {
-		    x2 = rx+w-1;
-		    if ( x2 < x ) break;
+	int right = rx+w-1;
+	if ( xrev ) {
+	    for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
+		bool plot=inClip(right,ry,&cr);
+		int x2=right;
+		for (;;) {
+		    int x = cr.left();
+		    if ( x < rx ) {
+			x = rx;
+			if ( x2 < x ) break;
+		    }
+		    if (plot) {
+			unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
+			unsigned char *destptr = l + x*bytesPerPixel;
+			memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel );
+		    }
+		    if ( x <= rx )
+			break;
+		    x2=x-1;
+		    plot=inClip(x2,ry,&cr,plot);
 		}
-		if (plot) {
-		    unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
-		    unsigned char *destptr = l + x*bytesPerPixel;
-#ifdef QWS_SLOW_GFX_MEMORY
-		    if ( video2video ) {
-			memcpy(buffer, srcptr, (x2-x+1) * bytesPerPixel );
-			memcpy(destptr, buffer, (x2-x+1) * bytesPerPixel );
-		    } else
-#endif
-		    memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel );
+	    }
+	} else {
+	    for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
+		bool plot=inClip(rx,ry,&cr);
+		int x=rx;
+		for (;;) {
+		    int x2 = cr.right();
+		    if ( x2 > right ) {
+			x2 = right;
+			if ( x2 < x ) break;
+		    }
+		    if (plot) {
+			unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
+			unsigned char *destptr = l + x*bytesPerPixel;
+			memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel );
+		    }
+		    if ( x >= right )
+			break;
+		    x=x2+1;
+		    plot=inClip(x,ry,&cr,plot);
 		}
-		if ( x >= rx+w-1 )
-		    break;
-		x=x2+1;
-		plot=inClip(x,ry,&cr,plot);
 	    }
 	}
-#ifdef QWS_SLOW_GFX_MEMORY
-	if ( buffer )
-	    delete [] buffer;
-#endif
     } else {
 	if ( alphatype == InlineAlpha || alphatype == SolidAlpha ||
 	     alphatype == SeparateAlpha ) {
@@ -4853,7 +5163,7 @@ specify the destination rectangle, \a sw and \a sh specify the size
 of the source; its x and y position are assumed to be 0.
 */
 
-#if !defined(QT_NO_MOVIE) || !defined( QT_NO_TRANSFORMATIONS) || !defined(QT_NO_PIXMAP_TRANSFORMATION)
+#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS) || !defined(QT_NO_PIXMAP_TRANSFORMATION)
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
 					 int sw,int sh )
@@ -4985,6 +5295,8 @@ its size.
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
 {
+    if ( srcwidth == 0 || srcheight == 0 )
+	return;
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
     useBrush();
@@ -5530,7 +5842,7 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 // appropriate. This is stored in qt_screen
 
 #if defined(Q_OS_QNX6)
-#include "qgfxqnxfb_qws.cpp"
+#include "qwsgfx_qnx.cpp"
 #endif
 
 #if !defined(QT_NO_QWS_LINUXFB)
@@ -5554,7 +5866,7 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 #endif
 
 #if !defined(QT_NO_QWS_VNC)
-# include "qgfxvnc_qws.cpp"
+#include "qgfxvnc_qws.cpp"
 #endif
 
 #if !defined(QT_NO_QWS_TRANSFORMED)
@@ -5584,7 +5896,7 @@ struct DriverTable
     int accel;
 } driverTable [] = {
 #if defined(Q_OS_QNX6)
-	{ "QnxFb", qt_get_screen_qnxfb, 0 },
+    { "QnxFb", qt_get_screen_qnxfb, 0 },
 #endif
 #if !defined(QT_NO_QWS_VFB)
     { "QVFb", qt_get_screen_qvfb, 0 },
