@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#7 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#8 $
 **
 ** Definition of QWidgetStack class
 **
@@ -52,6 +52,8 @@ public:
     int id( QWidget * ) const;
 
     QWidget * visibleWidget() const;
+    
+    bool event( QEvent * );
 
 signals:
     void aboutToShow( int );
