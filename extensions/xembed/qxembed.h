@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xembed/qxembed.h#4 $
+** $Id: //depot/qt/main/extensions/xembed/qxembed.h#5 $
 **
 ** Definition of QXEmbed class
 **
@@ -54,7 +54,9 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
-
+    
+signals:
+    void embeddedWindowDestroyed();
 
 protected:
     void keyPressEvent( QKeyEvent * );
