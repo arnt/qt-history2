@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#88 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#89 $
 **
 ** Implementation of QDir class
 **
@@ -1220,12 +1220,7 @@ QDir QDir::root()
 
 QString QDir::currentDirPath()
 {
-    static bool forcecwd = TRUE;
-    static ino_t cINode;
-    static dev_t cDevice;
     QString result;
-
-    STATBUF st;
 
 #ifdef _WS_WIN_
     if ( qt_winunicode ) {
@@ -1239,31 +1234,24 @@ QString QDir::currentDirPath()
 	    result = QString::fromLatin1(currentName);
 	}
     }
+    slashify();
 #else
+    STATBUF st;
+
     if ( STAT( ".", &st ) == 0 ) {
-	if ( forcecwd || cINode != st.st_ino || cDevice != st.st_dev ) {
-	    {
-		char currentName[PATH_MAX];
-		if ( GETCWD( currentName, PATH_MAX ) != 0 ) {
-		    result = QFile::decodeName(currentName);
-		}
-	    }
-	}
+	char currentName[PATH_MAX];
+	if ( GETCWD( currentName, PATH_MAX ) != 0 )
+	    result = QFile::decodeName(currentName);
+#if defined(DEBUG)
+	if ( result.isNull() )
+	    qWarning( "QDir::currentDirPath: getcwd() failed" );
+#endif
     } else {
 #if defined(DEBUG)
 	qWarning( "QDir::currentDirPath: stat(\".\") failed" );
 #endif
     }
 #endif
-    if ( !result.isNull() ) {
-	cINode	 = st.st_ino;
-	cDevice	 = st.st_dev;
-	slashify( result );
-	// forcecwd = FALSE;   ### caching removed, not safe
-    } else {
-	qWarning( "QDir::currentDirPath: getcwd() failed" );
-	forcecwd    = TRUE;
-    }
     return result;
 }
 
@@ -1720,7 +1708,7 @@ const QFileInfoList * QDir::drives()
 	qstrcpy( driveName, "a:/" );
 	while( driveBits ) {
 	    if ( driveBits & 1 )
-		knownMemoryLeak->append( 
+		knownMemoryLeak->append(
 		      new QFileInfo( QString::fromLatin1(driveName) ) );
 	    driveName[0]++;
 	    driveBits = driveBits >> 1;
