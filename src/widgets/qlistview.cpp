@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#29 $
 **
 ** Implementation of something useful
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#29 $");
 
 
 const int Unsorted = 32767;
@@ -1745,7 +1745,7 @@ QRect QListView::itemRect( QListViewItem * i ) const
   is FALSE.
 */
 
-void QListView::setSorting( int column, bool ascending = TRUE )
+void QListView::setSorting( int column, bool ascending )
 {
     if ( d->column == column && d->ascending == ascending )
 	return;
