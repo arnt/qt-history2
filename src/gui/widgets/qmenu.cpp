@@ -644,7 +644,7 @@ void Q4Menu::hideEvent(QHideEvent *)
     QAccessible::updateAccessibility(this, 0, QAccessible::PopupMenuEnd);
 #endif
     if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(d->causedPopup))
-	mb->d->setPopupMode(false);
+	mb->d->setCurrentAction(0);
     d->causedPopup = 0;
 }
 
@@ -1140,6 +1140,11 @@ void Q4MenuBarPrivate::updateActions()
 void Q4MenuBarPrivate::setPopupMode(bool b)
 {
     popupState = b;
+    if(!popupState && activeMenu) {
+	Q4Menu *menu = activeMenu;
+	activeMenu = NULL;
+	menu->hide();
+    }
     if(d->currentAction)
 	q->update(d->currentAction->rect);
 }
@@ -1163,6 +1168,7 @@ void Q4MenuBarPrivate::popupAction(Q4MenuAction *action, bool activateFirst)
 {
     setPopupMode(true);
     if(action && action->action->menu()) {
+	d->closePopupMode = 0;
 	activeMenu = action->action->menu();
 	activeMenu->d->causedPopup = q;
 	if(activeMenu->parent() != q)
@@ -1326,7 +1332,7 @@ void Q4MenuBar::paintEvent(QPaintEvent *e)
 	    pal.setCurrentColorGroup(QPalette::Disabled);
 	if(d->currentAction == action) {
 	    flags |= QStyle::Style_Active;
-	    if(d->popupState)
+	    if(d->popupState && !d->closePopupMode)
 		flags |= QStyle::Style_Down;
 	}
 	if(hasFocus() || d->currentAction)
@@ -1347,23 +1353,25 @@ void Q4MenuBar::mousePressEvent(QMouseEvent *e)
     d->mouseDown = true;
     Q4MenuAction *action = d->actionAt(e->pos());
     if(d->currentAction == action && d->popupState) {
-	d->closePopupMode = (style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle); //should be a styleHint ###
+	if((d->closePopupMode = (style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)))
+	    q->update(action->rect);
     } else {
 	d->setCurrentAction(action);
-	d->popupAction(action);
+	if(action)
+	    d->popupAction(action);
     }
 }
 
 void Q4MenuBar::mouseReleaseEvent(QMouseEvent *e)
 {
-    if(e->button() != LeftButton || !d->currentAction || !d->mouseDown)
+    if(e->button() != LeftButton || !d->mouseDown)
 	return;
     d->mouseDown = false;
     Q4MenuAction *action = d->actionAt(e->pos());
     if((d->closePopupMode && action == d->currentAction) || !action || !action->action->menu()) {
-	if(action)
+	if(action) 
 	    action->action->activate(QAction::Trigger);
-	d->setCurrentAction(0);
+	d->setCurrentAction(action);
 	d->setPopupMode(false);
     }
     d->closePopupMode = 0;
@@ -1478,7 +1486,7 @@ void Q4MenuBar::mouseMoveEvent(QMouseEvent *e)
     d->mouseDown = e->state() & LeftButton;
     Q4MenuAction *action = d->actionAt(e->pos());
     bool popupState = d->popupState || d->mouseDown;
-    if(action) {
+    if(action || !popupState) {
 	d->setCurrentAction(action);
 	if(popupState)
 	    d->popupAction(action);

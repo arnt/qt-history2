@@ -976,7 +976,6 @@ void QCommonStyle::drawControl( ControlElement element,
 		break;
 
 	    QAction *mi = opt.action();
-	    qDebug("render.. %s", mi->text().latin1());
 	    int alignment = AlignCenter|ShowPrefix|DontClip|SingleLine;
 	    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
 		alignment |= NoAccel;
