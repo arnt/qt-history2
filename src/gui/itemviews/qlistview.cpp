@@ -262,9 +262,7 @@ void QListView::setMovement(Movement movement)
     d->modeProperties |= uint(QListViewPrivate::Movement);
     d->movement = movement;
     setDragEnabled(true);
-
-    if (isVisible())
-        doItemsLayout();
+    d->doDelayedItemsLayout();
 }
 
 QListView::Movement QListView::movement() const
@@ -291,8 +289,7 @@ void QListView::setFlow(Flow flow)
     Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::Flow);
     d->flow = flow;
-    if (isVisible())
-        doItemsLayout();
+    d->doDelayedItemsLayout();
 }
 
 QListView::Flow QListView::flow() const
@@ -317,8 +314,7 @@ void QListView::setWrapping(bool enable)
     Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::Movement);
     d->wrap = enable;
-    if (isVisible())
-        doItemsLayout();
+    d->doDelayedItemsLayout();
 }
 
 bool QListView::isWrapping() const
@@ -386,8 +382,7 @@ void QListView::setSpacing(int space)
     Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::Spacing);
     d->spacing = space;
-    if (isVisible())
-        doItemsLayout();
+    d->doDelayedItemsLayout();
 }
 
 int QListView::spacing() const
@@ -414,8 +409,7 @@ void QListView::setGridSize(const QSize &size)
     Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::GridSize);
     d->gridSize = size;
-    if (isVisible())
-        doItemsLayout();
+    d->doDelayedItemsLayout();
 }
 
 QSize QListView::gridSize() const
@@ -466,9 +460,7 @@ void QListView::setViewMode(ViewMode mode)
     }
 
     setDragEnabled(d->movement == Free);
-
-    if (isVisible())
-        doItemsLayout();
+    d->doDelayedItemsLayout();
 }
 
 QListView::ViewMode QListView::viewMode() const
@@ -511,9 +503,6 @@ void QListView::setRowHidden(int row, bool hide)
             d->hiddenRows.remove(idx);
     }
 
-//     if (isVisible())
-//         doItemsLayout(); // FIXME: start from the hidden item row
-//     else
     d->doDelayedItemsLayout();
 }
 
@@ -614,10 +603,7 @@ void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     Q_D(QListView);
     // if the parent is above rootIndex() in the tree, nothing will happen
-    if (parent == rootIndex() && isVisible())
-        doItemsLayout();
-    else
-        d->doDelayedItemsLayout();
+    d->doDelayedItemsLayout();
     QAbstractItemView::rowsInserted(parent, start, end);
 }
 
@@ -629,7 +615,7 @@ void QListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     Q_D(QListView);
     // if the parent is above rootIndex() in the tree, nothing will happen
     d->doDelayedItemsLayout();
-    d->prepareItemsLayout();
+    d->prepareItemsLayout(); // cleanup
     QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
 }
 
@@ -1166,10 +1152,7 @@ void QListView::setColumn(int column)
 {
     Q_D(QListView);
     d->column = column;
-    if (isVisible())
-        doItemsLayout();
-    else
-        d->doDelayedItemsLayout();
+    d->doDelayedItemsLayout();
 }
 
 int QListView::column() const
