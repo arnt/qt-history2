@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#3 $
 **
 ** Implementation of QTimer class
 **
@@ -14,14 +14,14 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qtimer.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qtimer.cpp#3 $";
 #endif
 
 
 const int INV_TIMER = -1;			// invalid timer id
 
 
-QTimer::QTimer()
+QTimer::QTimer( QObject *parent, const char *name ) : QObject( parent, name )
 {
     initMetaObject();
     id = INV_TIMER;

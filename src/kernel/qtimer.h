@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.h#2 $
+** $Id: //depot/qt/main/src/kernel/qtimer.h#3 $
 **
 ** Definition of QTimer class
 **
@@ -20,7 +20,7 @@ class QTimer : public QObject			// timer class
 {
     Q_OBJECT
 public:
-    QTimer();
+    QTimer( QObject *parent=0, const char *name=0 );
    ~QTimer();
 
     bool isActive() const { return id >= 0; }	// timer is active
