@@ -144,24 +144,26 @@ ProjectGenerator::init()
     //if we find a file that matches an interfaces it needn't be included in the project
     QStringList &u = v["INTERFACES"];
     QString no_ui[] = { "SOURCES", "HEADERS", QString::null };
-    for(int i = 0; !no_ui[i].isNull(); i++) {
-	QStringList &l = v[no_ui[i]];
-	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ) {
-	    bool found = FALSE;
-	    for(QStringList::Iterator ui_it = u.begin(); ui_it != u.end(); ++ui_it) {
-		QString s1 = (*val_it).right((*val_it).length() - ((*val_it).findRev(Option::dir_sep) + 1));
-		if(s1.findRev('.') != -1) 
-		    s1 = s1.left(s1.findRev('.')) + Option::ui_ext;
-		QString u1 = (*ui_it).right((*ui_it).length() - ((*ui_it).findRev(Option::dir_sep) + 1));
-		if(s1 == u1) {
-		    found = TRUE;
-		    break;
-		} 
+    {
+	for(int i = 0; !no_ui[i].isNull(); i++) {
+	    QStringList &l = v[no_ui[i]];
+	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ) {
+		bool found = FALSE;
+		for(QStringList::Iterator ui_it = u.begin(); ui_it != u.end(); ++ui_it) {
+		    QString s1 = (*val_it).right((*val_it).length() - ((*val_it).findRev(Option::dir_sep) + 1));
+		    if(s1.findRev('.') != -1) 
+			s1 = s1.left(s1.findRev('.')) + Option::ui_ext;
+		    QString u1 = (*ui_it).right((*ui_it).length() - ((*ui_it).findRev(Option::dir_sep) + 1));
+		    if(s1 == u1) {
+			found = TRUE;
+			break;
+		    } 
+		}
+		if(found) 
+		    val_it = l.remove(val_it);
+		else
+		    ++val_it;
 	    }
-	    if(found) 
-		val_it = l.remove(val_it);
-	    else
-		++val_it;
 	}
     }
 }
