@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#8 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#8 $")
 
 
 const int sbDim = 16;
@@ -830,10 +830,11 @@ void QTableView::clearTableFlags( ulong f )
   automatically whenever it has changed in some way (for example when a
   \link setTableFlags() flag\endlink is changed).
 
-  If \e enable is FALSE, the view will NOT update itself when it is
-  changed.  This can be used to avoid flicker during large changes,
-  and is singularly useless otherwise: Disable auto-update, do the
-  changes, re-enable auto-update, and call repaint().
+  If \e enable is FALSE, the view will NOT repaint itself, or update
+  its internal state varialbes itself when it is changed.  This can be
+  used to avoid flicker during large changes, and is singularly
+  useless otherwise: Disable auto-update, do the changes, re-enable
+  auto-update, and call repaint().
 
   \warning Do not leave the view in this state for a long time
   (i.e. between events ). If, for example, the user interacts with the
