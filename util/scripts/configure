@@ -26,6 +26,10 @@ fi
 rm .test.qt.
 
 
+# Remove the build options file
+[ -f .buildopts ] && rm .buildopts
+
+
 # Defaults
 
 DEBUG=no
@@ -141,32 +145,38 @@ if [ "x$SHARED" = "xyes" ]; then
         echo
         echo
         echo '    No shared library support for platform/compiler ' $TARGET
+        echo '    Please see the PLATFORMS file for more information.'
         echo
         echo
-        exit 1
+        exit 2
     fi
 else
     TARGET="${TARGET}-static"
     if [ '!' -f configs/$TARGET ]; then
         echo
         echo
-        echo '    No static library support for platform/compiler ' $TARGET
+        echo '     No static library support for platform/compiler ' $TARGET
+        echo '    Please see the PLATFORMS file for more information.'
         echo
         echo
-        exit 1
+        exit 2
     fi
 fi
 
 if [ "x$DEBUG" = "xyes" ]; then
     TARGET="${TARGET}-debug"
-    if [ '!' -f configs/$TARGET ]; then
-        echo
-        echo
-        echo '    Cannot build with debug info for platform/compiler ' $TARGET
-        echo
-        echo
-        exit 1
-    fi
+fi
+
+CONFIG="configs/${TARGET}"
+if [ -z "$TARGET" -o '!' -f "$CONFIG" ];
+then
+    echo
+    echo
+    echo '   The specified platform/compiler not supported: ' $TARGET
+    echo '   Please see the PLATFORMS file for a complete list.'
+    echo
+    echo
+    exit 2
 fi
 
 
@@ -198,15 +208,6 @@ QT_ZLIB_OBJ	=$QT_ZLIB
 
 EOF
 
-if [ -z "$TARGET" -o '!' -f "$TARGET" ];
-then
-    echo
-    echo
-    echo '   An internal error occurred, Qt cannot be built.'
-    echo
-    echo
-    exit 2
-fi
 
 QTDIR='$(QTDIR)'
 
@@ -220,11 +221,11 @@ for a in `find . -name Makefile.in -print | sort` ; do
 #############################################################################
 
 EOF
-    cat .buildopts $TARGET $M >> $N
+    cat .buildopts $CONFIG $M >> $N
     echo '  Created' $N
 done
 
 echo
 echo Qt is now configured for building. Just run make.
-echo To reconfigure, run make config.
+echo To reconfigure, run make clean and configure.
 echo

@@ -67,15 +67,11 @@ depend:
 	cd tutorial; \$(MAKE) depend
 	cd examples; \$(MAKE) depend
 
-config: .buildopts
-	-rm .buildopts
-	\$(MAKE)
-
 .buildopts: Makefile
 	@echo
-	@echo You must run the ./configure script before you can build Qt.
+	@echo '  You must run the configure script before you can build Qt.'
 	@echo
-	@echo The make process will now abort with an error.
+	@echo '  The make process will now abort with an error.'
 	@echo
 	@exit 1
 
