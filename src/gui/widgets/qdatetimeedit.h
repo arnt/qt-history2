@@ -32,20 +32,20 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
     Q_PROPERTY(QTime maximumTime READ maximumTime WRITE setMaximumTime RESET clearMaximumTime)
     Q_PROPERTY(QTime minimumTime READ minimumTime WRITE setMinimumTime RESET clearMinimumTime)
     Q_PROPERTY(Section currentSection READ currentSection WRITE setCurrentSection)
-    Q_PROPERTY(Sections display READ display)
-    Q_PROPERTY(QString format READ format WRITE setFormat)
+    Q_PROPERTY(Sections displayedSections READ displayedSections)
+    Q_PROPERTY(QString displayFormat READ displayFormat WRITE setDisplayFormat)
 
 public:
     enum Section {
 	NoSection      = 0x0000,
-	AMPMSection    = 0x0001,
-	MSecsSection   = 0x0002,
-	SecondsSection = 0x0004,
-	MinutesSection = 0x0008,
-	HoursSection   = 0x0010,
-	DaysSection    = 0x0100,
-	MonthsSection  = 0x0200,
-	YearsSection   = 0x0400
+	AmPmSection    = 0x0001,
+	MSecSection   = 0x0002,
+	SecondSection = 0x0004,
+	MinuteSection = 0x0008,
+	HourSection   = 0x0010,
+	DaySection    = 0x0100,
+	MonthSection  = 0x0200,
+	YearSection   = 0x0400
     };
 
     Q_DECLARE_FLAGS(Sections, Section)
@@ -79,14 +79,14 @@ public:
 
     void setTimeRange(const QTime &min, const QTime &max);
 
-    Sections display() const;
+    Sections displayedSections() const;
     Section currentSection() const;
     void setCurrentSection(Section section);
 
     QString sectionText(Section s) const;
 
-    QString format() const;
-    bool setFormat(const QString &format);
+    QString displayFormat() const;
+    void setDisplayFormat(const QString &format);
 
     void clear();
 signals:

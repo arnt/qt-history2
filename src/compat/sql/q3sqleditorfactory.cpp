@@ -152,13 +152,13 @@ QWidget * Q3SqlEditorFactory::createEditor(QWidget * parent,
             break;
         case QVariant::Date: {
             QDateTimeEdit *edit = new QDateTimeEdit(parent);
-            edit->setFormat("yyyy/MM/dd");
+            edit->setDisplayFormat("yyyy/MM/dd");
             edit->setObjectName("qt_editor_date");
             w = edit; }
             break;
         case QVariant::Time: {
             QDateTimeEdit *edit = new QDateTimeEdit(parent);
-            edit->setFormat("hh:mm");
+            edit->setDisplayFormat("hh:mm");
             edit->setObjectName("qt_editor_time");
             w = edit; }
             break;

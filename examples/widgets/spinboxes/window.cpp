@@ -99,7 +99,7 @@ void Window::createDateTimeEdits()
 
 void Window::setFormatString(const QString &formatString)
 {
-    meetingEdit->setFormat(formatString);
+    meetingEdit->setDisplayFormat(formatString);
 }
 
 void Window::createDoubleSpinBoxes()
