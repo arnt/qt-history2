@@ -234,6 +234,9 @@ void QCheckBox::drawButton( QPainter *paint )
 	kf |= 2;
     if ( hasFocus() )
 	kf |= 4;				// active vs. normal colorgroup
+    if( topLevelWidget() != qApp->activeWindow()) 
+	kf |= 8;
+
     kf |= state() << 3;
     QTextOStream os(&pmkey);
     os << "$qt_check_" << style().className() << "_"

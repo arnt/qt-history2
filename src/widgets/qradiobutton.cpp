@@ -214,6 +214,9 @@ void QRadioButton::drawButton( QPainter *paint )
 	kf |= 2;
     if ( isEnabled() )
 	kf |= 4;
+    if( topLevelWidget() != qApp->activeWindow()) 
+	kf |= 8;
+
     QTextOStream os(&pmkey);
     os << "$qt_radio_" << style().className() << "_"
        << palette().serialNumber() << "_" << kf;
