@@ -214,9 +214,15 @@ const int QTextStream::floatfield  = ( QTextStream::scientific |
 class QTextStreamPrivate {
 public:
 #ifndef QT_NO_TEXTCODEC
-    QTextStreamPrivate() : decoder( 0 ), sourceType( NotSet ) {}
-    ~QTextStreamPrivate() { delete decoder; }
-    QTextDecoder *decoder;		//???
+    QTextStreamPrivate() : decoder( 0 ), encoder( 0 ), sourceType( NotSet )
+    {}
+    ~QTextStreamPrivate()
+    {
+	delete decoder;
+	delete encoder;
+    }
+    QTextDecoder *decoder;
+    QTextEncoder *encoder;
 #else
     QTextStreamPrivate() : sourceType( NotSet ) {}
     ~QTextStreamPrivate() { }
@@ -937,9 +943,11 @@ void QTextStream::ts_putc( QChar c )
 {
 #ifndef QT_NO_TEXTCODEC
     if ( mapper ) {
+	if ( !d->encoder )
+	    d->encoder = mapper->makeEncoder();
 	int len = 1;
 	QString s = c;
-	QCString block = mapper->fromUnicode( s, len );
+	QCString block = d->encoder->fromUnicode( s, len );
 	dev->writeBlock( block, len );
     } else
 #endif
