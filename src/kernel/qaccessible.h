@@ -29,6 +29,10 @@ struct QAccessibleInterface;
 
 class Q_EXPORT QAccessible
 {
+private:
+#ifdef Q_WS_MAC
+    static QMAC_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
+#endif
 public:
     enum Event {
 	SoundPlayed	    = 0x0001,

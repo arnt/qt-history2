@@ -2039,6 +2039,7 @@ void QWidget::createSysExtra()
     extra->child_serial = extra->clip_serial = 1;
     extra->child_dirty = extra->clip_dirty = TRUE;
     extra->macDndExtra = 0;
+    extra->access = 0;
 }
 
 void QWidget::deleteSysExtra()

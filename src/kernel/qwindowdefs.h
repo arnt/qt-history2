@@ -78,6 +78,7 @@ typedef struct OpaqueMenuRef*        MenuRef;
 #ifndef Q_WS_MACX
 typedef struct CGContext *CGContextRef;
 #endif
+typedef struct __AXUIElement *AXUIElementRef;
 typedef struct OpaqueControlRef *ControlRef;
 typedef struct OpaqueWindowGroupRef *WindowGroupRef;
 typedef struct OpaqueGrafPtr *CGrafPtr;
