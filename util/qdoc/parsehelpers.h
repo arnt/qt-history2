@@ -10,8 +10,9 @@
 #include <qvaluelist.h>
 
 class Location;
-
 class QString;
+
+QString untabified( const QString& in );
 
 class OpenedList
 {

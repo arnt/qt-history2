@@ -11,30 +11,11 @@
 #include "codeprocessor.h"
 #include "config.h"
 #include "metaresolver.h"
+#include "parsehelpers.h"
 #include "stringset.h"
 
 static QString gulbrandsen( "::" );
 static QString parenParen( "()" );
-
-static QString untabified( const QString& in )
-{
-    QString res;
-    int col = 0;
-
-    for ( int i = 0; i < (int) in.length(); i++ ) {
-	if ( in[i] == QChar('\t') ) {
-	    res += QString( "        " + (col & 0x7) );
-	    col = ( col + 8 ) & ~0x7;
-	} else {
-	    res += in[i];
-	    if ( in[i] == QChar('\n') )
-		col = 0;
-	    else
-		col++;
-	}
-    }
-    return res;
-}
 
 static int *createLineNoAtOffset( const QString& code )
 {

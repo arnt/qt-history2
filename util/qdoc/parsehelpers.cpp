@@ -13,6 +13,26 @@
 // see also doc.cpp
 static QString punctuation( ".,:;" );
 
+QString untabified( const QString& in )
+{
+    QString res;
+    int col = 0;
+
+    for ( int i = 0; i < (int) in.length(); i++ ) {
+	if ( in[i] == QChar('\t') ) {
+	    res += QString( "        " + (col & 0x7) );
+	    col = ( col + 8 ) & ~0x7;
+	} else {
+	    res += in[i];
+	    if ( in[i] == QChar('\n') )
+		col = 0;
+	    else
+		col++;
+	}
+    }
+    return res;
+}
+
 QString OpenedList::beginHtml()
 {
     if ( kind == Bullet ) {

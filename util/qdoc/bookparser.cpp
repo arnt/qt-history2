@@ -1074,7 +1074,7 @@ void HtmlSynthetizer::processChar( QChar ch )
 void HtmlSynthetizer::processCode( const QString& text )
 {
     w.top()->putsMeta( "<pre>" );
-    w.top()->puts( text.latin1() );
+    w.top()->puts( untabified(text).latin1() );
     w.top()->putsMeta( "</pre>\n" );
 }
 
