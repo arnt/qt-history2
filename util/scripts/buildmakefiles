@@ -11,9 +11,12 @@ $qtdir = $ENV{"QTDIR"};
 chdir "$qtdir";
 $tmakeargs = "@ARGV";
 ($tmakeargs eq "") && ($tmakeargs = " ");
-@projects = find_files('.','\.pro$',1);
+@projects = find_files('src','\.pro$',1);
+push @projects, find_files('examples','\.pro$',1);
+push @projects, find_files('tutorial','\.pro$',1);
+push @projects, find_files('extensions','\.pro$',1);
 for $p ( @projects ) {
-    if ( $p =~ /(.*\/)([^\/]+)/ ) {
+    if ( ($p =~ /(.*\/)([^\/]+)/) && ($p ne "src/qtinternal.pro") ) {
 	$dir  = $1;
 	$file = $2;
 	chdir $dir;
