@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#73 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#74 $
 **
 ** Global type declarations and definitions
 **
@@ -141,12 +141,21 @@
 #endif
 #endif
 
+
 //
 // Specify to use macro or template classes (if not set from cmd line)
 //
 
 #define USE_MACROCLASS				/* always use macro classes */
 #define USE_TEMPLATECLASS			/* use template classes */
+
+
+//
+// enable QT_ADD_GENERIC_MACROS unless QT_OBSOLESENCE is defined
+//
+#if !defined(QT_OBSOLESENCE)
+#define QT_ADD_GENERIC_MACROS
+#endif
 
 
 //
