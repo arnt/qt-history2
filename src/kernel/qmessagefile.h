@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.h#4 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.h#5 $
 **
 ** Definition of something or other
 **
@@ -26,7 +26,7 @@ public:
     QMessageFile( QObject * parent, const char * name = 0 );
     ~QMessageFile();
 
-    virtual QString find( uint ) const;
+    virtual QString find( uint, const char *, const char * ) const;
 
     void load( const QString & filename, const QString & directory = 0 );
     void save( const QString & filename );

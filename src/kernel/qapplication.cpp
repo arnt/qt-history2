@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#175 $
 **
 ** Implementation of QApplication class
 **
@@ -1184,6 +1184,9 @@ void QApplication::removeMessageFile( QMessageFile * mf )
   If none of the message files contain a translation for \a key in \a
   scope, this function returns \a key.
 
+  This function is not virtual, but you can add alternative translation
+  techniques by installing subclasses of QMessageFile.
+
   \sa QObject::tr() installMessageFile() removeMessageFile() QMessageFile
 */
 
@@ -1200,20 +1203,11 @@ QString QApplication::translate( const char * scope, const char * key ) const
 	QString result;
 	while( (mf=it.current()) != 0 ) {
 	    ++it;
-	    result = mf->find( h );
+	    result = mf->find( h, scope, key );
 	    if ( result != QString::null )
 		return result;
 	}
     }
-    emit qApp->unknownTranslation( scope, key ); // ooooh! exit const!
+
     return key;
 }
-
-
-/*! \fn void QApplication::unknownTranslation( const char * scope, const char * key )
-
-  This signal is emitted whenever QApplication is unable to translate
-  \a key in \a scope using the currently installed message files.
-
-  \sa QMessageFile translate() QObject::tr()
-*/

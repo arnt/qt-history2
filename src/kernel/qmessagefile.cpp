@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#8 $
 **
 ** Localization database support.
 **
@@ -250,11 +250,18 @@ void QMessageFile::save( const QString & filename )
 }
 
 
-/*!  Returns the string matching hash code \a h, or QString::null in
+/*!
+  \fn QString QMessageFile::find( uint h, const char* scope, const char* key ) const
+
+  Returns the string matching hash code \a h, or QString::null in
   case there is no string for \a h.
+
+  The \a scope and \a key arguments are not used in the default implementation,
+  but are available for QMessageFile subclasses to use
+  alternative translation techniques.
 */
 
-QString QMessageFile::find( uint h ) const
+QString QMessageFile::find( uint h, const char*, const char* ) const
 {
     if ( d->messages ) {
 	QString * r1 = d->messages->find( h );
