@@ -565,9 +565,202 @@ void Win32MakefileGenerator::processFileTagsVar()
     }
 }
 
-void Win32MakefileGenerator::writeExtraCompilerParts(QTextStream &t)
+void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 {
+    QString uiclean = varGlue("UICDECLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") +
+		      varGlue("UICIMPLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
+    t << "uiclean:" << uiclean << endl;
+    QString mocclean = varGlue("SRCMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") +
+		       varGlue("OBJMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
+    t << "mocclean:" << mocclean << endl;
+    
+    t << "clean: uiclean mocclean"
+	<< varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
+	<< varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
+	<< varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
+    
+    if(project->isActiveConfig("activeqt")) {
+	t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + project->variables()["TARGET"].first() + ".idl");
+	t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + project->variables()["TARGET"].first() + ".tlb");
+    }
+    
+    if(!project->isEmpty("IMAGES"))
+	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
+    t << endl;
+    
+    t << "distclean: clean"
+	<< "\n\t-$(DEL_FILE) $(TARGET)"
+	<< endl << endl;
+}
+
+void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
+{
+    t << "####### Compiler, tools and options" << endl << endl;
+    t << "CC		=	" << var("QMAKE_CC") << endl;
+    t << "CXX		=	" << var("QMAKE_CXX") << endl;
+    t << "LEX		= " << var("QMAKE_LEX") << endl;
+    t << "YACC		= " << var("QMAKE_YACC") << endl;
+    t << "CFLAGS	=	" << var("QMAKE_CFLAGS") << " "
+      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
+      <<  varGlue("DEFINES","-D"," -D","") << endl;
+    t << "CXXFLAGS	=	" << var("QMAKE_CXXFLAGS") << " "
+      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
+      << varGlue("DEFINES","-D"," -D","") << endl;
+    t << "LEXFLAGS	=" << var("QMAKE_LEXFLAGS") << endl;
+    t << "YACCFLAGS	=" << var("QMAKE_YACCFLAGS") << endl;
+    t << "INCPATH	=	";
+    
+    QStringList &incs = project->variables()["INCLUDEPATH"];
+    for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
+	QString inc = (*incit);
+	inc.replace(QRegExp("\\\\$"), "\\\\");
+	inc.replace(QRegExp("\""), "");
+	t << " -I" << "\"" << inc << "\"";
+    }
+    t << " -I\"" << specdir() << "\""
+      << endl;
+
+    writeLibsPart(t);
+ 
+    t << "MOC	=	" << (project->isEmpty("QMAKE_MOC") ? QString("moc") :
+			      Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE)) << endl;
+    t << "UIC	=	" << (project->isEmpty("QMAKE_UIC") ? QString("uic") :
+			      Option::fixPathToTargetOS(var("QMAKE_UIC"), FALSE)) << endl;
+    t << "QMAKE =       " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") :
+			      Option::fixPathToTargetOS(var("QMAKE_QMAKE"), FALSE)) << endl;
+    t << "IDC		=	" << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
+			      Option::fixPathToTargetOS(var("QMAKE_IDC"), FALSE)) << endl;
+    t << "IDL		=	" << (project->isEmpty("QMAKE_IDL") ? QString("midl") :
+			      Option::fixPathToTargetOS(var("QMAKE_IDL"), FALSE)) << endl;
+    t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
+    t << "DEF_FILE =	" << varList("DEF_FILE") << endl;
+    t << "RES_FILE =	" << varList("RES_FILE") << endl; // Not on mingw, can't see why not though...
+    t << "COPY_FILE  =       " << var("QMAKE_COPY") << endl;
+    t << "COPY_DIR  =       " << var("QMAKE_COPY") << endl;
+    t << "DEL_FILE   =       " << var("QMAKE_DEL_FILE") << endl;
+    t << "DEL_DIR    =       " << var("QMAKE_DEL_DIR") << endl;
+    t << "MOVE  =       " << var("QMAKE_MOVE") << endl;
+    t << "CHK_DIR_EXISTS =	" << var("QMAKE_CHK_DIR_EXISTS") << endl;
+    t << "MKDIR		=	" << var("QMAKE_MKDIR") << endl;
+    t << endl;
+
+    t << "####### Output directory" << endl << endl;
+    if(!project->variables()["OBJECTS_DIR"].isEmpty())
+	t << "OBJECTS_DIR = " << var("OBJECTS_DIR").replace(QRegExp("\\\\$"),"") << endl;
+    else
+	t << "OBJECTS_DIR = . " << endl;
+    if(!project->variables()["MOC_DIR"].isEmpty())
+	t << "MOC_DIR = " << var("MOC_DIR").replace(QRegExp("\\\\$"),"") << endl;
+    else
+	t << "MOC_DIR = . " << endl;
+    t << endl;
+
+    t << "####### Files" << endl << endl;
+    t << "HEADERS =	" << varList("HEADERS") << endl;
+    t << "SOURCES =	" << varList("SOURCES") << endl;
+    
+    writeObjectsPart(t);
+    
+    t << "FORMS =	" << varList("FORMS") << endl;
+    t << "UICDECLS =	" << varList("UICDECLS") << endl;
+    t << "UICIMPLS =	" << varList("UICIMPLS") << endl;
+    t << "SRCMOC =	" << varList("SRCMOC") << endl;
+    
+    writeObjMocPart(t);
+    QString extraCompilerDeps = writeObjCompParts(t);
+    
+    t << "DIST	=	" << varList("DISTFILES") << endl;
+    t << "TARGET	=	";
+    if(!project->variables()["DESTDIR"].isEmpty())
+	t << varGlue("TARGET",project->first("DESTDIR"),"",project->first("TARGET_EXT"));
+    else
+	t << project->variables()["TARGET"].value(0) << project->variables()["TARGET_EXT"].value(0);
+    t << endl << endl;
+
+    t << "####### Implicit rules" << endl << endl;
+    writeImplicitRulesPart(t);
+
+    t << "####### Build rules" << endl << endl;
+    writeBuildRulesPart(t, extraCompilerDeps);
+
+    if (!project->variables()["QMAKE_POST_LINK"].isEmpty())
+	t << "\t" <<var("QMAKE_POST_LINK") << endl;
+    
+    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
+	QStringList dlldirs = project->variables()["DLLDESTDIR"];
+	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
+	    t << "\n\t" << "-$(COPY_FILE) $(TARGET) " << *dlldir;
+	}
+    }
+
+    QString targetfilename = project->variables()["TARGET"].value(0);
+    if(project->isActiveConfig("activeqt")) {
+	QString version = project->variables()["VERSION"].value(0);
+	if(version.isEmpty())
+	    version = "1.0";
+
+	if(project->isActiveConfig("dll")) {
+	    t << "\n\t" << ("-$(IDC) $(TARGET) /idl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version);
+	    t << "\n\t" << ("-$(IDL) /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
+	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
+	    t << "\n\t" << ("-$(IDC) $(TARGET) /regserver");
+	} else {
+	    t << "\n\t" << ("-$(TARGET) -dumpidl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version);
+	    t << "\n\t" << ("-$(IDL) /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
+	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
+	    t << "\n\t" << "-$(TARGET) -regserver";
+	}
+    }
+    t << endl << endl;
+    
+    writeRcFilePart(t);
+    
+    t << "mocables: $(SRCMOC)" << endl
+	<< "uicables: $(UICIMPLS) $(UICDECLS)" << endl << endl;
+    
+    writeMakeQmake(t);
+    
+    QStringList dist_files = Option::mkfile::project_files;
+    if(!project->isEmpty("QMAKE_INTERNAL_INCLUDED_FILES"))
+	dist_files += project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
+    if(!project->isEmpty("TRANSLATIONS"))
+	dist_files << var("TRANSLATIONS");
+    if(!project->isEmpty("FORMS")) {
+	QStringList &forms = project->variables()["FORMS"];
+	for(QStringList::Iterator formit = forms.begin(); formit != forms.end(); ++formit) {
+	    QString ui_h = fileFixify((*formit) + Option::h_ext.first());
+	    if(QFile::exists(ui_h) )
+		dist_files << ui_h;
+	}
+    }
+    t << "dist:" << "\n\t"
+      << "$(ZIP) " << var("QMAKE_ORIG_TARGET") << ".zip " << "$(SOURCES) $(HEADERS) $(DIST) $(FORMS) "
+      << dist_files.join(" ") << " " << var("TRANSLATIONS") << " " << var("IMAGES") << endl << endl;
+
+    writeCleanParts(t);
+
     QStringList::Iterator it;
+    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
+    for(it = qut.begin(); it != qut.end(); ++it) {
+	QString targ = var((*it) + ".target"),
+		 cmd = var((*it) + ".commands"), deps;
+	if(targ.isEmpty())
+	    targ = (*it);
+	QStringList &deplist = project->variables()[(*it) + ".depends"];
+	for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
+	    QString dep = var((*dep_it) + ".target");
+	    if(dep.isEmpty())
+		dep = (*dep_it);
+	    deps += " " + dep;
+	}
+	if(!project->variables()["QMAKE_NOFORCE"].isEmpty() &&
+	   project->variables()[(*it) + ".CONFIG"].indexOf("phony") != -1)
+	    deps += QString(" ") + "FORCE";
+	t << "\n\n" << targ << ":" << deps << "\n\t"
+	  << cmd;
+    }
+    t << endl << endl;
+
     QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
     for(it = quc.begin(); it != quc.end(); ++it) {
 	QString tmp_out = project->variables()[(*it) + ".output"].first();
@@ -618,138 +811,6 @@ void Win32MakefileGenerator::writeExtraCompilerParts(QTextStream &t)
     t << endl;
 }
 
-void Win32MakefileGenerator::writeExtraTargetParts(QTextStream &t)
-{
-    QStringList::Iterator it;
-    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
-    for(it = qut.begin(); it != qut.end(); ++it) {
-	QString targ = var((*it) + ".target"),
-		 cmd = var((*it) + ".commands"), deps;
-	if(targ.isEmpty())
-	    targ = (*it);
-	QStringList &deplist = project->variables()[(*it) + ".depends"];
-	for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
-	    QString dep = var((*dep_it) + ".target");
-	    if(dep.isEmpty())
-		dep = (*dep_it);
-	    deps += " " + dep;
-	}
-	if(!project->variables()["QMAKE_NOFORCE"].isEmpty() &&
-	   project->variables()[(*it) + ".CONFIG"].indexOf("phony") != -1)
-	    deps += QString(" ") + "FORCE";
-	t << "\n\n" << targ << ":" << deps << "\n\t"
-	  << cmd;
-    }
-    t << endl << endl;
-}
-
-void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
-{
-    const bool borland = (project->first("MAKEFILE_GENERATOR") == "BMAKE");
-    QString uiclean = varGlue("UICDECLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") +
-		      varGlue("UICIMPLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
-    if(borland && uiclean.isEmpty())
-	uiclean = "@cd .";
-    t << "uiclean:" << uiclean << endl;
-    
-    QString mocclean = varGlue("SRCMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") +
-		       varGlue("OBJMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
-    
-    if(borland && mocclean.isEmpty())
-	mocclean = "@cd .";
-    t << "mocclean:" << mocclean << endl;
-    
-    t << "clean: uiclean mocclean"
-      << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
-      << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
-      << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
-
-    if(project->isActiveConfig("activeqt")) {
-	t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + project->variables()["TARGET"].first() + ".idl");
-	t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + project->variables()["TARGET"].first() + ".tlb");
-    }
-    
-    if(!project->isEmpty("IMAGES"))
-	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
-    t << endl;
-
-    t << "distclean: clean"
-      << "\n\t-$(DEL_FILE) $(TARGET)"
-      << endl << endl;
-}
-
-void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
-{
-    t << "####### Compiler, tools and options" << endl << endl;
-    t << "CC		=	" << var("QMAKE_CC") << endl;
-    t << "CXX		=	" << var("QMAKE_CXX") << endl;
-    t << "LEX		= " << var("QMAKE_LEX") << endl;
-    t << "YACC		= " << var("QMAKE_YACC") << endl;
-    t << "CFLAGS	=	" << var("QMAKE_CFLAGS") << " "
-      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
-      <<  varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CXXFLAGS	=	" << var("QMAKE_CXXFLAGS") << " "
-      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
-      << varGlue("DEFINES","-D"," -D","") << endl;
-    t << "LEXFLAGS	=" << var("QMAKE_LEXFLAGS") << endl;
-    t << "YACCFLAGS	=" << var("QMAKE_YACCFLAGS") << endl;
-    t << "INCPATH	=	";
-    QStringList &incs = project->variables()["INCLUDEPATH"];
-    for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
-	QString inc = (*incit);
-	inc.replace(QRegExp("\\\\$"), "\\\\");
-	inc.replace(QRegExp("\""), "");
-	t << " -I" << "\"" << inc << "\"";
-    }
-    t << " -I\"" << specdir() << "\""
-      << endl;
-
-    writeLibsPart(t);
- 
-    t << "MOC	=	" << (project->isEmpty("QMAKE_MOC") ? QString("moc") :
-			      Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE)) << endl;
-    t << "UIC	=	" << (project->isEmpty("QMAKE_UIC") ? QString("uic") :
-			      Option::fixPathToTargetOS(var("QMAKE_UIC"), FALSE)) << endl;
-    t << "QMAKE =       " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") :
-			      Option::fixPathToTargetOS(var("QMAKE_QMAKE"), FALSE)) << endl;
-    t << "IDC		=	" << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
-			      Option::fixPathToTargetOS(var("QMAKE_IDC"), FALSE)) << endl;
-    t << "IDL		=	" << (project->isEmpty("QMAKE_IDL") ? QString("midl") :
-			      Option::fixPathToTargetOS(var("QMAKE_IDL"), FALSE)) << endl;
-    t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
-    t << "DEF_FILE =	" << varList("DEF_FILE") << endl;
-    t << "RES_FILE =	" << varList("RES_FILE") << endl; // Not on mingw, can't see why not though...
-    t << "COPY_FILE  =       " << var("QMAKE_COPY") << endl;
-    t << "COPY_DIR  =       " << var("QMAKE_COPY") << endl;
-    t << "DEL_FILE   =       " << var("QMAKE_DEL_FILE") << endl;
-    t << "DEL_DIR    =       " << var("QMAKE_DEL_DIR") << endl;
-    t << "MOVE  =       " << var("QMAKE_MOVE") << endl;
-    t << "CHK_DIR_EXISTS =	" << var("QMAKE_CHK_DIR_EXISTS") << endl;
-    t << "MKDIR		=	" << var("QMAKE_MKDIR") << endl;
-    t << endl;
-
-    t << "####### Output directory" << endl << endl;
-    if(!project->variables()["OBJECTS_DIR"].isEmpty())
-	t << "OBJECTS_DIR = " << var("OBJECTS_DIR").replace(QRegExp("\\\\$"),"") << endl;
-    else
-	t << "OBJECTS_DIR = . " << endl;
-    if(!project->variables()["MOC_DIR"].isEmpty())
-	t << "MOC_DIR = " << var("MOC_DIR").replace(QRegExp("\\\\$"),"") << endl;
-    else
-	t << "MOC_DIR = . " << endl;
-    t << endl;
-
-    t << "####### Files" << endl << endl;
-    t << "HEADERS =	" << varList("HEADERS") << endl;
-    t << "SOURCES =	" << varList("SOURCES") << endl;
-    t << "OBJECTS =	" << varList("OBJECTS") << endl;
-    t << "FORMS =	" << varList("FORMS") << endl;
-    t << "UICDECLS =	" << varList("UICDECLS") << endl;
-    t << "UICIMPLS =	" << varList("UICIMPLS") << endl;
-    t << "SRCMOC =	" << varList("SRCMOC") << endl;
-    t << "OBJMOC =	" << varList("OBJMOC") << endl;
-}
-
 void Win32MakefileGenerator::writeLibsPart(QTextStream &t)
 {
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
@@ -773,4 +834,60 @@ void Win32MakefileGenerator::processMocConfig()
 {
     if(project->isActiveConfig("moc"))
 	setMocAware(TRUE);
+}
+
+void Win32MakefileGenerator::writeObjectsPart(QTextStream &t)
+{
+    t << "OBJECTS =	" << varList("OBJECTS") << endl;
+}
+
+void Win32MakefileGenerator::writeObjMocPart(QTextStream &t)
+{
+    t << "OBJMOC =	" << varList("OBJMOC") << endl;
+}
+
+QString Win32MakefileGenerator::writeObjCompParts(QTextStream &t)
+{
+    // Might not need this function
+    QString extraCompilerDeps;
+
+    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
+	t << "OBJCOMP = " << varList("OBJCOMP") << endl;
+	extraCompilerDeps += " $(OBJCOMP) ";
+
+	QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
+	for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {
+	    QStringList &vars = project->variables()[(*compit) + ".variables"];
+	    for(QStringList::Iterator varit = vars.begin(); varit != vars.end(); ++varit) {
+		QStringList vals = project->variables()[(*varit)];
+		if(!vals.isEmpty())
+		    t << "QMAKE_COMP_" << (*varit) << " = " << valList(vals) << endl;
+	    }
+	}
+    }
+    return extraCompilerDeps;
+}
+
+void Win32MakefileGenerator::writeImplicitRulesPart(QTextStream &t)
+{
+    t << ".SUFFIXES: .c";
+    QStringList::Iterator cppit;
+    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+	t << " " << (*cppit);
+    t << endl << endl;
+    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+	t << (*cppit) << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+    t << ".c" << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
+}
+
+void Win32MakefileGenerator::writeBuildRulesPart(QTextStream &, const QString &)
+{
+}
+
+void Win32MakefileGenerator::writeRcFilePart(QTextStream &t)
+{
+    if(!project->variables()["RC_FILE"].isEmpty()) {
+	t << var("RES_FILE") << ": " << var("RC_FILE") << "\n\t"
+	    << var("QMAKE_RC") << " " << var("RC_FILE") << endl << endl;
+    }
 }

@@ -23,6 +23,8 @@ class NmakeMakefileGenerator : public Win32MakefileGenerator
     void writeNmakeParts(QTextStream &);
     void writeLibDirPart(QTextStream &t);
     bool writeMakefile(QTextStream &);
+    void writeImplicitRulesPart(QTextStream &t);
+    void writeBuildRulesPart(QTextStream &t, const QString &extraCompilerDeps);
     void init();
 
 protected:

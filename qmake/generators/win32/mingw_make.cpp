@@ -75,7 +75,7 @@ bool MingwMakefileGenerator::writeMakefile(QTextStream &t)
     return FALSE;
  }
 
-void createLdObjectScriptFile(const QString & fileName, QStringList & objList)
+void createLdObjectScriptFile(const QString &fileName, QStringList &objList)
 {
     QString filePath = Option::output_dir + QDir::separator() + fileName;
     QFile file(filePath);
@@ -93,123 +93,9 @@ void createLdObjectScriptFile(const QString & fileName, QStringList & objList)
 void MingwMakefileGenerator::writeMingwParts(QTextStream &t)
 {
     writeStandardParts(t);
-    QString objectsLinkLine;
-    if(project->variables()["OBJECTS"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
-	createLdObjectScriptFile(var("QMAKE_LINK_OBJECT_SCRIPT"), project->variables()["OBJECTS"]);
-	objectsLinkLine = var("QMAKE_LINK_OBJECT_SCRIPT");
-    } else {
-	objectsLinkLine = "$(OBJECTS)";
-    }
-    t << "OBJECTS =	" << varList("OBJECTS") << endl;
-    t << "FORMS =	" << varList("FORMS") << endl;
-    t << "UICDECLS =	" << varList("UICDECLS") << endl;
-    t << "UICIMPLS =	" << varList("UICIMPLS") << endl;
-    t << "SRCMOC	=	" << varList("SRCMOC") << endl;
-    QString objmocLinkLine;
-    if(project->variables()["OBJMOC"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
-	createLdObjectScriptFile(var("QMAKE_LINK_OBJMOC_SCRIPT"), project->variables()["OBJMOC"]);
-	objmocLinkLine = var("QMAKE_LINK_OBJMOC_SCRIPT");
-    } else {
-	objmocLinkLine = "$(OBJMOC)";
-    }
-    t << "OBJMOC	=	" << varList("OBJMOC") << endl;
-    QString extraCompilerDeps;
-    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
-	t << "OBJCOMP = " << varList("OBJCOMP") << endl;
-	extraCompilerDeps += " $(OBJCOMP) ";
-
-	QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
-	for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {
-	    QStringList &vars = project->variables()[(*compit) + ".variables"];
-	    for(QStringList::Iterator varit = vars.begin(); varit != vars.end(); ++varit) {
-		QStringList vals = project->variables()[(*varit)];
-		if(!vals.isEmpty())
-		    t << "QMAKE_COMP_" << (*varit) << " = " << valList(vals) << endl;
-	    }
-	}
-    }
-
-    t << "DIST	=	" << varList("DISTFILES") << endl;
-    t << "TARGET	=	";
-    if(!project->variables()[ "DESTDIR" ].isEmpty())
-	t << varGlue("TARGET",project->first("DESTDIR"),"",project->first("TARGET_EXT"));
-    else
-	t << project->variables()[ "TARGET" ].value(0) << project->variables()[ "TARGET_EXT" ].value(0);
-    t << endl;
-    t << endl;
-
-    t << "####### Implicit rules" << endl << endl;
-    t << ".SUFFIXES: .cpp .cxx .cc .C .c" << endl << endl;
-    t << ".cpp.o:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".cxx.o:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".cc.o:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".C.o:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".c.o:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
-
-    t << "####### Build rules" << endl << endl;
-    t << "all: " << "$(OBJECTS_DIR) " << "$(MOC_DIR) " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
-    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) "
-      << extraCompilerDeps << var("POST_TARGETDEPS");
-    if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
-	t << "\n\t" << "$(LINK) $(LFLAGS) -o $(TARGET) " << objectsLinkLine << " " << objmocLinkLine << " $(LIBS)";
-    } else {
-	t << "\n\t" << "$(LIB) $(TARGET) " << objectsLinkLine << " " << objmocLinkLine;
-    }
-    t << extraCompilerDeps;
-    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
-	QStringList dlldirs = project->variables()["DLLDESTDIR"];
-	for (QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir) {
-	    t << "\n\t" << "$(COPY_FILE) $(TARGET) " << *dlldir;
-	}
-    }
-    QString targetfilename = project->variables()["TARGET"].value(0);
-    if(project->isActiveConfig("activeqt")) {
-	QString version = project->variables()["VERSION"].value(0);
-	if(version.isEmpty())
-	    version = "1.0";
-
-	if(project->isActiveConfig("dll")) {
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /idl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version);
-	    t << "\n\t" << ("-$(IDL) /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /regserver");
-	} else {
-	    t << "\n\t" << ("-$(TARGET) -dumpidl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version);
-	    t << "\n\t" << ("-$(IDL) /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
-	    t << "\n\t" << "-$(TARGET) -regserver";
-	}
-    }
-    t << endl << endl;
-
-    if(!project->variables()["RC_FILE"].isEmpty()) {
-	t << var("RES_FILE") << ": " << var("RC_FILE") << "\n\t"
-	  << var("QMAKE_RC") << " -i " << var("RC_FILE") << " -o " << var("RC_FILE").replace(QRegExp("\\.rc"),".o") << " --include-dir=" << QFileInfo(var("RC_FILE")).dirPath() << endl << endl;
-    }
-	project->variables()["RES_FILE"].value(0).replace(QRegExp("\\.rc"),".o");
-
-    t << "mocables: $(SRCMOC)" << endl << endl;
-
-    t << "$(OBJECTS_DIR):" << "\n\t"
-      << "@if not exist $(OBJECTS_DIR) $(MKDIR) $(OBJECTS_DIR)" << endl << endl;
-
-    t << "$(MOC_DIR):" << "\n\t"
-      << "@if not exist $(MOC_DIR) $(MKDIR) $(MOC_DIR)" << endl << endl;
-
-    writeMakeQmake(t);
-
-    t << "dist:" << "\n\t"
-      << "$(ZIP) " << var("PROJECT") << ".zip "
-      << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST) $(FORMS)" << endl << endl;
-
-    writeCleanParts(t);
-    writeExtraTargetParts(t);
-    writeExtraCompilerParts(t);
 }
 
-
-void
-MingwMakefileGenerator::init()
+void MingwMakefileGenerator::init()
 {
     if(init_flag)
 	return;
@@ -362,4 +248,49 @@ void MingwMakefileGenerator::processQtConfig()
 	    }	
 	}
     }
+}
+
+void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
+{
+    if(project->variables()["OBJECTS"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
+	createLdObjectScriptFile(var("QMAKE_LINK_OBJECT_SCRIPT"), project->variables()["OBJECTS"]);
+	objectsLinkLine = var("QMAKE_LINK_OBJECT_SCRIPT");
+    } else {
+	objectsLinkLine = "$(OBJECTS)";
+    }
+    Win32MakefileGenerator::writeObjectsPart(t);
+}
+
+void MingwMakefileGenerator::writeObjMocPart(QTextStream &t)
+{
+    if(project->variables()["OBJMOC"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
+	createLdObjectScriptFile(var("QMAKE_LINK_OBJMOC_SCRIPT"), project->variables()["OBJMOC"]);
+	objmocLinkLine = var("QMAKE_LINK_OBJMOC_SCRIPT");
+    } else {
+	objmocLinkLine = "$(OBJMOC)";
+    }
+    Win32MakefileGenerator::writeObjMocPart(t);
+}
+
+void MingwMakefileGenerator::writeBuildRulesPart(QTextStream &t, const QString &extraCompilerDeps)
+{
+    t << "all: " << fileFixify(Option::output.name()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(TARGET)" << endl << endl;
+    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) "
+      << extraCompilerDeps << var("POST_TARGETDEPS");
+    if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
+	t << "\n\t" << "$(LINK) $(LFLAGS) -o $(TARGET) " << objectsLinkLine << " " << objmocLinkLine << " $(LIBS)";
+    } else {
+	t << "\n\t" << "$(LIB) $(TARGET) " << objectsLinkLine << " " << objmocLinkLine;
+    }
+    t << extraCompilerDeps;
+}
+
+void MingwMakefileGenerator::writeRcFilePart(QTextStream &t)
+{
+    if(!project->variables()["RC_FILE"].isEmpty()) {
+	t << var("RES_FILE") << ": " << var("RC_FILE") << "\n\t"
+	  << var("QMAKE_RC") << " -i " << var("RC_FILE") << " -o " << var("RC_FILE").replace(QRegExp("\\.rc"),".o") << " --include-dir=" << QFileInfo(var("RC_FILE")).dirPath() << endl << endl;
+    }
+    // Somewhat useless call I think...
+    project->variables()["RES_FILE"].value(0).replace(QRegExp("\\.rc"),".o");
 }

@@ -19,11 +19,18 @@
 
 class MingwMakefileGenerator : public Win32MakefileGenerator
 {
-    bool init_flag;
+public:
+    MingwMakefileGenerator(QMakeProject *p);
+    ~MingwMakefileGenerator();
+private:
     void writeMingwParts(QTextStream &);
     void writeSubDirs(QTextStream &t);
     void writeLibsPart(QTextStream &t);
     bool writeMakefile(QTextStream &);
+    void writeObjectsPart(QTextStream &t);
+    void writeObjMocPart(QTextStream &t);
+    void writeBuildRulesPart(QTextStream &t, const QString &extraCompilerDeps);
+    void writeRcFilePart(QTextStream &t);
     void init();
     
     virtual bool findLibraries();
@@ -31,10 +38,8 @@ class MingwMakefileGenerator : public Win32MakefileGenerator
     void fixTargetExt();
     void processQtConfig();
 
-public:
-    MingwMakefileGenerator(QMakeProject *p);
-    ~MingwMakefileGenerator();
-
+    bool init_flag;
+    QString objmocLinkLine, objectsLinkLine;
 };
 
 inline MingwMakefileGenerator::~MingwMakefileGenerator()
