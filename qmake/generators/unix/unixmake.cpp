@@ -237,7 +237,8 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     t << endl << endl;
 
     t << "tmake_all:" << "\n\t"
-      << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(TMAKE) $$i.pro -o $(MAKEFILE); "
+      << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "
+//      << "$(TMAKE) $$i.pro -o $(MAKEFILE); "
       << "grep \"TEMPLATE.*subdirs\" $$i.pro 2>/dev/null >/dev/null && "
       << "$(MAKE) -f $(MAKEFILE) tmake_all || true; fi; ) ; done" << endl << endl;
 
