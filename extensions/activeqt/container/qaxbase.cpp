@@ -2350,6 +2350,27 @@ static void docuFromName( ITypeInfo *typeInfo, const QString &name, QString &doc
     }
 }
 
+static QString toType( const QString &t )
+{
+    QString type = t;
+    int vartype = QVariant::nameToType(type);
+    if ( vartype == QVariant::Invalid )
+	type = "int";
+
+    if ( type.startsWith("Q") )
+	type = type.mid(1);
+    type[0] = type[0].upper();
+    if ( type == "ValueList<QVariant>" )
+	type = "List";
+    else if ( type == "Map<QVariant,QVariant>" )
+	type = "Map";
+    else if ( type == "Uint" )
+	type = "UInt";
+    
+
+    return "to" + type + "()";
+}
+
 /*!
     Returns a rich text string with documentation for the
     wrapped COM object. Dump the string to an HTML-file,
@@ -2370,8 +2391,28 @@ QString QAxBase::generateDocumentation()
     const QMetaObject *mo = metaObject();
     QString coClass  = mo->classInfo( "CoClass" );
 
-    stream << "<h1 align=center>" << coClass << " Class Reference</h1>" << endl;
-    stream << "<p>The " << coClass << " class is a " << qObject()->className() << "</p>" << endl;
+    stream << "<h1 align=center>" << coClass << " Reference</h1>" << endl;
+    stream << "<p>The " << coClass << " COM object is a " << qObject()->className();
+    stream << " with the CLSID " <<  control() << ".</p>";
+
+    stream << "<h3>Interfaces</h3>" << endl;
+    stream << "<ul>" << endl;
+    const char *inter = 0;
+    int interCount = 1;  
+    while ( (inter = mo->classInfo(QString("Interface %1").arg(interCount))) ) {
+	stream << "<li>" << inter << endl;
+	interCount++;
+    }
+    stream << "</ul>" << endl;
+
+    stream << "<h3>Event Interfaces</h3>" << endl;
+    stream << "<ul>" << endl;
+    interCount = 1;  
+    while ( (inter = mo->classInfo(QString("Event Interface %1").arg(interCount))) ) {
+	stream << "<li>" << inter << endl;
+	interCount++;
+    }
+    stream << "</ul>" << endl;
 
     QStringList methodDetails, propDetails;
 
@@ -2433,11 +2474,15 @@ QString QAxBase::generateDocumentation()
 		    pcount--;
 		    retval = TRUE;
 		    rettype = QVariant::nameToType( it.data() );
+		    if ( rettype == QVariant::Invalid && QUType::isEqual(slotmethod->parameters->type, &static_QUType_enum ) )
+			rettype = QVariant::Int;
 		}
 		if ( p && slotmethod->parameters->inOut & QUParameter::Out )
 		    outparams = TRUE;
-		if ( allVariants && QUType::isEqual( slotmethod->parameters[p].type, &static_QUType_ptr ) )
-		    allVariants = FALSE;
+		if ( allVariants && QUType::isEqual( slotmethod->parameters[p].type, &static_QUType_ptr ) ) {
+		    const char *typeExtra = (const char*)slotmethod->parameters[p].typeExtra;
+		    allVariants = !p && (!strcmp(typeExtra, "IDispatch*") || !strcmp(typeExtra, "IUnknown*"));
+		}
 	    }
 	    if ( allVariants ) {
 		detail += "<p>Or call the function directly:<pre>\n";
@@ -2447,17 +2492,20 @@ QString QAxBase::generateDocumentation()
 			for ( int p = 0; p < pcount; ++p )
 			    detail += "\tparams &lt;&lt; var" + QString::number(p+1) + ";\n";
 			detail += "\t" + QCString(QVariant::typeToName(rettype)) + " res = ";
-			detail += "object->dynamicCall( \"" + name + params + "\", params ).to";
-			detail += QCString(QVariant::typeToName(rettype)) + "();\n";
+			detail += "object->dynamicCall( \"" + name + params + "\", params ).";
+			detail += toType(QVariant::typeToName(rettype)) + ";\n";
 		    } else {
 			detail += "\t" + QCString(QVariant::typeToName(rettype)) + " res = ";
 			detail += "object->dynamicCall( \"" + name + params + "\"";
 			for ( int p = 0; p < pcount; ++p )
 			    detail += ", var" + QString::number(p+1);
-			detail += " ).to" + QCString(QVariant::typeToName(rettype)) + "();\n";
+			detail += " )." + toType(QVariant::typeToName(rettype)) + ";\n";
 		    }
 		} else if ( retval ) {
-		    detail += "\tUse querySubObject to get the returning COM object";
+		    detail += "\tQAxObject *res = object->querySubObject( \"" + name + params + "\"";
+		    for ( int p = 0; p < pcount; ++p )
+			detail += ", var" + QString::number(p+1);
+		    detail += " );";
 		} else { // no return value
 		    if ( outparams ) {
 			detail += "\tQValueList<QVariant> params;\n";
@@ -2473,7 +2521,7 @@ QString QAxBase::generateDocumentation()
 		}
 		detail += "</pre>\n";
 	    } else {
-		detail += "<p>This function has parameters of unsupported types and cannot be called.";
+		detail += "<p>This function has parameters of unsupported types and cannot be called directly.";
 	    }
 
 	    methodDetails << detail;
@@ -2533,11 +2581,18 @@ QString QAxBase::generateDocumentation()
 	    if ( !prop )
 		continue;
 
-	    if ( vartype == QVariant::Invalid && prop->isEnumType() )
+	    bool castToType = FALSE;
+	    if ( vartype == QVariant::Invalid && prop->isEnumType() ) {
 		vartype = QVariant::Int;
+		castToType = TRUE;
+	    }
 	    if ( vartype != QVariant::Invalid ) {
 		detail += "<p>Read this property's value using QObject::property:<pre>\n";
-		detail += "\t" + type + " val = object->property( \"" + name + "\" ).to" + type + "();\n";
+		detail += "\t" + type + " val = ";
+		if ( castToType ) {
+		    detail += "(" + type + ")";
+		}
+		detail += "object->property( \"" + name + "\" )." + toType(type) + ";\n";
 		detail += "</pre>\n";
 	    } else if ( type == "IDispatch*" || type == "IUnkonwn*" ) {
 		detail += "<p>Get the subobject using querySubObject:<pre>\n";
@@ -2953,8 +3008,11 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	return FALSE;
 
     int varc = 0;
-    while ( vars[varc].isValid() )
+    while ( vars[varc].isValid() ) {
+	if ( vars[varc].type() == -1 )
+	    vars[varc] = QVariant();
 	varc++;
+    }
 
     QString function = name;
     VARIANT *arg = varc ? new VARIANT[varc] : 0;
@@ -3163,8 +3221,12 @@ QVariant QAxBase::dynamicCall( const QCString &function, QValueList<QVariant> &v
     const int count = vars.count();
     QVariant *vararray = new QVariant[ count + 1 ];
     int i = 0;
-    for ( QValueList<QVariant>::Iterator it = vars.begin(); it != vars.end(); ++it )
-	vararray[i++] = *it;
+    for ( QValueList<QVariant>::Iterator it = vars.begin(); it != vars.end(); ++it ) {
+	QVariant var = *it;
+	if ( !var.isValid() )
+	    var.rawAccess( this, (QVariant::Type)-1 );
+	vararray[i++] = var;
+    }
 
     QCString rettype;
     bool ok = internalInvoke( function, &res, vararray, rettype );
