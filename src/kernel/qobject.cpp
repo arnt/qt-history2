@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#89 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#88 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#89 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1010,6 +1010,42 @@ static void err_member_notfound( int code, const QObject *object,
 
 
 /*----------------------------------------------------------------------------
+  \fn void QObject::connectNotify( const char *signal )
+
+  This virtual function is called when something has been connected to
+  \e signal in this object.
+
+  \warning
+  This function violates the object-oriented principle of modularity.
+  However, it might be useful when you need to perform expensive
+  initialization only if something is connected to a signal.
+
+  \sa connect(), disconnectNotify()
+ ----------------------------------------------------------------------------*/
+
+void QObject::connectNotify( const char *signal )
+{
+}
+
+/*----------------------------------------------------------------------------
+  \fn void QObject::disconnectNotify( const char *signal )
+
+  This virtual function is called when something has been disconnected from
+  \e signal in this object.
+
+  \warning
+  This function violates the object-oriented principle of modularity.
+  However, it might be useful for optimizing access to expensive resources.
+
+  \sa disconnect(), connectNotify()
+ ----------------------------------------------------------------------------*/
+
+void QObject::disconnectNotify( const char *signal )
+{
+}
+
+
+/*----------------------------------------------------------------------------
   \overload bool QObject::connect( const QObject *sender, const char *signal, const char *member ) const
 
   Connects \e signal from the \e sender object to \e member in this object.
@@ -1020,13 +1056,14 @@ static void err_member_notfound( int code, const QObject *object,
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn const QObject *QObject::sender()
+  \fn QObject *QObject::sender()
   Returns a pointer to the object that sent the last signal received by
   this object.
 
-  Getting access to the sender might be very practical when lots
-  of signals are connected to a single slot, however, it violates
-  the object-oriented principle of modularity.
+  \warning
+  This function violates the object-oriented principle of modularity,
+  However, getting access to the sender might be practical when many
+  signals are connected to a single slot.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -1098,10 +1135,10 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
     }
 #endif
-    QString signal_tmp = rmWS( signal );	// white space stripped
-    QString member_tmp = rmWS( member );
-    signal = signal_tmp;
-    member = member_tmp;
+    QString signal_name = rmWS( signal );	// white space stripped
+    QString member_name = rmWS( member );
+    signal = signal_name;
+    member = member_name;
 
     QMetaObject *smeta = sender->queryMetaObject();
     if ( !smeta )				// no meta object
@@ -1170,6 +1207,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	CHECK_PTR( r->senderObjects );
     }
     r->senderObjects->append( s );		// add sender to list
+    s->connectNotify( signal_name );
     return TRUE;
 }
 
@@ -1250,15 +1288,14 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 #endif
     if ( !sender->connections )			// no connected signals
 	return FALSE;
-    QString signal_tmp;
-    QString member_tmp;
+    QString signal_name;
+    QString member_name;
     QMetaData *rm = 0;
     QObject *s = (QObject *)sender;
     QObject *r = (QObject *)receiver;
     if ( member ) {
-	member_tmp.resize( strlen(member)+1 );
-	member_tmp = rmWS( member );
-	member = member_tmp.data();
+	member_name = rmWS( member );
+	member = member_name.data();
 	int membcode = member[0] - '0';
 #if defined(CHECK_RANGE)
 	if ( !check_member_code( membcode, r, member, "disconnect" ) )
@@ -1306,12 +1343,12 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	    if ( r == 0 )			// disconnect all receivers
 		s->connections->remove( curkey );
 	}
+	s->disconnectNotify( 0 );
     }
 
     else {					// specific signal
-	signal_tmp.resize( strlen(signal)+1 );
-	signal_tmp = rmWS( signal );
-	signal = signal_tmp.data();
+	signal_name = rmWS( signal );
+	signal = signal_name.data();
 #if defined(CHECK_RANGE)
 	if ( !check_signal_macro( s, signal, "disconnect", "unbind" ) )
 	    return FALSE;
@@ -1346,6 +1383,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	}
 	if ( r == 0 )				// disconnect all receivers
 	    s->connections->remove( signal );
+	s->disconnectNotify( signal_name );
     }
     return TRUE;
 }
@@ -1415,8 +1453,8 @@ void QObject::initMetaObject()
     signal_tbl[0].name = "destroyed()";
     signal_tbl[0].ptr = *((QMember*)&v2_0);
     metaObj = new QMetaObject( "QObject", "",
-        slot_tbl, 1,
-        signal_tbl, 1 );
+	slot_tbl, 1,
+	signal_tbl, 1 );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#31 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#32 $
 **
 ** Definition of QObject class
 **
@@ -87,6 +87,9 @@ protected:
     virtual void initMetaObject();
 
     virtual void timerEvent( QTimerEvent * );
+
+    virtual void connectNotify( const char *signal );
+    virtual void disconnectNotify( const char *signal );
 
     uint	isSignal   : 1;
     uint	isWidget   : 1;
