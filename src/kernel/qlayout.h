@@ -34,6 +34,10 @@ class QLayoutArray;
 class QLayoutBox;
 class QDomElement;
 
+#if 0
+Q_OBJECT
+#endif
+
 class Q_EXPORT QGridLayout : public QLayout
 {
     Q_COMPONENT

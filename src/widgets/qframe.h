@@ -30,6 +30,9 @@
 #include "qwidget.h"
 #endif // QT_H
 
+#if 0
+Q_OBJECT
+#endif
 
 class Q_EXPORT QFrame : public QWidget			// frame class
 {

@@ -38,6 +38,9 @@ class QValidator;
 
 struct QSpinBoxPrivate;
 
+#if 0
+Q_OBJECT
+#endif
 
 class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
 {
@@ -49,11 +52,11 @@ public:
     ~QSpinBox();
 
     QString 		text() const;
-    
+
 qproperties:
     virtual QString 	prefix() const;
     virtual QString 	suffix() const;
-    
+
 public:
     virtual QString 	cleanText() const;
 

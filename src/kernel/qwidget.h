@@ -46,6 +46,10 @@ class QFocusData;
 class QStyle;
 class QDomElement;
 
+#if 0
+Q_OBJECT
+#endif
+
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_COMPONENT
@@ -674,7 +678,7 @@ struct QTLWExtra {
     uint     wmstate: 2;			// wmstate trigger
     uint     dnd : 1; 				// DND properties installed
     uint     uspos : 1;                         // User defined position
-    uint     ussize : 1;                        // User defined size      
+    uint     ussize : 1;                        // User defined size
     void    *xic;				// XIM Input Context
 #endif
 #if defined(_WS_WIN_)
@@ -700,7 +704,7 @@ struct QWExtra {
 #endif
     char     bg_mode;				// background mode
     QStyle* style;
-    QRect micro_focus_hint;                     // micro focus hint     
+    QRect micro_focus_hint;                     // micro focus hint
 };
 
 
