@@ -1722,6 +1722,7 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     if (font.d->deref()) delete font.d;
 
     font.d = new QFontPrivate;
+    font.d->mask = QFontPrivate::Complete;
 
     Q_INT16 pointSize, pixelSize = -1;
     Q_UINT8 styleHint, styleStrategy = QFont::PreferDefault, charSet, weight, bits;
