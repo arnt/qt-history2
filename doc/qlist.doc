@@ -222,7 +222,7 @@
   for the same task. So you inSort() only if you already have a presorted
   list and want to insert only few additional items.
 
-  \sa insert(), compareItems(), current(), sort()
+  \sa insert(), QGList::compareItems(), current(), sort()
 */
 
 /*!
