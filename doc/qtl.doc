@@ -31,22 +31,19 @@
 
 <h1 align=center>Qt Template Library</h1><br clear="all">
 
-The Qt template library contains the following classes:
+In contrast to the containers based on \l QCollection, the Qt template
+library implements a value based approach comparable to the C++
+Standard Template Library (STL).
 
-<ul>
-<li> \l QMap a dictionary
-<li> \l QMapIterator and \l QMapConstIterator iterators for QMap.
-<li> \l QValueList a linked list
-<li> \l QValueListIterator and \l QValueListConstIterator iterators for QValueList.
-<li> \l QStringList a list of strings, derived from QValueList.
-<li> \l QValueStack a stack
-<li> \l QArray a dynamic array
-</ul>
+It currently provides the containers QMap, QValueList and QValueStack
+plus a set of iterators operating on these classes ( \l QMapIterator,
+\l QMapConstIterator, \l QValueListOperator and \l
+QValueListConstIterator ). For convenience, it also includes a
+specialized class \l QStringList that features a list of unicode
+string.
 
-In contrast to the containers based on QCollection, the Qt template
-library has a value based approach comparable to the C++ Standard
-Template Library (STL).  While QCollection and friends store pointers
-to objects, these classes store copies of the actual objects,
+While QCollection and friends store pointers to objects, these classes
+store copies of the actual objects,
 i.e. values. Both concepts have their specific pros and cons,
 depending on the kind of data you want to store.
 
@@ -228,7 +225,7 @@ standard C++ array with qCopy():
 
 <h2> Streaming </h2>
 
-All Qt containers, apart from QArray, can be serialized with the
+All mentioned containers can be serialized with the respective
 streaming operators. Here is an example. It assumes that \c str is
 some QDataStream:
 

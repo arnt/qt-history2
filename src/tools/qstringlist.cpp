@@ -33,6 +33,7 @@
   \class QStringList qstringlist.h
   \brief A list of strings.
 
+  \ingroup qtl
   \ingroup tools
   \ingroup shared
 
@@ -97,10 +98,10 @@
 
 /*!
   Sorts the list of strings in ascending order.
-  
+
   Sorting is very fast. It uses the Qt Template Library's
   efficient HeapSort implementation that operates in O(n*log n).
-  
+
   \sa qHeapSort()
 */
 void QStringList::sort()
