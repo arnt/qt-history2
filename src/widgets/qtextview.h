@@ -114,8 +114,6 @@ public:
     virtual bool find( const QString &expr, bool cs, bool wo, bool forward = TRUE,
 		       int *para = 0, int *index = 0 );
 
-    void append( const QString& text );
-
     int paragraphs() const;
     int lines() const;
     int linesOfParagraph( int para ) const;
@@ -156,6 +154,7 @@ public slots:
     virtual void setWrapPolicy( WrapPolicy policy );
 
     virtual void copy();
+    virtual void append( const QString& text );
 
     void setText( const QString &txt ) { setText( txt, QString::null ); }
     virtual void setText( const QString &txt, const QString &context );
