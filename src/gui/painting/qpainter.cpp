@@ -1171,7 +1171,6 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
     }
 
     // Fallback: rasterize into a pixmap and draw the pixmap
-    // ### FIXME: this is slow
 
     QFontEngine *fe = ti.fontEngine;
     QPixmap pm(ti.width, ti.ascent+ti.descent);
