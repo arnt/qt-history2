@@ -1414,11 +1414,9 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 	if ( f.weight() <= QFont::Light )
 	    fw = "100";
 	else if ( f.weight() <= QFont::Normal )
-	    fw = "200";
-	else if ( f.weight() <= QFont::DemiBold )
-	    fw = "300";
-	else if ( f.weight() <= QFont::Normal )
 	    fw = "400";
+	else if ( f.weight() <= QFont::DemiBold )
+	    fw = "600";
 	else if ( f.weight() <= QFont::Bold )
 	    fw = "700";
 	else if ( f.weight() <= QFont::Black )
@@ -1426,7 +1424,7 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 	else
 	    fw = "900";
 	s += QString( "font-weight:%1;" ).arg( fw );
-	s += QString( "font-family:%1;" ).arg( fi.family() );
+	s += QString( "font-family:%1;" ).arg( f.family() );
     } else {
 	s += QString( "stroke:rgb(%1,%2,%3);" )
 	     .arg( pcol.red() ).arg( pcol.green() ).arg( pcol.blue() );
