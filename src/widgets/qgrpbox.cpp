@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#33 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -19,10 +19,15 @@
   \ingroup realwidgets
 
   The intended use of a group box is to show that a number of widgets
-  (i.e. child widgets) are logically related.
+  (i.e. child widgets) are logically related.  QPrintDialog is a good
+  example; each of its three panes is one group box.
 
-  The button group widget, QButtonGroup, is an "intelligent" group box
-  that is very useful for organizing button widgets in a group.
+  By default, the group's setFont() and setPalette() functions do not
+  change the appearance of the widgets it contaisn, but you can use
+  setFontPropagation() and setPalettePropagation() to change that.
+
+  Qt also provides a more specialized group box, QButtonGroup, that is
+  very useful for organizing buttons in a group.
 
   <img src=qgrpbox-m.gif> <img src=qgrpbox-w.gif>
 */
