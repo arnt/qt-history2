@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xembed/qxembed.cpp#4 $
+** $Id: //depot/qt/main/extensions/xembed/qxembed.cpp#5 $
 **
 ** Implementation of QXEmbed class
 **
@@ -32,7 +32,11 @@ QXEmbed::QXEmbed(QWidget *parent, const char *name)
 {
     window = 0;
     setFocusPolicy(StrongFocus);
-    setSizeGrip( FALSE ); //trick to create extraData();
+    
+    //trick to create extraData();
+    QCursor old = cursor();
+    setCursor(Qt::blankCursor);
+    setCursor(old);
 }
 
 QXEmbed::~QXEmbed()
