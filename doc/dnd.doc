@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: dnd.doc,v 1.6 1999/06/03 15:14:48 warwick Exp $
+** $Id: dnd.doc,v 1.7 1999/06/17 22:41:39 warwick Exp $
 **
 ** Drag and drop documentation
 **
@@ -107,7 +107,9 @@ Qt toolkit - Drag and Drop
 
   The QDragObject, QDragEnterEvent, QDragMoveEvent, and QDropEvent
   classes are all subclasses of QMimeSource - the class of objects 
-  which provide MIME-typed information.  If you base your data
+  which provide
+  typed
+  information.  If you base your data
   transfers on QDragObject, you not only get drag-and-drop, but you
   also get traditional cut-and-paste for free - the QClipboard has
   two functions:
@@ -175,7 +177,7 @@ Qt toolkit - Drag and Drop
   within the same widget - see the
   <a href=#advanced>Advanced Drag-and-Drop</a> section below.
 
-  The other major use of drag actions is when using a reference MIME
+  The other major use of drag actions is when using a reference
   type such as text/uri-list, where the dragged data is actually references
   to files or objects.
 
@@ -185,7 +187,9 @@ Qt toolkit - Drag and Drop
   drag-and-drop is not limited to text and images.  Any information
   can be dragged and dropped.  To drag information between applications,
   the two applications need a way to agree on the type of information
-  they both understand.  The way they do it is using MIME types - the
+  they both understand.
+  The way they do it is using
+  <i><a href=http://www.rfc-editor.org/rfc/rfc1341.txt>MIME types</a></i> - the
   drag source provides a list of MIME types that it can produce (ordered
   from most appropriate to least appropriate), and the drop target chooses
   which of those it can handle.
