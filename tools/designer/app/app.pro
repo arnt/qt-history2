@@ -4,6 +4,7 @@ CONFIG 		-= moc
 SOURCES		+= main.cpp
 unix:LIBS	+= -ldesigner -L$$QT_BUILD_TREE/lib
 win32:LIBS	+= $$QT_BUILD_TREE/lib/designerlib.lib
+mac:LIBS	+= -lqui -lqassistantclient
 INCLUDEPATH	+= ../designer
 TARGET		= designer
 DESTDIR		= $$QT_BUILD_TREE/bin
