@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#4 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#4 $";
 #endif
 
 /*! \class QComboBox qcombo.h
@@ -336,8 +336,6 @@ void QComboBox::paintEvent( QPaintEvent * )
 
 
     QColorGroup g  = colorGroup();
-    QColor	fillcol = g.background();
-	QColor tColor, bColor;
 
     p.begin( this );
 
