@@ -60,26 +60,6 @@ QCursorData::~QCursorData()
 
 static QCursor cursorTable[Qt::LastCursor+1];
 
-static const int arrowCursorIdx = 0;
-
-QT_STATIC_CONST_IMPL QCursor & Qt::arrowCursor = cursorTable[0];
-QT_STATIC_CONST_IMPL QCursor & Qt::upArrowCursor = cursorTable[1];
-QT_STATIC_CONST_IMPL QCursor & Qt::crossCursor = cursorTable[2];
-QT_STATIC_CONST_IMPL QCursor & Qt::waitCursor = cursorTable[3];
-QT_STATIC_CONST_IMPL QCursor & Qt::ibeamCursor = cursorTable[4];
-QT_STATIC_CONST_IMPL QCursor & Qt::sizeVerCursor = cursorTable[5];
-QT_STATIC_CONST_IMPL QCursor & Qt::sizeHorCursor = cursorTable[6];
-QT_STATIC_CONST_IMPL QCursor & Qt::sizeBDiagCursor = cursorTable[7];
-QT_STATIC_CONST_IMPL QCursor & Qt::sizeFDiagCursor = cursorTable[8];
-QT_STATIC_CONST_IMPL QCursor & Qt::sizeAllCursor = cursorTable[9];
-QT_STATIC_CONST_IMPL QCursor & Qt::blankCursor = cursorTable[10];
-QT_STATIC_CONST_IMPL QCursor & Qt::splitVCursor = cursorTable[11];
-QT_STATIC_CONST_IMPL QCursor & Qt::splitHCursor = cursorTable[12];
-QT_STATIC_CONST_IMPL QCursor & Qt::pointingHandCursor = cursorTable[13];
-QT_STATIC_CONST_IMPL QCursor & Qt::forbiddenCursor = cursorTable[14];
-QT_STATIC_CONST_IMPL QCursor & Qt::whatsThisCursor = cursorTable[15];
-
-
 QCursor *QCursor::find_cur( int shape )		// find predefined cursor
 {
     return (uint)shape <= Qt::LastCursor ? &cursorTable[shape] : 0;
@@ -123,7 +103,7 @@ QCursor::QCursor()
 	}
 	initialize();
     }
-    QCursor* c = &cursorTable[arrowCursorIdx];
+    QCursor* c = &cursorTable[0];
     c->data->ref();
     data = c->data;
 }
@@ -136,7 +116,7 @@ QCursor::QCursor( int shape )
 	initialize();
     QCursor *c = find_cur( shape );
     if ( !c )					// not found
-	c = &cursorTable[arrowCursorIdx];	//   then use arrowCursor
+	c = &cursorTable[0];	//   then use ArrowCursor
     c->data->ref();
     data = c->data;
 }
@@ -150,7 +130,7 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
     if ( bitmap.depth() != 1 || mask.depth() != 1 ||
 	 bitmap.size() != mask.size() ) {
 	qWarning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
-	QCursor *c = &cursorTable[arrowCursorIdx];
+	QCursor *c = &cursorTable[0];
 	c->data->ref();
 	data = c->data;
 	return;
@@ -207,7 +187,7 @@ void QCursor::setShape( int shape )
 	initialize();
     QCursor *c = find_cur( shape );		// find one of the global ones
     if ( !c )					// not found
-	c = &cursorTable[arrowCursorIdx];	//   then use arrowCursor
+	c = &cursorTable[0];	//   then use ArrowCursor
     c->data->ref();
     if ( data->deref() )			// make shallow copy
 	delete data;

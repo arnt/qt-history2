@@ -1169,8 +1169,8 @@ void QWidget::unsetCursor()
 		}
 	    }
 	}
-	if(!n)
-	    n = &arrowCursor; //I give up..
+	const QCursor def(Qt::ArrowCursor);
+	if(!n) n = &def; //I give up..
 	qt_mac_set_cursor(n, &mouse_pos);
     }
 }

@@ -1993,7 +1993,7 @@ void QWorkspaceChild::leaveEvent( QEvent * )
 {
 #ifndef QT_NO_CURSOR
     if ( !widgetResizeHandler->isButtonDown() )
-	setCursor( arrowCursor );
+	setCursor( ArrowCursor );
 #endif
 }
 

@@ -18,6 +18,7 @@
 
 #include "qpainter.h"
 #include "qapplication.h"
+#include "qcursor.h"
 #include "qevent.h"
 #include "qstyle.h"
 
@@ -87,9 +88,9 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
 #ifndef QT_NO_CURSOR
 #ifndef Q_WS_MAC
     if ( QApplication::reverseLayout() )
-	setCursor( sizeBDiagCursor );
+	setCursor( SizeBDiagCursor );
     else
-	setCursor( sizeFDiagCursor );
+	setCursor( SizeFDiagCursor );
 #endif
 #endif
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );

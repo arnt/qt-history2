@@ -951,7 +951,7 @@ void QTextEdit::init()
     setAttribute(WA_KeyCompression, true);
     viewport()->setMouseTracking( TRUE );
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
     cursor = new QTextCursor( doc );
 
@@ -1239,7 +1239,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	    insert( QString( QChar( 0x2028) ), TRUE, FALSE );
 	} else {
 #ifndef QT_NO_CURSOR
-	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+	    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
 	    clearUndoRedoInfo = FALSE;
 	    doKeyboardAction( ActionReturn );
@@ -1838,7 +1838,7 @@ void QTextEdit::removeSelectedText( int selNum )
 	    viewport()->repaint( 0, contentsHeight(), visibleWidth(), visibleHeight() - contentsHeight(), TRUE );
 #endif
 #ifndef QT_NO_CURSOR
-	viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+	viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
 	updateMicroFocusHint();
     } else {
@@ -1926,7 +1926,7 @@ void QTextEdit::moveCursor( CursorAction action, bool select )
 	    ensureCursorVisible();
 	    drawCursor( TRUE );
 #ifndef QT_NO_CURSOR
-	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+	    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
 	}
 	if ( redraw ) {
@@ -2219,7 +2219,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	} else {
 	    repaintChanged();
 #ifndef QT_NO_CURSOR
-	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+	    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
 	}
     } else if ( e->button() == MidButton ) {
@@ -2229,7 +2229,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	} else {
 	    repaintChanged();
 #ifndef QT_NO_CURSOR
-	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+	    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
 	}
     }
@@ -2258,7 +2258,7 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 		startDrag();
 #ifndef QT_NO_CURSOR
 	    if ( !isReadOnly() )
-		viewport()->setCursor( ibeamCursor );
+		viewport()->setCursor( IbeamCursor );
 #endif
 	    return;
 	}
@@ -2271,9 +2271,9 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 #ifndef QT_NO_CURSOR
     if ( !isReadOnly() && !mousePressed ) {
 	if ( doc->hasSelection( QTextDocument::Standard ) && doc->inSelection( QTextDocument::Standard, e->pos() ) )
-	    viewport()->setCursor( arrowCursor );
+	    viewport()->setCursor( ArrowCursor );
 	else
-	    viewport()->setCursor( ibeamCursor );
+	    viewport()->setCursor( IbeamCursor );
     }
 #endif
     updateCursor( e->pos() );
@@ -2352,7 +2352,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
             } else {
                 repaintChanged();
 #ifndef QT_NO_CURSOR
-                viewport()->setCursor( ibeamCursor );
+                viewport()->setCursor( IbeamCursor );
 #endif
             }
 	    d->clipboard_mode = QClipboard::Selection;
@@ -2577,7 +2577,7 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 	} else {
 	    doc->removeSelection( QTextDocument::Standard );
 #ifndef QT_NO_CURSOR
-	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+	    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
 	}
 	drawCursor( FALSE );
@@ -3114,7 +3114,7 @@ void QTextEdit::undo()
 	doc->removeSelection( i );
 
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
 
     clearUndoRedo();
@@ -3164,7 +3164,7 @@ void QTextEdit::redo()
 	doc->removeSelection( i );
 
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
 
     clearUndoRedo();
@@ -3843,7 +3843,7 @@ bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
 #endif
     drawCursor( FALSE );
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
     QTextCursor findcur = *cursor;
     if ( para && index ) {
@@ -4330,7 +4330,7 @@ void QTextEdit::selectAll( bool select )
     emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
     emit selectionChanged();
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
 }
 
@@ -4671,7 +4671,7 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 // 		}
 // 	    }
 #ifndef QT_NO_CURSOR
-	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+	    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
 	}
     } break;
@@ -5600,9 +5600,9 @@ void QTextEdit::setReadOnly( bool b )
     readonly = b;
 #ifndef QT_NO_CURSOR
     if ( readonly )
-	viewport()->setCursor( arrowCursor );
+	viewport()->setCursor( ArrowCursor );
     else
-	viewport()->setCursor( ibeamCursor );
+	viewport()->setCursor( IbeamCursor );
     setInputMethodEnabled( !readonly );
 #endif
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -5807,14 +5807,14 @@ void QTextEdit::updateCursor( const QPoint & pos )
 
 	    if (!c.paragraph()->at( c.index() )->anchorHref().isEmpty() ) {
 #ifndef QT_NO_CURSOR
-		viewport()->setCursor( onLink.isEmpty() ? arrowCursor : pointingHandCursor );
+		viewport()->setCursor( onLink.isEmpty() ? ArrowCursor : PointingHandCursor );
 #endif
 		QUrl u( doc->context(), onLink, TRUE );
 		emitHighlighted( u.toString( FALSE, FALSE ) );
 	    }
 	} else {
 #ifndef QT_NO_CURSOR
-	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+	    viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
 #endif
 	    onLink = QString::null;
 	    emitHighlighted( QString::null );

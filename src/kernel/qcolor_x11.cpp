@@ -277,36 +277,6 @@ void QColor::initialize()
     }
 
     scr = QPaintDevice::x11AppScreen();
-
-    // Initialize global color objects
-    if ( QPaintDevice::x11AppDefaultVisual(scr) &&
-	 QPaintDevice::x11AppDefaultColormap(scr) ) {
-	globalColors()[blackIdx].setPixel((uint) BlackPixel(dpy, scr));
-	globalColors()[whiteIdx].setPixel((uint) WhitePixel(dpy, scr));
-    } else {
-	globalColors()[blackIdx].alloc(scr);
-	globalColors()[whiteIdx].alloc(scr);
-    }
-
-#if 0 /* 0 == allocate colors on demand */
-    setLazyAlloc( FALSE );			// allocate global colors
-    ((QColor*)(&darkGray))->	alloc();
-    ((QColor*)(&gray))->	alloc();
-    ((QColor*)(&lightGray))->	alloc();
-    ((QColor*)(&::red))->	alloc();
-    ((QColor*)(&::green))->	alloc();
-    ((QColor*)(&::blue))->	alloc();
-    ((QColor*)(&cyan))->	alloc();
-    ((QColor*)(&magenta))->	alloc();
-    ((QColor*)(&yellow))->	alloc();
-    ((QColor*)(&darkRed))->	alloc();
-    ((QColor*)(&darkGreen))->	alloc();
-    ((QColor*)(&darkBlue))->	alloc();
-    ((QColor*)(&darkCyan))->	alloc();
-    ((QColor*)(&darkMagenta))-> alloc();
-    ((QColor*)(&darkYellow))->	alloc();
-    setLazyAlloc( TRUE );
-#endif
 }
 
 /*!
@@ -576,11 +546,14 @@ uint QColor::alloc()
 */
 uint QColor::pixel( int screen ) const
 {
-    if (screen != QPaintDevice::x11AppScreen() &&
-	// don't allocate color0 or color1, they have fixed pixel
-	// values for all screens
-	d.argb != qRgba(255, 255, 255, 1) && d.argb != qRgba(0, 0, 0, 1))
-	return ((QColor*)this)->alloc( screen );
+    // don't allocate color0 or color1, they have fixed pixel values for all screens
+    if (d.argb == qRgba(255, 255, 255, 1))
+	return 0;
+    if (d.argb == qRgba(0, 0, 0, 1))
+	return 1;
+
+    if (screen != QPaintDevice::x11AppScreen())
+	return ((QColor*)this)->alloc(screen);
     return pixel();
 }
 

@@ -296,11 +296,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 					      crect.left(), crect.top(),
 					      crect.width(), crect.height(),
 					      0,
-					      black.pixel(x11Screen()),
-					      white.pixel(x11Screen()) );
+					      QColor(black).pixel(x11Screen()),
+					      QColor(white).pixel(x11Screen()));
 	} else {
-	    wsa.background_pixel = white.pixel(x11Screen());
-	    wsa.border_pixel = black.pixel(x11Screen());
+	    wsa.background_pixel = QColor(white).pixel(x11Screen());
+	    wsa.border_pixel = QColor(black).pixel(x11Screen());
 	    wsa.colormap = (Colormap)x11Colormap();
 	    id = (WId)qt_XCreateWindow( this, dpy, parentw,
 					crect.left(), crect.top(),
@@ -847,15 +847,15 @@ void QWidgetPrivate::updateSystemBackground()
 
 void QWidget::setCursor( const QCursor &cursor )
 {
-    if ( cursor.handle() != arrowCursor.handle()
-	 || (d->extra && d->extra->curs) ) {
+    if (cursor.shape() != Qt::ArrowCursor
+	|| (d->extra && d->extra->curs)) {
 	d->createExtra();
 	delete d->extra->curs;
 	d->extra->curs = new QCursor(cursor);
     }
-    setAttribute( WA_SetCursor );
-    qt_x11_enforce_cursor( this );
-    XFlush( x11Display() );
+    setAttribute(WA_SetCursor);
+    qt_x11_enforce_cursor(this);
+    XFlush(x11Display());
 }
 
 void QWidget::unsetCursor()
@@ -2183,7 +2183,7 @@ bool QWidget::acceptDrops() const
 
 void QWidget::setAcceptDrops( bool on )
 {
-    if ( testWState(WState_DND) != on ) {
+    if ( (bool)testWState(WState_DND) != on ) {
 	if ( qt_dnd_enable( this, on ) ) {
 	    if ( on )
 		setWState( WState_DND );

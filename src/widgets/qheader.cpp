@@ -16,6 +16,7 @@
 #include "qheader.h"
 #ifndef QT_NO_HEADER
 #include "qapplication.h"
+#include "qcursor.h"
 #include "qbitarray.h"
 #include "qdrawutil.h"
 #include "qmemarray.h"
@@ -752,9 +753,9 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
 		    hit = TRUE;
 #ifndef QT_NO_CURSOR
 		    if ( orient == Horizontal )
-			setCursor( splitHCursor );
+			setCursor( SplitHCursor );
 		    else
-			setCursor( splitVCursor );
+			setCursor( SplitVCursor );
 #endif
 		}
 	    }
@@ -772,9 +773,9 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
 	    moveToIdx = -1;
 #ifndef QT_NO_CURSOR
 	    if ( orient == Horizontal )
-		setCursor( sizeHorCursor );
+		setCursor( SizeHorCursor );
 	    else
-		setCursor( sizeVerCursor );
+		setCursor( SizeVerCursor );
 #endif
 	}
 	break;

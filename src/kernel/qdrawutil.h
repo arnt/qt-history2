@@ -26,6 +26,7 @@ class QColorGroup;
 #endif
 class QPalette;
 class QPoint;
+class QColor;
 class QBrush;
 class QRect;
 class QPixmap;

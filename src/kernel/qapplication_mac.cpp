@@ -936,9 +936,8 @@ void QApplication::restoreOverrideCursor()
 	mouse_pos.h = qmp.x();
 	mouse_pos.v = qmp.y();
 
-	const QCursor *n = app_cursor;
-	if(!n)
-	    n = &arrowCursor;
+	const QCursor def(Qt::ArrowCursor);
+	const QCursor *n = app_cursor ? app_cursor : &def;
 	qt_mac_set_cursor(n, &mouse_pos);
     }
 }
@@ -1742,8 +1741,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    }
 		}
 	    }
-	    if(!n)
-		n = &arrowCursor; //I give up..
+	    const QCursor def(Qt::ArrowCursor);
+	    if(!n) n = &def; //I give up..
 	    qt_mac_set_cursor(n, &where);
 	}
 

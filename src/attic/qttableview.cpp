@@ -1430,7 +1430,7 @@ QScrollBar *QtTableView::verticalScrollBar() const
     if ( !vScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Vertical, that );
 #ifndef QT_NO_CURSOR
-	sb->setCursor( arrowCursor );
+	sb->setCursor( ArrowCursor );
 #endif
         sb->resize( sb->sizeHint() ); // height is irrelevant
 	sb->setTracking( FALSE );
@@ -1460,7 +1460,7 @@ QScrollBar *QtTableView::horizontalScrollBar() const
     if ( !hScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Horizontal, that );
 #ifndef QT_NO_CURSOR
-	sb->setCursor( arrowCursor );
+	sb->setCursor( ArrowCursor );
 #endif
 	sb->resize( sb->sizeHint() ); // width is irrelevant
 	sb->setFocusPolicy( NoFocus );

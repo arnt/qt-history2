@@ -1041,8 +1041,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    gcvals.background = 0;
 	    gcvals.foreground = 1;
 	} else {
-	    gcvals.background = Qt::white.pixel( dst->x11Screen() );
-	    gcvals.foreground = Qt::black.pixel( dst->x11Screen() );
+	    gcvals.background = QColor(Qt::white).pixel(dst->x11Screen());
+	    gcvals.foreground = QColor(Qt::black).pixel(dst->x11Screen());
 	}
 
 	gcvals.fill_style  = FillOpaqueStippled;

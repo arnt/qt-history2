@@ -2736,7 +2736,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->itemTextPos = Bottom;
     d->reorderItemsWhenInsert = TRUE;
 #ifndef QT_NO_CURSOR
-    d->oldCursor = arrowCursor;
+    d->oldCursor = ArrowCursor;
 #endif
     d->resortItemsWhenInsert = FALSE;
     d->sortDirection = TRUE;

@@ -26,7 +26,9 @@ public:
     QBrush();
     QBrush(BrushStyle bs);
     QBrush(const QColor &color, BrushStyle bs=SolidPattern);
+    QBrush(Qt::GlobalColor color, BrushStyle bs=SolidPattern);
     QBrush(const QColor &color, const QPixmap &pixmap);
+    QBrush(Qt::GlobalColor color, const QPixmap &pixmap);
     QBrush(const QPixmap &pixmap);
     QBrush(const QBrush &brush);
     ~QBrush();
@@ -36,6 +38,8 @@ public:
     void setStyle( BrushStyle );
     inline const QColor &color() const { return d->color; }
     void setColor(const QColor &color);
+    inline void setColor(Qt::GlobalColor color)
+    { setColor(QColor(color)); }
     inline QPixmap *pixmap() const { return d->pixmap; }
     void setPixmap(const QPixmap &pixmap);
 

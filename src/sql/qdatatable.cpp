@@ -1029,7 +1029,7 @@ bool QDataTable::insertCurrent()
     switch ( conf ) {
     case QSql::Yes: {
 #ifndef QT_NO_CURSOR
-	QApplication::setOverrideCursor( Qt::waitCursor );
+	QApplication::setOverrideCursor( Qt::WaitCursor );
 #endif
 	emit beforeInsert( d->editBuffer );
 	b = sqlCursor()->insert();
@@ -1107,7 +1107,7 @@ bool QDataTable::updateCurrent()
     switch ( conf ) {
     case QSql::Yes: {
 #ifndef QT_NO_CURSOR
-	QApplication::setOverrideCursor( Qt::waitCursor );
+	QApplication::setOverrideCursor( Qt::WaitCursor );
 #endif
 	emit beforeUpdate( d->editBuffer );
 	b = sqlCursor()->update();
@@ -1180,7 +1180,7 @@ bool QDataTable::deleteCurrent()
     switch ( conf ) {
 	case QSql::Yes:{
 #ifndef QT_NO_CURSOR
-	    QApplication::setOverrideCursor( Qt::waitCursor );
+	    QApplication::setOverrideCursor( Qt::WaitCursor );
 #endif
 	    sqlCursor()->primeDelete();
 	    emit primeDelete( sqlCursor()->editBuffer() );
@@ -1265,7 +1265,7 @@ void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
 	tmp = str;
 
 #ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor( Qt::waitCursor );
+    QApplication::setOverrideCursor( Qt::WaitCursor );
 #endif
     while( wrap ){
 	while( !found && r->seek( row ) ){

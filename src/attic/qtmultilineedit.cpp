@@ -585,9 +585,9 @@ QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
     setKeyCompression( TRUE );
     setFocusPolicy( WheelFocus );
 #ifndef QT_NO_CURSOR
-    setCursor( ibeamCursor );
-    verticalScrollBar()->setCursor( arrowCursor );
-    horizontalScrollBar()->setCursor( arrowCursor );
+    setCursor( IbeamCursor );
+    verticalScrollBar()->setCursor( ArrowCursor );
+    horizontalScrollBar()->setCursor( ArrowCursor );
 #endif
     readOnly 	   = FALSE;
     cursorOn	   = FALSE;
@@ -692,7 +692,7 @@ void QtMultiLineEdit::setReadOnly( bool on )
     if ( readOnly != on ) {
 	readOnly = on;
 #ifndef QT_NO_CURSOR
-	setCursor( on ? arrowCursor : ibeamCursor );
+	setCursor( on ? ArrowCursor : IbeamCursor );
 #endif
     }
 }

@@ -1124,7 +1124,7 @@ void QApplication::restoreOverrideCursor()
 	if ( w )
 	    SetCursor( w->cursor().handle() );
 	else
-	    SetCursor( arrowCursor.handle() );
+	    SetCursor( QCursor(ArrowCursor).handle() );
     }
 }
 
@@ -2216,7 +2216,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 	if ( c )				// application cursor defined
 	    SetCursor( c->handle() );
 	else
-	    SetCursor( Qt::arrowCursor.handle() );
+	    SetCursor( QCursor(Qt::ArrowCursor).handle() );
       }
       block_event = TRUE;
     } else if ( type == WM_CLOSE ) {

@@ -297,22 +297,22 @@ void QWidgetResizeHandler::setMouseCursor( MousePosition m )
     switch ( m ) {
     case TopLeft:
     case BottomRight:
-	widget->setCursor( sizeFDiagCursor );
+	widget->setCursor( SizeFDiagCursor );
 	break;
     case BottomLeft:
     case TopRight:
-	widget->setCursor( sizeBDiagCursor );
+	widget->setCursor( SizeBDiagCursor );
 	break;
     case Top:
     case Bottom:
-	widget->setCursor( sizeVerCursor );
+	widget->setCursor( SizeVerCursor );
 	break;
     case Left:
     case Right:
-	widget->setCursor( sizeHorCursor );
+	widget->setCursor( SizeHorCursor );
 	break;
     default:
-	widget->setCursor( arrowCursor );
+	widget->setCursor( ArrowCursor );
 	break;
     }
 #endif

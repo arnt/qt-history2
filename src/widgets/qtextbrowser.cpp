@@ -205,7 +205,7 @@ void QTextBrowser::setSource(const QString& name)
 {
 #ifndef QT_NO_CURSOR
     if ( isVisible() )
-	qApp->setOverrideCursor( waitCursor );
+	qApp->setOverrideCursor( WaitCursor );
 #endif
     d->textOrSourceChanged = TRUE;
     QString source = name;

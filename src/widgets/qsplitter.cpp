@@ -19,6 +19,7 @@
 #include "qlayout.h"
 #include "../kernel/qlayoutengine_p.h"
 #include "qapplication.h"
+#include "qcursor.h"
 #include "qbitmap.h"
 #include "qdrawutil.h"
 #include "qvector.h"

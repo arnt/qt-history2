@@ -225,7 +225,7 @@ QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const c
     setPalette( QToolTip::palette() );
     setMouseTracking( TRUE );
 #ifndef QT_NO_CURSOR
-    setCursor( arrowCursor );
+    setCursor( ArrowCursor );
 #endif
 
     if ( widget )
@@ -324,9 +324,9 @@ void QWhatsThat::mouseMoveEvent( QMouseEvent* e)
 	return;
     QString a = doc->anchorAt( e->pos() -  QPoint( hMargin, vMargin ) );
     if ( !a.isEmpty() )
-	setCursor( pointingHandCursor );
+	setCursor( PointingHandCursor );
     else
-	setCursor( arrowCursor );
+	setCursor( ArrowCursor );
 #endif
 #endif
 }

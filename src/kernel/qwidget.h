@@ -26,6 +26,7 @@
 #include "qsizepolicy.h"
 #include "qregion.h"
 #include "qbrush.h"
+#include "qcursor.h"
 #endif // QT_H
 
 #ifdef QT_INCLUDE_COMPAT
@@ -33,7 +34,6 @@
 #endif
 
 class QLayout;
-class QCursor;
 class QWSRegionManager;
 class QStyle;
 
@@ -221,10 +221,11 @@ public:
     QFontInfo fontInfo() const;
 
 #ifndef QT_NO_CURSOR
-    const QCursor      &cursor() const;
-    void setCursor( const QCursor & );
+    QCursor cursor() const;
+    void setCursor(const QCursor &);
     void unsetCursor();
 #endif
+
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QString		caption() const;
     const QPixmap      *icon() const;
@@ -505,12 +506,14 @@ protected:
 			 bool destroyOldWindow = TRUE );
     void destroy( bool destroyWindow = TRUE,
 			  bool destroySubWindows = TRUE );
-    uint	 getWState() const;
-    void setWState( uint );
-    void	 clearWState( uint n );
-    WFlags	 getWFlags() const;
-    void setWFlags( WFlags );
-    void	 clearWFlags( WFlags n );
+
+    WState getWState() const;
+    void setWState(WState f);
+    void clearWState(WState f);
+
+    WFlags getWFlags() const;
+    void setWFlags(WFlags f);
+    void clearWFlags(WFlags f);
 
     virtual bool focusNextPrevChild( bool next );
 
@@ -562,10 +565,10 @@ private:
     void	 updateFrameStrut() const;
 
     WId		 winid;
-    uint	 widget_state; // will go away, eventually
+    WState widget_state; // will go away, eventually
     uint widget_attributes;
     bool testAttribute_helper(WidgetAttribute) const;
-    WFlags	 widget_flags;
+    WFlags widget_flags;
     uint	 focus_policy : 4;
     uint 	 sizehint_forced :1;
     uint 	 is_closing :1;
@@ -816,22 +819,22 @@ inline QWidget *QWidget::parentWidget() const
 inline QWidgetMapper *QWidget::wmapper()
 { return mapper; }
 
-inline uint QWidget::getWState() const
+inline Qt::WState QWidget::getWState() const
 { return widget_state; }
 
-inline void QWidget::setWState( uint f )
+inline void QWidget::setWState(WState f)
 { widget_state |= f; }
 
-inline void QWidget::clearWState( uint f )
+inline void QWidget::clearWState(WState f)
 { widget_state &= ~f; }
 
 inline Qt::WFlags QWidget::getWFlags() const
 { return widget_flags; }
 
-inline void QWidget::setWFlags( WFlags f )
+inline void QWidget::setWFlags(WFlags f)
 { widget_flags |= f; }
 
-inline void QWidget::clearWFlags( WFlags f )
+inline void QWidget::clearWFlags(WFlags f)
 { widget_flags &= ~f; }
 
 inline void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )

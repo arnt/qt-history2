@@ -23,6 +23,7 @@
 #include "qpushbutton.h"
 #include "qimage.h"
 #include "qapplication.h"
+#include "qcursor.h"
 #include "qstyle.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
@@ -1305,7 +1306,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
         mb->setButtonText( 3, button2Text );
 
 #ifndef QT_NO_CURSOR
-    mb->setCursor( Qt::arrowCursor );
+    mb->setCursor( Qt::ArrowCursor );
 #endif
     return mb->exec() - 1;
 }
@@ -1326,8 +1327,8 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
     button; pressing Return or Enter is the same as clicking the
     default button. It defaults to 0 (the first button). \a
     escapeButtonNumber is the index of the Escape button; pressing
-    Escape is the same as clicking this button. It defaults to -1; 
-    supply 0, 1 or 2 to make pressing Escape equivalent to clicking 
+    Escape is the same as clicking this button. It defaults to -1;
+    supply 0, 1 or 2 to make pressing Escape equivalent to clicking
     the relevant button.
 
     If \a parent is 0, the message box becomes an application-global
@@ -1369,8 +1370,8 @@ int QMessageBox::information( QWidget *parent, const QString &caption,
     button; pressing Return or Enter is the same as clicking the
     default button. It defaults to 0 (the first button). \a
     escapeButtonNumber is the index of the Escape button; pressing
-    Escape is the same as clicking this button. It defaults to -1; 
-    supply 0, 1 or 2 to make pressing Escape equivalent to clicking 
+    Escape is the same as clicking this button. It defaults to -1;
+    supply 0, 1 or 2 to make pressing Escape equivalent to clicking
     the relevant button.
 
     If \a parent is 0, the message box becomes an application-global
@@ -1412,8 +1413,8 @@ int QMessageBox::question( QWidget *parent, const QString &caption,
     default button; pressing Return or Enter is the same as clicking
     the default button. It defaults to 0 (the first button). \a
     escapeButtonNumber is the index of the Escape button; pressing
-    Escape is the same as clicking this button. It defaults to -1; 
-    supply 0, 1, or 2 to make pressing Escape equivalent to clicking 
+    Escape is the same as clicking this button. It defaults to -1;
+    supply 0, 1, or 2 to make pressing Escape equivalent to clicking
     the relevant button.
 
     If \a parent is 0, the message box becomes an application-global
@@ -1456,8 +1457,8 @@ int QMessageBox::warning( QWidget *parent, const QString &caption,
     default button; pressing Return or Enter is the same as clicking
     the default button. It defaults to 0 (the first button). \a
     escapeButtonNumber is the index of the Escape button; pressing
-    Escape is the same as clicking this button. It defaults to -1; 
-    supply 0, 1, or 2 to make pressing Escape equivalent to clicking 
+    Escape is the same as clicking this button. It defaults to -1;
+    supply 0, 1, or 2 to make pressing Escape equivalent to clicking
     the relevant button.
 
     If \a parent is 0, the message box becomes an application-global

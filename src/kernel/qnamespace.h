@@ -19,10 +19,6 @@
 #include "qglobal.h"
 #endif // QT_H
 
-
-class QColor;
-class QCursor;
-
 class Q_EXPORT Qt {
 #ifdef Q_MOC_RUN
     Q_OBJECT
@@ -30,27 +26,28 @@ class Q_EXPORT Qt {
     Q_SETS( Alignment )
 #endif
 public:
-    // MOC_SKIP_BEGIN
-    QT_STATIC_CONST QColor & color0;
-    QT_STATIC_CONST QColor & color1;
-    QT_STATIC_CONST QColor & black;
-    QT_STATIC_CONST QColor & white;
-    QT_STATIC_CONST QColor & darkGray;
-    QT_STATIC_CONST QColor & gray;
-    QT_STATIC_CONST QColor & lightGray;
-    QT_STATIC_CONST QColor & red;
-    QT_STATIC_CONST QColor & green;
-    QT_STATIC_CONST QColor & blue;
-    QT_STATIC_CONST QColor & cyan;
-    QT_STATIC_CONST QColor & magenta;
-    QT_STATIC_CONST QColor & yellow;
-    QT_STATIC_CONST QColor & darkRed;
-    QT_STATIC_CONST QColor & darkGreen;
-    QT_STATIC_CONST QColor & darkBlue;
-    QT_STATIC_CONST QColor & darkCyan;
-    QT_STATIC_CONST QColor & darkMagenta;
-    QT_STATIC_CONST QColor & darkYellow;
-    // MOC_SKIP_END
+    // documented in qcolor.cpp
+    enum GlobalColor {
+	color0,
+	color1,
+	black,
+	white,
+	darkGray,
+	gray,
+	lightGray,
+	red,
+	green,
+	blue,
+	cyan,
+	magenta,
+	yellow,
+	darkRed,
+	darkGreen,
+	darkBlue,
+	darkCyan,
+	darkMagenta,
+	darkYellow
+    };
 
     // documented in qevent.cpp
     enum ButtonState {				// mouse/keyboard state values
@@ -127,7 +124,6 @@ public:
     };
 
     // Widget flags; documented in qwidget.cpp
-    typedef uint WState;
 
     // QWidget state flags (internal, barely documented in qwidget.cpp)
     enum WidgetState {
@@ -157,6 +153,7 @@ public:
 	WState_Exposed		= 0x00400000,
 	WState_Reserved2	= 0x00800000 // was HasMouse
     };
+    typedef QFlags<WidgetState> WState;
 
     // Widget flags2; documented in qwidget.cpp
 
@@ -214,7 +211,7 @@ public:
         WStyle_Splash           = 0x20000000
 #else
 	WStyle_Splash           = WStyle_NoBorder | WStyle_StaysOnTop | WMacNoSheet |
-				  WStyle_Tool | WWinOwnDC
+	WStyle_Tool | WWinOwnDC
 #endif
 #ifndef QT_NO_COMPAT
 	,
@@ -756,30 +753,27 @@ public:
 	WhatsThisCursor,
 	LastCursor	= WhatsThisCursor,
 	BitmapCursor	= 24
+
+#ifndef QT_NO_COMPAT
+	,
+	arrowCursor = ArrowCursor,
+	upArrowCursor = UpArrowCursor,
+	crossCursor = CrossCursor,
+	waitCursor = WaitCursor,
+	ibeamCursor = IbeamCursor,
+	sizeVerCursor = SizeVerCursor,
+	sizeHorCursor = SizeHorCursor,
+	sizeBDiagCursor = SizeBDiagCursor,
+	sizeFDiagCursor = SizeFDiagCursor,
+	sizeAllCursor = SizeAllCursor,
+	blankCursor = BlankCursor,
+	splitVCursor = SplitVCursor,
+	splitHCursor = SplitHCursor,
+	pointingHandCursor = PointingHandCursor,
+	forbiddenCursor = ForbiddenCursor,
+	whatsThisCursor = WhatsThisCursor
+#endif
     };
-
-    // Global cursors
-
-    // MOC_SKIP_BEGIN
-    QT_STATIC_CONST QCursor & arrowCursor;	// standard arrow cursor
-    QT_STATIC_CONST QCursor & upArrowCursor;	// upwards arrow
-    QT_STATIC_CONST QCursor & crossCursor;	// crosshair
-    QT_STATIC_CONST QCursor & waitCursor;	// hourglass/watch
-    QT_STATIC_CONST QCursor & ibeamCursor;	// ibeam/text entry
-    QT_STATIC_CONST QCursor & sizeVerCursor;	// vertical resize
-    QT_STATIC_CONST QCursor & sizeHorCursor;	// horizontal resize
-    QT_STATIC_CONST QCursor & sizeBDiagCursor;	// diagonal resize (/)
-    QT_STATIC_CONST QCursor & sizeFDiagCursor;	// diagonal resize (\)
-    QT_STATIC_CONST QCursor & sizeAllCursor;	// all directions resize
-    QT_STATIC_CONST QCursor & blankCursor;	// blank/invisible cursor
-    QT_STATIC_CONST QCursor & splitVCursor;	// vertical bar with left-right
-						// arrows
-    QT_STATIC_CONST QCursor & splitHCursor;	// horizontal bar with up-down
-						// arrows
-    QT_STATIC_CONST QCursor & pointingHandCursor;	// pointing hand
-    QT_STATIC_CONST QCursor & forbiddenCursor;	// forbidden cursor (slashed circle)
-    QT_STATIC_CONST QCursor & whatsThisCursor;  // arrow with a question mark
-    // MOC_SKIP_END
 
     enum TextFormat {
 	PlainText,
@@ -866,8 +860,6 @@ public:
     };
 #endif
 
-    typedef uint ComparisonFlags;
-
     // Documented in qstring.cpp
     enum StringComparisonMode {
         CaseSensitive   = 0x00001, // 0 0001
@@ -876,6 +868,7 @@ public:
         Contains        = 0x00008, // 0 1000
         ExactMatch      = 0x00010  // 1 0000
     };
+    typedef QFlags<StringComparisonMode> ComparisonFlags;
 
     // Documented in qtabwidget.cpp
     enum Corner {
@@ -898,8 +891,9 @@ public:
 #endif
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WidgetState);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags);
-
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::StringComparisonMode);
 
 class Q_EXPORT QInternal {
 public:

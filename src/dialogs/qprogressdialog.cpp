@@ -559,7 +559,7 @@ void QProgressDialog::setProgress( int progress )
 #ifndef QT_NO_CURSOR
 	    if ( d->creator ) {
 		d->parentCursor = d->creator->cursor();
-		d->creator->setCursor( waitCursor );
+		d->creator->setCursor( WaitCursor );
 	    }
 #endif
 	    d->starttime.start();

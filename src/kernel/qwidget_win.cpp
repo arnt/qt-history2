@@ -538,14 +538,14 @@ extern void qt_set_cursor( QWidget *, const QCursor & ); // qapplication_win.cpp
 
 void QWidget::setCursor( const QCursor &cursor )
 {
-    if ( cursor.handle() != arrowCursor.handle()
-	 || (d->extra && d->extra->curs) ) {
+    if (cursor.shape() != Qt::ArrowCursor
+	|| (d->extra && d->extra->curs)) {
 	d->createExtra();
 	delete d->extra->curs;
 	d->extra->curs = new QCursor(cursor);
     }
-    setAttribute( WA_SetCursor );
-    qt_set_cursor( this, QWidget::cursor() );
+    setAttribute(WA_SetCursor);
+    qt_set_cursor(this, QWidget::cursor());
 }
 
 void QWidget::unsetCursor()

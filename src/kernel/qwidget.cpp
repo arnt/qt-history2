@@ -2550,14 +2550,15 @@ void QWidget::fontChange( const QFont & )
 */
 
 #ifndef QT_NO_CURSOR
-const QCursor &QWidget::cursor() const
+QCursor QWidget::cursor() const
 {
     if ( testAttribute(WA_SetCursor) )
 	return (d->extra && d->extra->curs)
 	    ? *d->extra->curs
-	    : arrowCursor;
-    else
-	return (isTopLevel() || !parentWidget()) ? arrowCursor : parentWidget()->cursor();
+	    : QCursor(ArrowCursor);
+    if (isTopLevel() || !parentWidget())
+	return QCursor(ArrowCursor);
+    return parentWidget()->cursor();
 }
 #endif
 #ifndef QT_NO_WIDGET_TOPEXTRA

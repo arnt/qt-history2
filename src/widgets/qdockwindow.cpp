@@ -484,7 +484,7 @@ void QDockWindowHandle::updateGui()
     if ( !closeButton ) {
 	closeButton = new QToolButton( this, "qt_close_button1" );
 #ifndef QT_NO_CURSOR
-	closeButton->setCursor( arrowCursor );
+	closeButton->setCursor( ArrowCursor );
 #endif
 	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton ) );
 	closeButton->setFixedSize( 12, 12 );

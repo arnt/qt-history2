@@ -1238,7 +1238,7 @@ void QLineEdit::setReadOnly( bool enable )
 {
     d->readOnly = enable;
 #ifndef QT_NO_CURSOR
-    setCursor( enable ? arrowCursor : ibeamCursor );
+    setCursor( enable ? ArrowCursor : IbeamCursor );
 #endif
     update();
 }
@@ -1423,7 +1423,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent * e )
 	     && !QWhatsThis::inWhatsThisMode()
 #endif
 	    )
-	    setCursor( ( d->inSelection( e->pos().x() ) ? arrowCursor : ibeamCursor ) );
+	    setCursor( ( d->inSelection( e->pos().x() ) ? ArrowCursor : IbeamCursor ) );
     }
 #endif
 
@@ -2037,7 +2037,7 @@ void QLineEditPrivate::drag()
 	finishChange( priorState );
     }
 #ifndef QT_NO_CURSOR
-    q->setCursor( readOnly ? arrowCursor : ibeamCursor );
+    q->setCursor( readOnly ? ArrowCursor : IbeamCursor );
 #endif
 }
 
@@ -2195,7 +2195,7 @@ void QLineEdit::clipboardChanged()
 void QLineEditPrivate::init( const QString& txt )
 {
 #ifndef QT_NO_CURSOR
-    q->setCursor( readOnly ? arrowCursor : ibeamCursor );
+    q->setCursor( readOnly ? ArrowCursor : IbeamCursor );
 #endif
     q->setFocusPolicy( QWidget::StrongFocus );
     q->setInputMethodEnabled( TRUE );

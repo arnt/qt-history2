@@ -131,10 +131,6 @@
     \link http://www.inforamp.net/~poynton/Poynton-color.html Color FAQ\endlink
 */
 
-/*****************************************************************************
-  Global colors
- *****************************************************************************/
-
 #if defined(Q_WS_WIN)
 #define COLOR0_PIX 0x00ffffff
 #define COLOR1_PIX 0
@@ -143,109 +139,12 @@
 #define COLOR1_PIX 1
 #endif
 
-static QColor stdcol[19];
-
-QT_STATIC_CONST_IMPL QColor & Qt::color0 = stdcol[0];
-QT_STATIC_CONST_IMPL QColor & Qt::color1  = stdcol[1];
-QT_STATIC_CONST_IMPL QColor & Qt::black  = stdcol[2];
-QT_STATIC_CONST_IMPL QColor & Qt::white = stdcol[3];
-QT_STATIC_CONST_IMPL QColor & Qt::darkGray = stdcol[4];
-QT_STATIC_CONST_IMPL QColor & Qt::gray = stdcol[5];
-QT_STATIC_CONST_IMPL QColor & Qt::lightGray = stdcol[6];
-QT_STATIC_CONST_IMPL QColor & Qt::red = stdcol[7];
-QT_STATIC_CONST_IMPL QColor & Qt::green = stdcol[8];
-QT_STATIC_CONST_IMPL QColor & Qt::blue = stdcol[9];
-QT_STATIC_CONST_IMPL QColor & Qt::cyan = stdcol[10];
-QT_STATIC_CONST_IMPL QColor & Qt::magenta = stdcol[11];
-QT_STATIC_CONST_IMPL QColor & Qt::yellow = stdcol[12];
-QT_STATIC_CONST_IMPL QColor & Qt::darkRed = stdcol[13];
-QT_STATIC_CONST_IMPL QColor & Qt::darkGreen = stdcol[14];
-QT_STATIC_CONST_IMPL QColor & Qt::darkBlue = stdcol[15];
-QT_STATIC_CONST_IMPL QColor & Qt::darkCyan = stdcol[16];
-QT_STATIC_CONST_IMPL QColor & Qt::darkMagenta = stdcol[17];
-QT_STATIC_CONST_IMPL QColor & Qt::darkYellow = stdcol[18];
-
-
 /*****************************************************************************
   QColor member functions
  *****************************************************************************/
 
 bool QColor::color_init   = FALSE;		// color system not initialized
-bool QColor::globals_init = FALSE;		// global color not initialized
 QColor::ColorModel QColor::colormodel = d32;
-
-
-QColor* QColor::globalColors()
-{
-    return stdcol;
-}
-
-
-/*!
-    Initializes the global colors. This function is called if a global
-    color variable is initialized before the constructors for our
-    global color objects are executed. Without this mechanism,
-    assigning a color might assign an uninitialized value.
-
-    Example:
-    \code
-	QColor myColor = red;              // will initialize red etc.
-
-	int main( int argc, char **argc )
-	{
-	}
-    \endcode
-*/
-
-void QColor::initGlobalColors()
-{
-    globals_init = TRUE;
-
-    #ifdef Q_WS_X11
-    // HACK: we need a way to recognize color0 and color1 uniquely, so
-    // that we can use color0 and color1 with fixed pixel values on
-    // all screens
-    stdcol[ 0].d.argb = qRgba(255, 255, 255, 1);
-    stdcol[ 1].d.argb = qRgba(  0,   0,   0, 1);
-    #else
-    stdcol[ 0].d.argb = qRgb(255,255,255);
-    stdcol[ 1].d.argb = 0;
-    #endif // Q_WS_X11
-    stdcol[ 0].setPixel( COLOR0_PIX );
-    stdcol[ 1].setPixel( COLOR1_PIX );
-
-    // From the "The Palette Manager: How and Why" by Ron Gery, March 23,
-    // 1992, archived on MSDN:
-    // 	The Windows system palette is broken up into two sections,
-    // 	one with fixed colors and one with colors that can be changed
-    // 	by applications. The system palette predefines 20 entries;
-    // 	these colors are known as the static or reserved colors and
-    // 	consist of the 16 colors found in the Windows version 3.0 VGA
-    // 	driver and 4 additional colors chosen for their visual appeal.
-    // 	The DEFAULT_PALETTE stock object is, as the name implies, the
-    // 	default palette selected into a device context (DC) and consists
-    // 	of these static colors. Applications can set the remaining 236
-    // 	colors using the Palette Manager.
-    // The 20 reserved entries have indices in [0,9] and [246,255]. We
-    // reuse 17 of them.
-    stdcol[ 2].setRgb(   0,   0,   0 );   // index 0     black
-    stdcol[ 3].setRgb( 255, 255, 255 );   // index 255   white
-    stdcol[ 4].setRgb( 128, 128, 128 );   // index 248   medium gray
-    stdcol[ 5].setRgb( 160, 160, 164 );   // index 247   light gray
-    stdcol[ 6].setRgb( 192, 192, 192 );   // index 7     light gray
-    stdcol[ 7].setRgb( 255,   0,   0 );   // index 249   red
-    stdcol[ 8].setRgb(   0, 255,   0 );   // index 250   green
-    stdcol[ 9].setRgb(   0,   0, 255 );   // index 252   blue
-    stdcol[10].setRgb(   0, 255, 255 );   // index 254   cyan
-    stdcol[11].setRgb( 255,   0, 255 );   // index 253   magenta
-    stdcol[12].setRgb( 255, 255,   0 );   // index 251   yellow
-    stdcol[13].setRgb( 128,   0,   0 );   // index 1     dark red
-    stdcol[14].setRgb(   0, 128,   0 );   // index 2     dark green
-    stdcol[15].setRgb(   0,   0, 128 );   // index 4     dark blue
-    stdcol[16].setRgb(   0, 128, 128 );   // index 6     dark cyan
-    stdcol[17].setRgb( 128,   0, 128 );   // index 5     dark magenta
-    stdcol[18].setRgb( 128, 128,   0 );   // index 3     dark yellow
-}
 
 /*!
     \enum QColor::Spec
@@ -256,7 +155,6 @@ void QColor::initGlobalColors()
     \value Rgb
     \value Hsv
 */
-
 
 /*!
     \fn QColor::QColor()
@@ -269,6 +167,61 @@ void QColor::initGlobalColors()
 
     \sa isValid()
 */
+
+/*!
+ */
+QColor::QColor(Qt::GlobalColor color)
+{
+    switch (color) {
+#ifdef Q_WS_X11
+	// HACK: we need a way to recognize color0 and color1 uniquely, so
+	// that we can use color0 and color1 with fixed pixel values on
+	// all screens
+    case Qt::color0: setRgb(qRgba(255,255,255,1)); break;
+    case Qt::color1: setRgb(qRgba(  0,  0,  0,1)); break;
+#else
+    case Qt::color0: setRgb(255,255,255); setPixel(COLOR0_PIX); break;
+    case Qt::color1: setRgb(  0,  0,  0); setPixel(COLOR1_PIX); break;
+#endif // Q_WS_X11
+
+	/*
+	 * From the "The Palette Manager: How and Why" by Ron Gery,
+	 * March 23, 1992, archived on MSDN:
+	 *
+	 *     The Windows system palette is broken up into two
+	 *     sections, one with fixed colors and one with colors
+	 *     that can be changed by applications. The system palette
+	 *     predefines 20 entries; these colors are known as the
+	 *     static or reserved colors and consist of the 16 colors
+	 *     found in the Windows version 3.0 VGA driver and 4
+	 *     additional colors chosen for their visual appeal.  The
+	 *     DEFAULT_PALETTE stock object is, as the name implies,
+	 *     the default palette selected into a device context (DC)
+	 *     and consists of these static colors. Applications can
+	 *     set the remaining 236 colors using the Palette Manager.
+	 *
+	 * The 20 reserved entries have indices in [0,9] and
+	 * [246,255]. We reuse 17 of them.
+	 */
+    case Qt::black:       setRgb(   0,   0,   0 ); break; // index 0     black
+    case Qt::white:       setRgb( 255, 255, 255 ); break; // index 255   white
+    case Qt::darkGray:    setRgb( 128, 128, 128 ); break; // index 248   medium gray
+    case Qt::gray:        setRgb( 160, 160, 164 ); break; // index 247   light gray
+    case Qt::lightGray:   setRgb( 192, 192, 192 ); break; // index 7     light gray
+    case Qt::red:         setRgb( 255,   0,   0 ); break; // index 249   red
+    case Qt::green:       setRgb(   0, 255,   0 ); break; // index 250   green
+    case Qt::blue:        setRgb(   0,   0, 255 ); break; // index 252   blue
+    case Qt::cyan:        setRgb(   0, 255, 255 ); break; // index 254   cyan
+    case Qt::magenta:     setRgb( 255,   0, 255 ); break; // index 253   magenta
+    case Qt::yellow:      setRgb( 255, 255,   0 ); break; // index 251   yellow
+    case Qt::darkRed:     setRgb( 128,   0,   0 ); break; // index 1     dark red
+    case Qt::darkGreen:   setRgb(   0, 128,   0 ); break; // index 2     dark green
+    case Qt::darkBlue:    setRgb(   0,   0, 128 ); break; // index 4     dark blue
+    case Qt::darkCyan:    setRgb(   0, 128, 128 ); break; // index 6     dark cyan
+    case Qt::darkMagenta: setRgb( 128,   0, 128 ); break; // index 5     dark magenta
+    case Qt::darkYellow:  setRgb( 128, 128,   0 ); break; // index 3     dark yellow
+    }
+}
 
 
 /*!
@@ -380,8 +333,6 @@ QColor::QColor( const char *name )
 
 QColor::QColor( const QColor &c )
 {
-    if ( !globals_init )
-	initGlobalColors();
     d.argb = c.d.argb;
     d.d32.pix = c.d.d32.pix;
 }
@@ -394,11 +345,16 @@ QColor::QColor( const QColor &c )
 
 QColor &QColor::operator=( const QColor &c )
 {
-    if ( !globals_init )
-	initGlobalColors();
     d.argb = c.d.argb;
     d.d32.pix = c.d.d32.pix;
     return *this;
+}
+
+/*!
+ */
+QColor &QColor::operator=(Qt::GlobalColor color)
+{
+    return operator=(QColor(color));
 }
 
 

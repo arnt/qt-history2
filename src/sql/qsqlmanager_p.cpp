@@ -17,6 +17,7 @@
 #ifndef QT_NO_SQL
 
 #include "qapplication.h"
+#include "qcursor.h"
 #include "qwidget.h"
 #include "qsqlcursor.h"
 #include "qsqlform.h"
@@ -418,7 +419,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	qDebug(" Using brute search...");
 #endif
 #ifndef QT_NO_CURSOR
-	QApplication::setOverrideCursor( Qt::waitCursor );
+	QApplication::setOverrideCursor( Qt::WaitCursor );
 #endif
 	/* give up, use brute force */
 	int startIdx = 0;

@@ -82,7 +82,6 @@ public:
     const QBrush &brush()	const;
     void	setBrush( const QBrush & );
     void	setBrush( BrushStyle );
-    void	setBrush( const QColor & );
     QPoint	pos() const;
 
   // Drawing attributes/modes

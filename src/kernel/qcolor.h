@@ -16,8 +16,9 @@
 #define QCOLOR_H
 
 #ifndef QT_H
-#include "qwindowdefs.h"
-#include "qstringlist.h"
+#  include "qwindowdefs.h"
+#  include "qstringlist.h"
+#  include "qnamespace.h"
 #endif // QT_H
 
 const QRgb  RGB_MASK    = 0x00ffffff;		// masks RGB values
@@ -53,6 +54,7 @@ public:
     enum Spec { Rgb, Hsv };
 
     QColor();
+    QColor(Qt::GlobalColor color);
     QColor( int r, int g, int b );
     QColor( int x, int y, int z, Spec );
     QColor( QRgb rgb, uint pixel=0xffffffff);
@@ -60,6 +62,7 @@ public:
     QColor( const char *name );
     QColor( const QColor & );
     QColor &operator=( const QColor & );
+    QColor &operator=(Qt::GlobalColor color);
 
     bool   isValid() const;
     bool   isDirty() const;
@@ -122,11 +125,8 @@ public:
 private:
     void setSystemNamedColor( const QString& name );
     void setPixel( uint pixel );
-    static void initGlobalColors();
     static uint argbToPix32(QRgb);
-    static QColor* globalColors();
     static bool color_init;
-    static bool globals_init;
 #if defined(Q_WS_WIN)
     static HPALETTE hpal;
 #endif

@@ -916,7 +916,6 @@ void QPainter::setPen( const QColor &color )
 
     \sa brush()
 */
-
 void QPainter::setBrush( const QBrush &brush )
 {
     if ( !isActive() )
@@ -933,7 +932,6 @@ void QPainter::setBrush( const QBrush &brush )
 
     \sa brush(), QBrush
 */
-
 void QPainter::setBrush( BrushStyle style )
 {
     if ( !isActive() )
@@ -953,36 +951,6 @@ void QPainter::setBrush( BrushStyle style )
     }
     updateBrush();
 }
-
-/*!
-    \overload
-
-    Sets the painter's brush to have style \c SolidPattern and the
-    specified \a color.
-
-    \sa brush(), QBrush
-*/
-
-void QPainter::setBrush( const QColor &color )
-{
-    if ( !isActive() )
-	qWarning( "QPainter::setBrush: Will be reset by begin()" );
-    QBrush::QBrushData *d = cbrush.d;
-    if ( d->color == color && d->style == SolidPattern && !d->pixmap )
-	return;
-    if ( d->ref != 1 ) {
-	cbrush.detach_helper();
-	d = cbrush.d;
-    }
-    d->style = SolidPattern;
-    d->color = color;
-    if ( d->pixmap ) {
-	delete d->pixmap;
-	d->pixmap = 0;
-    }
-    updateBrush();
-}
-
 
 /*!
     \fn const QColor &QPainter::backgroundColor() const
@@ -3682,6 +3650,16 @@ QBrush::QBrush(const QColor &color, BrushStyle style)
     init(color, style);
 }
 
+/*! \overload
+    Constructs a brush with the color \a color and the style \a style.
+
+    \sa setColor(), setStyle()
+*/
+QBrush::QBrush(Qt::GlobalColor color, BrushStyle style)
+{
+    init(color, style);
+}
+
 /*!
     Constructs a brush with the color \a color and a custom pattern
     stored in \a pixmap.
@@ -3695,6 +3673,23 @@ QBrush::QBrush(const QColor &color, BrushStyle style)
 */
 
 QBrush::QBrush(const QColor &color, const QPixmap &pixmap)
+{
+    init(color, CustomPattern);
+    setPixmap(pixmap);
+}
+
+/*! \overload
+    Constructs a brush with the color \a color and a custom pattern
+    stored in \a pixmap.
+
+    The color will only have an effect for monochrome pixmaps, i.e.
+    for QPixmap::depth() == 1.
+
+    Pixmap brushes are currently not supported when printing on X11.
+
+    \sa setColor(), setPixmap()
+*/
+QBrush::QBrush(Qt::GlobalColor color, const QPixmap &pixmap)
 {
     init(color, CustomPattern);
     setPixmap(pixmap);

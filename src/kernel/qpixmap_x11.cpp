@@ -1696,7 +1696,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	if ( depth1 )				// fill with zeros
 	    memset( dptr, 0, dbytes );
 	else if ( bpp == 8 )			// fill with background color
-	    memset( dptr, Qt::white.pixel( x11Screen() ), dbytes );
+	    memset(dptr, QColor(Qt::white).pixel(x11Screen()), dbytes);
 	else
 	    memset( dptr, 0xff, dbytes );
 #if defined(QT_MITSHM)

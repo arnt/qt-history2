@@ -2392,8 +2392,8 @@ static GC create_gc( int scrn, bool monochrome )
 	} else {
 	    Window w;
 	    XSetWindowAttributes a;
-	    a.background_pixel = Qt::black.pixel( scrn );
-	    a.border_pixel = Qt::black.pixel( scrn );
+	    a.background_pixel = QColor(Qt::black).pixel( scrn );
+	    a.border_pixel = QColor(Qt::black).pixel( scrn );
 	    a.colormap = QPaintDevice::x11AppColormap( scrn );
 	    w = XCreateWindow( appDpy, RootWindow( appDpy, scrn ), 0, 0, 100, 100,
 			       0, QPaintDevice::x11AppDepth( scrn ), InputOutput,
