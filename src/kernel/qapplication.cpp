@@ -2320,6 +2320,17 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	}
     break;
     case QEvent::MouseButtonPress:
+	    if ( e->spontaneous() ) {
+		QWidget* fw = (QWidget*)receiver;
+		while ( fw->focusProxy() )
+		    fw = fw->focusProxy();
+		if ( fw->isEnabled() && fw->focusPolicy() & QWidget::ClickFocus ) {
+		    QFocusEvent::setReason( QFocusEvent::Mouse);
+		    fw->setFocus();
+		    QFocusEvent::resetReason();
+		}
+	    }
+	    // fall through intended
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
@@ -2354,9 +2365,21 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
 	{
+	    if ( e->spontaneous() ) {
+		QWidget* fw = (QWidget*)receiver;
+		while ( fw->focusProxy() )
+		    fw = fw->focusProxy();
+		if ( fw->isEnabled() && fw->focusPolicy() & QWidget::WheelFocus ) {
+		    QFocusEvent::setReason( QFocusEvent::Mouse);
+		    fw->setFocus();
+		    QFocusEvent::resetReason();
+		}
+	    }
+
 	    QWidget* w = (QWidget*)receiver;
 	    QWheelEvent* wheel = (QWheelEvent*) e;
 	    QWheelEvent* t, *ev = wheel;
+
 	    while ( w ) {
 		ev->accept();
 		res = internalNotify( w, e );

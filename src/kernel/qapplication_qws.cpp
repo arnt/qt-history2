@@ -2500,16 +2500,6 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    for ( button = LeftButton; !type && button <= MidButton; button<<=1 ) {
 		if ( (mouse.state&button) != (old_state&button) ) {
 		    // button press or release
-		    if ( isEnabled() ) {
-			QWidget* w = this;
-			while ( w->focusProxy() )
-			    w = w->focusProxy();
-			if ( w->focusPolicy() & QWidget::ClickFocus ) {
-			    QFocusEvent::setReason( QFocusEvent::Mouse);
-			    w->setFocus();
-			    QFocusEvent::resetReason();
-			}
-		    }
 		    if ( mouse.state&button ) { //button press
 			qt_button_down = QApplication::findChildWidget( this, pos );	//magic for masked widgets
 			if ( !qt_button_down || !qt_button_down->testWFlags(WMouseNoMask) )

@@ -4106,20 +4106,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	globalPos.ry() = event->xbutton.y_root;
 	state = translateButtonState( event->xbutton.state );
 	switch ( event->xbutton.button ) {
-	case Button1: button = LeftButton;   goto DoFocus;
-	case Button2: button = MidButton;    goto DoFocus;
-	case Button3: button = RightButton;       DoFocus:
-	    if ( isEnabled() && event->type == ButtonPress ) {
-		QWidget* w = this;
-		while ( w->focusProxy() )
-		    w = w->focusProxy();
-		if ( w->focusPolicy() & QWidget::ClickFocus ) {
-		    QFocusEvent::setReason( QFocusEvent::Mouse);
-		    w->setFocus();
-		    QFocusEvent::resetReason();
-		}
-	    }
-	    break;
+	case Button1: button = LeftButton; break;
+	case Button2: button = MidButton; break;
+	case Button3: button = RightButton; break;
 	case Button4:
 	case Button5:
 	case 6:
@@ -4350,33 +4339,24 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 //
 bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int state, Orientation orient )
 {
-    QWidget* w = this;
-
-    while ( w->focusProxy() )
-	w = w->focusProxy();
-    if ( w->focusPolicy() == QWidget::WheelFocus ) {
-	QFocusEvent::setReason( QFocusEvent::Mouse);
-	w->setFocus();
-	QFocusEvent::resetReason();
-    }
-
     // send the event to the widget or its ancestors
     {
 	QWidget* popup = qApp->activePopupWidget();
-	if ( popup && w->topLevelWidget() != popup )
+	if ( popup && topLevelWidget() != popup )
 	    popup->close();
-	QWheelEvent e( w->mapFromGlobal(QPoint( global_x, global_y)),
+	QWheelEvent e( mapFromGlobal(QPoint( global_x, global_y)),
 		       QPoint(global_x, global_y), delta, state, orient );
-	if ( QApplication::sendSpontaneousEvent( w, &e ) )
+	if ( QApplication::sendSpontaneousEvent( this, &e ) )
 	    return TRUE;
     }
 
     // send the event to the widget that has the focus or its ancestors, if different
+    QWidget *w = this;
     if ( w != qApp->focusWidget() && ( w = qApp->focusWidget() ) ) {
 	QWidget* popup = qApp->activePopupWidget();
 	if ( popup && w != popup )
 	    popup->hide();
-	QWheelEvent e( w->mapFromGlobal(QPoint( global_x, global_y)),
+	QWheelEvent e( mapFromGlobal(QPoint( global_x, global_y)),
 		       QPoint(global_x, global_y), delta, state, orient );
 	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;

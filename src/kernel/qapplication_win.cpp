@@ -1675,20 +1675,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    if ( w )
 		widget = (QETWidget*)w;
 	}
-	if ( widget->isEnabled() &&
-		(message == WM_LBUTTONDOWN ||
-		message == WM_MBUTTONDOWN ||
-		message == WM_RBUTTONDOWN ||
-		message == WM_XBUTTONDOWN ) ) {
-	    QWidget* w = widget;
-	    while ( w->focusProxy() )
-		w = w->focusProxy();
-	    if ( w->focusPolicy() & QWidget::ClickFocus ) {
-		QFocusEvent::setReason( QFocusEvent::Mouse);
-		w->setFocus();
-		QFocusEvent::resetReason();
-	    }
-	}
+
 #if defined(QT_TABLET_SUPPORT)
 	if ( !chokeMouse ) {
 #endif
@@ -2735,16 +2722,6 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    // the popup dissappeared. Replay the event
 	    QWidget* w = QApplication::widgetAt( gpos.x, gpos.y, TRUE );
 	    if (w && !qt_blocked_modal( w ) ) {
-		if ( w->isEnabled() ) {
-		    QWidget* tw = w;
-		    while ( tw->focusProxy() )
-			tw = tw->focusProxy();
-		    if ( tw->focusPolicy() & QWidget::ClickFocus ) {
-			QFocusEvent::setReason( QFocusEvent::Mouse);
-			w->setFocus();
-			QFocusEvent::resetReason();
-		    }
-		}
 		if ( QWidget::mouseGrabber() == 0 )
 		    setAutoCapture( w->winId() );
 
@@ -3248,14 +3225,6 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     QWidget* w = QApplication::widgetAt( globalPos, TRUE );
     if ( !w || !qt_try_modal( w, (MSG*)&msg, ret ) )
 	w = this;
-
-    while ( w->focusProxy() )
-	w = w->focusProxy();
-    if ( w->focusPolicy() == QWidget::WheelFocus ) {
-	QFocusEvent::setReason( QFocusEvent::Mouse);
-	w->setFocus();
-	QFocusEvent::resetReason();
-    }
 
     // send the event to the widget or its ancestors
     {

@@ -1701,18 +1701,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 
 	if(widget) {
-	    if(ekind == kEventMouseDown || ekind == kEventMouseWheelMoved) {
-		QWidget* w = widget;
-		while(w->focusProxy())
-		    w = w->focusProxy();
-		int fp = (ekind == kEventMouseDown) ? QWidget::ClickFocus : QWidget::WheelFocus;
-		if(w->focusPolicy() & fp) {
-		    QFocusEvent::setReason(QFocusEvent::Mouse);
-		    w->setFocus();
-		    QFocusEvent::resetReason();
-		}
-	    }
-
 	    QPoint p(where.h, where.v);
 	    QPoint plocal(widget->mapFromGlobal(p));
 	    bool was_context = FALSE;
