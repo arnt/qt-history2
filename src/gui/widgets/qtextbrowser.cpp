@@ -750,3 +750,4 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
 
 #define d d_func()
 #include "moc_qtextbrowser.cpp"
+#undef d
