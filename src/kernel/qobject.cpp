@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#91 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#90 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#91 $")
 
 
 /*----------------------------------------------------------------------------
@@ -430,9 +430,10 @@ const char *QObject::className() const
   \sa inherits(), metaObject()
  ----------------------------------------------------------------------------*/
 
-bool QObject::isA( const char *clname ) const	// test if is-a class
+bool QObject::isA( const char *clname ) const
 {
-    return strcmp(className(),clname) == 0;
+    QMetaObject *meta = queryMetaObject();
+    return meta ? strcmp(clname,meta->className()) == 0 : FALSE;
 }
 
 /*----------------------------------------------------------------------------
@@ -451,7 +452,7 @@ bool QObject::isA( const char *clname ) const	// test if is-a class
  ----------------------------------------------------------------------------*/
 
 bool QObject::inherits( const char *clname ) const
-{						// test if inherits class
+{
     QMetaObject *meta = queryMetaObject();
     while ( meta ) {
 	if ( strcmp(clname,meta->className()) == 0 )
@@ -1421,7 +1422,7 @@ void QObject::cleanupEventFilter()
   \sa metaObject()
  ----------------------------------------------------------------------------*/
 
-QMetaObject *QObject::queryMetaObject() const	// get meta object
+QMetaObject *QObject::queryMetaObject() const
 {
     register QObject *x = (QObject *)this;	// fake const
     QMetaObject *m = x->metaObject();
