@@ -27,6 +27,7 @@
     \brief The Q3StyleOption class specifies optional parameters for QStyle functions.
     \ingroup appearance
 
+    \compat
     \warning This class will be removed for Qt 4.0.
 
     The majority of the functionality can be found in the new

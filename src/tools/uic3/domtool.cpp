@@ -24,7 +24,7 @@
 #include <qbytearray.h>
 #include <qdebug.h>
 
-/*!
+/*
   \class DomTool domtool.h
   \brief The DomTool class provides static functions for Qt Designer
   and uic.
@@ -34,7 +34,7 @@
 
 */
 
-/*!
+/*
   Returns the contents of property \a name of object \a e as
   a variant or the variant passed as \a defValue if the property does
   not exist. The \a comment is passed on to the elementToVariant()
@@ -56,7 +56,7 @@ QCoreVariant DomTool::readProperty(const QDomElement& e, const QString& name, co
 }
 
 
-/*!
+/*
   \overload
  */
 QCoreVariant DomTool::readProperty(const QDomElement& e, const QString& name, const QCoreVariant& defValue)
@@ -65,7 +65,7 @@ QCoreVariant DomTool::readProperty(const QDomElement& e, const QString& name, co
     return readProperty(e, name, defValue, comment);
 }
 
-/*!
+/*
   Returns wheter object \a e defines property \a name or not.
 
   \sa readProperty()
@@ -83,7 +83,7 @@ bool DomTool::hasProperty(const QDomElement& e, const QString& name)
     return FALSE;
 }
 
-/*!
+/*
     Returns a list of the names of the properties of the given \a type
     found in the element \a e.
 */
@@ -102,7 +102,7 @@ QStringList DomTool::propertiesOfType(const QDomElement& e, const QString& type)
 }
 
 
-/*!
+/*
     \overload
 */
 QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant& defValue)
@@ -111,7 +111,7 @@ QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant&
     return elementToVariant(e, defValue, dummy);
 }
 
-/*!
+/*
   Interprets element \a e as a variant and returns the result of the
   interpretation, extracting the data as a text element is the \a
   comment matches the tag name. If the interpretation fails the \a
@@ -292,7 +292,7 @@ QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant&
 }
 
 
-/*!  Returns the color which is returned in the dom element \a e.
+/*  Returns the color which is returned in the dom element \a e.
  */
 
 Color DomTool::readColor(const QDomElement &e)
@@ -314,7 +314,7 @@ Color DomTool::readColor(const QDomElement &e)
     return c;
 }
 
-/*!
+/*
   Returns the contents of attribute \a name of object \a e as
   a variant or the variant passed as \a defValue if the attribute does
   not exist. The \a comment is passed to the elementToVariant()
@@ -335,7 +335,7 @@ QCoreVariant DomTool::readAttribute(const QDomElement& e, const QString& name, c
     return defValue;
 }
 
-/*!
+/*
   \overload
 */
 QCoreVariant DomTool::readAttribute(const QDomElement& e, const QString& name, const QCoreVariant& defValue)
@@ -344,7 +344,7 @@ QCoreVariant DomTool::readAttribute(const QDomElement& e, const QString& name, c
     return readAttribute(e, name, defValue, comment);
 }
 
-/*!
+/*
   Returns wheter object \a e defines attribute \a name or not.
 
   \sa readAttribute()
@@ -367,7 +367,7 @@ static bool toBool(const QString& s)
     return s == QLatin1String("true") || s.toInt() != 0;
 }
 
-/*!
+/*
     \internal
 
     Convert Qt 2.x format to Qt 3.x format if necessary.
@@ -486,7 +486,7 @@ propertyName propertyTable[1] = {
     propertyName(3.0, QLatin1String("resizeable"), QLatin1String("resizable")), // we need to fix a spelling error in 3.0
 };
 
-/*!
+/*
     \internal
 */
 void DomTool::fixAttributes(QDomNodeList &nodes, double version)
@@ -501,7 +501,7 @@ void DomTool::fixAttributes(QDomNodeList &nodes, double version)
     }
 }
 
-/*!
+/*
     \internal
 */
 void DomTool::fixAttribute(QDomNode &node, double version)
