@@ -1136,7 +1136,7 @@ if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
 	#PLATFORM=hpux-cc
 	#PLATFORM=hpux-o64
 	PLATFORM_NOTES="
-	    - Also available for HP-UX: hpux-g++ hpux-n64 hpux-cc hpux-o64
+	    - Also available for HP-UX: hpux-g++ hpux-n64 hpux-o64
 	"
 	;;
      OSF1:*)
