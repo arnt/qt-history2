@@ -36,6 +36,9 @@ extern Qt::WindowsVersion qt_winver;
 #define PST_ABORTED	2
 
 
+
+
+
 QPrinter::QPrinter()
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
@@ -55,11 +58,7 @@ QPrinter::QPrinter()
 	pd.lStructSize = sizeof(PRINTDLG);
 	pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
 	if ( PrintDlg( &pd ) != 0 )
-	    hdc	= pd.hDC;
-	if ( pd.hDevMode )
-	    GlobalFree( pd.hDevMode );
-	if ( pd.hDevNames )
-	    GlobalFree( pd.hDevNames );
+	    readPdlg( &pd );
     }
     else {
 	PRINTDLGA pd;
@@ -67,11 +66,7 @@ QPrinter::QPrinter()
 	pd.lStructSize = sizeof(PRINTDLGA);
 	pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
 	if ( PrintDlgA( &pd ) != 0 )
-	    hdc	= pd.hDC;
-	if ( pd.hDevMode )
-	    GlobalFree( pd.hDevMode );
-	if ( pd.hDevNames )
-	    GlobalFree( pd.hDevNames );
+	    readPdlgA( &pd );
     }
 }
 
@@ -213,6 +208,95 @@ static QPrinter::PageSize mapDevmodePageSize( int s )
     return names[i].qtSizeName;
 }
 
+/*
+  Copy the settings from the Windows structures into QPrinter
+*/
+void QPrinter::readPdlg( void* pdv )
+{
+    // Note: Remember to reflect any changes here in readPdlgA below!
+    PRINTDLG* pd = (PRINTDLG*)pdv;
+    output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
+    from_pg = pd->nFromPage;
+    to_pg = pd->nToPage;
+    ncopies = pd->nCopies;
+    hdc	= pd->hDC;
+    if ( pd->hDevMode ) {
+	DEVMODE* dm = (DEVMODE*)GlobalLock( pd->hDevMode );
+	if ( dm ) {
+	    if ( dm->dmOrientation == DMORIENT_PORTRAIT )
+		setOrientation( Portrait );
+	    else
+		setOrientation( Landscape );
+	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+	}
+	GlobalUnlock( pd->hDevMode );
+    }
+
+    if ( pd->hDevNames ) {
+	DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
+	if ( dn ) {
+	    TCHAR* prName = ((TCHAR*)dn) + dn->wDeviceOffset;
+	    setPrinterName( qt_winQString( prName ) );
+	    TCHAR* drName = ((TCHAR*)dn) + dn->wDriverOffset;
+	    setPrintProgram( qt_winQString( drName ) );
+	}
+	GlobalUnlock( pd->hDevNames );
+    }
+
+    if ( pd->hDevMode ) {
+	GlobalFree( pd->hDevMode );
+	pd->hDevMode = 0;
+    }
+    if ( pd->hDevNames ) {
+	GlobalFree( pd->hDevNames );
+	pd->hDevNames = 0;
+    }
+}
+
+
+void QPrinter::readPdlgA( void* pdv )
+{
+    // Note: Remember to reflect any changes here in readPdlg above!
+    PRINTDLGA* pd = (PRINTDLGA*)pdv;
+    output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
+    from_pg = pd->nFromPage;
+    to_pg = pd->nToPage;
+    ncopies = pd->nCopies;
+    hdc	= pd->hDC;
+    if ( pd->hDevMode ) {
+	DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd->hDevMode );
+	if ( dm ) {
+	    if ( dm->dmOrientation == DMORIENT_PORTRAIT )
+		setOrientation( Portrait );
+	    else
+		setOrientation( Landscape );
+	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+	}
+	GlobalUnlock( pd->hDevMode );
+    }
+
+    if ( pd->hDevNames ) {
+	DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
+	// (There is no DEVNAMESA)
+	if ( dn ) {
+	    char* prName = ((char*)dn) + dn->wDeviceOffset;
+	    setPrinterName( QString::fromLocal8Bit( prName ) );
+	    char* drName = ((char*)dn) + dn->wDriverOffset;
+	    setPrintProgram( QString::fromLocal8Bit( drName ) );
+	}
+	GlobalUnlock( pd->hDevNames );
+    }
+
+    if ( pd->hDevMode ) {
+	GlobalFree( pd->hDevMode );
+	pd->hDevMode = 0;
+    }
+    if ( pd->hDevNames ) {
+	GlobalFree( pd->hDevNames );
+	pd->hDevNames = 0;
+    }
+}
+
 
 bool QPrinter::setup( QWidget *parent )
 {
@@ -238,6 +322,7 @@ bool QPrinter::setup( QWidget *parent )
 	result = PrintDlg( &pd ) != 0;
 
 	if ( result ) {
+	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
 	    if ( outputToFile() )
 		pd.Flags |= PD_PRINTTOFILE;
@@ -260,32 +345,13 @@ bool QPrinter::setup( QWidget *parent )
 		    GlobalUnlock( pd.hDevMode );
 		}
 	    }
+	    // } writePdlg
 	    result = PrintDlg( &pd );
 	    if ( result && pd.hDC == 0 )
 		result = FALSE;
-	    if ( result ) {				// get values from dlg
-		output_file = (pd.Flags & PD_PRINTTOFILE) != 0;
-		from_pg = pd.nFromPage;
-		to_pg	= pd.nToPage;
-		ncopies = pd.nCopies;
-		hdc	= pd.hDC;
-		if ( pd.hDevMode ) {
-		    DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
-		    if ( dm ) {
-			if ( dm->dmOrientation == DMORIENT_PORTRAIT )
-			    setOrientation( Portrait );
-			else
-			    setOrientation( Landscape );
-			setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
-			GlobalUnlock( pd.hDevMode );
-		    }
-		}
-	    }
+	    if ( result )				// get values from dlg
+		readPdlg( &pd );
 	}
-	if ( pd.hDevMode )
-	    GlobalFree( pd.hDevMode );
-	if ( pd.hDevNames )
-	    GlobalFree( pd.hDevNames );
     }
     else {
 	// Win95/98 A version; identical to the above!
@@ -321,29 +387,9 @@ bool QPrinter::setup( QWidget *parent )
 	    result = PrintDlgA( &pd );
 	    if ( result && pd.hDC == 0 )
 		result = FALSE;
-	    if ( result ) {				// get values from dlg
-		output_file = (pd.Flags & PD_PRINTTOFILE) != 0;
-		from_pg = pd.nFromPage;
-		to_pg	= pd.nToPage;
-		ncopies = pd.nCopies;
-		hdc	= pd.hDC;
-		if ( pd.hDevMode ) {
-		    DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd.hDevMode );
-		    if ( dm ) {
-			if ( dm->dmOrientation == DMORIENT_PORTRAIT )
-			    setOrientation( Portrait );
-			else
-			    setOrientation( Landscape );
-			setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
-			GlobalUnlock( pd.hDevMode );
-		    }
-		}
-	    }
+	    if ( result )
+		readPdlgA( &pd );
 	}
-	if ( pd.hDevMode )
-	    GlobalFree( pd.hDevMode );
-	if ( pd.hDevNames )
-	    GlobalFree( pd.hDevNames );	
     }
     return result;
 }

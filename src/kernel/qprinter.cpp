@@ -293,6 +293,8 @@ void QPrinter::setOutputFileName( const QString &fileName )
   try to be smart in a system-dependent way.  On X11 only, you can set
   it to something different to use a specific print program.
 
+  On Windows, this function returns the name of the printer device driver.
+
   \sa setPrintProgram() setPrinterSelectionOption()
 */
 

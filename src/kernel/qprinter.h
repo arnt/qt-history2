@@ -131,6 +131,8 @@ private:
 #if defined(_WS_WIN_)
     bool	viewOffsetDone;
     QPainter*   painter;
+    void	readPdlg( void* );
+    void	readPdlgA( void* );
 #endif
 
 private:	// Disabled copy constructor and operator=
