@@ -96,6 +96,7 @@ public:
     Q_ULONG	 bytesAvailable() const; // ### QIODevice::Offset instead?
     Q_ULONG	 waitForMore( int msecs ) const;
     Q_ULONG	 bytesToWrite() const;
+    void	 clearPendingData();
 
     Q_LONG	 readBlock( char *data, Q_ULONG maxlen );
     Q_LONG	 writeBlock( const char *data, Q_ULONG len );

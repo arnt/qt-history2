@@ -489,7 +489,10 @@ bool QSocket::open( int m )
     state is set to \c QSocket::Idle and the connection is terminated.
     At this point, the delayedCloseFinished() signal is emitted.
 
-    \sa state(), bytesToWrite()
+    If you don't want that the data of the output buffer is written, call
+    clearPendingData() before you call close().
+
+    \sa state(), bytesToWrite() clearPendingData()
 */
 
 void QSocket::close()
@@ -834,7 +837,7 @@ Q_ULONG QSocket::waitForMore( int msecs ) const
     Returns the number of bytes that are waiting to be written, i.e.
     the size of the output buffer.
 
-    \sa bytesAvailable()
+    \sa bytesAvailable() clearPendingData()
 */
 
 Q_ULONG QSocket::bytesToWrite() const
@@ -842,6 +845,17 @@ Q_ULONG QSocket::bytesToWrite() const
     return d->wsize;
 }
 
+/*!
+    Deletes the data that is waiting to be written. This is
+
+    \sa bytesToWrite() close()
+*/
+
+void QSocket::clearPendingData()
+{
+    d->wba.clear();
+    d->windex = d->wsize = 0;
+}
 
 /*!
     Reads \a maxlen bytes from the socket into \a data and returns the
