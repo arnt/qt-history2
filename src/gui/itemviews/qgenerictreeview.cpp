@@ -580,7 +580,7 @@ void QGenericTreeView::contentsRemoved(const QModelIndex &parent,
 	updateGeometries();
 	// FIXME: this won't work if there are open branches
 	collapse<QGenericTreeViewItem>(d->items, bottomRight.row() - 1, count);
-	updateViewport();
+	d->viewport->update();
     }
 }
 
@@ -632,7 +632,7 @@ bool QGenericTreeView::doItemsLayout(int num)
 //     int height = contentsHeight() + d->itemHeight * count;
 //    resizeContents(contentsWidth(), height);
     updateGeometries();
-    updateViewport();
+    d->viewport->update();
     d->layout_from_index += count;
     return (d->layout_from_index >= (d->layout_parent_index + d->layout_count));
 }
@@ -640,7 +640,7 @@ bool QGenericTreeView::doItemsLayout(int num)
 void QGenericTreeView::columnWidthChanged(int column, int, int)
 {
     int columnPos = d->header->sectionPosition(column);
-    updateViewport(QRect(columnPos, contentsY(),
+    d->viewport->update(QRect(columnPos, contentsY(),
  		   visibleWidth() - columnPos + contentsX(), visibleHeight()));
 //     resizeContents(contentsWidth() + (newSize - oldSize), contentsHeight());
     updateGeometries();
@@ -720,7 +720,7 @@ void QGenericTreeViewPrivate::close(int i)
 //     int height = total * itemHeight;
 //    q->resizeContents(q->contentsWidth(), q->contentsHeight() - height);
     q->updateGeometries();
-    q->updateViewport();
+    q->d->viewport->update();
 }
 
 int QGenericTreeViewPrivate::pageUp(int i) const

@@ -541,7 +541,7 @@ void QGenericListView::viewportDragMoveEvent(QDragMoveEvent *e)
 
     QPoint pos = e->pos();
     d->draggedItemsPos = pos;
-    updateViewport(d->draggedItemsRect);
+    d->viewport->update(d->draggedItemsRect);
 
     QModelIndex item = itemAt(pos.x(), pos.y());
     if (item.isValid()) {
@@ -567,7 +567,7 @@ void QGenericListView::viewportDropEvent(QDropEvent *e)
             QModelIndex pos = items.at(i);
 	    QRect rect = itemRect(pos);
 	    moveItem(pos.row(), QPoint(rect.x() + delta.x(), rect.y() + delta.y()));
-	    updateViewport(rect);
+	    d->viewport->update(rect);
 	    updateItem(pos);
 	}
     } else {
@@ -594,7 +594,7 @@ void QGenericListView::startDrag()
     QAbstractItemView::startDrag();
     // clear dragged items
     d->draggedItems.clear();
-    updateViewport(d->draggedItemsRect); // FIXME: the dragged items rect is in contents coords
+    d->viewport->update(d->draggedItemsRect); // FIXME: the dragged items rect is in contents coords
 }
 
 void QGenericListView::getViewOptions(QItemOptions *options) const
@@ -965,7 +965,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
 
     resizeContents(rect.width(), rect.height());
     if (visibleRect().intersects(rect))
-  	updateViewport();
+  	d->viewport->update();
 }
 
 void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
@@ -1060,7 +1060,7 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 	d->tree.climbTree(d->tree.item(i).rect(), &BinTree<QGenericListViewItem>::insert, (void *)i);
 
     if (visibleRect().intersects(rect))
-	updateViewport();
+	d->viewport->update();
 }
 
 bool QGenericListView::supportsDragAndDrop() const

@@ -48,25 +48,26 @@ protected:
     void setViewportMargins(int left, int top, int right, int bottom);
 
     bool event(QEvent *);
-    bool viewportEvent(QEvent *);
+    virtual bool viewportEvent(QEvent *);
 
-    virtual void resizeEvent(QResizeEvent *);
-    virtual void paintEvent(QPaintEvent *);
-    virtual void mousePressEvent(QMouseEvent *);
-    virtual void mouseReleaseEvent(QMouseEvent *);
-    virtual void mouseDoubleClickEvent(QMouseEvent *);
-    virtual void mouseMoveEvent(QMouseEvent *);
+    void resizeEvent(QResizeEvent *);
+    void paintEvent(QPaintEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void mouseDoubleClickEvent(QMouseEvent *);
+    void mouseMoveEvent(QMouseEvent *);
 #ifndef QT_NO_WHEELEVENT
-    virtual void wheelEvent(QWheelEvent *);
+    void wheelEvent(QWheelEvent *);
 #endif
+    void contextMenuEvent(QContextMenuEvent *);
 #ifndef QT_NO_DRAGANDDROP
-    virtual void dragEnterEvent( QDragEnterEvent * );
-    virtual void dragMoveEvent( QDragMoveEvent * );
-    virtual void dragLeaveEvent( QDragLeaveEvent * );
-    virtual void dropEvent( QDropEvent * );
+    void dragEnterEvent(QDragEnterEvent *);
+    void dragMoveEvent(QDragMoveEvent *);
+    void dragLeaveEvent(QDragLeaveEvent *);
+    void dropEvent(QDropEvent *);
 #endif
 
-    virtual void keyPressEvent( QKeyEvent * );
+    void keyPressEvent( QKeyEvent * );
 
     virtual void scrollContentsBy(int dx, int dy);
 

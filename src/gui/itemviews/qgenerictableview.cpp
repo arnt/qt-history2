@@ -133,7 +133,7 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
 	int above = (value % verticalFactor()) * rowHeight(row);
 	d->leftHeader->setOffset((above / verticalFactor()) + d->leftHeader->sectionPosition(row));
     }
-    QViewport::scrollContentsBy(dx, dy);
+    d->viewport->update();
 }
 
 void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
@@ -147,12 +147,12 @@ void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
 
 void QGenericTableView::paintEvent(QPaintEvent *)
 {
-    QPainter painter(viewport());
+    QPainter painter(d->viewport);
 
     int colfirst = columnAt(0);
-    int collast = columnAt(viewport()->width());
+    int collast = columnAt(d->viewport->width());
     int rowfirst = rowAt(0);
-    int rowlast = rowAt(viewport()->height());
+    int rowlast = rowAt(d->viewport->height());
     bool showGrid = d->showGrid;
 
     QModelIndex bottomRight = model()->bottomRight(root());
@@ -185,7 +185,7 @@ void QGenericTableView::paintEvent(QPaintEvent *)
 	    if (item.isValid()) {
 		options.itemRect = QRect(colp, rowp, colw - 1, rowh - 1);
 		options.selected = sels ? sels->isSelected(item) : 0;
-		options.focus = (viewport()->hasFocus() && item == cvi);
+		options.focus = (d->viewport->hasFocus() && item == cvi);
 		painter.fillRect(colp, rowp, colw, rowh,
 				 (options.selected ? options.palette.highlight() :
 				  options.palette.base()));
@@ -220,7 +220,7 @@ QRect QGenericTableView::itemViewportRect(const QModelIndex &item) const
 
 void QGenericTableView::ensureItemVisible(const QModelIndex &item)
 {
-    QRect area = viewport()->geometry();
+    QRect area = d->viewport->geometry();
     QRect rect = itemViewportRect(item);
 
     if (area.contains(rect) || model()->parent(item) != root())
@@ -270,11 +270,11 @@ QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursor
         case QAbstractItemView::MoveEnd:
 	    return model()->index(bottomRight.row(), current.column(), root());
         case QAbstractItemView::MovePageUp: {
-	    int newRow = rowAt(itemViewportRect(current).top() - viewport()->height());
+	    int newRow = rowAt(itemViewportRect(current).top() - d->viewport->height());
 	    return model()->index(newRow <= bottomRight.row() ? newRow : 0, current.column(), root());
 	}
         case QAbstractItemView::MovePageDown: {
-	    int newRow = rowAt(itemViewportRect(current).bottom() + viewport()->height());
+	    int newRow = rowAt(itemViewportRect(current).bottom() + d->viewport->height());
 	    return model()->index(newRow >= 0 ? newRow : bottomRight.row(), current.column(), root());
 	}
     }
@@ -337,15 +337,15 @@ QRect QGenericTableView::selectionRect(const QItemSelection &selection) const
 void QGenericTableView::rowCountChanged(int, int)
 {
     updateGeometries();
-    updateViewport();
-    if (viewport()->height() >= contentsHeight())
+    d->viewport->update();
+    if (d->viewport->height() >= contentsHeight())
 	emit needMore();
 }
 
 void QGenericTableView::columnCountChanged(int, int)
 {
     updateGeometries();
-    updateViewport();
+    d->viewport->update();
 }
 
 void QGenericTableView::updateGeometries()
@@ -356,7 +356,7 @@ void QGenericTableView::updateGeometries()
     bool reverse = QApplication::reverseLayout();
     setViewportMargins(reverse ? 0 : width, topHint.height(), reverse ? width : 0, 0);
 
-    QRect vg = viewport()->geometry();
+    QRect vg = d->viewport->geometry();
     d->leftHeader->setGeometry(reverse ? vg.right() + 1 : (vg.left() - 1 - width), vg.top(), width, vg.height());
     d->topHeader->setGeometry(reverse ? vg.right() - topHint.width() : vg.left(),
 			      vg.top() - topHint.height() - 1, vg.width(), topHint.height());
@@ -366,7 +366,7 @@ void QGenericTableView::updateGeometries()
     getViewOptions(&options);
     QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0, 0));
 
-    int h = viewport()->height();
+    int h = d->viewport->height();
     int row = model()->rowCount(0);
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
     while (h > 0 && row > 0)
@@ -376,7 +376,7 @@ void QGenericTableView::updateGeometries()
 	 max += 1 + (verticalFactor() * -h / d->leftHeader->sectionSize(row));
     verticalScrollBar()->setRange(0, max);
 
-    int w = viewport()->width();
+    int w = d->viewport->width();
     int col = model()->columnCount(0);
     horizontalScrollBar()->setPageStep(w / def.width() * horizontalFactor());
     while (w > 0 && col > 0)
@@ -390,7 +390,7 @@ void QGenericTableView::updateGeometries()
 int QGenericTableView::rowSizeHint(int row) const
 {
     int columnfirst = columnAt(0);
-    int columnlast = columnAt(viewport()->width());
+    int columnlast = columnAt(d->viewport->width());
 
     QItemOptions options;
     getViewOptions(&options);
@@ -407,7 +407,7 @@ int QGenericTableView::rowSizeHint(int row) const
 int QGenericTableView::columnSizeHint(int column) const
 {
     int rowfirst = rowAt(0);
-    int rowlast = rowAt(viewport()->height());
+    int rowlast = rowAt(d->viewport->height());
 
     QItemOptions options;
     getViewOptions(&options);
@@ -497,7 +497,7 @@ void QGenericTableView::rowHeightChanged(int row, int /*oldSize*/, int /*newSize
 // 		    visibleWidth(), visibleHeight() - rowPosition(row) + contentsY());
     updateGeometries();
     int rowp = rowViewportPosition(row);
-    updateViewport(QRect(0, rowp, viewport()->width(), viewport()->height() - rowp));
+    d->viewport->update(QRect(0, rowp, d->viewport->width(), d->viewport->height() - rowp));
     updateCurrentEditor();
 }
 
@@ -507,7 +507,7 @@ void QGenericTableView::columnWidthChanged(int column, int /*oldSize*/, int /*ne
 // 		    visibleWidth() - columnPosition(column) + contentsX(), visibleHeight());
     updateGeometries();
     int colp = columnViewportPosition(column);
-    updateViewport(QRect(colp, 0, viewport()->height(), viewport()->width() - colp));
+    d->viewport->update(QRect(colp, 0, d->viewport->height(), d->viewport->width() - colp));
     updateCurrentEditor();
 }
 
@@ -519,7 +519,7 @@ void QGenericTableView::rowIndexChanged(int, int /*oldIndex*/, int /*newIndex*/)
 //     int height = visibleHeight() - (o > n ? o : n ) + contentsY();
 //     updateContents(contentsX(), top, visibleWidth(), height);
     updateGeometries();
-    updateViewport();
+    d->viewport->update();
 }
 
 void QGenericTableView::columnIndexChanged(int, int /*oldIndex*/, int /*newIndex*/)
@@ -530,7 +530,7 @@ void QGenericTableView::columnIndexChanged(int, int /*oldIndex*/, int /*newIndex
 //     int width = visibleWidth() - (o > n ? o : n) + contentsX();
 //     updateContents(left, contentsY(), width, visibleHeight());
     updateGeometries();
-    updateViewport();
+    d->viewport->update();
 }
 
 void QGenericTableView::selectRow(int row, ButtonState state)

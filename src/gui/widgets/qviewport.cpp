@@ -70,7 +70,8 @@
     makes sense. The remapped specialised handlers are: paintEvent(),
     mousePressEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(),
     mouseMoveEvent(), wheelEvent(), dragEnterEvent(), dragMoveEvent(),
-    dragLeaveEvent(), dropEvent() and resizeEvent().
+    dragLeaveEvent(), dropEvent(), contextMenuEvent().  and
+    resizeEvent().
 
 */
 
@@ -325,7 +326,8 @@ bool QViewport::event(QEvent *e)
   Specialised handlers for viewport events are: paintEvent(),
   mousePressEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(),
   mouseMoveEvent(), wheelEvent(), dragEnterEvent(), dragMoveEvent(),
-  dragLeaveEvent(), dropEvent() and resizeEvent().
+  dragLeaveEvent(), dropEvent(), contextMenuEvent(), and
+  resizeEvent().
 
  */
 bool QViewport::viewportEvent(QEvent *e)
@@ -438,6 +440,17 @@ void QViewport::wheelEvent(QWheelEvent *e)
     e->ignore();
 }
 #endif
+
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    context menu events for the viewport() widget.
+
+    \sa QWidget::contextMenuEvent()
+*/
+void QViewport::contextMenuEvent(QContextMenuEvent *e)
+{
+    QFrame::contextMenuEvent(e);
+}
 
 void QViewport::keyPressEvent( QKeyEvent * e)
 {

@@ -22,7 +22,6 @@ QItemViewDragObject::QItemViewDragObject(QAbstractItemView *dragSource)
 
 QItemViewDragObject::~QItemViewDragObject()
 {
-    delete d;
 }
 
 void QItemViewDragObject::append(QModelIndex &item)
@@ -88,8 +87,6 @@ void QAbstractItemViewPrivate::init()
     q->setVerticalFactor(1024);
 
     q->viewport()->installEventFilter(q);
-    q->viewport()->setFocusProxy(q);
-    q->viewport()->setFocusPolicy(QWidget::WheelFocus);
 
     // FIXME: this is only true when we have a view that is layed out TopToBottom
     QObject::connect(q->verticalScrollBar(), SIGNAL(sliderReleased()), q, SLOT(fetchMore()));
@@ -100,8 +97,6 @@ void QAbstractItemViewPrivate::init()
     QObject::connect(q->horizontalScrollBar(), SIGNAL(valueChanged(int)),q, SLOT(updateCurrentEditor()),
 		     QueuedConnection);
     QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), QueuedConnection);
-
-    q->viewport()->setBackgroundRole(QPalette::Base);
 
     //emit model->contentsChanged(); // initial emit to start layout
     QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot,
@@ -246,7 +241,7 @@ void QAbstractItemView::viewportMouseMoveEvent(QMouseEvent *e)
 
     QModelIndex item = itemAt(pos);
     if (currentItem() == item && state() == Selecting) {
-	updateViewport(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
+	d->viewport->update(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
 	return;
     }
 
@@ -263,7 +258,7 @@ void QAbstractItemView::viewportMouseMoveEvent(QMouseEvent *e)
     }
     setState(Selecting);
     setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state(), item, e->type()));
-    updateViewport(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
+    d->viewport->update(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
 }
 
 void QAbstractItemView::viewportMouseReleaseEvent(QMouseEvent *e)
@@ -277,7 +272,7 @@ void QAbstractItemView::viewportMouseReleaseEvent(QMouseEvent *e)
 			     selectionBehavior());
     d->pressedItem = QModelIndex();
     d->pressedState = NoButton;
-    updateViewport(d->dragRect.normalize());
+    d->viewport->update(d->dragRect.normalize());
     setState(NoState);
 }
 
@@ -706,7 +701,7 @@ void QAbstractItemView::fetchMore()
 
 void QAbstractItemView::updateItem(const QModelIndex &item)
 {
-    updateViewport(itemViewportRect(item));
+    d->viewport->update(itemViewportRect(item));
 }
 
 void QAbstractItemView::updateRow(const QModelIndex &item)
@@ -718,15 +713,7 @@ void QAbstractItemView::updateRow(const QModelIndex &item)
     QModelIndex left = model()->index(row, 0, parent);
     QModelIndex right = model()->index(row, columns - 1, parent);
     QRect rect = itemViewportRect(left) | itemViewportRect(right);
-    updateViewport(rect);
-}
-
-void QAbstractItemView::updateViewport(const QRect &)
-{
-    // will only update if rect is visible
-//     if (viewport()->rect().intersects(rect))
-// 	viewport()->update(rect);
-    viewport()->update(); // FIXME: use rect
+    d->viewport->update(rect);
 }
 
 void QAbstractItemView::clearArea(QPainter *painter, const QRect &rect) const

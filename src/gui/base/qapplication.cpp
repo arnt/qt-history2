@@ -2567,11 +2567,19 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 		w = w->parentWidget();
 	    }
 
-	    if (e->type() == QEvent::MouseButtonPress
-		&& w->isEnabled() && w->focusPolicy() & QWidget::ClickFocus ) {
-		QFocusEvent::setReason( QFocusEvent::Mouse);
-		w->setFocus();
-		QFocusEvent::resetReason();
+	    if (e->type() == QEvent::MouseButtonPress) {
+		QWidget *fw = w;
+		while (fw) {
+		    if (fw->isEnabled() && (fw->focusPolicy() & QWidget::ClickFocus)) {
+			QFocusEvent::setReason( QFocusEvent::Mouse);
+			fw->setFocus();
+			QFocusEvent::resetReason();
+			break;
+		    }
+		    if (fw->isTopLevel())
+			break;
+		    fw = fw->parentWidget();
+		}
 	    }
 
 	    if (e->type() == QEvent::MouseMove) {
@@ -2617,10 +2625,17 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 		w = w->parentWidget();
 	    }
 
-	    if ( w->isEnabled() && (w->focusPolicy() & QWidget::WheelFocus) == QWidget::WheelFocus ) {
-		QFocusEvent::setReason( QFocusEvent::Mouse);
-		w->setFocus();
-		QFocusEvent::resetReason();
+	    QWidget *fw = w;
+	    while (fw) {
+		if (fw->isEnabled() && (fw->focusPolicy() & QWidget::WheelFocus) == QWidget::WheelFocus) {
+		    QFocusEvent::setReason( QFocusEvent::Mouse);
+		    fw->setFocus();
+		    QFocusEvent::resetReason();
+		    break;
+		}
+		if (fw->isTopLevel())
+		    break;
+		fw = fw->parentWidget();
 	    }
 	}
 

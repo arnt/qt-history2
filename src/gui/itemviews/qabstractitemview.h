@@ -89,8 +89,6 @@ protected:
 
     virtual void updateItem(const QModelIndex &item);
     virtual void updateRow(const QModelIndex &item);
-    virtual void updateViewport(const QRect &rect);
-    inline void updateViewport() { viewport()->update(); }
 
     virtual void setSelection(const QRect&, QItemSelectionModel::SelectionUpdateMode) = 0;
     virtual QRect selectionRect(const QItemSelection &selection) const = 0;

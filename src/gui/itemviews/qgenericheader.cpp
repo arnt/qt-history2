@@ -362,9 +362,9 @@ void QGenericHeader::initializeSections(int start, int end)
 void QGenericHeader::updateSection(int section)
 {
     if (orientation() == Horizontal)
-	updateViewport(QRect(sectionPosition(section) - d->offset, 0, sectionSize(section), height()));
+	d->viewport->update(QRect(sectionPosition(section) - d->offset, 0, sectionSize(section), height()));
     else
-	updateViewport(QRect(0, sectionPosition(section) - d->offset, width(), sectionSize(section)));
+	d->viewport->update(QRect(0, sectionPosition(section) - d->offset, width(), sectionSize(section)));
 }
 
 void QGenericHeader::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)

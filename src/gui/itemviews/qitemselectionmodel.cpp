@@ -99,8 +99,6 @@ QItemSelection QItemSelectionModelPrivate::expandRows(const QItemSelection &sele
     return rows;
 }
 
-#define d d_func()
-#define q q_func()
 
 /*!
   \class QItemSelectionModel
