@@ -431,22 +431,24 @@ void ConfigureApp::generateConfigfiles()
     if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream outStream( &outFile );
 
-	outStream << "// Everything" << endl;
-	QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
-	outStream << "// Copied from " << configName << endl;
-	
-	QFile inFile( qtDir + "/src/tools/" + configName );
-	if( inFile.open( IO_ReadOnly | IO_Translate ) ) {
-	    QByteArray buffer = inFile.readAll();
-	    outFile.writeBlock( buffer.data(), buffer.size() );
-	    inFile.close();
+	if( dictionary[ "QCONFIG" ] == "full" ) {
+	    outStream << "// Everything" << endl << endl;
+	    outStream << "#if defined( QT_MAKEDLL ) && !defined( QT_DLL )" << endl;
+	    outStream << "#define QT_DLL" << endl;
+	    outStream << "#endif" << endl << endl;
 	}
-	QString activeMods = qmakeConfig.join( " " );
-	for( QStringList::Iterator mods = allModules.begin(); mods != allModules.end(); ++mods ) {
-	    int index( qmakeConfig.findIndex( (*mods) ) );
-	    if( index == -1 )
-		outStream << "#define QT_NO_" << (*mods).upper() << endl;
+	else {
+	    QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
+	    outStream << "// Copied from " << configName << endl;
+	    
+	    QFile inFile( qtDir + "/src/tools/" + configName );
+	    if( inFile.open( IO_ReadOnly | IO_Translate ) ) {
+		QByteArray buffer = inFile.readAll();
+		outFile.writeBlock( buffer.data(), buffer.size() );
+		inFile.close();
+	    }
 	}
+	outStream << endl;
 	outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
 	outStream << "#define QT_PRODUCT_LICENSE \"" << licenseInfo[ "PRODUCTS" ] << "\"" << endl;
 	outFile.close();
