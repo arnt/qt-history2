@@ -70,7 +70,7 @@ public:
   QHttpRequestHeader classes. Probably, you will instantiate one of the more
   special classes rather than this one.
 
-  It provides to the header fields. A HTTP header field consists (accroding to
+  It provides to the header fields. A HTTP header field consists (according to
   RFC 1945) of a name followed immediately by a colon, a single space, and the
   field value. Field names are case-insensitive. A typical header field looks
   like:
