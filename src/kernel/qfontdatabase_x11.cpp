@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -360,7 +360,7 @@ int qt_xlfdEncoding_Id( const char *encoding )
 		++e;
 	}
     }
-    //    qDebug( "couldn't find encoding %s", encoding );
+    // qDebug( "couldn't find encoding %s", encoding );
     return -1;
 }
 
@@ -523,7 +523,7 @@ static inline bool canRender( QFontEngine *fe, const QChar &sample )
     if (hasChar) {
 	qDebug("    unicode font has char 0x%04x", sample.unicode() );
     }
-#endif
+#endif // FONT_MATCH_DEBUG
 
     return hasChar;
 }
@@ -1038,7 +1038,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    for ( int i = 0; i < QFont::NScripts; i++ ) {
 		QChar ch = sampleCharacter( (QFont::Script)i );
 		if ( getGlyphIndex( unicode_table, format, ch.unicode() ) ) {
-		    // 		qDebug("font can render script %d",  i );
+		    // qDebug("font can render script %d",  i );
 		    family->scripts[i] = QtFontFamily::Supported;
 		} else {
 		    family->scripts[i] |= QtFontFamily::UnSupported_Xft;
@@ -1125,7 +1125,7 @@ static void load( const QString &family = QString::null, int script = -1 )
     }
 #ifdef QFONTDATABASE_DEBUG
     qDebug("QFontDatabase: load( %s, %d) took %d ms", family.latin1(), script, t.elapsed() );
-#endif
+#endif // QFONTDATABASE_DEBUG
 }
 
 
@@ -1461,7 +1461,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 			  QtFontSize **best_size, QtFontEncoding **best_encoding )
 {
 #ifdef FONT_MATCH_DEBUG
-    qDebug( "  REMARK: looking for best foundy for family '%s'",
+    qDebug( "  REMARK: looking for best foundry for family '%s'",
 	    family->name.latin1() );
 #endif // FONT_MATCH_DEBUG
 
@@ -1716,12 +1716,14 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int scre
 	 best_size == 0 || best_encoding == 0 ) {
 #ifdef FONT_MATCH_DEBUG
 	qDebug( "no best match found" );
-#endif
+#endif // FONT_MATCH_DEBUG
 
 	if ( ! request.family.isEmpty() )
 	    return 0;
 
+#ifdef FONT_MATCH_DEBUG
 	qDebug( "returning box engine" );
+#endif // FONT_MATCH_DEBUG
 	fe = new QFontEngineBox( request.pixelSize );
 	QFontCache::instance->insertEngine( key, fe );
 	return fe;
@@ -1755,7 +1757,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int scre
 	    if ( ! request.family.isEmpty() )
 		return 0;
 
+#ifdef FONT_MATCH_DEBUG
 	    qDebug( "returning box engine" );
+#endif // FONT_MATCH_DEBUG
 	    fe = new QFontEngineBox( request.pixelSize );
 	    QFontCache::instance->insertEngine( key, fe );
 	    return fe;
