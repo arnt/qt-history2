@@ -28,7 +28,7 @@
 # include <sys/fcntl.h>
 #endif
 
-#include "qimage.h"
+#include "qimageio.h"
 #include "qpixmap.h"
 #include "qdatastream.h"
 #include "qdragobject.h"
@@ -520,7 +520,7 @@ int QMacMimeImage::flavor(int)
 int QMacMimeImage::flavorFor(const char* mime)
 {
     if(!qstrnicmp(mime,"image/",5)) {
-        QList<QByteArray> ofmts = QImage::outputFormats();
+        QList<QByteArray> ofmts = QImageIO::outputFormats();
         for (int i = 0; i < ofmts.count(); ++i) {
             if (!qstricmp(ofmts.at(i), mime + 6))
                 return kScrapFlavorTypePicture;
@@ -539,7 +539,7 @@ const char* QMacMimeImage::mimeFor(int flav)
 bool QMacMimeImage::canConvert(const char* mime, int flav)
 {
     if(flav == kScrapFlavorTypePicture && !qstrnicmp(mime,"image/",5)) {
-        QList<QByteArray> ofmts = QImage::outputFormats();
+        QList<QByteArray> ofmts = QImageIO::outputFormats();
         for (int i = 0; i < ofmts.count(); ++i) {
             if (!qstricmp(ofmts.at(i), mime + 6))
                 return true;
