@@ -2642,8 +2642,6 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 }
 #endif // QT_NO_WMATRIX
 
-static QImage smoothXForm(const QImageData *src, const QMatrix &matrix);
-
 /*!
     Returns a copy of the image that is transformed with the transformation
     matrix specified by \a matrix and using the transformation mode specified
@@ -2669,45 +2667,39 @@ QImage QImage::transform(const QMatrix &matrix, Qt::TransformationMode mode) con
         return convertDepth(32).transform(matrix, mode);
     }
 
-    int bpp = depth();
-
-    if (bpp == 32 && mode == Qt::SmoothTransformation)
-        return smoothXForm(this->d, matrix);
-
     // source image data
     int ws = width();
     int hs = height();
-    int sbpl = bytesPerLine();
-    const uchar *sptr = bits();
 
     // target image data
     int wd;
     int hd;
 
-
     // compute size of target image
     QMatrix mat = trueMatrix(matrix, ws, hs);
     if (mat.m12() == 0.0F && mat.m21() == 0.0F) {
         if (mat.m11() == 1.0F && mat.m22() == 1.0F) // identity matrix
-            return copy();
-        hd = qRound(mat.m22() * hs);
-        wd = qRound(mat.m11() * ws);
+            return *this;
+        hd = int(qAbs(mat.m22()) * hs + 0.9999);
+        wd = int(qAbs(mat.m11()) * ws + 0.9999);
         hd = qAbs(hd);
         wd = qAbs(wd);
     } else {                                        // rotation or shearing
-        QPolygon a(QRect(0, 0, ws, hs));
+        QPolygonF a(QRectF(0, 0, ws, hs));
         a = mat.map(a);
-        QRect r = a.boundingRect().normalize();
-        wd = r.width();
-        hd = r.height();
+        QRectF r = a.boundingRect().normalize();
+        wd = int(r.width() + 0.9999);
+        hd = int(r.height() + 0.9999);
     }
 
-    bool invertible;
-    mat = mat.inverted(&invertible);                // invert matrix
-    if (hd == 0 || wd == 0 || !invertible)        // error, return null image
+    if (wd == 0 || hd == 0)
         return QImage();
 
-    // create target image (some of the code is from QImage::copy())
+    int bpp = depth();
+
+    int sbpl = bytesPerLine();
+    const uchar *sptr = bits();
+
     QImage dImage(wd, hd, depth(), numColors(), bitOrder());
     memcpy(dImage.colorTable(), colorTable(), numColors()*sizeof(QRgb));
     dImage.setAlphaBuffer(hasAlphaBuffer());
@@ -2737,13 +2729,29 @@ QImage QImage::transform(const QMatrix &matrix, Qt::TransformationMode mode) con
             break;
     }
 
-    int type;
-    if (bitOrder() == BigEndian)
-        type = QT_XFORM_TYPE_MSBFIRST;
-    else
-        type = QT_XFORM_TYPE_LSBFIRST;
-    int dbpl = dImage.bytesPerLine();
-    qt_xForm_helper(mat, 0, type, bpp, dImage.bits(), dbpl, 0, hd, sptr, sbpl, ws, hs);
+    if (bpp == 32) {
+        QPainter p(&dImage);
+        if (mode == Qt::SmoothTransformation) {
+            p.setRenderHint(QPainter::Antialiasing);
+            p.setRenderHint(QPainter::SmoothPixmapTransform);
+        }
+        p.setMatrix(matrix);
+        p.drawImage(QPoint(0, 0), *this);
+    } else {
+        bool invertible;
+        mat = mat.inverted(&invertible);                // invert matrix
+        if (!invertible)        // error, return null image
+            return QImage();
+
+        // create target image (some of the code is from QImage::copy())
+        int type;
+        if (bitOrder() == BigEndian)
+            type = QT_XFORM_TYPE_MSBFIRST;
+        else
+            type = QT_XFORM_TYPE_LSBFIRST;
+        int dbpl = dImage.bytesPerLine();
+        qt_xForm_helper(mat, 0, type, bpp, dImage.bits(), dbpl, 0, hd, sptr, sbpl, ws, hs);
+    }
     return dImage;
 }
 #endif
@@ -3941,493 +3949,6 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
 #undef IWX_LSB
 #undef IWX_PIX
 #endif // QT_NO_PIXMAP_TRANSFORMATION
-
-struct Qargb {
-    Qargb() : a(0), r(0), g(0), b(0) {}
-    Qargb(uint pixel, uint scale) {
-        a = qAlpha(pixel) * scale;
-        r =   qRed(pixel) * scale;
-        g = qGreen(pixel) * scale;
-        b =  qBlue(pixel) * scale;
-    }
-    inline Qargb &operator += (const Qargb &o) {
-        a += o.a;
-        r += o.r;
-        g += o.g;
-        b += o.b;
-        return *this;
-    }
-    inline Qargb &operator *(uint scale) {
-        a *= scale;
-        r *= scale;
-        g *= scale;
-        b *= scale;
-        return *this;
-    }
-    inline QRgb toPixel(uint scale) const {
-        return qRgba(r/scale, g/scale, b/scale, a/scale);
-    }
-    uint a;
-    uint r;
-    uint g;
-    uint b;
-};
-
-static void scaleX(QImage *image, int height, int iwidth, int owidth)
-{
-//     qDebug("scaleX: height=%d, iwidth=%d, owidth=%d", height, iwidth, owidth);
-    if (iwidth == owidth)
-        return;
-
-    Q_ASSERT(image->width() >= qMax(iwidth, owidth));
-    Q_ASSERT(height <= image->height());
-
-    uchar **bits = image->jumpTable();
-    if (owidth > iwidth) {
-        for (int y = 0; y < height; ++y) {
-            QRgb *line = reinterpret_cast<QRgb *>(bits[y]);
-
-            int p = owidth;
-            int q = iwidth;
-            Qargb argb;
-            int ix = iwidth - 1;
-            int ox = owidth - 1;
-            while (ox >= 0) {
-                if (p > q) {
-                    if (q)
-                        argb += Qargb(line[ix], q);
-                    line[ox] = argb.toPixel(iwidth);
-                    argb = Qargb();
-                    --ox;
-                    p -= q;
-                    q = iwidth;
-                } else {
-                    argb += Qargb(line[ix], p);
-                    q -= p;
-                    p = owidth;
-                    --ix;
-                }
-            }
-        }
-    } else {
-        const uint bytes = (iwidth - owidth)*sizeof(QRgb);
-        for (int y = 0; y < height; ++y) {
-            QRgb *line = reinterpret_cast<QRgb *>(bits[y]);
-
-            int p = owidth;
-            int q = iwidth;
-            Qargb argb;
-            int ix = 0;
-            int ox = 0;
-            while (ox < owidth) {
-                if (p > q) {
-                    if (q)
-                        argb += Qargb(line[ix], q);
-                    line[ox] = argb.toPixel(iwidth);
-                    argb = Qargb();
-                    ++ox;
-                    p -= q;
-                    q = iwidth;
-                } else {
-                    argb += Qargb(line[ix], p);
-                    q -= p;
-                    p = owidth;
-                    ++ix;
-                }
-            }
-            memset(line + owidth, 0, bytes);
-        }
-    }
-}
-
-static void scaleY(QImage *image, int width, int iheight, int oheight)
-{
-//     qDebug("scaleY: width=%d, iheight=%d, oheight=%d", width, iheight, oheight);
-    if (iheight == oheight)
-        return;
-
-    Q_ASSERT(image->height() >= qMax(iheight, oheight));
-    Q_ASSERT(width <= image->width());
-
-    QRgb **bits = reinterpret_cast<QRgb **>(image->jumpTable());
-    Qargb *argb = (Qargb *) malloc(width * sizeof(Qargb));
-    memset(argb, 0, width*sizeof(Qargb));
-    int p = oheight;
-    int q = iheight;
-    if (oheight > iheight) {
-        int iy = iheight - 1;
-        int oy = oheight - 1;
-        while (oy >= 0) {
-            if (p > q) {
-                if (q)
-                    for (int x = 0; x < width; ++x)
-                        argb[x] += Qargb(bits[iy][x], q);
-                for (int x = 0; x < width; ++x)
-                    bits[oy][x] = argb[x].toPixel(iheight);
-                memset(argb, 0, width*sizeof(Qargb));
-                --oy;
-                p -= q;
-                q = iheight;
-            } else {
-                for (int x = 0; x < width; ++x)
-                    argb[x] += Qargb(bits[iy][x], p);
-                q -= p;
-                p = oheight;
-                --iy;
-            }
-        }
-    } else {
-        int iy = 0;
-        int oy = 0;
-        while (oy < oheight) {
-            if (p > q) {
-                if (q)
-                    for (int x = 0; x < width; ++x)
-                        argb[x] += Qargb(bits[iy][x], q);
-                for (int x = 0; x < width; ++x)
-                    bits[oy][x] = argb[x].toPixel(iheight);
-                memset(argb, 0, width*sizeof(Qargb));
-                ++oy;
-                p -= q;
-                q = iheight;
-            } else {
-                for (int x = 0; x < width; ++x)
-                    argb[x] += Qargb(bits[iy][x], p);
-                q -= p;
-                p = oheight;
-                ++iy;
-            }
-        }
-        for (; oy < oheight; ++oy)
-            memset(bits[oy], 0, width*sizeof(QRgb));
-    }
-    free(argb);
-}
-
-
-static void shearX(QImage *image, int height, int iwidth, qreal shear)
-{
-//     qDebug("shearX: height=%d, iwidth=%d, shear=%f", height, iwidth, shear);
-    if (qAbs(shear*height) < 0.3)
-        return;
-
-    Q_ASSERT(image->width() >= iwidth + qRound(qAbs(shear*(height-1))));
-    Q_ASSERT(height <= image->height());
-
-    const qreal skewoffset = shear < 0 ? -shear*(height-1) : 0;
-
-    uchar **bits = image->jumpTable();
-    for (int y = 0; y < height; ++y) {
-        const qreal skew = shear*y + skewoffset;
-        int skewi = qIntCast(skew*256);
-        int fraction = 0xff - skewi & 0xff;
-        skewi >>= 8;
-        QRgb *line = reinterpret_cast<QRgb *>(bits[y]);
-
-        uint lastPixel = 0;
-        for (int x = iwidth - 1; x >= 0; --x) {
-            QRgb pixel = line[x];
-            QRgb next = pixel;
-            next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24);
-                qRgba(
-                    (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
-                    (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
-
-            line[x+skewi] = pixel - next + lastPixel;
-            lastPixel = next;
-        }
-        if (skewi > 0) {
-            line[skewi - 1] = lastPixel;
-            if (skewi > 1)
-                memset(line, 0, (skewi-1)*sizeof(QRgb));
-        }
-    }
-}
-
-
-static void shearY(QImage *image, int width, int iheight, qreal shear, qreal offset)
-{
-//     qDebug("shearY: width=%d, iheight=%d, shear=%f", width, iheight, shear);
-    if (qAbs(shear*width) < 0.3)
-        return;
-
-    Q_ASSERT(image->height() >= iheight + qRound(qAbs(shear*(width-1))));
-    Q_ASSERT(width <= image->width());
-
-    QRgb **bits = reinterpret_cast<QRgb **>(image->jumpTable());
-    for (int x = 0; x < width; ++x) {
-        const qreal skew = shear*(x - offset);
-        int skewi = qIntCast(skew*256);
-        int fraction;
-        if (skew >= 0) {
-            fraction = 0xff - skewi & 0xff;
-            skewi >>= 8;
-            uint lastPixel = 0;
-            for (int y = iheight - 1; y >= 0; --y) {
-                QRgb pixel = bits[y][x];
-                QRgb next = pixel;
-                next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24);
-                    qRgba(
-                        (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
-                        (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
-
-                bits[y+skewi][x] = pixel - next + lastPixel;
-                lastPixel = next;
-            }
-            if (skewi > 0) {
-                bits[--skewi][x] = lastPixel;
-                while (skewi > 0)
-                    bits[--skewi][x] = 0;
-            }
-        } else {
-            fraction = skewi & 0xff;
-            skewi >>= 8;
-            skewi -= 1;
-            uint lastPixel = 0;
-            for (int y = -skewi; y < iheight - 1; ++y) {
-                QRgb pixel = bits[y][x];
-                QRgb next = pixel;
-                next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24);
-                    qRgba(
-                        (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
-                        (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
-
-                bits[y+skewi][x] = pixel - next + lastPixel;
-                lastPixel = next;
-            }
-            bits[iheight + skewi][x] = lastPixel;
-            ++skewi;
-            while (skewi < 0) {
-                bits[iheight + skewi][x] = 0;
-                skewi++;
-            }
-        }
-    }
-}
-
-QImage smoothXForm(const QImageData *d, const QMatrix &matrix)
-{
-    Q_ASSERT(d->d == 32);
-    Q_ASSERT(d->w > 0 && d->h > 0);
-
-    // avoid degenerate transformations
-    if (qAbs(matrix.det()) < 0.001)
-        return QImage();
-
-    /* we decompose the full transformation into a possible mirroring operation,
-       a n*90 degree rotation (n = 0...3), a scale along x, a scale along y,
-       a shear along x and a shear along y.
-
-       To avoid artifacts, the shearing transformations have to be minimized.
-
-       To do so we calculate the projection of the unit vectors:
-
-       / x1 \ = mat * / 1 \
-       \ y1 /         \ 0 /
-
-       / x2 \ = mat * / 0 \
-       \ y2 /         \ 1 /
-
-       To minimize the shearing error we need to find two orthogonal
-       axes of the coordinate system that are closest to the projected
-       unit vectors.
-    */
-
-    qreal v1x = matrix.m11(),
-           v1y = matrix.m12(),
-           v2x = matrix.m21(),
-           v2y = matrix.m22();
-
-//     qDebug("\nv1=(%f/%f), v2=(%f/%f)", v1x, v1y, v2x, v2y);
-
-    bool v1Horizontal = qAbs(v1x) > qAbs(v1y);
-    bool v2Horizontal = qAbs(v2x) > qAbs(v2y);
-
-    if (v1Horizontal == true && v2Horizontal == true) {
-        // both want horizontal, move the one to vertical where the error would be smaller.
-        if (qAbs(v1y/v1x) <= qAbs(v2y/v2x))
-            v2Horizontal = false;
-        else
-            v1Horizontal = false;
-    } else if (v1Horizontal == false && v2Horizontal == false) {
-        // both want vertical, move the one to horizontal where the error would be smaller.
-        if (qAbs(v1x/v1y) < qAbs(v2x/v2y))
-            v2Horizontal = true;
-        else
-            v1Horizontal = true;
-    }
-//     qDebug("v1Horizontal=%d, v2Horizontal=%d", v1Horizontal, v2Horizontal);
-
-    /* Now that we know this, we can turn/mirror the image to the corresponding axes */
-
-    uint v1Axis;
-    if (v1Horizontal)
-        v1Axis = v1x > 0 ? 0 : 2;
-    else
-        v1Axis = v1y > 0 ? 1 : 3;
-    uint v2Axis;
-    if (v2Horizontal)
-        v2Axis = v2x > 0 ? 0 : 2;
-    else
-        v2Axis = v2y > 0 ? 1 : 3;
-
-    bool mirror = false; // mirror vertically
-    int rotate = 0;
-    if ((v1Axis < v2Axis && !(v1Axis == 0 && v2Axis==3)) || (v1Axis == 3 && v2Axis == 0)) {
-        rotate = v1Axis;
-    } else {
-        mirror = true;
-        rotate = (4 - v1Axis) % 4;
-    }
-
-//     qDebug("v1Axis=%d, v2Axis=%d, mirror=%d, rotate=%d", v1Axis, v2Axis, mirror, rotate);
-
-    // now mirror and rotate the image.
-    // #### optimise and don't do a deep copy if !rotate && !mirror.
-
-    bool swapAxes = rotate & 0x1;
-    QImage result(swapAxes ? d->h : d->w, swapAxes ? d->w : d->h, d->d);
-    result.setAlphaBuffer(d->alpha);
-
-    QMatrix mat;
-    switch(rotate) {
-    case 0:
-        if (!mirror) {
-            const uchar * const *slines = d->bits;
-            uchar **dlines = result.jumpTable();
-            const int bpl = d->nbytes / d->h;
-            for (int i = 0; i < d->h; ++i)
-                memcpy(dlines[i], slines[i], bpl);
-        } else {
-            const uchar * const *slines = d->bits + d->h - 1;
-            uchar **dlines = result.jumpTable();
-            const int bpl = d->nbytes / d->h;
-            for (int i = d->h; i > 0; --i) {
-                memcpy(*dlines, *slines, bpl);
-                ++dlines;
-                --slines;
-            }
-        }
-        mat = QMatrix(v1x, v1y, v2x, v2y, 0, 0);
-        break;
-    case 1: {
-        const uchar * const * slines = d->bits;
-        uchar **dlines = result.jumpTable();
-        int dlinesi = 1;
-        if (mirror) {
-            dlines += d->w - 1;
-            dlinesi = -1;
-        }
-        for (int i = 0; i < d->w; ++i, dlines += dlinesi) {
-            quint32 *dl = (quint32 *)(*dlines) + d->h - 1;
-            for (int j = 0; j < d->h; ++j) {
-                *dl = ((quint32 *)*(slines+j))[i];
-                --dl;
-            }
-        }
-        mat = QMatrix(-v2x, -v2y, v1x, v1y, 0, 0);
-        break;
-    }
-    case 2: {
-        int dy;
-        int dyi;
-        if (mirror) {
-            dy = 0;
-            dyi = 1;
-        } else {
-            dy = d->h - 1;
-            dyi = -1;
-        }
-        quint32 **rbits = (quint32 **)result.jumpTable();
-        quint32 **sbits = (quint32 **)d->bits;
-        for (int sy = 0; sy < d->h; sy++, dy += dyi) {
-            const quint32* sl = sbits[sy];
-            quint32* dl = rbits[dy] + d->w - 1;
-            for (int sx = 0; sx < d->w; sx++) {
-                *dl = *sl;
-                ++sl;
-                --dl;
-            }
-        }
-        mat = QMatrix(-v1x, -v1y, -v2x, -v2y, 0, 0);
-        break;
-    }
-    case 3: {
-        const uchar * const * slines = d->bits;
-        uchar **dlines = result.jumpTable();
-        int dlinesi = 1;
-        if (!mirror) {
-            dlines += d->w - 1;
-            dlinesi = -1;
-        }
-        for (int i = 0; i < d->w; ++i, dlines += dlinesi) {
-            quint32 *dl = (quint32 *)(*dlines);
-            for (int j = 0; j < d->h; ++j) {
-                *dl = ((quint32 *)*(slines+j))[i];
-                ++dl;
-            }
-        }
-        mat = QMatrix(v2x, v2y, -v1x, -v1y, 0, 0);
-        break;
-    }
-    default:
-        Q_ASSERT(false);
-    }
-
-    if (mirror)
-        mat = QMatrix(1, 0, 0, -1, 0, 0) * mat;
-    /* Now we've reduced the rotational part to the area -45 -- 45 degrees.
-
-      after these preparations all that's left to do to get to our transformed image is to scale
-      it to the projection of v1 and v2 onto the two chosen axes, and then shear.
-    */
-    Q_ASSERT(mat.det() > 0);
-
-
-    qreal scale_x = mat.m11();
-    qreal scale_y = mat.m22() - mat.m12()*mat.m21()/mat.m11();
-    qreal shear_y = mat.m12()/scale_x;
-    qreal shear_x = mat.m21()/scale_y;
-
-//     qDebug("scale_x=%f,scale_y=%f, shear_x=%f, shear_y=%f", scale_x,scale_y,shear_x,shear_y);
-
-    int iwidth = result.width();
-    int owidth = qRound(iwidth*scale_x);
-
-    int iheight = result.height();
-    int oheight = qRound(iheight*scale_y);
-
-    QSize s = result.size();
-    s = s.expandedTo(QSize(owidth, oheight));
-    int sheared_width = owidth + qAbs(qRound(shear_x*oheight));
-    int sheared_height = oheight + qAbs(qRound(shear_y*sheared_width));
-    s = s.expandedTo(QSize(sheared_width, sheared_height));
-    QImage result2(s, 32);
-    result2.fill(0);
-//     qDebug("result2: width %d height %d", result2.width(), result2.height());
-    for (int y = 0; y < result.height(); ++y)
-        memcpy(result2.jumpTable()[y], result.jumpTable()[y], result.bytesPerLine());
-
-    scaleX(&result2, result.height(), iwidth, owidth);
-    scaleY(&result2, owidth, iheight, oheight);
-    shearX(&result2, oheight, owidth, shear_x);
-
-    qreal offset = shear_y < 0
-                    ? (shear_x < 0 ? sheared_width : owidth)
-                    : (shear_x < 0 ? -shear_x*oheight : 0);
-//     qDebug("shear_x=%f, oheight=%d, offset=%f", shear_x, oheight, offset);
-    shearY(&result2, sheared_width, oheight, shear_y, offset);
-
-    QImage final(qMin(result2.width(), qRound(qAbs(v1x*d->w) + qAbs(v2x*d->h))),
-                 qMin(result2.height(), qRound(qAbs(v1y*d->w) + qAbs(v2y*d->h))), 32);
-    final.setAlphaBuffer(true);
-//     qDebug("result2.height() = %d, final.height() = %d", result2.height(), final.height());
-    int yoff = 0;//(result2.height() - final.height())/2;
-    for (int y = 0; y < final.height(); ++y)
-        memcpy(final.jumpTable()[y], result2.jumpTable()[y+yoff], final.bytesPerLine());
-
-    return final;
-}
 
 /*!
     \fn QImage QImage::xForm(const QMatrix &matrix) const
