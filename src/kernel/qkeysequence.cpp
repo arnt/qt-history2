@@ -53,7 +53,7 @@
   \brief The QKeySequence class encapsulates a key sequence as used by accelerators.
 
   \ingroup misc
-  
+
   A key sequence consists of a keyboard code, optionally combined with
   modifiers, e.g. \c SHIFT, \c CTRL, \c ALT or \c UNICODE_ACCEL.  For
   example, \c{CTRL + Key_P} might be a sequence used as a shortcut for
@@ -283,7 +283,7 @@ QKeySequence::operator QString() const
     QString p;
     if ( (k & UNICODE_ACCEL) == UNICODE_ACCEL ) {
 	p = QChar(k & 0xffff);
-    } else if ( k >= Key_F1 && k <= Key_F24 ) {
+    } else if ( k >= Key_F1 && k <= Key_F35 ) {
 	p = QAccel::tr( "F%1" ).arg(k - Key_F1 + 1);
     } else if ( k > Key_Space && k <= Key_AsciiTilde ) {
 	p.sprintf( "%c", k );
