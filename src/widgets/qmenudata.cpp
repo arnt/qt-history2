@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#78 $
 **
 ** Implementation of QMenuData class
 **
@@ -66,6 +66,7 @@ QMenuItem::QMenuItem()
 
 QMenuItem::~QMenuItem()
 {
+    delete iconset_data;
     delete pixmap_data;
     delete signal_data;
 }
@@ -1118,7 +1119,7 @@ bool QMenuData::disconnectItem( int id, const QObject *receiver,
 
   \arg \e id is the menu item id.
   \arg \e text is the Whats This help text in QML format
-  
+
   \sa whatsThis()
  */
 void QMenuData::setWhatsThis( int id, const QString& text )
@@ -1135,7 +1136,7 @@ void QMenuData::setWhatsThis( int id, const QString& text )
 /*!
   Returns the Whats This help text for the specified item \e id or
   QString::null if no text has been defined yet.
-  
+
   \sa setWhatsThis()
  */
 QString QMenuData::whatsThis( int id ) const
