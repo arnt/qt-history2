@@ -116,7 +116,7 @@
     \fn type* QPtrQueue::dequeue ()
 
     Takes the head item from the queue and returns a pointer to it.
-    The queue must not be empty.
+    Returns 0 if the queue is empty.
 
     \sa enqueue() count()
 */
@@ -153,7 +153,7 @@
     \fn type* QPtrQueue::head() const
 
     Returns a pointer to the head item in the queue. The queue is not
-    changed. The queue must not be empty.
+    changed. Returns 0 if the queue is empty.
 
     \sa dequeue() isEmpty()
 */
@@ -162,7 +162,7 @@
     \fn QPtrQueue::operator type*() const
 
     Returns a pointer to the head item in the queue. The queue is not
-    changed. The queue must not be empty.
+    changed. Returns 0 if the queue is empty.
 
     \sa dequeue() isEmpty()
 */
@@ -171,7 +171,7 @@
     \fn type* QPtrQueue::current() const
 
     Returns a pointer to the head item in the queue. The queue is not
-    changed. The queue must not be empty.
+    changed. Returns 0 if the queue is empty.
 
     \sa dequeue() isEmpty()
 */

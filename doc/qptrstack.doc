@@ -105,7 +105,8 @@
 /*!
     \fn type* QPtrStack::pop () 
 
-    Removes the top item from the stack and returns it.
+    Removes the top item from the stack and returns it. The stack must
+    not be empty.
 */
 
 /*!
@@ -139,21 +140,24 @@
     \fn type* QPtrStack::top () const 
 
     Returns a pointer to the top item on the stack (most recently
-    pushed). The stack is not changed. The stack must not be empty.
+    pushed). The stack is not changed. Returns 0 if the stack is
+    empty.
 */
 
 /*!
     \fn QPtrStack::operator type* ()const 
 
     Returns a pointer to the top item on the stack (most recently
-    pushed). The stack is not changed. The stack must not be empty.
+    pushed). The stack is not changed. Returns 0 if the stack is
+    empty.
 */
 
 /*!
     \fn type* QPtrStack::current () const 
 
     Returns a pointer to the top item on the stack (most recently
-    pushed). The stack is not changed. The stack must not be empty.
+    pushed). The stack is not changed. Returns 0 if the stack is
+    empty.
 */
 
 /*!
