@@ -14,9 +14,9 @@
 #include <stdio.h>
 
 // 50kb buffer
-#define BUFSIZE (50*1000)
-#define PRGSTEP (BUFSIZE / 100)
-#define BLKSIZE (50)
+#define BUFSIZE (100*1000)
+#define PRGSTEP (BUFSIZE / 50)
+#define BLKSIZE (8)
 QByteArray bytearray;
 
 
