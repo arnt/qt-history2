@@ -77,15 +77,15 @@ static QList<QPointF> qBezierCurve(const QPointF &p1, const QPointF &p2,
     double d_y = p4.y();
 
     double step = 1 / stepFactor;
-    double tm, x, y;
-    for (double t = 0; t <= 1; t += step) {
+    double t, tm, x, y;
+    for (t = 0; t <= 1; t += step) {
         tm = 1 - t;
         x = BEZIER_Q(t, tm, a_x, b_x, c_x, d_x);
         y = BEZIER_Q(t, tm, a_y, b_y, c_y, d_y);
         a << QPointF(x, y);
     }
 
-    if (tm != 1)
+    if (t != 1)
         a << p4;
 
     return a;
@@ -199,6 +199,72 @@ QPointArray QPainterSubpath::toPolygon(const QMatrix &matrix) const
         }
     }
     return p;
+}
+
+
+void QPainterSubpath::removeBrokenSegments()
+{
+#define REMOVE_BROKEN_DEBUG
+// #define QT_PATH_NEAR 7
+    printf("QPainterSubpath::removeBrokenSegments()\n");
+//     QVarLengthArray<QLineF, QT_PATH_NEAR> clSegs;
+    QPointF isectPt;
+    QPointF currPt;
+
+    for (int i=0; i<brokenSegments.size(); ++i) {
+        int bseg = brokenSegments.at(i);
+        qDebug() << " -> segment at" << bseg << elements.at(bseg-1).end();
+
+//         // Try to match the segments close to us first and build up
+//         // a list of them.
+//         int start = bseg - QT_PATH_NEAR;
+//         if (start < 0) start = 0;
+//         for (int j=start; j<bseg; ++j) {
+//             Q_ASSERT(elements.at(j).type == QPainterPathElement::Line);
+//             clSegs[j-start] = QLineF(elements.at(j).lineData.x, elements.at(j).lineData.y,
+//                                      elements.at(j+1).lineData.x, elements.at(j+1).lineData.y);
+//         }
+        bool isectFound = false;
+        int elmiBefore = -1;
+        int elmiAfter = -1;
+        for (int elmi=bseg; elmi<elements.size() && !isectFound; ++elmi) {
+            QLineF l(elements.at(elmi-1).end(), elements.at(elmi).end());
+             qDebug() << "  -> checking line" << l;
+
+            currPt = startPoint;
+            for (int k=0; k<bseg; ++k) {
+                if (elements.at(k).type == QPainterPathElement::Line) {
+                    QLineF l2(currPt, elements.at(k).end());
+                    qDebug() << "   -> vs line" << l2;
+                    if (l.intersect(l2, &isectPt) == QLineF::BoundedIntersection) {
+                        isectFound = true;
+                        elmiBefore = k;
+                        elmiAfter = elmi;
+                        qDebug() << "    -> intersection" << elmiBefore << elmiAfter;
+                        break;
+                    }
+
+                } else {
+                    printf(" -------> curves not supported..\n");
+                }
+                currPt = elements.at(k).end();
+            }
+        }
+        if (isectFound) {
+            QPainterPathElement &eBefore = elements[elmiBefore];
+            Q_ASSERT(eBefore.type == QPainterPathElement::Line);
+            eBefore.lineData.x = isectPt.x();
+            eBefore.lineData.y = isectPt.y();
+
+            Q_ASSERT(elements.at(elmiAfter).type == QPainterPathElement::Line);
+
+            for (int del=0; del<elmiAfter - elmiBefore - 1; ++del)
+                elements.removeAt(elmiBefore+1);
+
+            while (i+1 < brokenSegments.size() && brokenSegments.at(i+1) < elmiAfter)
+                brokenSegments.removeAt(i+1);
+        }
+    }
 }
 
 
@@ -432,6 +498,13 @@ static QLineF::IntersectType qt_path_stroke_join(QPainterSubpath *sp,
 {
     // Check for overlap
     QLineF pline(sp->lastCurrent(), QPointF(prev->lineData.x, prev->lineData.y));
+    QLineF miterLine(prev->lineData.x, prev->lineData.y, ml.startX(), ml.startY());
+
+    if (pline.angle(miterLine) > 90) {
+        sp->brokenSegments.append(sp->elements.size());
+        joinStyle = Qt::MiterJoin;
+    }
+
     QPointF isect;
     QLineF::IntersectType type = pline.intersect(ml, &isect);
     if (type == QLineF::BoundedIntersection) {
@@ -587,6 +660,11 @@ QPainterPath QPainterPathPrivate::createStroke(const QPen &pen)
             dLastPt = qt_path_stroke_to_element(reverse.elements.at(elmi),
                                                 &dsegs, dLastPt, penWidth, joinStyle);
         }
+
+        printf("UP\t");
+        usegs.removeBrokenSegments();
+        printf("DOWN\t");
+        dsegs.removeBrokenSegments();
 
         if (!subpath.isClosed()) {
             usegs.lineTo(dsegs.startPoint);
@@ -966,5 +1044,5 @@ bool QPainterPath::isEmpty() const
 */
 QPainterPath QPainterPath::createPathOutline(int width)
 {
-    return d->createStroke(QPen(Qt::black, width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    return d->createStroke(QPen(Qt::black, width, Qt::SolidLine, Qt::RoundCap, Qt::MiterJoin));
 }

@@ -70,6 +70,8 @@ struct QPainterSubpath
     /*! Converts the path to a polygon */
     QPointArray toPolygon(const QMatrix &matrix) const;
 
+    void removeBrokenSegments();
+
     void lineTo(const QPointF &p);
     void curveTo(const QPointF &p2, const QPointF &p3, const QPointF &p4);
     void arcTo(const QRectF &rect, float startAngle, float arcLength);
@@ -79,6 +81,7 @@ struct QPainterSubpath
     QList<QPainterPathElement> elements;
     QPointF currentPoint;
     QPointF startPoint;
+    QList<int> brokenSegments;
 };
 
 class QPainterPathPrivate
