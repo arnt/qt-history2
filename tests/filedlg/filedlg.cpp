@@ -39,6 +39,9 @@ Main::Main(QWidget* parent, const char* name, int f) :
     QPushButton *but6 = new QPushButton( "Test &Preview", this );
     lay->addWidget( but6 );
     connect( but6, SIGNAL(clicked()), this, SLOT(platsch()) );
+    QPushButton *but7 = new QPushButton( "Download", this );
+    lay->addWidget( but7 );
+    connect( but7, SIGNAL(clicked()), this, SLOT(tusch()) );
 }
 
 void Main::bang()
@@ -48,7 +51,7 @@ void Main::bang()
     if ( s.isEmpty() )
         lab->setText( "Open: No luck!" );
     else {
-        s.prepend( "Open: " );
+        //s.prepend( "Open: " );
         lab->setText( s );
     }
 }
@@ -75,7 +78,7 @@ void Main::ratatatat()
     if ( l.isEmpty() )
         lab->setText( "Opens: No luck!" );
     else {
-        QString s( "Opens: \n" );
+        QString s;//( "Opens: \n" );
         for( int i = 0; i < (int)l.count(); i++ ) {
             s.append( l[i] );
             s.append( "\n" );
@@ -136,6 +139,14 @@ void Main::platsch()
     fd->setContentsPreviewWidget( new Preview( this ) );
     fd->setViewMode( QFileDialog::DetailView | QFileDialog::PreviewContents );
     fd->show();
+}
+
+void Main::tusch()
+{
+    QUrlOperator *u = new QUrlOperator( lab->text() );
+    if ( !u->fileName().isEmpty() ) {
+	u->get();
+    }
 }
 
 void Main::resizeEvent(QResizeEvent*)
