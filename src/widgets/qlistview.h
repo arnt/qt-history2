@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#79 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#80 $
 **
 ** Definition of QListView widget class
 **
@@ -352,9 +352,13 @@ public:
 
   ~QListViewItemIterator();
 
-  QListViewItemIterator& operator++();
+  QListViewItemIterator &operator++();
   const QListViewItemIterator operator++(int);
   QListViewItemIterator &operator+=(int j);
+
+  QListViewItemIterator &operator--();
+  const QListViewItemIterator operator--(int);
+  QListViewItemIterator &operator-=(int j);
 
   QListViewItem *current() const;
 
