@@ -7,7 +7,7 @@ information for developers to write their own \c .ui parsers so that
 they can read and modify \c .ui files programatically.
 
 One way to parse a \c .ui file is to use Qt and the QDom class; this
-is how \QD does it: see the the \c resource.h and \c resource.cpp
+is how \QD does it: see the \c resource.h and \c resource.cpp
 source files. 
 
 The doctype of a \c .ui file is simply "UI", so the doctype tag is:
@@ -170,8 +170,31 @@ object and its slot. Each \c slot element provides a slot's signature.
 \target customwidgets
 \section2 customwidgets
 
-### TODO
-
+\omit
+\code
+<customwidgets>
+    <customwidget>
+        <class>StyledButton</class>
+        <header location="local">styledbutton.h</header>
+        <sizehint>
+            <width>40</width>
+            <height>25</height>
+        </sizehint>
+        <container>0</container>
+        <sizepolicy>
+            <hordata>5</hordata>
+            <verdata>5</verdata>
+        </sizepolicy>
+        <pixmap>image0</pixmap>
+        <signal>clicked()</signal>
+        <signal>changed()</signal>
+        <property type="Color">color</property>
+        <property type="Pixmap">pixmap</property>
+        <property type="Bool">scale</property>
+    </customwidget>
+</customwidgets>
+\endcode
+\endomit
 \target exportmacro
 \section2 exportmacro
 

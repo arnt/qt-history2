@@ -98,7 +98,7 @@ it explains the most common source of link errors with Qt.
 
 Other frequently asked questions can be found in the
 \link http://www.trolltech.com/developer/faqs/ FAQ index\endlink and
-in the \link http://www.trolltech.com/faqs/technical.html Technical FAQ\endlink.
+in the \link http://www.trolltech.com/developer/faqs/technical.html Technical FAQ\endlink.
 
 \list
 \i \link #linkerror Link error, complaining about a lack of \c vtbl, \c _vtbl, \c __vtbl or similar\endlink

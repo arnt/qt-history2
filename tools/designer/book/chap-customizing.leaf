@@ -421,14 +421,15 @@ use \Cmd uic to generate subclass skeletons:
 uic formbase.ui -o formbase.h
 uic formbase.ui -i formbase.h -o formbase.cpp
 uic -subdecl Form formbase.h formbase.ui -o form.h
-uic -subimpl Form formbase.h formbase.ui -o form.cpp
+uic -subimpl Form form.h formbase.ui -o form.cpp
 \endcode
 
 First we generate the header and implementation file for our base class.
 Then we generate the header and implementation skeletons for our subclass.
 Note that the use of \Cmd uic to generate skeletons is not something
 that would be done in a Makefile, we mention it here because it can be
-useful for command line users.
+useful for command line users. Note also that the command line for \c
+-subdecl and for \c subimpl are subtly different.
 
 For implementation files that contain classes which inherit from
 \Class QObject we must create moc files:
