@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#17 $
 **
 ** Implementation of QCursor class
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#17 $");
 
 
 /*!
@@ -34,7 +34,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#16 $");
 
   To associate a cursor with a widget, use QWidget::setCursor().
   To associate a cursor with all widgets (maybe for a short period of time),
-  use QApplication::setCursor().
+  use QApplication::setOverrideCursor().
 
   The <a name=cursors>predefined cursor</a> objects are:
   <dl compact>
