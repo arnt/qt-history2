@@ -6,6 +6,7 @@
 #include <oci.h>
 #include <qvector.h>
 #include <qdatetime.h>
+#include <qstringlist.h>
 #include <stdlib.h>
 
 class QOCIPrivate
@@ -84,23 +85,6 @@ QVariant::Type qDecodeOCIType( int ocitype )
 	break;
     }
     return type;
-}
-
-bool qOraIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
-{
-    QSql t = driver->createResult();
-    QString stmt ("select count(1) "
-		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
-		  "where a.constraint_type='P' "
-		  "and a.table_name='%1' "
-		  "and b.column_name='%2' "
-		  "and c.index_name = a.constraint_name "
-		  "and b.column_name = c.column_name "
-		  "and b.table_name = a.table_name;" );
-    t.setQuery( stmt.arg( tablename.upper() ).arg( fieldname.upper() ) );
-    if ( t.next() && (t.value(0).toInt() == 1) )
-	return TRUE;
-    return FALSE;
 }
 
 int qFieldSize( const QOCIPrivate* p, ub4 i )
@@ -758,9 +742,18 @@ QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
     QSqlFieldList fil;
     while ( t.next() ) {
 	QSqlField f( t.value(0).toString(), t.at(), qDecodeOCIType(t.value(1).toInt()) );
-	f.setPrimaryIndex( qOraIsPrimaryIndex( this, tablename, f.name() ));
 	fil.append( &f );
     }
+    QString stmt2("select b.column_name "
+		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
+		  "where a.constraint_type='P' "
+		  "and a.table_name='%1' "
+		  "and c.index_name = a.constraint_name "
+		  "and b.column_name = c.column_name "
+		  "and b.table_name = a.table_name;");
+    t.setQuery( stmt2.arg( tablename.upper() ) );
+    while ( t.next() ) 
+	fil.field( t.value(0).toString() )->setPrimaryIndex( TRUE );
     return fil;
 }
 
@@ -770,7 +763,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     QString stmt ("select b.column_name, b.data_type " //, b.data_length, b.data_precision "
 		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
 		  "where a.constraint_type='P' "
-		  "and a.table_name='%1' "
+		  "and a.table_name = '%1' "
 		  "and c.index_name = a.constraint_name "
 		  "and b.column_name = c.column_name "
 		  "and b.table_name = a.table_name;" );
