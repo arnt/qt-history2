@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#4 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#4 $";
 #endif
 
 
@@ -85,6 +85,18 @@ static int highest_bit( ulong v )
 // QPixmap member functions
 //
 
+
+void QPixmap::init()
+{
+    data = new QPixmapData;
+    CHECK_PTR( data );
+    data->dirty	 = data->optim = FALSE;
+    data->uninit = TRUE;
+    data->bitmap = FALSE;
+    data->ximage = 0;
+}
+
+
 /*!
 Constructs a null pixmap.
 
@@ -95,11 +107,7 @@ not be drawn or drawn into.
 QPixmap::QPixmap()
     : QPaintDevice( PDT_PIXMAP )
 {
-    data = new QPixmapData;
-    CHECK_PTR( data );
-    data->dirty	 = data->optim = FALSE;
-    data->uninit = TRUE;
-    data->ximage = 0;
+    init();
     data->w = data->h = 0;
     data->d = 0;
     hd = 0;
@@ -117,15 +125,11 @@ If \e depth is negative, the the hardware depth will be used.
 QPixmap::QPixmap( int w, int h, int depth )
     : QPaintDevice( PDT_PIXMAP )
 {
-    data = new QPixmapData;
-    CHECK_PTR( data );
-    data->dirty	 = data->optim = FALSE;
-    data->uninit = TRUE;
-    data->ximage = 0;
-    if ( w <= 0 ) w = 1;
-    if ( h <= 0 ) h = 1;
-    data->w = w;  data->h = h;
+    init();
     int dd = DefaultDepth( dpy, qt_xscreen() );
+    if ( w <= 0 || h <= 0 )
+	data->d = 0;
+    data->w = w;  data->h = h;
     if ( depth == 1 )				// monocrome pixmap
 	data->d = 1;
     else if ( depth < 0 || depth == dd )	// compatible pixmap
@@ -139,6 +143,10 @@ QPixmap::QPixmap( int w, int h, int depth )
 #endif
 	return;
     }
+    if ( data->d != 0 ) {
+	data->w = w;
+	data->h = h;
+    }
     hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
 }
 
@@ -150,11 +158,8 @@ This constructor is protected and used by the QBitmap class.
 QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
     : QPaintDevice( PDT_PIXMAP )
 {						// for bitmaps only
-    data = new QPixmapData;
-    CHECK_PTR( data );
-    data->dirty	 = data->optim = FALSE;		// no caching
+    init();
     data->uninit = FALSE;
-    data->ximage = 0;
     if ( w <= 0 ) w = 1;
     if ( h <= 0 ) h = 1;
     data->w = w;  data->h = h;	data->d = 1;
@@ -170,36 +175,16 @@ QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
 }
 
 /*!
-Constructs a pixmap which is a shallow copy of \e p.
+Constructs a pixmap which is a shallow copy of \e pm.
 */
 
-QPixmap::QPixmap( const QPixmap &p )
+QPixmap::QPixmap( const QPixmap &pm )
 {
-    data = p.data;
+    data = pm.data;
     data->ref();
-    devFlags = p.devFlags;			// copy QPaintDevice flags
-    dpy = p.dpy;				// copy QPaintDevice display
-    hd	= p.hd;					// copy QPaintDevice drawable
-}
-
-/*!
-Constructs a pixmap which is initialized with an image.
-
-\sa convertToPixmap().
-*/
-
-QPixmap::QPixmap( const QImage &image )
-    : QPaintDevice( PDT_PIXMAP )
-{
-    data = new QPixmapData;
-    CHECK_PTR( data );
-    data->dirty	 = data->optim = FALSE;
-    data->uninit = TRUE;
-    data->ximage = 0;
-    data->w = data->h = 0;
-    data->d = 0;
-    hd = 0;
-    convertFromImage( &image );
+    devFlags = pm.devFlags;			// copy QPaintDevice flags
+    dpy = pm.dpy;				// copy QPaintDevice display
+    hd	= pm.hd;				// copy QPaintDevice drawable
 }
 
 /*!
@@ -244,15 +229,17 @@ QPixmap &QPixmap::operator=( const QPixmap &p )
 }
 
 /*!
-Converts the image \e im to a pixmap and sets it to this pixmap.
+Converts the image \e im to a pixmap that is assigned to this pixmap.
 Returns a reference to the pixmap.
 
-\sa convertToPixmap().
+\sa convertFromImage().
 */
 
 QPixmap &QPixmap::operator=( const QImage &im )
 {
-    *this = QPixmap( im );
+    QPixmap pm;
+    pm.convertFromImage( &im );
+    *this = pm;
     return *this;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#23 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#24 $
 **
 ** Definition of QPixmap class
 **
@@ -26,11 +26,10 @@ public:
     QPixmap();
     QPixmap( int w, int h,  int depth=-1 );
     QPixmap( const QPixmap & );
-    QPixmap( const QImage & );
    ~QPixmap();
 
     QPixmap &operator=( const QPixmap & );
-    QPixmap &operator=( const QImage & );
+    QPixmap &operator=( const QImage  & );
     QPixmap copy() const;
 
 #if defined(_WS_X11_)
@@ -70,8 +69,7 @@ protected:
     QPixmap( int w, int h,  const char *data, bool isXbitmap );
     long    metric( int ) const;		// get metric information
 
-private:
-    void    detach();
+    virtual void detach();
 
 #if defined(_WS_WIN_)
     HANDLE allocMemDC();
@@ -84,6 +82,7 @@ private:
         uint   dirty  : 1;
         uint   optim  : 1;
         uint   uninit : 1;
+	uint   bitmap : 1;
 #if defined(_WS_WIN_)
         HANDLE allocMemDC();
         void   freeMemDC();
@@ -95,6 +94,9 @@ private:
         void  *ximage;
 #endif
     } *data;
+
+private:
+    void    init();
 };
 
 
