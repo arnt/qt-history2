@@ -82,8 +82,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 			   (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
 			    !project->isActiveConfig("staticlib"))), 
 	 src_incremental=FALSE, moc_incremental=FALSE;
-    QString spec = Option::mkfile::qmakespec.section( QDir::separator(), -1 );
-    QString os = spec.section( '-', 0, 0 );
+    QString os = project->variables()["QMAKESPEC"].first().section( '-', 0, 0 );
 
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC       = ";
@@ -865,8 +864,7 @@ void UnixMakefileGenerator::init2()
 	    project->variables()["QMAKE_AR_CMD"].first().replace(QRegExp("\\(TARGET\\)"),"(TARGETA)");
 	else
 	    project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGETA) $(OBJECTS) $(OBJMOC)");
-	QString spec = Option::mkfile::qmakespec.section( QDir::separator(), -1 );
-	QString os = spec.section( '-', 0, 0 );
+	QString os = project->variables()["QMAKESPEC"].first().section( '-', 0, 0 );
 	if( project->isActiveConfig("plugin") ) {
 	    project->variables()["TARGET_x.y.z"].append("lib" +
 							project->first("TARGET") + "." + project->first("QMAKE_EXTENSION_SHLIB"));

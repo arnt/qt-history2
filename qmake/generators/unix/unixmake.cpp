@@ -72,8 +72,7 @@ UnixMakefileGenerator::init()
     }
 
     if( project->isEmpty("QMAKE_EXTENSION_SHLIB") ) {
-	QString spec = Option::mkfile::qmakespec.section( QDir::separator(), -1 );
-	QString os = spec.section( '-', 0, 0 );
+	QString os = project->variables()["QMAKESPEC"].first().section( '-', 0, 0 );
 	if ( os == "cygwin" ) {
 	    project->variables()["QMAKE_EXTENSION_SHLIB"].append( "dll" );
 	} else {
@@ -406,8 +405,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		uninst.append("\n\t");
 	    uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
 	}
-	QString spec = Option::mkfile::qmakespec.section( QDir::separator(), -1 );
-	QString os = spec.section( '-', 0, 0 );
+	QString os = project->variables()["QMAKESPEC"].first().section( '-', 0, 0 );
 	if ( os != "cygwin" ) {
 	    if ( !project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin") ) {
 		if ( os == "hpux" ) {
