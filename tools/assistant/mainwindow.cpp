@@ -165,6 +165,14 @@ void MainWindow::setup()
     ui.actionGoNext->setEnabled(false);
 }
 
+void MainWindow::browserTabChanged()
+{
+    if (tabs->currentBrowser()) {
+        ui.actionGoPrevious->setEnabled(tabs->currentBrowser()->isBackwardAvailable());
+        ui.actionGoNext->setEnabled(tabs->currentBrowser()->isForwardAvailable());
+    }
+}
+
 void MainWindow::setupGoActions()
 {
     Config *config = Config::configuration();

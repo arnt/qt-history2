@@ -31,9 +31,10 @@ TabbedBrowser::TabbedBrowser(MainWindow *parent)
     ui.setupUi(this);
     init();
 
-    QStackedWidget * stack = qFindChild<QStackedWidget*>(ui.tab);
+    QStackedWidget *stack = qFindChild<QStackedWidget*>(ui.tab);
     Q_ASSERT(stack);
     stack->setContentsMargins(0, 1, 0, 1);
+    connect(stack, SIGNAL(currentChanged(int)), parent, SLOT(browserTabChanged()));
 }
 
 TabbedBrowser::~TabbedBrowser()

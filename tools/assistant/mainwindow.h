@@ -74,6 +74,8 @@ private slots:
     void backwardAvailable(bool);
     void forwardAvailable(bool);
 
+    void browserTabChanged();
+
 protected:
     void closeEvent(QCloseEvent *);
     void timerEvent(QTimerEvent *);
