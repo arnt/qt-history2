@@ -365,17 +365,15 @@ void qt_mac_update_os_settings()
 #endif
         }
     }
-    {
-        if (!qt_app_has_font) {
-            //setup the global font
-            Str255 f_name;
-            SInt16 f_size;
-            Style f_style;
-            GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
-            QApplication::setFont(QFont(qt_mac_from_pascal_string(f_name), f_size,
-                                  (f_style & ::bold) ? QFont::Bold : QFont::Normal,
-                                  (bool)(f_style & ::italic)));
-        }
+    if(!qt_app_has_font) {
+        //setup the global font
+        Str255 f_name;
+        SInt16 f_size;
+        Style f_style;
+        GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
+        QApplication::setFont(QFont(qt_mac_from_pascal_string(f_name), f_size,
+                                    (f_style & ::bold) ? QFont::Bold : QFont::Normal,
+                                    (bool)(f_style & ::italic)));
     }
     { //setup the fonts
         struct {
@@ -2762,7 +2760,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
 
     /*
       Qt settings.  This is how they are written into the datastream.
-      Palette/*                - QPalette
+      Palette/ *             - QPalette
       font                   - QFont
       libraryPath            - QStringList
       style                  - QString
@@ -2805,7 +2803,6 @@ bool QApplicationPrivate::qt_mac_apply_settings()
         int num;
 
         // read new palette
-        QStringList strlist;
         int i;
         QPalette pal(QApplication::palette());
         strlist = settings.value(QLatin1String("Palette/active")).toStringList();
@@ -2832,7 +2829,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
 
         // read new font
         QFont font(QApplication::font());
-        QString str = settings.value(QLatin1String("font")).toString();
+        str = settings.value(QLatin1String("font")).toString();
         if (!str.isEmpty()) {
             font.fromString(str);
             if (font != QApplication::font())
