@@ -675,23 +675,39 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
 
     //get pixmap bits
     const BitMap *srcbitmap = GetPortBitMapForCopyBits(qt_macQDHandle(&pixmap));
-    const QPixmap *srcmask=NULL;
-    if(pixmap.data->alphapm)
-        srcmask = pixmap.data->alphapm;
-    else
-        srcmask = pixmap.mask();
+    const QPixmap *srcmask=0;
+    if(mode == Qt::AlphaBlend) {
+        if(pixmap.data->alphapm)
+            srcmask = pixmap.data->alphapm;
+        else
+            srcmask = pixmap.mask();
+    }
 
+    //get pdev bits
+    const BitMap *dstbitmap=0;
+    switch(d->pdev->devType()) {
+    case QInternal::Widget: {
+        QWidget *w = (QWidget *)d->pdev;
+        dstbitmap = GetPortBitMapForCopyBits(GetWindowPort(qt_mac_window_for(w)));
+        break; }
+    case QInternal::Printer:
+    case QInternal::Pixmap: {
+        dstbitmap = GetPortBitMapForCopyBits(qt_macQDHandle(d->pdev));
+        break; }
+    }
+
+    //get copy mode
     short copymode = srcCopy;
+    if(srcmask && srcmask->depth() > 1)
+        copymode = ditherCopy;
 
+    //do the blt
     Rect srcr;
     SetRect(&srcr, sr.x(), sr.y(), sr.x()+sr.width()+1, sr.y()+sr.height()+1);
     Rect dstr;
     SetRect(&dstr, d->offx+r.x(), d->offy+r.y(), d->offx+r.x()+r.width()+1, d->offy+r.y()+r.height()+1);
-    const BitMap *dstbitmap=GetPortBitMapForCopyBits(qt_macQDHandle(d->pdev));
-    if(mode == Qt::AlphaBlend && srcmask) {
+    if(srcmask) {
         const BitMap *maskbits = GetPortBitMapForCopyBits(qt_macQDHandle(srcmask));
-        if(copymode == srcCopy && srcmask->depth() > 1)
-            copymode = ditherCopy;
         if(d->pdev->devType() == QInternal::Printer) { //can't use CopyDeepMask on a printer
             QPixmap tmppix(r.width(), r.height(), pixmap.depth());
             Rect pixr;
@@ -1046,7 +1062,7 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     d->current.pen = pen;
 
     //pen style
-    float *lengths = NULL;
+    float *lengths = 0;
     int count = 0;
     if(pen.style() == Qt::DashLine) {
         static float inner_lengths[] = { 3, 1 };
@@ -1495,7 +1511,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
     const int width = pixmap.width(), height = pixmap.height();
     CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM(d->hd), width, height,
                                        kCGPatternTilingNoDistortion, true, &callbks);
-    CGColorSpaceRef cs = CGColorSpaceCreatePattern(NULL);
+    CGColorSpaceRef cs = CGColorSpaceCreatePattern(0);
     CGContextSetFillColorSpace(d->hd, cs);
     float component = 1.0; //just one
     CGContextSetFillPattern(d->hd, pat, &component);
