@@ -271,7 +271,9 @@ void MDIWindow::load( const QString& fn )
 	medit->hide();
 	delete medit;
 	QMovie * qm=new QMovie(fn);
+#ifdef _WS_QWS_ // temporary speed-test hack
 	qm->setDisplayWidget(tmp);
+#endif
 	tmp->setBackgroundMode(QWidget::NoBackground);
 	tmp->show();
 	mmovie=qm;
