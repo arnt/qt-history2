@@ -478,7 +478,7 @@ public:
 
 
 
-    void setAttribute(Qt::WidgetAttribute, bool = true);
+    void setAttribute(Qt::WidgetAttribute, bool on = true);
     inline bool testAttribute(Qt::WidgetAttribute) const;
 
     QPaintEngine *paintEngine() const;

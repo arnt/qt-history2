@@ -6202,24 +6202,24 @@ const QPixmap *QWidget::icon() const
 */
 
 /*!
-    Sets the attribute \a attribute on this widget if \a b is true;
+    Sets the attribute \a attribute on this widget if \a on is true;
     otherwise clears the attribute.
 
   \sa testAttribute()
  */
-void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool b)
+void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
 {
     Q_ASSERT_X(sizeof(d->high_attributes)*8 >= (Qt::WA_AttributeCount - 32),
                "QWidget::setAttribute(WidgetAttribute, bool)",
                "QWidgetPrivate::high_attributes[] too small to contain all attributes in WidgetAttribute");
     if (attribute < int(8*sizeof(uint))) {
-        if (b)
+        if (on)
             data->widget_attributes |= (1<<attribute);
         else
             data->widget_attributes &= ~(1<<attribute);
     } else {
         int x = attribute - 8*sizeof(uint);
-        if (b)
+        if (on)
             d->high_attributes[x / (8*sizeof(uint))] |= (1<<x);
         else
             d->high_attributes[x / (8*sizeof(uint))] &= ~(1<<x);

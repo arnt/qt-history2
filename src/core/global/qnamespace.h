@@ -1011,7 +1011,7 @@ public:
     enum PixmapDrawingMode {
         ComposePixmap,
         CopyPixmap,
-	CopyPixmapNoMask // compatibility
+        CopyPixmapNoMask // compatibility
     };
 
     enum RectangleEdge {
