@@ -119,7 +119,7 @@ Before using the evaluation version you must:
    to double-click on applications in the finder. To copy Qt, do the
    following:
 
-   ln -s $QTDIR/lib/libqt-mt.dylib.3.0.1 /usr/lib
+   ln -s $QTDIR/lib/libqt-mt.dylib.3.0.2 /usr/lib
 
    Qt/Designer requires the following libraries:
 
@@ -133,7 +133,7 @@ Before using the evaluation version you must:
 3. You should be able to run any of the programs in $QTDIR/examples/ or
    $QTDIR/bin/ at this point.  To link you own apps against Qt/Mac you
    will want to include files from $QTDIR/include and link against
-   $QTDIR/lib/libqt.dylib.
+   $QTDIR/lib/libqt-mt.dylib.
 
 
 
