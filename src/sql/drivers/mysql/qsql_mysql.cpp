@@ -59,7 +59,8 @@ static QTextCodec* codec(MYSQL* mysql)
     return QTextCodec::codecForLocale();
 }
 
-static QSqlError qMakeError(const QString& err, int type, const QMYSQLDriverPrivate* p)
+static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type,
+                            const QMYSQLDriverPrivate* p)
 {
     return QSqlError(QMYSQL_DRIVER_NAME ": " + err, QString(mysql_error(p->mysql)), type, mysql_errno(p->mysql));
 }
@@ -279,7 +280,7 @@ bool QMYSQLResult::reset (const QString& query)
     cleanup();
     const QByteArray encQuery(d->tc->fromUnicode(query));
     if (mysql_real_query(d->mysql, encQuery.data(), encQuery.length())) {
-        setLastError(qMakeError("Unable to execute query", QSqlError::Statement, d));
+        setLastError(qMakeError("Unable to execute query", QSqlError::StatementError, d));
         return false;
     }
     if (isForwardOnly()) {
@@ -290,7 +291,7 @@ bool QMYSQLResult::reset (const QString& query)
         d->result = mysql_store_result(d->mysql);
     }
     if (!d->result && mysql_field_count(d->mysql) > 0) {
-        setLastError(qMakeError("Unable to store result", QSqlError::Statement, d));
+        setLastError(qMakeError("Unable to store result", QSqlError::StatementError, d));
         return false;
     }
     int numFields = mysql_field_count(d->mysql);
@@ -483,13 +484,13 @@ bool QMYSQLDriver::open(const QString& db,
                                 optionFlags))
     {
         if (mysql_select_db(d->mysql, db.local8Bit())) {
-            setLastError(qMakeError("Unable open database '" + db + "'", QSqlError::Connection, d));
+            setLastError(qMakeError("Unable open database '" + db + "'", QSqlError::ConnectionError, d));
             mysql_close(d->mysql);
             setOpenError(true);
             return false;
         }
     } else {
-            setLastError(qMakeError("Unable to connect", QSqlError::Connection, d));
+            setLastError(qMakeError("Unable to connect", QSqlError::ConnectionError, d));
             mysql_close(d->mysql);
             setOpenError(true);
             return false;
@@ -589,7 +590,7 @@ bool QMYSQLDriver::beginTransaction()
         return false;
     }
     if (mysql_query(d->mysql, "BEGIN WORK")) {
-        setLastError(qMakeError("Unable to begin transaction", QSqlError::Statement, d));
+        setLastError(qMakeError("Unable to begin transaction", QSqlError::StatementError, d));
         return false;
     }
     return true;
@@ -607,7 +608,7 @@ bool QMYSQLDriver::commitTransaction()
         return false;
     }
     if (mysql_query(d->mysql, "COMMIT")) {
-        setLastError(qMakeError("Unable to commit transaction", QSqlError::Statement, d));
+        setLastError(qMakeError("Unable to commit transaction", QSqlError::StatementError, d));
         return false;
     }
     return true;
@@ -625,7 +626,7 @@ bool QMYSQLDriver::rollbackTransaction()
         return false;
     }
     if (mysql_query(d->mysql, "ROLLBACK")) {
-        setLastError(qMakeError("Unable to rollback transaction", QSqlError::Statement, d));
+        setLastError(qMakeError("Unable to rollback transaction", QSqlError::StatementError, d));
         return false;
     }
     return true;

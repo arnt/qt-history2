@@ -33,8 +33,7 @@ public:
           sortOrder(Qt::AscendingOrder),
           strategy(QSqlTableModel::OnFieldChange) {}
     void clear();
-    QString whereClause() const;
-    void setPrimaryValues(int index);
+    QSqlRecord primaryValues(int index);
     void clearEditBuffer();
     QSqlRecord record(const QVector<QVariant> &values) const;
 
@@ -90,33 +89,23 @@ void QSqlTableModelPrivate::clearEditBuffer()
     editBuffer = d->rec;
 }
 
-QString QSqlTableModelPrivate::whereClause() const
+QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
 {
-    QString clause;
-    const QSqlRecord r = primaryIndex.isEmpty() ? rec : primaryIndex;
-    for (int i = 0; i < r.count(); ++i)
-        clause.append(r.fieldName(i)).append(" = ? and ");
-    if (!clause.isEmpty()) {
-        clause.prepend(" where ");
-        // remove tailing "and"
-        clause.chop(5);
-    }
-    return clause;
-}
-
-void QSqlTableModelPrivate::setPrimaryValues(int index)
-{
-    if (!query.seek(index)) {
+    QSqlRecord record;
+    if (!query.seek(row)) {
         error = query.lastError();
-        return;
+        return record;
     }
     if (primaryIndex.isEmpty()) {
-        for (int i = 0; i < rec.count(); ++i)
-            editQuery.addBindValue(query.value(i));
+        record = rec;
+        for (int i = 0; i < record.count(); ++i)
+            record.setValue(i, query.value(i));
     } else {
-        for (int i = 0; i < primaryIndex.count(); ++i)
-            editQuery.addBindValue(query.value(rec.indexOf(primaryIndex.fieldName(i))));
+        record = primaryIndex;
+        for (int i = 0; i < record.count(); ++i)
+            record.setValue(i, query.value(rec.indexOf(record.fieldName(i))));
     }
+    return record;
 }
 
 /*!
@@ -343,58 +332,49 @@ void QSqlTableModel::setQuery(const QSqlQuery &query)
     QSqlModel::setQuery(query);
 }
 
-/*!
-    Returns a SQL statement for inserting the \a values.
-    By default, the query will contain placeholders, the values will be set later.
-    Returns an empty string on error.
-
-    \sa QSqlQuery::prepare, update()
- */
-QString QSqlTableModel::updateStatement(const QSqlRecord &values) const
-{
-    QString stmt;
-    stmt.reserve(0xff); // magic number
-    stmt.append("update ").append(d->tableName).append(" set ");
-
-    int i;
-    for (i = 0; i < values.count(); ++i) {
-        if (values.value(i).isValid()) // ### generated?
-            stmt.append(values.fieldName(i)).append(" = ?, ");
-    }
-    if (stmt.at(stmt.length() - 2) != QLatin1Char(',')) // nothing to update
-        return QString();
-
-    stmt.chop(2);
-
-    stmt.append(d->whereClause());
-
-    qDebug("updateStatement: %s", stmt.ascii());
-    return stmt;
-}
-
 bool QSqlTableModel::update(int row, const QSqlRecord &values)
 {
     QSqlRecord rec(values);
     emit beforeUpdate(row, rec);
 
-    const QString stmt(updateStatement(rec));
-    if (stmt.isEmpty() || row < 0 || row >= rowCount())
-        return false; // nothing to update
-    if (d->editQuery.lastQuery() != stmt) {
-        if (!d->editQuery.prepare(stmt)) {
+    const QSqlRecord whereValues(d->primaryValues(row));
+    bool prepStatement = d->db.driver()->hasFeature(QSqlDriver::PreparedQueries);
+    QString stmt = d->db.driver()->sqlStatement(QSqlDriver::UpdateStatement, d->tableName,
+                                                rec, prepStatement);
+    QString where = d->db.driver()->sqlStatement(QSqlDriver::WhereStatement, d->tableName,
+                                                 whereValues, prepStatement);
+
+    if (stmt.isEmpty() || where.isEmpty() || row < 0 || row >= rowCount()) {
+        d->error = QSqlError(QLatin1String("No Fields to update"), QString(),
+                                 QSqlError::StatementError);
+        return false;
+    }
+    stmt.append(' ').append(where);
+
+    if (prepStatement) {
+        if (d->editQuery.lastQuery() != stmt) {
+            if (!d->editQuery.prepare(stmt)) {
+                d->error = d->editQuery.lastError();
+                return false;
+            }
+        }
+        int i;
+        for (i = 0; i < rec.count(); ++i) {
+            if (rec.isGenerated(i))
+                d->editQuery.addBindValue(rec.value(i));
+        }
+        for (i = 0; i < whereValues.count(); ++i)
+            d->editQuery.addBindValue(whereValues.value(i));
+
+        if (!d->editQuery.exec()) {
             d->error = d->editQuery.lastError();
             return false;
         }
-    }
-    for (int i = 0; i < rec.count(); ++i) {
-        const QVariant v(rec.value(i));
-        if (v.isValid()) // ### generated?
-            d->editQuery.addBindValue(v);
-    }
-    d->setPrimaryValues(row);
-    if (!d->editQuery.exec()) {
-        d->error = d->editQuery.lastError();
-        return false;
+    } else {
+        if (!d->editQuery.exec(stmt)) {
+            d->error = d->editQuery.lastError();
+            return false;
+        }
     }
     qDebug("executed: %s, %d", d->editQuery.executedQuery().ascii(), d->editQuery.numRowsAffected());
     return true;
@@ -621,12 +601,12 @@ QString QSqlTableModel::selectStatement() const
 {
     QString query;
     if (d->tableName.isEmpty()) {
-        d->error = QSqlError("No tablename given", QString(), QSqlError::Statement);
+        d->error = QSqlError("No tablename given", QString(), QSqlError::StatementError);
         return query;
     }
     if (d->rec.isEmpty()) {
         d->error = QSqlError("Unable to find table " + d->tableName, QString(),
-                             QSqlError::Statement);
+                             QSqlError::StatementError);
         return query;
     }
 
@@ -634,7 +614,7 @@ QString QSqlTableModel::selectStatement() const
                                           d->rec, false);
     if (query.isEmpty()) {
         d->error = QSqlError("Unable to select fields from table " + d->tableName, QString(),
-                             QSqlError::Statement);
+                             QSqlError::StatementError);
         return query;
     }
     if (!d->filter.isEmpty())
@@ -660,33 +640,42 @@ bool QSqlTableModel::removeRow(int row, const QModelIndex &parent)
     if (row < 0 || row >= rowCount() || parent.isValid())
         return false;
 
-    const QString stmt = deleteStatement();
-    if (stmt.isEmpty())
-        return false; //nothing to update
+    const QSqlRecord values(d->primaryValues(row));
+    bool prepStatement = d->db.driver()->hasFeature(QSqlDriver::PreparedQueries);
+    QString stmt = d->db.driver()->sqlStatement(QSqlDriver::DeleteStatement, d->tableName,
+                                                QSqlRecord(), prepStatement);
+    QString where = d->db.driver()->sqlStatement(QSqlDriver::WhereStatement, d->tableName,
+                                                values, prepStatement);
 
-    if (d->editQuery.lastQuery() != stmt) {
-        if (!d->editQuery.prepare(stmt)) {
+    if (stmt.isEmpty() || where.isEmpty()) {
+        d->error = QSqlError(QLatin1String("Unable to delete row"), QString(),
+                             QSqlError::StatementError);
+        return false;
+    }
+    stmt.append(' ').append(where);
+
+    if (prepStatement) {
+        if (d->editQuery.lastQuery() != stmt) {
+            if (!d->editQuery.prepare(stmt)) {
+                d->error = d->editQuery.lastError();
+                return false;
+            }
+        }
+        for (int i = 0; i < values.count(); ++i)
+            d->editQuery.addBindValue(values.value(i));
+
+        if (!d->editQuery.exec()) {
+            d->error = d->editQuery.lastError();
+            return false;
+        }
+    } else {
+        if (!d->editQuery.exec(stmt)) {
             d->error = d->editQuery.lastError();
             return false;
         }
     }
 
-    d->setPrimaryValues(row);
-    if (!d->editQuery.exec()) {
-        d->error = d->editQuery.lastError();
-        return false;
-    }
-
     return true;
-}
-
-QString QSqlTableModel::deleteStatement() const
-{
-    QString stmt;
-    stmt.reserve(0xff);
-    stmt.append("delete from ").append(d->tableName);
-    stmt.append(d->whereClause());
-    return stmt;
 }
 
 /*!

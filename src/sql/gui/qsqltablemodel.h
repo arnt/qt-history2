@@ -80,10 +80,8 @@ signals:
 protected:
     virtual bool update(int row, const QSqlRecord &values);
     virtual bool insert(const QSqlRecord &values);
-    virtual QString updateStatement(const QSqlRecord &values) const;
     virtual QString orderByStatement() const;
     virtual QString selectStatement() const;
-    virtual QString deleteStatement() const;
 
     void setPrimaryKey(const QSqlIndex &key);
     void setQuery(const QSqlQuery &query);

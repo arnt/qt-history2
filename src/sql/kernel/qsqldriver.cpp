@@ -337,8 +337,10 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
             for (int i = 0; i < rec.count(); ++i)
                 s.append(rec.fieldName(i)).append(" = ? AND ");
         }
-        if (!s.isEmpty())
+        if (!s.isEmpty()) {
+            s.prepend("WHERE ");
             s.chop(5); // remove trailing AND
+        }
         break;
     case UpdateStatement:
         s.append("UPDATE TABLE ").append(tableName).append(" SET ");

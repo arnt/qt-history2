@@ -19,6 +19,7 @@
 //#define QT_DEBUG_SQL
 
 #include "qatomic.h"
+#include "qsqlrecord.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldatabase.h"

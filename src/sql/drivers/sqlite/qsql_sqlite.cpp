@@ -109,7 +109,7 @@ void QSQLiteResultPrivate::finalize()
     char* err = 0;
     int res = sqlite_finalize(currentMachine, &err);
     if (err) {
-        q->setLastError(QSqlError("Unable to fetch results", err, QSqlError::Statement, res));
+        q->setLastError(QSqlError("Unable to fetch results", err, QSqlError::StatementError, res));
         sqlite_freemem(err);
     }
     currentMachine = 0;
@@ -229,7 +229,7 @@ bool QSQLiteResult::reset (const QString& query)
                                 &(d->currentMachine),
                                 &err);
     if (res != SQLITE_OK || err) {
-        setLastError(QSqlError("Unable to execute statement", err, QSqlError::Statement, res));
+        setLastError(QSqlError("Unable to execute statement", err, QSqlError::StatementError, res));
         sqlite_freemem(err);
     }
     //if (*d->currentTail != '\000' then there is more sql to eval
@@ -318,7 +318,7 @@ bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, c
     char* err = 0;
     d->access = sqlite_open(QFile::encodeName(db), 0, &err);
     if (err) {
-        setLastError(QSqlError("Error to open database", err, QSqlError::Connection));
+        setLastError(QSqlError("Error to open database", err, QSqlError::ConnectionError));
         sqlite_freemem(err);
         err = 0;
     }
@@ -358,7 +358,7 @@ bool QSQLiteDriver::beginTransaction()
     if (res == SQLITE_OK)
         return true;
 
-    setLastError(QSqlError("Unable to begin transaction", err, QSqlError::Transaction, res));
+    setLastError(QSqlError("Unable to begin transaction", err, QSqlError::TransactionError, res));
     sqlite_freemem(err);
     return false;
 }
@@ -374,7 +374,7 @@ bool QSQLiteDriver::commitTransaction()
     if (res == SQLITE_OK)
         return true;
 
-    setLastError(QSqlError("Unable to commit transaction", err, QSqlError::Transaction, res));
+    setLastError(QSqlError("Unable to commit transaction", err, QSqlError::TransactionError, res));
     sqlite_freemem(err);
     return false;
 }
@@ -390,7 +390,7 @@ bool QSQLiteDriver::rollbackTransaction()
     if (res == SQLITE_OK)
         return true;
 
-    setLastError(QSqlError("Unable to rollback Transaction", err, QSqlError::Transaction, res));
+    setLastError(QSqlError("Unable to rollback Transaction", err, QSqlError::TransactionError, res));
     sqlite_freemem(err);
     return false;
 }

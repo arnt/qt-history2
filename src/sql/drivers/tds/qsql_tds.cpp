@@ -94,7 +94,7 @@
 #define CS_PUBLIC
 #endif
 
-QSqlError qMakeError(const QString& err, int type, int errNo = -1)
+QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, int errNo = -1)
 {
     return QSqlError("QTDS: " + err, QString(), type, errNo);
 }
@@ -179,7 +179,7 @@ static int CS_PUBLIC qTdsErrHandler(DBPROCESS* dbproc,
 
     QString errMsg = QString("%1 %2\n").arg(dberrstr).arg(oserrstr);
     errMsg += p->getErrorMsgs();
-    p->lastError = qMakeError(errMsg, QSqlError::Unknown, dberr);
+    p->lastError = qMakeError(errMsg, QSqlError::UnknownError, dberr);
     p->clearErrorMsgs();
 
     return INT_CANCEL ;

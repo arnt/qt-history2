@@ -30,35 +30,42 @@
 class QM_EXPORT_SQL QSqlError
 {
 public:
-    enum Type {
-        None,
-        Connection,
-        Statement,
-        Transaction,
-        Unknown
+    enum ErrorType {
+        NoError,
+        ConnectionError,
+        StatementError,
+        TransactionError,
+        UnknownError
+#ifdef QT_COMPAT
+        , None = NoError,
+        Connection = ConnectionError,
+        Statement = StatementError,
+        Transaction = TransactionError,
+        Unknown = UnknownError
+#endif
     };
     QSqlError( const QString& driverText = QString(),
                 const QString& databaseText = QString(),
-                int type = QSqlError::None,
+                ErrorType type = NoError,
                 int number = -1);
     QSqlError(const QSqlError& other);
     QSqlError& operator=(const QSqlError& other);
-    virtual ~QSqlError();
+    ~QSqlError();
 
     QString driverText() const;
-    virtual void setDriverText(const QString& driverText);
+    void setDriverText(const QString& driverText);
     QString databaseText() const;
-    virtual void setDatabaseText(const QString& databaseText);
-    int type() const;
-    virtual void setType(int type);
+    void setDatabaseText(const QString& databaseText);
+    ErrorType type() const;
+    void setType(ErrorType type);
     int number() const;
-    virtual void setNumber(int number);
+    void setNumber(int number);
     QString text() const;
 
 private:
     QString driverError;
     QString databaseError;
-    int errorType;
+    ErrorType errorType;
     int errorNumber;
 };
 

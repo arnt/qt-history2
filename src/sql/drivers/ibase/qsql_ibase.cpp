@@ -213,7 +213,8 @@ public:
         trans = 0;
     }
 
-    bool isError(const QString &msg = QString::null, QSqlError::Type typ = QSqlError::Unknown)
+    bool isError(const QString &msg = QString::null,
+                 QSqlError::ErrorType typ = QSqlError::UnknownError)
     {
         QString imsg;
         long sqlcode;
@@ -238,7 +239,8 @@ public:
     ~QIBaseResultPrivate() { cleanup(); }
 
     void cleanup();
-    bool isError(const QString &msg = QString::null, QSqlError::Type typ = QSqlError::Unknown)
+    bool isError(const QString &msg = QString::null,
+                 QSqlError::ErrorType typ = QSqlError::UnknownError)
     {
         QString imsg;
         long sqlcode;
@@ -301,7 +303,7 @@ void QIBaseResultPrivate::writeBlob(int i, const QByteArray &ba)
     isc_blob_handle handle = 0;
     ISC_QUAD *bId = (ISC_QUAD*)inda->sqlvar[i].sqldata;
     isc_create_blob2(status, &ibase, &trans, &handle, bId, 0, 0);
-    if (!isError("Unable to create BLOB", QSqlError::Statement)) {
+    if (!isError("Unable to create BLOB", QSqlError::StatementError)) {
         int i = 0;
         while (i < ba.size()) {
             isc_put_segment(status, &handle, qMin(ba.size() - i, SHRT_MAX), const_cast<char*>(ba.data()));
@@ -318,7 +320,7 @@ QCoreVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
     isc_blob_handle handle = 0;
 
     isc_open_blob2(status, &ibase, &trans, &handle, bId, 0, 0);
-    if (isError("Unable to open BLOB", QSqlError::Statement))
+    if (isError("Unable to open BLOB", QSqlError::StatementError))
         return QCoreVariant();
 
     unsigned short len = 0;
@@ -331,7 +333,7 @@ QCoreVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
         ba.resize(qMin(ba.size() * 2, SHRT_MAX));
         stat = isc_get_segment(status, &handle, &len, osize, ba.data() + osize);
     }
-    bool isErr = isError("Unable to read BLOB", QSqlError::Statement);
+    bool isErr = isError("Unable to read BLOB", QSqlError::StatementError);
     isc_close_blob(status, &handle);
     if (isErr)
         return QCoreVariant();
@@ -381,7 +383,7 @@ QCoreVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
     ISC_ARRAY_DESC desc;
 
     isc_array_lookup_bounds(status, &ibase, &trans, relname.data(), sqlname.data(), &desc);
-    if (isError("Could not find array at position " + QString::number(pos), QSqlError::Statement))
+    if (isError("Could not find array at position " + QString::number(pos), QSqlError::StatementError))
         return res;
 
     qDebug() << "dtype" << desc.array_desc_dtype << "scale" << (int)desc.array_desc_scale << "length" << desc.array_desc_length << "dimensions" << desc.array_desc_dimensions;
@@ -390,7 +392,7 @@ QCoreVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
     QByteArray ba;
     ba.resize((int)buflen);
     isc_array_get_slice(status, &ibase, &trans, arr, &desc, ba.data(), &buflen);
-    if (isError("Could not get array data at position " + QString::number(pos), QSqlError::Statement))
+    if (isError("Could not get array data at position " + QString::number(pos), QSqlError::StatementError))
         return res;
 
     qDebug("getting...");
@@ -436,7 +438,7 @@ void QIBaseResultPrivate::writeArray(int i, const QList<QCoreVariant> &list)
     ISC_ARRAY_DESC desc;
 
     isc_array_lookup_bounds(status, &ibase, &trans, relname.data(), sqlname.data(), &desc);
-    if (isError("Could not find array at position " + QString::number(i), QSqlError::Statement))
+    if (isError("Could not find array at position " + QString::number(i), QSqlError::StatementError))
         return;
 
     qDebug() << bId << relname << "." << sqlname;
@@ -454,7 +456,7 @@ bool QIBaseResultPrivate::isSelect()
     char acBuffer[9];
     char qType = isc_info_sql_stmt_type;
     isc_dsql_sql_info(status, &stmt, 1, &qType, sizeof(acBuffer), acBuffer);
-    if (isError("Could not get query info", QSqlError::Statement))
+    if (isError("Could not get query info", QSqlError::StatementError))
         return false;
     int iLength = isc_vax_integer(&acBuffer[1], 2);
     queryType = isc_vax_integer(&acBuffer[3], iLength);
@@ -473,7 +475,7 @@ bool QIBaseResultPrivate::transaction()
     localTransaction = true;
 
     isc_start_transaction(status, &trans, 1, &ibase, 0, NULL);
-    if (isError("Could not start transaction", QSqlError::Statement))
+    if (isError("Could not start transaction", QSqlError::StatementError))
         return false;
 
     return true;
@@ -491,7 +493,7 @@ bool QIBaseResultPrivate::commit()
 
     isc_commit_transaction(status, &trans);
     trans = 0;
-    return !isError("Unable to commit transaction", QSqlError::Statement);
+    return !isError("Unable to commit transaction", QSqlError::StatementError);
 }
 
 //////////
@@ -523,20 +525,20 @@ bool QIBaseResult::prepare(const QString& query)
         return false;
 
     isc_dsql_allocate_statement(d->status, &d->ibase, &d->stmt);
-    if (d->isError("Could not allocate statement", QSqlError::Statement))
+    if (d->isError("Could not allocate statement", QSqlError::StatementError))
         return false;
     isc_dsql_prepare(d->status, &d->trans, &d->stmt, 0, const_cast<char*>(query.utf8()), 3, d->sqlda);
-    if (d->isError("Could not prepare statement", QSqlError::Statement))
+    if (d->isError("Could not prepare statement", QSqlError::StatementError))
         return false;
 
     isc_dsql_describe_bind(d->status, &d->stmt, 1, d->inda);
-    if (d->isError("Could not describe input statement", QSqlError::Statement))
+    if (d->isError("Could not describe input statement", QSqlError::StatementError))
         return false;
     if (d->inda->sqld > d->inda->sqln) {
         enlargeDA(d->inda, d->inda->sqld);
 
         isc_dsql_describe_bind(d->status, &d->stmt, 1, d->inda);
-        if (d->isError("Could not describe input statement", QSqlError::Statement))
+        if (d->isError("Could not describe input statement", QSqlError::StatementError))
             return false;
     }
     initDA(d->inda);
@@ -545,7 +547,7 @@ bool QIBaseResult::prepare(const QString& query)
         enlargeDA(d->sqlda, d->sqlda->sqld);
 
         isc_dsql_describe(d->status, &d->stmt, 1, d->sqlda);
-        if (d->isError("Could not describe statement", QSqlError::Statement))
+        if (d->isError("Could not describe statement", QSqlError::StatementError))
             return false;
     }
     initDA(d->sqlda);
@@ -672,10 +674,10 @@ bool QIBaseResult::reset (const QString& query)
         return false;
 
     isc_dsql_allocate_statement(d->status, &d->ibase, &d->stmt);
-    if (d->isError("Could not allocate statement", QSqlError::Statement))
+    if (d->isError("Could not allocate statement", QSqlError::StatementError))
         return false;
     isc_dsql_prepare(d->status, &d->trans, &d->stmt, 0, const_cast<char*>(query.utf8()), 3, d->sqlda);
-    if (d->isError("Could not prepare statement", QSqlError::Statement))
+    if (d->isError("Could not prepare statement", QSqlError::StatementError))
         return false;
 
     if (d->sqlda->sqld > d->sqlda->sqln) {
@@ -687,7 +689,7 @@ bool QIBaseResult::reset (const QString& query)
         d->sqlda->version = SQLDA_VERSION1;
 
         isc_dsql_describe(d->status, &d->stmt, 1, d->sqlda);
-        if (d->isError("Could not describe statement", QSqlError::Statement))
+        if (d->isError("Could not describe statement", QSqlError::StatementError))
             return false;
     }
 
@@ -722,7 +724,7 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
         setAt(QSql::AfterLast);
         return false;
     }
-    if (d->isError("Could not fetch next item", QSqlError::Statement))
+    if (d->isError("Could not fetch next item", QSqlError::StatementError))
         return false;
     if (rowIdx < 0) // not interested in actual values
         return true;
@@ -851,7 +853,7 @@ int QIBaseResult::numRowsAffected()
     char acBuffer[33];
     int iResult = -1;
     isc_dsql_sql_info(d->status, &d->stmt, sizeof(acCountInfo), acCountInfo, sizeof(acBuffer), acBuffer);
-    if (d->isError("Could not get statement info", QSqlError::Statement))
+    if (d->isError("Could not get statement info", QSqlError::StatementError))
         return -1;
     for (char *pcBuf = acBuffer + 3; *pcBuf != isc_info_end; /*nothing*/) {
         char cType = *pcBuf++;
@@ -962,7 +964,7 @@ bool QIBaseDriver::open(const QString & db,
         ldb += host + ":";
     ldb += db;
     isc_attach_database(d->status, 0, (char*)ldb.latin1(), &d->ibase, i, ba.data());
-    if (d->isError("Error opening database", QSqlError::Connection)) {
+    if (d->isError("Error opening database", QSqlError::ConnectionError)) {
         setOpenError(true);
         return false;
     }
@@ -994,7 +996,7 @@ bool QIBaseDriver::beginTransaction()
         return false;
 
     isc_start_transaction(d->status, &d->trans, 1, &d->ibase, 0, NULL);
-    return !d->isError("Could not start transaction", QSqlError::Transaction);
+    return !d->isError("Could not start transaction", QSqlError::TransactionError);
 }
 
 bool QIBaseDriver::commitTransaction()
@@ -1006,7 +1008,7 @@ bool QIBaseDriver::commitTransaction()
 
     isc_commit_transaction(d->status, &d->trans);
     d->trans = 0;
-    return !d->isError("Unable to commit transaction", QSqlError::Transaction);
+    return !d->isError("Unable to commit transaction", QSqlError::TransactionError);
 }
 
 bool QIBaseDriver::rollbackTransaction()
@@ -1018,7 +1020,7 @@ bool QIBaseDriver::rollbackTransaction()
 
     isc_rollback_transaction(d->status, &d->trans);
     d->trans = 0;
-    return !d->isError("Unable to rollback transaction", QSqlError::Transaction);
+    return !d->isError("Unable to rollback transaction", QSqlError::TransactionError);
 }
 
 QStringList QIBaseDriver::tables(QSql::TableType type) const

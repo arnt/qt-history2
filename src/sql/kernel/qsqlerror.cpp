@@ -21,7 +21,7 @@
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QSqlError &s)
 {
-    dbg.nospace() << "QSqlError("<< s.number() << ", \"" << s.driverText() <<
+    dbg.nospace() << "QSqlError(" << s.number() << ", \"" << s.driverText() <<
                      "\", \"" << s.databaseText() << "\")";
     return dbg.space();
 }
@@ -44,15 +44,22 @@ QDebug operator<<(QDebug dbg, const QSqlError &s)
 */
 
 /*!
-    \enum QSqlError::Type
+    \enum QSqlError::ErrorType
 
     This enum type describes the type of SQL error that occurred.
 
-    \value None  no error occurred
-    \value Connection  connection error
-    \value Statement  SQL statement syntax error
-    \value Transaction  transaction failed error
-    \value Unknown  unknown error
+    \value NoError  no error occurred
+    \value ConnectionError  connection error
+    \value StatementError  SQL statement syntax error
+    \value TransactionError  transaction failed error
+    \value UnknownError  unknown error
+
+    \value None  obsolete, use NoError instead
+    \value Connection  obsolete, use ConnectionError instead
+    \value Statement  obsolete, use StatementError instead
+    \value Transaction  obsolete, use TransactionError instead
+    \value Unknown  obsolete, use UnknownError instead
+
 */
 
 /*!
@@ -63,7 +70,7 @@ QDebug operator<<(QDebug dbg, const QSqlError &s)
 
 QSqlError::QSqlError( const QString& driverText,
                 const QString& databaseText,
-                int type,
+                ErrorType type,
                 int number)
 : driverError(driverText),
   databaseError(databaseText),
@@ -156,7 +163,7 @@ void QSqlError::setDatabaseText(const QString& databaseText)
     \sa setType() QSqlError::Type
 */
 
-int QSqlError::type() const
+QSqlError::ErrorType QSqlError::type() const
 {
     return errorType;
 }
@@ -167,7 +174,7 @@ int QSqlError::type() const
     \sa type()
 */
 
-void QSqlError::setType(int type)
+void QSqlError::setType(ErrorType type)
 {
     errorType = type;
 }

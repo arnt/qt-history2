@@ -186,7 +186,7 @@ void QSqlModel::setQuery(const QSqlQuery &query)
         d->bottom = QModelIndex();
         if (query.isForwardOnly())
             d->error = QSqlError("Forward-only queries cannot be used in a data model",
-                                 QString(), QSqlError::Connection);
+                                 QString(), QSqlError::ConnectionError);
         else
             d->error = query.lastError();
         return;
