@@ -47,11 +47,6 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-//#ifndef QT_NO_REMOTE
-#include "quuid.h"
-//#endif //QT_NO_REMOTE
-#include "qremotecontrol.h"
-
 class QSessionManager;
 class QStyle;
 class QTranslator;
@@ -378,12 +373,6 @@ private:
 #if defined(Q_WS_WIN)
     friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
 #endif
-
-public:
-    void setRemoteControlEnabled( bool enable, const QUuid appId = QUuid() );
-    bool isRemoteControlEnabled() const;
-    QRemoteControl* remoteControl() const;
-    QUuid applicationId() const;
 
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

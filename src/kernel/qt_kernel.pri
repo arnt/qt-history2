@@ -68,7 +68,6 @@ kernel {
 		  $$KERNEL_H/qprocess.h \
 		  $$KERNEL_H/qrect.h \
 		  $$KERNEL_H/qregion.h \
-		  $$KERNEL_H/qremotecontrol.h \
 		  $$KERNEL_H/qsessionmanager.h \
 		  $$KERNEL_H/qsignal.h \
 		  $$KERNEL_H/qsignalmapper.h \

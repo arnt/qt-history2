@@ -57,10 +57,6 @@
 #endif
 #include <stdlib.h>
 
-#ifndef QT_NO_REMOTE
-#include "private/qtestcontrol_p.h"
-#endif //QT_NO_REMOTE
-
 #if defined(QT_THREAD_SUPPORT)
 #include "qmutex.h"
 #endif
@@ -264,9 +260,6 @@
 	closeAllWindows(),
 	startingUp(),
 	closingDown(),
-	setEnableRemoteControl(),
-	remoteControlEnabled()
-	applicationId(),
 	type().
   \endtable
 
@@ -360,10 +353,6 @@ QStringList *QApplication::app_libpaths = 0;
 
 static QEventLoop *static_eventloop = 0;	// application event loop
 
-
-// two globals required for remote control
-static QRemoteControl *remote_control = 0;
-QUuid application_id = QUuid(0,0,0,0,0,0,0,0,0,0,0);
 
 #if defined(QT_TABLET_SUPPORT)
 bool chokeMouse = FALSE;
@@ -887,100 +876,6 @@ void QApplication::initialize( int argc, char **argv )
 }
 
 
-/*!
-    Enables remote access to the application if \a enable is set to TRUE.
-    You can use the \a appId to give your application a unique
-    identification that can be used by the remote control.
-    If \a enable is set to FALSE a currently remote access is terminated.
-    Remote control access is disabled by default.
-    You can call this function any time after having created the
-    application.
-*/
-void QApplication::setRemoteControlEnabled( bool enable, const QUuid appId )
-{
-    application_id = appId;
-
-#ifndef QT_NO_REMOTE
-    if (!enable) {
-
-	if (remote_control != 0) {
-            delete remote_control;
-	    remote_control = 0;
-	}
-    } else {
-
-	if (remote_control != 0) {
-	    return; // it's enabled already so there's nothing more to do.
-	}
-
-	QString s;
-	const QString testStr = "QREMOTE_CONTROL:";
-	for (int i=0; i<argc(); i++) {
-
-	    s = argv()[i];
-	    int pos = s.find(testStr);
-	    if (pos >= 0) {
-
-		QString hostIp, hostPort;
-		s = s.mid(pos + testStr.length());
-		int pos = s.find(":");
-		if (pos > 0) {
-
-		    hostIp = s.left(pos);
-		    hostPort = s.mid(pos+1);
-		    int port = hostPort.toInt();
-		    if (port > 0) {
-
-                        remote_control = new QTestControl;
-			if (remote_control != 0) {
-
-			    remote_control->open(hostIp,port);
-			    qDebug("Remote Control is enabled.");
-			}
-		    } else {
-
-			qDebug("Use -QREMOTE_CONTROL:RcIpAddress:RcIpPort");
-		    }
-		} else {
-
-		    qDebug("Use -QREMOTE_CONTROL:RcIpAddress:RcIpPort");
-		}
-		break;
-	    }
-	}
-    }
-#else
-    Q_UNUSED( enable );
-#endif //QT_NO_REMOTE
-}
-
-/*!
-    Returns TRUE if remote control access is enabled for the
-    application; otherwise returns FALSE.
-*/
-bool QApplication::isRemoteControlEnabled() const
-{
-    return remote_control != 0;
-}
-
-/*!
-    Returns a pointer to the remote control.
-*/
-
-QRemoteControl* QApplication::remoteControl() const
-{
-    return remote_control;
-}
-
-/*!
-    Returns the application id that was set with setEnableRemoteControl.
-*/
-QUuid QApplication::applicationId() const
-{
-    return application_id;
-}
-
-
 
 /*****************************************************************************
   Functions returning the active popup and modal widgets.
@@ -1051,12 +946,6 @@ QApplication::~QApplication()
     delete qt_desktopWidget;
     qt_desktopWidget = 0;
     is_app_closing = TRUE;
-
-#ifndef QT_NO_REMOTE
-    if (remote_control!= 0)
-        delete remote_control;
-    remote_control = 0;
-#endif
 
 #ifndef QT_NO_CLIPBOARD
     delete qt_clipboard;
@@ -2056,13 +1945,6 @@ void QApplication::closeAllWindows()
 
 bool QApplication::notify( QObject *receiver, QEvent *e )
 {
-#ifndef QT_NO_REMOTE
-    if (remote_control != 0) {
-	if (remote_control->handleNotification(receiver, e))
-	    return TRUE;
-    }
-#endif //QT_NO_REMOTE
-
     // no events are delivered after ~QApplication() has started
     if ( is_app_closing )
 	return FALSE;
