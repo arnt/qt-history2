@@ -482,7 +482,7 @@ void QTipManager::showTip()
 	delete label;
 	label = new QTipLabel( QApplication::desktop( widget->x11Screen() ), t->text);
 #else
-	label = new QTipLabel( QApplication::desktop(), t->text);
+	label = new QTipLabel( 0, t->text);
 #endif			       
 	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
 	    label->resize( t->geometry.size() );
