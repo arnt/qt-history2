@@ -839,8 +839,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	   (widget->isModal() || !widget->inherits("QDockWindow")))
 	    widget->setActiveWindow();
     }
-    if(windowPart == inGoAway || windowPart == inToolbarButton ||
-       windowPart == inCollapseBox || windowPart == inZoomIn || windowPart == inZoomOut) {
+    if(windowPart == inGoAway || windowPart == inCollapseBox || windowPart == inZoomIn || windowPart == inZoomOut) {
 	QMacBlockingFunction block;
 	if(!TrackBox((WindowPtr)widget->handle(), *pt, windowPart))
 	    return FALSE;
@@ -864,6 +863,12 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 		    int oh = w->sizeHint().height();
 		    if(oh < 0)
 			oh = 0;
+#if 1
+		    if(w->isVisible())
+			w->hide();
+		    else
+			w->show();
+#else
 		    if(QObjectList *l = w->queryList("QToolBar")) {
 			for(QObjectListIt it2(*l); it2.current(); ++it2) {
 			    QWidget *t = (QWidget *)(*it2);
@@ -876,6 +881,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 			}
 			delete l;
 		    }
+#endif
 		    sendPostedEvents();
 		    int nh = w->sizeHint().height();
 		    if(nh < 0)
