@@ -878,7 +878,7 @@ void QWidget::showMinimized()
 	    d->topData()->fullscreen = 0;
 	}
 	if ( isVisible() ) {
-	    ShowWindow( winId(), SW_SHOWMINIMIZED );
+	    ShowWindow( winId(), SW_MINIMIZE );
 	} else {
 	    d->topData()->showMode = 1;
 	    show();
