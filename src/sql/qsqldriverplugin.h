@@ -43,6 +43,9 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+#ifndef QT_NO_SQL
+#ifndef QT_NO_COMPONENT
+
 class QSqlDriver;
 class QSqlDriverPluginPrivate;
 
@@ -59,5 +62,8 @@ public:
 private:
     QSqlDriverPluginPrivate *d;
 };
+
+#endif // QT_NO_COMPONENT
+#endif // QT_NO_SQL
 
 #endif // QSQLDRIVERPLUGIN_H

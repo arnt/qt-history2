@@ -36,6 +36,10 @@
 **********************************************************************/
 
 #include "qsqldriverplugin.h"
+
+#ifndef QT_NO_SQL
+#ifndef QT_NO_COMPONENT
+
 #include "qsqldriverinterface_p.h"
 
 /*!   \class QSqlDriverPlugin qsqldriverplugin.h
@@ -147,3 +151,5 @@ QSqlDriverPlugin::~QSqlDriverPlugin()
     // don't delete d, as this is deleted by d
 }
 
+#endif // QT_NO_COMPONENT
+#endif // QT_NO_SQL

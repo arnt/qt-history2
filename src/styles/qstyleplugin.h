@@ -43,6 +43,9 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+#ifndef QT_NO_STYLE
+#ifndef QT_NO_COMPONENT
+
 class QStyle;
 class QStylePluginPrivate;
 
@@ -59,5 +62,8 @@ public:
 private:
     QStylePluginPrivate *d;
 };
+
+#endif // QT_NO_COMPONENT
+#endif // QT_NO_STYLE
 
 #endif // QSTYLEPLUGIN_H

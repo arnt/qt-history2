@@ -5,6 +5,8 @@
 #include "qobject.h"
 #endif // QT_H
 
+#ifndef QT_NO_COMPONENT
+
 #ifndef Q_EXTERN_C
 #ifdef __cplusplus
 #define Q_EXTERN_C    extern "C"
@@ -91,6 +93,6 @@ private:
     QUnknownInterface* _iface;
 };
 
-
+#endif // QT_NO_COMPONENT
 
 #endif // QGPLUGIN_H

@@ -36,6 +36,10 @@
 **********************************************************************/
 
 #include "qstyleplugin.h"
+
+#ifndef QT_NO_STYLE
+#ifndef QT_NO_COMPONENT
+
 #include "qstyleinterface_p.h"
 #include "qobjectcleanuphandler.h"
 #include "qstyle.h"
@@ -170,3 +174,5 @@ QStylePlugin::~QStylePlugin()
     // don't delete d, as this is deleted by d
 }
 
+#endif // QT_NO_COMPONENT
+#endif // QT_NO_STYLE

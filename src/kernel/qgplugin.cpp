@@ -1,4 +1,7 @@
 #include "qgplugin.h"
+
+#ifndef QT_NO_COMPONENT
+
 #include <private/qcom_p.h>
 
 QGPlugin::QGPlugin()
@@ -27,3 +30,5 @@ void QGPlugin::setIface( QUnknownInterface *iface )
 {
     _iface = iface;
 }
+
+#endif // QT_NO_COMPONENT
