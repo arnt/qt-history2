@@ -68,7 +68,7 @@
     model, and for a vertical header the section is equivalent to a row
     in the model.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QListView QTableView QTreeView QHeaderWidget
+    \sa \link model-view-programming.html Model/View Programming\endlink QListView QTableView QTreeView
 
 */
 
@@ -1207,7 +1207,7 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
 {
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
     switch (d->state) {
-    case QHeaderViewPrivate::MoveSection: 
+    case QHeaderViewPrivate::MoveSection:
         moveSection(visualIndex(d->section), visualIndex(d->target));
         d->section = d->target = -1;
         d->updateSectionIndicator(d->section, pos);
