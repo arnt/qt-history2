@@ -92,9 +92,9 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
         int from = QMAX(0,  pos - 8);
         int to = QMIN(str.length(), pos + 8);
         QConstString cstr(str.unicode() + from, to - from);
-        QTextEngine layout(cstr.string(), d);
+        QTextEngine layout(cstr, d);
         layout.itemize(QTextEngine::WidthOnly);
-        cwidth = layout.width(pos - from, 1);
+        cwidth = (int)layout.width(pos - from, 1);
     } else {
         cwidth = width(ch);
     }
