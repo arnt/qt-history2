@@ -444,7 +444,7 @@ bool QProcess::isRunning() const
 bool QProcess::canReadLineStdout() const
 {
     if( !d->pipeStdout[0] )
-	return !d->bufStdout.isEmpty();
+	return d->bufStdout.size() != 0;
 
     QProcess *that = (QProcess*)this;
     return that->d->bufStdout.scanNewline( 0 );
@@ -453,7 +453,7 @@ bool QProcess::canReadLineStdout() const
 bool QProcess::canReadLineStderr() const
 {
     if( !d->pipeStderr[0] )
-	return !d->bufStderr.isEmpty();
+	return d->bufStderr.size() != 0;
 
     QProcess *that = (QProcess*)this;
     return that->d->bufStderr.scanNewline( 0 );
