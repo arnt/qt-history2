@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#28 $
 **
 ** Implementation of the QTextView class
 **
@@ -619,9 +619,7 @@ Qt::TextFormat QTextView::textFormat() const
   Sets the text format to \a format. Possible choices are
   <ul>
   <li> \c PlainText - all characters are displayed verbatimely,
-  including all blanks and linebreaks. Word wrap is availbe
-  with the \c WordBreak alignment flag (see setAlignment() for
-  details).
+  including all blanks and linebreaks. 
   <li> \c RichText - rich text rendering. The available
   styles are defined in the default stylesheet
   QStyleSheet::defaultSheet().
