@@ -64,7 +64,7 @@ public:
     The user can be asked to confirm all edits with setConfirmEdits().
     For more precise control use setConfirmInsert(),
     setConfirmUpdate(), setConfirmDelete() and setConfirmCancels().
-    Use setAutoEdit() to control the behaviour of the form when the
+    Use setAutoEdit() to control the behavior of the form when the
     user edits a record and then navigates.
 
     The record set is navigated using first(), next(), prev(), last()

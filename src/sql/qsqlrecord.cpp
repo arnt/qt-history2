@@ -168,7 +168,7 @@ QSqlRecord::~QSqlRecord()
 
 /*!
     Returns the value of the field located at position \a i in the
-    record. If field \a i does not exist the resultant behaviour is
+    record. If field \a i does not exist the resultant behavior is
     undefined.
 
     This function should be used with \l{QSqlQuery}s. When working
@@ -186,7 +186,7 @@ QCoreVariant QSqlRecord::value(int i) const
     \overload
 
     Returns the value of the field called \a name in the record. If
-    field \a name does not exist the resultant behaviour is undefined.
+    field \a name does not exist the resultant behavior is undefined.
 */
 
 QCoreVariant  QSqlRecord::value(const QString& name) const

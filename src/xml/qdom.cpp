@@ -6357,7 +6357,7 @@ QDomNodeList QDomDocument::elementsByTagName(const QString& tagname) const
     The behavior of this function is slightly different depending on
     the node types:
     \table
-    \header \i Node Type \i Behaviour
+    \header \i Node Type \i Behavior
     \row \i QDomAttr
          \i The owner element is set to 0 and the specified flag is
             set to true in the generated attribute. The whole subtree

@@ -59,7 +59,7 @@
     Except where noted, you can only call the set functions before
     setup(), or between QPainter::end() and setup(). (Some may take
     effect between setup() and begin(), or between begin() and end(),
-    but that's strictly undocumented and such behaviour may differ
+    but that's strictly undocumented and such behavior may differ
     between platforms.)
 
     There are also some settings that the user sets (through the

@@ -1136,7 +1136,7 @@ QString QHttpRequestHeader::toString() const
     \endcode
 
     You can then get details about the error with the error() and
-    errorString() functions. Note that only unexpected behaviour, like
+    errorString() functions. Note that only unexpected behavior, like
     network failure is considered as an error. If the server response
     contains an error status, like a 404 response, this is reported as
     a normal response case. So you should always check the \link

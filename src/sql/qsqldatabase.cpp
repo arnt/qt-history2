@@ -837,7 +837,7 @@ void QSqlDatabase::setUserName(const QString& name)
 
     \warning This function stores the password in plain text within
     Qt. Use the open() call that takes a password as parameter to
-    avoid this behaviour.
+    avoid this behavior.
 
     \sa open()
 */

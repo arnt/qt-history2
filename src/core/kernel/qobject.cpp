@@ -192,7 +192,7 @@ QMetaCallEvent::~QMetaCallEvent()
     source file. We strongly recommend the use of this macro in \e all
     subclasses of QObject regardless of whether or not they actually
     use signals, slots and properties, since failure to do so may lead
-    certain functions to exhibit undefined behaviour.
+    certain functions to exhibit undefined behavior.
 
     All Qt widgets inherit QObject. The convenience function
     isWidgetType() returns whether an object is actually a widget. It

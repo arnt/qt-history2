@@ -152,7 +152,7 @@ void qt_debug_buffer(const QString& msg, QSqlRecord* cursor)
     The user can be asked to confirm all edits with setConfirmEdits().
     For more precise control use setConfirmInsert(),
     setConfirmUpdate(), setConfirmDelete() and setConfirmCancels().
-    Use setAutoEdit() to control the behaviour of the table when the
+    Use setAutoEdit() to control the behavior of the table when the
     user edits a record and then navigates. (Note that setAutoDelete()
     is unrelated; it is used to set whether the QSqlCursor is deleted
     when the table is deleted.)
@@ -515,7 +515,7 @@ bool QDataTable::confirmEdits() const
     \brief whether the data table confirms insert operations
 
     If the confirmInsert property is true, all insertions must be
-    confirmed by the user through a message box (this behaviour can be
+    confirmed by the user through a message box (this behavior can be
     changed by overriding the confirmEdit() function), otherwise all
     insert operations occur immediately.
 
@@ -532,7 +532,7 @@ bool QDataTable::confirmInsert() const
     \brief whether the data table confirms update operations
 
     If the confirmUpdate property is true, all updates must be
-    confirmed by the user through a message box (this behaviour can be
+    confirmed by the user through a message box (this behavior can be
     changed by overriding the confirmEdit() function), otherwise all
     update operations occur immediately.
 
@@ -549,7 +549,7 @@ bool QDataTable::confirmUpdate() const
     \brief whether the data table confirms delete operations
 
     If the confirmDelete property is true, all deletions must be
-    confirmed by the user through a message box (this behaviour can be
+    confirmed by the user through a message box (this behavior can be
     changed by overriding the confirmEdit() function), otherwise all
     delete operations occur immediately.
 

@@ -2003,7 +2003,7 @@ void QMainWindow::setDockMenuEnabled(bool b)
     This function is called internally when necessary, e.g. when the
     user right clicks a dock area (providing isDockMenuEnabled()
     returns true). You can reimplement this function if you wish to
-    customize the behaviour.
+    customize the behavior.
 
     The menu items representing the toolbars and dock windows are
     checkable. The visible dock windows are checked and the hidden
