@@ -665,13 +665,39 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
     }
 
     if ( mapper ) {
+	bool shortRead = FALSE;
 	if ( !d->decoder )
 	    d->decoder = mapper->makeDecoder();
 	while( rnum < len ) {
 	    QString s;
-	    while ( s.isEmpty() ) {
-		// TODO: can this getch() call be optimized to read
-		// more than one character after another?  YES!
+	    bool readBlock = !( len == 1+rnum );
+	    while ( TRUE ) {
+		// for efficiency: normally read a whole block
+		if ( readBlock ) {
+		    // guess buffersize; this may be wrong (too small or too
+		    // big). But we can handle this (either iterate reading
+		    // or use ungetcBuf).
+		    // Note that this might cause problems for codecs where
+		    // one byte can result in >1 Unicode Characters if bytes
+		    // are written to the stream in the meantime (loss of
+		    // synchronicity).
+		    uint rlen = len - rnum;
+		    char *cbuf = new char[ rlen ];
+		    if ( ungetHack != EOF ) {
+			rlen = 1+dev->readBlock( cbuf+1, rlen-1 );
+			cbuf[0] = (char)ungetHack;
+			ungetHack = EOF;
+		    } else {
+			rlen = dev->readBlock( cbuf, rlen );
+		    }
+		    s  += d->decoder->toUnicode( cbuf, rlen );
+		    delete[] cbuf;
+		    // use buffered reading only for the first time, because we
+		    // have to get the stream synchronous again (this is easier
+		    // with single character reading)
+		    readBlock = FALSE;
+		}
+		// get stream (and codec) in sync
 		int c;
 		if ( ungetHack == EOF ) {
 		    c = dev->getch();
@@ -679,10 +705,15 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		    c = ungetHack;
 		    ungetHack = EOF;
 		}
-		if ( c == EOF )
-		    return rnum;
+		if ( c == EOF ) {
+		    shortRead = TRUE;
+		    break;
+		}
 		char b = c;
-		s  = d->decoder->toUnicode( &b, 1 );
+		uint lengthBefore = s.length();
+		s  += d->decoder->toUnicode( &b, 1 );
+		if ( s.length() > lengthBefore )
+		    break; // it seems we are in sync now
 	    }
 	    uint i = 0;
 	    while( rnum < len && i < s.length() )
@@ -690,6 +721,8 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    if ( s.length() > i )
 		// could be = but append is clearer
 		d->ungetcBuf.append( s.mid( i ) );
+	    if ( shortRead )
+		return rnum;
 	}
     } else if ( latin1 ) {
 	if ( len == 1+rnum ) {
@@ -758,6 +791,101 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    }
 	    delete[] cbuf;
 	}
+    }
+    return rnum;
+}
+
+/*!
+  Tries to read one line, but at most len characters from the stream and stores
+  them in \a buf.
+
+  Returns the number of characters really read. Newlines are not stripped.
+
+  There will be a QEOF appended if the read reaches the end of file; this is
+  different to ts_getbuf().
+
+  This function works only if a newline (as byte) is also a newline (as
+  resulting character) since it uses QIODevice::readLine(). So use it only for
+  such codecs where this is true!
+
+  This function is NOP for UTF 16 (almost). Don't use it if doUnicodeHeader is
+  TRUE!
+*/
+uint QTextStream::ts_getline( QChar* buf, uint len )
+{
+    if( len<1 )
+	return 0;
+
+    uint rnum=0;   // the number of QChars really read
+
+    if ( d && d->ungetcBuf.length() ) {
+	while( rnum < len && rnum < d->ungetcBuf.length() ) {
+	    buf[rnum] = d->ungetcBuf.constref(rnum);
+	    rnum++;
+	}
+	d->ungetcBuf = d->ungetcBuf.mid( rnum );
+	if ( rnum >= len )
+	    return rnum;
+    }
+
+    if ( mapper ) {
+	if ( !d->decoder )
+	    d->decoder = mapper->makeDecoder();
+	QString s;
+	bool shortRead = FALSE;
+	bool readBlock = TRUE;
+	while ( TRUE ) {
+	    // for efficiency: try to read a line
+	    if ( readBlock ) {
+		int rlen = len - rnum;
+		char *cbuf = new char[ rlen+1 ];
+		rlen = dev->readLine( cbuf, rlen+1 );
+		if ( rlen == -1 )
+		    rlen = 0;
+		s  += d->decoder->toUnicode( cbuf, rlen );
+		delete[] cbuf;
+		readBlock = FALSE;
+	    }
+	    if ( dev->atEnd()
+		    || s.at( s.length()-1 ) == '\n'
+		    || s.at( s.length()-1 ) == '\r'
+	       ) {
+		break;
+	    } else {
+		// get stream (and codec) in sync
+		int c;
+		c = dev->getch();
+		if ( c == EOF ) {
+		    shortRead = TRUE;
+		    break;
+		}
+		char b = c;
+		uint lengthBefore = s.length();
+		s  += d->decoder->toUnicode( &b, 1 );
+		if ( s.length() > lengthBefore )
+		    break; // it seems we are in sync now
+	    }
+	}
+	uint i = 0;
+	while( rnum < len && i < s.length() )
+	    buf[rnum++] = s.constref(i++);
+	if ( s.length() > i )
+	    // could be = but append is clearer
+	    d->ungetcBuf.append( s.mid( i ) );
+	if ( rnum < len && dev->atEnd() )
+	    buf[rnum++] = QEOF;
+    } else if ( latin1 ) {
+	int rlen = len - rnum;
+	char *cbuf = new char[ rlen+1 ];
+	rlen = dev->readLine( cbuf, rlen+1 );
+	if ( rlen == -1 )
+	    rlen = 0;
+	int i = 0;
+	while ( i < rlen )
+	    buf[rnum++] = cbuf[i++];
+	delete[] cbuf;
+	if ( rnum < len && dev->atEnd() )
+	    buf[rnum++] = QEOF;
     }
     return rnum;
 }
@@ -1437,28 +1565,61 @@ QString QTextStream::readLine()
 	return QString::null;
     }
 #endif
-    const int buf_size = 256;
-    QChar c[buf_size];
-    int pos = 0;
-
-    c[pos] = ts_getc();
-    if ( c[pos] == QEOF )
-        return QString::null;
-
     QString result( "" );
-    while ( c[pos] != QEOF && c[pos] != '\n' ) { // ##### reggie: breaks some code:  && c != 0x2028 ) { // U+2028 is Unicode newline
-        pos++;
-        if ( pos >= buf_size ) {
-            result += QString( c, pos );
-            pos = 0;
-        }
-        c[pos] = ts_getc();
+    if ( !doUnicodeHeader && (
+	    (latin1) || 
+	    (mapper != 0 && mapper->mibEnum() == 106 ) // UTF 8
+       ) ) {
+	// use optimized read line
+	const int buf_size = 256;
+	QChar c[buf_size];
+	int pos = 0;
+	bool eof = FALSE;
+
+	while ( TRUE ) {
+	    pos = ts_getline( c, buf_size );
+	    if ( pos == 0 ) {
+		break;
+	    }
+	    if ( c[pos-1] == QEOF || c[pos-1] == '\n' ) {
+		if ( pos>=2 && c[pos-1]==QEOF && c[pos-2]=='\n' ) {
+		    result += QString( c, pos-2 );
+		} else if ( pos >= 1 ) {
+		    result += QString( c, pos-1 );
+		}
+		if ( pos == 1 && c[pos-1] == QEOF )
+		    eof = TRUE;
+		break;
+	    } else {
+		result += QString( c, pos );
+	    }
+	}
+	if ( eof && result.isEmpty() )
+	    return QString::null;
+    } else {
+	// read character by character
+	const int buf_size = 256;
+	QChar c[buf_size];
+	int pos = 0;
+
+	c[pos] = ts_getc();
+	if ( c[pos] == QEOF )
+	    return QString::null;
+
+	while ( c[pos] != QEOF && c[pos] != '\n' ) {
+	    pos++;
+	    if ( pos >= buf_size ) {
+		result += QString( c, pos );
+		pos = 0;
+	    }
+	    c[pos] = ts_getc();
+	}
+	result += QString( c, pos );
     }
-    result += QString( c, pos );
 
     int len = (int)result.length();
     if ( len && result[len-1] == '\r' )
-        result.truncate(len-1);         // (if there are two \r, let one stay)
+	result.truncate(len-1); // (if there are two \r, let one stay)
 
     return result;
 }
