@@ -45,14 +45,19 @@
         <action name="actionGoHome"/>
         <separator/>
         <action name="actionGoQt"/>
+        <action name="actionGoAssistant"/>
         <action name="actionGoDesigner"/>
         <action name="actionGoLinguist"/>
     </item>
     <item text="&amp;Bookmarks" name="bookmarkMenu">
     </item>
     <item text="&amp;Help" name="helpMenu">
+        <action name="actionGoAssistant"/>
+        <separator/>
         <action name="actionAbout"/>
         <action name="actionAboutQt"/>
+        <separator/>
+        <action name="actionHelpWhatsThis"/>
     </item>
 </menubar>
 <toolbars>
@@ -77,6 +82,8 @@
         <action name="actionGoQt"/>
         <action name="actionGoDesigner"/>
         <action name="actionGoLinguist"/>
+        <separator/>
+        <action name="actionHelpWhatsThis"/>
     </toolbar>
 </toolbars>
 <actions>
@@ -93,6 +100,9 @@
         <property name="menuText">
             <string>&amp;Print...</string>
         </property>
+        <property name="whatsThis">
+            <string>Print the currently displayed page.</string>
+        </property>
         <property name="accel">
             <number>272629840</number>
         </property>
@@ -107,6 +117,9 @@
         <property name="menuText">
             <string>E&amp;xit</string>
         </property>
+        <property name="whatsThis">
+            <string>Quit Qt Assistant.</string>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -120,6 +133,9 @@
         </property>
         <property name="menuText">
             <string>&amp;Copy</string>
+        </property>
+        <property name="whatsThis">
+            <string>Copy the selected text to the clipboard.</string>
         </property>
         <property name="accel">
             <number>272629827</number>
@@ -138,6 +154,9 @@
         <property name="menuText">
             <string>&amp;Find in Text...</string>
         </property>
+        <property name="whatsThis">
+            <string>Open a dialog where you can specify the textpattern you are looking for. Qt Assistant tries then to find this pattern on the currently displayed page.</string>
+        </property>
         <property name="accel">
             <number>272629830</number>
         </property>
@@ -154,6 +173,9 @@
         </property>
         <property name="menuText">
             <string>&amp;Home</string>
+        </property>
+        <property name="whatsThis">
+            <string>Go to the home page. The home page of the Qt Assistant is the Qt Class Reference Documentation page.</string>
         </property>
         <property name="accel">
             <number>4198416</number>
@@ -172,6 +194,9 @@
         <property name="menuText">
             <string>&amp;Previous</string>
         </property>
+        <property name="whatsThis">
+            <string>Go to the previous page.</string>
+        </property>
         <property name="accel">
             <number>8392722</number>
         </property>
@@ -189,6 +214,9 @@
         <property name="menuText">
             <string>&amp;Next</string>
         </property>
+        <property name="whatsThis">
+            <string>Go to the next page.</string>
+        </property>
         <property name="accel">
             <number>8392724</number>
         </property>
@@ -203,6 +231,9 @@
         <property name="menuText">
             <string>About</string>
         </property>
+        <property name="whatsThis">
+            <string>Display further informations about the Qt Assistant.</string>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -213,6 +244,9 @@
         </property>
         <property name="menuText">
             <string>About Qt</string>
+        </property>
+        <property name="whatsThis">
+            <string>Display further informations about Qt.</string>
         </property>
     </action>
     <action>
@@ -225,6 +259,9 @@
         <property name="text">
             <string>Qt Class Reference</string>
         </property>
+        <property name="whatsThis">
+            <string>Display the Qt Class Reference Documentation pages.</string>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -235,6 +272,9 @@
         </property>
         <property name="text">
             <string>Qt Designer Manual</string>
+        </property>
+        <property name="whatsThis">
+            <string>Display the Qt Designer manual pages.</string>
         </property>
     </action>
     <action>
@@ -249,6 +289,9 @@
         </property>
         <property name="menuText">
             <string>Zoom &amp;in</string>
+        </property>
+        <property name="whatsThis">
+            <string>Zoom in the document, i.e. increase the font size.</string>
         </property>
         <property name="accel">
             <number>272629803</number>
@@ -267,6 +310,9 @@
         <property name="menuText">
             <string>Zoom &amp;out</string>
         </property>
+        <property name="whatsThis">
+            <string>Zoom out the document, i.e. decrease the font size.</string>
+        </property>
         <property name="accel">
             <number>272629805</number>
         </property>
@@ -281,6 +327,9 @@
         <property name="text">
             <string>Qt Linguist Manual</string>
         </property>
+        <property name="whatsThis">
+            <string>Display the Qt Linguist manual pages.</string>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -292,6 +341,9 @@
         <property name="menuText">
             <string>&amp;Settings...</string>
         </property>
+        <property name="whatsThis">
+            <string>Open the settings dialog.</string>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -302,6 +354,9 @@
         </property>
         <property name="menuText">
             <string>New Window...</string>
+        </property>
+        <property name="whatsThis">
+            <string>Open a new window.</string>
         </property>
         <property name="accel">
             <number>4194382</number>
@@ -316,6 +371,43 @@
         </property>
         <property name="menuText">
             <string>&amp;Close</string>
+        </property>
+        <property name="whatsThis">
+            <string>Close Qt Assistant</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionGoAssistant</cstring>
+        </property>
+        <property name="text">
+            <string>Qt Assistant Manual</string>
+        </property>
+        <property name="whatsThis">
+            <string>Display the Qt Assistant manual pages.</string>
+        </property>
+        <property name="accel">
+            <number>4144</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionHelpWhatsThis</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image11</iconset>
+        </property>
+        <property name="text">
+            <string>What's This?</string>
+        </property>
+        <property name="statusTip">
+            <string>"What's This?" context sensitive help.</string>
+        </property>
+        <property name="whatsThis">
+            <string>"What's This?" context sensitive help.</string>
+        </property>
+        <property name="accel">
+            <number>2101296</number>
         </property>
     </action>
 </actions>
@@ -352,6 +444,9 @@
     </image>
     <image name="image10">
         <data format="XPM.GZ" length="4542">789c8dd7d96edb4a1206e0fb3c8591ba0b0675c44d2231980baff1beef83b9a826294bde6dc9ebc1bcfbb4faff9bb19d73804987403e74a959bd337ffc983bdddd9afbf1c7b7c9d4a6e37aae1ed9e3dc8fe6e9e6e6eddffff9d79fdfbea7e9dcec6f52cca5dffff1edfbde74ae9edbbebb6d67b0450fe9853fc1d77092a755f0139cf68af063ddef6ca17e4ae7393c89667cd339d4eb55743fd49bd225eb2fa351af2d5dd34338ebf511cffcb2729085f67e46972e7887aee9a3e82a0f4e3ad733cb219cf70688df8e2ed1fe5267d42fd3397d1ecdf657e892ee750eefb37eb4a13ebebfa66f82cba4ce92d0df5738f65f5e68f65f9ee99a3e8e66fe6770974f988fc4cf6786f9bea56bcca754706ccf0ab8cb3fcc5752faf582f573076771feaf613f9ef8bda3393fb20e17717cc733a77e7d309f51741efa6ff77056b2fd1ace73cc979cd025ac61bed2cae71fec427c962425d6b773740deb1b9c955c5f9b70d170bcc2f86655d1c37a7436739ef88c303f7b708cd7357890703ec3fb731b54f4c3cc459ac5f14ee03ccee72b5c262ec4cb41b0c57a43bdf52bfaad33d6e3fbccfd74d060bc750a978985f9d3309f7d8bf9699f2e50ef64e6419672bcec051e149cafd3609794383f640dee277cdf11ec974b119cd30d6cbb70c57a5ba5637dd8ef7eb9b37d770ba7b41ec2717c2c85ada89be063da9ad09ea0def56ab6770d673cffa484739e4f7a0f77fd3980cbca85f65dd89f559ee56cef8a8ef9b13eb667f37051e1bc931dd8e78bfc3682eb2ebf4b38b6e7c634eb651976ec9f3ffabd2d4f7abd32c48fe02efe147686f1912cb84ee2f97f41b33fba0cfbf300eb7b0bce799e4bd81f2eefe2c770c1f3c916829b387f42c7f529e13ea98bb4c67ed777382bb91f7a701ecfff17b828607982adc07ce82a5ca7180fdda5dbb61fece02685258c4fdd74f7df01cdfed8161df3a7637fad84e37a744a73bccde098af1ec3838ae7df155c355cbf025bcbfdf20cbb945e8463fe1aee9ba688f9cb361cf3939c667e56c1313f7d88c6f9e52ee03cae9723b8a878df2cd10dfbb3d119e7257feff3c57c84f16dda2ebf86ae93b03ea586fd8d11de2f0e8ee7a958e7b03ea4a5793f88d0253d8cc67a9501cdfe19c6a38dfb55e6a3f9fb5538e7f78ce3fb8a98ff188eeb4d2ea3393febb0ebf3fc617feb96eb3183dbfe10f317e6a3ed77f96b34f7db80e6fe908b68d6afc059bc7fb63be3bccee8b83f6fa351ef8670ec9f6be882f13db8cff56b9b705970ff2ec2759ffd9bc04dda84ef4b79837d81996fdbb2ff61ffb46dec8fecc1798f3ea779ffcb035de3fe378c4f5b56bc8f4ee806966bb89b0fb63ffb13de1fd6cfb0efdf87f53b4ff3fcd147d81f3858ef77f020e1fddc87cb84ef9bd005bf075b9af9e90e5c55f87ed2047629d7d32e6df4341af93be653a79caf27bacff559c06d8afed93a3c4c31deb64fdb7018e2c3f7f27058269ccf7bb84af83d7c4717f43bcdfce50cb6f8fdc0f6ccf0fd20b7748bf34d4f60d7a78d6e797e9f45b3bf0f70ec9f637eb5d1ccaf6ed9ffc768ac4787f918361c2f5d88e6f7c04de7305e6e4af37d9ad2867a5b838771ff9ed21c4fdba087f0de54454d9dd6da68ab43bdd0918ef5d2972bbdd61bbdd5bbbd290ae3eff5411f75a2531fffa4cf3efe455f7dfc9bbeebbc2ee8e297f84b5dd2655dd19fbaaa6bbaeee3377453b7745b777457f774ff4bfc811eea911efb779ce8a99ee9b9f634d13b4d35d35c0bed7f891f68a995a8889838a9f55c1a6965e8655a6929175fe2cf6391d1efcfac7c8e97b15cca955ccb8ddcca9ddccb481ee4d1ff7b225379f2b5e32ff1cff222aff226ef322f0bb2a82359926559919fb22a6bb2eeeb376453b6649bf95ccb8eecca9eeccb811ccec65f8ee4584ee454cee45c7a92482a99e4b2c5f60be9cb404aa94ce5d944477e2d3b3f7b97569bbf9765cf8676f1abfd8fc54636b64bbbb26bbbf1e5d6eeecde1eecf163fb9fe2273635f5cf933ddb8bbdda9bbddbbc2dfccadf163f95255bb6155f7edaaaadd9ba2f1bb6695b3e9aedff16bfeda3976dc776f5d4f67cfcbe8f3f90edbf697fd6f6a12f4776ec5b4639f9d4fee9a77266e73ebae7777ffa21fe63fb99e51f9e33f3ff35f9d2fee053fba555bf1ea74efc49e85c1dcbc7d1c37d353b39ba67e82edcc88ddda5bb72d7eec6ddfe167ff7a5dcfbf2c0f2e826bfc54ffea24cf94cfecff858eedcd3a7f8fffef3dbff00b3323240</data>
+    </image>
+    <image name="image11">
+        <data format="XPM.GZ" length="409">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523234530022630543251d2e2565856405bffcbc54105b0fc856360003103711c6b53006cb2a43412208282b83c5f4e042600c11d383098149a8981e9807550d13d3c32606125446d50b3513d90e3db89970b7c004215623d901770ed4cd30413080fa0dc5d9e090518609621343e8554613c42a566bcd0500d8d04df9</data>
     </image>
 </images>
 <connections>
@@ -421,6 +516,18 @@
         <receiver>MainWindow</receiver>
         <slot>close()</slot>
     </connection>
+    <connection>
+        <sender>actionGoAssistant</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>showAssistantHelp()</slot>
+    </connection>
+    <connection>
+        <sender>actionHelpWhatsThis</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>whatsThis()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="global" impldecl="in implementation">qtoolbutton.h</include>
@@ -468,26 +575,27 @@
     <variable>static QPtrList&lt;MainWindow&gt; *windows;</variable>
 </variables>
 <slots>
-    <slot access="">init()</slot>
-    <slot access="">destroy()</slot>
-    <slot access="">about()</slot>
-    <slot access="">aboutQt()</slot>
-    <slot access="">find()</slot>
-    <slot access="">goHome()</slot>
-    <slot access="">showLinguistHelp()</slot>
-    <slot access="">print()</slot>
-    <slot access="">updateBookmarkMenu()</slot>
-    <slot access="">setupBookmarkMenu()</slot>
-    <slot access="">showBookmark( int id )</slot>
-    <slot access="">showDesignerHelp()</slot>
-    <slot access="">showLink( const QString &amp; link, const QString &amp; title )</slot>
-    <slot access="">showQtHelp()</slot>
-    <slot access="">setFamily( const QString &amp; f )</slot>
-    <slot access="">showSettingsDialog()</slot>
-    <slot access="">hide()</slot>
-    <slot access="" returnType="MainWindow *">newWindow()</slot>
-    <slot access="">saveSettings()</slot>
-    <slot access="">saveToolbarSettings()</slot>
+    <slot>init()</slot>
+    <slot>destroy()</slot>
+    <slot>about()</slot>
+    <slot>aboutQt()</slot>
+    <slot>find()</slot>
+    <slot>goHome()</slot>
+    <slot>showAssistantHelp()</slot>
+    <slot>showLinguistHelp()</slot>
+    <slot>print()</slot>
+    <slot>updateBookmarkMenu()</slot>
+    <slot>setupBookmarkMenu()</slot>
+    <slot>showBookmark( int id )</slot>
+    <slot>showDesignerHelp()</slot>
+    <slot>showLink( const QString &amp; link, const QString &amp; title )</slot>
+    <slot>showQtHelp()</slot>
+    <slot>setFamily( const QString &amp; f )</slot>
+    <slot>showSettingsDialog()</slot>
+    <slot>hide()</slot>
+    <slot returnType="MainWindow *">newWindow()</slot>
+    <slot>saveSettings()</slot>
+    <slot>saveToolbarSettings()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

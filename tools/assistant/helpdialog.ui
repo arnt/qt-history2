@@ -90,7 +90,7 @@
                             <bool>true</bool>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Help topics organized by category.&lt;/b&gt;&lt;p&gt;Double-click an item to see which topics are in that category. To view a topic, select it, and then click &lt;b&gt;Display&lt;/b&gt;.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Help topics organized by category.&lt;/b&gt;&lt;p&gt;Double-click an item to see which topics are in that category. To view a topic, just double-click it.&lt;/p&gt;</string>
                         </property>
                     </widget>
                 </vbox>

@@ -431,6 +431,11 @@ void MainWindow::goHome()
 #endif
 }
 
+void MainWindow::showAssistantHelp()
+{
+    showLink( "assistant.html", tr( "Qt Assistant Manual" ) );
+}
+
 void MainWindow::showLinguistHelp()
 {
     showLink( "linguist-manual.html", tr( "Qt Linguist Manual" ) );
