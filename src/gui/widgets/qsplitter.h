@@ -49,7 +49,7 @@ public:
     bool childrenCollapsible() const;
 
     void setCollapsible(QWidget *w, bool);
-    void setOpaqueResize(bool = true);
+    void setOpaqueResize(bool opaque = true);
     bool opaqueResize() const;
     void refresh();
 
