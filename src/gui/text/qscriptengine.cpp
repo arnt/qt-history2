@@ -312,7 +312,7 @@ static void basic_attributes(int /*script*/, const QString &text, int from, int 
         a->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
         a->softBreak = false;
         a->charStop = (cat != QChar::Mark_NonSpacing);
-        a->wordStop = false;
+        a->wordStop = (*uc == QChar::LineSeparator);
         a->invalid = false;
         ++uc;
         ++a;
