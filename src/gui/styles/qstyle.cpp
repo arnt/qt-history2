@@ -1003,7 +1003,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 */
 
 /*!
-    \fn QRect QStyle::querySubControlMetrics(ComplexControl control, const QStyleOptionComplex *option, SubControl subControl, const QWidget *widget) const
+    \fn QRect QStyle::subControlRect(ComplexControl control,
+        const QStyleOptionComplex *option, SubControl subControl,
+        const QWidget *widget) const = 0
 
     Returns the rectangle for the SubControl \a subControl in the
     ComplexControl \a control, with the style options specified by \a
@@ -1020,7 +1022,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 */
 
 /*!
-    \fn SubControl QStyle::querySubControl(ComplexControl control, const QStyleOptionComplex *option, const QPoint &pos, const QWidget *widget) const
+    \fn QStyle::SubControl QStyle::hitTestComplexControl(ComplexControl control,
+        const QStyleOptionComplex *option, const QPoint &pos,
+        const QWidget *widget) const = 0
 
     Returns the SubControl in the ComplexControl \a control with the
     style options specified by \a option at the point \a pos. The \a
@@ -1504,7 +1508,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \sa standardPixmap()
 */
 
-/*!
+/*###
   \enum QStyle::IconMode
 
   This enum represents the effects performed on a pixmap to achieve a
@@ -1520,8 +1524,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 */
 
 /*!
-    \fn QPixmap QStyle::generatedIconPixmap(IconMode iconMode, const QPixmap &pixmap, \
-                                    const QStyleOption *option) const
+    \fn QPixmap QStyle::generatedIconPixmap(QIcon::Mode iconMode,
+        const QPixmap &pixmap, const QStyleOption *option) const
 
     \overload
 
@@ -1709,7 +1713,7 @@ int QStyle::sliderValueFromPosition(int min, int max, int pos, int span, bool up
     // pos <= span < sqrt(INT_MAX+0.0625)+0.25 ~ sqrt(INT_MAX)
 }
 
-/*! \fn void QStyle::drawItem(QPainter *p, const QRect &r,
+/*### \fn void QStyle::drawItem(QPainter *p, const QRect &r,
                               int flags, const QColorGroup &colorgroup, bool enabled,
                               const QString &text, int len = -1,
                               const QColor *penColor = 0) const
@@ -1718,7 +1722,7 @@ int QStyle::sliderValueFromPosition(int min, int max, int pos, int span, bool up
     of a QColorGroup.
 */
 
-/*! \fn void QStyle::drawItem(QPainter *p, const QRect &r,
+/*### \fn void QStyle::drawItem(QPainter *p, const QRect &r,
                               int flags, const QColorGroup colorgroup, bool enabled,
                               const QPixmap &pixmap,
                               const QColor *penColor = 0) const
@@ -1727,7 +1731,7 @@ int QStyle::sliderValueFromPosition(int min, int max, int pos, int span, bool up
     of a QColorGroup.
 */
 
-/*! \fn void QStyle::drawItem(QPainter *p, const QRect &r,
+/*### \fn void QStyle::drawItem(QPainter *p, const QRect &r,
                           int flags, const QColorGroup colorgroup, bool enabled,
                           const QPixmap *pixmap,
                           const QString &text, int len = -1,
