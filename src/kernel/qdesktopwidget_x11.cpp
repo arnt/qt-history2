@@ -100,6 +100,11 @@ QDesktopWidget::~QDesktopWidget()
     delete d;
 }
 
+bool QDesktopWidget::isVirtualDesktop() const
+{
+    return d->use_xinerama;
+}
+
 int QDesktopWidget::primaryScreen() const
 {
     return d->defaultScreen;

@@ -38,6 +38,11 @@ QDesktopWidget::~QDesktopWidget()
     delete d;
 }
 
+bool QDesktopWidget::isVirtualDesktop() const
+{
+    return TRUE;
+}
+
 int QDesktopWidget::primaryScreen() const
 {
     return d->appScreen;

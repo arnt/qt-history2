@@ -107,12 +107,26 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 /*!
   \class QDesktopWidget qdesktopwidget.h
   \brief The QDesktopWidget class provides an API to access the screen information on multi-head systems.
+
+  Systems with more than one graphics card and monitor can manage the screen space available either
+  as multiple desktops, or as a big virtual desktop, which usually has the size of the bounding rectangle
+  of all screens.
+  
+  For an application, one of the available screens is the primary screen - e.g. the screen where the main
+  widget resides. All windows opened in the context of this application have to be constrained to the boundaries
+  of this screen - it would be awkward if e.g. a dialog box would open up on a different screen, or in the middle
+  of two screens.
+
+  The QDesktopWidget provides the information about the geometry of the available screens. Widgets provided by
+  Qt use this class to place e.g. tooltips, menus or dialog boxes according to the parent- or application widget.
+
+  Applications can use this class to e.g. save window positions, or to align child widgets to one screen.
 */
 
 /*!
   Creates the desktop widget.
-  If supported, this widget will have the size of the virtual desktop. Otherwise it
-  represents the primary screen.
+  If the system supports a virtual desktop, this widget will have the size of 
+  the virtual desktop. Otherwise it represents the primary screen.
 */
 QDesktopWidget::QDesktopWidget()
 : QWidget( 0, "desktop", WType_Desktop )
@@ -126,6 +140,18 @@ QDesktopWidget::QDesktopWidget()
 QDesktopWidget::~QDesktopWidget()
 {
     delete d;
+}
+
+/*!
+  Returns TRUE if the system manages the available screens in a virtual desktop,
+  otherwise returns FALSE.
+
+  For virtual desktops, \link screen screen \endlink will always return the same widget.
+  The size of the virtual desktop is the size of this desktop widget.
+*/
+bool QDesktopWidget::isVirtualDesktop() const
+{
+    return TRUE;
 }
 
 /*!
@@ -162,31 +188,15 @@ int QDesktopWidget::numScreens() const
 
   \endcode
 
-  \sa primaryScreen, numScreens
+  If the system uses a virtual desktop, the returned widget will have
+  the geometry of the desktop for every \a screen.
+
+  \sa primaryScreen, numScreens, isVirtualDesktop
 */
-QWidget *QDesktopWidget::screen( int screen )
+QWidget *QDesktopWidget::screen( int /*screen*/ )
 {
-    Q_UNUSED( screen );
     // It seems that a WType_Desktop cannot be moved?
     return this;
-/*
-    if ( screen < 0 || screen >= d->screenCount )
-	screen = d->primaryScreen;
-
-    if ( !d->screens )
-    	memset( ( screens = new QWidget*[screenCount] ), 0, screenCount * sizeof( QWidget*) );
-
-    if ( !d->screens[ screen ] ) {
-	QWidget *w= new QWidget();
-	QRect r = d->rects[ screen ];
-	w->move( r.topLeft() );
-	w->resize( r.size() );
-
-	d->screens[ screen ] = w;
-    }
-
-    return d->screens[ screen ];
-*/
 }
 
 /*!

@@ -15,6 +15,8 @@ public:
     QDesktopWidget();
     ~QDesktopWidget();
 
+    bool isVirtualDesktop() const;
+
     int numScreens() const;
     int primaryScreen() const;
 
