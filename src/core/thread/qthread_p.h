@@ -14,6 +14,7 @@
 #ifndef QTHREAD_P_H
 #define QTHREAD_P_H
 
+#include "qplatformdefs.h"
 #include <private/qobject_p.h>
 #include "qmutex.h"
 #include "qwaitcondition.h"
