@@ -27,7 +27,9 @@
     \i -nometaobject
     \i Do not generate a .cpp file with the meta object information. 
     The meta object is then generated in runtime.
-
+    \row
+    \i -getfile libid
+    \i Print the filename for the typelibrary \e libid to stdout
     \row
     \i -compat
     \i Generate namespace with dynamicCall-compatible API
@@ -39,8 +41,8 @@
     \i Print help
     \endtable
 
-    \c dumpcpp can be integrated into the \c qmake build system. In your .pro file, add \e dumpcpp
-    to the \c CONFIG and list the type libraries you want to use in the TYPELIBS variable:
+    \c dumpcpp can be integrated into the \c qmake build system. In your .pro file, list the type 
+    libraries you want to use in the TYPELIBS variable:
 
     \quotefile qutlook/qutlook.pro
     \printuntil TYPELIBS
