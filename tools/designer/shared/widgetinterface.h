@@ -9,7 +9,7 @@ class QWidget;
 class WidgetInterface : public QPlugInInterface
 {
 public:
-    QCString queryPlugInInterface() const { return "WidgetInterface"; }
+    QString queryInterface() const { return "WidgetInterface"; }
 
     virtual QWidget* create( const QString&, QWidget* parent = 0, const char* name = 0 ) = 0;
 

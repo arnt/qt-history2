@@ -11,7 +11,7 @@ class WidgetPlugIn : public WidgetInterface, public QPlugIn
 public:
     WidgetPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
 
-    QCString queryPlugInInterface() const { return "WidgetInterface"; }
+    QString queryInterface() const { return "WidgetInterface"; }
 
     QWidget* create( const QString& classname, QWidget* parent = 0, const char* name = 0 );
     QString group( const QString& );
