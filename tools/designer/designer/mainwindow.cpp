@@ -964,7 +964,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	if ( o && ( o->inherits( "QDesignerToolBar" ) || o->inherits( "QDockWindowHandle" ) )
 	     && e->type() == QEvent::ContextMenu )
 	    break;
-	if ( isAToolBarChild( o ) && currentTool() != CONNECT_TOOL )
+	if ( isAToolBarChild( o ) && currentTool() != CONNECT_TOOL && currentTool() != BUDDY_TOOL )
 	    break;
 	if ( o && o->inherits( "QSizeGrip" ) )
 	    break;
@@ -986,12 +986,12 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	lastPressWidget = (QWidget*)o;
 	if ( passiveInteractor )
 	    QTimer::singleShot( 0, formWindow(), SLOT( visibilityChanged() ) );
-	if ( currentTool() == CONNECT_TOOL )
+	if ( currentTool() == CONNECT_TOOL || currentTool() == BUDDY_TOOL )
 	    return TRUE;
 	return !passiveInteractor;
     case QEvent::MouseButtonRelease:
 	lastPressWidget = 0;
-	if ( isAToolBarChild( o )  && currentTool() != CONNECT_TOOL )
+	if ( isAToolBarChild( o )  && currentTool() != CONNECT_TOOL && currentTool() != BUDDY_TOOL )
 	    break;
 	if ( o && o->inherits( "QSizeGrip" ) )
 	    break;
@@ -1006,7 +1006,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	}
 	return !passiveInteractor;
     case QEvent::MouseMove:
-	if ( isAToolBarChild( o ) && currentTool() != CONNECT_TOOL )
+	if ( isAToolBarChild( o ) && currentTool() != CONNECT_TOOL && currentTool() != BUDDY_TOOL )
 	    break;
 	w = isAFormWindowChild( o );
 	if ( lastPressWidget != (QWidget*)o && w &&

@@ -476,6 +476,8 @@ void FormWindow::insertWidget()
 
 void FormWindow::insertWidget( QWidget *w, bool checkName )
 {
+    if ( !w )
+	return;
     if ( checkName ) {
 	QString s = w->name();
 	unify( w, s, TRUE );
