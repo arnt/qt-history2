@@ -1148,6 +1148,9 @@ static void qt_check_focus_model()
 }
 
 #ifndef QT_NO_TABLET_SUPPORT
+#ifdef Q_OS_IRIX
+static bool sgi_extension_exists = false;
+#endif
 static bool isXInputSupported(Display *dpy)
 {
     Bool exists;
@@ -1159,6 +1162,9 @@ static bool isXInputSupported(Display *dpy)
     version = XGetExtensionVersion(dpy, "XInputExtension");
     if (!version || version == reinterpret_cast<XExtensionVersion *>(NoSuchExtension))
         return false;
+
+    int tmp;
+    sgi_extension_exists = XSGIMiscQueryExtension(dpy, &tmp, &tmp);
     XFree(version);
     return true;
 }
@@ -1792,10 +1798,28 @@ void qt_init(QApplicationPrivate *priv, int,
                             a = (XAxisInfoPtr) ((char *) v +
                                                 sizeof (XValuatorInfo));
 #if defined (Q_OS_IRIX)
-                            device_data.minX = a[WAC_XCOORD_I].min_value;
-                            device_data.maxX = a[WAC_XCOORD_I].max_value;
-                            device_data.minY = a[WAC_YCOORD_I].min_value;
-                            device_data.maxY = a[WAC_YCOORD_I].max_value;
+                            // I'm not exaclty wild about this, but the
+                            // dimensions of the tablet are more relevant here
+                            // than the min and max values from the axis
+                            // (actually it seems to be 2/3 or what is in the
+                            // axis.  So we'll try to parse it from this
+                            // string. --tws
+                            char returnString[SGIDeviceRtrnLen];
+                            if (sgi_extension_exists
+                                && XSGIDeviceQuery(X11->display, devs->id,
+                                                   "dimensions", returnString)) {
+                                QString str = QLatin1String(returnString);
+                                int comma = str.indexOf(',');
+                                device_data.minX = 0;
+                                device_data.minY = 0;
+                                device_data.maxX = str.left(comma).toInt();
+                                device_data.maxY = str.mid(comma + 1).toInt();
+                            } else {
+                                device_data.minX = a[WAC_XCOORD_I].min_value;
+                                device_data.maxX = a[WAC_XCOORD_I].max_value;
+                                device_data.minY = a[WAC_YCOORD_I].min_value;
+                                device_data.maxY = a[WAC_YCOORD_I].max_value;
+                            }
                             device_data.minPressure = a[WAC_PRESSURE_I].min_value;
                             device_data.maxPressure = a[WAC_PRESSURE_I].max_value;
 #else
@@ -3359,14 +3383,18 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         if (event->type == ButtonPress) {        // mouse button pressed
             buttons |= button;
 #if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET_SUPPORT)
-            XEvent myEv;
-            if (XCheckTypedEvent(X11->display, xinput_button_press, &myEv)) {
-                if (translateXinputEvent(&myEv)) {
-                    //Spontaneous event sent.  Check if we need to continue.
-                    if (qt_tabletChokeMouse) {
-                        qt_tabletChokeMouse = false;
-                        return false;
-                    }
+            TabletDeviceDataList *tablets = qt_tablet_devices();
+            for (int i = 0; i < tablets->size(); ++i) {
+                const TabletDeviceData &tab = tablets->at(i);
+                XEvent myEv;
+                if (XCheckTypedEvent(X11->display, tab.xinput_button_press, &myEv)) {
+                        if (translateXinputEvent(&myEv, &tab)) {
+                            //Spontaneous event sent.  Check if we need to continue.
+                            if (qt_tabletChokeMouse) {
+                                qt_tabletChokeMouse = false;
+                                return false;
+                            }
+                        }
                 }
             }
 #endif
@@ -3393,14 +3421,18 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         } else {                                // mouse button released
             buttons &= ~button;
 #if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET_SUPPORT)
-            XEvent myEv;
-            if (XCheckTypedEvent(X11->display, xinput_button_release, &myEv)) {
-                if (translateXinputEvent(&myEv)) {
-                    //Spontaneous event sent.  Check if we need to continue.
-                    if (qt_tabletChokeMouse) {
-                        qt_tabletChokeMouse = false;
-                        return false;
-                    }
+            TabletDeviceDataList *tablets = qt_tablet_devices();
+            for (int i = 0; i < tablets->size(); ++i) {
+                const TabletDeviceData &tab = tablets->at(i);
+                XEvent myEv;
+                if (XCheckTypedEvent(X11->display, tab.xinput_button_press, &myEv)) {
+                        if (translateXinputEvent(&myEv, &tab)) {
+                            //Spontaneous event sent.  Check if we need to continue.
+                            if (qt_tabletChokeMouse) {
+                                qt_tabletChokeMouse = false;
+                                return false;
+                            }
+                        }
                 }
             }
 #endif
@@ -3635,13 +3667,13 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
 
     qint64 uid;
 #if defined (Q_OS_IRIX)
-    s = XQueryDeviceState(X11->display, dev);
-    if (s == NULL)
+    s = XQueryDeviceState(X11->display, static_cast<XDevice *>(tablet->device));
+    if (!s)
         return false;
     iClass = s->data;
     for (j = 0; j < s->num_classes; j++) {
         if (iClass->c_class == ValuatorClass) {
-            vs = (XValuatorState *)iClass;
+            vs = reinterpret_cast<XValuatorState *>(iClass);
             // figure out what device we have, based on bitmasking...
             if (vs->valuators[WAC_TRANSDUCER_I]
                  & WAC_TRANSDUCER_PROX_MSK) {
@@ -3667,11 +3699,14 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
             xTilt = short(vs->valuators[WAC_XTILT_I]);
             yTilt = short(vs->valuators[WAC_YTILT_I]);
             pressure = vs->valuators[WAC_PRESSURE_I];
-            hiRes = QPoint(vs->valuators[WAC_XCOORD_I],
-                             vs->valuators[WAC_YCOORD_I]);
+
+            QRect screenArea = qApp->desktop()->screenGeometry(global);
+            hiRes = tablet->scaleCoord(vs->valuators[WAC_XCOORD_I], vs->valuators[WAC_YCOORD_I],
+                                       screenArea.x(), screenArea.width(),
+                                       screenArea.y(), screenArea.height());
             break;
         }
-        iClass = (XInputClass*)((char*)iClass + iClass->length);
+        iClass = reinterpret_cast<XInputClass*>(reinterpret_cast<char*>(iClass) + iClass->length);
     }
     XFreeDeviceState(s);
 #else

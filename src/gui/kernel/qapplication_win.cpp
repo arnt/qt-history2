@@ -3123,18 +3123,6 @@ static void tabletInit(UINT wActiveCsr, HCTX hTab)
     }
 }
 
-static inline int sign(int x)
-{
-    return x >= 0 ? 1 : -1;
-}
-
-static inline qreal scaleCoord(int coord, int inOrigin, int inExtent, int outOrigin, int outExtent)
-{
-    if (sign(outExtent) == sign(inExtent))
-        return ((coord - inOrigin) * qAbs(outExtent) / qAbs(qreal(inExtent))) + outOrigin;
-    return ((qAbs(inExtent) - (coord - inOrigin)) * qAbs(outExtent) / qAbs(qreal(inExtent))) + outOrigin;
-}
-
 bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
                                       int numPackets)
 {
@@ -3177,9 +3165,8 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
             tabletInit(localPacketBuf[i].pkCursor, qt_tablet_context);
         TabletDeviceData tdd = tCursorInfo()->value(localPacketBuf[i].pkCursor);
         QSize desktopSize = qt_desktopWidget->screenGeometry().size();
-        qreal posX = scaleCoord(ptNew.x, tdd.minX, tdd.maxX, 0, desktopSize.width());
-        qreal posY = scaleCoord(ptNew.y, tdd.minY, tdd.maxY, 0, desktopSize.height());
-        QPointF hiResGlobal(posX, posY);
+        QPointF hiResGlobal = tdd.scaleCoord(ptNew.x, ptNew.y, 0, desktopSize.width(),
+                                    0, desktopSize.height());
         if (btnNew) {
             prsNew = localPacketBuf[i].pkNormalPressure;
         } else if (button_pressed) {
@@ -3188,7 +3175,7 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
             button_pressed = false;
         }
         // Truncate the stuff here as that what wintab does.
-        QPoint globalPos(posX, posY);
+        QPoint globalPos(hiResGlobal.x(), hiResGlobal.y());
 
         // make sure the tablet event get's sent to the proper widget...
         QWidget *w = QApplication::widgetAt(globalPos);

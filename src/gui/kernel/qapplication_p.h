@@ -68,6 +68,8 @@ struct TabletDeviceData
     int minPressure;
     int maxPressure;
     int minX, maxX, minY, maxY;
+    inline QPointF scaleCoord(int coordX, int coordY, int outOriginX, int outExtentX,
+                              int outOriginY, int outExtentY) const;
 #ifdef Q_WS_X11
     int deviceType;
     enum {
@@ -84,6 +86,30 @@ struct TabletDeviceData
     int xinput_button_release;
 #endif
 };
+
+static inline int sign(int x)
+{
+    return x >= 0 ? 1 : -1;
+}
+
+inline QPointF TabletDeviceData::scaleCoord(int coordX, int coordY,
+                                            int outOriginX, int outExtentX,
+                                            int outOriginY, int outExtentY) const
+{
+    QPointF ret;
+    if (sign(outExtentX) == sign(maxX))
+        ret.setX(((coordX - minX) * qAbs(outExtentX) / qAbs(qreal(maxX))) + outOriginX);
+    else
+        ret.setX(((qAbs(maxX) - (coordX - minX)) * qAbs(outExtentX) / qAbs(qreal(maxX)))
+                 + outOriginX);
+
+    if (sign(outExtentY) == sign(maxY))
+        ret.setY(((coordY - minY) * qAbs(outExtentY) / qAbs(qreal(maxY))) + outOriginY);
+    else
+        ret.setY(((qAbs(maxY) - (coordY - minY)) * qAbs(outExtentY) / qAbs(qreal(maxY)))
+                 + outOriginY);
+    return ret;
+}
 
 typedef QList<TabletDeviceData> TabletDeviceDataList;
 TabletDeviceDataList *qt_tablet_devices();

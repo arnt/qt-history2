@@ -58,7 +58,8 @@
 #if !defined (QT_NO_TABLET_SUPPORT)
 #  include <X11/extensions/XInput.h>
 #if defined (Q_OS_IRIX)
-#  include <wacom.h>  // wacom driver defines for IRIX (quite handy)
+#  include <X11/extensions/SGIMisc.h>
+#  include <wacom.h>
 #endif
 #endif // QT_NO_TABLET_SUPPORT
 
