@@ -1068,7 +1068,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             di.cbSize = sizeof(DOCINFO);
             di.lpszDocName = (TCHAR*)doc_name.ucs2();
 	    if ( output_file && !output_filename.isEmpty() )
-		di.lpszOutput = (TCHAR *)output_filename.ucs2();
+		di.lpszOutput = (TCHAR*)output_filename.ucs2();
             if ( ok && StartDoc(hdc, &di) == SP_ERROR )
                 ok = FALSE;
         } , {
@@ -1077,9 +1077,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             di.cbSize = sizeof(DOCINFOA);
 	    QCString docNameA = doc_name.local8Bit();
             di.lpszDocName = docNameA.data();
-	    QCString outfileA = output_filename.local8Bit();
+	    QCString outfileA = (TCHAR*)output_filename.local8Bit();
 	    if ( output_file && !output_filename.isEmpty() )
-		di.lpszOutput = outfileA.data();
+		di.lpszOutput = (TCHAR*)outfileA.data();
             if ( ok && StartDocA(hdc, &di) == SP_ERROR )
                 ok = FALSE;
         } );

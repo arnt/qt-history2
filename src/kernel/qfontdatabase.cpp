@@ -52,7 +52,7 @@
 class QtFontFamily;
 class QtFontFoundry;
 
-#if defined( Q_WS_MAC )
+#if defined(Q_WS_MAC)
 static void add_style( QtFontFamily *family, const QString& styleName,
 		       bool italic, bool lesserItalic, int weight );
 #endif
@@ -129,7 +129,7 @@ private:
 
 #endif // Q_WS_WIN
 
-#if defined( Q_WS_MAC )
+#if defined(Q_WS_MAC)
     friend void add_style( QtFontFamily *family, const QString& styleName,
                 bool italic, bool lesserItalic, int weight );
 #endif
@@ -309,6 +309,7 @@ private:
     friend void QFontDatabase::qwsAddDiskFont( QDiskFont *qdf );
 #endif
 };
+
 static QFontDatabasePrivate *db=0;
 
 #if defined( Q_WS_X11 )

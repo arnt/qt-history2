@@ -31,7 +31,7 @@
 #if defined(QT_NON_COMMERCIAL)
 #include "qnc_win.h"
 #endif
-#include <private/qapplication_p.h>
+#include "private/qapplication_p.h"
 #include "qwidget.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
@@ -49,11 +49,11 @@
 #include "qlibrary.h"
 #include "qt_windows.h"
 #include "qcursor.h"
-#include <private/qinternal_p.h>
-#include <private/qcriticalsection_p.h>
-#include <private/qinputcontext_p.h>
+#include "private/qinternal_p.h"
+#include "private/qcriticalsection_p.h"
+#include "private/qinputcontext_p.h"
 #include "qstyle.h"
-#include <qmetaobject.h>
+#include "qmetaobject.h"
 
 #include <windowsx.h>
 #include <limits.h>
@@ -120,7 +120,11 @@ extern bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include <qaccessible.h>
+#if defined(Q_CC_GNU)
+#include <winuser.h>
+#else
 #include <winable.h>
+#endif
 #include <oleacc.h>
 #ifndef WM_GETOBJECT
 #define WM_GETOBJECT                    0x003D
@@ -1504,9 +1508,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     }
     case WM_DISPLAYCHANGE:
 	if ( qt_desktopWidget ) {
-	    QMoveEvent mv( QPoint(GetSystemMetrics( 76 ), GetSystemMetrics( 77 )), qt_desktopWidget->pos() );
+	    int x = GetSystemMetrics( 76 );
+	    int y = GetSystemMetrics( 77 );
+	    QMoveEvent mv( QPoint(x, y), qt_desktopWidget->pos() );
 	    QApplication::sendEvent( qt_desktopWidget, &mv );
-	    QResizeEvent re( QSize(GetSystemMetrics( 78 ), GetSystemMetrics( 79 )), qt_desktopWidget->size() );
+	    w = GetSystemMetrics( 78 );
+	    y = GetSystemMetrics( 79 );
+	    QResizeEvent re( QSize(x, y), qt_desktopWidget->size() );
 	    QApplication::sendEvent( qt_desktopWidget, &re );
 	}
 	break;

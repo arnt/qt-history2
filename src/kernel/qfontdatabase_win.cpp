@@ -29,7 +29,10 @@
 
 #include "qt_windows.h"
 
-static void newWinFont( void * p );
+#if !defined(Q_CC_GNU)
+static
+#endif
+void newWinFont( void * p );
 
 static
 int CALLBACK
@@ -40,7 +43,9 @@ storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int /*type*/, LPARAM /*p*/ )
     return 1; // Keep enumerating.
 }
 
+#if !defined(Q_CC_GNU)
 static
+#endif
 void add_style( QtFontFamily *family,
                 bool italic, bool lesserItalic, int weight )
 {
@@ -104,7 +109,9 @@ qDebug("Already got it");
 }
 
 
+#if !defined(Q_CC_GNU)
 static
+#endif
 void newWinFont( void * p )
 {
     ENUMLOGFONTEX* f = (ENUMLOGFONTEX*)p;
