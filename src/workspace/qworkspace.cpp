@@ -155,6 +155,7 @@ public:
     void doResize();
     void doMove();
 
+    QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
     QSize baseSize() const;
@@ -371,10 +372,10 @@ void QWorkspace::childEvent( QChildEvent * e)
 	int x = w->x();
 	int y = w->y();
 	bool hasPos = x != 0 || y != 0;
-	if ( !hasSize && w->sizeHint().isValid() )
-	    w->adjustSize();
 
 	QWorkspaceChild* child = new QWorkspaceChild( w, this, "qt_workspacechild" );
+	if ( !hasSize && w->sizeHint().isValid() )
+	    child->adjustSize();
 	child->installEventFilter( this );
 
 	connect( child, SIGNAL( popupOperationMenu( const QPoint& ) ),
@@ -1669,7 +1670,7 @@ void QWorkspace::cascade()
 	++it;
 	child->setUpdatesEnabled( FALSE );
 	bool hasSizeHint = FALSE;
-	QSize prefSize = child->windowWidget()->sizeHint();
+	QSize prefSize = child->windowWidget()->sizeHint().expandedTo( child->windowWidget()->minimumSizeHint() );
 
 	if ( !prefSize.isValid() )
 	    prefSize = QSize( width() - children * xoffset, height() - children * yoffset );
@@ -1869,7 +1870,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     bool hasBeenResized = childWidget->testWState( WState_Resized );
 
     if ( !hasBeenResized )
-	cs = childWidget->sizeHint();
+	cs = childWidget->sizeHint().expandedTo( childWidget->minimumSizeHint() );
     else
 	cs = childWidget->size();
 
@@ -2008,6 +2009,13 @@ QSize QWorkspaceChild::baseSize() const
 {
     int th = titlebar ? titlebar->sizeHint().height() : 0;
     return QSize( 2*frameWidth(), 2*frameWidth() + th + 2 );
+}
+
+QSize QWorkspaceChild::sizeHint() const
+{
+    if ( !childWidget )
+	return QFrame::sizeHint() + baseSize();
+    return childWidget->sizeHint().expandedTo( childWidget->minimumSizeHint() ) + baseSize();
 }
 
 QSize QWorkspaceChild::minimumSizeHint() const
@@ -2439,10 +2447,9 @@ void QWorkspaceChild::adjustSize()
     if ( !testWState(WState_Polished) )
 	polish();
 
-    QSize prefSize = windowWidget()->sizeHint();
+    QSize prefSize = sizeHint();
     prefSize = prefSize.boundedTo( parentWidget()->size() );
     prefSize = prefSize.expandedTo( windowWidget()->minimumSize() ).boundedTo( windowWidget()->maximumSize() );
-    prefSize += QSize( baseSize().width(), baseSize().height() );
 
     resize( prefSize );
 }
@@ -2562,8 +2569,7 @@ QRect QWorkspace::updateWorkspace()
 
     QRect cr( rect() );
 
-    if ( scrollBarsEnabled() ) {
-
+    if ( scrollBarsEnabled() && !d->maxWindow ) {
 	d->corner->raise();
 	d->vbar->raise();
 	d->hbar->raise();
