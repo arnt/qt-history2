@@ -84,7 +84,7 @@ QString qOraWarn( const QOCIPrivate* d)
 
 QSqlError qMakeError( const QString& err, int type, const QOCIPrivate* p )
 {
-    return QSqlError("QOCI: " + err, qOraWarn(p), type );
+    return QSqlError("QOCI8: " + err, qOraWarn(p), type );
 }
 
 QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, int ociscale )

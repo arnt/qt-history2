@@ -45,8 +45,8 @@ void TestSelect()
     int i = 0;
     while( selRecs.next() ) {
 	i++;
-	qDebug("data:" + selRecs.value(0).toString() + " " + selRecs.value(1).toString() + 
-	       " " + selRecs.value(2).toString() + " " + selRecs.value(3).toString() + 
+	qDebug("data:" + selRecs.value(0).toString() + " " + selRecs.value(1).toString() +
+	       " " + selRecs.value(2).toString() + " " + selRecs.value(3).toString() +
 	       " " + selRecs.value(4).toString());
 	if ( selRecs.isNull(0) )
 	    qDebug("field1 IS NULL");
@@ -94,15 +94,15 @@ void TestTrans()
 	qDebug("Testing transaction...");
 	database->transaction();
 	for ( int i=0; i<TEST_RECS; ++i ) {
-	    database->exec( "insert into qsql_test values (" + QString::number(i) + ",'foo:" + QString::number(i) + "','blarg " + QString::number(i*10) + " blarg'," + QString::number(i*12.345) + ", '18-APR-1972');");	    
+	    database->exec( "insert into qsql_test values (" + QString::number(i) + ",'foo:" + QString::number(i) + "','blarg " + QString::number(i*10) + " blarg'," + QString::number(i*12.345) + ", '18-APR-1972');");
 	}
 	if ( database->rollback() )
 	    qDebug("Transaction successful.");
 	else {
 	    QSqlQuery recsRemaining = database->exec("select count(1) from qsql_test;");
 	    recsRemaining.next();
-    	    qDebug("Transaction FAILURE.  Records remaining in table:" + recsRemaining.value(0).toString() );
-    	}
+	    qDebug("Transaction FAILURE.  Records remaining in table:" + recsRemaining.value(0).toString() );
+	}
     }
 }
 
@@ -111,13 +111,13 @@ int main()
     printf("Qt Oracle Test\n\n");
 
     printf("Opening database...\n");
-    database = QSqlDatabase::addDatabase( "QOCI" );
+    database = QSqlDatabase::addDatabase( "QOCI8" );
     database->setDatabaseName( "trol" );
     database->setUserName( "scott" );
     database->setPassword( "tiger" );
     database->setHostName( "anarki" );
     database->open();
-  
+
     if ( database->isOpen() )
 	qDebug("...success.");
     else
@@ -139,7 +139,7 @@ int main()
     TestSelect();
     TestDelete();
     TestTrans();
-    
+
     qDebug("Dropping sample table...");
     database->exec( "drop table qsql_test;" );
 

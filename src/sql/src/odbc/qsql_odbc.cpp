@@ -90,7 +90,7 @@ void qSqlWarning( const QString& message, const QODBCPrivate* odbc )
 
 QSqlError qMakeError( const QString& err, int type, const QODBCPrivate* p )
 {
-    return QSqlError( "QODBC: " + err, qODBCWarn(p), type );
+    return QSqlError( "QODBC3: " + err, qODBCWarn(p), type );
 }
 
 QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype )

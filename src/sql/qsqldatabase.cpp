@@ -324,10 +324,10 @@ QStringList QSqlDatabase::drivers()
     l << "QMYSQL3";
 #endif
 #ifdef QT_SQL_ODBC
-    l << "QODBC";
+    l << "QODBC3";
 #endif
 #ifdef QT_SQL_OCI
-    l << "QOCI";
+    l << "QOCI8";
 #endif
 #ifndef QT_NO_COMPONENT
     QInterfaceManager<QSqlDriverInterface> *plugIns;
@@ -363,8 +363,8 @@ bool QSqlDatabase::contains( const QString& connectionName )
      The currently available drivers are:
 
      <ul>
-     <li>QODBC - ODBC (Open Database Connectivity) Driver
-     <li>QOCI - Oracle Call Interface Driver
+     <li>QODBC3 - ODBC (Open Database Connectivity) Driver
+     <li>QOCI8 - Oracle Call Interface Driver
      <li>QPSQL6 - PostgreSQL v6.x Driver
      <li>QPSQL7 - PostgreSQL v7.x Driver
      <li>QMYSQL3 - MySQL Driver
@@ -404,12 +404,12 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 #endif
 
 #ifdef QT_SQL_ODBC
-	if ( type == "QODBC" )
+	if ( type == "QODBC3" )
 	    d->driver = new QODBCDriver();
 #endif
 
 #ifdef QT_SQL_OCI
-	if ( type == "QOCI" )
+	if ( type == "QOCI8" )
 	    d->driver = new QOCIDriver();
 #endif
 
@@ -437,7 +437,8 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 
     if ( !d->driver ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QSqlDatabase warning: %s driver not loaded", type.data());
+	qWarning( "QSqlDatabase warning: %s driver not loaded", type.data() );
+	qWarning( "QSqlDatabase: available drivers: " + drivers().join(" ") );
 #endif
 	d->driver = new QNullDriver();
 	d->driver->setLastError( QSqlError( "Driver not loaded", "Driver not loaded" ) );

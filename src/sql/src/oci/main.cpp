@@ -34,7 +34,6 @@
 **
 **********************************************************************/
 
-#define Q_UUIDIMPL
 #include "../../qsqldriverinterface.h"
 #include "qsql_oci.h"
 
@@ -91,7 +90,7 @@ unsigned long QOCIDriverPlugin::release()
 
 QSqlDriver* QOCIDriverPlugin::create( const QString &name )
 {
-    if ( name == "QOCI" ) {
+    if ( name == "QOCI8" ) {
 	return new QOCIDriver();
     }
     return 0;
@@ -100,7 +99,7 @@ QSqlDriver* QOCIDriverPlugin::create( const QString &name )
 QStringList QOCIDriverPlugin::featureList() const
 {
     QStringList l;
-    l.append("QOCI");
+    l.append("QOCI8");
     return l;
 }
 

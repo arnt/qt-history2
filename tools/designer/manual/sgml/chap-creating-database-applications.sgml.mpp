@@ -14,7 +14,7 @@ in the online SQL module documentation.
 If you wish to run the examples or create your own applications using
 these widgets you need access to an SQL database and a Qt database driver
 that can connect to the database. At the time of writing the drivers
-that Qt supports are QODBC (Open Database Connectivity), QOCI (Oracle),
+that Qt supports are QODBC3 (Open Database Connectivity), QOCI8 (Oracle),
 QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL 7) and QMYSQL3 (MySQL).
 </para>
 

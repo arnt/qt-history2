@@ -34,7 +34,6 @@
 **
 **********************************************************************/
 
-#define Q_UUIDIMPL
 #include "../../qsqldriverinterface.h"
 #include "qsql_odbc.h"
 
@@ -85,13 +84,12 @@ unsigned long QODBCDriverPlugin::release()
 	delete this;
 	return 0;
     }
-
     return ref;
 }
 
 QSqlDriver* QODBCDriverPlugin::create( const QString &name )
 {
-    if ( name == "QODBC" ) {
+    if ( name == "QODBC3" ) {
 	return new QODBCDriver();
     }
     return 0;
@@ -100,7 +98,7 @@ QSqlDriver* QODBCDriverPlugin::create( const QString &name )
 QStringList QODBCDriverPlugin::featureList() const
 {
     QStringList l;
-    l.append("QODBC");
+    l.append("QODBC3");
     return l;
 }
 

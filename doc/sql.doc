@@ -224,8 +224,8 @@ connection.
 
 First we activate the driver by calling \l QSqlDatabase::addDatabase(),
 passing the name of the driver we wish to use for this connection. At
-the time of writing the available drivers are: QODBC (Open Database
-Connectivity), QOCI (Oracle), QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL
+the time of writing the available drivers are: QODBC3 (Open Database
+Connectivity), QOCI8 (Oracle), QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL
 7) and QMYSQL3 (MySQL). The connection which is created becomes the
 application's default database connection and will be used by the Qt SQL
 classes if no other database is specified. 
