@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#14 $
 **
 ** Implementation of QDir class
 **
@@ -16,7 +16,7 @@
 #include "qregexp.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#14 $")
 
 
 #if !defined(PATH_MAX)
@@ -72,7 +72,7 @@ static void convertSeparators( char * )
   \code
     QDir d( "example" );			// "./example"
     if ( !d.exists() )
-	warning( "Cannot find the example directory." );
+	warning( "Cannot find the example directory" );
   \endcode
 
   If you always use '/' as a directory separator, Qt will translate your
@@ -90,7 +90,7 @@ static void convertSeparators( char * )
     } else {
 	QFile f( d.filePath("ex1.txt") );	// UNIX: "/tmp/ex1.txt"
 	if ( !f.open(IO_ReadWrite) )
-	    warning( "Cannot create the file %s.", f.name() );
+	    warning( "Cannot create the file %s", f.name() );
     }
   \endcode
 
@@ -389,22 +389,24 @@ QString QDir::absFilePath( const char *fileName,
 	  if ( fi.isDir() )
 	      warning( "Cannot cd into \"%s\".", (char*)d.absFilePath("c++") );
 	  else
-	      warning( "Cannot make directory \"%s\"\n"
-		       "A file named \"c++\" already exists in \"%s\".",
-		       (char*) d.absFilePath("c++"), (char*) d.path() );
+	      warning( "Cannot create directory \"%s\"\n"
+		       "A file named \"c++\" already exists in \"%s\"",
+		       (const char *)d.absFilePath("c++"),
+		       (const char *)d.path() );
 	  return;
       } else {
-	  warning("Making directory \"%s\".", (char*) d.absFilePath("c++") );
+	  warning( "Creating directory \"%s\"",
+	  	   (const char *) d.absFilePath("c++") );
 	  if ( !d.mkdir( "c++" ) ) {
-	      warning("Could not make directory \"%s\".",
-		      (char*) d.absFilePath("c++") );
+	      warning("Could not create directory \"%s\"",
+		      (const char *)d.absFilePath("c++") );
 	      return;
 	  }
       }
   }
   \endcode
 
-  Calling cd( ".." ) is equivalent to calling cdUp.
+  Calling cd( ".." ) is equivalent to calling cdUp().
 
   \sa cdUp(), isReadable(), exists(), path()
  ----------------------------------------------------------------------------*/
@@ -863,7 +865,7 @@ bool QDir::remove( const char *fileName, bool acceptAbsPath )
 {
     if ( fileName == 0 || fileName[0] == '\0' ) {
 #if defined(CHECK_NULL)
-	warning( "QDir::remove: Empty or NULL file name." );
+	warning( "QDir::remove: Empty or null file name" );
 #endif
 	return FALSE;
     }
@@ -890,13 +892,13 @@ bool QDir::rename( const char *name, const char *newName,
 {
     if ( name == 0 || name[0] == '\0' || newName == 0 || newName[0] == '\0' ) {
 #if defined(CHECK_NULL)
-	warning( "QDir::rename: Empty or NULL file name(s)." );
+	warning( "QDir::rename: Empty or null file name(s)" );
 #endif
 	return FALSE;
     }
-    QString tmp1 = filePath( name, acceptAbsPaths );
-    QString tmp2 = filePath( newName, acceptAbsPaths );
-    return rename( tmp1, tmp2) == 0;
+    QString fn1 = filePath( name, acceptAbsPaths );
+    QString fn2 = filePath( newName, acceptAbsPaths );
+    return ::rename(fn1, fn2) == 0;
 }
 
 /*----------------------------------------------------------------------------
@@ -915,7 +917,7 @@ bool QDir::exists( const char *name, bool acceptAbsPath )
 {
     if ( name == 0 || name[0] == '\0' ) {
 #if defined(CHECK_NULL)
-	warning( "QDir::exists: Empty or NULL file name." );
+	warning( "QDir::exists: Empty or null file name" );
 #endif
 	return FALSE;
     }
@@ -924,13 +926,13 @@ bool QDir::exists( const char *name, bool acceptAbsPath )
 }
 
 /*----------------------------------------------------------------------------
-  Returns the native directory separator, e.g.
-  "/" under UNIX and "\" under MS-DOS.
+  Returns the native directory separator, e.g. "/" under UNIX and "\" under
+  MS-DOS, Windows NT and OS/2.
 
   You do not need to use this function to build file paths. If you always
-  use '/', Qt will  translate your
-  paths to conform to the underlying operating system.
-*/ // "
+  use '/', Qt will translate your paths to conform to the underlying
+  operating system.
+ ----------------------------------------------------------------------------*/
 
 char QDir::separator()
 {
@@ -1008,13 +1010,13 @@ QString QDir::currentDirPath()
 		convertSeparators( currentName.data() );
 		// forcecwd = FALSE;   ###
 	    } else {
-		warning("QDir::currentDirPath: getcwd() failed!");
+		warning( "QDir::currentDirPath: getcwd() failed" );
 		currentName = 0;
 		forcecwd    = TRUE;
 	    }
 	}
     } else {
-	warning("QDir::currentDirPath: stat(\".\") failed!");
+	warning( "QDir::currentDirPath: stat(\".\") failed" );
 	currentName = 0;
 	forcecwd    = TRUE;
     }
