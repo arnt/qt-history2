@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#15 $
 **
 ** Localization database support.
 **
@@ -120,30 +120,32 @@ public:
    scope-table-size    = INT24 .
    hash-table          = { bucket-offset }*256 { bucket } .
    bucket-offset       = INT24 .
-   bucket              = first-string-offset offset-list { string } .
+   bucket              = first-string-offset offset-list { target } .
    offset-list         = { rest-of-hash string-length } .
    first-string-offset = INT24 .
    rest-of-hash        = INT24 .
    string-length       = INT24 .
-   string              = scope { CHAR16 } .
+   target              = scope { CHAR16 } .
    scope               = INT24 .
+
+   The scope-table contains all the scopes, as a list of simple
+   C strings.  The target.scope is the offset into this list, measured
+   from [1] (ie. the first scope is at offset 3).
+
+   The bucket-offset offsets in hash-table are offsets into the
+   hash-table.bucket data, measured from [2] (ie. the first scope is at
+   offset 3*256).
+
+   Each string-length is the count of CHAR16 in the corresponding
+   target - by adding up these lengths, plus 3 bytes for the scope
+   of each target, the offset into the bucket.target data (measured
+   from [2]) can be calculated.
 
    d->s = [1]
    d->t = [2]
    d->l = length(hash-table)
 
-   -- old description...
-   headertablesize 3-byte offsets
-   headertablesize per-hash structures:
-       3-byte offset of first string
-       for each message with this hash, sorted by rest-of-hash
-           3-byte rest-of-hash
-	   3-byte length-of-string
-       for each message with this hash, sorted by rest-of-hash
-           actual string (in utf16; should be in reuters format)
-   eof
-
-   this format permits very fast lookup.
+   This format permits very fast lookup.
 */
 
 static inline uint readoffset( const char * c, int o ) {
