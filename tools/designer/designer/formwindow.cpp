@@ -1809,7 +1809,7 @@ void FormWindow::checkAccels()
 
     if ( ok )
 	QMessageBox::information( mainWindow(), tr( "Check Accelerators" ),
-				  tr( "No accelerator is used more that once!" ) );
+				  tr( "No accelerator is used more than once!" ) );
 }
 
 void FormWindow::raiseWidgets()
