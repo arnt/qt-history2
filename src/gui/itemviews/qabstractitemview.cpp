@@ -104,7 +104,6 @@ void QAbstractItemViewPrivate::init()
 		     QueuedConnection);
     QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), QueuedConnection);
 
-    //emit model->contentsChanged(); // initial emit to start layoutq
     QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot,
                             q->metaObject()->indexOfSlot("startItemsLayout()"), q));
 }
@@ -608,26 +607,20 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
     if (d->currentEditor)
 	endEdit(old, true);
 
-    // FIXME: if the mode is SelectCurrent, there is no need to repaint current
-    // this will be done in selectionChanged
-
     // FIXME: calling ensureItemVisible first before redrawing oldRect
     // make the view look slow, but since repaintItem does not update the rect
     // immediately we get drawing errors because the contentview might be shifted
+    
     if (current.isValid())
 	ensureItemVisible(current);
 
     if (old.isValid())
-// 	if (selectionBehavior() == QItemSelectionModel::SelectRows)
-// 	    updateRow(old);
-// 	else
 	updateItem(old);
     if (current.isValid())
-// 	if (selectionBehavior() == QItemSelectionModel::SelectRows)
-// 	    updateRow(current);
-// 	else
 	updateItem(current);
 
+    // FIXME: the QWidget::scroll() will sometimes blit before we get the chance to repaint the old item
+    //qApp->processEvents(); // force paint events to be processed
     startEdit(current, QAbstractItemDelegate::CurrentChanged, 0);
 }
 

@@ -60,7 +60,7 @@ QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
     d->layout_parent_index = -1;
     d->layout_from_index = -1;
     d->layout_count = model->rowCount(root());
-    d->rootDecoration = false;
+    d->rootDecoration = true;
 }
 
 QGenericTreeView::~QGenericTreeView()
@@ -480,7 +480,7 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
 	int offset = (left / d->horizontalFactor) + d->header->sectionPosition(column);
 	hscroll = d->header->offset() - offset;
 	d->header->setOffset(offset);
-    }
+    } else
     if (dy) {
 	/*
 	int factor = d->verticalFactor;
@@ -501,9 +501,9 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
 	vscroll -= (da / factor);
 	*/
 	d->viewport->update();
-    } else {
-	d->viewport->scroll(hscroll, vscroll);
+	return;
     }
+    d->viewport->scroll(hscroll, vscroll);
 }
 
 void QGenericTreeView::contentsChanged()
@@ -819,7 +819,9 @@ int QGenericTreeViewPrivate::indentation(int i) const
 {
     if (i < 0 || i >= items.count())
 	return 0;
-    int level = items.at(i).level + (rootDecoration ? 1 : 0);
+    int level = items.at(i).level;
+    if (rootDecoration)
+	level++;
     return level * indent;
 }
 
