@@ -62,7 +62,6 @@ protected:
 private:
     QOCIPrivate*	d;
     QOCIResultPrivate*  cols;
-    QSqlRecord          fs;
     bool                cached;
     bool                cacheNext();
 };
@@ -94,7 +93,6 @@ protected:
 private:
     QOCIPrivate*	d;
     QOCIResultPrivate*  cols;
-    QSqlRecord          fs;
     bool                cacheNext( int r );
 };
 #endif //QOCI_USES_VERSION_9
