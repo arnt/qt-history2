@@ -1140,9 +1140,9 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
             }
             if(!found)
                 return IncludeNoExist;
-            if(vars["QMAKE_INTERNAL_INCLUDED_FEATURES"].indexOf(file) != -1)
+            if(place["QMAKE_INTERNAL_INCLUDED_FEATURES"].indexOf(file) != -1)
                 return IncludeFeatureAlreadyLoaded;
-            vars["QMAKE_INTERNAL_INCLUDED_FEATURES"].append(file);
+            place["QMAKE_INTERNAL_INCLUDED_FEATURES"].append(file);
         }
     }
     if(QDir::isRelativePath(file)) {
@@ -1190,8 +1190,8 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
     } else {
         parsed = read(file.latin1(), place);
     }
-    if(parsed)
-        vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
+    if(parsed) 
+        place["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
     else
         warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
                  pi.file.latin1(), pi.line_no, orig_file.latin1());
@@ -1223,7 +1223,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         QString value = args[1];
         if((value.left(1) == "\"" || value.left(1) == "'") && value.right(1) == value.left(1))
             value = value.mid(1, value.length()-2);
-        return vars[args[0]].join(QString(Option::field_sep)) == value;
+        return place[args[0]].join(QString(Option::field_sep)) == value;
     } else if(func == "exists") {
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: exists(file) requires one argument.\n", parser.file.latin1(),
@@ -1349,14 +1349,14 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
                     parser.line_no);
             return false;
         }
-        return vars[args[0]].count() == args[1].toInt();
+        return place[args[0]].count() == args[1].toInt();
     } else if(func == "isEmpty") {
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: isEmpty(var) requires one argument.\n", parser.file.latin1(),
                     parser.line_no);
             return false;
         }
-        return vars[args[0]].isEmpty();
+        return place[args[0]].isEmpty();
     } else if(func == "include" || func == "load") {
         QString seek_var;
         const bool include_statement = (func == "include");
