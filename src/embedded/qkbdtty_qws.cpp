@@ -146,46 +146,47 @@ QWSTtyKbPrivate::QWSTtyKbPrivate( QWSPC101KeyboardHandler *h, const QString &dev
 	notifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
 	connect( notifier, SIGNAL(activated(int)),this,
 		 SLOT(readKeyboardData()) );
+
+	// save for restore.
+	tcgetattr( kbdFD, &origTermData );
+
+	struct termios termdata;
+	tcgetattr( kbdFD, &termdata );
+
+#if defined(Q_OS_LINUX)
+	ioctl(kbdFD, KDSKBMODE, K_RAW);
+#endif
+
+	termdata.c_iflag = (IGNPAR | IGNBRK) & (~PARMRK) & (~ISTRIP);
+	termdata.c_oflag = 0;
+	termdata.c_cflag = CREAD | CS8;
+	termdata.c_lflag = 0;
+	termdata.c_cc[VTIME]=0;
+	termdata.c_cc[VMIN]=1;
+	cfsetispeed(&termdata, 9600);
+	cfsetospeed(&termdata, 9600);
+	tcsetattr(kbdFD, TCSANOW, &termdata);
+
+#if defined(Q_OS_LINUX)
+	signal(VTSWITCHSIG, vtSwitchHandler);
+
+	struct vt_mode vtMode;
+	ioctl(kbdFD, VT_GETMODE, &vtMode);
+
+	// let us control VT switching
+	vtMode.mode = VT_PROCESS;
+	vtMode.relsig = VTSWITCHSIG;
+	vtMode.acqsig = VTSWITCHSIG;
+	ioctl(kbdFD, VT_SETMODE, &vtMode);
+
+	struct vt_stat vtStat;
+	ioctl(kbdFD, VT_GETSTATE, &vtStat);
+	vtQws = vtStat.v_active;
+#endif
     } else {
 	qDebug( "Cannot open keyboard" );
     }
 
-    // save for restore.
-    tcgetattr( kbdFD, &origTermData );
-
-    struct termios termdata;
-    tcgetattr( kbdFD, &termdata );
-
-#if defined(Q_OS_LINUX)
-    ioctl(kbdFD, KDSKBMODE, K_RAW);
-#endif
-
-    termdata.c_iflag = (IGNPAR | IGNBRK) & (~PARMRK) & (~ISTRIP);
-    termdata.c_oflag = 0;
-    termdata.c_cflag = CREAD | CS8;
-    termdata.c_lflag = 0;
-    termdata.c_cc[VTIME]=0;
-    termdata.c_cc[VMIN]=1;
-    cfsetispeed(&termdata, 9600);
-    cfsetospeed(&termdata, 9600);
-    tcsetattr(kbdFD, TCSANOW, &termdata);
-
-#if defined(Q_OS_LINUX)
-    signal(VTSWITCHSIG, vtSwitchHandler);
-
-    struct vt_mode vtMode;
-    ioctl(kbdFD, VT_GETMODE, &vtMode);
-
-    // let us control VT switching
-    vtMode.mode = VT_PROCESS;
-    vtMode.relsig = VTSWITCHSIG;
-    vtMode.acqsig = VTSWITCHSIG;
-    ioctl(kbdFD, VT_SETMODE, &vtMode);
-
-    struct vt_stat vtStat;
-    ioctl(kbdFD, VT_GETSTATE, &vtStat);
-    vtQws = vtStat.v_active;
-#endif
 }
 
 QWSTtyKbPrivate::~QWSTtyKbPrivate()
