@@ -6,7 +6,7 @@ class MotifStyle : public QStylePlugin
 public:
     MotifStyle();
 
-    QStringList featureList() const;
+    QStringList keys() const;
     QStyle *create( const QString& );
 };
 
@@ -15,7 +15,7 @@ MotifStyle::MotifStyle()
 {
 }
 
-QStringList MotifStyle::featureList() const
+QStringList MotifStyle::keys() const
 {
     QStringList list;
     list << "Motif";

@@ -6,7 +6,7 @@ class WindowsStyle : public QStylePlugin
 public:
     WindowsStyle();
 
-    QStringList featureList() const;
+    QStringList keys() const;
     QStyle *create( const QString& );
 };
 
@@ -15,7 +15,7 @@ WindowsStyle::WindowsStyle()
 {
 }
 
-QStringList WindowsStyle::featureList() const
+QStringList WindowsStyle::keys() const
 {
     QStringList list;
     list << "Windows";
