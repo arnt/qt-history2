@@ -9,11 +9,16 @@ MainWindow::MainWindow()
 
     QAction *saveAction = fileMenu->addAction(tr("&Save"));
     saveAction->setShortcut(tr("Ctrl+S"));
-
     QAction *quitAction = fileMenu->addAction(tr("E&xit"));
     quitAction->setShortcut(tr("Ctrl+Q"));
 
+    QMenu *showMenu = new QMenu(tr("&Show"));
+
+    QAction *showTableAction = showMenu->addAction(tr("&Table"));
+
     menuBar()->addMenu(fileMenu);
+    menuBar()->addMenu(showMenu);
+
     editor = new QTextEdit();
 
     QTextCursor cursor(editor->textCursor());
@@ -66,6 +71,7 @@ MainWindow::MainWindow()
 
     connect(saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
     connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
+    connect(showTableAction, SIGNAL(triggered()), this, SLOT(showTable()));
 
     setCentralWidget(editor);
     setWindowTitle(tr("Text Document Tables"));
@@ -85,6 +91,39 @@ void MainWindow::saveFile()
                 QMessageBox::NoButton);
     }
 }
+
+void MainWindow::showTable()
+{
+    QTextCursor cursor = editor->textCursor();
+    QTextTable *table = cursor.currentTable();
+
+    if (!table)
+        return;
+
+    QTableWidget *tableWidget = new QTableWidget(table->rows(), table->columns());
+
+    for (int row = 0; row < table->rows(); ++row) {
+        for (int column = 0; column < table->columns(); ++column) {
+            QTextTableCell tableCell = table->cellAt(row, column);
+            QTextFrame::iterator it;
+            QString text;
+            for (it = tableCell.begin(); !(it.atEnd()); ++it) {
+                QTextBlock childBlock = it.currentBlock();
+                if (childBlock.isValid())
+                    text += childBlock.text();
+            }
+            QTableWidgetItem *newItem = new QTableWidgetItem(text);
+            tableWidget->setItem(row, column, newItem);
+            /*
+            ...
+            */
+        }
+    }
+
+    tableWidget->setWindowTitle(tr("Table Contents"));
+    tableWidget->show();
+}
+
 bool MainWindow::writeXml(const QString &fileName)
 {
     XmlWriter documentWriter(editor->document());

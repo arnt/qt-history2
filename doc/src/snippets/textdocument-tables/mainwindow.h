@@ -14,6 +14,7 @@ public:
 
 public slots:
     void saveFile();
+    void showTable();
 
 private:
     bool writeXml(const QString &fileName);
