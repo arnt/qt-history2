@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#301 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#302 $
 **
 ** Implementation of QListView widget class
 **
@@ -1951,7 +1951,7 @@ int QListView::treeStepSize() const
   \sa treeStepSize()
 */
 
- void QListView::setTreeStepSize( int l )
+void QListView::setTreeStepSize( int l )
 {
     if ( l != d->levelWidth ) {
 	d->levelWidth = l;
@@ -2248,9 +2248,16 @@ void QListView::updateGeometries()
 void QListView::handleSizeChange( int section, int os, int ns )
 {
     viewport()->setUpdatesEnabled( FALSE );
+    int sx = horizontalScrollBar()->value();
     updateGeometries();
+    bool fullRepaint = sx != horizontalScrollBar()->value();
     viewport()->setUpdatesEnabled( TRUE );
 
+    if ( fullRepaint ) {
+	viewport()->repaint( FALSE );
+	return;
+    }
+    
     int actual = d->h->mapToActual( section );
     int dx = ns - os;
     int left = d->h->cellPos( actual ) - contentsX() + d->h->cellSize( actual );
@@ -3746,7 +3753,7 @@ void QCheckListItem::activate()
 
     QRect r = listView()->itemRect( this );
     r.setWidth( BoxSize );
-    r.moveBy( listView()->itemMargin() + ( depth() + ( listView()->rootIsDecorated() ? 1 : 0 ) ) * 
+    r.moveBy( listView()->itemMargin() + ( depth() + ( listView()->rootIsDecorated() ? 1 : 0 ) ) *
 	      listView()->treeStepSize(), 0 );
 
     if ( !r.contains( pos ) )
