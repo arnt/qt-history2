@@ -106,6 +106,9 @@ QSpinBox
 QFileDialog
   Re-use the history
 
+QDir
+  Static function that will return the application directory
+
 Feature Requests
 ----------------
 
