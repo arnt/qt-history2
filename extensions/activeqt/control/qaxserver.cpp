@@ -340,6 +340,7 @@ static const char* const type_map[][2] =
     { "QStringList",	"SAFEARRAY(BSTR)" },
     // Userdefined Qt datatypes - some not on Borland though
     { "QCursor",        "enum MousePointer" },
+    { "Qt::FocusPolicy","enum FocusPolicy" },
 #ifndef Q_CC_BOR
 # if __REQUIRED_RPCNDR_H_VERSION__ >= Q_REQUIRED_RPCNDR_H_VERSION
     { "QRect",		"struct QRect" },
@@ -455,6 +456,7 @@ static QByteArray renameOverloads(const QByteArray &name)
 static const char* const ignore_props[] =
 {
     "name",
+    "objectName",
     "isTopLevel",
     "isDialog",
     "isModal",
