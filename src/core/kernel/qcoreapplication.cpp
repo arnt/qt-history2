@@ -71,14 +71,20 @@ void qRemovePostRoutine(QtCleanUpFunction p)
 static QThreadStorage<QPostEventList*> postEventLists;
 
 static QStaticSpinLock spinlock = 0;
-static QHash<Qt::HANDLE, QPostEventList *> postEventListHash;
+
+typedef QHash<Qt::HANDLE, QPostEventList *> PostEventListHash;
+
+static PostEventListHash *postEventListHash()
+{
+    static PostEventListHash hash;
+    return &hash;
+}
 
 Q_CORE_EXPORT QPostEventList *qt_postEventList(Qt::HANDLE thread)
 {
-    if (QCoreApplication::closingDown()) { 
+    if (QCoreApplication::closingDown())
         //closing down (postEventListHash could already be destructed)
         return 0;
-    }
 
     const Qt::HANDLE current = QThread::currentThread();
     if (thread == 0) thread = current;
@@ -87,17 +93,15 @@ Q_CORE_EXPORT QPostEventList *qt_postEventList(Qt::HANDLE thread)
         return postEventLists.localData();
 
     QSpinLockLocker locker(::spinlock);
-    postEventListHash.ensure_constructed();
-    QPostEventList *plist = postEventListHash.value(thread);
+    QPostEventList *plist = postEventListHash()->value(thread);
     if (!plist) {
         if (thread == current) {
             // creating post event list for current thread
             plist = new QPostEventList;
-            postEventListHash.insert(thread, plist);
+            postEventListHash()->insert(thread, plist);
             postEventLists.setLocalData(plist);
         }
     }
-
     return plist;
 }
 
@@ -134,7 +138,7 @@ QPostEventList::~QPostEventList()
     {
         // post event list for current thread destroyed
         QSpinLockLocker locker(::spinlock);
-        postEventListHash.remove(QThread::currentThread());
+        postEventListHash()->remove(QThread::currentThread());
     }
 
     // don't leak undelivered events
