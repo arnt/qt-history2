@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#126 $
 **
 ** Implementation of QButton widget class
 **
@@ -694,7 +694,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
 
 void QButton::mouseReleaseEvent( QMouseEvent *e)
 {
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton || !mlbDown )
 	return;
     if ( d )
 	timer()->stop();
