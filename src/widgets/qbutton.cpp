@@ -267,6 +267,88 @@ QTimer *QButton::timer()
   \value On  the button is in the "on" state
 */
 
+/*! \property QButton::accel
+    \brief The accelarator associated with the button
+
+  This property will return 0 if there is no accelarator set, if you set
+  this property to 0 then any current accelarator is removed.
+*/
+
+/*! \property QButton::autoRepeat
+    \brief Whether autoRepeat is enabled
+
+  If autoRepeat is enabled then the clicked() signal is emitted at 
+  regular intervals if the button is down.  This property has
+  no effect on toggle buttons.
+*/
+
+/*! \property QButton::autoResize
+    \brief Whether autoResize is enabled
+    \obsolete
+
+  If autoResize is enabled then the button will resize itself
+  whenever the contents are changed.
+*/
+
+/*! \property QButton::down
+    \brief Whether the button is down (i.e. pressed)
+
+  If down is enabled then the button is set to be pressed down.  The 
+  signals pressed() and clicked() are not emitted if you set this
+  property to TRUE.
+*/
+
+/*! \property QButton::exclusiveToggle
+    \brief Whether the button is an exclusive toggle
+
+  If exclusiveToggle is enabled and the button is in a QButtonGroup then the 
+  button can only be toggled off by another one being toggled on.
+*/
+
+/*! \property QButton::on
+    \brief Whether the button is toggled.
+
+  This property should only be set for toggle buttons.
+*/
+
+/*! \property QButton::pixmap
+    \brief The pixmap shown on the button
+
+  This property will return 0 if the button has no pixmap.
+
+  If \a pixmap is monochrome (i.e., it is a QBitmap or its \link
+  QPixmap::depth() depth\endlink is 1) and it does not have a mask,
+  this property will set the pixmap to be its own mask. The purpose of
+  this is to draw transparent bitmaps which are important for
+  toggle buttons, for example.
+
+*/
+
+/*! \property QButton::text
+    \brief The text shown on the button
+
+  This property will return a null string if the button has
+  no text.  If the text has an ampersand '&' in it, then an
+  accelarator is automatically created for it using the 
+  character after the ampersand as the accelarator key.
+*/
+
+/*! \property QButton::toggleButton
+    \brief Whether the button is a toggle button
+*/
+
+/*! \property QButton::toggleState
+    \brief Whether the button is toggled
+
+  If this is property is changed then it does not cause the button
+  to be repainted.
+*/
+
+/*! \property QButton::toggleType
+    \brief The type of toggle on the button
+
+  The default toggle type is SingleShot.
+*/
 
 /*!
   Constructs a standard button with a parent widget and a name.
@@ -360,24 +442,6 @@ QButton::~QButton()
   \sa clicked()
 */
 
-
-/*!
-  \fn QString QButton::text() const
-  Returns the button text, or
-  \link QString::operator!() null string\endlink
-  if the button has no text.
-  \sa setText()
-*/
-
-/*!
-  Sets the button to display \e text.
-
-  If the text contains an ampersand, QButton creates an automatic
-  accelerator for it, such as  Alt-c for "&Cancel".
-
-  \sa text(), setPixmap(), setAccel(), QPixmap::mask()
-*/
-
 void QButton::setText( const QString &text )
 {
     if ( btext == text )
@@ -402,24 +466,6 @@ void QButton::setText( const QString &text )
     update();
     updateGeometry();
 }
-
-
-/*!
-  \fn const QPixmap *QButton::pixmap() const
-  Returns the button pixmap, or 0 if the button has no pixmap.
-*/
-
-/*!
-  Sets the button to display \a pixmap.
-
-  If \a pixmap is monochrome (i.e., it is a QBitmap or its \link
-  QPixmap::depth() depth\endlink is 1) and it does not have a mask,
-  this function sets the pixmap to be its own mask. The purpose of
-  this is to draw transparent bitmaps which are important for
-  toggle buttons, for example.
-
-  \sa pixmap(), setText(), setAccel(), QPixmap::mask()
-*/
 
 void QButton::setPixmap( const QPixmap &pixmap )
 {
@@ -450,12 +496,6 @@ void QButton::setPixmap( const QPixmap &pixmap )
 }
 
 
-/*!
-  Returns the accelerator key currently set for the button, or 0
-  if no accelerator key has been set.
-  \sa setAccel()
-*/
-
 int QButton::accel() const
 {
 #ifndef QT_NO_ACCEL
@@ -464,29 +504,6 @@ int QButton::accel() const
     return 0;
 #endif
 }
-
-/*!
-  Specifies an accelerator \a key for the button, or removes the
-  accelerator if \a key is 0.
-
-  Setting a button text containing a shortcut character (for
-  example the 'x' in E&xit) automatically defines an ALT+letter
-  accelerator for the button.
-  You only need to call this function in order to specify a custom
-  accelerator.
-
-  Example:
-  \code
-    QPushButton *b1 = new QPushButton;
-    b1->setText( "&OK" );		// sets accel ALT+'O'
-
-    QPushButton *b2 = new QPushButton;
-    b2->setPixmap( printIcon );		// pixmap instead of text
-    b2->setAccel( CTRL+'P' );		// custom accel
-  \endcode
-
-  \sa accel(), setText(), QAccel
-*/
 
 void QButton::setAccel( int key )
 {
@@ -503,36 +520,6 @@ void QButton::setAccel( int key )
 #endif
 }
 
-
-/*!
-  \fn bool QButton::autoResize() const
-
-  \obsolete
-
-  Strange pre-layout stuff.
-
-  Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
-  disabled.
-
-  Auto-resizing is disabled by default.
-
-  \sa setAutoResize()
-*/
-
-
-/*!\obsolete
-
-  Strange pre-layout stuff.
-
-  Enables auto-resizing if \e enable is TRUE, or disables it if \e enable is
-  FALSE.
-
-  When auto-resizing is enabled, the button will resize itself whenever
-  the contents change.
-
-  \sa autoResize(), adjustSize()
-*/
-
 void QButton::setAutoResize( bool enable )
 {
     if ( (bool)autoresize != enable ) {
@@ -542,30 +529,6 @@ void QButton::setAutoResize( bool enable )
     }
 }
 
-
-/*!
-  \fn bool QButton::autoRepeat() const
-
-  Returns TRUE if the button is auto-repeating; otherwise it returns FALSE.
-
-  The default is FALSE.
-
-  \sa setAutoRepeat()
-*/
-
-
-/*!
-  Turns on auto-repeat for the button if \a enable is TRUE, or
-  turns it off if \a enable is FALSE.
-
-  When auto-repeat is enabled, the clicked() signal is emitted at
-  regular intervals while the buttons \link isDown() is down. \endlink
-
-  setAutoRepeat() has no effect for \link setToggleButton() toggle
-  buttons. \endlink
-
-  \sa isDown(), autoRepeat(), clicked()
-*/
 
 void QButton::setAutoRepeat( bool enable )
 {
@@ -600,26 +563,6 @@ void QButton::animateClick()
 }
 
 
-/*!
-  \fn bool QButton::isDown() const
-  Returns TRUE if the button pressed down or FALSE if it is standing up.
-  \sa setDown()
-*/
-
-/*!
-  Sets the state of the button to pressed down if \e enable is TRUE,
-  or to standing up if \e enable is FALSE.
-
-  If the button is a toggle button, it is \e not toggled.  Call
-  toggle() as well if you need to do that.  The pressed() and
-  released() signals are not emitted by this function.
-
-  This method is provided in case you need to reimplement the mouse event
-  handlers.
-
-  \sa isDown(), setOn(), toggle(), toggled()
-*/
-
 void QButton::setDown( bool enable )
 {
     if ( d )
@@ -630,45 +573,6 @@ void QButton::setDown( bool enable )
 	repaint( FALSE );
     }
 }
-
-/*!
-  \fn QButton::ToggleType QButton::toggleType() const
-
-  Returns the current toggle type.
-
-  \sa setToggleType()
-*/
-
-/*!
-  \fn void QButton::setState( ToggleState t)
-
-  This protected function sets the button state into state t but does
-  \e not cause repainting.
-
-  \sa setToggleType()
-*/
-
-/*!
-  \fn QButton::ToggleState QButton::state() const
-  Returns the state of the button.
-
-  \sa ToggleState ToggleType setState()
-*/
-
-/*!
-  \fn bool QButton::isOn() const
-  Returns TRUE if this toggle button is switched on, or FALSE if it is
-  switched off.
-  \sa setOn(), isToggleButton()
-*/
-
-/*!
-  \fn void QButton::setOn( bool enable )
-
-  Switches a toggle button on if \e enable is TRUE, or off if \e enable is
-  FALSE.  This function should be called only for toggle buttons.
-  \sa isOn(), isToggleButton()
-*/
 
 void QButton::setState( ToggleState s )
 {
@@ -695,26 +599,6 @@ void QButton::setState( ToggleState s )
 #endif
 }
 
-
-/*!
-  \fn bool QButton::isToggleButton() const
-  Returns TRUE if the button is a toggle button.
-  \sa setToggleButton()
-*/
-
-/*!
-  \fn void QButton::setToggleButton( bool enable )
-
-  Makes the button a toggle button if \e enable is TRUE, or a normal button
-  if \e enable is FALSE.
-
-  Note that this function is protected. It is called from subclasses
-  to enable the toggle functionality. QCheckBox and QRadioButton are
-  toggle buttons. QPushButton is initially not a toggle button, but
-  QPushButton::setToggleButton() can be called to create toggle buttons.
-
-  \sa isToggleButton()
-*/
 
 /*!
   Returns TRUE if \e pos is inside the clickable button rectangle, or
@@ -1039,25 +923,12 @@ void QButton::toggle()
 	 setOn( !isOn() );
 }
 
-/*!
-  Sets the type of toggling behavior.  The default is \c SingleShot.
-
-  Subclasses use this, and present it with a more comfortable interface.
-*/
 void QButton::setToggleType( ToggleType type )
 {
     toggleTyp = type;
     if ( type != Tristate && stat == NoChange )
 	setState( On );
 }
-
-
-
-/*!
-  Returns TRUE if this button behaves exclusively inside a QButtonGroup.
-  In that case, this button can only be toggled off by another button
-  being toggled on.
-*/
 
 bool QButton::isExclusiveToggle() const
 {

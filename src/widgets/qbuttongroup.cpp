@@ -80,6 +80,19 @@
   \sa QButton, QPushButton, QCheckBox, QRadioButton
 */
 
+/*! \property QButtonGroup::exclusive
+    \brief Whether the button group is exclusive
+
+  If this property is set to TRUE, then the buttons in the group are toggled, and
+  to untoggle a button you must click on another button in the group.
+*/
+
+/*! \property QButtonGroup::radioButtonExclusive
+    \brief Whether the radiobuttons in the group are exclusive
+
+  If this property is set to TRUE, the radiobuttons in the group are treated
+  exclusively.
+*/
 
 struct QButtonItem
 {
@@ -180,36 +193,10 @@ QButtonGroup::~QButtonGroup()
     delete tmp;
 }
 
-
-/*!
-  Returns TRUE if the button group is exclusive; otherwise it returns FALSE.
-
-  \sa setExclusive()
-*/
-
 bool QButtonGroup::isExclusive() const
 {
     return excl_grp;
 }
-
-/*!
-  Sets the button group to be exclusive if \e enable is TRUE,
-  or to be non-exclusive if \e enable is FALSE.
-
-  An exclusive button group switches off all other toggle buttons when
-  one is switched on. This is ideal for groups of \link QRadioButton
-  radio buttons\endlink. A non-exclusive group allow many buttons to be
-  switched on at the same time.
-
-  The default setting is FALSE.
-
-  Note that radio buttons can be set exclusive by both, setExclusive(),
-  and setRadioButtonExclusive(). QButtonGroup treats radio buttons
-  exclusive if either, isExclusive() or isRadioButtonExclusive() evaluates
-  to TRUE.
-
-  \sa isExclusive(), isRadioButtonExclusive(), setRadioButtonExclusive()
-*/
 
 void QButtonGroup::setExclusive( bool enable )
 {
@@ -469,22 +456,6 @@ void QButtonGroup::setButton( int id )
     if ( b )
 	b->setOn( TRUE );
 }
-
-
-/*!
-  \fn bool QButtonGroup::isRadioButtonExclusive () const
-
-  Returns whether this button group will treat radio buttons as
-  mutually exclusive. The default is TRUE.
-
-  \sa setRadioButtonExclusive()
-*/
-
-/*!
-  If \a on is TRUE, this button group will treat radio buttons as
-  mutually exclusive, and other buttons according to
-  isExclusive().
-*/
 
 void QButtonGroup::setRadioButtonExclusive( bool on)
 {

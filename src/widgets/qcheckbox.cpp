@@ -87,7 +87,13 @@
   <a href="guibooks.html#fowler">Fowler: Check Box.</a>
 */
 
+/*! \property QCheckBox::checked
+    \brief Whether the checkbox is checked or not
+*/
 
+/*! \property QCheckBox::tristate
+    \brief Whether the checkbox is a tri-state checkbox or not
+*/
 
 /*!
   Constructs a check box with no text.
@@ -116,20 +122,6 @@ QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
 
-
-/*!
-  \fn bool QCheckBox::isChecked() const
-  Returns TRUE if the check box is checked, or FALSE if it is not checked.
-  \sa setChecked()
-*/
-
-/*!
-  \fn void QCheckBox::setChecked( bool check )
-  Checks the check box if \e check is TRUE, or unchecks it if \e check
-  is FALSE.
-  \sa isChecked()
-*/
-
 /*!
   Sets the check box into the "no change" state.
 
@@ -141,28 +133,11 @@ void QCheckBox::setNoChange()
     setState( NoChange );
 }
 
-/*!
-  Makes the check box a tristate check box if \a y is TRUE.  A tristate
-  check box provides an additional state NoChange.
-
-  Use tristate check boxes whenever you need to give the user the
-  option of neither setting nor unsetting an option. A typical example
-  is the "Italic" check box in the font dialog of a word processor
-  when the marked text is partially italic.
-
-  \sa isTristate(), setNoChange() stateChanged(), state()
-*/
 void QCheckBox::setTristate(bool y)
 {
     setToggleType( y ? Tristate : Toggle );
 }
 
-/*!
-  Returns TRUE if the checkbox is a tristate checkbox. Otherwise returns
-  FALSE.
-
-  \sa setTristate()
-*/
 bool QCheckBox::isTristate() const
 {
     return toggleType() == Tristate;
