@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#118 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#117 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#118 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -175,7 +175,7 @@ bool QWidget::create()
     setMouseTracking( FALSE );			// also sets event mask
     if ( desktop ) {
 	setWFlags( WState_Visible );
-    } else if if ( topLevel ) {			// set X cursor
+    } else if ( topLevel ) {			// set X cursor
 	QCursor *appc = QApplication::cursor();
 	XDefineCursor( dpy, ident, appc ? appc->handle() : curs.handle() );
 	setWFlags( WCursorSet );
