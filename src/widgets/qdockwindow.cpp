@@ -85,13 +85,13 @@ private:
     bool mousePressed;
     QPainter *unclippedPainter;
     QPoint lastPos, firstPos;
-    QDockWindow *dockWidget;
+    QDockWindow *dockWindow;
 
 };
 
 QDockWindowResizeHandle::QDockWindowResizeHandle( Qt::Orientation o, QWidget *parent,
 						  QDockWindow *w, const char * )
-    : QWidget( parent, "qt_dockwidget_internal" ), mousePressed( FALSE ), unclippedPainter( 0 ), dockWidget( w )
+    : QWidget( parent, "qt_dockwidget_internal" ), mousePressed( FALSE ), unclippedPainter( 0 ), dockWindow( w )
 {
     setOrientation( o );
 }
@@ -146,30 +146,30 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 	endLineDraw();
 	if ( orientation() == Horizontal ) {
 	    int dy;
-	    if ( dockWidget->area()->gravity() == QDockArea::Normal )
+	    if ( dockWindow->area()->gravity() == QDockArea::Normal )
 		dy = e->globalPos().y() - firstPos.y();
 	    else
 		dy =  firstPos.y() - e->globalPos().y();
-	    int d = dockWidget->height() + dy;
-	    if ( orientation() != dockWidget->area()->orientation() )
-		d = QMAX( d, dockWidget->minimumHeight() );
-	    dockWidget->setFixedExtentHeight( d );
+	    int d = dockWindow->height() + dy;
+	    if ( orientation() != dockWindow->area()->orientation() )
+		d = QMAX( d, dockWindow->minimumHeight() );
+	    dockWindow->setFixedExtentHeight( d );
 	} else {
 	    int dx;
-	    if ( dockWidget->area()->gravity() == QDockArea::Normal )
+	    if ( dockWindow->area()->gravity() == QDockArea::Normal )
 		dx = e->globalPos().x() - firstPos.x();
 	    else
 		dx = firstPos.x() - e->globalPos().x();
-	    int d = dockWidget->width() + dx;
-	    if ( orientation() != dockWidget->area()->orientation() )
-		d = QMAX( d, dockWidget->minimumWidth() );
-	    dockWidget->setFixedExtentWidth( d );
+	    int d = dockWindow->width() + dx;
+	    if ( orientation() != dockWindow->area()->orientation() )
+		d = QMAX( d, dockWindow->minimumWidth() );
+	    dockWindow->setFixedExtentWidth( d );
 	}
-	if ( orientation() != dockWidget->area()->orientation() )
-	    dockWidget->area()->invalidNextOffset( dockWidget );
+	if ( orientation() != dockWindow->area()->orientation() )
+	    dockWindow->area()->invalidNextOffset( dockWindow );
     }
 
-    QApplication::postEvent( dockWidget->area(), new QEvent( QEvent::LayoutHint ) );
+    QApplication::postEvent( dockWindow->area(), new QEvent( QEvent::LayoutHint ) );
     mousePressed = FALSE;
 }
 
@@ -204,15 +204,15 @@ void QDockWindowResizeHandle::endLineDraw()
 void QDockWindowResizeHandle::drawLine( const QPoint &globalPos )
 {
     QPoint start = mapToGlobal( QPoint( 0, 0 ) );
-    QPoint starta = dockWidget->area()->mapToGlobal( QPoint( 0, 0 ) );
+    QPoint starta = dockWindow->area()->mapToGlobal( QPoint( 0, 0 ) );
     if ( orientation() == Horizontal ) {
-	if ( orientation() == dockWidget->orientation() )
-	    unclippedPainter->drawLine( starta.x() , globalPos.y(), starta.x() + dockWidget->area()->width(), globalPos.y() );
+	if ( orientation() == dockWindow->orientation() )
+	    unclippedPainter->drawLine( starta.x() , globalPos.y(), starta.x() + dockWindow->area()->width(), globalPos.y() );
 	else
 	    unclippedPainter->drawLine( start.x(), globalPos.y(), start.x() + width(), globalPos.y() );
     } else {
-	if ( orientation() == dockWidget->orientation() )
-	    unclippedPainter->drawLine( globalPos.x(), starta.y(), globalPos.x(), starta.y() + dockWidget->area()->height() );
+	if ( orientation() == dockWindow->orientation() )
+	    unclippedPainter->drawLine( globalPos.x(), starta.y(), globalPos.x(), starta.y() + dockWindow->area()->height() );
 	else
 	    unclippedPainter->drawLine( globalPos.x(), start.y(), globalPos.x(), start.y() + height() );
     }
@@ -256,7 +256,7 @@ private slots:
     void minimize();
 
 private:
-    QDockWindow *dockWidget;
+    QDockWindow *dockWindow;
     QPoint offset;
     bool mousePressed;
     QToolButton *closeButton;
@@ -266,7 +266,7 @@ private:
 };
 
 QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
-    : QWidget( dw, "qt_dockwidget_internal" ), dockWidget( dw ), mousePressed( FALSE ), closeButton( 0 )
+    : QWidget( dw, "qt_dockwidget_internal" ), dockWindow( dw ), mousePressed( FALSE ), closeButton( 0 )
 {
     timer = new QTimer( this );
     connect( timer, SIGNAL( timeout() ), this, SLOT( minimize() ) );
@@ -274,19 +274,19 @@ QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
 
 void QDockWindowHandle::paintEvent( QPaintEvent *e )
 {
-    if ( !dockWidget->dockArea )
+    if ( !dockWindow->dockArea )
 	return;
     QPainter p( this );
-    if ( !dockWidget->area() || !dockWidget->isCloseEnabled() ) {
+    if ( !dockWindow->area() || !dockWindow->isCloseEnabled() ) {
 	style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),
-				   dockWidget->orientation(), FALSE, colorGroup() );
+				   dockWindow->orientation(), FALSE, colorGroup() );
     } else {
-	if ( dockWidget->area()->orientation() == Horizontal )
+	if ( dockWindow->area()->orientation() == Horizontal )
 	    style().drawToolBarHandle( &p, QRect( 0, 12, width(), height() - 12 ),
-				       dockWidget->orientation(), FALSE, colorGroup() );
+				       dockWindow->orientation(), FALSE, colorGroup() );
 	else
 	    style().drawToolBarHandle( &p, QRect( 0, 1, width() - 12, height() - 1 ),
-				       dockWidget->orientation(), FALSE, colorGroup() );
+				       dockWindow->orientation(), FALSE, colorGroup() );
     }
 
     QWidget::paintEvent( e );
@@ -301,36 +301,36 @@ void QDockWindowHandle::mousePressEvent( QMouseEvent *e )
     hadDblClick = FALSE;
     mousePressed = TRUE;
     offset = e->pos();
-    dockWidget->startRectDraw( e->pos() );
+    dockWindow->startRectDraw( e->pos() );
 }
 
 void QDockWindowHandle::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed || e->pos() == offset )
 	return;
-    dockWidget->handleMove( e->globalPos() - offset, e->globalPos() );
+    dockWindow->handleMove( e->globalPos() - offset, e->globalPos() );
 }
 
 void QDockWindowHandle::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( !mousePressed )
 	return;
-    dockWidget->endRectDraw();
+    dockWindow->endRectDraw();
     mousePressed = FALSE;
     if ( !hadDblClick && offset == e->pos() ) {
 	timer->start( QApplication::doubleClickInterval(), TRUE );
     } else if ( !hadDblClick ) {
-	dockWidget->updatePosition( e->globalPos() );
+	dockWindow->updatePosition( e->globalPos() );
     }
 }
 
 void QDockWindowHandle::minimize()
 {
-    if ( dockWidget->area() && dockWidget->area()->parentWidget() &&
-	 dockWidget->area()->parentWidget()->inherits( "QMainWindow" ) ) {
-	QMainWindow *mw = (QMainWindow*)dockWidget->area()->parentWidget();
-	if ( mw->isDockEnabled( dockWidget, Qt::Minimized ) )
-	    mw->moveDockWindow( dockWidget, Qt::Minimized );
+    if ( dockWindow->area() && dockWindow->area()->parentWidget() &&
+	 dockWindow->area()->parentWidget()->inherits( "QMainWindow" ) ) {
+	QMainWindow *mw = (QMainWindow*)dockWindow->area()->parentWidget();
+	if ( mw->isDockEnabled( dockWindow, Qt::Minimized ) )
+	    mw->moveDockWindow( dockWindow, Qt::Minimized );
     }
 }
 
@@ -346,18 +346,18 @@ void QDockWindowHandle::updateGui()
 	closeButton->setPixmap( close_xpm );
 	closeButton->setFixedSize( 12, 12 );
 	connect( closeButton, SIGNAL( clicked() ),
-		 dockWidget, SLOT( hide() ) );
+		 dockWindow, SLOT( hide() ) );
     }
 
-    if ( dockWidget->isCloseEnabled() && dockWidget->area() )
+    if ( dockWindow->isCloseEnabled() && dockWindow->area() )
 	closeButton->show();
     else
 	closeButton->hide();
 
-    if ( !dockWidget->area() )
+    if ( !dockWindow->area() )
 	return;
 
-    if ( dockWidget->area()->orientation() == Horizontal )
+    if ( dockWindow->area()->orientation() == Horizontal )
 	closeButton->move( 2, 2 );
     else
 	closeButton->move( width() - closeButton->width() - 2, 2 );
@@ -365,14 +365,14 @@ void QDockWindowHandle::updateGui()
 
 QSize QDockWindowHandle::minimumSizeHint() const
 {
-    if ( dockWidget->orientation() == Horizontal )
-	return QSize( dockWidget->isCloseEnabled() ? 18 : 12, 0 );
-    return QSize( 0, dockWidget->isCloseEnabled() ? 18 : 12 );
+    if ( dockWindow->orientation() == Horizontal )
+	return QSize( dockWindow->isCloseEnabled() ? 18 : 12, 0 );
+    return QSize( 0, dockWindow->isCloseEnabled() ? 18 : 12 );
 }
 
 QSizePolicy QDockWindowHandle::sizePolicy() const
 {
-    if ( dockWidget->orientation() != Horizontal )
+    if ( dockWindow->orientation() != Horizontal )
 	return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
     return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 }
@@ -408,7 +408,7 @@ signals:
     void doubleClicked();
 
 private:
-    QDockWindow *dockWidget;
+    QDockWindow *dockWindow;
     QPoint offset;
     bool mousePressed;
     QToolButton *closeButton;
@@ -417,7 +417,7 @@ private:
 };
 
 QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
-    : QWidget( dw, "qt_dockwidget_internal" ), dockWidget( dw ), mousePressed( FALSE ),
+    : QWidget( dw, "qt_dockwidget_internal" ), dockWindow( dw ), mousePressed( FALSE ),
       closeButton( 0 )
 {
     setMouseTracking( TRUE );
@@ -433,22 +433,22 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
     mousePressed = TRUE;
     hadDblClick = FALSE;
     offset = e->pos();
-    dockWidget->startRectDraw( e->pos() );
+    dockWindow->startRectDraw( e->pos() );
 }
 
 void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed )
 	return;
-    dockWidget->handleMove( e->globalPos() - offset, e->globalPos() );
+    dockWindow->handleMove( e->globalPos() - offset, e->globalPos() );
 }
 
 void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    dockWidget->endRectDraw();
+    dockWindow->endRectDraw();
     mousePressed = FALSE;
     if ( !hadDblClick )
-	dockWidget->updatePosition( e->globalPos() );
+	dockWindow->updatePosition( e->globalPos() );
 }
 
 void QDockWindowTitleBar::paintEvent( QPaintEvent *e )
@@ -460,7 +460,7 @@ void QDockWindowTitleBar::paintEvent( QPaintEvent *e )
     f.setPointSize( f.pointSize() - 1 ); // #### we need a font size for that defined be the desktop environment....
     p.setFont( f );
     p.setPen( colorGroup().highlightedText() );
-    p.drawText( 5, height() - p.fontMetrics().descent(), dockWidget->caption() );
+    p.drawText( 5, height() - p.fontMetrics().descent(), dockWindow->caption() );
 }
 
 void QDockWindowTitleBar::resizeEvent( QResizeEvent * )
@@ -475,10 +475,10 @@ void QDockWindowTitleBar::updateGui()
 	closeButton->setPixmap( close_xpm );
 	closeButton->setFixedSize( 12, 12 );
 	connect( closeButton, SIGNAL( clicked() ),
-		 dockWidget, SLOT( hide() ) );
+		 dockWindow, SLOT( hide() ) );
     }
 
-    if ( dockWidget->isCloseEnabled() )
+    if ( dockWindow->isCloseEnabled() )
 	closeButton->show();
     else
 	closeButton->hide();
@@ -598,7 +598,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ),
       curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ),
-      moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ), nl( FALSE ), dockWidgetData( 0 ),
+      moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ), nl( FALSE ), dockWindowData( 0 ),
       lastPos( -1, -1 )
 {
     widgetResizeHandler = new QWidgetResizeHandler( this );
@@ -655,7 +655,7 @@ void QDockWindow::setOrientation( Orientation o )
 
 QDockWindow::~QDockWindow()
 {
-    delete (QDockArea::DockWindowData*)dockWidgetData;
+    delete (QDockArea::DockWindowData*)dockWindowData;
 }
 
 /*!  \reimp
@@ -813,8 +813,8 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
     if ( state == InDock ) {
 	if ( tmpDockArea ) {
 	    if ( dockArea && dockArea != tmpDockArea ) {
-		delete (QDockArea::DockWindowData*)dockWidgetData;
-		dockWidgetData = dockArea->dockWidgetData( this );
+		delete (QDockArea::DockWindowData*)dockWindowData;
+		dockWindowData = dockArea->dockWindowData( this );
 		dockArea->removeDockWindow( this, FALSE, FALSE );
 	    }
 	    dockArea = tmpDockArea;
@@ -822,8 +822,8 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	}
     } else {
 	if ( dockArea ) {
-	    delete (QDockArea::DockWindowData*)dockWidgetData;
-	    dockWidgetData = dockArea->dockWidgetData( this );
+	    delete (QDockArea::DockWindowData*)dockWindowData;
+	    dockWindowData = dockArea->dockWindowData( this );
 	    dockArea->removeDockWindow( this, TRUE, startOrientation != Horizontal );
 	}
 	dockArea = 0;
@@ -1155,8 +1155,8 @@ void QDockWindow::undock( QWidget *w )
     if ( topLevelWidget() )
 	p = topLevelWidget()->pos() + QPoint( 20, 20 );
     if ( dockArea ) {
-	delete (QDockArea::DockWindowData*)dockWidgetData;
-	dockWidgetData = dockArea->dockWidgetData( this );
+	delete (QDockArea::DockWindowData*)dockWindowData;
+	dockWindowData = dockArea->dockWindowData( this );
 	dockArea->removeDockWindow( this, TRUE, orientation() != Horizontal );
     }
     dockArea = 0;
@@ -1192,13 +1192,13 @@ void QDockWindow::removeFromDock()
 
 void QDockWindow::dock()
 {
-    if ( !(QDockArea::DockWindowData*)dockWidgetData ||
-	 !( (QDockArea::DockWindowData*)dockWidgetData )->area )
+    if ( !(QDockArea::DockWindowData*)dockWindowData ||
+	 !( (QDockArea::DockWindowData*)dockWindowData )->area )
 	return;
     curPlace = InDock;
     lastPos = pos();
-    ( (QDockArea::DockWindowData*)dockWidgetData )->
-	area->dockWidget( this, (QDockArea::DockWindowData*)dockWidgetData );
+    ( (QDockArea::DockWindowData*)dockWindowData )->
+	area->dockWindow( this, (QDockArea::DockWindowData*)dockWindowData );
     emit orientationChanged( orientation() );
 }
 

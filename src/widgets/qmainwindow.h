@@ -59,7 +59,7 @@ class Q_EXPORT QMainWindow: public QWidget
     Q_PROPERTY( bool usesBigPixmaps READ usesBigPixmaps WRITE setUsesBigPixmaps )
     Q_PROPERTY( bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel )
     Q_PROPERTY( bool toolBarsMovable READ toolBarsMovable WRITE setToolBarsMovable )
-    Q_PROPERTY( bool dockWidgetsMovable READ dockWidgetsMovable WRITE setDockWindowsMovable )
+    Q_PROPERTY( bool dockWindowsMovable READ dockWindowsMovable WRITE setDockWindowsMovable )
     Q_PROPERTY( bool opaqueMoving READ opaqueMoving WRITE setOpaqueMoving )
 
 public:
@@ -96,14 +96,14 @@ public:
     bool rightJustification() const;
     bool usesBigPixmaps() const;
     bool usesTextLabel() const;
-    bool dockWidgetsMovable() const;
+    bool dockWindowsMovable() const;
     bool opaqueMoving() const;
 
     bool eventFilter( QObject*, QEvent* );
 
     bool getLocation( QDockWindow *tb, Dock &dock, int &index, bool &nl, int &extraOffset ) const;
 
-    QList<QDockWindow> dockWidgets( Dock dock ) const;
+    QList<QDockWindow> dockWindows( Dock dock ) const;
     void lineUpDockWindows( bool keepNewLines = FALSE );
 
     bool isDockMenuEnabled() const;
@@ -138,14 +138,14 @@ public slots:
 signals:
     void pixmapSizeChanged( bool );
     void usesTextLabelChanged( bool );
-    void dockWidgetPositionChanged( QDockWindow * );
+    void dockWindowPositionChanged( QDockWindow * );
 
     // compatibility stuff
     void toolBarPositionChanged( QToolBar * );
 
 protected slots:
     virtual void setUpLayout();
-    bool showDockMenu( const QPoint &globalPos );
+    virtual bool showDockMenu( const QPoint &globalPos );
 
 protected:
     void paintEvent( QPaintEvent * );
@@ -205,7 +205,7 @@ inline void QMainWindow::removeToolBar( QDockWindow *w )
 
 inline bool QMainWindow::toolBarsMovable() const
 {
-    return dockWidgetsMovable();
+    return dockWindowsMovable();
 }
 
 inline void QMainWindow::lineUpToolBars( bool keepNewLines )

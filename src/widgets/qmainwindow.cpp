@@ -462,7 +462,7 @@ public:
 
     QDockArea *topDock, *bottomDock, *leftDock, *rightDock;
 
-    QList<QDockWindow> dockWidgets;
+    QList<QDockWindow> dockWindows;
     QMap<Qt::Dock, bool> docks;
     QStringList disabledDocks;
     bool dockMenu;
@@ -483,7 +483,8 @@ public:
 
   In addition, you need the large central widget, which you supply and
   tell QMainWindow about using setCentralWidget(), and perhaps a few
-  tool bars, which you can add using addToolBar().
+  tool bars - or dock windows in general-, which you can add using
+  addDockWindow().
 
   The central widget is not touched by QMainWindow.  QMainWindow
   manages its geometry, and that is all.  For example, the
@@ -500,43 +501,64 @@ public:
   bar.  toolTipGroup() provides access to the QToolTipGroup, but there
   is no way to set the tool tip group.
 
-  The QMainWindow allows by default toolbars in all docking areas.
-  You can use setDockEnabled() to enable and disable docking areas
-  for toolbars. Currently, only \c Top, \c Left, \c Right, \c Bottom
-  and \c Minimized are meaningful.
+  The QMainWindow allows by default dock window (toolbar) docking in
+  all areas.  You can use setDockEnabled() to enable and disable
+  docking areas for toolbars. Currently, \c Top, \c Left, \c Right, \c
+  Bottom, \c Minimized and \c TornOff (floating) are meaningful.
 
+  For further documentation note, that toolbars are just dock windows
+  with some extra functionality. So everything which applies to dock
+  windows also applies to toolbars. See the documentation of
+  QDockWindow and QToolBar for further information.
+  
   Several functions let you change the appearance of a QMainWindow
   globally: <ul>
-  <li> setRightJustification() determines whether QMainWindow
-  should ensure that the toolbars fill the available space
-  (see also QToolBar::setHorizontalStretchable() and QToolBar::setVerticalStretchable()),
-  <li>  setUsesBigPixmaps() determines whether QToolButton (and other
+  
+  <li> setRightJustification() determines whether QMainWindow should
+  ensure that the toolbars/dock windows fill the available space. This
+  is nearly never usful, rather use
+  QDockWindow::setHorizontalStretchable() and
+  QDockWindow::setVerticalStretchable()) to make specific dock
+  windows/toolbars stretchable.
+  
+  <li> setUsesBigPixmaps() determines whether QToolButton (and other
   classes) should draw small or large pixmaps (see QIconSet for more
   about that),
+  
   <li> setUsesTextLabel() determines whether the toolbar buttons (and
-  other classes), should display a textlabel in addition to pixmaps (see
-  QToolButton for more about that).
+  other classes), should display a textlabel in addition to pixmaps
+  (see QToolButton for more about that).
+  
   </ul>
 
-  Toolbars can be dragged by the user into each enabled docking area
-  and inside each docking area to change the order of the toolbars
-  there. This feature can be enabled and disabled using setToolBarsMovable().
-  By default this feature is enabled. If the \c Minimized dock is enabled the user
-  can hide(minimize)/show(restore) a toolbar with a click on the toolbar handle. The handles of
-  all minimized toolbars are drawn below the menu bar in one row, and if the user
-  moves the mouse cursor onto such a handle, the label of the toolbar
-  is displayed in a tool tip (see QToolBar::label()). So if you enable the Minimized dock,
-  you should specify a meaningful label for each toolbar.
+  Dock windows can be dragged by the user into each enabled docking
+  area, inside each docking area and undocked (floated).. This feature
+  can be enabled and disabled using setDockWindowsMovable().  By
+  default this feature is enabled. If the \c Minimized dock is enabled
+  the user can hide(minimize)/show(restore) a dock window with a click
+  on the toolbar handle. The handles of all minimized toolbars are
+  drawn below the menu bar in one row, and if the user moves the mouse
+  cursor onto such a handle, the caption of the dock window is
+  displayed in a tool tip (see QDockWindow::caption() or
+  QToolBar::label()). So if you enable the Minimized dock, you should
+  specify a meaningful caption/label for each dock
+  window/toolbar. With a double click on a dock window handle, the
+  dockwindow gets undocked. With a double click on a floating dock
+  window's titlebar the dock window gets docked again.
+  
+  All this management of dock windows and toolbars is infact done by
+  QDockArea, but this is done transparently through the QMainWindow API.
 
-  Normally toolbars are moved transparently (this means while the user
-  drags one, a rectangle is drawn on the screen). With setOpaqueMoving()
-  it's possible to switch between opaque and transparent moving
-  of toolbars.
+  Normally dock windows are moved transparently (this means while the
+  user drags one, a rectangle is drawn on the screen). With
+  setOpaqueMoving() it's possible to switch between opaque and
+  transparent moving of toolbars.
 
-  The main window's menubar is static (on the top) by default. If you want a movable
-  menubar, create a QMenuBar as stretchable widget inside its
-  own movable toolbar and restrict this toolbar to only live within the
-  Top or Bottom dock:
+  The main window's menubar is static (on the top) by default. If you
+  want a movable menubar, create a QMenuBar as stretchable widget
+  inside its own movable dock window or toolbar and restrict this
+  dock window to only live within the Top or Bottom dock:
+  
   \code
   QToolBar *tb = new QToolBar( this );
   addToolBar( tb, tr( "Menubar" ), Top, FALSE );
@@ -547,25 +569,25 @@ public:
   setDockEnabled( tb, Right, FALSE );
   \endcode
 
-  An application with multiple toolbars can choose to save the current
-  toolbar layout in order to restore it in the next session. To do so,
-  use getLocation() on each toolbar, store the data and restore the
-  layout using moveToolBar() on each toolbar again. When restoring,
-  ensure to move the toolbars in exactly the same order in which you
-  got the information.
+  An application with multiple dock windows can choose to save the
+  current dock window layout in order to restore it in the next
+  session. To do so, use getLocation() on each dock window, store the
+  data and restore the layout using moveDockWindow() on each dock
+  window again. When restoring, ensure to move the dock windows in
+  exactly the same order in which you got the information.
 
   For multi-document interfaces (MDI), use a QWorkspace as central
   widget.
 
   <img src=qmainwindow-m.png> <img src=qmainwindow-w.png>
 
-  \sa QToolBar QStatusBar QMenuBar QToolTipGroup QDialog
+  \sa QToolBar QDockWindow QStatusBar QMenuBar QToolTipGroup QDialog
 */
 
 /*!
   \enum QMainWindow::Dock
 
-  Each toolbar can be in one of the following positions:
+  Each dock window can be in one of the following positions:
   <ul>
     <li>\c Top - above the central widget, below the menubar.
     <li>\c Bottom - below the central widget, above the status bar.
@@ -573,7 +595,8 @@ public:
     <li>\c Right - to the left of the central widget.
     <li>\c Minimized - the toolbar is not shown - all handles of minimized toolbars
     are drawn in one row below the menu bar.
-  </ul>
+    <li> \c TornOff - floating dock window as own toplevel window which always stays on to of the mainwindow
+    </ul>
 
   Other values are also defined for future expansion.
 */
@@ -767,7 +790,7 @@ QToolTipGroup * QMainWindow::toolTipGroup() const
 /*!  Sets \a dock to be available if \a enable is TRUE, and not
   available if \a enable is FALSE.
 
-  The user can drag a toolbar to any enabled dock.
+  The user can drag a dock window to any enabled dock.
 */
 
 void QMainWindow::setDockEnabled( Dock dock, bool enable )
@@ -785,6 +808,11 @@ bool QMainWindow::isDockEnabled( Dock dock ) const
 {
     return d->docks[ dock ];
 }
+
+/*!  Returns TRUE if \a area is enabled, or FALSE if it is not.
+
+  \sa setDockEnabled()
+*/
 
 bool QMainWindow::isDockEnabled( QDockArea *area ) const
 {
@@ -817,6 +845,12 @@ void QMainWindow::setDockEnabled( QDockWindow *tb, Dock dock, bool enable )
 	d->disabledDocks << s;
 }
 
+/*!  Returns TRUE if \a area is enabled for the dock window \a tb, or
+FALSE if it is not.
+
+  \sa setDockEnabled()
+*/
+
 bool QMainWindow::isDockEnabled( QDockWindow *tb, QDockArea *area ) const
 {
     Dock dock;
@@ -833,8 +867,8 @@ bool QMainWindow::isDockEnabled( QDockWindow *tb, QDockArea *area ) const
     return isDockEnabled( tb, dock );
 }
 
-/*!
-  Returns TRUE if \a dock is enabled for the toolbar \a tb , or FALSE if it is not.
+/*!  Returns TRUE if \a dock is enabled for the dock window \a tb , or
+  FALSE if it is not.
 
   \sa setDockEnabled()
 */
@@ -848,135 +882,136 @@ bool QMainWindow::isDockEnabled( QDockWindow *tb, Dock dock ) const
 
 
 
-/*!  Adds \a toolBar to this the end of \a edge and makes it start a
-new line of tool bars if \a nl is TRUE.
+/*!  Adds \a dockWindow to this the end of \a edge and makes it start
+  a new line of dock windows if \a nl is TRUE.
 
-If \a toolBar is already managed by some main window, it is first
-removed from that window.
+  If \a dockWindow is already managed by some main window, it is first
+  removed from that window.
 */
 
-void QMainWindow::addDockWindow( QDockWindow * toolBar,
+void QMainWindow::addDockWindow( QDockWindow *dockWindow,
 			      Dock edge, bool newLine )
 {
-    moveDockWindow( toolBar, edge );
-    toolBar->setNewLine( newLine );
-    if ( d->dockWidgets.find( toolBar ) == -1 )
-	d->dockWidgets.append( toolBar );
-    connect( toolBar, SIGNAL( placeChanged( QDockWindow::Place ) ),
+    moveDockWindow( dockWindow, edge );
+    dockWindow->setNewLine( newLine );
+    if ( d->dockWindows.find( dockWindow ) == -1 )
+	d->dockWindows.append( dockWindow );
+    connect( dockWindow, SIGNAL( placeChanged( QDockWindow::Place ) ),
 	     this, SLOT( slotPlaceChanged() ) );
-    toolBar->installEventFilter( this );
+    dockWindow->installEventFilter( this );
 }
 
 
-/*!  Adds \a toolBar to this the end of \a edge, labelling it \a label
-and makes it start a new line of tool bars if \a newLine is TRUE.
+/*!  Adds \a dockWindow to this the end of \a edge, labelling it \a
+label and makes it start a new line of dock windows if \a newLine is
+TRUE.
 
-If \a toolBar is already managed by some main window, it is first
+If \a dockWindow is already managed by some main window, it is first
 removed from that window.
 */
 
-void QMainWindow::addDockWindow( QDockWindow * toolBar, const QString &label,
+void QMainWindow::addDockWindow( QDockWindow * dockWindow, const QString &label,
 			      Dock edge, bool newLine )
 {
-    addDockWindow( toolBar, edge, newLine );
-    if ( toolBar->inherits( "QToolBar" ) )
-	( (QToolBar*)toolBar )->setLabel( label );
+    addDockWindow( dockWindow, edge, newLine );
+    if ( dockWindow->inherits( "QToolBar" ) )
+	( (QToolBar*)dockWindow )->setLabel( label );
 }
 
 /*!
-  Moves \a toolBar to this the end of \a edge.
+  Moves \a dockWindow to this the end of \a edge.
 
-  If \a toolBar is already managed by some main window, it is moved from
+  If \a dockWindow is already managed by some main window, it is moved from
   that window to this.
 */
 
-void QMainWindow::moveDockWindow( QDockWindow * toolBar, Dock edge )
+void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
 {
     switch ( edge ) {
     case Top:
-	toolBar->removeFromDock();
-	d->topDock->moveDockWindow( toolBar );
+	dockWindow->removeFromDock();
+	d->topDock->moveDockWindow( dockWindow );
 	break;
     case Bottom:
-	toolBar->removeFromDock();
-	d->bottomDock->moveDockWindow( toolBar );
+	dockWindow->removeFromDock();
+	d->bottomDock->moveDockWindow( dockWindow );
 	break;
     case Right:
-	toolBar->removeFromDock();
-	d->rightDock->moveDockWindow( toolBar );
+	dockWindow->removeFromDock();
+	d->rightDock->moveDockWindow( dockWindow );
 	break;
     case Left:
-	toolBar->removeFromDock();
-	d->leftDock->moveDockWindow( toolBar );
+	dockWindow->removeFromDock();
+	d->leftDock->moveDockWindow( dockWindow );
 	break;
     case TornOff:
-	toolBar->removeFromDock();
-	toolBar->undock();
+	dockWindow->removeFromDock();
+	dockWindow->undock();
 	break;
     case Minimized:
-	toolBar->undock( d->hideDock );
+	dockWindow->undock( d->hideDock );
 	break;
     case Unmanaged:
 	break;
     }
-    if ( toolBar->inherits( "QToolBar" ) )
-	( (QToolBar*)toolBar )->setOrientation( toolBar->orientation() );
+    if ( dockWindow->inherits( "QToolBar" ) )
+	( (QToolBar*)dockWindow )->setOrientation( dockWindow->orientation() );
 }
 
 /*!
-  Moves \a toolBar to the position \a index of \a edge.
+  Moves \a dockWindow to the position \a index of \a edge.
 
-  If \a toolBar is already managed by some main window, it is moved from
+  If \a dockWindow is already managed by some main window, it is moved from
   that window to this.
 */
 
-void QMainWindow::moveDockWindow( QDockWindow * toolBar, Dock edge, bool nl, int index, int extraOffset )
+void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, int index, int extraOffset )
 {
-    toolBar->setNewLine( nl );
-    toolBar->setOffset( extraOffset );
+    dockWindow->setNewLine( nl );
+    dockWindow->setOffset( extraOffset );
     switch ( edge ) {
     case Top:
-	toolBar->removeFromDock();
-	d->topDock->moveDockWindow( toolBar, index );
+	dockWindow->removeFromDock();
+	d->topDock->moveDockWindow( dockWindow, index );
 	break;
     case Bottom:
-	toolBar->removeFromDock();
-	d->bottomDock->moveDockWindow( toolBar, index );
+	dockWindow->removeFromDock();
+	d->bottomDock->moveDockWindow( dockWindow, index );
 	break;
     case Right:
-	toolBar->removeFromDock();
-	d->rightDock->moveDockWindow( toolBar, index );
+	dockWindow->removeFromDock();
+	d->rightDock->moveDockWindow( dockWindow, index );
 	break;
     case Left:
-	toolBar->removeFromDock();
-	d->leftDock->moveDockWindow( toolBar, index );
+	dockWindow->removeFromDock();
+	d->leftDock->moveDockWindow( dockWindow, index );
 	break;
     case TornOff:
-	toolBar->removeFromDock();
-	toolBar->undock();
+	dockWindow->removeFromDock();
+	dockWindow->undock();
 	break;
     case Minimized:
-	toolBar->undock( d->hideDock );
+	dockWindow->undock( d->hideDock );
 	break;
     case Unmanaged:
 	break;
     }
-    if ( toolBar->inherits( "QToolBar" ) )
-	( (QToolBar*)toolBar )->setOrientation( toolBar->orientation() );
+    if ( dockWindow->inherits( "QToolBar" ) )
+	( (QToolBar*)dockWindow )->setOrientation( dockWindow->orientation() );
 }
 
 /*!
-  Removes \a toolBar from this main window's docking area, if \a toolBar is
+  Removes \a dockWindow from this main window's docking area, if \a dockWindow is
   non-null and known by this main window.
 */
 
-void QMainWindow::removeDockWindow( QDockWindow * toolBar )
+void QMainWindow::removeDockWindow( QDockWindow * dockWindow )
 {
-    toolBar->hide();
-    d->dockWidgets.removeRef( toolBar );
-    disconnect( toolBar, SIGNAL( placeChanged( QDockWindow::Place ) ),
+    dockWindow->hide();
+    d->dockWindows.removeRef( dockWindow );
+    disconnect( dockWindow, SIGNAL( placeChanged( QDockWindow::Place ) ),
 		this, SLOT( slotPlaceChanged() ) );
-    toolBar->removeEventFilter( this );
+    dockWindow->removeEventFilter( this );
 }
 
 /*!  Sets up the geometry management of this window.  Called
@@ -1281,20 +1316,19 @@ void QMainWindow::setUsesTextLabel( bool enable )
 */
 
 /*!
-  \fn void QMainWindow::toolBarPositionChanged( QDockWindow *toolbar )
+  \fn void QMainWindow::dockWindowPositionChanged( QDockWindow *dockWindow )
 
-  This signal is emitted when the \a toolbar has changed its position.
+  This signal is emitted when the \a dockWindow has changed its position.
   This means it has been moved to another dock or inside the dock.
 
   \sa getLocation()
 */
 
-/*!
-  Sets this main window to right-justifies its toolbars if \a enable
-  is TRUE. If enable is FALSE, only stretchable toolbars are expanded,
-  while non-stretchable toolbars get just the space they need. Given
-  that most toolbars are not stretchable, this usually results in a
-  ragged right edge.
+/*!  Sets this main window to right-justifies its dock windows if \a
+  enable is TRUE. If enable is FALSE, only stretchable dock windows
+  are expanded, while non-stretchable dock windows get just the space
+  they need. Given that most dock windows are not stretchable, this
+  usually results in a ragged right edge.
 
   The default is FALSE.
 
@@ -1310,8 +1344,8 @@ void QMainWindow::setRightJustification( bool enable )
 }
 
 
-/*!  Returns TRUE if this main windows right-justifies its toolbars, and
-  FALSE if it uses a ragged right edge.
+/*!  Returns TRUE if this main windows right-justifies its dock
+  windows, and FALSE if it uses a ragged right edge.
 
   The default is to use a ragged right edge.
 
@@ -1325,6 +1359,8 @@ bool QMainWindow::rightJustification() const
     return d->justify;
 }
 
+/*! \internal
+ */
 
 void QMainWindow::triggerLayout( bool deleteLayout )
 {
@@ -1367,14 +1403,15 @@ void QMainWindow::styleChange( QStyle& old )
     QWidget::styleChange( old );
 }
 
-/*!
-  Finds and gives back the \a dock and the \a index there of the toolbar \a tb. \a dock is
-  set to the dock of the mainwindow in which \a tb is and \a index is set to the
-  position of the toolbar in this dock. If the toolbar has a new line, \a nl is set to TRUE,
-  else to FALSE.
+/*!  Finds and gives back the \a dock and the \a index there of the
+  dock window \a tb. \a dock is set to the dock of the mainwindow in
+  which \a tb is and \a index is set to the position of the dock
+  window in this dock. If the dock window has a new line, \a nl is set
+  to TRUE, else to FALSE.
 
-  This method returns TRUE if the information could be found out, otherwise FALSE
-  (e.g. because the toolbar \a tb was not found in this mainwindow)
+  This method returns TRUE if the information could be found out,
+  otherwise FALSE (e.g. because the dock window \a tb was not found in
+  this mainwindow)
 */
 
 bool QMainWindow::getLocation( QDockWindow *tb, Dock &dock, int &index, bool &nl, int &extraOffset ) const
@@ -1399,9 +1436,12 @@ bool QMainWindow::getLocation( QDockWindow *tb, Dock &dock, int &index, bool &nl
     return TRUE;
 }
 
+/*!  Returns a list of all toolbars which are placed in \a dock.
+*/
+
 QList<QToolBar> QMainWindow::toolBars( Dock dock ) const
 {
-    QList<QDockWindow> lst = dockWidgets( dock );
+    QList<QDockWindow> lst = dockWindows( dock );
     QList<QToolBar> tbl;
     for ( QDockWindow *w = lst.first(); w; w = lst.next() ) {
 	if ( w->inherits( "QToolBar" ) )
@@ -1410,26 +1450,23 @@ QList<QToolBar> QMainWindow::toolBars( Dock dock ) const
     return tbl;
 }
 
-/*!
-  \fn QList<QDockWindow> QMainWindow::toolBars( Dock dock ) const
-
-  Returns a list of all toolbars which are placed in \a dock.
+/*!  Returns a list of all dock windows which are placed in \a dock.
 */
 
-QList<QDockWindow> QMainWindow::dockWidgets( Dock dock ) const
+QList<QDockWindow> QMainWindow::dockWindows( Dock dock ) const
 {
     QList<QDockWindow> lst;
     switch ( dock ) {
     case Top:
-	return d->topDock->dockWidgetList();
+	return d->topDock->dockWindowList();
     case Bottom:
-	return d->bottomDock->dockWidgetList();
+	return d->bottomDock->dockWindowList();
     case Left:
-	return d->leftDock->dockWidgetList();
+	return d->leftDock->dockWindowList();
     case Right:
-	return d->rightDock->dockWidgetList();
+	return d->rightDock->dockWindowList();
     case TornOff: {
-	for ( QDockWindow *w = d->dockWidgets.first(); w; w = d->dockWidgets.last() ) {
+	for ( QDockWindow *w = d->dockWindows.first(); w; w = d->dockWindows.last() ) {
 	    if ( !w->area() && w->place() == QDockWindow::OutsideDock )
 		lst.append( w );
 	}
@@ -1454,17 +1491,17 @@ QList<QDockWindow> QMainWindow::dockWidgets( Dock dock ) const
     return lst;
 }
 
-/*!
-  Sets the toolbars to be movable if \a enable is TRUE, or static
-  otherwise.
+/*!  Sets the dock windows to be movable if \a enable is TRUE, or
+  static otherwise.
 
-  Movable toolbars can be dragged around between and within the
-  different toolbar docks by the user. By default toolbars are moved
-  transparent, but this setting can be changed by setOpaqueMoving().
+  Movable dock windows can be dragged around between and within the
+  different docks or undocked/docked from/into the mainwindow by the
+  user. By default dock windows are moved transparent, but this
+  setting can be changed by setOpaqueMoving().
 
   The default is TRUE.
 
-  \sa setDockEnabled(), toolBarsMovable(), setOpaqueMoving()
+  \sa setDockEnabled(), dockWindowsMovable(), setOpaqueMoving()
 */
 
 void QMainWindow::setDockWindowsMovable( bool enable )
@@ -1484,17 +1521,16 @@ void QMainWindow::setDockWindowsMovable( bool enable )
   \sa setDockWindowsMovable()
 */
 
-bool QMainWindow::dockWidgetsMovable() const
+bool QMainWindow::dockWindowsMovable() const
 {
     return d->movable;
 }
 
-/*!
-  If you set \a b to TRUE, the use can move the
-  toolbars opaque, otherwise this is done transparent. This
-  setting makes only sense, if toolBarsMovable() is set to TRUE.
+/*!  If you set \a b to TRUE, the use can move the dock windows
+  opaque, otherwise this is done transparent. This setting makes only
+  sense, if dockWindowsMovable() is set to TRUE.
 
-  \sa setToolbarsMovable()
+  \sa setDockWindowsMovable()
 */
 
 void QMainWindow::setOpaqueMoving( bool b )
@@ -1502,9 +1538,8 @@ void QMainWindow::setOpaqueMoving( bool b )
     d->opaque = b;
 }
 
-/*!
-  Returns whether the toolbars of the mainwindow can
-  be moved opaque or transparent.
+/*!  Returns whether the dock windows of the mainwindow can be moved
+  opaque or transparent.
 
   \sa setOpaqueMoving()
 */
@@ -1514,27 +1549,28 @@ bool QMainWindow::opaqueMoving() const
     return d->opaque;
 }
 
-/*!
-  As toolbars can be freely moved inside docks, it's possible to line them
-  up nicely with this method to get rid of all the unused space. If \a keepNewLines
-  is TRUE, all toolbars stay in the line in which they are, else they are packed
-  together as compact as possible.
+/*!  As dock windows can be freely moved inside docks, it's possible
+  to line them up nicely with this method to get rid of all the unused
+  space. If \a keepNewLines is TRUE, all dock windows stay in the line
+  in which they are, else they are packed together as compact as
+  possible.
 
-  The method only works if movable() returns TRUE.
+  The method only works if dockWindowsMovable() returns TRUE.
 */
 
 void QMainWindow::lineUpDockWindows( bool keepNewLines )
 {
+    if ( !dockWindowsMovable() )
+	return;
     d->topDock->lineUp( keepNewLines );
     d->leftDock->lineUp( keepNewLines );
     d->rightDock->lineUp( keepNewLines );
     d->bottomDock->lineUp( keepNewLines );
 }
 
-/*!
-  Returns TRUE, if rightclicking on an empty space on a toolbar dock
-  or rightclicking on a toolbar handle opens a popup menu which allows
-  lining up toolbars and hiding/showing toolbars.
+/*!  Returns TRUE, if rightclicking on a dock window or on a dock
+  opens a popup menu which allows lining up dock windows,
+  hiding/showing dock windows and customizing them.
 
   \sa setDockEnabled(), lineUpDockWindows()
 */
@@ -1544,10 +1580,9 @@ bool QMainWindow::isDockMenuEnabled() const
     return d->dockMenu;
 }
 
-/*!
-  When passing TRUE for \a b here, rightclicking on an empty space on a toolbar dock
-  or rightclicking on a toolbar handle opens a popup menu which allows lining up toolbars
-  and hiding/showing toolbars.
+/*!  When passing TRUE for \a b here, rightclicking on a dock window
+  or a dock opens a popup menu which allows lining up dock windows,
+  hiding/showing dock windows and customizing them.
 
   \sa lineUpDockWindows(), isDockMenuEnabled()
 */
@@ -1556,6 +1591,14 @@ void QMainWindow::setDockMenuEnabled( bool b )
 {
     d->dockMenu = b;
 }
+
+/*! Shows the dock menu at the position \a globalPos which allows
+  lining up dock windows, hiding/showing dock windows and customizing
+  them.
+  
+  If you need a specialized popup menu here, you can reimplement that
+  function.
+*/
 
 bool QMainWindow::showDockMenu( const QPoint &globalPos )
 {
@@ -1588,7 +1631,7 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
 	d->rmbMenu->insertSeparator();
     int lineup = -2;
 
-    if ( dockWidgetsMovable() )
+    if ( dockWindowsMovable() )
 	lineup = d->rmbMenu->insertItem( tr( "Line up" ) );
     int config = d->rmbMenu->insertItem( tr( "Customize..." ) );
     int result = d->rmbMenu->exec( globalPos );
@@ -1613,10 +1656,13 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
 void QMainWindow::slotPlaceChanged()
 {
     if ( sender()->inherits( "QDockWindow" ) )
-	emit dockWidgetPositionChanged( (QDockWindow*)sender() );
+	emit dockWindowPositionChanged( (QDockWindow*)sender() );
     if ( sender()->inherits( "QToolBar" ) )
 	emit toolBarPositionChanged( (QToolBar*)sender() );
 }
+
+/*! For internal use of QDockWindow only.
+ */
 
 QDockArea *QMainWindow::dockingArea( const QPoint &p )
 {
@@ -1633,9 +1679,13 @@ QDockArea *QMainWindow::dockingArea( const QPoint &p )
     return 0;
 }
 
+/*! Returns TRUE, if \a dw is a dockwindow known to the mainwindow,
+otherwise FALSE.
+*/
+
 bool QMainWindow::hasDockWindow( QDockWindow *dw )
 {
-    return d->dockWidgets.findRef( dw ) != -1;
+    return d->dockWindows.findRef( dw ) != -1;
 }
 
 #include "qmainwindow.moc"

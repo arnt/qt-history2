@@ -166,7 +166,7 @@ private:
     QVBoxLayout *hbox;
     QHBoxLayout *vbox;
     QBoxLayout *layout;
-    void *dockWidgetData;
+    void *dockWindowData;
     QPoint lastPos;
     QWidgetResizeHandler *widgetResizeHandler;
 

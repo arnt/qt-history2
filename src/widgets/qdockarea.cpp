@@ -70,12 +70,12 @@ QLayoutIterator QDockAreaLayout::iterator()
 
 QSize QDockAreaLayout::sizeHint() const
 {
-    if ( !dockWidgets || !dockWidgets->first() )
+    if ( !dockWindows || !dockWindows->first() )
 	return QSize( 0,0 );
 
     int w = 0;
     int h = 0;
-    QListIterator<QDockWindow> it( *dockWidgets );
+    QListIterator<QDockWindow> it( *dockWindows );
     QDockWindow *dw = 0;
     it.toFirst();
     int y = -1;
@@ -120,11 +120,11 @@ void QDockAreaLayout::init()
 
 QSize QDockAreaLayout::minimumSize() const
 {
-    if ( !dockWidgets || !dockWidgets->first() )
+    if ( !dockWindows || !dockWindows->first() )
 	return QSize( 0, 0 );
     QSize s;
 
-    QListIterator<QDockWindow> it( *dockWidgets );
+    QListIterator<QDockWindow> it( *dockWindows );
     QDockWindow *dw = 0;
     while ( ( dw = it.current() ) != 0 ) {
  	++it;
@@ -261,7 +261,7 @@ static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int l
 
 int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 {
-    if ( !dockWidgets || !dockWidgets->first() )
+    if ( !dockWindows || !dockWindows->first() )
 	return 0;
     // some corrections
     QRect r = rect;
@@ -271,7 +271,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
     // init
     lines.clear();
     ls.clear();
-    QListIterator<QDockWindow> it( *dockWidgets );
+    QListIterator<QDockWindow> it( *dockWindows );
     QDockWindow *dw = 0;
     int start = start_pos( r, orientation() );
     int pos = start;
@@ -382,12 +382,12 @@ int QDockAreaLayout::widthForHeight( int h ) const
   for docking and undocking of QDockWindows and moving them inside the
   dock area. A QDockArea also does wrapping of toolbars to fill the
   available space as good as possible.
-  
+
   Normally you do not directly use a QDockArea, but rather use the
   four built in QDockAreas of a QMainWindow to be able to dock and
   undock QDockWindows (and QToolBars, which are QDockWindows) in a
   QMainWindow.
-  
+
   In some cases it makes sense to use a QDockArea somewhere else, to
   allow docking of widgets there.
 */
@@ -411,13 +411,13 @@ int QDockAreaLayout::widthForHeight( int h ) const
  */
 
 /*!
-  \enum QDockArea::Gravity   
-  
+  \enum QDockArea::Gravity
+
   This enum specifies wheather the dock windows in that area can be
   resized normally (to the right/bottom) or revers (left/top). The
   splitter-like handles for resizable dock windows are placed and controlled
   according to that information.
-  
+
   <ul>
   <li>\c  Normal
   <li>\c Reverse
@@ -431,8 +431,8 @@ int QDockAreaLayout::widthForHeight( int h ) const
 QDockArea::QDockArea( Orientation o, Gravity g, QWidget *parent, const char *name )
     : QWidget( parent, name ), orient( o ), layout( 0 ), grav( g )
 {
-    dockWidgets = new QList<QDockWindow>;
-    layout = new QDockAreaLayout( this, o, dockWidgets, -1, -1, "toollayout" );
+    dockWindows = new QList<QDockWindow>;
+    layout = new QDockAreaLayout( this, o, dockWindows, -1, -1, "toollayout" );
     installEventFilter( this );
 }
 
@@ -441,7 +441,7 @@ QDockArea::QDockArea( Orientation o, Gravity g, QWidget *parent, const char *nam
 
 QDockArea::~QDockArea()
 {
-    delete dockWidgets;
+    delete dockWindows;
 }
 
 /*! Moves the QDockWindow \a w in the dock area. If \a w is not
@@ -452,24 +452,24 @@ QDockArea::~QDockArea()
 
 void QDockArea::moveDockWindow( QDockWindow *w, int index )
 {
-    QDockWindow *dockWidget = 0;
-    int dockWidgetIndex = findDockWindow( w );
-    if ( dockWidgetIndex == -1 ) {
-	dockWidget = w;
-	dockWidget->reparent( this, QPoint( 0, 0 ), TRUE );
+    QDockWindow *dockWindow = 0;
+    int dockWindowIndex = findDockWindow( w );
+    if ( dockWindowIndex == -1 ) {
+	dockWindow = w;
+	dockWindow->reparent( this, QPoint( 0, 0 ), TRUE );
 	w->installEventFilter( this );
 	updateLayout();
 	setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
 				    orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
-	dockWidgets->append( w );
+	dockWindows->append( w );
     }
     w->dockArea = this;
     w->curPlace = QDockWindow::InDock;
     w->updateGui();
 
     if ( index != -1 ) {
-	dockWidgets->removeRef( w );
-	dockWidgets->insert( index, w );
+	dockWindows->removeRef( w );
+	dockWindows->insert( index, w );
     }
 }
 
@@ -481,7 +481,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, int index )
 
 bool QDockArea::hasDockWindow( QDockWindow *w, int *index )
 {
-    int i = dockWidgets->findRef( w );
+    int i = dockWindows->findRef( w );
     if ( index )
 	*index = i;
     return i != -1;
@@ -492,7 +492,7 @@ int QDockArea::lineOf( int index )
     QList<QDockWindow> lineStarts = layout->lineStarts();
     int i = 0;
     for ( QDockWindow *w = lineStarts.first(); w; w = lineStarts.next(), ++i ) {
-	if ( dockWidgets->find( w ) >= index )
+	if ( dockWindows->find( w ) >= index )
 	    return i;
     }
     return i;
@@ -502,36 +502,36 @@ int QDockArea::lineOf( int index )
   new position (global screen coordinates), \a r is the suggested
   rectangle of the dock window and \a swap tells if the orientation of
   the dockwidget needs to be changed.
-  
+
   This function is provided because QDockWindow needs to call it. You
   never should need to call that yourself.
 */
 
 void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r, bool swap )
 {
-    QDockWindow *dockWidget = 0;
-    int dockWidgetIndex = findDockWindow( w );
+    QDockWindow *dockWindow = 0;
+    int dockWindowIndex = findDockWindow( w );
     QList<QDockWindow> lineStarts = layout->lineStarts();
     QValueList<QRect> lines = layout->lineList();
     bool wasAloneInLine = FALSE;
     QPoint pos = mapFromGlobal( p );
-    QRect lr = *lines.at( lineOf( dockWidgetIndex ) );
-    if ( dockWidgetIndex != -1 ) {
+    QRect lr = *lines.at( lineOf( dockWindowIndex ) );
+    if ( dockWindowIndex != -1 ) {
 	if ( lineStarts.find( w ) != -1 &&
-	     ( dockWidgetIndex < (int)dockWidgets->count() - 1 && lineStarts.find( dockWidgets->at( dockWidgetIndex + 1 ) ) != -1 ||
-	       dockWidgetIndex == (int)dockWidgets->count() - 1 ) )
+	     ( dockWindowIndex < (int)dockWindows->count() - 1 && lineStarts.find( dockWindows->at( dockWindowIndex + 1 ) ) != -1 ||
+	       dockWindowIndex == (int)dockWindows->count() - 1 ) )
 	    wasAloneInLine = TRUE;
-	dockWidget = dockWidgets->take( dockWidgetIndex );
+	dockWindow = dockWindows->take( dockWindowIndex );
 	if ( !wasAloneInLine ) { // only do the pre-layout if the widget isn't the only one in its line
-	    if ( lineStarts.findRef( dockWidget ) != -1 && dockWidgetIndex < (int)dockWidgets->count() )
-		dockWidgets->at( dockWidgetIndex )->setNewLine( TRUE );
+	    if ( lineStarts.findRef( dockWindow ) != -1 && dockWindowIndex < (int)dockWindows->count() )
+		dockWindows->at( dockWindowIndex )->setNewLine( TRUE );
 	    layout->layoutItems( QRect( 0, 0, width(), height() ), TRUE );
 	}
     } else {
-	dockWidget = w;
-	dockWidget->reparent( this, QPoint( 0, 0 ), TRUE );
+	dockWindow = w;
+	dockWindow->reparent( this, QPoint( 0, 0 ), TRUE );
 	if ( swap )
-	    dockWidget->resize( dockWidget->height(), dockWidget->width() );
+	    dockWindow->resize( dockWindow->height(), dockWindow->width() );
 	w->installEventFilter( this );
     }
 
@@ -539,9 +539,9 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
     lines = layout->lineList();
 
     QRect rect = QRect( mapFromGlobal( r.topLeft() ), r.size() );
-    dockWidget->setOffset( point_pos( rect.topLeft(), orientation() ) );
-    if ( dockWidgets->isEmpty() ) {
-	dockWidgets->append( dockWidget );
+    dockWindow->setOffset( point_pos( rect.topLeft(), orientation() ) );
+    if ( dockWindows->isEmpty() ) {
+	dockWindows->append( dockWindow );
     } else {
 	int dockLine = -1;
 	bool insertLine = FALSE;
@@ -583,14 +583,14 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 #endif
 	QDockWindow *dw = 0;
 	if ( dockLine >= (int)lines.count() ) { // insert after last line
-	    dockWidgets->append( dockWidget );
-	    dockWidget->setNewLine( TRUE );
+	    dockWindows->append( dockWindow );
+	    dockWindow->setNewLine( TRUE );
 #if defined(QDOCKAREA_DEBUG)
 	    qDebug( "insert at the end" );
 #endif
 	} else if ( dockLine == 0 && insertLine ) { // insert before first line
-	    dockWidgets->insert( 0, dockWidget );
-	    dockWidgets->at( 1 )->setNewLine( TRUE );
+	    dockWindows->insert( 0, dockWindow );
+	    dockWindows->at( 1 )->setNewLine( TRUE );
 #if defined(QDOCKAREA_DEBUG)
 	    qDebug( "insert at the begin" );
 #endif
@@ -605,14 +605,14 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	    qDebug( "search line start of %d", searchLine );
 #endif
 	    QDockWindow *lsw = lineStarts.at( searchLine );
-	    int index = dockWidgets->find( lsw );
+	    int index = dockWindows->find( lsw );
 	    if ( index == -1 ) { // the linestart widget hasn't been found, try to find it harder
-		if ( lsw == w && dockWidgetIndex <= (int)dockWidgets->count())
-		    index = dockWidgetIndex;
+		if ( lsw == w && dockWindowIndex <= (int)dockWindows->count())
+		    index = dockWindowIndex;
 		else
 		    index = 0;
-		if ( index < (int)dockWidgets->count() )
-		    (void)dockWidgets->at( index ); // move current to index
+		if ( index < (int)dockWindows->count() )
+		    (void)dockWindows->at( index ); // move current to index
 	    }
 #if defined(QDOCKAREA_DEBUG)
 	    qDebug( "     which starts at %d", index );
@@ -621,7 +621,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 		// find the index for the widget
 		bool inc = TRUE;
 		bool firstTime = TRUE;
-		for ( dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
+		for ( dw = dockWindows->current(); dw; dw = dockWindows->next() ) {
 		    if ( orientation() == Horizontal )
 			dw->setFixedExtentWidth( -1 );
 		    else
@@ -642,37 +642,37 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 		// if we insert it just before a widget which has a new line, transfer the newline to the docking widget
 		// but not if we didn't only mave a widget in its line which was alone in the line before
 		if ( !( wasAloneInLine && lr.contains( pos ) )
-		     && index >= 0 && index < (int)dockWidgets->count() &&
-		     dockWidgets->at( index )->newLine() && lineOf( index ) == dockLine ) {
+		     && index >= 0 && index < (int)dockWindows->count() &&
+		     dockWindows->at( index )->newLine() && lineOf( index ) == dockLine ) {
 #if defined(QDOCKAREA_DEBUG)
 		    qDebug( "get rid of the old newline and get me one" );
 #endif
-		    dockWidgets->at( index )->setNewLine( FALSE );
-		    dockWidget->setNewLine( TRUE );
+		    dockWindows->at( index )->setNewLine( FALSE );
+		    dockWindow->setNewLine( TRUE );
 		} else if ( wasAloneInLine && lr.contains( pos ) ) {
-		    dockWidget->setNewLine( TRUE );
+		    dockWindow->setNewLine( TRUE );
 		} else { // if we are somewhere in a line, get rid of the newline
-		    dockWidget->setNewLine( FALSE );
+		    dockWindow->setNewLine( FALSE );
 		}
 	    } else { // insert in a new line, so make sure the dock widget and the widget which will be after it have a newline
 #if defined(QDOCKAREA_DEBUG)
 		qDebug( "insert a new line" );
 #endif
-		if ( index < (int)dockWidgets->count() ) {
+		if ( index < (int)dockWindows->count() ) {
 #if defined(QDOCKAREA_DEBUG)
 		    qDebug( "give the widget at %d a newline", index );
 #endif
-		    QDockWindow* nldw = dockWidgets->at( index );
+		    QDockWindow* nldw = dockWindows->at( index );
 		    if ( nldw )
 			nldw->setNewLine( TRUE );
 		}
 #if defined(QDOCKAREA_DEBUG)
 		qDebug( "give me a newline" );
 #endif
-		dockWidget->setNewLine( TRUE );
+		dockWindow->setNewLine( TRUE );
 	    }
 	    // finally insert the widget
-	    dockWidgets->insert( index, dockWidget );
+	    dockWindows->insert( index, dockWindow );
 	}
     }
 
@@ -684,37 +684,37 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 /*! Removes the dock window \a w from this dock area. If \a
   makeFloating is TRUE, \a w gets floated, and if \a swap is TRUE, the
   orientation of \a w gets swapped.
-  
+
   Normally you never need to call that function yourself, as this
   function is only used by QDockWindow. Better use QDockWindow::dock()
   and QDockWindow::undock() instead.
 */
-  
+
 void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap )
 {
     w->removeEventFilter( this );
-    QDockWindow *dockWidget = 0;
+    QDockWindow *dockWindow = 0;
     int i = findDockWindow( w );
     if ( i == -1 )
 	return;
-    dockWidget = dockWidgets->at( i );
-    dockWidgets->remove( i );
+    dockWindow = dockWindows->at( i );
+    dockWindows->remove( i );
     QList<QDockWindow> lineStarts = layout->lineStarts();
-    if ( lineStarts.findRef( dockWidget ) != -1 && i < (int)dockWidgets->count() )
-	dockWidgets->at( i )->setNewLine( TRUE );
+    if ( lineStarts.findRef( dockWindow ) != -1 && i < (int)dockWindows->count() )
+	dockWindows->at( i )->setNewLine( TRUE );
     if ( makeFloating )
-	dockWidget->reparent( topLevelWidget(), WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog,
+	dockWindow->reparent( topLevelWidget(), WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog,
 			      QPoint( 0, 0 ), FALSE );
     if ( swap )
-	dockWidget->resize( dockWidget->height(), dockWidget->width() );
+	dockWindow->resize( dockWindow->height(), dockWindow->width() );
     updateLayout();
-    if ( dockWidgets->isEmpty() )
+    if ( dockWindows->isEmpty() )
 	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
 }
 
 int QDockArea::findDockWindow( QDockWindow *w )
 {
-    return dockWidgets->findRef( w );
+    return dockWindows->findRef( w );
 }
 
 void QDockArea::updateLayout()
@@ -745,10 +745,10 @@ bool QDockArea::eventFilter( QObject *o, QEvent *e )
 
 void QDockArea::invalidNextOffset( QDockWindow *dw )
 {
-    int i = dockWidgets->find( dw );
-    if ( i == -1 || i >= (int)dockWidgets->count() - 1 )
+    int i = dockWindows->find( dw );
+    if ( i == -1 || i >= (int)dockWindows->count() - 1 )
 	return;
-    if ( ( dw = dockWidgets->at( ++i ) ) )
+    if ( ( dw = dockWindows->at( ++i ) ) )
 	dw->setOffset( 0 );
 }
 
@@ -757,7 +757,7 @@ void QDockArea::invalidNextOffset( QDockWindow *dw )
 
 int QDockArea::count() const
 {
-    return dockWidgets->count();
+    return dockWindows->count();
 }
 
 /*! Returns whether this dock are contains dock windows or not.
@@ -765,16 +765,16 @@ int QDockArea::count() const
 
 bool QDockArea::isEmpty() const
 {
-    return dockWidgets->isEmpty();
+    return dockWindows->isEmpty();
 }
 
 
 /*! Returns the list of dock windows of this area.
  */
 
-QList<QDockWindow> QDockArea::dockWidgetList() const
+QList<QDockWindow> QDockArea::dockWindowList() const
 {
-    return *dockWidgets;
+    return *dockWindows;
 }
 
 /*! Lines up the dock windows in this area to waste no space. If \a
@@ -784,7 +784,7 @@ QList<QDockWindow> QDockArea::dockWidgetList() const
 
 void QDockArea::lineUp( bool keepNewLines )
 {
-    for ( QDockWindow *dw = dockWidgets->first(); dw; dw = dockWidgets->next() ) {
+    for ( QDockWindow *dw = dockWindows->first(); dw; dw = dockWindows->next() ) {
 	dw->setOffset( 0 );
 	if ( !keepNewLines )
 	    dw->setNewLine( FALSE );
@@ -801,7 +801,7 @@ void QDockArea::mousePressEvent( QMouseEvent *e )
 	emit rightButtonPressed( e->globalPos() );
 }
 
-QDockArea::DockWindowData *QDockArea::dockWidgetData( QDockWindow *w )
+QDockArea::DockWindowData *QDockArea::dockWindowData( QDockWindow *w )
 {
     DockWindowData *data = new DockWindowData;
     data->index = findDockWindow( w );
@@ -811,7 +811,7 @@ QDockArea::DockWindowData *QDockArea::dockWidgetData( QDockWindow *w )
     }
     QList<QDockWindow> lineStarts = layout->lineStarts();
     int i = -1;
-    for ( QDockWindow *dw = dockWidgets->first(); dw; dw = dockWidgets->next() ) {
+    for ( QDockWindow *dw = dockWindows->first(); dw; dw = dockWindows->next() ) {
  	if ( lineStarts.findRef( dw ) != -1 )
  	    ++i;
  	if ( dw == w )
@@ -823,30 +823,30 @@ QDockArea::DockWindowData *QDockArea::dockWidgetData( QDockWindow *w )
     return data;
 }
 
-void QDockArea::dockWidget( QDockWindow *dockWidget, DockWindowData *data )
+void QDockArea::dockWindow( QDockWindow *dockWindow, DockWindowData *data )
 {
     if ( !data )
 	return;
 
-    dockWidget->reparent( this, QPoint( 0, 0 ), FALSE );
-    dockWidget->installEventFilter( this );
-    dockWidget->dockArea = this;
-    dockWidget->updateGui();
+    dockWindow->reparent( this, QPoint( 0, 0 ), FALSE );
+    dockWindow->installEventFilter( this );
+    dockWindow->dockArea = this;
+    dockWindow->updateGui();
 
-    if ( dockWidgets->isEmpty() ) {
-	dockWidgets->append( dockWidget );
+    if ( dockWindows->isEmpty() ) {
+	dockWindows->append( dockWindow );
     } else {
 	QList<QDockWindow> lineStarts = layout->lineStarts();
 	int index = 0;
 	if ( (int)lineStarts.count() > data->line )
-	    index = dockWidgets->find( lineStarts.at( data->line ) );
+	    index = dockWindows->find( lineStarts.at( data->line ) );
 	if ( index == -1 ) {
 	    index = 0;
-	    (void)dockWidgets->at( index );
+	    (void)dockWindows->at( index );
 	}
 	bool firstTime = TRUE;
 	int offset = data->offset;
-	for ( QDockWindow *dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
+	for ( QDockWindow *dw = dockWindows->current(); dw; dw = dockWindows->next() ) {
 	    if ( !firstTime && lineStarts.find( dw ) != -1 )
 		break;
 	    if ( offset <
@@ -855,17 +855,17 @@ void QDockArea::dockWidget( QDockWindow *dockWidget, DockWindowData *data )
 	    index++;
 	    firstTime = FALSE;
 	}
-	if ( index >= 0 && index < (int)dockWidgets->count() &&
-	     dockWidgets->at( index )->newLine() && lineOf( index ) == data->line ) {
-	    dockWidgets->at( index )->setNewLine( FALSE );
-	    dockWidget->setNewLine( TRUE );
+	if ( index >= 0 && index < (int)dockWindows->count() &&
+	     dockWindows->at( index )->newLine() && lineOf( index ) == data->line ) {
+	    dockWindows->at( index )->setNewLine( FALSE );
+	    dockWindow->setNewLine( TRUE );
 	} else {
-	    dockWidget->setNewLine( FALSE );
+	    dockWindow->setNewLine( FALSE );
 	}
 
-	dockWidgets->insert( index, dockWidget );
+	dockWindows->insert( index, dockWindow );
     }
-    dockWidget->show();
+    dockWindow->show();
     updateLayout();
     setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );

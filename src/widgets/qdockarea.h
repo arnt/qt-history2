@@ -67,7 +67,7 @@ class Q_EXPORT QDockAreaLayout : public QLayout
 
 public:
     QDockAreaLayout( QWidget* parent, Qt::Orientation o, QList<QDockWindow> *wl, int space = -1, int margin = -1, const char *name = 0 )
-	: QLayout( parent, space, margin, name ), orient( o ), dockWidgets( wl ), parentWidget( parent ) { init(); }
+	: QLayout( parent, space, margin, name ), orient( o ), dockWindows( wl ), parentWidget( parent ) { init(); }
     ~QDockAreaLayout() {}
 
     void addItem( QLayoutItem * ) {}
@@ -92,7 +92,7 @@ private:
     Qt::Orientation orient;
     int cached_width, cached_height;
     int cached_hfw, cached_wfh;
-    QList<QDockWindow> *dockWidgets;
+    QList<QDockWindow> *dockWindows;
     QWidget *parentWidget;
     QValueList<QRect> lines;
     QList<QDockWindow> ls;
@@ -124,7 +124,7 @@ public:
     bool eventFilter( QObject *, QEvent * );
     bool isEmpty() const;
     int count() const;
-    QList<QDockWindow> dockWidgetList() const;
+    QList<QDockWindow> dockWindowList() const;
     void lineUp( bool keepNewLines );
 
     bool isDockWindowAccepted( QDockWindow *dw );
@@ -147,13 +147,13 @@ private:
 
     int findDockWindow( QDockWindow *w );
     int lineOf( int index );
-    DockWindowData *dockWidgetData( QDockWindow *w );
-    void dockWidget( QDockWindow *dockWidget, DockWindowData *data );
+    DockWindowData *dockWindowData( QDockWindow *w );
+    void dockWindow( QDockWindow *dockWindow, DockWindowData *data );
     void updateLayout();
 
 private:
     Orientation orient;
-    QList<QDockWindow> *dockWidgets;
+    QList<QDockWindow> *dockWindows;
     QDockAreaLayout *layout;
     Gravity grav;
     QList<QDockWindow> forbiddenWidgets;
