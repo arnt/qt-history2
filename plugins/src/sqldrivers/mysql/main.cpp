@@ -53,7 +53,7 @@ QMYSQLDriverPlugin::QMYSQLDriverPlugin()
 
 QSqlDriver* QMYSQLDriverPlugin::create( const QString &name )
 {
-    if ( name.upper() == "QMYSQL3" ) {
+    if ( name == "QMYSQL3" ) {
 	QMYSQLDriver* driver = new QMYSQLDriver();
 	return driver;
     }
