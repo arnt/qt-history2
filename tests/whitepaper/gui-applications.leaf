@@ -1,0 +1,175 @@
+\chapter GUI Applications
+
+\section1 Main Window Classes
+
+\section2 The Main Window
+
+Qt provides many widgets needed by most modern GUI applications and
+provides the \Class QMainWindow class that pulls these together to
+present a typical application main window.
+
+\img main-window.png An application main window
+
+Visually, the main window is broken into a handfull of standard
+components. A menu bar appears at the top of the main window. Tool
+bars usually appear at the top, just below the menu bar, but can also
+be moved around to the left, right or bottom or the main window. A
+status bar displays temporary and permanent information at the
+bottom. The center area is occupied by any widget for single document
+interface (SDI) applications, or by a \Class QWorkspace for multiple
+document interface (MDI) applications. Tool tips and "What's this?"
+provide the user with short balloon help on the different components
+of the user interface.
+
+Applications usually provide the user with several different ways of
+performing a particular action. For example, most applications have a
+'Save' action that is accessible as \Menu File|Save from the menu
+bar, as a toolbar button and as an accelerator, \Key Ctrl+S. Qt
+encapsulates this concept in the \Class QAction class, which allows
+programmers to define an action in one place and then add that action
+to a menu or toolbar. Some actions only really make sense as menu
+options, and these can be added to menus directly.
+
+\omit
+### Most of the main
+window's components respond to actions. For example, moving the
+cursor over the \Menu Save entry in a menu displays a longer
+description (e.g. "Saves the current file") in the status bar at the
+bottom. ### SLOT()
+\endomit
+
+\section2 Menus
+
+Qt's \Class QPopupMenu widget represents a pop-up menu that can be
+standalone, in a menubar or a sub-menu in another pop-up menu. A
+pop-up menu presents items in a vertical list to the user. Each item
+can be accompanied by an icon or a checkbox, an accelerator, etc.
+Menu items usually correspond to actions (e.g. "Save").
+Separator items are rendered as a line and group related actions
+visually.
+
+Here's an example that creates a \Menu File menu with \NEW, \OPEN and
+\EXIT menu items:
+\code
+    QPopupMenu *file = new QPopupMenu( this );
+    file->insertItem( "&New", this, SLOT(news()), CTRL+Key_N );
+    file->insertItem( "&Open...", this, SLOT(open()), CTRL+Key_O );
+    file->insertSeparator();
+    file->insertItem( "E&xit", qApp, SLOT(quit()), CTRL+Key_Q );
+\endcode
+When a menu item is selected, the chosen slot is executed.
+
+The \Class QMenuBar class implements a menu bar. It automatically
+sets its geometry at the top of its parent widget, typically a \Class
+QMainWindow, and splits its contents across multiple lines if
+necessary. Qt's built-in layout managers automatically take it into
+consideration. On Macintosh, it appears at the top of the screen, as
+expected.
+
+Here's how to create a menu bar with \FILE, \EDIT and \HELP menus:
+\code
+    QMenuBar *menu = new QMenuBar( this );
+    menu->insertItem( "&File", file );
+    menu->insertItem( "&Edit", edit );
+    menu->insertSeparator();
+    menu->insertItem( "&Help", help );
+\endcode
+The \Func insertSeparator() call tells Qt to align \HELP to the right
+in Motif style.
+
+Qt's menu system is highly flexible. Menu items can be added or
+removed dynamically, and custom menu items can be designed by
+subclassing \Class QCustomMenuItem. Popup menus can have tear-off
+handles.
+
+\section2 Toolbars
+
+The \Class QToolButton class implements a tool button with an icon, a
+3D frame and some optional text. Toggle tool buttons turn features on
+and off; they can have a different icon for the on and off state.
+Other tool buttons simply implement a function. Different icons can
+be provided for active, disabled and enabled modes, and for on and
+off states. If only one icon is given, visual clues are automatically
+given by other means, for example by graying out the buttons. Tool
+buttons can also trigger a pop-up menu.
+
+\Class {QToolButton}s usually appear side by side inside a \Class
+QToolBar. An application can has many toolbars, and the user is free
+to move them around. Toolbars can contain widgets of about any type,
+for example \Class QComboBox.
+
+\section2 Balloon Help
+
+	* QToolTips
+	* Syntax:
+		QToolTip::add( quitButton, "Leave the application" );
+	* Can display a longer text in e.g. a status bar
+ 	* Fully dynamic: remove, virtual function...
+ 
+	* QWhatsThis
+	* "What's this?" for menu items, widgets, etc. accels
+	* Syntax:
+		QWhatsThis::add( quitButton, "L......" );
+
+\section2 The Status Bar
+
+	* temporary (status tip) w/time limit vs. normal vs. permanent text (right)
+	* code example
+	* optional size grip
+
+\section2 Actions
+
+	* The same action, "save", may occur in many places: tool
+	  bar, menu bar, context menu
+	* QAction is (icon, text, tool-tip, status-tip, whats-this, accel)
+	* toggle or not
+	* on or not
+	* enabled or not
+
+\section2 The Central Widget
+
+	* Syntax: setCentralWidget( ); \sa MDI
+
+\section1 Multiple Document Interface
+
+	* \sa screen shot
+	* MDI = x
+	* QWorkspace, an ordinary QWidget. Typically centralWidget of
+	  QMainWindow
+	* Children are also ordinary widgets; show(), hide(), showMaximized(),
+	  setCaption() work on these as on any top-level widget
+	* Cascade and tile
+	* Automatic scroll bars (optional)
+	* Integrates with the menu bar when maximized
+	* "Windows" menu in the menu bar??
+
+\section1 Dialogs
+
+	* pre-defined
+	* modal, modeless
+	* semi-modal (vs. threading)
+	* syntax: modal
+	* write your own
+
+\section1 Dock Windows
+
+	* with QMainWindow and QToolBar, you don't have to do a thing
+	* QDockArea... used internally in QMainWindow
+	* Can provide more QDockWindows than just toolbars, both to QMainWindow
+	  and to your own QDockAreas
+	* QDockWindows docked vs. undocked (floating) vs. minimized,
+	  can be used without QDockArea
+	* Some apps (e.g. Designer, Linguist) use them for most of
+	  their layouts
+	* Save and restore positions (streamable)
+
+\section1 Settings
+
+	* QSettings: text files on Unix, system registry on Windows, mac, portably
+	* may stores user settings or other application settings
+	* "/MyCompany/MyApplication/recent files/1"
+	* types that can be saved
+
+\section1 A Complete Example
+
+	* SCREEN SHOT

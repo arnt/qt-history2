@@ -1,5 +1,6 @@
 \chapter Collection Classes
 
+\index STL
 \index collection classes
 \index containers
 \index iterators
@@ -15,6 +16,7 @@ Qt's optimizations.
 
 \index bloat problem
 \index code bloat problem
+\index private classes
 
 Template classes usually increase the size of executables
 dramatically, because the compiler generates essentially the same
@@ -26,14 +28,12 @@ implemented as a thin layer over these private classes.
 
 \section1 Value-based Collections
 
-\index value-based collections
-
 \index QTL
-\index STL
 \index algorithms!STL
 \index lists
 \index maps
 \index stacks
+\index value-based collections
 \index vectors
 
 Qt provides six value-based collection classes: \Class QMap\<Key,T\>,
@@ -59,9 +59,6 @@ unchanged. When an object is copied, only a pointer is passed and a
 reference count incremented, which is much faster than actually
 copying the data and saves memory.
 
-\omit This approach relieves programmers
-of the burden of hand optimizing,\endomit
-
 \index strings
 
 Implicit sharing is used wherever it makes sense: in Qt's value-based
@@ -85,7 +82,7 @@ QPointArray. These classes are very efficient for handling basic
 
 \section1 Pointer-based Collections
 
-\index auto-delete
+\index auto-deletion
 \index caches
 \index delete
 \index dictionaries
