@@ -483,7 +483,9 @@ void QButton::setPixmap( const QPixmap &pixmap )
 	btext = QString::null;
     if ( autoresize && newSize )
 	adjustSize();
+#ifndef QT_NO_ACCEL
     setAccel( 0 );
+#endif
     if ( autoMask() )
 	updateMask();
     update();
@@ -491,18 +493,16 @@ void QButton::setPixmap( const QPixmap &pixmap )
 }
 
 
+#ifndef QT_NO_ACCEL
 QKeySequence QButton::accel() const
 {
-#ifndef QT_NO_ACCEL
     if ( d && d->a )
 	return d->a->key( 0 );
-#endif
     return QKeySequence();
 }
 
 void QButton::setAccel( const QKeySequence& key )
 {
-#ifndef QT_NO_ACCEL
     if ( d && d->a )
 	d->a->clear();
     if ( !(int)key )
@@ -512,8 +512,8 @@ void QButton::setAccel( const QKeySequence& key )
 	d->a = new QAccel( this, "buttonAccel" );
     d->a->connectItem( d->a->insertItem( key, 0 ),
 		       this, SLOT(animateClick()) );
-#endif
 }
+#endif
 
 #ifndef QT_NO_COMPAT
 

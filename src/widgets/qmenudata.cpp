@@ -110,7 +110,9 @@ QMenuItem::QMenuItem()
     pixmap_data	 = 0;
     popup_menu	 = 0;
     widget_item	 = 0;
+#ifndef QT_NO_ACCEL
     accel_key	 = 0;
+#endif
     signal_data	 = 0;
     d = 0;
 }
@@ -275,7 +277,9 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 	mi->is_separator = TRUE;		// separator
     } else {
 	mi->text_data = text?*text:QString::null;
+#ifndef QT_NO_ACCEL
 	mi->accel_key = Qt::Key_unknown;
+#endif
 	if ( pixmap )
 	    mi->pixmap_data = new QPixmap( *pixmap );
 	if ( (mi->popup_menu = popup) )
@@ -317,6 +321,7 @@ void QMenuData::removePopup( QPopupMenu *popup )
 	removeItemAt( index );
 }
 
+#ifndef QT_NO_ACCEL
 
 /*!
   The family of insertItem() functions inserts menu items into a
@@ -474,6 +479,8 @@ int QMenuData::insertItem( const QIconSet& icon,
 	setAccel( accel, actualID );
     return actualID;
 }
+
+#endif //QT_NO_ACCEL
 
 
 /*!\overload
@@ -767,6 +774,7 @@ void QMenuData::clear()
 	menuContentsChanged();
 }
 
+#ifndef QT_NO_ACCEL
 
 /*!
   Returns the accelerator key that has been defined for the menu item \a id,
@@ -837,6 +845,8 @@ void QMenuData::setAccel( const QKeySequence& key, int id )
 	parent->menuContentsChanged();
     }
 }
+
+#endif // QT_NO_ACCEL
 
 /*!
   Returns the icon set that has been set for menu item \a id, or 0 if no icon
@@ -923,8 +933,10 @@ void QMenuData::changeItem( int id, const QString &text )
 	    mi->pixmap_data = 0;
 	}
 	mi->text_data = text;
+#ifndef QT_NO_ACCEL
 	if ( !mi->accel_key && text.find( '\t' ) != -1 )
 	    mi->accel_key = Qt::Key_unknown;
+#endif
 	parent->menuContentsChanged();
     }
 }

@@ -71,7 +71,9 @@ public:
     QPopupMenu *popup()		const	{ return popup_menu; }
     QWidget *widget()		const	{ return widget_item; }
     QCustomMenuItem *custom()	const;
+#ifndef QT_NO_ACCEL
     QKeySequence key()		const	{ return accel_key; }
+#endif
     QSignal    *signal()	const	{ return signal_data; }
     bool	isSeparator()	const	{ return is_separator; }
     bool	isEnabled()	const	{ return is_enabled; }
@@ -90,7 +92,9 @@ private:
     QPixmap    *pixmap_data;			// item pixmap
     QPopupMenu *popup_menu;			// item popup menu
     QWidget    *widget_item;			// widget menu item
+#ifndef QT_NO_ACCEL
     QKeySequence	accel_key;		// accelerator key (state|ascii)
+#endif
     QSignal    *signal_data;			// connection
     uint	is_separator : 1;		// separator flag
     uint	is_enabled   : 1;		// disabled flag
@@ -137,6 +141,7 @@ public:
     uint	count() const;
 
 
+#ifndef QT_NO_ACCEL
     int		insertItem( const QString &text,
 			    const QObject *receiver, const char* member,
 			    const QKeySequence& accel = 0, int id = -1, int index = -1 );
@@ -151,7 +156,7 @@ public:
 			    const QPixmap &pixmap,
 			    const QObject *receiver, const char* member,
 			    const QKeySequence& accel = 0, int id = -1, int index = -1 );
-
+#endif
 
 
 
@@ -187,8 +192,10 @@ public:
     void	removeItemAt( int index );
     void	clear();
 
+#ifndef QT_NO_ACCEL
     QKeySequence accel( int id )	const;
     void	setAccel( const QKeySequence& key, int id );
+#endif
 
     QIconSet    *iconSet( int id )	const;
     QString text( int id )		const;

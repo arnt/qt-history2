@@ -75,8 +75,10 @@ public:
     const QPixmap *pixmap() const;
     virtual void setPixmap( const QPixmap & );
 
+#ifndef QT_NO_ACCEL
     QKeySequence		accel()	const;
     virtual void	setAccel( const QKeySequence& );
+#endif
 
     bool	isToggleButton() const;
 

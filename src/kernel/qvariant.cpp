@@ -173,9 +173,11 @@ QVariant::Private::Private( Private* d )
 	case QVariant::BitArray:
 	    value.ptr = new QBitArray( *((QBitArray*)d->value.ptr) );
 	    break;
+#ifndef QT_NO_ACCEL
 	case QVariant::KeySequence:
 	    value.ptr = new QKeySequence( *((QKeySequence*)d->value.ptr) );
 	    break;
+#endif
 	case QVariant::Int:
 	    value.i = d->value.i;
 	    break;
@@ -299,9 +301,11 @@ void QVariant::Private::clear()
 	case QVariant::BitArray:
 	    delete (QBitArray*)value.ptr;
 	    break;
+#ifndef QT_NO_ACCEL
 	case QVariant::KeySequence:
 	    delete (QKeySequence*)value.ptr;
 	    break;
+#endif
 	case QVariant::Invalid:
 	case QVariant::Int:
 	case QVariant::UInt:
@@ -744,6 +748,8 @@ QVariant::QVariant( const QBitArray& val )
     d->value.ptr = new QBitArray( val );
 }
 
+#ifndef QT_NO_ACCEL
+
 /*!
   Constructs a new variant with a key sequence value, \a val.
 */
@@ -753,6 +759,8 @@ QVariant::QVariant( const QKeySequence& val )
     d->typ = KeySequence;
     d->value.ptr = new QKeySequence( val );
 }
+
+#endif
 
 /*!
   Constructs a new variant with an integer value, \a val.
@@ -1458,8 +1466,10 @@ const QString QVariant::toString() const
 #endif
     if ( d->typ == Bool )
 	return QString::number( toInt() );
+#ifndef QT_NO_ACCEL
     if ( d->typ == KeySequence )
 	return (QString) *( (QKeySequence*)d->value.ptr );
+#endif
     if ( d->typ == ByteArray )
 	return QString( *((QByteArray*)d->value.ptr) );
     if ( d->typ != String )
@@ -1826,6 +1836,8 @@ const QBitArray QVariant::toBitArray() const
     return QBitArray();
 }
 
+#ifndef QT_NO_ACCEL
+
 /*!
   Returns the variant as a QKeySequence if the variant has type()
   KeySequence, Int or String, or an empty key sequence otherwise.
@@ -1846,6 +1858,7 @@ const QKeySequence QVariant::toKeySequence() const
     return QKeySequence();
 }
 
+#endif // QT_NO_ACCEL
 
 /*!
   Returns the variant as an int if the variant has type()
@@ -1872,8 +1885,10 @@ int QVariant::toInt( bool * ok ) const
 	return (int)d->value.d;
     if ( d->typ == Bool )
 	return (int)d->value.b;
+#ifndef QT_NO_ACCEL
     if ( d->typ == KeySequence )
 	return (int) *( (QKeySequence*)d->value.ptr );
+#endif
 
     return 0;
 }
@@ -2027,7 +2042,9 @@ Q_VARIANT_AS(Time)
 Q_VARIANT_AS(DateTime)
 Q_VARIANT_AS(ByteArray)
 Q_VARIANT_AS(BitArray)
+#ifndef QT_NO_ACCEL
 Q_VARIANT_AS(KeySequence)
+#endif
 
 /*! \fn QString& QVariant::asString()
 
@@ -2525,9 +2542,11 @@ bool QVariant::cast( Type t )
     case QVariant::BitArray:
 	asBitArray();
 	break;
+#ifndef QT_NO_ACCEL
     case QVariant::KeySequence:
 	asKeySequence();
 	break;
+#endif
     default:
     case QVariant::Invalid:
 	(*this) = QVariant();
@@ -2622,8 +2641,10 @@ bool QVariant::operator==( const QVariant &v ) const
 	return v.toByteArray() == toByteArray();
     case BitArray:
 	return v.toBitArray() == toBitArray();
+#ifndef QT_NO_ACCEL
     case KeySequence:
 	return v.toKeySequence() == toKeySequence();
+#endif
     case Invalid:
 	break;
     }

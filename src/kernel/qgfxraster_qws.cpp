@@ -2406,7 +2406,6 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::setSource(unsigned char * c,int w,int h,int l,
 				       int d,QRgb * clut,int numcols)
 {
-#ifndef QT_NO_QWS_REPEATER
     srctype=SourceImage;
     srcpixeltype=NormalPixel;
     srclinestep=l;
@@ -2421,7 +2420,6 @@ void QGfxRaster<depth,type>::setSource(unsigned char * c,int w,int h,int l,
 	buildSourceClut( 0, 0 );
     else  if(srcdepth<=8)
 	buildSourceClut(clut,numcols);
-#endif
 }
 
 /*!

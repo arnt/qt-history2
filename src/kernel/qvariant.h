@@ -244,7 +244,9 @@ public:
     QDateTime& asDateTime();
     QByteArray& asByteArray();
     QBitArray& asBitArray();
+#ifndef QT_NO_ACCEL
     QKeySequence& asKeySequence();
+#endif
     int& asInt();
     uint& asUInt();
     bool& asBool();

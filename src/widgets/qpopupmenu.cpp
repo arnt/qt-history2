@@ -1466,8 +1466,10 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 			((e->state() & ControlButton) ? CTRL : 0) |
 			((e->state() & AltButton) ? ALT : 0));
 
+#ifndef QT_NO_ACCEL
 	if (mi)
 	    setAccel(modifier + e->key(), mi->id());
+#endif
 	return;
     }
 
