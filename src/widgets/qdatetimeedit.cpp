@@ -50,6 +50,10 @@
 
 #include "math.h" // floor()
 
+#if defined(Q_WS_WIN)
+#include "qt_windows.h"
+#endif
+
 #define QDATETIMEEDIT_HIDDEN_CHAR '0'
 
 class Q_EXPORT QNumberSection
@@ -71,9 +75,10 @@ private:
     int selend;
 };
 
-static QString		lDateSep;
-static QString		lTimeSep;
+static QString	*lDateSep = 0;
+static QString	*lTimeSep = 0;
 static QDateEdit::Order	lOrder = QDateEdit::YMD;
+static int refcount = 0;
 
 /*!
 \internal
@@ -82,8 +87,30 @@ try to get the order of DMY and the date/time separator from the locale settings
 static void readLocaleSettings()
 {
     int dpos, mpos, ypos;
+    lDateSep = new QString();
+    lTimeSep = new QString();
+
+#if defined(Q_WS_WIN)
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	TCHAR data[4];
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDATE, (TCHAR*)&data, 4 );
+	*lDateSep = qt_winQString( data );
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_STIME, (TCHAR*)&data, 4 );
+	*lTimeSep = qt_winQString( data );
+    } else
+#endif
+    {
+	char data[4];
+	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SDATE, (char*)&data, 4 );
+	*lDateSep = data;
+	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_STIME, (char*)&data, 4 );
+	*lTimeSep = data;
+    }
+#else
     lDateSep = "-";
     lTimeSep = ":";
+#endif
     QString d = QDate( 1999, 11, 22 ).toString( Qt::LocalDate );
     dpos = d.find( "22" );
     mpos = d.find( "11" );
@@ -104,12 +131,16 @@ static void readLocaleSettings()
 	}
 
 	// this code needs to change if new formats are added
+
+#ifndef Q_WS_WIN
 	QString sep = d.mid( QMIN( dpos, mpos ) + 2, QABS( dpos - mpos ) - 2 );
 	if ( d.contains( sep ) == 2 ) {
 	    lDateSep = sep;
 	}
+#endif
     }
 
+#ifndef Q_WS_WIN
     QString t = QTime( 11, 22, 33 ).toString( Qt::LocalDate );
     dpos = t.find( "11" );
     mpos = t.find( "22" );
@@ -121,27 +152,28 @@ static void readLocaleSettings()
 	    lTimeSep = sep;
 	}
     }
+#endif
 }
 
 static QDateEdit::Order localOrder() {
-    if ( lDateSep.isEmpty() ) {
+    if ( !lDateSep ) {
 	readLocaleSettings();
     }
     return lOrder;
 }
 
 static QString localDateSep() {
-    if ( lDateSep.isEmpty() ) {
+    if ( !lDateSep ) {
 	readLocaleSettings();
     }
-    return lDateSep;
+    return *lDateSep;
 }
 
 static QString localTimeSep() {
-    if ( lTimeSep.isEmpty() ) {
+    if ( !lTimeSep ) {
 	readLocaleSettings();
     }
-    return lTimeSep;
+    return *lTimeSep;
 }
 
 class QDateTimeEditorPrivate
@@ -159,12 +191,19 @@ public:
 	pm = new QPixmap;
 	offset = 0;
 	sep = localDateSep();
+	refcount++;
     }
     ~QDateTimeEditorPrivate()
     {
 	delete parag;
 	delete cursor;
 	delete pm;
+	if ( !--refcount ) {
+	    delete lDateSep;
+	    lDateSep = 0;
+	    delete lTimeSep;
+	    lTimeSep = 0;
+	}
     }
 
     void appendSection( const QNumberSection& sec )
@@ -787,6 +826,8 @@ void QDateEdit::init()
     d->changed = FALSE;
 
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+
+    refcount++;
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -796,6 +837,12 @@ void QDateEdit::init()
 QDateEdit::~QDateEdit()
 {
     delete d;
+    if ( !refcount-- ) {
+	delete lDateSep;
+	lDateSep = 0;
+	delete lTimeSep;
+	lTimeSep = 0;
+    }
 }
 
 /*! \property QDateEdit::minValue
@@ -1625,6 +1672,8 @@ void QTimeEdit::init()
     d->changed = FALSE;
 
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+
+    refcount++;
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -1634,6 +1683,12 @@ void QTimeEdit::init()
 QTimeEdit::~QTimeEdit()
 {
     delete d;
+    if ( !--refcount ) {
+	delete lDateSep;
+	lDateSep = 0;
+	delete lTimeSep;
+	lTimeSep = 0;
+    }
 }
 
 /*! \property QTimeEdit::minValue
