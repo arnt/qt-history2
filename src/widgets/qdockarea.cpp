@@ -417,7 +417,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	if ( !dw->isVisibleTo( parentWidget ) )
 	    continue;
 	hadResizable = hadResizable || dw->isResizeEnabled();
-	dw->updateSplitterVisibility( !dw->area()->isLastDockWindow( dw ) );
+	dw->updateSplitterVisibility( dockWindows->count() > 1 ); //!dw->area()->isLastDockWindow( dw ) );
     }
     return sectionpos + linestrut;
 }

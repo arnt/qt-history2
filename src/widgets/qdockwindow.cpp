@@ -1012,7 +1012,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
 	return;
 
     QRect predict = QRect( realWidgetPos( this ), size() );
-    predict.moveBy( pos.x(), pos.y() );    
+    predict.moveBy( pos.x(), pos.y() );
     if ( !QApplication::desktop()->geometry().contains( predict ) )
 	return;
 
@@ -1726,14 +1726,20 @@ void QDockWindow::setCaption( const QString &s )
 #endif
 }
 
-void QDockWindow::updateSplitterVisibility( bool /*visible*/ )
+void QDockWindow::updateSplitterVisibility( bool visible )
 {
     if ( area() && isResizeEnabled() ) {
 	if ( orientation() == Horizontal ) {
-	    vHandleRight->show();
+	    if ( visible )
+		vHandleRight->show();
+	    else
+		vHandleRight->hide();
 	    vHandleLeft->hide();
 	} else {
-	    hHandleBottom->show();
+	    if ( visible )
+		hHandleBottom->show();
+	    else
+		hHandleBottom->hide();
 	    hHandleTop->hide();
 	}
     }
