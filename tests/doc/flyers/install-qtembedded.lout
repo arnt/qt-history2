@@ -1,9 +1,9 @@
 @Include { flyer.lout }
 @Doc @Text @Begin
 @Place 
-    x { right - 4.5cm }
-    y { foot + 1cm }
-{ darkgrey @Colour 9p @Font INST200404NO-10"/"00 }
+    x { right - 4.5c }
+    y { foot + 1c }
+{ darkgrey @Colour 9p @Font INST300404NO-12"/"02 }
 @CD @Heading { How to Install Qt"/"Embedded }
 You may need to be root, depending on the permissions of the directories where
 you choose to install Qt.  

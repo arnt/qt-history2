@@ -1,9 +1,9 @@
 @Include { welcome-flyer.lout }
 @Doc @Text @Begin
 @Place 
-    x { right - 3.5cm }
-    y { foot + 1cm }
-{ darkgrey @Colour 9p @Font WEL200505-10"/"00 }
+    x { right - 3.5c }
+    y { foot + 1c }
+{ darkgrey @Colour 9p @Font WEL300505-12"/"02 }
 @CD @Heading { Welcome to Qt! }
 @PP
 Congratulations! If you're new to Qt then you are going to be amazed by how
@@ -37,11 +37,11 @@ Assistant} application to launch Qt's on-line help system. @I{Qt Assistant}
 presents the Qt Reference Documentation on start up. 
 @PP
 The easiest way to get started with Qt programming is to work through the
-first two chapters of the @I{Qt Designer} tutorial (included in the
+first three chapters of the @I{Qt Designer} tutorial (included in the
 @I{Qt's Graphical Development Tools} book, and also in the on-line help). 
 @PP
 Once you're familiar with @I{Qt Designer} you might like to try
-working through the on-line tutorial (in the Getting Started section)
+working through the on-line tutorials (in the Getting Started section)
 to get more of a feel for Qt programming in pure C++. We also
 recommend that you read the Signals and Slots overview. At this point
 you should be able to make productive use of Qt, learning everything
