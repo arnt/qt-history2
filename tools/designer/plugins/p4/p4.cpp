@@ -34,20 +34,21 @@ P4Action::~P4Action()
     delete process;
 }
 
-bool P4Action::run( const QString &command )
+bool P4Action::run( const QStringList &command )
 {
     if ( !process ) {
+	p4Data = QString::null;
 	process = new QProcess( this );
 	connect( process, SIGNAL( readyReadStdout() ),
-		 this, SLOT( newData() ) );
+  		 this, SLOT( newData() ) );
 	connect( process, SIGNAL( processExited() ),
-		 this, SLOT( processExited() ) );
+		 this, SLOT( internalProcessExited() ) );
     }
-    process->setArguments( QStringList::split( ' ', command ) );
+    process->setArguments( command );
     return process->start();
 }
 
-bool P4Action::run( const QString &command, const QString &in )
+bool P4Action::run( const QStringList &command, const QString &in )
 {
     if ( run( command ) ) {
 	connect( process, SIGNAL(wroteToStdin()), this, SLOT(cmdProcessed()) );
@@ -70,11 +71,6 @@ void P4Action::updateStats()
     fstat->execute();
 }
 
-void P4Action::newData()
-{
-    p4Data += QString( process->readStdout() );
-}
-
 void P4Action::newStats( const QString &s, P4Info *p4i )
 {
     emit finished( s, p4i );
@@ -87,6 +83,20 @@ bool P4Action::success()
     return process && process->exitStatus() == 0;
 }
 
+void P4Action::newData()
+{
+    p4Data += process->readStdout();
+}
+
+void P4Action::internalProcessExited()
+{
+    p4Data += QString( process->readStdout() );
+    QString err = process->readStderr();
+    emit showStatusBarMessage( err );
+
+    processExited();
+}
+
 P4Init::P4Init()
 : P4Action( QString::null )
 {
@@ -94,11 +104,16 @@ P4Init::P4Init()
 
 bool P4Init::execute()
 {
-    return run( "p4 info" );
+    QStringList list;
+    list << "p4";
+    list << "info";
+    return run( list );
 }
 
 void P4Init::processExited()
 {
+    emit showStatusBarMessage( data() );
+
     QStringList entries = QStringList::split( '\n', data() );
     QStringList userEntry = entries.grep( "user name:", FALSE );
     P4Info::userName = new QString( QStringList::split( ' ', userEntry[0] )[2] );
@@ -113,7 +128,12 @@ P4FStat::P4FStat( const QString& filename )
 
 bool P4FStat::execute()
 {
-    return run( QString("p4 fstat \"%1\"").arg( fileName() ) );
+    QStringList list;
+    list << "p4";
+    list << "fstat";
+    list << fileName();
+
+    return run( list );
 }
 
 void P4FStat::processExited()
@@ -185,6 +205,8 @@ void P4FStat::processExited()
 		}
 	    }
 	}
+    } else {
+	emit showStatusBarMessage( tr( "%1 - no such file.").arg( fileName() ) );
     }
     P4Info::files()->insert( fileName(), p4i );
 
@@ -199,7 +221,11 @@ P4Sync::P4Sync( const QString &filename )
 
 bool P4Sync::execute()
 {
-    return run( QString("p4 sync %1").arg( fileName() ) );
+    QStringList list;
+    list << "p4";
+    list << "sync";
+    list << fileName();
+    return run( list );
 }
 
 void P4Sync::processExited()
@@ -272,7 +298,11 @@ void P4Edit::fSyncResults( const QString &filename, P4Info *p4i )
 	    return;
 	}
     }
-    run( QString("p4 edit \"%1\"").arg( filename ) );
+    QStringList list;
+    list << "p4";
+    list << "edit";
+    list << filename;
+    run( list );
 }
 
 P4Submit::P4Submit( const QString &filename )
@@ -336,7 +366,11 @@ bool P4Submit::execute()
 
     if ( !haveFile )
 	return FALSE;
-    return run( QString("p4 submit -i"), buffer );
+    QStringList list;
+    list << "p4";
+    list << "submit";
+    list << "-i";
+    return run( list, buffer );
 }
 
 void P4Submit::processExited()
@@ -361,7 +395,11 @@ bool P4Revert::execute()
 	    return FALSE;
     }
 
-    return run( QString("p4 revert %1").arg( fileName() ) );
+    QStringList list;
+    list << "p4";
+    list << "revert";
+    list << fileName();
+    return run( list );
 }
 
 void P4Revert::processExited()
@@ -377,7 +415,11 @@ P4Add::P4Add( const QString &filename )
 
 bool P4Add::execute()
 {
-    return run( QString("p4 add %1").arg( fileName() ) );
+    QStringList list;
+    list << "p4";
+    list << "add";
+    list << fileName();
+    return run( list );
 }
 
 void P4Add::processExited()
@@ -402,7 +444,12 @@ bool P4Delete::execute()
 	return FALSE;
     }
 
-    return run( QString("p4 delete %1").arg( fileName() ) );
+    QStringList list;
+    list << "p4";
+    list << "delete";
+    list << fileName();
+
+    return run( list );
 }
 
 void P4Delete::processExited()
@@ -417,7 +464,12 @@ P4Diff::P4Diff( const QString &filename )
 
 bool P4Diff::execute()
 {
-    return run( QString("p4 diff %1").arg( fileName() ) );
+    QStringList list;
+    list << "p4";
+    list << "diff";
+    list << "-du";
+    list << fileName();
+    return run( list );
 }
 
 void P4Diff::processExited()

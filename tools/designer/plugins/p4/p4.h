@@ -58,8 +58,8 @@ protected:
     QString fileName() { return file; }
     bool success();
 
-    bool run( const QString& command );
-    bool run( const QString& command, const QString& in );
+    bool run( const QStringList& command );
+    bool run( const QStringList& command, const QString& in );
     void updateStats();
 
 signals:
@@ -71,6 +71,7 @@ private slots:
     void newData();
     void newStats( const QString&, P4Info* );
     void cmdProcessed();
+    void internalProcessExited();
 
 private:
     QString p4Data;
