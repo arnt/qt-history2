@@ -116,7 +116,7 @@ void ActionEditor::deleteAction()
 		  it2 != conns.end(); ++it2 )
 		MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
 						(*it2).receiver, (*it2).slot );
-	    delete currentAction;y
+	    delete currentAction;
 	    delete it.current();
 	    break;
 	}
