@@ -17,6 +17,8 @@
 #include <qstring.h>
 #include <qpixmap.h>
 #include <qlabel.h>
+#include <qimage.h>
+
 
 /*
  * Constructor
@@ -83,11 +85,7 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
     // ... and insert 50 items into the Combobox
     for ( i = 0; i < 50; i++ ) {
 	str = QString( "Combobox Item %1" ).arg( i );
-	if ( ( i / 3 ) * 3 == i ) { 
-	    cb2->insertItem( str );
-	} else {
-	    new QListBoxText( cb2->listBox()->item( cb2->listBox()->count() -1 ), str );
-	}
+	cb2->insertItem( str );
     }
 
     // Connect the activated SIGNALs of the Comboboxes with SLOTs
