@@ -87,9 +87,12 @@ static void
 PageChange(Widget, XtPointer, XmNotebookCallbackStruct *cs)
 {
   if (modified && pages[currentPage] != NULL) {
-    if (pages[currentPage] -> page != NULL)
-      XtFree(pages[currentPage] -> page);
-    pages[currentPage] -> page = XmTextGetString(textw);
+    delete [] pages[currentPage] -> page;
+
+    char *p = XmTextGetString(textw);
+    pages[currentPage] -> page = qstrdup( p );
+    XtFree( p );
+
     pages[currentPage] -> lasttoppos = XmTextGetTopCharacter(textw);
     pages[currentPage] -> lastcursorpos = XmTextGetInsertionPosition(textw);
   }
@@ -149,10 +152,10 @@ int main( int argc, char **argv )
   if (options.todoFile == NULL) {
     strcpy(temppath, user -> pw_dir);
     strcat(temppath, "/.todo");
-    options.todoFile = XtNewString(temppath);
+    options.todoFile = qstrdup( temppath );
   } else {
     /* Copy the string for consistency */
-    options.todoFile = XtNewString(options.todoFile);
+    options.todoFile = qstrdup( options.todoFile );
   }
 
   ReadDB(options.todoFile);

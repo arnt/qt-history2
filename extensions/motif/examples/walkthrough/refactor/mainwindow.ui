@@ -283,7 +283,7 @@
     </connection>
 </connections>
 <includes>
-    <include location="local" impldecl="in implementation">mainwindow.ui.h</include>
+    <include location="local" impldecl="in implementation">mainwindow-refactor.ui.h</include>
 </includes>
 <slots>
     <slot>fileNew()</slot>

@@ -32,7 +32,7 @@
 #include <Xm/Text.h>
 
 // Demo includes
-#include "page.h"
+#include "page-refactor.h"
 
 extern "C" {
 #include <Exm/TabB.h>
@@ -59,9 +59,9 @@ void MainWindow::fileNew()
 	found = access(buf, F_OK) != 0;
     }
 
-    str = XtNewString(buf);
+    str = qstrdup( buf );
     ReadDB(str);
-    XtFree(options.todoFile);
+    delete [] options.todoFile;
     options.todoFile = str;
 
     statusBar()->message( tr("Created new file '%1'").
@@ -79,7 +79,7 @@ void MainWindow::fileOpen()
     if ( ! filename.isEmpty() ) {
 	char *str = qstrdup( filename.local8Bit() );
 	ReadDB(str);
-	XtFree(options.todoFile);
+	delete [] options.todoFile;
 	options.todoFile = str;
 
 	statusBar()->message( tr("Opened file '%1'").
@@ -105,7 +105,7 @@ void MainWindow::fileSaveAs()
   if ( ! filename.isEmpty() ) {
     char *str = qstrdup( filename.local8Bit() );
     SaveDB(str);
-    XtFree(options.todoFile);
+    delete [] options.todoFile;
     options.todoFile = str;
 
     statusBar()->message( tr("Saved file '%1'").
@@ -200,27 +200,25 @@ void MainWindow::selProperties()
     QString qstr = pedlg.titleEdit->text().simplifyWhiteSpace();
     pages[currentPage]->label = qstrdup( qstr.local8Bit().data() );
 
-    if (pages[currentPage] -> minorTab != NULL)
-	XtFree(pages[currentPage] -> minorTab);
+    delete [] pages[currentPage] -> minorTab;
     qstr = pedlg.minorEdit->text().simplifyWhiteSpace();
     temp = qstrdup( qstr.local8Bit().data() );
     if (strlen(temp) > 0)
 	pages[currentPage] -> minorTab = temp;
     else {
-	XtFree(temp);
+	delete [] temp;
 	pages[currentPage] -> minorTab = NULL;
 	if (pages[currentPage] -> minorPB)
 	    XtUnmanageChild(pages[currentPage] -> minorPB);
     }
 
-    if (pages[currentPage] -> majorTab != NULL)
-	XtFree(pages[currentPage] -> majorTab);
+    delete [] pages[currentPage] -> majorTab;
     qstr = pedlg.majorEdit->text().simplifyWhiteSpace();
     temp = qstrdup( qstr.local8Bit().data() );
     if (strlen(temp) > 0)
 	pages[currentPage] -> majorTab = temp;
     else {
-	XtFree(temp);
+	delete [] temp;
 	pages[currentPage] -> majorTab = NULL;
 	if (pages[currentPage] -> majorPB)
 	    XtUnmanageChild(pages[currentPage] -> majorPB);
@@ -259,8 +257,10 @@ void MainWindow::selProperties()
     }
 
     /* Get contents before update */
-    XtFree(pages[currentPage] -> page);
-    pages[currentPage] -> page = XmTextGetString(textw);
+    delete [] pages[currentPage] -> page;
+    char *p = XmTextGetString(textw);
+    pages[currentPage] -> page = qstrdup( p );
+    XtFree( p );
 
     SetPage(currentPage);
 }
@@ -271,9 +271,10 @@ void MainWindow::selNewPage()
     Arg args[2];
 
     if (modified && pages[currentPage] != NULL) {
-	if (pages[currentPage] -> page != NULL)
-	    XtFree(pages[currentPage] -> page);
-	pages[currentPage] -> page = XmTextGetString(textw);
+	delete [] pages[currentPage] -> page;
+	char *p = XmTextGetString(textw);
+	pages[currentPage] -> page = qstrdup( p );
+	XtFree( p );
     }
     AdjustPages(currentPage, 1);
     pages[currentPage] = new Page();

@@ -151,7 +151,7 @@ ReadDB(char* filename)
 
   if (input != NULL) {
     max = MAXINIT;
-    buffer = (char*) XtMalloc(max);
+    buffer = new char[max];
     buffer[0] = 0; /* Reset page buffer */
     current = 0;
     pages[0] = new Page();
@@ -168,14 +168,14 @@ ReadDB(char* filename)
 		pages[number] -> page = buffer;
 		current = 0;
 		max = MAXINIT;
-		buffer = (char*) XtMalloc(max);
+		buffer = new char[max];
 		buffer[0] = 0; /* Reset page buffer */
 		number++;
 		pages[number] = new Page();
 	      }
 	      if (strlen(line) > 3) {
 		line[strlen(line) - 1] = 0; /* Remove newline */
-		pages[number] -> label = XtNewString(&line[2]);
+		pages[number] -> label = qstrdup( &line[2] );
 	      }
 	    }
 	  else if (line[1] == 'T') /* Tab */
@@ -183,7 +183,7 @@ ReadDB(char* filename)
 	      XmString name;
 	      line[strlen(line) - 1] = 0; /* Remove newline */
 	      if (strlen(line) > 3) {
-		pages[number] -> majorTab = XtNewString(&line[2]);
+		pages[number] -> majorTab = qstrdup( &line[2] );
 		i = 0;
 		ParseNewLines(pages[number] -> majorTab);
 		name = XmStringGenerate(pages[number] -> majorTab, NULL,
@@ -203,7 +203,7 @@ ReadDB(char* filename)
 	      XmString name;
 	      line[strlen(line) - 1] = 0; /* Remove newline */
 	      if (strlen(line) > 3) {
-		pages[number] -> minorTab = XtNewString(&line[2]);
+		pages[number] -> minorTab = qstrdup( &line[2] );
 		i = 0;
 		ParseNewLines(pages[number] -> minorTab);
 		name = XmStringGenerate(pages[number] -> minorTab, NULL,
@@ -231,8 +231,17 @@ ReadDB(char* filename)
 	{
 	  current += strlen(&line[1]);
 	  if ((current - 2) > max) {
-	    max = 2 * max;
-	    buffer=(char*) XtRealloc(buffer, max);
+	    // C++ doesn't have 'renew', so we need to create a new
+	    // buffer, copy the existing data from old to new and then
+	    // delete the old
+
+	    int newmax = 2 * max;
+	    char *b = new char[newmax];
+	    memcpy( b, buffer, max );
+
+	    delete [] buffer;
+	    buffer = b;
+	    max = newmax;
 	  }
 	  strcat(buffer, &line[1]);
 	}
@@ -243,8 +252,6 @@ ReadDB(char* filename)
   if (input == NULL) {
     number = 0;
     pages[0] = new Page();
-    pages[0] -> page = XtMalloc(2);
-    pages[0] -> page[0] = 0;
   } else {
     pages[number] -> page = buffer;
   }
@@ -283,9 +290,10 @@ SaveDB(char* filename)
 
   /* Make sure to grab current page */
   if (modified) {
-    if (pages[currentPage] -> page != NULL)
-      XtFree(pages[currentPage] -> page);
-    pages[currentPage] -> page = XmTextGetString(textw);
+    delete [] pages[currentPage] -> page;
+    char *p = XmTextGetString(textw);
+    pages[currentPage] -> page = qstrdup( p );
+    XtFree( p );
   }
 
   output = fopen(filename, "w");
