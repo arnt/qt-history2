@@ -320,6 +320,7 @@ QDnsAnswer::~QDnsAnswer()
 	    tmprr->t = QDns::None; // will be deleted soonish
 	}
     }
+    delete rrs;
 }
 
 
@@ -550,7 +551,7 @@ void QDnsAnswer::parse()
     // okay, do the work...
     if ( (answer[2] & 0x78) != 0 ) {
 #if defined(QDNS_DEBUG)
-	qDebug( "DNS Manager: asnwer to wrong query type (%d)", answer[1] );
+	qDebug( "DNS Manager: answer to wrong query type (%d)", answer[1] );
 #endif
 	ok = FALSE;
 	return;
@@ -844,11 +845,12 @@ public:
 
 
 
-static QDnsManager * globalManager;
+static QDnsManager * globalManager = 0;
 
 static void cleanupDns()
 {
     delete globalManager;
+    globalManager = 0;
 }
 
 QDnsManager * QDnsManager::manager()
@@ -953,6 +955,8 @@ QDnsManager::~QDnsManager()
 {
     if ( globalManager )
 	globalManager = 0;
+    queries.setAutoDelete( TRUE );
+    cache.setAutoDelete( TRUE );
     delete socket;
 }
 
@@ -1257,8 +1261,6 @@ QPtrList<QDnsRR> * QDnsDomain::cached( const QDns * r )
     if ( r->recordType() == QDns::Aaaa ) {
 	QHostAddress tmp;
 	if ( tmp.setAddress(r->label()) && !tmp.isIp4Addr() ) {
-	// ### if ( tmp.setAddress(r->label()) && tmp.isIp6Addr() ) {
-	// ### this would make also sense
 	    QDnsRR *rrTmp = new QDnsRR( r->label() );
 	    rrTmp->t = QDns::Aaaa;
 	    rrTmp->address = tmp;
