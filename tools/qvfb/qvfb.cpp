@@ -17,6 +17,7 @@
 **
 *****************************************************************************/
 
+#include <qcursor.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qapplication.h>
@@ -121,7 +122,7 @@ QVFb::~QVFb()
 
 void QVFb::enableCursor( bool e )
 {
-    view->viewport()->setCursor( e ? ArrowCursor : BlankCursor );
+    view->viewport()->setCursor( QCursor( e ? ArrowCursor : BlankCursor ) );
     viewMenu->setItemChecked( cursorId, e );
 }
 
