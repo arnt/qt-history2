@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#3 $
 **
 ** Implementation of draw utilities
 **
 ** Author  : Haavard Nord
 ** Created : 950920
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#2 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#3 $")
 
 
 /*!
@@ -77,7 +77,7 @@ void drawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 	for ( i=0; i<lineWidth; i++ ) {		// draw bottom shadow
 	    a.setPoints( 3, x1+lineWidth, y+tlw-i-1,
 			    x2-i,	  y+tlw-i-1,
-			    x2-i, 	  y+lineWidth );
+			    x2-i,	  y+lineWidth );
 	    p->drawPolyline( a );
 	}
     }
@@ -148,7 +148,7 @@ void drawShadeRect( QPainter *p, int x, int y, int w, int h,
 	if ( sunken )
 	    p->setPen( g.light() );
 	else
-	    p->setPen( g.dark() );	
+	    p->setPen( g.dark() );
 	a.setPoints( 8, x1+1,y1+1, x2,y1+1, x1+1,y1+2, x1+1,y2-1,
 		     x1+1,y2, x2,y2,  x2,y1+2, x2,y2-1 );
 	p->drawLineSegments( a );		// draw bottom/right lines
@@ -174,14 +174,14 @@ void drawShadeRect( QPainter *p, int x, int y, int w, int h,
 	if ( sunken )
 	    p->setPen( g.light() );
 	else
-	    p->setPen( g.dark() );	
+	    p->setPen( g.dark() );
 	j = 0;
 	k = m;
 	for ( i=0; i<lineWidth; i++ ) {		// draw bottom shadow
 	    p->drawLine( x1+1+j,y2-j, x2-j, y2-j );
-	    p->drawLine( x2-j,  y2-j, x2-j, y1+j+1 );
-	    p->drawLine( x1+k,  y2-m, x1+k, y1+k );
-	    p->drawLine( x1+k,  y1+k, x2-k, y1+k );
+	    p->drawLine( x2-j,	y2-j, x2-j, y1+j+1 );
+	    p->drawLine( x1+k,	y2-m, x1+k, y1+k );
+	    p->drawLine( x1+k,	y1+k, x2-k, y1+k );
 	    j++;
 	    k++;
 	}
@@ -318,7 +318,7 @@ static void drawWinShades( QPainter *p,
 
 
 void drawWinButton( QPainter *p, int x, int y, int w, int h,
-		    const QColorGroup &g, bool  sunken,
+		    const QColorGroup &g, bool	sunken,
 		    const QBrush *fill )
 {
     if ( sunken )
@@ -344,7 +344,7 @@ void drawWinPanel( QPainter *p, int x, int y, int w, int h,
 
 
 void drawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
-		    int lineWidth = 1, const QBrush *fill = 0 )
+		    int lineWidth, const QBrush *fill )
 {
     if ( w == 0 || h == 0 )
 	return;
@@ -420,7 +420,7 @@ void drawWinPanel( QPainter *p, const QRect &r,
 
 
 void drawPlainRect( QPainter *p, const QRect &r, const QColor &c,
-		    int lineWidth = 1, const QBrush *fill = 0 )
+		    int lineWidth, const QBrush *fill )
 {
     drawPlainRect( p, r.x(), r.y(), r.width(), r.height(), c,
 		   lineWidth, fill );
