@@ -104,16 +104,21 @@ static inline const Rect *mac_rect(const QPoint &qp, const QSize &qs) { return m
 static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &r,
 				  bool clean=FALSE, bool translate=FALSE) {
     QPoint mp(posInWindow(w));
+    QRect wrect(mp.x(), mp.y(), w->width(), w->height());
     qDebug("%s %s %s (%s) [ %d %d %d %d ]", where, clean ? "clean" : "dirty",
-	   w->className(), w->name(), mp.x(), mp.y(), w->width(), w->height());
+	   w->className(), w->name(), wrect.x(), wrect.y(), wrect.width(), wrect.height());
     QMemArray<QRect> rs = r.rects();
     int offx = 0, offy = 0;
     if(translate) {
 	offx = mp.x();
 	offy = mp.y();
     }
-    for(int i = 0; i < (int)rs.size(); i++)
-	qDebug("%d %d %d %d", rs[i].x()+offx, rs[i].y()+offy, rs[i].width(), rs[i].height());
+    for(int i = 0; i < (int)rs.size(); i++) {
+	QRect srect(rs[i].x()+offx, rs[i].y()+offy, rs[i].width(), rs[i].height());
+	qDebug("%c %d %d %d %d", 
+	       wrect.contains(srect) ? '*' : (wrect.intersects(srect) ? '-' : '?'),
+	       srect.x(), srect.y(), srect.width(), srect.height());
+    }
 }
 static inline void debug_wndw_rgn(const char *where, QWidget *w, const Rect *r, bool clean=FALSE) {
     debug_wndw_rgn(where + QString(" (rect)"), w,
