@@ -12,7 +12,6 @@
 **
 ****************************************************************************/
 
-#include "qgfxdriverinterface_p.h" // up here for GCC 2.7.* compatibility
 #include "qgfxdriverfactory_qws.h"
 
 #include "qapplication.h"
@@ -30,35 +29,14 @@
 # include "qwsgfx_qnx6.h"
 #endif
 #include <stdlib.h>
+#include "private/qfactoryloader_p.h"
+#include "qgfxdriverplugin_qws.h"
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-#include <private/qpluginmanager_p.h>
-class QGfxDriverFactoryPrivate : public QObject
-{
-public:
-    QGfxDriverFactoryPrivate();
-    ~QGfxDriverFactoryPrivate();
 
-    static QPluginManager<QGfxDriverInterface> *manager;
-};
-
-static QGfxDriverFactoryPrivate *instance = 0;
-QPluginManager<QGfxDriverInterface> *QGfxDriverFactoryPrivate::manager = 0;
-
-QGfxDriverFactoryPrivate::QGfxDriverFactoryPrivate()
-: QObject(qApp)
-{
-    manager = new QPluginManager<QGfxDriverInterface>(IID_QGfxDriver, QApplication::libraryPaths(), "/gfxdrivers", false);
-}
-
-QGfxDriverFactoryPrivate::~QGfxDriverFactoryPrivate()
-{
-    delete manager;
-    manager = 0;
-
-    instance = 0;
-}
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+    (QGfxDriverFactoryInterface_iid, QCoreApplication::libraryPaths(), "/gfxdrivers"))
 
 #endif //QT_NO_COMPONENT
 #endif //QT_MAKEDLL
@@ -90,7 +68,7 @@ QGfxDriverFactoryPrivate::~QGfxDriverFactoryPrivate()
 */
 QScreen *QGfxDriverFactory::create(const QString& key, int displayId)
 {
-    QString driver = key.lower();
+    QString driver = key.toLower();
 #ifdef Q_OS_QNX6
     if (driver == "qnxfb" || driver.isEmpty())
         return new QQnxScreen(displayId);
@@ -138,14 +116,10 @@ QScreen *QGfxDriverFactory::create(const QString& key, int displayId)
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if (!instance)
-        instance = new QGfxDriverFactoryPrivate;
 
-    QInterfacePtr<QGfxDriverInterface> iface;
-    QGfxDriverFactoryPrivate::manager->queryInterface(driver, &iface);
+    if (QGfxDriverFactoryInterface *factory = qt_cast<QGfxDriverFactoryInterface*>(loader()->instance(driver)))
+        return factory->create(driver, displayId);
 
-    if (iface)
-        return iface->create(driver, displayId);
 #endif
 #endif
     return 0;
@@ -207,10 +181,7 @@ QStringList QGfxDriverFactory::keys()
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if (!instance)
-        instance = new QGfxDriverFactoryPrivate;
-
-    list += QGfxDriverFactoryPrivate::manager->featureList();
+     list += loader()->keys();
 #endif //QT_NO_COMPONENT
 #endif //QT_MAKEDLL
 

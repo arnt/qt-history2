@@ -12,7 +12,6 @@
 **
 ****************************************************************************/
 
-#include "qmousedriverinterface_p.h" // up here for GCC 2.7.* compatibility
 #include "qmousedriverfactory_qws.h"
 
 #include "qapplication.h"
@@ -22,35 +21,13 @@
 #include "qmouseyopy_qws.h"
 #include "qmouselinuxtp_qws.h"
 #include <stdlib.h>
-
+#include "private/qfactoryloader_p.h"
+#include "qmousedriverplugin_qws.h"
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-#include <private/qpluginmanager_p.h>
-class QMouseDriverFactoryPrivate : public QObject
-{
-public:
-    QMouseDriverFactoryPrivate();
-    ~QMouseDriverFactoryPrivate();
 
-    static QPluginManager<QMouseDriverInterface> *manager;
-};
-
-static QMouseDriverFactoryPrivate *instance = 0;
-QPluginManager<QMouseDriverInterface> *QMouseDriverFactoryPrivate::manager = 0;
-
-QMouseDriverFactoryPrivate::QMouseDriverFactoryPrivate()
-: QObject(qApp)
-{
-    manager = new QPluginManager<QMouseDriverInterface>(IID_QMouseDriver, QApplication::libraryPaths(), "/mousedrivers", false);
-}
-
-QMouseDriverFactoryPrivate::~QMouseDriverFactoryPrivate()
-{
-    delete manager;
-    manager = 0;
-
-    instance = 0;
-}
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+    (QWSMouseHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), "/mousedrivers"))
 
 #endif //QT_NO_COMPONENT
 #endif //QT_MAKEDLL
@@ -82,7 +59,7 @@ QMouseDriverFactoryPrivate::~QMouseDriverFactoryPrivate()
 */
 QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &device)
 {
-    QString driver = key.lower();
+    QString driver = key.toLower();
 #ifdef Q_OS_QNX6
     if (driver == "qnx" || driver.isEmpty())
         return new QWSQnxMouseHandler(key, device);
@@ -114,14 +91,8 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if (!instance)
-        instance = new QMouseDriverFactoryPrivate;
-
-    QInterfacePtr<QMouseDriverInterface> iface;
-    QMouseDriverFactoryPrivate::manager->queryInterface(driver, &iface);
-
-    if (iface)
-        return iface->create(driver, device);
+        if (QWSMouseHandlerFactoryInterface *factory = qt_cast<QWSMouseHandlerFactoryInterface*>(loader()->instance(driver)))
+            return factory->create(driver);
 #endif
 #endif
     return 0;
@@ -171,10 +142,7 @@ QStringList QMouseDriverFactory::keys()
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if (!instance)
-        instance = new QMouseDriverFactoryPrivate;
-
-    list += QMouseDriverFactoryPrivate::manager->featureList();
+    list += loader()->keys();
 #endif //QT_NO_COMPONENT
 #endif //QT_MAKEDLL
 

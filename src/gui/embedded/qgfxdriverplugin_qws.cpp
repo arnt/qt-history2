@@ -16,7 +16,6 @@
 
 #ifndef QT_NO_COMPONENT
 
-#include "qgfxdriverinterface_p.h"
 #include "qgfx_qws.h"
 
 /*!
@@ -48,65 +47,12 @@
 */
 
 
-class QGfxDriverPluginPrivate : public QGfxDriverInterface
-{
-public:
-    QGfxDriverPluginPrivate(QGfxDriverPlugin *p)
-        : plugin(p)
-    {
-    }
-    virtual ~QGfxDriverPluginPrivate();
-
-    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
-    Q_REFCOUNT;
-
-    QStringList featureList() const;
-
-    QScreen* create(const QString& driver, int displayId);
-
-private:
-    QGfxDriverPlugin *plugin;
-};
-
-QGfxDriverPluginPrivate::~QGfxDriverPluginPrivate()
-{
-    delete plugin;
-}
-
-QRESULT QGfxDriverPluginPrivate::queryInterface(const QUuid &iid, QUnknownInterface **iface)
-{
-    *iface = 0;
-
-    if (iid == IID_QUnknown)
-        *iface = this;
-    else if (iid == IID_QFeatureList)
-        *iface = this;
-    else if (iid == IID_QGfxDriver)
-        *iface = this;
-    else
-        return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList QGfxDriverPluginPrivate::featureList() const
-{
-    return plugin->keys();
-}
-
-QScreen* QGfxDriverPluginPrivate::create(const QString& driver, int displayId)
-{
-    qDebug("Loading plugin: %s", driver.latin1());
-    return plugin->create(driver, displayId);
-}
-
 /*!
     Constructs a graphics driver plugin. This is invoked automatically
     by the \c Q_EXPORT_PLUGIN macro.
 */
-QGfxDriverPlugin::QGfxDriverPlugin()
-    : QGPlugin(d = new QGfxDriverPluginPrivate(this))
+QGfxDriverPlugin::QGfxDriverPlugin(QObject *parent)
+    : QObject(parent)
 {
 }
 
@@ -129,12 +75,4 @@ QGfxDriverPlugin::~QGfxDriverPlugin()
 
     \sa keys()
 */
-
-QScreen* QGfxDriverPlugin::create(const QString& driver, int displayId)
-{
-    Q_UNUSED(driver)
-    Q_UNUSED(displayId)
-    return 0;
-}
-
 #endif // QT_NO_COMPONENT

@@ -112,15 +112,12 @@ embedded {
 # Qt/Embedded Drivers
 
 embedded {
-	HEADERS += embedded/qgfxdriverinterface_p.h \
-		    embedded/qgfxdriverplugin_qws.h \
+	HEADERS += embedded/qgfxdriverplugin_qws.h \
 		    embedded/qgfxdriverfactory_qws.h \
 		    embedded/qkbd_qws.h \
-		    embedded/qkbddriverinterface_p.h \
 		    embedded/qkbddriverplugin_qws.h \
 		    embedded/qkbddriverfactory_qws.h \
 		    embedded/qmouse_qws.h \
-		    embedded/qmousedriverinterface_p.h \
 		    embedded/qmousedriverplugin_qws.h \
 		    embedded/qmousedriverfactory_qws.h
 

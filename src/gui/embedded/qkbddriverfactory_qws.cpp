@@ -12,7 +12,6 @@
 **
 ****************************************************************************/
 
-#include "qkbddriverinterface_p.h" // up here for GCC 2.7.* compatibility
 #include "qkbddriverfactory_qws.h"
 
 #include "qapplication.h"
@@ -22,35 +21,13 @@
 #include "qkbdyopy_qws.h"
 #include "qkbdvr41xx_qws.h"
 #include <stdlib.h>
+#include "private/qfactoryloader_p.h"
+#include "qkbddriverplugin_qws.h"
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-#include <private/qpluginmanager_p.h>
-class QKbdDriverFactoryPrivate : public QObject
-{
-public:
-    QKbdDriverFactoryPrivate();
-    ~QKbdDriverFactoryPrivate();
-
-    static QPluginManager<QKbdDriverInterface> *manager;
-};
-
-static QKbdDriverFactoryPrivate *instance = 0;
-QPluginManager<QKbdDriverInterface> *QKbdDriverFactoryPrivate::manager = 0;
-
-QKbdDriverFactoryPrivate::QKbdDriverFactoryPrivate()
-: QObject(qApp)
-{
-    manager = new QPluginManager<QKbdDriverInterface>(IID_QKbdDriver, QApplication::libraryPaths(), "/kbddrivers", false);
-}
-
-QKbdDriverFactoryPrivate::~QKbdDriverFactoryPrivate()
-{
-    delete manager;
-    manager = 0;
-
-    instance = 0;
-}
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+    (QWSKeyboardHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), "/kbddrivers"))
 
 #endif //QT_NO_COMPONENT
 #endif //QT_MAKEDLL
@@ -82,7 +59,7 @@ QKbdDriverFactoryPrivate::~QKbdDriverFactoryPrivate()
 */
 QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString& device)
 {
-    QString driver = key.lower();
+    QString driver = key.toLower();
 #ifdef Q_OS_QNX6
     if (driver == "qnx" || driver.isEmpty())
         return new QWSQnxKeyboardHandler(device);
@@ -112,14 +89,8 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if (!instance)
-        instance = new QKbdDriverFactoryPrivate;
-
-    QInterfacePtr<QKbdDriverInterface> iface;
-    QKbdDriverFactoryPrivate::manager->queryInterface(driver, &iface);
-
-    if (iface)
-        return iface->create(driver, driver);
+        if (QWSKeyboardHandlerFactoryInterface *factory = qt_cast<QWSKeyboardHandlerFactoryInterface*>(loader()->instance(driver)))
+            return factory->create(driver);
 #endif
 #endif
     return 0;
@@ -161,10 +132,7 @@ QStringList QKbdDriverFactory::keys()
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if (!instance)
-        instance = new QKbdDriverFactoryPrivate;
-
-    list += QKbdDriverFactoryPrivate::manager->featureList();
+    list += loader()->keys();
 #endif //QT_NO_COMPONENT
 #endif //QT_MAKEDLL
 

@@ -16,7 +16,6 @@
 
 #ifndef QT_NO_COMPONENT
 
-#include "qkbddriverinterface_p.h"
 #include "qkbd_qws.h"
 
 /*!
@@ -47,64 +46,12 @@
 */
 
 
-class QKbdDriverPluginPrivate : public QKbdDriverInterface
-{
-public:
-    QKbdDriverPluginPrivate(QKbdDriverPlugin *p)
-        : plugin(p)
-    {
-    }
-    virtual ~QKbdDriverPluginPrivate();
-
-    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
-    Q_REFCOUNT;
-
-    QStringList featureList() const;
-
-    QWSKeyboardHandler* create(const QString& driver, const QString &device);
-
-private:
-    QKbdDriverPlugin *plugin;
-};
-
-QKbdDriverPluginPrivate::~QKbdDriverPluginPrivate()
-{
-    delete plugin;
-}
-
-QRESULT QKbdDriverPluginPrivate::queryInterface(const QUuid &iid, QUnknownInterface **iface)
-{
-    *iface = 0;
-
-    if (iid == IID_QUnknown)
-        *iface = this;
-    else if (iid == IID_QFeatureList)
-        *iface = this;
-    else if (iid == IID_QKbdDriver)
-        *iface = this;
-    else
-        return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList QKbdDriverPluginPrivate::featureList() const
-{
-    return plugin->keys();
-}
-
-QWSKeyboardHandler* QKbdDriverPluginPrivate::create(const QString& driver, const QString &device)
-{
-    return plugin->create(driver, device);
-}
-
 /*!
     Constructs a keyboard driver plugin. This is invoked automatically
     by the \c Q_EXPORT_PLUGIN macro.
 */
-QKbdDriverPlugin::QKbdDriverPlugin()
-    : QGPlugin(d = new QKbdDriverPluginPrivate(this))
+QKbdDriverPlugin::QKbdDriverPlugin(QObject *parent)
+    : QObject(parent)
 {
 }
 
@@ -126,12 +73,5 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
 
     \sa keys()
 */
-
-QWSKeyboardHandler* QKbdDriverPlugin::create(const QString& driver, const QString &device)
-{
-    Q_UNUSED(driver)
-    Q_UNUSED(device)
-    return 0;
-}
 
 #endif // QT_NO_COMPONENT

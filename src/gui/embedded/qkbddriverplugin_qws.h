@@ -16,27 +16,31 @@
 #define QKBDDRIVERPLUGIN_QWS_H
 
 #ifndef QT_H
-///////#include "qgplugin.h"
-#include "qstringlist.h"
+#include "qplugin.h"
+#include "qfactoryinterface.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPONENT
 
 class QWSKeyboardHandler;
-class QKbdDriverPluginPrivate;
 
-class Q_GUI_EXPORT QKbdDriverPlugin : public QGPlugin
+struct Q_GUI_EXPORT QWSKeyboardHandlerFactoryInterface : public QFactoryInterface
+{
+    virtual QWSKeyboardHandler* create(const QString& name) = 0;
+};
+
+Q_DECLARE_INTERFACE(QWSKeyboardHandlerFactoryInterface, "http://trolltech.com/Qt/QWSKeyboardHandlerFactoryInterface")
+
+class Q_GUI_EXPORT QKbdDriverPlugin : public QObject, public QWSKeyboardHandlerFactoryInterface
 {
     Q_OBJECT
+    Q_INTERFACES(QWSKeyboardHandlerFactoryInterface:QFactoryInterface)
 public:
-    QKbdDriverPlugin();
+    QKbdDriverPlugin(QObject *parent = 0);
     ~QKbdDriverPlugin();
 
     virtual QStringList keys() const = 0;
     virtual QWSKeyboardHandler* create(const QString& driver, const QString &device) = 0;
-
-private:
-    QKbdDriverPluginPrivate *d;
 };
 
 #endif // QT_NO_COMPONENT

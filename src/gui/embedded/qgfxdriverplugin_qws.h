@@ -16,26 +16,32 @@
 #define QGFXDRIVERPLUGIN_QWS_H
 
 #ifndef QT_H
-#include "qstringlist.h"
+#include "qplugin.h"
+#include "qfactoryinterface.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPONENT
 
 class QScreen;
-class QGfxDriverPluginPrivate;
 
-class Q_GUI_EXPORT QGfxDriverPlugin : public QGPlugin
+struct Q_GUI_EXPORT QGfxDriverFactoryInterface : public QFactoryInterface
+{
+    virtual QScreen* create(const QString& driver, int displayId) = 0;
+};
+
+Q_DECLARE_INTERFACE(QGfxDriverFactoryInterface, "http://trolltech.com/Qt/QGfxDriverFactoryInterface")
+
+
+class Q_GUI_EXPORT QGfxDriverPlugin : public QObject, public QGfxDriverFactoryInterface
 {
     Q_OBJECT
+    Q_INTERFACES(QGfxDriverFactoryInterface:QFactoryInterface)
 public:
-    QGfxDriverPlugin();
+    QGfxDriverPlugin(QObject *parent = 0);
     ~QGfxDriverPlugin();
 
     virtual QStringList keys() const = 0;
     virtual QScreen* create(const QString& driver, int displayId) = 0;
-
-private:
-    QGfxDriverPluginPrivate *d;
 };
 
 #endif // QT_NO_COMPONENT
