@@ -2014,7 +2014,6 @@ void AddToolBarCommand::unexecute()
 
 // ------------------------------------------------------------
 
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 AddContainerPageCommand::AddContainerPageCommand( const QString &n, FormWindow *fw,
 						  QWidget *c, const QString &label )
     : Command( n, fw ), container( c ), index( -1 ), pageLabel( label ), page( 0 )
@@ -2148,4 +2147,3 @@ void RenameContainerPageCommand::unexecute()
     // #### show and update pages in object hierarchy view
 }
 
-#endif

@@ -1513,7 +1513,6 @@ void MainWindow::setupRMBProperties( QValueList<uint> &ids, QMap<QString, int> &
     }
 }
 
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 static QWidgetContainerInterfacePrivate *containerWidgetInterface( QWidget *w )
 {
     WidgetInterface *iface = 0;
@@ -1527,7 +1526,6 @@ static QWidgetContainerInterfacePrivate *containerWidgetInterface( QWidget *w )
     iface->release();
     return iface2;
 }
-#endif
 
 void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
 					  QMap<QString, int> &commands, QWidget *w )
@@ -1557,7 +1555,6 @@ void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
 	}
 	ids << ( id = rmbWidgets->insertItem( tr("Add Page"), -1, 0 ) );
 	commands.insert( "add", id );
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     } else if ( WidgetDatabase::
 		isCustomPluginWidget( WidgetDatabase::
 				      idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
@@ -1579,7 +1576,6 @@ void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
 	}
 	if ( iface )
 	    iface->release();
-#endif
     }
 
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::
@@ -1746,7 +1742,6 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	    formWindow()->commandHistory()->addCommand( cmd );
 	    MetaDataBase::setPropertyChanged( w, "currentPage", TRUE );
 	}
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     } else if ( WidgetDatabase::
 		isCustomPluginWidget( WidgetDatabase::
 				      idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
@@ -1796,7 +1791,6 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 		iface->release();
 	    }
 	}
-#endif
     }
 
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::

@@ -940,7 +940,6 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return 0;
 
     QWidget *w = iface->create( className, parent, name );
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     if ( init && WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( className ) ) ) {
 	QWidgetContainerInterfacePrivate *iface2 = 0;
 	iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
@@ -949,7 +948,6 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	    iface2->release();
 	}
     }
-#endif
     iface->release();
     return w;
 }
@@ -1054,7 +1052,6 @@ QWidget* WidgetFactory::containerOfWidget( QWidget *w )
 	return ((QWidgetStack*)w)->visibleWidget();
     if ( w->inherits( "QMainWindow" ) )
 	return ((QMainWindow*)w)->centralWidget();
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     if ( !WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) )
 	return w;
     WidgetInterface *iface = 0;
@@ -1070,7 +1067,6 @@ QWidget* WidgetFactory::containerOfWidget( QWidget *w )
     iface->release();
     if ( c )
 	return c;
-#endif
     return w;
 }
 
@@ -1129,7 +1125,6 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
     else if ( qstrcmp( o->name(), "designer_wizardstack_button" ) == 0 )
 	return ( lastWasAPassiveInteractor = TRUE );
 
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     if ( !o->isWidgetType() )
 	return ( lastWasAPassiveInteractor = FALSE );
     WidgetInterface *iface = 0;
@@ -1153,7 +1148,6 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
     lastWasAPassiveInteractor = iface2->isPassiveInteractor( dw->className(), (QWidget*)o );
     iface2->release();
     iface->release();
-#endif
     return lastWasAPassiveInteractor;
 }
 

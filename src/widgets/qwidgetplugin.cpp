@@ -41,9 +41,7 @@
 #include "qwidgetinterface_p.h"
 #include "qobjectcleanuphandler.h"
 #include "qwidget.h"
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 #include "qwidgetlist.h"
-#endif
 
 /*!
     \class QWidgetPlugin qwidgetplugin.h
@@ -71,9 +69,7 @@
 */
 
 class QWidgetPluginPrivate : public QWidgetFactoryInterface,
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 			     public QWidgetContainerInterfacePrivate,
-#endif
 			     private QLibraryInterface
 {
 public:
@@ -95,7 +91,6 @@ public:
     QString toolTip( const QString &widget ) const;
     QString whatsThis( const QString &widget ) const;
     bool isContainer( const QString &widget ) const;
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     QWidget* containerOfWidget( const QString &key, QWidget *widget ) const;
     bool isPassiveInteractor( const QString &key, QWidget *widget ) const;
     bool supportsPages( const QString &key ) const;
@@ -112,7 +107,6 @@ public:
     QWidget *page( const QString &key, QWidget *container, int index ) const;
     void renamePage( const QString &key, QWidget *container, int index, const QString &newName ) const;
     QWidgetList pages( const QString &key, QWidget *container ) const;
-#endif
 
     bool init();
     void cleanup();
@@ -135,10 +129,8 @@ QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterfac
 	*iface = (QWidgetFactoryInterface*)this;
     else if ( iid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     else if ( iid == IID_QWidgetContainer )
 	*iface = (QWidgetContainerInterfacePrivate*)this;
-#endif
     else
 	return QE_NOINTERFACE;
 
@@ -230,7 +222,6 @@ bool QWidgetPluginPrivate::canUnload() const
     return widgets.isEmpty();
 }
 
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 QWidget* QWidgetPluginPrivate::containerOfWidget( const QString &key, QWidget *widget ) const
 {
     QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
@@ -335,8 +326,6 @@ QWidgetList QWidgetPluginPrivate::pages( const QString &key, QWidget *container 
     return QWidgetList();
 }
 
-#endif
-
 /*!
     Constructs a widget plugin. This is invoked automatically by the
     \c Q_EXPORT_PLUGIN macro.
@@ -425,7 +414,6 @@ bool QWidgetPlugin::isContainer( const QString & ) const
     return FALSE;
 }
 
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 QWidgetContainerPlugin::QWidgetContainerPlugin()
     : QWidgetPlugin()
 {
@@ -497,7 +485,5 @@ QWidgetList QWidgetContainerPlugin::pages( const QString &, QWidget * ) const
 {
     return QWidgetList();
 }
-
-#endif
 
 #endif //QT_NO_WIDGETPLUGIN

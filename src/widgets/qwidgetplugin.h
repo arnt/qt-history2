@@ -79,15 +79,11 @@ private:
     QWidgetPluginPrivate *d;
 };
 
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
-#ifndef Q_QDOC
 class QWidgetContainerPluginPrivate;
 
 class Q_EXPORT QWidgetContainerPlugin : public QWidgetPlugin
 {
-//MOC_SKIP_BEGIN
     Q_OBJECT
-//MOC_SKIP_END
 
 public:
     QWidgetContainerPlugin();
@@ -112,8 +108,6 @@ public:
 			     int index, const QString &newName ) const;
     virtual QWidgetList pages( const QString &key, QWidget *container ) const;
 };
-#endif
-#endif
 
 #endif // QT_NO_WIDGETPLUGIN
 #endif // QWIDGETPLUGIN_H

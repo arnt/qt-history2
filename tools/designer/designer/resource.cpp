@@ -778,7 +778,6 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	saveChildrenOf( ( (QMainWindow*)obj )->centralWidget(), ts, indent );
     } else {
 	bool saved = FALSE;
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 	if ( WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( className ) ) ) {
 	    WidgetInterface *iface = 0;
 	    widgetManager()->queryInterface( className, &iface );
@@ -839,7 +838,6 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 		iface->release();
 	    }
 	}
-#endif
 	if ( !saved )
 	    saveChildrenOf( obj, ts, indent );
     }
@@ -1462,14 +1460,12 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	colspan = 1;
 
     QString className = e.attribute( "class", "QWidget" );
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     QString parentClassName = WidgetFactory::classNameOf( parent );
     bool isPlugin =
 	WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( parentClassName ) );
     if ( isPlugin )
 	qWarning( "####### loading custom container widgets without page support not implemented!" );
     // ### TODO loading for custom container widgets without pages
-#endif
     if ( !className.isNull() ) {
 	obj = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, 0, FALSE );
 	if ( !obj )
@@ -1508,18 +1504,14 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 		 ( !parent->inherits( "QTabWidget" ) &&
 		   !parent->inherits("QWidgetStack") &&
 		   !parent->inherits( "QWizard" )
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 		   && !isPlugin
-#endif
 		     ) )
 		formwindow->insertWidget( w, pasting );
 	    else if ( parent &&
 		      ( parent->inherits( "QTabWidget" ) ||
 			parent->inherits("QWidgetStack") ||
 			parent->inherits( "QWizard" )
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 			|| isPlugin
-#endif
 			  ) )
 		MetaDataBase::addEntry( w );
 	}
@@ -1559,7 +1551,6 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    } else if ( parent->inherits( "QWizard" ) ) {
 		if ( attrib == "title" )
 		    ( (QWizard*)parent )->addPage( w, v.toString() );
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 	    } else if ( isPlugin ) {
 		if ( attrib == "label" ) {
 		    WidgetInterface *iface = 0;
@@ -1575,7 +1566,6 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 			iface->release();
 		    }
 		}
-#endif
 	    }
 	} else if ( n.tagName() == "item" ) {
 	    createItem( n, w );

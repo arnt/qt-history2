@@ -1637,13 +1637,11 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	}
     }
 
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
     QString parentClassName = parent ? parent->className() : 0;
     bool isPlugin = parent ? !!d->customWidgets.find( parent->className() ) : FALSE;
     if ( isPlugin )
 	qWarning( "####### loading custom container widgets without page support not implemented!" );
     // ### TODO loading for custom container widgets without pages
-#endif
 
     int idx = 0;
     while ( !n.isNull() ) {

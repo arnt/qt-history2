@@ -1017,7 +1017,6 @@ public:
 
 };
 
-#ifdef QT_CONTAINER_CUSTOM_WIDGETS
 class QWidgetContainerInterfacePrivate;
 
 class AddContainerPageCommand : public Command
@@ -1083,6 +1082,5 @@ private:
     QWidgetContainerInterfacePrivate *wiface;
 
 };
-#endif
 
 #endif
