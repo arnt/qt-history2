@@ -37,9 +37,7 @@ static void check_file(char * file,int w,int h,int d)
     unsigned short vendorid=*((unsigned short int *)config);
     unsigned short deviceid=*((unsigned short int *)config+2);
     if(config[0xb]==3) {
-	printf("VGA device found\n");
 	if(vendorid==0x1002) {
-	    printf("Made by ATI, device id %d\n",deviceid);
 		probed_card=new Mach64Accel((unsigned char*)file,config);
 		if(!probed_card->inited) {
 		    delete probed_card;
@@ -51,7 +49,6 @@ static void check_file(char * file,int w,int h,int d)
 		}
 	} else {
 	    unaccelerated = TRUE;
-	    printf("Not an ATI device\n");
 	    return;
 	}
     }
@@ -61,7 +58,6 @@ void probe_bus(int w,int h,int d)
 {
     if(probed_card||unaccelerated)
 	return;
-    qDebug("Probe bus %d %d %d",w,h,d);
     check_file(bus_pos,w,h,d);
 }
 

@@ -25,22 +25,14 @@ Mach64Accel::Mach64Accel(unsigned char * pcifile,unsigned char * config)
     unsigned long int olds=s;
     if(s2 & 0x1) {
 	s2=(s2 >> 1) << 1;
-	qDebug("IO space found, is %lx",s2);
 	vgabase=s2;
     } else {
 	qFatal("Couldn't find IO space");
     }
-    qDebug("S value here %ld %lx\n",s,s);
     if(s & 0x1) {
 	qFatal("First memory area is IO space - not right");
 	return;
     } else {
-	qDebug("Memory space found\n");
-	s=s >> 1;
-	qDebug("Type %ld ",s & 0x3);
-	s=s >> 2;
-	qDebug("Prefetchable %s\n",(s & 0x1) ? "Yes" : "No");
-	qDebug("Offset %lx\n",s);
 	s=olds;
 	int aperturefd;
 	aperturefd=open("/dev/mem",O_RDWR);
@@ -48,17 +40,14 @@ Mach64Accel::Mach64Accel(unsigned char * pcifile,unsigned char * config)
 	    printf("Can't open /dev/mem\n");
 	    return;
 	}
-	printf("Mmap offset %x\n",s);
 	// Make it on a page boundary or this mmap will fall over
 	s=(s >> 12) << 12;
-	printf("Corrected offset %lx\n",s);
 	membase=(unsigned char *)mmap(0,8388608,PROT_READ | PROT_WRITE,
 			     MAP_SHARED,aperturefd,s);
 	if(membase==0 || ((unsigned long)membase)==-1) {
 	    qDebug("Membase mmap error, bye!");
 	    return;
 	}
-	qDebug("Membase here %lx",(unsigned long int)membase);
 	regbase=membase+0x7ffc00;
 	regw(BUS_CNTL,regr(BUS_CNTL) | 0x10);
 	regbase=0;
@@ -76,8 +65,6 @@ Mach64Accel::Mach64Accel(unsigned char * pcifile,unsigned char * config)
 		sentry.type=MTRR_TYPE_WRCOMB;
 		if(ioctl(mfd,MTRRIOC_ADD_ENTRY,&sentry)==-1) {
 		    printf("Couldn't add mtrr entry\n");
-		} else {
-		    printf("Write combining would appear to be on\n");
 		}
 	    }
 	}
@@ -87,29 +74,17 @@ Mach64Accel::Mach64Accel(unsigned char * pcifile,unsigned char * config)
 	qFatal("Third memory area is IO space - not right");
 	return;
     } else {
-	qDebug("Memory space found\n");
-	olds=s3;
-	s3=s3 >> 1;
-	qDebug("Type %ld ",s3 & 0x3);
-	s3=s3 >> 2;
-	qDebug("Prefetchable %s\n",(s3 & 0x1) ? "Yes" : "No");
-	qDebug("Offset %lx\n",s3);
-	s3=olds;
 	int aperturefd;
 	aperturefd=open("/dev/mem",O_RDWR);
 	if(aperturefd==-1) {
 	    printf("Can't open /dev/mem\n");
 	    return;
 	}
-	printf("Mmap offset %x\n",s3);
 	// Make it on a page boundary or this mmap will fall over
 	s3=(s3 >> 12) << 12;
-	printf("Corrected offset %lx\n",s3);
 	regbase=(unsigned char *)mmap(0,4096,PROT_READ | PROT_WRITE,
 			     MAP_SHARED,aperturefd,s3);
-	qDebug("Membase here %lx",(unsigned long int)membase);
 	regbase=regbase+1024;
-	qDebug("Regbase here %lx",(unsigned long int)regbase);
     }
 }
 
@@ -119,8 +94,6 @@ Mach64Accel::~Mach64Accel()
 
 void Mach64Accel::vesa_init(int width,int height,int depth)
 {
-
-    printf("Initialising ATI card, register base %lx\n",regbase);
     int xres=width;
     int yres=height;
     int pitch_value=width;
@@ -134,7 +107,6 @@ void Mach64Accel::vesa_init(int width,int height,int depth)
 
     wait_for_fifo(7);
     regw(CONTEXT_MASK,0xffffffff);
-    printf("Pitch here %d\n",regr(DST_OFF_PITCH) >> 22);
     regw(DST_OFF_PITCH, (pitch_value / 8) << 22);
     regw(DST_Y_X,0);
     regw(DST_HEIGHT,0);
@@ -236,7 +208,7 @@ void Mach64Accel::setup_cursor()
 	qDebug("Can't find cursor bitmap %s!",fn.ascii());
 	return;
     }
-    unsigned int offset=(1280*1024*2);
+    unsigned int offset=(1280*1280*2);
     unsigned char * wibble=membase+offset;
     int loopc,loopc2;
     unsigned char * wibble2=wibble;

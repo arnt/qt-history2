@@ -89,11 +89,11 @@ inline void Mach64Accel::wait_for_fifo(short entries)
     while(1) {
 	int wizzy=regr(FIFO_STAT);
 	if(wizzy & 0x80000000) {
-	    qDebug("Resetting engine");
+	    //qDebug("Resetting engine");
 	    reset_engine();
 	    return;
 	}
-	qDebug("FIFO_STAT looks like %x",wizzy);
+	//qDebug("FIFO_STAT looks like %x",wizzy);
 	wizzy=wizzy & 0xffff;
 	int loopc;
 	int count=0;
@@ -102,7 +102,7 @@ inline void Mach64Accel::wait_for_fifo(short entries)
 		count++;
 	    wizzy=wizzy >> 1;
 	}
-	qDebug("Free entries %d need %d",count,entries);
+	//qDebug("Free entries %d need %d",count,entries);
 	if(count>=entries)
 	    return;
     }

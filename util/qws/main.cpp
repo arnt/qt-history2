@@ -63,7 +63,10 @@ main(int argc, char** argv)
 	m.serve(depth,refresh_delay);
 	return app.exec();
     } else {
+	signal(SIGINT, handleHardExit);
+	signal(SIGTERM, handleHardExit);
 	signal(SIGQUIT, handleHardExit);
+	signal(SIGTERM, handleHardExit);
 	signal(SIGSEGV, handleHardExit);
 	int w = 0;
 	int h = 0;
@@ -122,8 +125,10 @@ main(int argc, char** argv)
 
 void handleHardExit(int sig)
 {
-    if (server)
+    if (server) {
 	delete server;	// will cleanup device connections.
+	qApp->quit(); // leave loop
+    }
     if (sig == SIGSEGV)
 	abort();
 }

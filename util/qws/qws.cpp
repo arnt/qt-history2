@@ -23,9 +23,13 @@
 #include "qwscommand.h"
 #include "qwsutils.h"
 #include "qwsaccel.h"
+#include "qws_cursor.h"
 
 #include <qapplication.h>
 #include <qpointarray.h> //cursor test code
+#include <qimage.h>
+#include <qcursor.h>
+#include <qgfx.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -76,10 +80,9 @@ QWSClient::QWSClient( QObject* parent, int socket, int shmid,
 
     // Send some objects - client process probably wants some
     QWSCreationEvent event;
-    event.type = QWSEvent::Creation;
     for (int i=0; i<10; i++) {
-	event.objectid = get_object_id();
-	writeBlock( (char*)&event, sizeof(event) );
+	event.simpleData.objectid = get_object_id();
+	event.write( this );
     }
 
     flush();
@@ -125,115 +128,103 @@ int QWSClient::socket() const
     return s;
 }
 
-void QWSClient::sendSimpleEvent( void* event, uint size )
+void QWSClient::sendEvent( QWSEvent* event )
 {
-    writeBlock( (char*)event,size );
+    event->write( this );
     flush();
 }
 
-void QWSClient::sendMouseEvent( const QWSMouseEvent &event )
+
+static void copyRects( QRegion reg, void *data )
 {
-    writeBlock((char*)&event,sizeof(event));
-    flush();
+    // XXX when the protocol is finalized, we should
+    // XXX make it possible to write reg.rects directly
+    QArray<QRect> ra = reg.rects();
+    if ( ra.size() == 0 )
+	return;
+    QWSRegionRemoveEvent::Rectangle *r=(QWSRegionRemoveEvent::Rectangle*)data;
+    for (uint i=0; i<ra.size(); i++) {
+	r[i].x = ra[i].x();
+	r[i].y = ra[i].y();
+	r[i].width = ra[i].width();
+	r[i].height = ra[i].height();
+#ifdef QWS_REGION_DEBUG
+	qDebug( "   writeRegion rect[%d] = (%d,%d) %dx%d", i,
+	     r[i].x,r[i].y,r[i].width,r[i].height);
+#endif
+    }
 }
 
 
 void QWSClient::sendRegionAddEvent( int winid, bool ack, QRegion r )
 {
     QWSRegionAddEvent event;
-    event.type = QWSEvent::RegionAdd;
-    event.window = winid;
-    event.is_ack = ack;
-    event.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
-    writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
+    event.simpleData.window = winid;
+    event.simpleData.is_ack = ack;
+    event.simpleData.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
+    event.allocateRects( event.simpleData.nrectangles );
 #ifdef QWS_REGION_DEBUG
-qDebug("Add region (%d rects) to %p/%d",event.nrectangles, this, winid);
+    qDebug("Add region (%d rects) to %p/%d", event.simpleData.nrectangles, c, id);
+
 #endif
-    writeRegion( r );
+    copyRects( r, event.rectangles );
+    event.write( this );
+    flush();
 }
 
 void QWSClient::sendRegionRemoveEvent( int winid, int eventid, QRegion r )
 {
     QWSRegionRemoveEvent event;
-    event.type = QWSEvent::RegionRemove;
-    event.eventid = eventid;
-    event.window = winid;
-    event.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
-    writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
-
+    event.simpleData.eventid = eventid;
+    event.simpleData.window = winid;
+    event.simpleData.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
+    event.allocateRects( event.simpleData.nrectangles );
 #ifdef QWS_REGION_DEBUG
-    qDebug("Remove region (%d rects) from %p/%d", event.nrectangles, c, id);
-
+    qDebug("Remove region (%d rects) from %p/%d", event.simpleData.nrectangles, c, id);
 #endif
-    writeRegion( r );
-}
-
-void QWSClient::writeRegion( QRegion reg )
-{
-    // XXX when the protocol is finalized, we should
-    // XXX make it possible to write reg.rects directly
-    QArray<QRect> r = reg.rects();
-    if ( r.size() == 0 )
-	return;
-    struct {
-        int x, y, width, height;
-    } rectangle;
-    for (uint i=0; i<r.size(); i++) {
-	rectangle.x = r[i].x();
-	rectangle.y = r[i].y();
-	rectangle.width = r[i].width();
-	rectangle.height = r[i].height();
-	writeBlock( (char*)&rectangle, sizeof(rectangle) );
-#ifdef QWS_REGION_DEBUG
-	qDebug( "   writeRegion rect[%d] = (%d,%d) %dx%d", i,
-	     rectangle.x,rectangle.y,rectangle.width,rectangle.height);
-#endif
-    }
+    copyRects( r, event.rectangles );
+    event.write( this );
     flush();
 }
+
 
 void QWSClient::sendPropertyNotifyEvent( int property, int state )
 {
     QWSPropertyNotifyEvent event;
-    event.type = QWSEvent::PropertyNotify;
-    event.window = 0; // not used yet
-    event.property = property;
-    event.state = state;
-    writeBlock( (char*)&event, sizeof( event ) );
+    event.simpleData.window = 0; // not used yet
+    event.simpleData.property = property;
+    event.simpleData.state = state;
+    event.write( this );
     flush();
 }
 
 void QWSClient::sendPropertyReplyEvent( int property, int len, char *data )
 {
     QWSPropertyReplyEvent event;
-    event.type = QWSEvent::PropertyReply;
-    event.window = 0; // not used yet
-    event.property = property;
-    event.len = len;
-    writeBlock( (char*)&event, sizeof( event ) - sizeof( event.data ) );
-    if ( len > 0 )
-	writeBlock( data, len );
+    event.simpleData.window = 0; // not used yet
+    event.simpleData.property = property;
+    event.simpleData.len = len;
+    event.setData( data, len );
+    event.write( this );
     flush();
 }
 
 void QWSClient::sendSelectionClearEvent( int windowid )
 {
     QWSSelectionClearEvent event;
-    event.type = QWSEvent::SelectionClear;
-    event.window = windowid;
-    writeBlock( (char*)&event, sizeof( event ) );
+    event.simpleData.window = windowid;
+    event.write( this );
     flush();
 }
 
 void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int windowid )
 {
     QWSSelectionRequestEvent event;
-    event.type = QWSEvent::SelectionRequest;
-    event.window = windowid;
-    event.requestor = cmd->simpleData.requestor;
-    event.property = cmd->simpleData.selection;
-    event.mimeTypes = cmd->simpleData.mimeTypes;
-    writeBlock( (char*)&event, sizeof( event ) );
+    event.simpleData.window = windowid;
+    event.simpleData.requestor = cmd->simpleData.requestor;
+    event.simpleData.property = cmd->simpleData.selection;
+    event.simpleData.mimeTypes = cmd->simpleData.mimeTypes;
+    event.write( this );
     flush();
 }
 
@@ -311,6 +302,8 @@ QWSServer::QWSServer( int sw, int sh, int simulate_depth, int flags,
 	openDisplay();
 	if ( !(flags&DisableMouse) ) {
 	    openMouse();
+	    initializeCursor();
+	    cursor = QWSCursor::systemCursor(ArrowCursor);
 	    setMouse(QPoint(swidth/2, sheight/2), 0);
 	}
     }
@@ -428,6 +421,12 @@ QWSCommand* QWSClient::readMoreCommand()
 	    case QWSCommand::ChangeAltitude:
 		command = new QWSChangeAltitudeCommand;
 		break;
+	     case QWSCommand::DefineCursor:
+		command = new QWSDefineCursorCommand;
+		break;
+	     case QWSCommand::SelectCursor:
+		command = new QWSSelectCursorCommand;
+		break;
 	    default:
 		qDebug( "QWSClient::readMoreCommand() : Protocol error - got %08x!", command_type );
 	    }
@@ -521,6 +520,12 @@ void QWSServer::doClient()
 	    invokeSetAltitude( (QWSChangeAltitudeCommand*)cs->command,
 			       cs->client );
 	    break;
+	case QWSCommand::DefineCursor:
+	    invokeDefineCursor( (QWSDefineCursorCommand*)cs->command, cs->client );
+	    break;
+	case QWSCommand::SelectCursor:
+	    invokeSelectCursor( (QWSSelectCursorCommand*)cs->command, cs->client );
+	    break;
 
 	}
 	delete cs->command;
@@ -545,6 +550,8 @@ void QWSServer::showCursor()
     if ( cursorPos == mousePos )
 	return;
     cursorPos = mousePos;
+
+/*
     //##### hardcoded region
    QPointArray a;
    a.setPoints(  7,
@@ -557,6 +564,14 @@ void QWSServer::showCursor()
 		 0,6 );
     a.translate( cursorPos.x()-1, cursorPos.y()-1 );
     setWindowRegion( 0, QRegion(a) & QRegion(0,0,swidth,sheight) );
+*/
+
+    if ( cursor ) {
+	QRegion r( cursor->region() );
+	r.translate( cursorPos.x()-1, cursorPos.y()-1 );
+	r.translate( -cursor->hotSpot().x(), -cursor->hotSpot().y() );
+	setWindowRegion( 0, r & QRegion(0,0,swidth,sheight) );
+    }
 }
 
 // ### don't like this
@@ -600,23 +615,22 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 
 
     QWSMouseEvent event;
-    event.type = QWSEvent::Mouse;
 
     QWSWindow *win = mouseGrabbing ? mouseGrabber : windowAt( pos );
-    event.window = win ? win->id : 0;
+    event.simpleData.window = win ? win->id : 0;
 
     if ( !mouseGrabbing && win && state != 0 ) {
 	//button has been pressed
 	mouseGrabbing = TRUE;
 	mouseGrabber = win;
     }
-    event.x_root=pos.x();
-    event.y_root=pos.y();
-    event.state=state;
-    event.time=timer.elapsed();
+    event.simpleData.x_root=pos.x();
+    event.simpleData.y_root=pos.y();
+    event.simpleData.state=state;
+    event.simpleData.time=timer.elapsed();
 
     for (ClientIterator it = client.begin(); it != client.end(); ++it )
-	(*it)->sendMouseEvent( event );
+	(*it)->sendEvent( &event );
 }
 
 
@@ -634,15 +648,14 @@ void QWSServer::sendKeyEvent(int unicode, int modifiers, bool isPress,
   bool autoRepeat)
 {
     QWSKeyEvent event;
-    event.type = QWSEvent::Key;
-    event.window = focusw ? focusw->winId() : 0;
-    event.unicode = unicode;
-    event.modifiers = modifiers;
-    event.is_press = isPress;
-    event.is_auto_repeat = autoRepeat;
+    event.simpleData.window = focusw ? focusw->winId() : 0;
+    event.simpleData.unicode = unicode;
+    event.simpleData.modifiers = modifiers;
+    event.simpleData.is_press = isPress;
+    event.simpleData.is_auto_repeat = autoRepeat;
 
     for (ClientIterator it = client.begin(); it != client.end(); ++it ) {
-	(*it)->sendSimpleEvent(&event,sizeof(event));
+	(*it)->sendEvent(&event);
     }
 }
 
@@ -656,9 +669,8 @@ void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
 {
     qDebug( "QWSServer::invokeCreate" );
     QWSCreationEvent event;
-    event.type = QWSEvent::Creation;
-    event.objectid = get_object_id();
-    client->sendSimpleEvent( &event, sizeof(event) );
+    event.simpleData.objectid = get_object_id();
+    client->sendEvent( &event );
 }
 
 void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
@@ -792,7 +804,7 @@ void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
 				    cmd->rawLen ) ) {
 	qDebug( "setting property successful" );
 	sendPropertyNotifyEvent( cmd->simpleData.property,
-				 QWSEvent::PropertyNewValue );
+				 QWSPropertyNotifyEvent::PropertyNewValue );
    } else
  	qDebug( "setting property failed" );
 }
@@ -805,7 +817,7 @@ void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
 				       cmd->simpleData.property ) ) {
  	qDebug( "remove property successful" );
 	sendPropertyNotifyEvent( cmd->simpleData.property,
-				 QWSEvent::PropertyDeleted );
+				 QWSPropertyNotifyEvent::PropertyDeleted );
     } else
  	qDebug( "removing property failed" );
 }
@@ -861,6 +873,45 @@ void QWSServer::invokeConvertSelection( QWSConvertSelectionCommand *cmd )
 	    qDebug( "couldn't find window %d", selectionOwner.windowid );
     }
 }
+
+void QWSServer::invokeDefineCursor( QWSDefineCursorCommand *cmd, QWSClient *client )
+{
+    int dataLen = cmd->simpleData.height * ((cmd->simpleData.width+7) / 8);
+
+    qDebug( "QWSServer::invokeDefineCursor %d %d (%d)",
+	    cmd->simpleData.width, cmd->simpleData.height, dataLen );
+
+    QWSCursor *curs = new QWSCursor( cmd->data, cmd->data + dataLen,
+				cmd->simpleData.width, cmd->simpleData.height,
+				cmd->simpleData.hotX, cmd->simpleData.hotY);
+
+    client->cursors.insert(cmd->simpleData.id, curs);
+}
+
+void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *client )
+{
+    int id = cmd->simpleData.id;
+//    qDebug( "QWSServer::invokeSelectCursor %d", id);
+    cursor = 0;
+    if (id <= LastCursor) {
+        cursor = QWSCursor::systemCursor(id);
+    }
+    else {
+	QWSCursorMap cursMap = client->cursors;
+	QWSCursorMap::Iterator it = cursMap.find(id);
+	if (it != cursMap.end()) {
+	    cursor = it.data();
+	}
+	else {
+	    cursor = QWSCursor::systemCursor(ArrowCursor);
+	}
+    }
+
+    // ### set cursor in hardware
+
+    cursorNeedsUpdate = true;
+}
+
 /*!
   Adds \a r to the window's allocated region.
 
@@ -899,10 +950,9 @@ void QWSWindow::focus(bool get)
     if ( get )
 	last_focus_time = global_focus_time_counter++;
     QWSFocusEvent event;
-    event.type = QWSEvent::Focus;
-    event.window = id;
-    event.get_focus = get;
-    c->sendSimpleEvent( &event, sizeof(event) );
+    event.simpleData.window = id;
+    event.simpleData.get_focus = get;
+    c->sendEvent( &event );
 }
 
 QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
@@ -1097,6 +1147,8 @@ void QWSServer::setMouse(const QPoint& p,int bstate)
 	probed_card->move_cursor(mousePos.x(), mousePos.y());
     }
     sendMouseEvent( mousePos, bstate );
+    if ( mousePos == QPoint(0,0) && bstate==7 )
+	qApp->quit();
 }
 
 

@@ -2,6 +2,7 @@
 #include "qwsevent.h"
 #include "qwscommand.h"
 #include "qwsutils.h"
+#include "qws_cursor.h"
 
 #include <qapplication.h>
 #include <qgfx.h>
@@ -113,7 +114,7 @@ void QWSServer::paintServerRegion()
 
     if ( shmid == -1 ) {
 	ASSERT( fb_open );
-	
+/*	
 	QRegion sr = serverRegion.intersect( QRegion(0,0,fb_vinfo.xres,
 						     fb_vinfo.yres ));
 	
@@ -140,9 +141,14 @@ void QWSServer::paintServerRegion()
 		    }
 		}
 	}
+*/
+	gfx->setSource(&cursor->image());
+	gfx->setAlphaType(QGfx::InlineAlpha);
+	gfx->blt(cursorPos.x()-cursor->hotSpot().x()-1,
+		cursorPos.y()-cursor->hotSpot().y()-1,
+                cursor->image().width(), cursor->image().height());
     }
 }
-
 
 void QWSServer::paintBackground( QRegion r )
 {

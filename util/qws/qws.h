@@ -26,12 +26,15 @@
 #include <qdatetime.h>
 #include <qqueue.h>
 #include <qlist.h>
+#include <qmap.h>
 
 #include "qwsproperty.h"
 #include "qwscommand.h"
+#include "qwsevent.h"
 
 const int QTFB_PORT=0x4642; // FB
 
+class QWSCursor;
 class QWSClient;
 class QGfx;
 
@@ -124,6 +127,10 @@ private:
 
     void setFocus( QWSWindow*, bool gain );
 
+    void initIO();
+    void invokeDefineCursor( QWSDefineCursorCommand *cmd, QWSClient *client );
+    void invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *client );
+
     void handleMouseData();
 
     void openKeyboard();
@@ -133,6 +140,7 @@ private:
     void closeDisplay();
 
     void showCursor();
+    void initializeCursor();
     void paintServerRegion();
     void paintBackground( QRegion );
 
@@ -177,6 +185,7 @@ private:
     QPoint mousePos;
     QPoint cursorPos;
     bool cursorNeedsUpdate;
+    QWSCursor *cursor;
     QRegion serverRegion;
     bool disablePainting;
 
@@ -206,6 +215,8 @@ private:
  *********************************************************************/
 class QWSMouseEvent;
 
+typedef QMap<int, QWSCursor*> QWSCursorMap;
+
 class QWSClient : private QSocket
 {
     Q_OBJECT
@@ -220,17 +231,17 @@ public:
 
     QObject* asQObject() { return (QObject*)this; } //### private inheritance 
     
-    void sendSimpleEvent( void* event, uint size );
+    void sendEvent( QWSEvent* event );
     void sendRegionAddEvent( int winid, bool ack, QRegion );
     void sendRegionRemoveEvent( int winid, int eventid, QRegion );
-    void sendMouseEvent( const QWSMouseEvent& );
     void sendFocusEvent( int winid, bool get );
     void sendPropertyNotifyEvent( int property, int state );
     void sendPropertyReplyEvent( int property, int len, char *data );
     void sendSelectionClearEvent( int windowid );
     void sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int windowid );
     QWSCommand* readMoreCommand();
-    void writeRegion( QRegion reg );
+
+    QWSCursorMap cursors;	// cursors defined by this client
 signals:
     void connectionClosed();
 private slots:
