@@ -447,9 +447,8 @@ void QTextHTMLImporter::import()
          *  1) are beyond the first node
          *  2) the current node not being a child of the previous node
          *      means there was a tag closing in the input html
-         *  3) this isn't the last node, as we deal with that at the end
          */
-        if (i > 0 && (node->parent != i - 1) && (i < count() - 1)) {
+        if (i > 0 && (node->parent != i - 1)) {
             const bool blockTagClosed = closeTag(i);
             if (hasBlock && blockTagClosed)
                 hasBlock = false;
