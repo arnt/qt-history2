@@ -37,8 +37,7 @@ embedded {
 		  $$KERNEL_H/qwsdisplay_qws.h \
 		  $$KERNEL_H/qwssocket_qws.h 
 
-         SOURCES +=  $$STYLES_H/qcompactstyle.cpp \
-	          $$KERNEL_CPP/qapplication_qws.cpp \
+         SOURCES +=  $$KERNEL_CPP/qapplication_qws.cpp \
 		  $$KERNEL_CPP/qclipboard_qws.cpp \
 		  $$KERNEL_CPP/qcolor_qws.cpp \
 		  $$KERNEL_CPP/qcursor_qws.cpp \
