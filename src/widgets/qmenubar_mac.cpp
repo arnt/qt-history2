@@ -79,6 +79,8 @@ static void qt_mac_set_modal_state(bool b)
     ReleaseMenu(mr);
     qt_mac_command_set_enabled(kHICommandQuit, !b);
     qt_mac_command_set_enabled(kHICommandPreferences, !b);
+    qt_mac_command_set_enabled(kHICommandAbout, !b);
+    qt_mac_command_set_enabled('CUTE', !b);
 }
 
 static void qt_mac_clear_menubar()
