@@ -3982,8 +3982,7 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 		m.setItemEnabled( ok, FALSE );
 	    m.setItemEnabled( rename, FALSE );
 	    m.setItemEnabled( del, FALSE );
-	} else if ( !QUrlInfo( d->url, filename ).isFile() )
-	    m.setItemEnabled( del, FALSE );
+	} 
 
 	if ( mode() == QFileDialog::ExistingFiles )
 	    m.setItemEnabled( rename, FALSE );

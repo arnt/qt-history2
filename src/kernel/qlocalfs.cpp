@@ -176,9 +176,17 @@ void QLocalFs::operationRemove( QNetworkOperation *op )
 #endif
     op->setState( StInProgress );
     QString name = QUrl( op->arg( 0 ) ).path();
+    bool deleted = FALSE;
 
     dir = QDir( url()->path() );
-    if ( dir.remove( name ) ) {
+    
+    QFileInfo fi( dir, name );
+    if ( fi.isDir() ) {
+	if ( dir.rmdir( name ) )
+	    deleted = TRUE;
+    }
+
+    if ( deleted || dir.remove( name ) ) {
 	op->setState( StDone );
 	emit removed( op );
 	emit finished( op );
