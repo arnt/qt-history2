@@ -84,7 +84,6 @@
 #include "qbuffer.h"
 #include "qintdict.h"
 #include "qtextcodec.h"
-#include "qjpunicode.h"
 #include "qsettings.h"
 #include "qmap.h"
 
@@ -4667,7 +4666,7 @@ public:
       QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
                           QPSPrinterPrivate *d );
 private:
-    const QJpUnicodeConv *convJP;
+    const QTextCodec *convJP;
 };
 
 QPSPrinterFontJapanese::QPSPrinterFontJapanese(const QFont& f)
@@ -4722,7 +4721,7 @@ void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const Q
                                   const QString &text, QPSPrinterPrivate *d, QPainter *paint)
 {
     if ( !convJP )
-        convJP = QJpUnicodeConv::newConverter(QJpUnicodeConv::Default);
+        convJP = QTextCodec::codecForName( "jisx0208.1983-0" );
 
     int x = p.x();
     if ( spaces > 0 )
@@ -4755,20 +4754,18 @@ void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const Q
                 oneChar += ch.cell();
             } else {
                 code = 1;
-                QChar ch = convJP->unicodeToJisx0208( ch.unicode());
-                if ( ch.isNull() ) {
-                    oneChar += 0x22;
-                    oneChar += 0x22; // open box
-                } else {
-                    char chj = ch.row();
-                    if ( chj == '(' || chj == ')' || chj == '\\' )
-                        oneChar += "\\";
-                    oneChar += chj;
-                    chj = ch.cell();
-                    if ( chj == '(' || chj == ')' || chj == '\\' )
-                        oneChar += "\\";
-                    oneChar += chj;
-                }
+                if ( !convJP )
+                    ch = QChar( 0x2222 ); // box
+                else
+                    ch = convJP->characterFromUnicode( text, i );
+                char chj = ch.row();
+                if ( chj == '(' || chj == ')' || chj == '\\' )
+                    oneChar += "\\";
+                oneChar += chj;
+                chj = ch.cell();
+                if ( chj == '(' || chj == ')' || chj == '\\' )
+                    oneChar += "\\";
+                oneChar += chj;
             }
         }
         if ( !out.isEmpty() && (code != codeOld || i == l) ) {
