@@ -64,11 +64,6 @@ bool qt_file_access( const QString& fn, int t )
 	return ACCESS(qt_win95Name(fn), t) == 0;
 }
 
-/*!
-  Removes the file \a fileName.
-  Returns TRUE if successful, otherwise FALSE.
-*/
-
 bool QFile::remove( const QString &fileName )
 {
     if ( fileName.isEmpty() ) {
@@ -85,54 +80,6 @@ bool QFile::remove( const QString &fileName )
 }
 
 #define HAS_TEXT_FILEMODE
-
-/*!
-  Opens the file specified by the file name currently set, using the mode \e m.
-  Returns TRUE if successful, otherwise FALSE.
-
-  The mode parameter \e m must be a combination of the following flags:
-  <ul>
-  <li>\c IO_Raw specified raw (non-buffered) file access.
-  <li>\c IO_ReadOnly opens the file in read-only mode.
-  <li>\c IO_WriteOnly opens the file in write-only mode (and truncates).
-  <li>\c IO_ReadWrite opens the file in read/write mode, equivalent to
-  \c (IO_ReadOnly|IO_WriteOnly).
-  <li>\c IO_Append opens the file in append mode. This mode is very useful
-  when you want to write something to a log file. The file index is set to
-  the end of the file. Note that the result is undefined if you position the
-  file index manually using at() in append mode.
-  <li>\c IO_Truncate truncates the file.
-  <li>\c IO_Translate enables carriage returns and linefeed translation
-  for text files under MS-DOS, Windows and OS/2.
-  </ul>
-
-  The raw access mode is best when I/O is block-operated using 4kB block size
-  or greater. Buffered access works better when reading small portions of
-  data at a time.
-
-  <strong>Important:</strong> When working with buffered files, data may
-  not be written to the file at once. Call \link flush() flush\endlink
-  to make sure the data is really written.
-
-  \warning We have experienced problems with some C libraries when a buffered
-  file is opened for both reading and writing. If a read operation takes place
-  immediately after a write operation, the read buffer contains garbage data.
-  Worse, the same garbage is written to the file. Calling flush() before
-  readBlock() solved this problem.
-
-  If the file does not exist and \c IO_WriteOnly or \c IO_ReadWrite is
-  specified, it is created.
-
-  Example:
-  \code
-    QFile f1( "/tmp/data.bin" );
-    QFile f2( "readme.txt" );
-    f1.open( IO_Raw | IO_ReadWrite | IO_Append );
-    f2.open( IO_ReadOnly | IO_Translate );
-  \endcode
-
-  \sa name(), close(), isOpen(), flush()
-*/
 
 bool QFile::open( int m )
 {
@@ -277,33 +224,6 @@ bool QFile::open( int m )
 
 
 
-/*!
-  Opens a file in the mode \e m using an existing file handle \e f.
-  Returns TRUE if successful, otherwise FALSE.
-
-  Example:
-  \code
-    #include <stdio.h>
-
-    void printError( const char* msg )
-    {
-	QFile f;
-	f.open( IO_WriteOnly, stderr );
-	f.writeBlock( msg, strlen(msg) );	// write to stderr
-	f.close();
-    }
-  \endcode
-
-  When a QFile is opened using this function, close() does not actually
-  close the file, only flushes it.
-
-  \warning If \e f is \c stdin, \c stdout, \c stderr, you may not
-  be able to seek.  See QIODevice::isSequentialAccess() for more
-  information.
-
-  \sa close()
-*/
-
 bool QFile::open( int m, FILE *f )
 {
     if ( isOpen() ) {
@@ -331,19 +251,6 @@ bool QFile::open( int m, FILE *f )
 }
 
 
-/*!
-  Opens a file in the mode \e m using an existing file descriptor \e f.
-  Returns TRUE if successful, otherwise FALSE.
-
-  When a QFile is opened using this function, close() does not actually
-  close the file.
-
-  \warning If \e f is one of 0 (stdin), 1 (stdout) or 2 (stderr), you may not
-  be able to seek. size() is set to \c INT_MAX (in limits.h).
-
-  \sa close()
-*/
-
 bool QFile::open( int m, int f )
 {
     if ( isOpen() ) {
@@ -370,11 +277,6 @@ bool QFile::open( int m, int f )
     return TRUE;
 }
 
-/*!
-  Returns the file size.
-  \sa at()
-*/
-
 uint QFile::size() const
 {
     STATBUF st;
@@ -393,31 +295,6 @@ uint QFile::size() const
     }
     return st.st_size;
 }
-
-/*!
-  \fn int QFile::at() const
-  Returns the file index.
-  \sa size()
-*/
-
-/*!
-  Sets the file index to \e pos. Returns TRUE if successful, otherwise FALSE.
-
-  Example:
-  \code
-    QFile f( "data.bin" );
-    f.open( IO_ReadOnly );			// index set to 0
-    f.at( 100 );				// set index to 100
-    f.at( f.at()+50 );				// set index to 150
-    f.at( f.size()-80 );			// set index to 80 before EOF
-    f.close();
-  \endcode
-
-  \warning The result is undefined if the file was \link open() opened\endlink
-  using the \c IO_Append specifier.
-
-  \sa size(), open()
-*/
 
 bool QFile::at( int pos )
 {
@@ -442,21 +319,6 @@ bool QFile::at( int pos )
 #endif
     return ok;
 }
-
-/*!
-  Reads at most \e len bytes from the file into \e p and returns the
-  number of bytes actually read.
-
-  Returns -1 if a serious error occurred.
-
-  \warning We have experienced problems with some C libraries when a buffered
-  file is opened for both reading and writing. If a read operation takes place
-  immediately after a write operation, the read buffer contains garbage data.
-  Worse, the same garbage is written to the file. Calling flush() before
-  readBlock() solved this problem.
-
-  \sa writeBlock()
-*/
 
 int QFile::readBlock( char *p, uint len )
 {
@@ -491,23 +353,6 @@ int QFile::readBlock( char *p, uint len )
     ioIndex += nread;
     return nread;
 }
-
-/*! \overload int writeBlock( const QByteArray& data )
-*/
-
-/*! \reimp
-
-  Writes \e len bytes from \e p to the file and returns the number of
-  bytes actually written.
-
-  Returns -1 if a serious error occurred.
-
-  \warning When working with buffered files, data may not be written
-  to the file at once. Call flush() to make sure the data is really
-  written.
-
-  \sa readBlock()
-*/
 
 int QFile::writeBlock( const char *p, uint len )
 {
@@ -547,17 +392,6 @@ int QFile::writeBlock( const char *p, uint len )
     return nwritten;
 }
 
-/*!
-  Returns the file handle of the file.
-
-  This is a small positive integer, suitable for use with C library
-  functions such as fdopen() and fcntl(), as well as with QSocketNotifier.
-
-  If the file is not open or there is an error, handle() returns -1.
-
-  \sa QSocketNotifier
-*/
-
 int QFile::handle() const
 {
     if ( !isOpen() )
@@ -567,28 +401,6 @@ int QFile::handle() const
     else
 	return fd;
 }
-
-/*!
-  Closes an open file.
-
-  The file is not closed if it was opened with an existing file handle.
-  If the existing file handle is a \c FILE*, the file is flushed.
-  If the existing file handle is an \c int file descriptor, nothing
-  is done to the file.
-
-  Some "write-behind" filesystems may report an unspecified error on
-  closing the file. These errors only indiciate that something may
-  have gone wrong since the previous open(). In such a case status()
-  reports IO_UnspecifiedError after close(), otherwise IO_Ok.
-
-  \sa open(), flush()
-*/
-
-/*!
-  Flushes the file buffer to the disk.
-
-  close() also flushes the file buffer.
-*/
 
 void QFile::close()
 {

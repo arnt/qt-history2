@@ -207,6 +207,12 @@ bool QFile::remove()
 # define OPEN_ASYNC O_NDELAY
 #endif
 
+/*!
+  Flushes the file buffer to the disk.
+
+  close() also flushes the file buffer.
+*/
+
 void QFile::flush()
 {
     if ( isOpen() && fh )			// can only flush open/buffered

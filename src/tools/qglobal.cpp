@@ -139,6 +139,8 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 static msg_handler handler = 0;			// pointer to debug handler
 
 /*!
+  \fn void qDebug( const char *msg, ... )
+
   \relates QApplication
   Prints a debug message, or calls the message handler (if it has been
   installed).
