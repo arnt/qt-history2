@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#87 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#88 $
 #
 # this is a massive hack, written very quickly
 #
@@ -333,6 +333,10 @@ sub processdocs {
 	-egsx;
 
 	$doc =~ s@(?:(?:(<pre>.*?</pre>)\n?)|(?:\n *))@$1\n@gs;
+
+	$doc =~ s@</em>\s+<em>@ @gs;
+	$doc =~ s@</code>\s+<code>@ @gs;
+	$doc =~ s@</strong>\s+<strong>@ @gs;
 
 	$brief{$url} = $1
 	    if ($doc =~ s/\s*\\brief\s+(.*?)(?:(?:\n<p>\s*)|(?:$))//s);
@@ -827,6 +831,7 @@ sub readc {
 				$def{$url} = join("", $class, "operator ", 
 						  $type, " ()", $const);
 			    } else {
+				$args =~ s/\s\s+/ /gs;
 				$def{$url} = join("", $type, " ", $class,
 						  $name, "(", $args, ")",
 						  $const);
