@@ -3514,13 +3514,13 @@ bool QTextDocument::focusNextPrevChild( bool next )
 
 int QTextDocument::length() const
 {
-    int l = 0;
+    int l = -1;
     QTextParagraph *p = fParag;
     while ( p ) {
-	l += p->length() - 1; // don't count trailing space
+	l += p->length();
 	p = p->next();
     }
-    return l;
+    return QMAX(0,l);
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
