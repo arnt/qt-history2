@@ -1,0 +1,86 @@
+#ifndef QURL_H
+#define QURL_H
+
+#include <qstring.h>
+
+struct QUrlPrivate;
+
+class QUrl
+{
+public:
+    QUrl();
+    QUrl( const QString& url );
+    QUrl( const QUrl& url );
+    
+    QUrl( const QUrl& url, const QString& relUrl_ );
+
+    QString protocol() const;
+    void setProtocol( const QString& protocol );
+
+    QString user() const;
+    void setUser( const QString& user );
+    bool hasUser() const;
+
+    QString pass() const;
+    void setPass( const QString& pass );
+    bool hasPass() const;
+
+    QString host() const;
+    void setHost( const QString& user );
+    bool hasHost() const;
+
+    int port() const;
+    void setPort( int port );
+
+    QString path() const;
+    QString path( int trailing ) const;
+    void setPath( const QString& path );
+    bool hasPath() const;
+
+    void setEncodedPathAndQuery( const QString& enc );
+    QString encodedPathAndQuery( int trailing = 0, bool noEmptyPath = FALSE );
+
+    void setQuery( const QString& txt );
+    QString query() const;
+
+    QString ref() const;
+    void setRef( const QString& txt );
+    bool hasRef() const;
+
+    bool isMalformed() const;
+
+    bool isLocalFile();
+
+    void addPath( const QString& path );
+    void setFileName( const QString& txt );
+
+    QString filename( bool ignoreTrailingSlashInPath = TRUE );
+    QString directory( bool stripTrailingSlashFromResult = TRUE,
+		       bool ignoreTrailingSlashInPath = TRUE );
+
+    QString url();
+    QString url( int trailing, bool stripRef = FALSE );
+
+    QUrl& operator=( const QUrl& url );
+    QUrl& operator=( const QString& url );
+
+    bool operator==( const QUrl& url ) const;
+    bool operator==( const QString& url ) const;
+    bool cmp( QUrl &url, bool ignoreTrailing = FALSE );
+
+    static void decode( QString& url );
+    static void encode( QString& url );
+
+protected:
+    void reset();
+    void parse( const QString& url );
+
+    static char hex2int( char c );
+
+private:
+    QUrlPrivate *d;
+    
+};
+
+
+#endif
