@@ -71,9 +71,16 @@ QString QDir::homeDirPath()
 QString QDir::canonicalPath() const
 {
     QString r;
-    char tmp[PATH_MAX+1];
-    if( ::realpath(QFile::encodeName(dPath), tmp) )
-	r = QFile::decodeName( tmp );
+    char cur[PATH_MAX+1];
+    if ( ::getcwd( cur, PATH_MAX ) ) {
+	char tmp[PATH_MAX+1];
+	if( ::realpath( QFile::encodeName( dPath ), tmp ) )
+	    r = QFile::decodeName( tmp );
+	slashify( r );
+
+    	// always make sure we go back to the current dir
+	::chdir( cur );
+    }
     return r;
 }
 
