@@ -664,27 +664,63 @@ void QWidget::hideWindow()
 }
 
 
-void QWidget::showMinimized()
-{
-}
 
 bool QWidget::isMinimized() const
 {
-    return false;
+    return FALSE;
 }
 
 bool QWidget::isMaximized() const
 {
-    return false;
+    return testWState(WState_Maximized);
 }
 
 
+void QWidget::showMinimized()
+{
+    if ( isTopLevel() ) {
+	if ( isVisible() ) { 
+	    qDebug("showMinimized need to do this %s:%d", __FILE__, __LINE__);
+        } else {
+	    topData()->showMode = 1;
+	    show();
+	    clearWState( WState_Visible );
+	    sendHideEventsToChildren(TRUE);
+	}
+    }
+    QEvent e( QEvent::ShowMinimized );
+    QApplication::sendEvent( this, &e );
+}
+
 void QWidget::showMaximized()
 {
+    if ( testWFlags(WType_TopLevel) ) {
+	qDebug("showMaximized need to do this %s:%d", __FILE__, __LINE__);
+    }
+    show();
+    QEvent e( QEvent::ShowMaximized );
+    QApplication::sendEvent( this, &e );
+    setWState(WState_Maximized);
 }
 
 void QWidget::showNormal()
 {
+    if ( isTopLevel() ) {
+	if ( topData()->fullscreen ) {
+	    reparent( 0, WType_TopLevel, QPoint(0,0) );
+	    topData()->fullscreen = 0;
+	}
+	QRect r = topData()->normalGeometry;
+	if ( r.width() >= 0 ) {
+	    // the widget has been maximized
+	    topData()->normalGeometry = QRect(0,0,-1,-1);
+	    resize( r.size() );
+	    move( r.topLeft() );
+	}
+    }
+    show();
+    QEvent e( QEvent::ShowNormal );
+    QApplication::sendEvent( this, &e );
 }
 
 
