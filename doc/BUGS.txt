@@ -49,6 +49,9 @@ Drag'n'Drop (Win32)
 SGI Style/MotifPlus style
     Changing the palette of a widget while the mouse is over it will reset the palette when leave
 
+QMultiLineEdit
+    When using the Lucida font, then pressing the TAB key at the beginning of the line will keep the cursor at the beginning of the line, but will put any text inputted at the correct position.
+
 Cosmetic
 --------
 
