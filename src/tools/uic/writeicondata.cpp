@@ -76,7 +76,7 @@ void WriteIconData::accept(DomImage *image)
         int a = 0;
         int column = 0;
         bool inQuote = false;
-        output << option.indent << "static const char* " << img << "[] = { " << endl;
+        output << option.indent << "static const char* const " << img << "[] = { " << endl;
         while (baunzip[a] != '\"')
             a++;
         for (; a < (int) length; a++) {
