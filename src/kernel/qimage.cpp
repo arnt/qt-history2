@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#51 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,10 +20,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#50 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#51 $")
 
 
-/*!
+/*----------------------------------------------------------------------------
   \class QImage qimage.h
   \brief The QImage class provides a hardware-independent pixmap representation
   with direct access to the pixel data.
@@ -36,10 +36,10 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#50 $")
   bit, 8 bit and 24 bit depths.	 1 bit and 8 bit images use a color
   lookup table, where the pixel value is the index of a color.
 
-  An entry in the color table is an RGB triplet encoded as
-  <code>ulong</code>.  Use the QRED, QGREEN and QBLUE functions (qcolor.h)
-  to separate the components, and QRGB to set an RGB value (see the QColor
-  class documentation).
+  An entry in the color table is an RGB triplet encoded as \c ulong.  Use
+  the QRED, QGREEN and QBLUE functions (qcolor.h) to separate the
+  components, and QRGB to set an RGB value (see the QColor class
+  documentation).
 
   1-bpp (monochrome) images have a color table with maximum 2 colors.
   There are two ways of encoding such images; big endian (MSB first) or
@@ -78,29 +78,21 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#50 $")
     *(image.scanLine(y) + 3*x) = QRGB(255, 255, 0);
   \endcode
 
-  The QImage class uses explicit data sharing, similar to that of QArray
-  and QString.	This makes it easy to use images in your program, because
-  you never need to worry about who should be responsible for deleting
-  images.  An image is automatically destroyed when the last reference to
-  the data is lost.
+  The scanlines are 32-bit aligned for all depths.
 
-  The disadvantage of explicit data sharing is that changing one image
-  might affect others (when you do not want it).  Call the detach()
-  function to make sure that you get your own private copy of an image.
+  The QImage class uses explicit \link shclass.html sharing\endlink,
+  similar to that of QArray and QString.
 
-  The QPixmap class, on the other hand, uses implicit data sharing, which
-  means that the object automatically detaches when it is about to change.
-  Implicit data sharing is easy to implement for classes that can detect
-  change through member functions, but impossible to implement for classes
-  that export pointers to internal data. */
+  \sa QImageIO, QPixmap, \link shclass.html Shared Classes\endlink
+ ----------------------------------------------------------------------------*/
 
 
 extern bool qt_image_can_turn_scanlines();
 
 
-// --------------------------------------------------------------------------
-// QImage member functions
-//
+/*****************************************************************************
+  QImage member functions
+ *****************************************************************************/
 
 static bool bitflip_init = FALSE;
 static char bitflip[256];			// table to flip bits
@@ -124,10 +116,10 @@ char *qt_get_bitflip_array()			// called from QPixmap code
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a null image.
   \sa isNull()
-*/
+ ----------------------------------------------------------------------------*/
 
 QImage::QImage()
 {
@@ -136,7 +128,7 @@ QImage::QImage()
     init();
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs an image with \e w width, \e h height, \e depth bits per
   pixel, \e numColors colors and bit order \e bitOrder.
 
@@ -144,9 +136,10 @@ QImage::QImage()
   then calling the create() function.
 
   \sa create()
-*/
+ ----------------------------------------------------------------------------*/
 
-QImage::QImage( int w, int h, int depth, int numColors, QImage::Endian bitOrder )
+QImage::QImage( int w, int h, int depth, int numColors,
+		QImage::Endian bitOrder )
 {
     data = new QImageData;
     CHECK_PTR( data );
@@ -154,9 +147,9 @@ QImage::QImage( int w, int h, int depth, int numColors, QImage::Endian bitOrder 
     create( w, h, depth, numColors, bitOrder );
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a shallow copy of \e image.
-*/
+ ----------------------------------------------------------------------------*/
 
 QImage::QImage( const QImage &image )
 {
@@ -164,9 +157,9 @@ QImage::QImage( const QImage &image )
     data->ref();
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Destroys the image and cleans up.
-*/
+ ----------------------------------------------------------------------------*/
 
 QImage::~QImage()
 {
@@ -177,12 +170,12 @@ QImage::~QImage()
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Assigns a shallow copy of \e image to this image and returns a reference
   to this image.
 
   \sa copy()
-*/
+ ----------------------------------------------------------------------------*/
 
 QImage &QImage::operator=( const QImage &image )
 {
@@ -195,7 +188,7 @@ QImage &QImage::operator=( const QImage &image )
     return *this;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Sets the image bits to the \e pixmap contents and returns a reference to
   the image.
 
@@ -203,7 +196,7 @@ QImage &QImage::operator=( const QImage &image )
   the shared data.
 
   Makes a call to QPixmap::convertToImage().
-*/
+ ----------------------------------------------------------------------------*/
 
 QImage &QImage::operator=( const QPixmap &pixmap )
 {
@@ -211,13 +204,14 @@ QImage &QImage::operator=( const QPixmap &pixmap )
     return *this;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Detaches from shared image data and makes sure that this image is the
   only one referring the data.
 
   If multiple images share common data, this image makes a copy of the
   data and detaches itself from the sharing mechanism.	Nothing is
-  done if there is just a single reference. */
+  done if there is just a single reference.
+ ----------------------------------------------------------------------------*/
 
 void QImage::detach()
 {
@@ -225,9 +219,9 @@ void QImage::detach()
 	*this = copy();
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Returns a deep copy of the image.
-*/
+ ----------------------------------------------------------------------------*/
 
 QImage QImage::copy() const
 {
@@ -241,51 +235,57 @@ QImage QImage::copy() const
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   \fn bool QImage::isNull() const
   Returns TRUE if it is a null image.
 
   A null image has all parameters set to zero and no allocated data.
-*/
+ ----------------------------------------------------------------------------*/
 
 
-/*!
+/*----------------------------------------------------------------------------
   \fn int QImage::width() const
   Returns the width of the image
-*/
+  \sa heigth(), size(), rect()
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn int QImage::height() const
-  Returns the height of the image.*/
+  Returns the height of the image.
+  \sa width(), size(), rect()
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn QSize QImage::size() const
   Returns the size of the image.
-*/
+  \sa width(), height(), rect()
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn QRect QImage::rect() const
-  Returns the enclosing rectangle of the image.
-*/
+  Returns the enclosing rectangle (0,0,width(),height()) of the image.
+  \sa width(), height(), size()
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn int QImage::depth() const
   Returns the depth of the image.
 
   The image depth is the number of bits used to encode a single pixel, also
   called bits per pixel (bpp) or bit planes of an image.
-  The supported depths are 1, 8 and 24 bit.
-*/
 
-/*!
+  The supported depths are 1, 8 and 24 bit.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
   \fn int QImage::numColors() const
   Returns the size of the color table for the image.
 
   Notice that numColors() returns 0 for 24-bit images, since these images
   do not use color tables, but instead encode pixel values as RGB triplets.
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn QImage::Endian QImage::bitOrder() const
   Returns the bit order for the image.
 
@@ -293,39 +293,43 @@ QImage QImage::copy() const
   QImage::LittleEndian.
 
   If it is not a 1-bit image, this function returns QImage::IgnoreEndian.
-*/
 
-/*!
+  \sa depth()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
   \fn uchar **QImage::jumpTable() const
   Returns a pointer to the scanline pointer table.
 
   This is the beginning of the data block for the image.
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn ulong *QImage::colorTable() const
   Returns a pointer to the color table.
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
-  \fn long QImage::numBytes() const
+/*----------------------------------------------------------------------------
+  \fn int QImage::numBytes() const
   Returns the number of bytes occupied by the image data.
-*/
+  \sa bytesPerLine()
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn int QImage::bytesPerLine() const
   Returns the number of bytes per image scanline.
-*/
+  This is equivalent to numBytes()/height().
+ ----------------------------------------------------------------------------*/
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns the color in the color table at index \e i.
 
   A color value is an RGB triplet. Use the QRED, QGREEN and QBLUE functions
   (defined in qcolor.h) to get the color value components.
 
   \sa setColor(), QColor
-*/
+ ----------------------------------------------------------------------------*/
 
 ulong QImage::color( int i ) const
 {
@@ -336,14 +340,14 @@ ulong QImage::color( int i ) const
     return data->ctbl ? data->ctbl[i] : (ulong)-1;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Sets a color in the color table at index \e i to \e c.
 
   A color value is an RGB triplet.  Use the QRGB function (defined in qcolor.h)
   to make color values.
 
   \sa color()
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImage::setColor( int i, ulong c )
 {
@@ -355,10 +359,13 @@ void QImage::setColor( int i, ulong c )
 	data->ctbl[i] = c;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Returns a pointer to the pixel data at the \e i'th scanline.
+
+  The scanline data is aligned on a 32-bit boundary.
+
   \sa bits()
-*/
+ ----------------------------------------------------------------------------*/
 
 uchar *QImage::scanLine( int i ) const
 {
@@ -369,18 +376,18 @@ uchar *QImage::scanLine( int i ) const
     return data->bits ? data->bits[i] : 0;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   \fn uchar *QImage::bits() const
   Returns a pointer to the first pixel data. Similar to scanLine(0).
   \sa scanLine()
-*/
+ ----------------------------------------------------------------------------*/
 
 
-/*!
+/*----------------------------------------------------------------------------
   Resets all image parameters and deallocates the image data.
-*/
+ ----------------------------------------------------------------------------*/
 
-void QImage::reset()				// resets params/deallocs
+void QImage::reset()
 {
     freeBits();
     setNumColors( 0 );
@@ -390,10 +397,10 @@ void QImage::reset()				// resets params/deallocs
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Determines the host computer byte order.
   Returns QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
-*/
+ ----------------------------------------------------------------------------*/
 
 QImage::Endian QImage::systemByteOrder()
 {
@@ -415,12 +422,12 @@ QImage::Endian QImage::systemByteOrder()
 #include <X11/Xos.h>
 #endif
 
-/*!
+/*----------------------------------------------------------------------------
   Determines the bit order of the display hardware.
   Returns QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
-*/
+ ----------------------------------------------------------------------------*/
 
-QImage::Endian QImage::systemBitOrder()	    // determine hardware bit order
+QImage::Endian QImage::systemBitOrder()	
 {
 #if defined(_WS_X11_)
     return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? BigEndian :LittleEndian;
@@ -430,14 +437,14 @@ QImage::Endian QImage::systemBitOrder()	    // determine hardware bit order
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Resizes the color table to \e numColors colors.
 
   If the color table is expanded, then all new colors will be set to black
   (RGB 0,0,0).
 
   \sa color(), setColor()
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImage::setNumColors( int numColors )
 {
@@ -463,7 +470,7 @@ void QImage::setNumColors( int numColors )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Sets the image width, height, depth, number of colors and bit order.
   Returns TRUE if successful, or FALSE if the parameters are incorrect
   or if memory cannot be allocated.
@@ -476,11 +483,12 @@ void QImage::setNumColors( int numColors )
   than 1, \e bitOrder must be QImage::IgnoreEndian.
 
   The image buffer is allocated as one block that consists of a table of
-  scanline pointers (jumpTable()) and the image data (bits()).
+  \link scanLine() scanline\endlink pointers (jumpTable()) and the image
+  data (bits()).
 
   \sa width(), height(), depth(), numColors(), bitOrder(), jumpTable(),
-  scanLine(), bits()
-*/
+  scanLine(), bits(), bytesPerLine(), numBytes()
+ ----------------------------------------------------------------------------*/
 
 bool QImage::create( int width, int height, int depth, int numColors,
 		     QImage::Endian bitOrder )
@@ -496,28 +504,26 @@ bool QImage::create( int width, int height, int depth, int numColors,
     }
     if ( depth != 1 )
 	bitOrder = IgnoreEndian;
-    long nbytes;
+
     switch ( depth ) {
 	case 1:
-	    nbytes = (long)((width+7)/8)*height;
-	    break;
 	case 8:
-	    nbytes = (long)width*height;
-	    break;
 	case 24:
-	    nbytes = (long)width*height*3;
 	    break;
 	default:				// invalid depth
 	    return FALSE;
     }
+
     setNumColors( numColors );
     if ( data->ncols != numColors )		// could not alloc color table
 	return FALSE;
 
-    long bpl  = nbytes/height;			// bytes per line
-    long ptbl = height*sizeof(uchar*);		// pointer table size
-    long size = nbytes + ptbl;			// total size of data block
-    uchar **p = (uchar **)calloc( size, 1 );	// alloc image bits
+    int bpl    = ((width*depth+31)/32)*4;	// bytes per scanline
+    int pad    = bpl - (width*depth)/8;		// pad with zeros
+    int nbytes = bpl*height;			// image size
+    int ptbl   = height*sizeof(uchar*);		// pointer table size
+    int size   = nbytes + ptbl;			// total size of data block
+    uchar **p  = (uchar **)malloc( size );	// alloc image bits
     if ( !p ) {					// no memory
 	setNumColors( 0 );
 	return FALSE;
@@ -531,16 +537,18 @@ bool QImage::create( int width, int height, int depth, int numColors,
     uchar *d = (uchar*)p + ptbl;		// setup scanline pointers
     while ( height-- ) {
 	*p++ = d;
+	if ( pad )
+	    memset( d+bpl-pad, 0, pad );
 	d += bpl;
     }
     return TRUE;
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   \internal
   Initializes the image data structure.
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImage::init()
 {
@@ -551,10 +559,10 @@ void QImage::init()
     data->bitordr = QImage::IgnoreEndian;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   \internal
   Deallocates the image data and sets the bits pointer to 0.
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImage::freeBits()
 {
@@ -565,9 +573,9 @@ void QImage::freeBits()
 }
 
 
-// ---------------------------------------------------------------------------
-// Internal routines for converting image depth x -> y.
-//
+/*****************************************************************************
+  Internal routines for converting image depth.
+ *****************************************************************************/
 
 //
 // convert_24_to_8:  Converts a 24 bits depth (true color) to an 8 bit
@@ -582,40 +590,47 @@ declare(QIntDictIteratorM,char);
 static bool convert_24_to_8( const QImage *src, QImage *dst )
 {
     register uchar *p;
-    uchar  *b, *end;
+    uchar  *b;
     bool    do_quant = FALSE;
+    int	    y, x;
 
-    if ( !dst->create( src->width(), src->height(), 8, 256 ) )
+    if ( !dst->create(src->width(), src->height(), 8, 256) )
 	return FALSE;
 
-    QIntDictM(char) cdict( 2111 );		// dict of 24-bit RGB colors
-    p = src->bits()-1;
-    b = dst->bits();
-    end = p + src->numBytes();
+    QIntDictM(char) cdict( 21001 );		// dict of 24-bit RGB colors
     char *pixel=0, *pix;			// hack: use ptr as int value
-    while ( p < end ) {				// check if <= 256 colors
-	ulong rgb = (uchar)*++p + ((ushort)*++p << 8) + ((ulong)*++p <<16);
-	if ( !(pix=cdict.find(rgb)) ) {		// new RGB color?
-	    cdict.insert( rgb, (pix=++pixel) ); // yes -> keep it
-	    if ( cdict.count() > 256 ) {	// oops: too many colors
-		do_quant = TRUE;
-		break;
+    for ( y=0; y<src->height(); y++ ) {		// check if <= 256 colors
+	p = src->scanLine(y) - 1;
+	b = dst->scanLine(y);
+	x = src->width();
+	while ( x-- ) {			
+	    ulong rgb = (uchar)*++p + ((ushort)*++p << 8) + ((ulong)*++p <<16);
+	    if ( !(pix=cdict.find(rgb)) ) {	// new RGB color?
+		cdict.insert( rgb, (pix=++pixel) ); // yes -> keep it
+		if ( cdict.count() > 256 ) {	// oops: too many colors
+		    do_quant = TRUE;
+		    y = src->height();
+		    break;
+		}
 	    }
+	    *b++ = (uchar)((int)pix - 1);	// map RGB color to pixel
 	}
-	*b++ = (uchar)((int)pix - 1);		// map RGB color to pixel
     }
-    int ncols =	 do_quant ? 256 : cdict.count();
+    int ncols = do_quant ? 256 : cdict.count();
     dst->setNumColors( ncols );
     if ( do_quant ) {				// quantization needed
 	for ( int i=0; i<ncols; i++ )		// build 3+3+2 color table
 	    dst->setColor( i, QRGB( ((i & 0xe0)*255 + 0x70) / 0xe0,
 				    (((i << 3) & 0xe0)*255 + 0x70) / 0xe0,
 				    (((i << 6) & 0xc0)*255 + 0x60) / 0xc0 ) );
-	p = src->bits()-1;
-	b = dst->bits();
-	end = p + src->numBytes();
-	while ( p < end )			// perform fast quantization
-	    *b++ = (*++p & 0xe0) | ((*++p >> 3) & 0x1c) | ((*++p >> 6) & 0x03);
+	for ( y=0; y<src->height(); y++ ) {
+	    p = src->scanLine(y) - 1;
+	    b = dst->scanLine(y);
+	    uchar *end = p + src->width()*3;
+	    while ( p < end )			// perform fast quantization
+		*b++ = (*++p & 0xe0) | ((*++p >> 3) & 0x1c) |
+		       ((*++p >> 6) & 0x03);
+	}
     }
     else {					// number of colors <= 256
 	QIntDictIteratorM(char) cdictit( cdict );
@@ -630,9 +645,9 @@ static bool convert_24_to_8( const QImage *src, QImage *dst )
 
 static bool convert_8_to_24( const QImage *src, QImage *dst )
 {
-    if ( !dst->create( src->width(), src->height(), 24 ) )
+    if ( !dst->create(src->width(), src->height(), 24) )
 	return FALSE;				// create failed
-    int bpl = dst->bytesPerLine();
+    int bpl = dst->width()*3;
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
 	register uchar *p = dst->scanLine(y);
 	uchar *b = src->scanLine(y);
@@ -649,7 +664,7 @@ static bool convert_8_to_24( const QImage *src, QImage *dst )
 
 static bool convert_1_to_24( const QImage *src, QImage *dst )
 {
-    if ( !dst->create( src->width(), src->height(), 24 ) )
+    if ( !dst->create(src->width(), src->height(), 24) )
 	return FALSE;				// could not create
     bool big = src->bitOrder() == QImage::BigEndian;
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
@@ -671,7 +686,7 @@ static bool convert_1_to_24( const QImage *src, QImage *dst )
 
 static bool convert_1_to_8( const QImage *src, QImage *dst )
 {
-    if ( !dst->create( src->width(), src->height(), 8, 2 ) )
+    if ( !dst->create(src->width(), src->height(), 8, 2) )
 	return FALSE;				// something failed
     dst->setColor( 0, src->color(0) );		// copy color table
     dst->setColor( 1, src->color(1) );
@@ -701,7 +716,7 @@ static bool convert_1_to_8( const QImage *src, QImage *dst )
 
 static bool dither_image( const QImage *src, QImage *dst )
 {
-    if ( !dst->create( src->width(), src->height(), 1, 2, QImage::BigEndian ) )
+    if ( !dst->create(src->width(), src->height(), 1, 2, QImage::BigEndian) )
 	return FALSE;				// something failed
     dst->setColor( 0, QRGB(255, 255, 255) );
     dst->setColor( 1, QRGB(  0,	  0,   0) );
@@ -793,7 +808,7 @@ static bool dither_image( const QImage *src, QImage *dst )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Converts the depth (bpp) of the image to \e depth and returns the
   converted image.
 
@@ -803,7 +818,7 @@ static bool dither_image( const QImage *src, QImage *dst )
   image if this image cannot be converted.
 
   \sa depth(), isNull()
-*/
+ ----------------------------------------------------------------------------*/
 
 QImage QImage::convertDepth( int depth ) const
 {
@@ -832,7 +847,7 @@ QImage QImage::convertDepth( int depth ) const
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Converts the bit order of the image to \e bitOrder and returns the converted
   image.
 
@@ -840,7 +855,7 @@ QImage QImage::convertDepth( int depth ) const
   null image if this image cannot be converted.
 
   \sa bitOrder(), setBitOrder()
-*/
+ ----------------------------------------------------------------------------*/
 
 QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
 {
@@ -867,9 +882,9 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
 }
 
 
-// --------------------------------------------------------------------------
-// Standard image io handlers (defined below)
-//
+/*****************************************************************************
+  Standard image io handlers (defined below)
+ *****************************************************************************/
 
 static void read_gif_image( QImageIO * );	// standard image io handlers
 static void write_gif_image( QImageIO * );	//   (defined below)
@@ -883,9 +898,9 @@ static void read_xpm_image( QImageIO * );
 static void write_xpm_image( QImageIO * );
 
 
-// --------------------------------------------------------------------------
-// Misc. utility functions
-//
+/*****************************************************************************
+  Misc. utility functions
+ *****************************************************************************/
 
 static QString fbname( const char *fileName )	// get file basename (sort of)
 {
@@ -912,7 +927,7 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
     int i;
     if ( image->depth() == 1 && image->numColors() == 2 ) {
 	register ulong *p = (ulong *)image->bits();
-	long nbytes = image->numBytes();
+	int nbytes = image->numBytes();
 	for ( i=0; i<nbytes/4; i++ ) {
 	    *p = ~*p;
 	    p++;
@@ -929,11 +944,11 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
 }
 
 
-// --------------------------------------------------------------------------
-// QImageIO member functions
-//
+/*****************************************************************************
+  QImageIO member functions
+ *****************************************************************************/
 
-/*!
+/*----------------------------------------------------------------------------
   \class QImageIO qimage.h
 
   \brief The QImageIO class contains parameters for loading
@@ -957,11 +972,11 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
   PNM files can only be read, not written.
 
   \sa QImage, QPixmap, QFile
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a QImageIO object with all parameters set to zero.
-*/
+ ----------------------------------------------------------------------------*/
 
 QImageIO::QImageIO()
 {
@@ -970,9 +985,9 @@ QImageIO::QImageIO()
     params = descr = 0;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a QImageIO object with an I/O device and a format tag.
-*/
+ ----------------------------------------------------------------------------*/
 
 QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
     : frmt(format)
@@ -982,9 +997,9 @@ QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
     params = descr = 0;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a QImageIO object with a file name and a format tag.
-*/
+ ----------------------------------------------------------------------------*/
 
 QImageIO::QImageIO( const char *fileName, const char *format )
     : frmt(format), fname(fileName)
@@ -994,9 +1009,9 @@ QImageIO::QImageIO( const char *fileName, const char *format )
     params = descr = 0;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Destroys the object an all related data.
-*/
+ ----------------------------------------------------------------------------*/
 
 QImageIO::~QImageIO()
 {
@@ -1007,9 +1022,9 @@ QImageIO::~QImageIO()
 }
 
 
-// --------------------------------------------------------------------------
-// QImageIO image handler functions
-//
+/*****************************************************************************
+  QImageIO image handler functions
+ *****************************************************************************/
 
 class QImageHandler
 {
@@ -1086,7 +1101,7 @@ static QImageHandler *get_image_handler( const char *format )
     return 0;					// no such handler
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Defines a image IO handler for a specified image format.
   An image IO handler is responsible for reading and writing images.
 
@@ -1098,27 +1113,29 @@ static QImageHandler *get_image_handler( const char *format )
   \arg \e write_image is a function to write an image of this format.
 
   Both read_image and write_image are of type image_io_handler, which is
-  defined as
+  a function pointer.
+
+  Example:
   \code
-  void readGIF( QImageIO *image )
-  {
-    // read the image, using the image->ioDevice()
-  }
+    void readGIF( QImageIO *image )
+    {
+      // read the image, using the image->ioDevice()
+    }
 
-  void writeGIF( QImageIO *image )
-  {
-    // write the image, using the image->ioDevice()
-  }
+    void writeGIF( QImageIO *image )
+    {
+      // write the image, using the image->ioDevice()
+    }
 
-  // add the GIF image handler
+    // add the GIF image handler
 
-  QImageIO::defineIOHandler( "GIF",
-			     "^GIF[0-9][0-9][a-z]",
-			     0,
-			     read_gif_image,
-			     write_gif_image );
+    QImageIO::defineIOHandler( "GIF",
+    			       "^GIF[0-9][0-9][a-z]",
+			       0,
+			       read_gif_image,
+			       write_gif_image );
   \endcode
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImageIO::defineIOHandler( const char *format,
 				const char *header,
@@ -1136,75 +1153,75 @@ void QImageIO::defineIOHandler( const char *format,
 }
 
 
-// --------------------------------------------------------------------------
-// QImageIO normal member functions
-//
+/*****************************************************************************
+  QImageIO normal member functions
+ *****************************************************************************/
 
-/*!
-  \fn const QImage& QImageIO::image() const
+/*----------------------------------------------------------------------------
+  \fn const QImage &QImageIO::image() const
   Returns the image currently set.
   \sa setImage()
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn int QImageIO::status() const
   Returns the image IO status.	A non-zero value indicates an error, while 0
   means that the IO operation was successful.
   \sa setStatus()
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn const char *QImageIO::format() const
   Returns the image format string, or 0 if no format has been set.
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn QIODevice *QImageIO::ioDevice() const
   Returns the IO device currently set.
   \sa setIODevice()
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn const char *QImageIO::fileName() const
   Returns the file name currently set.
   \sa setFileName()
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn const char *QImageIO::parameters() const
   Returns image parameters string.
   \sa setParameters()
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn const char *QImageIO::description() const
   Returns the image description string.
   \sa setDescription()
-*/
+ ----------------------------------------------------------------------------*/
 
 
-/*!
+/*----------------------------------------------------------------------------
   Sets the image.
   \sa image()
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImageIO::setImage( const QImage &image )
 {
     im = image;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Sets the image IO status.  A non-zero value indicates an error, while 0 means
   that the IO operation was successful.
   \sa status()
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImageIO::setStatus( int status )
 {
     iostat = status;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Sets the image format name of the image about to be read or written.
 
   It is necessary to specify a format before writing an image.
@@ -1215,14 +1232,14 @@ void QImageIO::setStatus( int status )
   the image will not be read.
 
   \sa read(), write(), format()
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImageIO::setFormat( const char *format )
 {
     frmt = format;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Sets the IO device to be used for reading or writing an image.
 
   Setting the IO device allows images to be read/written to any
@@ -1232,30 +1249,30 @@ void QImageIO::setFormat( const char *format )
   settings.
 
   \sa setFileName()
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImageIO::setIODevice( QIODevice *ioDevice )
 {
     iodev = ioDevice;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Sets the name of the file to read or write an image.
   \sa setIODevice()
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImageIO::setFileName( const char *fileName )
 {
     fname = fileName;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Sets the image parameters string for image handlers that require
   special parameters.
 
   Although all image formats supported by Qt ignore the parameters string,
   it will be useful for future extentions or contributions (like JPEG).
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImageIO::setParameters( const char *parameters )
 {
@@ -1264,12 +1281,12 @@ void QImageIO::setParameters( const char *parameters )
     params = qstrdup( parameters );
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Sets the image description string for image handlers that support image
   descriptions.
 
   Currently, no image format supported by Qt use the description string.
-*/
+ ----------------------------------------------------------------------------*/
 
 void QImageIO::setDescription( const char *description )
 {
@@ -1279,10 +1296,10 @@ void QImageIO::setDescription( const char *description )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns a string that specifies the image format of the file \e fileName,
   or null if the file cannot not be read or if the format is not recognized.
-*/
+ ----------------------------------------------------------------------------*/
 
 const char *QImageIO::imageFormat( const char *fileName )
 {						// determine image format
@@ -1294,13 +1311,13 @@ const char *QImageIO::imageFormat( const char *fileName )
     return format;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Returns a string that specifies the image format of the image read from
   \e d, or null if the file cannot be read or if the format is not recognized.
-*/
+ ----------------------------------------------------------------------------*/
 
 const char *QImageIO::imageFormat( QIODevice *d )
-{						// determine image format
+{
     const  buflen = 14;
     char   buf[buflen];
     if ( imageHandlers == 0 )
@@ -1323,7 +1340,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Reads an image into memory and returns TRUE if the image was successfully
   read.
 
@@ -1343,8 +1360,8 @@ const char *QImageIO::imageFormat( QIODevice *d )
 	pixmap = iio.image();		// convert to pixmap
   \endcode
 
-  \sa setIODevice(), setFileName(), setFormat(), write() QPixmap::load()
-*/
+  \sa setIODevice(), setFileName(), setFormat(), write(), QPixmap::load()
+ ----------------------------------------------------------------------------*/
 
 bool QImageIO::read()				// read image data
 {
@@ -1394,7 +1411,7 @@ bool QImageIO::read()				// read image data
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Writes an image to an IO device and returns TRUE if the image was
   successfully written.
 
@@ -1415,8 +1432,8 @@ bool QImageIO::read()				// read image data
     iio.write();				// TRUE if ok
   \endcode
 
-  \sa setIODevice(), setFileName(), setFormat(), read()
-*/
+  \sa setIODevice(), setFileName(), setFormat(), read(), QPixmap::save()
+ ----------------------------------------------------------------------------*/
 
 bool QImageIO::write()
 {
@@ -1450,13 +1467,13 @@ bool QImageIO::write()
 }
 
 
-// --------------------------------------------------------------------------
-// GIF image read/write functions
-//
-// The Graphical Interchange Format (c) is the Copyright property of
-// CompuServe Incorporated.  GIF (sm) is a Service Mark propery of
-// CompuServe Incorporated.
-//
+/*****************************************************************************
+  GIF image read/write functions
+
+  The Graphical Interchange Format (c) is the Copyright property of
+  CompuServe Incorporated.  GIF (sm) is a Service Mark propery of
+  CompuServe Incorporated.
+ *****************************************************************************/
 
 static void read_gif_image( QImageIO * )	// read GIF image data
 {
@@ -1470,9 +1487,9 @@ static void write_gif_image( QImageIO * )	// write GIF image data
 }
 
 
-// --------------------------------------------------------------------------
-// BMP (DIB) image read/write functions
-//
+/*****************************************************************************
+  BMP (DIB) image read/write functions
+ *****************************************************************************/
 
 const  BMP_FILEHDR_SIZE = 14;			// size of BMP_FILEHDR data
 
@@ -1625,8 +1642,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 
     d->at( startpos + bf.bfOffBits );		// start of image data
 
-    int	 padlen;
-    char padbuf[8];
+    int bpl = image.bytesPerLine();
     uchar **line;
     if ( turn ) {
 	line = (uchar **)malloc( h*sizeof(uchar*) );
@@ -1637,13 +1653,9 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 	line = image.jumpTable();
 
     if ( nbits == 1 ) {				// 1 bit BMP image
-	w = (w+7)/8;
-	padlen = ((w+3)/4)*4 - w;
 	while ( --h >= 0 ) {
-	    if ( d->readBlock((char*)line[h],w) != w )
+	    if ( d->readBlock((char*)line[h],bpl) != bpl )
 		break;
-	    if ( padlen )
-		d->readBlock( padbuf, padlen );
 	}
 	if ( ncols == 2 && QGRAY(image.color(0)) < QGRAY(image.color(1)) )
 	    swapPixel01( &image );		// pixel 0 is white!
@@ -1758,21 +1770,17 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 	    }
 	}
 	else if ( comp == BMP_RGB ) {		// uncompressed
-	    padlen = ((w+3)/4)*4 - w;
 	    while ( --h >= 0 ) {
-		if ( d->readBlock((char *)line[h],w) != w )
+		if ( d->readBlock((char *)line[h],bpl) != bpl )
 		    break;
-		if ( padlen )
-		    d->readBlock( padbuf, padlen );
 	    }
 	}
     }
 
     else if ( nbits == 24 ) {			// 24 bit BMP image
-	padlen = (4 - ((w*3)&3)) & 3;
 	while ( --h >= 0 ) {
 	    register uchar *p = line[h];
-	    if ( d->readBlock( (char *)p,w*3) != w*3 )
+	    if ( d->readBlock( (char *)p,bpl) != bpl )
 		break;
 	    for ( int i=0; i<w; i++ ) {		// swap r and b
 		uchar t = p[0];
@@ -1780,8 +1788,6 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 		p[2] = t;
 		p += 3;
 	    }
-	    if ( padlen )
-		d->readBlock( padbuf, padlen );
 	}
     }
 
@@ -1800,14 +1806,9 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
     QDataStream s( d );
     BMP_FILEHDR bf;
     BMP_INFOHDR bi;
-    long	bpl = image.bytesPerLine();
+    int		bpl = image.bytesPerLine();
     bool	depth4 = image.depth() == 8 && image.numColors() <= 16;
-    long	bpl_bmp;
-
-    if ( depth4 )
-	bpl_bmp = (((bpl+1)/2+3)/4)*4;
-    else
-	bpl_bmp = ((bpl+3)/4)*4;
+    int		bpl_bmp = depth4 ? (((bpl+1)/2+3)/4)*4 : bpl;
 
     iio->setStatus( 0 );
     s.setByteOrder( QDataStream::LittleEndian );// Intel byte order
@@ -1831,27 +1832,36 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
     s << bi;					// write info header
 
     if ( image.depth() != 24 ) {		// write color table
-	uchar rgb[4];
+	uchar *color_table = new uchar[4*image.numColors()];
+	uchar *rgb = color_table;
 	ulong *c = image.colorTable();
-	rgb[3] = 0;
 	for ( int i=0; i<image.numColors(); i++ ) {
-	    rgb[0] = QBLUE ( c[i] );
-	    rgb[1] = QGREEN( c[i] );
-	    rgb[2] = QRED  ( c[i] );
-	    d->writeBlock( (char *)rgb, 4 );
+	    *rgb++ = QBLUE ( c[i] );
+	    *rgb++ = QGREEN( c[i] );
+	    *rgb++ = QRED  ( c[i] );
+	    *rgb++ = 0;
 	}
+	d->writeBlock( (char *)color_table, 4*image.numColors() );
+	delete [] color_table;
     }
 
     if ( image.depth() == 1 && image.bitOrder() != QImage::BigEndian )
 	image = image.convertBitOrder( QImage::BigEndian );
 
-    bool   flip = image.depth() == 24;
+    int  y;
+
+    if ( !depth4 && image.depth() != 24 ) {	// 1 bit or 8 bit depth
+	for ( y=image.height()-1; y>=0; y-- )
+	    d->writeBlock( (char*)image.scanLine(y), bpl );
+	return;
+    }
+
     uchar *buf	= new uchar[bpl_bmp];
     uchar *b, *end;
     register uchar *p;
 
     memset( buf, 0, bpl_bmp );
-    for ( int y=image.height()-1; y>=0; y-- ) {// write the image bits
+    for ( y=image.height()-1; y>=0; y-- ) {	// write the image bits
 	if ( depth4 ) {				// convert 8 -> 4 bits
 	    p = image.scanLine(y);
 	    b = buf;
@@ -1863,10 +1873,10 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
 	    if ( image.width() & 1 )
 		*b = *p << 4;
 	}
-	else if ( flip ) {			// 24 bits: RGB -> BGR
+	else {					// 24 bits: RGB -> BGR
 	    b = image.scanLine(y);
 	    p = buf;
-	    end = p + bpl;
+	    end = p + image.width()*3;
 	    while ( p < end ) {
 		*p++ = b[2];
 		*p++ = b[1];
@@ -1874,17 +1884,15 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
 		b += 3;
 	    }
 	}
-	else
-	    memcpy( buf, image.scanLine(y), bpl );
 	d->writeBlock( (char*)buf, bpl_bmp );
     }
     delete [] buf;
 }
 
 
-// --------------------------------------------------------------------------
-// PBM/PGM/PPM (ASCII and RAW) image read/write functions
-//
+/*****************************************************************************
+  PBM/PGM/PPM (ASCII and RAW) image read/write functions
+ *****************************************************************************/
 
 static int read_pbm_int( QIODevice *d )		// read int, skip comments
 {
@@ -1926,7 +1934,8 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
     char	buf[buflen];
     QRegExp	r1, r2;
     QIODevice  *d = iio->ioDevice();
-    int		w, h, nbits, mcc;
+    int		w, h, nbits, mcc, y;
+    int		pbm_bpl;
     char	type;
     bool	raw;
     QImage	image;
@@ -1966,23 +1975,31 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
     if ( image.isNull() )
 	return;
 
-    if ( raw )					// read raw data
-	d->readBlock( (char *)image.bits(), image.numBytes() );
+    pbm_bpl = (nbits*w+7)/8;			// bytes per scanline in PBM
+
+    if ( raw ) {				// read raw data
+	for ( y=0; y<h; y++ )
+	    d->readBlock( (char *)image.scanLine(y), pbm_bpl );
+    }
     else {					// read ascii data
-	register uchar *p = image.bits();
-	long n = image.numBytes();
-	if ( nbits == 1 ) {
-	    int b;
-	    while ( n-- ) {
-		b = 0;
-		for ( int i=0; i<8; i++ )
-		    b = (b << 1) | (read_pbm_int(d) & 1);
-		*p++ = b;
+	register uchar *p;
+	int n;
+	for ( y=0; y<h; y++ ) {
+	    p = image.scanLine( y );
+	    n = pbm_bpl;
+	    if ( nbits == 1 ) {
+		int b;
+		while ( n-- ) {
+		    b = 0;
+		    for ( int i=0; i<8; i++ )
+			b = (b << 1) | (read_pbm_int(d) & 1);
+		    *p++ = b;
+		}
 	    }
-	}
-	else {
-	    while ( n-- ) {
-		*p++ = read_pbm_int( d );
+	    else {
+		while ( n-- ) {
+		    *p++ = read_pbm_int( d );
+		}
 	    }
 	}
     }
@@ -2012,9 +2029,9 @@ static void write_pbm_image( QImageIO *iio )	// write PBM image data
 }
 
 
-// --------------------------------------------------------------------------
-// X bitmap image read/write functions
-//
+/*****************************************************************************
+  X bitmap image read/write functions
+ *****************************************************************************/
 
 static inline int hex2byte( register char *p )
 {
@@ -2126,7 +2143,7 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
     register char *p = buf;
     uchar *b = image.scanLine(0);
     int	 x=0, y=0;
-    long nbytes = image.numBytes();
+    int nbytes = image.numBytes();
     w = (w+7)/8;
     while ( nbytes-- ) {			// write all bytes
 	*p++ = '0';  *p++ = 'x';
@@ -2153,9 +2170,9 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
 }
 
 
-// --------------------------------------------------------------------------
-// XPM image read/write functions
-//
+/*****************************************************************************
+  XPM image read/write functions
+ *****************************************************************************/
 
 static int read_xpm_char( QIODevice *d )
 {
