@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#264 $
+** $Id: //depot/qt/main/src/moc/moc.y#265 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -191,7 +191,7 @@ struct Argument					// single arg meta data
 
 class ArgList : public QPtrList<Argument> {	// member function arg list
 public:
-    ArgList() { setAutoDelete( TRUE ); }
+    ArgList() { setAutoDelete( TRUE ); overload = FALSE;  }
    ~ArgList() { clear(); }
 
     /* the clone has one default argument less, the orignal has all default arguments removed */
@@ -212,6 +212,7 @@ public:
 	    else
 		next();
 	}
+	overload = TRUE;
 	return l;
     }
 
@@ -223,6 +224,7 @@ public:
 	return FALSE;
     }
 
+    bool overload;
 };
 
 
@@ -2682,7 +2684,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#264 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#265 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2868,31 +2870,39 @@ void generateClass()		      // generate C++ source code for a class
 //
     Function *f;
     f = g->signals.first();			// make internal signal methods
-    static bool included_list_stuff = FALSE;
+    static bool included_list_headers = FALSE;
     int sigindex = 0;
+    int overloads = 0;
     while ( f ) {
-
+	if( f->args->overload ) {
+	    overloads++;
+	    f = g->signals.next();
+	    sigindex++;
+	    continue;
+	} 
 	QCString argstr;
 	char buf[12];
 	Argument *a = f->args->first();
 	int offset = 0;
 	const char *predef_call_func = 0;
 
-	if ( !a ) {
-	    predef_call_func = "activate_signal";
-	} else if ( f->args->count() == 1 ) {
-	    QCString utype = uType( (a->leftType + ' ' + a->rightType).simplifyWhiteSpace() );
-	    if ( utype == "bool" )
-		predef_call_func = "activate_signal_bool";
-	    else if ( utype == "QString" || utype == "int" || utype == "double"  )
+	if ( !overloads ) {
+	    if ( !a ) {
 		predef_call_func = "activate_signal";
+	    } else if ( f->args->count() == 1 ) {
+		QCString utype = uType( (a->leftType + ' ' + a->rightType).simplifyWhiteSpace() );
+		if ( utype == "bool" )
+		    predef_call_func = "activate_signal_bool";
+		else if ( utype == "QString" || utype == "int" || utype == "double"  )
+		    predef_call_func = "activate_signal";
+	    }
 	}
 
-	if ( !predef_call_func && !included_list_stuff ) {
+	if ( !predef_call_func && !included_list_headers ) {
 	    // yes we need it, because otherwise QT_VERSION may not be defined
 	    fprintf( out, "\n#include <%sqobjectdefs.h>\n", (const char*)g->qtPath );
 	    fprintf( out, "#include <%sqsignalslotimp.h>\n", (const char*)g->qtPath );
-	    included_list_stuff = TRUE;
+	    included_list_headers = TRUE;
 	}
 
 	while ( a ) { // argument list
@@ -2924,37 +2934,49 @@ void generateClass()		      // generate C++ source code for a class
 	    if ( !argstr.isEmpty() )
 		fprintf( out, ", t0" );
 	    fprintf( out, " );\n}\n" );
-	    sigindex++;
-	    f = g->signals.next();
-	    continue;
-	}
-
-
-	int nargs = f->args->count();
-	fprintf( out, "    if ( signalsBlocked() )\n\treturn;\n" );
-	fprintf( out, "    QConnectionList *clist = receivers( staticMetaObject()->signalOffset() + %d );\n",
-		 sigindex );
-	fprintf( out, "    if ( !clist )\n\treturn;\n" );
-	fprintf( out, "    QUObject o[%d];\n", f->args->count() + 1 );
-	if ( !f->args->isEmpty() ) {
-	    offset = 0;
-	    Argument* a = f->args->first();
-	    while ( a ) {
-		QCString type = a->leftType + ' ' + a->rightType;
-		type = type.simplifyWhiteSpace();
-		if ( validUType( type ) ) {
-		    QCString utype = uType( type );
-		    fprintf( out, "    pQUType_%s->set(o+%d,t%d);\n", utype.data(), offset+1, offset );
-		} else {
-		    fprintf( out, "    pQUType_ptr->set(o+%d,&t%d);\n", offset+1, offset );
-		}
-		a = f->args->next();
-		offset++;
+	} else {
+	    int nargs = f->args->count();
+	    fprintf( out, "    if ( signalsBlocked() )\n\treturn;\n" );
+	    if ( overloads ) {
+		for ( int i = 0; i <= overloads; i++ )
+		    fprintf( out, "    QConnectionList *clist%d = receivers( staticMetaObject()->signalOffset() + %d );\n",
+			     i, sigindex-overloads+i );
+		fprintf( out, "    if ( !clist0 " );
+		for ( int i = 1; i <= overloads; i++ )
+		    fprintf( out, "&& !clist%d ", i );
+		fprintf( out, ") \n\treturn;\n" );
+	    } else {
+		fprintf( out, "    QConnectionList *clist = receivers( staticMetaObject()->signalOffset() + %d );\n",
+			 sigindex );
+		fprintf( out, "    if ( !clist )\n\treturn;\n" );
 	    }
+	    fprintf( out, "    QUObject o[%d];\n", f->args->count() + 1 );
+	    if ( !f->args->isEmpty() ) {
+		offset = 0;
+		Argument* a = f->args->first();
+		while ( a ) {
+		    QCString type = a->leftType + ' ' + a->rightType;
+		    type = type.simplifyWhiteSpace();
+		    if ( validUType( type ) ) {
+			QCString utype = uType( type );
+			fprintf( out, "    pQUType_%s->set(o+%d,t%d);\n", utype.data(), offset+1, offset );
+		    } else {
+			fprintf( out, "    pQUType_ptr->set(o+%d,&t%d);\n", offset+1, offset );
+		    }
+		    a = f->args->next();
+		    offset++;
+		}
+	    }
+	    if ( overloads ) {
+		for ( int i = 0; i <= overloads; i++ )
+		    fprintf( out, "    activate_signal( clist%d, o );\n", i );
+	    } else {
+		fprintf( out, "    activate_signal( clist, o );\n" );
+	    }
+	    fprintf( out, "}\n" );
 	}
-	fprintf( out, "    activate_signal( clist, o );\n" );
-	fprintf( out, "}\n" );
-
+	
+	overloads = 0;
 	f = g->signals.next();
 	sigindex++;
     }
@@ -3195,7 +3217,7 @@ void addEnum()
 	}
     }
 
-    // Only look at stuff in Q_ENUMS and Q_SETS
+    // Only look at types mentioned  in Q_ENUMS and Q_SETS
     if ( g->qtEnums.contains( tmpEnum->name ) || g->qtSets.contains( tmpEnum->name ) )
     {
 	g->enums.append( tmpEnum );
