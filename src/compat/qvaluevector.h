@@ -35,7 +35,7 @@ public:
 
 #ifndef QT_NO_STL
     inline QValueVector( const std::vector<T>& v ) : QVector<T>()
-	{ resize(v.size()); qCopy( v.begin(), v.end(), begin() ); }
+	{ this->resize(v.size()); qCopy( v.begin(), v.end(), this->begin() ); }
 #endif
 
     QValueVector<T>& operator= ( const QValueVector<T>& v )
@@ -44,35 +44,35 @@ public:
 #ifndef QT_NO_STL
     QValueVector<T>& operator= ( const std::vector<T>& v )
     {
-	clear();
-	resize( v.size() );
-	qCopy( v.begin(), v.end(), begin() );
+	this->clear();
+	this->resize( v.size() );
+	qCopy( v.begin(), v.end(), this->begin() );
 	return *this;
     }
 #endif
 
     void resize( int n, const T& val = T() )
     {
-	if ( n < size() )
-	    erase( begin() + n, end() );
+	if ( n < this->size() )
+	    erase( this->begin() + n, this->end() );
 	else
-	    insert( end(), n - size(), val );
+	    insert( this->end(), n - this->size(), val );
     }
 
 
     T& at( int i, bool* ok = 0 )
     {
-	detach();
+	this->detach();
 	if ( ok )
-	    *ok = ( i >= 0 && i < size() );
-	return *( begin() + i );
+	    *ok = ( i >= 0 && i < this->size() );
+	return *( this->begin() + i );
     }
 
     const T&at( int i, bool* ok = 0 ) const
     {
 	if ( ok )
-	    *ok = ( i >= 0 && i < size() );
-	return *( begin() + i );
+	    *ok = ( i >= 0 && i < this->size() );
+	return *( this->begin() + i );
     }
 };
 

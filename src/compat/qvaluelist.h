@@ -96,27 +96,27 @@ public:
     }
     QValueList<T>& operator= (const QList<T>& l)
     {
-	clear();
+	this->clear();
 	for (int i = 0; i < l.size(); ++i) append(l.at(i));
 	return *this;
     }
 #ifndef QT_NO_STL
     QValueList<T>& operator= (const std::list<T>& l)
     {
-	detach();
+	this->detach();
 	qCopy(l.begin(), l.end(), std::back_inserter(*this));
 	return *this;
     }
     bool operator== (const std::list<T>& l) const
     {
-	if (size() != l.size())
+	if (this->size() != l.size())
 	    return FALSE;
-	typename QValueList<T>::const_iterator it2 = begin();
+	typename QValueList<T>::const_iterator it2 = this->begin();
 #if !defined(Q_CC_MIPS)
 	typename
 #endif
 	    std::list<T>::const_iterator it = l.begin();
-	for (; it2 != end(); ++it2, ++it)
+	for (; it2 != this->end(); ++it2, ++it)
 	if (!((*it2) == (*it)))
 	    return FALSE;
 	return TRUE;
@@ -141,19 +141,19 @@ public:
         { QLinkedList<T>::operator+=(l); return *this; }
 
     typename QValueList<T>::Iterator fromLast()
-        { return (isEmpty() ? end() : --end()); }
+        { return (this->isEmpty() ? this->end() : --this->end()); }
     typename QValueList<T>::ConstIterator fromLast() const
-        { return (isEmpty() ? end() : --end()); }
+        { return (this->isEmpty() ? this->end() : --this->end()); }
 
     typename QValueList<T>::Iterator append(const T& x)
-        { QLinkedList<T>::append(x); return begin(); }
+        { QLinkedList<T>::append(x); return this->begin(); }
     typename QValueList<T>::Iterator prepend(const T& x)
-        { QLinkedList<T>::prepend(x); return --end(); }
+        { QLinkedList<T>::prepend(x); return --this->end(); }
 
     typename QValueList<T>::Iterator at(typename QValueList<T>::size_type i )
-        { Q_ASSERT(i < size()); detach(); return begin()+i; }
+        { Q_ASSERT(i < this->size()); this->detach(); return this->begin()+i; }
     typename QValueList<T>::ConstIterator at(typename QValueList<T>::size_type i) const
-        { Q_ASSERT(i < size()); return begin()+i; }
+        { Q_ASSERT(i < this->size()); return this->begin()+i; }
     typename QValueList<T>::size_type contains(const T& x) const
         { return QLinkedList<T>::count(x); }
 
@@ -169,7 +169,7 @@ Q_OUTOFLINE_TEMPLATE void QValueList<T>::insert(typename QValueList<T>::Iterator
 			   typename QValueList<T>::size_type n, const T& x)
 {
     for (; n > 0; --n)
-	insert(pos, x);
+	this->insert(pos, x);
 }
 
 #ifndef QT_NO_DATASTREAM

@@ -155,7 +155,7 @@ template<class type>
 QPtrList<type>::operator QList<type *>()
 {
     QList<type *> l;
-    for (QPtrList<type>::Iterator it = begin(); it != end(); ++it)
+    for (Iterator it = begin(); it != end(); ++it)
 	l.append(*it);
     return l;
 }
