@@ -1664,10 +1664,8 @@ bool QWindowsStyle::eventFilter( QObject *o, QEvent *e )
     switch ( e->type() )
     {
     case QEvent::Enter:
-	if ( d->hotWidget ) {
-	    d->hotWidget = (QWidget*)o;
-	    d->hotWidget->update();
-	}
+	d->hotWidget = (QWidget*)o;
+	d->hotWidget->update();
 	break;
     case QEvent::Leave:
 	{
