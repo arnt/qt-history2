@@ -52,7 +52,7 @@ enum MemberFlags {
   Attention!  This table is copied from qcorevariant.cpp. If you
   change one, change both.
 */
-static const int ntypes = 36;
+static const int ntypes = 35;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -90,7 +90,6 @@ static const char* const type_map[ntypes] =
     "QPen",
     "Q_LLONG",
     "Q_ULLONG",
-    "QObject*"
 };
 
 int qvariant_nameToType(const char* name)
@@ -420,7 +419,7 @@ void Generator::generateProperties()
             if (tmp.left(6) == "const ")
                 tmp = tmp.mid(6);
             if (tmp.endsWith('*')) {
-                tmp = tmp.left(tmp.length() - 1);
+                tmp.chop(1);
                 spec = PropertyDef::PointerSpec;
             } else if (f.type.endsWith('&')) { // raw type, not normalized type
                 spec = PropertyDef::ReferenceSpec;

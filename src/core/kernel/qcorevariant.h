@@ -72,8 +72,7 @@ class Q_CORE_EXPORT QCoreVariant
         Pen = 32,
         LongLong = 33,
         ULongLong = 34,
-        Object = 35,
-        UserType = 36,
+        UserType = 35,
         LastType = 0xffffffff // need this so that gcc >= 3.4 really allocates 32 bits for Type
 #ifdef QT_COMPAT
         ,ColorGroup = 12,
@@ -107,7 +106,6 @@ class Q_CORE_EXPORT QCoreVariant
     QCoreVariant(const QDate &date);
     QCoreVariant(const QTime &time);
     QCoreVariant(const QDateTime &datetime);
-    QCoreVariant(QObject *object);
 #ifndef QT_NO_TEMPLATE_VARIANT
     QCoreVariant(const QList<QCoreVariant> &list);
     QCoreVariant(const QMap<QString,QCoreVariant> &map);
@@ -147,7 +145,6 @@ class Q_CORE_EXPORT QCoreVariant
     QDate toDate() const;
     QTime toTime() const;
     QDateTime toDateTime() const;
-    QObject *toObject() const;
 #ifndef QT_NO_TEMPLATE_VARIANT
     QList<QCoreVariant> toList() const;
     QMap<QString,QCoreVariant> toMap() const;
@@ -343,7 +340,6 @@ template<> QStringList QVariant_to_helper<QStringList>(const QCoreVariant &v, co
 template<> QDate QVariant_to_helper<QDate>(const QCoreVariant &v, const QDate*);
 template<> QTime QVariant_to_helper<QTime>(const QCoreVariant &v, const QTime*);
 template<> QDateTime QVariant_to_helper<QDateTime>(const QCoreVariant &v, const QDateTime*);
-template<> QObject * QVariant_to_helper<QObject*>(const QCoreVariant &v, QObject *);
 #ifndef QT_NO_TEMPLATE_VARIANT
 template<> QList<QCoreVariant>
 QVariant_to_helper<QList<QCoreVariant> >(const QCoreVariant &v, const QList<QCoreVariant>*);
@@ -368,7 +364,6 @@ template<> QStringList QVariant_to<QStringList>(const QCoreVariant &v);
 template<> QDate QVariant_to<QDate>(const QCoreVariant &v);
 template<> QTime QVariant_to<QTime>(const QCoreVariant &v);
 template<> QDateTime QVariant_to<QDateTime>(const QCoreVariant &v);
-template<> QObject * QVariant_to<QObject *>(const QCoreVariant &v);
 #ifndef QT_NO_TEMPLATE_VARIANT
 template<> QList<QCoreVariant> QVariant_to<QList<QCoreVariant> >(const QCoreVariant &v);
 template<> QMap<QString,QCoreVariant> QVariant_to<QMap<QString,QCoreVariant> >(const QCoreVariant &v);

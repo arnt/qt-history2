@@ -58,7 +58,6 @@ template<> QStringList QVariant_to<QStringList>(const QCoreVariant &v)
 template<> QDate QVariant_to<QDate>(const QCoreVariant &v) { return v.toDate(); }
 template<> QTime QVariant_to<QTime>(const QCoreVariant &v) { return v.toTime(); }
 template<> QDateTime QVariant_to<QDateTime>(const QCoreVariant &v) { return v.toDateTime(); }
-template<> QObject *QVariant_to<QObject *>(const QCoreVariant &v) { return v.toObject(); }
 #ifndef QT_NO_TEMPLATE_VARIANT
 template<> QList<QCoreVariant> QVariant_to<QList<QCoreVariant> >(const QCoreVariant &v)
 { return v.toList(); }
@@ -143,10 +142,6 @@ static void construct(QCoreVariant::Private *x, const void *v)
         case QCoreVariant::ULongLong:
             x->value.ull = *static_cast<const Q_ULLONG *>(v);
             break;
-        case QCoreVariant::Object:
-            x->value.ptr = const_cast<void *>(v);
-            QMetaObject::addGuard(reinterpret_cast<QObject**>(&x->value.ptr));
-            break;
         case QCoreVariant::Invalid:
             break;
         default:
@@ -206,8 +201,6 @@ static void construct(QCoreVariant::Private *x, const void *v)
         case QCoreVariant::ULongLong:
             x->value.ull = Q_ULLONG(0);
             break;
-        case QCoreVariant::Object:
-            x->value.ptr = 0;
         default:
             Q_ASSERT_X(QMetaType::isRegistered(x->type), "QCoreVariant::construct()",
                        "Unknown datatype");
@@ -263,9 +256,6 @@ static void clear(QCoreVariant::Private *p)
     case QCoreVariant::Bool:
     case QCoreVariant::Double:
         break;
-    case QCoreVariant::Object:
-        QMetaObject::removeGuard(reinterpret_cast<QObject **>(&p->value.ptr));
-        break;
     default:
         if (QMetaType::isRegistered(p->type))
             QMetaType::destroy(p->type, p->value.ptr);
@@ -318,8 +308,6 @@ static bool isNull(const QCoreVariant::Private *d)
     case QCoreVariant::Bool:
     case QCoreVariant::Double:
         break;
-    case QCoreVariant::Object:
-        return d->value.ptr == 0;
     default:
         if (!QMetaType::isRegistered(d->type))
             qFatal("cannot handle GUI types of QCoreVariant "
@@ -523,8 +511,6 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
         QCOMPARE(QByteArray);
     case QCoreVariant::BitArray:
         QCOMPARE(QBitArray);
-    case QCoreVariant::Object:
-        return a->value.ptr == b->value.ptr;
     case QCoreVariant::Invalid:
         return true;
     default:
@@ -1040,7 +1026,6 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \value LongLong a long long
     \value ULongLong an unsigned long long
     \value Map  a QMap<QString,QCoreVariant>
-    \value Object a pointer to a QObject.
     \value Palette  a QPalette
     \value Pen  a QPen
     \value Pixmap  a QPixmap
@@ -1192,16 +1177,6 @@ QCoreVariant::QCoreVariant(const char *val)
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(QObject *object)
-
-    Constructs a new variant with a QObject pointer \a object. If the
-    \a object is destroyed, the pointer stored in the variant is set
-    to zero.
-
-    \sa QPointer
-*/
-
-/*!
   \fn QCoreVariant::QCoreVariant(const QByteArray &val)
 
     Constructs a new variant with a bytearray value, \a val.
@@ -1293,8 +1268,6 @@ QCoreVariant::QCoreVariant(const QTime &val)
 { d = create(Time, &val); }
 QCoreVariant::QCoreVariant(const QDateTime &val)
 { d = create(DateTime, &val); }
-QCoreVariant::QCoreVariant(QObject *object)
-{ d = create(Object, object); }
 #ifndef QT_NO_TEMPLATE_VARIANT
 QCoreVariant::QCoreVariant(const QList<QCoreVariant> &list)
 { d = create(List, &list); }
@@ -1387,7 +1360,7 @@ void QCoreVariant::clear()
 
    (Search for the word 'Attention' in generator.cpp)
 */
-enum { ntypes = 37 };
+enum { ntypes = 36 };
 static const char* const type_map[ntypes] =
 {
     0,
@@ -1429,7 +1402,6 @@ static const char* const type_map[ntypes] =
     "QPen",
     "Q_LLONG",
     "Q_ULLONG",
-    "QObject*",
     "UserType"
 };
 
@@ -1676,21 +1648,6 @@ QCoreVariantMap QCoreVariant::toMap() const
     returned if the string cannot be parsed as a Qt::ISODate format
     date/time.
 */
-
-/*!
-    Returns the variant as a pointer to a QObject if the variant has
-    type() Object; otherwise returns a null pointer.
-
-    Note that toObject() also returns a null pointer if the object was
-    destroyed, similar to a \l QPointer<QObject*>.
-*/
-QObject * QCoreVariant::toObject() const
-{
-    if (d->type != Object)
-        return 0;
-
-    return static_cast<QObject *>(d->value.ptr);
-}
 
 
 /*!
