@@ -253,6 +253,25 @@ IMAGES		+= images/adjustsize.png \
 		images/edithlayout.png \
 		images/lcdnumber.png \
 		images/searchfind.png \
+		images/folder.png \
+		images/setbuddy.png \
+		images/textbold.png \
+		images/textcenter.png \
+		images/texth1.png \
+		images/texth2.png \
+		images/texth3.png \
+		images/textitalic.png \
+		images/textjustify.png \
+		images/textlarger.png \
+		images/textleft.png \
+		images/textlinebreak.png \
+		images/textparagraph.png \
+		images/textright.png \
+		images/textsmaller.png \
+		images/textteletext.png \
+		images/textunderline.png \
+		images/wizarddata.png \
+		images/wizarddialog.png \
 		images/disabled_adjustsize.png \
 		images/disabled_label.png \
 		images/disabled_book.png \
@@ -308,6 +327,7 @@ IMAGES		+= images/adjustsize.png \
 		images/disabled_editvlayoutsplit.png \
 		images/disabled_table.png \
 		images/disabled_filenew.png \
+		images/disabled_folder.png \
 		images/disabled_tabwidget.png \
 		images/disabled_fileopen.png \
 		images/disabled_textbrowser.png \
@@ -325,6 +345,24 @@ IMAGES		+= images/adjustsize.png \
 		images/disabled_up.png \
 		images/disabled_iconview.png \
 		images/disabled_widgetstack.png \
+		images/disabled_setbuddy.png \
+		images/disabled_textbold.png \
+		images/disabled_texth1.png \
+		images/disabled_texth2.png \
+		images/disabled_texth3.png \
+		images/disabled_textitalic.png \
+		images/disabled_textjustify.png \
+		images/disabled_textlarger.png \
+		images/disabled_textleft.png \
+		images/disabled_textlinebreak.png \
+		images/disabled_textparagraph.png \
+		images/disabled_textright.png \
+		images/disabled_textsmaller.png \
+		images/disabled_textteletext.png \
+		images/disabled_textunderline.png \
+		images/disabled_textcenter.png \
+		images/disabled_wizarddata.png \
+		images/disabled_wizarddialog.png \
 		images/disabled_image.png
 
 

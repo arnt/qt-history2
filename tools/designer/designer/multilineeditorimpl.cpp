@@ -34,478 +34,6 @@
 #include <qapplication.h>
 #include <qaction.h>
 
-
-static const char* const center_data[] = {
-"22 22 4 1",
-"a c None",
-"# c None",
-". c None",
-"b c #000000",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.bbbbbbbbbbbbbbbbb.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.bbbbbbbbbbbbb.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.bbbbbbbbbbbbbbbbb.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.bbbbbbbbbbbbb.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.bbbbbbbbbbbbbbbbb.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.bbbbbbbbbbbbb.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.bbbbbbbbbbbbbbbbb.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.bbbbbbbbbbbbb.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.bbbbbbbbbbbbbbbbb.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a."};
-
-static const char* const under_data[] = {
-"22 22 4 1",
-"a c None",
-"# c None",
-". c None",
-"b c #000000",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.#.a.#.a.#.a.#.a.#.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.bbbbb.a.bbbb#.a.#",
-"a.a.a.bbb.a.a.aba.a.a.",
-".a.#.abbba.#.a.b.a.#.a",
-"a.a.a.bbb.a.a.aba.a.a.",
-".#.a.#bbb#.a.#.b.#.a.#",
-"a.a.a.bbb.a.a.aba.a.a.",
-".a.#.abbba.#.a.b.a.#.a",
-"a.a.a.bbb.a.a.aba.a.a.",
-".#.a.#bbb#.a.#.b.#.a.#",
-"a.a.a.bbb.a.a.aba.a.a.",
-".a.#.abbba.#.abb.a.#.a",
-"a.a.a.abbba.abb.a.a.a.",
-".#.a.#.abbbbbb.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.#.bbbbbbbbbbbba.#.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a."};
-
-static const char* const right_data[] = {
-"22 22 4 1",
-"a c None",
-"# c None",
-". c None",
-"b c #000000",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.bbbbbbbbbbbbbbbbb.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.#.bbbbbbbbbbbbb.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.bbbbbbbbbbbbbbbbb.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.#.bbbbbbbbbbbbb.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.bbbbbbbbbbbbbbbbb.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.#.bbbbbbbbbbbbb.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.bbbbbbbbbbbbbbbbb.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.#.bbbbbbbbbbbbb.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.bbbbbbbbbbbbbbbbb.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a."};
-
-static const char* const bold_data[] = {
-"22 22 4 1",
-"a c None",
-"# c None",
-". c None",
-"b c #000000",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.#.a.#.a.#.a.#.a.#.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.bbbbbbbbb.a.#.a.#",
-"a.a.a.bbb.a.bbb.a.a.a.",
-".a.#.abbba.#.bbb.a.#.a",
-"a.a.a.bbb.a.abbba.a.a.",
-".#.a.#bbb#.a.bbb.#.a.#",
-"a.a.a.bbb.a.bbb.a.a.a.",
-".a.#.abbbbbbbb.#.a.#.a",
-"a.a.a.bbb.a.bbbba.a.a.",
-".#.a.#bbb#.a.bbbb#.a.#",
-"a.a.a.bbb.a.a.bbb.a.a.",
-".a.#.abbba.#.abbba.#.a",
-"a.a.a.bbb.a.a.bbb.a.a.",
-".#.a.#bbb#.a.bbb.#.a.#",
-"a.a.abbbbbbbbbb.a.a.a.",
-".a.#.a.#.a.#.a.#.a.#.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a."};
-
-static const char* const italic_data[] = {
-"22 22 4 1",
-"a c None",
-"# c None",
-". c None",
-"b c #000000",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".a.#.a.#.a.#.a.#.a.#.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.#.a.#bbbbba.#.a.#",
-"a.a.a.a.a.abbba.a.a.a.",
-".a.#.a.#.a.bbb.#.a.#.a",
-"a.a.a.a.a.abbba.a.a.a.",
-".#.a.#.a.#.bbb.a.#.a.#",
-"a.a.a.a.a.bbb.a.a.a.a.",
-".a.#.a.#.abbba.#.a.#.a",
-"a.a.a.a.a.bbb.a.a.a.a.",
-".#.a.#.a.#bbb#.a.#.a.#",
-"a.a.a.a.abbba.a.a.a.a.",
-".a.#.a.#.bbb.a.#.a.#.a",
-"a.a.a.a.abbba.a.a.a.a.",
-".#.a.#.a.bbb.#.a.#.a.#",
-"a.a.a.a.bbbbb.a.a.a.a.",
-".a.#.a.#.a.#.a.#.a.#.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a."};
-
-static const char* const left_data[] = {
-"22 22 4 1",
-"a c None",
-"# c None",
-". c None",
-"b c #000000",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".abbbbbbbbbbbbbbbbb#.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#bbbbbbbbbbbbba.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".abbbbbbbbbbbbbbbbb#.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#bbbbbbbbbbbbba.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".abbbbbbbbbbbbbbbbb#.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#bbbbbbbbbbbbba.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".abbbbbbbbbbbbbbbbb#.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#bbbbbbbbbbbbba.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".abbbbbbbbbbbbbbbbb#.a",
-"a.a.a.a.a.a.a.a.a.a.a.",
-".#.a.#.a.#.a.#.a.#.a.#",
-"a.a.a.a.a.a.a.a.a.a.a."};
-
-static const char* const block_data[] = {
-"22 22 2 1",
-". c None",
-"# c #000000",
-"......................",
-"......................",
-"......................",
-"......................",
-"....#############.....",
-"......................",
-"....#############.....",
-"......................",
-"....#############.....",
-"......................",
-"....#############.....",
-"......................",
-"....#############.....",
-"......................",
-"....#############.....",
-"......................",
-"....#############.....",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const fontdec_data[] = {
-"22 22 4 1",
-". c None",
-"# c #000000",
-"b c #0000c5",
-"a c #838183",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-".............##.......",
-"............###a......",
-"...........####a......",
-"............a##a......",
-"...bbbbbb....##a......",
-"...bbbbbba...##a......",
-"....aaaaaa...##a......",
-".............##a......",
-"............####......",
-"............####a.....",
-".............aaaa.....",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const fontinc_data[] = {
-"22 22 4 1",
-". c None",
-"# c #000000",
-"a c #838183",
-"b c #c50000",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-".............##.......",
-"............###a......",
-".....bb....####a......",
-".....bb.....a##a......",
-"...bbbbbb....##a......",
-"...bbbbbba...##a......",
-".....bbaaa...##a......",
-".....bba.....##a......",
-"......aa....####......",
-"............####a.....",
-".............aaaa.....",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const h1_data[] = {
-"22 22 3 1",
-". c None",
-"# c #000000",
-"a c #838183",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"######..######....###.",
-".a###aa..###aaa..####a",
-"..###a...###a...#####a",
-"..###a...###a....a###a",
-"..###a...###a.....###a",
-"..##########a.....###a",
-"..###aaaa###a.....###a",
-"..###a...###a.....###a",
-"..###a...###a.....###a",
-"..###a...###a.....###a",
-"..###a...###a.....###a",
-"######..######..######",
-".aaaaaa..aaaaaa..aaaaa",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const h2_data[] = {
-"22 22 3 1",
-". c None",
-"# c #000000",
-"a c #838183",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"######.#####...####...",
-".a##aaa.a##aa.######..",
-"..##a....##a.##aa###a.",
-"..##a....##a..aa..##a.",
-"..##a....##a......##a.",
-"..#########a......#aa.",
-"..##aaaaa##a.....##a..",
-"..##a....##a....##a...",
-"..##a....##a...##a..#.",
-"..##a....##a..######aa",
-"######.#####.#######a.",
-".aaaaaa.aaaaa.aaaaaaa.",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const h3_data[] = {
-"22 22 3 1",
-". c None",
-"# c #000000",
-"a c #838183",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"..####..####...###....",
-"...##aa..##aa.#####...",
-"...##a...##a.#.aa##a..",
-"...##a...##a..a..#aa..",
-"...########a...###a...",
-"...##aaaa##a....a###..",
-"...##a...##a......##a.",
-"...##a...##a......##a.",
-"...##a...##a.##...#aa.",
-"..####..####.#####.a..",
-"...aaaa..aaaa.aaaaa...",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const break_data[] = {
-"22 22 6 1",
-". c None",
-"d c #000000",
-"b c #000083",
-"# c #313031",
-"c c #a4a1a4",
-"a c #ffffff",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"..............#####...",
-"...............#a#....",
-"...............#a#....",
-"...............#a#....",
-"...............#a#....",
-".......b.......#a#....",
-"......bc.......#a#....",
-".....bc........#a#....",
-"....bd##########a#....",
-"...bdaaaaaaaaaaaa#....",
-"....bd############....",
-".....bc...............",
-"......bc..............",
-".......bc.............",
-"......................",
-"......................"};
-
-static const char* const para_data[] = {
-"22 22 4 1",
-". c None",
-"a c #313031",
-"b c #a4a1a4",
-"# c #c50000",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......#.aaaaa..#......",
-".....#.baabbaa..#.....",
-"....#.b.aab.aab..#....",
-"...#.b..aab.aab...#...",
-"..#.b...aab.aab....#..",
-".#.b....aaaaabb.....#.",
-"..#.....aabbbb.....#.b",
-"...#....aab.......#.b.",
-"....#...aab......#.b..",
-".....#..aab.....#.b...",
-"......#.aab....#.b....",
-".......b.bb.....b.....",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const tt_data[] = {
-"22 22 9 1",
-". c None",
-"d c #000000",
-"f c #000008",
-"g c #000400",
-"e c #080008",
-"c c #7b7d7b",
-"# c #837d83",
-"a c #838183",
-"b c #83818b",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-".....##a#a#a#.........",
-".....#b.b#.#a.........",
-".....a..#a..c.........",
-".....#..bdedddfde.....",
-"........#dd.dd.dd.....",
-"........ad..gd..f.....",
-"........#d..dd..d.....",
-"........a#..dd........",
-"......#####add........",
-"............dd........",
-"............dd........",
-"..........fdedfd......",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const font_data[] = {
-"22 22 9 1",
-". c None",
-"d c #000000",
-"f c #000008",
-"g c #000400",
-"e c #080008",
-"c c #7b7d7b",
-"# c #837d83",
-"a c #838183",
-"b c #83818b",
-"......................",
-"......................",
-"......................",
-"......................",
-".....ddddddddddddda...",
-".....ddddddddddddda...",
-".....ddaaaaaaaaaaa....",
-".....dda..............",
-".....dda..............",
-".....ddddddddddddda...",
-".....ddddddddddddda...",
-".....ddaaaaaaaaaaa....",
-".....dda..............",
-".....dda..............",
-".....dda..............",
-".....dda..............",
-".....dda..............",
-".....dda..............",
-".....dda..............",
-".....dda..............",
-"......................",
-"......................"};
-
 ToolBarItem::ToolBarItem( QWidget *parent, QWidget *toolBar,
 			  const QString &label, const QString &tagstr,
 			  const QIconSet &icon, const QKeySequence &key )
@@ -563,25 +91,25 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
     basicToolBar = new QToolBar( tr( "Basics" ), this, DockTop );
 
     ToolBarItem *it = new ToolBarItem( this, basicToolBar, tr( "Italic" ),
-		      "i", QPixmap( (const char **) italic_data ), CTRL+Key_I );
+		      "i", QPixmap::fromMimeSource( "textitalic.png" ), CTRL+Key_I );
     it->addTo( stylesMenu );
     connect( it, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *b = new ToolBarItem( this, basicToolBar, tr( "Bold" ),
-		      "b", QPixmap( (const char **) bold_data ), CTRL+Key_B );
+		      "b", QPixmap::fromMimeSource( "textbold.png" ), CTRL+Key_B );
     b->addTo( stylesMenu );
     connect( b, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *ul = new ToolBarItem( this, basicToolBar, tr( "Underline" ),
-		      "u", QPixmap( (const char **) under_data ), CTRL+Key_U );
+		      "u", QPixmap::fromMimeSource( "textunderline.png" ), CTRL+Key_U );
     ul->addTo( stylesMenu );
     connect( ul, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *tt = new ToolBarItem( this, basicToolBar, tr( "Typewriter" ),
-		      "tt", QPixmap( (const char **) tt_data ) );
+		      "tt", QPixmap::fromMimeSource( "textteletext.png" ) );
     tt->addTo( stylesMenu );
     connect( tt, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
@@ -592,14 +120,14 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
     menuBar->insertItem( tr( "Layout" ), layoutMenu );
 
     QAction *brAction = new QAction( this );
-    brAction->setIconSet( QPixmap( (const char **) break_data ) );
+    brAction->setIconSet( QPixmap::fromMimeSource( "textlinebreak.png" ) );
     brAction->setText( tr("Break" ) );
     brAction->addTo( basicToolBar );
     brAction->addTo( layoutMenu );
     connect( brAction, SIGNAL( activated() ) , this, SLOT( insertBR() ) );
 
     ToolBarItem *p = new ToolBarItem( this, basicToolBar, tr( "Paragraph" ),
-		      "p", QPixmap( (const char **) para_data ) );
+		      "p", QPixmap::fromMimeSource( "textparagraph.png" ) );
     p->addTo( layoutMenu );
     connect( p, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
@@ -607,25 +135,25 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
     basicToolBar->addSeparator();
 
     ToolBarItem *al = new ToolBarItem( this, basicToolBar, tr( "Align left" ),
-		      "p align=\"left\"", QPixmap( (const char **) left_data ) );
+		      "p align=\"left\"", QPixmap::fromMimeSource( "textleft.png" ) );
     al->addTo( layoutMenu );
     connect( al, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *ac = new ToolBarItem( this, basicToolBar, tr( "Align center" ),
-		      "p align=\"center\"", QPixmap( (const char **) center_data ) );
+		      "p align=\"center\"", QPixmap::fromMimeSource( "textcenter.png" ) );
     ac->addTo( layoutMenu );
     connect( ac, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *ar = new ToolBarItem( this, basicToolBar, tr( "Align right" ),
-		      "p align=\"right\"", QPixmap( (const char **) right_data ) );
+		      "p align=\"right\"", QPixmap::fromMimeSource( "textright.png" ) );
     ar->addTo( layoutMenu );
     connect( ar, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *block = new ToolBarItem( this, basicToolBar, tr( "Blockquote" ),
-		      "blockquote", QPixmap( (const char **) block_data ) );
+		      "blockquote", QPixmap::fromMimeSource( "textjustify.png" ) );
     block->addTo( layoutMenu );
     connect( block, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
@@ -637,7 +165,7 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
     fontToolBar = new QToolBar( "Fonts", this, DockTop );
 
     QAction *fontAction = new QAction( this );
-    fontAction->setIconSet( QPixmap( (const char **) font_data ) );
+    fontAction->setIconSet( QPixmap::fromMimeSource( "textfont.png" ) );
     fontAction->setText( tr("Font" ) );
     fontAction->addTo( fontToolBar );
     fontAction->addTo( fontMenu );
@@ -645,27 +173,27 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
 
 
     ToolBarItem *fp1 = new ToolBarItem( this, fontToolBar, tr( "Fontsize +1" ),
-		      "font size=\"+1\"", QPixmap( (const char **) fontinc_data ) );
+		      "font size=\"+1\"", QPixmap::fromMimeSource( "textlarger.png" ) );
     connect( fp1, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *fm1 = new ToolBarItem( this, fontToolBar, tr( "Fontsize -1" ),
-		      "font size=\"-1\"", QPixmap( (const char **) fontdec_data ) );
+		      "font size=\"-1\"", QPixmap::fromMimeSource( "textsmaller.png" ) );
     connect( fm1, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *h1 = new ToolBarItem( this, fontToolBar, tr( "Headline 1" ),
-		      "h1", QPixmap( (const char **) h1_data ) );
+		      "h1", QPixmap::fromMimeSource( "texth1.png" ) );
     connect( h1, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *h2 = new ToolBarItem( this, fontToolBar, tr( "Headline 2" ),
-		      "h2", QPixmap( (const char **) h2_data ) );
+		      "h2", QPixmap::fromMimeSource( "texth2.png"  ) );
     connect( h2, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *h3 = new ToolBarItem( this, fontToolBar, tr( "Headline 3" ),
-		      "h3", QPixmap( (const char **) h3_data ) );
+		      "h3", QPixmap::fromMimeSource( "texth3.png" ) );
     connect( h3, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 

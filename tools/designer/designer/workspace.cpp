@@ -42,125 +42,13 @@
 #include <qtextstream.h>
 #include "qcompletionedit.h"
 
-static const char * const folder_xpm[]={
-    "16 16 6 1",
-    ". c None",
-    "b c #ffff00",
-    "d c #000000",
-    "* c #999999",
-    "a c #cccccc",
-    "c c #ffffff",
-    "................",
-    "................",
-    "..*****.........",
-    ".*ababa*........",
-    "*abababa******..",
-    "*cccccccccccc*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "**************d.",
-    ".dddddddddddddd.",
-    "................"
-};
-
-static const char * const file_xpm[]={
-    "16 16 5 1",
-    ". c #7f7f7f",
-    "# c None",
-    "c c #000000",
-    "b c #bfbfbf",
-    "a c #ffffff",
-    "################",
-    "..........######",
-    ".aaaaaaaab.#####",
-    ".aaaaaaaaba.####",
-    ".aaaaaaaacccc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".bbbbbbbbbbbc###",
-    "ccccccccccccc###"
-};
-
-static const char * const object_xpm[] = {
-    "16 16 35 1",
-    "       c None",
-    ".      c #004000",
-    "+      c #FFFFFF",
-    "@      c #000000",
-    "#      c #DCDCDC",
-    "$      c #585858",
-    "%      c #A0A0A0",
-    "&      c #FFDCA8",
-    "*      c #808080",
-    "=      c #FFC0C0",
-    "-      c #C3C3C3",
-    ";      c #004040",
-    ">      c #C0C0FF",
-    ",      c #404000",
-    "'      c #00C000",
-    ")      c #008000",
-    "!      c #8080FF",
-    "~      c #C05800",
-    "{      c #004000",
-    "]      c #303030",
-    "^      c #008080",
-    "/      c #808000",
-    "(      c #800000",
-    "_      c #FF0000",
-    ":      c #C0C000",
-    "<      c #C0FFC0",
-    "[      c #FFFFC0",
-    "}      c #800080",
-    "|      c #00C0C0",
-    "1      c #FF8000",
-    "2      c #C00000",
-    "3      c #FFA858",
-    "4      c #C000C0",
-    "5      c #0000FF",
-    "6      c #FF00FF",
-    "    %%%%***,    ",
-    "    %++++++%*   ",
-    "    %++++++%#*  ",
-    "    %+>>%++-#+* ",
-    "    %>>>!!+-%$$]",
-    "    %!^!^;+++#-,",
-    "    #!^$;;++###$",
-    "  ===$$;;5+++&#$",
-    "  ~13$]$;$/&+##$",
-    "  ~64}-|<')#&&&$",
-    "  ~~(('')${+###$",
-    "   _2]'/)${#&=&$",
-    "    %+')){{###-$",
-    "    *&+&,&#&&=&$",
-    "    %#+##&#-=:=$",
-    "    ,****$/$*$*,"
-};
-
-
-static QPixmap *folderPixmap = 0;
-static QPixmap *filePixmap = 0;
-static QPixmap *formPixmap = 0;
-static QPixmap *objectPixmap = 0;
-
 WorkspaceItem::WorkspaceItem( QListView *parent, Project* p )
     : QListViewItem( parent )
 {
     init();
     project = p;
     t = ProjectType;
-    setPixmap( 0, *folderPixmap );
+    setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
     setExpandable( FALSE );
 }
 
@@ -170,7 +58,7 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, SourceFile* sf )
     init();
     sourceFile = sf;
     t = SourceFileType;
-    setPixmap( 0, *filePixmap );
+    setPixmap( 0, QPixmap::fromMimeSource( "filenew.png" ) );
 }
 
 WorkspaceItem::WorkspaceItem( QListViewItem *parent, QObject *o, Project *p )
@@ -180,7 +68,7 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, QObject *o, Project *p )
     object = o;
     project = p;
     t = ObjectType;
-    setPixmap( 0, *objectPixmap );
+    setPixmap( 0, QPixmap::fromMimeSource( "object.png" ) );
     QObject::connect( p->fakeFormFor( o )->formFile(), SIGNAL( somethingChanged(FormFile*) ),
 		      listView(), SLOT( update() ) );
 }
@@ -192,13 +80,13 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, FormFile* ff, Type type )
     formFile = ff;
     t = type;
     if ( type ==  FormFileType ) {
-	setPixmap( 0, *formPixmap );
+	setPixmap( 0, QPixmap::fromMimeSource( "form.png" ) );
 	QObject::connect( ff, SIGNAL( somethingChanged(FormFile*) ), listView(), SLOT( update(FormFile*) ) );
 	if ( formFile->supportsCodeFile() ) {
 	    (void) new WorkspaceItem( this, formFile, FormSourceType );
 	}
     } else if ( type == FormSourceType ) {
-	setPixmap( 0, *filePixmap );
+	setPixmap( 0, QPixmap::fromMimeSource( "filenew.png" ) );
     }
 }
 
@@ -405,13 +293,6 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw )
     viewport()->setAcceptDrops( TRUE );
     setAcceptDrops( TRUE );
     setColumnWidthMode( 1, Manual );
-
-    if ( !folderPixmap ) {
-	folderPixmap = new QPixmap( folder_xpm );
-	filePixmap = new QPixmap( file_xpm );
-	formPixmap = new QPixmap( QPixmap::fromMimeSource( "form.png" ) );
-	objectPixmap = new QPixmap( object_xpm );
-    }
 }
 
 

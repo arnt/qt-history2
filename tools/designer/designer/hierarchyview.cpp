@@ -52,32 +52,6 @@
 
 #include <stdlib.h>
 
-static const char * const folder_xpm[]={
-    "16 16 6 1",
-    ". c None",
-    "b c #ffff00",
-    "d c #000000",
-    "* c #999999",
-    "a c #cccccc",
-    "c c #ffffff",
-    "................",
-    "................",
-    "..*****.........",
-    ".*ababa*........",
-    "*abababa******..",
-    "*cccccccccccc*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "**************d.",
-    ".dddddddddddddd.",
-    "................"};
-
-static QPixmap *folderPixmap = 0;
 QListViewItem *newItem = 0;
 
 static QPluginManager<ClassBrowserInterface> *classBrowserInterfaceManager = 0;
@@ -662,10 +636,6 @@ void FormDefinitionView::setup()
 	return;
     if ( !formWindow->project()->isCpp() )
 	return;
-    if ( !folderPixmap ) {
-	folderPixmap = new QPixmap( folder_xpm );
-    }
-
     QListViewItem *i = firstChild();
     while ( i ) {
 	if ( i->rtti() == HierarchyItem::DefinitionParent ) {
@@ -683,7 +653,7 @@ void FormDefinitionView::setup()
 	for ( QStringList::Iterator dit = defs.begin(); dit != defs.end(); ++dit ) {
 	    HierarchyItem *itemDef = new HierarchyItem( HierarchyItem::DefinitionParent,
 							this, tr( *dit ), QString::null, QString::null );
-	    itemDef->setPixmap( 0, *folderPixmap );
+	    itemDef->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
 	    itemDef->setOpen( TRUE );
 	    QStringList entries = lIface->definitionEntries( *dit, formWindow->mainWindow()->designerInterface() );
 	    for ( QStringList::Iterator eit = entries.begin(); eit != entries.end(); ++eit ) {
@@ -724,7 +694,7 @@ void FormDefinitionView::setupVariables()
 
     HierarchyItem *itemVar = new HierarchyItem( HierarchyItem::VarParent, this,
 						tr( "Class Variables" ), QString::null, QString::null );
-    itemVar->setPixmap( 0, *folderPixmap );
+    itemVar->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
     itemVar->setOpen( TRUE );
 
     itemVarPriv = new HierarchyItem( HierarchyItem::VarPrivate, itemVar, tr( "private" ),
@@ -806,7 +776,7 @@ void FormDefinitionView::refresh()
     itemFunct = new HierarchyItem( HierarchyItem::FunctParent,
 				   this, tr( "Functions" ), QString::null, QString::null );
     itemFunct->moveItem( i );
-    itemFunct->setPixmap( 0, *folderPixmap );
+    itemFunct->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
     itemFunctPriv = new HierarchyItem( HierarchyItem::FunctPrivate, itemFunct,
 				       tr( "private" ), QString::null, QString::null );
     itemFunctProt = new HierarchyItem( HierarchyItem::FunctProtected, itemFunct,
@@ -816,7 +786,7 @@ void FormDefinitionView::refresh()
 
     itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
 				   this, tr( "Slots" ), QString::null, QString::null );
-    itemSlots->setPixmap( 0, *folderPixmap );
+    itemSlots->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
     itemPrivate = new HierarchyItem( HierarchyItem::SlotPrivate, itemSlots, tr( "private" ),
 				     QString::null, QString::null );
     itemProtected = new HierarchyItem( HierarchyItem::SlotProtected, itemSlots, tr( "protected" ),

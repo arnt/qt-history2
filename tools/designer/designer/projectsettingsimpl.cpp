@@ -38,32 +38,6 @@
 #include <qpushbutton.h>
 #include <qlabel.h>
 
-static const char * file_xpm[]={
-    "16 16 5 1",
-    ". c #7f7f7f",
-    "# c None",
-    "c c #000000",
-    "b c #bfbfbf",
-    "a c #ffffff",
-    "################",
-    "..........######",
-    ".aaaaaaaab.#####",
-    ".aaaaaaaaba.####",
-    ".aaaaaaaacccc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".bbbbbbbbbbbc###",
-    "ccccccccccccc###"};
-
-static QPixmap *filePixmap = 0;
-
 /*
  *  Constructs a ProjectSettings which is a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'
@@ -76,8 +50,6 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
 {
     connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
 
-    if ( !filePixmap )
-	filePixmap = new QPixmap( file_xpm );
     editProjectFile->setFocus();
 
     if ( project->isDummy() ) {
