@@ -45,7 +45,7 @@ inline int qRoundAIX(double d)
 
 #if defined(Q_CC_GNU) && defined(__i386__)
 
-inline double qcos_x86(double a)
+inline double qCos_x86(double a)
 {
     double r;
     __asm__ (
@@ -53,9 +53,9 @@ inline double qcos_x86(double a)
         : "=t" (r) : "0" (a));
     return(r);
 }
-#define qcos qcos_x86
+#define qCos qCos_x86
 
-inline double qsin_x86(double a)
+inline double qSin_x86(double a)
 {
     double r;
     __asm__ (
@@ -63,11 +63,11 @@ inline double qsin_x86(double a)
         : "=t" (r) : "0" (a));
     return(r);
 }
-#define qsin qsin_x86
+#define qSin qSin_x86
 
 #else //GNU_CC && I386
 
-inline double qsincos(double a, bool calcCos=false)
+inline double qSinCos(double a, bool calcCos=false)
 {
     if (calcCos)                              // calculate cosine
         a -= Q_PI2;
@@ -92,17 +92,17 @@ inline double qsincos(double a, bool calcCos=false)
     double a11 = a9*a2;
     return (a-a3/6+a5/120-a7/5040+a9/362880-a11/39916800)*sign;
 }
-#define qsin(a) qsincos(a, false)
-#define qcos(a) qsincos(a, true)
+#define qSin(a) qSinCos(a, false)
+#define qCos(a) qSinCos(a, true)
 
 #endif
 #endif //WS_X11
 
-#ifndef qsin
-# define qsin sin
+#ifndef qSin
+# define qSin sin
 #endif
-#ifndef qcos
-# define qcos cos
+#ifndef qCos
+# define qCos cos
 #endif
 
 #endif // QMATH_P_H

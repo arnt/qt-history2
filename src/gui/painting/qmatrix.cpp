@@ -873,8 +873,8 @@ const double deg2rad = 0.017453292519943295769;        // pi/180
 QMatrix &QMatrix::rotate(double a)
 {
     double b = deg2rad*a;                        // convert to radians
-    double sina = qsin(b);                // fast and convenient
-    double cosa = qcos(b);
+    double sina = qSin(b);                // fast and convenient
+    double cosa = qCos(b);
     double tm11 = cosa*_m11 + sina*_m21;
     double tm12 = cosa*_m12 + sina*_m22;
     double tm21 = -sina*_m11 + cosa*_m21;
