@@ -14,12 +14,12 @@
 #ifndef BLOCKINGPROCESS_H
 #define BLOCKINGPROCESS_H
 
-#include <qprocess.h>
+#include <q3process.h>
 #include <qbytearray.h>
 
 class QEventLoop;
 
-class BlockingProcess : public QProcess
+class BlockingProcess : public Q3Process
 {
     Q_OBJECT
 

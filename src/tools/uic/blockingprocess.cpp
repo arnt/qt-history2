@@ -49,7 +49,7 @@ void BlockingProcess::exited()
 
 bool BlockingProcess::start(QStringList *env)
 {
-    bool returnValue = QProcess::start(env);
+    bool returnValue = Q3Process::start(env);
     if (returnValue)
         eventLoop->exec();
     return returnValue;
