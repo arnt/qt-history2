@@ -81,6 +81,10 @@ QSqlDriver *QSqlDriverPluginPrivate::create( const QString &key )
     return plugin->create( key );
 }
 
+/*!
+  Constructs a SQL driver plugin. This is invoked automatically by
+  the Q_EXPORT_PLUGIN macro.
+*/
 
 QSqlDriverPlugin::QSqlDriverPlugin()
 {
@@ -88,6 +92,12 @@ QSqlDriverPlugin::QSqlDriverPlugin()
     _iface = d;
 }
 
+/*!
+  Destroys the SQL driver plugin.
+
+  You never have to call this explicitly. Qt destroys a plugin
+  automatically when it is no longer used.
+*/
 QSqlDriverPlugin::~QSqlDriverPlugin()
 {
     // don't delete d, as this is deleted by d
