@@ -2,18 +2,17 @@
 # Qt Makefile - Meta Object Compiler (moc)
 #############################################################################
 
+####### BEGIN
+CFLAGS	=	-O2
+CC	=	gcc
+YACCCFLAGS = -Wno-unused -Wno-parentheses
+####### END
+
 ####### Extra Inlcude Directories
 
 INCPATH	= -I../tools
 
 ####### Compiler
-
-CFLAGS	=	-O2
-CC	=	gcc
-
-####### Extra flags for yacc-written code
-
-YACCCFLAGS = -Wno-unused -Wno-parentheses
 
 # $Source: /tmp/cvs/qt/src/moc/GNUmakefile,v $
 
