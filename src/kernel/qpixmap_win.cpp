@@ -90,6 +90,12 @@ private:
 static inline HDC alloc_mem_dc( HBITMAP hbm )
 {
     HDC hdc = CreateCompatibleDC( qt_display_dc() );
+    if ( !hdc ) {
+#if defined(QT_CHECK_NULL)
+	qSystemWarning( "alloc_mem_dc: CreateCompatibleDC failed!" );
+#endif
+	return hdc;
+    }
     if ( QColor::hPal() ) {
 	SelectPalette( hdc, QColor::hPal(), FALSE );
 	RealizePalette( hdc );
