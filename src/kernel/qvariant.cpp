@@ -417,7 +417,7 @@ QVariant::QVariant( const QCString& val )
 {
     d = new QVariantPrivate;
     d->typ = CString;
-    d->value.ptr = new QCString( val.copy() );
+    d->value.ptr = new QCString( val );
 }
 
 /*!
