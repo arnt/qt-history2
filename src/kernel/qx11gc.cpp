@@ -290,7 +290,7 @@ static void cleanup_gc_cache()
     qDebug( "Number of cache creates = %d", g_numcreates );
     qDebug( "Number of cache faults = %d", g_numfaults );
     for ( int i=0; i<gc_cache_size; i++ ) {
-        QCString    str;
+        QByteArray    str;
         QBuffer     buf( str );
         buf.open(IO_ReadWrite);
         QTextStream s(&buf);
@@ -614,6 +614,34 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 bool QX11GC::end()
 {
     setActive(false);
+    if ( d->pdev->devType() == QInternal::Widget  && 		// #####
+         ((QWidget*)d->pdev)->testWFlags(WPaintUnclipped) ) {
+        if ( d->gc )
+            XSetSubwindowMode( d->dpy, d->gc, ClipByChildren );
+        if ( d->gc_brush )
+            XSetSubwindowMode( d->dpy, d->gc_brush, ClipByChildren );
+    }
+
+    if ( d->gc_brush ) { // restore brush gc
+        if ( d->brushRef ) {
+            release_gc( d->brushRef );
+            d->brushRef = 0;
+        } else {
+            free_gc( d->dpy, d->gc_brush, testf(UsePrivateCx) );
+        }
+        d->gc_brush = 0;
+
+    }
+    if ( d->gc ) { // restore pen gc
+        if ( d->penRef ) {
+            release_gc( d->penRef );
+            d->penRef = 0;
+        } else {
+            free_gc( d->dpy, d->gc, testf(UsePrivateCx) );
+        }
+        d->gc = 0;
+    }
+
     return true;
 }
 
@@ -1556,14 +1584,6 @@ void QX11GC::updateClipRegion(QPainterState *ps)
     Q_ASSERT(isActive());
 
     clearf(ClipOn);
-    // ### Extremely expensive matr. mult. for every set call - what to do with that?
-    // if (m == CoordDevice)
-    //     crgn = rgn;
-    // else
-    //     crgn = xmat * rgn;
-//     if (ps->VxF || ps->WxF)
-// 	d->crgn = ps->worldMatrix * ps->clipRegion;
-//     else
     d->crgn = ps->clipRegion;
     if (ps->clipEnabled) {
  	if (d->pdev == paintEventDevice && paintEventClipRegion)
