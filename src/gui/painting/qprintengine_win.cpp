@@ -185,7 +185,6 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
     : QWin32PaintEngine(*(new QWin32PrintEnginePrivate), PaintEngineFeatures(PixmapTransform
                                                                              | PixmapScale
                                                                              | UsesFontEngine
-                                                                             | LinearGradientFill
                                                                              | AlphaFill
                                                                              | PainterPaths))
 {
@@ -196,26 +195,20 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
 }
 
 
-void QWin32PrintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
+void QWin32PrintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation operation)
 {
-    if (clipEnabled) {
-	qreal xscale = ((float)metric(QPaintDevice::PdmPhysicalDpiX)) /
-			((float)metric(QPaintDevice::PdmDpiX));
-	qreal yscale = ((float)metric(QPaintDevice::PdmPhysicalDpiY)) /
-			((float)metric(QPaintDevice::PdmDpiY));
-	qreal xoff = 0;
-	qreal yoff = 0;
-	if (d->fullPage) {	// must adjust for margins
-            xoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETX);
-            yoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETY);
-	}
-	QRegion rgn = clipRegion * QMatrix(xscale, 0, 0, yscale, xoff, yoff);
-	if (rgn.isEmpty())
-            rgn = QRect(-0x1000000, -0x1000000, 1, 1);
-        SelectClipRgn(d->hdc, rgn.handle());
-    } else {
-	SelectClipRgn(d->hdc, 0);
+    qreal xscale = ((float)metric(QPaintDevice::PdmPhysicalDpiX)) /
+                   ((float)metric(QPaintDevice::PdmDpiX));
+    qreal yscale = ((float)metric(QPaintDevice::PdmPhysicalDpiY)) /
+                   ((float)metric(QPaintDevice::PdmDpiY));
+    qreal xoff = 0;
+    qreal yoff = 0;
+    if (d->fullPage) {	// must adjust for margins
+        xoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETX);
+        yoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETY);
     }
+    QRegion rgn = clipRegion * QMatrix(xscale, 0, 0, yscale, xoff, yoff);
+    QWin32PaintEngine::updateClipRegion(clipRegion, operation);
 }
 
 bool QWin32PrintEngine::begin(QPaintDevice *dev)

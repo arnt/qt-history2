@@ -43,7 +43,7 @@ public:
     // override QWin32PaintEngine
     bool begin(QPaintDevice *dev);
     bool end();
-    void updateClipRegion(const QRegion &clip, bool clipEnabled);
+    void updateClipRegion(const QRegion &clip, Qt::ClipOperation operation);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void setProperty(PrintEnginePropertyKey key, const QVariant &value);
