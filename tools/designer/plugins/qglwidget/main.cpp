@@ -1,6 +1,5 @@
 #include "../designerinterface.h"
 
-#include <qapplication.h>
 #include <qcleanuphandler.h>
 
 #include "glwidget.h"
@@ -11,8 +10,8 @@ public:
     OpenGLWidgetInterface();
     ~OpenGLWidgetInterface();
 
-    bool connectNotify( QApplication* theApp );
-    bool disconnectNotify( QApplication* theApp );
+    bool connectNotify( QApplicationInterface* );
+    bool disconnectNotify();
 
     QString name() { return "QGLWidget"; }
     QString description() { return "Qt Designer plugin for the OpenGL widget"; }
@@ -40,12 +39,12 @@ OpenGLWidgetInterface::~OpenGLWidgetInterface()
 {
 }
 
-bool OpenGLWidgetInterface::connectNotify( QApplication* )
+bool OpenGLWidgetInterface::connectNotify( QApplicationInterface* )
 {
     return TRUE;
 }
 
-bool OpenGLWidgetInterface::disconnectNotify( QApplication* )
+bool OpenGLWidgetInterface::disconnectNotify()
 {
     if ( !objects.isClean() )
 	return FALSE;
