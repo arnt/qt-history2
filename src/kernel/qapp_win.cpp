@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#32 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#32 $")
 
 
 /*****************************************************************************
@@ -44,7 +44,7 @@ static bool	app_do_modal	= FALSE;	// modal mode
 static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 
 static QWidgetList *modal_stack = 0;		// stack of modal widgets
-QWidgetList    	   *popupWidgets= 0;		// list of popup widgets
+QWidgetList	   *popupWidgets= 0;		// list of popup widgets
 bool		    popupCloseDownMode = FALSE;
 
 typedef void  (*VFPTR)();
@@ -688,7 +688,7 @@ void QApplication::winFocus( QWidget *w, bool gotFocus )
 }
 
 
-// --------------------------------------------------------------------------
+//
 // WndProc() receives all messages from the main event loop
 //
 
@@ -710,6 +710,10 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
     QETWidget *widget = (QETWidget*)QWidget::find( hwnd );
     if ( !widget )				// don't know this widget
 	return DefWindowProc(hwnd,message,wParam,lParam);
+
+    if ( app_do_modal )				// modal event handling
+	if ( !qt_try_modal(widget, &msg) )
+	    continue;
 
     if ( widget->winEvent(&msg) )		// send through widget filter
 	return 0;
@@ -758,18 +762,26 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 	    }
 #endif
 
-#if !defined(STUPID_WINDOWS_NT)
 	case WM_ERASEBKGND: {			// erase window background
-	    HDC hdc = (HDC)wParam;
-	    RECT rect;
-	    HBRUSH hbr;
+	    HDC	    hdc = (HDC)wParam;
+	    RECT    rect;
+	    HBRUSH  brush;
 	    GetClientRect( hwnd, &rect );
-	    hbr = CreateSolidBrush( widget->backgroundColor().pixel() );
-	    FillRect( hdc, &rect, hbr );
-	    DeleteObject( hbr );
+	    if ( QColor::hPal() ) {
+		SelectPalette( hdc, QColor::hPal(), FALSE );
+		RealizePalette( hdc );
+	    }
+	    const QPixmap *bgpm = widget->backgroundPixmap();
+	    if ( bgpm )
+		brush = CreatePatternBrush( bgpm->hbm() );
+	    else
+		brush = CreateSolidBrush( widget->backgroundColor().pixel() );
+	    HBRUSH oldbr = SelectObject( hdc, brush );
+	    PatBlt( hdc, 0, 0, rect.right, rect.bottom, PATCOPY );
+	    SelectObject( hdc, oldbr );
+	    DeleteObject( brush );
 	    }
 	    break;
-#endif
 
 	case WM_MOVE:				// move window
 	case WM_SIZE:				// resize window
@@ -874,13 +886,13 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 	    QWidget *widget	A modal widget
  *****************************************************************************/
 
-bool qt_modal_state()				// application in modal state?
+bool qt_modal_state()
 {
     return app_do_modal;
 }
 
 
-void qt_enter_modal( QWidget *widget )		// enter modal state
+void qt_enter_modal( QWidget *widget )
 {
     if ( !modal_stack ) {			// create modal stack
 	modal_stack = new QWidgetList;
@@ -892,7 +904,7 @@ void qt_enter_modal( QWidget *widget )		// enter modal state
 }
 
 
-void qt_leave_modal( QWidget *widget )		// leave modal state
+void qt_leave_modal( QWidget *widget )
 {
     if ( modal_stack && modal_stack->removeRef(widget) ) {
 	if ( modal_stack->isEmpty() ) {
@@ -905,53 +917,28 @@ void qt_leave_modal( QWidget *widget )		// leave modal state
 }
 
 
-static bool qt_try_modal( QWidget *widget, void * )
+static bool qt_try_modal( QWidget *widget, MSG *msg )
 {
-    return TRUE;
-#if 0
-    bool     block_event  = FALSE;
-    bool     expose_event = FALSE;
-    QWidget *modal = 0;
+    if ( popupWidgets )				// popup widget mode
+	return TRUE;
 
-    switch ( event->type ) {
-	case ButtonPress:			// disallow mouse/key events
-	case ButtonRelease:
-	case MotionNotify:
-	case KeyPress:
-	case KeyRelease:
-	case ClientMessage:
-	    block_event	 = TRUE;
-	    break;
-	case Expose:
-	    expose_event = TRUE;
-	    break;
-    }
+    QWidget *modal=0, *top=modal_stack->getFirst();
 
+    widget = widget->topLevelWidget();
     if ( widget->testWFlags(WType_Modal) )	// widget is modal
 	modal = widget;
-    else {					// widget is not modal
-	while ( widget->parentWidget() ) {	// find overlapped parent
-	    if ( widget->testWFlags(WType_Overlap) )
-		break;
-	    widget = widget->parentWidget();
-	}
-	if ( widget->testWFlags(WType_Popup) )	// popups are ok
-	    return TRUE;
-	if ( widget->testWFlags(WType_Modal) )	// is it modal?
-	    modal = widget;
-    }
-
-    ASSERT( modal_stack && modal_stack->getFirst() );
-    QWidget *top = modal_stack->getFirst();
-
     if ( modal == top )				// don't block event
 	return TRUE;
 
-    if ( top->parentWidget() == 0 && (block_event || expose_event) )
-	XRaiseWindow( appDpy, top->id() );	// raise app-modal widget
+    bool block_event = FALSE;
+    int	 type  = msg->message;
+    
+    if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
+	 (type >= WM_KEYFIRST   && type <= WM_KEYLAST) ) {
+	block_event = TRUE;
+    }
 
     return !block_event;
-#endif
 }
 
 
@@ -969,7 +956,7 @@ static bool qt_try_modal( QWidget *widget, void * )
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
-void qt_open_popup( QWidget *popup )		// add popup widget
+void qt_open_popup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
@@ -982,7 +969,7 @@ void qt_open_popup( QWidget *popup )		// add popup widget
     }
 }
 
-void qt_close_popup( QWidget *popup )		// remove popup widget
+void qt_close_popup( QWidget *popup )
 {
     if ( !popupWidgets )
 	return;
@@ -999,45 +986,45 @@ void qt_close_popup( QWidget *popup )		// remove popup widget
 }
 
 
-// --------------------------------------------------------------------------
-// Timer handling; Our routines depend on Windows timer functions, but we
-// need some extra handling to activate objects at timeout.
-// We also keep an internal countdown variable to have longer timeouts.
-// Max timeout is around 25 days.  Windows is limited to max 65 seconds.
-//
-// Implementation note: There are two types of timer identifiers. Windows
-// timer ids (internal use) are stored in TimerInfo.  Qt timer ids are
-// indexes (+1) into the timerVec vector.
-//
-// NOTE: These functions are for internal use. QObject::startTimer() and
-//	 QObject::killTimer() are for public use.
-//	 The QTimer class provides a high-level interface which translates
-//	 timer events into signals.
-//
-// qStartTimer( interval, obj )
-//	Starts a timer which will run until it is killed with qKillTimer()
-//	Arguments:
-//	    long interval	timer interval in milliseconds
-//	    QObject *obj	where to send the timer event
-//	Returns:
-//	    int			timer identifier, or zero if not successful
-//
-// qKillTimer( timerId )
-//	Stops a timer specified by a timer identifier.
-//	Arguments:
-//	    int timerId		timer identifier
-//	Returns:
-//	    bool		TRUE if successful
-//
-// qKillTimer( obj )
-//	Stops all timers that are sent to the specified object.
-//	Arguments:
-//	    QObject *obj	object receiving timer events
-//	Returns:
-//	    bool		TRUE if successful
-//
+/*****************************************************************************
+  Timer handling; Our routines depend on Windows timer functions, but we
+  need some extra handling to activate objects at timeout.
+  We also keep an internal countdown variable to have longer timeouts.
+  Max timeout is around 25 days.  Windows is limited to max 65 seconds.
 
-// --------------------------------------------------------------------------
+  Implementation note: There are two types of timer identifiers. Windows
+  timer ids (internal use) are stored in TimerInfo.  Qt timer ids are
+  indexes (+1) into the timerVec vector.
+
+  NOTE: These functions are for internal use. QObject::startTimer() and
+	QObject::killTimer() are for public use.
+	The QTimer class provides a high-level interface which translates
+	timer events into signals.
+
+  qStartTimer( interval, obj )
+	Starts a timer which will run until it is killed with qKillTimer()
+	Arguments:
+	    long interval	timer interval in milliseconds
+	    QObject *obj	where to send the timer event
+	Returns:
+	    int			timer identifier, or zero if not successful
+
+  qKillTimer( timerId )
+	Stops a timer specified by a timer identifier.
+	Arguments:
+	    int timerId		timer identifier
+	Returns:
+	    bool		TRUE if successful
+
+  qKillTimer( obj )
+	Stops all timers that are sent to the specified object.
+	Arguments:
+	    QObject *obj	object receiving timer events
+	Returns:
+	    bool		TRUE if successful
+ *****************************************************************************/
+
+//
 // Internal data structure for timers
 //
 
@@ -1060,8 +1047,8 @@ static TimerVec *timerVec   = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict
 
 
-// --------------------------------------------------------------------------
-// Timer activation (called from the event loop)
+//
+// Timer activation (called from the event loop when WM_TIMER arrives)
 //
 
 static bool activateTimer( uint id )		// activate timer
@@ -1103,7 +1090,7 @@ static void activateZeroTimers()		// activate full-speed timers
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Timer initialization and cleanup routines
 //
 
@@ -1133,7 +1120,7 @@ static void cleanupTimers()			// remove pending timers
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Main timer functions for starting and killing timers
 //
 
@@ -1212,7 +1199,11 @@ bool qKillTimer( QObject *obj )			// kill timer(s) for obj
 }
 
 
-// --------------------------------------------------------------------------
+/*****************************************************************************
+  Event translation; translates Windows events to Qt events
+ *****************************************************************************/
+
+//
 // Mouse event translation
 //
 // Non-client mouse messages are not translated
@@ -1335,7 +1326,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Keyboard event translation
 //
 
@@ -1442,7 +1433,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg )
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Paint event translation
 //
 
@@ -1455,13 +1446,6 @@ bool QETWidget::translatePaintEvent( const MSG &msg )
     QPaintEvent e( r );
     setWFlags( WState_PaintEvent );
     hdc = BeginPaint( id(), &ps );
-#if defined(STUPID_WINDOWS_NT)
-    HBRUSH hbr;
-    GetClientRect( id(), &rect );
-    hbr = CreateSolidBrush( backgroundColor().pixel() );
-    FillRect( hdc, &rect, hbr );
-    DeleteObject( hbr );
-#endif
     QApplication::sendEvent( this, &e );
     EndPaint( id(), &ps );
     hdc = 0;
@@ -1470,7 +1454,7 @@ bool QETWidget::translatePaintEvent( const MSG &msg )
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Window move and resize (configure) events
 //
 
@@ -1510,7 +1494,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Close window event translation
 //
 
