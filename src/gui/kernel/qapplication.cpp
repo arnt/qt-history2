@@ -2745,7 +2745,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 d->toolTipWidget = w;
                 d->toolTipPos = relpos;
                 d->toolTipGlobalPos = mouse->globalPos();
-                d->toolTipWakeUp.start(d->toolTipFallAsleep.isActive()?1:700, this);
+                d->toolTipWakeUp.start(d->toolTipFallAsleep.isActive()?20:700, this);
             }
         }
 
