@@ -5,26 +5,9 @@
 TEMPLATE = app
 
 # Input
-HEADERS += qfont.h \
-           qfontdata_p.h \
-	   qfontengine_p.h \
-           qpainter.h \
-           qtextengine.h \
-           qtextlayout.h \
-           scriptengine.h \
-	   opentype.h \
-	editwidget.h
+HEADERS += editwidget.h
 
-SOURCES += qfont.cpp \
-	   qfont_x11.cpp \
-	   ../../src/kernel/qfontdatabase.cpp \
-	   qfontengine.cpp \
-           qpainter_x11.cpp \
-           qtextengine.cpp \
-           qtextlayout.cpp \
-	   scriptengine.cpp \
-	   opentype.cpp \
-           test.cpp editwidget.cpp
+SOURCES += test.cpp editwidget.cpp
 CONFIG += qt warn_on debug  thread create_prl link_prl
 OBJECTS_DIR=.obj/debug-shared-mt
 MOC_DIR=.moc/debug-shared-mt

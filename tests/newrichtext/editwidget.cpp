@@ -154,5 +154,5 @@ void EditWidget::recalculate()
 	}
     }
     d->layout->endLayout();
-    qDebug("layout took %dms (%dus/char)", t.elapsed(), t.elapsed()*1000/d->text.length() );
+    qDebug("layout took %dms (%dus/char)", t.elapsed(), t.elapsed()*1000/QMAX(d->text.length(),1) );
 }

@@ -46,15 +46,15 @@ const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,
 
 
 // mixed
-const char *s =
-"Thai: ทำไมเขาถึงไม่พูด "
-"Syriac: ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
-"Arabic: أوروبا, برمجيات الحاسوب "
-"Hebrew: תוכנה והאינטרנט "
-"Devanagari: रूस के राष्ट्रपति "
-"Bengali: অাবার অাসিব ফিরে "
-"Vietnamese: Tại sao họ không thể chỉ nói tiệ̣̣́ng "
-;
+// const char *s =
+// "Thai: ทำไมเขาถึงไม่พูด "
+// "Syriac: ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
+// "Arabic: أوروبا, برمجيات الحاسوب "
+// "Hebrew: תוכנה והאינטרנט "
+// "Devanagari: रूस के राष्ट्रपति "
+// "Bengali: অাবার অাসিব ফিরে "
+// "Vietnamese: Tại sao họ không thể chỉ nói tiệ̣̣́ng "
+// ;
 
 // latin
 // const char *s =
@@ -63,7 +63,7 @@ const char *s =
 
 
 
-// const char *s = "";
+const char *s = "";
 
 int main( int argc, char **argv )
 {
@@ -112,11 +112,11 @@ int main( int argc, char **argv )
     return 0;
 #endif
 
-    QFontMetrics( f ).boundingRect( 0, 0, 50000, 1000, Qt::SingleLine, QString::fromUtf8( s ) );
-    QTime t;
-    t.start();
-    QFontMetrics( f ).boundingRect( 0, 0, 50000, 1000, Qt::WordBreak, QString::fromUtf8( s ) );
-    qDebug("fm.boundingrect(%d) took %dms (%dus/char)", QString::fromUtf8( s ).length(), t.elapsed(), t.elapsed()*1000/QString::fromUtf8( s ).length() );
+//     QFontMetrics( f ).boundingRect( 0, 0, 50000, 1000, Qt::SingleLine, QString::fromUtf8( s ) );
+//     QTime t;
+//     t.start();
+//     QFontMetrics( f ).boundingRect( 0, 0, 50000, 1000, Qt::WordBreak, QString::fromUtf8( s ) );
+//     qDebug("fm.boundingrect(%d) took %dms (%dus/char)", QString::fromUtf8( s ).length(), t.elapsed(), t.elapsed()*1000/QString::fromUtf8( s ).length() );
 
     EditWidget *w = new EditWidget( 0, 0 );
     w->setText( QString::fromUtf8( s ) );
