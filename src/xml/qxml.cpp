@@ -1456,6 +1456,12 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
 */
 
 /*!
+    \fn QXmlContentHandler::~QXmlContentHandler()
+
+    Destroys the content handler.
+*/
+
+/*!
     \fn void QXmlContentHandler::setDocumentLocator(QXmlLocator* locator)
 
     The reader calls this function before it starts parsing the
@@ -1682,6 +1688,12 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
 */
 
 /*!
+    \fn QXmlErrorHandler::~QXmlErrorHandler()
+
+    Destroys the error handler.
+*/
+
+/*!
     \fn bool QXmlErrorHandler::warning(const QXmlParseException& exception)
 
     A reader might use this function to report a warning. Warnings are
@@ -1754,6 +1766,12 @@ events are reported.
 */
 
 /*!
+    \fn QXmlDTDHandler::~QXmlDTDHandler()
+
+    Destroys the DTD handler.
+*/
+
+/*!
     \fn bool QXmlDTDHandler::notationDecl(const QString& name, const QString& publicId, const QString& systemId)
 
     The reader calls this function when it has parsed a notation
@@ -1810,6 +1828,12 @@ events are reported.
 
     \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlErrorHandler
     QXmlLexicalHandler
+*/
+
+/*!
+    \fn QXmlEntityResolver::~QXmlEntityResolver()
+
+    Destroys the entity resolver.
 */
 
 /*!
@@ -1871,6 +1895,12 @@ events are reported.
 
     \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
     QXmlErrorHandler
+*/
+
+/*!
+    \fn QXmlLexicalHandler::~QXmlLexicalHandler()
+
+    Destroys the lexical handler.
 */
 
 /*!
@@ -2012,6 +2042,12 @@ events are reported.
 
     \sa QXmlDTDHandler QXmlContentHandler QXmlEntityResolver QXmlErrorHandler
     QXmlLexicalHandler
+*/
+
+/*!
+    \fn QXmlDeclHandler::~QXmlDeclHandler()
+
+    Destroys the declaration handler.
 */
 
 /*!
@@ -2534,6 +2570,12 @@ void QXmlSimpleReaderPrivate::initIncrementalParsing()
     parse().
 
     \sa QXmlSimpleReader
+*/
+
+/*!
+    \fn QXmlReader::~QXmlReader()
+
+    Destroys the reader.
 */
 
 /*!
