@@ -273,6 +273,8 @@ struct QX11Data
     // client leader window
     Window wm_client_leader;
 
+    int *dpisX;
+    int *dpisY;
 
     /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
     enum X11Atom {

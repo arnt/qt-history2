@@ -2,6 +2,7 @@
 #include "qpixmap.h"
 #include <private/qpaintengine_x11_p.h>
 #include "qx11info_x11.h"
+#include "qt_x11_p.h"
 
 Display *QX11Info::x_appdisplay;
 int QX11Info::x_appscreen;
@@ -12,28 +13,6 @@ Qt::HANDLE *QX11Info::x_appcolormap_arr;
 bool *QX11Info::x_appdefcolormap_arr;
 void **QX11Info::x_appvisual_arr;
 bool *QX11Info::x_appdefvisual_arr;
-
-static int *dpisX = 0, *dpisY = 0;
-
-static void create_dpis()
-{
-    if (dpisX)
-        return;
-
-    Display *dpy = QX11Info::appDisplay();
-    if (!dpy)
-        return;
-
-    int i, screens =  ScreenCount(dpy);
-    dpisX = new int[screens]; // ### leak
-    dpisY = new int[screens];
-    for (i = 0; i < screens; i++) {
-        dpisX[i] = (DisplayWidth(dpy,i) * 254 + DisplayWidthMM(dpy,i)*5)
-                   / (DisplayWidthMM(dpy,i)*10);
-        dpisY[i] = (DisplayHeight(dpy,i) * 254 + DisplayHeightMM(dpy,i)*5)
-                   / (DisplayHeightMM(dpy,i)*10);
-    }
-}
 
 QX11Info::QX11Info()
     : x11data(0)
@@ -140,48 +119,36 @@ QX11InfoData* QX11Info::getX11Data(bool def) const
 
 int QX11Info::appDpiX(int screen)
 {
-    create_dpis();
-    if (!dpisX)
-        return 0;
     if (screen < 0)
         screen = QX11Info::appScreen();
     if (screen > ScreenCount(QX11Info::appDisplay()))
         return 0;
-    return dpisX[screen];
+    return X11->dpisX[screen];
 }
 
 void QX11Info::setAppDpiX(int screen, int xdpi)
 {
-    create_dpis();
-    if (!dpisX)
-        return;
     if (screen < 0)
         screen = QX11Info::appScreen();
     if (screen > ScreenCount(QX11Info::appDisplay()))
         return;
-    dpisX[screen] = xdpi;
+    X11->dpisX[screen] = xdpi;
 }
 
 int QX11Info::appDpiY(int screen)
 {
-    create_dpis();
-    if (!dpisY)
-        return 0;
     if (screen < 0)
         screen = QX11Info::appScreen();
     if (screen > ScreenCount(QX11Info::appDisplay()))
         return 0;
-    return dpisY[screen];
+    return X11->dpisY[screen];
 }
 
 void QX11Info::setAppDpiY(int screen, int ydpi)
 {
-    create_dpis();
-    if (!dpisY)
-        return;
     if (screen < 0)
         screen = QX11Info::appScreen();
     if (screen > ScreenCount(QX11Info::appDisplay()))
         return;
-    dpisY[screen] = ydpi;
+    X11->dpisY[screen] = ydpi;
 }

@@ -1397,6 +1397,8 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->net_supported_list = 0;
     X11->net_virtual_root_list = 0;
     X11->wm_client_leader = 0;
+    X11->dpisX = 0;
+    X11->dpisY = 0;
 
     if (display) {
         // Qt part of other application
@@ -1567,6 +1569,16 @@ void qt_init(QApplicationPrivate *priv, int,
 
         appScreen = DefaultScreen(X11->display);
         appScreenCount = ScreenCount(X11->display);
+
+        int screens =  ScreenCount(X11->display);
+        X11->dpisX = new int[screens];
+        X11->dpisY = new int[screens];
+        for (int i = 0; i < screens; i++) {
+            X11->dpisX[i] = (DisplayWidth(X11->display,i) * 254 + DisplayWidthMM(X11->display,i)*5)
+                            / (DisplayWidthMM(X11->display,i)*10);
+            X11->dpisY[i] = (DisplayHeight(X11->display,i) * 254 + DisplayHeightMM(X11->display,i)*5)
+                            / (DisplayHeightMM(X11->display,i)*10);
+        }
 
         QX11Info::x_appdisplay = X11->display;
         QX11Info::x_appscreen = appScreen;
@@ -2176,6 +2188,9 @@ void qt_cleanup()
         delete [] QX11Info::x_appvisual_arr;
     if (QX11Info::x_appdefvisual_arr)
         delete [] QX11Info::x_appdefvisual_arr;
+
+    delete [] X11->dpisX;
+    delete [] X11->dpisY;
 
     if (X11->foreignDisplay) {
         delete [] (char *)appName;
