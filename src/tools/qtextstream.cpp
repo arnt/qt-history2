@@ -1433,7 +1433,7 @@ QString QTextStream::readLine()
 	return QString::null;
 
     QString result( "" );
-    while ( c != QEOF && c != '\n' && c != 0x2028 ) { // U+2028 is Unicode newline
+    while ( c != QEOF && c != '\n' ) { // ##### reggie: breaks some code:  && c != 0x2028 ) { // U+2028 is Unicode newline
 	result += c;
 	c = ts_getc();
     }
