@@ -6,7 +6,7 @@ int QTextBlockIterator::position() const
     if (!pt || !n)
 	return 0;
 
-    return pt->blockMap().key(n);
+    return pt->blockMap().position(n);
 }
 
 int QTextBlockIterator::length() const
@@ -22,7 +22,7 @@ bool QTextBlockIterator::contains(int position) const
     if (!pt || !n)
 	return 0;
 
-    int pos = pt->blockMap().key(n);
+    int pos = pt->blockMap().position(n);
     int len = pt->blockMap().size(n);
     return position >= pos && position < pos + len;
 }
@@ -88,7 +88,7 @@ QTextCharFormat QTextBlockIterator::charFormat() const
 	return QTextFormat().toCharFormat();
 
     const QTextPieceTable::FragmentMap &fm = pt->fragmentMap();
-    return pt->formatCollection()->charFormat(fm.fragment(fm.findNode(pt->blockMap().key(n)))->format);
+    return pt->formatCollection()->charFormat(fm.fragment(fm.findNode(pt->blockMap().position(n)))->format);
 }
 
 QString QTextBlockIterator::blockText() const

@@ -225,7 +225,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
 	QTextPieceTable::FragmentIterator it = pieceTable->find(pos);
 	const QTextFragment *ptFragment = it.value();
 
-	int offset = qMax(0, pos - it.key());
+	int offset = qMax(0, pos - it.position());
 
 	int size = qMin(int(ptFragment->size - offset), endPos - pos);
 	int position = ptFragment->stringPosition + offset;

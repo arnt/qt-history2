@@ -165,13 +165,13 @@ void QTextCursorPrivate::adjustCursor(int dir)
 
     // first adjust position if needed
     if (t_position) {
-	int t_position_start = t_position->start().key();
-	int t_position_end = t_position->end().key();
+	int t_position_start = t_position->start().position();
+	int t_position_end = t_position->end().position();
 	bool anchor_in_table = false;
 	bool anchor_in_cell = false;
 	if (t_anchor) {
-	    int t_anchor_start = t_anchor->start().key();
-	    int t_anchor_end = t_anchor->end().key();
+	    int t_anchor_start = t_anchor->start().position();
+	    int t_anchor_end = t_anchor->end().position();
 	    if (t_anchor_start >= t_position_start && t_anchor_end <= t_position_end) {
 		anchor_in_table = true;
 		if (t_position->cellStart(anchor) == t_position->cellStart(position))
@@ -183,21 +183,21 @@ void QTextCursorPrivate::adjustCursor(int dir)
 	    position = (dir & AdjustPrev) ? t_position_start : t_position_end + 1;
 	} else if (!anchor_in_cell) {
 	    if (dir & AdjustPrev)
-		position = t_position->cellStart(position).key() + 1;
+		position = t_position->cellStart(position).position() + 1;
 	    else
-		position = t_position->cellEnd(position).key();
+		position = t_position->cellEnd(position).position();
 	}
     }
 
     adjusted_anchor = anchor;
     if (t_anchor) {
-	int t_anchor_start = t_anchor->start().key();
-	int t_anchor_end = t_anchor->end().key();
+	int t_anchor_start = t_anchor->start().position();
+	int t_anchor_end = t_anchor->end().position();
 	bool position_in_table = false;
 	bool position_in_cell = false;
 	if (t_position) {
-	    int t_position_start = t_position->start().key();
-	    int t_position_end = t_position->end().key();
+	    int t_position_start = t_position->start().position();
+	    int t_position_end = t_position->end().position();
 	    if (t_position_start >= t_anchor_start && t_position_end <= t_anchor_end) {
 		position_in_table = true;
 		if (t_anchor->cellStart(anchor) == t_anchor->cellStart(position))
@@ -209,9 +209,9 @@ void QTextCursorPrivate::adjustCursor(int dir)
 	    adjusted_anchor = (dir == AdjustPrev) ? t_anchor_start : t_anchor_end + 1;
 	} else if (!position_in_cell) {
 	    if (dir & AdjustPrev)
-		adjusted_anchor = t_anchor->cellStart(anchor).key() + 1;
+		adjusted_anchor = t_anchor->cellStart(anchor).position() + 1;
 	    else
-		adjusted_anchor = t_anchor->cellEnd(anchor).key();
+		adjusted_anchor = t_anchor->cellEnd(anchor).position();
 	}
     }
 }

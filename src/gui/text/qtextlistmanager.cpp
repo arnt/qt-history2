@@ -72,7 +72,7 @@ void QTextListManager::formatChanged(int position, int length)
 	// already gone
 	removeListEntry(0, blockIt);
 
-	blockChanged(blockIt.key(), QText::Insert);
+	blockChanged(blockIt.position(), QText::Insert);
     }
 }
 

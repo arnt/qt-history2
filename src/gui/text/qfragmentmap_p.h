@@ -51,7 +51,7 @@ public:
 	return !fragment(index)->parent;
     }
 
-    inline uint key(uint node) const {
+    inline uint position(uint node) const {
 	const QFragment *f = fragment(node);
 	uint offset = f->size_left;
 	while (f->parent) {
@@ -169,12 +169,12 @@ public:
 
 	bool operator==(const Iterator& it) const { return pt == it.pt && n == it.n; }
 	bool operator!=(const Iterator& it) const { return pt != it.pt || n != it.n; }
-	bool operator<(const Iterator &it) const { return key() < it.key(); }
+	bool operator<(const Iterator &it) const { return position() < it.position(); }
 
 	T *operator*() { Q_ASSERT(!atEnd()); return pt->fragment(n); }
 	const T *operator*() const { Q_ASSERT(!atEnd()); return pt->fragment(n); }
 
-	int key() const { Q_ASSERT(!atEnd()); return pt->data.key(n); }
+	int position() const { Q_ASSERT(!atEnd()); return pt->data.position(n); }
 	const T *value() const { Q_ASSERT(!atEnd()); return pt->fragment(n); }
 	T *value() { Q_ASSERT(!atEnd()); return pt->fragment(n); }
 
@@ -208,11 +208,11 @@ public:
 
 	bool operator==(const ConstIterator& it) const { return pt == it.pt && n == it.n; }
 	bool operator!=(const ConstIterator& it) const { return pt != it.pt || n != it.n; }
-	bool operator<(const ConstIterator &it) const { return key() < it.key(); }
+	bool operator<(const ConstIterator &it) const { return position() < it.position(); }
 
 	const T *operator*()  const { Q_ASSERT(!atEnd()); return pt->fragment(n); }
 
-	int key() const { Q_ASSERT(!atEnd()); return pt->data.key(n); }
+	int position() const { Q_ASSERT(!atEnd()); return pt->data.position(n); }
 	int size() const { Q_ASSERT(!atEnd()); return pt->data.size(n); }
 	const T *value() const { Q_ASSERT(!atEnd()); return pt->fragment(n); }
 
@@ -276,7 +276,7 @@ public:
 	Q_ASSERT(index != 0);
 	return static_cast<const T *>(data.fragment(index));
     }
-    inline uint key(uint node) const { return data.key(node); }
+    inline uint position(uint node) const { return data.position(node); }
     inline uint next(uint n) const { return data.next(n); }
     inline uint prev(uint n) const { return data.prev(n); }
     inline uint size(uint node) const { return data.size(node); }

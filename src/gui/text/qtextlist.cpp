@@ -99,7 +99,7 @@ QTextCursor QTextList::item(int i) const
     if (i < 0 || i >= d->blocks.count())
 	return QTextCursor();
 
-    return QTextCursor(tbl, d->blocks.at(i).key() + 1);
+    return QTextCursor(tbl, d->blocks.at(i).position() + 1);
 }
 
 /*!

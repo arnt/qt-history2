@@ -116,7 +116,7 @@ int QAbstractTextDocumentLayout::BlockIterator::formatIndex() const
     if (atEnd())
 	return -1;
 
-    QTextPieceTable::FragmentIterator it = pt->find(pt->blockMap().key(block));
+    QTextPieceTable::FragmentIterator it = pt->find(pt->blockMap().position(block));
     Q_ASSERT(!it.atEnd());
 
     return it.value()->format;
@@ -124,7 +124,7 @@ int QAbstractTextDocumentLayout::BlockIterator::formatIndex() const
 
 int QAbstractTextDocumentLayout::BlockIterator::position() const
 {
-    return pt->blockMap().key(block);
+    return pt->blockMap().position(block);
 }
 
 int QAbstractTextDocumentLayout::BlockIterator::length() const
@@ -135,7 +135,7 @@ int QAbstractTextDocumentLayout::BlockIterator::length() const
 bool QAbstractTextDocumentLayout::BlockIterator::operator<(const BlockIterator &it) const
 {
     Q_ASSERT(pt == it.pt);
-    return pt->blockMap().key(block) < pt->blockMap().key(it.block);
+    return pt->blockMap().position(block) < pt->blockMap().position(it.block);
 }
 
 QAbstractTextDocumentLayout::BlockIterator& QAbstractTextDocumentLayout::BlockIterator::operator++()

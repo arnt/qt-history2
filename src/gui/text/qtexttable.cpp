@@ -34,7 +34,7 @@ QTextTableCellProperties::QTextTableCellProperties(const QTextTablePrivate *p, i
 	: r(row), c(col)
 {
     // + 1, see comment in QTextTable::start() why
-    s = QTextCursor(p->pieceTable, p->cellAt(r, c).key());
+    s = QTextCursor(p->pieceTable, p->cellAt(r, c).position());
 
     QTextBlockIterator b = p->cellAt(r, col++);
     while (b == p->cellAt(r, col))
@@ -48,10 +48,10 @@ QTextTableCellProperties::QTextTableCellProperties(const QTextTablePrivate *p, i
 	if (p->end().atEnd())
 	    endPos = p->pieceTable->length();
 	else
-	    endPos = p->end().key();
+	    endPos = p->end().position();
     }
     else {
-	endPos = p->rowList.at(r).at(col).key();
+	endPos = p->rowList.at(r).at(col).position();
     }
     e = QTextCursor(p->pieceTable, endPos);
 
@@ -175,7 +175,7 @@ QTextTableCellProperties QTextTable::cellAt(const QTextCursor &c) const
 	const QTextTablePrivate::Row &r = d->rowList.at(row);
 	for (int j = r.size()-1; j >= 0; --j) {
 	    QTextBlockIterator cell = r.at(j);
-	    if (cell.key() < c.position())
+	    if (cell.position() < c.position())
 		return QTextTableCellProperties(d, row, j);
 	}
 	Q_ASSERT(false);
@@ -222,9 +222,9 @@ void QTextTable::insertRows(int pos, int num)
     if (pos > 0) {
 	const QTextTablePrivate::Row &row = d->rowList[pos-1];
 	QTextBlockIterator eor = row.last();
-	cursorPos = eor.key()+1;
+	cursorPos = eor.position()+1;
     } else {
-	cursorPos = d->rowList.at(0).at(0).key();
+	cursorPos = d->rowList.at(0).at(0).position();
     }
 
     for (int i = 0; i < num; ++i) {
@@ -256,7 +256,7 @@ void QTextTable::insertCols(int pos, int num)
     for (int i = 0; i < nRows; ++i) {
 	QTextTablePrivate::Row &row = d->rowList[i];
 	QTextBlockIterator cell = row[pos];
-	int cursorPos = cell.key();
+	int cursorPos = cell.position();
 	for (int j = 0; j < num; ++j)
 	    d->pieceTable->insertBlock(cursorPos+j, d->cell_idx, d->pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
     }
@@ -282,10 +282,10 @@ void QTextTable::removeRows(int pos, int num)
 
     QTextTablePrivate::Row &row = d->rowList[pos];
     QTextBlockIterator bit = row[0];
-    int from = bit.key();
+    int from = bit.position();
     row = d->rowList[pos+num-1];
     bit = row.last();
-    int end = bit.key();
+    int end = bit.position();
 
     d->pieceTable->remove(from, end-from+1);
 
@@ -312,10 +312,10 @@ void QTextTable::removeCols(int pos, int num)
     for (int i = 0; i < nRows; ++i) {
 	QTextTablePrivate::Row &row = d->rowList[i];
 	QTextBlockIterator bit = row[pos];
-	int from = bit.key();
+	int from = bit.position();
 	bit = row[pos+num-1];
 	++bit;
-	int end = bit.key();
+	int end = bit.position();
 
 	d->pieceTable->remove(from, end-from);
     }
@@ -347,7 +347,7 @@ void QTextTable::setRowSpan(int row, int col, int rowspan)
 {
     QTextBlockFormat modifier;
     modifier.setTableCellRowSpan(rowspan);
-    d->pieceTable->setBlockFormat(d->cellAt(row, col).key(), 1, modifier, QTextPieceTable::MergeFormat);
+    d->pieceTable->setBlockFormat(d->cellAt(row, col).position(), 1, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!
@@ -357,7 +357,7 @@ void QTextTable::setColSpan(int row, int col, int colspan)
 {
     QTextBlockFormat modifier;
     modifier.setTableCellColSpan(colspan);
-    d->pieceTable->setBlockFormat(d->cellAt(row, col).key(), 1, modifier, QTextPieceTable::MergeFormat);
+    d->pieceTable->setBlockFormat(d->cellAt(row, col).position(), 1, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!
@@ -365,7 +365,7 @@ void QTextTable::setColSpan(int row, int col, int colspan)
 */
 QTextCursor QTextTable::rowStart(const QTextCursor &c) const
 {
-    return QTextCursor(d->pieceTable, d->rowStart(c.position()).key());
+    return QTextCursor(d->pieceTable, d->rowStart(c.position()).position());
 }
 
 /*!
@@ -373,7 +373,7 @@ QTextCursor QTextTable::rowStart(const QTextCursor &c) const
 */
 QTextCursor QTextTable::rowEnd(const QTextCursor &c) const
 {
-    return QTextCursor(d->pieceTable, d->rowEnd(c.position()).key());
+    return QTextCursor(d->pieceTable, d->rowEnd(c.position()).position());
 }
 
 /*!
@@ -381,7 +381,7 @@ QTextCursor QTextTable::rowEnd(const QTextCursor &c) const
 */
 QTextCursor QTextTable::start() const
 {
-    return QTextCursor(d->pieceTable, d->start().key());
+    return QTextCursor(d->pieceTable, d->start().position());
 }
 
 /*!
@@ -389,7 +389,7 @@ QTextCursor QTextTable::start() const
 */
 QTextCursor QTextTable::end() const
 {
-    return QTextCursor(d->pieceTable, d->end().key());
+    return QTextCursor(d->pieceTable, d->end().position());
 }
 
 /*!

@@ -39,11 +39,11 @@ QTextTable *QTextTableManager::tableAt(int docPos) const
     QTextTable *table = 0;
     for (; it != tables.constEnd(); ++it) {
 	const QList<QTextTablePrivate::Row> &rows = (*it)->d->rowList;
-	int ts = rows[0][0].key();
+	int ts = rows[0][0].position();
 	if (ts <= docPos && ts > pos) {
 	    QTextTablePrivate::Row r = rows.last();
 	    QTextBlockIterator tend = r.last();
-	    if (tend.key() >= docPos) {
+	    if (tend.position() >= docPos) {
 		pos = ts;
 		table = (*it);
 	    }
@@ -169,21 +169,21 @@ static bool operator<(int cursorPos, const QTextTablePrivate::Row &row)
 {
     if (row.isEmpty())
 	return false;
-    return cursorPos < row.first().key();
+    return cursorPos < row.first().position();
 }
 
 static bool operator<(const QTextTablePrivate::Row &row, int cursorPos)
 {
     if (row.isEmpty())
 	return false;
-    return row.last().key() < cursorPos;
+    return row.last().position() < cursorPos;
 }
 
 static bool operator<(int cursorPos, const QTextBlockIterator &cell)
 {
     if (cell.atEnd())
 	return false;
-    return cursorPos < cell.key();
+    return cursorPos < cell.position();
 }
 
 /* unused, currently
@@ -191,7 +191,7 @@ static bool operator<(const QTextBlockIterator &cell, int cursorPos)
 {
     if (cell.atEnd())
 	return false;
-    return cell.key() < cursorPos;
+    return cell.position() < cursorPos;
 }
 */
 
@@ -209,10 +209,10 @@ int QTextTablePrivate::rowAt(int cursor) const
     for (int i = 0; i < rowList.count(); ++i) {
 	const Row &r = rowList.at(i);
 	QTextBlockIterator rowEnd = r.last();
-	qDebug() << "    " << i << ": " << r.first().key() << "-" << r.last().key();
-	if (rowEnd.key() >= cursor) {
+	qDebug() << "    " << i << ": " << r.first().position() << "-" << r.last().position();
+	if (rowEnd.position() >= cursor) {
 	    QTextBlockIterator rowStart = r.first();
-	    if (rowStart.key() <= cursor)
+	    if (rowStart.position() <= cursor)
 		return i;
 	}
     }
@@ -227,7 +227,7 @@ QTextBlockIterator QTextTablePrivate::cellStart(int cursor) const
 	const Row &r = rowList.at(row);
 	for (int j = r.size()-1; j >= 0; --j) {
 	    QTextBlockIterator cell = r.at(j);
-	    if (cell.key() < cursor)
+	    if (cell.position() < cursor)
 		return cell;
 	}
 	Q_ASSERT(false);
@@ -242,7 +242,7 @@ QTextBlockIterator QTextTablePrivate::cellEnd(int cursor) const
 	const Row &r = rowList.at(row);
 	for (int j = 0; j < r.size(); ++j) {
 	    QTextBlockIterator cell = r.at(j);
-	    if (cell.key() >= cursor)
+	    if (cell.position() >= cursor)
 		return cell;
 	}
 	Q_ASSERT(false);
@@ -345,8 +345,8 @@ static void checkRowList(const QList<QTextTablePrivate::Row> &rowList)
 	const QTextTablePrivate::Row &r = rowList.at(i);
 	for (int j = 0; j < r.size(); ++j) {
 	    QTextBlockIterator bi = r.at(j);
-	    Q_ASSERT(bi.key() > pos);
-	    pos = bi.key();
+	    Q_ASSERT(bi.position() > pos);
+	    pos = bi.position();
 	    QTextBlockFormat fmt = bi.blockFormat();
 	    if (table.isValid())
 		table = fmt.tableFormat();
@@ -360,7 +360,7 @@ static void checkRowList(const QList<QTextTablePrivate::Row> &rowList)
 
 void QTextTablePrivate::addCell(QTextBlockIterator it)
 {
-//     qDebug("addCell at %d", it.key());
+//     qDebug("addCell at %d", it.position());
     if (isEmpty()) {
 	Row r;
 	r.append(it);
@@ -374,9 +374,9 @@ void QTextTablePrivate::addCell(QTextBlockIterator it)
 	QTextBlockFormat fmt = it.blockFormat();
 
 	bool eor = fmt.tableCellEndOfRow();
-	const int position = it.key();
+	const int position = it.position();
 
-// 	qDebug() << "position" << position << "end" << end().key();
+// 	qDebug() << "position" << position << "end" << end().position();
 
 	/*
 	 * This assertion can't be fullfilled anymore, when incrementally
@@ -387,7 +387,7 @@ void QTextTablePrivate::addCell(QTextBlockIterator it)
 	 * cell content then end returns a block pointer pointing into the
 	 * second block of the last cell.
 	 */
-	//Q_ASSERT(position <= end().key());
+	//Q_ASSERT(position <= end().position());
 
 	if (eor) {
 	    if (eor_idx == -1)
@@ -397,7 +397,7 @@ void QTextTablePrivate::addCell(QTextBlockIterator it)
 
 	int row = 0;
 	int cell = 0;
-	if (position > start().key()) {
+	if (position > start().position()) {
 
 	    RowList::ConstIterator rowIt = qLowerBound(rowList.begin(), rowList.end(), position);
 	    if (rowIt == rowList.end()) {
@@ -441,15 +441,15 @@ void QTextTablePrivate::addCell(QTextBlockIterator it)
 
 void QTextTablePrivate::removeCell(QTextBlockIterator it)
 {
-//     qDebug() << "removeCell" << it.key();
+//     qDebug() << "removeCell" << it.position();
     QTextBlockFormat fmt = it.blockFormat();
 
     bool eor = fmt.tableCellEndOfRow();
-    int position = it.key();
+    int position = it.position();
 
     int row = rowList.size()-1;
     while (row >= 0) {
-	if (rowList.at(row).first().key() <= position)
+	if (rowList.at(row).first().position() <= position)
 	    break;
 	--row;
     }
@@ -459,7 +459,7 @@ void QTextTablePrivate::removeCell(QTextBlockIterator it)
     int cell = 0;
     for (; cell < r.size(); ++cell) {
 	QTextBlockIterator c = r.at(cell);
-	if (c.key() == position)
+	if (c.position() == position)
 	    break;
     }
 //     qDebug() << "row="<<row<<"cell="<<cell;
@@ -470,7 +470,7 @@ void QTextTablePrivate::removeCell(QTextBlockIterator it)
 
 	// need to remove a row
 	Row &r = rowList[row];
-	Q_ASSERT(it.key() == r.last().key());
+	Q_ASSERT(it.position() == r.last().position());
 	r.removeLast();
 	if (row+1 < rowList.size()) {
 	    const Row &oldRow = rowList.at(row+1);

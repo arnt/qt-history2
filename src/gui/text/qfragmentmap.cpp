@@ -501,7 +501,7 @@ uint QFragmentMapData::findNode(int k) const
 
 uint QFragmentMapData::insert_single(int key, uint length)
 {
-    Q_ASSERT(!findNode(key) || (int)this->key(findNode(key)) == key);
+    Q_ASSERT(!findNode(key) || (int)this->position(findNode(key)) == key);
 
     uint z = createFragment();
 
