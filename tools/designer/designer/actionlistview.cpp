@@ -25,9 +25,9 @@
 ActionListView::ActionListView( QWidget *parent, const char *name )
     : QListView( parent, name )
 {
-    header()->setStretchEnabled( TRUE );
+    setShowSortIndicator( TRUE );
+    setResizeMode( LastColumn );
     setRootIsDecorated( TRUE );
-    setSorting( -1 );
     connect( this, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint &, int ) ),
 	     this, SLOT( rmbMenu( QListViewItem *, const QPoint & ) ) );
 }
