@@ -331,7 +331,7 @@ QSize QToolButton::sizeHint() const
 	    w = tw;
     }
     if ( d->popup && !d->delay )
-	w += 15;
+	w += 20;
 #ifdef Q_WS_QWS // ###### should be style option
     return QSize( w+4, h ).expandedTo( QApplication::globalStrut() );
 #else
@@ -486,7 +486,7 @@ void QToolButton::drawButtonLabel( QPainter * p )
     int x, y, w, h;
     style().toolButtonRect(0, 0, width(), height() ).rect( &x, &y, &w, &h );
     if ( d->popup && !d->delay )
-	w -= 10;
+	w -= 20;
     if (isDown() || (isOn()&&!son) ) {
 	style().getButtonShift(sx, sy);
 	x+=sx;
@@ -538,8 +538,8 @@ void QToolButton::drawButtonLabel( QPainter * p )
     if ( d->popup && !d->delay ) {
 	bool sunken = ( isOn() && !son ) || isDown();
 	if ( sunken || uses3D() )
-	    style().drawSeparator( p, w+1, y+style().defaultFrameWidth(), w+1, y+h-2*style().defaultFrameWidth(), colorGroup() );
-	style().drawArrow( p, Qt::DownArrow, FALSE, w+2, y, 13, h, colorGroup(), TRUE );
+	    style().drawSeparator( p, w+5, y+style().defaultFrameWidth(), w+5, y+h-2*style().defaultFrameWidth(), colorGroup() );
+	style().drawArrow( p, Qt::DownArrow, FALSE, w+7, y+style().defaultFrameWidth(), 14, h-2*style().defaultFrameWidth(), colorGroup(), TRUE );
     }
 }
 
@@ -587,7 +587,7 @@ void QToolButton::moveEvent( QMoveEvent * )
 */
 void QToolButton::mousePressEvent( QMouseEvent *e )
 {
-    if ( d->popup && e->pos().x() > ( width() - 15 ) ) {
+    if ( !d->delay && d->popup && e->pos().x() > ( width() - 20 ) ) {
 	setDown( TRUE );
 	popupTimerDone();
 	return;
