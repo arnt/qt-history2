@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#198 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#199 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -388,12 +388,17 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 void QWidget::setFontSys()
 {
-    LOGFONT lf;
-    if ( GetObject( font().handle(), sizeof(lf), &lf ) ) {
-	HIMC imc = ImmGetContext( winId() ); // Can we store it?
-	ImmSetCompositionFont( imc, &lf );
-	ImmReleaseContext( winId(), imc );
+    HIMC imc = ImmGetContext( winId() ); // Can we store it?
+    if ( qt_winver == WV_NT ) {
+	LOGFONT lf;
+	if ( GetObject( font().handle(), sizeof(lf), &lf ) )
+	    ImmSetCompositionFont( imc, &lf );
+    } else {
+	LOGFONTA lf;
+	if ( GetObjectA( font().handle(), sizeof(lf), &lf ) )
+	    ImmSetCompositionFontA( imc, &lf );
     }
+    ImmReleaseContext( winId(), imc );
 }
 
 void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
