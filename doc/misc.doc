@@ -28,29 +28,45 @@
 application developers with all the functionality needed to build
 state-of-the-art graphical user interfaces. Qt is fully
 object-oriented, easily extensible, and allows true component
-programming. It is supported on Windows 95/98/NT/2000, Linux, Sun
-Solaris, HP-UX, Digital Unix, IBM AIX, SGI IRIX and a wide range of
-other platforms. Since the commercial introduction of Qt in early
+programming.
+
+<p>
+Since the commercial introduction of Qt in early
 1996, Qt has formed the basis of many hundreds of successful
-applications worldwide. Qt is also the basis of the popular KDE Linux
-desktop environment, included in all major Linux distributions.
+applications worldwide. Qt is also the basis of the popular
+<a href=http://www.kde.org/>KDE</a> Linux
+desktop environment, a standard component of all major Linux distributions.
 
-<p>Qt is a product of <a href="troll.html">Troll Tech</a>.
+<p>
+Qt is supported on the following platforms:
+<ul>
+ <li><b>MS/Windows</b> - 95, 98, NT, and 2000
+ <li><b>Unix/X11</b> - Linux, Sun Solaris, HP-UX, Digital Unix,
+	    IBM AIX, SGI IRIX and a wide range of others
+ <li><b>Embedded</b> - Linux platforms with framebuffer support.
+</ul>
 
-<p>Qt is released under two different licenses:
+<p>
+Qt is a product of <a href="troll.html">Troll Tech</a>.
+
+<p>
+Qt is released under two different licenses:
 
 <dl>
 <dd><b>Qt Professional Edition</b> is provided for commercial
-software development. It includes free upgrades and Technical Support
+software development. It permits traditional commercial software
+distribution and includes free upgrades and Technical Support
 Service. For the latest prices, please see the Troll Tech web site, <a
 href="http://www.trolltech.com/pricing.html">Pricing and Availability</a>
 page, or contact <a href="mailto:sales@trolltech.com">sales@trolltech.com</a>.
-<dd><b>Qt Free Edition</strong> is the Unix/X11 version of Qt
+</p>
+
+<dd><b>Qt Free Edition</b> is the Unix/X11 version of Qt
 available for development of <em>free/Open Source software</em>
-only. It is provided free of charge under the <a
-href="license.html">Qt Free Edition License</a>. The latest version is
-available for <a
-href="http://www.trolltech.com/dl/qtfree-dl.html">download</a>.
+only. It is provided free of charge under the
+<a href="license.html">QPL</a>. The latest version is available for
+<a href="http://www.trolltech.com/dl/qtfree-dl.html">download</a>.
+</p>
 </dl>
 */
 
