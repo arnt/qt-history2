@@ -133,7 +133,7 @@ bool BinPatch::patchFile(const char *fileName, const char *qtPath)
                     continue;
                 }
 
-                strcpy(s, steps[x].value);
+                strncpy(s, steps[x].value, 256);
                 steps[x].done = true;
                 ++completed;
             }
