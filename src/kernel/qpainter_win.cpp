@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#142 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#143 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1790,22 +1790,31 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    map( x, y, &x, &y );
     }
 
+
     if ( txop <= TxTranslate ) {		// use optimized bitBlt
 	if ( pixmap.mask() && pixmap.data->selfmask ) {
 	    QPixmap *pm	= (QPixmap*)&pixmap;
 	    bool tmp_dc	= pm->handle() == 0;
 	    if ( tmp_dc )
-		pm->allocMemDC();
-	    HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
-	    COLORREF tc, bc;
-	    b = (HBRUSH)SelectObject( hdc, b );
-	    tc = SetTextColor( hdc, COLOR_VALUE(black) );
-	    bc = SetBkColor( hdc, COLOR_VALUE(white) );
-	    // PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern
-	    BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 0x00b8074a );
-	    SetBkColor( hdc, bc );
-	    SetTextColor( hdc, tc );
-	    DeleteObject( SelectObject(hdc, b) );
+	    	pm->allocMemDC();
+	    if ( qt_winver == WV_NT ) {
+		// ( The other method fails on NT )
+		MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 
+			 pm->mask()->hbm(), sx, sy, 
+			 MAKEROP4(0x00aa0029,SRCCOPY) );
+	    }
+	    else {
+		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
+		COLORREF tc, bc;
+		b = (HBRUSH)SelectObject( hdc, b );
+		tc = SetTextColor( hdc, COLOR_VALUE(black) );
+		bc = SetBkColor( hdc, COLOR_VALUE(white) );
+		// PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern
+		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 0x00b8074a );
+		SetBkColor( hdc, bc );
+		SetTextColor( hdc, tc );
+		DeleteObject( SelectObject(hdc, b) );
+	    }
 	    if ( tmp_dc )
 		pm->freeMemDC();
 	} else {
@@ -2084,6 +2093,13 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
 	    if ( testf(ExtDev) ) {		// to printer
+		/*
+		if ( !wx_bm->mask() ) {
+		    debug( "adding mask" );
+		    wx_bm->setMask( *wx_bm );
+		    debug( "selfmask: %i", (int)wx_bm->selfMask() );
+		}
+		*/
 		uint oldf = flags;
 		flags &= ~(VxF|WxF);
 		drawPixmap( x, y, *wx_bm );
