@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#52 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#51 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#52 $")
 
 
 /*----------------------------------------------------------------------------
@@ -113,15 +113,22 @@ QPaintDevice::~QPaintDevice()
   QPicture and QPrinter are external paint devices.
  ----------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------
-  \fn HANDLE QPaintDevice::handle() const
-  Returns the window system handle of the paint device.
- ----------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------
-  \fn Display *QPaintDevice::display() const
-  Returns a pointer to the X display (X-Windows only).
- ----------------------------------------------------------------------------*/
+/*!
+  \fn HANDLE QPaintDevice::handle() const
+
+  Returns the window system handle of the paint device, for low-level
+  access.  <em>Using this function is not portable.</em>
+
+  The HANDLE type varies with platform; see qpaintd.h and qwindefs.h
+  for details. \sa xDisplay() */
+
+
+/*! \fn Display *QPaintDevice::xDisplay() const
+
+  Returns a pointer to the X display (X-Windows only).  <em>Using this
+  function is not portable.</em> \sa handle() */
+
 
 /*----------------------------------------------------------------------------
   \fn bool QPaintDevice::paintingActive() const
@@ -263,7 +270,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
     int ts = src->devType();			// from device type
     int td = dst->devType();			// to device type
-    Display *dpy = src->display();
+    Display *dpy = src->xDisplay();
 
     if ( sw <= 0 ) {				// special width
 	if ( sw < 0 )

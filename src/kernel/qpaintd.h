@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#34 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#35 $
 **
 ** Definition of QPaintDevice class
 **
@@ -47,14 +47,12 @@ public:
     bool     isExtDev()	      const;
     bool     paintingActive() const;
 
-#if defined(_WS_WIN_)
-    HANDLE   handle()  const;			// get device context
-#elif defined(_WS_PM_)
-    HANDLE   handle()  const;			// get presentation space
-#elif defined(_WS_X11_)
-    Display *display() const;			// get display
-    HANDLE   handle()  const;			// get drawable
-#endif
+    HANDLE   handle()  const;
+    // windows: get device context
+    // os/2: get presentation space
+    // x: get drawable
+
+    Display *xDisplay() const;			// get display - X only
 
 protected:
     QPaintDevice( uint devflags );
@@ -103,8 +101,13 @@ inline HANDLE   QPaintDevice::handle()  const { return hdc; }
 #elif defined(_WS_PM_)
 inline HANDLE   QPaintDevice::handle()  const { return hps; }
 #elif defined(_WS_X11_)
-inline Display *QPaintDevice::display() const { return dpy; }
 inline HANDLE	QPaintDevice::handle()  const { return hd; }
+#endif
+
+#if defined(_WS_X11_)
+inline Display *QPaintDevice::xDisplay() const { return dpy; }
+#else
+inline Display *QPaintDevice::xDisplay() const { fatal("xDisplay called"); }
 #endif
 
 inline void bitBlt( QPaintDevice *dst, const QPoint &dp,
