@@ -562,7 +562,7 @@ void QWizard::updateButtons()
 	    i--;
 	}
     }
-    setBackEnabled( notFirst );
+    setBackEnabled( d->current->backEnabled && notFirst );
     setNextEnabled( d->current->nextEnabled );
     d->finishButton->setEnabled( d->current->finishEnabled );
     d->helpButton->setEnabled( d->current->helpEnabled );
