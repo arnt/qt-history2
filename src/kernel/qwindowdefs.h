@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#113 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#114 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -70,8 +70,7 @@ class QClipboard;
 
 // Widget list (defined in qwidcoll.h)
 
-class QListM_QWidget;				// object list
-#define QWidgetList QListM_QWidget
+typedef QList<QWidget> QWidgetList;
 
 
 #if defined(_CC_BOR_) || (defined(_CC_WAT_) && !defined(_OS_QNX_))

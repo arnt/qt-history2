@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#59 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -750,7 +750,7 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
 
   \p is given in that widget's local coordinates.  Most maybeTip()
   implementation will be of the form:
-  
+
   \code
     if ( \<something\> ) {
 	tip( \<something\>, \<something\> );
@@ -906,22 +906,23 @@ QToolTipGroup::~QToolTipGroup()
 
 
 // moc stuff - included by hand.  !Gmoc %
+
 /****************************************************************************
-** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
+** QTipManager meta object code from reading C++ file 'standard input'
 **
-** Created: Mon Aug 17 00:44:32 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.53 $)
+** Created: Fri Aug 21 01:55:59 1998
+**      by: The Qt Meta Object Compiler ($Revision: 2.54 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
 #if !defined(Q_MOC_OUTPUT_REVISION)
-#define Q_MOC_OUTPUT_REVISION 2
-#elif Q_MOC_OUTPUT_REVISION != 2
-#error Moc format conflict - please regenerate all moc files
+#define Q_MOC_OUTPUT_REVISION 3
+#elif Q_MOC_OUTPUT_REVISION != 3
+#error "Moc format conflict - please regenerate all moc files"
 #endif
 
-#include <qmetaobj.h>
+#include <qmetaobject.h>
 
 
 const char *QTipManager::className() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetintdict.h#2 $
+** $Id: //depot/qt/main/src/kernel/qwidgetintdict.h#3 $
 **
 ** Definition of QWidgetIntDict
 **
@@ -30,8 +30,8 @@
 #endif // QT_H
 
 
-typedef Q_DECLARE(QIntDictM,QWidget)		QWidgetIntDict;
-typedef Q_DECLARE(QIntDictIteratorM,QWidget)	QWidgetIntDictIt;
+typedef QIntDict<QWidget> QWidgetIntDict;
+typedef QIntDictIterator<QWidget> QWidgetIntDictIt;
 
 
 #endif // QWIDINTDICT_H

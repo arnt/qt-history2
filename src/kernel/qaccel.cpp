@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#50 $
 **
 ** Implementation of QAccel class
 **
@@ -75,20 +75,31 @@ struct QAccelItem {				// internal accelerator item
     QSignal    *signal;
 };
 
-typedef Q_DECLARE(QListM,QAccelItem) QAccelList; // internal accelerator list
+
+typedef QList<QAccelItem> QAccelList; // internal accelerator list
 
 
-static QAccelItem *find_id( QAccelList *list, int id )
+struct QAccelPrivate {
+    QAccelPrivate() { aitems.setAutoDelete( TRUE ); }
+    ~QAccelPrivate() {}
+    QAccelList aitems;
+    bool enabled;
+    QWidget *tlw;
+};
+
+
+// ### hack: we cast merrily.
+static QAccelItem *find_id( QAccelList &list, int id )
 {
-    register QAccelItem *item = list->first();
+    register QAccelItem *item = list.first();
     while ( item && item->id != id )
-	item = list->next();
+	item = list.next();
     return item;
 }
 
-static QAccelItem *find_key( QAccelList *list, int key, int ascii )
+static QAccelItem *find_key( QAccelList &list, int key, int ascii )
 {
-    register QAccelItem *item = list->first();
+    register QAccelItem *item = list.first();
     while ( item ) {
 	int k = item->key;
 	if ( (k & ASCII_ACCEL) != 0 && (k & 0xff) == ascii ) {
@@ -97,7 +108,7 @@ static QAccelItem *find_key( QAccelList *list, int key, int ascii )
 	    if ( k == key )
 		break;
 	}
-	item = list->next();
+	item = list.next();
     }
     return item;
 }
@@ -110,19 +121,17 @@ static QAccelItem *find_key( QAccelList *list, int key, int ascii )
 QAccel::QAccel( QWidget *parent, const char *name )
     : QObject( parent, name )
 {
-    aitems = new QAccelList;
-    CHECK_PTR( aitems );
-    aitems->setAutoDelete( TRUE );
-    enabled = TRUE;
+    d = new QAccelPrivate;
+    d->enabled = TRUE;
     if ( parent ) {				// install event filter
 #if defined(CHECK_RANGE)
 	ASSERT( parent->isWidgetType() );
 #endif
-	tlw = parent->topLevelWidget();
-	tlw->installEventFilter( this );
-	connect( tlw, SIGNAL(destroyed()), SLOT(tlwDestroyed()) );
+	d->tlw = parent->topLevelWidget();
+	d->tlw->installEventFilter( this );
+	connect( d->tlw, SIGNAL(destroyed()), SLOT(tlwDestroyed()) );
     } else {
-	tlw = 0;
+	d->tlw = 0;
 #if defined(CHECK_NULL)
 	warning( "QAccel: An accelerator must have a parent widget" );
 #endif
@@ -135,9 +144,9 @@ QAccel::QAccel( QWidget *parent, const char *name )
 
 QAccel::~QAccel()
 {
-    if ( tlw )
-	tlw->removeEventFilter( this );
-    delete aitems;
+    if ( d->tlw )
+	d->tlw->removeEventFilter( this );
+    delete (QAccelList *)d;
 }
 
 
@@ -148,10 +157,15 @@ QAccel::~QAccel()
 */
 
 /*!
-  \fn bool QAccel::isEnabled() const
   Returns TRUE if the accelerator is enabled, or FALSE if it is disabled.
   \sa setEnabled(), isItemEnabled()
 */
+
+bool QAccel::isEnabled() const
+{
+    return d->enabled;
+}
+
 
 /*!
   Enables the accelerator if \e enable is TRUE, or disables it if
@@ -164,7 +178,7 @@ QAccel::~QAccel()
 
 void QAccel::setEnabled( bool enable )
 {
-    enabled = enable;
+    d->enabled = enable;
 }
 
 
@@ -174,7 +188,7 @@ void QAccel::setEnabled( bool enable )
 
 uint QAccel::count() const
 {
-    return aitems->count();
+    return d->aitems.count();
 }
 
 
@@ -200,8 +214,8 @@ uint QAccel::count() const
 int QAccel::insertItem( int key, int id )
 {
     if ( id == -1 )
-	id = aitems->count();
-    aitems->insert( 0, new QAccelItem(key,id) );
+	id = d->aitems.count();
+    d->aitems.insert( 0, new QAccelItem(key,id) );
     return id;
 }
 
@@ -211,8 +225,8 @@ int QAccel::insertItem( int key, int id )
 
 void QAccel::removeItem( int id )
 {
-    if ( find_id(aitems, id) )
-	aitems->remove();
+    if ( find_id( d->aitems, id) )
+	d->aitems.remove();
 }
 
 
@@ -222,7 +236,7 @@ void QAccel::removeItem( int id )
 
 void QAccel::clear()
 {
-    aitems->clear();
+    d->aitems.clear();
 }
 
 
@@ -233,7 +247,7 @@ void QAccel::clear()
 
 int QAccel::key( int id )
 {
-    QAccelItem *item = find_id(aitems, id);
+    QAccelItem *item = find_id( d->aitems, id);
     return item ? item->key : 0;
 }
 
@@ -245,7 +259,7 @@ int QAccel::key( int id )
 
 int QAccel::findKey( int key ) const
 {
-    QAccelItem *item = find_key(aitems, key, key & 0xff );
+    QAccelItem *item = find_key( d->aitems, key, key & 0xff );
     return item ? item->id : -1;
 }
 
@@ -258,7 +272,7 @@ int QAccel::findKey( int key ) const
 
 bool QAccel::isItemEnabled( int id ) const
 {
-    QAccelItem *item = find_id(aitems, id);
+    QAccelItem *item = find_id( d->aitems, id);
     return item ? item->enabled : FALSE;
 }
 
@@ -273,7 +287,7 @@ bool QAccel::isItemEnabled( int id ) const
 
 void QAccel::setItemEnabled( int id, bool enable )
 {
-    QAccelItem *item = find_id(aitems, id);
+    QAccelItem *item = find_id( d->aitems, id);
     if ( item )
 	item->enabled = enable;
 }
@@ -295,7 +309,7 @@ void QAccel::setItemEnabled( int id, bool enable )
 
 bool QAccel::connectItem( int id, const QObject *receiver, const char *member )
 {
-    QAccelItem *item = find_id(aitems, id);
+    QAccelItem *item = find_id( d->aitems, id);
     if ( item ) {
 	if ( !item->signal ) {
 	    item->signal = new QSignal;
@@ -315,7 +329,7 @@ bool QAccel::connectItem( int id, const QObject *receiver, const char *member )
 bool QAccel::disconnectItem( int id, const QObject *receiver,
 			     const char *member )
 {
-    QAccelItem *item = find_id(aitems, id);
+    QAccelItem *item = find_id( d->aitems, id);
     if ( item && item->signal )
 	return item->signal->disconnect( receiver, member );
     return FALSE;
@@ -338,15 +352,15 @@ void QAccel::repairEventFilter()
     } else {
 	ntlw = 0;
     }
-    if ( tlw != ntlw ) {
-	if ( tlw ) {
-	    tlw->removeEventFilter( this );
-	    disconnect( tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
+    if ( d->tlw != ntlw ) {
+	if ( d->tlw ) {
+	    d->tlw->removeEventFilter( this );
+	    disconnect( d->tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
 	}
-	tlw = ntlw;
-	if ( tlw ) {
-	    tlw->installEventFilter( this );
-	    connect( tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
+	d->tlw = ntlw;
+	if ( d->tlw ) {
+	    d->tlw->installEventFilter( this );
+	    connect( d->tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
 	}
     }
 }
@@ -358,7 +372,7 @@ void QAccel::repairEventFilter()
 
 bool QAccel::eventFilter( QObject *, QEvent *e )
 {
-    if ( enabled && e->type() == Event_Accel &&
+    if ( d->enabled && e->type() == Event_Accel &&
 	 parent() && parent()->isWidgetType() &&
 	 ((QWidget *)parent())->isVisibleToTLW() ) {
 	QKeyEvent *k = (QKeyEvent *)e;
@@ -369,7 +383,7 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 	    key |= CTRL;
 	if ( k->state() & AltButton )
 	    key |= ALT;
-	QAccelItem *item = find_key(aitems,key,k->ascii());
+	QAccelItem *item = find_key( d->aitems, key, k->ascii() );
 	if ( item && item->enabled ) {
 	    if ( item->signal )
 		item->signal->activate();
@@ -391,7 +405,7 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 
 void QAccel::tlwDestroyed()
 {
-    tlw = 0;
+    d->tlw = 0;
 }
 
 

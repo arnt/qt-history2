@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#33 $
 **
 ** Implementation of QMetaObject class
 **
@@ -50,8 +50,6 @@ QObjectDictionary *objectDict = 0;		// global object dictionary
   Internal dictionary for fast access to class members
  *****************************************************************************/
 
-Q_DECLARE(QDictM,QMetaData);
-
 
 /*
   Calculate optimal dictionary size for n entries using prime numbers,
@@ -81,7 +79,7 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 			  QMetaData *signal_data, int n_signals )
 {
     if ( !objectDict ) {			// first meta object created
-	objectDict 
+	objectDict
 	    = new QObjectDictionary( 211,
 				     TRUE,	// no copying of keys
 				     FALSE );	// case sensitive

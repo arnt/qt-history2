@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#31 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#32 $
 **
 ** Definition of QAccel class
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-class QAccelList;				// internal class
+class QAccelPrivate;				// internal class
 
 
 class QAccel : public QObject			// accelerator class
@@ -72,20 +72,12 @@ private slots:
     void	tlwDestroyed();
 
 private:
-    QAccelList *aitems;
-    bool	enabled;
-    QWidget    *tlw;
+    QAccelPrivate * d;
 
 private:	// Disabled copy constructor and operator=
     QAccel( const QAccel & );
     QAccel &operator=( const QAccel & );
 };
-
-
-inline bool QAccel::isEnabled() const
-{
-    return enabled;
-}
 
 
 #endif // QACCEL_H

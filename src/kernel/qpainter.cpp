@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#148 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#149 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -307,8 +307,7 @@ struct QPState {				// painter state
     int	       *ta;
 };
 
-Q_DECLARE(QStackM,QPState);
-typedef QStackM(QPState) QPStateStack;
+typedef QStack<QPState> QPStateStack;
 
 
 void QPainter::killPStack()
@@ -337,7 +336,7 @@ void QPainter::save()
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
-	pss = new QStackM(QPState);
+	pss = new QStack<QPState>;
 	CHECK_PTR( pss );
 	pss->setAutoDelete( TRUE );
 	ps_stack = pss;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#114 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -169,17 +169,16 @@ static const int reserveCost   = 1024*100;
 static const int fontCacheSize = 1024*1024*4;
 
 
-Q_DECLARE(QCacheM,QFontInternal);		// inherited by QFontCache
-typedef Q_DECLARE(QCacheIteratorM,QFontInternal) QFontCacheIt;
-typedef Q_DECLARE(QDictM,QFontInternal)		 QFontDict;
-typedef Q_DECLARE(QDictIteratorM,QFontInternal)  QFontDictIt;
+typedef QCacheIterator<QFontInternal> QFontCacheIt;
+typedef QDict<QFontInternal> QFontDict;
+typedef QDictIterator<QFontInternal> QFontDictIt;
 
 
-class QFontCache : public QCacheM(QFontInternal)
+class QFontCache : public QCache<QFontInternal>
 {
 public:
     QFontCache( int maxCost, int size=17, bool cs=TRUE, bool ck=TRUE )
-	: QCacheM(QFontInternal)(maxCost,size,cs,ck) {}
+	: QCache<QFontInternal>(maxCost,size,cs,ck) {}
     void deleteItem( GCI );
 };
 
@@ -197,7 +196,7 @@ struct QXFontName
     bool    exactMatch;
 };
 
-typedef Q_DECLARE(QDictM,QXFontName) QFontNameDict;
+typedef QDict<QXFontName> QFontNameDict;
 
 
 static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
@@ -322,15 +321,15 @@ HANDLE QFont::handle( HANDLE ) const
   Returns the name of the font within the underlying system.
   <em>Using the return value of this function is usually not
   portable.</em>
-  
+
   \sa setRawMode(), rawMode()
 */
 QString QFont::rawName() const
 {
-    if ( DIRTY_FONT ) 
+    if ( DIRTY_FONT )
 	load();
     return d->fin->name();
-} 
+}
 
 
 
@@ -1057,7 +1056,7 @@ inline XCharStruct* charStr(XFontStruct *f, QChar ch)
 	    && ch.row >= f->min_byte1
 	    && ch.row <= f->max_byte1) )
 	    ch = QChar(f->default_char%256,f->default_char/256);
-	return f->per_char + 
+	return f->per_char +
 	    ((ch.row - f->min_byte1)
 		    * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
 		+ ch.cell - f->min_char_or_byte2);

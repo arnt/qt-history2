@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#148 $
 **
 ** Implementation of QApplication class
 **
@@ -561,7 +561,7 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
   \sa QStyle::polishWidget(), QWidget::polish()
 */
 
-void QApplication::polishWidget(QWidget* w)
+void QApplication::polishWidget(QWidget*)
 {
 //###  #warning not yet implemented. Should call qstyle::polish widget
 }

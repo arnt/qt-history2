@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdict.h#2 $
+** $Id: //depot/qt/main/src/kernel/qobjectdict.h#3 $
 **
 ** Definition of QObjectDictionary
 **
@@ -32,8 +32,8 @@
 
 // QMetaObject collections
 
-typedef Q_DECLARE(QDictM,QMetaObject)	    QObjectDictionary;
-typedef QObjectDictionary		    QObjectDict;
+typedef QDict<QMetaObject> QObjectDictionary;
+typedef QObjectDictionary QObjectDict;
 
 extern QObjectDictionary *objectDict;		// global object dictionary
 						// defined in qmetaobject.cpp

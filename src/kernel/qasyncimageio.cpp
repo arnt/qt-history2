@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#40 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -192,7 +192,7 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 	}
 	
 	if ( !QImageDecoderPrivate::factories ) {
-	    QImageDecoderPrivate::factories = new QListT<QImageFormatType>;
+	    QImageDecoderPrivate::factories = new QList<QImageFormatType>;
 	    QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
 	    qAddPostRoutine( cleanup );
 	}
@@ -235,7 +235,7 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 const char* QImageDecoder::formatName(const uchar* buffer, int length)
 {
     if ( !QImageDecoderPrivate::factories ) {
-	QImageDecoderPrivate::factories = new QListT<QImageFormatType>;
+	QImageDecoderPrivate::factories = new QList<QImageFormatType>;
 	QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
 	qAddPostRoutine( cleanup );
     }
@@ -260,7 +260,7 @@ const char* QImageDecoder::formatName(const uchar* buffer, int length)
 QStrList QImageDecoder::inputFormats()
 {
     if ( !QImageDecoderPrivate::factories ) {
-	QImageDecoderPrivate::factories = new QListT<QImageFormatType>;
+	QImageDecoderPrivate::factories = new QList<QImageFormatType>;
 	QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
 	qAddPostRoutine( cleanup );
     }
@@ -286,7 +286,7 @@ QStrList QImageDecoder::inputFormats()
 void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 {
     if ( !QImageDecoderPrivate::factories ) {
-	QImageDecoderPrivate::factories = new QListT<QImageFormatType>;
+	QImageDecoderPrivate::factories = new QList<QImageFormatType>;
 	QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
 	qAddPostRoutine( cleanup );
     }

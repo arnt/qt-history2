@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#92 $
+** $Id: //depot/qt/main/src/moc/moc.y#93 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#92 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#93 $");
 
 static Q1String rmWS( const char * );
 
@@ -56,9 +56,7 @@ struct Argument					// single arg meta data
     Q1String rightType;
 };
 
-Q_DECLARE(QListM,Argument);
-
-class ArgList : public QListM(Argument) {	// member function arg list
+class ArgList : public QList<Argument> {	// member function arg list
 public:
     ArgList() { setAutoDelete(TRUE); }
 };
@@ -76,9 +74,7 @@ struct Function					// member function meta data
    ~Function() { delete args; }
 };
 
-Q_DECLARE(QListM,Function);
-
-class FuncList : public QListM(Function) {	// list of member functions
+class FuncList : public QList<Function> {	// list of member functions
 public:
     FuncList() { setAutoDelete(TRUE); }
 };
@@ -115,7 +111,7 @@ bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
 Q1String	   tmpExpression;
 
-const int  formatRevision = 2;			// moc output format revision
+const int  formatRevision = 3;			// moc output format revision
 
 %}
 
@@ -688,8 +684,8 @@ type_and_name:		  type_name fct_name
 						}
 			| decl_specs type_name decl_specs_opt
 			  ptr_operators_opt fct_name
-						{   
-						    char *tmp = 
+						{
+						    char *tmp =
 							straddSpc($1,$2,$3,$4);
 						    tmpFunc->type = rmWS(tmp);
 						    delete tmp;
@@ -937,7 +933,7 @@ int main( int argc, char **argv )
 	fclose( out );
 
     if ( !generatedCode && displayWarnings ) {
-        fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), 0, 
+        fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), 0,
 		 "No relevant classes found. No output generated." );
     }
 
@@ -1266,7 +1262,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.26 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.27 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1419,18 +1415,7 @@ void generateClass()		      // generate C++ source code for a class
 	    predef_call = TRUE;
 	}
 	if ( !predef_call && !included_list_stuff ) {
-	    fprintf( out, "\n#if !defined(Q_MOC_CONNECTIONLIST_DECLARED)\n" );
-	    fprintf( out, "#define Q_MOC_CONNECTIONLIST_DECLARED\n" );
-	    fprintf( out, "#include <%sqlist.h>\n", (const char*)qtPath );
-	    fprintf( out, "#if defined(Q_DECLARE)\n" );
-	    fprintf( out, "Q_DECLARE(QListM,QConnection);\n" );
-	    fprintf( out, "Q_DECLARE(QListIteratorM,QConnection);\n" );
-	    fprintf( out, "#else\n" );
-	    fprintf( out, "/" "/ for compatibility with old header files\n" );
-	    fprintf( out, "declare(QListM,QConnection);\n" );
-	    fprintf( out, "declare(QListIteratorM,QConnection);\n" );
-	    fprintf( out, "#endif\n" );
-	    fprintf( out, "#endif\n" );
+	    fprintf( out, "\n#include <%sqlist.h>\n", (const char*)qtPath );
 	    included_list_stuff = TRUE;
 	}
 
@@ -1466,7 +1451,7 @@ void generateClass()		      // generate C++ source code for a class
 	} else {
 	    fprintf( out, "    typedef void (QObject::*RT)(%s);\n",
 		     (const char*)typstr);
-	    fprintf( out, "    typedef RT *PRT;\n" );	    
+	    fprintf( out, "    typedef RT *PRT;\n" );	
 	}
 	if ( nargs ) {
 	    for ( i=0; i<=nargs; i++ )

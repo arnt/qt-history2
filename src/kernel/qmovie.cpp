@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#42 $
 **
 ** Implementation of movie classes
 **
@@ -846,24 +846,22 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 /* tmake ignore Q_OBJECT */
 
 //       MANUALLY INCLUDED.  Regenerate in vi with:   !Gmoc %
-//       WARNING! All changes made below will be lost
-//
 /****************************************************************************
-** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
+** QMoviePrivate meta object code from reading C++ file 'standard input'
 **
-** Created: Sun Aug 16 23:30:39 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.41 $)
+** Created: Fri Aug 21 01:55:09 1998
+**      by: The Qt Meta Object Compiler ($Revision: 1.42 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
 #if !defined(Q_MOC_OUTPUT_REVISION)
-#define Q_MOC_OUTPUT_REVISION 2
-#elif Q_MOC_OUTPUT_REVISION != 2
-#error Moc format conflict - please regenerate all moc files
+#define Q_MOC_OUTPUT_REVISION 3
+#elif Q_MOC_OUTPUT_REVISION != 3
+#error "Moc format conflict - please regenerate all moc files"
 #endif
 
-#include <qmetaobj.h>
+#include <qmetaobject.h>
 
 
 const char *QMoviePrivate::className() const
@@ -904,18 +902,7 @@ void QMoviePrivate::initMetaObject()
 	signal_tbl, 3 );
 }
 
-#if !defined(Q_MOC_CONNECTIONLIST_DECLARED)
-#define Q_MOC_CONNECTIONLIST_DECLARED
 #include <qlist.h>
-#if defined(Q_DECLARE)
-Q_DECLARE(QListM,QConnection);
-Q_DECLARE(QListIteratorM,QConnection);
-#else
-// for compatibility with old header files
-declare(QListM,QConnection);
-declare(QListIteratorM,QConnection);
-#endif
-#endif
 
 // SIGNAL sizeChanged
 void QMoviePrivate::sizeChanged( const QSize& t0 )

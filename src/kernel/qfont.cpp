@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#104 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -831,8 +831,8 @@ void  QFont::setDefaultFont( const QFont &f )
 // because insertSubstitution() doesn't do a deep copy either, but
 // should probably be changed in 2.0.
 
-typedef Q_DECLARE(QDictM,char)	       QFontSubst;
-typedef Q_DECLARE(QDictIteratorM,char) QFontSubstIt;
+typedef QDict<char> QFontSubst;
+typedef QDictIterator<char> QFontSubstIt;
 static QFontSubst *fontSubst = 0;
 
 static void cleanup()
@@ -1086,7 +1086,7 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
   QFontMetrics member functions
  *****************************************************************************/
 
-typedef Q_DECLARE(QListM,QFontMetrics) QFontMetricsList;
+typedef QList<QFontMetrics> QFontMetricsList;
 static QFontMetricsList *fm_list = 0;
 
 static void insertFontMetrics( QFontMetrics *fm )
@@ -1344,7 +1344,7 @@ const QFont &QFontMetrics::font() const
   QFontInfo member functions
  *****************************************************************************/
 
-typedef Q_DECLARE(QListM,QFontInfo) QFontInfoList;
+typedef QList<QFontInfo> QFontInfoList;
 static QFontInfoList *fi_list = 0;
 
 static void insertFontInfo( QFontInfo *fi )

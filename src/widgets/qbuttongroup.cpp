@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#46 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -21,7 +21,6 @@
 **
 *****************************************************************************/
 
-#define	 QButtonList QListM_QButtonItem
 #include "qbuttongroup.h"
 #include "qbutton.h"
 #include "qlist.h"
@@ -72,7 +71,9 @@ struct QButtonItem
     int	     id;
 };
 
-Q_DECLARE(QListM,QButtonItem);
+class QButtonList: public QList<QButtonItem>
+{
+};
 
 
 /*!

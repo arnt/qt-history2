@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#255 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#256 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -407,7 +407,7 @@ void QPainter::cleanup()
 }
 
 
-typedef Q_DECLARE(QIntDictM,QPaintDevice) QPaintDeviceDict;
+typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 static QPaintDeviceDict *pdev_dict = 0;
 
 /*!

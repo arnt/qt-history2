@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#79 $
 **
 ** Implementation of QColor class for X11
 **
@@ -47,8 +47,8 @@ struct QColorData {
     int	 context;				// allocation context
 };
 
-typedef Q_DECLARE(QIntDictM,QColorData)		QColorDict;
-typedef Q_DECLARE(QIntDictIteratorM,QColorData) QColorDictIt;
+typedef QIntDict<QColorData> QColorDict;
+typedef QIntDictIterator<QColorData> QColorDictIt;
 static QColorDict *colorDict  = 0;		// dict of allocated colors
 
 static bool	colors_avail  = TRUE;		// X colors available

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#339 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#340 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -164,7 +164,7 @@ static bool	    popupCloseDownMode = FALSE;
 static bool	    popupGrabOk;
 
 typedef void  (*VFPTR)();
-typedef Q_DECLARE(QListM,void) QVFuncList;
+typedef QList<void> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
 static void	cleanupPostedEvents();
@@ -1051,7 +1051,7 @@ QWidget *QApplication::desktop()
   QApplication cursor stack
  *****************************************************************************/
 
-typedef Q_DECLARE(QListM,QCursor) QCursorList;
+typedef QList<QCursor> QCursorList;
 
 static QCursorList *cursorStack = 0;
 
@@ -1399,10 +1399,8 @@ struct QPostEvent {
     QEvent   *event;
 };
 
-Q_DECLARE(QListM,QPostEvent);
-Q_DECLARE(QListIteratorM,QPostEvent);
-typedef QListM(QPostEvent)	   QPostEventList;
-typedef QListIteratorM(QPostEvent) QPostEventListIt;
+typedef QList<QPostEvent> QPostEventList;
+typedef QListIterator<QPostEvent> QPostEventListIt;
 static QPostEventList *postedEvents = 0;	// list of posted events
 
 
@@ -1421,7 +1419,7 @@ static QPostEventList *postedEvents = 0;	// list of posted events
 void QApplication::postEvent( QObject *receiver, QEvent *event )
 {
     if ( !postedEvents ) {			// create list
-	postedEvents = new QListM(QPostEvent);
+	postedEvents = new QList<QPostEvent>;
 	CHECK_PTR( postedEvents );
 	postedEvents->setAutoDelete( TRUE );
     }
@@ -1635,8 +1633,8 @@ struct QSockNot {
     fd_set  *queue;
 };
 
-typedef Q_DECLARE(QListM,QSockNot)	   QSNList;
-typedef Q_DECLARE(QListIteratorM,QSockNot) QSNListIt;
+typedef QList<QSockNot> QSNList;
+typedef QListIterator<QSockNot> QSNListIt;
 
 static int	sn_highest = -1;
 static QSNList *sn_read	   = 0;
@@ -2514,7 +2512,7 @@ struct TimerInfo {				// internal timer info
     QObject *obj;				// - object to receive event
 };
 
-typedef Q_DECLARE(QListM,TimerInfo) TimerList;	// list of TimerInfo structs
+typedef QList<TimerInfo> TimerList;	// list of TimerInfo structs
 
 static QBitArray *timerBitVec;			// timer bit vector
 static TimerList *timerList	= 0;		// timer list

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#37 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -57,11 +57,10 @@ struct QCacheItem
   QCList class (internal list of cache items)
  *****************************************************************************/
 
-Q_DECLARE(QListM,QCacheItem);
-
-class QCList : private QListM(QCacheItem)
+class QCList : private QList<QCacheItem>
 {
 friend class QGCacheIterator;
+friend class QCListIt;
 public:
     QCList()	{}
    ~QCList();
@@ -73,13 +72,13 @@ public:
 
     void	setAutoDelete( bool del ) { QCollection::setAutoDelete(del); }
 
-    bool	removeFirst()	{ return QListM(QCacheItem)::removeFirst(); }
-    bool	removeLast()	{ return QListM(QCacheItem)::removeLast(); }
+    bool	removeFirst()	{ return QList<QCacheItem>::removeFirst(); }
+    bool	removeLast()	{ return QList<QCacheItem>::removeLast(); }
 
-    QCacheItem *first()		{ return QListM(QCacheItem)::first(); }
-    QCacheItem *last()		{ return QListM(QCacheItem)::last(); }
-    QCacheItem *prev()		{ return QListM(QCacheItem)::prev(); }
-    QCacheItem *next()		{ return QListM(QCacheItem)::next(); }
+    QCacheItem *first()		{ return QList<QCacheItem>::first(); }
+    QCacheItem *last()		{ return QList<QCacheItem>::last(); }
+    QCacheItem *prev()		{ return QList<QCacheItem>::prev(); }
+    QCacheItem *next()		{ return QList<QCacheItem>::next(); }
 
 #if defined(DEBUG)
     int		inserts;			// variables for statistics
@@ -110,7 +109,7 @@ void QCList::insert( QCacheItem *ci )
 	item = next();
     }
     if ( item )
-	QListM(QCacheItem)::insert( at(), ci );
+	QList<QCacheItem>::insert( at(), ci );
     else
 	append( ci );
 #if defined(DEBUG)
@@ -121,7 +120,7 @@ void QCList::insert( QCacheItem *ci )
 
 inline void QCList::insert( int i, QCacheItem *ci )
 {
-    QListM(QCacheItem)::insert( i, ci );
+    QList<QCacheItem>::insert( i, ci );
 #if defined(DEBUG)
     ASSERT( ci->node == 0 );
 #endif
@@ -149,6 +148,14 @@ inline void QCList::reference( QCacheItem *ci )
     ci->skipPriority = ci->priority;
     relinkNode( ci->node );			// relink as first item
 }
+
+
+class QCListIt: public QListIterator<QCacheItem>
+{
+public:
+    QCListIt( const QCList * asdf ): QListIterator<QCacheItem>( *asdf ) {}
+    QCListIt( const QCListIt * asdf ): QListIterator<QCacheItem>( *asdf ) {}
+};
 
 
 /*****************************************************************************
@@ -510,8 +517,6 @@ void QGCache::statistics() const
   QCacheIterator and QIntCacheIterator.
 */
 
-Q_DECLARE(QListIteratorM,QCacheItem);
-
 /*!
   \internal
   Constructs an iterator that operates on the cache \e c.
@@ -519,7 +524,7 @@ Q_DECLARE(QListIteratorM,QCacheItem);
 
 QGCacheIterator::QGCacheIterator( const QGCache &c )
 {
-    it = new QListIteratorM(QCacheItem)( *((QListM(QCacheItem)*)c.lruList) );
+    it = new QCListIt( c.lruList );
 #if defined(DEBUG)
     ASSERT( it != 0 );
 #endif
@@ -532,7 +537,7 @@ QGCacheIterator::QGCacheIterator( const QGCache &c )
 
 QGCacheIterator::QGCacheIterator( const QGCacheIterator &ci )
 {
-    it = new QListIteratorM(QCacheItem)( *ci.it );
+    it = new QCListIt( ci.it );
 #if defined(DEBUG)
     ASSERT( it != 0 );
 #endif

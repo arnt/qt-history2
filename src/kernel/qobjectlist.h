@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectlist.h#2 $
+** $Id: //depot/qt/main/src/kernel/qobjectlist.h#3 $
 **
 ** Definition of QObjectList
 **
@@ -32,8 +32,8 @@
 
 // QObject collections
 
-typedef Q_DECLARE(QListM,QObject)	    QObjectList;
-typedef Q_DECLARE(QListIteratorM,QObject)   QObjectListIt;
+typedef QList<QObject> QObjectList;
+typedef QListIterator<QObject> QObjectListIt;
 
 
 #endif // QOBJECTLIST_H

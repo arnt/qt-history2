@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#57 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#58 $
 **
 ** Global functions
 **
@@ -336,12 +336,10 @@ bool chk_pointer( bool c, const char *n, int l )
 }
 
 
-Q_DECLARE(QDictM,int);
-
 static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
 {
     static bool firstWarning = TRUE;
-    static QDictM(int) * obsoleteDict;
+    QDict<int> * obsoleteDict;
     if ( firstWarning ) {
 	firstWarning = FALSE;
 	debug(
@@ -353,7 +351,7 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
     s += "::";
     s += oldfunc;
     if ( !obsoleteDict )
-	obsoleteDict = new QDictM(int);
+	obsoleteDict = new QDict<int>;
     if ( obsoleteDict->find(s) == 0 ) {
 	obsoleteDict->insert( s, (int*) 666 );	// anything different from 0.
 	return TRUE;

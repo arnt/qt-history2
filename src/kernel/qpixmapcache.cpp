@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#23 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -62,7 +62,7 @@
   See the QCache documentation for a more details about the cache mechanism.
 */
 
-typedef Q_DECLARE(QCacheM,QPixmap) QPMCache;
+typedef QCache<QPixmap> QPMCache;
 static QPMCache *pm_cache = 0;			// global pixmap cache
 const  int cache_size	  = 61;			// size of internal hash array
 static int cache_limit	  = 1024;		// 1024 KB cache limit

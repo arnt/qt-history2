@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#42 $
 **
 ** Implementation of QTabBar class
 **
@@ -111,7 +111,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d->focus = 0;
     d->a = new QAccel( this, "tab accelerators" );
     d->s = RoundedAbove;
-    l = new QListT<QTab>;
+    l = new QList<QTab>;
     l->setAutoDelete( TRUE );
     setFocusPolicy( TabFocus );
 
@@ -652,7 +652,7 @@ QTab * QTabBar::tab( int id )
 /*!
   The list of QTab objects added.
 */
-QListT<QTab> * QTabBar::tabList()
+QList<QTab> * QTabBar::tabList()
 {
     return l;
 }

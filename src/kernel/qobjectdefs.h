@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#25 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#26 $
 **
 ** Macros and definitions related to QObject
 **
@@ -26,6 +26,8 @@
 
 #ifndef QT_H
 #include "qglobal.h"
+#include "qdict.h"
+#include "qlist.h"
 #endif // QT_H
 
 
@@ -71,20 +73,17 @@ class QMetaObject;
 class QSignal;
 class QConnection;
 class QEvent;
+class QMetaData;
 
-class QListM_QConnection;			// connection list
-#define QConnectionList	  QListM_QConnection
-#define QConnectionListIt QListIteratorM_QConnection
+typedef QList<QConnection> QConnectionList;
+typedef QListIterator<QConnection> QConnectionListIt;
 
-class QDictM_QListM_QConnection;		// signal dictionary
-#define QSignalDict   QDictM_QListM_QConnection
-#define QSignalDictIt QDictIteratorM_QListM_QConnection
+typedef QDict<QConnectionList> QSignalDict;
+typedef QDictIterator<QConnectionList>  QSignalDictIt;
 
-class QListM_QObject;				// object list
-#define QObjectList QListM_QObject
+typedef QList<QObject> QObjectList;
+typedef QListIterator<QObject> QObjectListIt;
 
-class QDictM_QMetaData;				// meta object dictionaries
-#define QMemberDict QDictM_QMetaData
-
+typedef QDict<QMetaData> QMemberDict;
 
 #endif // QOBJECTDEFS_H

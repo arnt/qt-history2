@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#17 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#18 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -32,6 +32,7 @@
 
 
 class QCList;					// internal classes
+class QCListIt;
 class QCDict;
 
 
@@ -77,8 +78,6 @@ private:
   QGCacheIterator class
  *****************************************************************************/
 
-class QListIteratorM_QCacheItem;
-
 class QGCacheIterator				// QGCache iterator
 {
 protected:
@@ -102,7 +101,7 @@ protected:
     GCI	  operator-=( uint );			// move n positions backward
 
 protected:
-    QListIteratorM_QCacheItem *it;		// iterator on cache list
+    QCListIt *it;				// iterator on cache list
 };
 
 

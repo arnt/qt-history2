@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#59 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#60 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -47,8 +47,6 @@
 static const int op_find = 0;
 static const int op_insert = 1;
 static const int op_replace = 2;
-
-Q_DECLARE(QListM,QGDictIterator);		// list of iterators: QGDItList
 
 /*****************************************************************************
   Default implementation of virtual functions

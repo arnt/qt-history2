@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#183 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#184 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -816,9 +816,6 @@ void QImage::freeBits()
 // we convert the red,green and blue bytes into a single byte encoded
 // as 6 shades of each of red, green and blue.
 //
-
-Q_DECLARE(QIntDictM,char);
-Q_DECLARE(QIntDictIteratorM,char);
 
 struct QRgbMap {
     QRgbMap() : rgb(0xffffffff) { }
@@ -2384,15 +2381,15 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
 
   PBM, PGM, and PPM format output is only supported in PPMRAW format.
 
-  \warning Unisys has changed its position regarding GIF.  If you are 
+  \warning Unisys has changed its position regarding GIF.  If you are
   in a country where Unisys holds a patent on LZW compression and/or
-  decompression, Unisys may require you to license that technology. 
+  decompression, Unisys may require you to license that technology.
   These countries include Canada, Japan, the USA, France, Germany,
   Italy and the UK.  There is more information on Unisys web site: <a
   href="http://corp2.unisys.com/LeadStory/lzwfaq.html">Overview of
   Unisys' position.</a> GIF support may be removed in a future version
-  of Qt.  We recommend using the PNG format, which is available in the 
-  <a href="imageio.html">Qt Image IO Extension</a> package.  
+  of Qt.  We recommend using the PNG format, which is available in the
+  <a href="imageio.html">Qt Image IO Extension</a> package.
 
   \sa QImage, QPixmap, QFile, QMovie
 */
@@ -2468,7 +2465,7 @@ QImageHandler::QImageHandler( const char *f, const char *h, bool t,
     write_image = w;
 }
 
-typedef Q_DECLARE(QListM,QImageHandler) QIHList;// list of image handlers
+typedef QList<QImageHandler> QIHList;// list of image handlers
 static QIHList *imageHandlers = 0;
 
 static void cleanup_image_handlers()		// cleanup image handler list

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#272 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#273 $
 **
 ** Implementation of QWidget class
 **
@@ -441,7 +441,7 @@ inline bool QWidgetMapper::remove( WId id )
   QWidget member functions
  *****************************************************************************/
 
-typedef Q_DECLARE(QPtrDictM,void) QDeferDict;
+typedef QPtrDict<void> QDeferDict;
 
 static QDeferDict *deferredMoves   = 0;
 static QDeferDict *deferredResizes = 0;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#158 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#159 $
 **
 ** Implementation of QListBox widget class
 **
@@ -30,9 +30,7 @@
 #include "qpixmap.h"
 #include "qapplication.h"
 
-Q_DECLARE(QListM, QListBoxItem);
-
-class QLBItemList : public QListM(QListBoxItem) // internal class
+class QLBItemList : public QList<QListBoxItem> // internal class
 {
     int compareItems( GCI i1, GCI i2);
 public:
@@ -1428,9 +1426,9 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	oldcurrent = currentItem();
 	setYOffset(yOffset() + viewHeight() );
-	if ( style() == MotifStyle) 
+	if ( style() == MotifStyle)
 	    ensureCurrentVisible( topItem() );
-	else 
+	else
 	    ensureCurrentVisible(lastRowVisible());
 	if (oldcurrent == currentItem() && currentItem() + 1 <  (int) count() )
 	    ensureCurrentVisible( currentItem() + 1 );
@@ -1455,9 +1453,9 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	oldcurrent = currentItem();
 	setYOffset(yOffset() - viewHeight() );
-	if ( style() == MotifStyle) 
+	if ( style() == MotifStyle)
 	    ensureCurrentVisible( lastRowVisible() );
-	else 
+	else
 	    ensureCurrentVisible( topItem() );
 	if (oldcurrent == currentItem() && currentItem() > 0)
 	    ensureCurrentVisible( currentItem() -1);
@@ -1904,10 +1902,10 @@ void QListBox::ensureCurrentVisible( int newCurrent )
 	newCurrent = currentItem();
     if ( newCurrent != currentItem() )
 	setCurrentItem( newCurrent );
-    if ( newCurrent <= topItem() && newCurrent < lastRowVisible() ) 
+    if ( newCurrent <= topItem() && newCurrent < lastRowVisible() )
 	 setTopItem( newCurrent );
-    else if ( newCurrent >= lastRowVisible() ) 
-	setBottomItem( newCurrent ); 
+    else if ( newCurrent >= lastRowVisible() )
+	setBottomItem( newCurrent );
 }
 
 /*!

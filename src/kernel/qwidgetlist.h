@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetlist.h#2 $
+** $Id: //depot/qt/main/src/kernel/qwidgetlist.h#3 $
 **
 ** Definition of QWidgetList
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-typedef Q_DECLARE(QListM,QWidget)		QWidgetList;
-typedef Q_DECLARE(QListIteratorM,QWidget)	QWidgetListIt;
+typedef QList<QWidget> QWidgetList;
+typedef QListIterator<QWidget> QWidgetListIt;
 
 #endif // QWIDGETLIST_H
