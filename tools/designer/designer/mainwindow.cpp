@@ -256,6 +256,15 @@ MainWindow::~MainWindow()
     desInterface->release();
     desInterface = 0;
 
+    QStringList lst = actionPluginManager->featureList();
+    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	ActionInterface *iface = actionPluginManager->queryInterface( *it );
+	if ( !iface )
+	    continue;
+	//### calling some disconnect/cleanup function that destroys the action?
+	iface->release();
+    }
+
     delete actionPluginManager;
     delete programPluginManager;
     delete templateWizardPluginManager;
@@ -1528,7 +1537,7 @@ void MainWindow::saveAllTemp()
     inSaveAllTemp = TRUE;
     statusBar()->message( tr( "Qt Designer is crashing - saving work as good as possible..." ) );
     QWidgetList windows = workSpace()->windowList();
-    QString baseName = QString( getenv( "HOME" ) ) + "/.designer/saved-form-";
+    QString baseName = QDir::homeDirPath() + "/.designer/saved-form-";
     int i = 1;
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( !w->inherits( "FormWindow" ) )
@@ -3743,10 +3752,10 @@ void MainWindow::openProject( const QString &fn )
 
 void MainWindow::checkTempFiles()
 {
-    QString baseName = QString( getenv( "HOME" ) ) + "/.designer/saved-form-";
+    QString s = QDir::homeDirPath() + "/.designer";
+    QString baseName = s+ "/saved-form-";
     if ( !QFile::exists( baseName + "1.ui" ) )
 	return;
-    QString s = QString( getenv( "HOME" ) ) + "/.designer";
     QDir d( s );
     d.setNameFilter( "*.ui" );
     QStringList lst = d.entryList();
@@ -3758,7 +3767,7 @@ void MainWindow::checkTempFiles()
     QApplication::setOverrideCursor( waitCursor );
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	if ( load )
-	    openFile( QString( getenv( "HOME" ) ) + "/.designer/" + *it, FALSE );
+	    openFile( s + "/" + *it, FALSE );
 	d.remove( *it );
     }
 }
