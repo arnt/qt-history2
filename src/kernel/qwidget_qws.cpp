@@ -1436,7 +1436,8 @@ void QWidget::setMask( const QRegion& region )
 #endif
 	    qwsDisplay()->requestRegion(winId(), rgn);
 	} else {
-	//XXX
+	    parentWidget()->repaint(geometry());
+	    paint_children( parentWidget(),geometry() );
 	}
     }
 }
