@@ -774,10 +774,12 @@ QSize QTableItem::sizeHint() const
     cells covering \a rs rows and \a cs columns. The top left cell is
     the original cell.
 
-  \warning This function only works, if the item has already been
+  \warning This function only works if the item has already been
   inserted into the table using e.g. QTable::setItem().  This function
   also checks to make sure if \a rs and \a cs are within the bounds of
   the table and returns without changing the span if they are not.
+  In addition swapping, inserting or removing rows and columns that 
+  cross QTableItems spanning more than one cell is not supported.
 
   \sa rowSpan() colSpan()
 */
