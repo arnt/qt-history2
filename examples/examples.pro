@@ -26,6 +26,7 @@ SUBDIRS     =	aclock \
 		menu \
 		movies \
 		picture \
+		pingpong \
 		popup \
 		process \
 		progress \
@@ -37,6 +38,7 @@ SUBDIRS     =	aclock \
 		rangecontrols \
 		richtext \
 		rot13 \
+		semaphores \
 		scribble \
 		scrollview \
 		showimg \
