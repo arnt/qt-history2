@@ -22,6 +22,8 @@
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QHeaderView>
 
+#include <QtCore/qdebug.h>
+
 QDesignerSettings::QDesignerSettings()
     : QSettings()
 {
@@ -94,13 +96,20 @@ void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
 //    beginGroup();
     int screen = value(key + QLatin1String("/screen"), 0).toInt();
     QRect g = value(key + QLatin1String("/geometry"), fallBack).toRect();
-    if (g.intersect(QApplication::desktop()->availableGeometry(screen)).isEmpty())
+
+    if (w->isWindow() && g.intersect(QApplication::desktop()->availableGeometry(screen)).isEmpty()) {
         g = fallBack;
+    }
+
     if (value(key + QLatin1String("/maximized"), false).toBool()) {
         w->setWindowState(w->windowState() | Qt::WindowMaximized);
     } else {
+        if (!w->isWindow()) // in workspace
+            w->parentWidget()->move(g.topLeft());
+        else
+            w->move(g.topLeft());
+
         w->resize(g.size());
-        w->move(g.topLeft());
     }
     if (value(key + QLatin1String("/visible"), true).toBool())
         w->show();

@@ -222,6 +222,22 @@ void QDesignerWorkbench::initialize()
                 this, SLOT(updateWindowMenu(AbstractFormWindow *)));
 }
 
+Qt::WindowFlags QDesignerWorkbench::magicalWindowFlags() const
+{
+    switch (m_mode) {
+        case TopLevelMode:
+            return Qt::Window;
+        case WorkspaceMode:
+            Q_ASSERT(m_workspace != 0);
+            return Qt::Window | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint;
+        case NeutralMode:
+            return Qt::Window;
+        default:
+            Q_ASSERT(0);
+            return 0;
+    }
+}
+
 QWidget *QDesignerWorkbench::magicalParent() const
 {
     switch (m_mode) {
@@ -344,8 +360,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     qDesigner->setMainWindow(mw);
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        tw->setParent(magicalParent());
-        m_workspace->addWindow(tw, Qt::Tool | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
+        QWidget *frame = m_workspace->addWindow(tw, magicalWindowFlags());
         if (m_geometries.isEmpty()) {
             settings.setGeometryFor(tw, tw->geometryHint());
             QHeaderView *header = qFindChild<QHeaderView*>(tw);
@@ -354,17 +369,16 @@ void QDesignerWorkbench::switchToWorkspaceMode()
         } else {
             QRect g = m_geometries.value(tw, tw->geometryHint());
             tw->resize(g.size());
-            tw->move(g.topLeft());
+            frame->move(g.topLeft());
             tw->setVisible(m_visibilities.value(tw, true));
         }
     }
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
-        fw->setParent(magicalParent());
-        m_workspace->addWindow(fw, Qt::Window | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
+        QWidget *frame = m_workspace->addWindow(fw, magicalWindowFlags());
         QRect g = m_geometries.value(fw, fw->geometryHint());
         fw->resize(g.size());
-        fw->move(g.topLeft());
+        frame->move(g.topLeft());
         fw->show();
     }
     changeBringToFrontVisiblity(false);
@@ -415,7 +429,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
 
     QDesignerSettings settings;
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        tw->setParent(magicalParent(), Qt::Window);
+        tw->setParent(magicalParent(), magicalWindowFlags());
         if (m_geometries.isEmpty()) {
             settings.setGeometryFor(tw, tw->geometryHint());
             if (QHeaderView *header = qFindChild<QHeaderView*>(tw))
@@ -430,7 +444,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
     changeBringToFrontVisiblity(true);
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
-        fw->setParent(magicalParent(), Qt::Window);
+        fw->setParent(magicalParent(), magicalWindowFlags());
         QRect g = m_geometries.value(fw, fw->geometryHint());
         fw->resize(g.size());
         fw->move(g.topLeft() + desktopOffset);
@@ -442,11 +456,13 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
 {
     QDesignerFormWindow *formWindow = new QDesignerFormWindow(/*formWindow=*/ 0, this);
 
-    formWindow->setParent(magicalParent(), Qt::Window);
-    formWindow->setAttribute(Qt::WA_DeleteOnClose, true);
+    if (m_workspace) {
+        m_workspace->addWindow(formWindow, magicalWindowFlags());
+    } else {
+        formWindow->setParent(magicalParent(), magicalWindowFlags());
+    }
 
-    if (m_workspace)
-        m_workspace->addWindow(formWindow, Qt::Window | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
+    formWindow->setAttribute(Qt::WA_DeleteOnClose, true);
 
     addFormWindow(formWindow);
 
@@ -511,6 +527,7 @@ void QDesignerWorkbench::activateWorkspaceChildWindow(QWidget *widget)
 {
     if (QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow*>(widget)) {
         core()->formWindowManager()->setActiveFormWindow(fw->editor());
+        m_workspace->setActiveWindow(widget);
     }
 }
 

@@ -114,6 +114,7 @@ private slots:
 
 private:
     QWidget *magicalParent() const;
+    Qt::WindowFlags magicalWindowFlags() const;
     AbstractFormWindowManager *formWindowManager() const;
     void changeBringToFrontVisiblity(bool visible);
     void changeToolBarIconSize(bool big);
