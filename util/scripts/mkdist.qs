@@ -11,7 +11,8 @@ const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
 const validEditions = ["free", "commercial"];
-const validSwitches = ["branch", "version"];
+const validSwitches = ["gzip", "bzip", "zip"]; // these are either true or false, set by -do-foo/-no-foo
+const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
 const user = System.getenv("USER");
 
@@ -100,6 +101,9 @@ for (var p in validPlatforms) {
   		       [].concat(platformKeep[platform]).concat(editionKeep[edition]));
 
   	    // package directory
+	    print("Compressing and packaging file(s)...")
+	    compress(platDir, platName, platform, edition);
+	    
   	    indentation-=tabSize;
   	}
     }
@@ -112,7 +116,11 @@ for (var p in validPlatforms) {
  */
 function parseArgc()
 {
-    validOptions = validPlatforms.toString() + validEditions.toString() + validSwitches.toString();
+    validOptions =
+	validPlatforms.toString() +
+	validEditions.toString() +
+	validSwitches.toString() +
+	validVars.toString();
     for (var i=0; i<argc.length; ++i) {
 	if (argc[i].startsWith("-do")) {
 	    optionKey = argc[i].split("-")[2];
@@ -140,12 +148,15 @@ function parseArgc()
  */
 function initialize()
 {
-    // checks that branch and version has been specified
-    if (options["branch"] == undefined)
-	throw "branch not specified.";
-    if (options["version"] == undefined)
-	throw "version not specified.";
+    // checks that all valid vars are specified
+    for (var i in validVars)
+	if (!(validVars[i] in options))
+	    throw "%1 was not specified.".arg(validVars[i]);
 
+    // by default turn on all valid switches that were not defined
+    for (var i in validSwitches)
+	if (!(validSwitches[i] in options))
+	    options[validSwitches[i]] = true;
 
     // by default turn on all valid platforms that were not defined
     for (var i in validPlatforms)
@@ -196,8 +207,6 @@ function initialize()
     if (!File.exists(p4Command))
 	p4Command = "/usr/local/bin/p4";
 
-
-
 //     for (var i in options)
 // 	print("options[%1] = %2".arg(i).arg(options[i]));
 }
@@ -212,6 +221,7 @@ function checkTools()
 	Process.execute("zip -help");
 	Process.execute("tar --help");
 	Process.execute("gzip -h");
+	Process.execute("bzip2 -h");
 	Process.execute("cp --help");
 	Process.execute(p4Command);
     } catch (e) {
@@ -336,6 +346,41 @@ function purgeFiles(rootDir, fileList, remove, keep)
 	    throw "File: %1 not found in remove nor keep filter, bailing out.".arg(absFileName);
     }
 }
+
+/************************************************************
+ * compresses platDir into files (.zip .gz etc.)
+ */
+function compress(platDir, platName, platform, edition)
+{
+    // set directory to parent of platDir
+    var dir = new Dir(platDir);
+    dir.cdUp();
+    dir.setCurrent();
+
+    if (platform == "win") {
+	if (options["zip"]) {
+	    
+	}
+    } else {
+	var outputTar = outputDir + "/" + platName + ".tar";
+	Process.execute(["tar", "cf", outputTar, platName]);
+	print(Process.stdout + Process.stderr);
+	if (!File.exists(outputTar))
+	    throw "Failed to produce %1.".arg(outputTar);
+	
+ 	if (options["bzip"]) {
+ 	    Process.execute(["bzip2", "-z", "-k", outputTar]);
+ 	}
+ 	if (options["gzip"]) {
+ 	    Process.execute(["gzip", outputTar]);
+ 	}
+	// remove .tar
+	if (File.exists(outputTar))
+	    File.remove(outputTar);
+    }
+}
+
+
 
 /************************************************************
  * gets a list of all files and subdirectories relative to the specified directory (not absolutePath)
