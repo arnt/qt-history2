@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of ODBC driver plugin
+** Implementation of OCI driver plugin
 **
 ** Created : 001103
 **
@@ -35,12 +35,12 @@
 **********************************************************************/
 
 #include <qsqldriverinterface.h>
-#include "qsql_odbc.h"
+#include "../../../../src/sql/drivers/oci/qsql_oci.h"
 
-class QODBCDriverPlugin : public QSqlDriverFactoryInterface
+class QOCIDriverPlugin : public QSqlDriverFactoryInterface
 {
 public:
-    QODBCDriverPlugin();
+    QOCIDriverPlugin();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
@@ -53,12 +53,12 @@ private:
     unsigned long ref;
 };
 
-QODBCDriverPlugin::QODBCDriverPlugin()
+QOCIDriverPlugin::QOCIDriverPlugin()
 : ref( 0 )
 {
 }
 
-QRESULT QODBCDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
+QRESULT QOCIDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
 {
     *iface = 0;
 
@@ -75,36 +75,37 @@ QRESULT QODBCDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface*
     return QS_OK;
 }
 
-unsigned long QODBCDriverPlugin::addRef()
+unsigned long QOCIDriverPlugin::addRef()
 {
     return ref++;
 }
 
-unsigned long QODBCDriverPlugin::release()
+unsigned long QOCIDriverPlugin::release()
 {
     if ( !--ref ) {
 	delete this;
 	return 0;
     }
+
     return ref;
 }
 
-QSqlDriver* QODBCDriverPlugin::create( const QString &name )
+QSqlDriver* QOCIDriverPlugin::create( const QString &name )
 {
-    if ( name == "QODBC3" ) {
-	return new QODBCDriver();
+    if ( name == "QOCI8" ) {
+	return new QOCIDriver();
     }
     return 0;
 }
 
-QStringList QODBCDriverPlugin::featureList() const
+QStringList QOCIDriverPlugin::featureList() const
 {
     QStringList l;
-    l.append("QODBC3");
+    l.append("QOCI8");
     return l;
 }
 
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( QODBCDriverPlugin )
+    Q_CREATE_INSTANCE( QOCIDriverPlugin )
 }

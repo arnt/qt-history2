@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of OCI driver plugin
+** Implementation of TDS driver plugin
 **
 ** Created : 001103
 **
@@ -34,13 +34,14 @@
 **
 **********************************************************************/
 
+#define Q_UUIDIMPL
 #include <qsqldriverinterface.h>
-#include "qsql_oci.h"
+#include "../../../../src/sql/drivers/tds/qsql_tds.h"
 
-class QOCIDriverPlugin : public QSqlDriverFactoryInterface
+class QTDSDriverPlugin : public QSqlDriverFactoryInterface
 {
 public:
-    QOCIDriverPlugin();
+    QTDSDriverPlugin();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
@@ -53,12 +54,12 @@ private:
     unsigned long ref;
 };
 
-QOCIDriverPlugin::QOCIDriverPlugin()
+QTDSDriverPlugin::QTDSDriverPlugin()
 : ref( 0 )
 {
 }
 
-QRESULT QOCIDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
+QRESULT QTDSDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
 {
     *iface = 0;
 
@@ -75,12 +76,12 @@ QRESULT QOCIDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface**
     return QS_OK;
 }
 
-unsigned long QOCIDriverPlugin::addRef()
+unsigned long QTDSDriverPlugin::addRef()
 {
     return ref++;
 }
 
-unsigned long QOCIDriverPlugin::release()
+unsigned long QTDSDriverPlugin::release()
 {
     if ( !--ref ) {
 	delete this;
@@ -90,22 +91,21 @@ unsigned long QOCIDriverPlugin::release()
     return ref;
 }
 
-QSqlDriver* QOCIDriverPlugin::create( const QString &name )
+QSqlDriver* QTDSDriverPlugin::create( const QString &name )
 {
-    if ( name == "QOCI8" ) {
-	return new QOCIDriver();
-    }
+    if ( name == "QTDS7" )
+	return new QTDSDriver();
     return 0;
 }
 
-QStringList QOCIDriverPlugin::featureList() const
+QStringList QTDSDriverPlugin::featureList() const
 {
     QStringList l;
-    l.append("QOCI8");
+    l.append("QTDS7");
     return l;
 }
 
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( QOCIDriverPlugin )
+    Q_CREATE_INSTANCE( QTDSDriverPlugin )
 }

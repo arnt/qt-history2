@@ -1,8 +1,8 @@
 TEMPLATE	= lib
 CONFIG+= qt warn_on release plugin
-HEADERS		= qsql_oci.h
+HEADERS		= ../../../../src/sql/drivers/oci/qsql_oci.h
 SOURCES		= main.cpp \
-		  qsql_oci.cpp 
+		  ../../../../src/sql/drivers/oci/qsql_oci.cpp 
 
 win32 {
 	OBJECTS_DIR	= obj
@@ -19,7 +19,7 @@ unix:OBJECTS_DIR	= .obj
 
 REQUIRES	= sql oci_libs_and_headers
 
-DESTDIR		= ../../../../plugins/sqldrivers
+DESTDIR		= ../../../sqldrivers
 TARGET		= qsqloci
 
 target.path=$$plugins.path/sqldrivers

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of MySQL driver plugin
+** Implementation of ODBC driver plugin
 **
 ** Created : 001103
 **
@@ -35,12 +35,12 @@
 **********************************************************************/
 
 #include <qsqldriverinterface.h>
-#include "qsql_mysql.h"
+#include "../../../../src/sql/drivers/odbc/qsql_odbc.h"
 
-class QMYSQLDriverPlugin : public QSqlDriverFactoryInterface
+class QODBCDriverPlugin : public QSqlDriverFactoryInterface
 {
 public:
-    QMYSQLDriverPlugin();
+    QODBCDriverPlugin();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
@@ -53,13 +53,15 @@ private:
     unsigned long ref;
 };
 
-QMYSQLDriverPlugin::QMYSQLDriverPlugin()
+QODBCDriverPlugin::QODBCDriverPlugin()
 : ref( 0 )
 {
 }
 
-QRESULT QMYSQLDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
+QRESULT QODBCDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
 {
+    *iface = 0;
+
     if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_QFeatureList )
@@ -73,12 +75,12 @@ QRESULT QMYSQLDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface
     return QS_OK;
 }
 
-unsigned long QMYSQLDriverPlugin::addRef()
+unsigned long QODBCDriverPlugin::addRef()
 {
     return ref++;
 }
 
-unsigned long QMYSQLDriverPlugin::release()
+unsigned long QODBCDriverPlugin::release()
 {
     if ( !--ref ) {
 	delete this;
@@ -87,21 +89,22 @@ unsigned long QMYSQLDriverPlugin::release()
     return ref;
 }
 
-QSqlDriver* QMYSQLDriverPlugin::create( const QString &name )
+QSqlDriver* QODBCDriverPlugin::create( const QString &name )
 {
-    if ( name.upper() == "QMYSQL3" )
-	return new QMYSQLDriver();
+    if ( name == "QODBC3" ) {
+	return new QODBCDriver();
+    }
     return 0;
 }
 
-QStringList QMYSQLDriverPlugin::featureList() const
+QStringList QODBCDriverPlugin::featureList() const
 {
     QStringList l;
-    l  << "QMYSQL3";
+    l.append("QODBC3");
     return l;
 }
 
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( QMYSQLDriverPlugin )
+    Q_CREATE_INSTANCE( QODBCDriverPlugin )
 }
