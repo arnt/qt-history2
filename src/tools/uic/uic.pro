@@ -6,7 +6,7 @@ CONFIG -= resource_fork
 
 unix:!zlib:LIBS        += -lz
 
-TARGET = uic4
+TARGET = uic
 DESTDIR = ../../../bin
 
 include(uic.pri)
