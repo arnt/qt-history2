@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#34 $
 **
 ** Implementation of QML classes
 **
@@ -1204,20 +1204,25 @@ QMLImage::QMLImage(const QDict<QString> &attr, QMLProvider &provider)
 	imageName = attr["src"];
     if (imageName) {
 	pm = provider.image( *imageName );
-	
-	if (!pm.isNull() && (pm.width() != width || pm.height() != height) ){
+	if ( !pm.isNull() ) {
+	  if ( width == 0 )
+	    width = pm.width();
+	  if ( height == 0 )
+	    height = pm.height();
+
+	  if ( pm.width() != width || pm.height() != height ){
 	    pm.convertFromImage( pm.convertToImage().smoothScale(width, height) );
 	    width = pm.width();
 	    height = pm.height();
-	}
+	  }
 	
-	if ( !pm.isNull() ) {
+	  if ( !pm.mask() )
 	    pm.setMask( pm.createHeuristicMask() );
-	    if ( pm.mask() ) {
-		QRegion mask( *pm.mask() );
-		QRegion all( 0, 0, pm.width(), pm.height() );
-		reg = new QRegion( all.subtract( mask ) );
-	    }
+	  if ( pm.mask() ) {
+	    QRegion mask( *pm.mask() );
+	    QRegion all( 0, 0, pm.width(), pm.height() );
+	    reg = new QRegion( all.subtract( mask ) );
+	  }
 	}
     }
 
