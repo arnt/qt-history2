@@ -228,7 +228,6 @@ struct QListViewPrivate
     bool pressedSelected	:1;
     bool pressedEmptyArea 	:1;
 
-    bool useDoubleBuffer	:1;
     bool toolTips		:1;
     bool fullRepaintOnComlumnChange:1;
     bool updateHeader		:1;
@@ -1829,7 +1828,6 @@ void QListViewItem::setText( int column, const QString &text )
 	widthChanged( column );
 
     if ( lv ) {
-	lv->d->useDoubleBuffer = TRUE;
 	lv->triggerUpdate();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	if ( lv->isVisible() )
@@ -1900,7 +1898,6 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
     }
     QListView *lv = listView();
     if ( lv ) {
-	lv->d->useDoubleBuffer = TRUE;
 	lv->triggerUpdate();
     }
 }
@@ -2547,12 +2544,14 @@ void QListViewItem::ignoreDoubleClick()
     Constructs a new empty list view called \a name with parent \a
     parent.
 
-    Performance is boosted by modifying the widget flags \a f so that
-    only part of the QListViewItem children is redrawn. This may be
-    unsuitable for custom QListViewItem classes, in which case \c
-    WStaticContents and \c WNoAutoErase should be cleared.
+    Performance is boosted by setting both the \c WA_StaticContent and
+    the \c WA_NoAutoErase attribute so that only part of the
+    QListViewItem children is redrawn. This may be unsuitable for
+    custom QListViewItem classes, in which case \c WA_StaticContents
+    and \c WA_NoAutoErase should be cleared on the viewport() after
+    construction.
 
-    \sa QWidget::clearWFlags() Qt::WidgetFlags
+    \sa QWidget::setAttribute()
 */
 QListView::QListView( QWidget * parent, const char *name, WFlags f )
     : QScrollView( parent, name, f | WStaticContents | WNoAutoErase )
@@ -2599,7 +2598,6 @@ void QListView::init()
     d->pressedItem = 0;
     d->selectAnchor = 0;
     d->select = TRUE;
-    d->useDoubleBuffer = FALSE;
     d->startDragItem = 0;
     d->toolTips = TRUE;
 #ifndef QT_NO_TOOLTIP
@@ -2879,21 +2877,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		    // can really reverse the listview.
 		    int align = columnAlignment( ac );
 		    if ( align == AlignAuto ) align = AlignLeft;
-		    if ( d->useDoubleBuffer ) {
-			QRect a( 0, 0, r.width(), current->i->height() );
-			QSharedDoubleBuffer buffer( p, a, QSharedDoubleBuffer::Force );
-			if ( buffer.isBuffered() )
-			    paintEmptyArea( buffer.painter(), a );
-			buffer.painter()->setFont( p->font() );
-			buffer.painter()->setPen( p->pen() );
-			buffer.painter()->setBrush( p->brush() );
-			buffer.painter()->setBrushOrigin( -r.left(), -r.top() );
-			current->i->paintCell( buffer.painter(), pal, ac, r.width(),
-			    align );
-		    } else {
-			current->i->paintCell( p, pal, ac, r.width(),
-			    align );
-		    }
+			current->i->paintCell( p, pal, ac, r.width(), align );
 		}
 		p->restore();
 		x += cs;
@@ -3524,8 +3508,6 @@ void QListView::updateContents()
     d->updateHeader = FALSE;
     if ( !isVisible() ) {
 	// Not in response to a setText/setPixmap any more.
-	d->useDoubleBuffer = FALSE;
-
 	return;
     }
     if ( d->drawables ) {
@@ -3536,7 +3518,6 @@ void QListView::updateContents()
     updateGeometries();
     viewport()->setUpdatesEnabled( TRUE );
     viewport()->repaint( FALSE );
-    d->useDoubleBuffer = FALSE;
 }
 
 
@@ -3704,8 +3685,6 @@ void QListView::triggerUpdate()
 {
     if ( !isVisible() || !isUpdatesEnabled() ) {
 	// Not in response to a setText/setPixmap any more.
-	d->useDoubleBuffer = FALSE;
-
 	return; // it will update when shown, or something.
     }
 
@@ -4297,7 +4276,6 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 		}
 	    }
 	    if ( changed ) {
-		d->useDoubleBuffer = TRUE;
 		triggerUpdate();
 		emit selectionChanged();
 
@@ -4687,7 +4665,6 @@ void QListView::doAutoScroll( const QPoint &cursorPos )
 		setSelected( c, d->select );
 	} else if ( d->selectionMode == Extended ) {
 	    if ( selectRange( c, oldCurrent, d->selectAnchor ) ) {
-		d->useDoubleBuffer = TRUE;
 		triggerUpdate();
 		emit selectionChanged();
 	    }
@@ -4717,10 +4694,7 @@ void QListView::focusInEvent( QFocusEvent* )
 	d->startEdit = FALSE;
     }
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
-	bool db = d->useDoubleBuffer;
-	d->useDoubleBuffer = TRUE;
 	viewport()->repaint( FALSE );
-	d->useDoubleBuffer = db;
     }
 
     QRect mfrect = itemRect( d->focusItem );
@@ -4746,10 +4720,7 @@ void QListView::focusOutEvent( QFocusEvent* )
 	    QFocusEvent::reason() == QFocusEvent::Popup
 	    || (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
 	if ( !d->inMenuMode ) {
-	    bool db = d->useDoubleBuffer;
-	    d->useDoubleBuffer = TRUE;
 	    viewport()->repaint( FALSE );
-	    d->useDoubleBuffer = db;
 	}
     }
 
@@ -5252,7 +5223,6 @@ void QListView::selectAll( bool select )
 	blockSignals( b );
 	if ( anything ) {
 	    emit selectionChanged();
-	    d->useDoubleBuffer = TRUE;
 	    triggerUpdate();
 	}
     } else if ( d->focusItem ) {
@@ -7881,7 +7851,6 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 	    break;
     }
     if ( changed ) {
-	d->useDoubleBuffer = TRUE;
 	triggerUpdate();
 	emit selectionChanged();
     }

@@ -476,13 +476,6 @@ QSize QFrame::sizeHint() const
 
 void QFrame::paintEvent( QPaintEvent *event )
 {
-    const int m = margin();
-    if ( m && testWFlags( WNoAutoErase ) ) {
-	QRect r = contentsRect();
-	r.addCoords( -m, -m, m, m );
-	erase( event->region().intersect( QRegion( r ) - contentsRect() ) );
-    }
-
     QPainter paint( this );
 
     if ( !contentsRect().contains( event->rect() ) ) {

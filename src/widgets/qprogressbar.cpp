@@ -69,7 +69,7 @@
 */
 
 QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | WNoAutoErase ),
+    : QFrame( parent, name, f ),
       total_steps( 100 ),
       progress_val( -1 ),
       percentage( -1 ),
@@ -100,7 +100,7 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
 
 QProgressBar::QProgressBar( int totalSteps,
 			    QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | WNoAutoErase ),
+    : QFrame( parent, name, f ),
       total_steps( totalSteps ),
       progress_val( -1 ),
       percentage( -1 ),
@@ -345,36 +345,22 @@ bool QProgressBar::setIndicator( QString & indicator, int progress,
 */
 void QProgressBar::drawContents( QPainter *p )
 {
-    const QRect bar = contentsRect();
-
-    QSharedDoubleBuffer buffer( p, bar.x(), bar.y(), bar.width(), bar.height() );
-
-    QPoint pn = backgroundOffset();
-    buffer.painter()->setBrushOrigin( -pn.x(), -pn.y() );
-
-    const QPixmap *bpm = paletteBackgroundPixmap();
-    if ( bpm )
-	buffer.painter()->fillRect( bar, QBrush( paletteBackgroundColor(), *bpm ) );
-    else
-	buffer.painter()->fillRect( bar, paletteBackgroundColor() );
-    buffer.painter()->setFont( p->font() );
-
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
 	flags |= QStyle::Style_Enabled;
     if (hasFocus())
 	flags |= QStyle::Style_HasFocus;
 
-    style().drawControl(QStyle::CE_ProgressBarGroove, buffer.painter(), this,
+    style().drawControl(QStyle::CE_ProgressBarGroove, p, this,
 			QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, this), this ),
 			palette(), flags);
 
-    style().drawControl(QStyle::CE_ProgressBarContents, buffer.painter(), this,
+    style().drawControl(QStyle::CE_ProgressBarContents, p, this,
 			QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, this), this ),
 			palette(), flags);
 
     if (percentageVisible())
-	style().drawControl(QStyle::CE_ProgressBarLabel, buffer.painter(), this,
+	style().drawControl(QStyle::CE_ProgressBarLabel, p, this,
 			    QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarLabel, this), this ),
 			    palette(), flags);
 }

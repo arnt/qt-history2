@@ -951,11 +951,12 @@ int QListBoxPixmap::rtti() const
     Constructs a new empty list box called \a name and with parent \a
     parent.
 
-    Performance is boosted by modifying the widget flags \a f so that
-    only part of the QListBoxItem children is redrawn. This may be
-    unsuitable for custom QListBoxItem classes, in which case \c
-    WStaticContents and \c WNoAutoErase should be cleared
-    immediately after construction.
+    Performance is boosted by setting both the \c WA_StaticContent and
+    the \c WA_NoAutoErase attribute so that only part of the
+    QListBoxItem children is redrawn. This may be unsuitable for
+    custom QListBoxItem classes, in which case \c WA_StaticContents
+    and \c WA_NoAutoErase should be cleared on the viewport() after
+    construction.
 
     \sa QWidget::clearWFlags() Qt::WidgetFlags
 */

@@ -2301,7 +2301,6 @@ void qt_cleanup()
 	QCursor::cleanup();
 	QFont::cleanup();
 	QColor::cleanup();
-	QSharedDoubleBuffer::cleanup();
     }
 #if defined(QT_THREAD_SUPPORT)
     QThread::cleanup();
@@ -5508,7 +5507,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     bool transbg = d->isTransparent();
     // we ignore NorthWestGravity at the moment for reversed layout
     if ( transbg ||
-	 (!testWFlags( WStaticContents ) &&
+	 (!testAttribute(WA_StaticContents) &&
 	  testWState( WState_Exposed ) && was_resize ) ||
 	 QApplication::reverseLayout() ) {
 	// remove unnecessary paint events from the queue

@@ -1525,7 +1525,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    }
 		    r &= cr;
 		    if(!r.isEmpty())
-			widget->repaint(r, !widget->testWFlags(WRepaintNoErase));
+			widget->repaint(r);
 		}
 	    }
 	    request_updates_pending_list.clear();
@@ -2723,7 +2723,7 @@ void QApplication::flush()
 			}
 			r &= cr;
 			if(!r.isEmpty())
-			    widget->repaint(r, !widget->testWFlags(WRepaintNoErase));
+			    widget->repaint(r);
 
 			it = request_updates_pending_list.remove(it);
 			if(it == request_updates_pending_list.end())

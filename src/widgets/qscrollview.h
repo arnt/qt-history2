@@ -95,9 +95,9 @@ public:
     void	updateContents( int x, int y, int w, int h );
     void	updateContents( const QRect& r );
     void 	updateContents();
-    void	repaintContents( int x, int y, int w, int h, bool erase=TRUE );
-    void	repaintContents( const QRect& r, bool erase=TRUE );
-    void 	repaintContents( bool erase=TRUE );
+    void	repaintContents( int x, int y, int w, int h );
+    void	repaintContents( const QRect& r );
+    void 	repaintContents();
     void	contentsToViewport( int x, int y, int& vx, int& vy ) const;
     void	viewportToContents( int vx, int vy, int& x, int& y ) const;
     QPoint	contentsToViewport( const QPoint& ) const;
@@ -233,6 +233,13 @@ private: // Disabled copy constructor and operator=
 
 public:
     void disableSizeHintCaching();
+
+#ifndef QT_NO_COMPAT
+    void repaintContents( int x, int y, int w, int h, bool) {repaintContents(x, y, w, h); }
+    void repaintContents( const QRect& r, bool ) { repaintContents(r); }
+    void repaintContents( bool ) { repaintContents(); }
+
+#endif
 
 };
 

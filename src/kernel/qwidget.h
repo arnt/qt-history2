@@ -303,19 +303,9 @@ public:
     void update(const QRect&);
     void update( const QRegion& );
 
-    void update(bool erase);
-    void update(int x, int y, int w, int h, bool erase);
-    void update(const QRect&, bool erase);
-    void update(const QRegion&, bool erase);
-
     void repaint(int x, int y, int w, int h);
     void repaint(const QRect &);
     void repaint(const QRegion &);
-
-    void repaint(bool erase);
-    void repaint(int x, int y, int w, int h, bool erase);
-    void repaint(const QRect &, bool erase);
-    void repaint(const QRegion &, bool erase);
 
 public slots:
     // Widget management functions
@@ -427,7 +417,9 @@ public:
 	WA_UnderMouse,
 	WA_MouseTracking,
 	WA_ContentsPropagated,
+	WA_NoAutoErase,
 	WA_NoErase,
+	WA_StaticContents,
 	WA_ForegroundInherited,
 	WA_BackgroundInherited,
 
@@ -688,6 +680,10 @@ public:
     inline void setBackgroundOrigin( BackgroundOrigin ){};
     inline BackgroundOrigin backgroundOrigin() const { return WindowOrigin; }
     inline QPoint backgroundOffset() const { return QPoint(); }
+    void repaint(bool) { repaint(); }
+    void repaint(int x, int y, int w, int h, bool) { repaint(x,y,w,h); }
+    void repaint(const QRect &r, bool) { repaint(r); }
+    void repaint(const QRegion &rgn, bool) { repaint(rgn); }
 #endif
 };
 
@@ -794,14 +790,8 @@ inline bool QWidget::isUpdatesEnabled() const
 inline void QWidget::update( const QRect &r )
 { update(r.x(), r.y(), r.width(), r.height()); }
 
-inline void QWidget::update( const QRect &r, bool erase )
-{ update(r.x(), r.y(), r.width(), r.height(), erase); }
-
 inline void QWidget::repaint( const QRect &r)
 { repaint(r.x(), r.y(), r.width(), r.height()); }
-
-inline void QWidget::repaint( const QRect &r, bool erase )
-{ repaint( r.x(), r.y(), r.width(), r.height(), erase ); }
 
 inline void QWidget::erase()
 { erase( 0, 0, crect.width(), crect.height() ); }

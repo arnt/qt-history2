@@ -235,7 +235,7 @@ static const int motifItemVMargin	= 4;	// menu item ver text margin
     Constructs a menu bar called \a name with parent \a parent.
 */
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
-    : QFrame( parent, name, WNoAutoErase )
+    : QFrame( parent, name )
 {
 #if defined( Q_WS_MAC ) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     mac_eaten_menubar = FALSE;
@@ -1086,10 +1086,6 @@ void QMenuBar::drawContents( QPainter *p )
 	    if ( !e )
 		pal.setCurrentColorGroup(QPalette::Disabled);
 	    reg = reg.subtract( r );
-	    QSharedDoubleBuffer buffer( p, r );
-	    buffer.painter()->setFont( p->font() );
-	    buffer.painter()->setPen( p->pen() );
-	    buffer.painter()->setBrush( p->brush() );
 
 	    QStyle::SFlags flags = QStyle::Style_Default;
 	    if (isEnabled() && e)
@@ -1100,7 +1096,7 @@ void QMenuBar::drawContents( QPainter *p )
 		flags |= QStyle::Style_Down;
 	    if (hasFocus() || hasmouse || popupvisible)
 		flags |= QStyle::Style_HasFocus;
-	    style().drawControl(QStyle::CE_MenuBarItem, buffer.painter(), this,
+	    style().drawControl(QStyle::CE_MenuBarItem, p, this,
 				r, pal, flags, QStyleOption(mi));
 	}
     }

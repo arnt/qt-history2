@@ -491,7 +491,7 @@ void QLabel::setAutoResize( bool enable )
     if ( (bool)autoresize != enable ) {
 	autoresize = enable;
 	if ( autoresize )
-	    adjustSize();			// calls resize which repaints
+	    adjustSize();
     }
 }
 
@@ -642,57 +642,6 @@ QSize QLabel::minimumSizeHint() const
 void QLabel::resizeEvent( QResizeEvent* e )
 {
     QFrame::resizeEvent( e );
-
-#ifdef QT_NO_RICHTEXT
-    static const bool doc = FALSE;
-#endif
-
-    // optimize for standard labels
-    if ( frameShape() == NoFrame && (align & WordBreak) == 0 && !doc &&
-	 ( e->oldSize().width() >= e->size().width() && (align & AlignLeft ) == AlignLeft )
-	 && ( e->oldSize().height() >= e->size().height() && (align & AlignTop ) == AlignTop ) ) {
-	setWFlags( WResizeNoErase );
-	return;
-    }
-
-    clearWFlags( WResizeNoErase );
-    QRect cr = contentsRect();
-    if ( !lpixmap ||  !cr.isValid() ||
-	 // masked pixmaps can only reduce flicker when being top/left
-	 // aligned and when we do not perform scaled contents
-	 ( lpixmap->hasAlpha() && ( scaledcontents || ( ( align & (AlignLeft|AlignTop) ) != (AlignLeft|AlignTop) ) ) ) )
-	return;
-
-    setWFlags( WResizeNoErase );
-
-    if ( !scaledcontents ) {
-	// don't we all love QFrame? Reduce pixmap flicker
-	QRegion reg = QRect( QPoint(0, 0), e->size() );
-	reg = reg.subtract( cr );
-	int x = cr.x();
-	int y = cr.y();
-	int w = lpixmap->width();
-	int h = lpixmap->height();
-	if ( (align & Qt::AlignVCenter) == Qt::AlignVCenter )
-	    y += cr.height()/2 - h/2;
-	else if ( (align & Qt::AlignBottom) == Qt::AlignBottom)
-	    y += cr.height() - h;
-	if ( (align & Qt::AlignRight) == Qt::AlignRight )
-	    x += cr.width() - w;
-	else if ( (align & Qt::AlignHCenter) == Qt::AlignHCenter )
-	    x += cr.width()/2 - w/2;
-	if ( x > cr.x() )
-	    reg = reg.unite( QRect( cr.x(), cr.y(), x - cr.x(), cr.height() ) );
-	if ( y > cr.y() )
-	    reg = reg.unite( QRect( cr.x(), cr.y(), cr.width(), y - cr.y() ) );
-
-	if ( x + w < cr.right() )
-	    reg = reg.unite( QRect( x + w, cr.y(),  cr.right() - x - w, cr.height() ) );
-	if ( y + h < cr.bottom() )
-	    reg = reg.unite( QRect( cr.x(), y +  h, cr.width(), cr.bottom() - y - h ) );
-
-	erase( reg );
-    }
 }
 
 

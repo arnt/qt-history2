@@ -254,7 +254,7 @@ public:
 */
 
 QPushButton::QPushButton( QWidget *parent, const char *name )
-	: QButton( parent, name, WNoAutoErase )
+	: QButton( parent, name )
 {
     init();
 }
@@ -266,7 +266,7 @@ QPushButton::QPushButton( QWidget *parent, const char *name )
 
 QPushButton::QPushButton( const QString &text, QWidget *parent,
 			  const char *name )
-	: QButton( parent, name, WNoAutoErase )
+	: QButton( parent, name )
 {
     init();
     setText( text );
@@ -285,7 +285,7 @@ QPushButton::QPushButton( const QString &text, QWidget *parent,
 #ifndef QT_NO_ICONSET
 QPushButton::QPushButton( const QIconSet& icon, const QString &text,
 			  QWidget *parent, const char *name )
-	: QButton( parent, name, WNoAutoErase  )
+	: QButton( parent, name )
 {
     init();
     setText( text );

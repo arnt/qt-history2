@@ -69,7 +69,7 @@ static int takeLocalId()
 
 // This repaints all children within a widget.
 
-static void paint_children(QWidget * p,const QRegion& r, bool post)
+static void paint_children(QWidget * p,const QRegion& r, bool update)
 {
     if(!p)
 	return;
@@ -83,12 +83,11 @@ static void paint_children(QWidget * p,const QRegion& r, bool post)
 		    QRegion wr( QRegion(w->geometry()) & r );
 		    if ( !wr.isEmpty() ) {
 			wr.translate(-w->x(),-w->y());
-			if ( post )
-			    QApplication::postEvent(w,new QPaintEvent(wr,
-				   !w->testWFlags(QWidget::WRepaintNoErase) ) );
+			if ( update )
+			    w->update(wr);
 			else
-			    w->repaint(wr, !w->testWFlags(QWidget::WRepaintNoErase));
-			paint_children(w,wr,post);
+			    w->repaint(wr);
+			paint_children(w,wr,update);
 		    }
 		}
 	    }
@@ -98,21 +97,19 @@ static void paint_children(QWidget * p,const QRegion& r, bool post)
 
 // Paint the widget and its children
 
-static void paint_hierarchy(QWidget *w, bool post)
+static void paint_hierarchy(QWidget *w, bool update)
 {
     if ( w && w->testWState(Qt::WState_Visible) ) {
-	if ( post )
-	    QApplication::postEvent(w,new QPaintEvent(w->rect(),
-			!w->testWFlags(QWidget::WRepaintNoErase) ) );
+	if (update)
+	    w->update(w->rect());
 	else
-	    w->repaint(w->rect(),
-		    !w->testWFlags(QWidget::WRepaintNoErase));
+	    w->repaint(w->rect());
 
 	QObjectList childObjects = w->children();
 	for (int i = 0; i < childObjects.size(); ++i) {
 	    QObject *o = childObjects.at(i);
 	    if( o->isWidgetType() )
-	        paint_hierarchy(static_cast<QWidget *>(o),post);
+	        paint_hierarchy(static_cast<QWidget *>(o),update);
 	}
     }
 }
@@ -594,19 +591,19 @@ void QWidget::setActiveWindow()
 }
 
 
-void QWidget::update(bool erase)
+void QWidget::update()
 {
     if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
-	QApplication::postEvent(this, new QPaintEvent(clipRegion(), erase));
+	QApplication::postEvent(this, new QPaintEvent(clipRegion()));
 }
 
-void QWidget::update(const QRegion &rgn, bool erase)
+void QWidget::update(const QRegion &rgn)
 {
      if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
-	QApplication::postEvent(this, new QPaintEvent( rgn&clipRegion(), erase));
+	 QApplication::postEvent(this, new QPaintEvent(rgn&clipRegion()));
 }
 
-void QWidget::update(int x, int y, int w, int h, bool erase)
+void QWidget::update(int x, int y, int w, int h)
 {
     if (w && h && (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible) {
 	if ( w < 0 )
@@ -615,11 +612,11 @@ void QWidget::update(int x, int y, int w, int h, bool erase)
 	    h = crect.height() - y;
 	if ( w != 0 && h != 0 )
 	    QApplication::postEvent(this,
-		    new QPaintEvent( clipRegion().intersect(QRect(x,y,w,h)), erase));
+		    new QPaintEvent( clipRegion().intersect(QRect(x,y,w,h)));
     }
 }
 
-void QWidget::repaint( int x, int y, int w, int h, bool erase )
+void QWidget::repaint(int x, int y, int w, int h)
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible && isVisible() ) {
 	if ( w < 0 )
@@ -629,23 +626,23 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	QRect r(x,y,w,h);
 	if ( r.isEmpty() )
 	    return; // nothing to do
-	if ( erase )
-	    this->erase(x,y,w,h);
-	QPaintEvent e( r, erase );
+	if (!testAttribute(WA_NoAutoErase))
+	    erase(x,y,w,h);
+	QPaintEvent e( r );
 	qt_set_paintevent_clipping( this, r );
-	QApplication::sendEvent( this, &e );
+	QApplication::sendSpontaneousEvent( this, &e );
 	qt_clear_paintevent_clipping();
     }
 }
 
-void QWidget::repaint( const QRegion& reg, bool erase )
+void QWidget::repaint( const QRegion& reg )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible && isVisible() ) {
-	if ( erase )
-	    this->erase(reg);
-	QPaintEvent e( reg, erase );
+	if (!testAttribute(WA_NoAutoErase))
+	    erase(reg);
+	QPaintEvent e( reg );
 	qt_set_paintevent_clipping( this, reg );
-	QApplication::sendEvent( this, &e );
+	QApplication::sendSpontaneousEvent( this, &e );
 	qt_clear_paintevent_clipping();
     }
 }
@@ -696,7 +693,7 @@ void QWidget::hideWindow()
 	    if ( p->overlapping_children )
 		p->overlapping_children = -1;
 	    if ( p->isVisible() ) {
-		QApplication::postEvent( p, new QPaintEvent(geometry(), TRUE) );
+		p->update(geometry());
 		paint_children( p,geometry(),TRUE );
 	    }
 	}
@@ -940,12 +937,6 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 		QApplication::sendEvent(d->topData()->qwsManager, &e);
 	    }
 #endif
-/*
-	    if ( !testWFlags( WStaticContents ) ) {
-		QApplication::postEvent(this,new QPaintEvent(clipRegion(),
-					!testWFlags(WResizeNoErase) ) );
-	    }
-*/
 	}
 
 	updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
@@ -962,8 +953,7 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 			dirtyChildren |= upd;
 		    } else {
 			dirtyChildren |= QRegion(r) - oldr;
-			QApplication::postEvent( this, new QPaintEvent(rect(),
-			    !testWFlags(QWidget::WResizeNoErase)) );
+			update(rect());
 		    }
 		    p->dirtyChildren |= dirtyChildren;
 		} else {
@@ -998,7 +988,7 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 		    }
 #endif
 		    if ( !oldr.isEmpty() )
-			QApplication::postEvent( p, new QPaintEvent(oldr, TRUE) );
+			p->update(oldr);
 		    p->setChildrenAllocatedDirty( dirtyChildren, this );
 		    qwsUpdateActivePainters();
 		    paint_children( p, paintRegion, isResize );
@@ -1011,8 +1001,7 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 		} else {
 		    setChildrenAllocatedDirty( dirtyChildren );
 		    qwsUpdateActivePainters();
-		    QApplication::postEvent( this, new QPaintEvent(rect(),
-			!testWFlags(QWidget::WResizeNoErase)) );
+		    QApplication::postEvent( this, new QPaintEvent(rect()));
 		    paint_children( this, dirtyChildren, TRUE );
 		}
 	    }
@@ -1021,8 +1010,7 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 	}
 #ifndef QT_NO_QWS_MANAGER
 	if (isResize && d->extra && d->extra->topextra && d->extra->topextra->qwsManager) {
-	    QApplication::postEvent(d->topData()->qwsManager,
-				    new QPaintEvent( clipRegion(), TRUE ) );
+	    d->topData()->qwsManager->update(clipRegion());
 	}
 #endif
 	isSettingGeometry = FALSE;
@@ -1250,7 +1238,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	int y = y2 == sr.y() ? sr.y()+h : sr.y();
 	update |= QRect( sr.x(), y, sr.width(), QABS(dy) );
     }
-    repaint( update, !testWFlags(WRepaintNoErase) );
+    repaint( update );
     if ( !valid_rect )
 	paint_children( this, update, FALSE );
 }

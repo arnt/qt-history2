@@ -1966,7 +1966,7 @@ QSize QCheckTableItem::sizeHint() const
 */
 
 QTable::QTable( QWidget *parent, const char *name )
-    : QScrollView( parent, name, WNoAutoErase | WStaticContents ),
+    : QScrollView( parent, name, WStaticContents ),
       currentSel( 0 ), lastSortCol( -1 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
       asc( TRUE ), doSort( TRUE ), readOnly( FALSE )
 {
@@ -1986,7 +1986,7 @@ QTable::QTable( QWidget *parent, const char *name )
 */
 
 QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
-    : QScrollView( parent, name, WNoAutoErase | WStaticContents ),
+    : QScrollView( parent, name, WStaticContents ),
       currentSel( 0 ), lastSortCol( -1 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
       asc( TRUE ), doSort( TRUE ), readOnly( FALSE )
 {
@@ -4263,7 +4263,7 @@ void QTable::updateCell( int row, int col )
     QRect cg = cellGeometry( row, col );
     QRect r( contentsToViewport( QPoint( cg.x() - 2, cg.y() - 2 ) ),
 	     QSize( cg.width() + 4, cg.height() + 4 ) );
-    QApplication::postEvent( viewport(), new QPaintEvent( r, FALSE ) );
+    QApplication::postEvent(viewport(), new QPaintEvent(r));
     inUpdateCell = FALSE;
 }
 

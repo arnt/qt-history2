@@ -201,25 +201,25 @@ private:
 class Q_EXPORT QPaintEvent : public QEvent
 {
 public:
-    QPaintEvent( const QRegion& paintRegion, bool erased = TRUE)
+    QPaintEvent( const QRegion& paintRegion )
 	: QEvent(Paint),
 	  rec(paintRegion.boundingRect()),
-	  reg(paintRegion),
-	  erase(erased){}
-    QPaintEvent( const QRect &paintRect, bool erased = TRUE )
+	  reg(paintRegion){}
+    QPaintEvent( const QRect &paintRect )
 	: QEvent(Paint),
 	  rec(paintRect),
-	  reg(paintRect),
-	  erase(erased){}
+	  reg(paintRect){}
     const QRect &rect() const	  { return rec; }
     const QRegion &region() const { return reg; }
-    bool erased() const { return erase; }
+
+#ifndef QT_NO_COMPAT
+    bool erased() const { return true; }
+#endif
 protected:
     friend class QApplication;
     friend class QBaseApplication;
     QRect rec;
     QRegion reg;
-    bool erase;
 };
 
 

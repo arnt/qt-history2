@@ -2746,9 +2746,9 @@ void QETWidget::repaintHierarchy(QRegion r, bool post)
     r.translate(-crect.x(),-crect.y());
 
     if ( post ) {
-	QApplication::postEvent(this,new QPaintEvent(r,
-		    !testWFlags(QWidget::WRepaintNoErase) ) );
+	QApplication::postEvent(this,new QPaintEvent(r));
     } else {
+	/// ##### why isn't that just calling repaint???
 	erase(r);
 
 	QPaintEvent e( r );

@@ -359,7 +359,7 @@ struct QLineEditPrivate : public Qt
 */
 
 QLineEdit::QLineEdit( QWidget* parent, const char* name )
-    : QFrame( parent, name, WNoAutoErase ), d(new QLineEditPrivate( this ))
+    : QFrame( parent, name ), d(new QLineEditPrivate( this ))
 {
     d->init( QString::null );
 }
@@ -377,7 +377,7 @@ QLineEdit::QLineEdit( QWidget* parent, const char* name )
 */
 
 QLineEdit::QLineEdit( const QString& contents, QWidget* parent, const char* name )
-    : QFrame( parent, name, WNoAutoErase ), d(new QLineEditPrivate( this ))
+    : QFrame( parent, name ), d(new QLineEditPrivate( this ))
 {
     d->init( contents );
 }
@@ -396,7 +396,7 @@ QLineEdit::QLineEdit( const QString& contents, QWidget* parent, const char* name
     \sa setMask() text()
 */
 QLineEdit::QLineEdit( const QString& contents, const QString &inputMask, QWidget* parent, const char* name )
-    : QFrame( parent, name, WNoAutoErase ), d(new QLineEditPrivate( this ))
+    : QFrame( parent, name ), d(new QLineEditPrivate( this ))
 {
     d->parseInputMask( inputMask );
     if ( d->maskData ) {
@@ -1822,26 +1822,11 @@ void QLineEdit::drawContents( QPainter *p )
     QRect lineRect( cr.x() + innerMargin, cr.y() + (cr.height() - fm.height() + 1) / 2,
 		    cr.width() - 2*innerMargin, fm.height() );
     bool enabled = isEnabled();
-    QBrush bg = QBrush( paletteBackgroundColor() );
-
-    if (paletteBackgroundPixmap())
-	bg = QBrush(pal.background(), *paletteBackgroundPixmap());
-    else if (!enabled)
+    QBrush bg = pal.brush(backgroundRole());
+    if (!enabled) {
 	bg = pal.brush( QPalette::Background );
-
-    p->save();
-    if (enabled)
-	p->setClipRegion( QRegion(cr) - lineRect );
-    p->fillRect( cr, bg );
-    p->restore();
-
-    QSharedDoubleBuffer buffer(hasFocus() ? QSharedDoubleBuffer::Force : 0);
-    if (enabled) {
-	buffer.begin(p, lineRect);
-	p = buffer.painter();
+	p->fillRect( cr, bg );
     }
-    p->fillRect( lineRect, bg );
-
     // locate cursor position
     int cix = 0;
     QTextItem ci = d->textLayout.findItem( d->cursor );
@@ -2217,7 +2202,7 @@ void QLineEditPrivate::init( const QString& txt )
     //   less, horizontal space; and is fixed vertically.
     q->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
     q->setBackgroundRole( QPalette::Base );
-    q->setAttribute(QWidget::WA_KeyCompression, true);
+    q->setAttribute(QWidget::WA_KeyCompression);
     q->setMouseTracking( TRUE );
     q->setAcceptDrops( TRUE );
     q->setFrame( TRUE );
@@ -2271,8 +2256,8 @@ QRect QLineEditPrivate::cursorRect() const
 	    ci = textLayout.findItem( cursor + 1 );
 	cix += ci.x() + ci.cursorToX( cursor - ci.from() );
     }
-    int ch = q->fontMetrics().height();
-    return QRect( cix-4, cr.y() + ( cr.height() -  ch + 1) / 2, 8, ch + 1 );
+    int ch = QMIN( cr.height(), q->fontMetrics().height() + 1 );
+    return QRect( cix-4, cr.y() + ( cr.height() -  ch) / 2, 8, ch );
 }
 
 void QLineEditPrivate::updateMicroFocusHint()

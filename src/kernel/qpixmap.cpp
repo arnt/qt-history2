@@ -988,7 +988,7 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
 {
     buf.fill(widget, r.topLeft());
     QPainter::setRedirected(widget, &buf, r.topLeft());
-    QPaintEvent e(r & widget->rect(), false);
+    QPaintEvent e(r & widget->rect());
     QApplication::sendEvent(widget, &e);
     QPainter::restoreRedirected(widget);
     ::bitBlt(&res, offset, &buf, QRect(QPoint(), r.size()));
@@ -1063,10 +1063,7 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
     if(!res || !buf)
 	return res;
 
-    bool dblbfr = QSharedDoubleBuffer::isDisabled();
-    QSharedDoubleBuffer::setDisabled(true);
     grabWidget_helper(widget, res, buf, r, QPoint());
-    QSharedDoubleBuffer::setDisabled( dblbfr );
     return res;
 }
 

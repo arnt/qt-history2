@@ -443,7 +443,7 @@ static inline bool checkIndex( const char *method, const char * name,
 */
 
 QComboBox::QComboBox( QWidget *parent, const char *name )
-    : QWidget( parent, name, WNoAutoErase )
+    : QWidget( parent, name )
 {
     d = new QComboBoxData( this );
     if ( style().styleHint(QStyle::SH_ComboBox_Popup, this) ||
@@ -474,8 +474,6 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->completionTimer       = new QTimer( this );
 
     setFocusPolicy( TabFocus );
-    setBackgroundRole(QPalette::Button);
-    setAttribute(WA_BackgroundInherited);
 }
 
 
@@ -492,7 +490,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 
 
 QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
-    : QWidget( parent, name, WNoAutoErase )
+    : QWidget( parent, name )
 {
     d = new QComboBoxData( this );
     setUpListBox();
@@ -519,8 +517,6 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     if ( rw )
 	setUpLineEdit();
 
-    setBackgroundRole(QPalette::Button);
-    setAttribute(WA_BackgroundInherited);
 }
 
 

@@ -188,10 +188,9 @@ public:
 	WPaintDesktop		= 0x00020000,
 	WPaintUnclipped		= 0x00040000,
 	WPaintClever		= 0x00080000,
-	WResizeNoErase		= 0x00100000, // OBSOLETE
+	//reserved		= 0x00100000, // was ResizeNoErase
 	WMouseNoMask		= 0x00200000,
-	WStaticContents		= 0x00400000,
-	WRepaintNoErase		= 0x00800000, // OBSOLETE
+
 #if defined(Q_WS_X11)
 	WX11BypassWM		= 0x01000000,
 	WWinOwnDC		= 0x00000000,
@@ -213,14 +212,17 @@ public:
 	WNoMousePropagation	= 0x08000000,
 	WSubWindow              = 0x10000000,
 #if defined(Q_WS_X11)
-        WStyle_Splash           = 0x20000000,
+        WStyle_Splash           = 0x20000000
 #else
 	WStyle_Splash           = WStyle_NoBorder | WStyle_StaysOnTop | WMacNoSheet |
-				  WStyle_Tool | WWinOwnDC,
+				  WStyle_Tool | WWinOwnDC
 #endif
-	WNoAutoErase		= WRepaintNoErase | WResizeNoErase
 #ifndef QT_NO_COMPAT
 	,
+	WStaticContents		= 0x00400000,
+	WNoAutoErase		= 0x00800000,
+	WRepaintNoErase	= WNoAutoErase,
+	WResizeNoErase = WNoAutoErase,
 	WNorthWestGravity	= WStaticContents,
 	WType_Modal		= WType_Dialog | WShowModal,
 	WStyle_Dialog		= WType_Dialog,

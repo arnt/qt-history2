@@ -222,8 +222,7 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
     }
 
     r.translate(-point.x(), -point.y());
-    bool erase = !(ops & PC_NoErase) &&
-		 ((ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase));
+    bool erase = !(ops & PC_NoErase);
     if((ops & PC_NoPaint)) {
 	if(ops & PC_Later)
 	   qDebug("Qt: internal: Cannot use PC_NoPaint with PC_Later!");
@@ -238,7 +237,7 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
 #ifdef DEBUG_WINDOW_RGN
 	    debug_wndw_rgn("**paint_children2", p, r, TRUE, TRUE);
 #endif
-	    p->repaint(r, erase);
+	    p->repaint(r);
 	} else {
 	    bool painted = FALSE;
 	    if(ops & PC_Later); //do nothing
@@ -247,7 +246,7 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
 #ifdef DEBUG_WINDOW_RGN
                 debug_wndw_rgn("**paint_children3", p, r, TRUE, TRUE);
 #endif
-		p->repaint(r, erase);
+		p->repaint(r);
 	    } else if(erase) {
 		erase = FALSE;
 		p->erase(r);
@@ -1334,7 +1333,7 @@ void QWidget::update(int x, int y, int w, int h)
     }
 }
 
-void QWidget::update(const QRegion &rgn, bool erase)
+void QWidget::update(const QRegion &rgn)
 {
     if(!testWState(WState_BlockUpdates) && isVisible() && !clippedRegion().isEmpty()) {
 	qt_event_request_updates(this, rgn);
@@ -1344,7 +1343,7 @@ void QWidget::update(const QRegion &rgn, bool erase)
     }
 }
 
-void QWidget::repaint(int x, int y, int w, int h, bool erase)
+void QWidget::repaint(int x, int y, int w, int h)
 {
     if(w < 0)
 	w = crect.width()  - x;
@@ -1353,18 +1352,18 @@ void QWidget::repaint(int x, int y, int w, int h, bool erase)
     QRect r(x,y,w,h);
     if(r.isEmpty())
 	return; // nothing to do
-    repaint(QRegion(r), erase); //general function..
+    repaint(QRegion(r)); //general function..
 }
 
-void QWidget::repaint(const QRegion &reg , bool erase)
+void QWidget::repaint(const QRegion &reg)
 {
     if(!testWState(WState_BlockUpdates) && isVisible()) {
 	setWState(WState_InPaintEvent);
 	qt_set_paintevent_clipping(this, reg, NULL);
-	if(erase)
-	    this->erase(reg);
+	if (!testAttribute(WA_NoAutoErase))
+	    erase(reg);
 	QPaintEvent e(reg);
-	QApplication::sendEvent(this, &e);
+	QApplication::sendSpontaneousEvent(this, &e);
 	qt_clear_paintevent_clipping(this);
 	clearWState(WState_InPaintEvent);
     }
@@ -1739,7 +1738,7 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 	       (isResize || !isTopLevel() || !QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))) {
 		//finally issue "expose" event
 		QRegion upd((oldregion + clpreg) - bltregion);
-		if(isResize && !testWFlags(WStaticContents))
+		if(isResize && !testAttribute(WA_StaticContents))
 		    upd += clippedRegion();
 		qt_dirty_wndw_rgn("setGeometry_helper",this, upd);
 		//and force the update

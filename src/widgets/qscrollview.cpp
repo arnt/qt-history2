@@ -229,11 +229,11 @@ void QScrollViewData::hideOrShowAll(QScrollView* sv, bool isScroll )
 	// clipped_viewport still covers viewport
 	if( static_bg )
 	    clipped_viewport->repaint( TRUE );
-	else if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WStaticContents) )
+	else if ( ( !isScroll && !clipped_viewport->testAttribute(QWidget::WA_StaticContents) )
 		  || static_bg )
 	    QApplication::postEvent( clipped_viewport,
 		     new QPaintEvent( clipped_viewport->clipRegion(),
-			      !clipped_viewport->testWFlags(Qt::WResizeNoErase) ) );
+			      !clipped_viewport->testAttribute(QWidget::WA_NoAutoErase) ) );
     } else {
 	// Re-center
 	int nx = ( viewport->width() - clipped_viewport->width() ) / 2;
@@ -554,9 +554,9 @@ void QScrollViewData::viewportResized( int w, int h )
 */
 
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
-    QFrame( parent, name, f & (~WStaticContents) & (~WRepaintNoErase) & (~WResizeNoErase) )
+    QFrame( parent, name, f & (~WStaticContents) & (~WNoAutoErase) )
 {
-    WFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WRepaintNoErase) | (f&WStaticContents);
+    WFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WNoAutoErase) | (f&WStaticContents);
     d = new QScrollViewData( this, flags );
 
 #ifndef QT_NO_DRAGANDDROP
@@ -2218,36 +2218,33 @@ void QScrollView::updateContents()
 /*!
     \overload
 
-    Repaints the contents of rectangle \a r. If \a erase is TRUE the
-    background is cleared using the background color.
+    Repaints the contents of rectangle \a r.
 */
-void QScrollView::repaintContents( const QRect& r, bool erase )
+void QScrollView::repaintContents( const QRect& r )
 {
-    repaintContents(r.x(), r.y(), r.width(), r.height(), erase);
+    repaintContents(r.x(), r.y(), r.width(), r.height());
 }
 
 
 /*!
     \overload
 
-    Repaints the contents. If \a erase is TRUE the background is
-    cleared using the background color.
+    Repaints the contents.
 */
-void QScrollView::repaintContents( bool erase )
+void QScrollView::repaintContents()
 {
-    repaintContents( d->contentsX(), d->contentsY(), visibleWidth(), visibleHeight(), erase );
+    repaintContents( d->contentsX(), d->contentsY(), visibleWidth(), visibleHeight());
 }
 
 
 /*!
     Calls repaint() on a rectangle defined by \a x, \a y, \a w, \a h,
     translated appropriately. If the rectangle is not visible, nothing
-    is repainted. If \a erase is TRUE the background is cleared using
-    the background color.
+    is repainted.
 
     \sa updateContents()
 */
-void QScrollView::repaintContents( int x, int y, int w, int h, bool erase )
+void QScrollView::repaintContents( int x, int y, int w, int h )
 {
     if ( testWState(WState_Visible|WState_BlockUpdates) != WState_Visible )
 	return;
@@ -2281,7 +2278,7 @@ void QScrollView::repaintContents( int x, int y, int w, int h, bool erase )
         y -= d->clipped_viewport->y();
     }
 
-    vp->repaint( x, y, w, h, erase );
+    vp->repaint( x, y, w, h );
 }
 
 

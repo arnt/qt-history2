@@ -2994,8 +2994,6 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 		continue;
 	    if ( cur.event->type() == QEvent::Paint ) {
 		QPaintEvent * p = (QPaintEvent*)(cur.event);
-		if ( p->erase != ((QPaintEvent*)event)->erase )
-		    continue;
 		p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
 		p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
 	    } else if ( cur.event->type() == QEvent::LayoutRequest
@@ -3114,7 +3112,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		QWidget * w = (QWidget*)r;
 		QPaintEvent * p = (QPaintEvent*)e;
 		if ( w->isVisible() )
-		    w->repaint( p->reg, p->erase );
+		    w->repaint( p->reg);
 	    } else if ( e->type() == QEvent::PolishRequest) {
 		r->ensurePolished();
 	    } else {

@@ -579,7 +579,7 @@ void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
 
     // those can popups - they would steal the focus, but are disabled
     q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM |
-			      Qt::WNoAutoErase | Qt::WStyle_StaysOnTop, orient );
+			      Qt::WStyle_StaysOnTop, orient );
     q_roll->run( time );
 }
 
@@ -598,7 +598,7 @@ void qFadeEffect( QWidget* w, int time )
 
     // those can popups - they would steal the focus, but are disabled
     q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM |
-			      Qt::WNoAutoErase | Qt::WStyle_StaysOnTop);
+			      Qt::WStyle_StaysOnTop);
 
     q_blend->run( time );
 }

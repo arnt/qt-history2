@@ -605,17 +605,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WMouseNoMask  indicates that even if the widget has a mask,
     it wants mouse events for its entire rectangle.
 
-    \value WStaticContents  indicates that the widget contents are
-    north-west aligned and static. On resize, such a widget will
-    receive paint events only for the newly visible part of itself.
-
-    \value WNoAutoErase indicates that the widget paints all its
-    pixels. Updating, resizing, scrolling and focus changes should
-    therefore not erase the widget. This allows smart-repainting to
-    avoid flicker.
-
-    \value WResizeNoErase  \obsolete Use WNoAutoErase instead.
-    \value WRepaintNoErase  \obsolete Use WNoAutoErase instead.
     \value WGroupLeader  makes this window a group leader. A group
     leader should \e not have a parent (i.e. it should be a top-level
     window). Any decendant windows (direct or indirect) of a group
@@ -715,6 +704,12 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
     widget_attributes = 0;
+#ifndef QT_NO_COMPAT
+    if (f & WNoAutoErase)
+	setAttribute(WA_NoAutoErase);
+    if (f & WStaticContents)
+	setAttribute(WA_StaticContents);
+#endif
     widget_state = 0;
     widget_flags = f;
 
@@ -782,6 +777,12 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
     widget_attributes = 0;
+#ifndef QT_NO_COMPAT
+    if (f & WNoAutoErase)
+	setAttribute(WA_NoAutoErase);
+    if (f & WStaticContents)
+	setAttribute(WA_StaticContents);
+#endif
     widget_state = 0;
     widget_flags = f;
 
@@ -1174,7 +1175,7 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 	    QPainter::setRedirected(w, this, offset);
   	    QRect rr = widget->rect();
  	    rr.moveBy(offset);
-	    QPaintEvent e(rr, true);
+	    QPaintEvent e(rr);
 	    QApplication::sendEvent(w, &e);
 	    QPainter::restoreRedirected(w);
 	}
@@ -1610,8 +1611,9 @@ void QWidget::enabledChange( bool )
     window becomes activated or deactivated.
 
     The default implementation updates the visible part of the widget
-    if the inactive and the active roles in the palette are different for colors
-    other than the highlight and link colors.
+    if the inactive and the active roles in the palette are different
+    for colors other than the highlight and link colors, or the
+    WA_UpdateOnActivationChange attribute is set.
 
     \sa setActiveWindow(), isActiveWindow(), update(), palette()
 */
@@ -5240,10 +5242,11 @@ bool QWidget::isFullScreen() const
 
 void QWidget::repaint()
 {
-    repaint( visibleRect(), !testWFlags(WRepaintNoErase));
+    repaint(visibleRect());
 }
 
-/*! \overload
+/*! \fn void QWidget::repaint( int x, int y, int w, int h)
+    \overload
 
     This version repaints a rectangle (\a x, \a y, \a w, \a h) inside
     the widget.
@@ -5252,49 +5255,8 @@ void QWidget::repaint()
     \a h is negative, it is replaced width \c{height() - y}.
 */
 
-void QWidget::repaint( int x, int y, int w, int h)
-{
-    repaint(x, y, w, h, !testWFlags(WRepaintNoErase));
-}
 
-/*!
-    \overload
-
-    This version erases only if \a erase is set to true.
-*/
-
-void QWidget::repaint( bool erase )
-{
-    repaint( visibleRect(), erase );
-}
-
-/*!
-    \overload
-
-    This version repaints a region \a rgn inside the widget.
-*/
-
-void QWidget::repaint(const QRegion &rgn)
-{
-    repaint(rgn, !testWFlags(WRepaintNoErase));
-}
-
-/*!
-  \fn void QWidget::repaint( int x, int y, int w, int h, bool erase )
-    \overload
-
-    This version erases only if \a erase is set to true.
-*/
-
-/*!
-  \fn void QWidget::repaint( const QRegion& reg, bool erase )
-    \overload
-
-    This version erases only if \a erase is set to true.
-*/
-
-
-/*!
+/*! \fn void QWidget::update()
     Updates the widget unless updates are disabled or the widget is
     hidden.
 
@@ -5314,22 +5276,13 @@ void QWidget::repaint(const QRegion &rgn)
     setWFlags()
 */
 
-void QWidget::update()
-{
-    update(!testWFlags(WRepaintNoErase));
-}
-
-/*!
+/*! \fn void QWidget::update(int x, int y, int w, int h)
     \overload
 
     This version updates a rectangle (\a x, \a y, \a w, \a h) inside
     the widget.
 */
 
-void QWidget::update(int x, int y, int w, int h)
-{
-    update(x, y, w, h, !testWFlags(WRepaintNoErase));
-}
 
 /*!
     \overload void QWidget::update(const QRect &r)
@@ -5337,46 +5290,11 @@ void QWidget::update(int x, int y, int w, int h)
     This version updates a rectangle \a r inside the widget.
 */
 
-/*!
+/*! \fn void QWidget::update(const QRegion &rgn)
     \overload
 
     This version repaints a region \a rgn inside the widget.
 */
-
-void QWidget::update(const QRegion &rgn)
-{
-    update(rgn, !testWFlags(WRepaintNoErase));
-}
-
-
-/*!
-  \fn void QWidget::update(bool erase)
-   \overload
-
-   This version erases only if \a erase is set to true.
-*/
-
-/*!
-    \overload void QWidget::update(const QRect &r, bool erase)
-
-    This version erases only if \a erase is set to true.
-*/
-
-
-/*!
-  \fn void QWidget::update(int x, int y, int w, int h, bool erase)
-   \overload
-
-   This version erases only if \a erase is set to true.
-*/
-
-/*!
-  \fn void QWidget::update( const QRegion& rgn, bool erase )
-    \overload
-
-    This version erases only if \a erase is set to true.
-*/
-
 
 /*!
     void QWidget::erase()
@@ -5407,6 +5325,8 @@ void QWidget::erase( int x, int y, int w, int h )
 {
     if (QPainter::redirected(this))
 	return;
+    if (testAttribute(WA_NoErase))
+	return;
     if ( w < 0 )
 	w = crect.width()  - x;
     if ( h < 0 )
@@ -5423,6 +5343,8 @@ void QWidget::erase( int x, int y, int w, int h )
 void QWidget::erase( const QRegion& rgn )
 {
     if (QPainter::redirected(this))
+	return;
+    if (testAttribute(WA_NoErase))
 	return;
     d->erase_helper(rgn);
 }
@@ -5532,6 +5454,23 @@ void QWidget::drawText(const QPoint &p, const QString &str)
 
     \row \i WA_SetBackgroundRole \i Indicates that the widgets has an
     explicit background role\i Function QWidget::setBackgroundRole()
+
+    \row \i WA_NoAutoErase \ i indicates that the widget paints all
+    its pixels when it receives a paint event. It is thus not required
+    for operations like updating, resizing, scrolling and focus
+    changes to call erase the widget before generating paint
+    events. Using WA_NoAutoErase is a small optimization. It can help
+    to reduce flicker on systems that do not provide double buffer
+    support, and it avoids the computational cycles necessary to erase
+    the background prior to paint.\i Widget author
+
+    \row \i WA_NoErase \i Makes QWidget::erase() a null operation. \i
+    Widget author
+
+    \row \i WA_StaticContents \i Indicates that the widget contents
+    are north-west aligned and static. On resize, such a widget will
+    receive paint events only for the newly visible part of itself. \i
+    Widget author.
 
     \endtable
 */

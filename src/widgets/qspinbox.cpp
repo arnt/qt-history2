@@ -197,7 +197,7 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
 */
 
 QSpinBox::QSpinBox( QWidget * parent , const char *name )
-    : QWidget( parent, name, WNoAutoErase ),
+    : QWidget( parent, name ),
       QRangeControl()
 {
     initSpinBox();
@@ -216,7 +216,7 @@ QSpinBox::QSpinBox( QWidget * parent , const char *name )
 
 QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
 		    const char* name )
-    : QWidget( parent, name, WNoAutoErase ),
+    : QWidget( parent, name ),
       QRangeControl( minValue, maxValue, step, step, minValue )
 {
     initSpinBox();

@@ -307,7 +307,7 @@ private:
 */
 
 QTabBar::QTabBar( QWidget * parent, const char *name )
-    : QWidget( parent, name, WNoAutoErase | WNoMousePropagation  )
+    : QWidget( parent, name, WNoMousePropagation  )
 {
     d = new QTabPrivate;
     d->pressed = 0;
@@ -642,14 +642,13 @@ void QTabBar::paintEvent( QPaintEvent * e )
     if ( e->rect().isNull() )
 	return;
 
-    QSharedDoubleBuffer buffer( this, e->rect() );
-
+    QPainter p(this);
     QTab * t;
     t = l->first();
     do {
 	QTab * n = l->next();
 	if ( t && t->r.intersects( e->rect() ) )
-	    paint( buffer.painter(), t, n == 0 );
+	    paint( &p, t, n == 0 );
 	t = n;
     } while ( t != 0 );
 
@@ -657,21 +656,21 @@ void QTabBar::paintEvent( QPaintEvent * e )
 	QPointArray a;
 	int h = height();
 	if ( d->s == RoundedAbove ) {
-	    buffer.painter()->fillRect( 0, 3, 4, h-5,
+	    p.fillRect( 0, 3, 4, h-5,
 			palette().brush( QPalette::Background ) );
 	    a.setPoints( 5,  0,2,  3,h/4, 0,h/2, 3,3*h/4, 0,h );
 	} else if ( d->s == RoundedBelow ) {
-	    buffer.painter()->fillRect( 0, 2, 4, h-5,
+	    p.fillRect( 0, 2, 4, h-5,
 			palette().brush( QPalette::Background ) );
 	    a.setPoints( 5,  0,0,  3,h/4, 0,h/2, 3,3*h/4, 0,h-3 );
 	}
 
 	if ( !a.isEmpty() ) {
-	    buffer.painter()->setPen( palette().light() );
-	    buffer.painter()->drawPolyline( a );
+	    p.setPen( palette().light() );
+	    p.drawPolyline( a );
 	    a.translate( 1, 0 );
-	    buffer.painter()->setPen( palette().midlight() );
-	    buffer.painter()->drawPolyline( a );
+	    p.setPen( palette().midlight() );
+	    p.drawPolyline( a );
 	}
     }
 }

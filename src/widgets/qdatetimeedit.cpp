@@ -421,7 +421,7 @@ protected:
 */
 QDateTimeEditor::QDateTimeEditor( QDateTimeEditBase * parent,
 				  const char * name )
-    : QWidget( parent, name, WNoAutoErase )
+    : QWidget( parent, name )
 {
     d = new QDateTimeEditorPrivate();
     cw = parent;
@@ -505,12 +505,10 @@ void QDateTimeEditor::paintEvent( QPaintEvent * )
 	}
     }
 
-    QSharedDoubleBuffer buffer( this );
+    QPainter p(this);
     const QBrush &bg = palette().brush( isEnabled() ? QPalette::Base : QPalette::Background );
-    buffer.painter()->fillRect( 0, 0, width(), height(), bg );
-    d->paint( txt, hasFocus(), *buffer.painter(), palette(), rect(),
-	      style() );
-    buffer.end();
+    p.fillRect( 0, 0, width(), height(), bg );
+    d->paint( txt, hasFocus(), p, palette(), rect(), style() );
 }
 
 

@@ -835,7 +835,6 @@ void qt_cleanup()
     QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
-    QSharedDoubleBuffer::cleanup();
 #if defined(QT_THREAD_SUPPORT)
     QThread::cleanup();
 #endif
@@ -3455,8 +3454,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    if ( isVisible() ) {
 		QResizeEvent e( newSize, oldSize );
 		QApplication::sendSpontaneousEvent( this, &e );
-		if ( !testWFlags( WStaticContents ) )
-		    repaint( !testWFlags(WResizeNoErase) );
+		if ( !testAttribute(WA_StaticContents))
+		    repaint();
 	    } else {
 		QResizeEvent *e = new QResizeEvent( newSize, oldSize );
 		QApplication::postEvent( this, e );

@@ -130,7 +130,7 @@ public:
 };
 
 QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
-    : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder | WNoAutoErase )
+    : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder )
 {
     d = new QTitleBarPrivate();
 
@@ -141,14 +141,14 @@ QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
     if ( w ) {
-	setWFlags( ((QTitleBar*)w)->getWFlags() | WNoAutoErase );
+	setWFlags( ((QTitleBar*)w)->getWFlags() );
 	if ( w->minimumSize() == w->maximumSize() )
 	    clearWFlags( WStyle_Maximize );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     	setCaption( w->caption() );
 #endif
     } else {
-	setWFlags( WStyle_Customize | WNoAutoErase );
+	setWFlags( WStyle_Customize );
     }
 
     readColors();
@@ -210,15 +210,15 @@ void QTitleBar::readColors()
     }
 #endif // Q_WS_WIN
     if ( !colorsInitialized ) {
-	pal.setColor( QPalette::Active, QPalette::Highlight, 
+	pal.setColor( QPalette::Active, QPalette::Highlight,
 		      pal.color(QPalette::Active, QPalette::Highlight ));
-	pal.setColor( QPalette::Active, QPalette::Base, 
+	pal.setColor( QPalette::Active, QPalette::Base,
 		      pal.color(QPalette::Active, QPalette::Highlight ));
-	pal.setColor( QPalette::Inactive, QPalette::Highlight, 
+	pal.setColor( QPalette::Inactive, QPalette::Highlight,
 		      pal.color(QPalette::Inactive, QPalette::Dark ));
-	pal.setColor( QPalette::Inactive, QPalette::Base, 
+	pal.setColor( QPalette::Inactive, QPalette::Base,
 		      pal.color(QPalette::Inactive, QPalette::Dark ));
-	pal.setColor( QPalette::Inactive, QPalette::HighlightedText, 
+	pal.setColor( QPalette::Inactive, QPalette::HighlightedText,
 		      pal.color(QPalette::Inactive, QPalette::Background ));
     }
 
@@ -451,13 +451,13 @@ void QTitleBar::paintEvent(QPaintEvent *)
 	ctrls ^= under_mouse;
     }
 
-    QSharedDoubleBuffer buffer( this, rect() );
-    style().drawComplexControl(QStyle::CC_TitleBar, buffer.painter(), this, rect(),
+    QPainter p(this);
+    style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
 			       palette(),
 			       isEnabled() ? QStyle::Style_Enabled :
 			       QStyle::Style_Default, ctrls, d->buttonDown);
     if(under_mouse != QStyle::SC_None)
-	style().drawComplexControl(QStyle::CC_TitleBar, buffer.painter(), this, rect(),
+	style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
 				   palette(),
 				   QStyle::Style_MouseOver |
 				   (isEnabled() ? QStyle::Style_Enabled : 0),

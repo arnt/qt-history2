@@ -1233,29 +1233,22 @@ void QFocusEvent::resetReason()
     rect() can be much faster than region().boundingRect(). Painting
     is clipped to region() during processing of a paint event.
 
-    The erased() function returns TRUE if the region() has been
-    cleared to the widget's background (see
-    QWidget::backgroundMode()), and FALSE if the region's contents are
-    arbitrary.
-
     \sa QPainter QWidget::update() QWidget::repaint()
     QWidget::paintEvent() QWidget::backgroundMode() QRegion
 */
 
 /*!
-    \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion, bool erased=TRUE )
+    \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion )
 
     Constructs a paint event object with the region that should be
-    updated. The region is given by \a paintRegion. If \a erased is
-    TRUE the region will be cleared before repainting.
+    updated. The region is given by \a paintRegion.
 */
 
 /*!
-    \fn QPaintEvent::QPaintEvent( const QRect &paintRect, bool erased=TRUE )
+    \fn QPaintEvent::QPaintEvent( const QRect &paintRect )
 
     Constructs a paint event object with the rectangle that should be
-    updated. The region is given by \a paintRect. If \a erased is TRUE
-    the region will be cleared before repainting.
+    updated. The region is given by \a paintRect.
 */
 
 /*!
@@ -1272,13 +1265,6 @@ void QFocusEvent::resetReason()
     Returns the region that should be updated.
 
     \sa rect(), QPainter::setClipRegion()
-*/
-
-/*!
-    \fn bool QPaintEvent::erased() const
-
-    Returns TRUE if the paint event region (or rectangle) has been
-    erased with the widget's background; otherwise returns FALSE.
 */
 
 /*!

@@ -83,7 +83,7 @@
 */
 
 QRadioButton::QRadioButton( QWidget *parent, const char *name )
-	: QButton( parent, name, WNoAutoErase | WMouseNoMask )
+	: QButton( parent, name, WMouseNoMask )
 {
     init();
 }
@@ -97,7 +97,7 @@ QRadioButton::QRadioButton( QWidget *parent, const char *name )
 
 QRadioButton::QRadioButton( const QString &text, QWidget *parent,
 			    const char *name )
-	: QButton( parent, name, WNoAutoErase | WMouseNoMask )
+	: QButton( parent, name, WMouseNoMask )
 {
     init();
     setText( text );
