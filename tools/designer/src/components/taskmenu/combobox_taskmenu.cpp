@@ -60,7 +60,7 @@ void ComboBoxTaskMenu::editItems()
 
     Q_ASSERT(m_comboBox != 0);
 
-    ListWidgetEditor dlg(m_comboBox->window());
+    ListWidgetEditor dlg(m_formWindow, m_comboBox->window());
     dlg.fillContentsFromComboBox(m_comboBox);
     if (dlg.exec() == QDialog::Accepted) {
         m_comboBox->clear();
