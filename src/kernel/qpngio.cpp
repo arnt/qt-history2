@@ -297,6 +297,9 @@ png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)
     }
 #endif
 
+    image.setDotsPerMeterX(png_get_x_pixels_per_meter(png_ptr,info_ptr));
+    image.setDotsPerMeterY(png_get_y_pixels_per_meter(png_ptr,info_ptr));
+
     delete [] row_pointers;
 
     iio->setImage(image);
