@@ -58,7 +58,7 @@ private:
     Movie movie;
     QTCallBack callback; //QT as in Quicktime :)
     static QTCallBackUPP movieCallbackProc;
-    static QPtrList<QAuServerMacCleanupHandler> cleanups;
+    static QList<QAuServerMacCleanupHandler*> cleanups;
     static void movieEnd(QTCallBack, long data) {
 	QAuServerMacCleanupHandler *iteration = (QAuServerMacCleanupHandler*)data;
 	if((--iteration->loops) <= 0) {
@@ -99,8 +99,8 @@ public:
 #endif
     }
     static void cleanup() {
-	while(QAuServerMacCleanupHandler *cu = cleanups.first()) 
-	    delete cu;
+	while(cleanups.size()) 
+	    delete cleanups.first();
 	if(movieCallbackProc) {
 	    DisposeQTCallBackUPP(movieCallbackProc);
 	    movieCallbackProc = 0;
@@ -109,7 +109,7 @@ public:
     static void stop(QSound *s) {
 	if(!s)
 	    return;
-	for(QPtrList<QAuServerMacCleanupHandler>::Iterator it = cleanups.begin(); it != cleanups.end(); ++it) {
+	for(QList<QAuServerMacCleanupHandler*>::Iterator it = cleanups.begin(); it != cleanups.end(); ++it) {
 	    if((*it)->qsound == s) {
 		delete (*it); //the destructor removes it..
 		break;
@@ -119,7 +119,7 @@ public:
 
 };
 QTCallBackUPP QAuServerMacCleanupHandler::movieCallbackProc = 0;
-QPtrList<QAuServerMacCleanupHandler> QAuServerMacCleanupHandler::cleanups;
+QList<QAuServerMacCleanupHandler*> QAuServerMacCleanupHandler::cleanups;
 
 static int servers = 0;
 QAuServerMac::QAuServerMac(QObject* parent) : QAuServer(parent,"Mac Audio Server")
