@@ -23,7 +23,6 @@
 
 #include "qsql_tds.h"
 
-#include <qapplication.h>
 #include <qhash.h>
 #include <qstringlist.h>
 #include <qdatetime.h>

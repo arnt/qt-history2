@@ -16,7 +16,6 @@
 
 #include <qdatetime.h>
 #include <qvector.h>
-#include <qmemarray.h>
 #include <qstringlist.h>
 #include <qregexp.h>
 #include <qcorevariant.h>
@@ -159,7 +158,7 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
     for (int i = 0; i < values.count(); ++i) {
         if (isOutValue(i))
             values[i].detach();
-        QVariant val = values.at(i);
+        QCoreVariant val = values.at(i);
         void *data = (void*)val.constData();
 
         //qDebug("binding values: %d, %s", i, values.at(i).toString().ascii());
@@ -1066,7 +1065,7 @@ bool QOCIResult::gotoNext(QtSqlCachedResult::ValueCache &values, int index)
         for (int i = 0; i < cols->size(); ++i) {
             if (cols->isNull(i))
                 values[i + index] = QCoreVariant(cols->type(i));
-            else if (values.at(i + index) == QVariant::Invalid)
+            else if (values.at(i + index) == QCoreVariant::Invalid)
                 values[i + index] = cols->value(i);
         }
     } else {

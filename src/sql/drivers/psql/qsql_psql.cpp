@@ -16,8 +16,6 @@
 
 #include <math.h>
 
-#include <qpointarray.h>
-#include <qrect.h>
 #include <qsqlrecord.h>
 #include <qregexp.h>
 #include <qdatetime.h>
