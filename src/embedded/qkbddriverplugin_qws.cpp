@@ -142,9 +142,9 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
 
 
 /*!
-    \fn QScreen* QKbdDriverPlugin::create( const QString &driver )
+    \fn QScreen* QKbdDriverPlugin::create( const QString &driver, const QString &device )
 
-    Creates a driver matching the type specified by \a driver.
+    Creates a driver matching the type specified by \a driver and \a device.
 
     \sa keys()
 */
