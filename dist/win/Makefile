@@ -11,7 +11,7 @@ QMFILE=Makefile.borland
 FORCEDEP=
 !ENDIF
 
-all: symlinks sub-src sub-tools sub-tutorial sub-examples
+all: symlinks src-qmake sub-src sub-tools sub-tutorial sub-examples
 	@echo .
 	@echo The Qt library is now built in .\lib
 	@echo The Qt examples are built in the directories in .\examples
