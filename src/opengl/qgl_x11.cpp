@@ -114,7 +114,7 @@ void qt_resolve_gl_symbols()
     qt_glPopMatrix = (_glPopMatrix) gl.resolve("glPopMatrix");
     qt_glPushAttrib = (_glPushAttrib) gl.resolve("glPushAttrib");
     qt_glPushMatrix = (_glPushMatrix) gl.resolve("glPushMatrix");
-    qt_glRasterPos2i = (_glRasterPos2i) gl.resolve("glRasterPos3d");
+    qt_glRasterPos2i = (_glRasterPos2i) gl.resolve("glRasterPos2i");
     qt_glRasterPos3d = (_glRasterPos3d) gl.resolve("glRasterPos3d");
     qt_glReadPixels = (_glReadPixels) gl.resolve("glReadPixels");
     qt_glViewport = (_glViewport) gl.resolve("glViewport");
