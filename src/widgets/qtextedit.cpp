@@ -346,35 +346,35 @@ static bool block_set_alignment = FALSE;
     efficient way to add reasonable online help facilities to
     applications, and to provide a basis for rich text editors.
 
-    Setting the text format in a QTextEdit to \c LogText puts the
-    widget in a special mode which is optimized for very large
-    texts. In this mode editing (the widget is explicitly set to
-    read-only mode) and rich text support is disabled, which allows
-    the text to be stored in a different, more memory efficient
-    manner. However, a certain degree of text formatting is supported
-    through the use of formatting tags. A tag is delimited by \c < and
-    \c {>}. The characters \c < and \c > are escaped by using \c <<
-    and \c {>>}. A tag pair consists of a left and a right tag (or
+    Setting the text format to \c LogText puts the widget in a special
+    mode which is optimized for very large texts. In this mode editing
+    and rich text support are disabled (the widget is explicitly set
+    to read-only mode). This allows the text to be stored in a
+    different, more memory efficient manner. However, a certain degree
+    of text formatting is supported through the use of formatting
+    tags. A tag is delimited by \c < and \c {>}. The characters \c
+    {<}, \c > and \c & are escaped by using \c {&lt;}, \c {&gt;} and
+    \c {&amp;}. A tag pair consists of a left and a right tag (or
     open/close tags). Left-tags mark the starting point for
-    formatting, while right-tags mark the ending point. A right-tag is
-    the same as a left-tag, but with a \c / appearing before the tag
-    keyword. For example \c <red> and \c </red> are a tag pair. Tags
-    can be nested, but they have to be closed in the same order as
-    they are opened. For example, \c <red><blue></blue></red> is
-    valid, while \c <red><blue></red></blue> will output an error
-    message.
+    formatting, while right-tags mark the ending point. A right-tag
+    always start with a \c / before the tag keyword. For example \c
+    <red> and \c </red> are a tag pair. Tags can be nested, but they
+    have to be closed in the same order as they are opened. For
+    example, \c <red><blue></blue></red> is valid, while \c
+    <red><blue></red></blue> will output an error message.
     
     By using tags it is possible to change the color, bold, italic and
     underline settings for a piece of text. A color can be specified
-    either as a color name (from the X11 color database), or as a RGB
-    hex value (e.g \c {#00ff00}).  Example of valid color tags: \c
-    {<red>}, \c { <blue>}, \c {<#223344>}. Bold, italic and underline
-    settings can be specified by the tags \c <bold> or \c {<b>}, \c
-    <italic> or \c <i> and \c <underline> or \c {<u>}. Note that a tag
-    does not necessarily have to be closed. A valid example:
+    either as a color name (from the X11 color database), as a RGB hex
+    value (e.g \c {#00ff00}) or by using the HTML font tag \c {<font
+    color=colorname>} (the closing tag is \c {</font>}). Example of
+    valid color tags: \c {<red>}, \c {<blue>}, \c {<#223344>}, \c
+    {<font color=red>}. Bold, italic and underline settings can be
+    specified by the tags \c {<b>}, \c <i> and \c {<u>}. Note that a
+    tag does not necessarily have to be closed. A valid example: 
     \code
     This is <red>red</red> while <b>this</b> is <blue>blue</blue>.
-    <green><yellow>Yellow,</yellow> and <u>green</u>.
+    <green><font color=yellow>Yellow,</font> and <u>green</u>.
     \endcode
     
     There are a few things that you need to be aware of when the
@@ -5326,34 +5326,32 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
 
 /*! \internal
 
-  Find tags in \a line, remove them and put them in a structure.
+  Find tags in \a line, remove them from \a line and put them in a
+  structure.
 
-  A tag is delimited by '<' and '>'. The characters '<' and '>' are
-  escaped by using "<<" and ">>". Left-tags marks the starting point for
-  formatting, while right-tags mark the ending point. A right-tag is the
-  same as a left-tag, but with a '/' appearing before the tag keyword.
-  E.g a valid left-tag: <red>, and a valid right-tag: </red>.
-  Tags can be nested, but they have to be closed in the same order as
-  they are opened. E.g:
-  <red><blue>blue</blue>red</red>  - is valid, while:
-  <red><blue>blue</red>red</blue>  - is invalid since the red tag is
+  A tag is delimited by '<' and '>'. The characters '<', '>' and '&'
+  are escaped by using '&lt;', '&gt;' and '&amp;'. Left-tags marks
+  the starting point for formatting, while right-tags mark the ending
+  point. A right-tag is the same as a left-tag, but with a '/'
+  appearing before the tag keyword.  E.g a valid left-tag: <red>, and
+  a valid right-tag: </red>.  Tags can be nested, but they have to be
+  closed in the same order as they are opened. E.g:
+  <red><blue>blue</blue>red</red> - is valid, while:
+  <red><blue>blue</red>red</blue> - is invalid since the red tag is
   closed before the blue tag. Note that a tag does not have to be
-  closed:
-  <blue>Lots of text - and then some..
-  is perfectly valid for setting all text appearing after the tag
-  to blue.
-  A tag can be used to change the color of a piece of text, or set one
-  of the following formatting attributes: bold, italic and underline.
-  The bold, italic and underline attributes can be abbreviated to b, i
-  and u. This gives the following valid format tags:
-  <b>, <bold>, <i>, <italic>, <u> and <underline>.
-  Example of valid tags:
-  <red>, <#ff0000>, </red>, <bold>, <b>, </italic>, </i>
+  closed: '<blue>Lots of text - and then some..'  is perfectly valid for
+  setting all text appearing after the tag to blue.  A tag can be used
+  to change the color of a piece of text, or set one of the following
+  formatting attributes: bold, italic and underline.  These attributes
+  are set using the <b>, <i> and <u> tags.  Example of valid tags:
+  <red>, <#ff0000>, </red>, <b>, <u>, <i>, </i>. 
   Example of valid text:
-
   This is some <red>red text</red>, while this is some <green>green
   text</green>. <blue><yellow>This is yellow</yellow>, while this is
   blue.</blue>
+  
+  Colors can also be specified using the HTML tag <font color=<color>>
+  (the closing tag is </font>).
 
   Limitations:
   1. A tag cannot span several lines.
@@ -5364,7 +5362,7 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
 void QTextEdit::optimParseTags( QString * line )
 {
     int len = line->length();
-    int i, startIndex = -1, endIndex = -1;
+    int i, startIndex = -1, endIndex = -1, escIndex = -1;
     int state = 0; // 0 = outside tag, 1 = inside tag
     bool tagOpen, tagClose;
     int bold = 0, italic = 0, underline = 0;
@@ -5375,15 +5373,26 @@ void QTextEdit::optimParseTags( QString * line )
 	tagOpen = (*line)[i] == '<';
 	tagClose = (*line)[i] == '>';
 	
-	if ( ( (*line)[i-1] == '<' && tagOpen ) ||
-	     ( (*line)[i-1] == '>' && tagClose ) )
-	{
-	    state = 0;
-	    line->remove( i, 1 );
-	    len -= 1;
-	    i -= 1;
+	// handle '&lt;' and '&gt;' and '&amp;'
+	if ( (*line)[i] == '&' ) {
+	    escIndex = i;
 	    continue;
-	}	
+	} else if ( escIndex != -1 && (*line)[i] == ';' ) {
+	    QString esc = line->mid( escIndex, i - escIndex + 1 );
+	    QString c;
+	    if ( esc == "&lt;" )
+		c = '<';
+	    else if ( esc == "&gt;" )
+		c = '>';
+	    else if ( esc == "&amp;" )
+		c = '&';
+	    line->replace( escIndex, i - escIndex + 1, c );
+	    len = line->length();
+	    i -= i-escIndex;
+	    escIndex = -1;
+	    continue;
+	}
+
 	if ( state == 0 && tagOpen ) {
 	    state = 1;
 	    startIndex = i;
@@ -5396,17 +5405,17 @@ void QTextEdit::optimParseTags( QString * line )
 		QTextEditOptimPrivate::Tag * tag, * cur, * tmp;
 		bool format = TRUE;
 		
-		if ( tagStr == "b" || tagStr == "bold" )
+		if ( tagStr == "b" )
 		    bold++;
-		else if ( tagStr == "/b" || tagStr == "/bold" )
+		else if ( tagStr == "/b" )
 		    bold--;
-		else if ( tagStr == "i" || tagStr == "italic" )
+		else if ( tagStr == "i" )
 		    italic++;
-		else if ( tagStr == "/i" || tagStr == "/italic" )
+		else if ( tagStr == "/i" )
 		    italic--;
-		else if ( tagStr == "u" || tagStr == "underline" )
+		else if ( tagStr == "u" )
 		    underline++;
-		else if ( tagStr == "/u" || tagStr == "/underline" )
+		else if ( tagStr == "/u" )
 		    underline--;
 		else
 		    format = FALSE;
@@ -5429,7 +5438,8 @@ void QTextEdit::optimParseTags( QString * line )
 			} else {
 			    tmp = tagStack.pop();
 			    if ( !tmp ) {
-				if ( ("/" + cur->tag) == tag->tag ) {
+				if ( (("/" + cur->tag) == tag->tag) ||
+				     (tag->tag == "/font" && cur->tag.left(4) == "font") ) {
 				    // set up the left and parent of this tag
 				    tag->leftTag = cur;
 				    tmp = cur->prev;
@@ -5574,7 +5584,13 @@ void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
     }
     if ( tag ) {
 	formatFlags |= QTextFormat::Color;
-	f->setColor( QColor( tag->tag ) );
+	QString col = tag->tag.simplifyWhiteSpace();
+	if ( col.left(11) == "font color=" ) {
+	    col = col.mid( 11 );
+	    if ( col[0] == '\"' )
+		col = col.mid(1, col.length() - 2);
+	}
+	f->setColor( QColor( col ) );
     }
     td->setFormat( 0, f, formatFlags );
     td->removeSelection( 0 );
