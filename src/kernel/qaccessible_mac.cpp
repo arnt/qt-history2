@@ -319,9 +319,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    } else if(CFStringCompare(str, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
 			CFStringRef role = kAXUnknownRole;
 			Role qrole = iface->role(0);
-			if(qrole == TitleBar)
-			    role = kAXWindowTitleRole;
-			else if(qrole == MenuBar)
+			if(qrole == MenuBar)
 			    role = kAXMenuBarRole;
 			else if(qrole == ScrollBar)
 			    role = kAXScrollBarRole;
@@ -348,6 +346,9 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			    role = kAXStaticTextRole;
 			else if(qrole == Table)
 			    role = kAXTableRole;
+#if QT_MACOSX_VERSION < 0x1030
+			else if(qrole == TitleBar)
+			    role = kAXWindowTitleRole;
 			else if(qrole == ColumnHeader || qrole == RowHeader)
 			    role = kAXTableHeaderViewRole;
 			else if(qrole == Column)
@@ -356,16 +357,28 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			    role = kAXTableRowRole;
 			else if(qrole == Cell)
 			    role = kAXOutlineCellRole;
-			else if(qrole == Link)
+			else if(qrole == EditableText || qrole == Link)
 			    role = kAXTextRole;
-			else if(qrole == Outline)
-			    role = kAXBoxRole;
-			else if(qrole == StaticText)
-			    role = kAXStaticTextRole;
-			else if(qrole == EditableText)
-			    role = kAXTextFieldRole;
 			else if(qrole == PushButton)
 			    role = kAXPushButtonRole;
+			else if(qrole == Outline)
+			    role = kAXBoxRole;
+#else
+			else if(qrole == Column || qrole ==ColumnHeader)
+			    role = kAXColumnRole;
+			else if(qrole == Row || qrole == RowHeader)
+			    role = kAXRowRole;
+			else if(qrole == Cell)
+			    role = kAXUnknownRole;
+			else if(qrole == PushButton)
+			    role = kAXButtonRole;
+			else if(qrole == Outline)
+			    role = kAXOutlineRole;
+			else if(qrole == EditableText || qrole == Link)
+			    role = kAXTextFieldRole;
+#endif
+			else if(qrole == StaticText)
+			    role = kAXStaticTextRole;
 			else if(qrole == CheckBox)
 			    role = kAXCheckBoxRole;
 			else if(qrole == RadioButton)
