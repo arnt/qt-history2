@@ -3,6 +3,12 @@
 # Main Makefile for building the Qt library, examples and tutorial.
 # Read PORTING for instructions how to port Qt to a new platform.
 
+!IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
+QMFILE=Makefile
+!ELSE
+QMFILE=Makefile.borland
+!ENDIF
+
 all: symlinks src-qmake sub-src sub-tools sub-tutorial sub-examples
 	@echo .
 	@echo The Qt library is now built in .\lib
@@ -17,7 +23,7 @@ all: symlinks src-qmake sub-src sub-tools sub-tutorial sub-examples
 
 src-qmake: symlinks
 	cd qmake
-	$(MAKE)
+	$(MAKE) -f $(QMFILE)
 	cd ..
 
 src-moc: src-qmake FORCE
