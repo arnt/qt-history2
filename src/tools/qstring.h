@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#62 $
+** $Id: //depot/qt/main/src/tools/qstring.h#63 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -155,6 +155,8 @@ public:
     QChar( uchar l, uchar h=0 ) : hi(h), lo(l) { }
     QChar( const QChar& c ) : hi(c.hi), lo(c.lo) { }
 
+    static const QChar null;
+
     operator char() const { return hi?0:lo; }
 
     bool operator==( const QChar& c )
@@ -279,9 +281,9 @@ public:
     QString    &operator+=( char c );
 
     // Your compiler is smart enough to use the const one if it can.
-    QChar at( uint i ) const { return i<d->len ? unicode()[i] : QChar(); }
+    const QChar& at( uint i ) const { return i<d->len ? unicode()[i] : QChar::null; }
     QChar& at( uint i ); // detaches, enlarges
-    QChar operator[]( int i ) const { return at(i); }
+    const QChar& operator[]( int i ) const { return at(i); }
     QChar& operator[]( int i ) { return at(i); }
 
     const QChar* unicode() const { return d->unicode; }

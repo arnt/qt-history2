@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#122 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#123 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -524,6 +524,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
 
 QString::Data *QString::shared_null = 0;
 const QString QString::null;
+const QChar QChar::null;
 
 /*!
   Constructs a null string.

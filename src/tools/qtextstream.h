@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#33 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#34 $
 **
 ** Definition of QTextStream class
 **
@@ -38,7 +38,7 @@ public:
 	Ascii,
 	UnicodeBigEndian,
 	UnicodeLittleEndian,
-	Unicode=UnicodeLittleEndian,
+	Unicode=UnicodeBigEndian,
     };
 
     void	 setCharacterMode(CharacterMode);
@@ -79,11 +79,12 @@ public:
     QTextStream &operator<<( unsigned long );
     QTextStream &operator<<( float );
     QTextStream &operator<<( double );
+    QTextStream &operator<<( const char* );
     QTextStream &operator<<( const QString & );
     QTextStream &operator<<( void * );		// any pointer
 
     QTextStream &readRawBytes( char *, uint len );
-    QTextStream &writeRawBytes( const QString &, uint len );
+    QTextStream &writeRawBytes( const char* , uint len );
 
     QString	readLine();
     void	eatWhiteSpace() { eat_ws(); }
@@ -147,7 +148,8 @@ private:
     ulong	input_dec();
     ulong	input_hex();
     double	input_double();
-    QTextStream &writeBlock( const QString &p, uint len );
+    QTextStream &writeBlock( const char* p, uint len );
+    QTextStream &writeBlock( const QChar* p, uint len );
 
 private:	// Disabled copy constructor and operator=
     QTextStream( const QTextStream & );
