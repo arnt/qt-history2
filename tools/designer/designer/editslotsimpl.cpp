@@ -49,6 +49,7 @@ EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( fw );
     for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
 	QListViewItem *i = new QListViewItem( slotListView );
+	oldSlotNames.insert( i, QString( (*it).slot ) );
 	i->setText( 0, (*it).slot );
 	i->setText( 1, (*it).access );
 	if ( MetaDataBase::isSlotUsed( formWindow, (*it).slot ) )
@@ -113,6 +114,11 @@ void EditSlots::okClicked()
 						 formWindow, slot.slot, slot.access,
 						 formWindow->project()->language(),
 						 slot.returnType ) );
+	    QMap<QListViewItem*, QString>::Iterator sit = oldSlotNames.find( it.current() );
+	    if ( sit != oldSlotNames.end() ) {
+		if ( *sit != it.current()->text( 0 ) )
+		    MetaDataBase::functionNameChanged( formWindow, *sit, it.current()->text( 0 ) );
+	    }
 	    lst.append( slot.slot );
 	}
 

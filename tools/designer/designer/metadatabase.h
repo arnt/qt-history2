@@ -231,6 +231,8 @@ public:
 
     static bool hasObject( QObject *o );
 
+    static void functionNameChanged( QObject *o, const QString &oldName, const QString &newName );
+
 };
 
 #endif

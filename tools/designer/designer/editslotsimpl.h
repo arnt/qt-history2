@@ -22,8 +22,10 @@
 #define EDITSLOTSIMPL_H
 
 #include "editslots.h"
+#include <qmap.h>
 
 class FormWindow;
+class QListViewItem;
 
 class EditSlots : public EditSlotsBase
 {
@@ -43,6 +45,7 @@ protected slots:
 
 private:
     FormWindow *formWindow;
+    QMap<QListViewItem*, QString> oldSlotNames;
 
 };
 

@@ -1484,3 +1484,23 @@ bool MetaDataBase::hasObject( QObject *o )
 {
     return !!db->find( o );
 }
+
+void MetaDataBase::functionNameChanged( QObject *o, const QString &oldName, const QString &newName )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    QMap<QString, QString>::Iterator it = r->functionBodies.find( oldName );
+    if ( it == r->functionBodies.end() )
+	return;
+    QString body = *it;
+    r->functionBodies.remove( it );
+    r->functionBodies.insert( newName, body );
+}
