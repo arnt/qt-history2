@@ -74,7 +74,8 @@ embedded {
 		../3rdparty/freetype/src/truetype/truetype.c \
 		../3rdparty/freetype/src/type1/type1.c \
 		../3rdparty/freetype/src/type42/type42.c \
-		../3rdparty/freetype/src/winfonts/winfnt.c
+		../3rdparty/freetype/src/winfonts/winfnt.c \
+		../3rdparty/freetype/src/lzw/ftlzw.c
 
 	    INCLUDEPATH += \
 		../3rdparty/freetype/src \
