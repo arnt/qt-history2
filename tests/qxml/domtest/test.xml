@@ -3,9 +3,13 @@
     <c1/>
   </b1>
   <b2>
+    Some text at the beginning
+    <c2.1>
+    ...and some nested text...
+    </c2.1>
     Some text just in between
-    <c2.1/>
     <c2.2/>
+    And some text at the end
   </b2>
   <b3/>
   <b4 attr1="foo" attr2='bar'>
