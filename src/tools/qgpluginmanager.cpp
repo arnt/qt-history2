@@ -502,9 +502,15 @@ bool QGPluginManager::addLibrary( QLibrary* lib )
 		if ( !takeFirst ) {
 		    useful = TRUE;
 		    plugDict.replace( *f, plugin );
-		    qWarning("%s: Discarding feature %s in %s!", plugin->library().latin1(), (*f).latin1(), old->library().latin1() );
+		    qWarning("%s: Discarding feature %s in %s!", 
+			     (const char*) QFile::encodeName( plugin->library()), 
+			     (*f).latin1(), 
+			     (const char*) QFile::encodeName( old->library() ) );
 		} else {
-		    qWarning("%s: Feature %s already defined in %s!", plugin->library().latin1(), (*f).latin1(), old->library().latin1() );
+		    qWarning("%s: Feature %s already defined in %s!", 
+			     (const char*) QFile::encodeName( old->library() ),
+			     (*f).latin1(), 
+			     (const char*) QFile::encodeName( plugin->library() ) );
 		}
 	    }
 	}
