@@ -470,7 +470,7 @@ void QTextLine::layout(int width)
 
     Q26Dot6 minw, spacew;
 
-//     qDebug("from: %d:   item=%d, total %d width available %d/%d", from, item, eng->items.size(), line.width.value(), line.width.toInt());
+//     qDebug("from: %d:   item=%d, total %d width available %d/%d", line.from, item, eng->items.size(), line.width.value(), line.width.toInt());
 
     while (item < eng->items.size()) {
         eng->shape(item);
@@ -483,12 +483,15 @@ void QTextLine::layout(int width)
             if (eng->docLayout)
                 eng->docLayout->layoutObject(QTextObject(item, eng), format);
             if (line.length && !(eng->textFlags & Qt::SingleLine)) {
-                if (line.textWidth + current.width > line.width || eng->string[current.position] == QChar_linesep)
+                if (line.textWidth + current.width > line.width)
                     goto found;
             }
 
-            line.textWidth += current.width;
             line.length++;
+            // the width of the linesep doesn't count into the textwidth
+            if (eng->string[current.position] == QChar_linesep)
+                goto found;
+            line.textWidth += current.width;
 
             ++item;
             continue;
@@ -556,8 +559,8 @@ void QTextLine::layout(int width)
         ++item;
     }
  found:
-//     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d", line.length, line.ascent.value(),
-//            line.descent.value(), line.textWidth.value());
+//     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d (%d)", line.length, line.ascent.value(),
+//            line.descent.value(), line.textWidth.value(), line.textWidth.toInt());
 //     qDebug("        : '%s'", eng->string.mid(line.from, line.length).utf8());
 
     eng->minWidth = qMax(eng->minWidth, minw);
