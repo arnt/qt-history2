@@ -1809,8 +1809,10 @@ QListView::QListView( QWidget * parent, const char *name )
 void QListView::setShowSortIndicator( bool show )
 {
     d->sortIndicator = show;
-    if ( d->sortcolumn != Unsorted )
+    if ( show && d->sortcolumn != Unsorted )
 	d->h->setSortIndicator( d->sortcolumn, d->ascending );
+    else
+	d->h->setSortIndicator( -1 );
 }
 
 /*!
