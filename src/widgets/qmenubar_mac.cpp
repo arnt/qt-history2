@@ -297,7 +297,6 @@ bool updateMenuBar(QMenuBar *mbar)
 	MenuRef mp = createMacPopup(item->popup(), FALSE, TRUE);
 	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
 	InsertMenu(mp, 0);
-	usleep(50); //seems to help prevent inversion of the menubar
     }
     InvalMenuBar();
     return TRUE;
