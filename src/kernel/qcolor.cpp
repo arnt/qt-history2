@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#44 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#43 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#44 $")
 
 
 /*----------------------------------------------------------------------------
@@ -527,7 +527,7 @@ void QColor::setLazyAlloc( bool enable )
 
 QDataStream &operator<<( QDataStream &s, const QColor &c )
 {
-    return s << c.rgb();
+    return s << (UINT32)c.rgb();
 }
 
 /*----------------------------------------------------------------------------
@@ -537,7 +537,7 @@ QDataStream &operator<<( QDataStream &s, const QColor &c )
 
 QDataStream &operator>>( QDataStream &s, QColor &c )
 {
-    ulong rgb;
+    UINT32 rgb;
     s >> rgb;
     c.setRgb( rgb );
     return s;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#36 $
 **
 ** Implementation of QPicture class
 **
@@ -17,7 +17,7 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#36 $")
 
 
 /*!
@@ -428,7 +428,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	s << (UINT16)0 << mfhdr_maj << mfhdr_min;
 	s << (UINT8)c << (UINT8)sizeof(INT32);
 	trecs = 0;
-	s << trecs;				// total number of records
+	s << (UINT32)trecs;			// total number of records
 	formatOk = FALSE;
 	return TRUE;
     }
@@ -441,7 +441,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	int nrecs_start = data_start + 2*sizeof(INT16) + 2*sizeof(UINT8);
 	long pos = pictb.at();
 	pictb.at( nrecs_start );
-	s << trecs;				// write number of records
+	s << (UINT32)trecs;			// write number of records
 	pictb.at( cs_start );
 	UINT16 cs = (UINT16)qchecksum( buf.data()+data_start, pos-data_start );
 	s << cs;				// write checksum
