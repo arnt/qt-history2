@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#100 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#101 $
 **
 ** Definition of QListView widget class
 **
@@ -239,7 +239,7 @@ public:
 
     void setAutoResort( bool b );
     bool autoResort() const;
-    
+
     virtual void setFont( const QFont & );
     virtual void setPalette( const QPalette & );
 
@@ -260,6 +260,9 @@ signals:
     void selectionChanged( QListViewItem * );
     void currentChanged( QListViewItem * );
     void clicked( QListViewItem * );
+    void clicked( QListViewItem *, const QPoint &, int );
+    void pressed( QListViewItem * );
+    void pressed( QListViewItem *, const QPoint &, int );
 
     void doubleClicked( QListViewItem * );
     void returnPressed( QListViewItem * );
