@@ -3169,12 +3169,19 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 
 void QApplication::removePostedEvents( QObject *receiver )
 {
-    if ( !receiver || !receiver->postedEvents )
+    if ( !receiver )
 	return;
 
 #ifdef QT_THREAD_SUPPORT
     QMutexLocker locker( postevent_mutex );
 #endif // QT_THREAD_SUPPORT
+
+    // the QObject destructor calls this function directly.  this can
+    // happen while the event loop is in the middle of posting events,
+    // and when we get here, we may not have any more posted events
+    // for this object.
+    if ( !receiver->postedEvents )
+	return;
 
     // iterate over the object-specifc list and delete the events.
     // leave the QPostEvent objects; they'll be deleted by

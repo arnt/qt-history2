@@ -393,8 +393,7 @@ QObject::~QObject()
     objname = 0;
     if ( pendTimer )				// might be pending timers
 	qKillTimer( this );
-    if ( postedEvents && qApp )
-	QApplication::removePostedEvents( this );
+    QApplication::removePostedEvents( this );
     if ( isTree ) {
 	remove_tree( this );		// remove from global root list
 	isTree = FALSE;
