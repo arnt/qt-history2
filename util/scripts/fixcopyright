@@ -1,11 +1,15 @@
 #!/usr/bin/perl
 
-die unless ( $#ARGV >= 0 );
+#
+# NOTE: The first argument is the Qt version.
+#
+
+die unless ( $#ARGV > 0 );
 
 undef $/;
 
 $copyright = "
-** Copyright (C) 1992-1996 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1997 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the non-commercial distribution of Qt " . $ARGV[0] . ".
 **
@@ -16,6 +20,8 @@ $copyright = "
 ** Qt only by this comment.)
 **
 *****************************************************************************/";
+
+shift @ARGV;
 
 foreach $f ( @ARGV ) {
     if ( open( F, "< $f" ) ) {
