@@ -30,6 +30,9 @@
 #include <private/qtextlayout_p.h>
 #include <string.h>
 
+//This turns on core graphics (don't use it unless you're Sam!!!)
+//#define USE_CORE_GRAPHICS
+
 class paintevent_item;
 class QPainterPrivate
 {
@@ -253,6 +256,7 @@ void QPainter::updatePen()
 	qt_recreate_root_win();
     PenMode(ropCodes[rop]);
 
+#ifdef USE_CORE_GRAPHICS
     //***********
     //CoreGraphics
     //***********
@@ -296,8 +300,10 @@ void QPainter::updatePen()
     else if(cpen.joinStyle() == RoundJoin)
 	cglinejoin = kCGLineJoinRound;
     CGContextSetLineJoin((CGContextRef)hd, cglinejoin);
+#endif
 }
 
+#ifdef USE_CORE_GRAPHICS
 struct QMacPattern {
     bool as_mask;
     union {
@@ -358,6 +364,7 @@ static void qt_mac_dispose_pattern(void *info)
     delete pat;
     pat = NULL;
 }
+#endif
 
 void QPainter::updateBrush()
 {
@@ -452,6 +459,7 @@ void QPainter::updateBrush()
     //penmodes
     PenMode(ropCodes[rop]);
 
+#ifdef USE_CORE_GRAPHICS
     //***********
     //CoreGraphics
     //***********
@@ -499,6 +507,7 @@ void QPainter::updateBrush()
 	const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
 	CGContextSetFillPattern((CGContextRef)hd, d->cg_info.fill_pattern, &tmp_float);
     }
+#endif
 }
 
 bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
@@ -687,7 +696,7 @@ bool QPainter::end()				// end painting
     if(qt_mac_current_painter == this)
 	qt_mac_current_painter = 0;
 
-    //Quickdraw cleanup
+    //CoreGraphics cleanup
     if(d->cg_info.fill_pattern) {
         CGPatternRelease(d->cg_info.fill_pattern);
 	d->cg_info.fill_pattern = 0;
@@ -884,7 +893,17 @@ void QPainter::drawPolyInternal(const QPointArray &a, bool close, bool inset)
     if(a.isEmpty())
 	return;
 
-#if 1
+#ifdef USE_CORE_GRAPHICS
+    CGContextMoveToPoint((CGContextRef)hd, a[0].x()+d->offx, a[0].y()+d->offy);
+    for(int x = 1; x < a.size(); x++)
+	CGContextAddLineToPoint((CGContextRef)hd, a[x].x()+d->offx, a[x].y()+d->offy);
+    if(close)
+	CGContextAddLineToPoint((CGContextRef)hd, a[0].x()+d->offx, a[0].y()+d->offy);
+    if(cbrush.style() != NoBrush)
+	CGContextFillPath((CGContextRef)hd);
+    if(cpen.style() != NoPen) 
+	CGContextStrokePath((CGContextRef)hd);
+#else
     initPaintDevice();
     if(d->qd_info.paintreg.isEmpty())
 	return;
@@ -956,16 +975,6 @@ void QPainter::drawPolyInternal(const QPointArray &a, bool close, bool inset)
 	FrameRgn(polyRegion);
     }
     qt_mac_dispose_rgn(polyRegion);
-#else
-    CGContextMoveToPoint((CGContextRef)hd, a[0].x()+d->offx, a[0].y()+d->offy);
-    for(int x = 1; x < a.size(); x++)
-	CGContextAddLineToPoint((CGContextRef)hd, a[x].x()+d->offx, a[x].y()+d->offy);
-    if(close)
-	CGContextAddLineToPoint((CGContextRef)hd, a[0].x()+d->offx, a[0].y()+d->offy);
-    if(cbrush.style() != NoBrush)
-	CGContextFillPath((CGContextRef)hd);
-    if(cpen.style() != NoPen) 
-	CGContextStrokePath((CGContextRef)hd);
 #endif
 }
 
@@ -1047,11 +1056,11 @@ void QPainter::moveTo(int x, int y)
     if(testf(VxF|WxF))
 	map(x, y, &x, &y);
 
-#if 1
+#ifdef USE_CORE_GRAPHICS
+    CGContextMoveToPoint((CGContextRef)hd, x+d->offx, y+d->offy);
+#else
     initPaintDevice();
     MoveTo(x+d->offx, y+d->offy);
-#else
-    CGContextMoveToPoint((CGContextRef)hd, x+d->offx, y+d->offy);
 #endif
 }
 
@@ -1069,17 +1078,17 @@ void QPainter::lineTo(int x, int y)
     if(testf(VxF|WxF))
 	map(x, y, &x, &y);
 
-#if 1
+#ifdef USE_CORE_GRAPHICS
+    CGContextAddLineToPoint((CGContextRef)hd, x+d->offx, y+d->offy);  
+    CGContextStrokePath((CGContextRef)hd);
+    CGContextClosePath((CGContextRef)hd);
+#else
     initPaintDevice();
     if(d->qd_info.paintreg.isEmpty())
 	return;
 
     updatePen();
     LineTo(x+d->offx,y+d->offy);
-#else
-    CGContextAddLineToPoint((CGContextRef)hd, x+d->offx, y+d->offy);  
-    CGContextStrokePath((CGContextRef)hd);
-    CGContextClosePath((CGContextRef)hd);
 #endif
 }
 
@@ -1133,7 +1142,14 @@ void QPainter::drawRect(int x, int y, int w, int h)
 	fix_neg_rect(&x, &y, &w, &h);
     }
 
-#if 1
+#ifdef USE_CORE_GRAPHICS
+    CGRect mac_rect;
+    d->cg_info.mac_rect(x+d->offx, y+d->offy, w, h, &mac_rect);
+    if(cbrush.style() != NoBrush)
+	CGContextFillRect((CGContextRef)hd, mac_rect);
+    if(cpen.style() != NoPen) 
+	CGContextStrokeRect((CGContextRef)hd, mac_rect);
+#else
     initPaintDevice();
     if(d->qd_info.paintreg.isEmpty())
 	return;
@@ -1192,13 +1208,6 @@ void QPainter::drawRect(int x, int y, int w, int h)
 	updatePen();
 	FrameRect(&rect);
     }
-#else
-    CGRect mac_rect;
-    d->cg_info.mac_rect(x+d->offx, y+d->offy, w, h, &mac_rect);
-    if(cbrush.style() != NoBrush)
-	CGContextFillRect((CGContextRef)hd, mac_rect);
-    if(cpen.style() != NoPen) 
-	CGContextStrokeRect((CGContextRef)hd, mac_rect);
 #endif
 }
 
