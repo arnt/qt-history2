@@ -52,7 +52,6 @@ TRANSLATIONS	= funnyapp_fr.ts \
   help.ui, and are merged with the message files funnyapp_fr.ts and
   funnyapp_jp.ts.
 */
-
 int main( int argc, char **argv )
 {
     if ( argc != 2 ) {

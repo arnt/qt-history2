@@ -337,6 +337,7 @@ static bool matchBool( bool *b )
 {
     bool matches = ( yyTok == Tok_TRUE || yyTok == Tok_FALSE );
     *b = ( yyTok == Tok_TRUE );
+    yyTok = getToken();
     return matches;
 }
 

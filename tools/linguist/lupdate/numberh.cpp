@@ -45,24 +45,34 @@ static int numberLength( const char *s )
     return i;
 }
 
+/*
+  Returns a version of 'key' where all numbers have been replaced by zeroes.  If
+  there were none, returns "".
+*/
 static QCString zeroKey( const char *key )
 {
     QCString zeroed( strlen(key) + 1 );
     char *z = zeroed.data();
     int i = 0, j = 0;
     int len;
+    bool metSomething = FALSE;
 
     while ( key[i] != '\0' ) {
 	len = numberLength( key + i );
 	if ( len > 0 ) {
 	    i += len;
 	    z[j++] = '0';
+	    metSomething = TRUE;
 	} else {
 	    z[j++] = key[i++];
 	}
     }
     z[j] = '\0';
-    return zeroed;
+
+    if ( metSomething )
+	return zeroed;
+    else
+	return "";
 }
 
 static QString translationAttempt( const QString& oldTranslation,
@@ -70,6 +80,7 @@ static QString translationAttempt( const QString& oldTranslation,
 				   const char *newSource )
 {
     int p = zeroKey( oldSource ).contains( '0' );
+    int oldSourceLen = qstrlen( oldSource );
     QString attempt;
     QStringList oldNumbers;
     QStringList newNumbers;
@@ -88,7 +99,7 @@ static QString translationAttempt( const QString& oldTranslation,
       First, we set up two tables: oldNumbers and newNumbers.  In our example,
       oldNumber[0] is "3.0" and newNumber[0] is "3.1".
     */
-    for ( i = 0, j = 0; oldSource[i] != '\0'; i++, j++ ) {
+    for ( i = 0, j = 0; i < oldSourceLen; i++, j++ ) {
 	m = numberLength( oldSource + i );
 	n = numberLength( newSource + j );
 	if ( m > 0 ) {
@@ -176,7 +187,7 @@ static QString translationAttempt( const QString& oldTranslation,
 
 /*
   Augments a MetaTranslator with translations easily derived from similar
-  existing (likely obsolete) translations.
+  existing (probably obsolete) translations.
 
   For example, if "TeX 3.0" is translated as "XeT 3.0" and "TeX 3.1" has no
   translation, "XeT 3.1" is added to the translator and is marked Unfinished.
@@ -190,15 +201,18 @@ void applyNumberHeuristic( MetaTranslator *tor )
     TML::Iterator it;
 
     for ( it = all.begin(); it != all.end(); ++it ) {
-	if ( (*it).type() == MetaTranslatorMessage::Unfinished )
-	    untranslated.insert( zeroKey((*it).sourceText()), *it );
-	else if ( !(*it).translation().isEmpty() )
+	if ( (*it).type() == MetaTranslatorMessage::Unfinished ) {
+	    if ( (*it).translation().isEmpty() )
+		untranslated.insert( zeroKey((*it).sourceText()), *it );
+	} else if ( !(*it).translation().isEmpty() ) {
 	    translated.insert( zeroKey((*it).sourceText()), *it );
+	}
     }
 
     for ( u = untranslated.begin(); u != untranslated.end(); ++u ) {
 	t = translated.find( u.key() );
-	if ( t != translated.end() ) {
+	if ( t != translated.end() && !t.key().isEmpty() &&
+	    qstrcmp((*t).sourceText(), (*u).sourceText()) != 0 ) {
 	    MetaTranslatorMessage m( *u );
 	    m.setTranslation( translationAttempt((*t).translation(),
 						 (*t).sourceText(),
