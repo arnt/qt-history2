@@ -80,8 +80,8 @@ public:
 */
 
 /*!
-    Constructs a QMainWindow with parent \a parent and with widget
-    flags \a flags.
+    Constructs a QMainWindow with the given \a parent and the specified
+    widget \a flags.
  */
 QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags)
@@ -91,8 +91,8 @@ QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
 
 #ifdef QT_COMPAT
 /*! \obsolete
-    Constructs a QMainWindow with parent \a parent, named \a name, and
-    with widget flags \a flags.
+    Constructs a QMainWindow with the given \a parent, \a name, and
+    with the specified widget \a flags.
  */
 QMainWindow::QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags)
