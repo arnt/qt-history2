@@ -32,14 +32,14 @@ bool QLibraryPrivate::load_sys()
     if (!pHnd)
         pHnd = (void*)shl_load(QFile::encodeName(QFileInfo(fileName).path() + "/lib" + QFileInfo(fileName).fileName() + ".sl"), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
     if (!pHnd)
-        qWarning("%s: Failed to load library", (const char*) QFile::encodeName(fileName));
+        qWarning("QLibrary: Cannot load %s", QFile::encodeName(fileName).constData());
     return pHnd != 0;
 }
 
 bool QLibraryPrivate::unload_sys()
 {
     if (shl_unload((shl_t)pHnd)) {
-        qWarning("%s: Failed to unload library", (const char*) QFile::encodeName(fileName));
+        qWarning("QLibrary: Cannot unload %s", QFile::encodeName(fileName).constData());
         return false;
     }
     return true;
@@ -49,7 +49,7 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 {
     void* address = 0;
     if (shl_findsym((shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address) < 0)
-        qWarning("%s: could not resolve symbol \"%s\"", (const char*) QFile::encodeName(fileName), symbol);
+        qWarning("QLibrary: Undefined symbol \"%s\" in %s", symbol, QFile::encodeName(fileName).constData());
     return address;
 }
 
@@ -58,19 +58,27 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 
 bool QLibraryPrivate::load_sys()
 {
+    QFileInfo fi(fileName);
+    QString path = fi.path();
+    QString name = fi.fileName();
+    if (path == QLatin1String(".") && !fileName.startsWith(path))
+        path.clear();
+    else
+        path += QLatin1Char('/');
+
     pHnd = dlopen(QFile::encodeName(fileName), RTLD_LAZY);
 # if defined(Q_OS_HPUX)
     if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).path() + "/lib" + QFileInfo(fileName).fileName() + ".sl"), RTLD_LAZY);
+        pHnd = dlopen(QFile::encodeName(path + QLatin1String("lib") + name + QLatin1String(".sl")), RTLD_LAZY);
 # else
     if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).path() + "/lib" + QFileInfo(fileName).fileName() + ".so"), RTLD_LAZY);
+        pHnd = dlopen(QFile::encodeName(path + QLatin1String("lib") + name + QLatin1String(".so")), RTLD_LAZY);
 # endif
 # ifdef Q_OS_MAC
     if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).path() + "/lib" + QFileInfo(fileName).fileName() + ".bundle"), RTLD_LAZY);
+        pHnd = dlopen(QFile::encodeName(path + QLatin1String("lib") + name + QLatin1String(".bundle")), RTLD_LAZY);
     if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).path() + "/lib" + QFileInfo(fileName).fileName() + ".dylib"), RTLD_LAZY);
+        pHnd = dlopen(QFile::encodeName(path + QLatin1String("lib") + name + QLatin1String(".dylib")), RTLD_LAZY);
     if (!pHnd) {
         if(QCFType<CFBundleRef> bundle = CFBundleGetBundleWithIdentifier(QCFString(fileName))) {
             QCFType<CFURLRef> url = CFBundleCopyExecutableURL(bundle);
@@ -80,16 +88,14 @@ bool QLibraryPrivate::load_sys()
     }
 # endif
     if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(fileName), RTLD_LAZY);
-    if (!pHnd)
-        qWarning("%s", dlerror());
+        qWarning("QLibrary: Cannot load %s", QFile::encodeName(fileName).constData());
     return (pHnd != 0);
 }
 
 bool QLibraryPrivate::unload_sys()
 {
     if (dlclose(pHnd)) {
-        qWarning("%s", dlerror());
+        qWarning("QLibrary: Cannot unload %s", QFile::encodeName(fileName).constData());
         return false;
     }
     return true;
@@ -107,8 +113,8 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #else
     void* address = dlsym(pHnd, symbol);
 #endif
-    if (const char *error = dlerror())
-        qWarning("%s", error);
+    if (!address)
+        qWarning("QLibrary: Undefined symbol \"%s\" in %s", symbol, QFile::encodeName(fileName).constData());
     return address;
 }
 
