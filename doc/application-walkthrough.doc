@@ -63,12 +63,13 @@ application.h when \e qtextedit.h changes.
 <a name="simplemain"></a>
 <h2>A simple main()</h2>
 
-Let's have a look at \e examples/main.cpp, in full.
+Let's first have a look at \e examples/main.cpp, in full ...
 
 \include application/main.cpp
 
-We'll go over \e main() in detail.
+... and go over \e main() in detail.
 
+\walkthrough application/main.cpp
 \skipto argc
 \printline argc
 \printline QApplication

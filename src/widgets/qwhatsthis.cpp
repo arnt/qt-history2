@@ -83,7 +83,7 @@
   default stylesheet. This makes it also possible to embed images. See
   QStyleSheet::defaultSheet() for details.
 
-  \dontinclude action/application.cpp
+  \walkthrough action/application.cpp
   \skipto fileOpenText
   \printuntil setWhatsThis
 
