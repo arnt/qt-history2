@@ -21,7 +21,6 @@
 #include <qstyleoption.h>
 #include <qevent.h>
 #include <qpen.h>
-#include <qsignal.h>
 #include <qdebug.h>
 
 #include <private/qtreeview_p.h>
@@ -1172,7 +1171,7 @@ void QTreeView::updateGeometries()
     if (d->header->isExplicitlyHidden()
         && (d->header->stretchSectionCount() || d->header->stretchLastSection())) {
         d->header->viewport()->setGeometry(geometryRect);
-        qInvokeMetaMember(d->header, "resizeSections");
+        QMetaObject::invokeMember(d->header, "resizeSections");
     }
 
     // update scrollbars
