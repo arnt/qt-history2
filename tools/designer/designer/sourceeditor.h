@@ -73,7 +73,7 @@ signals:
 private:
     EditorInterface *iFace;
     LanguageInterface *lIface;
-    FormWindow *formWindow;
+    QGuardedPtr<FormWindow> formWindow;
     QString lang;
     QGuardedPtr<QWidget> editor;
 
