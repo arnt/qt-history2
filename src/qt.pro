@@ -122,7 +122,7 @@ HEADERS     =	$$DIALOGS_H/qfiledlg.h \
 		$$WIDGETS_H/qradiobt.h \
 		$$WIDGETS_H/qrangect.h \
 		$$WIDGETS_H/qscrbar.h \
-		$$WIDGETS_H/qscrview.h \
+		$$WIDGETS_H/qscrollview.h \
 		$$WIDGETS_H/qslider.h \
 		$$WIDGETS_H/qspinbox.h \
 		$$WIDGETS_H/qtabbar.h \
@@ -232,7 +232,7 @@ win32:SOURCES +=kernel/qapp_win.cpp \
 		kernel/qrgn_win.cpp \
 		kernel/qwid_win.cpp
 
-unix:HEADERS +=	$$KERNEL_H/qprndlg.h \
+unix:HEADERS +=	$$DIALOGS_H/qprndlg.h \
 		$$KERNEL_H/qpsprn.h
 
 unix:SOURCES += kernel/qapp_x11.cpp \
