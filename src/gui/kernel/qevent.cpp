@@ -1972,6 +1972,36 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
     Returns the file that is being opened.
 */
 
+/*!
+    \class QToolBarSwitchEvent qevent.h
+    \brief The QToolBarSwitchEvent class provides an event that is
+    sent whenever a the toolbar button is clicked on Mac OS X.
+
+    \ingroup events
+
+    The QToolBarSwitchEvent is sent when the toolbar button is clicked. On Mac
+    OS X, this is the long oblong button on the right side of the window
+    titlebar. The default implementation is to toggle the appearance (hidden or
+    shown) of the associated toolbars for the window.
+*/
+
+/*
+    \fn QToolBarSwitchEvent::QToolBarSwitchEvent(int state)
+
+    \internal
+
+    Construct a QToolBarSwitchEvent given the current button state in \a state.
+*/
+
+/*
+    \fn Qt::ButtonState QToolBarSwitchEvent::state() const
+
+    Returns the keyboard modifier flags at the time of the event.
+
+    The returned value is a selection of the following values,
+    combined using the OR operator:
+    \c Qt::ShiftButton, \c Qt::ControlButton, \c Qt::MetaButton, and \c Qt::AltButton.
+*/
 
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QEvent *e) {

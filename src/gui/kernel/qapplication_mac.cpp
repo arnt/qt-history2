@@ -1269,7 +1269,7 @@ static int get_key(int modif, int key, int scan)
 /*!
     \internal
 */
-bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
+bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled, EventRef mouseEv)
 {
     QWidget *widget;
     int popup_close_count = 0;
@@ -1324,17 +1324,13 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
         widget->d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
         break;
     case inToolbarButton: {
-        QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(widget);
-#ifndef QT_NO_MAINWINDOW
-        for (int i = 0; i < toolbars.size(); ++i) {
-            QToolBar *toolbar = toolbars.at(i);
-            if(toolbar->isVisible())
-                toolbar->hide();
-            else
-                toolbar->show();
-            q->sendPostedEvents();
+        if (mouseEv) {
+            UInt32 modifiers;
+            GetEventParameter(mouseEv, kEventParamKeyModifiers, typeUInt32, 0,
+                              sizeof(modifiers), 0, &modifiers);
+            QToolBarSwitchEvent tse(get_modifiers(modifiers, true));
+            q->sendSpontaneousEvent(widget, &tse);
         }
-#endif
         break; }
     case inProxyIcon: {
         QIconDragEvent e;
@@ -1832,7 +1828,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             mouse_button_state = after_state;
             if(ekind == kEventMouseDown && qt_mac_is_macsheet(QApplication::activeModalWidget())) {
                 QApplication::activeModalWidget()->parentWidget()->setActiveWindow(); //sheets have a parent
-                if(!app->d->do_mouse_down(&where, 0))
+                if(!app->d->do_mouse_down(&where, 0, event))
                     mouse_button_state = 0;
             }
 #ifdef DEBUG_MOUSE_MAPS
@@ -1875,7 +1871,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
         if(ekind == kEventMouseDown) {
             bool mouse_down_unhandled;
-            if(!app->d->do_mouse_down(&where, &mouse_down_unhandled)) {
+            if(!app->d->do_mouse_down(&where, &mouse_down_unhandled, event)) {
                 if(mouse_down_unhandled) {
                     handled_event = false;
                     break;

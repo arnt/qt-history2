@@ -17,6 +17,7 @@
 #include "qdockwindow.h"
 #include "qtoolbar.h"
 
+#include <qapplication.h>
 #include <qmenubar.h>
 #include <qstatusbar.h>
 
@@ -278,4 +279,34 @@ void QMainWindow::childEvent(QChildEvent *event)
 
 /*! \reimp */
 bool QMainWindow::event(QEvent *event)
-{ return QWidget::event(event); }
+{
+    if (event->type() == QEvent::ToolBarSwitch) {
+        int deltaH = 0;
+        int deltaW = 0;
+        QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
+        for (int i = 0; i < toolbars.size(); ++i) {
+            QToolBar *toolbar = toolbars.at(i);
+            Qt::ToolBarArea area = toolbar->area();
+            if(toolbar->isVisible()) {
+                if (area == Qt::ToolBarAreaLeft || area == Qt::ToolBarAreaRight)
+                    deltaW -= toolbar->width();
+                else
+                    deltaH -= toolbar->height();
+                toolbar->hide();
+            } else {
+                if (area == Qt::ToolBarAreaLeft || area == Qt::ToolBarAreaRight)
+                    deltaW += toolbar->width();
+                else
+                    deltaH += toolbar->height();
+                toolbar->show();
+            }
+            if (deltaH || deltaW) {
+                QApplication::sendPostedEvents(this, QEvent::LayoutRequest);
+                resize(width() + deltaW, height() + deltaH);
+            }
+        }
+        return true;
+    } else {
+        return QWidget::event(event);
+    }
+}
