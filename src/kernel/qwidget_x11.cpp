@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#201 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#202 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#201 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#202 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -981,6 +981,7 @@ void QWidget::showWindow()
 void QWidget::hideWindow()
 {
     XUnmapWindow( dpy, winId() );
+    if ( isPopup() ) XFlush( dpy );
 }
 
 

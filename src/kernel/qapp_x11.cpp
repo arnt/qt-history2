@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#246 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#247 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#246 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#247 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2379,6 +2379,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( manualGrab ) {			// release manual grab
 		manualGrab = FALSE;
 		XUngrabPointer( dpy, CurrentTime );
+		XFlush( dpy );
 	    }
 	    if ( !buttonDown )			// unexpected event
 		return FALSE;
