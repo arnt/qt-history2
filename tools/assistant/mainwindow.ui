@@ -22,18 +22,18 @@
       <property name="windowTitle" >
         <string>Toolbar</string>
       </property>
-      <addAction name="actionGoPrevious" />
-      <addAction name="actionGoNext" />
-      <addAction name="actionGoHome" />
-      <addAction name="separator" />
-      <addAction name="actionEditCopy" />
-      <addAction name="actionEditFind" />
-      <addAction name="actionFilePrint" />
-      <addAction name="separator" />
-      <addAction name="actionZoomIn" />
-      <addAction name="actionZoomOut" />
-      <addAction name="separator" />
-      <addAction name="actionHelpWhatsThis" />
+      <addaction name="actionGoPrevious" />
+      <addaction name="actionGoNext" />
+      <addaction name="actionGoHome" />
+      <addaction name="separator" />
+      <addaction name="actionEditCopy" />
+      <addaction name="actionEditFind" />
+      <addaction name="actionFilePrint" />
+      <addaction name="separator" />
+      <addaction name="actionZoomIn" />
+      <addaction name="actionZoomOut" />
+      <addaction name="separator" />
+      <addaction name="actionHelpWhatsThis" />
     </widget>
     <widget class="QToolBar" name="goActionToolbar" >
       <property name="objectName" >
@@ -62,14 +62,14 @@
         <property name="title" >
           <string>&amp;File</string>
         </property>
-        <addAction name="actionNewWindow" />
-        <addAction name="actionOpenPage" />
-        <addAction name="actionClosePage" />
-        <addAction name="separator" />
-        <addAction name="actionFilePrint" />
-        <addAction name="separator" />
-        <addAction name="actionClose" />
-        <addAction name="actionFileExit" />
+        <addaction name="actionNewWindow" />
+        <addaction name="actionOpenPage" />
+        <addaction name="actionClosePage" />
+        <addaction name="separator" />
+        <addaction name="actionFilePrint" />
+        <addaction name="separator" />
+        <addaction name="actionClose" />
+        <addaction name="actionFileExit" />
       </widget>
       <widget class="QMenu" name="editMenu" >
         <property name="objectName" >
@@ -78,12 +78,12 @@
         <property name="title" >
           <string>&amp;Edit</string>
         </property>
-        <addAction name="actionEditCopy" />
-        <addAction name="actionEditFind" />
-        <addAction name="actionEditFindAgain" />
-        <addAction name="actionEditFindAgainPrev" />
-        <addAction name="separator" />
-        <addAction name="actionSettings" />
+        <addaction name="actionEditCopy" />
+        <addaction name="actionEditFind" />
+        <addaction name="actionEditFindAgain" />
+        <addaction name="actionEditFindAgainPrev" />
+        <addaction name="separator" />
+        <addaction name="actionSettings" />
       </widget>
       <widget class="QMenu" name="PopupMenu" >
         <property name="objectName" >
@@ -92,8 +92,8 @@
         <property name="title" >
           <string>&amp;View</string>
         </property>
-        <addAction name="actionZoomIn" />
-        <addAction name="actionZoomOut" />
+        <addaction name="actionZoomIn" />
+        <addaction name="actionZoomOut" />
       </widget>
       <widget class="QMenu" name="goMenu" >
         <property name="objectName" >
@@ -102,12 +102,12 @@
         <property name="title" >
           <string>&amp;Go</string>
         </property>
-        <addAction name="actionGoPrevious" />
-        <addAction name="actionGoNext" />
-        <addAction name="actionGoHome" />
-        <addAction name="separator" />
-        <addAction name="actionNextPage" />
-        <addAction name="actionPrevPage" />
+        <addaction name="actionGoPrevious" />
+        <addaction name="actionGoNext" />
+        <addaction name="actionGoHome" />
+        <addaction name="separator" />
+        <addaction name="actionNextPage" />
+        <addaction name="actionPrevPage" />
       </widget>
       <widget class="QMenu" name="bookmarkMenu" >
         <property name="objectName" >
@@ -124,19 +124,19 @@
         <property name="title" >
           <string>&amp;Help</string>
         </property>
-        <addAction name="actionHelpAssistant" />
-        <addAction name="separator" />
-        <addAction name="actionAboutAssistant" />
-        <addAction name="actionAboutApplication" />
-        <addAction name="separator" />
-        <addAction name="actionHelpWhatsThis" />
+        <addaction name="actionHelpAssistant" />
+        <addaction name="separator" />
+        <addaction name="actionAboutAssistant" />
+        <addaction name="actionAboutApplication" />
+        <addaction name="separator" />
+        <addaction name="actionHelpWhatsThis" />
       </widget>
-      <addAction name="fileMenu" />
-      <addAction name="editMenu" />
-      <addAction name="PopupMenu" />
-      <addAction name="goMenu" />
-      <addAction name="bookmarkMenu" />
-      <addAction name="helpMenu" />
+      <addaction name="fileMenu" />
+      <addaction name="editMenu" />
+      <addaction name="PopupMenu" />
+      <addaction name="goMenu" />
+      <addaction name="bookmarkMenu" />
+      <addaction name="helpMenu" />
     </widget>
       <action name="actionFilePrint" >
         <property name="objectName" >
