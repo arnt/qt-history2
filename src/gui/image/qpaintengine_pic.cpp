@@ -100,7 +100,6 @@ bool QPicturePaintEngine::end()
 {
     d->trecs++;
     d->s << (Q_UINT8)PdcEnd << (Q_UINT8)0;
-    QByteArray buf = d->pictb->buffer();
     int cs_start = sizeof(Q_UINT32);		// pos of checksum word
     int data_start = cs_start + sizeof(Q_UINT16);
     int brect_start = data_start + 2*sizeof(Q_INT16) + 2*sizeof(Q_UINT8);
@@ -112,8 +111,8 @@ bool QPicturePaintEngine::end()
     }
     d->s << (Q_UINT32)d->trecs;			// write number of records
     d->pictb->at( cs_start );
+    QByteArray buf = d->pictb->buffer();
     Q_UINT16 cs = (Q_UINT16)qChecksum( buf.constData()+data_start, pos-data_start );
-    qWarning("checksum: 0x%04x - len: %d, start: %d", cs, buf.size(), data_start);
     d->s << cs;				// write checksum
     d->pictb->close();
     setActive(false);
@@ -150,7 +149,7 @@ void QPicturePaintEngine::updateClipRegion(QPainterState *ps)
 
 void QPicturePaintEngine::writeCmdLength(int pos, const QRect &r, bool corr)
 {
-    int newpos = (int) d->pictb->at();		// new position
+    int newpos = d->pictb->at();		// new position
     int length = newpos - pos;
     QRect br(r);
 
@@ -189,9 +188,9 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRect &r, bool corr)
 void QPicturePaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawLine;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << p1 << p2;
     writeCmdLength(pos, QRect(p1, p2).normalize(), true);
 }
@@ -199,9 +198,9 @@ void QPicturePaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 void QPicturePaintEngine::drawRect(const QRect &r)
 {
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawRect;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << r;
     writeCmdLength(pos, r, true);
 }
@@ -209,9 +208,9 @@ void QPicturePaintEngine::drawRect(const QRect &r)
 void QPicturePaintEngine::drawPoint(const QPoint &p)
 {
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawPoint;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << p;
     writeCmdLength(pos, QRect(p,p), true);
 }
@@ -227,9 +226,9 @@ void QPicturePaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const 
 void QPicturePaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawRoundRect;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << r << (Q_INT16)xRnd << (Q_INT16)yRnd;
     writeCmdLength(pos, r, true);
 }
@@ -237,9 +236,9 @@ void QPicturePaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 void QPicturePaintEngine::drawEllipse(const QRect &r)
 {
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawEllipse;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << r;
     writeCmdLength(pos, r, true);
 }
@@ -247,9 +246,9 @@ void QPicturePaintEngine::drawEllipse(const QRect &r)
 void QPicturePaintEngine::drawArc(const QRect &r, int a, int alen)
 {
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawArc;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << r << (Q_INT16)a << (Q_INT16)alen;
     writeCmdLength(pos, r, true);
 }
@@ -257,9 +256,9 @@ void QPicturePaintEngine::drawArc(const QRect &r, int a, int alen)
 void QPicturePaintEngine::drawPie(const QRect &r, int _a, int alen)
 {
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawPie;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << r << (Q_INT16)_a << (Q_INT16)alen;
     writeCmdLength(pos, r, true);
 }
@@ -267,9 +266,9 @@ void QPicturePaintEngine::drawPie(const QRect &r, int _a, int alen)
 void QPicturePaintEngine::drawChord(const QRect &r, int _a, int alen)
 {
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawChord;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << r << (Q_INT16)_a << (Q_INT16)alen;
     writeCmdLength(pos, r, true);
 }
@@ -277,9 +276,9 @@ void QPicturePaintEngine::drawChord(const QRect &r, int _a, int alen)
 void QPicturePaintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawLineSegments;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << a;
     writeCmdLength(pos, a.boundingRect(), true);
 }
@@ -287,9 +286,9 @@ void QPicturePaintEngine::drawLineSegments(const QPointArray &a, int index, int 
 void QPicturePaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
 {
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawPolyline;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << a;
     writeCmdLength(pos, a.boundingRect(), true);
 }
@@ -297,9 +296,9 @@ void QPicturePaintEngine::drawPolyline(const QPointArray &a, int index, int npoi
 void QPicturePaintEngine::drawPolygon(const QPointArray &a, bool winding, int, int)
 {
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawPolygon;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << a << (Q_INT8) winding;
     writeCmdLength(pos, a.boundingRect(), true);
 }
@@ -313,9 +312,9 @@ void QPicturePaintEngine::drawCubicBezier(const QPointArray &a, int index)
 {
 #ifndef QT_NO_BEZIER
     d->trecs++;
-    int pos = d->pictb->at();
     d->s << (Q_UINT8)PdcDrawCubicBezier;
     d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
     d->s << a;
     writeCmdLength(pos, a.cubicBezier().boundingRect(), true);
 #endif

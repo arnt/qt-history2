@@ -1102,9 +1102,9 @@ bool QPicture::QPicturePrivate::checkFormat()
     int data_start = cs_start + sizeof(Q_UINT16);
     Q_UINT16 cs,ccs;
     QByteArray buf = pictb.buffer();	// pointer to data
-    qWarning("checkFormat: size: %d - data_start: %d", buf.size(), data_start);
+
     s >> cs;				// read checksum
-    ccs = qChecksum( buf.constData() + data_start, buf.size() - data_start );
+    ccs = (Q_UINT16) qChecksum( buf.constData() + data_start, buf.size() - data_start );
     if ( ccs != cs ) {
 	qWarning( "QPicture::checkFormat: Invalid checksum %x, %x expected",
 		  ccs, cs );
