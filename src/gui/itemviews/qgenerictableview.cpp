@@ -280,6 +280,8 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
         colfirst = 0;
     if (collast == -1)
         collast = model()->columnCount(root()) - 1;
+    if (collast < 0)
+        return;
     if (colfirst > collast) {
         int tmp = colfirst;
         colfirst = collast;
@@ -293,6 +295,8 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
         rowfirst = 0;
     if (rowlast == -1)
         rowlast = model()->rowCount(root()) - 1;
+    if (rowlast < 0)
+        return;
     if (rowfirst > rowlast) {
         int tmp = rowfirst;
         rowfirst = rowlast;
