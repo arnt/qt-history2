@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#205 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#206 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -61,7 +61,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#205 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#206 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -121,10 +121,6 @@ typedef void  (*VFPTR)();
 typedef Q_DECLARE(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-// commented out until comeau c++ toes the line
-// static int	qt_x_errhandler( Display *, XErrorEvent * );
-// static int	qt_xio_errhandler( Display * );
-
 static void	cleanupPostedEvents();
 
 static void	initTimers();
@@ -154,20 +150,32 @@ public:
 };
 
 
+/*****************************************************************************
+  Default X error handlers
+ *****************************************************************************/
+
+#if defined(Q_C_CALLBACKS)
 extern "C" {
-    static int qt_x_errhandler( Display *dpy, XErrorEvent *err ) {
-	// default X11 error handler
-	char errstr[256];
-	XGetErrorText( dpy, err->error_code, errstr, 256 );
-	fatal( "X Error: %s\n  Major opcode:  %d", errstr, err->request_code );
-	return 0;
-    }
-    static int qt_xio_errhandler( Display * ) {	// default X11 IO error handler
-	fatal( "%s: Fatal IO error: client killed", appName );
-	return 0;
-    }
+#endif
+
+static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
+{
+    char errstr[256];
+    XGetErrorText( dpy, err->error_code, errstr, 256 );
+    fatal( "X Error: %s\n  Major opcode:  %d", errstr, err->request_code );
+    return 0;
 }
 
+
+static int qt_xio_errhandler( Display * )
+{
+    fatal( "%s: Fatal IO error: client killed", appName );
+    return 0;
+}
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 
 
@@ -1122,10 +1130,10 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 }
 
 
-typedef Q_DECLARE(QIntDictM,QSockNot)	     QObjRndDict;
-typedef Q_DECLARE(QIntDictIteratorM,QSockNot) QObjRndDictIt;
+typedef Q_DECLARE(QIntDictM,QSockNot)	      QSockNotRndDict;
+typedef Q_DECLARE(QIntDictIteratorM,QSockNot) QSockNotRndDictIt;
 
-static QObjRndDict *sn_rnd_dict = 0;
+static QSockNotRndDict *sn_rnd_dict = 0;
 
 static void sn_cleanup()
 {
@@ -1144,7 +1152,7 @@ static void sn_cleanup()
 static int sn_activate()
 {
     if ( !sn_rnd_dict ) {
-	sn_rnd_dict = new QObjRndDict( 53 );
+	sn_rnd_dict = new QSockNotRndDict( 53 );
 	CHECK_PTR( sn_rnd_dict );
 	qAddPostRoutine( sn_cleanup );
     }
@@ -1166,7 +1174,7 @@ static int sn_activate()
     }
     if ( sn_rnd_dict->count() > 0 ) {           // activate entries
 	QEvent event( Event_SockAct );
-	QObjRndDictIt it( *sn_rnd_dict );
+	QSockNotRndDictIt it( *sn_rnd_dict );
 	QSockNot *sn;
 	while ( (sn=it.current()) ) {
 	    long key = it.currentKey();
@@ -2321,30 +2329,34 @@ struct PaintEventInfo {
     int	   config;
 };
 
+#if defined(Q_C_CALLBACKS)
 extern "C" {
-    static Bool isPaintEvent( Display *, XEvent *ev, XPointer a ) {
-	PaintEventInfo *info = (PaintEventInfo *)a;
-	if ( ev->type == Expose || ev->type == GraphicsExpose ) {
-	    if ( ev->xexpose.window == info->window )
-		return TRUE;
+#endif
+
+static Bool isPaintEvent( Display *, XEvent *ev, XPointer a )
+{
+    PaintEventInfo *info = (PaintEventInfo *)a;
+    if ( ev->type == Expose || ev->type == GraphicsExpose ) {
+	if ( ev->xexpose.window == info->window )
+	    return TRUE;
+    } else if ( ev->type == ConfigureNotify && info->check ) {
+	XConfigureEvent *c = (XConfigureEvent *)ev;
+	if ( c->window == info->window &&
+	     (c->width != info->w || c->height != info->h) ) {
+	    info->config++;
+	    return TRUE;
 	}
-	else if ( ev->type == ConfigureNotify && info->check ) {
-	    XConfigureEvent *c = (XConfigureEvent *)ev;
-	    if ( c->window == info->window &&
-		 (c->width != info->w || c->height != info->h) ) {
-		info->config++;
-		return TRUE;
-	    }
-	}
-	return FALSE;
     }
+    return FALSE;
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 
 bool QETWidget::translatePaintEvent( const XEvent *event )
 {
-    //    sendDeferredEvents( FALSE, FALSE );
-
     QRect  paintRect( event->xexpose.x,	   event->xexpose.y,
 		      event->xexpose.width, event->xexpose.height );
     bool   clever = testWFlags(WPaintClever);
@@ -2410,19 +2422,29 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     QPoint newPos( x, y );
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
     QRect  r = geometry();
-    bool moved = FALSE, resized=FALSE;
+    bool   resized = FALSE;
+    bool   moved = FALSE;
     if ( newSize != size() ) {			// size changed
 	XClearArea( dpy, winId(), 0, 0, 0, 0, FALSE );
+	QSize oldSize = size();
 	r.setSize( newSize );
 	setCRect( r );
-	resized = TRUE;
+	if ( !isVisible() )
+	    deferResize( oldSize );
+	else
+	    resized = TRUE;
     }
     if ( newPos != geometry().topLeft() ) {
+	QPoint oldPos = pos();
 	r.moveTopLeft( newPos );
 	setCRect( r );
-	moved = TRUE;
+	if ( !isVisible() )
+	    deferMove( oldPos );
+	else
+	    moved = TRUE;
     }
-    sendDeferredEvents( moved, resized );
+    if ( resized || moved )
+	sendDeferredEvents( moved, resized );
     return TRUE;
 }
 

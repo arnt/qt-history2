@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#165 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#164 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#165 $");
 
 
 /*!
@@ -395,6 +395,104 @@ inline bool QWidgetMapper::remove( WId id )
   QWidget member functions
  *****************************************************************************/
 
+typedef Q_DECLARE(QIntDictM,int) QDeferDict;
+
+static QDeferDict *deferredMoves   = 0;
+static QDeferDict  *deferredResizes = 0;
+
+static void cleanupDeferredDicts()
+{
+    delete deferredMoves;
+    deferredMoves = 0;
+    delete deferredResizes;
+    deferredResizes = 0;
+}
+
+static void initDeferredDicts()
+{
+    if ( deferredMoves )
+	return;
+    deferredMoves   = new QDeferDict( 137 );
+    CHECK_PTR( deferredMoves );
+    deferredResizes = new QDeferDict( 137 );
+    CHECK_PTR( deferredResizes );
+    qAddPostRoutine( cleanupDeferredDicts );
+}
+
+
+static inline uint compress( int a, int b )
+{
+    return ((uint)(a-QCOORD_MIN) << 16) | ((b-QCOORD_MIN) & 0xffff);
+}
+
+static inline int decompress_a( uint n )
+{
+    return (int)(n >> 16) + QCOORD_MIN;
+}
+
+static inline int decompress_b( uint n )
+{
+    return (int)(n & 0xffff) + QCOORD_MIN;
+}
+
+void QWidget::deferMove( const QPoint &oldPos )
+{
+    uint n = (uint)deferredMoves->find( (long)this );
+    if ( !n ) {
+	n = compress(oldPos.x(),oldPos.y());
+	deferredMoves->insert( (long)this, (int *)n );
+    }
+}
+
+void QWidget::deferResize( const QSize &oldSize )
+{
+    uint n = (uint)deferredResizes->find( (long)this );
+    if ( !n ) {
+	n = compress(oldSize.width(),oldSize.height());
+	deferredResizes->insert( (long)this, (int *)n );
+    }
+}
+
+
+void QWidget::cancelMove()
+{
+    deferredMoves->take( (long)this );
+}
+
+void QWidget::cancelResize()
+{
+    deferredResizes->take( (long)this );
+}
+
+
+/*!
+  Send deferred or enforced move and resize events for this widget.
+  If \a m is TRUE, X told us that the widget has moved and that's it.
+  If \a r is TRUE, X told us that the widget has been resized and
+  that's it.
+*/
+
+void QWidget::sendDeferredEvents( bool m, bool r )
+{
+    uint i;
+    if ( m || (i=(uint)deferredMoves->find((long)this)) ) {
+	deferredMoves->take( (long)this );
+	QMoveEvent e( pos(), QPoint(decompress_a(i), decompress_b(i)) );
+	if ( !m )
+	    internalMove( x(), y() );
+	QApplication::sendEvent( this, &e );
+    }
+    if ( r || (i=(uint)deferredResizes->find((long)this)) ) {
+	deferredResizes->take( (long)this );
+	QResizeEvent e( size(), QSize(decompress_a(i), decompress_b(i)) );
+	if ( !r )
+	    internalResize( width(), height() );
+	QApplication::sendEvent( this, &e );
+    }
+}
+
+
+
 /*!
   Constructs a widget which is a child of \e parent, with the name \e name and
   widget flags set to \e f.
@@ -457,14 +555,11 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     flags = f;
     extra = 0;					// no extra widget info
     focusChild = 0;				// no child has focus
+    if ( !deferredMoves )			// do it only once
+	initDeferredDicts();
     create();					// platform-dependent init
-#if 0
- // Setting the WDestructiveClose flag deletes the widget instead of
- // hiding it. We don't want to do that any longer.
-    if ( (flags & (WType_TopLevel | WType_Modal)) == WType_TopLevel ) {
-	flags |= WDestructiveClose;
-    }
-#endif
+    deferMove( frect.topLeft() );
+    deferResize( crect.size() );    
 }
 
 /*!
@@ -476,6 +571,8 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 
 QWidget::~QWidget()
 {
+    deferredMoves->take( (long)this );		// clean deferred move/resize
+    deferredResizes->take( (long)this );
     if ( QApplication::main_widget == this )	// reset main widget
 	QApplication::main_widget = 0;
     if ( testWFlags(WFocusSet) )

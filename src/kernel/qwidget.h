@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#106 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#107 $
 **
 ** Definition of QWidget class
 **
@@ -256,7 +256,15 @@ private:
     bool	 destroy();
     void	 createExtra();
     void	 deleteExtra();
+    void	 internalMove( int, int );
+    void	 internalResize( int, int );
+    void	 internalSetGeometry( int, int, int, int );
+    void	 deferMove( const QPoint & );
+    void	 deferResize( const QSize & );
+    void	 cancelMove();
+    void	 cancelResize();
     void	 sendDeferredEvents( bool, bool );
+
     WId		 winid;
     WFlags	 flags;
     QRect	 frect;
