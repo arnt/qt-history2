@@ -1944,6 +1944,8 @@ public:
     int scriptUsed;
     QFont currentSet;
     float scale;
+    
+    bool embedFonts;
     QStringList fontpath;
 };
 
@@ -2281,6 +2283,40 @@ void QPSPrinterFontPrivate::restore()
     //qDebug("restore for font %s\n",psname.latin1());
 }
 
+static inline const char *toHex( uchar u ) 
+{
+    char hexVal[3];
+    int i = 1;
+    while ( i >= 0 ) {
+	ushort hex = (u & 0x000f);
+	if ( hex < 0x0a ) 
+	    hexVal[i] = '0'+hex;
+	else
+	    hexVal[i] = 'a'+(hex-0x0a);
+	u = u >> 4;
+	i--;
+    }
+    hexVal[2] = '\0';
+    return hexVal;
+}
+
+static inline const char *toHex( ushort u ) 
+{
+    char hexVal[5];
+    int i = 3;
+    while ( i >= 0 ) {
+	ushort hex = (u & 0x000f);
+	if ( hex < 0x0a ) 
+	    hexVal[i] = '0'+hex;
+	else
+	    hexVal[i] = 'a'+(hex-0x0a);
+	u = u >> 4;
+	i--;
+    }
+    hexVal[4] = '\0';
+    return hexVal;
+}
+
 void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QPoint &p,
                                  const QString &text, QPSPrinterPrivate *d, QPainter *paint)
 {
@@ -2302,10 +2338,7 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
     int i;
     for (i=0; i < (int) text.length(); i++) {
         ushort u = mapUnicode(text.at(i).unicode());
-        ushort high = u / 256;
-        ushort low  = u % 256;
-        stream << s.sprintf("%02x",high);
-        stream << s.sprintf("%02x",low);
+	stream << toHex( u );
         //printf("i=%d high=%02x low=%02x unicode=%04x\n",i,high,low,u);
     }
     stream << ">";
@@ -2374,14 +2407,17 @@ QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex )
     int l = 0;
     unsigned short unicode = unicode_for_glyph( glyphindex );
     if ( !unicode && glyphindex ) {
-	glyphname.sprintf("G%04x", glyphindex );
+	glyphname = "G";
+	glyphname += toHex( glyphindex );
     } else {
 	while( unicodetoglyph[l].u < unicode )
 	    l++;
 	if ( unicodetoglyph[l].u == unicode )
 	    glyphname = unicodetoglyph[l].g;
-	else
-	    glyphname.sprintf("U%04x", unicode);
+	else {
+	    glyphname = "U";
+	    glyphname += toHex( unicode );
+	}
     }
     return glyphname;
 }
@@ -2394,9 +2430,9 @@ void QPSPrinterFontPrivate::download(QTextStream &s, bool global)
 
 void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
 {
-    int rangeOffset = 0;
-    int numRanges = subsetCount/256 + 1;
-    int range;
+    uchar rangeOffset = 0;
+    uchar numRanges = (uchar)(subsetCount/256 + 1);
+    uchar range;
     QMap<unsigned short, unsigned short> *subsetDict = &subset;
     if ( !global ) {
         rangeOffset = numRanges;
@@ -2418,11 +2454,13 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
 
     for (range=0; range < numRanges; range++) {
         //printf("outputing range %04x\n",range*256);
-        vector.sprintf("%% Font Page %04x\n",range + rangeOffset);
-        QString dummy;
-        vector += "/";
+        vector = "%% Font Page ";
+	vector += toHex((uchar)(range + rangeOffset));
+        vector += "\n/";
         vector += psname;
-        vector += dummy.sprintf("-ENC-%02x [\n",range + rangeOffset);
+        vector += "-ENC-";
+	vector += toHex((uchar)(range + rangeOffset));
+	vector += " [\n";
 
         QString line;
         for(int k=0; k<256; k++ ) {
@@ -2430,12 +2468,14 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
             unsigned short unicode = inverse[c];
             glyphname = glyphName( glyph_for_unicode(unicode) );
             if ( line.length() + glyphname.length() > 76 ) {
-                vector += line + "\n";
+                vector += line;
+		vector += "\n";
                 line = "";
             }
             line += "/" + glyphname;
         }
-        vector += line + "] def\n";
+        vector += line;
+	vector += "] def\n";
         s << vector;
     }
 
@@ -2444,15 +2484,14 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
     // DEFINE BASE FONTS
 
     for (range=0; range < numRanges; range++) {
-        QString dummy;
         s << "/";
         s << psname;
         s << "-Uni-";
-        s << dummy.sprintf("%02x",range + rangeOffset);
+        s << toHex((uchar)(range + rangeOffset));
         s << " ";
         s << psname;
         s << "-ENC-";
-        s << dummy.sprintf("%02x",range + rangeOffset);
+        s << toHex((uchar)(range + rangeOffset));
         if ( embedded() ) {
             s << " /";
             s << psname;
@@ -2515,11 +2554,10 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
 
     s << "/FDepVector [\n";
     for (range=0; range < rangeOffset + numRanges; range++) {
-        QString dummy;
         s << "/";
         s << psname;
         s << "-Uni-";
-        s << dummy.sprintf("%02x",range);
+        s << toHex( range );
         s << " findfont\n";
     }
     s << "]def\n";
@@ -2848,8 +2886,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
 
       if( post_format.whole != 2 || post_format.fraction != 0 ) {
           qWarning("TrueType font does not have a format 2.0 'post' table");
-          QString dummy;
-          qWarning(dummy.sprintf("post format is %d.%d",post_format.whole,post_format.fraction));
+          qWarning("post format is %d.%d",post_format.whole,post_format.fraction);
           // Sivan Feb 2001: no longer defective.
           // defective = true;
       }
@@ -3273,10 +3310,13 @@ QString QPSPrinterFontTTF::glyphName(unsigned short charindex)
         // unicode, so I assume it's the first glyph.
         if (charindex == 0)
             name = ".notdef";
-        else if ((u=unicode_for_glyph(charindex)) != 0x0000)
-            name.sprintf("uni%04X",u);
-        else
-            name.sprintf("glyph%04X",charindex); // may be part of a composite etc
+        else if ((u=unicode_for_glyph(charindex)) != 0x0000) {
+	    name = "uni";
+	    name += toHex( u );
+        } else {
+	    name = "glyph";
+	    name += toHex( charindex );
+	}
         return name;
     }
 
@@ -5163,18 +5203,12 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
     enum { NONE, PFB, PFA, TTF } type = NONE;
 
-#ifdef Q_WS_X11
-    // append qsettings fontpath
-    QSettings settings;
-    bool embed = settings.readBoolEntry( "/qt/embedFonts", TRUE );
-#endif
-
     // ### implement similar code for QWS and WIN
     xfontname = makePSFontName( f );
     
 #ifdef Q_WS_X11
     bool xlfd = FALSE;
-    if ( embed ) {
+    if ( priv->embedFonts ) {
 	f.d->load( (QFont::Script)script );
 	QFontStruct *fs = f.d->x11data.fontstruct[script];
 	//qDebug("fs = %p, script=%d", fs, script);
@@ -5256,57 +5290,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	return;
 
 #ifdef Q_WS_X11
-    if ( embed && xlfd ) {
-
-	if ( priv->fontpath.isEmpty() ) {
-	    int npaths;
-	    char** font_path;
-	    font_path = XGetFontPath( qt_xdisplay(), &npaths);
-	    bool xfsconfig_read = FALSE;
-	    for (int i=0; i<npaths; i++) {
-		// If we're using xfs, append font paths from /etc/X11/fs/config
-		// can't hurt, and chances are we'll get all fonts that way.
-		if (((font_path[i])[0] != '/') && !xfsconfig_read) {
-		    // We're using xfs -> read its config
-		    bool finished = FALSE;
-		    QFile f("/etc/X11/fs/config");
-		    if ( !f.exists() )
-			f.setName("/usr/X11R6/lib/X11/fs/config");
-		    if ( !f.exists() )
-			f.setName("/usr/X11/lib/X11/fs/config");
-		    if ( f.exists() ) {
-			f.open(IO_ReadOnly);
-			while(f.status()==IO_Ok && !finished) {
-			    QString fs;
-			    f.readLine(fs, 1024);
-			    fs=fs.stripWhiteSpace();
-			    if (fs.left(9)=="catalogue" && fs.contains('=')) {
-				fs=fs.mid(fs.find('=')+1).stripWhiteSpace();
-				while(f.status()==IO_Ok && fs.right(1)==",") {
-				    if (!fs.contains(":unscaled"))
-					priv->fontpath += fs.left(fs.length()-1);
-				    f.readLine(fs, 1024);
-				    fs=fs.stripWhiteSpace();
-				}
-				finished = TRUE;
-			    }
-			}
-			f.close();
-		    }
-		    xfsconfig_read = TRUE;
-		} else if(!strstr(font_path[i], ":unscaled")) {
-		    // Fonts paths marked :unscaled are always bitmapped fonts
-		    // -> we can as well ignore them now and save time
-		    priv->fontpath += font_path[i];
-		}
-	    }
-	    XFreeFontPath(font_path);
-
-	    // append qsettings fontpath
-	    QStringList fontpath = settings.readListEntry( "/qt/fontPath", ':' );
-	    if ( !fontpath.isEmpty() )
-		priv->fontpath += fontpath;
-	}
+    if ( priv->embedFonts && xlfd ) {
 
 	for (QStringList::Iterator it=priv->fontpath.begin(); it!=priv->fontpath.end() && fontfilename.isEmpty(); it++) {
 	    if ((*it).left(1) != "/") continue; // not a path name, a font server
@@ -5447,6 +5431,64 @@ QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
     currentFontFile = 0;
     scale = 1.;
     scriptUsed = -1;
+    
+#ifdef Q_WS_X11
+    // append qsettings fontpath
+    QSettings settings;
+    embedFonts = settings.readBoolEntry( "/qt/embedFonts", TRUE );
+
+    if ( embedFonts ) {
+	int npaths;
+	char** font_path;
+	font_path = XGetFontPath( qt_xdisplay(), &npaths);
+	bool xfsconfig_read = FALSE;
+	for (int i=0; i<npaths; i++) {
+	    // If we're using xfs, append font paths from /etc/X11/fs/config
+	    // can't hurt, and chances are we'll get all fonts that way.
+	    if (((font_path[i])[0] != '/') && !xfsconfig_read) {
+		// We're using xfs -> read its config
+		bool finished = FALSE;
+		QFile f("/etc/X11/fs/config");
+		if ( !f.exists() )
+		    f.setName("/usr/X11R6/lib/X11/fs/config");
+		if ( !f.exists() )
+		    f.setName("/usr/X11/lib/X11/fs/config");
+		if ( f.exists() ) {
+		    f.open(IO_ReadOnly);
+		    while(f.status()==IO_Ok && !finished) {
+			QString fs;
+			f.readLine(fs, 1024);
+			fs=fs.stripWhiteSpace();
+			if (fs.left(9)=="catalogue" && fs.contains('=')) {
+			    fs=fs.mid(fs.find('=')+1).stripWhiteSpace();
+			    while(f.status()==IO_Ok && fs.right(1)==",") {
+				if (!fs.contains(":unscaled"))
+				    fontpath += fs.left(fs.length()-1);
+				f.readLine(fs, 1024);
+				fs=fs.stripWhiteSpace();
+			    }
+			    finished = TRUE;
+			}
+		    }
+		    f.close();
+		}
+		xfsconfig_read = TRUE;
+	    } else if(!strstr(font_path[i], ":unscaled")) {
+		// Fonts paths marked :unscaled are always bitmapped fonts
+		// -> we can as well ignore them now and save time
+		fontpath += font_path[i];
+	    }
+	}
+	XFreeFontPath(font_path);
+
+	// append qsettings fontpath
+	QStringList fp = settings.readListEntry( "/qt/fontPath", ':' );
+	if ( !fp.isEmpty() )
+	    fontpath += fp;
+    }
+#else
+    embedFonts = FALSE;
+#endif
 }
 
 QPSPrinterPrivate::~QPSPrinterPrivate()
@@ -5481,12 +5523,12 @@ void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
     s.append( ' ' );
     s.prepend( ' ' );
 
-    QString key;
+    QString key = ff.xfontname;
 
     if ( f.pointSize() != -1 )
-	key.sprintf( "%s %d", ff.xfontname.ascii(), f.pointSize() );
+	key += " " + QString::number( f.pointSize() );
     else
-	key.sprintf( "%s px%d", ff.xfontname.ascii(), f.pixelSize() );
+	key += " px" + QString::number( f.pixelSize() );
     QString * tmp;
     if ( !buffer )
         tmp = pageFontNames.find( key );
