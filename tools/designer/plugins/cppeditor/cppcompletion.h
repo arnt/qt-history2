@@ -1,6 +1,6 @@
 /**********************************************************************
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -32,6 +32,9 @@ class CppEditorCompletion : public EditorCompletion
 public:
     CppEditorCompletion( Editor *e );
 
+#if defined(Q_USING)
+    using EditorCompletion::doObjectCompletion;
+#endif
     bool doObjectCompletion( const QString &object );
     QValueList<QStringList> functionParameters( const QString &func, QChar &, QString &prefix, QString &postfix );
     void setContext( QObjectList *toplevels, QObject *this_ );

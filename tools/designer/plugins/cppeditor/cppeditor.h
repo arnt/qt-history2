@@ -1,6 +1,6 @@
 /**********************************************************************
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -41,6 +41,9 @@ public:
     void configChanged();
 
     bool supportsBreakPoints() const { return FALSE; }
+#if defined(Q_USING)
+    using Editor::createPopupMenu;
+#endif
     QPopupMenu *createPopupMenu( const QPoint &p );
 
     void paste();
