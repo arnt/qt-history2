@@ -94,7 +94,7 @@ private:
 };
 
 
-#if !defined(QT_CLEAN_NAMESPACE)
+#ifdef QT_COMPAT
 // CursorShape is defined in X11/X.h
 #ifdef CursorShape
 #define X_CursorShape CursorShape
