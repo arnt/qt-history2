@@ -2374,6 +2374,7 @@ void QTextView::clear()
     doc->clear( TRUE );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
+    viewport()->repaint( FALSE );
 }
 
 int QTextView::undoDepth() const
