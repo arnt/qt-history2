@@ -134,7 +134,7 @@ void BorderLayout::doLayout( const QRect &rct, bool /*testonly*/ )
     int ew = 0, ww = 0, nh = 0, sh = 0;
     int h = 0;
 
-    BorderLayoutIterator it = BorderLayoutIterator( &list );
+    BorderLayoutIterator it( &list );
     BorderLayoutStruct *o;
     BorderLayoutStruct *center = 0;
     while ( ( o = it.currentStruct() ) != 0 ) {
@@ -186,7 +186,7 @@ void BorderLayout::calcSize( SizeType st )
 
     int w = 0, h = 0;
 
-    BorderLayoutIterator it = BorderLayoutIterator( &list );
+    BorderLayoutIterator it( &list );
     BorderLayoutStruct *o;
     while ( ( o = it.currentStruct() ) != 0 ) {
 	++it;
