@@ -843,7 +843,7 @@ Qt::HANDLE QFont::handle() const
 {
     if(d->request.dirty || d->actual.dirty) 
 	d->load();
-    return 0;
+    return d;
 }
 
 void QFont::macSetFont(QPaintDevice *v)
