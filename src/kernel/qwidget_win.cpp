@@ -906,7 +906,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if ( testWState(WState_ConfigPending) ) {	// processing config event
 	qWinRequestConfig( winId(), 2, x, y, w, h );
     } else {
-	setCRect( QRect(x,y,w,h) );
+	//setCRect( QRect(x,y,w,h) );
 	setWState( WState_ConfigPending );
 	if ( isTopLevel() ) {
 	    QRect fr( frameGeometry() );
