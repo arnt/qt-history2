@@ -4402,6 +4402,8 @@ void Q3TextEdit::setStyleSheet(Q3StyleSheet* styleSheet)
 void Q3TextEdit::setPaper(const QBrush& pap)
 {
     doc->setPaper(new QBrush(pap));
+    if ( pap.pixmap() )
+        viewport()->setBackgroundPixmap( *pap.pixmap() );
     QPalette pal = palette();
     pal.setColor(QPalette::Background, pap.color());
     setPalette(pal);
