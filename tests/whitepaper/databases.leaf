@@ -21,16 +21,22 @@ Programmers can easily execute any arbitrary SQL statements. Qt also
 provides a high-level C++ interface that programmers can use to
 generate the appropriate SQL statements automatically.
 
+  \index keys
+  \index unique keys
+
 Any Qt widget, including custom widgets, can be made data-aware. Qt
 also includes some database-specific convenience widgets, to simplify
 the creation of dialogs and windows that present records as forms or
-in tables. Data-aware widgets automatically support browsing, updating
-and deleting records. Most database designs require that new records
-have a unique key that cannot be guessed by Qt, so insertion usually
-needs a small amount of code to be written. The programmer can
-easily force the user to confirm actions, e.g. deletions.
+in tables. Data-aware widgets automatically support browsing,
+updating and deleting records. Most database designs require that new
+records have a unique key that cannot be guessed by Qt, so insertion
+usually needs a small amount of code to be written. The programmer
+can easily force the user to confirm actions, e.g. deletions.
 
-The Qt SQL module is fully integrated into \l{Qt Designer}, which
+  \index Designer
+  \index Qt Designer
+
+The Qt SQL module is fully integrated into \l {Qt Designer}, which
 provides templates and wizards to make the creation of database forms
 as quick and easy as possible. The wizards can create forms with
 navigation buttons, and with update, insert and delete buttons.
@@ -43,21 +49,21 @@ master-detail relationships, and have drill-down.
 
   \index DDL
   \index DML
-  \index queries
   \index SELECT
+  \index queries
 
-The \Class QSqlQuery class can be used to directly execute SQL DDL and
-DML statements. The \Class QSqlQuery class is also used to navigate
-the result sets produced by \c SELECT statements.
+The \Class QSqlQuery class can be used to directly execute SQL DDL
+and DML statements. The \Class QSqlQuery class is also used to
+navigate the result sets produced by \c SELECT statements.
 
-In the example below, a query is executed, and the result set navigated
-using the \Func QSqlQuery::next() function:
+In the example below, a query is executed, and the result set
+navigated using the \Func QSqlQuery::next() function:
 \code
     QSqlQuery query( "SELECT id, surname FROM staff" );
     while ( query.next() ) {
-	cout << "id: " 
-	     << query.value(0).toInt() 
-	     << " surname: "  
+	cout << "id: "
+	     << query.value(0).toInt()
+	     << " surname: "
 	     << query.value(1).toString() << endl;
     }
 \endcode
@@ -75,8 +81,8 @@ UPDATE example:
     QSqlQuery query( "UPDATE staff SET salary = salary * 1.10"
 		     " WHERE id > 1155 AND id < 8155" );
     if ( query.isActive() ) {
-	cout << "Pay rise given to " 
-	     << query.numRowsAffected() 
+	cout << "Pay rise given to "
+	     << query.numRowsAffected()
 	     << " staff" << endl;
     }
 \endcode
@@ -91,41 +97,51 @@ statements. For example:
 \code
     QSqlCursor cur( "staff" );
     while ( cur.next() ) {
-	cout << "id: " 
-	     << cur.value("id").toInt() 
-	     << " surname: " 
+	cout << "id: "
+	     << cur.value("id").toInt()
+	     << " surname: "
 	     << cur.value("surname").toString() << endl;
     }
 \endcode
 
 \Class QSqlCursor also supports the ordering and filtering that are
-achieved using \c{ORDER BY} and \c WHERE clauses in the SQL statements
-used by \Class QSqlQuery.
+achieved using \c {ORDER BY} and \c WHERE clauses in the SQL
+statements used by \Class QSqlQuery.
+
+  \index calculated fields
 
 Calculated fields are useful both for real calculations (e.g.
 calculating totals) and for performing foreign key lookups, (e.g. to
 display names rather than codes). Calculated fields can be created by
-subclassing \Class QSqlCursor, adding additional \Class{QSqlField}s
+subclassing \Class QSqlCursor, adding additional \Class {QSqlField}s
 with their calculated property set to TRUE, and by reimplementing
-QSqlCursor::calculateField().
+\Func QSqlCursor::calculateField().
+
+  \index commit
+  \index rollback
+  \index transactions
 
 Database drivers can be asked about the features they support,
 including whether they support query size reporting and transations.
-The \Func transaction(), \Func commit() and \Func rollback() functions
-can be used if the underlying database supports transactions.
+The \Func transaction(), \Func commit() and \Func rollback()
+functions can be used if the underlying database supports
+transactions.
 
 \section1 Data-aware Widgets
 
+  \index data tables
+  \index tables
+
 \Class QDataTable is a \Class QTable that displays records from a
 result set using a \Class QSqlCursor. \Class QDataTable, like \Class
-QTable, supports in-place editing.  Programmers can force users to
-confirm all or selected changes (e.g. deletions) by setting
-\Class{QDataTable}'s confirmation properties. The editor widget chosen
-for each type of data depends on the data type. For example, a \Class
+QTable, supports in-place editing. Programmers can force users to
+confirm all or selected changes (e.g. deletions) by setting \Class
+{QDataTable}'s confirmation properties. The editor widget chosen for
+each type of data depends on the data type. For example, a \Class
 QLineEdit is used for \c CHAR fields, whereas a \Class QSpinBox is
 used for \c INTEGER fields. The programmer can override the defaults
 by creating a property map for the table, which matches fields
-(columns) to the editor widget type the programmer prefers. 
+(columns) to the editor widget type the programmer prefers.
 
 Records can be updated and deleted without writing any code.
 Insertions require some code since most database designs expect new
@@ -163,14 +179,20 @@ data-aware. All that is necessary is to include the widget in a \Class
 QSqlForm and set up a property map to relate the relevant database
 field to the widget that will present and edit the field's data.
 
+  \index drill-down
+  \index master-detail
+
 Master-detail relationships are easily set up by filtering the detail
 form or table's cursor by the master form or table's current record.
 Drill-down is also easy to achieve, for example, by associating a
 button, menu item or keyboard shortcut with a drill-down form that is
 invoked with the current record's key as a parameter.
 
+  \index Designer
+  \index Qt Designer
+
 Qt's SQL module is fully integrated with \l {Qt Designer}. \l {Qt
 Designer} can preview database forms and tables using live data if
 desired, allowing programmers to browse, delete and update records.
-\l{Qt Designer} has templates and wizards to make creating database
+\l {Qt Designer} has templates and wizards to make creating database
 forms fast and simple.
