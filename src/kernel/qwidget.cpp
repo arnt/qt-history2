@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#374 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#375 $
 **
 ** Implementation of QWidget class
 **
@@ -499,7 +499,7 @@ inline bool QWidgetMapper::remove( WId id )
     windows.
   <li> \c WStyle_StaysOnTop informs the window system that the window
   should stay on top of its parent window or, if there's no parent, on
-  top of the desktop. 
+  top of the desktop.
   </ul>
 
   Note that X11 does not necessarily support all style flag combinations. X11
@@ -1409,103 +1409,61 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 
 void QWidget::setBackgroundFromMode()
 {
-    switch (extra ? (BackgroundMode)extra->bg_mode : PaletteBackground) {
-      case FixedColor:
-      case FixedPixmap:
-      case NoBackground:
-	break;
-      case PaletteForeground:
-	  if ( colorGroup().brush( QColorGroup::Foreground ).pixmap() )
-	      setBackgroundPixmapDirect(
-                    *colorGroup().brush( QColorGroup::Foreground ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().foreground() );
-	break;
-      case PaletteButton:
-	  if ( colorGroup().brush( QColorGroup::Button ).pixmap() )
-	      setBackgroundPixmapDirect(
-                    *colorGroup().brush( QColorGroup::Button ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().button() );
-	break;
-      case PaletteLight:
-	  if ( colorGroup().brush( QColorGroup::Light ).pixmap() )
-	      setBackgroundPixmapDirect(
-                    *colorGroup().brush( QColorGroup::Light ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().light() );
-	break;
-      case PaletteMidlight:
-	  if ( colorGroup().brush( QColorGroup::Midlight ).pixmap() )
-	      setBackgroundPixmapDirect(
-                    *colorGroup().brush( QColorGroup::Midlight ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().midlight() );
-	break;
-      case PaletteDark:
-	  if ( colorGroup().brush( QColorGroup::Dark ).pixmap() )
-	      setBackgroundPixmapDirect(
-                    *colorGroup().brush( QColorGroup::Dark ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().dark() );
-	break;
-      case PaletteMid:
-	  if ( colorGroup().brush( QColorGroup::Mid ).pixmap() )
-	      setBackgroundPixmapDirect(
-		    *colorGroup().brush( QColorGroup::Mid ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().mid() );
-	break;
-      case PaletteText:
-	  if ( colorGroup().brush( QColorGroup::Text ).pixmap() )
-	      setBackgroundPixmapDirect(
-		    *colorGroup().brush( QColorGroup::Text ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().text() );
-	break;
-      case PaletteBrightText:
-	  if ( colorGroup().brush( QColorGroup::BrightText ).pixmap() )
-	      setBackgroundPixmapDirect(
-                    *colorGroup().brush( QColorGroup::BrightText ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().brightText() );
-	break;
-      case PaletteBase:
-	  if ( colorGroup().brush( QColorGroup::Base ).pixmap() )
-	      setBackgroundPixmapDirect(
-		    *colorGroup().brush( QColorGroup::Base ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().base() );
-	break;
-      case PaletteBackground:
-	  if ( colorGroup().brush( QColorGroup::Background ).pixmap() )
-	      setBackgroundPixmapDirect(
-		    *colorGroup().brush( QColorGroup::Background ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().background() );
-	break;
-      case PaletteShadow:
-	  if ( colorGroup().brush( QColorGroup::Shadow ).pixmap() )
-	      setBackgroundPixmapDirect(
-		    *colorGroup().brush( QColorGroup::Shadow ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().shadow() );
-	break;
-      case PaletteHighlight:
-	  if ( colorGroup().brush( QColorGroup::Highlight ).pixmap() )
-	      setBackgroundPixmapDirect(
-		    *colorGroup().brush( QColorGroup::Highlight ).pixmap() );
-	  else
-	      setBackgroundColorDirect( colorGroup().highlight() );
-	break;
-      case PaletteHighlightedText:
-	  if ( colorGroup().brush( QColorGroup::HighlightedText ).pixmap() )
-	      setBackgroundPixmapDirect(
-		   *colorGroup().brush(QColorGroup::HighlightedText).pixmap());
-	  else
-	      setBackgroundColorDirect( colorGroup().highlightedText() );
-	break;
+    int i = PaletteBackground;
+    QColorGroup::ColorRole r = QColorGroup::Background;
+    if ( extra ) {
+	i = (BackgroundMode)extra->bg_mode;
+	if ( i == FixedColor || i == FixedPixmap || i == NoBackground )
+	    // why does this function not do what its name says in
+	    // this case?
+	    return;
+	switch( i ) {
+	case PaletteForeground:
+	    r = QColorGroup::Foreground;
+	    break;
+	case PaletteButton:
+	    r = QColorGroup::Button;
+	    break;
+	case PaletteLight:
+	    r = QColorGroup::Light;
+	    break;
+	case PaletteMidlight:
+	    r = QColorGroup::Midlight;
+	    break;
+	case PaletteDark:
+	    r = QColorGroup::Dark;
+	    break;
+	case PaletteMid:
+	    r = QColorGroup::Mid;
+	    break;
+	case PaletteText:
+	    r = QColorGroup::Text;
+	    break;
+	case PaletteBrightText:
+	    r = QColorGroup::BrightText;
+	    break;
+	case PaletteBase:
+	    r = QColorGroup::Base;
+	    break;
+	case PaletteBackground:
+	    r = QColorGroup::Background;
+	    break;
+	case PaletteShadow:
+	    r = QColorGroup::Shadow;
+	    break;
+	case PaletteHighlight:
+	    r = QColorGroup::Highlight;
+	    break;
+	case PaletteHighlightedText:
+	    r = QColorGroup::HighlightedText;
+	    break;
+	}
     }
+    QPixmap * p = colorGroup().brush( r ).pixmap();
+    if ( p )
+	setBackgroundPixmapDirect( *p );
+    else
+	setBackgroundColorDirect( colorGroup().color( r ) );
 }
 
 /*!
@@ -1600,9 +1558,9 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
 
 void QWidget::setBackgroundMode( BackgroundMode m )
 {
-    if ( m==NoBackground )
+    if ( m == NoBackground )
 	setBackgroundEmpty();
-    else if ( m==FixedColor || m==FixedPixmap ) {
+    else if ( m == FixedColor || m == FixedPixmap ) {
 	warning("May not pass FixedColor or FixedPixmap to setBackgroundMode()");
 	return;
     }
