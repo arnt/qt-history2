@@ -251,8 +251,6 @@ public:
 #endif
 
 private:
-    friend class QFontEngine;
-    friend class QPaintEngine;
     friend void qt_format_text(const QFont& font, const QRect &_r,
                                 int tf, const QString& str, int len, QRect *brect,
                                 int tabstops, int* tabarray, int tabarraylen,
@@ -284,7 +282,7 @@ private:
 
     QPainterPrivate *d;
 
-    friend class QFontEngineBox;
+    friend class QFontEngine;
     friend class QFontEngineBox;
     friend class QFontEngineFT;
     friend class QFontEngineMac;
@@ -293,6 +291,7 @@ private:
     friend class QFontEngineXft;
     friend class QMacStyleQDPainter;
     friend class QWSManager;
+    friend class QPaintEngine;
     friend class QX11PaintEngine;
     friend class QX11PaintEnginePrivate;
     friend class QWin32PaintEngine;

@@ -1293,7 +1293,7 @@ void QX11PaintEngine::drawCubicBezier(const QPointArray &a, int index)
     }
 }
 
-void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr
+void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
                                  Qt::BlendMode mode)
 {
     int x = r.x();
@@ -1490,7 +1490,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, con
     int sx = p.x();
     int sy = p.y();
 
-    if (pixmap.mask() == 0 && pixmap.depth() > 1 && d->txop <= TxTranslate) {
+    if (pixmap.mask() == 0 && pixmap.depth() > 1 && d->txop <= QPainter::TxTranslate) {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
         QPixmap *alpha = pixmap.data->alphapm;
