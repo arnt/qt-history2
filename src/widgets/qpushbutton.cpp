@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#57 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#56 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#57 $")
 
 
 /*----------------------------------------------------------------------------
@@ -476,15 +476,20 @@ void QPushButton::drawButton( QPainter *paint )
 	    y2 -= extraMotifHeight/2;
 	}
 	QBrush fill( fillcol );
-	if ( isDown() )
+	if ( isDown() ) {
 	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2,
 			     updated ? &fill : 0 );
-	else if ( toggleButton() && isOn() ) // ### how should it look?
-	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 1,
-			     updated ? &fill : 0 );
-	else
+	} else if ( toggleButton() && isOn() ) { // ### how should it look?
+	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2, 0 );
+	    if ( updated ) {
+		p->setPen( NoPen );
+		p->setBrush( g.mid() );
+		p->drawRect( x1+2, y1+2, x2-x1-3, y2-y1-3 );
+	    }
+	} else {
 	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE, 2,
 			     updated ? &fill : 0 );
+	}
     }
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
