@@ -16,6 +16,7 @@
 #include <qradiobutton.h>
 #include <qpushbutton.h>
 #include <qtoolbutton.h>
+#include <qpixmap.h>
 
 /* XPM */
 static const char *fileopen[] = {
