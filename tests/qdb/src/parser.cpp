@@ -872,7 +872,7 @@ void Parser::matchBaseTableElementList()
 	    break;
 	yyTok = getToken();
     }
-    yyProg->append( new PushList(2) );
+    yyProg->append( new PushList(n) );
 }
 
 void Parser::matchCreateStatement()
