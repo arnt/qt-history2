@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#5 $
+** $Id: //depot/qt/main/src/tools/qmap.h#6 $
 **
 ** Definition of QMap class
 **
@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qshared.h"
+#include "qdatastream.h"
 #endif // QT_H
 
 struct QMapNodeBase
@@ -75,10 +76,8 @@ struct QMapIterator
    * Typedefs
    */
   typedef QMapIterator< K, T, Ref, Ptr > Type;
-  typedef QMapIterator< K, const T, const Ref, const Ptr > ConstType;
   typedef QMapNode< K, T >* NodePtr;
   typedef QMapNode< K, T > Node;
-  typedef K& KeyRef;
 
   /**
    * Variables
@@ -97,7 +96,7 @@ struct QMapIterator
   Ref operator*() const { return node->data; }
   Ptr operator->() const { return &(node->data); }
 
-  const KeyRef key() const { return node->key; }
+  const K& key() const { return node->key; }
   Ref data() const { return node->data; }
 
   void inc()
@@ -467,5 +466,28 @@ protected:
   
   Priv* sh;
 };
+
+template<class Key, class T>
+QDataStream& operator>>( QDataStream&, QMap<Key,T>& m ) {
+    m.clear();
+    uint c;
+    s >> c;
+    for( uint i = 0; i < c; ++i )
+    {
+      Key k; T t;
+      s >> k >> t;
+      m.insert( k, t );
+    }
+    return s;
+}
+  
+template<class Key, class T>
+QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
+    s << m.count();
+    QMap<Key,T>::ConstIterator it = m.begin();
+    for( ; it != m.end(); ++it )
+      s << it.key() << it.data();
+    return s;
+}  
 
 #endif

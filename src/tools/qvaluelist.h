@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#9 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#10 $
 **
 ** Definition of QValueList class
 **
@@ -27,8 +27,8 @@
 #define QVALUELIST_H
 
 #ifndef QT_H
-#include "qglobal.h"
 #include "qshared.h"
+#include "qdatastream.h"
 #endif // QT_H
 
 template <class T>
@@ -48,7 +48,6 @@ struct QValueListIterator
   /**
    * Typedefs
    */
-  typedef QValueListIterator<T, T&, T*> Iterator;
   typedef QValueListIterator<T, Ref, Ptr> Type;
   typedef QValueListNode<T>* NodePtr;
 
@@ -62,8 +61,7 @@ struct QValueListIterator
    */
   QValueListIterator() : node( 0 ) {}
   QValueListIterator( NodePtr p ) : node( p ) {}
-  // QValueListIterator( ConstIterator& c ) : node( c.node ) {}
-  QValueListIterator( const Iterator& i ) : node( i.node ) {}
+  QValueListIterator( const Type& i ) : node( i.node ) {}
 
   bool operator==( const Type& x ) const { return node == x.node; }
   bool operator!=( const Type& x ) const { return node != x.node; }
@@ -298,5 +296,30 @@ protected:
    */
   QValueListPrivate<T>* sh;
 };
+
+template<class T>
+QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
+{
+  l.clear();
+  uint c;
+  s >> c;
+  for( uint i = 0; i < c; ++i )
+  {
+    T t;
+    s >> t;
+    l.append( t );
+  }
+  return s;
+}
+
+template<class T>
+QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
+{
+    s << l.count();
+    QValueList<T>::ConstIterator it = l.begin();
+    for( ; it != l.end(); ++it )
+      s << *it;
+    return s;
+}
 
 #endif
