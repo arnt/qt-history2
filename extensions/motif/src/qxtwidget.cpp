@@ -307,7 +307,7 @@ bool QXtWidget::x11Event( XEvent * e )
 {
     if ( e->type == EnterNotify ) {
 	if  ( xtparent )
-	    setActiveWindow();
+	    activateWindow();
     }
     return QWidget::x11Event( e );
 }
@@ -316,7 +316,7 @@ bool QXtWidget::x11Event( XEvent * e )
 /*!
   Implement a degree of focus handling for Xt widgets.
 */
-void QXtWidget::setActiveWindow()
+void QXtWidget::activateWindow()
 {
     if  ( xtparent ) {
 	if ( !QWidget::isActiveWindow() && isActiveWindow() ) {
@@ -328,7 +328,7 @@ void QXtWidget::setActiveWindow()
 	    XSendEvent( qt_xdisplay(), e.window, TRUE, NoEventMask, (XEvent*)&e );
 	}
     } else {
-	QWidget::setActiveWindow();
+	QWidget::activateWindow();
     }
 }
 

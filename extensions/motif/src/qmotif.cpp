@@ -675,6 +675,7 @@ void QMotif::startingUp()
     int argc;
     argc = qApp->argc();
     char **argv = new char*[argc];
+    QByteArray appName = qApp->objectName().toLatin1();
 
     if (! display_found) {
     	argc = qApp->argc();
@@ -682,13 +683,13 @@ void QMotif::startingUp()
             argv[i] = qApp->argv()[i];
 
 	XtDisplayInitialize(d->appContext,
-			     QX11Info::display(),
-			     qApp->objectName(),
-			     d->applicationClass,
-			     d->options,
-			     d->numOptions,
-			     &argc,
-			     argv);
+                            QX11Info::display(),
+                            appName.constData(),
+                            d->applicationClass,
+                            d->options,
+                            d->numOptions,
+                            &argc,
+                            argv);
     }
 
     // open a second connection to the X server... QMotifWidget and
@@ -707,7 +708,7 @@ void QMotif::startingUp()
 
     XtDisplayInitialize(d->appContext,
 			d->display,
-			qApp->objectName(),
+			appName.constData(),
 			d->applicationClass,
 			d->options,
 			d->numOptions,
