@@ -311,14 +311,19 @@ QStringList QSettings::readListEntry( const QString &key, const QChar &sep, bool
 
 QString QSettings::readEntry( const QString &key, const QString &def, bool *ok )
 {
-    QByteArray array = d->readKey( key, REG_SZ, ok );
-    if ( ok && !*ok ) {
+    if ( ok )
+	*ok = FALSE;
+    bool temp;
+    QByteArray array = d->readKey( key, REG_SZ, &temp );
+    if ( !temp ) {
 	char *data = array.data();
 	array.resetRawData( data, array.size() );
 	delete[] data;
 	return def;
     }
 
+    if ( ok )
+	*ok = TRUE;
     QString result = QString::null;
 
 #if defined(UNICODE)
@@ -342,8 +347,11 @@ QString QSettings::readEntry( const QString &key, const QString &def, bool *ok )
 
 int QSettings::readNumEntry( const QString &key, int def, bool *ok )
 {
-    QByteArray array = d->readKey( key, REG_DWORD, ok );
-    if ( ok && !*ok ) {
+    if ( ok )
+	*ok = FALSE;
+    bool temp;
+    QByteArray array = d->readKey( key, REG_DWORD, &temp );
+    if ( !temp ) {
 	char *data = array.data();
 	array.resetRawData( data, array.size() );
 	delete[] data;
@@ -351,11 +359,11 @@ int QSettings::readNumEntry( const QString &key, int def, bool *ok )
 	return def;
     }
 
-    if ( array.size() != sizeof(int) ) {
-	if ( ok )
-	    *ok = FALSE;
+    if ( array.size() != sizeof(int) )
 	return def;
-    }
+
+    if ( ok )
+	*ok = TRUE;
 
     int res = 0;
     char* data = (char*)&res;
@@ -370,18 +378,21 @@ int QSettings::readNumEntry( const QString &key, int def, bool *ok )
 
 double QSettings::readDoubleEntry( const QString &key, double def, bool *ok )
 {
-    QByteArray array = d->readKey( key, REG_BINARY, ok );
-    if ( ok && !*ok ) {
+    if ( ok )
+	*ok = FALSE;
+    bool temp;
+    QByteArray array = d->readKey( key, REG_BINARY, &temp );
+    if ( !temp ) {
 	char *data = array.data();
 	array.resetRawData( data, array.size() );
 	delete[] data;
 	return def;
     }
-    if ( array.size() != sizeof(double) ) {
-	if ( ok )
-	    *ok = FALSE;
+    if ( array.size() != sizeof(double) )
 	return def;
-    }
+
+    if ( ok )
+	*ok = TRUE;
 
     double res = 0;
     char* data = (char*)&res;
