@@ -39,8 +39,8 @@ public:
 signals:
     void key( unsigned int unicode );
 
-public slots:
-    void hideShow();
+    //public slots:
+    //    void hideShow();
 
 protected slots:
     void selectCharSet( QIMPenCharSet * );

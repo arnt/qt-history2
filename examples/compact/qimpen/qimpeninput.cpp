@@ -235,7 +235,7 @@ QIMPenInput::QIMPenInput( QWidget *parent, const char *name, WFlags f )
     QPixmap pm1( (const char **)hide_xpm );
     hideBtn = new QPushButton( this );
     hideBtn->setPixmap( pm1 );
-    connect( hideBtn, SIGNAL(clicked()), SLOT(hideShow()));
+    connect( hideBtn, SIGNAL(clicked()), SLOT(hide())); //was hideShow()
     gl->addWidget( hideBtn, 2, 0 );
 
     pw = new QIMPenWidget( this );
@@ -402,13 +402,14 @@ void QIMPenInput::setup()
 	    it.current()->save();
     }
 }
-
+#if 0
 /*!
   Toggle whether the full input window is visible, or just the little
   expand icon
 */
 void QIMPenInput::hideShow()
 {
+
     if ( !hidden ) {
 	prefRect = geometry();
 	pw->hide();
@@ -440,3 +441,4 @@ void QIMPenInput::hideShow()
     }
 }
 
+#endif

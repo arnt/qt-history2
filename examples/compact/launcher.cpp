@@ -177,7 +177,7 @@ public:
     {
 	setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
 	QHBoxLayout *hbox = new QHBoxLayout( this, 2 );
-#ifdef PEN_INPUT
+#if 0 //def PEN_INPUT
 	hbox->addSpacing(18); //#### room for pen input...
 #endif
 	launchButton = new QPushButton( "Launch", this );
@@ -190,6 +190,10 @@ public:
 	}
 	connect( launchMenu, SIGNAL(activated(int)), this, SLOT(execute(int)));
 
+	QPushButton *kbdButton = new QPushButton( "Kbd", this );
+	hbox->addWidget( kbdButton );
+	connect( kbdButton, SIGNAL(clicked()), this, SLOT(showKbd()) );
+	
 	launchMenu->insertSeparator();
 	launchMenu->insertItem("Quit", qApp, SLOT(quit()));
 	
@@ -222,6 +226,8 @@ private slots:
 	}
     }
 
+    void showKbd();
+    
 private:
     QLabel* clock;
     QPopupMenu *launchMenu;
@@ -231,6 +237,30 @@ private:
 #include "launcher.moc"
 
 
+void TaskBar::showKbd() {
+#ifdef PEN_INPUT    
+    static QWSPenInput *pi;
+    if ( !pi ) {
+	pi = new QWSPenInput( 0, 0, QWidget::WStyle_Customize 
+			      | QWidget::WStyle_NoBorder 
+			      | QWidget::WStyle_StaysOnTop );
+	pi->setFrameStyle( QFrame::Box | QFrame::Plain );
+	pi->setLineWidth( 1 );
+	pi->addCharSet( "qimpen/asciilower.qpt" );
+	pi->addCharSet( "qimpen/numeric.qpt" );
+	pi->resize( pi->width(), pi->sizeHint().height() + 1 );
+	int h = qApp->desktop()->height();
+	pi->move( 0,  h - pi->height() );
+    }
+    pi->show();
+
+#endif    
+
+}
+
+
+
+#if 0
 static
 void handleSignal(int sig)
 {
@@ -241,6 +271,7 @@ void handleSignal(int sig)
     }
     exit(0);
 }
+#endif
 
 void silent(QtMsgType, const char *)
 {
@@ -290,18 +321,6 @@ main(int argc, char** argv)
 
     
     t.show();
-#ifdef PEN_INPUT    
-    QWSPenInput pi( 0, 0, QWidget::WStyle_Customize
-		    | QWidget::WStyle_NoBorder | QWidget::WStyle_StaysOnTop );
-    pi.setFrameStyle( QFrame::Box | QFrame::Plain );
-    pi.setLineWidth( 1 );
-    pi.addCharSet( "qimpen/asciilower.qpt" );
-    pi.addCharSet( "qimpen/numeric.qpt" );
-    pi.show();
-    pi.resize( pi.width(), pi.sizeHint().height() + 1 );
-    pi.move( 0,  h - pi.height() );
-    pi.hideShow();
-#endif    
     app.exec();
 }
 
