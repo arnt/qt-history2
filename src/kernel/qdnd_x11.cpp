@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#93 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -37,8 +37,8 @@
 
 // conflict resolution
 
-const int XKeyPress = KeyPress;
-const int XKeyRelease = KeyRelease;
+// unused, may be used again later: const int XKeyPress = KeyPress;
+// unused, may be used again later: const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
 
@@ -1412,7 +1412,7 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
   The resulting data will have a size of 0 if the format was not
   available.
 
-  \sa format() QByteArray::size() 
+  \sa format() QByteArray::size()
 */
 
 QByteArray QDropEvent::encodedData( const char *format ) const
