@@ -5715,7 +5715,12 @@ QWidget *QWidget::childAt(int x, int y) const
         if (w->isWidgetType() && !w->isTopLevel() && !w->isHidden() && w->geometry().contains(x, y)) {
             if (QWidget *t = w->childAt(x - w->x(), y - w->y()))
                 return t;
-            return w;
+            // if WMouseNoMask is set the widget mask is ignored, if
+            // the widget has no mask then the WMouseNoMask flag has no
+            // effect
+            if (w->testWFlags(Qt::WMouseNoMask) || w->mask().contains(QPoint(x, y))
+                || w->mask().isEmpty())
+                return w;
         }
     }
     return 0;
