@@ -735,8 +735,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
 	drawPixmap(r, tpx, sr, blend);
 	return;
     }
-
-    // see if we have this pixmap cached as a texture - if not cache it
+    dgl->makeCurrent();
     bindTextureFromCache(pm);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -770,7 +769,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
 void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &,
 					 Qt::PixmapDrawingMode)
 {
-    // see if we have this pixmap cached as a texture - if not cache it
+    dgl->makeCurrent();
     bindTextureFromCache(pm);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
