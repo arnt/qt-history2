@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#89 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#88 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#89 $";
 #endif
 
 
@@ -1206,10 +1206,10 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else
 	pdev = (QPaintDevice *)pd;
-    if ( pdev->devFlags & PDF_EXTDEV )
-	setf(ExtDev);				// this is an extended device
-    if ( pdev->devType() == PDT_PIXMAP )	// device is a pixmap
-	((QPixmap*)pdev)->detach();             // will modify pixmap
+    if ( (pdev->devFlags & PDF_EXTDEV) != 0 )	// this is an extended device
+	setf(ExtDev);
+    else if ( pdev->devType() == PDT_PIXMAP )	// device is a pixmap
+	((QPixmap*)pdev)->detach();		// will modify pixmap
     dpy = pdev->dpy;				// get display variable
     hd = pdev->hd;				// get handle to drawable
     if ( testf(ExtDev) ) {
@@ -2847,10 +2847,6 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	return;
     if ( len < 0 )
 	len = strlen( str );
-#if defined(CHECK_RANGE)
-    else if ( len > strlen(str) )
-	warning( "QPainter::drawText: Length arg exceeds real string length" );
-#endif
     if ( len == 0 )				// empty string
 	return;
 
@@ -3020,10 +3016,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	return;
     if ( len < 0 )
 	len = strlen( str );
-#if defined(CHECK_RANGE)
-    else if ( len > strlen(str) )
-	warning( "QPainter::drawText: Length arg exceeds real string length" );
-#endif
     if ( len == 0 )				// empty string
 	return;
 
