@@ -1860,12 +1860,15 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         }
         //figure out which widget to send it to
         if(app->inPopupMode()) {
-            if(QWidget *clt = QApplication::widgetAt(where.h, where.v)) {
-                if(clt && clt->topLevelWidget()->isPopup())
-                    widget = clt;
+            QWidget *popup = qApp->activePopupWidget();
+            if (qt_button_down && qt_button_down->topLevelWidget() == popup) {
+                widget = qt_button_down;
+            } else {
+                QPoint pos = popup->mapFromGlobal(QPoint(where.h, where.v));
+                widget = popup->childAt(pos);
             }
             if(!widget)
-                widget = QApplication::activePopupWidget();
+                widget = popup;
         } else {
             if(mac_mouse_grabber) {
                 widget = mac_mouse_grabber;
