@@ -376,14 +376,19 @@ void QProcessManager::sigchldHnd( int fd )
 #endif
 		    process->socketRead( proc->socketStderr );
 		}
-		// close filedescriptors if open
+		// close filedescriptors if open, and disable the
+		// socket notifiers
 		if ( proc->socketStdout ) {
 		    ::close( proc->socketStdout );
 		    proc->socketStdout = 0;
+		    if (process->d->notifierStdout)
+			process->d->notifierStdout->setEnabled(FALSE);
 		}
 		if ( proc->socketStderr ) {
 		    ::close( proc->socketStderr );
 		    proc->socketStderr = 0;
+		    if (process->d->notifierStderr)
+			process->d->notifierStderr->setEnabled(FALSE);
 		}
 
 		if ( process->notifyOnExit )
