@@ -2260,7 +2260,7 @@ bool QLineEditPrivate::isValidInput( QChar key, QChar mask ) const
 {
     switch ( mask.unicode() ) {
     case 'A':
-	if ( key.isLetter() && key != blank )
+	if ( key.isLetter() )
 	    return TRUE;
 	break;
     case 'a':
@@ -2268,7 +2268,7 @@ bool QLineEditPrivate::isValidInput( QChar key, QChar mask ) const
 	    return TRUE;
 	break;
     case 'N':
-	if ( key.isLetterOrNumber() && key != blank )
+	if ( key.isLetterOrNumber() )
 	    return TRUE;
 	break;
     case 'n':
@@ -2276,7 +2276,7 @@ bool QLineEditPrivate::isValidInput( QChar key, QChar mask ) const
 	    return TRUE;
 	break;
     case 'X':
-	if ( key.isPrint() && key != blank )
+	if ( key.isPrint() )
 	    return TRUE;
 	break;
     case 'x':
@@ -2284,7 +2284,7 @@ bool QLineEditPrivate::isValidInput( QChar key, QChar mask ) const
 	    return TRUE;
 	break;
     case '9':
-	if ( key.isNumber() && key != blank )
+	if ( key.isNumber() )
 	    return TRUE;
 	break;
     case '0':
@@ -2292,7 +2292,7 @@ bool QLineEditPrivate::isValidInput( QChar key, QChar mask ) const
 	    return TRUE;
 	break;
     case 'D':
-	if ( key.isNumber() && key.digitValue() > 0 && key != blank )
+	if ( key.isNumber() && key.digitValue() > 0 )
 	    return TRUE;
 	break;
     case 'd':
@@ -2347,7 +2347,7 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 		    }
 		    ++i;
 		} else {
-		    // search for separator first
+                    // search for separator first
 		    int n = findInMask( i, TRUE, TRUE, str[(int)strIndex] );
 		    if ( n != -1 ) {
 			if ( str.length() != 1 || i == 0 || (i > 0 && (!maskData[i-1].separator || maskData[i-1].maskChar != str[(int)strIndex])) ) {
@@ -2355,7 +2355,7 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 			    i = n + 1; // update i to find + 1
 			}
 		    } else {
-			// search for valid blank if not
+                        // search for valid blank if not
 			n = findInMask( i, TRUE, FALSE, str[(int)strIndex] );
 			if ( n != -1 ) {
 			    s += fill.mid( i, n-i );
