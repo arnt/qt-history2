@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#27 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,55 +22,9 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#27 $";
 #endif
 
-
-/*!
-  \class QPixmap qpixmap.h
-  \brief The QPixmap class is an off-screen buffer paint device.
-
-  A standard use of the QPixmap class is to enable smooth updating of widgets.
-  Whenever something complex needs to be drawn, you can use a pixmap to
-  obtain flicker-free drawing.
-
-  <ol plain>
-  <li> Create a pixmap with the same size as the widget.
-  <li> Fill the pixmap with the widget background color.
-  <li> Paint the pixmap.
-  <li> bitBlt() the pixmap contents onto the widget.
-  </ol>
-
-  Example of flicker-free update:
-  \code
-    void MyWidget::paintEvent( QPaintEvent * )
-    {
-        QPixmap  pm( size() );			// create pixmap
-        QPainter p;				// our painter
-        pm.fill( backgroundColor() );		// initialize pixmap
-        p.begin( &pm );				// start painting pixmap
-        ...					// draw something
-        p.end();				// painting done
-        bitBlt( this, 0,0, &pm, 0,0, -1,-1 );	// copy pixmap to widget
-    }
-  \endcode
-
-  The bitBlt() function is explained in the QPaintDevice documentation.
-
-  Pixel data in a pixmap is internal and managed by the underlying window
-  system.  Pixels can only be accessed through QImage, QPainter functions
-  and the bitBlt().
-
-  You can \link load() load\endlink and \link save() save\endlink pixmaps
-  using several image formats.
-
-  A pixmap can be converted to a QImage to get direct access to the pixels.
-  A QImage can also be converted back to a pixmap.
-
-  QPixmap objects make use of implicit sharing.
-
-  \sa QBitmap, QImage, QImageIO, QPaintDevice
-*/
 
 /*
 DETTE SKAL INN I SHARING_DOC.
