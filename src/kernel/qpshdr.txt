@@ -1,5 +1,5 @@
 %
-% $Id: //depot/qt/main/src/kernel/qpshdr.txt#6 $
+% $Id: //depot/qt/main/src/kernel/qpshdr.txt#7 $
 %
 % Postscript routines for QPSPrinter class
 %
@@ -7,6 +7,12 @@
 % Created : 940920
 %
 % Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+%
+
+%
+% Substitutions: (will be implemented in genpshdr.pl later)
+% SUBSTITUTE(QtStroke,QtS)
+% SUBSTITUTE(QtFill,QtF)
 %
 
 /D  {bind def} bind def
@@ -46,7 +52,7 @@
     PSt 0 ne			% != NO_PEN
     { LWi SW			% set line width
       GS
-      PCol SC  % set pen color
+      PCol SC			% set pen color
       true GPS 0 setdash S	% draw line pattern
       OMo PSt 1 ne and		% opaque mode and not solid line?
       { GR BkCol SC
@@ -65,9 +71,9 @@
     BSt 1 eq			% solid brush?
     { BCol SC WFi { fill } { eofill } ifelse } if
     GR
-} D 
+} D
 
-/BDArr[					% Brush dense patterns:
+/BDArr[				% Brush dense patterns:
     0.94 0.88 0.63 0.50 0.37 0.12 0.6
 ] def
 
@@ -76,13 +82,13 @@ ArcDict begin
     /tmp matrix def
 end
 
-/ARC {				% Generic ARC function	 X Y W H ang1 ang2 
+/ARC {				% Generic ARC function [ X Y W H ang1 ang2 ]
     ArcDict begin
     /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED
     tmp CM pop
     x w 2 div add y h 2 div add TR
     1 h w div neg scale
-    ang2 0 ge 
+    ang2 0 ge
     {0 0 w 2 div ang1 ang1 ang2 add arc }
     {0 0 w 2 div ang1 ang1 ang2 add arcn} ifelse
     tmp SM
@@ -161,7 +167,7 @@ end
 /RRDict 6 dict def
 /RR {				% PDC_DRAWROUNDRECT [x y w h xr yr]
     RRDict begin
-    /yr ED /xr ED /h ED /w ED /y ED /x ED    
+    /yr ED /xr ED /h ED /w ED /y ED /x ED
     xr 0 le yr 0 le or
     {x y w h R}	     % Do rectangle if one of rounding values is less than 0.
     {xr 100 ge yr 100 ge or
@@ -173,10 +179,10 @@ end
 	 /ry2 ry 2 mul def
 	 NP
 	 x rx add y MT
-	 x w add rx2 sub y		 rx2 ry2 90  -90 ARC 
-	 x w add rx2 sub y h add ry2 sub rx2 ry2 0   -90 ARC 
-	 x		 y h add ry2 sub rx2 ry2 270 -90 ARC 
-	 x		 y		 rx2 ry2 180 -90 ARC 
+	 x w add rx2 sub y		 rx2 ry2 90  -90 ARC
+	 x w add rx2 sub y h add ry2 sub rx2 ry2 0   -90 ARC
+	 x		 y h add ry2 sub rx2 ry2 270 -90 ARC
+	 x		 y		 rx2 ry2 180 -90 ARC
 	 CP
 	 QtFill
 	 QtStroke
@@ -203,7 +209,7 @@ end
     QtStroke
     end
 } D
- 
+
 
 /A {				% PDC_DRAWARC [x y w h ang1 ang2]
     16 div exch 16 div exch
@@ -251,12 +257,12 @@ end
 
 /RS {				% Restore painter state
     nS 0 gt
-    { GR 
-      /BkCol ED /PCol ED /BCol ED /OMo ED /WFi ED 
+    { GR
+      /BkCol ED /PCol ED /BCol ED /OMo ED /WFi ED
       /Cy ED /Cx ED /PSt ED /LWi ED /BSt ED
       /nS nS 1 sub def
     } if
-    
+
 } D
 
 /BC {				% PDC_SETBKCOLOR [R G B]
@@ -285,6 +291,7 @@ end
 /T {				% PDC_DRAWTEXT [x y string]
     3 1 roll
     MT				% !!!! Uff
+    PCol SC			% set pen/text color
     show
 } D
 
