@@ -28,7 +28,7 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
 	 isEqual(QTLIB, compat) {
 	    QTDIR_build:warning(***USE of COMPAT inside of QTDIR!**) #just for us
 	    INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt
-	    !contains(DEFINES, QT_COMPAT):DEFINES *= QT_COMPAT_WARNINGS
+	    DEFINES *= QT_COMPAT
 	 }
 	 exists($$QMAKE_INCDIR_QT/$$qlib) {
              INCLUDEPATH -= $$QMAKE_INCDIR_QT/$$qlib
