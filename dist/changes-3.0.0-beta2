@@ -41,7 +41,7 @@ re-implemented in the different styles. These functions were used to
 draw parts of, or entire widgets. The new API uses a small set of more
 general functions. Enumerated values are passed as parameters to these
 functions to specify which parts of a control or widget is to be drawn
-(e.g drawPrimitive( PO_ArrowUp, ...)).
+(e.g drawPrimitive( PE_ArrowUp, ...)).
 
 To create custom styles with the new API, simply subclass from the
 preferred base style and re-implement the function that draws the part
@@ -50,13 +50,13 @@ the look of the arrows that are used in QWindowsStyle, subclass from
 it and re-implement the drawPrimitive() function. Your drawPrimitive()
 function may look something like this:
 
-void QMyStyle::drawPrimitive( PrimitiveOperation op, ... )
+void QMyStyle::drawPrimitive( PrimitiveElement pe, ... )
 {
-        switch( op ) {
-        case PO_ArrowUp:
+        switch( pe ) {
+        case PE_ArrowUp:
                 // draw up arrow
                 break;
-        case PO_ArrowDown:
+        case PE_ArrowDown:
                 // draw down arrow
                 break;
         default:
