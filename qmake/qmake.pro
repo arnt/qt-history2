@@ -18,7 +18,7 @@ SOURCES+=project.cpp main.cpp makefile.cpp \
 	 projectgenerator.cpp metrowerks_xml.cpp \
          pbuilder_pbx.cpp
 
-#qt code
+#Qt code
 SOURCES+=qstring.cpp qtextstream.cpp \
          qiodevice.cpp qglobal.cpp \
 	 qgdict.cpp qcstring.cpp \
@@ -38,6 +38,7 @@ unix {
 win32 {
    VPATH = $$QTDIR/src/tools
    SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp 
+   *-msvc:LIBS += ole32.lib
 }
 macx-* {
      INCLUDEPATH += /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/
