@@ -34,6 +34,8 @@
 
 #include <qdebug.h>
 
+Q_DECLARE_METATYPE(QObject *)
+
 ObjectInspector::ObjectInspector(AbstractFormEditor *core, QWidget *parent)
     : AbstractObjectInspector(parent),
       m_core(core),

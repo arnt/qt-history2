@@ -46,10 +46,10 @@ class PixmapProperty : public AbstractProperty<QPixmap>
 {
 public:
     PixmapProperty(AbstractFormEditor *core, const QPixmap &value, const QString &name);
-    
+
     void setValue(const QVariant &value);
     QString toString() const;
-    
+
     QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
@@ -81,7 +81,7 @@ private:
     QPixmap m_pixmap;
 };
 
-PixmapPropertyEditor::PixmapPropertyEditor(AbstractFormEditor *core, const QPixmap &pm, 
+PixmapPropertyEditor::PixmapPropertyEditor(AbstractFormEditor *core, const QPixmap &pm,
                                                 QWidget *parent)
     : QHBoxWidget(parent)
 {
@@ -89,9 +89,9 @@ PixmapPropertyEditor::PixmapPropertyEditor(AbstractFormEditor *core, const QPixm
     m_button = new QToolButton(this);
     m_button->setText("...");
     m_edit = new QLineEdit(this);
-    
+
     setPixmap(pm);
-    
+
     connect(m_edit, SIGNAL(textChanged(const QString&)), this, SLOT(setPath(const QString&)));
     connect(m_button, SIGNAL(clicked()), this, SLOT(showDialog()));
 }
@@ -109,14 +109,14 @@ void PixmapPropertyEditor::setPath(const QString &path)
     m_edit->blockSignals(true);
     m_edit->setText(path);
     m_edit->blockSignals(false);
-    
+
     QPixmap pm = m_core->pixmapCache()->nameToPixmap(path);
-    
+
     if (pm.isNull() && m_pixmap.isNull())
         return;
     if (pm.serialNumber() == m_pixmap.serialNumber())
         return;
-    
+
     m_pixmap = pm;
     m_button->setPixmap(m_pixmap);
     emit pixmapChanged(m_pixmap);
@@ -135,7 +135,7 @@ void PixmapPropertyEditor::setPixmap(const QPixmap &pm)
         m_edit->setText(path);
         m_edit->blockSignals(false);
     }
-    
+
     m_pixmap = pm;
     m_button->setPixmap(m_pixmap);
     emit pixmapChanged(m_pixmap);
@@ -157,13 +157,13 @@ QString PixmapProperty::toString() const
     return m_core->pixmapCache()->pixmapToName(m_value);
 }
 
-QWidget *PixmapProperty::createEditor(QWidget *parent, const QObject *target, 
+QWidget *PixmapProperty::createEditor(QWidget *parent, const QObject *target,
                                         const char *receiver) const
 {
     PixmapPropertyEditor *editor = new PixmapPropertyEditor(m_core, m_value, parent);
 
     QObject::connect(editor, SIGNAL(pixmapChanged(const QPixmap&)), target, receiver);
-    
+
     return editor;
 }
 
@@ -203,9 +203,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         IProperty *p = 0;
         EnumType e;
         FlagType f;
-        if (qVariantGet(value, f, "FlagType")) {
+        if (qVariantGet(value, f)) {
             p = new FlagsProperty(f.items, f.value.toInt(), pname);
-        } else if (qVariantGet(value, e, "EnumType")) {
+        } else if (qVariantGet(value, e)) {
             p = new MapProperty(e.items, e.value, pname);
         }
 

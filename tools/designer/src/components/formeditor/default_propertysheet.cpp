@@ -176,9 +176,9 @@ QVariant QDesignerPropertySheet::resolvePropertyValue(const QVariant &value) con
     EnumType e;
     FlagType f;
 
-    if (qVariantGet(value, f, "FlagType"))
+    if (qVariantGet(value, f))
         v = f.value;
-    else if (qVariantGet(value, e, "EnumType"))
+    else if (qVariantGet(value, e))
         v = e.value;
     else
         v = value;
@@ -195,13 +195,13 @@ void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
 
     QVariant &v = m_fakeProperties[index];
 
-    if (qVariantGet(value, f, "FlagType") || qVariantGet(value, e, "EnumType")) {
+    if (qVariantGet(value, f) || qVariantGet(value, e)) {
         v = value;
-    } else if (qVariantGet(v, f, "FlagType")) {
+    } else if (qVariantGet(v, f)) {
         f.value = value;
         qVariantSet(v, f);
         Q_ASSERT(f.value.type() == QVariant::Int);
-    } else if (qVariantGet(v, e, "EnumType")) {
+    } else if (qVariantGet(v, e)) {
         e.value = value;
         qVariantSet(v, e);
         Q_ASSERT(e.value.type() == QVariant::Int);

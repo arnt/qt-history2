@@ -886,7 +886,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
     EnumType e;
     FlagType f;
 
-    if (qVariantGet(value, e, "EnumType")) {
+    if (qVariantGet(value, e)) {
         int v = e.value.toInt();
         QMapIterator<QString, QVariant> it(e.items);
         while (it.hasNext()) {
@@ -900,7 +900,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         }
 
         return 0;
-    } else if (qVariantGet(value, f, "FlagType")) {
+    } else if (qVariantGet(value, f)) {
 #if 0 // ### implement me
         int v = f.value.toInt();
 
