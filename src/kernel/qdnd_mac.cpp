@@ -254,6 +254,7 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 
 const char* QDropEvent::format(int i) const
 {
+    int old_i = i;
     char *buffer = NULL;
     FlavorType info = NULL;
     Size flavorsize = 0, typesize = 0, realsize = sizeof(typesize);
@@ -273,22 +274,27 @@ const char* QDropEvent::format(int i) const
 	return 0;
 
     if(GetFlavorDataSize(current_dropobj, ref, kDragQtGeneratedMarker, &flavorsize)) { //Mac style
-	for( ; i < (int)numFlavors; i++) {
-	    if(GetFlavorType(current_dropobj, ref, i+1, &info)) {
+	for(int x = 1, found = 0; x <= (int)numFlavors; x++) {
+	    if(GetFlavorType(current_dropobj, ref, x, &info)) {
 		qDebug("OOps.. %d %s:%d", i, __FILE__, __LINE__);
 		return 0;
 	    }
-	    for(int sm = 0; scrap_map[sm].qt_type; sm++) 
-		if(info == scrap_map[sm].mac_type)
-		    return scrap_map[sm].qt_type;
+	    for(int sm = 0; scrap_map[sm].qt_type; sm++) {
+		if(info == scrap_map[sm].mac_type) {
+		    if(found++ != i)
+			return scrap_map[sm].qt_type;
+		}
+	    }
 	}
     } else {
-	for( ; i < (int)numFlavors; i++) {
-	    if(GetFlavorType(current_dropobj, ref, i+1, &info)) {
+	for(int x = 1, found = 0; x <= (int)numFlavors; x++) {
+	    if(GetFlavorType(current_dropobj, ref, x, &info)) {
 		qDebug("OOps.. %d %s:%d", i, __FILE__, __LINE__);
-		return 0;
+		continue;
 	    }
 	    if((info >> 16) == ('QTxx' >> 16)) {
+		if(found++ != i)
+		    continue;
 		if(GetFlavorDataSize( current_dropobj, ref, info, &flavorsize) || flavorsize < 4) {
 		    qDebug("Failure to get ScrapFlavorSize for %s:%d %d %d", __FILE__, __LINE__, 
 			    (int)flavorsize, (int)info);
@@ -299,7 +305,7 @@ const char* QDropEvent::format(int i) const
 		GetFlavorData(current_dropobj, ref, info, buffer, &typesize, sizeof(typesize));
 		if (typesize < 0) {
 		    qDebug("typesize negative %s:%d", __FILE__, __LINE__);
-		    return 0;
+		    continue;
 		}
 		*(buffer + typesize) = '\0';
 		break;
