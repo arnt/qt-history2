@@ -414,37 +414,10 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     if ( t->id == currentTab() )
 	tr.setBottom( tr.bottom() - style().defaultFrameWidth() );
 
-    QColor penColor = black;
-    if ( t->enabled && isEnabled()  ) {
-#if defined(Q_WS_WIN)
-	if ( colorGroup().brush( QColorGroup::Button ) == colorGroup().brush( QColorGroup::Background ) )
-	    penColor = colorGroup().buttonText();
-	else
-	    penColor = colorGroup().foreground();
-#else
-	penColor = colorGroup().foreground();
-#endif
-	style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(), 
-			  AlignCenter | ShowPrefix, colorGroup(), isEnabled(),
-			  0, t->label, -1, &penColor );
-    } else if ( style() == MotifStyle ) {
-	penColor = palette().disabled().foreground();
-	style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(), 
-			  AlignCenter | ShowPrefix, colorGroup(), isEnabled(),
-			  0, t->label, -1, &penColor );
-    } else { // Windows style, disabled
-	penColor = colorGroup().light();
-	QRect wr = tr;
-	wr.moveBy( 1, 1 );
-	style().drawItem( p, wr.x(), wr.y(), wr.width(), wr.height(), 
-			  AlignCenter | ShowPrefix, colorGroup(), isEnabled(),
-			  0, t->label, -1, &penColor );
-	penColor = palette().disabled().foreground();
-	style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(), 
-			  AlignCenter | ShowPrefix, colorGroup(), isEnabled(),
-			  0, t->label, -1, &penColor );
-    }
-
+    style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(), 
+		      AlignCenter | ShowPrefix, colorGroup(), isEnabled(),
+		      0, t->label );
+    
     if ( !has_focus )
 	return;
 
