@@ -95,16 +95,18 @@ protected:
 bool FunctionBlock::exec(QMakeProject *p, const QStringList &args, bool &functionReturn)
 {
     //save state
+    return_value = "";
+    cause_return = false;
     p->function_blocks.push(this);
 
     //execute
     QList<QStringList> va;
+    QStringList args_old = p->variables()["ARGS"];
+    p->variables()["ARGS"] = args;
     for(int i = 0; i < args.count(); i++) {
         va.append(p->variables()[QString::number(i+1)]);
         p->variables()[QString::number(i+1)] = args[i];
     }
-    QStringList argc = p->variables()["ARG_COUNT"];
-    p->variables()["ARG_COUNT"] = QString::number(args.count());
     bool ret = ParsableBlock::eval(p);
     if(return_value.isEmpty()) {
         functionReturn = true;
@@ -113,12 +115,12 @@ bool FunctionBlock::exec(QMakeProject *p, const QStringList &args, bool &functio
         int val = return_value.toInt(&ok);
         if(ok) 
             functionReturn = val;
-        else
+        else 
             functionReturn = (return_value == "true");
     }
     for(int i = 0; i < va.count(); i++) 
         p->variables()[QString::number(i+1)] = va[i];
-    p->variables()["ARG_COUNT"] = argc; //just to be carefull
+    p->variables()["ARG_COUNT"] = args_old; //just to be carefull
 
     //restore state
     p->iterator = 0;
