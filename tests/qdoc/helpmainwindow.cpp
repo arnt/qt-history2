@@ -459,6 +459,7 @@ void HelpMainWindow::showEvent( QShowEvent *e )
     QMainWindow::showEvent( e );
     if ( !indexCreated )
 	QTimer::singleShot( 1, this, SLOT( createDatabase() ) );
+    indexCreated = TRUE;
 }
 
 void HelpMainWindow::createDatabase()
@@ -474,7 +475,6 @@ void HelpMainWindow::createDatabase()
     statusBar()->removeWidget( label );
     bar->hide();
     label->hide();
-    indexCreated = TRUE;
     viewer->setSource( viewer->source() );
 }
 
