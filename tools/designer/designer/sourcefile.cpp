@@ -108,7 +108,6 @@ bool SourceFile::saveAs( bool ignoreModified )
 	QString dir = getenv( "QTSCRIPTDIR" );
 	initFn = QFileInfo( initFn ).fileName();
 	initFn.prepend( dir + "/" );
-	qDebug( initFn );
     }
     QString fn = QFileDialog::getSaveFileName( initFn, filter );
     if ( fn.isEmpty() )
