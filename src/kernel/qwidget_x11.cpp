@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#32 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#32 $";
 #endif
 
 
@@ -151,8 +151,8 @@ bool QWidget::create()				// create widget
 	XSetSubwindowMode( dpy, gc, IncludeInferiors );
 
     if ( overlap ) {				// set X cursor
-	XDefineCursor( dpy, ident, QApplication::appCursorDefined ?
-		       QApplication::cursor().handle() : curs.handle() );
+	QCursor *appc = QApplication::cursor();
+	XDefineCursor( dpy, ident, appc ? appc->handle() : curs.handle() );
 	setFlag( WCursorSet );
     }
     return TRUE;
@@ -291,8 +291,8 @@ QCursor QWidget::cursor() const			// get cursor
 void QWidget::setCursor( const QCursor &cursor )// set cursor
 {
     curs = cursor;
-    XDefineCursor( dpy, ident, QApplication::appCursorDefined ?
-		   QApplication::cursor().handle() : curs.handle() );
+    QCursor *appc = QApplication::cursor();
+    XDefineCursor( dpy, ident, appc ? appc->handle() : curs.handle() );
     setFlag( WCursorSet );
     XFlush( dpy );
 }
