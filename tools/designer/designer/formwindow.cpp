@@ -32,6 +32,7 @@
 #include "orderindicator.h"
 #include "hierarchyview.h"
 #include "designerappiface.h"
+#include "menubareditor.h"
 #define NO_STATIC_COLORS
 #include "globaldefs.h"
 
@@ -1861,7 +1862,7 @@ void FormWindow::lowerWidgets()
     commandHistory()->addCommand( cmd );
 }
 
-static void find_accel( const QString &txt, QMap<QChar, QWidgetList > &accels, QWidget *w )
+export void find_accel( const QString &txt, QMap<QChar, QWidgetList > &accels, QWidget *w )
 {
     int i = txt.find( "&" );
     if ( i == -1 )
@@ -1903,6 +1904,8 @@ void FormWindow::checkAccels()
 		    find_accel( w->property( "title" ).toString(), accels, w );
 		if ( pageTitle )
 		    find_accel( w->property( "pageTitle" ).toString(), accels, w );
+	    } else if ( o->inherits( "MenuBarEditor" ) ) {
+		((MenuBarEditor *)o)->checkAccels( accels );
 	    }
 	}
 	delete l;

@@ -105,6 +105,8 @@ public:
     int heightForWidth( int max_width ) const;
 
     void show();
+
+    void checkAccels( QMap<QChar, QWidgetList > &accels );
     
 protected:
 

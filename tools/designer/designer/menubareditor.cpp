@@ -9,6 +9,8 @@
 #include "command.h"
 #include "formwindow.h"
 
+extern void find_accel( const QString &txt, QMap<QChar, QWidgetList > &accels, QWidget *w );
+
 // Drag Object Declaration -------------------------------------------
 
 class MenuBarEditorItemPtrDrag : public QStoredDrag
@@ -586,6 +588,18 @@ void MenuBarEditor::show()
    
     QResizeEvent e( parentWidget()->size(), parentWidget()->size() );
     QApplication::sendEvent( parentWidget(), &e );
+}
+
+void MenuBarEditor::checkAccels( QMap<QChar, QWidgetList > &accels )
+{
+    QString t;
+    MenuBarEditorItem * i = itemList.first();
+    while ( i ) {
+	t = i->menuText();
+	find_accel( t, accels, this );
+	// do not check the accelerators in the popup menus
+	i = itemList.next();
+    }
 }
 
 void MenuBarEditor::paintEvent( QPaintEvent * )
