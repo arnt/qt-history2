@@ -36,14 +36,29 @@
 
 \title Qt Table Module
 
-The table module provides a  flexible and editable table widget dubbed \l QTable.
+The table module provides a flexible and editable table widget dubbed \l QTable.
 
-<center><a href="qtable.html"><img src="qtable.png" alt="Screenshot of QTable"></a></center>
+<center>
+\link qtable.html <img src="qtable.png" alt="Screenshot of QTable"> \endlink
+</center>
 
-QTable is the abstract widget of choice whenever you need to present
+It consists of the following classes:
+<ul>
+<li> \l QTable is the abstract widget of choice whenever you need to present
 spreadsheet data to the user or let the user edit such data.
+<li> \l QTableItem objects are used to populate a QTable with data: 
+       each of them contains the content for one cell. 
+<li> The \l QComboTableItem class provides a convenient way to
+  put combobox items in a QTable. 
+<li> \l QTableCheckoBoxItem implements a convenient class to
+  integrate checkbox items into a QTable. 
+<li> \l QTableSelection provides access to selected areas in a
+  QTable.  
+</ul>
 
-Please see the \link qtable.html class documentation \endlink for
-details.
+
+Please see the appropriate class documentation for
+details and refer to the \link table-examples.html Qt table examples \endlink
+for practical demonstration. 
 */
 
