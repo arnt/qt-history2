@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#13 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#14 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3526,7 +3526,7 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
 	}
 	
     }
-    
+
     QFileDialogPrivate::File * i = 0;
     if ( item )
 	i = new QFileDialogPrivate::File(d, &inf ,files, item );
@@ -3534,7 +3534,6 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
 	i = new QFileDialogPrivate::File(d, &inf ,files );
     QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( 0 , i );
     i->i = i2;
-    qDebug( "%s %d", inf.name().latin1(), index );
     d->moreFiles->insertItem( i2, index );
 }									
 
