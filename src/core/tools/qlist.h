@@ -88,10 +88,9 @@ public:
     QBool contains(const T &t) const;
     int count(const T &t) const;
 
-    class const_iterator;
     class iterator {
-        Node *i;
     public:
+        Node *i;
         typedef std::random_access_iterator_tag  iterator_category;
         typedef ptrdiff_t  difference_type;
         typedef T value_type;
@@ -115,14 +114,11 @@ public:
         inline iterator operator+(int j) const { return iterator(i+j); }
         inline iterator operator-(int j) const { return iterator(i-j); }
         inline int operator-(iterator j) const { return i - j.i; }
-        friend class QList;
-        friend class QList::const_iterator;
     };
-    friend class iterator;
 
     class const_iterator {
-        Node *i;
     public:
+        Node *i;
         typedef std::random_access_iterator_tag  iterator_category;
         typedef ptrdiff_t difference_type;
         typedef T value_type;
@@ -147,9 +143,7 @@ public:
         inline const_iterator operator+(int j) const { return const_iterator(i+j); }
         inline const_iterator operator-(int j) const { return const_iterator(i-j); }
         inline int operator-(const_iterator j) const { return i - j.i; }
-        friend class QList;
     };
-    friend class const_iterator;
 
     // stl style
     inline iterator begin() { detach(); return (Node*) p.begin(); }
