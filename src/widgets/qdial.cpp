@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#6 $
 **
 ** Implementation of something useful.
 **
@@ -496,3 +496,38 @@ void QDial::subtractPage()
 {
     QRangeControl::subtractPage();
 }
+
+
+/*!
+    \fn void QDial::valueChanged( int value )
+
+    This signal is emitted whenever the dial value changes.  The frequency
+    of this signal is influenced by setTracking().
+*/
+
+/*!
+    \fn void QDial::dialPressed()
+
+    This signal is emitted when the use begins mouse interaction with
+    the dial.
+
+    \sa dialReleased()
+*/
+
+/*!
+    \fn void QDial::dialMoved( int value )
+
+    This signal is emitted whenever the dial value changes.  The frequency
+    of this signal is \e not influenced by setTracking().
+
+    \sa valueChanged(int)
+*/
+
+/*!
+    \fn void QDial::dialReleased()
+
+    This signal is emitted when the use ends mouse interaction with
+    the dial.
+
+    \sa dialPressed()
+*/
