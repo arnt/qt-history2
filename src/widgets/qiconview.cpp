@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#103 $
 **
 ** Definition of QIconView widget class
 **
@@ -146,6 +146,10 @@ struct QIconViewPrivate
 	QCursor *highlightedCursor;
 	int setCurrentInterval;
     } singleClickConfig;
+    
+    struct SortableItem {
+	QIconViewItem *item;
+    };
 };
 
 /*****************************************************************************
@@ -226,8 +230,8 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
 /*!
   \class QIconDragItem qiconview.h
   \brief The QIconDragItem is the internal data structure of a QIconDrag
-  
-  
+
+
 */
 
 /*!
@@ -340,7 +344,7 @@ void QIconDragItem::setTextRect( const QRect &r )
   It's suggested that, if you write a drag object for own QIconViewItems,
   you derive the drag object class from QIconDrag and just implement the
   methods which are needed for encoding/decoding your data and the mimetype
-  handling. Because if you do this, the position informations will be stored 
+  handling. Because if you do this, the position informations will be stored
   in the drag object too.
 
   An example, how to implement this, is in the QtFileIconView example.
@@ -630,6 +634,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QSt
 void QIconViewItem::init()
 {
     if ( view ) {
+	itemKey = itemText;
 	dirty = TRUE;
 	fm = new QFontMetrics( view->font() );
 	itemViewMode = view->viewMode();
@@ -659,8 +664,22 @@ void QIconViewItem::setText( const QString &text )
 	return;
 
     itemText = text;
+    if ( itemKey.isEmpty() )
+	itemKey = itemText;
     calcRect();
     repaint();
+}
+
+/*!
+  Sets \a k as key of the iconview item.
+*/
+
+void QIconViewItem::setKey( const QString &k )
+{
+    if ( k == itemKey )
+	return;
+
+    itemKey = k;
 }
 
 /*!
@@ -746,6 +765,15 @@ void QIconViewItem::setDropEnabled( bool allow )
 QString QIconViewItem::text() const
 {
     return itemText;
+}
+
+/*!
+  Returns the key of the iconview item.
+*/
+
+QString QIconViewItem::key() const
+{
+    return itemKey;
 }
 
 /*!
@@ -3778,4 +3806,71 @@ void QIconView::clearSingleClickConfig()
     d->singleClickConfig.setCurrentInterval = -1;
 }
 
+static int cmpIconViewItems( const void *n1, const void *n2 )
+{
+    if ( !n1 || !n2 )
+	return 0;
+    
+    QIconViewPrivate::SortableItem *i1 = (QIconViewPrivate::SortableItem *)n1;
+    QIconViewPrivate::SortableItem *i2 = (QIconViewPrivate::SortableItem *)n2;
+    
+    return i1->item->key().compare( i2->item->key() );
+}
+
+
+void QIconView::sortItems( bool ascending )
+{
+    if ( count() == 0 )
+	return;
+    
+    QIconViewPrivate::SortableItem *items = new QIconViewPrivate::SortableItem[ count() ];
+
+    QIconViewItem *item = d->firstItem;
+    int i = 0;
+    for ( ; item; item = item->next )
+	items[ i++ ].item = item;
+    
+    qsort( items, count(), sizeof( QIconViewPrivate::SortableItem ), cmpIconViewItems );
+    
+    QIconViewItem *prev = 0;
+    item = 0;
+    if ( ascending ) {
+	for ( i = 0; i < (int)count(); ++i ) {
+	    item = items[ i ].item;
+	    if ( item ) {
+		item->prev = prev;
+		if ( item->prev )
+		    item->prev->next = item;
+		item->next = 0;
+	    }
+	    if ( i == 0 ) 
+		d->firstItem = item;
+	    if ( i == (int)count() - 1 ) 
+		d->lastItem = item;
+	    prev = item;
+	}
+    } else {
+	for ( i = (int)count() - 1; i >= 0 ; --i ) {
+	    item = items[ i ].item;
+	    if ( item ) {
+		item->prev = prev;
+		if ( item->prev )
+		    item->prev->next = item;
+		item->next = 0;
+	    }
+	    if ( i == (int)count() - 1 ) 
+		d->firstItem = item;
+	    if ( i == 0 ) 
+		d->lastItem = item;
+	    prev = item;
+	}
+    }
+    
+    delete [] items;
+    
+    orderItemsInGrid();
+    viewport()->repaint( FALSE );
+}
+
 #include "qiconview.moc"
+

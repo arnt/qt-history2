@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#45 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#46 $
 **
 ** Definition of QIconView widget class
 **
@@ -145,7 +145,8 @@ public:
 
     virtual QString text() const;
     virtual QIconSet icon() const;
-
+    virtual QString key() const;
+    
     bool renameEnabled() const;
     bool dragEnabled() const;
     bool dropEnabled() const;
@@ -196,6 +197,7 @@ public slots:
     virtual void setIcon( const QIconSet &icon );
     virtual void setText( const QString &text, bool recalc );
     virtual void setIcon( const QIconSet &icon, bool recalc );
+    virtual void setKey( const QString &k );
 
 protected slots:
     virtual void renameItem();
@@ -214,10 +216,10 @@ protected:
     void setItemRect( const QRect &r );
     void setTextRect( const QRect &r );
     void setIconRect( const QRect &r );
-
+    
 private:
     QIconView *view;
-    QString itemText;
+    QString itemText, itemKey;
     QIconSet itemIcon;
     QIconViewItem *prev, *next;
     bool allow_rename, allow_drag, allow_drop;
@@ -336,6 +338,8 @@ public:
     QSize minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
 
+    virtual void sortItems( bool ascending = TRUE );
+    
 public slots:
     virtual void orderItemsInGrid();
     virtual void alignItemsInGrid( const QSize &grid );
@@ -398,7 +402,7 @@ private:
     int calcGridNum( int w, int x ) const;
     QIconViewItem *rowBegin( QIconViewItem *item ) const;
     void clearSingleClickConfig();
-    
+
     QIconViewPrivate *d;
 
 };
