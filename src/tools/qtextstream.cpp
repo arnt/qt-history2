@@ -341,7 +341,7 @@ bool QStringBuffer::open( int m )
 	ioIndex = 0;
     }
     setState( IO_Open );
-    setStatus( 0 );
+    resetStatus();
     return TRUE;
 }
 

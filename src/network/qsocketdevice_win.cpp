@@ -117,7 +117,7 @@ void QSocketDevice::close()
     if ( fd == -1 || !isOpen() )		// already closed
 	return;
     setFlags( IO_Sequential );
-    setStatus( IO_Ok );
+    resetStatus();
     setState( 0 );
     ::closesocket( fd );
 #if defined(QSOCKETDEVICE_DEBUG)

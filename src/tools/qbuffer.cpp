@@ -206,7 +206,7 @@ bool QBuffer::open( int m  )
     }
     a_inc = 16;
     setState( IO_Open );
-    setStatus( 0 );
+    resetStatus();
     return TRUE;
 }
 

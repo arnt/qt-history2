@@ -251,7 +251,7 @@ QSocket::QSocket( QObject *parent, const char *name )
     d = new QSocketPrivate;
     setSocketDevice( 0 );
     setFlags( IO_Direct );
-    setStatus( IO_Ok );
+    resetStatus();
 }
 
 
@@ -590,7 +590,7 @@ void QSocket::close()
 	return;
     }
     setFlags( IO_Sequential );
-    setStatus( IO_Ok );
+    resetStatus();
     setState( 0 );
     d->close();
     d->state = Idle;
@@ -693,7 +693,7 @@ void QSocket::flush()
 		name() );
 #endif
 	setFlags( IO_Sequential );
-	setStatus( IO_Ok );
+	resetStatus();
 	setState( 0 );
 	d->close();
 	d->state = Idle;
@@ -1272,7 +1272,7 @@ void QSocket::setSocketIntern( int socket )
     d->wsn->setEnabled( FALSE );
     // Initialize the IO device flags
     setFlags( IO_Direct );
-    setStatus( IO_Ok );
+    resetStatus();
     open( IO_ReadWrite );
 
     // hm... this is not very nice.

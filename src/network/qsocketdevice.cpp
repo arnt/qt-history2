@@ -231,7 +231,7 @@ void QSocketDevice::setSocket( int socket, Type type )
     fd = socket;
     e = NoError;
     setFlags( IO_Sequential );
-    setStatus( IO_Ok );
+    resetStatus();
     open( IO_ReadWrite );
     fetchConnectionParameters();
 }
