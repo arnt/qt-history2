@@ -123,7 +123,8 @@ public:
         Float,
         String,
         FormatObject,
-        Color
+        Color,
+        IntList
     };
 
     enum ObjectTypes {
@@ -154,12 +155,14 @@ public:
     float floatProperty(int propertyId, float defaultValue = 0.0) const;
     QString stringProperty(int propertyId, const QString &defaultValue = QString::null) const;
     QColor colorProperty(int propertyId, const QColor &defaultValue = QColor()) const;
+    QList<int> intListProperty(int propertyId) const;
 
     void setProperty(int propertyId, bool value, bool defaultValue = false);
     void setProperty(int propertyId, int value, int defaultValue = 0);
     void setProperty(int propertyId, float value, float defaultValue = 0.0);
     void setProperty(int propertyId, const QString &value, const QString &defaultValue = QString::null);
     void setProperty(int propertyId, const QColor &value, const QColor &defaultValue = QColor());
+    void setProperty(int propertyId, const QList<int> &value);
 
     bool hasProperty(int propertyId) const;
     PropertyType propertyType(int propertyId) const;
