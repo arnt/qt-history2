@@ -1008,11 +1008,11 @@ QTranslatorMessage::QTranslatorMessage( const char * context,
     /*
       0 means we don't know, "" means we know it's empty.
     */
-    if ( cx == 0 )
+    if ( cx == (const char*)0 )
 	cx = "";
-    if ( st == 0 )
+    if ( st == (const char*)0 )
 	st = "";
-    if ( cm == 0 )
+    if ( cm == (const char*)0 )
 	cm = "";
     h = elfHash( st + cm );
 }

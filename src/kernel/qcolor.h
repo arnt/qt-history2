@@ -181,6 +181,14 @@ inline int QColor::green() const
 inline int QColor::blue() const
 { return qBlue(d.argb); }
 
+inline bool QColor::isValid() const
+{
+    if ( colormodel == d8 )
+	return !d.d8.invalid;
+    else
+	return !d.d32.invalid();
+}
+
 inline bool QColor::operator==( const QColor &c ) const
 {
     return d.argb == c.d.argb && isValid() == c.isValid();
@@ -189,14 +197,6 @@ inline bool QColor::operator==( const QColor &c ) const
 inline bool QColor::operator!=( const QColor &c ) const
 {
     return !operator==(c);
-}
-
-inline bool QColor::isValid() const
-{
-    if ( colormodel == d8 )
-	return !d.d8.invalid;
-    else
-	return !d.d32.invalid();
 }
 
 
