@@ -1,5 +1,164 @@
-/*!
+/*
     \example widgets/styles
     \title Styles Example
 
+    The Styles example illustrates how to create custom widget
+    drawing styles using Qt, and demonstrates Qt's predefined styles.
+
+    \image styles-example.png Screenshot of the Styles example
+
+    A style in Qt is a subclass of QStyle (or of one of its
+    subclasses). Styles perform drawing on behalf of widgets. Qt
+    provides a whole range of predefined styles, either built into
+    the \l QtGui library or found in plugins. Custom styles are
+    usually created by subclassing one of Qt's existing style and
+    reimplementing a few virtual functions.
+
+    In this example, the custom style is called \c NorwegianWoodStyle
+    and derives from QMotifStyle. Its main features are the wooden
+    textures used for filling most of the widgets and its round
+    buttons and comboboxes.
+
+    To implement the style, we use some advanced features provided by
+    QPainter, such as \l{QPainter::Antialiasing}{antialiasing} (to
+    obtain rounder button edges), \l{QColor::alpha()}{alpha blending}
+    (to perform 3D-like effects with the buttons), and
+    \l{QPainterPath}{painter paths} (to draw the buttons). We also
+    use many features of QBrush and QPalette.
+
+    The example consists of the following classes:
+
+    \list
+    \o \c NorwegianWoodStyle inherits from QMotifStyle and implements
+        the Norwegian Wood custom style.
+    \o \c WidgetGallery is a \c QDialog subclass that shows the most
+       common widgets and that allows the user to switch style
+       dynamically.
+    \endlist
+
+    \section1 NorwegianWoodStyle Class Definition
+
+    Foo:
+
+    \quotefromfile widgets/styles/norwegianwoodstyle.h
+    \skipto class NorwegianWood
+    \printuntil };
+
+    Foo.
+
+    \section1 NorwegianWoodStyle Class Implementation
+
+    Foo.
+
+    \quotefromfile widgets/styles/norwegianwoodstyle.cpp
+    \skipto ::NorwegianWood(
+    \printuntil for (
+    \printuntil }
+
+    Foo.
+
+    \printline backgroundImage
+    \printline sunkenMidImage
+    \printline for (
+    \printuntil }
+
+    Foo.
+
+    \printline QColor brown
+    \printline QColor beige
+    \printuntil /^\}/
+
+    Foo.
+
+    \printline ::polish
+    \printuntil /^\}/
+
+    Foo.
+
+    \printline ::pixelMetric
+    \printuntil /^\}/
+
+    Foo.
+
+    \printline ::drawPrimitive
+    \printuntil /^\}/
+
+    Foo.
+
+    \printline ::drawControl
+    \printuntil /^\}/
+
+    Foo.
+
+    \printline ::styleHint
+    \printuntil /^\}/
+
+    Foo.
+
+    \printline ::setBrushPixmap
+    \printuntil /^\}/
+
+    Foo.
+
+    \printline ::roundRectPath
+    \printuntil /^\}/
+
+    \section1 WidgetGallery Class Definition
+
+    Foo.
+
+    \quotefromfile widgets/styles/widgetgallery.h
+    \skipto class WidgetGallery
+    \printuntil disableWidgetsCheckBox
+    \dots
+    \skipto };
+    \printline };
+
+    Foo.
+
+    \section1 WidgetGallery Class Implementation
+
+    \quotefromfile widgets/styles/widgetgallery.cpp
+    \skipto ::WidgetGallery(
+    \printuntil createProgressBar(
+
+    Foo.
+
+    \printline connect(
+    \printuntil bottomRightGroupBox
+
+    Foo.
+
+    \printline topLayout = new QHBoxLayout
+    \printuntil /^\}/
+
+    Foo.
+
+    \printline ::changeStyle
+    \printuntil /^\}/
+
+    Foo.
+
+    \printline ::changePalette
+    \printuntil /^\}/
+
+    Foo.
+
+    \printline ::advanceProgressBar
+    \printuntil /^\}/
+
+    Foo.
+
+    \printline ::createTopLeftGroupBox
+    \printuntil /^\}/
+
+    Foo.
+
+    We skip createTopRightGroupBox(),
+    createBottomLeftTabWidget(), createBottomRightGroupBox(),
+
+    \printline ::createProgressBar
+    \printuntil /^\}/
+
+    Foo.
 */
