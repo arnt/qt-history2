@@ -55,7 +55,7 @@ public:
     typedef      QValueList< uint > ColIndex;
     ColIndex     colIndex;
     bool         haveAllRows;
-    
+
 private:
     QSql* s;
     Mode mode;
@@ -77,7 +77,7 @@ private:
   dynamically fetched from the database on an as-needed basis.  This
   allows extremely large queries to be displayed a s quickly as
   possible, with limited memory usage.
-  
+
   QSqlTable also offers an API for sorting columns. See setSorting()
   and sortColumn().  When displaying QSql data, sorting is disabled
   since it is not always possible to sort on the fields within QSql,
@@ -104,9 +104,9 @@ QSqlTable::QSqlTable ( QWidget * parent = 0, const char * name = 0 )
 	     this, SLOT( loadLine(int) ) );
 }
 
-/*!  
+/*!
   Destructor.
-  
+
 */
 
 QSqlTable::~QSqlTable()
@@ -115,14 +115,14 @@ QSqlTable::~QSqlTable()
 }
 
 
-/*!  
-  
+/*!
+
   Adds \a field as the next column to be diplayed.  By default, fields
   which are not visible and fields which are part of a table's primary
   index are not displayed.
-  
+
   \sa QSqlField
-  
+
 */
 
 void QSqlTable::addColumn( const QSqlField& field )
@@ -138,13 +138,13 @@ void QSqlTable::addColumn( const QSqlField& field )
     }
 }
 
-/*!  
-  
+/*!
+
   Removes column \a col from the list of columns to be diplayed.  If
   \a col does not exist, nothing happens.
-  
+
   \sa QSqlField
-  
+
 */
 
 void QSqlTable::removeColumn( uint col )
@@ -161,13 +161,13 @@ void QSqlTable::removeColumn( uint col )
 }
 
 
-/*!  
-  
+/*!
+
   Sets column \a col to display field \a field.  If \a col does not
   exist, nothing happens.
-  
+
   \sa QSqlField
-  
+
 */
 
 void QSqlTable::setColumn( uint col, const QSqlField& field )
@@ -183,10 +183,10 @@ void QSqlTable::setColumn( uint col, const QSqlField& field )
     }
 }
 
-/*!  
-  
+/*!
+
   \reimpl
-  
+
 */
 
 QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
@@ -197,28 +197,30 @@ QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
     Q_UNUSED( initFromCell );
 }
 
-/*!  
-  
+/*!
+
   Resets the table so that it displays no data.  This is called
   internally before displaying a new query.
-  
+
   \sa setSql() setRowset() setView()
-  
+
 */
 
 void QSqlTable::reset()
 {
+    ensureVisible( 0, 0 );    
+    verticalScrollBar()->setValue(0);    
     setNumRows(0);
     setNumCols(0);
     d->haveAllRows = FALSE;
     d->colIndex.clear();
 }
 
-/*!  
-  
+/*!
+
   Returns the index of the field within the current SQL query based on
   the displayed column \a i.
-  
+
 */
 
 int QSqlTable::indexOf( uint i )
@@ -229,11 +231,11 @@ int QSqlTable::indexOf( uint i )
     return -1;
 }
 
-/*!  
+/*!
 
   Sets the text to be displayed when a NULL value is encountered in
   the data to \a nullText.  The default value is '<null>'.
-  
+
 */
 
 void QSqlTable::setNullText( const QString& nullText )
@@ -241,11 +243,11 @@ void QSqlTable::setNullText( const QString& nullText )
     d->nullTxt = nullText;
 }
 
-/*!  
-  
+/*!
+
   Returns the text to be displayed when a NULL value is encountered in
   the data.
-  
+
 */
 
 QString QSqlTable::nullText()
@@ -253,10 +255,10 @@ QString QSqlTable::nullText()
     return d->nullTxt;
 }
 
-/*!  
-  
+/*!
+
   \reimpl
-  
+
 */
 
 void QSqlTable::setNumRows ( int r )
@@ -264,10 +266,10 @@ void QSqlTable::setNumRows ( int r )
     QTable::setNumRows( r );
 }
 
-/*!  
-  
+/*!
+
   \reimpl
-  
+
 */
 
 void QSqlTable::setNumCols ( int r )
@@ -275,11 +277,11 @@ void QSqlTable::setNumCols ( int r )
     QTable::setNumCols( r );
 }
 
-/*!  
+/*!
 
   Returns the text in cell \a row, \a col, or an empty string if the
   relevant item does not exist or includes no text.
-  
+
 */
 
 QString QSqlTable::text ( int row, int col ) const
@@ -292,11 +294,11 @@ QString QSqlTable::text ( int row, int col ) const
     return QString::null;
 }
 
-/*!  
+/*!
 
    Returns the value in cell \a row, \a col, or an invalid value if
    the relevant item does not exist or includes no text.
-  
+
 */
 
 QVariant QSqlTable::value ( int row, int col ) const
@@ -310,10 +312,10 @@ QVariant QSqlTable::value ( int row, int col ) const
 }
 
 
-/*!  
-  
+/*!
+
   \internal
-  
+
 */
 
 void QSqlTable::loadNextPage()
@@ -340,10 +342,10 @@ void QSqlTable::loadNextPage()
     setNumRows( endIdx + 1 );
 }
 
-/*!  
-  
+/*!
+
   \internal
-  
+
 */
 
 void QSqlTable::loadLine( int )
@@ -351,8 +353,8 @@ void QSqlTable::loadLine( int )
     loadNextPage();
 }
 
-/*!  
-  
+/*!
+
   Sorts the column \a col in ascending order if \a ascending is TRUE,
   else in descending order. The \a wholeRows parameter is ignored for
   SQL tables.
@@ -376,10 +378,10 @@ void QSqlTable::sortColumn ( int col, bool ascending = TRUE,
     }
 }
 
-/*!  
-  
+/*!
+
   \reimpl
-  
+
 */
 
 void QSqlTable::columnClicked ( int col )
@@ -396,10 +398,10 @@ void QSqlTable::columnClicked ( int col )
     }
 }
 
-/*!  
-  
+/*!
+
   \reimpl
-  
+
 */
 
 void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
@@ -419,13 +421,13 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
     }
 }
 
-/*!  
-  
+/*!
+
   Displays the SQL \a query in the table.  By default, SQL queries
   cannot be sorted.  If a \a databaseName is not specified, the
   default database connection is used.  If autopoulate is TRUE,
   columns are automatically created based upon the \a query.
-  
+
 */
 
 void QSqlTable::setQuery( const QString& query, const QString& databaseName, bool autoPopulate )
@@ -436,9 +438,9 @@ void QSqlTable::setQuery( const QString& query, const QString& databaseName, boo
 }
 
 /*
-    
-  \overload 
-  
+
+  \overload
+
 */
 
 void QSqlTable::setQuery( const QSql& query, bool autoPopulate )
@@ -457,13 +459,13 @@ void QSqlTable::setQuery( const QSql& query, bool autoPopulate )
     loadNextPage();
     setUpdatesEnabled( TRUE );
 }
-/*!  
-  
+/*!
+
   Displays the rowset \a name in the table.  By default, the rowset
   can be sorted.  If a \a databaseName is not specified, the
   default database connection is used.  If autopoulate is TRUE,
   columns are automatically created based upon the \a query.
-  
+
 */
 
 void QSqlTable::setRowset( const QString& name, const QString& databaseName, bool autoPopulate )
@@ -473,16 +475,16 @@ void QSqlTable::setRowset( const QString& name, const QString& databaseName, boo
 }
 
 /*
-    
-  \overload 
-  
+
+  \overload
+
 */
 
 void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
 {
     setUpdatesEnabled( FALSE );
+    reset();        
     setSorting( TRUE );
-    reset();
     d->resetMode( QSqlTablePrivate::Rowset );
     QSqlRowset* rset = d->rowset();
     (*rset) = rowset;
@@ -495,13 +497,13 @@ void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
     setUpdatesEnabled( TRUE );
 }
 
-/*!  
-  
+/*!
+
   Displays the view \a name in the table.  By default, the view
   can be sorted and edited.  If a \a databaseName is not specified, the
   default database connection is used.  If autopoulate is TRUE,
   columns are automatically created based upon the \a query.
-  
+
 */
 
 void QSqlTable::setView( const QString& name, const QString& databaseName, bool autoPopulate )
@@ -527,21 +529,21 @@ void QSqlTable::setView( const QSqlView& view, bool autoPopulate )
     setUpdatesEnabled( TRUE );
 }
 
-/*!  
-  
+/*!
+
   \reimpl
-  
+
 */
 
 void QSqlTable::resizeData ( int )
 {
-    
+
 }
 
-/*!  
-  
+/*!
+
   \reimpl
-  
+
 */
 
 QTableItem * QSqlTable::item ( int, int ) const
@@ -549,48 +551,48 @@ QTableItem * QSqlTable::item ( int, int ) const
     return 0;
 }
 
-/*!  
-  
+/*!
+
   \reimpl
-  
+
 */
 
-void QSqlTable::setItem ( int , int , QTableItem * ) 
+void QSqlTable::setItem ( int , int , QTableItem * )
 {
-    
+
 }
 
-/*!  
-  
+/*!
+
   \reimpl
-  
+
 */
 
-void QSqlTable::clearCell ( int , int ) 
+void QSqlTable::clearCell ( int , int )
 {
-    
+
 }
 
-/*!  
-  
+/*!
+
   \reimpl
-  
+
 */
 
 void QSqlTable::setPixmap ( int , int , const QPixmap &  )
 {
-    
+
 }
 
-/*!  
-  
+/*!
+
   \reimpl
-  
+
 */
 
 void QSqlTable::takeItem ( QTableItem * )
 {
-    
+
 }
 
 #endif
