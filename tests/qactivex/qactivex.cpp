@@ -1747,6 +1747,9 @@ bool QActiveX::qt_property( int _id, int _f, QVariant* _v )
 	    // map QVariant to VARIANTARG. ### Maybe it would be better 
 	    // to convert the QVariant to what the VARIANT is supposed to be,
 	    // but we don't know that from the QMetaProperty of course.
+	    if ( qstrcmp( prop->type(), _v->typeName() ) ) {
+		_v->cast( QVariant::nameToType( prop->type() ) );
+	    }
 	    switch ( _v->type() ) {
 	    case QVariant::Invalid:
 		arg.vt = VT_EMPTY;
