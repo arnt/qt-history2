@@ -2175,6 +2175,9 @@ void QIconView::slotUpdate()
     d->updateTimer->stop();
     d->fullRedrawTimer->stop();
 
+    if ( !d->firstItem || !d->lastItem )
+	return;
+    
     // #### remove that ASA insertInGrid uses cached values and is efficient
     if ( d->resortItemsWhenInsert )
 	sort( d->sortDirection );
