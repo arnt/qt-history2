@@ -170,7 +170,7 @@ public:
     int currentItem() const;
     QString currentText() const;
     int count() const;
-#if defined(Q_USING)
+#if !defined(Q_NO_USING_KEYWORD)
     using QTableItem::text;
 #endif
     QString text( int i ) const;

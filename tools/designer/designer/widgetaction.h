@@ -37,7 +37,7 @@ public:
 		  const char* name = 0, bool toggle = FALSE )
 	: QAction( text, menuText, accel, parent, name, toggle ) {}
 
-#if defined(Q_USING)
+#if !defined(Q_NO_USING_KEYWORD)
     using QAction::addedTo;
 #endif
     void addedTo( QWidget *, QWidget * );

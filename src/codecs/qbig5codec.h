@@ -55,7 +55,7 @@ public:
 
     QTextDecoder* makeDecoder() const;
 
-#if defined(Q_USING)
+#if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
     QCString fromUnicode(const QString& uc, int& len_in_out) const;

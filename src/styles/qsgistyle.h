@@ -61,7 +61,7 @@ public:
     QSGIStyle( bool useHighlightCols = FALSE );
     virtual ~QSGIStyle();
 
-#if defined(Q_USING)
+#if !defined(Q_NO_USING_KEYWORD)
     using QStyle::polish;
     using QMotifStyle::polish;
 #endif

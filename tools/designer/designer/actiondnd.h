@@ -47,7 +47,7 @@ public:
     int index() const { return idx; }
 
 protected:
-#if defined(Q_USING)
+#if !defined(Q_NO_USING_KEYWORD)
     using QActionGroup::addedTo;
 #endif
     void addedTo( QWidget *w, QWidget * ) {

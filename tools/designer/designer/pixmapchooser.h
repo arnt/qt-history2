@@ -36,7 +36,7 @@ class PixmapView : public QScrollView,
 public:
     PixmapView( QWidget *parent );
     void setPixmap( const QPixmap &pix );
-#if defined(Q_USING)
+#if !defined(Q_NO_USING_KEYWORD)
     using QFrame::drawContents;
 #endif
     void drawContents( QPainter *p, int, int, int, int );

@@ -202,30 +202,37 @@
 #  if defined(__SC__) && __SC__ < 0x750
 #    define Q_NO_EXPLICIT_KEYWORD
 #  endif
+#  define Q_NO_USING_KEYWORD /* ### check "using" status */
 
 #elif defined(applec)
 #  define Q_CC_MPW
 #  define Q_NO_BOOL_TYPE
 #  define Q_NO_EXPLICIT_KEYWORD
+#  define Q_NO_USING_KEYWORD
 
 #elif defined(__MWERKS__)
 #  define Q_CC_MWERKS
 /* "explicit" recognized since 4.0d1 */
 #  define QMAC_PASCAL pascal
+#  define Q_NO_USING_KEYWORD /* ### check "using" status */
 
 #elif defined(_MSC_VER)
 #  define Q_CC_MSVC
 /* proper support of bool for _MSC_VER >= 1100 */
 #  define Q_CANNOT_DELETE_CONSTANT
-#  if _MSC_VER >= 1300 // Visual C++.Net
+/* Visual C++.Net issues for _MSC_VER >= 1300 */
+#  if _MSC_VER >= 1300
 #    define Q_NO_TEMPLATE_EXPORT
 #  endif
+#  define Q_NO_USING_KEYWORD /* ### check "using" status */
+
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR
 #  if __BORLANDC__ < 0x500
 #    define Q_NO_BOOL_TYPE
 #    define Q_NO_EXPLICIT_KEYWORD
 #  endif
+#  define Q_NO_USING_KEYWORD /* ### check "using" status */
 
 #elif defined(__WATCOMC__)
 #  define Q_CC_WAT
@@ -239,6 +246,10 @@
 #  define Q_C_CALLBACKS
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
 #    define Q_FULL_TEMPLATE_INSTANTIATION
+#  endif
+/* GCC 2.95 knows "using" but does not support it correctly */
+#  if __GNUC__ == 2 && __GNUC_MINOR__ <= 95
+#    define Q_NO_USING_KEYWORD
 #  endif
 #  if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #    define Q_PACKED __attribute__ ((packed))
@@ -261,15 +272,16 @@
 
    Now:
    __xlC__    is the version of the C compiler in hexadecimal notation
-              - it's only an approximation of the C++ compiler version
+              is only an approximation of the C++ compiler version
    __IBMCPP__ is the version of the C++ compiler in decimal notation
-              - but it's not defined on older compilers like C Set 3.1 */
+              but it is not defined on older compilers like C Set 3.1 */
 #elif defined(__xlC__)
 #  define Q_CC_XLC
 #  define Q_FULL_TEMPLATE_INSTANTIATION
 #  if __xlC__ < 0x400
 #    define Q_NO_BOOL_TYPE
 #    define Q_NO_EXPLICIT_KEYWORD
+#    define Q_NO_USING_KEYWORD
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_CANNOT_DELETE_CONSTANT
 #  endif
@@ -284,13 +296,13 @@
 /* Compaq have disabled EDG's _BOOL macro - observed on Compaq C++ V6.3-002. */
 #  if defined(__DECCXX)
 #    define Q_CC_DEC
-/* Compaq use _BOOL_EXISTS instead of _BOOL. */
-#    if defined(_BOOL_EXISTS)
-/* Well, at least macro _BOOL_EXISTS is documented for Compaq C++ V6.3.
+/* Compaq use _BOOL_EXISTS instead of _BOOL.
+   Well, at least macro _BOOL_EXISTS is documented for Compaq C++ V6.3.
    In any case versions prior to Compaq C++ V6.0-005 do not have bool. */
-#    elif __DECCXX_VER < 60060005
+#    if !defined(_BOOL_EXISTS) || (__DECCXX_VER < 60060005)
 #      define Q_NO_BOOL_TYPE
 #    endif
+#    define Q_NO_USING_KEYWORD /* ### check "using" status */
 /* Apart from Compaq, from the EDG documentation:
    _BOOL
     Defined in C++ mode when bool is a keyword. The name of this predefined
@@ -304,19 +316,21 @@
 #    if defined(__COMO__)
 #      define Q_CC_COMEAU
 #      define Q_C_CALLBACKS
+/* Using the `using' keyword avoids KAI C++ warnings */
 #    elif defined(__KCC)
 #      define Q_CC_KAI
-/* The Intel compiler needs the `using' keyword */
+/* Using the `using' keyword avoids Intel C++ warnings */
 #    elif defined(__INTEL_COMPILER)
 #      define Q_CC_INTEL
-#      define Q_USING
 /* The new UnixWare 7 compiler is based on EDG and does define __EDG__ */
 #    elif defined(__USLC__)
 #      define Q_CC_EDG
 #      define Q_CC_USLC
+#      define Q_NO_USING_KEYWORD /* ### check "using" status */
 /* Never tested! */
 #    elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
 #      define Q_CC_OC
+#      define Q_NO_USING_KEYWORD
 /* The MIPSpro compiler in o32 mode is based on EDG but disables features
    such as template specialization nevertheless */
 #    elif defined(sgi) || defined(__sgi)
@@ -326,6 +340,7 @@
 #      elif defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 730) /* 7.2 */
 #        define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #      endif
+#      define Q_NO_USING_KEYWORD /* ### check "using" status */
 #    endif
 #  endif
 
@@ -334,6 +349,7 @@
 #  define Q_CC_USLC
 #  define Q_NO_BOOL_TYPE
 #  define Q_NO_EXPLICIT_KEYWORD
+#  define Q_NO_USING_KEYWORD
 
 #elif defined(__SUNPRO_CC)
 #  define Q_CC_SUN
@@ -350,6 +366,7 @@
 #  else
 #    define Q_NO_BOOL_TYPE
 #    define Q_NO_EXPLICIT_KEYWORD
+#    define Q_NO_USING_KEYWORD
 #  endif
 
 /* CDS++ does not seem to define __EDG__ or __EDG according to Reliant
@@ -360,6 +377,7 @@
 #  if !defined(_BOOL)
 #    define Q_NO_BOOL_TYPE
 #  endif
+#  define Q_NO_USING_KEYWORD /* ### check "using" status */
 
 #elif defined(Q_OS_HPUX)
 /* __HP_aCC was not defined in first aCC releases */
@@ -373,6 +391,7 @@
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_NO_EXPLICIT_KEYWORD
 #  endif
+#  define Q_NO_USING_KEYWORD /* ### check "using" status */
 
 #else
 #  error "Qt has not been tested with this compiler - talk to qt-bugs@trolltech.com"
