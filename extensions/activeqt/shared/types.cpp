@@ -227,6 +227,12 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
     QVariant qvar = var;
     // "type" is the expected type, so coerce if necessary
     QVariant::Type proptype = (!type.isEmpty()) ? QVariant::nameToType(type.latin1()) : QVariant::Invalid;
+    if (proptype == QVariant::Invalid) {
+        if (type == "short" || type == "char")
+            proptype = QVariant::Int;
+        else if (type == "float")
+            proptype = QVariant::Double;
+    }
     if ( proptype != QVariant::Invalid && proptype != qvar.type() ) {
 	if ( qvar.canCast( proptype ) )
 	    qvar.cast( proptype );
@@ -253,8 +259,16 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
 	} else {
 	    arg.vt = VT_I4;
 	    arg.lVal = qvar.toInt();
-	    if (out)
-		arg.plVal = new long(arg.lVal);
+            if (out) {
+                if (type == "short") {
+                    arg.vt = VT_I2;
+                    arg.piVal = new short(arg.lVal);
+                } else if (type == "char") {
+                    arg.vt = VT_I1;
+                    arg.pcVal= new char(arg.lVal);
+                } else
+		    arg.plVal = new long(arg.lVal);
+            }
 	}
 	break;
 
@@ -307,8 +321,14 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
 	} else {
 	    arg.vt = VT_R8;
 	    arg.dblVal = qvar.toDouble();
-	    if (out)
-		arg.pdblVal = new double(arg.dblVal);
+            if (out) {
+                if (type == "float") {
+                    arg.vt = VT_R4;
+                    arg.pfltVal = new float(arg.dblVal);                    
+                } else {
+		    arg.pdblVal = new double(arg.dblVal);
+                }
+            }
 	}
 	break;
     case QVariant::Color:
