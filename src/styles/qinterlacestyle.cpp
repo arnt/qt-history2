@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of QQInterlaceStyle widget class
+** Implementation of QInterlaceStyle class
 **
 ** Created : 22 January 2001
 **
