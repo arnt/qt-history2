@@ -5,7 +5,7 @@
 #include <private/qobject_p.h>
 #include <qlist.h>
 #include <qpointarray.h>
-
+#include <qwmatrix.h>
 #include <qdebug.h>
 
 #include <math.h>
@@ -21,7 +21,7 @@ QPoint QPainterPathElement::firstPoint() const
 {
     switch (type) {
     case Line:
-	return QPoint(lineData.x1, lineData.y1);
+        return QPoint(lineData.x1, lineData.y1);
     case Bezier:
         return QPoint(bezierData.x1, bezierData.y1);
     case Arc:
@@ -37,7 +37,7 @@ QPoint QPainterPathElement::firstPoint() const
 void QPainterSubpath::connectLast(const QPoint &p)
 {
     if (elements.size() > 0 && p != lastPoint) {
-	addLine(lastPoint, p);
+        addLine(lastPoint, p);
     }
 }
 
@@ -125,26 +125,26 @@ void QPainterSubpath::addArc(const QRect &rect, int startAngle, int arcLength)
 QPointArray QPainterSubpath::toPolygon(const QWMatrix &matrix) const
 {
     if (elements.isEmpty())
-	return QPointArray();
+        return QPointArray();
     QPointArray p;
     fflush(stdout);
     p << matrix * elements.at(0).firstPoint();
     for (int i=0; i<elements.size(); ++i) {
         const QPainterPathElement &elm = elements.at(i);
-	switch (elm.type) {
-	case QPainterPathElement::Line:
-	    p << matrix * QPoint(elm.lineData.x2, elm.lineData.y2);
-	    break;
+        switch (elm.type) {
+        case QPainterPathElement::Line:
+            p << matrix * QPoint(elm.lineData.x2, elm.lineData.y2);
+            break;
         case QPainterPathElement::Bezier: {
-	    QPointArray pa;
-	    pa.setPoints(4, elm.bezierData.x1, elm.bezierData.y1,
-			 elm.bezierData.x2, elm.bezierData.y2,
-			 elm.bezierData.x3, elm.bezierData.y3,
-			 elm.bezierData.x4, elm.bezierData.y4);
+            QPointArray pa;
+            pa.setPoints(4, elm.bezierData.x1, elm.bezierData.y1,
+                         elm.bezierData.x2, elm.bezierData.y2,
+                         elm.bezierData.x3, elm.bezierData.y3,
+                         elm.bezierData.x4, elm.bezierData.y4);
             pa = matrix * pa;
-	    p += pa.cubicBezier();
-	    break;
-	}
+            p += pa.cubicBezier();
+            break;
+        }
         case QPainterPathElement::Arc: {
             QPointArray ar;
             ar.makeArc(elm.arcData.x, elm.arcData.y,
@@ -154,9 +154,9 @@ QPointArray QPainterSubpath::toPolygon(const QWMatrix &matrix) const
             p += ar;
             break;
         }
-	default:
-	    qFatal("QPainterSubpath::toPolygon() unhandled case...: %d", elements.at(i).type);
-	}
+        default:
+            qFatal("QPainterSubpath::toPolygon() unhandled case...: %d", elements.at(i).type);
+        }
     }
     return p;
 }
@@ -325,7 +325,7 @@ QPainterPath::~QPainterPath()
 void QPainterPath::beginSubpath()
 {
     if (d->subpaths.last().elements.isEmpty())
-	return;
+        return;
     d->subpaths.append(QPainterSubpath());
 }
 
@@ -340,7 +340,7 @@ void QPainterPath::beginSubpath()
 void QPainterPath::closeSubpath()
 {
     if (d->subpaths.last().elements.isEmpty())
-	return;
+        return;
     d->subpaths.last().close();
     d->subpaths.append(QPainterSubpath());
 }
