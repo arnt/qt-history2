@@ -1,10 +1,6 @@
 TEMPLATE       = app
 SOURCES        = qsettings.cpp main.cpp
-unix:SOURCES  += qsettings_unix.cpp
-win32:SOURCES += qsettings_win.cpp
 HEADERS        = qsettings.h
-SRCMOC         = moc_qsettings.cpp
-SRCOCJ         = moc_qsettings.o
 TARGET         = settings
 CONFIG         += qt warn_on
 CLEAN_FILES     = *.core core variantrc variantrc3

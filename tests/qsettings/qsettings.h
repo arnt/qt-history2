@@ -28,19 +28,16 @@
 
 #include <qobject.h>
 #include <qstring.h>
-#include <qmap.h>
 
 
-class QSettingsNode;
+class QSettingsPrivate;
 
 
-class QSettings : public QObject
+class QSettings
 {
-    Q_OBJECT
-
 public:
     enum System { Unix, Windows };
-    
+
     QSettings(bool writable = FALSE, QSettings *override = 0);
     ~QSettings();
 
@@ -51,40 +48,21 @@ public:
 
     void setOverride(QSettings *);
     const QSettings *override() const;
-    
+
     void setPath(System, const QString &);
     const QString &path(System) const;
-    
-    // "key" is of the form /path/to/key, e.g.
-    // /trolltech/designer/palette/active/foreground
+
     void writeEntry(const QString &, const QVariant &);
     QVariant readEntry(const QString &);
 
-    // this works like a remove directory... if it is a path instead of an entry,
-    // it will remove all entries and all children
     void removeEntry(const QString &);
 
-    
+
 protected:
-    void cleanup();
 
 
 private:
-    // TODO: make this work
-    // QSettingsPrivate *d;
-
-    // Override settings in this object with ones from the override object
-    QSettings *override_p;
-
-    // Where do we save these settings on the system?
-    QMap<int, QString> pathMap_p;
-
-    // Are changes to the settings able to be saved (written to disk/registry)?
-    bool writable_p;
-
-    // Settings values
-    QSettingsNode *node, *tree;
-
+    QSettingsPrivate *d;
 
 #if defined(Q_DISABLE_COPY)
     QSettings(const QSettings &);
