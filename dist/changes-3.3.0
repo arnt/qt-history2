@@ -192,6 +192,8 @@ IRIX MIPSpro o32 mode.
 	Added an activate() slot which activates the action and
 	executes all connected slots.
 	Added showStatusMessage() and whatsThisClicked() signals.
+	QActions::menuText() escapes ampersand characters ('&') when
+	using the value of the text property.
 
 - QButtonGroup
 	Added QButtonGroup::selectedId property to allow mapping with
