@@ -34,60 +34,6 @@
 #define DBL_DIG 10
 #endif //DBL_DIG
 
-#if defined Q_CC_MSVC && _MSC_VER < 1300
-
-template<> QBitArray QVariant_to_helper<QBitArray>(const QCoreVariant &v, const QBitArray*)
-{ return v.toBitArray(); }
-template<> QString QVariant_to_helper<QString>(const QCoreVariant &v, const QString*) { return v.toString(); }
-template<> QStringList QVariant_to_helper<QStringList>(const QCoreVariant &v, const QStringList*)
-{ return v.toStringList(); }
-template<> QDate QVariant_to_helper<QDate>(const QCoreVariant &v, const QDate*) { return v.toDate(); }
-template<> QTime QVariant_to_helper<QTime>(const QCoreVariant &v, const QTime*) { return v.toTime(); }
-template<> QDateTime QVariant_to_helper<QDateTime>(const QCoreVariant &v, const QDateTime*)
-{ return v.toDateTime(); }
-#ifndef QT_NO_TEMPLATE_VARIANT
-template<> QList<QCoreVariant>
-QVariant_to_helper<QList<QCoreVariant> >(const QCoreVariant &v, const QList<QCoreVariant>*)
-{ return v.toList(); }
-template<> QMap<QString,QCoreVariant>
-QVariant_to_helper<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QMap<QString,QCoreVariant>*)
-{ return v.toMap(); }
-#endif
-template<> QPoint QVariant_to_helper<QPoint>(const QCoreVariant &v, const QPoint*)
-{ return v.toPoint(); }
-template<> QRect QVariant_to_helper<QRect>(const QCoreVariant &v, const QRect*)
-{ return v.toRect(); }
-template<> QSize QVariant_to_helper<QSize>(const QCoreVariant &v, const QSize*)
-{ return v.toSize(); }
-template<> QUrl QVariant_to_helper<QUrl>(const QCoreVariant &v, const QUrl*)
-{ return v.toUrl(); }
-
-#else
-
-template<> QBitArray QVariant_to<QBitArray>(const QCoreVariant &v) { return v.toBitArray(); }
-template<> QString QVariant_to<QString>(const QCoreVariant &v) { return v.toString(); }
-template<> QStringList QVariant_to<QStringList>(const QCoreVariant &v)
-{ return v.toStringList(); }
-template<> QDate QVariant_to<QDate>(const QCoreVariant &v) { return v.toDate(); }
-template<> QTime QVariant_to<QTime>(const QCoreVariant &v) { return v.toTime(); }
-template<> QDateTime QVariant_to<QDateTime>(const QCoreVariant &v) { return v.toDateTime(); }
-#ifndef QT_NO_TEMPLATE_VARIANT
-template<> QList<QCoreVariant> QVariant_to<QList<QCoreVariant> >(const QCoreVariant &v)
-{ return v.toList(); }
-template<> QMap<QString,QCoreVariant> QVariant_to<QMap<QString,QCoreVariant> >(const QCoreVariant &v)
-{ return v.toMap(); }
-#endif
-template<> QPoint QVariant_to<QPoint>(const QCoreVariant &v)
-{ return v.toPoint(); }
-template<> QRect QVariant_to<QRect>(const QCoreVariant &v)
-{ return v.toRect(); }
-template<> QSize QVariant_to<QSize>(const QCoreVariant &v)
-{ return v.toSize(); }
-template<> QUrl QVariant_to<QUrl>(const QCoreVariant &v)
-{ return v.toUrl(); }
-
-#endif
-
 static void construct(QCoreVariant::Private *x, const void *copy)
 {
    x->is_shared = false;
@@ -592,7 +538,7 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     return a->data.shared->ptr == b->data.shared->ptr;
 }
 
-static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *result, bool *ok)
+static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *result, bool *ok)
 {
     Q_ASSERT(d->type != uint(t));
     switch (t) {
@@ -639,7 +585,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
                 *str = v_cast<QStringList>(d)->at(0);
             break;
         default:
-            break;
+            return false;
         }
         break;
     }
@@ -653,7 +599,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *c = QChar(d->data.u);
             break;
         default:
-            break;
+            return false;
         }
         break;
     }
@@ -668,6 +614,8 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         } else if (d->type == QCoreVariant::String) {
             QStringList *slst = static_cast<QStringList *>(result);
             *slst = QStringList(*v_cast<QString>(d));
+        } else {
+            return false;
         }
 #endif
         break;
@@ -679,6 +627,8 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         else if (d->type == QCoreVariant::String)
             *dt = QDate::fromString(*v_cast<QString>(d), Qt::ISODate);
 #endif
+        else
+            return false;
         break;
     }
     case QCoreVariant::Time: {
@@ -693,7 +643,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             break;
 #endif
         default:
-            break;
+            return false;
         }
         break;
     }
@@ -709,7 +659,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *dt = QDateTime(*v_cast<QDate>(d));
             break;
         default:
-            break;
+            return false;
         }
         break;
     }
@@ -717,6 +667,8 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         QByteArray *ba = static_cast<QByteArray *>(result);
         if (d->type == QCoreVariant::String)
             *ba = v_cast<QString>(d)->toAscii();
+        else
+            return false;
     }
     break;
     case QCoreVariant::Int: {
@@ -751,7 +703,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             break;
         default:
             *i = 0;
-            break;
+            return false;
         }
         break;
     }
@@ -786,8 +738,8 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *u = uint(d->data.b);
             break;
         default:
-            *u = 0;
-            break;
+            *u = 0u;
+            return false;
         }
         break;
     }
@@ -822,8 +774,8 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *l = Q_LONGLONG(d->data.b);
             break;
         default:
-            *l = 0;
-            break;
+            *l = Q_INT64_C(0);
+            return false;
         }
         break;
     }
@@ -858,8 +810,8 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *l = v_cast<QByteArray>(d)->toULongLong(ok);
             break;
         default:
-            *l = 0;
-            break;
+            *l = Q_UINT64_C(0);
+            return false;
         }
         break;
     }
@@ -892,7 +844,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             break;
         default:
             *b = false;
-            break;
+            return false;
         }
         break;
     }
@@ -929,7 +881,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             break;
         default:
             *f = 0.0;
-            break;
+            return false;
         }
         break;
     }
@@ -939,12 +891,15 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             const QStringList *slist = v_cast<QStringList>(d);
             for (int i = 0; i < slist->size(); ++i)
                 lst->append(QCoreVariant(slist->at(i)));
+        } else {
+            return false;
         }
         break;
 
     default:
-        ; // do nothing
+        return false;
     }
+    return true;
 }
 
 static bool canCast(const QCoreVariant::Private *d, QCoreVariant::Type t)

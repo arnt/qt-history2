@@ -214,52 +214,6 @@ inline QVariant::QVariant(const QMap<QString, QVariant> &map)
     : QCoreVariant(*reinterpret_cast<const QMap<QString, QCoreVariant>*>(&map)) {}
 #endif
 
-#if defined Q_CC_MSVC && _MSC_VER < 1300
-
-template<> QFont QVariant_to_helper<QFont>(const QCoreVariant &v, const QFont*);
-template<> QPixmap QVariant_to_helper<QPixmap>(const QCoreVariant &v, const QPixmap*);
-template<> QImage QVariant_to_helper<QImage>(const QCoreVariant &v, const QImage*);
-template<> QBrush QVariant_to_helper<QBrush>(const QCoreVariant &v, const QBrush*);
-template<> QColor QVariant_to_helper<QColor>(const QCoreVariant &v, const QColor*);
-template<> QPalette QVariant_to_helper<QPalette>(const QCoreVariant &v, const QPalette*);
-template<> QIcon QVariant_to_helper<QIcon>(const QCoreVariant &v, const QIcon*);
-template<> QTextLength QVariant_to_helper<QTextLength>(const QCoreVariant &v, const QTextLength*);
-template<> QPolygon QVariant_to_helper<QPolygon>(const QCoreVariant &v, const QPolygon*);
-template<> QBitmap QVariant_to_helper<QBitmap>(const QCoreVariant &v, const QBitmap*);
-template<> QRegion QVariant_to_helper<QRegion>(const QCoreVariant &v, const QRegion*);
-#ifndef QT_NO_CURSOR
-template<> QCursor QVariant_to_helper<QCursor>(const QCoreVariant &v, const QCursor*);
-#endif
-#ifndef QT_NO_ACCEL
-template<> QKeySequence QVariant_to_helper<QKeySequence>(const QCoreVariant &v, const QKeySequence*);
-#endif
-template<> QPen QVariant_to_helper<QPen>(const QCoreVariant &v, const QPen*);
-template<> QSizePolicy QVariant_to_helper<QSizePolicy>(const QCoreVariant &v, const QSizePolicy*);
-
-#else
-
-template<> QFont QVariant_to<QFont>(const QCoreVariant &v);
-template<> QPixmap QVariant_to<QPixmap>(const QCoreVariant &v);
-template<> QImage QVariant_to<QImage>(const QCoreVariant &v);
-template<> QBrush QVariant_to<QBrush>(const QCoreVariant &v);
-template<> QColor QVariant_to<QColor>(const QCoreVariant &v);
-template<> QPalette QVariant_to<QPalette>(const QCoreVariant &v);
-template<> QIcon QVariant_to<QIcon>(const QCoreVariant &v);
-template<> QTextLength QVariant_to<QTextLength>(const QCoreVariant &v);
-template<> QPolygon QVariant_to<QPolygon>(const QCoreVariant &v);
-template<> QBitmap QVariant_to<QBitmap>(const QCoreVariant &v);
-template<> QRegion QVariant_to<QRegion>(const QCoreVariant &v);
-#ifndef QT_NO_CURSOR
-template<> QCursor QVariant_to<QCursor>(const QCoreVariant &v);
-#endif
-#ifndef QT_NO_ACCEL
-template<> QKeySequence QVariant_to<QKeySequence>(const QCoreVariant &v);
-#endif
-template<> QPen QVariant_to<QPen>(const QCoreVariant &v);
-template<> QSizePolicy QVariant_to<QSizePolicy>(const QCoreVariant &v);
-
-#endif
-
 Q_DECLARE_SHARED(QVariant);
 Q_DECLARE_TYPEINFO(QVariant, Q_MOVABLE_TYPE);
 

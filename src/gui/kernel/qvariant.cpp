@@ -497,10 +497,9 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 
 
 
-static void cast(const QCoreVariant::Private *d, QVariant::Type t,
+static bool cast(const QCoreVariant::Private *d, QVariant::Type t,
                  void *result, bool *ok)
 {
-    bool converted = false;
     switch (t) {
     case QVariant::String: {
         QString *str = static_cast<QString *>(result);
@@ -508,17 +507,14 @@ static void cast(const QCoreVariant::Private *d, QVariant::Type t,
 #ifndef QT_NO_ACCEL
         case QVariant::KeySequence:
             *str = QString(*v_cast<QKeySequence>(d));
-            converted = true;
-            break;
+            return true;
 #endif
         case QVariant::Font:
             *str = v_cast<QFont>(d)->toString();
-            converted = true;
-            break;
+            return true;
         case QVariant::Color:
             *str = v_cast<QColor>(d)->name();
-            converted = true;
-            break;
+            return true;
         default:
             break;
         }
@@ -528,7 +524,7 @@ static void cast(const QCoreVariant::Private *d, QVariant::Type t,
     case QVariant::Int:
         if (d->type == QVariant::KeySequence) {
             *static_cast<int *>(result) = (int)(*(v_cast<QKeySequence>(d)));
-            converted = true;
+            return true;
         }
         break;
 #endif
@@ -536,13 +532,13 @@ static void cast(const QCoreVariant::Private *d, QVariant::Type t,
         if (d->type == QVariant::String) {
             QFont *f = static_cast<QFont *>(result);
             f->fromString(*v_cast<QString>(d));
-            converted = true;
+            return true;
         }
         break;
     case QVariant::Color:
         if (d->type == QVariant::String) {
             static_cast<QColor *>(result)->setNamedColor(*v_cast<QString>(d));
-            converted = true;
+            return true;
         }
         break;
 #ifndef QT_NO_ACCEL
@@ -551,12 +547,10 @@ static void cast(const QCoreVariant::Private *d, QVariant::Type t,
         switch (d->type) {
         case QVariant::String:
             *seq = QKeySequence(*v_cast<QString>(d));
-            converted = true;
-            break;
+            return true;
         case QVariant::Int:
             *seq = QKeySequence(d->data.i);
-            converted = true;
-            break;
+            return true;
         default:
             break;
         }
@@ -565,8 +559,7 @@ static void cast(const QCoreVariant::Private *d, QVariant::Type t,
     default:
         break;
     }
-    if (!converted)
-        qcoreVariantHandler()->cast(d, t, result, ok);
+    return qcoreVariantHandler()->cast(d, t, result, ok);
 }
 
 static bool canCast(const QVariant::Private *d, QVariant::Type t)
@@ -1254,83 +1247,6 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
     Q_UNUSED(v);
 #endif
 }
-
-
-#if defined Q_CC_MSVC && _MSC_VER < 1300
-
-template<> QFont QVariant_to_helper<QFont>(const QCoreVariant &v, const QFont*)
-{ return static_cast<const QVariant &>(v).toFont(); }
-template<> QPixmap QVariant_to_helper<QPixmap>(const QCoreVariant &v, const QPixmap*)
-{ return static_cast<const QVariant &>(v).toPixmap(); }
-template<> QImage QVariant_to_helper<QImage>(const QCoreVariant &v, const QImage*)
-{ return static_cast<const QVariant &>(v).toImage(); }
-template<> QBrush QVariant_to_helper<QBrush>(const QCoreVariant &v, const QBrush*)
-{ return static_cast<const QVariant &>(v).toBrush(); }
-template<> QColor QVariant_to_helper<QColor>(const QCoreVariant &v, const QColor*)
-{ return static_cast<const QVariant &>(v).toColor(); }
-template<> QPalette QVariant_to_helper<QPalette>(const QCoreVariant &v, const QPalette*)
-{ return static_cast<const QVariant &>(v).toPalette(); }
-template<> QIcon QVariant_to_helper<QIcon>(const QCoreVariant &v, const QIcon*)
-{ return static_cast<const QVariant &>(v).toIcon(); }
-template<> QTextLength QVariant_to_helper<QTextLength>(const QCoreVariant &v, const QTextLength*)
-{ return static_cast<const QVariant &>(v).toTextLength(); }
-template<> QPolygon QVariant_to_helper<QPolygon>(const QCoreVariant &v, const QPolygon*)
-{ return static_cast<const QVariant &>(v).toPolygon(); }
-template<> QBitmap QVariant_to_helper<QBitmap>(const QCoreVariant &v, const QBitmap*)
-{ return static_cast<const QVariant &>(v).toBitmap(); }
-template<> QRegion QVariant_to_helper<QRegion>(const QCoreVariant &v, const QRegion*)
-{ return static_cast<const QVariant &>(v).toRegion(); }
-#ifndef QT_NO_CURSOR
-template<> QCursor QVariant_to_helper<QCursor>(const QCoreVariant &v, const QCursor*)
-{ return static_cast<const QVariant &>(v).toCursor(); }
-#endif
-#ifndef QT_NO_ACCEL
-template<> QKeySequence QVariant_to_helper<QKeySequence>(const QCoreVariant &v, const QKeySequence*)
-{ return static_cast<const QVariant &>(v).toKeySequence(); }
-#endif
-template<> QPen QVariant_to_helper<QPen>(const QCoreVariant &v, const QPen*)
-{ return static_cast<const QVariant &>(v).toPen(); }
-template<> QSizePolicy QVariant_to_helper<QSizePolicy>(const QCoreVariant &v, const QSizePolicy*)
-{ return static_cast<const QVariant &>(v).toSizePolicy(); }
-
-#else
-
-template<> QFont QVariant_to<QFont>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toFont(); }
-template<> QPixmap QVariant_to<QPixmap>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toPixmap(); }
-template<> QImage QVariant_to<QImage>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toImage(); }
-template<> QBrush QVariant_to<QBrush>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toBrush(); }
-template<> QColor QVariant_to<QColor>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toColor(); }
-template<> QPalette QVariant_to<QPalette>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toPalette(); }
-template<> QIcon QVariant_to<QIcon>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toIcon(); }
-template<> QTextLength QVariant_to<QTextLength>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toTextLength(); }
-template<> QPolygon QVariant_to<QPolygon>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toPolygon(); }
-template<> QBitmap QVariant_to<QBitmap>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toBitmap(); }
-template<> QRegion QVariant_to<QRegion>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toRegion(); }
-#ifndef QT_NO_CURSOR
-template<> QCursor QVariant_to<QCursor>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toCursor(); }
-#endif
-#ifndef QT_NO_ACCEL
-template<> QKeySequence QVariant_to<QKeySequence>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toKeySequence(); }
-#endif
-template<> QPen QVariant_to<QPen>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toPen(); }
-template<> QSizePolicy QVariant_to<QSizePolicy>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toSizePolicy(); }
-#endif
-
 
 #endif
 
