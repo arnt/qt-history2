@@ -448,6 +448,7 @@ void QTextHTMLImporter::import()
 
             listReferences.append(d->formatCollection.createObjectIndex(listFmt));
         } else if (node->tag == QLatin1String("table")) {
+            /*
             QTextTableFormat fmt;
             fmt.setBorder(1);
             Table t;
@@ -455,7 +456,10 @@ void QTextHTMLImporter::import()
             tables.append(t);
             scanTable(i, &tables[tables.size() - 1]);
             hasBlock = false;
+            */
+            continue;
         } else if (node->isTableCell) {
+            /*
             Q_ASSERT(!tables.isEmpty());
 
             QTextCharFormat charFmt;
@@ -467,6 +471,8 @@ void QTextHTMLImporter::import()
                 fmt.setBackgroundColor(node->bgColor);
             appendBlock(fmt, charFmt, QTextBeginningOfFrame);
             hasBlock = false;
+            */
+            continue;
         }
 
         if (node->isBlock) {
@@ -558,6 +564,7 @@ bool QTextHTMLImporter::closeTag(int i)
     bool blockTagClosed = false;
 
     while (depth > endDepth) {
+        /*
         if (closedNode->tag == QLatin1String("tr")) {
             Q_ASSERT(!tables.isEmpty());
 
@@ -581,7 +588,7 @@ bool QTextHTMLImporter::closeTag(int i)
             appendBlock(fmt, charFmt, QTextEndOfFrame);
             tables.resize(tables.size() - 1);
             blockTagClosed = true;
-        } else if (closedNode->isListStart) {
+        } else */ if (closedNode->isListStart) {
 
             Q_ASSERT(!listReferences.isEmpty());
 
