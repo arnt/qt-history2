@@ -32,6 +32,7 @@
 #include <qarray.h>
 #include <qlist.h>
 #include <qguardedptr.h>
+#include <qshared.h>
 
 class QTableHeader;
 class QValidator;
@@ -40,7 +41,8 @@ class QPaintEvent;
 class QTimer;
 class QResizeEvent;
 
-class QTableItem : public Qt
+class QTableItem : public Qt,
+		   public QShared
 {
     friend class QTable;
 
@@ -70,6 +72,10 @@ public:
 
     virtual QString key() const;
     virtual QSize sizeHint() const;
+
+    virtual void setSpan( int rs, int cs );
+    int rowSpan() const;
+    int colSpan() const;
     
 protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
@@ -83,7 +89,8 @@ private:
     uint tcha : 1;
     QGuardedPtr<QWidget> lastEditor;
     int row, col;
-
+    int rowspan, colspan;
+    
 };
 
 class QTable : public QScrollView
@@ -168,7 +175,7 @@ public:
 
     virtual void setColumnWidth( int col, int w );
     virtual void setRowHeight( int row, int h );
-    
+
     virtual void adjustColumn( int col );
     virtual void adjustRow( int row );
 
@@ -176,7 +183,7 @@ public:
     virtual void setRowStretchable( int row, bool stretch );
     bool isColumnStretchable( int col ) const;
     bool isRowStretchable( int row ) const;
-    
+
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
@@ -273,7 +280,7 @@ public:
 
     void setSectionStretchable( int s, bool b );
     bool isSectionStretchable( int s ) const;
-    
+
 signals:
     void sectionSizeChanged( int s );
 
@@ -285,7 +292,7 @@ protected:
     void mouseReleaseEvent( QMouseEvent *e );
     void mouseDoubleClickEvent( QMouseEvent *e );
     void resizeEvent( QResizeEvent *e );
-    
+
 private slots:
     void doAutoScroll();
     void sectionWidthChanged( int col, int os, int ns );
@@ -308,7 +315,7 @@ private:
     int resizedSection;
     bool isResizing;
     int numStretchs;
-    
+
 };
 
 #endif // TABLE_H

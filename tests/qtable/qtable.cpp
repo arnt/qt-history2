@@ -64,7 +64,7 @@
 
 QTableItem::QTableItem( QTable *table, const QString &t )
     : txt( t ), pix(), t( table ), edType( OnActivate ), wordwrap( FALSE ),
-      tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 )
+      tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 ), rowspan( 1 ), colspan( 1 )
 {
 }
 
@@ -74,7 +74,7 @@ QTableItem::QTableItem( QTable *table, const QString &t )
 
 QTableItem::QTableItem( QTable *table, const QString &t, const QPixmap &p )
     : txt( t ), pix( p ), t( table ), edType( OnActivate ), wordwrap( FALSE ),
-      tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 )
+      tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 ), rowspan( 1 ), colspan( 1 )
 {
 }
 
@@ -242,6 +242,8 @@ void QTableItem::setTypeChangeAllowed( bool b )
 
 bool QTableItem::isTypeChangeAllowed() const
 {
+    if ( rowspan > 1 || colspan > 1 )
+	return FALSE;
     return tcha;
 }
 
@@ -264,17 +266,45 @@ QSize QTableItem::sizeHint() const
 {
     if ( edType == Always && lastEditor )
 	return lastEditor->sizeHint();
-    
+
     QSize s;
     if ( !pix.isNull() ) {
 	s = pix.size();
 	s.setWidth( s.width() + 2 );
     }
-    
+
     s.setWidth( s.width() + table()->fontMetrics().width( text() ) + 10 );
     return s;
 }
 
+void QTableItem::setSpan( int rs, int cs )
+{
+    rowspan = rs;
+    colspan = cs;
+
+    for ( int r = 0; r < rowspan; ++r ) {
+	for ( int c = 0; c < colspan; ++c ) {
+	    if ( r == 0 && c == 0 )
+		continue;
+	    int rrow = row;
+	    int rcol = col;
+	    table()->setCellContent( r + row, c + col, this );
+	    ref();
+	    row = rrow;
+	    col = rcol;
+	}
+    }
+}
+
+int QTableItem::rowSpan() const
+{
+    return rowspan;
+}
+
+int QTableItem::colSpan() const
+{
+    return colspan;
+}
 
 
 /*!
@@ -405,7 +435,7 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 
     // Prepare for contents
     contents.resize( numRows * numCols );
-    contents.setAutoDelete( TRUE );
+    contents.setAutoDelete( FALSE );
 
     // Connect header, table and scrollbars
     connect( horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
@@ -446,7 +476,11 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 
 QTable::~QTable()
 {
-    contents.clear();
+    for ( int i = 0; i < (int)contents.count(); ++i ) {
+	QTableItem *item = contents[ i ];
+	if ( item && item->deref() == 0 )
+	    delete item;
+    }
 }
 
 /*!  Returns the QHeader which is used on the top.
@@ -555,6 +589,22 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    colp = columnPos( c );
 	    colw = columnWidth( c );
 
+	    QTableItem *item = cellContent( r, c );
+	    if ( item ) {
+		if ( item->row != r ) {
+		    rowp = rowPos( item->row );
+		    rowh = 0;
+		    for ( int i = 0; i < r - item->row + 1; ++i )
+			rowh += rowHeight( i + item->row );
+		}
+		if ( item->col != c ) {
+		    colp = columnPos( item->col );
+		    colw = 0;
+		    for ( int i = 0; i < c - item->col + 1; ++i )
+			colw += columnWidth( i + item->col );
+		}
+	    }
+	    
 	    // Translate painter and draw the cell
 	    p->saveWorldMatrix();
 	    p->translate( colp, rowp );
@@ -681,8 +731,11 @@ void QTable::setCellContent( int row, int col, QTableItem *item )
     if ( !item )
 	return;
 
-    if ( contents[ indexOf( row, col ) ] )
-	delete contents[ indexOf( row, col ) ];
+    QTableItem *i = contents[ indexOf( row, col ) ];
+    if ( i ) {
+	if ( i->deref() == 0 )
+	    delete i;
+    }
 
     contents.insert( indexOf( row, col ), item ); // contents lookup and assign
     item->row = row;
@@ -696,7 +749,10 @@ void QTable::setCellContent( int row, int col, QTableItem *item )
 
 void QTable::clearCell( int row, int col )
 {
+    QTableItem *i = cellContent( row, col );
     contents.remove( indexOf( row, col ) );
+    if ( i && i->deref() == 0 )
+	    delete i;
 }
 
 /*!  Sets the text for the cell \a row, \a col to \a text. This is a
@@ -1139,7 +1195,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	if ( e->text()[ 0 ].isPrint() ) {
 	    QTableItem *item = cellContent( curRow, curCol );
 	    if ( !item || item->editType() == QTableItem::OnActivate ) {
-		beginEdit( curRow, curCol, TRUE );
+		beginEdit( curRow, curCol, item ? item->isTypeChangeAllowed() : TRUE );
 		if ( editorWidget )
 		    QApplication::sendEvent( editorWidget, e );
 	    }
@@ -1455,8 +1511,30 @@ int QTable::rowAt( int pos ) const
 
 QRect QTable::cellGeometry( int row, int col ) const
 {
-    return QRect( columnPos( col ), rowPos( row ),
-		  columnWidth( col ), rowHeight( row ) );
+    QTableItem *item = cellContent( row, col );
+    if ( !item || item->rowSpan() == 1 && item->colSpan() == 1 )
+	return QRect( columnPos( col ), rowPos( row ),
+		      columnWidth( col ), rowHeight( row ) );
+
+    while ( row != item->row )
+	row--;
+    while ( col != item->col )
+	col--;
+    
+    QRect rect( columnPos( col ), rowPos( row ),
+		columnWidth( col ), rowHeight( row ) );
+	
+    for ( int r = 0; r < item->rowSpan(); ++r ) {
+	if ( r != 0 )
+	    rect.setHeight( rect.height() + rowHeight( r + row ) );
+	for ( int c = 0; c < item->colSpan(); ++c ) {
+	    if ( r == 0 && c == 0 )
+		continue;
+	    rect.setWidth( rect.width() + columnWidth( c + col ) );
+	}
+    }
+    
+    return rect;
 }
 
 /*!  Returns the size of the table (same as the right/bottom edge of
@@ -1949,9 +2027,11 @@ void QTable::sortColumn( int col, bool ascending )
 
     qsort( items, filledRows, sizeof( SortableTableItem ), cmpTableItems );
 
-    contents.setAutoDelete( FALSE );
     for ( i = 0; i < rows(); ++i ) {
+	QTableItem *item = cellContent( i, col );
 	contents.remove( indexOf( i, col ) );
+	if ( item && item->deref() == 0 )
+		delete item;
 	if ( i < filledRows ) {
 	    if ( ascending )
 		contents.insert( indexOf( i, col ), items[ i ].item );
@@ -1959,7 +2039,6 @@ void QTable::sortColumn( int col, bool ascending )
 		contents.insert( indexOf( i, col ), items[ filledRows - i - 1 ].item );
 	}
     }
-    contents.setAutoDelete( TRUE );
 
     repaintContents( columnPos( col ), 0, columnWidth( col ), contentsHeight(), FALSE );
     delete [] items;
@@ -2088,7 +2167,7 @@ void QTable::setRowStretchable( int row, bool stretch )
 }
 
 /*! Returns wheather the column \a col is stretchable or not.
-  
+
   \sa setColumnStretchable()
 */
 
@@ -2098,7 +2177,7 @@ bool QTable::isColumnStretchable( int col ) const
 }
 
 /*! Returns wheather the row \a row is stretchable or not.
-  
+
   \sa setRowStretchable()
 */
 
