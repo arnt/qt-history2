@@ -1233,7 +1233,7 @@ void Configure::generateConfigfiles()
 	outStream << "\t\t\t\tVALUE \"LegalTrademarks\", \"\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"OriginalFilename\", \"" << prodFile << "\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"ProductName\", \"Qt\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"ProductVersion\", \""<< prodVer << "\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"ProductVersion\", \"" << major << "." << minor << "." << patch << "\\0\"" << endl;
 	outStream << "\t\t\tEND" << endl;
 	outStream << "\t\tEND" << endl;
 	outStream << "\tEND" << endl;
