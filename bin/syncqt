@@ -31,6 +31,9 @@ my %modules = ( # path to module name map
 	    "QtCanvas" => "$basedir/src/canvas",
 	    "Qt3Compat" => "$basedir/src/compat",
 	    "ActiveQt" => "$basedir/extensions/activeqt/container;$basedir/extensions/activeqt/control",
+	    "Motif" => "$basedir/extensions/motif",
+	    "NsPlugin" => "$basedir/extensions/nsplugin",
+	    "QXT" => "$basedir/extensions/xt",
 );
 $modules{"QCore"} .= ";mkspecs" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
 
