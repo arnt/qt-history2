@@ -329,7 +329,7 @@ void QProgressDialog::setLabel( QLabel *label )
 	if ( label->parentWidget() == this ) {
 	    label->hide(); // until we resize
 	} else {
-	    label->reparent( this, 0, QPoint(0,0), FALSE );
+	    label->setParent( this, 0 );
 	}
     }
     int w = qMax( isVisible() ? width() : 0, sizeHint().width() );
@@ -382,7 +382,7 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
 	if ( cancelButton->parentWidget() == this ) {
 	    cancelButton->hide(); // until we resize
 	} else {
-	    cancelButton->reparent( this, 0, QPoint(0,0), FALSE );
+	    cancelButton->setParent( this, 0 );
 	}
 	connect( d->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()) );
 #ifndef QT_NO_ACCEL

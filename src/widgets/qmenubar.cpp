@@ -892,9 +892,8 @@ int QMenuBar::calculateRects( int max_width )
 	     ) {
 	    ; // empty rectangle
 	} else if ( mi->widget() ) {
-	    if ( mi->widget()->parentWidget() != this ) {
-		mi->widget()->reparent( this, QPoint(0,0) );
-	    }
+	    if ( mi->widget()->parentWidget() != this ) 
+		mi->widget()->setParent(this);
 	    w = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).width()+2;
 	    h = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).height()+2;
 	    if ( i && separator < 0 )

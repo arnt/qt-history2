@@ -702,8 +702,7 @@ void QMenuBar::macCreateNativeMenubar()
 void QMenuBar::macRemoveNativeMenubar()
 {
     if (mac_eaten_menubar && menubars) {
-	QHash<QWidget *, QMenuBar *>::Iterator it = menubars->begin();
-	while (it != menubars->end()) {
+	for(QHash<QWidget *, QMenuBar *>::Iterator it = menubars->begin(); it != menubars->end(); ) {
 	    if (*it == this)
 		it = menubars->erase(it);
 	    else

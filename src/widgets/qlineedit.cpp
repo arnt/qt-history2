@@ -1523,7 +1523,7 @@ void QLineEdit::keyPressEvent( QKeyEvent * e )
     }
     if ( !d->readOnly ) {
 	QString t = e->text();
-	if ( !t.isEmpty() && (!e->ascii() || e->ascii()>=32) &&
+	if ( !t.isEmpty() && (!e->key() || (e->key() < 255 && e->key()>=32)) &&
 	     e->key() != Key_Delete &&
 	     e->key() != Key_Backspace ) {
 #ifdef Q_WS_X11

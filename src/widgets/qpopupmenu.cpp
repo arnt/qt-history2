@@ -1004,8 +1004,10 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	    QMenuItem *mi = mitems->at(i);
 	    QWidget *miw = mi->widget();
 	    if (miw) {
-		if ( miw->parentWidget() != this )
-		    miw->reparent( this, QPoint(0,0), TRUE );
+		if ( miw->parentWidget() != this ) {
+		    miw->setParent( this );
+		    miw->show();
+		}
 		// widget items musn't propgate mouse events
 		((QPopupMenu*)miw)->setWFlags(WNoMousePropagation);
 	    }
@@ -1607,7 +1609,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     } else {	// selected menu item!
 	register QMenuItem *mi = mitems->at(actItem);
 	if ( mi ->widget() ) {
-	    QWidget* widgetAt = QApplication::widgetAt( e->globalPos(), TRUE );
+	    QWidget* widgetAt = QApplication::widgetAt( e->globalPos() );
 	    if ( widgetAt && widgetAt != this ) {
 		QMouseEvent me( e->type(), widgetAt->mapFromGlobal( e->globalPos() ),
 				e->globalPos(), e->button(), e->state() );
@@ -1705,7 +1707,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	register QMenuItem *mi = mitems->at( item );
 
 	if ( mi->widget() ) {
-	    QWidget* widgetAt = QApplication::widgetAt( e->globalPos(), TRUE );
+	    QWidget* widgetAt = QApplication::widgetAt( e->globalPos() );
 	    if ( widgetAt && widgetAt != this ) {
 		QMouseEvent me( e->type(), widgetAt->mapFromGlobal( e->globalPos() ),
 				e->globalPos(), e->button(), e->state() );
@@ -2614,9 +2616,9 @@ void QPopupMenu::toggleTearOff()
 	p->setWindowTitle( windowTitle() );
 #endif
 	p->setCheckable( isCheckable() );
-	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool |
-		     WDestructiveClose,
-		     geometry().topLeft(), FALSE );
+	QPoint geo = geometry().topLeft();
+	p->setParent( parentWidget(), WType_TopLevel | WStyle_Tool | WDestructiveClose);
+	p->move(geo);
 	p->mitems->setAutoDelete( FALSE );
 	p->tornOff = TRUE;
 	for (int i = 0; i < mitems->size(); ++i) {

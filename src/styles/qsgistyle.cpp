@@ -138,7 +138,7 @@ QSGIStyle::polish( QApplication* app)
         pal.setColor( QPalette::Disabled, QPalette::HighlightedText,
 		      pal.color(QPalette::Disabled, QPalette::Base));
     }
-    QApplication::setPalette( pal, TRUE );
+    QApplication::setPalette( pal );
 
     // different basecolor and highlighting in Q(Multi)LineEdit
     pal.setColor( QPalette::Base, QColor(211,181,181) );
@@ -155,15 +155,15 @@ QSGIStyle::polish( QApplication* app)
     pal.setColor( QPalette::Disabled, QPalette::HighlightedText,
 		  pal.color(QPalette::Disabled, QPalette::Text));
 
-    QApplication::setPalette( pal, TRUE, "QLineEdit" );
-    QApplication::setPalette( pal, TRUE, "QTextEdit" );
-    QApplication::setPalette( pal, TRUE, "QDateTimeEditBase" );
+    QApplication::setPalette( pal, "QLineEdit" );
+    QApplication::setPalette( pal, "QTextEdit" );
+    QApplication::setPalette( pal, "QDateTimeEditBase" );
 
     pal = QApplication::palette();
     pal.setColor( QPalette::Button, pal.color(QPalette::Active, QPalette::Background ));
-    QApplication::setPalette( pal, TRUE, "QMenuBar" );
-    QApplication::setPalette( pal, TRUE, "QToolBar" );
-    QApplication::setPalette( pal, TRUE, "QPopupMenu" );
+    QApplication::setPalette( pal, "QMenuBar" );
+    QApplication::setPalette( pal, "QToolBar" );
+    QApplication::setPalette( pal, "QPopupMenu" );
 }
 
 /*! \reimp
@@ -172,7 +172,7 @@ void
 QSGIStyle::unPolish( QApplication* /* app */ )
 {
     QFont f = QApplication::font();
-    QApplication::setFont( f, TRUE ); // get rid of the special fonts for special widget classes
+    QApplication::setFont( f ); // get rid of the special fonts for special widget classes
 }
 
 /*!
