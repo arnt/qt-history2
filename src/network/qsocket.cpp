@@ -40,7 +40,6 @@
 #include "qptrlist.h"
 #include "qsocketdevice.h"
 #include "qdns.h"
-#include "qtimer.h"
 
 #include <string.h>
 #ifndef NO_ERRNO_H
@@ -68,16 +67,17 @@ public:
     QHostAddress	addr;			// connection address
     Q_ULONG		rsize, wsize;		// read/write total buf size
     Q_ULONG		rindex, windex;		// read/write index
-    bool		sn_read_alreadyCalled;	// used to avoid unwanted recursion
 #ifndef QT_NO_DNS
     QDns	       *dns;
 #endif
+    static QPtrList<QSocket> sn_read_alreadyCalled; // used to avoid unwanted recursion
 };
+
+QPtrList<QSocket> QSocketPrivate::sn_read_alreadyCalled;
 
 QSocketPrivate::QSocketPrivate()
     : state(QSocket::Idle), host(QString::fromLatin1("")), port(0),
-      socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0),
-      sn_read_alreadyCalled(FALSE)
+      socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0)
 {
 #ifndef QT_NO_DNS
     dns = 0;
@@ -1030,39 +1030,18 @@ QString QSocket::readLine()
     return s;
 }
 
-
-/*!
-  This private slot emits the error socket read. This is used by sn_read()
-  together with a single shot timer, so that one can delete the class if you
-  receive an error.
-*/
-void QSocket::emitErrSocketRead()
-{
-    emit error( ErrSocketRead );
-}
-
-/*!
-  This private slot emits the connectionClosed() signal. This is used by
-  sn_read() together with a single shot timer, so that one can delete the class
-  if the connection was closed.
-*/
-void QSocket::emitConnectionClosed()
-{
-    emit connectionClosed();
-}
-
 /*!
   Internal slot for handling socket read notifications.
 */
 
 void QSocket::sn_read()
 {
-    // Use d->sn_read_alreadyCalled to avoid recursive calls of sn_read() (and
-    // as a result avoid emitting the readyRead() signal in a slot for
-    // readyRead(), if you use bytesAvailable()).
-    if ( d->sn_read_alreadyCalled )
+    // Use QSocketPrivate::sn_read_alreadyCalled to avoid recursive calls of
+    // sn_read() (and as a result avoid emitting the readyRead() signal in a
+    // slot for readyRead(), if you use bytesAvailable()).
+    if ( QSocketPrivate::sn_read_alreadyCalled.findRef(this) != -1 )
 	return;
-    d->sn_read_alreadyCalled = TRUE;
+    QSocketPrivate::sn_read_alreadyCalled.append( this );
 
     char buf[4096];
     int  nbytes = d->socket->bytesAvailable();
@@ -1074,12 +1053,12 @@ void QSocket::sn_read()
 	    tryConnection();
 	} else {
 	    // nothing to do, nothing to care about
-	    d->sn_read_alreadyCalled = FALSE;
+	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	    return;
 	}
     }
     if ( state() == Idle ) {
-	d->sn_read_alreadyCalled = FALSE;
+	QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	return;
     }
 
@@ -1104,14 +1083,14 @@ void QSocket::sn_read()
 	    d->socket->close();
 	    d->wba.clear();			// clear write buffer
 	    d->windex = d->wsize = 0;
-	    QTimer::singleShot( 0, this, SLOT(emitConnectionClosed()) );
-	    d->sn_read_alreadyCalled = FALSE;
+	    emit connectionClosed();
+	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	    return;
 	} else {
 	    if ( nread < 0 ) {
 		if ( d->socket->error() == QSocketDevice::NoError ) {
 		    // all is fine
-		    d->sn_read_alreadyCalled = FALSE;
+		    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 		    return;
 		}
 #if defined(QSOCKET_DEBUG)
@@ -1119,8 +1098,8 @@ void QSocket::sn_read()
 #endif
 		if (d->rsn)
 		    d->rsn->setEnabled( FALSE );
-		QTimer::singleShot( 0, this, SLOT(emitErrSocketRead()) );
-		d->sn_read_alreadyCalled = FALSE;
+		emit error( ErrSocketRead );
+		QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 		return;
 	    }
 	    a = new QByteArray( nread );
@@ -1147,7 +1126,7 @@ void QSocket::sn_read()
 	if ( nread < 0 ) {
 	    if ( d->socket->error() == QSocketDevice::NoError ) {
 		// all is fine
-		d->sn_read_alreadyCalled = FALSE;
+		QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 		return;
 	    }
 #if defined(QT_CHECK_RANGE)
@@ -1156,8 +1135,8 @@ void QSocket::sn_read()
 	    delete a;
 	    if (d->rsn)
 		d->rsn->setEnabled( FALSE );
-	    QTimer::singleShot( 0, this, SLOT(emitErrSocketRead()) );
-	    d->sn_read_alreadyCalled = FALSE;
+	    emit error( ErrSocketRead );
+	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	    return;
 	}
 	if ( nread != (int)a->size() ) {		// unexpected
@@ -1169,9 +1148,9 @@ void QSocket::sn_read()
     }
     d->rba.append( a );
     d->rsize += nread;
-    QTimer::singleShot( 0, this, SIGNAL(readyRead()) );
+    emit readyRead();
 
-    d->sn_read_alreadyCalled = FALSE;
+    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 }
 
 

@@ -128,8 +128,6 @@ protected slots:
 
 private slots:
     void	tryConnecting();
-    void	emitErrSocketRead();
-    void	emitConnectionClosed();
 
 private:
     QSocketPrivate *d;
