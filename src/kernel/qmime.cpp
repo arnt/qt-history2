@@ -538,7 +538,9 @@ QMimeSourceFactory* QMimeSourceFactory::defaultFactory()
 */
 void QMimeSourceFactory::setDefaultFactory( QMimeSourceFactory* factory)
 {
-    if ( defaultfactory != factory )
+    if ( !defaultfactory )
+	qmime_cleanup_factory.set( &defaultfactory );
+    else if ( defaultfactory != factory )
 	delete defaultfactory;
     defaultfactory = factory;
 }
