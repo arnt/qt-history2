@@ -54,34 +54,24 @@ QStringList
 &NmakeMakefileGenerator::findDependencies(const QString &file)
 {
     QStringList &aList = MakefileGenerator::findDependencies(file);
-    if (!project->variables()["PRECOMPILED_HEADER"].isEmpty())
-	aList.append(pch);
+    if(file != precompcpp) {
+	for(QStringList::Iterator it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it) {
+	    if(file.endsWith(*it)) {
+		if(!aList.contains(pch))
+		    aList += pch;
+		break;
+	    }
+	}
+    }
     return aList;
 }
 
 void
 NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 {
-    if ( project->variables()["PRECOMPILED_SOURCE"].size() > 1 )
-	warn_msg(WarnLogic, "nmake generator doesn't support multiple files in PRECOMPILED_SOURCE, only first one used" );
-    precomph = Option::fixPathToTargetOS(project->first("PRECOMPILED_HEADER"));
-    precompcpp = Option::fixPathToTargetOS(project->first("PRECOMPILED_SOURCE"));
-    pch = QString(precomph).replace(".h", ".pch");
-    usePCH = !precomph.isEmpty() && project->isActiveConfig("precompile_header");
-    deletePCHcpp = precompcpp.isEmpty();
-    if (usePCH) {
-	// Add PCH to cleanup
-	project->variables()["QMAKE_CLEAN"] += pch;
-	// Add cleanup stage for generated file
-	if(deletePCHcpp) {
-	    precompcpp = project->first("TARGET") + "_pch";
-	    project->variables()["QMAKE_CLEAN"] += precompcpp + ".obj";
-	    project->variables()["QMAKE_CLEAN"] += precompcpp + ".cpp";
-	    precompcpp += ".cpp";
-	}
-	// Add linking of PCH compiled objects
-	project->variables()["OBJECTS"] += QString(precompcpp).replace(".cpp", ".obj");
-    }
+    // Add linking of PCH compiled objects
+    if (usePCH)
+	project->variables()["OBJECTS"] += QString(precompcpp).replace(Option::cpp_ext.first(), Option::obj_ext);
 
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC		=	" << var("QMAKE_CC") << endl;
@@ -382,7 +372,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 					  QDir::currentDirPath(), 
 					  TRUE);
 	QString precompRule = QString("-c -Yc%1 /Fp%2").arg(realPrecompH).arg(pch);
-	t << pch << ": " << precomph << " " << precompcpp << findDependencies(precompcpp).join(" \\\n\t\t")
+	t << pch << ": " << precompcpp << " " << findDependencies(precompcpp).join(" \\\n\t\t")
 	  << "\n\t" << "$(CXX) " + precompRule +" $(CXXFLAGS) $(INCPATH) " << precompcpp << endl << endl;
 	if (deletePCHcpp)
 	    t << precompcpp << ":\n\t" << "@echo #include \"" << realPrecompH << "\" > " << precompcpp << endl << endl;
@@ -423,6 +413,30 @@ NmakeMakefileGenerator::init()
     if(init_flag)
 	return;
     init_flag = TRUE;
+
+    /* Do PCH setup */
+    if ( project->variables()["PRECOMPILED_SOURCE"].size() > 1 )
+	warn_msg(WarnLogic, "nmake generator doesn't support multiple files in PRECOMPILED_SOURCE, only first one used" );
+    precomph = Option::fixPathToTargetOS(project->first("PRECOMPILED_HEADER"));
+    precompcpp = Option::fixPathToTargetOS(project->first("PRECOMPILED_SOURCE"));
+    pch = QString(precomph).replace(".h", ".pch");
+    usePCH = !precomph.isEmpty() && project->isActiveConfig("precompile_header");
+    deletePCHcpp = precompcpp.isEmpty();
+    if (usePCH) {
+	// Add PCH to cleanup
+	project->variables()["QMAKE_CLEAN"] += pch;
+	// Add cleanup stage for generated file
+	if(deletePCHcpp) {
+	    precompcpp = project->first("TARGET") + "_pch";
+	    project->variables()["QMAKE_CLEAN"] += precompcpp + Option::obj_ext;
+	    project->variables()["QMAKE_CLEAN"] += precompcpp + Option::cpp_ext.first();
+	    precompcpp += Option::cpp_ext.first();
+	}
+	project->variables()["PRECOMPILED_HEADER"] = precomph;
+	project->variables()["PRECOMPILED_SOURCE"] = precompcpp;
+	project->variables()["PRECOMPILED_OBJECT"] = QString(precompcpp).replace(Option::cpp_ext.first(),Option::obj_ext);
+	project->variables()["PRECOMPILED_PCH"] = pch;
+    }
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->first("TEMPLATE") == "app")
