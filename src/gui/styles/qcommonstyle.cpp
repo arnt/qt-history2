@@ -1715,8 +1715,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
                 p->fillRect(opt->rect, fillBrush);
 
-                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarLabel,
-                                                       widget));
+                ir = visualRect(opt->direction, opt->rect,
+                        querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarLabel, widget));
 
                 p->setPen(tb->palette.highlightedText().color());
                 p->drawText(ir.x() + 2, ir.y(), ir.width() - 2, ir.height(),
@@ -1729,8 +1729,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             QStyleOption tool(0);
             tool.palette = tb->palette;
             if (tb->subControls & SC_TitleBarCloseButton) {
-                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarCloseButton,
-                                                       widget));
+                ir = visualRect(opt->direction, opt->rect,
+                        querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarCloseButton, widget));
                 down = tb->activeSubControls & SC_TitleBarCloseButton;
                 if (tb->titleBarFlags & Qt::WStyle_Tool
 #ifndef QT_NO_MAINWINDOW
@@ -1752,9 +1752,10 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
 
-            if (tb->subControls & SC_TitleBarMaxButton) {
-                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarMaxButton,
-                                                       widget));
+            if (tb->subControls & SC_TitleBarMaxButton
+                && tb->titleBarFlags & Qt::WStyle_Maximize) {
+                ir = visualRect(opt->direction, opt->rect,
+                        querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarMaxButton, widget));
 
                 down = tb->activeSubControls & SC_TitleBarMaxButton;
                 pm = standardPixmap(SP_TitleBarMaxButton, &tool, widget);
@@ -1770,9 +1771,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
 
-            if (tb->subControls & SC_TitleBarNormalButton || tb->subControls & SC_TitleBarMinButton) {
-                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarMinButton,
-                                                       widget));
+            if ((tb->subControls & SC_TitleBarNormalButton
+                 || tb->subControls & SC_TitleBarMinButton)
+                && tb->titleBarFlags & Qt::WStyle_Minimize) {
+                ir = visualRect(opt->direction, opt->rect,
+                        querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarMinButton, widget));
 
                 QStyle::SubControl ctrl = (tb->subControls & SC_TitleBarNormalButton ?
                                            SC_TitleBarNormalButton :
@@ -1795,8 +1798,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             }
 
             if (tb->subControls & SC_TitleBarShadeButton) {
-                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarShadeButton,
-                                                       widget));
+                ir = visualRect(opt->direction, opt->rect,
+                        querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarShadeButton, widget));
 
                 down = tb->activeSubControls & SC_TitleBarShadeButton;
                 pm = standardPixmap(SP_TitleBarShadeButton, &tool, widget);
@@ -1812,8 +1815,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             }
 
             if (tb->subControls & SC_TitleBarUnshadeButton) {
-                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarUnshadeButton,
-                                                       widget));
+                ir = visualRect(opt->direction, opt->rect,
+                        querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarUnshadeButton, widget));
 
                 down = tb->activeSubControls & SC_TitleBarUnshadeButton;
                 pm = standardPixmap(SP_TitleBarUnshadeButton, &tool, widget);
@@ -1827,10 +1830,28 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 drawItem(p, ir, Qt::AlignCenter, tb->palette, true, pm);
                 p->restore();
             }
+            if (tb->subControls & SC_TitleBarContextHelpButton
+                && tb->titleBarFlags & Qt::WStyle_ContextHelp) {
+                ir = visualRect(opt->direction, opt->rect,
+                        querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarContextHelpButton,
+                                               widget));
+
+                down = tb->activeSubControls & SC_TitleBarContextHelpButton;
+                pm = standardPixmap(SP_TitleBarContextHelpButton, &tool, widget);
+                tool.rect = ir;
+                tool.state = down ? Style_Down : Style_Raised;
+                drawPrimitive(PE_ButtonTool, &tool, p, widget);
+                p->save();
+                if (down)
+                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
+                                 pixelMetric(PM_ButtonShiftVertical, tb, widget));
+                drawItem(p, ir, Qt::AlignCenter, tb->palette, true, pm);
+                p->restore();
+            }
 #ifndef QT_NO_WIDGET_TOPEXTRA
-            if (tb->subControls & SC_TitleBarSysMenu) {
-                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarSysMenu,
-                                                        widget));
+            if (tb->subControls & SC_TitleBarSysMenu && tb->titleBarFlags & Qt::WStyle_SysMenu) {
+                ir = visualRect(opt->direction, opt->rect,
+                        querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarSysMenu, widget));
                 if (!tb->icon.isNull()) {
                     drawItem(p, ir, Qt::AlignCenter, tb->palette, true, tb->icon);
                 } else {
@@ -2174,55 +2195,42 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
         if (const QStyleOptionTitleBar *tb = qt_cast<const QStyleOptionTitleBar *>(opt)) {
             const int controlMargin = 2;
             const int controlHeight = tb->rect.height() - controlMargin *2;
+            const int delta = controlHeight + controlMargin;
+            int offset = 0;
 
             switch (sc) {
             case SC_TitleBarLabel:
                 ret = tb->rect;
-                if (tb->titleBarFlags & Qt::WStyle_Tool) {
-                    if (tb->titleBarFlags & Qt::WStyle_SysMenu)
-                        ret.addCoords(0, 0, -controlHeight - 3, 0);
-                    if (tb->titleBarFlags & Qt::WStyle_MinMax)
-                        ret.addCoords(0, 0, -controlHeight - 2, 0);
-                } else {
-                    if (tb->titleBarFlags & Qt::WStyle_SysMenu)
-                        ret.addCoords(controlHeight + 3, 0, -controlHeight - 3, 0);
-                    if (tb->titleBarFlags & Qt::WStyle_Minimize)
-                        ret.addCoords(0, 0, -controlHeight - 2, 0);
-                    if (tb->titleBarFlags & Qt::WStyle_Maximize)
-                        ret.addCoords(0, 0, -controlHeight - 2, 0);
-                }
+                ret.addCoords(0, 0, -delta, 0); // Close button always there
+                if (tb->titleBarFlags & Qt::WStyle_SysMenu)
+                    ret.addCoords(delta, 0, -delta, 0);
+                if (tb->titleBarFlags & Qt::WStyle_Minimize)
+                    ret.addCoords(0, 0, -delta, 0);
+                if (tb->titleBarFlags & Qt::WStyle_Maximize)
+                    ret.addCoords(0, 0, -delta, 0);
+                if (tb->titleBarFlags & Qt::WStyle_ContextHelp)
+                    ret.addCoords(0, 0, -delta, 0);
                 break;
-            case SC_TitleBarCloseButton:
-                ret.setRect(tb->rect.right() - (controlHeight + controlMargin),
-                            tb->rect.top() + controlMargin, controlHeight, controlHeight);
-                break;
+            case SC_TitleBarContextHelpButton:
+                if (tb->titleBarFlags & Qt::WStyle_ContextHelp)
+                    offset += delta;
+            case SC_TitleBarMinButton:
+            case SC_TitleBarNormalButton:
+                if (tb->titleBarFlags & Qt::WStyle_Minimize)
+                    offset += delta;
             case SC_TitleBarMaxButton:
             case SC_TitleBarShadeButton:
             case SC_TitleBarUnshadeButton:
-                ret.setRect(tb->rect.right() - ((controlHeight + controlMargin) * 2),
-                            tb->rect.top() + controlMargin, controlHeight, controlHeight);
+                if (tb->titleBarFlags & Qt::WStyle_Maximize)
+                    offset += delta;
+            case SC_TitleBarCloseButton:
+                offset += delta;
+                ret.setRect(tb->rect.right() - offset, tb->rect.top() + controlMargin,
+                            controlHeight, controlHeight);
                 break;
-            case SC_TitleBarMinButton:
-            case SC_TitleBarNormalButton: {
-                int offset = controlHeight + controlMargin;
-                if (!(tb->titleBarFlags & Qt::WStyle_Maximize))
-                    offset *= 2;
-                else
-                    offset *= 3;
-                ret.setRect(tb->rect.right() - offset, tb->rect.top() + controlMargin, controlHeight, controlHeight);
-                break;
-            }
-            case SC_TitleBarContextHelpButton: {
-                int offset = controlHeight + controlMargin;
-                if (!(tb->titleBarFlags & Qt::WStyle_Maximize))
-                    offset *= 3;
-                else
-                    offset *= 4;
-                ret.setRect(tb->rect.right() - offset, tb->rect.top() + controlMargin, controlHeight, controlHeight);
-                break;
-            }
             case SC_TitleBarSysMenu:
-                ret.setRect(tb->rect.left() + 3, tb->rect.top() + controlMargin, controlHeight, controlHeight);
+                ret.setRect(tb->rect.left() + controlMargin, tb->rect.top() + controlMargin,
+                            controlHeight, controlHeight);
                 break;
             default:
                 break;
