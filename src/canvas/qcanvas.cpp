@@ -2634,6 +2634,20 @@ void QCanvasSprite::draw(QPainter& painter)
 */
 
 /*!
+  Constructs a QCanvasView.  You will probably want to call setCanvas() before
+  showing the widget.
+
+  The usual QWidget parameters may also be supplied.
+*/
+QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
+    QScrollView(parent,name,f)
+{
+    viewing = 0;
+    setCanvas(0);
+    connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
+}
+
+/*!
   Constructs a QCanvasView which views \a canvas.  The
   usual QWidget parameters may also be supplied.
 */

@@ -315,7 +315,8 @@ class Q_EXPORT QCanvasView : public QScrollView
 {
     Q_OBJECT
 public:
-    QCanvasView(QCanvas* viewing=0, QWidget* parent=0, const char* name=0, WFlags f=0);
+    QCanvasView(QWidget* parent=0, const char* name=0, WFlags f=0);
+    QCanvasView(QCanvas* viewing, QWidget* parent=0, const char* name=0, WFlags f=0);
     ~QCanvasView();
 
     QCanvas* canvas() const
