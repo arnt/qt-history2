@@ -50,6 +50,9 @@ public:
     bool remove();
     static bool remove(const QString &fileName);
 
+    bool rename(const QString &newName);
+    static bool rename(const QString &oldName, const QString &newName);
+
     bool open(int);
     bool open(int, FILE *);
     bool open(int, int);

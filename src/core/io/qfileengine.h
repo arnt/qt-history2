@@ -37,7 +37,8 @@ public:
     virtual Q_LONG readBlock(uchar *data, Q_ULONG len) = 0;
     virtual Q_LONG writeBlock(const uchar *data, Q_ULONG len) = 0;
     
-    virtual bool remove(const QString &) = 0;
+    virtual bool remove() = 0;
+    virtual bool rename(const QString &newName) = 0;
 
     virtual QFile::Offset size() const = 0;
     virtual QFile::Offset at() const = 0;
@@ -83,7 +84,8 @@ public:
     virtual Q_LONG readBlock(uchar *data, Q_ULONG len);
     virtual Q_LONG writeBlock(const uchar *data, Q_ULONG len);
     
-    virtual bool remove(const QString &);
+    virtual bool remove();
+    virtual bool rename(const QString &newName);
 
     virtual QFile::Offset size() const;
     virtual QFile::Offset at() const;

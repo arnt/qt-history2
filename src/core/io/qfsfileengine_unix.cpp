@@ -36,9 +36,15 @@ QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 }
 
 bool
-QFSFileEngine::remove(const QString &fileName)
+QFSFileEngine::remove()
 {
-    return unlink(QFile::encodeName(fileName)) == 0;
+    return unlink(QFile::encodeName(d->file)) == 0;
+}
+
+bool 
+QFSFileEngine::rename(const QString &newName)
+{
+    return ::rename(QFile::encodeName(d->file), QFile::encodeName(newName)) == 0;
 }
 
 QFile::Offset

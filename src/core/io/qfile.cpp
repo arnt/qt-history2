@@ -391,6 +391,8 @@ QFile::exists(const QString &fileName)
     true if successful; otherwise returns false.
 
     The file is closed before it is removed.
+
+    \sa setName()
 */
 
 bool
@@ -402,19 +404,61 @@ QFile::remove()
     }
     if(!d->fileEngine)
         return false;
-    return d->fileEngine->remove(d->fileName);
+    close();
+    return d->fileEngine->remove();
 }
 
 /*!
     \overload
+
     Removes the file \a fileName.
-  Returns true if successful, otherwise false.
+ 
+    Returns true if successful, otherwise false.
+
+    \sa remove()
 */
 
 bool
 QFile::remove(const QString &fileName)
 {
     return QFile(fileName).remove();
+}
+
+/*!
+    Renames the file specified the file name currently set to \a
+    newName. Returns true if successful; otherwise returns false.
+
+    The file is closed before it is renamed.
+
+    \sa setName()
+*/
+
+bool
+QFile::rename(const QString &newName)
+{
+    if (d->fileName.isEmpty()) {
+        qWarning("QFile::remove: Empty or null file name");
+        return false;
+    }
+    if(!d->fileEngine)
+        return false;
+    close();
+    return d->fileEngine->rename(newName);
+}
+
+/*!
+    \overload
+
+    Renames the file \a oldName to \a newName. Returns true if
+    successful, otherwise false.
+
+    \sa rename()
+*/
+
+bool
+QFile::rename(const QString &oldName, const QString &newName)
+{
+    return QFile(oldName).rename(newName);
 }
 
 /*!

@@ -88,12 +88,22 @@ QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 }
     
 bool
-QFSFileEngine::remove(const QString &fileName)
+QFSFileEngine::remove()
 {
     QT_WA({
-        return ::_wremove((TCHAR*)fileName.utf16()) == 0;
+        return ::_wremove((TCHAR*)d->file.utf16()) == 0;
     } , {
-        return ::remove(qt_win95Name(fileName)) == 0;
+        return ::remove(qt_win95Name(d->file)) == 0;
+    });
+}
+
+bool 
+QFSFileEngine::rename(const QString &newName)
+{
+    QT_WA({
+        return ::_wrename((TCHAR*)d->file.utf16(), (TCHAR*)newName.utf16()) == 0;
+    } , {
+        return ::rename(qt_win95Name(d->file), qt_win95Name(newName)) == 0;
     });
 }
 
