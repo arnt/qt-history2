@@ -22,10 +22,13 @@ enum ChunkType {
 
 static bool createDir( const QString& fullPath )
 {
-    QStringList hierarchy = QStringList::split( QString( "\\" ), fullPath );
+    QStringList hierarchy = QStringList::split( QDir::separator(), fullPath );
     QString pathComponent, tmpPath;
     QDir dirTmp;
     bool success;
+#ifdef Q_OS_UNIX
+    dirTmp = "/";
+#endif
 
     for( QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it ) {
 	pathComponent = *it + QDir::separator();

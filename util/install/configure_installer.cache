@@ -11,5 +11,6 @@
 -no-big-codecs
 -no-jpeg
 -no-png
+-spec win32-msvc
 -saveconfig
 installer

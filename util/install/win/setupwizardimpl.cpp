@@ -24,10 +24,6 @@
 #include <qvalidator.h>
 #include <qdatetime.h>
 
-#if defined(MD4_KEYS)
-#include "../md4/qrsync.h"
-#endif
-
 #include <keyinfo.h>
 
 #if defined(EVAL)
@@ -301,14 +297,13 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 #else
     licenseID->setValidator( new QIntValidator( 100000, -1, licenseID ) );
     readLicense( QDir::homeDirPath() + "/.qt-license" );
-#  if !defined(MD4_KEYS)
+
     // expiryDate and productsString comes from the license key
     expiryDate->setEnabled( FALSE );
     productsString->setEnabled( FALSE );
     keyLabel->setText( tr("License key") );
     licenseInfoHeader->setText( tr("Please enter your license information.\n"
 		"The License key is required to be able to proceed with the installation process.") );
-#  endif
 #endif
 }
 
@@ -909,7 +904,7 @@ void SetupWizardImpl::showPageProgress()
     if( !filesCopied ) {
 	createDir( installPath->text() );
 	filesDisplay->append( "Installing files...\n" );
-#if !defined(MD4_KEYS)
+
 	// install the right LICENSE file
 	QDir installDir( installPath->text() );
 	QFile licenseFile( installDir.filePath("LICENSE") );
@@ -948,9 +943,9 @@ void SetupWizardImpl::showPageProgress()
 	    // bytes, we have the dummy qt.arq: try to find and install
 	    // from qt.arq in the current directory instead.
 	    QString archiveName = "qt.arq";
-# if defined(Q_OS_MACX)
+#if defined(Q_OS_MACX)
 	    archiveName  = "install.app/Contents/Qt/qtmac.arq";
-# endif
+#endif
 	    fi.setFile( archiveName );
 	    if( fi.exists() )
 		totalSize = fi.size();
@@ -959,7 +954,7 @@ void SetupWizardImpl::showPageProgress()
 	    ar.setPath( archiveName );
 	    if( ar.open( IO_ReadOnly ) )  {
 		ar.readArchive( installPath->text(), key->text() );
-# if defined(Q_OS_MACX)
+#if defined(Q_OS_MACX)
  		QString srcName  = "install.app/Contents/Qt/LICENSE";
     		QString destName = "/.LICENSE";
     		QString srcName2 = srcName;
@@ -970,12 +965,11 @@ void SetupWizardImpl::showPageProgress()
        		   (!copyFile( srcName2, installPath->text() + "/LICENSE" )))
 		    QMessageBox::critical( this, "Installation Error",
 					   "License files could not be copied." );
-# endif
+#endif
 	    } else {
 		// We were not able to find any qt.arq -- so assume we have
 		// the old fashioned zip archive and simply copy the files
 		// instead.
-#endif
 		operationProgress->setTotalSteps( FILESTOCOPY );
 		copySuccessful = copyFiles( QDir::currentDirPath(), installPath->text(), true );
 
@@ -986,9 +980,7 @@ void SetupWizardImpl::showPageProgress()
 		 */
 		operationProgress->setProgress( FILESTOCOPY );
 	    }
-#if !defined(MD4_KEYS)
 	}
-#endif
 #if 0
 	// ### what is the purpose of this? Can't we put it right in the
 	// package in first place?
@@ -1338,33 +1330,6 @@ void SetupWizardImpl::licenseChanged()
 	setNextEnabled( licensePage, FALSE );
     return;
 #else
-#  if defined(MD4_KEYS)
-    QString proKey = key->text();
-    if ( proKey.length() < 19 ) {
-	setNextEnabled( licensePage, FALSE );
-	return;
-    }
-    QString customer = customerID->text();
-    QString license = licenseID->text();
-    QString name = licenseeName->text();
-    QString date = expiryDate->text();
-    QString products = productsString->currentText();
-    int i = proKey.find( '-' );
-    if ( i <= 0 || i >= (int)proKey.length()-1 ) {
-	setNextEnabled( licensePage, FALSE );
-	return;
-    }
-
-    QString platforms = proKey.left( i );
-    if ( platforms.contains('W') <= 0 ) {
-	setNextEnabled( licensePage, FALSE );
-	return;
-    }
-
-    QString keyString = customer + license + products + date + platforms;
-    QMd4Sum sum( keyString );
-    setNextEnabled( licensePage, sum.scrambled() == proKey.mid( i+1, 17 ) );
-#  else
     QDate date;
     uint features;
     QString licenseKey = key->text();
@@ -1376,7 +1341,7 @@ void SetupWizardImpl::licenseChanged()
     if ( !date.isValid() ) {
 	goto rejectLicense;
     }
-#    ifdef Q_OS_MACX
+#  ifdef Q_OS_MACX
     if ( !(features&Feature_Mac) ) {
 	if ( features & (Feature_Unix|Feature_Windows|Feature_Windows|Feature_Embedded) ) {
 	    int ret = QMessageBox::information( this,
@@ -1395,7 +1360,7 @@ void SetupWizardImpl::licenseChanged()
 	}
 	goto rejectLicense;
     }
-#    elif defined(Q_OS_WIN32)
+#  elif defined(Q_OS_WIN32)
     if ( !(features&Feature_Windows) ) {
 	if ( features & (Feature_Unix|Feature_Windows|Feature_Mac|Feature_Embedded) ) {
 	    int ret = QMessageBox::information( this,
@@ -1414,7 +1379,7 @@ void SetupWizardImpl::licenseChanged()
 	}
 	goto rejectLicense;
     }
-#    endif
+#  endif
     if ( date < QDate::currentDate() ) {
 	static bool alreadyShown = FALSE;
 	if ( !alreadyShown ) {
@@ -1449,13 +1414,12 @@ void SetupWizardImpl::licenseChanged()
 
 rejectLicense:
     expiryDate->setText( "" );
-#    if defined(Q_OS_WIN32)
+#  if defined(Q_OS_WIN32)
 //TODO: Is this a bug? It bus errors on MACX, ask rms.
      productsString->setCurrentItem( -1 );
-#    endif
+#  endif
     setNextEnabled( licensePage, FALSE );
     return;
-#  endif
 #endif
 }
 
@@ -1502,14 +1466,10 @@ void SetupWizardImpl::logOutput( const QString& entry, bool close )
 
 void SetupWizardImpl::archiveMsg( const QString& msg )
 {
-#if defined(MD4_KEYS)
-    Q_UNUSED(msg)
-#else
     if( msg.right( 7 ) == ".cpp..." || msg.right( 5 ) == ".c..." || msg.right( 7 ) == ".pro..." || msg.right( 6 ) == ".ui..." )
 	filesToCompile++;
     qApp->processEvents();
     logFiles( msg );
-#endif
 }
 
 bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel )
@@ -1642,11 +1602,7 @@ void SetupWizardImpl::readLicense( QString filePath)
 	    productsString->setCurrentItem( 0 );
 	}
 	expiryDate->setText( licenseInfo[ "EXPIRYDATE" ] );
-#  if defined(MD4_KEYS)
-	key->setText( licenseInfo[ "PRODUCTKEY" ] );
-#  else
 	key->setText( licenseInfo[ "LICENSEKEY" ] );
-#  endif
     }
 #endif
 }
@@ -1668,11 +1624,7 @@ void SetupWizardImpl::writeLicense( QString filePath )
 	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
 
 	licenseInfo[ "EXPIRYDATE" ] = expiryDate->text();
-#  if defined(MD4_KEYS)
-	licenseInfo[ "PRODUCTKEY" ] = key->text();
-#  else
 	licenseInfo[ "LICENSEKEY" ] = key->text();
-#  endif
 
 	licStream << "# Toolkit license file" << endl;
 	licStream << "CustomerID=\"" << licenseInfo[ "CUSTOMERID" ].latin1() << "\"" << endl;
@@ -1680,11 +1632,7 @@ void SetupWizardImpl::writeLicense( QString filePath )
 	licStream << "Licensee=\"" << licenseInfo[ "LICENSEE" ].latin1() << "\"" << endl;
 	licStream << "Products=\"" << licenseInfo[ "PRODUCTS" ].latin1() << "\"" << endl;
 	licStream << "ExpiryDate=" << licenseInfo[ "EXPIRYDATE" ].latin1() << endl;
-#  if defined(MD4_KEYS)
-	licStream << "ProductKey=" << licenseInfo[ "PRODUCTKEY" ].latin1() << endl;
-#  else
 	licStream << "LicenseKey=" << licenseInfo[ "LICENSEKEY" ].latin1() << endl;
-#  endif
 
 	licenseFile.close();
     }
@@ -1713,17 +1661,6 @@ bool SetupWizardImpl::findFileInPaths( QString fileName, QStringList paths )
 void SetupWizardImpl::readLicenseAgreement()
 {
     // Intropage
-#if defined(MD4_KEYS)
-    QFile licenseFile( "LICENSE" );
-    if( licenseFile.open( IO_ReadOnly ) ) {
-	QFileInfo fi( licenseFile );
-	QByteArray fileData( fi.size() + 2 );
-	licenseFile.readBlock( fileData.data(), fi.size() );
-	fileData.data()[ fi.size() ] = 0;
-	fileData.data()[ fi.size() + 1 ] = 0;
-	introText->setText( QString( fileData.data() ) );
-    }
-#else
     ResourceLoader *rcLoader;
     if ( usLicense ) {
 	rcLoader = new ResourceLoader( "LICENSE-US" );
@@ -1739,5 +1676,4 @@ void SetupWizardImpl::readLicenseAgreement()
 	acceptLicense->setEnabled( FALSE );
     }
     delete rcLoader;
-#endif
 }
