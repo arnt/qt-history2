@@ -2308,6 +2308,21 @@ void QPainter::drawPoints(const QPointF *points, int pointCount)
     }
 }
 
+/*!
+    \overload
+
+    Draws the first \a pointCount points in the array \a points using
+    the current pen's color.
+
+    \sa QPen
+*/
+
+void QPainter::drawPoints(const QPoint *points, int pointCount)
+{
+    // ###
+    QVector<QPointF> pts = qt_convert_points(points, pointCount, QPointF());
+    drawPoints(pts.data(), pts.size());
+}
 
 /*!
     Sets the background mode of the painter to \a mode, which must be
@@ -4567,21 +4582,14 @@ QPolygon QPainter::xFormDev(const QPolygon &ad, int index, int npoints) const
 }
 
 /*!
+    \fn void QPainter::drawPoints(const QPolygon &points)
+
     \overload
-    \obsolete
 
     Draws the array of points \a points using the current pen's color.
 
     \sa drawPoints
 */
-void QPainter::drawPoints(const QPolygon &points)
-{
-    QVector<QPointF> pts;
-    pts.reserve(points.size());
-    for (int i=0; i<points.size(); ++i)
-        pts << points[i];
-    drawPoints(pts.data(), pts.size());
-}
 
 /*!
     Draws a cubic Bezier curve defined by the control points in \a a,

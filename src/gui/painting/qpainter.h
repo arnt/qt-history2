@@ -171,7 +171,8 @@ public:
 
     void drawPoints(const QPointF *points, int pointCount);
     inline void drawPoints(const QPolygonF &points);
-    void drawPoints(const QPolygon &points);
+    void drawPoints(const QPoint *points, int pointCount);
+    inline void drawPoints(const QPolygon &points);
 
     void drawArc(const QRectF &rect, int a, int alen);
     inline void drawArc(const QRect &, int a, int alen);
@@ -305,7 +306,9 @@ public:
         { drawText(p, s.left(len), dir); }
     inline QT_COMPAT bool begin(QPaintDevice *pdev, const QWidget *init)
         { bool ret = begin(pdev); initFrom(init); return ret; }
-    QT_COMPAT void drawPoints(const QPolygon &pa, int index, int npoints = -1);
+    QT_COMPAT void drawPoints(const QPolygon &pa, int index, int npoints = -1)
+    { drawPoints(pa.data() + index, npoints == -1 ? pa.size() - index : npoints); }
+
     QT_COMPAT void drawCubicBezier(const QPolygon &pa, int index = 0);
 
     QT_COMPAT void drawLineSegments(const QPolygon &points, int index = 0, int nlines = -1);
@@ -458,6 +461,11 @@ inline void QPainter::drawPoint(const QPoint &p)
 }
 
 inline void QPainter::drawPoints(const QPolygonF &points)
+{
+    drawPoints(points.data(), points.size());
+}
+
+inline void QPainter::drawPoints(const QPolygon &points)
 {
     drawPoints(points.data(), points.size());
 }
