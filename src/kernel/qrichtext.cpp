@@ -6853,7 +6853,7 @@ QChar QTextDocument::parseHTMLSpecialChar(const QChar* doc, int length, int& pos
     QCString s;
     pos++;
     int recoverpos = pos;
-    while ( pos < length && doc[pos] != ';' && !doc[pos].isSpace() && pos < recoverpos + 6) {
+    while ( pos < length && doc[pos] != ';' && !doc[pos].isSpace() && pos < recoverpos + 8 ) {
 	s += doc[pos];
 	pos++;
     }
