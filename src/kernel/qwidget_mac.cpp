@@ -70,6 +70,7 @@ int mac_window_count = 0;
   Externals
  *****************************************************************************/
 void qt_mac_command_set_enabled(UInt32, bool); //qapplication_mac.cpp
+void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
@@ -748,15 +749,23 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		if((tmp_wattr & known_attribs[i].tag) == known_attribs[i].tag) {
 		    tmp_wattr ^= known_attribs[i].tag;
 		    qDebug("* %s %s", known_attribs[i].name, 
-			   GetAvailableWindowAttributes(wclass) & known_attribs[i].tag ? "" : "(*)");
+			   (GetAvailableWindowAttributes(wclass) & known_attribs[i].tag) ? "" : "(*)");
 		}
 	    }
 	    if(tmp_wattr)
 		qDebug("!! Attributes: Unknown (%d)", (int)tmp_wattr);
 	}
 #endif
+
+#if 0 //This is causing the popups to go behind their parent because of the window level
 	/* Just to be extra careful we will change to the kUtilityWindowClass if the
 	   requested attributes cannot be used */
+	if((GetAvailableWindowAttributes(wclass) & wattr) != wattr) {
+	    if(!grp)
+		grp = GetWindowGroupOfClass(wclass);
+	    wclass = kUtilityWindowClass;
+	}
+#endif
 
 #ifdef QMAC_USE_WDEF
 	if((wclass == kPlainWindowClass && wattr == kWindowNoAttributes) || testWFlags(WStyle_Tool)) {
@@ -2398,7 +2407,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 
 void QWidget::resetInputContext()
 {
-
+    qt_mac_unicode_reset_input(this);
 }
 
 /*!
