@@ -2106,7 +2106,7 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h,
     QMacPattern *qpattern = new QMacPattern;
     qpattern->im = 0;
     qpattern->as_mask = false;
-    qpattern->pixmap = new QPixmap(*cbrush.pixmap());
+    qpattern->pixmap = new QPixmap(pixmap);
     CGPatternCallbacks callbks;
     callbks.version = 0;
     callbks.drawPattern = qt_mac_draw_pattern;
