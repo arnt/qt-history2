@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#23 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,9 +14,36 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#23 $";
 #endif
 
+
+void qDrawWinButton( QPainter *p, int x1, int y1, int w, int h,
+		     const QColor &t1, const QColor &t2,
+		     const QColor &b1, const QColor &b2,
+		     const QColor &fill )
+{
+    int x2=x1+w-1, y2=y1+h-1;
+    QPointArray a;
+    QPen   pen   = p->pen();
+    QBrush brush = p->brush();
+    p->setBrush( NoBrush );
+    a.setPoints( 3, x1,y2-1, x1,y1, x2-1,y1 );
+    p->setPen( t1 );
+    p->drawPolyline( a );
+    a.setPoints( 3, x1+1,y2-2, x1+1,y1+1, x2-2,y1+1 );
+    p->setPen( t2 );
+    p->drawPolyline( a );
+    a.setPoints( 3, x1+1,y2-1, x2-1,y2-1, x2-1,y1+1 );
+    p->setPen( b2 );
+    p->drawPolyline( a );
+    a.setPoints( 3, x1,y2, x2,y2, x2,y1 );
+    p->setPen( b1 );
+    p->drawPolyline( a );
+    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, fill );
+    p->setPen( pen );
+    p->setBrush( brush );
+}
 
 /*!
 \class QScrollBar qscrbar.h
@@ -59,7 +86,7 @@ const int repeatTime	= 100;
 
 #define HORIZONTAL	(orientation() == Horizontal)
 #define VERTICAL	!HORIZONTAL
-#define BORDER		2
+#define MOTIF_BORDER	2
 #define SLIDER_MIN	6
 
 
@@ -93,14 +120,16 @@ void QScrollBar::init()
     sliderPos	     = 0;
     pressedControl   = NONE;
     clickedAt	     = FALSE;
-    setBackgroundColor( colorGroup().mid() );
+    if ( style() == MotifStyle )
+	setBackgroundColor( colorGroup().mid() );
 }
 
 
 void QScrollBar::setPalette( const QPalette &p )
 {
     QWidget::setPalette( p );
-    setBackgroundColor( colorGroup().mid() );
+    if ( style() == MotifStyle )
+	setBackgroundColor( colorGroup().mid() );
 }
 
 
@@ -256,13 +285,14 @@ QRect QScrollBar::sliderRect() const
 {
     int sliderMin, sliderMax, sliderLength;
     PRIV->metrics( &sliderMin, &sliderMax, &sliderLength );
+    int b = style() == MotifStyle ? MOTIF_BORDER : 0;
 
     if ( HORIZONTAL )
-        return QRect( sliderStart(), BORDER, 
-                      sliderLength, height() - BORDER*2 );
+        return QRect( sliderStart(), b,
+                      sliderLength, height() - b*2 );
     else
-        return QRect( BORDER, sliderStart(),
-                      width() - BORDER*2, sliderLength );
+        return QRect( b, sliderStart(),
+                      width() - b*2, sliderLength );
 }
 
 void QScrollBar::positionSliderFromValue()
@@ -291,17 +321,17 @@ void QScrollBar_Private::metrics( int *sliderMin, int *sliderMax,
 				  int *sliderLength ) const
 {
     int buttonDim, maxLength;
-
+    int b = style() == MotifStyle ? MOTIF_BORDER : 0;
     int length = HORIZONTAL ? width()  : height();
     int extent = HORIZONTAL ? height() : width();
 
-    if ( length > ( extent - BORDER*2 - 1 )*2 + BORDER*2 + SLIDER_MIN )
-	buttonDim = extent - BORDER*2;
+    if ( length > ( extent - b*2 - 1 )*2 + b*2 + SLIDER_MIN )
+	buttonDim = extent - b*2;
     else
-	buttonDim = ( length - BORDER*2 - SLIDER_MIN )/2 - 1;
+	buttonDim = ( length - b*2 - SLIDER_MIN )/2 - 1;
 
-    *sliderMin	  = BORDER + buttonDim;
-    maxLength	  = length - BORDER*2 - buttonDim*2;
+    *sliderMin	  = b + buttonDim;
+    maxLength	  = length - b*2 - buttonDim*2;
 
     if ( maxValue() == minValue() ) {
 	*sliderLength = maxLength;
@@ -411,7 +441,8 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
     int sliderMin, sliderMax, sliderLength;
     metrics( &sliderMin, &sliderMax, &sliderLength );
 
-    int dimB = sliderMin - BORDER;
+    int b = style() == MotifStyle ? MOTIF_BORDER : 0;
+    int dimB = sliderMin - b;
     QRect addB;
     QRect subB;
     QRect addPageR;
@@ -423,29 +454,29 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 
     if ( HORIZONTAL ) {
 	subY = addY = ( extent - dimB ) / 2;
-	subX = BORDER;
-	addX = length - dimB - BORDER;
+	subX = b;
+	addX = length - dimB - b;
     } else {
 	subX = addX = ( extent - dimB ) / 2;
-	subY = BORDER;
-	addY = length - dimB - BORDER;
+	subY = b;
+	addY = length - dimB - b;
     }
 
     subB.setRect( subX,subY,dimB,dimB );
     addB.setRect( addX,addY,dimB,dimB );
 
     int sliderEnd = sliderStart() + sliderLength;
-    int sliderW = extent - BORDER*2;
+    int sliderW = extent - b*2;
     if ( HORIZONTAL ) {
-	subPageR.setRect( subB.right() + 1, BORDER,
+	subPageR.setRect( subB.right() + 1, b,
 			  sliderStart() - subB.right() - 1 , sliderW );
-	addPageR.setRect( sliderEnd, BORDER, addX - sliderEnd, sliderW );
-	sliderR .setRect( sliderStart(), BORDER, sliderLength, sliderW );
+	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
+	sliderR .setRect( sliderStart(), b, sliderLength, sliderW );
     } else {
-	subPageR.setRect( BORDER, subB.bottom() + 1, sliderW,
+	subPageR.setRect( b, subB.bottom() + 1, sliderW,
 			  sliderStart() - subB.bottom() - 1 );
-	addPageR.setRect( BORDER, sliderEnd, sliderW, addY - sliderEnd );
-	sliderR .setRect( BORDER, sliderStart(), sliderW, sliderLength );
+	addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
+	sliderR .setRect( b, sliderStart(), sliderW, sliderLength );
     }
 
 #if 0
@@ -457,18 +488,48 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 #endif
 
     switch ( style() ) {
+	case WindowsStyle:
+	    if ( controls & ADD_LINE ) {
+		qDrawWinButton( &p, addB.x(), addB.y(),
+				addB.width(), addB.height(),
+				g.background(), g.light(),
+				black, g.dark(), g.background() );
+		qDrawArrow( &p, VERTICAL ? DownArrow : RightArrow,WindowsStyle,
+				ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
+				addB.width()-4, addB.height()-4, g );
+	    }
+	    if ( controls & SUB_LINE ) {
+		qDrawWinButton( &p, subB.x(), subB.y(),
+				subB.width(), subB.height(),
+				g.background(), g.light(),
+				black, g.dark(), g.background() );
+		qDrawArrow( &p, VERTICAL ? UpArrow : LeftArrow, WindowsStyle,
+				SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
+				subB.width()-4, subB.height()-4, g );
+	    }
+	    p.setBrush( QBrush(white,Dense4Pattern) );
+	    p.setPen( NoPen );
+	    p.setBackgroundMode( OpaqueMode );
+	    if ( controls & SUB_PAGE )
+		p.drawRect( subPageR );
+	    if ( controls & ADD_PAGE )
+		p.drawRect( addPageR );
+	    if ( controls & SLIDER )
+		qDrawWinButton( &p, sliderR.x(), sliderR.y(),
+				sliderR.width(), sliderR.height(),
+				g.background(), g.light(),
+				black, g.dark(), g.background() );
+	    break;
 	default:
-	case MotifStyle: {
+	case MotifStyle:
 	    if ( controls & ADD_LINE )
-		qDrawMotifArrow( &p, VERTICAL ? MotifDownArrow:MotifRightArrow,
-				 ADD_LINE_ACTIVE, addB.x(), addB.y(),
-				 addB.width(), addB.height(),
-				 g.background(), g.mid(), g.light(), g.dark());
+		qDrawArrow( &p, VERTICAL ? DownArrow : RightArrow, MotifStyle,
+				ADD_LINE_ACTIVE, addB.x(), addB.y(),
+				addB.width(), addB.height(), g );
 	    if ( controls & SUB_LINE )
-		qDrawMotifArrow( &p, VERTICAL ? MotifUpArrow : MotifLeftArrow,
-				 SUB_LINE_ACTIVE, subB.x(), subB.y(),
-				 subB.width(), subB.height(),
-				 g.background(), g.mid(), g.light(), g.dark());
+		qDrawArrow( &p, VERTICAL ? UpArrow : LeftArrow, MotifStyle,
+				SUB_LINE_ACTIVE, subB.x(), subB.y(),
+				subB.width(), subB.height(), g );
 	    if ( controls & SUB_PAGE )
 		p.fillRect( subPageR, g.mid() );
 	    if ( controls & ADD_PAGE )
@@ -477,24 +538,80 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		p.drawShadePanel( sliderR, g.light(), g.dark(), 2,
 				  g.background(), TRUE );
 	    break;
-	}
     }
 #undef ADD_LINE_ACTIVE
 #undef SUB_LINE_ACTIVE
 }
 
 
-void qDrawMotifArrow( QPainter *p, MotifArrow style, bool down,
-		      int x, int y, int w, int h,
-		      const QColor &upColor, const QColor &downColor,
-		      const QColor &lightShadow, const QColor &darkShadow )
+static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
+			   int x, int y, int w, int h,
+			   const QColorGroup &g )
+{
+    QPointArray arrow;				// arrow polygon
+    int  dim = QMIN(w,h);
+
+    if ( dim == 3 ) {
+	QPen savePen = p->pen();
+	p->setPen( g.foreground() );
+	p->drawPoint( x+w/2, y+h/2 );
+	p->setPen( savePen );
+    }
+    if ( dim <= 3 )
+	return;
+
+    static char awidth[] = { 2, 2, 2, 3, 3, 4, 4, 4, 4 };
+    int aw;
+    if ( dim <= 12 )
+	aw = awidth[dim-4];
+    else
+	aw = dim/3 + 1;
+    debug( "aw = %d, %d", aw, dim );	// !!! debug
+
+    switch ( type ) {
+	case UpArrow:
+	    arrow.setPoints( 3, 0,aw-1, aw-1,0, aw*2-1,aw-1 );
+	    arrow.move( w/2 - aw, h/2 - aw );
+	    break;
+	case DownArrow:
+	    arrow.setPoints( 3, 0,0, aw*2-1,0, aw-1,aw-1 );
+	    arrow.move( w/2 - aw, h/2 - aw );
+	    break;
+	case LeftArrow:
+	    arrow.setPoints( 3, aw-1,0, aw-1,aw*2-1, 0,aw-1 );
+	    arrow.move( w/2 - aw, h/2 - aw );
+	    break;
+	case RightArrow:
+	    arrow.setPoints( 3, 0,0, aw-1,aw-1, 0,aw*2-1 );
+	    arrow.move( w/2 - aw, h/2 - aw );
+	    break;
+    }
+    if ( !arrow.isNull() )
+	arrow.move( x, y );
+
+    QPen   savePen   = p->pen();		// save current pen
+    QBrush saveBrush = p->brush();		// save current brush
+    p->setBrush( NoBrush );
+
+    p->setPen( NoPen );
+    p->setBrush( g.foreground() );
+    p->drawPolygon( arrow );			// fill arrow
+
+    p->setBrush( saveBrush );			// restore brush
+    p->setPen( savePen );			// restore pen
+}
+
+
+static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
+			     int x, int y, int w, int h,
+			     const QColorGroup &g )
 {
     QPointArray bFill;				// fill polygon
     QPointArray bTop;				// top shadow.
     QPointArray bBot;				// bottom shadow.
     QPointArray bLeft;				// left shadow.
     Q2DMatrix   matrix;				// xform matrix
-    bool vertical = style == MotifUpArrow || style == MotifDownArrow;
+    bool vertical = type == UpArrow || type == DownArrow;
     bool horizontal = !vertical;
     int  dim = w < h ? w : h;
     int  colspec = 0x0000;			// color specification array
@@ -541,7 +658,7 @@ void qDrawMotifArrow( QPainter *p, MotifArrow style, bool down,
 	}
     }
 
-    if ( style == MotifUpArrow || style == MotifLeftArrow ) {
+    if ( type == UpArrow || type == LeftArrow ) {
 	matrix.translate( x, y );
 	if ( vertical ) {
 	    matrix.translate( 0, h - 1 );
@@ -555,7 +672,7 @@ void qDrawMotifArrow( QPainter *p, MotifArrow style, bool down,
 	else
 	    colspec = horizontal ? 0x1443 : 0x1434;
     }
-    else if ( style == MotifDownArrow || style == MotifRightArrow ) {
+    else if ( type == DownArrow || type == RightArrow ) {
 	matrix.translate( x, y );
 	if ( vertical ) {
 	    matrix.translate( w-1, 0 );
@@ -569,10 +686,10 @@ void qDrawMotifArrow( QPainter *p, MotifArrow style, bool down,
 
     QColor *cols[5];
     cols[0] = 0;
-    cols[1] = (QColor *)&upColor;
-    cols[2] = (QColor *)&downColor;
-    cols[3] = (QColor *)&lightShadow;
-    cols[4] = (QColor *)&darkShadow;
+    cols[1] = (QColor *)&g.background();
+    cols[2] = (QColor *)&g.mid();
+    cols[3] = (QColor *)&g.light();
+    cols[4] = (QColor *)&g.dark();
 #define CMID	*cols[ (colspec>>12) & 0xf ]
 #define CLEFT	*cols[ (colspec>>8) & 0xf ]
 #define CTOP	*cols[ (colspec>>4) & 0xf ]
@@ -601,4 +718,27 @@ void qDrawMotifArrow( QPainter *p, MotifArrow style, bool down,
     p->setWorldXForm( FALSE );			// turn off xform
     p->setBrush( saveBrush );			// restore brush
     p->setPen( savePen );			// restore pen
+
+#undef CMID
+#undef CLEFT
+#undef CTOP
+#undef CBOT
+}
+
+
+void qDrawArrow( QPainter *p, ArrowType type, GUIStyle style, bool down,
+		 int x, int y, int w, int h, const QColorGroup &g )
+{
+    switch ( style ) {
+	case WindowsStyle:
+	    qDrawWinArrow( p, type, down, x, y, w, h, g );
+	    break;
+	case MotifStyle:
+	    qDrawMotifArrow( p, type, down, x, y, w, h, g );
+	    break;
+	default:
+#if defined(CHECK_RANGE)
+	    warning( "qDrawArrow: Requested GUI style not supported" );
+#endif
+    }
 }

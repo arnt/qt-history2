@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#14 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#15 $
 **
 ** Definition of QScrollBar class
 **
@@ -103,13 +103,11 @@ inline int QScrollBar::sliderStart() const
 }
 
 
-enum MotifArrow
-    { MotifUpArrow, MotifDownArrow, MotifLeftArrow, MotifRightArrow };
+enum ArrowType
+    { UpArrow, DownArrow, LeftArrow, RightArrow };
 
-void qDrawMotifArrow( QPainter *, MotifArrow style, bool down, 
-		      int x, int y, int w, int h,
-		      const QColor &upColor, const QColor &downColor,
-		      const QColor &lightShadow, const QColor &darkShadow );
+void qDrawArrow( QPainter *, ArrowType type, GUIStyle style, bool down, 
+		 int x, int y, int w, int h, const QColorGroup & );
 
 
 #endif // QSCRBAR_H
