@@ -143,7 +143,7 @@ public:
 	if ( hRslt != S_OK ) {
 	    qSystemWarning( "GetThemeLastErrorContext failed!", hRslt );
 	} else {
-	    FormatThemeMessage( MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), &myThemeErrorContext );
+//	    FormatThemeMessage( MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), &myThemeErrorContext );
 	}
 	return FALSE;
     }
@@ -272,39 +272,35 @@ public:
 
     Q_DECLARE_HANDLE(HIMAGELIST);
 
-    typedef HRESULT ( WINAPI *SetWindowThemeFnc)(
-	HWND hwnd,
-	LPCWSTR pstrSubAppName,
-	LPCWSTR pstrSubIdList
-    );
-    typedef BOOL ( WINAPI *IsThemeBackgroundPartiallyTransparentFnc)(
-	HTHEME hTheme,
-	int iPartId,
-	int iStateId
-    );
-    typedef INT ( WINAPI *GetThemeSysSizeFnc)(
-	HTHEME hTheme,
-	INT iSizeID
-    );
-    typedef HRESULT ( WINAPI *CloseThemeDataFnc)(
+    typedef HRESULT ( WINAPI *CloseThemeDataFnc )(			    // ver. beta2
 	HTHEME hTheme
     );
 
-    typedef HRESULT ( WINAPI *DrawThemeBackgroundFnc)(
+    typedef HRESULT ( WINAPI *DrawThemeBackgroundFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	HDC hdc,
 	int iPartId,
 	int iStateId,
 	const RECT *pRect,
-	DWORD dwBgFlags
+	const RECT *pClipRect
     );
-    typedef HRESULT ( WINAPI *DrawThemeBorderFnc)(
+    typedef HRESULT ( WINAPI *DrawThemeBorderFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	HDC hdc,
 	int iStateId,
 	const RECT *pRect
     );
-    typedef HRESULT ( WINAPI *DrawThemeIconFnc)(
+    typedef HRESULT ( WINAPI *DrawThemeEdgeFnc ) (			    // ver. beta2
+	HTHEME hTheme,
+	HDC hdc,
+	int iPartId,
+	int iStateId,
+	const RECT *pDestRect,
+	UINT uEdge,
+	UINT uFlags,
+	RECT *pContentRect
+    );
+    typedef HRESULT ( WINAPI *DrawThemeIconFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	HDC hdc,
 	int iPartId,
@@ -313,14 +309,14 @@ public:
 	HIMAGELIST himl,
 	int iImageIndex
     );
-    typedef HRESULT ( WINAPI *DrawThemeLineFnc)(
+    typedef HRESULT ( WINAPI *DrawThemeLineFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	HDC hdc,
 	int iStateId,
 	const RECT *pRect,
 	DWORD dwDtlFlags
     );
-    typedef HRESULT ( WINAPI *DrawThemeTextFnc)(
+    typedef HRESULT ( WINAPI *DrawThemeTextFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	HDC hdc,
 	int iPartId,
@@ -331,20 +327,30 @@ public:
 	DWORD dwTextFlags2,
 	const RECT *pRect
     );
-    typedef HRESULT ( WINAPI *FormatThemeMessageFnc)(
+    typedef HRESULT ( WINAPI *FormatThemeMessageFnc )(			    // ver. beta2
 	DWORD dwLanguageID,
-	THEME_ERROR_CONTEXT *pContext
+	THEME_ERROR_CONTEXT *pContext,
+	LPWSTR pszMessageBuff,
+	DWORD dwMaxMessageChars
     );
-    typedef DWORD ( WINAPI *GetThemeAppPropertiesFnc)();
-    typedef HRESULT ( WINAPI *GetThemeBackgroundContentRectFnc)(
+    typedef HRESULT ( WINAPI *GetCurrentThemeNameFnc )(			    // ver. beta2
+	LPWSTR pszNameBuff,
+	DWORD dwMaxNameChars,
+	LPWSTR pszColorBuff,
+	DWORD dwMaxColorChars,
+	LPWSTR pszSizeBuff,
+	DWORD dwMaxSizeChars
+    );
+    typedef DWORD ( WINAPI *GetThemeAppPropertiesFnc )();		    // ver. beta2
+    typedef HRESULT ( WINAPI *GetThemeBackgroundContentRectFnc )(	    // ver. beta2
 	HTHEME hTheme,
-	OPTIONAL HDC hdc,
+	HDC hdc,
 	int iPartId,
 	int iStateId,
 	const RECT *pBoundingRect,
 	RECT *pContentRect
     );
-    typedef HRESULT ( WINAPI *GetThemeBackgroundExtentFnc)(
+    typedef HRESULT ( WINAPI *GetThemeBackgroundExtentFnc )(		    // ver. beta2
 	HTHEME hTheme,
 	OPTIONAL HDC hdc,
 	int iPartId,
@@ -352,14 +358,14 @@ public:
 	const RECT *pContentRect,
 	RECT *pExtentRect
     );
-    typedef HRESULT ( WINAPI *GetThemeBackgroundRegionFnc)(
+    typedef HRESULT ( WINAPI *GetThemeBackgroundRegionFnc )(		    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
 	const RECT *pRect,
 	HRGN *pRegion
     );
-    typedef HRESULT ( WINAPI *GetThemeBoolFnc)(
+    typedef HRESULT ( WINAPI *GetThemeBoolFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
@@ -367,14 +373,27 @@ public:
 	BOOL *pfVal
     );
 
-    typedef HRESULT ( WINAPI *GetThemeColorFnc)(
+    typedef HRESULT ( WINAPI *GetThemeColorFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
 	int iPropId,
 	COLORREF *pColor
     );
-    typedef HRESULT ( WINAPI *GetThemeFilenameFnc)(
+    typedef HRESULT ( WINAPI *GetThemeDocumentationPropertyFnc )(	    // ver. beta2
+	LPCWSTR pszThemeName,
+	LPCWSTR pszPropertyName,
+	LPWSTR pszValueBuff,
+	DWORD dwMaxValChars
+    );
+    typedef HRESULT ( WINAPI *GetThemeEnumValueFnc )(			    // ver. beta2
+	HTHEME hTheme,
+	int iPartId,
+	int iStateId,
+	int iPropId,
+	int *piVal
+    );
+    typedef HRESULT ( WINAPI *GetThemeFilenameFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
@@ -382,137 +401,135 @@ public:
 	LPWSTR *pszBuff,
 	DWORD dwMaxBuffChars
     );
-    typedef HRESULT ( WINAPI *GetThemeEnumValueFnc)(
-	HTHEME hTheme,
-	int iPartId,
-	int iStateId,
-	int iPropId,
-	int *piVal
-    );
-    typedef HRESULT ( WINAPI *GetThemeSysFontFnc)(
-	HTHEME hTheme,
-	INT iFontID,
-	LOGFONT *plf
-    );
-    typedef HRESULT ( WINAPI *GetThemeFontFnc)(
+    typedef HRESULT ( WINAPI *GetThemeFontFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
 	int iPropId,
 	LOGFONT *pFont
     );
-    typedef HRESULT ( WINAPI *GetThemeIntFnc)(
+    typedef HRESULT ( WINAPI *GetThemeIntFnc )(				    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
 	int iPropId,
 	int *piVal
     );
-    typedef HRESULT ( WINAPI *GetThemeIntListFnc)(
+    typedef HRESULT ( WINAPI *GetThemeIntListFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
 	int iPropId,
 	INTLIST *pIntList
     );
-    typedef HRESULT ( WINAPI *GetThemeLastErrorContextFnc)(
+    typedef HRESULT ( WINAPI *GetThemeLastErrorContextFnc )(		    // ver. beta2
 	THEME_ERROR_CONTEXT *pContext
     );
-    typedef HRESULT ( WINAPI *GetThemeMarginsFnc)(
+    typedef HRESULT ( WINAPI *GetThemeMarginsFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
 	int iPropId,
 	MARGINS *pMargins
     );
-    typedef HRESULT ( WINAPI *GetThemeMetricFnc)(
+    typedef HRESULT ( WINAPI *GetThemeMetricFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
 	int iPropId,
 	int *piVal
     );
-    typedef HRESULT ( WINAPI *GetThemePartSizeFnc)(
+    typedef HRESULT ( WINAPI *GetThemePartSizeFnc )(			    // not ver. beta2
 	HTHEME hTheme,
+	HDC hdc,
 	int iPartId,
 	int iStateId,
+	int eSize, // THEMESIZE ?
 	SIZE *psz
     );
-    typedef HRESULT ( WINAPI *GetThemePositionFnc)(
+    typedef HRESULT ( WINAPI *GetThemePositionFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
 	int iPropId,
 	POINT *pPoint
     );
-    typedef HRESULT ( WINAPI *GetThemePropertyOriginFnc)(
+    typedef HRESULT ( WINAPI *GetThemePropertyOriginFnc )(		    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
 	int iPropId,
 	PROPERTYORIGIN *pOrigin
     );
-    typedef HRESULT ( WINAPI *GetThemeRectFnc)(
+    typedef HRESULT ( WINAPI *GetThemeRectFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
 	int iPropId,
 	RECT *pRect
     );
-    typedef HRESULT ( WINAPI *GetThemeStringFnc)(
+    typedef HRESULT ( WINAPI *GetThemeStringFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId,
 	int iPropId,
-	LPWSTR pstrBuff,
+	LPWSTR pszBuff,
 	DWORD dwMaxBuffChars
     );
-    typedef BOOL ( WINAPI *GetThemeSysBoolFnc)(
+    typedef BOOL ( WINAPI *GetThemeSysBoolFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	INT iBoolID
     );
-    typedef COLORREF ( WINAPI *GetThemeSysColorFnc)(
+    typedef COLORREF ( WINAPI *GetThemeSysColorFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	INT iColorID
     );
-    typedef HRESULT ( WINAPI *GetThemeDocumentationPropertyFnc)(
-	LPCWSTR pszThemeName,
-	LPCWSTR pszPropertyName,
-	LPWSTR pszValueBuff,
-	DWORD dwMaxValChars
-    );
-    typedef BOOL ( WINAPI *IsThemeActiveFnc)(VOID);
-    typedef HBRUSH ( WINAPI *GetThemeSysColorBrushFnc)(
+    typedef HBRUSH ( WINAPI *GetThemeSysColorBrushFnc )(		    // ver. beta2
 	HTHEME hTheme,
-	INT iColorID
+	int iColorID
     );
-    typedef HRESULT ( WINAPI *GetThemeSysStringFnc)(
+    typedef HRESULT ( WINAPI *GetThemeSysFontFnc )(			    // ver. beta2
+	HTHEME hTheme,
+	INT iFontID,
+	LOGFONT *plf
+    );
+    typedef HRESULT ( WINAPI *GetThemeSysIntFnc )(			    // ver. beta2
+	HTHEME hTheme,
+	int iIntID,
+	int *piValue
+    );
+    typedef int ( WINAPI *GetThemeSysSizeFnc )(				    // ver. beta2
+	HTHEME hTheme,
+	int iSizeID
+    );
+    typedef HRESULT ( WINAPI *GetThemeSysStringFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	INT iStringID,
 	LPWSTR pszStringBuff,
 	DWORD dwMaxStringChars
     );
-    typedef HRESULT ( WINAPI *GetThemeTextExtentFnc)(
+    typedef HRESULT ( WINAPI *GetThemeTextExtentFnc )(			    // ver. beta2
 	HTHEME hTheme,
 	HDC hdc,
 	int iPartId,
 	int iStateId,
-	LPCWSTR pstrText,
+	LPCWSTR pszText,
+	int iCharCount,
 	DWORD dwTextFlags,
 	const RECT *pBoundingRect,
 	RECT *pExtentRect
     );
-    typedef HRESULT ( WINAPI *GetThemeTextMetricsFnc)(
+    typedef HRESULT ( WINAPI *GetThemeTextMetricsFnc)(			    // ver. beta2
 	HTHEME hTheme,
 	HDC hdc,
 	int iPartId,
 	int iStateId,
 	TEXTMETRIC *ptm
     );
-    typedef HTHEME ( WINAPI *GetWindowThemeFnc)(
+    typedef HTHEME ( WINAPI *GetWindowThemeFnc )(			    // ver. beta2
 	HWND hWnd
     );
-    typedef HRESULT ( WINAPI *HitTestThemeBackgroundFnc)(
+    typedef HRESULT ( WINAPI *HitTestThemeBackgroundFnc )(		    // ver. beta2
 	HTHEME hTheme,
 	OPTIONAL HDC hdc,
 	int iPartId,
@@ -521,23 +538,39 @@ public:
 	POINT ptTest,
 	WORD *pwHitTestCode
     );
-    typedef void ( WINAPI *SetThemeAppPropertiesFnc)(
-	DWORD dwFlags
-    );
-    typedef BOOL ( WINAPI *IsAppThemedFnc)(VOID);
-    typedef HRESULT ( WINAPI *SetWindowThemeStyleFnc)(
-	HWND hwnd,
-	BOOL fApply,
-	BOOL fFrame
-    );
-    typedef BOOL ( WINAPI *IsThemePartDefinedFnc)(
+    typedef BOOL ( WINAPI *IsAppThemedFnc)(VOID);			    // ver. beta2
+    typedef BOOL ( WINAPI *IsThemeActiveFnc)(VOID);			    // ver. beta2
+    typedef BOOL ( WINAPI *IsThemeBackgroundPartiallyTransparentFnc )(	    // ver. beta2
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId
     );
-    typedef HTHEME ( WINAPI *OpenThemeDataFnc)(
+    typedef BOOL ( WINAPI *IsThemePartDefinedFnc )(			    // ver. beta2
+	HTHEME hTheme,
+	int iPartId,
+	int iStateId
+    );
+    typedef HTHEME ( WINAPI *OpenThemeDataFnc )(			    // ver. beta2
 	HWND hwnd,
 	LPCWSTR pstrClassList
+    );
+    typedef void ( WINAPI *SetThemeAppPropertiesFnc )(			    // ver. beta2
+	DWORD dwFlags
+    );
+    typedef HRESULT ( WINAPI *SetWindowThemeStyleFnc )(			    // ver. beta2
+	HWND hwnd,
+	BOOL fApply,
+	BOOL fFrame
+    );
+    typedef HRESULT ( WINAPI *SetWindowThemeFnc )(			    // ver. beta2
+	HWND hwnd,
+	LPCWSTR pstrSubAppName,
+	LPCWSTR pstrSubIdList
+    );
+    typedef HRESULT ( WINAPI *SetWindowThemeStyleFnc )(			    // ver. beta2
+	HWND hwnd,
+	BOOL fApply,
+	BOOL fFrame
     );
 
     Q_DECLARE_THEME_FNC( SetWindowTheme )
