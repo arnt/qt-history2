@@ -1,0 +1,35 @@
+Qt OCI Driver
+
+All files required to build driver should ship with the standard Oracle install.
+For Linux, it may be possible to copy headers from another platform's install.
+
+Oracle lib files required to build driver:
+
+libclntsh.so
+libclntsh.so.8.0
+libwtc8.so
+
+Oracle header files required to build driver:
+
+nzerror.h
+nzt.h
+oci.h
+oci1.h
+oci8dp.h
+ociap.h
+ociapr.h
+ocidef.h
+ocidem.h
+ocidfn.h
+ociextp.h
+ocikp.h
+ocikpr.h
+odci.h
+oratypes.h
+ori.h
+orid.h
+orl.h
+oro.h
+ort.h
+
+
