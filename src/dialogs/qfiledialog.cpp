@@ -2131,7 +2131,11 @@ static QStringList makeFiltersList( const QString &filter )
   is set to "Images (*.png *.xpm *.jpg)". The parent of the file dialog
   is set to \e this and it is given the identification name - "open file
   dialog". The caption at the top of file dialog is set to "Choose a
-  file".
+  file". If you want to use multiple filters, separate each one with
+  \e two semi-colons, e.g.
+  \code
+  "Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml)"
+  \endcode
 
   You can create your own QFileDialog without using the static
   functions. By calling setMode(), you can set what can be returned by
@@ -5368,7 +5372,9 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
   of filters must be separated by \c{;;} (\e two semi-colons).
 
   \code
-    QString types("*.png;;*.xpm;;*.jpg");
+    QString types("Image files (*.png *.xpm *.jpg);;"
+                  "Text files (*.txt);;"
+		  "Any files (*)");
     QFileDialog fd = new QFileDialog( this );
     fd->setFilters( types );
     fd->show();
