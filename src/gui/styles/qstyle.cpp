@@ -1214,6 +1214,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CT_RadioButton
     \value CT_SizeGrip
     \value CT_Slider
+    \value CT_ScrollBar
     \value CT_SpinBox
     \value CT_Splitter
     \value CT_TabBarTab

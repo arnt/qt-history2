@@ -2882,6 +2882,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     case CT_TabWidget:
         sz += QSize(4, 4);
         break;
+    case CT_ScrollBar:
     case CT_MenuBar:
     case CT_Menu:
     case CT_MenuBarItem:

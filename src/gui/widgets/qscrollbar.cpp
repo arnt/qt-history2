@@ -405,12 +405,18 @@ QSize QScrollBar::sizeHint() const
 {
     ensurePolished();
     QStyleOptionSlider opt = d->getStyleOption();
-    int sbextent = style()->pixelMetric(QStyle::PM_ScrollBarExtent, &opt, this);
-    if (d->orientation == Qt::Horizontal)
-        return QSize(30, sbextent);
+
+    int scrollBarExtent = style()->pixelMetric(QStyle::PM_ScrollBarExtent, &opt, this);
+    int scrollBarSliderMin = style()->pixelMetric(QStyle::PM_ScrollBarSliderMin, &opt, this);
+    QSize size;
+    if (opt.orientation == Qt::Horizontal)
+        size = QSize(scrollBarExtent * 2 + scrollBarSliderMin, scrollBarExtent);
     else
-        return QSize(sbextent, 30);
-}
+        size = QSize(scrollBarExtent, scrollBarExtent * 2 + scrollBarSliderMin);
+
+    return style()->sizeFromContents(QStyle::CT_ScrollBar, &opt, size, this)
+        .expandedTo(QApplication::globalStrut());
+ }
 
 /*!\reimp */
 void QScrollBar::sliderChange(SliderChange change)

@@ -458,6 +458,7 @@ public:
         CT_Menu,
         CT_TabBarTab,
         CT_Slider,
+        CT_ScrollBar,
         CT_Q3Header,
         CT_LineEdit,
         CT_SpinBox,
