@@ -868,13 +868,17 @@ void QDialog::showExtension( bool showIt )
 	if ( layout() )
 	    layout()->setEnabled( FALSE );
 #endif
-	QSize s( d->extension->sizeHint() );
+	QSize s( d->extension->sizeHint()
+		 .expandedTo( d->extension->minimumSize() )
+		 .boundedTo( d->extension->maximumSize() ) );
 	if ( d->orientation == Horizontal ) {
-	    d->extension->setGeometry( width(), 0, s.width(), height() );
-	    setFixedSize( width() + s.width(), height() );
+	    int h = QMAX( height(), s.height() );
+	    d->extension->setGeometry( width(), 0, s.width(), h );
+	    setFixedSize( width() + s.width(), h );
 	} else {
-	    d->extension->setGeometry( 0, height(), width(), s.height() );
-	    setFixedSize( width(), height() + s.height() );
+	    int w = QMAX( width(), s.width() );
+	    d->extension->setGeometry( 0, height(), w, s.height() );
+	    setFixedSize( w, height() + s.height() );
 	}
 	d->extension->show();
     } else {
