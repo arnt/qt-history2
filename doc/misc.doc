@@ -104,7 +104,7 @@ Qt programs need the following components of the Qt distribution: <dl>
 
 <dd>Programmers need to include the Qt header files. Those with a
 command-line compiler will typically use options such as \c
-/I%QTDIR%\include or \c -I${QTDIR}/include.  They will need the header
+/I%QTDIR%\\include or \c -I${QTDIR}/include.  They will need the header
 files of the version of Qt they wish to build programs with.  The
 header files are in the \c include subdirectory of Qt distributions.
 

@@ -335,12 +335,6 @@
 */
 
 /*!
-  \fn QAsciiCacheIterator::~QAsciiCacheIterator()
-
-  Destroys the iterator.  Does not affect the cache itself.
-*/
-
-/*!
   \fn QAsciiCacheIterator<type>& QAsciiCacheIterator::operator=( const QAsciiCacheIterator<type> &ci )
 
   Makes this an iterator for the same cache as \a ci.  The new

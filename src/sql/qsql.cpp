@@ -45,19 +45,19 @@ QSqlResultShared::~QSqlResultShared()
     These methods allow the programmer to move forward, backward or randomly through the records
     returned by the query.  Once an active result object is positioned on a valid record, data can
     be retrieved using operator[].  All data is tranferred from the SQL backend using QVariant (see
-    QVariant).
+    QVariant.
 
     For example:
 
-    /code
+    \code
     QSqlDatabase* myDatabase;
     ...
-    QSql mySql = myDatabase->query("select name from customer;");
+    QSql mySql = myDatabase->query( "select name from customer;" );
     while ( mySql->next() ) {
 	QString name = mySql[0];
 	DoSomething( name );
     }
-    /endcode
+    \endcode
 
     \sa QSqlDatabase QSqlResult QSqlRowset QVariant
 */

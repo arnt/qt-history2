@@ -1964,12 +1964,6 @@ private:
   Parses the XML document \a input. Returns TRUE if the parsing was successful,
   otherwise FALSE.
 */
-/*!
-  \fn bool QXmlReader::parse( const QString& systemId )
-
-  Parses the XML document at the location \a systemId. Returns TRUE if the
-  parsing was successful, otherwise FALSE.
-*/
 
 
 /*!

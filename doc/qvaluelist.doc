@@ -197,7 +197,7 @@
 
 /*!
   \fn QValueList::~QValueList()
-  Destroys the list. References to the values in the list and all iterators
+  Destructs the list. References to the values in the list and all iterators
   of this list become invalidated. Since QValueList is highly tuned for performance
   you wont see warnings if you use invalid iterators,
   because it is impossible for
@@ -518,7 +518,6 @@
 
   Example:
   \include qtl/qvaluelistiterator.cpp
-  \endcode
 
   Program output:
   \code
@@ -563,11 +562,6 @@
 /*!
   \fn QValueListIterator::QValueListIterator( const QValueListIterator<T>& it )
   Constructs a copy of the iterator \e it.
-*/
-
-/*!
-  \fn QValueListIterator::~QValueListIterator()
-  Destroys the iterator.
 */
 
 /* Unfortunately not with MSVC
@@ -674,11 +668,6 @@
 /*!
   \fn QValueListConstIterator::QValueListConstIterator( const QValueListIterator<T>& it )
   Constructs a copy of the iterator \e it.
-*/
-
-/*!
-  \fn QValueListConstIterator::~QValueListConstIterator()
-  Destroys the iterator.
 */
 
 /* Unfortunately not with MSVC

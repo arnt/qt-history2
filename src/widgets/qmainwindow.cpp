@@ -575,7 +575,7 @@ public:
 */
 
 /*!
-  \enum QMainWindow::Dock
+  \enum Qt::Dock
 
   Each dock window can be in one of the following positions:
   <ul>

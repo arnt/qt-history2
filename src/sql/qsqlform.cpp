@@ -222,7 +222,7 @@ void QSqlFormMap::syncFields()
   widget for a certain field. The form needs a valid QSqlView on which
   to perform its operations.
   Some sample code to initialize a form successfully:
-  <code>
+  \code
      QSqlForm form;
      QSqlEditorFactory factory;
      QWidget * w;
@@ -239,7 +239,7 @@ void QSqlFormMap::syncFields()
 
      // Now, update the contents of the form from the fields in the form.
      form.syncWidgets();
-  <\code>
+  \endcode
 
   If you want to use custom editors for displaying/editing data fields,
   you will have to install a custom QSqlPropertyMap. The form uses this
@@ -281,7 +281,7 @@ void QSqlForm::associate( QWidget * widget, QSqlField * field )
 
   Set the SQL view that the widgets in the form should be associated
   with. <em> Do not delete the \a view until the QSqlForm goes out of
-  scope.<\em>
+  scope.</em>
 */
 void QSqlForm::setView( QSqlView * view )
 {

@@ -599,7 +599,7 @@ int QFile::readBlock( char *p, uint len )
 #endif
 }
 
-/*! \overload int writeBlock( const QByteArray& data )
+/*! \overload int QFile::writeBlock( const QByteArray& data )
 */
 
 /*! \reimp

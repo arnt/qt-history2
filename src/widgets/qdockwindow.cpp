@@ -589,13 +589,13 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
   to \a o.
 */
 
-/*! \fn void placeChanged( Place p )
+/*! \fn void QDockWindow::placeChanged( Place p )
 
   This signal is emitted when the place of the QDockWindow has been
   changed to \a p
 */
 
-/*! \fn void visibilityChanged( bool visible )
+/*! \fn void QDockWindow::visibilityChanged( bool visible )
 
   This signal is emitted if the visibility of the QDockWindow has been
   changed. If \a visible is TRUE, the QDockWindow got visible, else it

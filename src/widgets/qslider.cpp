@@ -1006,7 +1006,7 @@ void QSlider::setTickmarks( TickSetting s )
   */
 
 /*!
-  \fn QSlider::TickSetting tickmarks() const
+  \fn TickSetting QSlider::tickmarks() const
   Returns the way tickmarks are displayed by the slider.
   \sa setTickmarks()
 */

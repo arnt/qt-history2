@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qdockarea.cpp#27 $
 **
 ** Implementation of the QDockArea class
 **
@@ -392,17 +392,17 @@ int QDockAreaLayout::widthForHeight( int h ) const
   allow docking of widgets there.
 */
 
-/*! \fn Orientation orientation() const
+/*! \fn Orientation QDockArea::orientation() const
 
   Returns the orientation of this dock area.
  */
 
-/*! \fn Gravity gravity() const
+/*! \fn Gravity QDockArea::gravity() const
 
   Returns the gravity of this dock area.
  */
 
-/*! \fn void rightButtonPressed( const QPoint &globalPos )
+/*! \fn void QDockArea::rightButtonPressed( const QPoint &globalPos )
 
   This signal is emitted if the user pressed with the right mouse
   button onto the area. This can be used for right mouse button

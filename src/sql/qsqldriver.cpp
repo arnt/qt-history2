@@ -38,7 +38,7 @@ QSqlDriver::~QSqlDriver()
 {
 }
 
-/*! \fn virtual bool QSqlDriver::open() = 0;
+/*! \fn bool QSqlDriver::open( const QString& db, const QString& user, const QString& password, const QString& host )
     Derived classes must override this abstract virtual method in order to open the database.
     Return TRUE on success, FALSE on failure.
 
@@ -46,7 +46,7 @@ QSqlDriver::~QSqlDriver()
 
 */
 
-/*! \fn virtual bool QSqlDriver::close() = 0;
+/*! \fn bool QSqlDriver::close()
     Derived classes must override this abstract virtual method in order to close the database.
     Return TRUE on success, FALSE on failure.
 
@@ -68,7 +68,7 @@ QSql QSqlDriver::query( const QString & sqlquery ) const
     return r;
 }
 
-/*! \fn virtual QSql QSqlDriver::createResult() = 0;
+/*! \fn QSql QSqlDriver::createResult() const
     Creates an empty SQL result on the database.  Derived classes must override this method
     and return a QSql object to the caller.
 

@@ -209,7 +209,7 @@
 /*!
   \fn QMap::~QMap()
 
-  Destroys the map. References to the values in the map and all
+  Destructs the map. References to the values in the map and all
   iterators of this map become invalidated. Since QMap is highly tuned
   for performance you won't see warnings if you use invalid iterators,
   because it is impossible for an iterator to check whether it is
@@ -479,11 +479,6 @@
 */
 
 /*!
-  \fn QMapIterator::~QMapIterator()
-  Destroys the iterator.
-*/
-
-/*!
   \fn QMapIterator<K,T>& QMapIterator::operator++()
 
   Prefix ++ makes the succeeding item current and returns an iterator
@@ -603,11 +598,6 @@
 /*!
   \fn QMapConstIterator::QMapConstIterator( const QMapIterator<K,T>& it )
   Constructs a copy of the iterator.
-*/
-
-/*!
-  \fn QMapConstIterator::~QMapConstIterator()
-  Destroys the iterator.
 */
 
 /*!

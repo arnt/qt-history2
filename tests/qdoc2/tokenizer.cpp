@@ -275,6 +275,10 @@ int Tokenizer::getToken()
 		yyCh = getChar();
 		yyBracketDepth++;
 		return Tok_LeftBracket;
+	    case '\\':
+		yyCh = getChar();
+		yyCh = getChar(); // skip one character
+		break;
 	    case ']':
 		yyCh = getChar();
 		yyBracketDepth--;

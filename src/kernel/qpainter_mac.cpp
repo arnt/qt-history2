@@ -836,13 +836,6 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 }
 
 
-/*! \overload void QPainter::drawRoundRect( int x, int y, int w, int h )
-
-  As the main version of the function, but with the roundness
-  arguments fixed at 25.
-*/
-
-
 /*!
   Draws a rectangle with round corners at \a (x,y), with width \a w
   and height \a h.

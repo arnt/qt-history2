@@ -1060,26 +1060,6 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 */	
 
-/*! \example helpviewer/main.cpp
-
-  <h1 align=center>Simple HTML Browser</h1><br clear="all">
-
-  The QBrowser example implements a simple HTML browser using Qt's Richtext widget.
-
-  <hr>
-
-  Header file:
-
-  \include helpviewer/helpwindow.h
-
-  <hr>
-
-  Implementation:
-
-  \include helpviewer/helpwindow.cpp
-
-  <hr>
-
 /*! \example qdir/qdir.cpp
 
   <h1 align=center>QDir</h1><br clear="all">

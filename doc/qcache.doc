@@ -334,12 +334,6 @@
 */
 
 /*!
-  \fn QCacheIterator::~QCacheIterator()
-
-  Destroys the iterator.  Does not affect the cache itself.
-*/
-
-/*!
   \fn QCacheIterator<type>& QCacheIterator::operator=( const QCacheIterator<type> &ci )
 
   Makes this an iterator for the same cache as \a ci.  The new

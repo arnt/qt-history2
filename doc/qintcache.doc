@@ -321,12 +321,6 @@
 */
 
 /*!
-  \fn QIntCacheIterator::~QIntCacheIterator()
-
-  Destroys the iterator.  Does not affect the cache itself.
-*/
-
-/*!
   \fn QIntCacheIterator<type>& QIntCacheIterator::operator=( const QIntCacheIterator<type> &ci )
 
   Makes this an iterator for the same cache as \a ci.  The new

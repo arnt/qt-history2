@@ -175,20 +175,20 @@ QSqlError QSqlResult::lastError() const
 }
 
 
-/*! \fn  QSqlFieldList   fields() const = 0;
+/*! \fn  QSqlFieldList QSqlDriver::fields( const QString& tablename ) const
     Returns a list of fields used in the result.
 
 */
 
-/*! \fn int size() const = 0;
+/*! \fn int QSqlResult::size()
     Returns the size of the result.
 */
 
-/*! \fn int affectedRows() const;
+/*! \fn int QSqlResult::affectedRows()
     Returns the number of affected rows in the result.
 */
 
-/*! \fn  QVariant QSqlResult::data( int i )
+/*! \fn QVariant QSqlResult::data( int i )
 
     Returns the data for field \a i (zero-based) as a QVariant.  This method is only called if the
     result is in an active state and is positioned on a valid record and the field
@@ -216,7 +216,7 @@ QSqlError QSqlResult::lastError() const
 
 */
 
-/*! \fn bool QsqlResult::fetchFirst()
+/*! \fn bool QSqlResult::fetchFirst()
 
     Positions the result to the first record in the result.  This methods is only
     called if the result is in an active state.  Derived classes must override this
@@ -225,7 +225,7 @@ QSqlError QSqlResult::lastError() const
 
 */
 
-/*! \fn bool QsqlResult::fetchLast()
+/*! \fn bool QSqlResult::fetchLast()
 
     Positions the result to the last record in the result.  This methods is only
     called if the result is in an active state.  Derived classes must override this
@@ -261,15 +261,3 @@ bool QSqlResult::fetchPrevious()
 }
 
 #endif // QT_NO_SQL
-
-
-
-
-
-
-
-
-
-
-
-

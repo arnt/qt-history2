@@ -549,7 +549,7 @@ The modules available in Qt 2.2 are:
     QListBox. It contains optinally labelled pixmap items that the user
     can select, drag around, rename, delete and more.
 
-<li> <b>\link XML.html XML:\endlink</b>
+<li> <b>\link xml.html XML:\endlink</b>
     a well-formed XML parser with SAX interface plus an
     implementation of the DOM Level 1.
 

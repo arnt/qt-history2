@@ -1,7 +1,7 @@
 /*!
  \page bidi.html
 
-\title Porting apps to Hebrew and Arabic
+\title Porting applications to Hebrew and Arabic
 
 Even though Qt tries to remove most of the burden of enabling applications
 for Hebrew and Arabic from the programmer, there are a few points left where
@@ -14,7 +14,7 @@ Hebrew or Arabic.
 Hebrew and arabic are different from most other languages in that they are written from 
 right to left. Numbers and english words embedded in a hebrew or arabic sentence however are
 still written left to right. Text is however stored on disk in the logical order, so displaying 
-and editing has to use an algorithm to reorder the stirng into the visual order the user
+and editing has to use an algorithm to reorder the string into the visual order the user
 would expect.
 
 A simple example is the following string (big letters are Hebrew or Arabic):
@@ -53,3 +53,4 @@ QHeader::cellPos()
 
 QSplitter::moveSplitter()
 
+*/
