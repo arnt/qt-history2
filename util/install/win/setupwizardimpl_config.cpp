@@ -603,11 +603,12 @@ void SetupWizardImpl::showPageConfig()
 	folder = new QCheckListItem ( configPage->installList, "Database drivers" );
 	folder->setOpen( true );
 
+#if !defined(NON_COMMERCIAL)
+#if !defined(Q_OS_MACX)
 	item = new QCheckListItem( folder, "DB2", QCheckListItem::CheckBox );
 	item->setOn( findFile( "db2cli.dll" ) );
 	db2PluginInstall = item;
 
-#if !defined(Q_OS_MAC)
 	item = new QCheckListItem( folder, "TDS", QCheckListItem::CheckBox );
 	item->setOn( findFile( "ntwdblib.dll" ) );
 	tdsPluginInstall = item;
@@ -634,6 +635,11 @@ void SetupWizardImpl::showPageConfig()
 	item = new QCheckListItem( folder, "ODBC", QCheckListItem::CheckBox );
 	item->setOn( findFile( "odbc32.dll" ) );
 	odbcPluginInstall = item;
+#endif
+#else
+	item = new QCheckListItem( folder, "SQLite", QCheckListItem::CheckBox );
+	item->setOn( TRUE );
+	sqlitePluginInstall = item;
 #endif
 
 	alreadyInitialized = TRUE;
@@ -1074,7 +1080,7 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     if ( i->rtti() != QCheckListItem::RTTI )
 	return;
 
-#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
+#if defined(EVAL) || defined(EDU)
     if ( i == mysqlPluginInstall ) {
 	configPage->explainOption->setText( tr(
 		    "Installs the MySQL 3.x database driver."
@@ -1121,6 +1127,16 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 		    ) );
     }
     return; // ### at the moment, the other options are not available in the evaluation version
+#elif defined(NON_COMMERCIAL)
+    if ( i == sqlitePluginInstall ) {
+	configPage->explainOption->setText( tr(
+		    "Installs the SQLite driver.\n"
+		    "This driver is an in-process SQL database "
+		    "driver. It is needed for some of the "
+		    "examples used in the book."
+		    ) );
+    }
+    return;
 #endif
     if( mysqlDirect && ( i == mysqlDirect->parent() || i == mysqlDirect || i == mysqlPlugin ) && 
 	!(findFile( "libmysql.lib" ) && findFile( "mysql.h" ) ) )

@@ -168,13 +168,15 @@ private:
 
     QCheckListItem *staticItem;
 
-#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
+#if defined(EVAL) || defined(EDU)
     QCheckListItem *mysqlPluginInstall;
     QCheckListItem *ociPluginInstall;
     QCheckListItem *odbcPluginInstall;
     QCheckListItem *psqlPluginInstall;
     QCheckListItem *tdsPluginInstall;
     QCheckListItem *db2PluginInstall;
+#elif defined(NON_COMMERCIAL)
+    QCheckListItem *sqlitePluginInstall;
 #endif
 
     // wizard pages

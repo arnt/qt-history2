@@ -1735,6 +1735,11 @@ void SetupWizardImpl::showPageProgress()
 	    plugins.cd( "sqldrivers" );
 	    QDir bin( optionsPage->installPath->text() );
 	    bin.cd( "bin" );
+#if defined(NON_COMMERCIAL)
+	    if ( sqlitePluginInstall && !sqlitePluginInstall->isOn() ) {
+		plugins.remove( "qsqlite.dll" );
+	    }
+#else
 	    if ( mysqlPluginInstall && !mysqlPluginInstall->isOn() ) {
 		plugins.remove( "qsqlmysql.dll" );
 		bin.remove( "libmySQL.dll" );
@@ -1755,6 +1760,7 @@ void SetupWizardImpl::showPageProgress()
 	    if ( db2PluginInstall && !db2PluginInstall->isOn() ) {
 		plugins.remove( "qsqldb2.dll" );
 	    }
+#endif
 	    // patch the .qmake.cache with the correct paths
 	    QFile cacheFile( installDir.filePath(".qmake.cache") );
 	    if ( cacheFile.open( IO_ReadOnly | IO_Translate ) ) {
