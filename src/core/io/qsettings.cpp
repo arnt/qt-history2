@@ -302,17 +302,17 @@ QString QSettingsPrivate::variantToString(const QCoreVariant &v)
         case QCoreVariant::Rect: {
             QRect r = v.toRect();
             result += "@Rect("
-                        + QByteArray::number(r.x()) + ", "
-                        + QByteArray::number(r.y()) + ", "
-                        + QByteArray::number(r.width()) + ", "
-                        + QByteArray::number(r.height()) + ")";
+                        + QString::number(r.x()) + ", "
+                        + QString::number(r.y()) + ", "
+                        + QString::number(r.width()) + ", "
+                        + QString::number(r.height()) + ")";
             break;
         }
         case QCoreVariant::Size: {
             QSize s = v.toSize();
             result += "@Size("
-                        + QByteArray::number(s.width()) + ", "
-                        + QByteArray::number(s.height()) + ")";
+                        + QString::number(s.width()) + ", "
+                        + QString::number(s.height()) + ")";
             break;
         }
             // #### wrong anyways. It ignores alpha and other than rgb color models
@@ -327,8 +327,8 @@ QString QSettingsPrivate::variantToString(const QCoreVariant &v)
         case QCoreVariant::Point: {
             QPoint p = v.toPoint();
             result += "@Point("
-                        + QByteArray::number(p.x()) + ", "
-                        + QByteArray::number(p.y()) + ")";
+                        + QString::number(p.x()) + ", "
+                        + QString::number(p.y()) + ")";
             break;
         }
 
@@ -1072,7 +1072,7 @@ static bool openFile(QFile &file, QConfFile &confFile, int flags)
     }
 
     return file.open(flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Translate
-                                         : QIODevice::ReadOnly);
+                                         : QIODevice::OpenMode(QIODevice::ReadOnly));
 #endif
 }
 
