@@ -365,7 +365,7 @@ protected:
     void keyPressEvent( QKeyEvent* );
     void focusInEvent( QFocusEvent* );
     void focusOutEvent( QFocusEvent* );
-    void resizeEvent( QResizeEvent * );
+    void viewportResizeEvent( QResizeEvent * );
     void showEvent( QShowEvent *e );
     void setEditMode( EditMode mode, int row, int col );
 #ifndef QT_NO_DRAGANDDROP

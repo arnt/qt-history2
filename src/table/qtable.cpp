@@ -3266,9 +3266,9 @@ QSize QTable::sizeHint() const
 /*! \reimp
 */
 
-void QTable::resizeEvent( QResizeEvent *e )
+void QTable::viewportResizeEvent( QResizeEvent *e )
 {
-    QScrollView::resizeEvent( e );
+    QScrollView::viewportResizeEvent( e );
     updateGeometries();
 }
 
