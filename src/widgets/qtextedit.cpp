@@ -1870,6 +1870,7 @@ void QTextEdit::removeSelectedText( int selNum )
     setModified();
     emit textChanged();
     emit selectionChanged();
+    emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
 }
 
 /*!
