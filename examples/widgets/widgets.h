@@ -90,6 +90,7 @@ private slots:
 
     void	open();
     void	dummy();
+    void	showProperties();
 
     void     wellArraySelected(int,int);
 

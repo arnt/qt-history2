@@ -56,7 +56,7 @@
   contain.  Here is a lost of the supported types, and what they
   indicate that the relevant QVariant object contains : <ul>
 
-  <li> \c Empty - nothing
+  <li> \c Invalid - invalid 
   <li> \c String - a QString
   <li> \c StringList - a QStringList
   <li> \c IntList - a QValueList<int>
@@ -82,11 +82,11 @@
 */
 
 /*!
-  Creates an empty variant.
+  Creates an invalid variant.
 */
 QVariant::QVariant()
 {
-    typ = Empty;
+    typ = Invalid;
 }
 
 /*!  Destroys the QVariant and the contained object.
@@ -106,7 +106,7 @@ QVariant::~QVariant()
 */
 QVariant::QVariant( const QVariant& p ) : QShared()
 {
-    typ = Empty;
+    typ = Invalid;
     *this = p;
 }
 
@@ -123,7 +123,7 @@ QVariant::QVariant( QDataStream& s )
 */
 QVariant::QVariant( const QString& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -132,7 +132,7 @@ QVariant::QVariant( const QString& val )
 */
 QVariant::QVariant( const QCString& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -141,7 +141,7 @@ QVariant::QVariant( const QCString& val )
 */
 QVariant::QVariant( const char* val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -150,7 +150,7 @@ QVariant::QVariant( const char* val )
 */
 QVariant::QVariant( const QStringList& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -159,7 +159,7 @@ QVariant::QVariant( const QStringList& val )
 */
 QVariant::QVariant( const QValueList<int>& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -168,7 +168,7 @@ QVariant::QVariant( const QValueList<int>& val )
 */
 QVariant::QVariant( const QValueList<double>& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -177,7 +177,7 @@ QVariant::QVariant( const QValueList<double>& val )
 */
 QVariant::QVariant( const QFont& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -186,7 +186,7 @@ QVariant::QVariant( const QFont& val )
 */
 QVariant::QVariant( const QPixmap& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -196,7 +196,7 @@ QVariant::QVariant( const QPixmap& val )
 */
 QVariant::QVariant( const QImage& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -205,7 +205,7 @@ QVariant::QVariant( const QImage& val )
 */
 QVariant::QVariant( const QBrush& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -214,7 +214,7 @@ QVariant::QVariant( const QBrush& val )
 */
 QVariant::QVariant( const QPoint& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -223,7 +223,7 @@ QVariant::QVariant( const QPoint& val )
 */
 QVariant::QVariant( const QRect& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -232,7 +232,7 @@ QVariant::QVariant( const QRect& val )
 */
 QVariant::QVariant( const QSize& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -241,7 +241,7 @@ QVariant::QVariant( const QSize& val )
 */
 QVariant::QVariant( const QColor& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -250,7 +250,7 @@ QVariant::QVariant( const QColor& val )
 */
 QVariant::QVariant( const QPalette& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -259,7 +259,7 @@ QVariant::QVariant( const QPalette& val )
 */
 QVariant::QVariant( const QColorGroup& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -268,7 +268,7 @@ QVariant::QVariant( const QColorGroup& val )
 */
 QVariant::QVariant( const QIconSet& val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -277,7 +277,7 @@ QVariant::QVariant( const QIconSet& val )
 */
 QVariant::QVariant( int val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -286,7 +286,7 @@ QVariant::QVariant( int val )
 */
 QVariant::QVariant( bool val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -296,7 +296,7 @@ QVariant::QVariant( bool val )
 */
 QVariant::QVariant( double val )
 {
-    typ = Empty;
+    typ = Invalid;
     setValue( val );
 }
 
@@ -309,7 +309,7 @@ QVariant& QVariant::operator= ( const QVariant& p )
 
     switch( p.type() )
 	{
-	case Empty:
+	case Invalid:
 	    break;
 	case String:
 	    value.ptr = new QString( p.toString() );
@@ -595,7 +595,7 @@ void QVariant::setValue( double val )
 }
 
 /*!
-  De-allocate, based on the type, producing an Empty variant.
+  De-allocate, based on the type, producing an Invalid variant.
 */
 void QVariant::clear()
 {
@@ -649,7 +649,7 @@ void QVariant::clear()
 	case IconSet:
 	    delete (QIconSet*)value.ptr;
 	    break;
-	case Empty:
+	case Invalid:
 	case Int:
 	case Bool:
 	case Double:
@@ -658,11 +658,11 @@ void QVariant::clear()
 	    ASSERT(0);
 	}
 
-    typ = Empty;
+    typ = Invalid;
 }
 
 static const int ntypes = 20;
-static const char* type_map[ntypes] = 
+static const char* type_map[ntypes] =
 {
     0,
     "QString",
@@ -707,7 +707,7 @@ QVariant::Type QVariant::nameToType( const char* name )
 	if ( !qstrcmp( type_map[i], name ) )
 	    return (Type) i;
     }
-    return Empty;
+    return Invalid;
 }
 
 /*!
@@ -722,7 +722,7 @@ void QVariant::load( QDataStream& s )
 
     switch( t )
 	{
-	case Empty:
+	case Invalid:
 	    typ = t;
 	    break;
 	case String:
@@ -854,7 +854,7 @@ void QVariant::save( QDataStream& s ) const
 	case Double:
 	    s << toDouble();
 	    break;
-	case Empty: // fall through
+	case Invalid: // fall through
 	default:
 	    s << QString();
 	    break;
@@ -906,8 +906,8 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
   variant currently.
 */
 
-/*! \fn bool QVariant::isEmpty() const
-  Returns TRUE if the storage type of this variant is QVariant::Empty.
+/*! \fn bool QVariant::isValid() const
+  Returns TRUE if the storage type of this variant is QVariant::Invalid.
 */
 
 

@@ -32,7 +32,8 @@
 #include "qstring.h"
 #include "qevent.h"
 #include "qnamespace.h"
-#include "qstringlist.h"
+#include "qstringlist.h" // obsolete
+#include "qpropertyinfo.h"
 #endif // QT_H
 
 #define QT_TR_NOOP(x) (x)
@@ -100,9 +101,9 @@ public:
     void	 dumpObjectTree();
     void	 dumpObjectInfo();
 
-    // ## Make these virtual in Qt 3.0
-    bool setProperty( const char *name, const QVariant& value );
-    bool property( const char *name, QVariant* value ) const;
+    bool setProperty( const char *name, const QVariant& value ); // virtual in Qt 3.0
+    QVariant property( const char *name ) const;    // virtual in Qt 3.0
+    QPropertyInfoList properties() const;  // virtual in Qt 3.0
 
 signals:
     void	 destroyed();

@@ -57,7 +57,7 @@ class Q_EXPORT QVariant : public QShared
 {
 public:
     enum Type {
-	Empty,
+	Invalid,
 	String,
 	StringList,
 	IntList,
@@ -130,10 +130,10 @@ public:
     void setValue( bool );
     void setValue( double );
 
-    Type type() const { return typ; }
+    Type type() const;
     virtual const char* typeName() const;
 
-    bool isEmpty() const { return ( typ == Empty ); }
+    bool isValid() const;
 
     QString toString() const;
     QCString toCString() const;
@@ -174,6 +174,16 @@ protected:
     } value;
 
 };
+
+inline QVariant::Type QVariant::type() const
+{
+    return typ;
+}
+
+inline bool QVariant::isValid() const
+{
+    return (typ == Invalid);
+}
 
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant& p );

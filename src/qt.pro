@@ -89,6 +89,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qlayoutengine.h \
 		  $$KERNEL_H/qtranslator.h \
 		  $$KERNEL_H/qmetaobject.h \
+		  $$KERNEL_H/qpropertyinfo.h \
 		  $$KERNEL_H/qmime.h \
 		  $$KERNEL_H/qmovie.h \
 		  $$KERNEL_H/qnamespace.h \
@@ -342,6 +343,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qlayoutengine.cpp \
 		  kernel/qtranslator.cpp \
 		  kernel/qmetaobject.cpp \
+		  kernel/qpropertyinfo.cpp \
 		  kernel/qmime.cpp \
 		  kernel/qmovie.cpp \
 		  kernel/qnetworkprotocol.cpp \

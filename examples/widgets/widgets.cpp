@@ -48,6 +48,8 @@
 #include <qtextview.h>
 #include <qwellarray.h>
 #include <qfiledialog.h>
+#include <qaccel.h>
+#include <qpropertyinfo.h>
 
 #include "widgets.h"
 
@@ -575,6 +577,9 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     statusBar()->addWidget( msg, 4 );
     QToolTip::add( msg, "Message area" );
 
+    QAccel* a = new QAccel( this );
+    a->connectItem(  a->insertItem( Key_F9 ), this, SLOT( showProperties() ) );
+    
     prog = new QProgressBar( statusBar(), "progress" );
     prog->setTotalSteps( 100 );
     progress = 64;
@@ -783,4 +788,22 @@ void WidgetView::wellArraySelected(int row, int cell)
     QPalette p( qApp->palette() );
     p.setBrush( QColorGroup::Background, well->cellBrush(row, cell) );
     qApp->setPalette( p, TRUE);
+}
+
+void WidgetView::showProperties()
+{
+    if ( !qApp->focusWidget() )
+	return;
+    QPropertyInfoList l = qApp->focusWidget()->properties();
+    qDebug(" ");
+    qDebug("Properties for class '%s'", qApp->focusWidget()->className() );
+    int i = 1;
+    for ( QPropertyInfoList::Iterator it = l.begin(); it != l.end(); ++it ) {
+	const char* s = "readwrite";
+	if (!(*it).writeable() )
+	    s = "read-only";
+	else if (!(*it).readable() )
+	    s = "write-only";
+	qDebug("%d: %s  (%s, %s )", i++, (*it).name(), s, (*it).type() );
+    }
 }

@@ -46,7 +46,7 @@ typedef QObject* (*QObjectFactory)( QObject* );
 struct QMetaEnum
 {
     char *name;
-    int count;
+    uint count;
     struct Item
     {
 	char *name;
@@ -132,13 +132,11 @@ public:
 
     bool inherits( const char* clname ) const;
 
-    int            nProperties( bool=FALSE ) const;
-    QMetaProperty *property( int index ) const;
     QMetaProperty *property( const char* name, bool super = FALSE ) const;
     QStrList    propertyNames( bool super=TRUE ) const;
     QMetaEnum     *enumerator( const char* name, bool super = FALSE ) const;
 
-    int		       nMetaProperties( bool=FALSE ) const;
+    int		       numMetaProperties( bool=FALSE ) const;
     QMetaMetaProperty *metaProperty( int index ) const;
     const char        *metaProperty( const char* name, bool super = FALSE ) const;
     QStrList        metaPropertyNames( bool=TRUE ) const;
@@ -188,10 +186,10 @@ public:
     QMetaObjectInit(void(*f)());
     QMetaObjectInit(QMetaObject*(*f)());
 
-    static int init();
-    static QMetaObject* metaObject( const char* classname );
-    static QMetaObject* metaObject( int index );
-    static int          nMetaObjects();
+    static uint init();
+    static QMetaObject* item( const char* classname );
+    static QMetaObject* item( uint index );
+    static uint          count();
 };
 
 #endif // QMETAOBJECT_H
