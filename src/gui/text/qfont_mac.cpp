@@ -128,7 +128,7 @@ void QFontPrivate::load(QFont::Script script)
         return;
 
     // set it to the actual pointsize, so QFontInfo will do the right thing
-    req.pointSize = qRound(pointSize(requested, paintdevice, screen));
+    req.pointSize = qRound(qt_mac_pointsize(request, paintdevice));
 
 #if 0
     /* It is unclear why this method doesn't work (findFont) so rather than fight any longer I will
@@ -144,7 +144,7 @@ void QFontPrivate::load(QFont::Script script)
             subs_list += QFont::substitutes(*it);
         family_list += subs_list;
     }
-    family_list << QString::0;     // 0 family means find the first font matching the specified script
+    family_list << QString::null;     // 0 family means find the first font matching the specified script
 
     //find the best font
     QFontEngine *engine = 0;
