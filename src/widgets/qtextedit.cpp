@@ -2998,6 +2998,10 @@ void QTextEdit::setText( const QString &text, const QString &context )
   depending on the textFormat(). The default setting is \c AutoText,
   i.e. the text edit autodetects the format of the text.
 
+  For richtext, calling text() on an editable QTextEdit will cause the text
+  to be regenerated from the textedit.  This may mean that the QString returned
+  may not be exactly the same as the one that was set.
+
   \sa textFormat
 */
 
