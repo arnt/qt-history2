@@ -69,4 +69,4 @@ public:
     virtual QPrinter::PrinterState printerState() const = 0;
 };
 
-#endif QPRINTENGINE_H
+#endif // QPRINTENGINE_H
