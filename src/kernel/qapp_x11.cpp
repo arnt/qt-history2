@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#107 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#106 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#107 $")
 
 
 // --------------------------------------------------------------------------
@@ -122,8 +122,10 @@ public:
 };
 
 
-#if defined(_OS_SUN_)
+#if defined(_OS_SUN_) || defined(_OS_HPUX_)
 #define SIG_HANDLER SIG_PF
+#elif defined(_OS_HPUX_)
+typedef void (*SIG_HANDLER)(int);
 #else
 #define SIG_HANDLER __sighandler_t
 #endif
@@ -1157,7 +1159,13 @@ int QApplication::enter_loop()			// local event loop
 	FD_ZERO( &app_fdset );
 	FD_SET( app_Xfd, &app_fdset );
 	timeval *tm = waitTimer();		// wait for timer or X event
-	select( app_Xfd_width, &app_fdset, NULL, NULL, tm );
+#if defined(_OS_HPUX_)
+#define FDCAST (int*)
+#else
+#define FDCAST
+#endif
+	select( app_Xfd_width, FDCAST &app_fdset, 0, 0, tm );
+#undef FDCAST
 	qt_reset_color_avail();			// color approx. optimization
 	activateTimer();			// activate timer(s)
     }
