@@ -95,7 +95,6 @@ public:
     void insertItem( const QPixmap &pixmap, const QString &text, int index=-1 );
 
     void removeItem( int index );
-    void clear();
 
     QString text( int index )	const;
     const QPixmap *pixmap( int index )	const;
@@ -203,6 +202,7 @@ public:
     void sort( bool ascending = TRUE );
 
 public slots:
+    void clear();
     virtual void ensureCurrentVisible();
     virtual void clearSelection();
     virtual void selectAll( bool select );
