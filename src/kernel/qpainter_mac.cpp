@@ -189,6 +189,11 @@ void QPainter::updateFont()
     cfont.macSetFont(pdev);
 }
 
+static int ropCodes[] = {			// ROP translation table
+    patCopy, patOr, patXor, patBic, notPatCopy,
+    notPatOr, notPatXor, notPatBic, 
+    666, 666, 666, 666, 666, 666, 666, 666, 666
+};
 
 void QPainter::updatePen()
 {
@@ -223,6 +228,9 @@ void QPainter::updatePen()
             break;
     }    
     PenPat( &pat );
+
+    //penmodes
+    PenMode(ropCodes[rop]);
 }
 
 
@@ -312,6 +320,9 @@ void QPainter::updateBrush()
 	}
 	brush_style_pix->fill(cbrush.color());
     } 
+
+    //penmodes
+    PenMode(ropCodes[rop]);
 }
 
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
@@ -542,12 +553,6 @@ void QPainter::setBackgroundMode( BGMode m)
 	updateBrush();				// update brush setting
 }
 
-static int ropCodes[] = {			// ROP translation table
-    patCopy, patOr, patXor, patBic, notPatCopy,
-    notPatOr, notPatXor, notPatBic, 
-    666, 666, 666, 666, 666, 666, 666, 666, 666
-};
-
 void QPainter::setRasterOp( RasterOp r )
 {
     if ( !isActive() ) {
@@ -562,7 +567,7 @@ void QPainter::setRasterOp( RasterOp r )
 #endif
 	return;
     }
-    if(r == 666) {
+    if(ropCodes[r] == 666) {
 	qWarning("Woops, we don't have that rasterop, FIXME!!");
 	r = XorROP;
     }
@@ -577,7 +582,6 @@ void QPainter::setRasterOp( RasterOp r )
 	updatePen();				// get non-cached pen GC
     if ( brushRef )
 	updateBrush();				// get non-cached brush GC
-    PenMode(ropCodes[rop]);
 }
 
 void QPainter::setBrushOrigin( int x, int y )
@@ -1452,6 +1456,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     int sh = pixmap.height();
     if (!sw || !sh )
 	return;
+
     if ( sx < 0 )
 	sx = sw - -sx % sw;
     else
