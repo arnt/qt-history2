@@ -77,7 +77,7 @@ static QWidget *childOf( QWidget *w, QWidget *child )
 
 bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 {
-    if ( !isActive() || !o->isWidgetType() )
+    if ( !isActive() || !o->isWidgetType() || !ee->spontaneous())
 	return FALSE;
 
     if ( ee->type() != QEvent::MouseButtonPress &&
@@ -105,8 +105,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	    break;
 	if ( !widget->rect().contains( widget->mapFromGlobal( e->globalPos() ) ) )
 	    return FALSE;
-	QWidget *pressedChild = widget->childAt(e->pos(), TRUE);
-	if (pressedChild != widget && !pressedChild->inherits("QTitleBar"))
+	if (o != widget && !o->inherits("QTitleBar"))
 	    return FALSE;
 	if ( e->button() == LeftButton ) {
 	    emit activate();
