@@ -92,6 +92,7 @@ kernel {
 		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_H/qvariant.h \
 		  $$KERNEL_P/qrichtext_p.h \
+		  $$KERNEL_P/qinternal_p.h \
 		  $$KERNEL_H/qsimplerichtext.h
 
 
@@ -222,6 +223,7 @@ kernel {
 		  $$KERNEL_CPP/qwmatrix.cpp \
 		  $$KERNEL_CPP/qvariant.cpp \
 		  $$KERNEL_CPP/qrichtext.cpp \
+		  $$KERNEL_CPP/qinternal.cpp \
 		  $$KERNEL_CPP/qrichtext_p.cpp \
 		  $$KERNEL_CPP/qsimplerichtext.cpp
 

@@ -917,26 +917,4 @@ struct Q_EXPORT QWExtra {
 };
 
 
-class Q_EXPORT QDoubleBuffer 
-{
-public:
-    QDoubleBuffer();
-    QDoubleBuffer( QWidget* widget, int x = 0, int y = 0, int w = -1, int h = -1);
-    ~QDoubleBuffer();
-    
-    void begin( QWidget* widget, int x = 0, int y = 0, int w = -1, int h = -1);
-    void end();
-
-    QPainter* painter() const;
-
-    bool isActive() const;
-    void flush();
-    
-private:
-    QWidget* wid;
-    QRect r;
-    QPainter* p;
-    QPixmap* pix;
-};
-
 #endif // QWIDGET_H

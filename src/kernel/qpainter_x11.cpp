@@ -85,7 +85,7 @@ void qt_erase_region( QWidget* w, const QRegion& region)
 {
     QRegion reg = region;
 
-    if ( !w->paintingActive() && !w->isTopLevel() && w->backgroundPixmap()
+    if ( !w->isTopLevel() && w->backgroundPixmap()
          && w->backgroundOrigin() != QWidget::WidgetOrigin ) {
         int ox = w->x();
         int oy = w->y();

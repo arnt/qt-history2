@@ -57,7 +57,6 @@
 #if defined(Q_WS_QWS)
 #include "qwsmanager_qws.h"
 #endif
-#include "qpainter.h"
 
 /*!
   \class QWidget qwidget.h
@@ -5138,92 +5137,3 @@ QAccessibleInterface *QWidget::createAccessibilityInterface()
 #endif
 
 
-static QPixmap* qdb_shared_pixmap = 0;
-static QDoubleBuffer* qdb_owner = 0;
-static QCleanupHandler<QPixmap> qdb_cleanup_pixmap;
-
-QDoubleBuffer::QDoubleBuffer()
-    : wid(0), p(0)
-{
-}
-
-
-QDoubleBuffer::QDoubleBuffer( QWidget* widget, int x, int y, int w, int h )
-    : wid( 0 ), p(0)
-{
-    begin( widget, x, y, w, h );
-}
-
-QDoubleBuffer::~QDoubleBuffer()
-{
-    if ( wid )
-	end();
-}
-
-void QDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
-{
-    if ( wid )
-	end();
-    wid = widget;
-    if ( !wid )
-	return;
-    if ( w < 0 )
-	w = wid->width();
-    if ( h < 0 )
-	w = wid->height();
-    r = QRect( x, y, w, h );
-    if ( w * h <=  64000 ) {
-	if ( qdb_owner ) {
-	    qdb_cleanup_pixmap.remove( qdb_shared_pixmap );
-	    pix = qdb_shared_pixmap = new QPixmap( w, h );
-	    qdb_cleanup_pixmap.add( qdb_shared_pixmap );
-	    qdb_owner = this;
-	} else {
-	    if ( !qdb_shared_pixmap  )
-		qdb_shared_pixmap = new QPixmap( w, h );
-	    else if ( qdb_shared_pixmap->width() < w  || qdb_shared_pixmap->height() < h) 
-		qdb_shared_pixmap->resize( w, h );
-	    pix = qdb_shared_pixmap;
-	    qdb_owner = this;
-	}
-    } else {
-	pix = new QPixmap( w, h );
-    }
-
-    qdb_owner = this;
-    pix->fill( wid, r.x(), r.y() );
-    p = new QPainter( pix, wid );
-    p->setBrushOrigin( -r.x(), -r.y() );
-    p->translate( -r.x(), -r.y() );
-}
-
-void QDoubleBuffer::end()
-{
-    if ( wid && wid->isVisible() )
-	flush();
-    wid = 0;
-    if ( this == qdb_owner )
-	qdb_owner = 0;
-    delete p;
-    p = 0;
-    if ( pix != qdb_shared_pixmap )
-	delete pix;
-    pix = 0;
-}
-
-bool QDoubleBuffer::isActive() const
-{
-    return p != 0;
-}
-
-QPainter* QDoubleBuffer::painter() const
-{
-    return p;
-}
-
-
-void QDoubleBuffer::flush()
-{
-    if ( wid )
-	bitBlt( wid, r.x(), r.y(), pix, 0, 0, r.width(), r.height() );
-}
