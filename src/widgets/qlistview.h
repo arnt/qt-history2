@@ -219,6 +219,7 @@ public:
     void setSelectionMode( SelectionMode mode );
     SelectionMode selectionMode() const;
 
+    virtual void clearSelection();
     virtual void setSelected( QListViewItem *, bool );
     bool isSelected( const QListViewItem * ) const;
     QListViewItem * selectedItem() const;
@@ -256,7 +257,6 @@ public:
     bool showSortIndicator() const;
 
 public slots:
-    virtual void clearSelection();
     void invertSelection(); // ###### make virtual
     void selectAll( bool select ); // make virtual
     void triggerUpdate();
