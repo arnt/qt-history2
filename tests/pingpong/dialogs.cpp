@@ -110,14 +110,19 @@ void TeamEditorWidget::updateTeamMembers( const QSqlRecord * record )
 
 void TeamEditorWidget::addPlayer()
 {
+    QSqlRecord currentTeam = teamTable->currentFieldSelection();
+    QSqlRecord currentPlayer = playerTable->currentFieldSelection();
+    if ( currentPlayer.isEmpty() || currentTeam.isEmpty() )
+	return;
+    
     QSqlQuery sql( "select count(*) from player2team where teamid = " +
-		   teamCursor.value("id").toString() + " and playerid = " +
-		   playerCursor.value("id").toString() + ";" );
+		   currentTeam.value("id").toString() + " and playerid = " +
+		   currentPlayer.value("id").toString() + ";" );
 
     if( sql.next() && (sql.value(0).toInt() == 0) ){
 	QSqlRecord * buf = player2teamCursor.insertBuffer();
-	buf->setValue( "teamid", teamCursor.value("id") );
-	buf->setValue( "playerid", playerCursor.value("id") );
+	buf->setValue( "teamid", currentTeam.value("id") );
+	buf->setValue( "playerid", currentPlayer.value("id") );
 	player2teamCursor.insert();
 	player2teamTable->refresh();
     }
