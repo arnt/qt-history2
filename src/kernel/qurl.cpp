@@ -708,8 +708,14 @@ bool QUrl::parse( const QString& url )
 	d->path += "/";
 
     // #### do some corrections, should be done nicer too
-    if ( !d->pass.isEmpty() && d->pass[ 0 ] == ':' )
-	d->pass.remove( 0, 1 );
+    if ( !d->pass.isEmpty() ) {
+	if ( d->pass[ 0 ] == ':' )
+	    d->pass.remove( 0, 1 );
+	decode( d->pass );
+    }
+    if ( !d->user.isEmpty() ) {
+	decode( d->user );
+    }
     if ( !d->path.isEmpty() ) {
 	if ( d->path[ 0 ] == '@' || d->path[ 0 ] == ':' )
 	    d->path.remove( 0, 1 );
@@ -1124,12 +1130,16 @@ QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
     } else {
 	res = d->protocol + "://";
 	if ( !d->user.isEmpty() || !d->pass.isEmpty() ) {
-	    if ( !d->user.isEmpty() )
-		res += d->user;
+	    QString tmp;
+	    if ( !d->user.isEmpty() ) {
+		tmp = d->user;
+		encode( tmp );
+		res += tmp;
+	    }
 	    if ( !d->pass.isEmpty() ) {
-		QString encodedPass = d->pass;
-		encode( encodedPass );
-		res += ":" + encodedPass;
+		tmp = d->pass;
+		encode( tmp );
+		res += ":" + tmp;
 	    }
 	    res += "@";
 	}
