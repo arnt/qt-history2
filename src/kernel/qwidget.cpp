@@ -5482,9 +5482,7 @@ void QWidget::showFullScreen()
 
 /*!
   \property QWidget::fullScreen
-
-  Returns TRUE if the widget is a top-level widget that is
-  shown fullscreen; otherwise returns FALSE;
+  \brief whether the widget is full screen
 */
 bool QWidget::isFullScreen() const
 {

@@ -101,7 +101,7 @@ QMutexPool::~QMutexPool()
   Returns a QMutex from the pool.  All mutexes in the pool are
   recursive mutexes.
 
-  QMutexPool uses the value \a key to determine which mutex is
+  QMutexPool uses the value \a address to determine which mutex is
   retured from the pool.
 */
 QMutex *QMutexPool::get( void *address )

@@ -409,7 +409,7 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 /*!
   \overload
 
-  Transforms the rectangle \a r.
+  Transforms the rectangle \a rect.
 
   Rotation and shearing a rectangle results in a more general
   region, which is returned here.

@@ -682,9 +682,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PE_ProgressBarChunk  section of a progress bar indicator; see
 	also QProgressBar.
 
-    \value PE_ListViewController controller part of a listview item
-    \value PE_ListViewIndicator checkbox part of a listview item
-    \value PE_ListViewExclusiveIndicator radiobutton part of a listview item
+    \value PE_CheckListController controller part of a listview item
+    \value PE_CheckListIndicator checkbox part of a listview item
+    \value PE_CheckListExclusiveIndicator radiobutton part of a listview item
 
     \value PE_CustomBase  base value for custom PrimitiveElements.
 	All values above this are reserved for custom use.  Therefore,

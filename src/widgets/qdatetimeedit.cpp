@@ -872,11 +872,15 @@ public:
 */
 
 /*! \enum QTimeEdit::Display
-    This enum defines which sections that comprise a time appear
+    This enum defines the sections that comprise a time
 
     \value Hours The hours section
     \value Minutes The minutes section
     \value Seconds The seconds section
+    \omit
+    \value Reserved
+    \endomit
+    \value AMPM The AM/PM section
 
     The values can be or'ed together to show any combination.
 */
