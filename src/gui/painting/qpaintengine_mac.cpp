@@ -1204,15 +1204,9 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
     Q_ASSERT(isActive());
     d->current.brush = ps->brush;
 
-    //color
-    const QColor &col = ps->brush.color();
-    CGContextSetRGBFillColor((CGContextRef)d->hd, qt_mac_convert_color_to_cg(col.red()),
-			       qt_mac_convert_color_to_cg(col.green()), qt_mac_convert_color_to_cg(col.blue()), 1.0);
-
     //pattern
     int bs = ps->brush.style();
     if(bs != SolidPattern && bs != NoBrush) {
-
 	int width = 0, height = 0;
 	CGColorSpaceRef cs_base = 0;
 	QMacPattern *qpattern = new QMacPattern;
@@ -1243,7 +1237,7 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
 	callbks.drawPattern = qt_mac_draw_pattern;
 	callbks.releaseInfo = qt_mac_dispose_pattern;
 	CGPatternRef fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)d->hd), width, height,
-						  kCGPatternTilingNoDistortion, !qpattern->as_mask, &callbks);
+						    kCGPatternTilingNoDistortion, !qpattern->as_mask, &callbks);
 	const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
 	CGContextSetFillPattern((CGContextRef)d->hd, fill_pattern, &tmp_float);
 
@@ -1253,6 +1247,11 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
 	CGContextSetFillColorSpace((CGContextRef)d->hd, 0);
 	CGContextSetFillPattern((CGContextRef)d->hd, 0, 0); 
     }
+
+    //color
+    const QColor &col = ps->brush.color();
+    CGContextSetRGBFillColor((CGContextRef)d->hd, qt_mac_convert_color_to_cg(col.red()),
+			       qt_mac_convert_color_to_cg(col.green()), qt_mac_convert_color_to_cg(col.blue()), 1.0);
 }
 
 void

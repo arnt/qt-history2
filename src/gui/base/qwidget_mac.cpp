@@ -257,7 +257,6 @@ static EventTypeSpec widget_events[] = {
     { kEventClassHIObject, kEventControlInitialize },
     { kEventClassHIObject, kEventHIObjectDestruct },
 
-
     { kEventClassControl, kEventControlDraw },
     { kEventClassControl, kEventControlGetPartRegion },
 };
