@@ -279,9 +279,11 @@ QDesignerWidgetStack::QDesignerWidgetStack( QWidget *parent, const char *name )
     prev = new QToolButton( Qt::LeftArrow, this, "designer_wizardstack_button" );
     prev->setAutoRaise( TRUE );
     prev->setAutoRepeat( TRUE );
+    prev->setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored ) );
     next = new QToolButton( Qt::RightArrow, this, "designer_wizardstack_button" );
     next->setAutoRaise( TRUE );
     next->setAutoRepeat( TRUE );
+    next->setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored ) );
     connect( prev, SIGNAL( clicked() ), this, SLOT( prevPage() ) );
     connect( next, SIGNAL( clicked() ), this, SLOT( nextPage() ) );
     updateButtons();

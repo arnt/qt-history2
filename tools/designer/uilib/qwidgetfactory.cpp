@@ -1122,11 +1122,8 @@ QObject *QWidgetFactory::inputObject( QObject **objects, int& numObjects,
 
 	    if ( metAttribute > 0 ) {
 		if ( name == "id" ) {
-		    if ( parent != 0 && parent->inherits("QWidgetStack") ) {
-			((QWidgetStack *) parent)->addWidget( widget,
-							      value.toInt() );
-			((QWidgetStack *) parent)->raiseWidget( widget );
-		    }
+		    if ( parent != 0 && parent->inherits("QWidgetStack") )
+			((QWidgetStack *) parent)->addWidget( widget, value.toInt() );
 		}
 	    } else {
 		if ( obj != 0 )
@@ -1652,10 +1649,8 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 		    if ( attrib == "title" )
 			( (QTabWidget*)parent )->insertTab( w, v.toString() );
 		} else if ( parent->inherits( "QWidgetStack" ) ) {
-		    if ( attrib == "id" ) {
+		    if ( attrib == "id" )
 			( (QWidgetStack*)parent )->addWidget( w, v.toInt() );
-			( (QWidgetStack*)parent )->raiseWidget( w );
-		    }
 		} else if ( parent->inherits( "QWizard" ) ) {
 		    if ( attrib == "title" )
 			( (QWizard*)parent )->addPage( w, v.toString() );

@@ -65,7 +65,7 @@ class QWidgetStackEventFilter : public QObject
 {
     //For binary compatibility, since we cannot implement
     //virtual functions
-public:  
+public:
     QWidgetStackEventFilter( QObject *parent = 0, const char * name = 0 )
 	: QObject( parent, name ) {}
     bool eventFilter( QObject *o, QEvent * e ) {
@@ -381,7 +381,8 @@ void QWidgetStack::setChildGeometries()
 void QWidgetStack::show()
 {
     //  Reimplemented in order to set the children's geometries
-    //  appropriately.
+    //  appropriately and to pick the first widget as topWidget if no
+    //  topwidget was defined
     if ( !isVisible() && children() ) {
 	setChildGeometries();
 
@@ -392,15 +393,14 @@ void QWidgetStack::show()
 	while( (o=it.current()) != 0 ) {
 	    ++it;
 	    if ( o->isWidgetType() )
+		if ( !topWidget && o != invisible )
+		    topWidget = (QWidget*)o;
 		if ( o == topWidget )
-		    ((QWidget *)o)->show();
-		else if ( o == invisible && topWidget != 0 )
 		    ((QWidget *)o)->show();
 		else
 		    ((QWidget *)o)->hide();
 	}
     }
-
     QFrame::show();
 }
 
@@ -488,14 +488,19 @@ QSize QWidgetStack::sizeHint() const
 	    ++it;
 	    if ( o->isWidgetType() && o != invisible ) {
 		QWidget *w = (QWidget*)o;
-		size = size.expandedTo( w->sizeHint() )
-		       .expandedTo(w->minimumSize());
+		QSize sh = w->sizeHint();
+		if ( w->sizePolicy().horData() == QSizePolicy::Ignored )
+		    sh.rwidth() = 0;
+		if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
+		    sh.rheight() = 0;
+		size = size.expandedTo( sh ).expandedTo(w->minimumSize());
 	    }
 	}
     }
     if ( size.isNull() )
-	return QSize(100,50); //### is this a sensible default???
-    return QSize( size.width() + 2*frameWidth(), size.height() + 2*frameWidth() );
+	size = QSize( 128, 64 );
+    size += QSize( 2*frameWidth(), 2*frameWidth() );
+    return size;
 }
 
 
@@ -513,13 +518,20 @@ QSize QWidgetStack::minimumSizeHint() const
 	while( (o=it.current()) != 0 ) {
 	    ++it;
 	    if ( o->isWidgetType() &&  o != invisible ) {
-		    QWidget *w = (QWidget*)o;
-		    size = size.expandedTo( w->minimumSizeHint())
-					    .expandedTo(w->minimumSize());
+		QWidget *w = (QWidget*)o;
+		QSize sh = w->sizeHint();
+		if ( w->sizePolicy().horData() == QSizePolicy::Ignored )
+		    sh.rwidth() = 0;
+		if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
+		    sh.rheight() = 0;
+		size = size.expandedTo( sh ).expandedTo(w->minimumSize());
 	    }
 	}
     }
-    return QSize( size.width() + 2*frameWidth(), size.height() + 2*frameWidth() );
+    if ( size.isNull() )
+	size = QSize( 64, 32 );
+    size += QSize( 2*frameWidth(), 2*frameWidth() );
+    return size;
 }
 
 /*! \reimp  */
