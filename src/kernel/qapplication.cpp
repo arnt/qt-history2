@@ -773,7 +773,9 @@ void QApplication::initialize( int argc, char **argv )
 	// Compile-time search for default style
 	//
 	QString style;
-#if defined(Q_WS_WIN)
+#  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
+	style = "PocketPC";
+#elif defined(Q_WS_WIN)
 	if ( qWinVersion() == WV_XP )
 	    style = "WindowsXP";
 	else
