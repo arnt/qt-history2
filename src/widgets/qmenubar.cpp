@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#92 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#92 $");
 
 
 /*!
@@ -256,6 +256,9 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 		    if ( f != object )
 			f->installEventFilter( this );
 		}
+	    } else if ( (ke->key() == Key_Control || ke->key() == Key_Shift) &&
+			(windowsaltactive || actItem >= 0) ) {
+		setWindowsAltMode( FALSE, -1 );
 	    }
 	}
 	// ### ! block all accelerator events when the menu bar is active
