@@ -471,9 +471,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	     testWFlags(WStyle_StaysOnTop) ||
 	     dialog ||
 	     testWFlags(WStyle_Tool) ) {
-	    if ( testWFlags( WStyle_StaysOnTop ) )
-		XSetTransientForHint( dpy, id, None );
-	    else if ( p )
+	    if ( p )
 		XSetTransientForHint( dpy, id, p->winId() );
 	    else				// application-modal
 		XSetTransientForHint( dpy, id, root_win );
@@ -497,11 +495,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	wm_hints.initial_state = NormalState;
 	wm_hints.flags = InputHint | StateHint;
 
-	if ( p && ! p->isDesktop() ) {
-            // the real client leader (head of the group)
-	    wm_hints.window_group = p->winId();
-	    wm_hints.flags |= WindowGroupHint;
-	}
+	if ( !qt_x11_wm_client_leader )
+	    qt_x11_create_wm_client_leader();
+
+	wm_hints.window_group = qt_x11_wm_client_leader;
+	wm_hints.flags |= WindowGroupHint;
 
 	XClassHint class_hint;
 	class_hint.res_class = (char*) title;	// app name
@@ -546,9 +544,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	XChangeProperty( dpy, id,
 			 qt_window_role, XA_STRING, 8, PropModeReplace,
 			 (unsigned char *)name(), qstrlen( name() ) );
-
-	if ( !qt_x11_wm_client_leader )
-	    qt_x11_create_wm_client_leader();
 
 	// set client leader property
 	XChangeProperty( dpy, id, qt_wm_client_leader,
