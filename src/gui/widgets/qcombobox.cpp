@@ -1015,6 +1015,12 @@ void QComboBox::insertItem(const QString &text, int row)
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
         model()->setData(item, QAbstractItemModel::EditRole, text);
+
+        if (d->currentItem.isValid() && item == d->currentItem) {
+            update();
+            if (d->lineEdit)
+                d->lineEdit->setText(text);
+        }
     }
     if (!d->currentItem.isValid())
         setCurrentItem(row);
@@ -1231,6 +1237,8 @@ void QComboBox::hide()
 void QComboBox::clear()
 {
     model()->removeRows(0, root(), model()->rowCount(root()));
+    if (d->lineEdit)
+        d->lineEdit->setText(QString::null);
 }
 
 /*!
