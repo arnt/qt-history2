@@ -420,7 +420,7 @@ bool
 QFile::rename(const QString &newName)
 {
     if (d->fileName.isEmpty()) {
-        qWarning("QFile::remove: Empty or null file name");
+        qWarning("QFile::rename: Empty or null file name");
         return false;
     }
     close();
