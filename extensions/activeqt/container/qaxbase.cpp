@@ -3301,7 +3301,7 @@ public:
         
         QString property = BSTRToQString((TCHAR*)name).local8Bit();
         QVariant qvar = map.value(property);
-        QVariantToVARIANT(qvar, *var, qvar.typeName());
+        QVariantToVARIANT(qvar, *var);
         return S_OK;
     }
     HRESULT __stdcall Write(LPCOLESTR name, VARIANT *var)
