@@ -11,18 +11,15 @@
 **
 ****************************************************************************/
 
-#include <unistd.h>
-
-#include <pthread.h>
-#include <errno.h>
-#include <string.h>
-
+#include "qplatformdefs.h"
 #include "qmutex.h"
 
 #ifndef QT_NO_THREAD
 #include "qmutex_p.h"
 
-
+#include <pthread.h>
+#include <errno.h>
+#include <string.h>
 
 
 /*!

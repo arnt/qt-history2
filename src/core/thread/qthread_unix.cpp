@@ -11,23 +11,18 @@
 **
 ****************************************************************************/
 
-#include <unistd.h>
-
-#include <pthread.h>
-#include <errno.h>
-#include <sched.h>
-#include <string.h>
-#include <sys/time.h>
-
+#include "qplatformdefs.h"
 #include "qthread.h"
 #include "qthreadstorage.h"
-
 #include "qmutexpool_p.h"
 #include "qthread_p.h"
 
+#include <sched.h>
+#include <errno.h>
+#include <string.h>
+
 #define d d_func()
 #define q q_func()
-
 
 
 
