@@ -924,6 +924,7 @@ void QFileDialogPrivate::showDetailClicked()
     detailMode->setDown(true);
     treeView->show();
     treeView->doItemsLayout();
+    treeView->resizeColumnToContents(0);
     listView->hide();
 }
 
