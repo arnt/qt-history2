@@ -522,12 +522,11 @@ void QGroupBoxPrivate::setChildrenEnabled(bool b)
 void QGroupBox::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::EnabledChange) {
-        if (!d->checkbox || !isEnabled())
-            return;
-
-        // we are being enabled - disable children
-        if (!d->checkbox->isChecked())
-            d->setChildrenEnabled(false);
+        if (d->checkbox && isEnabled()) {
+            // we are being enabled - disable children
+            if (!d->checkbox->isChecked())
+                d->setChildrenEnabled(false);
+        }
     } else if(ev->type() == QEvent::FontChange || ev->type() == QEvent::StyleChange) {
         d->updateCheckBoxGeometry();
         d->calculateFrame();

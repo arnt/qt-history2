@@ -88,6 +88,7 @@ QMotifStyle::QMotifStyle(bool useHighlightCols) : QCommonStyle()
 */
 QMotifStyle::~QMotifStyle()
 {
+    delete focus;
 }
 
 /*!
