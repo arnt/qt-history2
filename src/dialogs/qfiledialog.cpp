@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#110 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#111 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1101,7 +1101,8 @@ void QFileDialog::rereadDir()
     QFileInfo *fi;
     while ( (fi = it.current()) != 0 ) {
 	++it;
-	if ( fi->fileName() != "." )
+	if ( fi->fileName() != "." && 
+	     ( !cwd.isRoot() || fi->fileName() != ".." ) )
 	    (void) new QFileDialogPrivate::File( fi, files, itemHeight );
     }
     d->moreFiles->clear();
