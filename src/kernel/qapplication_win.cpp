@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#125 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#124 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#125 $");
 
 
 /*****************************************************************************
@@ -121,8 +121,23 @@ public:
 typedef Q_DECLARE(QArrayM,pchar) ArgV;
 
 
+static void set_winapp_name()
+{
+    static bool already_set = FALSE;
+    if ( !already_set ) {
+	already_set = TRUE;
+	GetModuleFileName( 0, appName, sizeof(appName) );
+	char *p = strrchr( appName, '\\' );	// skip path
+	if ( p )
+	    memmove( appName, p+1, strlen(p) );
+    }
+}
+
+
 /*****************************************************************************
-  WinMain() - initializes Windows and calls user's startup function main()
+  WinMain() - Initializes Windows and calls user's startup function main().
+  NOTE: WinMain() won't be called if the application was linked as a "console"
+  application.
  *****************************************************************************/
 
 #if defined(NEEDS_QMAIN)
@@ -130,7 +145,6 @@ int qMain( int, char ** );
 #else
 extern "C" int main( int, char ** );
 #endif
-
 
 extern "C"
 int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
@@ -142,7 +156,7 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
 
   // Create command line
 
-    GetModuleFileName( instance, appName, sizeof(appName) );
+    set_winapp_name();
 
     char *p = cmdParam;
     int	 argc = 1;
@@ -197,9 +211,6 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
 	    argv[argc++] = start;
 	}
     }
-    p = strrchr( argv[0], '\\' );
-    if ( p )
-	strcpy( appName, p+1 );
 
   // Get Windows parameters
 
@@ -240,6 +251,10 @@ void qt_init( int *argcptr, char **argv )
     }
     *argcptr = j;
 #endif // DEBUG
+
+  // Get the application name if WinMain() was not invoked
+
+    set_winapp_name();
 
   // Detect the Windows version
 
