@@ -40,7 +40,7 @@
 struct QShortcutEntry
 {
     QShortcutEntry()
-        : keyseq(0), context(Qt::ShortcutOnActiveWindow), enabled(false), id(0), owner(0)
+        : keyseq(0), context(Qt::WindowShortcut), enabled(false), id(0), owner(0)
     {}
 
     QShortcutEntry(QObject *o, const QKeySequence &k, Qt::ShortcutContext c, int i)
@@ -524,10 +524,10 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QWidget *w, QWidg
     if (!w->isVisible() || !w->isEnabled())
         return false;
 
-    if (context == Qt::ShortcutOnApplication)
+    if (context == Qt::ApplicationShortcut)
         return qt_tryModalHelper(w, 0); // true, unless w is shadowed by a modal dialog
 
-    if (context == Qt::ShortcutOnFocusWidget)
+    if (context == Qt::WindowShortcut)
         return w == QApplication::focusWidget();
 
     QWidget *tlw = w->topLevelWidget();

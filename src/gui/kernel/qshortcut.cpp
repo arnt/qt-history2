@@ -101,7 +101,7 @@ class QShortcutPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QShortcut)
 public:
-    QShortcutPrivate() : sc_context(Qt::ShortcutOnActiveWindow), sc_enabled(true), sc_id(0) {}
+    QShortcutPrivate() : sc_context(Qt::WindowShortcut), sc_enabled(true), sc_id(0) {}
     QKeySequence sc_sequence;
     Qt::ShortcutContext sc_context;
     bool sc_enabled;

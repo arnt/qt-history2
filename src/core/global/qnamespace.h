@@ -1107,9 +1107,9 @@ public:
 
     // Documented in qwidget.cpp
     enum ShortcutContext {
-        ShortcutOnFocusWidget,
-        ShortcutOnActiveWindow,
-        ShortcutOnApplication
+        WidgetShortcut,
+        WindowShortcut,
+        ApplicationShortcut
     };
 
     // Documented in qpainter.cpp

@@ -53,7 +53,7 @@ QActionPrivate::QActionPrivate() : group(0), enabled(1), forceDisabled(0),
     act_signal = 0;
 #endif
     shortcutId = 0;
-    shortcutContext = Qt::ShortcutOnActiveWindow;
+    shortcutContext = Qt::WindowShortcut;
 }
 
 QActionPrivate::~QActionPrivate()
@@ -252,7 +252,7 @@ QKeySequence QAction::shortcut() const
     \brief the context for the action's shortcut
 
     Valid values for this property can be found in \l Qt::ShortcutContext.
-    The default value is Qt::ShortcutOnActiveWindow.
+    The default value is Qt::WindowShortcut.
 */
 
 void QAction::setShortcutContext(Qt::ShortcutContext context)
