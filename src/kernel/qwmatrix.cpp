@@ -154,49 +154,55 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 
 bool qt_old_transformations = TRUE;
 
-/*! 
+/*!
     \enum QWMatrix::TransformationMode
 
-    \keyword transformation
-    \keyword matrix
+    \keyword transformation matrix
 
-    QWMatrix offers two transformation modes, that differ a bit due to
-    integer arithmetics. When scaling for example a rectangle up by a
-    factor of 2, you can either scale its width and height by a factor
-    of two or scale it's topLeft and bottomRight point. Both lead to
-    slightly different results.
+    QWMatrix offers two transformation modes. Calculations can either
+    be done in terms of points (Points mode, the default), or in
+    terms of areas (Areas mode).
 
-    \value Points maps points in the structure
-    \value Areas maps the structure such that areas are invariant
+    In Points mode the transformation is applied to the points, so the
+    position of these points may change. In Areas mode the
+    transformation is applied to the width and height, so the position
+    of the top-left point will not change.
 
-    The default mode is Points.
+    \value Points maps points in the shape, so its position (top-left
+    point) may change
+    \value Areas maps the width and height of the shape, so its
+    position (top-left point) will not change
 
-    An example illustrating the difference is a QRect( 10, 20, 30, 40
-    ) and a transformation matrix QWMatrix( 2, 0, 0, 2, 0, 0 ). The
-    result of transforming the rectangle under the matrix will be
-    slightly different under both modes. 
+    Example:
 
-    In Points mode, the matrix will map the topLeft (=10/20) and
-    bottomRight (=39/59) points of the rectangle leading to a
-    rectangle that has a topLeft point at (20/40) and a bottomRight
-    point at (78/118), corresponding to a rectangle with width 59 and
-    height 79.
+    Suppose we have a rectangle,
+    \c{QRect( 10, 20, 30, 40 )} and a transformation matrix
+    \c{QWMatrix( 2, 0, 0, 2, 0, 0 )} to double the rectangle's size.
 
-    In Areas mode, the width and height of the rectangle will be
-    invariant under scaling, leading to a rectangle with the same
-    topleft corner but with a width of 40 and a height of 80.
+    In Points mode, the matrix will map the top-left (10,20) and
+    the bottom-right (39,59) points producing a rectangle with its
+    top-left point at (20,40) and its bottom-right point at (78,118),
+    i.e. with a width of 59 and a height of 79.
 
-    Please note that due to integer arithmetics certain operations
-    are not commutative.
+    In Areas mode, the matrix will double the width and height, so the
+    top-left will remain at (10,20), but the bottom-right will become
+    (69,99), i.e. a width of 60 and a height of 80.
 
-    Under points mode, matrix * ( region1 | region2 ) is not equal to
-    matrix*region1 | matrix*region2. Under Area mode, matrix *
-    (pointarray[i]) is not neccesarily equal to (matrix*pointarry)[i].
+    Because integer arithmetic is used (for speed), rounding
+    differences mean that the modes will produce slightly different
+    results given the same shape and the same transformation. This
+    also means that some operations are not commutative.
+
+    Under Points mode, \c{matrix * ( region1 | region2 )} is not equal to
+    \c{matrix * region1 | matrix * region2}. Under Area mode, \c{matrix *
+    (pointarray[i])} is not neccesarily equal to
+    \c{(matrix * pointarry)[i]}.
 
 */
 
-/*! 
-    Sets the transformation mode QWMatrix and painter transformations operate in.
+/*!
+    Sets the transformation mode that QWMatrix and painter
+    transformations use.
 
     \sa QWMatrix::TransformationMode
 */
@@ -209,8 +215,8 @@ void QWMatrix::setTransformationMode( QWMatrix::TransformationMode m )
 }
 
 
-/*! 
-    returns the current transformation mode.
+/*!
+    Returns the current transformation mode.
 
     \sa QWMatrix::TransformationMode
 */
@@ -227,7 +233,7 @@ QWMatrix::TransformationMode QWMatrix::transformationMode()
     double fy = y; \
     nx = _m11*fx + _m21*fy + _dx; \
     ny = _m12*fx + _m22*fy + _dy; \
-}    
+}
 
 #define MAPINT( x, y, nx, ny ) \
 { \
@@ -412,7 +418,7 @@ QRect QWMatrix::mapRect( const QRect &rect ) const
 	    }
 	    result = QRect( x, y, w, h );
 	} else {
-	    
+
 	    // see mapToPolygon for explanations of the algorithm.
 	    double x0, y0;
 	    double x, y;
@@ -534,7 +540,7 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 	}
 	w = QMAX( xmax - xmin, 1 );
 	h = QMAX( ymax - ymin, 1 );
-	
+
 	QPointArray result( size );
 	QPoint *dr = result.data();
 	for( i = 0; i < size; i++ ) {
@@ -591,13 +597,12 @@ QRegion QWMatrix::operator * (const QRect &rect ) const
 }
 
 /*!
-  Transforms the rectangle \a rect and returns the 
-  transformed rectangle as a polygon.
+    Returns the transformed rectangle \a rect as a polygon.
 
-  Please note that polygons and rectangles behave a bit different
-  under transformations (due to integer rounding), so matrix.map(
-  QPointArray( rect ) ) is not always the same as matrix.mapToPolygon(
-  rect ).
+    Polygons and rectangles behave a slightly differently
+    when transformed (due to integer rounding), so
+    \c{matrix.map( QPointArray( rect ) )} is not always the same as
+    \c{matrix.mapToPolygon( rect )}.
 */
 QPointArray QWMatrix::mapToPolygon( const QRect &rect ) const
 {
@@ -634,14 +639,14 @@ QPointArray QWMatrix::mapToPolygon( const QRect &rect ) const
 
 	/*
 	Including rectangles as we have are evil.
-	
+
         We now have a rectangle that is one pixel to wide and one to
         high. the tranformed position of the top-left corner is
         correct. All other points need some adjustments.
-	
+
 	Doing this mathematically exact would force us to calculate some square roots,
 	something we don't want for the sake of speed.
-       
+
         Instead we use an approximation, that converts to the correct
         answer when m12 -> 0 and m21 -> 0, and accept smaller
         errors in the general transformation case.
@@ -650,7 +655,7 @@ QPointArray QWMatrix::mapToPolygon( const QRect &rect ) const
         bounding rect, and scale the points 1/2/3 by (xp-x0)/xw pixel direction
         to point 0.
         */
-	    
+
 	double xmin = x[0];
 	double ymin = y[0];
 	double xmax = x[0];
@@ -677,11 +682,11 @@ QPointArray QWMatrix::mapToPolygon( const QRect &rect ) const
     qDebug( "width=%f, height=%f", sqrt( (x[1]-x[0])*(x[1]-x[0]) + (y[1]-y[0])*(y[1]-y[0]) ),
 	    sqrt( (x[0]-x[3])*(x[0]-x[3]) + (y[0]-y[3])*(y[0]-y[3]) ) );
 #endif
-    // all coordinates are correctly, tranform to a pointarray 
+    // all coordinates are correctly, tranform to a pointarray
     // (rounding to the next integer)
-    a.setPoints( 4, qRound( x[0] ), qRound( y[0] ), 
-		 qRound( x[1] ), qRound( y[1] ), 
-		 qRound( x[2] ), qRound( y[2] ), 
+    a.setPoints( 4, qRound( x[0] ), qRound( y[0] ),
+		 qRound( x[1] ), qRound( y[1] ),
+		 qRound( x[2] ), qRound( y[2] ),
 		 qRound( x[3] ), qRound( y[3] ) );
     return a;
 }
@@ -748,7 +753,7 @@ QRegion QWMatrix::operator * (const QRegion &r ) const
 		i--;
 	    }
 	}
-	
+
     }
     return result;
 }
