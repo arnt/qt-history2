@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#95 $
+** $Id: //depot/qt/main/src/moc/moc.y#96 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#95 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#96 $");
 
 static Q1String rmWS( const char * );
 
@@ -1259,7 +1259,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.29 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.30 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1412,7 +1412,25 @@ void generateClass()		      // generate C++ source code for a class
 	    predef_call = TRUE;
 	}
 	if ( !predef_call && !included_list_stuff ) {
-	    fprintf( out, "\n#include <%sqlist.h>\n", (const char*)qtPath );
+	    fprintf( out, "\n#include <%sqglobal.h>\n", (const char*)qtPath );
+	    fprintf( out, "#if QT_VERSION >= 200\n" );
+	    fprintf( out, "/" "/ the 2.x way of doing things\n" );
+	    fprintf( out, "#include <%sqlist.h>\n", (const char*)qtPath );
+	    fprintf( out, "#else\n" );
+	    fprintf( out, "/" "/ for late-model 1.x header files\n" );
+	    fprintf( out, "#if !defined(Q_MOC_CONNECTIONLIST_DECLARED)\n" );
+	    fprintf( out, "#define Q_MOC_CONNECTIONLIST_DECLARED\n" );
+	    fprintf( out, "#include <%sqlist.h>\n", (const char*)qtPath );
+	    fprintf( out, "#if defined(Q_DECLARE)\n" );
+	    fprintf( out, "Q_DECLARE(QListM,QConnection);\n" );
+	    fprintf( out, "Q_DECLARE(QListIteratorM,QConnection);\n" );
+	    fprintf( out, "#else\n" );
+	    fprintf( out, "/" "/ for really old header files\n" );
+	    fprintf( out, "declare(QListM,QConnection);\n" );
+	    fprintf( out, "declare(QListIteratorM,QConnection);\n" );
+	    fprintf( out, "#endif\n" );
+	    fprintf( out, "#endif\n" );
+	    fprintf( out, "#endif\n" );
 	    included_list_stuff = TRUE;
 	}
 
