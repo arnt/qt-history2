@@ -1,12 +1,25 @@
-diff -uwr template/Makefile linux-gcc-shared-debug/Makefile
---- template/Makefile	Fri Aug 23 09:23:08 1996
-+++ linux-gcc-shared-debug/Makefile	Fri Aug 23 10:37:55 1996
+diff -ur template/Makefile linux-gcc-shared-debug/Makefile
+--- template/Makefile	Thu Sep  5 14:33:45 1996
++++ linux-gcc-shared-debug/Makefile	Thu Sep  5 14:40:39 1996
 @@ -5,7 +5,7 @@
  #
  
  CC	= gcc
 -CFLAGS	= -O2 -fno-strength-reduce -Wall -W
-+CFLAGS	= -g -Wall
++CFLAGS	= -g -Wall -W
  LFLAGS	= -lqt
  
- all: moc library tutorial examples
+ all: library tutorial examples
+Only in linux-gcc-shared-debug: Makefile~
+diff -ur template/library/Makefile linux-gcc-shared-debug/library/Makefile
+--- template/library/Makefile	Thu Sep  5 14:34:26 1996
++++ linux-gcc-shared-debug/library/Makefile	Thu Sep  5 14:37:48 1996
+@@ -88,7 +88,7 @@
+ 	-rm -f ../../../lib/libqt.so.$(VERSION)
+ 	$(CC) -shared -Wl,-soname,libqt.so.0 \
+ 		-o ../../../lib/libqt.so.$(VERSION) \
+-		$(OBJECTS) $(METAOBJ) -lX11
++		$(OBJECTS) $(METAOBJ) -L/usr/X11R6/lib -lX11
+ 	-rm -f ../../../lib/libqt.so
+ 	-ln -sf libqt.so.$(VERSION) ../../../lib/libqt.so
+ 	-rm -f ../../../lib/libqt.so.0
