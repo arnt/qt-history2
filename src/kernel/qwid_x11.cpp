@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#207 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#208 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#207 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#208 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -655,16 +655,22 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	createExtra();
     }
     Pixmap icon_pixmap;
+    Pixmap mask_pixmap;
+    QBitmap mask;
     if ( pixmap.isNull() ) {
 	icon_pixmap = 0;
+	mask_pixmap = 0;
     } else {
 	extra->icon = new QPixmap( pixmap );
 	icon_pixmap = pixmap.handle();
+	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
+	mask_pixmap = mask.handle();
     }
     XWMHints wm_hints;				// window manager hints
     wm_hints.input = True;
     wm_hints.icon_pixmap = icon_pixmap;
-    wm_hints.flags = IconPixmapHint;
+    wm_hints.icon_mask = icon_mask;
+    wm_hints.flags = IconPixmapHint | IconMaskHint;
     XSetWMHints( dpy, winId(), &wm_hints );
 }
 
