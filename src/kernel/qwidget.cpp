@@ -3400,17 +3400,16 @@ void QWidget::move( int x, int y )
     internalSetGeometry( x + geometry().x() - QWidget::x(),
 			 y + geometry().y() - QWidget::y(),
 			 width(), height(), TRUE );
-    if ( isVisible() && !isTopLevel() && !testWFlags(Qt::WSubWindow) && oldp != pos() && children() ) {
-	QObjectListIt it(*children());
-	register QObject *object;
-	QWidget *widget;
-	while ( it ) {
-	    object = it.current();
-	    ++it;
+    if ( isVisible() && !isTopLevel() && !testWFlags(Qt::WSubWindow) && oldp != pos() ) {
+	QObjectList lst;
+	if(children())
+	    lst = *children();
+	lst.append(this);
+	for(QObject *object = lst.first(); object; object = lst.next()) {
 	    if ( object->isWidgetType() ) {
-		widget = (QWidget*)object;
+		QWidget *widget = (QWidget*)object;
 		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) &&
-		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() )
+		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() ) 
 		    widget->update();
 	    }
 	}
@@ -3438,17 +3437,16 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     QPoint oldp( pos( ));
     internalSetGeometry( x, y, w, h, TRUE );
     setWState( WState_Resized );
-    if ( isVisible() && !isTopLevel() && !testWFlags(Qt::WSubWindow) && oldp != pos() && children() ) {
-	QObjectListIt it(*children());
-	register QObject *object;
-	QWidget *widget;
-	while ( it ) {
-	    object = it.current();
-	    ++it;
+    if ( isVisible() && !isTopLevel() && !testWFlags(Qt::WSubWindow) && oldp != pos() ) {
+	QObjectList lst;
+	if(children())
+	    lst = *children();
+	lst.append(this);
+	for(QObject *object = lst.first(); object; object = lst.next()) {
 	    if ( object->isWidgetType() ) {
-		widget = (QWidget*)object;
+		QWidget *widget = (QWidget*)object;
 		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) &&
-		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() )
+		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() ) 
 		    widget->update();
 	    }
 	}
