@@ -25,24 +25,18 @@
 #endif
 
 #ifndef QT_NO_STL
-# ifdef Q_CC_BOR
-#  include <stl/_string_fwd.h> 
+# if defined (Q_CC_GNU) && (__GNUC__ - 0 >= 3)
+// workaround for namespace polluting headers
+#  include <bits/stringfwd.h>
+# elif defined (Q_CC_MSVC_NET) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
+#  pragma warning (push)
+#  pragma warning (disable : 4189)
+#  include <string>
+#  pragma warning (pop)
 # else
-namespace std
-{
-    template<typename _Alloc>
-    class allocator;
-
-    template<class _CharT>
-    struct char_traits;
-
-    template<typename _CharT, typename _Traits, typename _Alloc>
-    class basic_string;
-
-    typedef basic_string<char, char_traits<char>, allocator<char> > string;
-}
+#  include <string>
 # endif
-#endif
+#endif // QT_NO_STL
 
 // POSIX defines truncate to truncate64
 #ifdef truncate
