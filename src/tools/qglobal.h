@@ -200,13 +200,14 @@
 #elif defined(__xlC__)
 #  define _CC_XLC_
 #  define Q_FULL_TEMPLATE_INSTANTIATION
-#  if __xlC__ >= 0x500
-// reported for VisualAge 5
+#  if __xlC__ >= 0x400
+// documented in the VisualAge 4 Redbook
+// observed on VisualAge 5
 #    define Q_HAS_BOOL_TYPE
 #  endif
 #  if __xlC__ <= 0x0306
-// reported for C Set++ for AIX 3
-// reported for C and C++ compilers 3.6
+// observed on C Set++ for AIX 3
+// observed on C and C++ compilers 3.6
 #    define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
 #  endif
 #elif defined(como40)
