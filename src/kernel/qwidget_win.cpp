@@ -121,10 +121,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	return;
     setWState( WState_Created );			// set created flag
 
-#ifdef Q_OS_TEMP
-    setBackgroundMode(Qt::PaletteBase);
-#endif
-
     if ( !parentWidget() || parentWidget()->isDesktop() )
 	setWFlags( WType_TopLevel );		// top-level widget
 
