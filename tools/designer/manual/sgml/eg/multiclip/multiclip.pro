@@ -1,9 +1,9 @@
 TEMPLATE	= app
 CONFIG	= qt warn_on release
 TARGET	= multiclip
-SOURCES = main.cpp
 INTERFACES	= multiclip.ui 
 IMAGEFILE	= images.cpp
 PROJECTNAME	= multiclip
 LANGUAGE	= C++
 {SOURCES+=images.cpp}
+SOURCES += main.cpp
