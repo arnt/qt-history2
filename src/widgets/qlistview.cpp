@@ -4832,16 +4832,6 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
     }
 }
 
-/*!
-  Fills the rectangle. No decoration is drawn.
- */
-void QCheckListItem::paintBranches( QPainter * p, const QColorGroup &,
-			    int w, int, int h, GUIStyle)
-{
-    listView()->paintEmptyArea( p, QRect( 0, 0, w, h ) );
-}
-
-
 /*!\reimp
 */
 QSize QListView::sizeHint() const

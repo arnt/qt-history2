@@ -397,9 +397,6 @@ public:
     bool isEnabled() const;
 
 protected:
-    void paintBranches( QPainter * p, const QColorGroup & cg,
-			int w, int y, int h, GUIStyle s );
-
     void activate();
     void turnOffChild();
     virtual void stateChange( bool );

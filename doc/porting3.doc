@@ -33,7 +33,7 @@
 **
 **********************************************************************/
 
-/*! \page porting3.html
+/*! \page porting.html
 
 \title Porting to Qt 3.x
 
@@ -85,7 +85,6 @@ that is the Qt Developer Community!
 
 <ul>
  <li><b><a href="#Namespace">Namespace</a></b>
- <li><b><a href="#Headers">Header files</a></b>
  <li><b><a href="#Removed">Removed functions</a></b>
 </ul>
 
@@ -93,29 +92,21 @@ that is the Qt Developer Community!
 
 <h3><a name="Namespace">Namespace</a></h3>
 
-<p> Qt 3.x is namespace-clean.  A few global identifiers that had been
+<p> Qt 3.x is namespace-clean.  A few global identifiers that have been
 left in Qt 2.x have been discarded.  Enumaration <code>QCursorShape</code>
 and it values <code>ArrowCursor</code>, <code>UpArrowCursor</code>,
 <code>CrossCursor</code>, <code>WaitCursor</code>, etc. are now part of the
 special <code>Qt</code> class defined in qnamespace.h.
 
 
-<h3><a name="Headers">Header files</a></h3>
-
-<p> A few useless header files have been removed to speed up compilation
-and increase portability on old compilers.  Some of your sources may rely
-on these headers without including them explicitly. Include the relevant
-headers in your sources.
-
-
 <h3><a name="Renamed">Removed functions</a></h3>
 
 All <a href="removed30.html">these functions</a> have been removed in Qt 3.x.
-
 <ul>
- <li>QWidget::setFontPropagation, QWidget::setPalettePropagation
- <li>QMenuBar::setActItem, QMenuBar::setWindowsAltMode
- </ul>
+    <li>QWidget::setFontPropagation, QWidget::setPalettePropagation
+    <li>QMenuBar::setActItem, QMenuBar::setWindowsAltMode
+    <li>QCheckListItem::paintBranches
+</ul>
 */
 
 // I split this to work around limitations in perl's regexp parser. --Arnt
