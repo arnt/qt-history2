@@ -681,20 +681,32 @@ void QButton::keyPressEvent( QKeyEvent *e )
     case Key_Up:
     case Key_Left:
 #ifndef QT_NO_BUTTONGROUP
-	if ( group() )
+	if ( group() ) {
 	    group()->moveFocus( e->key() );
-	else
+	    if (hasFocus()) // nothing happend, propagate
+		e->ignore();
+	} else
 #endif
+	{
+	    QFocusEvent::setReason(QFocusEvent::Backtab);
 	    focusNextPrevChild( FALSE );
+	    QFocusEvent::resetReason();
+	}
 	break;
     case Key_Right:
     case Key_Down:
 #ifndef QT_NO_BUTTONGROUP
-	if ( group() )
+	if ( group() ) {
 	    group()->moveFocus( e->key() );
-	else
+	    if (hasFocus()) // nothing happend, propagate
+		e->ignore();
+	} else
 #endif
+	{
+	    QFocusEvent::setReason(QFocusEvent::Tab);
 	    focusNextPrevChild( TRUE );
+	    QFocusEvent::resetReason();
+	}
 	break;
     case Key_Escape:
 	if ( buttonDown ) {

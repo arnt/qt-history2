@@ -538,7 +538,9 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	    }
 	    // call ours, since c++ blocks us from calling the one
 	    // belonging to focusWidget().
+	    QFocusEvent::setReason(QFocusEvent::Backtab);
 	    focusNextPrevChild( FALSE );
+	    QFocusEvent::resetReason();
 	    break;
 	case Key_Down:
 	case Key_Right:
@@ -548,7 +550,9 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 		e->ignore();
 		break;
 	    }
+	    QFocusEvent::setReason(QFocusEvent::Tab);
 	    focusNextPrevChild( TRUE );
+	    QFocusEvent::resetReason();
 	    break;
 	default:
 	    e->ignore();

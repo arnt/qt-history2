@@ -569,8 +569,14 @@ void QButtonGroup::moveFocus( int key )
 	buttoncand->animateTimeout(); // ### crude l&f hack
     }
 
-    if ( candidate )
+    if ( candidate ) {
+	if (key == Key_Up || key == Key_Left)
+	    QFocusEvent::setReason(QFocusEvent::Backtab);
+	else
+	    QFocusEvent::setReason(QFocusEvent::Tab);
 	candidate->setFocus();
+	QFocusEvent::resetReason();
+    }
 }
 
 
