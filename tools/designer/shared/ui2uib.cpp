@@ -18,6 +18,11 @@
 **
 **********************************************************************/
 
+#include "ui2uib.h"
+#include "uib.h"
+
+#include <domtool.h>
+
 #include <qcolor.h>
 #include <qcursor.h>
 #include <qdatetime.h>
@@ -27,11 +32,6 @@
 #include <qobject.h>
 #include <qrect.h>
 #include <qsizepolicy.h>
-
-#include <domtool.h>
-
-#include "ui2uib.h"
-#include "uib.h"
 
 /*
     The .uib file format is the binary counterpart of the .ui file

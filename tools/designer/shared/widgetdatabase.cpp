@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#include "../interfaces/widgetinterface.h"
 #include "widgetdatabase.h"
+#include "../interfaces/widgetinterface.h"
 
 #include <qapplication.h>
 #define NO_STATIC_COLORS
@@ -29,7 +29,6 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qcleanuphandler.h>
-
 #include <qfeatures.h>
 
 #include <stdlib.h>
