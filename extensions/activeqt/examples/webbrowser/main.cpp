@@ -45,6 +45,14 @@ MainWindow::MainWindow()
 {
     setupUi(this);
 
+    connect(addressEdit, SIGNAL(returnPressed()), actionGo, SLOT(trigger()));
+    connect(actionBack, SIGNAL(triggered()), WebBrowser, SLOT(GoBack()));
+    connect(actionForward, SIGNAL(triggered()), WebBrowser, SLOT(GoForward()));
+    connect(actionStop, SIGNAL(triggered()), WebBrowser, SLOT(Stop()));
+    connect(actionRefresh, SIGNAL(triggered()), WebBrowser, SLOT(Refresh()));
+    connect(actionHome, SIGNAL(triggered()), WebBrowser, SLOT(GoHome()));
+    connect(actionSearch, SIGNAL(triggered()), WebBrowser, SLOT(GoSearch()));
+
     pb = new QProgressBar( statusBar() );
     pb->setTextVisible( FALSE );
     pb->hide();
