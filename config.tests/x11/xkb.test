@@ -2,6 +2,7 @@
 
 
 XKB=yes
+XPLATFORM=`basename $1`
 XCONFIG=$1/qmake.conf
 VERBOSE=$2
 
@@ -12,8 +13,44 @@ if [ "$VERBOSE" = "yes" ]
 then
     echo "XKB auto-detection..."
 fi
-    
 
+
+# some platforms are known to be broken
+#   Solaris 7 + Xsun
+#   	Patches 107648-01 and 107649-01 upgrade the Xsun package
+#   	of Solaris 7 to X Xindows 6.4 on SPARC and Intel platforms
+#   	respectively, introducing XKB support. However most headers
+#   	are missing and there's no patch to fix that. Our solution
+#   	is to disable XKB support on Solaris 7.
+#   	Of course XFree86 is not affected by this Xsun bug, so ideally
+#   	we should disable XKB support on Solaris + Xsun only, not on
+#   	Solaris + XFree86. But then how to detect Xsun vs. XFree86?
+#   Tru64
+#   	Link-time problems.
+
+case "$XPLATFORM" in
+solaris-*)
+    UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
+    case "$UNAME_RELEASE" in
+    5.7)
+	if [ "x$VERBOSE" = "xyes" ]
+	then
+		echo "XKB extension known to be broken on this platform."
+	fi
+	XKB=no
+	;;
+    esac
+    ;;
+tru64-*)
+    UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
+    if [ "x$VERBOSE" = "xyes" ]
+    then
+	echo "XKB extension not supported on this platform."
+    fi
+    XKB=no
+    ;;
+esac
+    
 # check for headers
 
 XKBLIB_H=
