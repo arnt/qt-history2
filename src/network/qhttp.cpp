@@ -1103,10 +1103,7 @@ QString QHttpRequestHeader::toString() const
 */
 
 /*!
-    Constructs a QHttp object. Usually there is no need to use QHttp
-    directly, since it is more convenient to use it through a
-    QUrlOperator. If you want to use it directly, you must set the
-    QUrlOperator on which it operates using setUrl().
+    Constructs a QHttp object.
 */
 QHttp::QHttp()
 {
@@ -1114,8 +1111,8 @@ QHttp::QHttp()
 }
 
 /*!
-    Constructs a HTTP client. The parameters \a parent and \a name are
-    passed on to the QObject constructor.
+    Constructs a QHttp object. The parameters \a parent and \a name are passed
+    on to the QObject constructor.
 */
 QHttp::QHttp( QObject* parent, const char* name )
 {
@@ -1126,7 +1123,7 @@ QHttp::QHttp( QObject* parent, const char* name )
 }
 
 /*!
-    Constructs a HTTP client. Following requests are done by connecting to the
+    Constructs a QHttp object. Following requests are done by connecting to the
     server \a hostname on port \a port. The parameters \a parent and \a name
     are passed on to the QObject constructor.
 
@@ -1206,53 +1203,98 @@ QHttp::~QHttp()
 */
 /*!  \fn void QHttp::stateChanged( int state )
 
-  This signal is emitted ###
+    This signal is emitted when the state of the QHttp class changes. The
+    argument \a state is the new state of the connection; it is one of the enum
+    \l State values.
+
+    This usually happens when a request is started, but it can also happen when
+    the server closes the connection or when a call to closeConnection()
+    succeeded.
+
+    \sa get() post() head() request() closeConnection() state() State
 */
 /*!  \fn void QHttp::responseHeaderReceived( const QHttpResponseHeader& resp )
 
-  This signal is emitted if the HTTP header of the response is available. The
-  header is passed in \a resp.
+    This signal is emitted when the HTTP header of a server response is
+    available. The header is passed in \a resp.
 
-  \sa readyRead()
+    \sa get() post() head() request() readyRead()
 */
 /*!  \fn void QHttp::readyRead( const QHttpResponseHeader& resp )
 
-  This signal is emitted if the client has received a piece of the response data.
-  This is useful for slow connections: you don't have to wait until all data is
-  available; you can present the data that is already loaded to the user.
+    This signal is emitted when there is new response data to read.
 
-  The header is passed in \a resp. You can read the data with the readAll() or
-  readBlock() functions
+    If you specified a device in the request where the data should be stored
+    to, then this signal is \e not emitted, but the data is rather written to
+    the device directly.
 
-  After everything is read and reported, the requestFinished() signal is emitted.
+    The response header is passed in \a resp.
 
-  \sa bytesAvailable() readAll() readBlock() requestFinished()
+    You can read the data with the readAll() or readBlock() functions
+
+    This signal is useful if you want to do process the data as soon as there
+    is something available. If you are only intrested in the whole data, you
+    can simply connect to the requestFinished() signal and read the data then
+    instead.
+
+    \sa get() post() request() readAll() readBlock() bytesAvailable()
 */
-/*!  \fn void QHttp::dataSendProgress( int bytesDone, int bytesTotal )
+/*!  \fn void QHttp::dataSendProgress( int done, int total )
 
-  This signal is emitted ###
+    This signal is emitted when this class sends data to a HTTP server to
+    inform about the process of the upload.
+
+    \a done is the amount of data that has already arrived and \a total is the
+    total amount of data. It is possible that the QHttp class is not able to
+    determine the total amount of data that should be transferred. In this case
+    \a total is 0 (if you use this with a QProgressBar, the progress bar shows
+    a busy indicator in this case).
+
+    Please note that \a done and \a total are not necessarily the size in
+    bytes, since for large files these values might need to be "scaled" to
+    avoid an overflow.
+
+    \sa dataReadProgress() post() request() QProgressBar::setProgress()
 */
-/*!  \fn void QHttp::dataReadProgress( int bytesDone, int bytesTotal )
+/*!  \fn void QHttp::dataReadProgress( int done, int total )
 
-  This signal is emitted ###
+    This signal is emitted when this class reads data from a HTTP server to
+    inform about the process of the download.
+
+    \a done is the amount of data that has already arrived and \a total is the
+    total amount of data. It is possible that the QHttp class is not able to
+    determine the total amount of data that should be transferred. In this case
+    \a total is 0 (if you use this with a QProgressBar, the progress bar shows
+    a busy indicator in this case).
+
+    Please note that \a done and \a total are not necessarily the size in
+    bytes, since for large files these values might need to be "scaled" to
+    avoid an overflow.
+
+    \sa dataSendProgress() get() post() request() QProgressBar::setProgress()
 */
 /*!  \fn void QHttp::requestStarted( int id )
 
-  This signal is emitted ###
+    This signal is emitted when the request with the identifier \a id is
+    started to be processed.
 
-  \sa requestFinished() request() setHost() closeConnection()
+    \sa requestFinished() done()
 */
 /*!  \fn void QHttp::requestFinished( int id, bool error )
 
-  This signal is emitted ###
+    This signal is emitted when the request with the identifier \a id has
+    finished processing. \a error is TRUE if an error occurred during
+    processing it. Otherwise \a error is FALSE.
 
-  \sa requestStarted() done() request() setHost() closeConnection()
+    \sa requestStarted() done() error() errorString()
 */
 /*!  \fn void QHttp::done( bool error )
 
-  This signal is emitted ###
+    This signal is emitted when the last pending request has finished (it is
+    emitted after the requestFinished() signal for it). \a error is TRUE if an
+    error occurred during processing it. Otherwise \a error is FALSE.
 
-  \sa requestFinished() request() setHost() closeConnection()
+    \sa requestFinished() error() errorString()
 */
 
 /*!

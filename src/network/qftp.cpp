@@ -1274,7 +1274,7 @@ void QFtp::init()
     finished processing. \a error is TRUE if an error occurred during
     processing it. Otherwise \a error is FALSE.
 
-    \sa commandFinished() done() error() errorString()
+    \sa commandStarted() done() error() errorString()
 */
 /*!  \fn void QFtp::done( bool error )
     This signal is emitted when the last pending command has finished (it is
@@ -1290,6 +1290,8 @@ void QFtp::init()
     If you specify a device as the second argument in the get() command, this
     signal is \e not emitted, but the data is rather written to the device
     directly.
+
+    You can read the data with the readAll() or readBlock() functions
 
     This signal is useful if you want to do process the data as soon as there
     is something available. If you are only intrested in the whole data, you
