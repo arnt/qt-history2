@@ -105,11 +105,15 @@ static QString varMap(const QString &x)
 
 static QStringList split_arg_list(const QString &params)
 {
-    QStringList args;
-    int last = 0, parens = 0;
     QChar quote = 0;
-    for(int x = 0; x < (int)params.length(); x++) {
-	if(params[x] == ')') {
+    QStringList args;
+    for(int x = 0, last = 0, parens = 0; x <= (int)params.length(); x++) {
+	if(x == params.length()) {
+	    QString mid = params.mid(last, x - last).stripWhiteSpace();
+	    if(mid[mid.length()-1] == quote)
+		mid.truncate(1);
+	    args << mid;
+	} else if(params[x] == ')') {
 	    parens--;
 	} else if(params[x] == '(') {
 	    parens++;
@@ -118,12 +122,10 @@ static QStringList split_arg_list(const QString &params)
 	} else if(params[x] == '\'' || params[x] == '"') {
 	    quote = params[x];
 	} else if(!parens && !quote.unicode() && params[x] == ',') {
-	    args << params.mid(last, x - last);
+	    args << params.mid(last, x - last).stripWhiteSpace();
 	    last = x+1;
 	}
     }
-    if(last != (int)params.length())
-	args << params.mid(last);
     return args;
 }
 
