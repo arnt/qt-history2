@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#15 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#16 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -227,7 +227,7 @@ static const char * folder_locked_icon[]={
  *****************************************************************************/
 
 QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
-    // set parent 0 => don't align in grid yet, as aour metrics is not correct yet
+// set parent 0 => don't align in grid yet, as aour metrics is not correct yet
     : QIconViewItem( 0, fi->fileName(), QIconSet( QPixmap( empty_icon ) ) ), itemFileName( fi->filePath() ),
       itemFileInfo( *fi ), checkSetText( FALSE ), timer( this )
 {
@@ -293,7 +293,7 @@ void QtFileIconViewItem::setText( const QString &text )
 bool QtFileIconViewItem::acceptDrop( QMimeSource *e )
 {
     if ( type() == Dir && e->provides( "text/uri-list" ) &&
-        allowDrop() )
+	 allowDrop() )
         return TRUE;
 
     return FALSE;
@@ -313,9 +313,9 @@ void QtFileIconViewItem::dropped( QDropEvent *e )
 
     QString str;
     if ( e->action() == QDropEvent::Copy )
-	str = "Copy\n\n";
+        str = "Copy\n\n";
     else
-	str = "Move\n\n";
+        str = "Move\n\n";
     QStringList::Iterator it = lst.begin();
     for ( ; it != lst.end(); ++it )
         str += QString( "   %1\n" ).arg( *it );
@@ -325,7 +325,7 @@ void QtFileIconViewItem::dropped( QDropEvent *e )
 
     QMessageBox::information( iconView(), e->action() == QDropEvent::Copy ? "Copy" : "Move" , str, "Not Implemented" );
     if ( e->action() == QDropEvent::Move )
-	QMessageBox::information( iconView(), "Remove" , str, "Not Implemented" );
+        QMessageBox::information( iconView(), "Remove" , str, "Not Implemented" );
     e->acceptAction();
 }
 
@@ -370,7 +370,8 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
 {
     setRastX( 100 );
     setRastY( 75 );
-
+    setResizeMode( Adjust );
+    
     connect( this, SIGNAL( doubleClicked( QIconViewItem * ) ), this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( dropped( QDropEvent * ) ), this, SLOT( slotDropped( QDropEvent * ) ) );
     connect( this, SIGNAL( itemRightClicked( QIconViewItem * ) ), this, SLOT( slotItemRightClicked( QIconViewItem * ) ) );
@@ -515,9 +516,9 @@ void QtFileIconView::slotDropped( QDropEvent *e )
 
     QString str;
     if ( e->action() == QDropEvent::Copy )
-	str = "Copy\n\n";
+        str = "Copy\n\n";
     else
-	str = "Move\n\n";
+        str = "Move\n\n";
     QStringList::Iterator it = lst.begin();
     for ( ; it != lst.end(); ++it )
         str += QString( "   %1\n" ).arg( *it );
@@ -527,7 +528,7 @@ void QtFileIconView::slotDropped( QDropEvent *e )
 
     QMessageBox::information( this, e->action() == QDropEvent::Copy ? "Copy" : "Move" , str, "Not Implemented" );
     if ( e->action() == QDropEvent::Move )
-	QMessageBox::information( this, "Remove" , str, "Not Implemented" );
+        QMessageBox::information( this, "Remove" , str, "Not Implemented" );
     e->acceptAction();
 }
 
