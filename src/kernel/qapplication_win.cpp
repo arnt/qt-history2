@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#208 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#209 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1370,7 +1370,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( type >= 0 )
 	    sn_activate_fd( wParam, type );
     } else if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
-	if ( message == WM_MOUSEMOVE && qApp->activePopupWidget() != 0) { // in popup mode
+	if ( qApp->activePopupWidget() != 0) { // in popup mode
 	    POINT curPos;
 	    GetCursorPos( &curPos );
 	    QWidget* w = QApplication::widgetAt(curPos.x, curPos.y);
@@ -2111,12 +2111,17 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	pos.rx() = (short)curPos.x;
 	pos.ry() = (short)curPos.y;
     } else {
-	pos.rx() = LOWORD(msg.lParam);		// get position
-	pos.ry() = HIWORD(msg.lParam);
+	// ignore LOWORD(msg.lParam) and pos.ry() = HIWORD(msg.lParam)
+	// since they might be for the wrong widget. Use the global cursor pos
+	// instead.
+	GetCursorPos( &gpos );
+	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
     }
 
     if ( qApp->inPopupMode() ) {			// in popup mode
-	QWidget *popup = qApp->activePopupWidget();
+	QWidget* activePopupWidget = qApp->activePopupWidget();
+	QWidget *popup = activePopupWidget;
+	
 	if ( popup != this ) {
 	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
 		popup = this;
@@ -2147,6 +2152,15 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	} else {
 	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
 	    QApplication::sendEvent( popup, &e );
+	}
+	if (qApp->activePopupWidget() != activePopupWidget) {
+	    // the popup dissappeared. Replay the event
+	    QWidget* w = QApplication::widgetAt(gpos.x, gpos.y);
+	    if (w) {
+		QMouseEvent e( type, w->mapFromGlobal(QPoint(gpos.x, gpos.y)),
+			   QPoint(gpos.x,gpos.y), button, state );
+		QApplication::sendEvent( w, &e );
+	    }
 	}
     } else {					// not popup mode
 	int bs = state & (QMouseEvent::LeftButton
