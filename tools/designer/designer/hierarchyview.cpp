@@ -926,6 +926,7 @@ HierarchyView::HierarchyView( QWidget *parent )
 	    addTab( cb.lv, *it + tr( " Classes" ) );
 	    ciface->onClick( this, SLOT( jumpTo( const QString &, const QString &, int ) ) );
 	    classBrowsers->insert( *it, cb );
+	    setTabEnabled( cb.lv, FALSE );
 	}
     }
 }
@@ -955,6 +956,9 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
 	editor = 0;
     }
 
+    setTabEnabled( listview, TRUE );
+    setTabEnabled( fView, TRUE );
+
     if ( fw == formwindow ) {
 	listview->setCurrent( w );
 	if ( MainWindow::self->qWorkspace()->activeWindow() == fw )
@@ -977,8 +981,10 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
 	showPage( fView );
 
     for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers->begin();
-	  it != classBrowsers->end(); ++it )
+	  it != classBrowsers->end(); ++it ) {
 	(*it).iface->clear();
+	setTabEnabled( (*it).lv, FALSE );
+    }
     editor = 0;
 }
 
@@ -986,6 +992,7 @@ void HierarchyView::showClasses( SourceEditor *se )
 {
     if ( !se->object() )
 	return;
+
     lastSourceEditor = se;
     QTimer::singleShot( 100, this, SLOT( showClassesTimeout() ) );
 }
@@ -1003,6 +1010,10 @@ void HierarchyView::showClassesTimeout()
 						       se->formWindow() );
 	return;
     }
+
+    setTabEnabled( listview, FALSE );
+    setTabEnabled( fView, FALSE );
+
     formwindow = 0;
     listview->setFormWindow( 0 );
     fView->setFormWindow( 0 );
@@ -1015,8 +1026,10 @@ void HierarchyView::showClassesTimeout()
 	  it != classBrowsers->end(); ++it ) {
 	if ( it.key() == se->project()->language() ) {
 	    (*it).iface->update( se->text() );
+	    setTabEnabled( (*it).lv, TRUE );
 	    showPage( (*it).lv );
 	} else {
+	    setTabEnabled( (*it).lv, FALSE );
 	    (*it).iface->clear();
 	}
     }
