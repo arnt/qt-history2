@@ -153,6 +153,8 @@ uint QMenuBar::isCommand(QMenuItem *it)
     if(ret && activeMenuBar && (!activeMenuBar->mac_d->commands || 
 			 !activeMenuBar->mac_d->commands->find(ret))) 
 	EnableMenuCommand(NULL, ret);
+    else
+	ret = 0;
     return ret;
 }
 #endif
