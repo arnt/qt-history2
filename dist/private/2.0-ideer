@@ -47,6 +47,11 @@ Honour more brush settings in drawText.  Currently we do all the necessary
  work anyway in order to implement GrayText.
 Implement a QDict<KeyType,StoredType>, as per support/1171.
 
+From qt-interest: I wrote a sizeHint() function in a widget derived
+from QListBox. In sizeHint(), I thought I could use
+QListBox::maxItemWidth(), but sizeHint() is a const function and
+maxItemWidth() is not. Shouldn't maxItemWidth() be const?
+
 GERMAN THINGS:
 --------------
 > the signals applyButtonPressed(), cancelButtonPressed() and

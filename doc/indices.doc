@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.14 1998/03/31 09:05:36 aavit Exp $
+** $Id: indices.doc,v 2.15 1998/04/01 05:53:02 aavit Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.14 1998/03/31 09:05:36 aavit Exp $";
+static char ident[] = "$Id: indices.doc,v 2.15 1998/04/01 05:53:02 aavit Exp $";
 #endif
 
 /*! \page index.html
@@ -67,7 +67,7 @@ Reference Documentation
 
 <h2 align=center><u>About Qt</u></h2>
 
-<strong>Qt</strong><sub><code>TM</code></sub> is a multi-platform C++
+<strong>Qt</strong><sup><code>TM</code></sup> is a multi-platform C++
 GUI toolkit. It is a product of <a href="troll.html">Troll
 Tech</a>. It is supported on all major variants of Microsoft Windows
 and Unix/X Windows.
