@@ -645,7 +645,6 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 	return;
     int GripMargin = (bool)d->resize[ section ] ?
 	style().pixelMetric( QStyle::PM_HeaderGripMargin ) : 0;
-    int GripMargin = (bool)d->resize[ section ] ? GRIPMARGIN : 0;
     int index = d->s2i[section];
 
     if ( (index > 0 && c < d->positions[index] + GripMargin) ||
