@@ -159,6 +159,7 @@ public:
 
     // private:
     QMimeSource *src;
+    Time timestamp;
 
     QPixmap transferred[2];
     int tindex;
@@ -167,6 +168,7 @@ public:
 QClipboardData::QClipboardData()
 {
     src = 0;
+    timestamp = CurrentTime;
     tindex=0;
 }
 
@@ -182,6 +184,7 @@ void QClipboardData::clear()
     QMimeSource *s2 = src;
     src = 0;
     delete s2;
+    timestamp = CurrentTime;
 }
 
 
@@ -833,22 +836,35 @@ bool QClipboard::event( QEvent *e )
 	    } else if ( req->selection == qt_xa_clipboard ) {
 		m = Clipboard;
 		d = clipboardData();
-	    }
+	    } else {
 #ifdef QT_CHECK_RANGE
-	    else {
 		qWarning( "QClipboard::event: unknown selection request '%lx'",
 			  req->selection );
-		break;
-	    }
 #endif // QT_CHECK_RANGE
 
-	    if ( !d->source() )
-		d->setSource( new QClipboardWatcher( m ) );
+		XSendEvent(dpy, req->requestor, False, NoEventMask, &evt);
+		break;
+	    }
+
+#ifdef QCLIPBOARD_DEBUG
+	    qDebug("QClipboard: SelectionRequest at time %lx (ours %lx)",
+		   req->time, d->timestamp);
+#endif
+
+	    if (req->time < d->timestamp) {
+#ifdef QCLIPBOARD_DEBUG
+		qDebug("QClipboard: SelectionRequest too old");
+#endif
+
+		XSendEvent(dpy, req->requestor, False, NoEventMask, &evt);
+		break;
+	    }
 
 	    const char* fmt;
 	    QByteArray data;
 	    static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
 	    static Atom xa_multiple = *qt_xdnd_str_to_atom( "MULTIPLE" );
+	    static Atom xa_timestamp = *qt_xdnd_str_to_atom("TIMESTAMP");
 	    static Atom xa_utf8_string = *qt_xdnd_str_to_atom( "UTF8_STRING" );
 	    static Atom xa_text = *qt_xdnd_str_to_atom( "TEXT" );
 	    static Atom xa_compound_text = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
@@ -856,18 +872,17 @@ bool QClipboard::event( QEvent *e )
 	    int nmulti = 0;
 	    int imulti = -1;
 	    if ( req->target == xa_multiple ) {
-		if ( qt_xclb_read_property( dpy,
-					    req->requestor, req->property,
-					    FALSE, &data, 0, 0, 0, 0 ) )
-		    {
-			nmulti = data.size()/sizeof(*multi);
-			multi = new AtomPair[nmulti];
-			memcpy(multi,data.data(),data.size());
-		    }
+		QByteArray multi_data;
+		if (qt_xclb_read_property(dpy, req->requestor, req->property,
+					  FALSE, &multi_data, 0, 0, 0, 0)) {
+		    nmulti = multi_data.size()/sizeof(*multi);
+		    multi = new AtomPair[nmulti];
+		    memcpy(multi,multi_data.data(),multi_data.size());
+		}
 		imulti = 0;
 	    }
 
-	    while ( imulti < nmulti ) {
+	    for (; imulti < nmulti; ++imulti) {
 		Window target;
 		Atom property;
 		bool send_selection_notify = TRUE;
@@ -877,14 +892,17 @@ bool QClipboard::event( QEvent *e )
 		if ( multi ) {
 		    target = multi[imulti].target;
 		    property = multi[imulti].property;
-		    imulti++;
 		} else {
 		    target = req->target;
 		    property = req->property;
 		}
 
-		if ( target == xa_targets ) {
-		    int atoms = 0;
+		if (! d->source()) {
+#ifdef QT_CHECK_STATE
+		    qWarning("QClipboard: cannot transfer data, no data available");
+#endif // QT_CHECK_STATE
+		} else if (target == xa_targets) {
+		    int atoms = 3; // TARGETS, MULTIPLE and TIMESTAMP
 		    while (d->source()->format(atoms)) atoms++;
 		    if (d->source()->provides("image/ppm")) atoms++;
 		    if (d->source()->provides("image/pbm")) atoms++;
@@ -923,6 +941,10 @@ bool QClipboard::event( QEvent *e )
 			atarget[n++] = XA_STRING;
 		    }
 
+		    atarget[n++] = xa_targets;
+		    atarget[n++] = xa_multiple;
+		    atarget[n++] = xa_timestamp;
+
 #if defined(QCLIPBOARD_DEBUG_VERBOSE)
 		    for (int index = 0; index < n; index++) {
 			qDebug("qclipboard_x11.cpp: atom %d: 0x%lx (%s)",
@@ -941,6 +963,16 @@ bool QClipboard::event( QEvent *e )
 		    evt.xselection.property = property;
 		    if ( multi )
 			delete[] multi;
+		} else if (target == xa_timestamp) {
+		    if (d->timestamp != CurrentTime) {
+			XChangeProperty(dpy, req->requestor, property, xa_timestamp, 32,
+					PropModeReplace, (uchar *) &d->timestamp, 1);
+			evt.xselection.property = property;
+#ifdef QT_CHECK_STATE
+		    } else {
+			qWarning("QClipboard: invalid data timestamp");
+#endif // QT_CHECK_STATE
+		    }
 		} else {
 		    bool already_formatted = FALSE;
 		    bool already_sent = FALSE;
@@ -1075,7 +1107,8 @@ bool QClipboard::event( QEvent *e )
 				evt.xselection.property = property;
 
 				XSelectInput(dpy, req->requestor, PropertyChangeMask);
-				XSendEvent(dpy, req->requestor, False, 0, &evt);
+				XSendEvent(dpy, req->requestor, False,
+					   NoEventMask, &evt);
 				XFlush(dpy);
 
 				qt_xclb_send_incremental_property(dpy, req->requestor,
@@ -1103,7 +1136,7 @@ bool QClipboard::event( QEvent *e )
 			   qt_xdnd_atom_to_str(evt.xselection.property));
 #endif
 
-		    XSendEvent( dpy, req->requestor, False, 0, &evt );
+		    XSendEvent(dpy, req->requestor, False, NoEventMask, &evt);
 		}
 		if ( !nmulti )
 		    break;
@@ -1419,6 +1452,7 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
     Display *dpy   = owner->x11Display();
 
     d->setSource( src );
+    d->timestamp = qt_x_time;
 
     Window prevOwner = XGetSelectionOwner( dpy, atom );
     XSetSelectionOwner( dpy, atom, win, qt_x_time );
