@@ -51,8 +51,10 @@
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
+#if 0
 #ifdef Q_WS_MAC
 #include "qmacstyle_mac.h"
+#endif
 #endif
 #include <stdlib.h>
 
@@ -148,9 +150,11 @@ QStyle *QStyleFactory::create( const QString& s )
     if ( style == "aqua" )
         return new QAquaStyle;
 #endif
+#if 0
 #ifdef Q_WS_MAC
     if( style == "macintosh" )
 	return new QMacStyle;
+#endif
 #endif
 #endif
 
