@@ -1412,7 +1412,6 @@ void QWidgetPrivate::setWSGeometry()
       Qt coordinate system for parent
       X coordinate system for parent (relative to parent's wrect).
      */
-//     Display *dpy = xinfo->display();
     QRect validRange(-XCOORD_MAX,-XCOORD_MAX, 2*XCOORD_MAX, 2*XCOORD_MAX);
     QRect wrectRange(-WRECT_MAX,-WRECT_MAX, 2*WRECT_MAX, 2*WRECT_MAX);
     QRect wrect;
