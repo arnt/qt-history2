@@ -99,15 +99,15 @@ public: \
       n = c.constEnd(); return false; } \
     inline bool findNextKey(const Key &key) \
     {  \
-        if (i == c.constEnd() || key < i.key()) { \
-            n = i = c.constEnd(); \
-            return false; \
-        } else if (i.key() < key) { \
+        if (i == c.constBegin()) { \
             i = c.find(key); \
             if ((n = i) != c.constEnd()) { \
                 ++i; \
                 return true; \
             } \
+            return false; \
+        } else if (i == c.constEnd() || !C<Key, T>::sameKey(i.key(), key)) { \
+            n = i = c.constEnd(); \
             return false; \
         } else { \
             n = i++; \
@@ -116,20 +116,20 @@ public: \
     } \
     inline bool findPrevKey(const Key &key) \
     { \
-        if (i == c.constBegin() || (--i).key() < key) { \
-            n = c.constEnd(); \
-            i = c.constBegin(); \
-            return false; \
-        } else if (key < i.key()) { \
+        if (i == c.constEnd()) { \
             n = i = c.find(key); \
             if (i == c.constEnd()) { \
                 i = c.constBegin(); \
                 return false; \
             } \
-            while (++i != c.constEnd() && !(key < i.key())) \
+            while (++i != c.constEnd() && C<Key, T>::sameKey(i.key(), key)) \
                 ; \
             n = --i; \
             return true; \
+        } else if (i == c.constBegin() || !C<Key, T>::sameKey((--i).key(), key)) { \
+            n = c.constEnd(); \
+            i = c.constBegin(); \
+            return false; \
         } else { \
             n = i; \
             return true; \

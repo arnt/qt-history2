@@ -170,6 +170,8 @@ public:
 
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
+    static inline bool sameKey(const Key &key1, const Key &key2)
+        { return key1 == key2; }
 
     void clear();
 
