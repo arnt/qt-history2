@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#5 $
+** $Id: //depot/qt/main/src/xml/qdom.h#6 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -247,9 +247,13 @@ public:
     virtual uint length() const;
     uint count() const { return length(); } // Qt API consitancy
 
-    QDomNodeList( QDomNodeListPrivate* );
 private:
     QDomNodeListPrivate* impl;
+    QDomNodeList( QDomNodeListPrivate* );
+
+    friend class QDomNode;
+    friend class QDomElement;
+    friend class QDomDocument;
 };
 
 class QM_EXPORT QDomDocumentType : public QDomNode
