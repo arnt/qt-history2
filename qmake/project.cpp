@@ -900,7 +900,7 @@ QString
 QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &place)
 {
     for(int var_begin, var_last=0; (var_begin = str.find("$$", var_last)) != -1; var_last = var_begin) {
-	if(var_begin >= str.length() + 2)
+	if(var_begin >= (int)str.length() + 2)
 	    break;
 	else if(var_begin != 0 && str[var_begin-1] == '\\')
 	    continue;
@@ -910,7 +910,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	if(str[var_incr] == '{') {
 	    in_braces = TRUE;
 	    var_incr++;
-	    while(var_incr < str.length() && 
+	    while(var_incr < (int)str.length() &&
 		  (str[var_incr] == ' ' || str[var_incr] == '\t' || str[var_incr] == '\n'))
 		var_incr++;
 	}
@@ -919,24 +919,25 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	    var_incr++;
 	}
 	QString val, args;
-	while(var_incr < str.length() && 
+	while(var_incr < (int)str.length() &&
 	      (str[var_incr].isLetter() || str[var_incr].isNumber() || str[var_incr] == '.' || str[var_incr] == '_'))
 	    val += str[var_incr++];
 	if(environ) {
 	    if(str[var_incr] != ')') {
 		var_incr++;
 		warn_msg(WarnParser, "%s:%d: Unterminated env-variable replacement '%s' (%s)",
-			 parser.file.latin1(), parser.line_no, 
-			 str.mid(var_begin, QMAX(var_incr - var_begin, str.length())).latin1(), str.latin1());
+			 parser.file.latin1(), parser.line_no,
+			 str.mid(var_begin, QMAX(var_incr - var_begin,
+						 (int)str.length())).latin1(), str.latin1());
 		var_begin += var_incr;
 		continue;
 	    }
 	    var_incr++;
 	} else if(str[var_incr] == '(') { //args
-	    for(int parens = 0; var_incr < str.length(); var_incr++) {
+	    for(int parens = 0; var_incr < (int)str.length(); var_incr++) {
 		if(str[var_incr] == '(') {
 		    parens++;
-		    if(parens == 1) 
+		    if(parens == 1)
 			continue;
 		} else if(str[var_incr] == ')') {
 		    parens--;
@@ -948,11 +949,12 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		args += str[var_incr];
 	    }
 	}
-	if(var_incr > str.length() || (in_braces && str[var_incr] != '}')) {
+	if(var_incr > (int)str.length() || (in_braces && str[var_incr] != '}')) {
 	    var_incr++;
 	    warn_msg(WarnParser, "%s:%d: Unterminated variable replacement '%s' (%s)",
-		     parser.file.latin1(), parser.line_no, 
-		     str.mid(var_begin, QMAX(var_incr - var_begin, str.length())).latin1(), str.latin1());
+		     parser.file.latin1(), parser.line_no,
+		     str.mid(var_begin, QMAX(var_incr - var_begin,
+					     (int)str.length())).latin1(), str.latin1());
 	    var_begin += var_incr;
 	    continue;
 	} else if(in_braces) {
