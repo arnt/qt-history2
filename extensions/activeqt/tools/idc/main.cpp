@@ -106,7 +106,7 @@ static HRESULT dumpIdl(const QString &input, const QString &idlfile, const QStri
     HRESULT res = E_FAIL;
 
     if (input.endsWith("exe")) {
-        int ec = system((input + " -dumpidl /idl " + idlfile + " -version " + version).local8Bit());
+        int ec = system((input + " -dumpidl " + idlfile + " -version " + version).local8Bit());
         if (ec == 0)
             res = S_OK;
     } else {
@@ -216,8 +216,8 @@ int main(int argc, char **argv)
 	fprintf(stderr, "No input file specified!\n");
 	return 1;
     }
-    if (input.endsWith(".exe") && tlbfile.isEmpty()) {
-	fprintf(stderr, "No type library file specified!\n");
+    if (input.endsWith(".exe") && tlbfile.isEmpty() && idlfile.isEmpty()) {
+	fprintf(stderr, "No type output file specified!\n");
 	return 2;
     }
     if (input.endsWith(".dll") && idlfile.isEmpty() && tlbfile.isEmpty()) {
