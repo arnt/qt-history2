@@ -281,8 +281,8 @@
     \target GeneralConfiguration
     \section1 General Configuration
 
-    The \c CONFIG variable specifies the options that the compiler should use
-    and the libraries that should be linked against.  Anything can be
+    The \c CONFIG variable specifies the options and features that the compiler
+    should use and the libraries that should be linked against. Anything can be
     added to the \c CONFIG variable, but the options covered below are
     recognized by \c qmake internally.
 
@@ -380,6 +380,29 @@
     \row    \i qt3support \i Enables the use of Qt 3 support classes (see the
                           \l{Porting to Qt 4} guide)
     \endtable
+
+    \section1 Configuration Features
+
+    \c qmake can be set up with extra configuration features that are specified
+    in feature (.prf) files. These extra features often provide support for
+    custom tools that are used during the build process. To add a feature to
+    the build process, append the feature name (the stem of the feature filename)
+    to the \c CONFIG variable.
+
+    For example, \c qmake can configure the build process to take advantage
+    of external libraries that are supported by
+    \l{http://www.freedesktop.org/wiki/Software_2fpkgconfig}{pkg-config},
+    such as the D-BUS and ogg libraries, with the following lines:
+
+    \code
+        CONFIG += link_pkgconfig
+        PKGCONFIG += ogg dbus-1
+    \endcode
+
+    More information about features can be found in the
+    \l{qmake Advanced Usage#Adding New Configuration Features}
+    {Adding New Configuration Features} section of the \l{qmake Advanced Usage}
+    chapter.
 
 */
 
@@ -3090,7 +3113,7 @@
     \skipto defineTest
     \printuntil /^\}/
 
-    \section1 Features
+    \section1 Adding New Configuration Features
 
     \c qmake lets you create your own \e features that can be included in
     project files by adding their names to the list of values specified by
