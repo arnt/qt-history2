@@ -343,6 +343,12 @@ NmakeMakefileGenerator::init()
 	project->variables()["DEFINES"].append("QT_DLL");
     if (project->isActiveConfig("qt_dll"))
 	if(configs.findIndex("qt") == -1) configs.append("qt");
+    if ( project->isActiveConfig("qtopia") ) {
+	if(configs.findIndex("qtopialib") == -1)
+	    configs.append("qtopialib");
+	if(configs.findIndex("qtopiainc") == -1)
+	    configs.append("qtopiainc");
+    }
     if ( project->isActiveConfig("qt") ) {
 	if ( project->isActiveConfig( "plugin" ) ) {
 	    project->variables()["CONFIG"].append("dll");
@@ -414,6 +420,13 @@ NmakeMakefileGenerator::init()
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
     if ( project->isActiveConfig("qt") || project->isActiveConfig("opengl") )
 	project->variables()["CONFIG"].append("windows");
+    if ( project->isActiveConfig("qtopiainc") )
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QTOPIA"];
+    if ( project->isActiveConfig("qtopialib") ) {
+	if(!project->isEmpty("QMAKE_LIBDIR_QTOPIA"))
+	    project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QTOPIA"];
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QTOPIA"];
+    }
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];

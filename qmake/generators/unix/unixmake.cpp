@@ -153,6 +153,12 @@ UnixMakefileGenerator::init()
 	if(configs.findIndex("x11inc") == -1)
 	    configs.append("x11inc");
     }
+    if ( project->isActiveConfig("qtopia") ) {
+	if(configs.findIndex("qtopialib") == -1)
+	    configs.append("qtopialib");
+	if(configs.findIndex("qtopiainc") == -1)
+	    configs.append("qtopiainc");
+    }
     if ( project->isActiveConfig("qt") ) {
 	if ( project->isActiveConfig("accessibility" ) )
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
@@ -186,6 +192,13 @@ UnixMakefileGenerator::init()
     }
     if(project->isActiveConfig("global_init_link_order"))
 	project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    if ( project->isActiveConfig("qtopiainc") )
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QTOPIA"];
+    if ( project->isActiveConfig("qtopialib") ) {
+	if(!project->isEmpty("QMAKE_LIBDIR_QTOPIA"))
+	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QTOPIA", "-L", " -L", "");
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QTOPIA"];
+    }
     if ( project->isActiveConfig("x11inc") )
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( project->isActiveConfig("x11lib") ) {
