@@ -2205,10 +2205,8 @@ void QMainWindow::setCentralWidget( QWidget * w )
     if ( d->mc )
 	d->mc->removeEventFilter( this );
     d->mc = w;
-    if ( d->mc ) {
- 	d->mc->show();
+    if ( d->mc )
 	d->mc->installEventFilter( this );
-    }
     triggerLayout();
 }
 
