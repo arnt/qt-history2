@@ -623,16 +623,6 @@ void QWidget::deleteTLSysExtra()
 
 void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
-  //printf("QWidget::internalSetGeometry: %s %d\n",__FILE__,__LINE__);
-  //printf("  %d %d %d %d, %d\n",x,y,w,h,parentWidget());
-  if(w>1000)
-    w=1000;
-  if(h>800)
-    h=800;
-  if(w<50)
-    w=50;
-  if(h<50)
-    h=50;
   if ( testWFlags(WType_Desktop) ) {
     //printf("Desktop\n");
     return;
