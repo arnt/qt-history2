@@ -574,6 +574,9 @@ inline int QString::grow(int size)
 
     \sa fromUtf16(), fromLatin1(), fromLocal8Bit(), fromUtf8()
 */
+
+/*! \internal
+*/
 void QString::fromWCharArray(const wchar_t *a, int l)
 {
     if (sizeof(wchar_t) == sizeof(QChar)) {
@@ -597,7 +600,7 @@ void QString::fromWCharArray(const wchar_t *a, int l)
     }
 }
 
-/*! \fn std::string QString::toStdWString() const
+/*! \fn std::wstring QString::toStdWString() const
 
     Returns a std::wstring object with the data contained in this
     QString. The std::wstring is encoded in utf16 on platforms where
@@ -613,6 +616,8 @@ void QString::fromWCharArray(const wchar_t *a, int l)
     \sa utf16(), toAscii(), toLatin1(), toUtf8(), toLocal8Bit()
 */
 
+/*! \internal
+*/
 int QString::toWCharArray(wchar_t *array) const
 {
     if (sizeof(wchar_t) == sizeof(QChar)) {

@@ -33,6 +33,7 @@
 #  include <string>
 # endif
 
+// workaround for some headers not typedef'ing std::wstring
 typedef std::basic_string<wchar_t> QStdWString;
 
 #endif // QT_NO_STL
@@ -359,8 +360,13 @@ public:
 #ifndef QT_NO_STL
     inline explicit QString(const std::string &s);
     inline std::string toStdString() const;
+#ifdef qdoc
+    inline explicit QString(const std::wstring &s);
+    inline std::wstring toStdWString() const;
+#else
     inline explicit QString(const QStdWString &s);
     inline QStdWString toStdWString() const;
+#endif
 #endif
 
     // compatibility
