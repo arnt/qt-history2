@@ -220,7 +220,7 @@ UnixMakefileGenerator::init()
 
 	    QString plist = specdir() + QDir::separator() + "Info.plist." + 
 			    project->first("TEMPLATE");
-	    if(QFile::exists(plist)) {
+	    if(QFile::exists(Option::fixPathToLocalOS(plist))) {
 		project->variables()["QMAKE_INFO_PLIST"].append(plist);
 		project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") + 
 								    "../Info.plist");
