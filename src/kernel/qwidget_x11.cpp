@@ -2301,6 +2301,9 @@ void QWidget::checkChildrenDnd()
     If the widget is the desktop (QWidget::isDesktop()), this may
     fail if another application is using the desktop; you can call
     acceptDrops() to test if this occurs.
+
+    \warning
+    Do not modify this property in a Drag&Drop event handler.
 */
 bool QWidget::acceptDrops() const
 {
