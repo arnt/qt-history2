@@ -1266,21 +1266,22 @@ HMENU QAxServerBase::createPopup( QPopupMenu *popup, HMENU oldMenu )
 	if ( !qitem )
 	    continue;
 
-	uint flags = qitem->isEnabled() ? MF_ENABLED : MF_DISABLED;
+	uint flags = qitem->isEnabled() ? MF_ENABLED : MF_GRAYED;
 	if ( qitem->isSeparator() )
 	    flags |= MF_SEPARATOR;
 	else if ( qitem->popup() )
 	    flags |= MF_POPUP;
 	else
 	    flags |= MF_STRING;
+	if ( qitem->isChecked() )
+	    flags |= MF_CHECKED;
 
 	UINT itemId = qitem->popup() ? (UINT_PTR)createPopup( qitem->popup() ) : qid;
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    AppendMenuW( popupMenu, flags, itemId, (TCHAR*)qt_winTchar( qitem->text(), TRUE ) );
-	else
-#endif
+	QT_WA( {
+	    AppendMenuW( popupMenu, flags, itemId, (TCHAR*)qitem->text().ucs2() );
+	}, {
 	    AppendMenuA( popupMenu, flags, itemId, qitem->text().local8Bit() );
+	} );
     }
     if ( oldMenu )
 	DrawMenuBar( hwndMenuOwner );
@@ -1303,7 +1304,7 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
 	if ( !qitem )
 	    continue;
 
-	uint flags = qitem->isEnabled() ? MF_ENABLED : MF_DISABLED;
+	uint flags = qitem->isEnabled() ? MF_ENABLED : MF_GRAYED;
 	if ( qitem->isSeparator() )
 	    flags |= MF_SEPARATOR;
 	else if ( qitem->popup() )
@@ -1312,14 +1313,11 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
 	    flags |= MF_STRING;
 
 	UINT itemId = qitem->popup() ? (UINT)createPopup( qitem->popup() ) : qid;
-
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based ) {
-	    AppendMenuW( hmenuShared, flags, itemId, (TCHAR*)qt_winTchar( qitem->text(), TRUE ) );
-	} else {
-#endif
+	QT_WA( {
+	    AppendMenuW( hmenuShared, flags, itemId, (TCHAR*)qitem->text().ucs2() );
+	} , {
 	    AppendMenuA( hmenuShared, flags, itemId, qitem->text().local8Bit() );
-	}
+	} );
     }
     menuWidths.width[1] = menuBar->count()+1;
 
