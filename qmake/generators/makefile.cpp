@@ -565,7 +565,7 @@ MakefileGenerator::init()
     }
 
     QString paths[] = { QString("SOURCES"), QString("INTERFACES"), QString("YACCSOURCES"), QString("INCLUDEPATH"),
-			    QString("HEADERS"),
+			    QString("HEADERS"), QString("HEADERS_ORIG"),
 			    QString("LEXSOURCES"), QString("QMAKE_INTERNAL_INCLUDED_FILES"), QString::null };
     for(int y = 0; paths[y] != QString::null; y++) {
 	QStringList &l = v[paths[y]];

@@ -40,6 +40,7 @@
 #include <time.h>
 #include <qregexp.h>
 #include <qfile.h>
+#include <qdir.h>
 
 void
 UnixMakefileGenerator::init()
@@ -190,7 +191,15 @@ UnixMakefileGenerator::init()
     }
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
     if ( !project->variables()["PRECOMPH"].isEmpty() ) {
-	project->variables()["SOURCES"].prepend(project->first("MOC_DIR") + "/allmoc.cpp");
+	// Need to fix MOC_DIR since we do this before init()
+	QString allmoc = project->first("MOC_DIR");
+	if(allmoc.right(Option::dir_sep.length()) != Option::dir_sep)
+	    allmoc += Option::dir_sep;
+	if(QDir::isRelativePath(allmoc) && !project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
+	    allmoc.prepend(Option::output_dir + Option::dir_sep);
+
+	allmoc += "/allmoc.cpp";
+	project->variables()["SOURCES"].prepend(allmoc);
 	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
 	project->variables()["HEADERS"].clear();
     }
