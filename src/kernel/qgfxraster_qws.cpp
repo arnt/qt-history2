@@ -2229,14 +2229,14 @@ QGfxRaster<depth,type>::~QGfxRaster()
   This is an internal method used by methods which pack writes to the
   framebuffer for optimisation reasons. It takes longer to write
   80 8-bit values over the PCI or AGP bus to a graphics card than
-  it does 10 64-bit values, as long as those 64-bit values are aligned
-  on a 64-bit boundary. Therefore the code writes individual pixels
-  up to a boundary, writes 64-bit values until it reaches the last boundary
+  it does 20 32-bit values, as long as those 32-bit values are aligned
+  on a 32-bit boundary. Therefore the code writes individual pixels
+  up to a boundary, writes 32-bit values until it reaches the last boundary
   before the end of the line, and draws then individual pixels again.
   Given a pointer to a start of the line within the framebuffer \a m
   and starting and ending x coordinates \a x1 and \a x2, \a frontadd is filled
   with the number of individual pixels to write at the start of the line,
-  \a count with the number of 64-bit values to write and \a backadd with the
+  \a count with the number of 32-bit values to write and \a backadd with the
   number of individual pixels to write at the end. This optimisation
   yields up to 60% drawing speed performance improvements when Memory
   Type Range Registers are not available, and still gives a few percent
@@ -2244,7 +2244,7 @@ QGfxRaster<depth,type>::~QGfxRaster()
   (which effectively causes the CPU to do a similar optimisation in hardware)
 */
 
-// Calculate packing values for 64-bit writes
+// Calculate packing values for 32-bit writes
 
 template<const int depth,const int type>
 GFX_INLINE void QGfxRaster<depth,type>::calcPacking(
@@ -3206,9 +3206,41 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 #endif
 	} else if ( depth == 8 ) {
 	    unsigned char *myptr=l;
+#ifdef QWS_NO_WRITE_PACKING
 	    myptr+=x1;
 	    while ( w-- )
 		*(myptr++) = pixel;
+#else
+	    int frontadd,backadd,count;
+	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
+
+	    myptr+=x1;
+
+	    PackType put = pixel | ( pixel << 8 )
+		| ( pixel << 16 ) | (pixel << 24 );
+
+	    while ( frontadd-- )
+		*(myptr++)=pixel;
+	    // Duffs device.
+	    PackType *myptr2 = (PackType*)myptr;
+	    myptr += count * 4;
+	    PackType *end2 = (PackType*)myptr;
+	    switch(count%8){
+		case 0:
+		    while ( myptr2 != end2 ) {
+			*myptr2++ = put;
+			case 7: *myptr2++ = put;
+			case 6: *myptr2++ = put;
+			case 5: *myptr2++ = put;
+			case 4: *myptr2++ = put;
+			case 3: *myptr2++ = put;
+			case 2: *myptr2++ = put;
+			case 1: *myptr2++ = put;
+		    }
+	    }
+	    while ( backadd-- )
+		*(myptr++)=pixel;
+#endif
 	} else if ( depth == 4 ) {
 	    unsigned char *myptr=l;
 	    unsigned char *dptr = myptr + x1/2;
