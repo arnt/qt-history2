@@ -300,53 +300,120 @@ public:
     
     void outValues( QSqlExtension * ext, QPtrList<QVirtualDestructor> & tmpStorage )
     {
-	QSqlExtension::ValueMap::Iterator it;
-	for ( it = ext->values.begin(); it != ext->values.end(); ++it ) {
-	    sb2* indPtr = qAutoDeleterData( (QAutoDeleter<sb2>*)tmpStorage.getFirst() );
-	    if ( !indPtr )
-		return;
-	    bool isNull = (*indPtr == -1);
-	    tmpStorage.removeFirst();
+	if ( ext->bindMethod() == QSqlExtension::BindByName ) {
+	    QSqlExtension::ValueMap::Iterator it;
+	    for ( it = ext->values.begin(); it != ext->values.end(); ++it ) {
+		sb2* indPtr = qAutoDeleterData( (QAutoDeleter<sb2>*)tmpStorage.getFirst() );
+		if ( !indPtr )
+		    return;
+		bool isNull = (*indPtr == -1);
+		tmpStorage.removeFirst();
 
-	    if ( isNull ) {
-		QVariant v;
-		v.cast( it.data().value.type() );
-		it.data().value = v;
+		if ( isNull ) {
+		    QVariant v;
+		    v.cast( it.data().value.type() );
+		    it.data().value = v;
+		}
+
+		switch ( it.data().value.type() ) {
+		    case QVariant::ByteArray:
+		    case QVariant::CString:
+		    case QVariant::Int:
+		    case QVariant::Double:
+			break;
+		    case QVariant::Time:
+		    case QVariant::Date:
+		    case QVariant::DateTime:
+			if ( !isNull ) {
+			    QByteArray* ba = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.getFirst() );
+			    if ( !ba )
+				return;
+			    QDateTime dt = qMakeDate( ba->data() );
+			    switch ( it.data().value.type() ) {
+				case QVariant::DateTime:
+				    it.data().value = dt;
+				    break;
+				case QVariant::Date:
+				    it.data().value = dt.date();
+				    break;
+				case QVariant::Time:
+				    it.data().value = dt.time();
+				    break;
+				default:
+				    break;
+			    }
+			}
+			tmpStorage.removeFirst();
+			break;
+		    case QVariant::String:
+		    default: {
+			if ( !isNull ) {
+			    QCString* str = qAutoDeleterData( (QAutoDeleter<QCString>*)tmpStorage.getFirst() );
+			    if ( !str )
+				return;
+			    it.data().value = *str;
+			}
+			tmpStorage.removeFirst();
+			break; }
+		}
 	    }
+	} else {
+	    QMap<int, QString>::Iterator it;
+	    for ( it = ext->index.begin(); it != ext->index.end(); ++it ) {
+		QVariant::Type typ = ext->values[ it.data() ].value.type();
+		sb2* indPtr = qAutoDeleterData( (QAutoDeleter<sb2>*)tmpStorage.getFirst() );
+		if ( !indPtr )
+		    return;
+		bool isNull = (*indPtr == -1);
+		tmpStorage.removeFirst();
 
-	    switch ( it.data().value.type() ) {
-		case QVariant::ByteArray:
-		case QVariant::CString:
-		case QVariant::Int:
-		case QVariant::Double:
-		    break;
-		case QVariant::Time:
-		case QVariant::Date:
-		case QVariant::DateTime:
-		    if ( !isNull ) {
-			QByteArray* ba = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.getFirst() );
-			if ( !ba )
-			    return;
-			QDateTime dt = qMakeDate( ba->data() );
-			if ( it.data().value.type() == QVariant::DateTime )
-			    it.data().value = dt;
-			else if ( it.data().value.type() == QVariant::Date )
-			    it.data().value = dt.date();
-			else if ( it.data().value.type() == QVariant::Time )
-			    it.data().value = dt.time();
-		    }
-		    tmpStorage.removeFirst();
-		    break;
-		case QVariant::String:
-		default: {
-		    if ( !isNull ) {
-			QCString* str = qAutoDeleterData( (QAutoDeleter<QCString>*)tmpStorage.getFirst() );
-			if ( !str )
-			    return;
-			it.data().value = *str;
-		    }
-		    tmpStorage.removeFirst();
-		    break; }
+		if ( isNull ) {
+		    QVariant v;
+		    v.cast( typ );
+		    ext->values[ it.data() ].value = v;
+		}
+
+		switch ( typ ) {
+		    case QVariant::ByteArray:
+		    case QVariant::CString:
+		    case QVariant::Int:
+		    case QVariant::Double:
+			break;
+		    case QVariant::Time:
+		    case QVariant::Date:
+		    case QVariant::DateTime:
+			if ( !isNull ) {
+			    QByteArray* ba = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.getFirst() );
+			    if ( !ba )
+				return;
+			    QDateTime dt = qMakeDate( ba->data() );
+			    switch ( typ ) {
+				case QVariant::DateTime:
+				    ext->values[ it.data() ].value = dt;
+				    break;
+				case QVariant::Date:
+				    ext->values[ it.data() ].value = dt.date();
+				    break;
+				case QVariant::Time:
+				    ext->values[ it.data() ].value = dt.time();
+				    break;
+				default:
+				    break;
+			    }
+			}
+			tmpStorage.removeFirst();
+			break;
+		    case QVariant::String:
+		    default: {
+			if ( !isNull ) {
+			    QCString* str = qAutoDeleterData( (QAutoDeleter<QCString>*)tmpStorage.getFirst() );
+			    if ( !str )
+				return;
+			    ext->values[ it.data() ].value = *str;
+			}
+			tmpStorage.removeFirst();
+			break; }
+		}
 	    }
 	}
     }
