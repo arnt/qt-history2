@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#8 $
 **
 ** Implementation of QStatusBar class
 **
@@ -18,7 +18,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#8 $");
 
 
 /*! \class QStatusBar qstatusbar.h
@@ -241,10 +241,15 @@ void QStatusBar::reformat()
 	space = 4;
 	l->addWidget( i->w, i->s );
     }
-    if ( space == 1 )
+    QBoxLayout * vproxy;
+    if ( space == 1 ) {
 	l->addStretch( 1 );
+	vproxy = new QBoxLayout( QBoxLayout::Down );
+	l->addLayout( vproxy );
+	vproxy->addSpacing( 3 + fontMetrics().height() + 3 );
+    }
     l->addSpacing( 2 );
-    QBoxLayout * vproxy = new QBoxLayout( QBoxLayout::Down );
+    vproxy = new QBoxLayout( QBoxLayout::Down );
     l->addLayout( vproxy );
     vproxy->addStretch( 1 );
     vproxy->addWidget( d->resizer, 0 );
