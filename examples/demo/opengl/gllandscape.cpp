@@ -64,27 +64,35 @@ void GLLandscape::resizeGL( int width, int height )
 void GLLandscape::paintGL()
 {
     QString str;
+    GLboolean lighting;
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     switch ( mode ) {
 	case Wireframe:
 	    drawWireframe();
-	    str = "Wireframe";
+	    str = tr( "Wireframe" );
 	    break;
 	case Filled:
 	    drawFilled();
-	    str = "Flat shaded";
+	    str = tr( "Flat shaded" );
 	    break;
 	case SmoothShaded:
-	    str = "Smooth shaded";
+	    str = tr( "Smooth shaded" );
 	    drawSmoothShaded();
 	    break;
 	case Landscape:
 	    drawSmoothShaded();
-	    str = "Landscape";
+	    str = tr( "Landscape" );
 	    break;
+    }
+    glGetBooleanv( GL_LIGHTING, &lighting );
+    if ( lighting ) {
+	glDisable( GL_LIGHTING );
     }
     qglColor( white );
     renderText( 15, height() - 15, str );
+    if ( lighting ) {
+	glEnable( GL_LIGHTING );
+    }
 }
 
 void GLLandscape::drawWireframe()

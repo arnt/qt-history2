@@ -151,8 +151,6 @@ static void gear( GLfloat inner_radius, GLfloat outer_radius, GLfloat width,
 
 void GLGear::draw()
 {
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
     glPushMatrix();
     glRotatef( view_rotx, 1.0, 0.0, 0.0 );
     glRotatef( view_roty, 0.0, 1.0, 0.0 );
@@ -244,9 +242,21 @@ void GLGear::resizeGL( int width, int height )
 
 void GLGear::paintGL()
 {
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glPushMatrix();
     transform();
     draw();
+    glDisable( GL_LIGHTING );
+    qglColor( green );
+    glLineWidth( 1.0 );
+    glBegin( GL_LINES );
+    {
+	glVertex3f( 0.0, 0.0, 0.0 );
+	glVertex3f( 2.98, 2.98, 2.98 );
+    }
+    glEnd();
+    renderText( 3.0, 3.0, 3.0, "Gears", QFont( "helvetica", 12, QFont::Bold, TRUE ) );
+    glEnable( GL_LIGHTING );
     glPopMatrix();
 }
 

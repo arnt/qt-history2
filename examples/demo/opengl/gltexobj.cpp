@@ -48,10 +48,25 @@ GLTexobj::~GLTexobj()
 
 void GLTexobj::paintGL()
 {
-    glClear( GL_COLOR_BUFFER_BIT );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glPushMatrix();
     transform();
     glCallList( object );
+    
+    glDisable( GL_LIGHTING );
+    glDisable( GL_TEXTURE_2D );
+    qglColor( green );
+    glLineWidth( 1.0 );
+    glBegin( GL_LINES );
+    {
+	glVertex3f( 0.0, 0.0, 1.0 );
+	glVertex3f( 0.98, 0.98, 0.98 );
+    }
+    glEnd();
+    renderText( 1.0, 1.0, 1.0, "Can", QFont( "helvetica", 12, QFont::Bold, TRUE ) );
+    glEnable( GL_LIGHTING );
+    glEnable( GL_TEXTURE_2D );
+
     glPopMatrix();
 }
 
@@ -70,6 +85,7 @@ void GLTexobj::initializeGL()
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    glEnable(GL_DEPTH_TEST);
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, whiteAmb);
 

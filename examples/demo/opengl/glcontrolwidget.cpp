@@ -23,6 +23,35 @@ void GLControlWidget::transform()
     glRotatef( xRot, 1.0, 0.0, 0.0 );
     glRotatef( yRot, 0.0, 1.0, 0.0 );
     glRotatef( zRot, 0.0, 0.0, 1.0 );
+
+    GLboolean light, texture;
+    glGetBooleanv( GL_LIGHTING, &light );
+    glGetBooleanv( GL_TEXTURE_2D, &texture );
+    if ( light ) {
+	glDisable( GL_LIGHTING );
+    }
+    if ( texture ) {
+	glDisable( GL_TEXTURE_2D );
+    }
+    qglColor( white );
+    QString str( "Rendering text in OpenGL is easy with Qt" );
+    QFontMetrics fm( font() );
+    renderText( (width() - fm.width( str )) / 2, 15, str );
+ 
+    QFont f( "courier", 8 );
+    QFontMetrics fmc( f );
+    qglColor( QColor("skyblue") );
+    str.sprintf( "Rot X: %03d - Rot Y: %03d - Rot Z: %03d",
+		 (((int) xRot * 100) % 36000) / 100, 
+		 (((int) yRot * 100) % 36000) / 100, 
+		 (((int) zRot * 100) % 36000) / 100 );
+    renderText( (width() - fmc.width( str )) / 2, height() - 15, str, f );
+    if ( light ) {
+	glEnable( GL_LIGHTING );
+    }
+    if ( texture ) {
+	glEnable( GL_TEXTURE_2D );
+    }
 }
 
 /*!

@@ -90,7 +90,7 @@ void GLWorkspace::newWirebox()
 {
     GLBox *gl = new GLBox( workspace, 0, WDestructiveClose );
     gl->setIcon( QPixmap( "opengl/wirebox.xpm" ) );
-    gl->setCaption( tr( "WireBox" ) );
+    gl->setCaption( tr( "Wirebox" ) );
     gl->resize( 320, 240 );
     gl->show();
 }

@@ -60,6 +60,15 @@ void GLBox::paintGL()
     glLoadIdentity();
     transform();
     glCallList( object );
+    qglColor( green );
+    glLineWidth( 1.0 );
+    glBegin( GL_LINES );
+    {
+	glVertex3f( 0.0, 0.0, 0.0 );
+	glVertex3f( 0.98, 0.98, 0.98 );
+    }
+    glEnd();
+    renderText( 1.0, 1.0, 1.0, "Wirebox", QFont( "helvetica", 12, QFont::Bold, TRUE ) );
 }
 
 
