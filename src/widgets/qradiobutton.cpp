@@ -174,7 +174,7 @@ bool QRadioButton::hitButton( const QPoint &pos ) const
 void QRadioButton::drawButton( QPainter *paint )
 {
     QPainter *p = paint;
-    QRect irect = style().subRect(QStyle::SR_RadioButtonIndicator, this);
+    QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonIndicator, this), this );
     const QColorGroup &cg = colorGroup();
 
 #ifndef QT_NO_TEXTSTREAM
@@ -248,7 +248,7 @@ void QRadioButton::drawButton( QPainter *paint )
 void QRadioButton::drawButtonLabel( QPainter *p )
 {
     style().drawControl(QStyle::CE_RadioButtonLabel, p, this,
-			style().subRect(QStyle::SR_RadioButtonContents, this),
+			QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonContents, this), this ),
 			colorGroup());
 }
 
@@ -281,8 +281,8 @@ void QRadioButton::updateMask()
     bm.fill(color0);
 
     QPainter p( &bm, this );
-    QRect irect = style().subRect(QStyle::SR_RadioButtonIndicator, this);
-    QRect crect = style().subRect(QStyle::SR_RadioButtonContents, this);
+    QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonIndicator, this), this );
+    QRect crect = QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonContents, this), this );
 
     style().drawControlMask(QStyle::CE_RadioButton, &p, this, irect);
     p.fillRect(crect, color1);

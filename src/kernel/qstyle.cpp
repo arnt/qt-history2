@@ -304,4 +304,14 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 
+QRect QStyle::visualRect( const QRect &logical, const QWidget *w )
+{
+    QRect boundingRect = w->rect();
+    QRect r = logical;
+    if ( QApplication::reverseLayout() )
+	r.moveBy( 2*(boundingRect.right() - logical.right()) + logical.width() - boundingRect.width(), 0 );
+    return r;
+}
+
+
 #endif // QT_NO_STYLE

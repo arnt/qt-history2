@@ -335,8 +335,8 @@ void QComboBoxData::updateLinedGeometry()
 {
     if ( !ed || !combo )
 	return;
-    QRect r = combo->style().querySubControlMetrics(QStyle::CC_ComboBox, combo,
-						    QStyle::SC_ComboBoxEditField);
+    QRect r = QStyle::visualRect( combo->style().querySubControlMetrics(QStyle::CC_ComboBox, combo,
+								       QStyle::SC_ComboBoxEditField), combo );
 
     const QPixmap *pix = current < combo->count() ? combo->pixmap( current ) : 0;
     if ( pix && pix->width() < r.width() )
@@ -1148,8 +1148,8 @@ void QComboBox::paintEvent( QPaintEvent * )
 				    flags );
 
 	if ( !d->ed ) {
-	    QRect clip = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-							QStyle::SC_ComboBoxEditField);
+	    QRect clip = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_ComboBox, this,
+									   QStyle::SC_ComboBoxEditField), this );
 	    p.setPen( g.foreground() );
 	    p.setClipRect( clip );
 	    p.setPen( g.foreground() );
@@ -1160,8 +1160,8 @@ void QComboBox::paintEvent( QPaintEvent * )
 		item->paint( &p );
 	    }
 	} else if ( d->listBox() && d->listBox()->item( d->current ) ) {
-	    QRect r = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-						     QStyle::SC_ComboBoxEditField);
+	    QRect r = QStyle::visualRect( style().querySubControlMetrics(QStyle::CC_ComboBox, this,
+									 QStyle::SC_ComboBoxEditField), this );
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    const QPixmap *pix = item->pixmap();
 	    if ( pix ) {
@@ -1179,8 +1179,8 @@ void QComboBox::paintEvent( QPaintEvent * )
 				    QStyle::CStyle_Default, QStyle::SC_None,
 				    flags );
 
-	QRect re = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
-						   QStyle::SC_ComboBoxEditField );
+	QRect re = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_ComboBox, this,
+								      QStyle::SC_ComboBoxEditField ), this );
 	QRect textR;
 	textR.setRect( re.x()+2, re.y()+1, re.width()-4, re.height()-2 );
 	p.setClipRect( textR );
@@ -1195,8 +1195,8 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    }
 	} else if ( d->listBox() && d->listBox()->item( d->current ) ) {
 	    p.setClipping( FALSE );
-	    QRect r = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-						     QStyle::SC_ComboBoxEditField);
+	    QRect r = QStyle::visualRect( style().querySubControlMetrics(QStyle::CC_ComboBox, this,
+									 QStyle::SC_ComboBoxEditField), this );
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    const QPixmap *pix = item->pixmap();
 	    if ( pix ) {

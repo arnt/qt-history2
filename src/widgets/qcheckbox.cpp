@@ -166,7 +166,7 @@ QSize QCheckBox::sizeHint() const
 void QCheckBox::drawButton( QPainter *paint )
 {
     QPainter *p = paint;
-    QRect irect = style().subRect(QStyle::SR_CheckBoxIndicator, this);
+    QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_CheckBoxIndicator, this), this );
     const QColorGroup &cg = colorGroup();
 
 #ifndef QT_NO_TEXTSTREAM
@@ -240,8 +240,9 @@ void QCheckBox::drawButton( QPainter *paint )
 */
 void QCheckBox::drawButtonLabel( QPainter *p )
 {
+    QRect r = QStyle::visualRect( style().subRect(QStyle::SR_CheckBoxContents, this), this );
     style().drawControl(QStyle::CE_CheckBoxLabel, p, this,
-			style().subRect(QStyle::SR_CheckBoxContents, this),
+			r,
 			colorGroup());
 }
 
@@ -273,8 +274,8 @@ void QCheckBox::updateMask()
     bm.fill(color0);
 
     QPainter p( &bm, this );
-    QRect irect = style().subRect(QStyle::SR_CheckBoxIndicator, this);
-    QRect crect = style().subRect(QStyle::SR_CheckBoxContents, this);
+    QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_CheckBoxIndicator, this), this );
+    QRect crect = QStyle::visualRect( style().subRect(QStyle::SR_CheckBoxContents, this), this );
 
     style().drawControlMask(QStyle::CE_CheckBox, &p, this, irect);
     p.fillRect(crect, color1);

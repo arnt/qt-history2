@@ -1612,7 +1612,11 @@ void QHeader::setUpdatesEnabled( bool enable )
 
 bool QHeader::reverse () const
 {
+#if 0
     return ( orient == Qt::Horizontal && QApplication::reverseLayout() );
+#else
+    return FALSE;
+#endif
 }
 
 /*! \reimp */

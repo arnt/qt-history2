@@ -816,19 +816,20 @@ void QMotifStyle::drawControl( ControlElement element,
 	    break;
 	}
 
-    case CE_ProgressBar:
+	case CE_ProgressBar:
 	{
 	    QProgressBar *progressbar = (QProgressBar *) widget;
 
 	    qDrawShadePanel(p, r, cg, TRUE, 2);
 
+	    bool reverse = QApplication::reverseLayout();
 	    if ( !progressbar->totalSteps() ) {
 		// draw busy indicator
 		int w = r.width();
 		int x = progressbar->progress() % (w * 2);
 		if (x > w)
 		    x = 2 * w - x;
-		x += r.x();
+		x = reverse ? r.right() - x : x + r.x();
 		p->setPen( QPen(cg.highlight(), 4) );
 		p->drawLine(x, r.y() + 1, x, r.height() - 2);
 	    } else {
@@ -851,16 +852,16 @@ void QMotifStyle::drawControl( ControlElement element,
 		// a rectangle bordered by background color, all in a sunken panel
 		// with a percentage text display at the end.
 		int x = 0;
+		int x0 = reverse ? r.right() - unit_width : r.x() + 2;
 		for (int i=0; i<nu; i++) {
-		    p->fillRect(r.x() + x + 2, r.y() + 2, unit_width - 2,
+		    p->fillRect(x0 + x, r.y() + 2, unit_width - 2,
 				r.height() - 4, cg.brush(QColorGroup::Highlight));
-		    x += unit_width;
+		    x += reverse ? -unit_width: unit_width;
 		}
 	    }
 
 	    break;
 	}
-
     case CE_ProgressBarLabel:
 	{
 	    QProgressBar * pb = (QProgressBar *) widget;
@@ -1235,10 +1236,10 @@ static void get_combo_parameters( const QRect &r,
     } else {
         sy = ay+awh+dh;
     }
-    if( QApplication::reverseLayout() )
-        ax = r.x();
-    else
-        ax = r.x() + r.width() - ew;
+//     if( QApplication::reverseLayout() )
+//         ax = r.x();
+//     else
+    ax = r.x() + r.width() - ew;
     ax  += (ew-awh)/2;
 }
 
@@ -1327,8 +1328,8 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 	    int fw = pixelMetric( PM_DefaultFrameWidth, cb);
 
 	    drawPrimitive( PO_ButtonCommand, p, r, cg, flags );
-	    QRect ar = querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow,
-					       data );
+	    QRect ar = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow,
+								   data ), cb );
 	    qDrawArrow( p, DownArrow, MotifStyle, FALSE, ar.x(), ar.y(),
 			ar.width(), ar.height(), cg, TRUE );
 
@@ -1338,14 +1339,14 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 
 	    // draws the shaded line under the arrow
 	    p->setPen( cg.light() );
-	    p->drawLine( ax, sy, ax+awh-1, sy );
-	    p->drawLine( ax, sy, ax, sy+sh-1 );
+	    p->drawLine( ar.x(), sy, ar.x()+awh-1, sy );
+	    p->drawLine( ar.x(), sy, ar.x(), sy+sh-1 );
 	    p->setPen( cg.dark() );
-	    p->drawLine( ax+1, sy+sh-1, ax+awh-1, sy+sh-1 );
-	    p->drawLine( ax+awh-1, sy+1, ax+awh-1, sy+sh-1 );
+	    p->drawLine( ar.x()+1, sy+sh-1, ar.x()+awh-1, sy+sh-1 );
+	    p->drawLine( ar.x()+awh-1, sy+1, ar.x()+awh-1, sy+sh-1 );
 
 	    if ( cb->hasFocus() ) {
-		QRect re = subRect( SR_ComboBoxFocusRect, cb );
+		QRect re = QStyle::visualRect( subRect( SR_ComboBoxFocusRect, cb ), cb );
 		drawPrimitive( PO_FocusRect, p, re, cg );
 	    }
 
@@ -1356,8 +1357,8 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 	{
 	    QComboBox * cb = (QComboBox *) widget;
 	    if ( cb->editable() ) {
-		QRect er = querySubControlMetrics( CC_ComboBox, cb,
-						   SC_ComboBoxEditField );
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb,
+								       SC_ComboBoxEditField ), cb );
 		er.addCoords( -1, -1, 1, 1);
 		qDrawShadePanel( p, er, cg, TRUE, 1,
 				 &cg.brush( QColorGroup::Button ));
@@ -1633,8 +1634,6 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 		rect.addCoords( fw, fw, -fw, -fw );
 		int ew = get_combo_extra_width( rect.height() );
 
-		if( QApplication::reverseLayout() )
-		    rect.moveBy( ew, 0 );
  		rect.addCoords( 1, 1, -1-ew, -1 );
 		break;
 	    }

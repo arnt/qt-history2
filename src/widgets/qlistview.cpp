@@ -1822,7 +1822,11 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     }
 
 
+#if 0
     bool reverse = QApplication::reverseLayout();
+#else
+    bool reverse = FALSE;
+#endif
     int iconWidth = 0;
 
     if ( icon ) {
@@ -3111,8 +3115,10 @@ void QListView::updateGeometries()
     if ( d->h->offset() &&
 	 tw < d->h->offset() + d->h->width() )
 	horizontalScrollBar()->setValue( tw - QListView::d->h->width() );
+#if 0    
     if ( QApplication::reverseLayout() && d->h->offset() != horizontalScrollBar()->value() )
 	horizontalScrollBar()->setValue( d->h->offset() );
+#endif    
     verticalScrollBar()->raise();
     resizeContents( tw, th );
     if ( d->h->isHidden() ) {

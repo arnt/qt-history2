@@ -106,7 +106,10 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     : QWidget( parent, name )
 {
 #ifndef QT_NO_CURSOR
-    setCursor( sizeFDiagCursor );
+    if ( QApplication::reverseLayout() )
+	setCursor( sizeBDiagCursor );
+    else
+	setCursor( sizeFDiagCursor );
 #endif
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 #if defined(Q_WS_X11)

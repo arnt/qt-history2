@@ -332,15 +332,29 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	int sy = y;
 	int s = sw / 3;
 
-	for ( int i = 0; i < 4; ++i ) {
-	    p->setPen( QPen( cg.light(), 1 ) );
-	    p->drawLine(  sx-1, sw, sw,  sy-1 );
-	    p->setPen( QPen( cg.dark(), 1 ) );
-	    p->drawLine(  sx, sw, sw,  sy );
-	    p->setPen( QPen( cg.dark(), 1 ) );
-	    p->drawLine(  sx+1, sw, sw,  sy+1 );
-	    sx += s;
-	    sy += s;
+	if ( QApplication::reverseLayout() ) {
+	    sx = x + sw;
+	    for ( int i = 0; i < 4; ++i ) {
+		p->setPen( QPen( cg.light(), 1 ) );
+		p->drawLine(  x, sy - 1 , sx + 1,  sw );
+		p->setPen( QPen( cg.dark(), 1 ) );
+		p->drawLine(  x, sy, sx,  sw );
+		p->setPen( QPen( cg.dark(), 1 ) );
+		p->drawLine(  x, sy + 1, sx - 1,  sw );
+		sx -= s;
+		sy += s;
+	    }
+	} else {
+	    for ( int i = 0; i < 4; ++i ) {
+		p->setPen( QPen( cg.light(), 1 ) );
+		p->drawLine(  sx-1, sw, sw,  sy-1 );
+		p->setPen( QPen( cg.dark(), 1 ) );
+		p->drawLine(  sx, sw, sw,  sy );
+		p->setPen( QPen( cg.dark(), 1 ) );
+		p->drawLine(  sx+1, sw, sw,  sy+1 );
+		sx += s;
+		sy += s;
+	    }
 	}
 
 	p->restore();
@@ -549,10 +563,12 @@ void QCommonStyle::drawControl( ControlElement element,
 	    drawItem(p, r, AlignAuto | AlignVCenter | ShowPrefix, cg,
 		     flags & PStyle_Enabled, checkbox->pixmap(), checkbox->text());
 
-	    if (checkbox->hasFocus())
-		drawPrimitive(PO_FocusRect, p, subRect(SR_CheckBoxFocusRect, widget),
-			      cg, flags);
-	    break;
+	    if (checkbox->hasFocus()) {
+		QRect fr = subRect(SR_CheckBoxFocusRect, widget);
+		fr.moveBy(r.left() - 1, r.top());
+		drawPrimitive(PO_FocusRect, p, fr, cg, flags);
+	    }
+	break; 
 	}
 
     case CE_RadioButton:
@@ -587,10 +603,12 @@ void QCommonStyle::drawControl( ControlElement element,
 	    drawItem(p, r, AlignAuto | AlignVCenter | ShowPrefix, cg,
 		     flags & PStyle_Enabled, radiobutton->pixmap(), radiobutton->text());
 
-	    if (radiobutton->hasFocus())
-		drawPrimitive(PO_FocusRect, p, subRect(SR_RadioButtonFocusRect, widget),
-			      cg, flags);
-	    break;
+	    if (radiobutton->hasFocus()) {
+		QRect fr = subRect(SR_RadioButtonFocusRect, widget);
+		fr.moveBy(r.left() - 1, r.top());
+		drawPrimitive(PO_FocusRect, p, fr, cg, flags);
+	    }
+	break; 
 	}
 
     case CE_TabBarTab:
@@ -661,13 +679,14 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	    qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Background));
 
+	    bool reverse = QApplication::reverseLayout();
 	    if (! progressbar->totalSteps()) {
 		// draw busy indicator
 		int w = r.width();
 		int x = progressbar->progress() % (w * 2);
 		if (x > w)
 		    x = 2 * w - x;
-		x += r.x();
+		x = reverse ? r.right() - x : x + r.x();
 		p->setPen( QPen(cg.highlight(), 4) );
 		p->drawLine(x, r.y() + 1, x, r.height() - 2);
 	    } else {
@@ -690,10 +709,11 @@ void QCommonStyle::drawControl( ControlElement element,
 		// a rectangle bordered by background color, all in a sunken panel
 		// with a percentage text display at the end.
 		int x = 0;
+		int x0 = reverse ? r.right() - unit_width : r.x() + 3;
 		for (int i=0; i<nu; i++) {
-		    p->fillRect(r.x() + x + 3, r.y() + 3, unit_width - 2, r.height() - 6,
+		    p->fillRect(x0 + x, r.y() + 3, unit_width - 2, r.height() - 6,
 				cg.brush(QColorGroup::Highlight));
-		    x += unit_width;
+		    x += reverse ? -unit_width : unit_width;
 		}
 	    }
 
@@ -805,15 +825,15 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 
     case SR_CheckBoxFocusRect: {
 	QCheckBox *checkbox = (QCheckBox *) widget;
-	QRect ir = subRect(SR_CheckBoxIndicator, widget);
+	QRect cr = subRect(SR_CheckBoxContents, widget);
+	cr.moveTopLeft( QPoint(0, 0) );
 
 	QPainter p(checkbox);
-	rect = itemRect(&p, wrect, AlignAuto | AlignVCenter | ShowPrefix,
+	rect = itemRect(&p, cr, AlignAuto | AlignVCenter | ShowPrefix,
 			checkbox->isEnabled(), checkbox->pixmap(), checkbox->text());
 
-	rect.moveBy(ir.right() + 10, 0);
 	rect.setLeft( rect.left() - 3 );
-	rect.setRight( rect.right() + 2 );
+	rect.setRight( rect.right() + 3 );
 	rect.setTop( rect.top() - 2 );
 	rect.setBottom( rect.bottom() + 2);
 	rect = rect.intersect(wrect);
@@ -831,16 +851,16 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 
     case SR_RadioButtonFocusRect: {
 	QRadioButton *radiobutton = (QRadioButton *) widget;
-	QRect ir = subRect(SR_RadioButtonIndicator, widget);
-
+	QRect cr = subRect(SR_RadioButtonContents, widget);
+	cr.moveTopLeft( QPoint( 0, 0 ) );
+	
 	QPainter p(radiobutton);
-	rect = itemRect(&p, wrect, AlignAuto | AlignVCenter | ShowPrefix,
+	rect = itemRect(&p, cr, AlignAuto | AlignVCenter | ShowPrefix,
 			radiobutton->isEnabled(), radiobutton->pixmap(),
 			radiobutton->text());
 
-	rect.moveBy(ir.right() + 10, 0);
 	rect.setLeft( rect.left() - 3 );
-	rect.setRight( rect.right() + 2 );
+	rect.setRight( rect.right() + 3 );
 	rect.setTop( rect.top() - 2 );
 	rect.setBottom( rect.bottom() + 2);
 	rect = rect.intersect(wrect);
@@ -848,8 +868,6 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 
     case SR_ComboBoxFocusRect:
 	rect.setRect(3, 3, widget->width()-6-16, widget->height()-6);
-	if( QApplication::reverseLayout() )
-	    rect.moveBy( 2 + 16, 0 );
 	break;
 
     case SR_SliderFocusRect: {
@@ -899,7 +917,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	break;
     }
 
-    return rect;
+    return rect; 
 }
 
 /*
@@ -1418,15 +1436,9 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	bs = bs.expandedTo( QApplication::globalStrut() );
 	int y = fw;
 	int x, lx, rx;
-	if ( QApplication::reverseLayout() ) {
-	    x = y;
-	    lx = x + bs.width() + fw;
-	    rx = w->width() - fw;
-	} else {
-	    x = w->width() - y - bs.width();
-	    lx = fw;
-	    rx = x - fw;
-	}
+	x = w->width() - y - bs.width();
+	lx = fw;
+	rx = x - fw;
 	switch ( sc ) {
 	case SC_SpinWidgetUp:
 	    rect.setRect(x, y, bs.width(), bs.height());
@@ -1451,10 +1463,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
     case CC_ComboBox: {
 	int x = 0, y = 0, wi = w->width(), he = w->height();
 	int xpos = x;
-	bool reverse = QApplication::reverseLayout();
-
-	if ( !reverse )
-	    xpos += wi - 2 - 16;
+	xpos += wi - 2 - 16;
 
 	switch ( sc ) {
 	case SC_ComboBoxArrow:
@@ -1462,8 +1471,6 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    break;
 	case SC_ComboBoxEditField:
 	    rect.setRect(x+3, y+3, wi-6-16, he-6);
-	    if( reverse )
-		rect.moveBy( 2 + 16, 0 );
 	    break;
 	default:
 	    break;

@@ -331,11 +331,11 @@ void QProgressBar::drawContents( QPainter *p )
     paint.fillRect( bar, fbrush );
     paint.setFont( p->font() );
     style().drawControl(QStyle::CE_ProgressBar, &paint, this,
-			style().subRect(QStyle::SR_ProgressBarContents, this),
+			QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, this), this ),
 			colorGroup());
     if (percentageVisible())
 	style().drawControl(QStyle::CE_ProgressBarLabel, &paint, this,
-			    style().subRect(QStyle::SR_ProgressBarLabel, this),
+			    QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarLabel, this), this ),
 			    colorGroup());
     paint.end();
 

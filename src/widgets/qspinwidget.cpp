@@ -148,12 +148,12 @@ void QSpinWidget::mousePressEvent( QMouseEvent *e )
 
 void QSpinWidget::arrange()
 {
-    d->up = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
-					    QStyle::SC_SpinWidgetUp );
-    d->down = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
-					      QStyle::SC_SpinWidgetDown );
-    QRect r = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
-					      QStyle::SC_SpinWidgetEditField );
+    d->up = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
+								QStyle::SC_SpinWidgetUp ), this );
+    d->down = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
+								  QStyle::SC_SpinWidgetDown ), this );
+    QRect r = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
+								  QStyle::SC_SpinWidgetEditField ), this );
     d->vi->setGeometry( r );
 }
 
@@ -296,8 +296,8 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 				QStyle::SC_SpinWidgetDown,
 				active );
 
-    QRect fr = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
-					      QStyle::SC_SpinWidgetFrame );
+    QRect fr = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
+								   QStyle::SC_SpinWidgetFrame ), this );
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
 				fr, colorGroup(),
 				QStyle::CStyle_Default,

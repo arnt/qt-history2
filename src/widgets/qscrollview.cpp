@@ -898,9 +898,11 @@ void QScrollView::updateScrollBars()
 
     if ( contentsX()+visibleWidth() > contentsWidth() ) {
         int x;
+#if 0
         if ( reverse )
             x =QMIN(0,contentsWidth()-visibleWidth());
         else
+#endif	    
             x =QMAX(0,contentsWidth()-visibleWidth());
         d->hbar->setValue(x);
         // Do it even if it is recursive
@@ -970,12 +972,14 @@ void QScrollView::resizeEvent( QResizeEvent* event )
     // is resized.
     QFrame::resizeEvent( event );
 
+#if 0
     if ( QApplication::reverseLayout() ) {
         d->fake_scroll = TRUE;
         scrollBy( -event->size().width() + event->oldSize().width(), 0 );
         d->fake_scroll = FALSE;
     }
-
+#endif
+    
     bool inresize = d->inresize;
     d->inresize = TRUE;
     updateScrollBars();
@@ -1754,10 +1758,12 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 */
 void QScrollView::setContentsPos( int x, int y )
 {
+#if 0
     // bounds checking...
     if ( QApplication::reverseLayout() )
         if ( x > contentsWidth() - visibleWidth() ) x = contentsWidth() - visibleWidth();
     else
+#endif
         if ( x < 0 ) x = 0;
     if ( y < 0 ) y = 0;
     // Choke signal handling while we update BOTH sliders.
@@ -1819,9 +1825,11 @@ void QScrollView::center( int x, int y, float xmargin, float ymargin )
 void QScrollView::moveContents(int x, int y)
 {
     if ( -x+visibleWidth() > contentsWidth() )
+#if 0
         if( QApplication::reverseLayout() )
             x=QMAX(0,-contentsWidth()+visibleWidth());
         else
+#endif
             x=QMIN(0,-contentsWidth()+visibleWidth());
     if ( -y+visibleHeight() > contentsHeight() )
         y=QMIN(0,-contentsHeight()+visibleHeight());

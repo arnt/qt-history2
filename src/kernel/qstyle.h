@@ -426,8 +426,7 @@ public:
 				 void **data = 0 ) const = 0;
 
 
-
-
+    static QRect visualRect( const QRect &logical, const QWidget *w );
 
 
 

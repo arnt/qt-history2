@@ -639,7 +639,8 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 
     int old = d->focus;
 
-    if ( e->key() == Key_Left ) {
+    bool reverse = QApplication::reverseLayout();
+    if ( ( !reverse && e->key() == Key_Left ) || ( reverse && e->key() == Key_Right ) ) {
 	// left - skip past any disabled ones
 	if ( d->focus > 0 ) {
 	    QTab * t = lstatic->last();
@@ -653,7 +654,7 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 	}
 	if ( d->focus < 0 )
 	    d->focus = old;
-    } else if ( e->key() == Key_Right ) {
+    } else if ( ( !reverse && e->key() == Key_Right ) || ( reverse && e->key() == Key_Left ) ) {
 	QTab * t = lstatic->first();
 	while ( t && t->id != d->focus )
 	    t = lstatic->next();

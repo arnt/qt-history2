@@ -651,8 +651,6 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    const bool reverse = QApplication::reverseLayout();
 
 	    int xpos = x;
-	    if ( reverse )
-		xpos += w - checkcol;
 	    if ( mi->isChecked() ) {
 		if ( act && !dis )
 		    qDrawShadePanel( p, xpos, y, checkcol, h,
@@ -687,14 +685,11 @@ void QWindowsStyle::drawControl( ControlElement element,
 			cg.brush( QColorGroup::Highlight ) :
 			cg.brush( QColorGroup::Button ));
 		int xp;
-		if ( reverse )
-		    xp = x;
-		else
-		    xp = xpos + checkcol + 1;
+		xp = xpos + checkcol + 1;
 		p->fillRect( xp, y, w - checkcol - 1, h, fill);
 	    } else  if ( checkable ) {  // just "checking"...
 		if ( mi->isChecked() ) {
-		    int xp = reverse ? xpos - windowsItemFrame : xpos + windowsItemFrame;
+		    int xp = xpos + windowsItemFrame;
 
 		    PFlags cflags = PStyle_Default;
 		    if (! dis)
@@ -718,10 +713,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    }
 
 	    int xm = windowsItemFrame + checkcol + windowsItemHMargin;
-	    if ( reverse )
-		xpos = windowsItemFrame + tab;
-	    else
-		xpos += xm;
+	    xpos += xm;
 
 	    if ( mi->custom() ) {
 		int m = windowsItemVMargin;
@@ -743,12 +735,8 @@ void QWindowsStyle::drawControl( ControlElement element,
 		const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 		if ( t >= 0 ) {                         // draw tab text
 		    int xp;
-		    if( reverse )
-			xp = x + windowsRightBorder + windowsItemHMargin +
-			     windowsItemFrame - 1;
-		    else
-			xp = x + w - tab - windowsRightBorder - windowsItemHMargin -
-			     windowsItemFrame + 1;
+		    xp = x + w - tab - windowsRightBorder - windowsItemHMargin -
+			 windowsItemFrame + 1;
 		    if ( dis && !act ) {
 			p->setPen( cg.light() );
 			p->drawText( xp, y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
@@ -774,13 +762,8 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    if ( mi->popup() ) {                        // draw sub menu arrow
 		int dim = (h-2*windowsItemFrame) / 2;
 		PrimitiveOperation arrow;
-		if ( reverse ) {
-		    arrow = PO_ArrowLeft;
-		    xpos = x + windowsArrowHMargin + windowsItemFrame;
-		} else {
-		    arrow = PO_ArrowRight;
-		    xpos = x+w - windowsArrowHMargin - windowsItemFrame - dim;
-		}
+		arrow = PO_ArrowRight;
+		xpos = x+w - windowsArrowHMargin - windowsItemFrame - dim;
 		if ( act ) {
 		    if ( !dis )
 			discol = white;
@@ -1358,8 +1341,8 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 			   &cg.brush( QColorGroup::Base ):
 			   &cg.brush( QColorGroup::Background ) );
 
-	    QRect ar = querySubControlMetrics( CC_ComboBox, w,
-					       SC_ComboBoxArrow );
+	    QRect ar = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, w,
+								   SC_ComboBoxArrow ), w );
 	    if ( subActive & PStyle_Sunken ) {
 		p->setPen( cg.dark() );
 		p->setBrush( cg.brush( QColorGroup::Button ) );
@@ -1382,8 +1365,8 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
     case SC_ComboBoxEditField:
 	{
 	    QComboBox * cb = (QComboBox *) w;
-	    QRect re = querySubControlMetrics( CC_ComboBox, w,
-					       SC_ComboBoxEditField );
+	    QRect re = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, w,
+								   SC_ComboBoxEditField ), w );
 	    if ( cb->hasFocus() && !cb->editable() )
 		p->fillRect( re.x(), re.y(), re.width(), re.height(),
 			     cg.brush( QColorGroup::Highlight ) );
@@ -1398,7 +1381,7 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	    }
 
 	    if ( cb->hasFocus() && !cb->editable() ) {
-		QRect re = subRect( SR_ComboBoxFocusRect, cb );
+		QRect re = QStyle::visualRect( subRect( SR_ComboBoxFocusRect, cb ), w );
 		void *pdata[1];
 		pdata[0] = (void *) &cg.highlight();
 		drawPrimitive( PO_FocusRect, p, re, cg, PStyle_FocusAtBorder, pdata);
