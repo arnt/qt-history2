@@ -7,10 +7,10 @@
 # include <ctype.h>
 #endif
 
-
 class QUnicodeTables {
 public:
     static const Q_UINT8 * const unicode_info[];
+#ifndef QT_NO_UNICODETABLES
     static const Q_UINT16 decomposition_map[];
     static const Q_UINT16 * const decomposition_info[];
     static const Q_UINT16 ligature_map[];
@@ -21,6 +21,7 @@ public:
     static const Q_INT8 * const decimal_info[];
     static const Q_UINT16 symmetricPairs[];
     static const int symmetricPairsSize;
+#endif
 };
 
 
@@ -72,7 +73,6 @@ inline QChar::Direction direction( const QChar &c )
 {
 #ifndef QT_NO_UNICODETABLES
     const Q_UINT8 *rowp = QUnicodeTables::direction_info[c.row()];
-    if(!rowp) return QChar::DirL;
     return (QChar::Direction) ( *(rowp+c.cell()) & 0x1f );
 #else
     return QChar::DirL;
@@ -83,8 +83,6 @@ inline bool mirrored( const QChar &c )
 {
 #ifndef QT_NO_UNICODETABLES
     const Q_UINT8 *rowp = QUnicodeTables::direction_info[c.row()];
-    if ( !rowp )
-	return FALSE;
     return *(rowp+c.cell())>128;
 #else
     return FALSE;
@@ -112,8 +110,6 @@ inline QChar::Joining joining( const QChar &ch )
 {
 #ifndef QT_NO_UNICODETABLES
     const Q_UINT8 *rowp = QUnicodeTables::direction_info[ch.row()];
-    if ( !rowp )
-	return QChar::OtherJoining;
     return (QChar::Joining) ((*(rowp+ch.cell()) >> 5) &0x3);
 #else
     return QChar::OtherJoining;
@@ -130,8 +126,6 @@ inline unsigned char combiningClass( const QChar &ch )
 {
 #ifndef QT_NO_UNICODETABLES
     const Q_UINT8 *rowp = QUnicodeTables::combining_info[ch.row()];
-    if ( !rowp )
-	return 0;
     return *(rowp+ch.cell());
 #else
     return 0;
