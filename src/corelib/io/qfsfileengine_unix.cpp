@@ -28,47 +28,41 @@
 # include <private/qcore_mac_p.h>
 #endif
 
-#define d d_func()
-#define q q_func()
-
-void
-QFSFileEnginePrivate::init()
+void QFSFileEnginePrivate::init()
 {
 }
 
-int
-QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
+int QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 {
     return QT_OPEN(QFile::encodeName(fileName), flags, 0666);
 }
 
-bool
-QFSFileEngine::remove()
+bool QFSFileEngine::remove()
 {
+    Q_D(QFSFileEngine);
     return unlink(QFile::encodeName(d->file)) == 0;
 }
 
-bool
-QFSFileEngine::copy(const QString &)
+bool QFSFileEngine::copy(const QString &)
 {
     return false;
 }
 
-bool
-QFSFileEngine::rename(const QString &newName)
+bool QFSFileEngine::rename(const QString &newName)
 {
+    Q_D(QFSFileEngine);
     return ::rename(QFile::encodeName(d->file), QFile::encodeName(newName)) == 0;
 }
 
-bool
-QFSFileEngine::link(const QString &newName)
+bool QFSFileEngine::link(const QString &newName)
 {
+    Q_D(QFSFileEngine);
     return ::symlink(QFile::encodeName(d->file), QFile::encodeName(newName)) == 0;
 }
 
-qint64
-QFSFileEngine::size() const
+qint64 QFSFileEngine::size() const
 {
+    Q_D(const QFSFileEngine);
     QT_STATBUF st;
     int ret = 0;
     if(d->fd != -1)
@@ -80,8 +74,7 @@ QFSFileEngine::size() const
     return st.st_size;
 }
 
-bool
-QFSFileEngine::mkdir(const QString &name, bool createParentDirectories) const
+bool QFSFileEngine::mkdir(const QString &name, bool createParentDirectories) const
 {
     QString dirName = name;
     if(createParentDirectories) {
@@ -113,8 +106,7 @@ QFSFileEngine::mkdir(const QString &name, bool createParentDirectories) const
     return (::mkdir(QFile::encodeName(dirName), 0777) == 0);
 }
 
-bool
-QFSFileEngine::rmdir(const QString &name, bool recurseParentDirectories) const
+bool QFSFileEngine::rmdir(const QString &name, bool recurseParentDirectories) const
 {
     QString dirName = name;
     if(recurseParentDirectories) {
@@ -137,9 +129,9 @@ QFSFileEngine::rmdir(const QString &name, bool recurseParentDirectories) const
     return ::rmdir(QFile::encodeName(dirName)) == 0;
 }
 
-QStringList
-QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
+QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
+    Q_D(const QFSFileEngine);
     const bool doDirs     = (filters & QDir::Dirs) != 0;
     const bool doFiles    = (filters & QDir::Files) != 0;
     const bool doSymLinks = (filters & QDir::NoSymLinks) == 0;
@@ -203,22 +195,19 @@ QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) 
     return ret;
 }
 
-bool
-QFSFileEngine::caseSensitive() const
+bool QFSFileEngine::caseSensitive() const
 {
     return true;
 }
 
-bool
-QFSFileEngine::setCurrentPath(const QString &path)
+bool QFSFileEngine::setCurrentPath(const QString &path)
 {
     int r;
     r = ::chdir(QFile::encodeName(path));
     return r >= 0;
 }
 
-QString
-QFSFileEngine::currentPath(const QString &)
+QString QFSFileEngine::currentPath(const QString &)
 {
     QString result;
     QT_STATBUF st;
@@ -238,8 +227,7 @@ QFSFileEngine::currentPath(const QString &)
     return result;
 }
 
-QString
-QFSFileEngine::homePath()
+QString QFSFileEngine::homePath()
 {
     QString home = QFile::decodeName(QByteArray(qgetenv("HOME")));
     if(home.isNull())
@@ -247,14 +235,12 @@ QFSFileEngine::homePath()
     return home;
 }
 
-QString
-QFSFileEngine::rootPath()
+QString QFSFileEngine::rootPath()
 {
     return QString::fromLatin1("/");
 }
 
-QString
-QFSFileEngine::tempPath()
+QString QFSFileEngine::tempPath()
 {
     QString temp = QFile::decodeName(QByteArray(qgetenv("TMPDIR")));
     if(temp.isEmpty())
@@ -262,25 +248,23 @@ QFSFileEngine::tempPath()
     return temp;
 }
 
-QFileInfoList
-QFSFileEngine::drives()
+QFileInfoList QFSFileEngine::drives()
 {
     QFileInfoList ret;
     ret.append(rootPath());
     return ret;
 }
 
-bool
-QFSFileEnginePrivate::doStat() const
+bool QFSFileEnginePrivate::doStat() const
 {
     if(!tried_stat) {
         QFSFileEnginePrivate *that = const_cast<QFSFileEnginePrivate*>(this);
 	that->tried_stat = true;
 	that->could_stat = true;
-        if(d->fd != -1) {
-            that->could_stat = !QT_FSTAT(d->fd, &st);
+        if(fd != -1) {
+            that->could_stat = !QT_FSTAT(fd, &st);
         } else {
-            const QByteArray file = QFile::encodeName(d->file);
+            const QByteArray file = QFile::encodeName(this->file);
             if(QT_LSTAT(file, &st) == 0)
                 that->isSymLink = S_ISLNK(st.st_mode);
             that->could_stat = !QT_STAT(file, &st);
@@ -289,9 +273,9 @@ QFSFileEnginePrivate::doStat() const
     return could_stat;
 }
 
-QFileEngine::FileFlags
-QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
+QFileEngine::FileFlags QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
 {
+    Q_D(const QFSFileEngine);
     QFileEngine::FileFlags ret = 0;
     if(!d->doStat())
         return ret;
@@ -355,9 +339,9 @@ QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
     return ret;
 }
 
-QString
-QFSFileEngine::fileName(FileName file) const
+QString QFSFileEngine::fileName(FileName file) const
 {
+    Q_D(const QFSFileEngine);
     if(file == BaseName) {
         int slash = d->file.lastIndexOf(QLatin1Char('/'));
         if(slash != -1)
@@ -452,18 +436,18 @@ QFSFileEngine::fileName(FileName file) const
     return d->file;
 }
 
-bool
-QFSFileEngine::isRelativePath() const
+bool QFSFileEngine::isRelativePath() const
 {
+    Q_D(const QFSFileEngine);
     int len = d->file.length();
     if(len == 0)
         return true;
     return d->file[0] != QLatin1Char('/');
 }
 
-uint
-QFSFileEngine::ownerId(FileOwner own) const
+uint QFSFileEngine::ownerId(FileOwner own) const
 {
+    Q_D(const QFSFileEngine);
     static const uint nobodyID = (uint) -2;
     if(d->doStat()) {
         if(own == OwnerUser)
@@ -474,8 +458,7 @@ QFSFileEngine::ownerId(FileOwner own) const
     return nobodyID;
 }
 
-QString
-QFSFileEngine::owner(FileOwner own) const
+QString QFSFileEngine::owner(FileOwner own) const
 {
     if(own == OwnerUser) {
         passwd *pw = getpwuid(ownerId(own));
@@ -489,9 +472,9 @@ QFSFileEngine::owner(FileOwner own) const
     return QString();
 }
 
-bool
-QFSFileEngine::chmod(uint perms)
+bool QFSFileEngine::chmod(uint perms)
 {
+    Q_D(QFSFileEngine);
     mode_t mode = 0;
     if(perms & ReadOwnerPerm)
         mode |= S_IRUSR;
@@ -523,9 +506,9 @@ QFSFileEngine::chmod(uint perms)
     return !::chmod(file.data(), mode);
 }
 
-bool
-QFSFileEngine::setSize(qint64 size)
+bool QFSFileEngine::setSize(qint64 size)
 {
+    Q_D(QFSFileEngine);
     if(d->fd != -1)
         return !QT_FTRUNCATE(d->fd, size);
     const QByteArray file = QFile::encodeName(d->file);

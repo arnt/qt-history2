@@ -28,9 +28,6 @@
 # define QT_OPEN_ASYNC O_NDELAY
 #endif
 
-#define d d_func()
-#define q q_func()
-
 //************* QFileEngineHandler
 /*!
     \class QFileEngineHandler

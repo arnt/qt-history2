@@ -1219,6 +1219,7 @@ qint64 QFile::readLineData(char *data, qint64 maxlen)
 
     }
 #endif
+    return 0;
 }
 
 /*!
