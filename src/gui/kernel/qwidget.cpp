@@ -1114,7 +1114,7 @@ void QWidgetPrivate::composeBackground(const QRect &crect)
             offset -= w->pos();
 
         // Do the background if needed.
-        QBrush bgBrush = w->palette().brush(w->d_func()->bg_role);
+        QBrush bgBrush = w->palette().brush(w->backgroundRole());
         if (w == top || (!bgBrush.isOpaque() && w->testAttribute(Qt::WA_SetPalette))) {
             QPainter bgPainter(q);
             bgPainter.setBrushOrigin(-offset);
