@@ -3135,7 +3135,7 @@ QWidget *QWidget::focusWidget() const
     QFocusData *f = that->focusData( FALSE );
     if ( f && f->focusWidgets.count() && f->it.current() == 0 )
 	f->it.toFirst();
-    return ( f && f->it.current() && f->it.current()->focusPolicy() != NoFocus ) ? f->it.current() : 0;
+    return ( f && f->it.current() ) ? f->it.current() : 0;
 }
 
 
