@@ -141,7 +141,7 @@ public:
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProc: Destructor for pid %d and QProcess %p", pid, process );
 #endif
-	if ( process != 0 ) {
+	if ( process ) {
 	    if ( process->d->notifierStdin )
 		process->d->notifierStdin->setEnabled( FALSE );
 	    if ( process->d->notifierStdout )
@@ -150,13 +150,11 @@ public:
 		process->d->notifierStderr->setEnabled( FALSE );
 	    process->d->proc = 0;
 	}
-	if( socketStdin != 0 )
+	if( socketStdin )
 	    ::close( socketStdin );
-	// ### close these sockets even on parent exit or is it better only on
-	// sigchld (but what do I have to do with them on exit then)?
-	if( socketStdout != 0 )
+	if( socketStdout )
 	    ::close( socketStdout );
-	if( socketStderr != 0 )
+	if( socketStderr )
 	    ::close( socketStderr );
     }
 
@@ -404,18 +402,27 @@ void QProcessManager::sigchldHnd( int fd )
 		*/
 		size_t nbytes = 0;
 		// read pending data
-		if ( ::ioctl(proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
+		if ( proc->socketStdout && ::ioctl(proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
 #if defined(QT_QPROCESS_DEBUG)
 		    qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stdout", proc->pid, nbytes );
 #endif
 		    process->socketRead( proc->socketStdout );
 		}
 		nbytes = 0;
-		if ( ::ioctl(proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
+		if ( proc->socketStderr && ::ioctl(proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
 #if defined(QT_QPROCESS_DEBUG)
 		    qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stderr", proc->pid, nbytes );
 #endif
 		    process->socketRead( proc->socketStderr );
+		}
+		// close filedescriptors if open
+		if ( proc->socketStdout ) {
+		    ::close( proc->socketStdout );
+		    proc->socketStdout = 0;
+		}
+		if ( proc->socketStderr ) {
+		    ::close( proc->socketStderr );
+		    proc->socketStderr = 0;
 		}
 
 		if ( process->notifyOnExit )
