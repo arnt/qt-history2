@@ -3050,6 +3050,12 @@ bool QVariant::cast( Type t )
     case QVariant::Pen:
 	asPen();
 	break;
+    case QVariant::LongLong:
+	asLongLong();
+	break;
+    case QVariant::ULongLong:
+	asULongLong();
+	break;
     default:
     case QVariant::Invalid:
 	(*this) = QVariant();
