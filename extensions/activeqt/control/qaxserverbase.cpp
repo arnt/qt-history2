@@ -1882,7 +1882,7 @@ static bool checkHRESULT( HRESULT hres )
     }
 }
 
-static inline QString paramType(const QString ptype, bool *out)
+static inline QString paramType(const QString &ptype, bool *out)
 {
     QString res = ptype;
     *out = false;
@@ -2311,9 +2311,10 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	// FALLTHROUGH if wFlags == DISPATCH_PROPERTYGET|DISPATCH_METHOD AND not a property.
     case DISPATCH_METHOD:
 	{
-	    int nameLength = name.length();
-	    name += "(";
+            int nameLength = 0;
 	    if (index == -1) {
+	        nameLength = name.length();
+	        name += "(";
 		// no parameter - shortcut
 		if (!pDispParams->cArgs)
 		    index = mo->indexOfSlot((name + ")").latin1());
@@ -2334,6 +2335,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	    const QMetaMember slot = mo->slot(index);
 	    QString type = slot.type();
 	    name = slot.signature();
+            nameLength = name.indexOf('(');
 	    QString prototype = name.mid(nameLength + 1);
 	    prototype.truncate(prototype.length() - 1);
 	    QStringList ptypes;
