@@ -1540,4 +1540,3 @@ QTextStream& operator>>(QTextStream& ts, QSplitter& splitter)
 
 */
 
-#include "qsplitter.moc"
