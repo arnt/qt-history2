@@ -3297,7 +3297,9 @@ extern bool qt_resolve_symlinks; // defined in qapplication.cpp
 
   Under Windows and Mac OS X, this static function will use the native
   file dialog and not a QFileDialog, unless the style of the application
-  is set to something other than the native style.
+  is set to something other than the native style (Note that on Windows the
+  dialog will spin a blocking modal event loop that will not dispatch any
+  QTimers).
 
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks. For example, if /usr/tmp is a symlink to /var/tmp,
@@ -3421,7 +3423,9 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
   Under Windows and Mac OS X, this static function will use the native
   file dialog and not a QFileDialog, unless the style of the application
-  is set to something other than the native style.
+  is set to something other than the native style. (Note that on Windows the
+  dialog will spin a blocking modal event loop that will not dispatch any
+  QTimers).
 
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks. For example, if /usr/tmp is a symlink to /var/tmp,
@@ -4343,6 +4347,9 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
   the file dialog will change to /var/tmp after entering /usr/tmp.
   If \a resolveSymlinks is FALSE, the file dialog will treat
   symlinks as regular directories.
+
+  Note that on Windows the dialog will spin a blocking modal event loop 
+  that will not dispatch any QTimers.
 
   \sa getOpenFileName(), getOpenFileNames(), getSaveFileName()
 */
@@ -5420,7 +5427,9 @@ void QFileDialog::modeButtonsDestroyed()
 
   Under Windows and Mac OS X, this static function will use the native
   file dialog and not a QFileDialog, unless the style of the application
-  is set to something other than the native style.
+  is set to something other than the native style. (Note that on Windows the
+  dialog will spin a blocking modal event loop that will not dispatch any
+  QTimers).
 
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks. For example, if /usr/tmp is a symlink to /var/tmp,

@@ -385,6 +385,9 @@ QPoint QDragObject::pixmapHotSpot() const
     always be correct anyway, but on Windows this is not necessarily
     the case (e.g. the file manager starts a background process to
     move files, so the source \e{must not} delete the files!)
+
+    Note that on Windows the drag operation will spin a blocking modal
+    event loop that will not dispatch any QTimers.
 */
 bool QDragObject::drag()
 {
