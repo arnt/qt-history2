@@ -2639,9 +2639,20 @@ Q_ULLONG QLocale::toULongLong(const QString &s, bool *ok) const
     \sa toString()
 */
 
+#define QT_MAX_FLOAT 3.4028234663852886e+38
+
 float QLocale::toFloat(const QString &s, bool *ok) const
 {
-    return (float) toDouble(s, ok);
+    bool myOk;
+    double d = toDouble(s, &myOk);
+    if (!myOk || d > QT_MAX_FLOAT || d < -QT_MAX_FLOAT) {
+        if (ok != 0)
+            *ok = false;
+        return 0.0;
+    }
+    if (ok != 0)
+        *ok = true;
+    return (float) d;
 }
 
 /*!

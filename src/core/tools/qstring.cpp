@@ -4777,11 +4777,21 @@ double QString::toDouble(bool *ok) const
     \sa number(), toDouble(), toInt()
 */
 
+#define QT_MAX_FLOAT 3.4028234663852886e+38
+
 float QString::toFloat(bool *ok) const
 {
-    return (float)toDouble(ok);
+    bool myOk;
+    double d = toDouble(&myOk);
+    if (!myOk || d > QT_MAX_FLOAT || d < -QT_MAX_FLOAT) {
+        if (ok != 0)
+            *ok = false;
+        return 0.0;
+    }
+    if (ok != 0)
+        *ok = true;
+    return (float) d;
 }
-
 
 /*! \fn QString &QString::setNum(int n, int base)
 
