@@ -1137,7 +1137,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	QApplication::sendPostedEvents( workspace, QEvent::ChildInserted );
 	showEvent( (QShowEvent*)e );
 	if ( !tbSettingsRead)
-	    ( (QDockWindow*)formlist()->parentWidget() )->setFixedExtentHeight( 150 );
+	    ( (QDockWindow*)formlist()->parentWidget()->parentWidget() )->setFixedExtentHeight( 150 );
 	checkTempFiles();
 	return TRUE;
     case QEvent::Wheel:
