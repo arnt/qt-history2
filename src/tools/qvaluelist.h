@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#27 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#28 $
 **
 ** Definition of QValueList class
 **
@@ -302,9 +302,9 @@ public:
 
     QValueList<T>& operator= ( const QValueList<T>& l )
     {
+	l.sh->ref();
 	sh->derefAndDelete();
 	sh = l.sh;
-	sh->ref();
 	return *this;
     }
 
