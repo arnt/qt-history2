@@ -582,7 +582,7 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	    formWindow()->mainWindow()->objectHierarchy()->namePropertyChanged( (QWidget*)widget, ov );
 	    if ( formWindow()->isMainContainer( widget ) ) {
 		formWindow()->setName( v.toCString() );
-		formWindow()->mainWindow()->workspace()->triggerUpdate(); //### form window should trigger this via project?
+// 		formWindow()->mainWindow()->workspace()->triggerUpdate(); //### form window should trigger this via project?
 	    }
 	}
 	if ( propName == "name" && widget->inherits( "QAction" ) &&

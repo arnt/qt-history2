@@ -322,7 +322,7 @@ void FormFile::setFormWindowModified( bool m )
     if ( !formWindow() || !formWindow()->commandHistory() )
 	return;
     formWindow()->commandHistory()->setModified( m );
-    emit modificationChanged();
+    emit somethingChanged( this );
 }
 
 void FormFile::setCodeModified( bool m )
@@ -333,7 +333,7 @@ void FormFile::setCodeModified( bool m )
     if ( !editor() )
 	return;
     editor()->setModified( m );
-    emit modificationChanged();
+    emit somethingChanged( this );
 }
 
 void FormFile::showFormWindow()
@@ -548,3 +548,9 @@ QString FormFile::formName() const
     }
     return filename;
 }
+
+void FormFile::formWindowChangedSomehow()
+{
+    emit somethingChanged( this );
+}
+

@@ -55,7 +55,7 @@ public:
     QString text( int ) const;
 
     void fillCompletionList( QStringList& completion );
-    
+
     QString key( int, bool ) const; // column sorting key
 
     Project* project;
@@ -108,6 +108,7 @@ public:
 public slots:
 
     void update();
+    void update( FormFile* );
 
     void activeFormChanged( FormWindow *fw );
     void activeEditorChanged( SourceEditor *se );

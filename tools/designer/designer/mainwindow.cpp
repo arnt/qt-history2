@@ -3121,7 +3121,6 @@ void MainWindow::formNameChanged( FormWindow *fw )
 	if ( e->project() == fw->project() )
 	    e->resetContext();
     }
-    wspace->update();
 }
 
 void MainWindow::breakPointsChanged()

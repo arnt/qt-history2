@@ -77,7 +77,10 @@ public:
     QString formName() const;
 
 signals:
-    void modificationChanged();
+    void somethingChanged( FormFile* );
+    
+private slots:
+    void formWindowChangedSomehow();
 
 private:
     bool isFormWindowModified() const;
