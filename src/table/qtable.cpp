@@ -5206,6 +5206,7 @@ void QTableHeader::updateSelections()
     table->repaintSelections( &oldSelection, table->currentSel,
 			      orientation() == Horizontal,
 			      orientation() == Vertical );
+    emit table->selectionChanged();
 }
 
 void QTableHeader::saveStates()
