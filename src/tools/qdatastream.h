@@ -20,6 +20,7 @@
 #endif
 
 template<typename T> class QList;
+template<typename T> class QLinkedList;
 
 #ifndef QT_NO_DATASTREAM
 class Q_EXPORT QDataStream				// data stream class
@@ -179,8 +180,34 @@ template <typename T>
 QDataStream& operator<<( QDataStream& s, const QList<T>& l )
 {
     s << (Q_UINT32)l.size();
-    typename QList<T>::ConstIterator it = l.begin();
-    for( ; it != l.end(); ++it )
+    for (int i = 0; i < l.size(); ++i)
+	s << l.at(i);
+    return s;
+}
+
+template <typename T>
+QDataStream& operator>>( QDataStream& s, QLinkedList<T>& l )
+{
+    l.clear();
+    Q_UINT32 c;
+    s >> c;
+    for( Q_UINT32 i = 0; i < c; ++i )
+    {
+	T t;
+	s >> t;
+	l.append( t );
+	if ( s.atEnd() )
+	    break;
+    }
+    return s;
+}
+
+template <typename T>
+QDataStream& operator<<( QDataStream& s, const QLinkedList<T>& l )
+{
+    s << (Q_UINT32)l.size();
+    typename QLinkedList<T>::ConstIterator it = l.constBegin();
+    for( ; it != l.constEnd(); ++it )
 	s << *it;
     return s;
 }

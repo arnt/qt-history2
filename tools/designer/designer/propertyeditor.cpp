@@ -2773,7 +2773,7 @@ void PropertyEnumItem::setValue( const QVariant &v )
     enumString = "";
     enumList.clear();
     QStringList lst = v.toStringList();
-    QValueListConstIterator<QString> it = lst.begin();
+    QStringList::ConstIterator it = lst.begin();
     for ( ; it != lst.end(); ++it )
 	enumList.append( EnumItem( *it, FALSE ) );
     enumList.first().selected = TRUE;

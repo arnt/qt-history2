@@ -77,6 +77,7 @@ class QVector
     inline Iterator erase( Iterator pos ) { return erase(pos, pos+1); }
 
     // more Qt
+    inline int count() const { return d->size; }
     inline T& first() { Q_ASSERT(!isEmpty()); return *begin(); }
     inline const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
     inline T& last() { Q_ASSERT(!isEmpty()); return *(end()-1); }
@@ -108,8 +109,6 @@ class QVector
 
 #ifndef QT_NO_COMPAT
     // compatibility
-    inline int count() const
-    { return d->size; }
 #endif
 
     //comfort

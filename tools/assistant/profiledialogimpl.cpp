@@ -119,7 +119,7 @@ void ProfileDialog::okClicked()
 	if ( mode == Modify )
 	    Config::configuration()->removeProfile( oldProfile->props["name"] );
 	if ( removedDocFiles.count() ) {
-	    QValueListConstIterator<QString> it = removedDocFiles.begin();
+	    QStringList::ConstIterator it = removedDocFiles.begin();
 	    for ( ; it != removedDocFiles.end(); ++it )
 		profile->removeDocFileEntry( *it );
 	    removedDocFiles.clear();
@@ -244,7 +244,7 @@ void ProfileDialog::saveProfileInFile()
 	if ( !fileName.endsWith( ".adp" ) )
 	    fileName += ".adp";
 	if ( removedDocFiles.count() ) {
-	    QValueListConstIterator<QString> it = removedDocFiles.begin();
+	    QStringList::ConstIterator it = removedDocFiles.begin();
 	    for ( ; it != removedDocFiles.end(); ++it )
 		profile->removeDocFileEntry( *it );
 	    removedDocFiles.clear();

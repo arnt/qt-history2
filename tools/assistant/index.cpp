@@ -315,7 +315,7 @@ QStringList Index::getWildcardTerms( const QString &term )
 {
     QStringList lst;
     QStringList terms = split( term );
-    QValueList<QString>::iterator iter;
+    QStringList::Iterator iter;
 
     QDictIterator<Entry> it( dict );
     for( ; it.current(); ++it ) {

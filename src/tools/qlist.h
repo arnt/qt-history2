@@ -153,6 +153,7 @@ public:
     Iterator erase(Iterator first, Iterator last);
 
     // more Qt
+    inline int count() const { return p.size(); }
     inline T& first() { Q_ASSERT(!isEmpty()); return *begin(); }
     inline const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
     T& last() { Q_ASSERT(!isEmpty()); return *(--end()); }
@@ -172,6 +173,12 @@ public:
     inline void pop_front() { removeFirst(); }
     inline void pop_back() { removeLast(); }
     inline bool empty() const { return isEmpty(); }
+    typedef int size_type;
+
+#ifndef QT_NO_COMPAT
+    // compatibility
+    inline Iterator remove(Iterator it) { return erase(it); }
+    inline int findIndex( const T& t ) const { return indexOf(t); }
     inline Iterator find (const T& t)
     { int i = indexOf(t); return (i == -1 ? end() : (begin()+i)); }
     inline ConstIterator find (const T& t) const
@@ -180,13 +187,6 @@ public:
     { int i = indexOf(t, it-begin()); return i == -1 ? end() : begin()+i; }
     inline ConstIterator find (ConstIterator it, const T& t) const
     { int i = indexOf(t, it-begin()); return i == -1 ? end() : begin()+i; }
-    typedef int size_type;
-
-#ifndef QT_NO_COMPAT
-    // compatibility
-    inline Iterator remove(Iterator it) { return erase(it); }
-    inline int count() const { return p.size(); }
-    inline int findIndex( const T& x ) const { return indexOf(x); }
 #endif
 
     // comfort

@@ -74,7 +74,7 @@ bool Config::addProfile( const QString &profileFileName, const QString &path )
 	}
     }
 
-    QValueListIterator<QString> it = p->docs.begin();
+    QStringList::Iterator it = p->docs.begin();
     for ( ; it != p->docs.end(); ++it ) {
 	QFileInfo dfi( *it );
 	QString icon = p->icons[*it];
@@ -212,7 +212,7 @@ Profile* Config::loadProfile( const QString &name )
     QStringList profileLst = settings.entryList( key );
 
     bool found = FALSE;
-    QValueListConstIterator<QString> it = profileLst.begin();
+    QStringList::ConstIterator it = profileLst.begin();
     for ( ; it != profileLst.end(); ++it ) {
 	if ( *it == name ) {
 	    found = TRUE;
@@ -236,9 +236,9 @@ Profile* Config::loadProfile( const QString &name )
     QStringList imgDirLst = settings.readListEntry( profKey + "ImageDirs" );
 
     it = profile->docs.begin();
-    QValueListConstIterator<QString> iconIt = iconLst.begin();
-    QValueListConstIterator<QString> titleIt = titleLst.begin();
-    QValueListConstIterator<QString> imageIt = imgDirLst.begin();
+    QStringList::ConstIterator iconIt = iconLst.begin();
+    QStringList::ConstIterator titleIt = titleLst.begin();
+    QStringList::ConstIterator imageIt = imgDirLst.begin();
     for( ; it != profile->docs.end() && iconIt != iconLst.end()
 	&& titleIt != titleLst.end() && imageIt != imgDirLst.end();
 	++it, ++iconIt, ++titleIt, ++imageIt )
@@ -269,7 +269,7 @@ void Config::saveProfile( Profile *profile, bool changed )
     settings.writeEntry( profKey + "StartPage", profile->props["startpage"] );
 
     QStringList titles, icons, imgDirs;
-    QValueListConstIterator<QString> it = profile->docs.begin();
+    QStringList::ConstIterator it = profile->docs.begin();
     for ( ; it != profile->docs.end(); ++it ) {
 	titles << profile->titles[*it];
 	icons << profile->icons[*it];
@@ -315,7 +315,7 @@ bool Config::setCurrentProfile( const QString &name )
 QStringList Config::mimePaths()
 {
     QStringList lst;
-    QValueListConstIterator<QString> it = profil->docs.begin();
+    QStringList::ConstIterator it = profil->docs.begin();
     for ( ; it != profil->docs.end(); ++it ) {
 	QFileInfo fi( *it );
 	lst << fi.dirPath( TRUE );

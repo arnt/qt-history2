@@ -597,7 +597,7 @@ void Uic::createFormDecl( const QDomElement &e )
 
 void Uic::writeFunctionsDecl( const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst )
 {
-    QValueListConstIterator<QString> it, it2, it3;
+    QStringList::ConstIterator it, it2, it3;
     for ( it = fuLst.begin(), it2 = typLst.begin(), it3 = specLst.begin();
 	  it != fuLst.end(); ++it, ++it2, ++it3 ) {
 	QString signature = *it;

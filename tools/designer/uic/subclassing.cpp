@@ -158,7 +158,7 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 
 void Uic::writeFunctionsSubDecl( const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst )
 {
-    QValueListConstIterator<QString> it, it2, it3;
+    QStringList::ConstIterator it, it2, it3;
     for ( it = fuLst.begin(), it2 = typLst.begin(), it3 = specLst.begin();
 	  it != fuLst.end(); ++it, ++it2, ++it3 ) {
 	QString type = *it2;
@@ -311,7 +311,7 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 void Uic::writeFunctionsSubImpl( const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst,
 				 const QString &subClass, const QString &descr )
 {
-    QValueListConstIterator<QString> it, it2, it3;
+    QStringList::ConstIterator it, it2, it3;
     for ( it = fuLst.begin(), it2 = typLst.begin(), it3 = specLst.begin();
 	  it != fuLst.end(); ++it, ++it2, ++it3 ) {
 	QString type = *it2;

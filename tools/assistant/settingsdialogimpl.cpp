@@ -131,7 +131,7 @@ void SettingsDialog::setupProfiles()
     root->setOpen( TRUE );
 
     ProfileCheckItem *ci;
-    QValueListConstIterator<QString> it = profs.begin();
+    QStringList::ConstIterator it = profs.begin();
     for ( ; it != profs.end(); ++it ) {
 	ci = new ProfileCheckItem( root, *it );
 	ci->setSelected( FALSE );
@@ -216,7 +216,7 @@ void SettingsDialog::accept()
 
     hide();
 
-    QValueListConstIterator<QString> it = deleteProfilesList.begin();
+    QStringList::ConstIterator it = deleteProfilesList.begin();
     for ( ; it != deleteProfilesList.end(); ++it )
 	config->removeProfile( *it );
 
