@@ -1,4 +1,3 @@
-#include <qmainwindow.h>
 #include <qstatusbar.h>
 #include <qmessagebox.h>
 #include <qmenubar.h>
@@ -15,7 +14,6 @@ extern QString logo_fn;
 
 int main(int argc, char** argv)
 {
-    printf("here %d %p\n", argc, argv);
     QApplication app(argc,argv);
 
     /*
