@@ -12,7 +12,5 @@ win32 {
 	CONFIG		+= png zlib
 	CONFIG		-= jpeg
 	INCLUDEPATH	+= tmp
-	MOC_DIR		= tmp
-	OBJECTS_DIR	= tmp
 }
 win32-borland:INCLUDEPATH += kernel
