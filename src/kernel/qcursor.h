@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#15 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#16 $
 **
 ** Definition of QCursor class
 **
@@ -43,6 +43,7 @@ public:
     static QPoint pos();
     static void	  setPos( int x, int y );
     static void	  setPos( const QPoint & );
+    static QWidget *widget();
 
     static void	  initialize();
     static void	  cleanup();
