@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#17 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -18,7 +18,7 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#17 $";
 #endif
 
 
@@ -407,8 +407,8 @@ void QFont::setStyleHint( StyleHint h )
   Sets the character set (e.g. Latin1). If the character set is not available
   another will be used, for most non-trivial applications you will probably
   not want this to happen since it can totally obscure the text shown to the 
-  user when the font is used. This is why the \link fontmatch font matching
-  \endlink algorithm gives high priority to finding the correct
+  user when the font is used. This is why the \link fontmatch.html font
+  matching \endlink algorithm gives high priority to finding the correct
   character set.
 
   (Currently using the correct font family has higher priority than
