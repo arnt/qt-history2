@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#11 $
 **
 ** Implementation of QImage class
 **
@@ -19,7 +19,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#11 $";
 #endif
 
 
@@ -684,7 +684,7 @@ QImage::QImage( const QPixMap &pixmap )
     int w=pixmap.width(), h=pixmap.height(), d=pixmap.depth();
     data->pm = new QPixMap( w, h, d );		// make a copy of the pixmap
     CHECK_PTR( data->pm );
-    ((QPixMap*)&pixmap)->bitBlt( 0, 0, w, h, data->pm, 0, 0 );
+    bitBlt( data->pm, 0, 0, &pixmap, 0, 0, w, h );
 }
 
 QImage::QImage( const QImage &image )
@@ -754,8 +754,7 @@ QImage QImage::copy() const
 	int d=data->pm->depth();
 	QPixMap *pm = new QPixMap( w, h, d );	// create new pixmap
 	CHECK_PTR( pm );
-	data->pm->bitBlt( 0, 0, w, h,		// copy from this pixmap
-			  pm, 0, 0 );		//   into new pixmap
+	bitBlt( pm, 0, 0, data->pm, 0, 0, w, h);// copy to new pixmap
 	QImage image( *pm );
 	return image;
     }
@@ -819,10 +818,9 @@ void QImage::resize( int w, int h )
     if ( data->pm ) {				// has existing pixmap
 	QPixMap *pm = new QPixMap( w, h, depth() );
 	CHECK_PTR( pm );
-	data->pm->bitBlt( 0, 0,			// copy old pixmap
-			  MIN(pm->width(), data->pm->width()),
-			  MIN(pm->height(),data->pm->height()),
-			  pm, 0, 0 );
+	bitBlt( pm, 0, 0, data->pm, 0, 0,	// copy old pixmap
+		MIN(pm->width(), data->pm->width()),
+		MIN(pm->height(),data->pm->height()) );
 	delete data->pm;			// delete old pixmap
 	data->pm = pm;
     }
