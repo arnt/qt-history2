@@ -44,6 +44,7 @@
 #include "qfileinfo.h"
 #include "qhash.h"
 #include "qevent.h"
+#include "qdebug.h"
 #include <private/qunicodetables_p.h>
 #include <private/qcrashhandler_p.h>
 
@@ -300,7 +301,7 @@ extern QWidgetList *qt_modal_stack;                // stack of modal widgets
 static Window pressed_window = XNone;
 
 // popup control
-static bool popupReplayMouse = false;
+static bool replayPopupMouseEvent = false;
 static bool popupGrabOk;
 
 static bool sm_blockUserInput = false;                // session management
@@ -3157,14 +3158,13 @@ void QApplication::closePopup(QWidget *popup)
         QApplicationPrivate::popupWidgets = 0;
         if (!qt_nograb() && popupGrabOk) {        // grabbing not disabled
             Display *dpy = X11->display;
-            if (mouseButtonState != 0
-                || popup->geometry().contains(QPoint(mouseGlobalXPos, mouseGlobalYPos))
+            if (popup->geometry().contains(QPoint(mouseGlobalXPos, mouseGlobalYPos))
                 || popup->testAttribute(Qt::WA_NoMouseReplay)) {
                 // mouse release event or inside
-                popupReplayMouse = false;
+                replayPopupMouseEvent = false;
             } else {                                // mouse press event
                 mouseButtonPressTime -= 10000;        // avoid double click
-                popupReplayMouse = true;
+                replayPopupMouseEvent = true;
             }
             XUngrabPointer(dpy, X11->time);
             XUngrabKeyboard(dpy, X11->time);
@@ -3458,7 +3458,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         int oldOpenPopupCount = openPopupCount;
 
         // deliver event
-        popupReplayMouse = false;
+        replayPopupMouseEvent = false;
         if (qt_button_down) {
             QMouseEvent e(type, qt_button_down->mapFromGlobal(globalPos),
                           globalPos, button, buttons, modifiers);
@@ -3473,14 +3473,14 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         }
 
         if (qApp->activePopupWidget() != activePopupWidget
-            && popupReplayMouse) {
+            && replayPopupMouseEvent) {
             // the active popup was closed, replay the mouse event
             if (!isPopup()) {
                 QMouseEvent e(type, mapFromGlobal(globalPos), globalPos, button,
                               buttons, modifiers);
                 QApplication::sendSpontaneousEvent(this, &e);
             }
-            popupReplayMouse = false;
+            replayPopupMouseEvent = false;
         } else if (type == QEvent::MouseButtonPress
                    && button == Qt::RightButton
                    && (openPopupCount == oldOpenPopupCount)) {
