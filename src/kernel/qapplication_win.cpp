@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#258 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#259 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -286,7 +286,7 @@ static QFont LOGFONT_AorW_to_QFont(LOGFONT& lf)
     QFont qf(
 	qt_winver == Qt::WV_NT
 	    ? qt_winQString(lf.lfFaceName)
-	    : QString(lf.lfFaceName)
+	    : QString((char*)lf.lfFaceName)
     );
     if (lf.lfItalic)
 	qf.setItalic( TRUE );
@@ -313,8 +313,8 @@ static void qt_set_windows_resources()
 	ncm.cbSize = sizeof( ncm );
 	SystemParametersInfo( SPI_GETNONCLIENTMETRICS,
 			      sizeof( ncm ), &ncm, NULL);
-	menuFont = LOGFONT_AotW_to_QFont(ncm.lfMenuFont);
-	messageFont = LOGFONT_AotW_to_QFont(ncm.lfMessageFont);
+	menuFont = LOGFONT_AorW_to_QFont(ncm.lfMenuFont);
+	messageFont = LOGFONT_AorW_to_QFont(ncm.lfMessageFont);
     } else {
 	// A version
 	NONCLIENTMETRICSA ncm;
@@ -641,7 +641,7 @@ const char* qt_reg_winclass( int flags )	// register window class
 	wc.hbrBackground= 0;
 	wc.lpszMenuName	= 0;
 	wc.lpszClassName= cname;
-	RegisterClass( &wc );
+	RegisterClassA( &wc );
     }
 
     winclassNames->insert( cname, (int*)1 );
