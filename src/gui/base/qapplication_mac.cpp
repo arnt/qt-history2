@@ -901,6 +901,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
     // Get command line params
     if(int argc = priv->argc) {
 	int i, j = 1;
+	QString passed_psn;
 	for(i=1; i < argc; i++) {
 	    if(argv[i] && *argv[i] != '-') {
 		argv[j++] = argv[i];
@@ -922,31 +923,46 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 			else
 			    qDebug("Qt: internal: Misunderstood input style '%s'", s.latin1());
 		    }
+		} else if(arg.left(5) == "-psn_") {
+		    passed_psn = arg.mid(6);
 		} else {
-		    //just ignore it, this seems to be passed from the finder (no clue what it does) FIXME
-		    if(arg.left(5) == "-psn_");
-		    else
-			argv[j++] = argv[i];
+		    argv[j++] = argv[i];
 		}
 	}
 	priv->argc = j;
 	// Set application name
-	char *p = strrchr(argv[0], '/');
-	appName = p ? p + 1 : argv[0];
+	{ // Set application name
+	    ProcessSerialNumber psn;
+	    if(GetCurrentProcess(&psn) == noErr) {
+		CFStringRef cfstr;
+		CopyProcessName(&psn, &cfstr);
+		appName = strdup(cfstring2qstring(cfstr).latin1());
+		CFRelease(cfstr);
+	    } else {
+		char *p = strrchr(argv[0], '/');
+		appName = strdup(p ? p + 1 : argv[0]);
+	    }
+	}
+
 	if(qt_is_gui_used && argv[0] && *argv[0] != '/')
 	    qWarning("Qt: QApplication: Warning argv[0] == '%s' is relative.\n"
 		     "In order to dispatch events correctly Mac OS X may "
 		     "require applications to be run with the *full* path to the "
 		     "executable.", argv[0]);
-	//special hack to change working directory to a resource fork when running from finder
-	if (p && !QDir::isRelativePath(p) && QDir::currentDirPath() == "/") {
-	    QString path = argv[0];
-            QString tmpStr = QString("/Contents/MacOS/") + appName;
-            if (path.endsWith(tmpStr)) {
-                int rfork = path.lastIndexOf('/', path.length() - tmpStr.length() - 1);
-                if (rfork != -1)
-                    QDir::setCurrent(path.left(rfork + 1));
-            }
+	//special hack to change working directory (for an app bundle) when running from finder
+	if(!passed_psn.isNull() && QDir::currentDirPath() == "/") {
+	    QString qbundlePath;
+	    {
+		CFURLRef bundleURL = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+		CFStringRef cfPath = CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle);
+		qbundlePath = cfstring2qstring(cfPath);
+		CFRelease(bundleURL);
+		CFRelease(cfPath);
+	    }
+#ifdef Q_WS_MACX
+            if(qbundlePath.endsWith(".app")) 
+		QDir::setCurrent(qbundlePath.section('/', 0, -2));
+#endif
 	}
     }
 
