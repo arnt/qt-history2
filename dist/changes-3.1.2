@@ -13,6 +13,10 @@ fixes.
 XFree86 only: Tablet support now also looks for devices called "pen",
 not just "stylus" and "eraser".
 
+Animations: Less CPU-consuming roll effects.
+X11 only: Disable effects on displays with <16bpp (rather than
+falling back to the scrolling).
+
 
 ****************************************************************************
 *                               Library                                    *
@@ -320,9 +324,6 @@ not just "stylus" and "eraser".
 	If there is a custom QWhatsThis installed for the whole menu
 	but no whatsThis set for the item, use the custom QWhatsThis
 	to get the help text. Improved size for multi-column popups.
-	Less CPU-consuming roll effects.
-	X11 only: Disable effects on displays with <16bpp (rather than
-	falling back to the scrolling).
 	Mac only: Improved scrollable popups
 	Mac only: Fix handling of popupmenu dismissing mouse presses.
 
@@ -440,7 +441,7 @@ not just "stylus" and "eraser".
 	popdown arrows.
 	Mac style (Mac only): Comboboxes will now be smaller (and closer to
 	Aqua Style suggested sizes). Expansion widgets (in a listview) will
-    now draw in the correct background color to allow non-white listviews.
+	now draw in the correct background color to allow non-white listviews.
 
 - QSpinBox
 	Stop spinning when users press a button other than the
