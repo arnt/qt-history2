@@ -84,6 +84,9 @@ public:
     Q_LONGLONG write(const char *data, Q_LONGLONG len);
     Q_LONGLONG write(const QByteArray &data);
 
+    virtual bool waitForReadyRead(int msecs);
+    virtual bool waitForBytesWritten(int msecs);
+
     bool getChar(char *c);
     bool putChar(char c);
     void ungetChar(char c);
@@ -136,7 +139,8 @@ public:
     inline QT_COMPAT bool isTranslated() const { return (openMode() & Translate) != 0; }
     inline QT_COMPAT bool isInactive() const { return !isOpen(); }
 
-    QT_COMPAT int status() const;
+    typedef int Status;
+    QT_COMPAT Status status() const;
     QT_COMPAT void resetStatus();
 
     inline QT_COMPAT Offset at() const { return pos(); }

@@ -608,6 +608,16 @@ void QIODevice::ungetChar(char c)
     d->ungetBuffer.append(c);
 }
 
+bool QIODevice::waitForReadyRead(int)
+{
+    return false;
+}
+
+bool QIODevice::waitForBytesWritten(int)
+{
+    return false;
+}
+
 void QIODevice::setErrorString(const QString &str)
 {
     d->errorString = str;
@@ -619,7 +629,7 @@ QString QIODevice::errorString() const
 }
 
 #if defined QT_COMPAT
-int QIODevice::status() const
+QIODevice::Status QIODevice::status() const
 {
 #if !defined(QT_NO_QOBJECT)
     const QFile *f = qt_cast<const QFile *>(this);

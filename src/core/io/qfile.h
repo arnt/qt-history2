@@ -131,10 +131,7 @@ public:
     virtual QFileEngine *fileEngine() const;
 
 #ifdef QT_COMPAT
-    typedef Error Status;
     typedef Permission PermissionSpec;
-    inline QT_COMPAT Status status() const { return error(); }
-    inline QT_COMPAT void resetStatus() { unsetError(); }
     inline QT_COMPAT QString name() const { return fileName(); }
     inline QT_COMPAT void setName(const QString &name) { setFileName(name); }
 #endif
