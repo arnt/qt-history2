@@ -95,12 +95,14 @@ public:
 	OkRequest = 94,				// CE (Ok) button pressed
 	HelpRequest = 95,			// CE (?)  button pressed
 
-	FontChange = 96,                        // font has changed
-	EnabledChange = 97,                     // enabled state has changed
-	ActivationChange = 98,                  // window activation has changed
-	StyleChange = 99,                       // style has changed
-	IconTextChange = 100,                   // icon text has changed
-	ModifiedChange = 101,                   // modified state has changed
+	IconDrag = 96,                          // proxy icon dragged
+
+	FontChange = 97,                        // font has changed
+	EnabledChange = 98,                     // enabled state has changed
+	ActivationChange = 99,                  // window activation has changed
+	StyleChange = 100,                      // style has changed
+	IconTextChange = 101,                   // icon text has changed
+	ModifiedChange = 102,                   // modified state has changed
 
 	User = 1000,				// first user event id
 	MaxUser = 65535				// last user event id

@@ -139,6 +139,7 @@
     \value TabletPress  A Wacom Tablet Press Event
     \value TabletRelease  A Wacom Tablet Release Event
     \value OkRequest  Internal event used by Qt on some platforms.
+    \value IconDrag     Internal event used by Qt on some platforms when proxy icon is dragged.
     \value HelpRequest  Internal event used by Qt on some platforms.
     \value FontChange Widget's font has changed
     \value EnabledChange Widget's enabled state has changed
