@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#291 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#292 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#291 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#292 $");
 
 
 /*****************************************************************************
@@ -1800,12 +1800,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	case MotionNotify:
 	    qt_x_clipboardtime = (event->type == MotionNotify) ?
 		event->xmotion.time : event->xbutton.time;
-	    if ( widget->isEnabled() ) {
-		if ( event->type == ButtonPress &&
-		     event->xbutton.button == Button1 &&
-		     (widget->focusPolicy() & QWidget::ClickFocus) )
-		    widget->setFocus();
-	    }
+	    if ( widget->isEnabled() &&
+		 event->type == ButtonPress &&
+		 event->xbutton.button == Button1 &&
+		 (widget->focusPolicy() & QWidget::ClickFocus) )
+		widget->setFocus();
 	    widget->translateMouseEvent( event );
 	    break;
 
@@ -2730,9 +2729,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( testWFlags(WType_Popup) )	// ignore replayed event
 		return TRUE;
 	}
-
-	if ( !widget->isEnabled() )
-	    return FALSE;
 
 	QMouseEvent e( type, pos, button, state );
 	QApplication::sendEvent( widget, &e );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#130 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#131 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#130 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#131 $");
 
 
 /*****************************************************************************
@@ -626,6 +626,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
     postedEvents->append( new QPostEvent(receiver,event) );
 }
 
+
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
     // ### This is identical to X11 version.
@@ -694,6 +695,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     }
 }
 
+
 static void sendPostedEvents()			// transmit posted events
 {
     if ( !postedEvents )
@@ -714,6 +716,7 @@ static void sendPostedEvents()			// transmit posted events
 	}
     }
 }
+
 
 void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
 {
@@ -1091,14 +1094,12 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( type >= 0 )
 	    sn_activate_fd( wParam, type );
     } else if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
-	if ( widget->isEnabled() ) {
-	    if ( message == WM_LBUTTONDOWN &&
-		 (widget->focusPolicy() & QWidget::ClickFocus) )
-		widget->setFocus();
-	    widget->translateMouseEvent( msg ); // mouse event
-	}
-    }
-    else
+	if ( widget->isEnabled() &&
+	     message == WM_LBUTTONDOWN &&
+	     (widget->focusPolicy() & QWidget::ClickFocus) )
+	    widget->setFocus();
+	widget->translateMouseEvent( msg ); // mouse event
+    } else
     switch ( message ) {
 
 	case WM_KEYDOWN:			// keyboard event
@@ -1577,7 +1578,7 @@ static void cleanupTimers()			// remove pending timers
 
     if ( qt_win_use_simple_timers ) {
 	// Dangerous to leave WM_TIMER events in the queue if they have our
-	// timerproc (eg. Qt-based DLL plugins may be unloaded) 
+	// timerproc (eg. Qt-based DLL plugins may be unloaded)
 	MSG msg;
 	while (PeekMessage( &msg, (void*)-1, WM_TIMER, WM_TIMER, PM_REMOVE ))
 	    continue;
@@ -1614,7 +1615,7 @@ int qStartTimer( int interval, QObject *obj )
 	    numZeroTimers++;
 	} else {
 	    t->id = SetTimer( 0, 0, (uint)interval, 0 );
-	} 
+	}
     }
     if ( t->id == 0 ) {
 #if defined(DEBUG)
@@ -1993,7 +1994,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     		    wm_char.wParam = 0;
 		if ( !code )
 		    code = asciiToKeycode(msg.wParam, state);
-	    } else { 
+	    } else {
 		if ( !code )
 		    code = asciiToKeycode(wm_char.wParam, state);
 	    }
