@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#60 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#61 $
 **
 ** Definition of QListView widget class
 **
@@ -118,7 +118,7 @@ public:
     bool isSelectable() const { return selectable; }
 
     virtual void setExpandable( bool );
-    bool isExpandable() { return expandable; }
+    bool isExpandable() const { return expandable; }
 
     void repaint() const;
 

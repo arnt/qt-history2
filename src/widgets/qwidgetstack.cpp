@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#19 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -45,7 +45,7 @@ class QWidgetStackPrivate {
   widgets using addWidget() and removeWidget().
 
   visibleWidget() is the \e get equivalent of raiseWidget(); it
-  returns a pointer ot the widget that is currently on the top of the
+  returns a pointer to the widget that is currently on the top of the
   stack.
 
   QWidgetStack also provides the ability to manipulate widgets through
@@ -279,7 +279,7 @@ void QWidgetStack::show()
 
 
 /*!  Returns a pointer to the widget with ID \a id.  If this widget
-  stack does not manage a widget with ID \a id, this function return
+  stack does not manage a widget with ID \a id, this function returns
   0.
 
   \sa id() addWidget()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#154 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#155 $
 **
 ** Implementation of QListView widget class
 **
@@ -676,7 +676,7 @@ void QListViewItem::invalidateHeight()
   TRUE, and to be closed (its children are not visible) if \a o is
   FALSE.
 
-  Also does some bookeeping.
+  Also does some bookkeeping.
 
   \sa ownHeight() totalHeight()
 */
@@ -1094,7 +1094,7 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &,
   only in the rectangle you need to; \a cg is the color group to use,
   0,top is the top left corner of the update rectangle, w-1,top is the
   top right corner, 0,bottom-1 is the bottom left corner and the
-  bottom right corner is left as an excercise for the reader.
+  bottom right corner is left as an exercise for the reader.
 
   The update rectangle is in an undefined state when this function is
   called; this function must draw on \e all of the pixels.
@@ -2173,7 +2173,7 @@ QListViewItem * QListViewItem::itemAbove()
 /*!  Returns a pointer to the item immediately below this item on the
   screen.  This is usually the item's eldest child, but may also be
   its next younger sibling, its parent's next younger sibling,
-  granparent's etc., or something else if anyoftheabove->height()
+  grandparent's etc., or something else if anyoftheabove->height()
   returns 0.
 
   This function assumes that all parents of this item are open
@@ -3282,7 +3282,7 @@ void QCheckListItem::activate()
 }
 
 /*!
-  Sets this button on of \a b is TRUE, off otherwise. Maintains radiobutton
+  Sets this button on if \a b is TRUE, off otherwise. Maintains radiobutton
   exclusivity.
  */
 void QCheckListItem::setOn( bool b  )
