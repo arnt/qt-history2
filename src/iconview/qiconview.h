@@ -475,7 +475,8 @@ private:
 #endif
     void drawContents( QPainter* );
     QIconViewItem* findItemByName( QIconViewItem *start );
-    void handleItemChange( QIconViewItem *old, bool shift, bool control );
+    void handleItemChange( QIconViewItem *old, bool shift,
+			   bool control, bool homeend = FALSE);
 
     int calcGridNum( int w, int x ) const;
     QIconViewItem *rowBegin( QIconViewItem *item ) const;

@@ -1468,7 +1468,7 @@ void QIconViewItem::setSelected( bool s, bool cb )
 	    selected = s;
 	}
 
-	repaint();
+ 	repaint();
 	if ( !view->signalsBlocked() ) {
 	    bool emitIt = view->d->selectionMode == QIconView::Single && s;
 	    QIconView *v = view;
@@ -3764,13 +3764,15 @@ void QIconView::selectAll( bool select )
     QRect rr;
     for ( ; item; item = item->next ) {
 	if ( select != item->isSelected() ) {
-	    item->setSelected( select, TRUE );
+ 	    item->setSelected( select, TRUE );
 	    rr = rr.unite( item->rect() );
 	    changed = TRUE;
 	}
     }
     viewport()->setUpdatesEnabled( ue );
-    repaintContents( rr, FALSE );
+    // we call updateContents not repaintContents because of possible previous updateContents
+    QScrollView::updateContents( rr );
+    QApplication::sendPostedEvents( viewport(), QEvent::Paint );
     if ( i )
 	setCurrentItem( i );
     blockSignals( b );
@@ -4891,6 +4893,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 		    item = i;
 		} else {
 		    if ( d->arrangement == LeftToRight ) {
+			// we use pixmap so the items textlength are ignored
 			// find topmost, leftmost item
 			if ( i->pixmapRect( FALSE ).y() < item->pixmapRect( FALSE ).y() ||
 			     ( i->pixmapRect( FALSE ).y() == item->pixmapRect( FALSE ).y() &&
@@ -4910,8 +4913,11 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	}
 
 	if ( item ) {
+	    QIconViewItem *old = d->currentItem;
 	    setCurrentItem( item );
-	    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
+	    ensureItemVisible( item );
+	    handleItemChange( old, e->state() & ShiftButton,
+			      e->state() & ControlButton, TRUE );
 	}
     } break;
     case Key_End: {
@@ -4949,9 +4955,12 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	    c = c->p;
 	}
 
-	if ( item) {
+	if ( item ) {
+	    QIconViewItem *old = d->currentItem;
 	    setCurrentItem( item );
-	    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
+	    ensureItemVisible( item );
+ 	    handleItemChange( old, e->state() & ShiftButton,
+ 			      e->state() & ControlButton, TRUE );
 	}
     } break;
     case Key_Right: {
@@ -4969,10 +4978,12 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	    item = findItem( dir, QPoint( 0, r.center().y() ), r );
 	}
 
-	QIconViewItem *i = d->currentItem;
-	setCurrentItem( item );
-	item = i;
-	handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
+	if ( item ) {
+	    QIconViewItem *old = d->currentItem;
+	    setCurrentItem( item );
+	    ensureItemVisible( item );
+	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+	}
     } break;
     case Key_Left: {
 	d->currInputString = QString::null;
@@ -4989,10 +5000,12 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	    item = findItem( dir, QPoint( contentsWidth(), r.center().y() ), r );
 	}
 
-	QIconViewItem *i = d->currentItem;
-	setCurrentItem( item );
-	item = i;
-	handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
+	if ( item ) {
+	    QIconViewItem *old = d->currentItem;
+	    setCurrentItem( item );
+	    ensureItemVisible( item );
+	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+	}
     } break;
     case Key_Space: {
 	d->currInputString = QString::null;
@@ -6143,7 +6156,8 @@ void QIconView::movedContents( int, int )
     }
 }
 
-void QIconView::handleItemChange( QIconViewItem *old, bool shift, bool control )
+void QIconView::handleItemChange( QIconViewItem *old, bool shift,
+				  bool control, bool homeend )
 {
     if ( d->selectionMode == Single ) {
 	bool block = signalsBlocked();
@@ -6223,6 +6237,7 @@ void QIconView::handleItemChange( QIconViewItem *old, bool shift, bool control )
 		bool midValid = midRect.isValid();
 		bool topValid = topRect.isValid();
 		bool bottomValid = bottomRect.isValid();
+		QRect selectedRect, unselectedRect;
 		for ( item = d->firstItem; item; item = item->next ) {
 		    bool contained = FALSE;
 		    QPoint itemCenter = item->rect().center();
@@ -6237,13 +6252,29 @@ void QIconView::handleItemChange( QIconViewItem *old, bool shift, bool control )
 			if ( !item->selected && item->isSelectable() ) {
 			    changed = TRUE;
 			    item->selected = TRUE;
-			    repaintItem( item );
+			    selectedRect = selectedRect.unite( item->rect() );
 			}
 		    } else if ( item->selected ) {
 			item->selected = FALSE;
+			unselectedRect = unselectedRect.unite( item->rect() );
 			changed = TRUE;
-			repaintItem( item );
 		    }
+		}
+
+		QRect viewRect( contentsX(), contentsY(),
+				visibleWidth(), visibleHeight() );
+
+   		if ( viewRect.intersects( selectedRect ) ) {
+		    if ( homeend )
+			QScrollView::updateContents( viewRect.intersect( selectedRect ) );
+		    else
+			repaintContents( viewRect.intersect( selectedRect ) );
+		}
+		if ( viewRect.intersects( unselectedRect ) ) {
+		    if ( homeend )
+			QScrollView::updateContents( viewRect.intersect( unselectedRect ) );
+		    else
+			repaintContents( viewRect.intersect( unselectedRect ) );
 		}
 
 		if ( changed )
