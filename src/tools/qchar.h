@@ -286,4 +286,17 @@ inline bool operator>(QChar c1, QChar c2) { return !(c2>=c1); }
 #endif
 #endif
 
+inline bool operator==(const QChar &ch, QChar::SpecialChars sc)
+{ return ch.unicode() == sc; }
+inline bool operator==(QChar::SpecialChars sc, const QChar &ch)
+{ return sc == ch.unicode(); }
+inline bool operator!=(const QChar &ch, QChar::SpecialChars sc)
+{ return ch.unicode() != sc; }
+inline bool operator!=(QChar::SpecialChars sc, const QChar &ch)
+{ return sc != ch.unicode(); }
+inline bool operator<=(const QChar &ch, QChar::SpecialChars sc)
+{ return ch.unicode() < sc; }
+inline bool operator<=(QChar::SpecialChars sc, const QChar &ch)
+{ return sc < ch.unicode(); }
+
 #endif // QCHAR
