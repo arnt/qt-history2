@@ -955,6 +955,7 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
     if ( !startingUp() )
 	qApp->style().polish( pal );	// NB: non-const reference
 
+    bool all = FALSE;
     if ( !className ) {
 	if ( !app_pal ) {
 	    app_pal = new QPalette( pal );
@@ -962,6 +963,7 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 	} else {
 	    *app_pal = pal;
 	}
+	all = app_palettes != 0;
 	delete app_palettes;
 	app_palettes = 0;
 	qt_fix_tooltips();		// ### Doesn't (always) work
@@ -979,7 +981,7 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
+	    if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
 		sendEvent( w, &e );
 	}
     }
@@ -1034,6 +1036,7 @@ QFont QApplication::font( const QWidget *w )
 void QApplication::setFont( const QFont &font, bool informWidgets,
 			    const char* className )
 {
+    bool all = FALSE;
     if ( !className ) {
 	if ( !app_font ) {
 	    app_font = new QFont( font );
@@ -1041,6 +1044,7 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 	} else {
 	    *app_font = font;
 	}
+	all = app_fonts != 0;
 	delete app_fonts;
 	app_fonts = 0;
     } else {
@@ -1059,7 +1063,7 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
+	    if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
 		sendEvent( w, &e );
 	}
     }
