@@ -441,6 +441,8 @@ void QDateTimeEditor::init()
 bool QDateTimeEditor::event( QEvent *e )
 {
     if ( e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut ) {
+ 	if ( e->type() == QEvent::FocusOut )
+  	    qApp->sendEvent( cw, e );
 	repaint( rect(), FALSE);
     } else if ( e->type() == QEvent::AccelOverride ) {
 	QKeyEvent* ke = (QKeyEvent*) e;
@@ -891,7 +893,7 @@ QDate QDateEdit::minValue() const
 
   Setting the maximum date value for the editor is equivalent to
   calling QDateEdit::setRange( minValue(), \e d ), where \e d is the
-  maximum date. Teh default maximum date is 8000-12-31.
+  maximum date. The default maximum date is 8000-12-31.
 */
 
 QDate QDateEdit::maxValue() const
@@ -1512,6 +1514,18 @@ bool QDateEdit::event( QEvent *e )
     if( e->type() == QEvent::FocusOut ) {
 	d->typing = FALSE;
 	fix();
+	// the following can't be done in fix() because fix() called
+	// from all over the place and it will break the old behaviour
+	if ( !QDate::isValid( d->y, d->m, d->d ) ) {
+	    d->dayCache = d->d;
+	    int i = d->d;
+	    for ( ; i > 0; i-- ) {
+		d->d = i;
+		if ( QDate::isValid( d->y, d->m, d->d ) )
+		    break;
+	    }
+	    d->changed = TRUE;
+	}
 	if ( d->changed ) {
 	    emit valueChanged( date() );
 	    d->changed = FALSE;
@@ -1862,7 +1876,6 @@ bool QTimeEdit::event( QEvent *e )
     }
     return QDateTimeEditBase::event( e );
 }
-
 
 /*! \reimp
 
