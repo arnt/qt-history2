@@ -735,6 +735,7 @@ QString QTextHtmlExporter::toHtml()
     QTextCharFormat fmt;
     fmt.setFont(defaultFont);
     const bool styleEmitted = emitCharFormatStyle(fmt, true /*ignore difference to default font*/);
+
     if (styleEmitted)
         html += QLatin1Char('"');
     else
@@ -973,7 +974,7 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     else if (dir == QTextBlockFormat::RightToLeft)
         html += QLatin1String(" dir='rtl'");
 
-    bool hasMargin = false;
+    bool hasStyle = false;
     QLatin1String style(" style=\"");
     html += style;
 
@@ -981,31 +982,38 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
         html += QLatin1String(" margin-top:");
         html += QString::number(format.topMargin());
         html += QLatin1String("px;");
-        hasMargin = true;
+        hasStyle = true;
     }
 
     if (format.hasProperty(QTextFormat::BlockBottomMargin)) {
         html += QLatin1String(" margin-bottom:");
         html += QString::number(format.bottomMargin());
         html += QLatin1String("px;");
-        hasMargin = true;
+        hasStyle = true;
     }
 
     if (format.hasProperty(QTextFormat::BlockLeftMargin)) {
         html += QLatin1String(" margin-left:");
         html += QString::number(format.leftMargin());
         html += QLatin1String("px;");
-        hasMargin = true;
+        hasStyle = true;
     }
 
     if (format.hasProperty(QTextFormat::BlockRightMargin)) {
         html += QLatin1String(" margin-right:");
         html += QString::number(format.rightMargin());
         html += QLatin1String("px;");
-        hasMargin = true;
+        hasStyle = true;
     }
 
-    if (hasMargin)
+    if (format.hasProperty(QTextFormat::BlockIndent)) {
+        html += QLatin1String(" -qt-block-indent:");
+        html += QString::number(format.indent());
+        html += QLatin1Char(';');
+        hasStyle = true;
+    }
+
+    if (hasStyle)
         html += QLatin1Char('"');
     else
         html.truncate(html.size() - qstrlen(style.latin1()));
@@ -1022,16 +1030,25 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
     QTextList *list = qt_cast<QTextList *>(doc->objectForFormat(block.blockFormat()));
     if (list) {
         if (list->itemNumber(block) == 0) { // first item? emit <ul> or appropriate
-            const int style = list->format().style();
+            const QTextListFormat format = list->format();
+            const int style = format.style();
             switch (style) {
-                case QTextListFormat::ListDecimal: html += QLatin1String("<ol>"); break;
-                case QTextListFormat::ListDisc: html += QLatin1String("<ul>"); break;
-                case QTextListFormat::ListCircle: html += QLatin1String("<ul type=circle>"); break;
-                case QTextListFormat::ListSquare: html += QLatin1String("<ul type=square>"); break;
-                case QTextListFormat::ListLowerAlpha: html += QLatin1String("<ol type=a>"); break;
-                case QTextListFormat::ListUpperAlpha: html += QLatin1String("<ol type=A>"); break;
-                default: html += QLatin1String("<ul>"); // ### should not happen
+                case QTextListFormat::ListDecimal: html += QLatin1String("<ol"); break;
+                case QTextListFormat::ListDisc: html += QLatin1String("<ul"); break;
+                case QTextListFormat::ListCircle: html += QLatin1String("<ul type=circle"); break;
+                case QTextListFormat::ListSquare: html += QLatin1String("<ul type=square"); break;
+                case QTextListFormat::ListLowerAlpha: html += QLatin1String("<ol type=a"); break;
+                case QTextListFormat::ListUpperAlpha: html += QLatin1String("<ol type=A"); break;
+                default: html += QLatin1String("<ul"); // ### should not happen
             }
+
+            if (format.hasProperty(QTextFormat::ListIndent)) {
+                html += QLatin1String(" style=\"-qt-list-indent: ");
+                html += QString::number(format.indent());
+                html += QLatin1String(";\"");
+            }
+
+            html += QLatin1Char('>');
         }
 
         html += QLatin1String("<li");
