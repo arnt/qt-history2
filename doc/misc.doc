@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.20 1997/10/03 18:44:07 agulbra Exp $
+** $Id: misc.doc,v 2.21 1997/10/08 15:53:00 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.20 1997/10/03 18:44:07 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.21 1997/10/08 15:53:00 agulbra Exp $";
 #endif
 
 
@@ -249,7 +249,7 @@ It probably originates on USENET somewhere, but I don't know where.
 It sounds like there may be a near-term need for a new
 newsgroup in the alt.recovery heirarchy.
 <p>
-"Hi, my name is Geoff and I was a Netscapeaholic."
+"Hi, my name is Geoff and I was a N*tscapeaholic."
 <p>
 "Hi, Geoff."
 <p>
@@ -262,7 +262,7 @@ longer to download than to read.
 power, and I was ready to make the switch.
 <p>
 "That's when a close friend of mine stepped in.  She erased
-Netscape from my hard drive and made me use Lynx.  Thanks to her,
+N*tscape from my hard drive and made me use Lynx.  Thanks to her,
 I'm here today and I'm ready to walk the long road back to
 content delivery."
 </blockquote>
@@ -286,7 +286,7 @@ It probably originates on USENET somewhere, but I don't know where.
 It sounds like there may be a near-term need for a new
 newsgroup in the alt.recovery heirarchy.
 <p>
-"Hi, my name is Geoff and I was a Netscapeaholic."
+"Hi, my name is Geoff and I was a N*tscapeaholic."
 <p>
 "Hi, Geoff."
 <p>
@@ -299,7 +299,7 @@ longer to download than to read.
 power, and I was ready to make the switch.
 <p>
 "That's when a close friend of mine stepped in.  She erased
-Netscape from my hard drive and made me use Lynx.  Thanks to her,
+N*tscape from my hard drive and made me use Lynx.  Thanks to her,
 I'm here today and I'm ready to walk the long road back to
 content delivery."
 </blink></blockquote>
