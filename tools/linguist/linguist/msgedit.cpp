@@ -60,7 +60,7 @@ public:
 
     void del() { QMultiLineEdit::del(); }
     int cursorX() const { return textCursor()->x(); }
-    int cursorY() const { return textCursor()->parag()->rect().y() +
+    int cursorY() const { return textCursor()->paragraph()->rect().y() +
 			         textCursor()->y(); }
 };
 
