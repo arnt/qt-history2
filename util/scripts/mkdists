@@ -32,12 +32,12 @@ MANIFEST_FILE=${TMP_FILE}-manifest
 DO_COMMERCIAL=yes
 DO_FREE=yes
 DO_REVIEW=no
-DO_ACADEMIC=no
+DO_ACADEMIC=yes
 #platforms
 DO_WIN=yes
 DO_X11=yes
 DO_MAC=yes
-DO_QNX6=yes
+DO_QNX6=no
 DO_EMBEDDED=yes
 DO_PKG=no
 #other
