@@ -4057,6 +4057,8 @@ void QTable::setNumRows( int r )
 {
     if ( r < 0 )
 	return;
+    if ( editRow != -1 && editCol != -1 )
+	endEdit( editRow, editCol, FALSE, edMode != Editing );
     QPtrVector<QTableItem> tmp;
     tmp.resize( contents.size() );
     int i;
@@ -4130,6 +4132,8 @@ void QTable::setNumCols( int c )
 {
     if ( c < 0 )
 	return;
+    if ( editRow != -1 && editCol != -1 )
+	endEdit( editRow, editCol, FALSE, edMode != Editing );
     QPtrVector<QTableItem> tmp;
     tmp.resize( contents.size() );
     int i;
