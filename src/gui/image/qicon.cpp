@@ -199,7 +199,7 @@ QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::M
         if (!pe->pixmap.isNull())
             pe->size = pe->pixmap.size();
     }
-    
+
     return pe;
 }
 
@@ -209,7 +209,7 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
     QPixmapIconEngineEntry *pe = bestMatch(size, mode, state, false);
     if (pe)
         pm = pe->pixmap;
-           
+
     if (pm.isNull())
         return pm;
 
@@ -261,7 +261,7 @@ QSize QPixmapIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::
     QSize actualSize;
     if (QPixmapIconEngineEntry *pe = bestMatch(size, mode, state, true))
         actualSize = pe->size;
-           
+
     if (actualSize.isNull())
         return actualSize;
 
@@ -320,14 +320,14 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
   When you retrieve a pixmap using pixmap(QSize, Mode, State), and no
   pixmap for this given size, mode and state has been added with
-  addPixmap(), then QIcon will generate one on the fly. This pixmap
-  generation happens in a QIconEngine. The default engine scales
-  pixmaps down if required, but never up, and it uses the current
-  style to calculate a disabled appearance. By using custom icon
-  engines, you can customize every aspect of generated icons. With
-  QIconEnginePlugin it is possible to register different icon engines
-  for different file suffixes, so you could provide a SVG icon engine
-  or any other scalable format.
+  addFile() or addPixmap(), then QIcon will generate one on the
+  fly. This pixmap generation happens in a QIconEngine. The default
+  engine scales pixmaps down if required, but never up, and it uses
+  the current style to calculate a disabled appearance. By using
+  custom icon engines, you can customize every aspect of generated
+  icons. With QIconEnginePlugin it is possible to register different
+  icon engines for different file suffixes, so you could provide a SVG
+  icon engine or any other scalable format.
 
   \section1 Making Classes that Use QIcon
 
@@ -341,7 +341,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
   \code
     void MyWidget::drawIcon(QPainter *painter, QPoint pos)
     {
-        QPixmap pixmap = icon.pixmap(Qt::SmallIconSize,
+        QPixmap pixmap = icon.pixmap(QSize(22, 22),
                                        isEnabled() ? QIcon::Normal
                                                    : QIcon::Disabled,
                                        isOn() ? QIcon::On
@@ -352,7 +352,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
   You might also make use of the \c Active mode, perhaps making your
   widget \c Active when the mouse is over the widget (see \l
-  QWidget::enterEvent()), while the mouse is pressed pending the
+  QWidget::underMouse()), while the mouse is pressed pending the
   release that will activate the function, or when it is the currently
   selected item. If the widget can be toggled, the "On" mode might be
   used to draw a different icon.
@@ -484,6 +484,8 @@ int QIcon::serialNumber() const
 /*!  Returns a pixmap with the requested \a size, \a mode, and \a
   state, generating one if necessary. The pixmap might be smaller than
   requested, but never larger.
+
+  \sa actualSize(), paint()
 */
 QPixmap QIcon::pixmap(const QSize &size, Mode mode, State state) const
 {
@@ -496,6 +498,8 @@ QPixmap QIcon::pixmap(const QSize &size, Mode mode, State state) const
 /*!  Returns the actual size of the icon for the requested \a size, \a
   mode, and \a state. The result might be smaller than requested, but
   never larger.
+
+  \sa pixmap(), paint()
 */
 QSize QIcon::actualSize(const QSize &size, Mode mode, State state) const
 {
@@ -508,6 +512,8 @@ QSize QIcon::actualSize(const QSize &size, Mode mode, State state) const
 /*!
     Uses the \a painter to paint the icon with specified \a alignment,
     required \a mode, and \a state into the rectangle \a rect/
+
+    \sa actualSize(), pixmap()
 */
 void QIcon::paint(QPainter *painter, const QRect &rect,  Qt::Alignment alignment, Mode mode, State state) const
 {
@@ -537,9 +543,11 @@ bool QIcon::isDetached() const
 /*!
     Adds \a pixmap to the icon, as a specialization for \a mode and
     \a state.
-    
+
     Custom icon engines are free to ignore additionally added
     pixmaps.
+
+    \sa addFile()
 */
 void QIcon::addPixmap(const QPixmap &pixmap, Mode mode, State state)
 {
@@ -567,6 +575,8 @@ void QIcon::addPixmap(const QPixmap &pixmap, Mode mode, State state)
     \l{resources.html}{Resource System} overview for details on how to
     embed images and other resource files in the application's
     executable.
+
+    \sa addPixmap()
  */
 void QIcon::addFile(const QString &fileName, const QSize &size, Mode mode, State state)
 {
