@@ -124,7 +124,7 @@ class QWindowsXPStylePrivate
 {
 public:
     QWindowsXPStylePrivate()
-	: hotWidget( 0 ), hotTab( 0 ), hotSpot( -1, -1 ), dockCloseActive( 0 ), dockCloseInactive( 0 )
+	: hotWidget( 0 ), hotTab( 0 ), hotSpot( -1, -1 )
     {
 	init();
     }
@@ -220,10 +220,10 @@ public:
     QRgb groupBoxTextColor;
     QRgb groupBoxTextColorDisabled;
     QRgb tabPaneBorderColor;
-    QColor dockColorActive;
-    QColor dockColorInactive;
-    QPixmap *dockCloseActive;
-    QPixmap *dockCloseInactive;
+    static QColor dockColorActive;
+    static QColor dockColorInactive;
+    static QPixmap *dockCloseActive;
+    static QPixmap *dockCloseInactive;
 
 private:
     static QWidget *limboWidget;
@@ -234,6 +234,10 @@ const QWidget *QWindowsXPStylePrivate::currentWidget = 0;
 QWidget *QWindowsXPStylePrivate::limboWidget = 0;
 QPixmap *QWindowsXPStylePrivate::tabbody = 0;
 
+QPixmap *QWindowsXPStylePrivate::dockCloseActive = 0;
+QPixmap *QWindowsXPStylePrivate::dockCloseInactive = 0;
+QColor   QWindowsXPStylePrivate::dockColorActive = Qt::blue;
+QColor   QWindowsXPStylePrivate::dockColorInactive = Qt::gray;
 
 struct XPThemeData
 {
@@ -1853,7 +1857,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    else if ( flags & Style_HasFocus )
 			stateId = TUVS_FOCUSED;
 		    else if ( flags & Style_MouseOver && theme.rec.contains( d->hotSpot ) )
-			stateId = TUS_HOT;
+			stateId = TUVS_HOT;
 		    else
 			stateId = TUVS_NORMAL;
 		}
