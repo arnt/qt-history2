@@ -371,12 +371,7 @@ int QKeySequence::decodeString( const QString& str )
     }
     int fnum;
     if ( name.length() == 1 ) {
-	if ( name.at(0).isLetterOrNumber() ) {
-	    QString uppname = name.upper();
-	    k = uppname[0].unicode();
-	} else {
-	    k = name[0].unicode() | UNICODE_ACCEL;
-	}
+	k = name[0].upper().unicode() | UNICODE_ACCEL;
     } else if ( name[0] == 'F' && (fnum = name.mid(1).toInt()) ) {
 	k = Key_F1 + fnum - 1;
     } else {
