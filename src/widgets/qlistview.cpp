@@ -740,10 +740,6 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     if ( column < 0 )
 	return;
 
-    // more dubiously - only sort if the child items "exist"
-    if ( !isOpen() || !childCount() )
-	return;
-
     lsc = column;
     lso = ascending;
 
