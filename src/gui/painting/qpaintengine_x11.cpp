@@ -511,6 +511,7 @@ void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
 
 
 
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
 /*
  * Polygon tesselator - can probably be optimized a bit more
  */
@@ -542,21 +543,13 @@ struct QIntersectionPoint {
     const QEdge *edge;
     bool operator<(const QIntersectionPoint &other) const
     {
-	if (QABS(x - other.x) > 0.0001)//x != other.x) // 99% of the cases
+	if (QABS(x - other.x) > 0.01) // x != other.x in 99% of the cases
 	    return x < other.x;
 	else
 	    return ((currentScanline+1 - edge->b)*edge->m) < ((currentScanline+1 - other.edge->b)*other.edge->m);
     }
 };
 
-// static void dump_edges(const QList<QEdge> &et)
-// {
-//     for (int x = 0; x < et.size(); ++x) {
-// 	qDebug() << "edge#" << x << et.at(x).p1 << et.at(x).p2 << &et.at(x);
-//     }
-// }
-
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
 static bool operator==(const XLineFixed &l1, const XLineFixed &l2)
 {
     return l1.p1.x == l2.p1.x && l1.p1.y == l2.p1.y
