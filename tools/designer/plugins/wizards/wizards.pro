@@ -1,10 +1,10 @@
+SOURCES	+= main.cpp 
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release plugin
 sql {
-	HEADERS		= sqlformwizardimpl.h
-	SOURCES		= sqlformwizardimpl.cpp
+	HEADERS		+= sqlformwizardimpl.h
+	SOURCES		+= sqlformwizardimpl.cpp
 	}
-SOURCES		+= main.cpp
 DESTDIR		= ../../../../plugins/designer
 INCLUDEPATH	+= ../../interfaces
 
