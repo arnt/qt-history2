@@ -592,7 +592,8 @@ void MainWindow::setupToolActions()
 	    whats += QString("<p>%1</p>").arg(WidgetDatabase::whatsThis( i ));
 	    a->setWhatsThis( whats + tr("<p>Double click on this tool to keep it selected.</p>") );
 	
-	    a->addTo( tb );
+	    if ( grp != "KDE" )
+		a->addTo( tb );
 	    a->addTo( menu );
 	}
     }
@@ -1092,7 +1093,7 @@ static void unifyFormName( FormWindow *fw, QWorkspace *workspace )
 void MainWindow::fileNew()
 {
     statusBar()->message( tr( "Select a template for the new form...") );
-    NewForm dlg( this );
+    NewForm dlg( this, templatePath() );
     if ( dlg.exec() == QDialog::Accepted ) {
 	NewForm::Form f = dlg.formType();
 	if ( f != NewForm::Custom ) {
@@ -2741,14 +2742,17 @@ static QString fixArgs2( const QString &s2 )
 void MainWindow::readConfig()
 {
     QString fn = QDir::homeDirPath() + "/.designerrc";
-    if ( !QFile::exists( fn ) )
-	return;
+    if ( !QFile::exists( fn ) ) {
+	fn = "/etc/designerrc";
+	if ( !QFile::exists( fn ) )
+	    return;
+    }
     Config config( fn );
     config.setGroup( "General" );
     restoreConfig = config.readBoolEntry( "RestoreWorkspace", TRUE );
     docPath = config.readEntry( "DocPath", docPath );
+    templPath = config.readEntry( "TemplatePath", QString::null );
     int num;
-
     config.setGroup( "General" );
     if ( restoreConfig ) {
 	splashScreen = config.readBoolEntry( "SplashScreen", TRUE );

@@ -48,7 +48,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::widgetGroup( "KDE" );
 
     WidgetDatabaseRecord *r = new WidgetDatabaseRecord;
-    r->iconSet = "table.xpm";
+    r->iconSet = "";
     r->name = "KCharSelect";
     r->group = "KDE";
     r->toolTip = "Character Selector";
@@ -58,7 +58,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "pushbutton.xpm";
+    r->iconSet = "";
     r->name = "KColorButton";
     r->group = "KDE";
     r->toolTip = "Color Button";
@@ -68,7 +68,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "combobox.xpm";
+    r->iconSet = "";
     r->name = "KComboBox";
     r->group = "KDE";
     r->toolTip = "KDE Combo Box";
@@ -78,7 +78,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "table.xpm";
+    r->iconSet = "";
     r->name = "KDatePicker";
     r->group = "KDE";
     r->toolTip = "Date Picker";
@@ -88,7 +88,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "table.xpm";
+    r->iconSet = "";
     r->name = "KDateTable";
     r->group = "KDE";
     r->toolTip = "Date Table";
@@ -98,7 +98,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "pushbutton.xpm";
+    r->iconSet = "";
     r->name = "KDualColorButton";
     r->group = "KDE";
     r->toolTip = "Dual Color Button";
@@ -108,7 +108,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "iconview.xpm";
+    r->iconSet = "";
     r->name = "KIconView";
     r->group = "KDE";
     r->toolTip = "KDE Iconview";
@@ -118,7 +118,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "dial.xpm";
+    r->iconSet = "";
     r->name = "KLed";
     r->group = "KDE";
     r->toolTip = "Led";
@@ -128,7 +128,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "lineedit.xpm";
+    r->iconSet = "";
     r->name = "KLineEdit";
     r->group = "KDE";
     r->toolTip = "KDE Lineedit";
@@ -138,7 +138,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "listbox.xpm";
+    r->iconSet = "";
     r->name = "KListBox";
     r->group = "KDE";
     r->toolTip = "KDE Listbox";
@@ -148,7 +148,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "listview.xpm";
+    r->iconSet = "";
     r->name = "KListView";
     r->group = "KDE";
     r->toolTip = "KDE Listview";
@@ -158,7 +158,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "lineedit.xpm";
+    r->iconSet = "";
     r->name = "KIntNumInput";
     r->group = "KDE";
     r->toolTip = "Integer Number Input";
@@ -168,7 +168,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "lineedit.xpm";
+    r->iconSet = "";
     r->name = "KDoubleNumInput";
     r->group = "KDE";
     r->toolTip = "Double Number Input";
@@ -178,7 +178,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "spinbox.xpm";
+    r->iconSet = "";
     r->name = "KIntSpinBox";
     r->group = "KDE";
     r->toolTip = "KDE Spinbox";
@@ -188,7 +188,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "textbrowser.xpm";
+    r->iconSet = "";
     r->name = "KTextBrowser";
     r->group = "KDE";
     r->toolTip = "KDE Textbrowser";
@@ -198,7 +198,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "toolbutton.xpm";
+    r->iconSet = "";
     r->name = "KToolBarButton";
     r->group = "KDE";
     r->toolTip = "KDE Toolbutton";
@@ -208,7 +208,7 @@ void qt_init_kde_widget_database()
     WidgetDatabase::append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "label.xpm";
+    r->iconSet = "";
     r->name = "KURLLabel";
     r->group = "KDE";
     r->toolTip = "URL Label";

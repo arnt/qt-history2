@@ -29,16 +29,18 @@
 #include <qpushbutton.h>
 #include <stdlib.h>
 
-static QString templatePath()
+static QString templatePath( const QString &t )
 {
     if ( QFileInfo( "../templates" ).exists() )
 	return "../templates";
     QString qtdir = getenv( "QTDIR" );
-    return qtdir + "/tools/designer/templates";
+    if ( QFileInfo( qtdir + "/tools/designer/templates" ).exists() )
+	return qtdir + "/tools/designer/templates";
+    return t;
 }
 
-NewForm::NewForm( QWidget *parent )
-    : NewFormBase( parent, 0, TRUE )
+NewForm::NewForm( QWidget *parent, const QString &tPath )
+    : NewFormBase( parent, 0, TRUE ), templPath( tPath )
 {
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     QIconViewItem *i = new QIconViewItem( templateView );
@@ -54,7 +56,7 @@ NewForm::NewForm( QWidget *parent )
     i->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
     i->setDragEnabled( FALSE );
 
-    QString templateDir = templatePath();
+    QString templateDir = templatePath( templPath );
     QDir dir( templateDir );
     const QFileInfoList *filist = dir.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );
     if ( filist ) {
@@ -91,7 +93,7 @@ NewForm::Form NewForm::formType() const
 QString NewForm::templateFile() const
 {
     QString fn = "/" + templateView->currentItem()->text();
-    fn.prepend( templatePath() );
+    fn.prepend( templatePath( templPath ) );
     fn.append( ".ui" );
     fn = fn.replace( QRegExp( " " ), "_" );
     return fn;

@@ -35,11 +35,14 @@ public:
 	Custom
     };
 
-    NewForm( QWidget *parent );
+    NewForm( QWidget *parent, const QString &tPath );
 
     Form formType() const;
     QString templateFile() const;
 
+private:
+    QString templPath;
+    
 };
 
 #endif
