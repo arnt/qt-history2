@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#377 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#378 $
 **
 ** Implementation of QWidget class
 **
@@ -848,9 +848,10 @@ QWidget *QWidget::find( WId id )
 
 
 /*!
-  Returns the GUI style for this widget.
+  Returns the GUI style for this widget, which is the style
+  for the application.
 
-  \sa setStyle(), QApplication::style()
+  \sa QApplication::setStyle(), QApplication::style()
 */
 
 QStyle& QWidget::style() const
@@ -862,8 +863,9 @@ QStyle& QWidget::style() const
 /*!
   \fn void QWidget::styleChange( GUIStyle oldStyle )
 
-  This virtual function is called from setStyle().  \e oldStyle is the
-  previous style; you can get the new style from style().
+  This virtual function is called when the style of the widgets.
+  changes.\e oldStyle is the
+  previous GUI style; you can get the new style from style().
 
   Reimplement this function if your widget needs to know when its GUI
   style changes.  You will almost certainly need to update the widget
@@ -871,7 +873,7 @@ QStyle& QWidget::style() const
 
   The default implementation calls update().
 
-  \sa setStyle(), style(), repaint(), update()
+  \sa QApplication::setStyle(), style(), repaint(), update()
 */
 
 void QWidget::styleChange( GUIStyle )
