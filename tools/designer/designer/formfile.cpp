@@ -399,7 +399,10 @@ void FormFile::createFormCode()
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     if ( !iface )
 	return;
-    cod = comment;
+    if ( seperateSource )
+	cod = comment;
+    else
+	cod = "";
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow() );
     for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
 	cod += "\n\n" + iface->createFunctionStart( formWindow()->name(), (*it).slot,
