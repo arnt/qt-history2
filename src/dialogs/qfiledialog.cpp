@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#305 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#306 $
 **
 ** Implementation of QFileDialog class
 **
@@ -541,6 +541,8 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 {
     renameTimer->stop();
     if ( ( e->pos() - pressPos ).manhattanLength() > 8 && mousePressed ) {
+	if ( !itemAt( e->pos() ) )
+	     return;
 	QListBoxItem *item = currentItem() != -1 ?
 			     QListBox::item( currentItem() ) :
 			     itemAt( e->pos() );
@@ -958,6 +960,8 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 {
     renameTimer->stop();
     if ( ( e->pos() - pressPos ).manhattanLength() > 8 && mousePressed ) {
+	if ( !itemAt( e->pos() ) )
+	     return;
 	QListViewItem *item = currentItem() ?
 			      currentItem() :
 			      itemAt( e->pos() );
@@ -3803,7 +3807,7 @@ void QFileDialog::resortDir()
 	items[ i ] = ( ( QFileDialogPrivate::File *)it.current() )->info;
 	selected[ items[ i++ ].name() ] = it.current()->isSelected();
     }
-    
+
     qsort( items, num, sizeof( QUrlInfo ), cmpInfo );
 
     files->clear();
