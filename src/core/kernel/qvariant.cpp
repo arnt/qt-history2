@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qcorevariant.h"
+#include "qvariant.h"
 #ifndef QT_NO_VARIANT
 #include "qbitarray.h"
 #include "qbytearray.h"
@@ -35,225 +35,225 @@
 #define DBL_DIG 10
 #endif //DBL_DIG
 
-static void construct(QCoreVariant::Private *x, const void *copy)
+static void construct(QVariant::Private *x, const void *copy)
 {
    x->is_shared = false;
 
    if (copy) {
         switch(x->type) {
-        case QCoreVariant::String:
+        case QVariant::String:
             v_construct<QString>(x, copy);
             break;
-        case QCoreVariant::Char:
+        case QVariant::Char:
             v_construct<QChar>(x, copy);
             break;
-        case QCoreVariant::StringList:
+        case QVariant::StringList:
             v_construct<QStringList>(x, copy);
             break;
 #ifndef QT_NO_TEMPLATE_VARIANT
-        case QCoreVariant::Map:
-            v_construct<QCoreVariantMap>(x, copy);
+        case QVariant::Map:
+            v_construct<QVariantMap>(x, copy);
             break;
-        case QCoreVariant::List:
-            v_construct<QCoreVariantList>(x, copy);
+        case QVariant::List:
+            v_construct<QVariantList>(x, copy);
             break;
 #endif
-        case QCoreVariant::Date:
+        case QVariant::Date:
             v_construct<QDate>(x, copy);
             break;
-        case QCoreVariant::Time:
+        case QVariant::Time:
             v_construct<QTime>(x, copy);
             break;
-        case QCoreVariant::DateTime:
+        case QVariant::DateTime:
             v_construct<QDateTime>(x, copy);
             break;
-        case QCoreVariant::ByteArray:
+        case QVariant::ByteArray:
             v_construct<QByteArray>(x, copy);
             break;
-        case QCoreVariant::BitArray:
+        case QVariant::BitArray:
             v_construct<QBitArray>(x, copy);
             break;
-        case QCoreVariant::Size:
+        case QVariant::Size:
             v_construct<QSize>(x, copy);
             break;
-        case QCoreVariant::Url:
+        case QVariant::Url:
             v_construct<QUrl>(x, copy);
             break;
-        case QCoreVariant::Locale:
+        case QVariant::Locale:
             v_construct<QLocale>(x, copy);
             break;
-        case QCoreVariant::Rect:
+        case QVariant::Rect:
             v_construct<QRect>(x, copy);
             break;
-        case QCoreVariant::Point:
+        case QVariant::Point:
             v_construct<QPoint>(x, copy);
             break;
-        case QCoreVariant::Int:
+        case QVariant::Int:
             x->data.i = *static_cast<const int *>(copy);
             break;
-        case QCoreVariant::UInt:
+        case QVariant::UInt:
             x->data.u = *static_cast<const uint *>(copy);
             break;
-        case QCoreVariant::Bool:
+        case QVariant::Bool:
             x->data.b = *static_cast<const bool *>(copy);
             break;
-        case QCoreVariant::Double:
+        case QVariant::Double:
             x->data.d = *static_cast<const double*>(copy);
             break;
-        case QCoreVariant::LongLong:
+        case QVariant::LongLong:
             x->data.ll = *static_cast<const qlonglong *>(copy);
             break;
-        case QCoreVariant::ULongLong:
+        case QVariant::ULongLong:
             x->data.ull = *static_cast<const qulonglong *>(copy);
             break;
-        case QCoreVariant::Invalid:
-        case QCoreVariant::UserType:
+        case QVariant::Invalid:
+        case QVariant::UserType:
             break;
         default:
             x->is_shared = true;
-            x->data.shared = new QCoreVariant::PrivateShared(QMetaType::construct(x->type, copy));
-            Q_ASSERT_X(x->data.shared->ptr, "QCoreVariant::construct()", "Unknown datatype");
+            x->data.shared = new QVariant::PrivateShared(QMetaType::construct(x->type, copy));
+            Q_ASSERT_X(x->data.shared->ptr, "QVariant::construct()", "Unknown datatype");
             break;
         }
         x->is_null = false;
     } else {
         switch (x->type) {
-        case QCoreVariant::Invalid:
-        case QCoreVariant::UserType:
+        case QVariant::Invalid:
+        case QVariant::UserType:
             break;
-        case QCoreVariant::String:
+        case QVariant::String:
             v_construct<QString>(x);
             break;
-        case QCoreVariant::Char:
+        case QVariant::Char:
             v_construct<QChar>(x);
             break;
-        case QCoreVariant::StringList:
+        case QVariant::StringList:
             v_construct<QStringList>(x);
             break;
 #ifndef QT_NO_TEMPLATE_VARIANT
-        case QCoreVariant::Map:
-            v_construct<QCoreVariantMap>(x);
+        case QVariant::Map:
+            v_construct<QVariantMap>(x);
             break;
-        case QCoreVariant::List:
-            v_construct<QCoreVariantList>(x);
+        case QVariant::List:
+            v_construct<QVariantList>(x);
             break;
 #endif
-        case QCoreVariant::Date:
+        case QVariant::Date:
             v_construct<QDate>(x);
             break;
-        case QCoreVariant::Time:
+        case QVariant::Time:
             v_construct<QTime>(x);
             break;
-        case QCoreVariant::DateTime:
+        case QVariant::DateTime:
             v_construct<QDateTime>(x);
             break;
-        case QCoreVariant::ByteArray:
+        case QVariant::ByteArray:
             v_construct<QByteArray>(x);
             break;
-        case QCoreVariant::BitArray:
+        case QVariant::BitArray:
             v_construct<QBitArray>(x);
             break;
-        case QCoreVariant::Size:
+        case QVariant::Size:
             v_construct<QSize>(x);
             break;
-        case QCoreVariant::Url:
+        case QVariant::Url:
             v_construct<QUrl>(x);
             break;
-        case QCoreVariant::Locale:
+        case QVariant::Locale:
             v_construct<QLocale>(x);
             break;
-        case QCoreVariant::Point:
+        case QVariant::Point:
             v_construct<QPoint>(x);
             break;
-        case QCoreVariant::Rect:
+        case QVariant::Rect:
             v_construct<QRect>(x);
             break;
-        case QCoreVariant::Int:
+        case QVariant::Int:
             x->data.i = 0;
             break;
-        case QCoreVariant::UInt:
+        case QVariant::UInt:
             x->data.u = 0;
             break;
-        case QCoreVariant::Bool:
+        case QVariant::Bool:
             x->data.b = 0;
             break;
-        case QCoreVariant::Double:
+        case QVariant::Double:
             x->data.d = 0.0;
             break;
-        case QCoreVariant::LongLong:
+        case QVariant::LongLong:
             x->data.ll = Q_INT64_C(0);
             break;
-        case QCoreVariant::ULongLong:
+        case QVariant::ULongLong:
             x->data.ull = Q_UINT64_C(0);
             break;
         default:
             x->is_shared = true;
-            x->data.shared = new QCoreVariant::PrivateShared(QMetaType::construct(x->type, copy));
-            Q_ASSERT_X(x->data.shared->ptr, "QCoreVariant::construct()", "Unknown datatype");
+            x->data.shared = new QVariant::PrivateShared(QMetaType::construct(x->type, copy));
+            Q_ASSERT_X(x->data.shared->ptr, "QVariant::construct()", "Unknown datatype");
             break;
         }
     }
 }
 
-static void clear(QCoreVariant::Private *d)
+static void clear(QVariant::Private *d)
 {
     switch (d->type) {
-    case QCoreVariant::String:
+    case QVariant::String:
         v_clear<QString>(d);
         break;
-    case QCoreVariant::Char:
+    case QVariant::Char:
         v_clear<QChar>(d);
         break;
-    case QCoreVariant::StringList:
+    case QVariant::StringList:
         v_clear<QStringList>(d);
         break;
 #ifndef QT_NO_TEMPLATE_VARIANT
-    case QCoreVariant::Map:
-        v_clear<QCoreVariantMap>(d);
+    case QVariant::Map:
+        v_clear<QVariantMap>(d);
         break;
-    case QCoreVariant::List:
-        v_clear<QCoreVariantList>(d);
+    case QVariant::List:
+        v_clear<QVariantList>(d);
         break;
 #endif
-    case QCoreVariant::Date:
+    case QVariant::Date:
         v_clear<QDate>(d);
         break;
-    case QCoreVariant::Time:
+    case QVariant::Time:
         v_clear<QTime>(d);
         break;
-    case QCoreVariant::DateTime:
+    case QVariant::DateTime:
         v_clear<QDateTime>(d);
         break;
-    case QCoreVariant::ByteArray:
+    case QVariant::ByteArray:
         v_clear<QByteArray>(d);
         break;
-    case QCoreVariant::BitArray:
+    case QVariant::BitArray:
         v_clear<QBitArray>(d);
         break;
-    case QCoreVariant::Point:
+    case QVariant::Point:
         v_clear<QPoint>(d);
         break;
-    case QCoreVariant::Size:
+    case QVariant::Size:
         v_clear<QSize>(d);
         break;
-    case QCoreVariant::Url:
+    case QVariant::Url:
         v_clear<QUrl>(d);
         break;
-    case QCoreVariant::Locale:
+    case QVariant::Locale:
         v_clear<QLocale>(d);
         break;
-    case QCoreVariant::Rect:
+    case QVariant::Rect:
         v_clear<QRect>(d);
         break;
-    case QCoreVariant::LongLong:
-    case QCoreVariant::ULongLong:
-    case QCoreVariant::Double:
+    case QVariant::LongLong:
+    case QVariant::ULongLong:
+    case QVariant::Double:
         break;
-    case QCoreVariant::Invalid:
-    case QCoreVariant::UserType:
-    case QCoreVariant::Int:
-    case QCoreVariant::UInt:
-    case QCoreVariant::Bool:
+    case QVariant::Invalid:
+    case QVariant::UserType:
+    case QVariant::Int:
+    case QVariant::UInt:
+    case QVariant::Bool:
         break;
     default:
         QMetaType::destroy(d->type, d->data.shared->ptr);
@@ -261,49 +261,49 @@ static void clear(QCoreVariant::Private *d)
         break;
     }
 
-    d->type = QCoreVariant::Invalid;
+    d->type = QVariant::Invalid;
     d->is_null = true;
     d->is_shared = false;
 }
 
-static bool isNull(const QCoreVariant::Private *d)
+static bool isNull(const QVariant::Private *d)
 {
     switch(d->type) {
-    case QCoreVariant::String:
+    case QVariant::String:
         return v_cast<QString>(d)->isNull();
-    case QCoreVariant::Char:
+    case QVariant::Char:
         return v_cast<QChar>(d)->isNull();
-    case QCoreVariant::Date:
+    case QVariant::Date:
         return v_cast<QDate>(d)->isNull();
-    case QCoreVariant::Time:
+    case QVariant::Time:
         return v_cast<QTime>(d)->isNull();
-    case QCoreVariant::DateTime:
+    case QVariant::DateTime:
         return v_cast<QDateTime>(d)->isNull();
-    case QCoreVariant::ByteArray:
+    case QVariant::ByteArray:
         return v_cast<QByteArray>(d)->isNull();
-    case QCoreVariant::BitArray:
+    case QVariant::BitArray:
         return v_cast<QBitArray>(d)->isNull();
-    case QCoreVariant::Size:
+    case QVariant::Size:
         return v_cast<QSize>(d)->isNull();
-    case QCoreVariant::Rect:
+    case QVariant::Rect:
         return v_cast<QRect>(d)->isNull();
-    case QCoreVariant::Point:
+    case QVariant::Point:
         return v_cast<QPoint>(d)->isNull();
-    case QCoreVariant::Url:
-    case QCoreVariant::Locale:
-    case QCoreVariant::StringList:
+    case QVariant::Url:
+    case QVariant::Locale:
+    case QVariant::StringList:
 #ifndef QT_NO_TEMPLATE_VARIANT
-    case QCoreVariant::Map:
-    case QCoreVariant::List:
+    case QVariant::Map:
+    case QVariant::List:
 #endif
-    case QCoreVariant::Invalid:
-    case QCoreVariant::UserType:
-    case QCoreVariant::Int:
-    case QCoreVariant::UInt:
-    case QCoreVariant::LongLong:
-    case QCoreVariant::ULongLong:
-    case QCoreVariant::Bool:
-    case QCoreVariant::Double:
+    case QVariant::Invalid:
+    case QVariant::UserType:
+    case QVariant::Int:
+    case QVariant::UInt:
+    case QVariant::LongLong:
+    case QVariant::ULongLong:
+    case QVariant::Bool:
+    case QVariant::Double:
         break;
     }
     return d->is_null;
@@ -311,10 +311,10 @@ static bool isNull(const QCoreVariant::Private *d)
 
 #ifndef QT_NO_DATASTREAM
 
-static void load(QCoreVariant::Private *d, QDataStream &s)
+static void load(QVariant::Private *d, QDataStream &s)
 {
     switch (d->type) {
-    case QCoreVariant::Invalid: {
+    case QVariant::Invalid: {
         // Since we wrote something, we should read something
         QString x;
         s >> x;
@@ -322,180 +322,180 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
         break;
     }
 #ifndef QT_NO_TEMPLATE_VARIANT
-    case QCoreVariant::Map:
-        s >> *v_cast<QCoreVariantMap>(d);
+    case QVariant::Map:
+        s >> *v_cast<QVariantMap>(d);
         break;
-    case QCoreVariant::List:
-        s >> *v_cast<QCoreVariantList>(d);
+    case QVariant::List:
+        s >> *v_cast<QVariantList>(d);
         break;
 #endif
-    case QCoreVariant::String:
+    case QVariant::String:
         s >> *v_cast<QString>(d);
         break;
-    case QCoreVariant::Char:
+    case QVariant::Char:
         s >> *v_cast<QChar>(d);
         break;
-    case QCoreVariant::StringList:
+    case QVariant::StringList:
         s >> *v_cast<QStringList>(d);
         break;
-    case QCoreVariant::Size:
+    case QVariant::Size:
         s >> *v_cast<QSize>(d);
         break;
-    case QCoreVariant::Url:
+    case QVariant::Url:
         s >> *v_cast<QUrl>(d);
         break;
-    case QCoreVariant::Locale:
+    case QVariant::Locale:
         s >> *v_cast<QLocale>(d);
         break;
-    case QCoreVariant::Rect:
+    case QVariant::Rect:
         s >> *v_cast<QRect>(d);
         break;
-    case QCoreVariant::Point:
+    case QVariant::Point:
         s >> *v_cast<QPoint>(d);
         break;
-    case QCoreVariant::Int:
+    case QVariant::Int:
         s >> d->data.i;
         break;
-    case QCoreVariant::UInt:
+    case QVariant::UInt:
         s >> d->data.u;
         break;
-    case QCoreVariant::LongLong:
+    case QVariant::LongLong:
         s >> d->data.ll;
         break;
-    case QCoreVariant::ULongLong:
+    case QVariant::ULongLong:
         s >> d->data.ull;
         break;
-    case QCoreVariant::Bool: {
+    case QVariant::Bool: {
         qint8 x;
         s >> x;
         d->data.b = x;
     }
         break;
-    case QCoreVariant::Double:
+    case QVariant::Double:
         s >> d->data.d;
         break;
-    case QCoreVariant::Date:
+    case QVariant::Date:
         s >> *v_cast<QDate>(d);
         break;
-    case QCoreVariant::Time:
+    case QVariant::Time:
         s >> *v_cast<QTime>(d);
         break;
-    case QCoreVariant::DateTime:
+    case QVariant::DateTime:
         s >> *v_cast<QDateTime>(d);
         break;
-    case QCoreVariant::ByteArray:
+    case QVariant::ByteArray:
         s >> *v_cast<QByteArray>(d);
         break;
-    case QCoreVariant::BitArray:
+    case QVariant::BitArray:
         s >> *v_cast<QBitArray>(d);
         break;
     default:
         if (QMetaType::isRegistered(d->type)) {
             if (!QMetaType::load(s, d->type, d->data.shared->ptr))
-                qFatal("QCoreVariant::load: no streaming operators registered for type %d.", d->type);
+                qFatal("QVariant::load: no streaming operators registered for type %d.", d->type);
             break;
         } else {
-            qFatal("QCoreVariant::load: type %d unknown to QCoreVariant.", d->type);
+            qFatal("QVariant::load: type %d unknown to QVariant.", d->type);
         }
     }
 }
 
-static void save(const QCoreVariant::Private *d, QDataStream &s)
+static void save(const QVariant::Private *d, QDataStream &s)
 {
     switch (d->type) {
 #ifndef QT_NO_TEMPLATE_VARIANT
-    case QCoreVariant::List:
-        s << *v_cast<QCoreVariantList>(d);
+    case QVariant::List:
+        s << *v_cast<QVariantList>(d);
         break;
-    case QCoreVariant::Map:
-        s << *v_cast<QCoreVariantMap>(d);
+    case QVariant::Map:
+        s << *v_cast<QVariantMap>(d);
         break;
 #endif
-    case QCoreVariant::String:
+    case QVariant::String:
         s << *v_cast<QString>(d);
         break;
-    case QCoreVariant::Char:
+    case QVariant::Char:
         s << *v_cast<QChar>(d);
         break;
-    case QCoreVariant::StringList:
+    case QVariant::StringList:
         s << *v_cast<QStringList>(d);
         break;
-    case QCoreVariant::Size:
+    case QVariant::Size:
         s << *v_cast<QSize>(d);
         break;
-    case QCoreVariant::Url:
+    case QVariant::Url:
         s << *v_cast<QUrl>(d);
         break;
-    case QCoreVariant::Locale:
+    case QVariant::Locale:
         s << *v_cast<QLocale>(d);
         break;
-    case QCoreVariant::Point:
+    case QVariant::Point:
         s << *v_cast<QPoint>(d);
         break;
-    case QCoreVariant::Rect:
+    case QVariant::Rect:
         s << *v_cast<QRect>(d);
         break;
-    case QCoreVariant::Int:
+    case QVariant::Int:
         s << d->data.i;
         break;
-    case QCoreVariant::UInt:
+    case QVariant::UInt:
         s << d->data.u;
         break;
-    case QCoreVariant::LongLong:
+    case QVariant::LongLong:
         s << d->data.ll;
         break;
-    case QCoreVariant::ULongLong:
+    case QVariant::ULongLong:
         s << d->data.ull;
         break;
-    case QCoreVariant::Bool:
+    case QVariant::Bool:
         s << (qint8)d->data.b;
         break;
-    case QCoreVariant::Double:
+    case QVariant::Double:
         s << d->data.d;
         break;
-    case QCoreVariant::Date:
+    case QVariant::Date:
         s << *v_cast<QDate>(d);
         break;
-    case QCoreVariant::Time:
+    case QVariant::Time:
         s << *v_cast<QTime>(d);
         break;
-    case QCoreVariant::DateTime:
+    case QVariant::DateTime:
         s << *v_cast<QDateTime>(d);
         break;
-    case QCoreVariant::ByteArray:
+    case QVariant::ByteArray:
         s << *v_cast<QByteArray>(d);
         break;
-    case QCoreVariant::BitArray:
+    case QVariant::BitArray:
         s << *v_cast<QBitArray>(d);
         break;
-    case QCoreVariant::Invalid:
+    case QVariant::Invalid:
         s << QString();
         break;
     default:
         if (QMetaType::isRegistered(d->type)) {
             if (!QMetaType::save(s, d->type, d->data.shared->ptr))
-                qFatal("QCoreVariant::save: no streaming operators registered for type %d.", d->type);
+                qFatal("QVariant::save: no streaming operators registered for type %d.", d->type);
             break;
         } else {
-            qFatal("QCoreVariant::save: type %d unknown to QCoreVariant.", d->type);
+            qFatal("QVariant::save: type %d unknown to QVariant.", d->type);
         }
     }
 }
 #endif // QT_NO_DATASTREAM
 
-static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private *b)
+static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 {
     switch(a->type) {
 #ifndef QT_NO_TEMPLATE_VARIANT
-    case QCoreVariant::List:
-        return *v_cast<QCoreVariantList>(a) == *v_cast<QCoreVariantList>(b);
-    case QCoreVariant::Map: {
-        const QCoreVariantMap *m1 = v_cast<QCoreVariantMap>(a);
-        const QCoreVariantMap *m2 = v_cast<QCoreVariantMap>(b);
+    case QVariant::List:
+        return *v_cast<QVariantList>(a) == *v_cast<QVariantList>(b);
+    case QVariant::Map: {
+        const QVariantMap *m1 = v_cast<QVariantMap>(a);
+        const QVariantMap *m2 = v_cast<QVariantMap>(b);
         if (m1->count() != m2->count())
             return false;
-        QCoreVariantMap::ConstIterator it = m1->constBegin();
-        QCoreVariantMap::ConstIterator it2 = m2->constBegin();
+        QVariantMap::ConstIterator it = m1->constBegin();
+        QVariantMap::ConstIterator it2 = m2->constBegin();
         while (it != m1->constEnd()) {
             if (*it != *it2)
                 return false;
@@ -505,97 +505,97 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
         return true;
     }
 #endif
-    case QCoreVariant::String:
+    case QVariant::String:
         return *v_cast<QString>(a) == *v_cast<QString>(b);
-    case QCoreVariant::Char:
+    case QVariant::Char:
         return *v_cast<QChar>(a) == *v_cast<QChar>(b);
-    case QCoreVariant::StringList:
+    case QVariant::StringList:
         return *v_cast<QStringList>(a) == *v_cast<QStringList>(b);
-    case QCoreVariant::Size:
+    case QVariant::Size:
         return *v_cast<QSize>(a) == *v_cast<QSize>(b);
-    case QCoreVariant::Url:
+    case QVariant::Url:
         return *v_cast<QUrl>(a) == *v_cast<QUrl>(b);
-    case QCoreVariant::Locale:
+    case QVariant::Locale:
         return *v_cast<QLocale>(a) == *v_cast<QLocale>(b);
-    case QCoreVariant::Rect:
+    case QVariant::Rect:
         return *v_cast<QRect>(a) == *v_cast<QRect>(b);
-    case QCoreVariant::Point:
+    case QVariant::Point:
         return *v_cast<QPoint>(a) == *v_cast<QPoint>(b);
-    case QCoreVariant::Int:
+    case QVariant::Int:
         return a->data.i == b->data.i;
-    case QCoreVariant::UInt:
+    case QVariant::UInt:
         return a->data.u == b->data.u;
-    case QCoreVariant::LongLong:
+    case QVariant::LongLong:
         return a->data.ll == b->data.ll;
-    case QCoreVariant::ULongLong:
+    case QVariant::ULongLong:
         return a->data.ull == b->data.ull;
-    case QCoreVariant::Bool:
+    case QVariant::Bool:
         return a->data.b == b->data.b;
-    case QCoreVariant::Double:
+    case QVariant::Double:
         return a->data.d == b->data.d;
-    case QCoreVariant::Date:
+    case QVariant::Date:
         return *v_cast<QDate>(a) == *v_cast<QDate>(b);
-    case QCoreVariant::Time:
+    case QVariant::Time:
         return *v_cast<QTime>(a) == *v_cast<QTime>(b);
-    case QCoreVariant::DateTime:
+    case QVariant::DateTime:
         return *v_cast<QDateTime>(a) == *v_cast<QDateTime>(b);
-    case QCoreVariant::ByteArray:
+    case QVariant::ByteArray:
         return *v_cast<QByteArray>(a) == *v_cast<QByteArray>(b);
-    case QCoreVariant::BitArray:
+    case QVariant::BitArray:
         return *v_cast<QBitArray>(a) == *v_cast<QBitArray>(b);
-    case QCoreVariant::Invalid:
+    case QVariant::Invalid:
         return true;
     default:
         break;
     }
     if (!QMetaType::isRegistered(a->type))
-        qFatal("QCoreVariant::compare: type %d unknown to QCoreVariant.", a->type);
+        qFatal("QVariant::compare: type %d unknown to QVariant.", a->type);
     return a->data.shared->ptr == b->data.shared->ptr;
 }
 
-static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *result, bool *ok)
+static bool cast(const QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 {
     Q_ASSERT(d->type != uint(t));
     switch (t) {
-    case QCoreVariant::String: {
+    case QVariant::String: {
         QString *str = static_cast<QString *>(result);
         switch (d->type) {
-        case QCoreVariant::Char:
+        case QVariant::Char:
             *str = QString(*v_cast<QChar>(d));
             break;
-        case QCoreVariant::Int:
+        case QVariant::Int:
             *str = QString::number(d->data.i);
             break;
-        case QCoreVariant::UInt:
+        case QVariant::UInt:
             *str = QString::number(d->data.u);
             break;
-        case QCoreVariant::LongLong:
+        case QVariant::LongLong:
             *str = QString::number(d->data.ll);
             break;
-        case QCoreVariant::ULongLong:
+        case QVariant::ULongLong:
             *str = QString::number(d->data.ull);
             break;
-        case QCoreVariant::Double:
+        case QVariant::Double:
             *str = QString::number(d->data.d, 'g', DBL_DIG);
             break;
 #if !defined(QT_NO_SPRINTF) && !defined(QT_NO_DATESTRING)
-        case QCoreVariant::Date:
+        case QVariant::Date:
             *str = v_cast<QDate>(d)->toString(Qt::ISODate);
             break;
-        case QCoreVariant::Time:
+        case QVariant::Time:
             *str = v_cast<QTime>(d)->toString(Qt::ISODate);
             break;
-        case QCoreVariant::DateTime:
+        case QVariant::DateTime:
             *str = v_cast<QDateTime>(d)->toString(Qt::ISODate);
             break;
 #endif
-        case QCoreVariant::Bool:
+        case QVariant::Bool:
             *str = QLatin1String(d->data.b ? "true" : "false");
             break;
-        case QCoreVariant::ByteArray:
+        case QVariant::ByteArray:
             *str = QString::fromAscii(v_cast<QByteArray>(d)->constData());
             break;
-        case QCoreVariant::StringList:
+        case QVariant::StringList:
             if (v_cast<QStringList>(d)->count() == 1)
                 *str = v_cast<QStringList>(d)->at(0);
             break;
@@ -604,13 +604,13 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         }
         break;
     }
-    case QCoreVariant::Char: {
+    case QVariant::Char: {
         QChar *c = static_cast<QChar *>(result);
         switch (d->type) {
-        case QCoreVariant::Int:
+        case QVariant::Int:
             *c = QChar(d->data.i);
             break;
-        case QCoreVariant::UInt:
+        case QVariant::UInt:
             *c = QChar(d->data.u);
             break;
         default:
@@ -620,13 +620,13 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
     }
 
 #ifndef QT_NO_TEMPLATE_VARIANT
-    case QCoreVariant::StringList:
-        if (d->type == QCoreVariant::List) {
+    case QVariant::StringList:
+        if (d->type == QVariant::List) {
             QStringList *slst = static_cast<QStringList *>(result);
-            const QCoreVariantList *list = v_cast<QCoreVariantList >(d);
+            const QVariantList *list = v_cast<QVariantList >(d);
             for (int i = 0; i < list->size(); ++i)
                 slst->append(list->at(i).toString());
-        } else if (d->type == QCoreVariant::String) {
+        } else if (d->type == QVariant::String) {
             QStringList *slst = static_cast<QStringList *>(result);
             *slst = QStringList(*v_cast<QString>(d));
         } else {
@@ -634,26 +634,26 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         }
 #endif
         break;
-    case QCoreVariant::Date: {
+    case QVariant::Date: {
         QDate *dt = static_cast<QDate *>(result);
-        if (d->type == QCoreVariant::DateTime)
+        if (d->type == QVariant::DateTime)
             *dt = v_cast<QDateTime>(d)->date();
 #ifndef QT_NO_DATESTRING
-        else if (d->type == QCoreVariant::String)
+        else if (d->type == QVariant::String)
             *dt = QDate::fromString(*v_cast<QString>(d), Qt::ISODate);
 #endif
         else
             return false;
         break;
     }
-    case QCoreVariant::Time: {
+    case QVariant::Time: {
         QTime *t = static_cast<QTime *>(result);
         switch (d->type) {
-        case QCoreVariant::DateTime:
+        case QVariant::DateTime:
             *t = v_cast<QDateTime>(d)->time();
             break;
 #ifndef QT_NO_DATESTRING
-        case QCoreVariant::String:
+        case QVariant::String:
             *t = QTime::fromString(*v_cast<QString>(d), Qt::ISODate);
             break;
 #endif
@@ -662,15 +662,15 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         }
         break;
     }
-    case QCoreVariant::DateTime: {
+    case QVariant::DateTime: {
         QDateTime *dt = static_cast<QDateTime *>(result);
         switch (d->type) {
 #ifndef QT_NO_DATESTRING
-        case QCoreVariant::String:
+        case QVariant::String:
             *dt = QDateTime::fromString(*v_cast<QString>(d), Qt::ISODate);
             break;
 #endif
-        case QCoreVariant::Date:
+        case QVariant::Date:
             *dt = QDateTime(*v_cast<QDate>(d));
             break;
         default:
@@ -678,42 +678,42 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         }
         break;
     }
-    case QCoreVariant::ByteArray: {
+    case QVariant::ByteArray: {
         QByteArray *ba = static_cast<QByteArray *>(result);
-        if (d->type == QCoreVariant::String)
+        if (d->type == QVariant::String)
             *ba = v_cast<QString>(d)->toAscii();
         else
             return false;
     }
     break;
-    case QCoreVariant::Int: {
+    case QVariant::Int: {
         int *i = static_cast<int *>(result);
         switch (d->type) {
-        case QCoreVariant::String:
+        case QVariant::String:
             *i = v_cast<QString>(d)->toInt(ok);
             break;
-        case QCoreVariant::Char:
+        case QVariant::Char:
             *i = v_cast<QChar>(d)->unicode();
             break;
-        case QCoreVariant::ByteArray:
+        case QVariant::ByteArray:
             *i = v_cast<QByteArray>(d)->toInt(ok);
             break;
-        case QCoreVariant::Int:
+        case QVariant::Int:
             *i = d->data.i;
             break;
-        case QCoreVariant::UInt:
+        case QVariant::UInt:
             *i = int(d->data.u);
             break;
-        case QCoreVariant::LongLong:
+        case QVariant::LongLong:
             *i = int(d->data.ll);
             break;
-        case QCoreVariant::ULongLong:
+        case QVariant::ULongLong:
             *i = int(d->data.ull);
             break;
-        case QCoreVariant::Double:
+        case QVariant::Double:
             *i = qRound(d->data.d);
             break;
-        case QCoreVariant::Bool:
+        case QVariant::Bool:
             *i = (int)d->data.b;
             break;
         default:
@@ -722,34 +722,34 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         }
         break;
     }
-    case QCoreVariant::UInt: {
+    case QVariant::UInt: {
         uint *u = static_cast<uint *>(result);
         switch (d->type) {
-        case QCoreVariant::String:
+        case QVariant::String:
             *u = v_cast<QString>(d)->toUInt(ok);
             break;
-        case QCoreVariant::Char:
+        case QVariant::Char:
             *u = v_cast<QChar>(d)->unicode();
             break;
-        case QCoreVariant::ByteArray:
+        case QVariant::ByteArray:
             *u = v_cast<QByteArray>(d)->toUInt(ok);
             break;
-        case QCoreVariant::Int:
+        case QVariant::Int:
             *u = uint(d->data.i);
             break;
-        case QCoreVariant::UInt:
+        case QVariant::UInt:
             *u = d->data.u;
             break;
-        case QCoreVariant::LongLong:
+        case QVariant::LongLong:
             *u = uint(d->data.ll);
             break;
-        case QCoreVariant::ULongLong:
+        case QVariant::ULongLong:
             *u = uint(d->data.ull);
             break;
-        case QCoreVariant::Double:
+        case QVariant::Double:
             *u = qRound(d->data.d);
             break;
-        case QCoreVariant::Bool:
+        case QVariant::Bool:
             *u = uint(d->data.b);
             break;
         default:
@@ -758,34 +758,34 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         }
         break;
     }
-    case QCoreVariant::LongLong: {
+    case QVariant::LongLong: {
         qlonglong *l = static_cast<qlonglong *>(result);
         switch (d->type) {
-        case QCoreVariant::String:
+        case QVariant::String:
             *l = v_cast<QString>(d)->toLongLong(ok);
             break;
-        case QCoreVariant::Char:
+        case QVariant::Char:
             *l = v_cast<QChar>(d)->unicode();
             break;
-        case QCoreVariant::ByteArray:
+        case QVariant::ByteArray:
             *l = v_cast<QByteArray>(d)->toLongLong(ok);
             break;
-        case QCoreVariant::Int:
+        case QVariant::Int:
             *l = qlonglong(d->data.i);
             break;
-        case QCoreVariant::UInt:
+        case QVariant::UInt:
             *l = qlonglong(d->data.u);
             break;
-        case QCoreVariant::LongLong:
+        case QVariant::LongLong:
             *l = d->data.ll;
             break;
-        case QCoreVariant::ULongLong:
+        case QVariant::ULongLong:
             *l = qlonglong(d->data.ull);
             break;
-        case QCoreVariant::Double:
+        case QVariant::Double:
             *l = qRound64(d->data.d);
             break;
-        case QCoreVariant::Bool:
+        case QVariant::Bool:
             *l = qlonglong(d->data.b);
             break;
         default:
@@ -794,34 +794,34 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         }
         break;
     }
-    case QCoreVariant::ULongLong: {
+    case QVariant::ULongLong: {
         qulonglong *l = static_cast<qulonglong *>(result);
         switch (d->type) {
-        case QCoreVariant::Int:
+        case QVariant::Int:
             *l = qulonglong(d->data.i);
             break;
-        case QCoreVariant::UInt:
+        case QVariant::UInt:
             *l = qulonglong(d->data.u);
             break;
-        case QCoreVariant::LongLong:
+        case QVariant::LongLong:
             *l = qulonglong(d->data.ll);
             break;
-        case QCoreVariant::ULongLong:
+        case QVariant::ULongLong:
             *l = d->data.ull;
             break;
-        case QCoreVariant::Double:
+        case QVariant::Double:
             *l = qRound64(d->data.d);
             break;
-        case QCoreVariant::Bool:
+        case QVariant::Bool:
             *l = qulonglong(d->data.b);
             break;
-        case QCoreVariant::String:
+        case QVariant::String:
             *l = v_cast<QString>(d)->toULongLong(ok);
             break;
-        case QCoreVariant::Char:
+        case QVariant::Char:
             *l = v_cast<QChar>(d)->unicode();
             break;
-        case QCoreVariant::ByteArray:
+        case QVariant::ByteArray:
             *l = v_cast<QByteArray>(d)->toULongLong(ok);
             break;
         default:
@@ -830,31 +830,31 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         }
         break;
     }
-    case QCoreVariant::Bool: {
+    case QVariant::Bool: {
         bool *b = static_cast<bool *>(result);
         switch(d->type) {
-        case QCoreVariant::Double:
+        case QVariant::Double:
             *b = d->data.d != 0.0;
             break;
-        case QCoreVariant::Int:
+        case QVariant::Int:
             *b = d->data.i != 0;
             break;
-        case QCoreVariant::UInt:
+        case QVariant::UInt:
             *b = d->data.u != 0;
             break;
-        case QCoreVariant::LongLong:
+        case QVariant::LongLong:
             *b = d->data.ll != Q_INT64_C(0);
             break;
-        case QCoreVariant::ULongLong:
+        case QVariant::ULongLong:
             *b = d->data.ull != Q_UINT64_C(0);
             break;
-        case QCoreVariant::String:
+        case QVariant::String:
         {
             QString str = v_cast<QString>(d)->toLower();
             *b = !(str == QLatin1String("0") || str == QLatin1String("false") || str.isEmpty());
             break;
         }
-        case QCoreVariant::Char:
+        case QVariant::Char:
             *b = !v_cast<QChar>(d)->isNull();
             break;
         default:
@@ -863,31 +863,31 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         }
         break;
     }
-    case QCoreVariant::Double: {
+    case QVariant::Double: {
         double *f = static_cast<double *>(result);
         switch (d->type) {
-        case QCoreVariant::String:
+        case QVariant::String:
             *f = v_cast<QString>(d)->toDouble(ok);
             break;
-        case QCoreVariant::ByteArray:
+        case QVariant::ByteArray:
             *f = v_cast<QByteArray>(d)->toDouble(ok);
             break;
-        case QCoreVariant::Double:
+        case QVariant::Double:
             *f = d->data.d;
             break;
-        case QCoreVariant::Int:
+        case QVariant::Int:
             *f = double(d->data.i);
             break;
-        case QCoreVariant::Bool:
+        case QVariant::Bool:
             *f = double(d->data.b);
             break;
-        case QCoreVariant::UInt:
+        case QVariant::UInt:
             *f = double(d->data.u);
             break;
-        case QCoreVariant::LongLong:
+        case QVariant::LongLong:
             *f = double(d->data.ll);
             break;
-        case QCoreVariant::ULongLong:
+        case QVariant::ULongLong:
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
             *f = (double)(qlonglong)d->data.ull;
 #else
@@ -900,12 +900,12 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         }
         break;
     }
-    case QCoreVariant::List:
-        if (d->type == QCoreVariant::StringList) {
-            QCoreVariantList *lst = static_cast<QCoreVariantList *>(result);
+    case QVariant::List:
+        if (d->type == QVariant::StringList) {
+            QVariantList *lst = static_cast<QVariantList *>(result);
             const QStringList *slist = v_cast<QStringList>(d);
             for (int i = 0; i < slist->size(); ++i)
-                lst->append(QCoreVariant(slist->at(i)));
+                lst->append(QVariant(slist->at(i)));
         } else {
             return false;
         }
@@ -917,76 +917,76 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
     return true;
 }
 
-static bool canCast(const QCoreVariant::Private *d, QCoreVariant::Type t)
+static bool canCast(const QVariant::Private *d, QVariant::Type t)
 {
     if (d->type == (uint)t)
         return true;
 
     switch (t) {
-    case QCoreVariant::Bool:
-        return d->type == QCoreVariant::Double || d->type == QCoreVariant::Int
-            || d->type == QCoreVariant::UInt || d->type == QCoreVariant::LongLong
-            || d->type == QCoreVariant::ULongLong || d->type == QCoreVariant::String
-            || d->type == QCoreVariant::Char;
-    case QCoreVariant::Int:
-        return d->type == QCoreVariant::String || d->type == QCoreVariant::Double
-            || d->type == QCoreVariant::Bool || d->type == QCoreVariant::UInt
-            || d->type == QCoreVariant::LongLong || d->type == QCoreVariant::ULongLong
-            || d->type == QCoreVariant::Char;
-    case QCoreVariant::UInt:
-        return d->type == QCoreVariant::String || d->type == QCoreVariant::Double
-            || d->type == QCoreVariant::Bool || d->type == QCoreVariant::Int
-            || d->type == QCoreVariant::LongLong || d->type == QCoreVariant::ULongLong
-            || d->type == QCoreVariant::Char;
-    case QCoreVariant::LongLong:
-        return d->type == QCoreVariant::String || d->type == QCoreVariant::Double
-            || d->type == QCoreVariant::Bool || d->type == QCoreVariant::Int
-            || d->type == QCoreVariant::UInt || d->type == QCoreVariant::ULongLong
-            || d->type == QCoreVariant::Char;
-    case QCoreVariant::ULongLong:
-        return d->type == QCoreVariant::String || d->type == QCoreVariant::Double
-            || d->type == QCoreVariant::Bool || d->type == QCoreVariant::Int
-            || d->type == QCoreVariant::UInt || d->type == QCoreVariant::LongLong
-            || d->type == QCoreVariant::Char;
-    case QCoreVariant::Double:
-        return d->type == QCoreVariant::String || d->type == QCoreVariant::Int
-            || d->type == QCoreVariant::Bool || d->type == QCoreVariant::UInt
-            || d->type == QCoreVariant::LongLong || d->type == QCoreVariant::ULongLong;
-    case QCoreVariant::String:
-        if (d->type == QCoreVariant::StringList && v_cast<QStringList>(d)->count() == 1)
+    case QVariant::Bool:
+        return d->type == QVariant::Double || d->type == QVariant::Int
+            || d->type == QVariant::UInt || d->type == QVariant::LongLong
+            || d->type == QVariant::ULongLong || d->type == QVariant::String
+            || d->type == QVariant::Char;
+    case QVariant::Int:
+        return d->type == QVariant::String || d->type == QVariant::Double
+            || d->type == QVariant::Bool || d->type == QVariant::UInt
+            || d->type == QVariant::LongLong || d->type == QVariant::ULongLong
+            || d->type == QVariant::Char;
+    case QVariant::UInt:
+        return d->type == QVariant::String || d->type == QVariant::Double
+            || d->type == QVariant::Bool || d->type == QVariant::Int
+            || d->type == QVariant::LongLong || d->type == QVariant::ULongLong
+            || d->type == QVariant::Char;
+    case QVariant::LongLong:
+        return d->type == QVariant::String || d->type == QVariant::Double
+            || d->type == QVariant::Bool || d->type == QVariant::Int
+            || d->type == QVariant::UInt || d->type == QVariant::ULongLong
+            || d->type == QVariant::Char;
+    case QVariant::ULongLong:
+        return d->type == QVariant::String || d->type == QVariant::Double
+            || d->type == QVariant::Bool || d->type == QVariant::Int
+            || d->type == QVariant::UInt || d->type == QVariant::LongLong
+            || d->type == QVariant::Char;
+    case QVariant::Double:
+        return d->type == QVariant::String || d->type == QVariant::Int
+            || d->type == QVariant::Bool || d->type == QVariant::UInt
+            || d->type == QVariant::LongLong || d->type == QVariant::ULongLong;
+    case QVariant::String:
+        if (d->type == QVariant::StringList && v_cast<QStringList>(d)->count() == 1)
             return true;
-        return d->type == QCoreVariant::ByteArray || d->type == QCoreVariant::Int
-            || d->type == QCoreVariant::UInt || d->type == QCoreVariant::Bool
-            || d->type == QCoreVariant::Double || d->type == QCoreVariant::Date
-            || d->type == QCoreVariant::Time || d->type == QCoreVariant::DateTime
-            || d->type == QCoreVariant::LongLong || d->type == QCoreVariant::ULongLong
-            || d->type == QCoreVariant::Char;
-    case QCoreVariant::Char:
-        return d->type == QCoreVariant::Int || d->type == QCoreVariant::UInt;
-    case QCoreVariant::ByteArray:
+        return d->type == QVariant::ByteArray || d->type == QVariant::Int
+            || d->type == QVariant::UInt || d->type == QVariant::Bool
+            || d->type == QVariant::Double || d->type == QVariant::Date
+            || d->type == QVariant::Time || d->type == QVariant::DateTime
+            || d->type == QVariant::LongLong || d->type == QVariant::ULongLong
+            || d->type == QVariant::Char;
+    case QVariant::Char:
+        return d->type == QVariant::Int || d->type == QVariant::UInt;
+    case QVariant::ByteArray:
         return
 #ifdef QT3_SUPPORT
-            d->type == QCoreVariant::CString ||
+            d->type == QVariant::CString ||
 #endif
-            d->type == QCoreVariant::String;
-    case QCoreVariant::Date:
-        return d->type == QCoreVariant::String || d->type == QCoreVariant::DateTime;
-    case QCoreVariant::Time:
-        return d->type == QCoreVariant::String || d->type == QCoreVariant::DateTime;
-    case QCoreVariant::DateTime:
-        return d->type == QCoreVariant::String || d->type == QCoreVariant::Date;
-    case QCoreVariant::List:
-        return d->type == QCoreVariant::StringList;
+            d->type == QVariant::String;
+    case QVariant::Date:
+        return d->type == QVariant::String || d->type == QVariant::DateTime;
+    case QVariant::Time:
+        return d->type == QVariant::String || d->type == QVariant::DateTime;
+    case QVariant::DateTime:
+        return d->type == QVariant::String || d->type == QVariant::Date;
+    case QVariant::List:
+        return d->type == QVariant::StringList;
 #ifndef QT_NO_TEMPLATE_VARIANT
-    case QCoreVariant::StringList:
-        if (d->type == QCoreVariant::List) {
-            const QCoreVariantList &varlist = *v_cast<QCoreVariantList >(d);
+    case QVariant::StringList:
+        if (d->type == QVariant::List) {
+            const QVariantList &varlist = *v_cast<QVariantList >(d);
             for (int i = 0; i < varlist.size(); ++i) {
-                if (!varlist.at(i).canCast(QCoreVariant::String))
+                if (!varlist.at(i).canCast(QVariant::String))
                     return false;
             }
             return true;
-        } else if (d->type == QCoreVariant::String) {
+        } else if (d->type == QVariant::String) {
             return true;
         }
         return false;
@@ -996,7 +996,7 @@ static bool canCast(const QCoreVariant::Private *d, QCoreVariant::Type t)
     }
 }
 
-const QCoreVariant::Handler qt_kernel_variant_handler = {
+const QVariant::Handler qt_kernel_variant_handler = {
     construct,
     clear,
     isNull,
@@ -1009,17 +1009,17 @@ const QCoreVariant::Handler qt_kernel_variant_handler = {
     canCast
 };
 
-Q_CORE_EXPORT const QCoreVariant::Handler *qcoreVariantHandler()
+Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler()
 {
     return &qt_kernel_variant_handler;
 }
 
 
-const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
+const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
 
 /*!
-    \class QCoreVariant qvariant.h
-    \brief The QCoreVariant class acts like a union for the most common Qt data types.
+    \class QVariant qvariant.h
+    \brief The QVariant class acts like a union for the most common Qt data types.
 
     \ingroup objectmodel
     \ingroup misc
@@ -1027,10 +1027,10 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
 
     Because C++ forbids unions from including types that have
     non-default constructors or destructors, most interesting Qt
-    classes cannot be used in unions. Without QCoreVariant, this would be
+    classes cannot be used in unions. Without QVariant, this would be
     a problem for QObject::property() and for database work, etc.
 
-    A QCoreVariant object holds a single value of a single type() at a
+    A QVariant object holds a single value of a single type() at a
     time. (Some type()s are multi-valued, for example a string list.)
     You can find out what type, T, the variant holds, convert it to a
     different type using one of the asT() functions, e.g. asSize(),
@@ -1046,21 +1046,21 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     type that cannot be generated from the stored type, the result
     depends on the type (see the function documentation for details).
 
-    Note that two data types supported by QCoreVariant are explicitly
+    Note that two data types supported by QVariant are explicitly
     shared, namely QImage and QPolygon, and in these
     cases the toT() methods return a shallow copy. In almost all cases
     you must make a deep copy of the returned values before modifying
     them.
 
-    Here is some example code to demonstrate the use of QCoreVariant:
+    Here is some example code to demonstrate the use of QVariant:
 
     \code
     QDataStream out(...);
-    QCoreVariant v(123);            // The variant now contains an int
+    QVariant v(123);            // The variant now contains an int
     int x = v.toInt();              // x = 123
     out << v;                       // Writes a type tag and an int to out
-    v = QCoreVariant("hello");      // The variant now contains a QByteArray
-    v = QCoreVariant(tr("hello"));  // The variant now contains a QString
+    v = QVariant("hello");      // The variant now contains a QByteArray
+    v = QVariant(tr("hello"));  // The variant now contains a QString
     int y = v.toInt();              // y = 0 since v cannot be converted to an int
     QString s = v.toString();       // s = tr("hello")  (see QObject::tr())
     out << v;                       // Writes a type tag and a QString to out
@@ -1071,20 +1071,20 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     qDebug("Type is %s",            // prints "Type is int"
             v.typeName());
     v = v.toInt() + 100;            // The variant now hold the value 223.
-    v = QCoreVariant(QStringList());
+    v = QVariant(QStringList());
     \endcode
 
-    You can even store QCoreVariantLists and
-    QMap<QString,QCoreVariant>s in a variant, so you can easily construct
+    You can even store QVariantLists and
+    QMap<QString,QVariant>s in a variant, so you can easily construct
     arbitrarily complex data structures of arbitrary types. This is
     very powerful and versatile, but may prove less memory and speed
     efficient than storing specific types in standard data structures.
 
-    QCoreVariant also supports the notion of NULL values, where you have a
+    QVariant also supports the notion of NULL values, where you have a
     defined type with no value set.
     \code
-    QCoreVariant x, y(QString()), z(QString(""));
-    x.cast(QCoreVariant::Int)cast(QCoreVariant::Int);
+    QVariant x, y(QString()), z(QString(""));
+    x.cast(QVariant::Int)cast(QVariant::Int);
     // x.isNull() == true,
     // y.isNull() == true, z.isNull() == false
     // y.isEmpty() == true, z.Empty() == true
@@ -1092,9 +1092,9 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
 */
 
 /*!
-    \enum QCoreVariant::Type
+    \enum QVariant::Type
 
-    This enum type defines the types of variable that a QCoreVariant can
+    This enum type defines the types of variable that a QVariant can
     contain.
 
     \value Invalid  no type
@@ -1113,10 +1113,10 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \value Image  a QImage
     \value Int  an int
     \value KeySequence  a QKeySequence
-    \value List  a QCoreVariantList
+    \value List  a QVariantList
     \value LongLong a long long
     \value ULongLong an unsigned long long
-    \value Map  a QMap<QString,QCoreVariant>
+    \value Map  a QMap<QString,QVariant>
     \value Palette  a QPalette
     \value Pen  a QPen
     \value Pixmap  a QPixmap
@@ -1143,21 +1143,21 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant()
+  \fn QVariant::QVariant()
 
     Constructs an invalid variant.
 */
 
 
 /*!
-    \fn QCoreVariant::QCoreVariant(int typeOrUserType, const void *copy)
+    \fn QVariant::QVariant(int typeOrUserType, const void *copy)
 
     Constructs variant of type \a typeOrUserType, and initializes with
     \a copy if \a copy is not 0.
 */
 
 /*!
-    \fn QCoreVariant::QCoreVariant(Type type)
+    \fn QVariant::QVariant(Type type)
 
     Constructs a null variant of type \a type.
 */
@@ -1165,7 +1165,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
 
 
 /*!
-    \fn QCoreVariant::create(int type, const void *copy)
+    \fn QVariant::create(int type, const void *copy)
 
     \internal
 
@@ -1173,7 +1173,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \a copy is not 0.
 */
 
-void QCoreVariant::create(int type, const void *copy)
+void QVariant::create(int type, const void *copy)
 {
     d.type = type;
     d.is_null = true;
@@ -1181,24 +1181,24 @@ void QCoreVariant::create(int type, const void *copy)
 }
 
 /*!
-  \fn QCoreVariant::~QCoreVariant()
+  \fn QVariant::~QVariant()
 
-    Destroys the QCoreVariant and the contained object.
+    Destroys the QVariant and the contained object.
 
     Note that subclasses that reimplement clear() should reimplement
     the destructor to call clear(). This destructor calls clear(), but
-    because it is the destructor, QCoreVariant::clear() is called rather
+    because it is the destructor, QVariant::clear() is called rather
     than a subclass's clear().
 */
 
-QCoreVariant::~QCoreVariant()
+QVariant::~QVariant()
 {
     if (!d.is_shared || !--d.data.shared->ref)
         handler->clear(&d);
 }
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QCoreVariant &p)
+  \fn QVariant::QVariant(const QVariant &p)
 
     Constructs a copy of the variant, \a p, passed as the argument to
     this constructor. Usually this is a deep copy, but a shallow copy
@@ -1206,7 +1206,7 @@ QCoreVariant::~QCoreVariant()
     QImage is.
 */
 
-QCoreVariant::QCoreVariant(const QCoreVariant &p)
+QVariant::QVariant(const QVariant &p)
 {
     d.type = p.d.type;
     d.is_shared = p.d.is_shared;
@@ -1223,7 +1223,7 @@ QCoreVariant::QCoreVariant(const QCoreVariant &p)
 /*!
     Reads the variant from the data stream, \a s.
 */
-QCoreVariant::QCoreVariant(QDataStream &s)
+QVariant::QVariant(QDataStream &s)
 {
     d.is_null = true;
     s >> *this;
@@ -1231,19 +1231,19 @@ QCoreVariant::QCoreVariant(QDataStream &s)
 #endif //QT_NO_DATASTREAM
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QString &val)
+  \fn QVariant::QVariant(const QString &val)
 
     Constructs a new variant with a string value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QLatin1String &val)
+  \fn QVariant::QVariant(const QLatin1String &val)
 
     Constructs a new variant with a string value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const char *val)
+  \fn QVariant::QVariant(const char *val)
 
     Constructs a new variant with a C-string value of \a val if \a val
     is non-null. The variant creates a deep copy of \a val.
@@ -1252,105 +1252,105 @@ QCoreVariant::QCoreVariant(QDataStream &s)
 */
 
 
-QCoreVariant::QCoreVariant(const char *val)
+QVariant::QVariant(const char *val)
 {
     QString s = QString::fromLatin1(val);
     create(String, &s);
 }
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QStringList &val)
+  \fn QVariant::QVariant(const QStringList &val)
 
     Constructs a new variant with a string list value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &val)
+  \fn QVariant::QVariant(const QMap<QString,QVariant> &val)
 
-    Constructs a new variant with a map of QCoreVariants, \a val.
+    Constructs a new variant with a map of QVariants, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QDate &val)
+  \fn QVariant::QVariant(const QDate &val)
 
     Constructs a new variant with a date value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QTime &val)
+  \fn QVariant::QVariant(const QTime &val)
 
     Constructs a new variant with a time value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QDateTime &val)
+  \fn QVariant::QVariant(const QDateTime &val)
 
     Constructs a new variant with a date/time value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QByteArray &val)
+  \fn QVariant::QVariant(const QByteArray &val)
 
     Constructs a new variant with a bytearray value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QBitArray &val)
+  \fn QVariant::QVariant(const QBitArray &val)
 
     Constructs a new variant with a bitarray value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QPoint &val)
+  \fn QVariant::QVariant(const QPoint &val)
 
   Constructs a new variant with a point value of \a val.
  */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QRect &val)
+  \fn QVariant::QVariant(const QRect &val)
 
   Constructs a new variant with a rect value of \a val.
  */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QSize &val)
+  \fn QVariant::QVariant(const QSize &val)
 
   Constructs a new variant with a size value of \a val.
  */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QUrl &val)
+  \fn QVariant::QVariant(const QUrl &val)
 
   Constructs a new variant with a url value of \a val.
  */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(int val)
+  \fn QVariant::QVariant(int val)
 
     Constructs a new variant with an integer value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(uint val)
+  \fn QVariant::QVariant(uint val)
 
     Constructs a new variant with an unsigned integer value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(qlonglong val)
+  \fn QVariant::QVariant(qlonglong val)
 
     Constructs a new variant with a long long integer value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(qulonglong val)
+  \fn QVariant::QVariant(qulonglong val)
 
     Constructs a new variant with an unsigned long long integer value, \a val.
 */
 
 
 /*!
-  \fn QCoreVariant::QCoreVariant(bool val)
+  \fn QVariant::QVariant(bool val)
 
     Constructs a new variant with a boolean value, \a val. The integer
     argument is a dummy, necessary for compatibility with some
@@ -1359,65 +1359,65 @@ QCoreVariant::QCoreVariant(const char *val)
 
 
 /*!
-  \fn QCoreVariant::QCoreVariant(double val)
+  \fn QVariant::QVariant(double val)
 
     Constructs a new variant with a floating point value, \a val.
 */
 
 /*!
-    \fn QCoreVariant::QCoreVariant(const QList<QCoreVariant> &val)
+    \fn QVariant::QVariant(const QList<QVariant> &val)
 
     Constructs a new variant with a list value, \a val.
 */
 
 
-QCoreVariant::QCoreVariant(Type type)
+QVariant::QVariant(Type type)
 { create(type, 0); }
-QCoreVariant::QCoreVariant(int typeOrUserType, const void *copy)
+QVariant::QVariant(int typeOrUserType, const void *copy)
 { create(typeOrUserType, copy); d.is_null = false; }
-QCoreVariant::QCoreVariant(int val)
+QVariant::QVariant(int val)
 { create(Int, &val); }
-QCoreVariant::QCoreVariant(uint val)
+QVariant::QVariant(uint val)
 { create(UInt, &val); }
-QCoreVariant::QCoreVariant(qlonglong val)
+QVariant::QVariant(qlonglong val)
 { create(LongLong, &val); }
-QCoreVariant::QCoreVariant(qulonglong val)
+QVariant::QVariant(qulonglong val)
 { create(ULongLong, &val); }
-QCoreVariant::QCoreVariant(bool val)
+QVariant::QVariant(bool val)
 { create(Bool, &val); }
-QCoreVariant::QCoreVariant(double val)
+QVariant::QVariant(double val)
 { create(Double, &val); }
 
-QCoreVariant::QCoreVariant(const QByteArray &val)
+QVariant::QVariant(const QByteArray &val)
 { create(ByteArray, &val); }
-QCoreVariant::QCoreVariant(const QBitArray &val)
+QVariant::QVariant(const QBitArray &val)
 { create(BitArray, &val); }
-QCoreVariant::QCoreVariant(const QString &val)
+QVariant::QVariant(const QString &val)
 { create(String, &val); }
-QCoreVariant::QCoreVariant(const QChar &val)
+QVariant::QVariant(const QChar &val)
 { create (Char, &val); }
-QCoreVariant::QCoreVariant(const QLatin1String &val)
+QVariant::QVariant(const QLatin1String &val)
 { QString str(val); create(String, &str); }
-QCoreVariant::QCoreVariant(const QStringList &val)
+QVariant::QVariant(const QStringList &val)
 { create(StringList, &val); }
 
-QCoreVariant::QCoreVariant(const QDate &val)
+QVariant::QVariant(const QDate &val)
 { create(Date, &val); }
-QCoreVariant::QCoreVariant(const QTime &val)
+QVariant::QVariant(const QTime &val)
 { create(Time, &val); }
-QCoreVariant::QCoreVariant(const QDateTime &val)
+QVariant::QVariant(const QDateTime &val)
 { create(DateTime, &val); }
 #ifndef QT_NO_TEMPLATE_VARIANT
-QCoreVariant::QCoreVariant(const QList<QCoreVariant> &list)
+QVariant::QVariant(const QList<QVariant> &list)
 { create(List, &list); }
-QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &map)
+QVariant::QVariant(const QMap<QString,QVariant> &map)
 { create(Map, &map); }
 #endif
-QCoreVariant::QCoreVariant(const QPoint &pt) { create(Point, &pt); }
-QCoreVariant::QCoreVariant(const QRect &r) { create(Rect, &r); }
-QCoreVariant::QCoreVariant(const QSize &s) { create(Size, &s); }
-QCoreVariant::QCoreVariant(const QUrl &u) { create(Url, &u); }
-QCoreVariant::QCoreVariant(const QLocale &l) { create(Locale, &l); }
+QVariant::QVariant(const QPoint &pt) { create(Point, &pt); }
+QVariant::QVariant(const QRect &r) { create(Rect, &r); }
+QVariant::QVariant(const QSize &s) { create(Size, &s); }
+QVariant::QVariant(const QUrl &u) { create(Url, &u); }
+QVariant::QVariant(const QLocale &l) { create(Locale, &l); }
 
 /*!
     Returns the storage type of the value stored in the variant.
@@ -1425,7 +1425,7 @@ QCoreVariant::QCoreVariant(const QLocale &l) { create(Locale, &l); }
     deliver the data type you are interested in.
 */
 
-QCoreVariant::Type QCoreVariant::type() const
+QVariant::Type QVariant::type() const
 {
     return d.type >= QMetaType::User ? UserType : static_cast<Type>(d.type);
 }
@@ -1437,7 +1437,7 @@ QCoreVariant::Type QCoreVariant::type() const
     \sa type()
 */
 
-int QCoreVariant::userType() const
+int QVariant::userType() const
 {
     return d.type;
 }
@@ -1449,7 +1449,7 @@ int QCoreVariant::userType() const
     holds an explicitly shared type such as QImage, a shallow copy is
     performed.
 */
-QCoreVariant& QCoreVariant::operator=(const QCoreVariant &variant)
+QVariant& QVariant::operator=(const QVariant &variant)
 {
     if (this == &variant)
         return *this;
@@ -1468,12 +1468,12 @@ QCoreVariant& QCoreVariant::operator=(const QCoreVariant &variant)
 }
 
 /*!
-    \fn void QCoreVariant::detach()
+    \fn void QVariant::detach()
 
     \internal
 */
 
-void QCoreVariant::detach()
+void QVariant::detach()
 {
     if (!d.is_shared || d.data.shared->ref == 1)
         return;
@@ -1487,7 +1487,7 @@ void QCoreVariant::detach()
 }
 
 /*!
-    \fn bool QCoreVariant::isDetached() const
+    \fn bool QVariant::isDetached() const
 
     \internal
 */
@@ -1495,10 +1495,10 @@ void QCoreVariant::detach()
 /*!
     Returns the name of the type stored in the variant. The returned
     strings describe the C++ datatype used to store the data: for
-    example, "QFont", "QString", or "QCoreVariantList". An Invalid
+    example, "QFont", "QString", or "QVariantList". An Invalid
     variant returns 0.
 */
-const char *QCoreVariant::typeName() const
+const char *QVariant::typeName() const
 {
     return typeToName((Type)d.type);
 }
@@ -1507,7 +1507,7 @@ const char *QCoreVariant::typeName() const
     Convert this variant to type Invalid and free up any resources
     used.
 */
-void QCoreVariant::clear()
+void QVariant::clear()
 {
     if (!d.is_shared || !--d.data.shared->ref)
         handler->clear(&d);
@@ -1577,7 +1577,7 @@ static const char* const type_map[ntypes] =
     Converts the enum representation of the storage type, \a typ, to
     its string representation.
 */
-const char *QCoreVariant::typeToName(Type typ)
+const char *QVariant::typeToName(Type typ)
 {
     if (typ == UserType)
         return "UserType";
@@ -1594,7 +1594,7 @@ const char *QCoreVariant::typeToName(Type typ)
     If the string representation cannot be converted to any enum
     representation, the variant is set to \c Invalid.
 */
-QCoreVariant::Type QCoreVariant::nameToType(const char *name)
+QVariant::Type QVariant::nameToType(const char *name)
 {
     if (!name)
         return Invalid;
@@ -1626,18 +1626,18 @@ QCoreVariant::Type QCoreVariant::nameToType(const char *name)
 
     \internal
 */
-void QCoreVariant::load(QDataStream &s)
+void QVariant::load(QDataStream &s)
 {
     clear();
 
     quint32 u;
     s >> u;
-    if (u >= QCoreVariant::UserType) {
+    if (u >= QVariant::UserType) {
         QByteArray name;
         s >> name;
         u = QMetaType::type(name);
         if (!u)
-            qFatal("QCoreVariant::load(QDataStream &s): type %s unknown to QCoreVariant.", name.data());
+            qFatal("QVariant::load(QDataStream &s): type %s unknown to QVariant.", name.data());
     }
     create(static_cast<int>(u), 0);
     d.is_null = false;
@@ -1650,10 +1650,10 @@ void QCoreVariant::load(QDataStream &s)
 
     \internal
 */
-void QCoreVariant::save(QDataStream &s) const
+void QVariant::save(QDataStream &s) const
 {
     s << (quint32)type();
-    if (type() == QCoreVariant::UserType) {
+    if (type() == QVariant::UserType) {
         s << QMetaType::typeName(userType());
     }
     handler->save(&d, s);
@@ -1665,7 +1665,7 @@ void QCoreVariant::save(QDataStream &s) const
     \sa \link datastreamformat.html Format of the QDataStream
     operators \endlink
 */
-QDataStream& operator>>(QDataStream &s, QCoreVariant &p)
+QDataStream& operator>>(QDataStream &s, QVariant &p)
 {
     p.load(s);
     return s;
@@ -1677,7 +1677,7 @@ QDataStream& operator>>(QDataStream &s, QCoreVariant &p)
     \sa \link datastreamformat.html Format of the QDataStream
     operators \endlink
 */
-QDataStream& operator<<(QDataStream &s, const QCoreVariant &p)
+QDataStream& operator<<(QDataStream &s, const QVariant &p)
 {
     p.save(s);
     return s;
@@ -1686,11 +1686,11 @@ QDataStream& operator<<(QDataStream &s, const QCoreVariant &p)
 /*!
     Reads a variant type \a p in enum representation from the stream \a s.
 */
-QDataStream& operator>>(QDataStream &s, QCoreVariant::Type &p)
+QDataStream& operator>>(QDataStream &s, QVariant::Type &p)
 {
     quint32 u;
     s >> u;
-    p = (QCoreVariant::Type)u;
+    p = (QVariant::Type)u;
 
     return s;
 }
@@ -1698,7 +1698,7 @@ QDataStream& operator>>(QDataStream &s, QCoreVariant::Type &p)
 /*!
     Writes a variant type \a p to the stream \a s.
 */
-QDataStream& operator<<(QDataStream &s, const QCoreVariant::Type p)
+QDataStream& operator<<(QDataStream &s, const QVariant::Type p)
 {
     s << (quint32)p;
 
@@ -1708,14 +1708,14 @@ QDataStream& operator<<(QDataStream &s, const QCoreVariant::Type p)
 #endif //QT_NO_DATASTREAM
 
 /*!
-    \fn bool QCoreVariant::isValid() const
+    \fn bool QVariant::isValid() const
 
     Returns true if the storage type of this variant is not
-    QCoreVariant::Invalid; otherwise returns false.
+    QVariant::Invalid; otherwise returns false.
 */
 
 #define Q_VARIANT_TO(f) \
-Q##f QCoreVariant::to##f() const { \
+Q##f QVariant::to##f() const { \
     if (d.type == f) \
         return *v_cast<Q##f >(&d); \
     Q##f ret; \
@@ -1736,7 +1736,7 @@ Q_VARIANT_TO(Url)
 Q_VARIANT_TO(Locale)
 
 /*!
-  \fn QString QCoreVariant::toString() const
+  \fn QString QVariant::toString() const
 
     Returns the variant as a QString if the variant has type() String,
     ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
@@ -1745,7 +1745,7 @@ Q_VARIANT_TO(Locale)
 
 
 /*!
-  \fn QStringList QCoreVariant::toStringList() const
+  \fn QStringList QVariant::toStringList() const
 
     Returns the variant as a QStringList if the variant has type()
     StringList or List of a type that can be converted to QString;
@@ -1765,7 +1765,7 @@ Q_VARIANT_TO(Locale)
 
 
 
-QString QCoreVariant::toString() const
+QString QVariant::toString() const
 {
     if (d.type == String)
         return *reinterpret_cast<const QString *>(&d.data.ptr);
@@ -1776,31 +1776,31 @@ QString QCoreVariant::toString() const
 }
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-    Returns the variant as a QMap<QString,QCoreVariant> if the variant has
+    Returns the variant as a QMap<QString,QVariant> if the variant has
     type() Map; otherwise returns an empty map.
 
     Note that if you want to iterate over the map, you should iterate
     over a copy, e.g.
     \code
-    QCoreVariantMap map = myVariant.toMap();
-    QCoreVariantMap::Iterator it = map.begin();
+    QVariantMap map = myVariant.toMap();
+    QVariantMap::Iterator it = map.begin();
     while(it != map.end()) {
         myProcessing(*it);
         ++it;
     }
     \endcode
 */
-QCoreVariantMap QCoreVariant::toMap() const
+QVariantMap QVariant::toMap() const
 {
     if (d.type != Map)
-        return QMap<QString,QCoreVariant>();
+        return QMap<QString,QVariant>();
 
-    return *v_cast<QCoreVariantMap>(&d);
+    return *v_cast<QVariantMap>(&d);
 }
 #endif
 
 /*!
-  \fn QDate QCoreVariant::toDate() const
+  \fn QDate QVariant::toDate() const
 
     Returns the variant as a QDate if the variant has type() Date,
     DateTime or String; otherwise returns an invalid date.
@@ -1811,7 +1811,7 @@ QCoreVariantMap QCoreVariant::toMap() const
 
 
 /*!
-  \fn QTime QCoreVariant::toTime() const
+  \fn QTime QVariant::toTime() const
 
     Returns the variant as a QTime if the variant has type() Time,
     DateTime or String; otherwise returns an invalid time.
@@ -1821,7 +1821,7 @@ QCoreVariantMap QCoreVariant::toMap() const
 */
 
 /*!
-  \fn QDateTime QCoreVariant::toDateTime() const
+  \fn QDateTime QVariant::toDateTime() const
 
     Returns the variant as a QDateTime if the variant has type()
     DateTime, Date or String; otherwise returns an invalid date/time.
@@ -1833,42 +1833,42 @@ QCoreVariantMap QCoreVariant::toMap() const
 
 
 /*!
-  \fn QByteArray QCoreVariant::toByteArray() const
+  \fn QByteArray QVariant::toByteArray() const
 
     Returns the variant as a QByteArray if the variant has type()
     ByteArray; otherwise returns an empty bytearray.
 */
 
 /*!
-  \fn QPoint QCoreVariant::toPoint() const
+  \fn QPoint QVariant::toPoint() const
 
   Returns the variant as a QPoint if the variant has type()
   Point; otherwise returns a null QPoint.
  */
 
 /*!
-  \fn QRect QCoreVariant::toRect() const
+  \fn QRect QVariant::toRect() const
 
   Returns the variant as a QRect if the variant has type()
   Rect; otherwise returns an invalid QRect.
  */
 
 /*!
-  \fn QSize QCoreVariant::toSize() const
+  \fn QSize QVariant::toSize() const
 
   Returns the variant as a QSize if the variant has type()
   Size; otherwise returns an invalid QSize.
  */
 
 /*!
-  \fn QUrl QCoreVariant::toUrl() const
+  \fn QUrl QVariant::toUrl() const
 
   Returns the variant as a QUrl if the variant has type()
   Url; otherwise returns an invalid QUrl.
  */
 
 /*!
-  \fn QLocale QCoreVariant::toLocale() const
+  \fn QLocale QVariant::toLocale() const
 
   Returns the variant as a QLocale if the variant has type()
   Locale; otherwise returns an invalid QLocale.
@@ -1878,7 +1878,7 @@ QCoreVariantMap QCoreVariant::toMap() const
     Returns the variant as a QBitArray if the variant has type()
     BitArray; otherwise returns an empty bitarray.
 */
-QBitArray QCoreVariant::toBitArray() const
+QBitArray QVariant::toBitArray() const
 {
     if (d.type == BitArray)
         return *v_cast<QBitArray>(&d);
@@ -1895,7 +1895,7 @@ QBitArray QCoreVariant::toBitArray() const
 
     \sa canCast()
 */
-int QCoreVariant::toInt(bool *ok) const
+int QVariant::toInt(bool *ok) const
 {
     if (d.type == Int) {
         if (ok)
@@ -1920,7 +1920,7 @@ int QCoreVariant::toInt(bool *ok) const
     If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
     converted to an unsigned int; otherwise \c{*}\a{ok} is set to false.
 */
-uint QCoreVariant::toUInt(bool *ok) const
+uint QVariant::toUInt(bool *ok) const
 {
     if (d.type == UInt) {
         if (ok)
@@ -1948,7 +1948,7 @@ uint QCoreVariant::toUInt(bool *ok) const
 
     \sa canCast()
 */
-qlonglong QCoreVariant::toLongLong(bool *ok) const
+qlonglong QVariant::toLongLong(bool *ok) const
 {
     if (d.type == LongLong) {
         if (ok)
@@ -1976,7 +1976,7 @@ qlonglong QCoreVariant::toLongLong(bool *ok) const
 
     \sa canCast()
 */
-qulonglong QCoreVariant::toULongLong(bool *ok) const
+qulonglong QVariant::toULongLong(bool *ok) const
 {
     if (d.type == ULongLong) {
         if (ok)
@@ -2001,7 +2001,7 @@ qulonglong QCoreVariant::toULongLong(bool *ok) const
     value is non-zero, or if the variant has type String and its lower-case
     content is not empty, "0" or "false"; otherwise returns false.
 */
-bool QCoreVariant::toBool() const
+bool QVariant::toBool() const
 {
     if (d.type == Bool)
         return d.data.b;
@@ -2020,7 +2020,7 @@ bool QCoreVariant::toBool() const
     If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
     converted to a double; otherwise \c{*}\a{ok} is set to false.
 */
-double QCoreVariant::toDouble(bool *ok) const
+double QVariant::toDouble(bool *ok) const
 {
     if (d.type == Double) {
         if (ok)
@@ -2040,27 +2040,27 @@ double QCoreVariant::toDouble(bool *ok) const
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-  \fn QCoreVariantList QCoreVariant::toList() const
+  \fn QVariantList QVariant::toList() const
 
-    Returns the variant as a QCoreVariantList if the variant has
+    Returns the variant as a QVariantList if the variant has
     type() List or StringList; otherwise returns an empty list.
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QCoreVariantList list = myVariant.toList();
-    QCoreVariantList::Iterator it = list.begin();
+    QVariantList list = myVariant.toList();
+    QVariantList::Iterator it = list.begin();
     while(it != list.end()) {
         myProcessing(*it);
         ++it;
     }
     \endcode
 */
-QCoreVariantList QCoreVariant::toList() const
+QVariantList QVariant::toList() const
 {
     if (d.type == List)
-        return *v_cast<QCoreVariantList>(&d);
-    QCoreVariantList res;
+        return *v_cast<QVariantList>(&d);
+    QVariantList res;
     handler->cast(&d, List, &res, 0);
     return res;
 }
@@ -2092,7 +2092,7 @@ QCoreVariantList QCoreVariant::toList() const
     \row \i KeySequence \i String, Int
     \endtable
 */
-bool QCoreVariant::canCast(Type t) const
+bool QVariant::canCast(Type t) const
 {
     return handler->canCast(&d, t);
 }
@@ -2101,19 +2101,19 @@ bool QCoreVariant::canCast(Type t) const
     Casts the variant to the requested type. If the cast cannot be
     done, the variant is set to the default value of the requested
     type (e.g. an empty string if the requested type \a t is
-    QCoreVariant::String, an empty point array if the requested type \a t
-    is QCoreVariant::Polygon, etc). Returns true if the current type of
+    QVariant::String, an empty point array if the requested type \a t
+    is QVariant::Polygon, etc). Returns true if the current type of
     the variant was successfully cast; otherwise returns false.
 
     \sa canCast()
 */
 
-bool QCoreVariant::cast(Type t)
+bool QVariant::cast(Type t)
 {
     if (d.type == uint(t))
         return true;
 
-    QCoreVariant oldValue = *this;
+    QVariant oldValue = *this;
 
     clear();
     if (!handler->canCast(&oldValue.d, t))
@@ -2126,13 +2126,13 @@ bool QCoreVariant::cast(Type t)
 }
 
 /*!
-    Compares this QCoreVariant with \a v and returns true if they are
+    Compares this QVariant with \a v and returns true if they are
     equal; otherwise returns false.
 */
 
-bool QCoreVariant::operator==(const QCoreVariant &v) const
+bool QVariant::operator==(const QVariant &v) const
 {
-    QCoreVariant v2 = v;
+    QVariant v2 = v;
     if (d.type != v2.d.type) {
         if (!v2.canCast(Type(d.type)))
             return false;
@@ -2142,15 +2142,15 @@ bool QCoreVariant::operator==(const QCoreVariant &v) const
 }
 
 /*!
-    \fn bool QCoreVariant::operator!=(const QCoreVariant &v) const
-    Compares this QCoreVariant with \a v and returns true if they are not
+    \fn bool QVariant::operator!=(const QVariant &v) const
+    Compares this QVariant with \a v and returns true if they are not
     equal; otherwise returns false.
 */
 
 /*! \internal
  */
 
-const void *QCoreVariant::constData() const
+const void *QVariant::constData() const
 {
     switch(d.type) {
     case Int:
@@ -2183,19 +2183,19 @@ const void *QCoreVariant::constData() const
         return v_cast<QSize>(&d);
 #ifndef QT_NO_TEMPLATE_VARIANT
     case Map:
-        return v_cast<QCoreVariantMap>(&d);
+        return v_cast<QVariantMap>(&d);
     case List:
-        return v_cast<QCoreVariantList>(&d);
+        return v_cast<QVariantList>(&d);
 #endif
     case Date:
         return v_cast<QDate>(&d);
     case Time:
         return v_cast<QTime>(&d);
-    case QCoreVariant::DateTime:
+    case QVariant::DateTime:
         return v_cast<QDateTime>(&d);
-    case QCoreVariant::ByteArray:
+    case QVariant::ByteArray:
         return v_cast<QByteArray>(&d);
-    case QCoreVariant::BitArray:
+    case QVariant::BitArray:
         return v_cast<QBitArray>(&d);
     default:
         return d.is_shared ? d.data.shared->ptr : reinterpret_cast<const void *>(&d.data.ptr);
@@ -2203,13 +2203,13 @@ const void *QCoreVariant::constData() const
 }
 
 /*!
-    \fn const void* QCoreVariant::data() const
+    \fn const void* QVariant::data() const
 
     \internal
 */
 
 /*! \internal */
-void* QCoreVariant::data()
+void* QVariant::data()
 {
     detach();
     return const_cast<void*>(constData());
@@ -2218,7 +2218,7 @@ void* QCoreVariant::data()
 
 /*! \internal
  */
-void *QCoreVariant::castOrDetach(Type t)
+void *QVariant::castOrDetach(Type t)
 {
     if (d.type != uint(t))
         cast(t);
@@ -2230,68 +2230,68 @@ void *QCoreVariant::castOrDetach(Type t)
 /*!
   Returns true if this is a NULL variant, false otherwise.
 */
-bool QCoreVariant::isNull() const
+bool QVariant::isNull() const
 {
     return handler->isNull(&d);
 }
 
 #ifndef QT_NO_DEBUG_OUTPUT
-QDebug operator<<(QDebug dbg, const QCoreVariant &v)
+QDebug operator<<(QDebug dbg, const QVariant &v)
 {
 #ifndef Q_NO_STREAMING_DEBUG
-    dbg.nospace() << "QCoreVariant(" << v.typeName() << ", ";
+    dbg.nospace() << "QVariant(" << v.typeName() << ", ";
     switch(v.type()) {
-    case QCoreVariant::Int:
+    case QVariant::Int:
         dbg.nospace() << v.toInt();
         break;
-    case QCoreVariant::UInt:
+    case QVariant::UInt:
         dbg.nospace() << v.toUInt();
         break;
-    case QCoreVariant::LongLong:
+    case QVariant::LongLong:
         dbg.nospace() << v.toLongLong();
         break;
-    case QCoreVariant::ULongLong:
+    case QVariant::ULongLong:
         dbg.nospace() << v.toULongLong();
         break;
-    case QCoreVariant::Double:
+    case QVariant::Double:
         dbg.nospace() << v.toDouble();
         break;
-    case QCoreVariant::Bool:
+    case QVariant::Bool:
         dbg.nospace() << v.toBool();
         break;
-    case QCoreVariant::String:
+    case QVariant::String:
         dbg.nospace() << v.toString();
         break;
-    case QCoreVariant::Char:
+    case QVariant::Char:
         dbg.nospace() << v.toChar();
         break;
-    case QCoreVariant::StringList:
+    case QVariant::StringList:
         dbg.nospace() << v.toStringList();
         break;
 #ifndef QT_NO_TEMPLATE_VARIANT
-    case QCoreVariant::Map:
+    case QVariant::Map:
 //         dbg.nospace() << v.toMap();
         break;
-    case QCoreVariant::List:
+    case QVariant::List:
         dbg.nospace() << v.toList();
         break;
 #endif
-    case QCoreVariant::Date:
+    case QVariant::Date:
         dbg.nospace() << v.toDate();
         break;
-    case QCoreVariant::Time:
+    case QVariant::Time:
         dbg.nospace() << v.toTime();
         break;
-    case QCoreVariant::DateTime:
+    case QVariant::DateTime:
         dbg.nospace() << v.toDateTime();
         break;
-    case QCoreVariant::ByteArray:
+    case QVariant::ByteArray:
         dbg.nospace() << v.toByteArray();
         break;
-    case QCoreVariant::Url:
+    case QVariant::Url:
         dbg.nospace() << v.toUrl();
         break;
-    case QCoreVariant::BitArray:
+    case QVariant::BitArray:
         //dbg.nospace() << v.toBitArray();
         break;
     default:
@@ -2309,128 +2309,128 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 #endif
 
 /*!
-    \fn int &QCoreVariant::asInt()
+    \fn int &QVariant::asInt()
 
     Use toInt() instead.
 */
 
 /*!
-    \fn uint &QCoreVariant::asUInt()
+    \fn uint &QVariant::asUInt()
 
     Use toUInt() instead.
 */
 
 /*!
-    \fn qlonglong &QCoreVariant::asLongLong()
+    \fn qlonglong &QVariant::asLongLong()
 
     Use toLongLong() instead.
 */
 
 /*!
-    \fn qulonglong &QCoreVariant::asULongLong()
+    \fn qulonglong &QVariant::asULongLong()
 
     Use toULongLong() instead.
 */
 
 /*!
-    \fn bool &QCoreVariant::asBool()
+    \fn bool &QVariant::asBool()
 
     Use toBool() instead.
 */
 
 /*!
-    \fn double &QCoreVariant::asDouble()
+    \fn double &QVariant::asDouble()
 
     Use toDouble() instead.
 */
 
 /*!
-    \fn QByteArray &QCoreVariant::asByteArray()
+    \fn QByteArray &QVariant::asByteArray()
 
     Use toByteArray() instead.
 */
 
 /*!
-    \fn QBitArray &QCoreVariant::asBitArray()
+    \fn QBitArray &QVariant::asBitArray()
 
     Use toBitArray() instead.
 */
 
 /*!
-    \fn QString &QCoreVariant::asString()
+    \fn QString &QVariant::asString()
 
     Use toString() instead.
 */
 
 /*!
-    \fn QStringList &QCoreVariant::asStringList()
+    \fn QStringList &QVariant::asStringList()
 
     Use toStringList() instead.
 */
 
 /*!
-    \fn QDate &QCoreVariant::asDate()
+    \fn QDate &QVariant::asDate()
 
     Use toDate() instead.
 */
 
 /*!
-    \fn QTime &QCoreVariant::asTime()
+    \fn QTime &QVariant::asTime()
 
     Use toTime() instead.
 */
 
 /*!
-    \fn QDateTime &QCoreVariant::asDateTime()
+    \fn QDateTime &QVariant::asDateTime()
 
     Use toDateTime() instead.
 */
 
 /*!
-    \fn QList<QCoreVariant> &QCoreVariant::asList()
+    \fn QList<QVariant> &QVariant::asList()
 
     Use toList() instead.
 */
 
 /*!
-    \fn QMap<QString,QCoreVariant> &QCoreVariant::asMap()
+    \fn QMap<QString,QVariant> &QVariant::asMap()
 
     Use toMap() instead.
 */
 
 /*!
-    \fn QCoreVariant::QCoreVariant(bool b, int dummy)
+    \fn QVariant::QVariant(bool b, int dummy)
 
-    Use the QCoreVariant(bool) constructor instead.
+    Use the QVariant(bool) constructor instead.
 
 */
 
 /*!
-    \fn const QByteArray QCoreVariant::toCString() const
+    \fn const QByteArray QVariant::toCString() const
 
     Use toByteArray() instead.
 */
 
 /*!
-    \fn QByteArray &QCoreVariant::asCString()
+    \fn QByteArray &QVariant::asCString()
 
     Use toByteArray() instead.
 */
 
 /*!
-    \fn QPoint &QCoreVariant::asPoint()
+    \fn QPoint &QVariant::asPoint()
 
     Use toPoint() instead.
  */
 
 /*!
-    \fn QRect &QCoreVariant::asRect()
+    \fn QRect &QVariant::asRect()
 
     Use toRect() instead.
  */
 
 /*!
-    \fn QSize &QCoreVariant::asSize()
+    \fn QSize &QVariant::asSize()
 
     Use toSize() instead.
  */

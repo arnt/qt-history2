@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QCOREVARIANT_H
-#define QCOREVARIANT_H
+#ifndef QVARIANT_H
+#define QVARIANT_H
 
 #include "QtCore/qatomic.h"
 #include "QtCore/qbytearray.h"
@@ -37,7 +37,7 @@ class QUrl;
 
 template <class Key, class Type> class QMap;
 
-class Q_CORE_EXPORT QCoreVariant
+class Q_CORE_EXPORT QVariant
 {
  public:
     enum Type {
@@ -89,47 +89,47 @@ class Q_CORE_EXPORT QCoreVariant
 #endif
     };
 
-    inline QCoreVariant();
-    ~QCoreVariant();
-    QCoreVariant(Type type);
-    QCoreVariant(int typeOrUserType, const void *copy);
-    QCoreVariant(const QCoreVariant &other);
+    inline QVariant();
+    ~QVariant();
+    QVariant(Type type);
+    QVariant(int typeOrUserType, const void *copy);
+    QVariant(const QVariant &other);
 
 #ifndef QT_NO_DATASTREAM
-    QCoreVariant(QDataStream &s);
+    QVariant(QDataStream &s);
 #endif
 
-    QCoreVariant(int i);
-    QCoreVariant(uint ui);
-    QCoreVariant(qlonglong ll);
-    QCoreVariant(qulonglong ull);
-    QCoreVariant(bool b);
-    QCoreVariant(double d);
-    QCoreVariant(const char *str);
+    QVariant(int i);
+    QVariant(uint ui);
+    QVariant(qlonglong ll);
+    QVariant(qulonglong ull);
+    QVariant(bool b);
+    QVariant(double d);
+    QVariant(const char *str);
 
-    QCoreVariant(const QByteArray &bytearray);
-    QCoreVariant(const QBitArray &bitarray);
-    QCoreVariant(const QString &string);
-    QCoreVariant(const QLatin1String &string);
-    QCoreVariant(const QStringList &stringlist);
-    QCoreVariant(const QChar &qchar);
-    QCoreVariant(const QDate &date);
-    QCoreVariant(const QTime &time);
-    QCoreVariant(const QDateTime &datetime);
+    QVariant(const QByteArray &bytearray);
+    QVariant(const QBitArray &bitarray);
+    QVariant(const QString &string);
+    QVariant(const QLatin1String &string);
+    QVariant(const QStringList &stringlist);
+    QVariant(const QChar &qchar);
+    QVariant(const QDate &date);
+    QVariant(const QTime &time);
+    QVariant(const QDateTime &datetime);
 #ifndef QT_NO_TEMPLATE_VARIANT
-    QCoreVariant(const QList<QCoreVariant> &list);
-    QCoreVariant(const QMap<QString,QCoreVariant> &map);
+    QVariant(const QList<QVariant> &list);
+    QVariant(const QMap<QString,QVariant> &map);
 #endif
-    QCoreVariant(const QSize &size);
-    QCoreVariant(const QRect &rect);
-    QCoreVariant(const QPoint &pt);
-    QCoreVariant(const QUrl &url);
-    QCoreVariant(const QLocale &locale);
+    QVariant(const QSize &size);
+    QVariant(const QRect &rect);
+    QVariant(const QPoint &pt);
+    QVariant(const QUrl &url);
+    QVariant(const QLocale &locale);
 
-    QCoreVariant& operator=(const QCoreVariant &other);
+    QVariant& operator=(const QVariant &other);
 
-    bool operator==(const QCoreVariant &other) const;
-    inline bool operator!=(const QCoreVariant &other) const
+    bool operator==(const QVariant &other) const;
+    inline bool operator!=(const QVariant &other) const
     { return !(other == *this); }
 
     Type type() const;
@@ -162,8 +162,8 @@ class Q_CORE_EXPORT QCoreVariant
     QTime toTime() const;
     QDateTime toDateTime() const;
 #ifndef QT_NO_TEMPLATE_VARIANT
-    QList<QCoreVariant> toList() const;
-    QMap<QString,QCoreVariant> toMap() const;
+    QList<QVariant> toList() const;
+    QMap<QString,QVariant> toMap() const;
 #endif
 
     QPoint toPoint() const;
@@ -187,8 +187,8 @@ class Q_CORE_EXPORT QCoreVariant
     inline QT3_SUPPORT QTime &asTime();
     inline QT3_SUPPORT QDateTime &asDateTime();
 #ifndef QT_NO_TEMPLATE_VARIANT
-    inline QT3_SUPPORT QList<QCoreVariant> &asList();
-    inline QT3_SUPPORT QMap<QString,QCoreVariant> &asMap();
+    inline QT3_SUPPORT QList<QVariant> &asList();
+    inline QT3_SUPPORT QMap<QString,QVariant> &asMap();
 #endif
     inline QT3_SUPPORT QPoint &asPoint();
     inline QT3_SUPPORT QRect &asRect();
@@ -203,7 +203,7 @@ class Q_CORE_EXPORT QCoreVariant
     static Type nameToType(const char *name);
 
 #ifdef QT3_SUPPORT
-    QT3_SUPPORT_CONSTRUCTOR QCoreVariant(bool, int);
+    QT3_SUPPORT_CONSTRUCTOR QVariant(bool, int);
     inline QT3_SUPPORT const QByteArray toCString() const { return toByteArray(); }
     inline QT3_SUPPORT QByteArray &asCString() { return *reinterpret_cast<QByteArray *>(castOrDetach(ByteArray)); }
 #endif
@@ -248,8 +248,8 @@ class Q_CORE_EXPORT QCoreVariant
     typedef void (*f_save)(const Private *, QDataStream &);
 #endif
     typedef bool (*f_compare)(const Private *, const Private *);
-    typedef bool (*f_cast)(const QCoreVariant::Private *d, Type t, void *, bool *);
-    typedef bool (*f_canCast)(const QCoreVariant::Private *d, Type t);
+    typedef bool (*f_cast)(const QVariant::Private *d, Type t, void *, bool *);
+    typedef bool (*f_canCast)(const QVariant::Private *d, Type t);
     struct Handler {
         f_construct construct;
         f_clear clear;
@@ -265,7 +265,7 @@ class Q_CORE_EXPORT QCoreVariant
 #endif
 
 protected:
-    friend inline bool QVariant_to_helper(const QCoreVariant &, QCoreVariant::Type, void *);
+    friend inline bool QVariant_to_helper(const QVariant &, QVariant::Type, void *);
 
     Private d;
 
@@ -278,182 +278,189 @@ protected:
 };
 
 #ifndef QT_MOC
-typedef QList<QCoreVariant> QCoreVariantList;
-typedef QMap<QString, QCoreVariant> QCoreVariantMap;
+typedef QList<QVariant> QVariantList;
+typedef QMap<QString, QVariant> QVariantMap;
 
-inline bool QVariant_to_helper(const QCoreVariant &v, QCoreVariant::Type tp, void *ptr)
-{ return QCoreVariant::handler->cast(&v.d, tp, ptr, 0); }
+inline bool QVariant_to_helper(const QVariant &v, QVariant::Type tp, void *ptr)
+{ return QVariant::handler->cast(&v.d, tp, ptr, 0); }
 
 template <typename T>
 inline int qt_variant_metatype_id(T *)
 { return QMetaTypeId<T>::qt_metatype_id(); }
 
 template<>
-inline int qt_variant_metatype_id(QCoreVariantMap *) { return QCoreVariant::Map; }
+inline int qt_variant_metatype_id(QVariantMap *) { return QVariant::Map; }
 template<>
-inline int qt_variant_metatype_id(QCoreVariantList *) { return QCoreVariant::List; }
+inline int qt_variant_metatype_id(QVariantList *) { return QVariant::List; }
 template<>
-inline int qt_variant_metatype_id(QStringList *) { return QCoreVariant::StringList; }
+inline int qt_variant_metatype_id(QStringList *) { return QVariant::StringList; }
 class QFont;
 template<>
-inline int qt_variant_metatype_id(QFont *) { return QCoreVariant::Font; }
+inline int qt_variant_metatype_id(QFont *) { return QVariant::Font; }
 class QPixmap;
 template<>
-inline int qt_variant_metatype_id(QPixmap *) { return QCoreVariant::Pixmap; }
+inline int qt_variant_metatype_id(QPixmap *) { return QVariant::Pixmap; }
 class QBrush;
 template<>
-inline int qt_variant_metatype_id(QBrush *) { return QCoreVariant::Brush; }
+inline int qt_variant_metatype_id(QBrush *) { return QVariant::Brush; }
 template<>
-inline int qt_variant_metatype_id(QRect *) { return QCoreVariant::Rect; }
+inline int qt_variant_metatype_id(QRect *) { return QVariant::Rect; }
 template<>
-inline int qt_variant_metatype_id(QSize *) { return QCoreVariant::Size; }
+inline int qt_variant_metatype_id(QSize *) { return QVariant::Size; }
 class QColor;
 template<>
-inline int qt_variant_metatype_id(QColor *) { return QCoreVariant::Color; }
+inline int qt_variant_metatype_id(QColor *) { return QVariant::Color; }
 class QPalette;
 template<>
-inline int qt_variant_metatype_id(QPalette *) { return QCoreVariant::Palette; }
+inline int qt_variant_metatype_id(QPalette *) { return QVariant::Palette; }
 class QIcon;
 template<>
-inline int qt_variant_metatype_id(QIcon *) { return QCoreVariant::Icon; }
+inline int qt_variant_metatype_id(QIcon *) { return QVariant::Icon; }
 class QPoint;
 template<>
-inline int qt_variant_metatype_id(QPoint *) { return QCoreVariant::Point; }
+inline int qt_variant_metatype_id(QPoint *) { return QVariant::Point; }
 class QImage;
 template<>
-inline int qt_variant_metatype_id(QImage*) { return QCoreVariant::Image; }
+inline int qt_variant_metatype_id(QImage*) { return QVariant::Image; }
 class QPolygon;
 template<>
-inline int qt_variant_metatype_id(QPolygon *) { return QCoreVariant::Polygon; }
+inline int qt_variant_metatype_id(QPolygon *) { return QVariant::Polygon; }
 class QRegion;
 template<>
-inline int qt_variant_metatype_id(QRegion *) { return QCoreVariant::Region; }
+inline int qt_variant_metatype_id(QRegion *) { return QVariant::Region; }
 class QBitmap;
 template<>
-inline int qt_variant_metatype_id(QBitmap *) { return QCoreVariant::Bitmap; }
+inline int qt_variant_metatype_id(QBitmap *) { return QVariant::Bitmap; }
 class QCursor;
 template<>
-inline int qt_variant_metatype_id(QCursor *) { return QCoreVariant::Cursor; }
+inline int qt_variant_metatype_id(QCursor *) { return QVariant::Cursor; }
 class QSizePolicy;
 template<>
-inline int qt_variant_metatype_id(QDate *) { return QCoreVariant::Date; }
+inline int qt_variant_metatype_id(QSizePolicy *) { return QVariant::SizePolicy; }
 template<>
-inline int qt_variant_metatype_id(QTime *) { return QCoreVariant::Time; }
+inline int qt_variant_metatype_id(QDate *) { return QVariant::Date; }
 template<>
-inline int qt_variant_metatype_id(QDateTime *) { return QCoreVariant::DateTime; }
+inline int qt_variant_metatype_id(QTime *) { return QVariant::Time; }
 template<>
-inline int qt_variant_metatype_id(QBitArray *) { return QCoreVariant::BitArray; }
+inline int qt_variant_metatype_id(QDateTime *) { return QVariant::DateTime; }
+template<>
+inline int qt_variant_metatype_id(QBitArray *) { return QVariant::BitArray; }
 class QKeySequence;
 template<>
-inline int qt_variant_metatype_id(QKeySequence *) { return QCoreVariant::KeySequence; }
+inline int qt_variant_metatype_id(QKeySequence *) { return QVariant::KeySequence; }
 class QPen;
 template<>
-inline int qt_variant_metatype_id(QPen *) { return QCoreVariant::Pen; }
+inline int qt_variant_metatype_id(QPen *) { return QVariant::Pen; }
 template<>
-inline int qt_variant_metatype_id(qlonglong *) { return QCoreVariant::LongLong; }
+inline int qt_variant_metatype_id(qlonglong *) { return QVariant::LongLong; }
 template<>
-inline int qt_variant_metatype_id(qulonglong *) { return QCoreVariant::ULongLong; }
+inline int qt_variant_metatype_id(qulonglong *) { return QVariant::ULongLong; }
 template<>
-inline int qt_variant_metatype_id(QUrl *) { return QCoreVariant::Url; }
+inline int qt_variant_metatype_id(QUrl *) { return QVariant::Url; }
 class QTextLength;
 template<>
-inline int qt_variant_metatype_id(QTextLength *) { return QCoreVariant::TextLength; }
+inline int qt_variant_metatype_id(QTextLength *) { return QVariant::TextLength; }
 class QTextFormat;
 template<>
-inline int qt_variant_metatype_id(QTextFormat *) { return QCoreVariant::TextFormat; }
+inline int qt_variant_metatype_id(QTextFormat *) { return QVariant::TextFormat; }
 template<>
-inline int qt_variant_metatype_id(QLocale*) { return QCoreVariant::Locale; }
+inline int qt_variant_metatype_id(QLocale *) { return QVariant::Locale; }
+template<>
+inline int qt_variant_metatype_id(QVariant *v) { return v->userType(); }
 
 template <typename T>
-QCoreVariant qVariant(const T &t)
+QVariant qVariant(const T &t)
 {
-    return QCoreVariant(qt_variant_metatype_id<T>(static_cast<T *>(0)), &t);
+    return QVariant(qt_variant_metatype_id<T>(static_cast<T *>(0)), &t);
+}
+
+template <>
+inline QVariant qVariant(const QVariant &t) { return t; }
+
+template <typename T>
+void qVariantSet(QVariant &v, const T &t)
+{
+    v = QVariant(qt_variant_metatype_id<T>(static_cast<T *>(0)), &t);
 }
 
 template <typename T>
-void qVariantSet(QCoreVariant &v, const T &t)
-{
-    v = QCoreVariant(qt_variant_metatype_id<T>(static_cast<T *>(0)), &t);
-}
-
-template <typename T>
-bool qVariantGet(const QCoreVariant &v, T &t)
+bool qVariantGet(const QVariant &v, T &t)
 {
     const int tp = qt_variant_metatype_id<T>(static_cast<T *>(0));
     if (tp != v.userType())
-        return tp < int(QCoreVariant::UserType)
-            ? QVariant_to_helper(v, QCoreVariant::Type(tp), &t)
+        return tp < int(QVariant::UserType)
+            ? QVariant_to_helper(v, QVariant::Type(tp), &t)
             : false;
     t = *reinterpret_cast<const T *>(v.constData());
     return true;
 }
 #endif
 
-inline QCoreVariant::QCoreVariant() {}
-inline bool QCoreVariant::isValid() const { return d.type != Invalid; }
+inline QVariant::QVariant() {}
+inline bool QVariant::isValid() const { return d.type != Invalid; }
 
 #ifdef QT3_SUPPORT
-inline int &QCoreVariant::asInt()
+inline int &QVariant::asInt()
 { return *reinterpret_cast<int *>(castOrDetach(Int)); }
-inline uint &QCoreVariant::asUInt()
+inline uint &QVariant::asUInt()
 { return *reinterpret_cast<uint *>(castOrDetach(UInt)); }
-inline qlonglong &QCoreVariant::asLongLong()
+inline qlonglong &QVariant::asLongLong()
 { return *reinterpret_cast<qlonglong *>(castOrDetach(LongLong)); }
-inline qulonglong &QCoreVariant::asULongLong()
+inline qulonglong &QVariant::asULongLong()
 { return *reinterpret_cast<qulonglong *>(castOrDetach(ULongLong)); }
-inline bool &QCoreVariant::asBool()
+inline bool &QVariant::asBool()
 { return *reinterpret_cast<bool *>(castOrDetach(Bool)); }
-inline double &QCoreVariant::asDouble()
+inline double &QVariant::asDouble()
 { return *reinterpret_cast<double *>(castOrDetach(Double)); }
-inline QByteArray& QCoreVariant::asByteArray()
+inline QByteArray& QVariant::asByteArray()
 { return *reinterpret_cast<QByteArray *>(castOrDetach(ByteArray)); }
-inline QBitArray& QCoreVariant::asBitArray()
+inline QBitArray& QVariant::asBitArray()
 { return *reinterpret_cast<QBitArray *>(castOrDetach(BitArray)); }
-inline QString& QCoreVariant::asString()
+inline QString& QVariant::asString()
 { return *reinterpret_cast<QString *>(castOrDetach(String)); }
-inline QStringList& QCoreVariant::asStringList()
+inline QStringList& QVariant::asStringList()
 { return *reinterpret_cast<QStringList *>(castOrDetach(StringList)); }
-inline QDate& QCoreVariant::asDate()
+inline QDate& QVariant::asDate()
 { return *reinterpret_cast<QDate *>(castOrDetach(Date)); }
-inline QTime& QCoreVariant::asTime()
+inline QTime& QVariant::asTime()
 { return *reinterpret_cast<QTime *>(castOrDetach(Time)); }
-inline QDateTime& QCoreVariant::asDateTime()
+inline QDateTime& QVariant::asDateTime()
 { return *reinterpret_cast<QDateTime *>(castOrDetach(DateTime)); }
 #ifndef QT_NO_TEMPLATE_VARIANT
-inline QList<QCoreVariant>& QCoreVariant::asList()
-{ return *reinterpret_cast<QList<QCoreVariant> *>(castOrDetach(List)); }
-inline QMap<QString, QCoreVariant>& QCoreVariant::asMap()
-{ return *reinterpret_cast<QMap<QString, QCoreVariant> *>(castOrDetach(Map)); }
+inline QList<QVariant>& QVariant::asList()
+{ return *reinterpret_cast<QList<QVariant> *>(castOrDetach(List)); }
+inline QMap<QString, QVariant>& QVariant::asMap()
+{ return *reinterpret_cast<QMap<QString, QVariant> *>(castOrDetach(Map)); }
 #endif
-inline QPoint &QCoreVariant::asPoint()
+inline QPoint &QVariant::asPoint()
 { return *reinterpret_cast<QPoint *>(castOrDetach(Point)); }
-inline QRect &QCoreVariant::asRect()
+inline QRect &QVariant::asRect()
 { return *reinterpret_cast<QRect *>(castOrDetach(Rect)); }
-inline QSize &QCoreVariant::asSize()
+inline QSize &QVariant::asSize()
 { return *reinterpret_cast<QSize *>(castOrDetach(Size)); }
 #endif //QT3_SUPPORT
 
 #ifndef QT_NO_DATASTREAM
-Q_CORE_EXPORT QDataStream& operator>> (QDataStream& s, QCoreVariant& p);
-Q_CORE_EXPORT QDataStream& operator<< (QDataStream& s, const QCoreVariant& p);
-Q_CORE_EXPORT QDataStream& operator>> (QDataStream& s, QCoreVariant::Type& p);
-Q_CORE_EXPORT QDataStream& operator<< (QDataStream& s, const QCoreVariant::Type p);
+Q_CORE_EXPORT QDataStream& operator>> (QDataStream& s, QVariant& p);
+Q_CORE_EXPORT QDataStream& operator<< (QDataStream& s, const QVariant& p);
+Q_CORE_EXPORT QDataStream& operator>> (QDataStream& s, QVariant::Type& p);
+Q_CORE_EXPORT QDataStream& operator<< (QDataStream& s, const QVariant::Type p);
 #endif
 
-inline bool QCoreVariant::isDetached() const
+inline bool QVariant::isDetached() const
 { return !d.is_shared || d.data.shared->ref == 1; }
 
 #ifndef QT_MOC
 #if defined Q_CC_MSVC && _MSC_VER < 1300
 
-template<typename T> T qVariant_to(const QCoreVariant &v, T * = 0)
+template<typename T> T qVariant_to(const QVariant &v, T * = 0)
 {
     const int vid = qt_variant_metatype_id<T>(static_cast<T *>(0));
     if (vid == v.userType())
         return *reinterpret_cast<const T *>(v.constData());
-    if (vid < int(QCoreVariant::UserType)) {
+    if (vid < int(QVariant::UserType)) {
         T t;
-        QVariant_to_helper(v, QCoreVariant::Type(vid), &t);
+        QVariant_to_helper(v, QVariant::Type(vid), &t);
         return t;
     }
     return T();
@@ -461,14 +468,14 @@ template<typename T> T qVariant_to(const QCoreVariant &v, T * = 0)
 
 #else
 
-template<typename T> T qVariant_to(const QCoreVariant &v)
+template<typename T> T qVariant_to(const QVariant &v)
 {
     const int vid = qt_variant_metatype_id<T>(static_cast<T *>(0));
     if (vid == v.userType())
         return *reinterpret_cast<const T *>(v.constData());
-    if (vid < int(QCoreVariant::UserType)) {
+    if (vid < int(QVariant::UserType)) {
         T t;
-        QVariant_to_helper(v, QCoreVariant::Type(vid), &t);
+        QVariant_to_helper(v, QVariant::Type(vid), &t);
         return t;
     }
     return T();
@@ -476,13 +483,13 @@ template<typename T> T qVariant_to(const QCoreVariant &v)
 
 #endif
 #endif
-Q_DECLARE_SHARED(QCoreVariant);
-Q_DECLARE_TYPEINFO(QCoreVariant, Q_MOVABLE_TYPE);
+Q_DECLARE_SHARED(QVariant);
+Q_DECLARE_TYPEINFO(QVariant, Q_MOVABLE_TYPE);
 
 #ifndef QT_NO_DEBUG_OUTPUT
-Q_CORE_EXPORT QDebug operator<<(QDebug, const QCoreVariant &);
+Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant &);
 #endif
 
 #endif //QT_NO_VARIANT
 
-#endif // QCOREVARIANT_H
+#endif // QVARIANT_H
