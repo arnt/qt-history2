@@ -103,8 +103,6 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *e);
 
     void updateGeometries();
-    void verticalScrollbarAction(int action);
-    void horizontalScrollbarAction(int action);
 
     int columnSizeHint(int column) const;
  
