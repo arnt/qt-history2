@@ -16,7 +16,7 @@ int main( int argc, char **argv )
 
     QDir dir( config->outputDir() );
     if ( !dir.exists() ) {
-	if ( !dir.mkdir(config->outputDir()) ) {
+	if ( !dir.mkdir(QString()) ) {
 	    message( 1, "Cannot create '%s'", config->outputDir().latin1() );
 	    return EXIT_FAILURE;
 	}
