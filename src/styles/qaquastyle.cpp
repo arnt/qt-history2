@@ -1760,7 +1760,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		QPixmap fill;
 		qAquaPixmap( "win_fill", fill );
 		p->drawTiledPixmap(x, 0, tb->width() - x, fill.height(), fill);
-		QColorGroup cgroup = tb->isActive() || !tb->window() ?
+		QColorGroup cgroup = tb->usesActiveColor() ?
 				     tb->palette().active() : tb->palette().inactive();
 		p->setPen( cgroup.highlightedText() );
 		p->save();
