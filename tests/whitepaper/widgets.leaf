@@ -53,8 +53,8 @@ can display multi-language rich text using a subset of HTML. See \l
 The complete code for a program that displays "Hello Qt!" follows:
 
   \quotefile hello/hello.cpp
-  \skipuntil begin quote
-  \printto end quote
+  \skipuntil quote
+  \printto endquote
 
 \section1 Built-in Widgets
 
@@ -126,8 +126,8 @@ The code for the screenshot that shows the \Class {QRadioButton}s and
 \Class {QCheckBox}es follows:
 
   \quotefile widgetset/widgetset.cpp
-  \skipuntil begin quote
-  \printto end quote
+  \skipuntil quote
+  \printto endquote
 
 \section1 Custom Widgets
 
@@ -201,8 +201,7 @@ Developers can also write custom widgets from scratch. For example,
 to create an analog clock, it would be necessary to draw the clock's
 face and hands in code rather than relying on functionality
 implemented in a base class. This could be achieved by reimplementing
-\Func paintEvent(). The \l 2D... section presents Qt's painting
-interfaces.
+\Func paintEvent(), as explained in \l {2D...}.
 
 \ONLINES
 ###

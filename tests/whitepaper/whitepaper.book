@@ -18,5 +18,3 @@
 \input io-and-networking.leaf
 \input collection-classes.leaf
 \input component-model.leaf
-
-\tableofcontents

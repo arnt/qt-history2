@@ -182,13 +182,10 @@ release().
     public:
 	BlurFilter();
 
-	Q_REFCOUNT( ref )
+	Q_REFCOUNT
 	QRESULT queryInterface( const QUuid&,
 				QUnknownInterface ** );
 	virtual void applyFilter( QImage *img );
-
-    private:
-	ulong ref;
     };
 \endcode
 

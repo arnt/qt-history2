@@ -1,5 +1,124 @@
 \chapter 2D and 3D Graphics
 
+\section1 2D Graphics
+
+\section2 Images
+
+  \index BMP
+  \index GIF
+  \index JPEG
+  \index MNG
+  \index PNG
+  \index PNM
+  \index Unisys
+  \index XBM
+  \index XPM
+
+The \Class QImage class supports the input, output and manipulation
+of images in several formats, including BMP, GIF, JPEG, MNG, PNG,
+PNM, XBM and XPM.
+
+### If you are in a country that recognizes software patents and in
+which Unisys holds a patent on LZW decompression and you want to use
+GIF, Unisys may require you to license the technology. ###
+
+Many of Qt's built-in widgets can display images, for example
+buttons, labels, menu items, etc. Here's how to display an icon on a
+push button:
+
+  \quotefile icon/icon.cpp
+  \skipuntil quote
+  \printto endquote
+
+  \img icon-on-button.png An icon on a button
+
+
+\Class QImage supports images with color depths ranging from 1 to 32
+bits. Programmers can manipulate the pixel and palette data, apply
+transformations (e.g. rotations, shears, etc.) and reduce the color
+depth with dithering if desired. Applications can store an 'alpha
+channel' in a \Class QImage along with the color data for their own
+purposes (e.g. transparency and alpha-blending).
+
+The \Class QMovie widget is used to display animated images.
+
+\section2 Painting
+
+The \Class QPainter provides a platform-independent API for painting
+on widgets. It provides primitives as well as advanced functionality
+such as transformations and clipping. All Qt's built-in widgets paint
+themselves using \Class QPainter. Programmers invariably use \Class
+QPainter when implementing their own custom widgets.
+
+\Class QPainter provides standard functions to draw points, lines,
+polygons, ellipses, arcs, Bezier curves, etc. The following command
+draws a 120 x 60 rectangle whose top-left point is at (25, 15), with
+a 2-pixel wide dashed red outline:
+\code
+    painter.setPen( QPen(red, 2, DashLine) );
+    painter.drawRect( 25, 15, 120, 60 );
+\endcode
+
+By default, the top-left corner of a widget is located at coordinates
+(0, 0), and the bottom-right corner is located at (\Func width() - 1,
+\Func height() - 1). The coordinate system of a \Class QPainter
+object can be translated, scaled, rotated and sheared.
+
+The example below shows a bar-graph custom widget. It uses a \Class
+QPainter in the reimplementation of \Func paintEvent(), with the
+default coordinate system.
+
+  \img bar-graph.png
+
+  \quotefile painting/painting.cpp
+  \skipuntil quote
+  \printto endquote
+
+\Class QPainter supports clipping using a region composed of
+rectangles, polygons, ellipses and bitmaps. Complex regions may be
+created by uniting, intersecting, subtracting or XOR'ing simple
+regions. Clipping can be used to reduce flicker when repainting.
+
+The \Class QColor class stores a color specified by a RGB or HSV
+triple, or by a name (e.g. 'skyblue'). Qt programmers can specify any
+24-bit color; Qt automatically allocates the requested color in the
+system's palette, or uses a similar color on color-limited displays.
+Commonly used colors, e.g. \c red, \c green, \c blue, etc., are
+predefined in Qt.
+
+\section2 Paint Devices
+
+\Class QPainter can be associated with any 'paint device'. The code
+required to paint on any supported device is the same, regardless of
+the device. Qt supports the following paint devices:
+
+\list
+\i A \Class QPixmap is essentially an 'off-screen widget'. Graphics
+can be painted on a \Class QPixmap first, and then bit-blitted to a
+\Class QWidget to reduce flicker.
+
+\i A \Class {QPicture} is a vector image that can be scaled
+gracefully. The \Class QPicture class stores an image as a list of
+paint commands rather than as pixel data.
+
+\i A \Class QPrinter represents a physical printer. On Windows, the
+paint commands are sent to the Windows print engine, which uses the
+installed printer drivers. On Unix, PostScript is output and sent to
+the appropriate print daemon.
+
+\i A \Class QWidget is also a paint device, as shown in the earlier
+bar-graph example.
+\endlist
+
+\section2 Canvas
+
+The \Class QCanvas class provides a higher-level interface than
+\Class QPainter to on-screen 2D graphics.
+
+\section1 3D Graphics
+
+ * 3D example
+
 \ONLINES
 ###
 \ENDONLINES

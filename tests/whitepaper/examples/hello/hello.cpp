@@ -2,7 +2,7 @@
   hello.cpp
 */
 
-// begin quote
+// quote
 #include <qapplication.h>
 #include <qlabel.h>
 
@@ -14,4 +14,4 @@ int main( int argc, char **argv )
     hello.show();
     return app.exec();
 }
-// end quote
+// endquote

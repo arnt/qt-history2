@@ -137,8 +137,8 @@ buttons.
 The dialog's widgets and layouts are created with the following code:
 
   \quotefile countries/countries.cpp
-  \skipuntil begin quote
-  \printto end quote
+  \skipuntil quote
+  \printto endquote
 
   \index Designer
   \index Qt Designer

@@ -69,7 +69,7 @@ void setupButtons()
     QRadioButton *radio1, *radio2;
     QCheckBox *check1, *check2;
 
-    // begin quote
+    // quote
     parent = new QButtonGroup( 2, Qt::Vertical, "QButtonGroup" );
     radio1 = new QRadioButton( "&Radio 1", parent );
     radio2 = new QRadioButton( "R&adio 2", parent );
@@ -77,7 +77,7 @@ void setupButtons()
     check1 = new QCheckBox( "&Check 1", parent );
     check2 = new QCheckBox( "C&heck 2", parent );
     check2->setChecked( TRUE );
-    // end quote
+    // endquote
 
     parent->reparent( realParent, QPoint(0, 0) );
     standardLayoutWidgetStuff( realParent );
