@@ -109,6 +109,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QString iconText READ iconText WRITE setIconText )
 #endif
     Q_PROPERTY( bool mouseTracking READ hasMouseTracking WRITE setMouseTracking )
+    Q_PROPERTY( bool underMouse READ hasMouse )
     Q_PROPERTY( bool isActiveWindow READ isActiveWindow )
     Q_PROPERTY( bool focusEnabled READ isFocusEnabled )
     Q_PROPERTY( FocusPolicy focusPolicy READ focusPolicy WRITE setFocusPolicy )
@@ -260,6 +261,7 @@ public:
     QString		iconText() const;
 #endif
     bool		hasMouseTracking() const;
+    bool		hasMouse() const;
 
     virtual void	setMask( const QBitmap & );
     virtual void	setMask( const QRegion & );
@@ -745,6 +747,9 @@ inline QFontInfo QWidget::fontInfo() const
 
 inline bool QWidget::hasMouseTracking() const
 { return testWState(WState_MouseTracking); }
+
+inline bool QWidget::hasMouse() const
+{ return testWState(WState_HasMouse); }
 
 inline bool  QWidget::isFocusEnabled() const
 { return (FocusPolicy)focus_policy != NoFocus; }

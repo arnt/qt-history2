@@ -509,6 +509,7 @@ inline bool QWidgetMapper::remove( WId id )
   \i WState_DND The widget supports drag and drop, see setAcceptDrops().
   \i WState_Exposed the widget was finally exposed (x11 only,
       helps avoiding paint event doubling).
+  \i WState_HasMouse The widget is under the mouse cursor.
   \endlist
 */
 
@@ -689,6 +690,7 @@ Internal flags.
     \value WState_Minimized
     \value WState_ForceDisabled
     \value WState_Exposed
+    \value WState_HasMouse
 */
 
 
@@ -1274,6 +1276,12 @@ void QWidget::styleChange( QStyle& /* oldStyle */ )
   any input.
 
   \sa isTopLevel(), isDialog(), QDialog
+*/
+
+/*! \property QWidget::underMouse
+    \brief whether the widget is under the mouse cursor
+
+  \sa QEvent::Enter, QEvent::Leave
 */
 
 /*!
