@@ -1155,9 +1155,9 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
 }
 
 struct KeyRec {
-    KeyRec(int c, int a, const QString& t) : code(c), ascii(a), text(t) { }
+    KeyRec(int c, int a, int s, const QString& t) : code(c), ascii(a), state(s), text(t) { }
     KeyRec() { }
-    int code, ascii;
+    int code, ascii, state;
     QString text;
 };
 
@@ -1188,14 +1188,14 @@ static KeyRec* find_key_rec(int code, bool remove)
     return result;
 }
 
-static void store_key_rec(int code, int ascii, const QString& text)
+static void store_key_rec(int code, int ascii, int state, const QString& text)
 {
     if (nrecs == maxrecs) {
         qWarning("Qt: Internal keyboard buffer overflow");
         return;
     }
 
-    key_rec[nrecs++] = KeyRec(code,ascii,text);
+    key_rec[nrecs++] = KeyRec(code,ascii,state,text);
 }
 
 static void clear_key_rec()
@@ -2880,6 +2880,14 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
         if (t == WM_KEYDOWN || t == WM_IME_KEYDOWN || t == WM_SYSKEYDOWN) {
             // KEYDOWN
             KeyRec* rec = find_key_rec(msg.wParam, false);
+            // If rec's state doesn't match the current state, something
+            // has changed without us knowning about it. (Consumed by
+            // modal widget is one posibility) So, remove rec from list.
+            if ( rec && rec->state != state ) {
+                find_key_rec( msg.wParam, TRUE );
+                rec = 0;
+            }
+
             // Find uch
             QChar uch;
             MSG wm_char;
@@ -2957,7 +2965,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                 if (!uch.isNull())
                     text += uch;
                 char a = uch.row() ? 0 : uch.cell();
-                store_key_rec(msg.wParam, a, text);
+                store_key_rec(msg.wParam, a, state, text);
                 k0 = sendKeyEvent(QEvent::KeyPress, code, state, grab, text);
             }
 
