@@ -71,9 +71,10 @@ linux-kcc
 freebsd-g++
 unixware7-g++
 aix-g++
+hpux-acc
 
 During the beta period, we will add support for more Unix platforms
-and compilers e.g.  AIX/xlc and HP-UX. If you test the beta on an a
+and compilers e.g.  AIX/xlc and HP-UX/gcc. If you test the beta on an a
 yet unsupported Unix, please contact us at support@trolltech.com so
 that we can assist you.
 
