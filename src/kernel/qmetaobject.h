@@ -146,15 +146,16 @@ public:
 		 const QMetaEnum *const enum_data, int n_enums,
 #endif
 		 const QClassInfo *const class_info, int n_info );
+
+#ifndef QT_NO_PROPERTIES
     QMetaObject( const char * const class_name, QMetaObject *superclass,
 		 const QMetaData * const slot_data, int n_slots,
 		 const QMetaData * const signal_data, int n_signals,
-#ifndef QT_NO_PROPERTIES
 		 const QMetaProperty *const prop_data, int n_props,
 		 const QMetaEnum *const enum_data, int n_enums,
 		 bool (*qt_static_property)(QObject*, int, int, QVariant*),
-#endif
 		 const QClassInfo *const class_info, int n_info );
+#endif
 
 
     virtual ~QMetaObject();
@@ -207,16 +208,14 @@ public:
 					const QMetaEnum *const enum_data, int n_enums,
 #endif
 					const QClassInfo *const  class_info, int n_info );
+#ifndef QT_NO_PROPERTIES
     static QMetaObject	*new_metaobject( const char *, QMetaObject *,
 					const QMetaData *const, int,
 					const QMetaData *const, int,
-#ifndef QT_NO_PROPERTIES
 					const QMetaProperty *const prop_data, int n_props,
 					const QMetaEnum *const enum_data, int n_enums,
 					 bool (*qt_static_property)(QObject*, int, int, QVariant*),
-#endif
 					const QClassInfo *const  class_info, int n_info );
-#ifndef QT_NO_PROPERTIES
     QStrList		enumeratorNames( bool super = FALSE ) const;
     int numEnumerators( bool super = FALSE ) const;
     const QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
