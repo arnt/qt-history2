@@ -783,7 +783,7 @@ in Brisbane, Australia, and Palo Alto, California.
 
 Our flagship product is \link
 http://www.trolltech.com/products/qt.html Qt\endlink, the
-multi-platform C++ GUI toolkit. Qt enables you to build professional,
+cross-platform C++ GUI toolkit. Qt enables you to build professional,
 efficient, portable and maintainable GUI applications quickly and
 easily.
 

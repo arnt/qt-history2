@@ -128,7 +128,7 @@ See also the \link linguist-manual.book Qt Linguist\endlink manual.
 
 \section1 Step by Step
 
-Writing multi-platform international software with Qt is a gentle,
+Writing cross-platform international software with Qt is a gentle,
 incremental process. Your software can become internationalized in
 the following stages:
 
@@ -270,7 +270,7 @@ example:
 \code
     QString s1 = "%1 of %2 files copied. Copying: %3";
     QString s2 = "Kopierer nu %3. Av totalt %2 filer er %1 kopiert.";
-    
+
     qDebug( s1.arg(5).arg(10).arg("somefile.txt").ascii() );
     qDebug( s2.arg(5).arg(10).arg("somefile.txt").ascii() );
 \endcode

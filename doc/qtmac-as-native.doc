@@ -89,7 +89,7 @@ it can interact with specific components of the Mac OS X experience:
       provide the same feel as any Mac OS X application (and we
       consider situations where it doesn't achieve this to be bugs).
       Of course Qt has other concerns to bear in mind, especially
-      remaining multiplatform. Some "baggage" that Qt carries is in
+      remaining cross-platform. Some "baggage" that Qt carries is in
       an effort to provide a widget on a platform for which an
       equivelant doesn't exist, or so that a single API can be used to
       do something, even if the API doesn't make entire sense for a

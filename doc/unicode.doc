@@ -13,14 +13,14 @@
 ****************************************************************************/
 
 /*! \page unicode.html
-  
+
 \title About Unicode
 
 Unicode is a multi-byte character set, portable across all major
 computing platforms and with decent coverage over most of the world.
 It is also single-locale; it includes no code pages or other
 complexities that make software harder to write and test. There is no
-competing character set that's reasonably multiplatform. For these
+competing character set that's reasonably cross-platform. For these
 reasons, Trolltech uses Unicode as the native character set for Qt
 (since version 2.0).
 

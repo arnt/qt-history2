@@ -14,7 +14,7 @@
 
 \title Window System-specific Notes
 
-Qt is a multiplatform GUI toolkit, so almost the entire API is the
+Qt is a cross-platform GUI toolkit, so almost the entire API is the
 same on all platforms and window systems. If you wish to use
 platform-specific features, and still maintain a platform-independent
 source tree, you should protect the platform-specific code using the

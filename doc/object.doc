@@ -607,7 +607,7 @@ right design choice.
 
 There is an important practical challenge we have to mention: due to
 the inadequacies of various compilers it is still not possible to
-fully exploit the template mechanism in multi-platform
+fully exploit the template mechanism in cross-platform
 applications. Code unfortunately is not meant to be published in
 books, but compiled with real-world compilers on real-world operating
 system. Even today, many widely used C++ compilers have problems with

@@ -24,7 +24,7 @@ See also the \link commonproblems.html Technical FAQ\endlink.
 
 \section2 What is Qt?
 
-Qt is a multiplatform C++ GUI toolkit. It
+Qt is a cross-platform C++ GUI toolkit. It
 provides application developers with all the functionality
 needed to build applications with state-of-the-art graphical
 user interfaces. Qt is fully object-oriented, easily
@@ -57,7 +57,7 @@ professionals who want to:
 Trolltech is an international software company with
 headquarters in Oslo, the capital of Norway, and with offices
 in Brisbane, Australia, and Palo Alto, California. Our
-flagship product is Qt, the multi-platform C++ GUI toolkit.
+flagship product is Qt, the cross-platform C++ GUI toolkit.
 
 Trolltech AS was founded in 1994, although, the core team of designers
 started Qt's development in 1992. 
