@@ -22,7 +22,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     QDOC_PROPERTY(QString cleanText READ cleanText)
 
 public:
-    QAbstractSpinBox(QWidget *parent = 0, Qt::WFlags f = 0);
+    QAbstractSpinBox(QWidget *parent = 0);
     ~QAbstractSpinBox();
 
     enum StepEnabledFlag { StepNone = 0x00, StepUpEnabled = 0x01, StepDownEnabled = 0x02 };
@@ -77,7 +77,7 @@ private:
     Q_PRIVATE_SLOT(void editorCursorPositionChanged(int, int));
 
 protected:
-    QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent, Qt::WFlags f);
+    QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent);
 };
 
 #endif

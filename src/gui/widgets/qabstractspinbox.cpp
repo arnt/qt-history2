@@ -74,14 +74,14 @@ double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2);
     \l alignment defaults to Qt::AlignLeft. // ### qlocale
 */
 
-QAbstractSpinBox::QAbstractSpinBox(QWidget *parent, Qt::WFlags f)
-    : QWidget(*new QAbstractSpinBoxPrivate, parent, f)
+QAbstractSpinBox::QAbstractSpinBox(QWidget *parent)
+    : QWidget(*new QAbstractSpinBoxPrivate, parent, 0)
 {
     d->init();
 }
 
-QAbstractSpinBox::QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent, Qt::WFlags f)
-    : QWidget(dd, parent, f)
+QAbstractSpinBox::QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent)
+    : QWidget(dd, parent, 0)
 {
     d->init();
 }

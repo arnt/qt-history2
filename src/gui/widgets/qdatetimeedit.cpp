@@ -123,9 +123,13 @@ public:
     is set to "yyyy.MM.dd_hh:mm.ss" by default.
 */
 
-QDateTimeEdit::QDateTimeEdit(QWidget *parent, Qt::WFlags f)
-    : QAbstractSpinBox(*new QDateTimeEditPrivate, parent, f)
+QDateTimeEdit::QDateTimeEdit(QWidget *parent)
+    : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
+    Q_ASSERT(0);
+    printf("fassa\n");
+
+    qDebug("fassa");
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
     d->value = d->minimum;
@@ -139,28 +143,42 @@ QDateTimeEdit::QDateTimeEdit(QWidget *parent, Qt::WFlags f)
     by default.
 */
 
-QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent, Qt::WFlags f)
-    : QAbstractSpinBox(*new QDateTimeEditPrivate, parent, f)
+QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent)
+    : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
     d->value = datetime.isValid() ? QCoreVariant(datetime) : d->getZeroVariant();
-    if (!setFormat("yyyy.MM.dd_hh:mm.ss")) // ### should I default to yyyy.MM.dd if datetime.time().isNull()?
-	qFatal("Could not parse format 'yyyy.MM.dd_hh:mm.ss'");
+    if (!setFormat("yyyy.MM.dd hh:mm.ss"))
+	qFatal("Could not parse format 'yyyy.MM.dd hh:mm.ss'");
 }
 
 /*!
-    \fn QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent, Qt::WFlags flags)
+    \fn QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
+
+    Constructs an empty date time editor with a \a parent.
+    The value is set to \a date. The format is set to "yyyy:MM.dd".
+*/
+
+QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
+    : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
+{
+    d->minimum = QCoreVariant(DATETIME_MIN);
+    d->maximum = QCoreVariant(DATETIME_MAX);
+    d->value = QCoreVariant(QDateTime(date, QTime()));
+    if (!setFormat("yyyy.MM.dd"))
+	qFatal("Could not parse format 'yyyy.MM.dd");
+}
+
+/*!
+    \fn QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
 
     Constructs an empty date time editor with a \a parent.
     The value is set to \a time. The format is set to "hh:mm.ss".
-
-    The window \a flags are used to determine the behavior of the
-    widget.
 */
 
-QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent, Qt::WFlags f)
-    : QAbstractSpinBox(*new QDateTimeEditPrivate, parent, f)
+QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
+    : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
@@ -1488,7 +1506,7 @@ QString QDateTimeEditPrivate::toString(const QCoreVariant &var) const
 QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *stateptr) const
 {
     QCoreVariant ret = getZeroVariant();
-    QValidator::State state = QValidator::Acceptable;    
+    QValidator::State state = QValidator::Acceptable;
     for (int i=0; state != QValidator::Invalid && i<sections.size(); ++i) {
 	const Section s = sections.at(i).section;
 	QValidator::State tmpstate;
@@ -1501,7 +1519,7 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
 
     if (oldsection != DaysSection && ret.toDate().day() < cachedday)
 	setDigit(&ret, DaysSection, cachedday);
-    
+
     if (oldsection == DaysSection)
 	cachedday = getDigit(ret, DaysSection);
 
@@ -1666,7 +1684,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
 
     QValidator::State state;
     if (val) {
-        *val = mapTextToValue(input, &state);	
+        *val = mapTextToValue(input, &state);
     } else {
         mapTextToValue(input, &state);
     }

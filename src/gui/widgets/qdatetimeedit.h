@@ -36,9 +36,10 @@ public:
 
     Q_DECLARE_FLAGS(Sections, Section);
 
-    QDateTimeEdit(QWidget *parent = 0, Qt::WFlags f = 0);
-    QDateTimeEdit(const QDateTime &t, QWidget *parent = 0, Qt::WFlags f = 0);
-    QDateTimeEdit(const QTime &t, QWidget *parent = 0, Qt::WFlags f = 0);
+    QDateTimeEdit(QWidget *parent = 0);
+    QDateTimeEdit(const QDateTime &dt, QWidget *parent = 0);
+    QDateTimeEdit(const QDate &d, QWidget *parent = 0);
+    QDateTimeEdit(const QTime &t, QWidget *parent = 0);
 
     QDateTime dateTime() const;
     QDate date() const;
