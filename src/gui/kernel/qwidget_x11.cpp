@@ -1369,10 +1369,10 @@ void qt_discard_double_buffer()
 static void qt_x11_release_double_buffer(QX11DoubleBuffer **db)
 {
     if (*db != qt_x11_global_double_buffer) {
-        qDebug("--> discarding temporary double buffer");
+        // qDebug("--> discarding temporary double buffer");
         qt_discard_double_buffer(db);
     } else {
-        qDebug("--> global double buffer unused");
+        // qDebug("--> global double buffer unused");
 	qt_x11_global_double_buffer_active = false;
     }
 }
@@ -1401,15 +1401,13 @@ static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, 
 static
 void qt_x11_get_double_buffer(QX11DoubleBuffer **db, Qt::HANDLE hd, int screen, int depth, int width, int height)
 {
-    qDebug("qt_reuse_double_buffer %d", qt_reuse_double_buffer);
-
     if (!qt_reuse_double_buffer || qt_x11_global_double_buffer_active) {
-        qDebug("<-- creating temporary double buffer");
+        // qDebug("<-- creating temporary double buffer");
         *db = qt_x11_create_double_buffer(hd, screen, depth, width, height);
 	return;
     }
 
-    qDebug("<-- using global double buffer");
+    // qDebug("<-- using global double buffer");
     qt_x11_global_double_buffer_active = true;
 
     // the db should consist of 128x128 chunks
