@@ -175,11 +175,10 @@ public:
     static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
 };
 
-QMap<QString, QString> EditorInterfaceImpl::functions() const
+void EditorInterfaceImpl::functions( QMap<QString, QString>* functionMap ) const
 {
-    QMap<QString, QString> functionMap;
-    if ( !viewManager || !viewManager->currentView() )
-	return functionMap;
+    if ( !functionMap || !viewManager || !viewManager->currentView() )
+	return;
 
     QString text = ( (Editor*)viewManager->currentView() )->text();
 
@@ -220,9 +219,8 @@ QMap<QString, QString> EditorInterfaceImpl::functions() const
 	}
 	body = text.mid( i, j - i + 1 );
 
-	functionMap.insert( func, body );
+	functionMap->insert( func, body );
     }
-    return functionMap;
 }
 
 QString EditorInterfaceImpl::createFunctionStart( const QString &className, const QString &func )
