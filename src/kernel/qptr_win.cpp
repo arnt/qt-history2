@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#47 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -30,7 +30,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#47 $")
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -1471,6 +1471,10 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	    return;
 	fix_neg_rect( &x, &y, &w, &h );
     }
+    if ( cpen.style() == NoPen ) {
+	w++;
+	h++;
+    }
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
     Ellipse( hdc, x, y, x+w, y+h );
@@ -1550,6 +1554,15 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
     }
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
+	fix_neg_rect( &x, &y, &w, &h );
+    }
+    if ( cpen.style() == NoPen ) {
+	w++;
+	h++;
+    }
     double ra1 = 1.09083078249645598e-3 * a;
     double ra2 = 1.09083078249645598e-3 * alen + ra1;
     if ( ra2 < 0.0 ) {				// swap angles
@@ -1596,6 +1609,15 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
+    }
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
+	fix_neg_rect( &x, &y, &w, &h );
+    }
+    if ( cpen.style() == NoPen ) {
+	w++;
+	h++;
     }
     double ra1 = 1.09083078249645598e-3 * a;
     double ra2 = 1.09083078249645598e-3 * alen + ra1;
