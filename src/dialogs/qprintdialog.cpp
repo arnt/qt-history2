@@ -545,7 +545,8 @@ static void parseDollarPrinters( QListView * printers )
     while( dollarNames[i] ) {
 	char *t = getenv( dollarNames[i] );
 	if ( t )
-	    perhapsAddPrinter( d->printers, QString::fromLatin1( t ), "", "");
+	    perhapsAddPrinter( printers, QString::fromLatin1( t ), "", "");
+	i++;
     }
 }
 #endif
@@ -752,7 +753,7 @@ QGroupBox * QPrintDialog::setupDestination()
     d->printers->addColumn( tr("Comment"), 150 );
     d->printers->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 
-#if defined(_OS_UNIX_)
+#if defined(_OS_UNIX_) && !defined(_OS_VMS_)
     char * etcLpDefault = 0;
 
     parsePrintcap( d->printers );

@@ -109,7 +109,7 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
     QString d( QFile::encodeName( filePath( dirName, acceptAbsPath ) ) );
 #if defined(_OS_VMS_)
     d += QChar( ']' );
-    for( int i = 0; i < d.length(); i++ ) {
+    for( int i = 0; i < (int)d.length(); i++ ) {
 	if( d[i] == QChar( ']' ) ) {
 	    d[i] = QChar( '.' );
 	    break;
@@ -133,19 +133,7 @@ bool QDir::isReadable() const
 	s += QString::fromLatin1( ".dir;1" );
     }
     else if ( !s.contains( QString::fromLatin1( ".DIR;1" ) ) ) {
-	int p1 = s.findRev( QChar(']') );
-	if ( p1 >= 0 ) {
-	    s.truncate( p1 );
-	    s += QString::fromLatin1( ".dir;1" );
-	}
-	int p0 = s.find( QChar('[') );
-	if ( p0 >= 0 && p1 >= 0 ) {
-	    int d = s.findRev( QChar( '.' ), -s.length() + p1 - 1 );
-	    if ( d > p0 )
-		s[d] = QChar( ']' );
-	    else
-		s.replace( p0, 1, QString::fromLatin1( "[000000]" ) );
-	}
+	s += QString::fromLatin1( ".dir;1" );
     }
 #endif
 
@@ -282,7 +270,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	}
     }
     if ( closedir(dir) != 0 ) {
-#if defined(CHECK_NULL)
+#if defined(CHECK_NULL) && !defined(_OS_VMS_)
 	qWarning( "QDir::readDirEntries: Cannot close the directory: %s (UTF8)",
 		  dPath.utf8().data() );
 #endif

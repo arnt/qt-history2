@@ -454,6 +454,7 @@ int QFile::ungetch( int ch )
 static
 QCString locale_encoder( const QString &fileName )
 {
+    QString zeroDirMarker( QString::fromLatin1( "[000000]" ) );
     QString s;
     if ( fileName[0] == QChar('/') )
 	s = fileName.mid(1);
@@ -461,7 +462,14 @@ QCString locale_encoder( const QString &fileName )
 	s = fileName;
     int n = s.contains( '/' );
     if ( n == 1 ) {
-	s.replace( s.find( '/' ), 1, QString::fromLatin1( "[000000]" ) );
+	s.replace( s.find( '/' ), 1, zeroDirMarker );
+    }
+    else if ( n == 0 ) {
+	int itop = s.find( ':' );
+        if ( itop == -1 )
+	    s.prepend( zeroDirMarker );
+	else
+	    s.replace( itop + 1, 1, zeroDirMarker );
     }
     else if ( n > 1 ) {
 	s.replace( s.find( QChar('/') ), 1, QChar('[') );
