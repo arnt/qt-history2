@@ -62,11 +62,15 @@ QWidget *TabOrderEditorTool::editor() const
 
 void TabOrderEditorTool::activated()
 {
+    connect(formWindow(), SIGNAL(changed()),
+                m_editor, SLOT(updateBackground()));
     m_editor->updateBackground();
 }
 
 void TabOrderEditorTool::deactivated()
 {
+    disconnect(formWindow(), SIGNAL(changed()),
+                m_editor, SLOT(updateBackground()));
 }
 
 QAction *TabOrderEditorTool::action() const

@@ -62,11 +62,15 @@ QWidget *BuddyEditorTool::editor() const
 
 void BuddyEditorTool::activated()
 {
+    connect(formWindow(), SIGNAL(changed()),
+                m_editor, SLOT(updateBackground()));
     m_editor->updateBackground();
 }
 
 void BuddyEditorTool::deactivated()
 {
+    disconnect(formWindow(), SIGNAL(changed()),
+                m_editor, SLOT(updateBackground()));
 }
 
 QAction *BuddyEditorTool::action() const
