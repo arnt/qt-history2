@@ -758,11 +758,9 @@ void QLayout::freeze(int w, int h)
 
 
 /*!
-    Makes the geometry manager take account of the menu bar \a w. All
-    child widgets are placed below the bottom edge of the menu bar.
-
-    A menu bar does its own geometry management: never do addWidget()
-    on a QMenuBar.
+    Tells the geometry manager to place the menu bar \a w at the top
+    of parentWidget(), outside QWidget::contentsMargins(). All child
+    widgets are placed below the bottom edge of the menu bar.
 */
 void QLayout::setMenuBar(QWidget *w)
 {
