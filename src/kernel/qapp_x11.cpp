@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#122 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#121 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#122 $")
 
 
 /*****************************************************************************
@@ -516,6 +516,15 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	    if ( (m & YValue) == 0 )	  y = main_widget->geometry().y();
 	    if ( (m & WidthValue) == 0 )  w = main_widget->width();
 	    if ( (m & HeightValue) == 0 ) h = main_widget->height();
+	    int minw, minh, maxw, maxh;
+	    if ( main_widget->minimumSize(&minw,&minh) ) {
+		w = QMAX(w,minw);
+		h = QMAX(h,minh);
+	    }
+	    if ( main_widget->maximumSize(&maxw,&maxh) ) {
+		w = QMIN(w,maxw);
+		h = QMIN(h,maxh);
+	    }
 	    main_widget->setGeometry( x, y, w, h );
 	}
     }
@@ -1483,8 +1492,7 @@ void qt_close_popup( QWidget *popup )		// remove popup widget
 {
     if ( !popupWidgets )
 	return;
-    if ( popupWidgets->findRef(popup) != -1 )
-	popupWidgets->remove();
+    popupWidgets->removeRef( popup );
     if ( popupWidgets->count() == 0 ) {		// this was the last popup
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
