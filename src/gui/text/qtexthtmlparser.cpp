@@ -778,10 +778,22 @@ QChar QTextHtmlParser::parseEntity()
     if (!resolved.isNull())
         return resolved;
     if (entity.length() > 1 && entity.at(0) == QLatin1Char('#')) {
-        int num = entity.mid(1).toInt();
-        if (num == 151) // ### hack for designer manual
-            num = '-';
-        return num;
+        entity.remove(0, 1); // removing leading #
+
+        int base = 10;
+        bool ok = false;
+
+        if (entity.at(0).toLower() == QLatin1Char('x')) { // hex entity?
+            entity.remove(0, 1);
+            base = 16;
+        }
+
+        int num = entity.toInt(&ok, base);
+        if (ok) {
+            if (num == 151) // ### hack for designer manual
+                num = '-';
+            return num;
+        }
     }
     pos = recover;
     return QLatin1Char('&');
