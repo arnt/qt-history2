@@ -47,9 +47,7 @@
   It's not too hard to guess what the functions do.
 */
 
-#if defined(Q_OS_HPUX)
-// for HP-UX < 11.x and 32 bit
-#include <dl.h>
+#if defined(QT_HPUX_LD) // for HP-UX < 11.x and 32 bit
 
 bool QLibraryPrivate::loadLibrary()
 {
@@ -95,9 +93,7 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
     return address;
 }
 
-#else // Q_OS_HPUX
-// Something else, assuming POSIX
-#include <dlfcn.h>
+#else // POSIX
 
 bool QLibraryPrivate::loadLibrary()
 {
@@ -106,7 +102,7 @@ bool QLibraryPrivate::loadLibrary()
 
     QString filename = library->library();
 
-    pHnd = dlopen( filename.latin1() , RTLD_LAZY );
+    pHnd = dlopen( filename.latin1() , QT_RTLD_FLAGS );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !pHnd )
 	qWarning( "%s", dlerror() );
@@ -143,5 +139,7 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
 #endif
     return address;
 }
-#endif // QT_NO_LIBRARY
-#endif // POSIX
+
+#endif
+
+#endif

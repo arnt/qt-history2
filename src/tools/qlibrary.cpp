@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QLibrary class
 **
 ** Created : 2000-01-01
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -53,7 +53,7 @@
 
 // KAI C++ has at the moment problems with unloading the Qt plugins. So don't
 // unload them as a workaround for now.
-#if defined(Q_CC_KAI) || defined(Q_OS_MAC) || defined(Q_OS_HPUX)
+#if defined(Q_OS_MAC) || defined(Q_OS_HPUX)
 #define QT_NO_LIBRARY_UNLOAD
 #endif
 
@@ -142,7 +142,7 @@ QLibrary::QLibrary( const QString& filename )
   Deletes the QLibrary object.
 
   The library will be unloaded if autoUnload() is TRUE (the default), otherwise
-  it stays in memory until the application is exited.
+  it stays in memory until the application exits.
 
   \sa unload(), setAutoUnload()
 */
