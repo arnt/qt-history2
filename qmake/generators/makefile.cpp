@@ -925,25 +925,44 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	    continue;
 	}
 
-	QString target;
-	QStringList tmp;
-	//masks
-	tmp = project->variables()[(*it) + ".files"];
-	if(!tmp.isEmpty()) {
-	    if(Option::target_mode == Option::TARG_WIN_MODE || Option::target_mode == Option::TARG_MAC9_MODE) {
-	    } else if(Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) {
-		target += QString("$(COPY) -pR ") + tmp.join(" ") + QString(" ") + project->variables()[pvar].first();
-	    }
-	}
-	//other
-	tmp = project->variables()[(*it) + ".extra"];
-	if(!tmp.isEmpty()) {
-	    if(!target.isEmpty())
-		target += "\n\t";
-	    target += tmp.join(" ");
-	}
-	//default?
-	if(target.isEmpty())
+	QString target, dst=project->variables()[pvar].first();
+ 	QStringList tmp;
+ 	//masks
+ 	tmp = project->variables()[(*it) + ".files"];
+ 	if(!tmp.isEmpty()) {
+ 	    if(Option::target_mode == Option::TARG_WIN_MODE || Option::target_mode == Option::TARG_MAC9_MODE) {
+ 	    } else if(Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) {
+		do_default = FALSE;
+		for(QStringList::Iterator wild_it = tmp.begin(); wild_it != tmp.end(); ++wild_it) {
+		    QString dirstr = QDir::currentDirPath(), f = (*wild_it);
+		    int slsh = f.findRev(Option::dir_sep);
+		    if(slsh != -1) {
+			dirstr = f.left(slsh+1);
+			f = f.right(f.length() - slsh - 1);
+		    }
+		    QDir dir(dirstr, f);
+		    for(int x = 0; x < dir.count(); x++) {
+			QString file = dir[x];
+			if(file == "." || file == "..") //blah
+			    continue;
+			fileFixify(file);
+			QFileInfo fi(file);
+			target += QString(fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") + 
+				  " " + dirstr + file + " " + dst + "\n\t";
+		    }
+		}
+ 	    }
+ 	}
+ 	//other
+ 	tmp = project->variables()[(*it) + ".extra"];
+ 	if(!tmp.isEmpty()) {
+	    do_default = FALSE;
+ 	    if(!target.isEmpty())
+ 		target += "\n\t";
+ 	    target += tmp.join(" ");
+ 	}
+ 	//default?
+	if(do_default)
 	    target = defaultInstall((*it));
 
 	if(!target.isEmpty()) {
