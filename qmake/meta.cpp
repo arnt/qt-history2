@@ -15,9 +15,9 @@ QMakeMetaInfo::readLib(const QString &lib)
     clear();
     QString meta_file = findLib(lib);
     if(!meta_file.isNull()) {
-	if(meta_file.endsWith(".pc")) {
+	if(meta_file.endsWith(Option::pkgcfg_ext)) {
 	    fprintf(stderr, "Must implement reading in pkg-config files (%s)!!!\n", meta_file.latin1());
-	} else if(meta_file.endsWith(".la")) {
+	} else if(meta_file.endsWith(Option::libtool_ext)) {
 	    fprintf(stderr, "Must implement reading in libtool files (%s)!!!\n", meta_file.latin1());
 	} else if(meta_file.endsWith(Option::prl_ext)) {
 	    QMakeProject proj;
@@ -44,18 +44,18 @@ QString
 QMakeMetaInfo::findLib(const QString &lib)
 {
     QString ret = QString::null;
-    QString extns[] = { Option::prl_ext, QString(".pc"), QString(".la"), QString::null };
+    QString extns[] = { Option::prl_ext, Option::pkgcfg_ext, Option::libtool_ext, QString::null };
     for(int extn = 0; !extns[extn].isNull(); extn++) {
 	if(lib.endsWith(extns[extn]))
 	    ret = QFile::exists(lib) ? lib : QString::null;
     }
     if(ret.isNull()) {
-	if(QFile::exists(lib + Option::prl_ext)) 
-	    ret = lib + Option::prl_ext;
-	if(QFile::exists(lib + ".la")) 
-	    ret = lib + ".la";
-	if(QFile::exists(lib + ".pc")) 
-	    ret = lib + ".pc";
+	for(int extn = 0; !extns[extn].isNull(); extn++) {
+	    if(QFile::exists(lib + extns[extn])) {
+		ret = lib + extns[extn];
+		break;
+	    }
+	}
     }
     if(ret.isNull())
 	debug_msg(2, "QMakeMetaInfo: Cannot find info file for %s", lib.latin1());

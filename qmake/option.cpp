@@ -44,6 +44,8 @@
 //convenience
 QString Option::prf_ext;
 QString Option::prl_ext;
+QString Option::libtool_ext;
+QString Option::pkgcfg_ext;
 QString Option::ui_ext;
 QStringList Option::h_ext;
 QString Option::moc_ext;
@@ -308,6 +310,8 @@ Option::parseCommandLine(int argc, char **argv)
     Option::lex_mod = "_lex";
     Option::yacc_mod = "_yacc";
     Option::prl_ext = ".prl";
+    Option::libtool_ext = ".la";
+    Option::pkgcfg_ext = ".pc";
     Option::prf_ext = ".prf";
     Option::ui_ext = ".ui";
     Option::h_ext << ".h" << ".hpp" << ".hh" << ".H" << ".hxx";
@@ -408,6 +412,10 @@ bool Option::postProcessProject(QMakeProject *project)
     if(h_ext.isEmpty())
 	h_ext << ".h";
 
+    if(!project->isEmpty("QMAKE_EXT_PKGCONFIG"))
+	Option::pkgcfg_ext = project->first("QMAKE_EXT_PKGCONFIG");
+    if(!project->isEmpty("QMAKE_EXT_LIBTOOL"))
+	Option::libtool_ext = project->first("QMAKE_EXT_LIBTOOL");
     if(!project->isEmpty("QMAKE_EXT_PRL"))
 	Option::prl_ext = project->first("QMAKE_EXT_PRL");
     if(!project->isEmpty("QMAKE_EXT_PRF"))

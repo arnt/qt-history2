@@ -1223,7 +1223,7 @@ MakefileGenerator::processPrlFile(QString &file)
 	    QMakeMetaInfo libinfo;
 	    debug_msg(1, "Processing PRL file: %s", real_meta_file.latin1());
 	    if(!libinfo.readLib(f)) {
-		fprintf(stderr, "Error processing prl file: %s\n", real_meta_file.latin1());
+		fprintf(stderr, "Error processing meta file: %s\n", real_meta_file.latin1());
 	    } else {
 		ret = TRUE;
 		QMap<QString, QStringList> &vars = libinfo.variables();

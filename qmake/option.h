@@ -60,6 +60,8 @@ void warn_msg(QMakeWarn t, const char *fmt, ...);
 struct Option
 {
     //simply global convenience
+    static QString libtool_ext;
+    static QString pkgcfg_ext;
     static QString prf_ext;
     static QString prl_ext;
     static QString ui_ext;

@@ -512,8 +512,8 @@ UnixMakefileGenerator::findLibraries()
 		    }
 		    if(!found && project->isActiveConfig("compile_libtool")) {
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
-			    if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub + modifs[modif] + ".la")) {
-				(*it) = mdd->real_dir + Option::dir_sep + "lib" + stub + modifs[modif] + ".la";
+			    if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub + modifs[modif] + Option::libtool_ext)) {
+				(*it) = mdd->real_dir + Option::dir_sep + "lib" + stub + modifs[modif] + Option::libtool_ext;
 				found = TRUE;
 				break;
 			    }
@@ -553,7 +553,7 @@ UnixMakefileGenerator::processPrlFiles()
 			QString lib = opt.right(opt.length() - 2);
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
  			    if(!project->isActiveConfig("compile_libtool")) { //give them the .libs..
- 				QString la = mdd->local_dir + Option::dir_sep + "lib" + lib + ".la";
+ 				QString la = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::libtool_ext;
  				if(QFile::exists(la) && QFile::exists(mdd->local_dir + Option::dir_sep + ".libs")) {
  				    l_out.append("-L" + mdd->real_dir + Option::dir_sep + ".libs");
  				    libdirs.append(new MakefileDependDir(mdd->real_dir +  Option::dir_sep + ".libs",
@@ -654,7 +654,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    int dot = src_lt.find('.');
 	    if(dot != -1)
 		src_lt = src_lt.left(dot);
-	    src_lt += ".la";
+	    src_lt += Option::libtool_ext;
 	    src_lt.prepend("lib");
 	    QString dst_lt = root + targetdir + src_lt;
 	    if(!project->isEmpty("DESTDIR")) {
