@@ -1353,7 +1353,7 @@ QWidget *QWidget::keyboardGrabber()
 void QWidget::setActiveWindow()
 {
     QWidget *tlw = topLevelWidget();
-    if (tlw->isVisible() && !tlw->d->topData()->embedded) {
+    if (tlw->isVisible() && !tlw->d->topData()->embedded && !X11->deferred_map.contains(tlw)) {
         XSetInputFocus(d->xinfo->display(), tlw->winId(), XRevertToNone, qt_x_time);
 
 #ifndef QT_NO_XIM
@@ -1634,21 +1634,28 @@ void QWidget::setWindowState(uint newstate)
                 qt_net_change_wm_state(this, (newstate & WindowMaximized),
                                        ATOM(_NET_WM_STATE_MAXIMIZED_HORZ),
                                        ATOM(_NET_WM_STATE_MAXIMIZED_VERT));
-            } else if (isVisible()) {
-                QRect maxRect = QApplication::desktop()->availableGeometry(this);
+            } else {
+		if (newstate & WindowMaximized) {
+		    QTLWExtra *top = d->topData();
 
-                // save original geometry
-                QTLWExtra *top = d->topData();
-                if (top->normalGeometry.width() < 0)
-                    top->normalGeometry = geometry();
+		    // save original geometry
+		    if (top->normalGeometry.width() < 0)
+			top->normalGeometry = geometry();
 
-                // the wm was not smart enough to adjust our size, do that manually
-                updateFrameStrut();
-                setGeometry(maxRect.x() + top->fleft, maxRect.y() + top->ftop,
-                            maxRect.width() - top->fleft - top->fright,
-                            maxRect.height() - top->ftop - top->fbottom);
-            }
-        }
+		    if (isVisible()) {
+			updateFrameStrut();
+			QRect maxRect = QApplication::desktop()->availableGeometry(this);
+			setGeometry(maxRect.x() + top->fleft,
+				    maxRect.y() + top->ftop,
+				    maxRect.width() - top->fleft - top->fright,
+				    maxRect.height() - top->ftop - top->fbottom);
+		    }
+		} else {
+		    // restore original geometry
+		    setGeometry(d->topData()->normalGeometry);
+		}
+	    }
+	}
 
         if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
             if (qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
@@ -1763,25 +1770,34 @@ void QWidget::showWindow()
 
         if (isMaximized() && !(qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
                                && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT)))) {
-            QRect maxRect = QApplication::desktop()->availableGeometry(this);
+	    XMapWindow( x11Display(), winId() );
+ 	    qt_wait_for_window_manager(this);
 
-            // save original geometry
-            QTLWExtra *top = d->topData();
-            if (top->normalGeometry.width() < 0)
-                top->normalGeometry = geometry();
-            setGeometry(maxRect);
+ 	    // if the wm was not smart enough to adjust our size, do that manually
+ 	    updateFrameStrut();
+	    QRect maxRect = QApplication::desktop()->availableGeometry(this);
 
-                    setAttribute(QWidget::WA_Mapped);
-            XMapWindow(d->xinfo->display(), winId());
-            qt_wait_for_window_manager(this);
+ 	    QTLWExtra *top = d->topData();
+ 	    QRect normalRect = top->normalGeometry;
 
-            // the wm was not smart enough to adjust our size, do that manually
-            updateFrameStrut();
-            setGeometry(maxRect.x() + top->fleft, maxRect.y() + top->ftop,
-                        maxRect.width() - top->fleft - top->fright,
-                        maxRect.height() - top->ftop - top->fbottom);
-            return;
+ 	    setGeometry(maxRect.x() + top->fleft,
+			maxRect.y() + top->ftop,
+ 			maxRect.width() - top->fleft - top->fright,
+ 			maxRect.height() - top->ftop - top->fbottom);
+
+	    // restore the original normalGeometry
+ 	    top->normalGeometry = normalRect;
+ 	    // internalSetGeometry() clears the maximized flag... make sure we set it back
+ 	    setWState(WState_Maximized);
+
+ 	    return;
         }
+
+	if (isFullScreen() && !qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
+ 	    XMapWindow(x11Display(), winId());
+ 	    qt_wait_for_window_manager(this);
+	    return;
+	}
     }
 
     if (testAttribute(WA_OutsideWSRange))

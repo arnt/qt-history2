@@ -3665,10 +3665,13 @@ void QWidget::show_helper()
 #ifndef Q_OS_TEMP
         // toplevels with layout may need a initial size
         QSize s = qt_initial_size(this);
+	uint state = windowState();
         if (!s.isEmpty()) {
             resize(s);
             setAttribute(WA_Resized, false);
         }
+	if (windowState() != state)
+	    setWindowState(state);
 #endif // Q_OS_TEMP
     }
 
