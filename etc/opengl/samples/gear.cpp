@@ -1,5 +1,8 @@
 //
-// Color triangle
+// Gear example.
+//
+// All OpenGL code in this example has been borrowed from Brian Paul's gear
+// example program in the Mesa distribution.
 //
 
 #include <qgl.h>
@@ -231,10 +234,11 @@ protected:
 private:
 };
 
+
 GearWidget::GearWidget( QWidget *parent, const char *name )
      : QGLWidget( parent, name )
 {
-    startTimer( 0 );
+    startTimer( 10 );
 }
 
 void GearWidget::resizeGL( int width, int height )
@@ -244,16 +248,12 @@ void GearWidget::resizeGL( int width, int height )
 
 void GearWidget::paintGL()
 {
+    draw();
 }
 
-void GearWidget::timerEvent(QTimerEvent*)
+void GearWidget::timerEvent( QTimerEvent * )
 {
-    makeCurrent();
-    draw();
-    if ( doubleBuffer() )
-	swapBuffers();
-    else
-	glFlush();
+    updateGL();
 }
 
 
