@@ -55,15 +55,18 @@ static AuServer *nas=0;
 
 class QAuBucketNAS : public QAuBucket {
 public:
-    QAuBucketNAS(int i) : id(i) {}
+    QAuBucketNAS(AuBucketID b, AuFlowID f) : id(b), flow(f) { }
 
     ~QAuBucketNAS()
     {
-	if ( nas )
-	    AuDestroyBucket( nas, (AuBucketID)id, NULL );
+	if ( nas ) {
+            AuDestroyFlow(nas, flow, NULL);
+	    AuDestroyBucket(nas, id, NULL);
+        }
     }
 
     AuBucketID id;
+    AuFlowID flow;
 };
 
 class QAuServerNAS : public QAuServer {
@@ -136,7 +139,7 @@ static void callback( AuServer*, AuEventHandlerRec*, AuEvent* e, AuPointer p)
 	if (e->type==AuEventTypeElementNotify &&
 		    e->auelementnotify.kind==AuElementNotifyKindState) {
 	    if ( e->auelementnotify.cur_state == AuStateStop )
-		((QAuServerNAS*)inprogress->find(p))->setDone((QSound*)p);
+                ((QAuServerNAS*)inprogress->find(p))->setDone((QSound*)p);
 	}
     }
 }
@@ -144,12 +147,12 @@ static void callback( AuServer*, AuEventHandlerRec*, AuEvent* e, AuPointer p)
 void QAuServerNAS::setDone(QSound* s)
 {
     if (nas) {
-	decLoop(s);
-	if (s->loopsRemaining()) {
-	    play(s);
-	} else {
-	    inprogress->remove(s);
-	}
+        decLoop(s);
+        if (s->loopsRemaining()) {
+            play(s);
+        } else {
+            inprogress->remove(s);
+        }
     }
 }
 
@@ -161,8 +164,9 @@ void QAuServerNAS::play(QSound* s)
 	inprogress->insert(s,(void*)this);
 	int iv=100;
 	AuFixedPoint volume=AuFixedPointFromFraction(iv,100);
-	AuSoundPlayFromBucket(nas, bucket(s)->id, AuNone, volume,
-		callback, s, 0, NULL, NULL, NULL, NULL);
+        QAuBucketNAS *b = bucket(s);
+        AuSoundPlayFromBucket(nas, b->id, AuNone, volume,
+                              callback, s, 0, &b->flow, NULL, NULL, NULL);
 	AuFlush(nas);
 	dataReceived();
 	AuFlush(nas);
@@ -173,17 +177,23 @@ void QAuServerNAS::play(QSound* s)
 void QAuServerNAS::stop(QSound* s)
 {
     if (nas) {
-	s->setLoops(0);
-	inprogress->remove(s);
+        AuStopFlow(nas, bucket(s)->flow, NULL);
+        AuFlush(nas);
+	dataReceived();
+	AuFlush(nas);
+	qApp->flushX();
     }
 }
 
 void QAuServerNAS::init(QSound* s)
 {
-    if ( nas )
-	setBucket(s,
-	    new QAuBucketNAS(AuSoundCreateBucketFromFile(nas, s->fileName(),
-		0 /*AuAccessAllMasks*/, NULL, NULL)));
+    if ( nas ) {
+        AuBucketID b_id =
+            AuSoundCreateBucketFromFile(nas, s->fileName(),
+                                        0 /*AuAccessAllMasks*/, NULL, NULL);
+        AuFlowID f_id = AuCreateFlow(nas, NULL);
+	setBucket(s, new QAuBucketNAS(b_id, f_id));
+    }
 }
 
 bool QAuServerNAS::okay()
@@ -207,7 +217,7 @@ public:
 
     void play(const QString&) { }
     void play(QSound*s) { while(decLoop(s) > 0) /* nothing */ ; }
-    void stop(QSound*s) { s->setLoops(0); }
+    void stop(QSound*) { }
     bool okay() { return FALSE; }
 };
 
