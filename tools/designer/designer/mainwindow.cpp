@@ -3242,15 +3242,17 @@ void MainWindow::showStackFrame( QObject *o, int line )
 
 void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &errorMessage )
 {
-    errorLine--; // ######
-    QValueList<int> l;
-    l << errorLine + 1;
-    QStringList l2;
-    l2 << errorMessage;
-    QObjectList ol;
-    ol.append( o );
-    oWindow->setErrorMessages( l2, l, TRUE, QStringList(), ol );
-    showSourceLine( o, errorLine, Error );
+    if ( o ) {
+	errorLine--; // ######
+	QValueList<int> l;
+	l << errorLine + 1;
+	QStringList l2;
+	l2 << errorMessage;
+	QObjectList ol;
+	ol.append( o );
+	oWindow->setErrorMessages( l2, l, TRUE, QStringList(), ol );
+	showSourceLine( o, errorLine, Error );
+    }
     emit runtimeError( errorMessage );
 }
 
