@@ -28,7 +28,7 @@
 
 #include <private/qobject_p.h>
 
-class QPersistentModelIndexData
+class Q_CORE_EXPORT QPersistentModelIndexData
 {
 public:
     QPersistentModelIndexData() : model (0) { ref = 0; }
