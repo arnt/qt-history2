@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -290,7 +290,11 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "{\n";
 	out << "public:\n";
 	out << "    StaticInitImages_" << cProject << "() { qInitImages_" << cProject << "(); }\n";
+	out << "#if defined(Q_OS_SCO) && defined(Q_CC_GNU)\n";
+	out << "    ~StaticInitImages_" << cProject << "() { }\n";
+	out << "#else\n";	
 	out << "    ~StaticInitImages_" << cProject << "() { qCleanupImages_" << cProject << "(); }\n";
+	out << "#endif\n";
 	out << "};\n\n";
 
 	out << "static StaticInitImages_" << cProject << " staticImages;\n";
