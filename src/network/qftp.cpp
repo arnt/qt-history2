@@ -1781,8 +1781,8 @@ int QFtp::get(const QString &file, QIODevice *dev, TransferType type)
 /*!
     \overload
 
-    Writes the data \a data to the file called \a file on the server.
-    The progress of the upload is reported by the
+    Writes a copy of the given \a data to the file called \a file on
+    the server. The progress of the upload is reported by the
     dataTransferProgress() signal.
 
     The data is transferred as Binary or Ascii depending on the value
@@ -1796,6 +1796,9 @@ int QFtp::get(const QString &file, QIODevice *dev, TransferType type)
     When the command is started the commandStarted() signal is
     emitted. When it is finished the commandFinished() signal is
     emitted.
+
+    Since this function takes a copy of the \a data, you can discard
+    your own copy when this function returns.
 
     \sa dataTransferProgress() commandStarted() commandFinished()
 */
