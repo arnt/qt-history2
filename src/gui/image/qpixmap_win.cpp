@@ -565,6 +565,22 @@ QImage QPixmap::convertToImage() const
 
     GetDIBits(qt_display_dc(), DATA_HBM, 0, h, image.bits(), bmi, DIB_RGB_COLORS);
 
+    // Opaque images need to have alpha channel set to 0xff. Windows ignores
+    // this, but we need it for platform consistancy. (OpenGL conversion
+    // does not work without it).
+    if (d == 32 && !image.hasAlphaBuffer()) {
+        int i = 0;
+        while (i < image.height()) {
+            uint *p = (uint *) image.scanLine(i);
+            uint *end = p + image.width();
+            while (p < end) {
+                *p |= 0xff000000;
+                ++p;
+            }
+            ++i;
+        }
+    }
+
     if (mcp)
         ((QPixmap*)this)->allocCell();
 #else
@@ -574,14 +590,7 @@ QImage QPixmap::convertToImage() const
 
     for (int i=0; i<ncols; i++) {                // copy color table
         RGBQUAD *r = (RGBQUAD*)&coltbl[i];
-        if (m)
-            image.setColor(i, qRgba(r->rgbRed,
-                               r->rgbGreen,
-                               r->rgbBlue,255));
-        else
-            image.setColor(i, qRgb(r->rgbRed,
-                               r->rgbGreen,
-                               r->rgbBlue));
+        image.setColor(i, qRgb(r->rgbRed, r->rgbGreen, r->rgbBlue));
     }
 
     if (m) {
