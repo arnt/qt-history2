@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -46,7 +46,7 @@ struct QUrlInfoPrivate
 /*!
   \class QUrlInfo qurlinfo.h
 
-  This class is just a container for holding informations about a
+  This class is just a container for storing information about a
   URL. That's why all informations have to be passed in the
   constructor.
 */
@@ -160,6 +160,15 @@ void QUrlInfo::setDir( bool b )
 void QUrlInfo::setFile( bool b )
 {
     d->isFile = b;
+}
+
+/*!
+  #### todo
+*/
+
+void QUrlInfo::setSymLink( bool b )
+{
+    d->isSymLink = b;
 }
 
 /*!

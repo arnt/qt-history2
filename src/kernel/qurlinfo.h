@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.h#1 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.h#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -52,6 +52,7 @@ public:
     void setName( const QString &name );
     void setDir( bool b );
     void setFile( bool b );
+    void setSymLink( bool b );
     void setOwner( const QString &s );
     void setGroup( const QString &s );
     void setSize( uint s );
