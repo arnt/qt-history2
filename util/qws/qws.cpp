@@ -88,10 +88,6 @@ QWSClient::QWSClient( QObject* parent, int socket, int shmid,
     connect( this, SIGNAL(error(int)), this, SLOT(errorHandler(int)) );
 }
 
-QWSClient::~QWSClient()
-{
-}
-
 void QWSClient::closeHandler()
 {
     qDebug( "Client %p closed", this );
@@ -115,8 +111,32 @@ void QWSClient::errorHandler( int err )
     }
     qDebug( "Client %p error %d (%s)", this, err, s.ascii() );
     isClosed = TRUE;
+    emit connectionClosed();
+}
+
+void QWSClient::errorHandler( int err )
+{
+    QString s = "Unknown";
+    switch( err ) {
+    case ErrConnectionRefused:
+	s = "Connection Refused";
+	break;
+    case ErrHostNotFound:
+	s = "Host Not Found";
+	break;
+    case ErrSocketRead:
+	s = "Socket Read";
+	break;
+    }
+    qDebug( "Client %p error %d (%s)", this, err, s.ascii() );
+    isClosed = TRUE;
     flush(); //####We need to clean out the pipes, this in not the the way.
     emit connectionClosed();
+}
+
+int QWSClient::socket() const
+{
+    return s;
 }
 
 int QWSClient::socket() const
@@ -272,14 +292,14 @@ QWSServer::QWSServer( int sw, int sh, int simulate_depth,
     sdepth = simulate_depth;
 
     semkey = ftok("/dev/fb0",'q');
-    semset = semget(semkey,2,IPC_CREAT|0777);
+    semset = semget(semkey,1,IPC_CREAT|0777);//###SEMAPHORE_BUG
     if ( semset == -1 ) {
 	perror("Cannot create semaphore for /dev/fb0");
 	exit(1);
     }
     int arg = 1;
     semctl(semset,0,SETVAL,arg);
-    semctl(semset,1,SETVAL,arg);
+    //    semctl(semset,1,SETVAL,arg); //###SEMAPHORE_BUG
     
     if ( simulate_depth ) {
 	// Simulate card with 8 megs of memory or so
@@ -333,9 +353,7 @@ QWSServer::QWSServer( int sw, int sh, int simulate_depth,
 
 QWSServer::~QWSServer()
 {
-    // destroy all clients, closing their connections
-    for (ClientMap::Iterator it = client.begin(); it != client.end(); ++it)
-	delete *it;
+    // XXX destroy all clients
     if ( mouseBuf )
 	delete[] mouseBuf; //??? is delete[] 0 safe?
 }
@@ -910,7 +928,6 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r )
     }
     QRegion allocation;
     int windex = -1;
-
 
     // First, take the region away from whichever windows currently have it...
 

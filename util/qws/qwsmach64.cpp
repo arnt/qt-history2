@@ -59,6 +59,9 @@ Mach64Accel::Mach64Accel(unsigned char * pcifile,unsigned char * config)
 	    return;
 	}
 	qDebug("Membase here %lx",(unsigned long int)membase);
+	regbase=membase+0x7ffc00;
+	regw(BUS_CNTL,regr(BUS_CNTL) | 0x10);
+	regbase=0;
 	// Now init mtrr
 	if(getenv("QWS_MTRR")) {
 	    int mfd=open("/proc/mtrr",O_WRONLY,0);
