@@ -38,13 +38,19 @@ uint qrnd( uint maxVal )
 
 
 /*
+  Returns the top level widget.
+*/
+QWidget *qperf_widget();
+
+/*
   Returns the output paint device. This is normally a 640x480 widget,
   but it can be a 640x480 pixmap if double buffering is on.
 */
 QPaintDevice *qperf_paintDevice();
 
+
 /*
-  Returns the output paint device. This is normally a 640x480 widget,
+  Returns the current painter object, opened on the paint device.
 */
 QPainter *qperf_painter();
 

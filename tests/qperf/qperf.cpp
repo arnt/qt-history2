@@ -17,7 +17,7 @@ void output( const char *msg, ... )
     va_start( ap, msg );			// use variable arg list
     vfprintf( stderr, msg, ap );
     va_end( ap );
-    fprintf( stderr, "\n" );		// add newline
+    fprintf( stderr, "\n" );			// add newline
 }
 
 
@@ -32,6 +32,11 @@ static int	   max_colors = 16;
 static QColor	  *colors = 0;
 static const char *image_format = "BMP";
 
+
+QWidget *qperf_widget()
+{
+    return widget;
+}
 
 QPaintDevice *qperf_paintDevice()
 {
