@@ -392,7 +392,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	    a.setPoint( 2*i+1, xx, yy+2 );
 	    xx++; yy--;
 	}
-	if ( ! ((flags & PStyle_Enabled) && (flags & PStyle_On))) {
+	if ( !(flags & PStyle_Enabled) && !(flags & PStyle_On)) {
 	    int pnt;
 	    p->setPen( cg.highlightedText() );
 	    QPoint offset(1,1);
