@@ -87,7 +87,6 @@ public:
 
 	deletePid();
     }
-    }
 
     void closeHandles()
     {
