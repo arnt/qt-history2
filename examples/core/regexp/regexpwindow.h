@@ -1,5 +1,5 @@
-#ifndef REGEXPDIALOG_H
-#define REGEXPDIALOG_H
+#ifndef REGEXPWINDOW_H
+#define REGEXPWINDOW_H
 
 #include <QtGui>
 
@@ -11,8 +11,8 @@ public:
     RegExpWindow(QWidget *parent = 0);
 
 private slots:
+    void refresh();
     void copy();
-    void executeRegExp();
 
 private:
     QLabel *regexLabel;
@@ -23,7 +23,6 @@ private:
     QCheckBox *minimalCheckBox;
     QCheckBox *wildcardCheckBox;
     QLabel *resultLabel;
-    QPushButton *executePushButton;
     QPushButton *copyPushButton;
     QPushButton *quitPushButton;
 };

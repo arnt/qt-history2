@@ -1,89 +1,53 @@
-#include "regexpdialog.h"
+#include "regexpwindow.h"
 
 static const char *ResultTable =
         "<table bgcolor=\"white\" border=\"1\" "
         "cellspacing=\"1\" cellpadding=\"1\">"
-        "<tr><td>Expression</td>"
-        "<td align=\"right\" colspan=\"2\"><b>%1</b></td></tr>"
         "<tr><td>Offset</td>"
-        "<td align=\"right\" colspan=\"2\"><b>%2</b></td></tr>"
-        "<tr><td>Captures</td>"
-        "<td align=\"right\" colspan=\"2\"><b>%3</b></td></tr>";
-
-static const char *SubHeading =
-        "<tr><td></td><td align=\"center\">Text</td>"
-        "<td align=\"center\">Characters</td></tr>";
-
-static const char *Match =
-        "<tr><td>Match</td><td><b>%1</b></td>"
+        "<td align=\"right\"><b>%1</b></td></tr>"
+        "<tr><td>Matched Length</td>"
         "<td align=\"right\"><b>%2</b></td></tr>";
 
+static const char *Match =
+        "<tr><td>Match</td><td align=\"right\"><b>%1</b></td></tr>";
+
 static const char *CaptureRow =
-        "<tr><td>Capture #%1</td><td align=\"right\"><b>%2</b></td>"
-        "<td align=\"right\"><b>%3</b></td></tr>";
+        "<tr><td>Capture %1</td><td align=\"right\"><b>%2</b></td></tr>";
 
-static const char *NoMatches =
-        "<tr><td colspan=\"3\">No matches</td></tr>";
-
-static const char *TableEnd =
-        "</table>";
+static const char *TableEnd = "</table>";
 
 RegExpWindow::RegExpWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    regexComboBox = new QComboBox(this);
+    QWidget *center = new QWidget(this);
+    setCentralWidget(center);
+
+    regexComboBox = new QComboBox(center);
     regexComboBox->setEditable(true);
     regexComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    regexComboBox->setToolTip(tr("Enter a regular expression here."));
-    regexComboBox->insertItem(tr("[A-Z]+=(\\d+):(\\d*)")); // ###
+    regexComboBox->insertItem(tr("([A-Za-z_])([A-Za-z_0-9]*)"));
 
-    regexLabel = new QLabel(tr("&Expression:"), this);
+    regexLabel = new QLabel(tr("&Regular Expression:"), center);
     regexLabel->setBuddy(regexComboBox);
 
-    textComboBox = new QComboBox(this);
+    textComboBox = new QComboBox(center);
     textComboBox->setEditable(true);
     textComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    textComboBox->setToolTip(tr("Enter some text to match against."));
-    textComboBox->insertItem(tr("ABC=12:3456")); // ###
+    textComboBox->setCurrentText(tr("(10 + x2) * 32"));
 
-    textLabel = new QLabel(tr("&Text:"), this);
+    textLabel = new QLabel(tr("&Text:"), center);
     textLabel->setBuddy(textComboBox);
 
-    caseSensitiveCheckBox = new QCheckBox(tr("Case &Sensitive"), this);
+    caseSensitiveCheckBox = new QCheckBox(tr("Case &Sensitive"), center);
     caseSensitiveCheckBox->setChecked(true);
-    caseSensitiveCheckBox->setToolTip(
-            tr("Check this checkbox for case-sensitive matching; "
-               "uncheck it for case-insensitive matching."));
+    minimalCheckBox = new QCheckBox(tr("&Minimal"), center);
+    wildcardCheckBox = new QCheckBox(tr("&Wildcard"), center);
 
-    minimalCheckBox = new QCheckBox(tr("&Minimal"), this);
-    minimalCheckBox->setToolTip(
-            tr("Check this checkbox for minimal matching; "
-               "uncheck it for maximal matching."));
+    resultLabel = new QLabel(center);
 
-    wildcardCheckBox = new QCheckBox(tr("&Wildcard"), this);
-    wildcardCheckBox->setToolTip(
-            tr("Check this checkbox for wildcard matching "
-               "(this is similar to file globbing); "
-               "uncheck it for full regular expression matching."));
+    copyPushButton = new QPushButton(tr("&Copy"), center);
 
-    resultLabel = new QLabel(this);
-    resultLabel->setToolTip(
-            tr("This shows the results of executing a regular expression "
-               "on the given text."));
-
-    executePushButton = new QPushButton(tr("&Execute"), this);
-    executePushButton->setDefault(true);
-    executePushButton->setToolTip(
-            tr("Click to see the results of searching the text for a match."));
-
-    copyPushButton = new QPushButton(tr("&Copy"), this);
-    copyPushButton->setToolTip(
-            tr("Click to copy the regular expression to the clipboard; "
-               "backslashes are automatically doubled-up for pasting "
-               "into your source code)."));
-
-    quitPushButton = new QPushButton(tr("&Quit"), this);
-    quitPushButton->setToolTip(tr("Click to exit the application."));
+    quitPushButton = new QPushButton(tr("&Quit"), center);
 
     QGridLayout *gridLayout = new QGridLayout;
     gridLayout->addWidget(regexLabel, 0, 0);
@@ -98,7 +62,6 @@ RegExpWindow::RegExpWindow(QWidget *parent)
     checkboxLayout->addStretch(1);
 
     QVBoxLayout *buttonLayout = new QVBoxLayout;
-    buttonLayout->addWidget(executePushButton);
     buttonLayout->addWidget(copyPushButton);
     buttonLayout->addWidget(quitPushButton);
     buttonLayout->addStretch(1);
@@ -107,17 +70,53 @@ RegExpWindow::RegExpWindow(QWidget *parent)
     middleLayout->addWidget(resultLabel, 1);
     middleLayout->addLayout(buttonLayout);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(center);
     mainLayout->addLayout(gridLayout);
     mainLayout->addLayout(checkboxLayout);
     mainLayout->addLayout(middleLayout);
 
+    connect(regexComboBox, SIGNAL(textChanged(QString)), this, SLOT(refresh()));
+    connect(textComboBox, SIGNAL(textChanged(QString)), this, SLOT(refresh()));
+    connect(caseSensitiveCheckBox, SIGNAL(toggled(bool)), this, SLOT(refresh()));
+    connect(minimalCheckBox, SIGNAL(toggled(bool)), this, SLOT(refresh()));
+    connect(wildcardCheckBox, SIGNAL(toggled(bool)), this, SLOT(refresh()));
+
     connect(copyPushButton, SIGNAL(clicked()), this, SLOT(copy()));
-    connect(executePushButton, SIGNAL(clicked()), this, SLOT(executeRegExp()));
-    connect(quitPushButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(quitPushButton, SIGNAL(clicked()), this, SLOT(close()));
 
     setWindowTitle(tr("RegExp"));
-    executeRegExp();
+    refresh();
+}
+
+void RegExpWindow::refresh()
+{
+    QString regex = regexComboBox->currentText();
+    QString text = textComboBox->currentText();
+
+    QRegExp re(regex);
+    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+    if (caseSensitiveCheckBox->isChecked())
+        cs = Qt::CaseSensitive;
+    re.setCaseSensitivity(cs);
+    re.setMinimalMatching(minimalCheckBox->isChecked());
+    QRegExp::PatternSyntax syntax =
+            wildcardCheckBox->isChecked() ? QRegExp::Wildcard : QRegExp::RegExp;
+    if (!re.isValid()) {
+	statusBar()->message(tr("Invalid regular expression"), 2000);
+	return;
+    }
+
+    int offset = re.indexIn(text);
+    int numCaptures = re.numCaptures();
+    QString result = ResultTable;
+    result = result.arg(offset).arg(re.matchedLength());
+    if (offset != -1) {
+        result += QString(Match).arg(re.cap(0));
+        for (int i = 0; i < numCaptures; ++i)
+            result += QString(CaptureRow).arg(i + 1).arg(re.cap(i + 1));
+    }
+    result += TableEnd;
+    resultLabel->setText(result);
 }
 
 void RegExpWindow::copy()
@@ -129,55 +128,6 @@ void RegExpWindow::copy()
 	cb->setText(escaped, QClipboard::Clipboard);
 	if (cb->supportsSelection())
 	    cb->setText(escaped, QClipboard::Selection);
-	statusBar()->message(tr("Copied \"%1\" to the clipboard").arg(escaped));
-    }
-}
-
-void RegExpWindow::executeRegExp()
-{
-    QString regex = regexComboBox->currentText();
-    QString text = textComboBox->currentText();
-    if (!regex.isEmpty() && !text.isEmpty()) {
-	QRegExp re(regex);
-        Qt::CaseSensitivity cs = Qt::CaseInsensitive;
-        if (caseSensitiveCheckBox->isChecked())
-            cs = Qt::CaseSensitive;
-	re.setCaseSensitivity(cs);
-	re.setMinimalMatching(minimalCheckBox->isChecked());
-        QRegExp::PatternSyntax syntax = QRegExp::RegExp;
-        if (wildcardCheckBox->isChecked())
-            syntax = QRegExp::Wildcard;
-	re.setPatternSyntax(syntax);
-	if (!re.isValid()) {
-	    statusBar()->message(tr("Invalid regular expression: %1")
-				 .arg(re.errorString()));
-	    return;
-	}
-	int offset = re.indexIn(text);
-	int captures = re.numCaptures();
-        QString result = ResultTable;
-	QString escaped = regex.replace("\\", "\\\\");
-        result = result.arg(escaped);
-	if (offset != -1) {
-            result = result.arg(offset) + SubHeading;
-	    if (syntax != QRegExp::RegExp)
-                captures = 0;
-            result = result.arg(captures);
-            result += QString(Match).arg(re.cap(0)).arg(re.matchedLength());
-	    if (syntax == QRegExp::RegExp) {
-		for (int i = 1; i <= captures; ++i)
-                    result += QString(CaptureRow).arg(i)
-                                                 .arg(re.cap(i))
-                                                 .arg(re.cap(i).size());
-	    }
-	} else {
-            result = result.arg(offset).arg(0);
-            result += NoMatches;
-        }
-        result += TableEnd;
-        resultLabel->setText(result);
-	statusBar()->message(tr("Executed \"%1\" on \"%2\"").arg(escaped).arg(text));
-    } else {
-	statusBar()->message(tr("A regular expression and a text must be given"));
+	statusBar()->message(tr("Copied regular expression to the clipboard"), 2000);
     }
 }
