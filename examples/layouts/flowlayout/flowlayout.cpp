@@ -77,6 +77,7 @@ QSize FlowLayout::minimumSize() const
     foreach (item, itemList)
         size = size.expandedTo(item->minimumSize());
 
+    size += QSize(2*margin(), 2*margin());
     return size;
 }
 
