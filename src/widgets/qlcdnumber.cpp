@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#83 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -26,7 +26,6 @@
 #include "qlcdnumber.h"
 #include "qbitarray.h"
 #include "qpainter.h"
-//!hanordce #include <stdio.h>
 
 
 // NOT REVISED
@@ -549,8 +548,6 @@ void QLCDNumber::setBinMode()
   and \c HEX.  All four modes can display both integers, floating-point
   numbers and strings (subject to character set limitations).
 
-  The display is set to "0".
-
   Example:
   \code
     myLcd.setMode( QLCDNumber::HEX );
@@ -563,8 +560,7 @@ void QLCDNumber::setBinMode()
 void QLCDNumber::setMode( Mode m )
 {
     base = m;
-    display( 0 );
-}
+ 
 
 
 /*!
@@ -584,15 +580,12 @@ void QLCDNumber::setMode( Mode m )
   The inter-digit space is made slightly wider when the decimal point
   is drawn between the digits.
 
-  The display is set to "0.0".
-
   \sa smallDecimalPoint(), setMode()
 */
 
 void QLCDNumber::setSmallDecimalPoint( bool b )
 {
     smallPoint = b;
-    display( 0.0 );
 }
 
 

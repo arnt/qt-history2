@@ -765,10 +765,10 @@ header file.
 
 \line include
 
-\c qwidget.h is included.  LCDRange inherits QWidget, and the header
-file of a parent class must always be included.  Until now, \c
-qwidget.h has been included indirectly via other header files like \c
-qpushbutton.h.
+\c qvbox.h is included.  LCDRange inherits QVBox, and the header file
+of a parent class must always be included.  We cheated a bit in the
+previous chapters, and let \c qwidget.h be included indirectly via
+other header files like \c qpushbutton.h.
 
 \line QSlider
 
@@ -780,7 +780,7 @@ file.
 
 This makes compilation of big projects much faster, since when a
 header file has changed, fewer files need to be recompiled.  It can
-often speed up big compiled by a factor of two or more.
+often speed up big compilations by a factor of two or more.
 
 \skip LCDRange
 \until parent=0
