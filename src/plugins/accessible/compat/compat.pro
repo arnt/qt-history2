@@ -1,4 +1,5 @@
 TARGET  = qtcompatwidgets
+CONFIG += qt_no_compat_warning
 include(../../qpluginbase.pri)
 
 DESTDIR  = $$QT_BUILD_TREE/plugins/accessible
