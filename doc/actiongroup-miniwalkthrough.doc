@@ -4,6 +4,8 @@ $Id$
 
 /*! \page actiongroup.html
 
+\ingroup walkthroughs
+
 \title Walkthrough: A Tiny Editor Illustrating QActionGroup
 
 In the following we will step through a very rudimental editor

@@ -34,6 +34,8 @@
 
 /*! \page sql-walkthrough.html
 
+\ingroup walkthroughs
+
 \title Example SQL application walkthrough
 
 This walkthrough shows simple use of QSqlIndex, QSqlQuery, QSqlCursor,

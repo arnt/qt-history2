@@ -35,6 +35,8 @@
 
 /*! \page simple-application.html
 
+\ingroup walkthroughs
+
 \title Walkthrough: A Simple Application
 
 This walkthrough shows simple use of \l QMainWindow, \l QMenuBar, \l

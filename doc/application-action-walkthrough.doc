@@ -4,6 +4,8 @@ $Id$
 
 /*! \page simple-application-action.html
 
+\ingroup walkthroughs
+
 \title Walkthrough: A Simple Application with Actions
 
 While reading through the implementation of the 

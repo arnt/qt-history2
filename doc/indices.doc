@@ -68,7 +68,7 @@ What´s New
 <ul>
 <li> <a href="installation.html">Installation</a>
 <li> <a href="tutorial.html">Tutorial</a>
-<li> <a href="simple-application.html">Walkthrough</a>
+<li> <a href="walkthroughs.html">Walkthroughs</a>
 <li> <a href="examples.html">Examples</a>
 </ul>
 </td>
@@ -446,6 +446,20 @@ event handling, access to system settings, internationalization, etc.
 
 */
 
+/*! \defgroup walkthroughs
+
+\heading Walkthroughs
+
+Walkthroughs provide a careful step-by-step explanation of example code.
+
+The covered example programs usually show how to use certain classes
+or deal with programming techniques and Qt basics.
+
+Walkthroughs are especially aimed at Qt novices and not so experienced
+programmers and try to make learning Qt as painless as possible.
+
+
+*/
 
 /*! \defgroup misc
 
