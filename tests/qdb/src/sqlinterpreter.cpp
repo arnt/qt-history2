@@ -866,7 +866,8 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
 	    for ( ; s < (*it).count(); ++s ) {
 		if ( processingLast && s > sublast )
 		     break;
-		++count;
+		if ( data[ it.data()[s] ][i].type() != LOCALSQL_NULL_TYPE )
+		    ++count;
 	    }
 	    if ( processingLast )
 		break;
