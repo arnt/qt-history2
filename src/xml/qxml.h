@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#18 $
+** $Id: //depot/qt/main/src/xml/qxml.h#19 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -254,6 +254,8 @@ public:
     QXmlDeclHandler* declHandler() const;
 
     bool parse( const QXmlInputSource& input );
+    virtual bool parse( const QXmlInputSource& input, bool incremental );
+    virtual bool parseContinue( const QXmlInputSource& input );
 
 private:
     // variables

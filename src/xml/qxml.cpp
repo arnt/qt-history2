@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#34 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#35 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2257,6 +2257,29 @@ QXmlDeclHandler* QXmlSimpleReader::declHandler() const
 /*! \reimp */
 bool QXmlSimpleReader::parse( const QXmlInputSource& input )
 {
+    return parse( input, FALSE );
+}
+
+/*! \overload
+  Parses the XML document input. Returns FALSE if the parsing detetects an
+  error.
+
+  If \a incremental is TRUE, the parser does not return FALSE when it reaches
+  the end of the \a input without reaching the end of the XML file. It rather
+  stores the state of the parser so that parsing can be continued at a later
+  state when more data is available. You can use the function parseContinue()
+  to continue with parsing.
+
+  If \a incremental is FALSE, this function behaves like the normal parse
+  function, i.e. it returns FALSE when the end of input is reached without
+  reaching the end of the XML file and the parsing can't be continued.
+
+  \sa parseContinue() QSocket
+*/
+// ### How to detetct when end is reached? (If incremental is TRUE, the
+// returned TRUE doesn't mean that parsing is finished!)
+bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool /*incremental*/ )
+{
     init( input );
     // call the handler
     if ( contentHnd ) {
@@ -2303,6 +2326,25 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input )
 parseError:
     reportParseError();
     d->tags.clear();
+    return FALSE;
+}
+
+/*!
+  Continues incremental parsing with the input \a input. If the input source
+  returns an empty string for the function QXmlInputSource::data(), then this
+  means that the end of the XML file is reached; this is quite important,
+  especially if you want to use the reader to parse more than one XML file.
+
+  This function returns FALSE in the case of a parsing error. The case that the
+  end of the XML file is reached without having finished the parsing is also an
+  error. Otherwise this function returns TRUE. A return value of TRUE does not
+  mean that the parsing is finished. Use ### instead to determine if the
+  parsing is really finished.
+
+  \sa parse()
+*/
+bool QXmlSimpleReader::parseContinue( const QXmlInputSource& /*input*/ )
+{
     return FALSE;
 }
 
