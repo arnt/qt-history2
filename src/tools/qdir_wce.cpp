@@ -36,6 +36,7 @@
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
+#include "qdeepcopy.h"
 
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
@@ -44,6 +45,8 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <limits.h>
+
+static QString *theCWD = 0;
 
 void QDir::slashify( QString& n )
 {
@@ -218,8 +221,21 @@ bool QDir::rename( const QString &oldName, const QString &newName,
 
 bool QDir::setCurrent( const QString &path )
 {
-    int r = ::_wchdir( (TCHAR*)path.ucs2() );
-    return r >= 0;
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &theCWD ) : 0 );
+#endif // QT_THREAD_SUPPORT
+
+    DWORD res = GetFileAttributes( (TCHAR*)path.ucs2() );
+    if ( 0xFFFFFFFF == res )
+	return FALSE;
+
+    if ( ! theCWD )
+	theCWD = new QString( QDeepCopy<QString>( path ) );
+    else
+	*theCWD = QDeepCopy<QString>( path );
+    
+    return TRUE;
 }
 
 /*!
@@ -230,12 +246,14 @@ bool QDir::setCurrent( const QString &path )
 
 QString QDir::currentDirPath()
 {
-    QString result;
-    TCHAR currentName[PATH_MAX];
-    if ( ::_wgetcwd(currentName, PATH_MAX) != 0 )
-	result = QString::fromUcs2( (ushort*)currentName );
-    slashify( result );
-    return result;
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &theCWD ) : 0 );
+#endif // QT_THREAD_SUPPORT
+    if ( ! theCWD )
+	setCurrent( "\\" );
+    Q_ASSERT( theCWD != 0 );
+    return *theCWD;
 }
 
 /*!
