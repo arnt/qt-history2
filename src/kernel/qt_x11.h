@@ -81,6 +81,11 @@
 #include <X11/extensions/shape.h>
 #endif
 
+// #define QT_NO_XINERAMA
+#ifndef QT_NO_XINERAMA
+#  include <X11/extensions/Xinerama.h>
+#endif // QT_NO_XINERAMA
+
 #if !defined(XlibSpecificationRelease)
 #define X11R4
 typedef char *XPointer;
