@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#133 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#134 $
 **
 ** Definition of QApplication class
 **
@@ -117,6 +117,7 @@ public:
     void	     processOneEvent();
     int		     enter_loop();
     void	     exit_loop();
+    int	     loopLevel() const;
     static void	     exit( int retcode=0 );
 
     static bool	     sendEvent( QObject *receiver, QEvent *event );

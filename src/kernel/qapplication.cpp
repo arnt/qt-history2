@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#279 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#280 $
 **
 ** Implementation of QApplication class
 **
@@ -635,7 +635,8 @@ QApplication::~QApplication()
 */
 
 /*!
-  Sets the application GUI style to \e style.
+  Sets the application GUI style to \e style.  Ownership of the style
+  object is not transfered.
 
   \sa style(), QStyle
 */
@@ -682,7 +683,6 @@ void QApplication::setStyle( QStyle *style )
 	    }
 	}
     }
-    delete old;
 
     // take care of possible palette requirements of certain gui
     // styles
@@ -1987,7 +1987,7 @@ bool QApplication::desktopSettingsAware()
 /*!
   This function enters the main event loop (recursively).
   Do not call it unless you really know what you are doing.
-  \sa exit_loop()
+  \sa exit_loop(), loopLevel()
 */
 
 int QApplication::enter_loop()
@@ -2014,12 +2014,23 @@ int QApplication::enter_loop()
 /*!
   This function leaves from a recursive call to the main event loop.
   Do not call it unless you are an expert.
-  \sa enter_loop()
+  \sa enter_loop(), loopLevel()
 */
 
 void QApplication::exit_loop()
 {
     app_exit_loop = TRUE;
+}
+
+
+/*!
+  Returns the current loop level
+  
+  \sa enter_loop(), exit_loop()
+ */
+int QApplication::loopLevel() const
+{
+    return loop_level;
 }
 
 
