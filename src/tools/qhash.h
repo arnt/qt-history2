@@ -156,6 +156,7 @@ public:
     const T operator[](const Key &key) const;
     void insert(const Key &key, const T &value);
     bool remove(const Key &key);
+    T take(const Key &key);
     void reserve(int size);
     inline int capacity() const { return d->numBuckets; }
     inline void detach() { if (d->ref != 1) detach_helper(); }
@@ -384,6 +385,26 @@ bool QHash<Key, T>::remove(const Key &key)
 	d->shrink();
     }
     return found;
+}
+
+
+template <class Key, class T>
+T QHash<Key, T>::take(const Key &key)
+{
+    detach();
+
+    Node * &node = node_find(key);
+    T t;
+    if (node != e) {
+	t = node->value;
+	Node *next = node->next;
+	delete node;
+	node = next;
+	d->shrink();
+    } else {
+	qInit(t);
+    }
+    return t;
 }
 
 template <class Key, class T>
