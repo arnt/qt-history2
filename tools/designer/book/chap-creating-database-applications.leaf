@@ -144,9 +144,10 @@ There are two aspects of database connections that we must consider.
     \section2 Setting Up Connections for Applications
 
 	The applications you create must make their own connections to
-	the SQL database.
+	the SQL database. We provide an example function,
+	\Func createConnections(), that you can use as a basis for
+	your own code.
 \index createConnections()
-\Func createConnections() function
 
 \code
 bool createConnections()

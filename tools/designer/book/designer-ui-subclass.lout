@@ -2,7 +2,7 @@
 @SysInclude { tbl }
 @Include { diagdoc-ui-subclass.lout }
 # This file is the source of designer2.jpg, produced like this:
-# % lout -EPS designer-ui-subclass.lout > designer-ui-subclass.eps
+# % lout -EPS designer-ui-subclass.lout > designer2.eps
 # % convert -crop 0x0 -quality 100 designer-ui-subclass.eps images/designer2.jpg
 # The png is produces similarly:
 # % convert -crop 0x0 designer-ui-subclass.eps images/designer2.png
@@ -61,7 +61,7 @@
 	@LP
 	@B @Sym arrowright Reads
 	@LP
-	darkgreen @Colour @B @Sym arrowright Generates
+	lightgreen @Colour @B @Sym arrowright Generates
 	@LP
 	blue @Colour @B @Sym arrowright "#"includes
 	}
@@ -79,8 +79,8 @@
 //
 @Link from { QTDESIGNER } to { FORMUI } arrow { both } pathwidth { thick } arrowwidth { 0.5f }
 @Arrow from { UIC } to { FORMUI } pathwidth { thick } arrowwidth { 0.5f }
-darkgreen @Colour @Arrow from { UIC } to { FORMH } pathwidth { thick } arrowwidth { 0.5f } 
-darkgreen @Colour @VHArrow from { UIC } to { FORMCPP } pathwidth { thick } arrowwidth { 0.5f } 
+lightgreen @Colour @Arrow from { UIC } to { FORMH } pathwidth { thick } arrowwidth { 0.5f } 
+lightgreen @Colour @VHArrow from { UIC } to { FORMCPP } pathwidth { thick } arrowwidth { 0.5f } 
 blue @Colour @Arrow from { FORMCPP } to { FORMH } pathwidth { thick } arrowwidth { 0.5f }
 blue @Colour @Arrow from { FORMIMPLH } to { FORMH } pathwidth { thick } arrowwidth { 0.5f } ylabel { black @Colour @I inherits }
 blue @Colour @Arrow from { FORMIMPLCPP } to { FORMIMPLH } pathwidth { thick } arrowwidth { 0.5f }

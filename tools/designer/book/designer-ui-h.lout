@@ -2,7 +2,7 @@
 @SysInclude { tbl }
 @Include { diagdoc.lout }
 # This file is the source of designer3.jpg, produced like this:
-# % lout -EPS designer-ui-h.lout > designer-ui-h.eps
+# % lout -EPS designer-ui-h.lout > designer3.eps
 # % convert -crop 0x0 -quality 100 designer-ui-h.eps images/designer3.jpg
 # The png is produces similarly:
 # % convert -crop 0x0 designer-ui-h.eps images/designer3.png
@@ -60,7 +60,7 @@
 	@LP
 	@B @Sym arrowright Reads
 	@LP
-	darkgreen @Colour @B @Sym arrowright Generates
+	lightgreen @Colour @B @Sym arrowright Generates
 	@LP
 	blue @Colour @B @Sym arrowright "#"includes
 	}
@@ -78,8 +78,8 @@
 @Link from { QTDESIGNER } to { FORMUIH } arrow { both } path { ccurve } pathwidth { thick } arrowwidth { 0.5f }
 @Arrow from { UIC } to { FORMUI } pathwidth { thick } arrowwidth {
 0.5f }
-darkgreen @Colour @Arrow from { UIC } to { FORMH } pathwidth { thick } arrowwidth { 0.5f } 
-darkgreen @Colour @VHArrow from { UIC } to { FORMCPP } pathwidth { thick } arrowwidth { 0.5f } 
+lightgreen @Colour @Arrow from { UIC } to { FORMH } pathwidth { thick } arrowwidth { 0.5f } 
+lightgreen @Colour @VHArrow from { UIC } to { FORMCPP } pathwidth { thick } arrowwidth { 0.5f } 
 blue @Colour @Arrow from { FORMCPP } to { FORMH } pathwidth { thick }
 arrowwidth { 0.5f }
 blue @Colour @VHArrow from { MAINCPP } to { FORMH } pathwidth { thick } arrowwidth { 0.5f }
