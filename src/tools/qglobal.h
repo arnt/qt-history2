@@ -243,6 +243,27 @@
 
 #elif defined(__WATCOMC__)
 #  define Q_CC_WAT
+#  ifdef Q_OS_QNX4
+/* compiler flags */
+#    define Q_TYPENAME
+#    define Q_NO_BOOL_TYPE
+#    define Q_CANNOT_DELETE_CONSTANT
+#    define mutable
+/* ??? */
+#    define Q_BROKEN_TEMPLATE_SPECIALIZATION
+/* no template classes in QVariant */
+#    define QT_NO_TEMPLATE_VARIANT
+/* Wcc does not fill in functions needed by valuelists, maps, and
+   valuestacks implicitly */
+#    define Q_FULL_TEMPLATE_INSTANTIATION
+/* can we just compare the structures? */
+#    define Q_FULL_TEMPLATE_INSTANTIATION_MEMCMP
+/* these are not useful to our customers */
+#    define QT_QWS_NO_SHM
+#    define QT_NO_QWS_MULTIPROCESS
+#    define QT_NO_SQL
+#    define QT_NO_QWS_CURSOR
+#  endif
 
 /* Never tested! */
 #elif defined(__HIGHC__)
@@ -296,61 +317,80 @@
 #    define Q_CANNOT_DELETE_CONSTANT
 #  endif
 
+/* Older versions of DEC C++ do not define __EDG__ or __EDG - observed
+   on DEC C++ V5.5-004. New versions do define  __EDG__ - observed on
+   Compaq C++ V6.3-002.
+   This compiler is different enough from other EDG compilers to handle
+   it separately anyway. */
+#elif defined(__DECCXX)
+#  define Q_CC_DEC
+/* Compaq C++ V6 compilers are EDG-based but I'm not sure about older
+   DEC C++ V5 compilers. */
+#  if defined(__EDG) || defined(__EDG__)
+#    if !defined(Q_CC_EDG)
+#      define Q_CC_EDG
+#    endif
+#  endif
+/* Compaq have disabled EDG's _BOOL macro and use _BOOL_EXISTS instead
+   - observed on Compaq C++ V6.3-002.
+   In any case versions prior to Compaq C++ V6.0-005 do not have bool. */
+#  if !defined(_BOOL_EXISTS)
+#    define Q_NO_BOOL_TYPE
+#  endif
+/* Apply to all versions prior to Compaq C++ V6.0-000 - observed on
+   DEC C++ V5.5-004. */
+#  if __DECCXX_VER < 60060000
+#    define Q_TYPENAME
+#    define Q_BROKEN_TEMPLATE_SPECIALIZATION
+#  endif
+
 /* Compilers with EDG front end are similar. To detect them we test:
    __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
    __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002 */
 #elif defined(__EDG) || defined(__EDG__)
-#  define Q_CC_EDG
-/* Compaq have disabled EDG's _BOOL macro - observed on Compaq C++ V6.3-002. */
-#  if defined(__DECCXX)
-#    define Q_CC_DEC
-/* Compaq use _BOOL_EXISTS instead of _BOOL.
-   Well, at least macro _BOOL_EXISTS is documented for Compaq C++ V6.3.
-   In any case versions prior to Compaq C++ V6.0-005 do not have bool. */
-#    if !defined(_BOOL_EXISTS) || (__DECCXX_VER < 60060005)
-#      define Q_NO_BOOL_TYPE
-#    endif
-#    define Q_NO_USING_KEYWORD /* ### check "using" status */
-/* Apart from Compaq, from the EDG documentation:
+#  if !defined(Q_CC_EDG)
+#    define Q_CC_EDG
+#  endif
+/* From the EDG documentation (does not seem to apply to Compaq C++):
    _BOOL
-    Defined in C++ mode when bool is a keyword. The name of this predefined
-    macro is specified by a configuration flag. _BOOL is the default.
+    	Defined in C++ mode when bool is a keyword. The name of this
+	predefined macro is specified by a configuration flag. _BOOL
+	is the default.
    __BOOL_DEFINED
-    Defined in Microsoft C++ mode when bool is a keyword. */
-#  else
-#    if !defined(_BOOL) && !defined(__BOOL_DEFINED)
-#      define Q_NO_BOOL_TYPE
-#    endif
-#    if defined(__COMO__)
-#      define Q_CC_COMEAU
-#      define Q_C_CALLBACKS
+   	Defined in Microsoft C++ mode when bool is a keyword. */
+#  if !defined(_BOOL) && !defined(__BOOL_DEFINED)
+#    define Q_NO_BOOL_TYPE
+#  endif
+#  if defined(__COMO__)
+#    define Q_CC_COMEAU
+#    define Q_C_CALLBACKS
 /* Using the `using' keyword avoids KAI C++ warnings */
-#    elif defined(__KCC)
-#      define Q_CC_KAI
-#      if !defined(_EXCEPTIONS)
-#        define Q_NO_EXCEPTIONS
-#      endif
+#  elif defined(__KCC)
+#    define Q_CC_KAI
+#    if !defined(_EXCEPTIONS)
+#      define Q_NO_EXCEPTIONS
+#    endif
 /* Using the `using' keyword avoids Intel C++ warnings */
-#    elif defined(__INTEL_COMPILER)
-#      define Q_CC_INTEL
-#      if !defined(__EXCEPTIONS)
-#        define Q_NO_EXCEPTIONS
-#      endif
+#  elif defined(__INTEL_COMPILER)
+#    define Q_CC_INTEL
+#    if !defined(__EXCEPTIONS)
+#      define Q_NO_EXCEPTIONS
+#    endif
 /* The Portland Group compiler is based on EDG and does define __EDG__ */
-#    elif defined(__PGI)
-#      define Q_CC_PGI
-#      if !defined(__EXCEPTIONS)
-#        define Q_NO_EXCEPTIONS
-#      endif
+#  elif defined(__PGI)
+#    define Q_CC_PGI
+#    if !defined(__EXCEPTIONS)
+#      define Q_NO_EXCEPTIONS
+#    endif
 /* The new UnixWare 7 compiler is based on EDG and does define __EDG__ */
-#    elif defined(__USLC__)
-#      define Q_CC_EDG
-#      define Q_CC_USLC
-#      define Q_NO_USING_KEYWORD /* ### check "using" status */
+#  elif defined(__USLC__)
+#    define Q_CC_EDG
+#    define Q_CC_USLC
+#    define Q_NO_USING_KEYWORD /* ### check "using" status */
 /* Never tested! */
-#    elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
-#      define Q_CC_OC
-#      define Q_NO_USING_KEYWORD
+#  elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
+#    define Q_CC_OC
+#    define Q_NO_USING_KEYWORD
 /* CDS++ is not documented to define __EDG__ or __EDG in the Reliant
    documentation but we suppose it does, in any case it does follow
    conventions like _BOOL */
@@ -366,14 +406,14 @@
 #  endif
 /* The MIPSpro compiler in o32 mode is based on EDG but disables features
    such as template specialization nevertheless */
-#    elif defined(sgi) || defined(__sgi)
-#      define Q_CC_MIPS
-#      if defined(_MIPS_SIM) && (_MIPS_SIM == _ABIO32) /* o32 ABI */
-#        define Q_BROKEN_TEMPLATE_SPECIALIZATION
-#      elif defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 730) /* 7.2 */
-#        define Q_BROKEN_TEMPLATE_SPECIALIZATION
-#      endif
-#      define Q_NO_USING_KEYWORD /* ### check "using" status */
+#  elif defined(sgi) || defined(__sgi)
+#    define Q_CC_MIPS
+#    if defined(_MIPS_SIM) && (_MIPS_SIM == _ABIO32) /* o32 ABI */
+#      define Q_BROKEN_TEMPLATE_SPECIALIZATION
+#    elif defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 730) /* 7.2 */
+#      define Q_BROKEN_TEMPLATE_SPECIALIZATION
+#    endif
+#    define Q_NO_USING_KEYWORD /* ### check "using" status */
 #    endif
 #  endif
 
@@ -515,6 +555,10 @@ typedef const char     *pcchar;
 const bool FALSE = 0;
 const bool TRUE = !0;
 #endif
+#if defined(__WATCOMC__)
+#ifdef Q_OS_QNX4
+const bool false = FALSE;
+const bool true = TRUE;
 
 
 //
