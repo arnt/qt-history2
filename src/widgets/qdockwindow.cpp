@@ -253,7 +253,8 @@ void QDockWindowResizeHandle::startLineDraw()
 #ifdef MAC_DRAG_HACK
     QWidget *paint_on = topLevelWidget();
 #else
-    QWidget *paint_on = QApplication::desktop();
+    int scr = QApplication::desktop()->screenNumber( this );
+    QWidget *paint_on = QApplication::desktop()->screen( scr );
 #endif
     unclippedPainter = new QPainter( paint_on, TRUE );
     unclippedPainter->setPen( QPen( gray, orientation() == Horizontal ? height() : width() ) );
@@ -1350,7 +1351,8 @@ void QDockWindow::startRectDraw( const QPoint &so, bool drawRect )
 #ifdef MAC_DRAG_HACK
     QWidget *paint_on = topLevelWidget();
 #else
-    QWidget *paint_on = QApplication::desktop();
+    int scr = QApplication::desktop()->screenNumber( this );
+    QWidget *paint_on = QApplication::desktop()->screen( scr );
 #endif
     unclippedPainter = new QPainter( paint_on, TRUE );
     unclippedPainter->setPen( QPen( gray, curPlace == OutsideDock ? 3 : 1 ) );
