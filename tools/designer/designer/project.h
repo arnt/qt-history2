@@ -34,7 +34,7 @@
 
 class FormWindow;
 class QObjectList;
-class DesignerProject;
+struct DesignerProject;
 
 class Project
 {

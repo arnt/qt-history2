@@ -5,7 +5,7 @@
 #include <qstringlist.h>
 #include <qvaluelist.h>
 
-class DesignerOutputDock;
+struct DesignerOutputDock;
 class QTextEdit;
 class QListView;
 

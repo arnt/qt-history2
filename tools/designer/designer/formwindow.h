@@ -48,7 +48,7 @@ class BreakLayoutCommand;
 class QPixmap;
 class QSizeGrip;
 class Project;
-class DesignerFormWindow;
+struct DesignerFormWindow;
 
 #if defined(Q_CC_MSVC) || defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include "orderindicator.h"
