@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#56 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -61,24 +61,31 @@
 /*!
   \fn void QImageConsumer::frameDone()
 
-  Called when a frame of an animated image has ended and been revealed
-  as changed().  The decoder will not make
+  One of the two frameDone() functions will be called
+  when a frame of an animated image has ended and been revealed
+  as changed().
+
+  When this funciton is called, the current image should be displayed.
+
+  The decoder will not make
   any further changes to the image until the next call to
   QImageFormat::decode().
 */
 
 /*!
-  \fn void QImageConsumer::frameDone( const QPoint&, const QRect& )
+  \fn void QImageConsumer::frameDone( const QPoint& offset, const QRect& rect )
 
-  Called when a frame of an animated image has ended and been revealed
-  as changed().  The decoder will not make
+  One of the two frameDone() functions will be called
+  when a frame of an animated image has ended and been revealed
+  as changed().
+
+  When this funciton is called, the area \a rect in the current image
+  should be moved by \a offset and displayed.
+
+  The decoder will not make
   any further changes to the image until the next call to
   QImageFormat::decode().
 */
-
-#if defined(_CC_GNU_)
-#warning "the two versions of frameDone() are related how? please document"
-#endif
 
 /*!
   \fn void QImageConsumer::setLooping(int n)
