@@ -26,8 +26,6 @@ int main( int argc, char ** argv )
     QApplication a( argc, argv );
     if ( argc == 1 )
 	return 0;
-    if ( argc > 2 )
-	QWidgetFactory::openDatabaseConnections( argv[ 2 ] );
     QWidget *w = QWidgetFactory::create( argv[ 1 ] );
     if ( !w )
 	return 0;

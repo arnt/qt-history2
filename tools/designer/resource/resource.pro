@@ -4,13 +4,11 @@ win32:CONFIG	+= static
 win32:CONFIG	-= dll
 SOURCES		= qwidgetfactory.cpp \
 		  ../shared/domtool.cpp \
-		  ../integration/kdevelop/kdewidgets.cpp \
-		  ../designer/config.cpp
+		  ../integration/kdevelop/kdewidgets.cpp
 
 HEADERS		= qwidgetfactory.h \
 		  ../shared/domtool.h \
-		  ../integration/kdevelop/kdewidgets.h \
-		  ../designer/config.h
+		  ../integration/kdevelop/kdewidgets.h
 
 sql:SOURCES += 		  ../designer/database.cpp
 sql:HEADERS +=		  ../designer/database.h

@@ -47,7 +47,8 @@ HEADERS	= command.h \
 		  tableeditorimpl.h \
 		  sourceeditor.h \
 		  outputwindow.h \
-		  ../shared/widgetdatabase.h
+		  ../shared/widgetdatabase.h \
+		  config.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -92,7 +93,8 @@ SOURCES	= command.cpp \
 		  tableeditorimpl.cpp \
 		  sourceeditor.cpp \
 		  outputwindow.cpp \
-		  ../shared/widgetdatabase.cpp
+		  ../shared/widgetdatabase.cpp \
+		  config.cpp
 
 TARGET	= designer
 INCLUDEPATH	= ../shared ../util ../resource ../../../src/3rdparty/zlib/

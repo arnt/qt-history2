@@ -325,63 +325,6 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
     widgetFactories.append( factory );
 }
 
-/*! If your form uses database aware widgets, you have to have the
-  database connections opened, which are needed by the widget. If you
-  used a Qt Designer project to design the form, the project saved a
-  description of the database connection(s) you used. You can pass
-  that description file here to open these database connections.
-*/
-
-bool QWidgetFactory::openDatabaseConnections( const QString &dbFileName )
-{
-#if !defined(QT_NO_SQL)
-    if ( !QFile::exists( dbFileName ) )
-	return FALSE;
-
-    Config conf( dbFileName );
-    conf.setGroup( "Connections" );
-
-    QString name, driver, dbName, username, password, hostname;
-
-    QStringList conns = conf.readListEntry( "Connections", ',' );
-    for ( QStringList::Iterator it = conns.begin(); it != conns.end(); ++it ) {
-	name = *it;
-	conf.setGroup( *it );
-	driver = conf.readEntry( "Driver" );
-	dbName = conf.readEntry( "DatabaseName" );
-	username = conf.readEntry( "Username" );
-	password = conf.readEntry( "Password" );
-	hostname = conf.readEntry( "Hostname" );
-
-	QSqlDatabase *connection = 0;
-	if ( name == "(default)" ) {
-	    if ( !QSqlDatabase::contains() ) // default doesn't exists?
-		connection = QSqlDatabase::addDatabase( driver );
-	    else
-		connection = QSqlDatabase::database();
-	} else {
-	    if ( !QSqlDatabase::contains( name ) )
-		connection = QSqlDatabase::addDatabase( driver, name );
-	    else
-		connection = QSqlDatabase::database( name );
-	}
-	connection->setDatabaseName( dbName );
-	connection->setUserName( username );
-	connection->setPassword( password );
-	connection->setHostName( hostname );
-	if ( !connection->open() ) {
-	    delete connection;
-	    return FALSE;
-	}
-    }
-
-    return TRUE;
-#else
-    return FALSE;
-#endif
-}
-
-
 /*!  Creates the widget of the type \c className passing \a parent and
   \a name to its constructor. If \a className is a widget of the Qt
   library, it is directly created in this function. if this fails, all
