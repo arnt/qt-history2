@@ -1,0 +1,39 @@
+/*
+$Id$
+*/
+     
+/*! \page euroconvert-example.html
+
+  \ingroup table-examples
+
+  \title An EURO converter
+ 
+  This example let the user convert the native currencies of the eleven
+  countries that have deployed the EURO into EUROs.
+
+  It illustrates the use of QTable and teaches how to manipulate
+  table headers.
+
+  <!--
+  This example is thoroughly explained in a 
+  \link small-table-demo-walkthrough.html walkthrough \endlink.
+  -->
+ 
+  <hr>
+
+  The API of the EuroConverter class: 
+ 
+  \include table/euroconversion/converter.h
+
+  <hr>
+ 
+  Its Implementation:
+ 
+  \include table/euroconversion/converter.cpp
+
+  <hr>
+ 
+  The main program:
+ 
+  \include table/euroconversion/euroconvert.cpp
+*/
