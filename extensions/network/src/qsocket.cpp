@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#3 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#4 $
 **
 ** Implementation of Network Extension Library
 **
@@ -38,7 +38,6 @@
 #include "qt_windows.h"
 #endif
 
-
 //#define QSOCKET_DEBUG
 
 
@@ -62,13 +61,14 @@ public:
     int			rindex, windex;		// read/write index
     bool		newline;		// has newline/can read line
     int			ready_read_timer;	// timer for emit read signals
+    bool firstTime;
 };
 
 QSocketPrivate::QSocketPrivate()
     : state(QSocket::Idle), mode(QSocket::Binary),
       host(QString::fromLatin1("")), port(0),
       socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0),
-      newline(FALSE), ready_read_timer(0)
+      newline(FALSE), ready_read_timer(0), firstTime( TRUE )
 {
     rba.setAutoDelete( TRUE );
     wba.setAutoDelete( TRUE );
@@ -932,7 +932,7 @@ QString QSocket::readLine()
 void QSocket::sn_read()
 {
     int nbytes = d->socket->bytesAvailable();
-    if ( nbytes == 0 ) {			// connection closed
+    if ( !d->firstTime && nbytes == 0 ) {			// connection closed
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket: sn_read: Connection closed" );
 #endif
@@ -964,6 +964,7 @@ void QSocket::sn_read()
 	    d->ready_read_timer = startTimer( 1000 );
 	emit readyRead();
     }
+    d->firstTime = FALSE;
 }
 
 
@@ -980,6 +981,7 @@ void QSocket::sn_write()
 #endif
 	d->state = Connection;
 	emit connected();
+	d->firstTime = TRUE;
 	/*
 	  if ( d->socket->connect(d->addr) ) {
 	  d->state = Connection;

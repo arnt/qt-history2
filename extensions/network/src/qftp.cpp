@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#18 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#19 $
 **
 ** Implementation of Network Extension Library
 **
@@ -83,8 +83,9 @@ bool QFtp::isOpen()
 
 void QFtp::close()
 {
-    if ( !dataSocket->host().isEmpty() )
+    if ( !dataSocket->host().isEmpty() ) {
 	dataSocket->close();
+    }
     if ( !commandSocket->host().isEmpty() ) {
  	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
  	commandSocket->close();
@@ -224,7 +225,7 @@ void QFtp::readyRead()
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
 
     emit data( s );
-
+    
     if ( !url )
 	return;
 
