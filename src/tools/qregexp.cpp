@@ -789,16 +789,17 @@ static QString wc2rx( const QString& wc )
 #endif
 
 /*
-  The class QRegExpEngine encapsulates a modified nondeterministic finite
-  automaton (NFA).
+  The class QRegExpEngine encapsulates a modified nondeterministic
+  finite automaton (NFA).
 */
 class QRegExpEngine : public QShared
 {
 public:
 #ifndef QT_NO_REGEXP_CCLASS
     /*
-      The class CharClass represents a set of characters, such as can be found
-      in regular expressions (e.g., [a-z] denotes the set {a, b, ..., z}).
+      The class CharClass represents a set of characters, such as can
+      be found in regular expressions (e.g., [a-z] denotes the set
+      {a, b, ..., z}).
     */
     class CharClass
     {
@@ -826,8 +827,8 @@ public:
 
     private:
 	/*
-	  The struct Range represents a range of characters (e.g., [0-9] denotes
-	  range 48 to 57).
+	  The struct Range represents a range of characters (e.g.,
+	  [0-9] denotes range 48 to 57).
 	*/
 	struct Range
 	{
@@ -905,9 +906,10 @@ private:
     enum { CharClassBit = 0x10000, BackRefBit = 0x20000 };
 
     /*
-      The struct State represents one state in a modified NFA.  The input
-      characters matched are stored in the state instead of on the transitions,
-      something possible for an automaton constructed from a regular expression.
+      The struct State represents one state in a modified NFA. The
+      input characters matched are stored in the state instead of on
+      the transitions, something possible for an automaton
+      constructed from a regular expression.
     */
     struct State
     {
@@ -947,8 +949,8 @@ private:
 
 #ifndef QT_NO_REGEXP_CAPTURE
     /*
-      The struct Atom represents one node in the hierarchy of regular expression
-      atoms.
+      The struct Atom represents one node in the hierarchy of regular
+      expression atoms.
     */
     struct Atom
     {
@@ -959,8 +961,8 @@ private:
 
 #ifndef QT_NO_REGEXP_ANCHOR_ALT
     /*
-      The struct AnchorAlternation represents a pair of anchors with OR
-      semantics.
+      The struct AnchorAlternation represents a pair of anchors with
+      OR semantics.
     */
     struct AnchorAlternation
     {
@@ -974,7 +976,8 @@ private:
     int setupState( int match );
 
     /*
-      Let's hope that 13 lookaheads and 14 back-references are enough.
+      Let's hope that 13 lookaheads and 14 back-references are
+      enough.
      */
     enum { MaxLookaheads = 13, MaxBackRefs = 14 };
     enum { Anchor_Dollar = 0x00000001, Anchor_Caret = 0x00000002,
@@ -1048,9 +1051,9 @@ private:
 #endif
 
     /*
-      The class Box is an abstraction for a regular expression fragment.  It can
-      also be seen as one node in the syntax tree of a regular expression with
-      synthetized attributes.
+      The class Box is an abstraction for a regular expression
+      fragment. It can also be seen as one node in the syntax tree of
+      a regular expression with synthetized attributes.
 
       It's interface is ugly for performance reasons.
     */
@@ -1200,8 +1203,8 @@ QRegExpEngine::~QRegExpEngine()
 #endif
 
 /*
-  Tries to match in str and returns an array of (begin, length) pairs for
-  captured text.  If there is no match, all pairs are (-1, -1).
+  Tries to match in str and returns an array of (begin, length) pairs
+  for captured text. If there is no match, all pairs are (-1, -1).
 */
 QMemArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 				     bool oneTest )
@@ -1252,8 +1255,8 @@ QMemArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 }
 
 /*
-  The three following functions add one state to the automaton and return the
-  number of the state.
+  The three following functions add one state to the automaton and
+  return the number of the state.
 */
 
 int QRegExpEngine::createState( QChar ch )
@@ -1289,10 +1292,11 @@ int QRegExpEngine::createState( int bref )
 #endif
 
 /*
-  The two following functions add a transition between all pairs of states
-  (i, j) where i is fond in from, and j is found in to.
+  The two following functions add a transition between all pairs of
+  states (i, j) where i is fond in from, and j is found in to.
 
-  Cat-transitions are distinguished from plus-transitions for capturing.
+  Cat-transitions are distinguished from plus-transitions for
+  capturing.
 */
 
 void QRegExpEngine::addCatTransitions( const QMemArray<int>& from,
@@ -1363,7 +1367,8 @@ int QRegExpEngine::anchorConcatenation( int a, int b )
 #endif
 
 /*
-  Adds anchor a on a transition caracterised by its from state and its to state.
+  Adds anchor a on a transition caracterised by its from state and
+  its to state.
 */
 void QRegExpEngine::addAnchors( int from, int to, int a )
 {
@@ -1377,8 +1382,8 @@ void QRegExpEngine::addAnchors( int from, int to, int a )
 
 #ifndef QT_NO_REGEXP_OPTIM
 /*
-  The two following functions provide the engine with the information needed by
-  its matching heuristics.
+  The two following functions provide the engine with the information
+  needed by its matching heuristics.
 */
 
 void QRegExpEngine::setupGoodStringHeuristic( int earlyStart, int lateStart,
@@ -1401,15 +1406,16 @@ void QRegExpEngine::setupBadCharHeuristic( int minLen,
 
 /*
   This function chooses between the good-string and the bad-character
-  heuristics.  It computes two scores and chooses the heuristic with the highest
-  score.
+  heuristics. It computes two scores and chooses the heuristic with
+  the highest score.
 
-  Here are some common-sense constraints on the scores that should be respected
-  if the formulas are ever modified:  (1) If goodStr is empty, the good-string
-  heuristic scores 0.  (2) If the search is case insensitive, the good-string
-  heuristic should be used, unless it scores 0.  (Case insensitivity
-  turns all entries of occ1 to 0.)  (3) If (goodLateStart - goodEarlyStart) is
-  big, the good-string heuristic should score less.
+  Here are some common-sense constraints on the scores that should be
+  respected if the formulas are ever modified: (1) If goodStr is
+  empty, the good-string heuristic scores 0. (2) If the search is
+  case insensitive, the good-string heuristic should be used, unless
+  it scores 0. (Case insensitivity turns all entries of occ1 to 0.)
+  (3) If (goodLateStart - goodEarlyStart) is big, the good-string
+  heuristic should score less.
 */
 void QRegExpEngine::heuristicallyChooseHeuristic()
 {
@@ -1419,15 +1425,16 @@ void QRegExpEngine::heuristicallyChooseHeuristic()
 	return;
 
     /*
-      Magic formula:  The good string has to constitute a good proportion of the
-      minimum-length string, and appear at a more-or-less known index.
+      Magic formula:  The good string has to constitute a good
+      proportion of the minimum-length string, and appear at a
+      more-or-less known index.
     */
     int goodStringScore = ( 64 * goodStr.length() / minl ) -
 			  ( goodLateStart - goodEarlyStart );
 
     /*
-      Less magic formula:  We pick a couple of characters at random, and check
-      whether they are good or bad.
+      Less magic formula:  We pick a couple of characters at random,
+      and check whether they are good or bad.
     */
     int badCharScore = 0;
     int step = QMAX( 1, NumBadChars / 32 );
@@ -1551,9 +1558,9 @@ int QRegExpEngine::setupState( int match )
 
 #ifndef QT_NO_REGEXP_CAPTURE
 /*
-  Functions startAtom() and finishAtom() should be called to delimit atoms.
-  When a state is created, it is assigned to the current atom.  The information
-  is later used for capturing.
+  Functions startAtom() and finishAtom() should be called to delimit
+  atoms. When a state is created, it is assigned to the current atom.
+  The information is later used for capturing.
 */
 int QRegExpEngine::startAtom( bool capture )
 {
@@ -1603,8 +1610,8 @@ bool QRegExpEngine::isBetterCapture( const int *begin1, const int *end1,
 #endif
 
 /*
-  Returns TRUE if anchor a matches at position mmPos + i in the input string,
-  otherwise FALSE.
+  Returns TRUE if anchor a matches at position mmPos + i in the input
+  string, otherwise FALSE.
 */
 bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 {
@@ -1669,9 +1676,9 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 
 #ifndef QT_NO_REGEXP_OPTIM
 /*
-  The three following functions are what Jeffrey Friedl would call transmissions
-  (or bump-alongs).  Using one or the other should make no difference, except
-  in performance.
+  The three following functions are what Jeffrey Friedl would call
+  transmissions (or bump-alongs). Using one or the other should make
+  no difference except in performance.
 */
 
 bool QRegExpEngine::goodStringMatch()
@@ -1703,8 +1710,8 @@ bool QRegExpEngine::badCharMatch()
     memset( mmSlideTab, 0, mmSlideTabSize * sizeof(int) );
 
     /*
-      Set up the slide table, used for the bad-character heuristic, using
-      the table of first occurrence of each character.
+      Set up the slide table, used for the bad-character heuristic,
+      using the table of first occurrence of each character.
     */
     for ( i = 0; i < minl; i++ ) {
 	int sk = occ1[BadChar(mmIn[mmPos + i])];
@@ -1724,7 +1731,7 @@ bool QRegExpEngine::badCharMatch()
     if ( mmPos > lastPos )
 	return FALSE;
 
-    for (;;) {
+    for ( ;; ) {
 	if ( ++slideNext >= mmSlideTabSize )
 	    slideNext = 0;
 	if ( mmSlideTab[slideHead] > 0 ) {
@@ -1740,8 +1747,8 @@ bool QRegExpEngine::badCharMatch()
 	    break;
 
 	/*
-	  Update the slide table.  This code has much in common with the
-	  initialization code.
+	  Update the slide table. This code has much in common with
+	  the initialization code.
 	*/
 	int sk = occ1[BadChar(mmIn[mmPos + minl])];
 	if ( sk == NoOccurrence ) {
@@ -1771,7 +1778,7 @@ bool QRegExpEngine::bruteMatch()
 #endif
 
 /*
-  Here's the core of the engine.  It tries to do a match here and now.
+  Here's the core of the engine. It tries to do a match here and now.
 */
 bool QRegExpEngine::matchHere()
 {
@@ -1822,8 +1829,8 @@ bool QRegExpEngine::matchHere()
 			in = FALSE;
 		}
 		/*
-		  If indeed they are, check if the input character is correct
-		  for this transition.
+		  If indeed they are, check if the input character is
+		  correct for this transition.
 		*/
 		if ( in ) {
 		    m = snext->match;
@@ -1899,14 +1906,15 @@ bool QRegExpEngine::matchHere()
 		}
 
 		/*
-		  All is right.  We must now update our data structures.
+		  We must now update our data structures.
 		*/
 		if ( in ) {
 #ifndef QT_NO_REGEXP_CAPTURE
 		    int *capBegin, *capEnd;
 #endif
 		    /*
-		      If the next state was not encountered yet, all is fine.
+		      If the next state was not encountered yet, all
+		      is fine.
 		    */
 		    if ( (m = mmInNextStack[next]) == -1 ) {
 			m = nnext++;
@@ -1917,9 +1925,10 @@ bool QRegExpEngine::matchHere()
 			capEnd = mmNextCapEnd + m * ncap;
 
 		    /*
-		      Otherwise, we'll first maintain captures in temporary
-		      arrays, and decide at the end whether it's best to keep
-		      the previous capture zones or the new ones.
+		      Otherwise, we'll first maintain captures in
+		      temporary arrays, and decide at the end whether
+		      it's best to keep the previous capture zones or
+		      the new ones.
 		    */
 		    } else {
 			capBegin = mmTempCapBegin;
@@ -1941,17 +1950,17 @@ bool QRegExpEngine::matchHere()
 			int cap;
 
 			/*
-			  Lemma 1.  For any x in the range [0..nf), we have
-			  f[x].parent < x.
+			  Lemma 1. For any x in the range [0..nf), we
+			  have f[x].parent < x.
 
-			  Proof.  By looking at startAtom(), it is clear that
-			  cf < nf holds all the time, and thus that
-			  f[nf].parent < nf.
+			  Proof. By looking at startAtom(), it is
+			  clear that cf < nf holds all the time, and
+			  thus that f[nf].parent < nf.
 			*/
 
 			/*
-			  If we are reentering an atom, we empty all capture
-			  zones inside it.
+			  If we are reentering an atom, we empty all
+			  capture zones inside it.
 			*/
 			if ( scur->reenter != 0 &&
 			     (q = at(*scur->reenter, next)) != 0 ) {
@@ -1971,13 +1980,16 @@ bool QRegExpEngine::matchHere()
 			    p = f[q].parent;
 
 			/*
-			  Otherwise, close the capture zones we are leaving.
-			  We are leaving f[c].capture, f[f[c].parent].capture,
-			  f[f[f[c].parent].parent].capture, ..., until
-			  f[x].capture, with x such that f[x].parent is the
-			  youngest common ancestor for c and n.
+			  Otherwise, close the capture zones we are
+			  leaving. We are leaving f[c].capture,
+			  f[f[c].parent].capture,
+			  f[f[f[c].parent].parent].capture, ...,
+			  until f[x].capture, with x such that
+			  f[x].parent is the youngest common ancestor
+			  for c and n.
 
-			  We go up along c's and n's ancestry until we find x.
+			  We go up along c's and n's ancestry until
+			  we find x.
 			*/
 			} else {
 			    p = c;
@@ -2001,10 +2013,10 @@ bool QRegExpEngine::matchHere()
 			}
 
 			/*
-			  In any case, we now open the capture zones we are
-			  entering.  We work upwards from n until we reach p
-			  (the parent of the atom we reenter or the youngest
-			  common ancestor).
+			  In any case, we now open the capture zones
+			  we are entering. We work upwards from n
+			  until we reach p (the parent of the atom we
+			  reenter or the youngest common ancestor).
 			*/
 			while ( n > p ) {
 			    cap = f[n].capture;
@@ -2015,8 +2027,9 @@ bool QRegExpEngine::matchHere()
 			    n = f[n].parent;
 			}
 			/*
-			  If the next state was already in mmNextStack, we must
-			  choose carefully which capture zones we want to keep.
+			  If the next state was already in
+			  mmNextStack, we must choose carefully which
+			  capture zones we want to keep.
 			*/
 			if ( capBegin == mmTempCapBegin &&
 			     isBetterCapture(capBegin, capEnd,
@@ -2030,9 +2043,10 @@ bool QRegExpEngine::matchHere()
 		    }
 #ifndef QT_NO_REGEXP_BACKREF
 		    /*
-		      We are done with updating the capture zones.  It's now
-		      time to put the next state to sleep, if it needs to, and
-		      to remove it from mmNextStack.
+		      We are done with updating the capture zones.
+		      It's now time to put the next state to sleep,
+		      if it needs to, and to remove it from
+		      mmNextStack.
 		    */
 		    if ( needSomeSleep > 0 ) {
 			zzZ = new int[1 + 2 * ncap];
@@ -2052,7 +2066,8 @@ bool QRegExpEngine::matchHere()
 	}
 #ifndef QT_NO_REGEXP_CAPTURE
 	/*
-	  If we reached the final state, hurray!  Copy the captured zone.
+	  If we reached the final state, hurray! Copy the captured
+	  zone.
 	*/
 	if ( ncap > 0 && (m = mmInNextStack[FinalState]) != -1 ) {
 	    memcpy( mmCapBegin, mmNextCapBegin + m * ncap, ncap * sizeof(int) );
@@ -2104,7 +2119,8 @@ bool QRegExpEngine::matchHere()
 
 #ifndef QT_NO_REGEXP_BACKREF
     /*
-      If minimal matching is enabled, we might have some sleepers left.
+      If minimal matching is enabled, we might have some sleepers
+      left.
     */
     while ( !mmSleeping.isEmpty() ) {
 	zzZ = mmSleeping.take( *QIntDictIterator<int>(mmSleeping) );
@@ -2446,13 +2462,13 @@ void QRegExpEngine::Box::setupHeuristics()
     eng->setupGoodStringHeuristic( earlyStart, lateStart, str );
 
     /*
-      A regular expression such as 112|1 has occ1['2'] = 2 and minl = 1 at this
-      point.  An entry of occ1 has to be at most minl or infinity for the rest
-      of the algorithm to go well.
+      A regular expression such as 112|1 has occ1['2'] = 2 and minl =
+      1 at this point. An entry of occ1 has to be at most minl or
+      infinity for the rest of the algorithm to go well.
 
-      We waited until here before normalizing these cases (instead of doing it
-      in Box::orx()) because sometimes things improve by themselves; consider
-      (112|1)34.
+      We waited until here before normalizing these cases (instead of
+      doing it in Box::orx()) because sometimes things improve by
+      themselves. Consider for example (112|1)34.
     */
     for ( int i = 0; i < NumBadChars; i++ ) {
 	if ( occ1[i] != NoOccurrence && occ1[i] >= minl )
@@ -3070,9 +3086,10 @@ void QRegExpEngine::parseExpression( Box *box )
 }
 
 /*
-  The class QRegExpPrivate contains the private data of a regular expression
-  other than the automaton.  It makes it possible for many QRegExp objects to
-  use the same QRegExpEngine object with different QRegExpPrivate objects.
+  The class QRegExpPrivate contains the private data of a regular
+  expression other than the automaton. It makes it possible for many
+  QRegExp objects to use the same QRegExpEngine object with different
+  QRegExpPrivate objects.
 */
 struct QRegExpPrivate
 {
@@ -3148,9 +3165,9 @@ QRegExp::QRegExp()
 
 /*!
   Constructs a regular expression object for the given \a pattern
-  string.  The pattern must be given using wildcard notation if \a
+  string. The pattern must be given using wildcard notation if \a
   wildcard is TRUE (default is FALSE). The pattern is case sensitive,
-  unless \a caseSensitive is FALSE.  Matching is greedy (maximal), but
+  unless \a caseSensitive is FALSE. Matching is greedy (maximal), but
   can be changed by calling setMinimal().
 
   \sa setPattern() setCaseSensitive() setWildcard() setMinimal()
@@ -3189,9 +3206,9 @@ QRegExp::~QRegExp()
 }
 
 /*!
-  Copies the regular expression \a rx and returns a reference to the copy.
-  The case sensitivity, wildcard and minimal matching options are copied as
-  well.
+  Copies the regular expression \a rx and returns a reference to the
+  copy. The case sensitivity, wildcard and minimal matching options
+  are copied as well.
 */
 QRegExp& QRegExp::operator=( const QRegExp& rx )
 {
@@ -3213,8 +3230,8 @@ QRegExp& QRegExp::operator=( const QRegExp& rx )
 }
 
 /*!
-  Returns TRUE if this regular expression is equal to \a rx, otherwise
-  returns FALSE.
+  Returns TRUE if this regular expression is equal to \a rx;
+  otherwise returns FALSE.
 
   Two QRegExp objects are equal if they have the same pattern strings
   and the same settings for case sensitivity, wildcard and minimal
@@ -3232,8 +3249,8 @@ bool QRegExp::operator==( const QRegExp& rx ) const
 
 /*!  \fn bool QRegExp::operator!=( const QRegExp& rx ) const
 
-  Returns TRUE if this regular expression is not equal to \a rx, otherwise
-  FALSE.
+  Returns TRUE if this regular expression is not equal to \a rx;
+  otherwise FALSE.
 
   \sa operator==()
 */
@@ -3258,14 +3275,14 @@ bool QRegExp::isEmpty() const
 }
 
 /*!
-  Returns TRUE if the regular expression is valid, or FALSE if it's invalid.  An
-  invalid regular expression never matches.
+  Returns TRUE if the regular expression is valid, or FALSE if it's
+  invalid. An invalid regular expression never matches.
 
-  The pattern <b>[a-z</b> is an example of an invalid pattern, since it lacks
-  a closing square bracket.
+  The pattern <b>[a-z</b> is an example of an invalid pattern, since
+  it lacks a closing square bracket.
 
-  Note that the validity of a regexp may also depend on the setting of
-  the wildcard flag, for example <b>*.html</b> is a valid wildcard
+  Note that the validity of a regexp may also depend on the setting
+  of the wildcard flag, for example <b>*.html</b> is a valid wildcard
   regexp but an invalid full regexp.
 */
 bool QRegExp::isValid() const
@@ -3274,8 +3291,9 @@ bool QRegExp::isValid() const
 }
 
 /*!
-  Returns the pattern string of the regular expression.  The pattern has either
-  regular expression syntax or wildcard syntax, depending on wildcard().
+  Returns the pattern string of the regular expression. The pattern
+  has either regular expression syntax or wildcard syntax, depending
+  on wildcard().
 
   \sa setPattern()
 */
@@ -3285,9 +3303,9 @@ QString QRegExp::pattern() const
 }
 
 /*!
-  Sets the pattern string to \a pattern and returns a reference to this regular
-  expression.  The case sensitivity, wildcard and minimal matching options are
-  not changed.
+  Sets the pattern string to \a pattern and returns a reference to
+  this regular expression. The case sensitivity, wildcard and minimal
+  matching options are not changed.
 
   \sa pattern()
 */
@@ -3300,8 +3318,8 @@ void QRegExp::setPattern( const QString& pattern )
 }
 
 /*!
-  Returns TRUE if case sensitivity is enabled, otherwise FALSE.  The default is
-  TRUE.
+  Returns TRUE if case sensitivity is enabled, otherwise FALSE. The
+  default is TRUE.
 
   \sa setCaseSensitive()
 */
@@ -3326,8 +3344,8 @@ void QRegExp::setCaseSensitive( bool sensitive )
 
 #ifndef QT_NO_REGEXP_WILDCARD
 /*!
-  Returns TRUE if wildcard mode is enabled, otherwise FALSE.  The default is
-  FALSE.
+  Returns TRUE if wildcard mode is enabled, otherwise FALSE. The
+  default is FALSE.
 
   \sa setWildcard()
 */
@@ -3336,14 +3354,16 @@ bool QRegExp::wildcard() const
     return priv->wc;
 }
 
-/*!  Sets the wildcard mode for the regular expression.  The default is FALSE.
+/*!
+  Sets the wildcard mode for the regular expression. The default is
+  FALSE.
 
   Setting \a wildcard to TRUE enables simple shell-like wildcard
-  matching.
-  (See \link #wildcard-matching wildcard matching (globbing) \endlink.)
+  matching. (See \link #wildcard-matching wildcard matching
+  (globbing) \endlink.)
 
-  For example, <b>r*.txt</b> matches the string <tt>readme.txt</tt> in wildcard
-  mode, but does not match <tt>readme</tt>.
+  For example, <b>r*.txt</b> matches the string <tt>readme.txt</tt>
+  in wildcard mode, but does not match <tt>readme</tt>.
 
   \sa wildcard()
 */
@@ -3367,19 +3387,18 @@ bool QRegExp::minimal() const
 }
 
 /*!
-  Enables or disables minimal matching.  If \a minimal is FALSE, matching is
-  greedy (maximal) which is the default.
+  Enables or disables minimal matching. If \a minimal is FALSE,
+  matching is greedy (maximal) which is the default.
 
-    For example, suppose we have the input string "We must be \<b>bold\</b>,
-    very \<b>bold\</b>!" and the pattern <b>\<b>.*\</b></b>. With
-    the default greedy (maximal) matching, the match is
-    "We must be <u>\<b>bold\</b>, very \<b>bold\</b></u>!". But with
-    minimal (non-greedy) matching the first match is:
-    "We must be <u>\<b>bold\</b></u>, very \<b>bold\</b>!" and the
-    second match is
-    "We must be \<b>bold\</b>, very <u>\<b>bold\</b></u>!".
-    In practice we might use the pattern <b>\<b>[^\<]+\</b></b>,
-    although this will still fail for nested tags.
+  For example, suppose we have the input string "We must be
+  \<b>bold\</b>, very \<b>bold\</b>!" and the pattern
+  <b>\<b>.*\</b></b>. With the default greedy (maximal) matching, the
+  match is "We must be <u>\<b>bold\</b>, very \<b>bold\</b></u>!".
+  But with minimal (non-greedy) matching the first match is: "We must
+  be <u>\<b>bold\</b></u>, very \<b>bold\</b>!" and the second match
+  is "We must be \<b>bold\</b>, very <u>\<b>bold\</b></u>!". In
+  practice we might use the pattern <b>\<b>[^\<]+\</b></b>, although
+  this will still fail for nested tags.
 
   \sa minimal()
 */
@@ -3398,10 +3417,10 @@ void QRegExp::setMinimal( bool minimal )
   regexp in the start of string and end of string anchors, except that
   it sets matchedLength() differently.
 
-  For example, if the regular expression is <b>blue</b>, then exactMatch()
-  returns TRUE only for input \c blue.  For inputs \c bluebell, \c
-  blutak and \c lightblue, exactMatch() returns FALSE and matchedLength()
-  will return 4, 3 and 0 respectively.
+  For example, if the regular expression is <b>blue</b>, then
+  exactMatch() returns TRUE only for input \c blue. For inputs \c
+  bluebell, \c blutak and \c lightblue, exactMatch() returns FALSE
+  and matchedLength() will return 4, 3 and 0 respectively.
 
   Although const, this function sets matchedLength(), capturedTexts()
   and pos().
@@ -3429,14 +3448,15 @@ bool QRegExp::exactMatch( const QString& str ) const
 #ifndef QT_NO_COMPAT
 /*! \obsolete
 
-  Attempts to match in \a str, starting from position \a index.  Returns the
-  position of the match, or -1 if there was no match.
+  Attempts to match in \a str, starting from position \a index.
+  Returns the position of the match, or -1 if there was no match.
 
-  The length of the match is stored in \a *len, unless \a len is a null pointer.
+  The length of the match is stored in \a *len, unless \a len is a
+  null pointer.
 
-  If \a indexIsStart is TRUE (the default), the position \a index in the string
-  will match the start of string anchor, <b>^</b>, in the regexp, if present.
-  Otherwise, position 0 in \a str will match.
+  If \a indexIsStart is TRUE (the default), the position \a index in
+  the string will match the start of string anchor, <b>^</b>, in the
+  regexp, if present. Otherwise, position 0 in \a str will match.
 
   Use search() and matchedLength() instead of this function.
 
@@ -3474,14 +3494,16 @@ int QRegExp::match( const QString& str, int index, int *len,
 #endif // QT_NO_COMPAT
 
 /*!
-  Attempts to find a match in \a str from position \a start (0 by default).  If
-  \a start is -1, the search starts at the last character; if -2, at the next to
-  last character; etc.
+  Attempts to find a match in \a str from position \a start (0 by
+  default). If \a start is -1, the search starts at the last
+  character; if -2, at the next to last character; etc.
 
-  Returns the position of the first match, or -1 if there was no match.
+  Returns the position of the first match, or -1 if there was no
+  match.
 
-  You might prefer to use QString::find(), QString::contains() or even
-  QStringList::grep(). To replace matches use QString::replace().
+  You might prefer to use QString::find(), QString::contains() or
+  even QStringList::grep(). To replace matches use
+  QString::replace().
 
   Example:
   \code
@@ -3519,11 +3541,12 @@ int QRegExp::search( const QString& str, int start ) const
 }
 
 /*!
-  Attempts to find a match backwards in \a str from position \a start.  If
-  \a start is -1 (the default), the search starts at the last character; if -2,
-  at the next to last character; etc.
+  Attempts to find a match backwards in \a str from position \a
+  start. If \a start is -1 (the default), the search starts at the
+  last character; if -2, at the next to last character; etc.
 
-  Returns the position of the first match, or -1 if there was no match.
+  Returns the position of the first match, or -1 if there was no
+  match.
 
   Although const, this function sets matchedLength(), capturedTexts()
   and pos().
@@ -3689,9 +3712,9 @@ QString QRegExp::cap( int nth )
 }
 
 /*!
-  Returns the position of the \a nth captured text in the
-  searched string.  If \a nth is 0 (the default), pos() returns the
-  position of the whole match.
+  Returns the position of the \a nth captured text in the searched
+  string. If \a nth is 0 (the default), pos() returns the position of
+  the whole match.
 
   Example:
   \code
