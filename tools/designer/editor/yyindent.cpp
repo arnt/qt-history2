@@ -601,10 +601,10 @@ static bool isUnfinishedLine()
 	return FALSE;
 
     QChar lastCh = (*yyLine)[(int) yyLine->length() - 1];
-    if ( QString("{};").find(lastCh) == -1 ) {
+    if ( QString("{};").find(lastCh) == -1 && !yyLine->endsWith("...") ) {
 	/*
-	  It doesn't end with ';' or similar. If it's not "Q_OBJECT"
-	  nor "if ( x )", it must be an unfinished line.
+	  It doesn't end with ';' or similar. If it's neither
+	  "Q_OBJECT" nor "if ( x )", it must be an unfinished line.
 	*/
 	unf = ( yyLine->contains("Q_OBJECT") == 0 &&
 		!matchBracelessControlStatement() );
