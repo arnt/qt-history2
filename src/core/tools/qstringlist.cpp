@@ -12,12 +12,6 @@
 **
 ****************************************************************************/
 
-#include "qalgorithms.h"
-#include "qdatastream.h"
-#include "qregexp.h"
-#include "qstringlist.h"
-#include "qstringmatcher.h"
-
 /*! \typedef QStringListIterator
     \relates QStringList
 
@@ -197,6 +191,8 @@
 */
 
 /*!
+    \fn QStringList::sort()
+
     Sorts the list of strings in ascending order (case sensitively).
 
     Sorting is performed using Qt's qHeapSort() algorithm,
@@ -211,10 +207,6 @@
 
     \sa qHeapSort()
 */
-void QStringList::sort()
-{
-    qHeapSort(*this);
-}
 
 #ifdef QT_COMPAT
 /*! \fn QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
@@ -271,6 +263,8 @@ void QStringList::sort()
 #endif // QT_COMPAT
 
 /*!
+    \fn QStringList::find(const QString &str, Qt::CaseSensitive cs) const
+
     Returns a list of all the strings containing the substring \a str.
 
     If \a cs is \l Qt::CaseSensitive (the default), the string
@@ -287,52 +281,29 @@ void QStringList::sort()
     \sa QString::contains()
 */
 
-QStringList QStringList::find(const QString &str, Qt::CaseSensitivity cs) const
-{
-    QStringMatcher matcher(str, cs);
-    QStringList res;
-    for (int i = 0; i < size(); ++i)
-        if (matcher.indexIn(at(i)) != -1)
-            res << at(i);
-    return res;
-}
-
 /*!
+    \fn QBool QStringList::contains(const QString &str, Qt::CaseSensitivity cs) const
+
     Returns true if the list contains the string \a str.
     Does a case insensitive search if \a cs is Qt::CaseSensitive,
     otherwise the search will be case insensitive.
  */
-QBool QStringList::contains(const QString &str,
-                            Qt::CaseSensitivity cs) const
-{
-    QStringMatcher matcher(str, cs);
-    for (int i = 0; i < size(); ++i) {
-        QString string(at(i));
-        if (string.length() == str.length() && matcher.indexIn(string) == 0)
-            return QBool(true);
-    }
-    return QBool(false);
-}
 
 #ifndef QT_NO_REGEXP
 /*!
+    \fn QStringList QStringList::find(const QRegExp &rx) const
+
     \overload
 
     Returns a list of all the strings that match the regular
     expression \a rx.
 */
 
-QStringList QStringList::find(const QRegExp &rx) const
-{
-    QStringList res;
-    for (int i = 0; i < size(); ++i)
-        if (at(i).contains(rx))
-            res << at(i);
-    return res;
-}
 #endif
 
 /*!
+    \fn QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
+
     Replaces every occurrence of the string \a before, in each of the
     string list's strings, with the string \a after. Returns a
     reference to the string list.
@@ -351,15 +322,11 @@ QStringList QStringList::find(const QRegExp &rx) const
 
     \sa QString::replace()
 */
-QStringList &QStringList::replace(const QString &before, const QString &after, Qt::CaseSensitivity cs)
-{
-    for (int i = 0; i < size(); ++i)
-        (*this)[i].replace(before, after, cs);
-    return *this;
-}
 
 #ifndef QT_NO_REGEXP
 /*!
+    \fn QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
+
     \overload
 
     Replaces every occurrence of the regexp \a rx, in each of the
@@ -389,55 +356,36 @@ QStringList &QStringList::replace(const QString &before, const QString &after, Q
 
     \sa replace()
 */
-QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
-{
-    for (int i = 0; i < size(); ++i)
-        (*this)[i].replace(rx, after);
-    return *this;
-}
-
 #endif
 
 /*!
+    \fn QString QStringList::join(const QString &sep) const
+
     Joins the all the string list's strings into a single string with
     each element separated by the string \a sep (which can be an empty
     string).
 
     \sa QString::split()
 */
-QString QStringList::join(const QString &sep) const
-{
-    QString res;
-    for (int i = 0; i < size(); ++i) {
-        if (i)
-            res += sep;
-        res += at(i);
-    }
-    return res;
-}
 
 #ifndef QT_NO_DATASTREAM
 /*!
+    \fn QDataStream &operator>>(QDataStream &in, QStringList &list)
+
     \relates QStringList
 
     Reads a string list from stream \a in into \a list.
 
     \sa \link datastreamformat.html Format of the QDataStrea operators \endlink
 */
-QDataStream &operator>>(QDataStream &in, QStringList &list)
-{
-    return operator>>(in, static_cast<QList<QString> &>(list));
-}
 
 /*!
+    \fn QDataStream &operator<<(QDataStream &out, QStringList &list)
+
     \relates QStringList
 
     Writes the string list \a list to stream \a out.
 
     \sa \link datastreamformat.html Format of the QDataStrea operators \endlink
 */
-QDataStream &operator<<(QDataStream &out, const QStringList &list)
-{
-    return operator<<(out, static_cast<const QList<QString> &>(list));
-}
 #endif // QT_NO_DATASTREAM
