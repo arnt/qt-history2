@@ -33,7 +33,7 @@
 
 class QButtonGroup;
 struct QButtonData;
-
+class QToolBar;
 
 class Q_EXPORT QButton : public QWidget
 {
@@ -137,6 +137,7 @@ private:
     QButtonData *d;
 
     friend class QButtonGroup;
+    friend class QToolBar;
     void          ensureData();
     virtual void setGroup( QButtonGroup* );
     QTimer	 *timer();

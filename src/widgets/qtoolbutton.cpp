@@ -224,6 +224,8 @@ QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
 
 QToolButton::~QToolButton()
 {
+    d->popupTimer = 0;
+    d->popup = 0;
     delete d;
     delete s;
     threeDeeButton = 0;
@@ -254,7 +256,7 @@ void QToolButton::setToggleButton( bool enable )
 QSize QToolButton::sizeHint() const
 {
     constPolish();
-    
+
     int w = 0;
     int h = 0;
 
@@ -705,7 +707,7 @@ QIconSet QToolButton::iconSet( bool on ) const
  */
 void QToolButton::setPopup( QPopupMenu* popup )
 {
-    if ( popup && !d->popup) {
+    if ( popup && !d->popupTimer ) {
 	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
 	d->popupTimer = new QTimer( this );
 	connect( d->popupTimer, SIGNAL( timeout() ), this, SLOT( popupTimerDone() ) );
@@ -727,7 +729,7 @@ QPopupMenu* QToolButton::popup() const
 
 void QToolButton::popupPressed()
 {
-    if ( d->popupTimer )
+    if ( d->popupTimer && isDown() )
 	d->popupTimer->start( d->delay, TRUE );
 }
 

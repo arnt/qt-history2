@@ -59,7 +59,7 @@ public:
 
     void show();
     void hide();
-    
+
     QMainWindow * mainWindow();
 
     virtual void setStretchableWidget( QWidget * );
@@ -76,20 +76,29 @@ public:
 
     void clear();
 
+    QSize minimumSize() const;
+    QSize minimumSizeHint() const;
+
 protected:
     void paintEvent( QPaintEvent * );
+    void resizeEvent( QResizeEvent * );
 
 signals:
     void orientationChanged( Orientation );
 
-protected slots:
+private slots:
     void startMoving( QToolBar *tb );
     void endMoving( QToolBar *tb );
-
+    void popupSelected( int );
+    void emulateButtonClicked();
+    void updateArrowStuff();
+    void setupArrowMenu();
+    
 private:
     void init();
     virtual void setUpGM();
-
+    void paintToolBar();
+    
     QBoxLayout * bl;
     QToolBarPrivate * d;
     Orientation o;
