@@ -2137,8 +2137,8 @@ inline DomProperty::~DomProperty()
 inline void DomUI::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("version").toLower())) setAttributeVersion(node.attribute(QString("version").toLower()));
-    if (node.hasAttribute(QString("stdSetDef").toLower())) setAttributeStdSetDef(node.attribute(QString("stdSetDef").toLower()).toInt());
+    if (node.hasAttribute(QString::fromLatin1("version").toLower())) setAttributeVersion(node.attribute(QString::fromLatin1("version").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("stdSetDef").toLower())) setAttributeStdSetDef(node.attribute(QString::fromLatin1("stdSetDef").toLower()).toInt());
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2180,8 +2180,8 @@ inline void DomIncludes::read(const QDomElement &node)
 inline void DomInclude::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("location").toLower())) setAttributeLocation(node.attribute(QString("location").toLower()));
-    if (node.hasAttribute(QString("impldecl").toLower())) setAttributeImpldecl(node.attribute(QString("impldecl").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("location").toLower())) setAttributeLocation(node.attribute(QString::fromLatin1("location").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("impldecl").toLower())) setAttributeImpldecl(node.attribute(QString::fromLatin1("impldecl").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2196,7 +2196,7 @@ inline void DomInclude::read(const QDomElement &node)
 inline void DomActionGroup::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("name").toLower())) setAttributeName(node.attribute(QString::fromLatin1("name").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2215,8 +2215,8 @@ inline void DomActionGroup::read(const QDomElement &node)
 inline void DomAction::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
-    if (node.hasAttribute(QString("menu").toLower())) setAttributeMenu(node.attribute(QString("menu").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("name").toLower())) setAttributeName(node.attribute(QString::fromLatin1("name").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("menu").toLower())) setAttributeMenu(node.attribute(QString::fromLatin1("menu").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2233,7 +2233,7 @@ inline void DomAction::read(const QDomElement &node)
 inline void DomActionRef::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("name").toLower())) setAttributeName(node.attribute(QString::fromLatin1("name").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2263,7 +2263,7 @@ inline void DomImages::read(const QDomElement &node)
 inline void DomImage::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("name").toLower())) setAttributeName(node.attribute(QString::fromLatin1("name").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2279,8 +2279,8 @@ inline void DomImage::read(const QDomElement &node)
 inline void DomImageData::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("format").toLower())) setAttributeFormat(node.attribute(QString("format").toLower()));
-    if (node.hasAttribute(QString("length").toLower())) setAttributeLength(node.attribute(QString("length").toLower()).toInt());
+    if (node.hasAttribute(QString::fromLatin1("format").toLower())) setAttributeFormat(node.attribute(QString::fromLatin1("format").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("length").toLower())) setAttributeLength(node.attribute(QString::fromLatin1("length").toLower()).toInt());
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2310,7 +2310,7 @@ inline void DomCustomWidgets::read(const QDomElement &node)
 inline void DomHeader::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("location").toLower())) setAttributeLocation(node.attribute(QString("location").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("location").toLower())) setAttributeLocation(node.attribute(QString::fromLatin1("location").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2362,7 +2362,7 @@ inline void DomProperties::read(const QDomElement &node)
 inline void DomPropertyData::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("type").toLower())) setAttributeType(node.attribute(QString("type").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("type").toLower())) setAttributeType(node.attribute(QString::fromLatin1("type").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2393,8 +2393,8 @@ inline void DomSizePolicyData::read(const QDomElement &node)
 inline void DomLayoutDefault::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("spacing").toLower())) setAttributeSpacing(node.attribute(QString("spacing").toLower()).toInt());
-    if (node.hasAttribute(QString("margin").toLower())) setAttributeMargin(node.attribute(QString("margin").toLower()).toInt());
+    if (node.hasAttribute(QString::fromLatin1("spacing").toLower())) setAttributeSpacing(node.attribute(QString::fromLatin1("spacing").toLower()).toInt());
+    if (node.hasAttribute(QString::fromLatin1("margin").toLower())) setAttributeMargin(node.attribute(QString::fromLatin1("margin").toLower()).toInt());
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2409,8 +2409,8 @@ inline void DomLayoutDefault::read(const QDomElement &node)
 inline void DomLayoutFunction::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("spacing").toLower())) setAttributeSpacing(node.attribute(QString("spacing").toLower()));
-    if (node.hasAttribute(QString("margin").toLower())) setAttributeMargin(node.attribute(QString("margin").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("spacing").toLower())) setAttributeSpacing(node.attribute(QString::fromLatin1("spacing").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("margin").toLower())) setAttributeMargin(node.attribute(QString::fromLatin1("margin").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2440,7 +2440,7 @@ inline void DomTabStops::read(const QDomElement &node)
 inline void DomLayout::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("class").toLower())) setAttributeClass(node.attribute(QString("class").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("class").toLower())) setAttributeClass(node.attribute(QString::fromLatin1("class").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2460,10 +2460,10 @@ inline void DomLayoutItem::read(const QDomElement &node)
     m_kind = Unknown;
 
     // attributes
-    if (node.hasAttribute(QString("row").toLower())) setAttributeRow(node.attribute(QString("row").toLower()).toInt());
-    if (node.hasAttribute(QString("column").toLower())) setAttributeColumn(node.attribute(QString("column").toLower()).toInt());
-    if (node.hasAttribute(QString("rowSpan").toLower())) setAttributeRowSpan(node.attribute(QString("rowSpan").toLower()).toInt());
-    if (node.hasAttribute(QString("colSpan").toLower())) setAttributeColSpan(node.attribute(QString("colSpan").toLower()).toInt());
+    if (node.hasAttribute(QString::fromLatin1("row").toLower())) setAttributeRow(node.attribute(QString::fromLatin1("row").toLower()).toInt());
+    if (node.hasAttribute(QString::fromLatin1("column").toLower())) setAttributeColumn(node.attribute(QString::fromLatin1("column").toLower()).toInt());
+    if (node.hasAttribute(QString::fromLatin1("rowSpan").toLower())) setAttributeRowSpan(node.attribute(QString::fromLatin1("rowSpan").toLower()).toInt());
+    if (node.hasAttribute(QString::fromLatin1("colSpan").toLower())) setAttributeColSpan(node.attribute(QString::fromLatin1("colSpan").toLower()).toInt());
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2527,8 +2527,8 @@ inline void DomItem::read(const QDomElement &node)
 inline void DomWidget::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("class").toLower())) setAttributeClass(node.attribute(QString("class").toLower()));
-    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("class").toLower())) setAttributeClass(node.attribute(QString::fromLatin1("class").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("name").toLower())) setAttributeName(node.attribute(QString::fromLatin1("name").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2554,7 +2554,7 @@ inline void DomWidget::read(const QDomElement &node)
 inline void DomSpacer::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("name").toLower())) setAttributeName(node.attribute(QString::fromLatin1("name").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2777,7 +2777,7 @@ inline void DomStringList::read(const QDomElement &node)
 inline void DomString::read(const QDomElement &node)
 {
     // attributes
-    if (node.hasAttribute(QString("notr").toLower())) setAttributeNotr(node.attribute(QString("notr").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("notr").toLower())) setAttributeNotr(node.attribute(QString::fromLatin1("notr").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2794,8 +2794,8 @@ inline void DomProperty::read(const QDomElement &node)
     m_kind = Unknown;
 
     // attributes
-    if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
-    if (node.hasAttribute(QString("stdset").toLower())) setAttributeStdset(node.attribute(QString("stdset").toLower()).toInt());
+    if (node.hasAttribute(QString::fromLatin1("name").toLower())) setAttributeName(node.attribute(QString::fromLatin1("name").toLower()));
+    if (node.hasAttribute(QString::fromLatin1("stdset").toLower())) setAttributeStdset(node.attribute(QString::fromLatin1("stdset").toLower()).toInt());
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2831,72 +2831,72 @@ inline void DomProperty::read(const QDomElement &node)
 
 inline QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("UI").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("UI").toLower());
     if (m_hasVersion)
-        node.setAttribute(QString("version").toLower(), m_aVersion);
+        node.setAttribute(QString::fromLatin1("version").toLower(), m_aVersion);
 
     if (m_hasStdSetDef)
-        node.setAttribute(QString("stdSetDef").toLower(), m_aStdSetDef);
+        node.setAttribute(QString::fromLatin1("stdSetDef").toLower(), m_aStdSetDef);
 
 
     QDomElement child;
     QDomText t;
 
     if (m_eAuthor.size()) {
-        child = doc.createElement(QString("author").toLower());
+        child = doc.createElement(QString::fromLatin1("author").toLower());
         t = doc.createTextNode(m_eAuthor);
         child.appendChild(t);
         node.appendChild(child);
     }
 
     if (m_eComment.size()) {
-        child = doc.createElement(QString("comment").toLower());
+        child = doc.createElement(QString::fromLatin1("comment").toLower());
         t = doc.createTextNode(m_eComment);
         child.appendChild(t);
         node.appendChild(child);
     }
 
     if (m_eExportMacro.size()) {
-        child = doc.createElement(QString("exportMacro").toLower());
+        child = doc.createElement(QString::fromLatin1("exportMacro").toLower());
         t = doc.createTextNode(m_eExportMacro);
         child.appendChild(t);
         node.appendChild(child);
     }
 
     if (m_eClass.size()) {
-        child = doc.createElement(QString("class").toLower());
+        child = doc.createElement(QString::fromLatin1("class").toLower());
         t = doc.createTextNode(m_eClass);
         child.appendChild(t);
         node.appendChild(child);
     }
 
     if (m_eWidget)
-        node.appendChild(m_eWidget->write(doc, QString("widget").toLower()));
+        node.appendChild(m_eWidget->write(doc, QString::fromLatin1("widget").toLower()));
 
     if (m_eLayoutDefault)
-        node.appendChild(m_eLayoutDefault->write(doc, QString("layoutDefault").toLower()));
+        node.appendChild(m_eLayoutDefault->write(doc, QString::fromLatin1("layoutDefault").toLower()));
 
     if (m_eLayoutFunction)
-        node.appendChild(m_eLayoutFunction->write(doc, QString("layoutFunction").toLower()));
+        node.appendChild(m_eLayoutFunction->write(doc, QString::fromLatin1("layoutFunction").toLower()));
 
     if (m_ePixmapFunction.size()) {
-        child = doc.createElement(QString("pixmapFunction").toLower());
+        child = doc.createElement(QString::fromLatin1("pixmapFunction").toLower());
         t = doc.createTextNode(m_ePixmapFunction);
         child.appendChild(t);
         node.appendChild(child);
     }
 
     if (m_eCustomWidgets)
-        node.appendChild(m_eCustomWidgets->write(doc, QString("customWidgets").toLower()));
+        node.appendChild(m_eCustomWidgets->write(doc, QString::fromLatin1("customWidgets").toLower()));
 
     if (m_eTabStops)
-        node.appendChild(m_eTabStops->write(doc, QString("tabStops").toLower()));
+        node.appendChild(m_eTabStops->write(doc, QString::fromLatin1("tabStops").toLower()));
 
     if (m_eImages)
-        node.appendChild(m_eImages->write(doc, QString("images").toLower()));
+        node.appendChild(m_eImages->write(doc, QString::fromLatin1("images").toLower()));
 
     if (m_eIncludes)
-        node.appendChild(m_eIncludes->write(doc, QString("includes").toLower()));
+        node.appendChild(m_eIncludes->write(doc, QString::fromLatin1("includes").toLower()));
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
     return node;
@@ -2904,13 +2904,13 @@ inline QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomIncludes::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Includes").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Includes").toLower());
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eInclude.size(); ++i) {
-        node.appendChild(m_eInclude.at(i)->write(doc, QString("include").toLower()));
+        node.appendChild(m_eInclude.at(i)->write(doc, QString::fromLatin1("include").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -2919,12 +2919,12 @@ inline QDomElement DomIncludes::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomInclude::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Include").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Include").toLower());
     if (m_hasLocation)
-        node.setAttribute(QString("location").toLower(), m_aLocation);
+        node.setAttribute(QString::fromLatin1("location").toLower(), m_aLocation);
 
     if (m_hasImpldecl)
-        node.setAttribute(QString("impldecl").toLower(), m_aImpldecl);
+        node.setAttribute(QString::fromLatin1("impldecl").toLower(), m_aImpldecl);
 
 
     QDomElement child;
@@ -2936,28 +2936,28 @@ inline QDomElement DomInclude::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomActionGroup::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("ActionGroup").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("ActionGroup").toLower());
     if (m_hasName)
-        node.setAttribute(QString("name").toLower(), m_aName);
+        node.setAttribute(QString::fromLatin1("name").toLower(), m_aName);
 
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eAction.size(); ++i) {
-        node.appendChild(m_eAction.at(i)->write(doc, QString("action").toLower()));
+        node.appendChild(m_eAction.at(i)->write(doc, QString::fromLatin1("action").toLower()));
     }
 
     for (int i=0; i<m_eActionGroup.size(); ++i) {
-        node.appendChild(m_eActionGroup.at(i)->write(doc, QString("actionGroup").toLower()));
+        node.appendChild(m_eActionGroup.at(i)->write(doc, QString::fromLatin1("actionGroup").toLower()));
     }
 
     for (int i=0; i<m_eProperty.size(); ++i) {
-        node.appendChild(m_eProperty.at(i)->write(doc, QString("property").toLower()));
+        node.appendChild(m_eProperty.at(i)->write(doc, QString::fromLatin1("property").toLower()));
     }
 
     for (int i=0; i<m_eAttribute.size(); ++i) {
-        node.appendChild(m_eAttribute.at(i)->write(doc, QString("attribute").toLower()));
+        node.appendChild(m_eAttribute.at(i)->write(doc, QString::fromLatin1("attribute").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -2966,23 +2966,23 @@ inline QDomElement DomActionGroup::write(QDomDocument &doc, const QString &tagNa
 
 inline QDomElement DomAction::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Action").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Action").toLower());
     if (m_hasName)
-        node.setAttribute(QString("name").toLower(), m_aName);
+        node.setAttribute(QString::fromLatin1("name").toLower(), m_aName);
 
     if (m_hasMenu)
-        node.setAttribute(QString("menu").toLower(), m_aMenu);
+        node.setAttribute(QString::fromLatin1("menu").toLower(), m_aMenu);
 
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eProperty.size(); ++i) {
-        node.appendChild(m_eProperty.at(i)->write(doc, QString("property").toLower()));
+        node.appendChild(m_eProperty.at(i)->write(doc, QString::fromLatin1("property").toLower()));
     }
 
     for (int i=0; i<m_eAttribute.size(); ++i) {
-        node.appendChild(m_eAttribute.at(i)->write(doc, QString("attribute").toLower()));
+        node.appendChild(m_eAttribute.at(i)->write(doc, QString::fromLatin1("attribute").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -2991,9 +2991,9 @@ inline QDomElement DomAction::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomActionRef::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("ActionRef").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("ActionRef").toLower());
     if (m_hasName)
-        node.setAttribute(QString("name").toLower(), m_aName);
+        node.setAttribute(QString::fromLatin1("name").toLower(), m_aName);
 
 
     QDomElement child;
@@ -3005,13 +3005,13 @@ inline QDomElement DomActionRef::write(QDomDocument &doc, const QString &tagName
 
 inline QDomElement DomImages::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Images").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Images").toLower());
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eImage.size(); ++i) {
-        node.appendChild(m_eImage.at(i)->write(doc, QString("image").toLower()));
+        node.appendChild(m_eImage.at(i)->write(doc, QString::fromLatin1("image").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -3020,16 +3020,16 @@ inline QDomElement DomImages::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomImage::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Image").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Image").toLower());
     if (m_hasName)
-        node.setAttribute(QString("name").toLower(), m_aName);
+        node.setAttribute(QString::fromLatin1("name").toLower(), m_aName);
 
 
     QDomElement child;
     QDomText t;
 
     if (m_eData)
-        node.appendChild(m_eData->write(doc, QString("data").toLower()));
+        node.appendChild(m_eData->write(doc, QString::fromLatin1("data").toLower()));
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
     return node;
@@ -3037,12 +3037,12 @@ inline QDomElement DomImage::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomImageData::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("ImageData").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("ImageData").toLower());
     if (m_hasFormat)
-        node.setAttribute(QString("format").toLower(), m_aFormat);
+        node.setAttribute(QString::fromLatin1("format").toLower(), m_aFormat);
 
     if (m_hasLength)
-        node.setAttribute(QString("length").toLower(), m_aLength);
+        node.setAttribute(QString::fromLatin1("length").toLower(), m_aLength);
 
 
     QDomElement child;
@@ -3054,13 +3054,13 @@ inline QDomElement DomImageData::write(QDomDocument &doc, const QString &tagName
 
 inline QDomElement DomCustomWidgets::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("CustomWidgets").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("CustomWidgets").toLower());
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eCustomWidget.size(); ++i) {
-        node.appendChild(m_eCustomWidget.at(i)->write(doc, QString("customWidget").toLower()));
+        node.appendChild(m_eCustomWidget.at(i)->write(doc, QString::fromLatin1("customWidget").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -3069,9 +3069,9 @@ inline QDomElement DomCustomWidgets::write(QDomDocument &doc, const QString &tag
 
 inline QDomElement DomHeader::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Header").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Header").toLower());
     if (m_hasLocation)
-        node.setAttribute(QString("location").toLower(), m_aLocation);
+        node.setAttribute(QString::fromLatin1("location").toLower(), m_aLocation);
 
 
     QDomElement child;
@@ -3083,48 +3083,48 @@ inline QDomElement DomHeader::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomCustomWidget::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("CustomWidget").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("CustomWidget").toLower());
 
     QDomElement child;
     QDomText t;
 
     if (m_eClass.size()) {
-        child = doc.createElement(QString("class").toLower());
+        child = doc.createElement(QString::fromLatin1("class").toLower());
         t = doc.createTextNode(m_eClass);
         child.appendChild(t);
         node.appendChild(child);
     }
 
     if (m_eExtends.size()) {
-        child = doc.createElement(QString("extends").toLower());
+        child = doc.createElement(QString::fromLatin1("extends").toLower());
         t = doc.createTextNode(m_eExtends);
         child.appendChild(t);
         node.appendChild(child);
     }
 
     if (m_eHeader)
-        node.appendChild(m_eHeader->write(doc, QString("header").toLower()));
+        node.appendChild(m_eHeader->write(doc, QString::fromLatin1("header").toLower()));
 
     if (m_eSizeHint)
-        node.appendChild(m_eSizeHint->write(doc, QString("sizeHint").toLower()));
+        node.appendChild(m_eSizeHint->write(doc, QString::fromLatin1("sizeHint").toLower()));
 
-    child = doc.createElement(QString("container").toLower());
+    child = doc.createElement(QString::fromLatin1("container").toLower());
     t = doc.createTextNode(QString::number(m_eContainer));
     child.appendChild(t);
     node.appendChild(child);
 
     if (m_eSizePolicy)
-        node.appendChild(m_eSizePolicy->write(doc, QString("sizePolicy").toLower()));
+        node.appendChild(m_eSizePolicy->write(doc, QString::fromLatin1("sizePolicy").toLower()));
 
     if (m_ePixmap.size()) {
-        child = doc.createElement(QString("pixmap").toLower());
+        child = doc.createElement(QString::fromLatin1("pixmap").toLower());
         t = doc.createTextNode(m_ePixmap);
         child.appendChild(t);
         node.appendChild(child);
     }
 
     if (m_eProperties)
-        node.appendChild(m_eProperties->write(doc, QString("properties").toLower()));
+        node.appendChild(m_eProperties->write(doc, QString::fromLatin1("properties").toLower()));
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
     return node;
@@ -3132,13 +3132,13 @@ inline QDomElement DomCustomWidget::write(QDomDocument &doc, const QString &tagN
 
 inline QDomElement DomProperties::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Properties").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Properties").toLower());
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eProperty.size(); ++i) {
-        node.appendChild(m_eProperty.at(i)->write(doc, QString("property").toLower()));
+        node.appendChild(m_eProperty.at(i)->write(doc, QString::fromLatin1("property").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -3147,9 +3147,9 @@ inline QDomElement DomProperties::write(QDomDocument &doc, const QString &tagNam
 
 inline QDomElement DomPropertyData::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("PropertyData").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("PropertyData").toLower());
     if (m_hasType)
-        node.setAttribute(QString("type").toLower(), m_aType);
+        node.setAttribute(QString::fromLatin1("type").toLower(), m_aType);
 
 
     QDomElement child;
@@ -3161,17 +3161,17 @@ inline QDomElement DomPropertyData::write(QDomDocument &doc, const QString &tagN
 
 inline QDomElement DomSizePolicyData::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("SizePolicyData").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("SizePolicyData").toLower());
 
     QDomElement child;
     QDomText t;
 
-    child = doc.createElement(QString("horData").toLower());
+    child = doc.createElement(QString::fromLatin1("horData").toLower());
     t = doc.createTextNode(QString::number(m_eHorData));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("verData").toLower());
+    child = doc.createElement(QString::fromLatin1("verData").toLower());
     t = doc.createTextNode(QString::number(m_eVerData));
     child.appendChild(t);
     node.appendChild(child);
@@ -3182,12 +3182,12 @@ inline QDomElement DomSizePolicyData::write(QDomDocument &doc, const QString &ta
 
 inline QDomElement DomLayoutDefault::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("LayoutDefault").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("LayoutDefault").toLower());
     if (m_hasSpacing)
-        node.setAttribute(QString("spacing").toLower(), m_aSpacing);
+        node.setAttribute(QString::fromLatin1("spacing").toLower(), m_aSpacing);
 
     if (m_hasMargin)
-        node.setAttribute(QString("margin").toLower(), m_aMargin);
+        node.setAttribute(QString::fromLatin1("margin").toLower(), m_aMargin);
 
 
     QDomElement child;
@@ -3199,12 +3199,12 @@ inline QDomElement DomLayoutDefault::write(QDomDocument &doc, const QString &tag
 
 inline QDomElement DomLayoutFunction::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("LayoutFunction").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("LayoutFunction").toLower());
     if (m_hasSpacing)
-        node.setAttribute(QString("spacing").toLower(), m_aSpacing);
+        node.setAttribute(QString::fromLatin1("spacing").toLower(), m_aSpacing);
 
     if (m_hasMargin)
-        node.setAttribute(QString("margin").toLower(), m_aMargin);
+        node.setAttribute(QString::fromLatin1("margin").toLower(), m_aMargin);
 
 
     QDomElement child;
@@ -3216,13 +3216,13 @@ inline QDomElement DomLayoutFunction::write(QDomDocument &doc, const QString &ta
 
 inline QDomElement DomTabStops::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("TabStops").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("TabStops").toLower());
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eTabStop.size(); ++i) {
-        child = doc.createElement(QString("tabstop").toLower());
+        child = doc.createElement(QString::fromLatin1("tabstop").toLower());
         t = doc.createTextNode(m_eTabStop[i]);
         child.appendChild(t);
         node.appendChild(child);
@@ -3234,24 +3234,24 @@ inline QDomElement DomTabStops::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomLayout::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Layout").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Layout").toLower());
     if (m_hasClass)
-        node.setAttribute(QString("class").toLower(), m_aClass);
+        node.setAttribute(QString::fromLatin1("class").toLower(), m_aClass);
 
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eProperty.size(); ++i) {
-        node.appendChild(m_eProperty.at(i)->write(doc, QString("property").toLower()));
+        node.appendChild(m_eProperty.at(i)->write(doc, QString::fromLatin1("property").toLower()));
     }
 
     for (int i=0; i<m_eAttribute.size(); ++i) {
-        node.appendChild(m_eAttribute.at(i)->write(doc, QString("attribute").toLower()));
+        node.appendChild(m_eAttribute.at(i)->write(doc, QString::fromLatin1("attribute").toLower()));
     }
 
     for (int i=0; i<m_eItem.size(); ++i) {
-        node.appendChild(m_eItem.at(i)->write(doc, QString("item").toLower()));
+        node.appendChild(m_eItem.at(i)->write(doc, QString::fromLatin1("item").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -3260,18 +3260,18 @@ inline QDomElement DomLayout::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomLayoutItem::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Item").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Item").toLower());
     if (m_hasRow)
-        node.setAttribute(QString("row").toLower(), m_aRow);
+        node.setAttribute(QString::fromLatin1("row").toLower(), m_aRow);
 
     if (m_hasColumn)
-        node.setAttribute(QString("column").toLower(), m_aColumn);
+        node.setAttribute(QString::fromLatin1("column").toLower(), m_aColumn);
 
     if (m_hasRowSpan)
-        node.setAttribute(QString("rowSpan").toLower(), m_aRowSpan);
+        node.setAttribute(QString::fromLatin1("rowSpan").toLower(), m_aRowSpan);
 
     if (m_hasColSpan)
-        node.setAttribute(QString("colSpan").toLower(), m_aColSpan);
+        node.setAttribute(QString::fromLatin1("colSpan").toLower(), m_aColSpan);
 
 
     QDomElement child;
@@ -3280,19 +3280,19 @@ inline QDomElement DomLayoutItem::write(QDomDocument &doc, const QString &tagNam
     switch (m_kind) {
     case DomLayoutItem::Widget: {
     if (m_eWidget)
-        node.appendChild(m_eWidget->write(doc, QString("widget").toLower()));
+        node.appendChild(m_eWidget->write(doc, QString::fromLatin1("widget").toLower()));
     }
     break;
 
     case DomLayoutItem::Layout: {
     if (m_eLayout)
-        node.appendChild(m_eLayout->write(doc, QString("layout").toLower()));
+        node.appendChild(m_eLayout->write(doc, QString::fromLatin1("layout").toLower()));
     }
     break;
 
     case DomLayoutItem::Spacer: {
     if (m_eSpacer)
-        node.appendChild(m_eSpacer->write(doc, QString("spacer").toLower()));
+        node.appendChild(m_eSpacer->write(doc, QString::fromLatin1("spacer").toLower()));
     }
     break;
 
@@ -3305,13 +3305,13 @@ inline QDomElement DomLayoutItem::write(QDomDocument &doc, const QString &tagNam
 
 inline QDomElement DomRow::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Row").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Row").toLower());
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eProperty.size(); ++i) {
-        node.appendChild(m_eProperty.at(i)->write(doc, QString("property").toLower()));
+        node.appendChild(m_eProperty.at(i)->write(doc, QString::fromLatin1("property").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -3320,13 +3320,13 @@ inline QDomElement DomRow::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomColumn::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Column").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Column").toLower());
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eProperty.size(); ++i) {
-        node.appendChild(m_eProperty.at(i)->write(doc, QString("property").toLower()));
+        node.appendChild(m_eProperty.at(i)->write(doc, QString::fromLatin1("property").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -3335,17 +3335,17 @@ inline QDomElement DomColumn::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomItem::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Item").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Item").toLower());
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eProperty.size(); ++i) {
-        node.appendChild(m_eProperty.at(i)->write(doc, QString("property").toLower()));
+        node.appendChild(m_eProperty.at(i)->write(doc, QString::fromLatin1("property").toLower()));
     }
 
     for (int i=0; i<m_eItem.size(); ++i) {
-        node.appendChild(m_eItem.at(i)->write(doc, QString("item").toLower()));
+        node.appendChild(m_eItem.at(i)->write(doc, QString::fromLatin1("item").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -3354,62 +3354,62 @@ inline QDomElement DomItem::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomWidget::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Widget").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Widget").toLower());
     if (m_hasClass)
-        node.setAttribute(QString("class").toLower(), m_aClass);
+        node.setAttribute(QString::fromLatin1("class").toLower(), m_aClass);
 
     if (m_hasName)
-        node.setAttribute(QString("name").toLower(), m_aName);
+        node.setAttribute(QString::fromLatin1("name").toLower(), m_aName);
 
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eClass.size(); ++i) {
-        child = doc.createElement(QString("class").toLower());
+        child = doc.createElement(QString::fromLatin1("class").toLower());
         t = doc.createTextNode(m_eClass[i]);
         child.appendChild(t);
         node.appendChild(child);
     }
 
     for (int i=0; i<m_eProperty.size(); ++i) {
-        node.appendChild(m_eProperty.at(i)->write(doc, QString("property").toLower()));
+        node.appendChild(m_eProperty.at(i)->write(doc, QString::fromLatin1("property").toLower()));
     }
 
     for (int i=0; i<m_eAttribute.size(); ++i) {
-        node.appendChild(m_eAttribute.at(i)->write(doc, QString("attribute").toLower()));
+        node.appendChild(m_eAttribute.at(i)->write(doc, QString::fromLatin1("attribute").toLower()));
     }
 
     for (int i=0; i<m_eRow.size(); ++i) {
-        node.appendChild(m_eRow.at(i)->write(doc, QString("row").toLower()));
+        node.appendChild(m_eRow.at(i)->write(doc, QString::fromLatin1("row").toLower()));
     }
 
     for (int i=0; i<m_eColumn.size(); ++i) {
-        node.appendChild(m_eColumn.at(i)->write(doc, QString("column").toLower()));
+        node.appendChild(m_eColumn.at(i)->write(doc, QString::fromLatin1("column").toLower()));
     }
 
     for (int i=0; i<m_eItem.size(); ++i) {
-        node.appendChild(m_eItem.at(i)->write(doc, QString("item").toLower()));
+        node.appendChild(m_eItem.at(i)->write(doc, QString::fromLatin1("item").toLower()));
     }
 
     for (int i=0; i<m_eLayout.size(); ++i) {
-        node.appendChild(m_eLayout.at(i)->write(doc, QString("layout").toLower()));
+        node.appendChild(m_eLayout.at(i)->write(doc, QString::fromLatin1("layout").toLower()));
     }
 
     for (int i=0; i<m_eWidget.size(); ++i) {
-        node.appendChild(m_eWidget.at(i)->write(doc, QString("widget").toLower()));
+        node.appendChild(m_eWidget.at(i)->write(doc, QString::fromLatin1("widget").toLower()));
     }
 
     for (int i=0; i<m_eAction.size(); ++i) {
-        node.appendChild(m_eAction.at(i)->write(doc, QString("action").toLower()));
+        node.appendChild(m_eAction.at(i)->write(doc, QString::fromLatin1("action").toLower()));
     }
 
     for (int i=0; i<m_eActionGroup.size(); ++i) {
-        node.appendChild(m_eActionGroup.at(i)->write(doc, QString("actionGroup").toLower()));
+        node.appendChild(m_eActionGroup.at(i)->write(doc, QString::fromLatin1("actionGroup").toLower()));
     }
 
     for (int i=0; i<m_eAddAction.size(); ++i) {
-        node.appendChild(m_eAddAction.at(i)->write(doc, QString("addAction").toLower()));
+        node.appendChild(m_eAddAction.at(i)->write(doc, QString::fromLatin1("addAction").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -3418,16 +3418,16 @@ inline QDomElement DomWidget::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomSpacer::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Spacer").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Spacer").toLower());
     if (m_hasName)
-        node.setAttribute(QString("name").toLower(), m_aName);
+        node.setAttribute(QString::fromLatin1("name").toLower(), m_aName);
 
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eProperty.size(); ++i) {
-        node.appendChild(m_eProperty.at(i)->write(doc, QString("property").toLower()));
+        node.appendChild(m_eProperty.at(i)->write(doc, QString::fromLatin1("property").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -3436,22 +3436,22 @@ inline QDomElement DomSpacer::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomColor::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Color").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Color").toLower());
 
     QDomElement child;
     QDomText t;
 
-    child = doc.createElement(QString("red").toLower());
+    child = doc.createElement(QString::fromLatin1("red").toLower());
     t = doc.createTextNode(QString::number(m_eRed));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("green").toLower());
+    child = doc.createElement(QString::fromLatin1("green").toLower());
     t = doc.createTextNode(QString::number(m_eGreen));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("blue").toLower());
+    child = doc.createElement(QString::fromLatin1("blue").toLower());
     t = doc.createTextNode(QString::number(m_eBlue));
     child.appendChild(t);
     node.appendChild(child);
@@ -3462,13 +3462,13 @@ inline QDomElement DomColor::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomColorGroup::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("ColorGroup").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("ColorGroup").toLower());
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eColor.size(); ++i) {
-        node.appendChild(m_eColor.at(i)->write(doc, QString("color").toLower()));
+        node.appendChild(m_eColor.at(i)->write(doc, QString::fromLatin1("color").toLower()));
     }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
@@ -3477,19 +3477,19 @@ inline QDomElement DomColorGroup::write(QDomDocument &doc, const QString &tagNam
 
 inline QDomElement DomPalette::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Palette").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Palette").toLower());
 
     QDomElement child;
     QDomText t;
 
     if (m_eActive)
-        node.appendChild(m_eActive->write(doc, QString("active").toLower()));
+        node.appendChild(m_eActive->write(doc, QString::fromLatin1("active").toLower()));
 
     if (m_eInactive)
-        node.appendChild(m_eInactive->write(doc, QString("inactive").toLower()));
+        node.appendChild(m_eInactive->write(doc, QString::fromLatin1("inactive").toLower()));
 
     if (m_eDisabled)
-        node.appendChild(m_eDisabled->write(doc, QString("disabled").toLower()));
+        node.appendChild(m_eDisabled->write(doc, QString::fromLatin1("disabled").toLower()));
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
     return node;
@@ -3497,45 +3497,45 @@ inline QDomElement DomPalette::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomFont::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Font").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Font").toLower());
 
     QDomElement child;
     QDomText t;
 
     if (m_eFamily.size()) {
-        child = doc.createElement(QString("family").toLower());
+        child = doc.createElement(QString::fromLatin1("family").toLower());
         t = doc.createTextNode(m_eFamily);
         child.appendChild(t);
         node.appendChild(child);
     }
 
-    child = doc.createElement(QString("pointSize").toLower());
+    child = doc.createElement(QString::fromLatin1("pointSize").toLower());
     t = doc.createTextNode(QString::number(m_ePointSize));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("weight").toLower());
+    child = doc.createElement(QString::fromLatin1("weight").toLower());
     t = doc.createTextNode(QString::number(m_eWeight));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("italic").toLower());
-    t = doc.createTextNode(m_eItalic ? "true" : "false");
+    child = doc.createElement(QString::fromLatin1("italic").toLower());
+    t = doc.createTextNode(m_eItalic ? QLatin1String("true") : QLatin1String("false"));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("bold").toLower());
-    t = doc.createTextNode(m_eBold ? "true" : "false");
+    child = doc.createElement(QString::fromLatin1("bold").toLower());
+    t = doc.createTextNode(m_eBold ? QLatin1String("true") : QLatin1String("false"));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("underline").toLower());
-    t = doc.createTextNode(m_eUnderline ? "true" : "false");
+    child = doc.createElement(QString::fromLatin1("underline").toLower());
+    t = doc.createTextNode(m_eUnderline ? QLatin1String("true") : QLatin1String("false"));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("strikeOut").toLower());
-    t = doc.createTextNode(m_eStrikeOut ? "true" : "false");
+    child = doc.createElement(QString::fromLatin1("strikeOut").toLower());
+    t = doc.createTextNode(m_eStrikeOut ? QLatin1String("true") : QLatin1String("false"));
     child.appendChild(t);
     node.appendChild(child);
 
@@ -3545,17 +3545,17 @@ inline QDomElement DomFont::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomPoint::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Point").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Point").toLower());
 
     QDomElement child;
     QDomText t;
 
-    child = doc.createElement(QString("x").toLower());
+    child = doc.createElement(QString::fromLatin1("x").toLower());
     t = doc.createTextNode(QString::number(m_eX));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("y").toLower());
+    child = doc.createElement(QString::fromLatin1("y").toLower());
     t = doc.createTextNode(QString::number(m_eY));
     child.appendChild(t);
     node.appendChild(child);
@@ -3566,27 +3566,27 @@ inline QDomElement DomPoint::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomRect::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Rect").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Rect").toLower());
 
     QDomElement child;
     QDomText t;
 
-    child = doc.createElement(QString("x").toLower());
+    child = doc.createElement(QString::fromLatin1("x").toLower());
     t = doc.createTextNode(QString::number(m_eX));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("y").toLower());
+    child = doc.createElement(QString::fromLatin1("y").toLower());
     t = doc.createTextNode(QString::number(m_eY));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("width").toLower());
+    child = doc.createElement(QString::fromLatin1("width").toLower());
     t = doc.createTextNode(QString::number(m_eWidth));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("height").toLower());
+    child = doc.createElement(QString::fromLatin1("height").toLower());
     t = doc.createTextNode(QString::number(m_eHeight));
     child.appendChild(t);
     node.appendChild(child);
@@ -3597,27 +3597,27 @@ inline QDomElement DomRect::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomSizePolicy::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("SizePolicy").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("SizePolicy").toLower());
 
     QDomElement child;
     QDomText t;
 
-    child = doc.createElement(QString("hSizeType").toLower());
+    child = doc.createElement(QString::fromLatin1("hSizeType").toLower());
     t = doc.createTextNode(QString::number(m_eHSizeType));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("vSizeType").toLower());
+    child = doc.createElement(QString::fromLatin1("vSizeType").toLower());
     t = doc.createTextNode(QString::number(m_eVSizeType));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("horStretch").toLower());
+    child = doc.createElement(QString::fromLatin1("horStretch").toLower());
     t = doc.createTextNode(QString::number(m_eHorStretch));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("verStretch").toLower());
+    child = doc.createElement(QString::fromLatin1("verStretch").toLower());
     t = doc.createTextNode(QString::number(m_eVerStretch));
     child.appendChild(t);
     node.appendChild(child);
@@ -3628,17 +3628,17 @@ inline QDomElement DomSizePolicy::write(QDomDocument &doc, const QString &tagNam
 
 inline QDomElement DomSize::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Size").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Size").toLower());
 
     QDomElement child;
     QDomText t;
 
-    child = doc.createElement(QString("width").toLower());
+    child = doc.createElement(QString::fromLatin1("width").toLower());
     t = doc.createTextNode(QString::number(m_eWidth));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("height").toLower());
+    child = doc.createElement(QString::fromLatin1("height").toLower());
     t = doc.createTextNode(QString::number(m_eHeight));
     child.appendChild(t);
     node.appendChild(child);
@@ -3649,22 +3649,22 @@ inline QDomElement DomSize::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomDate::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Date").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Date").toLower());
 
     QDomElement child;
     QDomText t;
 
-    child = doc.createElement(QString("year").toLower());
+    child = doc.createElement(QString::fromLatin1("year").toLower());
     t = doc.createTextNode(QString::number(m_eYear));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("month").toLower());
+    child = doc.createElement(QString::fromLatin1("month").toLower());
     t = doc.createTextNode(QString::number(m_eMonth));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("day").toLower());
+    child = doc.createElement(QString::fromLatin1("day").toLower());
     t = doc.createTextNode(QString::number(m_eDay));
     child.appendChild(t);
     node.appendChild(child);
@@ -3675,22 +3675,22 @@ inline QDomElement DomDate::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomTime::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Time").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Time").toLower());
 
     QDomElement child;
     QDomText t;
 
-    child = doc.createElement(QString("hour").toLower());
+    child = doc.createElement(QString::fromLatin1("hour").toLower());
     t = doc.createTextNode(QString::number(m_eHour));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("minute").toLower());
+    child = doc.createElement(QString::fromLatin1("minute").toLower());
     t = doc.createTextNode(QString::number(m_eMinute));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("second").toLower());
+    child = doc.createElement(QString::fromLatin1("second").toLower());
     t = doc.createTextNode(QString::number(m_eSecond));
     child.appendChild(t);
     node.appendChild(child);
@@ -3701,37 +3701,37 @@ inline QDomElement DomTime::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomDateTime::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("DateTime").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("DateTime").toLower());
 
     QDomElement child;
     QDomText t;
 
-    child = doc.createElement(QString("hour").toLower());
+    child = doc.createElement(QString::fromLatin1("hour").toLower());
     t = doc.createTextNode(QString::number(m_eHour));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("minute").toLower());
+    child = doc.createElement(QString::fromLatin1("minute").toLower());
     t = doc.createTextNode(QString::number(m_eMinute));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("second").toLower());
+    child = doc.createElement(QString::fromLatin1("second").toLower());
     t = doc.createTextNode(QString::number(m_eSecond));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("year").toLower());
+    child = doc.createElement(QString::fromLatin1("year").toLower());
     t = doc.createTextNode(QString::number(m_eYear));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("month").toLower());
+    child = doc.createElement(QString::fromLatin1("month").toLower());
     t = doc.createTextNode(QString::number(m_eMonth));
     child.appendChild(t);
     node.appendChild(child);
 
-    child = doc.createElement(QString("day").toLower());
+    child = doc.createElement(QString::fromLatin1("day").toLower());
     t = doc.createTextNode(QString::number(m_eDay));
     child.appendChild(t);
     node.appendChild(child);
@@ -3742,13 +3742,13 @@ inline QDomElement DomDateTime::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomStringList::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("StringList").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("StringList").toLower());
 
     QDomElement child;
     QDomText t;
 
     for (int i=0; i<m_eString.size(); ++i) {
-        child = doc.createElement(QString("string").toLower());
+        child = doc.createElement(QString::fromLatin1("string").toLower());
         t = doc.createTextNode(m_eString[i]);
         child.appendChild(t);
         node.appendChild(child);
@@ -3760,9 +3760,9 @@ inline QDomElement DomStringList::write(QDomDocument &doc, const QString &tagNam
 
 inline QDomElement DomString::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("String").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("String").toLower());
     if (m_hasNotr)
-        node.setAttribute(QString("notr").toLower(), m_aNotr);
+        node.setAttribute(QString::fromLatin1("notr").toLower(), m_aNotr);
 
 
     QDomElement child;
@@ -3774,12 +3774,12 @@ inline QDomElement DomString::write(QDomDocument &doc, const QString &tagName)
 
 inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Property").toLower());
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Property").toLower());
     if (m_hasName)
-        node.setAttribute(QString("name").toLower(), m_aName);
+        node.setAttribute(QString::fromLatin1("name").toLower(), m_aName);
 
     if (m_hasStdset)
-        node.setAttribute(QString("stdset").toLower(), m_aStdset);
+        node.setAttribute(QString::fromLatin1("stdset").toLower(), m_aStdset);
 
 
     QDomElement child;
@@ -3788,7 +3788,7 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
     switch (m_kind) {
     case DomProperty::Bool: {
     if (m_eBool.size()) {
-        child = doc.createElement(QString("bool").toLower());
+        child = doc.createElement(QString::fromLatin1("bool").toLower());
         t = doc.createTextNode(m_eBool);
         child.appendChild(t);
         node.appendChild(child);
@@ -3798,13 +3798,13 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
 
     case DomProperty::Color: {
     if (m_eColor)
-        node.appendChild(m_eColor->write(doc, QString("color").toLower()));
+        node.appendChild(m_eColor->write(doc, QString::fromLatin1("color").toLower()));
     }
     break;
 
     case DomProperty::Cstring: {
     if (m_eCstring.size()) {
-        child = doc.createElement(QString("cstring").toLower());
+        child = doc.createElement(QString::fromLatin1("cstring").toLower());
         t = doc.createTextNode(m_eCstring);
         child.appendChild(t);
         node.appendChild(child);
@@ -3813,7 +3813,7 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
     break;
 
     case DomProperty::Cursor: {
-    child = doc.createElement(QString("cursor").toLower());
+    child = doc.createElement(QString::fromLatin1("cursor").toLower());
     t = doc.createTextNode(QString::number(m_eCursor));
     child.appendChild(t);
     node.appendChild(child);
@@ -3822,7 +3822,7 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
 
     case DomProperty::Enum: {
     if (m_eEnum.size()) {
-        child = doc.createElement(QString("enum").toLower());
+        child = doc.createElement(QString::fromLatin1("enum").toLower());
         t = doc.createTextNode(m_eEnum);
         child.appendChild(t);
         node.appendChild(child);
@@ -3832,13 +3832,13 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
 
     case DomProperty::Font: {
     if (m_eFont)
-        node.appendChild(m_eFont->write(doc, QString("font").toLower()));
+        node.appendChild(m_eFont->write(doc, QString::fromLatin1("font").toLower()));
     }
     break;
 
     case DomProperty::IconSet: {
     if (m_eIconSet.size()) {
-        child = doc.createElement(QString("iconSet").toLower());
+        child = doc.createElement(QString::fromLatin1("iconSet").toLower());
         t = doc.createTextNode(m_eIconSet);
         child.appendChild(t);
         node.appendChild(child);
@@ -3848,7 +3848,7 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
 
     case DomProperty::Pixmap: {
     if (m_ePixmap.size()) {
-        child = doc.createElement(QString("pixmap").toLower());
+        child = doc.createElement(QString::fromLatin1("pixmap").toLower());
         t = doc.createTextNode(m_ePixmap);
         child.appendChild(t);
         node.appendChild(child);
@@ -3858,25 +3858,25 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
 
     case DomProperty::Palette: {
     if (m_ePalette)
-        node.appendChild(m_ePalette->write(doc, QString("palette").toLower()));
+        node.appendChild(m_ePalette->write(doc, QString::fromLatin1("palette").toLower()));
     }
     break;
 
     case DomProperty::Point: {
     if (m_ePoint)
-        node.appendChild(m_ePoint->write(doc, QString("point").toLower()));
+        node.appendChild(m_ePoint->write(doc, QString::fromLatin1("point").toLower()));
     }
     break;
 
     case DomProperty::Rect: {
     if (m_eRect)
-        node.appendChild(m_eRect->write(doc, QString("rect").toLower()));
+        node.appendChild(m_eRect->write(doc, QString::fromLatin1("rect").toLower()));
     }
     break;
 
     case DomProperty::Set: {
     if (m_eSet.size()) {
-        child = doc.createElement(QString("set").toLower());
+        child = doc.createElement(QString::fromLatin1("set").toLower());
         t = doc.createTextNode(m_eSet);
         child.appendChild(t);
         node.appendChild(child);
@@ -3886,30 +3886,30 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
 
     case DomProperty::SizePolicy: {
     if (m_eSizePolicy)
-        node.appendChild(m_eSizePolicy->write(doc, QString("sizePolicy").toLower()));
+        node.appendChild(m_eSizePolicy->write(doc, QString::fromLatin1("sizePolicy").toLower()));
     }
     break;
 
     case DomProperty::Size: {
     if (m_eSize)
-        node.appendChild(m_eSize->write(doc, QString("size").toLower()));
+        node.appendChild(m_eSize->write(doc, QString::fromLatin1("size").toLower()));
     }
     break;
 
     case DomProperty::String: {
     if (m_eString)
-        node.appendChild(m_eString->write(doc, QString("string").toLower()));
+        node.appendChild(m_eString->write(doc, QString::fromLatin1("string").toLower()));
     }
     break;
 
     case DomProperty::StringList: {
     if (m_eStringList)
-        node.appendChild(m_eStringList->write(doc, QString("stringList").toLower()));
+        node.appendChild(m_eStringList->write(doc, QString::fromLatin1("stringList").toLower()));
     }
     break;
 
     case DomProperty::Number: {
-    child = doc.createElement(QString("number").toLower());
+    child = doc.createElement(QString::fromLatin1("number").toLower());
     t = doc.createTextNode(QString::number(m_eNumber));
     child.appendChild(t);
     node.appendChild(child);
@@ -3918,19 +3918,19 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
 
     case DomProperty::Date: {
     if (m_eDate)
-        node.appendChild(m_eDate->write(doc, QString("date").toLower()));
+        node.appendChild(m_eDate->write(doc, QString::fromLatin1("date").toLower()));
     }
     break;
 
     case DomProperty::Time: {
     if (m_eTime)
-        node.appendChild(m_eTime->write(doc, QString("time").toLower()));
+        node.appendChild(m_eTime->write(doc, QString::fromLatin1("time").toLower()));
     }
     break;
 
     case DomProperty::DateTime: {
     if (m_eDateTime)
-        node.appendChild(m_eDateTime->write(doc, QString("dateTime").toLower()));
+        node.appendChild(m_eDateTime->write(doc, QString::fromLatin1("dateTime").toLower()));
     }
     break;
 

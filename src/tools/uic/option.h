@@ -35,7 +35,7 @@ struct Option
           generateImplemetation(0),
           generateNamespace(1),
           autoConnection(1)
-    { indent.fill(QChar(' '), 4); }
+    { indent.fill(QLatin1Char(' '), 4); }
 };
 
 #endif // OPTION_H

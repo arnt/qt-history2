@@ -76,13 +76,13 @@ bool Uic::write(QIODevice *in)
         }
         //qWarning("converting file '%s'", opt.inputFile.latin1());
         BlockingProcess uic3;
-        uic3.setArguments(QStringList() << "uic3" << "-convert" << opt.inputFile);
+        uic3.setArguments(QStringList() << QLatin1String("uic3") << QLatin1String("-convert") << opt.inputFile);
         if (!uic3.start()) {
             fprintf(stderr, "Couldn't start uic3\n");
             return false;
         }
 
-        QString contents = uic3.out;
+        QString contents = QString::fromAscii(uic3.out);
         if (!doc.setContent(contents))
             return false;
 
@@ -150,45 +150,45 @@ void Uic::writeHeaderProtectionEnd()
 
 bool Uic::isMainWindow(const QString &className) const
 {
-    return customWidgetsInfo()->extends(className, "Q3MainWindow")
-        || customWidgetsInfo()->extends(className, "QMainWindow");
+    return customWidgetsInfo()->extends(className, QLatin1String("Q3MainWindow"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QMainWindow"));
 }
 
 bool Uic::isToolBar(const QString &className) const
 {
-    return customWidgetsInfo()->extends(className, "Q3ToolBar")
-        || customWidgetsInfo()->extends(className, "QToolBar");
+    return customWidgetsInfo()->extends(className, QLatin1String("Q3ToolBar"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QToolBar"));
 }
 
 bool Uic::isButton(const QString &className) const
 {
-    return customWidgetsInfo()->extends(className, "QRadioButton")
-        || customWidgetsInfo()->extends(className, "QToolButton")
-        || customWidgetsInfo()->extends(className, "QCheckBox")
-        || customWidgetsInfo()->extends(className, "QPushButton");
+    return customWidgetsInfo()->extends(className, QLatin1String("QRadioButton"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QToolButton"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QCheckBox"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QPushButton"));
 }
 
 bool Uic::isContainer(const QString &className) const
 {
-    return customWidgetsInfo()->extends(className, "QStackedBox")
-        || customWidgetsInfo()->extends(className, "QToolBox")
-        || customWidgetsInfo()->extends(className, "QTabWidget")
-        || customWidgetsInfo()->extends(className, "QWidgetStack")
-        || customWidgetsInfo()->extends(className, "QWizard");
+    return customWidgetsInfo()->extends(className, QLatin1String("QStackedBox"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QToolBox"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QTabWidget"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QWidgetStack"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QWizard"));
 }
 
 bool Uic::isStatusBar(const QString &className) const
 {
-    return customWidgetsInfo()->extends(className, "QStatusBar");
+    return customWidgetsInfo()->extends(className, QLatin1String("QStatusBar"));
 }
 
 bool Uic::isMenuBar(const QString &className) const
 {
-    return customWidgetsInfo()->extends(className, "QMenuBar");
+    return customWidgetsInfo()->extends(className, QLatin1String("QMenuBar"));
 }
 
 bool Uic::isMenu(const QString &className) const
 {
-    return customWidgetsInfo()->extends(className, "QMenu")
-        || customWidgetsInfo()->extends(className, "QPopupMenu");
+    return customWidgetsInfo()->extends(className, QLatin1String("QMenu"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QPopupMenu"));
 }

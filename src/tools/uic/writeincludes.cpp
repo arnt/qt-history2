@@ -35,21 +35,21 @@ void WriteIncludes::accept(DomUI *node)
     if (node->elementCustomWidgets())
         TreeWalker::accept(node->elementCustomWidgets());
 
-    m_includes.insert("qapplication.h", true);
-    m_includes.insert("qvariant.h", true);
-    m_includes.insert("qaction.h", true);
+    m_includes.insert(QLatin1String("qapplication.h"), true);
+    m_includes.insert(QLatin1String("qvariant.h"), true);
+    m_includes.insert(QLatin1String("qaction.h"), true);
 
-    m_includes.insert("qbuttongroup.h", true);
+    m_includes.insert(QLatin1String("qbuttongroup.h"), true);
 
     if (uic->hasExternalPixmap()
             && uic->pixmapFunction() == QLatin1String("qPixmapFromMimeSource"))
-        m_includes.insert("qmimefactory.h", true); //compat
+        m_includes.insert(QLatin1String("qmimefactory.h"), true); //compat
 
     if (uic->databaseInfo()->connections().size()) {
-        m_includes.insert("qsqldatabase.h", true);
-        m_includes.insert("qsqlcursor.h", true);
-        m_includes.insert("qsqlrecord.h", true);
-        m_includes.insert("qsqlform.h", true);
+        m_includes.insert(QLatin1String("qsqldatabase.h"), true);
+        m_includes.insert(QLatin1String("qsqlcursor.h"), true);
+        m_includes.insert(QLatin1String("qsqlrecord.h"), true);
+        m_includes.insert(QLatin1String("qsqlform.h"), true);
     }
 
     TreeWalker::accept(node);
@@ -93,7 +93,7 @@ void WriteIncludes::add(const QString &className)
     if (className.isEmpty())
         return;
 
-    QString header = className.toLower() + ".h";
+    QString header = className.toLower() + QLatin1String(".h");
 
     if (className == QLatin1String("QVBoxLayout")  // special case for layouts
             || className == QLatin1String("QHBoxLayout")
@@ -101,23 +101,23 @@ void WriteIncludes::add(const QString &className)
             || className == QLatin1String("QLayout")
             || className == QLatin1String("QGridLayout")
             || className == QLatin1String("QSpacerItem")) {
-        m_includes.insert("qlayout.h", true);
+        m_includes.insert(QLatin1String("qlayout.h"), true);
     } else if (className == QLatin1String("Line")) {
-        m_includes.insert("qframe.h", true);
+        m_includes.insert(QLatin1String("qframe.h"), true);
     } else if (className == QLatin1String("QDateEdit") // special case for datetime
             || className == QLatin1String("QTimeEdit")) {
-        m_includes.insert("qdatetimeedit.h", true);
+        m_includes.insert(QLatin1String("qdatetimeedit.h"), true);
     } else if (className == QLatin1String("Q3DateEdit") // special case for d3atetime
             || className == QLatin1String("Q3TimeEdit")) {
-        m_includes.insert("q3datetimeedit.h", true);
+        m_includes.insert(QLatin1String("q3datetimeedit.h"), true);
     } else if (!m_includes.contains(header)
             && !m_customWidgets.contains(className)) {
         m_includes.insert(header, true);
     }
 
-    if (uic->customWidgetsInfo()->extends(className, "Q3ListView")
-            || uic->customWidgetsInfo()->extends(className, "QTable")) {
-        m_includes.insert("q3header.h", true);
+    if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3ListView"))
+            || uic->customWidgetsInfo()->extends(className, QLatin1String("QTable"))) {
+        m_includes.insert(QLatin1String("q3header.h"), true);
     }
 }
 

@@ -56,8 +56,8 @@ void WriteIconInitialization::accept(DomImage *image)
     QString data = image->elementData()->text();
     QString fmt = image->elementData()->attributeFormat();
 
-    QString imageId = image->attributeName() + "_ID";
-    QString imageData = image->attributeName() + "_data";
+    QString imageId = image->attributeName() + QLatin1String("_ID");
+    QString imageData = image->attributeName() + QLatin1String("_data");
     QString ind = option.indent + option.indent;
 
     output << ind << "case " << imageId << ": ";

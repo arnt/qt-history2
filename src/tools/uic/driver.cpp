@@ -72,7 +72,7 @@ QString Driver::findOrInsertLayoutItem(DomLayoutItem *ui_layoutItem)
 QString Driver::findOrInsertActionGroup(DomActionGroup *ui_group)
 {
     if (!m_actionGroups.contains(ui_group))
-        m_actionGroups.insert(ui_group, unique(ui_group->attributeName(), "QActionGroup"));
+        m_actionGroups.insert(ui_group, unique(ui_group->attributeName(), QLatin1String("QActionGroup")));
 
     return m_actionGroups.value(ui_group);
 }
@@ -80,7 +80,7 @@ QString Driver::findOrInsertActionGroup(DomActionGroup *ui_group)
 QString Driver::findOrInsertAction(DomAction *ui_action)
 {
     if (!m_actions.contains(ui_action))
-        m_actions.insert(ui_action, unique(ui_action->attributeName(), "QAction"));
+        m_actions.insert(ui_action, unique(ui_action->attributeName(), QLatin1String("QAction")));
 
     return m_actions.value(ui_action);
 }
@@ -98,7 +98,7 @@ QString Driver::unique(const QString &instanceName, const QString &className)
     if (instanceName.size()) {
         int id = 1;
         name = instanceName;
-        name.replace(QRegExp("[^a-zA-Z_0-9]"), "_");
+        name.replace(QRegExp(QLatin1String("[^a-zA-Z_0-9]")), QLatin1String("_"));
 
         bool alreadyUsed = false;
         while (true) {
@@ -111,7 +111,7 @@ QString Driver::unique(const QString &instanceName, const QString &className)
     } else if (className.size()) {
         name = unique(qtify(className));
     } else {
-        name = unique("var");
+        name = unique(QLatin1String("var"));
     }
 
     if (alreadyUsed && className.size()) {
@@ -126,7 +126,7 @@ QString Driver::qtify(const QString &name)
 {
     QString qname = name;
 
-    if (qname.at(0) == 'Q' || qname.at(0) == 'K')
+    if (qname.at(0) == QLatin1Char('Q') || qname.at(0) == QLatin1Char('K'))
         qname = qname.mid(1);
 
     int i=0;
@@ -148,7 +148,7 @@ QString Driver::headerFileName(const QString &fileName)
         return headerFileName(QLatin1String("noname"));
 
     QFileInfo info(fileName);
-    return info.baseName().toUpper() + "_H";
+    return info.baseName().toUpper() + QLatin1String("_H");
 }
 
 bool Driver::uic(const QString &fileName, DomUI *ui, QTextStream *out)

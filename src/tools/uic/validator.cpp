@@ -38,9 +38,9 @@ void Validator::accept(DomWidget *node)
         node->setAttributeClass(QLatin1String("QFrame"));
 
     QString menuName = driver->findOrInsertWidget(node);
-    if (uic->customWidgetsInfo()->extends(widgetClass, "QMenu")) {
+    if (uic->customWidgetsInfo()->extends(widgetClass, QLatin1String("QMenu"))) {
         DomAction *menuAction = new DomAction();
-        menuAction->setAttributeName(menuName + "Action");
+        menuAction->setAttributeName(menuName + QLatin1String("Action"));
         menuAction->setAttributeMenu(menuName);
 
         QList<DomAction*> actions = node->elementAction();
