@@ -50,6 +50,7 @@ public:
     void createFakeProperty(const QString &propertyName, const QVariant &value = QVariant());
 
 protected:
+    bool isAdditionalProperty(int index) const;
     bool isFakeProperty(int index) const;
     QVariant resolvePropertyValue(const QVariant &value) const;
     QVariant metaProperty(int index) const;
@@ -72,6 +73,8 @@ protected:
 
     QHash<int, Info> m_info;
     QHash<int, QVariant> m_fakeProperties;
+    QHash<int, QVariant> m_addProperties;
+    QHash<QString, int> m_addIndex;
 };
 
 class QT_SHARED_EXPORT QDesignerPropertySheetFactory: public DefaultExtensionFactory

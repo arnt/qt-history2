@@ -51,26 +51,44 @@ void QDesignerPropertySheet::createFakeProperty(const QString &propertyName, con
         setVisible(index, false);
         QVariant v = value.isValid() ? value : metaProperty(index);
         m_fakeProperties.insert(index, v);
+    } else if (value.isValid()) { // additional properties
+        int index = count();
+        m_addIndex.insert(propertyName, index);
+        m_addProperties.insert(index, value);
     }
+}
+
+bool QDesignerPropertySheet::isAdditionalProperty(int index) const
+{
+    return m_addProperties.contains(index);
 }
 
 bool QDesignerPropertySheet::isFakeProperty(int index) const
 {
-    return m_fakeProperties.contains(index);
+    // additional properties must be fake
+    return (m_fakeProperties.contains(index) || isAdditionalProperty(index));
 }
 
 int QDesignerPropertySheet::count() const
 {
-    return meta->propertyCount();
+    return meta->propertyCount() + m_addProperties.count();
 }
 
 int QDesignerPropertySheet::indexOf(const QString &name) const
 {
-    return meta->indexOfProperty(name.toLatin1());
+    int index = meta->indexOfProperty(name.toLatin1());
+    
+    if (index == -1)
+        index = m_addIndex.value(name, -1);
+    
+    return index;
 }
 
 QString QDesignerPropertySheet::propertyName(int index) const
 {
+    if (isAdditionalProperty(index))
+        return m_addIndex.key(index);
+
     return QString::fromLatin1(meta->property(index).name());
 }
 
@@ -94,6 +112,10 @@ void QDesignerPropertySheet::setPropertyGroup(int index, const QString &group)
 
 QVariant QDesignerPropertySheet::property(int index) const
 {
+    if (isAdditionalProperty(index)) {
+        return m_addProperties.value(index);
+    }
+
     if (isFakeProperty(index)) {
         return m_fakeProperties.value(index);
     }
@@ -212,7 +234,9 @@ void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
 
 void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
 {
-    if (isFakeProperty(index)) {
+    if (isAdditionalProperty(index)) {
+        m_addProperties[index] = value;
+    } else if (isFakeProperty(index)) {
         setFakeProperty(index, value);
     } else {
         QMetaProperty p = meta->property(index);
@@ -235,6 +259,9 @@ void QDesignerPropertySheet::setChanged(int index, bool changed)
 
 bool QDesignerPropertySheet::isVisible(int index) const
 {
+    if (isAdditionalProperty(index))
+        return m_info.value(index).visible;
+
     if (isFakeProperty(index))
         return true;
 
@@ -252,6 +279,9 @@ void QDesignerPropertySheet::setVisible(int index, bool visible)
 
 bool QDesignerPropertySheet::isAttribute(int index) const
 {
+    if (isAdditionalProperty(index))
+        return m_info.value(index).attribute;
+
     if (isFakeProperty(index))
         return true;
 
