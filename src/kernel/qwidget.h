@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#224 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#225 $
 **
 ** Definition of QWidget class
 **
@@ -618,9 +618,11 @@ struct QTLWExtra {
 };
 
 
+#define QWIDGETSIZE_MAX 32767
+
 struct QWExtra {
-    short    minw, minh;			// minimum size
-    short    maxw, maxh;			// maximum size
+    Q_INT16    minw, minh;			// minimum size
+    Q_INT16    maxw, maxh;			// maximum size
     QPixmap *bg_pix;				// background pixmap
     QWidget *focus_proxy;
     QCursor *curs;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#17 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#18 $
 **
 ** Definition of the abstract layout base class
 **
@@ -29,6 +29,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qsizepolicy.h"
+#include "qwidget.h"
 #endif // QT_H
 
 class QMenuBar;
@@ -156,7 +157,7 @@ public:
     virtual void setMargin( int );
     virtual void setSpacing( int );
 
-    enum { unlimited = QCOORD_MAX };
+    enum { unlimited = QWIDGETSIZE_MAX };
     enum ResizeMode { FreeResize, Minimum, Fixed };
 #if 1 //OBSOLETE
     int defaultBorder() const { return insideSpacing; }

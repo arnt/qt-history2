@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#393 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#394 $
 **
 ** Implementation of QWidget class
 **
@@ -745,7 +745,7 @@ void QWidget::createExtra()
 	extra = new QWExtra;
 	CHECK_PTR( extra );
 	extra->minw = extra->minh = 0;
-	extra->maxw = extra->maxh = QCOORD_MAX;
+	extra->maxw = extra->maxh = QWIDGETSIZE_MAX;
 	extra->bg_pix = 0;
 	extra->focus_proxy = 0;
 	extra->curs = 0;
@@ -1170,7 +1170,7 @@ QSize QWidget::minimumSize() const
 QSize QWidget::maximumSize() const
 {
     return extra ? QSize(extra->maxw,extra->maxh)
-		 : QSize(QCOORD_MAX,QCOORD_MAX);
+		 : QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
 }
 
 
@@ -1598,7 +1598,7 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
     if (m==PaletteBackground && !extra) return;
 
     createExtra();
-    if (extra->bg_mode != m) {
+    if ((BackgroundMode)extra->bg_mode != m) {
 	extra->bg_mode = m;
 	setBackgroundFromMode();
     }

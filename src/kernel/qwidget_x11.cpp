@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#350 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#351 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -524,7 +524,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   this method sets the XIMP "spot" point for
   complex language input handling.
 */
-void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
+void QWidget::setMicroFocusHint(int x, int y, int /*width*/, int height, bool text)
 {
     if ( text ) {
 	QWidget* tlw = topLevelWidget();
@@ -1114,7 +1114,7 @@ void QWidget::showWindow()
     clearWState( WState_ForceHide );
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );
-    if ( extra && extra->bg_mode == NoBackground ) {
+    if ( extra && (BackgroundMode)extra->bg_mode == NoBackground ) {
 	XMapWindow( x11Display(), winId() );
     } else {
 	XSetWindowBackgroundPixmap( x11Display(), winId(), 0 );
@@ -1262,7 +1262,7 @@ static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
 	    s->min_width  = x->minw;
 	    s->min_height = x->minh;
 	}
-	if ( x->maxw < QCOORD_MAX || x->maxh < QCOORD_MAX ) {
+	if ( x->maxw < QWIDGETSIZE_MAX || x->maxh < QWIDGETSIZE_MAX ) {
 	    s->flags |= PMaxSize;		// add maximum size hints
 	    s->max_width  = x->maxw;
 	    s->max_height = x->maxh;
@@ -1409,14 +1409,21 @@ void QWidget::setMinimumSize( int minw, int minh )
 void QWidget::setMaximumSize( int maxw, int maxh )
 {
 #if defined(CHECK_RANGE)
-    if ( maxw > QCOORD_MAX || maxh > QCOORD_MAX )
+    if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
 	warning("QWidget::setMaximumSize: (%s/%s) "
 		"The largest allowed size is (%d,%d)",
-		 name( "unnamed" ), className(), QCOORD_MAX, QCOORD_MAX );
-    if ( maxw < 0 || maxh < 0 )
+		 name( "unnamed" ), className(), QWIDGETSIZE_MAX, 
+		QWIDGETSIZE_MAX );
+	maxw = QMIN( maxw, QWIDGETSIZE_MAX );
+	maxh = QMIN( maxh, QWIDGETSIZE_MAX );
+    }
+    if ( maxw < 0 || maxh < 0 ) {
 	warning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
 		"are not possible",
 		name( "unnamed" ), className(), maxw, maxh );
+	maxw = QMAX( maxw, 0 );
+	maxh = QMAX( maxh, 0 );
+    }
 #endif
     createExtra();
     if ( extra->maxw == maxw && extra->maxh == maxh )

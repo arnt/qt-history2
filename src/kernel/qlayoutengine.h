@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayoutengine.h#1 $
+** $Id: //depot/qt/main/src/kernel/qlayoutengine.h#2 $
 **
 ** Definition of something or other
 **
@@ -22,7 +22,7 @@ struct QLayoutStruct
 {
     void init() { stretch = 0; initParameters(); }
     void initParameters() { minimumSize = sizeHint = 0;
-    maximumSize = QCOORD_MAX; expansive = FALSE; empty = TRUE; }
+    maximumSize = QWIDGETSIZE_MAX; expansive = FALSE; empty = TRUE; }
     //permanent storage:
     int stretch;
     //parameters:

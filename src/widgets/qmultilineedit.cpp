@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#34 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2483,7 +2483,7 @@ QSize QMultiLineEdit::sizeHint() const
     int w = fm.width( "This should be about 30-40 chars." );
 
     int maxh = maximumSize().height();
-    if ( maxh < QCOORD_MAX )
+    if ( maxh < QWIDGETSIZE_MAX )
 	h = maxh;
 
     return QSize( w, h );

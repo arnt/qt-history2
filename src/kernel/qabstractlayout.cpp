@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#44 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -271,22 +271,22 @@ static QSize smartMinSize( QWidget *w )
 static QSize smartMaxSize( QWidget *w, int align = 0 )
 {
     if ( align & HorAlign && align & VerAlign )
-	return QSize( QCOORD_MAX, QCOORD_MAX );
+	return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
     QSize s = w->maximumSize();
-    if ( s.width() == QCOORD_MAX && !(align&HorAlign) )
+    if ( s.width() == QWIDGETSIZE_MAX && !(align&HorAlign) )
 	if ( !w->sizePolicy().mayGrowHorizontally() )
 	    s.setWidth( w->sizeHint().width() );
 
-    if ( s.height() ==  QCOORD_MAX && !(align&VerAlign) )
+    if ( s.height() ==  QWIDGETSIZE_MAX && !(align&VerAlign) )
 	if ( !w->sizePolicy().mayGrowVertically() )
 	    s.setHeight( w->sizeHint().height() );
 
     //s = s.expandedTo( w->minimumSize() ); //### ???
 
     if (align & HorAlign )
-	s.setWidth( QCOORD_MAX );
+	s.setWidth( QWIDGETSIZE_MAX );
     if (align & VerAlign )
-	s.setHeight( QCOORD_MAX );
+	s.setHeight( QWIDGETSIZE_MAX );
     return s;
 }
 
@@ -437,8 +437,8 @@ QSize QWidgetItem::minimumSize() const
 */
 QSize QSpacerItem::maximumSize() const
 {
-    return QSize( sizeP.mayGrowHorizontally() ? QCOORD_MAX : width,
-		  sizeP.mayGrowVertically() ? QCOORD_MAX : height );
+    return QSize( sizeP.mayGrowHorizontally() ? QWIDGETSIZE_MAX : width,
+		  sizeP.mayGrowVertically() ? QWIDGETSIZE_MAX : height );
 }
 
 /*!
@@ -969,7 +969,7 @@ QSize QLayout::minimumSize() const
 
 QSize QLayout::maximumSize() const
 {
-    return QSize( QCOORD_MAX, QCOORD_MAX );
+    return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
 }
 
 

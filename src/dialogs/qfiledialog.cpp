@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#163 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#164 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1240,7 +1240,7 @@ void QFileDialog::updateGeometries()
 	t = d->extraWidget->sizeHint();
 	RM;
     }
-    t.setWidth( QCOORD_MAX );
+    t.setWidth( QWIDGETSIZE_MAX );
     t.setHeight( r.height() );
     d->paths->setMinimumSize( r );
     d->paths->setMaximumSize( t );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#91 $
 **
 ** Implementation of layout classes
 **
@@ -205,7 +205,7 @@ void QLayoutArray::recalcHFW( int w, int spacing )
     }
     if ( n )
 	h += (n-1)*spacing;
-    h = QMIN( QCOORD_MAX, h );//not 32-bit safe
+    h = QMIN( QWIDGETSIZE_MAX, h );
 
     hfw_height = h;
     hfw_width = w;
@@ -279,8 +279,8 @@ QSize QLayoutArray::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
     }
     if ( n )
 	w += (n-1)*spacer;
-    w = QMIN( QCOORD_MAX, w );//not 32-bit safe
-    h = QMIN( QCOORD_MAX, h );
+    w = QMIN( QWIDGETSIZE_MAX, w );
+    h = QMIN( QWIDGETSIZE_MAX, h );
 
     return QSize(w,h);
 }
@@ -972,8 +972,8 @@ QSize QGridLayout::maximumSize() const
 {
     QSize s =  array->maximumSize( spacing() );
     if ( isTopLevel() )
-	s = QSize( QMIN( 2*margin()+s.width(), QCOORD_MAX ),
-	           QMIN( 2*margin()+s.height(), QCOORD_MAX ) );
+	s = QSize( QMIN( 2*margin()+s.width(), QWIDGETSIZE_MAX ),
+	           QMIN( 2*margin()+s.height(), QWIDGETSIZE_MAX ) );
     return s;
 }
 

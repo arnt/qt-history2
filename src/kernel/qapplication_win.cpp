@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#274 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#275 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1416,9 +1416,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    mmi->ptMinTrackSize.x = x->minw + f.width()	 - s.width();
 		if ( x->minh > 0 )
 		    mmi->ptMinTrackSize.y = x->minh + f.height() - s.height();
-		if ( x->maxw < QCOORD_MAX )
+		if ( x->maxw < QWIDGETSIZE_MAX )
 		    mmi->ptMaxTrackSize.x = x->maxw + f.width()	 - s.width();
-		if ( x->maxh < QCOORD_MAX )
+		if ( x->maxh < QWIDGETSIZE_MAX )
 		    mmi->ptMaxTrackSize.y = x->maxh + f.height() - s.height();
 		return 0;
 	    }
@@ -2528,7 +2528,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	int b = (int) (short) HIWORD(msg.lParam);
 	QPoint oldPos = pos();
 	// Ignore silly Windows move event to wild pos after iconify.
-	if ( a <= QCOORD_MAX && b <= QCOORD_MAX ) {
+	// (### check if this has been corrected with the other fixes in 2.0)
+	if ( a <= QCOORD_MAX && b <= QCOORD_MAX ) { //###not 32-bit safe
 	    QPoint newPos( a, b );
 	    r.moveTopLeft( newPos );
 	    setCRect( r );

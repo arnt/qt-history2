@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#461 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#462 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -410,7 +410,7 @@ static void qt_x11_process_intern_atoms()
 	while( it.current() ) {
 	    res[i] = 0;
 	    resp[i] = it.current();
-	    names[i] = strdup((const char*)(void*)it.currentKeyLong());
+	    names[i] = qstrdup((const char*)(void*)it.currentKeyLong());
 	    i++;
 	    ++it;
 	}

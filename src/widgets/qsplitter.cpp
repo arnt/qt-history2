@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#63 $
 **
 **  Splitter widget
 **
@@ -635,7 +635,7 @@ void QSplitter::recalc( bool update )
     int fi = 2*frameWidth();
     int maxl = fi;
     int minl = fi;
-    int maxt = QCOORD_MAX;
+    int maxt = QWIDGETSIZE_MAX;
     int mint = fi;
     int n = data->list.count();
     bool first = TRUE;
@@ -664,7 +664,7 @@ void QSplitter::recalc( bool update )
 	    }
 	}
     }
-    maxl = QMIN( maxl, QCOORD_MAX );
+    maxl = QMIN( maxl, QWIDGETSIZE_MAX );
     if ( maxt < mint )
 	maxt = mint;
 
