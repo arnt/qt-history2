@@ -290,7 +290,7 @@ void ABCentralWidget::addEntry()
 	    contactItem->setProperty( "Email1Address", iEMail->text() );
 	    contactItem->dynamicCall( "Save()" );
 
-	    ABListViewItem *item = new ABListViewItem( listView, iFirstName->text(),
+	    new ABListViewItem( listView, iFirstName->text(),
 		iLastName->text(), iAddress->text(), iEMail->text(), contactItem );
 	}
     }

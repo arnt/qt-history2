@@ -111,6 +111,13 @@ IPictureDisp *QPixmapToIPicture( const QPixmap &pixmap )
 
 	::DeleteObject( hdc );
 
+	if ( !res ) {
+#if defined(QT_CHECK_STATE)
+	    qSystemWarning( "QPixmapToIPicture: Failed to BitBlt bitmap" );
+#endif
+	    return 0;
+	}
+
 	desc.bmp.hbitmap = hbm;
     }
 
@@ -472,8 +479,8 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
 bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *param )
 {
     // three dummy variables to avoid code duplication for VT_I2/4 etc.
-    int intvalue;
-    uint uintvalue;
+    int intvalue = 0;
+    uint uintvalue = 0;
 
     switch ( arg.vt ) {
     case VT_BSTR:
@@ -539,6 +546,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	case VT_INT:
 	    intvalue = arg.intVal;
 	    break;
+        default:
 	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
@@ -571,6 +579,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	case VT_INT|VT_BYREF:
 	    intvalue = *arg.pintVal;
 	    break;
+        default:
 	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
 	    && (QVariant::Type)*(char*)param->typeExtra == QVariant::Color ) {
@@ -601,6 +610,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	case VT_UINT:
 	    uintvalue = arg.uintVal;
 	    break;
+        default:
 	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
@@ -631,6 +641,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	case VT_UINT|VT_BYREF:
 	    uintvalue = *arg.puintVal;
 	    break;
+        default:
 	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
@@ -668,6 +679,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    case QVariant::LongLong:
 		static_QUType_varptr.set( obj, new Q_LLONG(arg.cyVal.int64) );
 		break;
+            default:
 	    }
 	}
 	break;
@@ -695,6 +707,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		    static_QUType_varptr.set( obj, reference );
 		}
 		break;
+            default:
 	    }
 	}
 	break;

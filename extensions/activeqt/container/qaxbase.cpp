@@ -80,7 +80,7 @@ class QAxEventSink : public IDispatch,
 {
 public:
     QAxEventSink( QAxBase *com )
-	: combase( com ), ref( 1 ), cpoint( 0 ), ciid( IID_NULL )
+	: combase( com ), cpoint( 0 ), ref( 1 ), ciid( IID_NULL )
     {}
     virtual ~QAxEventSink()
     {

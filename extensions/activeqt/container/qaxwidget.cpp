@@ -289,7 +289,6 @@ private:
 LRESULT CALLBACK axc_FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 {
     static bool reentrant = FALSE;
-    static bool ignoreNext = FALSE;
     static QPoint pos;
     static POINT gpos={-1,-1};
     QEvent::Type type;				// event parameters
@@ -1241,6 +1240,7 @@ bool QAxHostWidget::event( QEvent *e )
 	    axhost->m_spOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos );
 	}
 	break;
+    default:
     }
 
     return QWidget::event( e );
