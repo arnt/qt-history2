@@ -23,7 +23,7 @@
 
 inline int q_cas_32(volatile int *ptr, int expected, int newval)
 {
-    asm("lock cmpxchgl %1,%2"
+    asm volatile ("lock cmpxchgl %1,%2"
 	: "=a" (newval)
 	: "q" (newval), "m" (*ptr), "0" (expected)
 	: "memory");
@@ -32,7 +32,7 @@ inline int q_cas_32(volatile int *ptr, int expected, int newval)
 
 inline void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
 {
-    asm("lock cmpxchgl %1,%2"
+    asm volatile ("lock cmpxchgl %1,%2"
 	: "=a" (newval)
 	: "q" (newval), "m" (*ptr), "0" (expected)
 	: "memory");

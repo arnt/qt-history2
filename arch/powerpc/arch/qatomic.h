@@ -24,7 +24,7 @@
 inline int q_cas_32(volatile int *ptr, int expected, int newval)
 {
     register int ret;
-    asm ("      lwarx %0,0,%1\n"
+    asm volatile ("      lwarx %0,0,%1\n"
          "      cmpw %0,%2\n"
          "      bne- $+12\n"
          "      stwcx. %3,0,%1\n"
@@ -38,7 +38,7 @@ inline int q_cas_32(volatile int *ptr, int expected, int newval)
 inline void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
 {
     register void *ret;
-    asm (
+    asm volatile (
 #ifdef __64BIT__
          "      ldarx %0,0,%1\n"
          "      cmpd %0,%2\n"
