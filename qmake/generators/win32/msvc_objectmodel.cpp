@@ -1870,29 +1870,18 @@ void VCFilter::addUICstage( QTextStream &strm, QString str )
     if ( mocDir.isEmpty() )
 	mocDir = pname;
 
-    QString pchOption;
-    if (Project->usePCH)
-	pchOption = " -pch " + Project->precomph;
-    for ( int i = 0; i < Config->count(); i++ ) {
-	strm << _begFileConfiguration;
-	strm << _Name5;
-	strm << (*Config)[i].Name;
-	strm << "\">";
-	strm << _begTool5;
-	strm << _VCCustomBuildTool;
-	strm << _Description6;
-	strm << "Uic'ing " << str << "...\"";
-	strm << _CommandLine6;
-	strm << uicApp << " " << str << " -o " << uiHeaders << fname << ".h &amp;&amp; ";				// Create .h from .ui file
-	strm << uicApp << pchOption << " " << str << " -i " << fname << ".h -o " << uiSources << fname << ".cpp &amp;&amp; ";	// Create .cpp from .ui file
-	strm << mocApp << pchOption << " " << uiHeaders << fname << ".h -o " << mocDir << Option::h_moc_mod << fname << Option::h_moc_ext << "\"";
-	strm << _AdditionalDependencies6;
-	strm << mocApp << ";" << uicApp << "\"";
-	strm << _Outputs6;
-	strm << uiHeaders << fname << ".h;" << uiSources << fname << ".cpp;" << mocDir << Option::h_moc_mod << fname << Option::h_moc_ext << "\"";
-	strm << "/>";
-	strm << _endFileConfiguration;
-    }
+    CustomBuildTool.Description = ("Uic'ing " + str + "...\"");
+    CustomBuildTool.CommandLine += // Create .h from .ui file
+	uicApp + " " + str + " -o " + uiHeaders + fname + ".h"; 
+    CustomBuildTool.CommandLine += // Create .cpp from .ui file
+	uicApp + " " + str + " -i " + fname + ".h -o " + uiSources + fname + ".cpp";
+    CustomBuildTool.CommandLine += // Moc the headerfile
+	mocApp + " " + uiHeaders + fname + ".h -o " + mocDir + Option::h_moc_mod + fname + Option::h_moc_ext;
+
+    CustomBuildTool.AdditionalDependencies += mocApp;
+    CustomBuildTool.AdditionalDependencies += uicApp;
+    CustomBuildTool.Outputs += 
+	uiHeaders + fname + ".h;" + uiSources + fname + ".cpp;" + mocDir + Option::h_moc_mod + fname + Option::h_moc_ext;
 }
 
 void VCFilter::modifyPCHstage( QTextStream &strm, QString str )
