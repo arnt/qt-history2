@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#9 $
+** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#10 $
 **
 ** This is a utility program for merging findtr msgfiles
 **
@@ -238,12 +238,18 @@ Status compare( const Item &i1, const Item &i2 )
 	return Second;
     if ( i2.isNull() )
 	return First;
-    QString s1 = extractContents( i1.msgid );
-    if ( s1.isEmpty() )
+    if ( i1.msgid.isEmpty() )
 	return FirstJunk;
-    QString s2 = extractContents( i2.msgid );
-    if ( s2.isEmpty() )
+    if ( i2.msgid.isEmpty() )
 	return SecondJunk;
+    QString s1 = extractContents( i1.msgid );
+    QString s2 = extractContents( i2.msgid );
+    if ( !s1 && !s2 )
+	return Equal;
+    if ( !s1 )
+	return First;
+    if ( !s2 )
+	return Second;
     int i = strcmp( s1.ascii(), s2.ascii() );
     if ( i < 0 )
 	return First;
@@ -328,5 +334,7 @@ int main( int argc, char* argv[] )
 
     qDebug( "Merged %d entries, added %d new entries and removed %d entries",
 	    nMerge, nNew, nOld );
+    if ( nJunk > 0 )
+	qDebug( "Found %d junk entries", nJunk );
     return 0;
 }
