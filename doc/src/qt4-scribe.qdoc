@@ -8,6 +8,9 @@
 
     \tableofcontents
 
+    For more details about how to use the Scribe classes, see the
+    \l{rich-text.html}{Rich Text Processing} document.
+
     \section1 Overview of Scribe
 
     Support for text rendering and layout in Qt 4 has been redesigned
