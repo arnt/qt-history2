@@ -642,10 +642,6 @@ void Project::save( bool onlyProjectFile )
     if ( !formfiles.isEmpty() ) {
 	contents += "FORMS\t= ";
 	for ( QPtrListIterator<FormFile> fit = formfiles; fit.current(); ++fit ) {
-#if defined(PACKAGE_SUPPORT)
-	    if ( fit.current()->isPackage() )
-		continue;
-#endif
 	    contents += fit.current()->fileName() +
 		 (fit != formfiles.last() ? " \\\n\t" : "");
 	}
@@ -698,10 +694,6 @@ void Project::save( bool onlyProjectFile )
     if ( !sourcefiles.isEmpty() && iface ) {
 	QMap<QString, QStringList> sourceToKey;
 	for ( SourceFile *f = sourcefiles.first(); f; f = sourcefiles.next() ) {
-#if defined(PACKAGE_SUPPORT)
-	    if ( f->isPackage() )
-		continue;
-#endif
 	    QString key = iface->projectKeyForExtension( QFileInfo( f->fileName() ).extension() );
 	    QStringList lst = sourceToKey[ key ];
 	    lst << makeRelative( f->fileName() );

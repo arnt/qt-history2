@@ -59,11 +59,6 @@ public:
 
     static QString createUnnamedFileName( const QString &extension );
 
-#if defined(PACKAGE_SUPPORT)
-    void setPackage( bool b ) { pkg = b; }
-    bool isPackage() const;
-#endif
-
 private:
     bool checkFileName( bool allowBreak );
 

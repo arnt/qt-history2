@@ -611,23 +611,6 @@ void MainWindow::setupFileActions()
 	a->addTo( fileMenu );
 
 	fileMenu->insertSeparator();
-
-#if defined(PACKAGE_SUPPORT)
-	a = new QAction( this, 0 );
-	a->setText( tr( "Import" ) );
-	a->setToolTip( tr( "Import Dialog or File" ) );
-	a->setMenuText( tr( "&Import package for editing..." ) );
-	connect( a, SIGNAL( activated() ), this, SLOT( fileImport() ) );
-	a->addTo( fileMenu );
-
-	a = new QAction( this, 0 );
-	a->setText( tr( "Export" ) );
-	a->setToolTip( tr( "Export Dialog or File" ) );
-	a->setMenuText( tr( "&Export as package..." ) );
-	connect( a, SIGNAL( activated() ), this, SLOT( fileExport() ) );
-	a->addTo( fileMenu );
-	fileMenu->insertSeparator();
-#endif
     }
 
     a = new QAction( this, 0 );
@@ -1396,76 +1379,6 @@ void MainWindow::fileCreateTemplate()
 	     this, SLOT( createNewTemplate() ) );
     dia.exec();
 }
-
-#if defined(PACKAGE_SUPPORT)
-void MainWindow::fileImport()
-{
-    QStringList filterlist;
-    filterlist << tr( "Packages (*.ui *.qs)" );
-    filterlist << tr( "All Files (*)" );
-    QString filters = filterlist.join( ";;" );
-
-    QString filename =
-	QFileDialog::getOpenFileName( QStringList::split( ':', currentProject->iFace()->
-							  customSetting( "QTSCRIPT_PACKAGES" ) ).first(),
-				      filters, this, 0, tr("Open Package"), &lastOpenFilter );
-
-    QFileInfo fi( filename );
-
-    if ( fi.extension( FALSE ) == "ui" ) {
-	openFormWindow( filename );
-	addRecentlyOpened( filename, recentlyFiles );
-	if ( formWindow() )
-	    formWindow()->formFile()->setPackage( TRUE );
-    } else {
-	SourceFile *sf = currentProject->findSourceFile( currentProject->makeRelative( filename ) );
-	if ( !sf )
-	    sf = new SourceFile( currentProject->makeRelative( filename ), FALSE, currentProject );
-	sf->setPackage( TRUE );
-	editSource( sf );
-    }
-    currentProject->setModified( FALSE );
-}
-
-void MainWindow::fileExport()
-{
-
-    QWidget *w = qworkspace->activeWindow();
-    if ( !w )
-	return;
-    QObject *o;
-    if ( w->inherits( "FormWindow" ) ) {
-	o = ( (FormWindow*)w )->formFile();
-    } else if ( w->inherits( "SourceEditor" ) ) {
-	if ( ( (SourceEditor*)w )->formWindow() )
-	    o = ( (SourceEditor*)w )->formWindow()->formFile();
-	else
-	    o = ( (SourceEditor*)w )->sourceFile();
-    }
-    fileExport( o );
-}
-
-void MainWindow::fileExport( QObject *o )
-{
-    statusBar()->message( tr( "Enter a filename..." ) );
-    if ( o->inherits( "SourceFile" ) ) {
-	SourceFile *sf = (SourceFile*)o;
-	sf->setPackage( TRUE );
-	if ( !sf->saveAs( TRUE ) )
-	    return;
-	QString fn = sf->fileName();
-	currentProject->setModified( TRUE );
-    } else if ( o->inherits( "FormFile" ) ) {
-	FormFile *ff = (FormFile*)o;
-	ff->load();
-	ff->setPackage( TRUE );
-	if ( !ff->saveAs( TRUE, TRUE ) )
-	    return;
-	QString fn = ff->fileName();
-	currentProject->setModified( TRUE );
-    }
-}
-#endif
 
 void MainWindow::createNewTemplate()
 {

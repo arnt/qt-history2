@@ -63,8 +63,8 @@ public:
 
     bool loadCode();
     void load();
-    bool save( bool withMsgBox = TRUE, bool ignoreModified = FALSE, bool exportAsPackage = FALSE );
-    bool saveAs( bool ignoreModified = FALSE, bool exportAsPackage = FALSE );
+    bool save( bool withMsgBox = TRUE, bool ignoreModified = FALSE );
+    bool saveAs( bool ignoreModified = FALSE );
     bool close();
     bool closeEvent();
     bool isModified( int who = WAnyOrAll );
@@ -84,11 +84,6 @@ public:
     QString formName() const;
 
     bool isFake() const { return fake; }
-
-#if defined(PACKAGE_SUPPORT)
-    void setPackage( bool b ) { pkg = b; }
-    bool isPackage() const;
-#endif
 
     void parseCode( const QString &txt, bool allowModify );
 

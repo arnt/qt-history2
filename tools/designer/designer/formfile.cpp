@@ -139,7 +139,7 @@ QString FormFile::code()
     return cod;
 }
 
-bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage )
+bool FormFile::save( bool withMsgBox, bool ignoreModified )
 {
     if ( !formWindow() )
 	return TRUE;
@@ -149,12 +149,6 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage 
 	return TRUE;
     if ( ed )
 	ed->save();
-#if defined(PACKAGE_SUPPORT)
-    else if ( exportAsPackage && !cm && !ignoreModified )
-	loadCode();
-#else
-    Q_UNUSED( exportAsPackage )
-#endif
 
     if ( isModified( WFormWindow ) ) {
 	if ( withMsgBox ) {
@@ -222,7 +216,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage 
     return TRUE;
 }
 
-bool FormFile::saveAs( bool ignoreModified, bool exportAsPackage )
+bool FormFile::saveAs( bool ignoreModified )
 {
     QString f = pro->makeAbsolute( fileName() );
     if ( fileNameTemp && formWindow() )
@@ -270,7 +264,7 @@ bool FormFile::saveAs( bool ignoreModified, bool exportAsPackage )
     if ( ed && formWindow() )
 	ed->setCaption( tr( "Edit %1" ).arg( formWindow()->name() ) );
     setModified( TRUE );
-    return save( TRUE, ignoreModified, exportAsPackage );
+    return save( TRUE, ignoreModified );
 }
 
 bool FormFile::close()
@@ -796,12 +790,3 @@ void FormFile::removeConnection( const QString &sender, const QString &signal,
     if ( ed )
 	ed->editorInterface()->setText( cod );
 }
-
-#if defined(PACKAGE_SUPPORT)
-bool FormFile::isPackage() const
-{
-    if ( filename[0] == '/' )
-	return TRUE;
-    return pkg;
-}
-#endif
