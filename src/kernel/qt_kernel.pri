@@ -168,7 +168,6 @@ kernel {
 		    $$KERNEL_CPP/qthread_unix.cpp
 
 	SOURCES += $$KERNEL_CPP/qabstractlayout.cpp \
-		  $$KERNEL_CPP/ucom.cpp \
 		  $$KERNEL_CPP/qucom.cpp \
 		  $$KERNEL_CPP/qaccel.cpp \
 		  $$KERNEL_CPP/qapplication.cpp \
