@@ -513,30 +513,3 @@ void Project::formClosed( FormWindow *fw )
 {
     formWindows.remove( fw );
 }
-
-void Project::connectTables( QObject *toplevel, const QMap<QString, QStringList> &tables )
-{
-    for ( QMap<QString, QStringList>::ConstIterator it = tables.begin(); it != tables.end(); ++it ) {
-	QSqlTable *table = (QSqlTable*)toplevel->child( it.key(), "QSqlTable" );
-	if ( !table )
-	    return;
-	QString connection = (*it)[ 0 ];
-	DatabaseConnection *conn = databaseConnection( connection );
-	if ( connection.isEmpty() && !conn )
-	    conn = databaseConnection( "(default)" );
-	if ( !conn )
-	    continue;
-	if ( !conn->open() )
-	    continue;
-
-	QSqlCursor* c = 0;
-	if ( connection.isEmpty() || connection == "(default)" )
-	    c = new QSqlCursor( (*it)[ 1 ] );
-	else
-	    c = new QSqlCursor( (*it)[ 1 ], connection );
-	table->setCursor( c );
-	table->setSorting( TRUE );  // show off features
-	table->setReadOnly( TRUE ); // ### behave nicely?
-	table->setAutoDelete( TRUE );
-    }
-}

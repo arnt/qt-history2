@@ -39,7 +39,6 @@ class MainWindow;
 class QDomElement;
 class QDesignerGridLayout;
 class QListViewItem;
-class Project;
 
 class Resource
 {
@@ -53,18 +52,18 @@ public:
 	}
     };
 
-    Resource( QStyle* s = 0, QPalette* pal = 0 );
-    Resource( MainWindow* mw, QStyle* s = 0, QPalette* pal = 0 );
+    Resource();
+    Resource( MainWindow* mw );
 
     void setWidget( FormWindow *w );
     QWidget *widget() const;
 
     bool load( const QString& filename );
-    bool load( QIODevice*, QValueList<Image> *images = 0, const QString& filename = QString::null, Project *project = 0 );
+    bool load( QIODevice*, const QString& filename = QString::null );
     QString copy();
 
     bool save( const QString& filename);
-    bool save( QIODevice*, bool saveImages = TRUE, QValueList<Image> *images = 0 );
+    bool save( QIODevice* );
     void paste( const QString &cb, QWidget *parent );
 
     static void saveImageData( const QImage &img, QTextStream &ts, int indent );
@@ -110,11 +109,8 @@ private:
     FormWindow *formwindow;
     QWidget* toplevel;
     QValueList<Image> images;
-    bool previewMode;
     bool copying, pasting;
     bool mainContainerSet;
-    QStyle* style;
-    QPalette* pal;
     QStringList knownNames;
     QStringList usedCustomWidgets;
     QListViewItem *lastItem;

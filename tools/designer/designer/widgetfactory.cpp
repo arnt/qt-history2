@@ -1154,3 +1154,15 @@ void CustomWidget::paintEvent( QPaintEvent *e )
     }
 }
 
+
+CustomWidgetFactory::CustomWidgetFactory()
+{
+}
+
+QWidget *CustomWidgetFactory::createWidget( const QString &className, QWidget *parent, const char *name ) const
+{
+    MetaDataBase::CustomWidget *w = MetaDataBase::customWidget( WidgetDatabase::idFromClassName( className ) );
+    if ( !w )
+	return 0;
+    return WidgetFactory::createCustomWidget( parent, name, w );
+}

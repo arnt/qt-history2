@@ -41,13 +41,24 @@
 #include <qbuttongroup.h>
 
 #include "metadatabase.h"
+#include "../resource/qwidgetfactory.h"
 
 class QWidget;
 class QLayout;
 class FormWindow;
 
+class CustomWidgetFactory : public QWidgetFactory
+{
+public:
+    CustomWidgetFactory();
+    QWidget *createWidget( const QString &className, QWidget *parent, const char *name ) const;
+    
+};
+
 class WidgetFactory : public Qt
 {
+    friend class CustomWidgetFactory;
+
 public:
     enum LayoutType {
 	HBox,

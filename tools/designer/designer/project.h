@@ -93,8 +93,6 @@ public:
     void openDatabase( const QString &connection );
     void closeDatabase( const QString &connection );
 
-    void connectTables( QObject *toplevel, const QMap<QString, QStringList> &tables );
-
 private:
     void parse();
     void clear();

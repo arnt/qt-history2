@@ -98,6 +98,7 @@
 #include "project.h"
 #include "projectsettingsimpl.h"
 #include "dbconnectionsimpl.h"
+#include "../resource/qwidgetfactory.h"
 
 static int forms = 0;
 
@@ -140,6 +141,7 @@ MainWindow::MainWindow( bool asClient )
       docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient )
 {
     qApp->setMainWidget( this );
+    QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );
     self = this;
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
 
@@ -1741,16 +1743,34 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
     Resource resource( this );
     resource.setWidget( fw );
     QValueList<Resource::Image> images;
-    resource.save( &buffer, FALSE, &images );
+    resource.save( &buffer );
 
     buffer.close();
     buffer.open( IO_ReadOnly );
-    Resource preview( style, palet );
-    if ( preview.load( &buffer, &images, QString::null, fw->project() ) && preview.widget() ) {
-	preview.widget()->move( fw->mapToGlobal( QPoint(0,0) ) );
-	((MainWindow*)preview.widget() )->setWFlags( WDestructiveClose );
+
+    QWidget *w = QWidgetFactory::create( &buffer );
+    if ( w ) {
+	if ( style )
+	    w->setStyle( style );
+	if ( palet )
+	    w->setPalette( *palet );
+	QObjectList *l = w->queryList( "QWidget" );
+	for ( QObject *o = l->first(); o; o = l->next() ) {
+	    if ( style )
+		( (QWidget*)o )->setStyle( style );
+	    if ( palet )
+		( (QWidget*)o )->setPalette( *palet );
+	}
+	delete l;
+	w->move( fw->mapToGlobal( QPoint(0,0) ) );
+	((MainWindow*)w )->setWFlags( WDestructiveClose );
+	w->show();
 	QApplication::restoreOverrideCursor();
-	return preview.widget();
+	if ( fw->project() ) {
+	    QStringList lst = MetaDataBase::fakeProperty( fw, "database" ).toStringList();
+	    fw->project()->closeDatabase( lst[ 0 ] );
+	}
+	return w;
     }
     QApplication::restoreOverrideCursor();
     if ( fw->project() ) {

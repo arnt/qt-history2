@@ -31,7 +31,6 @@
 #include "command.h"
 #include "pixmapchooser.h"
 #include "database.h"
-#include "project.h"
 
 #include <qfile.h>
 #include <qtextstream.h>
@@ -96,23 +95,20 @@ static QString mkBool( bool b )
 */
 
 
-Resource::Resource( QStyle* s, QPalette* p )
-    : style( s ), pal( p )
+Resource::Resource()
 {
     mainwindow = 0;
-    previewMode = TRUE;
     formwindow = 0;
     toplevel = 0;
     copying = FALSE;
     pasting = FALSE;
 }
 
-Resource::Resource( MainWindow* mw, QStyle* s, QPalette* p )
-    : mainwindow( mw ), style( s ), pal( p )
+Resource::Resource( MainWindow* mw )
+    : mainwindow( mw )
 {
     formwindow = 0;
     toplevel = 0;
-    previewMode = FALSE;
     copying = FALSE;
     pasting = FALSE;
 }
@@ -137,13 +133,13 @@ bool Resource::load( const QString& filename )
     QFile f( filename );
     f.open( IO_ReadOnly );
 
-    bool b = load( &f, 0, filename );
+    bool b = load( &f, filename );
     f.close();
 
     return b;
 }
 
-bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& filename, Project *project )
+bool Resource::load( QIODevice* dev, const QString& filename )
 {
     QDomDocument doc;
     if ( !doc.setContent( dev ) ) {
@@ -152,11 +148,9 @@ bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& fil
 
     DomTool::fixDocument( doc );
 
-    if ( !previewMode ) {
-	toplevel = formwindow = new FormWindow( mainwindow->workSpace(), 0 );
-	formwindow->setMainWindow( mainwindow );
-	MetaDataBase::addEntry( formwindow );
-    }
+    toplevel = formwindow = new FormWindow( mainwindow->workSpace(), 0 );
+    formwindow->setMainWindow( mainwindow );
+    MetaDataBase::addEntry( formwindow );
 
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
@@ -207,12 +201,10 @@ bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& fil
 
     if ( !imageCollection.isNull() )
 	loadImageCollection( imageCollection );
-    if ( images.isEmpty() && imgs )
-	images = *imgs;
     if ( !customWidgets.isNull() )
 	loadCustomWidgets( customWidgets, this );
 
-    if ( !createObject( firstWidget, !previewMode ? formwindow : 0, 0,
+    if ( !createObject( firstWidget, formwindow, 0,
 			firstWidget.attribute("class", "QWidget") ) )
 	return FALSE;
 
@@ -226,19 +218,6 @@ bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& fil
 	MetaDataBase::setForwards( formwindow, metaForwards );
 	metaInfo.classNameChanged = metaInfo.className != QString( formwindow->name() );
 	MetaDataBase::setMetaInfo( formwindow, metaInfo );
-    }
-
-    if ( previewMode ) {
-	MetaDataBase::doConnections( toplevel );
-	if ( toplevel ) {
-	    QStringList lst = MetaDataBase::fakeProperty( toplevel, "database" ).toStringList();
-	    if ( toplevel->inherits( "QDesignerSqlWidget" ) )
-		( (QDesignerSqlWidget*)toplevel )->initPreview( lst[ 0 ], lst[ 1 ], toplevel, dbControls );
-	    else if ( toplevel->inherits( "QDesignerSqlDialog" ) )
-		( (QDesignerSqlDialog*)toplevel )->initPreview( lst[ 0 ], lst[ 1 ], toplevel, dbControls );
-	    if ( project )
-		project->connectTables( toplevel, dbTables );
-	}
     }
 
     if ( formwindow && !filename.isEmpty() )
@@ -263,7 +242,7 @@ bool Resource::save( const QString& filename )
     return b;
 }
 
-bool Resource::save( QIODevice* dev, bool saveImages, QValueList<Image> *imgs )
+bool Resource::save( QIODevice* dev )
 {
     if ( !formwindow )
 	return FALSE;
@@ -276,15 +255,12 @@ bool Resource::save( QIODevice* dev, bool saveImages, QValueList<Image> *imgs )
     saveObject( formwindow->mainContainer(), 0, ts, 0 );
     if ( !MetaDataBase::customWidgets()->isEmpty() && !usedCustomWidgets.isEmpty() )
 	saveCustomWidgets( ts, 0 );
-    if ( !images.isEmpty() && saveImages )
+    if ( !images.isEmpty() )
 	saveImageCollection( ts, 0 );
     if ( !MetaDataBase::connections( formwindow ).isEmpty() || !MetaDataBase::slotList( formwindow ).isEmpty() )
 	saveConnections( ts, 0 );
     saveTabOrder( ts, 0 );
     ts << "</UI>" << endl;
-
-    if ( imgs )
-	*imgs = images;
 
     images.clear();
 
@@ -1030,53 +1006,41 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
     QString className = classNameArg;
 
     if ( !className.isNull() ) {
-	if ( previewMode && !layout && className  == "QLayoutWidget" )
-	    className = "QWidget";
-	if ( previewMode && layout && className == "QLayoutWidget" ) {
-	    // hide layout widgets in preview mode
-	    w = parent;
-	} else {
-	    obj = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, 0, FALSE );
-	    if ( !obj )
-		return 0;
-	    if ( !mainContainerSet ) {
-		if ( formwindow && !previewMode )
-		    formwindow->setMainContainer( (QWidget*)obj );
-		mainContainerSet = TRUE;
+	obj = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, 0, FALSE );
+	if ( !obj )
+	    return 0;
+	if ( !mainContainerSet ) {
+	    if ( formwindow )
+		formwindow->setMainContainer( (QWidget*)obj );
+	    mainContainerSet = TRUE;
+	}
+	w = (QWidget*)obj;
+	if ( layout ) {
+	    switch ( WidgetFactory::layoutType( layout ) ) {
+	    case WidgetFactory::HBox:
+		( (QHBoxLayout*)layout )->addWidget( w );
+		break;
+	    case WidgetFactory::VBox:
+		( (QVBoxLayout*)layout )->addWidget( w );
+		break;
+	    case WidgetFactory::Grid:
+		( (QDesignerGridLayout*)layout )->addMultiCellWidget( w, row, row + rowspan - 1,
+								      col, col + colspan - 1 );
+		break;
+	    default:
+		break;
 	    }
-	    w = (QWidget*)obj;
-	    if ( layout ) {
-		switch ( WidgetFactory::layoutType( layout ) ) {
-		case WidgetFactory::HBox:
-		    ( (QHBoxLayout*)layout )->addWidget( w );
-		    break;
-		case WidgetFactory::VBox:
-		    ( (QVBoxLayout*)layout )->addWidget( w );
-		    break;
-		case WidgetFactory::Grid:
-		    ( (QDesignerGridLayout*)layout )->addMultiCellWidget( w, row, row + rowspan - 1,
-									  col, col + colspan - 1 );
-		    break;
-		default:
-		    break;
-		}
-	    }
+	}
 
-	    if ( !toplevel )
-		toplevel = w;
-	    layout = 0;
+	if ( !toplevel )
+	    toplevel = w;
+	layout = 0;
 
-	    if ( w && formwindow ) {
-		if ( !parent || ( !parent->inherits( "QTabWidget" ) && !parent->inherits( "QWizard" ) ) )
-		    formwindow->insertWidget( w, pasting );
-		else if ( parent && ( parent->inherits( "QTabWidget" ) || parent->inherits( "QWizard" ) ) )
-		    MetaDataBase::addEntry( w );
-	    }
-
-	    if ( style )
-		w->setStyle( style );
-	    if ( pal )
-		w->setPalette( *pal );
+	if ( w && formwindow ) {
+	    if ( !parent || ( !parent->inherits( "QTabWidget" ) && !parent->inherits( "QWizard" ) ) )
+		formwindow->insertWidget( w, pasting );
+	    else if ( parent && ( parent->inherits( "QTabWidget" ) || parent->inherits( "QWizard" ) ) )
+		MetaDataBase::addEntry( w );
 	}
     }
 
@@ -1086,37 +1050,19 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	} else if ( n.tagName() == "widget" ) {
 	    createObject( n, w, layout, n.attribute( "class", "QWidget" ) );
 	} else if ( n.tagName() == "hbox" ) {
-	    QLayout *parentLayout = layout;
-	    if ( previewMode && layout && layout->inherits( "QGridLayout" ) )
-		layout = WidgetFactory::createLayout( 0, 0, WidgetFactory::HBox );
-	    else
-		layout = WidgetFactory::createLayout( w, layout, WidgetFactory::HBox );
+	    layout = WidgetFactory::createLayout( w, layout, WidgetFactory::HBox );
 	    obj = layout;
 	    n = n.firstChild().toElement();
-	    if ( previewMode && parentLayout && parentLayout->inherits( "QGridLayout" ) )
-		( (QDesignerGridLayout*)parentLayout )->addMultiCellLayout( layout, row, row + rowspan - 1, col, col + colspan - 1 );
 	    continue;
 	} else if ( n.tagName() == "grid" ) {
-	    QLayout *parentLayout = layout;
-	    if ( previewMode && layout && layout->inherits( "QGridLayout" ) )
-		layout = WidgetFactory::createLayout( 0, 0, WidgetFactory::Grid );
-	    else
-		layout = WidgetFactory::createLayout( w, layout, WidgetFactory::Grid );
+	    layout = WidgetFactory::createLayout( w, layout, WidgetFactory::Grid );
 	    obj = layout;
 	    n = n.firstChild().toElement();
-	    if ( previewMode && parentLayout && parentLayout->inherits( "QGridLayout" ) )
-		( (QDesignerGridLayout*)parentLayout )->addMultiCellLayout( layout, row, row + rowspan - 1, col, col + colspan - 1 );
 	    continue;
 	} else if ( n.tagName() == "vbox" ) {
-	    QLayout *parentLayout = layout;
-	    if ( previewMode && layout && layout->inherits( "QGridLayout" ) )
-		layout = WidgetFactory::createLayout( 0, 0, WidgetFactory::VBox );
-	    else
-		layout = WidgetFactory::createLayout( w, layout, WidgetFactory::VBox );
+	    layout = WidgetFactory::createLayout( w, layout, WidgetFactory::VBox );
 	    obj = layout;
 	    n = n.firstChild().toElement();
-	    if ( previewMode && parentLayout && parentLayout->inherits( "QGridLayout" ) )
-		( (QDesignerGridLayout*)parentLayout )->addMultiCellLayout( layout, row, row + rowspan - 1, col, col + colspan - 1 );
 	    continue;
  	} else if ( n.tagName() == "property" && obj ) {
 	    setObjectProperty( obj, n.attribute( "name" ), n.firstChild().toElement() );
@@ -1282,72 +1228,26 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
     if ( colspan < 1 )
 	colspan = 1;
 
-    if ( !previewMode ) {
-	Spacer *spacer = (Spacer*) WidgetFactory::create( WidgetDatabase::idFromClassName("Spacer"),
-							  parent, "spacer", FALSE);
-	spacer->setOrientation( o );
-	spacer->setAutoResize( FALSE );
-	while ( !n.isNull() ) {
-	    if ( n.tagName() == "property" )
-		setObjectProperty( spacer, n.attribute( "name" ), n.firstChild().toElement() );
-	    n = n.nextSibling().toElement();
-	}
-	spacer->setAutoResize( TRUE );
-	if ( formwindow )
-	    formwindow->insertWidget( spacer, pasting );
-	if ( layout ) {
-	    if ( layout->inherits( "QBoxLayout" ) )
-		( (QBoxLayout*)layout )->addWidget( spacer, 0, spacer->alignment() );
-	    else
-		( (QDesignerGridLayout*)layout )->addMultiCellWidget( spacer, row, row + rowspan - 1, col, col + colspan - 1,
-								      spacer->alignment() );
-	}
-	return spacer;
-    } else {
-	Qt::Orientation orient = Qt::Horizontal;
-	int w = 0, h = 0;
-	QSizePolicy::SizeType sizeType = QSizePolicy::Preferred;
-	while ( !n.isNull() ) {
-	    if ( n.tagName() == "property" ) {
-		QString prop = n.attribute( "name" );
-		if ( prop == "orientation" ) {
-		    if ( n.firstChild().firstChild().toText().data() == "Horizontal" )
-			orient = Qt::Horizontal;
-		    else
-			orient = Qt::Vertical;
-		} else if ( prop == "sizeType" ) {
-			if ( n.firstChild().firstChild().toText().data() == "Fixed" )
-			    sizeType = QSizePolicy::Fixed;
-			else if ( n.firstChild().firstChild().toText().data() == "Minimum" )
-			    sizeType = QSizePolicy::Minimum;
-			else if ( n.firstChild().firstChild().toText().data() == "Maximum" )
-			    sizeType = QSizePolicy::Maximum;
-			else if ( n.firstChild().firstChild().toText().data() == "Preferred" )
-			    sizeType = QSizePolicy::Preferred;
-			else if ( n.firstChild().firstChild().toText().data() == "MinimumExpanding" )
-			    sizeType = QSizePolicy::MinimumExpanding;
-			else if ( n.firstChild().firstChild().toText().data() == "Expanding" )
-			    sizeType = QSizePolicy::Expanding;
-		} else if ( prop == "sizeHint" ) {
-		    w = n.firstChild().firstChild().firstChild().toText().data().toInt();
-		    h = n.firstChild().firstChild().nextSibling().firstChild().toText().data().toInt();
-		}
-	    }
-	    n = n.nextSibling().toElement();
-	}
-
-	QSpacerItem *item = new QSpacerItem( w, h, orient == Qt::Horizontal ? sizeType : QSizePolicy::Minimum,
-					     orient == Qt::Vertical ? sizeType : QSizePolicy::Minimum );
-	if ( layout ) {
-	    if ( layout->inherits( "QBoxLayout" ) )
-		( (QBoxLayout*)layout )->addItem( item );
-	    else
-		( (QDesignerGridLayout*)layout )->addMultiCell( item, row, row + rowspan - 1, col, col + colspan - 1,
-								orient == Qt::Horizontal ? Qt::AlignVCenter : Qt::AlignHCenter );
-	}
-	return 0;
+    Spacer *spacer = (Spacer*) WidgetFactory::create( WidgetDatabase::idFromClassName("Spacer"),
+						      parent, "spacer", FALSE);
+    spacer->setOrientation( o );
+    spacer->setAutoResize( FALSE );
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "property" )
+	    setObjectProperty( spacer, n.attribute( "name" ), n.firstChild().toElement() );
+	n = n.nextSibling().toElement();
     }
-    return 0;
+    spacer->setAutoResize( TRUE );
+    if ( formwindow )
+	formwindow->insertWidget( spacer, pasting );
+    if ( layout ) {
+	if ( layout->inherits( "QBoxLayout" ) )
+	    ( (QBoxLayout*)layout )->addWidget( spacer, 0, spacer->alignment() );
+	else
+	    ( (QDesignerGridLayout*)layout )->addMultiCellWidget( spacer, row, row + rowspan - 1, col, col + colspan - 1,
+								  spacer->alignment() );
+    }
+    return spacer;
 }
 
 /*!
@@ -1357,7 +1257,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 {
     const QMetaProperty *p = obj->metaObject()->property( prop, TRUE );
 
-    if ( !obj->inherits( "QLayout" ) && !previewMode ) {// no layouts in metadatabase... (RS)
+    if ( !obj->inherits( "QLayout" )  ) {// no layouts in metadatabase... (RS)
 	if ( obj->inherits( "CustomWidget" ) ) {
 	    MetaDataBase::CustomWidget *cw = ( (CustomWidget*)obj )->customWidget();
 	    if ( cw && !cw->hasProperty( prop.latin1() ) && !p && prop != "toolTip" && prop != "whatsThis" )
@@ -1385,13 +1285,6 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
     if ( !p ) {
 	MetaDataBase::setFakeProperty( obj, prop, v );
 	if ( obj->isWidgetType() ) {
-	    if ( prop == "toolTip" ) {
-		if ( previewMode && !v.toString().isEmpty() )
-		    QToolTip::add( (QWidget*)obj, v.toString() );
-	    } else if ( prop == "whatsThis" ) {
-		if ( previewMode && !v.toString().isEmpty() )
-		    QWhatsThis::add( (QWidget*)obj, v.toString() );
-	    }
 	    if ( prop == "database" && obj != toplevel ) {
 		QStringList lst = MetaDataBase::fakeProperty( obj, "database" ).toStringList();
 		if ( lst.count() > 2 )
@@ -1443,7 +1336,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	v = QVariant( p->keysToValue( l ) );
     }
 
-    if ( !previewMode && prop == "caption" ) {
+    if ( prop == "caption" ) {
 	QCString s1 = v.toCString();
 	QString s2 = v.toString();
 	if ( !s1.isEmpty() )
@@ -1451,21 +1344,21 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	else if ( !s2.isEmpty() )
 	    formwindow->setCaption( s2 );
     }
-    if ( !previewMode && prop == "icon" ) {
+    if ( prop == "icon" ) {
 	formwindow->setIcon( v.toPixmap() );
     }
 
     if ( prop == "geometry" ) {
-	if ( previewMode && obj == toplevel ) {
+	if ( obj == toplevel ) {
 	    toplevel->resize( v.toRect().size() );
 	    return;
-	} else if ( !previewMode && obj == formwindow->mainContainer() ) {
+	} else if ( obj == formwindow->mainContainer() ) {
 	    formwindow->resize( v.toRect().size() );
 	    return;
 	}
     }
 
-    if ( obj->inherits( "QLayout" ) && !previewMode ) {
+    if ( obj->inherits( "QLayout" ) ) {
 	if ( prop == "spacing" ) {
 	    MetaDataBase::setSpacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)obj ) ), v.toInt() );
 	    return;
@@ -1482,7 +1375,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	    formwindow->unify( (QWidget*)obj, s, TRUE );
 	    obj->setName( s );
 	    return;
-	} else if ( !previewMode && formwindow && obj == formwindow->mainContainer() ) {
+	} else if ( formwindow && obj == formwindow->mainContainer() ) {
 	    formwindow->setName( v.toCString() );
 	}
     }
