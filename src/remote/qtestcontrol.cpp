@@ -1258,8 +1258,8 @@ QMouseEvent* QTestControl::readMouseEvent(QEvent::Type event_id, QTextStream& re
     {
         if (scale_info->scaleMode () == QTestScalingInfo::TopLeftScaling)
         {
-            x *= scale_info->scaleHValue ();
-            y *= scale_info->scaleVValue ();
+            x = (int)(x * scale_info->scaleHValue ());
+            y = (int)(y * scale_info->scaleVValue ());
         }
         else
         {
