@@ -304,8 +304,12 @@ bool operator==( const QMap<QString, QString>, const QMap<QString, QString> )
   QXmlErrorHandler interface.
 
   \module XML
+  
+  The XML subsystem constructs an instance of this class when it
+  detects error, and any interested application can access details
+  about the error using lineNumber(), fileName() and so on.
 
-  \sa QXmlErrorHandler
+  \sa QXmlErrorHandler QXmlReader
 */
 /*!
   \fn QXmlParseException::QXmlParseException( const QString& name, int c, int l, const QString& p, const QString& s )
@@ -1942,7 +1946,8 @@ private:
 /*!
   \fn void QXmlReader::setErrorHandler( QXmlErrorHandler* handler )
 
-  Sets the error handler to \a handler.
+  Sets the error handler to \a handler. Clears the error handler if \a
+  handler is null.
 
   \sa errorHandler()
 */
@@ -4722,7 +4727,7 @@ parseError:
     return FALSE;
 }
 
-/*!
+/*! \internal
   Parse a NotationDecl [82].
 
   Precondition: the beginning '<!' is already read and the head
