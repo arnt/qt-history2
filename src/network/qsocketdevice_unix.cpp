@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#23 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#24 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -37,14 +37,14 @@
 
 #include "qglobal.h"
 #if defined(Q_OS_LINUX)
-// This is gory!
+// Shouldn't we be using O_NDELAY instead of FNDELAY? O_NDELAY is the new
+// "standard" while FNDELAY is the old one.
 // <fcntl.h> defines 'FNDELAY' only if __USE_BSD is defined. __USE_BSD is
-// defined in <features.h> if _BSD_SOURCE is defined.
-// Alas "qsocketdevice.h" includes "qiodevice.h" which includes "qcstring.h"
-// which includes <string.h> which includes <features.h>. So _BSD_SOURCE has
-// to be defined before "qsocketdevice.h"...
-// One more good reason to centralize even platform-dependant specification
-// macros like _BSD_SOURCE in "qglobal.h".
+// defined in <features.h> if _BSD_SOURCE is defined.  The conclusion is
+// that _BSD_SOURCE needs to be defined before <features.h> is included.
+// Now "qsocketdevice.h" includes "qiodevice.h" which includes "qcstring.h"
+// which includes <string.h> which includes <features.h>.  So _BSD_SOURCE
+// has to be defined before "qsocketdevice.h".
 #  define _BSD_SOURCE
 #endif
 
