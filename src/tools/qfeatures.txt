@@ -866,7 +866,7 @@ SeeAlso: ???
 
 Feature: BUTTONGROUP
 Section: Widgets
-Requires: GROUPBOX BUTTON
+Requires: GROUPBOX BUTTON RADIOBUTTON
 Name: Button groups
 SeeAlso: ???
 
@@ -897,7 +897,7 @@ SeeAlso: ???
 Feature: HBOX
 Section: Widgets
 Requires: LAYOUT FRAME
-Name: Horizonal box layout widgets
+Name: Horizontal box layout widgets
 SeeAlso: ???
 
 Feature: VBOX
@@ -1197,13 +1197,13 @@ SeeAlso: ???
 
 Feature: STYLE_SGI
 Section: Widgets
-Requires: STYLE_MOTIF TRANSFORMATIONS
+Requires: STYLE_MOTIF TRANSFORMATIONS BUTTON SCROLLBAR SLIDER LINEEDIT  MENUBAR
 Name: SGI style
 SeeAlso: ???
 
 Feature: STYLE_MOTIFPLUS
 Section: Widgets
-Requires: STYLE_MOTIF TRANSFORMATIONS
+Requires: STYLE_MOTIF TRANSFORMATIONS BUTTON SCROLLBAR SLIDER
 Name: Motif-plus style
 SeeAlso: ???
 

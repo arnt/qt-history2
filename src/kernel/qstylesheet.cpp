@@ -976,7 +976,7 @@ int QStyleSheetItem::lineSpacing() const
 	    normal character. Specify \c left or \c right to place the
 	    image at the respective side.
     \row \i \c{<hr>}
-	 \i A horizonal line.
+	 \i A horizontal line.
     \row \i \c{<br>}
 	 \i A line break.
     \row \i \c{<nobr>...</nobr>}
@@ -1164,10 +1164,10 @@ void QStyleSheet::init()
     style->setSelfNesting( FALSE );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("code") );
-    style->setFontFamily( QString::fromLatin1("courier") );
+    style->setFontFamily( QString::fromLatin1("Courier New,courier") );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("tt") );
-    style->setFontFamily( QString::fromLatin1("courier") );
+    style->setFontFamily( QString::fromLatin1("Courier New,courier") );
 
     new QStyleSheetItem(this, QString::fromLatin1("img"));
     new QStyleSheetItem(this, QString::fromLatin1("br"));
@@ -1179,7 +1179,7 @@ void QStyleSheet::init()
     style->setVerticalAlignment( QStyleSheetItem::VAlignSuper );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("pre") );
-    style->setFontFamily( QString::fromLatin1("courier") );
+    style->setFontFamily( QString::fromLatin1("Courier New,courier") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setWhiteSpaceMode(QStyleSheetItem::WhiteSpacePre);
     style-> setMargin(QStyleSheetItem::MarginVertical, 12);

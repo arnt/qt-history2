@@ -597,7 +597,7 @@
 #define QT_NO_GROUPBOX
 #endif
 
-// Horizonal box layout widgets
+// Horizontal box layout widgets
 #if !defined(QT_NO_HBOX) && (defined(QT_NO_LAYOUT) || defined(QT_NO_FRAME))
 #define QT_NO_HBOX
 #endif
@@ -655,16 +655,6 @@
 // CDE style
 #if !defined(QT_NO_STYLE_CDE) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS))
 #define QT_NO_STYLE_CDE
-#endif
-
-// Motif-plus style
-#if !defined(QT_NO_STYLE_MOTIFPLUS) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS))
-#define QT_NO_STYLE_MOTIFPLUS
-#endif
-
-// SGI style
-#if !defined(QT_NO_STYLE_SGI) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS))
-#define QT_NO_STYLE_SGI
 #endif
 
 // Vertical box layout widgets
@@ -862,6 +852,11 @@
 #define QT_NO_PROGRESSDIALOG
 #endif
 
+// Motif-plus style
+#if !defined(QT_NO_STYLE_MOTIFPLUS) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS) || defined(QT_NO_BUTTON) || defined(QT_NO_SCROLLBAR) || defined(QT_NO_SLIDER))
+#define QT_NO_STYLE_MOTIFPLUS
+#endif
+
 // Rich text edit
 #if !defined(QT_NO_TEXTEDIT) && (defined(QT_NO_RICHTEXT) || defined(QT_NO_SCROLLVIEW))
 #define QT_NO_TEXTEDIT
@@ -915,6 +910,11 @@
 // Tool box
 #if !defined(QT_NO_TOOLBOX) && (defined(QT_NO_ICONSET) || defined(QT_NO_SCROLLVIEW) || defined(QT_NO_TOOLTIP) || defined(QT_NO_LAYOUT) || defined(QT_NO_TOOLBUTTON))
 #define QT_NO_TOOLBOX
+#endif
+
+// SGI style
+#if !defined(QT_NO_STYLE_SGI) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS) || defined(QT_NO_BUTTON) || defined(QT_NO_SCROLLBAR) || defined(QT_NO_SLIDER) || defined(QT_NO_LINEEDIT) || defined(QT_NO_MENUBAR))
+#define QT_NO_STYLE_SGI
 #endif
 
 // QErrorMessage
