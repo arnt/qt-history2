@@ -76,7 +76,9 @@ SOURCES	+= command.cpp \
 		listviewdnd.cpp \
 		listboxdnd.cpp \
 		listdnd.cpp \
-		listboxrename.cpp
+		listboxrename.cpp \
+		connectiontable.cpp
+
 HEADERS	+= command.h \
 		defs.h \
 		formwindow.h \
@@ -138,7 +140,8 @@ HEADERS	+= command.h \
 		listviewdnd.h \
 		listboxdnd.h \
 		listdnd.h \
-		listboxrename.h
+		listboxrename.h \
+		connectiontable.h
 
 FORMS		+= listboxeditor.ui \
 		editfunctions.ui \

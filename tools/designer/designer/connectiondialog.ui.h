@@ -69,10 +69,10 @@ static QPixmap *validConnection = 0;
 
 void ConnectionDialog::init()
 {
-    connectionsTable->setColumnStretchable( 0, TRUE );
-    connectionsTable->setColumnStretchable( 1, TRUE );
-    connectionsTable->setColumnStretchable( 2, TRUE );
-    connectionsTable->setColumnStretchable( 3, TRUE );
+    connect( connectionsTable, SIGNAL( currentChanged( int, int ) ),
+	     this, SLOT( updateEditSlotsButton() ) );
+    connect( connectionsTable, SIGNAL( resorted() ),
+	     this, SLOT( updateConnectionContainers() ) );
     buttonEditSlots->setEnabled( FALSE );
 
     if ( !invalidConnection ) {
@@ -291,4 +291,20 @@ void ConnectionDialog::updateEditSlotsButton()
     buttonEditSlots->setEnabled( c->receiverItem()->currentText() ==
 				 QString( MainWindow::self->formWindow()->
 					  mainContainer()->name() ) );
+}
+
+void ConnectionDialog::updateConnectionContainers()
+{
+    QPtrList<ConnectionContainer> newContainers;
+    for ( int i = 0; i < connectionsTable->numRows(); ++i ) {
+	for ( ConnectionContainer *c = connections.first(); c; c = connections.next() ) {
+	    if ( c->senderItem() == connectionsTable->item( i, 0 ) ) {
+		newContainers.append( c );
+		c->setRow( i );
+		break;
+	    }
+	}
+    }
+    connections = newContainers;
+    updateEditSlotsButton();
 }
