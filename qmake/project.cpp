@@ -1597,7 +1597,7 @@ QMakeProject::doProjectExpand(const QString &func, QStringList args,
                 ret += Option::field_sep;
             ret += place[(*arg_it)].join(QString(Option::field_sep));
         }
-    }
+        break; }
     case E_LIST: {
         static int x = 0;
         ret.sprintf(".QMAKE_INTERNAL_TMP_VAR_%d", x++);
