@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#129 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#130 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#129 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#130 $");
 
 
 // Motif style parameters
@@ -386,6 +386,11 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 
 QPopupMenu::~QPopupMenu()
 {
+    if ( syncMenu == this ) {
+	qApp->exit_loop();
+	syncMenu = 0;
+    }
+	
     if ( qpm_extraStuff )
 	qpm_extraStuff->remove( this );
     delete autoaccel;
@@ -1595,6 +1600,7 @@ int QPopupMenu::exec()
     qApp->enter_loop();
     disconnect( this, SIGNAL(activated(int)),
 		this, SLOT(modalActivation(int)) );
+    syncMenu = 0;
 
     return syncMenuId;
 }
