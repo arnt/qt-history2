@@ -545,9 +545,10 @@ void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
 	dockWindow->updatePosition( e->globalPos() );
 }
 
-void QDockWindowTitleBar::resizeEvent( QResizeEvent * )
+void QDockWindowTitleBar::resizeEvent( QResizeEvent *e )
 {
     updateGui();
+    QTitleBarLabel::resizeEvent( e );
 }
 
 void QDockWindowTitleBar::updateGui()
