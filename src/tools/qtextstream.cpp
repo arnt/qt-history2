@@ -1567,6 +1567,7 @@ QString QTextStream::readLine()
 #endif
     bool readCharByChar = TRUE;
     QString result( "" );
+#if 0
     if ( !doUnicodeHeader && (
 	    (latin1) || 
 	    (mapper != 0 && mapper->mibEnum() == 106 ) // UTF 8
@@ -1602,7 +1603,8 @@ QString QTextStream::readLine()
 	if ( eof && result.isEmpty() )
 	    return QString::null;
     }
-    if (readCharByChar ) {
+#endif
+    if ( readCharByChar ) {
 	// read character by character
 	const int buf_size = 256;
 	QChar c[buf_size];
