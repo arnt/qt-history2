@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.11 1998/03/17 09:25:33 aavit Exp $
+** $Id: indices.doc,v 2.12 1998/03/20 14:07:00 warwick Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.11 1998/03/17 09:25:33 aavit Exp $";
+static char ident[] = "$Id: indices.doc,v 2.12 1998/03/20 14:07:00 warwick Exp $";
 #endif
 
 /*! \page index.html
@@ -60,6 +60,7 @@ archive</a>
 <li><a href="http://www.troll.no/imageio/">Image file format extensions</a>
 <li><a href="http://www.troll.no/nsplugin/">Writing Netscape plugins
 with Qt</a>
+<li><a href="http://www.troll.no/xt/">Mixing Xt and Motif with Qt</a>
 </ul>
 
 </tr></table>
