@@ -53,7 +53,7 @@ class QDesignerIndicatorWidget : public QWidget
 public:
     QDesignerIndicatorWidget( QWidget *p )
 	: QWidget( p, "qt_dockwidget_internal" ) {
-	    setBackgroundColor( red );
+	    setBackgroundMode( PaletteHighlight );
     }
 
 };
