@@ -950,7 +950,7 @@ void QFileDialogPrivate::showDetailClicked()
 void QFileDialogPrivate::enterSubdir(const QModelIndex &index)
 {
     if (model->isDir(index)) {
-        history.push_back(d->root());
+        history.push_back(root());
         setRoot(index);
         updateButtons(index);
     } else {
@@ -1137,6 +1137,7 @@ void QFileDialogPrivate::useFilter(const QString &filter)
 
 void QFileDialogPrivate::setCurrentDir(const QString &path)
 {
+    history.push_back(root());
     QModelIndex index = model->index(path);
     setRoot(index);
     updateButtons(index);
