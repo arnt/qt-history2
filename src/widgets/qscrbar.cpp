@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#33 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#33 $";
 #endif
 
 
@@ -50,6 +50,13 @@ void qDrawWinButton( QPainter *p, int x1, int y1, int w, int h,
 
   \brief The QScrollBar widget class provides a vertical or horizontal scroll
   bar.
+
+  A scroll bar is used to let the user control a value within a
+  program-definable range, and to give the user visible indication of
+  the current value of a \link QRangeControl range control \endlink.
+
+  QScrollBar only offers integer ranges, and at present only Motif
+  look and feel is implemented.
 
   \ingroup realwidgets
  ----------------------------------------------------------------------------*/
