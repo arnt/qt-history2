@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#26 $
 **
 ** Implementation of something useful
 **
@@ -22,7 +22,7 @@
 
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#26 $");
 
 
 struct QListViewPrivate
@@ -1200,8 +1200,8 @@ void QListView::mousePressEvent( QMouseEvent * e )
 
     if ( isMultiSelection() ) {
 	i->setSelected( !i->isSelected() );
-    } else if ( i != d->currentSelected ) {
-	if ( d->currentSelected )
+    } else {
+	if ( d->currentSelected && i != d->currentSelected )
 	    d->currentSelected->setSelected( FALSE );
 	i->setSelected( TRUE );
     }
