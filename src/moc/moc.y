@@ -421,12 +421,12 @@ struct Property
 	     bool override)
 	: lineNo(lineNo), type(typearg), name(name),
 	  read(read), write(write), reset(reset),
-	  gspec(ValueSpec),
 	  designable(designable),
 	  scriptable(scriptable),
 	  stored(stored),
 	  editable(editable),
-	  override(override)
+	  override(override),
+	  gspec(ValueSpec)
     {
 	/*
 	  The Q_PROPERTY construct cannot contain any commas, since
