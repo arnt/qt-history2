@@ -914,7 +914,7 @@ void SetupWizardImpl::fixEnvironment(const QString &var, const QString &file)
 	    fn += ";" + envs;
 	}
 	if (!fn.isEmpty())
-	    QEnvironment::putEnv(var, fn, QEnvironment::PersistentEnv);
+	    QEnvironment::putEnv(var, fn, QEnvironment::PersistentEnv | QEnvironment::LocalEnv);
     } else if (globalInformation.sysId() == GlobalInformation::MSVC) {
 	QString visualStudio = 
 	    QEnvironment::getRegistryString("Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", 
@@ -926,17 +926,20 @@ void SetupWizardImpl::fixEnvironment(const QString &var, const QString &file)
 		newPaths += visualStudio + "\\Common\\Tools\\WinNT;";
 	    else
 		newPaths += visualStudio + "\\Common\\Tools\\Win95;";
-	    QEnvironment::putEnv("PATH", newPaths + getenv("PATH"), QEnvironment::PersistentEnv);
+	    QEnvironment::putEnv("PATH", newPaths + getenv("PATH"), 
+				 QEnvironment::PersistentEnv | QEnvironment::LocalEnv);
 	    fixedPath = true;
 	} else if (var == "LIB") {
 	    QString newPaths = visualStudio + "\\vc98\\lib;";
-	    newPaths = visualStudio + "\\vc98\\mfc\\lib;";
-	    QEnvironment::putEnv("LIB", newPaths + getenv("LIB"), QEnvironment::PersistentEnv);
+	    newPaths += visualStudio + "\\vc98\\mfc\\lib;";
+	    QEnvironment::putEnv("LIB", newPaths + getenv("LIB"), 
+				 QEnvironment::PersistentEnv | QEnvironment::LocalEnv);
 	} else if (var == "INCLUDE") {
 	    QString newPaths = visualStudio + "\\vc98\\atl\\include;";
-	    newPaths = visualStudio + "\\vc98\\include;";
-	    newPaths = visualStudio + "\\vc98\\mfc\\include;";
-	    QEnvironment::putEnv("INCLUDE", newPaths + getenv("INCLUDE"), QEnvironment::PersistentEnv);
+	    newPaths += visualStudio + "\\vc98\\include;";
+	    newPaths += visualStudio + "\\vc98\\mfc\\include;";
+	    QEnvironment::putEnv("INCLUDE", newPaths + getenv("INCLUDE"), 
+				 QEnvironment::PersistentEnv | QEnvironment::LocalEnv);
 	}
     } else if (globalInformation.sysId() == GlobalInformation::MSVCNET) {
 	QString visualStudio = QEnvironment::getRegistryString("Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VS", 
@@ -969,7 +972,8 @@ void SetupWizardImpl::fixEnvironment(const QString &var, const QString &file)
 	    newPaths += VCINSTALLDIR + "\\Common7\\Tools\\bin;";
 	    newPaths += FrameworkSDK + "\\bin;";
 	    newPaths += FrameworkSDK + "\\" + FrameworkVer + ";";
-	    QEnvironment::putEnv("PATH", newPaths + getenv("PATH"), QEnvironment::PersistentEnv);
+	    QEnvironment::putEnv("PATH", newPaths + getenv("PATH"), 
+				 QEnvironment::PersistentEnv | QEnvironment::LocalEnv);
 	    fixedPath = true;
 	} else if (var == "LIB") {
 	    QString newPaths = VCINSTALLDIR + "\\ATLMFC\\LIB;";
@@ -977,14 +981,16 @@ void SetupWizardImpl::fixEnvironment(const QString &var, const QString &file)
 	    newPaths += VCINSTALLDIR + "\\PlatformSDK\\lib\\prerelease;";
 	    newPaths += VCINSTALLDIR + "\\PlatformSDK\\lib;";
 	    newPaths += FrameworkSDK + "\\lib;";
-	    QEnvironment::putEnv("LIB", newPaths + getenv("LIB"), QEnvironment::PersistentEnv);
+	    QEnvironment::putEnv("LIB", newPaths + getenv("LIB"), 
+				 QEnvironment::PersistentEnv | QEnvironment::LocalEnv);
 	} else if (var == "INCLUDE") {
 	    QString newPaths = VCINSTALLDIR + "\\ATLMFC\\INCLUDE;";
 	    newPaths += VCINSTALLDIR + "\\INCLUDE;";
 	    newPaths += VCINSTALLDIR + "\\PlatformSDK\\include\\prerelease;";
 	    newPaths += VCINSTALLDIR + "\\PlatformSDK\\include;";
 	    newPaths += FrameworkSDK + "\\include;";
-	    QEnvironment::putEnv("INCLUDE", newPaths + getenv("INCLUDE"), QEnvironment::PersistentEnv);
+	    QEnvironment::putEnv("INCLUDE", newPaths + getenv("INCLUDE"), 
+				 QEnvironment::PersistentEnv | QEnvironment::LocalEnv);
 	}
 
     }
