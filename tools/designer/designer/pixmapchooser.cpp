@@ -66,21 +66,32 @@ void PixmapView::previewUrl( const QUrl &u )
     }
 }
 
+static void buildImageFormatList( QString &filter, QString &all )
+{
+    all = qApp->translate( "qChoosePixmap", "All Pixmaps (" );
+    for ( uint i = 0; i < QImageIO::outputFormats().count(); i++ ) {
+	QString outputFormat = QImageIO::outputFormats().at( i );
+	QString outputExtension;
+	if ( outputFormat != "JPEG" )
+	   outputExtension = outputFormat.lower();
+	else
+	    outputExtension = "jpg;*.jpeg";
+	filter += qApp->translate( "qChoosePixmap", "%1-Pixmaps (%2)\n" ).
+		  arg( outputFormat ).arg( "*." + outputExtension);
+	all += "*." + outputExtension + ";";
+    }
+    filter.prepend( all + qApp->translate( "qChoosePixmap", ")\n" ) );
+    filter += qApp->translate( "qChoosePixmap", "All Files (*)" );
+
+}
 QStringList qChoosePixmaps( QWidget *parent )
 {
     if ( !imageIconProvider && !QFileDialog::iconProvider() )
 	QFileDialog::setIconProvider( ( imageIconProvider = new ImageIconProvider ) );
 
     QString filter;
-    QString all = qApp->translate( "qChoosePixmap", "All Pixmaps (" );
-    for ( uint i = 0; i < QImageIO::outputFormats().count(); i++ ) {
-	filter += qApp->translate( "qChoosePixmap", "%1-Pixmaps (%2)\n" ).
-		  arg( QImageIO::outputFormats().at( i ) ).
-		  arg( "*." + QString( QImageIO::outputFormats().at( i ) ).lower() );
-	all += "*." + QString( QImageIO::outputFormats().at( i ) ).lower() + ";";
-    }
-    filter.prepend( all + qApp->translate( "qChoosePixmap", ")\n" ) );
-    filter += qApp->translate( "qChoosePixmap", "All Files (*)" );
+    QString all;
+    buildImageFormatList( filter, all );
 
     QFileDialog fd( QString::null, filter, parent, 0, TRUE );
     fd.setMode( QFileDialog::ExistingFiles );
@@ -103,15 +114,8 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QStr
 	    QFileDialog::setIconProvider( ( imageIconProvider = new ImageIconProvider ) );
 
 	QString filter;
-	QString all = qApp->translate( "qChoosePixmap", "All Pixmaps (" );
-	for ( uint i = 0; i < QImageIO::outputFormats().count(); i++ ) {
-	    filter += qApp->translate( "qChoosePixmap", "%1-Pixmaps (%2)\n" ).
-		     arg( QImageIO::outputFormats().at( i ) ).
-		     arg( "*." + QString( QImageIO::outputFormats().at( i ) ).lower() );
-	    all += "*." + QString( QImageIO::outputFormats().at( i ) ).lower() + ";";
-	}
-	filter.prepend( all + qApp->translate( "qChoosePixmap", ")\n" ) );
-	filter += qApp->translate( "qChoosePixmap", "All Files (*)" );
+	QString all;
+	buildImageFormatList( filter, all );
 
 	QFileDialog fd( QString::null, filter, parent, 0, TRUE );
 	fd.setContentsPreviewEnabled( TRUE );
