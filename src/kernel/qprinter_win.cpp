@@ -279,11 +279,11 @@ void QPrinter::readPdlgA( void* pdv )
     from_pg = pd->nFromPage;
     to_pg = pd->nToPage;
     ncopies = pd->nCopies;
-    hdc	= pd->hDC;
     if ( hdc ) {
        DeleteDC( hdc );
        viewOffsetDone = FALSE;
     }
+    hdc	= pd->hDC;
     if ( pd->hDevMode ) {
 	DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd->hDevMode );
 	if ( dm ) {
