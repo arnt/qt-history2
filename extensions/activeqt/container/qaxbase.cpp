@@ -983,7 +983,7 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<QMetaEnum>& enumlist, const QString &function )
 {
     HREFTYPE usertype = tdesc.hreftype;
-    if ( tdesc.vt != VT_USERDEFINED || !usertype )
+    if ( tdesc.vt != VT_USERDEFINED )
 	return QString::null;
 
     QString typeName;
