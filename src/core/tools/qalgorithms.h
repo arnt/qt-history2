@@ -331,9 +331,9 @@ Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, co
        return;
 
     int size = end - start;
-    T *buf = (T*)malloc(size * sizeof(T));
+    T *buf = new T[size];
     qStableSortHelper(start, end, lessThan, buf);
-    free(buf);
+    delete[] buf;
 }
 
 
