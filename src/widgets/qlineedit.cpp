@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#59 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#59 $");
 
 
 /*!
@@ -237,25 +237,25 @@ void QLineEdit::setMaxLength( int m )
   If return or enter is pressed, the signal returnPressed will be emitted.
 
   Here are the default key bindings:
-  <dl compact>
-  <dt> Left Arrow <dd> Move the cursor one character leftwards
-  <dt> Right Arrow <dd> Move the cursor one character rightwards
-  <dt> Backspace <dd> Delete the character to the left of the cursor
-  <dt> Home <dd> Move the cursor to the beginning of the line
-  <dt> End <dd>	 Move the cursor to the end of the line
-  <dt> Delete <dd> Delete the character to the right of the cursor
-  <dt> Shift - Left Arrow <dd> Mark text one character leftwards
-  <dt> Shift - Right Arrow <dd> Mark text one character rightwards
-  <dt> Control-A <dd> Move the cursor to the beginning of the line
-  <dt> Control-B <dd> Move the cursor one character leftwards
-  <dt> Control-C <dd> Copy the marked text to the clipboard.
-  <dt> Control-D <dd> Delete the character to the right of the cursor
-  <dt> Control-E <dd> Move the cursor to the end of the line
-  <dt> Control-F <dd> Move the cursor one character rightwards
-  <dt> Control-H <dd> Delete the character to the left of the cursor
-  <dt> Control-V <dd> Paste the clipboard text into line edit.
-  <dt> Control-X <dd> Cut the marked text, copy to clipboard.
-  </dl>
+  <ul>
+  <li><i> Left Arrow </i> Move the cursor one character leftwards
+  <li><i> Right Arrow </i> Move the cursor one character rightwards
+  <li><i> Backspace </i> Delete the character to the left of the cursor
+  <li><i> Home </i> Move the cursor to the beginning of the line
+  <li><i> End </i>	 Move the cursor to the end of the line
+  <li><i> Delete </i> Delete the character to the right of the cursor
+  <li><i> Shift - Left Arrow </i> Mark text one character leftwards
+  <li><i> Shift - Right Arrow </i> Mark text one character rightwards
+  <li><i> Control-A </i> Move the cursor to the beginning of the line
+  <li><i> Control-B </i> Move the cursor one character leftwards
+  <li><i> Control-C </i> Copy the marked text to the clipboard.
+  <li><i> Control-D </i> Delete the character to the right of the cursor
+  <li><i> Control-E </i> Move the cursor to the end of the line
+  <li><i> Control-F </i> Move the cursor one character rightwards
+  <li><i> Control-H </i> Delete the character to the left of the cursor
+  <li><i> Control-V </i> Paste the clipboard text into line edit.
+  <li><i> Control-X </i> Cut the marked text, copy to clipboard.
+  </ul>
 
   <strong><a href=mailto:qt-bugs@troll.no>Comments solicited</a></strong>
 

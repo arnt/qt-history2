@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#17 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -154,7 +154,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
  */
 
 /*!
-  If \a on is FALSE, this multi line edit will accept text input.
+  If \a on is FALSE, this multi line edit accepts text input.
   Scrolling and cursor movements are accepted in any case.
 
   \sa inputEnabled() QWidget::setEnabled() 
@@ -511,43 +511,43 @@ void QMultiLineEdit::setText( const char *s )
   action.
 
   Here are the default key bindings when isReadOnly() is FALSE:
-  <dl compact>
-  <dt> Left Arrow <dd> Move the cursor one character leftwards
-  <dt> Right Arrow <dd> Move the cursor one character rightwards
-  <dt> Up Arrow <dd> Move the cursor one line upwards
-  <dt> Down Arrow <dd> Move the cursor one line downwards
-  <dt> Page Up <dd> Move the cursor one page upwards
-  <dt> Page Down <dd> Move the cursor one page downwards
-  <dt> Backspace <dd> Delete the character to the left of the cursor
-  <dt> Home <dd> Move the cursor to the beginning of the line
-  <dt> End <dd>	 Move the cursor to the end of the line
-  <dt> Delete <dd> Delete the character to the right of the cursor
-  <dt> Shift - Left Arrow <dd> Mark text one character leftwards
-  <dt> Shift - Right Arrow <dd> Mark text one character rightwards
-  <dt> Control-A <dd> Move the cursor to the beginning of the line
-  <dt> Control-B <dd> Move the cursor one character leftwards
-  <dt> Control-C <dd> Copy the marked text to the clipboard.
-  <dt> Control-D <dd> Delete the character to the right of the cursor
-  <dt> Control-E <dd> Move the cursor to the end of the line
-  <dt> Control-F <dd> Move the cursor one character rightwards
-  <dt> Control-H <dd> Delete the character to the left of the cursor
-  <dt> Control-K <dd> Delete to end of line
-  <dt> Control-N <dd> Move the cursor one line downwards
-  <dt> Control-P <dd> Move the cursor one line upwards
-  <dt> Control-V <dd> Paste the clipboard text into line edit.
-  <dt> Control-X <dd> Cut the marked text, copy to clipboard.
-  </dl>
+  <ul>
+  <li><i> Left Arrow </i> Move the cursor one character leftwards
+  <li><i> Right Arrow </i> Move the cursor one character rightwards
+  <li><i> Up Arrow </i> Move the cursor one line upwards
+  <li><i> Down Arrow </i> Move the cursor one line downwards
+  <li><i> Page Up </i> Move the cursor one page upwards
+  <li><i> Page Down </i> Move the cursor one page downwards
+  <li><i> Backspace </i> Delete the character to the left of the cursor
+  <li><i> Home </i> Move the cursor to the beginning of the line
+  <li><i> End </i>	 Move the cursor to the end of the line
+  <li><i> Delete </i> Delete the character to the right of the cursor
+  <li><i> Shift - Left Arrow </i> Mark text one character leftwards
+  <li><i> Shift - Right Arrow </i> Mark text one character rightwards
+  <li><i> Control-A </i> Move the cursor to the beginning of the line
+  <li><i> Control-B </i> Move the cursor one character leftwards
+  <li><i> Control-C </i> Copy the marked text to the clipboard.
+  <li><i> Control-D </i> Delete the character to the right of the cursor
+  <li><i> Control-E </i> Move the cursor to the end of the line
+  <li><i> Control-F </i> Move the cursor one character rightwards
+  <li><i> Control-H </i> Delete the character to the left of the cursor
+  <li><i> Control-K </i> Delete to end of line
+  <li><i> Control-N </i> Move the cursor one line downwards
+  <li><i> Control-P </i> Move the cursor one line upwards
+  <li><i> Control-V </i> Paste the clipboard text into line edit.
+  <li><i> Control-X </i> Cut the marked text, copy to clipboard.
+  </ul>
   All other keys with valid ASCII codes insert themselves into the line.
 
   Here are the default key bindings when isReadOnly() is TRUE:
-  <dl compact>
-  <dt> Left Arrow <dd> Scrolls the table rightwards
-  <dt> Right Arrow <dd> Scrolls the table rightwards
-  <dt> Up Arrow <dd> Scrolls the table one line downwards
-  <dt> Down Arrow <dd> Scrolls the table one line upwards
-  <dt> Page Up <dd> Scrolls the table one page downwards
-  <dt> Page Down <dd> Scrolls the table one page upwards
-  </dl>
+  <ul>
+  <li><i> Left Arrow </i> Scrolls the table rightwards
+  <li><i> Right Arrow </i> Scrolls the table rightwards
+  <li><i> Up Arrow </i> Scrolls the table one line downwards
+  <li><i> Down Arrow </i> Scrolls the table one line upwards
+  <li><i> Page Up </i> Scrolls the table one page downwards
+  <li><i> Page Down </i> Scrolls the table one page upwards
+  </ul>
 
 */
 
@@ -1038,10 +1038,11 @@ void QMultiLineEdit::turnMarkOff()
 
 
 /*!
-  Deletes the character on the left side of the text cursor and moves the
-  cursor one position to the left. If a text has been marked by the user
-  (e.g. by clicking and dragging) the cursor will be put at the beginning
-  of the marked text and the marked text will be removed.  \sa del()
+  Deletes the character on the left side of the text cursor and moves
+  the cursor one position to the left. If a text has been marked by
+  the user (e.g. by clicking and dragging) the cursor is put at the
+  beginning of the marked text and the marked text is removed.
+  \sa del()
 */
 
 void QMultiLineEdit::backspace()
@@ -1058,10 +1059,10 @@ void QMultiLineEdit::backspace()
 }
 
 /*!
-  Deletes the character on the right side of the text cursor. If a text
-  has been marked by the user (e.g. by clicking and dragging) the cursor
-  will be put at the beginning of the marked text and the marked text will
-  be removed.  \sa backspace()
+  Deletes the character on the right side of the text cursor. If a
+  text has been marked by the user (e.g. by clicking and dragging) the
+  cursor is put at the beginning of the marked text and the marked
+  text is removed.  \sa backspace()
 */
 
 void QMultiLineEdit::del()
@@ -1142,9 +1143,9 @@ void QMultiLineEdit::del()
 }
 
 /*!
-  Moves the text cursor to the left end of the line. If \a mark is TRUE,
-  text will be marked towards the first position. If not, any marked
-  text will be unmarked if the cursor is moved.
+  Moves the text cursor to the left end of the line. If \a mark is
+  TRUE, text is marked towards the first position. If it is FALSE and
+  the cursor is moved, all marked text is unmarked.
   
   \sa end() 
 */
@@ -1173,9 +1174,10 @@ void QMultiLineEdit::home( bool ) //mark
 }
 
 /*!
-  Moves the text cursor to the right end of the line. If mark is TRUE text
-  will be marked towards the last position, if not any marked text will
-  be unmarked if the cursor is moved.
+  Moves the text cursor to the right end of the line. If mark is TRUE
+  text is marked towards the last position.  If it is FALSE and the
+  cursor is moved, all marked text is unmarked.
+
   \sa home()
 */
 
