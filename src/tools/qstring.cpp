@@ -2798,6 +2798,21 @@ QString& QString::fill(QChar c, int size)
 
 
 /*!
+    \fn bool QString::isNull() const
+
+    Returns TRUE if the string is null; otherwise returns FALSE. A
+    null string is always empty.
+
+    \code
+	QString a;          // a.unicode() == 0, a.length() == 0
+	a.isNull();         // TRUE, because a.unicode() == 0
+	a.isEmpty();        // TRUE, because a.length() == 0
+    \endcode
+
+    \sa isEmpty(), length()
+*/
+
+/*!
     \fn bool QString::isEmpty() const
 
     Returns true if the string is empty, i.e. if length() == 0;

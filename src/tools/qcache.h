@@ -50,6 +50,7 @@ class QCache
     inline int totalCost() const { return total; }
 
     inline int size() const { return map.size(); }
+    inline int count() const { return map.size(); }
     inline bool isEmpty() const { return map.isEmpty(); }
     void clear();
 

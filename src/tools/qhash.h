@@ -225,6 +225,7 @@ public:
     ConstIterator find(const Key &key) const;
     bool contains(const Key &key) const;
     inline int size() const { return d->size; }
+    inline int count() const { return d->size; }
     inline bool isEmpty() const { return !d->size; }
 
     inline Iterator begin() { detach(); return Iterator(d->first_node()); }
@@ -241,7 +242,6 @@ public:
 
 #ifdef QT_COMPAT
     inline QT_COMPAT Iterator remove(Iterator it) { return erase(it); }
-    inline QT_COMPAT int count() const { return d->size; }
 #endif
 
     inline bool ensure_constructed()

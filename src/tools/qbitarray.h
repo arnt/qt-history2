@@ -18,6 +18,7 @@ public:
 
 
     inline int size() const { return (d.size() << 3) - *d.constData(); }
+    inline int count() const { return (d.size() << 3) - *d.constData(); }
 
     inline bool isEmpty() const { return d.isEmpty(); }
 
@@ -46,10 +47,11 @@ public:
     inline bool operator==(const QBitArray& a) const { return d == a.d; }
     inline bool operator!=(const QBitArray& a) const { return d != a.d; }
 
+    inline bool isNull() { return d.isNull(); }
+
 #ifdef QT_COMPAT
     inline QT_COMPAT bool fill(bool val, int size = -1)
 	{ *this=QBitArray((size < 0 ? this->size() : size), val); return true; }
-    inline QT_COMPAT bool isNull() { return d.isEmpty(); }
 #endif
 
     inline bool ensure_constructed()

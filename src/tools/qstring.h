@@ -51,7 +51,8 @@ public:
     QString &operator=(QChar c);
     inline QString &operator=(const QString  &);
 
-    int size() const;
+    inline int size() const { return d->size; }
+    inline int count() const { return d->size; }
     int length() const;
     bool isEmpty() const;
     void resize(int size);
@@ -304,14 +305,14 @@ public:
 #endif
 
     // compatibility
-#ifdef QT_COMPAT
     static struct Null {
 	inline bool operator==(const Null&){return true; }
 	inline bool operator!=(const Null&){return false; }
     } null;
-    inline QT_COMPAT QString(const Null &): d(&shared_null) { ++d->ref; }
-    inline QT_COMPAT QString &operator=(const Null &) { *this = QString(); return *this; }
-    inline QT_COMPAT bool isNull() const { return d == &shared_null; }
+    inline QString(const Null &): d(&shared_null) { ++d->ref; }
+    inline QString &operator=(const Null &) { *this = QString(); return *this; }
+    inline bool isNull() const { return d == &shared_null; }
+#ifdef QT_COMPAT
     inline QT_COMPAT void setLength(int nl) { resize(nl); }
     inline QT_COMPAT QString copy() const { return *this; }
     inline QT_COMPAT QString &insert(int i, const QChar *uc, int len)
@@ -364,12 +365,6 @@ public:
     inline QT_COMPAT QString upper() const { return toUpper(); }
     inline QT_COMPAT QString stripWhiteSpace() const { return trimmed(); }
     inline QT_COMPAT QString simplifyWhiteSpace() const { return simplified(); }
-
-    friend bool operator==(QString::Null, const QString &s);
-    friend bool operator==(const QString &s, QString::Null);
-    friend bool operator!=(QString::Null, const QString &s);
-    friend bool operator!=(const QString &s, QString::Null);
-
 #endif
 
     inline bool ensure_constructed()
@@ -415,8 +410,6 @@ private:
 
 inline QString::QString() :d(&shared_null)
 { ++d->ref; }
-inline int QString::size() const
-{ return d->size; }
 inline int QString::length() const
 { return d->size; }
 inline void QString::truncate(int maxSize)
@@ -594,6 +587,12 @@ Q_CORE_EXPORT bool operator<=(const QString &s1, const QString &s2);
 Q_CORE_EXPORT bool operator==(const QString &s1, const QString &s2);
 Q_CORE_EXPORT bool operator>(const QString &s1, const QString &s2);
 Q_CORE_EXPORT bool operator>=(const QString &s1, const QString &s2);
+
+inline bool operator==(QString::Null, const QString &s) { return s.isNull(); }
+inline bool operator==(const QString &s, QString::Null) { return s.isNull(); }
+inline bool operator!=(QString::Null, const QString &s) { return !s.isNull(); }
+inline bool operator!=(const QString &s, QString::Null) { return !!s.isNull(); }
+
 #ifndef QT_NO_CAST_FROM_ASCII
 Q_CORE_EXPORT bool operator==(const QString &s1, const char *s2);
 inline bool operator==(const char *s1, const QString &s2) { return (s2 == s1); }
@@ -627,14 +626,6 @@ inline const QString operator+(const QString &s, char c)
 #endif
 
 #ifdef QT_COMPAT
-inline QT_COMPAT bool operator==(QString::Null, const QString &s)
-{ return s.d == &QString::shared_null; }
-inline QT_COMPAT bool operator==(const QString &s, QString::Null)
-{ return s.d == &QString::shared_null; }
-inline QT_COMPAT bool operator!=(QString::Null, const QString &s)
-{ return s.d != &QString::shared_null; }
-inline QT_COMPAT bool operator!=(const QString &s, QString::Null)
-{ return s.d != &QString::shared_null; }
 inline QCharRef QString::at(int i)
 { Q_ASSERT(i >= 0); return QCharRef(*this, i); }
 inline QChar &QString::ref(uint i)

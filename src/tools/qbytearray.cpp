@@ -1258,6 +1258,21 @@ QByteArray QByteArray::rightJustified(int width, char fill, bool truncate) const
     return result;
 }
 
+/*! \fn  void QByteArray::truncate(int maxSize)
+
+    If \a maxSize is less than the length of the string, then the
+    string is truncated at position \a maxSize. Otherwise nothing
+    happens.
+
+    \code
+	QByteArray s = "truncate me";
+	s.truncate(5);            // s == "trunc"
+    \endcode
+
+    \sa resize();
+*/
+
+
 #ifdef QT_COMPAT
 bool QByteArray::isNull() const { return d == &shared_null; }
 #endif

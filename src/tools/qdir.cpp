@@ -23,9 +23,9 @@
 #include <limits.h>
 
 #if defined(Q_FS_FAT) && !defined(Q_OS_UNIX)
-enum { CaseSensitiveFS = QString::CaseInsensitive };
+enum { CaseSensitiveFS = true };
 #else
-enum { CaseSensitiveFS = QString::CaseSensitive };
+enum { CaseSensitiveFS = false };
 #endif
 
 
@@ -1056,7 +1056,8 @@ QList<QRegExp> qt_makeFilterList( const QString &filter )
     QStringList list = QStringList::split( sep, filter );
     QStringList::Iterator it = list.begin();
     while ( it != list.end() ) {
-	regExps << QRegExp( (*it).trimmed(), CaseSensitiveFS, TRUE );
+	regExps << QRegExp( (*it).trimmed(),
+			    CaseSensitiveFS ? QString::CaseSensitive : QString::CaseInsensitive, true );
 	++it;
     }
     return regExps;
@@ -1090,7 +1091,7 @@ bool QDir::match( const QStringList &filters, const QString &fileName )
 {
     QStringList::ConstIterator sit = filters.begin();
     while ( sit != filters.end() ) {
-	QRegExp rx( *sit, CaseSensitiveFS, TRUE );
+	QRegExp rx( *sit, CaseSensitiveFS ? QString::CaseSensitive : QString::CaseInsensitive, TRUE );
 	if ( rx.exactMatch(fileName) )
 	    return TRUE;
 	++sit;

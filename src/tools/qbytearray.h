@@ -75,7 +75,7 @@ public:
     QByteArray(const char *);
     QByteArray(const char*, int size);
 #ifndef QT_COMPAT
-    QT_COMPAT QByteArray(int size, char c);
+    QByteArray(int size, char c);
 #endif
     QByteArray(const QByteArray &);
     ~QByteArray();
@@ -127,6 +127,8 @@ public:
     QByteArray left(int len)  const;
     QByteArray right(int len) const;
     QByteArray mid(int index, int len=-1) const;
+
+    inline void truncate( int l ) { if (l < d->size) resize(l); }
 
     QByteArray toLower() const;
     QByteArray toUpper() const;
@@ -185,11 +187,11 @@ public:
 
     inline int count() const { return d->size; }
     int length() const { return d->size; }
+    bool isNull() const;
 
     // compatibility
 #ifdef QT_COMPAT
     explicit QT_COMPAT QByteArray(int size, char c = '\0');
-    QT_COMPAT bool isNull() const;
     QT_COMPAT QByteArray& duplicate(const QByteArray& a)
     { *this = a; return *this; }
     QT_COMPAT QByteArray& duplicate(const char *a, uint n)
@@ -198,7 +200,6 @@ public:
     { detach(); d->data = (char *)a; d->size = n; return *this; }
     QT_COMPAT void resetRawData( const char *, uint )
     { detach(); d->data = d->array; d->size = 0; }
-    inline QT_COMPAT void truncate( int l ) { if (l < d->size) resize(l); }
     inline QT_COMPAT QByteArray lower() const { return toLower(); }
     inline QT_COMPAT QByteArray upper() const { return toUpper(); }
     inline QT_COMPAT QByteArray stripWhiteSpace() const { return trimmed(); }
