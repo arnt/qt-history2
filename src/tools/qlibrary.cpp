@@ -296,23 +296,26 @@ QString QLibrary::library() const
 #if defined(Q_WS_WIN)
     if ( filename.findRev( '.' ) <= filename.findRev( '/' ) )
 	filename += ".dll";
-#elif defined(Q_OS_MACX)
-    if ( !QFile::exists(filename) && filename.find( ".dylib" ) == -1 )
-	filename += ".dylib";
 #else
-#if defined(Q_OS_HPUX)
+#ifdef Q_OS_MACX
+    QString filter = ".dylib";
+#elif defined(Q_OS_HPUX)
     QString filter = "sl";
 #else
     QString filter = "so";
 #endif
     if ( filename.find(filter) == -1 ) {
-	const int x = filename.findRev( "/" );
-	if ( x != -1 ) {
-	    QString path = filename.left( x + 1 );
-	    QString file = filename.right( filename.length() - x - 1 );
-	    filename = QString( "%1lib%2.%3" ).arg( path ).arg( file ).arg( filter );
-	} else {
-	    filename = QString( "lib%1.%2" ).arg( filename ).arg( filter );
+	if(QFile::exists(filename + filter)) {
+	    filename += filter;
+	} else { 
+	    const int x = filename.findRev( "/" );
+	    if ( x != -1 ) {
+		QString path = filename.left( x + 1 );
+		QString file = filename.right( filename.length() - x - 1 );
+		filename = QString( "%1lib%2%3" ).arg( path ).arg( file ).arg( filter );
+	    } else {
+		filename = QString( "lib%1%2" ).arg( filename ).arg( filter );
+	    }
 	}
     }
 #endif
