@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#73 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -44,10 +44,9 @@ extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 extern QString qt_winQString(TCHAR* tc);
 extern const TCHAR* qt_winTchar(const QString& str, bool addnul);
 
-#if defined(Q_SHARED_FONTDC)
 static HANDLE shared_dc	     = 0;		// common dc for all fonts
-static HANDLE shared_dc_font = 0;
-#endif
+static HANDLE shared_dc_font = 0;		// used by Windows 95/98
+
 static HANDLE stock_sysfont  = 0;
 
 static inline HANDLE systemFont()
@@ -78,9 +77,7 @@ public:
 private:
     QFontInternal( const QString & );
     QString	k;
-#if !defined(Q_SHARED_FONTDC)
     HANDLE	hdc;
-#endif
     HANDLE	hfont;
     bool	stockFont;
     union {
@@ -94,11 +91,7 @@ private:
 };
 
 inline QFontInternal::QFontInternal( const QString &key )
-#if defined(Q_SHARED_FONTDC)
-    : k(key), hfont(0)
-#else
     : k(key), hdc(0), hfont(0)
-#endif
 {
     s.dirty = TRUE;
 }
@@ -115,16 +108,14 @@ inline const char* QFontInternal::key() const
 
 inline HANDLE QFontInternal::dc() const
 {
-#if defined(Q_SHARED_FONTDC)
+    if ( qt_winver == WV_NT )
+	return hdc;
     ASSERT( shared_dc != 0 && hfont != 0 );
     if ( shared_dc_font != hfont ) {
 	SelectObject( shared_dc, hfont );
 	shared_dc_font = hfont;
     }
     return shared_dc;
-#else
-    return hdc;
-#endif
 }
 
 inline HANDLE QFontInternal::font() const
@@ -156,26 +147,26 @@ inline int QFontInternal::lineWidth() const
 
 void QFontInternal::reset()
 {
-#if defined(Q_SHARED_FONTDC)
-    if ( hfont ) {
-	if ( shared_dc_font == hfont ) {	// this is the current font
-	    ASSERT( shared_dc != 0 );
-	    SelectObject( shared_dc, systemFont() );
-	    shared_dc_font = 0;
+    if ( qt_winver == WV_NT ) {
+	if ( hdc ) {				// one DC per font (Win NT)
+	    SelectObject( hdc, systemFont() );
+	    if ( !stockFont )
+		DeleteObject( hfont );
+	    DeleteDC( hdc );
+	    hdc = hfont = 0;
 	}
-	if ( !stockFont )
-	    DeleteObject( hfont );
-	hfont = 0;
+    } else {
+	if ( hfont ) {				// shared DC (Windows 95/98)
+	    if ( shared_dc_font == hfont ) {	// this is the current font
+		ASSERT( shared_dc != 0 );
+		SelectObject( shared_dc, systemFont() );
+		shared_dc_font = 0;
+	    }
+	    if ( !stockFont )
+		DeleteObject( hfont );
+	    hfont = 0;
+	}
     }
-#else
-    if ( hdc ) {
-	SelectObject( hdc, systemFont() );
-	if ( !stockFont )
-	    DeleteObject( hfont );
-	DeleteDC( hdc );
-	hdc = hfont = 0;
-    }
-#endif
 }
 
 inline QFontInternal::~QFontInternal()
@@ -220,10 +211,8 @@ void QFont::initialize()
 {
     if ( fontCache )
 	return;
-#if defined(Q_SHARED_FONTDC)
     shared_dc = CreateCompatibleDC( qt_display_dc() );
     shared_dc_font = 0;
-#endif
     fontCache = new QFontCache( fontCacheSize, 29, TRUE, FALSE );
     CHECK_PTR( fontCache );
     fontDict  = new QFontDict( 29, TRUE, FALSE );
@@ -240,11 +229,9 @@ void QFont::cleanup()
     fontCache = 0;
     fontDict->setAutoDelete( TRUE );
     delete fontDict;
-#if defined(Q_SHARED_FONTDC)
     ASSERT( shared_dc_font == 0 );
     DeleteDC( shared_dc );
     shared_dc = 0;
-#endif
 }
 
 void QFont::cacheStatistics()
@@ -361,9 +348,8 @@ void QFont::load( HANDLE ) const
 	}
     }
     if ( !d->fin->font() ) {			// font not loaded
-#if !defined(Q_SHARED_FONTDC)
-	d->fin->hdc = GetDC(0);
-#endif
+	if ( qt_winver == WV_NT )
+	    d->fin->hdc = GetDC(0);
 	d->fin->hfont = create( &d->fin->stockFont, 0 );
 	SelectObject( d->fin->dc(), d->fin->hfont );
 	if ( qt_winver == WV_NT ) {
@@ -761,9 +747,8 @@ int QFontMetrics::width( const QString &str, int len ) const
     if ( len < 0 )
 	len = str.length();
     SIZE s;
-    HDC h = hdc();
     const TCHAR* tc = qt_winTchar(str,FALSE);
-    GetTextExtentPoint32( h, tc, len, &s );
+    GetTextExtentPoint32( hdc(), tc, len, &s );
     return s.cx;
 }
 
@@ -861,7 +846,6 @@ const QFontDef *QFontInfo::spec() const
 #endif
     return s;
 }
-
 
 
 const QCodeMapper* QFontData::mapper() const
