@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#304 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#305 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2490,27 +2490,33 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 static QString gen_text_bitmap_key( const QWMatrix &m, const QFont &font,
 				    const QString &str, int len )
 {
-    QString k = "$qt$";
-    k += str.left(len);
-    k += font.key();
-    // Here we put binary data directly into the QString key
-    double mv[6];
-    mv[0] = m.m11();
-    mv[1] = m.m12();
-    mv[2] = m.m21();
-    mv[3] = m.m22();
-    mv[4] = m.dx();
-    mv[5] = m.dy();
-    // Use sizeof(double)*3 since each character is 2 bytes
-    k += QString( (QChar*)&mv[0], sizeof(double)*3 );
-    return k;
+    QString fk = font.key();
+    int sz = 4*2 + len*2 + fk.length()*2 + sizeof(double)*6;
+    QByteArray buf(sz);
+    uchar *p = (uchar *)buf.data();
+    QChar h1( '$' );
+    QChar h2( 'q' );
+    QChar h3( 't' );
+    QChar h4( '$' );
+    *((QChar*)p)=h1;  p+=2;
+    *((QChar*)p)=h2;  p+=2;
+    *((QChar*)p)=h3;  p+=2;
+    *((QChar*)p)=h4;  p+=2;
+    memcpy( (char*)p, (char*)str.unicode(), len*2 );  p += len*2;
+    memcpy( (char*)p, (char*)fk.unicode(), fk.length()*2 ); p += fk.length()*2;
+    *((double*)p)=m.m11();  p+=sizeof(double);
+    *((double*)p)=m.m12();  p+=sizeof(double);
+    *((double*)p)=m.m21();  p+=sizeof(double);
+    *((double*)p)=m.m22();  p+=sizeof(double);
+    *((double*)p)=m.dx();   p+=sizeof(double);
+    *((double*)p)=m.dy();   p+=sizeof(double);
+    return QString( (QChar*)buf.data(), buf.size()/2 );
 }
 
 static QBitmap *get_text_bitmap( const QString &key )
 {
     return (QBitmap*)QPixmapCache::find( key );
 }
-
 
 static void ins_text_bitmap( const QString &key, QBitmap *bm )
 {
