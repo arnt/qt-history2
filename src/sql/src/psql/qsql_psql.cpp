@@ -337,11 +337,9 @@ QVariant QPSQLResult::data( int i )
 	retval = lo_read( d->connection, fd, buf, size );
 	if (retval < 0) {
 	    qWarning( "QPSQLResult::data: unable to read large object" );
-	    lo_close( d->connection, fd );
-	    ((QSqlDriver*)driver())->commitTransaction();
-	    return QVariant( ba );
+	} else {
+	    ba.duplicate( buf, size );
 	}
-	ba.duplicate( buf, size );
 	delete [] buf;
 	lo_close( d->connection, fd );
 	((QSqlDriver*)driver())->commitTransaction();
