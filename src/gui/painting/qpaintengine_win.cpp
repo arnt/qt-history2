@@ -74,6 +74,8 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features();
 
 static QSysInfo::WinVersion qt_winver = QSysInfo::WV_NT;
 
+#define COLOR_VALUE(c) RGB(c.red(),c.green(),c.blue())
+
 /*****************************************************************************
   QPainter internal pen and brush cache
 
@@ -906,6 +908,9 @@ void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int 
 
 void QWin32PaintEngine::updatePen(const QPen &pen)
 {
+#ifdef QT_DEBUG_DRAW
+    printf("QWin32PaintEngine::updatePen(), style=%d, color=%p\n", pen.style(), pen.color().rgb());
+#endif
     d->pen = pen;
     d->penStyle = pen.style();
     d->forceGdiplus  |= d->penStyle != Qt::NoPen && pen.color().alpha() != 255;
@@ -1002,6 +1007,9 @@ set:
 
 void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin)
 {
+#ifdef QT_DEBUG_DRAW
+    printf("QWin32PaintEngine::updateBrush(), style=%d, color=%p\n", brush.style(), brush.color().rgb());
+#endif
     d->brush = brush;
     d->brushStyle = brush.style();
     d->forceGdiplus |= (d->brushStyle != Qt::NoBrush
@@ -1244,6 +1252,15 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
 
 void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
 {
+#ifdef QT_DEBUG_DRAW
+    printf("QWin32PaintEngine::updateClipRegion, size=%d, bounds=[%d, %d, %d, %d]\n",
+           region.rects().size(),
+           region.boundingRect().x(),
+           region.boundingRect().y(),
+           region.boundingRect().width(),
+           region.boundingRect().height());
+#endif
+
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updateClipRegion(region, clipEnabled);
         return;
