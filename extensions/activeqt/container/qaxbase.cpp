@@ -1438,7 +1438,7 @@ QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const
     else
         return 0;
 
-    generator.readEnumInfo();
+//    generator.readEnumInfo();
     generator.readFuncsInfo(typeInfo, 0);
     generator.readVarsInfo(typeInfo, 0);
 
@@ -1456,7 +1456,7 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
     else
         return 0;
 
-    generator.readEnumInfo();
+//    generator.readEnumInfo();
 
     TYPEATTR *typeattr;
     typeInfo->GetTypeAttr(&typeattr);
