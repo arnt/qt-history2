@@ -1,0 +1,44 @@
+#!/bin/sh
+# used to run like this:
+#  51 9 * * * /home/agulbra/bin/qdoc-kjeruben
+#
+QTDIR=/home/agulbra/stuff/qdoc-current/qt export QTDIR
+DAY=`date +%w`
+PATH=${HOME}/bin:${PATH} export PATH
+cd /home/agulbra/stuff/qdoc-current
+cvs -Q -d /local/lib/cvs update qt
+make -s -C qt/src include
+( ./qt/util/qdoc/qdoc ${QTDIR} ; \
+  ./qt/util/qdoc/qdoc ${QTDIR}/extensions/nsplugin ; \
+  ./qt/util/qdoc/qdoc ${QTDIR}/extensions/opengl ) \
+	| grep '^undocumented: ' \
+	| sed -e 's/^undocumented: *//' -e 's/  */ /g' \
+	> tmp
+
+rm -f new old report header
+
+cat tmp u-$DAY u-$DAY | sort | uniq -u > new
+cat tmp new | sort | uniq -u > old
+
+T=`wc -l < tmp | sed 's/  *//g'`
+S="${T} udokumenterte funksjoner i Qt"
+[ $T -eq "1" ] && S='en udokumentert funksjon i Qt'
+cat > header <<EOF
+To: alle@troll.no
+From: qdoc-kjeruben <agulbra@troll.no>
+Subject: `date +%d/%m` - ${S}
+
+EOF
+
+[ -s new ] && \
+    ( echo 'Nye udokumenterte funksjoner:'; echo; cat new ; echo ) >> report
+[ -s old ] && \
+    ( echo 'Gamle udokumenterte funksjoner:'; echo; cat old ) >> report
+
+[ -s report ] && ( cat header report | /usr/sbin/sendmail alle@troll.no  )
+
+mv tmp u-$DAY
+rm -f new old report header
+
+cp ${QTDIR}/gif/* /local/www/intern/qt
+
