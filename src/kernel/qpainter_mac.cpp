@@ -92,9 +92,6 @@ void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 	QRegion wclip = w->clippedRegion();
 	if(!wclip.isNull())
 	    r &= wclip;
-#if 0
-	qDebug("Pushing %s %s", w->name(), w->className());
-#endif
     }
     paintevents.push(new paintevent_item(dev, r));
 }
@@ -105,10 +102,6 @@ void qt_clear_paintevent_clipping( QPaintDevice *dev )
 	qDebug("Whoa, now that is messed up!");
 	return;
     }
-#if 0
-    if(dev->devType() == QInternal::Widget)
-	qDebug("Popping %s %s", ((QWidget *)dev)->name(), ((QWidget *)dev)->className());
-#endif
     delete paintevents.pop();
 }
 
@@ -352,7 +345,7 @@ bool QPainter::begin( const QPaintDevice *pd )
             updateBrush();
 
 	    //just clip my bounding rect
-	    clippedreg = QRegion(0, 0, w->width(), w->height());
+	    clippedreg = w->clippedRegion(FALSE);
         }  else {
 	    clippedreg = w->clippedRegion();
 	}
