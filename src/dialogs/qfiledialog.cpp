@@ -4053,15 +4053,10 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
 
 	QStringList lst = QStringList::split( ",", s );
 
-	if ( qt_winunicode ) {
-	    res = ExtractIconEx( (TCHAR*)qt_winTchar( lst[ 0 ].simplifyWhiteSpace(), TRUE ),
-				 lst[ 1 ].simplifyWhiteSpace().toInt(),
-				 0, &si, 1 );
-	} else {
-	    res = ExtractIconExA( (const char*)lst[ 0 ].simplifyWhiteSpace().latin1(),
-				 lst[ 1 ].simplifyWhiteSpace().toInt(),
-				 0, &si, 1 );
-	}
+	res = ExtractIconExA( (const char*)lst[ 0 ].simplifyWhiteSpace().latin1(),
+			      lst[ 1 ].simplifyWhiteSpace().toInt(),
+			      0, &si, 1 );
+
 	if ( res != -1 ) {
 	    defaultFolder.resize( pixw, pixh );
 	    initPixmap( defaultFolder );
@@ -4079,13 +4074,8 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
     }
 
     //------------------------------- get default file pixmap
-    if ( qt_winunicode ) {
-	res = ExtractIconEx( (TCHAR*)qt_winTchar( QString::fromLatin1( "shell32.dll " ), TRUE ),
+    res = ExtractIconExA( (char*)"shell32.dll",
 			     0, 0, &si, 1 );
-    } else {
-	res = ExtractIconExA( (char*)"shell32.dll",
-			     0, 0, &si, 1 );
-    }
 
     if ( res != -1 ) {
 	defaultFile.resize( pixw, pixh );
@@ -4101,13 +4091,8 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
     }
 
     //------------------------------- get default exe pixmap
-    if ( qt_winunicode ) {
-	res = ExtractIconEx( (TCHAR*)qt_winTchar( QString::fromLatin1( "shell32.dll" ), TRUE ),
-			     2, 0, &si, 1 );
-    } else {
-	res = ExtractIconExA( (char*) "shell32.dll",
-			     2, 0, &si, 1 );
-    }
+    res = ExtractIconExA( (char*) "shell32.dll",
+			  2, 0, &si, 1 );
 
     if ( res != -1 ) {
 	defaultExe.resize( pixw, pixh );
@@ -4170,15 +4155,9 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 
 	HICON si;
 	UINT res;
-	if ( qt_winunicode ) {
-	    res = ExtractIconEx( (TCHAR*)qt_winTchar( lst[ 0 ].simplifyWhiteSpace(), TRUE ),
-				 lst[ 1 ].simplifyWhiteSpace().toInt(),
-				 0, &si, 1 );
-	} else {
-	    res = ExtractIconExA( (const char*)lst[ 0 ].simplifyWhiteSpace().latin1(),
-				 lst[ 1 ].simplifyWhiteSpace().toInt(),
-				 0, &si, 1 );
-	}
+	res = ExtractIconExA( (const char*)lst[ 0 ].simplifyWhiteSpace().latin1(),
+			      lst[ 1 ].simplifyWhiteSpace().toInt(),
+			      0, &si, 1 );
 
 	if ( res != -1 ) {
 	    pix.resize( pixw, pixh );
@@ -4197,28 +4176,16 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
     } else {
 	HICON si;
 	UINT res;
-	if ( qt_winunicode ) {
-	    res = ExtractIconEx( (TCHAR*)qt_winTchar( fi.absFilePath(), TRUE ),
-				 -1,
-				 0, 0, 1 );
-	} else {
-	    res = ExtractIconExA( (const char*)fi.absFilePath().latin1(),
-				 -1,
-				 0, 0, 1 );
-	}
+	res = ExtractIconExA( (const char*)fi.absFilePath().latin1(),
+			      -1,
+			      0, 0, 1 );
 
 	if ( res == 0 ) {
 	    return &defaultExe;
 	} else {
-	    if ( qt_winunicode ) {
-		res = ExtractIconEx( (TCHAR*)qt_winTchar( fi.absFilePath(), TRUE ),
-				     res - 1,
-				     0, &si, 1 );
-	    } else {
-		res = ExtractIconExA( (char*)fi.absFilePath().latin1(),
-				     res - 1,
-				     0, &si, 1 );
-	    }
+	    res = ExtractIconExA( (char*)fi.absFilePath().latin1(),
+				  res - 1,
+				  0, &si, 1 );
 	}
 
 	if ( res != -1 ) {
