@@ -90,12 +90,13 @@ void AnalogClock::paintEvent( QPaintEvent * )
 void AnalogClock::updateMask()	// paint clock mask
 {
     QBitmap bm( size() );
-    bm.fill( color0 );			//transparent
+    bm.fill( Qt::color0 );			//transparent
 
     QPainter paint;
-    paint.begin( &bm, this );
-    paint.setBrush( color1 );		// use non-transparent color
-    paint.setPen( color1 );
+    paint.begin(&bm);
+    paint.initFrom(this);
+    paint.setBrush( Qt::color1 );		// use non-transparent color
+    paint.setPen( Qt::color1 );
 
     drawClock( &paint );
 
