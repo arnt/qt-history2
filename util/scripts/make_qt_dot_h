@@ -160,8 +160,8 @@ sub do_headers
 	}
     }
 
-    # Be sure qconfig.h preceeds qfeatures.h
-    @FILE = ( "qconfig.h", @FILE );
+    # Be sure qglobal.h preceeds qfeatures.h
+    @FILE = ( "qglobal.h", @FILE );
 
     for $h ( @FILE ) {
 	if (!$DONE{$h}) {
