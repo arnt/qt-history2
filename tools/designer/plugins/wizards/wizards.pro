@@ -1,5 +1,5 @@
 TEMPLATE	= lib
-CONFIG		= qt warn_on release
+CONFIG		+= qt warn_on release
 WIN32:CONFIG   += dll
 WIN32:CONFIG   -= staticlib
 sql {
