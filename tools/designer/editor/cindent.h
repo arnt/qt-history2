@@ -22,9 +22,8 @@
 #define CINDENT_H
 
 #include <private/qrichtext_p.h>
-#include "dlldefs.h"
 
-class EDITOR_EXPORT CIndent : public QTextIndent
+class CIndent : public QTextIndent
 {
 public:
     CIndent();

@@ -24,21 +24,14 @@
 #include <qfont.h>
 #include <qcolor.h>
 #include <qmap.h>
-#include "dlldefs.h"
 
-struct EDITOR_EXPORT ConfigStyle
+struct ConfigStyle
 {
     QFont font;
     QColor color;
 };
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class EDITOR_EXPORT QMap<QString, ConfigStyle>;
-// MOC_SKIP_END
-#endif
-
-struct EDITOR_EXPORT Config
+struct Config
 {
     QMap<QString, ConfigStyle> styles;
     bool hasCompletion, hasParenMatching, hasWordWrap;

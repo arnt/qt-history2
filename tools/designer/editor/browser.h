@@ -22,14 +22,13 @@
 #define BROWSER_H
 
 #include <qobject.h>
-#include "dlldefs.h"
 
 class Editor;
 class QTextCursor;
 class QTextParagraph;
 class QTextFormat;
 
-class EDITOR_EXPORT EditorBrowser : public QObject
+class EditorBrowser : public QObject
 {
     Q_OBJECT
 

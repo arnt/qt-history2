@@ -22,7 +22,6 @@
 #define EDITOR_H
 
 #include <qtextedit.h>
-#include "dlldefs.h"
 
 struct Config;
 class ParenMatcher;
@@ -30,7 +29,7 @@ class EditorCompletion;
 class EditorBrowser;
 class QAccel;
 
-class EDITOR_EXPORT Editor : public QTextEdit
+class Editor : public QTextEdit
 {
     Q_OBJECT
 

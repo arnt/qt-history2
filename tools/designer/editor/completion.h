@@ -25,7 +25,6 @@
 #include <qstringlist.h>
 #include <qobject.h>
 #include <qmap.h>
-#include "dlldefs.h"
 
 class QTextDocument;
 class Editor;
@@ -50,14 +49,7 @@ struct CompletionEntry
     }
 };
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class EDITOR_EXPORT QMap<QChar, QStringList>;
-template class EDITOR_EXPORT QValueList<CompletionEntry>;
-// MOC_SKIP_ENDI
-#endif
-
-class EDITOR_EXPORT EditorCompletion : public QObject
+class EditorCompletion : public QObject
 {
     Q_OBJECT
 

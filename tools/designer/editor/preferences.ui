@@ -459,7 +459,6 @@
 <includes>
     <include location="global" impldecl="in declaration">qmap.h</include>
     <include location="local" impldecl="in declaration">conf.h</include>
-    <include location="local" impldecl="in declaration">dlldefs.h</include>
     <include location="global" impldecl="in implementation">qpalette.h</include>
     <include location="global" impldecl="in implementation">qlineedit.h</include>
     <include location="global" impldecl="in implementation">qpixmap.h</include>
@@ -494,6 +493,5 @@
     <slot>sizeChanged( int s )</slot>
     <slot>underlineChanged( bool b )</slot>
 </slots>
-<exportmacro>EDITOR_EXPORT</exportmacro>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

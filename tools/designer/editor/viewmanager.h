@@ -22,7 +22,6 @@
 #define VIEWMANAGER_H
 
 #include <qwidget.h>
-#include "dlldefs.h"
 #include <qvaluelist.h>
 
 class QChildEvent;
@@ -33,7 +32,7 @@ class QTextParagraph;
 class QLabel;
 class QTimer;
 
-class EDITOR_EXPORT ViewManager : public QWidget
+class ViewManager : public QWidget
 {
     Q_OBJECT
 

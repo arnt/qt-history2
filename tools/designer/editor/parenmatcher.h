@@ -23,11 +23,10 @@
 
 #include <qstring.h>
 #include <qvaluelist.h>
-#include "dlldefs.h"
 
 class QTextCursor;
 
-struct EDITOR_EXPORT Paren
+struct Paren
 {
     Paren() : type( Open ), chr( ' ' ), pos( -1 ) {}
     Paren( int t, const QChar &c, int p ) : type( (Type)t ), chr( c ), pos( p ) {}
@@ -44,7 +43,7 @@ struct EDITOR_EXPORT Paren
 
 typedef QValueList<Paren> ParenList;
 
-class EDITOR_EXPORT ParenMatcher
+class ParenMatcher
 {
 public:
     enum Selection {
