@@ -377,7 +377,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	return r;
     } else if(func == "error" || func == "message") {
 	if(args.count() != 1) {
-	    fprintf(stderr, "%d: %s(message) requires one argument.\n", func.latin1(), line_count);
+	    fprintf(stderr, "%d: %s(message) requires one argument.\n", line_count, func.latin1());
 	    return FALSE;
 	}
 
