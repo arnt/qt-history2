@@ -69,27 +69,27 @@ Here's examples/main.cpp, in full.
 
 We'll go over main() in detail.
 
-\skip argc
-\line argc
-\line QApplication
+\skipto argc
+\printline argc
+\printline QApplication
 
 We create a QApplication object with the usual constructor and let it
 parse \e argc and \e argv so that on X11, this program behaves as X
 programs are expected to.
 
-\line ApplicationWindow
-\line setCaption
-\line show
+\printline ApplicationWindow
+\printline setCaption
+\printline show
 
 We create an ApplicationWindow as a top-level widget, set its window
 system caption to "Document 1", and show() it.
 
 <a name="close"></a>
-\line connect
+\printline connect
 
 When the application's last window is closed, it should quit.
 
-\line exec
+\printline exec
 
 Having completed the application initialization, we start the main
 event loop (the GUI), and eventually return the error code
@@ -97,7 +97,7 @@ QApplication returns when it leaves the event loop.
 (\l QApplication::exit() lets any part of the program set this code in
 a way that doesn't prohibit an orderly closedown.)
 
-\line }
+\printline }
 
 <h2>The implementation of ApplicationWindow</h2>
 
@@ -108,50 +108,50 @@ include it in full but instead include bits and pieces as necessary.
 We skip the preliminary #include and some text constants, and start
 with the constructor.
 
-\skip ApplicationWindow::ApplicationWindow
-\line ApplicationWindow::ApplicationWindow
-\until {
+\skipto ApplicationWindow::ApplicationWindow
+\printline ApplicationWindow::ApplicationWindow
+\printuntil {
 
 ApplicationWindow inherits QMainWindow, the Qt class that provides
 typical application main windows, with menu bars, tool bars, etc.
 
-\skip id
-\until QPrinter
+\skipto id
+\printuntil QPrinter
 
 The application example can print things, and we chose to have a
 QPrinter object lying around so that when the user changes a setting
 during one printing, the new setting will be the default next time.
 
-\line QPixmap
+\printline QPixmap
 
 This example is simple enough to have just three commands.  These
 variables are used to hold the icons for each of them.
 
-\line QToolBar
+\printline QToolBar
 
 We create a tool bar in \e this window for putting some tools in.
 
-\until SLOT(print())
+\printuntil SLOT(print())
 
 And then we create three tool buttons in that tool bar, each with the
 appropriate icons and tool-tip text.  The three buttons are connected
 to slots in this object, for example the "Print File" button is
 connected to ApplicationWindow::print().
 
-\line whatsThisButton
+\printline whatsThisButton
 
 Then we create a fourth button in the toolbar: A special button that
 provides "What's This?" help.  This must be set up using a special
 function, as its mouse interface needs to be a little unusual.
 
-\until filePrint
+\printuntil filePrint
 
 We add What's This? help for each of the three buttons, and tell the
 QML engine that when a help text wants the "fileopen" image, it should
 use the pixmap we've defined.
 
-\line QPopupMenu
-\until Key_Q
+\printline QPopupMenu
+\printuntil Key_Q
 
 We create a QPopupMenu item for the File menu, add it to the menu bar,
 populate it with three commands, and set What's This? help for them.
@@ -159,15 +159,15 @@ populate it with three commands, and set What's This? help for them.
 Note in particular how What's This? help and pixmaps are used in both
 the toolbar (above) and the menu bar (here).
 
-\line help
-\until whatsThis
+\printline help
+\printuntil whatsThis
 
 We create a Help menu, add it to the menu bar, and insert a few
 commands in the Help menu.
 
-\line QMultiLineEdit
-\line setFocus
-\line setCentralWidget
+\printline QMultiLineEdit
+\printline setFocus
+\printline setCentralWidget
 
 We create a multi-line edit widget, set the initial focus to be there,
 and make it the central widget of this window.
@@ -177,36 +177,36 @@ status bar and tool bars are all arranged around.  Since this
 application is an editor, the central widget is a text editing widget
 :)
 
-\line statusBar
+\printline statusBar
 
 We make the status bar say "Ready" for two seconds at startup, just to
 tell the user that this window has finished initialization and can be
 used.
 
-\line resize
+\printline resize
 
 We provide a nice default size for the new window.
 
-\line }
+\printline }
 
 That's it.
 
-\line ::~
-\until }
+\printline ::~
+\printuntil }
 
 The only thing this widget needs to do in its destructor is delete the
 printer it created.  All the other objects are child widgets, which Qt
 will delete as appropriate.  Simple.
 
-\line ::newDoc
-\until }
+\printline ::newDoc
+\printuntil }
 
 This slot, connected to the File->New menu item and the "new file"
 tool button, simply creates a new ApplicationWindow, sets some size
 and shows it.
 
-\line ::load
-\until }
+\printline ::load
+\printuntil }
 
 This slot is connected to the "load file" menu item and tool button.
 As you can see, it asks the user for a file name and then either loads
@@ -218,48 +218,48 @@ the user will notice that no file was loaded, we just use the status
 bar, and the user won't need to hit Enter to make some window go
 away.)
 
-\line ::load
-\until statusBar
-\line }
+\printline ::load
+\printuntil statusBar
+\printline }
 
 This function loads a file into the editor.  It takes care to turn off
 auto-update of the editor, for faster loading and less flicker.  When
 it's done, it sets the window system caption to the file name and
 displays a success message for two seconds in the status bar.
 
-\line ::save
-\until close
+\printline ::save
+\printuntil close
 
 This function saves the current file.  Nothing remarkable in the first
 part.
 
-\line setEdited
+\printline setEdited
 
 Tell the editor that the contents haven't been edited since the last
 save.  When the user closes the window, ApplicationWindow may want to
 ask "Save?".
 
-\line setCaption
+\printline setCaption
 
 It may be that the document was saved under a different name than the
 caption, so we set the window caption just to be sure.
 
-\until }
+\printuntil }
 
 That was all.
 
-\line ::saveAs
-\until message
-\line }
-\line }
+\printline ::saveAs
+\printuntil message
+\printline }
+\printline }
 
 This function asks for a new name, saves the document under that name,
 and implicitly changes the window system caption to the new name.
 
 <a name="printer"></a>
 
-\line ::print
-\until pageNo
+\printline ::print
+\printuntil pageNo
 
 print() is called by the File->Print menu item and the "print" tool
 button.
@@ -267,42 +267,42 @@ button.
 Since we don't want to print to the very edges of the paper, we use a
 little margin: 10 points.  And we keep track of the page count.
 
-\line setup
+\printline setup
 
 QPrinter::setup() invokes a print dialog, configures the printer
 object, and returns TRUE if the user wants to print or FALSE if not.
 So, we test the return value, and if it's TRUE, we...
 
-\line message
+\printline message
 
 ... set a status bar message in case printing takes any time.
 
-\line QPainter
-\until surface
+\printline QPainter
+\printuntil surface
 
 We create a painter for the output, select font, and set up some
 variables we'll need.
 
-\line for
+\printline for
 
 For each line in the text editing widget, we want to print it.
 
-\line if
+\printline if
 
 Before we print each line: Is there space for it on the current page,
 given the margins we want to use?  IF not, we want to start a new
 page.
 
-\line QString
-\until yPos
+\printline QString
+\printuntil yPos
 
 Four lines to tell the user what we're doing, two lines to do it.
 
-\line }
+\printline }
 
 Okay, now we know there's space for this line.
 
-\until textLine
+\printuntil textLine
 
 Use the painter to print it.
 
@@ -315,51 +315,51 @@ that your application will have odd bugs.  (If the same code is used
 to print as to draw on the screen, it's less likely that you'll have
 printing-only or screen-only bugs.)
 
-\line yPos
+\printline yPos
 
 Keep count of how much of the paper we've used.
 
-\line }
+\printline }
 
 At this point we've printed all of the text in the editing widget.
 
-\line end
-\line message
+\printline end
+\printline message
 
 So we tell the printer to finish off the last page and tell the user
 that we're done.
 
-\line else
-\line message
-\line }
+\printline else
+\printline message
+\printline }
 
 If the user did not want to print (and \l QPrinter::setup() returned
 FALSE), we acknowledge that.
 
-\line }
+\printline }
 
 Tha's all.  We have printed a text document.
 
 <a name="closeEvent"></a>
-\line ::closeEvent
-\line {
+\printline ::closeEvent
+\printline {
 
 This event get to process window-system close events.  A close event
 is subtly different from a hide event: hide may often mean "iconify"
 but close means that the window is going away for good.
 
-\line edited
-\line accept
-\line return
-\line }
+\printline edited
+\printline accept
+\printline return
+\printline }
 
 If the text hasn't been edited, we just accept the event.  The window
 will be closed, and since we used the \c WDestructiveClose widget
 flag, the widget will be deleted.
 
-\line QMessageBox
-\until }
-\line }
+\printline QMessageBox
+\printuntil }
+\printline }
 
 We know the text has been edited, so we ask the user: What do you want
 to do?  If the user wants to save and then exit, we do that.  If the
@@ -367,9 +367,9 @@ user wants to not exit, we ignore the close event (there is a chance
 that we can't block it but we try).  If the user just wants to exit,
 abandoning the edits, that's very simple.
 
-\line ::about
-\until aboutQt
-\until }
+\printline ::about
+\printuntil aboutQt
+\printuntil }
 
 These two slots use ready-made "about" functions to say a little about
 this program and the GUI toolkit it uses.  (You don't need to provide
