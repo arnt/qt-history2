@@ -71,7 +71,7 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
     \brief The QLibrary class provides a wrapper for handling shared libraries.
 
     \mainclass
-    \group plugins
+    \ingroup plugins
 
     An instance of a QLibrary object can handle a single shared
     library and provide access to the functionality in the library in
