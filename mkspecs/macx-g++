@@ -46,7 +46,7 @@ QMAKE_LFLAGS_RELEASE	=
 QMAKE_LFLAGS_DEBUG	=
 QMAKE_LFLAGS_SHLIB	= -dynamiclib
 QMAKE_LFLAGS_PLUGIN     = -bundle
-QMAKE_LFLAGS_THREAD	= -pthread
+QMAKE_LFLAGS_THREAD	= 
 QMAKE_RPATH             = -Wl,-rpath,
 
 # soname does not work on fbsd 2.x
@@ -54,7 +54,7 @@ QMAKE_RPATH             = -Wl,-rpath,
 
 QMAKE_LIBS		=
 QMAKE_LIBS_QT		= -lqt
-QMAKE_LIBS_THREAD	= 
+QMAKE_LIBS_THREAD	= -lqt-mt
 
 QMAKE_MOC		= $(QTDIR)/bin/moc
 QMAKE_UIC		= $(QTDIR)/bin/uic

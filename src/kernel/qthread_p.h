@@ -72,12 +72,14 @@
 
 #  if (__GLIBC__ == 2) && (__GLIBC_MINOR__ == 0)
 // Linux with glibc 2.0.x - POSIX 1003.4a thread implementation
+#    define Q_HAS_CONDATTR
 #    define Q_HAS_RECURSIVE_MUTEX
 #    define Q_USE_PTHREAD_MUTEX_SETKIND
 #    define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK_NP
 #    define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE_NP
 #  else
 // Linux with glibc 2.1.x - POSIX 1003.1c thread implementation
+#    define Q_HAS_CONDATTR
 #    define Q_HAS_RECURSIVE_MUTEX
 #    undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #    define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_DEFAULT
@@ -86,41 +88,54 @@
 #elif defined(Q_OS_OSF)
 // Digital UNIX - 4.0 and later has a POSIX 1003.1c implementation
 //   - should we assume > 4.0?
+#  define Q_HAS_CONDATTR
 #  define Q_HAS_RECURSIVE_MUTEX
 #  define Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE MUTEX_NONRECURSIVE_NP
 #  define Q_RECURSIVE_MUTEX_TYPE MUTEX_RECURSIVE_NP
 #elif defined(Q_OS_AIX)
 // AIX 4.3.x
+#  define Q_HAS_CONDATTR
 #  define Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
 #  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
 #elif defined(Q_OS_HPUX)
 // We only support HP/UX 11.x
+#  define Q_HAS_CONDATTR
 #  define Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
 #  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
 #elif defined (Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
 // FreeBSD and OpenBSD use the same user-space thread implementation
+#  define Q_HAS_CONDATTR
 #  define Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
 #  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
 #elif defined(Q_OS_SOLARIS)
 // Solaris 7 and later - we use the native Solaris threads implementation
+#  define Q_HAS_CONDATTR
 #  undef  Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  undef  Q_NORMAL_MUTEX_TYPE
 #  undef  Q_RECURSIVE_MUTEX_TYPE
 #elif defined(Q_OS_IRIX)
+#  define Q_HAS_CONDATTR
 #  define Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
 #  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
+#elif defined(Q_OS_MACX)
+#  undef Q_HAS_CONDATTR
+#  undef Q_HAS_RECURSIVE_MUTEX
+#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
+#  undef Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
+#  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
 #else
 // Fall through for systems we don't know about
+#  define Q_HAS_CONDATTR
 #  undef  Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  undef  Q_NORMAL_MUTEX_TYPE
@@ -243,7 +258,7 @@ class QRMutexPrivate : public QMutexPrivate
 {
 public:
     int count;
-    HANDLE owner;
+    Qt::HANDLE owner;
     mutex_t mutex2;
 
     QRMutexPrivate()
@@ -708,7 +723,7 @@ class QRMutexPrivate : public QMutexPrivate
 public:
 #ifndef Q_HAS_RECURSIVE_MUTEX
     int count;
-    HANDLE owner;
+    Qt::HANDLE owner;
     pthread_mutex_t mutex2;
 
     ~QRMutexPrivate()
@@ -751,7 +766,7 @@ public:
 #ifdef QT_CHECK_RANGE
 	    qWarning("QMutex::unlock: unlock from different thread than locker");
 	    qWarning("                was locked by %d, unlock attempt from %d",
-		     owner, QThread::currentThread());
+		     (int)owner, (int)QThread::currentThread());
 	    pthread_mutex_unlock(&mutex2);
 #endif
 
@@ -843,7 +858,7 @@ public:
     {
 	dictMutex->lock();
 	if (thread_id)
-	    thrDict->remove((Qt::HANDLE) thread_id);
+	    thrDict->remove((int) thread_id);
 	dictMutex->unlock();
 
 	thread_id = 0;
@@ -875,14 +890,14 @@ public:
     static void internalRun(QThread *that)
     {
 	dictMutex->lock();
-	thrDict->insert(QThread::currentThread(), that);
+	thrDict->insert((int)QThread::currentThread(), that);
 	dictMutex->unlock();
 
 	that->run();
 
 	dictMutex->lock();
 
-	QThread *there = thrDict->find(QThread::currentThread());
+	QThread *there = thrDict->find((int)QThread::currentThread());
 	if (there) {
 	    there->d->running = FALSE;
 	    there->d->finished = TRUE;
@@ -890,7 +905,7 @@ public:
 	    there->d->thread_done.wakeAll();
 	}
 
-	thrDict->remove(QThread::currentThread());
+	thrDict->remove((int)QThread::currentThread());
 	dictMutex->unlock();
     }
 };
@@ -903,15 +918,23 @@ public:
 
     QWaitConditionPrivate()
     {
+#ifdef Q_HAS_CONDATTR
 	pthread_condattr_t cattr;
 	pthread_condattr_init(&cattr);
+#endif
 
 #ifdef QT_CHECK_RANGE
 	int ret =
 #endif
+#ifdef Q_HAS_CONDATTR
 	    pthread_cond_init(&cond, &cattr);
+#else
+	    pthread_cond_init(&cond, NULL);
+#endif
 
+#ifdef Q_HAS_CONDATTR
 	pthread_condattr_destroy(&cattr);
+#endif
 
 #ifdef QT_CHECK_RANGE
 	if( ret )
@@ -1000,7 +1023,7 @@ public:
 
 #ifndef Q_HAS_RECURSIVE_MUTEX
 	int c = 0;
-	HANDLE id = 0;
+	Qt::HANDLE id = 0;
 
 	if (mtx->d->type() == Q_MUTEX_RECURSIVE) {
 	    QRMutexPrivate *rmp = (QRMutexPrivate *) mtx->d;

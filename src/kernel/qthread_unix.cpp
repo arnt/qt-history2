@@ -425,7 +425,7 @@ void QThread::exit()
 {
     dictMutex->lock();
 
-    QThread *there = thrDict->find(QThread::currentThread());
+    QThread *there = thrDict->find((int)QThread::currentThread());
     if (there) {
 	there->d->running = FALSE;
 	there->d->finished = TRUE;

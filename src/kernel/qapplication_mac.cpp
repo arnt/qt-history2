@@ -63,14 +63,18 @@
 #include "qdict.h"
 #include "qguardedptr.h"
 #include "qclipboard.h"
-#include "qwhatsthis.h" // ######## dependency
-#include "qwindowsstyle.h" // ######## dependency
-#include "qmotifplusstyle.h" // ######## dependency
 #include "qpaintdevicemetrics.h"
+#include "qcursor.h"
+
 #if defined( QMAC_QMENUBAR_TOPLEVEL ) || defined(QMAC_QMENUBAR_NATIVE)
 #include "qmenubar.h"
 #endif
+
+#define QMAC_SPEAK_TO_ME
+#ifdef QMAC_SPEAK_TO_ME
 #include "qvariant.h"
+#include "qregexp.h"
+#endif
 
 #ifdef Q_WS_MACX
 #include <sys/time.h>
@@ -427,7 +431,7 @@ int QApplication::exec()
     quit_code = 0;
 
 #if defined(QT_THREAD_SUPPORT)
-    qApp->unlock(FALSE);
+    qApp->unlock();
 #endif
 
     enter_loop();
@@ -716,6 +720,10 @@ bool QApplication::processNextEvent( bool  )
 {
     int	   nevents = 0;
 
+#if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+#endif
+
     if(qt_is_gui_used) {
 	sendPostedEvents();
 
@@ -758,8 +766,12 @@ bool QApplication::processNextEvent( bool  )
     }
 #endif
 
-    if ( quit_now || app_exit_loop )
+    if ( quit_now || app_exit_loop ) {
+#if defined(QT_THREAD_SUPPORT)
+	qApp->unlock( FALSE );
+#endif
 	return FALSE;
+    }
     sendPostedEvents();
 
     if ( qt_preselect_handler ) {
@@ -803,6 +815,9 @@ bool QApplication::processNextEvent( bool  )
     if ( nsel == -1 ) {
 	if ( errno == EINTR || errno == EAGAIN ) {
 	    errno = 0;
+#if defined(QT_THREAD_SUPPORT)
+	    qApp->unlock( FALSE );
+#endif
 	    return (nevents > 0);
 	} else {
 	    ; // select error
@@ -814,6 +829,9 @@ bool QApplication::processNextEvent( bool  )
 //#warning "need to implement sockets on mac9"
 #endif
     
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unlock( FALSE );
+#endif
     return (nevents > 0);
 }
 
@@ -1352,16 +1370,19 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
 		QApplication::sendEvent( widget, &qwe);
 	    } else {
+#ifdef QMAC_SPEAK_TO_ME
 	        if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
 	            QVariant v = widget->property("text");
 	            if(!v.isValid()) v = widget->property("caption");
 	            if(v.isValid()) {
 	                QString s = v.toString();
+			s.replace(QRegExp("(\\&|\\<[^\\>]*\\>)"), "");
 	                SpeechChannel ch;
 	                NewSpeechChannel(NULL, &ch);
 	                SpeakText(ch, s.latin1(), s.length());
 	            }
 	        }
+#endif
 		QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
 		QApplication::sendEvent( widget, &qme );
 	    }
