@@ -5017,8 +5017,10 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
 	}
     }
 
-// just to remind me about that stupid paintbug
-    p->fillRect( clipx, clipy, clipw, cliph, colorGroup().base() );
+    // fill the background that is not covered by the document
+    td->doLayout( p, viewport()->width() );
+    if ( (contentsX() + clipw) > td->width() )
+ 	p->fillRect( td->width(), clipy, clipw, cliph, colorGroup().base() );
     
     // have to align the painter so that partly visible lines are
     // drawn at the correct position within the area that needs to be
