@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#14 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#15 $
 
 $base = "/tmp/striptree-$$";
 #$quiet=1;
@@ -152,6 +152,11 @@ rm -rf bin/*.bat,v
 rm -rf bugs dist doc.conf,v etc iconify listview mlined netscape nsplugin printpicture reqs tests util
 rm -rf examples/dragdrop-tricky examples/layouts examples/network
 rm -rf examples/tellme examples/xshape
+rm -rf extensions/localizer
+rm -rf extensions/*/doc.conf
+rm -rf makefiles tmake
+rm -rf src/Makefile.win32-dll
+rm -rf src/*.pro
 ";
 
 close(SH) # We want to wait for the script to complete.
