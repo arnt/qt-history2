@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#45 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#45 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -184,7 +184,7 @@ void QEvent::peErrMsg()				// posted event error message
   unless \link QWidget::setMouseTracking() mouse tracking\endlink has been
   enabled.
 
-  Qt make an automatic mouse grab when a mouse button is pressed inside a
+  Qt makes an automatic mouse grab when a mouse button is pressed inside a
   widget, and the widget will continue to receive mouse events until the
   last mouse button is released.
 
