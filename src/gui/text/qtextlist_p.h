@@ -62,7 +62,8 @@ public:
 	QAbstractTextDocumentLayout *layout = pt->layout();
 
 	QList<QTextPieceTable::BlockIterator> affectedBlocks = manager->blocksForObject(objectId);
-	Q_FOREACH(const QTextPieceTable::BlockIterator &block, affectedBlocks) {
+	for (int i = 0; i < affectedBlocks.size(); ++i) {
+	    const QTextPieceTable::BlockIterator &block = affectedBlocks.at(i);
 	    int start = block.start();
 	    int len = block.end() - start;
 	    layout->documentChange(start, len, len);
