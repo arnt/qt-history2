@@ -259,6 +259,7 @@ void SqlFormWizard::setupDatabaseConnections()
     if ( !proIface )
 	return;
     proIface->setupDatabases();
+    raise();
     setupPage1();
 }
 
