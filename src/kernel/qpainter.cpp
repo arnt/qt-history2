@@ -1061,7 +1061,7 @@ QRect QPainter::window() const
 
 /*!
   Sets the window rectangle view transformation for the painter and
-  enables view transformation. 
+  enables view transformation.
 
   The window rectangle is part of the view transformation.  The window
   specifies the logical coordinate system and is specified by the \a
@@ -1785,7 +1785,7 @@ QRect QPainter::xFormDev( const QRect &rd ) const
     return QRect( x, y, w, h );
 }
 
-/*! 
+/*!
     \overload
     Returns the point array \a ad transformed from device coordinates
   to model coordinates.
@@ -2165,7 +2165,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 /*!
   \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm, const QPoint &sp )
   Draws a tiled pixmap, \a pm, inside rectange \a r with its origin at
-  point \a sp. 
+  point \a sp.
 */
 
 /*!
@@ -2708,8 +2708,8 @@ QPen::QPen( const QColor &color, uint width, PenStyle style )
 /*!
   Constructs a pen with the specified color \a cl and width \a w. The pen
   style is set to \a s, the pen cap style to \a c and the pen join
-  style to \a j. 
-  
+  style to \a j.
+
   \sa setWidth(), setStyle(), setColor()
 */
 

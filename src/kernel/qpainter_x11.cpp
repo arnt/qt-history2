@@ -1468,7 +1468,7 @@ void QPainter::setClipping( bool enable )
 
 
 /*!
-  \overload 
+  \overload
     Sets the clip region to the rectangle \a r and
   enables clipping. The clip mode is set to \a m.
 */
@@ -1502,8 +1502,9 @@ void QPainter::setClipRegion( const QRegion &rgn, ClipMode m )
 	crgn = xmat * rgn;
 
     if ( testf(ExtDev) ) {
-        QPDevCmdParam param[1];
-        param[0].rgn = &crgn;
+        QPDevCmdParam param[2];
+        param[0].rgn = &rgn;
+        param[1].ival = m;
         if ( !pdev->cmd( QPaintDevice::PdcSetClipRegion, this, param ) )
             return; // device cannot clip
     }

@@ -507,8 +507,8 @@ void QPainter::updatePen()
 	lb.lbStyle = 0;
 	lb.lbColor = pix;
 	lb.lbHatch = 0;
-	int pst = 
-		PS_GEOMETRIC | 
+	int pst =
+		PS_GEOMETRIC |
 		s;
 	switch ( cpen.capStyle() ) {
 	    case SquareCap:
@@ -534,7 +534,7 @@ void QPainter::updatePen()
 	}
 	hpen = ExtCreatePen( pst, cpen.width(), &lb, 0, 0 );
     }
-    else 
+    else
 #endif
 	{
 	hpen = CreatePen( s, cpen.width(), pix );
@@ -1144,8 +1144,9 @@ void QPainter::setClipRegion( const QRegion &rgn, ClipMode m )
 	crgn = xmat * rgn;
 
     if ( testf(ExtDev) ) {
-	QPDevCmdParam param[1];
-	param[0].rgn = &crgn;
+	QPDevCmdParam param[2];
+	param[0].rgn = &rgn;
+	param[1].ival = m;
 	if ( !pdev->cmd(QPaintDevice::PdcSetClipRegion,this,param) || !hdc )
 	    return;
     }

@@ -127,8 +127,6 @@ QPicture::QPicture( int formatVersion )
     else {
 	d->resetFormat();
     }
-
-    d->dx = d->dy = 0;
 }
 
 /*!
@@ -297,10 +295,6 @@ bool QPicture::play( QPainter *painter )
 
     if ( !d->formatOk && !d->checkFormat() )
 	return FALSE;
-
-    QWMatrix wm = painter->worldMatrix();	// if the picture is supposed
-    d->dx = int(wm.dx());			// to be translated recorded
-    d->dy = int(wm.dy());			// clip regions have to follow
 
     d->pictb.open( IO_ReadOnly );		// open buffer device
     QDataStream s;
@@ -564,10 +558,8 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		painter->setClipping( i_8 );
 		break;
 	    case PdcSetClipRegion:
-		s >> rgn;
-		if ( d->dx || d->dy )
-		    rgn.translate( d->dx, d->dy );
-		painter->setClipRegion( rgn );
+		s >> rgn >> i_8;
+		painter->setClipRegion( rgn, (QPainter::ClipMode)i_8 );
 		break;
 	    default:
 #if defined(QT_CHECK_RANGE)
@@ -777,6 +769,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 #endif
 	case PdcSetClipRegion:
 	    s << *p[0].rgn;
+	    s << (Q_INT8)p[1].ival;
 	    break;
 #if defined(QT_CHECK_RANGE)
 	default:
@@ -824,8 +817,8 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
   Use the QPaintDeviceMetrics class instead.
 
   A picture has the following hard-coded values: dpi = 72,
-  numcolors=16777216 and depth=24. 
-  
+  numcolors=16777216 and depth=24.
+
   \a m is the metric to get.
 */
 
