@@ -231,13 +231,13 @@
 /*!
   \fn static void QAccessible::updateAccessibility( QObject *object, int control, Event reason )
 
-  Call this function when the accessibility information of \a object is changed.
+  Notifies accessibility clients about a change of the accessibility information of \a object.
 
   \a reason designates the cause of this change, e.g. ValueChange when the position of e.g.
   a slider has been changed. \a control is the ID of the child element that has changed. When
   \a control is null, the object itself has changed.
 
-  Emit this signal whenever the state of your accessible object or one of it's subelements
+  Call this function whenever the state of your accessible object or one of it's subelements
   has been changed either programmatically (e.g. by calling QLabel::setText() ) or by user
   interaction.
 
@@ -245,16 +245,81 @@
   calling this function is minor.
 */
 
-/*!
-  \fn static QRESULT QAccessible::queryAccessibleInterface( QObject *, QAccessibleInterface ** );
-*/
+static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
+static QPtrDict<QAccessibleInterface> *qAccessibleInterface = 0;
 
+static void cleanup()
+{
+    delete qAccessibleInterface;
+    qAccessibleInterface = 0;
+    delete qAccessibleManager;
+    qAccessibleManager = 0;
+}
+
+/*!
+  Sets \a iface to point to the implementation of the QAccessibleInterface for \a object, and returns QS_OK
+  if successfull, or sets \a iface to 0 and returns QE_NOINTERFACE if no accessibility implementation for
+  \a object exists.
+
+  The function uses the \link QObject::className() classname \endlink of \a object to find a suitable
+  implementation. If no implementation for the object's class is available the function tries to find
+  an implementation for the object's parent class.
+
+  This function is called to answer an accessibility client's request for object information. You should
+  never need to call this function yourself.
+*/
+QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterface **iface )
+{
+    *iface = 0;
+    if ( !object )
+	return QE_INVALIDARG;
+
+    if ( qAccessibleInterface ) {
+	*iface = qAccessibleInterface->find( object );
+	if ( *iface ) {
+	    (*iface)->addRef();
+	    return QS_OK;
+	}
+    }
+
+    if ( !qAccessibleManager ) {
+	qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>( IID_QAccessibleFactory );
+	qAddPostRoutine( cleanup );
+
+	QStringList paths(QApplication::libraryPaths());
+	QStringList::Iterator it = paths.begin();
+	while (it != paths.end()) {
+	    qAccessibleManager->addLibraryPath(*it + "/accessible" );
+	    it++;
+	}
+    }
+
+    QAccessibleFactoryInterface *factory = 0;
+    QMetaObject *mo = object->metaObject();
+    while ( mo ) {
+	qAccessibleManager->queryInterface( mo->className(), &factory );
+	if ( factory )
+	    break;
+	mo = mo->superClass();
+    }
+    if ( factory ) {
+	factory->createAccessibleInterface( mo->className(), object, iface );
+	factory->release();
+    }
+
+    if ( !*iface )
+	return QE_NOINTERFACE;
+
+    return QS_OK;
+}
 
 
 /*!
   \class QAccessibleInterface qaccessible.h
   \ingroup misc
-  \brief The QAccessibleInterface class is an interface that exposes information about accessible objects.
+  \brief The QAccessibleInterface class defines an interface that exposes information about 
+  accessible objects.
+
 */
 
 /*!
@@ -279,7 +344,7 @@
 /*!
   \fn QRESULT QAccessibleInterface::queryChild( int control, QAccessibleInterface **iface ) const
 
-  Sets \a iface to point to the address of the QAccessibleInterface for the child specified
+  Sets \a iface to point to the implementation of the QAccessibleInterface for the child specified
   with \a control. If the child doesn't provide accessibility information on it's own, the
   value of \a iface is set to null. For those elements, this object is responsible for exposing
   the child's properties.
@@ -292,8 +357,8 @@
 /*!
   \fn QRESULT QAccessibleInterface::queryParent( QAccessibleInterface **iface ) const
 
-  Sets \a iface to point to the address of the QAccessibleInterface implementation of the
-  parent object, or to null if there is no such object.
+  Sets \a iface to point to the implementation of the QAccessibleInterface for the
+  parent object, or to null if there is no such implementation or object.
 
   All objects provide this information.
 
@@ -443,61 +508,6 @@
 */
 
 
-static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
-static QPtrDict<QAccessibleInterface> *qAccessibleInterface = 0;
-
-static void cleanup()
-{
-    delete qAccessibleInterface;
-    qAccessibleInterface = 0;
-    delete qAccessibleManager;
-    qAccessibleManager = 0;
-}
-
-QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterface **iface )
-{
-    *iface = 0;
-    if ( !object )
-	return QE_INVALIDARG;
-
-    if ( qAccessibleInterface ) {
-	*iface = qAccessibleInterface->find( object );
-	if ( *iface ) {
-	    (*iface)->addRef();
-	    return QS_OK;
-	}
-    }
-
-    if ( !qAccessibleManager ) {
-	qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>( IID_QAccessibleFactory );
-	qAddPostRoutine( cleanup );
-
-	QStringList paths(QApplication::libraryPaths());
-	QStringList::Iterator it = paths.begin();
-	while (it != paths.end()) {
-	    qAccessibleManager->addLibraryPath(*it + "/accessible" );
-	    it++;
-	}
-    }
-
-    QAccessibleFactoryInterface *factory = 0;
-    QMetaObject *mo = object->metaObject();
-    while ( mo ) {
-	qAccessibleManager->queryInterface( mo->className(), &factory );
-	if ( factory )
-	    break;
-	mo = mo->superClass();
-    }
-    if ( factory ) {
-	factory->createAccessibleInterface( mo->className(), object, iface );
-	factory->release();
-    }
-
-    if ( !*iface )
-	return QE_NOINTERFACE;
-
-    return QS_OK;
-}
 
 /*!
   \class QAccessibleObject qaccessible.h
