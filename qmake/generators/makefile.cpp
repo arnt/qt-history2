@@ -492,7 +492,6 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeMocSrc(t, "HEADERS");
     writeMocSrc(t, "SOURCES");
     writeMocSrc(t, "UICDECLS");
-    writeMocSrc(t, "UICDELCS");
     writeYaccSrc(t, "YACCSOURCES");
     writeLexSrc(t, "LEXSOURCES");
 }
