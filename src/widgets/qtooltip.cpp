@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#77 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -43,12 +43,11 @@ class QTipLabel : public QLabel
 {
     Q_OBJECT
 public:
-    QTipLabel()
-	: QLabel( 0, "toolTipTip",
+    QTipLabel() : QLabel( 0, "toolTipTip",
 			  WStyle_Customize | WStyle_NoBorder | WStyle_Tool )
-	{
-	        setAutoMask( FALSE );
-	}
+    {
+	setAutoMask( FALSE );
+    }
 
 };
 
@@ -216,13 +215,8 @@ void QTipManager::remove( QWidget *w, const QRect & r )
 
     if ( t->rect == r ) {
 	tips->take( w );
-	if ( t->next ) {
+	if ( t->next )
 	    tips->insert( w, t->next );
-	} else {
-	    // ### w->setMouseTracking( FALSE );
-	    // ### need to disable sometimes
-	    // w->removeEventFilter( tipManager );
-	}
 	delete t;
     } else {
 	while( t->next && t->next->rect != r )
@@ -410,7 +404,7 @@ void QTipManager::showTip()
     QTipManager::Tip *t = (*tips)[ widget ];
     while ( t && !t->rect.contains( pos ) )
 	t = t->next;
-    if ( t == 0 ) //   #### || t == previousTip )
+    if ( t == 0 )
 	return;
 
     if ( t->tip ) {
@@ -953,9 +947,11 @@ TRUE.  The default is TRUE.
 
 void QToolTipGroup::setDelay( bool enable )
 {
+#if 0
     if ( enable && !d ) {
-	// ### maybe show here?
+	// maybe we should show the text at once?
     }
+#endif
     d = enable;
 }
 
@@ -968,7 +964,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.71 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.72 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
