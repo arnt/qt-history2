@@ -35,7 +35,9 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
+#ifndef QT_H
+#include <qfeatures.h>
+#endif // QT_H
 
 #ifndef QT_NO_DIR
 

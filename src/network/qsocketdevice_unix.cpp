@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#45 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#46 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -35,11 +35,14 @@
 **
 **********************************************************************/
 
-#include "qsocketdevice.h"
+#ifndef QT_H
+#include <qfeatures.h>
+#endif // QT_H
 
 #ifndef QT_NO_NETWORK
 
 #include "qplatformdefs.h"
+#include "qsocketdevice.h"
 #include "qwindowdefs.h"
 
 

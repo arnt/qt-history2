@@ -35,7 +35,9 @@
 **
 **********************************************************************/
 
-#include "qclipboard.h"
+#ifndef QT_H
+#include <qfeatures.h>
+#endif // QT_H
 
 #ifndef QT_NO_CLIPBOARD
 
@@ -43,6 +45,7 @@
 // #define QCLIPBOARD_DEBUG_VERBOSE
 
 #include "qplatformdefs.h"
+#include "qclipboard.h"
 
 #include "qapplication.h"
 #include "qbitmap.h"
