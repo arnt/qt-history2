@@ -235,9 +235,21 @@ bool QProcess::start( QStringList *env )
 
     // construct the arguments for CreateProcess()
     QString args;
+    QString appName = QString::null;
     QStringList::Iterator it = _arguments.begin();
     args = *it;
     ++it;
+    if ( args.endsWith( ".bat" ) && args.contains( ' ' ) ) {
+	// CreateProcess() seems to have a strange semantics (see also
+	// http://www.experts-exchange.com/Programming/Programming_Platforms/Win_Prog/Q_11138647.html):
+	// If you start a batch file with spaces in the filename, the first
+	// argument to CreateProcess() must be the name of the batchfile
+	// without quotes, but the second argument must start with the same
+	// argument with quotes included. But if the same approach is used for
+	// .exe files, it doesn't work.
+	appName = args;
+	args = '"' + args + '"';
+    }
     for ( ; it != _arguments.end(); ++it ) {
 	QString tmp = *it;
 	// escape a single " because the arguments will be parsed
@@ -254,7 +266,7 @@ bool QProcess::start( QStringList *env )
 	    }
 	    args += QString( " \"" ) + tmp.left( i ) + endQuote;
 	} else {
-	    args += QString( " " ) + tmp;
+	    args += ' ' + tmp;
 	}
     }
 
@@ -273,6 +285,11 @@ bool QProcess::start( QStringList *env )
 	    0, 0, 0,
 	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1]
 	};
+	TCHAR *applicationName;
+	if ( appName.isNull() )
+	    applicationName = 0;
+	else
+	    applicationName = _wcsdup( (TCHAR*)appName.ucs2() );
 	TCHAR *commandLine = _wcsdup( (TCHAR*)args.ucs2() );
 	QByteArray envlist;
 	if ( env != 0 ) {
@@ -301,7 +318,7 @@ bool QProcess::start( QStringList *env )
 	    envlist[pos++] = 0;
 	    envlist[pos++] = 0;
 	}
-	success = CreateProcess( 0, commandLine,
+	success = CreateProcess( applicationName, commandLine,
 		0, 0, TRUE, CREATE_NO_WINDOW
 #ifndef Q_OS_TEMP
 		| CREATE_UNICODE_ENVIRONMENT
@@ -309,6 +326,7 @@ bool QProcess::start( QStringList *env )
 		, env==0 ? 0 : envlist.data(),
 		(TCHAR*)workingDir.absPath().ucs2(),
 		&startupInfo, d->pid );
+	free( applicationName );
 	free( commandLine );
 #ifndef Q_OS_TEMP
     } else 
@@ -346,7 +364,12 @@ bool QProcess::start( QStringList *env )
 	    envlist[pos++] = 0;
 	    envlist[pos++] = 0;
 	}
-	success = CreateProcessA( 0, args.local8Bit().data(),
+	char *applicationName;
+	if ( appName.isNull() )
+	    applicationName = 0;
+	else
+	    applicationName = appName.local8Bit().data();
+	success = CreateProcessA( applicationName, args.local8Bit().data(),
 		0, 0, TRUE, DETACHED_PROCESS,
 		env==0 ? 0 : envlist.data(),
 		(const char*)workingDir.absPath().local8Bit(),
