@@ -7079,12 +7079,12 @@ void QTableHeader::swapSections(int oldIdx, int newIdx, bool swapTable)
     if (iconSet(newIdx))
         newIconSet = *iconSet(newIdx);
     QString oldLabel = label(oldIdx);
-    QString newLabel = label( newIdx );
+    QString newLabel = label(newIdx);
     bool sectionsHasContent = !(oldIconSet.isNull() && newIconSet.isNull()
                             && oldLabel.isNull() && newLabel.isNull());
     if (sectionsHasContent) {
-        setLabel( oldIdx, newIconSet, newLabel );
-        setLabel( newIdx, oldIconSet, oldLabel );
+        setLabel(oldIdx, newIconSet, newLabel);
+        setLabel(newIdx, oldIconSet, oldLabel);
     }
 
     qt_qheader_label_return_null_strings = false;
