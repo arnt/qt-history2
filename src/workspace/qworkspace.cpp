@@ -2457,7 +2457,6 @@ void QWorkspaceChild::adjustSize()
 	polish();
 
     QSize prefSize = windowWidget()->sizeHint().expandedTo( windowWidget()->minimumSizeHint() );
-    prefSize = prefSize.boundedTo( parentWidget()->size() );
     prefSize = prefSize.expandedTo( windowWidget()->minimumSize() ).boundedTo( windowWidget()->maximumSize() );
     prefSize += baseSize();
 
