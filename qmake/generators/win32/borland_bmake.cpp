@@ -366,6 +366,6 @@ BorlandMakefileGenerator::init()
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
     }
-    project->variables()["QMAKE_CLEAN"].append(project->first("TARGET") + ".tds");
+    project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + ".tds");
 }
 
