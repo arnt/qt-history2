@@ -216,10 +216,12 @@ void QThread::cleanup()
     TlsSetValue( qt_tls_index, 0 );
 }
 
+#ifndef QT_NO_COMPAT
 void QThread::postEvent( QObject *o,QEvent *e )
 {
     QApplication::postEvent( o, e );
 }
+#endif
 
 void QThread::sleep( unsigned long secs )
 {
