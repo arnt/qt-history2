@@ -392,48 +392,45 @@ int QKeySequence::decodeString( const QString& str )
 
     QValueList<ModifKeyName> modifs;
 #ifdef QMAC_CTRL
-    modifs << ModifKeyName(CTRL, QMAC_CTRL);
+    modifs << ModifKeyName( CTRL, QMAC_CTRL );
 #endif
 #ifdef QMAC_ALT
-    modifs << ModifKeyName(ALT, QMAC_ALT);
+    modifs << ModifKeyName( ALT, QMAC_ALT );
 #endif
 #ifdef QMAC_META
-    modifs << ModifKeyName(META, QMAC_META);
+    modifs << ModifKeyName( META, QMAC_META );
 #endif
 #ifdef QMAC_SHIFT
-    modifs << ModifKeyName(SHIFT, QMAC_SHIFT);
+    modifs << ModifKeyName( SHIFT, QMAC_SHIFT );
 #endif
-    modifs << ModifKeyName(CTRL, "ctrl+") << ModifKeyName(CTRL, QAccel::tr("Ctrl").lower() + "+");
-    modifs << ModifKeyName(SHIFT, "shift+") << ModifKeyName(SHIFT, QAccel::tr("Shift").lower() + "+");
-    modifs << ModifKeyName(ALT, "alt+") << ModifKeyName(ALT, QAccel::tr("Alt").lower() + "+");
-    modifs << ModifKeyName(META, "meta+") << ModifKeyName(ALT, QAccel::tr("Meta").lower() + "+");
-    {
-	QString sl = accel.lower();
-	for(QValueList<ModifKeyName>::iterator it = modifs.begin(); it != modifs.end(); ++it) {
-	    if(sl.contains((*it).name)) {
-		ret |= (*it).qt_key;
+    modifs << ModifKeyName( CTRL, "ctrl+" ) << ModifKeyName( CTRL, QAccel::tr("Ctrl").lower().append('+') );
+    modifs << ModifKeyName( SHIFT, "shift+" ) << ModifKeyName( SHIFT, QAccel::tr("Shift").lower().append('+') );
+    modifs << ModifKeyName( ALT, "alt+" ) << ModifKeyName( ALT, QAccel::tr("Alt").lower().append('+') );
+    modifs << ModifKeyName( META, "meta+" ) << ModifKeyName( ALT, QAccel::tr("Meta").lower().append('+') );
+    QString sl = accel.lower();
+    for( QValueList<ModifKeyName>::iterator it = modifs.begin(); it != modifs.end(); ++it ) {
+	if ( sl.contains( (*it).name ) ) {
+	    ret |= (*it).qt_key;
 #ifndef QT_NO_REGEXP
-		accel.remove(QRegExp(QRegExp::escape((*it).name), FALSE));
+	    accel.remove( QRegExp(QRegExp::escape((*it).name), FALSE) );
 #else
-		accel.remove((*it).name);
+	    accel.remove( (*it).name );
 #endif
-		sl = accel.lower();
-	    }
+	    sl = accel.lower();
 	}
     }
-    {
-	int p = accel.findRev("+");
-	if(p != -1) {
-	    qWarning( "QKeySequence::decodeString: %s cannot be processed", accel.left(p).latin1() );
-	    accel = accel.mid(p+1);
-	}
-    }
+
+    int p = accel.findRev( '+', str.length() - 2 ); // -2 so that Ctrl++ works
+    if ( p > 0 )
+	accel = accel.mid( p + 1 );
+    else
+	accel = accel;
 
     int fnum = 0;
     if ( accel.length() == 1 ) {
 	char ltr = accel[0].upper().latin1();
 	// We can only upper A-Z without problems.
-	if ( ltr < (char) Key_A || ltr > (char) Key_Z )
+	if ( ltr < (char)Key_A || ltr > (char)Key_Z )
 	    ret |= accel[0].unicode();
 	else
 	    ret |= accel[0].upper().unicode();
