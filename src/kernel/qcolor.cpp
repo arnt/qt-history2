@@ -542,7 +542,8 @@ void QColor::setNamedColor( const QString& name )
   \obsolete
 */
 
-/*!
+/*!  \fn void QColor::getHsv( int *h, int *s, int *v ) const
+
     Returns the current RGB value as HSV. The contents of the \a h, \a
     s and \a v pointers are set to the HSV values. If any of the three
     pointers are null, the function does nothing.
@@ -553,6 +554,8 @@ void QColor::setNamedColor( const QString& name )
     \sa setHsv(), rgb()
 */
 
+/*! \obsolete Use getHsv() instead.
+ */
 void QColor::hsv( int *h, int *s, int *v ) const
 {
     if ( !h || !s || !v )
@@ -652,7 +655,7 @@ void QColor::setHsv( int h, int s, int v )
 
 
 /*!
-    \overload QRgb QColor::rgb() const
+    QRgb QColor::rgb() const
 
     Returns the RGB value.
 
@@ -672,6 +675,16 @@ void QColor::setHsv( int h, int s, int v )
     \sa setRgb(), hsv()
 */
 
+/*! \fn void getRgb( int *r, int *g, int *b ) const
+
+    Sets the contents pointed to by \a r, \a g and \a b to the red,
+    green and blue components of the RGB value respectively. The value
+    range for a component is 0..255.
+
+    \sa rgb(), setRgb(), getHsv()
+*/
+
+/*! \obsolete Use getRgb() instead */
 void QColor::rgb( int *r, int *g, int *b ) const
 {
     *r = qRed(d.argb);

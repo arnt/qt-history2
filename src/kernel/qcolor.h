@@ -89,18 +89,20 @@ public:
     QString name() const;
     void   setNamedColor( const QString& name );
 
-    void   rgb( int *r, int *g, int *b ) const;
     QRgb   rgb()    const;
     void   setRgb( int r, int g, int b );
     void   setRgb( QRgb rgb );
+    void   getRgb( int *r, int *g, int *b ) const { rgb( r, g, b ); }
+    void   rgb( int *r, int *g, int *b ) const; // obsolete
 
     int	   red()    const;
     int	   green()  const;
     int	   blue()   const;
 
-    void   hsv( int *h, int *s, int *v ) const;
-    void   getHsv( int &h, int &s, int &v ) const { hsv( &h, &s, &v ); }
     void   setHsv( int h, int s, int v );
+    void   getHsv( int *h, int *s, int *v ) const { hsv( h, s, v ); }
+    void   hsv( int *h, int *s, int *v ) const; // obsolete
+    void   getHsv( int &h, int &s, int &v ) const { hsv( &h, &s, &v ); } // obsolete
 
     QColor light( int f = 150 ) const;
     QColor dark( int f = 200 )	const;
@@ -124,7 +126,7 @@ public:
     static void leaveAllocContext();
     static int  currentAllocContext();
     static void destroyAllocContext( int );
-    
+
 #if defined(Q_WS_WIN)
     static const QRgb* palette( int* numEntries = 0 );
     static int setPaletteEntries( const QRgb* entries, int numEntries,
