@@ -505,21 +505,21 @@ QFSFileEngine::open(int flags)
         return false;
     }
     int oflags = QT_OPEN_RDONLY;
-    if ((flags & QFile::ReadWrite) == QFile::ReadWrite)
-        oflags = QT_OPEN_RDWR;
-    else if (flags & QFile::WriteOnly)
-        oflags = QT_OPEN_WRONLY;
-    if (flags & QFile::Append) {                // append to end of file?
-        if (!(flags & QFile::ReadOnly) || (flags & QFile::Truncate))
-            oflags |= (QT_OPEN_CREAT | QT_OPEN_TRUNC);
-        else
-            oflags |= (QT_OPEN_APPEND | QT_OPEN_CREAT);
-    } else if (flags & QFile::WriteOnly) {                // create/trunc if writable
-        if (!(flags & QFile::ReadOnly) || (flags & QFile::Truncate))
-            oflags |= (QT_OPEN_CREAT | QT_OPEN_TRUNC);
-        else
-            oflags |= QT_OPEN_CREAT;
+    if ((flags & QFile::ReadWrite) == QFile::ReadWrite) {
+        oflags = QT_OPEN_RDWR | QT_OPEN_CREAT;
+    } else if (flags & QFile::WriteOnly) {
+        oflags = QT_OPEN_WRONLY | QT_OPEN_CREAT;
     }
+
+    if (!(flags & QFile::ReadOnly)) {
+        if (flags & QFile::Append)
+            oflags |= QT_OPEN_APPEND;
+        else
+            oflags |= QT_OPEN_TRUNC;
+        if (flags & QFile::Truncate)
+            oflags |= QT_OPEN_TRUNC;
+    }
+
 #if defined(HAS_TEXT_FILEMODE)
     if (flags & QFile::Translate)
         oflags |= QT_OPEN_TEXT;
@@ -533,6 +533,15 @@ QFSFileEngine::open(int flags)
     d->external_file = 0;
     d->fd = d->sysOpen(d->file, oflags);
     if(d->fd != -1) {
+
+#if defined(Q_OS_UNIX)
+        // Obscure workaround. On all tested unices, if a file is
+        // opened in append mode, lseek() will report that it's at the
+        // beginning of the file, regardless of how big the file is.
+        if (flags & QFile::Append)
+            QT_LSEEK(d->fd, 0, SEEK_END);
+#endif
+
         d->sequential = 0;
         struct stat st;
         ::fstat(d->fd, &st);
