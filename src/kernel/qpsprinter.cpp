@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#102 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2046,6 +2046,11 @@ void QPSPrinter::setFont( const QFont & f )
 	    ps = QString::fromLatin1(postscriptFontNames[i].light);
 	else
 	    ps.append( QString::fromLatin1("-Light") );
+    } else if ( italic ) {
+	if ( postscriptFontNames[i].italic )
+	    ps = QString::fromLatin1(postscriptFontNames[i].italic);
+	else
+	    ps.append( QString::fromLatin1("-Italic") );
     } else {
 	if ( postscriptFontNames[i].roman )
 	    ps = QString::fromLatin1(postscriptFontNames[i].roman);
@@ -2838,7 +2843,7 @@ void QPSPrinter::emitHeader( bool finished )
 	       << " translate 1 -1 scale/defM matrix CM d\n";
     } else {
 	QPaintDeviceMetrics m( printer );
-	stream << "% " << m.heightMM() << "*" << m.widthMM() 
+	stream << "% " << m.heightMM() << "*" << m.widthMM()
 	       << " mm (landscape)\n90 rotate 1 -1 scale/defM matrix CM d\n";
     }
 
