@@ -18,12 +18,16 @@
 #include <qapplication.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
-#include <qlistwidget.h>
+#include <qfile.h>
 #include <qgroupbox.h>
 #include <qlayout.h>
+#include <qlistwidget.h>
 #include <qpainter.h>
+#include <qpalette.h>
+#include <qpushbutton.h>
 #include <qsplitter.h>
 #include <qstackedbox.h>
+#include <qtextedit.h>
 #include <qvboxwidget.h>
 
 #include <qdebug.h>
@@ -124,6 +128,16 @@ DemoViewer::DemoViewer(QWidget *parent)
     props->addWidget(bgMode);
     props->addItem(new QSpacerItem(1, 1));
 
+    viewSourceButton = new QPushButton("View Source", vbox);
+    viewSourceButton->setCheckable(true);
+
+    sourceViewer = new QTextEdit(widgets);
+    sourceViewer->setReadOnly(true);
+    QPalette pal = sourceViewer->palette();
+    pal.setBrush(QPalette::All, QPalette::Base, QBrush(QPoint(0, 0), Qt::white,
+                                                       QPoint(0, 1000), QColor(200, 200, 200)));
+    sourceViewer->setPalette(pal);
+
     QApplication::sendPostedEvents();
 
     QList<int> l;
@@ -134,6 +148,7 @@ DemoViewer::DemoViewer(QWidget *parent)
     // Setting it up...
     listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     listWidget->setItemDelegate(new ItemDelegate(listWidget->model()));
+    connect(viewSourceButton, SIGNAL(toggled(bool)), this, SLOT(openSource(bool)));
     connect(listWidget->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
             this, SLOT(itemSelected()));
     connect(antialias, SIGNAL(toggled(bool)), this, SLOT(antialiasChanged(bool)));
@@ -146,13 +161,14 @@ DemoViewer::DemoViewer(QWidget *parent)
     attributes->fillMode = Attributes::Gradient;
 }
 
-void DemoViewer::addDemoWidget(const QString &name, DemoWidget *widget)
+void DemoViewer::addDemoWidget(const QString &name, DemoWidget *widget, const QString &file)
 {
     listWidget->appendItem(name);
     widget->setParent(widgets);
     widget->setAttributes(attributes);
 
     widgetByName[name] = widget;
+    fileByName[name] = file;
 }
 
 QSize DemoViewer::sizeHint() const
@@ -170,10 +186,12 @@ void DemoViewer::itemSelected()
     Q_ASSERT(demoWidget);
 
     DemoWidget *oldDemoWidget = qt_cast<DemoWidget*>(widgets->currentWidget());
-    oldDemoWidget->stopAnimation();
+    if (oldDemoWidget)
+        oldDemoWidget->stopAnimation();
 
     widgets->setCurrentIndex(widgets->indexOf(demoWidget));
     demoWidget->startAnimation();
+    viewSourceButton->setChecked(false);
 }
 
 void DemoViewer::antialiasChanged(bool val)
@@ -208,6 +226,41 @@ void DemoViewer::showEvent(QShowEvent *)
 
 void DemoViewer::hideEvent(QHideEvent *)
 {
-    DemoWidget *demoWidget = qt_cast<DemoWidget*>(widgets->currentWidget());
-    demoWidget->stopAnimation();
+    if (DemoWidget *demoWidget = qt_cast<DemoWidget*>(widgets->currentWidget()))
+        demoWidget->stopAnimation();
+}
+
+void DemoViewer::openSource(bool on)
+{
+    if (!on) {
+        itemSelected();
+    } else {
+        QString name =
+            listWidget->model()->data(listWidget->selectionModel()->currentIndex()).toString();
+        DemoWidget *oldDemoWidget = qt_cast<DemoWidget*>(widgets->currentWidget());
+        if (oldDemoWidget)
+            oldDemoWidget->stopAnimation();
+
+        Q_ASSERT(!name.isEmpty());
+        QString fileName = fileByName[name];
+        QString contents;
+        if (fileName.isEmpty()) {
+            contents = QString("No source for widget: '%1'").arg(name);
+        } else {
+            QFile f(fileName);
+            if (!f.open(QFile::ReadOnly))
+                contents = QString("Could not open file: '%1'").arg(fileName);
+            else
+                contents = f.readAll();
+        }
+
+        contents.replace('&', "&amp;");
+        contents.replace('<', "&lt;");
+        contents.replace('>', "&gt;");
+
+        QString html = "<pre>" + contents + "</pre>";
+
+        sourceViewer->setHtml(html);
+        widgets->setCurrentIndex(widgets->indexOf(sourceViewer));
+    }
 }

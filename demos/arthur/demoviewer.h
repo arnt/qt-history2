@@ -22,7 +22,9 @@ class DemoWidget;
 class QCheckBox;
 class QComboBox;
 class QListWidget;
+class QPushButton;
 class QStackedBox;
+class QTextEdit;
 
 class DemoViewer : public QWidget
 {
@@ -30,7 +32,7 @@ class DemoViewer : public QWidget
 public:
     DemoViewer(QWidget *parent = 0);
 
-    void addDemoWidget(const QString &name, DemoWidget *demoWidget);
+    void addDemoWidget(const QString &name, DemoWidget *demoWidget, const QString &file);
 
     QSize sizeHint() const;
 
@@ -42,12 +44,16 @@ public slots:
     void antialiasChanged(bool);
     void alphaChanged(bool);
     void fillModeChanged(int);
+    void openSource(bool);
 
 private:
     QListWidget *listWidget;
     QStackedBox *widgets;
     QHash<QString, DemoWidget *> widgetByName;
+    QHash<QString, QString> fileByName;
     Attributes *attributes;
+    QTextEdit *sourceViewer;
+    QPushButton *viewSourceButton;
 
     QCheckBox *antialias;
     QCheckBox *alpha;

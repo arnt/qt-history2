@@ -31,16 +31,16 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
 
     DemoViewer viewer;
-    viewer.addDemoWidget("Arthur - The Paint Engine", new IntroScreen);
-    viewer.addDemoWidget("Alphablended primitives", new AlphaShade);
-    viewer.addDemoWidget("Rotating Gradient", new RotatingGradient);
-    viewer.addDemoWidget("Clip Regions", new Clipping);
-    viewer.addDemoWidget("Paths", new Paths);
-    viewer.addDemoWidget("On the road", new Roads);
-    viewer.addDemoWidget("Stretched Pixmap", new Warpix);
+    viewer.addDemoWidget("Arthur - The Paint Engine", new IntroScreen, "introscreen.cpp");
+    viewer.addDemoWidget("Alphablended primitives", new AlphaShade, "alphashade.cpp");
+    viewer.addDemoWidget("Rotating Gradient", new RotatingGradient, "rotatinggradient.cpp");
+    viewer.addDemoWidget("Clip Regions", new Clipping, "clipping.cpp");
+    viewer.addDemoWidget("Paths", new Paths, "paths.cpp");
+    viewer.addDemoWidget("On the road", new Roads, "roads.cpp");
+    viewer.addDemoWidget("Stretched Pixmap", new Warpix, "warpix.cpp");
 #ifndef QT_NO_OPENGL
     if (QGLFormat::hasOpenGL())
-	viewer.addDemoWidget("OpenGL Painter", new GLPainter);
+	viewer.addDemoWidget("OpenGL Painter", new GLPainter, "glpainter.cpp");
 #endif
     viewer.show();
 
