@@ -106,7 +106,8 @@ bool QGuiEventLoop::unregisterTimer(int id)
 {
     if(!d->macTimerList || id <= 0)
 	return FALSE;				// not init'd or invalid timer
-    for(MacTimerInfo *t = d->macTimerList->first(); t; t = d->macTimerList->next()) {
+    for(MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) {
+	MacTimerInfo *t = (*it);
 	if(t->id == id) {
 	    if(t->mac_timer) {
 		RemoveEventLoopTimer(t->mac_timer);
@@ -118,7 +119,7 @@ bool QGuiEventLoop::unregisterTimer(int id)
 	    } else {
 		d->zero_timer_count--;
 	    }
-	    return d->macTimerList->remove();
+	    return d->macTimerList->remove(t);
 	}
     }
     return FALSE;
@@ -128,7 +129,8 @@ bool QGuiEventLoop::unregisterTimers(QObject *obj)
 {
     if(!d->macTimerList)				// not initialized
 	return FALSE;
-    for(MacTimerInfo *t = d->macTimerList->first(); t; ) { // check all timers
+    for(MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) { // check all timers
+	MacTimerInfo *t = (*it);
 	if(t->obj == obj) {			// object found
 	    if(t->mac_timer) {
 		RemoveEventLoopTimer(t->mac_timer);
@@ -140,10 +142,7 @@ bool QGuiEventLoop::unregisterTimers(QObject *obj)
 	    } else {
 		d->zero_timer_count--;
 	    }
-	    d->macTimerList->remove();
-	    t = d->macTimerList->current();
-	} else {
-	    t = d->macTimerList->next();
+	    d->macTimerList->remove(t);
 	}
     }
     return TRUE;
@@ -167,7 +166,8 @@ void QGuiEventLoop::cleanup()
     //timer cleanup
     d->zero_timer_count = 0;
     if(d->macTimerList) {
-	for(MacTimerInfo *t = d->macTimerList->first(); t; t = d->macTimerList->next()) {
+	for(MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) {
+	    MacTimerInfo *t = (*it);
 	    if(t->mac_timer) {
 		RemoveEventLoopTimer(t->mac_timer);
 		if(t->pending) {
@@ -380,8 +380,8 @@ int QGuiEventLoop::activateTimers()
     if(!d->zero_timer_count)
 	return 0;
     int ret = 0;
-    for(MacTimerInfo *t = d->macTimerList->first(); ret != d->zero_timer_count && t;
-	t = d->macTimerList->next()) {
+    for(MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) {
+	MacTimerInfo *t = (*it);
 	if(!t->interval) {
 	    ret++;
 	    QTimerEvent e(t->id);

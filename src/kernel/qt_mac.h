@@ -154,7 +154,6 @@ public:
 };
 
 
-#include "qptrlist.h"
 #include "qpaintdevice.h"
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 #ifndef Q_Q3PAINTER

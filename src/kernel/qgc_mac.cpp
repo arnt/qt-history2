@@ -16,14 +16,13 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
-#include "qptrlist.h"
 #include "qfontdata_p.h"
 #include "qtextcodec.h"
 #include "qpaintdevicemetrics.h"
 #include "qpaintdevice.h"
 #include "qt_mac.h"
-#include <qptrstack.h>
 #include <qtextcodec.h>
+#include <qstack.h>
 #include <qprinter.h>
 #include <private/qgc_mac_p.h>
 #include <private/qpainter_p.h>
@@ -63,7 +62,8 @@ public:
     inline QPaintDevice *device() const { return dev; }
     inline QRegion region() const { return clipRegion; }
 };
-QPtrStack<paintevent_item> paintevents;
+QStack<paintevent_item*> paintevents;
+static paintevent_item *qt_mac_get_paintevent() { return paintevents.isEmpty() ? 0 : paintevents.top(); }
 
 void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region, QWidget *clip)
 {
@@ -73,7 +73,7 @@ void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region, QWidge
 	QPoint mp(posInWindow(w));
 	r.translate(mp.x(), mp.y());
     }
-    if(paintevent_item *curr = paintevents.current()) {
+    if(paintevent_item *curr = qt_mac_get_paintevent()) {
 	if(curr->device() == dev || curr->clip() == dev || clip == curr->clip()
 	   || curr->device() == clip)
 	    r &= curr->region();
@@ -83,7 +83,7 @@ void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region, QWidge
 
 void qt_clear_paintevent_clipping(QPaintDevice *dev)
 {
-    if(paintevents.isEmpty() || !((*paintevents.current()) == dev)) {
+    if(paintevents.isEmpty() || !((*paintevents.top()) == dev)) {
 	qDebug("Qt: internal: WH0A, qt_clear_paintevent_clipping mismatch.");
 	return;
     }
@@ -118,7 +118,7 @@ QQuickDrawGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 		 "result of a paintEvent");
 //	return false;
     }
-    if(d->pdev->isExtDev() && pdev->paintingActive()) {
+    if(pdev->isExtDev() && pdev->paintingActive()) {
 	// somebody else is already painting
 	qWarning("QPainter::begin: Another QPainter is already painting "
 		 "this device;\n\tAn extended paint device can only be painted "
@@ -906,7 +906,7 @@ void QQuickDrawGC::initPaintDevice(bool force, QPoint *off, QRegion *rgn)
 					  d->pdev->metric(QPaintDeviceMetrics::PdmHeight));
 	}
     } else if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
-	paintevent_item *pevent = paintevents.current();
+	paintevent_item *pevent = qt_mac_get_paintevent();
 	if(pevent && (*pevent) != d->pdev)
 	    pevent = 0;
 	QWidget *w = (QWidget*)d->pdev, *clip = w;
@@ -1064,7 +1064,7 @@ static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *pa
     else
 	ret = (CGContextRef)pdev->macCGHandle();
     //apply paint event region (in global coords)
-    if(paintevent_item *pevent = paintevents.current()) {
+    if(paintevent_item *pevent = qt_mac_get_paintevent()) {
 	if((*pevent) == pdev)
 	    qt_mac_clip_cg_handle(ret, pevent->region(), QPoint(0, 0), true);
     }

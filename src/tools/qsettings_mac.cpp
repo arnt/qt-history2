@@ -18,7 +18,6 @@
 #include <private/qsettings_p.h>
 #ifndef QT_NO_SETTINGS
 #include "qstring.h"
-#include "qptrlist.h"
 #include "qcleanuphandler.h"
 #include <CoreFoundation/CoreFoundation.h>
 #include <stdlib.h>

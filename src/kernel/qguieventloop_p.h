@@ -35,6 +35,7 @@
 #elif defined(Q_WS_MAC)
 
 #include "qt_mac.h"
+#include "qlist.h"
 
 struct MacTimerInfo {
     int	     id;
@@ -43,7 +44,7 @@ struct MacTimerInfo {
     bool pending;
     EventLoopTimerRef mac_timer;
 };
-typedef QPtrList<MacTimerInfo> MacTimerList;	// list of TimerInfo structs
+typedef QList<MacTimerInfo*> MacTimerList;	// list of TimerInfo structs
 
 struct MacSocketInfo {
     union {
