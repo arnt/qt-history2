@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#11 $
 **
 ** Implementation of QEucCodec class
 **
@@ -83,12 +83,14 @@ int QUtf8Codec::heuristicContentMatch(const char* chars, int len) const
 		uchar c2 = chars[++i];
 		if ( (c2&0xc0) != 0x80 ) {
 		    return -1;
+#if 0
 		    if ( i < len-1 ) {
 			uchar c3 = chars[++i];
 			if ( (c3&0xc0) != 0x80 )
 			    return -1;
 			score+=3;
 		    }
+#endif
 		}
 	    }
 	}
