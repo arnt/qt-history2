@@ -994,9 +994,14 @@ QTextDocument *QTextEdit::document() const
 */
 void QTextEdit::setTextCursor(const QTextCursor &cursor)
 {
+    // (schedule a repaint of the region of the old cursor
+    //  and of the new cursor, so that the old one disappears
+    //  and the new one is shown)
+    d->update(d->cursorUpdateRect());
     d->cursor = cursor;
     d->updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
+    d->update(d->cursorUpdateRect());
 }
 
 /*!
