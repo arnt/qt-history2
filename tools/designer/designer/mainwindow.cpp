@@ -469,7 +469,8 @@ void MainWindow::setupRMBMenus()
     actionEditSplitVertical->addTo( rmbWidgets );
     actionEditBreakLayout->addTo( rmbWidgets );
     rmbWidgets->insertSeparator();
-    actionEditConnections->addTo( rmbWidgets );
+    if ( !singleProjectMode() )
+	actionEditConnections->addTo( rmbWidgets );
     actionEditSource->addTo( rmbWidgets );
 
     rmbFormWindow = new QPopupMenu( this );
@@ -483,9 +484,10 @@ void MainWindow::setupRMBMenus()
     actionEditGridLayout->addTo( rmbFormWindow );
     actionEditBreakLayout->addTo( rmbFormWindow );
     rmbFormWindow->insertSeparator();
-    if ( !singleProjectMode() )
+    if ( !singleProjectMode() ) {
 	actionEditSlots->addTo( rmbFormWindow );
-    actionEditConnections->addTo( rmbFormWindow );
+	actionEditConnections->addTo( rmbFormWindow );
+    }
     actionEditSource->addTo( rmbFormWindow );
     rmbFormWindow->insertSeparator();
     actionEditFormSettings->addTo( rmbFormWindow );
@@ -971,7 +973,7 @@ void MainWindow::helpContents()
 #else
     if ( !source.isEmpty() ) {
 	if ( assistant ) {
-	    QString path = QString( getenv( "QTDIR" )) + "/doc/html/";   
+	    QString path = QString( getenv( "QTDIR" )) + "/doc/html/";
 	    assistant->sendRequest( path+source+'\n' );
 	}
     }
@@ -986,7 +988,7 @@ void MainWindow::helpManual()
     QProcess proc( lst );
     proc.start();
 #else
-    if ( assistant ) 
+    if ( assistant )
 	assistant->sendRequest( QString( getenv( "QTDIR" )) + "/doc/html/designer-manual.html\n" );
 #endif
 }

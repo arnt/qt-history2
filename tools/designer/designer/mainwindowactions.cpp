@@ -239,9 +239,10 @@ void MainWindow::setupEditActions()
     actionEditRaise->addTo( menu );
 #endif
     menu->insertSeparator();
-    if ( !singleProjectMode() )
+    if ( !singleProjectMode() ) {
 	actionEditSlots->addTo( menu );
-    actionEditConnections->addTo( menu );
+	actionEditConnections->addTo( menu );
+    }
     actionEditFormSettings->addTo( menu );
     menu->insertSeparator();
     actionEditPreferences->addTo( menu );
@@ -414,7 +415,7 @@ void MainWindow::setupToolActions()
     actionPointerTool->setWhatsThis( whatsThisFrom( "Tools|Pointer" ) );
 
     actionConnectTool = new QAction( tr("Connect Signal/Slots"), createIconSet("connecttool.xpm"),
-				     tr("&Connect Signal/Slots"),  Key_F3,
+				     tr("&Connect Signal/Slots"),  singleProjectMode() ? 0 : Key_F3,
 				     actionGroupTools, QString::number(CONNECT_TOOL).latin1(), TRUE );
     actionConnectTool->setStatusTip( tr("Selects the connection tool") );
     actionConnectTool->setWhatsThis( whatsThisFrom( "Tools|Connect Signals and Slots" ) );
@@ -437,7 +438,8 @@ void MainWindow::setupToolActions()
 
     addToolBar( tb, tr( "Tools" ), QMainWindow::DockTop, FALSE );
     actionPointerTool->addTo( tb );
-    actionConnectTool->addTo( tb );
+    if ( !singleProjectMode() )
+	actionConnectTool->addTo( tb );
     actionOrderTool->addTo( tb );
 
     QPopupMenu *mmenu = new QPopupMenu( this, "Tools" );
@@ -446,7 +448,8 @@ void MainWindow::setupToolActions()
     menubar->insertItem( tr( "&Tools" ), mmenu, toolsMenuId );
     toolsMenuIndex = menubar->indexOf( toolsMenuId );
     actionPointerTool->addTo( mmenu );
-    actionConnectTool->addTo( mmenu );
+    if ( !singleProjectMode() )
+	actionConnectTool->addTo( mmenu );
     actionOrderTool->addTo( mmenu );
     mmenu->insertSeparator();
 
