@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#23 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#23 $";
 #endif
 
 
@@ -91,11 +91,12 @@ QObject::QObject( QObject *parent, const char *name )
     senderObjects = 0;				// no signals connected yet
     eventFilters = 0;				// no filters installed
     sigSender = 0;				// no sender yet
-    isSignal = FALSE;				// assume not a signal object
-    isWidget = FALSE;				// assume not a widget object
-    pendTimer = FALSE;				// no timers yet
-    pendEvent = FALSE;				// no events yet
-    blockSig = FALSE;				// not blocking signals
+    isSignal   = FALSE;				// assume not a signal object
+    isWidget   = FALSE;				// assume not a widget object
+    hiPriority = FALSE;				// normal priority
+    pendTimer  = FALSE;				// no timers yet
+    pendEvent  = FALSE;				// no events yet
+    blockSig   = FALSE;				// not blocking signals
     if ( parentObj )				// add object to parent
 	parentObj->insertChild( this );
 }
