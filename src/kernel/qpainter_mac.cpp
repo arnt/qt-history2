@@ -518,7 +518,6 @@ bool QPainter::begin( const QPaintDevice *pd )
     return TRUE;
 }
 
-bool fuckery=FALSE;
 bool QPainter::end()				// end painting
 {
     if ( !isActive() ) {
@@ -528,13 +527,8 @@ bool QPainter::end()				// end painting
         return FALSE;
     }
 
-    if(fuckery)
-	qDebug("foo..");
-    if ( testf(ExtDev) ) {
-	if(fuckery)
-	    qDebug("bar..");
+    if ( testf(ExtDev) ) 
 	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );
-    }
 
     if ( testf( FontMet ) )                       // remove references to this
         QFontMetrics::reset( this );
@@ -1702,13 +1696,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		QPainter paint(&bm); 		// draw text in bitmap
 		paint.setPen( color1 );
 		paint.setFont( dfont );
-#if 1
 		paint.drawText( tx, ty, str, len );
-#else
-		paint.drawPoint( aw - 4, ah - 1 );
-		paint.drawPoint( aw - 5, ah - 1 );
-		qDebug( "aw %d, ah %d", aw - 1 , ah - 1 );
-#endif
 		paint.end();
 
 		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
