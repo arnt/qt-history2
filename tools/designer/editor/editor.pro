@@ -7,7 +7,8 @@ HEADERS		= editor.h  \
 		  viewmanager.h \
 		  markerwidget.h\
 		  conf.h \
-		  browser.h
+		  browser.h \
+		  arghintwidget.h
 
 SOURCES		= editor.cpp \
 		  parenmatcher.cpp  \
@@ -15,7 +16,8 @@ SOURCES		= editor.cpp \
 		  viewmanager.cpp \
 		  markerwidget.cpp \
 		  conf.cpp \
-		  browser.cpp
+		  browser.cpp \
+		  arghintwidget.cpp
 
 INTERFACES	= preferences.ui
 		

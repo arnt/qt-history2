@@ -21,13 +21,13 @@
 #include "completion.h"
 #include "paragdata.h"
 #include "editor.h"
-#include "qlistbox.h"
-#include "qvbox.h"
-#include "qmap.h"
+#include <qlistbox.h>
+#include <qvbox.h>
+#include <qmap.h>
 #include <qrichtext_p.h>
-#include "qapplication.h"
-#include "qregexp.h"
-#include "qlabel.h"
+#include <qapplication.h>
+#include <qregexp.h>
+#include "arghintwidget.h"
 #include <qsizegrip.h>
 
 static QColor getColor( const QString &type )
@@ -119,10 +119,7 @@ EditorCompletion::EditorCompletion( Editor *e )
     completionPopup = new QVBox( 0, 0, WType_Popup );
     completionPopup->setFrameStyle( QFrame::Box | QFrame::Plain );
     completionPopup->setLineWidth( 1 );
-    functionLabel = new QLabel( 0, 0, WType_Popup );
-    functionLabel->setBackgroundMode( QWidget::PaletteBase );
-    functionLabel->setFrameStyle( QFrame::Box | QFrame::Plain );
-    functionLabel->setLineWidth( 1 );
+    functionLabel = new ArgHintWidget( 0 );
     functionLabel->hide();
     completionListBox = new QListBox( completionPopup );
     completionListBox->setFrameStyle( QFrame::NoFrame );
@@ -540,7 +537,10 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 
     QString label;
     int w = 0;
-    for ( QValueList<QStringList>::Iterator vit = argl.begin(); vit != argl.end(); ++vit ) {
+    int num = 0;
+    if ( !functionLabel->isVisible() )
+	functionLabel->setNumFunctions( argl.count() );
+    for ( QValueList<QStringList>::Iterator vit = argl.begin(); vit != argl.end(); ++vit, ++num ) {
 	QStringList args = *vit;
 	if ( args.isEmpty() )
 	    continue;
@@ -581,15 +581,14 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	s.prepend( pre );
 	s.append( post );
 	label += "<p>" + s + "</p>";
+	functionLabel->setFunctionText( num, s );
 	w = QMAX( w, functionLabel->fontMetrics().width( s ) );
     }
-
+    w += 16;
     if ( label.isEmpty() )
 	return FALSE;
-    functionLabel->setText( label );
-    functionLabel->setAlignment( AlignTop );
     if ( functionLabel->isVisible() ) {
-	functionLabel->resize( w, functionLabel->heightForWidth( w ) - functionLabel->fontMetrics().height() );
+	functionLabel->resize( w, QMAX( functionLabel->fontMetrics().height(), 16 ) );
     } else {
 	QTextStringChar *chr = cursor->parag()->at( cursor->index() );
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
@@ -597,7 +596,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	int y, dummy;
 	cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
 	y += cursor->parag()->rect().y();
-	functionLabel->resize( w, functionLabel->heightForWidth( w )  - functionLabel->fontMetrics().height() );
+	functionLabel->resize( w, QMAX( functionLabel->fontMetrics().height(), 16 ) );
 	functionLabel->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
 	if ( functionLabel->x() + functionLabel->width() > QApplication::desktop()->width() )
 	    functionLabel->move( QMAX( 0, QApplication::desktop()->width() - functionLabel->width() ),

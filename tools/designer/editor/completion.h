@@ -31,7 +31,7 @@ class QTextDocument;
 class Editor;
 class QVBox;
 class QListBox;
-class QLabel;
+class ArgHintWidget;
 
 struct CompletionEntry
 {
@@ -91,7 +91,7 @@ protected:
 protected:
     QVBox *completionPopup;
     QListBox *completionListBox;
-    QLabel *functionLabel;
+    ArgHintWidget *functionLabel;
     int completionOffset;
     Editor *curEditor;
     QString searchString;
