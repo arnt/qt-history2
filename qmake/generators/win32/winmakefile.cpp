@@ -501,7 +501,7 @@ void Win32MakefileGenerator::processMocConfig()
 
 void Win32MakefileGenerator::processRcFileVar()
 {
-    bool mingw = (Option::mkfile::qmakespec == "win32-g++");
+    const bool mingw = (project->first("MAKEFILE_GENERATOR") == "MINGW");
     if ( !project->variables()["RC_FILE"].isEmpty()) {
 	if ( !project->variables()["RES_FILE"].isEmpty()) {
 	    fprintf(stderr, "Both .rc and .res file specified.\n");
@@ -663,8 +663,7 @@ void Win32MakefileGenerator::writeExtraTargetParts(QTextStream &t)
 
 void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 {
-    bool borland = (Option::mkfile::qmakespec == "win32-borland");
-    
+    const bool borland = (project->first("MAKEFILE_GENERATOR") == "BMAKE");
     QString uiclean = varGlue("UICDECLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") +
 		      varGlue("UICIMPLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
     if(borland && uiclean.isEmpty())
