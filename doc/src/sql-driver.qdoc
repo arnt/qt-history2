@@ -123,7 +123,7 @@ header files and shared libraries (here it is assumed that MySQL is
 installed in \c{/usr/local}) and run \c{make}:
 
 \code
-cd $QTDIR/plugins/src/sqldrivers/mysql
+cd $QTDIR/src/plugins/sqldrivers/mysql
 qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib" mysql.pro
 make
 \endcode
@@ -136,7 +136,7 @@ Build the plugin as follows (here it is assumed that MySQL is
 installed in \c{C:\MYSQL}):
 
 \code
-cd %QTDIR%\plugins\src\sqldrivers\mysql
+cd %QTDIR%\src\plugins\sqldrivers\mysql
 qmake -o Makefile "INCLUDEPATH+=C:\MYSQL\INCLUDE" "LIBS+=C:\MYSQL\LIB\OPT\LIBMYSQL.LIB" mysql.pro
 nmake
 \endcode
@@ -192,14 +192,14 @@ the directory where Oracle is installed) and run make:
 
 For Oracle 8:
 \code
-cd $QTDIR/plugins/src/sqldrivers/oci
+cd $QTDIR/src/plugins/sqldrivers/oci
 qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc8" oci.pro
 make
 \endcode
 
 For Oracle version 9:
 \code
-cd $QTDIR/plugins/src/sqldrivers/oci
+cd $QTDIR/src/plugins/sqldrivers/oci
 qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc9" oci.pro
 make
 \endcode
@@ -223,7 +223,7 @@ installed in \c{C:\oracle}):
 \code
 set INCLUDE=%INCLUDE%;c:\oracle\oci\include
 set LIB=%LIB%;c:\oracle\oci\lib\msvc
-cd %QTDIR%\plugins\src\sqldrivers\oci
+cd %QTDIR%\src\plugins\sqldrivers\oci
 qmake -o Makefile oci.pro
 nmake
 \endcode
@@ -295,7 +295,7 @@ libraries (here it is assumed that unixODBC is installed in
 \c{/usr/local/unixODBC}) and run \c{make}:
 
 \code
-cd $QTDIR/plugins/src/sqldrivers/odbc
+cd $QTDIR/src/plugins/sqldrivers/odbc
 qmake "INCLUDEPATH+=/usr/local/unixODBC/include" "LIBS+=-L/usr/local/unixODBC/lib -lodbc"
 make
 \endcode
@@ -306,7 +306,7 @@ The ODBC header and include files should already be installed in the
 right directories. You just have to build the plugin as follows:
 
 \code
-cd %QTDIR%\plugins\src\sqldrivers\odbc
+cd %QTDIR%\src\plugins\sqldrivers\odbc
 qmake -o Makefile odbc.pro
 nmake
 \endcode
@@ -372,7 +372,7 @@ libraries, run \c qmake the following way (assuming that the
 PostgreSQL sources can be found in \c{/usr/src/psql}):
 
 \code
-cd $QTDIR/plugins/src/sqldrivers/psql
+cd $QTDIR/src/plugins/sqldrivers/psql
 qmake -o Makefile "INCLUDEPATH+=/usr/src/psql/src/include /usr/src/psql/src/interfaces/libpq" "LIBS+=-L/usr/lib -lpq" psql.pro
 make
 \endcode
@@ -384,7 +384,7 @@ the PostgreSQL documentation. Assuming the PostgreSQL sources resides
 in \c{C:\psql}, build the plugin as follows:
 
 \code
-cd %QTDIR%\plugins\src\sqldrivers\psql
+cd %QTDIR%\src\plugins\sqldrivers\psql
 qmake -o Makefile "INCLUDEPATH+=C:\psql\src\include C:\psql\src\interfaces\libpq" psql.pro
 nmake
 \endcode
@@ -420,7 +420,7 @@ point to the directory where you installed the client library and
 execute \c{qmake}:
 
 \code
-cd $QTDIR/plugins/src/sqldrivers/tds
+cd $QTDIR/src/plugins/sqldrivers/tds
 qmake -o Makefile "INCLUDEPATH=$SYBASE/include" "LIBS=-L$SYBASE/lib -lsybdb"
 make
 \endcode
@@ -432,7 +432,7 @@ Open Client (\l{http://www.sybase.com}). You must include \c
 NTWDBLIB.LIB to build the plugin:
 
 \code
-cd %QTDIR%\plugins\src\sqldrivers\tds
+cd %QTDIR%\src\plugins\sqldrivers\tds
 qmake -o Makefile "LIBS+=NTWDBLIB.LIB" tds.pro
 nmake
 \endcode
@@ -464,7 +464,7 @@ in DB2 (see QSqlQuery::setForwardOnly()).
 \section3 How to build the plugin on Unix/Linux
 
 \code
-cd $QTDIR/plugins/src/sqldrivers/db2
+cd $QTDIR/src/plugins/sqldrivers/db2
 qmake -o Makefile "INCLUDEPATH+=$DB2DIR/include" "LIBS+=-L$DB2DIR/lib -ldb2"
 make
 \endcode
@@ -475,7 +475,7 @@ The DB2 header and include files should already be installed in the
 right directories. You just have to build the plugin as follows:
 
 \code
-cd %QTDIR%\plugins\src\sqldrivers\db2
+cd %QTDIR%\src\plugins\sqldrivers\db2
 qmake -o Makefile "INCLUDEPATH+=<DB2 home>/sqllib/include" "LIBS+=<DB2 home>/sqllib/lib/db2cli.lib"
 nmake
 \endcode
@@ -516,7 +516,7 @@ build it manually (replace \c $SQLITE by the directory where SQLite
 resides):
 
 \code
-cd $QTDIR/plugins/src/sqldrivers/sqlite
+cd $QTDIR/src/plugins/sqldrivers/sqlite
 qmake -o Makefile "INCLUDEPATH+=$SQLITE/include" "LIBS+=-L$SQLITE/lib -lsqlite"
 make
 \endcode
@@ -555,7 +555,7 @@ The following assumes Interbase or Firebird is installed in
 \c{/opt/interbase}:
 
 \code
-cd $QTDIR/plugins/src/sqldrivers/ibase
+cd $QTDIR/src/plugins/sqldrivers/ibase
 qmake -o Makefile "INCLUDEPATH+=/opt/interbase/include" "LIBS+=-L/opt/interbase/lib" ibase.pro
 make
 \endcode
@@ -566,7 +566,7 @@ The following assumes Interbase or Firebird is installed in
 \c{C:\interbase}:
 
 \code
-cd %QTDIR%\plugins\src\sqldrivers\ibase
+cd %QTDIR%\src\plugins\sqldrivers\ibase
 qmake -o Makefile "INCLUDEPATH+=C:\interbase\include" ibase.pro
 nmake
 \endcode
@@ -639,7 +639,7 @@ loaded by the Qt library at runtime), the driver must use the
 \c Q_EXPORT_PLUGIN macro. Read the \link plugins-howto.html Qt
 Plugin\endlink documentation for more information on this. You can
 also check out how this is done in the SQL plugins that are provided
-with Qt in \c{QTDIR/plugins/src/sqldrivers} and
+with Qt in \c{QTDIR/src/plugins/sqldrivers} and
 \c{QTDIR/src/sql/drivers}.
 
 The following code can be used as a skeleton for a SQL driver:
