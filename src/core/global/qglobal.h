@@ -680,15 +680,15 @@ typedef unsigned long ulong;
 #  define QT_COMPAT_CONSTRUCTOR
 #endif
 // moc compats (signals/slots)
-#ifdef QT_MOC_COMPAT
-# undef QT_MOC_COMPAT
-#endif
-# if defined(Q_MOC_RUN)
-#   define QT_MOC_COMPAT QT_MOC_COMPAT
-#elif defined(QT3_SUPPORT)
-#   define QT_MOC_COMPAT QT3_SUPPORT
+#ifndef QT_MOC_COMPAT
+#  if defined(QT3_SUPPORT)
+#    define QT_MOC_COMPAT QT3_SUPPORT
+#  else
+#    define QT_MOC_COMPAT
+#  endif
 #else
-#   define QT_MOC_COMPAT
+#  undef QT_MOC_COMPAT
+#  define QT_MOC_COMPAT
 #endif
 
 #ifdef __i386__
