@@ -71,7 +71,7 @@ ApplicationWindow::ApplicationWindow()
 	= new QToolButton( saveIcon, "Save File", QString::null,
 			   this, SLOT(save()), fileTools, "save file" );
 
-#if QT_FEATURE_PRINTER
+#ifdef QT_FEATURE_PRINTER
     printer = new QPrinter;
     QPixmap printIcon;
 
@@ -101,7 +101,7 @@ ApplicationWindow::ApplicationWindow()
     file->setWhatsThis( id, fileSaveText );
     id = file->insertItem( "Save &as...", this, SLOT(saveAs()) );
     file->setWhatsThis( id, fileSaveText );
-#if QT_FEATURE_PRINTER
+#ifdef QT_FEATURE_PRINTER
     file->insertSeparator();
     id = file->insertItem( printIcon, "&Print",
 			   this, SLOT(print()), CTRL+Key_P );
@@ -137,7 +137,7 @@ ApplicationWindow::ApplicationWindow()
 
 ApplicationWindow::~ApplicationWindow()
 {
-#if QT_FEATURE_PRINTER
+#ifdef QT_FEATURE_PRINTER
     delete printer;
 #endif
 }
@@ -187,7 +187,7 @@ void ApplicationWindow::saveAs()
 
 void ApplicationWindow::print()
 {
-#if QT_FEATURE_PRINTER
+#ifdef QT_FEATURE_PRINTER
     MDIWindow* m = (MDIWindow*)ws->activeWindow();
     if ( m )
 	m->print( printer );
@@ -334,7 +334,7 @@ void MDIWindow::saveAs()
 
 void MDIWindow::print( QPrinter* printer)
 {
-#if QT_FEATURE_PRINTER
+#ifdef QT_FEATURE_PRINTER
     const int Margin = 10;
     int pageNo = 1;
 
