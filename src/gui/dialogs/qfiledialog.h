@@ -35,7 +35,21 @@ class Q_GUI_EXPORT QFileDialog : public QDialog
     Q_ENUMS(ViewMode FileMode AcceptMode)
 
 public:
-    QFileDialog(QWidget *parent=0, Qt::WFlags f=0);
+    enum ViewMode { Detail, List };
+    enum FileMode { AnyFile, ExistingFile, Directory, ExistingFiles, DirectoryOnly };
+    enum AcceptMode { Open, Save };
+
+    enum Option { DontResolveSymlinks = 0x01, ShowDirsOnly = 0x02 };
+    Q_DECLARE_FLAGS(Options, Option);
+
+    QFileDialog(QWidget *parent = 0, Qt::WFlags f = 0);
+    QFileDialog(QWidget *parent = 0,
+                const QString &caption = QString::null,
+                const QString &dir = QString::null,
+                const QString &filter = QString::null,
+                const QString &selectedFilter = QString::null,
+                const QString &selectedFile = QString::null,
+                FileMode fileMode = AnyFile);
     ~QFileDialog();
 
     void setDirectory(const QDir &directory);
@@ -52,15 +66,12 @@ public:
     void selectFilter(const QString &filter);
     QString selectedFilter() const;
 
-    enum ViewMode { Detail, List };
     void setViewMode(ViewMode mode);
     ViewMode viewMode() const;
 
-    enum FileMode { AnyFile, ExistingFile, Directory, ExistingFiles, DirectoryOnly };
     void setFileMode(FileMode mode);
     FileMode fileMode() const;
 
-    enum AcceptMode { Open, Save };
     void setAcceptMode(AcceptMode mode);
     AcceptMode acceptMode() const;
 
@@ -76,10 +87,6 @@ public:
     inline QT_COMPAT void setDir( const QDir &directory ) { setDirectory(directory); }
     QT_COMPAT QString selectedFile() const;
 #endif
-
-    enum Option { DontResolveSymlinks = 0x01, ShowDirsOnly = 0x02 };
-
-    Q_DECLARE_FLAGS(Options, Option);
 
     static QString getOpenFileName(QWidget *parent = 0,
                                    const QString &caption = QString(),

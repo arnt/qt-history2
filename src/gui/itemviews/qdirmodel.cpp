@@ -111,7 +111,7 @@ QIconSet QFileIconProvider::computerIcons() const
 QIconSet QFileIconProvider::icons(const QFileInfo &info) const
 {
 //     if (info.isDrive())
-//         return drive;
+//         return driveHD;
     if (info.isFile())
         return info.isSymLink() ? fileLink : file;
     if (info.isDir())
@@ -147,9 +147,9 @@ public:
 
     QDirModelPrivate()
         : rootIsVirtual(true),
-          filterSpec(QDir::All|QDir::AllDirs|QDir::Drives),
-          sortSpec(QDir::Name|QDir::IgnoreCase|QDir::DirsFirst),
-          nameFilters(QStringList(QString::fromLatin1("*"))),
+//           filterSpec(QDir::All|QDir::AllDirs|QDir::Drives),
+//           sortSpec(QDir::Name|QDir::IgnoreCase|QDir::DirsFirst),
+//           nameFilters(QStringList(QString::fromLatin1("*"))),
           iconProvider(&defaultProvider) {}
 
     void init(const QDir &directory);
@@ -216,17 +216,28 @@ public:
   \a path
 */
 
-QDirModel::QDirModel(const QString &path, QObject *parent)
+QDirModel::QDirModel(const QString &path,
+                     const QStringList &nameFilters,
+                     int filter,
+                     int sorting,
+                     QObject *parent)
     : QAbstractItemModel(*new QDirModelPrivate, parent)
 {
     // the empty path means that we start with QDir::drives()
     if (path.isEmpty()) {
+        d->nameFilters = nameFilters.isEmpty() ? "*" : nameFilters;
+        d->filterSpec = filter;
+        d->sortSpec = sorting;
         d->rootIsVirtual = true;
         d->root.parent = 0;
         d->root.info = QFileInfo();
         d->root.children = d->children(0);
     } else {
-        d->init(QDir(path));
+        QDir dir(path);
+        dir.setNameFilters(nameFilters);
+        dir.setFilter(filter);
+        dir.setSorting(sorting);
+        d->init(dir);
     }
 }
 

@@ -1095,7 +1095,7 @@ void QGenericListView::doItemsLayout()
 
     d->prepareItemsLayout();
 
-    if (d->layoutMode == Instant)
+    if (d->layoutMode == OnePass)
         doItemsLayout(d->model->rowCount(root())); // layout everything
     else
         while (!doItemsLayout(100)) // do layout in batches
@@ -1364,7 +1364,7 @@ QGenericListViewPrivate::QGenericListViewPrivate()
       movement(QGenericListView::Static),
       iconMode(QGenericListView::Small),
       resizeMode(QGenericListView::Fixed),
-      layoutMode(QGenericListView::Instant),
+      layoutMode(QGenericListView::OnePass),
       wrap(false),
       spacing(0),
       layoutStart(0),

@@ -39,7 +39,7 @@ public:
     enum Flow { LeftToRight, TopToBottom };
     enum IconMode { Automatic, Small, Large };
     enum ResizeMode { Fixed, Adjust };
-    enum LayoutMode { Instant, Batched };
+    enum LayoutMode { OnePass, Batched };
 
     QGenericListView(QWidget *parent = 0);
     ~QGenericListView();
