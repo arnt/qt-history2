@@ -50,7 +50,7 @@ protected:
     double a, b, c, d;
 
     void showEvent(QShowEvent *);
-    void hideEvent(QShowEvent *);
+    void hideEvent(QHideEvent *);
 
 private:
     QBasicTimer animationTimer;

@@ -78,7 +78,7 @@ void DemoWidget::showEvent(QShowEvent *)
     startAnimation();
 }
 
-void DemoWidget::hideEvent(QShowEvent *)
+void DemoWidget::hideEvent(QHideEvent *)
 {
     stopAnimation();
 }
