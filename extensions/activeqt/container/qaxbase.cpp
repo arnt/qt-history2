@@ -1014,7 +1014,7 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
     case VT_SAFEARRAY:
 	str = guessTypes( tdesc.lpadesc->tdescElem, info, enumlist, function );
 	if ( !str.isEmpty() )
-	    str += "[" + QString::number( tdesc.lpadesc->cDims ) + "]";
+	    str = "QValueList<" + str + ">";
 	break;
     case VT_CARRAY:
 	str = guessTypes( tdesc.lpadesc->tdescElem, info, enumlist, function );
@@ -1377,10 +1377,6 @@ QMetaObject *QAxBase::metaObject() const
 	    info->GetTypeAttr( &typeattr );
 	    bool interesting = TRUE;
 	    if ( typeattr ) {
-		if ( !(typeattr->wTypeFlags & TYPEFLAG_FDISPATCHABLE) ) {
-		    info->ReleaseTypeAttr( typeattr );
-		    break;
-		}
 		// get number of functions, variables, and implemented interfaces
 		nFuncs = typeattr->cFuncs;
 		nVars = typeattr->cVars;
@@ -1701,7 +1697,6 @@ QMetaObject *QAxBase::metaObject() const
 		// get variable type
 		TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
 		QString variableType = guessTypes( typedesc, info, enumDict, variableName );
-
 
 		if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
 		    // generate meta property
@@ -2363,10 +2358,8 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
     }
 
     // clean up
-    for ( p = 0; p < slotcount; ++p ) {
-	if ( params.rgvarg[p].vt == VT_BSTR )
-	    SysFreeString( params.rgvarg[p].bstrVal );
-    }
+    for ( p = 0; p < slotcount; ++p )
+	VariantClear( params.rgvarg+p );
     delete [] params.rgvarg;
 
     return checkHRESULT( hres, &excepinfo, this, slot->name );
@@ -2436,16 +2429,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		UINT argerr = 0;
 		EXCEPINFO excepinfo;
 		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, &excepinfo, &argerr );
-		switch ( arg.vt )
-		{
-		case VT_BSTR:
-		    SysFreeString( arg.bstrVal );
-		    break;
-		case VT_DISPATCH:
-		    if ( arg.pdispVal && _v->type() == QVariant::Font )
-			arg.pdispVal->Release();
-		    break;
-		}
+		VariantClear( &arg );
 
 		return checkHRESULT( hres, &excepinfo, this, prop->n );
 	    }
@@ -2465,6 +2449,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 
 		// map result VARIANTARG to QVariant
 		*_v = VARIANTToQVariant( arg, prop->type() );
+		VariantClear( &arg );
 		return ( _v->isValid() );
 	    }
 	case 2: // Reset
@@ -2617,10 +2602,8 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, &excepinfo, 0 );
 
     // clean up
-    for ( int i = 0; i < varc; ++i ) {
-	if ( params.rgvarg[i].vt == VT_BSTR )
-	    SysFreeString( params.rgvarg[i].bstrVal );
-    }
+    for ( int i = 0; i < varc; ++i )
+	VariantClear( params.rgvarg+i );
     delete[] arg;
 
     return checkHRESULT( hres, &excepinfo, this, function );
@@ -2692,10 +2675,10 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
     if ( !internalInvoke( function, &res, vars ) )
 	return QVariant();
 
-    if ( res.vt == VT_BSTR )
-	SysFreeString( res.bstrVal );
+    QVariant qvar = VARIANTToQVariant( res );
+    VariantClear( &res );
 
-    return VARIANTToQVariant( res );
+    return qvar;
 }
 
 /*!
@@ -2783,6 +2766,7 @@ QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var1,
 	break;
     }
 
+    VariantClear( &res );
     return object;
 }
 
