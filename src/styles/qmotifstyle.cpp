@@ -224,13 +224,34 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ExclusiveIndicator:
 	{
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-	    static QCOORD inner_pts[] =         // used for filling diamond
-		{ 2,6, 6,2, 10,6, 6,10 };
-	    static QCOORD top_pts[] =           // top (^) of diamond
-		{ 0,6, 6,0 , 11,5, 10,5, 6,1, 1,6, 2,6, 6,2, 9,5 };
-	    static QCOORD bottom_pts[] =                // bottom (V) of diamond
-		{ 1,7, 6,12, 12,6, 11,6, 6,11, 2,7, 3,7, 6,10, 10,6 };
-
+	    static QCOORD inner_pts[] = { // used for filling diamond
+		2,r.height()/2,
+		r.width()/2,2,
+		r.width()-3,r.height()/2,
+		r.width()/2,r.height()-3
+	    };
+	    static QCOORD top_pts[] = { // top (^) of diamond
+		0,r.height()/2,
+		r.width()/2,0,
+		r.width()-2,r.height()/2-1,
+		r.width()-3,r.height()/2-1,
+		r.width()/2,1,
+		1,r.height()/2,
+		2,r.height()/2,
+		r.width()/2,2,
+		r.width()-4,r.height()/2-1
+	    };
+	    static QCOORD bottom_pts[] = { // bottom (v) of diamond
+		1,r.height()/2+1,
+		r.width()/2,r.height()-1,
+		r.width()-1,r.height()/2,
+		r.width()-2,r.height()/2,
+		r.width()/2,r.height()-2,
+		2,r.height()/2+1,
+		3,r.height()/2+1,
+		r.width()/2,r.height()-3,
+		r.width()-3,r.height()/2
+	    };
 	    bool on = flags & Style_On;
 	    bool down = flags & Style_Down;
 	    bool showUp = !(down ^ on );
@@ -640,7 +661,7 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_ProgressBarChunk:
 	p->fillRect( r.x(), r.y() + 2, r.width() - 2,
-	    r.height() - 4, cg.brush(QColorGroup::Highlight));
+		     r.height() - 4, cg.brush(QColorGroup::Highlight));
 	break;
 
     default:
@@ -1348,6 +1369,11 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 
     case PM_ProgressBarChunkWidth:
 	ret = 1;
+	break;
+
+    case PM_ExclusiveIndicatorWidth:
+    case PM_ExclusiveIndicatorHeight:
+	ret = 13;
 	break;
 
     default:
