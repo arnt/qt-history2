@@ -796,7 +796,7 @@ void QFtp::dataReadyRead()
 	    if ( !inf.name().isEmpty() ) {
 		if ( url() ) {
 		    QRegExp filt( url()->nameFilter(), FALSE, TRUE );
-		    if ( inf.isDir() || filt.match( inf.name() ) ) {
+		    if ( inf.isDir() || filt.search( inf.name() ) != -1 ) {
 			emit newChild( inf, operationInProgress() );
 		    }
 		}
