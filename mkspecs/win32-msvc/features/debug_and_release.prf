@@ -1,0 +1,5 @@
+equals(TEMPLATE_PREFIX, "vc")|equals(TEMPLATE,vcapp)|equals(TEMPLATE,vclib) {
+#   debug(2, "debug_and_release disabled for msvc dsp files")
+} else {
+    load(debug_and_release)
+}

@@ -1,4 +1,4 @@
-!contains(TEMPLATE, subdirs):!win32-msvc:!macx-xcode {
+!contains(TEMPLATE, subdirs):!macx-xcode {
     !build_pass {
         # This block is executed the first time qmake runs over the
         # project, since build_pass in not set in CONFIG. As a result
