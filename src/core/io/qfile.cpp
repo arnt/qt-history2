@@ -798,7 +798,7 @@ QFile::open(OpenMode mode)
         qWarning("QIODevice::open: File access not specified");
         return false;
     }
-    if (fileEngine()->open(openMode())) {
+    if (fileEngine()->open(mode)) {
         setOpenMode(mode);
         return true;
     }
@@ -832,21 +832,21 @@ QFile::open(OpenMode mode)
 */
 
 bool
-QFile::open(OpenMode flags, int fd)
+QFile::open(OpenMode mode, int fd)
 {
     if (isOpen()) {
         qWarning("QFile::open: File already open");
         return false;
     }
-    if (flags & Append)
-        flags |= WriteOnly;
+    if (mode & Append)
+        mode |= WriteOnly;
     unsetError();
-    if ((flags & (ReadOnly | WriteOnly)) == 0) {
+    if ((mode & (ReadOnly | WriteOnly)) == 0) {
         qWarning("QFile::open: File access not specified");
         return false;
     }
-    if(d->openExternalFile(openMode(), fd)) {
-        setOpenMode(flags);
+    if(d->openExternalFile(mode, fd)) {
+        setOpenMode(mode);
         return true;
     }
     return false;
