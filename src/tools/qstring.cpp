@@ -15849,10 +15849,25 @@ bool operator>=( const QString &s1, const QString &s2 )
 
 
 bool operator==( const QString &s1, const char *s2 )
-{ return s1==QString(s2); }
+{ 
+    if ( !s2 )
+	return s1.isNull();
+    
+    int len = s1.length();
+    const QChar *uc = s1.unicode();
+    while( len ) {
+	if ( !(*s2) || uc->unicode() != *s2 ) {
+	    break;
+	}
+	++uc;
+	++s2;
+	--len;
+    }
+    return (len ? FALSE : (*s2) ? FALSE : TRUE);
+}
 
 bool operator==( const char *s1, const QString &s2 )
-{ return QString(s1)==s2; }
+{ return (s2 == s1 ); }
 
 bool operator!=( const QString &s1, const char *s2 )
 { return !(s1==s2); }
