@@ -34,6 +34,7 @@ void QToolBarPrivate::init()
     q->setFrameStyle(QFrame::ToolBarPanel | QFrame::Raised);
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
+    layout->setMargin(0);
     layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, q));
 
     handle = new QToolBarHandle(q);
