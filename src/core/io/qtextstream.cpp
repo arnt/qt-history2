@@ -519,7 +519,7 @@ inline static int ts_end(const QChar *c, uint len, uchar flags)
     of the file. EOF is reached when the return value does not equal
     \a len.
 */
-QTextStreamPrivate::QTextStreamPrivate::GetBufEnd 
+QTextStreamPrivate::GetBufEnd 
 QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
 {
     if (len < 1) {
@@ -556,7 +556,7 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
 
     //read from the device
     const int leaveEnd = (end_flags & TS_MOD_CONSUME) ? 0 : 1;
-    QTextStreamPrivate::GetBufEnd ret = QTextStreamPrivate::QTextStreamPrivate::TS_END_UNKNOWN;
+    QTextStreamPrivate::GetBufEnd ret = QTextStreamPrivate::TS_END_UNKNOWN;
     int rnum = 0;   // the number of QChars really read
 
     if (d->doUnicodeHeader) {
