@@ -93,14 +93,18 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     d->glFormat.setDoubleBuffer(res);
     aglDescribePixelFormat(fmt, AGL_DEPTH_SIZE, &res);
     d->glFormat.setDepth(res);
+    d->glFOrmat.setDepthBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_RGBA, &res);
     d->glFormat.setRgba(res);
     aglDescribePixelFormat(fmt, AGL_ALPHA_SIZE, &res);
     d->glFormat.setAlpha(res);
+    d->glFOrmat.setAlphaBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_ACCUM_RED_SIZE, &res);
     d->glFormat.setAccum(res);
+    d->glFOrmat.setAccumBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_STENCIL_SIZE, &res);
     d->glFormat.setStencil(res);
+    d->glFOrmat.setStencilBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_STEREO, &res);
     d->glFormat.setStereo(res);
 
@@ -160,16 +164,30 @@ void *QGLContext::chooseMacVisual(GDHandle device)
         attribs[cnt++] = AGL_STEREO;
     {
         attribs[cnt++] = AGL_RGBA;
-        attribs[cnt++] = AGL_DEPTH_SIZE;
+        attribs[cnt++] = AGL_BUFFER_SIZE;
         attribs[cnt++] = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 32;
     }
     if(d->glFormat.alpha()) {
         attribs[cnt++] = AGL_ALPHA_SIZE;
-        attribs[cnt++] = 8;
+        attribs[cnt++] = d->glFormat.alphaBufferSize() == 1 ? 8 : d->glFormat.alphaBufferSize();
     }
     if(d->glFormat.stencil()) {
         attribs[cnt++] = AGL_STENCIL_SIZE;
-        attribs[cnt++] = 4;
+        attribs[cnt++] = d->glFormat.stencilBufferSize() == 1 ? 4 : d->glFormat.stencilBufferSize();
+    }
+    if(d->glFormat.depth()) {
+        attribs[cnt++] = AGL_DEPTH_SIZE;
+        attribs[cnt++] = d->glFormat.depthBufferSize() == 1 ? 32 : d->glFormat.depthBufferSize();
+    }
+    if(d->glFormat.accum()) {
+        attribs[cnt++] = AGL_ACCUM_RED_SIZE;
+        attribs[cnt++] = d->glFormat.accumBufferSize() == 1 ? 16 : d->glFormat.accumBufferSize();
+        attribs[cnt++] = AGL_ACCUM_BLUE_SIZE;
+        attribs[cnt++] = d->glFormat.accumBufferSize() == 1 ? 16 : d->glFormat.accumBufferSize();
+        attribs[cnt++] = AGL_ACCUM_GREEN_SIZE;
+        attribs[cnt++] = d->glFormat.accumBufferSize() == 1 ? 16 : d->glFormat.accumBufferSize();
+        attribs[cnt++] = AGL_ACCUM_ALPHA_SIZE;
+        attribs[cnt++] = d->glFormat.accumBufferSize() == 1 ? 16 : d->glFormat.accumBufferSize();
     }
     {
         attribs[cnt++] = AGL_LEVEL;
