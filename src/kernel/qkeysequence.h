@@ -81,7 +81,7 @@ public:
 
 private:
     static int decodeString( const QString & );
-    static QString QKeySequence::encodeString( int );
+    static QString encodeString( int );
     int assign( QString );
     void setKey( int key, int index );
 
