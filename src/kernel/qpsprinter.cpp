@@ -2109,20 +2109,30 @@ static void makeFixedStrings()
 
 class QPSPrinterFontPrivate;
 
-struct QPSPrinterPrivate {
-    QPSPrinterPrivate( int filedes )
-        : buffer( 0 ), realDevice( 0 ), fd( filedes ), fonts(27, FALSE), fontBuffer(0), savedImage( 0 ),
-          dirtypen( FALSE ), dirtybrush( FALSE ), currentFontCodec( 0 ),
-          fm( 0 ), textY( 0 )
-    {
-        headerFontNames.setAutoDelete( TRUE );
-        pageFontNames.setAutoDelete( TRUE );
-        fonts.setAutoDelete( TRUE );
-        currentFontFile = 0;
-        scale = 1.;
-        scriptUsed = -1;
-    }
+class QPSPrinterPrivate {
+public:
+    QPSPrinterPrivate( QPrinter *prt, int filedes );
 
+    void matrixSetup( QPainter * );
+    void clippingSetup( QPainter * );
+    void setClippingOff( QPainter * );
+    void orientationSetup();
+    void newPageSetup( QPainter * );
+    void resetDrawingTools( QPainter * );
+    void emitHeader( bool finished );
+    void setFont( const QFont &, int script );
+    void drawImage( QPainter *, const QPoint &, const QImage & );
+
+    QPrinter   *printer;
+    QTextStream stream;
+    int         pageCount;
+    bool        dirtyMatrix;
+    bool        dirtyNewPage;
+    bool        epsf;
+    QString     fontsUsed;
+
+    // stores the descriptions of the first pages. QPSPrinter::stream operates on this buffer
+    // until we call emitHeader
     QBuffer * buffer;
     int pagesInBuffer;
     QIODevice * realDevice;
@@ -2152,27 +2162,6 @@ struct QPSPrinterPrivate {
     QFont currentSet;
     float scale;
 };
-
-
-
-QPSPrinter::QPSPrinter( QPrinter *prt, int fd )
-    : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
-{
-    printer = prt;
-    d = new QPSPrinterPrivate( fd );
-}
-
-
-QPSPrinter::~QPSPrinter()
-{
-    if ( d->fd >= 0 )
-#if defined(_OS_WIN32_)
-        ::_close( d->fd );
-#else
-        ::close( d->fd );
-#endif
-    delete d;
-}
 
 
 // ========================== FONT CLASSES  ===============
@@ -2825,379 +2814,383 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
 
 void QPSPrinterFontTTF::download(QTextStream& s,bool global)
 {
-  global_dict = global;
-  downloaded  = TRUE;
+    qDebug("target type=%d", target_type);
+    global_dict = global;
+    QIntDict<unsigned short> *subsetDict = &subset;
+    if ( !global )
+        subsetDict = &page_subset;
+
+    downloaded  = TRUE;
 
     emitPSFontNameList( s, psname, replacementList );
-  if (defective) {
-    s << "% Font ";
-    s << FullName;
-    s << " cannot be downloaded\n";
-    return;
-  }
-
-  // === write header ===
-  int VMMin;
-  int VMMax;
-
-  s << "%%BeginFont: ";
-  s << FullName;
-  s << "\n";
-  if( target_type == 42 ) {
-    s << "%!PS-TrueTypeFont-"
-      << TTVersion.whole
-      << "."
-      << TTVersion.fraction
-      << "-"
-      << MfrRevision.whole
-      << "."
-      << MfrRevision.fraction
-      << "\n";
-  } else {
-    /* If it is not a Type 42 font, we will use a different format. */
-    s << "%!PS-Adobe-3.0 Resource-Font\n";
-  }     /* See RBIIp 641 */
-
-  if( Copyright != (char*)NULL ) {
-    s << "%%Copyright: ";
-    s << Copyright;
-    s << "\n";
-  }
-
-  if( target_type == 42 )
-    s << "%%Creator: Converted from TrueType to type 42 by Qt using PPR\n";
-  else
-    s << "%%Creator: Converted from TrueType by Qt using PPR\n";
-
-  /* If VM usage information is available, print it. */
-  if( target_type == 42 && post_table)
-    {
-      VMMin = (int)getULONG( post_table + 16 );
-      VMMax = (int)getULONG( post_table + 20 );
-      if( VMMin > 0 && VMMax > 0 )
-        s << "%%VMUsage: " << VMMin << " " << VMMax << "\n";
+    if (defective) {
+        s << "% Font ";
+        s << FullName;
+        s << " cannot be downloaded\n";
+        return;
     }
 
-  /* Start the dictionary which will eventually */
-  /* become the font. */
-  if( target_type != 3 ) {
-    s << "15 dict begin\n";
-  }  else {
-    s << "25 dict begin\n";
+    // === write header ===
+    int VMMin;
+    int VMMax;
 
-    /* Type 3 fonts will need some subroutines here. */
-    s << "/_d{bind def}bind def\n";
-    s << "/_m{moveto}_d\n";
-    s << "/_l{lineto}_d\n";
-    s << "/_cl{closepath eofill}_d\n";
-    s << "/_c{curveto}_d\n";
-    s << "/_sc{7 -1 roll{setcachedevice}{pop pop pop pop pop pop}ifelse}_d\n";
-    s << "/_e{exec}_d\n";
-  }
+    s << "%%BeginFont: ";
+    s << FullName;
+    s << "\n";
+    if( target_type == 42 ) {
+        s << "%!PS-TrueTypeFont-"
+          << TTVersion.whole
+          << "."
+          << TTVersion.fraction
+          << "-"
+          << MfrRevision.whole
+          << "."
+          << MfrRevision.fraction
+          << "\n";
+    } else {
+        /* If it is not a Type 42 font, we will use a different format. */
+        s << "%!PS-Adobe-3.0 Resource-Font\n";
+    }     /* See RBIIp 641 */
 
-  s << "/FontName /";
-  s << psname;
-  s << " def\n";
-  s << "/PaintType 0 def\n";
+    if( Copyright != (char*)NULL ) {
+        s << "%%Copyright: ";
+        s << Copyright;
+        s << "\n";
+    }
 
-  if(target_type == 42)
-    s << "/FontMatrix[1 0 0 1 0 0]def\n";
-  else
-    s << "/FontMatrix[.001 0 0 .001 0 0]def\n";
+    if( target_type == 42 )
+        s << "%%Creator: Converted from TrueType to type 42 by Qt using PPR\n";
+    else
+        s << "%%Creator: Converted from TrueType by Qt using PPR\n";
 
-  s << "/FontBBox[";
-  s<< llx;
-  s << " ";
-  s<< lly;
-  s << " ";
-  s<< urx;
-  s << " ";
-  s<< ury;
-  s << "]def\n";
+    /* If VM usage information is available, print it. */
+    if( target_type == 42 && post_table)
+    {
+        VMMin = (int)getULONG( post_table + 16 );
+        VMMax = (int)getULONG( post_table + 20 );
+        if( VMMin > 0 && VMMax > 0 )
+            s << "%%VMUsage: " << VMMin << " " << VMMax << "\n";
+    }
 
-  s << "/FontType ";
-  s<< target_type;
-  s << " def\n";
+    /* Start the dictionary which will eventually */
+    /* become the font. */
+    if( target_type != 3 ) {
+        s << "15 dict begin\n";
+    }  else {
+        s << "25 dict begin\n";
 
-  // === write encoding ===
+        /* Type 3 fonts will need some subroutines here. */
+        s << "/_d{bind def}bind def\n";
+        s << "/_m{moveto}_d\n";
+        s << "/_l{lineto}_d\n";
+        s << "/_cl{closepath eofill}_d\n";
+        s << "/_c{curveto}_d\n";
+        s << "/_sc{7 -1 roll{setcachedevice}{pop pop pop pop pop pop}ifelse}_d\n";
+        s << "/_e{exec}_d\n";
+    }
 
-  s << "/Encoding StandardEncoding def\n";
+    s << "/FontName /";
+    s << psname;
+    s << " def\n";
+    s << "/PaintType 0 def\n";
 
-  // === write fontinfo dict ===
+    if(target_type == 42)
+        s << "/FontMatrix[1 0 0 1 0 0]def\n";
+    else
+        s << "/FontMatrix[.001 0 0 .001 0 0]def\n";
 
-  /* We create a sub dictionary named "FontInfo" where we */
-  /* store information which though it is not used by the */
-  /* interpreter, is useful to some programs which will */
-  /* be printing with the font. */
-  s << "/FontInfo 10 dict dup begin\n";
+    s << "/FontBBox[";
+    s<< llx;
+    s << " ";
+    s<< lly;
+    s << " ";
+    s<< urx;
+    s << " ";
+    s<< ury;
+    s << "]def\n";
 
-  /* These names come from the TrueType font's "name" table. */
-  s << "/FamilyName (";
-  s << FamilyName;
-  s << ") def\n";
+    s << "/FontType ";
+    s<< target_type;
+    s << " def\n";
 
-  s << "/FullName (";
-  s << FullName;
-  s << ") def\n";
+    // === write encoding ===
 
-  s << "/Notice (";
-  s << Copyright;
-  s << " ";
-  s << Trademark;
-  s << ") def\n";
+    s << "/Encoding StandardEncoding def\n";
 
-  /* This information is not quite correct. */
-  s << "/Weight (";
-  s << Style;
-  s << ") def\n";
+    // === write fontinfo dict ===
 
-  /* Some fonts have this as "version". */
-  s << "/Version (";
-  s << Version;
-  s << ") def\n";
+    /* We create a sub dictionary named "FontInfo" where we */
+    /* store information which though it is not used by the */
+    /* interpreter, is useful to some programs which will */
+    /* be printing with the font. */
+    s << "/FontInfo 10 dict dup begin\n";
 
-  /* Some information from the "post" table. */
-  if ( post_table ) {
-      Fixed ItalicAngle = getFixed( post_table + 4 );
-      s << "/ItalicAngle ";
-      s << ItalicAngle.whole;
-      s << ".";
-      s << ItalicAngle.fraction;
-      s << " def\n";
+    /* These names come from the TrueType font's "name" table. */
+    s << "/FamilyName (";
+    s << FamilyName;
+    s << ") def\n";
 
-      s << "/isFixedPitch ";
-      s << (getULONG( post_table + 12 ) ? "true" : "false" );
-      s << " def\n";
+    s << "/FullName (";
+    s << FullName;
+    s << ") def\n";
 
-      s << "/UnderlinePosition ";
-      s << (int)getFWord( post_table + 8 );
-      s << " def\n";
+    s << "/Notice (";
+    s << Copyright;
+    s << " ";
+    s << Trademark;
+    s << ") def\n";
 
-      s << "/UnderlineThickness ";
-      s << (int)getFWord( post_table + 10 );
-  s << " def\n";
-  }
-  s << "end readonly def\n";
+    /* This information is not quite correct. */
+    s << "/Weight (";
+    s << Style;
+    s << ") def\n";
+
+    /* Some fonts have this as "version". */
+    s << "/Version (";
+    s << Version;
+    s << ") def\n";
+
+    /* Some information from the "post" table. */
+    if ( post_table ) {
+        Fixed ItalicAngle = getFixed( post_table + 4 );
+        s << "/ItalicAngle ";
+        s << ItalicAngle.whole;
+        s << ".";
+        s << ItalicAngle.fraction;
+        s << " def\n";
+
+        s << "/isFixedPitch ";
+        s << (getULONG( post_table + 12 ) ? "true" : "false" );
+        s << " def\n";
+
+        s << "/UnderlinePosition ";
+        s << (int)getFWord( post_table + 8 );
+        s << " def\n";
+
+        s << "/UnderlineThickness ";
+        s << (int)getFWord( post_table + 10 );
+        s << " def\n";
+    }
+    s << "end readonly def\n";
 
 #ifdef Q_PRINTER_USE_TYPE42
-  /* If we are generating a type 42 font, */
-  /* emmit the sfnts array. */
-  if( target_type == 42 )
-    download_sfnts(s);
+    /* If we are generating a type 42 font, */
+    /* emmit the sfnts array. */
+    if( target_type == 42 )
+        download_sfnts(s);
 #endif
-  /* If we are generating a Type 3 font, we will need to */
-  /* have the 'loca' and 'glyf' tables arround while */
-  /* we are generating the CharStrings. */
-  if(target_type == 3)
+    /* If we are generating a Type 3 font, we will need to */
+    /* have the 'loca' and 'glyf' tables arround while */
+    /* we are generating the CharStrings. */
+    if(target_type == 3)
     {
-      BYTE *ptr;                        /* We need only one value */
-      ptr = getTable("hhea");
-      numberOfHMetrics = getUSHORT(ptr + 34);
+        BYTE *ptr;                        /* We need only one value */
+        ptr = getTable("hhea");
+        numberOfHMetrics = getUSHORT(ptr + 34);
 
-      loca_table = getTable("loca");
-      glyf_table = getTable("glyf");
-      hmtx_table = getTable("hmtx");
+        loca_table = getTable("loca");
+        glyf_table = getTable("glyf");
+        hmtx_table = getTable("hmtx");
     }
 
-  // ===  CharStrings array ===
+    // ===  CharStrings array ===
 
-  // subsetting. We turn a char subset into a glyph subset
-  // and we mark as used the base glyphs of used composite glyphs.
+    // subsetting. We turn a char subset into a glyph subset
+    // and we mark as used the base glyphs of used composite glyphs.
 
+    bool glyphset[65536];
+    for(int c=0; c < 65536; c++)
+        glyphset[c] = FALSE;
+    glyphset[0] = TRUE; // always output .notdef
 
-  bool glyphset[65536];
-  for(int c=0; c < 65536; c++)
-      glyphset[c] = FALSE;
-  glyphset[0] = TRUE; // always output .notdef
-
-  for(int c=0; c < 65536; c++) {
-      if ( subset[c] && glyph_for_unicode( c ) ) {
-          subsetGlyph( glyph_for_unicode( c ), glyphset );
-       }
-  }
-  int nGlyphs = numGlyphs;
-  if ( target_type == 3 ) {
-      for(int c=0; c < 65536; c++)
-          if ( glyphset[c] ) nGlyphs++;
-  }
-
-  // ### number is incorrect!
-  s << "/CharStrings ";
-  s << nGlyphs;
-  s << " dict dup begin\n";
-
-  // Emmit one key-value pair for each glyph.
-  for(int x=0; x < 65536; x++) {
-    if(target_type == 42) {
-      s << "/";
-      s << glyphName( x );
-      s << " ";
-      s << x;
-      s << " def\n";
-    } else { /* type 3 */
-      if (!glyphset[x]) continue;
-
-      s << "/";
-      s << glyphName( x );
-      s << "{";
-      charproc(x,s);
-      s << "}_d\n";     /* "} bind def" */
+    for(int c=0; c < 65536; c++) {
+        if ( (*subsetDict)[c] && glyph_for_unicode( c ) ) {
+            subsetGlyph( glyph_for_unicode( c ), glyphset );
+        }
     }
-  }
+    int nGlyphs = numGlyphs;
+    if ( target_type == 3 ) {
+        nGlyphs = 0;;
+        for(int c=0; c < 65536; c++)
+            if ( glyphset[c] ) nGlyphs++;
+    }
 
-  s << "end readonly def\n";
+    s << "/CharStrings ";
+    s << nGlyphs;
+    s << " dict dup begin\n";
 
-  // === trailer ===
+    // Emmit one key-value pair for each glyph.
+    for(int x=0; x < 65536; x++) {
+        if(target_type == 42) {
+            s << "/";
+            s << glyphName( x );
+            s << " ";
+            s << x;
+            s << " def\n";
+        } else { /* type 3 */
+            if (!glyphset[x]) continue;
 
-  /* If we are generating a type 3 font, we need to provide */
-  /* a BuildGlyph and BuildChar proceedures. */
-  if( target_type == 3 ) {
-    s << "\n";
+            s << "/";
+            s << glyphName( x );
+            s << "{";
+            charproc(x,s);
+            s << "}_d\n";     /* "} bind def" */
+        }
+    }
 
-    s << "/BuildGlyph\n";
-    s << " {exch begin\n";              /* start font dictionary */
-    s << " CharStrings exch\n";
-    s << " 2 copy known not{pop /.notdef}if\n";
-    s << " true 3 1 roll get exec\n";
-    s << " end}_d\n";
+    s << "end readonly def\n";
 
-    s << "\n";
+    // === trailer ===
 
-    /* This proceedure is for compatiblity with */
-    /* level 1 interpreters. */
-    s << "/BuildChar {\n";
-    s << " 1 index /Encoding get exch get\n";
-    s << " 1 index /BuildGlyph get exec\n";
-    s << "}_d\n";
+    /* If we are generating a type 3 font, we need to provide */
+    /* a BuildGlyph and BuildChar proceedures. */
+    if( target_type == 3 ) {
+        s << "\n";
 
-    s << "\n";
+        s << "/BuildGlyph\n";
+        s << " {exch begin\n";              /* start font dictionary */
+        s << " CharStrings exch\n";
+        s << " 2 copy known not{pop /.notdef}if\n";
+        s << " true 3 1 roll get exec\n";
+        s << " end}_d\n";
 
-  }
+        s << "\n";
 
-  /* If we are generating a type 42 font, we need to check to see */
-  /* if this PostScript interpreter understands type 42 fonts.  If */
-  /* it doesn't, we will hope that the Apple TrueType rasterizer */
-  /* has been loaded and we will adjust the font accordingly. */
-  /* I found out how to do this by examining a TrueType font */
-  /* generated by a Macintosh.  That is where the TrueType interpreter */
-  /* setup instructions and part of BuildGlyph came from. */
-  else if( target_type == 42 ) {
-    s << "\n";
+        /* This proceedure is for compatiblity with */
+        /* level 1 interpreters. */
+        s << "/BuildChar {\n";
+        s << " 1 index /Encoding get exch get\n";
+        s << " 1 index /BuildGlyph get exec\n";
+        s << "}_d\n";
 
-    /* If we have no "resourcestatus" command, or FontType 42 */
-    /* is unknown, leave "true" on the stack. */
-    s << "systemdict/resourcestatus known\n";
-    s << " {42 /FontType resourcestatus\n";
-    s << "   {pop pop false}{true}ifelse}\n";
-    s << " {true}ifelse\n";
+        s << "\n";
 
-    /* If true, execute code to produce an error message if */
-    /* we can't find Apple's TrueDict in VM. */
-    s << "{/TrueDict where{pop}{(%%[ Error: no TrueType rasterizer ]%%)= flush}ifelse\n";
+    }
 
-    /* Since we are expected to use Apple's TrueDict TrueType */
-    /* reasterizer, change the font type to 3. */
-    s << "/FontType 3 def\n";
+    /* If we are generating a type 42 font, we need to check to see */
+    /* if this PostScript interpreter understands type 42 fonts.  If */
+    /* it doesn't, we will hope that the Apple TrueType rasterizer */
+    /* has been loaded and we will adjust the font accordingly. */
+    /* I found out how to do this by examining a TrueType font */
+    /* generated by a Macintosh.  That is where the TrueType interpreter */
+    /* setup instructions and part of BuildGlyph came from. */
+    else if( target_type == 42 ) {
+        s << "\n";
 
-    /* Define a string to hold the state of the Apple */
-    /* TrueType interpreter. */
-    s << " /TrueState 271 string def\n";
+        /* If we have no "resourcestatus" command, or FontType 42 */
+        /* is unknown, leave "true" on the stack. */
+        s << "systemdict/resourcestatus known\n";
+        s << " {42 /FontType resourcestatus\n";
+        s << "   {pop pop false}{true}ifelse}\n";
+        s << " {true}ifelse\n";
 
-    /* It looks like we get information about the resolution */
-    /* of the printer and store it in the TrueState string. */
-    s << " TrueDict begin sfnts save\n";
-    s << " 72 0 matrix defaultmatrix dtransform dup\n";
-    s << " mul exch dup mul add sqrt cvi 0 72 matrix\n";
-    s << " defaultmatrix dtransform dup mul exch dup\n";
-    s << " mul add sqrt cvi 3 -1 roll restore\n";
-    s << " TrueState initer end\n";
+        /* If true, execute code to produce an error message if */
+        /* we can't find Apple's TrueDict in VM. */
+        s << "{/TrueDict where{pop}{(%%[ Error: no TrueType rasterizer ]%%)= flush}ifelse\n";
 
-    /* This BuildGlyph procedure will look the name up in the */
-    /* CharStrings array, and then check to see if what it gets */
-    /* is a procedure.  If it is, it executes it, otherwise, it */
-    /* lets the TrueType rasterizer loose on it. */
+        /* Since we are expected to use Apple's TrueDict TrueType */
+        /* reasterizer, change the font type to 3. */
+        s << "/FontType 3 def\n";
 
-    /* When this proceedure is executed the stack contains */
-    /* the font dictionary and the character name.  We */
-    /* exchange arguments and move the dictionary to the */
-    /* dictionary stack. */
-    s << " /BuildGlyph{exch begin\n";
-    /* stack: charname */
+        /* Define a string to hold the state of the Apple */
+        /* TrueType interpreter. */
+        s << " /TrueState 271 string def\n";
 
-    /* Put two copies of CharStrings on the stack and consume */
-    /* one testing to see if the charname is defined in it, */
-    /* leave the answer on the stack. */
-    s << "  CharStrings dup 2 index known\n";
-    /* stack: charname CharStrings bool */
+        /* It looks like we get information about the resolution */
+        /* of the printer and store it in the TrueState string. */
+        s << " TrueDict begin sfnts save\n";
+        s << " 72 0 matrix defaultmatrix dtransform dup\n";
+        s << " mul exch dup mul add sqrt cvi 0 72 matrix\n";
+        s << " defaultmatrix dtransform dup mul exch dup\n";
+        s << " mul add sqrt cvi 3 -1 roll restore\n";
+        s << " TrueState initer end\n";
 
-    /* Exchange the CharStrings dictionary and the charname, */
-    /* but if the answer was false, replace the character name */
-    /* with ".notdef". */
-    s << "    {exch}{exch pop /.notdef}ifelse\n";
-    /* stack: CharStrings charname */
+        /* This BuildGlyph procedure will look the name up in the */
+        /* CharStrings array, and then check to see if what it gets */
+        /* is a procedure.  If it is, it executes it, otherwise, it */
+        /* lets the TrueType rasterizer loose on it. */
 
-    /* Get the value from the CharStrings dictionary and see */
-    /* if it is executable. */
-    s << "  get dup xcheck\n";
-    /* stack: CharStrings_entry */
+        /* When this proceedure is executed the stack contains */
+        /* the font dictionary and the character name.  We */
+        /* exchange arguments and move the dictionary to the */
+        /* dictionary stack. */
+        s << " /BuildGlyph{exch begin\n";
+        /* stack: charname */
 
-    /* If is a proceedure.  Execute according to RBIIp 277-278. */
-    s << "    {currentdict systemdict begin begin exec end end}\n";
+        /* Put two copies of CharStrings on the stack and consume */
+        /* one testing to see if the charname is defined in it, */
+        /* leave the answer on the stack. */
+        s << "  CharStrings dup 2 index known\n";
+        /* stack: charname CharStrings bool */
 
-    /* Is a TrueType character index, let the rasterizer at it. */
-    s << "    {TrueDict begin /bander load cvlit exch TrueState render end}\n";
+        /* Exchange the CharStrings dictionary and the charname, */
+        /* but if the answer was false, replace the character name */
+        /* with ".notdef". */
+        s << "    {exch}{exch pop /.notdef}ifelse\n";
+        /* stack: CharStrings charname */
 
-    s << "    ifelse\n";
+        /* Get the value from the CharStrings dictionary and see */
+        /* if it is executable. */
+        s << "  get dup xcheck\n";
+        /* stack: CharStrings_entry */
 
-    /* Pop the font's dictionary off the stack. */
-    s << " end}bind def\n";
+        /* If is a proceedure.  Execute according to RBIIp 277-278. */
+        s << "    {currentdict systemdict begin begin exec end end}\n";
 
-    /* This is the level 1 compatibility BuildChar procedure. */
-    /* See RBIIp 281. */
-    s << " /BuildChar{\n";
-    s << "  1 index /Encoding get exch get\n";
-    s << "  1 index /BuildGlyph get exec\n";
-    s << " }bind def\n";
+        /* Is a TrueType character index, let the rasterizer at it. */
+        s << "    {TrueDict begin /bander load cvlit exch TrueState render end}\n";
 
-    /* Here we close the condition which is true */
-    /* if the printer has no built-in TrueType */
-    /* rasterizer. */
-    s << "}if\n";
-    s << "\n";
-  } /* end of if Type 42 not understood. */
+        s << "    ifelse\n";
 
-  s << "FontName currentdict end definefont pop\n";
+        /* Pop the font's dictionary off the stack. */
+        s << " end}bind def\n";
 
-  downloadMapping(s, global);
-  s << "%%EndFont\n";
+        /* This is the level 1 compatibility BuildChar procedure. */
+        /* See RBIIp 281. */
+        s << " /BuildChar{\n";
+        s << "  1 index /Encoding get exch get\n";
+        s << "  1 index /BuildGlyph get exec\n";
+        s << " }bind def\n";
+
+        /* Here we close the condition which is true */
+        /* if the printer has no built-in TrueType */
+        /* rasterizer. */
+        s << "}if\n";
+        s << "\n";
+    } /* end of if Type 42 not understood. */
+
+    s << "FontName currentdict end definefont pop\n";
+
+    downloadMapping(s, global);
+    s << "%%EndFont\n";
 }
 
 BYTE* QPSPrinterFontTTF::getTable(const char* name)
 {
-  BYTE *ptr;
-  int x;
+    BYTE *ptr;
+    int x;
 
-  /* We must search the table directory. */
-  ptr = offset_table + 12;
-  x=0;
-  while (x != numTables) {
-    if( strncmp((const char *)ptr,name,4) == 0 ) {
-      ULONG offset;
-      //ULONG length;
-      BYTE *table;
+    /* We must search the table directory. */
+    ptr = offset_table + 12;
+    x=0;
+    while (x != numTables) {
+        if( strncmp((const char *)ptr,name,4) == 0 ) {
+            ULONG offset;
+            //ULONG length;
+            BYTE *table;
 
-      offset = getULONG( ptr + 8 );
-      //length = getULONG( ptr + 12 );
+            offset = getULONG( ptr + 8 );
+            //length = getULONG( ptr + 12 );
 
-      table = offset_table + offset;
-      return table;
+            table = offset_table + offset;
+            return table;
+        }
+
+        x++;
+        ptr += 16;
     }
 
-    x++;
-    ptr += 16;
-  }
-
-  return 0;
+    return 0;
 }
 
 QString QPSPrinterFontTTF::glyphName(unsigned short charindex)
@@ -5115,7 +5108,22 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
 // ================= END OF PS FONT METHODS ============
 
-void QPSPrinter::setFont( const QFont & fnt, int script )
+
+QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
+    : buffer( 0 ), realDevice( 0 ), fd( filedes ), fonts(27, FALSE), fontBuffer(0), savedImage( 0 ),
+      dirtypen( FALSE ), dirtybrush( FALSE ), currentFontCodec( 0 ),
+      fm( 0 ), textY( 0 )
+{
+    printer = prt;
+    headerFontNames.setAutoDelete( TRUE );
+    pageFontNames.setAutoDelete( TRUE );
+    fonts.setAutoDelete( TRUE );
+    currentFontFile = 0;
+    scale = 1.;
+    scriptUsed = -1;
+}
+
+void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
 {
     QFont f = fnt;
     if ( f.rawMode() ) {
@@ -5135,7 +5143,7 @@ void QPSPrinter::setFont( const QFont & fnt, int script )
     if ( !fixed_ps_header )
         makeFixedStrings();
 
-    QPSPrinterFont ff( f, script, d );
+    QPSPrinterFont ff( f, script, this );
     QString ps = ff.postScriptFontName();
 
     QString s = ps;
@@ -5148,16 +5156,16 @@ void QPSPrinter::setFont( const QFont & fnt, int script )
 
     key.sprintf( "%s %d", ff.xfontname.ascii(), f.pointSize() );
     QString * tmp;
-    tmp = d->headerFontNames.find( key );
-    if ( !tmp && !d->buffer )
-        tmp = d->pageFontNames.find( key );
+    tmp = headerFontNames.find( key );
+    if ( !tmp && !buffer )
+        tmp = pageFontNames.find( key );
 
     QString fontName;
     if ( tmp )
         fontName = *tmp;
 
     if ( fontName.isEmpty() ) {
-        fontName = ff.defineFont( stream, ps, f, key, d );
+        fontName = ff.defineFont( stream, ps, f, key, this );
     }
     stream << fontName << " F\n";
 
@@ -5175,10 +5183,10 @@ void QPSPrinter::setFont( const QFont & fnt, int script )
 //          codec = QTextCodec::codecForMib( unicodevalues[i++].mib );
 //     } while( codec == 0 && unicodevalues[i++].cs != unicodevalues_LAST );
 // #endif
-    d->currentFont = fontName;
-    d->currentFontCodec = codec;
-    d->currentFontFile = ff.handle();
-    d->scriptUsed = script;
+    currentFont = fontName;
+    currentFontCodec = codec;
+    currentFontFile = ff.handle();
+    scriptUsed = script;
 }
 
 
@@ -5567,327 +5575,8 @@ static const char * psJoin( Qt::PenJoinStyle p ) {
 }
 
 
-bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
-{
-    if ( c == PdcBegin ) {              // start painting
-        d->pagesInBuffer = 0;
-        d->buffer = new QBuffer();
-        d->buffer->open( IO_WriteOnly );
-        stream.setEncoding( QTextStream::Latin1 );
-        stream.setDevice( d->buffer );
-        d->fontBuffer = new QBuffer();
-        d->fontBuffer->open( IO_WriteOnly );
-        d->fontStream.setEncoding( QTextStream::Latin1 );
-        d->fontStream.setDevice( d->fontBuffer );
-        d->headerFontNumber = 0;
-        pageCount           = 1;                // initialize state
-        dirtyMatrix         = TRUE;
-        d->dirtyClipping    = TRUE;
-        dirtyNewPage        = TRUE;
-        d->firstClipOnPage  = TRUE;
-        d->boundingBox = QRect( 0, 0, -1, -1 );
-        fontsUsed = QString::fromLatin1("");
 
-        d->fm = new QFontMetrics( paint->fontMetrics() );
-        QPaintDeviceMetrics m( printer );
-        d->scale = 72. / ((float) m.logicalDpiY());
-
-        stream << "%%Page: " << pageCount << " " << pageCount << endl
-            //nothing else to do here. We don't have page fonts for the first page.
-               << "%%BeginPageSetup\n"
-               << "QI\n"
-               << "%%EndPageSetup\n";
-        return TRUE;
-    }
-
-    if ( c == PdcEnd ) {                        // painting done
-        bool pageCountAtEnd = (d->buffer == 0);
-        if ( !pageCountAtEnd )
-            emitHeader( TRUE );
-        stream << "QP\n"
-               << "%%Trailer\n";
-        if ( pageCountAtEnd )
-            stream << "%%Pages: " << pageCount << "\n%%DocumentFonts: "
-                   << fontsUsed.simplifyWhiteSpace() << '\n';
-        stream << "%%EOF\n";
-        stream.unsetDevice();
-        d->realDevice->close();
-        if ( d->fd >= 0 )
-            ::close( d->fd );
-        d->fd = -1;
-        delete d->realDevice;
-        d->realDevice = 0;
-        delete d->fm;
-    }
-
-    if ( c >= PdcDrawFirst && c <= PdcDrawLast ) {
-        if ( !paint )
-            return FALSE; // sanity
-        if ( dirtyMatrix )
-            matrixSetup( paint );
-        if ( dirtyNewPage )
-            newPageSetup( paint );
-        if ( d->dirtyClipping ) // Must be after matrixSetup and newPageSetup
-            clippingSetup( paint );
-        if ( d->dirtypen ) {
-            // we special-case for narrow solid lines with the default
-            // cap and join styles
-            if ( d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 &&
-                 d->cpen.capStyle() == Qt::FlatCap &&
-                 d->cpen.joinStyle() == Qt::MiterJoin )
-                stream << color( d->cpen.color(), printer ) << "P1\n";
-            else
-                stream << (int)d->cpen.style() << ' ' << d->cpen.width()
-                       << ' ' << color( d->cpen.color(), printer )
-                       << psCap( d->cpen.capStyle() )
-                       << psJoin( d->cpen.joinStyle() ) << "PE\n";
-            d->dirtypen = FALSE;
-        }
-        if ( d->dirtybrush ) {
-            // we special-case for nobrush and solid white, since
-            // those are the two most common brushes
-            if ( d->cbrush.style() == Qt::NoBrush )
-                stream << "NB\n";
-            else if ( d->cbrush.style() == Qt::SolidPattern &&
-                      d->cbrush.color() == Qt::white )
-                stream << "WB\n";
-            else
-                stream << (int)d->cbrush.style() << ' '
-                       << color( d->cbrush.color(), printer ) << "BR\n";
-            d->dirtybrush = FALSE;
-        }
-    }
-
-    switch( c ) {
-    case PdcDrawPoint:
-        stream << POINT(0) << "P\n";
-        break;
-    case PdcMoveTo:
-        stream << POINT(0) << "M\n";
-        break;
-    case PdcLineTo:
-        stream << POINT(0) << "L\n";
-        break;
-    case PdcDrawLine:
-        if ( p[0].point->y() == p[1].point->y() )
-            stream << POINT(1) << p[0].point->x() << " HL\n";
-        else if ( p[0].point->x() == p[1].point->x() )
-            stream << POINT(1) << p[0].point->y() << " VL\n";
-        else
-            stream << POINT(1) << POINT(0) << "DL\n";
-        break;
-    case PdcDrawRect:
-        stream << RECT(0) << "R\n";
-        break;
-    case PdcDrawRoundRect:
-        stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "RR\n";
-        break;
-    case PdcDrawEllipse:
-        stream << RECT(0) << "E\n";
-        break;
-    case PdcDrawArc:
-        stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "A\n";
-        break;
-    case PdcDrawPie:
-        stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "PIE\n";
-        break;
-    case PdcDrawChord:
-        stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "CH\n";
-        break;
-    case PdcDrawLineSegments:
-        if ( p[0].ptarr->size() > 0 ) {
-            QPointArray a = *p[0].ptarr;
-            QPoint pt;
-            stream << "NP\n";
-            for ( int i=0; i<(int)a.size(); i+=2 ) {
-                pt = a.point( i );
-                stream << XCOORD(pt.x()) << ' '
-                       << YCOORD(pt.y()) << " MT\n";
-                pt = a.point( i+1 );
-                stream << XCOORD(pt.x()) << ' '
-                       << YCOORD(pt.y()) << " LT\n";
-            }
-            stream << "QS\n";
-        }
-        break;
-    case PdcDrawPolyline:
-        if ( p[0].ptarr->size() > 1 ) {
-            QPointArray a = *p[0].ptarr;
-            QPoint pt = a.point( 0 );
-            stream << "NP\n"
-                   << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
-            for ( int i=1; i<(int)a.size(); i++ ) {
-                pt = a.point( i );
-                stream << XCOORD(pt.x()) << ' '
-                       << YCOORD(pt.y()) << " LT\n";
-            }
-            stream << "QS\n";
-        }
-        break;
-    case PdcDrawPolygon:
-        if ( p[0].ptarr->size() > 2 ) {
-            QPointArray a = *p[0].ptarr;
-            if ( p[1].ival )
-                stream << "/WFi true d\n";
-            QPoint pt = a.point(0);
-            stream << "NP\n";
-            stream << XCOORD(pt.x()) << ' '
-                   << YCOORD(pt.y()) << " MT\n";
-            for( int i=1; i<(int)a.size(); i++) {
-                pt = a.point( i );
-                stream << XCOORD(pt.x()) << ' '
-                       << YCOORD(pt.y()) << " LT\n";
-            }
-            stream << "CP BF QS\n";
-            if ( p[1].ival )
-                stream << "/WFi false d\n";
-        }
-        break;
-    case PdcDrawCubicBezier:
-        if ( p[0].ptarr->size() == 4 ) {
-            stream << "NP\n";
-            QPointArray a = *p[0].ptarr;
-            stream << XCOORD(a[0].x()) << ' '
-                   << YCOORD(a[0].y()) << " MT ";
-            for ( int i=1; i<4; i++ ) {
-                stream << XCOORD(a[i].x()) << ' '
-                       << YCOORD(a[i].y()) << ' ';
-            }
-            stream << "BZ\n";
-        }
-        break;
-    case PdcDrawText2: {
-        uint spaces = 0;
-        QString tmp = *p[1].str;
-        int script = p[2].ival;
-        while( spaces < tmp.length() && tmp[(int)spaces] == ' ' )
-            spaces++;
-        if ( spaces )
-            tmp = tmp.mid( spaces, tmp.length() );
-        while ( tmp.length() > 0 && tmp[(int)tmp.length()-1].isSpace() )
-            tmp.truncate( tmp.length()-1 );
-        if( tmp.length() == 0 )
-            break;
-        if ( d->currentSet != d->currentUsed || d->scriptUsed != script || !d->currentFontFile ) {
-            d->currentUsed = d->currentSet;
-            setFont( d->currentSet, script );
-        }
-        if( d->currentFontFile ) // better not crash in case somethig goes wrong.
-            d->currentFontFile->drawText( stream, spaces, *p[0].point, tmp, d, paint);
-        break;
-    }
-    case PdcDrawText2Formatted:
-        return FALSE;                   // uses QPainter instead
-    case PdcDrawPixmap: {
-        if ( p[1].pixmap->isNull() )
-            break;
-        QPoint pnt = *(p[0].point);
-        QImage img;
-        img = *(p[1].pixmap);
-        drawImage( paint, pnt, img );
-        break;
-    }
-    case PdcDrawImage: {
-        if ( p[1].image->isNull() )
-            break;
-        QPoint pnt = *(p[0].point);
-        QImage img = *(p[1].image);
-        drawImage( paint, pnt, img );
-        break;
-    }
-    case PdcSetBkColor:
-        stream << color( *(p[0].color), printer ) << "BC\n";
-        break;
-    case PdcSetBkMode:
-        if ( p[0].ival == Qt::TransparentMode )
-            stream << "/OMo false d\n";
-        else
-            stream << "/OMo true d\n";
-        break;
-    case PdcSetROP:
-#if defined(CHECK_RANGE)
-        if ( p[0].ival != Qt::CopyROP )
-            qWarning( "QPrinter: Raster operation setting not supported" );
-#endif
-        break;
-    case PdcSetBrushOrigin:
-        break;
-    case PdcSetFont:
-        d->currentSet = *(p[0].font);
-        // turn these off - they confuse the 'avoid font change' logic
-        d->currentSet.setUnderline( FALSE );
-        d->currentSet.setStrikeOut( FALSE );
-        break;
-    case PdcSetPen:
-        if ( d->cpen != *(p[0].pen) ) {
-            d->dirtypen = TRUE;
-            d->cpen = *(p[0].pen);
-        }
-        break;
-    case PdcSetBrush:
-        if ( p[0].brush->style() == Qt::CustomPattern ) {
-#if defined(CHECK_RANGE)
-            qWarning( "QPrinter: Pixmap brush not supported" );
-#endif
-            return FALSE;
-        }
-        if ( d->cbrush != *(p[0].brush) ) {
-            d->dirtybrush = TRUE;
-            d->cbrush = *(p[0].brush);
-        }
-        break;
-    case PdcSetTabStops:
-    case PdcSetTabArray:
-        return FALSE;
-    case PdcSetUnit:
-        break;
-    case PdcSetVXform:
-    case PdcSetWindow:
-    case PdcSetViewport:
-    case PdcSetWXform:
-    case PdcSetWMatrix:
-    case PdcRestoreWMatrix:
-        dirtyMatrix = TRUE;
-        break;
-    case PdcSetClip:
-        d->dirtyClipping = TRUE;
-        break;
-    case PdcSetClipRegion:
-        d->dirtyClipping = TRUE;
-        break;
-    case NewPage:
-        pageCount++;
-        stream << "QP\n%%Page: "
-               << pageCount << ' ' << pageCount << endl
-               << "%%BeginPageSetup\n"
-               << "QI\n";
-        {
-            QDictIterator<QPSPrinterFontPrivate> it(d->fonts);
-            while (it.current()) {
-                it.current()->download( stream, FALSE ); // FALSE means its global
-                ++it;
-            }
-        }
-        // setup page fonts
-        // ####
-        stream  << "%%EndPageSetup\n";
-        dirtyNewPage       = TRUE;
-        d->dirtyClipping   = TRUE;
-        d->firstClipOnPage = TRUE;
-        delete d->savedImage;
-        d->savedImage = 0;
-        d->textY = 0;
-        break;
-    case AbortPrinting:
-        break;
-    default:
-        break;
-    }
-    return TRUE;
-}
-
-
-void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
+void QPSPrinterPrivate::drawImage( QPainter *paint, const QPoint &pnt,
                             const QImage &img )
 {
     int width  = img.width();
@@ -5944,7 +5633,7 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
 }
 
 
-void QPSPrinter::matrixSetup( QPainter *paint )
+void QPSPrinterPrivate::matrixSetup( QPainter *paint )
 {
 #ifndef QT_NO_TRANSFORMATIONS
     QWMatrix tmp;
@@ -5976,44 +5665,44 @@ void QPSPrinter::matrixSetup( QPainter *paint )
     dirtyMatrix = FALSE;
 }
 
-void QPSPrinter::orientationSetup()
+void QPSPrinterPrivate::orientationSetup()
 {
     if ( printer->orientation() == QPrinter::Landscape )
         stream << "QLS\n";
 }
 
 
-void QPSPrinter::emitHeader( bool finished )
+void QPSPrinterPrivate::emitHeader( bool finished )
 {
     QString title = printer->docName();
     QString creator = printer->creator();
     if ( !creator )                             // default creator
         creator = QString::fromLatin1("Qt " QT_VERSION_STR);
-    d->realDevice = new QFile();
-    (void)((QFile *)d->realDevice)->open( IO_WriteOnly, d->fd );
-    stream.setDevice( d->realDevice );
+    realDevice = new QFile();
+    (void)((QFile *)realDevice)->open( IO_WriteOnly, fd );
+    stream.setDevice( realDevice );
     stream << "%!PS-Adobe-1.0";
     QPaintDeviceMetrics m( printer );
-    d->scale = 72. / ((float) m.logicalDpiY());
+    scale = 72. / ((float) m.logicalDpiY());
     int dpi = printer->resolution();
     printer->setResolution( 72 );
     if ( finished && pageCount == 1 && printer->numCopies() == 1 &&
          printer->fullPage() && qt_gen_epsf ) {
-        if ( !d->boundingBox.isValid() )
-            d->boundingBox.setRect( 0, 0, m.width(), m.height() );
+        if ( !boundingBox.isValid() )
+            boundingBox.setRect( 0, 0, m.width(), m.height() );
         if ( printer->orientation() == QPrinter::Landscape )
             // ### fixme: won't work with resolution != 72
             stream << " EPSF-3.0\n%%BoundingBox: "
-                   << m.height() - d->boundingBox.bottom() << " " // llx
-                   << m.width() - d->boundingBox.right() << " " // lly
-                   << m.height() - d->boundingBox.top() << " " // urx
-                   << m.width() - d->boundingBox.left();// ury
+                   << m.height() - boundingBox.bottom() << " " // llx
+                   << m.width() - boundingBox.right() << " " // lly
+                   << m.height() - boundingBox.top() << " " // urx
+                   << m.width() - boundingBox.left();// ury
         else
             stream << " EPSF-3.0\n%%BoundingBox: "
-                   << d->boundingBox.left() << " "
-                   << m.height() - d->boundingBox.bottom() - 1 << " "
-                   << d->boundingBox.right() + 1 << " "
-                   << m.height() - d->boundingBox.top();
+                   << boundingBox.left() << " "
+                   << m.height() - boundingBox.bottom() - 1 << " "
+                   << boundingBox.right() + 1 << " "
+                   << m.height() - boundingBox.top();
     } else {
         int w = m.width();
         int h = m.height();
@@ -6069,65 +5758,65 @@ void QPSPrinter::emitHeader( bool finished )
     if ( printer->orientation() == QPrinter::Portrait ) {
         stream << "% " << m.widthMM() << "*" << m.heightMM()
                << "mm (portrait)\n0 " << m.height()
-               << " translate " << d->scale << " -" << d->scale << " scale/defM matrix CM d } d\n";
+               << " translate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
     } else {
         stream << "% " << m.heightMM() << "*" << m.widthMM()
-               << " mm (landscape)\n 90 rotate " << d->scale << " -" << d->scale << " scale/defM matrix CM d } d\n";
+               << " mm (landscape)\n 90 rotate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
     }
     stream << "%%EndProlog\n";
 
 
     stream << "%%BeginSetup\n";
-    if ( d->fontBuffer->buffer().size() ) {
+    if ( fontBuffer->buffer().size() ) {
         if ( pageCount == 1 || finished )
             stream << "% Fonts and encodings used\n";
         else
             stream << "% Fonts and encodings used on pages 1-"
                    << pageCount << "\n";
-        QDictIterator<QPSPrinterFontPrivate> it(d->fonts);
+        QDictIterator<QPSPrinterFontPrivate> it(fonts);
         while (it.current()) {
           it.current()->download(stream,TRUE); // true means its global
           ++it;
                 }
-        stream.writeRawBytes( d->fontBuffer->buffer().data(),
-                              d->fontBuffer->buffer().size() );
+        stream.writeRawBytes( fontBuffer->buffer().data(),
+                              fontBuffer->buffer().size() );
     }
     stream << "%%EndSetup\n";
 
-    stream.writeRawBytes( d->buffer->buffer().data(),
-                          d->buffer->buffer().size() );
+    stream.writeRawBytes( buffer->buffer().data(),
+                          buffer->buffer().size() );
 
-    delete d->buffer;
-    d->buffer = 0;
-    d->fontStream.unsetDevice();
-    delete d->fontBuffer;
-    d->fontBuffer = 0;
+    delete buffer;
+    buffer = 0;
+    fontStream.unsetDevice();
+    delete fontBuffer;
+    fontBuffer = 0;
     printer->setResolution( dpi );
 }
 
 
-void QPSPrinter::newPageSetup( QPainter *paint )
+void QPSPrinterPrivate::newPageSetup( QPainter *paint )
 {
-    if ( d->buffer &&
+    if ( buffer &&
 // ##################################
-//         ( d->pagesInBuffer++ > 0 ||
-//           ( d->pagesInBuffer > 4 && d->buffer->size() > 262144 ) ) )
-         d->buffer->size() > 2000000 )
+//         ( pagesInBuffer++ > 0 ||
+//           ( pagesInBuffer > 4 && buffer->size() > 262144 ) ) )
+         buffer->size() > 2000000 )
         emitHeader( FALSE );
 
-    if ( !d->buffer ) {
-        d->pageFontNames.clear();
+    if ( !buffer ) {
+        pageFontNames.clear();
     }
 
     resetDrawingTools( paint );
     dirtyNewPage      = FALSE;
-    d->pageFontNumber = d->headerFontNumber;
+    pageFontNumber = headerFontNumber;
 
     // a restore undefines all the fonts that have been defined
     // inside the scope (normally within pages) and all the glyphs that
     // have been added in the scope.
 
-    QDictIterator<QPSPrinterFontPrivate> it(d->fonts);
+    QDictIterator<QPSPrinterFontPrivate> it(fonts);
     while (it.current()) {
       it.current()->restore();
       ++it;
@@ -6137,30 +5826,35 @@ void QPSPrinter::newPageSetup( QPainter *paint )
 
 /* Called whenever a restore has been done. Currently done at the top of a
   new page and whenever clipping is turned off. */
-void QPSPrinter::resetDrawingTools( QPainter *paint )
+void QPSPrinterPrivate::resetDrawingTools( QPainter *paint )
 {
-    QPDevCmdParam param[1];
     QPen   defaultPen;                  // default drawing tools
     QBrush defaultBrush;
 
-    param[0].color = &paint->backgroundColor();
-    if ( *param[0].color != Qt::white )
-        cmd( PdcSetBkColor, paint, param );
+    QColor c = paint->backgroundColor();
+    if ( c != Qt::white )
+        stream << color( c, printer ) << "BC\n";
 
-    param[0].ival = paint->backgroundMode();
-    if (param[0].ival != Qt::TransparentMode )
-        cmd( PdcSetBkMode, paint, param );
+    if ( paint->backgroundMode() != Qt::TransparentMode )
+            stream << "/OMo true d\n";
 
-    //d->currentUsed = d->currentSet;
-    //setFont( d->currentSet );
-    d->currentFontFile = 0;
+    //currentUsed = currentSet;
+    //setFont( currentSet );
+    currentFontFile = 0;
 
-    param[0].brush = &paint->brush();
-    if (*param[0].brush != defaultBrush )
-        cmd( PdcSetBrush, paint, param);
+    QBrush b = paint->brush();
+    if ( b != defaultBrush ) {
+        if ( b == Qt::CustomPattern ) {
+#if defined(CHECK_RANGE)
+            qWarning( "QPrinter: Pixmap brush not supported" );
+#endif
+        } else {
+            cbrush = b;
+        }
+    }
 
-    d->dirtypen = TRUE;
-    d->dirtybrush = TRUE;
+    dirtypen = TRUE;
+    dirtybrush = TRUE;
 
     if ( paint->hasViewXForm() || paint->hasWorldXForm() )
         matrixSetup( paint );
@@ -6176,17 +5870,17 @@ static void putRect( QTextStream &stream, const QRect &r )
 }
 
 
-void QPSPrinter::setClippingOff( QPainter *paint )
+void QPSPrinterPrivate::setClippingOff( QPainter *paint )
 {
         stream << "CLO\n";              // clipping off, includes a restore
         resetDrawingTools( paint );     // so drawing tools must be reset
 }
 
 
-void QPSPrinter::clippingSetup( QPainter *paint )
+void QPSPrinterPrivate::clippingSetup( QPainter *paint )
 {
     if ( paint->hasClipping() ) {
-        if ( !d->firstClipOnPage )
+        if ( !firstClipOnPage )
             setClippingOff( paint );
         const QRegion rgn = paint->clipRegion();
         QArray<QRect> rects = rgn.rects();
@@ -6196,22 +5890,364 @@ void QPSPrinter::clippingSetup( QPainter *paint )
             putRect( stream, rects[i] );
             stream << "ACR\n";          // add clip rect
             if ( pageCount == 1 )
-                d->boundingBox = d->boundingBox.unite( rects[i] );
+                boundingBox = boundingBox.unite( rects[i] );
         }
         stream << "CLEND\n";            // end clipping
-        d->firstClipOnPage = FALSE;
+        firstClipOnPage = FALSE;
     } else {
-        if ( !d->firstClipOnPage )      // no need to turn off if first on page
+        if ( !firstClipOnPage )      // no need to turn off if first on page
             setClippingOff( paint );
         // if we're painting without clipping, the bounding box must
         // be everything.  NOTE: this assumes that this function is
         // only ever called when something is to be painted.
         QPaintDeviceMetrics m( printer );
-        if ( !d->boundingBox.isValid() )
-            d->boundingBox.setRect( 0, 0, m.width(), m.height() );
+        if ( !boundingBox.isValid() )
+            boundingBox.setRect( 0, 0, m.width(), m.height() );
     }
-    d->dirtyClipping = FALSE;
+    dirtyClipping = FALSE;
 }
+
+
+// ================ PSPrinter class ========================
+
+QPSPrinter::QPSPrinter( QPrinter *prt, int fd )
+    : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
+{
+    d = new QPSPrinterPrivate( prt, fd );
+}
+
+
+QPSPrinter::~QPSPrinter()
+{
+    if ( d->fd >= 0 )
+#if defined(_OS_WIN32_)
+        ::_close( d->fd );
+#else
+        ::close( d->fd );
+#endif
+    delete d;
+}
+
+
+bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
+{
+    if ( c == PdcBegin ) {              // start painting
+        d->pagesInBuffer = 0;
+        d->buffer = new QBuffer();
+        d->buffer->open( IO_WriteOnly );
+        d->stream.setEncoding( QTextStream::Latin1 );
+        d->stream.setDevice( d->buffer );
+        d->fontBuffer = new QBuffer();
+        d->fontBuffer->open( IO_WriteOnly );
+        d->fontStream.setEncoding( QTextStream::Latin1 );
+        d->fontStream.setDevice( d->fontBuffer );
+        d->headerFontNumber = 0;
+        d->pageCount           = 1;                // initialize state
+        d->dirtyMatrix         = TRUE;
+        d->dirtyClipping    = TRUE;
+        d->dirtyNewPage        = TRUE;
+        d->firstClipOnPage  = TRUE;
+        d->boundingBox = QRect( 0, 0, -1, -1 );
+        d->fontsUsed = QString::fromLatin1("");
+
+        d->fm = new QFontMetrics( paint->fontMetrics() );
+        QPaintDeviceMetrics m( d->printer );
+        d->scale = 72. / ((float) m.logicalDpiY());
+
+        d->stream << "%%Page: " << d->pageCount << " " << d->pageCount << endl
+            //nothing else to do here. We don't have page fonts for the first page.
+               << "%%BeginPageSetup\n"
+               << "QI\n"
+               << "%%EndPageSetup\n";
+        return TRUE;
+    }
+
+    if ( c == PdcEnd ) {                        // painting done
+        bool pageCountAtEnd = (d->buffer == 0);
+        if ( !pageCountAtEnd )
+            d->emitHeader( TRUE );
+        d->stream << "QP\n"
+               << "%%Trailer\n";
+        if ( pageCountAtEnd )
+            d->stream << "%%Pages: " << d->pageCount << "\n%%DocumentFonts: "
+                   << d->fontsUsed.simplifyWhiteSpace() << '\n';
+        d->stream << "%%EOF\n";
+        d->stream.unsetDevice();
+        d->realDevice->close();
+        if ( d->fd >= 0 )
+            ::close( d->fd );
+        d->fd = -1;
+        delete d->realDevice;
+        d->realDevice = 0;
+        delete d->fm;
+    }
+
+    if ( c >= PdcDrawFirst && c <= PdcDrawLast ) {
+        if ( !paint )
+            return FALSE; // sanity
+        if ( d->dirtyMatrix )
+            d->matrixSetup( paint );
+        if ( d->dirtyNewPage )
+            d->newPageSetup( paint );
+        if ( d->dirtyClipping ) // Must be after matrixSetup and newPageSetup
+            d->clippingSetup( paint );
+        if ( d->dirtypen ) {
+            // we special-case for narrow solid lines with the default
+            // cap and join styles
+            if ( d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 &&
+                 d->cpen.capStyle() == Qt::FlatCap &&
+                 d->cpen.joinStyle() == Qt::MiterJoin )
+                d->stream << color( d->cpen.color(), d->printer ) << "P1\n";
+            else
+                d->stream << (int)d->cpen.style() << ' ' << d->cpen.width()
+                       << ' ' << color( d->cpen.color(), d->printer )
+                       << psCap( d->cpen.capStyle() )
+                       << psJoin( d->cpen.joinStyle() ) << "PE\n";
+            d->dirtypen = FALSE;
+        }
+        if ( d->dirtybrush ) {
+            // we special-case for nobrush and solid white, since
+            // those are the two most common brushes
+            if ( d->cbrush.style() == Qt::NoBrush )
+                d->stream << "NB\n";
+            else if ( d->cbrush.style() == Qt::SolidPattern &&
+                      d->cbrush.color() == Qt::white )
+                d->stream << "WB\n";
+            else
+                d->stream << (int)d->cbrush.style() << ' '
+                       << color( d->cbrush.color(), d->printer ) << "BR\n";
+            d->dirtybrush = FALSE;
+        }
+    }
+
+    switch( c ) {
+    case PdcDrawPoint:
+        d->stream << POINT(0) << "P\n";
+        break;
+    case PdcMoveTo:
+        d->stream << POINT(0) << "M\n";
+        break;
+    case PdcLineTo:
+        d->stream << POINT(0) << "L\n";
+        break;
+    case PdcDrawLine:
+        if ( p[0].point->y() == p[1].point->y() )
+            d->stream << POINT(1) << p[0].point->x() << " HL\n";
+        else if ( p[0].point->x() == p[1].point->x() )
+            d->stream << POINT(1) << p[0].point->y() << " VL\n";
+        else
+            d->stream << POINT(1) << POINT(0) << "DL\n";
+        break;
+    case PdcDrawRect:
+        d->stream << RECT(0) << "R\n";
+        break;
+    case PdcDrawRoundRect:
+        d->stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "RR\n";
+        break;
+    case PdcDrawEllipse:
+        d->stream << RECT(0) << "E\n";
+        break;
+    case PdcDrawArc:
+        d->stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "A\n";
+        break;
+    case PdcDrawPie:
+        d->stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "PIE\n";
+        break;
+    case PdcDrawChord:
+        d->stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "CH\n";
+        break;
+    case PdcDrawLineSegments:
+        if ( p[0].ptarr->size() > 0 ) {
+            QPointArray a = *p[0].ptarr;
+            QPoint pt;
+            d->stream << "NP\n";
+            for ( int i=0; i<(int)a.size(); i+=2 ) {
+                pt = a.point( i );
+                d->stream << XCOORD(pt.x()) << ' '
+                       << YCOORD(pt.y()) << " MT\n";
+                pt = a.point( i+1 );
+                d->stream << XCOORD(pt.x()) << ' '
+                       << YCOORD(pt.y()) << " LT\n";
+            }
+            d->stream << "QS\n";
+        }
+        break;
+    case PdcDrawPolyline:
+        if ( p[0].ptarr->size() > 1 ) {
+            QPointArray a = *p[0].ptarr;
+            QPoint pt = a.point( 0 );
+            d->stream << "NP\n"
+                   << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
+            for ( int i=1; i<(int)a.size(); i++ ) {
+                pt = a.point( i );
+                d->stream << XCOORD(pt.x()) << ' '
+                       << YCOORD(pt.y()) << " LT\n";
+            }
+            d->stream << "QS\n";
+        }
+        break;
+    case PdcDrawPolygon:
+        if ( p[0].ptarr->size() > 2 ) {
+            QPointArray a = *p[0].ptarr;
+            if ( p[1].ival )
+                d->stream << "/WFi true d\n";
+            QPoint pt = a.point(0);
+            d->stream << "NP\n";
+            d->stream << XCOORD(pt.x()) << ' '
+                   << YCOORD(pt.y()) << " MT\n";
+            for( int i=1; i<(int)a.size(); i++) {
+                pt = a.point( i );
+                d->stream << XCOORD(pt.x()) << ' '
+                       << YCOORD(pt.y()) << " LT\n";
+            }
+            d->stream << "CP BF QS\n";
+            if ( p[1].ival )
+                d->stream << "/WFi false d\n";
+        }
+        break;
+    case PdcDrawCubicBezier:
+        if ( p[0].ptarr->size() == 4 ) {
+            d->stream << "NP\n";
+            QPointArray a = *p[0].ptarr;
+            d->stream << XCOORD(a[0].x()) << ' '
+                   << YCOORD(a[0].y()) << " MT ";
+            for ( int i=1; i<4; i++ ) {
+                d->stream << XCOORD(a[i].x()) << ' '
+                       << YCOORD(a[i].y()) << ' ';
+            }
+            d->stream << "BZ\n";
+        }
+        break;
+    case PdcDrawText2: {
+        uint spaces = 0;
+        QString tmp = *p[1].str;
+        int script = p[2].ival;
+        while( spaces < tmp.length() && tmp[(int)spaces] == ' ' )
+            spaces++;
+        if ( spaces )
+            tmp = tmp.mid( spaces, tmp.length() );
+        while ( tmp.length() > 0 && tmp[(int)tmp.length()-1].isSpace() )
+            tmp.truncate( tmp.length()-1 );
+        if( tmp.length() == 0 )
+            break;
+        if ( d->currentSet != d->currentUsed || d->scriptUsed != script || !d->currentFontFile ) {
+            d->currentUsed = d->currentSet;
+            d->setFont( d->currentSet, script );
+        }
+        if( d->currentFontFile ) // better not crash in case somethig goes wrong.
+            d->currentFontFile->drawText( d->stream, spaces, *p[0].point, tmp, d, paint);
+        break;
+    }
+    case PdcDrawText2Formatted:
+        return FALSE;                   // uses QPainter instead
+    case PdcDrawPixmap: {
+        if ( p[1].pixmap->isNull() )
+            break;
+        QPoint pnt = *(p[0].point);
+        QImage img;
+        img = *(p[1].pixmap);
+        d->drawImage( paint, pnt, img );
+        break;
+    }
+    case PdcDrawImage: {
+        if ( p[1].image->isNull() )
+            break;
+        QPoint pnt = *(p[0].point);
+        QImage img = *(p[1].image);
+        d->drawImage( paint, pnt, img );
+        break;
+    }
+    case PdcSetBkColor:
+        d->stream << color( *(p[0].color), d->printer ) << "BC\n";
+        break;
+    case PdcSetBkMode:
+        if ( p[0].ival == Qt::TransparentMode )
+            d->stream << "/OMo false d\n";
+        else
+            d->stream << "/OMo true d\n";
+        break;
+    case PdcSetROP:
+#if defined(CHECK_RANGE)
+        if ( p[0].ival != Qt::CopyROP )
+            qWarning( "QPrinter: Raster operation setting not supported" );
+#endif
+        break;
+    case PdcSetBrushOrigin:
+        break;
+    case PdcSetFont:
+        d->currentSet = *(p[0].font);
+        // turn these off - they confuse the 'avoid font change' logic
+        d->currentSet.setUnderline( FALSE );
+        d->currentSet.setStrikeOut( FALSE );
+        break;
+    case PdcSetPen:
+        if ( d->cpen != *(p[0].pen) ) {
+            d->dirtypen = TRUE;
+            d->cpen = *(p[0].pen);
+        }
+        break;
+    case PdcSetBrush:
+        if ( p[0].brush->style() == Qt::CustomPattern ) {
+#if defined(CHECK_RANGE)
+            qWarning( "QPrinter: Pixmap brush not supported" );
+#endif
+            return FALSE;
+        }
+        if ( d->cbrush != *(p[0].brush) ) {
+            d->dirtybrush = TRUE;
+            d->cbrush = *(p[0].brush);
+        }
+        break;
+    case PdcSetTabStops:
+    case PdcSetTabArray:
+        return FALSE;
+    case PdcSetUnit:
+        break;
+    case PdcSetVXform:
+    case PdcSetWindow:
+    case PdcSetViewport:
+    case PdcSetWXform:
+    case PdcSetWMatrix:
+    case PdcRestoreWMatrix:
+        d->dirtyMatrix = TRUE;
+        break;
+    case PdcSetClip:
+        d->dirtyClipping = TRUE;
+        break;
+    case PdcSetClipRegion:
+        d->dirtyClipping = TRUE;
+        break;
+    case NewPage:
+        d->pageCount++;
+        d->stream << "QP\n%%Page: "
+               << d->pageCount << ' ' << d->pageCount << endl
+               << "%%BeginPageSetup\n"
+               << "QI\n";
+        {
+            QDictIterator<QPSPrinterFontPrivate> it(d->fonts);
+            while (it.current()) {
+                it.current()->download( d->stream, FALSE ); // FALSE means its for the page only
+                ++it;
+            }
+        }
+        // setup page fonts
+        // ####
+        d->stream  << "%%EndPageSetup\n";
+        d->dirtyNewPage       = TRUE;
+        d->dirtyClipping   = TRUE;
+        d->firstClipOnPage = TRUE;
+        delete d->savedImage;
+        d->savedImage = 0;
+        d->textY = 0;
+        break;
+    case AbortPrinting:
+        break;
+    default:
+        break;
+    }
+    return TRUE;
+}
+
 
 
 #endif

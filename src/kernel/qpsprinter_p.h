@@ -76,26 +76,8 @@ private:
 
     friend class QPrinter;
 private:
-    // QPrinter does not use these
-
-    QPrinter   *printer;
+    // not used by QPrinter
     QPSPrinterPrivate *d;
-    QTextStream stream;
-    int		pageCount;
-    bool	dirtyMatrix;
-    bool	dirtyNewPage;
-    bool	epsf;
-    QString	fontsUsed;
-
-    void matrixSetup( QPainter * );
-    void clippingSetup( QPainter * );
-    virtual void setClippingOff( QPainter * );
-    void orientationSetup();
-    void newPageSetup( QPainter * );
-    void resetDrawingTools( QPainter * );
-    void emitHeader( bool finished );
-    virtual void setFont( const QFont &, int script );
-    void drawImage( QPainter *, const QPoint &, const QImage & );
 
     // Disabled copy constructor and operator=
     QPSPrinter( const QPSPrinter & );
