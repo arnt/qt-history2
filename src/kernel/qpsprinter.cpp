@@ -6076,7 +6076,7 @@ void QPSPrinterPrivate::flushPage( bool last )
     if ( buffer &&
 //         ( last || pagesInBuffer++ > -1 ||
 //           ( pagesInBuffer > 4 && buffer->size() > 262144 ) ) )
-         last || buffer->size() > 2000000 )
+         (last || buffer->size() > 2000000) )
     {
 //        qDebug("emiting header at page %d", pageCount );
         emitHeader( last );
