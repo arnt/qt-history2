@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#37 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -91,10 +91,10 @@ public:
     };
 
     // an item for storing texts
-    struct Item: public QShared
+    struct WhatsThisItem: public QShared
     {
-	Item(): QShared() {}
-	~Item();
+	WhatsThisItem(): QShared() {}
+	~WhatsThisItem();
 	QString s;
 	QString t;
 	QPixmap pm;
@@ -117,7 +117,7 @@ public:
 
     // variables
     QWidget * whatsThat;
-    QPtrDict<Item> * dict;
+    QPtrDict<WhatsThisItem> * dict;
     QPtrDict<QWidget> * tlw;
     QPtrDict<Button> * buttons;
     State state;
@@ -131,7 +131,7 @@ static QWhatsThisPrivate * wt = 0;
 
 
 // the item
-QWhatsThisPrivate::Item::~Item()
+QWhatsThisPrivate::WhatsThisItem::~WhatsThisItem()
 {
     if ( count )
 	fatal( "Internal error #10%d in What's This", count );
@@ -234,7 +234,7 @@ QWhatsThisPrivate::QWhatsThisPrivate()
 {
     qAddPostRoutine( tearDownWhatsThis );
     whatsThat = 0;
-    dict = new QPtrDict<QWhatsThisPrivate::Item>;
+    dict = new QPtrDict<QWhatsThisPrivate::WhatsThisItem>;
     tlw = new QPtrDict<QWidget>;
     wt = this;
     buttons = new QPtrDict<Button>;
@@ -256,8 +256,8 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     delete buttons;
 
     // then delete the complex one.
-    QPtrDictIterator<Item> it( *dict );
-    Item * i;
+    QPtrDictIterator<WhatsThisItem> it( *dict );
+    WhatsThisItem * i;
     QWidget * w;
     while( (i=it.current()) != 0 ) {
 	w = (QWidget *)it.currentKey();
@@ -321,7 +321,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
     case Waiting:
 	if ( e->type() == QEvent::MouseButtonPress && o->isWidgetType() ) {
 	    QWidget * w = (QWidget *) o;
-	    QWhatsThisPrivate::Item * i = 0;
+	    QWhatsThisPrivate::WhatsThisItem * i = 0;
 	    while( w && !i ) {
 		i = dict->find( w );
 		if ( !i )
@@ -365,7 +365,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
  	     o->isWidgetType() &&
  	     ((QKeyEvent *)e)->state() == ShiftButton ) {
  	    QWidget * w = ((QWidget *)o)->focusWidget();
- 	    QWhatsThisPrivate::Item * i = 0;
+ 	    QWhatsThisPrivate::WhatsThisItem * i = 0;
  	    if ( w && (i=dict->find( w )) != 0 && !i->s.isNull() ) {
  		say( w, i->s );
  		state = Displaying;
@@ -533,11 +533,11 @@ void QWhatsThis::add( QWidget * widget, const QPixmap & icon,
 		      const QString& title, const QString& text )
 {
     QWhatsThisPrivate::setUpWhatsThis();
-    QWhatsThisPrivate::Item * i = wt->dict->find( (void *)widget );
+    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( (void *)widget );
     if ( i )
 	remove( widget );
 
-    i = new QWhatsThisPrivate::Item;
+    i = new QWhatsThisPrivate::WhatsThisItem;
     i->s = text;
     i->t = title;
     i->pm = icon;
@@ -555,7 +555,7 @@ void QWhatsThis::add( QWidget * widget, const QPixmap & icon,
 void QWhatsThis::remove( QWidget * widget )
 {
     QWhatsThisPrivate::setUpWhatsThis();
-    QWhatsThisPrivate::Item * i = wt->dict->find( (void *)widget );
+    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( (void *)widget );
     if ( !i )
 	return;
 
@@ -575,7 +575,7 @@ void QWhatsThis::remove( QWidget * widget )
 QString QWhatsThis::textFor( QWidget * widget )
 {
     QWhatsThisPrivate::setUpWhatsThis();
-    QWhatsThisPrivate::Item * i = wt->dict->find( widget );
+    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( widget );
     return i ? i->s : QString::null;
 }
 

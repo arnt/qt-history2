@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#30 $
 **
 ** Implementation of QStatusBar class
 **
@@ -86,8 +86,8 @@ class QStatusBarPrivate
 public:
     QStatusBarPrivate() {}
 
-    struct Item {
-	Item( QWidget * widget, int stretch, bool permanent )
+    struct StatusBarPrivateItem {
+	StatusBarPrivateItem( QWidget * widget, int stretch, bool permanent )
 	    : s( stretch ), w( widget ), p(permanent) {}
 	int s;
 	QWidget * w;
@@ -108,8 +108,8 @@ public:
 	QSize s;
     };
 
-    QList<Item> items;
-    Item * firstPermanent;
+    QList<StatusBarPrivateItem> items;
+    StatusBarPrivateItem * firstPermanent;
 
     QString temporary;
 
@@ -162,7 +162,7 @@ void QStatusBarPrivate::ResizeLines::mouseMoveEvent( QMouseEvent * e )
 
     if ( topLevelWidget()->testWState(WState_ConfigPending) )
 	return;
-    
+
     QPoint np( e->globalPos() );
 
     int w = np.x() - p.x() + s.width();
@@ -172,7 +172,7 @@ void QStatusBarPrivate::ResizeLines::mouseMoveEvent( QMouseEvent * e )
     if ( h < 1 )
 	h = 1;
     topLevelWidget()->resize( w, h );
-    
+
     QApplication::syncX();
 }
 
@@ -221,8 +221,8 @@ QStatusBar::~QStatusBar()
 
 void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
 {
-    QStatusBarPrivate::Item * item
-	= new QStatusBarPrivate::Item( widget, stretch, permanent );
+    QStatusBarPrivate::StatusBarPrivateItem * item
+	= new QStatusBarPrivate::StatusBarPrivateItem( widget, stretch, permanent );
 
     d->items.last();
     while( !permanent && d->items.current() && d->items.current()->p )
@@ -272,7 +272,7 @@ void QStatusBar::reformat()
     QBoxLayout * l = new QBoxLayout( QBoxLayout::LeftToRight );
     d->box->addLayout( l );
 
-    QStatusBarPrivate::Item * i;
+    QStatusBarPrivate::StatusBarPrivateItem * i;
     d->items.first();
     int space = 1;
 
@@ -359,7 +359,7 @@ void QStatusBar::clear()
 
 void QStatusBar::hideOrShow()
 {
-    QStatusBarPrivate::Item * i;
+    QStatusBarPrivate::StatusBarPrivateItem * i;
     bool b = (d->temporary.length() == 0);
 
     d->items.first();
@@ -378,7 +378,7 @@ void QStatusBar::hideOrShow()
 
 void QStatusBar::paintEvent( QPaintEvent * )
 {
-    QStatusBarPrivate::Item * i;
+    QStatusBarPrivate::StatusBarPrivateItem * i;
     bool b = (d->temporary.length() == 0);
     QPainter p( this );
     d->items.first();
