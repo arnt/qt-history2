@@ -129,6 +129,8 @@ void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
     if (node->elementClass().isEmpty())
         return;
 
+    m_customWidgets.insert(node->elementClass(), true);
+
     bool global = true;
     if (node->elementHeader() && node->elementHeader()->text().size()) {
         global = node->elementHeader()->attributeLocation().toLower() == QLatin1String("global");
@@ -136,8 +138,7 @@ void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
     } else {
         add(node->elementClass());
     }
-
-    m_customWidgets.insert(node->elementClass(), true);
+    
 }
 
 void WriteIncludes::acceptCustomWidgets(DomCustomWidgets *node)
