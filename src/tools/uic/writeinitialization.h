@@ -57,6 +57,7 @@ struct WriteInitialization : public TreeWalker
 
 //
 // layout defaults
+//
     void accept(DomLayoutDefault *node);
 
 private:
@@ -72,12 +73,21 @@ private:
 
     QString translate(const QString &text, const QString &className=QString::null) const;
 
+//
+// item views
+//
     void initializeListBox(DomWidget *w);
     void initializeIconView(DomWidget *w);
     void initializeListView(DomWidget *w);
     void initializeListViewItems(const QString &className, const QString &varName, const QList<DomItem*> &items);
     void initializeTable(DomWidget *w);
     void initializeTableItems(const QString &className, const QString &varName, const QList<DomItem*> &items);
+
+//
+// Sql
+//
+    void initializeSqlDataTable(DomWidget *w);
+    void initializeSqlDataBrowser(DomWidget *w);
 
 private:
     Driver *driver;
