@@ -19,6 +19,7 @@ class QToolBar;
 class QPopupMenu;
 class QWorkspace;
 class QPopupMenu;
+class QMovie;
 
 class MDIWindow: public QMainWindow
 {
@@ -37,6 +38,7 @@ signals:
 
 private:
     QMultiLineEdit* medit;
+    QMovie * mmovie;
     QString filename;
 };
 

@@ -237,6 +237,7 @@ void HelpWindow::newWindow()
 
 void HelpWindow::print()
 {
+#if QT_FEATURE_PRINTER    
     QPrinter printer;
     printer.setFullPage(TRUE);
     if ( printer.setup() ) {
@@ -267,6 +268,7 @@ void HelpWindow::print()
 	    page++;
 	} while (TRUE);
     }
+#endif
 }
 
 void HelpWindow::pathSelected( const QString &_path )

@@ -741,8 +741,10 @@ static const char *button_xpm[] = {
 ".rb..g.e#s.YaPbV#z.wbnbV.wbn#Dbn.OaP.4.y.4#N.K.K#T#t.U.Q#z.w#F#YazanaNan.bap#Ga0az#0#P#b#KbR.Z#aaz#ibK#h#u.wbC#B#b.1bebs#B#D#baLbcbA.k#P#G#E#S#2.K.8bAbL.Tbw.6.K#G#0.wbVbVbV#s#s.e.Oba.K.4aT.k.0"
 };
 
-NorwegianWoodStyle::NorwegianWoodStyle() : QMotifStyle( TRUE )
+NorwegianWoodStyle::NorwegianWoodStyle( int sbext ) : QWindowsStyle()
 {
+    if ( sbext >= 0 )
+	setScrollBarExtent( sbext );
 }
 
 /*!
@@ -764,19 +766,19 @@ void NorwegianWoodStyle::polish( QApplication *app)
     QPixmap button;
     button.convertFromImage(img);
 
-    QPixmap background(polish_xpm);
 
     int i;
     for (i=0; i<img.numColors(); i++) {
 	QRgb rgb = img.color(i);
 	QColor c(rgb);
-	rgb = c.dark().rgb();
+	rgb = c.dark(120).rgb();
 	img.setColor(i,rgb);
     }
     QPixmap mid;
     mid.convertFromImage(img);
 
     img = orig;
+    img.detach();
     for (i=0; i<img.numColors(); i++) {
 	QRgb rgb = img.color(i);
 	QColor c(rgb);
@@ -787,15 +789,46 @@ void NorwegianWoodStyle::polish( QApplication *app)
     light.convertFromImage(img);
 
     img = orig;
+    img.detach();
     for (i=0; i<img.numColors(); i++) {
 	QRgb rgb = img.color(i);
 	QColor c(rgb);
-	rgb = c.dark().rgb();
+	rgb = c.dark(180).rgb();
 	img.setColor(i,rgb);
     }
     QPixmap dark;
     dark.convertFromImage(img);
 
+    
+    QImage bgimage(polish_xpm);
+    QPixmap background;
+    background.convertFromImage(bgimage);
+
+    img = bgimage;
+    img.detach();
+    for (i=0; i<img.numColors(); i++) {
+	QRgb rgb = img.color(i);
+	QColor c(rgb);
+	rgb = c.dark(180).rgb();
+	img.setColor(i,rgb);
+    }
+    sunkenDark = new QPixmap;
+    sunkenDark->convertFromImage(img);
+    
+    
+    img = bgimage;
+    img.detach();
+    for (i=0; i<img.numColors(); i++) {
+	QRgb rgb = img.color(i);
+	QColor c(rgb);
+	rgb = c.light(130).rgb();
+	img.setColor(i,rgb);
+    }
+    sunkenLight= new QPixmap;
+    sunkenLight->convertFromImage(img);
+    
+    
+    
     QPalette op(QColor(212,140,95));
     // QPalette op(white);
     QColorGroup active (op.normal().foreground(),
@@ -868,7 +901,6 @@ void NorwegianWoodStyle::unPolish( QWidget* w)
     if (w->inherits("QTipLabel") || w->inherits("QLCDNumber") ){
 	return;
     }
-
     if ( !w->isTopLevel() ) {
 	if ( w->inherits("QPushButton")
 	     || w->inherits("QToolButton")
@@ -892,6 +924,192 @@ static void drawroundrect( QPainter *p, QCOORD x, QCOORD y,
     int ry = (200*d)/h;
     p->drawRoundRect( x, y, w, h, rx, ry );
 }
+
+
+
+
+static QRegion roundRectRegion( const QRect& g, int r )
+{
+    QPointArray a;
+    a.setPoints( 8, g.x()+r, g.y(), g.right()-r, g.y(),
+		 g.right(), g.y()+r, g.right(), g.bottom()-r,
+		 g.right()-r, g.bottom(), g.x()+r, g.bottom(),
+		 g.x(), g.bottom()-r, g.x(), g.y()+r );  
+    QRegion reg( a );
+    int d = r*2-1;
+    reg += QRegion( g.x(),g.y(),r*2,r*2, QRegion::Ellipse );
+    reg += QRegion( g.right()-d,g.y(),r*2,r*2, QRegion::Ellipse );
+    reg += QRegion( g.x(),g.bottom()-d,r*2,r*2, QRegion::Ellipse );
+    reg += QRegion( g.right()-d,g.bottom()-d,r*2,r*2, QRegion::Ellipse );
+    return reg;
+}
+
+
+
+
+static int get_combo_extra_width( int h, int *return_awh=0 )
+{
+    int awh;
+    if ( h < 8 ) {
+	awh = 6;
+    } else if ( h < 14 ) {
+	awh = h - 2;
+    } else {
+	awh = h/2;
+    }
+    if ( return_awh )
+	*return_awh = awh;
+    return awh*3/2;
+}
+
+
+static void get_combo_parameters( const QRect &r,
+				  int &ew, int &awh, int &ax,
+				  int &ay, int &sh, int &dh,
+				  int &sy )
+{
+    ew = get_combo_extra_width( r.height(), &awh );
+
+    sh = (awh+3)/4;
+    if ( sh < 3 )
+	sh = 3;
+    dh = sh/2 + 1;
+
+    ay = r.y() + (r.height()-awh-sh-dh)/2;
+    if ( ay < 0 ) {
+	//panic mode
+	ay = 0;
+	sy = r.height();
+    } else {
+	sy = ay+awh+dh;
+    }
+    ax = r.x() + r.width() - ew +(ew-awh)/2;
+}
+
+
+void NorwegianWoodStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
+				    const QColorGroup &g,
+				    bool /* sunken */,
+				    bool editable,
+				    bool /*enabled */,
+				    const QBrush *fb )
+{
+    QBrush fill = fb ? *fb : g.brush( QColorGroup::Button );
+
+    int awh, ax, ay, sh, sy, dh, ew;
+    get_combo_parameters( buttonRect(x,y,w,h), ew, awh, ax, ay, sh, dh, sy );
+
+    drawButton( p, x, y, w, h, g, FALSE, &fill );
+
+    qDrawArrow( p, DownArrow, MotifStyle, FALSE,
+		ax, ay, awh, awh, g, TRUE );
+
+    p->setPen( g.light() );
+    p->drawLine( ax, sy, ax+awh-1, sy );
+    p->drawLine( ax, sy, ax, sy+sh-1 );
+    p->setPen( g.dark() );
+    p->drawLine( ax+1, sy+sh-1, ax+awh-1, sy+sh-1 );
+    p->drawLine( ax+awh-1, sy+1, ax+awh-1, sy+sh-1 );
+
+    if ( 0 && editable ) {
+	QRect r( comboButtonRect(x-1,y-1,w+2,h+2) );
+	qDrawShadePanel( p, r, g, TRUE, 1, &fill );
+    }
+}
+
+
+static inline int buttonthickness( int d )
+{ return  d > 20 ? 5 : ( d < 10 ? 2: 3 ); }
+
+enum { PointUp, PointDown, PointLeft, PointRight };
+
+
+void NorwegianWoodStyle::drawSemicircleButton( QPainter *p, const QRect &r, 
+					       int dir, bool sunken,
+					       const QColorGroup &g )
+{
+    int b = scrollBarExtent().height() > 20 ? 3 : 2;
+    
+    QRegion extrn(  r.x(),   r.y(),   r.width(),     r.height(),     QRegion::Ellipse );
+    QRegion intern( r.x()+b, r.y()+b, r.width()-2*b, r.height()-2*b, QRegion::Ellipse );
+    int w2 = r.width()/2;
+    int h2 = r.height()/2;
+
+    int bug = 1; //off-by-one somewhere!!!???
+    
+    switch( dir ) {
+    case PointRight:
+	extrn +=  QRegion( r.x(),  r.y(),   w2,     r.height() );
+	intern += QRegion( r.x()+b,r.y()+b, w2-2*b, r.height()-2*b );
+	break;
+    case PointLeft:
+	extrn +=  QRegion( r.x()+w2,  r.y(),   w2,     r.height() );
+	intern += QRegion( r.x()+w2+b,r.y()+b, w2-2*b, r.height()-2*b );
+	break;
+    case PointUp:
+	extrn +=  QRegion( r.x(),  r.y()+h2,   r.width(),     h2 );
+	intern += QRegion( r.x()+b,r.y()+h2+b, r.width()-2*b-bug, h2-2*b-bug );
+	break;
+    case PointDown:
+	extrn +=  QRegion( r.x(),  r.y(),   r.width(),     h2 );
+	intern += QRegion( r.x()+b,r.y()+b, r.width()-2*b-bug, h2-2*b-bug );
+	break;
+    }
+
+    extrn = extrn - intern;
+    QPointArray a;
+    a.setPoints( 3, r.x(), r.y(), r.x(), r.bottom(), r.right(), r.top() );
+    
+    QRegion oldClip = p->clipRegion();
+    p->setClipRegion( intern );
+    p->fillRect( r, g.brush( QColorGroup::Button ) );
+
+    p->setClipRegion( QRegion(a)&extrn );
+    p->fillRect( r, sunken ? g.dark() : g.light() );
+
+    a.setPoints( 3, r.right(), r.bottom(), r.x(), r.bottom(), r.right(), r.top() );
+    p->setClipRegion( QRegion(a) &  extrn );
+    p->fillRect( r, sunken ? g.light() : g.dark() );    
+
+    p->setClipRegion( oldClip );
+}
+
+
+
+void NorwegianWoodStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
+						int sliderStart, uint controls,
+						uint activeControl )
+{
+    QWindowsStyle::drawScrollBarControls( p, sb, sliderStart, controls & ~(AddLine|SubLine),
+					activeControl & ~(AddLine|SubLine) );
+    bool horz = sb->orientation() == QScrollBar::Horizontal;
+    int b = 2;
+    int w = horz ? sb->height() : sb->width();
+
+    QColorGroup g = sb->colorGroup();
+    
+    if ( controls & AddLine ) {
+	bool sunken = activeControl & AddLine;
+	QRect r( b, b, w-2*b, w-2*b ) ;
+	if ( horz ) {
+	    r.moveBy( sb->width() - w, 0 );
+	    drawSemicircleButton( p, r, PointRight, sunken, g );
+	} else {
+	    r.moveBy( 0, sb->height() - w );
+	    drawSemicircleButton( p, r, PointDown, sunken, g );
+	}
+    } 
+    if ( controls & SubLine ) {
+	bool sunken = activeControl & SubLine;
+	QRect r( b, b, w-2*b, w-2*b ) ;
+	if ( horz ) {
+	    drawSemicircleButton( p, r, PointLeft, sunken, g );
+	} else {
+	    drawSemicircleButton( p, r, PointUp, sunken, g );
+	}
+    }
+}
+
 /*!
   Reimplementation from QStyle
 
@@ -900,17 +1118,53 @@ static void drawroundrect( QPainter *p, QCOORD x, QCOORD y,
 void NorwegianWoodStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &g, bool sunken, const QBrush* fill)
 {
-    qDrawShadePanel( p, x, y, w, h, g, sunken, 5);
-	
-    QBrush oldBrush = p->brush();
+    int d = QMIN(w,h)/2;
+
+    int b = buttonthickness( d );
+    
+    QRegion internR = roundRectRegion( QRect(x+b, y+b, w-2*b, h-2*b), d-b );
+    //    qDrawShadePanel( p, x, y, w, h, g, sunken, 5);
     QPen oldPen = p->pen();
+
+    QBrush brush( fill ? *fill : (sunken ? g.brush( QColorGroup::Mid ) :
+                                          g.brush( QColorGroup::Button )));
+    p->setClipRegion( internR );
+    p->fillRect( x, y, w, h, brush );
+
+    
+    int e = QMIN( w, h )/2; 
+    
+    QPoint p2(x+w-1-e,y+e);
+    QPoint p3(x+e, y+h-1-e);
+    
+    QPointArray a;
+    a.setPoints( 5, x,y, x+w-1, y, p2.x(),p2.y(), p3.x(),p3.y(), x, y+h-1 );
+    
+    p->setClipRegion( QRegion( a )- internR );
+    
+    p->fillRect( x,y,w,h, (sunken ? QBrush( g.dark(), *sunkenDark )
+			   : g.brush( QColorGroup::Light ) ));
+
+    
+    a.setPoint( 0, x+w-1, y+w-1 );
+    p->setClipRegion( QRegion( a ) - internR );
+    
+    p->fillRect( x,y,w,h, (sunken ? QBrush( g.light(), *sunkenLight )
+			   : g.brush( QColorGroup::Dark )));
+    
+    /*    
+    QBrush oldBrush = p->brush();
+
     p->setPen( NoPen );
     p->setBrush( fill ? *fill : (sunken ? g.brush( QColorGroup::Mid ) :
                                           g.brush( QColorGroup::Button )));
     drawroundrect( p, x+3, y+3, w-6, h-6, 5 );
     p->setBrush( oldBrush );
+    */
+        p->setClipRegion( internR );
+    p->setClipping( FALSE );
     p->setPen( g.foreground() );
-    drawroundrect( p, x, y, w, h, 8 );
+    drawroundrect( p, x, y, w, h, d );
     p->setPen( oldPen );
 }
 
@@ -922,7 +1176,7 @@ void NorwegianWoodStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 void NorwegianWoodStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g, bool sunken, const QBrush* fill)
 {
-    QMotifStyle::drawBevelButton(p, x, y, w, h, g, sunken, fill);
+    QWindowsStyle::drawBevelButton(p, x, y, w, h, g, sunken, fill);
 }
 
 /*!
@@ -1017,7 +1271,16 @@ void NorwegianWoodStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
   \sa QStyle
   */
 QRect NorwegianWoodStyle::buttonRect( int x, int y, int w, int h){
-    return QRect(x+3, y+2, w-6, h-4);
+    int d = QMIN(w,h)/2;
+    int b = buttonthickness( d );
+
+    d -= b;
+    b++;
+    
+    if ( w<h )
+	return QRect(x+b, y+d, w-2*b, h-2*d);
+    else
+	return QRect(x+d, y+b, w-2*d, h-2*b);
 }
 
 /*!
@@ -1027,7 +1290,8 @@ QRect NorwegianWoodStyle::buttonRect( int x, int y, int w, int h){
   */
 void NorwegianWoodStyle::drawButtonMask( QPainter *p, int x, int y, int w, int h)
 {
-    drawroundrect( p, x, y, w, h, 8 );
+    int d = QMIN(w,h)/2;
+    drawroundrect( p, x, y, w, h, d );
 }
 
 

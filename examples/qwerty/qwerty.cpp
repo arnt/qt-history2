@@ -22,6 +22,7 @@
 
 #include <qtextcodec.h>
 
+const bool no_writing = FALSE;
 
 static QList<QTextCodec> *codecList = 0;
 
@@ -66,6 +67,7 @@ Editor::Editor( QWidget * parent , const char * name )
     changed = FALSE;
     e = new QMultiLineEdit( this, "editor" );
     connect( e, SIGNAL( textChanged() ), this, SLOT( textChanged() ) );
+    e->setFont( QFont("unifont", 16, 50) );
 
     e->setFocus();
 }
@@ -209,7 +211,7 @@ void Editor::addEncoding()
 bool Editor::saveAs( const QString& fileName, int code )
 {
     QFile f( fileName );
-    if ( !f.open( IO_WriteOnly ) ) {
+    if ( no_writing || !f.open( IO_WriteOnly ) ) {
 	QMessageBox::warning(this,"I/O Error",
 		    QString("The file could not be opened.\n\n")
 			+fileName);
@@ -233,6 +235,7 @@ bool Editor::saveAs( const QString& fileName, int code )
 
 void Editor::print()
 {
+#if QT_FEATURE_PRINTER
     if ( printer.setup(this) ) {		// opens printer dialog
 	printer.setFullPage(TRUE);		// we'll set our own margins
 	QPainter p;
@@ -259,6 +262,7 @@ void Editor::print()
 	}
 	p.end();				// send job to printer
     }
+#endif //QT_FEATURE_PRINTER
 }
 
 void Editor::resizeEvent( QResizeEvent * )

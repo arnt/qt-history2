@@ -16,13 +16,15 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    Scribble* scribble = new Scribble;
-    scribble->resize( 500, 350 );
-    a.setMainWidget( scribble );
-    scribble->show();
+    Scribble scribble;
 
-    int res = a.exec();
-
-    delete scribble;
-    return res;
+    scribble.resize( 500, 350 );
+    
+    a.setMainWidget( &scribble );
+    if ( QApplication::desktop()->width() > 550
+	 && QApplication::desktop()->height() > 366 )
+	scribble.show();
+    else
+	scribble.showMaximized();
+    return a.exec();
 }

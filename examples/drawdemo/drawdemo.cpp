@@ -154,8 +154,6 @@ DrawView::DrawView()
     setCaption( "Qt Draw Demo Application" );
     setBackgroundColor( white );
 
-    printer = new QPrinter;
-
     // Create a button group to contain all buttons
     bgroup = new QButtonGroup( this );
     bgroup->resize( 200, 200 );
@@ -184,6 +182,9 @@ DrawView::DrawView()
 
     maxwidth += 40;				// now size of bgroup
 
+#if QT_FEATURE_PRINTER
+    printer = new QPrinter;
+
     // Create and setup the print button
     print = new QPushButton( "Print...", bgroup );
     print->resize( 80, 30 );
@@ -191,6 +192,7 @@ DrawView::DrawView()
     connect( print, SIGNAL(clicked()), SLOT(printIt()) );
 
     bgroup->resize( maxwidth, print->y()+print->height()+10 );
+#endif
 
     resize( 640,300 );
 }
@@ -200,7 +202,9 @@ DrawView::DrawView()
 //
 DrawView::~DrawView()
 {
+#if QT_FEATURE_PRINTER
     delete printer;
+#endif
 }
 
 //
@@ -230,10 +234,12 @@ void DrawView::drawIt( QPainter *p )
 
 void DrawView::printIt()
 {
+#if QT_FEATURE_PRINTER
     if ( printer->setup( this ) ) {
         QPainter paint( printer );
         drawIt( &paint );
     }
+#endif
 }
 
 //

@@ -66,3 +66,9 @@ void MyWidget::initChoices(QWidget* parent)
     for ( int i = 0; choices[i]; i++ )
 	lb->insertItem( tr( choices[i] ) ); 
 }
+
+void MyWidget::closeEvent(QCloseEvent* e)
+{
+    QWidget::closeEvent(e);
+    emit closed();
+}

@@ -235,10 +235,10 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 		     "The wonders of modern technology.");
 
     QPixmap pm;
-    bool pix = pm.load("qt.bmp");		// load pixmap for button 2
+    bool pix = pm.load("qt.png");		// load pixmap for button 2
     if ( !pix ) {
 	QMessageBox::information( 0, "Qt Widgets Example",
-				  "Could not load the file \"qt.bmp\", which\n"
+				  "Could not load the file \"qt.png\", which\n"
 				  "contains an icon used...\n\n"
 				  "The text \"line 42\" will be substituted.",
 				  QMessageBox::Ok + QMessageBox::Default );
@@ -718,6 +718,7 @@ void WidgetView::showProperties()
 {
     if ( !qApp->focusWidget() )
 	return;
+#if QT_FEATURE_PROPERTIES
     QStrList properties = qApp->focusWidget()->metaObject()->propertyNames( TRUE );
     qDebug(" ");
     qDebug("Properties for class '%s'", qApp->focusWidget()->className() );
@@ -728,5 +729,6 @@ void WidgetView::showProperties()
 	    s = "read-only";
 	qDebug("%d: %s  ( %s, %s )", ++i, p->name(), s, p->type() );
     }
+#endif
 }
 

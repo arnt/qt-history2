@@ -317,6 +317,8 @@ void DirectoryView::openFolder()
 
 static const int autoopenTime = 750;
 
+#if QT_FEATURE_DRAGANDDROP
+
 void DirectoryView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
     if ( !QUriDrag::canDecode(e) ) {
@@ -430,6 +432,8 @@ void DirectoryView::contentsDropEvent( QDropEvent *e )
 
 }
 
+#endif
+
 QString DirectoryView::fullPath(QListViewItem* item)
 {
     QString fullpath = item->text(0);
@@ -462,6 +466,7 @@ void DirectoryView::contentsMouseMoveEvent( QMouseEvent* e )
 {
     if ( mousePressed && ( presspos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	mousePressed = FALSE;
+#if QT_FEATURE_DRAGANDDROP
 	QListViewItem *item = itemAt( contentsToViewport(presspos) );
 	if ( item ) {
 	    QString source = fullPath(item);
@@ -473,6 +478,7 @@ void DirectoryView::contentsMouseMoveEvent( QMouseEvent* e )
 					      QString("Delete ")+source, "Not implemented" );
 	    }
 	}
+#endif
     }
 }
 

@@ -26,7 +26,14 @@ int main( int argc, char ** argv )
     else
         home = QString(getenv("QTDIR")) + "/doc/html/index.html";
 
-    ( new HelpWindow(home, ".", 0, "help viewer") )->show();
+    
+    HelpWindow *help = new HelpWindow(home, ".", 0, "help viewer");
+
+    if ( QApplication::desktop()->width() > 400
+	 && QApplication::desktop()->height() > 500 )
+	help->show();
+    else
+	help->showMaximized();
 
     QObject::connect( &a, SIGNAL(lastWindowClosed()),
                       &a, SLOT(quit()) );

@@ -18,6 +18,7 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qkeycode.h>
+#include <qmovie.h>
 #include <qmultilineedit.h>
 #include <qfile.h>
 #include <qfiledialog.h>
@@ -55,8 +56,7 @@ ApplicationWindow::ApplicationWindow()
 {
     int id;
 
-    printer = new QPrinter;
-    QPixmap openIcon, saveIcon, printIcon;
+    QPixmap openIcon, saveIcon;
 
     fileTools = new QToolBar( this, "file operations" );
     addToolBar( fileTools, tr( "File Operations" ), Top, TRUE );
@@ -71,16 +71,21 @@ ApplicationWindow::ApplicationWindow()
 	= new QToolButton( saveIcon, "Save File", QString::null,
 			   this, SLOT(save()), fileTools, "save file" );
 
+#if QT_FEATURE_PRINTER
+    printer = new QPrinter;
+    QPixmap printIcon;
+
     printIcon = QPixmap( fileprint );
     QToolButton * filePrint
 	= new QToolButton( printIcon, "Print File", QString::null,
 			   this, SLOT(print()), fileTools, "print file" );
+    QWhatsThis::add( filePrint, filePrintText );
+#endif
 
     (void)QWhatsThis::whatsThisButton( fileTools );
 
     QWhatsThis::add( fileOpen, fileOpenText );
     QWhatsThis::add( fileSave, fileSaveText );
-    QWhatsThis::add( filePrint, filePrintText );
 
     QPopupMenu * file = new QPopupMenu( this );
     menuBar()->insertItem( "&File", file );
@@ -96,10 +101,12 @@ ApplicationWindow::ApplicationWindow()
     file->setWhatsThis( id, fileSaveText );
     id = file->insertItem( "Save &as...", this, SLOT(saveAs()) );
     file->setWhatsThis( id, fileSaveText );
+#if QT_FEATURE_PRINTER
     file->insertSeparator();
     id = file->insertItem( printIcon, "&Print",
 			   this, SLOT(print()), CTRL+Key_P );
     file->setWhatsThis( id, filePrintText );
+#endif
     file->insertSeparator();
     file->insertItem( "&Close", this, SLOT(closeWindow()), CTRL+Key_W );
     file->insertItem( "&Quit", qApp, SLOT( closeAllWindows() ), CTRL+Key_Q );
@@ -125,13 +132,14 @@ ApplicationWindow::ApplicationWindow()
     setCentralWidget( vb );
 
     statusBar()->message( "Ready", 2000 );
-    resize( 450, 600 );
 }
 
 
 ApplicationWindow::~ApplicationWindow()
 {
+#if QT_FEATURE_PRINTER
     delete printer;
+#endif
 }
 
 
@@ -179,9 +187,11 @@ void ApplicationWindow::saveAs()
 
 void ApplicationWindow::print()
 {
+#if QT_FEATURE_PRINTER
     MDIWindow* m = (MDIWindow*)ws->activeWindow();
     if ( m )
 	m->print( printer );
+#endif
 }
 
 
@@ -235,12 +245,15 @@ void ApplicationWindow::windowsMenuActivated( int id )
 MDIWindow::MDIWindow( QWidget* parent, const char* name, int wflags )
     : QMainWindow( parent, name, wflags )
 {
+    mmovie = 0;
     medit = new QMultiLineEdit( this );
     setFocusProxy( medit );
     setCentralWidget( medit );
 }
+
 MDIWindow::~MDIWindow()
 {
+    delete mmovie;
 }
 
 
@@ -251,18 +264,33 @@ void MDIWindow::load( const QString& fn )
     if ( !f.open( IO_ReadOnly ) )
 	return;
 
-    medit->setAutoUpdate( FALSE );
-    medit->clear();
+    if(fn.contains(".gif")) {
+	QWidget * tmp=new QWidget(this);
+	setFocusProxy(tmp);
+	setCentralWidget(tmp);
+	medit->hide();
+	delete medit;
+	QMovie * qm=new QMovie(fn);
+	qm->setDisplayWidget(tmp);
+	tmp->setBackgroundMode(QWidget::NoBackground);
+	tmp->show();
+	mmovie=qm;
+    } else {
+	mmovie = 0;
+	medit->setAutoUpdate( FALSE );
+	medit->clear();
 
-    QTextStream t(&f);
-    while ( !t.eof() ) {
-	QString s = t.readLine();
-	medit->append( s );
+	QTextStream t(&f);
+	while ( !t.eof() ) {
+	    QString s = t.readLine();
+	    medit->append( s );
+	}
+	f.close();
+
+	medit->setAutoUpdate( TRUE );
+	medit->repaint();
+	
     }
-    f.close();
-
-    medit->setAutoUpdate( TRUE );
-    medit->repaint();
     setCaption( filename );
     emit message( QString("Loaded document %1").arg(filename), 2000 );
 }
@@ -304,6 +332,7 @@ void MDIWindow::saveAs()
 
 void MDIWindow::print( QPrinter* printer)
 {
+#if QT_FEATURE_PRINTER
     const int Margin = 10;
     int pageNo = 1;
 
@@ -336,6 +365,7 @@ void MDIWindow::print( QPrinter* printer)
     } else {
 	emit message( "Printing aborted", 2000 );
     }
+#endif
 }
 
 

@@ -21,6 +21,12 @@ class MyWidget : public QMainWindow
 public:
     MyWidget( QWidget* parent=0, const char* name = 0 );
 
+signals:
+    void closed();
+
+protected:
+    void closeEvent(QCloseEvent*);
+
 private:
     static void initChoices(QWidget* parent);
 };

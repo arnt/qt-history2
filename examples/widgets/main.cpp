@@ -28,20 +28,30 @@ public:
     void button1Clicked() {
 	s++;
 	switch (s%5){
+#if QT_FEATURE_STYLE_MOTIF
 	case 0:
 	    qApp->setStyle(new QMotifStyle);
 	    break;
+#endif
+#if QT_FEATURE_STYLE_CDE
 	case 1:
 	    qApp->setStyle(new QCDEStyle);
 	    break;
+#endif
+#if QT_FEATURE_STYLE_WINDOWS
 	case 2:
 	    qApp->setStyle(new QWindowsStyle);
 	    break;
+#endif
+#if QT_FEATURE_STYLE_PLATINUM
 	case 3:
 	    qApp->setStyle(new QPlatinumStyle);
 	    break;
+#endif
+#if QT_FEATURE_STYLE_SGI
 	case 4:
 	    qApp->setStyle(new QSGIStyle);
+#endif
 	}
 	WidgetView::button1Clicked();
     }

@@ -83,7 +83,7 @@ MyRichText::MyRichText( QWidget *parent, const char *name )
     view = new QTextView( this );
     view->setText( "This is a <b>Test</b> with <i>italic</i> <u>stuff</u>" );
     QBrush paper;
-    paper.setPixmap( QPixmap( "../themes/marble.xpm" ) );
+    paper.setPixmap( QPixmap( "marble.png" ) );
     view->setPaper( paper );
 
     view->setText( sayings[0] );

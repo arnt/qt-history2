@@ -51,6 +51,12 @@ SUBDIRS     =	aclock \
 		validator \
 		widgets \
 		wizard \
+		launcher \
+		kiosk \
+		multidoc \
+		dumbterm \
+		canvas \
+		memmeter \
 		xform
 
 X11DIRS	    =   biff \

@@ -598,18 +598,21 @@ void ImageViewer::rot180()
 
 void ImageViewer::copy()
 {
-    //QApplication::clipboard()->setPixmap(pm);
+#if QT_FEATURE_CLIPBOARD
     QApplication::clipboard()->setImage(image); // Less information loss
+#endif
 }
 
 void ImageViewer::paste()
 {
+#if QT_FEATURE_CLIPBOARD
     QImage p = QApplication::clipboard()->image();
 
     if ( !image.isNull() ) {
 	filename = "pasted";
 	setImage(p);
     }
+#endif
 }
 
 void ImageViewer::setImage(const QImage& newimage)

@@ -167,8 +167,10 @@ XFormControl::XFormControl( const QFont &initialFont,
     rb_pic->setText( tr("Picture") );
     connect( bg, SIGNAL(clicked(int)), SLOT(changeMode(int)) );
 
+#if QT_FEATURE_CLIPBOARD
     fpb->setText( tr("Select font...") );
     connect( fpb, SIGNAL(clicked()), SLOT(selectFont()) );
+#endif
 
     textEd->setText( "Troll" );
     connect( textEd, SIGNAL(textChanged(const QString&)),
@@ -254,12 +256,14 @@ QWMatrix XFormControl::matrix()
 
 void XFormControl::selectFont()
 {
+#if QT_FEATURE_FONTDIALOG
     bool ok;
     QFont f = QFontDialog::getFont( &ok, currentFont );
     if ( ok ) {
 	currentFont = f;
 	fontSelected( f );
     }
+#endif
 }
 
 void XFormControl::fontSelected( const QFont &font )
