@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "private/qpaintengine_p.h"
+#include <private/qpaintengine_p.h>
 #include "qapplication.h"
 #include "qbrush.h"
 #include "qgl.h"
 #include "qmap.h"
-#include "qpaintengine_opengl.h"
+#include <private/qpaintengine_opengl_p.h>
 #include "qpen.h"
 #include "qvarlengtharray.h"
 #include <private/qpainter_p.h>

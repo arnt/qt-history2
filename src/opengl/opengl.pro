@@ -10,7 +10,7 @@ DEFINES += QT_BUILD_OPENGL_LIB
 
 HEADERS += qgl.h \
 	   qglcolormap.h \
-	   qpaintengine_opengl.h
+	   qpaintengine_opengl_p.h
 SOURCES	+= qgl.cpp \
 	   qglcolormap.cpp \
 	   qpaintengine_opengl.cpp
