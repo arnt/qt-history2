@@ -665,7 +665,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
     else
 	p->setPen( cg.text() );
     p->drawText( x + 2, 0, w - x - 4, h,
-		 wordwrap ? (alignment() | WordBreak) : alignment(), txt );
+		 wordwrap ? (alignment() | WordBreak) : alignment(), text() );
 }
 
 /*!
@@ -734,9 +734,9 @@ int QTableItem::alignment() const
 {
     bool num;
     bool ok1 = FALSE, ok2 = FALSE;
-    (void)txt.toInt( &ok1 );
+    (void)text().toInt( &ok1 );
     if ( !ok1 )
-	(void)txt.toDouble( &ok2 ); // ### should be .-aligned
+	(void)text().toDouble( &ok2 ); // ### should be .-aligned
     num = ok1 || ok2;
 
     return ( num ? AlignRight : AlignLeft ) | AlignVCenter;
@@ -871,7 +871,7 @@ QSize QTableItem::sizeHint() const
 		      QMAX( s.height(), table()->fontMetrics().height() ) ).expandedTo( strutSize );
 
     QRect r = table()->fontMetrics().boundingRect( x + 2, 0, table()->columnWidth( col() ) - x  - 4, 0,
-						   wordwrap ? (alignment() | WordBreak) : alignment(), txt );
+						   wordwrap ? (alignment() | WordBreak) : alignment(), text() );
     r.setWidth( QMAX( r.width(), table()->columnWidth( col() ) ) );
     return QSize( r.width(), QMAX( s.height(), r.height() ) ).expandedTo( strutSize );
 }
