@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#37 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#37 $";
 #endif
 
 
@@ -114,6 +114,8 @@ This application object must be constructed before any paint devices
 The UNIX/X-Windows version of Qt recognizes these command line options:
 <ul>
 <li> -display \e display, Sets the X display (default is $DISPLAY).
+<li> -geometry \e geometry, Sets the client geometry of the 
+      \link exec main widget. \endlink
 <li> -fn or -font \e font, Defines the application font.
 <li> -bg or -background \e color, Sets the default background color.
 <li> -fg or -foreground \e color, Sets the default foreground color.
