@@ -263,6 +263,12 @@
     For details, read the \l{#qdict.section}{section on QDict<T>},
     mentally substituting QByteArray for QString.
 
+    \section1 QBackInsertIterator
+
+    The undocumented QBackInsertIterator class has been removed from
+    the Qt library. If you need it in your application, feel free to
+    copy the source code from the Qt 3 \c <qtl.h> header file.
+
     \section1 QBitArray
 
     In Qt 3, QBitArray inherited from QByteArray. In Qt 4, QBitArray
@@ -649,15 +655,22 @@
 
     \section1 QDataBrowser
 
-    ###
+    The QDataBrowser class has been moved to the \l{Qt 3 compatibility library}.
+
+    See \l{SQL Module} for an overview of the new item SQL classes.
 
     \section1 QDataTable
 
-    ###
+    The QDataTable class has been moved to the \l{Qt 3 compatibility library}.
+
+    See \l{SQL Module} for an overview of the new item SQL classes.
 
     \section1 QDataView
 
-    ###
+    The QDataView class has been moved to the \l{Qt 3 compatibility
+    library}.
+
+    See \l{SQL Module} for an overview of the new item SQL classes.
 
     \section1 QDateEdit
 
@@ -948,7 +961,10 @@
 
     \section1 QEditorFactory
 
-    ###
+    The QEditorFactory class has been moved to the \l{Qt 3
+    compatibility library}.
+
+    See \l{SQL Module} for an overview of the new item SQL classes.
 
     \section1 QFileDialog
 
@@ -1043,6 +1059,10 @@
     \l{#qnetworkprotocol.section}{section on QNetworkProtocol} for
     details.
 
+    \section1 QGrid
+
+    The QGrid class has been renamed QGridWidget.
+
     \section1 QGridView
 
     ###
@@ -1059,6 +1079,10 @@
     The QGuardedPtr<T> class has been renamed QPointer<T> in Qt 4.
     The \l{Qt 3 compatibility library} contains a trivial
     implementation of QGuardedPtr<T> in terms of QPointer<T>.
+
+    \section1 QHBox
+
+    The QHBox class has been renamed QHBoxWidget.
 
     \section1 QHeader
 
@@ -1135,8 +1159,8 @@
     \section1 QListBox
 
     The QListBox, QListBoxItem, QListBoxText, and QListBoxPixmap
-    classes has been moved to the \l{Qt 3 compatibility library}. New
-    Qt applications should use QListWidget or its base class
+    classes have been moved to the \l{Qt 3 compatibility library}.
+    New Qt applications should use QListWidget or its base class
     QListView instead.
 
     See \l{Model-View Programming} for an overview of the new item
@@ -2055,7 +2079,10 @@
 
     \section1 QSqlCursor
 
-    ###
+    The QSqlCursor class has been moved to the \l{Qt 3 compatibility
+    library}.
+
+    See \l{SQL Module} for an overview of the new item SQL classes.
 
     \section1 QSqlDatabase
 
@@ -2064,7 +2091,10 @@
 
     \section1 QSqlEditorFactory
 
-    ###
+    The QSqlEditorFactory class has been moved to the \l{Qt 3
+    compatibility library}.
+
+    See \l{SQL Module} for an overview of the new item SQL classes.
 
     \section1 QSqlError
 
@@ -2080,32 +2110,52 @@
 
     \section1 QSqlFieldInfo
 
-    ###
+    The QSqlFieldInfo class has been moved to the \l{Qt 3
+    compatibility library}. Its functionality is now provided by the
+    QSqlField class.
+
+    See \l{SQL Module} for an overview of the new item SQL classes.
 
     \section1 QSqlForm
 
-    ###
+    The QSqlForm class has been moved to the \l{Qt 3 compatibility
+    library}.
+
+    See \l{SQL Module} for an overview of the new item SQL classes.
 
     \section1 QSqlPropertyMap
 
-    ###
+    The QSqlPropertyMap class has been moved to the \l{Qt 3
+    compatibility library}.
+
+    See \l{SQL Module} for an overview of the new item SQL classes.
 
     \section1 QSqlQuery
 
-    QSqlQuery::prev() was renamed to QSqlQuery::previous(). There is a function call for compatibility, but if you subclassed QSqlQuery, you have to reimplement previous() instead of prev().
+    QSqlQuery::prev() was renamed to QSqlQuery::previous(). There is
+    a function call for compatibility, but if you subclassed QSqlQuery,
+    you have to reimplement previous() instead of prev().
 
     \section1 QSqlRecord
 
-    QSqlRecord behaves like a vector now, QSqlRecord::insert() will actually insert a new field instead
-    of replacing the existing one.
+    QSqlRecord behaves like a vector now, QSqlRecord::insert() will
+    actually insert a new field instead of replacing the existing
+    one.
 
     \section1 QSqlRecordInfo
 
-    ###
+    The QSqlRecordInfo class has been moved to the \l{Qt 3
+    compatibility library}. Its functionality is now provided by the
+    QSqlRecord class.
+
+    See \l{SQL Module} for an overview of the new item SQL classes.
 
     \section1 QSqlSelectCursor
 
-    ###
+    The QSqlSelectCursor class has been moved to the \l{Qt 3
+    compatibility library}.
+
+    See \l{SQL Module} for an overview of the new item SQL classes.
 
     \section1 QStr(I)List
 
@@ -2187,7 +2237,7 @@
         \newcode
             if (url.startsWith("http:", Qt::CaseInsensitive))
                 ...
-        \nedcode
+        \endcode
 
     \i  The QString::setExpand(uint, QChar) function, which already
         was obsolete in Qt 3, is no longer available. Use
@@ -2281,6 +2331,12 @@
     \l{Qt 3 compatibility library}.
 
     To port to the new QTextEdit class, ###
+
+    \section1 QTextOStreamIterator
+
+    The undocumented QTextOStreamIterator class has been removed from
+    the Qt library. If you need it in your application, feel free to
+    copy the source code from the Qt 3 \c <qtl.h> header file.
 
     \section1 QTextView
 
@@ -2433,6 +2489,10 @@
     \i The \c QCoreVariant::CString enum value is now a synonym for
        \c QCoreVariant::ByteArray.
     \endlist
+
+    \section1 QVBox
+
+    The QVBox class has been renamed QVBoxWidget.
 
     \section1 QWhatsThis
 
