@@ -81,13 +81,11 @@ QString QBig5Codec::toUnicode(const char* chars, int len) const
 
 const char* QBig5Codec::name() const
 {
-  return "zh_TW.Big5";	//fix
+  return "Big5";
 }
 
 int QBig5Codec::heuristicNameMatch(const char* hint) const
 {
-  int score = 0;
-  bool big5 = FALSE;
   if (strnicmp(hint, "Big5", 4) == 0 ) return 4;
   else if (strnicmp(hint, "zh_TW.Big5", 10) == 0) return 10;
   else  return QTextCodec::heuristicNameMatch(hint);

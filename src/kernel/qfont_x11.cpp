@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#181 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#182 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -296,6 +296,8 @@ static struct {
     { "TACTIS", QFont::Set_Th_TH },
     { "eucCN", QFont::Set_Zh },
     { "eucTW", QFont::Set_Zh_TW },
+    { "zh_TW.Big5", QFont::Set_Big5 },
+    { "Big5", QFont::Set_Big5 },
     { 0, /* anything */ QFont::ISO_8859_1 }
 };
 

@@ -120,6 +120,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qasciicache.h \
 		  $$TOOLS_H/qasciidict.h \
+		  $$TOOLS_H/qbig5codec.h \
 		  $$TOOLS_H/qbitarray.h \
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
@@ -256,7 +257,8 @@ unix:SOURCES   += dialogs/qprintdialog.cpp \
 		  kernel/qnpsupport.cpp \
 		  kernel/qwidgetcreate_x11.cpp
 
-SOURCES	       += tools/qbitarray.cpp \
+SOURCES	       += tools/qbig5codec.cpp \
+		  tools/qbitarray.cpp \
 		  tools/qbuffer.cpp \
 		  tools/qcollection.cpp \
 		  tools/qcstring.cpp \

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#139 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -960,6 +960,9 @@ QString QFont::encodingName( CharSet cs )
     case QFont::Set_Zh_TW:
         result = "Set_Zh_TW";
 	break;
+    case QFont::Set_Big5:
+	 result = "Set_Big5";
+	 break;
     case QFont::AnyCharSet:
         result = "AnyCharSet";
 	break;
