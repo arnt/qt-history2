@@ -17,13 +17,13 @@ class DatabaseFrontEnd : public QFrame
     Q_OBJECT
 public:
     DatabaseFrontEnd( QWidget * parent, const char * name = 0 );
-    
+
 public slots:
     void insertCustomer();
     void updateCustomer();
     void deleteCustomer();
     void updateCustomerInfo( const QSqlRecord * );
-    
+
     void insertInvoice();
     void updateInvoice();
     void deleteInvoice();
@@ -54,6 +54,7 @@ protected:
 protected slots:
     void createDatabase();
     void dropDatabase();
+    void customerReport();
 };
 
 #endif // DATABASEAPP_H

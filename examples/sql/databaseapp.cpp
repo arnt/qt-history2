@@ -3,6 +3,8 @@
 #include "db.h"
 
 #include <qlayout.h>
+#include <qfile.h>
+#include <qtextstream.h>
 #include <qsqltable.h>
 #include <qmessagebox.h>
 #include <qmenubar.h>
@@ -100,7 +102,7 @@ void DatabaseFrontEnd::init()
     customerInfo->setFont( QFont( "fixed" ) );
     customerInfo->setAutoResize( TRUE );
     customerInfo->setSizePolicy( QSizePolicy( QSizePolicy::Preferred,
-					      QSizePolicy::Fixed ) );
+					  QSizePolicy::Fixed ) );
     vb2->addWidget( customerInfo );
 
     //
@@ -124,7 +126,7 @@ void DatabaseFrontEnd::init()
     vb3->addWidget( buttonFrame );
 
     ihl->setSpacing( 2 );
-    ihl->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding, 
+    ihl->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 				   QSizePolicy::Minimum ) );
 
     button = new QPushButton( "&Update", buttonFrame );
@@ -168,7 +170,7 @@ void DatabaseFrontEnd::init()
 void DatabaseFrontEnd::updateCustomerInfo( const QSqlRecord * fields )
 {
     QString cap;
-    
+
     // Compile the customer information into a string and display it
     for ( uint i = 0; i < fields->count(); ++i ) {
 	const QSqlField * f  = fields->field(i);
@@ -247,7 +249,7 @@ void DatabaseFrontEnd::insertInvoice()
 {
     QSqlRecord fl = customerTable->currentFieldSelection();
     if( fl.isEmpty() ) {
-	QMessageBox::information( this, "No Customer", 
+	QMessageBox::information( this, "No Customer",
 			 "There must be a Customer record for this invoice!" );
 	return;
     }
@@ -277,7 +279,7 @@ void DatabaseFrontEnd::updateInvoice()
 {
     QSqlRecord r = invoiceTable->currentFieldSelection();
     if ( r.isEmpty() ) {
-	QMessageBox::information( this, "No Selection", 
+	QMessageBox::information( this, "No Selection",
 				  "Select an invoice first!" );
 	return;
     }
@@ -299,7 +301,7 @@ void DatabaseFrontEnd::deleteInvoice()
 {
     QSqlRecord r = invoiceTable->currentFieldSelection();
     if ( r.isEmpty() ) {
-	QMessageBox::information( this, "No Selection", 
+	QMessageBox::information( this, "No Selection",
 				  "Select an invoice first!" );
 	return;
     }
@@ -331,16 +333,14 @@ void DatabaseApp::init()
     setCentralWidget( frontend );
 
     // Setup menus
-    QPopupMenu * menu = new QPopupMenu( this );
-    menu->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
-    menuBar()->insertItem( "&File", menu );
-    
-    menu = new QPopupMenu( this );
-    menu->insertItem( "&Create database", this, SLOT( createDatabase()), 
-		      CTRL+Key_O );
-    menu->insertItem( "&Drop database", this, SLOT( dropDatabase()), 
-		      CTRL+Key_D );
-    menuBar()->insertItem( "&Tools", menu );
+    QPopupMenu * p = new QPopupMenu( this );    
+    p->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
+    p->insertItem( "&Customer Report", this, SLOT( customerReport() ), CTRL+Key_C );    
+    menuBar()->insertItem( "&File", p );
+    p = new QPopupMenu( this );
+    p->insertItem( "&Create database", this, SLOT( createDB()), CTRL+Key_O );
+    p->insertItem( "&Drop database", this, SLOT( dropDB()), CTRL+Key_D );
+    menuBar()->insertItem( "&Tools", p );
 }
 
 void DatabaseApp::createDatabase()
@@ -351,4 +351,64 @@ void DatabaseApp::createDatabase()
 void DatabaseApp::dropDatabase()
 {
     drop_db();
+}
+
+void DatabaseApp::customerReport()
+{
+    /* report customers and invoices */
+    QFile output( "report.html" );
+    if ( output.open( IO_WriteOnly ) ) {
+        QTextStream t( &output );
+	t << "<html>";
+	t << "<head>";
+	t << "<title>Customer Report</title>";
+	t << "<body bgcolor=#fff8f8>";
+	t << "<h1>Customer Report - Unpaid and Paid Invoices</h1>";
+	
+	/* unpaid invoices */
+	t << "<h2>Unpaid Invoices</h2>";
+	t << "<table border=1 cellpadding=0 cellspacing=0 width=50%>\n";
+	QSqlQuery unpaidInvoices;
+	t << "<tr><h3>";
+	t << "<td>Customer Name</td>";
+	t << "<td>Invoices</td>";
+	t << "<td>Total</td>\n";
+	t << "</tr></h3>";	    
+	unpaidInvoices.exec( "select a.name, count(b.id), sum(b.total) from customer a, invoice b "
+			   "where b.customerid=a.id and b.paid=0 group by a.name order by a.name;" );
+	while ( unpaidInvoices.next() ) {
+	    t << "<tr>";
+	    t << "<td>" << unpaidInvoices.value(0).toString().rightJustify(30) << "</td>";
+	    t << "<td>" << unpaidInvoices.value(1).toString().rightJustify(30) << "</td>";
+	    t << "<td>" << unpaidInvoices.value(2).toString().rightJustify(30) << "</td>\n";
+	    t << "</tr>";	    
+	}
+	t << "</table>";
+	
+	
+	/* paid invoices */
+	t << "<h2>Paid Invoices</h2>";
+	t << "<table border=1 cellpadding=0 cellspacing=0 width=50%>\n";
+	QSqlQuery paidInvoices;
+	t << "<tr><h3>";
+	t << "<td>Customer Name</td>";
+	t << "<td>Invoices</td>";
+	t << "<td>Total</td>\n";
+	t << "</tr></h3>";	    
+	paidInvoices.exec( "select a.name, count(b.id), sum(b.total) from customer a, invoice b "
+			   "where b.customerid=a.id and b.paid=1 group by a.name order by a.name;" );
+	while ( paidInvoices.next() ) {
+	    t << "<tr>";
+	    t << "<td>" << paidInvoices.value(0).toString().rightJustify(30) << "</td>";
+	    t << "<td>" << paidInvoices.value(1).toString().rightJustify(30) << "</td>";
+	    t << "<td>" << paidInvoices.value(2).toString().rightJustify(30) << "</td>\n";
+	    t << "</tr>";	    
+	}
+	t << "</table>";
+	
+	t << "</body>";
+	t << "</html>";
+
+        output.close();
+    }
 }
