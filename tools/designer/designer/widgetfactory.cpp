@@ -276,12 +276,12 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 QDesignerWidgetStack::QDesignerWidgetStack( QWidget *parent, const char *name )
     : QWidgetStack( parent, name )
 {
-    prev = new QPushButton( "<", this, "designer_wizardstack_button" );
-    prev->setFlat( TRUE );
-    next = new QPushButton( ">", this, "designer_wizardstack_button" );
-    next->setFlat( TRUE );
-    prev->show();
-    next->show();
+    prev = new QToolButton( Qt::LeftArrow, this, "designer_wizardstack_button" );
+    prev->setAutoRaise( TRUE );
+    prev->setAutoRepeat( TRUE );
+    next = new QToolButton( Qt::RightArrow, this, "designer_wizardstack_button" );
+    next->setAutoRaise( TRUE );
+    next->setAutoRepeat( TRUE );
     connect( prev, SIGNAL( clicked() ), this, SLOT( prevPage() ) );
     connect( next, SIGNAL( clicked() ), this, SLOT( nextPage() ) );
     updateButtons();
@@ -289,8 +289,8 @@ QDesignerWidgetStack::QDesignerWidgetStack( QWidget *parent, const char *name )
 
 void QDesignerWidgetStack::updateButtons()
 {
-    prev->setGeometry( 0, 0, fontMetrics().width( ">" ) + 4, fontMetrics().height() );
-    next->setGeometry( width() - prev->width(), 0, prev->width(), prev->height() );
+    prev->setGeometry( width() - 31, 1, 15, 15 );
+    next->setGeometry( width() - 16, 1, 15, 15 );
     prev->show();
     next->show();
     prev->raise();

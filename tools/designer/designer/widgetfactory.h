@@ -171,7 +171,7 @@ private slots:
 
 private:
     QPtrList<QWidget> pages;
-    QPushButton *prev, *next;
+    QToolButton *prev, *next;
 
 };
 
