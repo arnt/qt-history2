@@ -361,7 +361,7 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
         case QVariant::String:
             return QString::fromUtf8(ba);
         case QVariant::Color:
-            data.cast(QVariant::Color);
+            data.convert(QVariant::Color);
             return data;
         case QVariant::Url: {
             QList<QVariant> list;

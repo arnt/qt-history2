@@ -1433,7 +1433,7 @@ bool QMetaProperty::write(QObject *obj, const QVariant &value) const
         } else if (v.type() != QVariant::Int && v.type() != QVariant::UInt) {
             return false;
         }
-        v.cast(QVariant::Int);
+        v.convert(QVariant::Int);
     } else {
         int handle = priv(mobj[QMetaObject::WriteProperty]->d.data)->propertyData + 3*idx[QMetaObject::WriteProperty];
         int flags = mobj[QMetaObject::WriteProperty]->d.data[handle + 2];
@@ -1448,7 +1448,7 @@ bool QMetaProperty::write(QObject *obj, const QVariant &value) const
         }
         if (t == QVariant::Invalid)
             return false;
-        if (t != QVariant::LastType && (t != (uint)value.userType() || (t < QVariant::UserType && !v.cast((QVariant::Type)t))))
+        if (t != QVariant::LastType && (t != (uint)value.userType() || (t < QVariant::UserType && !v.convert((QVariant::Type)t))))
             return false;
     }
 

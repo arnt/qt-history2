@@ -538,7 +538,7 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     return a->data.shared->ptr == b->data.shared->ptr;
 }
 
-static bool cast(const QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
+static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 {
     Q_ASSERT(d->type != uint(t));
     switch (t) {
@@ -913,7 +913,7 @@ static bool cast(const QVariant::Private *d, QVariant::Type t, void *result, boo
     return true;
 }
 
-static bool canCast(const QVariant::Private *d, QVariant::Type t)
+static bool canConvert(const QVariant::Private *d, QVariant::Type t)
 {
     if (d->type == (uint)t)
         return true;
@@ -978,7 +978,7 @@ static bool canCast(const QVariant::Private *d, QVariant::Type t)
         if (d->type == QVariant::List) {
             const QVariantList &varlist = *v_cast<QVariantList >(d);
             for (int i = 0; i < varlist.size(); ++i) {
-                if (!varlist.at(i).canCast(QVariant::String))
+                if (!varlist.at(i).canConvert(QVariant::String))
                     return false;
             }
             return true;
@@ -1088,8 +1088,8 @@ const QVariant::Handler qt_kernel_variant_handler = {
     save,
 #endif
     compare,
-    cast,
-    canCast,
+    convert,
+    canConvert,
 #if !defined(Q_NO_STREAMING_DEBUG) && !defined(QT_NO_DEBUG_OUTPUT)
     streamDebug
 #else
@@ -1124,7 +1124,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     different type using one of the asT() functions, e.g. asSize(),
     get its value using one of the toT() functions, e.g. toSize(), and
     check whether the type can be converted to a particular type using
-    canCast().
+    canConvert().
 
     The methods named toT() (for any supported T, see the \c Type
     documentation for a list) are const. If you ask for the stored
@@ -1172,7 +1172,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     defined type with no value set.
     \code
     QVariant x, y(QString()), z(QString(""));
-    x.cast(QVariant::Int)cast(QVariant::Int);
+    x.convert(QVariant::Int);
     // x.isNull() == true,
     // y.isNull() == true, z.isNull() == false
     // y.isEmpty() == true, z.Empty() == true
@@ -1535,7 +1535,7 @@ QVariant::QVariant(const QLocale &l) { create(Locale, &l); }
 
 /*!
     Returns the storage type of the value stored in the variant.
-    Usually it's best to test with canCast() whether the variant can
+    Usually it's best to test with canConvert() whether the variant can
     deliver the data type you are interested in.
 */
 
@@ -1836,7 +1836,7 @@ Q##f QVariant::to##f() const { \
     if (d.type == f) \
         return *v_cast<Q##f >(&d); \
     Q##f ret; \
-    handler->cast(&d, f, &ret, 0); \
+    handler->convert(&d, f, &ret, 0); \
     return ret; \
 }
 
@@ -1893,7 +1893,7 @@ QString QVariant::toString() const
         return *reinterpret_cast<const QString *>(&d.data.ptr);
 
     QString ret;
-    handler->cast(&d, String, &ret, 0);
+    handler->convert(&d, String, &ret, 0);
     return ret;
 }
 #ifndef QT_NO_TEMPLATE_VARIANT
@@ -2036,7 +2036,7 @@ QBitArray QVariant::toBitArray() const
     If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
     converted to an int; otherwise \c{*}\a{ok} is set to false.
 
-    \sa canCast()
+    \sa canConvert()
 */
 int QVariant::toInt(bool *ok) const
 {
@@ -2046,12 +2046,12 @@ int QVariant::toInt(bool *ok) const
         return d.data.i;
     }
 
-    bool c = canCast(Int);
+    bool c = canConvert(Int);
     if (ok)
         *ok = c;
     int res = 0;
     if (c)
-        handler->cast(&d, Int, &res, ok);
+        handler->convert(&d, Int, &res, ok);
 
     return res;
 }
@@ -2071,12 +2071,12 @@ uint QVariant::toUInt(bool *ok) const
         return d.data.u;
     }
 
-    bool c = canCast(UInt);
+    bool c = canConvert(UInt);
     if (ok)
         *ok = c;
     uint res = 0u;
     if (c)
-        handler->cast(&d, UInt, &res, ok);
+        handler->convert(&d, UInt, &res, ok);
 
     return res;
 }
@@ -2089,7 +2089,7 @@ uint QVariant::toUInt(bool *ok) const
     If \a ok is non-null: \c{*}\c{ok} is set to true if the value could be
     converted to an int; otherwise \c{*}\c{ok} is set to false.
 
-    \sa canCast()
+    \sa canConvert()
 */
 qlonglong QVariant::toLongLong(bool *ok) const
 {
@@ -2099,12 +2099,12 @@ qlonglong QVariant::toLongLong(bool *ok) const
         return d.data.ll;
     }
 
-    bool c = canCast(LongLong);
+    bool c = canConvert(LongLong);
     if (ok)
         *ok = c;
     qlonglong res = Q_INT64_C(0);
     if (c)
-        handler->cast(&d, LongLong, &res, ok);
+        handler->convert(&d, LongLong, &res, ok);
 
     return res;
 }
@@ -2117,7 +2117,7 @@ qlonglong QVariant::toLongLong(bool *ok) const
     If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
     converted to an int; otherwise \c{*}\a{ok} is set to false.
 
-    \sa canCast()
+    \sa canConvert()
 */
 qulonglong QVariant::toULongLong(bool *ok) const
 {
@@ -2127,12 +2127,12 @@ qulonglong QVariant::toULongLong(bool *ok) const
         return d.data.ull;
     }
 
-    bool c = canCast(ULongLong);
+    bool c = canConvert(ULongLong);
     if (ok)
         *ok = c;
     qulonglong res = Q_UINT64_C(0);
     if (c)
-        handler->cast(&d, ULongLong, &res, ok);
+        handler->convert(&d, ULongLong, &res, ok);
 
     return res;
 }
@@ -2150,7 +2150,7 @@ bool QVariant::toBool() const
         return d.data.b;
 
     bool res = false;
-    handler->cast(&d, Bool, &res, 0);
+    handler->convert(&d, Bool, &res, 0);
 
     return res;
 }
@@ -2171,12 +2171,12 @@ double QVariant::toDouble(bool *ok) const
         return d.data.d;
     }
 
-    bool c = canCast(Double);
+    bool c = canConvert(Double);
     if (ok)
         *ok = c;
     double res = 0.0;
     if (c)
-        handler->cast(&d, Double, &res, ok);
+        handler->convert(&d, Double, &res, ok);
 
     return res;
 }
@@ -2204,7 +2204,7 @@ QVariantList QVariant::toList() const
     if (d.type == List)
         return *v_cast<QVariantList>(&d);
     QVariantList res;
-    handler->cast(&d, List, &res, 0);
+    handler->convert(&d, List, &res, 0);
     return res;
 }
 #endif
@@ -2235,9 +2235,9 @@ QVariantList QVariant::toList() const
     \row \i KeySequence \i String, Int
     \endtable
 */
-bool QVariant::canCast(Type t) const
+bool QVariant::canConvert(Type t) const
 {
-    return handler->canCast(&d, t);
+    return handler->canConvert(&d, t);
 }
 
 /*!
@@ -2248,10 +2248,10 @@ bool QVariant::canCast(Type t) const
     is QVariant::Polygon, etc). Returns true if the current type of
     the variant was successfully cast; otherwise returns false.
 
-    \sa canCast()
+    \sa canConvert()
 */
 
-bool QVariant::cast(Type t)
+bool QVariant::convert(Type t)
 {
     if (d.type == uint(t))
         return true;
@@ -2259,12 +2259,12 @@ bool QVariant::cast(Type t)
     QVariant oldValue = *this;
 
     clear();
-    if (!handler->canCast(&oldValue.d, t))
+    if (!handler->canConvert(&oldValue.d, t))
         return false;
 
     create(t, 0);
     bool isOk = true;
-    handler->cast(&oldValue.d, t, data(), &isOk);
+    handler->convert(&oldValue.d, t, data(), &isOk);
     return isOk;
 }
 
@@ -2277,9 +2277,9 @@ bool QVariant::operator==(const QVariant &v) const
 {
     QVariant v2 = v;
     if (d.type != v2.d.type) {
-        if (!v2.canCast(Type(d.type)))
+        if (!v2.canConvert(Type(d.type)))
             return false;
-        v2.cast(Type(d.type));
+        v2.convert(Type(d.type));
     }
     return handler->compare(&d, &v2.d);
 }
@@ -2327,16 +2327,18 @@ void* QVariant::data()
 }
 
 
+#ifdef QT3_SUPPORT
 /*! \internal
  */
 void *QVariant::castOrDetach(Type t)
 {
     if (d.type != uint(t))
-        cast(t);
+        convert(t);
     else
         detach();
     return data();
 }
+#endif
 
 /*!
   Returns true if this is a NULL variant, false otherwise.

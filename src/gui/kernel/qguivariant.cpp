@@ -450,7 +450,7 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 
 
 
-static bool cast(const QVariant::Private *d, QVariant::Type t,
+static bool convert(const QVariant::Private *d, QVariant::Type t,
                  void *result, bool *ok)
 {
     switch (t) {
@@ -549,10 +549,10 @@ static bool cast(const QVariant::Private *d, QVariant::Type t,
     default:
         break;
     }
-    return qcoreVariantHandler()->cast(d, t, result, ok);
+    return qcoreVariantHandler()->convert(d, t, result, ok);
 }
 
-static bool canCast(const QVariant::Private *d, QVariant::Type t)
+static bool canConvert(const QVariant::Private *d, QVariant::Type t)
 {
     if (d->type == uint(t))
         return true;
@@ -585,7 +585,7 @@ static bool canCast(const QVariant::Private *d, QVariant::Type t)
     default:
         break;
     }
-    return qcoreVariantHandler()->canCast(d, t);
+    return qcoreVariantHandler()->canConvert(d, t);
 }
 
 #if !defined(Q_NO_STREAMING_DEBUG) && !defined(QT_NO_DEBUG_OUTPUT)
@@ -658,8 +658,8 @@ const QVariant::Handler qt_gui_variant_handler = {
     save,
 #endif
     compare,
-    cast,
-    canCast,
+    convert,
+    canConvert,
 #if !defined(Q_NO_STREAMING_DEBUG) && !defined(QT_NO_DEBUG_OUTPUT)
     streamDebug
 #else

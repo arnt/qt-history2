@@ -974,7 +974,7 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
         if ((d->sqlda->sqlvar[i].sqltype & 1) && *d->sqlda->sqlvar[i].sqlind) {
             // null value
             QVariant v;
-            v.cast(qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype));
+            v.convert(qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype));
             row[idx] = v;
             continue;
         }

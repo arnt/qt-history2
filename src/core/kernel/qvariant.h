@@ -147,8 +147,15 @@ class Q_CORE_EXPORT QVariant
     int userType() const;
     const char *typeName() const;
 
-    bool canCast(Type t) const;
-    bool cast(Type t);
+    bool canConvert(Type t) const;
+    bool convert(Type t);
+
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT bool canCast(Type t) const
+    { return canConvert(t); }
+    inline QT3_SUPPORT bool cast(Type t)
+    { return convert(t); }
+#endif
 
     inline bool isValid() const;
     bool isNull() const;
@@ -264,8 +271,8 @@ class Q_CORE_EXPORT QVariant
     typedef void (*f_save)(const Private *, QDataStream &);
 #endif
     typedef bool (*f_compare)(const Private *, const Private *);
-    typedef bool (*f_cast)(const QVariant::Private *d, Type t, void *, bool *);
-    typedef bool (*f_canCast)(const QVariant::Private *d, Type t);
+    typedef bool (*f_convert)(const QVariant::Private *d, Type t, void *, bool *);
+    typedef bool (*f_canConvert)(const QVariant::Private *d, Type t);
     typedef void (*f_debugStream)(QDebug, const QVariant &);
     struct Handler {
         f_construct construct;
@@ -276,8 +283,8 @@ class Q_CORE_EXPORT QVariant
         f_save save;
 #endif
         f_compare compare;
-        f_cast cast;
-        f_canCast canCast;
+        f_convert convert;
+        f_canConvert canConvert;
         f_debugStream debugStream;
     };
 #endif
@@ -295,7 +302,9 @@ protected:
 #endif
 
     void create(int type, const void *copy);
+#ifdef QT3_SUPPORT
     void *castOrDetach(Type t);
+#endif
 };
 
 #ifndef QT_MOC
@@ -303,7 +312,7 @@ typedef QList<QVariant> QVariantList;
 typedef QMap<QString, QVariant> QVariantMap;
 
 inline bool QVariant_to_helper(const QVariant &v, QVariant::Type tp, void *ptr)
-{ return QVariant::handler->cast(&v.d, tp, ptr, 0); }
+{ return QVariant::handler->convert(&v.d, tp, ptr, 0); }
 
 template <typename T>
 inline int qt_variant_metatype_id(T *)
