@@ -189,7 +189,7 @@ Let's have a brief look at the API of our handler class
 We derive it from the \l QXmlDefaultHandler class that 
 implements a handler that simply does nothing. 
 
-\printuntil QListView
+\printuntil ListView
 
 This makes it easy for us to implement only the functionality
 we in fact need. In our case this is the constructor that
@@ -239,7 +239,7 @@ relevant functions.
 
 \quotefile xml/tagreader-with-features/structureparser.cpp   
 \skipto include
-\printuntil qlistview.h
+\printuntil listview.h
 
 \printline StructureParser
 \printuntil { 

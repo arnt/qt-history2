@@ -120,7 +120,7 @@ For the sake of simplicity, our example only has a few commands in the
 toolbar. The above variables are used to hold an icon for each of
 them.
 
-\printline QToolBar
+\printline ToolBar
 
 We create a toolbar in \e this window ...
 
@@ -396,6 +396,7 @@ simple.
 
 Last but not least we implement the slots used by the help menu entries.
 
+\skipto ::about
 \printline ::about
 \printuntil aboutQt
 \printuntil }
