@@ -76,11 +76,13 @@ static QString htmlProtect( const QString& str )
     static QRegExp amp( QChar('&') );
     static QRegExp lt( QChar('<') );
     static QRegExp gt( QChar('>') );
+    static QRegExp backslash( QString("\\\\") ); // qdoc metacharacter
 
     QString t = str;
     t.replace( amp, QString("&amp;") );
     t.replace( lt, QString("&lt;") );
     t.replace( gt, QString("&gt;") );
+    t.replace( backslash, QString("&#92;") );
     return t;
 }
 
@@ -229,7 +231,6 @@ static QString getPrototype( const QString& in, int& pos )
 
 static QString getArgument( const QString& in, int& pos )
 {
-    QString t;
     int parenDepth = 0;
     int bracketDepth = 0;
 
@@ -251,10 +252,10 @@ static QString getArgument( const QString& in, int& pos )
     */
     if ( pos < (int) in.length() && in[pos] == QChar('{') ) {
 	pos++;
-	while ( in[pos].unicode() != '}' )
+	while ( pos < (int) in.length() && in[pos].unicode() != '}' )
 	    pos++;
 	pos++;
-	t = in.mid( begin + 1, pos - begin - 2 ).stripWhiteSpace();
+	return in.mid( begin + 1, pos - begin - 2 ).stripWhiteSpace();
     } else {
 	begin = pos;
 	while ( pos < (int) in.length() ) {
@@ -282,9 +283,8 @@ static QString getArgument( const QString& in, int& pos )
 
 	if ( pos > begin + 1 && punctuation.find(in[pos - 1]) != -1 )
 	    pos--;
-	t = in.mid( begin, pos - begin );
+	return in.mid( begin, pos - begin );
     }
-    return processBackslashes( t );
 }
 
 /*
@@ -410,7 +410,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 'a', 1 ):
 		consume( "a" );
-		arg = getArgument( yyIn, yyPos );
+		arg = processBackslashes( getArgument(yyIn, yyPos) );
 		if ( arg.isEmpty() ) {
 		    warning( 2, location(),
 			     "Expected variable name after '\\a'" );
@@ -478,7 +478,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 'c', 1 ):
 		consume( "c" );
-		arg = getArgument( yyIn, yyPos );
+		arg = htmlProtect( getArgument(yyIn, yyPos) );
 		if ( arg.isEmpty() ) {
 		    warning( 2, location(), "Expected code chunk after '\\c'" );
 		} else {
@@ -538,7 +538,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 'e', 1 ):
 		consume( "e" );
-		arg = getArgument( yyIn, yyPos );
+		arg = processBackslashes( getArgument(yyIn, yyPos) );
 		if ( arg.isEmpty() ) {
 		    warning( 2, location(), "Expected word after '\\e'" );
 		} else {
@@ -1690,7 +1690,7 @@ QString Doc::finalHtml() const
 		break;
 	    case hash( 'l', 1 ):
 		consume( "l" );
-		name = getArgument( yyIn, yyPos );
+		name = processBackslashes( getArgument(yyIn, yyPos) );
 		ahref = href( name );
 		if ( ahref.length() == name.length() )
 		    warning( 2, location(), "Unresolved '\\l' to '%s'",
@@ -1699,7 +1699,7 @@ QString Doc::finalHtml() const
 		break;
 	    case hash( 'l', 4 ):
 		consume( "link" );
-		link = getArgument( yyIn, yyPos );
+		link = processBackslashes( getArgument(yyIn, yyPos) );
 		begin = yyPos;
 		end = yyIn.find( QString("\\endlink"), yyPos );
 		if ( end == -1 ) {
