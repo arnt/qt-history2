@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#49 $
 **
 ** Implementation of QToolBar class
 **
@@ -417,7 +417,7 @@ bool QToolBar::configure( const QDomElement& element )
   {
     if ( r.tagName() == "Widget" )
     {
-      if ( r.firstChild().toElement().toWidget( this ) )
+      if ( !r.firstChild().toElement().toWidget( this ) )
 	return FALSE;
     }
     else if ( r.tagName() == "Separator" )
