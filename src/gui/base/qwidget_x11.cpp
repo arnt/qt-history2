@@ -188,10 +188,10 @@ Q_GUI_EXPORT void qt_x11_enforce_cursor( QWidget * w )
 	} else {
 	    // enforce the windows behavior of clearing the cursor on
 	    // disabled widgets
-	    XDefineCursor( w->x11Info()->display(), w->winId(), None );
+	    XDefineCursor( w->x11Info()->display(), w->winId(), XNone );
 	}
     } else {
-	XDefineCursor( w->x11Info()->display(), w->winId(), None );
+	XDefineCursor( w->x11Info()->display(), w->winId(), XNone );
     }
 }
 
@@ -969,7 +969,7 @@ void QWidgetPrivate::updateSystemBackground()
 {
     QBrush brush = q->palette().brush(q->backgroundRole());
     if (brush.style() == Qt::NoBrush || q->testAttribute(QWidget::WA_NoSystemBackground))
-	XSetWindowBackgroundPixmap(xinfo->display(), q->winId(), None);
+	XSetWindowBackgroundPixmap(xinfo->display(), q->winId(), XNone);
     else if (brush.pixmap())
 	XSetWindowBackgroundPixmap(xinfo->display(), q->winId(),
 				   isBackgroundInherited()
@@ -1171,7 +1171,7 @@ void QWidget::grabMouse()
 				  PointerMotionMask | EnterWindowMask |
 				  LeaveWindowMask ),
 			  GrabModeAsync, GrabModeAsync,
-			  None, None, qt_x_time );
+			  XNone, XNone, qt_x_time );
 #ifndef QT_NO_DEBUG
 	if ( status ) {
 	    const char *s =
@@ -1213,7 +1213,7 @@ void QWidget::grabMouse( const QCursor &cursor )
 		      (uint)(ButtonPressMask | ButtonReleaseMask |
 			     PointerMotionMask | EnterWindowMask | LeaveWindowMask),
 		      GrabModeAsync, GrabModeAsync,
-		      None, cursor.handle(), qt_x_time );
+		      XNone, cursor.handle(), qt_x_time );
 #ifndef QT_NO_DEBUG
 	if ( status ) {
 	    const char *s =
@@ -1343,7 +1343,7 @@ void QWidget::setActiveWindow()
 {
     QWidget *tlw = topLevelWidget();
     if ( tlw->isVisible() && !tlw->d->topData()->embedded ) {
-	XSetInputFocus( d->xinfo->display(), tlw->winId(), RevertToNone, qt_x_time);
+	XSetInputFocus( d->xinfo->display(), tlw->winId(), XRevertToNone, qt_x_time);
 
 #ifndef QT_NO_XIM
 	// trigger input context creation if it hasn't happened already
@@ -2384,7 +2384,7 @@ void QWidget::setMask( const QBitmap &bitmap )
 void QWidget::clearMask()
 {
     XShapeCombineMask( d->xinfo->display(), winId(), ShapeBounding, 0, 0,
-		       None, ShapeSet );
+		       XNone, ShapeSet );
 }
 
 /*!

@@ -85,7 +85,7 @@ static bool pending_selection_changed = FALSE;
 // event capture mechanism for qt_xclb_wait_for_event
 static bool waiting_for_data = FALSE;
 static bool has_captured_event = FALSE;
-static Window capture_event_win = None;
+static Window capture_event_win = XNone;
 static int capture_event_type = -1;
 static XEvent captured_event;
 
@@ -463,7 +463,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
     r = XGetWindowProperty( dpy, win, property, 0, 0, False,
 			    AnyPropertyType, type, format,
 			    &length, &bytes_left, &data );
-    if (r != Success || (type && *type == None)) {
+    if (r != Success || (type && *type == XNone)) {
 	buffer->resize( 0 );
 	return FALSE;
     }
@@ -505,7 +505,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 	    r = XGetWindowProperty( dpy, win, property, offset, maxsize/4,
 				    False, AnyPropertyType, type, format,
 				    &length, &bytes_left, &data );
-	    if (r != Success || (type && *type == None))
+	    if (r != Success || (type && *type == XNone))
 		break;
 
 	    offset += length / (32 / *format);
@@ -717,10 +717,10 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
 	    return send_selection(d, textprop.encoding, window, property, textprop.format, data);
 	}
 
-	return None;
+	return XNone;
     }
 
-    Atom xtarget = None;
+    Atom xtarget = XNone;
     const char *fmt = 0;
     if (target == XA_STRING
 	|| (target == ATOM(TEXT) && QTextCodec::codecForLocale()->mibEnum() == 4)) {
@@ -734,8 +734,8 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
 	xtarget = ATOM(UTF8_STRING);
     }
 
-    if (xtarget == None) // should not happen
-	return None;
+    if (xtarget == XNone) // should not happen
+	return XNone;
 
     QByteArray data = d->source()->encodedData(fmt);
 
@@ -762,7 +762,7 @@ static Atom send_pixmap_selection(QClipboardData *d, Atom target, Window window,
     }
 
     if (pm.isNull()) // should never happen
-	return None;
+	return XNone;
 
     Pixmap handle = pm.handle();
     XChangeProperty(QX11Info::appDisplay(), window, property,
@@ -781,7 +781,7 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
 	const char *fmt = qt_xdnd_atom_to_str(target);
 	DEBUG("QClipboard: send_selection(): converting to type '%s'", fmt);
 	if (fmt && !d->source()->provides(fmt)) // Not a MIME type we can produce
-	    return None;
+	    return XNone;
 	data = d->source()->encodedData(fmt);
     }
 
@@ -811,7 +811,7 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
 
     // make sure we can perform the XChangeProperty in a single request
     if ((int)data.size() >= XMaxRequestSize(QX11Info::appDisplay()) - 100)
-	return None; // ### perhaps use several XChangeProperty calls w/ PropModeAppend?
+	return XNone; // ### perhaps use several XChangeProperty calls w/ PropModeAppend?
 
     // use a single request to transfer data
     XChangeProperty(QX11Info::appDisplay(), window, property, target,
@@ -964,7 +964,7 @@ bool QClipboard::event( QEvent *e )
 	    event.xselection.requestor = req->requestor;
 	    event.xselection.selection = req->selection;
 	    event.xselection.target    = req->target;
-	    event.xselection.property  = None;
+	    event.xselection.property  = XNone;
 	    event.xselection.time      = req->time;
 
 	    DEBUG("QClipboard: SelectionRequest from %lx\n"
@@ -1007,7 +1007,7 @@ bool QClipboard::event( QEvent *e )
 	    Atom xa_timestamp = ATOM(TIMESTAMP);
 
 	    struct AtomPair { Atom target; Atom property; } *multi = 0;
-	    Atom multi_type = None;
+	    Atom multi_type = XNone;
 	    int multi_format = 0;
 	    int nmulti = 0;
 	    int imulti = -1;
@@ -1015,7 +1015,7 @@ bool QClipboard::event( QEvent *e )
 
 	    if ( req->target == xa_multiple ) {
 		QByteArray multi_data;
-		if (req->property == None
+		if (req->property == XNone
 		    || !qt_xclb_read_property(dpy, req->requestor, req->property,
 					      FALSE, &multi_data, 0, &multi_type, &multi_format, 0)
 		    || multi_format != 32) {
@@ -1039,12 +1039,12 @@ bool QClipboard::event( QEvent *e )
 		} else {
 		    target = req->target;
 		    property = req->property;
-		    if (property == None) // obsolete client
+		    if (property == XNone) // obsolete client
 			property = target;
 		}
 
-		Atom ret = None;
-		if (target == None || property == None) {
+		Atom ret = XNone;
+		if (target == XNone || property == XNone) {
 		    ;
 		} else if (target == xa_timestamp) {
 		    if (d->timestamp != CurrentTime) {
@@ -1069,8 +1069,8 @@ bool QClipboard::event( QEvent *e )
 		}
 
 		if (nmulti > 0) {
-		    if (ret == None) {
-			multi[imulti].property = None;
+		    if (ret == XNone) {
+			multi[imulti].property = XNone;
 			multi_writeback = TRUE;
 		    }
 		} else {
@@ -1147,7 +1147,7 @@ bool QClipboardWatcher::empty() const
         return TRUE;
     }
 
-    return win == None;
+    return win == XNone;
 }
 
 const char* QClipboardWatcher::format( int n ) const
@@ -1295,7 +1295,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 
     XEvent xevent;
     if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,clipboard_timeout) ||
-	 xevent.xselection.property == None ) {
+	 xevent.xselection.property == XNone ) {
 	DEBUG("QClipboardWatcher::getDataInFormat: format not available");
 	return buf;
     }
@@ -1385,7 +1385,7 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
     Window newOwner;
 
     if (! src) { // no data, clear clipboard contents
-	newOwner = None;
+	newOwner = XNone;
 	d->clear();
     } else {
 	setupOwner();

@@ -317,7 +317,7 @@ static void DndReadSourceProperty(Display * dpy,
 			     False, ATOM(_MOTIF_DRAG_INITIATOR_INFO), &type,
 			     &format, &lengthRtn, &bytesafter,
 			     (unsigned char **) &src_prop) != Success)
-	|| (type == None)) {
+	|| (type == XNone)) {
 	*num_targets = 0;
 	return ;
     }
@@ -344,7 +344,7 @@ static void DndWriteReceiverProperty(Display * dpy, Window window,
     receiver_prop.byte_order = DndByteOrder() ;
     receiver_prop.protocol_version = DND_PROTOCOL_VERSION;
     receiver_prop.protocol_style = protocol_style ;
-    receiver_prop.proxy_window =  None ;
+    receiver_prop.proxy_window =  XNone ;
     receiver_prop.num_drop_sites = 0 ;
     receiver_prop.total_size = sizeof(DndReceiverProp);
 
@@ -498,7 +498,7 @@ static Window MotifWindow(Display *display )
 			     0L, 100000L, False, AnyPropertyType,
 			     &type, &format, &size, &bytes_after,
 			     (unsigned char **) &property) == Success) &&
-	(type != None)) {
+	(type != XNone)) {
 	motif_window = *property;
     } else {
 	XSetWindowAttributes sAttributes;
@@ -548,7 +548,7 @@ static DndTargetsTable TargetsTable(Display *display)
 			     False, ATOM(_MOTIF_DRAG_TARGETS),
 			     &type, &format,	&size, &bytes_after,
 			     (unsigned char **) &target_prop) != Success) ||
-	type == None) {
+	type == XNone) {
 	qWarning("QMotifDND: cannot get property on motif window");
 	return 0;
     }
@@ -704,7 +704,7 @@ QByteArray qt_motifdnd_obtain_data( const char *mimeType )
     }
 
     if ( XGetSelectionOwner( qt_xdisplay(),
-			     Dnd_selection ) == None ) {
+			     Dnd_selection ) == XNone ) {
 	return result; // should never happen?
     }
 

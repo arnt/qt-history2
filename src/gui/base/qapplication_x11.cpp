@@ -101,22 +101,6 @@ char *_Xsetlocale(int category, const char *locale)
 #endif // X_NOT_BROKEN
 
 
-// resolve the conflict between X11's FocusIn and QEvent::FocusIn
-enum {
-    XFocusOut = FocusOut,
-    XFocusIn = FocusIn
-};
-#undef FocusOut
-#undef FocusIn
-
-enum {
-    XKeyPress = KeyPress,
-    XKeyRelease = KeyRelease
-};
-#undef KeyPress
-#undef KeyRelease
-
-
 // Fix old X libraries
 #ifndef XK_KP_Home
 #define XK_KP_Home              0xFF95
@@ -952,7 +936,7 @@ static void qt_set_input_encoding()
 				ATOM(_QT_INPUT_ENCODING), 0, 1024,
 				False, XA_STRING, &type, &format, &nitems,
 				&after,  (unsigned char**)&data );
-    if ( e != Success || !nitems || type == None ) {
+    if ( e != Success || !nitems || type == XNone ) {
 	// Always use the locale codec, since we have no examples of non-local
 	// XIMs, and since we cannot get a sensible answer about the encoding
 	// from the XIM.
@@ -996,7 +980,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	ulong  nitems, after = 1;
 	QString res;
 	long offset = 0;
-	Atom type = None;
+	Atom type = XNone;
 
 	while (after > 0) {
 	    uchar *data;
@@ -1303,7 +1287,7 @@ static void qt_net_update_user_time(QWidget *tlw)
 
 static void qt_check_focus_model()
 {
-    Window fw = None;
+    Window fw = XNone;
     int unused;
     XGetInputFocus( X11->display, &fw, &unused );
     if ( fw == PointerRoot )
@@ -2502,7 +2486,7 @@ void QApplication::restoreOverrideCursor()
 
 Window qt_x11_findClientWindow( Window win, Atom property, bool leaf )
 {
-    Atom   type = None;
+    Atom   type = XNone;
     int	   format, i;
     ulong  nitems, after;
     uchar *data;
@@ -2814,7 +2798,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     int xkey_keycode = event->xkey.keycode;
     if ( XFilterEvent( event,
-		       keywidget ? keywidget->topLevelWidget()->winId() : None ) ) {
+		       keywidget ? keywidget->topLevelWidget()->winId() : XNone ) ) {
 	if ( keywidget )
 	    composingKeycode = xkey_keycode; // ### not documented in xlib
 
@@ -3450,7 +3434,7 @@ void QApplication::openPopup( QWidget *popup )
 				     ButtonMotionMask | EnterWindowMask |
 				     LeaveWindowMask | PointerMotionMask),
 			      GrabModeSync, GrabModeAsync,
-			      None, None, CurrentTime );
+			      XNone, XNone, CurrentTime );
 
 	    if ( (popupGrabOk = (r == GrabSuccess)) )
 		XAllowEvents( dpy, SyncPointer, CurrentTime );
@@ -3527,7 +3511,7 @@ void QApplication::closePopup( QWidget *popup )
 					  ButtonMotionMask | EnterWindowMask |
 					  LeaveWindowMask | PointerMotionMask),
 				   GrabModeSync, GrabModeAsync,
-				   None, None, CurrentTime );
+				   XNone, XNone, CurrentTime );
 
 		 if ( (popupGrabOk = (r == GrabSuccess)) )
 		     XAllowEvents( aw->x11Info()->display(), SyncPointer, CurrentTime );
@@ -3842,7 +3826,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 				     ButtonMotionMask |
 				     EnterWindowMask | LeaveWindowMask),
 			      GrabModeAsync, GrabModeAsync,
-			      None, None, CurrentTime );
+			      XNone, XNone, CurrentTime );
 	    }
 	}
 
@@ -5161,7 +5145,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	QPoint newCPos( geometry().topLeft() );
 	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
-	bool trust = (d->topData()->parentWinId == None ||
+	bool trust = (d->topData()->parentWinId == XNone ||
 		      d->topData()->parentWinId == QX11Info::appRootWindow());
 
 	if (event->xconfigure.send_event || trust ) {

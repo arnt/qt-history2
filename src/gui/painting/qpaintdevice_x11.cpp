@@ -573,7 +573,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 	if ( clipmask ) {
 	    XSetClipOrigin( dpy, gc, 0, 0 );
-	    XSetClipMask( dpy, gc, None );
+	    XSetClipMask( dpy, gc, XNone );
 	}
 
     } else {					// src is pixmap/widget

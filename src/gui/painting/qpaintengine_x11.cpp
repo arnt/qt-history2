@@ -218,7 +218,7 @@ static void free_gc( Display *dpy, GC gc, bool privateGC = false )
         while ( i-- ) {
             if ( p->gc == gc ) {
                 p->in_use = false;              // set available
-                XSetClipMask( dpy, gc, None );  // make it reusable
+                XSetClipMask( dpy, gc, XNone );  // make it reusable
                 XSetFunction( dpy, gc, GXcopy );
                 XSetFillStyle( dpy, gc, FillSolid );
                 XSetTSOrigin( dpy, gc, 0, 0 );
@@ -344,7 +344,7 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, int scrn,
                         g->hits  = 1;
 			g->clip_serial = 0;
                         XSetForeground( dpy, g->gc, pix );
-			XSetClipMask(dpy, g->gc, None);
+			XSetClipMask(dpy, g->gc, XNone);
                         gc_cache[k]   = prev;
                         gc_cache[k-1] = g;
                         *ref = (void *)g;
@@ -415,7 +415,7 @@ void qt_erase_background(Qt::HANDLE hd, int screen,
 	gc = alloc_gc(dpy, screen, hd, false);
     } else {
 	if (penref && ((QGCC*)penref)->clip_serial) {
-	    XSetClipMask(dpy, gc, None);
+	    XSetClipMask(dpy, gc, XNone);
 	    ((QGCC*)penref)->clip_serial = 0;
 	}
     }
@@ -770,11 +770,11 @@ void QX11PaintEngine::updatePen(QPainterState *state)
 #ifndef QT_NO_XRENDER
             if (d->rendhd) {
                 XRenderPictureAttributes pattr;
-                pattr.clip_mask = None;
+                pattr.clip_mask = XNone;
                 XRenderChangePicture(d->dpy, d->rendhd, CPClipMask, &pattr);
             }
 #endif // QT_NO_XRENDER
-            XSetClipMask(d->dpy, d->gc, None);
+            XSetClipMask(d->dpy, d->gc, XNone);
             ((QGCC*)d->penRef)->clip_serial = 0;
         }
     }
@@ -972,11 +972,11 @@ void QX11PaintEngine::updateBrush(QPainterState *ps)
 #ifndef QT_NO_XRENDER
             if (d->rendhd) {
                 XRenderPictureAttributes pattr;
-                pattr.clip_mask = None;
+                pattr.clip_mask = XNone;
                 XRenderChangePicture(d->dpy, d->rendhd, CPClipMask, &pattr);
             }
 #endif // QT_NO_XRENDER
-            XSetClipMask(d->dpy, d->gc_brush, None);
+            XSetClipMask(d->dpy, d->gc_brush, XNone);
             ((QGCC*)d->brushRef)->clip_serial = 0;
         }
     }
@@ -1365,7 +1365,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
                 if ( d->pdev == paintEventDevice && paintEventClipRegion ) {
                     x11SetClipRegion( d->dpy, d->gc, d->rendhd, *paintEventClipRegion );
 		} else {
-                    XSetClipMask( d->dpy, d->gc, None );
+                    XSetClipMask( d->dpy, d->gc, XNone );
 		}
             }
         } else {
@@ -1403,7 +1403,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
         XFillRectangle( d->dpy, comb->handle(), cgc, 0, 0, sw, sh );
         XSetTSOrigin( d->dpy, cgc, 0, 0 );         // restore cgc
         XSetFillStyle( d->dpy, cgc, FillSolid );
-        XSetClipMask( d->dpy, cgc, None );
+        XSetClipMask( d->dpy, cgc, XNone );
         mask = comb;                            // it's deleted below
 
         XSetClipMask( d->dpy, d->gc, mask->handle() );
@@ -1500,13 +1500,13 @@ void QX11PaintEngine::updateClipRegion(QPainterState *ps)
         if (d->pdev == paintEventDevice && paintEventClipRegion) {
 	    x11SetClipRegion(d->dpy, d->gc, d->rendhd, *paintEventClipRegion, d->gc_brush);
         } else {
-            XSetClipMask(d->dpy, d->gc, None);
-            XSetClipMask(d->dpy, d->gc_brush, None);
+            XSetClipMask(d->dpy, d->gc, XNone);
+            XSetClipMask(d->dpy, d->gc_brush, XNone);
 
 #ifndef QT_NO_XRENDER
             if (d->rendhd) {
                 XRenderPictureAttributes pattr;
-                pattr.clip_mask = None;
+                pattr.clip_mask = XNone;
                 XRenderChangePicture(d->dpy, d->rendhd, CPClipMask, &pattr);
             }
 #endif // QT_NO_XRENDER

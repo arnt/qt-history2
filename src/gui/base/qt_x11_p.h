@@ -48,7 +48,6 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-
 //#define QT_NO_SHAPE
 #ifdef QT_NO_SHAPE
 #define XShapeCombineRegion(a,b,c,d,e,f,g)
@@ -396,5 +395,37 @@ struct QX11Data
 extern QX11Data *qt_x11Data;
 #define ATOM(x) qt_x11Data->atoms[QX11Data::x]
 #define X11 qt_x11Data
+
+// rename a couple of X defines to get rid of name clashes
+// resolve the conflict between X11's FocusIn and QEvent::FocusIn
+enum {
+    XFocusOut = FocusOut,
+    XFocusIn = FocusIn
+};
+#undef FocusOut
+#undef FocusIn
+
+enum {
+    XKeyPress = KeyPress,
+    XKeyRelease = KeyRelease
+};
+#undef KeyPress
+#undef KeyRelease
+
+enum {
+    XNone = None,
+    XRevertToNone = RevertToNone
+};
+#undef None
+#undef RevertToNone
+
+#ifdef FontChange
+#undef FontChange
+#endif
+
+// enum {
+//     XBool = Bool
+// };
+// #undef Bool
 
 #endif // QT_X11_H

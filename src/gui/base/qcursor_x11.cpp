@@ -212,7 +212,7 @@ void QCursor::setPos(int x, int y)
     if (current == target)
 	return;
 
-    XWarpPointer(QX11Info::appDisplay(), None, QX11Info::appRootWindow(screen), 0, 0, 0, 0, x, y);
+    XWarpPointer(QX11Info::appDisplay(), XNone, QX11Info::appRootWindow(screen), 0, 0, 0, 0, x, y);
 }
 
 /*!

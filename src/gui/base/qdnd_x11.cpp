@@ -242,7 +242,7 @@ static bool qt_xdnd_enable( QWidget* w, bool on )
 
 	    // As per Xdnd4, use XdndProxy
 	    XGrabServer( w->x11Info()->display() );
-	    Atom type = None;
+	    Atom type = XNone;
 	    int f;
 	    unsigned long n, a;
 	    WId *proxy_id_ptr;
@@ -433,7 +433,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe, bool /*passive*/ )
     int j = 0;
     if ( l[1] & 1 ) {
 	// get the types from XdndTypeList
-	Atom   type = None;
+	Atom   type = XNone;
 	int f;
 	unsigned long n, a;
 	Atom *data;
@@ -954,7 +954,7 @@ Window findRealWindow( const QPoint & pos, Window w, int md )
 		.contains(pos) )
 	{
 	    {
-		Atom   type = None;
+		Atom   type = XNone;
 		int f;
 		unsigned long n, a;
 		unsigned char *data;
@@ -1046,7 +1046,7 @@ void QDragManager::move( const QPoint & globalPos )
     int target_version = 1;
 
     {
-	Atom   type = None;
+	Atom   type = XNone;
 	int r, f;
 	unsigned long n, a;
 	WId *proxy_id;
@@ -1275,7 +1275,7 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
     evt.xselection.requestor = req->requestor;
     evt.xselection.selection = req->selection;
     evt.xselection.target = req->target;
-    evt.xselection.property = None;
+    evt.xselection.property = XNone;
     evt.xselection.time = req->time;
     const char* format = qt_xdnd_atom_to_str( req->target );
     if ( format && qt_xdnd_source_object &&
@@ -1319,7 +1319,7 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
 	return result;
 
     if ( XGetSelectionOwner( QX11Info::appDisplay(),
-			     ATOM(XdndSelection) ) == None )
+			     ATOM(XdndSelection) ) == XNone )
 	return result; // should never happen?
 
     QWidget* tw = qt_xdnd_current_widget;

@@ -33,15 +33,6 @@
 
 #include <errno.h>
 
-// resolve conflict between QEvent::KeyPress/KeyRelease and X11's
-// KeyPress/KeyRelease #defines
-enum {
-    XKeyPress = KeyPress,
-    XKeyRelease = KeyRelease
-};
-#undef KeyPress
-#undef KeyRelease
-
 bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
 {
     int nevents = 0;
