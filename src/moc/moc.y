@@ -3136,8 +3136,13 @@ void generateClass()		      // generate C++ source code for a class
 		    else
 			fprintf( out, "(%s)static_QUType_%s.get(_o+%d)", type.data(), utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "(%s)*((%s*)static_QUType_ptr.get(_o+%d))", type.data(),
-			     castToUType( type) .data(), offset+1 );
+		    QCString castType = castToUType( type );
+		    if(castType == type)
+			fprintf( out, "%s(*((%s*)static_QUType_ptr.get(_o+%d)))", type.data(),
+				 castType.data(), offset+1 );
+		    else
+			fprintf( out, "(%s)*((%s*)static_QUType_ptr.get(_o+%d))", type.data(),
+				 castType.data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )
@@ -3205,8 +3210,13 @@ void generateClass()		      // generate C++ source code for a class
 		    else
 			fprintf( out, "(%s)static_QUType_%s.get(_o+%d)", type.data(), utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "(%s)*((%s*)static_QUType_ptr.get(_o+%d))", type.data(),
-			     castToUType(type).data(), offset+1 );
+		    QCString castType = castToUType( type );
+		    if(castType == type)
+			fprintf( out, "%s(*((%s*)static_QUType_ptr.get(_o+%d)))", type.data(),
+				 castType.data(), offset+1 );
+		    else
+			fprintf( out, "(%s)*((%s*)static_QUType_ptr.get(_o+%d))", type.data(),
+				 castType.data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )
