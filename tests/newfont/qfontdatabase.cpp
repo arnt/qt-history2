@@ -98,6 +98,10 @@ extern int qFontGetWeight( const QCString &/*weightString*/,
 
 static void populate_database(const QString& fam);
 
+static void newWinFont( void * p );
+static void add_style( QtFontFamily *family, const QString& styleName,
+                bool italic, bool lesserItalic, int weight );
+
 #endif // Q_WS_WIN
 
 
@@ -117,29 +121,6 @@ extern int qFontGetWeight( const QCString &/*weightString*/,
 }
 
 #endif // Q_WS_QWS
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#ifdef Q_WS_WIN
-
-static void newWinFont( void * p );
-static void add_style( QtFontCharSet *charSet, const QString& styleName,
-                bool italic, bool lesserItalic, int weight );
-
-#endif // Q_WS_WIN
-
-
 
 
 class QtFontFamily;
@@ -210,7 +191,7 @@ private:
 #ifdef Q_WS_WIN
     
     friend void newWinFont( void * p );
-    friend void add_style( QtFontCharSet *charSet, const QString& styleName,
+    friend void add_style( QtFontFamily *family, const QString& styleName,
 			   bool italic, bool lesserItalic, int weight );
     
 #endif // Q_WS_WIN
@@ -269,7 +250,7 @@ private:
     
 #ifdef Q_WS_WIN
     friend void newWinFont( void * p );
-    friend void add_style( QtFontCharSet *charSet, const QString& styleName,
+    friend void add_style( QtFontFamily *family, const QString& styleName,
 			   bool italic, bool lesserItalic, int weight );
 #endif
     
@@ -653,7 +634,7 @@ const QStringList &QtFontFamily::styles() const
 	  
 #ifdef Q_WS_WIN
 	// Lazy evaluation
-	populate_database(parent()->name());
+	populate_database(that->parent()->name());
 #endif // Q_WS_WIN
 	
         QMap<QString, QString> styleMap;
@@ -1099,14 +1080,7 @@ storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int /*type*/, LPARAM /*p*/ )
 }
 
 static
-QString winGetCharSetName( BYTE /*chset*/ )
-{
-    // ##### Could give hints to the user
-    return "Unicode";
-}
-
-static
-void add_style( QtFontCharSet *charSet, const QString& styleName,
+void add_style( QtFontFamily *family, const QString& styleName,
                 bool italic, bool lesserItalic, int weight )
 {
     QString weightString;
@@ -1143,19 +1117,19 @@ void add_style( QtFontCharSet *charSet, const QString& styleName,
         }
         sn = sn.left(sn.length()-1); // chomp " "
     }
-    QtFontStyle *style = charSet->styleDict.find( sn );
+    QtFontStyle *style = family->styleDict.find( sn );
     if ( !style ) {
         //qWarning( "New style[%s] for [%s][%s][%s]",
         // (const char*)styleName, (const char*)charSetName,
         // (const char*)familyName, (const char *)foundryName );
-        style = new QtFontStyle( charSet, sn );
+        style = new QtFontStyle( family, sn );
         Q_CHECK_PTR( style );
         style->ital         = italic;
         style->lesserItal   = lesserItalic;
         style->weightString = weightString;
         style->weightVal    = weight;
         style->weightDirty  = FALSE;
-        charSet->addStyle( style );
+        family->addStyle( style );
     }
     
     //#### eiriken?
@@ -1198,16 +1172,6 @@ void newWinFont( void * p )
         Q_CHECK_PTR(family);
         foundry->addFamily( family );
     }
-    QString charSetName = winGetCharSetName( f->elfLogFont.lfCharSet );
-    QtFontCharSet *charSet = family->charSetDict.find( charSetName );
-    if ( !charSet ) {
-        //qWarning( "New charset[%s] for family [%s][%s]",
-        // (const char*)charSetName, (const char *)familyName,
-        // (const char *)foundryName );
-        charSet = new QtFontCharSet( family, charSetName );
-        Q_CHECK_PTR(charSet);
-        family->addCharSet( charSet );
-    }
     bool italic = f->elfLogFont.lfItalic;
     int weight = f->elfLogFont.lfWeight/10;
 
@@ -1228,28 +1192,28 @@ void newWinFont( void * p )
 qDebug("%s with quality %x",familyName.latin1(),f->elfLogFont.lfQuality);
 #endif
  
-        add_style( charSet, styleName, FALSE, FALSE, weight );
-        add_style( charSet, styleName, FALSE, TRUE, weight );
+        add_style( family, styleName, FALSE, FALSE, weight );
+        add_style( family, styleName, FALSE, TRUE, weight );
 
         if ( weight < QFont::DemiBold ) {
             // Can make bolder
-            add_style( charSet, styleName, FALSE, FALSE, QFont::Bold );
-            add_style( charSet, styleName, FALSE, TRUE, QFont::Bold );
+            add_style( family, styleName, FALSE, FALSE, QFont::Bold );
+            add_style( family, styleName, FALSE, TRUE, QFont::Bold );
         }
     } else {
         if ( italic ) {
-            add_style( charSet, styleName, italic, FALSE, weight );
+            add_style( family, styleName, italic, FALSE, weight );
         } else {
-            add_style( charSet, styleName, italic, FALSE, weight );
-            add_style( charSet, QString::null, italic, TRUE, weight );
+            add_style( family, styleName, italic, FALSE, weight );
+            add_style( family, QString::null, italic, TRUE, weight );
         }
         if ( weight < QFont::DemiBold ) {
             // Can make bolder
             if ( italic )
-                add_style( charSet, QString::null, italic, FALSE, QFont::Bold );
+                add_style( family, QString::null, italic, FALSE, QFont::Bold );
             else {
-                add_style( charSet, QString::null, FALSE, FALSE, QFont::Bold );
-                add_style( charSet, QString::null, FALSE, TRUE, QFont::Bold );
+                add_style( family, QString::null, FALSE, FALSE, QFont::Bold );
+                add_style( family, QString::null, FALSE, TRUE, QFont::Bold );
             }
         }
     }
