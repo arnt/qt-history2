@@ -465,7 +465,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
     int tb_fill = 0;
     if (tb_layout_info.size() != 0) {
-	tb_fill = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent)
+	tb_fill = QApplication::style().pixelMetric(QStyle::PM_DockWindowHandleExtent)
 		  + 16 // ## size of extension - get this from somewhere else
 		  + qt_cast<QToolBar *>(tb_layout_info.at(0).at(0).item->widget())->frameWidth() * 2
 		  + qt_cast<QBoxLayout *>(tb_layout_info.at(0).at(0).item->widget()->layout())->margin() * 2
@@ -482,7 +482,8 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
 	    // position
  	    if (i == 0) { // first tool bar can't have an offset
-		if (num_tbs > 1 && pick_perp(where, info.offset) > pick_perp(where, info.size)) {
+		if (num_tbs > 1 && info.size.isValid()
+		    && pick_perp(where, info.offset) > pick_perp(where, info.size)) {
 		    // swap if dragging it past the next one
 		    ToolBarLayoutInfo &next = tb_layout_info[k][i+1];
 		    next.pos = tb_rect[k].topLeft();
@@ -511,7 +512,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		    info.pos = QPoint(cur_pt + info.offset.x(), tb_rect[k].top());
 
 		if (pick_perp(where, info.offset) < 0) { // left/up motion
-		    if (pick_perp(where, prev.size) + pick_perp(where, info.offset) >= prev_min) {
+		    if (pick_perp(where, prev.size) + pick_perp(where, info.offset) > prev_min) {
 			// shrink the previous one and increase size of current with same
 			QSize sz(0, 0);
 			set_perp(where, sz, pick_perp(where, info.offset));
@@ -1603,7 +1604,9 @@ void QMainWindowLayout::placeToolBarInfo(const ToolBarLayoutInfo &newinfo)
 	for (int k = 0; k < tb_layout_info.size(); ++k) {
 	    POSITION where = static_cast<POSITION>(tb_layout_info.at(k).at(0).where);
 	    if (where == newinfo.where) {
-		while (k < tb_layout_info.size()-1 && where == tb_layout_info.at(k+1).at(0).where) ++k;
+		while (k < tb_layout_info.size()-1
+		       && where == tb_layout_info.at(k+1).at(0).where) ++k;
+
 		tb_layout_info[k].append(newinfo);
 		return;
 	    }
