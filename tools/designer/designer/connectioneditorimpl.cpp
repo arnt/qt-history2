@@ -32,6 +32,7 @@
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qregexp.h>
+#include <qcombobox.h>
 
 static const char* const ignore_slots[] = {
     "destroyed()",
@@ -97,7 +98,21 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
     }
 
     labelSignal->setText( tr( "Signals (%1):" ).arg( sender->name() ) );
-    labelSlot->setText( tr( "Slots (%1):" ).arg( receiver->name() ) );
+
+    QPtrDictIterator<QWidget> it( *formWindow->widgets() );
+    QStringList lst;
+    while ( it.current() ) {
+	if ( lst.find( it.current()->name() ) != lst.end() ) {
+	    ++it;
+	    continue;
+	}
+	lst << it.current()->name();
+	if ( qstrcmp( it.current()->name(), "central widget" ) != 0 )
+	    comboReceiver->insertItem( it.current()->name() );
+	if ( qstrcmp( it.current()->name(), receiver->name() ) == 0 )
+	    comboReceiver->setCurrentItem( comboReceiver->count() - 1 );
+	++it;
+    }
 
     signalBox->setCurrentItem( signalBox->firstItem() );
 
@@ -116,6 +131,7 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	    MyConnection c;
 	    c.signal = conn.signal;
 	    c.slot = conn.slot;
+	    c.receiver = conn.receiver;
 	    this->connections.insert( i, c );
 	}
     }
@@ -207,6 +223,7 @@ void ConnectionEditor::connectClicked()
     MyConnection conn;
     conn.signal = signalBox->currentText();
     conn.slot = slotBox->currentText();
+    conn.receiver = receiver;
     QListViewItem *i = new QListViewItem( connectionView );
     i->setText( 0, sender->name() );
     i->setText( 1, conn.signal );
@@ -254,7 +271,7 @@ void ConnectionEditor::okClicked()
 	    MetaDataBase::Connection conn;
 	    conn.sender = sender;
 	    conn.signal = c.signal;
-	    conn.receiver = receiver;
+	    conn.receiver = c.receiver;
 	    conn.slot = c.slot;
 	    commands.append( new AddConnectionCommand( tr( "Add connection" ),
 						       formWindow, conn ) );
@@ -303,4 +320,15 @@ void ConnectionEditor::addSlotClicked()
 	if ( !MetaDataBase::hasSlot( formWindow, i->text( 3 ).latin1() ) )
 	    delete i;
     }
+}
+
+void ConnectionEditor::receiverChanged( const QString &s )
+{
+    QPtrDictIterator<QWidget> it( *formWindow->widgets() );
+    while ( it.current() ) {
+	if ( QString( it.current()->name() ) == s )
+	    receiver = it.current();
+	++it;
+    }
+    signalChanged();
 }

@@ -47,12 +47,14 @@ protected:
     void slotsChanged();
     void connectionsChanged();
     void addSlotClicked();
-    
+    void receiverChanged( const QString &s );
+
 private:
     bool ignoreSlot( const char* ) const;
     struct MyConnection
     {
 	QCString signal, slot;
+	QObject *receiver;
     };
 
     QMap<QListViewItem*, MyConnection> connections;
