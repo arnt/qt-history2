@@ -201,8 +201,10 @@ void QToolBar::setArea(Qt::ToolBarArea area, bool linebreak)
     Q_ASSERT_X(((d->allowedAreas & area) == area),
                "QToolBar::setArea", "specified 'area' is not an allowed area");
 
-    Q_ASSERT(parentWidget() && qt_cast<QMainWindowLayout *>(parentWidget()->layout()));
-    QMainWindowLayout *mainwin_layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
+    QMainWindow *mainwindow = qt_cast<QMainWindow *>(parentWidget());
+    Q_ASSERT(mainwindow != 0);
+    QMainWindowLayout *mainwin_layout = qt_cast<QMainWindowLayout *>(mainwindow->layout());
+    Q_ASSERT(mainwin_layout != 0);
     mainwin_layout->add(this, area, linebreak);
 
     int pos;
@@ -260,6 +262,9 @@ void QToolBar::setArea(Qt::ToolBarArea area, bool linebreak)
 	d->handle->state->offset = QPoint(p.y(), p.x());
     }
     d->area = area;
+
+    if (mainwindow->isVisible())
+        mainwin_layout->relayout();
 }
 
 Qt::ToolBarArea QToolBar::area() const
