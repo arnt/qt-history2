@@ -466,11 +466,10 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     if(task & GIMME_WIDTH) {
 	ATSUTextMeasurement left, right, bottom, top;
 #if defined(MACOSX_102)
-	if(qMacVersion() >= Qt::MV_10_DOT_2) {
-	    qDebug("called..");
+	if(qMacVersion() >= Qt::MV_10_DOT_2) 
 	    ATSUGetUnjustifiedBounds(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
 				     &left, &right, &bottom, &top);
-	} else
+	else
 #endif
 	    ATSUMeasureText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
 			    &left, &right, &bottom, &top);
