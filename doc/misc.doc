@@ -220,8 +220,19 @@ X Input Focus to a widget's top level window.
 */
 
 /*! \page bughowto.html
-\title How to Report A Bug
+\title How to Report a Bug
 
+\if defined(preview)
+Trolltech has set up a special mailing list, qt4-preview-feedback, for
+discussion of Qt Technology Preview-related issues. To subscribe, send
+a message containing just the word "subscribe" (without the quotes) to
+qt4-preview-feedback-request@trolltech.com. We encourage you to use
+this mailing list instead of qt-interest for preview-specific issues.
+See http://lists.trolltech.com/ for more information on Trolltech's
+mailing lists, including archived discussions.
+\endif
+
+\if !defined(preview)
 If you think you have found a bug in Qt, we would like to hear
 about it so that we can fix it.
 
@@ -247,6 +258,8 @@ of the many example programs in the \c{qt/examples} directory.
 
 Please send the bug report to
 \link mailto:qt-bugs@trolltech.com qt-bugs@trolltech.com\endlink.
+\endif
+
 */
 
 

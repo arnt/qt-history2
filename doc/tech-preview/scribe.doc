@@ -30,9 +30,8 @@ improvements are made available through a reimplementation of the
 existing text rendering engine, and the introduction of several new
 classes.
 
-See the relevant module overview for a detailed discussion of this
-framework. The following sections provide a brief overview of the main
-concepts behind Scribe.
+The following sections provide a brief overview of the main concepts
+behind Scribe.
 
 
 \section2 The document interface

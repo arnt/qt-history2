@@ -68,6 +68,8 @@
     ensure that items are selected in a consistent way, and that
     selections can be shared between views of the same model.
 
+    For details about the Model/View classes, see the
+    \l{model-view-programming.html}{Model/View Programming} document.
 
     \section1 The current state of Interview
 
