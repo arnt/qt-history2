@@ -38,380 +38,391 @@
   QPtrVector documentation
  *****************************************************************************/
 
-// BEING REVISED: ettrich
 /*!
-  \class QPtrVector qptrvector.h
+    \class QPtrVector qptrvector.h
+    \brief The QPtrVector class is a template collection class that
+    provides a vector (array).
 
-  \brief The QPtrVector class is a template collection class that
-  provides a vector (array).
+    \ingroup tools
 
-  \ingroup tools
+    \important autoDelete setAutoDelete
 
-  \important autoDelete setAutoDelete
+    QValueVector is an STL-compatible alternative to this class.
 
-  QValueVector is an STL-compatible alternative to this class.
+    QPtrVector is implemented as a template class. Defines a template
+    instance QPtrVector\<X\> to create a vector that contains pointers
+    to X (X*).
 
-  QPtrVector is implemented as a template class. Defines a template
-  instance QPtrVector\<X\> to create a vector that contains pointers to
-  X (X*).
+    A vector is the same as an array. The main difference between
+    QPtrVector and QMemArray is that QPtrVector stores pointers to the
+    elements, whereas QMemArray stores the elements themselves (i.e.
+    QMemArray is value-based and QPtrVector is pointer-based).
 
-  A vector is the same as an array. The main difference between
-  QPtrVector and QMemArray is that QPtrVector stores pointers to the elements,
-  whereas QMemArray stores the elements themselves (i.e. QMemArray is
-  value-based and QPtrVector is pointer-based).
+    Items are added to the vector using insert() or fill(). Items are
+    removed with remove(). You can get a pointer to an item at a
+    particular index position using at().
 
-  Items are added to the vector using insert() or fill(). Items are
-  removed with remove(). You can get a pointer to an item at a
-  particular index position using at().
+    Unless otherwise stated, all functions that remove items from the
+    vector will also delete the element pointed to if \link
+    setAutoDelete() auto-deletion\endlink is enabled. By default,
+    auto-deletion is disabled; see setAutoDelete(). This behaviour can
+    be changed in a subclass by reimplementing the virtual function
+    deleteItem().
 
-  Unless otherwise stated, all functions that remove items from the
-  vector will also delete the element pointed to if \link
-  setAutoDelete() auto-deletion\endlink is enabled. By default,
-  auto-deletion is disabled; see setAutoDelete(). This behaviour can
-  be changed in a subclass by reimplementing the virtual function
-  deleteItem().
+    Functions that compare items (find() and sort() for example) will
+    do so using the virtual function compareItems(). The default
+    implementation of this function only compares the pointer values.
+    Reimplement compareItems() in a subclass to get searching and
+    sorting based on the item contents. You can perform a linear
+    search for a pointer in the vector using findRef(), or a binary
+    search (of a sorted vector) using bsearch(). You can count the
+    number of times an item appears in the vector with contains() or
+    containsRef().
 
-  Functions that compare items (find() and sort() for example) will do so
-  using the virtual function compareItems(). The default
-  implementation of this function only compares the 
-  pointer values. Reimplement compareItems() in a subclass to get
-  searching and sorting based on the item contents. You can perform a
-  linear search for a pointer in the vector using findRef(), or a
-  binary search (of a sorted vector) using bsearch(). You can count
-  the number of times an item appears in the vector with contains() or
-  containsRef().
-
-  \sa QMemArray
+    \sa QMemArray
 */
 
 /*!
-  \fn QPtrVector::QPtrVector()
+    \fn QPtrVector::QPtrVector()
 
-  Constructs a null vector.
+    Constructs a null vector.
 
-  \sa isNull()
+    \sa isNull()
 */
 
 /*!
-  \fn QPtrVector::QPtrVector( uint size )
+    \fn QPtrVector::QPtrVector( uint size )
 
-  Constructs an vector with room for \a size items.  Makes a null
-  vector if \a size == 0.
+    Constructs an vector with room for \a size items. Makes a null
+    vector if \a size == 0.
 
-  All \a size positions in the vector are initialized to 0.
+    All \a size positions in the vector are initialized to 0.
 
-  \sa size(), resize(), isNull()
+    \sa size(), resize(), isNull()
 */
 
 /*!
-  \fn QPtrVector::QPtrVector( const QPtrVector<type> &v )
+    \fn QPtrVector::QPtrVector( const QPtrVector<type> &v )
 
-  Constructs a copy of \a v. Only the pointers are copied (i.e. shallow copy).
+    Constructs a copy of \a v. Only the pointers are copied (i.e.
+    shallow copy).
 */
 
 /*!
-  \fn QPtrVector::~QPtrVector()
+    \fn QPtrVector::~QPtrVector()
 
-  Removes all items from the vector, and destroys the vector itself.
+    Removes all items from the vector, and destroys the vector itself.
 
-  \sa clear()
+    \sa clear()
 */
 
 /*!
-  \fn QPtrVector<type> &QPtrVector::operator=( const QPtrVector<type> &v )
+    \fn QPtrVector<type> &QPtrVector::operator=( const QPtrVector<type> &v )
 
-  Assigns \a v to this vector and returns a reference to this vector.
+    Assigns \a v to this vector and returns a reference to this
+    vector.
 
-  This vector is first cleared and then all the items from \a v are copied
-  into the vector. Only the pointers are copied (i.e. shallow copy).
+    This vector is first cleared and then all the items from \a v are
+    copied into the vector. Only the pointers are copied (i.e. shallow
+    copy).
 
-  \sa clear()
+    \sa clear()
 */
 
 /*!
-  \fn type **QPtrVector::data() const
-  Returns a pointer to the actual vector data, which is an array of type*.
+    \fn type **QPtrVector::data() const
 
-  The vector is a null vector if data() == 0 (null pointer).
+    Returns a pointer to the actual vector data, which is an array of
+    type*.
 
-  \sa isNull()
+    The vector is a null vector if data() == 0 (null pointer).
+
+    \sa isNull()
 */
 
 /*!
-  \fn uint QPtrVector::size() const
+    \fn uint QPtrVector::size() const
 
-  Returns the size of the vector, i.e. the number of vector
-  positions. This is also the maximum number of items the vector can
-  hold.
+    Returns the size of the vector, i.e. the number of vector
+    positions. This is also the maximum number of items the vector can
+    hold.
 
-  The vector is a null vector if size() == 0.
+    The vector is a null vector if size() == 0.
 
-  \sa isNull(), resize(), count()
+    \sa isNull(), resize(), count()
 */
 
 /*!
-  \fn uint QPtrVector::count() const 
+    \fn uint QPtrVector::count() const 
 
-  Returns the number of items in the vector. The vector is empty if
-  count() == 0.
+    Returns the number of items in the vector. The vector is empty if
+    count() == 0.
 
-  \sa isEmpty(), size()
+    \sa isEmpty(), size(), isNull()
 */
 
 /*!
-  \fn bool QPtrVector::isEmpty() const
+    \fn bool QPtrVector::isEmpty() const
 
-  Returns TRUE if the vector is empty; otherwise returns FALSE.
+    Returns TRUE if the vector is empty; otherwise returns FALSE.
 
-  \sa count()
+    \sa count()
 */
 
 /*!
-  \fn bool QPtrVector::isNull() const
+    \fn bool QPtrVector::isNull() const
 
-  Returns TRUE if the vector is null; otherwise returns FALSE.
+    Returns TRUE if the vector is null; otherwise returns FALSE.
 
-  A null vector has size() == 0 and data() == 0.
+    A null vector has size() == 0 and data() == 0.
 
-  \sa size()
+    \sa size()
 */
 
 /*!
-  \fn bool QPtrVector::resize( uint size )
-  Resizes (expands or shrinks) the vector to \a size elements. The array
-  becomes a null array if \a size == 0.
+    \fn bool QPtrVector::resize( uint size )
 
-  Any items at position \a size or beyond in the vector are removed.
-  New positions are initialized 0.
+    Resizes (expands or shrinks) the vector to \a size elements. The
+    vector becomes a null vector if \a size == 0.
 
-  Returns TRUE if successful, or FALSE if the memory cannot be allocated.
+    Any items at position \a size or beyond in the vector are removed.
+    New positions are initialized to 0.
 
-  \sa size(), isNull()
+    Returns TRUE if successful, i.e. if the memory was successfully
+    allocated; otherwise returns FALSE.
+
+    \sa size(), isNull()
 */
 
 /*!
-  \fn bool QPtrVector::insert( uint i, const type *d )
+    \fn bool QPtrVector::insert( uint i, const type *d )
 
-  Sets position \a i in the vector to contain the item \a d. \a i must
-  be less than size(). Any previous element in position \a i is removed.
+    Sets position \a i in the vector to contain the item \a d. \a i
+    must be less than size(). Any previous element in position \a i is
+    removed.
 
-  \sa at()
+    \sa at()
 */
 
 /*!
-  \fn bool QPtrVector::remove( uint i )
+    \fn bool QPtrVector::remove( uint i )
 
-  Removes the item at position \a i in the vector, if there is one.
-  \a i must be less than size().
+    Removes the item at position \a i in the vector, if there is one.
+    \a i must be less than size().
 
-  Returns TRUE unless \a i is out of range.
+    Returns TRUE if \a i is within range; otherwise returns FALSE.
 
-  \sa take(), at()
+    \sa take(), at()
 */
 
 /*!
-  \fn type* QPtrVector::take( uint i )
+    \fn type* QPtrVector::take( uint i )
 
-  Returns the item at position \a i in the vector, and removes that
-  item from the vector. \a i must be less than size(). If there is no
-  item at position \a i, 0 is returned.
+    Returns the item at position \a i in the vector, and removes that
+    item from the vector. \a i must be less than size(). If there is
+    no item at position \a i, 0 is returned.
 
-  In contrast to remove(), this function does \e not call deleteItem()
-  for the removed item.
+    Unlike remove(), this function does \e not call deleteItem() for
+    the removed item.
 
-  \sa remove(), at()
+    \sa remove(), at()
 */
 
 /*!
-  \fn void QPtrVector::clear()
+    \fn void QPtrVector::clear()
 
-  Removes all items from the vector, and destroys the vector
-  itself.
+    Removes all items from the vector, and destroys the vector itself.
 
-  The vector becomes a null vector.
+    The vector becomes a null vector.
 
-  \sa isNull()
+    \sa isNull()
 */
 
 /*!
-  \fn bool QPtrVector::fill( const type *d, int size )
+    \fn bool QPtrVector::fill( const type *d, int size )
 
-  Inserts item \a d in all positions in the vector. Any existing items
-  are removed. If \a d is 0, the vector becomes empty.
+    Inserts item \a d in all positions in the vector. Any existing
+    items are removed. If \a d is 0, the vector becomes empty.
 
-  If \a size >= 0, the vector is first resized to \a size. By default,
-  \a size is -1.
+    If \a size >= 0, the vector is first resized to \a size. By
+    default, \a size is -1.
 
-  Returns TRUE if successful, or FALSE if the memory cannot be allocated
-  (only if a resize has been requested).
+    Returns TRUE if successful, i.e. \a size is the same as the
+    current size, or \a size is larger and the memory has successfully
+    been allocated; otherwise returns FALSE.
 
-  \sa resize(), insert(), isEmpty()
+    \sa resize(), insert(), isEmpty()
 */
 
 /*!
-  \fn void QPtrVector::sort()
+    \fn void QPtrVector::sort()
 
-  Sorts the items in ascending order. Any empty positions will be put
-  last.
+    Sorts the items in ascending order. Any empty positions will be
+    put last.
 
-  Compares items using the virtual function compareItems().
+    Compares items using the virtual function compareItems().
 
-  \sa bsearch()
+    \sa bsearch()
 */
 
 /*!
-  \fn int QPtrVector::bsearch( const type* d ) const
+    \fn int QPtrVector::bsearch( const type* d ) const
 
-  In a sorted array, finds the first occurrence of \a d using a binary
-  search. For a sorted array, this is generally much faster than
-  find(), which does a linear search.
+    In a sorted array, finds the first occurrence of \a d using a
+    binary search. For a sorted array, this is generally much faster
+    than find(), which performs a linear search.
 
-  Returns the position of \a d, or -1 if \a d could not be found. \a d
-  may not be 0.
+    Returns the position of \a d, or -1 if \a d could not be found. \a
+    d must not be 0.
 
-  Compares items using the virtual function compareItems().
+    Compares items using the virtual function compareItems().
 
-  \sa sort(), find()
-*/
-
-
-/*!
-  \fn int QPtrVector::findRef( const type *d, uint i ) const
-
-  Finds the first occurrence of the item pointer \a d in the vector
-  using a linear search. The search starts at position \a i, which must
-  be less than size(). \a i is by default 0; i.e. the search starts at
-  the start of the vector.
-
-  Returns the position of \a d, or -1 if \a d could not be found.
-
-  This function does \e not use compareItems() to compare items.
-
-  Use the much faster bsearch() to search a sorted vector.
-
-  \sa find(), bsearch()
-*/
-
-/*!
-  \fn int QPtrVector::find( const type *d, uint i ) const
-
-  Finds the first occurrence of item \a d in the vector using a linear
-  search. The search starts at position \a i, which must be less than
-  size(). \a i is by default 0; i.e. the search starts at the start of
-  the vector.
-
-  Returns the position of \a d, or -1 if \a d could not be found.
-
-  Compares items using the virtual function compareItems().
-
-  Use the much faster bsearch() to search a sorted vector.
-
-  \sa findRef(), bsearch()
+    \sa sort(), find()
 */
 
 
 /*!
-  \fn uint QPtrVector::containsRef( const type *d ) const
+    \fn int QPtrVector::findRef( const type *d, uint i ) const
 
-  Returns the number of occurrences of the item pointer \a d in the
-  vector.
+    Finds the first occurrence of the item pointer \a d in the vector
+    using a linear search. The search starts at position \a i, which
+    must be less than size(). \a i is by default 0; i.e. the search
+    starts at the start of the vector.
 
-  This function does \e not use compareItems() to compare items.
+    Returns the position of \a d, or -1 if \a d could not be found.
 
-  \sa findRef()
+    This function does \e not use compareItems() to compare items.
+
+    Use the much faster bsearch() to search a sorted vector.
+
+    \sa find(), bsearch()
 */
 
 /*!
-  \fn uint QPtrVector::contains( const type *d ) const
+    \fn int QPtrVector::find( const type *d, uint i ) const
 
-  Returns the number of occurrences of item \a d in the vector.
+    Finds the first occurrence of item \a d in the vector using a
+    linear search. The search starts at position \a i, which must be
+    less than size(). \a i is by default 0; i.e. the search starts at
+    the start of the vector.
 
-  Compares items using the virtual function compareItems().
+    Returns the position of \a d, or -1 if \a d could not be found.
 
-  \sa containsRef()
-*/
+    Compares items using the virtual function compareItems().
 
-/*!
-  \fn type *QPtrVector::operator[]( int i ) const
+    Use the much faster bsearch() to search a sorted vector.
 
-  Returns the item at position \a i, or 0 if there is no item at
-  that position. \a i must be less than size().
-
-  Equivalent to at( \a i ).
-
-  \sa at()
-*/
-
-/*!
-  \fn type *QPtrVector::at( uint i ) const
-
-  Returns the item at position \a i, or 0 if there is no item at
-  that position. \a i must be less than size().
+    \sa findRef(), bsearch()
 */
 
 
 /*!
-  \fn void QPtrVector::toList( QGList *list ) const
+    \fn uint QPtrVector::containsRef( const type *d ) const
 
-  Copies all items in this vector to the list \a list. \a list
-  is first cleared and then all items are appended to \a list.
+    Returns the number of occurrences of the item pointer \a d in the
+    vector.
 
-  \sa QPtrList, QPtrStack, QPtrQueue
+    This function does \e not use compareItems() to compare items.
+
+    \sa findRef()
 */
 
 /*!
-  \fn int QPtrVector::compareItems( QPtrCollection::Item d1,
-				    QPtrCollection::Item d2 )
+    \fn uint QPtrVector::contains( const type *d ) const
 
-  This virtual function compares two list items.
+    Returns the number of occurrences of item \a d in the vector.
 
-  Returns:
-  \list
-  \i zero if \a d1 == \a d2
-  \i nonzero if \a d1 != \a d2
-  \endlist
+    Compares items using the virtual function compareItems().
 
-  This function returns \e int rather than \e bool so that
-  reimplementations can return one of three values and use it to sort
-  by:
-  \list
-  \i 0 if \a d1 == \a d2
-  \i \> 0 (positive integer) if \a d1 \> \a d2
-  \i \< 0 (negative integer) if \a d1 \< \a d2
-  \endlist
-
-  The sort() and bsearch() functions require that compareItems() is
-  implemented as described here.
-
-  This function should not modify the vector because some const
-  functions call compareItems().
+    \sa containsRef()
 */
 
 /*!
-  \fn QDataStream& QPtrVector::read( QDataStream &s,
-				     QPtrCollection::Item &item )
+    \fn type *QPtrVector::operator[]( int i ) const
 
-  Reads a vector item, \a item, from the stream \a s and returns a
-  reference to the stream.
+    Returns the item at position \a i, or 0 if there is no item at
+    that position. \a i must be less than size().
 
-  The default implementation sets \a item to 0.
+    Equivalent to at( \a i ).
 
-  \sa write()
+    \sa at()
 */
 
 /*!
-  \fn QDataStream& QPtrVector::write( QDataStream &s,
-				      QPtrCollection::Item item ) const
-  Writes a vector item, \a item, to the stream \a s and returns a
-  reference to the stream.
+    \fn type *QPtrVector::at( uint i ) const
 
-  The default implementation does nothing.
+    Returns the item at position \a i, or 0 if there is no item at
+    that position. \a i must be less than size().
+*/
 
-  \sa read()
+
+/*!
+    \fn void QPtrVector::toList( QGList *list ) const
+
+    \internal
+
+    Copies all items in this vector to the list \a list. \a list is
+    first cleared and then all items are appended to \a list.
+
+    \sa QPtrList, QPtrStack, QPtrQueue
+*/
+
+/*!
+    \fn int QPtrVector::compareItems( QPtrCollection::Item d1,
+					QPtrCollection::Item d2 )
+
+    This virtual function compares two list items.
+
+    Returns:
+    \list
+    \i zero if \a d1 == \a d2
+    \i nonzero if \a d1 != \a d2
+    \endlist
+
+    This function returns \e int rather than \e bool so that
+    reimplementations can return one of three values and use it to
+    sort by:
+    \list
+    \i 0 if \a d1 == \a d2
+    \i \> 0 (positive integer) if \a d1 \> \a d2
+    \i \< 0 (negative integer) if \a d1 \< \a d2
+    \endlist
+
+    The sort() and bsearch() functions require compareItems() to be
+    implemented as described here.
+
+    This function should not modify the vector because some const
+    functions call compareItems().
+*/
+
+/*!
+    \fn QDataStream& QPtrVector::read( QDataStream &s,
+					QPtrCollection::Item &item )
+
+    Reads a vector item, \a item, from the stream \a s and returns a
+    reference to the stream.
+
+    The default implementation sets \a item to 0.
+
+    \sa write()
+*/
+
+/*!
+    \fn QDataStream& QPtrVector::write( QDataStream &s,
+					QPtrCollection::Item item ) const
+
+    Writes a vector item, \a item, to the stream \a s and returns a
+    reference to the stream.
+
+    The default implementation does nothing.
+
+    \sa read()
 */
     
 /*!
     \fn bool QPtrVector::operator==( const QPtrVector<type> &v ) const
-    Returns TRUE if this vector and \a v are equal; otherwise returns FALSE.
+
+    Returns TRUE if this vector and \a v are equal; otherwise returns
+    FALSE.
 */
 
