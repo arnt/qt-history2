@@ -3,6 +3,7 @@
 #include <qtextstream.h>
 #include <qregexp.h>
 #include <qglobal.h>
+#include <qhash.h>
 #include "configureapp.h"
 
 #if defined ( Q_CC_MSVC_NET ) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
@@ -1368,6 +1369,21 @@ void Configure::findProjects( const QString& dirName )
     int makeListNumber;
     ProjectType qmakeTemplate;
 
+    static QHash<QString,bool> excludeTable;
+    static bool initExcludeTable = false;
+    if (!initExcludeTable) {
+	excludeTable["qcompat.pro"]    = true;
+	excludeTable["qnetwork.pro"]   = true;
+	excludeTable["qopengl.pro"]    = true;
+	excludeTable["qsqlkernel.pro"] = true;
+	excludeTable["qt_gui.pro"]     = true;
+	excludeTable["qtkernel.pro"]   = true;
+	excludeTable["qtlibs.pro"]     = true;
+	excludeTable["qtmain.pro"]     = true;
+	excludeTable["qxml.pro"]       = true;
+	initExcludeTable = true;
+    }
+
     if( dictionary[ "NOPROCESS" ] == "no" ) {
 	while( ( fi = it.current() ) ) {
 	    if( fi->fileName()[ 0 ] != '.' && fi->fileName() != "qmake.pro" ) {
@@ -1376,7 +1392,7 @@ void Configure::findProjects( const QString& dirName )
 		    findProjects( entryName );
 		} else {
 		    if( fi->fileName().right( 4 ) == ".pro" ) {
-			if ( fi->fileName() != "qtmain.pro" && fi->fileName() != "qtlibs.pro" ) {
+			if ( !excludeTable[fi->fileName()] ) {
 			    qmakeTemplate = projectType( fi->absFilePath() );
 			    switch ( qmakeTemplate ) {
 				case Lib:
