@@ -1657,7 +1657,7 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
                 int sliderPos = sliderPositionFromValue(slider->minimum, slider->maximum, slider->sliderPosition,
                                                         horizontal ? slider->rect.width() - len - 2 * motifBorder
                                                         : slider->rect.height() - len - 2 * motifBorder,
-                                                        (!horizontal == !slider->upsideDown));
+                                                        slider->upsideDown);
                 if (horizontal)
                     return QRect(sliderPos + motifBorder, tickOffset + motifBorder, len,
                                  thickness - 2 * motifBorder);
