@@ -135,10 +135,6 @@ QByteArray normalizeType(const char *s, bool fixScope)
 }
 
 static const char *error_msg = 0;
-void Moc::setErrorMessage(const char * msg)
-{
-    error_msg = msg;
-}
 
 #ifdef Q_CC_MSVC
 #define ErrorFormatString "%s(%d): "
@@ -362,20 +358,13 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
     def->isVirtual = test(VIRTUAL);
     while (test(INLINE) || test(STATIC))
         ;
-    switch(lookup()) {
-    case ENUM:
-        setErrorMessage("Unexpected enum declaration");
-        break;
-    case TEMPLATE:
-        setErrorMessage("Template function as signal or slot");
-        break;
-    default:
-        ;
-    }
-
+    bool templateFunction = (lookup() == TEMPLATE);
     def->type = parseType();
-    if (def->type.isEmpty())
+    if (def->type.isEmpty()) {
+        if (templateFunction)
+            error("Template function as signal or slot");
         return;
+}
     if (test(LPAREN)) {
         def->name = def->type;
         def->type = "int";
@@ -396,7 +385,7 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
             def->type = def->name;
             def->name = parseType();
         }
-        next(LPAREN, "Variable as signal or slot");
+        next(LPAREN, "Not a signal or slot declaration");
     }
 
     def->normalizedType = normalizeType(def->type);
@@ -418,7 +407,6 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
         else
             error();
     }
-    setErrorMessage(0);
 }
 
 // like parseFunction, but never aborts with an error
@@ -466,6 +454,7 @@ bool Moc::parseMaybeFunction(FunctionDef *def)
 void Moc::parse()
 {
     QList<NamespaceDef> namespaceList;
+    bool templateClass = false;
     while (hasNext()) {
         Token t = next();
         if (t == NAMESPACE) {
@@ -481,6 +470,10 @@ void Moc::parse()
                 namespaceList += def;
             }
             index = rewind;
+        } else if (t == SEMIC) {
+            templateClass = false;
+        } else if (t == TEMPLATE) {
+            templateClass = true;
         }
         if (t != CLASS)
             continue;
@@ -533,6 +526,8 @@ void Moc::parse()
                     break;
                 case Q_OBJECT_TOKEN:
                     def.hasQObject = true;
+                    if (templateClass)
+                        error("Template classes not supported by Q_OBJECT");
                     if (def.classname != "Qt" && def.classname != "QObject" && def.superclassList.isEmpty())
                         error("Class contains Q_OBJECT macro but does not inherit from QObject");
                     break;

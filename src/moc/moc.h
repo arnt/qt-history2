@@ -140,7 +140,6 @@ public:
     inline QByteArray lexem() { return symbols.at(index-1).lexem();}
     inline const Symbol &symbol() { return symbols.at(index-1);}
 
-    void setErrorMessage(const char *);
     void error(int rollback);
     void error(const char *msg = 0);
     void warning(const char * = 0);
