@@ -437,6 +437,18 @@ pointer by QSqlDatabase objects.
 
 QSqlQuery::prev() was renamed to QSqlQuery::previous(). There is a function call for compatibility, but if you subclassed QSqlQuery, you have to reimplement previous() instead of prev().
 
+\section1 QSqlError
+
+The enum \c{Type} was renamed to \c{ErrorType}, The values were renamed as well:
+
+\list
+\i None - use NoError instead
+\i Connection - use ConnectionError instead
+\i Statement - use StatementError instead
+\i Transaction - use TransactionError instead
+\i Unknown - use UnknownError instead
+\endlist
+
 \section1 QSplitter
 
 The function setResizeMode() has been moved into compat. Set the stretch factor

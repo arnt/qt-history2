@@ -135,10 +135,15 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
 
     For example:
 
-    \quotefile sql/overview/retrieve2/main.cpp
-    \skipto QSqlCursor
-    \printline QSqlCursor
-    \printuntil }
+    \code
+    QSqlCursor cur( "staff" ); // Specify the table/view name
+    cur.select(); // We'll retrieve every record
+    while ( cur.next() ) {
+        qDebug( cur.value( "id" ).toString() + ": " +
+        cur.value( "surname" ).toString() + " " +
+        cur.value( "salary" ).toString() );
+    }
+    \endcode
 
     In the above example, a cursor is created specifying a table or
     view name in the database. Then, select() is called, which can be
@@ -162,11 +167,17 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
 
     For example:
 
-    \quotefile sql/overview/update/main.cpp
-    \skipto prices
-    \printline prices
-    \printuntil update
-    \printline
+    \code
+    QSqlCursor cur( "prices" );
+    cur.select( "id=202" );
+    if ( cur.next() ) {
+        QSqlRecord *buffer = cur.primeUpdate();
+        double price = buffer->value( "price" ).toDouble();
+        double newprice = price * 1.05;
+        buffer->setValue( "price", newprice );
+        cur.update();
+    }
+    \endcode
 
     To edit an existing database record, first move to the record you
     wish to update. Call primeUpdate() to get the pointer to the
@@ -973,10 +984,14 @@ QString QSqlCursor::toString(const QSqlIndex& i, QSqlRecord* rec, const QString&
     new select() call must be made before navigating to a valid
     record.
 
-    \quotefile sql/overview/insert2/main.cpp
-    \skipto prices
-    \printline prices
-    \printuntil insert
+    \code
+    QSqlCursor cur("prices");
+    QSqlRecord *buffer = cur.primeInsert();
+    buffer->setValue("id",    53981);
+    buffer->setValue("name",  "Thingy");
+    buffer->setValue("price", 105.75);
+    cur.insert();
+    \endcode
 
     In the above example, a cursor is created on the 'prices' table
     and a pointer to the insert buffer is aquired using primeInsert().
@@ -1139,11 +1154,17 @@ QSqlRecord* QSqlCursor::primeInsert()
     longer be navigated. A new select() call must be made before you
     can move to a valid record. For example:
 
-    \quotefile sql/overview/update/main.cpp
-    \skipto prices
-    \printline prices
-    \printuntil update
-    \printline
+    \code
+    QSqlCursor cur("prices");
+    cur.select("id=202");
+    if (cur.next()) {
+        QSqlRecord *buffer = cur.primeUpdate();
+        double price = buffer->value("price").toDouble();
+        double newprice = price * 1.05;
+        buffer->setValue("price", newprice);
+        cur.update();
+    }
+    \endcode
 
     In the above example, a cursor is created on the 'prices' table
     and is positioned on the record to be updated. Then a pointer to
@@ -1245,10 +1266,14 @@ int QSqlCursor::update(const QString & filter, bool invalidate)
     be navigated. A new select() call must be made before you can move
     to a valid record. For example:
 
-    \quotefile sql/overview/delete/main.cpp
-    \skipto prices
-    \printline prices
-    \printuntil }
+    \code
+    QSqlCursor cur("prices");
+    cur.select("id=999");
+    if (cur.next()) {
+        cur.primeDelete();
+        cur.del();
+    }
+    \endcode
 
     In the above example, a cursor is created on the 'prices' table
     and positioned to the record to be deleted. First primeDelete() is

@@ -53,13 +53,6 @@ QDebug operator<<(QDebug dbg, const QSqlError &s)
     \value StatementError  SQL statement syntax error
     \value TransactionError  transaction failed error
     \value UnknownError  unknown error
-
-    \value None  obsolete, use NoError instead
-    \value Connection  obsolete, use ConnectionError instead
-    \value Statement  obsolete, use StatementError instead
-    \value Transaction  obsolete, use TransactionError instead
-    \value Unknown  obsolete, use UnknownError instead
-
 */
 
 /*!

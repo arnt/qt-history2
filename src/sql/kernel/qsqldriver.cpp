@@ -161,6 +161,21 @@ bool QSqlDriver::isOpenError() const
 */
 
 /*!
+    \enum QSqlDriver::StatementType
+
+    This enum contains a list of SQL statement types the driver can create.
+
+    \value WhereStatement  a SQL WHERE statement, for example \c{WHERE f = 5}
+    \value SelectStatement a SQL SELECT statement, for example \c{SELECT f FROM t}
+    \value UpdateStatement a SQL UPDATE statement, for example \c{UPDATE TABLE t set f = 1}
+    \value InsertStatement a SQL INSERT statement, for example \c{INSERT INTO t (f) values (1)}
+    \value DeleteStatement a SQL DELETE statement, for example \c{DELETE FROM t}
+
+    \sa sqlStatement()
+*/
+
+
+/*!
     \fn bool QSqlDriver::hasFeature(DriverFeature f) const
 
     Returns true if the driver supports feature \a f; otherwise
@@ -303,8 +318,14 @@ QSqlRecord QSqlDriver::record(const QString& ) const
 }
 
 /*!
-*/
+    Returns a SQL statement of type \a type for the table \a tableName
+    with the values from \a rec. If \a preparedStatement is TRUE, the
+    string will contain placeholders instead of values.
 
+    This method can be used to manipulate tables without having to worry
+    about database-dependend SQL dialects. For non-prepared statements,
+    the values will be properly escaped.
+*/
 QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
                                  const QSqlRecord &rec, bool preparedStatement) const
 {
