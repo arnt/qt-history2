@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#168 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#169 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1366,12 +1366,11 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 /*!
   Pass wheel events to the scroll bar.
 */
-void QListBox::wheelEvent( QWheelEvent *e ){
-    if (scrollBar())
-	QApplication::sendEvent( verticalScrollBar(), e);
+void QListBox::wheelEvent( QWheelEvent *e )
+{
+    if ( scrollBar() )
+	QApplication::sendEvent( (QObject *)verticalScrollBar(), e);
 }
-
-
 
 
 /*!
@@ -1414,7 +1413,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     case Key_Left:
     case Key_Right:
 	if ( bottomScrollBar() )
-	    QApplication::sendEvent( horizontalScrollBar(), e );
+	    QApplication::sendEvent( (QObject *)horizontalScrollBar(), e );
 	break;
     case Key_Next:
 	e->accept();
