@@ -254,9 +254,14 @@ bool Moc::parseClassHead(ClassDef *def)
     if (test(COLON)) {
         do {
             test(VIRTUAL);
-            test(PUBLIC) || test(PROTECTED) || test(PRIVATE);
+            bool priv = test(PRIVATE);
+            if (!priv)
+                test(PUBLIC) || test(PROTECTED); 
             test(VIRTUAL);
-            def->superclassList += parseType();
+            if (!priv)
+                def->superclassList += parseType();
+            else
+                parseType();
         } while (test(COMMA));
     }
     next(LBRACE);
