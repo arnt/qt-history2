@@ -53,4 +53,5 @@ QHeader::cellPos()
 
 QSplitter::moveSplitter()
 
+QHeader::offset()
 */
