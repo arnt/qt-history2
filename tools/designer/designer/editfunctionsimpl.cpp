@@ -41,25 +41,35 @@
 EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
     : EditFunctionsBase( parent, 0, TRUE ), formWindow( fw )
 {
-    LanguageInterface *iface = MetaDataBase::languageInterface( fw->project()->language() );
-    if ( iface && !iface->supports( LanguageInterface::ReturnType ) ) {
-	functionListView->removeColumn( 1 );
-	editType->hide();
-	labelType->hide();
-    }
-
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
+    
+    id = 0;
+    functList.clear();
+    
     QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( fw );
     for ( QValueList<MetaDataBase::Function>::Iterator it = functionList.begin(); it != functionList.end(); ++it ) {
 	QListViewItem *i = new QListViewItem( functionListView );
-	oldFunctionNames.insert( i, QString( (*it).function ) );
+	
 	i->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	i->setText( 0, (*it).function );
 	i->setText( 1, (*it).returnType );
 	i->setText( 2, (*it).specifier );
 	i->setText( 3, (*it).access  );
 	i->setText( 4, (*it).type );
-		
+	
+	FunctItem fui;
+	fui.id = id;
+	fui.oldName = (*it).function;
+	fui.newName = (*it).function;
+	fui.retTyp = (*it).returnType;
+	fui.spec = (*it).specifier;
+	fui.access = (*it).access;
+	fui.type = (*it).type;
+	functList.append( fui );
+	
+	functionIds.insert( i, id );
+	id++;
+	
 	if ( (*it).type == "slot" ) {
 	    if ( MetaDataBase::isSlotUsed( formWindow, MetaDataBase::normalizeFunction( (*it).function ).latin1() ) )
 		i->setText( 5, tr( "Yes" ) );
@@ -76,7 +86,7 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
     if ( functionListView->firstChild() )
 	functionListView->setCurrentItem( functionListView->firstChild() );
 
-    showOnlySlots->setChecked( justSlots );
+    showOnlySlots->setChecked( justSlots );    
 }
 
 void EditFunctions::okClicked()
@@ -98,23 +108,24 @@ void EditFunctions::okClicked()
 	rmFunc = new MacroCommand( tr( "Remove functions" ), formWindow, commands );
     }
 
-    bool invalidFunctions = FALSE;
-    QPtrList<QListViewItem> invalidItems;
-    if ( functionListView->firstChild() ) {
+    bool invalidFunctions = FALSE;    
+    QValueList<FunctItem> invalidItems;
+
+    if ( !functList.isEmpty() ) {
 	QPtrList<Command> commands;
-	QListViewItemIterator it( functionListView );
 	QStrList lst;
-	for ( ; it.current(); ++it ) {
+	QValueList<FunctItem>::Iterator it = functList.begin();
+	for ( ; it != functList.end(); ++it ) {
 	    MetaDataBase::Function function;
-	    function.function = it.current()->text( 0 );
-	    function.returnType = it.current()->text( 1 );
-	    function.specifier = it.current()->text( 2 );
-	    function.access = it.current()->text( 3 );
-	    function.type = it.current()->text(4 );
+	    function.function = (*it).newName;
+	    function.returnType = (*it).retTyp;
+	    function.specifier = (*it).spec;
+	    function.access = (*it).access;
+	    function.type = (*it).type;
 	    function.language = formWindow->project()->language();
 	    if ( function.returnType.isEmpty() )
 		function.returnType = "void";
-	    QString s = function.function;
+	    QString s = function.function;    
 	    s = s.simplifyWhiteSpace();
 	    bool startNum = s[ 0 ] >= '0' && s[ 0 ] <= '9';
 	    bool noParens = s.contains( '(' ) != 1 || s.contains( ')' ) != 1;
@@ -122,7 +133,7 @@ void EditFunctions::okClicked()
 
 	    if ( startNum || noParens || illegalSpace || lst.find( function.function ) != -1 ) {
 		invalidFunctions = TRUE;
-		invalidItems.append( it.current() );
+		invalidItems.append( (*it) );
 		continue;
 	    }
 	    commands.append( new AddFunctionCommand( tr( "Add function" ),
@@ -130,27 +141,48 @@ void EditFunctions::okClicked()
 						     function.access,
 						     function.type, formWindow->project()->language(),
 						     function.returnType ) );
-	    QMap<QListViewItem*, QString>::Iterator sit = oldFunctionNames.find( it.current() );
-	    if ( sit != oldFunctionNames.end() ) {
-		if ( *sit != it.current()->text( 0 ) )
-		    MetaDataBase::functionNameChanged( formWindow, *sit, it.current()->text( 0 ) );
-	    }
+	    if ( MetaDataBase::normalizeFunction( (*it).newName ) != MetaDataBase::normalizeFunction( (*it).oldName ) ) 
+		MetaDataBase::functionNameChanged( formWindow, (*it).oldName, (*it).newName );
 	    lst.append( function.function );
 	}
 	if ( !commands.isEmpty() )
 	    addFunc = new MacroCommand( tr( "Add functions" ), formWindow, commands );
     }
+
     if ( invalidFunctions ) {
 	if ( QMessageBox::information( this, tr( "Edit Functions" ),
-					     tr( "Some syntactically incorrect functions have been defined.\n"
-						 "Remove these functions?" ),
-				       tr( "&Yes" ), tr( "&No" ) ) == 0 ) {
-	    QListViewItemIterator it( functionListView );
-	    QListViewItem *i;
-	    while ( (i = it.current() ) ) {
-		++it;
-		if ( invalidItems.findRef( i ) != -1 )
-		    delete i;
+				       tr( "Some syntactically incorrect functions have been defined.\n"
+				       "Remove these functions?" ), tr( "&Yes" ), tr( "&No" ) ) == 0 ) {
+	    QValueList<FunctItem>::Iterator it = functList.begin();
+	    while ( it != functList.end() ) {		
+		bool found = FALSE;
+		QValueList<FunctItem>::Iterator vit = invalidItems.begin();
+		for ( ; vit != invalidItems.end(); ++vit ) {
+		    if ( (*vit).newName == (*it).newName ) {
+			invalidItems.remove( vit );
+			found = TRUE;
+			break;
+		    }
+		}	
+		if ( found ) {
+		    int delId = (*it).id;
+		    it = functList.remove( it );				    
+		    QMap<QListViewItem*, int>::Iterator fit = functionIds.begin();
+		    while ( fit != functionIds.end() ) {
+			if ( *fit == delId ) {
+			    QListViewItem *litem = fit.key();		    
+			    functionIds.remove( fit );    		    
+			    delete litem;
+			    if ( functionListView->currentItem() )
+				functionListView->setSelected( functionListView->currentItem(), TRUE );
+			    currentItemChanged( functionListView->currentItem() );
+			    break;
+			}
+			++fit;
+		    }
+		}
+		else
+		    ++it;
 	    }
 	    if ( functionListView->firstChild() ) {
 		functionListView->setCurrentItem( functionListView->firstChild() );
@@ -160,6 +192,7 @@ void EditFunctions::okClicked()
 	formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
 	return;
     }
+    
     for ( QStringList::Iterator rsit = removedFunctions.begin(); rsit != removedFunctions.end(); ++rsit )
 	removeFunctionFromCode( *rsit, formWindow );
 
@@ -211,6 +244,18 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
     functionListView->setSelected( i, TRUE );
     functionName->setFocus();
     functionName->selectAll();
+
+    FunctItem fui;
+    fui.id = id;
+    fui.oldName = i->text( 0 );
+    fui.newName = i->text( 0 );
+    fui.retTyp = i->text( 1 );
+    fui.spec = i->text( 2 );
+    fui.access = i->text( 3 );
+    fui.type = i->text( 4 );
+    functList.append( fui );    
+    functionIds.insert( i, id );
+    id++;
 }
 
 void EditFunctions::functionRemove()
@@ -220,6 +265,16 @@ void EditFunctions::functionRemove()
 
     functionListView->blockSignals( TRUE );
     removedFunctions << MetaDataBase::normalizeFunction( functionListView->currentItem()->text( 0 ) );
+    int delId = functionIds[ functionListView->currentItem() ];    
+    QValueList<FunctItem>::Iterator it = functList.begin();
+    while ( it != functList.end() ) {
+	if ( (*it).id == delId ) {
+	    functList.remove( it );
+	    break; 
+	}
+	++it;
+    }	     
+    functionIds.remove( functionListView->currentItem() );    
     delete functionListView->currentItem();
     if ( functionListView->currentItem() )
 	functionListView->setSelected( functionListView->currentItem(), TRUE );
@@ -271,6 +326,7 @@ void EditFunctions::currentTextChanged( const QString &txt )
     if ( !functionListView->currentItem() )
 	return;
 
+    changeItem( functionListView->currentItem(), Name, txt );    
     functionListView->currentItem()->setText( 0, txt );
 
     if ( functionListView->currentItem()->text( 4 ) == "slot" ) {
@@ -288,6 +344,7 @@ void EditFunctions::currentSpecifierChanged( const QString& s )
     if ( !functionListView->currentItem() )
 	return;
 
+    changeItem( functionListView->currentItem(), Specifier, s );
     functionListView->currentItem()->setText( 2, s );
 }
 
@@ -295,6 +352,7 @@ void EditFunctions::currentAccessChanged( const QString& a )
 {
     if ( !functionListView->currentItem() )
 	return;
+    changeItem( functionListView->currentItem(), Access, a );
     functionListView->currentItem()->setText( 3, a );
 }
 
@@ -303,7 +361,7 @@ void EditFunctions::currentReturnTypeChanged( const QString &type )
 {
     if ( !functionListView->currentItem() )
 	return;
-
+    changeItem( functionListView->currentItem(), ReturnType, type );
     functionListView->currentItem()->setText( 1, type );
 }
 
@@ -311,7 +369,50 @@ void EditFunctions::currentTypeChanged( const QString &type )
 {
     if ( !functionListView->currentItem() )
 	return;
+    changeItem( functionListView->currentItem(), Type,  type );
     functionListView->currentItem()->setText( 4, type );
+    if ( type == "slot" ) {
+	if ( MetaDataBase::isSlotUsed( formWindow, 
+		MetaDataBase::normalizeFunction( functionListView->currentItem()->text( 0 ).latin1() ).latin1() ) )
+	    functionListView->currentItem()->setText( 5, tr( "Yes" ) );
+	else
+	    functionListView->currentItem()->setText( 5, tr( "No" ) );
+    } else {
+	functionListView->currentItem()->setText( 5, "---" );
+    }
+}
+
+void EditFunctions::changeItem( QListViewItem *item, Attribute a, const QString &nV )
+{
+    int itemId;
+    QMap<QListViewItem*, int>::Iterator fit = functionIds.find( item );
+    if ( fit != functionIds.end() ) 
+	itemId = *fit;
+    else
+	return;
+    
+    QValueList<FunctItem>::Iterator it = functList.begin();
+    for ( ; it != functList.end(); ++it ) {
+	if ( (*it).id == itemId ) {	
+	    switch( a ) {
+		case Name:
+		    (*it).newName = nV;
+		    break;
+		case Specifier:
+		    (*it).spec = nV;
+		    break;
+		case Access:
+		    (*it).access = nV;
+		    break;
+		case ReturnType:
+		    (*it).retTyp = nV;
+		    break;
+		case Type:
+		    (*it).type = nV;
+		    break;
+	    }
+	}
+    }
 }
 
 void EditFunctions::removeFunctionFromCode( const QString &function, FormWindow *formWindow )
@@ -375,24 +476,22 @@ void EditFunctions::setCurrentFunction( const QString &function )
 
 void EditFunctions::displaySlots( bool justSlots )
 {
-    setupItemList( justSlots );
-
+    functionIds.clear();
     functionListView->clear();
-    oldFunctionNames.clear();
-    for ( QValueList<MetaDataBase::Function>::Iterator it = itemList.begin(); it != itemList.end(); ++it ) {
+    for ( QValueList<FunctItem>::Iterator it = functList.begin(); it != functList.end(); ++it ) {
 	if ( (*it).type == "function" && justSlots )
-	    continue;
+	    continue;	
 	QListViewItem *i = new QListViewItem( functionListView );
-	oldFunctionNames.insert( i, QString( (*it).function ) );
+	functionIds.insert( i, (*it).id );
 	i->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
-	i->setText( 0, (*it).function );
-	i->setText( 1, (*it).returnType );
-	i->setText( 2, (*it).specifier );
+	i->setText( 0, (*it).newName );
+	i->setText( 1, (*it).retTyp );
+	i->setText( 2, (*it).spec );
 	i->setText( 3, (*it).access  );
 	i->setText( 4, (*it).type );
 		
 	if ( (*it).type == "slot" ) {
-	    if ( MetaDataBase::isSlotUsed( formWindow, MetaDataBase::normalizeFunction( (*it).function ).latin1() ) )
+	    if ( MetaDataBase::isSlotUsed( formWindow, MetaDataBase::normalizeFunction( (*it).newName ).latin1() ) )
 		i->setText( 5, tr( "Yes" ) );
 	    else
 		i->setText( 5, tr( "No" ) );
@@ -400,38 +499,7 @@ void EditFunctions::displaySlots( bool justSlots )
 	    i->setText( 5, "---" );
 	}	
     }
+    
     if ( functionListView->firstChild() )
 	functionListView->setSelected( functionListView->firstChild(), TRUE );
-}
-
-void EditFunctions::setupItemList( bool currentlyAllFunct )
-{
-    if ( !currentlyAllFunct ) {
-	QValueList<MetaDataBase::Function>::Iterator i = itemList.begin();
-	while ( i != itemList.end() ) {
-	    if ( (*i).type == "slot" ) {
-		i = itemList.remove( i );
-	    } else
-		++i;
-	}
-    } else
-	itemList.clear();
-
-    QListViewItemIterator it( functionListView );
-    QValueList<MetaDataBase::Function> lst;
-    while ( it.current() != 0 ) {
-        MetaDataBase::Function f;
-        f.function = it.current()->text( 0 );
-        f.returnType = it.current()->text( 1 );
-        f.specifier = it.current()->text( 2 );
-        f.access = it.current()->text( 3 );
-        f.type = it.current()->text(4 );
-        f.language = formWindow->project()->language();
-        lst.append( f );		
-        if ( !currentlyAllFunct )
-	    itemList.append( f );	
-	++it;
-    }
-    if ( currentlyAllFunct )
-	itemList = lst;
 }

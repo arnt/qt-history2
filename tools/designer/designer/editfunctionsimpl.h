@@ -13,7 +13,7 @@ class EditFunctions : public EditFunctionsBase
 {
     Q_OBJECT
 
-public:
+public:    
     EditFunctions( QWidget *parent, FormWindow *fw, bool showOnlySlots = FALSE );
 
     void setCurrentFunction( const QString &function );
@@ -32,14 +32,27 @@ protected slots:
     void currentReturnTypeChanged( const QString &type );
     void currentTypeChanged( const QString &type );
     void displaySlots( bool justSlots );
-    void setupItemList( bool currentAllFunct );
 
-private:
-    void setupGUI();
+private:    
+    enum Attribute { Name, Specifier, Access, ReturnType, Type };
+    struct FunctItem {
+	int id;
+	QString oldName;
+	QString newName;
+	QString retTyp;
+	QString spec;
+	QString access;
+	QString type;
+    };
+    
+    void changeItem( QListViewItem *item, Attribute a, const QString &nV );
+
     FormWindow *formWindow;
-    QMap<QListViewItem*, QString> oldFunctionNames;
+    QMap<QListViewItem*, int> functionIds;
     QStringList removedFunctions;
     QValueList<MetaDataBase::Function> itemList;
+    QValueList<FunctItem> functList;
+    int id;
 };
 
 #endif
