@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#26 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -342,7 +342,8 @@ public:
 /*!
   \class QWorkspace qworkspace.h
 
-  \brief The QWorkspace class provides a workspace used to implement a
+  \brief A workspace that can contain decorated windows as opposed to
+  frameless child widgets.  QWorkspace makes it easy to implement a
   multidocument interface (MDI).
 
   \ingroup realwidgets
@@ -380,32 +381,40 @@ public:
   The convenience function clientList() returns a list of all document
   windows. This is especially useful to create a popup menu "&Windows"
   on the fly.
+  
+  If the user clicks on the frame of an MDI window, this window
+  becomes active, i.e. it gets the focus. For that reason, all
+  children of a QWorkspace have to be focus enabled. If your MDI
+  window does not handle focus itself, use QWidget::setFocusProxy(
+  otherWidget), with \c otherWidget being a child of your MDI window
+  that is focus enabled.
 
-  Multidocument interfaces have many friends, and almost as many
-  opponents. Bascially, it's a matter of taste.  Although everybody
-  agrees that it was the wrong choice for the Windows 3.1 file
-  manager, MDI has its advantages. Compared to a multiple window
-  structure (or single document interface ), MDI applications are
-  often easier to become familiar with. The main window, the menubar
-  and the toolbars form a stable working context for the users to
-  grasp and it is crystal-clear which windows belong together;
-  something, an SDI counterpart does not provide. Furthermore, the
+  In general, modern GUI applications should be document-centric
+  rather then application-centric. A single document interface (SDI)
+  guarantees a bijective mapping between open documents and open
+  windows on the screen. This makes the model very easy to understand
+  and therefore the natural choice for applications targeted on
+  inexperienced users. Typical examples are modern
+  wordprocessors. Although most wordprocessors were MDI applications
+  in the past, user interface studies showed that many users never
+  really understood the model.
+  
+  If an application is supposed to be used mostly by experienced
+  users, a multiple document interface may neverthless make sense.  A
+  typical example is an integrated development environment (IDE). With
+  an IDE, a document is a project. The project itself consists of an
+  arbitrary number of subdocuments, mainly code files but also other
+  data. MDI offers a good possibility to group these subdocuments
+  together in one main window.  The menubar and the toolbars form a
+  stable working context for the users to grasp and it is
+  crystal-clear which subdocuments belong together. Furthermore, the
   user effort for window management tasks such as positioning,
   stacking and sizing is significantly reduced.
+  
+  An alternative to MDI with QWorkspace is a multipane structure. This
+  can be achived by tiling the main window into separate panes with a
+  \l QSplitter.
 
-  You may want to take MDI into consideration, if
-  <ol>
-  <li> your design goals include both ease of use and flexiblity.
-  <li> your application centers around documents.
-  <li> your users are already familiar with an MDI interface.
-  </ol>
-
-  You do not want to take MDI into consideration, if
-  <ol>
-  <li> you do not like it.
-  <li> your users do not like it.
-  <li> you do not want to implement it this way.
-  </ol>
 */
 
 
