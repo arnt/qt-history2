@@ -118,7 +118,7 @@ QRubberBand::~QRubberBand()
 void QRubberBand::drawRubberBandMask(QPainter *p)
 {
     QStyleOption opt = d->getStyleOption();
-    style()->drawPrimitive(QStyle::PE_RubberBandMask, &opt, p, this);
+    style()->drawControlMask(QStyle::CE_RubberBand, &opt, p, this);
 }
 
 /*!
@@ -131,7 +131,7 @@ void QRubberBand::drawRubberBandMask(QPainter *p)
 void QRubberBand::drawRubberBand(QPainter *p)
 {
     QStyleOption opt = d->getStyleOption();
-    style()->drawPrimitive(QStyle::PE_RubberBand, &opt, p, this);
+    style()->drawControl(QStyle::CE_RubberBand, &opt, p, this);
 }
 
 /*!

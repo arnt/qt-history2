@@ -662,7 +662,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
                       ? QStyle::Style_Sibling : QStyle::Style_None)
                     |(model()->hasChildren(index) ? QStyle::Style_Children : QStyle::Style_None)
                     |(d->viewItems.at(d->current).open ? QStyle::Style_Open : QStyle::Style_None);
-        style()->drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
+        style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
     // then go out level by level
     for (--level; level >= outer; --level) { // we have already drawn the innermost branch
@@ -670,7 +670,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         opt.rect = primitive;
         opt.state = (d->model->rowCount(ancestor) - 1 > current.row())
                     ? QStyle::Style_Sibling : QStyle::Style_None;
-        style()->drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
+        style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
         current = ancestor;
         ancestor = current.parent();
     }

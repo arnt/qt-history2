@@ -272,7 +272,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
             // ### This should probably be a style primitive.
             qDrawShadeLine(&paint, p1, p2, palette(), true, 1, 0);
     } else {
-        style()->drawPrimitive(QStyle::PE_PanelGroupBox, &opt, &paint, this);
+        style()->drawPrimitive(QStyle::PE_FrameGroupBox, &opt, &paint, this);
     }
 }
 

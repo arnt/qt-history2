@@ -104,5 +104,5 @@ void QDockWindowSeparator::paintEvent(QPaintEvent *)
 	opt.state |= QStyle::Style_Horizontal;
     opt.rect = rect();
     opt.palette = palette();
-    style()->drawPrimitive(QStyle::PE_DockWindowResizeHandle, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_IndicatorDockWindowResizeHandle, &opt, &p, this);
 }

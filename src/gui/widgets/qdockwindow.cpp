@@ -175,7 +175,7 @@ void QDockWindowTitleButton::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_On;
     if (isDown())
         opt.state |= QStyle::Style_Down;
-    style()->drawPrimitive(QStyle::PE_ButtonTool, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_PanelButtonTool, &opt, &p, this);
 
     r.addCoords(2, 2, -2, -2);
     const QPixmap pm =
@@ -391,7 +391,7 @@ void QDockWindowTitle::paintEvent(QPaintEvent *)
     opt.closable = dockwindow->hasFeature(QDockWindow::DockWindowClosable);
     opt.moveable = dockwindow->hasFeature(QDockWindow::DockWindowMovable);
     opt.floatable = dockwindow->hasFeature(QDockWindow::DockWindowFloatable);
-    style()->drawPrimitive(QStyle::PE_DockWindowTitle, &opt, &p, this);
+    style()->drawControl(QStyle::CE_DockWindowTitle, &opt, &p, this);
 }
 
 void QDockWindowTitle::updateButtons()

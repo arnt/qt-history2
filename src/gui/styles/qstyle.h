@@ -112,82 +112,52 @@ public:
 #endif
 
     enum PrimitiveElement {
-        PE_ButtonCommand,
-        PE_ButtonDefault,
-        PE_ButtonBevel,
-        PE_ButtonTool,
-        PE_ButtonDropDown,
-
-        PE_FocusRect,
-
-        PE_ArrowUp,
-        PE_ArrowDown,
-        PE_ArrowRight,
-        PE_ArrowLeft,
-
-        PE_SpinBoxUp,
-        PE_SpinBoxDown,
-        PE_SpinBoxPlus,
-        PE_SpinBoxMinus,
-        PE_SpinBoxSlider,
-
-        PE_Indicator,
-        PE_IndicatorMask,
-        PE_ExclusiveIndicator,
-        PE_ExclusiveIndicatorMask,
-
+        PE_Q3CheckListController,
+        PE_Q3CheckListExclusiveIndicator,
+        PE_Q3CheckListIndicator,
         PE_Q3DockWindowHandle,
         PE_Q3DockWindowSeparator,
-        PE_DockWindowResizeHandle,
-        PE_DockWindowTitle,
-
-        PE_Splitter,
-
-        PE_Panel,
-        PE_PanelMenu,
-        PE_PanelMenuBar,
-        PE_PanelDockWindow,
-
-        PE_TabBarBase,
-
-        PE_HeaderSection,
-        PE_HeaderArrow,
-        PE_StatusBarSection,
-
         PE_Q3Separator,
 
-        PE_SizeGrip,
+        PE_Frame,
+        PE_FrameDefaultButton,
+        PE_FrameDockWindow,
+        PE_FrameFocusRect,
+        PE_FrameGroupBox,
+        PE_FrameLineEdit,
+        PE_FrameMenu,
+        PE_FrameStatusBar,
+        PE_FrameTabWidget,
+        PE_FrameWindow,
+        PE_FrameButtonBevel,
+        PE_FrameButtonTool,
 
-        PE_CheckMark,
-
-        PE_ScrollBarAddLine,
-        PE_ScrollBarSubLine,
-        PE_ScrollBarAddPage,
-        PE_ScrollBarSubPage,
-        PE_ScrollBarSlider,
-        PE_ScrollBarFirst,
-        PE_ScrollBarLast,
-
-        PE_ProgressBarChunk,
-
-        PE_PanelLineEdit,
-        PE_PanelTabWidget,
-        PE_WindowFrame,
-
-        PE_Q3CheckListController,
-        PE_Q3CheckListIndicator,
-        PE_Q3CheckListExclusiveIndicator,
-
-        PE_PanelGroupBox,
-
-        PE_TreeBranch,
-
-        PE_RubberBand,
-        PE_RubberBandMask,
-
+        PE_PanelButtonBevel,
+        PE_PanelButtonTool,
+        PE_PanelHeader,
+        PE_PanelMenuBar,
         PE_PanelToolBar,
-        PE_ToolBarHandle,
-        PE_ToolBarSeparator,
+
+        PE_IndicatorArrowDown,
+        PE_IndicatorArrowLeft,
+        PE_IndicatorArrowRight,
+        PE_IndicatorArrowUp,
+        PE_IndicatorBranch,
+        PE_IndicatorButtonDropDown,
+        PE_IndicatorCheckBox,
+        PE_IndicatorCheckBoxMask,
+        PE_IndicatorDockWindowResizeHandle,
+        PE_IndicatorHeaderArrow,
+        PE_IndicatorMenuCheckMark,
+        PE_IndicatorProgressChunk,
+        PE_IndicatorRadioButton,
+        PE_IndicatorRadioButtonMask,
+        PE_IndicatorSpinDown,
+        PE_IndicatorSpinMinus,
+        PE_IndicatorSpinPlus,
+        PE_IndicatorSpinUp,
+        PE_IndicatorToolBarHandle,
+        PE_IndicatorToolBarSeparator,
 
         // do not add any values below/greater this
         PE_CustomBase = 0xf000000
@@ -229,6 +199,19 @@ public:
         CE_DockWindowEmptyArea,
         CE_ToolBoxTab,
         CE_HeaderLabel,
+        CE_SpinBoxSlider,
+        CE_SizeGrip,
+        CE_Splitter,
+        CE_RubberBand,
+        CE_DockWindowTitle,
+
+        CE_ScrollBarAddLine,
+        CE_ScrollBarSubLine,
+        CE_ScrollBarAddPage,
+        CE_ScrollBarSubPage,
+        CE_ScrollBarSlider,
+        CE_ScrollBarFirst,
+        CE_ScrollBarLast,
 
         // do not add any values below/greater than this
         CE_CustomBase = 0xf0000000

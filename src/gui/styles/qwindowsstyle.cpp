@@ -1050,13 +1050,15 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
 void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                                   const QWidget *w) const
 {
-    // Used to restore across fallthrough cases. Currently only used in PE_Indicator
+    // Used to restore across fallthrough cases. Currently only used in PE_IndicatorCheckBox
     bool doRestore = false;
 
     switch (pe) {
-    case PE_ButtonTool: {
+    case PE_FrameButtonTool:
+    case PE_PanelButtonTool: {
         QBrush fill;
         bool stippled;
+        bool panel = (pe == PE_PanelButtonTool);
         if (!(opt->state & (Style_Down | Style_MouseOver)) && (opt->state & Style_On)
                 && use2000style) {
             fill = QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
@@ -1068,22 +1070,28 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
 
         if (opt->state & (Style_Raised | Style_Down | Style_On)) {
             if (opt->state & Style_AutoRaise) {
-                qDrawShadePanel(p, opt->rect, opt->palette,
-                                opt->state & (Style_Down | Style_On), 1, &fill);
+                if (panel)
+                    qDrawShadePanel(p, opt->rect, opt->palette,
+                            opt->state & (Style_Down | Style_On), 1, &fill);
+                else
+                    qDrawShadeRect(p, opt->rect, opt->palette,
+                                   opt->state & (Style_Down | Style_On), 1);
                 if (stippled) {
                     p->setPen(opt->palette.button().color());
                     p->drawRect(opt->rect.adjusted(1,1,-2,-2));
                 }
             } else {
                 qDrawWinButton(p, opt->rect, opt->palette,
-                               opt->state & (Style_Down | Style_On), &fill);
+                               opt->state & (Style_Down | Style_On), panel ? &fill : 0);
             }
         } else {
             p->fillRect(opt->rect, fill);
         }
         break; }
-    case PE_ButtonCommand:
+    case PE_PanelButtonBevel:
+    case PE_FrameButtonBevel:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
+            bool panel = pe == PE_PanelButtonBevel;
             QBrush fill;
             StyleFlags flags = opt->state;
             QPalette pal = opt->palette;
@@ -1097,35 +1105,40 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 p->setPen(pal.dark().color());
                 p->setBrush(fill);
                 p->drawRect(r);
-            } else if (flags & (Style_Raised | Style_Down | Style_On | Style_Sunken))
-                qDrawWinButton(p, r, pal, flags & (Style_Sunken | Style_Down | Style_On), &fill);
-            else
-                p->fillRect(r, fill);
-            break;
+            } else if (flags & (Style_Raised | Style_Down | Style_On | Style_Sunken)) {
+                qDrawWinButton(p, r, pal, flags & (Style_Sunken | Style_Down | Style_On),
+                               panel ? &fill : 0);
+            } else {
+                if (panel)
+                    p->fillRect(r, fill);
+                else
+                    p->drawRect(r);
+            }
         }
-    case PE_ButtonDefault:
+        break;
+    case PE_FrameDefaultButton:
         p->setPen(opt->palette.shadow().color());
         p->drawRect(opt->rect);
         break;
-    case PE_ArrowUp:
-    case PE_ArrowDown:
-    case PE_ArrowRight:
-    case PE_ArrowLeft: {
+    case PE_IndicatorArrowUp:
+    case PE_IndicatorArrowDown:
+    case PE_IndicatorArrowRight:
+    case PE_IndicatorArrowLeft: {
         QPointArray a;
         switch (pe) {
-            case PE_ArrowUp:
+            case PE_IndicatorArrowUp:
                 a.setPoints(7, -4, 1, 2, 1, -3, 0, 1, 0, -2, -1, 0, -1, -1, -2);
                 break;
 
-            case PE_ArrowDown:
+            case PE_IndicatorArrowDown:
                 a.setPoints(7, -4, -2, 2, -2, -3, -1, 1, -1, -2, 0, 0, 0, -1, 1);
                 break;
 
-            case PE_ArrowRight:
+            case PE_IndicatorArrowRight:
                 a.setPoints(7, -2, -3, -2, 3, -1, -2, -1, 2, 0, -1, 0, 1, 1, 0);
                 break;
 
-            case PE_ArrowLeft:
+            case PE_IndicatorArrowLeft:
                 a.setPoints(7, 0, -3, 0, 3, -1, -2, -1, 2, -2, -1, -2, 1, -3, 0);
                 break;
 
@@ -1155,7 +1168,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         }
         p->restore();
         break; }
-    case PE_Indicator: {
+    case PE_IndicatorCheckBox: {
         QBrush fill;
         if (opt->state & Style_NoChange)
             fill = QBrush(opt->palette.base().color(), Qt::Dense4Pattern);
@@ -1210,7 +1223,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         if (doRestore)
             p->restore();
         break;
-    case PE_FocusRect:
+    case PE_FrameFocusRect:
         if (const QStyleOptionFocusRect *fropt = qt_cast<const QStyleOptionFocusRect *>(opt)) {
 #if defined (Q_WS_WIN)
             {
@@ -1244,7 +1257,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
 #endif
         }
         break;
-    case PE_ExclusiveIndicator:
+    case PE_IndicatorRadioButton:
         {
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
             static const QCOORD pts1[] = {              // dark lines
@@ -1308,73 +1321,12 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->restore();
             break;
         }
-    case PE_ScrollBarSubLine:
-    case PE_ScrollBarAddLine: {
-        if (use2000style && opt->state & Style_Down) {
-            p->setPen(opt->palette.dark().color());
-            p->setBrush(opt->palette.brush(QPalette::Button));
-            p->drawRect(opt->rect);
-        } else {
-            QStyleOption buttonOpt = *opt;
-            if (!(buttonOpt.state & Style_Down))
-                buttonOpt.state = Style_Raised;
-            drawPrimitive(PE_ButtonBevel, &buttonOpt, p, w);
-        }
-        PrimitiveElement arrow;
-        if (opt->state & Style_Horizontal) {
-            if (pe == PE_ScrollBarAddLine)
-                arrow = PE_ArrowRight;
-            else
-                arrow = PE_ArrowLeft;
-        } else {
-            if (pe == PE_ScrollBarAddLine)
-                arrow = PE_ArrowDown;
-            else
-                arrow = PE_ArrowUp;
-        }
-        drawPrimitive(arrow, opt, p, w);
-        break; }
-    case PE_ScrollBarAddPage:
-    case PE_ScrollBarSubPage: {
-            QBrush br;
-            QBrush bg = p->background();
-            Qt::BGMode bg_mode = p->backgroundMode();
-            p->setPen(Qt::NoPen);
-            p->setBackgroundMode(Qt::OpaqueMode);
-
-            if (opt->state & Style_Down) {
-                br = QBrush(opt->palette.shadow().color(), Qt::Dense4Pattern);
-                p->setBackground(opt->palette.dark().color());
-                p->setBrush(QBrush(opt->palette.shadow().color(), Qt::Dense4Pattern));
-            } else {
-                QPixmap pm = opt->palette.brush(QPalette::Light).texture();
-                br = !pm.isNull() ? pm : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
-                p->setBrush(br);
-            }
-            p->drawRect(opt->rect);
-            p->setBackground(bg);
-            p->setBackgroundMode(bg_mode);
-            break; }
-    case PE_ScrollBarSlider:
-        if (!(opt->state & Style_Enabled)) {
-            QPixmap pm = opt->palette.brush(QPalette::Light).texture();
-            QBrush br = !pm.isNull() ? pm : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
-            p->setPen(Qt::NoPen);
-            p->setBrush(br);
-            p->setBackgroundMode(Qt::OpaqueMode);
-            p->drawRect(opt->rect);
-        } else {
-            QStyleOption buttonOpt = *opt;
-            buttonOpt.state = Style_Enabled | Style_Raised;
-            drawPrimitive(PE_ButtonBevel, &buttonOpt, p, w);
-        }
-        break;
-    case PE_Panel:
-    case PE_PanelMenu:
+    case PE_Frame:
+    case PE_FrameMenu:
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
             if (frame->lineWidth == 2) {
                 QPalette popupPal = frame->palette;
-                if (pe == PE_PanelMenu) {
+                if (pe == PE_FrameMenu) {
                     popupPal.setColor(QPalette::Light, frame->palette.background().color());
                     popupPal.setColor(QPalette::Midlight, frame->palette.light().color());
                 }
@@ -1384,28 +1336,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             }
         }
         break;
-    case PE_Splitter: {
-        QPen oldPen = p->pen();
-        p->setPen(opt->palette.light().color());
-        if (opt->state & Style_Horizontal) {
-            p->drawLine(opt->rect.x() + 1, opt->rect.y(), opt->rect.x() + 1, opt->rect.height());
-            p->setPen(opt->palette.dark().color());
-            p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.x(), opt->rect.height());
-            p->drawLine(opt->rect.right() - 1, opt->rect.y(), opt->rect.right() - 1,
-                        opt->rect.height());
-            p->setPen(opt->palette.shadow().color());
-            p->drawLine(opt->rect.right(), opt->rect.y(), opt->rect.right(), opt->rect.height());
-        } else {
-            p->drawLine(opt->rect.x(), opt->rect.y() + 1, opt->rect.width(), opt->rect.y() + 1);
-            p->setPen(opt->palette.dark().color());
-            p->drawLine(opt->rect.x(), opt->rect.bottom() - 1, opt->rect.width(),
-                        opt->rect.bottom() - 1);
-            p->setPen(opt->palette.shadow().color());
-            p->drawLine(opt->rect.x(), opt->rect.bottom(), opt->rect.width(), opt->rect.bottom());
-        }
-        p->setPen(oldPen);
-        break; }
-    case PE_TreeBranch: {
+    case PE_IndicatorBranch: {
         // This is _way_ too similar to the common style.
         static const int decoration_size = 9;
         int mid_h = opt->rect.x() + opt->rect.width() / 2;
@@ -1440,8 +1371,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         if (opt->state & (Style_Open | Style_Children | Style_Item | Style_Sibling))
             p->fillRect(mid_h, opt->rect.y(), 1, bef_v - opt->rect.y(), brush);
         break; }
-    case PE_ButtonBevel:
-    case PE_HeaderSection: {
+    case PE_PanelHeader: {
         QBrush fill;
         if (!(opt->state & Style_Down) && (opt->state & Style_On))
             fill = QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
@@ -1454,7 +1384,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->fillRect(opt->rect, fill);
         break; }
 #if defined(Q_WS_WIN)
-    case PE_HeaderArrow:
+    case PE_IndicatorHeaderArrow:
         if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
             QPen oldPen = p->pen();
             if (header->state & Style_Up) { // invert logic to follow Windows style guide
@@ -1482,13 +1412,13 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         }
         break;
 #endif
-    case PE_WindowFrame: {
+    case PE_FrameWindow: {
          QPalette popupPal = opt->palette;
          popupPal.setColor(QPalette::Light, opt->palette.background().color());
          popupPal.setColor(QPalette::Midlight, opt->palette.light().color());
          qDrawWinPanel(p, opt->rect, popupPal, opt->state & Style_Sunken);
         break; }
-    case PE_DockWindowResizeHandle: {
+    case PE_IndicatorDockWindowResizeHandle: {
         QPen oldPen = p->pen();
         p->setPen(opt->palette.light().color());
         if (opt->state & Style_Horizontal) {
@@ -1612,7 +1542,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 int xp = xpos + windowsItemFrame;
                 newMi.rect = visualRect(opt->direction, menuitem->rect, QRect(xp, y + windowsItemFrame,
                                                                               checkcol - 2 * windowsItemFrame, h - 2*windowsItemFrame));
-                drawPrimitive(PE_CheckMark, &newMi, p, widget);
+                drawPrimitive(PE_IndicatorMenuCheckMark, &newMi, p, widget);
             }
             p->setPen(act
                       ? menuitem->palette.highlightedText().color()
@@ -1665,7 +1595,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             if (menuitem->menuItemType == QStyleOptionMenuItem::SubMenu) {// draw sub menu arrow
                 int dim = (h - 2 * windowsItemFrame) / 2;
                 PrimitiveElement arrow;
-                arrow = QApplication::isRightToLeft() ? PE_ArrowLeft : PE_ArrowRight;
+                arrow = QApplication::isRightToLeft() ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight;
                 xpos = x + w - windowsArrowHMargin - windowsItemFrame - dim;
                 vrect = visualRect(opt->direction, menuitem->rect, QRect(xpos, y + h / 2 - dim / 2, dim, dim));
                 QStyleOptionMenuItem newMI = *menuitem;
@@ -1809,6 +1739,88 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                         opt->state & (Style_Sunken | Style_Down | Style_On), 1,
                         &opt->palette.brush(QPalette::Button));
         break;
+    case CE_Splitter: {
+        QPen oldPen = p->pen();
+        p->setPen(opt->palette.light().color());
+        if (opt->state & Style_Horizontal) {
+            p->drawLine(opt->rect.x() + 1, opt->rect.y(), opt->rect.x() + 1, opt->rect.height());
+            p->setPen(opt->palette.dark().color());
+            p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.x(), opt->rect.height());
+            p->drawLine(opt->rect.right() - 1, opt->rect.y(), opt->rect.right() - 1,
+                        opt->rect.height());
+            p->setPen(opt->palette.shadow().color());
+            p->drawLine(opt->rect.right(), opt->rect.y(), opt->rect.right(), opt->rect.height());
+        } else {
+            p->drawLine(opt->rect.x(), opt->rect.y() + 1, opt->rect.width(), opt->rect.y() + 1);
+            p->setPen(opt->palette.dark().color());
+            p->drawLine(opt->rect.x(), opt->rect.bottom() - 1, opt->rect.width(),
+                        opt->rect.bottom() - 1);
+            p->setPen(opt->palette.shadow().color());
+            p->drawLine(opt->rect.x(), opt->rect.bottom(), opt->rect.width(), opt->rect.bottom());
+        }
+        p->setPen(oldPen);
+        break; }
+    case CE_ScrollBarSubLine:
+    case CE_ScrollBarAddLine: {
+        if (use2000style && opt->state & Style_Down) {
+            p->setPen(opt->palette.dark().color());
+            p->setBrush(opt->palette.brush(QPalette::Button));
+            p->drawRect(opt->rect);
+        } else {
+            QStyleOption buttonOpt = *opt;
+            if (!(buttonOpt.state & Style_Down))
+                buttonOpt.state = Style_Raised;
+            drawPrimitive(PE_PanelButtonBevel, &buttonOpt, p, widget);
+        }
+        PrimitiveElement arrow;
+        if (opt->state & Style_Horizontal) {
+            if (ce == CE_ScrollBarAddLine)
+                arrow = PE_IndicatorArrowRight;
+            else
+                arrow = PE_IndicatorArrowLeft;
+        } else {
+            if (ce == CE_ScrollBarAddLine)
+                arrow = PE_IndicatorArrowDown;
+            else
+                arrow = PE_IndicatorArrowUp;
+        }
+        drawPrimitive(arrow, opt, p, widget);
+        break; }
+    case CE_ScrollBarAddPage:
+    case CE_ScrollBarSubPage: {
+            QBrush br;
+            QBrush bg = p->background();
+            Qt::BGMode bg_mode = p->backgroundMode();
+            p->setPen(Qt::NoPen);
+            p->setBackgroundMode(Qt::OpaqueMode);
+
+            if (opt->state & Style_Down) {
+                br = QBrush(opt->palette.shadow().color(), Qt::Dense4Pattern);
+                p->setBackground(opt->palette.dark().color());
+                p->setBrush(QBrush(opt->palette.shadow().color(), Qt::Dense4Pattern));
+            } else {
+                QPixmap pm = opt->palette.brush(QPalette::Light).texture();
+                br = !pm.isNull() ? pm : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
+                p->setBrush(br);
+            }
+            p->drawRect(opt->rect);
+            p->setBackground(bg);
+            p->setBackgroundMode(bg_mode);
+            break; }
+    case CE_ScrollBarSlider:
+        if (!(opt->state & Style_Enabled)) {
+            QPixmap pm = opt->palette.brush(QPalette::Light).texture();
+            QBrush br = !pm.isNull() ? pm : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
+            p->setPen(Qt::NoPen);
+            p->setBrush(br);
+            p->setBackgroundMode(Qt::OpaqueMode);
+            p->drawRect(opt->rect);
+        } else {
+            QStyleOption buttonOpt = *opt;
+            buttonOpt.state = Style_Enabled | Style_Raised;
+            drawPrimitive(PE_PanelButtonBevel, &buttonOpt, p, widget);
+        }
+        break;
     default:
         QCommonStyle::drawControl(ce, opt, p, widget);
     }
@@ -1905,7 +1917,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                     fropt.rect = subRect(SR_SliderFocusRect, slider, widget);
                     fropt.palette = slider->palette;
                     fropt.state = Style_None;
-                    drawPrimitive(PE_FocusRect, &fropt, p, widget);
+                    drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
                 }
 
                 if ((tickAbove && tickBelow) || (!tickAbove && !tickBelow)) {
@@ -2224,7 +2236,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 arrowOpt.rect = ar;
                 arrowOpt.palette = cmb->palette;
                 arrowOpt.state = flags;
-                drawPrimitive(PE_ArrowDown, &arrowOpt, p, widget);
+                drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, p, widget);
             }
             if (cmb->subControls & SC_ComboBoxEditField) {
                 QRect re =
@@ -2251,7 +2263,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                     focus.palette = cmb->palette;
                     focus.state = Style_FocusAtBorder;
                     focus.backgroundColor = cmb->palette.highlight().color();
-                    drawPrimitive(PE_FocusRect, &focus, p, widget);
+                    drawPrimitive(PE_FrameFocusRect, &focus, p, widget);
                 }
             }
         }

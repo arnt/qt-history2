@@ -1265,7 +1265,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
                                                                         QAbstractItemModel::TextAlignmentRole).toInt());
     opt.iconAlignment = Qt::AlignVCenter;
 
-    style()->drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
+    style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, painter, this);
     opt.rect = style()->subRect(QStyle::SR_HeaderLabel, &opt, this);
     style()->drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
 
@@ -1274,7 +1274,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
         opt.rect = style()->subRect(QStyle::SR_HeaderArrow, &opt, this);
         opt.state = (sortIndicatorOrder() == Qt::AscendingOrder
                      ? QStyle::Style_Down : QStyle::Style_Up) | QStyle::Style_Off;
-        style()->drawPrimitive(QStyle::PE_HeaderArrow, &opt, painter, this);
+        style()->drawPrimitive(QStyle::PE_IndicatorHeaderArrow, &opt, painter, this);
     }
 }
 

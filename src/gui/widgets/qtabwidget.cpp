@@ -883,7 +883,7 @@ void QTabWidget::paintEvent(QPaintEvent *)
     else if (tabPosition() == QTabWidget::Bottom)
         opt.state |= QStyle::Style_Bottom;
     opt.rect = style()->subRect(QStyle::SR_PanelTab, &opt, this);
-    style()->drawPrimitive(QStyle::PE_PanelTabWidget, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_FrameTabWidget, &opt, &p, this);
 }
 
 /*!

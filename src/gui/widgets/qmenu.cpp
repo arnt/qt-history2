@@ -1484,7 +1484,7 @@ void QMenu::paintEvent(QPaintEvent *e)
         frame.state = QStyle::Style_None;
         frame.lineWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
         frame.midLineWidth = 0;
-        style()->drawPrimitive(QStyle::PE_PanelMenu, &frame, &p, this);
+        style()->drawPrimitive(QStyle::PE_FrameMenu, &frame, &p, this);
     }
 
     //finally the rest of the space

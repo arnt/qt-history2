@@ -1433,7 +1433,7 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
     opt.rect = fr;
 
     if (section < 0) {
-        style()->drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, p, this);
         return;
     }
 
@@ -1458,12 +1458,12 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
         opt.state |= QStyle::Style_Raised;
     p->setBrushOrigin(fr.topLeft());
     if (d->clicks[section]) {
-        style()->drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, p, this);
     } else {
         p->save();
         p->setClipRect(fr); // hack to keep styles working
         opt.rect.setRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4);
-        style()->drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, p, this);
         if (orient == Qt::Horizontal) {
             p->setPen(palette().color(QPalette::Mid));
             p->drawLine(fr.x(), fr.y() + fr.height() - 1,
@@ -1556,7 +1556,7 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
         if (label(section).isRightToLeft())
             ar.moveBy( 2*(fr.right() - ar.right()) + ar.width() - fr.width(), 0 );
         opt.rect = ar;
-        style()->drawPrimitive(QStyle::PE_HeaderArrow, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_IndicatorHeaderArrow, &opt, p, this);
     }
 }
 
@@ -1599,7 +1599,7 @@ void Q3Header::paintEvent(QPaintEvent *e)
                     opt.rect.setRect(r.x()+2, r.y()+2, r.width()-4, r.height()-4);
                     opt.palette = palette();
                     opt.state = QStyle::Style_None;
-                    style()->drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
+                    style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, this);
                 }
                 if (orient == Qt::Horizontal && r. right() >= e->rect().right() ||
                      orient == Qt::Vertical && r. bottom() >= e->rect().bottom())

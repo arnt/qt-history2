@@ -1562,7 +1562,7 @@ void Q3CheckTableItem::paint(QPainter *p, const QColorGroup &cg,
         opt.state |= QStyle::Style_Off;
     if (isEnabled() && table()->isEnabled())
         opt.state |= QStyle::Style_Enabled;
-    table()->style()->drawPrimitive(QStyle::PE_Indicator, &opt, p, table());
+    table()->style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &opt, p, table());
     int x = sz.width() + 6;
     w = w - x;
     if (selected)
@@ -2997,7 +2997,7 @@ void Q3Table::paintFocus(QPainter *p, const QRect &cr)
             opt.state = QStyle::Style_None;
             opt.backgroundColor = palette().base().color();
         }
-        style()->drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, this);
     }
 }
 
@@ -6673,7 +6673,7 @@ void Q3TableHeader::paintSection(QPainter *p, int index, const QRect& fr)
        }
        if (!(opt.state & QStyle::Style_Down))
            opt.state |= QStyle::Style_Raised;
-       style()->drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
+       style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, p, this);
        paintSectionLabel(p, index, fr);
    }
 }

@@ -2042,13 +2042,13 @@ void QIconViewItem::paintFocus(QPainter *p, const QPalette &cg)
         opt.state = QStyle::Style_None;
         opt.backgroundColor = cg.base().color();
     }
-    view->style()->drawPrimitive(QStyle::PE_FocusRect, &opt, p);
+    view->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p);
 
     if (this != view->d->currentItem) {
         opt.rect = pixmapRect(false);
         opt.backgroundColor = cg.base().color();
         opt.state = QStyle::Style_None;
-        view->style()->drawPrimitive(QStyle::PE_FocusRect, &opt, p);
+        view->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p);
     }
 }
 
@@ -5267,7 +5267,7 @@ void QIconView::drawRubber(QPainter *p)
     opt.rect.setRect(pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height());
     opt.palette = palette();
     opt.state = QStyle::Style_None;
-    style()->drawPrimitive(QStyle::PE_RubberBand, &opt, p, this);
+    style()->drawControl(QStyle::CE_RubberBand, &opt, p, this);
 }
 
 /*!
@@ -5480,14 +5480,14 @@ void QIconView::drawDragShapes(const QPoint &pos)
                 continue;
 
             opt.rect = ir;
-            style()->drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
+            style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, this);
             opt.rect = tr;
-            style()->drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
+            style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, this);
         }
     } else if (d->numDragItems > 0) {
         for (int i = 0; i < d->numDragItems; ++i) {
             opt.rect.setRect(pos.x() + i * 40, pos.y(), 35, 35);
-            style()->drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
+            style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, this);
         }
 
     }

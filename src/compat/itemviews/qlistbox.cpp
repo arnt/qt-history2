@@ -3874,7 +3874,7 @@ void QListBox::paintCell(QPainter * p, int row, int col)
             opt.backgroundColor = pal.highlight().color();
         else
             opt.backgroundColor = pal.base().color();
-        style()->drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, this);
     }
 
     p->restore();
@@ -4125,7 +4125,7 @@ void QListBox::drawRubber()
     opt.rect = d->rubber->normalize();
     opt.palette = palette();
     opt.state = QStyle::Style_Rectangle;
-    style()->drawPrimitive(QStyle::PE_RubberBand, &opt, &p, this);
+    style()->drawControl(QStyle::CE_RubberBand, &opt, &p, this);
     p.end();
 }
 

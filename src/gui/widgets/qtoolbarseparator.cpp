@@ -51,5 +51,5 @@ void QToolBarSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyleOption opt = getStyleOption(this);
-    style()->drawPrimitive(QStyle::PE_ToolBarSeparator, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_IndicatorToolBarSeparator, &opt, &p, this);
 }

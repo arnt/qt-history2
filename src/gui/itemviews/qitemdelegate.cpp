@@ -348,7 +348,7 @@ void QItemDelegate::drawFocus(QPainter *painter,
             o.backgroundColor = option.palette.color(cg, QPalette::Highlight);
         else
             o.backgroundColor = option.palette.color(cg, QPalette::Background);
-        QApplication::style()->drawPrimitive(QStyle::PE_FocusRect, &o, painter);
+        QApplication::style()->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter);
     }
 }
 

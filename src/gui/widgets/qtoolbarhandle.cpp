@@ -62,7 +62,7 @@ void QToolBarHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyleOption opt = getStyleOption(this);
-    style()->drawPrimitive(QStyle::PE_ToolBarHandle, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p, this);
 }
 
 void QToolBarHandle::mousePressEvent(QMouseEvent *event)

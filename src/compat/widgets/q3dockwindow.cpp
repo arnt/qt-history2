@@ -230,7 +230,7 @@ void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_Enabled;
     if (orientation() == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
-    style()->drawPrimitive(QStyle::PE_DockWindowResizeHandle, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_IndicatorDockWindowResizeHandle, &opt, &p, this);
 }
 
 void Q3DockWindowResizeHandle::startLineDraw()
@@ -1520,7 +1520,7 @@ void Q3DockWindow::drawFrame(QPainter *p)
     opt.lineWidth = lineWidth();
     opt.midLineWidth = midLineWidth();
 
-    style()->drawPrimitive(QStyle::PE_WindowFrame, &opt, p, this);
+    style()->drawPrimitive(QStyle::PE_FrameWindow, &opt, p, this);
 }
 
 /*!

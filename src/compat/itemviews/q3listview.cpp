@@ -2198,7 +2198,7 @@ void Q3ListViewItem::paintFocus(QPainter *p, const QPalette &pal, const QRect &r
             opt.state = QStyle::Style_None;
             opt.backgroundColor = pal.base().color();
         }
-        lv->style()->drawPrimitive(QStyle::PE_FocusRect, &opt, p, lv);
+        lv->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, lv);
     }
 }
 

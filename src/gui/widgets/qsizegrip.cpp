@@ -180,7 +180,7 @@ void QSizeGrip::paintEvent(QPaintEvent *e)
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_None;
-    style()->drawPrimitive(QStyle::PE_SizeGrip, &opt, &painter, this);
+    style()->drawControl(QStyle::CE_SizeGrip, &opt, &painter, this);
 }
 
 /*!

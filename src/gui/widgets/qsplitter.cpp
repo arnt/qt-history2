@@ -141,7 +141,7 @@ void QSplitterHandle::paintEvent(QPaintEvent *)
         opt.state = QStyle::Style_Horizontal;
     else
         opt.state = QStyle::Style_None;
-    parentWidget()->style()->drawPrimitive(QStyle::PE_Splitter, &opt, &p, s);
+    parentWidget()->style()->drawControl(QStyle::CE_Splitter, &opt, &p, s);
 }
 
 class QSplitterLayoutStruct

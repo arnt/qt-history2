@@ -2106,7 +2106,7 @@ void Q3WorkspaceChild::paintEvent(QPaintEvent *)
     if (titlebar && titlebar->isActive())
         opt.state |= QStyle::Style_Active;
 
-    style()->drawPrimitive(QStyle::PE_WindowFrame, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_FrameWindow, &opt, &p, this);
 }
 
 void Q3WorkspaceChild::changeEvent(QEvent *ev)

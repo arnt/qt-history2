@@ -1788,7 +1788,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
             opt.state |= QStyle::Style_HasFocus;
         if (testAttribute(Qt::WA_UnderMouse))
             opt.state |= QStyle::Style_MouseOver;
-        style()->drawPrimitive(QStyle::PE_PanelLineEdit, &opt, &p, this);
+        style()->drawPrimitive(QStyle::PE_FrameLineEdit, &opt, &p, this);
 
         r.addCoords(frameWidth, frameWidth, -frameWidth, -frameWidth);
     }
