@@ -67,14 +67,12 @@ BorlandMakefileGenerator::init()
         return;
     init_flag = true;
 
-    processVars();
-
     /* this should probably not be here, but I'm using it to wrap the .t files */
-    if(project->first("TEMPLATE") == "app")
+    if (project->first("TEMPLATE") == "app") {
         project->variables()["QMAKE_APP_FLAG"].append("1");
-    else if(project->first("TEMPLATE") == "lib")
+    } else if(project->first("TEMPLATE") == "lib"){
         project->variables()["QMAKE_LIB_FLAG"].append("1");
-    else if(project->first("TEMPLATE") == "subdirs") {
+    } else if(project->first("TEMPLATE") == "subdirs") {
         MakefileGenerator::init();
         if(project->variables()["MAKEFILE"].isEmpty())
             project->variables()["MAKEFILE"].append("Makefile");
@@ -83,6 +81,7 @@ BorlandMakefileGenerator::init()
         return;
     }
 
+    processVars();
 
     MakefileGenerator::init();
 
@@ -101,12 +100,13 @@ void BorlandMakefileGenerator::writeBuildRulesPart(QTextStream &t)
     t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(TARGET)" << endl << endl;
     t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
     if(project->isActiveConfig("staticlib")) {
-        t << "\n\t" << "$(LINK) @&&|" << "\n\t"
-          << "$(LFLAGS) $(OBJECTS),$(TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";
-    } else {
         t << "\n\t-$(DEL_FILE) $(TARGET)"
-          << "\n\t" << "$(LIB) $(TARGET) @&&|" << " \n+"
-          << project->variables()["OBJECTS"].join(" \\\n+");
+	      << "\n\t" << "$(LIB) $(TARGET) @&&|" << " \n+"
+	      << project->variables()["OBJECTS"].join(" \\\n+") << " \\\n+"
+	      << project->variables()["OBJMOC"].join(" \\\n+");
+    } else {
+        t << "\n\t" << "$(LINK) @&&|" << "\n\t"
+	      << "$(LFLAGS) $(OBJECTS) $(OBJMOC),$(TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";
     }
     t << endl << "|" << endl;
 }
