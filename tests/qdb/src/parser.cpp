@@ -99,7 +99,7 @@ enum { Tok_Eoi, Tok_Equal, Tok_NotEq, Tok_LessThan, Tok_GreaterThan,
        Tok_of, Tok_on, Tok_or, Tok_order, Tok_precision, Tok_primary,
        Tok_real, Tok_references, Tok_rollback, Tok_select, Tok_set,
        Tok_smallint, Tok_some, Tok_sum, Tok_table, Tok_to, Tok_union,
-       Tok_unique, Tok_update, Tok_user, Tok_values, Tok_view,
+       Tok_unique, Tok_update, Tok_user, Tok_values, Tok_varchar, Tok_view,
        Tok_where, Tok_with, Tok_work };
 
 #define HASH( first, omitted, last ) \
@@ -413,6 +413,9 @@ int Parser::getToken()
 	    case HASH( 'v', 4, 's' ):
 		CHECK( "values" );
 		return Tok_values;
+	    case HASH( 'v', 5, 'r' ):
+		CHECK( "varchar" );
+		return Tok_varchar;
 	    case HASH( 'w', 2, 'h' ):
 		CHECK( "with" );
 		return Tok_with;
@@ -1244,11 +1247,12 @@ void Parser::matchCommitStatement()
 void Parser::matchDataType()
 {
     int type = (int) QVariant::Invalid;
-    int len = 10;
+    int len = 1;
     int prec = 0;
 
     switch ( yyTok ) {
     case Tok_character:
+    case Tok_varchar:
 	type = QVariant::String;
 	yyTok = getToken();
 	matchOrInsert( Tok_LeftParen, "')'" );
@@ -1260,6 +1264,13 @@ void Parser::matchDataType()
 	type = QVariant::DateTime;
 	yyTok = getToken();
 	break;
+    case Tok_integer:
+	type = QVariant::Int;
+	yyTok = getToken();
+	break;
+    case Tok_decimal:
+    case Tok_double:
+    case Tok_float:
     case Tok_numeric:
 	type = QVariant::Double;
 	yyTok = getToken();
@@ -1276,7 +1287,8 @@ void Parser::matchDataType()
 	}
 	break;
     default:
-	error( "Met '%s' where 'character', 'date' or 'numeric' was expected",
+	error( "Met '%s' where 'character', 'date', 'decimal', 'double', 'integer', "
+	       "'float', 'numeric' or 'varchar' was expected",
 	       yyLex );
     }
 
