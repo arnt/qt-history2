@@ -1060,8 +1060,15 @@ void UnixMakefileGenerator::init2()
 	project->variables()["DESTDIR_TARGET"].append("$(TARGET)");
 	if ( !project->variables()["DESTDIR"].isEmpty() )
 	    project->variables()["DESTDIR_TARGET"].first().prepend(project->first("DESTDIR"));
-	if ( !project->variables()["QMAKE_LFLAGS_SONAME"].isEmpty() && !project->variables()["TARGET_x"].isEmpty() )
-	    project->variables()["QMAKE_LFLAGS_SONAME"].first() += project->first("TARGET_x");
+	if ( !project->variables()["QMAKE_LFLAGS_SONAME"].isEmpty()) {
+	    if(project->isActiveConfig("plugin")) {
+		if(!project->variables()["TARGET"].isEmpty() )
+		    project->variables()["QMAKE_LFLAGS_SONAME"].first() += project->first("TARGET");
+	    } else {
+		if(!project->variables()["TARGET_x"].isEmpty() )
+		    project->variables()["QMAKE_LFLAGS_SONAME"].first() += project->first("TARGET_x");
+	    }
+	}
 	if ( project->variables()["QMAKE_LINK_SHLIB_CMD"].isEmpty() )
 	    project->variables()["QMAKE_LINK_SHLIB_CMD"].append(
 		"$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)");
