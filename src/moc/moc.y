@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#69 $
+** $Id: //depot/qt/main/src/moc/moc.y#70 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#69 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#70 $");
 
 QString rmWS( const char * );
 
@@ -106,6 +106,8 @@ AccessPerm subClassPerm;			// current access permission
 bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
 QString	   tmpExpression;
+
+const int  formatRevision = 2;			// moc output format revision
 
 %}
 
@@ -1166,7 +1168,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler (moc)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.4 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     static int gen_count = 0;
@@ -1205,6 +1207,12 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, hdr2, (const char*)dstr );
 	fprintf( out, hdr3 );
 	fprintf( out, hdr4 );
+	fprintf( out, "#if !defined(Q_MOC_OUTPUT_REVISION)\n" );
+	fprintf( out, "#define Q_MOC_OUTPUT_REVISION %d\n", formatRevision );
+	fprintf( out, "#elif Q_MOC_OUTPUT_REVISION != %d\n", formatRevision );
+	fprintf( out, "#error Moc format conflict - "
+		 "please regenerate all moc files\n" );
+	fprintf( out, "#endif\n\n" );
 	fprintf( out, "#include <qmetaobj.h>\n" );
 	if ( !noInclude )
 	    fprintf( out, "#include \"%s\"\n", (const char*)includeFile );
