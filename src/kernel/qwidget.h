@@ -931,6 +931,7 @@ struct Q_EXPORT QTLWExtra {
 #endif
 #if defined(Q_WS_MAC)
     WindowGroupRef group;
+    uint     savedFlags;			// Save widgetflags while showing fullscreen
 #endif
 #if defined(Q_WS_QWS) && !defined ( QT_NO_QWS_MANAGER )
     QRegion decor_allocated_region;		// decoration allocated region
