@@ -1193,7 +1193,10 @@ void QTextCursor::insertBlock()
     if (!d || !d->priv)
         return;
 
+    d->priv->beginEditBlock();
+    d->remove();
     d->insertBlock(blockFormat(), charFormat());
+    d->priv->endEditBlock();
 }
 
 /*!
