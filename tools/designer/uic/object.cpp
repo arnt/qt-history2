@@ -137,6 +137,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 
     lastItem = "0";
     // set the properties and insert items
+    bool hadFrameShadow = FALSE;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
 	    bool stdset = stdsetdef;
@@ -148,16 +149,22 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		continue;
 	    if ( prop == "name" )
 		continue;
+	    if ( isLine && prop == "frameShadow" )
+		hadFrameShadow = TRUE;
 	    if ( prop == "buddy" && value.startsWith("\"") && value.endsWith("\"") ) {
 		buddies << Buddy( objName, value.mid(1, value.length() - 2 ) );
 		continue;
 	    }
 	    if ( isLine && prop == "orientation" ) {
-		prop = "frameStyle";
+		prop = "frameShape";
 		if ( value.right(10) == "Horizontal" )
-		    value = "QFrame::HLine | QFrame::Sunken";
+		    value = "QFrame::HLine";
 		else
-		    value = "QFrame::VLine | QFrame::Sunken";
+		    value = "QFrame::VLine";
+		if ( !hadFrameShadow ) {
+		    prop = "frameStyle";
+		    value += " | QFrame::Sunken";
+		}
 	    }
 	    if ( prop == "buttonGroupId" ) {
 		if ( parentClass == "QButtonGroup" )
