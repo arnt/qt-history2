@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#2 $
 **
 ** Implementation of something useful.
 **
@@ -43,21 +43,21 @@ public:
     bool tracking;
     bool doNotEmit;
     double target;
-    
+
     QPointArray lines;
 };
 
 
 /*! \class QDial qdial.h
-  
+
   \brief The QDial widget provides a dial (or speedometer, or potentiometer) widget.
-  
+
   \ingroup realwidgets
 
   Q dial is used when the user needs to control a value within a
   program-definable range, and the range either wraps around
   (typically, 0-359 degrees) or the dialog layout needs a square widget.
-  
+
   Both API- and UI-wise, the dial is very like a \link QSlider
   slider. \endlink Indeed, when wrapping() is FALSE (the default)
   there is no hard difference between a slider and a dial.  They have
@@ -219,12 +219,12 @@ void QDial::paintEvent( QPaintEvent * e )
 	int smallLineSize = bigLineSize / 2;
 	int i;
 	for( i=0; i<notches; i++ ) {
-	    double angle = d->wrapping 
+	    double angle = d->wrapping
 			   ? M_PI*3/2 - i*2*M_PI/notches
 			   : (M_PI*8 - i*10*M_PI/notches)/6;
 	    double s = sin( angle ); // sin/cos aren't defined as const...
 	    double c = cos( angle );
-	    if ( i == 0 || 
+	    if ( i == 0 ||
 		 ns*i/pageStep() > ns*(i-1)/pageStep() ) {
 		d->lines[2*i] = QPoint( (int)(0.5+xc+(r-bigLineSize)*c),
 					(int)(0.5+yc-(r-bigLineSize)*s) );
@@ -265,10 +265,10 @@ void QDial::paintEvent( QPaintEvent * e )
 		       (int)(0.5+yc-back*sin(a+M_PI*5/6)) );
     arrow[2] = QPoint( (int)(0.5+xc+back*cos(a-M_PI*5/6)),
 		       (int)(0.5+yc-back*sin(a-M_PI*5/6)) );
-    //    p.setPen( colorGroup().foreground() );
-    //    p.setBrush( colorGroup().foreground() );
-    p.setPen( red );
-    p.setBrush( green );
+    p.setPen( colorGroup().foreground() );
+    p.setBrush( colorGroup().foreground() );
+    //p.setPen( red );
+    //p.setBrush( green );
     p.drawPolygon( arrow );
 }
 
@@ -349,7 +349,7 @@ void QDial::mouseMoveEvent( QMouseEvent * e )
 
 void QDial::wheelEvent( QWheelEvent * )
 {
-    
+
 }
 
 
