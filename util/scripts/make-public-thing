@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#35 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#36 $
 
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
@@ -126,7 +126,7 @@ mv y.tab.c mocgen.cpp
 cd ../..
 
 # Package Windows-only files separately
-WINFILES=`find . -name '_win'`
+WINFILES=`find . -name '*_win*'`
 zip -9 $base/qtwinfiles.zip \$WINFILES
 rm \$WINFILES
 
