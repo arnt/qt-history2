@@ -212,6 +212,13 @@ then
 else
     if [ -f $relpath/LICENSE ]
     then
+	if [ "$QWS_CANDIDATE" = "yes" ]
+	then
+	    EMB="/Embedded"
+	    QWS_PLATFORM=yes
+	else
+	    EMB=""
+	fi
 	echo
 	if [ "$QWS_PLATFORM" = "yes" ] 
 	then
