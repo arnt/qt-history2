@@ -14674,11 +14674,13 @@ QCString QString::local8Bit() const
             ? codec->fromUnicode(*this)
             : QCString(latin1());
 #endif
-#if defined( Q_WS_MAC )
+#if defined( Q_WS_MACX )
     static QTextCodec* codec = QTextCodec::codecForLocale();
     return codec
             ? codec->fromUnicode(*this)
             : QCString(latin1());
+#elif defined( Q_WS_MAC9 )
+     return QCString(latin1()); //I'm evil..
 #endif
 #ifdef Q_WS_WIN
     return qt_winQString2MB( *this );

@@ -1,3 +1,6 @@
+#include "qglobal.h"
+#ifdef Q_WS_MAC9
+
 #ifndef QT_MAC9_H
 #define QT_MAC9_H
 
@@ -14,6 +17,7 @@
 #define QT_NO_SQL
 #endif
 #undef wchar_t
+typedef unsigned short hide_wchar_t;
 #define wchar_t hide_wchar_t
 
 #include <qcstring.h>
@@ -22,4 +26,6 @@
 #include <cstdlib>
 using namespace std;
 
-#endif
+#endif //MAC9_H
+
+#endif //MAC9

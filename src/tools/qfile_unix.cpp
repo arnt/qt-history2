@@ -534,7 +534,7 @@ int QFile::writeBlock( const char *p, uint len )
 #endif
     int nwritten;				// number of bytes written
     if ( isRaw() )				// raw file
-	nwritten = WRITE( fd, p, len );
+	nwritten = WRITE( fd, (void *)p, len );
     else					// buffered file
 	nwritten = fwrite( p, 1, len, fh );
     if ( nwritten != (int)len ) {		// write error

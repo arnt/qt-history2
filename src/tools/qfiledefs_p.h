@@ -55,8 +55,21 @@
 #endif // QT_H
 
 #if defined(Q_CC_MWERKS)
+#undef OLD_POSIX
+#ifdef POSIX
+#define OLD_POSIX POSIX
+#endif
+#undef POSIX
+#define POSIX 1
 # include <stdlib.h>
 # include <stat.h>
+# include <cstdio>
+# include <unistd.h>
+#undef POSIX
+#ifdef OLD_POSIX
+#define POSIX OLD_POSIX
+#undef OLD_POSIX
+#endif
 #else
 # include <sys/types.h>
 # include <sys/stat.h>
@@ -239,7 +252,7 @@
 #if defined(Q_CC_MWERKS)
 #undef mkdir
 #undef MKDIR
-#define MKDIR _mkdir
+#define MKDIR(d, m) _mkdir(d)
 #undef rmdir
 #undef RMDIR
 #define RMDIR _rmdir
@@ -253,7 +266,7 @@
 # define R_OK	4
 #endif
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACX)
 # define F_OK	0
 # define X_OK	1
 # define W_OK	2

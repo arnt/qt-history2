@@ -196,11 +196,11 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	tlw->hide();
 
 	static EventTypeSpec events[] = {
-	    { kEventClassMouse, kEventMouseDragged },
-	    { kEventClassMouse, kEventMouseMoved },
+	    { kEventClassMouse, kEventMouseWheelMoved },
 	    { kEventClassMouse, kEventMouseDown },
 	    { kEventClassMouse, kEventMouseUp }, 
-	    { kEventClassMouse, kEventMouseWheelMoved },
+	    { kEventClassMouse, kEventMouseDragged },
+	    { kEventClassMouse, kEventMouseMoved },
 
 	    { kEventClassKeyboard, kEventRawKeyUp },
 	    { kEventClassKeyboard, kEventRawKeyDown },
