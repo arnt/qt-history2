@@ -252,7 +252,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     } else if (objClass == QLatin1String("QWidget")) {
         out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = 0);" << endl;
     } else if (objClass == QLatin1String("QMainWindow")) {
-        out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = WType_TopLevel);" << endl;
+        out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = Qt::WType_TopLevel);" << endl;
         isMainWindow = TRUE;
     } else {
         out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0);" << endl;
