@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#192 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#193 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -2072,7 +2072,7 @@ static const Q_UINT16 cb_fe [] = {
     0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-// Not used yet.
+#if 0 // Not used yet.
 static const Q_UINT16 *combining_info [256] = {
      cb_0, cb_0, cb_0, cb_3, cb_4, cb_5, cb_6, cb_0,
      cb_0, cb_9, cb_a, cb_b, cb_c, cb_d, cb_e, cb_f,
@@ -2107,6 +2107,7 @@ static const Q_UINT16 *combining_info [256] = {
      cb_0, cb_0, cb_0, cb_0, cb_0, cb_0, cb_0, cb_0,
      cb_0, cb_0, cb_0, cb_fb, cb_0, cb_0, cb_fe, cb_0,
 };
+#endif
 
 static const Q_UINT8 dir_0 [] = {
     10, 10, 10, 10, 10, 10, 10, 10,
@@ -9060,7 +9061,7 @@ bool QChar::isMark() const
     Category c = category();
     return (c == Mn || c == Mc);
 }
- 
+
 /*!
   Returns whether the character is a letter
   */
@@ -9093,7 +9094,7 @@ bool QChar::isDigit() const
 int QChar::digitValue() const
 {
     const Q_INT8 *dec_row = decimal_info[row];
-    if( !dec_row ) return -1; 
+    if( !dec_row ) return -1;
     return decimal_info[row][cell];
 }
 
@@ -9178,10 +9179,10 @@ QChar::Decomposition QChar::decompositionTag() const
 void QChar::toLower()
 {
   if(category() != Lu) return;
-  
+
   Q_UINT16 lower = *(case_info[row]+cell);
   if(lower == 0) return;
-  
+
   cell = lower & 0xFF;
   row = lower<<8;
 }
@@ -9193,10 +9194,10 @@ void QChar::toLower()
 void QChar::toUpper()
 {
   if(category() != Ll) return;
-  
+
   Q_UINT16 upper = *(case_info[row]+cell);
   if(upper == 0) return;
-  
+
   cell = upper & 0xFF;
   row = upper<<8;
 }
@@ -9241,7 +9242,7 @@ private:
 QLigature::QLigature( QChar c )
 {
     const Q_UINT16 *r = ligature_info[c.row];
-    if( !r ) 
+    if( !r )
 	ligatures = 0;
     else
     {
@@ -9257,7 +9258,7 @@ QChar QLigature::head()
 	return QChar(decomp_map[current()+1]);
 
     return QChar::null;
-}    
+}
 
 QChar::Decomposition QLigature::tag()
 {
@@ -9265,7 +9266,7 @@ QChar::Decomposition QLigature::tag()
 	return (QChar::Decomposition) decomp_map[current()];
 	
     return QChar::Canonical;
-}    
+}
 
 int QLigature::match(QString & str, unsigned int index)
 {
@@ -9275,7 +9276,7 @@ int QLigature::match(QString & str, unsigned int index)
 	
     Q_UINT16 lig = current() + 2;
     Q_UINT16 ch;
-    
+
     while ((i < str.length()) && (ch = decomp_map[lig])) {
 	if (str[i] != QChar(ch))
 	    return 0;
@@ -9290,14 +9291,14 @@ int QLigature::match(QString & str, unsigned int index)
 }
 
 // this function is just used in QString::compose()
-static inline QChar::Decomposition format(QChar ch, QString & str, 
+static inline QChar::Decomposition format(QChar ch, QString & str,
 					  int index, int len)
 {
     unsigned int l = index + len;
     unsigned int r = index;
-     
+
     bool left = false, right = false;
-     
+
     switch (ch.joining()) {
     case QChar::Dual:
 	left = ((l < str.length()) &&
@@ -9325,10 +9326,10 @@ static inline QChar::Decomposition format(QChar ch, QString & str,
     return QChar::Isolated;
 } // format()
 
-/*! 
-  Applies possible ligatures to a QString, mostly needed to get arabic text 
+/*!
+  Applies possible ligatures to a QString, mostly needed to get arabic text
   rendered correctly, but will also put the compose the following two
-  chars to give one: QChar(0x0041) ('A') and QChar(0x0308) (Unicode accent 
+  chars to give one: QChar(0x0041) ('A') and QChar(0x0308) (Unicode accent
   diaresis) to give QChar(0x00c4) (German A Umlaut).
   */
 void QString::compose()
@@ -9352,7 +9353,7 @@ void QString::compose()
 		head = ligature.head();
 
 		// joining info is only needed for arabic
-		if (!head.joining() || 
+		if (!head.joining() ||
 		    ligature.tag() == format(head, *this, index, len))
 		{
 		    // replace letter
@@ -9364,7 +9365,7 @@ void QString::compose()
 	}
 	
 	index++;
-    }    
+    }
 }
 
 static QChar LRM ((ushort)0x200e);
@@ -9391,7 +9392,7 @@ static inline bool is_neutral(QChar &ch) {
 
 /*!
   This function returns the basic directionality of the string (QChar::DirR for
-  right to left and QChar::DirL for left to right). Useful to find the right 
+  right to left and QChar::DirL for left to right). Useful to find the right
   alignment.
   */
 QChar::Direction QString::basicDirection()
@@ -9444,7 +9445,7 @@ static unsigned int reverse(QChar *chars, unsigned char *level,
     }
 
     return c;
-} 
+}
 
 // small class used for the ordering algorithm in QString::visual()
 class QBidiState {
@@ -9456,11 +9457,11 @@ public:
 };
 
 /*!
-  This function returns the QString ordered visually. Useful for 
+  This function returns the QString ordered visually. Useful for
   painting the string or when transforming to a visually ordered
   encoding.
   */
-QString & QString::visual(int index, int len) 
+QString & QString::visual(int index, int len)
 {
     unsigned char *level;
     QChar::Direction *dir;
@@ -9473,7 +9474,7 @@ QString & QString::visual(int index, int len)
 	len = length()-index;
     if ((uint)index > l)
 	return *(new QString());
-    
+
     level = new (unsigned char)[l];
     dir   = new (QChar::Direction)[l];
 
@@ -9561,7 +9562,7 @@ QString & QString::visual(int index, int len)
 	    i   = pos-1;
 	    while ((i >= 0) &&
 		   !(at(i).direction() == QChar::DirAN) &&
-		   !((at(i).direction() == QChar::DirR) && 
+		   !((at(i).direction() == QChar::DirR) &&
 		     is_arabic(at(i).direction())) &&
 		   !(at(i).direction() == QChar::DirB))
 		i--;
@@ -9582,7 +9583,7 @@ QString & QString::visual(int index, int len)
 			
 	    break;
 	case QChar::DirET:
-	    if (((pos > 0) && (dir[pos-1] == QChar::DirEN)) || 
+	    if (((pos > 0) && (dir[pos-1] == QChar::DirEN)) ||
 		((pos < l-1) && (dir[pos+1] == QChar::DirEN)))
 		dir[pos] = QChar::DirEN;
 	    else
@@ -9669,7 +9670,7 @@ QString & QString::visual(int index, int len)
     reverse(chars, level, index, index+len);
 	
     return *(new QString(chars, len));
-} 
+}
 
 
 
@@ -11377,7 +11378,7 @@ ulong QString::toULong( bool *ok, int base ) const
     while ( l && (ucisdigit(*p) || (*p >= 'a' && *p <= 'z'
                                     || *p >= 'A' && *p <= 'Z') ) ) {
 	l--;
-	int dv;
+	uint dv;
 	if ( ucisdigit(*p) ) {
 	    dv = p->digitValue();
 	} else {
