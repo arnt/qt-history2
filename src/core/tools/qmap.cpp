@@ -82,7 +82,7 @@ void QMapData::node_delete(Node *update[], int offset, Node *node)
     qFree(reinterpret_cast<char *>(node) - offset);
 }
 
-#ifndef QT_NO_DEBUG
+#ifdef QT_QMAP_DEBUG
 #include <qstring.h>
 #include <qvector.h>
 

@@ -34,7 +34,7 @@ struct Q_CORE_EXPORT QMapData
     void continueFreeData(int offset);
     Node *node_create(Node *update[], int offset);
     void node_delete(Node *update[], int offset, Node *node);
-#ifndef QT_NO_DEBUG
+#ifdef QT_QMAP_DEBUG
     uint adjust_ptr(Node *node);
     void dump();
 #endif
