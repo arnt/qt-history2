@@ -23,7 +23,8 @@ manual.ps: $(targets)
 manual.html: $(targets)
 	sgmltools -b html manual.sgml > /dev/null 
 	./fiximg manual/*.html
-	ln -s /home/mark/p4/qt/tools/designer/manual/images manual/images
+	p4 edit ../*.html
+	mv manual/*.html ../
 
 clean:
 	rm -f $(targets) *.ps
