@@ -1919,7 +1919,8 @@ QString Doc::finalHtml() const
 	}
     }
 
-    setDependsOn( dependsOn );
+    Doc* that = (Doc*)this;
+    that->setDependsOn( dependsOn );
 
     /*
       Complain before it's too late.
