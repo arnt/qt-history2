@@ -701,8 +701,8 @@ void QTextEngine::shapeText(int item) const
                 for (int i = 0; i < si.num_glyphs-1; ++i) {
                     FT_Vector kerning;
                     FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, FT_KERNING_DEFAULT, &kerning);
-                    g[i].advance.x += Q26Dot6(kerning.x, F26Dot6);
-                    g[i].advance.y += Q26Dot6(kerning.y, F26Dot6);
+                    g[i].advance.x += ((float)kerning.x) / 64;
+                    g[i].advance.y += ((float)kerning.y) / 64;;
                 }
             }
         }

@@ -22,6 +22,7 @@
 #include <qabstracttextdocumentlayout.h>
 #include "qtextdocument_p.h"
 #include "qtextformat_p.h"
+#include "qrectfloat.h"
 #include <limits.h>
 
 #include "qfontengine_p.h"
@@ -84,7 +85,7 @@
 QRect QTextInlineObject::rect() const
 {
     QScriptItem& si = eng->items[itm];
-    return QRect(0, -si.ascent.toInt(), si.width.toInt(), si.height().toInt());
+    return QRect(0, qRound(-si.ascent), qRound(si.width), qRound(si.height()));
 }
 
 /*!
@@ -94,7 +95,7 @@ QRect QTextInlineObject::rect() const
 */
 int QTextInlineObject::width() const
 {
-    return eng->items[itm].width.toInt();
+    return qRound(eng->items[itm].width);
 }
 
 /*!
@@ -104,7 +105,7 @@ int QTextInlineObject::width() const
 */
 int QTextInlineObject::ascent() const
 {
-    return eng->items[itm].ascent.toInt();
+    return qRound(eng->items[itm].ascent);
 }
 
 /*!
@@ -114,7 +115,7 @@ int QTextInlineObject::ascent() const
 */
 int QTextInlineObject::descent() const
 {
-    return eng->items[itm].descent.toInt();
+    return qRound(eng->items[itm].descent);
 }
 
 /*!
@@ -125,7 +126,7 @@ int QTextInlineObject::descent() const
 */
 int QTextInlineObject::height() const
 {
-    return eng->items[itm].height().toInt();
+    return qRound(eng->items[itm].height());
 }
 
 
@@ -700,7 +701,7 @@ void QTextLayout::setPosition(const QPoint &p)
 QRect QTextLayout::boundingRect() const
 {
     if (!d->boundingRect.isValid()) {
-        Q26Dot6 xmin, xmax, ymin, ymax;
+        float xmin = 0, xmax = 0, ymin = 0, ymax = 0;
         for (int i = 0; i < d->lines.size(); ++i) {
             const QScriptLine &si = d->lines[i];
             xmin = qMin(xmin, si.x);
@@ -709,7 +710,7 @@ QRect QTextLayout::boundingRect() const
             // ### shouldn't the ascent be used in ymin???
             ymax = qMax(ymax, si.y+si.ascent+si.descent+1);
         }
-        d->boundingRect = QRect(xmin.toInt(), ymin.toInt(), (xmax-xmin).toInt(), (ymax-ymin).toInt());
+        d->boundingRect = QRect(qRound(xmin), qRound(ymin), qRound(xmax-xmin), qRound(ymax-ymin));
     }
     return d->boundingRect;
 }
@@ -735,7 +736,7 @@ QRect QTextLayout::rect() const
 */
 int QTextLayout::minimumWidth() const
 {
-    return d->minWidth.toInt();
+    return qRound(d->minWidth);
 }
 
 /*!
@@ -749,14 +750,14 @@ int QTextLayout::minimumWidth() const
 */
 int QTextLayout::maximumWidth() const
 {
-    return d->maxWidth.toInt();
+    return qRound(d->maxWidth);
 }
 
 static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type,
-                          const QRect &rect, const QTextLine &line, const QPoint &pos, int selectionIdx)
+                          const QRectFloat &rect, const QTextLine &line, const QPoint &pos, int selectionIdx)
 {
     p->save();
-    p->setClipRect(rect);
+    p->setClipRect(rect.toRect());
     QColor bg;
     QColor text;
     switch(type) {
@@ -778,7 +779,7 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
         Q_ASSERT(false); // should never happen.
         return;
     }
-    p->fillRect(rect, bg);
+    p->fillRect(rect.toRect(), bg);
     if (text.isValid())
         p->setPen(text);
     line.draw(p, pos.x(), pos.y(), selectionIdx);
@@ -822,7 +823,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
         QTextLine l(i, d);
         const QScriptLine &sl = d->lines[i];
 
-        if (sl.y.toInt() > clipe || (sl.y + sl.height()).toInt() < clipy)
+        if (sl.y > clipe || (sl.y + sl.height()) < clipy)
             continue;
 
         int from = sl.from;
@@ -838,10 +839,10 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
                     continue;
 
                 if (s.from() + s.length() > from && s.from() < from+length) {
-                    QRect highlight = QRect(QPoint(position.x() + l.cursorToX(qMax(s.from(), from)),
-                                                   position.y() + sl.y.toInt()),
-                                            QPoint(position.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
-                                                   position.y() + (sl.y + sl.height()).toInt())).normalize();
+                    QRectFloat highlight = QRectFloat(QPointFloat(position.x() + l.cursorToX(qMax(s.from(), from)),
+                                                     position.y() + sl.y),
+                                         QPointFloat(position.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
+                                                     position.y() + (sl.y + sl.height()))).normalize();
                     drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, position, j);
                 }
             }
@@ -849,11 +850,11 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
         if ((sl.from <= cursorPos && sl.from + (int)sl.length > cursorPos)
             || (sl.from + (int)sl.length == cursorPos && cursorPos == d->string.length())) {
 
-            const int x = position.x() + l.cursorToX(cursorPos);
+            const float x = position.x() + l.cursorToX(cursorPos);
 
             int itm = d->findItem(cursorPos-1);
-            Q26Dot6 ascent = sl.ascent;
-            Q26Dot6 descent = sl.descent;
+            float ascent = sl.ascent;
+            float descent = sl.descent;
             if (itm >= 0) {
                 const QScriptItem &si = d->items.at(itm);
                 ascent = si.ascent;
@@ -861,8 +862,8 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
             }
 
             p->setPen(Qt::black);
-            p->drawLine(x, position.y() + (sl.y + sl.ascent - ascent).toInt(),
-                        x, position.y() + (sl.y + sl.ascent + descent).toInt() + 1);
+            p->drawLine(qRound(x), qRound(position.y() + sl.y + sl.ascent - ascent),
+                        qRound(x), qRound(position.y() + sl.y + sl.ascent + descent + 1));
         }
     }
 
@@ -952,7 +953,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 QRect QTextLine::rect() const
 {
     const QScriptLine& sl = eng->lines[i];
-    return QRect(sl.x.toInt(), sl.y.toInt(), sl.width.toInt(), sl.height().toInt());
+    return QRect(qRound(sl.x), qRound(sl.y), qRound(sl.width), qRound(sl.height()));
 }
 
 /*!
@@ -962,7 +963,7 @@ QRect QTextLine::rect() const
 */
 int QTextLine::x() const
 {
-    return eng->lines[i].x.toInt();
+    return qRound(eng->lines[i].x);
 }
 
 /*!
@@ -972,7 +973,7 @@ int QTextLine::x() const
 */
 int QTextLine::y() const
 {
-    return eng->lines[i].y.toInt();
+    return qRound(eng->lines[i].y);
 }
 
 /*!
@@ -982,7 +983,7 @@ int QTextLine::y() const
 */
 int QTextLine::width() const
 {
-    return eng->lines[i].width.toInt();
+    return qRound(eng->lines[i].width);
 }
 
 
@@ -993,7 +994,7 @@ int QTextLine::width() const
 */
 int QTextLine::ascent() const
 {
-    return eng->lines[i].ascent.toInt();
+    return qRound(eng->lines[i].ascent);
 }
 
 /*!
@@ -1003,7 +1004,7 @@ int QTextLine::ascent() const
 */
 int QTextLine::descent() const
 {
-    return eng->lines[i].descent.toInt();
+    return qRound(eng->lines[i].descent);
 }
 
 /*!
@@ -1013,7 +1014,7 @@ int QTextLine::descent() const
 */
 int QTextLine::height() const
 {
-    return eng->lines[i].height().toInt();
+    return qRound(eng->lines[i].height());
 }
 
 /*!
@@ -1023,7 +1024,7 @@ int QTextLine::height() const
 */
 int QTextLine::textWidth() const
 {
-    return eng->lines[i].textWidth.toInt();
+    return qRound(eng->lines[i].textWidth);
 }
 
 /*!
@@ -1074,10 +1075,10 @@ void QTextLine::layout(int width, LineWidthUnit unit)
             break;
     }
 
-    Q26Dot6 minw, spacew;
+    float minw = 0, spacew = 0;
     int glyphCount = 0;
 
-//     qDebug("from: %d:   item=%d, total %d width available %d/%d", line.from, item, eng->items.size(), line.width.value(), line.width.toInt());
+//     qDebug("from: %d:   item=%d, total %d width available %d/%d", line.from, item, eng->items.size(), line.width.value(), line.width);
 
     while (item < eng->items.size()) {
         eng->shape(item);
@@ -1117,7 +1118,7 @@ void QTextLine::layout(int width, LineWidthUnit unit)
         do {
             int next = pos;
 
-            Q26Dot6 tmpw;
+            float tmpw = 0;
             if (!itemAttrs[next].whiteSpace) {
                 tmpw = spacew;
                 spacew = 0;
@@ -1127,7 +1128,7 @@ void QTextLine::layout(int width, LineWidthUnit unit)
                         ++next;
                     } while (next < length && logClusters[next] == gp);
                     do {
-                        tmpw += glyphs[gp].advance.x;
+                        tmpw += glyphs[gp].advance.x();
                         ++gp;
                     } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
 
@@ -1147,7 +1148,7 @@ void QTextLine::layout(int width, LineWidthUnit unit)
                     ++next;
                 } while (next < length && logClusters[next] == gp);
                 do {
-                    spacew += glyphs[gp].advance.x;
+                    spacew += glyphs[gp].advance.x();
                     ++gp;
                 } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
 
@@ -1158,7 +1159,7 @@ void QTextLine::layout(int width, LineWidthUnit unit)
 //             qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %d, spacew=%d",
 //                    current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw.value(), spacew.value());
 
-            if (line.length && tmpw.value()
+            if (line.length && tmpw != 0.
                 && (line.textWidth + tmpw > line.width || glyphCount > maxGlyphs)
                 && !(eng->textFlags & Qt::TextSingleLine))
                 goto found;
@@ -1172,7 +1173,7 @@ void QTextLine::layout(int width, LineWidthUnit unit)
     }
  found:
 //     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d (%d)", line.length, line.ascent.value(),
-//            line.descent.value(), line.textWidth.value(), line.textWidth.toInt());
+//            line.descent.value(), line.textWidth.value(), line.textWidth);
 //     qDebug("        : '%s'", eng->string.mid(line.from, line.length).utf8());
 
     eng->minWidth = qMax(eng->minWidth, minw);
@@ -1241,8 +1242,8 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
     int lastItem = eng->findItem(lineEnd - 1);
     int nItems = lastItem-firstItem+1;
 
-    Q26Dot6 x(xpos);
-    Q26Dot6 y(ypos);
+    float x(xpos);
+    float y(ypos);
     x += line.x;
     y += line.y + line.ascent;
 
@@ -1271,7 +1272,9 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
                 // ###
                 selType = static_cast<QTextLayout::SelectionType>(eng->selections[selection].type());
 
-            eng->docLayout->drawObject(p, QRect(x.toInt(), (y-si.ascent).toInt(), si.width.toInt(), si.height().toInt()),
+            eng->docLayout->drawObject(p,
+                                       QRect(qRound(x), qRound(y-si.ascent),
+                                             qRound(si.width), qRound(si.height())),
                                        QTextInlineObject(item, eng), format, selType);
         }
 
@@ -1312,8 +1315,8 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
 
         QTextItem gf;
         gf.right_to_left = (si.analysis.bidiLevel % 2);
-        gf.ascent = si.ascent.toInt();
-        gf.descent = si.descent.toInt();
+        gf.ascent = qRound(si.ascent);
+        gf.descent = qRound(si.descent);
         gf.num_glyphs = ge - gs + 1;
         gf.glyphs = glyphs + gs;
         gf.fontEngine = fe;
@@ -1340,15 +1343,15 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
             gf.glyphs = glyphs + gs;
             gf.num_chars = stmp - start;
             gf.chars = eng->string.unicode() + start;
-            Q26Dot6 w;
+            float w = 0;
             while (gs < gtmp) {
-                w += glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
+                w += glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
                 ++gs;
             }
             start = stmp;
-            gf.width = w.toInt();
+            gf.width = qRound(w);
             if (gf.num_chars)
-                p->drawTextItem(QPoint(x.toInt(), y.toInt()), gf, textFlags);
+                p->drawTextItem(QPoint(qRound(x), qRound(y)), gf, textFlags);
             x += w;
             if (ul && *ul != -1 && *ul < end) {
                 // draw underline
@@ -1360,12 +1363,12 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
                 gf.chars = eng->string.unicode() + start;
                 w = 0;
                 while (gs < gtmp) {
-                    w += glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
+                    w += glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
                     ++gs;
                 }
                 ++start;
-                gf.width = w.toInt();
-                p->drawTextItem(QPoint(x.toInt(), y.toInt()), gf, (textFlags ^ Qt::TextUnderline));
+                gf.width = qRound(w);
+                p->drawTextItem(QPoint(qRound(x), qRound(y)), gf, (textFlags ^ Qt::TextUnderline));
                 ++gf.chars;
                 x += w;
                 ++ul;
@@ -1396,7 +1399,7 @@ int QTextLine::cursorToX(int *cursorPos, Edge edge) const
 {
     if (!i && !eng->items.size()) {
         *cursorPos = 0;
-        return eng->lines[0].x.toInt();
+        return qRound(eng->lines[0].x);
     }
 
     int pos = *cursorPos;
@@ -1429,15 +1432,15 @@ int QTextLine::cursorToX(int *cursorPos, Edge edge) const
             glyph_pos++;
     }
 
-    Q26Dot6 x;
+    float x = 0;
     bool reverse = eng->items[itm].analysis.bidiLevel % 2;
 
     if (reverse) {
         for (int i = si->num_glyphs-1; i >= glyph_pos; i--)
-            x += glyphs[i].advance.x + Q26Dot6(glyphs[i].space_18d6, F26Dot6);
+            x += glyphs[i].advance.x() + ((float)glyphs[i].space_18d6)/64.;
     } else {
         for (int i = 0; i < glyph_pos; i++)
-            x += glyphs[i].advance.x + Q26Dot6(glyphs[i].space_18d6, F26Dot6);
+            x += glyphs[i].advance.x() + ((float)glyphs[i].space_18d6)/64.;
     }
 
     // add the items left of the cursor
@@ -1487,13 +1490,13 @@ int QTextLine::cursorToX(int *cursorPos, Edge edge) const
         QGlyphLayout *glyphs = eng->glyphs(&si);
 
         while (gs <= ge) {
-            x += glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
+            x += glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
             ++gs;
         }
     }
 
     *cursorPos = pos + si->position;
-    return x.toInt();
+    return qRound(x);
 }
 
 /*!
@@ -1509,7 +1512,7 @@ int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
     if (!line.length)
         return line.from;
 
-    Q26Dot6 x(xpos);
+    float x(xpos);
 
     int line_length = line.length;
     // don't draw trailing spaces or take them into the layout.
@@ -1539,8 +1542,8 @@ int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
     int gl_after = 0;
     int it_before = 0;
     int it_after = 0;
-    Q26Dot6 x_before(0xffffff);
-    Q26Dot6 x_after(0xffffff);
+    float x_before = 0xffffff;
+    float x_after = 0xffffff;
 
 
     for (int i = 0; i < nItems; ++i) {
@@ -1562,10 +1565,10 @@ int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
         QGlyphLayout *glyphs = eng->glyphs(&si);
 
         if (si.analysis.bidiLevel %2) {
-            Q26Dot6 item_width;
+            float item_width = 0;
             int g = gs;
             while (g <= ge) {
-                item_width += glyphs[g].advance.x + Q26Dot6(glyphs[g].space_18d6, F26Dot6);
+                item_width += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
                 ++g;
             }
 
@@ -1592,7 +1595,7 @@ int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
                 }
                 if (gs > ge)
                     Q_ASSERT(false);
-                x += glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
+                x += glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
                 ++gs;
             }
         } else {
@@ -1615,7 +1618,7 @@ int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
                     x_before = x;
                     break;
                 }
-                x -= glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
+                x -= glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
                 ++gs;
             }
         }

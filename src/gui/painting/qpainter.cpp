@@ -2454,13 +2454,7 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
     if (d->state->font.overline()) textFlags |= Qt::TextOverline;
     if (d->state->font.strikeOut()) textFlags |= Qt::TextStrikeOut;
 
-#if defined(Q_WS_X11)
-    extern void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h);
-    if (backgroundMode() == Qt::OpaqueMode)
-        qt_draw_background(d->engine, x, y-sl.ascent.toInt(), sl.textWidth.toInt(), (sl.ascent+sl.descent).toInt() + 1);
-#endif
-
-    line.draw(this, x, y - sl.ascent.toInt());
+    line.draw(this, x, qRound(y - sl.ascent));
 }
 
 /*!
@@ -3420,13 +3414,6 @@ void qt_format_text(const QFont& font, const QRect &_r,
         for (int i = 0; i < textLayout.numLines(); i++) {
             QTextLine line = textLayout.lineAt(i);
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
-            extern void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h);
-
-            if (painter->backgroundMode() == Qt::OpaqueMode)
-                qt_draw_background(painter->d->engine, r.x() + line.x() + xoff, r.y() + yoff + line.y(),
-                                   line.width(), line.ascent() + line.descent() + 1);
-#endif
             line.draw(painter, r.x() + xoff + line.x(), r.y() + yoff);
         }
 

@@ -1846,8 +1846,8 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate 
     d->textY = y;
 
     QByteArray xyarray;
-    Q26Dot6 xo;
-    Q26Dot6 yo;
+    float xo = 0;
+    float yo = 0;
 
     QGlyphLayout *glyphs = ti.glyphs;
     QFontEngine *fe = ti.fontEngine;
@@ -1876,12 +1876,12 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate 
                 glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : ti.chars[i].unicode());
 	    stream << toHex(mapUnicode(glyph));
             if (i != len-1) {
-                xyarray += QByteArray::number((xo + glyphs[i].offset.x + glyphs[i+1].advance.x).toDouble());
+                xyarray += QByteArray::number(xo + glyphs[i].offset.x() + glyphs[i+1].advance.x());
                 xyarray += " ";
-                xyarray += QByteArray::number((yo + glyphs[i].offset.y).toDouble());
+                xyarray += QByteArray::number(yo + glyphs[i].offset.y());
                 xyarray += " ";
-                xo = -glyphs[i].offset.x;
-                yo = -glyphs[i].offset.y;
+                xo = -glyphs[i].offset.x();
+                yo = -glyphs[i].offset.y();
             }
         }
     } else {
@@ -1894,12 +1894,12 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate 
                 glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : ti.chars[i].unicode());
 	    stream << toHex(mapUnicode(glyph));
             if (i) {
-                xyarray += QByteArray::number((xo + glyphs[i].offset.x + glyphs[i-1].advance.x).toDouble());
+                xyarray += QByteArray::number(xo + glyphs[i].offset.x() + glyphs[i-1].advance.x());
                 xyarray += " ";
-                xyarray += QByteArray::number((yo + glyphs[i].offset.y).toDouble());
+                xyarray += QByteArray::number(yo + glyphs[i].offset.y());
                 xyarray += " ";
-                xo = -glyphs[i].offset.x;
-                yo = -glyphs[i].offset.y;
+                xo = -glyphs[i].offset.x();
+                yo = -glyphs[i].offset.y();
             }
         }
     }

@@ -494,7 +494,6 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
     // positioning code:
     if (hasGPos && positioned) {
 //         qDebug("positioned glyphs:");
-        // ### use Q26Dot6
         float scale = item->font->scale();
         for (int i = 0; i < (int)str->length; i++) {
 //             qDebug("    %d:\t orig advance: (%d/%d)\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
@@ -504,26 +503,26 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
 //                    positions[i].back, positions[i].new_advance);
             // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
             if (positions[i].new_advance) {
-                glyphs[i].advance.x = Q26Dot6((item->flags & QTextEngine::RightToLeft
-                                               ? -positions[i].x_advance : positions[i].x_advance), F26Dot6)*scale;
-                glyphs[i].advance.y = Q26Dot6(-positions[i].y_advance, F26Dot6)*scale;
+                glyphs[i].advance.rx() = (item->flags & QTextEngine::RightToLeft
+                                          ? -positions[i].x_advance : positions[i].x_advance) / 64.*scale;
+                glyphs[i].advance.ry() = -positions[i].y_advance / 64. *scale;
             } else {
-                glyphs[i].advance.x += Q26Dot6(item->flags & QTextEngine::RightToLeft
-                                               ? -positions[i].x_advance : positions[i].x_advance, F26Dot6)*scale;
-                glyphs[i].advance.y -= Q26Dot6(positions[i].y_advance, F26Dot6)*scale;
+                glyphs[i].advance.rx() += (item->flags & QTextEngine::RightToLeft
+                                           ? -positions[i].x_advance : positions[i].x_advance) / 64. *scale;
+                glyphs[i].advance.ry() -= positions[i].y_advance / 64. * scale;
             }
-            glyphs[i].offset.x = Q26Dot6(positions[i].x_pos, F26Dot6);
-            glyphs[i].offset.y = Q26Dot6(-positions[i].y_pos, F26Dot6);
+            glyphs[i].offset.rx() = positions[i].x_pos / 64.;
+            glyphs[i].offset.ry() = -positions[i].y_pos / 64.;
             int back = positions[i].back;
             if (item->flags & QTextEngine::RightToLeft) {
                 while (back--) {
-                    glyphs[i].offset.x -= glyphs[i-back].advance.x;
-                    glyphs[i].offset.y -= -glyphs[i-back].advance.y;
+                    glyphs[i].offset.rx() -= glyphs[i-back].advance.x();
+                    glyphs[i].offset.ry() -= -glyphs[i-back].advance.y();
                 }
             } else {
                 while (back) {
-                    glyphs[i].offset.x -= glyphs[i-back].advance.x;
-                    glyphs[i].offset.y -= -glyphs[i-back].advance.y;
+                    glyphs[i].offset.rx() -= glyphs[i-back].advance.x();
+                    glyphs[i].offset.ry() -= -glyphs[i-back].advance.y();
                     --back;
                 }
             }

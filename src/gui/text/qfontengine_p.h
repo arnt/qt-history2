@@ -94,23 +94,23 @@ public:
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
 
-    virtual Q26Dot6 ascent() const = 0;
-    virtual Q26Dot6 descent() const = 0;
-    virtual Q26Dot6 leading() const = 0;
+    virtual float ascent() const = 0;
+    virtual float descent() const = 0;
+    virtual float leading() const = 0;
 
-    virtual Q26Dot6 lineThickness() const;
-    virtual Q26Dot6 underlinePosition() const;
+    virtual float lineThickness() const;
+    virtual float underlinePosition() const;
 
-    virtual Q26Dot6 maxCharWidth() const = 0;
-    virtual Q26Dot6 minLeftBearing() const { return Q26Dot6(); }
-    virtual Q26Dot6 minRightBearing() const { return Q26Dot6(); }
+    virtual float maxCharWidth() const = 0;
+    virtual float minLeftBearing() const { return float(); }
+    virtual float minRightBearing() const { return float(); }
 
     virtual const char *name() const = 0;
 
     virtual bool canRender(const QChar *string,  int len) = 0;
 
-    virtual void setScale(double s) { _scale = Q26Dot6(s); }
-    virtual double scale() const { return _scale.toDouble(); }
+    virtual void setScale(double s) { _scale = s; }
+    virtual double scale() const { return _scale; }
 
     virtual Type type() const = 0;
 
@@ -140,10 +140,10 @@ public:
     int                lw;
     unsigned char *cmap;
     void *script_cache;
-    short lbearing;
-    short rbearing;
+    float lbearing;
+    float rbearing;
 #endif // Q_WS_WIN
-    Q26Dot6 _scale;
+    float _scale;
 };
 
 
@@ -174,14 +174,14 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    Q26Dot6 ascent() const;
-    Q26Dot6 descent() const;
-    Q26Dot6 leading() const;
-    Q26Dot6 maxCharWidth() const;
-    Q26Dot6 minLeftBearing() const;
-    Q26Dot6 minRightBearing() const;
-    Q26Dot6 underlinePosition() const;
-    Q26Dot6 lineThickness() const;
+    float ascent() const;
+    float descent() const;
+    float leading() const;
+    float maxCharWidth() const;
+    float minLeftBearing() const;
+    float minRightBearing() const;
+    float underlinePosition() const;
+    float lineThickness() const;
 
     Type type() const;
 
@@ -214,12 +214,12 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    Q26Dot6 ascent() const;
-    Q26Dot6 descent() const;
-    Q26Dot6 leading() const;
-    Q26Dot6 maxCharWidth() const;
-    Q26Dot6 minLeftBearing() const { return 0; }
-    Q26Dot6 minRightBearing() const { return 0; }
+    float ascent() const;
+    float descent() const;
+    float leading() const;
+    float maxCharWidth() const;
+    float minLeftBearing() const { return 0; }
+    float minRightBearing() const { return 0; }
 
 #ifdef Q_WS_X11
     int cmap() const;
@@ -274,14 +274,14 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    Q26Dot6 ascent() const;
-    Q26Dot6 descent() const;
-    Q26Dot6 leading() const;
-    Q26Dot6 lineThickness() const;
-    Q26Dot6 underlinePosition() const;
-    Q26Dot6 maxCharWidth() const;
-    Q26Dot6 minLeftBearing() const;
-    Q26Dot6 minRightBearing() const;
+    float ascent() const;
+    float descent() const;
+    float leading() const;
+    float lineThickness() const;
+    float underlinePosition() const;
+    float maxCharWidth() const;
+    float minLeftBearing() const;
+    float minRightBearing() const;
 
     int cmap() const;
     const char *name() const;
@@ -302,10 +302,10 @@ private:
     FT_Face _face;
     QOpenType *_openType;
     int _cmap;
-    short lbearing;
-    short rbearing;
+    float lbearing;
+    float rbearing;
     enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
-    mutable struct { Q26Dot6 x; Q26Dot6 y; } widthCache[widthCacheSize];
+    mutable struct { float x; float y; } widthCache[widthCacheSize];
     glyph_t cmapCache[cmapCacheSize];
 
     TransformedFont *transformed_fonts;
@@ -329,12 +329,12 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    Q26Dot6 ascent() const;
-    Q26Dot6 descent() const;
-    Q26Dot6 leading() const;
-    Q26Dot6 maxCharWidth() const;
-    Q26Dot6 minLeftBearing() const;
-    Q26Dot6 minRightBearing() const;
+    float ascent() const;
+    float descent() const;
+    float leading() const;
+    float maxCharWidth() const;
+    float minLeftBearing() const;
+    float minRightBearing() const;
 
     int cmap() const;
     const char *name() const;
@@ -351,8 +351,8 @@ private:
     QByteArray _name;
     QTextCodec *_codec;
     int _cmap;
-    short lbearing;
-    short rbearing;
+    float lbearing;
+    float rbearing;
 
     friend class QFontEngineLatinXLFD;
 };
@@ -372,12 +372,12 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    Q26Dot6 ascent() const;
-    Q26Dot6 descent() const;
-    Q26Dot6 leading() const;
-    Q26Dot6 maxCharWidth() const;
-    Q26Dot6 minLeftBearing() const;
-    Q26Dot6 minRightBearing() const;
+    float ascent() const;
+    float descent() const;
+    float leading() const;
+    float maxCharWidth() const;
+    float minLeftBearing() const;
+    float minRightBearing() const;
 
     int cmap() const { return -1; } // ###
     const char *name() const;
@@ -397,9 +397,9 @@ private:
     int _count;
 
     glyph_t   glyphIndices [0x200];
-    Q26Dot6 glyphAdvances[0x200];
+    float glyphAdvances[0x200];
     glyph_t euroIndex;
-    Q26Dot6 euroAdvance;
+    float euroAdvance;
 };
 
 
@@ -429,10 +429,10 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    Q26Dot6 ascent() const;
-    Q26Dot6 descent() const;
-    Q26Dot6 leading() const;
-    Q26Dot6 maxCharWidth() const;
+    float ascent() const;
+    float descent() const;
+    float leading() const;
+    float maxCharWidth() const;
 
     const char *name() const { return "ATSUI"; }
 
@@ -465,12 +465,12 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    Q26Dot6 ascent() const;
-    Q26Dot6 descent() const;
-    Q26Dot6 leading() const;
-    Q26Dot6 maxCharWidth() const;
-    Q26Dot6 minLeftBearing() const;
-    Q26Dot6 minRightBearing() const;
+    float ascent() const;
+    float descent() const;
+    float leading() const;
+    float maxCharWidth() const;
+    float minLeftBearing() const;
+    float minRightBearing() const;
 
     const char *name() const;
 

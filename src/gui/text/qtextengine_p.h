@@ -24,6 +24,7 @@
 #include <qvector.h>
 #include <qpaintengine.h>
 #include <qtextobject.h>
+#include <qpointfloat.h>
 #endif // QT_H
 
 #include <stdlib.h>
@@ -40,95 +41,7 @@ class QPainter;
 
 class QAbstractTextDocumentLayout;
 
-enum q26Dot6 { F26Dot6 };
 
-class Q26Dot6 {
-public:
-    Q26Dot6() : val(0) {}
-    Q26Dot6(int f26d6, q26Dot6) : val(f26d6) {}
-    Q26Dot6(int i) : val(i<<6) {}
-    Q26Dot6(unsigned int i) : val(i<<6) {}
-    Q26Dot6(long i) : val(i<<6) {}
-    Q26Dot6(double d) { val = (int)(d*64.); }
-    Q26Dot6(const Q26Dot6 &other) : val(other.val) {}
-    Q26Dot6 & operator=(const Q26Dot6 &other) { val = other.val; return *this; }
-
-    inline int value() const { return val; }
-    inline Q26Dot6 &setValue(int value) { val = value; return *this; }
-
-    inline int toInt() const { return (((val)+32) & -64)>>6; }
-    inline double toDouble() const { return ((double)val)/64.; }
-
-    inline int truncate() const { return val>>6; }
-    inline Q26Dot6 round() const { return Q26Dot6(((val)+32) & -64, F26Dot6); }
-    inline Q26Dot6 floor() const { return Q26Dot6((val) & -64, F26Dot6); }
-    inline Q26Dot6 ceil() const { return Q26Dot6((val+63) & -64, F26Dot6); }
-
-    inline Q26Dot6 operator+(const Q26Dot6 &other) const { return Q26Dot6(val + other.val, F26Dot6); }
-    inline Q26Dot6 &operator+=(const Q26Dot6 &other) { val += other.val; return *this; }
-    inline Q26Dot6 operator-(const Q26Dot6 &other) const { return Q26Dot6(val - other.val, F26Dot6); }
-    inline Q26Dot6 &operator-=(const Q26Dot6 &other) { val -= other.val; return *this; }
-    inline Q26Dot6 operator-() const { return Q26Dot6(-val, F26Dot6); }
-
-    inline bool operator==(const Q26Dot6 &other) const { return val == other.val; }
-    inline bool operator!=(const Q26Dot6 &other) const { return val != other.val; }
-    inline bool operator<(const Q26Dot6 &other) const { return val < other.val; }
-    inline bool operator>(const Q26Dot6 &other) const { return val > other.val; }
-    inline bool operator<=(const Q26Dot6 &other) const { return val <= other.val; }
-    inline bool operator>=(const Q26Dot6 &other) const { return val >= other.val; }
-    inline bool operator!() const { return !val; }
-
-    inline Q26Dot6 &operator/=(int d) { val /= d; return *this; }
-    inline Q26Dot6 &operator/=(double d) { val = (int)(val/d); return *this; }
-    inline Q26Dot6 &operator/=(const Q26Dot6 &o) {
-        if (o == Q26Dot6()) {
-            val =0x7FFFFFFFL;
-        } else {
-            bool neg = false;
-            Q_INT64 a = val;
-            Q_INT64 b = o.val;
-            if (a < 0) { a = -a; neg = true; }
-            if (b < 0) { b = -b; neg = !neg; }
-
-            int res = (int)(((a << 6) + (b >> 1)) / b);
-
-            val = (neg ? -res : res);
-        }
-        return *this;
-    }
-    inline Q26Dot6 operator/(int d) const { return Q26Dot6(val/d, F26Dot6); }
-    inline Q26Dot6 operator/(double d) const { return Q26Dot6((int)(val/d), F26Dot6); }
-    inline Q26Dot6 operator/(const Q26Dot6 &b) const { Q26Dot6 v = *this; return (v /= b); }
-    inline Q26Dot6 &operator*=(int i) { val *= i; return *this; }
-    inline Q26Dot6 &operator*=(double d) { val = (int) (val*d); return *this; }
-    inline Q26Dot6 &operator*=(const Q26Dot6 &o) {
-        bool neg = false;
-        Q_INT64 a = val;
-        Q_INT64 b = o.val;
-        if (a < 0) { a = -a; neg = true; }
-        if (b < 0) { b = -b; neg = !neg; }
-
-        int res = (int)((a * b + 0x20L) >> 6);
-        val = neg ? -res : res;
-        return *this;
-    }
-    inline Q26Dot6 operator*(int i) const { return Q26Dot6(val*i, F26Dot6); }
-    inline Q26Dot6 operator*(double d) const { return Q26Dot6((int)(val*d), F26Dot6); }
-    inline Q26Dot6 operator*(const Q26Dot6 &o) const { Q26Dot6 v = *this; return (v *= o); }
-
-private:
-    int val;
-};
-Q_DECLARE_TYPEINFO(Q26Dot6, Q_PRIMITIVE_TYPE);
-
-inline Q26Dot6 operator*(int i, const Q26Dot6 &d) { return d*i; }
-inline Q26Dot6 operator*(double d, const Q26Dot6 &d2) { return d2*d; }
-
-
-struct Q26Dot6Offset {
-    Q26Dot6 x;
-    Q26Dot6 y;
-};
 
 // this uses the same coordinate system as Qt, but a different one to freetype and Xft.
 // * y is usually negative, and is equal to the ascent.
@@ -138,10 +51,10 @@ struct Q26Dot6Offset {
 struct glyph_metrics_t
 {
     inline glyph_metrics_t()
-        : x(100000),
-          y(100000)
+        : x(100000), y(100000),
+          width(0), height(0), xoff(0), yoff(0)
         {}
-    inline glyph_metrics_t(Q26Dot6 _x, Q26Dot6 _y, Q26Dot6 _width, Q26Dot6 _height, Q26Dot6 _xoff, Q26Dot6 _yoff)
+    inline glyph_metrics_t(float _x, float _y, float _width, float _height, float _xoff, float _yoff)
         : x(_x),
           y(_y),
           width(_width),
@@ -149,12 +62,12 @@ struct glyph_metrics_t
           xoff(_xoff),
           yoff(_yoff)
         {}
-    Q26Dot6 x;
-    Q26Dot6 y;
-    Q26Dot6 width;
-    Q26Dot6 height;
-    Q26Dot6 xoff;
-    Q26Dot6 yoff;
+    float x;
+    float y;
+    float width;
+    float height;
+    float xoff;
+    float yoff;
 };
 Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
@@ -245,8 +158,8 @@ struct QGlyphLayout
         unsigned short combiningClass  :8;
     };
     Attributes attributes;
-    Q26Dot6Offset advance;
-    Q26Dot6Offset offset;
+    QPointFloat advance;
+    QPointFloat offset;
 
     enum JustificationType {
         JustifyNone,
@@ -284,12 +197,12 @@ struct QScriptItem
     unsigned short isTab    : 1;
     unsigned short isObject : 1;
     int num_glyphs;
-    Q26Dot6 descent;
-    Q26Dot6 ascent;
-    Q26Dot6 width;
+    float descent;
+    float ascent;
+    float width;
     int glyph_data_offset;
     int format;
-    Q26Dot6 height() const { return ascent + descent + Q26Dot6(1); }
+    float height() const { return ascent + descent + 1.; }
 };
 
 
@@ -299,17 +212,19 @@ typedef QVector<QScriptItem> QScriptItemArray;
 
 struct QScriptLine
 {
-    Q26Dot6 descent;
-    Q26Dot6 ascent;
-    Q26Dot6 x;
-    Q26Dot6 y;
-    Q26Dot6 width;
-    Q26Dot6 textWidth;
+    QScriptLine()
+        : descent(0), ascent(0), x(0), y(0), width(0), textWidth(0) {}
+    float descent;
+    float ascent;
+    float x;
+    float y;
+    float width;
+    float textWidth;
     int from;
     uint length : 30;
     mutable uint justified : 1;
     mutable uint gridfitted : 1;
-    Q26Dot6 height() const { return ascent + descent + Q26Dot6(1); }
+    float height() const { return ascent + descent + 1.; }
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
 
@@ -363,7 +278,7 @@ public:
         Trailing
     };
 
-    Q26Dot6 width(int charFrom, int numChars) const;
+    float width(int charFrom, int numChars) const;
     glyph_metrics_t boundingBox(int from,  int len) const;
 
     int length(int item) const {
@@ -417,8 +332,8 @@ public:
     void **memory;
     int num_glyphs;
     mutable int used;
-    Q26Dot6 minWidth;
-    Q26Dot6 maxWidth;
+    float minWidth;
+    float maxWidth;
     QRect boundingRect;
     QPoint position;
 
