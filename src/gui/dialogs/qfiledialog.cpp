@@ -1824,14 +1824,6 @@ static void qt_get_dir_and_selection(const QString &path, QString *cwd, QString 
     if (sel) *sel = QString();
 }
 
-#if defined(Q_WS_MAC)
-static QString precomposeFileName(const QString &str)
-{
-    return QUnicodeTables::normalize(str, QString::NormalizationForm_C);
-}
-#endif
-
-
 /*!
   This is a convenience static function that returns an existing file
   selected by the user. If the user presses Cancel, it returns a null
@@ -1897,7 +1889,8 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     if (::qt_cast<QMacStyle*>(qApp->style())) {
         QStringList files = qt_mac_get_open_file_names(filter, &qt_working_dir, parent,
                                                        caption, selectedFilter, false, false);
-        return files.isEmpty() ? QString() : precomposeFileName(files.first());
+        return files.isEmpty() ? QString() : QUnicodeTables::normalize(files.first(),
+                                                                       QString::NormalizationForm_C);
     }
 #endif
 
@@ -1923,11 +1916,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     }
     delete dlg;
 
-#if defined(Q_WS_MAC)
-    return precomposeFileName(result);
-#else
     return result;
-#endif
 }
 
 /*!
@@ -1992,8 +1981,10 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
 					 parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(qApp->style()))
-        return precomposeFileName(qt_mac_get_save_file_name(initialSelection, filter, &qt_working_dir,
-                                                            parent, caption, selectedFilter));
+        return QUnicodeTables::normalize(qt_mac_get_save_file_name(initialSelection, filter,
+                                                                   &qt_working_dir, parent, caption,
+                                                                   selectedFilter),
+                                         QString::NormalizationForm_C);
 #endif
 
     QFileDialog *dlg = new QFileDialog(parent,
@@ -2018,11 +2009,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     }
     delete dlg;
 
-#if defined(Q_WS_MAC)
-    return precomposeFileName(result);
-#else
     return result;
-#endif
 }
 
 /*!
@@ -2075,7 +2062,8 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(qApp->style())) {
         QStringList files = qt_mac_get_open_file_names("", 0, parent, caption, 0, false, true);
-        return files.isEmpty() ? QString() : precomposeFileName(files.first());
+        return files.isEmpty() ? QString() : QUnicodeTables::normalize(files.first(),
+                                                                       QString::NormalizationForm_C);
     }
 #endif
 
@@ -2101,11 +2089,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     if (!result.isEmpty() && result.right(1) != "/")
         result += "/";
 
-#if defined(Q_WS_MAC)
-    return precomposeFileName(result);
-#else
     return result;
-#endif
 }
 
 /*!
@@ -2179,7 +2163,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
         QStringList sl = qt_mac_get_open_file_names(filter, &qt_working_dir, parent, caption,
                                                     selectedFilter, true, false);
         for (int i = 0; i < sl.count(); ++i)
-            sl.replace(i, precomposeFileName(sl.at(i)));
+            sl.replace(i, QUnicodeTables::normalize(sl.at(i), QString::NormalizationForm_C));
         return sl;
     }
 #endif
@@ -2203,10 +2187,6 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     }
     delete dlg;
 
-#if defined(Q_WS_MAC)
-    for (int i = 0; i < lst.count(); ++i)
-        lst.replace(i, precomposeFileName(lst.at(i)));
-#endif
     return lst;
 }
 
