@@ -383,6 +383,8 @@ void HierarchyList::setOpen( QListViewItem *i, bool b )
 
 void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 {
+    if ( QString( o->name() ).startsWith( "qt_dead_widget_" ) )
+	return;
     bool fakeMainWindow = FALSE;
     if ( o && o->inherits( "QMainWindow" ) ) {
 	QObject *cw = ( (QMainWindow*)o )->centralWidget();

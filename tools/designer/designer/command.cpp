@@ -1851,6 +1851,9 @@ void AddToolBarCommand::execute()
 	mainWindow->addToolBar( toolBar, n );
     } else {
 	toolBar->show();
+	QString s = toolBar->name();
+	s.remove( 0, QString( "qt_dead_widget_" ).length() );
+	toolBar->setName( s );
     }
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
@@ -1858,6 +1861,9 @@ void AddToolBarCommand::execute()
 void AddToolBarCommand::unexecute()
 {
     toolBar->hide();
+    QString s = toolBar->name();
+    s.prepend( "qt_dead_widget_" );
+    toolBar->setName( s );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
