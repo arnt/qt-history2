@@ -7079,24 +7079,29 @@ void QTableHeader::swapSections(int oldIdx, int newIdx, bool swapTable)
     if (iconSet(newIdx))
         newIconSet = *iconSet(newIdx);
     QString oldLabel = label(oldIdx);
-    setLabel(oldIdx, newIconSet, label(newIdx));
-    setLabel(newIdx, oldIconSet, oldLabel);
+    QString newLabel = label( newIdx );
+    bool sectionsHasContent = !(oldIconSet.isNull() && newIconSet.isNull()
+                            && oldLabel.isNull() && newLabel.isNull());
+    if (sectionsHasContent) {
+        setLabel( oldIdx, newIconSet, newLabel );
+        setLabel( newIdx, oldIconSet, oldLabel );
+    }
 
     qt_qheader_label_return_null_strings = false;
 
-     int w1 = sectionSize(oldIdx);
-     int w2 = sectionSize(newIdx);
-     if (w1 != w2) {
-         resizeSection(oldIdx, w2);
-         resizeSection(newIdx, w1);
-     }
+    int w1 = sectionSize(oldIdx);
+    int w2 = sectionSize(newIdx);
+    if (w1 != w2) {
+        resizeSection(oldIdx, w2);
+        resizeSection(newIdx, w1);
+    }
 
-     if (!swapTable)
-         return;
-     if (orientation() == Qt::Horizontal)
-         table->swapColumns(oldIdx, newIdx);
-     else
-         table->swapRows(oldIdx, newIdx);
+    if (!swapTable)
+        return;
+    if (orientation() == Qt::Horizontal)
+        table->swapColumns(oldIdx, newIdx);
+    else
+        table->swapRows(oldIdx, newIdx);
 }
 
 void QTableHeader::indexChanged(int sec, int oldIdx, int newIdx)
