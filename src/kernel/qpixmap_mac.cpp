@@ -247,8 +247,6 @@ QImage QPixmap::convertToImage() const
 
     if (msk) {
 	QImage alpha = msk->convertToImage();
-//	bool ale = alpha.bitOrder() == QImage::LittleEndian;
-
 	image->setAlphaBuffer( TRUE );
 	switch ( d ) {
 	case 8: {
