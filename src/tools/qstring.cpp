@@ -53,7 +53,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include <limits.h>
-
+#include "qcleanuphandler.h"
 
 /* -------------------------------------------------------------------------
  * unicode information
@@ -12943,6 +12943,8 @@ bool QString::findArg(int& pos, int& len) const
   \sa arg()
 */
 
+static QCleanupHandler<QRegExp> qt_regexp_cleanup;
+
 QString &QString::sprintf( const char* cformat, ... )
 {
     va_list ap;
@@ -12956,9 +12958,10 @@ QString &QString::sprintf( const char* cformat, ... )
     QString format = fromLatin1( cformat );
 
     static QRegExp *escape = 0;
-    if (!escape)
+    if (!escape) {
         escape = new QRegExp( "%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?" );
-
+        qt_regexp_cleanup.add(escape);
+    }
     QString result;
     uint last = 0;
     int pos;
@@ -15028,6 +15031,10 @@ void QString::checkSimpleText() const
 	p++;
     }
 }
+
+/*! \fn bool QString::simpleText() const 
+  \internal
+*/
 
 /*! \internal
  */

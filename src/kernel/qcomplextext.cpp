@@ -579,7 +579,7 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	    ch++;
     }
 
-    if ( dir == QPainter::Auto ) {
+    if ( dir == QPainter::Auto && !uc.simpleText() ) {
 	return bidiReorderString( QConstString( shapeBuffer, lenOut ).string() );
     }
     if ( dir == QPainter::RTL ) {

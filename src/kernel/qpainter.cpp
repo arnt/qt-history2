@@ -2243,8 +2243,6 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
 
     bool simple = !decode && singleline && !showprefix && !expandtabs;
-    if ( simple )
-	simple &= str.simpleText();
 
     if ( simple ) {
 	// we can use a simple drawText instead of the QTextParag.
@@ -2261,6 +2259,8 @@ void qt_format_text( const QFont& font, const QRect &r,
 		yoff += r.height() - h;
 	    else if ( tf & Qt::AlignVCenter )
 		yoff += ( r.height() - h )/2;
+	    if ( (tf & Qt::AlignHorizontal_Mask) == Qt::AlignAuto && str.isRightToLeft() )
+		tf |= Qt::AlignRight;
 	    if ( tf & Qt::AlignRight )
 		xoff += r.width() - w;
 	    else if ( tf & Qt::AlignHCenter )
@@ -2272,7 +2272,6 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    reg.translate( (int)painter->translationX(), (int)painter->translationY() );
 	    painter->save();
 	    painter->setClipRegion( reg );
-	    // AlignAuto must be equal to AlignLeft, as we wouldn't get here for BiDi text!
 	    if(!(tf & QPainter::DontPrint))
 		painter->drawText(xoff, yoff, str, len);
 	    painter->restore();
