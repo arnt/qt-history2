@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#6 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#6 $";
 #endif
 
 
@@ -160,7 +160,11 @@ void QWidget::set_id( WId id )			// set widget identifier
 	return;
     if ( ident )
 	mapper->remove( ident );
-    if ( ident = id )
+    ident = id;
+#if defined(_WS_X11_)
+    hd = id;					// X11: hd == ident
+#endif
+    if ( id )
 	mapper->insert( this );
 }
 
