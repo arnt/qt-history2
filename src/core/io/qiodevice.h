@@ -68,7 +68,10 @@ public:
         ConnectError = 6,
         AbortError = 7,
         TimeOutError = 8,
-        UnspecifiedError = 9
+        UnspecifiedError = 9,
+        RemoveError = 10,
+        RenameError = 11,
+        PositionError = 12
     };
 
     QIODevice();
@@ -168,5 +171,8 @@ private:
 #define IO_AbortError QIODevice::AbortError
 #define IO_TimeOutError QIODevice::TimeOutError
 #define IO_UnspecifiedError QIODevice::UnspecifiedError
+#define IO_RemoveError QIODevice::RemoveError
+#define IO_RenameError QIODevice::RenameError
+#define IO_PositionError QIODevice::PositionError
 
 #endif // QIODEVICE_H

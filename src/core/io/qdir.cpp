@@ -374,7 +374,7 @@ inline static QStringList qt_makeFilterStringList(const QString &nameFilter)
         qWarning("Cannot find the \"/tmp\" directory");
     } else {
         QFile file(dir.filePath("ex1.txt")); // "/tmp/ex1.txt"
-        if (!file.open(IO_ReadWrite))
+        if (!file.open(QIODevice::ReadWrite))
             qWarning("Cannot create the file %s", file.name());
     }
     \endcode

@@ -291,8 +291,8 @@ int QIODevice::flags() const
 
     These are the flags that were given to the open() function.
 
-    The flags are \c IO_ReadOnly, \c IO_WriteOnly, \c IO_ReadWrite,
-    \c IO_Append, \c IO_Truncate and \c IO_Translate.
+    The flags are \c QIODevice::ReadOnly, \c QIODevice::WriteOnly, \c QIODevice::ReadWrite,
+    \c QIODevice::Append, \c QIODevice::Truncate and \c QIODevice::Translate.
 */
 
 /*!
@@ -300,7 +300,7 @@ int QIODevice::flags() const
 
     Returns bits OR'ed together that specify the current state.
 
-    The flags are: \c IO_Open.
+    The flags are: \c QIODevice::Open.
 
     Subclasses may define additional flags.
 */
@@ -381,15 +381,15 @@ int QIODevice::flags() const
     Returns true if the I/O device translates carriage-return and
     linefeed characters; otherwise returns false.
 
-    A QFile is translated if it is opened with the \c IO_Translate
+    A QFile is translated if it is opened with the \c QIODevice::Translate
     mode flag.
 */
 
 /*!
     \fn bool QIODevice::isReadable() const
 
-    Returns true if the I/O device was opened using \c IO_ReadOnly or
-    \c IO_ReadWrite mode; otherwise returns false.
+    Returns true if the I/O device was opened using \c QIODevice::ReadOnly or
+    \c QIODevice::ReadWrite mode; otherwise returns false.
 
     \sa isWritable(), isReadWrite()
 */
@@ -397,8 +397,8 @@ int QIODevice::flags() const
 /*!
     \fn bool QIODevice::isWritable() const
 
-    Returns true if the I/O device was opened using \c IO_WriteOnly or
-    \c IO_ReadWrite mode; otherwise returns false.
+    Returns true if the I/O device was opened using \c QIODevice::WriteOnly or
+    \c QIODevice::ReadWrite mode; otherwise returns false.
 
     \sa isReadable(), isReadWrite()
 */
@@ -406,7 +406,7 @@ int QIODevice::flags() const
 /*!
     \fn bool QIODevice::isReadWrite() const
 
-    Returns true if the I/O device was opened using \c IO_ReadWrite
+    Returns true if the I/O device was opened using \c QIODevice::ReadWrite
     mode; otherwise returns false.
 
     \sa isReadable(), isWritable()
@@ -438,28 +438,28 @@ int QIODevice::flags() const
     false or readBlock() or writeBlock() return -1, this function can
     be called to find out the reason why the operation failed.
 
-    \keyword IO_Ok
-    \keyword IO_ReadError
-    \keyword IO_WriteError
-    \keyword IO_FatalError
-    \keyword IO_OpenError
-    \keyword IO_ConnectError
-    \keyword IO_AbortError
-    \keyword IO_TimeOutError
-    \keyword IO_UnspecifiedError
+    \keyword QIODevice::Ok
+    \keyword QIODevice::ReadError
+    \keyword QIODevice::WriteError
+    \keyword QIODevice::FatalError
+    \keyword QIODevice::OpenError
+    \keyword QIODevice::ConnectError
+    \keyword QIODevice::AbortError
+    \keyword QIODevice::TimeOutError
+    \keyword QIODevice::UnspecifiedError
 
     The status codes are:
     \table
     \header \i Status code \i Meaning
-    \row \i \c IO_Ok \i The operation was successful.
-    \row \i \c IO_ReadError \i Could not read from the device.
-    \row \i \c IO_WriteError \i Could not write to the device.
-    \row \i \c IO_FatalError \i A fatal unrecoverable error occurred.
-    \row \i \c IO_OpenError \i Could not open the device.
-    \row \i \c IO_ConnectError \i Could not connect to the device.
-    \row \i \c IO_AbortError \i The operation was unexpectedly aborted.
-    \row \i \c IO_TimeOutError \i The operation timed out.
-    \row \i \c IO_UnspecifiedError \i An unspecified error happened on close.
+    \row \i \c QIODevice::Ok \i The operation was successful.
+    \row \i \c QIODevice::ReadError \i Could not read from the device.
+    \row \i \c QIODevice::WriteError \i Could not write to the device.
+    \row \i \c QIODevice::FatalError \i A fatal unrecoverable error occurred.
+    \row \i \c QIODevice::OpenError \i Could not open the device.
+    \row \i \c QIODevice::ConnectError \i Could not connect to the device.
+    \row \i \c QIODevice::AbortError \i The operation was unexpectedly aborted.
+    \row \i \c QIODevice::TimeOutError \i The operation timed out.
+    \row \i \c QIODevice::UnspecifiedError \i An unspecified error happened on close.
     \endtable
 
     \sa resetStatus()
@@ -471,7 +471,7 @@ int QIODevice::status() const
 }
 
 /*!
-    Sets the I/O device status to \c IO_Ok.
+    Sets the I/O device status to \c QIODevice::Ok.
 
     \sa status()
 */
@@ -497,9 +497,9 @@ void QIODevice::setFlags(int f)
 
 void QIODevice::setType(int t)
 {
-    if ((t & IO_TypeMask) != t)
+    if ((t & QIODevice::TypeMask) != t)
         qWarning("QIODevice::setType: Specified type out of range");
-    d->ioMode &= ~IO_TypeMask;                        // reset type bits
+    d->ioMode &= ~QIODevice::TypeMask;                        // reset type bits
     d->ioMode |= t;
 }
 
@@ -510,9 +510,9 @@ void QIODevice::setType(int t)
 
 void QIODevice::setMode(int m)
 {
-    if ((m & IO_ModeMask) != m)
+    if ((m & QIODevice::ModeMask) != m)
         qWarning("QIODevice::setMode: Specified mode out of range");
-    d->ioMode &= ~IO_ModeMask;                        // reset mode bits
+    d->ioMode &= ~QIODevice::ModeMask;                        // reset mode bits
     d->ioMode |= m;
 }
 
@@ -523,9 +523,9 @@ void QIODevice::setMode(int m)
 
 void QIODevice::setState(int s)
 {
-    if (((uint)s & IO_StateMask) != (uint)s)
+    if (((uint)s & QIODevice::StateMask) != (uint)s)
         qWarning("QIODevice::setState: Specified state out of range");
-    d->ioMode &= ~IO_StateMask;                        // reset state bits
+    d->ioMode &= ~QIODevice::StateMask;                        // reset state bits
     d->ioMode |= (uint)s;
 }
 
@@ -608,18 +608,18 @@ void QIODevice::setStatus(int status, int errNum)
     following flags.
     \table
     \header \i Mode flags \i Meaning
-    \row \i \c IO_Raw \i specifies raw (unbuffered) file access.
-    \row \i \c IO_ReadOnly \i opens a file in read-only mode.
-    \row \i \c IO_WriteOnly \i opens a file in write-only mode.
-    \row \i \c IO_ReadWrite \i opens a file in read/write mode.
-    \row \i \c IO_Append \i sets the file index to the end of the file.
-    \row \i \c IO_Truncate \i truncates the file.
-    \row \i \c IO_Translate \i enables carriage returns and linefeed
+    \row \i \c QIODevice::Raw \i specifies raw (unbuffered) file access.
+    \row \i \c QIODevice::ReadOnly \i opens a file in read-only mode.
+    \row \i \c QIODevice::WriteOnly \i opens a file in write-only mode.
+    \row \i \c QIODevice::ReadWrite \i opens a file in read/write mode.
+    \row \i \c QIODevice::Append \i sets the file index to the end of the file.
+    \row \i \c QIODevice::Truncate \i truncates the file.
+    \row \i \c QIODevice::Translate \i enables carriage returns and linefeed
     translation for text files under MS-DOS, Windows and Macintosh. On
     Unix systems this flag has no effect. Use with caution as it will
     also transform every linefeed written to the file into a CRLF
     pair. This is likely to corrupt your file if you write write
-    binary data. Cannot be combined with \c IO_Raw.
+    binary data. Cannot be combined with \c QIODevice::Raw.
     \endtable
 
     This virtual function must be reimplemented by all subclasses.
@@ -883,7 +883,7 @@ Q_LONG QIODevice::readLine(char *data, Q_ULONG maxlen)
 
     \code
         QFile file("address.dat");
-        if (!file.open(IO_ReadOnly) {
+        if (!file.open(QIODevice::ReadOnly) {
             QMessageBox::critical(this, tr("Error"),
                     tr("Could not open file for reading: %1")
                     .arg(file.errorString()));

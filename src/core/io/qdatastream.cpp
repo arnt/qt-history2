@@ -50,7 +50,7 @@
     Example (write binary data to a stream):
     \code
     QFile file("file.dat");
-    file.open(IO_WriteOnly);
+    file.open(QIODevice::WriteOnly);
     QDataStream stream(&file);   // we will serialize the data into the file
     stream << "the answer is";   // serialize a string
     stream << (Q_INT32)42;       // serialize an integer
@@ -59,7 +59,7 @@
     Example (read binary data from a stream):
     \code
     QFile file("file.dat");
-    file.open(IO_ReadOnly);
+    file.open(QIODevice::ReadOnly);
     QDataStream stream(&file);   // read the data serialized from the file
     QString str;
     Q_INT32 a;
@@ -108,7 +108,7 @@
 
     \code
     QFile file("file.xxx");
-    file.open(IO_WriteOnly);
+    file.open(QIODevice::WriteOnly);
     QDataStream stream(&file);
 
     // Write a header with a "magic number" and a version
@@ -123,7 +123,7 @@
 
     \code
     QFile file("file.xxx");
-    file.open(IO_ReadOnly);
+    file.open(QIODevice::ReadOnly);
     QDataStream stream(&file);
 
     // Read and check the header
@@ -252,8 +252,8 @@ QDataStream::QDataStream(QIODevice *d)
 
 /*!
     Constructs a data stream that operates on a byte array, \a a. The
-    \a mode is a QIODevice::mode(), usually either \c IO_ReadOnly or
-    \c IO_WriteOnly. Use QDataStream(const QByteArray&, int) if you
+    \a mode is a QIODevice::mode(), usually either \c QIODevice::ReadOnly or
+    \c QIODevice::WriteOnly. Use QDataStream(const QByteArray&, int) if you
     just want to read from a byte array.
 
     Since QByteArray is not a QIODevice subclass, internally a QBuffer
@@ -277,7 +277,7 @@ QDataStream::QDataStream(QByteArray *a, int mode)
     the byte array is passed as a const it can only be read from; use
     QDataStream(QByteArray*, int) if you want to write to a byte
     array. The \a mode is a QIODevice::mode() and should normally be
-    \c IO_ReadOnly.
+    \c QIODevice::ReadOnly.
 
     Since QByteArray is not a QIODevice subclass, internally a QBuffer
     is created to wrap the byte array.

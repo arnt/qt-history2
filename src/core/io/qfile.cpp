@@ -158,7 +158,7 @@ QFilePrivate::reset()
     \code
     QStringList lines;
     QFile file("file.txt");
-    if (file.open(IO_ReadOnly)) {
+    if (file.open(QIODevice::ReadOnly)) {
         QTextStream stream(&file);
         QString line;
         int i = 1;
@@ -176,7 +176,7 @@ QFilePrivate::reset()
     example:
     \code
     QFile file("file.txt");
-    if (file.open(IO_WriteOnly)) {
+    if (file.open(QIODevice::WriteOnly)) {
         QTextStream stream(&file);
         QStringList::ConstIterator i = lines.constBegin();
         for (; i != lines.constEnd(); ++i)
@@ -211,7 +211,7 @@ QFilePrivate::reset()
 */
 QFile::QFile() : QIODevice(*new QFilePrivate)
 {
-    setFlags(IO_Direct);
+    setFlags(QIODevice::Direct);
     resetStatus();
 }
 
@@ -222,7 +222,7 @@ QFile::QFile() : QIODevice(*new QFilePrivate)
 */
 QFile::QFile(const QString &name) : QIODevice(*new QFilePrivate)
 {
-    setFlags(IO_Direct);
+    setFlags(QIODevice::Direct);
     resetStatus();
     d->initFileEngine(name);
 }
@@ -262,7 +262,7 @@ QFile::name() const
         QDir::setCurrent("/tmp");
         file.setName("readme.txt");
         QDir::setCurrent("/home");
-        file.open(IO_ReadOnly);      // opens "/home/readme.txt" under Unix
+        file.open(QIODevice::ReadOnly);      // opens "/home/readme.txt" under Unix
     \endcode
 
     Note that the directory separator "/" works for all operating
@@ -405,7 +405,14 @@ QFile::remove()
     if(!d->fileEngine)
         return false;
     close();
-    return d->fileEngine->remove();
+    if(status() == QIODevice::Ok) {
+        if(d->fileEngine->remove()) {
+            resetStatus();
+            return true;
+        }
+        setStatus(QIODevice::RemoveError, errno);
+    }
+    return false;
 }
 
 /*!
@@ -443,7 +450,13 @@ QFile::rename(const QString &newName)
     if(!d->fileEngine)
         return false;
     close();
-    return d->fileEngine->rename(newName);
+    if(status() == QIODevice::Ok) {
+        if(d->fileEngine->rename(newName)) {
+            resetStatus();
+            return true;
+        }
+        setStatus(QIODevice::RenameError, errno);
+    }
 }
 
 /*!
@@ -465,40 +478,40 @@ QFile::rename(const QString &oldName, const QString &newName)
     Opens the file specified by the file name currently set, using the
     mode \a m. Returns true if successful, otherwise false.
 
-    \keyword IO_Raw
-    \keyword IO_ReadOnly
-    \keyword IO_WriteOnly
-    \keyword IO_ReadWrite
-    \keyword IO_Append
-    \keyword IO_Truncate
-    \keyword IO_Translate
+    \keyword QIODevice::Raw
+    \keyword QIODevice::ReadOnly
+    \keyword QIODevice::WriteOnly
+    \keyword QIODevice::ReadWrite
+    \keyword QIODevice::Append
+    \keyword QIODevice::Truncate
+    \keyword QIODevice::Translate
 
     The mode parameter \a m must be a combination of the following flags:
     \table
     \header \i Flag \i Meaning
-    \row \i IO_Raw
+    \row \i QIODevice::Raw
          \i Raw (non-buffered) file access.
-    \row \i IO_ReadOnly
+    \row \i QIODevice::ReadOnly
          \i Opens the file in read-only mode.
-    \row \i IO_WriteOnly
+    \row \i QIODevice::WriteOnly
          \i Opens the file in write-only mode. If this flag is used
-            with another flag, e.g. \c IO_ReadOnly or \c IO_Raw or \c
-            IO_Append, the file is \e not truncated; but if used on
-            its own (or with \c IO_Truncate), the file is truncated.
-    \row \i IO_ReadWrite
+            with another flag, e.g. \c QIODevice::ReadOnly or \c QIODevice::Raw or \c
+            QIODevice::Append, the file is \e not truncated; but if used on
+            its own (or with \c QIODevice::Truncate), the file is truncated.
+    \row \i QIODevice::ReadWrite
          \i Opens the file in read/write mode, equivalent to \c
-            (IO_ReadOnly | IO_WriteOnly).
-    \row \i IO_Append
+            (QIODevice::ReadOnly | QIODevice::WriteOnly).
+    \row \i QIODevice::Append
          \i Opens the file in append mode. (You must actually use \c
-            (IO_WriteOnly | IO_Append) to make the file writable and
+            (QIODevice::WriteOnly | QIODevice::Append) to make the file writable and
             to go into append mode.) This mode is very useful when you
             want to write something to a log file. The file index is
             set to the end of the file. Note that the result is
             undefined if you position the file index manually using
             at() in append mode.
-    \row \i IO_Truncate
+    \row \i QIODevice::Truncate
          \i Truncates the file.
-    \row \i IO_Translate
+    \row \i QIODevice::Translate
          \i Enables carriage returns and linefeed translation for text
             files under Windows.
     \endtable
@@ -517,19 +530,19 @@ QFile::rename(const QString &oldName, const QString &newName)
     or a file positioning operation, e.g. at(), between input and
     output operations, otherwise the buffer may contain garbage.
 
-    If the file does not exist and \c IO_WriteOnly or \c IO_ReadWrite
+    If the file does not exist and \c QIODevice::WriteOnly or \c QIODevice::ReadWrite
     is specified, it is created.
 
     Example:
     \code
         QFile f1("/tmp/data.bin");
-        f1.open(IO_Raw | IO_ReadWrite);
+        f1.open(QIODevice::Raw | QIODevice::ReadWrite);
 
         QFile f2("readme.txt");
-        f2.open(IO_ReadOnly | IO_Translate);
+        f2.open(QIODevice::ReadOnly | QIODevice::Translate);
 
         QFile f3("audit.log");
-        f3.open(IO_WriteOnly | IO_Append);
+        f3.open(QIODevice::WriteOnly | QIODevice::Append);
     \endcode
 
     \sa name(), close(), isOpen(), flush()
@@ -543,13 +556,13 @@ QFile::open(int mode)
         return false;
     }
     if (d->fileName.isEmpty()) {
-	setStatus(IO_OpenError, QT_TR_NOOP("No file name specified"));
+	setStatus(QIODevice::OpenError, QT_TR_NOOP("No file name specified"));
         qWarning("QFile::open: No file name specified");
         return false;
     }
     if(mode & Append) //append implies write
         mode |= WriteOnly;
-    setFlags(IO_Direct);
+    setFlags(QIODevice::Direct);
     resetStatus();
     setMode(mode);
     if (!(isReadable() || isWritable())) {
@@ -561,12 +574,12 @@ QFile::open(int mode)
     if(!d->fileEngine)
         d->initFileEngine(d->fileName);
     if(d->fileEngine->open(flags())) {
-        setState(IO_Open);
+        setState(QIODevice::Open);
         if(d->fileEngine->isSequential())
             setType(Sequential);
         return true;
     }
-    setStatus(errno == EMFILE ? IO_ResourceError : IO_OpenError, errno);
+    setStatus(errno == EMFILE ? QIODevice::ResourceError : QIODevice::OpenError, errno);
     return false;
 }
 
@@ -582,7 +595,7 @@ QFile::open(int mode)
     void printError(const char* msg)
     {
         QFile f;
-        f.open(IO_WriteOnly, stderr);
+        f.open(QIODevice::WriteOnly, stderr);
         f.writeBlock(msg, qstrlen(msg));        // write to stderr
         f.close();
     }
@@ -632,7 +645,7 @@ QFile::open(int mode, int fd)
     }
     if(mode & (Append|WriteOnly)) //append implies write
         mode |= WriteOnly;
-    setFlags(IO_Direct);
+    setFlags(QIODevice::Direct);
     resetStatus();
     setMode(mode);
     if (!(isReadable() || isWritable())) {
@@ -640,10 +653,10 @@ QFile::open(int mode, int fd)
         return false;
     }
     if(d->openExternalFile(flags(), fd)) {
-        setState(IO_Open);
-        setMode(mode | IO_Raw);
+        setState(QIODevice::Open);
+        setMode(mode | QIODevice::Raw);
         if(d->fileEngine->isSequential())
-            setType(IO_Sequential);
+            setType(QIODevice::Sequential);
         return true;
     }
     return false;
@@ -660,7 +673,7 @@ QFile::open(int mode, int fd)
   Some "write-behind" filesystems may report an unspecified error on
   closing the file. These errors only indicate that something may
   have gone wrong since the previous open(). In such a case status()
-  reports IO_UnspecifiedError after close(), otherwise IO_Ok.
+  reports QIODevice::UnspecifiedError after close(), otherwise QIODevice::Ok.
 
   \sa open(), flush()
 */
@@ -668,17 +681,20 @@ QFile::open(int mode, int fd)
 void
 QFile::close()
 {
+    if(!isOpen())
+        return;
+
     bool closed = true;
     if(d->external_file) {
         flush();
     } else {
         if(d->fileEngine && !d->fileEngine->close()) {
             closed = false;
-            setStatus(IO_UnspecifiedError, errno);
+            setStatus(QIODevice::UnspecifiedError, errno);
         }
     }
     if(closed) {
-        setFlags(IO_Direct);
+        setFlags(QIODevice::Direct);
         resetStatus();
     }
 }
@@ -724,7 +740,7 @@ QFile::at() const
     Example:
     \code
     QFile f("data.bin");
-    f.open(IO_ReadOnly);  // index set to 0
+    f.open(QIODevice::ReadOnly);  // index set to 0
     f.at(100);            // set index to 100
     f.at(f.at()+50);            // set index to 150
     f.at(f.size()-80);    // set index to 80 before EOF
@@ -734,7 +750,7 @@ QFile::at() const
     Use \c at() without arguments to retrieve the file offset.
 
     \warning The result is undefined if the file was open()'ed using
-    the \c IO_Append specifier.
+    the \c QIODevice::Append specifier.
 
     \sa size(), open()
 */
@@ -749,9 +765,11 @@ QFile::at(Offset offset)
     if (isSequentialAccess()) 
         return false;
     if(d->fileEngine->seek(offset)) {
+        resetStatus();
         d->ungetchBuffer.clear();
         return true;
     }
+    setStatus(QIODevice::PositionError, errno);
     return false;
 }
 
@@ -811,7 +829,7 @@ QFile::readBlock(char *data, Q_ULONG len)
         ret += d->fileEngine->readBlock((uchar*)data, len-ret);
         if (len && ret <= 0) {
             ret = 0;
-            setStatus(IO_ReadError, errno);
+            setStatus(QIODevice::ReadError, errno);
         }
     }
     return ret;
@@ -848,7 +866,7 @@ QFile::writeBlock(const char *data, Q_ULONG len)
 
     Q_ULONG ret = d->fileEngine->writeBlock((const uchar *)data, len);
     if (ret != len) // write error
-        setStatus(errno == ENOSPC ? IO_ResourceError : IO_WriteError, errno);
+        setStatus(errno == ENOSPC ? QIODevice::ResourceError : QIODevice::WriteError, errno);
     return ret;
 }
 
@@ -861,7 +879,7 @@ QFile::writeBlock(const char *data, Q_ULONG len)
     terminating newline is not stripped.
 
     This function is only efficient for buffered files. Avoid
-    readLine() for files that have been opened with the \c IO_Raw
+    readLine() for files that have been opened with the \c QIODevice::Raw
     flag.
 
     \sa readBlock(), QTextStream::readLine()
@@ -896,7 +914,7 @@ QFile::readLine(char *data, Q_ULONG maxlen)
     file. Any terminating newline is not stripped.
 
     This function is only efficient for buffered files. Avoid using
-    readLine() for files that have been opened with the \c IO_Raw
+    readLine() for files that have been opened with the \c QIODevice::Raw
     flag.
 
     Note that the string is read as plain Latin1 bytes, not Unicode.

@@ -81,7 +81,7 @@ QBuffer::QBuffer()
     : QIODevice(*new QBufferPrivate)
 {
     d->buf = &d->defaultBuf;
-    setFlags(IO_Direct);
+    setFlags(QIODevice::Direct);
     ioIndex = 0;
 }
 
@@ -89,15 +89,15 @@ QBuffer::QBuffer()
 /*!
     Constructs a buffer that operates on QByteArray \a a.
 
-    If you open the buffer in write mode (\c IO_WriteOnly or
-    \c IO_ReadWrite) and write something into the buffer, the byte
+    If you open the buffer in write mode (\c QIODevice::WriteOnly or
+    \c QIODevice::ReadWrite) and write something into the buffer, the byte
     array, \a a will be modified.
 
     Example:
     \code
         QCString str = "abc";
         QBuffer b(str);
-        b.open(IO_WriteOnly);
+        b.open(QIODevice::WriteOnly);
         b.at(3); // position at the 4th character (the terminating \0)
         b.writeBlock("def", 4); // write "def" including the terminating \0
         b.close();
@@ -111,7 +111,7 @@ QBuffer::QBuffer(QByteArray *a)
     : QIODevice(*new QBufferPrivate)
 {
     d->buf = a;
-    setFlags(IO_Direct);
+    setFlags(QIODevice::Direct);
     ioIndex = 0;
 }
 
@@ -128,8 +128,8 @@ QBuffer::~QBuffer()
 
     Does nothing if isOpen() is true.
 
-    Note that if you open the buffer in write mode (\c IO_WriteOnly or
-    IO_ReadWrite) and write something into the buffer, and \a a is not
+    Note that if you open the buffer in write mode (\c QIODevice::WriteOnly or
+    QIODevice::ReadWrite) and write something into the buffer, and \a a is not
     0, \a a is modified because QByteArray is an explicitly shared
     class.
 
@@ -204,11 +204,11 @@ const QByteArray &QBuffer::buffer() const
 
     The mode parameter \a m must be a combination of the following flags.
     \list
-    \i \c IO_ReadOnly opens the buffer in read-only mode.
-    \i \c IO_WriteOnly opens the buffer in write-only mode.
-    \i \c IO_ReadWrite opens the buffer in read/write mode.
-    \i \c IO_Append sets the buffer index to the end of the buffer.
-    \i \c IO_Truncate truncates the buffer.
+    \i \c QIODevice::ReadOnly opens the buffer in read-only mode.
+    \i \c QIODevice::WriteOnly opens the buffer in write-only mode.
+    \i \c QIODevice::ReadWrite opens the buffer in read/write mode.
+    \i \c QIODevice::Append sets the buffer index to the end of the buffer.
+    \i \c QIODevice::Truncate truncates the buffer.
     \endlist
 
     \sa close(), isOpen()
@@ -221,14 +221,14 @@ bool QBuffer::open(int m)
         return false;
     }
     setMode(m);
-    if (m & IO_Truncate)
+    if (m & QIODevice::Truncate)
         d->buf->resize(0);
-    if (m & IO_Append)                       // append to end of buffer
+    if (m & QIODevice::Append)                       // append to end of buffer
         ioIndex = d->buf->size();
     else
         ioIndex = 0;
 
-    setState(IO_Open);
+    setState(QIODevice::Open);
     resetStatus();
     return true;
 }
@@ -244,7 +244,7 @@ bool QBuffer::open(int m)
 void QBuffer::close()
 {
     if (isOpen()) {
-        setFlags(IO_Direct);
+        setFlags(QIODevice::Direct);
         ioIndex = 0;
     }
 }
@@ -366,7 +366,7 @@ Q_LONG QBuffer::writeBlock(const char *ptr, Q_ULONG len)
         d->buf->resize(ioIndex + len);
         if (d->buf->size() != (int)(ioIndex + len)) {           // could not resize
             qWarning("QBuffer::writeBlock: Memory allocation error");
-            setStatus(IO_ResourceError);
+            setStatus(QIODevice::ResourceError);
             return -1;
         }
     }
@@ -426,7 +426,7 @@ int QBuffer::getch()
         return -1;
     }
     if (ioIndex >= d->buf->size()) {               // overflow
-        setStatus(IO_ReadError);
+        setStatus(QIODevice::ReadError);
         return -1;
     }
     return uchar(d->buf->constData()[ioIndex++]);

@@ -122,7 +122,7 @@
   This class makes it possible to give the QTextStream function objects
   with arguments, like this:
   \code
-    QTextStream cout(stdout, IO_WriteOnly);
+    QTextStream cout(stdout, QIODevice::WriteOnly);
     cout << setprecision(8);                // QTSManip used here!
     cout << 3.14159265358979323846;
   \endcode
@@ -389,15 +389,15 @@ bool QStringBuffer::open(int m)
         return false;
     }
     setMode(m);
-    if (m & IO_Truncate)
+    if (m & QIODevice::Truncate)
         s->truncate(0);
 
-    if (m & IO_Append) {
+    if (m & QIODevice::Append) {
         ioIndex = s->length()*sizeof(QChar);
     } else {
         ioIndex = 0;
     }
-    setState(IO_Open);
+    setState(QIODevice::Open);
     resetStatus();
     return true;
 }
@@ -405,7 +405,7 @@ bool QStringBuffer::open(int m)
 void QStringBuffer::close()
 {
     if (isOpen()) {
-        setFlags(IO_Direct);
+        setFlags(QIODevice::Direct);
         ioIndex = 0;
     }
 }
@@ -453,7 +453,7 @@ Q_LONG QStringBuffer::readBlock(char *p, Q_ULONG len)
     if (ioIndex + len > s->length()*sizeof(QChar)) {
         // overflow
         if (ioIndex >= s->length()*sizeof(QChar)) {
-            setStatus(IO_ReadError);
+            setStatus(QIODevice::ReadError);
             return -1;
         } else {
             len = s->length()*2 - ioIndex;
@@ -500,7 +500,7 @@ int QStringBuffer::getch()
         return -1;
     }
     if (ioIndex >= s->length()*2) {           // overflow
-        setStatus(IO_ReadError);
+        setStatus(QIODevice::ReadError);
         return -1;
     }
     return (int)((const uchar *)s->unicode())[ioIndex++];
@@ -546,7 +546,7 @@ int QStringBuffer::ungetch(int ch)
     Example:
     \code
         QString str;
-        QTextStream ts(&str, IO_WriteOnly);
+        QTextStream ts(&str, QIODevice::WriteOnly);
         ts << "pi = " << 3.14; // str == "pi = 3.14"
     \endcode
 
@@ -555,7 +555,7 @@ int QStringBuffer::ungetch(int ch)
     the end of the string. Note that the string will not be truncated:
     \code
         QString str = "pi = 3.14";
-        QTextStream ts(&str, IO_WriteOnly);
+        QTextStream ts(&str, QIODevice::WriteOnly);
         ts <<  "2+2 = " << 2+2; // str == "2+2 = 414"
     \endcode
 
@@ -578,8 +578,8 @@ QTextStream::QTextStream(QString *str, int mode)
 
 /*!
     Constructs a text stream that operates on a byte array, \a a. The
-    \a mode is a QIODevice::mode(), usually either \c IO_ReadOnly or
-    \c IO_WriteOnly. Use QTextStream(const QByteArray&, int) if you
+    \a mode is a QIODevice::mode(), usually either \c QIODevice::ReadOnly or
+    \c QIODevice::WriteOnly. Use QTextStream(const QByteArray&, int) if you
     just want to read from a byte array.
 
     Since QByteArray is not a QIODevice subclass, internally a QBuffer
@@ -588,7 +588,7 @@ QTextStream::QTextStream(QString *str, int mode)
     Example:
     \code
         QByteArray array;
-        QTextStream ts(array, IO_WriteOnly);
+        QTextStream ts(array, QIODevice::WriteOnly);
         ts << "pi = " << 3.14 << '\0';
         // array == "pi = 3.14"
     \endcode
@@ -601,7 +601,7 @@ QTextStream::QTextStream(QString *str, int mode)
     \code
         QByteArray array;
         QBuffer buf(array);
-        buf.open(IO_WriteOnly);
+        buf.open(QIODevice::WriteOnly);
         QTextStream ts(&buf);
         ts << "pi = " << 3.14 << '\0'; // array == "pi = 3.14"
         buf.close();
@@ -625,7 +625,7 @@ QTextStream::QTextStream(QByteArray *a, int mode)
     the byte array is passed as a const it can only be read from; use
     QTextStream(QByteArray*, int) if you want to write to a byte
     array. The \a mode is a QIODevice::mode() and should normally be
-    \c IO_ReadOnly.
+    \c QIODevice::ReadOnly.
 
     Since QByteArray is not a QIODevice subclass, internally a QBuffer
     is created to wrap the byte array.
