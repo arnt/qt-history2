@@ -52,7 +52,27 @@
 
 #include <stdio.h>
 
-/*! \class QErrorMessage qerrormessage.h
+class QErrorMessageTextView : public QTextView
+{
+public:
+    QErrorMessageTextView( QWidget *parent, const char *name )
+	: QTextView( parent, name ) { }
+
+    virtual QSize minimumSizeHint() const;
+    virtual QSize sizeHint() const;
+};
+
+QSize QErrorMessageTextView::minimumSizeHint() const
+{
+    return QSize( 50, 50 );
+}
+
+QSize QErrorMessageTextView::sizeHint() const
+{
+    return QSize( 250, 75 );
+}
+
+/*! \class QErrorMessage
 
   \brief The QErrorMessage class provides an error message display dialog.
 
@@ -89,20 +109,28 @@ void jump( QtMsgType t, const char * m )
     if ( !qtMessageHandler )
 	return;
 
-    QString tmp;
-    switch( t ) {
+    QString rich;
+
+    switch ( t ) {
     case QtDebugMsg:
-	tmp = "<p><b>Debug Message:</b></p>\n";
+    default:
+	rich = QErrorMessage::tr( "Debug Message:" );
 	break;
     case QtWarningMsg:
-	tmp = "<p><b>Warning:</b></p>\n";
+	rich = QErrorMessage::tr( "Warning:" );
 	break;
     case QtFatalMsg:
-	tmp = "<p><b>Fatal Error:</b></p>\n";
-	break;
+	rich = QErrorMessage::tr( "Fatal Error:" );
     }
-    tmp += QStyleSheet::convertFromPlainText( m );
-    qtMessageHandler->message( m );
+    rich = QString( "<p><b>%1</b></p>" ).arg( rich );
+    rich += QStyleSheet::convertFromPlainText( m,
+		QStyleSheetItem::WhiteSpaceNormal );
+
+    // ### work around text engine quirk
+    if ( rich.endsWith("</p>") )
+	rich.truncate( rich.length() - 4 );
+
+    qtMessageHandler->message( rich );
 }
 
 
@@ -114,25 +142,25 @@ void jump( QtMsgType t, const char * m )
 QErrorMessage::QErrorMessage( QWidget * parent, const char * name )
     : QDialog( parent, name )
 {
-    QGridLayout * grid = new QGridLayout( this, 3, 2, 7 );
+    QGridLayout * grid = new QGridLayout( this, 3, 2, 11, 6 );
     icon = new QLabel( this, "qt_icon_lbl" );
 #ifndef QT_NO_MESSAGEBOX
-    icon->setPixmap( QMessageBox::standardIcon( QMessageBox::Information) );
+    icon->setPixmap( QMessageBox::standardIcon(QMessageBox::Information) );
 #endif
     grid->addWidget( icon, 0, 0, AlignTop );
-    errors = new QTextView( this, "errors" );
-    grid->addWidget( errors, 0, 1, AlignTop );
+    errors = new QErrorMessageTextView( this, "errors" );
+    grid->addWidget( errors, 0, 1 );
     again = new QCheckBox( tr( "&Show this message again" ), this, "again" );
+    again->setChecked( TRUE );
     grid->addWidget( again, 1, 1, AlignTop + AlignAuto );
     ok = new QPushButton( tr( "&OK" ), this, "ok" );
-    connect( ok, SIGNAL(clicked()),
-	     this, SLOT(accept()) );
+    connect( ok, SIGNAL(clicked()), this, SLOT(accept()) );
     ok->setFocus();
     grid->addMultiCellWidget( ok, 2, 2, 0, 1, AlignCenter );
     grid->setColStretch( 1, 42 );
     grid->setRowStretch( 0, 42 );
     pending = new QStringList;
-    doNotShow = new QDict<int>; // small, but speed is unimportant
+    doNotShow = new QDict<int>;
     doNotShow->setAutoDelete( FALSE );
 }
 
@@ -151,9 +179,7 @@ QErrorMessage::~QErrorMessage()
     }
 
     delete pending;
-    pending = 0;
     delete doNotShow;
-    doNotShow = 0;
 }
 
 
@@ -161,11 +187,9 @@ QErrorMessage::~QErrorMessage()
 
 void QErrorMessage::done( int a )
 {
-    if ( again->isChecked() == FALSE )
-	doNotShow->insert( errors->text(), (int*)42 );
-    if ( nextPending() )
-	return;
-    else
+    if ( !again->isChecked() )
+	doNotShow->insert( errors->text(), (int*)0 );
+    if ( !nextPending() )
 	QDialog::done( a );
 }
 
@@ -178,8 +202,7 @@ isn't one already.
 QErrorMessage * QErrorMessage::qtHandler()
 {
     if ( !qtMessageHandler ) {
-	qtMessageHandler
-	    = new QErrorMessage( 0, "automatic qInstallMsgHandler handler" );
+	qtMessageHandler = new QErrorMessage( 0, "automatic message handler" );
 	qInstallMsgHandler( jump );
     }
     return qtMessageHandler;
@@ -190,17 +213,15 @@ QErrorMessage * QErrorMessage::qtHandler()
 
 bool QErrorMessage::nextPending()
 {
-    bool status = FALSE;
-    while ( ! pending->isEmpty() ) {
+    while ( !pending->isEmpty() ) {
 	QString p = *pending->begin();
 	pending->remove( pending->begin() );
 	if ( !doNotShow->find( p ) ) {
 	    errors->setText( p );
-	    status = TRUE;
-	    break;
+	    return TRUE;
 	}
     }
-    return status;
+    return FALSE;
 }
 
 
@@ -216,10 +237,8 @@ void QErrorMessage::message( const QString & m )
     if ( doNotShow->find( m ) )
 	return;
     pending->append( m );
-    if ( isVisible() )
-	return;
-    if ( nextPending() )
+    if ( !isVisible() && nextPending() )
 	show();
 }
 
-#endif //QT_NO_ERRORMESSAGE
+#endif // QT_NO_ERRORMESSAGE
