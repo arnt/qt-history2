@@ -51,6 +51,7 @@ void *QThreadPrivate::start(void *arg)
     QThread *thr = reinterpret_cast<QThread *>(arg);
     emit thr->started();
     thr->run();
+    pthread_cleanup_pop(1);
     return 0;
 }
 
