@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#53 $
 **
 ** Implementation of QMenuData class
 **
@@ -14,7 +14,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudta.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudta.cpp#53 $");
 
 
 /*!
@@ -233,7 +233,7 @@ void QMenuData::removePopup( QPopupMenu *popup )
 
 
 /*!
-  Sets the dirty flag of all menu items to \e dirty.
+  Sets the dirty flag of all menu items to \a dirty.
 */
 
 void QMenuData::setAllDirty( bool dirty )
@@ -328,15 +328,15 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
 /*!
   Inserts a menu item with a text.  Returns the menu item identifier.
 
-  The menu item is assigned the identifier \e id or an automatically
-  generated identifier.	 It works as follows: If \e id \>= 0, this
-  identifier is assigned.  If \e id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \e id is
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier.	 It works as follows: If \a id \>= 0, this
+  identifier is assigned.  If \a id == -1 (default), the identifier is
+  set equal to the menu item's real index (see below).	If \a id is
   any other negative integer, for instance -2, a unique identifier
   (negative integer \<= -2) is generated.
 
-  The \e index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \e index is negative.
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -350,15 +350,20 @@ int QMenuData::insertItem( const char *text, int id, int index )
   Inserts a menu item with a text and a sub menu.
   Returns the menu item identifier.
 
-  The menu item is assigned the identifier \e id or an automatically
-  generated identifier.	 It works as follows: If \e id \>= 0, this
-  identifier is assigned.  If \e id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \e id is
+  The \a popup must be deleted by the programmer.  It is not deleted when
+  this menu item is removed or when the menu is deleted.  Note that all
+  popups are automatically deleted when the application terminates. (The
+  QApplication destructor destroys all remaining widgets.)
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier.	 It works as follows: If \a id \>= 0, this
+  identifier is assigned.  If \a id == -1 (default), the identifier is
+  set equal to the menu item's real index (see below).	If \a id is
   any other negative integer, for instance -2, a unique identifier
   (negative integer \<= -2) is generated.
 
-  The \e index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \e index is negative.
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -372,15 +377,15 @@ int QMenuData::insertItem( const char *text, QPopupMenu *popup,
 /*!
   Inserts a menu item with a pixmap.  Returns the menu item identifier.
 
-  The menu item is assigned the identifier \e id or an automatically
-  generated identifier.	 It works as follows: If \e id \>= 0, this
-  identifier is assigned.  If \e id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \e id is
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier.	 It works as follows: If \a id \>= 0, this
+  identifier is assigned.  If \a id == -1 (default), the identifier is
+  set equal to the menu item's real index (see below).	If \a id is
   any other negative integer, for instance -2, a unique identifier
   (negative integer \<= -2) is generated.
 
-  The \e index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \e index is negative.
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -394,15 +399,20 @@ int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
   Inserts a menu item with a pixmap and a sub menu.
   Returns the menu item identifier.
 
-  The menu item is assigned the identifier \e id or an automatically
-  generated identifier.	 It works as follows: If \e id \>= 0, this
-  identifier is assigned.  If \e id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \e id is
+  The \a popup must be deleted by the programmer.  It is not deleted when
+  this menu item is removed or when the menu is deleted.  Note that all
+  popups are automatically deleted when the application terminates. (The
+  QApplication destructor destroys all remaining widgets.)
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier.	 It works as follows: If \a id \>= 0, this
+  identifier is assigned.  If \a id == -1 (default), the identifier is
+  set equal to the menu item's real index (see below).	If \a id is
   any other negative integer, for instance -2, a unique identifier
   (negative integer \<= -2) is generated.
 
-  The \e index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \e index is negative.
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -417,15 +427,15 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
   Inserts a menu item with a pixmap and a text.  Returns the menu item
   identifier.
 
-  The menu item is assigned the identifier \e id or an automatically
-  generated identifier.	 It works as follows: If \e id \>= 0, this
-  identifier is assigned.  If \e id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \e id is
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier.	 It works as follows: If \a id \>= 0, this
+  identifier is assigned.  If \a id == -1 (default), the identifier is
+  set equal to the menu item's real index (see below).	If \a id is
   any other negative integer, for instance -2, a unique identifier
   (negative integer \<= -2) is generated.
 
-  The \e index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \e index is negative.
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -440,15 +450,20 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
   Inserts a menu item with a pixmap, a text and a sub menu.
   Returns the menu item identifier.
 
-  The menu item is assigned the identifier \e id or an automatically
-  generated identifier.	 It works as follows: If \e id \>= 0, this
-  identifier is assigned.  If \e id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).	If \e id is
+  The \a popup must be deleted by the programmer.  It is not deleted when
+  this menu item is removed or when the menu is deleted.  Note that all
+  popups are automatically deleted when the application terminates. (The
+  QApplication destructor destroys all remaining widgets.)
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier.	 It works as follows: If \a id \>= 0, this
+  identifier is assigned.  If \a id == -1 (default), the identifier is
+  set equal to the menu item's real index (see below).	If \a id is
   any other negative integer, for instance -2, a unique identifier
   (negative integer \<= -2) is generated.
 
-  The \e index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \e index is negative.
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -460,8 +475,8 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
 }
 
 /*!
-  Inserts a separator at position \e index.
-  The separator becomes the last menu item if \e index is negative.
+  Inserts a separator at position \a index.
+  The separator becomes the last menu item if \a index is negative.
 
   In a popup menu, a separator is rendered as a horizontal line.  In a
   Motif menubar, a separator is spacing, so the rest of the items
@@ -477,12 +492,12 @@ void QMenuData::insertSeparator( int index )
 
 /*!
   \fn void QMenuData::removeItem( int id )
-  Removes the menu item which has the identifier \e id.
+  Removes the menu item which has the identifier \a id.
   \sa removeItemAt(), clear()
 */
 
 /*!
-  Removes the menu item at position \e index.
+  Removes the menu item at position \a index.
   \sa removeItem(), clear()
 */
 
@@ -527,7 +542,7 @@ void QMenuData::clear()
 
 
 /*!
-  Returns the accelerator key that has been defined for the menu item \e id,
+  Returns the accelerator key that has been defined for the menu item \a id,
   or 0 if it has no accelerator key.
   \sa setAccel(), QAccel, qkeycode.h
 */
@@ -539,7 +554,7 @@ int QMenuData::accel( int id ) const
 }
 
 /*!
-  Defines an accelerator key for the menu item \e id.
+  Defines an accelerator key for the menu item \a id.
 
   An accelerator key consists of a key code and a combination of the modifiers
   \c SHIFT, \c CTRL and \c ALT (OR'ed or added).
@@ -579,7 +594,7 @@ void QMenuData::setAccel( int key, int id )
 
 
 /*!
-  Returns the text that has been set for menu item \e id, or 0 if no text
+  Returns the text that has been set for menu item \a id, or 0 if no text
   has been set.
   \sa changeItem(), pixmap()
 */
@@ -591,7 +606,7 @@ const char *QMenuData::text( int id ) const
 }
 
 /*!
-  Returns the pixmap that has been set for menu item \e id, or 0 if no pixmap
+  Returns the pixmap that has been set for menu item \a id, or 0 if no pixmap
   has been set.
   \sa changeItem(), text()
 */
@@ -603,7 +618,7 @@ QPixmap *QMenuData::pixmap( int id ) const
 }
 
 /*!
-  Changes the text of the menu item \e id.
+  Changes the text of the menu item \a id.
   \sa text()
 */
 
@@ -623,7 +638,7 @@ void QMenuData::changeItem( const char *text, int id )
 }
 
 /*!
-  Changes the pixmap of the menu item \e id.
+  Changes the pixmap of the menu item \a id.
   \sa pixmap()
 */
 
@@ -649,7 +664,7 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 
 
 /*!
-  Changes the pixmap and text of the menu item \e id.
+  Changes the pixmap and text of the menu item \a id.
   \sa pixmap()
 */
 
@@ -677,7 +692,7 @@ void QMenuData::changeItem( const QPixmap &pixmap, const char *text, int id )
 
 
 /*!
-  Returns TRUE if the item with identifier \e id is enabled or FALSE if
+  Returns TRUE if the item with identifier \a id is enabled or FALSE if
   it is disabled.
   \sa setItemEnabled()
 */
@@ -689,8 +704,8 @@ bool QMenuData::isItemEnabled( int id ) const
 }
 
 /*!
-  Enables the menu item with identifier \e id if \e enable is TRUE, or
-  disables the item if \e enable is FALSE.
+  Enables the menu item with identifier \a id if \a enable is TRUE, or
+  disables the item if \a enable is FALSE.
   \sa isItemEnabled()
 */
 
@@ -718,7 +733,7 @@ bool QMenuData::isItemChecked( int id ) const
 }
 
 /*!
-  Checks a menu item if \e check is TRUE, or unchecks it if \e check is
+  Checks a menu item if \a check is TRUE, or unchecks it if \a check is
   FALSE.
   \sa isItemChecked()
 */
@@ -734,7 +749,7 @@ void QMenuData::setItemChecked( int id, bool check )
 
 
 /*!
-  Returns a pointer to the menu item with identifier \e id, or 0 if
+  Returns a pointer to the menu item with identifier \a id, or 0 if
   there is no item with such an identifier.
   \sa indexOf()
 */
@@ -763,7 +778,7 @@ QMenuItem *QMenuData::findItem( int id ) const
 }
 
 /*!
-  Returns the index of the menu item with identifier \e id, or -1 if
+  Returns the index of the menu item with identifier \a id, or -1 if
   there is no item with such an identifier.
   \sa idAt(), findItem()
 */
@@ -785,8 +800,8 @@ int QMenuData::indexOf( int id ) const
 }
 
 /*!
-  Returns the identifier of the menu item at position \e index in the internal
-  list, or -1 if \e index is out of range.
+  Returns the identifier of the menu item at position \a index in the internal
+  list, or -1 if \a index is out of range.
   \sa setId(), indexOf()
 */
 
@@ -797,7 +812,7 @@ int QMenuData::idAt( int index ) const
 }
 
 /*!
-  Sets the menu identifier of the item at \e index to \e id.
+  Sets the menu identifier of the item at \a index to \a id.
 
   If index is out of range the operation is ignored.
 
