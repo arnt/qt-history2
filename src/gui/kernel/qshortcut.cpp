@@ -232,7 +232,7 @@ Qt::ShortcutContext QShortcut::context()
     This?" mode and the user types the shortcut key() sequence.
 
     To set "What's This?" help on a menu item (with or without a
-    shortcut key), use QMenuData::setWhatsThis().
+    shortcut key), set the help on the item's action.
 
     \sa whatsThis(), QWhatsThis::inWhatsThisMode(),
     setWhatsThis(), QAction::setWhatsThis()
