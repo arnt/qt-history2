@@ -50,11 +50,12 @@ void IntroScreen::paintEvent(QPaintEvent *)
 
     fillBackground(&p);
 
-    p.setPen(Qt::NoPen);
-
     QRect textRect(100, 0, w-200, h);
 
+    p.setBrush(QColor(255, 255, 255, attributes->alpha ? 220 : 255));
+    p.drawRect(textRect.x() - 20, textRect.y(), textRect.width() + 40, textRect.height());
 
+    p.setPen(Qt::NoPen);
     int blockHeight = textLayout->sizeUsed().height();
     int ypos = (-animationStep % blockHeight);
 
