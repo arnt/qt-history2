@@ -330,6 +330,7 @@ echo
 echo "Build type:    $TARGET"
 echo "Compile flags: $QT_CXX"
 echo "Link flags:    $QT_LIBS"
+echo "GIF supports:  $GIF"
 echo
 echo Creating makefiles...
 
