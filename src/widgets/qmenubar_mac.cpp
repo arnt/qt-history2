@@ -128,8 +128,14 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 	    if(item->isSeparator()) {
 		ChangeMenuItemAttributes(ret, id, kMenuItemAttrSeparator, 0);
 	    } else {
-		if(item->pixmap()) {
-		    //handle pixmaps..
+		if(item->pixmap()) { 		    //handle pixmaps..
+#if 0
+		    CIcon *ic = (CIcon *)malloc(sizeof(CIcon));
+		    PixMapHandle src = GetGWorldPixMap((GWorldPtr)item->pixmap()->handle());
+		    PixMap *dst = &ic->iconPMap;
+		    CopyPixMap(src, &dst);
+		    SetMenuItemIconHandle(ret, id, kMenuIconRefType, (Handle)ic);
+#endif
 		}
 		if(item->isEnabled())
 		    EnableMenuItem(ret, id);
