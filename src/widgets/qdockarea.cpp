@@ -7,6 +7,7 @@
 #include <qpainter.h>
 #include <qwidgetlist.h>
 #include <qmap.h>
+#include <qmainwindow.h>
 
 //#define QDOCKAREA_DEBUG
 
@@ -634,4 +635,30 @@ void QDockArea::dockWidget( QDockWidget *dockWidget, DockWidgetData *data )
     setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
 
+}
+
+bool QDockArea::isDockWidgetAccepted( QDockWidget *dw )
+{
+    if ( !dw )
+	return FALSE;
+    if ( forbiddenWidgets.findRef( dw ) != -1 )
+	return FALSE;
+    if ( !parentWidget() || !parentWidget()->inherits( "QMainWindow" ) )	
+	return TRUE;
+    QMainWindow *mw = (QMainWindow*)parentWidget();
+    if ( !mw->hasDockWidget( dw ) )
+	return FALSE;
+    if ( !mw->isDockEnabled( this ) )
+	return FALSE;
+    if ( !mw->isDockEnabled( dw, this ) )
+	return FALSE;
+    return TRUE;
+}
+
+void QDockArea::setAcceptDockWidget( QDockWidget *dw, bool accept )
+{
+    if ( accept )
+	forbiddenWidgets.removeRef( dw );
+    else if ( forbiddenWidgets.findRef( dw ) == -1 )
+	forbiddenWidgets.append( dw );
 }

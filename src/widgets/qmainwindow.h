@@ -77,8 +77,10 @@ public:
 
     virtual void setDockEnabled( Dock dock, bool enable );
     bool isDockEnabled( Dock dock ) const;
+    bool isDockEnabled( QDockArea *area ) const;
     virtual void setDockEnabled( QDockWidget *tb, Dock dock, bool enable );
     bool isDockEnabled( QDockWidget *tb, Dock dock ) const;
+    bool isDockEnabled( QDockWidget *tb, QDockArea *area ) const;
 
     void addDockWidget( QDockWidget *, Dock = Top, bool newLine = FALSE );
     void addDockWidget( QDockWidget *, const QString &label,
@@ -113,6 +115,8 @@ public:
     void moveToolBar( QDockWidget *, Dock = Top );
     void moveToolBar( QDockWidget *, Dock, bool nl, int index, int extraOffset = -1 );
     void removeToolBar( QDockWidget * );
+    bool hasDockWidget( QDockWidget *dw );
+    
     bool toolBarsMovable() const;
     QList<QToolBar> toolBars( Dock dock ) const;
     void lineUpToolBars( bool keepNewLines = FALSE );

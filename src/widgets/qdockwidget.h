@@ -92,6 +92,7 @@ private:
     void startRectDraw( const QPoint &so );
     void endRectDraw();
     void updatePosition( const QPoint &globalPos  );
+    QWidget *areaAt( const QPoint &gp );
 
 private:
     QDockWidgetHandle *horHandle, *verHandle;

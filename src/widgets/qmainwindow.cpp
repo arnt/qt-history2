@@ -42,8 +42,6 @@
    - opaque moving
    - linup dockwidgets
 
-   -- Implemented but not tested --
-   - setDockEnabled, isDockEnabled
 */
 // ####################
 
@@ -586,6 +584,19 @@ bool QMainWindow::isDockEnabled( Dock dock ) const
     return d->docks[ dock ];
 }
 
+bool QMainWindow::isDockEnabled( QDockArea *area ) const
+{
+    if ( area == d->leftDock )
+	return d->docks[ Left ];
+    if ( area == d->rightDock )
+	return d->docks[ Right ];
+    if ( area == d->topDock )
+	return d->docks[ Top ];
+    if ( area == d->bottomDock )
+	return d->docks[ Bottom ];
+    return FALSE;
+}
+
 /*!
   Sets \a dock to be available for the toolbar \a tb if \a enable is TRUE, and not
   available if \a enable is FALSE.
@@ -602,6 +613,22 @@ void QMainWindow::setDockEnabled( QDockWidget *tb, Dock dock, bool enable )
 	d->disabledDocks.remove( s );
     else if ( d->disabledDocks.find( s ) == d->disabledDocks.end() )
 	d->disabledDocks << s;
+}
+
+bool QMainWindow::isDockEnabled( QDockWidget *tb, QDockArea *area ) const
+{
+    Dock dock;
+    if ( area == d->leftDock )
+	dock = Left;
+    else if ( area == d->rightDock )
+	dock = Right;
+    else if ( area == d->topDock )
+	dock = Top;
+    else if ( area == d->bottomDock )
+	dock = Bottom;
+    else 
+	return FALSE;
+    return isDockEnabled( tb, dock );
 }
 
 /*!
@@ -1376,6 +1403,11 @@ QDockArea *QMainWindow::dockingArea( const QPoint &p )
     if ( p.y() >= height() - sh - 20 && p.y() <= height() + 5 && p.x() >= 0 && p.x() <= width() )
 	return d->bottomDock;
     return 0;
+}
+
+bool QMainWindow::hasDockWidget( QDockWidget *dw )
+{
+    return d->dockWidgets.findRef( dw ) != -1;
 }
 
 #include "qmainwindow.moc"
