@@ -306,6 +306,7 @@ void HierarchyList::setup()
 	    header()->resizeSection( 0, 1 );
 	    header()->resizeSection( 1, 1 );
 	    header()->resizeSection( 2, 1 );
+	    header()->adjustHeaderSize();
 	}
     } else {
 	if ( columns() == 3 ) {
