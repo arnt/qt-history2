@@ -1426,12 +1426,6 @@ void QAxHostWidget::resizeEvent(QResizeEvent *e)
 
 bool QAxHostWidget::winEvent(MSG *msg, long *result)
 {
-    switch (msg->message) {
-    case WM_CANCELMODE:
-        return true;
-    default:
-        break;
-    }
     if (axhost && axhost->inPlaceObjectWindowless) {
         Q_ASSERT(axhost->m_spInPlaceObject);
         IOleInPlaceObjectWindowless *windowless = (IOleInPlaceObjectWindowless*)axhost->m_spInPlaceObject;
