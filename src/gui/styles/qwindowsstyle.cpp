@@ -1733,11 +1733,10 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
             int thickness  = pixelMetric(PM_SliderControlThickness, widget);
             int len        = pixelMetric(PM_SliderLength, widget);
             int ticks = slider->tickmarks;
-            Q4StyleOptionSlider querySlider = *slider;
-            querySlider.parts = SC_SliderGroove;
-            QRect groove = QCommonStyle::querySubControlMetrics(CC_Slider, &querySlider, widget);
-            querySlider.parts = SC_SliderHandle;
-            QRect handle = QCommonStyle::querySubControlMetrics(CC_Slider, &querySlider, widget);
+            QRect groove = QCommonStyle::querySubControlMetrics(CC_Slider, slider,
+                                                                SC_SliderGroove, widget);
+            QRect handle = QCommonStyle::querySubControlMetrics(CC_Slider, slider,
+                                                                SC_SliderHandle, widget);
 
             if ((slider->parts & SC_SliderGroove) && groove.isValid()) {
                 int mid = thickness / 2;
@@ -1762,8 +1761,9 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
             }
 
             if (slider->parts & SC_SliderTickmarks) {
-                querySlider.parts = SC_SliderTickmarks;
-                QCommonStyle::drawComplexControl(cc, &querySlider, p, widget);
+                Q4StyleOptionSlider tmpSlider = *slider;
+                tmpSlider.parts = SC_SliderTickmarks;
+                QCommonStyle::drawComplexControl(cc, &tmpSlider, p, widget);
             }
 
             if (slider->parts & SC_SliderHandle) {
@@ -2090,17 +2090,16 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
         break;
     case CC_ComboBox:
         if (const Q4StyleOptionComboBox *cmb = qt_cast<const Q4StyleOptionComboBox *>(opt)) {
-            Q4StyleOptionComboBox newCmb = *cmb;
             if (cmb->parts & SC_ComboBoxArrow) {
                 SFlags flags = Style_Default;
-                
+
                 qDrawWinPanel(p, opt->rect, opt->palette, true,
                               cmb->state & Style_Enabled ? &cmb->palette.brush(QPalette::Base)
                                                          : &cmb->palette.brush(QPalette::Background));
-                
-                newCmb.parts = SC_ComboBoxArrow;
+
                 QRect ar =
-                    QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, &newCmb,
+                    QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, cmb,
+                                                                            SC_ComboBoxArrow,
                                                                             widget), widget);
                 if (cmb->activeParts == SC_ComboBoxArrow) {
                     p->setPen(cmb->palette.dark());
@@ -2110,7 +2109,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
                     qDrawWinPanel(p, ar, cmb->palette, false,
                                   &cmb->palette.brush(QPalette::Button));
                 }
-                
+
                 ar.addCoords(2, 2, -2, -2);
                 if (opt->state & Style_Enabled)
                     flags |= Style_Enabled;
@@ -2124,18 +2123,18 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
                 drawPrimitive(PE_ArrowDown, &arrowOpt, p, widget);
             }
             if (cmb->parts & SC_ComboBoxEditField) {
-                newCmb.parts = SC_ComboBoxEditField;
                 QRect re =
-                    QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, &newCmb,
+                    QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, cmb,
+                                                                            SC_ComboBoxEditField,
                                                                             widget), widget);
                 if (cmb->state & Style_HasFocus && !cmb->editable)
                     p->fillRect(re.x(), re.y(), re.width(), re.height(),
                                 cmb->palette.brush(QPalette::Highlight));
-                
+
                 if (cmb->state & Style_HasFocus) {
                     p->setPen(cmb->palette.highlightedText());
                     p->setBackground(cmb->palette.highlight());
-                    
+
                 } else {
                     p->setPen(cmb->palette.text());
                     p->setBackground(cmb->palette.background());

@@ -172,16 +172,15 @@ static Q4StyleOptionSpinBox getStyleOption(const QSpinWidget *spin)
 void QSpinWidget::arrange()
 {
     Q4StyleOptionSpinBox opt = getStyleOption(this);
-    opt.parts = QStyle::SC_SpinBoxUp;
-    d->up = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt, this),
-                               this);
-    opt.parts = QStyle::SC_SpinBoxDown;
-    d->down = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt, this),
-                                 this);
+    d->up = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt,
+                                                              QStyle::SC_SpinBoxUp, this), this);
+    d->down = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt,
+                                                                QStyle::SC_SpinBoxDown, this),
+                                                                this);
     if (d->ed) {
-        opt.parts = QStyle::SC_SpinBoxEditField;
-        QRect r = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt, this),
-                                     this);
+        QRect r = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt,
+                                                                    QStyle::SC_SpinBoxEditField,
+                                                                    this), this);
         d->ed->setGeometry(r);
     }
 }
@@ -325,8 +324,8 @@ void QSpinWidget::paintEvent(QPaintEvent *)
         opt.activeParts = QStyle::SC_SpinBoxUp;
     else
         opt.activeParts = QStyle::SC_None;
-    opt.parts = QStyle::SC_SpinBoxFrame;
-    opt.rect = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt, this),
+    opt.rect = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt,
+                                                                 QStyle::SC_SpinBoxFrame, this),
                                   this);
     opt.parts = QStyle::SC_All;
     style().drawComplexControl(QStyle::CC_SpinBox, &opt, &p, this);

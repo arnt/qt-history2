@@ -2529,9 +2529,8 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
         if (const Q4StyleOptionSpinBox *sb = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
             Q4StyleOptionSpinBox newSB = *sb;
             if (sb->parts & SC_SpinBoxFrame) {
-                newSB.parts = SC_SpinBoxFrame;
                 Q4StyleOptionFrame lineedit(0);
-                lineedit.rect = querySubControlMetrics(CC_SpinBox, &newSB, widget),
+                lineedit.rect = querySubControlMetrics(CC_SpinBox, sb, SC_SpinBoxFrame, widget),
                 lineedit.palette = sb->palette;
                 lineedit.state = Style_Sunken;
                 lineedit.lineWidth = 0;
@@ -2550,10 +2549,10 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                 if (sb->state & Style_HasFocus
                         && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
                     info.adornment |= kThemeAdornmentFocus;
-                newSB.parts = SC_SpinBoxUp;
-                QRect updown = visualRect(querySubControlMetrics(CC_SpinBox, &newSB, widget), widget);
-                newSB.parts = SC_SpinBoxDown;
-                updown |= visualRect(querySubControlMetrics(CC_SpinBox, &newSB, widget), widget);
+                QRect updown = visualRect(querySubControlMetrics(CC_SpinBox, sb, SC_SpinBoxUp,
+                                                                 widget), widget);
+                updown |= visualRect(querySubControlMetrics(CC_SpinBox, sb, SC_SpinBoxDown,
+                                                            widget), widget);
                 if (widget) {
                     QPalette::ColorRole bgRole = widget->backgroundRole();
                     if (sb->palette.brush(bgRole).pixmap())
@@ -2608,11 +2607,8 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
             }
 
             QRect button, menuarea;
-            Q4StyleOptionToolButton newTb = *tb;
-            newTb.parts = SC_ToolButton;
-            button   = querySubControlMetrics(cc, &newTb, widget);
-            newTb.parts = SC_ToolButtonMenu;
-            menuarea = querySubControlMetrics(cc, &newTb, widget);
+            button   = querySubControlMetrics(cc, tb, SC_ToolButton, widget);
+            menuarea = querySubControlMetrics(cc, tb, SC_ToolButtonMenu, widget);
             SFlags bflags = tb->state,
             mflags = tb->state;
             if (tb->parts & SC_ToolButton)
@@ -2680,9 +2676,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
             p->fillRect(cmb->rect, cmb->palette.brush(QPalette::Button)); //make sure it is filled
             if (cmb->editable) {
                 info.adornment |= kThemeAdornmentArrowDownArrow;
-                Q4StyleOptionComboBox newCmb = *cmb;
-                newCmb.parts = SC_ComboBoxArrow;
-                QRect buttonR = querySubControlMetrics(CC_ComboBox, &newCmb, widget);
+                QRect buttonR = querySubControlMetrics(CC_ComboBox, cmb, SC_ComboBoxArrow, widget);
                 static_cast<QMacStyleQDPainter *>(p)->setport();
 
                 ThemeButtonKind bkind = kThemeArrowButton;
@@ -2773,7 +2767,7 @@ QStyle::SubControl QMacStyleQD::querySubControl(ComplexControl cc, const Q4Style
 }
 
 QRect QMacStyleQD::querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
-                                          const QWidget *widget) const
+                                          SubControl sc, const QWidget *widget) const
 {
     QRect ret;
     switch (cc) {
@@ -2786,7 +2780,7 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
             GetThemeTrackBounds(&tdi, &macRect);
             tdi.bounds.left  += tdi.bounds.left  - macRect.left;
             tdi.bounds.right -= macRect.right - tdi.bounds.right;
-            switch(slider->parts) {
+            switch (sc) {
             case SC_SliderGroove: {
                 Rect mrect;
                 GetThemeTrackBounds(&tdi, &mrect);
@@ -2819,7 +2813,7 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
             int fw = pixelMetric(PM_SpinBoxFrameWidth, widget),
             y = fw,
             x = spin->rect.width() - fw - spinner_w;
-            switch(spin->parts) {
+            switch (sc) {
                 case SC_SpinBoxUp:
                     ret = QRect(x, y + ((spin->rect.height() - fw * 2) / 2 - spinner_h),
                                 spinner_w, spinner_h);
@@ -2846,16 +2840,16 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
     case CC_ComboBox:
         if(const Q4StyleOptionComboBox *cmb = qt_cast<const Q4StyleOptionComboBox *>(opt)) {
             if (cmb->editable) {
-                if (cmb->parts == SC_ComboBoxEditField)
+                if (sc == SC_ComboBoxEditField)
                     ret.setRect(0, 0, cmb->rect.width() - 20, cmb->rect.height());
-                else if (cmb->parts == SC_ComboBoxArrow)
+                else if (sc == SC_ComboBoxArrow)
                     ret.setRect(cmb->rect.width() - 24, 0, 24, cmb->rect.height());
                 break;
             }
         }
         // Fall through to default!
     default:
-        ret = QWindowsStyle::querySubControlMetrics(cc, opt, widget);
+        ret = QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
     }
     return ret;
 }
@@ -2900,7 +2894,8 @@ QSize QMacStyleQD::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
                 cmb.editable = false;
                 cmb.parts = SC_ComboBoxEditField;
                 cmb.activeParts = SC_None;
-                w = qMax(w, querySubControlMetrics(CC_ComboBox, &cmb, widget->parentWidget())
+                w = qMax(w, querySubControlMetrics(CC_ComboBox, &cmb, SC_ComboBoxEditField,
+                                                   widget->parentWidget())
                             .width());
             } else {
                 w += 12;

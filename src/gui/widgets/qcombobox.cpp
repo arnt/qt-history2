@@ -417,9 +417,8 @@ void QComboBoxPrivate::updateLinedGeometry()
     if (!ed)
         return;
     Q4StyleOptionComboBox opt = getStyleOption();
-    opt.parts = QStyle::SC_ComboBoxEditField;
-    QRect r = QStyle::visualRect(
-        q->style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, q), q);
+    QRect r = QStyle::visualRect(q->style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+                                 QStyle::SC_ComboBoxEditField, q), q);
 
     const QPixmap *pix = current < q->count() ? q->pixmap(current) : 0;
     if (pix && pix->width() < r.width())
@@ -1165,8 +1164,8 @@ void QComboBox::paintEvent(QPaintEvent *)
     } else if(!d->usingListBox()) {
         Q4StyleOptionComboBox opt = d->getStyleOption();
         style().drawComplexControl(QStyle::CC_ComboBox, &opt, &p, this);
-        opt.parts = QStyle::SC_ComboBoxEditField;
-        QRect re = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, this);
+        QRect re = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+                                                  QStyle::SC_ComboBoxEditField, this);
         re = QStyle::visualRect(re, this);
         p.setClipRect(re);
 
@@ -1191,8 +1190,8 @@ void QComboBox::paintEvent(QPaintEvent *)
     } else {
         Q4StyleOptionComboBox opt = d->getStyleOption();
         style().drawComplexControl(QStyle::CC_ComboBox, &opt, &p, this);
-        opt.parts = QStyle::SC_ComboBoxEditField;
-        QRect re = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, this);
+        QRect re = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+                                                  QStyle::SC_ComboBoxEditField, this);
         re = QStyle::visualRect(re, this);
         p.setClipRect(re);
 
@@ -1230,7 +1229,8 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
         return;
     }
     Q4StyleOptionComboBox opt = d->getStyleOption();
-    QRect arrowRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, this);
+    QRect arrowRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+                                                     QStyle::SC_ComboBoxArrow, this);
     arrowRect = QStyle::visualRect(arrowRect, this);
 
     // Correction for motif style, where arrow is smaller
@@ -1483,10 +1483,9 @@ void QComboBox::popup()
         if (y + h > sy+sh && y - h - height() >= 0)
             y = y - h - height();
         Q4StyleOptionComboBox opt = d->getStyleOption();
-        opt.parts = QStyle::SC_ComboBoxListBoxPopup;
         opt.popupRect.setRect(x, y, w, h);
-        QRect rect =
-            style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, this);
+        QRect rect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+                                                    QStyle::SC_ComboBoxListBoxPopup, this);
         // work around older styles that don't implement the combobox
         // listbox popup subcontrol
         if (rect.isNull())
@@ -1665,9 +1664,9 @@ bool QComboBox::eventFilter(QObject *object, QEvent *event)
                     QPoint comboPos;
                     comboPos = mapFromGlobal(d->listBox()->mapToGlobal(pos));
                     Q4StyleOptionComboBox opt = d->getStyleOption();
-                    opt.parts = QStyle::SC_ComboBoxArrow;
                     QRect arrowRect =
-                        style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, this);
+                        style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+                                                       QStyle::SC_ComboBoxArrow, this);
 
                     arrowRect = QStyle::visualRect(arrowRect, this);
                     if (arrowRect.contains(comboPos)) {

@@ -1758,11 +1758,8 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
         }
         break;
     case SR_ToolButtonContents:
-        if (const Q4StyleOptionToolButton *tb = qt_cast<const Q4StyleOptionToolButton *>(opt)) {
-            Q4StyleOptionToolButton newTb = *tb;
-            newTb.parts = SC_ToolButton;
-            r = querySubControlMetrics(CC_ToolButton, &newTb, w);
-        }
+        if (const Q4StyleOptionToolButton *tb = qt_cast<const Q4StyleOptionToolButton *>(opt))
+            r = querySubControlMetrics(CC_ToolButton, tb, SC_ToolButton, w);
         break;
     case SR_ComboBoxFocusRect:
         r.setRect(3, 3, opt->rect.width() - 6 - 16, opt->rect.height() - 6);
@@ -1842,8 +1839,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
         break;
     case CC_ScrollBar:
         if (const Q4StyleOptionSlider *scrollbar = qt_cast<const Q4StyleOptionSlider *>(opt)) {
-            // Since we really get this thing is a const it is not correct to be making
-            // changes to it. So make a copy here and reset it for each primitive.
+            // Make a copy here and reset it for each primitive.
             Q4StyleOptionSlider newScrollbar = *scrollbar;
             SFlags saveFlags = scrollbar->state;
             if (scrollbar->minimum == scrollbar->maximum)
@@ -1851,9 +1847,9 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
 
             if (scrollbar->parts & SC_ScrollBarSubLine) {
                 newScrollbar.state = saveFlags;
-                newScrollbar.parts = SC_ScrollBarSubLine;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
-                                               widget);
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarSubLine, widget),
+                                                                      widget);
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeParts & SC_ScrollBarSubLine)
                         newScrollbar.state |= Style_Down;
@@ -1863,8 +1859,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
             if (scrollbar->parts & SC_ScrollBarAddLine) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.parts = SC_ScrollBarAddLine;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarAddLine, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeParts & SC_ScrollBarAddLine)
@@ -1875,8 +1871,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
             if (scrollbar->parts & SC_ScrollBarSubPage) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.parts = SC_ScrollBarSubPage;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarSubPage, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeParts & SC_ScrollBarSubPage)
@@ -1887,8 +1883,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
             if (scrollbar->parts & SC_ScrollBarAddPage) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.parts = SC_ScrollBarAddPage;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarAddPage, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeParts & SC_ScrollBarAddPage)
@@ -1899,8 +1895,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
             if (scrollbar->parts & SC_ScrollBarFirst) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.parts = SC_ScrollBarFirst;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarFirst, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeParts & SC_ScrollBarFirst)
@@ -1911,8 +1907,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
             if (scrollbar->parts & SC_ScrollBarLast) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.parts = SC_ScrollBarLast;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarLast, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeParts & SC_ScrollBarLast)
@@ -1923,8 +1919,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
             if (scrollbar->parts & SC_ScrollBarSlider) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.parts = SC_ScrollBarSlider;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarSlider, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeParts & SC_ScrollBarSlider)
@@ -1973,7 +1969,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
                 }
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_SpinBoxPlus : PE_SpinBoxUp);
 
-                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, widget);
+                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxUp, widget);
                 drawPrimitive(PE_ButtonBevel, &copy, p, widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
@@ -1995,7 +1991,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_SpinBoxMinus : PE_SpinBoxDown);
 
                 copy.rect = sb->rect;
-                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, widget);
+                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxDown, widget);
                 drawPrimitive(PE_ButtonBevel, &copy, p, widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
@@ -2005,7 +2001,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
                 pe = PE_SpinBoxSlider;
                 copy.parts = SC_SpinBoxSlider;
                 copy.rect = sb->rect;
-                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, widget);
+                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxSlider, widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
 
@@ -2018,11 +2014,10 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
             if (toolbutton->bgRole != QPalette::Button)
                 pal2.setBrush(QPalette::Button, toolbutton->palette.brush(toolbutton->bgRole));
             QRect button, menuarea;
-            Q4StyleOptionToolButton newTB = *toolbutton;
-            newTB.parts = SC_ToolButton;
-            button = visualRect(querySubControlMetrics(cc, &newTB, widget), widget);
-            newTB.parts = SC_ToolButtonMenu;
-            menuarea = visualRect(querySubControlMetrics(cc, &newTB, widget), widget);
+            button = visualRect(querySubControlMetrics(cc, toolbutton, SC_ToolButton, widget),
+                                widget);
+            menuarea = visualRect(querySubControlMetrics(cc, toolbutton, SC_ToolButtonMenu, widget),
+                                  widget);
 
             SFlags bflags = toolbutton->state,
                    mflags = toolbutton->state;
@@ -2087,14 +2082,12 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const Q4Styl
     switch (cc) {
     case CC_Slider:
         if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
-            Q4StyleOptionSlider tmpSlider = *slider;
-            tmpSlider.parts = SC_SliderHandle;
-            QRect r = visualRect(querySubControlMetrics(cc, &tmpSlider, widget), widget);
+            QRect r = visualRect(querySubControlMetrics(cc, slider, SC_SliderHandle, widget),
+                                 widget);
             if (r.isValid() && r.contains(pt)) {
                 sc = SC_SliderHandle;
             } else {
-                tmpSlider.parts = SC_SliderGroove;
-                r = visualRect(querySubControlMetrics(cc, &tmpSlider, widget), widget);
+                r = visualRect(querySubControlMetrics(cc, slider, SC_SliderGroove ,widget), widget);
                 if (r.isValid() && r.contains(pt))
                     sc = SC_SliderGroove;
             }
@@ -2102,14 +2095,13 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const Q4Styl
         break;
     case CC_ScrollBar:
         if (const Q4StyleOptionSlider *scrollbar = qt_cast<const Q4StyleOptionSlider *>(opt)) {
-            Q4StyleOptionSlider tmpScrollbar = *scrollbar;
             QRect r;
             uint ctrl = SC_ScrollBarAddLine;
             while (sc == SC_None && ctrl <= SC_ScrollBarGroove) {
-                tmpScrollbar.parts = (QStyle::SubControl)ctrl;
-                r = visualRect(querySubControlMetrics(cc, &tmpScrollbar, widget), widget);
+                r = visualRect(querySubControlMetrics(cc, scrollbar, QStyle::SubControl(ctrl),
+                                                      widget), widget);
                 if (r.isValid() && r.contains(pt)) {
-                    sc = (QStyle::SubControl)ctrl;
+                    sc = QStyle::SubControl(ctrl);
                     break;
                 }
                 ctrl <<= 1;
@@ -2135,7 +2127,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const Q4Styl
     \sa querySubControl()
 */
 QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
-                                           const QWidget *widget) const
+                                           SubControl sc, const QWidget *widget) const
 {
     QRect ret;
     switch (cc) {
@@ -2144,7 +2136,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
             int tickOffset = pixelMetric(PM_SliderTickmarkOffset, widget);
             int thickness = pixelMetric(PM_SliderControlThickness, widget);
 
-            switch (slider->parts) {
+            switch (sc) {
             case SC_SliderHandle: {
                 int sliderPos = 0;
                 int len = pixelMetric(PM_SliderLength, widget);
@@ -2195,7 +2187,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
                                                            scrollbar->sliderPosition,
                                                            maxlen - sliderlen,
                                                            scrollbar->useRightToLeft);
-            switch (scrollbar->parts) {
+            switch (sc) {
             case SC_ScrollBarSubLine:            // top/left button
                 if (scrollbar->orientation == Qt::Horizontal) {
                     int buttonWidth = qMin(scrollbar->rect.width() / 2, sbextent);
@@ -2261,7 +2253,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
             x = (QApplication::reverseLayout() ? fw : spinbox->rect.width() - y - bs.width());
             lx = (QApplication::reverseLayout() ? bs.width() + fw : fw);
             rx = x - fw;
-            switch (opt->parts) {
+            switch (sc) {
             case SC_SpinBoxUp:
                 ret = QRect(x, y, bs.width(), bs.height()); break;
             case SC_SpinBoxDown:
@@ -2283,7 +2275,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
         if (const Q4StyleOptionToolButton *tb = qt_cast<const Q4StyleOptionToolButton *>(opt)) {
             int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
             ret = tb->rect;
-            switch (tb->parts) {
+            switch (sc) {
             case SC_ToolButton:
                 if ((tb->extras
                      & (Q4StyleOptionToolButton::Menu | Q4StyleOptionToolButton::PopupDelay))
@@ -2310,7 +2302,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
             int xpos = x;
             xpos += wi - 2 - 16;
 
-            switch (cmb->parts) {
+            switch (sc) {
             case SC_ComboBoxFrame:
                 ret = cmb->rect;
                 break;
@@ -2327,7 +2319,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
                 break;
             }
         }
-        break; 
+        break;
     default:
         qWarning("QCommonStyle::querySubControlMetrics case not handled %d", cc);
     }
@@ -2591,25 +2583,6 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
     SubControl ret = SC_None;
 
     switch (control) {
-#ifndef QT_NO_SCROLLBAR
-    case CC_ScrollBar:
-        {
-            QRect r;
-            uint ctrl = SC_ScrollBarAddLine;
-
-            // we can do this because subcontrols were designed to be masks as well...
-            while (ret == SC_None && ctrl <= SC_ScrollBarGroove) {
-                r = visualRect(querySubControlMetrics(control, widget,
-                                                      (QStyle::SubControl) ctrl, opt), widget);
-                if (r.isValid() && r.contains(pos))
-                    ret = (QStyle::SubControl) ctrl;
-
-                ctrl <<= 1;
-            }
-
-            break;
-        }
-#endif
     case CC_TitleBar:
         {
 #ifndef QT_NO_TITLEBAR
@@ -2638,21 +2611,6 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
                 ret = QStyle::SC_TitleBarNormalButton;
             }
 #endif
-            break;
-        }
-    case CC_Slider:
-        {
-            QRect r;
-            // Check for handle first, then the groove.
-            r = visualRect(querySubControlMetrics(control, widget, SC_SliderHandle, opt), widget);
-            if (r.isValid() && r.contains(pos)) {
-                ret = SC_SliderHandle;
-            } else {
-                r = visualRect(querySubControlMetrics(control, widget, SC_SliderGroove, opt),
-                               widget);
-                if (r.isValid() && r.contains(pos))
-                    ret = SC_SliderGroove;
-            }
             break;
         }
     default:

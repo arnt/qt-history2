@@ -1588,10 +1588,10 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
         if (const Q4StyleOptionSpinBox *sb = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
             Q4StyleOptionSpinBox newSB = *sb;
             if (sb->parts & SC_SpinBoxFrame) {
-                newSB.parts = SC_SpinBoxFrame;
                 Q4StyleOptionFrame lineedit(0);
-                lineedit.rect = QStyle::visualRect(querySubControlMetrics(CC_SpinBox, &newSB,
-                                                                          widget), widget);
+                lineedit.rect = QStyle::visualRect(querySubControlMetrics(CC_SpinBox, sb,
+                                                                          SC_SpinBoxFrame, widget),
+                                                   widget);
                 lineedit.palette = sb->palette;
                 lineedit.state = Style_Sunken;
                 lineedit.lineWidth = 0;
@@ -1631,10 +1631,10 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                     bdi.adornment = kThemeAdornmentFocus;
                 else
                     bdi.adornment = kThemeAdornmentNone;
-                newSB.parts = SC_SpinBoxUp;
-                QRect updown = visualRect(querySubControlMetrics(CC_SpinBox, &newSB, widget), widget);
-                newSB.parts = SC_SpinBoxDown;
-                updown |= visualRect(querySubControlMetrics(CC_SpinBox, &newSB, widget), widget);
+                QRect updown = visualRect(querySubControlMetrics(CC_SpinBox, sb, SC_SpinBoxUp,
+                                                                 widget), widget);
+                updown |= visualRect(querySubControlMetrics(CC_SpinBox, sb, SC_SpinBoxDown, widget),
+                                     widget);
                 if (widget) {
                     QPalette::ColorRole bgRole = widget->backgroundRole();
                     if (sb->palette.brush(bgRole).pixmap())
@@ -1659,9 +1659,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                                 ? ThemeDrawState(kThemeStatePressed) : tds;
             if (cmb->editable) {
                 bdi.adornment |= kThemeAdornmentArrowDownArrow;
-                Q4StyleOptionComboBox newCmb = *cmb;
-                newCmb.parts = SC_ComboBoxArrow;
-                comborect = querySubControlMetrics(CC_ComboBox, &newCmb, widget);
+                comborect = querySubControlMetrics(CC_ComboBox, cmb, SC_ComboBoxArrow ,widget);
                 switch (qt_aqua_size_constrain(widget)) {
                     case QAquaSizeUnknown:
                     case QAquaSizeLarge:
@@ -1761,7 +1759,7 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl cc, const Q4Style
 }
 
 QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
-                                          const QWidget *widget) const
+                                          SubControl sc, const QWidget *widget) const
 {
     QRect ret;
     switch (cc) {
@@ -1772,7 +1770,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
             getSliderInfo(cc, slider, &tdi, widget);
             HIRect macRect;
             // Luckily, the slider and scrollbar parts don't overlap so we can do it in one go.
-            switch (slider->parts) {
+            switch (sc) {
             case SC_SliderGroove:
                 HIThemeGetTrackBounds(&tdi, &macRect);
                 ret = qrectForHIRect(macRect);
@@ -1798,7 +1796,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
             int fw = pixelMetric(PM_SpinBoxFrameWidth, widget),
             y = fw,
             x = spin->rect.width() - fw - spinner_w;
-            switch(spin->parts) {
+            switch (sc) {
                 case SC_SpinBoxUp:
                     ret = QRect(x, y + ((spin->rect.height() - fw * 2) / 2 - spinner_h),
                                 spinner_w, spinner_h);
@@ -1818,7 +1816,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
                                 spin->rect.height());
                     break;
                 default:
-                    ret = QWindowsStyle::querySubControlMetrics(cc, spin, widget);
+                    ret = QWindowsStyle::querySubControlMetrics(cc, spin, sc, widget);
                     break;
             }
         }
@@ -1826,16 +1824,16 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
     case CC_ComboBox:
         if (const Q4StyleOptionComboBox *cmb = qt_cast<const Q4StyleOptionComboBox *>(opt)) {
             if (cmb->editable) {
-                if (cmb->parts == SC_ComboBoxEditField)
+                if (sc == SC_ComboBoxEditField)
                     ret.setRect(0, 0, cmb->rect.width() - 20, cmb->rect.height());
-                else if (cmb->parts == SC_ComboBoxArrow)
+                else if (sc == SC_ComboBoxArrow)
                     ret.setRect(cmb->rect.width() - 24, 0, 24, cmb->rect.height());
                 break;
             }
         }
         // Fall through to the default case.
     default:
-        ret = QWindowsStyle::querySubControlMetrics(cc, opt, widget);
+        ret = QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
     }
     return ret;
 }
@@ -1880,7 +1878,8 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
                 cmb.editable = false;
                 cmb.parts = SC_ComboBoxEditField;
                 cmb.activeParts = SC_None;
-                w = qMax(w, querySubControlMetrics(CC_ComboBox, &cmb, widget->parentWidget())
+                w = qMax(w, querySubControlMetrics(CC_ComboBox, &cmb, SC_ComboBoxEditField,
+                                                   widget->parentWidget())
                             .width());
             } else {
                 w += 12;

@@ -37,11 +37,11 @@ public:
     void drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
     SubControl querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
-                                       const QPoint &pt, const QWidget *w = 0) const;
-    QRect querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
-                                         const QWidget *w) const;
+                               const QPoint &pt, const QWidget *w = 0) const;
+    QRect querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt, SubControl sc,
+                                 const QWidget *w) const;
     QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
-                                   const QFontMetrics &fm, const QWidget *w = 0) const;
+                           const QFontMetrics &fm, const QWidget *w = 0) const;
 
     void drawControl(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r,
                       const QPalette &pal, SFlags how, const QStyleOption& = QStyleOption::Default) const;

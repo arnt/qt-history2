@@ -462,7 +462,7 @@ public:
     virtual SubControl querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                        const QPoint &pt, const QWidget *w = 0) const = 0;
     virtual QRect querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
-                                         const QWidget *w) const = 0;
+                                         SubControl sc, const QWidget *w) const = 0;
     enum PixelMetric {
         PM_ButtonMargin,
         PM_ButtonDefaultIndicator,

@@ -413,9 +413,9 @@ QStyle::SubControl QMacStyle::querySubControl(ComplexControl cc, const Q4StyleOp
 
 /*! \reimp */
 QRect QMacStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
-                                        const QWidget *w) const
+                                        SubControl sc, const QWidget *w) const
 {
-    return correctStyle(w)->querySubControlMetrics(cc, opt, w);
+    return correctStyle(w)->querySubControlMetrics(cc, opt, sc, w);
 }
 
 /*! \reimp */

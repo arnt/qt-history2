@@ -523,10 +523,9 @@ void QToolButton::timerEvent(QTimerEvent *e)
 void QToolButton::mousePressEvent(QMouseEvent *e)
 {
     Q4StyleOptionToolButton opt = d->getStyleOption();
-    opt.parts = QStyle::SC_ToolButtonMenu;
     QRect popupr =
-        QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_ToolButton, &opt, this),
-                           this);
+        QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_ToolButton, &opt,
+                                                          QStyle::SC_ToolButtonMenu, this), this);
     d->instantPopup = (popupr.isValid() && popupr.contains(e->pos()));
 
     if (d->discardNextMouseEvent) {

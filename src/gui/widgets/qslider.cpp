@@ -292,8 +292,8 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
             setRepeatAction(action);
         }
     } else if (d->pressedControl == QStyle::SC_SliderHandle) {
-        opt.parts = QStyle::SC_SliderHandle;
-        QRect sr = style().querySubControlMetrics(QStyle::CC_Slider, &opt, this);
+        QRect sr = style().querySubControlMetrics(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle,
+                                                  this);
         d->clickOffset = d->pick(ev->pos() - sr.topLeft());
         d->snapBackPosition = d->position;
         update(sr);
@@ -339,7 +339,7 @@ void QSlider::mouseReleaseEvent(QMouseEvent *ev)
         setSliderDown(false);
     Q4StyleOptionSlider opt = d->getStyleOption();
     opt.parts = oldPressed;
-    update(style().querySubControlMetrics(QStyle::CC_Slider, &opt, this));
+    update(style().querySubControlMetrics(QStyle::CC_Slider, &opt, oldPressed, this));
 }
 
 /*!
