@@ -234,6 +234,7 @@ unset QTDIR
 
 # initalize internal variables
 CFG_CONFIGURE_EXIT_ON_ERROR=yes
+CFG_PROFILE=no
 CFG_EXCEPTION_SUPPORT=unspecified
 CFG_INCREMENTAL=auto
 CFG_QCONFIG=full
@@ -489,6 +490,7 @@ while [ "$#" -gt 0 ]; do
 	;;
     profile)
 	if [ "$VAL" = "yes" ]; then
+	    CFG_PROFILE=yes
 	    QMAKE_VARS="$QMAKE_VARS QMAKE_CFLAGS+=-pg QMAKE_CXXFLAGS+=-pg"
 	    QMAKE_VARS="$QMAKE_VARS QMAKE_LFLAGS+=-pg"
 	else
