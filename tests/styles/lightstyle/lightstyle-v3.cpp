@@ -55,13 +55,10 @@ LightStyleV3::LightStyleV3()
 }
 
 LightStyleV3::~LightStyleV3()
-{
-    delete basestyle;
-}
+{ delete basestyle; }
 
 void LightStyleV3::polishPopupMenu(QPopupMenu *)
-{
-}
+{ }
 
 /*
   A LightEtch is a low-contrast 1-pixel bevel
@@ -245,6 +242,7 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 	    p->setPen(pal.buttonText());
 	    break;
 	}
+
     case PE_HeaderArrow:
 	if (!(flags & Style_Up)) break;
 	br.addCoords(0, 0, 0, -br.top());
