@@ -3,7 +3,7 @@ against Beta3 must be recompiled.
 
 Below you will find a description of general changes in the Qt
 Library and Qt Designer followed by a detailed list of changes in the
-programming API.
+API.
 
 
 The Qt Library
@@ -12,27 +12,27 @@ The Qt Library
 Documentation
 -------------
 
-Overall enhancements include fixed typos, corrected grammar and
-spelling. The heading of each page is now smaller, and links to a new
-section entitled "Main Classes".
+The extensive revision of the documentation is almost complete.
+We have added new navigation options, including a shorter list
+of classes entitled Main Classes.
 
 Translations
 ------------
 
-Qt now comes with French and German translations of the Qt library,
-as well as a template for translating Qt. These files are found in
-the translations directory of Qt, in both .ts and .qm formats.
+Qt now includes French and German translations of the Qt library, as
+well as a template for translating Qt. These files are found in the
+translations directory of Qt, in both .ts and .qm formats.
 
 Style Fixes
 -----------
 
-Qt 3.0.0 Beta2 introduced a new QStyle API. Beta4 introduces some
-fixes for bugs introduced during the port to the new API in various
-widgets, notably QComboBox and QSlider.
+Qt 3.0.0 beta2 introduced a new QStyle API. This new API has changed
+between beta3 and beta4. These changes will affect both widget
+writers and style writers. The QStyle entry below explains what has
+changed.
 
-Furthermore, the new QStyle API has changed between Beta3 and Beta4.
-This affects both widget writers and style writers. The QStyle entry
-below explains what has changed.
+Beta4 also introduces some fixes for bugs introduced during the port
+to the new API in various widgets, notably QComboBox and QSlider.
 
 LiveConnect Plugin
 ------------------
@@ -44,27 +44,27 @@ example works again on Windows.
 Qt Designer
 ========================================
 
- - General usability improvements and bug fixes, especially with
-   project handling.
- - Updated designer manual to cover the <formname>.ui.h mechanism.
- - Superior auto-indentation algorithm in the code editor.
+ - General usability improvements and bug fixes, and improved file
+   and project handling.
+ - Updated designer manual to cover the .ui.h mechanism.
+ - New auto-indentation algorithm in the code editor.
 
 
 Qt Assistant
 ========================================
 
  - Added a Settings dialog and made more features customizable.
- - Save and restore the session.
- - New guide to using Qt Assistant.
+ - Sessions are now saved and restored.
+ - A brief introduction to using Qt Assistant is now included.
 
 
 Qt Linguist
 ========================================
 
- - Provide phrase books in tools/linguist/phrasebooks.
- - Added support for Qt Designer's <formname>.ui.h mechanism to
-   lupdate.
- - Support a larger subset of .pro file syntax in lupdate and lrelease.
+ - Phrase books are now provided in tools/linguist/phrasebooks.
+ - Added support for Qt Designer's .ui.h mechanism to lupdate.
+ - Support for a larger subset of .pro file syntax in lupdate and
+   lrelease.
 
 
 Qt Functions
