@@ -1333,7 +1333,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    partId = WP_SMALLCAPTION;
 		if ( !titlebar->isEnabled() )
 		    stateId = CS_DISABLED;
-		else if ( !titlebar->isActive() )
+		else if ( !titlebar->usesActiveColor() )
 		    stateId = CS_INACTIVE;
 		else 
 		    stateId = CS_ACTIVE;
