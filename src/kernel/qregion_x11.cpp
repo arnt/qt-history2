@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#18 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#18 $")
 
 
 static void *empty_region = 0;
@@ -66,8 +66,7 @@ QRegion::QRegion( bool )
 
 QRegion::QRegion( const QRect &r, RegionType t )
 {
-    QRect rr = r;
-    rr.fixup();
+    QRect rr = r.normalize();
     data = new QRegionData;
     CHECK_PTR( data );
     int id;

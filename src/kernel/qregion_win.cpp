@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#11 $
 **
 ** Implementation of QRegion class for Windows
 **
@@ -15,7 +15,7 @@
 #include "qbuffer.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#11 $")
 
 
 static void *empty_region = 0;
@@ -47,8 +47,7 @@ QRegion::QRegion( bool )
 
 QRegion::QRegion( const QRect &r, RegionType t )
 {
-    QRect rr = r;
-    rr.fixup();
+    QRect rr = r.normalize();
     data = new QRegionData;
     CHECK_PTR( data );
     int id;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#57 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#56 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#57 $")
 
 
 /*****************************************************************************
@@ -1049,7 +1049,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	QPointArray a( QRect(0,0,ws,hs) );
 	a = mat.map( a );
 	QRect r = a.boundingRect();
-	r.fixup();
+	r.normalize();
 	h = r.height();
 	w = r.width();
     }
