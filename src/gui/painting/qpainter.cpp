@@ -744,7 +744,10 @@ void QPainter::setClipRegion(const QRegion &r)
         qWarning("QPainter::setClipRegion(); painter not active");
         return;
     }
-    d->state->clipRegion = d->state->matrix * r;
+    if (d->state->WxF)
+	d->state->clipRegion = d->state->matrix * r;
+    else
+	d->state->clipRegion = r;
     d->state->clipEnabled = true;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyClip);
