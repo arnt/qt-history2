@@ -709,20 +709,20 @@ void QWindowsXPStyle::updateRegion(QWidget *widget)
     }
 }
 
-QRect QWindowsXPStyle::subRect(SubRect sr, const QStyleOption *option, const QWidget *widget) const
+QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option, const QWidget *widget) const
 {
     QRect rect(option->rect);
     switch(sr) {
-    case SR_TabWidgetTabContents:
+    case SE_TabWidgetTabContents:
         if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option))
         {
-            rect = QWindowsStyle::subRect(sr, option, widget);
-            if (sr == SR_TabWidgetTabContents)
+            rect = QWindowsStyle::subElementRect(sr, option, widget);
+            if (sr == SE_TabWidgetTabContents)
                    rect.addCoords(0, 0, -2, -2);
         }
         break;
     default:
-        rect = QWindowsStyle::subRect(sr, option, widget);
+        rect = QWindowsStyle::subElementRect(sr, option, widget);
     }
     return rect;
 }
@@ -859,7 +859,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
 
             QStyleOptionTabWidgetFrame frameOpt = *tab;
             frameOpt.rect = widget->rect();
-            QRect contentsRect = subRect(SR_TabWidgetTabContents, &frameOpt, widget);
+            QRect contentsRect = subElementRect(SE_TabWidgetTabContents, &frameOpt, widget);
             QRegion reg = option->rect;
             reg -= contentsRect;
             p->setClipRegion(reg);
@@ -1782,7 +1782,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             }
             //if (flags & State_HasFocus) {
             //    Q3StyleOptionFocusRect option(0);
-            //    option.rect = subRect(SR_SliderFocusRect, sl);
+            //    option.rect = subElementRect(SE_SliderFocusRect, sl);
             //    option.palette = pal;
             //    option.state = State_Default;
             //    drawPrimitive(PE_FrameFocusRect, p, re, pal);

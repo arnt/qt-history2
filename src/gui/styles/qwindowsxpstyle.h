@@ -42,7 +42,7 @@ public:
                        const QWidget *widget = 0) const;
     void drawControl(ControlElement element, const QStyleOption *option, QPainter *p,
                      const QWidget *wwidget = 0) const;
-    QRect subRect(SubRect r, const QStyleOption *option, const QWidget *widget = 0) const;
+    QRect subElementRect(SubElement r, const QStyleOption *option, const QWidget *widget = 0) const;
     QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *option, SubControl sc,
                          const QWidget *widget = 0) const;
     void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *option, QPainter *p,

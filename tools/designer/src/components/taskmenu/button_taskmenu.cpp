@@ -85,7 +85,7 @@ void ButtonTaskMenu::editText()
 
         QStyleOptionButton opt;
         opt.init(m_button);
-        QRect r = m_button->style()->subRect(QStyle::SR_PushButtonContents, &opt, m_button);
+        QRect r = m_button->style()->subElementRect(QStyle::SE_PushButtonContents, &opt, m_button);
 
         m_editor->setAttribute(Qt::WA_NoChildEventsForParent);
         m_editor->setParent(m_button->window());

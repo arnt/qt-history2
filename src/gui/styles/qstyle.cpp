@@ -751,95 +751,95 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 */
 
 /*!
-    \enum QStyle::SubRect
+    \enum QStyle::SubElement
 
     This enum represents a sub-area of a widget. Style implementations
     use these areas to draw the different parts of a widget.
 
-    \value SR_PushButtonContents  Area containing the label (icon
+    \value SE_PushButtonContents  Area containing the label (icon
         with text or pixmap)
-    \value SR_PushButtonFocusRect  Area for the focus rect (usually
+    \value SE_PushButtonFocusRect  Area for the focus rect (usually
         larger than the contents rect)
 
-    \value SR_CheckBoxIndicator  Area for the state indicator (e.g., check mark)
-    \value SR_CheckBoxContents  Area for the label (text or pixmap)
-    \value SR_CheckBoxFocusRect  Area for the focus indicator
-    \value SR_CheckBoxClickRect  Clickable area, defaults to SR_CheckBoxFocusRect
+    \value SE_CheckBoxIndicator  Area for the state indicator (e.g., check mark)
+    \value SE_CheckBoxContents  Area for the label (text or pixmap)
+    \value SE_CheckBoxFocusRect  Area for the focus indicator
+    \value SE_CheckBoxClickRect  Clickable area, defaults to SE_CheckBoxFocusRect
 
-    \value SR_RadioButtonIndicator  Area for the state indicator
-    \value SR_RadioButtonContents  Area for the label
-    \value SR_RadioButtonFocusRect  Area for the focus indicator
-    \value SR_RadioButtonClickRect  Clickable area, defaults to SR_RadioButtonFocusRect
+    \value SE_RadioButtonIndicator  Area for the state indicator
+    \value SE_RadioButtonContents  Area for the label
+    \value SE_RadioButtonFocusRect  Area for the focus indicator
+    \value SE_RadioButtonClickRect  Clickable area, defaults to SE_RadioButtonFocusRect
 
-    \value SR_ComboBoxFocusRect  Area for the focus indicator
+    \value SE_ComboBoxFocusRect  Area for the focus indicator
 
-    \value SR_SliderFocusRect  Area for the focus indicator
+    \value SE_SliderFocusRect  Area for the focus indicator
 
-    \value SR_Q3DockWindowHandleRect  Area for the tear-off handle
+    \value SE_Q3DockWindowHandleRect  Area for the tear-off handle
 
-    \value SR_ProgressBarGroove  Area for the groove
-    \value SR_ProgressBarContents  Area for the progress indicator
-    \value SR_ProgressBarLabel  Area for the text label
+    \value SE_ProgressBarGroove  Area for the groove
+    \value SE_ProgressBarContents  Area for the progress indicator
+    \value SE_ProgressBarLabel  Area for the text label
 
-    \value SR_DialogButtonAccept  Area for a dialog's accept button
-    \value SR_DialogButtonReject  Area for a dialog's reject button
-    \value SR_DialogButtonApply  Area for a dialog's apply button
-    \value SR_DialogButtonHelp  Area for a dialog's help button
-    \value SR_DialogButtonAll  Area for a dialog's all button
-    \value SR_DialogButtonRetry  Area for a dialog's retry button
-    \value SR_DialogButtonAbort  Area for a dialog's abort button
-    \value SR_DialogButtonIgnore  Area for a dialog's ignore button
-    \value SR_DialogButtonCustom  Area for a dialog's custom widget
+    \value SE_DialogButtonAccept  Area for a dialog's accept button
+    \value SE_DialogButtonReject  Area for a dialog's reject button
+    \value SE_DialogButtonApply  Area for a dialog's apply button
+    \value SE_DialogButtonHelp  Area for a dialog's help button
+    \value SE_DialogButtonAll  Area for a dialog's all button
+    \value SE_DialogButtonRetry  Area for a dialog's retry button
+    \value SE_DialogButtonAbort  Area for a dialog's abort button
+    \value SE_DialogButtonIgnore  Area for a dialog's ignore button
+    \value SE_DialogButtonCustom  Area for a dialog's custom widget
     area (in the button row)
 
-    \value SR_ToolBoxTabContents  Area for a toolbox tab's icon and label
+    \value SE_HeaderArrow
+    \value SE_HeaderLabel
 
-    \value SR_CustomBase  Base value for custom ControlElements
+    \value SE_TabWidgetLeftCorner
+    \value SE_TabWidgetRightCorner
+    \value SE_TabWidgetTabBar
+    \value SE_TabWidgetTabContents
+    \value SE_TabWidgetTabPane
+    \value SE_ToolBoxTabContents  Area for a toolbox tab's icon and label
+
+    \value SE_CustomBase  Base value for custom ControlElements
     Custom values must be greater than this value
 
-    \value SR_HeaderArrow
-    \value SR_HeaderLabel
 
-    \value SR_TabWidgetLeftCorner
-    \value SR_TabWidgetRightCorner
-    \value SR_TabWidgetTabBar
-    \value SR_TabWidgetTabContents
-    \value SR_TabWidgetTabPane
-
-    \sa subRect()
+    \sa subElementRect()
 */
 
 /*!
-    \fn QRect QStyle::subRect(SubRect subRect, const QStyleOption *option, const QWidget *widget) const
+    \fn QRect QStyle::subElementRect(SubElement element, const QStyleOption *option, const QWidget *widget) const
 
-    Returns the sub-area \a subRect as described in \a option in logical
+    Returns the sub-area \a element as described in \a option in logical
     coordinates.
 
     The \a widget argument is optional and may contain a widget that
     may aid determining the subRect.
 
     The QStyleOption can be cast to the appropriate type based on the
-    value of \a subRect. See the table below for the appropriate \a
-    widget casts:
+    value of \a element. See the table below for the appropriate \a
+    option casts:
 
     \table
-    \header \i SubRect \i Option Cast
-    \row \i \l SR_PushButtonContents   \i \l QStyleOptionButton
-    \row \i \l SR_PushButtonFocusRect  \i \l QStyleOptionButton
-    \row \i \l SR_CheckBoxIndicator    \i \l QStyleOptionButton
-    \row \i \l SR_CheckBoxContents     \i \l QStyleOptionButton
-    \row \i \l SR_CheckBoxFocusRect    \i \l QStyleOptionButton
-    \row \i \l SR_RadioButtonIndicator \i \l QStyleOptionButton
-    \row \i \l SR_RadioButtonContents  \i \l QStyleOptionButton
-    \row \i \l SR_RadioButtonFocusRect \i \l QStyleOptionButton
-    \row \i \l SR_ComboBoxFocusRect    \i \l QStyleOptionComboBox
-    \row \i \l SR_DockWidgetHandleRect \i \l QStyleOptionDockWidget
-    \row \i \l SR_ProgressBarGroove    \i \l QStyleOptionProgressBar
-    \row \i \l SR_ProgressBarContents  \i \l QStyleOptionProgressBar
-    \row \i \l SR_ProgressBarLabel     \i \l QStyleOptionProgressBar
+    \header \i SubElement \i Option Cast
+    \row \i \l SE_PushButtonContents   \i \l QStyleOptionButton
+    \row \i \l SE_PushButtonFocusRect  \i \l QStyleOptionButton
+    \row \i \l SE_CheckBoxIndicator    \i \l QStyleOptionButton
+    \row \i \l SE_CheckBoxContents     \i \l QStyleOptionButton
+    \row \i \l SE_CheckBoxFocusRect    \i \l QStyleOptionButton
+    \row \i \l SE_RadioButtonIndicator \i \l QStyleOptionButton
+    \row \i \l SE_RadioButtonContents  \i \l QStyleOptionButton
+    \row \i \l SE_RadioButtonFocusRect \i \l QStyleOptionButton
+    \row \i \l SE_ComboBoxFocusRect    \i \l QStyleOptionComboBox
+    \row \i \l SE_DockWidgetHandleRect \i \l QStyleOptionDockWidget
+    \row \i \l SE_ProgressBarGroove    \i \l QStyleOptionProgressBar
+    \row \i \l SE_ProgressBarContents  \i \l QStyleOptionProgressBar
+    \row \i \l SE_ProgressBarLabel     \i \l QStyleOptionProgressBar
     \endtable
 
-    \sa SubRect QStyleOption
+    \sa SubElement QStyleOption
 */
 
 /*!

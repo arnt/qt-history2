@@ -48,7 +48,7 @@
     extra functions that QCommonStyle provides, e.g.
     drawComplexControl(), drawControl(), drawPrimitive(),
     hitTestComplexControl(), subControlRect(), sizeFromContents(), and
-    subRect() are documented here.
+    subElementRect() are documented here.
 */
 
 /*!
@@ -750,14 +750,14 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             drawControl(CE_PushButtonBevel, btn, p, widget);
             QStyleOptionButton subopt = *btn;
             subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
-                                             subRect(SR_PushButtonContents, btn, widget));
+                                             subElementRect(SE_PushButtonContents, btn, widget));
             drawControl(CE_PushButtonLabel, &subopt, p, widget);
             if (btn->state & State_HasFocus) {
                 QStyleOptionFocusRect fropt;
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
                 fropt.rect = visualRect(opt->direction, opt->rect,
-                                        subRect(SR_PushButtonFocusRect, btn, widget));
+                                        subElementRect(SE_PushButtonFocusRect, btn, widget));
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
             }
         }
@@ -827,21 +827,21 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             bool isRadio = (element == CE_RadioButton);
             QStyleOptionButton subopt = *btn;
             subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
-                                             subRect(isRadio ? QStyle::SR_RadioButtonIndicator
-                                                             : SR_CheckBoxIndicator, btn, widget));
+                                             subElementRect(isRadio ? QStyle::SE_RadioButtonIndicator
+                                                             : SE_CheckBoxIndicator, btn, widget));
             drawPrimitive(isRadio ? PE_IndicatorRadioButton : PE_IndicatorCheckBox,
                           &subopt, p, widget);
             subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
-                                             subRect(isRadio ? QStyle::SR_RadioButtonContents
-                                                             : SR_CheckBoxContents, btn, widget));
+                                             subElementRect(isRadio ? QStyle::SE_RadioButtonContents
+                                                             : SE_CheckBoxContents, btn, widget));
             drawControl(isRadio ? CE_RadioButtonLabel : CE_CheckBoxLabel, &subopt, p, widget);
             if (btn->state & State_HasFocus) {
                 QStyleOptionFocusRect fropt;
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
                 fropt.rect = visualRect(btn->direction, btn->rect,
-                                        subRect(isRadio ? QStyle::SR_RadioButtonFocusRect
-                                                        : SR_CheckBoxFocusRect, btn, widget));
+                                        subElementRect(isRadio ? QStyle::SE_RadioButtonFocusRect
+                                                        : SE_CheckBoxFocusRect, btn, widget));
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
             }
         }
@@ -904,14 +904,14 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
             QStyleOptionProgressBar subopt = *pb;
             subopt.rect = QStyle::visualRect(pb->direction, pb->rect,
-                                             subRect(SR_ProgressBarGroove, pb, widget));
+                                             subElementRect(SE_ProgressBarGroove, pb, widget));
             drawControl(CE_ProgressBarGroove, &subopt, p, widget);
             subopt.rect = QStyle::visualRect(pb->direction, pb->rect,
-                                             subRect(SR_ProgressBarContents, pb, widget));
+                                             subElementRect(SE_ProgressBarContents, pb, widget));
             drawControl(CE_ProgressBarContents, &subopt, p, widget);
             if (pb->textVisible) {
                 subopt.rect = QStyle::visualRect(pb->direction, pb->rect,
-                                                 subRect(SR_ProgressBarLabel, pb, widget));
+                                                 subElementRect(SE_ProgressBarLabel, pb, widget));
                 drawControl(CE_ProgressBarLabel, &subopt, p, widget);
             }
         }
@@ -1356,11 +1356,11 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
             drawControl(CE_HeaderSection, header, p, widget);
             QStyleOptionHeader subopt = *header;
-            subopt.rect = visualRect(header->direction, header->rect, subRect(SR_HeaderLabel, header, widget));
+            subopt.rect = visualRect(header->direction, header->rect, subElementRect(SE_HeaderLabel, header, widget));
             drawControl(CE_HeaderLabel, &subopt, p, widget);
             if (header->state & (State_Up | State_Down)) {
                 subopt.rect = visualRect(header->direction, header->rect,
-                                         subRect(SR_HeaderArrow, opt, widget));
+                                         subElementRect(SE_HeaderArrow, opt, widget));
                 drawPrimitive(PE_IndicatorHeaderArrow, &subopt, p, widget);
             }
         }
@@ -1382,11 +1382,11 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
 /*!
   \reimp
 */
-QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget) const
+QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *widget) const
 {
     QRect r;
     switch (sr) {
-    case SR_PushButtonContents:
+    case SE_PushButtonContents:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             int dx1, dx2;
             dx1 = pixelMetric(PM_DefaultFrameWidth, btn, widget);
@@ -1397,7 +1397,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                       opt->rect.height() - dx2);
         }
         break;
-    case SR_PushButtonFocusRect:
+    case SE_PushButtonFocusRect:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             int dbw1 = 0, dbw2 = 0;
             if (btn->features & QStyleOptionButton::AutoDefaultButton){
@@ -1413,7 +1413,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         }
         break;
 
-    case SR_CheckBoxIndicator:
+    case SE_CheckBoxIndicator:
         {
             int h = pixelMetric(PM_IndicatorHeight, opt, widget);
             r.setRect(0, (opt->rect.height() - h) / 2,
@@ -1421,22 +1421,22 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         }
         break;
 
-    case SR_CheckBoxContents:
+    case SE_CheckBoxContents:
         {
-            QRect ir = subRect(SR_CheckBoxIndicator, opt, widget);
+            QRect ir = subElementRect(SE_CheckBoxIndicator, opt, widget);
             r.setRect(ir.right() + 6, opt->rect.y(), opt->rect.width() - ir.width() - 6,
                       opt->rect.height());
         }
         break;
 
-    case SR_CheckBoxFocusRect:
+    case SE_CheckBoxFocusRect:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             if (btn->text.isEmpty()) {
-                r = subRect(SR_CheckBoxIndicator, opt, widget);
+                r = subElementRect(SE_CheckBoxIndicator, opt, widget);
                 r.addCoords(1, 1, -1, -1);
                 break;
             }
-            QRect cr = subRect(SR_CheckBoxContents, opt, widget);
+            QRect cr = subElementRect(SE_CheckBoxContents, opt, widget);
 
             if (!btn->icon.isNull()) {
                 r = itemPixmapRect(cr,  Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
@@ -1450,7 +1450,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         }
         break;
 
-    case SR_RadioButtonIndicator:
+    case SE_RadioButtonIndicator:
         {
             int h = pixelMetric(PM_ExclusiveIndicatorHeight, opt, widget);
             r.setRect(0, (opt->rect.height() - h) / 2,
@@ -1458,22 +1458,22 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         }
         break;
 
-    case SR_RadioButtonContents:
+    case SE_RadioButtonContents:
         {
-            QRect ir = subRect(SR_RadioButtonIndicator, opt, widget);
+            QRect ir = subElementRect(SE_RadioButtonIndicator, opt, widget);
             r.setRect(ir.right() + 6, opt->rect.y(),
                       opt->rect.width() - ir.width() - 6, opt->rect.height());
             break;
         }
 
-    case SR_RadioButtonFocusRect:
+    case SE_RadioButtonFocusRect:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             if (!btn->icon.isNull() && btn->text.isEmpty()) {
-                r = subRect(SR_RadioButtonIndicator, opt, widget);
+                r = subElementRect(SE_RadioButtonIndicator, opt, widget);
                 r.addCoords(1, 1, -1, -1);
                 break;
             }
-            QRect cr = subRect(SR_RadioButtonContents, opt, widget);
+            QRect cr = subElementRect(SE_RadioButtonContents, opt, widget);
 
             if(!btn->icon.isNull()) {
                 r = itemPixmapRect(cr,  Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
@@ -1486,7 +1486,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             r = r.intersect(btn->rect);
         }
         break;
-    case SR_SliderFocusRect:
+    case SE_SliderFocusRect:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             int tickOffset = pixelMetric(PM_SliderTickmarkOffset, slider, widget);
             int thickness  = pixelMetric(PM_SliderControlThickness, slider, widget);
@@ -1497,16 +1497,16 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             r = r.intersect(slider->rect);
         }
         break;
-    case SR_ProgressBarGroove:
-    case SR_ProgressBarContents:
-    case SR_ProgressBarLabel:
+    case SE_ProgressBarGroove:
+    case SE_ProgressBarContents:
+    case SE_ProgressBarLabel:
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
             int textw = 0;
             if (pb->textVisible)
                 textw = qMax(pb->fontMetrics.width(pb->text), pb->fontMetrics.width("100%")) + 6;
 
             if ((pb->textAlignment & Qt::AlignCenter) == 0) {
-                if (sr != SR_ProgressBarLabel)
+                if (sr != SE_ProgressBarLabel)
                     r.setCoords(pb->rect.left(), pb->rect.top(),
                                 pb->rect.right() - textw, pb->rect.bottom());
                 else
@@ -1517,7 +1517,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             }
         }
         break;
-    case SR_Q3DockWindowHandleRect:
+    case SE_Q3DockWindowHandleRect:
         if (const QStyleOptionQ3DockWindow *dw = qstyleoption_cast<const QStyleOptionQ3DockWindow *>(opt)) {
             if (!dw->docked || !dw->closeEnabled)
                 r.setRect(0, 0, dw->rect.width(), dw->rect.height());
@@ -1529,20 +1529,20 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             }
         }
         break;
-    case SR_ComboBoxFocusRect:
+    case SE_ComboBoxFocusRect:
         r.setRect(3, 3, opt->rect.width() - 6 - 16, opt->rect.height() - 6);
         break;
-    case SR_ToolBoxTabContents:
+    case SE_ToolBoxTabContents:
         r = opt->rect;
         r.addCoords(0, 0, -30, 0);
         break;
-    case SR_HeaderLabel: {
+    case SE_HeaderLabel: {
         int margin = pixelMetric(QStyle::PM_HeaderMargin, opt, widget);
         r.setRect(opt->rect.x() + margin, opt->rect.y() + margin,
                   opt->rect.width() - margin * 2, opt->rect.height() - margin * 2);
 
         break; }
-    case SR_HeaderArrow: {
+    case SE_HeaderArrow: {
         int h = opt->rect.height();
         int w = opt->rect.width();
         int x = opt->rect.x();
@@ -1554,13 +1554,13 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             r.setRect(x + 5, y, h / 2, h - margin * 2);
         break; }
 
-    case SR_RadioButtonClickRect:
-        r = subRect(SR_RadioButtonFocusRect, opt, widget);
+    case SE_RadioButtonClickRect:
+        r = subElementRect(SE_RadioButtonFocusRect, opt, widget);
         break;
-    case SR_CheckBoxClickRect:
-        r = subRect(SR_CheckBoxFocusRect, opt, widget);
+    case SE_CheckBoxClickRect:
+        r = subElementRect(SE_CheckBoxFocusRect, opt, widget);
         break;
-    case SR_TabWidgetTabBar:
+    case SE_TabWidgetTabBar:
         if (const QStyleOptionTabWidgetFrame *twf
                 = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
             r.setSize(twf->tabBarSize);
@@ -1644,8 +1644,8 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             }
         }
         break;
-    case SR_TabWidgetTabPane:
-    case SR_TabWidgetTabContents:
+    case SE_TabWidgetTabPane:
+    case SE_TabWidgetTabContents:
         if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
             QStyleOptionTab tabopt;
             tabopt.shape = twf->shape;
@@ -1669,11 +1669,11 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                   r = QRect(QPoint(twf->tabBarSize.width() - overlap, 0), QSize(twf->rect.width() - twf->tabBarSize.width() + overlap, twf->rect.height()));
                   break;
                }
-            if (sr == SR_TabWidgetTabContents)
+            if (sr == SE_TabWidgetTabContents)
                    r.addCoords(2, 2, -2, -2);
         }
         break;
-    case SR_TabWidgetLeftCorner:
+    case SE_TabWidgetLeftCorner:
         if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
             r = QRect(QPoint(0, 0), twf->leftCornerWidgetSize);
             switch (twf->shape) {
@@ -1688,7 +1688,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             }
         }
         break;
-   case SR_TabWidgetRightCorner:
+   case SE_TabWidgetRightCorner:
        if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
            r = QRect(QPoint(twf->rect.width() - twf->rightCornerWidgetSize.width(), 0),
                      twf->rightCornerWidgetSize);
@@ -2885,8 +2885,8 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     case CT_CheckBox:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             bool isRadio = (ct == CT_RadioButton);
-            QRect irect = subRect(isRadio ? SR_RadioButtonIndicator
-                                          : SR_CheckBoxIndicator, btn, widget);
+            QRect irect = subElementRect(isRadio ? SE_RadioButtonIndicator
+                                          : SE_CheckBoxIndicator, btn, widget);
             int h = pixelMetric(isRadio ? PM_ExclusiveIndicatorHeight
                                         : PM_IndicatorHeight, btn, widget);
             int margins = (!btn->icon.isNull() && btn->text.isEmpty()) ? 0 : 10;

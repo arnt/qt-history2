@@ -378,7 +378,7 @@ void Q3DockWindowHandle::paintEvent(QPaintEvent *e)
     opt.docked = dockWindow->area();
     opt.closeEnabled = dockWindow->isCloseEnabled();
     opt.rect = QStyle::visualRect(opt.direction, opt.rect,
-                                  style()->subRect(QStyle::SR_Q3DockWindowHandleRect, &opt, this));
+                                  style()->subElementRect(QStyle::SE_Q3DockWindowHandleRect, &opt, this));
     style()->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p, this);
     QWidget::paintEvent(e);
 }

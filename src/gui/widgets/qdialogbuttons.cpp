@@ -345,33 +345,33 @@ QDialogButtons::layoutButtons()
     if(!isVisible()) //nah..
         return;
 
-    QStyle::SubRect rects[] = {
-        QStyle::SR_DialogButtonAccept, QStyle::SR_DialogButtonReject,
-        QStyle::SR_DialogButtonApply,  QStyle::SR_DialogButtonHelp,
-        QStyle::SR_DialogButtonCustom, QStyle::SR_DialogButtonAll,
-        QStyle::SR_DialogButtonRetry,  QStyle::SR_DialogButtonIgnore,
-        QStyle::SR_DialogButtonAbort };
+    QStyle::SubElement rects[] = {
+        QStyle::SE_DialogButtonAccept, QStyle::SE_DialogButtonReject,
+        QStyle::SE_DialogButtonApply,  QStyle::SE_DialogButtonHelp,
+        QStyle::SE_DialogButtonCustom, QStyle::SE_DialogButtonAll,
+        QStyle::SE_DialogButtonRetry,  QStyle::SE_DialogButtonIgnore,
+        QStyle::SE_DialogButtonAbort };
     for(unsigned int i = 0; i < (sizeof(rects) / sizeof(rects[0])); i++) {
         QWidget *w = NULL;
-        if(rects[i] == QStyle::SR_DialogButtonCustom) {
+        if(rects[i] == QStyle::SE_DialogButtonCustom) {
             w = d->custom;
         } else {
             Button b = None;
-            if(rects[i] == QStyle::SR_DialogButtonApply)
+            if(rects[i] == QStyle::SE_DialogButtonApply)
                 b = Apply;
-            else if(rects[i] == QStyle::SR_DialogButtonAll)
+            else if(rects[i] == QStyle::SE_DialogButtonAll)
                 b = All;
-            else if(rects[i] == QStyle::SR_DialogButtonAccept)
+            else if(rects[i] == QStyle::SE_DialogButtonAccept)
                 b = Accept;
-            else if(rects[i] == QStyle::SR_DialogButtonReject)
+            else if(rects[i] == QStyle::SE_DialogButtonReject)
                 b = Reject;
-            else if(rects[i] == QStyle::SR_DialogButtonHelp)
+            else if(rects[i] == QStyle::SE_DialogButtonHelp)
                 b = Help;
-            else if(rects[i] == QStyle::SR_DialogButtonRetry)
+            else if(rects[i] == QStyle::SE_DialogButtonRetry)
                 b = Retry;
-            else if(rects[i] == QStyle::SR_DialogButtonAbort)
+            else if(rects[i] == QStyle::SE_DialogButtonAbort)
                 b = Abort;
-            else if(rects[i] == QStyle::SR_DialogButtonIgnore)
+            else if(rects[i] == QStyle::SE_DialogButtonIgnore)
                 b = Ignore;
             if(b != None) {
                 if(d->buttons.contains(b)) {
@@ -401,7 +401,7 @@ QDialogButtons::layoutButtons()
             w->show();
             QStyleOption opt(0);
             opt.init(this);
-            w->setGeometry(style()->subRect(rects[i], &opt, this));
+            w->setGeometry(style()->subElementRect(rects[i], &opt, this));
         }
     }
 }

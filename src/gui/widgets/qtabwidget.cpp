@@ -565,11 +565,11 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     }
     QStyleOptionTabWidgetFrame option = d->getStyleOption();
 
-    QRect tabRect = style()->subRect(QStyle::SR_TabWidgetTabBar, &option, this);
-    d->panelRect = style()->subRect(QStyle::SR_TabWidgetTabPane, &option, this);
-    QRect contentsRect = style()->subRect(QStyle::SR_TabWidgetTabContents, &option, this);
-    QRect leftCornerRect = style()->subRect(QStyle::SR_TabWidgetLeftCorner, &option, this);
-    QRect rightCornerRect = style()->subRect(QStyle::SR_TabWidgetRightCorner, &option, this);
+    QRect tabRect = style()->subElementRect(QStyle::SE_TabWidgetTabBar, &option, this);
+    d->panelRect = style()->subElementRect(QStyle::SE_TabWidgetTabPane, &option, this);
+    QRect contentsRect = style()->subElementRect(QStyle::SE_TabWidgetTabContents, &option, this);
+    QRect leftCornerRect = style()->subElementRect(QStyle::SE_TabWidgetLeftCorner, &option, this);
+    QRect rightCornerRect = style()->subElementRect(QStyle::SE_TabWidgetRightCorner, &option, this);
 
     d->tabs->setGeometry(tabRect);
     d->stack->setGeometry(contentsRect);

@@ -193,7 +193,7 @@ public:
                               const QWidget *w = 0) const;
     void HIThemeDrawControl(QStyle::ControlElement element, const QStyleOption *opt, QPainter *p,
                             const QWidget *w = 0) const;
-    QRect HIThemeSubRect(QStyle::SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
+    QRect HIThemeSubElementRect(QStyle::SubElement r, const QStyleOption *opt, const QWidget *widget = 0) const;
     void HIThemeDrawComplexControl(QStyle::ComplexControl cc, const QStyleOptionComplex *opt,
                                    QPainter *p, const QWidget *w = 0) const;
     QStyle::SubControl HIThemeHitTestComplexControl(QStyle::ComplexControl cc,
@@ -218,7 +218,7 @@ public:
                              const QWidget *w = 0) const;
     void AppManDrawControl(QStyle::ControlElement element, const QStyleOption *opt, QPainter *p,
                            const QWidget *w = 0) const;
-    QRect AppManSubRect(QStyle::SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
+    QRect AppManSubElementRect(QStyle::SubElement r, const QStyleOption *opt, const QWidget *widget = 0) const;
     void AppManDrawComplexControl(QStyle::ComplexControl cc, const QStyleOptionComplex *opt,
                                   QPainter *p, const QWidget *w = 0) const;
     QStyle::SubControl AppManHitTestComplexControl(QStyle::ComplexControl cc,
@@ -2174,15 +2174,15 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
 #endif
 }
 
-QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *opt, const QWidget *widget) const
+QRect QMacStylePrivate::HIThemeSubElementRect(QStyle::SubElement sr, const QStyleOption *opt, const QWidget *widget) const
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     QRect r;
     switch (sr) {
-    case QStyle::SR_ToolBoxTabContents:
-        r = q->QCommonStyle::subRect(sr, opt, widget);
+    case QStyle::SE_ToolBoxTabContents:
+        r = q->QCommonStyle::subElementRect(sr, opt, widget);
         break;
-    case QStyle::SR_PushButtonContents:
+    case QStyle::SE_PushButtonContents:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             HIRect inRect = CGRectMake(btn->rect.x(), btn->rect.y(),
                                        btn->rect.width(), btn->rect.height());
@@ -2201,19 +2201,19 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
                       int(qMin(qAbs(btn->rect.height() - 2 * outRect.origin.y), outRect.size.height)));
         }
         break;
-    case QStyle::SR_ProgressBarGroove:
-    case QStyle::SR_ProgressBarLabel:
+    case QStyle::SE_ProgressBarGroove:
+    case QStyle::SE_ProgressBarLabel:
         break;
-    case QStyle::SR_ProgressBarContents:
+    case QStyle::SE_ProgressBarContents:
         r = opt->rect;
         break;
     default:
-        r = q->QWindowsStyle::subRect(sr, opt, widget);
+        r = q->QWindowsStyle::subElementRect(sr, opt, widget);
         break;
     }
     return r;
 #else
-    return q->QWindowsStyle::subRect(sr, opt, widget);
+    return q->QWindowsStyle::subElementRect(sr, opt, widget);
 #endif
 }
 
@@ -3742,15 +3742,15 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
     }
 }
 
-QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *opt,
+QRect QMacStylePrivate::AppManSubElementRect(QStyle::SubElement sr, const QStyleOption *opt,
                                       const QWidget *widget) const
 {
     QRect r = QRect();
     switch (sr) {
-    case QStyle::SR_ToolBoxTabContents:
-        r = q->QCommonStyle::subRect(sr, opt, widget);
+    case QStyle::SE_ToolBoxTabContents:
+        r = q->QCommonStyle::subElementRect(sr, opt, widget);
         break;
-    case QStyle::SR_PushButtonContents:
+    case QStyle::SE_PushButtonContents:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             Rect macRect, myRect;
             SetRect(&myRect, btn->rect.left(), btn->rect.top(), btn->rect.right(), btn->rect.bottom());
@@ -3763,14 +3763,14 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
                            macRect.bottom - macRect.top));
         }
         break;
-    case QStyle::SR_ProgressBarContents:
+    case QStyle::SE_ProgressBarContents:
         r = opt->rect;
         break;
-    case QStyle::SR_ProgressBarGroove:
-    case QStyle::SR_ProgressBarLabel:
+    case QStyle::SE_ProgressBarGroove:
+    case QStyle::SE_ProgressBarLabel:
         break;
     default:
-        r = q->QWindowsStyle::subRect(sr, opt, widget);
+        r = q->QWindowsStyle::subElementRect(sr, opt, widget);
         break;
     }
     return r;
@@ -5318,18 +5318,18 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 }
 
 /*! \reimp */
-QRect QMacStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) const
+QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *w) const
 {
     QRect rect;
     switch (sr) {
     default:
         if (d->useHITheme)
-            rect = d->HIThemeSubRect(sr, opt, w);
+            rect = d->HIThemeSubElementRect(sr, opt, w);
         else
-            rect = d->AppManSubRect(sr, opt, w);
+            rect = d->AppManSubElementRect(sr, opt, w);
         break;
-    case SR_TabWidgetTabContents:
-        rect = QWindowsStyle::subRect(sr, opt, w);
+    case SE_TabWidgetTabContents:
+        rect = QWindowsStyle::subElementRect(sr, opt, w);
         if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
             if (const QStyleOptionTabWidgetFrame *twf
                    = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
@@ -5350,11 +5350,11 @@ QRect QMacStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) 
             }
         }
         break;
-    case SR_RadioButtonContents:
-    case SR_CheckBoxContents:
+    case SE_RadioButtonContents:
+    case SE_CheckBoxContents:
         {
-            QRect ir = subRect(sr == SR_RadioButtonContents ? SR_RadioButtonIndicator
-                                                            : SR_CheckBoxIndicator, opt, w);
+            QRect ir = subElementRect(sr == SE_RadioButtonContents ? SE_RadioButtonIndicator
+                                                            : SE_CheckBoxIndicator, opt, w);
             rect.setRect(ir.right() + 2, opt->rect.y(),
                          opt->rect.width() - ir.width() - 2, opt->rect.height());
             break;

@@ -63,7 +63,7 @@ static const int motifCheckMarkSpace    = 12;
   \l{QCommonStyle} and \l{QStyle}, but the functions overloaded by
   QMotifStyle, drawComplexControl(), drawControl(), drawPrimitive(),
   subControlRect(), setUseHighlightColors(),
-  sizeFromContents(), subRect(), and useHighlightColors(), are
+  sizeFromContents(), subElementRect(), and useHighlightColors(), are
   documented here.
 */
 
@@ -724,21 +724,21 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             bool isRadio = (element == CE_RadioButton);
             QStyleOptionButton subopt = *btn;
             subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
-                                             subRect(isRadio ? QStyle::SR_RadioButtonIndicator
-                                                     : SR_CheckBoxIndicator, btn, widget));
+                                             subElementRect(isRadio ? QStyle::SE_RadioButtonIndicator
+                                                     : SE_CheckBoxIndicator, btn, widget));
             drawPrimitive(isRadio ? PE_IndicatorRadioButton : PE_IndicatorCheckBox,
                           &subopt, p, widget);
             subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
-                                             subRect(isRadio ? QStyle::SR_RadioButtonContents
-                                                     : SR_CheckBoxContents, btn, widget));
+                                             subElementRect(isRadio ? QStyle::SE_RadioButtonContents
+                                                     : SE_CheckBoxContents, btn, widget));
             drawControl(isRadio ? CE_RadioButtonLabel : CE_CheckBoxLabel, &subopt, p, widget);
             if ((btn->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                 QStyleOptionFocusRect fropt;
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
                 fropt.rect = visualRect(btn->direction, btn->rect,
-                                        subRect(isRadio ? QStyle::SR_RadioButtonFocusRect
-                                                : SR_CheckBoxFocusRect, btn, widget));
+                                        subElementRect(isRadio ? QStyle::SE_RadioButtonFocusRect
+                                                : SE_CheckBoxFocusRect, btn, widget));
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
             }
         }
@@ -748,14 +748,14 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             drawControl(CE_PushButtonBevel, btn, p, widget);
             QStyleOptionButton subopt = *btn;
             subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
-                                             subRect(SR_PushButtonContents, btn, widget));
+                                             subElementRect(SE_PushButtonContents, btn, widget));
             drawControl(CE_PushButtonLabel, &subopt, p, widget);
             if ((btn->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                 QStyleOptionFocusRect fropt;
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
                 fropt.rect = visualRect(opt->direction, opt->rect,
-                                        subRect(SR_PushButtonFocusRect, btn, widget));
+                                        subElementRect(SE_PushButtonFocusRect, btn, widget));
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
             }
         }
@@ -1305,7 +1305,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                     qDrawShadePanel(p, groove, opt->palette, true, 2, &opt->palette.brush(QPalette::Background));
                 if ((opt->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                     QStyleOption focusOpt = *opt;
-                    focusOpt.rect = subRect(SR_SliderFocusRect, opt, widget);
+                    focusOpt.rect = subElementRect(SE_SliderFocusRect, opt, widget);
                     drawPrimitive(PE_FrameFocusRect, &focusOpt, p, widget);
                 }
             }
@@ -1369,7 +1369,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 
                 if ((cb->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                     QStyleOptionFocusRect focus;
-                    focus.rect = QStyle::visualRect(opt->direction, opt->rect, subRect(SR_ComboBoxFocusRect, opt, widget));
+                    focus.rect = QStyle::visualRect(opt->direction, opt->rect, subElementRect(SE_ComboBoxFocusRect, opt, widget));
                     focus.palette = opt->palette;
                     focus.backgroundColor = opt->palette.button().color();
                     drawPrimitive(PE_FrameFocusRect, &focus, p, widget);
@@ -1788,25 +1788,25 @@ QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
   \reimp
 */
 QRect
-QMotifStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget) const
+QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *widget) const
 {
     QRect rect;
 
     switch (sr) {
-    case SR_SliderFocusRect:
-        rect = QCommonStyle::subRect(sr, opt, widget);
+    case SE_SliderFocusRect:
+        rect = QCommonStyle::subElementRect(sr, opt, widget);
         rect.addCoords(2, 2, -2, -2);
         break;
 
-    case SR_CheckBoxIndicator:
-    case SR_RadioButtonIndicator:
+    case SE_CheckBoxIndicator:
+    case SE_RadioButtonIndicator:
         {
-            rect = QCommonStyle::subRect(sr, opt, widget);
+            rect = QCommonStyle::subElementRect(sr, opt, widget);
             rect.addCoords(motifItemFrame,0, motifItemFrame,0);
         }
         break;
 
-    case SR_ComboBoxFocusRect:
+    case SE_ComboBoxFocusRect:
     {
         int awh, ax, ay, sh, sy, dh, ew;
         int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
@@ -1818,7 +1818,7 @@ QMotifStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget)
         break;
     }
 
-    case SR_Q3DockWindowHandleRect:
+    case SE_Q3DockWindowHandleRect:
         if (const QStyleOptionQ3DockWindow *dw = qstyleoption_cast<const QStyleOptionQ3DockWindow *>(opt)) {
             if (!dw->docked || !dw->closeEnabled)
                 rect.setRect(0, 0, opt->rect.width(), opt->rect.height());
@@ -1831,9 +1831,9 @@ QMotifStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget)
         }
         break;
 
-    case SR_ProgressBarLabel:
-    case SR_ProgressBarGroove:
-    case SR_ProgressBarContents:
+    case SE_ProgressBarLabel:
+    case SE_ProgressBarGroove:
+    case SE_ProgressBarContents:
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
             int textw = 0;
             if (pb->textVisible)
@@ -1842,7 +1842,7 @@ QMotifStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget)
             if (pb->textAlignment == Qt::AlignAuto || pb->textAlignment == Qt::AlignCenter) {
                 rect = opt->rect;
             } else {
-                if(sr == SR_ProgressBarLabel)
+                if(sr == SE_ProgressBarLabel)
                     rect.setCoords(opt->rect.right() - textw, opt->rect.top(),
                                    opt->rect.right(), opt->rect.bottom());
                 else
@@ -1851,25 +1851,25 @@ QMotifStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget)
             }
         }
         break;
-    case SR_CheckBoxContents: {
-        QRect ir = subRect(SR_CheckBoxIndicator, opt, widget);
+    case SE_CheckBoxContents: {
+        QRect ir = subElementRect(SE_CheckBoxIndicator, opt, widget);
         rect.setRect(ir.right() + 10, opt->rect.y(),
                      opt->rect.width() - ir.width() - 10, opt->rect.height());
         break; }
 
-    case SR_RadioButtonContents: {
-        QRect ir = subRect(SR_RadioButtonIndicator, opt, widget);
+    case SE_RadioButtonContents: {
+        QRect ir = subElementRect(SE_RadioButtonIndicator, opt, widget);
         rect.setRect(ir.right() + 10, opt->rect.y(),
                      opt->rect.width() - ir.width() - 10, opt->rect.height());
         break; }
 
-    case SR_CheckBoxClickRect:
-    case SR_RadioButtonClickRect:
+    case SE_CheckBoxClickRect:
+    case SE_RadioButtonClickRect:
         rect = opt->rect;
         break;
 
     default:
-        rect = QCommonStyle::subRect(sr, opt, widget);
+        rect = QCommonStyle::subElementRect(sr, opt, widget);
     }
     return rect;
 }

@@ -1982,16 +1982,16 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 }
 
 /*! \reimp */
-QRect QWindowsStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) const
+QRect QWindowsStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *w) const
 {
     QRect r;
     switch (sr) {
-    case SR_SliderFocusRect:
-    case SR_ToolBoxTabContents:
+    case SE_SliderFocusRect:
+    case SE_ToolBoxTabContents:
         r = opt->rect;
         break;
     default:
-        r = QCommonStyle::subRect(sr, opt, w);
+        r = QCommonStyle::subElementRect(sr, opt, w);
     }
     return r;
 }
@@ -2069,7 +2069,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                 if (slider->state & State_HasFocus) {
                     QStyleOptionFocusRect fropt;
-                    fropt.rect = subRect(SR_SliderFocusRect, slider, widget);
+                    fropt.rect = subElementRect(SE_SliderFocusRect, slider, widget);
                     fropt.palette = slider->palette;
                     fropt.state = State_None;
                     drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
@@ -2413,7 +2413,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 if (cmb->state & State_HasFocus && !cmb->editable) {
                     QStyleOptionFocusRect focus;
                     focus.rect = visualRect(opt->direction, opt->rect,
-                                            subRect(SR_ComboBoxFocusRect, cmb, widget));
+                                            subElementRect(SE_ComboBoxFocusRect, cmb, widget));
                     focus.palette = cmb->palette;
                     focus.state = State_FocusAtBorder;
                     focus.backgroundColor = cmb->palette.highlight().color();

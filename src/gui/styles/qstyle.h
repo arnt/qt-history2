@@ -207,57 +207,58 @@ public:
     virtual void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
                              const QWidget *w = 0) const = 0;
 
-    enum SubRect {
-        SR_PushButtonContents,
-        SR_PushButtonFocusRect,
+    enum SubElement {
+        SE_PushButtonContents,
+        SE_PushButtonFocusRect,
 
-        SR_CheckBoxIndicator,
-        SR_CheckBoxContents,
-        SR_CheckBoxFocusRect,
-        SR_CheckBoxClickRect,
+        SE_CheckBoxIndicator,
+        SE_CheckBoxContents,
+        SE_CheckBoxFocusRect,
+        SE_CheckBoxClickRect,
 
-        SR_RadioButtonIndicator,
-        SR_RadioButtonContents,
-        SR_RadioButtonFocusRect,
-        SR_RadioButtonClickRect,
+        SE_RadioButtonIndicator,
+        SE_RadioButtonContents,
+        SE_RadioButtonFocusRect,
+        SE_RadioButtonClickRect,
 
-        SR_ComboBoxFocusRect,
+        SE_ComboBoxFocusRect,
 
-        SR_SliderFocusRect,
+        SE_SliderFocusRect,
 
-        SR_Q3DockWindowHandleRect,
+        SE_Q3DockWindowHandleRect,
 
-        SR_ProgressBarGroove,
-        SR_ProgressBarContents,
-        SR_ProgressBarLabel,
+        SE_ProgressBarGroove,
+        SE_ProgressBarContents,
+        SE_ProgressBarLabel,
 
 
-        SR_DialogButtonAccept,
-        SR_DialogButtonReject,
-        SR_DialogButtonApply,
-        SR_DialogButtonHelp,
-        SR_DialogButtonAll,
-        SR_DialogButtonAbort,
-        SR_DialogButtonIgnore,
-        SR_DialogButtonRetry,
-        SR_DialogButtonCustom,
+        SE_DialogButtonAccept,
+        SE_DialogButtonReject,
+        SE_DialogButtonApply,
+        SE_DialogButtonHelp,
+        SE_DialogButtonAll,
+        SE_DialogButtonAbort,
+        SE_DialogButtonIgnore,
+        SE_DialogButtonRetry,
+        SE_DialogButtonCustom,
 
-        SR_ToolBoxTabContents,
+        SE_ToolBoxTabContents,
 
-        SR_HeaderLabel,
-        SR_HeaderArrow,
+        SE_HeaderLabel,
+        SE_HeaderArrow,
 
-        SR_TabWidgetTabBar,
-        SR_TabWidgetTabPane,
-        SR_TabWidgetTabContents,
-        SR_TabWidgetLeftCorner,
-        SR_TabWidgetRightCorner,
+        SE_TabWidgetTabBar,
+        SE_TabWidgetTabPane,
+        SE_TabWidgetTabContents,
+        SE_TabWidgetLeftCorner,
+        SE_TabWidgetRightCorner,
 
         // do not add any values below/greater than this
-        SR_CustomBase = 0xf0000000
+        SE_CustomBase = 0xf0000000
     };
 
-    virtual QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const = 0;
+    virtual QRect subElementRect(SubElement subElement, const QStyleOption *option,
+                                 const QWidget *widget = 0) const = 0;
 
 
     enum ComplexControl {

@@ -225,7 +225,7 @@ void QCheckBox::paintEvent(QPaintEvent *)
 bool QCheckBox::hitButton(const QPoint &pos) const
 {
     QStyleOptionButton opt = d->getStyleOption();
-    QRect r = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxClickRect, &opt, this));
+    QRect r = QStyle::visualRect(opt.direction, opt.rect, style()->subElementRect(QStyle::SE_CheckBoxClickRect, &opt, this));
     if (qApp->layoutDirection() == Qt::RightToLeft) {
         r.setRight(width());
     } else {
