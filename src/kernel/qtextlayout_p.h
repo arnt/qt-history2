@@ -87,6 +87,7 @@ public:
     ~QTextLayout();
 
     void setText( const QString& string, const QFont& fnt );
+    void setText( const QString& string);
 
     enum LineBreakStrategy {
 	AtWordBoundaries,

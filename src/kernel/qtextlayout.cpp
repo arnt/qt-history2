@@ -224,6 +224,12 @@ void QTextLayout::setText( const QString& string, const QFont& fnt )
     d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d );
 }
 
+void QTextLayout::setText( const QString& string )
+{
+    delete d;
+    d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), 0 );
+}
+
 /* add an additional item boundary eg. for style change */
 void QTextLayout::setBoundary( int strPos )
 {
