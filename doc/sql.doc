@@ -932,7 +932,7 @@ to/from the statusids that we will list in the combobox.
 \until }; 
 
 We also need to subclass QSqlEditorFactory declaring a createEditor()
-function since that is the only function we need to override. 
+function since that is the only function we need to reimplement. 
 
 \dontinclude sql/overview/table3/main.cpp
 \skip StatusPicker
@@ -1116,8 +1116,8 @@ attempts to insert a new record.
 <h5 align="center">From \l sql/overview/subclass5/main.h
 </h5>
 
-We declare our own primeInsert() function since we will need to override
-this.
+We declare our own primeInsert() function since we will need to
+reimplement this.
 
 The constructor and the calculateField() function remain unchanged.
 

@@ -74,7 +74,7 @@ QSqlDriver::~QSqlDriver()
 }
 
 /*! \fn bool QSqlDriver::open( const QString& db, const QString& user, const QString& password, const QString& host )
-    Derived classes must override this abstract virtual function in
+    Derived classes must reimplement this abstract virtual function in
     order to open a database connection. Return TRUE on success, FALSE
     on failure.
 
@@ -83,7 +83,7 @@ QSqlDriver::~QSqlDriver()
 */
 
 /*! \fn bool QSqlDriver::close()
-    Derived classes must override this abstract virtual function in
+    Derived classes must reimplement this abstract virtual function in
     order to close the database connection. Return TRUE on success,
     FALSE on failure.
 
@@ -92,7 +92,7 @@ QSqlDriver::~QSqlDriver()
 */
 
 /*! \fn QSqlQuery QSqlDriver::createQuery() const
-    Creates an empty SQL result on the database.  Derived classes must override this function
+    Creates an empty SQL result on the database.  Derived classes must reimplement this function
     and return a QSqlQuery object appropriate for their database to the caller.
 
 */
@@ -179,7 +179,7 @@ void QSqlDriver::setOpenError( bool e )
 	dbState &= ~DBState_OpenError;
 }
 
-/*! Protected function which derived classes can override to begin a
+/*! Protected function which derived classes can reimplement to begin a
     transaction. If successful, return TRUE, otherwise return FALSE.
     The default implementation returns FALSE.
 
@@ -192,7 +192,7 @@ bool QSqlDriver::beginTransaction()
     return FALSE;
 }
 
-/*! Protected function which derived classes can override to commit a
+/*! Protected function which derived classes can reimplement to commit a
     transaction. If successful, return TRUE, otherwise return FALSE. The
     default implementation returns FALSE.
 
@@ -205,7 +205,7 @@ bool QSqlDriver::commitTransaction()
     return FALSE;
 }
 
-/*! Protected function which derived classes can override to rollback a
+/*! Protected function which derived classes can reimplement to rollback a
     transaction. If successful, return TRUE, otherwise return FALSE.
     The default implementation returns FALSE.
 

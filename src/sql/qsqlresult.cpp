@@ -253,7 +253,7 @@ QSqlError QSqlResult::lastError() const
 
     Positions the result to an arbitrary (zero-based) index \a i.  This
     function is only called if the result is in an active state.  Derived
-    classes must override this function and position the result to the
+    classes must reimplement this function and position the result to the
     index \a i, and call setAt() with an appropriate value.  Return TRUE
     to indicate success, FALSE for failure.
 
@@ -263,7 +263,7 @@ QSqlError QSqlResult::lastError() const
 
     Positions the result to the first record in the result.  This
     function is only called if the result is in an active state.
-    Derived classes must override this function and position the result
+    Derived classes must reimplement this function and position the result
     to the first record, and call setAt() with an appropriate value.
     Return TRUE to indicate success, FALSE for failure.
 
@@ -273,7 +273,7 @@ QSqlError QSqlResult::lastError() const
 
     Positions the result to the last record in the result.  This
     function is only called if the result is in an active state.
-    Derived classes must override this function and position the result
+    Derived classes must reimplement this function and position the result
     to the last record, and call setAt() with an appropriate value.
     Return TRUE to indicate success, FALSE for failure.
 
@@ -282,7 +282,7 @@ QSqlError QSqlResult::lastError() const
 /*! Positions the result to the next available record in the result.
     This function is only called if the result is in an active state.
     The default implementation calls fetch() with the next index.
-    Derived classes can override this function and position the result
+    Derived classes can reimplement this function and position the result
     to the next record in some other way, and call setAt() with an
     appropriate value.  Return TRUE to indicate success, FALSE for
     failure.
@@ -297,7 +297,7 @@ bool QSqlResult::fetchNext()
 /*! Positions the result to the previous available record in the
     result.  This function is only called if the result is in an active
     state.  The default implementation calls fetch() with the previous
-    index.  Derived classes can override this function and position the
+    index.  Derived classes can reimplement this function and position the
     result to the next record in some other way, and call setAt() with
     an appropriate value.  Return TRUE to indicate success, FALSE for
     failure.
