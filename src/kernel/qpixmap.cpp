@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#79 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#79 $");
 
 
 /*!
@@ -193,7 +193,7 @@ void QPixmap::detach()
 }
 
 /*!
-  Returns a 
+  Returns a
   \link shclass.html deep copy\endlink of the pixmap using the bitBlt()
   function to copy the pixels.
   \sa operator=()
@@ -445,7 +445,7 @@ void QPixmap::setMask( const QBitmap &mask )
   things like:
   \code
     pm->setMask( pm->createHeuristicMask() );
-  \endcode;
+  \endcode
 
   This function is slow because it involves transformation to a QImage,
   non-trivial computations and a transformation back to QBitmap.
