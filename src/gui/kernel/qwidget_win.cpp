@@ -418,6 +418,29 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     }
 }
 
+void QWidgetPrivate::reparentChildren()
+{
+    QObjectList chlist = q->children();
+    for(int i = 0; i < chlist.size(); ++i) { // reparent children
+        QObject *obj = chlist.at(i);
+        if (obj->isWidgetType()) {
+            QWidget *w = (QWidget *)obj;
+            if (w->isPopup()) {
+                ;
+            } else if (w->isTopLevel()) {
+                bool showIt = w->isShown();
+                QPoint old_pos = w->pos();
+                w->setParent(q, w->getWFlags());
+                w->move(old_pos);
+                if (showIt)
+                    w->show();
+            } else {
+                SetParent(w->winId(), q->winId());
+                w->d->reparentChildren();
+            }
+        }
+    }
+}
 
 void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
@@ -447,25 +470,8 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
 
     if (isTopLevel() || (!parent || parent->isVisible()))
         setWState(Qt::WState_Hidden);
-    QObjectList chlist = children();
-    for(int i = 0; i < chlist.size(); ++i) { // reparent children
-        QObject *obj = chlist.at(i);
-        if (obj->isWidgetType()) {
-            QWidget *w = (QWidget *)obj;
-            if (w->isPopup()) {
-                ;
-            } else if (w->isTopLevel()) {
-                bool showIt = w->isShown();
-                QPoint old_pos = w->pos();
-                w->setParent(this, w->getWFlags());
-                w->move(old_pos);
-                if (showIt)
-                    w->show();
-            } else {
-                SetParent(w->winId(), winId());
-            }
-        }
-    }
+
+    d->reparentChildren();
 
     setGeometry(0, 0, s.width(), s.height());
     setEnabled(enable);

@@ -191,6 +191,10 @@ public:
     void setWindowRole(const char *role);
 #endif
 
+#if defined (Q_WS_WIN)
+    void reparentChildren();
+#endif
+
     void reparentFocusWidgets(QWidget *oldtlw);
 
     QWidgetData data;
