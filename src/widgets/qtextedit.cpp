@@ -3077,9 +3077,10 @@ int QTextEdit::lineOfChar( int para, int index )
 
 void QTextEdit::setModified( bool m )
 {
-    if ( modified != m )
-	emit modificationChanged( m );
+    bool oldModified = modified;
     modified = m;
+    if ( oldModified != modified )
+	emit modificationChanged( modified );
     if ( modified ) {
 	disconnect( this, SIGNAL( textChanged() ),
 		    this, SLOT( setModified() ) );
