@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#377 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#378 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1038,15 +1038,17 @@ QWidget *QWidget::keyboardGrabber()
   Sets the top-level widget containing this widget to be the active
   window.
 
-  An active window is a top-level window that has the keyboard input
+  An active window is a visible top-level window that has the keyboard input
   focus.
 
   This function performs the same operation as clicking the mouse on
   the title bar of a top-level window, at least on Windows. On X11,
   the result depends on the Window Manager. If you want to ensure that
-  the window is stacked on top as well, call raise() in addition.
+  the window is stacked on top as well, call raise() in addition. Note
+  that the window has be to visible, otherwise setActiveWindow() has
+  no effect.
 
-  \sa isActiveWindow(), topLevelWidget()
+  \sa isActiveWindow(), topLevelWidget(), show()
 */
 
 void QWidget::setActiveWindow()
