@@ -5236,7 +5236,6 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    }
 	}
 	if ( newSize != cr.size() ) { // size changed
-	    was_resize = TRUE;
 	    QSize oldSize = size();
 	    cr.setSize( newSize );
 	    crect = cr;
