@@ -496,8 +496,10 @@ bool QLibraryPrivate::isPlugin()
                      (const char*) QFile::encodeName(fileName),
                      QT_BUILD_KEY,
                      key.isEmpty() ? "<null>" : (const char *) key);
+#ifndef QT_NO_DEBUG_PLUGIN_CHECK
     } else if(debug != QLIBRARY_AS_DEBUG) {
         //don't issue a qWarning since we will hopefully find a non-debug? --Sam
+#endif
     } else {
         pluginState = IsAPlugin;
     }

@@ -16,6 +16,7 @@ include(codecs/codecs.pri)
 
 mac:LIBS += -framework ApplicationServices
 
+mac:lib_bundle:DEFINES += QT_NO_DEBUG_PLUGIN_CHECK
 win32:DEFINES-=QT_NO_CAST_TO_ASCII
 
 QMAKE_LIBS += $$QMAKE_LIBS_CORE
