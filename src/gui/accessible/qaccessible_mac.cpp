@@ -236,7 +236,7 @@ struct {
       { QAccessible::Value, kAXValueAttribute, true },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
-      { -1, NULL }
+      { -1, NULL, false }
     },
     { { QAccessible::MenuItem, kAXMenuItemRole, false },
       { QAccessible::Value, kAXValueAttribute, true },
