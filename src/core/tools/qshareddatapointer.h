@@ -65,7 +65,7 @@ public:
     bool isNull() const { return !d; }
 };
 
-template<class T> class QSharedDataPointer : public QExplicitlySharedDataPointer<T>
+template<class T> class QSharedDataPointer : private QExplicitlySharedDataPointer<T>
 {
 public:
     T * operator->() { if (this->d && this->d->ref != 1) detach(); return this->d; }
@@ -74,8 +74,10 @@ public:
     operator const T *() const { return this->d; }
     T * data() { if (this->d && this->d->ref != 1) detach(); return this->d; }
     const T * data() const { return this->d; }
+    const T * constData() const { return this->d; }
 
     QSharedDataPointer() : QExplicitlySharedDataPointer<T>() {}
+    ~QSharedDataPointer() {}
 
     Q_EXPLICIT QSharedDataPointer(T *data) : QExplicitlySharedDataPointer<T>(data) {}
     QSharedDataPointer(const QSharedDataPointer<T> &o) : QExplicitlySharedDataPointer<T>(o) {}
