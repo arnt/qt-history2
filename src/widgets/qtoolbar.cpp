@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#26 $
 **
 ** Implementation of QToolBar class
 **
@@ -308,4 +308,14 @@ QMainWindow * QToolBar::mainWindow()
 void QToolBar::setStretchableWidget( QWidget * w )
 {
     sw = w;
+}
+
+
+/*! \reimp */
+
+bool QToolBar::event( QEvent * e )
+{
+    if ( e->type() == Event_LayoutHint )
+	setUpGM();
+    return QWidget::event( e );
 }
