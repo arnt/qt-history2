@@ -3,7 +3,7 @@ target.path=$$libs.path
 INSTALLS += target
 
 #mac framework
-macx { 
+false:macx { 
     QtFramework = /Library/Frameworks/$${TARGET}.framework
     framework.path = $$QtFramework/Headers
     framework.commands += $$quote("cp -rf $$target.path/$(TARGET) $(INSTALL_ROOT)/$$QtFramework/$${TARGET}")
