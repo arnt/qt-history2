@@ -1464,6 +1464,8 @@ void QPainter::setClipping( bool enable )
 
     setf( ClipOn, enable );
     if ( testf(ExtDev) ) {
+	if ( block_ext )
+	    return;
         QPDevCmdParam param[1];
         param[0].ival = enable;
         if ( !pdev->cmd( QPaintDevice::PdcSetClip, this, param ) || !hd )
@@ -1547,6 +1549,8 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 	crgn = xmat * rgn;
 
     if ( testf(ExtDev) ) {
+	if ( block_ext )
+	    return;
         QPDevCmdParam param[2];
         param[0].rgn = &rgn;
         param[1].ival = m;
