@@ -83,7 +83,7 @@ public:
         FontStrikeOut = 0x2007,
         FontFixedPitch = 0x2008,
 
-        Color = 0x2010,
+        TextColor = 0x2010,
 
         IsAnchor = 0x2020,
         AnchorHref = 0x2021,
@@ -241,10 +241,10 @@ public:
     inline bool fontFixedPitch() const
     { return boolProperty(FontFixedPitch); }
 
-    inline void setColor(const QColor &color)
-    { setProperty(Color, int(color.rgb())); }
-    inline QColor color() const
-    { if (hasProperty(Color)) return QColor(intProperty(Color)); else return QColor(); }
+    inline void setTextColor(const QColor &color)
+    { setProperty(TextColor, int(color.rgb())); }
+    inline QColor textColor() const
+    { if (hasProperty(TextColor)) return QColor(intProperty(TextColor)); else return QColor(); }
 
     inline void setAnchor(bool anchor)
     { setProperty(IsAnchor, anchor); }

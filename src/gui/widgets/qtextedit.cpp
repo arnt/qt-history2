@@ -362,7 +362,7 @@ void QTextEditPrivate::updateCurrentCharFormat()
     emit q->currentCharFormatChanged(currentCharFormat);
     // compat signals
     emit q->currentFontChanged(currentCharFormat.font());
-    emit q->currentColorChanged(currentCharFormat.color());
+    emit q->currentColorChanged(currentCharFormat.textColor());
 }
 
 void QTextEditPrivate::indent()
@@ -453,7 +453,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
 
     QTextCharFormat fmt;
     fmt.setFont(q->font());
-    fmt.setColor(q->palette().color(QPalette::Text));
+    fmt.setTextColor(q->palette().color(QPalette::Text));
 
     // ###############
 //     d->cursor.movePosition(QTextCursor::Start);
@@ -930,7 +930,7 @@ bool QTextEdit::fontItalic() const
 */
 QColor QTextEdit::color() const
 {
-    return d->currentCharFormat.color();
+    return d->currentCharFormat.textColor();
 }
 
 /*!
@@ -1102,7 +1102,7 @@ void QTextEdit::setColor(const QColor &c)
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
-    fmt.setColor(c);
+    fmt.setTextColor(c);
     mergeCurrentCharFormat(fmt);
 }
 

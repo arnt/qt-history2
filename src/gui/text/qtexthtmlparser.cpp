@@ -461,7 +461,7 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
     format.setFontPointSize(fontPointSize);
     format.setFontWeight(fontWeight);
     if (color.isValid())
-        format.setColor(color);
+        format.setTextColor(color);
     if (isAnchor) {
         format.setAnchor(true);
         format.setAnchorHref(anchorHref);

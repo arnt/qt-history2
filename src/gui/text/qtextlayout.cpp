@@ -1301,7 +1301,7 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
             Q_ASSERT(fmt.isCharFormat());
             QTextCharFormat chf = fmt.toCharFormat();
             if (selection == -1) {
-                QColor c = chf.color();
+                QColor c = chf.textColor();
                 if (!c.isValid() && eng->textColorFromPalette) {
                     c = eng->pal->color(QPalette::Text);
                 }

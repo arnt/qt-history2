@@ -492,7 +492,7 @@ void TextEdit::textAlign(QAction *a)
 void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
 {
     fontChanged(format.font());
-    colorChanged(format.color());
+    colorChanged(format.textColor());
     alignmentChanged(currentEditor->alignment());
 }
 
