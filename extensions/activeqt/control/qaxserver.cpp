@@ -315,8 +315,9 @@ HRESULT UpdateRegistry(BOOL bRegister)
 // IDL generator
 /////////////////////////////////////////////////////////////////////////////
 
-static QStringList enums;
-static QStringList subtypes;
+static QList<QByteArray> enums;
+static QList<QByteArray> enumValues;
+static QList<QByteArray> subtypes;
 
 static const char* const type_map[][2] =
 {
@@ -362,7 +363,7 @@ static const char* const type_map[][2] =
     { 0,		0 }
 };
 
-static QString convertTypes(const QString &qtype, bool *ok)
+static QByteArray convertTypes(const QByteArray &qtype, bool *ok)
 {
     qRegisterMetaType("IDispatch*", (void**)0);
     qRegisterMetaType("IUnknown*", (void**)0);
@@ -565,7 +566,7 @@ static QByteArray prototype(const QList<QByteArray> &parameterTypes, const QList
             ok = false;
             break;
         }
-        type = convertTypes(type, ok).toLatin1();
+        type = convertTypes(type, ok);
         if (!out)
             prototype += "[in] " + type + " ";
         else
@@ -574,7 +575,7 @@ static QByteArray prototype(const QList<QByteArray> &parameterTypes, const QList
         if (out)
             prototype += "*";
         if (name.isEmpty())
-            prototype += "p" + QString::number(p);
+            prototype += "p" + QByteArray::number(p);
         else
             prototype += "p_" + replaceKeyword(name);
         
@@ -585,20 +586,20 @@ static QByteArray prototype(const QList<QByteArray> &parameterTypes, const QList
     return prototype;
 }
 
-static QString addDefaultArguments(const QString &prototype, int numDefArgs)
+static QByteArray addDefaultArguments(const QByteArray &prototype, int numDefArgs)
 {
     // nothing to do, or unsupported anyway
     if (!numDefArgs || prototype.contains("/**"))
         return prototype;
 
-    QString ptype(prototype);
+    QByteArray ptype(prototype);
 
     int in = -1;
     while (numDefArgs) {
         in = ptype.lastIndexOf("]", in);
         ptype.replace(in, 1, ",optional]");
         in = ptype.indexOf(' ', in) + 1;
-        QString type = ptype.mid(in, ptype.indexOf(' ', in) - in);
+        QByteArray type = ptype.mid(in, ptype.indexOf(' ', in) - in);
         ptype.replace(in, type.length(), "VARIANT");
         --numDefArgs;
     }
@@ -662,12 +663,16 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         out << "\tenum " << enumerator.name() << " {" << endl;
         
         for (int j = 0; j < enumerator.keyCount(); ++j) {
-            QString key(enumerator.key(j));
+            QByteArray key(enumerator.key(j));
+            while (enumValues.contains(key)) {
+                key += "_";
+            }
+            enumValues.append(key);
             uint value = (uint)enumerator.value(j);
             key = key.leftJustified(20);
             out << "\t\t" << key << "\t= ";
             if (enumerator.isFlag())
-                out << "0x" << QString::number(value, 16).rightJustified(8, '0');
+                out << "0x" << QByteArray::number(value, 16).rightJustified(8, '0');
             else
                 out << value;
             if (j < enumerator.keyCount()-1)
@@ -720,8 +725,8 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
             continue;
         
         bool ok = true;
-        QString type(convertTypes(property.typeName(), &ok));
-        QString name(replaceKeyword(property.name()));
+        QByteArray type(convertTypes(property.typeName(), &ok));
+        QByteArray name(replaceKeyword(property.name()));
         
         if (!ok)
             out << "\t/****** Property is of unsupported datatype" << endl;
@@ -746,7 +751,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     out << endl;
     out << "\tmethods:" << endl;
     int numDefArgs = 0;
-    QString outBuffer;
+    QByteArray outBuffer;
     for (i = memberoff; i < mo->memberCount(); ++i) {
         const QMetaMember slot = mo->member(i);
         if (slot.access() != QMetaMember::Public || slot.memberType() == QMetaMember::Signal)
@@ -760,7 +765,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
             outBuffer = addDefaultArguments(outBuffer, numDefArgs);
             numDefArgs = 0;
             out << outBuffer;
-            outBuffer = QString();
+            outBuffer = QByteArray();
         }
         
         QByteArray signature(slot.signature());
@@ -778,7 +783,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         QList<QByteArray> parameterNames(slot.parameterNames());
         
         bool ok = true;
-        QString type = slot.typeName();
+        QByteArray type = slot.typeName();
         if (type.isEmpty())
             type = "void";
         else
@@ -798,7 +803,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         outBuffer = addDefaultArguments(outBuffer, numDefArgs);
         numDefArgs = 0;
         out << outBuffer;
-        outBuffer = QString();
+        outBuffer = QByteArray();
     }
     out << "\t};" << endl << endl;
 
@@ -981,7 +986,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     out << "\timportlib(\"stdole2.tlb\");" << endl << endl;
     
     QStringList keys = qAxFactory()->featureList();
-    QStringList::Iterator key;
+    QStringList::ConstIterator key;
     
     out << "\t/************************************************************************" << endl;
     out << "\t** If this causes a compile error in MIDL you need to upgrade the" << endl;
@@ -1032,7 +1037,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     
     int res = S_OK;
     for (key = keys.begin(); key != keys.end(); ++key) {
-        QString className = *key;
+        QByteArray className = (*key).toLatin1();
         const QMetaObject *mo = qAxFactory()->metaObject(className);
         // We have meta object information for this type. Forward declare it.
         if (mo) {
@@ -1040,15 +1045,15 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
             QObject *o = qAxFactory()->createObject(className);
             subtypes.append(className);
             subtypes.append(className + "*");
-            qRegisterMetaType(className.toLatin1(), (void**)0);
-            qRegisterMetaType(className.toLatin1() + "*", (void**)0);
+            qRegisterMetaType(className, (void**)0);
+            qRegisterMetaType(className + "*", (void**)0);
             delete o;
         }
     }
     out << endl;
 
     for (key = keys.begin(); key != keys.end(); ++key) {
-        QString className = *key;
+        QByteArray className = (*key).toLatin1();
         const QMetaObject *mo = qAxFactory()->metaObject(className);
         // We have meta object information for this type. Define it.
         if (mo) {
@@ -1065,7 +1070,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
         goto ErrorInClass;
     
     for (key = keys.begin(); key != keys.end(); ++key) {
-        QString className = *key;
+        QByteArray className = (*key).toLatin1();
         QObject *o = qAxFactory()->createObject(className);
         if (!o)
             continue;
