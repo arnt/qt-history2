@@ -36,6 +36,11 @@
 **********************************************************************/
 
 #include "private/qlibrary_p.h"
+#include "qplatformdefs.h"
+
+#if defined(QT_AOUT_UNDERSCORE)
+#include <string.h>
+#endif
 
 #ifndef QT_NO_LIBRARY
 /*
