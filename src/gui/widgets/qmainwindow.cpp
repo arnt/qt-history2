@@ -81,7 +81,7 @@ void QMainWindowPrivate::init()
 */
 
 /*!
-    \class QMainWindow qmainwindow.h
+    \class QMainWindow
     \brief The QMainWindow class provides a main application window.
 
     \ingroup application
@@ -91,6 +91,8 @@ void QMainWindowPrivate::init()
     tool bars, dock windows and a status bar around a large central
     widget, such as a text edit, drawing canvas or QWorkspace (for MDI
     applications).
+
+    Topics:
 
     \tableofcontents
 
@@ -105,47 +107,47 @@ void QMainWindowPrivate::init()
     them.
 
     QDockWidgets can be as large or as small as the user wishes,
-    between the \l minimumSizeHint() (or \l minimumSize()) and \l
-    maximumSize() of each QDockWidget.  When a QDockWidget reaches its
+    between the minimumSizeHint() (or minimumSize()) and
+    maximumSize() of each QDockWidget. When a QDockWidget reaches its
     minimum size, space will be taken from other QDockWidgets in the
-    direction of the user's drag, if possible.  Once all QDockWidgets
+    direction of the user's drag, if possible. Once all QDockWidgets
     have reached their minimum sizes, further dragging does nothing.
     When a QDockWidget reaches it maximium size, space will be given
     to other QDockWidgets in the opposite direction of the user's
-    drag, if possible.  Once all QDockWidgets have reached their
+    drag, if possible. Once all QDockWidgets have reached their
     minimum size, futher dragging does nothing.
 
     \target dragging-dock-widgets
     \section2 Dragging Dock Widgets
 
     QDockWidget displays a titlebar to let the user drag the dock
-    widget to a new location.  A QDockWidget can be moved to any
-    location provided enough space is available.  QMainWindow will \e
+    widget to a new location. A QDockWidget can be moved to any
+    location provided enough space is available. QMainWindow will \e
     not resize itself to a larger size in an attempt to provide more
     space.
 
-    A QRubberBand is shown while dragging the QDockWidget.  This
+    A QRubberBand is shown while dragging the QDockWidget. This
     QRubberBand provides an indication to the user about where the
     QDockWidget will be placed when the mouse button is released.
 
     \section2 Dragging over Neighbors
 
     All un-nested QDockWidgets in the same Qt::DockWidgetArea are
-    considered neighbors.  When dragging a QDockWidget over its
+    considered neighbors. When dragging a QDockWidget over its
     neighbor
 
     \list
 
-    \i QMainWindow will split the neighbor perpendicularly to the
+    \o QMainWindow will split the neighbor perpendicularly to the
     direction of the QDockWidgets.
 
-    \i QMainWindow will swap the position of the QDockWidget being
+    \o QMainWindow will swap the position of the QDockWidget being
     dragged and its neighbor once the user has dragged the mouse past
     the center point of the neighboring QDockWidget.
 
     \endlist
 
-    ### QDockWidget Neighbor diagram goes here
+    \image dockwidget-neighbors.png Diagram
 
     \section2 Dragging over other QDockWidgets
 
@@ -159,7 +161,7 @@ void QMainWindowPrivate::init()
     QDockWidget being dragged being placed in one of four possible
     locations.
 
-    ### QDockWidget X diagram goes here
+    \image dockwidget-cross.png Diagram
 
     When dragging a nested QDockWidget
 
@@ -170,20 +172,20 @@ void QMainWindowPrivate::init()
 
     \list
 
-    \i \c true - When dragging over the centralWidget(), QMainWindow
+    \o \c true - When dragging over the centralWidget(), QMainWindow
     choose a Qt::DockWindowArea based on the position of the mouse
-    pointer.  If the mouse is within 50 pixels of the
+    pointer. If the mouse is within 50 pixels of the
     centralWidget()'s edge, the adjacent Qt::DockWindowArea is chosen.
     When dragging into the corners of these 50 pixel regions, the
     current corner() configuration is used to make the decision.
     Otherwise, the QRubberBand is shown under the mouse pointer, as
     above.
 
-    \i \c false - When dragging over the centralWidget(), QMainWindow
+    \o \c false - When dragging over the centralWidget(), QMainWindow
     chooses a Qt::DockWindowArea based on the distance between the
-    mouse pointer and the center of the centralWidget().  If the mouse
+    mouse pointer and the center of the centralWidget(). If the mouse
     comes within 50 pixels of the centralWidget()'s edge, the adjacent
-    Qt::DockWindowArea is always chosen.  When dragging into the
+    Qt::DockWindowArea is always chosen. When dragging into the
     corners of these 50 pixel regions, the current corner()
     configuration is used to make the decision.
 
@@ -196,13 +198,11 @@ void QMainWindowPrivate::init()
     property again controls feedback during dragging. When the
     QDockWidget::floatable property is \c false, dragging outside of
     the QMainWindow will show the rubberband over the QDockWidget's
-    current location.  This indicates that the QDockWidget cannot be
+    current location. This indicates that the QDockWidget cannot be
     moved outside of the QMainWindow. When the QDockWidget::floatable
     property is \c true, dragging outside of the QMainWindow will show
-    the QRubberBand under the mouse pointer.  This indicates that the
+    the QRubberBand under the mouse pointer. This indicates that the
     QDockWidget will be floating when the mouse button is released.
-
-    ### QMainWindow X diagram goes here
 
     \sa QMenuBar, QToolBar, QStatusBar, QDockWidget
 */
@@ -360,7 +360,7 @@ void QMainWindow::setStatusBar(QStatusBar *statusbar)
 }
 
 /*!
-    Returns the central widget for the main window.  This function
+    Returns the central widget for the main window. This function
     returns zero if the central widget has not been set.
 
     \sa setCentralWidget()
@@ -434,7 +434,7 @@ void QMainWindow::insertToolBarBreak(QToolBar *before)
 
 /*!
     Adds the \a toolbar into the specified \a area in this main
-    window.  The \a toolbar is placed at the end of the current tool
+    window. The \a toolbar is placed at the end of the current tool
     bar block (i.e. line).
 
     \sa insertToolBar() addToolBarBlock() insertToolBarBlock()
@@ -613,7 +613,7 @@ Qt::DockWidgetArea QMainWindow::dockWidgetArea(QDockWidget *dockwidget) const
 
 /*!
     Saves the current state of this mainwindow's toolbars and
-    dockwidgets.  The \a version number is stored as part of the data.
+    dockwidgets. The \a version number is stored as part of the data.
 
     To restore the saved state, pass the return value and \a version
     number to restoreState().
@@ -632,8 +632,8 @@ QByteArray QMainWindow::saveState(int version) const
 
 /*!
     Restores the \a state of this mainwindow's toolbars and
-    dockwidgets.  The \a version number is compared with that stored
-    in \a state.  If they do not match, the mainwindow's state is left
+    dockwidgets. The \a version number is compared with that stored
+    in \a state. If they do not match, the mainwindow's state is left
     unchanged, and this function returns false; otherwise, the state
     is restored, and this function returns true.
 
