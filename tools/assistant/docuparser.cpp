@@ -61,10 +61,11 @@ DocuParser *DocuParser::createParser(const QString &fileName)
         }
     }
 
-    if(majVer == 3 && minVer >= 2)
-        return new DocuParser320;
+    if (majVer < 3 || majVer == 3 && minVer < 2) {
+        return new DocuParser310;
+    }
 
-    return new DocuParser310;
+    return new DocuParser320;
 }
 
 
@@ -121,7 +122,9 @@ bool DocuParser310::startDocument()
     contentRef = QLatin1String("");
     indexRef = QLatin1String("");
     depth = 0;
+
     contentList.clear();
+    qDeleteAll(indexList);
     indexList.clear();
 
     return true;
