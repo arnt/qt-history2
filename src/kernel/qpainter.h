@@ -217,6 +217,13 @@ public:
     static const QPaintDevice *redirected(const QPaintDevice *device, QPoint *offset = 0);
     static void restoreRedirected(const QPaintDevice *device);
 
+#ifndef QT_NO_COMPAT
+    static inline void redirect(QPaintDevice *pdev, QPaintDevice *replacement)
+	{ setRedirected(pdev, replacement); }
+    static inline QPaintDevice *redirect( QPaintDevice *pdev )
+	{ return const_cast<QPaintDevice*>(redirected(pdev)); }
+#endif
+
 private:
     friend class QFontEngine;
     friend void qt_format_text( const QFont& font, const QRect &_r,
