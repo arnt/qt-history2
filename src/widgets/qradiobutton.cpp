@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#66 $
 **
 ** Implementation of QRadioButton class
 **
@@ -18,7 +18,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#66 $");
 
 
 /*!
@@ -340,3 +340,13 @@ void QRadioButton::keyPressEvent( QKeyEvent * e )
     }
     QButton::keyPressEvent( e );
 }
+
+/*!
+  Handles focus in events for the check box.
+*/
+
+void QRadioButton::focusInEvent( QFocusEvent * )
+{
+    repaint( FALSE );
+}
+

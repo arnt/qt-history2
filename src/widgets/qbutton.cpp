@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#82 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#82 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -161,6 +161,11 @@ static int shortcutChar( const char *str )
   text or pixmap).  It is generally advisable to reimplement
   sizeHint() as well, and sometimes hitButton() (to determine whether
   a button press is within the button).
+
+  Note that to reduce flickering the code in drawButton() has to follow a
+  rule: Any change in the value of isOn() and isDown() must change the
+  same set of pixels covered by the drawing commands in the function. This
+  is normally not a problem.
 
   \sa QButtonGroup
 */
@@ -491,7 +496,7 @@ void QButton::setDown( bool enable )
     mlbDown = FALSE;				// the safe setting
     if ( (bool)buttonDown != enable ) {
 	buttonDown = enable;
-	update();
+	repaint( FALSE );
     }
 }
 
@@ -517,7 +522,7 @@ void QButton::setOn( bool enable )
 #endif
     if ( (bool)buttonOn != enable ) {		// changed state
 	buttonOn = enable;
-	update();
+	repaint( FALSE );
 	emit toggled( buttonOn );
     }
 }

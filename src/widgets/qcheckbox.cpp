@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#64 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#64 $");
 
 
 /*!
@@ -251,4 +251,13 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 	    p->drawRect( br );
 	}
     }
+}
+
+/*!
+  Handles focus in events for the radio button.
+*/
+
+void QCheckBox::focusInEvent( QFocusEvent * )
+{
+    repaint( FALSE );
 }
