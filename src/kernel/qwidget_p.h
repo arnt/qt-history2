@@ -133,10 +133,10 @@ public:
     QWidgetPrivate() :
 	QObjectPrivate(), extra(0), focus_child(0)
 #ifndef QT_NO_LAYOUT
-	,layout(0),
+        ,layout(0)
 #endif
 #ifndef QT_NO_PALETTE
-	,fg_role(QPalette::Foreground),
+        ,fg_role(QPalette::Foreground),
 	bg_role(QPalette::Background)
 #endif
     {high_attributes[0] = 0;}
