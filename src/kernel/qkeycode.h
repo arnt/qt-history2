@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeycode.h#10 $
+** $Id: //depot/qt/main/src/kernel/qkeycode.h#11 $
 **
 ** Definition of keyboard codes
 **
@@ -40,7 +40,9 @@ const uint ASCII_ACCEL	= 0x10000000;
 #define Key_Right		0x1014
 #define Key_Down		0x1015
 #define Key_Prior		0x1016
+#define Key_PageUp		Key_Prior
 #define Key_Next		0x1017
+#define Key_PageDown		Key_Next
 
 #define Key_Shift		0x1020		// modifiers
 #define Key_Control		0x1021
