@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#42 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -27,7 +27,6 @@
 
 #include "qobjectlist.h"
 #include "qobjectdict.h"
-#include "qlayout.h"
 #include "qbutton.h"
 #include "qbuttongroup.h"
 
@@ -42,16 +41,9 @@ public:
 	{
 	    setBackgroundMode( NoBackground );
 	}
-
-	QSizePolicy sizePolicy()
+	const char * className() const
 	{
-	    return QSizePolicy( QSizePolicy::Expanding,
-				QSizePolicy::Expanding );
-	}
-
-	QSize sizeHint()
-	{
-	    return QSize( 256, 256 );
+	    return "QWidgetStackPrivate::Invisible";
 	}
     };
 };
@@ -102,7 +94,6 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
     d = 0;
     dict = new QIntDict<QWidget>;
     focusWidgets = 0;
-    l = 0;
     topWidget = 0;
     invisible = new QWidgetStackPrivate::Invisible( this );
     setFontPropagation( AllChildren );
@@ -142,10 +133,9 @@ void QWidgetStack::addWidget( QWidget * w, int id )
 	focusWidgets->replace( w, w->focusWidget() );
     }
 
-    if ( w->parent() != this ) {
-	w->reparent( this, 0, QPoint(0,0), FALSE );
-	w->setGeometry( invisible->geometry() );
-    }
+    if ( w->parent() != this )
+	w->reparent( this, 0, contentsRect().topLeft(), FALSE );
+    w->setGeometry( contentsRect() );
 }
 
 
@@ -187,6 +177,12 @@ void QWidgetStack::raiseWidget( QWidget * w )
     topWidget = w;
     if ( !isVisible() )
 	return;
+
+    if ( !invisible->isVisible() ) {
+	invisible->setGeometry( contentsRect() );
+	invisible->lower();
+	invisible->show();
+    }
 
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
@@ -256,7 +252,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 
     while( (o=it.current()) != 0 ) {
 	++it;
-	if ( o->isWidgetType() && o != w )
+	if ( o->isWidgetType() && o != w && o != invisible )
 	    ((QWidget *)o)->hide();
     }
     if ( f )
@@ -295,14 +291,21 @@ bool QWidgetStack::isMyChild( QWidget * w )
 }
 
 
-/*! Reimpelemented in order to set the children's geometries
-  appropriately. */
+/*! \reimp */
 
 void QWidgetStack::frameChanged()
 {
     QFrame::frameChanged();
-    if ( l )
-	setChildGeometries();
+    setChildGeometries();
+}
+
+
+/*! \reimp */
+
+void QWidgetStack::setFrameRect( const QRect & r )
+{
+    QFrame::setFrameRect( r );
+    setChildGeometries();
 }
 
 
@@ -310,20 +313,8 @@ void QWidgetStack::frameChanged()
 
 void QWidgetStack::setChildGeometries()
 {
-    delete l;
-    l = new QGridLayout( this, 3, 3, frameWidth(), 0);
-//     if ( frameWidth() ) {
-// 	l->addRowSpacing( 0, frameWidth() );
-// 	l->addRowSpacing( 2, frameWidth() );
-// 	l->addColSpacing( 0, frameWidth() );
-// 	l->addColSpacing( 2, frameWidth() );
-//     }
-    l->setRowStretch( 1, 1 );
-    l->setColStretch( 1, 1 );
-    l->addWidget( invisible, 1, 1 );
-    l->activate();
-    updateGeometry();
-    if ( topWidget && invisible )
+    invisible->setGeometry( contentsRect() );
+    if ( topWidget )
 	topWidget->setGeometry( invisible->geometry() );
 }
 
@@ -334,6 +325,8 @@ void QWidgetStack::setChildGeometries()
 void QWidgetStack::show()
 {
     if ( !isVisible() && children() ) {
+	setChildGeometries();
+
 	const QObjectList * c = children();
 	QObjectListIt it( *c );
 	QObject * o;
@@ -343,12 +336,13 @@ void QWidgetStack::show()
 	    if ( o->isWidgetType() )
 		if ( o == topWidget )
 		    ((QWidget *)o)->show();
+		else if ( o == invisible && topWidget != 0 )
+		    ((QWidget *)o)->show();
 		else
 		    ((QWidget *)o)->hide();
 	}
     }
 
-    setChildGeometries();
     QFrame::show();
 }
 
@@ -416,8 +410,7 @@ QWidget * QWidgetStack::visibleWidget() const
 void QWidgetStack::resizeEvent( QResizeEvent * e )
 {
     QFrame::resizeEvent( e );
-    if ( topWidget && invisible )
-	topWidget->setGeometry( invisible->geometry() );
+    setChildGeometries();
 }
 
 
@@ -435,9 +428,8 @@ QSize QWidgetStack::sizeHint() const
 
 	while( (o=it.current()) != 0 ) {
 	    ++it;
-	    if ( o->isWidgetType() )
-		if ( o != invisible )
-		    size = size.expandedTo( ((QWidget *)o)->sizeHint() );
+	    if ( o->isWidgetType() && o != invisible )
+		size = size.expandedTo( ((QWidget *)o)->sizeHint() );
 	}
     }
     if ( size.isNull() )

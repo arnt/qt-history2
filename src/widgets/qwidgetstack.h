@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#19 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#20 $
 **
 ** Definition of QWidgetStack class
 **
@@ -35,8 +35,6 @@
 
 class QWidgetStackPrivate;
 
-class QGridLayout;
-
 
 class Q_EXPORT QWidgetStack: public QFrame
 {
@@ -57,6 +55,8 @@ public:
 
     QWidget * visibleWidget() const;
 
+    void setFrameRect( const QRect & );
+
 signals:
     void aboutToShow( int );
     void aboutToShow( QWidget * );
@@ -73,10 +73,10 @@ protected:
 
 private:
     bool isMyChild( QWidget * );
+
     QWidgetStackPrivate * d;
     QIntDict<QWidget> * dict;
     QPtrDict<QWidget> * focusWidgets;
-    QGridLayout * l;
     QWidget * topWidget;
     QWidget * invisible;
 };
