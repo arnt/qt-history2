@@ -74,8 +74,16 @@ protected slots:
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
 
+    void setRoot(const QModelIndex &index);
+//    void edit(const QModelIndex &index);
+
 signals:
     void needMore();
+    void pressed(const QModelIndex &index, int button);
+    void clicked(const QModelIndex &index, int button);
+    void doubleClicked(const QModelIndex &index, int button);
+    void returnPressed(const QModelIndex &index);
+    void spacePressed(const QModelIndex &index);
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
@@ -113,7 +121,6 @@ protected:
     virtual QDragObject *dragObject();
     virtual void startDrag();
 
-    void setRoot(const QModelIndex &item);
     QModelIndex root() const;
 
     // FIXME: find better solutions

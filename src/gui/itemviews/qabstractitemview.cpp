@@ -272,6 +272,8 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
 
     rect.moveTopLeft(d->viewport->mapToGlobal(rect.topLeft()));
     d->rubberBand->setGeometry(rect);
+
+    emit pressed(item, e->button());
 }
 
 void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
@@ -323,10 +325,12 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
-    QModelIndex item  = itemAt(pos);
+    QModelIndex item = itemAt(pos);
     d->selectionModel->select(item, selectionCommand(e->state(), item, e->type()));
     d->rubberBand->hide();
     setState(NoState);
+    if (item == d->pressedItem)
+        emit clicked(item, e->button());
 }
 
 void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
@@ -334,6 +338,7 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
     QModelIndex item = itemAt(e->pos());
     if (!item.isValid())
         return;
+    emit doubleClicked(item, e->button());
     startEdit(item, QAbstractItemDelegate::DoubleClicked, e);
 }
 
@@ -435,17 +440,15 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Key_PageDown:
     case Key_Escape:
     case Key_Enter:
-    case Key_Return:
     case Key_Shift:
     case Key_Control:
         break;
+    case Key_Return:
+        emit returnPressed(currentItem());
+        break;
     case Key_Space:
-        d->selectionModel->select(currentItem(),
-                                  selectionCommand(
-                                      e->state(),
-                                      currentItem(),
-                                      e->type(),
-                                      (Key)e->key()));
+        d->selectionModel->select(currentItem(), selectionCommand(e->state(), currentItem(), e->type(),(Key)e->key()));
+        emit spacePressed(currentItem());
         return;
     case Key_F2:
         if (startEdit(currentItem(), QAbstractItemDelegate::EditKeyPressed, e))
@@ -710,12 +713,12 @@ void QAbstractItemView::startDrag()
     obj->drag();
 }
 
-void QAbstractItemView::setRoot(const QModelIndex &item)
+void QAbstractItemView::setRoot(const QModelIndex &index)
 {
-    d->root = item;
-    int r = model()->rowCount(item) - 1;
-    int c = model()->columnCount(item) - 1;
-    contentsChanged(model()->index(0, 0, item), model()->index(r, c, item));
+    d->root = index;
+    if (isVisible())
+        startItemsLayout();
+    update();
 }
 
 QModelIndex QAbstractItemView::root() const

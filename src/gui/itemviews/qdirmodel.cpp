@@ -159,6 +159,11 @@ Q4FileIconProvider::Q4FileIconProvider()
     linkDir.setPixmap(linkDirPixmap, QIconSet::Small);
 }
 
+Q4FileIconProvider::~Q4FileIconProvider()
+{
+    
+}
+
 QIconSet Q4FileIconProvider::icons(const QFileInfo &fileInfo) const
 {
     if (fileInfo.isDir())

@@ -742,6 +742,8 @@ void QGenericTreeViewPrivate::open(int i)
             open(v);
         }
     }
+
+    emit q->expanded(index);
 }
 
 void QGenericTreeViewPrivate::close(int i)
@@ -753,14 +755,17 @@ void QGenericTreeViewPrivate::close(int i)
     opened.remove(opened.indexOf(index));
     
     int idx = i;
-    while (index.isValid()) {
+    QModelIndex tmp = index;
+    while (tmp.isValid()) {
         items[idx].total -= total;
-        index = model->parent(index);
-        idx = viewIndex(index);
+        tmp = model->parent(tmp);
+        idx = viewIndex(tmp);
     }
     qCollapse<QGenericTreeViewItem>(items, i, total);
     q->updateGeometries();
     viewport->update();
+    
+    emit q->collapsed(index);
 }
 
 void QGenericTreeViewPrivate::layout(int i)

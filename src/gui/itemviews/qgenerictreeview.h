@@ -36,6 +36,10 @@ public:
     bool isColumnHidden(int column) const;
     bool isOpen(const QModelIndex &item) const;
 
+ signals:
+    void expanded(const QModelIndex &index);
+    void collapsed(const QModelIndex &index);
+
 public slots:
     void hideColumn(int column);
     void open(const QModelIndex &item);

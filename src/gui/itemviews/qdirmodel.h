@@ -11,6 +11,7 @@ class Q4FileIconProvider
 {
 public:
     Q4FileIconProvider();
+    virtual ~Q4FileIconProvider();
     virtual QIconSet icons(const QFileInfo &info) const;
     virtual QString type(const QFileInfo &info) const;
 protected:

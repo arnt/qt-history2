@@ -268,6 +268,14 @@ void QGenericListView::setFlow(Flow flow)
 void QGenericListView::setWrapping(Wrap wrap)
 {
     d->wrap = wrap;
+    d->prepareItemsLayout();
+    if (isVisible())
+        startItemsLayout();
+}
+
+void QGenericListView::setIconSize(Size size)
+{
+    d->size = size;
     if (isVisible())
         startItemsLayout();
 }
@@ -436,9 +444,10 @@ void QGenericListView::startDrag()
 void QGenericListView::getViewOptions(QItemOptions *options) const
 {
     QAbstractItemView::getViewOptions(options);
-    options->smallItem = !d->wrap;
-    options->iconAlignment = d->wrap ? Qt::AlignTop|Qt::AlignHCenter : Qt::AlignVCenter|Qt::AlignAuto;
-    options->textAlignment = d->wrap ? Qt::Alignment(Qt::AlignCenter) : Qt::AlignVCenter|Qt::AlignAuto;
+    bool small = (d->size == Automatic ? d->wrap == On : d->size == Small);
+    options->smallItem = small;
+    options->iconAlignment = (small ? Qt::AlignVCenter|Qt::AlignAuto : Qt::AlignTop|Qt::AlignHCenter);
+    options->textAlignment = (small ? Qt::AlignVCenter|Qt::AlignAuto : Qt::AlignCenter);
 }
 
 void QGenericListView::paintEvent(QPaintEvent *e)
@@ -700,7 +709,7 @@ bool QGenericListView::doItemsLayout(int delta)
 {
     int max = model()->rowCount(root()) - 1;
     int first = d->layoutStart;
-    int last = first + qMin(delta - 1, max);
+    int last = qMin(first + delta - 1, max);
 
     if (max < 0)
         return true; // nothing to do
@@ -739,13 +748,13 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
 {
     int x = 0;
     int y = 0;
-    d->initStaticLayout(x, y, first, bounds);
+    int spacing = d->gridSize.isEmpty() ? d->spacing : 0;
+    d->initStaticLayout(x, y, first, bounds, spacing);
     QPoint topLeft(x, y);
 
     int gw = d->gridSize.width() > 0 ? d->gridSize.width() : 0;
     int gh = d->gridSize.height() > 0 ? d->gridSize.height() : 0;
     int delta = last - first + 1;
-    int spacing = d->gridSize.isEmpty() ? 0 : d->spacing;
     int layoutWraps = d->layoutWraps;
     bool wrap = d->wrap;
     QModelIndex item;
@@ -1168,7 +1177,7 @@ void QGenericListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &w
     dx = 0;
 }
 
-void QGenericListViewPrivate::initStaticLayout(int &x, int &y, int first, const QRect &bounds)
+void QGenericListViewPrivate::initStaticLayout(int &x, int &y, int first, const QRect &bounds, int spacing)
 {
     if (first == 0) {
         x = bounds.left() + spacing;

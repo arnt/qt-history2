@@ -100,6 +100,7 @@ public:
             flow(QGenericListView::TopToBottom),
             wrap(QGenericListView::Off),
             movement(QGenericListView::Static),
+            size(QGenericListView::Small),
             spacing(5),
             arrange(false),
             layoutStart(0),
@@ -123,13 +124,14 @@ public:
                          const QRect &bounds, int spacing, int delta);
     void createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
                             const QRect &bounds, int spacing, int delta);
-    void initStaticLayout(int &x, int &y, int first, const QRect &bounds);
+    void initStaticLayout(int &x, int &y, int first, const QRect &bounds, int spacing);
 
     QPoint snapToGrid(const QPoint &pos) const;
 
     QGenericListView::Flow flow;
     QGenericListView::Wrap wrap;
     QGenericListView::Movement movement;
+    QGenericListView::Size size;
     uint spacing : 16;
     uint arrange : 1;
     int layoutStart;
