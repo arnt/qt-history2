@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#81 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#82 $
 **
 ** Global type declarations and definitions
 **
@@ -90,6 +90,7 @@
 //   BOR	- Borland/Turbo C++
 //   WAT	- Watcom C++
 //   GNU	- GNU C++
+//   COMEAU	- Comeau C++
 //   EDG	- Edison Design Group C++
 //   OC		- CenterLine ObjectCenter C++
 //   SUN	- Sun C++
@@ -236,6 +237,7 @@ inline int qRound( double d )
 //
 // Size-dependent types (architechture-dependent byte order)
 //
+
 #if !defined(QT_CLEAN_NAMESPACE) 
 typedef char		INT8;			// 8 bit signed
 typedef unsigned char	UINT8;			// 8 bit unsigned
