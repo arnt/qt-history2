@@ -1,12 +1,5 @@
 #####################################################################
 # Main projectfile
-# ----------------
-# *****************
-# * MSVC.net NOTE ************************************************
-# * Use 'qmake -tp vc projects.pro' to generate a solution file  *
-# * containing all the projects in the subdirectories specified  *
-# * below. (Note: QMAKESPEC must be set to 'win32-msvc.net')     *
-# ****************************************************************
 #####################################################################
 
 CONFIG += ordered
