@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#45 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#46 $
 **
 ** Definition of QButton widget class
 **
@@ -63,6 +63,8 @@ protected:
     void	paintEvent( QPaintEvent * );
     void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
+
+    void	enabledChange( bool );
 
 private slots:
     void	timerSlot();

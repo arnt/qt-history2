@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#64 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#64 $");
 
 static const int autoRepeatPeriod = 200;
 
@@ -289,6 +289,7 @@ void QButton::setAutoRepeat( bool enable )
 
 void QButton::setDown( bool enable )
 {
+    mlbDown = FALSE; // the safe setting
     if ( (bool)buttonDown != enable ) {
 	buttonDown = enable;
 	repaint( FALSE );
@@ -559,3 +560,15 @@ void QButton::autoRepeatSlot()
 }
 
 
+
+
+/*!
+  Reimplemented for implementational reasons.
+*/
+
+void QButton::enabledChange( bool e )
+{
+    if ( !e )
+	setDown( FALSE );
+    QWidget::enabledChange( e );
+}
