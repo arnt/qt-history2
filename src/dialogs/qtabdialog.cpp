@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#51 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#52 $
 **
 ** Implementation of QTabDialog class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#52 $");
 
 
 /*!
@@ -824,7 +824,7 @@ void QTabDialog::paintEvent( QPaintEvent * )
     QCOORD r = childRect().right() + 2;
     QCOORD l = childRect().left() - 1;
 
-    p.setPen( white );
+    p.setPen( colorGroup().light() );
     // note - this line overlaps the bottom line drawn by QTabBar
     p.drawLine( l, t, r - 1, t );
     p.drawLine( l, t + 1, l, b );
