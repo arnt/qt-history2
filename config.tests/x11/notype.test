@@ -1,0 +1,32 @@
+#!/bin/sh
+
+QMKSPEC=$1
+VERBOSE=$2
+SRCDIR=$3
+OUTDIR=$4
+
+# debuggery
+
+if [ "$VERBOSE" = "yes" ]
+then
+    echo "Detecting broken X11 headers... ($*)"
+fi
+
+
+# ?
+
+ABSPATH=
+if [ "$SRCDIR" != "$OUTDIR" ]
+then
+    ABSPATH="QMAKE_ABSOLUTE_SOURCE_PATH=$SRCDIR/config.tests/x11"
+fi
+
+test -d $OUTDIR/config.tests/x11 || mkdir -p $OUTDIR/config.tests/x11
+$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "$ABSPATH" $SRCDIR/config.tests/x11/notypetest.pro -o $OUTDIR/config.tests/x11/Makefile >/dev/null 2>&1
+cd $OUTDIR/config.tests/x11
+
+if [ "$VERBOSE" = "yes" ]; then
+  make
+else
+  make >/dev/null 2>&1
+fi
