@@ -1418,8 +1418,11 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 			child = child->nextSibling();
 		    }
 
-		    if ( child ) // there's a child, so move linebot to edge of rectangle
+		    // Expand line height to edge of rectangle if there's a
+		    // child, and it's visible
+		    if ( child && (child->height() > 0) ) { 
 			linebot = r.height();
+		    }
 
 		    if ( linetop < linebot ) {
 			dotlines[c++] = QPoint( bx, linetop );
