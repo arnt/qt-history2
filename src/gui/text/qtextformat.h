@@ -252,14 +252,14 @@ public:
     { return boolProperty(IsAnchor); }
 
     inline void setAnchorHref(const QString &value)
-    { setProperty(Qt::AnchorHref, value); }
+    { setProperty(AnchorHref, value); }
     inline QString anchorHref() const
-    { return stringProperty(Qt::AnchorHref); }
+    { return stringProperty(AnchorHref); }
 
     inline void setAnchorName(const QString &name)
-    { setProperty(Qt::AnchorName, name); }
+    { setProperty(AnchorName, name); }
     inline QString anchorName() const
-    { return stringProperty(Qt::AnchorName); }
+    { return stringProperty(AnchorName); }
 
     inline void setTableCellRowSpan(int tableCellRowSpan)
     { setProperty(TableCellRowSpan, tableCellRowSpan); }
