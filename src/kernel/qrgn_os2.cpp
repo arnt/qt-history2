@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#9 $
 **
 ** Implementation of QRegion class for OS/2 PM
 **
@@ -14,7 +14,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#9 $");
 
 
 HPS QRegion::hps = 0;				// global presentation space
@@ -155,7 +155,7 @@ QRegion QRegion::subtract( const QRegion &r ) const
     return result;
 }
 
-QRegion QRegion::xor( const QRegion &r ) const
+QRegion QRegion::eor( const QRegion &r ) const
 {
     QRegion result( QRect(0, 0, 1, 1) );
     if ( data->rgn && r.data->rgn )

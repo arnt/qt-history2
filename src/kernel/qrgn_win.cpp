@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#21 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#21 $");
 
 
 static QRegion *empty_region = 0;
@@ -232,7 +232,7 @@ QRegion QRegion::subtract( const QRegion &r ) const
     return winCombine( r, QRGN_SUB );
 }
 
-QRegion QRegion::xor( const QRegion &r ) const
+QRegion QRegion::eor( const QRegion &r ) const
 {
     return winCombine( r, QRGN_XOR );
 }

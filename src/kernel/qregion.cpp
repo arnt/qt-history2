@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#14 $
 **
 ** Implementation of QRegion class
 **
@@ -14,7 +14,7 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#14 $");
 
 
 /*!
@@ -174,7 +174,7 @@ void QRegion::exec( const QByteArray &buffer )
 		    rgn = r1.subtract( r2 );
 		    break;
 		case QRGN_XOR:
-		    rgn = r1.xor( r2 );
+		    rgn = r1.eor( r2 );
 		    break;
 	    }
 	}
@@ -210,3 +210,16 @@ QDataStream &operator>>( QDataStream &s, QRegion &r )
     r.exec( b );
     return s;
 }
+
+
+// OBSOLETE
+#if !(defined(__STRICT_ANSI__) && defined(_CC_GNU_)) && !defined(_CC_EDG_) && !defined(xor)
+/*!
+  OBSOLETE - Use eor() instead.
+*/
+QRegion QRegion::xor( const QRegion &r ) const
+{
+    return eor(r);
+}
+#endif
+

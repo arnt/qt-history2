@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#26 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#26 $");
 
 
 static QRegion *empty_region = 0;
@@ -290,7 +290,7 @@ QRegion QRegion::subtract( const QRegion &r ) const
   Returns a region which is this region XOR \e r.
 */
 
-QRegion QRegion::xor( const QRegion &r ) const
+QRegion QRegion::eor( const QRegion &r ) const
 {
     QRegion result( TRUE );
     XXorRegion( data->rgn, r.data->rgn, result.data->rgn );
