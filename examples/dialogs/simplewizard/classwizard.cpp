@@ -91,7 +91,7 @@ void ClassWizard::accept()
 
     if (protect) {
         block += "\n";
-        block += "#endif // " + macroName + "\n";
+        block += "#endif\n";
     }
 
     QFile headerFile(outputDir + "/" + header);

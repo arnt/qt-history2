@@ -26,10 +26,14 @@ protected:
 private slots:
     void classNameChanged();
 
-public:
+private:
     FirstPage *firstPage;
     SecondPage *secondPage;
     ThirdPage *thirdPage;
+
+    friend class FirstPage;
+    friend class SecondPage;
+    friend class ThirdPage;
 };
 
 class FirstPage : public QWidget
@@ -39,6 +43,7 @@ class FirstPage : public QWidget
 public:
     FirstPage(ClassWizard *wizard);
 
+private:
     QLabel *topLabel;
     QLabel *classNameLabel;
     QLabel *baseClassLabel;
@@ -50,6 +55,10 @@ public:
     QRadioButton *qwidgetCtorRadioButton;
     QRadioButton *defaultCtorRadioButton;
     QCheckBox *copyCtorCheckBox;
+
+    friend class ClassWizard;
+    friend class SecondPage;
+    friend class ThirdPage;
 };
 
 class SecondPage : public QWidget
@@ -59,6 +68,7 @@ class SecondPage : public QWidget
 public:
     SecondPage(ClassWizard *wizard);
 
+private:
     QLabel *topLabel;
     QCheckBox *commentCheckBox;
     QCheckBox *protectCheckBox;
@@ -67,6 +77,8 @@ public:
     QLabel *baseIncludeLabel;
     QLineEdit *macroNameLineEdit;
     QLineEdit *baseIncludeLineEdit;
+
+    friend class ClassWizard;
 };
 
 class ThirdPage : public QWidget
@@ -76,6 +88,7 @@ class ThirdPage : public QWidget
 public:    
     ThirdPage(ClassWizard *wizard);
 
+private:
     QLabel *topLabel;
     QLabel *outputDirLabel;
     QLabel *headerLabel;
@@ -83,6 +96,8 @@ public:
     QLineEdit *outputDirLineEdit;
     QLineEdit *headerLineEdit;
     QLineEdit *implementationLineEdit;
+
+    friend class ClassWizard;
 };
 
 #endif
