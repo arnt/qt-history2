@@ -7,27 +7,21 @@ DigitalClock::DigitalClock(QWidget *parent)
 {
     setSegmentStyle(Filled);
 
-    showingColon = true;
-    timer.start(1000, this);
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(showTime()));
+    timer->start(1000);
+
     showTime();
 
     setWindowTitle(tr("Digital Clock"));
     resize(150, 60);
 }
 
-void DigitalClock::timerEvent(QTimerEvent *event)
-{
-    if (event->timerId() == timer.timerId())
-        showTime();
-    else
-        QLCDNumber::timerEvent(event);
-}
-
 void DigitalClock::showTime()
 {
-    QString time = QTime::currentTime().toString().left(5);
-    if (!showingColon)
-        time[2] = ' ';
-    display(time);
-    showingColon = !showingColon;
+    QTime time = QTime::currentTime();
+    QString text = time.toString().left(5);
+    if ((time.second() % 2) == 0)
+        text[2] = ' ';
+    display(text);
 }
