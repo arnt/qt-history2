@@ -329,17 +329,47 @@ void QCursor::update() const
     if ( d->type != QCursorData::TYPE_None )				// already loaded
 	return;
 
-    if ( d->cshape == BitmapCursor ) {
-	d->type = QCursorData::TYPE_CursorImage;
-	d->curs.ci = (CursorImageRec*)malloc(sizeof(CursorImageRec));
-	d->curs.ci->majorVersion = kCursorImageMajorVersion;
-	d->curs.ci->minorVersion = kCursorImageMinorVersion;
-	d->curs.ci->cursorPixMap = GetGWorldPixMap((GWorldPtr)d->bm->handle());
-	d->curs.ci->cursorBitMask = (BitMap **)GetGWorldPixMap((GWorldPtr)d->bmm->handle());
-	return;
-    }
+    /* Note to self... ***
+     * mask x data
+     * 0xFF x 0x00 == fully opaque white
+     * 0x00 x 0xFF == xor'd black
+     * 0xFF x 0xFF == fully opaque black
+     * 0x00 x 0x00 == fully transparent
+     */
 
     switch ( d->cshape ) {			// map Q cursor to MAC cursor
+    case BitmapCursor: {
+	if(d->bm->width() == 16 && d->bm->height() == 16) {
+	    d->type = QCursorData::TYPE_CursPtr;
+	    d->curs.cp.my_cursor = TRUE;
+	    d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	    QImage bmi, bmmi;
+	    bmi = *d->bm;
+	    bmmi = *d->bmm;
+
+	    memset(d->curs.cp.hcurs->mask, 0, 32);
+	    memset(d->curs.cp.hcurs->data, 0, 32);
+	    for(int y = 0; y < 16; y++) {
+		for(int x = 0; x < 16; x++) {
+		    if(!bmmi.pixel(x,y)) {
+			if(bmi.pixel(x,y)) {
+			    *(((uchar*)d->curs.cp.hcurs->mask) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
+			    *(((uchar*)d->curs.cp.hcurs->data) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
+			} else {
+			    *(((uchar*)d->curs.cp.hcurs->mask) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
+			}
+		    }
+		}
+	    }
+	} else {
+	    d->type = QCursorData::TYPE_CursorImage;
+	    d->curs.ci = (CursorImageRec*)malloc(sizeof(CursorImageRec));
+	    d->curs.ci->majorVersion = kCursorImageMajorVersion;
+	    d->curs.ci->minorVersion = kCursorImageMinorVersion;
+	    d->curs.ci->cursorPixMap = GetGWorldPixMap((GWorldPtr)d->bm->handle());
+	    d->curs.ci->cursorBitMask = (BitMap **)GetGWorldPixMap((GWorldPtr)d->bmm->handle());
+	}
+	break; }
     case ArrowCursor:
 	d->type = QCursorData::TYPE_ThemeCursor;
 	d->curs.tc = kThemeArrowCursor;
