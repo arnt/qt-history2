@@ -598,12 +598,15 @@ void QApplication::beep()
   Main event loop
  *****************************************************************************/
 
+extern bool qt_gui_is_used;
+
 int QApplication::exec()
 {
     quit_now = FALSE;
     quit_code = 0;
 #if defined(QT_THREAD_SUPPORT)
-    qApp->unlock();
+    if( qt_gui_is_used )
+	qApp->unlock();
 #endif
     enter_loop();
     return quit_code;
