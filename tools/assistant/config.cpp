@@ -314,7 +314,7 @@ QPixmap Config::applicationIcon() const
 
 QStringList Config::docTitles() const
 {
-    return *( (QStringList*) &(profil->indexPages.keys()) );
+    return QStringList(profil->indexPages.keys());
 }
 
 QString Config::docImageDir( const QString &docfile ) const
