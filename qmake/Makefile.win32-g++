@@ -72,6 +72,9 @@ qcstring.o: ..\src\compat\qcstring.cpp
 qstring.o: ..\src\tools\qstring.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qstring.cpp
 
+qlocale.o: ..\src\tools\qlocale.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qlocale.cpp
+
 quuid.o: ..\src\tools\quuid.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\quuid.cpp
 

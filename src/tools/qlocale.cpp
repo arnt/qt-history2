@@ -98,7 +98,6 @@ QLocaleStaticData::QLocaleStaticData()
 #   define NAN (QLocaleStaticData::nan())
 #endif
 
-
 // Sizes as defined by the ISO C99 standard - fallback
 #ifndef LLONG_MAX
 #   define LLONG_MAX Q_INT64_C(9223372036854775807)
@@ -2620,7 +2619,7 @@ inline ULong &word1(double &x)
  * #define Storeinc(a,b,c) (*a++ = b << 16 | c & 0xffff)
  */
 
-/*
+/* 
 #if defined(IEEE_LITTLE_ENDIAN) + defined(VAX) + defined(__arm32__)
 #define Storeinc(a,b,c) (((unsigned short *)a)[1] = (unsigned short)b, \
 ((unsigned short *)a)[0] = (unsigned short)c, a++)

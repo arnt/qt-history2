@@ -30,6 +30,9 @@
 #include <qdatastream.h>
 #include <qlist.h>
 
+#include "qlocale.h"
+#include "qlocale_p.h"
+
 #include "qtools_p.h"
 #include <limits.h>
 #include <string.h>
@@ -87,6 +90,26 @@ static int ucstrnicmp(const QChar *a, const QChar *b, int l)
 	return 0;
     return ::lower(*a).unicode() - ::lower(*b).unicode();
 }
+
+
+static bool qIsUpper(char c)
+{
+    return c >= 'A' && c <= 'Z';
+}
+
+static bool qIsDigit(char c)
+{
+    return c >= '0' && c <= '9';
+}
+
+static char qToLower(char c)
+{
+    if (c >= 'A' && c <= 'Z')
+    	return c - 'A' + 'a';
+    else
+    	return c;
+}
+
 
 QString::Null QString::null;
 
@@ -3373,174 +3396,316 @@ void qt_fix_double(char *) {}
 */
 
 #ifndef QT_NO_SPRINTF
-QString &QString::sprintf(const char * cformat, ...)
+QString &QString::sprintf( const char* cformat, ... )
 {
-    va_list ap;
-    va_start(ap, cformat);
+    QLocale locale(QLocale::C);
 
-    if (!cformat || !*cformat) {
+    va_list ap;
+    va_start( ap, cformat );
+
+    if ( !cformat || !*cformat ) {
 	// Qt 1.x compat
-	*this = fromLatin1("");
+	*this = fromLatin1( "" );
 	return *this;
     }
-    QString format = fromAscii(cformat);
 
-    QRegExp escape(fromLatin1("%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?"));
+    // Parse cformat
+
     QString result;
-    int last = 0;
-    int pos;
-    int len = 0;
-
-#ifdef Q_OS_TEMP
-    const int buffer_size = 10;
-    wchar_t buffer[buffer_size];
-    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer, buffer_size );
-    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
-#endif
-
+    const char *c = cformat;
     for (;;) {
-	pos = escape.search(format, last);
-	len = escape.matchedLength();
-	// Non-escaped text
-	if (pos > (int)last)
-	    result += format.mid(last, pos - last);
-	if (pos < 0) {
-	    // The rest
-	    if (last < format.length())
-		result += format.mid(last);
+    	// Copy non-escape chars to result
+    	while (*c != '\0' && *c != '%')
+	    result.append(*c++);
+
+	if (*c == '\0')
+	    break;
+
+	// Found '%'
+	const char *escape_start = c;
+	++c;
+
+	if (*c == '\0') {
+	    result.append('%'); // a % at the end of the string - treat as non-escape text
 	    break;
 	}
-	last = pos + len + 1;
-
-	// Escape
-	QString f = format.mid(pos, len);
-	int width, decimals;
-	int params = 0;
-	int wpos = f.find('*');
-	if (wpos >= 0) {
-	    params++;
-	    width = va_arg(ap, int);
-	    if (f.find('*', wpos + 1) >= 0) {
-		decimals = va_arg(ap, int);
-		params++;
-	    } else {
-		decimals = 0;
-	    }
-	} else {
-	    decimals = width = 0;
+    	if (*c == '%') {
+	    result.append('%'); // %%
+	    ++c;
+	    continue;
 	}
-	QString replacement;
-	if (format[pos + len] == 's' || format[pos + len] == 'S' ||
-	     format[pos + len] == 'c')
-	{
-	    bool rightjust = (f.find('-') < 0);
-	    // %-5s really means left adjust in sprintf
 
-	    if (wpos < 0) {
-		QRegExp num(fromLatin1("[0-9]+"));
-		int p = num.search(f);
-		int nlen = num.matchedLength();
-		int q = f.find('.');
-		if (q < 0 || (p < q && p >= 0))
-		    width = f.mid(p, nlen).toInt();
-		if (q >= 0) {
-		    p = num.search(f, q);
-		    // "decimals" is used to specify string truncation
-		    if (p >= 0)
-			decimals = f.mid(p, nlen).toInt();
+	// Parse flag characters
+	unsigned flags = 0;
+	bool no_more_flags = false;
+	do {
+	    switch (*c) {
+		case '#': flags |= QLocalePrivate::Alternate; break;
+		case '0': flags |= QLocalePrivate::ZeroPadded; break;
+		case '-': flags |= QLocalePrivate::LeftAdjusted; break;
+		case ' ': flags |= QLocalePrivate::BlankBeforePositive; break;
+		case '+': flags |= QLocalePrivate::AlwaysShowSign; break;
+		case '\'': flags |= QLocalePrivate::ThousandsGroup; break;
+		default: no_more_flags = true; break;
+    	    }
+
+	    if (!no_more_flags)
+	    	++c;
+	} while (!no_more_flags);
+
+	if (*c == '\0') {
+	    result.append(escape_start); // incomplete escape, treat as non-escape text
+	    break;
+	}
+
+	// Parse field width
+	int width = -1; // -1 means unspecified
+	if (qIsDigit(*c)) {
+	    QString width_str;
+	    while (*c != '\0' && qIsDigit(*c))
+	    	width_str.append(*c++);
+
+	    // can't be negative - started with a digit
+    	    // contains at least one digit
+	    width = width_str.toInt();
+	}
+	else if (*c == '*') {
+	    width = va_arg(ap, int);
+	    if (width < 0)
+	    	width = -1; // treat all negative numbers as unspecified
+	    ++c;
+	}
+
+	if (*c == '\0') {
+	    result.append(escape_start); // incomplete escape, treat as non-escape text
+	    break;
+	}
+
+	// Parse precision
+	int precision = -1; // -1 means unspecified
+	if (*c == '.') {
+	    ++c;
+	    if (qIsDigit(*c)) {
+		QString precision_str;
+		while (*c != '\0' && qIsDigit(*c))
+	    	    precision_str.append(*c++);
+
+		// can't be negative - started with a digit
+    	    	// contains at least one digit
+		precision = precision_str.toInt();
+	    }
+	}
+	else if (*c == '*') {
+	    precision = va_arg(ap, int);
+	    if (precision < 0)
+	    	precision = -1; // treat all negative numbers as unspecified
+	    ++c;
+	}
+
+	if (*c == '\0') {
+	    result.append(escape_start); // incomplete escape, treat as non-escape text
+	    break;
+	}
+
+    	// Parse the length modifier
+    	enum LengthMod { lm_none, lm_hh, lm_h, lm_l, lm_ll, lm_L, lm_j, lm_z, lm_t };
+	LengthMod length_mod = lm_none;
+	switch (*c) {
+	    case 'h':
+	    	++c;
+		if (*c == 'h') {
+		    length_mod = lm_hh;
+		    ++c;
 		}
-	    }
+		else
+		    length_mod = lm_h;
+		break;
 
-	    if (format[pos + len] == 's') {
-		QString s = QString::fromUtf8(va_arg(ap, char*));
-		replacement = (decimals <= 0) ? s : s.left(decimals);
-	    } else {
-		int ch = va_arg(ap, int);
-		replacement = QChar((ushort)ch);
-	    }
-	    if (replacement.length() < width) {
-		replacement = rightjust
-		    ? replacement.rightJustify(width)
-		    : replacement.leftJustify(width);
-	    }
-	} else if (format[pos+len] == '%') {
-	    replacement = '%';
-	} else if (format[pos+len] == 'n') {
-	    int *n = va_arg(ap, int*);
-	   * n = result.length();
-	} else {
-	    char in[64], out[330];
-	    strncpy(in,f.latin1(),63);
-	    out[0] = '\0';
-	    char fch = format[pos+len].latin1();
-	    in[f.length()] = fch;
-	    switch (fch) {
+	    case 'l':
+	    	++c;
+		if (*c == 'l') {
+		    length_mod = lm_ll;
+		    ++c;
+		}
+		else
+		    length_mod = lm_l;
+		break;
+
+	    case 'L':
+	    	++c;
+		length_mod = lm_L;
+		break;
+
+	    case 'j':
+	    	++c;
+		length_mod = lm_j;
+		break;
+
+	    case 'z':
+	    case 'Z':
+	    	++c;
+		length_mod = lm_z;
+		break;
+
+	    case 't':
+	    	++c;
+		length_mod = lm_t;
+		break;
+
+	    default: break;
+	}
+
+	if (*c == '\0') {
+	    result.append(escape_start); // incomplete escape, treat as non-escape text
+	    break;
+	}
+
+	// Parse the conversion specifier and do the conversion
+	QString subst;
+	switch (*c) {
 	    case 'd':
-	    case 'i':
+	    case 'i': {
+	    	Q_LLONG i;
+		switch (length_mod) {
+		    case lm_none: i = va_arg(ap, int); break;
+		    case lm_hh: i = va_arg(ap, int); break;
+		    case lm_h: i = va_arg(ap, int); break;
+		    case lm_l: i = va_arg(ap, long int); break;
+		    case lm_ll: i = va_arg(ap, Q_LLONG); break;
+		    case lm_j: i = va_arg(ap, long int); break;
+		    case lm_z: i = va_arg(ap, size_t); break;
+		    case lm_t: i = va_arg(ap, int); break;
+		    default: break;
+		}
+		subst = locale.d->longLongToString(i, precision, 10, width, flags);
+		++c;
+		break;
+    	    }
 	    case 'o':
 	    case 'u':
 	    case 'x':
-	    case 'X':
-		{
-		    int value = va_arg(ap, int);
-		    switch (params) {
-		    case 0:
-			::sprintf(out, in, value);
-			break;
-		    case 1:
-			::sprintf(out, in, width, value);
-			break;
-		    case 2:
-			::sprintf(out, in, width, decimals, value);
-		    }
+	    case 'X': {
+	    	Q_ULLONG u;
+		switch (length_mod) {
+		    case lm_none: u = va_arg(ap, unsigned int); break;
+		    case lm_hh: u = va_arg(ap, unsigned int); break;
+		    case lm_h: u = va_arg(ap, unsigned int); break;
+		    case lm_l: u = va_arg(ap, unsigned long int); break;
+		    case lm_ll: u = va_arg(ap, Q_ULLONG); break;
+		    default: break;
 		}
-		break;
-	    case 'e':
-	    case 'E':
-	    case 'f':
-	    case 'g':
-	    case 'G':
-		{
-		    double value = va_arg(ap, double);
-		    switch (params) {
-		    case 0:
-			::sprintf(out, in, value);
-			break;
-		    case 1:
-			::sprintf(out, in, width, value);
-			break;
-		    case 2:
-			::sprintf(out, in, width, decimals, value);
-		    }
-		    qt_fix_double(out);
-		}
-		break;
-	    case 'p':
-		{
-		    void *value = va_arg(ap, void *);
-		    switch (params) {
-		    case 0:
-			::sprintf(out, in, value);
-			break;
-		    case 1:
-			::sprintf(out, in, width, value);
-			break;
-		    case 2:
-			::sprintf(out, in, width, decimals, value);
-		    }
-		}
-	    }
-	    replacement = fromAscii(out);
-	}
-	result += replacement;
-    }
-    *this = result;
 
-#ifdef Q_OS_TEMP
-    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
-#endif
+		if (qIsUpper(*c))
+		    flags |= QLocalePrivate::CapitalEorX;
+
+    	    	int base = 10;
+		switch (qToLower(*c)) {
+		    case 'o':
+	    		base = 8; break;
+		    case 'u':
+			base = 10; break;
+		    case 'x':
+			base = 16; break;
+		    default: break;
+		}
+		subst = locale.d->unsLongLongToString(u, precision, base, width, flags);
+		++c;
+		break;
+    	    }
+	    case 'E':
+	    case 'e':
+    	    case 'F':
+	    case 'f':
+	    case 'G':
+	    case 'g':
+	    case 'A':
+	    case 'a': {
+	    	double d;
+		if (length_mod == lm_L)
+		    d = va_arg(ap, long double); // not supported - converted to a double
+		else
+		    d = va_arg(ap, double);
+
+		if (qIsUpper(*c))
+		    flags |= QLocalePrivate::CapitalEorX;
+
+    	    	QLocalePrivate::DoubleForm form = QLocalePrivate::DFDecimal;
+		switch (qToLower(*c)) {
+		    case 'e': form = QLocalePrivate::DFExponent; break;
+		    case 'a': 	    	    	// not supported - decimal form used instead
+		    case 'f': form = QLocalePrivate::DFDecimal; break;
+		    case 'g': form = QLocalePrivate::DFSignificantDigits; break;
+		    default: break;
+		}
+		subst = locale.d->doubleToString(d, precision, form, width, flags);
+		++c;
+		break;
+	    }
+	    case 'c': {
+	    	unsigned char c = va_arg(ap, int);
+		subst = c;
+		++c;
+		break;
+	    }
+	    case 's': {
+	    	const char *s = va_arg(ap, const char*);
+	    	subst = s;
+		++c;
+		break;
+	    }
+	    case 'p': {
+	    	Q_ULLONG i = (Q_ULLONG)(unsigned) va_arg(ap, void*);
+		flags |= QLocalePrivate::Alternate;
+		subst = locale.d->unsLongLongToString(i, precision, 16, width, flags);
+		++c;
+		break;
+	    }
+	    case 'n':
+	    	switch (length_mod) {
+		    case lm_hh: {
+		    	signed char *n = va_arg(ap, signed char*);
+			*n = result.length();
+			break;
+		    }
+		    case lm_h: {
+		    	short int *n = va_arg(ap, short int*);
+			*n = result.length();
+    	    	    	break;
+		    }
+		    case lm_l: {
+		    	long int *n = va_arg(ap, long int*);
+			*n = result.length();
+			break;
+		    }
+		    case lm_ll: {
+		    	Q_LLONG *n = va_arg(ap, Q_LLONG*);
+			*n = result.length();
+			break;
+		    }
+		    default: {
+		    	int *n = va_arg(ap, int*);
+			*n = result.length();
+			break;
+		    }
+		}
+		++c;
+		break;
+
+	    default: // bad escape, treat as non-escape text
+	    	for (const char *cc = escape_start; cc != c; ++cc)
+		    result.append(*cc);
+		continue;
+	}
+
+	if (flags & QLocalePrivate::LeftAdjusted)
+	    result.append(subst.leftJustify(width));
+	else
+	    result.append(subst.rightJustify(width));
+    }
 
     va_end(ap);
+    *this = result;
+
     return *this;
 }
 #endif
@@ -3556,7 +3721,11 @@ static bool ok_in_base(QChar c, int base)
 
 /*!
     Returns the string converted to a \c long value to the base \a
-    base, which is 10 by default and must be between 2 and 36.
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically. If the string
+    begins with "0x", it is assumed to be hexadecimal. Otherwise,
+    if the string begins with a "0", it is assumed to be octal. Otheriwise
+    it is assumed to be decimal..
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
@@ -3567,62 +3736,24 @@ static bool ok_in_base(QChar c, int base)
 
 Q_LLONG QString::toLongLong(bool *ok, int base) const
 {
-    const QChar *p = unicode();
-    Q_LLONG val = 0;
-    int l = length();
-    const Q_LLONG max_mult = LLONG_MAX / base;
-    bool is_ok = false;
-    int neg = 0;
-    if (!p)
-	goto bye;
-    while (l && p->isSpace())                 // skip leading space
-	l--,p++;
-    if (!l)
-	goto bye;
-    if (*p == '-') {
-	l--;
-	p++;
-	neg = 1;
-    } else if (*p == '+') {
-	l--;
-	p++;
+#if defined(QT_CHECK_RANGE)
+    if ( base != 0 && (base < 2 || base > 36) ) {
+	qWarning( "QString::toLongLong: Invalid base (%d)", base );
+	base = 10;
     }
+#endif
 
-    // NOTE: toULongLong() code is similar
-    if (!l || !ok_in_base(*p,base))
-	goto bye;
-    while (l && ok_in_base(*p,base)) {
-	l--;
-	int dv;
-	if (p->isDigit()) {
-	    dv = p->digitValue();
-	} else {
-	    if (*p >= 'a' && *p <= 'z')
-		dv = p->unicode() - 'a' + 10;
-	    else
-		dv = p->unicode() - 'A' + 10;
-	}
-	if (val > max_mult ||
-	    (val == max_mult && dv > (LLONG_MAX % base) + neg))
-	    goto bye;
-	val = base * val + dv;
-	p++;
-    }
-    if (neg)
-	val = -val;
-    while (l && p->isSpace())                 // skip trailing space
-	l--,p++;
-    if (!l)
-	is_ok = true;
-bye:
-    if (ok)
-	*ok = is_ok;
-    return is_ok ? val : 0;
+    QLocale locale(QLocale::C);
+    return locale.d->stringToLongLong(*this, base, ok);
 }
 
 /*!
     Returns the string converted to an \c {unsigned long} value to the
-    base \a base, which is 10 by default and must be between 2 and 36.
+    base \a base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically. If the string
+    begins with "0x", it is assumed to be hexadecimal. Otherwise,
+    if the string begins with a "0", it is assumed to be octal. Otheriwise
+    it is assumed to be decimal..
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
@@ -3633,53 +3764,24 @@ bye:
 
 Q_ULLONG QString::toULongLong(bool *ok, int base) const
 {
-    const QChar *p = unicode();
-    Q_ULLONG val = 0;
-    int l = length();
-    const Q_ULLONG max_mult = ULLONG_MAX / base;
-    bool is_ok = false;
-    if (!p)
-	goto bye;
-    while (l && p->isSpace())                 // skip leading space
-	l--,p++;
-    if (!l)
-	goto bye;
-    if (*p == '+')
-	l--,p++;
-
-    // NOTE: toLongLong() code is similar
-    if (!l || !ok_in_base(*p,base))
-	goto bye;
-    while (l && ok_in_base(*p,base)) {
-	l--;
-	uint dv;
-	if (p->isDigit()) {
-	    dv = p->digitValue();
-	} else {
-	    if (*p >= 'a' && *p <= 'z')
-		dv = p->unicode() - 'a' + 10;
-	    else
-		dv = p->unicode() - 'A' + 10;
-	}
-	if (val > max_mult || (val == max_mult && dv > ULLONG_MAX % base))
-	    goto bye;
-	val = base * val + dv;
-	p++;
+#if defined(QT_CHECK_RANGE)
+    if ( base != 0 && (base < 2 || base > 36) ) {
+	qWarning( "QString::toULongLong: Invalid base %d", base );
+	base = 10;
     }
+#endif
 
-    while (l && p->isSpace())                 // skip trailing space
-	l--,p++;
-    if (!l)
-	is_ok = true;
-bye:
-    if (ok)
-	*ok = is_ok;
-    return is_ok ? val : 0;
+    QLocale locale(QLocale::C);
+    return locale.d->stringToUnsLongLong(*this, base, ok);
 }
 
 /*!
     Returns the string converted to a \c long value to the base \a
-    base, which is 10 by default and must be between 2 and 36.
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically. If the string
+    begins with "0x", it is assumed to be hexadecimal. Otherwise,
+    if the string begins with a "0", it is assumed to be octal. Otheriwise
+    it is assumed to be decimal..
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
@@ -3701,7 +3803,11 @@ long QString::toLong(bool *ok, int base) const
 
 /*!
     Returns the string converted to an \c {unsigned long} value to the
-    base \a base, which is 10 by default and must be between 2 and 36.
+    base \a base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically. If the string
+    begins with "0x", it is assumed to be hexadecimal. Otherwise,
+    if the string begins with a "0", it is assumed to be octal. Otheriwise
+    it is assumed to be decimal..
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
@@ -3723,7 +3829,11 @@ ulong QString::toULong(bool *ok, int base) const
 
 /*!
     Returns the string converted to an \c int value to the base \a
-    base, which is 10 by default and must be between 2 and 36.
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically. If the string
+    begins with "0x", it is assumed to be hexadecimal. Otherwise,
+    if the string begins with a "0", it is assumed to be octal. Otheriwise
+    it is assumed to be decimal..
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
@@ -3870,39 +3980,15 @@ float QString::toFloat(bool *ok) const
 
 QString &QString::setNum(Q_LLONG n, int base)
 {
-    if (base < 2 || base > 36) {
-	qWarning("QString::setNum: Invalid base %d", base);
+#if defined(QT_CHECK_RANGE)
+    if ( base < 2 || base > 36 ) {
+	qWarning( "QString::setNum: Invalid base %d", base );
 	base = 10;
     }
-    char   charbuf[65*sizeof(QChar)];
-    QChar *buf = (QChar*)charbuf;
-    QChar *p = &buf[64];
-    int  len = 0;
-    bool neg;
-    if (n < 0) {
-	neg = true;
-	if (n == LLONG_MIN) {
-	    // Cannot always negate this special case
-	    QString s1, s2;
-	    s1.setNum(n/base, base);
-	    s2.setNum((-(n+base))%base, base);
-	   * this = s1 + s2;
-	    return *this;
-	}
-	n = -n;
-    } else {
-	neg = false;
-    }
-    do {
-	*--p = "0123456789abcdefghijklmnopqrstuvwxyz"[((int)(n%base))];
-	n /= base;
-	++len;
-    } while (n);
-    if (neg) {
-	*--p = '-';
-	++len;
-    }
-    return setUnicode(p, len);
+#endif
+    QLocale locale(QLocale::C);
+    *this = locale.d->longLongToString(n, -1, base);
+    return *this;
 }
 
 /*!
@@ -3916,20 +4002,15 @@ QString &QString::setNum(Q_LLONG n, int base)
 
 QString &QString::setNum(Q_ULLONG n, int base)
 {
-    if (base < 2 || base > 36) {
-	qWarning("QString::setNum: Invalid base %d", base);
+#if defined(QT_CHECK_RANGE)
+    if ( base < 2 || base > 36 ) {
+	qWarning( "QString::setNum: Invalid base %d", base );
 	base = 10;
     }
-    char   charbuf[65*sizeof(QChar)];
-    QChar *buf = (QChar*)charbuf;
-    QChar *p = &buf[64];
-    int len = 0;
-    do {
-	*--p = "0123456789abcdefghijklmnopqrstuvwxyz"[((int)(n%base))];
-	n /= base;
-	len++;
-    } while (n);
-    return setUnicode(p,len);
+#endif
+    QLocale locale(QLocale::C);
+    *this = locale.d->unsLongLongToString(n, -1, base);
+    return *this;
 }
 
 /*!
@@ -4011,45 +4092,33 @@ QString &QString::setNum(Q_ULLONG n, int base)
 
 QString &QString::setNum(double n, char f, int prec)
 {
-    if (!(f=='f' || f=='F' || f=='e' || f=='E' || f=='g' || f=='G')) {
-	qWarning("QString::setNum: Invalid format char '%c'", f);
-	f = 'f';
+    QLocalePrivate::DoubleForm form = QLocalePrivate::DFDecimal;
+    uint flags = 0;
+
+    if (qIsUpper(f))
+    	flags = QLocalePrivate::CapitalEorX;
+    f = qToLower(f);
+
+    switch (f) {
+	case 'f':
+	    form = QLocalePrivate::DFDecimal;
+	    break;
+	case 'e':
+	    form = QLocalePrivate::DFExponent;
+	    break;
+	case 'g':
+	    form = QLocalePrivate::DFSignificantDigits;
+	    break;
+	default:
+#if defined(QT_CHECK_RANGE)
+	    qWarning( "QString::setNum: Invalid format char '%c'", f );
+#endif
+	    break;
     }
-    char format[20];
-    char *fs = format; // generate format string: %.<prec>l<f>
-    *fs++ = '%';
-    if (prec >= 0) {
-	if (prec > 99) // rather than crash in sprintf()
-	    prec = 99;
-	*fs++ = '.';
-	if (prec >= 10) {
-	    * fs++ = prec / 10 + '0';
-	    * fs++ = prec % 10 + '0';
-	} else {
-	    * fs++ = prec + '0';
-	}
-    }
-    *fs++ = 'l';
-    *fs++ = f;
-    *fs = '\0';
-#if !defined( QT_NO_SPRINTF )
-    sprintf(format, n);
+
+    QLocale locale(QLocale::C);
+    *this = locale.d->doubleToString(n, prec, form, -1, flags);
     return *this;
-#else
-    char buf[512];
-#ifdef Q_OS_TEMP
-    const int buffer_size = 10;
-    wchar_t buffer[buffer_size];
-    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer, buffer_size );
-    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
-    ::sprintf( buf, format, n );        // snprintf is unfortunately not portable
-    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
-#else
-    ::sprintf(buf, format, n);        // snprintf is unfortunately not portable
-    qt_fix_double(buf);
-#endif
-    return setLatin1(buf);
-#endif
 }
 
 /*!
@@ -4186,6 +4255,167 @@ QString QString::number(double n, char f, int prec)
     return s;
 }
 
+struct ArgEscapeData
+{
+    uint min_escape;	    // lowest escape sequence number
+    uint occurrences;	    // number of occurences of the lowest escape
+    	    	    	    // sequence number
+    uint locale_occurrences; // number of occurences of the lowest escape
+    	    	    	    // sequence number which contain 'l'
+    uint escape_len;	    // total length of escape sequences which will
+    	    	    	    // be replaced
+};
+
+static ArgEscapeData findArgEscapes(const QString &s)
+{
+    const QChar *uc_begin = s.unicode();
+    const QChar *uc_end = uc_begin + s.length();
+
+    ArgEscapeData d;
+
+    d.min_escape = 10;
+    d.occurrences = 0;
+    d.escape_len = 0;
+    d.locale_occurrences = 0;
+
+    const QChar *c = uc_begin;
+    while (c != uc_end) {
+    	while (c != uc_end && c->unicode() != '%')
+	    ++c;
+
+	if (c == uc_end || ++c == uc_end)
+	    break;
+
+	bool locale_arg = false;
+    	if (c->unicode() == 'l') {
+	    locale_arg = true;
+	    if (++c == uc_end)
+		break;
+	}
+
+    	if (c->unicode() < '0' || c->unicode() > '9')
+	    continue;
+
+	uint escape = c->unicode() - '0';
+    	++c;
+
+    	if (escape > d.min_escape)
+	    continue;
+
+    	if (escape < d.min_escape) {
+	    d.min_escape = escape;
+	    d.occurrences = 0;
+	    d.escape_len = 0;
+	    d.locale_occurrences = 0;
+	}
+
+#if QT_VERSION < 0x040000
+    	// ### remove preprocessor in Qt 4.0
+	/* Since in Qt < 4.0 only the first instance is replaced,
+	   escape_len should hold the length of only the first escape
+	   sequence */
+    	if (d.occurrences == 0)
+#endif
+    	{
+	    ++d.occurrences;
+    	    if (locale_arg) {
+    	    	++d.locale_occurrences;
+		d.escape_len += 3;
+	    }
+	    else
+		d.escape_len += 2;
+	}
+    }
+
+    return d;
+}
+
+static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int field_width,
+    	    	    	    	    const QString &arg, const QString &larg)
+{
+    const QChar *uc_begin = s.unicode();
+    const QChar *uc_end = uc_begin + s.length();
+
+    int abs_field_width = QABS(field_width);
+    uint result_len = s.length()
+    	    	    	- d.escape_len
+			+ (d.occurrences - d.locale_occurrences)
+			    *QMAX(abs_field_width, arg.length())
+			+ d.locale_occurrences
+			    *QMAX(abs_field_width, larg.length());
+
+    QString result;
+    result.setLength(result_len);
+    QChar *result_buff = (QChar*) result.unicode();
+
+    QChar *rc = result_buff;
+    const QChar *c = uc_begin;
+    uint repl_cnt = 0;
+    while (c != uc_end) {
+    	/* We don't have to check if we run off the end of the string with c,
+	   because as long as d.occurrences > 0 we KNOW there are valid escape
+	   sequences. */
+
+    	const QChar *text_start = c;
+
+    	while (c->unicode() != '%')
+	    ++c;
+
+	const QChar *escape_start = c++;
+
+	bool locale_arg = false;
+    	if (c->unicode() == 'l') {
+	    locale_arg = true;
+	    ++c;
+	}
+
+    	if (c->unicode() != '0' + d.min_escape) {
+	    memcpy(rc, text_start, (c - text_start)*sizeof(QChar));
+	    rc += c - text_start;
+	}
+	else {
+    	    ++c;
+
+	    memcpy(rc, text_start, (escape_start - text_start)*sizeof(QChar));
+	    rc += escape_start - text_start;
+
+    	    uint pad_chars;
+    	    if (locale_arg)
+	    	pad_chars = QMAX(abs_field_width, larg.length()) - larg.length();
+	    else
+	    	pad_chars = QMAX(abs_field_width, arg.length()) - arg.length();
+
+    	    if (field_width > 0) { // left padded
+		for (uint i = 0; i < pad_chars; ++i)
+	    	    (rc++)->unicode() = ' ';
+	    }
+
+    	    if (locale_arg) {
+	    	memcpy(rc, larg.unicode(), larg.length()*sizeof(QChar));
+		rc += larg.length();
+	    }
+	    else {
+	    	memcpy(rc, arg.unicode(), arg.length()*sizeof(QChar));
+	    	rc += arg.length();
+	    }
+
+    	    if (field_width < 0) { // right padded
+		for (uint i = 0; i < pad_chars; ++i)
+	    	    (rc++)->unicode() = ' ';
+	    }
+
+	    if (++repl_cnt == d.occurrences) {
+		memcpy(rc, c, (uc_end - c)*sizeof(QChar));
+		rc += uc_end - c;
+		Q_ASSERT(rc - result_buff == (int)result_len);
+		c = uc_end;
+	    }
+	}
+    }
+
+    return result;
+}
+
 /*!
     This function will return a string that replaces the lowest
     numbered occurrence of \c %1, \c %2, ..., \c %9 with \a a.
@@ -4197,10 +4427,10 @@ QString QString::number(double n, char f, int prec)
     The following example shows how we could create a 'status' string
     when processing a list of files:
     \code
-    QString status = QString("Processing file %1 of %2: %3")
-			.arg(i)         // current file's number
-			.arg(total)     // number of files to process
-			.arg(fileName); // current file's name
+    QString status = QString( "Processing file %1 of %2: %3" )
+			.arg( i )         // current file's number
+			.arg( total )     // number of files to process
+			.arg( fileName ); // current file's name
     \endcode
 
     It is generally fine to use filenames and numbers as we have done
@@ -4212,68 +4442,19 @@ QString QString::number(double n, char f, int prec)
     If there is no place marker (\c %1, \c %2, etc.), a warning
     message (qWarning()) is output and the result is undefined.
 */
-QString QString::arg(const QString& a, int fieldWidth) const
+QString QString::arg( const QString& a, int fieldWidth ) const
 {
-    QString paddedArg = a;
-    if (fieldWidth != 0) {
-	int n = QABS(fieldWidth);
-	if (n > (int) a.length()) {
-	    QString padding;
-	    while (n > (int) a.length()) {
-		padding += ' ';
-		n--;
-	    }
-	    if (fieldWidth < 0)
-		paddedArg.append(padding);
-	    else
-		paddedArg.prepend(padding);
-	}
+    ArgEscapeData d = findArgEscapes(*this);
+
+    if (d.occurrences == 0) {
+        qWarning( "QString::arg(): Argument missing: %s, %s", latin1(),
+                  a.latin1() );
+        return *this;
     }
 
-    const QChar *uc = (const QChar*) d->data;
-    const int len = d->size;
-    const int end = len - 1;
-    int numOccurrences = 0;
-    int firstDigit = 10;
-    int i;
-
-    for (i = 0; i < end; i++) {
-	if (uc[i] == '%') {
-	    int digit = uc[i + 1].unicode() - '0';
-	    if (digit >= 0 && digit <= firstDigit) {
-		if (digit < firstDigit) {
-		    firstDigit = digit;
-		    numOccurrences = 0;
-		}
-		numOccurrences++;
-	    }
-	}
-    }
-
-    if (firstDigit == 10) {
-	qWarning("QString::arg(): Argument missing: %s, %s", latin1(), a.latin1());
-	return *this;
-    } else {
-	QString result;
-	i = 0;
-	while (i < len) {
-	    if (uc[i] == '%' && i != end) {
-		int digit = uc[i + 1].unicode() - '0';
-		if (digit == firstDigit) {
-		    result += paddedArg;
-		    i += 2;
-		    if (--numOccurrences == 0) {
-			result += mid(i);
-			return result;
-		    }
-		    continue;
-		}
-	    }
-	    result += uc[i++];
-	}
-	return result;
-    }
+    return replaceArgEscapes(*this, d, fieldWidth, a, a);
 }
+
 
 /*!
     \fn QString QString::arg(const QString& a1, const QString& a2) const
@@ -4330,9 +4511,27 @@ QString QString::arg(const QString& a, int fieldWidth) const
 	// str == "Decimal 63 is 3f in hexadecimal"
     \endcode
 */
-QString QString::arg(Q_LLONG a, int fieldWidth, int base) const
+QString QString::arg( Q_LLONG a, int fieldWidth, int base ) const
 {
-    return arg(QString::number(a, base), fieldWidth);
+    ArgEscapeData d = findArgEscapes(*this);
+
+    if (d.occurrences == 0) {
+        qWarning( "QString::arg(): Argument missing: %s, %lld", latin1(),
+                  a );
+        return *this;
+    }
+
+    QString arg;
+    if (d.occurrences > d.locale_occurrences)
+    	arg = number(a, base);
+
+    QString locale_arg;
+    if (d.locale_occurrences > 0) {
+	QLocale locale(QLocale::DefaultLanguage);
+	locale_arg = locale.d->longLongToString(a, -1, base, -1, QLocalePrivate::ThousandsGroup);
+    }
+
+    return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg);
 }
 
 /*!
@@ -4341,9 +4540,27 @@ QString QString::arg(Q_LLONG a, int fieldWidth, int base) const
     \a a is expressed in base \a base, which is 10 by default and must
     be between 2 and 36.
 */
-QString QString::arg(Q_ULLONG a, int fieldWidth, int base) const
+QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
 {
-    return arg(QString::number(a, base), fieldWidth);
+    ArgEscapeData d = findArgEscapes(*this);
+
+    if (d.occurrences == 0) {
+        qWarning( "QString::arg(): Argument missing: %s, %llu", latin1(),
+                  a );
+        return *this;
+    }
+
+    QString arg;
+    if (d.occurrences > d.locale_occurrences)
+    	arg = number(a, base);
+
+    QString locale_arg;
+    if (d.locale_occurrences > 0) {
+	QLocale locale(QLocale::DefaultLanguage);
+	locale_arg = locale.d->unsLongLongToString(a, -1, base, -1, QLocalePrivate::ThousandsGroup);
+    }
+
+    return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg);
 }
 
 /*!
@@ -4433,10 +4650,56 @@ QString QString::arg(QChar a, int fieldWidth) const
 	// ds == "1.234E+001"
     \endcode
 */
-QString QString::arg(double a, int fieldWidth, char fmt, int prec) const
+QString QString::arg( double a, int fieldWidth, char fmt, int prec ) const
 {
-    return arg(QString::number(a, fmt, prec), fieldWidth);
+    ArgEscapeData d = findArgEscapes(*this);
+
+    if (d.occurrences == 0) {
+        qWarning( "QString::arg(): Argument missing: %s, %g", latin1(),
+                  a );
+        return *this;
+    }
+
+    QString arg;
+    if (d.occurrences > d.locale_occurrences)
+    	arg = number(a, fmt, prec);
+
+    QString locale_arg;
+    if (d.locale_occurrences > 0) {
+	QLocale locale(QLocale::DefaultLanguage);
+
+	QLocalePrivate::DoubleForm form = QLocalePrivate::DFDecimal;
+	uint flags = 0;
+
+	if (qIsUpper(fmt))
+    	    flags = QLocalePrivate::CapitalEorX;
+	fmt = qToLower(fmt);
+
+	switch (fmt) {
+	    case 'f':
+		form = QLocalePrivate::DFDecimal;
+		break;
+	    case 'e':
+		form = QLocalePrivate::DFExponent;
+		break;
+	    case 'g':
+		form = QLocalePrivate::DFSignificantDigits;
+		break;
+	    default:
+#if defined(QT_CHECK_RANGE)
+		qWarning( "QString::setNum: Invalid format char '%c'", fmt );
+#endif
+		break;
+	}
+
+    	flags |= QLocalePrivate::ThousandsGroup;
+
+	locale_arg = locale.d->doubleToString(a, prec, form, -1, flags);
+    }
+
+    return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg);
 }
+
 
 QString QString::multiArg(int numArgs, const QString& a1, const QString& a2,
 			   const QString& a3, const QString& a4) const

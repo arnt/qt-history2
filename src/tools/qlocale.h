@@ -424,10 +424,12 @@ SouthGeorgiaAndTheSouthSandwichIslands = 196,
 	    { return toString((Q_LLONG)i); }
     	QString toString(uint i) const
 	    { return toString((Q_ULLONG)i); }
+#if !defined(Q_OS_WIN64)
     	QString toString(Q_LONG i) const
 	    { return toString((Q_LLONG)i); }
     	QString toString(Q_ULONG i) const
 	    { return toString((Q_ULLONG)i); }
+#endif
     	QString toString(Q_LLONG i) const;
     	QString toString(Q_ULLONG i) const;
     	QString toString(float i, char f = 'g', int prec = 6) const
