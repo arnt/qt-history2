@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#48 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#49 $
 **
 ** Definition of QListView widget class
 **
@@ -62,9 +62,9 @@ public:
     virtual const char * key( int, bool ) const;
     virtual void sortChildItems( int, bool );
 
-    int children() const { return childCount; }
+    int childCount() const { return nChildren; }
 
-    bool isOpen() const { return open && childCount>0; } // ###
+    bool isOpen() const { return open && nChildren>0; } // ###
     virtual void setOpen( bool );
     virtual void setup();
 
@@ -104,7 +104,7 @@ private:
     void init();
     int ownHeight;
     int maybeTotalHeight;
-    int childCount;
+    int nChildren;
 
     uint lsc: 14;
     uint lso: 1;

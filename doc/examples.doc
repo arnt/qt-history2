@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.14 1998/05/26 23:37:26 agulbra Exp $
+** $Id: examples.doc,v 2.15 1998/06/01 12:52:32 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.14 1998/05/26 23:37:26 agulbra Exp $";
+static char ident[] = "$Id: examples.doc,v 2.15 1998/06/01 12:52:32 agulbra Exp $";
 #endif
 
 
@@ -295,3 +295,20 @@ magnified area as a .bmp file. */
 */
 
 
+/*! \example dirview/dirview.cpp
+
+  <h1 align=center>A Directory Browser</h1><br clear="all">
+
+  This example program demonstrates how to use QListView and
+  QListViewItem to build a multi-column hierarchical, memory- and
+  CPU-efficient directory browser.
+
+  Here is the header file:
+
+  \include dirview/dirview.h
+
+  And here is the main implementation file.  Note the way the program
+  scans subdirectories only when it has to.  This allows the program
+  to handle very large file systems efficiently.  The same technique
+  can be used in any other trees.
+*/
