@@ -181,7 +181,7 @@ void QSqlTable::addColumn( const QSqlField* field )
 {
     if ( cursor() && field && field->isVisible() && !field->isPrimaryIndex() ) {
 	setNumCols( numCols() + 1 );
-	d->colIndex.append( field->fieldNumber() );
+	d->colIndex.append( cursor()->position( field->name() ) );
 	if ( field->isReadOnly() )
 	    d->colReadOnly.append( TRUE );
 	else
@@ -229,8 +229,10 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
 {
     if ( col >= (uint)numCols() )
 	return;
+    if ( !cursor() )
+	return;
     if ( field->isVisible() && !field->isPrimaryIndex() ) {
-	d->colIndex[ col ] = field->fieldNumber();
+	d->colIndex[ col ] = cursor()->position( field->name() );
 	if ( field->isReadOnly() )
 	    d->colReadOnly[ col ] =  TRUE;
 	else

@@ -119,7 +119,7 @@ int QSqlRecord::position( const QString& name ) const
 	    return i;
     }
 #ifdef QT_CHECK_RANGE
-    qWarning("QSqlRecord::position: unable to find field " + name );
+    qWarning( "QSqlRecord::position: unable to find field " + name );
 #endif
     return -1;
 }

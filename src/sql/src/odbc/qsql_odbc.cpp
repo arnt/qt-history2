@@ -223,7 +223,7 @@ QSqlField qMakeField( const QODBCPrivate* p, int i  )
 	qSqlWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
 #endif
     QVariant::Type type = qDecodeODBCType( colType );
-    return QSqlField( qColName, i, type );
+    return QSqlField( qColName, type );
 }
 
 QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator, bool& isNull )
@@ -450,7 +450,7 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
     if ( r == SQL_SUCCESS ) {
 	bool isNull;
 	int type = qGetIntData( hStmt, 4, isNull ); // column type
-	QSqlField f( fieldname, 0, qDecodeODBCType( type ) );
+	QSqlField f( fieldname, qDecodeODBCType( type ) );
 	fi = f;
     }
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
@@ -1078,18 +1078,15 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
     r = SQLFetchScroll( hStmt,
                         SQL_FETCH_NEXT,
                         0);
-    int count = 0;
     while ( r == SQL_SUCCESS ) {
 	SQLINTEGER lengthIndicator = 0;
 	bool isNull;
 	QString fieldVal = qGetStringData( hStmt, 3, lengthIndicator, isNull ); // column name
 	QSqlField f = qMakeField( d, tablename, fieldVal );
-	f.setFieldNumber( count );
 	index.append( f );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
-	count++;
     }
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
     return index;
@@ -1157,7 +1154,6 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
 	SQLINTEGER lengthIndicator(0);
 	QString fieldname = qGetStringData( hStmt, 3, lengthIndicator, isNull );
 	QSqlField f = qMakeField( d, tablename, fieldname );
-	f.setFieldNumber( count );
 	fil.append( f );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,

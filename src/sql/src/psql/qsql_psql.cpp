@@ -204,7 +204,7 @@ QSqlField qMakeField( QPSQLDriver::Protocol protocol, const QSqlDriver* driver, 
     QSqlQuery fi = driver->createQuery();
     fi.exec( stmt.arg( tablename ).arg( fieldname ) );
     if ( fi.next() ) {
-	QSqlField f( fieldname, 0, qDecodePSQLType( fi.value(0).toInt()) );
+	QSqlField f( fieldname, qDecodePSQLType( fi.value(0).toInt()) );
 	f.setPrimaryIndex( qIsPrimaryIndex( protocol, driver, tablename, fieldname ) );
 	return f;
     }
@@ -675,7 +675,6 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
     i.exec( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	QSqlField f = qMakeField( pro, this, tablename,  i.value(0).toString() );
-	f.setFieldNumber( i.at() );
 	idx.append( f );
     }
     return idx;
@@ -701,7 +700,6 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
     fi.exec( stmt.arg( tablename ) );
     while ( fi.next() ) {
 	QSqlField f = qMakeField( pro, this, tablename, fi.value(0).toString() );
-	f.setFieldNumber( fi.at() );
 	fil.append( f );
     }
     return fil;
@@ -716,7 +714,7 @@ QSqlRecord QPSQLDriver::record( const QSqlQuery& query ) const
 	for ( int i = 0; i < count; ++i ) {
 	    QString name = PQfname( result->d->result, i );
 	    QVariant::Type type = qDecodePSQLType( PQftype( result->d->result, i ) );
-	    QSqlField rf( name, i, type );
+	    QSqlField rf( name, type );
 	    fil.append( rf );
 	}
     }

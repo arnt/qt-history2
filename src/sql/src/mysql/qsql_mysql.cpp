@@ -106,10 +106,10 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
     return type;
 }
 
-QSqlField qMakeField( const MYSQL_FIELD* f, int fieldNumber )
+QSqlField qMakeField( const MYSQL_FIELD* f )
 {
     const char* c = (const char*)f->name;
-    return QSqlField( QString(c), fieldNumber, qDecodeMYSQLType(f->type) );
+    return QSqlField( QString(c), qDecodeMYSQLType(f->type) );
 }
 
 QMYSQLResult::QMYSQLResult( const QMYSQLDriver* db )
@@ -164,7 +164,7 @@ QVariant QMYSQLResult::data( int field )
 	MYSQL_FIELD* f = mysql_fetch_field_direct( d->result, field );
 	if ( f ) {
 	    QString val( ( d->row[field] ) );
-	    QSqlField info = qMakeField( f, field );
+	    QSqlField info = qMakeField( f );
 	    switch ( info.type() ) {
 	    case QVariant::Int:
 		return QVariant( val.toInt() );
@@ -360,7 +360,7 @@ QSqlRecord QMYSQLDriver::record( const QString& tablename ) const
     QSqlQuery i = createQuery();
     i.exec( fieldStmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
-	QSqlField f ( i.value(0).toString() , i.at(), qDecodeMYSQLType(i.value(1).toInt()) );
+	QSqlField f ( i.value(0).toString() , qDecodeMYSQLType(i.value(1).toInt()) );
 	fil.append ( f );
     }
     return fil;
@@ -373,15 +373,13 @@ QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
 	QMYSQLResult* result =  (QMYSQLResult*)query.result();
 	QMYSQLPrivate* p = result->d;
 	if ( !mysql_errno( p->mysql ) ) {
-	    int count = 0;
 	    for ( ;; ) {
 		MYSQL_FIELD* f = mysql_fetch_field( p->result );
 		if ( f ) {
-		    QSqlField fi( QString((const char*)f->name), count, qDecodeMYSQLType( f->type ) );
+		    QSqlField fi( QString((const char*)f->name), qDecodeMYSQLType( f->type ) );
 		    fil.append( fi  );
 		} else
 		    break;
-		count++;
 	    }
 	}
 	mysql_field_seek( p->result, 0 );

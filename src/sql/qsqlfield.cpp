@@ -46,17 +46,17 @@
 */
 
 
-/*!
-  Constructs an empty SQL field using the field name \a fieldName
-  and field number \a fieldNumber.  By default, the fields displayLabel()
-  uses \a fieldName.
+/*!  Constructs an empty SQL field using the field name \a fieldName,
+  field type \a type and display label \a displayLabel.  If not
+  display label is specified, the display label defaults to \a
+  fieldName.
 
   \sa setDisplayLabel() setReadOnly()
 
 */
 
-QSqlField::QSqlField( const QString& fieldName, int fieldNumber, QVariant::Type type )
-    : nm(fieldName), num(fieldNumber), label(fieldName), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE), cf(FALSE)
+QSqlField::QSqlField( const QString& fieldName, QVariant::Type type, const QString& displayLabel )
+    : nm(fieldName), label(fieldName), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE), cf(FALSE)
 {
     val.cast( type );
     switch( type ) {
@@ -71,14 +71,13 @@ QSqlField::QSqlField( const QString& fieldName, int fieldNumber, QVariant::Type 
 }
 
 QSqlField::QSqlField( const QSqlField& other )
-    : nm( other.nm ), num( other.num ), val( other.val ), label( other.label ), ro( other.ro ), nul( other.nul ), pIdx( other.pIdx ), iv( other.iv ), cf( other.cf )
+    : nm( other.nm ), val( other.val ), label( other.label ), ro( other.ro ), nul( other.nul ), pIdx( other.pIdx ), iv( other.iv ), cf( other.cf )
 {
 }
 
 QSqlField& QSqlField::operator=( const QSqlField& other )
 {
     nm = other.nm;
-    num = other.num;
     val = other.val;
     label = other.label;
     ro = other.ro;
@@ -92,7 +91,6 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
 bool QSqlField::operator==(const QSqlField& other) const
 {
     return ( nm == other.nm &&
-	     num == other.num &&
 	     val == other.val &&
 	     label == other.label &&
 	     ro == other.ro &&
@@ -166,14 +164,6 @@ void QSqlField::clear()
 
 /*! \fn QString QSqlField::name() const
   Returns the name of the field.
-*/
-
-/*! \fn void QSqlField::setFieldNumber( int fieldNumber )
-  Sets the field number of the field to \a fieldNumber.
-*/
-
-/*! \fn int QSqlField::fieldNumber() const
-  Returns the field number of the field.
 */
 
 /*! \fn QVariant::Type QSqlField::type() const

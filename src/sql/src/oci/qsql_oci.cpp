@@ -595,7 +595,7 @@ bool QOCIResult::reset ( const QString& query )
 				  count );
 	while ( parmStatus == OCI_SUCCESS ) {
 	    OraFieldInfo ofi = qMakeOraField( d, param );
-	    QSqlField fi( ofi.name, count, ofi.type );
+	    QSqlField fi( ofi.name, ofi.type );
 	    fs.append( fi );
 	    count++;
 	    parmStatus = OCIParamGet( d->sql,
@@ -953,7 +953,7 @@ QSqlRecord QOCIDriver::record( const QString& tablename ) const
     while ( t.next() ) {
 	QString dt = t.value(1).toString();
 	QVariant::Type ty = qDecodeOCIType( dt, t.value(1).toInt(), t.value(2).toInt(), t.value(3).toInt() );
-	QSqlField f( t.value(0).toString(), t.at(), ty );
+	QSqlField f( t.value(0).toString(), ty );
 	fil.append( f );
     }
     QSqlQuery t2 = createQuery();
@@ -995,7 +995,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     t.exec( stmt.arg( tablename.upper() ) );
     QSqlIndex idx( tablename );
     if ( t.next() ) {
-	QSqlField f(t.value(0).toString(), t.at(), qDecodeOCIType(t.value(1).toInt()) );
+	QSqlField f(t.value(0).toString(), qDecodeOCIType(t.value(1).toInt()) );
 	idx.append( f );
     }
     return idx;

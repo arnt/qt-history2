@@ -50,7 +50,7 @@ class QSqlFieldPrivate;
 class Q_EXPORT QSqlField
 {
 public:
-    QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
+    QSqlField( const QString& fieldName = QString::null, QVariant::Type type = QVariant::Invalid, const QString& displayLabel = QString::null );
     QSqlField( const QSqlField& other );
     QSqlField& operator=( const QSqlField& other );
     bool operator==(const QSqlField& other) const;
@@ -62,8 +62,6 @@ public:
 
     void               setName( const QString& name ) { nm = name; }
     QString            name() const { return nm; }
-    void               setFieldNumber( int fieldNumber ) { num = fieldNumber;}
-    int                fieldNumber() const { return num; }
     QVariant::Type     type() const { return val.type(); }
 
     void               setDisplayLabel( const QString& l ) { label = l; }
@@ -83,7 +81,6 @@ public:
 
 private:
     QString       nm;
-    int           num;
     QVariant      val;
     QString       label;
     bool          ro;
