@@ -457,17 +457,10 @@ QTextCursor *QTextParagTypeCommand::unexecute( QTextCursor *c )
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextCursor::QTextCursor( QTextDocument *d )
-    : doc( d ), ox( 0 ), oy( 0 )
+    : doc( d ), idx( 0 ), tmpIndex( -1 ), ox( 0 ), oy( 0 ), 
+      nested( FALSE), valid( TRUE )
 {
-    nested = FALSE;
-    idx = 0;
     string = doc ? doc->firstParag() : 0;
-    tmpIndex = -1;
-    valid = TRUE;
-}
-
-QTextCursor::QTextCursor()
-{
 }
 
 QTextCursor::QTextCursor( const QTextCursor &c )

@@ -246,8 +246,7 @@ template class Q_EXPORT QValueStack<bool>;
 class Q_EXPORT QTextCursor
 {
 public:
-    QTextCursor( QTextDocument *d );
-    QTextCursor();
+    QTextCursor( QTextDocument *d = 0 );
     QTextCursor( const QTextCursor &c );
     QTextCursor &operator=( const QTextCursor &c );
     virtual ~QTextCursor() {}
