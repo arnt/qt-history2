@@ -336,7 +336,8 @@ void QLineEdit::setText( const QString &text )
     d->parag->truncate( 0 );
     d->parag->append( text );
     d->cursor->setIndex( d->parag->length() - 1 );
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
+    if ( hasFocus() )
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
     deselect();
     update();
     if ( oldText != text )
@@ -358,7 +359,8 @@ void QLineEdit::selectAll()
     d->selectionStart = 0;
     d->cursor->gotoEnd();
     updateSelection();
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
+    if ( hasFocus() )
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
     update();
 }
 
@@ -1097,7 +1099,8 @@ void QLineEdit::cursorForward( bool mark, int steps )
 	deselect();
 	d->selectionStart = d->cursor->index();
     }
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
+    if ( hasFocus() )
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
     update();
 }
 
@@ -1270,7 +1273,8 @@ void QLineEdit::setAlignment( int flag )
     d->parag->invalidate( 0 );
     d->parag->format();
     updateOffset();
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
+    if ( hasFocus() )
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
     update();
 }
 
@@ -1631,7 +1635,8 @@ void QLineEdit::insert( const QString &newText )
     update();
     d->selectionStart = d->cursor->index();
     d->undoRedoInfo.text += t;
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
+    if ( hasFocus() )
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
 }
 
 
@@ -1759,7 +1764,8 @@ void QLineEdit::cursorWordForward( bool mark )
 	deselect();
 	d->selectionStart = d->cursor->index();
     }
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
+    if ( hasFocus() )
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
     update();
 }
 
@@ -1778,7 +1784,8 @@ void QLineEdit::cursorWordBackward( bool mark )
 	deselect();
 	d->selectionStart = d->cursor->index();
     }
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
+    if ( hasFocus() )
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
     update();
 }
 
@@ -1850,7 +1857,8 @@ void QLineEdit::removeSelectedText()
 #ifndef QT_NO_CURSOR
     setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
+    if ( hasFocus() )
+	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, fontMetrics().height(), TRUE );
 }
 
 
