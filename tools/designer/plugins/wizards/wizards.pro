@@ -6,7 +6,7 @@ sql {
 	}
 SOURCES		+= main.cpp
 DESTDIR		= ../../../../plugins/designer
-INCLUDEPATH	+= $(QTDIR)/tools/designer/interfaces
+INCLUDEPATH	+= ../../interfaces
 
 target.path=$$plugins.path
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins
