@@ -165,6 +165,34 @@ QBitmap::QBitmap( const QBitmap &bitmap )
 {
 }
 
+
+/*!
+    Constructs a bitmap that is a copy of \a pixmap.
+    
+    Dithering will be performed if the pixmap has a QPixmap::depth()
+    greater than 1.
+*/
+
+QBitmap::QBitmap(const QPixmap &pixmap)
+{
+    data->bitmap = TRUE;
+    QBitmap::operator=(pixmap);
+}
+
+/*!
+    Constructs a bitmap that is a copy of \a image.
+    
+    Dithering will be performed if the image has a QImage::depth()
+    greater than 1.
+*/
+
+QBitmap::QBitmap(const QImage &image)
+{
+    data->bitmap = TRUE;
+    QBitmap::operator=(image);
+}
+
+
 #ifndef QT_NO_IMAGEIO
 /*!
     Constructs a bitmap from the file \a fileName. If the file does

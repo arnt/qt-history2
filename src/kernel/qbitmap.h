@@ -31,6 +31,8 @@ public:
     QBitmap( int w, int h,  const uchar *bits, bool isXbitmap=FALSE );
     QBitmap( const QSize &, const uchar *bits, bool isXbitmap=FALSE );
     QBitmap( const QBitmap & );
+    QBitmap(const QPixmap &);
+    QBitmap(const QImage &);
 #ifndef QT_NO_IMAGEIO
     QBitmap( const QString &fileName, const char *format=0 );
 #endif
