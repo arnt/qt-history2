@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qsortedlist.doc,v 1.3 1999/04/28 09:54:12 aavit Exp $
+** $Id: qsortedlist.doc,v 1.4 1999/10/25 14:49:10 arnt Exp $
 **
 ** QSortedList documentation
 **
@@ -28,15 +28,18 @@
 
 /*!
   \class QSortedList qsortedlist.h
-  \brief The QSortedList class allows sorting of elements which implement operator<
+  \brief The QSortedList class provides a list sorted by operator< and operator==
 
   \ingroup collection
   \ingroup tools
 
-  If you want to sort a QList you have to reimplement the QGList::compareItems
-  method. If the elements of your list support the operator< and
-  operator== then you can use QSortedList instead. It does not force
-  you to reimplement QGList::compareItems to sort the list.
+  If you want to sort a QList you have to reimplement the
+  QGList::compareItems() method.  If the elements of your list support
+  operator<() and operator==() then you can use QSortedList instead.
+  Its compareItems() calls operator<() and operator==() and returns an
+  appropriate result.
+
+  Otherwise, this is as QList.
 
   \sa QList, \link collection.html Collection Classes\endlink
 */
@@ -71,8 +74,9 @@
 */
 
 /*!
-   \fn int QGList::compareItems( GCI item1, GCI item2 )
-   compares the two items. Therefor it uses the
-   operator< and operator== implementation of the lists
-   elements.
+   \fn int QSortedList::compareItems( GCI item1, GCI item2 )
+
+   \reimp
+
+   This reimplementation uses operator< and operator== to compare.
 */

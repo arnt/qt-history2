@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.31 1999/10/16 23:48:19 warwick Exp $
+** $Id: qlist.doc,v 2.32 1999/10/25 14:49:09 arnt Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -162,15 +162,15 @@
 /*!
   \fn void QList::sort() const
 
-/*! Sorts the list by the result of the virtual compareItems() function.
+  Sorts the list by the result of the virtual compareItems() function.
 
   The Heap-Sort algorithm is used for sorting.  It sorts n items with
   O(n*log n) compares.  This is the asymptotic optimal solution of the
   sorting problem.
 
   If the items in your list support operator< and operator== then you
-  might be better off with QSortedList since it implements the compareItems
-  function for you using these two operators.
+  might be better off with QSortedList since it implements the
+  compareItems() function for you using these two operators.
 
   \sa inSort()
 */
@@ -219,7 +219,21 @@
 */
 
 /*!
+  \fn void QList::append( const type *item )
+  Inserts the \e item at the end of the list.
+
+  The inserted item becomes the current list item.
+  This is equivalent to \c insert(count(),item).
+
+
+  The \e item must not be a null pointer.
+
+  \sa insert(), current(), prepend()
+*/
+
+/*!
   \fn void QList::prepend( const type *item )
+
   Inserts the \e item at the start of the list.
 
   The inserted item becomes the current list item.
@@ -228,17 +242,6 @@
   The \e item must not be a null pointer.
 
   \sa append(), insert(), current()
-*/
-
-/*!
-  \fn void QList::append( const type *item )
-  Inserts the \e item at the end of the list.
-
-  The inserted item becomes the current list item.
-
-  The \e item must not be a null pointer.
-
-  \sa prepend(), insert(), current()
 */
 
 /*!
