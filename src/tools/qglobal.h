@@ -350,7 +350,8 @@
 #    define Q_CC_HPACC
 #  else
 #    define Q_CC_HP
-#    define Q_NO_BOOL_TYPE
+/* bool is a reserved keyword in later versions */
+#    define bool int
 #    define Q_FULL_TEMPLATE_INSTANTIATION
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #  endif
