@@ -102,11 +102,6 @@ static const DragSendDataUPP make_sendUPP()
     return qt_mac_send_handlerUPP = NewDragSendDataUPP(qt_mac_send_handler);
 }
 
-//cursors
-static QCursor *noDropCursor = 0;
-static QCursor *moveCursor = 0;
-static QCursor *copyCursor = 0;
-static QCursor *linkCursor = 0;
 //default pixmap
 static const int default_pm_hotx = -2;
 static const int default_pm_hoty = -16;
@@ -125,30 +120,18 @@ static const char* default_pm[] = {
 " X X X X X X ",
 "X X X X X X X",
 };
-static void qt_mac_dnd_cleanup()
-{
-    delete noDropCursor;
-    noDropCursor = NULL;
-    delete moveCursor;
-    moveCursor = NULL;
-    delete copyCursor;
-    copyCursor = NULL;
-    delete linkCursor;
-    linkCursor = NULL;
-}
 
 //used to set the dag state
 void updateDragMode(DragReference drag) {
     if(set_drag_mode == QDragObject::DragDefault) {
         SInt16 mod;
         GetDragModifiers(drag, &mod, NULL, NULL);
-        if((mod & optionKey) || (mod & rightOptionKey)) {
-//            SetDragAllowableActions(drag, kDragActionCopy, false);
+        if((mod & (optionKey|cmdKey)) == (optionKey|cmdKey)) 
+            current_drag_action = QDropEvent::Link;
+        else if((mod & optionKey) || (mod & rightOptionKey))
             current_drag_action = QDropEvent::Copy;
-        } else {
-//            SetDragAllowableActions(drag, kDragActionMove, false);
+        else 
             current_drag_action = QDropEvent::Move;
-        }
     } else {
         if(set_drag_mode == QDragObject::DragMove)
             current_drag_action = QDropEvent::Move;
@@ -367,21 +350,28 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
 #endif
 
     //set the cursor
-    const QCursor *dnd_cursor = NULL;
+    bool found_cursor = false;
     if(kind == kEventControlDragWithin || kind == kEventControlDragEnter) {
         if(ret) {
-            if(current_drag_action == QDropEvent::Move)
-                dnd_cursor = moveCursor;
-            else if(current_drag_action == QDropEvent::Copy)
-                dnd_cursor = copyCursor;
-            else if(current_drag_action == QDropEvent::Link)
-                dnd_cursor = linkCursor;
+            if(current_drag_action == QDropEvent::Move) {
+                found_cursor = true;
+                SetThemeCursor(kThemeArrowCursor);
+            } else if(current_drag_action == QDropEvent::Copy) {
+                found_cursor = true;
+                SetThemeCursor(kThemeCopyArrowCursor);
+            } else if(current_drag_action == QDropEvent::Link) {
+                found_cursor = true;
+                SetThemeCursor(kThemeAliasArrowCursor);
+            }
         } else {
-            dnd_cursor = noDropCursor;
+            found_cursor = true;
+            SetThemeCursor(kThemeNotAllowedCursor);
         }
     }
-    QCursor cursor(Qt::ArrowCursor);
-    if(!dnd_cursor) {
+    if(found_cursor) {
+        qt_mac_set_cursor(0, 0); //just use our's
+    } else {
+        QCursor cursor(Qt::ArrowCursor);
         if(qApp && qApp->overrideCursor()) {
             cursor = *qApp->overrideCursor();
         } else if(q) {
@@ -392,10 +382,8 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
                 }
             }
         }
-    } else {
-        cursor = *dnd_cursor;
+        qt_mac_set_cursor(&cursor, &mouse);
     }
-    qt_mac_set_cursor(&cursor, &mouse);
 
     //idle things
     if(qGlobalPostedEventsCount()) {
@@ -440,17 +428,6 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
         return(!result);
     }
     SetDragSendProc(theDrag, make_sendUPP(), o); //fullfills the promise!
-
-    if(!noDropCursor) {
-        noDropCursor = new QCursor(Qt::ForbiddenCursor);
-        if(!pm_cursor[0].isNull())
-            moveCursor = new QCursor(pm_cursor[0], 0,0);
-        if(!pm_cursor[1].isNull())
-            copyCursor = new QCursor(pm_cursor[1], 0,0);
-        if(!pm_cursor[2].isNull())
-            linkCursor = new QCursor(pm_cursor[2], 0,0);
-        qAddPostRoutine(qt_mac_dnd_cleanup);
-    }
 
     const char* mime;
     QList<QMacMime*> all = QMacMime::all(QMacMime::MIME_DND);
