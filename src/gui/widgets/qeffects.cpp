@@ -558,7 +558,7 @@ void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
     qApp->sendPostedEvents( w, QEvent::Resize );
 #ifdef Q_WS_X11
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop
-	| (w->isPopup() ? Qt::WType_Popup : (Qt::WX11BypassWM | Qt::WStyle_Tool));
+	| (w->isPopup() ? Qt::WFlags(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
 #else
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop;
 #endif
@@ -583,7 +583,7 @@ void qFadeEffect( QWidget* w, int time )
 
 #ifdef Q_WS_X11
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop
-	| (w->isPopup() ? Qt::WType_Popup : (Qt::WX11BypassWM | Qt::WStyle_Tool));
+	| (w->isPopup() ? QFlag(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
 #else
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop;
 #endif

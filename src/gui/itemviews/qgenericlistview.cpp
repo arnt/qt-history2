@@ -569,8 +569,8 @@ void QGenericListView::getViewOptions(QItemOptions *options) const
 {
     QAbstractItemView::getViewOptions(options);
     options->smallItem = !d->wrap;
-    options->iconAlignment = (d->wrap ? Qt::AlignTop : Qt::AlignLeft | Qt::AlignVCenter);
-    options->textAlignment = (d->wrap ? Qt::AlignCenter : Qt::AlignLeft | Qt::AlignVCenter);
+    options->iconAlignment = (d->wrap ? QFlag(Qt::AlignTop) : Qt::AlignLeft | Qt::AlignVCenter);
+    options->textAlignment = (d->wrap ? QFlag(Qt::AlignCenter) : Qt::AlignLeft | Qt::AlignVCenter);
 }
 
 void QGenericListView::drawContents(QPainter *painter, int cx, int cy, int cw, int ch)

@@ -418,7 +418,7 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem
 	    }
 	} else {
 	    // we can take a shortcut
-	    XDrawString16(dpy, hd, gc, x.toInt(), y.toInt(), chars, si.num_glyphs );
+	    XDrawString16(dpy, hd, gc, x.toInt(), y.toInt(), chars.data(), si.num_glyphs );
 	    x += si.width;
 	}
     }
@@ -610,7 +610,7 @@ bool QFontEngineXLFD::canRender( const QChar *string, int len )
     int nglyphs = len;
     if ( stringToCMap( string, len, glyphs, &nglyphs, 0 ) == OutOfMemory ) {
 	glyphs.resize(nglyphs);
-	stringToCMap( string, len, glyphs, &nglyphs, FALSE );
+	stringToCMap( string, len, glyphs, &nglyphs, 0 );
     }
 
     bool allExist = TRUE;
@@ -739,7 +739,7 @@ void QFontEngineLatinXLFD::findEngine( const QChar &ch )
 	chars[i] = i;
     chars[0x200] = 0x20ac;
     int glyphCount = 0x201;
-    engine->stringToCMap( (const QChar *) chars, 0x201, glyphs, &glyphCount, FALSE );
+    engine->stringToCMap( (const QChar *) chars, 0x201, glyphs, &glyphCount, 0 );
 
     // merge member data with the above
     for ( i = 0; i < 0x200; ++i ) {
@@ -1039,8 +1039,7 @@ void QFontEngineLatinXLFD::setScale( double scale )
     chars[0x200] = 0x20ac;
     int glyphCount = 0x201;
     QGlyphLayout glyphs[0x201];
-    _engines[0]->stringToCMap( (const QChar *)chars, 0x200,
-			       glyphs, &glyphCount, FALSE );
+    _engines[0]->stringToCMap( (const QChar *)chars, 0x200, glyphs, &glyphCount, 0 );
     for (int i = 0; i < 0x200; ++i) {
 	glyphIndices[i] = glyphs[i].glyph;
 	glyphAdvances[i] = glyphs[i].advance.x;
