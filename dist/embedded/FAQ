@@ -12,18 +12,18 @@ A. General release is targeted for Q3 2000. Pre-releases may be available
 
 
 Q. How is Qt/Embedded licensed?
-A. - Application programmers will need a standard Qt Professional Edition
-     license for the Qt/Embedded platform, available under terms similar to
-     those for Qt/X11 and Qt/Windows.
+A. - You need one Qt/Embedded Professional Edition license for each
+     application programmer.
    - Re-distributors of the Qt/Embedded library (generally hardware vendors)
-     will require run-time license Qt/Embedded per-device.
+     will require per-device runtime licenses of Qt/Embedded.
 
 
 Q. What does it cost?
-A. The Qt/Embedded Professional Edition is available under terms
-   similar to those for Qt/X11 and Qt/Windows. The price of the
-   runtime licenses vary with the number of licenses purchased. Please
-   e-mail sales@trolltech.com for details.
+A. The Qt/Embedded Professional Edition is available under terms similar to
+   those for Qt/X11 and Qt/Windows. The price of the runtime licenses
+   vary with the number of licenses purchased.
+
+   Please e-mail sales@trolltech.com for details.
 
 
 Q. Will it be possible for third parties to write commercial software for
