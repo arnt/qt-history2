@@ -780,77 +780,56 @@ static void xim_destroy_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*
 void QApplication::create_xim()
 {
 #if !defined(NO_XIM)
-
     qt_xim = XOpenIM( appDpy, 0, 0, 0 );
-
-	if ( qt_xim ) {
+    if ( qt_xim ) {
 #ifdef USE_X11R6_XIM
-		XIMCallback	destroy;
-		destroy.callback=(XIMProc)xim_destroy_callback;
-		destroy.client_data=NULL;
-		if (XSetIMValues(qt_xim,XNDestroyCallback,&destroy,NULL)!=NULL)
-			qWarning( "Xlib dosn't support destroy callback");
+	XIMCallback destroy;
+	destroy.callback = (XIMProc)xim_destroy_callback;
+	destroy.client_data = NULL;
+	if ( XSetIMValues( qt_xim, XNDestroyCallback, &destroy, NULL) != 0 )
+	    qWarning( "Xlib dosn't support destroy callback");
 #endif
-	    XIMStyles *styles=0;
-	    XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
-	    if ( styles ) {
-		bool done = FALSE;
-		int i;
-		for ( i = 0; !done && i < styles->count_styles; i++ ) {
-		    if ( styles->supported_styles[i] == xim_preferred_style ) {
-			qt_xim_style = xim_preferred_style;
-			done = TRUE;
-		    }
-		}
-		// if the preferred input style couldn't be found, look for
-		// Nothing and failing that, None.
-		for ( i = 0; !done && i < styles->count_styles; i++ ) {
-		    if ( styles->supported_styles[i] == (XIMPreeditNothing |
-							 XIMStatusNothing) ) {
-			qt_xim_style = XIMPreeditNothing | XIMStatusNothing;
-			done = TRUE;
-		    }
-		}
-		for ( i = 0; !done && i < styles->count_styles; i++ ) {
-		    if ( styles->supported_styles[i] == (XIMPreeditNone |
-							 XIMStatusNone) ) {
-			qt_xim_style = XIMPreeditNone | XIMStatusNone;
-			done = TRUE;
-		    }
-		}
-		for ( i = 0; i < styles->count_styles; i++) {
-		    if (styles->supported_styles[i] == xim_preferred_style) {
-			qt_xim_style = xim_preferred_style;
-			break;
-		    } else if (styles->supported_styles[i] ==
-			       (XIMPreeditNone | XIMStatusNone) ||
-			       styles->supported_styles[i] ==
-			       (XIMPreeditNothing | XIMStatusNothing) ) {
-			// Either of these will suffice as a default
-			if ( !qt_xim_style )
-			    qt_xim_style = styles->supported_styles[i];
-		    }
-		}
-		XFree(styles);
-	    }
-	    if ( !qt_xim_style ) {
-		// Give up
-		qWarning( "Input style unsupported."
-			  "  See InputMethod documentation.");
-		close_xim();
-	    } else {
-#ifdef USE_X11R6_XIM
-		XUnregisterIMInstantiateCallback(appDpy,0,0,0,(XIMProc )create_xim,0);
-#endif
-		QWidgetList *list= qApp->topLevelWidgets();
-		QWidgetListIt it(*list);
-		while(it.current()) {
-			it.current()->createTLSysExtra();
-			++it;
-		}
-		delete list;
-		}
+	XIMStyles *styles=0;
+	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
+	if ( styles ) {
+	    bool done = FALSE;
+	    int i;
+	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ )
+		if ( styles->supported_styles[i] == xim_preferred_style )
+		    qt_xim_style = xim_preferred_style;
+	    // if the preferred input style couldn't be found, look for
+	    // Nothing
+	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ )
+		if ( styles->supported_styles[i] == (XIMPreeditNothing |
+						     XIMStatusNothing) )
+		    qt_xim_style = XIMPreeditNothing | XIMStatusNothing;
+	    // ... and failing that, None.
+	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ )
+		if ( styles->supported_styles[i] == (XIMPreeditNone |
+						     XIMStatusNone) )
+		    qt_xim_style = XIMPreeditNone | XIMStatusNone;
+	    XFree( styles );
 	}
+	if ( qt_xim_style ) {
+#ifdef USE_X11R6_XIM
+	    XUnregisterIMInstantiateCallback(appDpy,0,0,0,
+					     (XIMProc )create_xim,0);
+#endif
+	    QWidgetList *list= qApp->topLevelWidgets();
+	    QWidgetListIt it(*list);
+	    QWidget * w;
+	    while( (w=it.current()) != 0 ) {
+		++it;
+		w->createTLSysExtra();
+	    }
+	    delete list;
+	} else {
+	    // Give up
+	    qWarning( "No supported input style found."
+		      "  See InputMethod documentation.");
+	    close_xim();
+	}
+    }
 #endif
 }
 
@@ -939,16 +918,15 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    } else if ( arg == "-inputstyle" ) {
 		if ( ++i < argc ) {
 		    QCString s = QCString(argv[i]).lower();
-		    if ( s == "overthespot" ) {
-			xim_preferred_style =
-					     XIMPreeditPosition | XIMStatusNothing;
-		    } else if ( s == "offthespot" ) {
-			xim_preferred_style =
-					     XIMPreeditArea | XIMStatusArea;
-		    } else if ( s == "root" ) {
-			xim_preferred_style =
-					     XIMPreeditNothing | XIMStatusNothing;
-		    }
+		    if ( s == "overthespot" )
+			xim_preferred_style = XIMPreeditPosition |
+					      XIMStatusNothing;
+		    else if ( s == "offthespot" )
+			xim_preferred_style = XIMPreeditArea |
+					      XIMStatusArea;
+		    else if ( s == "root" )
+			xim_preferred_style = XIMPreeditNothing |
+					      XIMStatusNothing;
 		}
 #endif
 	    } else if ( arg == "-cmap" ) {    // xv uses this name
@@ -1109,19 +1087,21 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     if ( qt_is_gui_used ) {
 #if !defined(NO_XIM)
 	qt_xim = 0;
-//Ming-Che 10/10
 	QString ximServerName(ximServer);
 	if (ximServer) ximServerName.prepend("@im=");
 	if ( !XSupportsLocale() )
 	    qDebug("Qt: Locales not supported on X server");
 #ifdef USE_X11R6_XIM
-	else if ( ximServer && XSetLocaleModifiers (ximServerName.ascii()) == NULL )
-	    qDebug("Qt: Cannot set locale modifiers: %s",ximServerName.ascii());
+	else if ( ximServer &&
+		  XSetLocaleModifiers (ximServerName.ascii()) == 0 )
+	    qDebug( "Qt: Cannot set locale modifiers: %s", 
+		    ximServerName.ascii());
 	else if ( !noxim )
-	    XRegisterIMInstantiateCallback(appDpy,0,0,0,
-			       (XIMProc )QApplication::create_xim, 0);
+	    XRegisterIMInstantiateCallback( appDpy, 0 , 0, 0, 
+					    (XIMProc)QApplication::create_xim,
+					    0);
 #else
-	else if ( XSetLocaleModifiers ("") == NULL )
+	else if ( XSetLocaleModifiers ("") == 0 )
 	    qDebug("Qt: Cannot set locale modifiers");
 	else if ( !noxim )
 	    QApplication::create_xim();
@@ -2534,11 +2514,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	     event->xcrossing.detail != NotifyAncestor  )
 	    break;
 	curWin = widget->winId();
-//  	qDebug("Enter for %s (%d)", widget->className(), event->xcrossing.detail );
+// 	qDebug("Enter for %s (%d)", widget->className(), event->xcrossing.detail );
 	QEvent e( QEvent::Enter );
 	QApplication::sendEvent( widget, &e );
-	if ( !widget->isDesktop() )
-	  widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
+	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
     }
     break;
     case LeaveNotify: {			// leave window
@@ -2549,9 +2528,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	if ( event->xcrossing.mode != NotifyNormal )
 	    break;
-//  	qDebug("Leave for %s (%d)", widget->className(), event->xcrossing.detail  );
+// 	qDebug("Leave for %s (%d)", widget->className(), event->xcrossing.detail  );
 	if ( !widget->isDesktop() )
-	  widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
+	    widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
 	QEvent e( QEvent::Leave );
 	QApplication::sendEvent( widget, &e );
     }

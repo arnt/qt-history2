@@ -452,7 +452,6 @@ QApplication::QApplication( int &argc, char **argv )
     process_cmdline( &argc, argv );
 
     initialize( argc, argv );
-
 }
 
 
