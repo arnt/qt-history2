@@ -94,28 +94,34 @@
 
 #if defined(Q_OS_UNIX)
 
+#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
+// FIONREAD is #defined in <sys/filio.h>.
+// Have <sys/ioctl.h> include <sys/filio.h>.
+#  define BSD_COMP
+#endif
+#include <sys/ioctl.h>
+#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
+#  undef BSD_COMP
+#endif
+
+// ### Mmmmh... Maybe we lack some #define's?
+// ### Check system header files.
+#if defined(_OS_SCO_)
+#  include <sys/socket.h> // for FIONREAD on SCO OpenServer 5.0.x
+#endif
+
+// ### Mmmmh... Maybe we lack some #define's?
+// ### Check system header files.
+#if defined(_OS_DYNIX_)
+#  include <sys/sockio.h> // for FIONREAD on Dynix 4.x
+#endif
+
 // 1) strcasecmp() in documented to live in <strings.h> by XPG4v2 and XPG5.
 // 2) X11 libraries need macro FD_ZERO. Macro FD_ZERO is defined using
 //    bzero() in <sys/time.h> and bzero() is defined in <strings.h>.
 //    However ON AIX neither <sys/time.h> nor X11 header files include
 //    <strings.h>.  So we include it ourselves.  Seen on AIX 4.3.3.
-// ### Caution, this may not work on pre-XPG4v2 systems.
 #include <strings.h>
-
-// ### BSD based systems define BSD4_4 in sys/param.h - any BSD derived/supporting
-// system should have this header
-#include <sys/param.h>
-
-#if defined(BSD4_4)
-// BSDs use <sys/ioctl.h> and FIONREAD.
-#  include <sys/ioctl.h>
-#  define QT_NREAD FIONREAD
-#else
-// XPG4v2 use <stropts.h> and I_NREAD.
-// ### Caution, this may not work on pre-XPG4v2 systems.
-#  include <stropts.h>
-#  define QT_NREAD I_NREAD
-#endif
 
 static int qt_thread_pipe[2];
 
@@ -129,13 +135,14 @@ static int qt_thread_pipe[2];
 #endif
 
 #if defined(Q_OS_AIX) && defined(Q_CC_GNU)
-// Please add comments! Why and which version of AIX?
+// ### Please add comments! Why and which version of AIX?
+// ### This looks highly suspicious, shouldn't depend on GCC.
 #  include <sys/time.h>
 #  include <sys/select.h>
 #endif
 
 #if defined(Q_OS_QNX)
-// Please add comments! Why?
+// ### Please add comments! Why?
 #  include <sys/select.h>
 #endif
 
@@ -3245,7 +3252,7 @@ void QApplication::wakeUpGuiThread()
 #  if defined(Q_OS_UNIX)
     char c = 0;
     int nbytes;
-    if ( ::ioctl(qt_thread_pipe[0], QT_NREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
+    if ( ::ioctl(qt_thread_pipe[0], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
 	::write(  qt_thread_pipe[1], &c, 1  );
     }
 #  endif

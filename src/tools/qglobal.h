@@ -71,71 +71,9 @@
 //   DYNIX	- DYNIX/ptx
 //   RELIANT	- Reliant UNIX
 //   QNX	- QNX
-//   LYNXOS	- LynxOS
+//   LYNX	- LynxOS
 //   BSD4	- Any BSD 4.4 system
 //   UNIX	- Any UNIX BSD/SYSV system
-//
-// The idea for configuring a UNIX platform is:
-//
-// 1) Import most recent Open Group interfaces available.
-//    A. This is preferably done implictly on the following platforms
-//       by defining
-//       	_ALL_SOURCE   on AIX
-//       	_GNU_SOURCE   on GNU systems
-//       	_HPUX_SOURCE  on HP-UX
-//       	_SGI_SOURCE   on Irix
-//       This has the advantage that not only the latest Open Group
-//    	 interfaces are imported, but also additional proprietary or
-//       draft interfaces possibly used by Qt are imported as well.
-//    B. This is done explicitly on systems such as Solaris by defining
-//       	_XOPEN_SOURCE          to 600 for SUSv3
-//       	_XOPEN_SOURCE          to 500 for SUSv2/XPG5
-//       	_XOPEN_SOURCE_EXTENDED to 1   for SUS/XPG4v2
-//       	_XOPEN_SOURCE          to 1   for plain XPG4
-//       Be cautious however as specifying an Open Group standard might
-//       cause proprietary or draft interfaces possibly used by Qt to be
-//       left out on the basis that they are not part of the standard.
-//       In such cases an additional macro is often available to import
-//       additional interfaces as well. On Solaris use __EXTENSIONS__.
-//
-// 2) Draft POSIX and Open Group standards more recent than the current
-//    Open Group standard must sometimes be specified separately. This
-//    is the case for threads with POSIX semantics on Solaris and Large
-//    File support on SUSv2/XPG5 platforms.
-//    	_POSIX_C_SOURCE   to 199506L for IEEE Std 1003.1c (1995) / POSIX.1c
-//                                   semantics on Solaris
-//    	_FILE_OFFSET_BITS to 64      for Large File Support (draft 8)
-//    	_POSIX_PII_SOCKET            for IEEE Std 1003.1g/D6.6 (March 1997)
-//                                   sockets on otherwise XPG4v2 Tru64 4.0F
-//    Some functions are not even in draft Open Group or POSIX standards.
-//    However they are still made available either by including specific
-//    platform-dependant header files (to be avoided) or by using
-//    platform-dependant macros such as _BSD_SOURCE. Such exceptional things
-//    should probably be defined near to the code that needs the specific
-//    functions.
-//
-// 3) Only now may <unistd.h> be included, explicitly or not.
-//    It will define some internal macros so that the system header files
-//    that are included afterwards will import the correct interfaces.
-//    You may also test for the availability of some specification.
-//    Important examples are:
-//    	_XOPEN_VERSION set to 500 for SUSv2/XPG5
-//    	_XOPEN_UNIX    defined    for SUS/XPG4v2
-//    	_XOPEN_XPG4    defined    for XPG4
-//    	_XOPEN_XPG3    defined    for XPG3
-//    	_POSIX_THREADS defined    for IEEE Std 1003.1c (1995) / POSIX.1c
-//    Note that these macros never work as expected.  For example even
-//    though recent releases of the GNU C library present SUSv2 (not to
-//    say SUSv3) style interfaces, _XOPEN_VERSION is not defined to 500
-//    unless you explicitly set _XOPEN_SOURCE to 500. The reason is that
-//    _XOPEN_SOURCE should be defined to 500 only when the interfaces are
-//    exact XPG5 interfaces - without extensions. On the other hand Irix
-//    defines _XOPEN_UNIX although we do not explicitly specify XPG4v2 -
-//    and then uses good ol' Berkeley-style sockets.
-//    Do not blindly rely on these macros!
-//
-// This is mainly for SYSV platforms. BSD platforms are less of a problem,
-// they have more stable interfaces.
 //
 
 #if defined(__APPLE__) && defined(__GNUC__)
@@ -191,7 +129,7 @@
 #elif defined(_AIX)
 #  define Q_OS_AIX
 #elif defined(__Lynx__)
-#  define Q_OS_LYNXOS
+#  define Q_OS_LYNX
 #elif defined(_UNIXWARE)
 #  define Q_OS_UNIXWARE
 #elif defined(__GNU__)
@@ -220,84 +158,6 @@
 #  undef Q_OS_UNIX
 #elif !defined(Q_OS_UNIX)
 #  define Q_OS_UNIX
-#endif
-
-#if defined(Q_OS_UNIX)
-// BSDs have nice, stable interfaces...
-#  if defined(Q_OS_BSD4)
-// Do not specify Open Group standards on Irix! Only use the general
-// _SGI_SOURCE macro which will automatically import the most recent
-// Open Group interfaces automatically together with proprietary or
-// draft interfaces not part of the current Open Group standard.
-// Directly specifying Open Group standards will hide non-standard
-// extension such as some DNS details we actually use in Qt.
-// The MIPSpro and the GCC compilers define _SGI_SOURCE automatically
-// so we don't redefine it unless it is hidden by a POSIX or Open Group
-// standard request.
-// See <standards.h> for more details.
-#  elif defined(Q_OS_IRIX)
-// On AIX use the general _ALL_SOURCE macro which will import the most
-// recent interfaces automatically.
-// The IBM and the GCC compilers define _ALL_SOURCE automatically
-// so we don't redefine it unless it is hidden by a POSIX or Open Group
-// standard request.
-// See <standards.h> for more details.
-#  elif defined(Q_OS_AIX)
-// Use the general _GNU_SOURCE macro which will import the most recent
-// which will automatically import the most recent Open Group interfaces
-// together with  proprietary or draft interfaces not part of the current
-// Open Group standard.  For example _GNU_SOURCE seems to be needed to
-// import POSIX thread interfaces from the header files of pre-2.2 GNU C
-// libraries.
-// See <features.h> for more details.
-#  elif defined(Q_OS_LINUX) || defined(Q_OS_GNU)
-// Use the general _HPUX_SOURCE macro which will import the most recent
-// which will automatically import the most recent Open Group interfaces
-// together with  proprietary or draft interfaces not part of the current
-// Open Group standard.  I'm not sure why defining _POSIX_C_SOURCE is
-// needed in this context though.
-// See stdsyms(5) and <sys/stdsyms.h> for more details.
-#  elif defined(Q_OS_HPUX)
-// There is an _OSF_SOURCE macro on Tru64, but it seems to behave somehow
-// differently - possibly better?
-// It does not import most recent Open Group interfaces.  Instead you must
-// explicitly specify them using the relevant _XOPEN_SOURCE* macros, while
-// _OSF_SOURCE imports additional proprietary or draft interfaces not part
-// of the specified OpenGroup standard.  This is probably more flexible...
-// See standards(5) and <standards.h> for more details.
-#  elif defined(Q_OS_OSF)
-// There is no _*_SOURCE on Solaris, there's an __EXTENSIONS__ macro instead.
-// This is very similar to Tru64.  This macro does not import most recent
-// Open Group interfaces.  Instead you must explicitly specify them using the
-// relevant _XOPEN_SOURCE* macros, while __EXTENSIONS__ imports additional
-// proprietary or draft interfaces not part of the specified OpenGroup
-// standard.
-// Note that defining _POSIX_C_SOURCE to 199506L is mandatory to specify
-// POSIX thread semantics as opposed to _REENTRANT which specifies Solaris
-// thread semantics.
-// Finally BSD_COMP must be defined for <sys/ioctl.h> to include <sys/filio.h>
-// which in turn will define FIONREAD.
-// See standards(5) and <sys/feature_tests.h> for more details.
-// See also the note in <sys/ioctl.h> for more details on BSD_COMP.
-#  elif defined(Q_OS_SOLARIS)
-#    if !defined(BSD_COMP)
-#      define BSD_COMP
-#    endif
-// BSD_COMP must be defined for <sys/ioctl.h> to define FIONREAD.
-#  elif defined(Q_OS_UNIXWARE7)
-#    if !defined(BSD_COMP)
-#      define BSD_COMP
-#    endif
-// Don't know about other SYSV systems...
-// Please send info on relevant macros to qt-bugs@trolltech.com.
-// You could send the relevant header files, usually <unistd.h> and
-// the first header file included by <unistd.h>.
-#  endif
-// Done with the general UNIX configuration. Now the details...
-/*
-// ### implement in 3.0
-#  define _FILE_OFFSET_BITS 64   // X/Open Large File Support (draft 8)
-*/
 #endif
 
 
