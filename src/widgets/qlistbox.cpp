@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#183 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#184 $
 **
 ** Implementation of QListBox widget class
 **
@@ -716,7 +716,7 @@ void QListBox::removeItem( int index )
 	return;
     bool currentChanged = ( current == index );
 
-    if ( current >= index && current > 0 )
+    if( current > 0 && (current > index || current >= count()-1) )
 	current--;
     bool    updt = autoUpdate() && itemVisible( index );
     QListBoxItem *lbi = itemList->take( index );
@@ -1246,7 +1246,7 @@ void QListBox::paintCell( QPainter *p, int row, int col )
     }
     lbi->paint( p );
     if ( current == row && hasFocus() ) {
- 	style().drawFocusRect(p, QRect(0,0,cellWidth(col), cellHeight(row)), g, 
+ 	style().drawFocusRect(p, QRect(0,0,cellWidth(col), cellHeight(row)), g,
 			      isSelected( row )? &g.highlight() : &g.base(), isSelected( row ) );
     }
     p->setBackgroundColor( g.base() );
@@ -1666,7 +1666,7 @@ void QListBox::insert( const QListBoxItem *lbi, int index,
     ASSERT( (uint)index <= itemList->count() );
 #endif
     itemList->insert( index, lbi );
-    if ( current == index )
+    if ( current >= index )
 	current++;
     if ( updateCellWidth ) {
 	int w = lbi->width( this );
