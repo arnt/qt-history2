@@ -33,6 +33,7 @@
 # include "qwidget.h"
 #endif // QT_H
 
+
 class QAquaFocusWidget : public QWidget
 {
     Q_OBJECT
@@ -73,9 +74,7 @@ public:
     //animation things
     enum Animates { AquaPushButton, AquaProgressBar, AquaListViewItemOpen };
     bool animatable(Animates, const QWidget *);
-    bool animatable(Animates, const QListViewItem *);
     void stopAnimate(Animates, QWidget *);
-    void stopAnimate(Animates, const QListViewItem *);
     void startAnimate(Animates, QWidget *);
     static ThemeDrawState getDrawState(QStyle::SFlags flags, const QPalette &pal);
 
@@ -97,7 +96,6 @@ protected:
 
 private slots:
     void objDestroyed(QObject *o);
-    void lvi(QListViewItem *);
 };
 
 /*

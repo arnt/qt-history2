@@ -18,7 +18,6 @@
 #include <qcombobox.h>
 #include <qevent.h>
 #include <qpointer.h>
-#include <qheader.h>
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qlist.h>
@@ -36,6 +35,7 @@
 #include <qmacstyle_mac.h>
 #include <qt_mac.h>
 #include <stdlib.h>
+class QListViewItem;
 
 #define QMAC_QAQUASTYLE_SIZE_CONSTRAIN
 
@@ -185,25 +185,10 @@ void QAquaAnimate::removeWidget(QWidget *w)
     }
 }
 
-void QAquaAnimate::lvi(QListViewItem *l)
-{
-    if(d->lvis.indexOf(l) == -1)
-        d->lvis.append(l);
-    if(!d->timerID <= -1)
-        d->timerID = startTimer(animateSpeed(AquaListViewItemOpen));
-}
-
 void QAquaAnimate::objDestroyed(QObject *o)
 {
     if(o == d->focus)
         setFocusWidget(0);
-}
-
-bool QAquaAnimate::animatable(QAquaAnimate::Animates as, const QListViewItem *l)
-{
-    if(as == AquaListViewItemOpen && d->lvis.contains(l))
-        return true;
-    return false;
 }
 
 bool QAquaAnimate::animatable(QAquaAnimate::Animates as, const QWidget *w)
@@ -241,12 +226,6 @@ void QAquaAnimate::startAnimate(QAquaAnimate::Animates as, QWidget *w)
         d->timerID = startTimer(animateSpeed(AquaListViewItemOpen));
 }
 
-
-void QAquaAnimate::stopAnimate(QAquaAnimate::Animates as, const QListViewItem *l)
-{
-    if(as == AquaListViewItemOpen)
-        d->lvis.removeAll(l);
-}
 
 void QAquaAnimate::timerEvent(QTimerEvent *)
 {
@@ -422,7 +401,7 @@ bool QAquaAnimate::focusable(const QWidget *w) const
 }
 
 #if defined(QMAC_QAQUASTYLE_SIZE_CONSTRAIN) || defined(DEBUG_SIZE_CONSTRAINT)
-static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSize small, QSize mini)
+static QAquaWidgetSize qt_aqua_guess_size(const QWidget *, QSize large, QSize small, QSize mini)
 {
     if(large == QSize(-1, -1)) {
         if(small != QSize(-1, -1))
@@ -539,7 +518,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             ct = QStyle::CT_ProgressBar;
         else if(::qt_cast<QLineEdit *>(widg))
             ct = QStyle::CT_LineEdit;
-        else if(::qt_cast<QHeader *>(widg))
+        else if(widg->inherits("QHeader"))
             ct = QStyle::CT_Header;
         else if(::qt_cast<QMenuBar *>(widg) || widg->inherits("Q3MenuBar"))
             ct = QStyle::CT_MenuBar;
