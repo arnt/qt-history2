@@ -997,6 +997,7 @@ else
     # incase of shadow builds, relink qconfig.h
     rm -f $outpath/include/qconfig.h
     ln -sf $outpath/src/tools/qconfig.h $outpath/include/qconfig.h
+    ln -sf $outpath/src/tools/qconfig.h $relpath/include/qconfig.h
 fi
 
 # Next, emit a usage message if something failed.
@@ -1287,6 +1288,7 @@ else
     # incase of shadow builds, relink qmodules.h
     rm -f $outpath/include/qmodules.h
     ln -sf $outpath/src/tools/qmodules.h $outpath/include/qmodules.h
+    ln -sf $outpath/src/tools/qmodules.h $relpath/include/qmodules.h
 fi
 
 # Create the .qmake.cache file
