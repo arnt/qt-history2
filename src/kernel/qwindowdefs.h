@@ -93,6 +93,7 @@ class QWidgetListIt;
 
 #if defined(_WS_MAC_)
 
+typedef struct EventRecord EventRecord;
 typedef void * MSG;
 typedef int WId;
 

@@ -40,6 +40,7 @@
 #define select		_qt_hide_select
 #define gettimeofday	_qt_hide_gettimeofday
 
+#include <stdio.h>
 #include "qglobal.h"
 
 // FIXME: These mac includes can be replaced by a single Carbon.h include
@@ -90,9 +91,11 @@
   Internal variables and functions
  *****************************************************************************/
 
+static int mouse_button_state = 0;
 static char    *appName;                        // application name
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
+
 
 // one day in the future we will be able to have static objects in libraries....
 struct QScrollInProgress {
@@ -283,7 +286,8 @@ void qRemovePostRoutine( Q_CleanUpFunction )
 
   \sa mainWidget(), exec(), quit()
 */
-extern QWidget * the_grabbed;
+extern QWidget * mac_mouse_grabber;
+extern QWidget * mac_keyboard_grabber;
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
@@ -403,6 +407,33 @@ void QApplication::setGlobalMouseTracking( bool )
     qDebug( "QApplication::setGlobalMouseTracking" );
 }
 
+
+static QWidget *recursive_match(QWidget *widg, int x, int y)
+{
+  // Keep looking until we find ourselves in a widget with no kiddies
+  // where the x,y is
+  if(!widg)
+    return 0;
+
+  const QObjectList *objl=widg->children();
+  if(!objl) // No children
+    return widg;
+  for(QObjectListIt it(*objl); it.current(); ++it) {
+    if((*it)->inherits("QWidget")) {
+      QWidget *curwidg=(QWidget *)(*it);
+      int wx=curwidg->x(), wy=curwidg->y();
+      int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
+      qDebug("recursive_match %d %d  %d %d  %d %d",curwidg->x(), curwidg->y(),wx,wy,wx2,wy2);
+      if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
+	return recursive_match(curwidg,x-wx,y-wy);
+      }
+    }
+  }
+  // If we get here, it's within a widget that has children, but isn't in any
+  // of the children
+  return widg;
+}
+
 /*!
   Returns a pointer to the widget at global screen position \a (x,y), or a
   null pointer if there is no Qt widget there.
@@ -415,12 +446,24 @@ void QApplication::setGlobalMouseTracking( bool )
 
   \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
 */
-extern QWidget * mac_pre;
-
-QWidget *QApplication::widgetAt( int, int, bool )
+QWidget *QApplication::widgetAt( int x, int y, bool child)
 {
-    qDebug( "QApplication::widgetAt" );
-    return 0;
+    // Need to handle child/top-level stuff - right now only do top-levels
+    Point p;
+    p.h=x;
+    p.v=y;
+    WindowPtr wp;
+    FindWindow(p,&wp);
+    QWidget * widget=QWidget::find((WId)wp);
+    if(!widget) {
+	qWarning("Couldn't find %d",wp);
+	return 0;
+    }
+    if(!child) {
+	return widget;
+    } else {
+	return recursive_match(widget,x,y);
+    }
 }
 
 /*!
@@ -509,85 +552,145 @@ bool QApplication::processNextEvent( bool )
     return TRUE;
 }
 
+
+static const int KeyTbl[]={
+    144667,          Qt::Key_Escape,         // misc keys
+    143369,             Qt::Key_Tab,
+    144136,       Qt::Key_Backspace,
+    140301,          Qt::Key_Return,
+    160513,            Qt::Key_Home,           // cursor movement
+    162588,            Qt::Key_Left,
+    163358,              Qt::Key_Up,
+    162845,           Qt::Key_Right,
+    163103,            Qt::Key_Down,
+    160779,           Qt::Key_Prior,
+    162060,            Qt::Key_Next,
+    /*
+      0,         Qt::Key_Shift,          // modifiers
+      0,       Qt::Key_Control,
+      0,       Qt::Key_Control,
+      0,          Qt::Key_Meta,
+      0,          Qt::Key_Meta,
+      0,           Qt::Key_Alt,
+      0,           Qt::Key_Alt,
+      0,       Qt::Key_CapsLock,
+      0,        Qt::Key_NumLock,
+      0,     Qt::Key_ScrollLock,
+    */
+    143648,        Qt::Key_Space,          // numeric keypad
+    150531,        Qt::Key_Enter,
+    151869,        Qt::Key_Equal,
+    148266,     Qt::Key_Asterisk,
+    148779,          Qt::Key_Plus,
+    151085,     Qt::Key_Minus,
+    147758,      Qt::Key_Period,
+    150319,       Qt::Key_Slash,
+    162320, Qt::Key_F1,       // Function keys
+    161808, Qt::Key_F2,
+    156432, Qt::Key_F3,
+    161296, Qt::Key_F4,
+    155664, Qt::Key_F5,
+    155920, Qt::Key_F6,
+    156176, Qt::Key_F7,
+    156688, Qt::Key_F8,
+    156944, Qt::Key_F9,
+    158992, Qt::Key_F10,
+    157456, Qt::Key_F11,
+    159504, Qt::Key_F12,
+    149275, Qt::Key_NumLock,
+    133796, Qt::Key_plusminus,
+    0,0
+};
+
+int get_key(int key)
+{
+  for(int i = 0; KeyTbl[i]; i+=2) {
+	if(key==KeyTbl[i]) {
+	    return KeyTbl[i+1];
+	}
+    }
+    return 0;
+}
+
 bool mouse_down=false;
 extern WId myactive;
 
-void QApplication::do_mouse_down( void * es )
+bool QApplication::do_mouse_down( EventRecord* es )
 {
-    qDebug("QApplication::do_mouse_down");
-    EventRecord *er = (EventRecord *)es;
-    WindowPtr wp;
-    short windowPart;
-    Point wherePoint = er->where;
-    windowPart = FindWindow( er->where, &wp );
-    QWidget *widget;
-    int growWindowSize = 0;
-    switch( windowPart ) {
-    case inGoAway:
-	widget=QWidget::find( (WId)wp );
-	if( widget ) {
-	    if( widget->close( FALSE ) ) {
-		widget->hide();
-	    } else {
-                qDebug( "do_mouse_down: widget not found" );
-	    }
-	} else {
-	    qWarning("Close for unknown widget");
-	}
-	break;
-    case inDrag:
-        DragWindow( wp, er->where, 0 );
-	break;
-    case inContent:
-      //        FIXME: Implement inContent mouse clicks
-	break;
-    case inGrow:
-	qDebug("inGrow");
-	Rect limits;
-	widget = QWidget::find( (WId)wp );
-        // FIXME: Are these limits sensible
-	SetRect( &limits, 20, 20, 50000, 50000);
-	if( widget ) {
-	    qDebug( "Widget found" );
-	    if ( widget->extra ) {
-		SetRect( &limits, widget->extra->minw, widget->extra->minh,
-			widget->extra->maxw, widget->extra->maxh);
-	    }
-	}
-	growWindowSize = GrowWindow( wp, wherePoint, &limits);
-	if( growWindowSize) {
-  	    // FIXME: Replace hard coded constants with display size 
-	    if( LoWord( growWindowSize ) < 1600 && LoWord( growWindowSize ) > 0 &&
-	        HiWord( growWindowSize ) < 1200 && HiWord( growWindowSize ) > 0 ) {
-		if( widget ) {
-		    int ow, oh;
-		    ow = widget->width();
-		    oh = widget->height();
-		    int nw = LoWord( growWindowSize );
-		    int nh = HiWord( growWindowSize );
-		    widget->resize( nw, nh );
-		    // nw/nh might not match the actual size if setSizeIncrement
-		    // is used
-		    QResizeEvent qre( QSize( widget->width(), widget->height() ),
-				      QSize( ow, oh) );
-		    QApplication::sendEvent( widget, &qre );
-		    widget->resizeEvent( &qre );
-		}
-	    }
-	}
-	break;
-    case inZoomIn:
-    case inZoomOut:
-	if( TrackBox( wp, er->where, windowPart ) == true ) {
-            Rect bounds;
-	    SetPortWindowPort( wp );
-            GetPortBounds( GetWindowPort( wp ), &bounds );
-	    EraseRect( &bounds );
-	    ZoomWindow( wp, windowPart, false);
-	    InvalWindowRect( wp, &bounds );
-	}
-	break;
+  qDebug("QApplication::do_mouse_down");
+  EventRecord *er = (EventRecord *)es;
+  WindowPtr wp;
+  short windowPart;
+  Point wherePoint = er->where;
+  windowPart = FindWindow( er->where, &wp );
+  QWidget *widget;
+  int growWindowSize = 0;
+  bool in_widget = FALSE;
+
+  switch( windowPart ) {
+  case inGoAway:
+    widget=QWidget::find( (WId)wp );
+    if( widget ) {
+      if( widget->close( FALSE ) ) {
+	widget->hide();
+      } else {
+	qDebug( "do_mouse_down: widget not found" );
+      }
+    } else {
+      qWarning("Close for unknown widget");
     }
+    break;
+  case inDrag:
+    DragWindow( wp, er->where, 0 );
+    break;
+  case inContent:
+    in_widget = TRUE;
+    break;
+  case inGrow:
+    qDebug("inGrow");
+    Rect limits;
+    widget = QWidget::find( (WId)wp );
+   
+    if( widget ) {
+      qDebug( "Widget found" );
+      if ( widget->extra ) {
+	SetRect( &limits, widget->extra->minw, widget->extra->minh,
+		 widget->extra->maxw, widget->extra->maxh);
+      }
+    }
+    growWindowSize = GrowWindow( wp, wherePoint, &limits);
+    if( growWindowSize) {
+      // nw/nh might not match the actual size if setSizeIncrement
+      // is used
+      int nw = LoWord( growWindowSize );
+      int nh = HiWord( growWindowSize );
+
+      // FIXME: Replace hard coded constants with display size 
+      if( nw < 1600 && nw > 0 && nh < 1200 && nh > 0 ) {
+	if( widget ) {
+	  int ow = widget->width(), oh = widget->height();
+	  widget->resize( nw, nh );
+
+	  QResizeEvent qre( QSize( widget->width(), widget->height() ), QSize( ow, oh) );
+	  QApplication::sendEvent( widget, &qre );
+	  widget->resizeEvent( &qre );
+	}
+      }
+    }
+    break;
+  case inZoomIn:
+  case inZoomOut:
+    if( TrackBox( wp, er->where, windowPart ) == true ) {
+      Rect bounds;
+      SetPortWindowPort( wp );
+      GetPortBounds( GetWindowPort( wp ), &bounds );
+      EraseRect( &bounds );
+      ZoomWindow( wp, windowPart, false);
+      InvalWindowRect( wp, &bounds );
+    }
+    break;
+  }
+  return in_widget;
 }
 
 RgnHandle cliprgn=0;
@@ -595,61 +698,145 @@ bool ignorecliprgn=true;
 
 int QApplication::macProcessEvent(MSG * m)
 {
-    mac_pre = 0;
-    WindowPtr wp;
-    EventRecord *er = (EventRecord *)m;
-    QWidget *twidget = QWidget::find( (WId)er->message );
-    Point p2 = er->where;
-    //FIXME: Need to implement widgetAt
-    //QWidget * widget = QApplication::widgetAt(p2.h,p2.v,true);
-    QWidget * widget=0;
-    if ( er->what == updateEvt ) {
-        qDebug( "Update Event" );
-	wp = (WindowPtr)er->message;
-	SetPortWindowPort(wp);
-	SetOrigin( 0, 0 );
-	mac_pre = 0;
-
-	if(!twidget) {
-	    qWarning("Couldn't find paint widget for %d!",(int)wp);
-	} else {
-	    int metricWidth = twidget->metric (QPaintDeviceMetrics::PdmWidth );
-	    int metricHeight = twidget->metric( QPaintDeviceMetrics::PdmHeight );
-	    twidget->crect.setWidth( metricWidth - 1 );
-	    twidget->crect.setHeight( metricHeight - 1 );
-	    ignorecliprgn = false;
-	    twidget->propagateUpdates( 0, 0, twidget->width(), twidget->height() );
-	    ignorecliprgn = true;
-	}
-        qDebug( "~Update Event" );
-
-    } else if( er->what == mouseDown ) {
-	do_mouse_down( er );
-    } else if( er->what == mouseUp ) {
-	short part;
-	part = FindWindow( er->where, &wp );
-	if( part == inContent ) {
-	    if( the_grabbed ) {
-		widget = the_grabbed;
-	    } else {
-	        Point pp2 = er->where;
-		GlobalToLocal( &pp2 );
-		widget = QApplication::widgetAt( pp2.h, pp2.v, true );
-	    }
-	    if ( widget ) {
-		SetPortWindowPort( wp );
-		QPoint p( er->where.h, er->where.v );
-		QPoint p2 = widget->mapFromGlobal( p );
-		QMouseEvent qme( QEvent::MouseButtonRelease, p2,
-				 QPoint( er->where.h, er->where.v ),
-				 QMouseEvent::LeftButton, 0);
-		QApplication::sendEvent( widget, &qme );
-	    }
-	}
-    } else {
-	qWarning("  Type %d",er->what);
-    }
+  WindowPtr wp;
+  EventRecord *er = (EventRecord *)m;
+  QWidget *twidget = QWidget::find( (WId)er->message );
+  Point p2 = er->where;
+  QWidget * widget = QApplication::widgetAt(p2.h,p2.v,true);
+  if(!er->what)
     return 0;
+
+  if ( er->what == updateEvt ) {
+    qDebug( "Update Event" );
+    wp = (WindowPtr)er->message;
+    SetPortWindowPort(wp);
+    SetOrigin( 0, 0 );
+
+    if(!twidget) {
+      qWarning("Couldn't find paint widget for %d!",(int)wp);
+    } else {
+      int metricWidth = twidget->metric (QPaintDeviceMetrics::PdmWidth );
+      int metricHeight = twidget->metric( QPaintDeviceMetrics::PdmHeight );
+      twidget->crect.setWidth( metricWidth - 1 );
+      twidget->crect.setHeight( metricHeight - 1 );
+      ignorecliprgn = false;
+      twidget->propagateUpdates( 0, 0, twidget->width(), twidget->height() );
+      ignorecliprgn = true;
+    }
+    qDebug( "~Update Event" );
+
+  } else if( er->what == mouseDown ) {
+    short part = FindWindow( er->where, &wp );
+    if( part == inContent ) {
+      if( mac_mouse_grabber ) {
+	widget = mac_mouse_grabber;
+      } else {
+	Point pp2 = er->where;
+	GlobalToLocal( &pp2 );
+	widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+      }
+      if ( widget ) {
+	SetPortWindowPort( wp );
+
+	QPoint p( er->where.h, er->where.v );
+	QPoint pglob(widget->mapFromGlobal( p ));
+	QMouseEvent qme( QEvent::MouseButtonPress, pglob, p, QMouseEvent::LeftButton, 0);
+	QApplication::sendEvent( widget, &qme );
+      }
+      mouse_button_state = 1;
+    }
+    else do_mouse_down( er ); //do resize/move stuff
+  } else if( er->what == mouseUp ) {
+    short part = FindWindow( er->where, &wp );
+    if( part == inContent ) {
+      if( mac_mouse_grabber ) {
+	widget = mac_mouse_grabber;
+      } else {
+	Point pp2 = er->where;
+	GlobalToLocal( &pp2 );
+	widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+      }
+      if ( widget ) {
+	SetPortWindowPort( wp );
+
+	QPoint p( er->where.h, er->where.v );
+	QPoint pglob(widget->mapFromGlobal( p ));
+	QMouseEvent qme( QEvent::MouseButtonRelease, pglob, p, QMouseEvent::LeftButton, 0);
+	QApplication::sendEvent( widget, &qme );
+
+      }
+    }
+    mouse_button_state = 0;
+  } else if(er->what == keyDown) {
+    short part = FindWindow( er->where, &wp );
+    if( part == inContent ) {
+      if( mac_keyboard_grabber ) {
+	widget = mac_keyboard_grabber;
+      } else {
+	Point pp2 = er->where;
+	GlobalToLocal( &pp2 );
+	widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+      }
+    }
+    if(!widget) {
+      qWarning("Can't find %d!",myactive);
+      return 0;
+    }
+
+    short mychar=er->message & charCodeMask;
+    QKeyEvent ke(QEvent::KeyPress,get_key(er->message),mychar,0,QString(QChar(mychar)));
+    //QApplication::sendEvent(twidget,&ke);
+    QApplication::sendEvent(widget,&ke);
+    qDebug("Key down.. %c", mychar);
+  } else if(er->what == keyUp) {
+    short part = FindWindow( er->where, &wp );
+    if( part == inContent ) {
+      if( mac_keyboard_grabber ) {
+	widget = mac_keyboard_grabber;
+      } else {
+	Point pp2 = er->where;
+	GlobalToLocal( &pp2 );
+	widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+      }
+    }
+    if(!widget) {
+      qWarning("Can't find %d!",myactive);
+      return 0;
+    }
+
+    short mychar=er->message & charCodeMask;
+    QKeyEvent ke(QEvent::KeyRelease,get_key(er->message),mychar,0,QString(QChar(mychar)));
+    //QApplication::sendEvent(twidget,&ke);
+    QApplication::sendEvent(widget,&ke);
+    qDebug("Key up.. %c", mychar);
+  } else if(er->what == osEvt) {
+    if(((er->message >> 24) & 0xFF) == mouseMovedMessage) {
+      short part = FindWindow( er->where, &wp );
+      if( part == inContent ) {
+	if( mac_mouse_grabber ) {
+	  widget = mac_mouse_grabber;
+	} else {
+	  Point pp2 = er->where;
+	  //GlobalToLocal( &pp2 );
+	  widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+	}
+	if ( widget && (mouse_button_state || widget->hasMouseTracking() || hasGlobalMouseTracking())) {
+	  SetPortWindowPort( wp );
+
+	  QPoint p( er->where.h, er->where.v );
+	  QPoint pglob(widget->mapFromGlobal( p ));
+	  QMouseEvent qme( QEvent::MouseMove, pglob, p, QMouseEvent::LeftButton, 0);
+	  QApplication::sendEvent( widget, &qme );
+	  qDebug("Mouse has Moved..");
+	}	
+      }
+    }
+    else
+      printf("Damn!\n");
+  } else {
+    qWarning("  Type %d",er->what);
+  }
+  return 0;
 }
 
 void QApplication::wakeUpGuiThread()

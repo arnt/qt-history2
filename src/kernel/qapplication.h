@@ -195,7 +195,7 @@ public:
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 
 #if defined(_WS_MAC_)
-    void	     do_mouse_down(void *);
+    bool	     do_mouse_down(EventRecord *);
     virtual bool     macEventFilter( MSG * );
     int              macProcessEvent( MSG * );
 #elif defined(_WS_WIN_)
