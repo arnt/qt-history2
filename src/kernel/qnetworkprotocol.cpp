@@ -63,7 +63,7 @@ struct QNetworkProtocolPrivate
   which is ore'd together using the supported operations from
   the QNetworkProtocol::Operation enum.
 
-  When you implement a newtork protocol this way, be careful
+  When you implement a network protocol this way, be careful
   that you always emit the correct signals. Also, always emit
   the finished() signal when an operation is done (on failure or
   success!). The Qt Network Architecture relies on correctly emitted

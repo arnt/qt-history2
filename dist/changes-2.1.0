@@ -9,8 +9,9 @@ differences in runtime behaviour - such fixes are marked with a "*".
 New features
 ------------
 
-None.
 
+Support for legacy Motif Drag-and-drop.
+Support for Big5 character encoding.
 
 General improvements
 --------------------

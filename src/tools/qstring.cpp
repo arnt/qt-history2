@@ -9724,10 +9724,6 @@ make sense of anything.
 </ul>
 */
 
-#if defined(_CC_GNU_)
-#warning "Warwick: Please fill in these enum things"
-#endif
-
 /*! \enum QChar::Direction
 
   This enum type defines the Unicode direction attributes.
