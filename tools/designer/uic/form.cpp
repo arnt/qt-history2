@@ -153,15 +153,21 @@ void Uic::createFormDecl( const QDomElement &e )
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
 	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" &&
-	     n2.attribute( "location" ) != "local" )
+	     n2.attribute( "location" ) != "local" ) {
+	    if ( s.right( 4 ) == "ui.h" && !QFile::exists( s ) )
+		continue;
 	    globalIncludes += s;
+	}
     }
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
 	if ( n2.attribute( "impldecl", "in implementation" ) == "in declaration" &&
-	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) )
+	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) ) {
+	    if ( s.right( 4 ) == "ui.h" && !QFile::exists( s ) )
+		continue;
 	    localIncludes += s;
+	}
     }
 
     QStringList::Iterator it, it2, it3;
@@ -351,7 +357,7 @@ void Uic::createFormDecl( const QDomElement &e )
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
-	if ( n.parentNode().toElement().tagName() != "slots" 
+	if ( n.parentNode().toElement().tagName() != "slots"
 	     && n.parentNode().toElement().tagName() != "connections" )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
@@ -527,7 +533,7 @@ void Uic::createFormImpl( const QDomElement &e )
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
-	if ( n.parentNode().toElement().tagName() != "slots" 
+	if ( n.parentNode().toElement().tagName() != "slots"
 	     && n.parentNode().toElement().tagName() != "connections" )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
@@ -578,8 +584,11 @@ void Uic::createFormImpl( const QDomElement &e )
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
 	if ( n2.attribute( "impldecl", "in implementation" ) == "in implementation" &&
-	     n2.attribute( "location" ) != "local" )
+	     n2.attribute( "location" ) != "local" ) {
+	    if ( s.right( 4 ) == "ui.h" && !QFile::exists( s ) )
+		continue;
 	    globalIncludes += s;
+	}
     }
 
     registerDatabases( e );
@@ -610,8 +619,11 @@ void Uic::createFormImpl( const QDomElement &e )
 	QDomElement n2 = nl.item(i).toElement();
 	QString s = n2.firstChild().toText().data();
 	if ( n2.attribute( "impldecl", "in implementation" ) == "in implementation" &&
-	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) )
+	     n2.attribute( "location" ) == "local" &&!globalIncludes.contains( s ) ) {
+	    if ( s.right( 4 ) == "ui.h" && !QFile::exists( s ) )
+		continue;
 	    localIncludes += s;
+	}
     }
 
     // additional custom widget headers
