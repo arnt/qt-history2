@@ -53,7 +53,6 @@ public:
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     bool hasChildren(const QModelIndex &index) const;
-    bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
     bool isDragEnabled(const QModelIndex &index) const;
     bool isDropEnabled(const QModelIndex &index) const;

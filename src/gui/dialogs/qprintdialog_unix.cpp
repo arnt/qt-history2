@@ -145,7 +145,6 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Display) const;
-    bool isSelectable(const QModelIndex &index) const;
 
     QList<QPrinterDescription> lst;
 };
@@ -164,11 +163,6 @@ int QPrinterModel::rowCount(const QModelIndex &) const
 int QPrinterModel::columnCount(const QModelIndex &) const
 {
     return 3;
-}
-
-bool QPrinterModel::isSelectable(const QModelIndex &) const
-{
-    return true;
 }
 
 QVariant QPrinterModel::data(const QModelIndex &index, int) const

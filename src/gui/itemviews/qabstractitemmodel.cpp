@@ -700,11 +700,11 @@ bool QAbstractItemModel::removeColumns(int, const QModelIndex &, int)
     Returns true if the item at \a index is selectable; otherwise
     returns false.
 
-    The base class implementation returns false.
+    The base class implementation returns true.
 */
 bool QAbstractItemModel::isSelectable(const QModelIndex &) const
 {
-    return false;
+    return true;
 }
 
 /*!

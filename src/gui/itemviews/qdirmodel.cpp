@@ -418,11 +418,6 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
     return (parent.data() && static_cast<QDirModelPrivate::QDirNode*>(parent.data())->info.isDir());
 }
 
-bool QDirModel::isSelectable(const QModelIndex &) const
-{
-    return true;
-}
-
 bool QDirModel::isEditable(const QModelIndex &index) const
 {
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
