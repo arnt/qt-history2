@@ -106,6 +106,16 @@
 */
 
 /*!
+    \fn void QPaintEngine::syncState()
+
+    \internal
+
+    Updates all dirty states in this engine. This function should ONLY
+    be used when drawing with native handles directly and immediate sync
+    from QPainters state to the native state is required.
+*/
+
+/*!
     \fn void QPaintEngine::drawPolygon(const QPolygon &polygon, PolygonDrawMode mode)
 
     Reimplement this pure virtual function to draw \a polygon using

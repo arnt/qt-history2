@@ -188,6 +188,8 @@ public:
 
     QPainter *painter() const;
 
+    inline void syncState() { updateState(state); }
+
 protected:
     QPaintEngine(QPaintEnginePrivate &data, PaintEngineFeatures devcaps=0);
 
