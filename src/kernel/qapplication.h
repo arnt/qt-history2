@@ -45,9 +45,6 @@
 #include "qtranslator.h"
 #include "qstrlist.h"
 #include "qstringlist.h"
-#ifndef QT_NO_REMOTE
-#include "private/qremotecontrol_p.h"
-#endif
 #endif // QT_H
 
 class QSessionManager;
@@ -56,6 +53,10 @@ class QTranslator;
 #if defined(Q_WS_QWS)
 class QWSDecoration;
 #endif
+#ifndef QT_NO_REMOTE
+class QRemoteControlInterface;
+#endif
+
 template <class type> class QPtrList;
 
 class QApplication;
