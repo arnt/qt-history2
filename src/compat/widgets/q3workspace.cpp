@@ -1250,8 +1250,8 @@ void Q3Workspace::closeActiveWindow()
 void Q3Workspace::closeAllWindows()
 {
     bool did_close = true;
-    QList<Q3WorkspaceChild *>::Iterator it(d->windows.begin());
-    while (it != d->windows.begin() && did_close) {
+    QList<Q3WorkspaceChild *>::const_iterator it = d->windows.constBegin();
+    while (it != d->windows.constEnd() && did_close) {
         Q3WorkspaceChild *c = *it;
         ++it;
         if (c->windowWidget() && !c->windowWidget()->isExplicitlyHidden())
@@ -1261,7 +1261,7 @@ void Q3Workspace::closeAllWindows()
 
 void Q3WorkspacePrivate::normalizeActiveWindow()
 {
-    if  (d->maxWindow)
+    if (d->maxWindow)
         d->maxWindow->showNormal();
     else if (d->active)
         d->active->showNormal();
