@@ -224,6 +224,15 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		}
 	    } else if(variable == "CODEWARRIOR_WARNING") {
 		t << (int)(!project->isActiveConfig("warn_off") && project->isActiveConfig("warn_on"));
+	    } else if(variable == "CODEWARRIOR_TEMPLATE") {
+		if(project->first("TEMPLATE") == "app" ) {
+		    t << "Application";
+		} else if(project->first("TEMPLATE") == "lib") {
+		    if(project->isActiveConfig("staticlib"))
+		       t << "Library";
+		    else
+			t << "SharedLibrary";
+		}
 	    } else {
 		t << var(variable);
 	    }
@@ -418,9 +427,13 @@ MetrowerksMakefileGenerator::init()
 
     //set the target up
     project->variables()["TARGET_STEM"] = project->variables()["TARGET"];
-    if(project->first("TEMPLATE") == "lib") 
-	project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + "." +
-						  project->first("QMAKE_EXTENTION_SHLIB");
+    if(project->first("TEMPLATE") == "lib") {
+	if(project->isActiveConfig("staticlib"))
+	    project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + ".lib";
+	else
+	    project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + "." +
+						      project->first("QMAKE_EXTENTION_SHLIB");
+    }
 }
 
 
