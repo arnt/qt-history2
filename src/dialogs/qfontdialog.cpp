@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#37 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#38 $
 **
 ** Implementation of QFontDialog
 **
@@ -318,7 +318,7 @@ QFontDialog::~QFontDialog()
 }
 
 /*!
-  Opens a modal file dialog and returns the font selected by the user.
+  Opens a modal font dialog and returns the font selected by the user.
 
   \a def is the default selected font.
 
@@ -354,7 +354,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont &def,
 }
 
 /*!
-  Opens a modal file dialog and returns the font selected by the user.
+  Opens a modal font dialog and returns the font selected by the user.
 
   The \a ok parameter is set to TRUE if the user clicked OK, and FALSE if
   the user clicked Cancel.
@@ -583,7 +583,7 @@ void QFontDialog::updateStyles()
 void QFontDialog::updateSizes()
 {
     //    usingStandardSizes = d->fdb.isScalable( d->family );
-    
+
     d->sizeList->clear();
     QValueList<int> sizes = d->fdb.pointSizes( d->family,d->style, d->charSet);
     if ( sizes.isEmpty() ) {
@@ -602,7 +602,7 @@ void QFontDialog::updateSizes()
     }
 }
 
-/*! 
+/*!
 
 */
 
