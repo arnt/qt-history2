@@ -4835,6 +4835,23 @@ void QWidget::hideEvent( QHideEvent * )
 {
 }
 
+/*!
+  \fn QWidget::x11Event( MSG * )
+
+  This special event handler can be reimplemented in a subclass to receive
+  native X11 events.
+
+    In your reimplementation of this function, if you want to stop the
+    event being handled by Qt, return TRUE. If you return FALSE, this
+    native event is passed back to Qt, which translates the event into
+    a Qt event and sends it to the widget.
+
+  \warning This function is not portable.
+
+  \sa QApplication::x11EventFilter()
+*/
+
+
 #if defined(Q_WS_MAC)
 
 /*!
@@ -4878,20 +4895,6 @@ bool QWidget::winEvent( MSG * )
 }
 
 #elif defined(Q_WS_X11)
-
-/*!
-  This special event handler can be reimplemented in a subclass to receive
-  native X11 events.
-
-    In your reimplementation of this function, if you want to stop the
-    event being handled by Qt, return TRUE. If you return FALSE, this
-    native event is passed back to Qt, which translates the event into
-    a Qt event and sends it to the widget.
-
-  \warning This function is not portable.
-
-  \sa QApplication::x11EventFilter()
-*/
 
 bool QWidget::x11Event( XEvent * )
 {

@@ -88,6 +88,15 @@ public:
 */
 
 /*!
+    \enum QStyleOption::StyleOptionDefault
+
+    This enum value can be passed as the optional argument to any
+    QStyle function.
+
+    \value Default
+*/
+
+/*!
   \fn QStyleOption::QStyleOption(StyleOptionDefault)
 
   The default option. This can always be passed as the optional argument
@@ -297,15 +306,6 @@ public:
     \value UI_AnimateTooltip
     \value UI_FadeTooltip
 
-*/
-
-/*!
-    \enum QStyle::StyleOptionDefault
-
-    This enum value can be passed as the optional argument to any
-    QStyle function.
-
-    \value Default
 */
 
 /*!

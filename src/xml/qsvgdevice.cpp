@@ -98,7 +98,6 @@ static QSvgTypeMap *qSvgTypeMap=0; // element types
 static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 
 /*!
-  \internal
   \class QSvgDevice qsvgdevice.h
   \brief The QSvgDevice class provides a paint device for SVG vector graphics.
 
