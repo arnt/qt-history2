@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#111 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#112 $
 **
 ** Definition of QWidget class
 **
@@ -256,6 +256,8 @@ private:
     void	 setWinId( WId );
     bool	 create();
     bool	 destroy();
+    void	 showWindow();
+    void	 hideWindow();
     void	 createExtra();
     void	 deleteExtra();
     void	 internalMove( int, int );
