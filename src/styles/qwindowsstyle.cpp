@@ -1358,15 +1358,15 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 		    // paint stuff in the magical area
 		    QListView* v = item->listView();
-		    int lh;
-		    if ( !item->multiLinesEnabled() )
-			lh = child ? child->height() : 0;
-		    else
-			lh = p->fontMetrics().height() + 2 * v->itemMargin();
-		    lh = QMAX( lh, QApplication::globalStrut().height() );
-		    if ( lh % 2 > 0 )
-			lh++;
 		    while ( child && y < r.height() ) {
+		        int lh;
+		        if ( !item->multiLinesEnabled() )
+			    lh = child ? child->height() : 0;
+		        else
+			    lh = p->fontMetrics().height() + 2 * v->itemMargin();
+		        lh = QMAX( lh, QApplication::globalStrut().height() );
+		        if ( lh % 2 > 0 )
+			    lh++;
 			linebot = y + lh/2;
 			if ( (child->isExpandable() || child->childCount()) &&
 			     (child->height() > 0) ) {
