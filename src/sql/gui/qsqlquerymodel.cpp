@@ -290,7 +290,7 @@ QSqlRecord QSqlQueryModel::record(int row) const
     QSqlRecord rec = d->rec;
     for (int i = 0; i < rec.count(); ++i)
         rec.setValue(i, data(createIndex(row, i), EditRole));
-    return d->rec;
+    return rec;
 }
 
 /*!
