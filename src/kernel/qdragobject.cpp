@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#20 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -11,11 +11,9 @@
 #include "qapplication.h"
 #include "qcursor.h"
 #include "qpoint.h"
-#include "qkeycode.h"
 #include "qwidget.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
-#include "qbitmap.h"
 
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
@@ -32,17 +30,6 @@ struct QDragData {
 
 
 
-static QCursor *noDropCursor = 0;
-
-#define noDropCursorWidth 18
-#define noDropCursorHeight 18
-static unsigned char noDropCutBits[] = {
- 0xc0,0x0f,0xfc,0xf0,0x3f,0xfc,0x78,0x78,0xfc,0x1c,0xe0,0xfc,0x3e,0xc0,0xfd,
- 0x76,0x80,0xfd,0xe7,0x80,0xff,0xc3,0x01,0xff,0x83,0x03,0xff,0x03,0x07,0xff,
- 0x03,0x0e,0xff,0x07,0x9c,0xff,0x06,0xb8,0xfd,0x0e,0xf0,0xfd,0x1c,0xe0,0xfc,
- 0x78,0x70,0xfc,0xf0,0x3f,0xfc,0xc0,0x0f,0xfc};
-
-
 // the universe's only drag manager
 static QDragManager * manager = 0;
 
@@ -57,8 +44,6 @@ QDragManager::QDragManager()
 	manager = this;
     beingCancelled = FALSE;
     restoreCursor = FALSE;
-    QBitmap b( noDropCursorWidth, noDropCursorHeight, noDropCutBits, TRUE );
-    noDropCursor = new QCursor( b, b );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#26 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -21,6 +21,8 @@
 #include "qdict.h"
 #include "qdragobject.h"
 #include "qobjectlist.h"
+#include "qkeycode.h"
+#include "qbitmap.h"
 
 
 #include <X11/X.h> // for Atom
@@ -381,6 +383,17 @@ void qt_handle_xdnd_finished( QWidget *, const XEvent * xe )
     }
 }
 
+static QCursor *noDropCursor = 0;
+
+#define noDropCursorWidth 18
+#define noDropCursorHeight 18
+static unsigned char noDropCutBits[] = {
+ 0xc0,0x0f,0xfc,0xf0,0x3f,0xfc,0x78,0x78,0xfc,0x1c,0xe0,0xfc,0x3e,0xc0,0xfd,
+ 0x76,0x80,0xfd,0xe7,0x80,0xff,0xc3,0x01,0xff,0x83,0x03,0xff,0x03,0x07,0xff,
+ 0x03,0x0e,0xff,0x07,0x9c,0xff,0x06,0xb8,0xfd,0x0e,0xf0,0xfd,0x1c,0xe0,0xfc,
+ 0x78,0x70,0xfc,0xf0,0x3f,0xfc,0xc0,0x0f,0xfc};
+
+
 
 bool QDragManager::eventFilter( QObject * o, QEvent * e)
 {
@@ -428,6 +441,10 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	    QApplication::setOverrideCursor( arrowCursor, restoreCursor );
 	    restoreCursor = TRUE;
 	} else {
+	    if ( !noDropCursor ) {
+		QBitmap b( noDropCursorWidth, noDropCursorHeight, noDropCutBits, TRUE );
+		noDropCursor = new QCursor( b, b );
+	    }
 	    QApplication::setOverrideCursor( *noDropCursor, restoreCursor );
 	    restoreCursor = TRUE;
 	}
