@@ -52,11 +52,11 @@ QVariant_to_helper<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QMa
 { return v.toMap(); }
 #endif
 template<> QPoint QVariant_to_helper<QPoint>(const QCoreVariant &v, const QPoint*)
-{ return static_cast<const QVariant &>(v).toPoint(); }
+{ return v.toPoint(); }
 template<> QRect QVariant_to_helper<QRect>(const QCoreVariant &v, const QRect*)
-{ return static_cast<const QVariant &>(v).toRect(); }
+{ return v.toRect(); }
 template<> QSize QVariant_to_helper<QSize>(const QCoreVariant &v, const QSize*)
-{ return static_cast<const QVariant &>(v).toSize(); }
+{ return v.toSize(); }
 
 #else
 
