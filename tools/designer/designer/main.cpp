@@ -48,7 +48,7 @@ extern void qt_wait_for_window_manager( QWidget* );
 extern "C" {
 #endif
 
-#if ( defined(_OS_OSF_) || defined(_OS_IRIX_) && defined(_CC_GNU_) )
+#if ( defined(_OS_OSF_) || defined(_OS_IRIX_) ) && defined(_CC_GNU_)
 static void signalHandler()
 #else
 static void signalHandler( int )
@@ -91,7 +91,7 @@ static void signalHandler( int )
 extern "C" {
 #endif
 
-#if ( defined(_OS_OSF_) || defined(_OS_IRIX_) && defined(_CC_GNU_) )
+#if ( defined(_OS_OSF_) || defined(_OS_IRIX_) ) && defined(_CC_GNU_)
 static void exitHandler()
 #else
 static void exitHandler( int )
@@ -102,7 +102,7 @@ static void exitHandler( int )
     exit( -1 );
 }
 
-#if ( defined(_OS_OSF_) || defined(_OS_IRIX_) && defined(_CC_GNU_) )
+#if ( defined(_OS_OSF_) || defined(_OS_IRIX_) ) && defined(_CC_GNU_)
 static void crashHandler()
 #else
 static void crashHandler( int )
