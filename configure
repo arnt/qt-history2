@@ -1428,8 +1428,6 @@ if [ "$CFG_CUPS" != "no" ]; then
     CFG_CUPS=yes
     $unixtests/cups.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_CUPS=no
 fi
-# auto-detect large file support
-# * MUST BE EXPLICITLY ENABLED FOR NOW - BREAKS BINARY COMPATIBILITY *
 
 # x11
 if [ "$PLATFORM_X11" = "yes" ]; then
