@@ -40,7 +40,9 @@
 
 /*!
   \class QMap qmap.h
-  \brief The QMap class is a value-based template class that provides a dictionary.
+
+  \brief The QMap class is a value-based template class that provides
+  a dictionary.
 
   \ingroup qtl
   \ingroup tools
@@ -48,23 +50,22 @@
   \mainclass
 
   QMap is a Qt implementation of an STL-like map container.  It
-  can be used in your application if the standard map\<\> is not
+  can be used in your application if the standard \c map is not
   available.  QMap is part of the \link qtl.html Qt Template
   Library\endlink.
 
-  QMap\<Key,Data\> defines a template instance to create a dictionary
-  with keys of type Key and values of type Data. QMap does not store
-  pointers to the members of the map. Instead, it holds a copy of
-  every member. For that reason this kind of classes is called
-  "value-based", whereas QPtrList and QDict are "reference-based".
+  QMap\<Key, Data\> defines a template instance to create a
+  dictionary with keys of type Key and values of type Data. QMap does
+  not store pointers to the members of the map; instead, it holds a
+  copy of every member. For that reason, QMap is value-based, whereas
+  QPtrList and QDict are pointer-based.
 
   QMap contains and manages a collection of objects of type Data with
   associated key values of type Key and provides iterators that allow
   the contained objects to be addressed.  QMap owns the contained
-  elements.  For more relaxed ownership semantics, see QPtrCollection and
-  friends which are pointer-based containers.
+  items.
 
-  Some classes cannot be used within a QMap - for example everything
+  Some classes cannot be used within a QMap. For example everything
   derived from QObject and thus all classes that implement widgets.
   Only values can be used in a QMap. To qualify as a value, the class
   must provide
@@ -79,93 +80,91 @@
   copy constructors if no explicit version is supplied. In many cases,
   this is sufficient.
 
-  QMap uses an STL-like syntax to manipulate and address the
-  objects it contains.  For historical reasons, QMap contains
-  additional functions which essentially perform the same task.  It is
-  recommended that the STL-like functions be used in application code
-  to ease the transition to a future version of Qt.  See the 
-  \link qtl.html Qt Template Library\endlink for more information.
-
   The class used for the key requires that the \c operator< is implemented
   to define ordering of the keys.
+
+  QMap's function naming is consistent with the other Qt classes
+  (e.g., count(), isEmpty()). QMap also provides extra functions for
+  compatibility with STL algorithms, such as size() and empty().
+  Programmers already familiar with the STL \c map can use these
+  functions instead.
 
   Example:
   \target qmap-eg
 \code
-#include <qstring.h>
-#include <qmap.h>
-#include <qstring.h>
+    #include <qstring.h>
+    #include <qmap.h>
+    #include <qstring.h>
 
-class Employee
-{
-public:
-    Employee(): sn(0) {}
-    Employee( const QString& forename, const QString& surname, int salary )
-	: fn(forename), sn(surname), sal(salary)
-    {}
+    class Employee
+    {
+    public:
+	Employee(): sn(0) {}
+	Employee( const QString& forename, const QString& surname, int salary )
+	    : fn(forename), sn(surname), sal(salary)
+	{ }
 
-    QString forename() const { return fn; }
-    QString surname() const { return sn; }
-    int salary() const { return sal; }
-    void setSalary( int salary ) { sal = salary; }
-private:
-    QString fn;
-    QString sn;
-    int sal;
-};
+	QString forename() const { return fn; }
+	QString surname() const { return sn; }
+	int salary() const { return sal; }
+	void setSalary( int salary ) { sal = salary; }
 
-int main(int argc, char **argv)
-{
-    QApplication app( argc, argv );
+    private:
+	QString fn;
+	QString sn;
+	int sal;
+    };
 
-    typedef QMap<QString,Employee> EmployeeMap;
-    EmployeeMap map;
+    int main(int argc, char **argv)
+    {
+	QApplication app( argc, argv );
 
-    map["JD001"] = Employee("John", "Doe", 50000);
-    map["JD002"] = Employee("Jane", "Williams", 80000);
-    map["TJ001"] = Employee("Tom", "Jones", 60000);
+	typedef QMap<QString, Employee> EmployeeMap;
+	EmployeeMap map;
 
-    Employee sasha( "Sasha", "Hind", 50000 );
-    map["SH001"] = sasha ;
-    sasha.setSalary( 40000 );
+	map["JD001"] = Employee("John", "Doe", 50000);
+	map["JD002"] = Employee("Jane", "Williams", 80000);
+	map["TJ001"] = Employee("Tom", "Jones", 60000);
 
-    EmployeeMap::Iterator it;
-    for( it = map.begin(); it != map.end(); ++it ) {
-	printf( "%s: %s, %s earns %d\n",
-	    it.key().latin1(),
-	    it.data().surname().latin1(),
-	    it.data().forename().latin1(),
-	    it.data().salary() );
+	Employee sasha( "Sasha", "Hind", 50000 );
+	map["SH001"] = sasha;
+	sasha.setSalary( 40000 );
+
+	EmployeeMap::Iterator it;
+	for ( it = map.begin(); it != map.end(); ++it ) {
+	    printf( "%s: %s, %s earns %d\n",
+		    it.key().latin1(),
+		    it.data().surname().latin1(),
+		    it.data().forename().latin1(),
+		    it.data().salary() );
+	}
+	return 0;
     }
-    return 0;
-}
 \endcode
 
   Program output:
 \code
-JD001: Doe, John earns 50000
-JW002: Williams, Jane earns 80000
-SH001: Hind, Sasha earns 50000
-TJ001: Jones, Tom earns 60000
+    JD001: Doe, John earns 50000
+    JW002: Williams, Jane earns 80000
+    SH001: Hind, Sasha earns 50000
+    TJ001: Jones, Tom earns 60000
 \endcode
 
-  As you can see, the latest changes to Sasha's salary did not affect
-  the value in the list because the map created a copy of Sasha's
-  entry. In addition, notice that the items are sorted alphabetically
-  (by key) when iterating over the map.
+  The latest changes to Sasha's salary did not affect the value in
+  the list because the map created a copy of Sasha's entry. In
+  addition, notice that the items are sorted alphabetically (by key)
+  when iterating over the map.
 
   There are several ways to find items in a map.  The begin() and
   end() functions return iterators to the beginning and end of the
   map. The advantage of using an iterator is that you can move
-  forward or backward by incrementing/decrementing
-  the iterator.  The iterator returned by end() points to the element
-  which is one past the last element in the container. The
-  past-the-end iterator is still associated with the map it belongs
-  to, however it is \e not dereferenceable; operator*() will not
-  return a well-defined value. If the map is empty(), the iterator
-  returned by begin() will equal the iterator returned by end().
-  Since end() returns a past-the-end iterator, the size() of the list
-  is equal to end() - begin().
+  forward or backward by incrementing/decrementing the iterator.  The
+  iterator returned by end() points to the element which is one past
+  the last element in the container. The past-the-end iterator is
+  still associated with the map it belongs to, however it is \e not
+  dereferenceable; operator*() will not return a well-defined value.
+  If the map is empty, the iterator returned by begin() will equal
+  the iterator returned by end().
 
   Another way to find an element in the map is by using the find()
   function. This returns an iterator pointing to the desired
@@ -191,7 +190,7 @@ TJ001: Jones, Tom earns 60000
   and iterators instead.
 
   If you just want to know whether a certain key is contained in the
-  map, use the count() function. In addition, size() tells you how
+  map, use the contains() function. In addition, count() tells you how
   many keys there are currently in the map.
 
   It is safe to have multiple iterators at the same time. If some
@@ -200,9 +199,8 @@ TJ001: Jones, Tom earns 60000
   iterators.
 
   Since QMap is value-based, there is no need to be concerned about deleting
-  elements in the map. The map holds its own copies and will free
-  them if the corresponding member or the map itself is deleted. You
-  can force the map to free all its item with clear().
+  items in the map. The map holds its own copies and will free
+  them if the corresponding member or the map itself is deleted.
 
   QMap is implicitly shared. This means you can just make copies of
   the map in time O(1). If multiple QMap instances share the same data
@@ -211,20 +209,19 @@ TJ001: Jones, Tom earns 60000
   other instances.  From a developer's point of view you can think
   that a QMap and a copy of this map have nothing to do with each
   other. If a QMap is being used in a multi-threaded program, you must
-  protect all access to the map.  See QMutex.
+  protect all access to the map. See \l QMutex.
 
-  There are several ways of inserting new elements into the map. One
+  There are several ways of inserting new items into the map. One
   uses the insert() method; the other one uses operator[] like this:
-
   \code
-  	QMap<QString,QString> map;
-	map["Clinton"] = "Bill";
-	map.insert( qMakePair("Bush", "George") );
+    QMap<QString, QString> map;
+    map["Clinton"] = "Bill";
+    map.insert( qMakePair("Bush", "George") );
   \endcode
 
   Items can also be removed from the map in several ways. The first is
-  to pass an iterator to erase(). The other is to pass a key
-  value to erase(), which will delete the entry with the requested
+  to pass an iterator to remove(). The other is to pass a key
+  value to remove(), which will delete the entry with the requested
   key. In addition you can clear the entire map using the clear()
   method.
 
@@ -237,9 +234,9 @@ TJ001: Jones, Tom earns 60000
 /*! \enum  QMap::mapped_type 
 	The map's data type. */
 /*! \enum  QMap::value_type 
-	Corresponds to QPair<key_type,mapped_type>.*/
+	Corresponds to QPair\<key_type, mapped_type\>. */
 /*! \enum  QMap::ValueType 
-	Corresponds to QPair<key_type,mapped_type>, QTL style.*/
+	Corresponds to QPair\<key_type, mapped_type\>, Qt style.*/
 /*! \enum  QMap::pointer 
 	Pointer to value_type.*/
 /*! \enum  QMap::const_pointer 
@@ -253,11 +250,11 @@ TJ001: Jones, Tom earns 60000
 /*! \enum  QMap::iterator 
 	The map's iterator type.*/
 /*! \enum QMap::Iterator
-	The map's iterator type, QTL style.*/
+	The map's iterator type, Qt style. */
 /*! \enum  QMap::const_iterator 
 	The map's const iterator type.*/
 /*! \enum  QMap::ConstIterator 
-	The map's const iterator type, QTL style.*/
+	The map's const iterator type, Qt style.*/
 /*! \enum QMap::difference_type
     \internal */
 /*! \enum QMap::Priv 
@@ -318,7 +315,6 @@ TJ001: Jones, Tom earns 60000
   and a reference to the item is returned.
 
   You can use this operator both for reading and writing:
-
   \code
     QMap<QString, QString> map;
     map["Clinton"] = "Bill";
@@ -330,7 +326,7 @@ TJ001: Jones, Tom earns 60000
   \fn void QMap::clear()
   Removes all items from the map.
 
-  \sa erase()
+  \sa remove()
 */
 
 /*!
@@ -430,54 +426,70 @@ TJ001: Jones, Tom earns 60000
 */
 
 /*! \fn size_type QMap::size() const
-  Returns the number of elements in the map.
+
+  Returns the number of items in the map.
+
+  This function is provided for STL compatibility. It is equivalent
+  to count().
+
+  \sa empty()
 */
 
 /*! \fn bool QMap::empty() const
-  Returns TRUE if the map's size is zero; otherwise returns FALSE.
+
+  Returns TRUE if the map contains zero items; otherwise returns FALSE.
+
+  This function is provided for STL compatibility. It is equivalent
+  to isEmpty().
+
+  \sa size()
 */
 
-/*! \fn QPair<iterator,bool> QMap::insert( const value_type& x )
+/*!
+  \overload
+  \fn QPair<iterator,bool> QMap::insert( const value_type& x )
 
-  Inserts \a x into the map.  \a x is a QPair<> whose \c first
-  element is a key to be inserted and whose \c second element is the
-  associated value to be inserted.  Returns a pair whose \c first
-  element is an iterator pointing to the inserted item and whose \c
-  second element is a bool indicating TRUE if \a x was inserted and
-  FALSE if it was not inserted because it was already present.
+  Inserts the (key, value) pair \a x into the map.  \a x is a QPair
+  whose \c first element is a key to be inserted and whose \c second
+  element is the associated value to be inserted.  Returns a pair
+  whose \c first element is an iterator pointing to the inserted item
+  and whose \c second element is a bool indicating TRUE if \a x was
+  inserted and FALSE if it was not inserted because it was already
+  present.
 */
 
 /*! \fn void QMap::erase( iterator it )
-  Removes the item at iterator position \a it in the map.
 
-  \sa clear() QMapIterator
-*/
+  Removes the item associated with the iterator \a it from the map.
 
-/*! \fn void QMap::erase( const key_type& k )
-
-  \overload
-
-  Removes the item with the key \a k.
+  This function is provided for STL compatibility. It is equivalent
+  to remove().
 
   \sa clear()
 */
 
+/*!
+  \overload
+  \fn void QMap::erase( const key_type& k )
+
+  Removes the item with the key \a k from the map.
+*/
+
 /*! \fn size_type QMap::count( const key_type& k ) const
-  Returns the number of elements whose key is \a k.  The return value
-  is either 0 or 1.
+
+  Returns the number of items whose key is \a k. Since QMap does
+  not allow duplicate keys, the return value is always 0 or 1.
+
+  This function is provided for STL compatibility.
 */
 
 /*! \fn Iterator QMap::replace( const Key& k, const T& v )
+
   Replaces the value with key \a k from the map if possible, and
   inserts the new value \a v with key \a k in the map.
 
-  \sa insert() remove() QMapIterator
+  \sa insert() remove()
 */
-
-// *****************************************************
-// Note : The following documentation is for historical reasons. 
-// These functions should be avoided in new code.
-// *****************************************************
 
 /*! \fn const T& QMap::operator[] ( const Key& k ) const
 
@@ -492,51 +504,51 @@ TJ001: Jones, Tom earns 60000
   key is present, a reference to an empty item is returned.
 */
 
-/*! \obsolete
+/*! 
+  \overload
   \fn uint QMap::count() const
 
-  Use size() instead.
+  Returns the number of items in the map.
 
   \sa isEmpty()
 */
 
-/*! \obsolete
+/*!
   \fn bool QMap::isEmpty() const
-  
-  Use empty() instead.
 
-  \sa size()
+  Returns TRUE if the map contains zero items; otherwise returns FALSE.
+
+  \sa count()
 */
 
-/*! \obsolete
+/*!
   \fn Iterator QMap::insert( const Key& key, const T& value, bool overwrite )
 
-  Use QMap::insert() instead.
-
-  \sa iterator
+  Inserts the \a value with \a key. If there is already a value
+  associated with \a key, it is replaced, unless \a overwrite is
+  FALSE (it is TRUE by default). 
 */
 
-/*! \obsolete
+/*!
   \fn void QMap::remove( iterator it )
 
-  Use erase() instead.
-
-  \sa clear() iterator
-*/
-
-/*! \obsolete
-    \overload void QMap::remove( const Key& k )
-
-  Use erase() instead.
+  Removes the item associated with the iterator \a it from the map.
 
   \sa clear()
 */
 
-/*! \obsolete
-  \fn bool QMap::contains( const Key& k ) const
-  
-  Use count() instead.
+/*!
+  \overload
+  \fn void QMap::remove( const Key& k )
 
+  Removes the item with the key \a k from the map.
+*/
+
+/*!
+  \fn bool QMap::contains( const Key& k ) const
+
+  Returns TRUE if the map contains an item with key \a k; otherwise
+  returns FALSE.
 */
 
 

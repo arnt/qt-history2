@@ -48,27 +48,26 @@
   \mainclass
   
   QValueList is a Qt implementation of an STL-like list container.  It
-  can be used in your application if the standard list<> is not
-  available.  QValueList is part of the \link qtl.html  Qt Template
+  can be used in your application if the standard \c list is not
+  available.  QValueList is part of the \link qtl.html Qt Template
   Library\endlink.
 
-  QValueList<T> defines a template instance to create
-  a list of values that all have the class T. Note that
-  QValueList does not store pointers to the
-  members of the list; it holds a copy of every member. This is why these
-  kinds of classes are called "value based"; QPtrList and QDict are
-  "pointer based".
+  QValueList\<T\> defines a template instance to create a list of
+  values that all have the class T. Note that QValueList does not
+  store pointers to the members of the list; it holds a copy of every
+  member. This is why these kinds of classes are called "value
+  based"; QPtrList and QDict are "pointer based".
 
   QValueList contains and manages a collection of objects of type T
   and provides iterators that allow the contained objects to be
-  addressed.  QValueList owns the contained elements.  For more
+  addressed.  QValueList owns the contained items.  For more
   relaxed ownership semantics, see QPtrCollection and friends which are
   pointer-based containers.
 
-  Some classes cannot be used within a QValueList - for example, all classes
-  derived from QObject and thus all classes that implement widgets.
-  Only values can be used in a QValueList. To qualify as a value the class
-  must provide:
+  Some classes cannot be used within a QValueList, for example, all
+  classes derived from QObject and thus all classes that implement
+  widgets. Only values can be used in a QValueList. To qualify as a
+  value the class must provide:
 
   \list
   \i A copy constructor
@@ -80,11 +79,11 @@
   copy constructors if no explicit version is supplied. In many cases
   this is sufficient.
 
-  QValueList uses an STL-like syntax to manipulate and address the
-  objects it contains.  For historical reasons, QValueList contains
-  additional functions which essentially perform the same task.  It is
-  recommended that the STL-like functions be used in application code.
-  See \link qtl.html this document\endlink for more information.
+  QValueList's function naming is consistent with the other Qt
+  classes (e.g., count(), isEmpty()). QMap also provides extra
+  functions for compatibility with STL algorithms, such as size() and
+  empty(). Programmers already familiar with the STL \c list can use
+  these functions instead.
 
   Example:
   \code
@@ -109,12 +108,12 @@ private:
     typedef QValueList<Employee> EmployeeList;
     EmployeeList list;
 
-    list.push_back( Employee("John", "Doe", 50000) );
-    list.push_back( Employee("Jane", "Williams", 80000) );
-    list.push_back( Employee("Tom", "Jones", 60000) );
+    list.append( Employee("John", "Doe", 50000) );
+    list.append( Employee("Jane", "Williams", 80000) );
+    list.append( Employee("Tom", "Jones", 60000) );
 
     Employee mary( "Mary", "Hawthorne", 90000 );
-    list.push_back( mary );
+    list.append( mary );
     mary.setSalary( 100000 );
 
     EmployeeList::iterator it;
@@ -138,16 +137,14 @@ private:
   end() functions return iterators to the beginning and end of the
   list.  The advantage of getting an iterator is that you can move
   forward or backward from this position by incrementing/decrementing
-  the iterator.  The iterator returned by end() points to the element
-  which is one past the last element in the container. The
+  the iterator.  The iterator returned by end() points to the item
+  which is one past the last item in the container. The
   past-the-end iterator is still associated with the list it belongs
   to, however it is \e not dereferenceable; operator*() will not
   return a well-defined value. If the list is empty(), the iterator
   returned by begin() will equal the iterator returned by end().
-  Since end() returns a past-the-end iterator, the size() of the list
-  is equal to end() - begin().
 
-  Another way to find an element in the list is by using the 
+  Another way to find an item in the list is by using the 
   \link qtl.html#qFind qFind()\endlink algorithm.  For example:
 
 \code
@@ -155,37 +152,37 @@ private:
     ...
     QValueList<int>::iterator it = qFind( list.begin(), list.end(), 3 );
     if ( it != list.end() )
-	// it points to the found element
+	// it points to the found item
 \endcode
 
   It is safe to have multiple iterators on the list at the same time.
   If some member of the list is removed, only iterators pointing to
   the removed member become invalid. Inserting into the list does not
-  invalidate any iterator. For convenience, the function back() returns
-  a reference to the last element in the list, and front() returns a
-  reference to the the first element.  If the list is empty(), both
-  back() and front() have undefined behavior (your application will
-  crash or do unpredictable things).  Use back() and front() with
+  invalidate any iterator. For convenience, the function last() returns
+  a reference to the last item in the list, and first() returns a
+  reference to the the first item.  If the list is empty(), both
+  last() and first() have undefined behavior (your application will
+  crash or do unpredictable things).  Use last() and first() with
   caution, for example:
 
 \code
     QValueList<int> list;
-    list.push_back( 1 );
-    list.push_back( 2 );
-    list.push_back( 3 );
+    list.append( 1 );
+    list.append( 2 );
+    list.append( 3 );
     ...
     if ( !list.empty() ) {
-	// OK, modify the first element
-	int& i = list.front();
+	// OK, modify the first item
+	int& i = list.first();
 	i = 18;
     }
     ...
     QValueList<double> dlist;
-    double d = dlist.back(); // undefined (probably a crash)
+    double d = dlist.last(); // undefined
 \endcode
 
   Because QValueList is value-based there is no need to be careful about
-  deleting elements in the list. The list holds its own copies and
+  deleting items in the list. The list holds its own copies and
   will free them if the corresponding member or the list itself is
   deleted. You can force the list to free all of its items with
   clear().
@@ -196,18 +193,18 @@ private:
   a copy and modifies its private copy; therefore it not affect the
   other instances.  This is often called "copy on write".  If a
   QValueList is being used in a multi-threaded program, you must
-  protect all access to the list.  See QMutex.
+  protect all access to the list.  See \l QMutex.
 
-  There are several ways to insert elements into the list.  The
-  push_front() and push_back() functions insert elements at the
-  beginning and the end of the list respectively.  The insert()
-  function comes in several flavors and can be used to add one or more
-  elements at specific positions within the list.
+  There are several ways to insert items into the list.  The
+  prepend() and append() functions insert items at the beginning and
+  the end of the list respectively.  The insert() function comes in
+  several flavors and can be used to add one or more items at
+  specific positions within the list.
 
   Items can be also be removed from the list in several ways. There
-  are several variants of the erase() function which removes a
-  specific element from the list.  The remove() function will find and
-  remove elements according to a specific element value.
+  are several variants of the remove() function, which removes a
+  specific item from the list.  The remove() function will find and
+  remove items according to a specific item value.
 
   Lists can be also sorted with the sort() function, or can be
   sorted using the \link qtl.html Qt Template Library\endlink.  For
@@ -216,10 +213,10 @@ private:
   Example:
   \code
     QValueList<int> l;
-    l.push_back( 5 );
-    l.push_back( 8 );
-    l.push_back( 3 );
-    l.push_back( 4 );
+    l.append( 5 );
+    l.append( 8 );
+    l.append( 3 );
+    l.append( 4 );
     qHeapSort( l );
   \endcode
 
@@ -265,7 +262,10 @@ private:
 */
 
 /*! \fn QValueList::QValueList( const std::list<T>& l )
+
   Contructs a copy of \a l.
+
+  This constructor is provided for compatibility with STL containers.
 */
 
 /*!
@@ -301,6 +301,8 @@ private:
 /*! \overload bool QValueList::operator== ( const std::list<T>& l ) const
 
   Returns TRUE if this list and \a l are equal; otherwise returns FALSE.
+
+  This operator is provided for compatibility with STL containers.
 */
 
 /*!
@@ -339,12 +341,11 @@ private:
 */
 
 /*!
+  \overload
   \fn uint QValueList::remove( const T& x )
 
   Removes all items that have value \a x and returns the number of removed
   items.
-
-  \sa clear()
 */
 
 /*!
@@ -358,7 +359,7 @@ private:
 /*!
   \overload iterator QValueList::begin()
 
-  Returns an iterator pointing to the first element in the list. This
+  Returns an iterator pointing to the first item in the list. This
   iterator equals end() if the list is empty.
   \sa first(), end()
 */
@@ -366,7 +367,7 @@ private:
 /*!
   \fn const_iterator QValueList::begin() const
 
-  Returns an iterator pointing to the first element in the list. This
+  Returns an iterator pointing to the first item in the list. This
   iterator equals end() if the list is empty.
   \sa first(), end()
 */
@@ -374,7 +375,7 @@ private:
 /*!
   \fn iterator QValueList::end()
 
-  Returns an iterator pointing behind the last element in the list. This
+  Returns an iterator pointing behind the last item in the list. This
   iterator equals begin() if the list is empty.
 
   \sa last(), begin()
@@ -383,7 +384,7 @@ private:
 /*!
     \overload const_iterator QValueList::end() const
 
-  Returns an iterator pointing behind the last element in the list. This
+  Returns an iterator pointing behind the last item in the list. This
   iterator equals begin() if the list is empty.
 
   \sa last(), begin()
@@ -407,77 +408,98 @@ private:
 
 /*! \fn size_type QValueList::size() const
 
-  Returns the number of elements in the list.
+  Returns the number of items in the list.
+
+  This function is provided for STL compatibility. It is equivalent to
+  count().
+
+  \sa empty()
 */
 
 /*! \fn bool QValueList::empty() const
 
-  Returns TRUE if the list's size is zero; otherwise returns FALSE.
+  Returns TRUE if the list contains no items; otherwise returns
+  FALSE.
+
+  \sa size()
 */
 
 /*! \fn void QValueList::push_front( const T& x )
 
   Inserts \a x at the beginning of the list.
+
+  This function is provided for STL compatibility. It is equivalent
+  to prepend().
 */
  
 /*! \fn void QValueList::push_back( const T& x )
 
   Inserts \a x at the end of the list.
+
+  This function is provided for STL compatibility. It is equivalent
+  to append().
 */
 
-/*! \fn iterator QValueList::erase( iterator pos )
+/*! \fn iterator QValueList::erase( iterator it )
 
-  Deletes the element pointed to by \a pos from the list.  No
-  iterators other than \a pos or other iterators pointing at the same
-  element as \a pos are invalidated.  Returns an iterator to the next
-  element after \a pos, or end() if there is no such element.
+  Removes the item pointed to by \a it from the list.  No
+  iterators other than \a it or other iterators pointing at the same
+  item as \a it are invalidated.  Returns an iterator to the next
+  item after \a it, or end() if there is no such item.
+
+  This function is provided for STL compatibility. It is equivalent
+  to remove().
 */
 
 /*! \overload iterator QValueList::erase( iterator first, iterator last ) 
 
-  Deletes all elements from \a first to \a last (not including \a
+  Deletes all items from \a first to \a last (not including \a
   last).  No iterators are invalidated, except those pointing to the
-  removed elements themselves.  Returns \a last.
+  removed items themselves.  Returns \a last.
 */
 
 /*! \fn reference QValueList::front()
 
-  Returns a reference to the first element.  If the list contains no
-  first element (i.e. empty() returns TRUE), the return value is
+  Returns a reference to the first item.  If the list contains no
+  first item (i.e. empty() returns TRUE), the return value is
   undefined.
+
+  This function is provided for STL compatibility. It is equivalent
+  to first().
+
+  \sa back()
 */
 
-/*! \overload const_reference QValueList::front() const
-
-  Returns a reference to the first element.  If the list contains no
-  first element (i.e. empty() returns TRUE), the return value is
-  undefined.
-*/
+/*! \overload const_reference QValueList::front() const */
 
 /*! \fn reference QValueList::back()
 
-  Returns a reference to the last element.  If the list contains no
-  last element (i.e. empty() returns TRUE), the return value is
+  Returns a reference to the last item.  If the list contains no
+  last item (i.e. empty() returns TRUE), the return value is
   undefined.
+
+  This function is provided for STL compatibility. It is equivalent
+  to last().
+
+  \sa front()
 */
 
-/*! \overload const_reference QValueList::back() const
-
-  Returns a reference to the last element.  If the list contains no
-  last element (i.e. empty() returns TRUE), the return value is
-  undefined.
-*/
+/*! \overload const_reference QValueList::back() const */
 
 /*! \fn void QValueList::pop_front()
 
-  Removes the first element.  If there is no first element, this
+  Removes the first item.  If there is no first item, this
   operation is undefined.
+
+  This function is provided for STL compatibility.
 */
 
 /*! \fn void QValueList::pop_back() 
 
-  Removes the last element.  If there is no last element, this
+  Removes the last item.  If there is no last item, this
   operation is undefined.
+
+  This function is provided for STL compatibility.
 */
 
 /*! \overload void QValueList::insert( iterator pos, size_type n, const T& x )
@@ -488,10 +510,14 @@ private:
 /*!
   \fn void QValueList::detach()
 
-  If the list does not share its data with another QValueList instance, nothing
-  happens. Otherwise the function creates a new copy of this data and detaches
-  from the shared one. This function is called whenever the list is modified.
-  The implicit sharing mechanism is implemented this way.
+  \internal
+
+  If the list does not share its data with another QValueList
+  instance, nothing happens. Otherwise the function creates a new
+  copy of this data and detaches from the shared one. This function
+  is called whenever the list is modified. The implicit sharing
+  mechanism is implemented this way.
+
 */
 
 /*!
@@ -505,58 +531,48 @@ private:
 /*!
   \fn const T& QValueList::operator[] ( size_type i ) const
 
+  Returns a const reference to the item with index \a i in the list.
+  It is up to you to check whether this item really exists. You can
+  do that easily with the count() function. However this operator
+  does not check whether \a i is in range and will deliver undefined
+  results if it does not exist.
+
   \warning This function uses a linear search and can be
   extremely slow for large lists.  QValueList is not optimized for
-  random element access. If you need random access use a different
+  random item access. If you need random access use a different
   container, such as QValueVector.
-
-  Returns a const reference to the item with index \a i in the list.
-  It is up to you to check whether this item really exists. You can do
-  that easily with the count() function. However this operator does
-  not check whether \a i is in range and will deliver undefined
-  results if it does not exist.
 */
 
 /*!
   \overload T& QValueList::operator[] ( size_type i )
 
-  \warning This function uses a linear search and can be
-  extremely slow for large lists.  QValueList is not optimized for
-  random element access. If you need random access use a different
-  container, such as QValueVector.
-
-  Returns a reference to the item with index \a i in the list. It is
-  up to you to check whether this item really exists. You can do that
-  easily with the count() function. However this operator does not
-  check whether \a i is in range and will deliver undefined results if
-  it does not exist. In contrast to the const operator[], you may
-  manipulate the value returned by this operator.
-*/
-
-/*!
-  \overload iterator QValueList::at( size_type i )
-
-  Returns an iterator pointing to the item at position \a i in the list, or
-  end() if the index is out of range.
+   Returns a non-const reference to the item with index \a i.
 */
 
 /*!
   \fn const_iterator QValueList::at( size_type i ) const
 
-  \warning This function uses a linear search and can be
-  extremely slow for large lists.  QValueList is not optimized for
-  random element access. If you need random access use a different
-  container, such as QValueVector.
-
   Returns an iterator pointing to the item at position \a i in the list, or
   end() if the index is out of range.
+
+  \warning This function uses a linear search and can be
+  extremely slow for large lists.  QValueList is not optimized for
+  random item access. If you need random access use a different
+  container, such as QValueVector.
+*/
+
+/*!
+  \overload iterator QValueList::at( size_type i )
+
+  Returns an iterator pointing to the item at position \a i in the
+  list, or end() if the index is out of range.
 */
 
 /*!
   \overload iterator QValueList::fromLast()
     
-  Returns an iterator to the last element in the list, or end() if
-  there is no last element.
+  Returns an iterator to the last item in the list, or end() if
+  there is no last item.
 
   Use the end() function instead.  For example:
 
@@ -574,8 +590,8 @@ private:
 /*!
   \fn const_iterator QValueList::fromLast() const
 
-  Returns an iterator to the last element in the list, or end() if
-  there is no last element.
+  Returns an iterator to the last item in the list, or end() if
+  there is no last item.
 
   Use the end() function instead.  For example:
 
@@ -590,194 +606,143 @@ private:
 
 */
 
-// *****************************************************
-// Note : The following documentation is provided for historical
-// reasons. These functions should be avoided in new code.
-// *****************************************************
-
 /*!
-  \obsolete
-  \fn QValueList<T> QValueList::operator+ ( const QValueList<T>& l ) const
+  \fn QValueList<T> QValueList::operator+( const QValueList<T>& l ) const
 
-  The \c std::copy() or qCopy() algorithms should be used instead.
-
-  Creates a new list and fills it with the elements of this list. Then the
-  elements of \a l are appended.
-
-  Returns the new list.
+  Creates a new list and fills it with the items of this list. Then the
+  items of \a l are appended. Returns the new list.
 */
 
-/*! \obsolete
+/*!
   \fn QValueList<T>& QValueList::operator+= ( const QValueList<T>& l )
   
-  The \c std::copy() or qCopy algorithms should be used instead.  For
-  example:
-
-  \code
-    QValueList<int> l1;
-    QValueList<int> l2;
-    ...
-    std::copy( l2.begin(), l2.end(), std::back_inserter( l1 ) );
-  \endcode
-
-  Adds \a l to this list.
-
-  Returns a reference to this list.
+  Appends the items of \a l to this list. Returns a reference to this list.
 */
 
 /*!
-  \obsolete
-    \overload QValueList<T>& QValueList::operator+= ( const T& x )
+  \overload QValueList<T>& QValueList::operator+= ( const T& x )
 
-  The push_back() function should be used instead.  For example:
-
-  \code
-    QValueList<int> list;
-    list.push_back( 1 );
-  \endcode
-
-  Adds the value \a x to the end of the list.
-
-  Returns a reference to the list.
+  Appends the value \a x to the list. Returns a reference to the list.
 */
 
 /*!
-  \obsolete
   \fn uint QValueList::count() const
 
-  Use the size() function instead.
+  Returns the number of items in the list.
 
+  \sa isEmpty()
 */
 
 /*!
-  \obsolete
   \fn bool QValueList::isEmpty() const
 
-  Use the empty() function instead.
+  Returns TRUE if the list contains no items; otherwise returns
+  FALSE.
 
-  \sa size()
+  \sa count()
 */
 
 /*!
-  \obsolete
   \fn iterator QValueList::append( const T& x )
 
-  The push_back() function should be used instead.  For example:
+  Inserts \a x at the end of the list.
 
-  \code
-    QValueList<int> list;
-    list.push_back( 1 );
-  \endcode
-
+  \sa insert(), prepend()
 */
 
 /*!
-  \obsolete
   \fn iterator QValueList::prepend( const T& x )
 
-  The push_front() function should be used instead.  For example:
+  Inserts \a x at the beginning of the list.
 
-  \code
-    QValueList<int> list;
-    list.push_front( 2 );
-    list.push_front( 1 );
-  \endcode
-
+  \sa insert(), append()
 */
 
 /*!
-  \obsolete
   \fn iterator QValueList::remove( iterator it )
 
-  Use the erase() function instead.
+  Removes the item pointed to by \a it from the list.  No
+  iterators other than \a it or other iterators pointing at the same
+  item as \a it are invalidated.  Returns an iterator to the next
+  item after \a it, or end() if there is no such item.
 
   \sa clear()
 */
 
-
 /*!
-  \obsolete
   \fn iterator QValueList::find( const T& x )
 
-  Use the std::find() or qFind() algorithms instead.
+  Returns an iterator pointing to the first occurrence of \a x in the
+  list.
 
+  Returns end() is no item matched.
 */
 
 /*!
-  \obsolete 
   \overload const_iterator QValueList::find( const T& x ) const
 
-  Use the std::find() or qFind() algorithms instead.
+  Returns an iterator pointing to the first occurrence of \a x in the
+  list.
 
+  Returns end() is no item matched.
 */
 
 /*!
-  \obsolete
-    \overload iterator QValueList::find( iterator it, const T& x )
+  \overload iterator QValueList::find( iterator it, const T& x )
 
-  Use the std::find() or qFind() algorithms instead.
+  Finds the first occurrence of \a x in the list starting at the
+  position given by \a it.
 
+  Returns end() if no item matched.
 */
 
 /*!
-  \obsolete
   \overload const_iterator QValueList::find( const_iterator it, const T& x ) const
 
-  Use the std::find() or qFind() algorithms instead.
+  Finds the first occurrence of \a x in the list starting at the
+  position given by \a it. Returns end() if no item matched.
 
 */
 
 /*!
-  \obsolete
   \fn uint QValueList::contains( const T& x ) const
 
-  Use the std::count() or qCount() algorithms instead.
-
+  Returns the number of occurrences of the value \a x in the list.
 */
 
 /*!
-  \obsolete
   \fn int QValueList::findIndex( const T& x ) const
  
-  Use the std::find() or qFind() algorithms instead.
-
+  Returns the index of the first occurrence of the value \a x.
+  Returns -1 if no item matched.
 */
 
 /*!
-  \obsolete
   \fn T& QValueList::first()
 
-  Use the front() function instead.
+  Returns a reference to the first item.  If the list contains no
+  first item (i.e. isEmpty() returns TRUE), the return value is
+  undefined.
 
+  \sa last()
 */
 
-/*!
-  \obsolete
-    \overload const T& QValueList::first() const
-
-  Use the front() function instead.
-
-*/
+/*! \overload const T& QValueList::first() const */
 
 /*!
-  \obsolete
   \fn T& QValueList::last()
 
-  Use the back() function instead.
-
+  Returns a reference to the last item.  If the list contains no
+  last item (i.e. empty() returns TRUE), the return value is
+  undefined.
 */
 
-/*!
-  \obsolete
-    \overload const T& QValueList::last() const
-
-  Use the back() function instead.
-
-*/
+/*! \overload const T& QValueList::last() const */
 
 /*****************************************************************************
   QValueListIterator documentation
  *****************************************************************************/
+
 /*!
   \class QValueListIterator qvaluelist.h
   \brief The QValueListIterator class provides an iterator for QValueList.
@@ -785,7 +750,7 @@ private:
   \ingroup qtl
   \ingroup tools
 
-  An iterator is a class for accessing the elements of a container
+  An iterator is a class for accessing the items of a container
   classes - a generalization of the index in an array. A pointer into
   a "const char *" and an index into an "int[]"
   are both iterators, and the general idea is to provide that
@@ -795,7 +760,7 @@ private:
   instantiations.  You can create the appropriate iterator type by
   using the \c iterator typedef provided by QValueList.  
 
-  The only way to access the elements in a QValueList is to use an
+  The only way to access the items in a QValueList is to use an
   iterator.
 
     Example (see QValueList for the complete code):

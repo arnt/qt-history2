@@ -47,16 +47,16 @@
   \mainclass
   
   QValueVector is a Qt implementation of an STL-like vector container.  It
-  can be used in your application if the standard vector<> is not
+  can be used in your application if the standard \c vector is not
   available.  QValueVector is part of the \link qtl.html  Qt Template
   Library\endlink.
 
-  QValueVector<T> defines a template instance to create
+  QValueVector\<T\> defines a template instance to create
   a vector of values that all have the class T. Please note that
   QValueVector does not store pointers to the
-  members of the vector; it holds a copy of every member. This is why these
-  kinds of classes are called "value based"; QPtrList and QDict are
-  "pointer based".
+  members of the vector; it holds a copy of every member. QValueVector
+  is said to be value based; in contrast, QPtrList and QDict are pointer
+  based.
 
   QValueVector contains and manages a collection of objects of type T
   and provides random access iterators that allow the contained
@@ -153,8 +153,6 @@
   to, however it is \e not dereferenceable; operator*() will not
   return a well-defined value. If the vector is empty(), the iterator
   returned by begin() will equal the iterator returned by end().
-  Since end() returns a past-the-end iterator, the size() of the vector
-  is equal to end() - begin().
 
   The fastest way to access an element of a vector is by using
   operator[].  This function provides random access and will return a
@@ -226,7 +224,7 @@
   }
   ...
   QValueVector<double> dvec;
-  double d = dvec.back(); // WARNING: undefined (probably a crash)
+  double d = dvec.back(); // undefined behavior
 \endcode
 
   Because QValueVector manages memory dynamically, it is recommended
@@ -274,18 +272,17 @@
 
   Example:
   \code
-	  QValueVector<int> v( 4 );
-	  v.push_back( 5 );
-	  v.push_back( 8 );
-	  v.push_back( 3 );
-	  v.push_back( 4 );
-	  qBubbleSort( v );
+    QValueVector<int> v( 4 );
+    v.push_back( 5 );
+    v.push_back( 8 );
+    v.push_back( 3 );
+    v.push_back( 4 );
+    qBubbleSort( v );
   \endcode
 
   QValueVector stores its elements in contiguous memory.  This means
   that you can use a QValueVector in any situation that requires an
   array.  
-
 */
 
 /*! \enum QValueVector::value_type 

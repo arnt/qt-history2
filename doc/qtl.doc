@@ -49,22 +49,15 @@ href="#Algorithms">algorithms</a>.  A container is an object which
 contains and manages other objects and provides iterators that allow
 the contained objects to be accessed.
 
-<em>Important Note:</em> The Qt Template Libray is compatible with STL
-algorithms and containers.  The STL provides generic algorithms,
-iterators, containers and function objects for use in applications.
-For example, the QTL iterators can be used with STL algorithms, since
-the STL is extensible and customizable, without using inheritance.
-The STL provides a common, standard set of container classes which
-multiple third-party libraries can share.  For historical reasons, some
-of the Qt value-based container classes contain an API which is
-non-standard.  It is recommended that the STL-style API available in
-the QTL be used instead (see the class documentation for the QTL
-containers: \l QMap, \l QValueVector, \l QValueList, \l QStringList,
-\l QValueStack).
+The QTL classes' naming conventions are consistent with the other Qt
+classes (e.g., count(), isEmpty()). They also provide extra functions
+for compatibility with STL algorithms, such as size() and empty().
+Programmers already familiar with the STL \c map can use these
+functions instead.
 
-Compared to the STL, the QTL contains only the most important features
-of the STL container API, has no platform differences, is often a
-little slower and often expands to less object code.
+Compared to the STL, the QTL contains only the most important
+features of the STL container API, has no platform differences, is
+often a little slower and often expands to less object code.
 
 If you cannot make copies of the objects you want to store you are
 better off with QPtrCollection and friends. They were designed to handle
@@ -103,7 +96,7 @@ does not track any associated iterators. This makes certain validity
 checks, for example when removing items, impossible to perform
 automatically, however it provides extremely good performance.
 
-<a name="Iterators"></a>
+\target Iterators
 \section1 Iterators
 
 The Qt Template Library deals with value objects, not with pointers.
@@ -114,10 +107,10 @@ iterator matches the size of a normal pointer.
 To iterate over a container, use a loop like this:
 
 \code
-	typedef QValueList<int> List;
-	List l;
-	for( List::Iterator it = l.begin(); it != l.end(); ++it )
-		printf("Number is %i\n",*it);
+    typedef QValueList<int> List;
+    List l;
+    for( List::Iterator it = l.begin(); it != l.end(); ++it )
+	printf( "Number is %i\n", *it );
 \endcode
 
 begin() returns the iterator pointing at the first element, while
@@ -131,15 +124,15 @@ postfix one (it++, it--), since the former is slightly faster.
 The same concept applies to the other container classes:
 
 \code
-	typedef QMap<QString,QString> Map;
-	Map map;
-	for( Map::iterator it = map.begin(); it != map.end(); ++it )
-		printf("Key=%s Data=%s\n", it.key().ascii(), it.data().ascii() );
+    typedef QMap<QString,QString> Map;
+    Map map;
+    for( Map::iterator it = map.begin(); it != map.end(); ++it )
+	printf( "Key=%s Data=%s\n", it.key().ascii(), it.data().ascii() );
 
-	typedef QValueVector<int> Vector;
-	Vector vec;
-	for( Vector::iterator it = vec.begin(); it != vec.end(); ++it )
-		printf("Data=%d\n", *it );
+    typedef QValueVector<int> Vector;
+    Vector vec;
+    for( Vector::iterator it = vec.begin(); it != vec.end(); ++it )
+	printf( "Data=%d\n", *it );
 \endcode
 
 There are two kind of iterators, the volatile iterator shown in the
@@ -149,7 +142,7 @@ whenever the container itself is const, such as a member variable
 inside a const function. Assigning a ConstIterator to a normal
 Iterator is not allowed as it would violate const semantics.
 
-<a name="Algorithms"></a>
+\target Algorithms
 \section1 Algorithms
 
 The Qt Template Library defines a number of algorithms that operate on
@@ -161,19 +154,19 @@ qHeapSort() and qBubbleSort() provide the well known sorting
 algorithms. You can use them like this:
 
 \code
-	typedef QValueList<int> List;
-	List l;
-	l << 42 << 100 << 1234 << 12 << 8;
-	qHeapSort( l );
-	
-	List l2;
-	l2 << 42 << 100 << 1234 << 12 << 8;
-	List::Iterator b = l2.find( 100 );
-	List::Iterator e = l2.find( 8 );
-	qHeapSort( b, e );
+    typedef QValueList<int> List;
+    List l;
+    l << 42 << 100 << 1234 << 12 << 8;
+    qHeapSort( l );
 
-	double arr[] = { 3.2, 5.6, 8.9 };
-	qHeapSort( arr, arr + 3 );
+    List l2;
+    l2 << 42 << 100 << 1234 << 12 << 8;
+    List::Iterator b = l2.find( 100 );
+    List::Iterator e = l2.find( 8 );
+    qHeapSort( b, e );
+
+    double arr[] = { 3.2, 5.6, 8.9 };
+    qHeapSort( arr, arr + 3 );
 \endcode
 
 The first example sorts the entire list. The second one sorts all
@@ -186,80 +179,86 @@ your data's class.
 
 Naturally, the sorting templates won't work with const iterators.
 
-<a name="qSwap"></a>Another utility is qSwap(). It exchanges the
-values of two variables:
+\target qSwap
+Another utility is qSwap(). It exchanges the values of two variables:
 
 \code
-	QString second( "Einstein" );
-	QString name( "Albert" );
-	qSwap( second, name );
+    QString second( "Einstein" );
+    QString name( "Albert" );
+    qSwap( second, name );
 \endcode
 
-<a name="qCount"></a>Another template function is qCount().  It counts
-the number of occurrences of a value within a container.  For example:
-
+\target qCount
+Another template function is qCount().  It counts the number of
+occurrences of a value within a container.  For example:
 \code
-	QValueList<int> l;
-	l.push_back( 1 );	       
-	l.push_back( 1 );	       
-	l.push_back( 1 );	       
-	l.push_back( 2 );	       
-	int c = 0;
-	qCount( l.begin(), l.end(), 1, c ); // c == 3
+    QValueList<int> l;
+    l.push_back( 1 );	       
+    l.push_back( 1 );	       
+    l.push_back( 1 );	       
+    l.push_back( 2 );	       
+    int c = 0;
+    qCount( l.begin(), l.end(), 1, c ); // c == 3
 \endcode	
 
-<a name="qFind"></a>Another template function is qFind.  It find the first occurrence of a
+\target qFind
+Another template function is qFind.  It find the first occurrence of a
 value within a container. For example:
 
 \code
-	QValueList<int> l;
-	l.push_back( 1 );	       
-	l.push_back( 1 );	       
-	l.push_back( 1 );	       
-	l.push_back( 2 );	       
-	QValueListIterator<int> it = qFind( l.begin(), l.end(), 2 );
+    QValueList<int> l;
+    l.push_back( 1 );	       
+    l.push_back( 1 );	       
+    l.push_back( 1 );	       
+    l.push_back( 2 );	       
+    QValueListIterator<int> it = qFind( l.begin(), l.end(), 2 );
 \endcode	
 
-<a name="qFill"></a>Another template function is qFill.  It fills a
+\target qFill
+Another template function is qFill.  It fills a
 range with copies of a value.  For example:
 
 \code
-	QValueVector<int> v(3);
-	qFill( v.begin(), v.end(), 99 ); // v contains 99, 99, 99
+    QValueVector<int> v(3);
+    qFill( v.begin(), v.end(), 99 ); // v contains 99, 99, 99
 \endcode
 
-<a name="qEqual"></a>Another template function is qEqual.  It compares
+\target qEqual
+Another template function is qEqual.  It compares
 two ranges for equality of their elements.  Note that the number of
 elements in each range is not considered, only if the elements in the
 first range are equal to the corresponding elements in the second
 range (consequently, both ranges must be valid).  For example:
 
 \code
-	QValueVector<int> v1(3);
-	v1[0] = 1;
-	v1[2] = 2;
-	v1[3] = 3;
-	QValueVector<int> v2(5);
-	v1[0] = 1;
-	v1[2] = 2;
-	v1[3] = 3;
-	v1[4] = 4;
-	v1[5] = 5;
-	bool b = qEqual( v1.begin(), v2.end(), v2.begin() );
-	// b == TRUE
+    QValueVector<int> v1(3);
+    v1[0] = 1;
+    v1[2] = 2;
+    v1[3] = 3;
+
+    QValueVector<int> v2(5);
+    v1[0] = 1;
+    v1[2] = 2;
+    v1[3] = 3;
+    v1[4] = 4;
+    v1[5] = 5;
+
+    bool b = qEqual( v1.begin(), v2.end(), v2.begin() );
+    // b == TRUE
 \endcode
 
-<a name="qCopy"></a>Another template function is qCopy(). It copies a
+\target qCopy
+Another template function is qCopy(). It copies a
 range of elements to an OutputIterator, in this case a
 QTextOStreamIterator:
 
 \code
-	QValueList<int> l;
-	l.push_back( 100 );
-	l.push_back( 200 );
-	l.push_back( 300 );
-	QTextOStream str( stdout );
-	qCopy( l.begin(), l.end(), QTextOStreamIterator( str ) );
+    QValueList<int> l;
+    l.push_back( 100 );
+    l.push_back( 200 );
+    l.push_back( 300 );
+    QTextOStream str( stdout );
+    qCopy( l.begin(), l.end(), QTextOStreamIterator(str) );
 \endcode
 
 Here is another example which copies a range of elements from one
@@ -268,45 +267,44 @@ which creates a QBackInsertIterator<> whose job is to insert elements
 into the end of a container.  For example:
 
 \code
-	QValueList<int> l;
-	l.push_back( 100 );
-	l.push_back( 200 );
-	l.push_back( 300 );
-	QValueVector<int> v;
-	qCopy( l.begin(), l.end(), qBackInserter( v ) );
+    QValueList<int> l;
+    l.push_back( 100 );
+    l.push_back( 200 );
+    l.push_back( 300 );
+    QValueVector<int> v;
+    qCopy( l.begin(), l.end(), qBackInserter(v) );
 \endcode
 
-<a name="qCopyBackward"></a>Another template function is
+\target qCopyBackward
+Another template function is
 qCopyBackward().  It copies a container or a slice of it to an
 OutputIterator, but in backwards fashion, for example:
 
 \code
-	QValueVector<int> vec(3);
-	vec.push_back( 100 );
-	vec.push_back( 200 );
-	vec.push_back( 300 );
-	QValueVector<int> another;
-	qCopyBackward( vec.begin(), vec.end(), another.begin() );
-	// 'another' now contains 100, 200, 300
-	// however the elements are copied one at a time 
-	// in reverse order (300, 200, then 100)
+    QValueVector<int> vec(3);
+    vec.push_back( 100 );
+    vec.push_back( 200 );
+    vec.push_back( 300 );
+    QValueVector<int> another;
+    qCopyBackward( vec.begin(), vec.end(), another.begin() );
+    // 'another' now contains 100, 200, 300
+    // however the elements are copied one at a time 
+    // in reverse order (300, 200, then 100)
 \endcode
 
-<a name="qMakePair"></a>Another template function is qMakePair().
-This is a convenience function which is used for creating QPair\<\>
-objects.  For example:
-
+\target qMakePair
+Another template function is qMakePair(). This is a convenience
+function which is used for creating QPair\<\> objects.  For example:
 \code
-	QMap<QString,QString> m;
-  	m.insert( qMakePair( "Berton", "Dave" ) );
+    QMap<QString,QString> m;
+    m.insert( qMakePair("Clinton", "Bill") );
 \endcode
 
 The above code is equivalent to:
-
 \code
-	QMap<QString,QString> m;
-	QPair<QString,QString> p( "Berton", "Dave" );
-  	m.insert( p );
+    QMap<QString,QString> m;
+    QPair<QString,QString> p( "Clinton", "Bill" );
+    m.insert( p );
 \endcode
 
 In addition, you can use any Qt Template Library iterator as the
@@ -315,14 +313,13 @@ as many elements present as you want to insert. The following example
 illustrates this:
 
 \code
-	QStringList l1, l2;
-	l1 << "Weis" << "Ettrich" << "Arnt" << "Sue";
-	l2 << "Torben" << "Matthias";
-	qCopy( l2.begin(), l2.end(), l1.begin() );
+    QStringList l1, l2;
+    l1 << "Weis" << "Ettrich" << "Arnt" << "Sue";
+    l2 << "Torben" << "Matthias";
+    qCopy( l2.begin(), l2.end(), l1.begin() );
 
-	QValueVector<QString> v( l1.size(), "Dave" );
-	qCopy( l2.begin(), l2.end(), v.begin() );
-
+    QValueVector<QString> v( l1.size(), "Dave" );
+    qCopy( l2.begin(), l2.end(), v.begin() );
 \endcode
 
 At the end of this code fragment, the list l1 contains "Torben",
@@ -336,9 +333,9 @@ possible.  In the above example, you could just as easily print out a
 standard C++ array with qCopy():
 
 \code
-	int arr[] = { 100, 200, 300 };
-	QTextOStream str( stdout );
-	qCopy( arr, arr + 3, QTextOStreamIterator( str ) );	
+    int arr[] = { 100, 200, 300 };
+    QTextOStream str( stdout );
+    qCopy( arr, arr + 3, QTextOStreamIterator( str ) );	
 \endcode
 
 
@@ -348,20 +345,18 @@ All mentioned containers can be serialized with the respective
 streaming operators. Here is an example.
 
 \code
-	QDataStream str(...);
-	QValueList<QRect> l;
-	// ... fill the list here
-	str << l;
+    QDataStream str(...);
+    QValueList<QRect> l;
+    // ... fill the list here
+    str << l;
 \endcode
 
 The container can be read in again with:
 
 \code
-	QValueList<QRect> l;
-	str >> l;
+    QValueList<QRect> l;
+    str >> l;
 \endcode
 
 The same applies to QStringList, QValueStack and QMap.
-
-
 */
