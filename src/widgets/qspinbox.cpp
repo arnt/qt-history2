@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#87 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -562,7 +562,8 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 	return FALSE;
 
     if ( ev->type() == QEvent::FocusOut || ev->type() == QEvent::Leave ) {
-	interpretText();
+	if ( edited )
+	    interpretText();
     } else if ( ev->type() == QEvent::KeyPress ) {
 	QKeyEvent* k = (QKeyEvent*)ev;
 	if ( k->key() == Key_Up || k->text() == "+" ) {
