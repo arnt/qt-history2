@@ -14396,7 +14396,7 @@ uint QString::toUInt( bool *ok, int base ) const
 
   If \a ok is non-null, and no conversion error occured then \a *ok 
   is set to TRUE.  In the event of a conversion error the number 
-  returned will be 0 and *ok is set to FALSE if ok is non-null.
+  returned will be an arbitrary double value and *ok is set to FALSE if ok is non-null.
 
   \sa number()
 */
@@ -14416,7 +14416,7 @@ double QString::toDouble( bool *ok ) const
 
   If \a ok is non-null, and no conversion error occured then \a *ok 
   is set to TRUE.  In the event of a conversion error the number 
-  returned will be 0 and *ok is set to FALSE if ok is non-null.
+  returned will be an arbitrary float value  and *ok is set to FALSE if ok is non-null.
 
   \sa number()
 */
