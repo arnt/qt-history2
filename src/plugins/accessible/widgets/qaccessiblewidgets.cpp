@@ -4,9 +4,6 @@
 #include <qgroupbox.h>
 #include <qscrollview.h>
 #include <qlistbox.h>
-#include <qlistview.h>
-#include <qiconview.h>
-#include <qtextedit.h>
 #include <qwidgetstack.h>
 
 /*!

@@ -5,12 +5,6 @@
 
 class QScrollView;
 class QListBox;
-class QListView;
-class QTextEdit;
-
-#ifndef QT_NO_ICONVIEW
-class QIconView;
-#endif
 
 class QAccessibleScrollView : public QAccessibleWidget
 {
