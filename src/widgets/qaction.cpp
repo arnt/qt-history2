@@ -1492,7 +1492,8 @@ bool QActionGroup::addTo( QWidget* w )
 		bool foundOn = FALSE;
 		for ( QPtrListIterator<QAction> it( d->actions); it.current(); ++it ) {
 		    QAction *action = it.current();
-		    foundOn = action->isOn();
+		    if ( !foundOn )
+			foundOn = action->isOn();
 		    if ( qstrcmp( action->name(), "qt_separator_action" ) && !foundOn )
 			onIndex++;
 		    action->addTo( box );
@@ -1606,6 +1607,10 @@ void QActionGroup::childToggled( bool b )
 	    }
 	    emit activated();
 	    emit selected( s );
+	    emit ((QActionGroup*)s)->activated();
+	} else if ( !s->isToggleAction() ) {
+	    emit activated();
+	    emit ((QActionGroup*)s)->activated();
 	}
     } else {
 	if ( s == d->selected ) {
@@ -1773,7 +1778,11 @@ void QActionGroup::internalComboBoxActivated( int index )
 		a->setOn( TRUE );
 
 	    emit activated();
-	    emit selected( d->selected );
+	    if ( a->isToggleAction() )
+		emit selected( d->selected );
+	    emit ((QActionGroup*)a)->activated();
+	} else if ( !a->isToggleAction() ) {
+	    emit activated();
 	    emit ((QActionGroup*)a)->activated();
 	}
     }
