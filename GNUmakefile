@@ -62,13 +62,13 @@ sub-tutorial: sub-src FORCE
 sub-examples: sub-tools FORCE
 	cd examples && $(MAKE)
 
-clean:
-	cd qmake && $(MAKE) clean
-	cd tools && $(MAKE) clean
-	cd src/moc && $(MAKE) clean
-	cd src && $(MAKE) clean
-	cd tutorial && $(MAKE) clean
-	cd examples && $(MAKE) clean
+clean uiclean mocclean:
+	cd qmake && $(MAKE) $@
+	cd tools && $(MAKE) $@
+	cd src/moc && $(MAKE) $@
+	cd src && $(MAKE) $@
+	cd tutorial && $(MAKE) $@
+	cd examples && $(MAKE) $@
 
 distclean: clean
 	-rm .qmake.cache
