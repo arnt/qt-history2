@@ -12,6 +12,7 @@
 -no-dsp
 -no-thread
 -no-accessibility
+-qt-style-windowsxp
 -no-style-motif
 -no-style-cde
 -no-style-sgi
