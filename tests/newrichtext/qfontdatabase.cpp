@@ -211,19 +211,32 @@ QtFontStyle *QtFontFoundry::style( const QtFontStyle::Key &key, bool create )
 
 struct QtFontFamily
 {
+    enum ScriptStatus { Unknown = 0, Supported = 1,
+			UnSupported_Xft= 2, UnSupported_Xlfd = 4, UnSupported = 6 };
+
     QtFontFamily(const QString &n )
-	: fixedPitch( TRUE ), name( n ), count( 0 ), foundries( 0 ) { }
+	: fixedPitch( TRUE ), hasXft( FALSE ), xftScriptCheck( FALSE ),
+	  xlfdLoaded( FALSE ), fullyLoaded( FALSE ),
+	  name( n ), count( 0 ), foundries( 0 ) {
+	memset( scripts, 0, sizeof( scripts ) );
+    }
     ~QtFontFamily() {
 	while ( count-- )
 	    delete foundries[count];
 	free( foundries );
     }
 
-    bool fixedPitch;
+    bool fixedPitch : 1;
+    bool hasXft : 1;
+    bool xftScriptCheck : 1;
+    bool xlfdLoaded : 1;
+    bool fullyLoaded : 1;
     QString name;
 
     int count;
     QtFontFoundry **foundries;
+
+    unsigned char scripts[ QFont::NScripts + 1 ];
 
     QtFontFoundry *foundry( const QString &f, bool = FALSE );
 };
@@ -249,24 +262,21 @@ QtFontFoundry *QtFontFamily::foundry( const QString &f, bool create )
     return foundries[count++];
 }
 
-
-struct QtFontScript
-{
-    QtFontScript() : count( 0 ), families( 0 ) { }
-    ~QtFontScript() {
+class QFontDatabasePrivate {
+public:
+    QFontDatabasePrivate() : count( 0 ), families( 0 ) { }
+    ~QFontDatabasePrivate() {
 	while ( count-- )
 	    delete families[count];
 	free( families );
     }
+    QtFontFamily *family( const QString &f, bool = FALSE );
 
     int count;
     QtFontFamily **families;
-
-    QtFontFamily *family( const QString &f, bool = FALSE );
 };
 
-
-QtFontFamily *QtFontScript::family( const QString &f, bool create )
+QtFontFamily *QFontDatabasePrivate::family( const QString &f, bool create )
 {
     for ( int i = 0; i < count; i++ ) {
 	if ( ucstricmp( families[i]->name, f ) == 0 )
@@ -275,6 +285,7 @@ QtFontFamily *QtFontScript::family( const QString &f, bool create )
     if ( !create )
 	return 0;
 
+//     qDebug("adding family %s",  f.latin1() );
     if ( !(count % 8) )
 	families = (QtFontFamily **)
 		   realloc( families,
@@ -285,11 +296,6 @@ QtFontFamily *QtFontScript::family( const QString &f, bool create )
 }
 
 
-class QFontDatabasePrivate {
-public:
-    QtFontScript scripts[ QFont::NScripts + 1 ];
-    QStringList families;
-};
 
 static QFontDatabasePrivate *db=0;
 
@@ -506,7 +512,6 @@ static int sortFamilies( const void *one, const void *two )
     return ucstricmp( (*as)->name, (*bs)->name );
 }
 
-
 /*! Returns a sorted list of the names of the available font families.
 
     If a family exists in several foundries, the returned name for
@@ -515,45 +520,25 @@ static int sortFamilies( const void *one, const void *two )
 */
 QStringList QFontDatabase::families() const
 {
-    if ( d->families.isEmpty() ) {
-	QtFontFamily **f = 0;
-	int count = 0;
-	int allocated = 0;
-	for ( int s = 0; s < QFont::NScripts+1; s++ ) {
-	    QtFontScript &script = d->scripts[s];
-	    int ncount = count + script.count;
-	    if ( ncount > allocated ) {
-		allocated = (((ncount+128) >> 7 ) << 7);
-		f = (QtFontFamily **) realloc( f, allocated*sizeof( QtFontFamily * ) );
-	    }
-	    memcpy( f + count, script.families, script.count*sizeof( QtFontFamily * ) );
-	    count = ncount;
-	}
-	qsort( f, count, sizeof( QtFontFamily * ), sortFamilies );
-
-	QString currentFamily = f[0]->name;
-	int start = 0;
-	for ( int i = 1; i < count; i++ ) {
-	    if ( f[i]->name != currentFamily ) {
-		QtFontFamily allFoundries( currentFamily );
-		for ( int j = start; j < i; j++ ) {
-		    QtFontFamily *family = f[j];
-		    for ( int k = 0; k < family->count; k++ )
-			allFoundries.foundry( family->foundries[k]->name,  TRUE );
+    QStringList flist;
+    for ( int i = 1; i < d->count; i++ ) {
+	QtFontFamily *f = d->families[i];
+	if ( f->count == 1 ) {
+	    flist.append( f->name );
+	} else {
+	    for ( int j = 0; j < f->count; j++ ) {
+		QString str = f->name;
+		QString foundry = f->foundries[j]->name;
+		if ( !foundry.isEmpty() ) {
+		    str += " [";
+		    str += foundry;
+		    str += "]";
 		}
-		bool printFoundries = ( allFoundries.count > 1 );
-		for ( int j = 0; j < allFoundries.count; j++ ) {
-		    QString str = currentFamily;
-		    if ( printFoundries && !allFoundries.foundries[j]->name.isEmpty() )
-			str += " [" + allFoundries.foundries[j]->name + "]";
-		    d->families.append( str );
-		}
-		currentFamily = f[i]->name;
-		start = i;
+		flist.append( str );
 	    }
 	}
     }
-    return d->families;
+    return flist;
 }
 
 
@@ -567,24 +552,20 @@ QStringList QFontDatabase::styles( const QString &family ) const
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
 
+    QStringList l;
+    QtFontFamily *f = d->family( familyName );
+    if ( !f )
+	return l;
+
     QtFontFoundry allStyles( foundryName );
-    for ( int s = 0; s < QFont::NScripts + 1; s++ ) {
-	QtFontScript &script = d->scripts[s];
-	for ( int i = 0; i < script.count; i++ ) {
-	    QtFontFamily *f = script.family( familyName );
-	    if ( !f ) continue;
-	    for ( int j = 0; j < f->count; j++ ) {
-		QtFontFoundry *foundry = f->foundries[j];
-		if ( foundryName.isEmpty() ||
-		     ucstricmp( foundry->name, foundryName ) == 0 ) {
-		    for ( int k = 0; k < foundry->count; k++ )
-			allStyles.style( foundry->styles[k]->key,  TRUE );
-		}
-	    }
+    for ( int j = 0; j < f->count; j++ ) {
+	QtFontFoundry *foundry = f->foundries[j];
+	if ( foundryName.isEmpty() || ucstricmp( foundry->name, foundryName ) == 0 ) {
+	    for ( int k = 0; k < foundry->count; k++ )
+		allStyles.style( foundry->styles[k]->key,  TRUE );
 	}
     }
 
-    QStringList l;
     for ( int i = 0; i < allStyles.count; i++ )
 	l.append( ::styleString( allStyles.styles[i]->key.weight,
 				 allStyles.styles[i]->key.italic,
@@ -602,21 +583,11 @@ bool QFontDatabase::isFixedPitch(const QString &family,
 {
     Q_UNUSED(style);
 
-    bool fixed = TRUE;
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
 
-    for ( int s = 0; s < QFont::NScripts + 1; s++ ) {
-	QtFontScript &script = d->scripts[s];
-	for ( int i = 0; i < script.count; i++ ) {
-	    QtFontFamily *f = script.family( familyName );
-	    if ( f && !f->fixedPitch ) {
-		fixed = FALSE;
-		break;
-	    }
-	}
-    }
-    return fixed;
+    QtFontFamily *f = d->family( familyName );
+    return ( f && f->fixedPitch );
 }
 
 /*!
@@ -629,7 +600,7 @@ bool QFontDatabase::isFixedPitch(const QString &family,
 
     \sa isScalable(), isSmoothlyScalable()
 */
-bool  QFontDatabase::isBitmapScalable( const QString &family,
+bool QFontDatabase::isBitmapScalable( const QString &family,
                                        const QString &style) const
 {
     bool bitmapScalable = FALSE;
@@ -638,23 +609,19 @@ bool  QFontDatabase::isBitmapScalable( const QString &family,
 
     QtFontStyle::Key styleKey( style );
 
-    for ( int s = 0; s < QFont::NScripts + 1; s++ ) {
-	QtFontScript &script = d->scripts[s];
-	for ( int i = 0; i < script.count; i++ ) {
-	    QtFontFamily *f = script.family( familyName );
-	    if ( !f ) continue;
-	    for ( int j = 0; j < f->count; j++ ) {
-		QtFontFoundry *foundry = f->foundries[j];
-		if ( foundryName.isEmpty() ||
-		     ucstricmp( foundry->name, foundryName ) == 0 ) {
-		    for ( int k = 0; k < foundry->count; k++ )
-			if ( foundry->styles[k]->key == styleKey &&
-			     foundry->styles[k]->bitmapScalable ) {
-			    bitmapScalable = TRUE;
-			    goto end;
-			}
+    QtFontFamily *f = d->family( familyName );
+    if ( !f ) return bitmapScalable;
+
+    for ( int j = 0; j < f->count; j++ ) {
+	QtFontFoundry *foundry = f->foundries[j];
+	if ( foundryName.isEmpty() || ucstricmp( foundry->name, foundryName ) == 0 ) {
+	    for ( int k = 0; k < foundry->count; k++ )
+		if ( foundry->styles[k]->key == styleKey &&
+		     foundry->styles[k]->bitmapScalable &&
+		     !foundry->styles[k]->smoothScalable ) {
+		    bitmapScalable = TRUE;
+		    goto end;
 		}
-	    }
 	}
     }
  end:
@@ -679,23 +646,19 @@ bool  QFontDatabase::isSmoothlyScalable( const QString &family,
 
     QtFontStyle::Key styleKey( style );
 
-    for ( int s = 0; s < QFont::NScripts + 1; s++ ) {
-	QtFontScript &script = d->scripts[s];
-	for ( int i = 0; i < script.count; i++ ) {
-	    QtFontFamily *f = script.family( familyName );
-	    if ( !f ) continue;
-	    for ( int j = 0; j < f->count; j++ ) {
-		QtFontFoundry *foundry = f->foundries[j];
-		if ( foundryName.isEmpty() ||
-		     ucstricmp( foundry->name, foundryName ) == 0 ) {
-		    for ( int k = 0; k < foundry->count; k++ )
-			if ( foundry->styles[k]->key == styleKey &&
-			     foundry->styles[k]->smoothScalable ) {
-			    smoothScalable = TRUE;
-			    goto end;
-			}
+    QtFontFamily *f = d->family( familyName );
+    if ( !f ) return smoothScalable;
+
+    for ( int j = 0; j < f->count; j++ ) {
+	QtFontFoundry *foundry = f->foundries[j];
+	if ( foundryName.isEmpty() ||
+	     ucstricmp( foundry->name, foundryName ) == 0 ) {
+	    for ( int k = 0; k < foundry->count; k++ )
+		if ( foundry->styles[k]->key == styleKey &&
+		     foundry->styles[k]->smoothScalable ) {
+		    smoothScalable = TRUE;
+		    goto end;
 		}
-	    }
 	}
     }
  end:
@@ -738,32 +701,26 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 
     QValueList<int> sizes;
 
-    for ( int s = 0; s < QFont::NScripts + 1; s++ ) {
-	QtFontScript &script = d->scripts[s];
-	for ( int i = 0; i < script.count; i++ ) {
-	    QtFontFamily *fam = script.family( familyName );
-	    if ( !fam ) continue;
+    QtFontFamily *fam = d->family( familyName );
+    if ( !fam ) return sizes;
 
-	    for ( int j = 0; j < fam->count; j++ ) {
-		QtFontFoundry *foundry = fam->foundries[j];
-		if ( foundryName.isEmpty() ||
-		     ucstricmp( foundry->name, foundryName ) == 0 ) {
-		    QtFontStyle *style = foundry->style( styleKey );
-		    if ( !style ) continue;
+    for ( int j = 0; j < fam->count; j++ ) {
+	QtFontFoundry *foundry = fam->foundries[j];
+	if ( foundryName.isEmpty() || ucstricmp( foundry->name, foundryName ) == 0 ) {
+	    QtFontStyle *style = foundry->style( styleKey );
+	    if ( !style ) continue;
 
-		    if ( style->smoothScalable ) {
-			smoothScalable = TRUE;
-			goto end;
-		    }
-		    for ( int l = 0; l < style->count; l++ ) {
-			const QtFontSize *size = style->pixelSizes + l;
+	    if ( style->smoothScalable ) {
+		smoothScalable = TRUE;
+		goto end;
+	    }
+	    for ( int l = 0; l < style->count; l++ ) {
+		const QtFontSize *size = style->pixelSizes + l;
 
-			if ( size->pixelSize != 0 &&
-			     size->pixelSize != USHRT_MAX &&
-			     !sizes.contains( size->pixelSize ) )
-			    sizes.append( size->pixelSize );
-		    }
-		}
+		if ( size->pixelSize != 0 &&
+		     size->pixelSize != USHRT_MAX &&
+		     !sizes.contains( size->pixelSize ) )
+		    sizes.append( size->pixelSize );
 	    }
 	}
     }
@@ -792,19 +749,14 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
     parseFontName( family, foundryName, familyName );
 
     QtFontFoundry allStyles( foundryName );
-    for ( int s = 0; s < QFont::NScripts + 1; s++ ) {
-	QtFontScript &script = d->scripts[s];
-	for ( int i = 0; i < script.count; i++ ) {
-	    QtFontFamily *f = script.family( familyName );
-	    if ( !f ) continue;
-	    for ( int j = 0; j < f->count; j++ ) {
-		QtFontFoundry *foundry = f->foundries[j];
-		if ( foundryName.isEmpty() ||
-		     ucstricmp( foundry->name, foundryName ) == 0 ) {
-		    for ( int k = 0; k < foundry->count; k++ )
-			allStyles.style( foundry->styles[k]->key,  TRUE );
-		}
-	    }
+    QtFontFamily *f = d->family( familyName );
+    if ( !f ) return QApplication::font();
+
+    for ( int j = 0; j < f->count; j++ ) {
+	QtFontFoundry *foundry = f->foundries[j];
+	if ( foundryName.isEmpty() || ucstricmp( foundry->name, foundryName ) == 0 ) {
+	    for ( int k = 0; k < foundry->count; k++ )
+		allStyles.style( foundry->styles[k]->key,  TRUE );
 	}
     }
 
@@ -843,32 +795,28 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 
     QValueList<int> sizes;
 
-    for ( int s = 0; s < QFont::NScripts + 1; s++ ) {
-	QtFontScript &script = d->scripts[s];
-	for ( int i = 0; i < script.count; i++ ) {
-	    QtFontFamily *fam = script.family( familyName );
-	    if ( !fam ) continue;
+    QtFontFamily *fam = d->family( familyName );
+    if ( !fam )
+	return sizes;
 
-	    for ( int j = 0; j < fam->count; j++ ) {
-		QtFontFoundry *foundry = fam->foundries[j];
-		if ( foundryName.isEmpty() ||
-		     ucstricmp( foundry->name, foundryName ) == 0 ) {
-		    QtFontStyle *style = foundry->style( styleKey );
-		    if ( !style ) continue;
+    for ( int j = 0; j < fam->count; j++ ) {
+	QtFontFoundry *foundry = fam->foundries[j];
+	if ( foundryName.isEmpty() ||
+	     ucstricmp( foundry->name, foundryName ) == 0 ) {
+	    QtFontStyle *style = foundry->style( styleKey );
+	    if ( !style ) continue;
 
-		    if ( style->smoothScalable ) {
-			smoothScalable = TRUE;
-			goto end;
-		    }
-		    for ( int l = 0; l < style->count; l++ ) {
-			const QtFontSize *size = style->pixelSizes + l;
+	    if ( style->smoothScalable ) {
+		smoothScalable = TRUE;
+		goto end;
+	    }
+	    for ( int l = 0; l < style->count; l++ ) {
+		const QtFontSize *size = style->pixelSizes + l;
 
-			if ( size->pixelSize != 0 &&
-			     size->pixelSize != USHRT_MAX &&
-			     !sizes.contains( size->pixelSize ) )
-			    sizes.append( size->pixelSize );
-		    }
-		}
+		if ( size->pixelSize != 0 &&
+		     size->pixelSize != USHRT_MAX &&
+		     !sizes.contains( size->pixelSize ) )
+		    sizes.append( size->pixelSize );
 	    }
 	}
     }
@@ -914,19 +862,14 @@ bool QFontDatabase::italic( const QString &family,
     parseFontName( family, foundryName, familyName );
 
     QtFontFoundry allStyles( foundryName );
-    for ( int s = 0; s < QFont::NScripts + 1; s++ ) {
-	QtFontScript &script = d->scripts[s];
-	for ( int i = 0; i < script.count; i++ ) {
-	    QtFontFamily *f = script.family( familyName );
-	    if ( !f ) continue;
-	    for ( int j = 0; j < f->count; j++ ) {
-		QtFontFoundry *foundry = f->foundries[j];
-		if ( foundryName.isEmpty() ||
-		     ucstricmp( foundry->name, foundryName ) == 0 ) {
-		    for ( int k = 0; k < foundry->count; k++ )
-			allStyles.style( foundry->styles[k]->key,  TRUE );
-		}
-	    }
+    QtFontFamily *f = d->family( familyName );
+    if ( !f ) return FALSE;
+
+    for ( int j = 0; j < f->count; j++ ) {
+	QtFontFoundry *foundry = f->foundries[j];
+	if ( foundryName.isEmpty() || ucstricmp( foundry->name, foundryName ) == 0 ) {
+	    for ( int k = 0; k < foundry->count; k++ )
+		allStyles.style( foundry->styles[k]->key,  TRUE );
 	}
     }
 
@@ -949,19 +892,15 @@ bool QFontDatabase::bold( const QString &family,
     parseFontName( family, foundryName, familyName );
 
     QtFontFoundry allStyles( foundryName );
-    for ( int s = 0; s < QFont::NScripts + 1; s++ ) {
-	QtFontScript &script = d->scripts[s];
-	for ( int i = 0; i < script.count; i++ ) {
-	    QtFontFamily *f = script.family( familyName );
-	    if ( !f ) continue;
-	    for ( int j = 0; j < f->count; j++ ) {
-		QtFontFoundry *foundry = f->foundries[j];
-		if ( foundryName.isEmpty() ||
-		     ucstricmp( foundry->name, foundryName ) == 0 ) {
-		    for ( int k = 0; k < foundry->count; k++ )
-			allStyles.style( foundry->styles[k]->key,  TRUE );
-		}
-	    }
+    QtFontFamily *f = d->family( familyName );
+    if ( !f ) return FALSE;
+
+    for ( int j = 0; j < f->count; j++ ) {
+	QtFontFoundry *foundry = f->foundries[j];
+	if ( foundryName.isEmpty() ||
+	     ucstricmp( foundry->name, foundryName ) == 0 ) {
+	    for ( int k = 0; k < foundry->count; k++ )
+		allStyles.style( foundry->styles[k]->key,  TRUE );
 	}
     }
 
@@ -985,19 +924,15 @@ int QFontDatabase::weight( const QString &family,
     parseFontName( family, foundryName, familyName );
 
     QtFontFoundry allStyles( foundryName );
-    for ( int s = 0; s < QFont::NScripts + 1; s++ ) {
-	QtFontScript &script = d->scripts[s];
-	for ( int i = 0; i < script.count; i++ ) {
-	    QtFontFamily *f = script.family( familyName );
-	    if ( !f ) continue;
-	    for ( int j = 0; j < f->count; j++ ) {
-		QtFontFoundry *foundry = f->foundries[j];
-		if ( foundryName.isEmpty() ||
-		     ucstricmp( foundry->name, foundryName ) == 0 ) {
-		    for ( int k = 0; k < foundry->count; k++ )
-			allStyles.style( foundry->styles[k]->key,  TRUE );
-		}
-	    }
+    QtFontFamily *f = d->family( familyName );
+    if ( !f ) return -1;
+
+    for ( int j = 0; j < f->count; j++ ) {
+	QtFontFoundry *foundry = f->foundries[j];
+	if ( foundryName.isEmpty() ||
+	     ucstricmp( foundry->name, foundryName ) == 0 ) {
+	    for ( int k = 0; k < foundry->count; k++ )
+		allStyles.style( foundry->styles[k]->key,  TRUE );
 	}
     }
 
@@ -1039,6 +974,12 @@ QString QFontDatabase::scriptName(QFont::Script script)
 	break;
     case QFont::Ogham:
 	name = QT_TRANSLATE_NOOP("QFont",  "Ogham" );
+	break;
+    case QFont::SpacingModifiers:
+	name = QT_TRANSLATE_NOOP("QFont",  "SpacingModifiers" );
+	break;
+    case QFont::CombiningMarks:
+	name = QT_TRANSLATE_NOOP("QFont",  "CombiningMarks" );
 	break;
     case QFont::Hebrew:
 	name = QT_TRANSLATE_NOOP("QFont",  "Hebrew" );
