@@ -16,7 +16,7 @@ JPEG_INC= /cs/include/jpeg
 ZLIB_INC= /cs/include
 
 # Location of lcms header files
-# (switch on MNG_FULL_CMS in mng_conf.h if you want to use this)
+# (switch on MNG_FULL_CMS in libmng_conf.h if you want to use this)
 LCMS_INC= /ltmp/lcms-1.06/source
 
 # compiler options:

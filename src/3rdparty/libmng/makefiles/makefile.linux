@@ -10,22 +10,29 @@
 CC=gcc
 
 # default build options (this forces shared library compatibility!!)
-OPTIONS = -DMNG_BUILD_SO
+#OPTIONS = -DMNG_BUILD_SO
+OPTIONS = -DMNG_BUILD_SO -DMNG_FULL_CMS
 
 # where "make install" puts libmng.a,libmng.so*,libmng.h,libmng_conf.h,libmng_types.h
 prefix=/usr/local
 
 # Where the zlib library and include files are located
-ZLIBLIB=../zlib
-ZLIBINC=../zlib
+#ZLIBLIB=../zlib
+#ZLIBINC=../zlib
+ZLIBLIB=/usr/local/lib
+ZLIBINC=/usr/local/include
 
 # Where the jpeg library and include files are located
-JPEGLIB=../jpgsrc
-JPEGINC=../jpgsrc
+#JPEGLIB=../jpgsrc
+#JPEGINC=../jpgsrc
+JPEGLIB=/usr/local/lib
+JPEGINC=/usr/local/include
 
 # Where the lcms library and include files are located
-LCMSLIB=../lcms/lib
-LCMSINC=../lcms/source
+#LCMSLIB=../lcms/lib
+#LCMSINC=../lcms/source
+LCMSLIB=/usr/local/lib
+LCMSINC=/usr/local/include
 
 ALIGN=
 # for i386:
@@ -50,7 +57,7 @@ RANLIB=ranlib
 
 # current version numbers
 MNGMAJ = 1
-MNGMIN = 1.0.2
+MNGMIN = 1.0.3
 MNGVER = $(MNGMAJ).$(MNGMIN)
 
 INCPATH=$(prefix)/include
@@ -96,8 +103,11 @@ libmng.so.$(MNGMAJ): libmng.so.$(MNGVER)
 	ln -sf libmng.so.$(MNGVER) libmng.so.$(MNGMAJ)
 
 libmng.so.$(MNGVER): $(OBJSDLL)
+#	$(CC) -shared -Wl,-soname,libmng.so.$(MNGMAJ) -o libmng.so.$(MNGVER) \
+#	$(OBJSDLL) -L$(ZLIBLIB) -L$(JPEGLIB) -L$(LCMSLIB) -lz -lm -lc
 	$(CC) -shared -Wl,-soname,libmng.so.$(MNGMAJ) -o libmng.so.$(MNGVER) \
-	$(OBJSDLL) -L$(ZLIBLIB) -L$(JPEGLIB) -L$(LCMSLIB) -lz -lm -lc
+	$(OBJSDLL) -L$(ZLIBLIB) -L$(JPEGLIB) -ljpeg -L$(LCMSLIB) -llcms \
+    -lz -lm -lc
 
 install: libmng.a libmng.so.$(MNGVER)
 	-@mkdir $(INCPATH) $(LIBPATH)

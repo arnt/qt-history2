@@ -1,12 +1,16 @@
-libmng 1.0.2
+libmng 1.0.3
 ------------
 
-Second maintenance release!
+Third maintenance release!
 
-There's now a memory-load reduced path for playback of long video MNG-streams
-and a few other minor fixes and added extra's.
+Small cosmetic changes. Cleaning up the contributions.
+New makefile for mingw32, and new fbcon example.
+Major thanks to Greg for helping out with the *nix stuff!
+Note that there's also a separate download for ASM programmers now.
+Check http://www.libmng.com for details (download/ports&packages page).
 
-Please enjoy!
+It may be a while for the next release. I'm "off duty" for the next 8 or
+so months...
 
 Gerard
 

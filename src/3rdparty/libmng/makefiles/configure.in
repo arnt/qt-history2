@@ -4,7 +4,7 @@ AC_INIT(libmng.h)
 
 dnl this call will define PACKAGE and VERSION
 dnl please use this as the primary reference for the version number
-AM_INIT_AUTOMAKE(libmng, 1.0.2)
+AM_INIT_AUTOMAKE(libmng, 1.0.3)
 
 dnl pass the version string on the the makefiles
 AC_SUBST(PACKAGE)

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_trace.h            copyright (c) 2000 G.Juyn        * */
-/* * version   : 1.0.2                                                      * */
+/* * version   : 1.0.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (definition)                               * */
 /* *                                                                        * */
@@ -108,6 +108,9 @@
 /* *             - added processterm callback                               * */
 /* *             1.0.2 - 06/25/2001 - G.Juyn                                * */
 /* *             - added option to turn off progressive refresh             * */
+/* *                                                                        * */
+/* *             1.0.3 - 08/06/2001 - G.Juyn                                * */
+/* *             - added get function for last processed BACK chunk         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -324,6 +327,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GET_REFRESHPASS        453
 #define MNG_FN_GET_CACHEPLAYBACK      454
 #define MNG_FN_GET_DOPROGRESSIVE      455
+#define MNG_FN_GET_LASTBACKCHUNK      456
 
 #define MNG_FN_STATUS_ERROR           481
 #define MNG_FN_STATUS_READING         482

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_trace.c            copyright (c) 2000 G.Juyn        * */
-/* * version   : 1.0.2                                                      * */
+/* * version   : 1.0.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (implementation)                           * */
 /* *                                                                        * */
@@ -99,6 +99,9 @@
 /* *             - added processterm callback                               * */
 /* *             1.0.2 - 06/25/2001 - G.Juyn                                * */
 /* *             - added option to turn off progressive refresh             * */
+/* *                                                                        * */
+/* *             1.0.3 - 08/06/2001 - G.Juyn                                * */
+/* *             - added get function for last processed BACK chunk         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -288,6 +291,7 @@
     {MNG_FN_GET_REFRESHPASS,           "get_refreshpass"},
     {MNG_FN_GET_CACHEPLAYBACK,         "get_cacheplayback"},
     {MNG_FN_GET_DOPROGRESSIVE,         "get_doprogressive"},
+    {MNG_FN_GET_LASTBACKCHUNK,         "get_lastbackchunk"},
 
     {MNG_FN_STATUS_ERROR,              "status_error"},
     {MNG_FN_STATUS_READING,            "status_reading"},

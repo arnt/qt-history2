@@ -1,5 +1,5 @@
 For conditions of distribution and use, see copyright notice in libmng.h
-or the file LICENSE in the top-devel directory of the source distribution
+or the file LICENSE in the top-level directory of the source distribution.
 
 This directory hosts the makefiles for all currently supported platforms.
 
@@ -19,6 +19,7 @@ makefile.bcb3 - Borland C++ Builder
 makefile.vcwin32 - Microsoft Visual C++
 makefile.unix - generic Unix
 makefile.linux - Linux ELF (builds shared library)
+makefile.mingw - builds a static library for mingw32
 
 
 Makefile.am, aclocal.m4 and configure.in - automake/autoconf source

@@ -100,7 +100,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng.h                  copyright (c) 2000 G.Juyn        * */
-/* * version   : 1.0.2                                                      * */
+/* * version   : 1.0.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : main application interface                                 * */
 /* *                                                                        * */
@@ -225,6 +225,9 @@
 /* *             1.0.2 - 06/25/2001 - G.Juyn                                * */
 /* *             - added late binding errorcode (not used internally)       * */
 /* *             - added option to turn off progressive refresh             * */
+/* *                                                                        * */
+/* *             1.0.3 - 08/06/2001 - G.Juyn                                * */
+/* *             - added get function for last processed BACK chunk         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -364,12 +367,12 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "1.0.2"
+#define MNG_VERSION_TEXT    "1.0.3"
 #define MNG_VERSION_SO      1          /* eg. libmng.so.1  */
 #define MNG_VERSION_DLL     1          /* but: libmng.dll (!) */
 #define MNG_VERSION_MAJOR   1
 #define MNG_VERSION_MINOR   0
-#define MNG_VERSION_RELEASE 2
+#define MNG_VERSION_RELEASE 3
 
 MNG_EXT mng_pchar MNG_DECL mng_version_text    (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_so      (void);
@@ -391,7 +394,8 @@ MNG_EXT mng_uint8 MNG_DECL mng_version_release (void);
 #define MNG_MNG_VERSION     "1.0"
 #define MNG_MNG_VERSION_MAJ 1
 #define MNG_MNG_VERSION_MIN 0
-#define MNG_MNG_DRAFT       99         /* deprecated */
+#define MNG_MNG_DRAFT       99         /* deprecated;
+                                          only used for nEED "MNG DRAFT nn" */
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -1043,6 +1047,16 @@ MNG_EXT mng_speedtype
    text of the image being processed; the value 1 is returned for top-level
    texts, and the value 2 for a text inside an embedded image inside a MNG */
 MNG_EXT mng_uint32  MNG_DECL mng_get_imagelevel      (mng_handle        hHandle);
+
+/* BACK info */
+/* can be used to retrieve the color & mandatory values for the last processed
+   BACK chunk of a MNG (will fail for other image-types);
+   if no BACK chunk was processed yet, it will return all zeroes */
+MNG_EXT mng_retcode MNG_DECL mng_get_lastbackchunk   (mng_handle        hHandle,
+                                                      mng_uint16*       iRed,
+                                                      mng_uint16*       iGreen,
+                                                      mng_uint16*       iBlue,
+                                                      mng_uint8*        iMandatory);
 
 /* Display status variables */
 /* these get filled & updated during display processing */

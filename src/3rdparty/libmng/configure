@@ -722,7 +722,7 @@ fi
 
 PACKAGE=libmng
 
-VERSION=1.0.2
+VERSION=1.0.3
 
 if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
   { echo "configure: error: source directory already configured; run "make distclean" there first" 1>&2; exit 1; }
