@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#17 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#16 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#17 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -195,15 +195,15 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 
-void QWidget::setBackgroundColor( const QColor &c )
+void QWidget::setBackgroundColor( const QColor &color )
 {
-    bg_col = c;
+    bg_col = color;
     update();
 }
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
-    debug( "QWidget::setBackgroundPixmap: Not implemented" );
+    warning( "QWidget::setBackgroundPixmap: Not implemented" );
     update();
 }
 
@@ -212,6 +212,36 @@ void QWidget::setCursor( const QCursor &cursor )
 {
     ((QCursor*)&cursor)->handle();
     curs = cursor;
+}
+
+
+void QWidget::setCaption( const char *caption )
+{
+    if ( extra )
+	delete [] extra->caption;
+    else
+	createExtra();
+    extra->caption = qstrdup( caption );
+    SetWindowText( id(), extra->caption );
+}
+
+void QWidget::setIcon( const QPixmap &pixmap )
+{
+    if ( extra )
+	delete extra->icon;
+    else
+	createExtra();
+    extra->icon = new QPixmap( pixmap );
+    warning( "QWidget::setIcon: Not implemented" );
+}
+
+void QWidget::setIconText( const char *iconText )
+{
+    if ( extra )
+	delete [] extra->iconText;
+    else
+	createExtra();
+    extra->iconText = qstrdup( iconText );
 }
 
 
@@ -366,6 +396,7 @@ void QWidget::setFocus()
     QApplication::sendEvent( this, &in );
 }
 
+
 bool QWidget::focusNextChild()
 {
     return TRUE;				// !!!TODO
@@ -377,7 +408,7 @@ bool QWidget::focusPrevChild()
 }
 
 
-bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
+bool QWidget::enableUpdates( bool enable )
 {
     bool last = !testWFlags( WNoUpdates );
     if ( enable )
@@ -387,14 +418,15 @@ bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
     return last;
 }
 
-void QWidget::update()				// update widget
+
+void QWidget::update()
 {
     if ( !testWFlags(WNoUpdates) )
 	InvalidateRect( id(), 0, TRUE );
 }
 
 void QWidget::update( int x, int y, int w, int h )
-{						// update part of widget
+{
     if ( !testWFlags(WNoUpdates) ) {
 	RECT rect;
 	rect.left   = x;
@@ -404,6 +436,7 @@ void QWidget::update( int x, int y, int w, int h )
 	InvalidateRect( id(), &rect, TRUE );
     }
 }
+
 
 void QWidget::repaint( const QRect &r, bool erase )
 {
@@ -551,7 +584,11 @@ void QWidget::setMaximumSize( int w, int h )
 
 void QWidget::setSizeIncrement( int w, int h )
 {
-    debug( "QWidget::setSizeIncrement: Not implemented" );
+    if ( testWFlags(WType_Overlap) ) {
+	createExtra();
+	extra->incw = w;
+	extra->inch = h;
+    }
 }
 
 
@@ -629,29 +666,4 @@ long QWidget::metric( int m ) const		// return widget metrics
 
     }
     return val;
-}
-
-
-// --------------------------------------------------------------------------
-// QWindow member functions
-//
-
-void QWindow::setCaption( const char *s )
-{
-    ctext = s;
-    SetWindowText( id(), (const char *)ctext );
-}
-
-void QWindow::setIconText( const char *s )
-{
-    itext = s;
-}
-
-void QWindow::setIcon( QPixmap *pixmap )
-{
-    if ( ipm != pixmap ) {
-	delete ipm;
-	ipm = pixmap;
-    }
-    debug( "QWidget::setIcon: Not implemented" );
 }
