@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#245 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#246 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12753,6 +12753,8 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 		    b += 2;
 		}
 	    }
+	} else {
+	    str = "";
 	}
     }
     return s;
