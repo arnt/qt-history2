@@ -1821,19 +1821,25 @@ void QLineEdit::drawContents( QPainter *p )
     QFontMetrics fm = fontMetrics();
     QRect lineRect( cr.x() + innerMargin, cr.y() + (cr.height() - fm.height() + 1) / 2,
 		    cr.width() - 2*innerMargin, fm.height() );
+    bool enabled = isEnabled();
     QBrush bg = QBrush( paletteBackgroundColor() );
-    if ( paletteBackgroundPixmap() )
-	bg = QBrush( cg.background(), *paletteBackgroundPixmap() );
-    else if ( !isEnabled() )
+
+    if (paletteBackgroundPixmap())
+	bg = QBrush(cg.background(), *paletteBackgroundPixmap());
+    else if (enabled)
 	bg = cg.brush( QColorGroup::Background );
+
     p->save();
-    p->setClipRegion( QRegion(cr) - lineRect );
+    if (enabled)
+	p->setClipRegion( QRegion(cr) - lineRect );
     p->fillRect( cr, bg );
     p->restore();
-    QSharedDoubleBuffer buffer( p, lineRect.x(), lineRect.y(),
- 				lineRect.width(), lineRect.height(),
- 				hasFocus() ? QSharedDoubleBuffer::Force : 0 );
-    p = buffer.painter();
+
+    QSharedDoubleBuffer buffer(hasFocus() ? QSharedDoubleBuffer::Force : 0);
+    if (enabled) {
+	buffer.begin(p, lineRect);
+	p = buffer.painter();
+    }
     p->fillRect( lineRect, bg );
 
     // locate cursor position
@@ -1965,7 +1971,6 @@ void QLineEdit::drawContents( QPainter *p )
 	    p->drawLine( from, to );
 	}
     }
-    buffer.end();
 }
 
 
