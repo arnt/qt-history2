@@ -60,7 +60,7 @@ public:
     int heightForWidth(int) const;
 
     QRect actionGeometry(QAction *) const;
-    QAction *actionAtPos(const QPoint &) const;
+    QAction *actionAt(const QPoint &) const;
 
     void setCornerWidget(QWidget *w, Qt::Corner corner = Qt::TopRightCorner);
     QWidget *cornerWidget(Qt::Corner corner = Qt::TopRightCorner) const;
@@ -247,7 +247,7 @@ protected:
         return QRect();
     }
     inline QT_COMPAT int itemAtPos(const QPoint &p) {
-        return findIdForAction(actionAtPos(p));
+        return findIdForAction(actionAt(p));
     }
 
 private:

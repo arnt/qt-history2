@@ -49,7 +49,7 @@ QRect QAccessibleMenu::rect(int child) const
 
 int QAccessibleMenu::childAt(int x, int y) const
 {
-    QAction *act = menu()->actionAtPos(menu()->mapFromGlobal(QPoint(x,y)));
+    QAction *act = menu()->actionAt(menu()->mapFromGlobal(QPoint(x,y)));
     if(act && act->isSeparator())
         act = 0;
     return menu()->actions().indexOf(act) + 1;
@@ -187,7 +187,7 @@ QRect QAccessibleMenuBar::rect(int child) const
 int QAccessibleMenuBar::childAt(int x, int y) const
 {
     QPoint p = menuBar()->mapFromGlobal(QPoint(x,y));
-    return menuBar()->actions().indexOf(menuBar()->actionAtPos(p)) + 1;
+    return menuBar()->actions().indexOf(menuBar()->actionAt(p)) + 1;
 }
 
 /*

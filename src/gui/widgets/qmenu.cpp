@@ -1145,7 +1145,7 @@ int QMenu::columnCount() const
 
   Returns the item at \a pt; returns 0 if there is no item there.
 */
-QAction *QMenu::actionAtPos(const QPoint &pt) const
+QAction *QMenu::actionAt(const QPoint &pt) const
 {
     if (QAction *ret = d->actionAt(pt))
         return ret;

@@ -85,7 +85,7 @@ public:
     QSize sizeHint() const;
 
     QRect actionGeometry(QAction *) const;
-    QAction *actionAtPos(const QPoint &) const;
+    QAction *actionAt(const QPoint &) const;
 
     QAction *menuAction() const;
 
@@ -303,7 +303,7 @@ public:
 
 protected:
     inline QT_COMPAT int itemAtPos(const QPoint &p, bool ignoreSeparator = true) {
-        QAction *ret = actionAtPos(p);
+        QAction *ret = actionAt(p);
         if(ignoreSeparator && ret && ret->isSeparator())
             return -1;
         return findIdForAction(ret);

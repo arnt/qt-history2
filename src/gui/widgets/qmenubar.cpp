@@ -1058,7 +1058,7 @@ bool QMenuBar::eventFilter(QObject *object, QEvent *event)
   Return the item at \a pt, or 0 if there is no item there or if it is
   a separator item.
 */
-QAction *QMenuBar::actionAtPos(const QPoint &pt) const
+QAction *QMenuBar::actionAt(const QPoint &pt) const
 {
     Q_D(const QMenuBar);
     return d->actionAt(pt);
