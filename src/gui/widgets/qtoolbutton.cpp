@@ -28,11 +28,39 @@
 #include <qmainwindow.h>
 #include <qtoolbar.h>
 #include <qvariant.h>
-#include <private/qtoolbutton_p.h>
+#include <private/qabstractbutton_p.h>
 
+class QToolButtonPrivate : public QAbstractButtonPrivate
+{
+    Q_DECLARE_PUBLIC(QToolButton)
+public:
+    void init();
+    void buttonPressed();
+    void popupTimerDone();
+    void actionTriggered();
+    QStyleOptionToolButton getStyleOption() const;
+    QPointer<QMenu> menu; //the menu set by the user (setMenu)
+    QBasicTimer popupTimer;
+    int delay;
+    Qt::ArrowType arrow;
+    Qt::IconSize iconSize;
+    Qt::ToolButtonStyle toolButtonStyle;
+    QToolButton::ToolButtonPopupMode popupMode;
+    uint menuButtonDown          : 1;
+    uint autoRaise             : 1;
+    uint repeat                : 1;
+    uint hasArrow              : 1;
+    QAction *defaultAction;
+    bool hasMenu() const;
+};
 
 #define d d_func()
 #define q q_func()
+
+bool QToolButtonPrivate::hasMenu() const
+{
+    return (menu || q->actions().size() > (defaultAction ? 1 : 0));
+}
 
 /*!
     \class QToolButton qtoolbutton.h
@@ -183,21 +211,22 @@ void QToolButtonPrivate::init()
 {
     delay = q->style()->styleHint(QStyle::SH_ToolButton_PopupDelay, 0, q);
     menu = 0;
+    defaultAction = 0;
     autoRaise = (qt_cast<QToolBar*>(q->parentWidget()) != 0);
     arrow = Qt::LeftArrow;
-    instantPopup = false;
-    discardNextMouseEvent = false;
+    menuButtonDown = false;
     popupMode = QToolButton::DelayedPopupMode;
 
     toolButtonStyle = Qt::ToolButtonIconOnly;
     iconSize = Qt::AutomaticIconSize;
     hasArrow = false;
 
-    q->setFocusPolicy(Qt::NoFocus);
+    q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    QObject::connect(q, SIGNAL(pressed()), q, SLOT(popupPressed()));
+    QObject::connect(q, SIGNAL(pressed()), q, SLOT(buttonPressed()));
 }
+
 
 QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
 {
@@ -213,28 +242,27 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         opt.state |= QStyle::Style_Down;
     if (checked)
         opt.state |= QStyle::Style_On;
-    if (autoRaise) {
+    if (autoRaise)
         opt.state |= QStyle::Style_AutoRaise;
-        if (q->uses3D()) {
-            opt.state |= QStyle::Style_MouseOver;
-            if (!checked && !down)
-                opt.state |= QStyle::Style_Raised;
-        }
-    } else if (!checked && !down) {
+    if (q->underMouse())
+        opt.state |= QStyle::Style_MouseOver;
+    if (!checked && !down)
         opt.state |= QStyle::Style_Raised;
-    }
 
     opt.subControls = QStyle::SC_ToolButton;
     opt.activeSubControls = QStyle::SC_None;
-    if (down || (instantPopup && popupMode != QToolButton::MenuButtonPopupMode))
-        opt.activeSubControls |= QStyle::SC_ToolButton;
+//     if (down && !menuButtonDown)
+//         opt.activeSubControls |= QStyle::SC_ToolButton;
 
     opt.features = QStyleOptionToolButton::None;
-    if ((menu || q->actions().size() > 1) && popupMode == QToolButton::MenuButtonPopupMode) {
+    if (popupMode == QToolButton::MenuButtonPopupMode) {
         opt.subControls |= QStyle::SC_ToolButtonMenu;
         opt.features |= QStyleOptionToolButton::Menu;
-        if (instantPopup || down)
+        if (menuButtonDown || down)
             opt.activeSubControls |= QStyle::SC_ToolButtonMenu;
+    } else {
+        if (menuButtonDown)
+            opt.state  |= QStyle::Style_Down;
     }
     if (hasArrow)
         opt.features |= QStyleOptionToolButton::Arrow;
@@ -305,7 +333,7 @@ QSize QToolButton::sizeHint() const
 
     QStyleOptionToolButton opt = d->getStyleOption();
     opt.rect.setHeight(h); // PM_MenuButtonIndicator depends on the height
-    if ((d->menu || actions().size() > 1) && d->popupMode == MenuButtonPopupMode)
+    if (d->popupMode == MenuButtonPopupMode)
         w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
 
     return style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), this).
@@ -440,34 +468,29 @@ void QToolButton::paintEvent(QPaintEvent *)
 void QToolButton::actionEvent(QActionEvent *event)
 {
     QAction *action = event->action();
-    bool isButtonAction = (action == actions().value(0));
-
     switch (event->type()) {
-    case QEvent::ActionAdded:
-        if (isButtonAction)
-            action->connect(q, SIGNAL(clicked()), SLOT(trigger()));
-        // fall through intended
-
     case QEvent::ActionChanged:
-        if (isButtonAction) {
-            setText(action->iconText());
-            setIcon(action->icon());
-            setToolTip(action->toolTip());
-            setStatusTip(action->statusTip());
-            setWhatsThis(action->whatsThis());
-            setMenu(action->menu());
-            setCheckable(action->isCheckable());
-            setChecked(action->isChecked());
-            setEnabled(action->isEnabled());
-            setFont(action->font());
-        }
+        if (action == d->defaultAction)
+            setDefaultAction(action); // update button state
         break;
-
+    case QEvent::ActionAdded:
+        connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+        break;
+    case QEvent::ActionRemoved:
+        if (d->defaultAction == action)
+            d->defaultAction = 0;
+        action->disconnect(this);
+        break;
     default:
-        break;
+        ;
     }
-
     QAbstractButton::actionEvent(event);
+}
+
+void QToolButtonPrivate::actionTriggered()
+{
+    if (QAction *action = qt_cast<QAction *>(q->sender()))
+        emit q->triggered(action);
 }
 
 /*!
@@ -525,40 +548,18 @@ void QToolButton::changeEvent(QEvent *e)
 void QToolButton::mousePressEvent(QMouseEvent *e)
 {
     QStyleOptionToolButton opt = d->getStyleOption();
-    QRect popupr =
-        QStyle::visualRect(opt.direction, opt.rect, style()->querySubControlMetrics(QStyle::CC_ToolButton, &opt,
-                                                          QStyle::SC_ToolButtonMenu, this));
-    d->instantPopup = (popupr.isValid() && popupr.contains(e->pos()));
-
-    if (d->discardNextMouseEvent) {
-        d->discardNextMouseEvent = false;
-        d->instantPopup = false;
-        return;
-    }
-    if (e->button() == Qt::LeftButton && d->popupMode != DelayedPopupMode
-        && d->instantPopup && !d->actualMenu && (d->menu || actions().size() > 1)) {
-        showMenu();
-        return;
+    if (e->button() == Qt::LeftButton && d->popupMode == MenuButtonPopupMode) {
+        QRect popupr = QStyle::visualRect(opt.direction, opt.rect, style()->querySubControlMetrics(QStyle::CC_ToolButton, &opt,
+                                                                                                   QStyle::SC_ToolButtonMenu, this));
+        if (popupr.isValid() && popupr.contains(e->pos())) {
+            showMenu();
+            return;
+        }
     }
 
-    d->instantPopup = false;
     QAbstractButton::mousePressEvent(e);
 }
 
-
-/*!
-    \internal
-
-    Returns true if this button has a 3D effect; otherwise returns
-    false.
-*/
-bool QToolButton::uses3D() const
-{
-    return style()->styleHint(QStyle::SH_ToolButton_Uses3D, 0, this)
-        && (!d->autoRaise || (underMouse() && isEnabled())
-            || (!d->autoRaise && d->menu && d->popupMode == MenuButtonPopupMode)
-            || d->instantPopup);
-}
 
 
 #ifdef QT_COMPAT
@@ -648,13 +649,8 @@ QIcon QToolButton::iconSet(bool /* on */) const
 /*!
     Associates the given \a menu with this tool button.
 
-    The menu will be shown each time the tool button has been pressed
-    down for \l popupDelay amount of time. A typical application
-    example is the "back" button in some web browsers's tool bars. If
-    the user clicks it, the browser simply browses back to the
-    previous page.  If the user presses and holds the button down for
-    a while, the tool button shows a menu containing the current
-    history list.
+    The menu will be shown according to the button's \l popupMode.
+.
 
     Ownership of the menu is not transferred to the tool button.
 
@@ -683,33 +679,36 @@ QMenu* QToolButton::menu() const
 */
 void QToolButton::showMenu()
 {
-    if (!d->menu && actions().isEmpty())
-        return;
+    if (!d->hasMenu()) {
+        d->menuButtonDown = false;
+        return; // no menu to show
+    }
 
-    d->instantPopup = true;
+    d->menuButtonDown = true;
     repaint();
     d->popupTimer.stop();
-    QPointer<QToolButton> that = this;
     d->popupTimerDone();
-    if (!that)
-        return;
-    d->instantPopup = false;
-    repaint();
 }
 
-void QToolButtonPrivate::popupPressed()
+void QToolButtonPrivate::buttonPressed()
 {
+    if (!d->hasMenu())
+        return; // no menu to show
+
     if (delay > 0 && popupMode == QToolButton::DelayedPopupMode)
         popupTimer.start(delay, q);
+    else if  (d->popupMode == QToolButton::InstantPopupMode)
+        q->showMenu();
 }
 
 void QToolButtonPrivate::popupTimerDone()
 {
     popupTimer.stop();
-    if ((!q->isDown() && popupMode == QToolButton::DelayedPopupMode)
-        || (!menu && q->actions().size() <= 1))
+    if (!menuButtonDown && !down)
         return;
 
+    d->menuButtonDown = true;
+    QPointer<QMenu> actualMenu;
     if(menu) {
         actualMenu = menu;
         if (q->actions().size() > 1)
@@ -769,13 +768,16 @@ void QToolButtonPrivate::popupTimerDone()
     actualMenu->exec(p);
     if (actualMenu != menu)
         delete actualMenu;
-    actualMenu = 0; //no longer a popup menu
     if (!that)
         return;
 
-    q->setDown(false);
     if (repeat)
         q->setAutoRepeat(true);
+    menuButtonDown = false;
+    if (q->isDown())
+        q->setDown(false);
+    else
+        q->repaint();
 }
 
 #ifdef QT_COMPAT
@@ -805,18 +807,24 @@ int QToolButton::popupDelay() const
 /*! \enum QToolButton::ToolButtonPopupMode
 
     Describes how a menu should be popped up for tool buttons that has
-    a menu set.
-
-    \value InstantPopupMode The menu is displayed, without delay, when
-    the tool button is pressed.
+    a menu set or contains a list of actions.
 
     \value DelayedPopupMode After pressing and holding the tool button
     down for a certain amount of time (the timeout is style dependant,
-    see QStyle::SH_ToolButton_PopupDelay), the menu is displayed.
+    see QStyle::SH_ToolButton_PopupDelay), the menu is displayed.  A
+    typical application example is the "back" button in some web
+    browsers's tool bars. If the user clicks it, the browser simply
+    browses back to the previous page.  If the user presses and holds
+    the button down for a while, the tool button shows a menu
+    containing the current history list
 
     \value MenuButtonPopupMode In this mode the tool button displays a
     special arrow to indicate that a menu is present. The menu is
     displayed when the arrow part of the button is pressed.
+
+    \value InstantPopupMode The menu is displayed, without delay, when
+    the tool button is pressed. In this mode, the button's own action
+
 */
 
 void QToolButton::setPopupMode(QToolButton::ToolButtonPopupMode mode)
@@ -846,6 +854,54 @@ void QToolButton::setAutoRaise(bool enable)
 bool QToolButton::autoRaise() const
 {
     return d->autoRaise;
+}
+
+/*!
+  Sets the default action to \a action.
+
+  If a tool button has a default action, the action defines the
+  button's properties like text, icon, tool tip, etc.
+ */
+void QToolButton::setDefaultAction(QAction *action)
+{
+    d->defaultAction = action;
+    if (!action)
+        return;
+    if (!actions().contains(action))
+        addAction(action);
+    setText(action->iconText());
+    setIcon(action->icon());
+    setToolTip(action->toolTip());
+    setStatusTip(action->statusTip());
+    setWhatsThis(action->whatsThis());
+    setMenu(action->menu());
+    setCheckable(action->isCheckable());
+    setChecked(action->isChecked());
+    setEnabled(action->isEnabled());
+    setFont(action->font());
+}
+
+
+/*!
+  Returns the default action.
+
+  \sa setDefaultAction()
+ */
+QAction *QToolButton::defaultAction() const
+{
+    return d->defaultAction;
+}
+
+
+
+/*\reimp
+ */
+void QToolButton::nextCheckState()
+{
+    if (!d->defaultAction)
+        QAbstractButton::nextCheckState();
+    else
+        d->defaultAction->trigger();
 }
 
 

@@ -1602,8 +1602,14 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             button = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, toolbutton, SC_ToolButton, widget));
             menuarea = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, toolbutton, SC_ToolButtonMenu, widget));
 
-            StyleFlags bflags = toolbutton->state,
-                       mflags = toolbutton->state;
+            StyleFlags bflags = toolbutton->state;
+
+            if (bflags & Style_AutoRaise) {
+                if (!(bflags & Style_MouseOver)) {
+                    bflags &= ~Style_Raised;
+                }
+            }
+            StyleFlags mflags = bflags;
 
             if (toolbutton->activeSubControls & SC_ToolButton)
                 bflags |= Style_Down;
@@ -2611,10 +2617,6 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
 
     case SH_UnderlineShortcut:
-        ret = 1;
-        break;
-
-    case SH_ToolButton_Uses3D:
         ret = 1;
         break;
 

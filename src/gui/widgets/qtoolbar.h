@@ -116,7 +116,6 @@ public:
 private:
     Q_DECLARE_PRIVATE(QToolBar)
     Q_DISABLE_COPY(QToolBar)
-    Q_PRIVATE_SLOT(d, void actionTriggered())
     Q_PRIVATE_SLOT(d, void toggleView(bool))
 };
 

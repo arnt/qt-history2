@@ -603,10 +603,6 @@ public:
         SH_UnderlineAccelerator = SH_UnderlineShortcut,
 #endif
 
-        // bool - if tool buttons should use a 3D frame
-        // when the mouse is over the button
-        SH_ToolButton_Uses3D,
-
         SH_ScrollBar_BackgroundRole,
 
         //bool - animate a click when up or down is pressed in a spin box

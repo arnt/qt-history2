@@ -35,8 +35,8 @@ class Q_GUI_EXPORT QToolButton : public QAbstractButton
 public:
     enum ToolButtonPopupMode {
         DelayedPopupMode,
-        InstantPopupMode,
-        MenuButtonPopupMode
+        MenuButtonPopupMode,
+        InstantPopupMode
     };
 
     QToolButton(QWidget * parent=0);
@@ -57,12 +57,18 @@ public:
     void setPopupMode(QToolButton::ToolButtonPopupMode mode);
     QToolButton::ToolButtonPopupMode popupMode() const;
 
+    QAction *defaultAction() const;
+
     void setAutoRaise(bool enable);
     bool autoRaise() const;
 
 public slots:
     void setIconSize(Qt::IconSize size);
     void setToolButtonStyle(Qt::ToolButtonStyle style);
+    void setDefaultAction(QAction *);
+
+signals:
+    void triggered(QAction *);
 
 protected:
     QToolButton(QToolButtonPrivate &, QWidget* parent);
@@ -77,12 +83,13 @@ protected:
     void timerEvent(QTimerEvent *);
     void changeEvent(QEvent *);
 
-    bool uses3D() const;
+    void nextCheckState();
 
 private:
     Q_DISABLE_COPY(QToolButton)
     Q_DECLARE_PRIVATE(QToolButton)
-    Q_PRIVATE_SLOT(d, void popupPressed())
+    Q_PRIVATE_SLOT(d, void buttonPressed())
+    Q_PRIVATE_SLOT(d, void actionTriggered())
 
 #ifdef QT_COMPAT
 public:

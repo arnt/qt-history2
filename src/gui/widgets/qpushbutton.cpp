@@ -370,8 +370,7 @@ void QPushButton::updateMask()
     bm.fill(Qt::color0);
 
     QStylePainter p(&bm, this);
-    QStyleOptionButton opt = d->getStyleOption();
-    p.drawControlMask(QStyle::CE_PushButton, opt);
+    p.drawControlMask(QStyle::CE_PushButton, d->getStyleOption());
     p.end();
 
     setMask(bm);
@@ -383,8 +382,7 @@ void QPushButton::updateMask()
 void QPushButton::paintEvent(QPaintEvent *)
 {
     QStylePainter p(this);
-    QStyleOptionButton opt = d->getStyleOption();
-    p.drawControl(QStyle::CE_PushButton, opt);
+    p.drawControl(QStyle::CE_PushButton, d->getStyleOption());
 }
 
 

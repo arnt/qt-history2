@@ -25,6 +25,7 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qtooltip.h>
+#include <qabstractbutton.h>
 
 #include "qframe_p.h"
 

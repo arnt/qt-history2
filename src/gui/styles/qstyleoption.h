@@ -19,7 +19,6 @@
 #include "qslider.h"
 #include "qstyle.h"
 #include "qtabbar.h"
-#include "qtoolbutton.h"
 
 class Q_GUI_EXPORT QStyleOption
 {

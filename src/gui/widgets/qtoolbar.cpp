@@ -84,13 +84,6 @@ void QToolBarPrivate::init()
     QObject::connect(toggleViewAction, SIGNAL(checked(bool)), q, SLOT(toggleView(bool)));
 }
 
-void QToolBarPrivate::actionTriggered()
-{
-    QAction *action = qt_cast<QAction *>(q->sender());
-    Q_ASSERT_X(action != 0, "QToolBar::actionTriggered", "internal error");
-    emit q->actionTriggered(action);
-}
-
 void QToolBarPrivate::toggleView(bool b)
 {
     if (b != q->isShown()) {
@@ -120,13 +113,10 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
                          button, SLOT(setIconSize(Qt::IconSize)));
         QObject::connect(q, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
                          button, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
-        button->addAction(action);
-        QObject::connect(action, SIGNAL(triggered()), q, SLOT(actionTriggered()));
-        if (action->menu()) {
+        button->setDefaultAction(action);
+        QObject::connect(button, SIGNAL(triggered(QAction*)), q, SIGNAL(actionTriggered(QAction*)));
+        if (action->menu())
             button->setPopupMode(QToolButton::MenuButtonPopupMode);
-            QObject::connect(action->menu(), SIGNAL(triggered(QAction*)),
-                             q, SIGNAL(actionTriggered(QAction*)));
-        }
         item.widget = button;
     }
 
@@ -611,15 +601,6 @@ void QToolBar::actionEvent(QActionEvent *event)
             if (!item.hidden)
                 item.widget->setShown(item.action->isVisible());
 
-            // reconnect the action
-            action->disconnect(this, SLOT(actionTriggered()));
-            QObject::connect(item.action, SIGNAL(triggered()),
-                             this, SLOT(actionTriggered()));
-            if (action->menu()) {
-                action->menu()->disconnect(this, SIGNAL(actionTriggered(QAction*)));
-                QObject::connect(item.action->menu(), SIGNAL(triggered(QAction*)),
-                                 this, SIGNAL(actionTriggered(QAction*)));
-            }
             break;
         }
 

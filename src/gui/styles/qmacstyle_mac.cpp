@@ -1325,9 +1325,6 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
         w->setPalette(pal);
     }
 
-    if (QToolButton *btn = qt_cast<QToolButton*>(w)) {
-        btn->setAutoRaise(false);
-    }
 #ifndef QT_NO_MAINWINDOW
     else if(QToolBar *bar = qt_cast<QToolBar*>(w)) {
         QLayout *layout = bar->layout();
@@ -2899,8 +2896,6 @@ void QMacStylePrivate::AppManPolish(QWidget *w)
         if(btns->buttonText(QDialogButtons::Help).isNull())
             btns->setButtonText(QDialogButtons::Help, "?");
 	    */
-    } else if(QToolButton *btn = qt_cast<QToolButton*>(w)) {
-        btn->setAutoRaise(false);
     }
 #ifndef QT_NO_MAINWINDOW
     else if(QToolBar *bar = qt_cast<QToolBar*>(w)) {
@@ -2920,15 +2915,10 @@ void QMacStylePrivate::AppManPolish(QWidget *w)
 void QMacStylePrivate::AppManUnPolish(QWidget *w)
 {
     removeWidget(w);
-    QToolButton *btn = qt_cast<QToolButton*>(w);
-    if(btn) {
-        QToolButton * btn = (QToolButton *) w;
-        btn->setAutoRaise(true);
-    } else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
+    if(QRubberBand *rubber = qt_cast<QRubberBand*>(w))
         rubber->setWindowOpacity(1.0);
-    } else if(qt_cast<QMenu*>(w)) {
+    else if(qt_cast<QMenu*>(w))
         w->setWindowOpacity(1.0);
-    }
 }
 
 void QMacStylePrivate::AppManPolish(QApplication *app)

@@ -394,11 +394,9 @@ void QAbstractButtonPrivate::click()
     Q_Q(QAbstractButton);
 
     down = false;
-    if (checkable) {
-        blockRefresh = true;
-        q->nextCheckState();
-        blockRefresh = false;
-    }
+    blockRefresh = true;
+    q->nextCheckState();
+    blockRefresh = false;
     refresh();
     emit q->released();
     emit q->clicked();
@@ -716,8 +714,7 @@ void QAbstractButton::click()
     d->down = true;
     emit pressed();
     d->down = false;
-    if (d->checkable)
-        nextCheckState();
+    nextCheckState();
     emit released();
     emit clicked();
 }
@@ -743,15 +740,17 @@ void QAbstractButton::checkStateSet()
 {
 }
 
-/*! This virtual handler is called when a checkable button is
-clicked. The default implementation calls setChecked(!isChecked()).
-It allows subclasses to implement intermediate button states.
+/*! This virtual handler is called when a button is clicked. The
+default implementation calls setChecked(!isChecked()) if the button
+isCheckable().  It allows subclasses to implement intermediate button
+states.
 
 \sa checkStateSet()
 */
 void QAbstractButton::nextCheckState()
 {
-    setChecked(!isChecked());
+    if (isCheckable())
+        setChecked(!isChecked());
 }
 
 /*!

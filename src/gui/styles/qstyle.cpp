@@ -1428,9 +1428,6 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value SH_DialogButtons_DefaultButton  Which button gets the
         default status in a dialog's button widget.
 
-    \value SH_ToolButton_Uses3D  Whether QToolButtons should
-    use a 3D frame when the mouse is over them.
-
     \value SH_ToolBox_SelectedPageTitleBold  Boldness of the selected
     page title in a QToolBox.
 
