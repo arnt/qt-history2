@@ -451,7 +451,7 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
                          "result of a paintEvent");
                 return false;
             }
-            d->state->font = widget->font();
+            d->state->deviceFont = d->state->font = widget->font();
             d->state->pen = widget->palette().color(widget->foregroundRole());
             d->state->bgBrush = widget->palette().brush(widget->backgroundRole());
             d->state->ww = d->state->vw = widget->width();
@@ -1442,7 +1442,7 @@ Qt::RasterOp QPainter::rasterOp() const
 
 void QPainter::setFont(const QFont &font)
 {
-    d->state->font = font;
+    d->state->font = font.resolve(d->state->deviceFont);
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyFont);
 }

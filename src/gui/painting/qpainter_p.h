@@ -29,7 +29,8 @@ public:
         txop = 0;
     }
     QPainterState(const QPainterState *s) {
-        font = QFont(s->font);
+        font = s->font;
+        deviceFont = s->deviceFont;
         pfont = s->pfont;
         pen = QPen(s->pen);
         brush = QBrush(s->brush);
@@ -60,23 +61,24 @@ public:
         painter = s->painter;
     }
 
-    QPoint         bgOrigin;
-    QFont         font;
-    QFont       *pfont;
-    QPen         pen;
-    QBrush         brush;
-    QBrush         bgBrush;                // background brush
-    QRegion        clipRegion;
+    QPoint bgOrigin;
+    QFont font;
+    QFont deviceFont;
+    QFont *pfont;
+    QPen pen;
+    QBrush brush;
+    QBrush bgBrush;             // background brush
+    QRegion clipRegion;
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix    worldMatrix;                 // World transformation matrix, not window and viewport
-    QWMatrix    matrix;                        // Complete transformation matrix, including win and view.
+    QWMatrix worldMatrix;       // World transformation matrix, not window and viewport
+    QWMatrix matrix;            // Complete transformation matrix, including win and view.
     int txop;
 #else
-    int         xlatex;
-    int         xlatey;
+    int xlatex;
+    int xlatey;
 #endif
-    int                wx, wy, ww, wh;                // window rectangle
-    int         vx, vy, vw, vh;                // viewport rectangle
+    int wx, wy, ww, wh;         // window rectangle
+    int vx, vy, vw, vh;         // viewport rectangle
 
     uint        clipEnabled:1;
     uint         WxF:1;                        // World transformation
