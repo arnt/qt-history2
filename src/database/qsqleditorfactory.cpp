@@ -1,9 +1,11 @@
+#include "qsqleditorfactory.h"
+
+#ifndef QT_NO_SQL
 #include <qwidget.h>
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
 
-#include "qsqleditorfactory.h"
 
 QSqlEditorFactory::QSqlEditorFactory()
 {
@@ -12,7 +14,6 @@ QSqlEditorFactory::QSqlEditorFactory()
 
 /*!
   Creates and returns the appropriate editor for the QSqlField.
-  
 */
 QWidget * QSqlEditorFactory::createEditor( const QSqlField & field )
 {
@@ -33,3 +34,4 @@ QSqlEditorFactory * QSqlEditorFactory::instance()
     
     return _instance;
 }
+#endif
