@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#21 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -130,8 +130,8 @@ static int xPosToCursorPos( const QString &s, const QFontMetrics &fm,
     if ( xPos <= 0 )
 	return 0;
 
-    int     distBeforeLastTab = 0;
-    dist    = 0;
+    int     distBeforeLastTab = -fm.minLeftBearing();
+    dist    = -fm.minLeftBearing();
     tabDist = tabStopDist(fm);
     while ( (uint)i < s.length() && dist < xPos ) {
 	if ( s[i] == '\t') {
