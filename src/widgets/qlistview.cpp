@@ -1396,9 +1396,18 @@ void QListViewItem::setOpen( bool o )
 	return;
     open = o;
 
-    // Has children to show, so trigger update
-    if ( nChildren )
-	invalidateHeight();
+    // If no children to show simply emit signals and return
+    if ( !nChildren ) {
+        QListView *lv = listView();
+	if ( lv && this != lv->d->r ) {
+	    if ( o )
+		emit lv->expanded( this );
+	    else
+		emit lv->collapsed( this );
+	}
+	return;
+    }
+    invalidateHeight();
 
     if ( !configured ) {
 	QListViewItem * l = this;
