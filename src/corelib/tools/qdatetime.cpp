@@ -1049,12 +1049,13 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
 }
 #endif //QT_NO_DATESTRING
 
-/* \fn QDate::fromString(const QString &string, const QString &format)
+/*! 
+    \fn QDate::fromString(const QString &string, const QString &format)
 
     Returns the QDate represented by the \a string, using the \a
     format given, or an invalid date if the string cannot be parsed.
 
-    These expressions may be used for the \a format:
+    These expressions may be used for the format:
 
     \table
     \header \i Expression \i Output
@@ -1080,7 +1081,7 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
 
     All other input characters will be treated as text. Any sequence
     of characters that are enclosed in single quotes will also be
-    treated as text and will not be used as an expression.
+    treated as text and will not be used as an expression. For example:
 
     \code
     QDate date = QDate::fromString("1MM12car2003", "d'MM'MMcaryyyy"); // date is 1st of Dec 2003
@@ -1089,27 +1090,29 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
     If the format is not satisfied, an invalid QDate is returned. The
     expressions that don't expect leading zeroes (d, M) will be greedy.
     This means that they will use two digits even if this will put
-    them outside the range even if this leaves too few digits for other
-    sections.
+    them outside the accepted range of values and leaves too few digits
+    for other sections. For example, the following format
+    string could have meant 30th of January but the M will grab two
+    digits, resulting in an invalid date:
 
     \code
     QDate date = QDate::fromString("130", "Md"); // invalid.
     \endcode
-    This could have meant 30th of January but the M will grab two digits.
 
     For any field that is not represented in the format the following
     defaults are used:
 
-    Year: \code QDate::currentDate().year() \endcode
-    Month: 1 (January)
-    Day: 1 (1st)
+    \table
+    \header \i Field  \i Default value
+    \row    \i Year   \i The current year
+    \row    \i Month  \i 1 (January)
+    \row    \i Day    \i 1 (1st)
+    \endtable
+
+    The following examples demonstrate the default values:
 
     \code
     QDate date = QDate::fromString("1.30", "M.d"); // date is 30th of January in the current year
-    \endcode
-
-    Example:
-    \code
     QDate date = QDate::fromString("20000110", "yyyyMMdd"); // date is 10th Jan 2000
     QDate date = QDate::fromString("20000110", "yyyyMd"); // date is 10th Jan 2000
     \endcode
@@ -1732,12 +1735,13 @@ QTime QTime::fromString(const QString& s, Qt::DateFormat f)
 #endif
 
 
-/* \fn QTime::fromString(const QString &string, const QString &format)
+/*! 
+    \fn QTime::fromString(const QString &string, const QString &format)
 
     Returns the QTime represented by the \a string, using the \a
-    format given, or an invalid date if the string cannot be parsed.
+    format given, or an invalid time if the string cannot be parsed.
 
-    These expressions may be used for the \a format:
+    These expressions may be used for the format:
 
     \table
     \header \i Expression \i Output
@@ -1758,25 +1762,27 @@ QTime QTime::fromString(const QString& s, Qt::DateFormat f)
     \endtable
 
     All other input characters will be treated as text. Any sequence
-    of characters that are enclosed in singlequotes will also be
+    of characters that are enclosed in single quotes will also be
     treated as text and not be used as an expression.
 
     \code
     QTime time = QTime::fromString("1mm12car00", "m'mm'hcarss"); // time is 12:01.00
     \endcode
 
-    If the format is not satisfied an invalid QTime is returned. This
-    expressions that don't have leading zeroes (h, m, s and z) will be
-    greedy. This means that they will use two digits even if this will
-    put them outside the range and/or leave too few digits for other
-    sections.
+    If the format is not satisfied an invalid QTime is returned.
+    Expressions that do not expect leading zeroes to be given (h, m, s
+    and z) are greedy. This means that they will use two digits even if
+    this puts them outside the range of accepted values and leaves too
+    few digits for other sections. For example, the following string
+    could have meant 00:07:10, but the m will grab two digits, resulting
+    in an invalid time:
 
     \code
     QTime time = QTime::fromString("00:710", "hh:ms"); // invalid.
     \endcode
-    This could have meant 00:07:10 but the m will grab two digits.
 
-    For any field that is not represented in the format the a 0 will be used.
+    Any field that is not represented in the format will be set to zero.
+    For example:
 
     \code
     QTime time = QTime::fromString("1.30", "m.s"); // time is 00:01:30.000
@@ -2626,14 +2632,13 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
 }
 #endif //QT_NO_DATESTRING
 
-/* \fn QDateTime::fromString(const QString &string, const QString &format)
+/*! 
+    \fn QDateTime::fromString(const QString &string, const QString &format)
 
     Returns the QDateTime represented by the \a string, using the \a
-    format given, or an invalid dateTime if the string cannot be parsed.
+    format given, or an invalid datetime if the string cannot be parsed.
 
-    These expressions may be used for the \a format:
-
-    These expressions may be used for the date:
+    These expressions may be used for the date part of the format string:
 
     \table
     \header \i Expression \i Output
@@ -2657,7 +2662,7 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
     \row \i yyyy \i the year as four digit number (1752-8000)
     \endtable
 
-    These expressions may be used for the time:
+    These expressions may be used for the time part of the format string:
 
     \table
     \header \i Expression \i Output
@@ -2700,10 +2705,17 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
     For any field that is not represented in the format the following
     defaults are used:
 
-    Year: \code QDateTime::currentDateTime().year() \endcode
-    Month: 1 (January)
-    Day: 1 (1st)
-    All others : 0
+    \table
+    \header \i Field  \i Default value
+    \row    \i Year   \i The current year
+    \row    \i Month  \i 1 (January)
+    \row    \i Day    \i 1 (1st)
+    \row    \i Hour   \i 0
+    \row    \i Minute \i 0
+    \row    \i Second \i 0
+    \endtable
+
+    For example:
 
     \code
     QDateTime dateTime = QDateTime::fromString("1.30.1", "M.d.s");
