@@ -50,6 +50,7 @@
 #endif
 
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <private/qpluginmanager_p.h>
 #include "../interfaces/programinterface.h"
@@ -1360,6 +1361,10 @@ void Project::removeTempProject()
 	d.remove( "images" );
     }
     d.remove( QFileInfo( filename ).dirPath() );
+#if defined(Q_OS_UNIX)
+    // ##### implement for all platforms, ideally should be in Qt
+    ::rmdir( d.absPath().latin1() );
+#endif
 }
 
 void Project::addAndEditFunction( const QString &function, const QString &functionBody, bool openDeveloper )
