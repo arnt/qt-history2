@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#75 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#76 $
 **
 ** Definition of QWidget class
 **
@@ -30,7 +30,10 @@ public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
    ~QWidget();
 
+    WId		 winId() const;
+#if defined(OBSOLETE)
     WId		 id() const;
+#endif
 
   // GUI style setting
 
@@ -146,6 +149,8 @@ public:
 
     virtual void show();
     virtual void hide();
+    void	 iconify();
+
     virtual bool close( bool forceKill=FALSE );
     bool	 isVisible()	const;
 
@@ -236,12 +241,12 @@ protected:
 #endif
 
 private:
-    void	 set_id( WId );
+    void	 setWinId( WId );
     bool	 create();
     bool	 destroy();
     void	 createExtra();
     void	 deleteExtra();
-    WId		 ident;
+    WId		 winid;
     WFlags	 flags;
     QRect	 frect;
     QRect	 crect;
@@ -264,8 +269,13 @@ private:
 inline bool QWidget::testWFlags( WFlags f ) const
 { return (flags & f) != 0; }
 
+inline WId QWidget::winId() const
+{ return winid; }
+
+#if defined(OBSOLETE)
 inline WId QWidget::id() const
-{ return ident; }
+{ return winid; }
+#endif
 
 inline bool QWidget::isTopLevel() const
 { return testWFlags(WType_TopLevel); }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#112 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#111 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#112 $")
 
 
 /*----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ inline QWidget *QWidgetMapper::find( WId id )
 
 inline void QWidgetMapper::insert( const QWidget *widget )
 {
-    QWidgetIntDict::insert((long)widget->id(),widget);
+    QWidgetIntDict::insert((long)widget->winId(),widget);
 }
 
 inline bool QWidgetMapper::remove( WId id )
@@ -139,7 +139,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 {
     initMetaObject();				// initialize meta object
     isWidget = TRUE;				// is a widget
-    ident = 0;					// default attributes
+    winid = 0;					// default attributes
     flags = f;
     extra = 0;					// no extra widget info
     focusChild = 0;				// no child has focus
@@ -231,13 +231,13 @@ void QWidget::destroyMapper()
     mapper = 0;
 }
 
-void QWidget::set_id( WId id )			// set widget identifier
+void QWidget::setWinId( WId id )		// set widget identifier
 {
     if ( !mapper )				// mapper destroyed
 	return;
-    if ( ident )
-	mapper->remove( ident );
-    ident = id;
+    if ( winid )
+	mapper->remove( winid );
+    winid = id;
 #if defined(_WS_X11_)
     hd = id;					// X11: hd == ident
 #endif

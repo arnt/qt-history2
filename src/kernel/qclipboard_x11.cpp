@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#3 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#2 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#3 $")
 
 
 /*****************************************************************************
@@ -210,7 +210,7 @@ void *QClipboard::data( const char *format ) const
 
     QClipboardData *d = clipboardData();
     QWidget *owner = clipboardOwner();
-    Window   win   = owner->id();
+    Window   win   = owner->winId();
     Display *dpy   = owner->x11Display();
 
     if ( d->format() != CFNothing ) {		// we own the clipboard
@@ -312,7 +312,7 @@ void QClipboard::setData( const char *format, void *data )
 
     QClipboardData *d = clipboardData();
     QWidget *owner = clipboardOwner();
-    Window   win   = owner->id();
+    Window   win   = owner->winId();
     Display *dpy   = owner->x11Display();
 
     if ( d->format() != CFNothing ) {		// we own the clipboard

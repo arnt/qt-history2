@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#148 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#147 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#148 $")
 
 
 /*****************************************************************************
@@ -539,10 +539,10 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 {
     main_widget = mainWidget;			// set main widget
     if ( main_widget ) {			// give WM command line
-	XSetWMProperties( main_widget->x11Display(), main_widget->id(),
+	XSetWMProperties( main_widget->x11Display(), main_widget->winId(),
 			  0, 0, app_argv, app_argc, 0, 0, 0 );
 	if ( mwTitle )
-	    XStoreName( appDpy, main_widget->id(), mwTitle );
+	    XStoreName( appDpy, main_widget->winId(), mwTitle );
 	if ( mwGeometry ) {			// parse geometry
 	    int x, y;
 	    int w, h;
@@ -662,7 +662,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
 	if ( w->testWFlags(WCursorSet) )	//   set a cursor
-	    XDefineCursor( w->x11Display(), w->id(), app_cursor->handle() );
+	    XDefineCursor( w->x11Display(), w->winId(), app_cursor->handle() );
 	++it;
     }
     XFlush( appDpy );				// make X execute it NOW
@@ -694,7 +694,7 @@ void QApplication::restoreOverrideCursor()
     register QWidget *w;
     while ( (w=it.current()) ) {		// set back to original cursors
 	if ( w->testWFlags(WCursorSet) )
-	    XDefineCursor( w->x11Display(), w->id(),
+	    XDefineCursor( w->x11Display(), w->winId(),
 			   app_cursor ? app_cursor->handle()
 				      : w->cursor().handle() );
 	++it;
@@ -1296,13 +1296,13 @@ int QApplication::enter_loop()
 		    if ( event.xreparent.parent != appRootWin ) {
 			XWindowAttributes a1, a2;
 			while ( XCheckTypedWindowEvent( widget->x11Display(),
-							widget->id(),
+							widget->winId(),
 							ReparentNotify,
 							&event ) )
 			    ;			// skip old reparent events
 			Window parent = event.xreparent.parent;
 			XGetWindowAttributes( widget->x11Display(),
-					      widget->id(), &a1 );
+					      widget->winId(), &a1 );
 			XGetWindowAttributes( widget->x11Display(), parent,
 					      &a2 );
 			QRect *r = &widget->crect;
@@ -1500,7 +1500,7 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
     }
 
     if ( top->parentWidget() == 0 && (block_event || expose_event) )
-	XRaiseWindow( appDpy, top->id() );	// raise app-modal widget
+	XRaiseWindow( appDpy, top->winId() );	// raise app-modal widget
 
     return !block_event;
 }
@@ -1528,10 +1528,10 @@ void qt_open_popup( QWidget *popup )
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
-	XGrabKeyboard( popup->x11Display(), popup->id(), TRUE,
+	XGrabKeyboard( popup->x11Display(), popup->winId(), TRUE,
 		       GrabModeSync, GrabModeSync, CurrentTime );
 	XAllowEvents( popup->x11Display(), SyncKeyboard, CurrentTime );
-	XGrabPointer( popup->x11Display(), popup->id(), TRUE,
+	XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
 		      (uint)(ButtonPressMask | ButtonReleaseMask |
 		      ButtonMotionMask | EnterWindowMask | LeaveWindowMask),
 		      GrabModeSync, GrabModeAsync,
@@ -1908,7 +1908,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
     if ( event->type == MotionNotify ) {	// mouse move
 	XEvent *xevent = (XEvent *)event;
-	while ( XCheckTypedWindowEvent(dpy,id(),MotionNotify,xevent) )
+	while ( XCheckTypedWindowEvent(dpy,winId(),MotionNotify,xevent) )
 	    ;					// compress motion events
 	type = Event_MouseMove;
 	pos.rx() = xevent->xmotion.x;
@@ -1954,7 +1954,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		buttonDown = FALSE;
 	}
     }
-    mouseActWindow = id();			// save mouse event params
+    mouseActWindow = winId();			// save mouse event params
     mouseButtonPressed = button;
     mouseButtonState = state;
     mouseXPos = pos.x();
@@ -2165,7 +2165,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     XEvent xevent;
     PaintEventInfo info;
 
-    info.window = id();
+    info.window = winId();
     info.w	= width();
     info.h	= height();
     info.check	= testWFlags(WType_TopLevel);
@@ -2189,7 +2189,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	int  x, y;
 	uint w, h, b, d;
 	Window root;
-	XGetGeometry( dpy, id(), &root, &x, &y, &w, &h, &b, &d );
+	XGetGeometry( dpy, winId(), &root, &x, &y, &w, &h, &b, &d );
 	c->width  = w;				// send resize event first
 	c->height = h;
 	translateConfigEvent( (XEvent*)c );	// will clear window
@@ -2219,13 +2219,13 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	return TRUE;				// child widget
     Window child;
     int	   x, y;
-    XTranslateCoordinates( dpy, id(), DefaultRootWindow(dpy),
+    XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),
 			   0, 0, &x, &y, &child );
     QPoint newPos( x, y );
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
     QRect  r = geometry();
     if ( newSize != size() ) {			// size changed
-	XClearArea( dpy, id(), 0, 0, 0, 0, FALSE );
+	XClearArea( dpy, winId(), 0, 0, 0, 0, FALSE );
 	QSize oldSize = size();
 	r.setSize( newSize );
 	setCRect( r );

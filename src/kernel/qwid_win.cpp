@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#34 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#34 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -509,7 +509,6 @@ void QWidget::show()
 	qt_open_popup( this );
 }
 
-
 void QWidget::hide()
 {
     setWFlags( WExplicitHide );
@@ -525,6 +524,12 @@ void QWidget::hide()
 	qt_close_popup( this );
     ShowWindow( winId(), SW_HIDE );
     clearWFlags( WState_Visible );
+}
+
+void QWidget::iconify()
+{
+    if ( testWFlags(WType_TopLevel) )
+	ShowWindow( winId(), SW_SHOWMINIMIZED );
 }
 
 
