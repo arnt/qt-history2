@@ -274,6 +274,26 @@
 */
 
 /*!
+  \fn bool QMemArray::resize( uint size, Optimization optim )
+
+  Resizes (expands or shrinks) the array to \a size elements. The array
+  becomes a null array if \a size == 0.
+
+  Returns TRUE if successful, or FALSE if the memory cannot be allocated.
+
+  New elements will not be initialized.
+
+  \a optim is either QGArray::MemOptim (the default) or
+  QGArray::SpeedOptim. When optimization for speed rather than memory
+  consumption, the array uses a smart grow and shrink algorithm that
+  might allocate more memory internally than what is needed for \a
+  size elements. This allows speeding up subsequent resize operations,
+  for example when appending many elements to an array.
+
+  \sa size()
+*/
+
+/*! \overload
     \fn bool QMemArray::resize( uint size )
 
     Resizes (expands or shrinks) the array to \a size elements. The

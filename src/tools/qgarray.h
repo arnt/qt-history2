@@ -49,11 +49,13 @@ friend class QBuffer;
 public:
     //### DO NOT USE THIS.  IT IS PUBLIC BUT DO NOT USE IT IN NEW CODE.
     struct array_data : public QShared {	// shared array
-	array_data()	{ data=0; len=0; }
+	array_data():data(0),len(0),maxl(0){}
 	char *data;				// actual array data
 	uint  len;
+	uint maxl;
     };
     QGArray();
+    enum Optimization { MemOptim, SpeedOptim };
 protected:
     QGArray( int, int );			// dummy; does not alloc
     QGArray( int size );			// allocate 'size' bytes
@@ -70,6 +72,7 @@ protected:
     uint	size()	 const	{ return shd->len; }
     bool	isEqual( const QGArray &a ) const;
 
+    bool	resize( uint newsize, Optimization optim );
     bool	resize( uint newsize );
 
     bool	fill( const char *d, int len, uint sz );
@@ -88,7 +91,7 @@ protected:
 
     int		find( const char *d, uint index, uint sz ) const;
     int		contains( const char *d, uint sz ) const;
-    
+
     void	sort( uint sz );
     int		bsearch( const char *d, uint sz ) const;
 

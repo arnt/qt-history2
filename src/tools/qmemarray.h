@@ -43,7 +43,7 @@
 #endif // QT_H
 
 
-template<class type> 
+template<class type>
 class QMemArray : public QGArray
 {
 public:
@@ -68,6 +68,7 @@ public:
     bool  isEmpty() const	{ return QGArray::size() == 0; }
     bool  isNull()  const	{ return QGArray::data() == 0; }
     bool  resize( uint size )	{ return QGArray::resize(size*sizeof(type)); }
+    bool  resize( uint size, Optimization optim ) { return QGArray::resize(size*sizeof(type), optim); }
     bool  truncate( uint pos )	{ return QGArray::resize(pos*sizeof(type)); }
     bool  fill( const type &d, int size = -1 )
 	{ return QGArray::fill((char*)&d,size,sizeof(type) ); }

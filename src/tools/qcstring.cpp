@@ -1497,14 +1497,16 @@ QCString &QCString::insert( uint index, const char *s )
     int nlen = olen + len;
     if ( index >= olen ) {			// insert after end of string
 	detach();
-	if ( QByteArray::resize(nlen+index-olen+1) ) {
+	if ( QByteArray::resize(nlen+index-olen+1, QByteArray::SpeedOptim ) ) {
 	    memset( data()+olen, ' ', index-olen );
 	    memcpy( data()+index, s, len+1 );
 	}
-    } else if ( QByteArray::resize(nlen+1) ) {	// normal insert
+    } else {
 	detach();
-	memmove( data()+index+len, data()+index, olen-index+1 );
-	memcpy( data()+index, s, len );
+	if ( QByteArray::resize(nlen+1, QByteArray::SpeedOptim ) ) {	// normal insert
+	    memmove( data()+index+len, data()+index, olen-index+1 );
+	    memcpy( data()+index, s, len );
+	}
     }
     return *this;
 }
@@ -1569,7 +1571,7 @@ QCString &QCString::remove( uint index, uint len )
     } else if ( len != 0 ) {
 	detach();
 	memmove( data()+index, data()+index+len, olen-index-len+1 );
-	QByteArray::resize(olen-len+1);
+	QByteArray::resize(olen-len+1, QByteArray::SpeedOptim );
     }
     return *this;
 }
@@ -2199,7 +2201,7 @@ QCString& QCString::operator+=( const char *str )
     detach();
     uint len1 = length();
     uint len2 = qstrlen(str);
-    if ( !QByteArray::resize( len1 + len2 + 1 ) )
+    if ( !QByteArray::resize( len1 + len2 + 1, QByteArray::SpeedOptim ) )
 	return *this;				// no memory
     memcpy( data() + len1, str, len2 + 1 );
     return *this;
@@ -2215,7 +2217,7 @@ QCString &QCString::operator+=( char c )
 {
     detach();
     uint len = length();
-    if ( !QByteArray::resize( len + 2 ) )
+    if ( !QByteArray::resize( len + 2, QByteArray::SpeedOptim  ) )
 	return *this;				// no memory
     *(data() + len) = c;
     *(data() + len+1) = '\0';

@@ -135,7 +135,7 @@ QGArray::QGArray( int size )
 	return;
     shd->data = NEW(char,size);
     Q_CHECK_PTR( shd->data );
-    shd->len = size;
+    shd->len = shd->maxl = size;
 }
 
 /*!
@@ -212,34 +212,61 @@ bool QGArray::isEqual( const QGArray &a ) const
 
 
 /*!
-  Resizes the array to \a newsize bytes.
+  Resizes the array to \a newsize bytes. \a optim is either
+  MemOptim (the default) or SpeedOptim.
 */
-
-bool QGArray::resize( uint newsize )
+bool QGArray::resize( uint newsize, Optimization optim )
 {
-    if ( newsize == shd->len )			// nothing to do
+    if ( newsize == shd->len && newsize == shd->maxl ) // nothing to do
 	return TRUE;
     if ( newsize == 0 ) {			// remove array
 	duplicate( 0, 0 );
 	return TRUE;
     }
+
+    if ( optim == MemOptim ) {
+	shd->maxl = newsize;
+    } else {
+	if ( newsize <= shd->maxl &&
+	     ( newsize * 4 > shd->maxl || shd->maxl <= 4 ) ) {
+	    shd->len = newsize;
+	    return TRUE;
+	}
+	uint newMax = 4;
+	while ( newMax < newsize )
+	    newMax *= 2;
+	// try to spare some memory
+	if ( newMax >= 1024 * 1024 && newsize <= newMax - (newMax >> 2) )
+	    newMax -= newMax >> 2;
+
+	shd->maxl = newMax;
+    }
+
     if ( shd->data ) {				// existing data
 #if defined(DONT_USE_REALLOC)
 	char *newdata = NEW(char,newsize);	// manual realloc
-	memcpy( newdata, shd->data, QMIN(shd->len,newsize) );
+	memcpy( newdata, shd->data, QMIN(shd->len,shd->maxl) );
 	DELETE(shd->data);
 	shd->data = newdata;
 #else
-	shd->data = (char *)realloc( shd->data, newsize );
+	shd->data = (char *)realloc( shd->data, shd->maxl );
 #endif
     } else {
-	shd->data = NEW(char,newsize);
+	shd->data = NEW(char,shd->maxl);
     }
     if ( !shd->data )				// no memory
 	return FALSE;
     shd->len = newsize;
     return TRUE;
 }
+
+/*!\overload
+*/
+bool QGArray::resize( uint newsize )
+{
+    return resize( newsize, MemOptim );
+}
+
 
 /*!
   Fills the array with the repeated occurrences of \a d, which is
@@ -319,7 +346,7 @@ QGArray &QGArray::assign( const char *d, uint len )
 	    DELETE(shd->data);
     }
     shd->data = (char *)d;
-    shd->len = len;
+    shd->len = shd->maxl = len;
     return *this;
 }
 
@@ -364,7 +391,7 @@ QGArray &QGArray::duplicate( const QGArray &a )
     } else {
 	shd->data = 0;
     }
-    shd->len = a.shd->len;
+    shd->len = shd->maxl = a.shd->len;
     if ( oldptr )
 	DELETE(oldptr);
     return *this;
@@ -402,7 +429,7 @@ QGArray &QGArray::duplicate( const char *d, uint len )
 	    DELETE(shd->data);
     }
     shd->data = data;
-    shd->len  = len;
+    shd->len  = shd->maxl = len;
     return *this;
 }
 
