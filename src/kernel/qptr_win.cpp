@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#56 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#56 $");
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -606,6 +606,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 
     xfFont = FALSE;
     hdc = 0;
+    holdpal = 0;
 
     if ( testf(ExtDev) ) {			// external device
 	if ( !pdev->cmd(PDC_BEGIN,this,0) ) {	// could not begin painting
@@ -699,15 +700,15 @@ bool QPainter::begin( const QPaintDevice *pd )
 	setRasterOp( CopyROP );			// default raster operation
     }
     if ( hdc ) {				// initialize hdc
+	if ( QColor::hPal() && dt != PDT_PRINTER ) {
+	    holdpal = SelectPalette( hdc, QColor::hPal(), TRUE );
+	    RealizePalette( hdc );
+	}
 	SetBkColor( hdc, COLOR_VALUE(bg_col) );
 	SetBkMode( hdc, TRANSPARENT );
 	SetROP2( hdc, R2_COPYPEN );
 	SetTextAlign( hdc, TA_BASELINE );
 	SetStretchBltMode( hdc, COLORONCOLOR );
-	if ( QColor::hPal() && dt != PDT_PRINTER ) {
-	    SelectPalette( hdc, QColor::hPal(), FALSE );
-	    RealizePalette( hdc );
-	}
     }
     updatePen();
     updateBrush();
@@ -734,9 +735,9 @@ bool QPainter::end()
 	if ( penRef ) {
 	    release_pen( penRef );
 	    penRef = 0;
-	}
-	else
+	} else {
 	    DeleteObject( hpen );
+	}
 	hpen = 0;
     }
     if ( hbrush ) {
@@ -744,14 +745,17 @@ bool QPainter::end()
 	if ( brushRef ) {
 	    release_brush( brushRef );
 	    brushRef = 0;
-	}
-	else {
+	} else {
 	    DeleteObject( hbrush );
 	    if ( hbrushbm && !pixmapBrush )
 		DeleteObject( hbrushbm );
 	}
 	hbrush = hbrushbm = 0;
 	pixmapBrush = nocolBrush = FALSE;
+    }
+    if ( holdpal ) {
+	SelectPalette( hdc, holdpal, TRUE );
+	RealizePalette( hdc );
     }
 
     if ( testf(ExtDev) )

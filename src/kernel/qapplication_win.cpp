@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#61 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#61 $");
 
 
 /*****************************************************************************
@@ -758,12 +758,13 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_ERASEBKGND: {			// erase window background
-	    HDC	    hdc = (HDC)wParam;
-	    RECT    rect;
-	    HBRUSH  brush;
+	    HDC	     hdc = (HDC)wParam;
+	    RECT     rect;
+	    HBRUSH   brush;
+	    HPALETTE oldPal;
 	    GetClientRect( hwnd, &rect );
 	    if ( QColor::hPal() ) {
-		SelectPalette( hdc, QColor::hPal(), FALSE );
+		oldPal = SelectPalette( hdc, QColor::hPal(), FALSE );
 		RealizePalette( hdc );
 	    }
 	    const QPixmap *bgpm = widget->backgroundPixmap();
@@ -771,10 +772,14 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 		brush = CreatePatternBrush( bgpm->hbm() );
 	    else
 		brush = CreateSolidBrush( widget->backgroundColor().pixel() );
-	    HBRUSH oldbr = SelectObject( hdc, brush );
+	    HBRUSH oldBrush = SelectObject( hdc, brush );
 	    PatBlt( hdc, 0, 0, rect.right, rect.bottom, PATCOPY );
-	    SelectObject( hdc, oldbr );
+	    SelectObject( hdc, oldBrush );
 	    DeleteObject( brush );
+	    if ( QColor::hPal() ) {
+		SelectPalette( hdc, oldPal, TRUE );
+		RealizePalette( hdc );
+	    }
 	    }
 	    break;
 
@@ -788,27 +793,20 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_PALETTECHANGED:			// our window changed palette
-	    if ( QColor::hPal() && (WId)wParam != widget->winId() ) {
-		HDC hdc = GetDC( widget->winId() );
-		HPALETTE hpalT = SelectPalette( hdc, QColor::hPal(), FALSE );
-		RealizePalette( hdc );
-		UpdateColors( hdc );
-		if ( hpalT )
-		    SelectPalette( hdc, hpalT, FALSE );
-		ReleaseDC( widget->winId(), hdc );
-		return 0;
-	    }
-	    break;
+	    if ( QColor::hPal() && (WId)wParam == widget->winId() )
+		return 0;			// otherwise: FALL THROUGH!
 
 	case WM_QUERYNEWPALETTE:		// realize own palette
 	    if ( QColor::hPal() ) {
 		HDC hdc = GetDC( widget->winId() );
-		HPALETTE hpalT = SelectPalette( hdc, QColor::hPal(), FALSE );
+		HPALETTE hpalOld = SelectPalette( hdc, QColor::hPal(), FALSE );
+		uint n = RealizePalette( hdc );
+		if ( n )
+		    InvalidateRect( widget->winId(), 0, TRUE );
+		SelectPalette( hdc, hpalOld, TRUE );
 		RealizePalette( hdc );
-		if ( hpalT )
-		    SelectPalette( hdc, hpalT, FALSE );
 		ReleaseDC( widget->winId(), hdc );
-		return TRUE;
+		return n;
 	    }
 	    break;
 
@@ -1441,8 +1439,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    if ( code >= 1 && code <= 26 )	// Ctrl+'A'..'Z'
 		code += 'A' - 1;
 	}
-    }
-    else {
+    } else {
 	code = translateKeyCode( msg.wParam );
 	if ( code == 0 )
 	    return FALSE;			// virtual key not found
