@@ -159,10 +159,12 @@ static const int vMargin = 8;
 static const int hMargin = 12;
 
 QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor)
-    : QWidget(parent, Qt::WType_Popup | Qt::WDestructiveClose), widget(showTextFor),pressed(false), text(txt)
+    : QWidget(parent, Qt::WType_Popup),
+      widget(showTextFor), pressed(false), text(txt)
 {
     delete instance;
     instance = this;
+    setAttribute(Qt::WA_DeleteOnClose, true);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setPalette(QToolTip::palette());
     setMouseTracking(true);
@@ -170,7 +172,6 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
 #ifndef QT_NO_CURSOR
     setCursor(Qt::ArrowCursor);
 #endif
-
 
     QRect r;
 #ifndef QT_NO_RICHTEXT

@@ -1091,7 +1091,7 @@ void QFocusEvent::resetReason()
     Close events contain a flag that indicates whether the receiver
     wants the widget to be closed or not. When a widget accepts the
     close event, it is hidden (and destroyed if it was created with
-    the \c Qt::WDestructiveClose flag). If it refuses to accept the close
+    the \c Qt::WA_DeleteOnClose flag). If it refuses to accept the close
     event nothing happens. (Under X11 it is possible that the window
     manager will forcibly close the window; but at the time of writing
     we are not aware of any window manager that does this.)
@@ -1113,7 +1113,7 @@ void QFocusEvent::resetReason()
     asks whether to save a document before closing.
 
     If you want the widget to be deleted when it is closed, create it
-    with the \c Qt::WDestructiveClose widget flag. This is very useful for
+    with the \c Qt::WA_DeleteOnClose flag. This is very useful for
     independent top-level windows in a multi-window application.
 
     \l{QObject}s emits the \link QObject::destroyed()

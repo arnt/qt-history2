@@ -409,16 +409,16 @@ class QTextDetailPopup : public QWidget
 {
 public:
     QTextDetailPopup()
-        : QWidget (0, "automatic QText detail widget", Qt::WType_Popup | Qt::WDestructiveClose)
-        {
-        }
+        : QWidget (0, "automatic QText detail widget", Qt::WType_Popup)
+    {
+	setAttribute(Qt::WA_DeleteOnClose, true);
+    }
 
 protected:
-
-    void mousePressEvent(QMouseEvent*)
-        {
+    void mousePressEvent(QMouseEvent *)
+    {
         close();
-        }
+    }
 };
 
 

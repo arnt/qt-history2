@@ -1136,7 +1136,7 @@ void QObject::setParent_helper(QObject *parent)
     }
     d->parent = parent;
     if (d->parent) {
-        // object heirarchies are constrained to a single thread
+        // object hierarchies are constrained to a single thread
         Q_ASSERT_X(d->thread == d->parent->d->thread, "QObject::setParent",
                    "New parent must be in the same thread as the previous parent");
         d->parent->d->children.append(this);

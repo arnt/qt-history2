@@ -20,8 +20,9 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
     app.connect(&app, SIGNAL(lastWindowClosed()), SLOT(quit()));
 
-    MainWindow *mainwindow = new MainWindow(0, Qt::WDestructiveClose);
-    mainwindow->show();
+    MainWindow *mainWin = new MainWindow;
+    mainWin->setAttribute(Qt::WA_DeleteOnClose, true);
+    mainWin->show();
 
     return app.exec();
 }

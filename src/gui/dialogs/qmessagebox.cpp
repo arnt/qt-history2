@@ -31,7 +31,6 @@
 #include "qnc_win.h"
 #endif
 
-// the Qt logo, for aboutQt
 /* XPM */
 static const char * const qtlogo_xpm[] = {
 /* width height ncolors chars_per_pixel */
@@ -553,7 +552,7 @@ void QMessageBox::init(int button0, int button1, int button2)
         *translatedTextAboutQt = tr(
             "<h3>About Qt</h3>"
             "<p>This program uses Qt version %1.</p>"
-            "<p>Qt is a C++ toolkit for cross-platform GUI and "
+            "<p>Qt is a C++ toolkit for cross-platform GUI "
             "application development.</p>"
             "<p>Qt provides single-source "
             "portability across MS&nbsp;Windows, Mac&nbsp;OS&nbsp;X, "
@@ -1066,15 +1065,11 @@ void QMessageBox::closeEvent(QCloseEvent *e)
     \sa question(), warning(), critical()
 */
 
-int QMessageBox::information(QWidget *parent,
-                              const QString& caption, const QString& text,
-                              int button0, int button1, int button2)
+int QMessageBox::information(QWidget *parent, const QString& caption, const QString& text,
+                             int button0, int button1, int button2)
 {
-    QMessageBox *mb = new QMessageBox(caption, text, Information,
-                                       button0, button1, button2,
-                                       parent, "qt_msgbox_information", true,
-                                       Qt::WDestructiveClose);
-    return mb->exec();
+    QMessageBox mb(caption, text, Information, button0, button1, button2, parent);
+    return mb.exec();
 }
 
 /*!
@@ -1116,11 +1111,8 @@ int QMessageBox::question(QWidget *parent,
                            const QString& caption, const QString& text,
                            int button0, int button1, int button2)
 {
-    QMessageBox *mb = new QMessageBox(caption, text, Question,
-                                       button0, button1, button2,
-                                       parent, "qt_msgbox_information", true,
-                                       Qt::WDestructiveClose);
-    return mb->exec();
+    QMessageBox mb(caption, text, Question, button0, button1, button2, parent);
+    return mb.exec();
 }
 
 
@@ -1163,11 +1155,8 @@ int QMessageBox::warning(QWidget *parent,
                           const QString& caption, const QString& text,
                           int button0, int button1, int button2)
 {
-    QMessageBox *mb = new QMessageBox(caption, text, Warning,
-                                       button0, button1, button2,
-                                       parent, "qt_msgbox_warning", true,
-                                       Qt::WDestructiveClose);
-    return mb->exec();
+    QMessageBox mb(caption, text, Warning, button0, button1, button2, parent);
+    return mb.exec();
 }
 
 
@@ -1210,11 +1199,8 @@ int QMessageBox::critical(QWidget *parent,
                            const QString& caption, const QString& text,
                            int button0, int button1, int button2)
 {
-    QMessageBox *mb = new QMessageBox(caption, text, Critical,
-                                       button0, button1, button2,
-                                       parent, "qt_msgbox_critical", true,
-                                       Qt::WDestructiveClose);
-    return mb->exec();
+    QMessageBox mb(caption, text, Critical, button0, button1, button2, parent);
+    return mb.exec();
 }
 
 
@@ -1240,27 +1226,23 @@ int QMessageBox::critical(QWidget *parent,
 void QMessageBox::about(QWidget *parent, const QString &caption,
                          const QString& text)
 {
-    QMessageBox *mb = new QMessageBox(caption, text,
-                                       Information,
-                                       Ok + Default, 0, 0,
-                                       parent, "qt_msgbox_simple_about_box", true,
-                                       Qt::WDestructiveClose);
+    QMessageBox mb(caption, text, Information, Ok + Default, 0, 0, parent);
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QPixmap pm = parent ? parent->windowIcon() : QPixmap();
     if (!pm.isNull())
-        mb->setIconPixmap(pm);
+        mb.setIconPixmap(pm);
     else {
         pm = parent ? parent->topLevelWidget()->windowIcon() : QPixmap();
         if (!pm.isNull())
-            mb->setIconPixmap(pm);
+            mb.setIconPixmap(pm);
         else {
             pm = qApp && qApp->mainWidget() ? qApp->mainWidget()->windowIcon() : QPixmap();
             if (!pm.isNull())
-                mb->setIconPixmap(pm);
+                mb.setIconPixmap(pm);
         }
     }
 #endif
-    mb->exec();
+    mb.exec();
 }
 
 
@@ -1279,12 +1261,12 @@ void QMessageBox::changeEvent(QEvent *ev)
 
 
 static int textBox(QWidget *parent, QMessageBox::Icon severity,
-                    const QString& caption, const QString& text,
-                    const QString& button0Text,
-                    const QString& button1Text,
-                    const QString& button2Text,
-                    int defaultButtonNumber,
-                    int escapeButtonNumber)
+                   const QString& caption, const QString& text,
+                   const QString& button0Text,
+                   const QString& button1Text,
+                   const QString& button2Text,
+                   int defaultButtonNumber,
+                   int escapeButtonNumber)
 {
     int b[3];
     b[0] = 1;
@@ -1299,23 +1281,20 @@ static int textBox(QWidget *parent, QMessageBox::Icon severity,
             b[i] += QMessageBox::Escape;
     }
 
-    QMessageBox *mb = new QMessageBox(caption, text, severity,
-                                       b[0], b[1], b[2],
-                                       parent, "qt_msgbox_information", true,
-                                       Qt::WDestructiveClose);
+    QMessageBox mb(caption, text, severity, b[0], b[1], b[2], parent);
     if (button0Text.isEmpty())
-        mb->setButtonText(1, QMessageBox::tr(mb_texts[QMessageBox::Ok]));
+        mb.setButtonText(1, QMessageBox::tr(mb_texts[QMessageBox::Ok]));
     else
-        mb->setButtonText(1, button0Text);
+        mb.setButtonText(1, button0Text);
     if (b[1])
-        mb->setButtonText(2, button1Text);
+        mb.setButtonText(2, button1Text);
     if (b[2])
-        mb->setButtonText(3, button2Text);
+        mb.setButtonText(3, button2Text);
 
 #ifndef QT_NO_CURSOR
-    mb->setCursor(Qt::ArrowCursor);
+    mb.setCursor(Qt::ArrowCursor);
 #endif
-    return mb->exec() - 1;
+    return mb.exec() - 1;
 }
 
 
@@ -1504,23 +1483,22 @@ int QMessageBox::critical(QWidget *parent, const QString &caption,
 
 void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
 {
-    QMessageBox *mb = new QMessageBox(parent, "qt_msgbox_about_qt");
-    mb->setWFlags(Qt::WDestructiveClose);
+    QMessageBox mb(parent);
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QString c = caption;
     if (c.isEmpty())
         c = tr("About Qt");
-    mb->setWindowTitle(c);
+    mb.setWindowTitle(c);
 #endif
-    mb->setText(*translatedTextAboutQt);
+    mb.setText(*translatedTextAboutQt);
 #ifndef QT_NO_IMAGEIO
     QPixmap pm;
     QImage logo((const char **)qtlogo_xpm);
-    if (qGray(mb->palette().color(QPalette::Active, QPalette::Text).rgb()) >
-         qGray(mb->palette().color(QPalette::Active, QPalette::Base).rgb()))
+    if (qGray(mb.palette().color(QPalette::Active, QPalette::Text).rgb()) >
+        qGray(mb.palette().color(QPalette::Active, QPalette::Base).rgb()))
     {
-        // light on dark, adjust some colors (where's 10?)
+        // light on dark, adjust some colors
         logo.setColor(0, 0xffffffff);
         logo.setColor(1, 0xff666666);
         logo.setColor(2, 0xffcccc66);
@@ -1532,16 +1510,16 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
         logo.setColor(11, 0xffcccc99);
     }
     if (pm.fromImage(logo))
-        mb->setIconPixmap(pm);
+        mb.setIconPixmap(pm);
 #endif
-    mb->setButtonText(0, tr("OK"));
-    if (mb->mbd && mb->mbd->pb[0]) {
-        mb->mbd->pb[0]->setAutoDefault(true);
-        mb->mbd->pb[0]->setFocusPolicy(Qt::StrongFocus);
-        mb->mbd->pb[0]->setDefault(true);
-        mb->mbd->pb[0]->setFocus();
+    mb.setButtonText(0, tr("OK"));
+    if (mb.mbd && mb.mbd->pb[0]) {
+        mb.mbd->pb[0]->setAutoDefault(true);
+        mb.mbd->pb[0]->setFocusPolicy(Qt::StrongFocus);
+        mb.mbd->pb[0]->setDefault(true);
+        mb.mbd->pb[0]->setFocus();
     }
-    mb->exec();
+    mb.exec();
 }
 
 /*!
@@ -1569,6 +1547,5 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
                     || (format == Qt::AutoText && QText::mightBeRichText(label->text()));
     label->setWordWrap(wordwrap);
 }
-
 
 #endif

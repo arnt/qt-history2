@@ -115,18 +115,20 @@ static void flickerfree_update( QWidget *w )
 */
 
 FormWindow::FormWindow( FormFile *f, MainWindow *mw, QWidget *parent, const char *name )
-    : QWidget( parent, name, WDestructiveClose ), mainwindow( mw ),
+    : QWidget( parent, name ), mainwindow( mw ),
       commands( 100 ), pixInline( TRUE ), pixProject( FALSE )
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ff = f;
     init();
     initSlots();
 }
 
 FormWindow::FormWindow( FormFile *f, QWidget *parent, const char *name )
-    : QWidget( parent, name, WDestructiveClose ), mainwindow( 0 ),
+    : QWidget( parent, name ), mainwindow( 0 ),
       commands( 100 ), pixInline( TRUE )
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ff = f;
     init();
 }

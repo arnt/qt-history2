@@ -49,8 +49,8 @@ int main( int argc, char **argv )
 
     QSplashScreen *splash = 0;
     if ( showSplash ) {
-	splash = new QSplashScreen( qPixmapFromMimeSource("splash.png"),
-				    Qt::WDestructiveClose );
+	splash = new QSplashScreen(qPixmapFromMimeSource("splash.png"));
+	splash->setAttribute(Qt::WA_DeleteOnClose);
 	splash->show();
     }
 

@@ -155,8 +155,9 @@ const QPixmap TrWindow::pageCurl()
 }
 
 TrWindow::TrWindow()
-    : QMainWindow( 0, Qt::WType_TopLevel | Qt::WDestructiveClose )
+    : QMainWindow( 0, Qt::WType_TopLevel )
 {
+    setAttribute(Qt::WA_DeleteOnClose);
 
 #ifndef Q_WS_MAC
     setWindowIcon( qPixmapFromMimeSource( "appicon.png" ) );

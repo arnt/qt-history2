@@ -138,8 +138,7 @@
     reject() slots, and exec() will return \c Accepted or \c Rejected
     as appropriate. The exec() call returns the result of the dialog.
     The result is also available from result() if the dialog has not
-    been destroyed. If the \c Qt::WDestructiveClose flag is set, the
-    dialog is deleted after exec() returns.
+    been destroyed.
 
     \target examples
     \section1 Examples
@@ -338,7 +337,7 @@ void QDialog::hideSpecial()
   Returns the modal dialog's result code, \c Accepted or \c Rejected.
 
   Do not call this function if the dialog was constructed with the \c
-  Qt::WDestructiveClose flag.
+  Qt::WA_DeleteOnClose flag.
 */
 int QDialog::result() const
 {
@@ -374,8 +373,8 @@ int QDialog::exec()
         return -1;
     }
 
-    bool destructiveClose = testWFlags(Qt::WDestructiveClose);
-    clearWFlags(Qt::WDestructiveClose);
+    bool deleteOnClose = testAttribute(Qt::WA_DeleteOnClose);
+    setAttribute(Qt::WA_DeleteOnClose, false);
 
     bool wasShowModal = testWFlags(Qt::WShowModal);
     setWFlags(Qt::WShowModal);
@@ -390,10 +389,8 @@ int QDialog::exec()
         clearWFlags(Qt::WShowModal);
 
     int res = result();
-
-    if (destructiveClose)
+    if (deleteOnClose)
         delete this;
-
     return res;
 }
 
@@ -403,7 +400,7 @@ int QDialog::exec()
   and exec() to return \a r.
 
   As with QWidget::close(), done() deletes the dialog if the \c
-  Qt::WDestructiveClose flag is set. If the dialog is the application's
+  Qt::WA_DeleteOnClose flag is set. If the dialog is the application's
   main widget, the application terminates. If the dialog is the
   last window closed, the QApplication::lastWindowClosed() signal is
   emitted.

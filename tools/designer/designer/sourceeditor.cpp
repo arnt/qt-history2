@@ -27,8 +27,9 @@
 #include <qevent.h>
 
 SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInterface *liface )
-    : QVBox( parent, 0, WDestructiveClose ), iFace( iface ), lIface( liface ), obj( 0 ), pro( 0 )
+    : QVBox( parent ), iFace( iface ), lIface( liface ), obj( 0 ), pro( 0 )
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     iFace->addRef();
     lIface->addRef();
     editor = iFace->editor( MainWindow::self->areEditorsReadOnly(),

@@ -145,11 +145,12 @@ static QString textNoAccel( const QString& text)
 
 
 MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
-    : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
+    : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | WGroupLeader ),
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE ), autoSaveEnabled( FALSE ), autoSaveInterval( 1800 )
 {
+    setAttribute(Qt::WA_DeleteOnClose, !single);
     extern void qInitImages_designercore();
     qInitImages_designercore();
 
@@ -618,7 +619,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	}
 
 	w->move( fw->mapToGlobal( QPoint(0,0) ) );
-	((MainWindow*)w )->setWFlags( WDestructiveClose );
+	w->setAttribute(Qt::WA_DeleteOnClose);
 	previewing = TRUE;
 	w->show();
 	previewing = FALSE;

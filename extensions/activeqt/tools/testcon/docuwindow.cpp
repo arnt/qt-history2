@@ -71,8 +71,9 @@ static const char *fileprint[] = {
 
 
 DocuWindow::DocuWindow( const QString& docu, QWidget *parent, QWidget *source )
-    : QMainWindow( parent, Qt::WDestructiveClose )
+    : QMainWindow( parent )
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle( source->windowTitle() + " - Documentation" );
 
     browser = new QTextBrowser( this );

@@ -182,11 +182,11 @@ public:
 
     // documented in qwidget.cpp
     enum WFlag {
-        WType_TopLevel                = 0x00000001,        // widget type flags
-        WType_Dialog                = 0x00000002,
-        WType_Popup                = 0x00000004,
-        WType_Desktop                = 0x00000008,
-        WType_Mask                = 0x0000000f,
+        WType_TopLevel          = 0x00000001,        // widget type flags
+        WType_Dialog            = 0x00000002,
+        WType_Popup             = 0x00000004,
+        WType_Desktop           = 0x00000008,
+        WType_Mask              = 0x0000000f,
 
         WStyle_Customize        = 0x00000010,        // window style flags
         WStyle_NormalBorder     = 0x00000020,
@@ -203,11 +203,12 @@ public:
         WStyle_Reserved         = 0x00008000,
         WStyle_Mask             = 0x0000fff0,
 
-        WDestructiveClose        = 0x00010000,        // misc flags
+        // misc flags
+        // reserved WDestructiveClose = 0x00010000,
         WPaintDesktop            = 0x00020000,
-        //reserved WPaintUnclipped = 0x00040000,
-        //reserved WPaintClever  = 0x00080000,
-        //reserved WResizeNoErase= 0x00100000,
+        // reserved WPaintUnclipped = 0x00040000,
+        // reserved WPaintClever  = 0x00080000,
+        // reserved WResizeNoErase= 0x00100000,
         WMouseNoMask             = 0x00200000,
 
 #if defined(Q_WS_X11)
@@ -305,6 +306,7 @@ public:
         WA_PaintUnclipped,
         WA_SetWindowIcon,
         WA_NoMouseReplay,
+        WA_DeleteOnClose,
 
         // Add new attributes above this!
         WA_AttributeCount

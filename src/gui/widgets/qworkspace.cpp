@@ -1673,9 +1673,10 @@ void QWorkspace::tile()
 
 QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::WFlags flags)
     : QFrame(parent,
-             Qt::WStyle_NoBorder | Qt::WStyle_Customize | Qt::WDestructiveClose
+             Qt::WStyle_NoBorder | Qt::WStyle_Customize
              | Qt::WNoMousePropagation | Qt::WSubWindow)
 {
+    setAttribute(Qt::WA_DeleteOnClose, true);
     setAttribute(Qt::WA_NoBackground, true);
     setMouseTracking(true);
     act = false;

@@ -606,10 +606,6 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 
     Modifier flags:
 
-    \value WDestructiveClose  makes Qt delete this widget when the
-    widget has accepted closeEvent(), or when the widget tried to
-    ignore closeEvent() but could not.
-
     \value WPaintDesktop  gives this widget paint events for the
     desktop.
 
@@ -4109,8 +4105,8 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
         qApp->quit();
     if (!wasDeleted) {
         data.is_closing = 0;
-        if (q->testWFlags(Qt::WDestructiveClose)) {
-            q->clearWFlags(Qt::WDestructiveClose);
+        if (q->testAttribute(Qt::WA_DeleteOnClose)) {
+            q->setAttribute(Qt::WA_DeleteOnClose, false);
             q->deleteLater();
         }
     }
@@ -4128,7 +4124,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
     ignores\endlink the event, nothing happens. The default
     implementation of QWidget::closeEvent() accepts the close event.
 
-    If the widget has the \c Qt::WDestructiveClose widget flag, the widget
+    If the widget has the \c Qt::WA_DeleteOnClose flag, the widget
     is also deleted. A close events is delivered to the widget no
     matter if the widget is visible or not.
 
@@ -6082,6 +6078,10 @@ const QPixmap *QWidget::icon() const
     although some have special convenience functions which are
     mentioned below.
 
+    \value WA_DeleteOnClose makes Qt delete this widget when the
+    widget has accepted closeEvent(), or when the widget tried to
+    ignore closeEvent() but could not.
+
     \value WA_KeyCompression Enables key event compression if set,
     and disables it if not set. By default key compression is off, so
     widgets receive one key press event for each key press (or more,
@@ -6132,7 +6132,7 @@ const QPixmap *QWidget::icon() const
     author or by the style.
 
     \value WA_ForceDisabled Indicates that the widget is
-    explicitely disabled, i.e. it will remain disabled even when all
+    explicitly disabled, i.e. it will remain disabled even when all
     its ancestors are set to the enabled state. This implies
     WA_Disabled. This is set/cleared by QWidget::setEnabled() and
     QWidget::setDisabled().
