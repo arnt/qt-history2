@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#31 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#32 $
 **
 ** Macros and definitions related to QObject
 **
@@ -38,12 +38,17 @@
 #define signals protected			// signals: in class
 #define emit					// emit signal
 
+#ifdef Q_PROPS
+#define q_prop
+#define q_properties public
+#endif
+
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT							\
 public:									\
     QMetaObject *metaObject() const { return metaObj; }			\
     const char  *className()  const;					\
-    static void staticMetaObject();					\
+    static QMetaObject *staticMetaObject();				\
     static QString tr(const char*);					\
 protected:								\
     void	 initMetaObject();					\
@@ -52,6 +57,11 @@ private:								\
 
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT
+
+#define Q_BUILDER( comment, pixmap, inspector )				\
+private:								\
+    static QObject* factory( QWidget* );
+
 						// macro for naming members
 #if defined(_OLD_CPP_)
 #define METHOD(a)	"0""a"
