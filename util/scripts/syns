@@ -1,0 +1,13 @@
+#!/bin/bash
+
+prev=""
+for curr in `cat $QTDIR/doc/html/headerfilesynonyms`; do
+    if [ "$prev" ]; then
+#	ln -s $QTDIR/include/$curr $QTDIR/include/$prev
+	echo "#include <$curr>" > $QTDIR/include/$prev
+	prev=""
+    else
+	prev=$curr
+    fi
+done
+exit 0
