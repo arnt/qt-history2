@@ -677,17 +677,12 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
             // for the next event.
             const_cast<QPostEvent &>(pe).event = 0;
 
-            // remember postEventCounter, so we know when events get
-            // posted or removed.
-            int backup = postedEvents->size();
-
             locker.unlock();
             // after all that work, it's time to deliver the event.
             QCoreApplication::sendEvent(r, e);
             locker.relock();
 
-            if (backup != postedEvents->size()) // events got posted or removed ...
-                i = postedEvents->offset; // ... so start all over again.
+            i = postedEvents->offset; // offset may have changed
 
             delete e;
             // careful when adding anything below this point - the
@@ -778,6 +773,9 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
             ++j;
         }
     }
+    if (postedEvents->offset == n)
+        postedEvents->offset = j;
+
     while (j++ < n)
         postedEvents->removeLast();
 }
