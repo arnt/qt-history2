@@ -572,19 +572,7 @@ static inline bool canRender( QFontEngine *fe, const QChar &sample )
     return hasChar;
 }
 #endif // Q_WS_X11 || Q_WS_WIN
-
-#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS)
-static
-QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp, const QFontDef &request,
-			 QtFontFamily *family, QtFontFoundry *foundry,
-			 QtFontStyle *style, QtFontSize *size
-#ifdef Q_WS_X11
-			 , QtFontEncoding *encoding, bool forced_encoding
-#endif
-			 );
-#endif
-
-
+ 
 
 static QSingleCleanupHandler<QFontDatabasePrivate> qfontdatabase_cleanup;
 static QFontDatabasePrivate *db=0;
