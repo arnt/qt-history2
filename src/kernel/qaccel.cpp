@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#38 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#38 $");
 
 
 /*!
@@ -163,7 +163,7 @@ uint QAccel::count() const
 
 
 /*!
-  Inserts an accelerator item and returns the item's identifier.
+  Inserts an accelerator item with an item itentifier.
 
   \arg \e key is a key code plus a combination of SHIFT, CTRL and ALT.
   \arg \e id is the accelerator item id.
@@ -171,23 +171,54 @@ uint QAccel::count() const
   If \e id is negative, then the item will be assigned a unique
   identifier.
 
+  The item is assigned the identifier \a id or an automatically
+  generated identifier.	 It works as follows: If \a id \>= 0, this
+  identifier is assigned.  If \a id == -1 (default), the identifier is
+  set equal to the number of accelerator items already inserted.
+  If \a id is any other negative integer, for instance -2, a unique
+  identifier (negative integer \<= -2) is generated.
+
   \code
     QAccel *a = new QAccel( myWindow );		// create accels for myWindow
     a->insertItem( Key_P + CTRL, 200 );		// Ctrl+P to print document
     a->insertItem( Key_X + ALT , 201 );		// Alt+X  to quit
     a->insertItem( ASCII_ACCEL + 'q', 202 );	// ASCII 'q' to quit
-    a->insertItem( Key_D );			// gets id 2
-    a->insertItem( Key_P + CTRL + SHIFT );	// gets id 3
+    a->insertItem( Key_D );			// gets id 3
+    a->insertItem( Key_P + CTRL + SHIFT );	// gets id 4
   \endcode
 */
 
 int QAccel::insertItem( int key, int id )
 {
+    static int seq_no = -2;
     if ( id == -1 )
 	id = aitems->count();
+    else if ( id <= -2 )
+	id = seq_no--;
     aitems->insert( 0, new QAccelItem(key,id) );
     return id;
 }
+
+
+/*!
+  Inserts an accelerator item and connects it to an object/slot.
+  Returns a unique menu item identifier (negative integer \<= -2).
+
+  \arg \e key is a key code plus a combination of SHIFT, CTRL and ALT.
+
+  \code
+    QAccel *a = new QAccel( myWindow );
+    a->insertItem( Key_P + CTRL, myWindow, SLOT(print()) );
+  \endcode
+*/
+
+int QAccel::insertItem( int key, const QObject *receiver, const char *member )
+{
+    int id = insertItem( key, -2 );
+    connectItem( id, receiver, member );
+    return id;
+}
+
 
 /*!
   Removes the accelerator item with the identifier \e id.
@@ -221,6 +252,7 @@ int QAccel::key( int id )
     return item ? item->key : 0;
 }
 
+
 /*!
   Returns the identifier of the accelerator item with the key code \e key, or
   -1 if the item cannot be found.
@@ -244,6 +276,7 @@ bool QAccel::isItemEnabled( int id ) const
     QAccelItem *item = find_id(aitems, id);
     return item ? item->enabled : FALSE;
 }
+
 
 /*!
   Enables or disables an accelerator item.
