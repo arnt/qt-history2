@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#4 $
 **
 **  Geometry Management
 **
@@ -10,10 +10,10 @@
 *****************************************************************************/
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#4 $");
 
 /*!
-  \class QLayout qgeom.h
+  \class QLayout qlayout.h
   \brief QLayout is the base class of geometry specifiers.
   
   This is an abstract base class. Various layout managers inherit
@@ -233,7 +233,7 @@ void QLayout::setMenuBar( QWidget *w )
 
 
 /*!
-  \class QBoxLayout qgeom.h
+  \class QBoxLayout qlayout.h
   \brief The QBoxLayout class specifies child widget geometry.
 
   Contents are arranged serially, either horizontal or vertical.
@@ -535,7 +535,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 
 
 /*!
-  \class QGridLayout qgeom.h
+  \class QGridLayout qlayout.h
 
   \brief The QGridLayout class specifies child widget geometry.
 
