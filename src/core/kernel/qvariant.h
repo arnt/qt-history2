@@ -43,7 +43,7 @@ class QVariantComparisonHelper;
 template <class Key, class Type> class QMap;
 
 
-#ifndef Q_NO_MEMBER_TEMPLATES
+#ifndef QT_NO_MEMBER_TEMPLATES
 template <typename T>
 inline QVariant qVariantFromValue(const T &);
 
@@ -248,7 +248,7 @@ class Q_CORE_EXPORT QVariant
     const void *constData() const;
     inline const void *data() const { return constData(); }
 
-#ifndef Q_NO_MEMBER_TEMPLATES
+#ifndef QT_NO_MEMBER_TEMPLATES
     template<typename T>
     inline void setValue(const T &value)
     { return qVariantSetValue(*this, value); }

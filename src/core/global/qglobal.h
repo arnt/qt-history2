@@ -209,6 +209,7 @@
 #    endif
 #  else
 #    define Q_NO_USING_KEYWORD
+#    define QT_NO_MEMBER_TEMPLATES
 #  endif
 /* Intel C++ disguising as Visual C++: the `using' keyword avoids warnings */
 #  if defined(__INTEL_COMPILER)
