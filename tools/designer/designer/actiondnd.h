@@ -126,6 +126,11 @@ public:
 
     void clear();
     void installEventFilters( QWidget *w );
+    void insertAction( QWidget *w, QAction *a ) { actionMap.insert( w, a ); }
+    void insertAction( int index, QAction *a ) { actionList.insert( index, a ); }
+    void appendAction( QAction *a ) { actionList.append( a ); }
+    void removeAction( QAction *a ) { actionList.remove( a ); }
+    void reInsert();
 
 protected:
     bool eventFilter( QObject *, QEvent * );
@@ -145,7 +150,6 @@ private slots:
 private:
     void drawIndicator( const QPoint &pos );
     QPoint calcIndicatorPos( const QPoint &pos );
-    void reInsert();
     void buttonMousePressEvent( QMouseEvent *e, QObject *o );
     void buttonMouseMoveEvent( QMouseEvent *e, QObject *o );
     void buttonMouseReleaseEvent( QMouseEvent *e, QObject *o );

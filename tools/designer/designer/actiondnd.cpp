@@ -15,6 +15,7 @@
 #include "defs.h"
 #include "widgetfactory.h"
 #include "formwindow.h"
+#include "command.h"
 
 bool QDesignerAction::addTo( QWidget *w )
 {
@@ -316,24 +317,26 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 	    if ( it == actionMap.end() )
 		return;
 	    QAction *a = *it;
-	    actionList.remove( a );
-	    a->removeFrom( this );
+	    int index = actionList.find( a );
+	    RemoveActionFromToolBarCommand *cmd = new RemoveActionFromToolBarCommand( tr( "Remove Action '%1' from Toolbar '%2'" ).
+										      arg( a->name() ).arg( caption() ),
+										      formWindow, a, this, index );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
 	} else if ( res == ID_SEP ) {
 	    calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
 	    QAction *a = new QSeparatorAction( 0 );
-	    connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
-	    a->addTo( this );
-	    ( (QSeparatorAction*)a )->widget()->installEventFilter( this );
 	    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
 	    if ( index != -1 && afterAnchor )
 		++index;
 	    if ( !insertAnchor )
 		index = 0;
-	    if ( index == -1 )
-		actionList.append( a );
-	    else
-		actionList.insert( index, a );
-	    reInsert();
+
+	    AddActionToToolBarCommand *cmd = new AddActionToToolBarCommand( tr( "Add Separator to Toolbar '%2'" ).
+									    arg( a->name() ).arg( caption() ),
+									    formWindow, a, this, index );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
 	} else if ( res == ID_DELTOOLBAR ) {
 	    delete this;	
 	}
@@ -369,9 +372,12 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
     QAction *a = *it;
     if ( !a )
 	return;
-    a->removeFrom( this );
-    int idx = actionList.find( a );
-    actionList.remove( a );
+    int index = actionList.find( a );
+    RemoveActionFromToolBarCommand *cmd = new RemoveActionFromToolBarCommand( tr( "Remove Action '%1' from Toolbar '%2'" ).
+									      arg( a->name() ).arg( caption() ),
+									      formWindow, a, this, index );
+    formWindow->commandHistory()->addCommand( cmd );
+    cmd->execute();
 
     QString type = a->inherits( "QActionGroup" ) ? QString( "application/x-designer-actiongroup" ) :
 	a->inherits( "QSeparatorAction" ) ? QString( "application/x-designer-separator" ) : QString( "application/x-designer-actions" );
@@ -384,8 +390,11 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
 	    formWindow->selectWidget( ( (QDesignerAction*)a )->widget(), FALSE );
     }
     if ( !drag->drag() ) {
-	actionList.insert( idx, a );
-	reInsert();
+	AddActionToToolBarCommand *cmd = new AddActionToToolBarCommand( tr( "Add Action '%1' to Toolbar '%2'" ).
+									arg( a->name() ).arg( caption() ),
+									formWindow, a, this, index );
+	formWindow->commandHistory()->addCommand( cmd );
+	cmd->execute();
     }
     lastIndicatorPos = QPoint( -1, -1 );
     indicator->hide();
@@ -437,77 +446,29 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
     else
 	s = QString( e->encodedData( "application/x-designer-actions" ) );
 
+    indicator->hide();
+    QAction *a = 0;
+    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
+    if ( index != -1 && afterAnchor )
+	++index;
+    if ( !insertAnchor )
+	index = 0;
     if ( e->provides( "application/x-designer-actions" ) ||
 	 e->provides( "application/x-designer-separator" ) ) {
-	QAction *a = 0;
-	if ( e->provides( "application/x-designer-actions" ) ) {
-	    a = (QDesignerAction*)s.toLong(); // #### huha, that is evil
-	    a->addTo( this );
-	    actionMap.insert( ( (QDesignerAction*)a )->widget(), a );
-	    ( (QDesignerAction*)a )->widget()->installEventFilter( this );
-	} else {
-	    a = (QSeparatorAction*)s.toLong(); // #### huha, that is evil
-	    a->addTo( this );
-	    actionMap.insert( ( (QSeparatorAction*)a )->widget(), a );
-	    ( (QSeparatorAction*)a )->widget()->installEventFilter( this );
-	}
-	int index = actionList.findRef( *actionMap.find( insertAnchor ) );
-	if ( index != -1 && afterAnchor )
-	    ++index;
-	if ( !insertAnchor )
-	    index = 0;
-	if ( index == -1 )
-	    actionList.append( a );
+	if ( e->provides( "application/x-designer-actions" ) )
+	    a = (QDesignerAction*)s.toLong();
 	else
-	    actionList.insert( index, a );
-	reInsert();
-	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
-	indicator->hide();
+	    a = (QSeparatorAction*)s.toLong();
     } else {
-	QDesignerActionGroup *a = (QDesignerActionGroup*)s.toLong(); // #### huha, that is evil
-	if ( a->usesDropDown() ) {
-	    a->addTo( this );
-	    actionMap.insert( a->widget(), a );
-	    a->widget()->installEventFilter( this );
-	    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
-	    if ( index != -1 && afterAnchor )
-		++index;
-	    if ( !insertAnchor )
-		index = 0;
-	    if ( index == -1 )
-		actionList.append( a );
-	    else
-		actionList.insert( index, a );
-	} else {
-	    a->addTo( this );
-	    QObjectListIt it( *a->children() );
-	    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
-	    if ( index != -1 && afterAnchor )
-		++index;
-	    if ( !insertAnchor )
-		index = 0;
-	    int i = 0;
-	    while ( it.current() ) {
-		QObject *o = it.current();
-		++it;
-		if ( !o->inherits( "QAction" ) )
-		    continue;
-		// ### fix it for nested actiongroups
-		if ( o->inherits( "QDesignerAction" ) ) {
-		    QDesignerAction *ac = (QDesignerAction*)o;
-		    actionMap.insert( ac->widget(), ac );
-		    ac->widget()->installEventFilter( this );
-		    if ( index == -1 )
-			actionList.append( ac );
-		    else
-			actionList.insert( index + (i++), ac );
-		}
-	    }
-	}
-	reInsert();
-	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
-	indicator->hide();
+	a = (QDesignerActionGroup*)s.toLong();
     }
+
+    AddActionToToolBarCommand *cmd = new AddActionToToolBarCommand( tr( "Add Action '%1' to Toolbar '%2'" ).
+								    arg( a->name() ).arg( caption() ),
+								    formWindow, a, this, index );
+    formWindow->commandHistory()->addCommand( cmd );
+    cmd->execute();
+
     lastIndicatorPos = QPoint( -1, -1 );
 }
 
@@ -624,19 +585,16 @@ void QDesignerToolBar::doInsertWidget( const QPoint &p )
     installEventFilters( w );
     MainWindow::self->formWindow()->insertWidget( w, TRUE );
     QDesignerAction *a = new QDesignerAction( w, parent() );
-    connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
-    a->addTo( this );
     int index = actionList.findRef( *actionMap.find( insertAnchor ) );
     if ( index != -1 && afterAnchor )
 	++index;
     if ( !insertAnchor )
 	index = 0;
-    qDebug( "%d %p", index, a->widget() );
-    if ( index == -1 )
-	actionList.append( a );
-    else
-	actionList.insert( index, a );
-    reInsert();
+    AddActionToToolBarCommand *cmd = new AddActionToToolBarCommand( tr( "Add Widget '%1' to Toolbar '%2'" ).
+								    arg( w->name() ).arg( caption() ),
+								    formWindow, a, this, index );
+    formWindow->commandHistory()->addCommand( cmd );
+    cmd->execute();
     MainWindow::self->resetTool();
 }	
 

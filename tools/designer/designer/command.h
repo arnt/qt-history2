@@ -43,6 +43,8 @@ class QListBox;
 class QIconView;
 class QMultiLineEdit;
 class QTable;
+class QAction;
+class QDesignerToolBar;
 
 class Command : public Qt
 {
@@ -79,7 +81,9 @@ public:
 	PopulateIconView,
 	PopulateListView,
 	PopulateMultiLineEdit,
-	PopulateTable
+	PopulateTable,
+	AddActionToToolBar,
+	RemoveActionFromToolBar
     };
 
     QString name() const;
@@ -651,5 +655,34 @@ private:
 
 };
 
+class AddActionToToolBarCommand : public Command
+{
+public:
+    AddActionToToolBarCommand( const QString &n, FormWindow *fw,
+			       QAction *a, QDesignerToolBar *tb, int idx );
+
+    void execute();
+    void unexecute();
+    Type type() const { return AddActionToToolBar; }
+
+private:
+    QAction *action;
+    QDesignerToolBar *toolBar;
+    int index;
+
+};
+
+class RemoveActionFromToolBarCommand : public AddActionToToolBarCommand
+{
+public:
+    RemoveActionFromToolBarCommand( const QString &n, FormWindow *fw,
+				    QAction *a, QDesignerToolBar *tb, int idx )
+	: AddActionToToolBarCommand( n, fw, a, tb, idx ) {}
+
+    void execute() { AddActionToToolBarCommand::unexecute(); }
+    void unexecute() { AddActionToToolBarCommand::execute(); }
+    Type type() const { return RemoveActionFromToolBar; }
+
+};
 
 #endif

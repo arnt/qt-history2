@@ -28,6 +28,7 @@
 #include "hierarchyview.h"
 #include "formlist.h"
 #include "actioneditorimpl.h"
+#include "actiondnd.h"
 
 #include <qfeatures.h>
 #include <qwidget.h>
@@ -41,6 +42,7 @@
 #include <qstack.h>
 #include <qheader.h>
 #include <qtable.h>
+#include <qaction.h>
 
 CommandHistory::CommandHistory( int s )
     : current( -1 ), steps( s ), savedAt( -1 )
@@ -1362,4 +1364,76 @@ void PopulateTableCommand::unexecute()
     i = 0;
     for ( QValueList<Row>::Iterator rit = oldRows.begin(); rit != oldRows.end(); ++rit, ++i )
 	table->verticalHeader()->setLabel( i, (*rit).pix, (*rit).text );
+}
+
+// ------------------------------------------------------------
+
+AddActionToToolBarCommand::AddActionToToolBarCommand( const QString &n, FormWindow *fw,
+						      QAction *a, QDesignerToolBar *tb, int idx )
+    : Command( n, fw ), action( a ), toolBar( tb ), index( idx )
+{
+}
+
+void AddActionToToolBarCommand::execute()
+{
+    action->addTo( toolBar );
+    if ( action->inherits( "QDesignerAction" ) ) {
+	toolBar->insertAction( ( (QDesignerAction*)action )->widget(), action );
+	( (QDesignerAction*)action )->widget()->installEventFilter( toolBar );
+    } else if ( action->inherits( "QDesignerActionGroup" ) ) {
+	toolBar->insertAction( ( (QDesignerActionGroup*)action )->widget(), action );
+	( (QDesignerActionGroup*)action )->widget()->installEventFilter( toolBar );
+    } else if ( action->inherits( "QSeparatorAction" ) ) {
+	toolBar->insertAction( ( (QSeparatorAction*)action )->widget(), action );
+	( (QSeparatorAction*)action )->widget()->installEventFilter( toolBar );
+    }
+    if ( !action->inherits( "QActionGroup" ) || ( (QActionGroup*)action )->usesDropDown()) {
+	if ( index == -1 )
+	    toolBar->appendAction( action );
+	else
+	    toolBar->insertAction( index, action );
+	toolBar->reInsert();
+	QObject::connect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
+    } else {
+	QObjectListIt it( *action->children() );
+	int i = 0;
+	while ( it.current() ) {
+	    QObject *o = it.current();
+	    ++it;
+	    if ( !o->inherits( "QAction" ) )
+		continue;
+	    // ### fix it for nested actiongroups
+	    if ( o->inherits( "QDesignerAction" ) ) {
+		QDesignerAction *ac = (QDesignerAction*)o;
+		toolBar->insertAction( ac->widget(), ac );
+		ac->widget()->installEventFilter( toolBar );
+		if ( index == -1 )
+		    toolBar->appendAction( ac );
+		else
+		    toolBar->insertAction( index + (i++), ac );
+	    }
+	}
+	toolBar->reInsert();
+	QObject::connect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
+    }
+}
+
+void AddActionToToolBarCommand::unexecute()
+{
+    toolBar->removeAction( action );
+    action->removeFrom( toolBar );
+    QObject::disconnect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
+    if ( !action->inherits( "QActionGroup" ) || ( (QActionGroup*)action )->usesDropDown()) {
+	action->removeEventFilter( toolBar );
+    } else {
+	QObjectListIt it( *action->children() );
+	while ( it.current() ) {
+	    QObject *o = it.current();
+	    ++it;
+	    if ( !o->inherits( "QAction" ) )
+		continue;
+	    if ( o->inherits( "QDesignerAction" ) )
+		o->removeEventFilter( toolBar );
+	}
+    }
 }
