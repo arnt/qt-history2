@@ -31,7 +31,7 @@
 
 class QPolygonF;
 
-class QPainterPathData : public QPainterPath::QPainterPathPrivate
+class QPainterPathData : public QPainterPathPrivate
 {
 public:
     QPainterPathData() :

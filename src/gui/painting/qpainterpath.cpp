@@ -1141,7 +1141,7 @@ QDataStream &operator<<(QDataStream &s, const QPainterPath &p)
         return s;
     }
 
-    s << p.d->elements.size();
+    s << p.elementCount();
     for (int i=0; i<p.d->elements.size(); ++i) {
         const QPainterPath::Element &e = p.d->elements.at(i);
         s << int(e.type) << e.x << e.y;

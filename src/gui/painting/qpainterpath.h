@@ -53,7 +53,6 @@ public:
         bool operator==(const Element &e) const { return x == e.x && y == e.y && type == e.type; }
     };
 
-
     QPainterPath();
     explicit QPainterPath(const QPointF &startPoint);
     QPainterPath(const QPainterPath &other);
@@ -114,18 +113,11 @@ public:
     bool operator!=(const QPainterPath &other) const;
 
 private:
-    class QPainterPathPrivate
-    {
-    public:
-        QBasicAtomic ref;
-        QVector<Element> elements;
-    };
-
     QPainterPathPrivate *d_ptr;
 
     inline void ensureData() { if (!d_ptr) ensureData_helper(); }
     void ensureData_helper();
-    inline void detach() { if (d_ptr->ref != 1) detach_helper(); }
+    inline void detach();
     void detach_helper();
 
     QPainterPathData *d_func() const { return (QPainterPathData *) d_ptr; }
@@ -139,7 +131,22 @@ private:
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPainterPath &);
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPainterPath &);
 #endif
+};
 
+class QPainterPathPrivate
+{
+    friend class QPainterPath;
+    friend class QPainterPathData;
+    friend class QPainterPathStroker;
+    friend class QPainterPathStrokerPrivate;
+    friend class QMatrix;
+#ifndef QT_NO_DATASTREAM
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPainterPath &);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPainterPath &);
+#endif
+private:
+    QBasicAtomic ref;
+    QVector<QPainterPath::Element> elements;
 };
 
 Q_DECLARE_TYPEINFO(QPainterPath::Element, Q_PRIMITIVE_TYPE);
@@ -230,14 +237,20 @@ inline bool QPainterPath::isEmpty() const
 
 inline int QPainterPath::elementCount() const
 {
-    return d_ptr->elements.size();
+    return d_ptr ? d_ptr->elements.size() : 0;
 }
 
 inline const QPainterPath::Element &QPainterPath::elementAt(int i) const
 {
+    Q_ASSERT(d_ptr);
+    Q_ASSERT(i >= 0 && i < elementCount());
     return d_ptr->elements.at(i);
 }
 
-
+inline void QPainterPath::detach()
+{
+    if (d_ptr->ref != 1)
+        detach_helper();
+}
 
 #endif // QPAINTERPATH_H
