@@ -23,12 +23,21 @@
 **
 *****************************************************************************/
 
-/* WARNING! THIS IS NOT YET PART OF THE Qt API, AND MAY BE CHANGED WITHOUT
-   NOTICE */
-
-
 #ifndef QLAYOUTENGINE_H
 #define QLAYOUTENGINE_H
+
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of qlayout.cpp, qlayoutengine.cpp, qmainwindow.cpp and qsplitter.cpp.
+// This header file may change from version to version without notice,
+// or even be removed.
+//
+//
+
 
 #ifndef QT_H
 #include "qabstractlayout.h"

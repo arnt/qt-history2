@@ -1,11 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qfontdata.h#41 $
 **
-**		      ***   INTERNAL HEADER FILE   ***
-**
-**		This file is NOT a part of the Qt interface!
-**
-** Definition of QFontData struct
+** Definition of internal QFontData struct
 **
 ** Created : 941229
 **
@@ -29,6 +25,18 @@
 
 #ifndef QFONTDATA_H
 #define QFONTDATA_H
+
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of qmenudata.cpp, qmenubar.cpp, qmenubar.cpp, qpopupmenu.cpp,
+// qmotifstyle.cpp and qwindowssstyle.cpp.  This header file may change
+// from version to version without notice, or even be removed.
+//
+//
 
 
 struct QFontDef {				// font definition

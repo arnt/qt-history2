@@ -1,7 +1,3 @@
-
-/* WARNING! THIS IS NOT YET PART OF THE Qt API, AND MAY BE CHANGED WITHOUT
-   NOTICE */
-
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#12 $
 **
@@ -26,6 +22,16 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It may change from version to
+// version without notice, or even be removed.
+//
+//
+
 
 #include "qlayoutengine.h"
 
