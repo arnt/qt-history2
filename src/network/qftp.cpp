@@ -346,7 +346,7 @@ void QFtpDTP::abortConnection()
 
 bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo *info )
 {
-    QStringList lst = buffer.split(" ");
+    QStringList lst = buffer.simplifyWhiteSpace().split(" ");
 
     if ( lst.count() < 9 )
 	return FALSE;
@@ -2000,7 +2000,6 @@ QFtp::~QFtp()
 {
     abort();
     close();
-    delete d;
 }
 
 #include "qftp.moc"
