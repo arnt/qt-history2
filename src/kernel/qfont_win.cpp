@@ -133,18 +133,19 @@ void QFont::cleanup()
     shared_dc = 0;
 }
 
-
 void QFontPrivate::load( QFont::Script script )
 {
-//     qDebug("trying to load font for script %d", script );
+    // NOTE: the X11 and Windows implementations of this function are
+    // identical... if you change one, change both.
+
 #ifdef QT_CHECK_STATE
     // sanity checks
     Q_ASSERT( QFontCache::instance != 0);
     Q_ASSERT( script >= 0 && script < QFont::LastPrivateScript );
 #endif // QT_CHECK_STATE
 
-    int px = int( pixelSize( request, paintdevice, screen ) + .5 );
     QFontDef req = request;
+    int px = int( pixelSize( req, paintdevice, screen ) + .5 );
     req.pixelSize = px;
     req.pointSize = 0;
 
@@ -163,13 +164,15 @@ void QFontPrivate::load( QFont::Script script )
 	}
     }
 
+    // the cached engineData could have already loaded the engine we want
+    if ( engineData->engines[script] ) return;
+
     // load the font
     QFontEngine *engine = 0;
-    double scale = 1.0; // ### TODO: fix the scale calculations
-    Q_UNUSED( scale );
+    //    double scale = 1.0; // ### TODO: fix the scale calculations
 
     // list of families to try
-    QStringList family_list = QStringList::split( ',', request.family );
+    QStringList family_list = QStringList::split( ',', req.family );
 
     // append the substitute list for each family in family_list
     QStringList subs_list;
@@ -179,7 +182,16 @@ void QFontPrivate::load( QFont::Script script )
     family_list += subs_list;
 
     // append the default fallback font for the specified script
-    // family_list << ... ;
+    // family_list << ... ; ###########
+
+    // add the default family
+    QString defaultFamily = QApplication::font().family();
+    if ( ! family_list.contains( defaultFamily ) )
+	family_list << defaultFamily;
+
+    // add QFont::defaultFamily() to the list, for compatibility with
+    // previous versions
+    family_list << QApplication::font().defaultFamily();
 
     // null family means find the first font matching the specified script
     family_list << QString::null;
@@ -188,52 +200,20 @@ void QFontPrivate::load( QFont::Script script )
     for ( ; ! engine && it != end; ++it ) {
 	req.family = *it;
 
-#if defined( Q_WS_X11 ) || defined (Q_WS_WIN )
-	QFontCache::Key key( req, script, screen );
-#else
-	QFontCache::Key key( req, QFont::NoScript, screen );
-#endif // Q_WS_X11
-
-	// first, look in the font cache for a font...
-	engine = QFontCache::instance->findEngine( key );
-	if ( engine ) {
-	    if ( engine->type() != QFontEngine::Box ) {
-		// found a real font engine... stop
-		break;
-	    }
-
-	    if ( ! req.family.isEmpty() ) {
-		// don't accept a box font engine... retry with the
-		// next family in the list (if any)
-		engine = 0;
-	    }
-	    continue;
-	}
-
-	// not found in cache, try to load it...
 	engine = QFontDatabase::findFont( script, req, screen );
+	if ( engine ) {
+	    if ( engine->type() != QFontEngine::Box )
+		break;
 
-	if ( ! engine ) {
-	    // couldn't load it, put a box font engine in the cache to
-	    // prevent multiple calls to QFontDatabase::findFont
-	    engine = new QFontEngineBox( px );
-	    QFontCache::instance->insertEngine( key, engine );
-
-	    if ( ! req.family.isEmpty() ) {
-		// don't accept a box font engine... retry with the
-		// next family in the list (if any)
+	    if ( ! req.family.isEmpty() )
 		engine = 0;
-	    }
-	} else {
-	    // insert the new font engine into the font cache
-	    QFontCache::instance->insertEngine( key, engine );
+
+	    continue;
 	}
     }
 
     engine->ref();
     engineData->engines[script] = engine;
-    // initFontInfo( script, scale );
-    // request.dirty = FALSE;
 }
 
 HFONT QFont::handle() const

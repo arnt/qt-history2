@@ -265,6 +265,9 @@ void QFont::x11SetScreen( int screen )
 */
 void QFontPrivate::load( QFont::Script script )
 {
+    // NOTE: the X11 and Windows implementations of this function are
+    // identical... if you change one, change both.
+
 #ifdef QT_CHECK_STATE
     // sanity checks
     Q_ASSERT( QFontCache::instance != 0);
