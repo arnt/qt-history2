@@ -494,7 +494,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    a.setPoints(7, 0,-3, 0,3, -1,-2, -1,2, -2,-1, -2,1, -3,0);
 	p->save();
 #if 1
-	if ( flags & Style_Enabled ) {
+	if(flags & Style_Enabled) {
 	    a.translate(r.x() + r.width() / 2, r.y() + r.height() / 2);
 	    p->setPen(cg.text());
 	    p->drawLineSegments(a, 0, 3);         // draw arrow
@@ -1183,7 +1183,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		    pixp.drawText(x, y + p->fontMetrics().ascent(), tbar->visibleText());
 		    pixp.restore();
 		    p->drawPixmap(r.topLeft(), *pix);
-		    if (!QPixmapCache::insert(pmkey, pix))
+		    if(!QPixmapCache::insert(pmkey, pix))
 			delete pix;
 		}
 	    } else {
@@ -1431,7 +1431,7 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
     case CC_SpinWidget: {
 	const int spinner_w = 15, spinner_h = 10; //isn't there some way to get this from the AppMan?
 	int fw = pixelMetric(PM_SpinBoxFrameWidth, w), y = fw, x = w->width() - fw - spinner_w;
-	switch ( sc ) {
+	switch(sc) {
 	case SC_SpinWidgetUp:
 	    return QRect(x, y + ((w->height() / 2) - spinner_h), spinner_w, spinner_h);
 	case SC_SpinWidgetDown:
@@ -1439,8 +1439,8 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	case SC_SpinWidgetButtonField:
 	    return QRect(x, y, spinner_w, w->height() - (fw*2));
 	case SC_SpinWidgetEditField: 
-	    return QRect(fw, fw, (w->width() - spinner_w - (fw*3) - 3), w->height() - (fw*2));
-	case SC_SpinWidgetFrame:
+	    return QRect(fw, fw, (w->width() - spinner_w - (fw*3) - 3), w->height() - (fw*2)); 
+	case SC_SpinWidgetFrame: 
 	    return QRect(0, 0, w->width() - spinner_w - fw - 3, w->height());
 	default:
 	    break;
