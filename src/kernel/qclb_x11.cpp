@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#15 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#15 $");
 
 
 /*****************************************************************************
@@ -310,6 +310,7 @@ void QClipboard::setData( const char *format, void *data )
 	ASSERT( XGetSelectionOwner(dpy,XA_PRIMARY) == win );
 #endif
 	d->setData( format, data );
+	emit dataChanged();
 	return;
     }
 
