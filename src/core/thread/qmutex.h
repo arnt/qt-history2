@@ -81,7 +81,7 @@ private:
 class QMutex
 {
 public:
-    inline QMutex(bool recursive) {}
+    inline QMutex(bool) {}
     inline ~QMutex() {}
 
     static inline void lock() {}
