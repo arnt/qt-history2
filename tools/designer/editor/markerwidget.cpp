@@ -273,8 +273,8 @@ static QPixmap *breakpointPixmap = 0;
 static QPixmap *stepPixmap = 0;
 static QPixmap *stackFrame = 0;
 
-MarkerWidget::MarkerWidget( ViewManager *parent )
-    : QWidget( parent, 0, WRepaintNoErase | WStaticContents | WResizeNoErase ), viewManager( parent )
+MarkerWidget::MarkerWidget( ViewManager *parent, const char*name )
+    : QWidget( parent, name, WRepaintNoErase | WStaticContents | WResizeNoErase ), viewManager( parent )
 {
     if ( !errorPixmap ) {
 	errorPixmap = new QPixmap( error_xpm );
@@ -407,7 +407,7 @@ void MarkerWidget::mousePressEvent( QMouseEvent *e )
 
 void MarkerWidget::contextMenuEvent( QContextMenuEvent *e )
 {
-    QPopupMenu m;
+    QPopupMenu m( 0, "editor_breakpointsmenu" );
 
     int toggleBreakPoint;
     int editBreakpoints;

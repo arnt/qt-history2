@@ -100,7 +100,7 @@ class ArrowButton : public QButton
 public:
     enum Dir { Left, Right };
 
-    ArrowButton( QWidget *parent, Dir d );
+    ArrowButton( QWidget *parent, const char *name, Dir d );
     void drawButton( QPainter *p );
 
 private:
@@ -108,8 +108,8 @@ private:
 
 };
 
-ArrowButton::ArrowButton( QWidget *parent, Dir d )
-    : QButton( parent )
+ArrowButton::ArrowButton( QWidget *parent, const char *name, Dir d )
+    : QButton( parent, name )
 {
     setFixedSize( 16, 16 );
     if ( d == Left ) {
@@ -134,17 +134,17 @@ void ArrowButton::drawButton( QPainter *p )
 }
 
 
-ArgHintWidget::ArgHintWidget( QWidget *parent )
-    : QFrame( parent, 0, WType_Popup ), curFunc( 0 ), numFuncs( 0 )
+ArgHintWidget::ArgHintWidget( QWidget *parent, const char*name )
+    : QFrame( parent, name, WType_Popup ), curFunc( 0 ), numFuncs( 0 )
 {
     setFrameStyle( QFrame::Box | QFrame::Plain );
     setLineWidth( 1 );
     setBackgroundColor( white );
     QHBoxLayout *hbox = new QHBoxLayout( this );
     hbox->setMargin( 1 );
-    hbox->addWidget( ( prev = new ArrowButton( this, ArrowButton::Left ) ) );
-    hbox->addWidget( ( funcLabel = new QLabel( this ) ) );
-    hbox->addWidget( ( next = new ArrowButton( this, ArrowButton::Right ) ) );
+    hbox->addWidget( ( prev = new ArrowButton( this, "editor_left_btn", ArrowButton::Left ) ) );
+    hbox->addWidget( ( funcLabel = new QLabel( this, "editor_func_lbl" ) ) );
+    hbox->addWidget( ( next = new ArrowButton( this, "editor_right_btn", ArrowButton::Right ) ) );
     funcLabel->setBackgroundColor( white );
     funcLabel->setAlignment( AlignCenter );
     connect( prev, SIGNAL( clicked() ), this, SLOT( gotoPrev() ) );

@@ -32,7 +32,7 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
     : QWidget( parent, name ), curView( 0 )
 {
     QHBoxLayout *l = new QHBoxLayout( this );
-    markerWidget = new MarkerWidget( this );
+    markerWidget = new MarkerWidget( this, "editor_markerwidget" );
     connect( markerWidget, SIGNAL( markersChanged() ),
 	     this, SIGNAL( markersChanged() ) );
     connect( markerWidget, SIGNAL( collapseFunction( QTextParag * ) ),
@@ -68,7 +68,7 @@ void ViewManager::addView( QWidget *view )
 	     markerWidget, SLOT( doRepaint() ) );
     connect( (Editor*)curView, SIGNAL( clearErrorMarker() ),
 	     this, SLOT( clearErrorMarker() ) );
-    posLabel = new QLabel( this );
+    posLabel = new QLabel( this, "editor_poslabel" );
     posLabel->setAlignment( Qt::AlignVCenter | Qt::AlignRight );
     posLabel->setText( " Line: 1 Col: 1" );
     posLabel->setFrameStyle( QFrame::Sunken | QFrame::Panel );

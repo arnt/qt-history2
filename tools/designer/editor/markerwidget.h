@@ -32,7 +32,7 @@ class MarkerWidget : public QWidget
     Q_OBJECT
 
 public:
-    MarkerWidget( ViewManager *parent );
+    MarkerWidget( ViewManager *parent, const char*name );
 
 signals:
     void markersChanged();

@@ -120,14 +120,14 @@ EditorCompletion::EditorCompletion( Editor *e )
     completionPopup = new QVBox( 0, 0, WType_Popup );
     completionPopup->setFrameStyle( QFrame::Box | QFrame::Plain );
     completionPopup->setLineWidth( 1 );
-    functionLabel = new ArgHintWidget( 0 );
+    functionLabel = new ArgHintWidget( 0, "editor_function_lbl" );
     functionLabel->hide();
-    completionListBox = new QListBox( completionPopup );
+    completionListBox = new QListBox( completionPopup, "editor_completion_lb" );
     completionListBox->setFrameStyle( QFrame::NoFrame );
     completionListBox->installEventFilter( this );
     completionListBox->setHScrollBarMode( QScrollView::AlwaysOn );
     completionListBox->setVScrollBarMode( QScrollView::AlwaysOn );
-    completionListBox->setCornerWidget( new QSizeGrip( completionListBox ) );
+    completionListBox->setCornerWidget( new QSizeGrip( completionListBox, "editor_cornerwidget" ) );
     completionPopup->installEventFilter( this );
     functionLabel->installEventFilter( this );
     completionPopup->setFocusProxy( completionListBox );

@@ -64,7 +64,7 @@ unsigned long PreferenceInterfaceImpl::release()
 PreferenceInterface::Preference *PreferenceInterfaceImpl::preference()
 {
     if ( !cppEditorSyntax ) {
-	cppEditorSyntax = new PreferencesBase( 0 );
+	cppEditorSyntax = new PreferencesBase( 0, "cppeditor_syntax" );
 	( (PreferencesBase*)cppEditorSyntax )->setPath( "/Trolltech/CppEditor/" );
 	cppEditorSyntax->hide();
     }

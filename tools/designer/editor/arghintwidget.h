@@ -11,7 +11,7 @@ class ArgHintWidget : public QFrame
     Q_OBJECT
 
 public:
-    ArgHintWidget( QWidget *parent );
+    ArgHintWidget( QWidget *parent, const char*name );
 
     void setFunctionText( int func, const QString &text );
     void setNumFunctions( int num );
