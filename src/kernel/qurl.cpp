@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#61 $
 **
 ** Implementation of QUrl class
 **
@@ -72,7 +72,7 @@ struct QUrlPrivate
 
 
 /*!
-  Constructs an empty, invalid URL.
+  Constructs an empty URL which is invalid.
 */
 
 QUrl::QUrl()
