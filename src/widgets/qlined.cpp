@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#125 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#124 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#125 $");
 
 
 struct QLineEditPrivate {
@@ -649,6 +649,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     if ( e->button() == MidButton ) {
 	insert( QApplication::clipboard()->text() );
 	return;
+#if 0
     } else if ( hasMarkedText() &&
 		e->button() == LeftButton &&
 		( (markAnchor > cursorPos && markDrag < cursorPos) ||
@@ -657,6 +658,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	tdo->setText( markedText() );
 	tdo->startDrag();
 	return;
+#endif
     }
 
     int m1 = minMark();
@@ -721,7 +723,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 	d->inDoubleClick = FALSE;
 	return;
     }
-    
+
     if ( style() == MotifStyle && hasMarkedText() && echoMode() == Normal )
 	copyText();
     if ( dragScrolling )
@@ -752,7 +754,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 {
     d->inDoubleClick = TRUE;
-    
+
     if ( dragScrolling )
 	dragScrolling = FALSE;
 
