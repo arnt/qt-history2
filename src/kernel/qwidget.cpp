@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#119 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#118 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#119 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1209,12 +1209,13 @@ void QWidget::adjustSize()
   someone, or FALSE if nobody wanted the event.
 
   \sa closeEvent(), focusInEvent(), focusOutEvent(), keyPressEvent(),
-  keyReleaseEvent(), mouseDoubleClickEvent(), mouseMoveEvent(),
-  mousePressEvent(), mouseReleaseEvent(), moveEvent(), paintEvent(),
+  keyReleaseEvent(), mouseDoubleClickEvent(), mouseEnterEvent(),
+  mouseLeaveEvent(), mouseMoveEvent(), mousePressEvent(),
+  mouseReleaseEvent(), moveEvent(), paintEvent(),
   resizeEvent(), QObject::event(), QObject::timerEvent()
  ----------------------------------------------------------------------------*/
 
-bool QWidget::event( QEvent *e )		// receive event(),
+bool QWidget::event( QEvent *e )
 {
     if ( eventFilters ) {			// try filters
 	if ( activate_filters(e) )		// stopped by a filter
@@ -1269,6 +1270,14 @@ bool QWidget::event( QEvent *e )		// receive event(),
 
 	case Event_FocusOut:
 	    focusOutEvent( (QFocusEvent*)e );
+	    break;
+
+	case Event_Enter:
+	    mouseEnterEvent( e );
+	    break;
+
+	case Event_Leave:
+	    mouseLeaveEvent( e );
 	    break;
 
 	case Event_Paint:
@@ -1452,6 +1461,32 @@ void QWidget::focusInEvent( QFocusEvent * )
 void QWidget::focusOutEvent( QFocusEvent * )
 {
     repaint();
+}
+
+/*----------------------------------------------------------------------------
+  This event handler can be reimplemented in a subclass to receive
+  an event when the mouse cursor enters the widget.
+
+  The default implementation does nothing.
+
+  \sa mouseLeaveEvent(), event()
+ ----------------------------------------------------------------------------*/
+
+void QWidget::mouseEnterEvent( QEvent * )
+{
+}
+
+/*----------------------------------------------------------------------------
+  This event handler can be reimplemented in a subclass to receive
+  an event when the mouse cursor leaves the widget.
+
+  The default implementation does nothing.
+
+  \sa mouseEnterEvent(), event()
+ ----------------------------------------------------------------------------*/
+
+void QWidget::mouseLeaveEvent( QEvent * )
+{
 }
 
 /*----------------------------------------------------------------------------

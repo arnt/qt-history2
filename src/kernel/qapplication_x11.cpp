@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#155 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#156 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#155 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#156 $")
 
 
 /*****************************************************************************
@@ -1260,9 +1260,11 @@ int QApplication::enter_loop()
 		    break;
 
 		case EnterNotify:		// enter window
-		    break;			// ignored
-
-		case LeaveNotify:		// leave window
+		case LeaveNotify: {		// leave window
+		    QEvent e( event.type == EnterNotify ?
+			      Event_Enter : Event_Leave );
+		    QApplication::sendEvent( widget, &e );
+		    }
 		    break;			// ignored
 
 		case UnmapNotify:		// window hidden
@@ -1321,7 +1323,6 @@ int QApplication::enter_loop()
 		    break;
 
 		default:
-		    widget->x11Event( &event );
 		    break;
 	    }
 	}
