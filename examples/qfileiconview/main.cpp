@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/main.cpp#4 $
+** $Id: //depot/qt/main/examples/qfileiconview/main.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -14,6 +14,33 @@
 
 #include <qapplication.h>
 
+class TiledBackground : public QIconViewBackground
+{
+public:
+    TiledBackground() : pix( "../themes/marble.xpm" ) {}
+    virtual ~TiledBackground() {}
+    
+    void paint( QPainter *, const QRect &, int, int, const QSize & ) {
+        // Implement me!!!! :-)
+    }
+    
+protected:
+    QPixmap pix;
+    
+};
+
+class ColorBackground : public QIconViewBackground
+{
+public:
+    ColorBackground() {}
+    virtual ~ColorBackground() {}
+    
+    void paint( QPainter *p, const QRect &rect, int, int, const QSize & ) {
+        p->fillRect( rect, QColor( 0, 139, 139 ) );
+    }
+
+};
+
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
@@ -22,12 +49,11 @@ int main( int argc, char **argv )
 	QtFileIconView fiv(QString::null);
 	a.setMainWidget( &fiv );
 	QPalette pal = fiv.palette();
-	pal.setColor( QPalette::Normal, QColorGroup::Base, QColor( 0, 139, 139 ) );
-	fiv.setPalette( pal );
-	fiv.setFrameStyle( QFrame::NoFrame );
+	fiv.setBackground( new ColorBackground );
+        fiv.setFrameStyle( QFrame::NoFrame );
 	fiv.setCaption("desktop");
 	fiv.showMaximized();
-	fiv.setSelectionMode( QIconView::StrictMulti );
+        fiv.setSelectionMode( QIconView::StrictMulti );
 	fiv.setViewMode( QIconSet::Large );
 	fiv.setDirectory( "/" );
 	return a.exec();
