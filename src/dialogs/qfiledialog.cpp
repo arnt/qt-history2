@@ -2186,6 +2186,9 @@ static QStringList makeFiltersList( const QString &filter )
   \internal
 */
 
+extern const char qt_file_dialog_filter_reg_exp[] =
+	"\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
+
 /*!
   Constructs a file dialog with the parent, \a parent, and the name,
   \a name. If \a modal is TRUE then the file dialog is modal;
@@ -2778,6 +2781,13 @@ QString QFileDialog::selectedFilter() const
 void QFileDialog::setSelectedFilter( int n )
 {
     d->types->setCurrentItem( n );
+    QString f = d->types->currentText();
+    QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
+    int index = r.search( f );
+    if ( index >= 0 )
+	f = r.cap( 1 );
+    d->url.setNameFilter( f );
+    rereadDir();
 }
 
 /*!
@@ -2792,6 +2802,13 @@ void QFileDialog::setSelectedFilter( const QString& mask )
     for ( n = 0; n < d->types->count(); n++ ) {
 	if ( d->types->text( n ).contains( mask, FALSE ) ) {
 	    d->types->setCurrentItem( n );
+	    QString f = mask;
+	    QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
+	    int index = r.search( f );
+	    if ( index >= 0 )
+		f = r.cap( 1 );
+	    d->url.setNameFilter( f );
+	    rereadDir();
 	    return;
 	}
     }
@@ -2903,8 +2920,6 @@ QString QFileDialog::dirPath() const
     return d->url.dirPath();
 }
 
-extern const char qt_file_dialog_filter_reg_exp[] =
-	"\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
 
 /*!
 
