@@ -422,7 +422,7 @@ miSetExtents (Region pReg)
     pExtents->setRight( pBoxEnd->right() );
     pExtents->setBottom( pBoxEnd->bottom() );
 
-    assert(pExtents->top() <= pExtents->bottom());
+    ASSERT(pExtents->top() <= pExtents->bottom());
     while (pBox <= pBoxEnd)
     {
 	if (pBox->left() < pExtents->left())
@@ -435,7 +435,7 @@ miSetExtents (Region pReg)
 	}
 	pBox++;
     }
-    assert(pExtents->left() <= pExtents->right());
+    ASSERT(pExtents->left() <= pExtents->right());
 }
 
 static
@@ -602,7 +602,7 @@ miIntersectO (register Region pReg, register QRect *r1, QRect *r1End,
 	 */
 	if (x1 <= x2)
 	{
-	    assert(y1<=y2);
+	    ASSERT(y1<=y2);
 
 	    MEMCHECK(pReg, pNextRect, pReg->rects);
 	    pNextRect->setCoords( x1, y1, x2, y2 );
@@ -1251,11 +1251,11 @@ miUnionNonO (register Region pReg, register QRect * r,
 
     pNextRect = pReg->rects.data() + pReg->numRects;
 
-    assert(y1 <= y2);
+    ASSERT(y1 <= y2);
 
     while (r != rEnd)
     {
-	assert(r->left() <= r->right());
+	ASSERT(r->left() <= r->right());
 	MEMCHECK(pReg, pNextRect, pReg->rects);
 	pNextRect->setCoords( r->left(), y1, r->right(), y2 );
 	pReg->numRects++;
@@ -1302,7 +1302,7 @@ miUnionO (register Region pReg, register QRect *r1, QRect *r1End,
 	if (pNextRect[-1].right() < r->right())  \
 	{  \
 	    pNextRect[-1].setRight( r->right() );  \
-	    assert(pNextRect[-1].left() <= pNextRect[-1].right()); \
+	    ASSERT(pNextRect[-1].left() <= pNextRect[-1].right()); \
 	}  \
     }  \
     else  \
@@ -1314,7 +1314,7 @@ miUnionO (register Region pReg, register QRect *r1, QRect *r1End,
     }  \
     r++;
 
-    assert (y1<=y2);
+    ASSERT (y1<=y2);
     while ((r1 != r1End) && (r2 != r2End))
     {
 	if (r1->left() < r2->left())
@@ -1435,11 +1435,11 @@ miSubtractNonO1 (register Region pReg, register QRect *r,
 	
     pNextRect = pReg->rects.data() + pReg->numRects;
 	
-    assert(y1<=y2);
+    ASSERT(y1<=y2);
 
     while (r != rEnd)
     {
-	assert(r->left()<=r->right());
+	ASSERT(r->left()<=r->right());
 	MEMCHECK(pReg, pNextRect, pReg->rects);
 	pNextRect->setCoords( r->left(), y1, r->right(), y2 );
 	pReg->numRects++;
@@ -1475,7 +1475,7 @@ miSubtractO (register Region pReg, register QRect *r1, QRect *r1End,
 
     x1 = r1->left();
 
-    assert(y1<=y2);
+    ASSERT(y1<=y2);
     pNextRect = pReg->rects.data() + pReg->numRects;
 
     while ((r1 != r1End) && (r2 != r2End))
@@ -1518,7 +1518,7 @@ miSubtractO (register Region pReg, register QRect *r1, QRect *r1End,
 	     * Left part of subtrahend covers part of minuend: add uncovered
 	     * part of minuend to region and skip to next subtrahend.
 	     */
-	    assert(x1<r2->left());
+	    ASSERT(x1<r2->left());
 	    MEMCHECK(pReg, pNextRect, pReg->rects);
 	    pNextRect->setCoords( x1, y1, r2->left() - 1, y2 );
 	    pReg->numRects++;
@@ -1564,7 +1564,7 @@ miSubtractO (register Region pReg, register QRect *r1, QRect *r1End,
      */
     while (r1 != r1End)
     {
-	assert(x1<=r1->right());
+	ASSERT(x1<=r1->right());
 	MEMCHECK(pReg, pNextRect, pReg->rects);
 	pNextRect->setCoords( x1, y1, r1->right(), y2 );
 	pReg->numRects++;
