@@ -155,7 +155,8 @@ QImageData::~QImageData()
 /*!
     \class QImage
     \brief The QImage class provides a hardware-independent pixmap
-    representation with direct access to the pixel data.
+    that allows direct access to the pixel data, and can be used as a
+    paint device.
 
     \ingroup multimedia
     \ingroup shared
