@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#387 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#388 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1100,7 +1100,7 @@ void QWidget::update()
 void QWidget::update( int x, int y, int w, int h )
 {
     if ( w && h &&
-	 (widget_flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+	 (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
