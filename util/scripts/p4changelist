@@ -34,10 +34,13 @@ function changesMaximum
 
 function changesLabel
 {
-    TMPFILE=tmp_p4changelist_tmp
-    p4 changes -i "...@$1" > $TMPFILE
-    export CHANGES=`p4 changes -i ... | diff $TMPFILE - | grep Change | cut -f 3 -d ' ' | sort -g`
-    rm $TMPFILE
+    TMPFILEFROM=tmp_p4changelist_tmp_from
+    TMPFILETO=tmp_p4changelist_tmp_to
+    p4 changes -i "...@$1" | sort -g > $TMPFILEFROM
+    p4 changes -i "...#head" | sort -g > $TMPFILETO
+    export CHANGES=`diff $TMPFILEFROM $TMPFILETO | grep Change | cut -f 3 -d ' ' | sort -g`
+    rm $TMPFILEFROM
+    rm $TMPFILETO
 }
 
 #
