@@ -115,6 +115,7 @@ public:
 
     uint	size()		const;
 
+    QDateTime	created()	const;
     QDateTime	lastModified()	const;
     QDateTime	lastRead()	const;
 

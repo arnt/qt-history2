@@ -53,35 +53,6 @@ void QFileInfo::makeAbs( QString & )
     return;
 }
 
-extern bool qt_file_access( const QString& fn, int t );
-
-/*!
-  Returns TRUE if this object points to a file. Returns FALSE if the
-  object points to something which isn't a file, e.g. a directory or a
-  symlink.
-
-  \sa isDir(), isSymLink()
-*/
-bool QFileInfo::isFile() const
-{
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
-}
-
-/*!
-  Returns TRUE if this object points to a directory or to a symbolic
-  link to a directory; otherwise returns FALSE.
-  \sa isFile(), isSymLink()
-*/
-
-bool QFileInfo::isDir() const
-{
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
-}
-
 /*!
   Returns TRUE if this object points to a symbolic link (or to a
   shortcut on Windows); otherwise returns FALSE. 
@@ -185,7 +156,7 @@ QString QFileInfo::group() const
   Returns the id of the group the file belongs to.
 
   On Windows and on systems where files do not have groups this function
-  always returns ((uind) -2).
+  always returns (uint) -2.
 
   \sa group(), owner(), ownerId()
 */
@@ -259,57 +230,6 @@ bool QFileInfo::permission( int permissionSpec ) const
     }
 }
 
-/*!
-  Returns the file size in bytes, or 0 if the file does not exist or if
-  the size is 0 or if the size cannot be fetched.
-*/
-
-uint QFileInfo::size() const
-{
-    if ( !fic || !cache )
-	doStat();
-    if ( fic )
-	return (uint)fic->st.st_size;
-    else
-	return 0;
-}
-
-
-/*!
-  Returns the date and time when the file was last modified.
-  \sa lastRead()
-*/
-
-QDateTime QFileInfo::lastModified() const
-{
-    QDateTime dt;
-    if ( !fic || !cache )
-	doStat();
-    if ( fic )
-	dt.setTime_t( fic->st.st_mtime );
-    return dt;
-}
-
-/*!
-  Returns the date and time when the file was last read (accessed).
-
-  On systems that do not support last read times, the lastModified()
-  time is returned.
-
-  \sa lastModified()
-*/
-
-QDateTime QFileInfo::lastRead() const
-{
-    QDateTime dt;
-    if ( !fic || !cache )
-	doStat();
-    if ( fic )
-	dt.setTime_t( fic->st.st_atime );
-    return dt;
-}
-
-
 void QFileInfo::doStat() const
 {
     QFileInfo *that = ((QFileInfo*)this);	// mutable function
@@ -361,6 +281,7 @@ QString QFileInfo::dirPath( bool absPath ) const
     }
 }
 #endif
+
 /*!
   Returns the name of the file, the file path is not included.
 
@@ -382,33 +303,3 @@ QString QFileInfo::fileName() const
 	return fn.mid(p+1);
     }
 }
-
-/*!
-  Returns the absolute path name.
-
-  The absolute path name is the file name including the absolute path. If
-  the QFileInfo is absolute (i.e. not relative) this function will return
-  the same string as filePath().
-
-  This function can be time consuming under Unix (in the order of
-  milliseconds).
-
-  \sa isRelative(), filePath()
-*/
-#ifndef QT_NO_DIR
-QString QFileInfo::absFilePath() const
-{
-    if ( QDir::isRelativePath(fn) ) {
-	QString tmp = QDir::currentDirPath();
-	tmp += '/';
-	tmp += fn;
-	makeAbs( tmp );
-	return QDir::cleanDirPath( tmp );
-    } else {
-	QString tmp = fn;
-	makeAbs( tmp );
-	return QDir::cleanDirPath( tmp );
-    }
-
-}
-#endif

@@ -88,22 +88,6 @@ void QFileInfo::makeAbs( QString &s )
 
 extern QCString qt_win95Name(const QString s);
 
-extern bool qt_file_access( const QString & fn, int t );
-
-bool QFileInfo::isFile() const
-{
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
-}
-
-bool QFileInfo::isDir() const
-{
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
-}
-
 bool QFileInfo::isSymLink() const
 {
     if ( fn.right( 4 ) == ".lnk" )
@@ -184,38 +168,6 @@ bool QFileInfo::permission( int ) const
 {
     return TRUE;
 }
-
-uint QFileInfo::size() const
-{
-    if ( !fic || !cache )
-	doStat();
-    if ( fic )
-	return (uint)fic->st.st_size;
-    else
-	return 0;
-}
-
-
-QDateTime QFileInfo::lastModified() const
-{
-    QDateTime dt;
-    if ( !fic || !cache )
-	doStat();
-    if ( fic )
-	dt.setTime_t( fic->st.st_mtime );
-    return dt;
-}
-
-QDateTime QFileInfo::lastRead() const
-{
-    QDateTime dt;
-    if ( !fic || !cache )
-	doStat();
-    if ( fic )
-	dt.setTime_t( fic->st.st_atime );
-    return dt;
-}
-
 
 void QFileInfo::doStat() const
 {
@@ -313,22 +265,6 @@ QString QFileInfo::fileName() const
 	    return fn.mid( p + 1 );
 	return fn;
     } else {
-	return fn.mid(p+1);
+	return fn.mid( p + 1 );
     }
-}
-
-QString QFileInfo::absFilePath() const
-{
-    if ( QDir::isRelativePath(fn) && fn[ 1 ] != ':' ) {
-	QString tmp = QDir::currentDirPath();
-	tmp += '/';
-	tmp += fn;
-	makeAbs( tmp );
-	return QDir::cleanDirPath( tmp );
-    } else {
-	QString tmp = fn;
-	makeAbs( tmp );
-	return QDir::cleanDirPath( tmp );
-    }
-
 }

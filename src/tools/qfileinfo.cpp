@@ -518,3 +518,135 @@ bool QFileInfo::convertToAbs()
 }
 #endif
 
+/*!
+  Returns TRUE if this object points to a file. Returns FALSE if the
+  object points to something which isn't a file, e.g. a directory or a
+  symlink.
+
+  \sa isDir(), isSymLink()
+*/
+bool QFileInfo::isFile() const
+{
+    if ( !fic || !cache )
+	doStat();
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
+}
+
+/*!
+  Returns TRUE if this object points to a directory or to a symbolic
+  link to a directory; otherwise returns FALSE.
+  \sa isFile(), isSymLink()
+*/
+bool QFileInfo::isDir() const
+{
+    if ( !fic || !cache )
+	doStat();
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
+}
+
+/*!
+  Returns the file size in bytes, or 0 if the file does not exist or if
+  the size is 0 or if the size cannot be fetched.
+*/
+uint QFileInfo::size() const
+{
+    if ( !fic || !cache )
+	doStat();
+    if ( fic )
+	return (uint)fic->st.st_size;
+    else
+	return 0;
+}
+
+/*!
+  Returns the date and time when the file was created.
+
+  On platforms where this information is not available, returns the
+  same as lastModified().
+
+  \sa created() lastModified() lastRead()
+*/
+
+QDateTime QFileInfo::created() const
+{
+    QDateTime dt;
+    if ( !fic || !cache )
+	doStat();
+    if ( fic && fic->st.st_ctime != 0 ) {
+	dt.setTime_t( fic->st.st_ctime );
+	return dt;
+    } else {
+	return lastModified();
+    }
+}
+
+/*!
+  Returns the date and time when the file was last modified.
+
+  \sa created() lastModified() lastRead()
+*/
+
+QDateTime QFileInfo::lastModified() const
+{
+    QDateTime dt;
+    if ( !fic || !cache )
+	doStat();
+    if ( fic )
+	dt.setTime_t( fic->st.st_mtime );
+    return dt;
+}
+
+/*!
+  Returns the date and time when the file was last read (accessed).
+
+  On platforms where this information is not available, returns the
+  same as lastModified().
+
+  \sa created() lastModified() lastRead()
+*/
+
+QDateTime QFileInfo::lastRead() const
+{
+    QDateTime dt;
+    if ( !fic || !cache )
+	doStat();
+    if ( fic && fic->st.st_atime != 0 ) {
+	dt.setTime_t( fic->st.st_atime );
+	return dt;
+    } else {
+	return lastModified();
+    }
+}
+
+#ifndef QT_NO_DIR
+
+/*!
+  Returns the absolute path name.
+
+  The absolute path name is the file name including the absolute path.
+  This function returns the same as filePath(), unless isRelative() is
+  TRUE.
+
+  This function can be time consuming under Unix (in the order of
+  milliseconds).
+
+  \sa isRelative(), filePath()
+*/
+QString QFileInfo::absFilePath() const
+{
+    QString tmp;
+    if ( QDir::isRelativePath(fn)
+#if defined(Q_OS_WIN)
+	 // ### absFilePath() never really worked for 'a:foo.txt'
+	 && fn[1] != ':'
+#endif
+	 ) {
+	tmp = QDir::currentDirPath();
+	tmp += '/';
+    }
+    tmp += fn;
+    makeAbs( tmp );
+    return QDir::cleanDirPath( tmp );
+}
+
+#endif
