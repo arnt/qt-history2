@@ -621,6 +621,10 @@ MakefileGenerator::initOutPaths()
 	for(int x = 0; dirs[x] != QString::null; x++) {
 	    if ( !v[dirs[x]].isEmpty() ) {
 		QString orig_path = v[dirs[x]].first();
+#ifdef Q_WS_WIN
+		// We don't want to add a separator for DLLDESTDIR on Windows
+		if (!(dirs[x] == "DLLDESTDIR"))
+#endif
 		{
 		    QString &path = v[dirs[x]].first();
 		    path = fileFixify(path, Option::output_dir, Option::output_dir);
