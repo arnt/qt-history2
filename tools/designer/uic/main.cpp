@@ -111,6 +111,11 @@ int main( int argc, char * argv[] )
 		} else {
 		    trmacro = &opt[1];
 		}
+	    } else if ( opt == "v" ) {
+		fprintf( stderr,
+			 "User Interface Compiler for Qt version %s\n",
+			 QT_VERSION_STR );
+		exit( 1 );
 	    } else if ( opt == "fix" ) {
 		fix = TRUE;
 	    }
@@ -129,28 +134,29 @@ int main( int argc, char * argv[] )
 	if ( error )
 	    fprintf( stderr, "uic: %s\n", error );
 
-	fprintf( stderr, "Usage: %s  [options] [mode] <uifile>\n"
-		 "\nGenerate declaration:\n"
-		 "   %s  [options]  <uifile>\n"
+	fprintf( stderr, "Usage: %s  [options] [mode] <uifile>\n\n"
+		 "Generate declaration:\n"
+		 "   %s  [options] <uifile>\n"
 		 "Generate implementation:\n"
 		 "   %s  [options] -impl <headerfile> <uifile>\n"
-		 "\t<headerfile>\tname of the declaration file\n"
+		 "\t<headerfile>    name of the declaration file\n"
 		 "Generate image collection:\n"
 		 "   %s  [options] -embed <project> <image1> <image2> <image3> ...\n"
-		 "\t<project>\tproject name\n"
-		 "\t<image[0..n]>\timage files\n"
+		 "\t<project>       project name\n"
+		 "\t<image[1-N]>    image files\n"
 		 "Generate subclass declaration:\n"
 		 "   %s  [options] -subdecl <classname> <headerfile> <uifile>\n"
-		 "\t<classname>\tname of the subclass to generate\n"
-		 "\t<headerfile>\tdeclaration file of the baseclass\n"
+		 "\t<classname>     name of the subclass to generate\n"
+		 "\t<headerfile>    declaration file of the baseclass\n"
 		 "Generate subclass implementation:\n"
 		 "   %s  [options] -subimpl <classname> <headerfile> <uifile>\n"
-		 "\t<classname>\tname of the subclass to generate\n"
-		 "\t<headerfile>\tdeclaration file of the subclass\n"
+		 "\t<classname>     name of the subclass to generate\n"
+		 "\t<headerfile>    declaration file of the subclass\n"
 		 "Options:\n"
-		 "\t-o file\t\tWrite output to file rather than stdout\n"
-		 "\t-nofwd\t\tOmit forward declarations of custom classes\n"
-		 "\t-tr func\tUse func(...) rather than trUtf8(...) for i18n\n"
+		 "\t-o file         Write output to file rather than stdout\n"
+		 "\t-nofwd          Omit forward declarations of custom classes\n"
+		 "\t-tr func        Use func() instead of tr() for i18n\n"
+		 "\t-v              Display version of uic\n"
 		 , argv[0], argv[0], argv[0], argv[0], argv[0], argv[0]);
 	exit( 1 );
     }

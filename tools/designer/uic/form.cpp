@@ -49,14 +49,14 @@ static QByteArray unzipXPM( QString data, ulong& length )
     }
     // I'm not sure this makes sense. Why couldn't the compressed data be
     // less than 20% of the original data? Maybe it's enough to trust the
-    // `length' passed as an argument. Quoting the zlib header:
+    // 'length' passed as an argument. Quoting the zlib header:
     // 		Upon entry, destLen is the total size of the destination
     // 		buffer, which must be large enough to hold the entire
     // 		uncompressed data. (The size of the uncompressed data must
     // 		have been saved previously by the compressor and transmitted
     // 		to the decompressor by some mechanism outside the scope of
     // 		this compression library.)
-    // Which is the role of `length'. On the other hand this could prevent
+    // Which is the role of 'length'. On the other hand this could prevent
     // crashes in some cases of slightly corrupt UIC files.
     if ( length <  data.length() * 5 )
 	length = data.length() * 5;
@@ -69,10 +69,10 @@ static QByteArray unzipXPM( QString data, ulong& length )
 
 
 /*!
-  Creates a declaration ( headerfile ) for the form given in \a e
+  Creates a declaration (header file) for the form given in \a e
 
   \sa createFormImpl(), createObjectDecl()
- */
+*/
 void Uic::createFormDecl( const QDomElement &e )
 {
     QDomElement n;
@@ -87,16 +87,20 @@ void Uic::createFormDecl( const QDomElement &e )
 
     QMap<QString, CustomInclude> customWidgetIncludes;
 
-    // at first the images, we need to ensure the names are unique
+    QString imageMembers;
+
+    // at first the images
     QMap<QString, int> customWidgets;
     QStringList forwardDecl;
     QStringList forwardDecl2;
     QString exportMacro;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName()  == "images" ) {
+	if ( n.tagName() == "images" ) {
 	    nl = n.elementsByTagName( "image" );
 	    for ( i = 0; i < (int) nl.length(); i++ ) {
-		registerObject( nl.item(i).firstChild().firstChild().toText().data() );
+		QString img = registerObject( nl.item(i).toElement().attribute("name") );
+		registerObject( img );
+		imageMembers += QString( "    QPixmap %1;\n" ).arg( img );
 	    }
 	} else if ( n.tagName() == "customwidgets" ) {
 	    QDomElement n2 = n.firstChild().toElement();
@@ -135,6 +139,9 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "#define " << protector << endl;
     out << endl;
     out << "#include <qvariant.h>" << endl; // for broken HP-UX compilers
+
+    if ( !imageMembers.isEmpty() )
+	out << "#include <qpixmap.h>" << endl;
 
     QStringList globalIncludes, localIncludes;
     int wid = WidgetDatabase::idFromClassName( objClass );
@@ -494,8 +501,6 @@ void Uic::createFormDecl( const QDomElement &e )
 	out << endl;
     }
 
-
-
     bool needProtected = needEventHandler;
     for ( it = layouts.begin(); !needProtected && it != layouts.end(); ++it )
 	needProtected = needProtected || e.elementsByTagName( *it ).count() > 0 ;
@@ -523,6 +528,12 @@ void Uic::createFormDecl( const QDomElement &e )
 		v += ";";
 	    out << indent << v << endl;
 	}
+    }
+
+    if ( !imageMembers.isEmpty() ) {
+	out << endl;
+	out << "private:" << endl;
+	out << imageMembers;
     }
 
     out << "};" << endl;
@@ -744,7 +755,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    if ( n.tagName()  == "images" ) {
 		nl = n.elementsByTagName( "image" );
 		for ( i = 0; i < (int) nl.length(); i++ ) {
-		    QString img = registerObject(  nl.item(i).toElement().attribute( "name" ) );
+		    QString img = registerObject( nl.item(i).toElement().attribute("name") );
 		    if ( !requiredImages.contains( img ) )
 			continue;
 		    QDomElement tmp = nl.item(i).firstChild().toElement();
@@ -756,8 +767,8 @@ void Uic::createFormImpl( const QDomElement &e )
 			xpmImages += img;
 			ulong length = tmp.attribute("length").toULong();
 			QByteArray baunzip = unzipXPM( data, length );
-			// shouldn't we test the initial `length' against the
-			// resulting `length' to catch corrupt UIC files?
+			// shouldn't we test the initial 'length' against the
+			// resulting 'length' to catch corrupt UIC files?
 			int a = 0;
 			out << "static const char* const " << img << "_data[] = { " << endl;
 			while ( baunzip[a] != '\"' )
@@ -797,7 +808,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	pixmapLoaderFunction = "uic_load_pixmap_" + objName;
     }
 
-
     // constructor(s)
     if ( objClass == "QDialog" || objClass == "QWizard" ) {
 	out << "/* " << endl;
@@ -807,7 +817,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << " *  The " << objClass.mid(1).lower() << " will by default be modeless, unless you set 'modal' to" << endl;
 	out << " *  TRUE to construct a modal " << objClass.mid(1).lower() << "." << endl;
 	out << " */" << endl;
-	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, bool modal, WFlags fl )" << endl;
+	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, bool modal, WFlags fl )";
 	out << "    : " << objClass << "( parent, name, modal, fl )" << endl;
     } else if ( objClass == "QWidget" )  {
 	out << "/* " << endl;
@@ -815,7 +825,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << " *  name 'name' and widget flags set to 'f'." << endl;
 	out << " */" << endl;
 	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, WFlags fl )" << endl;
-	out << "    : " << objClass << "( parent, name, fl )" << endl;
+	out << "    : " << objClass << "( parent, name, fl )";
     } else if ( objClass == "QMainWindow" ) {
 	out << "/* " << endl;
 	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
@@ -823,7 +833,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << " *" << endl;
 	out << " */" << endl;
 	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, WFlags fl )" << endl;
-	out << "    : " << objClass << "( parent, name, fl )" << endl;
+	out << "    : " << objClass << "( parent, name, fl )";
 	isMainWindow = TRUE;
     } else {
 	out << "/* " << endl;
@@ -831,31 +841,27 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << " *  name 'name'.' " << endl;
 	out << " */" << endl;
 	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name )" << endl;
-	out << "    : " << objClass << "( parent, name )" << endl;
+	out << "    : " << objClass << "( parent, name )";
     }
+
+    // create pixmaps for all images
+    if ( !xpmImages.isEmpty() ) {
+	for ( it = xpmImages.begin(); it != xpmImages.end(); ++it ) {
+	    out << "," << endl;
+	    out << indent << "  " << *it << "( (const char **) " << (*it) << "_data )";
+	}
+    }
+    out << endl;
 
     out << "{" << endl;
     if ( isMainWindow )
 	out << indent << "(void)statusBar();" << endl;
 
-
-    // create pixmaps for all images
     if ( !images.isEmpty() ) {
 	out << indent << "QImage img;" << endl;
-	out << indent << "QPixmap ";
-	QStringList::Iterator it;
-	for ( it = images.begin(); it != images.fromLast(); ++it )
-	    out << (*it) << ", ";
-	out << (*it)  << ";" << endl;
 	for ( it = images.begin(); it != images.end(); ++it ) {
 	    out << indent << "img.loadFromData( " << (*it) << "_data, sizeof( " << (*it) << "_data ), \"PNG\" );" << endl;
 	    out << indent << (*it) << " = img;" << endl;
-	}
-    }
-    // create pixmaps for all images
-    if ( !xpmImages.isEmpty() ) {
-	for ( it = xpmImages.begin(); it != xpmImages.end(); ++it ) {
-	    out << indent << "QPixmap " << (*it) << "( ( const char** ) " << (*it) << "_data );" << endl;
 	}
     }
 

@@ -548,14 +548,14 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
     else
 	s += "new QListViewItem( " + parent + ", " + lastItem + " );\n";
 
-    QStringList textes;
+    QStringList texts;
     QStringList pixmaps;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
 	    QString attrib = n.attribute("name");
 	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
 	    if ( attrib == "text" )
-		textes << v.toString();
+		texts << v.toString();
 	    else if ( attrib == "pixmap" ) {
 		QString pix = v.toString();
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
@@ -571,9 +571,9 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
 	n = n.nextSibling().toElement();
     }
 
-    for ( int i = 0; i < (int)textes.count(); ++i ) {
-	if ( !textes[ i ].isEmpty() )
-	    s += indent + item + "->setText( " + QString::number( i ) + ", " + trcall( textes[ i ] ) + " );\n";
+    for ( int i = 0; i < (int)texts.count(); ++i ) {
+	if ( !texts[ i ].isEmpty() )
+	    s += indent + item + "->setText( " + QString::number( i ) + ", " + trcall( texts[ i ] ) + " );\n";
 	if ( !pixmaps[ i ].isEmpty() )
 	    s += indent + item + "->setPixmap( " + QString::number( i ) + ", " + pixmaps[ i ] + " );\n";
     }
@@ -946,7 +946,7 @@ QString Uic::registerObject( const QString& name )
     if ( objectNames.contains( result ) ) {
 	int i = 2;
 	while ( objectNames.contains( result + "_" + QString::number(i) ) )
-		i++;
+	    i++;
 	result += "_";
 	result += QString::number(i);
     }

@@ -213,7 +213,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		if ( !call.isEmpty() ) {
 		    if ( numItems == 0 )
 			trout << indent << objName << "->clear();" << endl;
-		    trout << indent << call << endl;
+		    trout << call << endl;
 		}
 	    }
 	    if ( !call.isEmpty() )

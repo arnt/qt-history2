@@ -39,7 +39,7 @@ Generate image collection:
 .I "\fB	uic  [options] -embed <project> <image1> <image2> <image3> ..."
 .br
         \fI<project>\fP:       project name
-        \fI<image[0..n]>\fP:   image files
+        \fI<image[1..n]>\fP:   image files
 .br
 .PP
 .PP
@@ -76,8 +76,13 @@ header file. This is necessary if typedef classes are used.
 .TP
 .I "-tr func"
 Use
-.I func(sourceText, comment)
-rather than trUtf8(sourceText, comment) for internationalization.
+.I func()
+instead of tr() for internationalization.
+.TP
+.I "-v"
+Display the version of
+.B uic
+and exit.
 
 .SH USAGE
 .B uic
