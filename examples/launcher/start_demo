@@ -180,10 +180,10 @@ while [ "$E" = 3 ]
 do
     # Kill any existing fb0 applications
     setterm -clear
-    $FUSER -kv /dev/fb0
+    $FUSER -k /dev/fb0
     ./$DEMO $DEMO_ARGS
     E=$?
 done
 
 # Kill any remaining clients
-$FUSER -kv /dev/fb0
+$FUSER -k /dev/fb0
