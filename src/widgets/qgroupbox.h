@@ -42,7 +42,9 @@ class Q_EXPORT QGroupBox : public QFrame
     Q_OBJECT
     Q_PROPERTY( QString title READ title WRITE setTitle )
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
-	// #### columns and layout not available for properties.
+    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
+    Q_PROPERTY( int columns READ columns WRITE setColumns )
+	
 public:
     QGroupBox( QWidget *parent=0, const char *name=0 );
     QGroupBox( const QString &title, QWidget *parent=0, const char* name=0 );
@@ -57,6 +59,14 @@ public:
     int alignment() const { return align; }
     virtual void setAlignment( int );
 
+    int columns() const;
+    void setColumns( int );
+    
+    Orientation orientation() const { return dir; }
+    void setOrientation( Orientation );
+    
+    void addSpace( int );
+    
 protected:
     void childEvent( QChildEvent * );
     void resizeEvent( QResizeEvent * );

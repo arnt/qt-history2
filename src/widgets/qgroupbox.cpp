@@ -32,6 +32,7 @@
 #include "qfocusdata.h"
 #include "qobjectlist.h"
 #include "qdrawutil.h"
+#include "qapplication.h"
 
 // NOT REVISED
 /*!
@@ -289,12 +290,90 @@ void QGroupBox::updateMask(){
 
 }
 
+/*!
+  Adds an empty cell at the next free position. If \a size is greater
+  than 0 then the empty cell has a fixed height or width.
+  If the groupbox is oriented horizontally then the empty cell has a fixed
+  height and if oriented vertically it has a fixed width.
+  
+  Use this method to separate the widgets in the groupbox or to skip
+  the next free cell. For performance reasons call this method after
+  calling setColumnLayout(), setColumns() or setOrientation(). It is in
+  general a good idea to call these methods first (if needed at all) and
+  insert the widgets and spaces afterwards.
+*/
+void QGroupBox::addSpace( int size )
+{
+    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+    
+    // Torbens hack for the builder. The builder does
+    // not like the QGridLayout and associated magic.
+    if ( nCols == -1 && nRows == -1 )
+	return;
+
+    if ( row >= nRows || col >= nCols )
+	grid->expand( row+1, col+1 );
+
+    if ( size > 0 )
+    {
+	QSpacerItem *spacer = new QSpacerItem( ( dir == Horizontal ) ? 0 : size,
+					       ( dir == Vertical ) ? 0 : size, 
+					       QSizePolicy::Fixed, QSizePolicy::Fixed );
+	grid->addItem( spacer, row, col );
+    }
+    
+    skip();
+}
+
+/*!
+  Returns the numbers of columns in the groupbox as passed to
+  the constructor, setColumns() or setColumnLayout().
+*/
+int QGroupBox::columns() const
+{
+    if ( dir == Horizontal )
+	return nCols;
+    return nRows;
+}
+
+/*!
+  Changes the numbers of columns.Usually it is no good idea
+  to use the method since it is slow. Better set the numbers of columns directly
+  in the constructor.
+  
+  \sa column() setColumnLayout()
+*/
+void QGroupBox::setColumns( int c )
+{
+    setColumnLayout( c, dir );
+}
+
+/*!
+  \fn Orientation QGroupBox::orientation() const
+  Returns the current orientation of the groupbox.
+  
+  \sa setOrientation()
+*/
+
+/*!
+  Changes the orientation of the groupbox. Usually it is no good idea
+  to use the method since it is slow. Better set the orientation directly
+  in the constructor.
+  
+  \sa orientation()
+*/
+void QGroupBox::setOrientation( Qt::Orientation o )
+{
+    setColumnLayout( columns(), o );
+}
 
 /*!
   Changes the layout of the group box. This function is only useful in combination
   with the default constructor that does not take any layout information.
   This function will put all existing children in the new layout. Nevertheless is
   is not good programming style to call this function after children have been inserted.
+  
+  \sa setOrientation() setColumns()
  */
 void QGroupBox::setColumnLayout(int columns, Orientation direction)
 {
@@ -308,6 +387,18 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 
     vbox = new QVBoxLayout( this, 8, 0 );
 
+    QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,
+					   QSizePolicy::Fixed );
+    d = (QGroupBoxPrivate*) spacer;
+    setTextSpacer();
+    vbox->addItem( spacer );
+
+    // Send all child events and ignore them. Otherwise we
+    // will end up with doubled insertion
+    nCols = -1;
+    nRows = -1;
+    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+    
     // Torbens hack for the builder. I dont want to
     // have this QGridLayout. I want to make it on
     // my own.
@@ -318,13 +409,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 	nRows = -1;
 	return;
     }
-
-    QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,
-					   QSizePolicy::Fixed );
-    d = (QGroupBoxPrivate*) spacer;
-    setTextSpacer();
-    vbox->addItem( spacer );
-
+    
     dir = direction;
     if ( dir == Horizontal ) {
       nCols = columns;
