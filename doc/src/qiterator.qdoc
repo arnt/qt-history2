@@ -1237,8 +1237,8 @@
     \sa hasPrevious(), peekPrevious(), next()
 */
 
-/*! \fn QMapMutableIterator::Item QMapMutableIterator::previous() const
-    \fn QHashMutableIterator::Item QHashMutableIterator::previous() const
+/*! \fn QMapMutableIterator::Item QMapMutableIterator::previous()
+    \fn QHashMutableIterator::Item QHashMutableIterator::previous()
 
     Returns the previous item and moves the iterator back by one
     position.
