@@ -2259,7 +2259,11 @@ QCString purestSuperClassName()
 {
     QCString sc = g->superClassName;
     QCString c = g->className;
-    int pos = sc.findRev( "::" );
+    /*
+      Make sure qualified template arguments (e.g., foo<bar::baz>)
+      don't interfere.
+    */
+    int pos = sc.findRev( "::", sc.find( '<' ) );
     if ( pos != -1 ) {
 	sc = sc.right( sc.length() - pos - 2 );
 	pos = c.findRev( "::" );
@@ -2978,13 +2982,13 @@ void generateClass()		      // generate C++ source code for a class
 	     (const char*)qualifiedClassName() );
     fprintf( out, "    if ( !qstrcmp( clname, \"%s\" ) )\n"
 		  "\treturn this;\n",
-	     (const char*) qualifiedClassName() );
-    if ( !g->multipleSuperClasses.isEmpty() ) {
-	for ( const char* cname = g->multipleSuperClasses.first(); cname; cname = g->multipleSuperClasses.next() )
-	    fprintf( out, "    if ( !qstrcmp( clname, \"%s\" ) ) return (%s*)this;\n", cname, cname );
-    }
+	     (const char*)qualifiedClassName() );
+    for ( const char* cname = g->multipleSuperClasses.first(); cname; cname = g->multipleSuperClasses.next() )
+	fprintf( out, "    if ( !qstrcmp( clname, \"%s\" ) )\n"
+		      "\treturn (%s*)this;\n", cname, cname );
     if ( !g->superClassName.isEmpty() && !isQObject )
-	fprintf( out, "    return %s::qt_cast( clname );\n",  (const char*)purestSuperClassName() );
+	fprintf( out, "    return %s::qt_cast( clname );\n",
+		 (const char*)purestSuperClassName() );
     else
 	fprintf( out, "    return 0;\n" );
     fprintf( out, "}\n" );
