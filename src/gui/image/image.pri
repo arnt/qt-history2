@@ -16,6 +16,7 @@ HEADERS += \
 	image/qpicture_p.h \
 	image/qpictureformatplugin.h \
 	image/qpixmap.h \
+	image/qpixmap_p.h \
 	image/qpixmapcache.h
 
 
