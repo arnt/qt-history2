@@ -39,8 +39,8 @@ sub outmsg {
     # Remove blank lines
     $msgid =~ s/\n\n+/\n/gs;
     $msgid = "\"\"\n$msgid" if $msgid =~ /\n/s;
+    print "#. scope ${scope}\n";
     print "#: $file:$line\n";
-    print "#. SCOPE ${scope}\n";
     print "msgid $msgid\n";
     print "msgstr \"\"\n";
     print "\n";
@@ -128,12 +128,33 @@ foreach $file ( @ARGV ) {
 		    $scope = $sc;
 		}
 	    }
-	} elsif ( defined( $3 ) ) {
-	    outmsg($file,$line,$scope,$3);
-	} elsif ( defined( $4 ) ) {
-	    outmsg($file,$line,$4,$5);
-	} elsif ( defined( $6 ) ) {
-	    outmsg($file,$line,$6,$7);
+	    next;
 	}
+
+       	if ( defined( $3 ) ) {
+	    $this_scope = $scope;
+	    $msgid = $3;
+	} elsif ( defined( $4 ) ) {
+	    $this_scope = $4;
+	    $msgid = $5;
+	} elsif ( defined( $6 ) ) {
+	    $this_scope = $6;
+	    $msgid = $7;
+	} else {
+	    next;
+	}
+
+	$msgid =~ s/^\s*//;
+	$msgid =~ s/\s*$//;
+
+	# Might still be non-unique eg. tr("A" "B")  vs.  tr("A"  "B").
+
+	$location{"${this_scope}::${msgid}"} = "$file:$line";
     }
+}
+
+for $scoped_msgid ( sort keys %location ) {
+    ($scope,$msgid) = $scoped_msgid =~ m/([^:]*)::(.*)/;
+    ($file,$line) = $location{$scoped_msgid} =~ m/([^:]*):(.*)/;
+    outmsg($file,$line,$scope,$msgid);
 }
