@@ -325,6 +325,8 @@ void QVariant::Private::clear()
 	case QVariant::Invalid:
 	case QVariant::Int:
 	case QVariant::UInt:
+	case QVariant::LongLong:
+	case QVariant::ULongLong:
 	case QVariant::Bool:
 	case QVariant::Double:
 	    break;
@@ -833,6 +835,29 @@ QVariant::QVariant( uint val )
 }
 
 /*!
+    Constructs a new variant with a long long integer value, \a val.
+*/
+QVariant::QVariant( Q_LLONG val )
+{
+    d = new Private;
+    d->typ = LongLong;
+    d->value.ll = val;
+    d->is_null = FALSE;
+}
+
+/*!
+    Constructs a new variant with an unsigned long long integer value, \a val.
+*/
+
+QVariant::QVariant( Q_ULLONG val )
+{
+    d = new Private;
+    d->typ = ULongLong;
+    d->value.ull = val;
+    d->is_null = FALSE;
+}
+
+/*!
     Constructs a new variant with a boolean value, \a val. The integer
     argument is a dummy, necessary for compatibility with some
     compilers.
@@ -1215,6 +1240,20 @@ void QVariant::load( QDataStream& s )
 	    d->is_null = FALSE;
 	}
 	break;
+    case LongLong:
+	{
+	    Q_LLONG x;
+	    s >> x;
+	    d->value.ll = x;
+	}
+	break;
+    case ULongLong:
+	{
+	    Q_ULLONG x;
+	    s >> x;
+	    d->value.ull = x;
+	}
+	break;
     case Bool:
 	{
 	    Q_INT8 x;
@@ -1391,6 +1430,12 @@ void QVariant::save( QDataStream& s ) const
     case UInt:
 	s << d->value.u;
 	break;
+    case LongLong:
+	s << d->value.ll;
+	break;
+    case ULongLong:
+	s << d->value.ull;
+	break;
     case Bool:
 	s << (Q_INT8)d->value.b;
 	break;
@@ -1562,6 +1607,10 @@ const QString QVariant::toString() const
 	return QString::number( toInt() );
     case UInt:
 	return QString::number( toUInt() );
+    case LongLong:
+	return QString::number( toLongLong() );
+    case ULongLong:
+	return QString::number( toULongLong() );
     case Double:
 	return QString::number( toDouble(), 'g', DBL_DIG );
 #if !defined(QT_NO_SPRINTF) && !defined(QT_NO_DATESTRING)
@@ -2067,7 +2116,7 @@ const QPen QVariant::toPen() const
 int QVariant::toInt( bool * ok ) const
 {
     if ( ok )
-	*ok = canCast( UInt );
+	*ok = canCast( UInt ); // ### Int ?
 
     switch ( d->typ ) {
     case String:
@@ -2124,6 +2173,80 @@ uint QVariant::toUInt( bool * ok ) const
 }
 
 /*!
+    Returns the variant as as a long long int if the variant has
+    type() LongLong, ULongLong, any type allowing a toInt()
+    conversion; otherwise returns 0.
+
+    If \a ok is non-null: \a *ok is set to TRUE if the value could be
+    converted to an int; otherwise \a *ok is set to FALSE.
+
+    \sa asLongLong() canCast()
+*/
+Q_LLONG QVariant::toLongLong( bool * ok ) const
+{
+    if ( ok )
+	*ok = canCast( LongLong );
+
+    switch ( d->typ ) {
+    case String:
+	return ((QString*)d->value.ptr)->toInt( ok ); // ### LongLong
+    case CString:
+	return ((QCString*)d->value.ptr)->toInt( ok ); // ### LongLOng
+    case Int:
+	return (Q_LLONG)d->value.i;
+    case UInt:
+	return (Q_LLONG)d->value.u;
+    case LongLong:
+	return d->value.ll;
+    case ULongLong:
+	return (Q_LLONG)d->value.ull;
+    case Double:
+	return (Q_LLONG)d->value.d;
+    case Bool:
+	return (Q_LLONG)d->value.b;
+    default:
+	return 0;
+    }
+}
+
+/*!
+    Returns the variant as as an unsigned long long int if the variant
+    has type() LongLong, ULongLong, any type allowing a toUInt()
+    conversion; otherwise returns 0.
+
+    If \a ok is non-null: \a *ok is set to TRUE if the value could be
+    converted to an int; otherwise \a *ok is set to FALSE.
+
+    \sa asULongLong() canCast()
+*/
+Q_ULLONG QVariant::toULongLong( bool * ok ) const
+{
+    if ( ok )
+	*ok = canCast( ULongLong );
+
+    switch ( d->typ ) {
+    case Int:
+	return (Q_ULLONG)d->value.i;
+    case UInt:
+	return (Q_ULLONG)d->value.u;
+    case LongLong:
+	return (Q_ULLONG)d->value.ll;
+    case ULongLong:
+	return d->value.ull;
+    case Double:
+	return (Q_ULLONG)d->value.d;
+    case Bool:
+	return (Q_ULLONG)d->value.b;
+    case String:
+	// ###	return ((QString*)d->value.ptr)->toULongLong( ok );
+    case CString:
+	// ###	return ((QCString*)d->value.ptr)->toULongLong( ok );
+    default:
+	return 0;
+    }
+}
+
+/*!
     Returns the variant as a bool if the variant has type() Bool.
 
     Returns TRUE if the variant has type Int, UInt or Double and its
@@ -2143,7 +2266,11 @@ bool QVariant::toBool() const
 	return d->value.i != 0;
     case UInt:
 	return d->value.u != 0;
-    case String: 
+    case LongLong:
+	return d->value.ll != 0;
+    case ULongLong:
+	return d->value.ull != 0;
+    case String:
 	{
 	    QString str = toString().lower();
 	    return !(str == "0" || str == "false" || str.isEmpty() );
@@ -2155,7 +2282,8 @@ bool QVariant::toBool() const
 
 /*!
     Returns the variant as a double if the variant has type() String,
-    CString, Double, Int, UInt, or Bool; otherwise returns 0.0.
+    CString, Double, Int, UInt, LongLong, ULongLong or Bool; otherwise
+    returns 0.0.
 
     If \a ok is non-null: \a *ok is set to TRUE if the value could be
     converted to a double; otherwise \a *ok is set to FALSE.
@@ -2180,6 +2308,10 @@ double QVariant::toDouble( bool * ok ) const
 	return (double)d->value.b;
     case UInt:
 	return (double)d->value.u;
+    case LongLong:
+	return (double)d->value.ll;
+    case ULongLong:
+	return (double)d->value.ull;
     default:
 	return 0.0;
     }
@@ -2599,6 +2731,36 @@ uint& QVariant::asUInt()
 }
 
 /*!
+    Returns the variant's value as long long reference.
+*/
+Q_LLONG& QVariant::asLongLong()
+{
+    if ( d->typ != LongLong ) {
+	detach();
+	Q_LLONG ll = toLongLong();
+	d->clear();
+ 	d->value.ll = ll;
+	d->typ = LongLong;
+    }
+    return d->value.ll;
+}
+
+/*!
+    Returns the variant's value as unsigned long long reference.
+*/
+Q_ULLONG& QVariant::asULongLong()
+{
+    if ( d->typ != ULongLong ) {
+	detach();
+	Q_ULLONG ull = toULongLong();
+	d->clear();
+ 	d->value.ull = ull;
+	d->typ = ULongLong;
+    }
+    return d->value.ull;
+}
+
+/*!
     Returns the variant's value as bool reference.
 */
 bool& QVariant::asBool()
@@ -2680,7 +2842,7 @@ QMap<QString, QVariant>& QVariant::asMap()
     The following casts are done automatically:
     \table
     \header \i Type \i Automatically Cast To
-    \row \i Bool \i Double, Int, UInt
+    \row \i Bool \i Double, Int, UInt, LongLong, ULongLong
     \row \i Color \i String
     \row \i Date \i String, DateTime
     \row \i DateTime \i String, Date, Time
@@ -2689,7 +2851,7 @@ QMap<QString, QVariant>& QVariant::asMap()
     \row \i Int \i String, Double, Bool, UInt
     \row \i List \i StringList (if the list contains strings or
     something that can be cast to a string)
-    \row \i String \i CString, Int, Uint, Bool, Double, Date, 
+    \row \i String \i CString, Int, Uint, Bool, Double, Date,
     Time, DateTime, KeySequence, Font, Color
     \row \i CString \i String
     \row \i StringList \i List
@@ -2704,11 +2866,22 @@ bool QVariant::canCast( Type t ) const
 	return TRUE;
     switch ( t ) {
     case Bool:
-	return d->typ == Double || d->typ == Int || d->typ == UInt || d->typ == String;
+	return d->typ == Double || d->typ == Int || d->typ == UInt ||
+	       d->typ == LongLong || d->typ == ULongLong || d->typ == String;
     case Int:
-	return d->typ == String || d->typ == Double || d->typ == Bool || d->typ == UInt  || d->typ == KeySequence;
+	return d->typ == String || d->typ == Double || d->typ == Bool ||
+	       d->typ == UInt || d->typ == LongLong || d->typ == ULongLong ||
+	       d->typ == KeySequence;
     case UInt:
-	return d->typ == String || d->typ == Double || d->typ == Bool || d->typ == Int;
+	return d->typ == String || d->typ == Double || d->typ == Bool ||
+	       d->typ == Int || d->typ == LongLong || d->typ == ULongLong;
+    case LongLong:
+	return d->typ == String || d->typ == Double || d->typ == Bool ||
+	       d->typ == UInt || d->typ == ULongLong ||
+	       d->typ == KeySequence;
+    case ULongLong:
+	return d->typ == String || d->typ == Double || d->typ == Bool ||
+	       d->typ == Int || d->typ == LongLong;
     case Double:
 	return d->typ == String || d->typ == Int || d->typ == Bool || d->typ == UInt;
     case CString:
@@ -2954,6 +3127,10 @@ bool QVariant::operator==( const QVariant &v ) const
 	return v.toInt() == toInt();
     case UInt:
 	return v.toUInt() == toUInt();
+    case LongLong:
+	return v.toLongLong() == toLongLong();
+    case ULongLong:
+	return v.toULongLong() == toULongLong();
     case Bool:
 	return v.toBool() == toBool();
     case Double:
@@ -3085,6 +3262,8 @@ bool QVariant::isNull() const
 	case QVariant::Invalid:
 	case QVariant::Int:
 	case QVariant::UInt:
+	case QVariant::LongLong:
+	case QVariant::ULongLong:
 	case QVariant::Bool:
 	case QVariant::Double:
 	    break;

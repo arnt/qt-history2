@@ -115,7 +115,9 @@ public:
 	ByteArray,
 	BitArray,
 	KeySequence,
-	Pen
+	Pen,
+	LongLong,
+	ULongLong
     };
 
     QVariant();
@@ -160,6 +162,8 @@ public:
 #endif
     QVariant( int );
     QVariant( uint );
+    QVariant( Q_LLONG );
+    QVariant( Q_ULLONG );
     // ### Problems on some compilers ?
     QVariant( bool, int );
     QVariant( double );
@@ -211,6 +215,8 @@ public:
     const QPen toPen() const;
     int toInt( bool * ok=0 ) const;
     uint toUInt( bool * ok=0 ) const;
+    Q_LLONG toLongLong( bool * ok=0 ) const;
+    Q_ULLONG toULongLong( bool * ok=0 ) const;
     bool toBool() const;
     double toDouble( bool * ok=0 ) const;
 #ifndef QT_NO_TEMPLATE_VARIANT
@@ -259,6 +265,8 @@ public:
     QPen& asPen();
     int& asInt();
     uint& asUInt();
+    Q_LLONG& asLongLong();
+    Q_ULLONG& asULongLong();
     bool& asBool();
     double& asDouble();
 #ifndef QT_NO_TEMPLATE_VARIANT
@@ -291,6 +299,8 @@ private:
 	{
 	    uint u;
 	    int i;
+	    Q_LLONG ll;
+	    Q_ULLONG ull;
 	    bool b;
 	    double d;
 	    void *ptr;
