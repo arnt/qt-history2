@@ -1025,7 +1025,8 @@ then
     fi
 
     cat <<EOF
-Usage:  $relconf [-prefix dir] [-docdir dir] [-headerdir dir] [-libdir dir] [-bindir dir] \\
+Usage:  $relconf [-prefix dir] \\
+	[-docdir dir] [-headerdir dir] [-libdir dir] [-bindir dir] \\
 	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] [-stl] [-no-st] \\
 	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
 	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] \\
