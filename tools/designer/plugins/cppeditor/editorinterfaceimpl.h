@@ -61,6 +61,7 @@ public:
 
     void setError( int line );
     void setStep( int ) {}
+    void clearStep() {}
     void setModified( bool m );
 
     int numLines() const;

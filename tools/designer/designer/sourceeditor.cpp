@@ -219,3 +219,8 @@ void SourceEditor::saveBreakPoints()
     iFace->breakPoints( l );
     MetaDataBase::setBreakPoints( formWindow, l );
 }
+
+void SourceEditor::clearStep()
+{
+    iFace->clearStep();
+}

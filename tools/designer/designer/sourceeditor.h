@@ -63,6 +63,7 @@ public:
     void setFocus();
     int numLines() const;
     void saveBreakPoints();
+    void clearStep();
 
 protected:
     void closeEvent( QCloseEvent *e );

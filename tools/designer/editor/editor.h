@@ -53,6 +53,7 @@ public:
 
     void setErrorSelection( int line );
     void setStepSelection( int line );
+    void clearStepSelection();
     void clearSelections();
 
     virtual bool supportsErrors() const { return TRUE; }

@@ -109,6 +109,12 @@ void Editor::setStepSelection( int line )
     viewport()->repaint( FALSE );
 }
 
+void Editor::clearStepSelection()
+{
+    document()->removeSelection( Step );
+    viewport()->repaint( FALSE );
+}
+
 void Editor::doChangeInterval()
 {
     emit intervalChanged();

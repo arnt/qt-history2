@@ -4537,6 +4537,11 @@ void MainWindow::updateFunctionList()
 
 void MainWindow::showDebugStep( QObject *o, int line )
 {
+    if ( !o || line == -1 ) {
+	for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
+	    e->clearStep();
+	return;
+    }
     showSourceLine( o, line, FALSE );
 }
 

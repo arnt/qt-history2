@@ -107,6 +107,11 @@ void ViewManager::setStep( int line )
     }
 }
 
+void ViewManager::clearStep()
+{
+    ( (Editor*)curView )->clearStepSelection();
+}
+
 void ViewManager::resizeEvent( QResizeEvent *e )
 {
     QWidget::resizeEvent( e );
