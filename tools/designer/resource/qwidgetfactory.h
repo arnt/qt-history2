@@ -93,6 +93,7 @@ private:
     QList<QAction> actionList;
     QMap<QObject *, EventFunction> eventMap;
     QString functions;
+    QStringList quickScriptSlots;
 
 };
 

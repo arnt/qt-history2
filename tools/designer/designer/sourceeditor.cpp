@@ -60,6 +60,8 @@ QString SourceEditor::sourceOfForm( FormWindow *fw )
     QMap<QString, QString> bodies = MetaDataBase::functionBodies( fw );
     QString txt;
     for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
+	if ( (*it).language != "QuickScript" ) // #### do this more generic
+	    continue;
 	txt += "function " + QString( (*it).slot );
 	QMap<QString, QString>::Iterator bit = bodies.find( NormalizeObject::normalizeSignalSlot( (*it).slot ) );
 	if ( bit != bodies.end() )

@@ -448,7 +448,7 @@ void MetaDataBase::doConnections( QObject *o )
     }
 }
 
-void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString &access )
+void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString &access, const QString &language )
 {
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
@@ -461,10 +461,11 @@ void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString &acc
     Slot s;
     s.slot = slot;
     s.access = access;
+    s.language = language;
     r->slotList.append( s );
 }
 
-void MetaDataBase::removeSlot( QObject *o, const QCString &slot, const QString &access )
+void MetaDataBase::removeSlot( QObject *o, const QCString &slot, const QString &access, const QString &language )
 {
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
@@ -477,7 +478,8 @@ void MetaDataBase::removeSlot( QObject *o, const QCString &slot, const QString &
     for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
 	Slot s = *it;
 	if ( s.slot == slot &&
-	     s.access == access ) {
+	     s.access == access &&
+	     ( language.isEmpty() || s.language == language ) ) {
 	    r->slotList.remove( it );
 	    break;
 	}
@@ -1047,7 +1049,7 @@ bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &e
     }
 
     if ( !slotExists && addIfNotExisting )
-	addSlot( form, fName.latin1(), "public" );
+	addSlot( form, fName.latin1(), "public",  "QuickScript" );
 
     r->eventFunctions.insert( event, function );
     return !slotExists;

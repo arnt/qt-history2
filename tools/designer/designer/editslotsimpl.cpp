@@ -46,14 +46,20 @@ EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
 	    i->setText( 2, tr( "Yes" ) );
 	else
 	    i->setText( 2, tr( "No" ) );
+	i->setText( 3, (*it).language );
     }
 
     slotName->setEnabled( FALSE );
     slotAccess->setEnabled( FALSE );
+    comboLanguage->setEnabled( FALSE );
     slotName->setValidator( new AsciiValidator( TRUE, slotName ) );
 
     if ( slotListView->firstChild() )
 	slotListView->setCurrentItem( slotListView->firstChild() );
+
+    comboLanguage->insertItem( "C++" );
+    if ( MetaDataBase::hasEvents() )
+	comboLanguage->insertItem( "QuickScript" );
 }
 
 void EditSlots::okClicked()
@@ -66,7 +72,7 @@ void EditSlots::okClicked()
 	QList<Command> commands;
 	for ( sit = slotList.begin(); sit != slotList.end(); ++sit ) {
 	    commands.append( new RemoveSlotCommand( tr( "Remove slot" ),
-						    formWindow, (*sit).slot, (*sit).access ) );
+						    formWindow, (*sit).slot, (*sit).access, (*sit).language ) );
 	}
 	rmSlt = new MacroCommand( tr( "Remove slots" ), formWindow, commands );
     }
@@ -84,6 +90,7 @@ void EditSlots::okClicked()
 	    MetaDataBase::Slot slot;
 	    slot.slot = it.current()->text( 0 );
 	    slot.access = it.current()->text( 1 );
+	    slot.language = it.current()->text( 3 );
 	    QString s = it.current()->text( 0 );
 	    s = s.simplifyWhiteSpace();
 	    bool startNum = s[ 0 ] >= '0' && s[ 0 ] <= '9';
@@ -95,7 +102,7 @@ void EditSlots::okClicked()
 		continue;
 	    }
 	    commands.append( new AddSlotCommand( tr( "Add slot" ),
-						 formWindow, slot.slot, slot.access ) );
+						 formWindow, slot.slot, slot.access, slot.language ) );
 	    lst.append( slot.slot );
 	}
 	
@@ -147,6 +154,7 @@ void EditSlots::slotAdd()
 	i->setText( 2, tr( "Yes" ) );
     else
 	i->setText( 2, tr( "No" ) );
+    i->setText( 3, "C++" );
     slotListView->setCurrentItem( i );
     slotListView->setSelected( i, TRUE );
 }
@@ -174,17 +182,25 @@ void EditSlots::currentItemChanged( QListViewItem *i )
     if ( !i ) {
 	slotName->setEnabled( FALSE );
 	slotAccess->setEnabled( FALSE );
+	comboLanguage->setEnabled( FALSE );
 	return;
     }
 
     slotName->blockSignals( TRUE );
     slotName->setEnabled( TRUE );
     slotAccess->setEnabled( TRUE );
+    comboLanguage->setEnabled( TRUE );
     slotName->setText( i->text( 0 ) );
     if ( i->text( 1 ) == "public" )
 	slotAccess->setCurrentItem( 0 );
     else
 	slotAccess->setCurrentItem( 1 );
+    for ( int j = 0; j < (int)comboLanguage->count(); ++j ) {
+	if ( i->text( 3 ) == comboLanguage->text( j ) ) {
+	    comboLanguage->setCurrentItem( j );
+	    break;
+	}
+    }
     slotName->blockSignals( FALSE );
 }
 
@@ -206,4 +222,12 @@ void EditSlots::currentAccessChanged( const QString &acc )
 	return;
 
     slotListView->currentItem()->setText( 1, acc );
+}
+
+void EditSlots::currentLanguageChanged( const QString &lang )
+{
+    if ( !slotListView->currentItem() )
+	return;
+
+    slotListView->currentItem()->setText( 3, lang );
 }

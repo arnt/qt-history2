@@ -28,21 +28,22 @@ class FormWindow;
 class EditSlots : public EditSlotsBase
 {
     Q_OBJECT
-    
+
 public:
     EditSlots( QWidget *parent, FormWindow *fw );
-    
+
 protected slots:
-    void okClicked();    
+    void okClicked();
     void slotAdd();
     void slotRemove();
     void currentItemChanged( QListViewItem * );
     void currentTextChanged( const QString &txt );
     void currentAccessChanged( const QString &acc );
-    
+    void currentLanguageChanged( const QString &lang );
+
 private:
     FormWindow *formWindow;
-    
+
 };
 
 #endif

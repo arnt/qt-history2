@@ -1,5 +1,6 @@
-<!DOCTYPE UI><UI>
-<class>EditSlotsBase</class><comment>*********************************************************************
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>EditSlotsBase</class>
+<comment>*********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
@@ -18,382 +19,327 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
-<widget>
-    <class>QDialog</class>
-    <property stdset="1">
-        <name>name</name>
+<widget class="QDialog">
+    <property name="name">
         <cstring>EditSlotsBase</cstring>
     </property>
-    <property stdset="1">
-        <name>geometry</name>
+    <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>520</width>
-            <height>367</height>
+            <width>547</width>
+            <height>363</height>
         </rect>
     </property>
-    <property stdset="1">
-        <name>caption</name>
+    <property name="caption">
         <string>Edit Slots</string>
     </property>
-    <property stdset="1">
-        <name>sizeGripEnabled</name>
+    <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
-    <property>
-        <name>whatsThis</name>
+    <property name="whatsThis" stdset="0">
         <string>&lt;b&gt;Edit Slots&lt;/b&gt;&lt;p&gt;Add, change and remove slots of the current form.&lt;/p&gt;&lt;p&gt;Press the &lt;b&gt;Add Slot&lt;/b&gt;-button to create a new slot, enter a slot name and choose an access mode.&lt;/p&gt;&lt;p&gt;Select an entry from the list and press the &lt;b&gt;Delete Slot&lt;/b&gt;-button to remove a slot. All connections using this slot will be removed, too.&lt;/p&gt;</string>
     </property>
     <grid>
-        <property stdset="1">
-            <name>margin</name>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
             <number>11</number>
         </property>
-        <property stdset="1">
-            <name>spacing</name>
+        <property name="spacing">
             <number>6</number>
         </property>
-        <widget row="0"  column="0"  rowspan="1"  colspan="3" >
-            <class>QListView</class>
+        <widget class="QListView" row="0" column="0" rowspan="1" colspan="3">
             <column>
-                <property>
-                    <name>text</name>
+                <property name="text">
                     <string>Slot</string>
                 </property>
-                <property>
-                    <name>clickable</name>
+                <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property>
-                    <name>resizeable</name>
+                <property name="resizeable">
                     <bool>true</bool>
                 </property>
             </column>
             <column>
-                <property>
-                    <name>text</name>
+                <property name="text">
                     <string>Access</string>
                 </property>
-                <property>
-                    <name>clickable</name>
+                <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property>
-                    <name>resizeable</name>
+                <property name="resizeable">
                     <bool>true</bool>
                 </property>
             </column>
             <column>
-                <property>
-                    <name>text</name>
+                <property name="text">
                     <string>In Use</string>
                 </property>
-                <property>
-                    <name>clickable</name>
+                <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property>
-                    <name>resizeable</name>
+                <property name="resizeable">
                     <bool>true</bool>
                 </property>
             </column>
-            <property stdset="1">
-                <name>name</name>
+            <column>
+                <property name="text">
+                    <string>Language</string>
+                </property>
+                <property name="clickable">
+                    <bool>true</bool>
+                </property>
+                <property name="resizeable">
+                    <bool>true</bool>
+                </property>
+            </column>
+            <property name="name">
                 <cstring>slotListView</cstring>
             </property>
-            <property stdset="1">
-                <name>frameShadow</name>
-                <enum>Sunken</enum>
-            </property>
-            <property stdset="1">
-                <name>frameShape</name>
-                <enum>StyledPanel</enum>
-            </property>
-            <property stdset="1">
-                <name>allColumnsShowFocus</name>
-                <bool>true</bool>
-            </property>
-            <property stdset="1">
-                <name>showSortIndicator</name>
-                <bool>true</bool>
-            </property>
-            <property stdset="1">
-                <name>sizePolicy</name>
+            <property name="sizePolicy">
                 <sizepolicy>
                     <hsizetype>7</hsizetype>
                     <vsizetype>7</vsizetype>
                 </sizepolicy>
             </property>
-            <property>
-                <name>whatsThis</name>
+            <property name="frameShape">
+                <enum>StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Sunken</enum>
+            </property>
+            <property name="allColumnsShowFocus">
+                <bool>true</bool>
+            </property>
+            <property name="showSortIndicator">
+                <bool>true</bool>
+            </property>
+            <property name="whatsThis" stdset="0">
                 <string>&lt;b&gt;This form's slots.&lt;/b&gt;&lt;p&gt;Select the slot you want to change or delete.&lt;/p&gt;</string>
             </property>
         </widget>
-        <widget row="3"  column="0"  rowspan="1"  colspan="3" >
-            <class>QLayoutWidget</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLayoutWidget" row="3" column="0" rowspan="1" colspan="3">
+            <property name="name">
                 <cstring>Layout1</cstring>
             </property>
             <hbox>
-                <property stdset="1">
-                    <name>margin</name>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
                     <number>0</number>
                 </property>
-                <property stdset="1">
-                    <name>spacing</name>
+                <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>helpButton</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;Help</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
                 </widget>
                 <spacer>
-                    <property>
-                        <name>name</name>
+                    <property name="name" stdset="0">
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
+                    <property name="sizeHint">
                         <size>
                             <width>20</width>
                             <height>20</height>
                         </size>
                     </property>
                 </spacer>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>okButton</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;OK</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
-                    <property stdset="1">
-                        <name>default</name>
+                    <property name="default">
                         <bool>true</bool>
                     </property>
-                    <property>
-                        <name>whatsThis</name>
+                    <property name="whatsThis" stdset="0">
                         <string>Close dialog and apply all changes.</string>
                     </property>
                 </widget>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>cancelButton</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;Cancel</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
-                    <property>
-                        <name>whatsThis</name>
+                    <property name="whatsThis" stdset="0">
                         <string>Close dialog and discard all changes.</string>
                     </property>
                 </widget>
             </hbox>
         </widget>
-        <widget row="1"  column="1" >
-            <class>QPushButton</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QPushButton" row="1" column="1">
+            <property name="name">
                 <cstring>addSlot</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="text">
                 <string>&amp;New Slot</string>
             </property>
-            <property>
-                <name>toolTip</name>
+            <property name="toolTip" stdset="0">
                 <string>Add new slot</string>
             </property>
-            <property>
-                <name>whatsThis</name>
+            <property name="whatsThis" stdset="0">
                 <string>&lt;b&gt;Add a new slot.&lt;/b&gt;&lt;p&gt;New slots have a default name and public access.&lt;/p&gt;</string>
             </property>
         </widget>
-        <widget row="1"  column="2" >
-            <class>QPushButton</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QPushButton" row="1" column="2">
+            <property name="name">
                 <cstring>deleteSlot</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="text">
                 <string>&amp;Delete Slot</string>
             </property>
-            <property>
-                <name>toolTip</name>
+            <property name="toolTip" stdset="0">
                 <string>Delete slot</string>
             </property>
-            <property>
-                <name>whatsThis</name>
+            <property name="whatsThis" stdset="0">
                 <string>&lt;b&gt;Delete the selected slot.&lt;/b&gt;&lt;p&gt;All connections using this slot are removed, too.&lt;/p&gt;</string>
             </property>
         </widget>
-        <spacer row="1"  column="0" >
-            <property>
-                <name>name</name>
+        <spacer row="1" column="0">
+            <property name="name" stdset="0">
                 <cstring>Vertical Spacing1</cstring>
             </property>
-            <property stdset="1">
-                <name>orientation</name>
+            <property name="orientation">
                 <enum>Horizontal</enum>
             </property>
-            <property stdset="1">
-                <name>sizeType</name>
+            <property name="sizeType">
                 <enum>Expanding</enum>
             </property>
-            <property>
-                <name>sizeHint</name>
+            <property name="sizeHint">
                 <size>
                     <width>20</width>
                     <height>20</height>
                 </size>
             </property>
         </spacer>
-        <widget row="2"  column="0"  rowspan="1"  colspan="3" >
-            <class>QGroupBox</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QGroupBox" row="2" column="0" rowspan="1" colspan="3">
+            <property name="name">
                 <cstring>GroupBox2</cstring>
             </property>
-            <property stdset="1">
-                <name>title</name>
-                <string>Slot Properties</string>
-            </property>
-            <property stdset="1">
-                <name>sizePolicy</name>
+            <property name="sizePolicy">
                 <sizepolicy>
                     <hsizetype>5</hsizetype>
                     <vsizetype>5</vsizetype>
                 </sizepolicy>
             </property>
+            <property name="title">
+                <string>Slot Properties</string>
+            </property>
             <hbox>
-                <property stdset="1">
-                    <name>margin</name>
+                <property name="margin">
                     <number>11</number>
                 </property>
-                <property stdset="1">
-                    <name>spacing</name>
+                <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget>
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLabel">
+                    <property name="name">
                         <cstring>Label8</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;Slot:</string>
                     </property>
-                    <property>
-                        <name>buddy</name>
+                    <property name="buddy" stdset="0">
                         <cstring>slotName</cstring>
                     </property>
                 </widget>
-                <widget>
-                    <class>QLineEdit</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLineEdit">
+                    <property name="name">
                         <cstring>slotName</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>sizePolicy</name>
+                    <property name="sizePolicy">
                         <sizepolicy>
                             <hsizetype>7</hsizetype>
                             <vsizetype>0</vsizetype>
                         </sizepolicy>
                     </property>
-                    <property>
-                        <name>toolTip</name>
+                    <property name="toolTip" stdset="0">
                         <string>Change slot name</string>
                     </property>
-                    <property>
-                        <name>whatsThis</name>
+                    <property name="whatsThis" stdset="0">
                         <string>&lt;b&gt;Change the name of the selected slot.&lt;/b&gt;&lt;p&gt;The name should include the argument list and has to be syntactically correct.&lt;/p&gt;</string>
                     </property>
                 </widget>
-                <widget>
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLabel">
+                    <property name="name">
                         <cstring>Label9</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>Acc&amp;ess:</string>
                     </property>
-                    <property>
-                        <name>buddy</name>
+                    <property name="buddy" stdset="0">
                         <cstring>slotAccess</cstring>
                     </property>
                 </widget>
-                <widget>
-                    <class>QComboBox</class>
+                <widget class="QComboBox">
                     <item>
-                        <property>
-                            <name>text</name>
+                        <property name="text">
                             <string>public</string>
                         </property>
                     </item>
                     <item>
-                        <property>
-                            <name>text</name>
+                        <property name="text">
                             <string>protected</string>
                         </property>
                     </item>
-                    <property stdset="1">
-                        <name>name</name>
+                    <property name="name">
                         <cstring>slotAccess</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>sizePolicy</name>
+                    <property name="sizePolicy">
                         <sizepolicy>
                             <hsizetype>1</hsizetype>
                             <vsizetype>0</vsizetype>
                         </sizepolicy>
                     </property>
-                    <property>
-                        <name>toolTip</name>
+                    <property name="toolTip" stdset="0">
                         <string>Change slot access</string>
                     </property>
-                    <property>
-                        <name>whatsThis</name>
+                    <property name="whatsThis" stdset="0">
                         <string>&lt;b&gt;Change the access policy of the slot&lt;/b&gt;&lt;p&gt;All slots will be created virtual and should be reimplemented in subclasses.&lt;/p&gt;</string>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>TextLabel1</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Language:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>comboLanguage</cstring>
+                    </property>
+                </widget>
+                <widget class="QComboBox">
+                    <property name="name">
+                        <cstring>comboLanguage</cstring>
                     </property>
                 </widget>
             </hbox>
@@ -449,11 +395,18 @@
         <receiver>EditSlotsBase</receiver>
         <slot>currentItemChanged(QListViewItem*)</slot>
     </connection>
-    <slot access="protected">okClicked()</slot>
-    <slot access="protected">slotAdd()</slot>
-    <slot access="protected">slotRemove()</slot>
+    <connection>
+        <sender>comboLanguage</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>EditSlotsBase</receiver>
+        <slot>currentLanguageChanged(const QString &amp;)</slot>
+    </connection>
+    <slot access="protected">currentAccessChanged(const QString &amp;)</slot>
     <slot access="protected">currentItemChanged(QListViewItem*)</slot>
     <slot access="protected">currentTextChanged(const QString &amp;)</slot>
-    <slot access="protected">currentAccessChanged(const QString &amp;)</slot>
+    <slot access="protected">currentLanguageChanged(const QString &amp;)</slot>
+    <slot access="protected">slotAdd()</slot>
+    <slot access="protected">slotRemove()</slot>
+    <slot access="protected">okClicked()</slot>
 </connections>
 </UI>

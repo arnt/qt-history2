@@ -1039,6 +1039,9 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    }
 
 	    QObject::connect( sender, s, receiver, s2 );
+	} else if ( n.tagName() == "slot" ) {
+	    if ( n.attribute( "language" ) == "QuickScript" )
+		quickScriptSlots << n.firstChild().toText().data();
 	}
 	n = n.nextSibling().toElement();
     }
@@ -1355,8 +1358,10 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
     while ( !n.isNull() ) {
 	if ( n.tagName() == "function" ) {
 	    QString name = n.attribute( "name" );
-	    QString body = n.firstChild().toText().data();
-	    s += "function " + name + body + "\n";
+	    if ( quickScriptSlots.find( name ) != quickScriptSlots.end() ) {
+		QString body = n.firstChild().toText().data();
+		s += "function " + name + body + "\n";
+	    }
 	}
 	n = n.nextSibling().toElement();
     }

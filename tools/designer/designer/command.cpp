@@ -924,36 +924,36 @@ void RemoveConnectionCommand::unexecute()
 
 // ------------------------------------------------------------
 
-AddSlotCommand::AddSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString &a )
-    : Command( name, fw ), slot( s ), access( a )
+AddSlotCommand::AddSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString &a, const QString &l )
+    : Command( name, fw ), slot( s ), access( a ), language( l )
 {
 }
 
 void AddSlotCommand::execute()
 {
-    MetaDataBase::addSlot( formWindow(), slot, access );
+    MetaDataBase::addSlot( formWindow(), slot, access, language );
 }
 
 void AddSlotCommand::unexecute()
 {
-    MetaDataBase::removeSlot( formWindow(), slot, access );
+    MetaDataBase::removeSlot( formWindow(), slot, access, language );
 }
 
 // ------------------------------------------------------------
 
-RemoveSlotCommand::RemoveSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString &a )
-    : Command( name, fw ), slot( s ), access( a )
+RemoveSlotCommand::RemoveSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString &a, const QString &l )
+    : Command( name, fw ), slot( s ), access( a ), language( l )
 {
 }
 
 void RemoveSlotCommand::execute()
 {
-    MetaDataBase::removeSlot( formWindow(), slot, access );
+    MetaDataBase::removeSlot( formWindow(), slot, access, language );
 }
 
 void RemoveSlotCommand::unexecute()
 {
-    MetaDataBase::addSlot( formWindow(), slot, access );
+    MetaDataBase::addSlot( formWindow(), slot, access, language );
 }
 
 // ------------------------------------------------------------

@@ -557,10 +557,12 @@ void Uic::createFormDecl( const QDomElement &e )
 	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 		if ( n2.tagName() == "slot" ) {
 		    QString access = n2.attribute( "access" );
-		    if ( access == "protected" )
-			protectedSlots += n2.firstChild().toText().data();
-		    else
-			publicSlots += n2.firstChild().toText().data();
+		    if ( n2.attribute( "language", "C++" ) == "C++" ) {
+			if ( access == "protected" )
+			    protectedSlots += n2.firstChild().toText().data();
+			else
+			    publicSlots += n2.firstChild().toText().data();
+		    }
 		}
 	    }
 	}
@@ -1202,11 +1204,13 @@ void Uic::createFormImpl( const QDomElement &e )
 	if ( n.tagName()  == "connections" ) {
 	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 		if ( n2.tagName() == "slot" ) {
-		    QString access = n2.attribute( "access" );
-		    if ( access == "protected" )
-			protectedSlots += n2.firstChild().toText().data();
-		    else
-			publicSlots += n2.firstChild().toText().data();
+		    if ( n2.attribute( "language", "C++" ) == "C++" ) {
+			QString access = n2.attribute( "access" );
+			if ( access == "protected" )
+			    protectedSlots += n2.firstChild().toText().data();
+			else
+			    publicSlots += n2.firstChild().toText().data();
+		    }
 		}
 	    }
 	}

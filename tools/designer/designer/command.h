@@ -447,7 +447,7 @@ private:
 class AddSlotCommand : public Command
 {
 public:
-    AddSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString &a );
+    AddSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString &a, const QString &l );
 
     void execute();
     void unexecute();
@@ -456,13 +456,14 @@ public:
 private:
     QCString slot;
     QString access;
+    QString language;
 
 };
 
 class RemoveSlotCommand : public Command
 {
 public:
-    RemoveSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString &a );
+    RemoveSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString &a, const QString &l );
 
     void execute();
     void unexecute();
@@ -471,6 +472,7 @@ public:
 private:
     QCString slot;
     QString access;
+    QString language;
 
 };
 

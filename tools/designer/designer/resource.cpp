@@ -1692,7 +1692,8 @@ void Resource::saveConnections( QTextStream &ts, int indent )
 	QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin();
 	for ( ; it != slotList.end(); ++it ) {
 	    MetaDataBase::Slot slot = *it;
-	    ts << makeIndent( indent ) << "<slot access=\"" << slot.access << "\">" << entitize( slot.slot ) << "</slot>" << endl;
+	    ts << makeIndent( indent ) << "<slot access=\"" << slot.access
+	       << "\" language=\"" << slot.language << "\">" << entitize( slot.slot ) << "</slot>" << endl;
 	}
     }
 
@@ -1751,8 +1752,9 @@ void Resource::loadConnections( const QDomElement &e )
 	} else if ( n.tagName() == "slot" ) {
 	    MetaDataBase::Slot slot;
 	    slot.access = n.attribute( "access", "public" );
+	    slot.language = n.attribute( "language", "C++" );
 	    slot.slot = n.firstChild().toText().data();
-	    MetaDataBase::addSlot( formwindow ? formwindow : toplevel, slot.slot, slot.access );
+	    MetaDataBase::addSlot( formwindow ? formwindow : toplevel, slot.slot, slot.access, slot.language );
 	}
 	n = n.nextSibling().toElement();
     }
