@@ -83,9 +83,9 @@ public:
 	List,
 	Cd,
 	Get,
+	Remove,
 //###	Put,
 //###	Copy,
-//###	Remove,
 //###	Mkdir,
 //###	Rename,
 //###	Abort,
@@ -98,6 +98,7 @@ public:
     int list( const QString &dir=QString::null );
     int cd( const QString &dir );
     int get( const QString &file );
+    int remove( const QString &file );
 
     int currentId() const;
     Command currentCommand() const;
