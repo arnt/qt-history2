@@ -673,4 +673,8 @@ void ScriptEngineArabic::openTypePosition( const OpenTypeIface *openType, Shaped
 // 	qDebug("no open type positioning, using heuristics");
 	heuristicPositionMarks( result );
     }
+
+//     qDebug("logClusters:");
+//     for ( int i = 0; i < result->d->length; i++ )
+// 	qDebug("    %d -> %d", i, result->d->logClusters[i] );
 }

@@ -80,7 +80,7 @@ public:
 
     void position( ShapedItem &shaped ) const;
 
-    int cursorToX( ShapedItem &shaped, int cpos ) const;
+    int cursorToX( ShapedItem &shaped, int cpos, Edge edge ) const;
     int xToCursor( ShapedItem &shaped, int x ) const;
 
 };
@@ -166,11 +166,99 @@ void TextLayoutQt::position( ShapedItem &shaped ) const
 	scriptEngines[script]->position( &shaped );
 }
 
-int TextLayoutQt::cursorToX( ShapedItem &shaped, int cpos ) const
+int TextLayoutQt::cursorToX( ShapedItem &shaped, int cpos, Edge edge ) const
 {
+    ShapedItemPrivate *d = shaped.d;
+    if ( cpos > d->length )
+	cpos = d->length;
+    if ( cpos < 0 )
+	cpos = 0;
+
+    int glyph_pos = cpos == d->length ? d->num_glyphs : d->logClusters[cpos];
+    if ( edge == Trailing ) {
+	// trailing edge is leading edge of next cluster
+	while ( glyph_pos < d->num_glyphs && !d->glyphAttributes[glyph_pos].clusterStart )
+	    glyph_pos++;
+    }
+
+    int x = 0;
+    bool reverse = d->analysis.bidiLevel % 2;
+
+    if ( reverse ) {
+	for ( int i = d->num_glyphs-1; i >= glyph_pos; i-- )
+	    x += d->advances[i].x;
+    } else {
+	for ( int i = 0; i < glyph_pos; i++ )
+	    x += d->advances[i].x;
+    }
+//     qDebug("cursorToX: cpos=%d, gpos=%d x=%d", cpos, glyph_pos, x );
+    return x;
 }
 
 int TextLayoutQt::xToCursor( ShapedItem &shaped, int x ) const
 {
+    ShapedItemPrivate *d = shaped.d;
+    bool reverse = d->analysis.bidiLevel % 2;
+    if ( x < 0 )
+	return reverse ? d->length : 0;
 
+    int cp_before;
+    int cp_after;
+    int x_before;
+    int x_after;
+
+    if ( reverse ) {
+	cp_before = d->length;
+	cp_after = d->length;
+	x_before = 0;
+	x_after = 0;
+
+	int lastCluster = d->num_glyphs;
+	for ( int i = d->length-1; i >= 0; i-- ) {
+	    int newCluster = d->logClusters[i];
+	    if ( newCluster != lastCluster ) {
+		// calculate cluster width
+		int newCluster = d->logClusters[i];
+		cp_before = cp_after;
+		x_before = x_after;
+		cp_after = i;
+		for ( int j = lastCluster-1; j >= newCluster; j-- )
+		    x_after += d->advances[j].x;
+// 		qDebug("cluster boundary: lastCluster=%d, newCluster=%d, cp_before=%d, cp_after=%d, x_before=%d, x_after=%d",
+// 		       lastCluster, newCluster, cp_before, cp_after, x_before, x_after );
+		if ( x_after > x )
+		    break;
+		lastCluster = newCluster;
+	    }
+	}
+    } else {
+	cp_before = 0;
+	cp_after = 0;
+	x_before = 0;
+	x_after = 0;
+
+	int lastCluster = 0;
+	for ( int i = 1; i <= d->length; i++ ) {
+	    int newCluster = i < d->length ? d->logClusters[i] : d->num_glyphs;
+	    if ( newCluster != lastCluster ) {
+		// calculate cluster width
+		cp_before = cp_after;
+		x_before = x_after;
+		cp_after = i;
+		for ( int j = lastCluster; j < newCluster; j++ )
+		    x_after += d->advances[j].x;
+// 		qDebug("cluster boundary: lastCluster=%d, newCluster=%d, x_before=%d, x_after=%d",
+// 		       lastCluster, newCluster, x_before, x_after );
+		if ( x_after > x )
+		    break;
+		lastCluster = newCluster;
+	    }
+	}
+    }
+
+    bool before = (x - x_before) < (x_after - x);
+//     qDebug("got cursor position for %d: %d/%d, x_ba=%d/%d using %d",
+// 	   x, cp_before,cp_after,  x_before, x_after,  before ? cp_before : cp_after );
+
+    return before ? cp_before : cp_after;
 }

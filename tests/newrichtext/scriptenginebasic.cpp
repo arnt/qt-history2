@@ -237,6 +237,7 @@ void ScriptEngineBasic::position( ShapedItem *shaped )
 	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
 	d->advances[i].x = gi.xoff;
 	d->advances[i].y = gi.yoff;
+	qDebug("setting advance of glyph %d to %d", i, gi.xoff );
     }
 
     heuristicPositionMarks( shaped );

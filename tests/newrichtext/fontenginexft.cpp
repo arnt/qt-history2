@@ -11,7 +11,7 @@
 
 #include <stdlib.h>
 
-// #define FONTENGINE_DEBUG
+#define FONTENGINE_DEBUG
 
 class HackPaintDevice : public QPaintDevice
 {
@@ -136,6 +136,11 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 	    QGlyphInfo gi = boundingBox( glyphs[i] );
 	    XftDrawString16 (draw, &col, _font, x-offsets[i].x-gi.xoff, y+offsets[i].y-gi.yoff,
 			     (XftChar16 *) (glyphs+i), 1);
+#ifdef FONTENGINE_DEBUG
+	    p->drawRect( x - offsets[i].x - gi.xoff, y + 100 + offsets[i].y - gi.yoff + gi.y, gi.width, gi.height );
+	    p->drawLine( x - offsets[i].x - gi.xoff, y + 150 + 5*i , x - offsets[i].x, y + 150 + 5*i );
+
+#endif
 	}
     } else {
 	int i = 0;
@@ -150,20 +155,22 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 	}
     }
 #ifdef FONTENGINE_DEBUG
-    x = xp;
-    y = yp;
-    p->save();
-    p->setPen( Qt::red );
-    for ( int i = 0; i < numGlyphs; i++ ) {
-	QGlyphInfo ci = boundingBox( glyphs[i] );
-	p->drawRect( x + ci.x + offsets[i].x, y + 100 + ci.y + offsets[i].y, ci.width, ci.height );
-	qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
-	       ci.xoff, ci.yoff, offsets[i].x, offsets[i].y,
-	       advances[i].x, advances[i].y);
-	x += advances[i].x;
-	y += advances[i].y;
+    if ( !reverse ) {
+	x = xp;
+	y = yp;
+	p->save();
+	p->setPen( Qt::red );
+	for ( int i = 0; i < numGlyphs; i++ ) {
+	    QGlyphInfo ci = boundingBox( glyphs[i] );
+	    p->drawRect( x + ci.x + offsets[i].x, y + 100 + ci.y + offsets[i].y, ci.width, ci.height );
+	    qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
+		   ci.xoff, ci.yoff, offsets[i].x, offsets[i].y,
+		   advances[i].x, advances[i].y);
+	    x += advances[i].x;
+	    y += advances[i].y;
+	}
+	p->restore();
     }
-    p->restore();
 #endif
 }
 

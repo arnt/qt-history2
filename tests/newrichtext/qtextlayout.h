@@ -211,7 +211,12 @@ public:
 
     // ### we need something for justification
 
-    virtual int cursorToX( ShapedItem &shaped, int cpos ) const = 0;
+    enum Edge {
+	Leading,
+	Trailing
+    };
+
+    virtual int cursorToX( ShapedItem &shaped, int cpos, Edge edge ) const = 0;
     virtual int xToCursor( ShapedItem &shaped, int x ) const = 0;
 
 //    static ScriptProperties scriptProperties( int script );
