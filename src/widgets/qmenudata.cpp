@@ -40,9 +40,10 @@ public:
     QMenuDataData();
     QGuardedPtr<QWidget> aWidget;
     int aInt;
+    int pressedItem;
 };
 QMenuDataData::QMenuDataData()
-    : aInt(-1)
+    : aInt(-1), pressedItem( -1 )
 {}
 
 // NOT REVISED

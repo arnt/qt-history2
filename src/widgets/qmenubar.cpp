@@ -40,6 +40,7 @@ public:
     QMenuDataData();
     QGuardedPtr<QWidget> aWidget;
     int aInt;
+    int pressedItem;
 };
 
 
@@ -859,6 +860,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	return;
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
+    QMenuData::d->pressedItem = popupvisible ? item : -1;
     setActiveItem( item, TRUE, FALSE );
 }
 
@@ -879,7 +881,13 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 	hidePopups();
 	return;
     }
-    setActiveItem( item, TRUE, !hasMouseTracking() );
+    bool showMenu = TRUE;
+    if ( style() == WindowsStyle && item == QMenuData::d->pressedItem )
+	showMenu = FALSE;
+    setActiveItem( item, showMenu, !hasMouseTracking() );
+    if ( !showMenu )
+	hidePopups();
+    QMenuData::d->pressedItem = -1;
 }
 
 
@@ -1037,7 +1045,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 {
     if ( i == actItem && (uint)show == popupvisible )
 	return;
-
+    
     QMenuItem* mi = 0;
     if ( i >= 0 )
 	mi = mitems->at( i );
