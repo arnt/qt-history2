@@ -199,4 +199,6 @@ inline void Moc::next(Token token, const char *msg)
         error(msg);
 }
 
+QByteArray normalizeType(const char *s, bool fixScope = false);
+
 #endif

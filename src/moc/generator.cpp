@@ -355,7 +355,7 @@ void Generator::generateFunctions(QList<FunctionDef>& list, const char *functype
                 sig += ",";
                 arguments += ",";
             }
-            sig += a.normalizedType;
+            sig += normalizeType(a.normalizedType, true); // remove scoping
             arguments += a.name;
         }
         sig += ')';

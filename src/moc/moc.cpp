@@ -20,7 +20,9 @@
 
 
 
-static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjustConst = true){
+// WARNING: a copy of this function is in qmetaobject.cpp
+static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixScope = true, bool adjustConst = true)
+{
     int len = e - t;
     if (strncmp("void", t, len) == 0)
         return QByteArray();
@@ -73,6 +75,14 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
 
     while (t != e) {
         char c = *t++;
+        if (fixScope && c == ':' && *t == ':' ) {
+            ++t;
+            c = *t++;
+            int i = result.size() - 1;
+            while (i >= 0 && is_ident_char(result.at(i)))
+                   --i;
+            result.resize(i + 1);
+        }
         result += c;
         if (c == '<') {
             //template recursion
@@ -85,7 +95,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
                 if (c == '>')
                     --templdepth;
                 if (templdepth == 0) {
-                    result += normalizeTypeInternal(tt, t-1, false);
+                    result += normalizeTypeInternal(tt, t-1, fixScope, false);
                     result += c;
                     if (*t == '>')
                         result += ' '; // avoid >>
@@ -94,11 +104,12 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
             }
         }
     }
+
     return result;
 }
 
 // only moc needs this function
-static QByteArray normalizeType(const char *s)
+QByteArray normalizeType(const char *s, bool fixScope = false)
 {
     int len = strlen(s);
     char stackbuf[64];
@@ -116,7 +127,7 @@ static QByteArray normalizeType(const char *s)
             last = *d++ = ' ';
     }
     *d = '\0';
-    QByteArray result = normalizeTypeInternal(buf, d);
+    QByteArray result = normalizeTypeInternal(buf, d, fixScope);
     if (buf != stackbuf)
         delete [] buf;
     return result;

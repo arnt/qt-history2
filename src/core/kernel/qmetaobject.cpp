@@ -657,30 +657,26 @@ bool QMetaObject::checkConnectArgs(const char *signal, const char *member)
     return false;
 }
 
-static inline bool isIdentChar(char x)
-{                                                // Avoid bug in isalnum
-    return x == '_' || (x >= '0' && x <= '9') ||
-         (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z');
-}
-
-static inline bool isSpace(char x)
+static inline bool is_ident_char(char s)
 {
-#if defined(Q_CC_BOR)
-  /*
-    Borland C++ 4.5 has a weird isspace() bug.  isspace() usually
-    works, but not here.  This implementation is sufficient for our
-    internal use.
-  */
-    return (uchar) x <= 32;
-#else
-    return isspace((uchar) x);
-#endif
+    return ((s >= 'a' && s <= 'z')
+            || (s >= 'A' && s <= 'Z')
+            || (s >= '0' && s <= '9')
+            || s == '_'
+       );
 }
 
-static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjustConst = true){
+static inline bool is_space(char s)
+{
+    return (s == ' ' || s == '\t');
+}
+
+// WARNING: a copy of this function is in moc.cpp
+static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixScope = true, bool adjustConst = true)
+{
     int len = e - t;
     if (strncmp("void", t, len) == 0)
-        return "";
+        return QByteArray();
     /*
       Convert 'char const *' into 'const char *'. Start at index 1,
       not 0, because 'const char *' is already OK.
@@ -690,7 +686,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
         if (t[i] == 'c' &&
              strncmp(t + i + 1, "onst", 4) == 0) {
             constbuf = QByteArray(t, len);
-            if (isSpace(t[i-1]))
+            if (is_space(t[i-1]))
                 constbuf.remove(i-1, 6);
             else
                 constbuf.remove(i, 5);
@@ -710,7 +706,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
         if (*(e-1) == '&') { // treat const reference as value
             t += 6;
             --e;
-        } else if (isIdentChar(*(e-1))) { // treat const value as value
+        } else if (is_ident_char(*(e-1))) { // treat const value as value
             t += 6;
         }
     }
@@ -727,8 +723,17 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
             result += "ulong";
         }
     }
+
     while (t != e) {
         char c = *t++;
+        if (fixScope && c == ':' && *t == ':' ) {
+            ++t;
+            c = *t++;
+            int i = result.size() - 1;
+            while (i >= 0 && is_ident_char(result.at(i)))
+                   --i;
+            result.resize(i + 1);
+        }
         result += c;
         if (c == '<') {
             //template recursion
@@ -741,7 +746,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
                 if (c == '>')
                     --templdepth;
                 if (templdepth == 0) {
-                    result += normalizeTypeInternal(tt, t-1, false);
+                    result += normalizeTypeInternal(tt, t-1, fixScope, false);
                     result += c;
                     if (*t == '>')
                         result += ' '; // avoid >>
@@ -750,9 +755,9 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
             }
         }
     }
+
     return result;
 }
-
 
 /*!
     Normalizes the signature of the given \a member.
@@ -775,14 +780,14 @@ QByteArray QMetaObject::normalizedSignature(const char *member)
     char *buf = (len >= 64 ? new char[len+1] : stackbuf);
     char *d = buf;
     char last = 0;
-    while(*s && isSpace(*s))
+    while(*s && is_space(*s))
         s++;
     while (*s) {
-        while (*s && !isSpace(*s))
+        while (*s && !is_space(*s))
             last = *d++ = *s++;
-        while (*s && isSpace(*s))
+        while (*s && is_space(*s))
             s++;
-        if (*s && isIdentChar(*s) && isIdentChar(last))
+        if (*s && is_ident_char(*s) && is_ident_char(last))
             last = *d++ = ' ';
     }
     *d = '\0';
