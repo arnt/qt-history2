@@ -1221,6 +1221,11 @@ bool QAxBase::initializeActive(IUnknown** ptr)
     return *ptr != 0;
 }
 
+#ifdef Q_CC_GNU
+#   ifndef OLEPENDER_NONE
+#   define OLERENDER_NONE 0
+#   endif
+#endif
 /*!
     Creates the COM object handling the filename in the control property, and
     returns the IUnknown interface to the object in \a ptr. This function returns
@@ -1238,7 +1243,7 @@ bool QAxBase::initializeFromFile(IUnknown** ptr)
     HRESULT hres = ::CreateILockBytesOnHGlobal(0, TRUE, &bytes);
     hres = ::StgCreateDocfileOnILockBytes(bytes, STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &storage);
 
-    hres = OleCreateFromFile(CLSID_NULL, control().utf16(), IID_IUnknown, OLERENDER_NONE, 0, 0, storage, (void**)ptr);
+    hres = OleCreateFromFile(CLSID_NULL, reinterpret_cast<const wchar_t*>(control().utf16()), IID_IUnknown, OLERENDER_NONE, 0, 0, storage, (void**)ptr);
 
     storage->Release();
     bytes->Release();
@@ -2686,7 +2691,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
     int_data_size += slot_list.count() * 5;
     int_data_size += property_list.count() * 3;
     int_data_size += enum_list.count() * 4;
-    for (QMap<QString, QList<QPair<QString, int> > >::ConstIterator it = enum_list.begin();
+    for (QMap<QByteArray, QList<QPair<QByteArray, int> > >::ConstIterator it = enum_list.begin();
     it != enum_list.end(); ++it) {
         int_data_size += (*it).count() * 2;
     }
@@ -2706,7 +2711,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
 
     char null('\0');
     // data + zero-terminator
-    QByteArray stringdata = that ? that->className() : className;
+    QByteArray stringdata = that ? QByteArray(that->className()) : className;
     stringdata += null;
     stringdata.reserve(8192);
 

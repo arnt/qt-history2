@@ -41,6 +41,28 @@
 #define AX_DEBUG(x);
 #endif
 
+// missing interface from win32api
+#if defined(Q_CC_GNU) 
+#   if !defined(IOleInPlaceObjectWindowless)
+#       undef INTERFACE
+#       define INTERFACE IOleInPlaceObjectWindowless
+        DECLARE_INTERFACE_(IOleInPlaceObjectWindowless,IOleInPlaceObject)
+        {
+	   STDMETHOD(QueryInterface)(THIS_ REFIID,PVOID*) PURE;
+	   STDMETHOD_(ULONG,AddRef)(THIS) PURE;
+	   STDMETHOD_(ULONG,Release)(THIS) PURE;
+	   STDMETHOD(GetWindow)(THIS_ HWND*) PURE;
+	   STDMETHOD(ContextSensitiveHelp)(THIS_ BOOL) PURE;
+	   STDMETHOD(InPlaceDeactivate)(THIS) PURE;
+	   STDMETHOD(UIDeactivate)(THIS) PURE;
+	   STDMETHOD(SetObjectRects)(THIS_ LPCRECT,LPCRECT) PURE;
+	   STDMETHOD(ReactivateAndUndo)(THIS) PURE;
+           STDMETHOD(OnWindowMessage)(THIS_ UINT, WPARAM, LPARAM, LRESULT*) PURE;
+           STDMETHOD(GetDropTarget)(THIS_ IDropTarget**) PURE;
+        };
+#   endif
+#endif
+
 #include "../shared/types.h"
 
 static QAbstractEventDispatcher::EventFilter previous_filter = 0;
@@ -290,6 +312,14 @@ public:
     {
         return S_OK;
     }
+#ifdef Q_CC_GNU // signature incorrect in win32api
+    STDMETHOD(AdjustRect)(LPCRECT /*prc*/)
+    {
+        RECT rect;
+        return AdjustRect(&rect);
+    }
+#endif
+
     STDMETHOD(OnDefWindowMessage)(UINT /*msg*/, WPARAM /*wPara*/, LPARAM /*lParam*/, LRESULT* /*plResult*/)
     {
         return S_FALSE;
@@ -1827,6 +1857,8 @@ void QAxWidget::changeEvent(QEvent *e)
         break;
     case QEvent::ActivationChange:
         container->windowActivationChange();
+        break;
+    default:
         break;
     }
 }
