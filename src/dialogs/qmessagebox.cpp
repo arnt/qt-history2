@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#53 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#54 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#54 $");
 
 
 // Message box icons, from page 210 of the Windows style guide.
@@ -282,6 +282,8 @@ static const unsigned char critical_gif_data[] = {
   setButtonText() and buttonText() provide access to the buttons.
 
   QMessageBox has no signals or slots.
+
+  <img src=qmsgbox-m.gif> <img src=qmsgbox-w.gif>
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#18 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#19 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -16,7 +16,7 @@
 #include "qdatetm.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#19 $");
 
 
 // If the operation is expected to take this long (as predicted by
@@ -89,11 +89,23 @@ struct QProgressData
 */
 
 
+/*!
+  Returns the QLabel currently being displayed above the progress bar.
+  Note that this QLabel remains owned by the QProgressDialog.
+
+  \sa setLabel()
+*/
 QLabel *QProgressDialog::label() const
 {
     return d->label;
 }
 
+/*!
+  Returns the QProgressBar currently being used to displayed progress.
+  Note that this QProgressBar remains owned by the QProgressDialog.
+
+  \sa setBar()
+*/
 QProgressBar *QProgressDialog::bar() const
 {
     return d->bar;
