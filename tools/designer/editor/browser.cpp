@@ -90,7 +90,18 @@ void EditorBrowser::addEditor( Editor *e )
     e->installEventFilter( this );
 }
 
-bool EditorBrowser::findCursor( const QTextCursor &, QTextCursor &, QTextCursor & )
+bool EditorBrowser::findCursor( const QTextCursor &c, QTextCursor &from, QTextCursor &to )
 {
-    return FALSE;
+    from = c;
+    while ( from.parag()->at( from.index() )->c != ' ' && from.parag()->at( from.index() )->c != '\t'  && from.index() > 0 )
+	from.gotoLeft();
+    if ( from.parag()->at( from.index() )->c == ' ' || from.parag()->at( from.index() )->c == '\t' )
+	from.gotoRight();
+    to = c;
+    while ( to.parag()->at( to.index() )->c != ' ' && to.parag()->at( to.index() )->c != '\t' &&
+	    to.index() < to.parag()->length() - 1 )
+	to.gotoRight();
+    if ( to.parag()->at( to.index() )->c == ' ' || to.parag()->at( to.index() )->c == '\t' )
+	to.gotoLeft();
+    return TRUE;
 }

@@ -9,7 +9,6 @@ class CppEditorBrowser : public EditorBrowser
 
 public:
     CppEditorBrowser( Editor *e );
-    bool findCursor( const QTextCursor &c, QTextCursor &from, QTextCursor &to );
     void showHelp( const QString &word );
 
 };
