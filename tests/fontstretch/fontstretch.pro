@@ -6,6 +6,6 @@ TEMPLATE = app
 INCLUDEPATH += .
 
 # Input
-INTERFACES += form1.ui
+INTERFACES += form1.ui form2.ui
 SOURCES += main.cpp
 CONFIG += qt warn_on debug
