@@ -34,6 +34,8 @@
 # endif
 #endif // QT_NO_STL
 
+typedef std::basic_string<wchar_t> QStdWString;
+
 #include <stdarg.h>
 
 // POSIX defines truncate to truncate64
@@ -355,8 +357,8 @@ public:
 #ifndef QT_NO_STL
     inline explicit QString(const std::string &s);
     inline std::string toStdString() const;
-    inline explicit QString(const std::wstring &s);
-    inline std::wstring toStdWString() const;
+    inline explicit QString(const QStdWString &s);
+    inline QStdWString toStdWString() const;
 #endif
 
     // compatibility
@@ -777,14 +779,14 @@ inline QString::QString(const std::string &s)
     ++d->ref;
     *this = fromAscii(s.c_str());
 }
-inline std::wstring QString::toStdWString() const
+inline QStdWString QString::toStdWString() const
 {
-    std::wstring str;
+    QStdWString str;
     str.resize(length());
     str.resize(toWCharArray(&(*str.begin())));
     return str;
 }
-inline QString::QString(const std::wstring &s)
+inline QString::QString(const QStdWString &s)
     : d(&shared_null)
 {
     ++d->ref;
