@@ -16,7 +16,7 @@ where you choose to install Qt.
 
     Rename qt-%VERSION% to qt (or make a symlink):
 
-	mv qt-%VERSION% qt
+	mv %DISTDIR% qt
 
     The rest of this file assumes that Qt is installed in /usr/local/qt.
 
