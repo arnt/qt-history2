@@ -15,7 +15,6 @@
 #include "formwindow.h"
 #include "view3d.h"
 
-#define FORM_LIST_ID 1
 #define SELECTION_BUFSIZE 512
 
 /*******************************************************************************
@@ -39,7 +38,7 @@ public:
     void endAddingWidgets();
 
     QWidget *widgetAt(const QPoint &pos);
-    
+
 signals:
     void updateForm();
 
@@ -52,19 +51,24 @@ protected:
 
 private:
     QWidget *m_form;
-    QPoint oldPos;
-    bool layerColoring;
+    QPoint m_old_pos;
+    bool m_layer_coloring;
+    bool m_use_mipmaps;
+    GLuint m_form_list_id;
 
     typedef QMap<QWidget*, GLuint> TextureMap;
     TextureMap m_texture_map;
-    
+
     typedef QMap<GLuint, QWidget*> WidgetNameMap;
     GLuint m_next_widget_name;
     WidgetNameMap m_widget_name_map;
 };
 
 View3DWidget::View3DWidget(QWidget *parent)
-    : QGLWidget(parent), layerColoring(true), m_next_widget_name(0)
+    : QGLWidget(parent)
+    , m_layer_coloring(true)
+    , m_form_list_id(0)
+    , m_next_widget_name(0)
 {
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -99,6 +103,15 @@ void View3DWidget::addTexture(QWidget *w, const QPixmap &pm)
     GLuint tx_id;
     glGenTextures(1, &tx_id);
     glBindTexture(GL_TEXTURE_2D, tx_id);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    if (m_use_mipmaps) {
+        glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.f);
+    } else {
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex.width(), tex.height(), 0, GL_RGBA,
                 GL_UNSIGNED_BYTE, tex.bits());
     m_texture_map[w] = tx_id;
@@ -108,32 +121,31 @@ void View3DWidget::addWidget(int depth, QWidget *widget)
 {
     TextureMap::const_iterator it = m_texture_map.find(widget);
     Q_ASSERT(it != m_texture_map.end());
-    glBindTexture(GL_TEXTURE_2D, *it);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // GL_LINEAR_MIPMAP_LINEAR should be used
 
-    QRect geometry = widget->geometry();
+    makeCurrent();
+
     int w = m_form->size().width();
     int h = m_form->size().height();
     int max = qMax(w, h);
-    QRect r = widget->geometry();
+    QRect r = widget->rect();
     QPoint pos = widget->mapToGlobal(QPoint(0, 0));
     r.moveTopLeft(m_form->mapFromGlobal(pos));
 
     float s = r.width()/float(nearestSize(r.width()));
     float t = r.height()/float(nearestSize(r.height()));
 
-    if (layerColoring)
-        glColor4f(1.0 - depth/10.0, 1.0 - depth/10.0, 1.0, 1.0 - depth/20.0); //
+    if (m_layer_coloring)
+        glColor4f(1.0 - depth/10.0, 1.0 - depth/10.0, 1.0, 1.0 - depth/20.0);
     else
         glColor4f(1.0, 1.0, 1.0, 1.0);
 
+    glBindTexture(GL_TEXTURE_2D, *it);
     glBegin(GL_QUADS);
     glLoadName(m_next_widget_name);
     glTexCoord2f(0.0, 0.0); glVertex3f(r.left() - w/2, r.bottom() - h/2, depth*max/8);
-    glTexCoord2f(0.0, t);   glVertex3f(r.left() - w/2, r.top() - h/2, depth*max/8);
-    glTexCoord2f(s, t);     glVertex3f(r.right() - w/2, r.top() - h/2, depth*max/8);
     glTexCoord2f(s, 0.0);   glVertex3f(r.right() - w/2, r.bottom()- h/2, depth*max/8);
+    glTexCoord2f(s, t);     glVertex3f(r.right() - w/2, r.top() - h/2, depth*max/8);
+    glTexCoord2f(0.0, t);   glVertex3f(r.left() - w/2, r.top() - h/2, depth*max/8);
     glEnd();
 
     m_widget_name_map[m_next_widget_name++] = widget;
@@ -141,7 +153,8 @@ void View3DWidget::addWidget(int depth, QWidget *widget)
 
 void View3DWidget::clear()
 {
-    glDeleteLists(FORM_LIST_ID, 1);
+    makeCurrent();
+    glDeleteLists(m_form_list_id, 1);
     foreach (GLuint id, m_texture_map)
         glDeleteTextures(1, &id);
     m_texture_map.clear();
@@ -151,8 +164,10 @@ void View3DWidget::clear()
 
 void View3DWidget::beginAddingWidgets(QWidget *form)
 {
+    makeCurrent();
     m_form = form;
-    glNewList(FORM_LIST_ID, GL_COMPILE);
+    m_form_list_id = glGenLists(1);
+    glNewList(m_form_list_id, GL_COMPILE);
     glInitNames();
     glPushName(-1);
     m_next_widget_name = 0;
@@ -160,6 +175,7 @@ void View3DWidget::beginAddingWidgets(QWidget *form)
 
 void View3DWidget::endAddingWidgets()
 {
+    makeCurrent();
     glEndList();
 }
 
@@ -175,14 +191,16 @@ void View3DWidget::initializeGL()
 
     glShadeModel(GL_FLAT);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
+    m_use_mipmaps = extensions.contains("GL_SGIS_generate_mipmap");
 }
 
-void View3DWidget::resizeGL(int w, int h)
+void View3DWidget::resizeGL(int width, int height)
 {
-    glViewport(0, 0, (GLint)w, (GLint)h);
+    glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-width()/2, width()/2, height()/2, -height()/2, -999999, 999999);
+    glOrtho(-width/2, width/2, height/2, -height/2, -999999, 999999);
 }
 
 void View3DWidget::paintGL()
@@ -192,45 +210,52 @@ void View3DWidget::paintGL()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glCallList(FORM_LIST_ID);
+    glCallList(m_form_list_id);
 
-    glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
+    glPushAttrib(GL_ENABLE_BIT);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
     glTranslatef(-width()/2, -height()/2, 0.0);
-    glColor4f(1.0, 1.0, 1.0, 0.4);
-    glRecti(0, height() - 35, width(), height());
-    glColor4f(0.0, 0.0, 0.0, 1.0);
-    renderText(10, height() - 35 + 15, "Press and hold left/right mouse button to tilt the view.");
-    renderText(10, height() - 35 + 15*2, "Use the mouse wheel to zoom in/out. Press 't' to toggle layer coloring.");
+
+    QFontMetrics fm(font());
+    glColor4f(0.4, 0.4, 0.4, 0.7);
+    glRecti(0, height() - fm.lineSpacing()*2.5, width(), height());
+
+    glColor3f(1.0, 1.0, 1.0);
+    renderText(10, height() - fm.lineSpacing()*1.5,
+               "Press and hold left/right mouse button = tilt the view.");
+    renderText(10, height() - fm.lineSpacing()*0.5,
+               "Mouse wheel = zoom. 't' = toggle layer coloring. 'r' = reset transform.");
     glPopMatrix();
     glPopAttrib();
 }
 
 QWidget *View3DWidget::widgetAt(const QPoint &pos)
 {
+    makeCurrent();
     GLuint selectBuf[SELECTION_BUFSIZE];
     glSelectBuffer(SELECTION_BUFSIZE, selectBuf);
     glRenderMode (GL_SELECT);
-    
+
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    
-    glCallList(FORM_LIST_ID);
 
-    
+    glCallList(m_form_list_id);
+    return 0;
 }
 
 void View3DWidget::keyReleaseEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_T) {
-        layerColoring = !layerColoring;
+        m_layer_coloring = !m_layer_coloring;
         emit updateForm();
     } else if (e->key() == Qt::Key_R) {
+        makeCurrent();
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
     }
@@ -240,22 +265,20 @@ void View3DWidget::keyReleaseEvent(QKeyEvent *e)
 
 void View3DWidget::mousePressEvent(QMouseEvent *e)
 {
-    oldPos = e->pos();
-    
-    qDebug() << "View3DWidget::mousePressEvent():" << widgetAt(e->pos());
+    m_old_pos = e->pos();
 }
 
 void View3DWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-    oldPos = e->pos();
+    m_old_pos = e->pos();
 }
 
 void View3DWidget::mouseMoveEvent(QMouseEvent *e)
 {
     if (e->buttons() & (Qt::LeftButton | Qt::RightButton)) {
-        GLfloat rx = (GLfloat) (e->x() - oldPos.x()) / width();
-        GLfloat ry = (GLfloat) (e->y() - oldPos.y()) / height();
-    
+        GLfloat rx = (GLfloat) (e->x() - m_old_pos.x()) / width();
+        GLfloat ry = (GLfloat) (e->y() - m_old_pos.y()) / height();
+
         makeCurrent();
         glMatrixMode(GL_MODELVIEW);
         if (e->buttons() & Qt::LeftButton) {
@@ -268,9 +291,9 @@ void View3DWidget::mouseMoveEvent(QMouseEvent *e)
             glRotatef(-180*rx, 0, 0, 1);
         }
         updateGL();
-        oldPos = e->pos();
+        m_old_pos = e->pos();
     } else {
-        
+
     }
 }
 
@@ -302,7 +325,7 @@ static bool skipWidget(AbstractFormEditor *core, QWidget *widget)
     QString name = widget->metaObject()->className();
     if (name == "QLayoutWidget")
         return true;
-    
+
     return false;
 }
 
@@ -312,10 +335,10 @@ static void walkWidgetTree(AbstractFormEditor *core, int depth, QWidget *widget,
         return;
     if (!widget->isVisible())
         return;
-    
+
     if (!skipWidget(core, widget))
         func(depth++, widget);
-        
+
     QObjectList child_obj_list = widget->children();
     foreach (QObject *child_obj, child_obj_list) {
         QWidget *child = qt_cast<QWidget*>(child_obj);
@@ -376,7 +399,7 @@ static QPixmap grabWidget(QWidget * widget, AbstractFormEditor *core)
 
 struct AddTexture : public WalkWidgetTreeFunction
 {
-    inline AddTexture(AbstractFormEditor *core, View3DWidget *w) 
+    inline AddTexture(AbstractFormEditor *core, View3DWidget *w)
         : m_core(core), m_3d_widget(w) {}
     inline virtual void operator ()(int, QWidget *w) const
         { m_3d_widget->addTexture(w, ::grabWidget(w, m_core).toImage()); }
