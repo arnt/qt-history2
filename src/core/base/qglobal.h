@@ -1471,7 +1471,7 @@ public:
 };
 
 
-#define Q_NO_TYPESAFE_FLAGS
+//#define Q_NO_TYPESAFE_FLAGS
 
 #ifndef Q_NO_TYPESAFE_FLAGS
 
