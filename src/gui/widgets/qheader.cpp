@@ -12,17 +12,18 @@
 **
 ****************************************************************************/
 
-#include "qevent.h"
 #include "qheader.h"
 #ifndef QT_NO_HEADER
 #include "qapplication.h"
-#include "qcursor.h"
 #include "qbitarray.h"
+#include "qcursor.h"
 #include "qdrawutil.h"
-#include "qvector.h"
+#include "qevent.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
+#include "qvector.h"
 
 class QHeaderData
 {
@@ -112,6 +113,18 @@ public:
     }
 };
 
+static Q4StyleOptionHeader getStyleOption(const QHeader *header, int section)
+{
+    Q4StyleOptionHeader opt(0);
+    opt.init(header);
+    opt.section = section;
+    if (header->iconSet(section))
+        opt.icon = *header->iconSet(section);
+    opt.text = header->label(section);
+    if (header->orientation() == Qt::Horizontal)
+        opt.state = QStyle::Style_Horizontal;
+    return opt;
+}
 
 /*!
     \class QHeader qheader.h
@@ -1226,8 +1239,9 @@ QSize QHeader::sizeHint() const
         for (int i = 0; i < count(); i++)
             height += d->sizes[i];
     }
-    return (style().sizeFromContents(QStyle::CT_Header, this,
-                                     QSize(width, height)).expandedTo(QApplication::globalStrut()));
+    Q4StyleOptionHeader opt = getStyleOption(this, 0);
+    return style().sizeFromContents(QStyle::CT_Header, &opt, QSize(width, height), fm,
+                                    this).expandedTo(QApplication::globalStrut());
 }
 
 /*!
@@ -1425,49 +1439,43 @@ void QHeader::setClickEnabled(bool enable, int section)
 void QHeader::paintSection(QPainter *p, int index, const QRect& fr)
 {
     int section = mapToSection(index);
+    Q4StyleOptionHeader opt = getStyleOption(this, section);
+    opt.state |= QStyle::Style_Raised;
+    opt.rect = fr;
 
     if (section < 0) {
-        style().drawPrimitive(QStyle::PE_HeaderSection, p, fr,
-                               palette(), QStyle::Style_Raised |
-                               (isEnabled() ? QStyle::Style_Enabled : 0) |
-                               (orient == Horizontal ? QStyle::Style_Horizontal : 0),
-                               QStyleOption(this));
+        style().drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
         return;
     }
 
     if (sectionSize(section) <= 0)
         return;
 
-    QStyle::SFlags flags = (orient == Horizontal ? QStyle::Style_Horizontal : 0);
+    opt.state = (orient == Horizontal ? QStyle::Style_Horizontal : QStyle::Style_Default);
     //pass in some hint about the sort indicator if it is used
-    if(d->sortSection != section)
-        flags |= QStyle::Style_Off;
-    else if(!d->sortDirection)
-        flags |= QStyle::Style_Up;
-    if(isEnabled())
-        flags |= QStyle::Style_Enabled;
-    if(isClickEnabled(section)) {
-        if(index == oldHandleIdx)
-            flags |= QStyle::Style_Sunken; //currently selected
-        if((state == Pressed || state == Moving) && index == handleIdx)
-            flags |= QStyle::Style_Down; //currently pressed
+    if (d->sortSection != section)
+        opt.state |= QStyle::Style_Off;
+    else if (!d->sortDirection)
+        opt.state |= QStyle::Style_Up;
+    if (isEnabled())
+        opt.state |= QStyle::Style_Enabled;
+    if (isClickEnabled(section)) {
+        if (index == oldHandleIdx)
+            opt.state |= QStyle::Style_Sunken; //currently selected
+        if ((state == Pressed || state == Moving) && index == handleIdx)
+            opt.state |= QStyle::Style_Down; //currently pressed
     }
-    if(!(flags & QStyle::Style_Down))
-        flags |= QStyle::Style_Raised;
+    if(!(opt.state & QStyle::Style_Down))
+        opt.state |= QStyle::Style_Raised;
     p->setBrushOrigin(fr.topLeft());
     if (d->clicks[section]) {
-        style().drawPrimitive(QStyle::PE_HeaderSection, p, fr,
-                               palette(), flags,
-                               QStyleOption(this));
+        style().drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
     } else {
         p->save();
         p->setClipRect(fr); // hack to keep styles working
-        if (orientation() == Horizontal) {
-            style().drawPrimitive(QStyle::PE_HeaderSection, p,
-                                   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
-                                   palette(), flags,
-                                   QStyleOption(this));
-
+        opt.rect.setRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4);
+        style().drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
+        if (orient == Horizontal) {
             p->setPen(palette().color(QPalette::Mid));
             p->drawLine(fr.x(), fr.y() + fr.height() - 1,
                          fr.x() + fr.width() - 1, fr.y() + fr.height() - 1);
@@ -1484,11 +1492,6 @@ void QHeader::paintSection(QPainter *p, int index, const QRect& fr)
                              fr.x() + fr.width() - 2, fr.y() + fr.height() - 1);
             }
         } else {
-            style().drawPrimitive(QStyle::PE_HeaderSection, p,
-                                   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
-                                   palette(), flags,
-                                   QStyleOption(this));
-
             p->setPen(palette().color(QPalette::Mid));
             p->drawLine(fr.x() + width() - 1, fr.y(),
                          fr.x() + fr.width() - 1, fr.y() + fr.height() - 1);
@@ -1525,21 +1528,20 @@ void QHeader::paintSectionLabel(QPainter *p, int index, const QRect& fr)
         return;
 
     int dx = 0, dy = 0;
-    QStyle::SFlags flags = QStyle::Style_Default;
+    Q4StyleOptionHeader opt = getStyleOption(this, section);
     if (index == handleIdx && (state == Pressed || state == Moving)) {
         dx = style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, this);
         dy = style().pixelMetric(QStyle::PM_ButtonShiftVertical, this);
-        flags |= QStyle::Style_Sunken;
+        opt.state |= QStyle::Style_Sunken;
     }
     if (isEnabled())
-        flags |= QStyle::Style_Enabled;
+        opt.state |= QStyle::Style_Enabled;
 
 
-    QRect r(fr.x() + style().pixelMetric(QStyle::PM_HeaderMargin) + dx, fr.y() + 2 + dy,
-             fr.width() - 6, fr.height() - 4);
+    opt.rect.setRect(fr.x() + style().pixelMetric(QStyle::PM_HeaderMargin) + dx, fr.y() + 2 + dy,
+                     fr.width() - 6, fr.height() - 4);
 
-    style().drawControl(QStyle::CE_HeaderLabel, p, this, r, palette(), flags,
-                         QStyleOption(section));
+    style().drawControl(QStyle::CE_HeaderLabel, &opt, p, this);
 
     int arrowWidth = (orient == Qt::Horizontal ? height() : width()) / 2;
     int arrowHeight = fr.height() - 6;
@@ -1554,16 +1556,15 @@ void QHeader::paintSectionLabel(QPainter *p, int index, const QRect& fr)
             tw = fr.width() - tw;
             ew = fr.width() - ew - tw;
         }
-        QStyle::SFlags flags = QStyle::Style_Default;
+        opt.state = QStyle::Style_Default;
         if (isEnabled())
-            flags |= QStyle::Style_Enabled;
+            opt.state |= QStyle::Style_Enabled;
         if (d->sortDirection)
-            flags |= QStyle::Style_Down;
+            opt.state |= QStyle::Style_Down;
         else
-            flags |= QStyle::Style_Up;
-        style().drawPrimitive(QStyle::PE_HeaderArrow, p,
-                               QRect(fr.x() + tw - arrowWidth - 6 + ew, 4, arrowWidth, arrowHeight),
-                               palette(), flags, QStyleOption(this));
+            opt.state |= QStyle::Style_Up;
+        opt.rect.setRect(fr.x() + tw - arrowWidth - 6 + ew, 4, arrowWidth, arrowHeight);
+        style().drawPrimitive(QStyle::PE_HeaderArrow, &opt, p, this);
     }
 }
 
@@ -1602,9 +1603,11 @@ void QHeader::paintEvent(QPaintEvent *e)
                 if (i < count() || d->clicks[mapToSection(count() - 1)])
                     paintSection(&p, i, r);
                 if (hasFocus() && d->focusIdx == i) {
-                    QRect fr(r.x()+2, r.y()+2, r.width()-4, r.height()-4);
-                    style().drawPrimitive(QStyle::PE_FocusRect, &p, fr,
-                                           palette());
+                    Q4StyleOptionFocusRect opt(0);
+                    opt.rect.setRect(r.x()+2, r.y()+2, r.width()-4, r.height()-4);
+                    opt.palette = palette();
+                    opt.state = QStyle::Style_Default;
+                    style().drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
                 }
                 if (orient == Horizontal && r. right() >= e->rect().right() ||
                      orient == Vertical && r. bottom() >= e->rect().bottom())

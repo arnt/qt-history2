@@ -146,29 +146,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
     activePainter = p;
 
     switch (pe) {
-    case PE_HeaderArrow:
-        p->save();
-        if (flags & Style_Down) {
-            QPointArray pa(3);
-            p->setPen(pal.light());
-            p->drawLine(r.x() + r.width(), r.y(), r.x() + r.width() / 2, r.height());
-            p->setPen(pal.dark());
-            pa.setPoint(0, r.x() + r.width() / 2, r.height());
-            pa.setPoint(1, r.x(), r.y());
-            pa.setPoint(2, r.x() + r.width(), r.y());
-            p->drawPolyline(pa);
-        } else {
-            QPointArray pa(3);
-            p->setPen(pal.light());
-            pa.setPoint(0, r.x(), r.height());
-            pa.setPoint(1, r.x() + r.width(), r.height());
-            pa.setPoint(2, r.x() + r.width() / 2, r.y());
-            p->drawPolyline(pa);
-            p->setPen(pal.dark());
-            p->drawLine(r.x(), r.height(), r.x() + r.width() / 2, r.y());
-        }
-        p->restore();
-        break;
 
     case PE_SpinWidgetPlus:
     case PE_SpinWidgetMinus: {
@@ -638,6 +615,30 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
     case PE_StatusBarSection:
         qDrawShadeRect(p, opt->rect, opt->palette, true, 1, 0, 0);
         break;
+    case PE_HeaderArrow: {
+        QPen oldPen = p->pen();
+        if (opt->state & Style_Down) {
+            QPointArray pa(3);
+            p->setPen(opt->palette.light());
+            p->drawLine(opt->rect.x() + opt->rect.width(), opt->rect.y(),
+                        opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
+            p->setPen(opt->palette.dark());
+            pa.setPoint(0, opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
+            pa.setPoint(1, opt->rect.x(), opt->rect.y());
+            pa.setPoint(2, opt->rect.x() + opt->rect.width(), opt->rect.y());
+            p->drawPolyline(pa);
+        } else {
+            QPointArray pa(3);
+            p->setPen(opt->palette.light());
+            pa.setPoint(0, opt->rect.x(), opt->rect.height());
+            pa.setPoint(1, opt->rect.x() + opt->rect.width(), opt->rect.height());
+            pa.setPoint(2, opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
+            p->drawPolyline(pa);
+            p->setPen(opt->palette.dark());
+            p->drawLine(opt->rect.x(), opt->rect.height(), opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
+        }
+        p->setPen(oldPen);
+        break; }
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }
@@ -1113,33 +1114,6 @@ void QCommonStyle::drawControl(ControlElement element,
             break;
         }
 #endif // QT_NO_TOOLBUTTON
-#ifndef QT_NO_HEADER
-        case CE_HeaderLabel:
-        {
-            QRect rect = r;
-            const QHeader* header = (const QHeader *) widget;
-            int section = opt.headerSection();
-
-            QIconSet* icon = header->iconSet(section);
-            if (icon) {
-                QPixmap pixmap = icon->pixmap(QIconSet::Small,
-                                               flags & Style_Enabled ?
-                                               QIconSet::Normal : QIconSet::Disabled);
-                int pixw = pixmap.width();
-                int pixh = pixmap.height();
-                // "pixh - 1" because of tricky integer division
-
-                QRect pixRect = rect;
-                pixRect.setY(rect.center().y() - (pixh - 1) / 2);
-                drawItem (p, pixRect, AlignVCenter, pal,
-                           (flags & Style_Enabled) || !icon->isGenerated(QIconSet::Small, QIconSet::Disabled), pixmap);
-                rect.setLeft(rect.left() + pixw + 2);
-            }
-
-            drawItem (p, rect, AlignVCenter, pal, flags & Style_Enabled,
-                       header->label(section), -1, &(pal.buttonText().color()));
-        }
-#endif // QT_NO_HEADER
     default:
         break;
     }
@@ -1345,6 +1319,29 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
                     drawPrimitive(PE_ProgressBarChunk, &pbBits, p, widget);
                 }
             }
+        }
+        break;
+    case CE_HeaderLabel:
+        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+            QRect rect = header->rect;
+            if (!header->icon.isNull()) {
+                QPixmap pixmap
+                    = header->icon.pixmap(QIconSet::Small,
+                                          header->state & Style_Enabled ? QIconSet::Normal
+                                                                        : QIconSet::Disabled);
+                int pixw = pixmap.width();
+                int pixh = pixmap.height();
+                // "pixh - 1" because of tricky integer division
+
+                QRect pixRect = rect;
+                pixRect.setY(rect.center().y() - (pixh - 1) / 2);
+                drawItem(p, pixRect, AlignVCenter, header->palette, (header->state & Style_Enabled)
+                         || !header->icon.isGenerated(QIconSet::Small, QIconSet::Disabled), pixmap);
+                rect.setLeft(rect.left() + pixw + 2);
+            }
+
+            drawItem(p, rect, AlignVCenter, header->palette, header->state & Style_Enabled,
+                     header->text, -1, &(header->palette.buttonText().color()));
         }
         break;
     default:

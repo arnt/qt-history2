@@ -501,46 +501,6 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         HIThemeDrawTabPane(qt_glb_mac_rect(r, p), &tpdi, static_cast<CGContextRef>(p->handle()),
                            kHIThemeOrientationNormal);
         break; }
-    case PE_HeaderArrow: {
-        QWidget *w = qt_abuse_painter_for_widget(p);
-        if (w && w->inherits("QTable"))
-            drawPrimitive(flags & Style_Up ? PE_ArrowUp : PE_ArrowDown, p, r, pal, flags, opt);
-        // ListView header is taken care of.
-        break; }
-    case PE_HeaderSection: {
-        QWidget *w = qt_abuse_painter_for_widget(p);
-        HIThemeButtonDrawInfo bdi;
-        bdi.version = qt_mac_hitheme_version;
-        bdi.state = tds;
-        // This will have to go, but it keeps us in parity with the current state of
-        // affairs with table header.
-        if (w && w->parentWidget()->inherits("QTable")) {
-            bdi.kind = kThemeBevelButton;
-            if (p->font().bold())
-                flags |= Style_Sunken;
-            else
-                flags &= ~Style_Sunken;
-        } else {
-            bdi.kind = kThemeListHeaderButton;
-        }
-        if (flags & Style_Sunken)
-            bdi.value = kThemeButtonOn;
-        else
-            bdi.value = kThemeButtonOff;
-
-        bdi.adornment = kThemeAdornmentNone;
-
-        QRect ir = r;
-        if (flags & Style_Off)
-            ir.setRight(ir.right() + 50);  // Cheat to hide the down indicator.
-        else if (flags & Style_Up)
-            bdi.adornment = kThemeAdornmentHeaderButtonSortUp;
-
-        if (flags & Style_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
-            bdi.adornment = kThemeAdornmentFocus;
-        HIThemeDrawButton(qt_glb_mac_rect(ir, p), &bdi, static_cast<CGContextRef>(p->handle()),
-                          kHIThemeOrientationNormal, 0);
-        break; }
     case PE_PanelGroupBox: {
         if (opt.isDefault())
             break;
@@ -1524,6 +1484,48 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         HIThemeDrawGrowBox(&pt, &gdi, static_cast<CGContextRef>(p->handle()),
                            kHIThemeOrientationNormal);
         break; }
+    case PE_HeaderArrow:
+        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+            if (w && w->inherits("QTable"))
+                drawPrimitive(header->state & Style_Up ? PE_ArrowUp : PE_ArrowDown, header, p, w);
+            // ListView header is taken care of.
+        }
+        break;
+    case PE_HeaderSection:
+        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+            HIThemeButtonDrawInfo bdi;
+            bdi.version = qt_mac_hitheme_version;
+            bdi.state = tds;
+            SFlags flags = header->state;
+            if (w && w->parentWidget()->inherits("QTable")) {
+                bdi.kind = kThemeBevelButton;
+                if (p->font().bold())
+                    flags |= Style_Sunken;
+                else
+                    flags &= ~Style_Sunken;
+            } else {
+                bdi.kind = kThemeListHeaderButton;
+            }
+            if (flags & Style_Sunken)
+                bdi.value = kThemeButtonOn;
+            else
+                bdi.value = kThemeButtonOff;
+
+            bdi.adornment = kThemeAdornmentNone;
+
+            QRect ir = header->rect;
+            if (flags & Style_Off)
+                ir.setRight(ir.right() + 50);  // Cheat to hide the down indicator.
+            else if (flags & Style_Up)
+                bdi.adornment = kThemeAdornmentHeaderButtonSortUp;
+
+            if (flags & Style_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+                bdi.adornment = kThemeAdornmentFocus;
+            HIRect hirect = qt_hirectForQRect(ir, p);
+            HIThemeDrawButton(&hirect, &bdi, static_cast<CGContextRef>(p->handle()),
+                              kHIThemeOrientationNormal, 0);
+        }
+        break;
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
     }
@@ -1534,270 +1536,294 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
     switch (ce) {
-        case CE_PushButton:
-            if (const Q4StyleOptionButton *btn = ::qt_cast<const Q4StyleOptionButton *>(opt)) {
-                if (!(btn->state & (Style_Raised | Style_Down | Style_On)))
-                    break;
-                HIThemeButtonDrawInfo bdi;
-                bdi.version = qt_mac_hitheme_version;
-                if (btn->state & (Style_On | Style_Down))
-                    bdi.state = kThemeStatePressed;
-                else
-                    bdi.state = kThemeStateActive;
-                bdi.adornment = kThemeAdornmentNone;
-                if (btn->state & Style_ButtonDefault)
-                    bdi.adornment = kThemeAdornmentDefault;
-                bdi.value = kThemeButtonOff;
-                if (btn->extras != Q4StyleOptionButton::None)
-                    bdi.kind = kThemeBevelButton;
-                else
-                    bdi.kind = kThemePushButton;
-                HIRect newRect = qt_hirectForQRect(btn->rect, p);
-                if (btn->state & Style_ButtonDefault
-                    && d->animatable(QAquaAnimate::AquaPushButton, w)) {
-                    bdi.adornment = kThemeAdornmentDefault;
-                    bdi.animation.time.start = d->defaultButtonStart;
-                    bdi.animation.time.current = CFAbsoluteTimeGetCurrent();
-                }
-                HIThemeDrawButton(&newRect, &bdi, static_cast<CGContextRef>(p->handle()),
-                                  kHIThemeOrientationNormal, 0);
-                if (btn->extras & Q4StyleOptionButton::HasMenu) {
-                    int mbi = pixelMetric(PM_MenuButtonIndicator, w);
-                    QRect ir = btn->rect;
-                    Q4StyleOptionButton newBtn = *btn;
-                    newBtn.rect = QRect(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
-                    drawPrimitive(PE_ArrowDown, &newBtn, p, w);
-                }
+    case CE_PushButton:
+        if (const Q4StyleOptionButton *btn = ::qt_cast<const Q4StyleOptionButton *>(opt)) {
+            if (!(btn->state & (Style_Raised | Style_Down | Style_On)))
+                break;
+            HIThemeButtonDrawInfo bdi;
+            bdi.version = qt_mac_hitheme_version;
+            if (btn->state & (Style_On | Style_Down))
+                bdi.state = kThemeStatePressed;
+            else
+                bdi.state = kThemeStateActive;
+            bdi.adornment = kThemeAdornmentNone;
+            if (btn->state & Style_ButtonDefault)
+                bdi.adornment = kThemeAdornmentDefault;
+            bdi.value = kThemeButtonOff;
+            if (btn->extras != Q4StyleOptionButton::None)
+                bdi.kind = kThemeBevelButton;
+            else
+                bdi.kind = kThemePushButton;
+            HIRect newRect = qt_hirectForQRect(btn->rect, p);
+            if (btn->state & Style_ButtonDefault
+                && d->animatable(QAquaAnimate::AquaPushButton, w)) {
+                bdi.adornment = kThemeAdornmentDefault;
+                bdi.animation.time.start = d->defaultButtonStart;
+                bdi.animation.time.current = CFAbsoluteTimeGetCurrent();
             }
-            break;
-        case CE_MenuItem:
-            if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
-                int tabwidth = mi->tabWidth;
-                int maxpmw = mi->maxIconWidth;
-                bool active = mi->state & Style_Active;
-                bool enabled = mi->state & Style_Enabled;
-                HIRect menuRect = qt_hirectForQRect(mi->menuRect);
-                HIRect itemRect = qt_hirectForQRect(mi->rect);
-                HIThemeMenuItemDrawInfo mdi;
-                mdi.version = qt_mac_hitheme_version;
-                mdi.itemType = kThemeMenuItemPlain;
-                if (!mi->icon.isNull())
-                    mdi.itemType |= kThemeMenuItemHasIcon;
-                if (mi->menuItemType == Q4StyleOptionMenuItem::SubMenu)
-                    mdi.itemType |= kThemeMenuItemHierarchical | kThemeMenuItemHierBackground;
-                else
-                    mdi.itemType |= kThemeMenuItemPopUpBackground;
-                if (mi->checkState != Q4StyleOptionMenuItem::NotCheckable)
-                    maxpmw = qMax(maxpmw, 12);
-                if (enabled)
-                    mdi.state = kThemeMenuActive;
-                else
-                    mdi.state = kThemeMenuDisabled;
-                if (active)
-                    mdi.state |= kThemeMenuSelected;
-                HIRect contentRect;
-                if (mi->menuItemType == Q4StyleOptionMenuItem::Separator) {
-                    // First arg should be &menurect, but wacky stuff happens then.
-                    HIThemeDrawMenuSeparator(&itemRect, &itemRect, &mdi,
-                                             static_cast<CGContextRef>(p->handle()),
-                                             kHIThemeOrientationNormal);
-                    break;
-                } else {
-                    HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi,
-                                        static_cast<CGContextRef>(p->handle()),
-                                        kHIThemeOrientationNormal, &contentRect);
-                }
-                int x, y, w, h;
-                mi->rect.rect(&x, &y, &w, &h);
-                int xpos = x;
-                int checkcol = maxpmw;
-                int xm = macItemFrame + maxpmw + macItemHMargin;
-                if (!enabled)
-                    p->setPen(mi->palette.text());
-                else if (active)
-                    p->setPen(mi->palette.highlightedText());
-                else
-                    p->setPen(mi->palette.buttonText());
-
-                if (mi->checkState == Q4StyleOptionMenuItem::Checked) {
-                    // Use the HIThemeTextInfo foo to draw the check mark correctly, if we do it,
-                    // we somehow need to use a special encoding as it doesn't look right with our
-                    // drawText().
-                    HIThemeTextInfo tti;
-                    tti.version = qt_mac_hitheme_version;
-                    tti.state = tds;
-                    if (active)
-                        tti.state = kThemeStatePressed;
-                    tti.fontID = kThemeMenuItemMarkFont;
-                    tti.horizontalFlushness = kHIThemeTextHorizontalFlushLeft;
-                    tti.verticalFlushness = kHIThemeTextVerticalFlushCenter;
-                    tti.options = kHIThemeTextBoxOptionNone;
-                    tti.truncationPosition = kHIThemeTextTruncationNone;
-                    tti.truncationMaxLines = 1;
-                    QCFString checkmark = QString(QChar(kCheckUnicode));
-                    int mw = checkcol + macItemFrame;
-                    int mh = h - 2*macItemFrame;
-                    int xp = x;
-                    xp += macItemFrame;
-                    float outWidth, outHeight, outBaseline;
-                    HIThemeGetTextDimensions(checkmark, 0, &tti, &outWidth, &outHeight,
-                                             &outBaseline);
-                    QFontMetrics fm(p->font());
-                    QRect r(xp, y + macItemFrame, mw, mh);
-                    r.moveBy(0, fm.ascent() - (int)outBaseline + 1);
-                    HIRect bounds = qt_hirectForQRect(r);
-                    HIThemeDrawTextBox(checkmark, &bounds, &tti,
-                                       static_cast<CGContextRef>(p->handle()),
-                                       kHIThemeOrientationNormal);
-                    xpos += r.width() - 6;
-                }
-                if (!mi->icon.isNull()) {
-                    QIconSet::Mode mode = (mi->state & Style_Enabled) ? QIconSet::Normal
-                                                                      : QIconSet::Disabled;
-                    if (active && !enabled)
-                        mode = QIconSet::Active;
-                    QPixmap pixmap = mi->icon.pixmap(QIconSet::Small, mode);
-                    int pixw = pixmap.width();
-                    int pixh = pixmap.height();
-                    QRect cr(xpos, y, checkcol, h);
-                    QRect pmr(0, 0, pixw, pixh);
-                    pmr.moveCenter(cr.center());
-                    p->drawPixmap(pmr.topLeft(), pixmap);
-                    xpos += pixw + 6;
-                }
-
-                if (mi->menuItemType == Q4StyleOptionMenuItem::Q3Custom) {
-                    /*
-                    int m = macItemVMargin;
-                    mi->custom()->paint(p, pal, act, !dis, x+xm, y+m, w-xm-tab+1, h-2*m);
-                    */
-                }
-                // ### Must come back here, we don't draw accels correct.
-                QString s = mi->text;
-                if (!s.isEmpty()) {
-                    int t = s.indexOf('\t');
-                    int m = 2;
-                    int text_flags = AlignRight | AlignVCenter | NoAccel | SingleLine;
-                    if (t >= 0) {
-                        int xp = xpos + w - tabwidth - macRightBorder
-                                 - macItemHMargin - macItemFrame + 1;
-                        p->drawText(xp, y + m, tabwidth, h - 2 * m, text_flags, s.mid(t + 1));
-                        s = s.left(t);
-                    }
-                    text_flags ^= AlignRight;
-                    p->drawText(xpos, y + m, w - xm - tabwidth + 1, h - 2 * m, text_flags, s, t);
-                }
+            HIThemeDrawButton(&newRect, &bdi, static_cast<CGContextRef>(p->handle()),
+                              kHIThemeOrientationNormal, 0);
+            if (btn->extras & Q4StyleOptionButton::HasMenu) {
+                int mbi = pixelMetric(PM_MenuButtonIndicator, w);
+                QRect ir = btn->rect;
+                Q4StyleOptionButton newBtn = *btn;
+                newBtn.rect = QRect(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
+                drawPrimitive(PE_ArrowDown, &newBtn, p, w);
             }
-            break;
-        case CE_MenuTearoff:
-        case CE_MenuScroller:
-            if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
-                HIRect menuRect = qt_hirectForQRect(mi->menuRect);
-                HIRect itemRect = qt_hirectForQRect(mi->rect);
-                HIThemeMenuItemDrawInfo mdi;
-                mdi.version = qt_mac_hitheme_version;
-                if (opt->state & Style_Active)
-                    mdi.state = kThemeMenuSelected;
-                else
-                    mdi.state = kThemeMenuActive;
-                if (ce == CE_MenuScroller) {
-                    if (opt->state & Style_Down)
-                        mdi.itemType = kThemeMenuItemScrollDownArrow;
-                    else
-                        mdi.itemType = kThemeMenuItemScrollUpArrow;
-                } else {
-                    mdi.itemType = kThemeMenuItemPlain;
-                }
+        }
+        break;
+    case CE_MenuItem:
+        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            int tabwidth = mi->tabWidth;
+            int maxpmw = mi->maxIconWidth;
+            bool active = mi->state & Style_Active;
+            bool enabled = mi->state & Style_Enabled;
+            HIRect menuRect = qt_hirectForQRect(mi->menuRect);
+            HIRect itemRect = qt_hirectForQRect(mi->rect);
+            HIThemeMenuItemDrawInfo mdi;
+            mdi.version = qt_mac_hitheme_version;
+            mdi.itemType = kThemeMenuItemPlain;
+            if (!mi->icon.isNull())
+                mdi.itemType |= kThemeMenuItemHasIcon;
+            if (mi->menuItemType == Q4StyleOptionMenuItem::SubMenu)
+                mdi.itemType |= kThemeMenuItemHierarchical | kThemeMenuItemHierBackground;
+            else
+                mdi.itemType |= kThemeMenuItemPopUpBackground;
+            if (mi->checkState != Q4StyleOptionMenuItem::NotCheckable)
+                maxpmw = qMax(maxpmw, 12);
+            if (enabled)
+                mdi.state = kThemeMenuActive;
+            else
+                mdi.state = kThemeMenuDisabled;
+            if (active)
+                mdi.state |= kThemeMenuSelected;
+            HIRect contentRect;
+            if (mi->menuItemType == Q4StyleOptionMenuItem::Separator) {
+                // First arg should be &menurect, but wacky stuff happens then.
+                HIThemeDrawMenuSeparator(&itemRect, &itemRect, &mdi,
+                                         static_cast<CGContextRef>(p->handle()),
+                                         kHIThemeOrientationNormal);
+                break;
+            } else {
                 HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi,
                                     static_cast<CGContextRef>(p->handle()),
-                                    kHIThemeOrientationNormal, 0);
-                if (ce == CE_MenuTearoff) {
-                    p->setPen(QPen(mi->palette.dark(), 1, DashLine));
-                    p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2 - 1,
-                                mi->rect.x() + mi->rect.width() - 4,
-                                mi->rect.y() + mi->rect.height() / 2 - 1);
-                    p->setPen(QPen(mi->palette.light(), 1, DashLine));
-                    p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2,
-                                mi->rect.x() + mi->rect.width() - 4,
-                                mi->rect.y() + mi->rect.height() / 2);
+                                    kHIThemeOrientationNormal, &contentRect);
+            }
+            int x, y, w, h;
+            mi->rect.rect(&x, &y, &w, &h);
+            int xpos = x;
+            int checkcol = maxpmw;
+            int xm = macItemFrame + maxpmw + macItemHMargin;
+            if (!enabled)
+                p->setPen(mi->palette.text());
+            else if (active)
+                p->setPen(mi->palette.highlightedText());
+            else
+                p->setPen(mi->palette.buttonText());
+
+            if (mi->checkState == Q4StyleOptionMenuItem::Checked) {
+                // Use the HIThemeTextInfo foo to draw the check mark correctly, if we do it,
+                // we somehow need to use a special encoding as it doesn't look right with our
+                // drawText().
+                HIThemeTextInfo tti;
+                tti.version = qt_mac_hitheme_version;
+                tti.state = tds;
+                if (active)
+                    tti.state = kThemeStatePressed;
+                tti.fontID = kThemeMenuItemMarkFont;
+                tti.horizontalFlushness = kHIThemeTextHorizontalFlushLeft;
+                tti.verticalFlushness = kHIThemeTextVerticalFlushCenter;
+                tti.options = kHIThemeTextBoxOptionNone;
+                tti.truncationPosition = kHIThemeTextTruncationNone;
+                tti.truncationMaxLines = 1;
+                QCFString checkmark = QString(QChar(kCheckUnicode));
+                int mw = checkcol + macItemFrame;
+                int mh = h - 2*macItemFrame;
+                int xp = x;
+                xp += macItemFrame;
+                float outWidth, outHeight, outBaseline;
+                HIThemeGetTextDimensions(checkmark, 0, &tti, &outWidth, &outHeight,
+                                         &outBaseline);
+                QFontMetrics fm(p->font());
+                QRect r(xp, y + macItemFrame, mw, mh);
+                r.moveBy(0, fm.ascent() - (int)outBaseline + 1);
+                HIRect bounds = qt_hirectForQRect(r);
+                HIThemeDrawTextBox(checkmark, &bounds, &tti,
+                                   static_cast<CGContextRef>(p->handle()),
+                                   kHIThemeOrientationNormal);
+                xpos += r.width() - 6;
+            }
+            if (!mi->icon.isNull()) {
+                QIconSet::Mode mode = (mi->state & Style_Enabled) ? QIconSet::Normal
+                                                                  : QIconSet::Disabled;
+                if (active && !enabled)
+                    mode = QIconSet::Active;
+                QPixmap pixmap = mi->icon.pixmap(QIconSet::Small, mode);
+                int pixw = pixmap.width();
+                int pixh = pixmap.height();
+                QRect cr(xpos, y, checkcol, h);
+                QRect pmr(0, 0, pixw, pixh);
+                pmr.moveCenter(cr.center());
+                p->drawPixmap(pmr.topLeft(), pixmap);
+                xpos += pixw + 6;
+            }
+
+            if (mi->menuItemType == Q4StyleOptionMenuItem::Q3Custom) {
+                /*
+                int m = macItemVMargin;
+                mi->custom()->paint(p, pal, act, !dis, x+xm, y+m, w-xm-tab+1, h-2*m);
+                */
+            }
+            // ### Must come back here, we don't draw accels correct.
+            QString s = mi->text;
+            if (!s.isEmpty()) {
+                int t = s.indexOf('\t');
+                int m = 2;
+                int text_flags = AlignRight | AlignVCenter | NoAccel | SingleLine;
+                if (t >= 0) {
+                    int xp = xpos + w - tabwidth - macRightBorder
+                             - macItemHMargin - macItemFrame + 1;
+                    p->drawText(xp, y + m, tabwidth, h - 2 * m, text_flags, s.mid(t + 1));
+                    s = s.left(t);
                 }
+                text_flags ^= AlignRight;
+                p->drawText(xpos, y + m, w - xm - tabwidth + 1, h - 2 * m, text_flags, s, t);
             }
-            break;
-        case CE_MenuBarItem:
-            if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
-                HIThemeMenuTitleDrawInfo tdi;
-                tdi.version = qt_mac_hitheme_version;
-                tdi.state = kThemeMenuActive;
-                if (!(mi->state & Style_Active))
-                    tdi.state = kThemeMenuDisabled;
-                if (mi->state & Style_Down)
-                    tdi.state = kThemeMenuSelected;
-                tdi.attributes = 0;
-                tdi.condensedTitleExtra = 0.0;
-                HIRect mbRect = qt_hirectForQRect(mi->menuRect);
-                HIRect rect = qt_hirectForQRect(mi->rect);
-                HIThemeDrawMenuTitle(&mbRect, &rect, &tdi, static_cast<CGContextRef>(p->handle()),
-                                     kHIThemeOrientationNormal, 0);
-                QWindowsStyle::drawControl(ce, mi, p, w);
+        }
+        break;
+    case CE_MenuTearoff:
+    case CE_MenuScroller:
+        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            HIRect menuRect = qt_hirectForQRect(mi->menuRect);
+            HIRect itemRect = qt_hirectForQRect(mi->rect);
+            HIThemeMenuItemDrawInfo mdi;
+            mdi.version = qt_mac_hitheme_version;
+            if (opt->state & Style_Active)
+                mdi.state = kThemeMenuSelected;
+            else
+                mdi.state = kThemeMenuActive;
+            if (ce == CE_MenuScroller) {
+                if (opt->state & Style_Down)
+                    mdi.itemType = kThemeMenuItemScrollDownArrow;
+                else
+                    mdi.itemType = kThemeMenuItemScrollUpArrow;
+            } else {
+                mdi.itemType = kThemeMenuItemPlain;
             }
+            HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi,
+                                static_cast<CGContextRef>(p->handle()),
+                                kHIThemeOrientationNormal, 0);
+            if (ce == CE_MenuTearoff) {
+                p->setPen(QPen(mi->palette.dark(), 1, DashLine));
+                p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2 - 1,
+                            mi->rect.x() + mi->rect.width() - 4,
+                            mi->rect.y() + mi->rect.height() / 2 - 1);
+                p->setPen(QPen(mi->palette.light(), 1, DashLine));
+                p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2,
+                            mi->rect.x() + mi->rect.width() - 4,
+                            mi->rect.y() + mi->rect.height() / 2);
+            }
+        }
+        break;
+    case CE_MenuBarItem:
+        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            HIThemeMenuTitleDrawInfo tdi;
+            tdi.version = qt_mac_hitheme_version;
+            tdi.state = kThemeMenuActive;
+            if (!(mi->state & Style_Active))
+                tdi.state = kThemeMenuDisabled;
+            if (mi->state & Style_Down)
+                tdi.state = kThemeMenuSelected;
+            tdi.attributes = 0;
+            tdi.condensedTitleExtra = 0.0;
+            HIRect mbRect = qt_hirectForQRect(mi->menuRect);
+            HIRect rect = qt_hirectForQRect(mi->rect);
+            HIThemeDrawMenuTitle(&mbRect, &rect, &tdi, static_cast<CGContextRef>(p->handle()),
+                                 kHIThemeOrientationNormal, 0);
+            QWindowsStyle::drawControl(ce, mi, p, w);
+        }
+        break;
+    case CE_MenuBarEmptyArea:
+        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            HIThemeMenuBarDrawInfo bdi;
+            bdi.version = qt_mac_hitheme_version;
+            bdi.state = kThemeMenuBarNormal;
+            bdi.attributes = kThemeMenuSquareMenuBar;
+            HIRect hirect = qt_hirectForQRect(mi->rect);
+            HIThemeDrawMenuBarBackground(&hirect, &bdi, static_cast<CGContextRef>(p->handle()),
+                                         kHIThemeOrientationNormal);
             break;
-        case CE_MenuBarEmptyArea:
-            if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
-                HIThemeMenuBarDrawInfo bdi;
-                bdi.version = qt_mac_hitheme_version;
-                bdi.state = kThemeMenuBarNormal;
-                bdi.attributes = kThemeMenuSquareMenuBar;
-                HIRect hirect = qt_hirectForQRect(mi->rect);
-                HIThemeDrawMenuBarBackground(&hirect, &bdi, static_cast<CGContextRef>(p->handle()),
-                                             kHIThemeOrientationNormal);
+        }
+    case CE_ProgressBarContents:
+        if (const Q4StyleOptionProgressBar *pb = qt_cast<const Q4StyleOptionProgressBar *>(opt)) {
+            HIThemeTrackDrawInfo tdi;
+            tdi.version = qt_mac_hitheme_version;
+            tdi.reserved = 0;
+            // Boy, I love writing this...
+            switch (qt_aqua_size_constrain(w)) {
+            case QAquaSizeUnknown:
+            case QAquaSizeLarge:
+                tdi.kind = pb->totalSteps ? kThemeLargeProgressBar
+                                          : kThemeLargeIndeterminateBar;
+                break;
+            case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                    tdi.kind = pb->totalSteps ? kThemeMiniProgressBar
+                                              : kThemeMiniIndeterminateBar;
+                    break;
+                }
+#endif
+            case QAquaSizeSmall:
+                tdi.kind = pb->totalSteps ? kThemeProgressBar : kThemeIndeterminateBar;
                 break;
             }
-        case CE_ProgressBarContents:
-            if (const Q4StyleOptionProgressBar *pb
-                      = qt_cast<const Q4StyleOptionProgressBar *>(opt)) {
-                HIThemeTrackDrawInfo tdi;
-                tdi.version = qt_mac_hitheme_version;
-                tdi.reserved = 0;
-                // Boy, I love writing this...
-                switch (qt_aqua_size_constrain(w)) {
-                case QAquaSizeUnknown:
-                case QAquaSizeLarge:
-                    tdi.kind = pb->totalSteps ? kThemeLargeProgressBar
-                                              : kThemeLargeIndeterminateBar;
-                    break;
-                case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                        tdi.kind = pb->totalSteps ? kThemeMiniProgressBar
-                                                  : kThemeMiniIndeterminateBar;
-                        break;
-                    }
-#endif
-                case QAquaSizeSmall:
-                    tdi.kind = pb->totalSteps ? kThemeProgressBar : kThemeIndeterminateBar;
-                    break;
-                }
-                tdi.bounds = qt_hirectForQRect(pb->rect);
-                tdi.max = pb->totalSteps;
-                tdi.min = 0;
-                tdi.value = pb->progress;
-                tdi.attributes = kThemeTrackHorizontal;
-                tdi.trackInfo.progress.phase = d->progressFrame;
-                if (!qAquaActive(pb->palette))
-                    tdi.enableState = kThemeTrackInactive;
-                else if (!(pb->state & Style_Enabled))
-                    tdi.enableState = kThemeTrackDisabled;
-                else
-                    tdi.enableState = kThemeTrackActive;
-                HIThemeDrawTrack(&tdi, 0, static_cast<CGContextRef>(p->handle()),
-                                 kHIThemeOrientationNormal);
+            tdi.bounds = qt_hirectForQRect(pb->rect);
+            tdi.max = pb->totalSteps;
+            tdi.min = 0;
+            tdi.value = pb->progress;
+            tdi.attributes = kThemeTrackHorizontal;
+            tdi.trackInfo.progress.phase = d->progressFrame;
+            if (!qAquaActive(pb->palette))
+                tdi.enableState = kThemeTrackInactive;
+            else if (!(pb->state & Style_Enabled))
+                tdi.enableState = kThemeTrackDisabled;
+            else
+                tdi.enableState = kThemeTrackActive;
+            HIThemeDrawTrack(&tdi, 0, static_cast<CGContextRef>(p->handle()),
+                             kHIThemeOrientationNormal);
+        }
+        break;
+    case CE_ProgressBarLabel:
+    case CE_ProgressBarGroove:
+        break;
+    case CE_HeaderLabel:
+        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+            QRect textr = header->rect;
+            if (!header->icon.isNull()) {
+                QIconSet::Mode mode = QIconSet::Disabled;
+                if (opt->state & Style_Enabled)
+                    mode = QIconSet::Normal;
+                QPixmap pixmap = header->icon.pixmap(QIconSet::Small, mode);
+
+                QRect pixr = header->rect;
+                pixr.setY(header->rect.center().y() - (pixmap.height() - 1) / 2);
+                drawItem(p, pixr, AlignVCenter, header->palette,
+                        mode != QIconSet::Disabled
+                        || !header->icon.isGenerated(QIconSet::Small, mode), pixmap);
+                textr.moveBy(pixmap.width() + 2, 0);
             }
-            break;
-        case CE_ProgressBarLabel:
-        case CE_ProgressBarGroove:
-            break;
-        default:
-            QWindowsStyle::drawControl(ce, opt, p, w);
+
+            // change the color to bright text if we are a table header and selected.
+            const QColor *penColor = &header->palette.buttonText().color();
+            if (w && w->parentWidget()->inherits("QTable") && p->font().bold())
+                penColor = &header->palette.color(QColorGroup::BrightText);
+            drawItem(p, textr, AlignVCenter, header->palette, header->state & Style_Enabled,
+                    header->text, -1, penColor);
+        }
+        break;
+    default:
+        QWindowsStyle::drawControl(ce, opt, p, w);
     }
 }
 

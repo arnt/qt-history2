@@ -502,66 +502,6 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
         ((QMacStyleQDPainter *)p)->setport();
         DrawThemeTabPane(qt_glb_mac_rect(r, p), tds);
         break;
-    case PE_HeaderArrow:
-#ifndef QT_NO_TABLE
-        if(p && p->device() && p->device()->devType() == QInternal::Widget) {
-            if(static_cast<QWidget *>(p->device())->parentWidget()->inherits("QTable")) {
-                DrawThemePopupArrow(qt_glb_mac_rect(r, p),
-                                    flags & Style_Up ? kThemeArrowDown : kThemeArrowUp,
-                                    kThemeArrow9pt, tds, 0, 0);
-            }
-        }
-#endif
-        // else drawn in HeaderSection.
-        break;
-    case PE_HeaderSection: {
-        ThemeButtonKind bkind = kThemeListHeaderButton;
-#ifndef QT_NO_TABLE
-        // Grab the widget behind this thing yet again and check if it's parent is a table.
-        // We do this because the kThemeListHeader apparently doesn't extend vertically.
-        // Also change the sunken flag to true for items that are selected. Because of
-        // design decisions we have to explictily turn it off for every header section.
-        // We can tell if something is selected by looking at the boldness of the font,
-        // icky, but it does the job.
-        if(p && p->device() && p->device()->devType() == QInternal::Widget) {
-            if(static_cast<QWidget *>(p->device())->parentWidget()->inherits("QTable")) {
-                bkind = kThemeBevelButton;
-                if(p->font().bold())
-                    flags |= Style_Sunken;
-                else
-                    flags &= ~Style_Sunken;
-            }
-        }
-#endif
-        ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
-        QWidget *w = 0;
-        if(p->device()->devType() == QInternal::Widget)
-            w = (QWidget*)p->device();
-
-        if(flags & Style_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
-            info.adornment |= kThemeAdornmentFocus;
-        if(qAquaActive(pal)) {
-            if(!(flags & Style_Enabled))
-                info.state = kThemeStateUnavailable;
-            else if(flags & Style_Down)
-                info.state = kThemeStatePressed;
-        } else {
-            if(flags & Style_Enabled)
-                info.state = kThemeStateInactive;
-            else
-                info.state = kThemeStateUnavailableInactive;
-        }
-        if(flags & Style_Sunken)
-            info.value = kThemeButtonOn;
-
-        QRect ir = r;
-        if((flags & Style_Off))
-            ir.setRight(ir.right() + 50);
-        else if((flags & Style_Up))
-            info.adornment |= kThemeAdornmentHeaderButtonSortUp;
-        ((QMacStyleQDPainter *)p)->setport();
-        DrawThemeButton(qt_glb_mac_rect(ir, p, false), bkind, &info, 0, 0, 0, 0);
-        break; }
     case PE_CheckListController:
         break;
     case PE_CheckListExclusiveIndicator:
@@ -1064,39 +1004,6 @@ void QMacStyleQD::drawControl(ControlElement element,
                 delete buffer;
         }
         break; }
-#ifndef QT_NO_HEADER
-    case CE_HeaderLabel:
-    {
-        const QHeader* header = (const QHeader *)widget;
-        int section = opt.headerSection();
-
-        QRect textr = r;
-        QIconSet* icon = header->iconSet(section);
-        if(icon) {
-
-            QIconSet::Mode mode = QIconSet::Disabled;
-            if(how & Style_Enabled)
-                mode = QIconSet::Normal;
-            QPixmap pixmap = icon->pixmap(QIconSet::Small, mode);
-
-            QRect pixr = r;
-            pixr.setY(r.center().y() - (pixmap.height()-1) / 2); // -1 because of tricky integer division
-            drawItem(p, pixr, AlignVCenter, pal,
-                     mode != QIconSet::Disabled || !icon->isGenerated(QIconSet::Small, mode), pixmap);
-            textr.moveBy(pixmap.width()+2, 0);
-        }
-
-        // change the color to bright text if we are a table header and selected.
-        const QColor *penColor = &pal.buttonText().color();
-#ifndef QT_NO_TABLE
-        if(header->parentWidget()->inherits("QTable") && p->font().bold())
-            penColor = &pal.color(QColorGroup::BrightText);
-#endif
-        drawItem(p, textr, AlignVCenter, pal, how & Style_Enabled,
-                 header->label(section), -1, penColor);
-        break;
-    }
-#endif // QT_NO_HEADER
     default:
         QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
     }
@@ -2533,6 +2440,52 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
 #endif
         DrawThemeStandaloneGrowBox(orig, dir, false, kThemeStateActive);
         break; }
+    case PE_HeaderArrow:
+        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+            if (w && w->parentWidget()->inherits("QTable"))
+                drawPrimitive(header->state & Style_Up ? PE_ArrowUp : PE_ArrowDown, header, p, w);
+        }
+        // else drawn in HeaderSection.
+        break;
+    case PE_HeaderSection:
+        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+            ThemeButtonKind bkind = kThemeListHeaderButton;
+            SFlags flags = header->state;
+            if (w && w->parentWidget()->inherits("QTable")) {
+                bkind = kThemeBevelButton;
+                if (p->font().bold())
+                    flags |= Style_Sunken;
+                else
+                    flags &= ~Style_Sunken;
+            }
+            ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+            QWidget *w = 0;
+
+            if (flags & Style_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+                info.adornment |= kThemeAdornmentFocus;
+            if (qAquaActive(header->palette)) {
+                if (!(flags & Style_Enabled))
+                    info.state = kThemeStateUnavailable;
+                else if (flags & Style_Down)
+                    info.state = kThemeStatePressed;
+            } else {
+                if (flags & Style_Enabled)
+                    info.state = kThemeStateInactive;
+                else
+                    info.state = kThemeStateUnavailableInactive;
+            }
+            if (flags & Style_Sunken)
+                info.value = kThemeButtonOn;
+
+            QRect ir = header->rect;
+            if (flags & Style_Off)
+                ir.setRight(ir.right() + 50);
+            else if (flags & Style_Up)
+                info.adornment |= kThemeAdornmentHeaderButtonSortUp;
+            static_cast<QMacStyleQDPainter *>(p)->setport();
+            DrawThemeButton(qt_glb_mac_rect(ir, p, false), bkind, &info, 0, 0, 0, 0);
+        }
+        break;
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;
@@ -2871,6 +2824,31 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 tdi.enableState = kThemeTrackActive;
             static_cast<QMacStyleQDPainter *>(p)->setport();
             DrawThemeTrack(&tdi, 0, 0, 0);
+        }
+        break;
+    case CE_HeaderLabel:
+        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+            QRect textr = header->rect;
+            if (!header->icon.isNull()) {
+                QIconSet::Mode mode = QIconSet::Disabled;
+                if (opt->state & Style_Enabled)
+                    mode = QIconSet::Normal;
+                QPixmap pixmap = header->icon.pixmap(QIconSet::Small, mode);
+
+                QRect pixr = header->rect;
+                pixr.setY(header->rect.center().y() - (pixmap.height() - 1) / 2);
+                drawItem(p, pixr, AlignVCenter, header->palette,
+                         mode != QIconSet::Disabled
+                         || !header->icon.isGenerated(QIconSet::Small, mode), pixmap);
+                textr.moveBy(pixmap.width() + 2, 0);
+            }
+
+            // change the color to bright text if we are a table header and selected.
+            const QColor *penColor = &header->palette.buttonText().color();
+            if (widget && widget->parentWidget()->inherits("QTable") && p->font().bold())
+                penColor = &header->palette.color(QColorGroup::BrightText);
+            drawItem(p, textr, AlignVCenter, header->palette, header->state & Style_Enabled,
+                     header->text, -1, penColor);
         }
         break;
     default:

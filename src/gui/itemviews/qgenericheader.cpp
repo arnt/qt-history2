@@ -1,13 +1,14 @@
 #include "qgenericheader.h"
-#include <qvector.h>
-#include <qbitarray.h>
-#include <qpainter.h>
-#include <qstyle.h>
-#include <qevent.h>
-#include <qscrollbar.h>
-#include <qapplication.h>
 #include <private/qabstractitemview_p.h>
+#include <qapplication.h>
+#include <qbitarray.h>
 #include <qdebug.h>
+#include <qevent.h>
+#include <qpainter.h>
+#include <qscrollbar.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
+#include <qvector.h>
 
 class QGenericHeaderPrivate: public QAbstractItemViewPrivate
 {
@@ -57,6 +58,7 @@ public:
     bool clickableSections;
     int stretchSections;
     QWidget *sectionIndicator;//, *sectionIndicator2;
+    Q4StyleOptionHeader getStyleOption() const;
 };
 
 static const int border = 4;
@@ -213,12 +215,11 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             paintSection(&painter, &options, item);
         }
         if (options.itemRect.right() < area.right()) {
-            QStyle::SFlags flags = QStyle::Style_Off|QStyle::Style_Raised|QStyle::Style_Horizontal;
-            if (isEnabled())
-                flags |= QStyle::Style_Enabled;
-            QRect rect(options.itemRect.right() + 1, 0,
-                       width - options.itemRect.right() - 1, height);
-            style().drawPrimitive(QStyle::PE_HeaderSection, &painter, rect, palette(), flags);
+            Q4StyleOptionHeader opt = d->getStyleOption();
+            opt.state |= QStyle::Style_Off | QStyle::Style_Raised;
+            opt.rect.setRect(options.itemRect.right() + 1, 0,
+                             width - options.itemRect.right() - 1, height);
+            style().drawPrimitive(QStyle::PE_HeaderSection, &opt, &painter, this);
         }
     } else {
         for (int i = start; i <= end; ++i) {
@@ -231,12 +232,11 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             paintSection(&painter, &options, item);
         }
         if (options.itemRect.bottom() < area.bottom()) {
-            QStyle::SFlags flags = QStyle::Style_Off|QStyle::Style_Raised;
-            if (isEnabled())
-                flags |= QStyle::Style_Enabled;
-            QRect rect(0, options.itemRect.bottom() + 1,
-                       width, height - options.itemRect.bottom() - 1);
-            style().drawPrimitive(QStyle::PE_HeaderSection, &painter, rect, palette(), flags);
+            Q4StyleOptionHeader opt = d->getStyleOption();
+            opt.state |= QStyle::Style_Off | QStyle::Style_Raised;
+            opt.rect.setRect(0, options.itemRect.bottom() + 1, width,
+                             height - options.itemRect.bottom() - 1);
+            style().drawPrimitive(QStyle::PE_HeaderSection, &opt, &painter, this);
         }
     }
 
@@ -247,37 +247,33 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
 
 void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, const QModelIndex &item)
 {
-    QStyle::SFlags flags = QStyle::Style_Off;
-    if (orientation() == Horizontal)
-        flags |= QStyle::Style_Horizontal;
-    if (isEnabled())
-        flags |= QStyle::Style_Enabled;
-    QStyle::SFlags arrowFlags = flags;
-    if (d->clickableSections && (orientation() == Horizontal ?
+    Q4StyleOptionHeader opt = d->getStyleOption();
+    QStyle::SFlags arrowFlags = QStyle::Style_Off;
+    opt.rect = options->itemRect;
+    if (d->clickableSections && (d->orientation == Horizontal ?
           selectionModel()->isColumnSelected(item.column(), model()->parent(item)) :
           selectionModel()->isRowSelected(item.row(), model()->parent(item))))
-        flags |= QStyle::Style_Down;
+        opt.state |= QStyle::Style_Down;
     else
-        flags |= QStyle::Style_Raised;
-    style().drawPrimitive(QStyle::PE_HeaderSection, painter, options->itemRect, palette(), flags);
-
+        opt.state |= QStyle::Style_Raised;
+    style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
     itemDelegate()->paint(painter, *options, item); // draw item
 
     int section = orientation() == Horizontal ? item.column() : item.row();
     if (sortIndicatorSection() == section) {
         //bool alignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & AlignRight;
         // FIXME: use alignRight and RTL
-        QRect arrowRect;
         int h = options->itemRect.height();
         int x = options->itemRect.x();
         int y = options->itemRect.y();
         int secSize = sectionSize(section);
-        if (orientation() == Qt::Horizontal)
-            arrowRect.setRect(x + secSize - border * 2 - (h / 2), y + 5, h / 2, h - border * 2);
+        if (d->orientation == Qt::Horizontal)
+            opt.rect.setRect(x + secSize - border * 2 - (h / 2), y + 5, h / 2, h - border * 2);
         else
-            arrowRect.setRect(x + 5, y + secSize - h, h / 2, h - border * 2);
+            opt.rect.setRect(x + 5, y + secSize - h, h / 2, h - border * 2);
         arrowFlags |= (sortIndicatorOrder() == Qt::Ascending ? QStyle::Style_Down : QStyle::Style_Up);
-        style().drawPrimitive(QStyle::PE_HeaderArrow, painter, arrowRect, palette(), arrowFlags);
+        opt.state = arrowFlags;
+        style().drawPrimitive(QStyle::PE_HeaderArrow, &opt, painter, this);
     }
 }
 
@@ -985,4 +981,18 @@ QRect QGenericHeaderPrivate::sectionHandleRect(int section)
     else
         rect.setRect(0, position, q->width(), size);
     return rect;
+}
+
+Q4StyleOptionHeader QGenericHeaderPrivate::getStyleOption() const
+{
+    Q4StyleOptionHeader opt(0);
+    opt.rect = q->rect();
+    opt.palette = q->palette();
+    opt.state = QStyle::Style_Default;
+    if (orientation == Horizontal)
+        opt.state |= QStyle::Style_Horizontal;
+    if (q->isEnabled())
+        opt.state |= QStyle::Style_Enabled;
+    opt.section = 0;
+    return opt;
 }

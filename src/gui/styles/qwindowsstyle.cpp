@@ -276,48 +276,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
             break;
         }
 
-    case PE_ButtonBevel:
-    case PE_HeaderSection:
-        {
-            QBrush fill;
-
-            if (! (flags & Style_Down) && (flags & Style_On))
-                fill = QBrush(pal.light(), Dense4Pattern);
-            else
-                fill = pal.brush(QPalette::Button);
-
-            if (flags & (Style_Raised | Style_Down | Style_On | Style_Sunken))
-                qDrawWinButton(p, r, pal, flags & (Style_Down | Style_On), &fill);
-            else
-                p->fillRect(r, fill);
-            break;
-        }
-#if defined(Q_WS_WIN)
-    case PE_HeaderArrow:
-        p->save();
-        if (flags & Style_Up) { // invert logic to follow Windows style guide
-            QPointArray pa(3);
-            p->setPen(pal.light());
-            p->drawLine(r.x() + r.width(), r.y(), r.x() + r.width() / 2, r.height());
-            p->setPen(pal.dark());
-            pa.setPoint(0, r.x() + r.width() / 2, r.height());
-            pa.setPoint(1, r.x(), r.y());
-            pa.setPoint(2, r.x() + r.width(), r.y());
-            p->drawPolyline(pa);
-        } else {
-            QPointArray pa(3);
-            p->setPen(pal.light());
-            pa.setPoint(0, r.x(), r.height());
-            pa.setPoint(1, r.x() + r.width(), r.height());
-            pa.setPoint(2, r.x() + r.width() / 2, r.y());
-            p->drawPolyline(pa);
-            p->setPen(pal.dark());
-            p->drawLine(r.x(), r.height(), r.x() + r.width() / 2, r.y());
-        }
-        p->restore();
-        break;
-#endif
-
     case PE_ButtonDefault:
         p->setPen(pal.shadow());
         p->drawRect(r);
@@ -1961,19 +1919,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
         else
             p->fillRect(r, fill);
         break; }
-    case PE_ButtonBevel:
-    case PE_HeaderSection: {
-        QBrush fill;
-        if (!(opt->state & Style_Down) && opt->state & Style_On)
-            fill = QBrush(opt->palette.light(), Dense4Pattern);
-        else
-            fill = opt->palette.brush(QPalette::Button);
-
-        if (opt->state & (Style_Raised | Style_Down | Style_On | Style_Sunken))
-            qDrawWinButton(p, opt->rect, opt->palette, opt->state & (Style_Down | Style_On), &fill);
-        else
-            p->fillRect(opt->rect, fill);
-        break; }
     case PE_ButtonDefault:
         p->setPen(opt->palette.shadow());
         p->drawRect(opt->rect);
@@ -2295,7 +2240,51 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
         if (opt->state & (Style_Open | Style_Children | Style_Item | Style_Sibling))
             p->fillRect(mid_h, opt->rect.y(), 1, bef_v - opt->rect.y(), brush);
         break; }
+    case PE_ButtonBevel:
+    case PE_HeaderSection:
+        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+            QBrush fill;
+            if (!(header->state & Style_Down) && (header->state & Style_On))
+                fill = QBrush(header->palette.light(), Dense4Pattern);
+            else
+                fill = header->palette.brush(QPalette::Button);
 
+            if (header->state & (Style_Raised | Style_Down | Style_On | Style_Sunken))
+                qDrawWinButton(p, header->rect, header->palette,
+                               header->state & (Style_Down | Style_On), &fill);
+            else
+                p->fillRect(opt->rect, fill);
+        }
+        break;
+#if defined(Q_WS_WIN)
+    case PE_HeaderArrow:
+        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
+            QPen oldPen = p->pen();
+            if (header->state & Style_Up) { // invert logic to follow Windows style guide
+                QPointArray pa(3);
+                p->setPen(header->palette.light());
+                p->drawLine(header->rect.x() + header->rect.width(), header->rect.y(),
+                            header->rect.x() + header->rect.width() / 2, header->rect.height());
+                p->setPen(header->palette.dark());
+                pa.setPoint(0, header->rect.x() + header->rect.width() / 2, header->rect.height());
+                pa.setPoint(1, header->rect.x(), header->rect.y());
+                pa.setPoint(2, header->rect.x() + header->rect.width(), header->rect.y());
+                p->drawPolyline(pa);
+            } else {
+                QPointArray pa(3);
+                p->setPen(header->palette.light());
+                pa.setPoint(0, header->rect.x(), header->rect.height());
+                pa.setPoint(1, header->rect.x() + header->rect.width(), header->rect.height());
+                pa.setPoint(2, header->rect.x() + header->rect.width() / 2, header->rect.y());
+                p->drawPolyline(pa);
+                p->setPen(header->palette.dark());
+                p->drawLine(header->rect.x(), header->rect.height(),
+                            header->rect.x() + header->rect.width() / 2, header->rect.y());
+            }
+            p->setPen(oldPen);
+        }
+        break;
+#endif
     default:
         QCommonStyle::drawPrimitive(pe, opt, p, w);
     }

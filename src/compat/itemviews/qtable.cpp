@@ -22,19 +22,20 @@
 
 #ifndef QT_NO_TABLE
 
-#include <qpainter.h>
-#include <qlineedit.h>
-#include <qcursor.h>
 #include <qapplication.h>
-#include <qtimer.h>
-#include <qiconset.h>
-#include <qcombobox.h>
 #include <qcheckbox.h>
+#include <qcombobox.h>
+#include <qcursor.h>
+#include <qdatatable.h>
 #include <qdragobject.h>
 #include <qevent.h>
+#include <qiconset.h>
+#include <qlineedit.h>
 #include <qlistbox.h>
+#include <qpainter.h>
 #include <qstyle.h>
-#include <qdatatable.h>
+#include <qstyleoption.h>
+#include <qtimer.h>
 #include <qvalidator.h>
 
 #include <stdlib.h>
@@ -6534,20 +6535,23 @@ void QTableHeader::paintSection(QPainter *p, int index, const QRect& fr)
          orientation() == Horizontal && isRowSelection(table->selectionMode())) {
         QHeader::paintSection(p, index, fr);
    } else {
-       QStyle::SFlags flags = QStyle::Style_Off | (orient == Horizontal ? QStyle::Style_Horizontal : 0);
-       if(isEnabled())
-           flags |= QStyle::Style_Enabled;
-       if(isClickEnabled()) {
-           if(sectionState(index) == Selected) {
-               flags |= QStyle::Style_Down;
-               if(!mousePressed)
-                   flags |= QStyle::Style_Sunken;
+       Q4StyleOptionHeader opt(0);
+       opt.palette = palette();
+       opt.rect = fr;
+       opt.state = QStyle::Style_Off | (orient == Horizontal ? QStyle::Style_Horizontal
+                                                             : QStyle::Style_Default);
+       if (isEnabled())
+           opt.state |= QStyle::Style_Enabled;
+       if (isClickEnabled()) {
+           if (sectionState(index) == Selected) {
+               opt.state |= QStyle::Style_Down;
+               if (!mousePressed)
+                   opt.state |= QStyle::Style_Sunken;
            }
        }
-       if(!(flags & QStyle::Style_Down))
-           flags |= QStyle::Style_Raised;
-       style().drawPrimitive(QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-                              palette(), flags);
+       if (!(opt.state & QStyle::Style_Down))
+           opt.state |= QStyle::Style_Raised;
+       style().drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
        paintSectionLabel(p, index, fr);
    }
 }
