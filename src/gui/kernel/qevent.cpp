@@ -63,6 +63,10 @@ QInputEvent::~QInputEvent()
     propagated up the parent widget chain until a widget accepts it
     with accept(), or an event filter consumes it.
 
+    The state of the keyboard modifier keys can be found by calling the
+    \l{QInputEvent::modifiers()}{modifiers()} function, inhertied from
+    QInputEvent.
+
     The functions pos(), x(), and y() give the cursor position
     relative to the widget that receives the mouse event. If you
     move the widget as a result of the mouse event, use the global
@@ -71,9 +75,10 @@ QInputEvent::~QInputEvent()
     The QWidget::setEnabled() function can be used to enable or
     disable mouse and keyboard events for a widget.
 
-    The event handlers QWidget::mousePressEvent(),
+    Reimplement the QWidget event handlers, QWidget::mousePressEvent(),
     QWidget::mouseReleaseEvent(), QWidget::mouseDoubleClickEvent(),
-    and QWidget::mouseMoveEvent() receive mouse events.
+    and QWidget::mouseMoveEvent() to receive mouse events in your own
+    widgets.
 
     \sa QWidget::setMouseTracking() QWidget::grabMouse()
     QCursor::pos()
@@ -1481,6 +1486,9 @@ QDragMoveEvent::QDragMoveEvent(const QPoint& pos, QDrag::DropActions actions, co
     : QDropEvent(pos, actions, data, type), rect(pos, QSize(1, 1))
 {}
 
+/*!
+    Destroys the event.
+*/
 QDragMoveEvent::~QDragMoveEvent()
 {
 }
@@ -1532,7 +1540,7 @@ QDragMoveEvent::~QDragMoveEvent()
 
 
 /*!
-    \class QDropEvent qevent.h
+    \class QDropEvent
     \ingroup events
     \ingroup draganddrop
 
@@ -1560,7 +1568,7 @@ QDragMoveEvent::~QDragMoveEvent()
 */
 
 /*!
-    \fn const QDropEvent::QMimeData *mimeData() const
+    \fn const QMimeData *QDropEvent::mimeData() const
 
     Returns the data that was dropped on the widget and its associated MIME
     type information.
