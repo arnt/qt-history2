@@ -977,7 +977,7 @@ bool MetaDataBase::CustomWidget::hasSignal( const QCString &signal ) const
     if ( sigList.find( signal ) != -1 )
 	return TRUE;
     for ( QValueList<QCString>::ConstIterator it = lstSignals.begin(); it != lstSignals.end(); ++it ) {
-	if ( *it == signal )
+	if ( normalizeSlot( *it ) == normalizeSlot( signal ) )
 	    return TRUE;
     }
     return FALSE;
@@ -986,11 +986,11 @@ bool MetaDataBase::CustomWidget::hasSignal( const QCString &signal ) const
 bool MetaDataBase::CustomWidget::hasSlot( const QCString &slot ) const
 {
     QStrList slotList = QWidget::staticMetaObject()->slotNames( TRUE );
-    if ( slotList.find( slot ) != -1 )
+    if ( slotList.find( normalizeSlot( slot ) ) != -1 )
 	return TRUE;
 
     for ( QValueList<MetaDataBase::Slot>::ConstIterator it = lstSlots.begin(); it != lstSlots.end(); ++it ) {
-	if ( (*it).slot == slot )
+	if ( normalizeSlot( (*it).slot ) == normalizeSlot( slot ) )
 	    return TRUE;
     }
     return FALSE;
