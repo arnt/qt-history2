@@ -196,8 +196,7 @@ void QPixmap::resize_helper(const QSize &size)
 
     // Initialize new image
     if (data->image.depth() == 32) {
-        image = QImage(size, 32);
-        image.fill(0);
+        image = QImage(size, QImage::Format_RGB32);
     } else {
         image = data->createBitmapImage(size.width(), size.height());
     }
@@ -430,8 +429,11 @@ QImage QPixmap::toImage() const
 QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
 {
     Q_UNUSED(flags);
+    // ### This will create a temporary image.
     QPixmap pixmap(image.width(), image.height());
-    pixmap.data->image = image;
+    pixmap.data->image = image.format() == QImage::Format_RGB32
+                         ? image
+                         : image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
     pixmap.data->bitmap = image.depth() == 1;
     return pixmap;
 }
@@ -575,7 +577,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
         data->image = data->createBitmapImage(w, h);
         data->bitmap = true;
     } else {
-        data->image = QImage(w, h, d);
+        data->image = QImage(w, h, QImage::Format_RGB32);
         data->bitmap = false;
     }
 }

@@ -109,11 +109,6 @@ class QRasterPaintEnginePrivate : public QPaintEnginePrivate
     Q_DECLARE_PUBLIC(QRasterPaintEngine)
 public:
 
-    enum RasterOperation {
-        SourceCopy,
-        SourceOverComposite
-    };
-
     FillData fillForBrush(const QBrush &brush, const QPainterPath *path);
     void updateClip_helper(const QPainterPath &path, Qt::ClipOperation);
 
@@ -151,8 +146,6 @@ public:
     DrawHelper *drawHelper;
 
     QImage tempImage;
-
-    RasterOperation rasterOperation;
 
     int deviceDepth;
 

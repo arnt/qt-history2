@@ -93,7 +93,6 @@ struct SolidFillData
 {
     QRasterBuffer *rasterBuffer;
     uint color;
-    QRasterPaintEnginePrivate::RasterOperation rop;
     BlendColor blendColor;
 };
 
@@ -440,9 +439,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->bilinear = false;
     d->opaqueBackground = false;
     d->bgBrush = Qt::white;
-    d->rasterOperation = device->depth() == 1
-                         ? QRasterPaintEnginePrivate::SourceCopy
-                         : QRasterPaintEnginePrivate::SourceOverComposite;
 
     d->deviceRect = QRect(0, 0, device->width(), device->height());
 
@@ -853,7 +849,9 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
     qDebug() << " - QRasterPaintEngine::drawImage(), r=" << r << " sr=" << sr << " image=" << img.size() << "depth=" << img.depth();
 #endif
 
-    const QImage image = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    const QImage image = img.format() == QImage::Format_RGB32
+                         ? img
+                         : img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
     Q_D(QRasterPaintEngine);
     TextureFillData textureData = {
@@ -1500,7 +1498,6 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
         fillData->callback = qt_span_solidfill;
         fillData->data = solidFillData;
         solidFillData->color = PREMUL(brush.color().rgba());
-        solidFillData->rop = rasterOperation;
         solidFillData->rasterBuffer = fillData->rasterBuffer;
         solidFillData->blendColor = drawHelper->blendColor;
         break;
@@ -1840,7 +1837,7 @@ void QRasterBuffer::prepareBuffer(int width, int height)
     bmi.bmiHeader.biPlanes      = 1;
     bmi.bmiHeader.biBitCount    = 32;
     bmi.bmiHeader.biCompression = BI_RGB;
-    bmi.bmiHeader.biSizeImage   = width * height * sizeof(QRgb);
+    bmi.bmiHeader.biSizeImage   = 0;
 
     HDC displayDC = GetDC(0);
 
@@ -1854,13 +1851,14 @@ void QRasterBuffer::prepareBuffer(int width, int height)
 
     m_hdc = CreateCompatibleDC(displayDC);
     Q_ASSERT(m_hdc);
+
+    m_buffer = 0;
     m_bitmap = CreateDIBSection(m_hdc, &bmi, DIB_RGB_COLORS, (void**) &m_buffer, 0, 0);
     Q_ASSERT(m_bitmap);
+    Q_ASSERT(m_buffer);
+    GdiFlush();
 
     SelectObject(m_hdc, m_bitmap);
-
-    SelectObject(m_hdc, GetStockObject(NULL_PEN));
-    Rectangle(m_hdc, 0, 0, m_width, m_height);
 
     ReleaseDC(0, displayDC);
 }
@@ -1963,36 +1961,20 @@ void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
     SolidFillData *data = reinterpret_cast<SolidFillData *>(userData);
 //     fprintf(stdout, "qt_span_solidfill, y=%d, count=%d\n", y, count);
 //     fflush(stdout);
-    QRasterPaintEnginePrivate::RasterOperation rop = data->rop;
     uint color = data->color;
     QRasterBuffer *rb = data->rasterBuffer;
-    uint *rasterBuffer = rb->buffer() + y * rb->width();
+    uint *rasterBuffer = rb->scanLine(y);
 
     Q_ASSERT(y >= 0);
     Q_ASSERT(y < rb->height());
 
-    if (rop == QRasterPaintEnginePrivate::SourceOverComposite) {
-        for (int span=0; span<count; ++span) {
-            Q_ASSERT(spans->x >= 0);
-            Q_ASSERT(spans->len > 0);
-            Q_ASSERT(spans->x + spans->len <= rb->width());
-            uint *target = rasterBuffer + spans->x;
-            data->blendColor(target, (const QSpan *)spans, color, QPainter::CompositionMode_SourceOver);
-            ++spans;
-        }
-    } else {
-        for (int span=0; span<count; ++span) {
-
-            Q_ASSERT(spans->x >= 0);
-            Q_ASSERT(spans->len > 0);
-            Q_ASSERT(spans->x + spans->len <= rb->width());
-            uint *target = rasterBuffer + spans->x;
-            for (int i=spans->len; i; --i) {
-                *target++ = color;
-            }
-            ++spans;
-        }
-
+    for (int span=0; span<count; ++span) {
+        Q_ASSERT(spans->x >= 0);
+        Q_ASSERT(spans->len > 0);
+        Q_ASSERT(spans->x + spans->len <= rb->width());
+        uint *target = rasterBuffer + (int) spans->x;
+        data->blendColor(target, (const QSpan *)spans, color, QPainter::CompositionMode_SourceOver);
+        ++spans;
     }
 }
 
