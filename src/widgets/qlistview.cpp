@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#44 $
 **
 ** Implementation of QListView widget class
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#44 $");
 
 
 const int Unsorted = 32767;
@@ -478,6 +478,14 @@ void QListViewItem::setup()
     setHeight( listView()->d->fontMetricsHeight );
 }
 
+/*!
+  This virtual function is called whenever the user clicks on this
+  item. The default implementation does nothing.
+ */
+
+void QListViewItem::activate()
+{
+}
 
 /*! \fn bool QListViewItem::isSelectable() const
 
@@ -1579,6 +1587,8 @@ void QListView::mousePressEvent( QMouseEvent * e )
     if ( i->isSelectable() )
 	setSelected( i, isMultiSelection() ? !i->isSelected() : TRUE );
 
+    i->activate();
+
     setCurrentItem( i ); // repaints
 
     return;
@@ -1772,6 +1782,9 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	} else if ( i->parentItem && i->parentItem != d->r ) {
 	    i = i->parentItem;
 	}
+	break;
+    case Key_Space:
+	i->activate();
 	break;
     default:
 	e->ignore();

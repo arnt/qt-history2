@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#20 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#21 $
 **
 ** Definition of QListView widget class
 **
@@ -77,6 +77,7 @@ public:
 protected:
     void enforceSortOrder();
     void setHeight( int );
+    virtual void activate();
 
 private:
     void init();
