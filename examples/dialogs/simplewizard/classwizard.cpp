@@ -2,6 +2,8 @@
 
 #include "classwizard.h"
 
+/* qmake ignore Q_OBJECT */
+
 ClassWizard::ClassWizard(QWidget *parent)
     : SimpleWizard(parent)
 {
@@ -181,6 +183,7 @@ FirstPage::FirstPage(ClassWizard *wizard)
     classNameLabel = new QLabel(tr("Class &name:"), this);
     classNameLineEdit = new QLineEdit(this);
     classNameLabel->setBuddy(classNameLineEdit);
+    setFocusProxy(classNameLineEdit);
 
     baseClassLabel = new QLabel(tr("&Base class:"), this);
     baseClassLineEdit = new QLineEdit(this);
@@ -235,6 +238,7 @@ SecondPage::SecondPage(ClassWizard *wizard)
     commentCheckBox = new QCheckBox(tr("&Start generated files with a comment"),
                                     this);
     commentCheckBox->setChecked(true);
+    setFocusProxy(commentCheckBox);
 
     protectCheckBox = new QCheckBox(tr("&Protect header file against multiple "
                                        "inclusions"), this);
@@ -276,7 +280,6 @@ SecondPage::SecondPage(ClassWizard *wizard)
     connect(includeBaseCheckBox, SIGNAL(toggled(bool)),
             baseIncludeLineEdit, SLOT(setEnabled(bool)));
 
-
     QGridLayout *layout = new QGridLayout(this);
     layout->setColumnSpacing(0, 20);
     layout->addWidget(topLabel, 0, 0, 1, 3);
@@ -296,13 +299,14 @@ ThirdPage::ThirdPage(ClassWizard *wizard)
 {
     topLabel = new QLabel(tr("<center><b>Output files</b></center>"), this);
 
-    headerLabel = new QLabel(tr("&Header file name:"), this);
-    headerLineEdit = new QLineEdit(this);
-    headerLabel->setBuddy(headerLineEdit);
-
     outputDirLabel = new QLabel(tr("&Output directory:"), this);
     outputDirLineEdit = new QLineEdit(this);
     outputDirLabel->setBuddy(outputDirLineEdit);
+    setFocusProxy(outputDirLineEdit);
+
+    headerLabel = new QLabel(tr("&Header file name:"), this);
+    headerLineEdit = new QLineEdit(this);
+    headerLabel->setBuddy(headerLineEdit);
 
     implementationLabel = new QLabel(tr("&Implementation file name:"), this);
     implementationLineEdit = new QLineEdit(this);

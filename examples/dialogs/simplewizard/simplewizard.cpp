@@ -71,6 +71,7 @@ void SimpleWizard::switchPage(QWidget *oldPage)
     QWidget *newPage = history.last();
     mainLayout->insertWidget(0, newPage);
     newPage->show();
+    newPage->setFocus();
 
     backButton->setEnabled(history.size() != 1);
     if (history.size() == numPages) {
