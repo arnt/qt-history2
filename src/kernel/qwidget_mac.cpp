@@ -71,6 +71,62 @@ void unclippedBitBlt(QPaintDevice *, int, int, const QPaintDevice *, int, int,
 		      int, int, Qt::RasterOp, bool, bool); //qpaintdevice_mac.cpp
 
 /*****************************************************************************
+  internally used for CoreGraphics 
+ *****************************************************************************/
+class QMacCGExtra {
+    CGContextRef cg_clip;
+    uint cg_clip_serial : 16;
+    CGContextRef cg_sibs;
+    uint cg_sibs_serial : 16;
+public:
+    QMacCGExtra() : cg_clip(0), cg_clip_serial(0), cg_sibs(0), cg_sibs_serial(0) { }
+    ~QMacCGExtra() {
+	if(cg_clip) {
+	    CGContextRelease(cg_clip);
+	    cg_clip = 0;
+	}
+	if(cg_sibs) {
+	    CGContextRelease(cg_sibs);
+	    cg_sibs = 0;
+	}
+    }
+    CGContextRef getCGHandle(bool, QWidget *);
+};
+CGContextRef QMacCGExtra::getCGHandle(bool do_children, QWidget *widg)
+{
+    uint serial = widg->clippedSerial(do_children);
+    CGContextRef ret = 0;
+    if(do_children) {
+	if(cg_clip) {
+	    if(cg_clip_serial == serial)
+		return cg_clip;
+	    CGContextRelease(cg_clip);
+	}
+	CreateCGContextForPort(GetWindowPort((WindowPtr)widg->handle()), &cg_clip);
+	ret = cg_clip;
+    } else {
+	if(cg_sibs) {
+	    if(cg_sibs_serial == serial)
+		return cg_sibs;
+	    CGContextRelease(cg_sibs);
+	}
+	CreateCGContextForPort(GetWindowPort((WindowPtr)widg->handle()), &cg_sibs);
+	ret = cg_sibs;
+    }
+    if(ret) {
+	QRegion rgn = widg->clippedRegion(do_children);
+	Rect r;
+	{
+	    QRect qr = rgn.boundingRect();
+	    SetRect(&r, qr.left(), qr.top(), qr.right(), qr.bottom());
+	}
+	ClipCGContextToRegion(ret, &r, rgn.handle(TRUE));
+    }
+    return ret;
+}
+
+
+/*****************************************************************************
   QWidget utility functions
  *****************************************************************************/
 QPoint posInWindow(QWidget *w)
@@ -278,6 +334,12 @@ void qt_clean_root_win() {
 	    warning("%s:%d: %s (%s) had his handle taken away!", __FILE__, __LINE__,
 		     (*it)->name(), (*it)->className());
 #endif
+	    if(QWExtra *extra = w->d->extraData()) {
+		if(extra->macCGExtra) {
+		    delete extra->macCGExtra;
+		    extra->macCGExtra = 0;
+		}
+	    }
 	    w->hd = 0; //at least now we'll just crash
 	}
     }
@@ -694,7 +756,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    destroyw = hd;
 	own_id = 0; //it has become mine!
 	id = window;
-	hd = (void *)id;
+	hd = (Qt::HANDLE)id;
 	macWidgetChangedWindow();
 	setWinId(id);
     } else if(desktop) {			// desktop widget
@@ -962,13 +1024,21 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             qt_leave_modal(this);
         else if(testWFlags(WType_Popup))
             qApp->closePopup(this);
-	if(destroyWindow && isTopLevel() && hd && own_id) {
-	    mac_window_count--;
-	    if(window_event) {
-		RemoveEventHandler(window_event);
-		window_event = 0;
+	if(destroyWindow) {
+	    if(QWExtra *extra = d->extraData()) {
+		if(extra->macCGExtra) {
+		    delete extra->macCGExtra;
+		    extra->macCGExtra = 0;
+		}
 	    }
-	    DisposeWindow((WindowPtr)hd);
+	    if(isTopLevel() && hd && own_id) {
+		mac_window_count--;
+		if(window_event) {
+		    RemoveEventHandler(window_event);
+		    window_event = 0;
+		}
+		DisposeWindow((WindowPtr)hd);
+	    }
 	}
     }
     hd=0;
@@ -1040,6 +1110,12 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
 	    QWidget *w = (QWidget *)obj;
 	    if(((WindowPtr)w->hd) == old_hd) {
 		w->hd = hd; //all my children hd's are now mine!
+		if(QWExtra *extra = w->d->extraData()) {
+		    if(extra->macCGExtra) {
+			delete extra->macCGExtra;
+			extra->macCGExtra = 0;
+		    }
+		}
 		w->macWidgetChangedWindow();
 	    }
 	}
@@ -1050,7 +1126,7 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
     if(isVisible()) //finally paint my new area
 	qt_dirty_wndw_rgn("reparent2",this, mac_rect(posInWindow(this), geometry().size()));
 
-    //send the reparent event
+    //cleanup
     if(old_hd && owned) { //don't need old window anymore
 	mac_window_count--;
 	if(old_window_event) {
@@ -2000,6 +2076,7 @@ void QWidgetPrivate::createSysExtra()
     extra->child_serial = extra->clip_serial = 1;
     extra->child_dirty = extra->clip_dirty = true;
     extra->macDndExtra = 0;
+    extra->macCGExtra = 0;
 }
 
 void QWidgetPrivate::deleteSysExtra()
@@ -2255,6 +2332,19 @@ uint QWidget::clippedSerial(bool do_children)
 {
     d->createExtra();
     return do_children ? d->extraData()->clip_serial : d->extraData()->child_serial;
+}
+
+/*!
+    \internal
+*/
+Qt::HANDLE QWidget::macCGHandle(bool do_children) const
+{
+    QWidget *that = (QWidget*)this;
+    that->d->createExtra();
+    QWExtra *extra = d->extraData();
+    if(!extra->macCGExtra)
+	extra->macCGExtra = new QMacCGExtra;
+    return extra->macCGExtra->getCGHandle(do_children, that);
 }
 
 /*!

@@ -304,8 +304,11 @@ bool QPrinter::cmd(int c, QPainter *, QPDevCmdParam *)
         if(PMSessionBeginPage(psession, pformat, &rect) != noErr ) //begin the page
             return FALSE;
         if(PMSessionGetGraphicsContext(psession, kPMGraphicsContextQuickdraw,
-					&hd) != noErr) //get the gworld
+					&hd) != noErr) { //get the gworld
+	    cg_hd = 0;
             return FALSE;
+	}
+	CreateCGContextForPort((CGrafPtr)hd, (CGContextRef*)&cg_hd);
 	if(fullPage()) {
 	    QSize marg(margins());
 	    QMacSavedPortInfo mp(this);

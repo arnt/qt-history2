@@ -31,7 +31,8 @@ QPaintDevice::QPaintDevice(uint devflags)
     }
     devFlags = devflags;
     painters = 0;
-    hd=0;
+    hd = 0;
+    cg_hd = 0;
 }
 
 QPaintDevice::~QPaintDevice()
@@ -412,11 +413,20 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 #endif // QMAC_PIXMAP_ALPHA
 }
 
+/*!
+    Returns the window system handle of the paint device for
+    CoreGraphics support. Use of this function is not portable. This
+    function will return 0 if the handle could not be created.
+*/
+Qt::HANDLE QPaintDevice::macCGHandle() const
+{
+    return cg_hd;
+}
+
 Qt::HANDLE QPaintDevice::handle() const
 {
     return hd;
 }
-
 
 void QPaintDevice::setResolution(int)
 {

@@ -697,13 +697,14 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     /* error? */
     if(e != noErr) {
 	data->w = data->h = 0;
-	hd=0; //just to be sure
+	cg_hd=hd=0; //just to be sure
 	qDebug("Qt: internal: QPixmap::init error (%d) (%d %d %d %d)", e, rect.left, rect.top, rect.right, rect.bottom);
 	Q_ASSERT(0);
     } else {
 #ifdef QMAC_ONE_PIXEL_LOCK
 	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
+	CreateCGContextForPort((CGrafPtr)hd, (CGContextRef*)&cg_hd);
 	data->w=w;
 	data->h=h;
     }

@@ -78,6 +78,7 @@ public:
     virtual Qt::HANDLE  x11RenderHandle() const;
 #elif defined(Q_WS_MAC)
     virtual Qt::HANDLE      handle() const;
+    virtual Qt::HANDLE      macCGHandle() const;
 #elif defined(Q_WS_QWS)
     virtual Qt::HANDLE	handle() const;
 #endif
@@ -200,7 +201,8 @@ protected:
     virtual void	 setX11Data( const QPaintDeviceX11Data* );
     QPaintDeviceX11Data* getX11Data( bool def=FALSE ) const;
 #elif defined(Q_WS_MAC)
-    void * hd;
+    Qt::HANDLE hd;
+    Qt::HANDLE cg_hd;
 #elif defined(Q_WS_QWS)
     Qt::HANDLE hd;
 #endif

@@ -41,6 +41,7 @@ class QOleDropTarget;
 #endif
 #if defined(Q_WS_MAC)
 class QMacDndExtra;
+class QMacCGExtra;
 #endif
 
 struct QTLWExtra {
@@ -100,6 +101,7 @@ struct QWExtra {
     WId xDndProxy;				// XDND forwarding to embedded windows
 #endif
 #if defined(Q_WS_MAC)
+    QMacCGExtra *macCGExtra;
     QRegion clip_saved, clip_sibs, clip_children;
     QMacDndExtra *macDndExtra;
     QRegion dirty_area;

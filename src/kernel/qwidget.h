@@ -414,6 +414,8 @@ public:
 #if defined(Q_WS_MAC)
     QRegion clippedRegion(bool do_children=TRUE);
     uint clippedSerial(bool do_children=TRUE);
+    Qt::HANDLE macCGHandle(bool) const;
+    virtual Qt::HANDLE macCGHandle() const { return macCGHandle(TRUE); }
 #endif
 
     enum WidgetAttribute {
