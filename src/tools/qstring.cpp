@@ -3275,22 +3275,20 @@ QString QString::lower() const
     int l = length();
     if ( l ) {
 	register QChar *p = d->unicode;
-	if ( p ) {
-	    while ( l ) {
-		if ( *p != ::lower(*p) ) {
-		    QString s( *this );
-		    s.real_detach();
-		    p = s.d->unicode + ( p - d->unicode );
-		    while ( l ) {
-			*p = ::lower( *p );
-			l--;
-			p++;
-		    }
-		    return s;
+	while ( l ) {
+	    if ( *p != ::lower(*p) ) {
+		QString s( *this );
+		s.real_detach();
+		p = s.d->unicode + ( p - d->unicode );
+		while ( l ) {
+		    *p = ::lower( *p );
+		    l--;
+		    p++;
 		}
-		l--;
-		p++;
+		return s;
 	    }
+	    l--;
+	    p++;
 	}
     }
     return *this;
@@ -3312,22 +3310,20 @@ QString QString::upper() const
     int l = length();
     if ( l ) {
 	register QChar *p = d->unicode;
-	if ( p ) {
-	    while ( l ) {
-		if ( *p != ::upper(*p) ) {
-		    QString s( *this );
-		    s.real_detach();
-		    p = s.d->unicode + ( p - d->unicode );
-		    while ( l ) {
-			*p = ::upper( *p );
-			l--;
-			p++;
-		    }
-		    return s;
+	while ( l ) {
+	    if ( *p != ::upper(*p) ) {
+		QString s( *this );
+		s.real_detach();
+		p = s.d->unicode + ( p - d->unicode );
+		while ( l ) {
+		    *p = ::upper( *p );
+		    l--;
+		    p++;
 		}
-		l--;
-		p++;
+		return s;
 	    }
+	    l--;
+	    p++;
 	}
     }
     return *this;
