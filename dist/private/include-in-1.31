@@ -1,8 +1,11 @@
 QButton font setting bug (patch included).
 
-QPopupMenu updating of itmes on accelerators?
+QPopupMenu updating of items on accelerators?
 
-QProgressBar colors not fixed anymore.
+QProgressBar base color is not fixed to white.
+
+QProgrsssDialog setLabel and setCancelButton ensure the given widget is
+ shown and is a child.
 
 setEnabled( FALSE ) moves focus the right way
 
