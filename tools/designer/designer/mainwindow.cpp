@@ -774,8 +774,10 @@ void MainWindow::helpContents()
 	    }
 	    f.close();
 	} else {
+#if 0
 	    QMessageBox::critical( this, tr( "Error" ), tr( "Couldn't find the Qt documentation property index file!\n"
 					    "Define the correct documentation path in the preferences dialog." ) );
+#endif
 	}
     }
 
@@ -818,7 +820,7 @@ void MainWindow::helpContents()
 
     if ( !source.isEmpty() ) {
 	QStringList lst;
-	lst << "assistant" << source;
+	lst << "assistant" << QString( "d:" + source );
 	QProcess proc( lst );
 	proc.start();
     }
@@ -828,7 +830,7 @@ void MainWindow::helpContents()
 void MainWindow::helpManual()
 {
     QStringList lst;
-    lst << "assistant" << "book1.html";
+    lst << "assistant" << "d:book1.html";
     QProcess proc( lst );
     proc.start();
 }
@@ -2562,7 +2564,7 @@ void MainWindow::openHelpForDialog( const QString &dia )
 
     if ( !page.isEmpty() ) {
 	QStringList lst;
-	lst << "assistant" << page;
+	lst << "assistant" << QString( "d:" + page );
 	QProcess proc( lst );
 	proc.start();
     }

@@ -302,6 +302,8 @@ void Socket::startOwnWindow()
     mw->setIcon( logo_xpm );
     mw->show();
     QString s = qApp->argv()[ 1 ];
+    if ( s.left( 2 ) == "d:" )
+	s.remove( 0, 2 );
     mw->showLink( s, "" );
     (void)new ServerSocket( mw );
 }
@@ -309,8 +311,13 @@ void Socket::startOwnWindow()
 void Socket::sendFile()
 {
     QString s = qApp->argv()[ 1 ];
-    s += "\n";
-    writeBlock( s.latin1(), s.length() );
+    if ( s.left( 2 ) == "d:" ) {
+	s.remove( 0, 2 );
+	s += "\n";
+	writeBlock( s.latin1(), s.length() );
+    } else {
+	startOwnWindow();
+    }
 }
 
 
