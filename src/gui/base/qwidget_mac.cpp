@@ -1874,10 +1874,10 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
     if(isTopLevel() && data->winid && d->own_id) {
 	if(isResize && isMaximized())
 	    clearWState(WState_Maximized);
+	if (isMove)
+	    MoveWindow((WindowPtr)hd, x, y, false);
 	if (isResize)
 	    SizeWindow((WindowPtr)hd, w, h, true);
-	if (isMove)
-	    MoveWindow((WindowPtr)hd, x, y, true);
 	d->dirtyClippedRegion(TRUE);
     }
 
