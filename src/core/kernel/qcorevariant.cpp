@@ -826,7 +826,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             break;
         case QCoreVariant::ULongLong:
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
-            *f = (double)(Q_LLONG)d->data.ull;
+            *f = (double)(Q_LLONG)d->data.shared->value.ull;
 #else
             *f = (double)d->data.shared->value.ull;
 #endif
