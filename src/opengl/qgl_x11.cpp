@@ -1102,9 +1102,9 @@ void QGLWidget::macInternalFixBufferRect()
 {
 }
 
-QPaintEngine *QGLWidget::engine() const
+QPaintEngine *QGLWidget::engine()
 {
     if (!d->paintEngine)
-	((QGLWidget*) this)->d->paintEngine = new QOpenGLPaintEngine(this);
+	d->paintEngine = new QOpenGLPaintEngine(this);
     return d->paintEngine;
 }
