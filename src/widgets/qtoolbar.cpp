@@ -423,6 +423,8 @@ bool QToolBar::event( QEvent * e )
 	QObject * child = ((QChildEvent*)e)->child();
 	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
 	    bl->setStretchFactor( (QWidget*)child, 1 );
+	if ( child && child->isWidgetType() && child->parent() == this && !child->inherits( "QPopupMenu" ) )
+	    ( (QWidget*)child )->show();
     }
     return r;
 }
@@ -473,6 +475,10 @@ void QToolBar::clear()
 	if ( it.current()->isWidgetType() )
 	    delete it.current();
     }
+    d->menu = 0;
+    d->arrow = 0;
+    d->back = 0;
+    updateArrowStuff();
 }
 
 /*!
