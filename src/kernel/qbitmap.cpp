@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#66 $
 **
 ** Implementation of QBitmap class
 **

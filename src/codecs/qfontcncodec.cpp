@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontjpcodec.cpp#1 $
+** $Id: //depot/qt/main/src/codecs/qfontcncodec.cpp#3 $
 **
 ** Japanese Font utilities for X11
 **

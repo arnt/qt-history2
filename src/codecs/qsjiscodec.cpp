@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qsjiscodec.cpp#9 $
+** $Id: //depot/qt/main/src/codecs/qsjiscodec.cpp#11 $
 **
 ** Implementation of QSjisCodec class
 **

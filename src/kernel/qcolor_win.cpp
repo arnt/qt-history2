@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#78 $
 **
 ** Implementation of QColor class for Win32
 **

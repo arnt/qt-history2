@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#595 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#812 $
 **
 ** Implementation of X11 startup routines and event handling
 **

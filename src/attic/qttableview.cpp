@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/attic/qttableview.cpp#126 $
+** $Id: //depot/qt/main/src/attic/qttableview.cpp#2 $
 **
 ** Implementation of QtTableView class
 **

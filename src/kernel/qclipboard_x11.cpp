@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#89 $
 **
 ** Implementation of QClipboard class for X11
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#129 $
 **
 ** Implementation of QAccel class
 **

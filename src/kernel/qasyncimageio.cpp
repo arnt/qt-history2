@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#95 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **

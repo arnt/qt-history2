@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfonttwcodec.cpp#1 $
+** $Id: //depot/qt/main/src/codecs/qfonttwcodec.cpp#3 $
 **
 ** Taiwan Font utilities for X11
 **
