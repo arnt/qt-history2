@@ -3384,7 +3384,7 @@ bool QXmlSimpleReader::processElementEmptyTag()
 	    // call the handler for prefix mapping
 	    prefixesAfter = d->namespaceSupport.prefixes();
 	    for ( QStringList::Iterator it = prefixesBefore.begin(); it != prefixesBefore.end(); ++it ) {
-		if ( prefixesAfter.contains(*it) == 0 ) {
+		if ( ! prefixesAfter.contains(*it) ) {
 		    if ( !contentHnd->endPrefixMapping( *it ) ) {
 			reportParseError( contentHnd->errorString() );
 			return FALSE;
@@ -3446,7 +3446,7 @@ bool QXmlSimpleReader::processElementETagBegin2()
 	if ( contentHnd ) {
 	    prefixesAfter = d->namespaceSupport.prefixes();
 	    for ( QStringList::Iterator it = prefixesBefore.begin(); it != prefixesBefore.end(); ++it ) {
-		if ( prefixesAfter.contains(*it) == 0 ) {
+		if ( ! prefixesAfter.contains(*it) ) {
 		    if ( !contentHnd->endPrefixMapping( *it ) ) {
 			reportParseError( contentHnd->errorString() );
 			return FALSE;
