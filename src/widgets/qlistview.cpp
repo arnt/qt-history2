@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#266 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#267 $
 **
 ** Implementation of QListView widget class
 **
@@ -2558,11 +2558,8 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	else
 	    i = d->currentSelected;
 
-	if ( i ) {
-	    int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
-	    emit rightButtonPressed( i, viewport()->mapToGlobal( vp ),
-				     c );
-	}
+	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
+	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
 	return;
     }
 
@@ -2641,11 +2638,8 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
         else
             i = d->currentSelected;
 
-        if ( i ) {
-            int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
-            emit rightButtonClicked( i, viewport()->mapToGlobal( vp ),
-                                     c );
-        }
+	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
+	emit rightButtonClicked( i, viewport()->mapToGlobal( vp ), c );
         return;
     }
 
