@@ -3,7 +3,7 @@
 Dialog::Dialog(QWidget *parent = 0)
     : QDialog(parent)
 {
-    setIconFile("fileopen.png");
+    setIconFile(qApp->applicationDirPath() + "/fileopen.png");
 
     QPushButton *iconButton = new QPushButton("&Icon...", this);
     iconButton->move((100 - iconButton->width()) / 2,
