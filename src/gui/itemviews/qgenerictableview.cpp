@@ -138,7 +138,7 @@ QGenericHeader *QGenericTableView::verticalHeader() const
 /*!
     Sets the widget to use for the vertical header to \a header.
 
-    \sa horizontalHeader() setVericalHeader()
+    \sa horizontalHeader() setVerticalHeader()
 */
 void QGenericTableView::setHorizontalHeader(QGenericHeader *header)
 {
@@ -362,7 +362,7 @@ QModelIndex QGenericTableView::itemAt(int x, int y) const
 }
 
 /*!
-  \reimpl
+    Returns the table's size hint.
 */
 QSize QGenericTableView::sizeHint() const
 {

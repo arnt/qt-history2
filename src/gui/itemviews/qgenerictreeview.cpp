@@ -70,7 +70,7 @@
 
 /*!
   \fn void QGenericTreeView::collapsed(const QModelIndex &index)
-
+  
   This signal is emitted when the item given by \a index is collapsed.
 */
 
@@ -80,9 +80,10 @@
 */
 
 /*!
-  Constructs a table view with the given \a parent.
+    Constructs a table view with a \a parent to represent a model's
+    data. Use setModel() to set the model.
 
-  \sa QAbstractItemModel
+    \sa QAbstractItemModel
 */
 
 QGenericTreeView::QGenericTreeView(QWidget *parent)
@@ -255,9 +256,9 @@ int QGenericTreeView::columnAt(int x) const
 }
 
 /*!
-  Returns true if the \a column is hidden; otherwise returns false.
+    Returns true if the \a column is hidden; otherwise returns false.
 
-  \sa hideColumn
+    \sa hideColumn()
 */
 
 bool QGenericTreeView::isColumnHidden(int column) const
@@ -938,7 +939,7 @@ void QGenericTreeView::resizeColumnToContents(int column, bool checkHeader)
 }
 
 /*!
-  \fn void QGenericTreeView::columnWidthChanged(int column, int oldSize, int newSize)
+    \fn void QGenericTreeView::columnWidthChanged(int column, int oldSize, int newSize)
 
   Changes the \a column's width from the size given by \a oldSize to the
   size given by \a newSize.

@@ -255,9 +255,6 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
     \sa setFileName() remove() mkdir() isRelativePath()
  */
 
-// ### DOC: Since the file-directory distinction is so important,
-// shouldn't we have an isDirectory() function?
-
 /*!
     \fn QStringList QFileEngine::entryList(int filterSpec, const QStringList &filters) const
 
@@ -379,9 +376,6 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
     \sa setFileName(), QDateTime, QDateTime::isValid(), FileTime
  */
 
-// ### DOC: LinkName is a complete mystery:
-// Does it mean: The full file name of the file that this file is a
-// link to. (This will be empty if this file is not a link.)
 /*!
     \enum QFileEngine::FileName
 
@@ -396,7 +390,8 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
     the BaseName).
     \value AbsolutePathName The absolute path to the file (excluding
     the BaseName).
-    \value LinkName Where the file is linked to if a link is referenced in the path
+    \value LinkName The full file name of the file that this file is a
+link to. (This will be empty if this file is not a link.)
     \value CanonicalName Often very similar to LinkName will return the true path to the file
 
     \sa fileName(), setFileName()

@@ -314,9 +314,9 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
   \value Batched The items are laid out in batches of 100 items.
 */
 
-// ### DOC: How is the model set?
 /*!
     Creates a new QGenericListView to view a model with the given \a parent.
+    Use setModel() to set the model.
 */
 QGenericListView::QGenericListView(QWidget *parent)
     : QAbstractItemView(*new QGenericListViewPrivate, parent)
@@ -1033,6 +1033,9 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
     return d->viewport->clipRegion().boundingRect();
 }
 
+/*!
+    Returns the list view's size hint.
+*/
 QSize QGenericListView::sizeHint() const
 {
     return d->contentsSize;
