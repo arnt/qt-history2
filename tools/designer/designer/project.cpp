@@ -371,7 +371,7 @@ void Project::parse()
 	    QString val = "";
 	    QString part = contents.mid( i + QString( *it ).length() );
 	    val = parse_part( part );
-	    setCustomSetting( *it, val );
+	    customSettings.replace( *it, val );
 	}
     }
 
@@ -921,6 +921,7 @@ void Project::setCustomSetting( const QString &key, const QString &value )
 {
     customSettings.remove( key );
     customSettings.insert( key, value );
+    save();
 }
 
 QString Project::customSetting( const QString &key ) const
