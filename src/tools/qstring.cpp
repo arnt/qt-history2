@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#219 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#220 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -15028,10 +15028,20 @@ QString &QString::replace( uint index, uint len, const QString &s )
 QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 {
     if ( len == slen && index + len <= length() ) {
-	// Optimized common case
+	// Optimized common case: replace without size change
 	real_detach();
 	memcpy( d->unicode+index, s, len*sizeof(QChar) );
     } else {
+	int df = d->unicode - s;
+	if ( df >= 0 && (uint)df < d->maxl ) {
+	    // Part of me - take a copy.
+	    QChar *tmp = new QChar[slen];
+	    memcpy(tmp,s,slen*sizeof(QChar));
+	    replace(index,len,tmp,slen);
+	    delete[] tmp;
+	    return *this;
+	}
+
 	remove( index, len );
 	insert( index, s, slen );
     }
