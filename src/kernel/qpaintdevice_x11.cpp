@@ -104,6 +104,9 @@ bool	 *QPaintDevice::x_appdefvisual_arr;
 */
 
 QPaintDevice::QPaintDevice( uint devflags )
+#ifdef Q_Q4PAINTER
+    : deviceGC(0)
+#endif
 {
     if ( !qApp ) {				// global constructor
 	qFatal( "QPaintDevice: Must construct a QApplication before a "

@@ -66,6 +66,10 @@
 #include <private/qunicodetables_p.h>
 #include <private/qcrashhandler_p.h>
 
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#endif
+
 // Input method stuff - UNFINISHED
 #include "qinputcontext_p.h"
 
@@ -1827,7 +1831,11 @@ void qt_init( QApplicationPrivate *priv, int,
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();
-	QPainter::initialize();
+#ifdef Q_Q4PAINTER
+	QX11GC::initialize();
+#else
+ 	QPainter::initialize();
+#endif
     }
 
     if( qt_is_gui_used ) {
@@ -2117,7 +2125,11 @@ void qt_cleanup()
 
     if ( qt_is_gui_used ) {
 	QPixmapCache::clear();
+#ifdef Q_Q4PAINTER
+	QX11GC::cleanup();
+#else
 	QPainter::cleanup();
+#endif
 	QCursor::cleanup();
 	QFont::cleanup();
 	QColor::cleanup();

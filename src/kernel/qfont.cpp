@@ -1916,7 +1916,7 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     d = painter->font().d;
 #endif
 
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) && !defined(Q_Q4PAINTER)
     if ( d->screen != p->scrn ) {
 	QFontPrivate *new_d = new QFontPrivate( *d );
 	d = new_d;

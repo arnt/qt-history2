@@ -9,7 +9,7 @@ QAbstractGC::QAbstractGC()
 
 void QAbstractGC::updateInternal(QPainterState *s)
 {
-    if (state) {
+    if (s) {
 	updatePen(s);
 	updateBrush(s);
 	updateFont(s);

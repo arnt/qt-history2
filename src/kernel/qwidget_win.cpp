@@ -396,11 +396,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     QInputContext::enable( this, im_enabled & isEnabled() );
 
 #ifdef Q_Q4PAINTER
-    if (!graphicsContext) {
-	graphicsContext = new QWin32GC(this);
-    } else {
-	printf("QWidget::creat(), skipped graphhics context.. for\n");
-    }
+    Q_ASSERT(!deviceGC);
+    deviceGC = new QWin32GC(this);
 #endif
 
 }
@@ -1623,12 +1620,5 @@ static void qt_tablet_cleanup()
         ptrWTClose( qt_tablet_context );
     delete qt_tablet_widget;
     qt_tablet_widget = 0;
-}
-#endif
-
-#ifdef Q_Q4PAINTER
-QAbstractGC *QWidget::gc() const
-{
-    return graphicsContext;
 }
 #endif

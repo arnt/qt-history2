@@ -87,7 +87,7 @@ public:
 #endif
 
 #ifdef Q_Q4PAINTER
-    virtual QAbstractGC *gc() const { return 0; }
+    QAbstractGC *gc() const { return deviceGC; }
 #endif
 
 #if defined(Q_WS_X11)
@@ -239,7 +239,7 @@ protected:
 
 #ifdef Q_Q4PAINTER
 protected:
-    QAbstractGC *graphicsContext;
+    QAbstractGC *deviceGC;
 #endif
 
 private:

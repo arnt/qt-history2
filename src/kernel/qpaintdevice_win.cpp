@@ -24,7 +24,7 @@
 
 QPaintDevice::QPaintDevice( uint devflags )
 #ifdef Q_Q4PAINTER
-    : graphicsContext(0)
+    : deviceGC(0)
 #endif
 {
     if ( !qApp ) {				// global constructor

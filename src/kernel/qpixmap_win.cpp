@@ -218,7 +218,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	delete [] bmi_data;
 #endif
 #ifdef Q_Q4PAINTER
-	graphicsContext = new QWin32PixmapGC(this);
+	Q_ASSERT(!deviceGC);
+	deviceGC = new QWin32PixmapGC(this);
 #endif
 
     if ( !DATA_HBM ) {

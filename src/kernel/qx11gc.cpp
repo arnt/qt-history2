@@ -41,12 +41,32 @@ void **QX11GC::x_appvisual_arr;
 bool *QX11GC::x_appdefvisual_arr;
 
 
-// paintevent magic to provide Windows semantics on X11
-extern QRegion* paintEventClipRegion;
-extern QPaintDevice* paintEventDevice;
 
-extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping();
+// paintevent magic to provide Windows semantics on X11
+static QRegion* paintEventClipRegion = 0;
+static QPaintDevice* paintEventDevice = 0;
+
+void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
+{
+    if ( !paintEventClipRegion )
+        paintEventClipRegion = new QRegion( region );
+    else
+        *paintEventClipRegion = region;
+    paintEventDevice = dev;
+}
+
+void qt_intersect_paintevent_clipping(QPaintDevice *dev, QRegion &region)
+{
+    if ( dev == paintEventDevice && paintEventClipRegion )
+	region &= *paintEventClipRegion;
+}
+
+void qt_clear_paintevent_clipping()
+{
+    delete paintEventClipRegion;
+    paintEventClipRegion = 0;
+    paintEventDevice = 0;
+}
 
 #ifdef QT_NO_XRENDER
 typedef unsigned long Picture;
@@ -457,6 +477,91 @@ static inline void release_gc( void *ref )
 {
     ((QGCC*)ref)->count--;
 }
+
+
+
+// ########
+void qt_erase_background(Qt::HANDLE hd, int screen,
+			 int x, int y, int w, int h,
+			 const QBrush &brush, int xoff, int yoff)
+{
+    Display *dpy = QPaintDevice::x11AppDisplay();
+    GC gc;
+    void *penref = 0;
+    ulong pixel = brush.color().pixel(screen);
+    bool obtained = obtain_gc(&penref, &gc, pixel, dpy, screen, hd, gc_cache_clip_serial);
+
+    if (!obtained && !penref) {
+	gc = alloc_gc(dpy, screen, hd, false);
+    } else {
+	if (penref && ((QGCC*)penref)->clip_serial) {
+	    XSetClipMask(dpy, gc, None);
+	    ((QGCC*)penref)->clip_serial = 0;
+	}
+    }
+
+    if (!obtained) {
+	XSetForeground(dpy, gc, pixel);
+    }
+
+    if (brush.pixmap()) {
+	XSetTile(dpy, gc, brush.pixmap()->handle());
+	XSetFillStyle(dpy, gc, FillTiled);
+	XSetTSOrigin(dpy, gc, x-xoff, y-yoff);
+	XFillRectangle(dpy, hd, gc, x, y, w, h);
+	XSetTSOrigin(dpy, gc, 0, 0);
+	XSetFillStyle(dpy, gc, FillSolid);
+    } else {
+	XFillRectangle(dpy, hd, gc, x, y, w, h);
+    }
+
+    if (penref) {
+	release_gc(penref);
+    } else {
+	free_gc(dpy, gc);
+    }
+}
+
+void qt_draw_transformed_rect( QPainter *p,  int x, int y, int w,  int h, bool fill )
+{
+//     XPoint points[5];
+//     int xp = x,  yp = y;
+//     p->map( xp, yp, &xp, &yp );
+//     points[0].x = xp;
+//     points[0].y = yp;
+//     xp = x + w; yp = y;
+//     p->map( xp, yp, &xp, &yp );
+//     points[1].x = xp;
+//     points[1].y = yp;
+//     xp = x + w; yp = y + h;
+//     p->map( xp, yp, &xp, &yp );
+//     points[2].x = xp;
+//     points[2].y = yp;
+//     xp = x; yp = y + h;
+//     p->map( xp, yp, &xp, &yp );
+//     points[3].x = xp;
+//     points[3].y = yp;
+//     points[4] = points[0];
+
+//     if ( fill )
+// 	XFillPolygon( p->dpy, p->hd, p->gc, points, 4, Convex, CoordModeOrigin );
+//     else
+// 	XDrawLines( p->dpy, p->hd, p->gc, points, 5, CoordModeOrigin );
+}
+
+
+// void qt_draw_background( QPainter *p, int x, int y, int w,  int h )
+// {
+//     if (p->testf(QPainter::ExtDev)) {
+// 	if (p->pdev->devType() == QInternal::Printer)
+// 	    p->fillRect(x, y, w, h, p->bg_brush);
+// 	return;
+//     }
+//     XSetForeground( p->dpy, p->gc, p->bg_brush.color().pixel(p->scrn) );
+//     qt_draw_transformed_rect( p, x, y, w, h, TRUE);
+//     XSetForeground( p->dpy, p->gc, p->cpen.color().pixel(p->scrn) );
+// }
+// ########
 
 /*
  * QX11GCPrivate

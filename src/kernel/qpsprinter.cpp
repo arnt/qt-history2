@@ -6387,8 +6387,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         return TRUE;
     case PdcDrawTextItem: {
 	const QTextItem *ti = p[1].textItem;
-	QScriptItem &si = ti->engine->items[ti->item];
-	int len = ti->engine->length( ti->item );
+	QScriptItem &si = ti->engine()->items[ti->item()];
+	int len = ti->engine()->length( ti->item() );
 	if ( si.isSpace || si.isObject )
 	    return FALSE;
 
@@ -6397,8 +6397,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    d->setFont( d->currentSet, si.analysis.script );
 	}
 	if( d->currentFontFile ) // better not crash in case somethig goes wrong.
-	    d->currentFontFile->drawText( d->pageStream, *p[0].point, ti->engine, ti->item,
-					  ti->engine->string.mid( si.position, len ), d, paint);
+	    d->currentFontFile->drawText( d->pageStream, *p[0].point, ti->engine(), ti->item(),
+					  ti->engine()->string.mid( si.position, len ), d, paint);
         return FALSE;
     }
     case PdcDrawPixmap: {

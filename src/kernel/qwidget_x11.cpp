@@ -29,6 +29,11 @@
 #include "qt_x11_p.h"
 #include <stdlib.h>
 
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#endif
+
+
 // NOT REVISED
 
 // defined in qapplication_x11.cpp
@@ -605,6 +610,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
+
+#ifdef Q_Q4PAINTER
+    if (!deviceGC)
+	deviceGC = new QX11GC(this);
+#endif
 }
 
 

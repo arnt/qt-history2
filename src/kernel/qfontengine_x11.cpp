@@ -113,6 +113,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, glyph_t
 
 void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const QScriptItem *si, int textFlags )
 {
+#ifndef Q_Q4PAINTER
     Display *dpy = QPaintDevice::x11AppDisplay();
     Qt::HANDLE hd = p->device()->handle();
     GC gc = p->gc;
@@ -175,6 +176,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
 	y += ci.yoff;
     }
     p->restore();
+#endif
 #endif
 }
 
@@ -401,6 +403,7 @@ static int x_font_errorhandler(Display *, XErrorEvent *)
 
 void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
+#ifndef Q_Q4PAINTER
     if ( !si->num_glyphs )
 	return;
 
@@ -644,6 +647,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	y += advances[i].y;
     }
     p->restore();
+#endif
 #endif
 }
 
@@ -1557,6 +1561,7 @@ void QFontEngineXft::recalcAdvances( int len, glyph_t *glyphs, advance_t *advanc
 //#define FONTENGINE_DEBUG
 void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
+#if Q_Q4PAINTER
     if ( !si->num_glyphs )
 	return;
 
@@ -1806,6 +1811,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	}
 	p->restore();
     }
+#endif
 #endif
 }
 

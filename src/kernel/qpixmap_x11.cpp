@@ -39,6 +39,9 @@
 
 #include <stdlib.h>
 
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#endif
 
 /*!
   \class QPixmap::QPixmapData
@@ -316,6 +319,10 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     }
 #endif // QT_NO_XFTFREETYPE
 
+#ifdef Q_Q4PAINTER
+    Q_ASSERT(!deviceGC);
+    deviceGC = new QX11GC(this);
+#endif
 }
 
 
