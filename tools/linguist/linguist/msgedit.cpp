@@ -457,7 +457,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     QHBoxLayout *hl = new QHBoxLayout( w, 6 );
     QVBoxLayout *vl = new QVBoxLayout( 6 );
 
-    phraseLbl = new QLabel( tr("Relevant phrases:"), w );
+    phraseLbl = new QLabel( tr("Phrases and guesses:"), w );
     phraseLv  = new PhraseLV( w, "phrase list view" );
     hl->addLayout( vl );
     vl->addWidget( phraseLbl );

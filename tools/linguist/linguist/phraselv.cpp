@@ -103,7 +103,7 @@ PhraseLV::PhraseLV( QWidget *parent, const char *name )
     for ( int i = 0; i < 3; i++ )
 	addColumn( QString::null, 120 );
     setColumnText( PhraseLVI::SourceText, tr("Source phrase") );
-    setColumnText( PhraseLVI::TargetText, tr("Target phrase") );
+    setColumnText( PhraseLVI::TargetText, tr("Translation") );
     setColumnText( PhraseLVI::DefinitionText, tr("Definition") );
     header()->setStretchEnabled( TRUE, -1 );
     what = new WhatPhrase( this );
