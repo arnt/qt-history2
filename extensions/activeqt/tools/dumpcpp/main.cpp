@@ -733,13 +733,50 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         declOut << endl;
 
         generateNameSpace(declOut, namespaceObject, libName.latin1());
+
+        UINT typeCount = typelib->GetTypeInfoCount();
+        if (declFile.isOpen()) {
+            declOut << endl;
+            declOut << "//Forward declarations" << endl;
+            for (UINT index = 0; index < typeCount; ++index) {
+                ITypeInfo *typeinfo = 0;
+                typelib->GetTypeInfo(index, &typeinfo);
+                if (!typeinfo)
+                    continue;
+
+                TYPEATTR *typeattr;
+                typeinfo->GetTypeAttr(&typeattr);
+                if (!typeattr || typeattr->wTypeFlags & TYPEFLAG_FHIDDEN) {
+                    typeinfo->Release();
+                    continue;
+                }
+
+                TYPEKIND typekind;
+                typelib->GetTypeInfoType(index, &typekind);
+
+                // forward declare classes and interface (not enums and typedefs)
+                if (typekind == TKIND_COCLASS || typekind == TKIND_DISPATCH) {
+                    BSTR nameString;
+                    BSTR docString;
+                    DWORD helpContext;
+                    BSTR helpFile;
+
+                    if (S_OK == typeinfo->GetDocumentation(-1, &nameString, &docString, &helpContext, &helpFile)) {
+                        QString classname = BSTRToQString(nameString);
+                        declOut << "class " << classname << ";" << endl;
+                    }
+                }
+
+                typeinfo->ReleaseTypeAttr(typeattr);
+                typeinfo->Release();
+            }
+
+            declOut << endl;
+        }
     }
 
     UINT typeCount = typelib->GetTypeInfoCount();
     for (UINT index = 0; index < typeCount; ++index) {
-        TYPEKIND typekind;
-        typelib->GetTypeInfoType(index, &typekind);
-
         ITypeInfo *typeinfo = 0;
         typelib->GetTypeInfo(index, &typeinfo);
         if (!typeinfo)
@@ -751,6 +788,9 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
             typeinfo->Release();
             continue;
         }
+
+        TYPEKIND typekind;
+        typelib->GetTypeInfoType(index, &typekind);
 
         uint object_category = category;
         if (!(typeattr->wTypeFlags & TYPEFLAG_FCANCREATE))
@@ -774,17 +814,15 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
         if (metaObject) {
             QByteArray className(metaObject->className());
-            if (className.at(0) != '_') {
-                if (declFile.isOpen()) {
-                    generateClassDecl(declOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|NoInlines));
-                    declOut << endl;
-                    generateClassDecl(inlinesOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|OnlyInlines));
-                    inlinesOut << endl;
-                }
-                if (implFile.isOpen()) {
-                    generateClassImpl(implOut, metaObject, className, libName.latin1(), (ObjectCategory)object_category);
-                    implOut  << endl;
-                }
+            if (declFile.isOpen()) {
+                generateClassDecl(declOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|NoInlines));
+                declOut << endl;
+                generateClassDecl(inlinesOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|OnlyInlines));
+                inlinesOut << endl;
+            }
+            if (implFile.isOpen()) {
+                generateClassImpl(implOut, metaObject, className, libName.latin1(), (ObjectCategory)object_category);
+                implOut  << endl;
             }
         }
 
