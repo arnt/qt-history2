@@ -2460,6 +2460,12 @@ QVBoxLayout::~QVBoxLayout()
 {
 }
 
+QBoxLayout *QBoxLayout::createTmpCopy()
+{
+    QBoxLayout *bl = new QBoxLayout( direction() );
+    bl->data = data;
+    return bl;
+}
 
 
 #endif //QT_NO_LAYOUT

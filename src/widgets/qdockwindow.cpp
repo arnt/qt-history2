@@ -774,16 +774,24 @@ void QDockWindow::resizeEvent( QResizeEvent *e )
 }
 
 
-static void swapRect( QRect &r, Qt::Orientation o, const QPoint &offset )
+void QDockWindow::swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, QDockArea *area )
 {
-    int w = r.width();
+    if ( !area ) {
+	r.setSize( size() );
+	return;
+    }
+
+    QBoxLayout *bl = boxLayout()->createTmpCopy();
+    bl->setDirection( o == Vertical ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom );
+    bl->activate();
+    r.setSize( bl->sizeHint() );
+    bl->data = 0;
+    delete bl;
     if ( o == Qt::Horizontal )
-	r.moveBy( -r.height() / 2, 0 );
+	r.moveBy( -r.width() / 2, 0 );
     else
-	r.moveBy( 0, -r.width() / 2 );
+	r.moveBy( 0, -r.height() / 2 );
     r.moveBy( offset.x(), offset.y() );
-    r.setWidth( r.height() );
-    r.setHeight( w );
 }
 
 QWidget *QDockWindow::areaAt( const QPoint &gp )
@@ -825,7 +833,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
     currRect.moveBy( offset.x(), offset.y() );
     if ( !w || !w->inherits( "QDockArea" ) ) {
 	if ( startOrientation != Horizontal )
-	    swapRect( currRect, Horizontal, startOffset );
+	    swapRect( currRect, Horizontal, startOffset, (QDockArea*)w );
 	if ( drawRect ) {
 	    unclippedPainter->setPen( QPen( gray, 3 ) );
 	    QRect dr(currRect);
@@ -841,7 +849,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
     state = InDock;
     QDockArea *area = (QDockArea*)w;
     if ( startOrientation != ( area ? area->orientation() : Horizontal ) )
-	    swapRect( currRect, orientation(), startOffset );
+	    swapRect( currRect, orientation(), startOffset, area );
     if ( drawRect ) {
 	unclippedPainter->setPen( QPen( gray, 1 ) );
 	QRect dr(currRect);

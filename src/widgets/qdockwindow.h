@@ -156,6 +156,7 @@ private:
     void updatePosition( const QPoint &globalPos  );
     QWidget *areaAt( const QPoint &gp );
     void removeFromDock( bool fixNewLines = TRUE );
+    void swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, QDockArea *area );
 
 private:
     QDockWindowHandle *horHandle, *verHandle;

@@ -119,6 +119,7 @@ private:	// Disabled copy constructor and operator=
 
 
 class QBoxLayoutData;
+class QDockWindow;
 
 class Q_EXPORT QBoxLayout : public QLayout
 {
@@ -180,7 +181,9 @@ private:
     int calcHfw( int );
     QBoxLayoutData *data;
     Direction dir;
+    QBoxLayout *createTmpCopy();
 private:	// Disabled copy constructor and operator=
+    friend class QDockWindow;
 #if defined(Q_DISABLE_COPY)
     QBoxLayout( const QBoxLayout & );
     QBoxLayout &operator=( const QBoxLayout & );
