@@ -491,6 +491,8 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 /*! \reimp */
 void QDialog::closeEvent( QCloseEvent *e )
 {
+    if ( isModal() && QWhatsThis::inWhatsThisMode() )
+	QWhatsThis::leaveWhatsThisMode();
     e->accept();
     reject();
 }
