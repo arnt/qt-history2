@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinfo.h#11 $
+** $Id: //depot/qt/main/src/kernel/qfontinfo.h#12 $
 **
 ** Definition of QFontInfo class
 **
@@ -19,7 +19,10 @@
 class QFontInfo
 {
 public:
+    QFontInfo( const QFontInfo & );
    ~QFontInfo();
+
+    QFontInfo 	       &operator=( const QFontInfo & );
 
     const char	       *family()	const;
     int			pointSize()	const;

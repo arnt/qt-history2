@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#45 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#45 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1029,12 +1029,34 @@ QFontMetrics::QFontMetrics( const QPainter *painter )
 }
 
 /*----------------------------------------------------------------------------
+  Constructs a copy of \e fm.
+ ----------------------------------------------------------------------------*/
+
+QFontMetrics::QFontMetrics( const QFontMetrics &fm )
+    : w(fm.w), p(fm.p)
+{
+    insertFontMetrics( this );			// register this object
+}
+
+/*----------------------------------------------------------------------------
   Destroys the font metrics object.
  ----------------------------------------------------------------------------*/
 
 QFontMetrics::~QFontMetrics()
 {
     removeFontMetrics( this );
+}
+
+
+/*----------------------------------------------------------------------------
+  Font metrics assignment.
+ ----------------------------------------------------------------------------*/
+
+QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
+{
+    w = fm.w;
+    p = fm.p;
+    return *this;
 }
 
 
@@ -1216,12 +1238,34 @@ QFontInfo::QFontInfo( const QPainter *painter )
 }
 
 /*----------------------------------------------------------------------------
+  Constructs a copy of \e fi.
+ ----------------------------------------------------------------------------*/
+
+QFontInfo::QFontInfo( const QFontInfo &fi )
+    : w(fi.w), p(fi.p)
+{
+    insertFontInfo( this );			// register this object
+}
+
+/*----------------------------------------------------------------------------
   Destroys the font info object.
  ----------------------------------------------------------------------------*/
 
 QFontInfo::~QFontInfo()
 {
     removeFontInfo( this );
+}
+
+
+/*----------------------------------------------------------------------------
+  Font info assignment.
+ ----------------------------------------------------------------------------*/
+
+QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
+{
+    w = fi.w;
+    p = fi.p;
+    return *this;
 }
 
 
