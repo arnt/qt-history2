@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#213 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#214 $
 **
 ** Implementation of QFileDialog class
 **
@@ -770,10 +770,14 @@ int QFileDialogPrivate::MCItem::height( const QListBox * lb ) const
 int QFileDialogPrivate::MCItem::width( const QListBox * lb ) const
 {
     QFontMetrics fm = lb->fontMetrics();
-    int w = 4;
+    int w = 2;
     if ( pixmap() )
-        w += pixmap()->width();
+        w += pixmap()->width() + 4;
+    else
+        w += 18;
     w += fm.width( text() );
+    w += -fm.minLeftBearing();
+    w += -fm.minRightBearing();
     w += 6;
     return w;
 }
@@ -794,7 +798,12 @@ void QFileDialogPrivate::MCItem::paint( QPainter * ptr )
     if ( pm )
         ptr->drawPixmap( ( h - pm->height() ) / 2, 4, *pm );
 
-    ptr->drawText( pm ? pm->width() + 6 : 20, ( h - fm.height() ) / 2, fm.width( text() ), fm.height(), 0, text() );
+    /* If the listbox ever needs multiline items...
+    ptr->drawText( pm ? pm->width() + 6 : 20, ( h - fm.height() ) / 2,
+	fm.width( text() ), fm.height(), Qt::DontClip, text() );
+    */
+    ptr->drawText( pm ? pm->width() + 8 : 22, (h - fm.height())/2+fm.ascent()-1,
+	    text() );
 }
 
 
