@@ -765,6 +765,7 @@ void QDockWidget::closeEvent(QCloseEvent *event)
 /*! \reimp */
 void QDockWidget::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event)
     QStyleOptionFrame opt;
     opt.init(this);
     QPainter p(this);

@@ -23,6 +23,7 @@
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
+#include "qdebug.h"
 
 #define RANGE 4
 
@@ -31,7 +32,7 @@ static bool resizeVerticalDirectionFixed = false;
 
 QWidgetResizeHandler::QWidgetResizeHandler(QWidget *parent, QWidget *cw)
     : QObject(parent), widget(parent), childWidget(cw ? cw : parent),
-      extrahei(0), buttonDown(false), moveResizeMode(false), sizeprotect(true), moving(true)
+      fw(0), extrahei(0), buttonDown(false), moveResizeMode(false), sizeprotect(true), movingEnabled(true)
 {
     mode = Nowhere;
     widget->setMouseTracking(true);
@@ -106,10 +107,10 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
             return false;
         if (e->button() == Qt::LeftButton) {
             emit activate();
-            bool me = isMovingEnabled();
-            setMovingEnabled(me && o == widget);
+            bool me = movingEnabled;
+            movingEnabled = (me && o == widget);
             mouseMoveEvent(e);
-            setMovingEnabled(me);
+            movingEnabled = me;
             buttonDown = true;
             moveOffset = widget->mapFromGlobal(e->globalPos());
             invertedMoveOffset = widget->rect().bottomRight() - moveOffset;
@@ -128,10 +129,10 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
     case QEvent::MouseMove: {
         if (w->isMaximized())
             break;
-        bool me = isMovingEnabled();
-        setMovingEnabled(me && o == widget);
+        bool me = movingEnabled;
+        movingEnabled = (me && o == widget);
         mouseMoveEvent(e);
-        setMovingEnabled(me);
+        movingEnabled = me;
         if (buttonDown && mode != Center)
             return true;
     } break;
@@ -153,7 +154,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
 void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
 {
     QPoint pos = widget->mapFromGlobal(e->globalPos());
-    if (!moveResizeMode && (!buttonDown || (e->buttons() & Qt::LeftButton) == 0)) {
+    if (!moveResizeMode && !buttonDown) {
         if (pos.y() <= range && pos.x() <= range)
             mode = TopLeft;
         else if (pos.y() >= widget->height()-range && pos.x() >= widget->width()-range)
@@ -181,7 +182,7 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 
-    if (buttonDown && !isMovingEnabled() && mode == Center && !moveResizeMode)
+    if (mode == Center && !movingEnabled)
         return;
 
     if (widget->testAttribute(Qt::WA_WState_ConfigPending))
@@ -204,15 +205,11 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
     QPoint p = globalPos + invertedMoveOffset;
     QPoint pp = globalPos - moveOffset;
 
-    int fw = 0;
     int mw = qMax(childWidget->minimumSizeHint().width(),
                    childWidget->minimumWidth());
     int mh = qMax(childWidget->minimumSizeHint().height(),
                    childWidget->minimumHeight());
     if (childWidget != widget) {
-        QFrame *frame = qobject_cast<QFrame*>(widget);
-        if (frame)
-            fw = frame->frameWidth();
         mw += 2 * fw;
         mh += 2 * fw + extrahei;
     }
@@ -251,7 +248,7 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
         geom = QRect(widget->geometry().topLeft(), QPoint(p.x(), widget->geometry().bottom())) ;
         break;
     case Center:
-        if (isMovingEnabled() || moveResizeMode)
+        if (movingEnabled || moveResizeMode)
             geom.moveTopLeft(pp);
         break;
     default:

@@ -42,7 +42,7 @@ class Q3TitleBarPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(Q3TitleBar)
 public:
     Q3TitleBarPrivate()
-        : toolTip(0), act(0), window(0), movable(1), pressed(0), autoraise(0)
+        : toolTip(0), act(0), window(0), movable(1), pressed(0), autoraise(0), inevent(0)
     {
     }
 
@@ -55,6 +55,7 @@ public:
     bool movable            :1;
     bool pressed            :1;
     bool autoraise          :1;
+    bool inevent : 1;
 
     int titleBarState() const;
     QStyleOptionTitleBar getStyleOption() const;
@@ -273,10 +274,10 @@ void Q3TitleBar::mouseReleaseEvent(QMouseEvent *e)
         QStyleOptionTitleBar opt = d->getStyleOption();
         QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                                  e->pos(), this);
+        d->pressed = false;
         if (ctrl == d->buttonDown) {
             d->buttonDown = QStyle::SC_None;
             repaint();
-            d->pressed = false;
             switch(ctrl) {
             case QStyle::SC_TitleBarShadeButton:
             case QStyle::SC_TitleBarUnshadeButton:
@@ -530,6 +531,9 @@ QWidget *Q3TitleBar::window() const
 
 bool Q3TitleBar::event(QEvent *e)
 {
+    if (d->inevent)
+        return QWidget::event(e);
+    d->inevent = true;
     if (e->type() == QEvent::ApplicationPaletteChange) {
         d->readColors();
         return true;
@@ -550,13 +554,13 @@ bool Q3TitleBar::event(QEvent *e)
             int aspect = (icon.height() * 100) / icon.width();
             int newh = (aspect * menur.width()) / 100;
             icon.fromImage(icon.toImage().scale(menur.width(), newh));
-            QWidget::setWindowIcon(icon);
+            setWindowIcon(icon);
         } else if (icon.height() > menur.height()) {
             // try to keep something close to the same aspect
             int aspect = (icon.width() * 100) / icon.height();
             int neww = (aspect * menur.height()) / 100;
             icon.fromImage(icon.toImage().scale(neww, menur.height()));
-            QWidget::setWindowIcon(icon);
+            setWindowIcon(icon);
         }
 
 #endif
@@ -566,6 +570,7 @@ bool Q3TitleBar::event(QEvent *e)
         update();
     }
 
+    d->inevent = false;
     return QWidget::event(e);
 }
 

@@ -1762,6 +1762,7 @@ Q3WorkspaceChild::Q3WorkspaceChild(QWidget* window, Q3Workspace *parent, Qt::WFl
 
     widgetResizeHandler = new QWidgetResizeHandler(this, window);
     widgetResizeHandler->setSizeProtection(!parent->scrollBarsEnabled());
+    widgetResizeHandler->setFrameWidth(frameWidth());
     connect(widgetResizeHandler, SIGNAL(activate()),
              this, SLOT(activate()));
     if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))

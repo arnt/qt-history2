@@ -47,13 +47,15 @@ public:
     void setActive(Action ac, bool b);
     bool isActive() const { return isActive(Any); }
     bool isActive(Action ac) const;
-    void setMovingEnabled(bool b) { moving = b; }
-    bool isMovingEnabled() const { return moving; }
+    void setMovingEnabled(bool b) { movingEnabled = b; }
+    bool isMovingEnabled() const { return movingEnabled; }
 
     bool isButtonDown() const { return buttonDown; }
 
     void setExtraHeight(int h) { extrahei = h; }
     void setSizeProtection(bool b) { sizeprotect = b; }
+
+    void setFrameWidth(int w) { fw = w; }
 
     void doResize();
     void doMove();
@@ -81,13 +83,14 @@ private:
     QPoint moveOffset;
     QPoint invertedMoveOffset;
     MousePosition mode;
+    int fw;
     int extrahei;
     int range;
     uint buttonDown            :1;
     uint moveResizeMode            :1;
     uint activeForResize    :1;
     uint sizeprotect            :1;
-    uint moving                    :1;
+    uint movingEnabled                    :1;
     uint activeForMove            :1;
 
     void setMouseCursor(MousePosition m);
