@@ -47,7 +47,7 @@
 
 // DNS header files are not fully covered by X/Open specifications.
 // In particular nothing is said about res_* :/
-// On AIX header files <netinet/in.h> and <arpa/nameser.h> are not
+// On Solaris header files <netinet/in.h> and <arpa/nameser.h> are not
 // included by <resolv.h>. Note that <arpa/nameser.h> must be included
 // before <resolv.h>.
 #include <netinet/in.h>

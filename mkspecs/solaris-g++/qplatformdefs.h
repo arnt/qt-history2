@@ -95,10 +95,10 @@ typedef unsigned int useconds_t;
 extern "C" int usleep(useconds_t);
 #endif
 
-#if (_XOPEN_SOURCE-0 == 500)
+#if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500)
 // on Solaris 7 and better with specific feature test macros
 #define QT_SOCKLEN_T socklen_t
-#elif (_XOPEN_SOURCE_EXTENDED-0 == 1)
+#elif defined(_XOPEN_SOURCE_EXTENDED)
 // on Solaris 2.6 and better with specific feature test macros
 #define QT_SOCKLEN_T size_t
 #else
