@@ -6,8 +6,8 @@ provides an overview of the XML format used, and should provide enough
 information for developers to write their own \c .ui parsers so that
 they can read and modify \c .ui files programatically.
 
-One way to parse a \c .ui file is to use Qt and the QDom class; this
-is how \QD does it: see the \c resource.h and \c resource.cpp
+One way to parse a \c .ui file is to use Qt and the \l QDom class;
+this is how \QD does it: see the \c resource.h and \c resource.cpp
 source files. 
 
 The doctype of a \c .ui file is simply "UI", so the doctype tag is:
@@ -28,7 +28,7 @@ Within the UI entity, there may one or zero of the following element
 types:
 
 \list
-\i \link actions actions\endlink - actions, for QMainWindow forms
+\i \link actions actions\endlink - actions, for \l QMainWindow forms
 \i \link author author\endlink - the form's author
 \i \link class class\endlink - the form's class name
 \i \link comment comment\endlink - comments, e.g. copyright notices
@@ -39,14 +39,14 @@ types:
 \i \link images images\endlink - embedded images: only for \c .ui files than include embedded images; images are normally stored in a separate \c images directory
 \i \link includes includes\endlink - include files
 \i \link layoutdefaults layoutdefaults\endlink - default values for layout attributes
-\i \link menubar menubar\endlink - menu bar, for QMainWindow forms
+\i \link menubar menubar\endlink - menu bar, for \l QMainWindow forms
 \i \link pixmapfunction pixmapfunction\endlink - the name of the function to use for retrieving pixmaps if neither embedded nor external pixmaps are being used
 \i \link pixmapinproject pixmapinproject\endlink - an element whose
 presence ndicates that the pixmaps are handled by the \c .pro file
 \i \link signals signals\endlink - signal declarations
 \i \link slots slots\endlink - slot declarations
 \i \link tabstops tabstops\endlink - the form's tab order
-\i \link toolbars toolbars\endlink - toolbars, for QMainWindow forms
+\i \link toolbars toolbars\endlink - toolbars, for \l QMainWindow forms
 \i \link variables variables\endlink - class variables
 \i \link widget widget\endlink - the form itself; this element may contain other elements, including other \c widget elements
 \i \link forward forward\endlink - Qt 3.x beta backwards compatibility
@@ -63,7 +63,7 @@ The ordering of elements is arbitrary, although it is common for the
 \section2 actions
 
 This element is used to store the form's actions. It only occurs in
-QMainWindow forms. 
+\l QMainWindow forms. 
 
 The \c actions element contains one or more \c action elements. Each
 \c action element contains one or more properties. Each property has a
@@ -149,7 +149,7 @@ the form.
 The \c connections element contains one or more \c connection elements
 and one or more \c slot elements. Each \c connection element
 identifies the signaling object and its signal, and the receiving
-object and its slot. Each \c slot element provides a slot's signature.
+object and its slot. Each \c slot element provides a slot's prototype.
 
 \code
 <connections>
@@ -232,7 +232,10 @@ shared across any number of forms in a project, and between projects.
 In some cases it may be desireable to store image data directly in a
 form, and the \c{<image>} tag allows for this.
 
-### TODO encoding & formats
+It is possible to store images in both PNG and XPM formats, although
+in practice only XPM is recommended because of bugs in some PNG
+libraries. See the \c saveImageData function in \c resource.cpp to see
+how the image data is encoded.
 
 \code
 <images>
@@ -280,7 +283,7 @@ overridden on a case-by-case basis.
 \target menubar
 \section2 menubar
 
-Applications that use QMainWindow often have a menubar. The menubar
+Applications that use \l QMainWindow often have a menubar. The menubar
 has a name property and one or more popup menu items. Each menu item
 has one or more actions and optionally separators.
 
@@ -329,47 +332,190 @@ application's project file. This can be signified by including the
 \target signals
 \section2 signals
 
-### TODO
+See \l connections.
 
 \target slots
 \section2 slots
 
-### TODO
+
+See \l connections.
 
 \target tabstops
 \section2 tabstops
 
-### TODO
+Tabstops indicate the widgets that get the focus as the user tabs
+through the form. The \c{<tabstops>} tag contains a list of tabstops,
+in order, each of which holds the name of a widget.
+
+\code
+<tabstops>
+    <tabstop>templateView</tabstop>
+    <tabstop>helpButton</tabstop>
+    <tabstop>buttonOk</tabstop>
+    <tabstop>buttonCancel</tabstop>
+</tabstops>
+\endcode
 
 \target toolbars
 \section2 toolbars
 
-### TODO
+Forms that have toolbars (dock windows) use the \c{<toolbars>} tag to
+hold the details. These forms are normally \l{QMainWindow}s (or
+subclasses). Each toolbar has a dock attribute which identifies which
+dock window the toolbar initially belongs to. They also have both name
+and label properties. Each toolbar button is represented by an action.
+Toolbars can also hold other widgets, in which case the \c{<toolbar>}
+tag includes appropriate \c{<widget>} tags which give the class, name
+and any non-default property values for the relevant widget.
+
+\code
+<toolbars>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>toolBar</cstring>
+        </property>
+        <property name="label">
+            <string>Tools</string>
+        </property>
+        <action name="fileNewAction"/>
+        <action name="fileOpenAction"/>
+        <action name="fileSaveAction"/>
+        <separator/>
+        <action name="editUndoAction"/>
+        <action name="editRedoAction"/>
+        <action name="editCutAction"/>
+        <action name="editCopyAction"/>
+        <action name="editPasteAction"/>
+    </toolbar>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>Toolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Toolbar</string>
+        </property>
+        <action name="leftAlignAction"/>
+        <action name="centerAlignAction"/>
+        <action name="rightAlignAction"/>
+        <separator/>
+        <action name="boldAction"/>
+        <action name="italicAction"/>
+        <action name="underlineAction"/>
+        <separator/>
+        <widget class="QComboBox">
+            <property name="name">
+                <cstring>fontComboBox</cstring>
+            </property>
+        </widget>
+        <widget class="QSpinBox">
+            <property name="name">
+                <cstring>SpinBox2</cstring>
+            </property>
+            <property name="minValue">
+                <number>6</number>
+            </property>
+            <property name="value">
+                <number>10</number>
+            </property>
+        </widget>
+    </toolbar>
+</toolbars>
+\endcode
 
 \target variables
 \section2 variables
 
-### TODO
+Module variables are held in the \c{<variables>} tag. Variable type
+names often include \< and \>, which must be stored as entities.
+
+\code
+<variables>
+    <variable>SettingsDialog * settings;</variable>
+    <variable>QMap&lt;int, QString&gt; bookmarks;</variable>
+    <variable>HelpWindow *browser;</variable>
+    <variable>HelpDialog *helpDock;</variable>
+    <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
+    <variable>static QPtrList&lt;MainWindow&gt; *windows;</variable>
+</variables>
+\endcode
 
 \target widget
 \section2 widget
 
-### TODO
+Widgets are used at multiple levels within a \File .ui file. The whole
+form itself is a widget, and it contains other widgets, usually within
+the context of layouts such as hboxes, vboxes and grids.
+
+Below is an example of a complete \File .ui file. The form itself is a
+\l QWidget with various non-default properties set. This widget
+contains a single hbox, which also has some non-default properties,
+and which contains a single \l QTextBrowser widget.
+
+\code
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>WinIntroPage</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>WinIntroPage</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>387</width>
+            <height>228</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Form1</string>
+    </property>
+    <hbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QTextBrowser">
+            <property name="name">
+                <cstring>TextBrowser1</cstring>
+            </property>
+            <property name="text">
+                <string>This program installs Qt.</string>
+            </property>
+        </widget>
+    </hbox>
+</widget>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
+\endcode
 
 \target forward
 \section2 forward
 
-### TODO
+\WARNING
+This tag is included for Qt 3.x beta backwards compatibility,
+and should not be used. Use \l forwards instead.
+\ENDWARNING
 
 \target include
 \section2 include
 
-### TODO
+\WARNING 
+This tag is included for Qt 2.x beta backwards compatibility,
+and should not be used. Use \l includes instead.
+\ENDWARNING
 
 \target variable
 \section2 variable
 
-### TODO
+\WARNING 
+This tag is included for Qt 3.x beta backwards compatibility,
+and should not be used. Use \l variables instead.
+\ENDWARNING
 
 \target datatype
 \section1 Datatype Elements

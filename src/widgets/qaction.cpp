@@ -411,8 +411,8 @@ QAction::~QAction()
 /*! \property QAction::iconSet
   \brief  the action's icon
 
-  The icon is used as tool button icon and in the menu to the left of
-  the menu text. There is no default icon.
+  The icon is used as the tool button icon and in the menu to the left
+  of the menu text. There is no default icon.
 
   (See the action/toggleaction/toggleaction.cpp example.)
 
@@ -439,8 +439,8 @@ QIconSet QAction::iconSet() const
   \brief the action's descriptive text
 
   If \l QMainWindow::usesTextLabel is TRUE, the text appears as a
-  label in the relevant toolbutton. It also serves as the default text
-  in menus and tips if these have not been specifically defined. There
+  label in the relevant tool button. It also serves as the default text
+  in menus and tool tips if these have not been specifically defined. There
   is no default text.
 
   \sa setMenuText() setToolTip() setStatusTip()
@@ -463,8 +463,8 @@ QString QAction::text() const
     If the action is added to a menu the menu option will consist of
     the icon (if there is one), the menu text and the accelerator (if
     there is one). If the menu text is not explicitly set in the
-    constructor or using setMenuText() the action's description text
-    will be used as the menu text. There is no default menu text.
+    constructor or by using setMenuText() the action's description
+    text will be used as the menu text. There is no default menu text.
 
   \sa text
 */
@@ -675,7 +675,7 @@ void QAction::toggle()
   \brief whether a toggle action is on
 
   This property is always on (TRUE) for command actions and
-  QActionGroups; setOn() has no effect on them. For action's where
+  \l{QActionGroup}s; setOn() has no effect on them. For action's where
   isToggleAction() is TRUE, this property's default value is off
   (FALSE).
 
@@ -1130,7 +1130,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   example, if you have a left justify action, a right justify action
   and a center action, only one of these actions should be active at
   any one time, and one simple way of achieving this is to group the
-  actions together in an action group and setExclusive(TRUE).
+  actions together in an action group and call setExclusive(TRUE).
 
   An action group can also be added to a menu or a toolbar as a single
   unit, with all the actions within the action group appearing as
@@ -1141,9 +1141,9 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   \skipto QActionGroup
   \printuntil connect
 
-  We create a new action  group, call setExclusive() to ensure that
+  We create a new action  group and call setExclusive() to ensure that
   only one of the actions in the group is ever active at any one time.
-  We then connect the group to our textAlign() slot.
+  We then connect the group's selected() signal to our textAlign() slot.
 
   \printuntil actionAlignLeft->setToggleAction
 
@@ -1344,9 +1344,9 @@ void QActionGroup::addSeparator()
   If usesDropDown() is TRUE and exclusive is TRUE (see setExclusive())
   the actions are presented in a combobox if \a w is a toolbar and as
   a submenu if \a w is a menu. Otherwise (the default) the actions
-  within the group are added to the widget individually, for example
-  if the widget is a menu the actions will appear as individual menu
-  options and if the widget is a toolbar the actions will appear as
+  within the group are added to the widget individually. For example
+  if the widget is a menu, the actions will appear as individual menu
+  options, and if the widget is a toolbar, the actions will appear as
   toolbar buttons.
 
   It is recommended that actions in action groups, especially where

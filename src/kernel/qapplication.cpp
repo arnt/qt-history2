@@ -73,9 +73,9 @@
 
   It contains the main event loop, where all events from the window
   system and other sources are processed and dispatched.  It also
-  handles the application initialization and finalization, and
-  provides session management.  Finally, it handles most system-wide
-  and application-wide settings.
+  handles the application's initialization and finalization, and
+  provides session management. It also handles most system-wide and
+  application-wide settings.
 
   For any GUI application that uses Qt, there is precisely one
   QApplication object, no matter whether the application has 0, 1, 2
@@ -96,8 +96,8 @@
   events to widgets.
 
   \i It parses common command line arguments and sets its internal
-  state accordingly. See the constructor documentation below for more
-  details about this.
+  state accordingly. See the \link QApplication::QApplication()
+  constructor documentation\endlink below for more details about this.
 
   \i It defines the application's look and feel, which is
   encapsulated in a QStyle object. This can be changed at runtime
@@ -106,7 +106,7 @@
   \i It specifies how the application is to allocate colors.
   See setColorSpec() for details.
 
-  \i It specifies the default text encoding (see setDefaultCodec() )
+  \i It specifies the default text encoding (see \l{setDefaultCodec()})
   and provides localization of strings that are visible to the user via
   translate().
 
@@ -127,7 +127,7 @@
   session.html session management \endlink. This makes it possible
   for applications to terminate gracefully when the user logs out, to
   cancel a shutdown process if termination isn't possible and even to
-  preserve the entire application state for a future session. See
+  preserve the entire application's state for a future session. See
   isSessionRestored(), sessionId() and commitData() and saveState()
   for details.
 
@@ -263,7 +263,7 @@
     \value NormalColor the default color allocation policy
     \value CustomColor the same as NormalColor for X11; allocates colors
     to a palette on demand under Windows
-    \value ManyColor the choice for applications that use thousands of
+    \value ManyColor the right choice for applications that use thousands of
     colors
 
     See setColorSpec() for full details.
@@ -591,14 +591,14 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 
 /*!
   Initializes the window system and constructs an application object
-  with the command line arguments \a argc and \a argv.
+  with \a argc command line arguments in \a argv.
 
   The global \c qApp pointer refers to this application object. Only
   one application object should be created.
 
   This application object must be constructed before any \link
-  QPaintDevice paint devices\endlink (includes widgets, pixmaps, bitmaps
-  etc.)
+  QPaintDevice paint devices\endlink (including widgets, pixmaps, bitmaps
+  etc.).
 
   Note that \a argc and \a argv might be changed. Qt removes command
   line arguments that it recognizes. The original \a argc and \a argv
@@ -652,7 +652,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
   \i -ncols \e count, limits the number of colors allocated in the
        color cube on an 8-bit display, if the application is using the
        \c QApplication::ManyColor color specification.  If \e count is
-       216 then a 6x6x6 color cube is used (ie. 6 levels of red, 6 of green,
+       216 then a 6x6x6 color cube is used (i.e. 6 levels of red, 6 of green,
        and 6 of blue); for other values, a cube
        approximately proportional to a 2x3x1 cube is used.
   \i -cmap, causes the application to install a private color map
@@ -670,8 +670,8 @@ QApplication::QApplication( int &argc, char **argv )
 
 
 /*!
-  Constructs an application object with the command line arguments \a
-  argc and \a argv. If \a GUIenabled is TRUE, a GUI application is
+  Constructs an application object with \a argc command line arguments
+  in \a argv. If \a GUIenabled is TRUE, a GUI application is
   constructed, otherwise a non-GUI (console) application is created.
 
   Set \a GUIenabled to FALSE for programs without a graphical user
@@ -720,8 +720,8 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 }
 
 /*!
-  Constructs an application object with the command line arguments \a
-  argc and \a argv.
+  Constructs an application object with \a argc command line arguments
+  in \a argv.
 
   For Qt/Embedded, passing \c QApplication::GuiServer for \a type
   makes this application the server (equivalent to running with the
@@ -1014,7 +1014,7 @@ QWidget *QApplication::activeModalWidget()
 
 /*!
   Cleans up any window system resources that were allocated by this
-  application.  Sets the global variable \c qApp to null.
+  application.  Sets the global variable \c qApp to 0.
 */
 
 QApplication::~QApplication()
