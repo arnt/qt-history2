@@ -38,10 +38,12 @@
 
 #ifndef QT_NO_SQL
 
+#include "qsqlform.h"
+
 /* ATTENTION: this file must remain in sync with qsqlwidget.cpp */
 
-QSqlDialog::QSqlDialog( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QDialog( parent, name, modal, f ), QSqlFormNavigator()
+QSqlDialog::QSqlDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
+    : QDialog( parent, name, modal, fl ), QSqlFormNavigator()
 {
 }
 
@@ -127,9 +129,27 @@ void QSqlDialog::prevRecord()
     QSqlFormNavigator::prevRecord();
 }
 
-void QSqlDialog::clearForm()
+void QSqlDialog::readFields()
 {
-    QSqlFormNavigator::clearForm();
+    if ( form() )
+	form()->readFields();
+}
+
+void QSqlDialog::writeFields()
+{
+    if ( form() )
+	form()->writeFields();
+}
+
+void QSqlDialog::clearFormValues()
+{
+    if ( form() )
+	form()->clearValues();
+}
+
+void QSqlDialog::emitCurrentChanged( const QSqlRecord* record )
+{
+    emit currentChanged( record );
 }
 
 void QSqlDialog::emitFirstRecordAvailable( bool available )
@@ -150,6 +170,26 @@ void QSqlDialog::emitNextRecordAvailable( bool available )
 void QSqlDialog::emitPrevRecordAvailable( bool available )
 {
     emit prevRecordAvailable( available );
+}
+
+void QSqlDialog::emitBeforeInsert( QSqlRecord* buf )
+{
+    emit beforeInsert( buf );
+}
+
+void QSqlDialog::emitBeforeUpdate( QSqlRecord* buf )
+{
+    emit beforeUpdate( buf );
+}
+
+void QSqlDialog::emitBeforeDelete( QSqlRecord* buf )
+{
+    emit beforeDelete( buf );
+}
+
+void QSqlDialog::emitCursorChanged( QSqlCursor::Mode mode )
+{
+    emit cursorChanged( mode );
 }
 
 #endif

@@ -375,7 +375,17 @@ bool QSqlCursorNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 	}
     }
     QApplication::restoreOverrideCursor();
+    emitCurrentChanged( cur );
     return indexEquals;
+}
+
+/*! \internal
+
+*/
+
+void QSqlCursorNavigator::emitCurrentChanged( const QSqlRecord* record )
+{
+
 }
 
 class QSqlFormNavigator::QSqlFormNavigatorPrivate
@@ -487,12 +497,14 @@ int QSqlFormNavigator::insertRecord()
     if ( !cur || !frm )
 	return 0;
     frm->writeFields();
+    emitBeforeInsert( cur );
     int ar = cur->insert();
     if ( !ar || !cur->isActive() )
 	handleError( cur->lastError() );
     else {
 	refresh();
 	findBuffer( cur->primaryIndex() );
+	emitCursorChanged( QSqlCursor::Insert );
 	updateBoundry();
     }
     return ar;
@@ -512,12 +524,14 @@ int QSqlFormNavigator::updateRecord()
     if ( !cur || !frm )
 	return 0;
     frm->writeFields();
+    emitBeforeUpdate( cur );
     int ar = cur->update();
     if ( !ar || !cur->isActive() )
 	handleError( cur->lastError() );
     else {
 	refresh();
 	findBuffer( cur->primaryIndex() );
+	emitCursorChanged( QSqlCursor::Update );
 	updateBoundry();
 	frm->readFields();
     }
@@ -539,6 +553,7 @@ int QSqlFormNavigator::deleteRecord()
     if ( !cur || !frm )
 	return 0;
     int n = cur->at();
+    emitBeforeDelete( cur );
     int ar = cur->del();
     if ( ar ) {
 	refresh();
@@ -550,6 +565,7 @@ int QSqlFormNavigator::deleteRecord()
 	QSqlForm* frm = form();
 	if ( frm )
 	    frm->readFields();
+	emitCursorChanged( QSqlCursor::Delete );
     } else {
 	if ( !cur->isActive() )
 	    handleError( cur->lastError() );
@@ -654,7 +670,7 @@ default form.
 
 */
 
-void QSqlFormNavigator::clearForm()
+void QSqlFormNavigator::clearValues()
 {
     QSqlCursor* cur = cursor();
     if ( cur )
@@ -791,6 +807,32 @@ void QSqlFormNavigator::emitNextRecordAvailable( bool )
 /*! \internal
  */
 void QSqlFormNavigator::emitPrevRecordAvailable( bool )
+{
+}
+
+
+/*! \internal
+*/
+void QSqlFormNavigator::emitBeforeInsert( QSqlRecord* )
+{
+}
+
+
+/*! \internal
+*/
+void QSqlFormNavigator::emitBeforeUpdate( QSqlRecord* )
+{
+}
+
+/*! \internal
+*/
+void QSqlFormNavigator::emitBeforeDelete( QSqlRecord* )
+{
+}
+
+/*! \internal
+*/
+void QSqlFormNavigator::emitCursorChanged( QSqlCursor::Mode )
 {
 }
 

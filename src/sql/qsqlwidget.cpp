@@ -38,6 +38,8 @@
 
 #ifndef QT_NO_SQL
 
+#include "qsqlform.h"
+
 /* ATTENTION: this file must remain in sync with qsqldialog.cpp */
 
 /*!
@@ -153,9 +155,27 @@ void QSqlWidget::prevRecord()
     QSqlFormNavigator::prevRecord();
 }
 
-void QSqlWidget::clearForm()
+void QSqlWidget::readFields()
 {
-    QSqlFormNavigator::clearForm();
+    if ( form() )
+	form()->readFields();
+}
+
+void QSqlWidget::writeFields()
+{
+    if ( form() )
+	form()->writeFields();
+}
+
+void QSqlWidget::clearFormValues()
+{
+    if ( form() )
+	form()->clearValues();
+}
+
+void QSqlWidget::emitCurrentChanged( const QSqlRecord* record )
+{
+    emit currentChanged( record );
 }
 
 void QSqlWidget::emitFirstRecordAvailable( bool available )
@@ -176,6 +196,26 @@ void QSqlWidget::emitNextRecordAvailable( bool available )
 void QSqlWidget::emitPrevRecordAvailable( bool available )
 {
     emit prevRecordAvailable( available );
+}
+
+void QSqlWidget::emitBeforeInsert( QSqlRecord* buf )
+{
+    emit beforeInsert( buf );
+}
+
+void QSqlWidget::emitBeforeUpdate( QSqlRecord* buf )
+{
+    emit beforeUpdate( buf );
+}
+
+void QSqlWidget::emitBeforeDelete( QSqlRecord* buf )
+{
+    emit beforeDelete( buf );
+}
+
+void QSqlWidget::emitCursorChanged( QSqlCursor::Mode mode )
+{
+    emit cursorChanged( mode );
 }
 
 #endif

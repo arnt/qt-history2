@@ -49,8 +49,6 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-class QSqlCursor;
-
 class Q_EXPORT QSqlDialog : public QDialog, public QSqlFormNavigator
 {
     Q_OBJECT
@@ -59,7 +57,7 @@ class Q_EXPORT QSqlDialog : public QDialog, public QSqlFormNavigator
     Q_PROPERTY( QStringList sort READ sort WRITE setSort )
 
 public:
-    QSqlDialog( QWidget *parent = 0, const char *name = 0, bool modal = FALSE, WFlags f = 0 );
+    QSqlDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
 
     virtual void setBoundryChecking( bool active );
     bool boundryChecking() const;
@@ -82,6 +80,14 @@ signals:
     void nextRecordAvailable( bool available );
     void prevRecordAvailable( bool available );
 
+    void currentChanged( const QSqlRecord* record );
+    void primeInsert( QSqlRecord* buf );
+    void primeUpdate( QSqlRecord* buf );
+    void beforeInsert( QSqlRecord* buf );
+    void beforeUpdate( QSqlRecord* buf );
+    void beforeDelete( QSqlRecord* buf );
+    void cursorChanged( QSqlCursor::Mode mode );
+
 public slots:
     virtual void insertRecord();
     virtual void updateRecord();
@@ -90,14 +96,21 @@ public slots:
     virtual void lastRecord();
     virtual void nextRecord();
     virtual void prevRecord();
-    virtual void clearForm();
+    virtual void clearFormValues();
+
+    virtual void readFields();
+    virtual void writeFields();
 
 protected:
+    void emitCurrentChanged( const QSqlRecord* record );
     void emitFirstRecordAvailable( bool available );
     void emitLastRecordAvailable( bool available );
     void emitNextRecordAvailable( bool available );
     void emitPrevRecordAvailable( bool available );
-
+    void emitBeforeInsert( QSqlRecord* buf );
+    void emitBeforeUpdate( QSqlRecord* buf );
+    void emitBeforeDelete( QSqlRecord* buf );
+    void emitCursorChanged( QSqlCursor::Mode mode );
 };
 
 #endif // QT_NO_SQL

@@ -45,6 +45,8 @@
 #include "qglobal.h"
 #include "qsqlerror.h"
 #include "qsqlindex.h"
+#include "qsqlrecord.h"
+#include "qsqlcursor.h"
 #endif // QT_H
 
 class QSqlCursor;
@@ -66,6 +68,9 @@ public:
 
     virtual void refresh();
     virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
+
+protected:
+    virtual void emitCurrentChanged( const QSqlRecord* record );
 
 private:
     class QSqlCursorNavigatorPrivate;
@@ -94,7 +99,7 @@ public:
     bool lastRecord();
     bool nextRecord();
     bool prevRecord();
-    void clearForm();
+    void clearValues();
 
     Boundry boundry();
     void setBoundryChecking( bool active );
@@ -108,6 +113,11 @@ protected:
     virtual void emitLastRecordAvailable( bool available );
     virtual void emitNextRecordAvailable( bool available );
     virtual void emitPrevRecordAvailable( bool available );
+
+    virtual void emitBeforeInsert( QSqlRecord* buf );
+    virtual void emitBeforeUpdate( QSqlRecord* buf );
+    virtual void emitBeforeDelete( QSqlRecord* buf );
+    virtual void emitCursorChanged( QSqlCursor::Mode mode );
 
     virtual void handleError( const QSqlError& e );
 
