@@ -12,40 +12,43 @@
 class QTextTablePrivate;
 class QTextPieceTable;
 
-class Q_GUI_EXPORT QTextTableCellProperties
+class Q_GUI_EXPORT QTextTableCell
 {
 public:
-    QTextTableCellProperties();
-    ~QTextTableCellProperties();
+    QTextTableCell() : d(0) {}
+    ~QTextTableCell() {}
+    QTextTableCell(const QTextTableCell &o) : d(o.d), fragment(o.fragment) {}
+    QTextTableCell &operator=(const QTextTableCell &o)
+    { d = o.d; fragment = o.fragment; return *this; }
 
-    inline int row() const { return r; }
-    inline int col() const { return c; }
+    QTextCharFormat format() const;
 
-    inline int rowSpan() const { return rSpan; }
-    inline int colSpan() const { return cSpan; }
+    int row() const;
+    int column() const;
 
-    inline bool isValid() const { return r > 0 && c > 0; }
+    int rowSpan() const;
+    int columnSpan() const;
 
-    inline QTextCursor start() const { return s; }
-    inline QTextCursor end() const { return e; }
+    inline bool isValid() const { return d != 0; }
 
-    inline bool operator==(const QTextTableCellProperties &other) const
-    { return r == other.r && c == other.c; }
-    inline bool operator!=(const QTextTableCellProperties &other) const
+    QTextCursor start() const;
+    QTextCursor end() const;
+
+    inline bool operator==(const QTextTableCell &other) const
+    { return d == other.d && fragment == other.fragment; }
+    inline bool operator!=(const QTextTableCell &other) const
     { return !operator==(other); }
 
 private:
     friend class QTextTable;
-    QTextTableCellProperties(const QTextTablePrivate *p, int row, int col);
+    QTextTableCell(const QTextTablePrivate *p, int f)
+        : d(p), fragment(f) {}
 
-    int r, c;
-    QTextCursor s;
-    QTextCursor e;
-    int rSpan;
-    int cSpan;
+    const QTextTablePrivate *d;
+    int fragment;
 };
 
-class Q_GUI_EXPORT QTextTable : public QTextGroup
+class Q_GUI_EXPORT QTextTable : public QTextFrame
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextTable)
@@ -57,31 +60,26 @@ public:
     void removeCols(int pos, int num);
 
     int rows() const;
-    int cols() const;
+    int columns() const;
 
-    void setRowSpan(int row, int col, int rowspan);
-    void setColSpan(int row, int col, int colspan);
+#if 0
+    void mergeCells(const QTextCursor &selection);
+#endif
 
-    QTextTableCellProperties cellAt(int row, int col) const;
-    QTextTableCellProperties cellAt(const QTextCursor &c) const;
+    QTextTableCell cellAt(int row, int col) const;
+    QTextTableCell cellAt(const QTextCursor &c) const;
 
     QTextCursor rowStart(const QTextCursor &c) const;
     QTextCursor rowEnd(const QTextCursor &c) const;
-    QTextCursor start() const;
-    QTextCursor end() const;
 
     void setFormat(const QTextTableFormat &format) { setCommonFormat(format); }
     QTextTableFormat format() const { return commonFormat().toTableFormat(); }
-
-protected:
-    void insertBlock(const QTextBlockIterator &block);
-    void removeBlock(const QTextBlockIterator &block);
-    void blockFormatChanged(const QTextBlockIterator &block);
 
 private:
     QTextTable(QObject *parent);
     ~QTextTable();
 
+    friend class QTextPieceTable;
     friend class QTextCursor;
     friend class QTextCursorPrivate;
     friend class QTextFormatCollection;

@@ -456,7 +456,7 @@ QTextListFormat QTextBlockFormat::listFormat() const
     return (g ? g->commonFormat() : QTextFormat()).toListFormat();
 }
 
-QTextTableFormat QTextBlockFormat::tableFormat() const
+QTextTableFormat QTextCharFormat::tableFormat() const
 {
     QTextGroup *g = group();
     return (g ? g->commonFormat() : QTextFormat()).toTableFormat();
@@ -705,14 +705,24 @@ QTextFrame *QTextFrame::parent()
 }
 
 
-int QTextFrame::start()
+QTextCursor QTextFrame::start()
+{
+    return QTextCursor(d->pieceTable(), startPosition());
+}
+
+QTextCursor QTextFrame::end()
+{
+    return QTextCursor(d->pieceTable(), endPosition());
+}
+
+int QTextFrame::startPosition()
 {
     if (!d->fragment_start)
         return 0;
     return d->pieceTable()->fragmentMap().position(d->fragment_start);
 }
 
-int QTextFrame::end()
+int QTextFrame::endPosition()
 {
     if (!d->fragment_end)
         return d->pieceTable()->length();
@@ -729,3 +739,61 @@ void QTextFrame::setRect(const QRect &r)
     d->rect = r;
 }
 
+void QTextFramePrivate::fragmentAdded(const QChar &type, uint fragment)
+{
+    if (type == QTextBeginningOfFrame) {
+        Q_ASSERT(!fragment_start);
+        fragment_start = fragment;
+    } else if (type == QTextEndOfFrame) {
+        Q_ASSERT(!fragment_end);
+        fragment_end = fragment;
+    } else if (type == QChar::ObjectReplacementCharacter) {
+        Q_ASSERT(!fragment_start);
+        Q_ASSERT(!fragment_end);
+        fragment_start = fragment;
+        fragment_end = fragment;
+    } else {
+        Q_ASSERT(false);
+    }
+}
+
+void QTextFramePrivate::fragmentRemoved(const QChar &type, uint fragment)
+{
+    if (type == QTextBeginningOfFrame) {
+        Q_ASSERT(fragment_start == fragment);
+        fragment_start = 0;
+    } else if (type == QTextEndOfFrame) {
+        Q_ASSERT(fragment_end == fragment);
+        fragment_end = 0;
+    } else if (type == QChar::ObjectReplacementCharacter) {
+        Q_ASSERT(fragment_start == fragment);
+        Q_ASSERT(fragment_end == fragment);
+        fragment_start = 0;
+        fragment_end = 0;
+    } else {
+        Q_ASSERT(false);
+    }
+    remove_me();
+}
+
+
+void QTextFramePrivate::remove_me()
+{
+    if (!parentFrame)
+        return;
+
+    int index = parentFrame->d->childFrames.indexOf(q);
+
+    // iterator over all children and move them to the parent
+    for (int i = 0; i < childFrames.size(); ++i) {
+        QTextFrame *c = childFrames.at(i);
+        parentFrame->d->childFrames.insert(index, c);
+        c->d->parentFrame = parentFrame;
+        ++index;
+    }
+    Q_ASSERT(parentFrame->d->childFrames.at(index) == q);
+    parentFrame->d->childFrames.removeAt(index);
+
+    childFrames.clear();
+    parentFrame = 0;
+}

@@ -34,22 +34,18 @@ public:
 
     bool isNull() const; // ### or isValid() instead?
 
-    // ### temporary
-    void setPosition(int pos);
-    int position() const;
-
-    // should go away
-    void setAnchor(int anchor);
-    int anchor() const;
-
-    void insertText(const QString &text);
-    void insertText(const QString &text, const QTextCharFormat &format);
-
-
     enum MoveMode {
         MoveAnchor,
         KeepAnchor
     };
+
+    void setPosition(int pos, MoveMode mode = MoveAnchor);
+    int position() const;
+
+    int anchor() const;
+
+    void insertText(const QString &text);
+    void insertText(const QString &text, const QTextCharFormat &format);
 
     enum MoveOperation {
         NoMove,

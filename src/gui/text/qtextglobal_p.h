@@ -8,7 +8,6 @@ class QIODevice;
 
 #define QTextBeginningOfFrame QChar(0xfdd0)
 #define QTextEndOfFrame QChar(0xfdd1)
-#define QTextTableCellSeparator QChar(0xfdd2)
 
 
 struct QTextDocumentConfig

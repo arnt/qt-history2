@@ -129,10 +129,16 @@ public:
 
 class QTextFramePrivate : public QTextGroupPrivate
 {
+    friend class QTextPieceTable;
     Q_DECLARE_PUBLIC(QTextFrame)
 public:
-    int fragment_start;
-    int fragment_end;
+
+    virtual void fragmentAdded(const QChar &type, uint fragment);
+    virtual void fragmentRemoved(const QChar &type, uint fragment);
+    void remove_me();
+
+    uint fragment_start;
+    uint fragment_end;
 
     QTextFrame *parentFrame;
     QList<QTextFrame *> childFrames;

@@ -34,7 +34,6 @@ public:
     { return block().blockFormat(); }
 
     QTextTable *tableAt(int position) const;
-    QTextTable *createTable(int rows, int cols, const QTextTableFormat &tableFormat);
 
     void adjustCursor(int dir);
 

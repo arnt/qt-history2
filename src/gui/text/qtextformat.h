@@ -85,14 +85,14 @@ public:
         ListIndent = 0x3001,
 
         // table properties
-        TableBorder = 0x4000,
+        TableColumns = 0x4000,
+        TableBorder = 0x4080,
         Width = 0x4100,
         Height = 0x4101,
 
         // table cell properties
-        TableCellEndOfRow = 0x4800,
         TableCellRowSpan = 0x4810,
-        TableCellColSpan = 0x4811,
+        TableCellColumnSpan = 0x4811,
 
         // image properties
         ImageName = 0x5000,
@@ -256,6 +256,18 @@ public:
     { setProperty(ObjectType, type); }
     inline int objectType() const
     { return intProperty(ObjectType, NoObject); }
+
+    // ####### extra format?
+    QTextTableFormat tableFormat() const;
+
+    inline void setTableCellRowSpan(int tableCellRowSpan)
+    { setProperty(TableCellRowSpan, tableCellRowSpan); }
+    inline int tableCellRowSpan() const
+    { return intProperty(TableCellRowSpan, 1); }
+    inline void setTableCellColumnSpan(int tableCellColumnSpan)
+    { setProperty(TableCellColumnSpan, tableCellColumnSpan); }
+    inline int tableCellColumnSpan() const
+    { return intProperty(TableCellColumnSpan, 1); }
 };
 
 class Q_GUI_EXPORT QTextBlockFormat : public QTextFormat
@@ -278,7 +290,6 @@ public:
     { return QFlag(intProperty(BlockAlignment)); }
 
     QTextListFormat listFormat() const;
-    QTextTableFormat tableFormat() const;
 
     inline void setTopMargin(int margin)
     { setProperty(BlockTopMargin, margin); }
@@ -309,19 +320,6 @@ public:
     { setProperty(BlockIndent, indent); }
     inline int indent() const
     { return intProperty(BlockIndent); }
-
-    inline void setTableCellEndOfRow(bool eor)
-    { setProperty(TableCellEndOfRow, eor); }
-    inline bool tableCellEndOfRow() const
-    { return boolProperty(TableCellEndOfRow); }
-    inline void setTableCellRowSpan(int tableCellRowSpan)
-    { setProperty(TableCellRowSpan, tableCellRowSpan); }
-    inline int tableCellRowSpan() const
-    { return intProperty(TableCellRowSpan, 1); }
-    inline void setTableCellColSpan(int tableCellColSpan)
-    { setProperty(TableCellColSpan, tableCellColSpan); }
-    inline int tableCellColSpan() const
-    { return intProperty(TableCellColSpan, 1); }
 
     inline void setNonBreakableLines(bool b)
     { setProperty(BlockNonBreakableLines, b); }
@@ -376,6 +374,11 @@ public:
     { setProperty(TableBorder, border); }
     inline int border() const
     { return intProperty(TableBorder, 1); }
+
+    int columns() const
+    { return intProperty(TableColumns, 1); }
+    void setColumns(int columns)
+    { setProperty(TableColumns, columns); }
 };
 
 class Q_GUI_EXPORT QTextImageFormat : public QTextCharFormat
@@ -485,8 +488,10 @@ public:
     void setFormat(const QTextFrameFormat &format) { setCommonFormat(format); }
     QTextFrameFormat format() const { return commonFormat().toFrameFormat(); }
 
-    int start();
-    int end();
+    QTextCursor start();
+    QTextCursor end();
+    int startPosition();
+    int endPosition();
 
     QRect rect() const;
     void setRect(const QRect &r);

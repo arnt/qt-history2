@@ -106,9 +106,6 @@ bool QTextCursorPrivate::canDelete(int pos) const
 
 void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat)
 {
-    if (block().blockFormat().tableCellEndOfRow())
-        moveTo(QTextCursor::NextBlock);
-
     QTextFormatCollection *formats = pieceTable->formatCollection();
     int idx = formats->indexForFormat(format);
     Q_ASSERT(formats->format(idx).isBlockFormat());
@@ -116,68 +113,23 @@ void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format, const QText
     pieceTable->insertBlock(position, idx, formats->indexForFormat(charFormat));
 }
 
-QTextTable *QTextCursorPrivate::createTable(int rows, int cols, const QTextTableFormat &tableFormat)
-{
-    QTextFormatCollection *collection = pieceTable->formatCollection();
-    QTextTable *table = qt_cast<QTextTable *>(collection->createGroup(tableFormat));
-    Q_ASSERT(table);
-
-    int pos = position;
-
-    pieceTable->beginEditBlock();
-
-//     qDebug("---> createTable: rows=%d, cols=%d at %d", rows, cols, pos);
-    // add block after table
-    QTextCharFormat charFmt;
-    charFmt.setNonDeletable(true);
-    int charIdx = pieceTable->formatCollection()->indexForFormat(charFmt);
-    pieceTable->insertBlock(pos, pieceTable->formatCollection()->indexForFormat(QTextBlockFormat()), charIdx);
-//     qDebug("      addBlock at %d", pos);
-
-    // create table formats
-    QTextBlockFormat fmt = blockFormat();
-    fmt.setGroup(table);
-    int cellIdx = collection->indexForFormat(fmt);
-    fmt.setTableCellEndOfRow(true);
-    int eorIdx = collection->indexForFormat(fmt);
-
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            pieceTable->insertBlock(pos, cellIdx, charIdx);
-// 	    qDebug("      addCell at %d", pos);
-            ++pos;
-        }
-        pieceTable->insertBlock(pos, eorIdx, charIdx);
-// 	qDebug("      addEOR at %d", pos);
-        ++pos;
-    }
-
-    pieceTable->endEditBlock();
-
-    return table;
-}
-
-
 QTextTable *QTextCursorPrivate::tableAt(int position) const
 {
-    const QVector<QTextGroup *> &groups = pieceTable->formatCollection()->formatGroups();
-    QTextTable *table = 0;
-    int tableStart = -1;
-    for (int i = 0; i < groups.size(); ++i) {
-	QTextTable *t = qt_cast<QTextTable *>(groups.at(i));
-	if (!t)
-	    continue;
-	int start = t->start().position();
-	if (start <= position && start > tableStart && t->end().position() > position)
-	    // inside table
-	    table = t;
+    QTextFrame *frame = pieceTable->frameAt(position);
+    while (frame) {
+        QTextTable *table = qt_cast<QTextTable *>(frame);
+        if (table)
+            return table;
+        frame = frame->parent();
     }
-    return table;
+    return 0;
 }
 
 
 void QTextCursorPrivate::adjustCursor(int dir)
 {
+    // ###################
+#if 0
     QTextTable *t_anchor_ = tableAt(anchor);
     QTextTable *t_position_ = tableAt(position);
 
@@ -241,6 +193,7 @@ void QTextCursorPrivate::adjustCursor(int dir)
                 adjusted_anchor = t_anchor->cellEnd(anchor).position();
         }
     }
+#endif
 }
 
 bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode)
@@ -515,11 +468,15 @@ bool QTextCursor::isNull() const
 
     \sa position()
  */
-void QTextCursor::setPosition(int pos)
+void QTextCursor::setPosition(int pos, MoveMode m)
 {
     if (!d)
         return;
     d->setPosition(pos);
+    if (m == MoveAnchor) {
+        d->anchor = pos;
+        d->adjusted_anchor = pos;
+    }
     d->setX();
 }
 
@@ -531,15 +488,6 @@ int QTextCursor::position() const
     if (!d)
         return -1;
     return d->position;
-}
-
-void QTextCursor::setAnchor(int anchor)
-{
-    if (!d)
-        return;
-    d->anchor = anchor;
-    d->adjusted_anchor = anchor;
-    d->adjustCursor(anchor > d->position ? AdjustPrev : AdjustNext);
 }
 
 int QTextCursor::anchor() const
@@ -603,9 +551,6 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
     d->pieceTable->beginEditBlock();
 
     d->remove();
-
-    if (blockFormat().tableCellEndOfRow())
-        d->moveTo(NextBlock);
 
     QTextFormatCollection *formats = d->pieceTable->formatCollection();
     int formatIdx = formats->indexForFormat(format);
@@ -805,8 +750,10 @@ QTextCharFormat QTextCursor::charFormat() const
     Q_ASSERT(!it.atEnd());
     int idx = it.value()->format;
 
-    Q_ASSERT(d->pieceTable->formatCollection()->charFormat(idx).isValid());
-    return d->pieceTable->formatCollection()->charFormat(idx);
+    QTextCharFormat cfmt = d->pieceTable->formatCollection()->charFormat(idx);
+    cfmt.setGroup(0);
+    Q_ASSERT(cfmt.isValid());
+    return cfmt;
 }
 
 /*!
@@ -840,13 +787,7 @@ void QTextCursor::insertBlock()
     if (!d)
         return;
 
-    QTextBlockFormat bfmt = blockFormat();
-    QTextTableFormat table = bfmt.tableFormat();
-    if (table.isValid()) {
-        bfmt.setGroup(0);
-        bfmt.setTableCellEndOfRow(false);
-    }
-    d->insertBlock(bfmt, charFormat());
+    d->insertBlock(blockFormat(), charFormat());
 }
 
 /*!
@@ -989,13 +930,9 @@ QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat 
     if(!d)
         return 0;
 
-    if (blockFormat().tableCellEndOfRow())
-        d->moveTo(NextBlock);
-
     int pos = d->position;
-    QTextTable *t = d->createTable(rows, cols, format);
-    setPosition(pos);
-    d->moveTo(NextBlock);
+    QTextTable *t = QTextTablePrivate::createTable(d->pieceTable,d->position, rows, cols, format);
+    setPosition(pos+1);
     return t;
 }
 
@@ -1003,7 +940,7 @@ QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat 
     Returns a pointer to the current table, if the cursor is positioned inside
     a block that is part of a table; otherwise returns a null pointer.
 
-    \sa createTable()
+    \sa insertTable()
  */
 QTextTable *QTextCursor::currentTable() const
 {

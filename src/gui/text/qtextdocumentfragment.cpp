@@ -72,10 +72,6 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     if (cursor.isNull())
         return;
 
-    // ###### don't do this if the fragment is a table
-    if (cursor.blockFormat().tableCellEndOfRow())
-        cursor.moveTo(QTextCursor::NextBlock);
-
     QTextFormatCollection *formats = cursor.d->pieceTable->formatCollection();
     QMap<int, int> formatIndexMap = fillFormatCollection(formats);
 
@@ -526,7 +522,7 @@ void QTextHTMLImporter::closeTag(int i)
             charFmt.setNonDeletable(true);
             QTextBlockFormat fmt;
             fmt.setGroupIndex(tableIndices[tableIndices.size() - 1]);
-            fmt.setTableCellEndOfRow(true);
+//             fmt.setTableCellEndOfRow(true);
             appendBlock(fmt, charFmt);
         } else if (closedNode->tag == QLatin1String("table")) {
             Q_ASSERT(!tableIndices.isEmpty());

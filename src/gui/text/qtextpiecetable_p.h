@@ -110,6 +110,9 @@ public:
     void insert(int pos, const QString &text, int format);
     void insert(int pos, int strPos, int strLength, int format);
     void insertBlock(int pos, int blockFormat, int charFormat, UndoCommand::Operation = UndoCommand::MoveCursor);
+    void insertBlock(const QChar &blockSeparator, int pos, int blockFormat, int charFormat,
+                     UndoCommand::Operation op = UndoCommand::MoveCursor);
+
     void remove(int pos, int length, UndoCommand::Operation = UndoCommand::MoveCursor);
 
     QTextFrame *insertFrame(int start, int end, const QTextFrameFormat &format);
@@ -173,15 +176,12 @@ private:
     bool unite(uint f);
     void truncateUndoStack();
 
-    void insertBlock(const QChar &blockSeparator, int pos, int blockFormat, int charFormat, UndoCommand::Operation op);
-
     void insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op);
     void insert_block(int pos, uint strPos, int format, int blockformat, UndoCommand::Operation op, int command);
     int remove_string(int pos, uint length, UndoCommand::Operation op);
     int remove_block(int pos, int *blockformat, int command, UndoCommand::Operation op);
 
     void insert_frame(QTextFrame *f);
-    void remove_frame(QTextFrame *f);
     void scan_frames(int pos, int charsRemoved, int charsAddded);
     static void clearFrame(QTextFrame *f);
 
