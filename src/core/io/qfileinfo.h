@@ -140,5 +140,8 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QFileInfo::PermissionSpec)
 #endif
 
 typedef QList<QFileInfo> QFileInfoList;
+#ifdef QT_COMPAT
+typedef QList<QFileInfo>::Iterator QFileInfoListIterator;
+#endif
 
 #endif // QFILEINFO_H
