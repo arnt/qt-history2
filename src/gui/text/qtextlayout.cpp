@@ -1312,6 +1312,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
             ge = si.num_glyphs;
         }
 
+        qReal itemBaseLine = y;
+
         if (eng->formats) {
             QTextFormat fmt = eng->formats->format(si.format);
             Q_ASSERT(fmt.isCharFormat());
@@ -1321,9 +1323,13 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
                 c = eng->pal->color(QPalette::Text);
             }
             p->setPen(c);
-            f = chf.font();
-            if (eng->docLayout)
-                f = f.resolve(eng->docLayout->defaultFont());
+            f = eng->font(si);
+
+            QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
+            if (valign == QTextCharFormat::AlignSubScript)
+                itemBaseLine += (si.ascent + si.descent + 1) / 6;
+            else if (valign == QTextCharFormat::AlignSuperScript)
+                itemBaseLine -= (si.ascent + si.descent + 1) / 2;
         }
         QFontEngine *fe = f.d->engineForScript((QFont::Script)si.analysis.script);
         Q_ASSERT(fe);
@@ -1353,9 +1359,9 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
 
         if (eng->underlinePositions) {
             // can't have selections in this case
-            drawMenuText(p, x, y, si, gf, eng, start, gs);
+            drawMenuText(p, x, itemBaseLine, si, gf, eng, start, gs);
         } else {
-            p->drawTextItem(QPointF(x, y), gf);
+            p->drawTextItem(QPointF(x, itemBaseLine), gf);
 
             for (int s = 0; s < nSelections; ++s) {
                 int from = qMax(start, selections[s].from()) - si.position;
@@ -1391,7 +1397,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
                 p->save();
                 p->setClipRect(rect);
                 drawSelection(p, eng->pal, selections[s].type(), rect);
-                p->drawTextItem(QPointF(x, y), gf);
+                p->drawTextItem(QPointF(x, itemBaseLine), gf);
                 p->restore();
             }
 

@@ -1176,6 +1176,10 @@ QFont QTextEngine::font(const QScriptItem &si) const
         QFont fnt = chf.font();
         if (docLayout)
             fnt = fnt.resolve(docLayout->defaultFont());
+
+        if (chf.verticalAlignment() != QTextCharFormat::AlignNormal)
+            fnt.setPointSize((fnt.pointSize() * 2) / 3);
+
         return fnt;
     }
     return QFont(fp);
