@@ -1,1 +1,1 @@
-SOURCES       = main.cpp
+SOURCES       = dirview.cpp
