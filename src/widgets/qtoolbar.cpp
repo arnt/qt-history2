@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#17 $
 **
 ** Implementation of QToolBar class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#17 $");
 
 
 
@@ -63,7 +63,7 @@ QToolBar::QToolBar( const char * label,
   parent and managed by \a mainWindow.  The \a label and \a newLine
   are passed straight to QMainWindow::addToolBar().  \a name is the
   object name and \a f is the widget flags.
-  
+
   This is the constructor to use if you want to create torn-off
   toolbars, or toolbars in the status bar.
 */
@@ -80,7 +80,7 @@ QToolBar::QToolBar( const char * label, QMainWindow * mainWindow,
     o = Horizontal;
     mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
 }
-    
+
 
 /*!  Constructs an empty tool bar in the top dock of its parent,
   without any label and without requiring a newline.  This is mostly
@@ -152,7 +152,8 @@ void QToolBar::setUpGM()
 {
     delete b;
     b = new QBoxLayout( this, orientation() == Vertical
-			? QBoxLayout::Down : QBoxLayout::LeftToRight, 2, 0 );
+			? QBoxLayout::Down : QBoxLayout::LeftToRight,
+			style() == WindowsStyle ? 2 : 1, 0 );
 
     if ( style() == WindowsStyle )
 	b->addSpacing( 9 );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#16 $
 **
 ** Implementation of QMainWindow class
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#16 $");
 
 /*notready
   \class QMainWindow
@@ -383,7 +383,7 @@ static bool removeToolBarFromDock( QToolBar * t,
 }
 
 
-/*!  Removes \a toolBar from this main window.  This 
+/*!  Removes \a toolBar from this main window.  This
 
 */
 
@@ -440,26 +440,18 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	    if ( toolBarRowLayout ) {
 		if ( !justify )
 		    toolBarRowLayout->addStretch( 1 );
-		if ( style == MotifStyle )
-		    toolBarRowLayout->addSpacing( 2 );
 	    }
 	    toolBarRowLayout = new QBoxLayout( direction );
-	    if ( style == MotifStyle )
-		dockLayout->addSpacing( 2 );
 	    dockLayout->addLayout( toolBarRowLayout, 0 );
 	}
-	if ( style == MotifStyle )
-	    toolBarRowLayout->addSpacing( 2 );
 	toolBarRowLayout->addWidget( t->t, 0 );
     } while ( (t=dock->next()) != 0 );
-    
+
     if ( !toolBarRowLayout )
 	return;
 
-    if ( style == MotifStyle ) {
+    if ( style == MotifStyle )
 	dockLayout->addSpacing( 2 );
-	toolBarRowLayout->addSpacing( 2 );
-    }
 
     if ( !justify )
 	toolBarRowLayout->addStretch( 1 );
@@ -628,9 +620,9 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
 /*!  Sets this main window to expand its toolbars to fill all
   available space if \a enable is TRUE, and to give the toolbars just
   the space they need if \a enable is FALSE.
-  
+
   The default is FALSE.
-  
+
   \sa rightJustification();
 */
 
@@ -645,11 +637,11 @@ void QMainWindow::setRightJustification( bool enable )
 
 /*!  Returns TRUE if this main windows right-justifies its toolbars, and
   FALSE if it uses a ragged right edge.
-  
+
   The default is to use a ragged right edge.
-  
+
   ("Right edge" sometimes means "bottom edge".)
-  
+
   \sa setRightJustification()
 */
 
