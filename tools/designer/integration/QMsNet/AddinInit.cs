@@ -87,85 +87,79 @@ namespace QMsNet
 
 		// Add Moc Step for current file command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
-		    Resource.AddMocStep,
-		    Resource.AddMocStepButtonText,
-		    Resource.AddMocStepToolTip,
-		    false,
-		    Resource.AddMocStepBitmapID,
-		    ref contextGUIDS,
-		    disableFlags );
-
+					    Resource.AddMocStep,
+					    Resource.AddMocStepButtonText,
+					    Resource.AddMocStepToolTip,
+					    false,
+					    Resource.AddMocStepBitmapID,
+					    ref contextGUIDS,
+					    disableFlags );
 		cmd.AddControl( cmdBar, 1 );
 
 		// DLL Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
-		    Resource.DLLQtProject,
-		    Resource.DLLQtProjectButtonText,
-		    Resource.DLLQtProjectToolTip,
-		    false,
-		    Resource.DLLQtProjectBitmapID,
-		    ref contextGUIDS,
-		    disableFlags );
-
+					    Resource.DLLQtProject,
+					    Resource.DLLQtProjectButtonText,
+					    Resource.DLLQtProjectToolTip,
+					    false,
+					    Resource.DLLQtProjectBitmapID,
+					    ref contextGUIDS,
+					    disableFlags );
 		cmd.AddControl( cmdBar, 1 );
 
 		// Save Qt Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
-		    Resource.SaveQtProject,
-		    Resource.SaveQtProjectButtonText,
-		    Resource.SaveQtProjectToolTip,
-		    false,
-		    Resource.SaveQtProjectBitmapID,
-		    ref contextGUIDS,
-		    disableFlags );
+					    Resource.SaveQtProject,
+					    Resource.SaveQtProjectButtonText,
+					    Resource.SaveQtProjectToolTip,
+					    false,
+					    Resource.SaveQtProjectBitmapID,
+					    ref contextGUIDS,
+					    disableFlags );
 		cmd.AddControl( cmdBar, 1 );
 
 		// Load Qt Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
-		    Resource.LoadQtProject,
-		    Resource.LoadQtProjectButtonText,
-		    Resource.LoadQtProjectToolTip,
-		    false,
-		    Resource.LoadQtProjectBitmapID,
-		    ref contextGUIDS,
-		    disableFlags );
-
+					    Resource.LoadQtProject,
+					    Resource.LoadQtProjectButtonText,
+					    Resource.LoadQtProjectToolTip,
+					    false,
+					    Resource.LoadQtProjectBitmapID,
+					    ref contextGUIDS,
+					    disableFlags );
 		cmd.AddControl( cmdBar, 1 );
 
 		// Load Designer command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
-		    Resource.LoadDesigner,
-		    Resource.LoadDesignerButtonText,
-		    Resource.LoadDesignerToolTip,
-		    false,
-		    Resource.LoadDesignerBitmapID,
-		    ref contextGUIDS,
-		    disableFlags );
-
+					    Resource.LoadDesigner,
+					    Resource.LoadDesignerButtonText,
+					    Resource.LoadDesignerToolTip,
+					    false,
+					    Resource.LoadDesignerBitmapID,
+					    ref contextGUIDS,
+					    disableFlags );
 		cmd.AddControl( cmdBar, 1 );
 
 		// Make Qt Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
-		    Resource.MakeQtProject,
-		    Resource.MakeQtProjectButtonText,
-		    Resource.MakeQtProjectToolTip,
-		    false,
-		    Resource.MakeQtProjectBitmapID,
-		    ref contextGUIDS,
-		    disableFlags );
-
+					    Resource.MakeQtProject,
+					    Resource.MakeQtProjectButtonText,
+					    Resource.MakeQtProjectToolTip,
+					    false,
+					    Resource.MakeQtProjectBitmapID,
+					    ref contextGUIDS,
+					    disableFlags );
 		cmd.AddControl( cmdBar, 1 );
 
 		// New Qt Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
-		    Resource.NewQtProject,
-		    Resource.NewQtProjectButtonText,
-		    Resource.NewQtProjectToolTip,
-		    false,
-		    Resource.NewQtProjectBitmapID,
-		    ref contextGUIDS,
-		    disableFlags );
-
+					    Resource.NewQtProject,
+					    Resource.NewQtProjectButtonText,
+					    Resource.NewQtProjectToolTip,
+					    false,
+					    Resource.NewQtProjectBitmapID,
+					    ref contextGUIDS,
+					    disableFlags );
 		cmd.AddControl( cmdBar, 1 );
 	    }
 	    catch( System.Exception e ) {
