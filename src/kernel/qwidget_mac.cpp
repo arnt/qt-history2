@@ -1136,14 +1136,15 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
 		    int ox = px + oldp.x(), oy = py + oldp.y(); //old
 		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
-		    BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
 		    SetClip((RgnHandle)bltregion.handle());
+		    //actually copy some pixels now
+		    GrafPtr wport = GetWindowPort((WindowPtr)handle());
+		    LockPortBits(wport);
+		    BitMap *scrn = (BitMap *)*GetPortPixMap(wport);
 		    CopyBits(scrn, scrn, &oldr, &newr, srcCopy, NULL);
+		    UnlockPortBits(wport);
 		}
 	    }
-	    if(isResize)
-		qt_event_request_updates();
-
 	    //finally issue "expose" event
 	    QRegion upd((oldregion + clpreg) - bltregion); 
 	    if(isResize && !testWFlags(WNorthWestGravity))
@@ -1160,6 +1161,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		QResizeEvent e( size(), olds );
 		QApplication::sendEvent( this, &e );
 	    }
+	    if(isResize)
+		qt_event_request_updates();
 	}
     }
 }

@@ -1745,6 +1745,14 @@ QPoint QPainter::pos() const
 }
 
 inline void QPainter::initPaintDevice(bool force) {
+#if 1
+    /*this optimization causes weird interplay, a dirtyClippedRegion()
+      can happen in a widget between calls to this, need to find a solution
+      for now the optimization probably doesn't buy us so much to matter, maybe I 
+      I want to FIXME? //Sam
+    */
+    force = TRUE; 
+#endif
     if(!force && pdev == g_cur_paintdev) {
 	updateClipRegion();
 	return;
@@ -1770,10 +1778,10 @@ inline void QPainter::initPaintDevice(bool force) {
 	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
         else if ( unclipped ) 
 	    clippedreg = w->clippedRegion(FALSE);	    //just clip my bounding rect
-	else if(!paintevents.isEmpty() && (*paintevents.current()) == pdev) 
-	    clippedreg = paintevents.current()->region();
 	else 
 	    clippedreg = w->clippedRegion();
+	if(!paintevents.isEmpty() && (*paintevents.current()) == pdev)
+	    clippedreg &= paintevents.current()->region();
     } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;
 
