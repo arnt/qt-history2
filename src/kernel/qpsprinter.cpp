@@ -69,6 +69,7 @@
 #include "qmap.h"
 #include "qfontdatabase.h"
 #include "qregexp.h"
+#include "qbitmap.h"
 #include <private/qunicodetables_p.h>
 
 #if defined(Q_OS_WIN32)
@@ -1335,7 +1336,7 @@ public:
     void resetDrawingTools( QPainter * );
     void emitHeader( bool finished );
     void setFont( const QFont &, int script );
-    void drawImage( QPainter *, float x, float y, float w, float h, const QImage & );
+    void drawImage( QPainter *, float x, float y, float w, float h, const QImage &img, const QImage &mask );
     void initPage( QPainter *paint );
     void flushPage( bool last = FALSE );
 
@@ -5658,7 +5659,7 @@ static const char * psJoin( Qt::PenJoinStyle p ) {
 
 
 void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, float h,
-                            const QImage &img )
+				   const QImage &img, const QImage &mask )
 {
     if ( !w || !h || img.isNull() ) return;
 
@@ -5680,8 +5681,9 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
         }
         int suby = 0;
         while( suby < height ) {
-            drawImage( paint, x, y + suby/scaleY, w, QMIN( subheight, height-suby )/scaleY,
-                       img.copy( 0, suby, width, QMIN( subheight, height-suby ) ) );
+            drawImage(paint, x, y + suby/scaleY, w, QMIN( subheight, height-suby )/scaleY,
+		      img.copy( 0, suby, width, QMIN( subheight, height-suby ) ),
+		      mask.isNull() ? mask : mask.copy( 0, suby, width, QMIN( subheight, height-suby ) ));
             suby += subheight;
         }
     } else {
@@ -5689,9 +5691,8 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 	int size = 0;
 	const char *bits;
 
-	bool hasMask = img.hasAlphaBuffer();
-	if ( hasMask ) {
-	    out = ::compress( img.createAlphaMask(), TRUE );
+	if ( !mask.isNull() ) {
+	    out = ::compress( mask, TRUE );
 	    size = (width+7)/8*height;
 	    pageStream << "/mask " << size << " string uc\n";
 	    ps_r7( pageStream, out, out.size() );
@@ -5714,7 +5715,7 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 	ps_r7( pageStream, out, out.size() );
 	pageStream << "d\n"
 		   << width << ' ' << height << "[" << scaleX << " 0 0 " << scaleY << " 0 0]sl "
-		   << bits << (hasMask ? "mask " : "false ")
+		   << bits << (!mask.isNull() ? "mask " : "false ")
 		   << x << ' ' << y << " di\n";
     }
 }
@@ -6295,7 +6296,10 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         QRect r = *p[0].rect;
         QImage img;
         img = *(p[1].pixmap);
-        d->drawImage( paint, r.x(), r.y(), r.width(), r.height(), img );
+	QImage mask;
+	if ( p[1].pixmap->mask() )
+	    mask = *(p[1].pixmap->mask());
+        d->drawImage(paint, r.x(), r.y(), r.width(), r.height(), img, mask);
         break;
     }
     case PdcDrawImage: {
@@ -6303,7 +6307,10 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
             break;
         QRect r = *(p[0].rect);
         QImage img = *(p[1].image);
-        d->drawImage( paint, r.x(), r.y(), r.width(), r.height(), img );
+	QImage mask;
+	if ( img.hasAlphaBuffer() )
+	    mask = img.createAlphaMask();
+        d->drawImage(paint, r.x(), r.y(), r.width(), r.height(), img, mask);
         break;
     }
     case PdcSetBkColor:
