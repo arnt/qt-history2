@@ -34,7 +34,7 @@
     principles. In Interview, we also introduce the concept of the \e
     delegate to provide further user input functionality. The
     advantage of using a delegate is that it allows input methods to
-    be defined in addition to those provided by the view.
+    be defined instead of those provided by the view.
 
     Interview defines the interfaces and common functionality for the
     models, views, and delegates at the \bold{abstract level}. All
@@ -98,9 +98,9 @@
 
     \list
     \i \c QAbstractItemDelegate
+    \i \c QItemDelegate
     \i \c QItemSelectionModel, \c QItemSelection, \c
     QItemSelectionRange -- classes to handle selections of items
-    \i \c QItemDelegate
     \endlist
 
 
@@ -156,10 +156,10 @@
     the contents of a default directory. The two views are constructed
     and given the same model to work with. By default, each view will
     maintain and display its own selection of items from the model,
-    but we explicitly share the tree view's selection with the list
-    view. As a result, changes to the selection in either of these
-    views will automatically cause the selection in the other to
-    change.
+    but we explicitly share a new selection with both the tree view
+    and the list view. As a result, changes to the selection in either
+    of these views will automatically cause the selection in the other
+    to change.
     
     The Model/View architecture allows us to replace the \c QDirModel in
     this example with a completely different model, one that will perhaps
@@ -171,11 +171,11 @@
     model using a ready-made view class.
 
     Creating a custom model for the existing views requires us
-    to subclass \c QAbstractListModel and reimplement a number of
-    functions. Our model will take a list of strings when constructed,
-    and supply these to a view. Since we only require a simple
-    read-only model, the number of functions we need to provide are
-    very few.
+    to subclass \c QAbstractListModel and reimplement a standard set
+    of functions. Our model will take a list of strings when
+    constructed, and supply these to a view. Since we only require a
+    simple read-only model, the number of functions we need to provide
+    are very few.
 
     The complete declaration of our model is as follows:
 
@@ -286,8 +286,8 @@
 
     This example shows that it can be easy to populate views with data
     from a simple model, although it is expected that the convenience
-    models and views provided with Qt 4 (and which weren't ready for
-    the preview) will make the process even easier.
+    models and views provided with Qt 4 (not included with this preview)
+    will make the process even easier.
 
     \section1 What's changed since Qt 3?
 
@@ -303,14 +303,25 @@
     \list
     \i The \c QListView class provides a view widget that is
     similar to Qt 3's \c QListBox widget, but displays data from a
-    model.
+    model. It can also be used to display icons in a similar way
+    to Qt 3's \c QIconView.
     \i The \c QTableView class is a view widget that displays
-    data from a model of tablular data, similar to Qt 3's \c QTable
+    data from a model of tabular data, similar to Qt 3's \c QTable
     widget.
     \i The \c QTreeView class provides a view widget that
     behaves like Qt 3's \c QListView widget, except that the data
     items are provided by a model.
     \endlist
+
+    Since the model takes responsibility for managing items,
+    and the view takes care of their presentation to the user,
+    we do not require classes to represent individual items.
+    As a result, there are no equivalent classes to the item
+    classes provided by Qt 3 such as \c QListViewItem,
+    \c QTableItem, and \c QIconViewItem.
+    The delegate now handles the painting and editing of items
+    from the model, and selections of items are stored in selection
+    ranges.
 
     For developers who wish to continue to use old-style item views,
     there are a number of convenience classes that will provide
