@@ -1438,7 +1438,7 @@ png_handle_unknown(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
     */
    if ( png_ptr->user_chunk_fn != NULL ) {
       int ok = 0;
-      png_bytep data = png_malloc(png_ptr, length);
+      png_bytep data = (png_bytep)png_malloc(png_ptr, length);
       png_size_t slength = (png_size_t)length;
       png_crc_read(png_ptr, data, slength);
       if ( png_crc_finish(png_ptr, 0) == 0 )
