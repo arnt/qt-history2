@@ -209,27 +209,23 @@ void Directory::setOpen( bool o )
 	}
 
 	listView()->setUpdatesEnabled( FALSE );
-	const QFileInfoList * files = thisDir.entryInfoList();
-	if ( files ) {
-	    QFileInfoListIterator it( *files );
-	    QFileInfo * fi;
-	    while( (fi=it.current()) != 0 ) {
-		++it;
-		if ( fi->fileName() == "." || fi->fileName() == ".." )
-		    ; // nothing
-		else if ( fi->isSymLink() && !showDirsOnly ) {
-		    FileItem *item = new FileItem( this, fi->fileName(),
-						     "Symbolic Link" );
-		    item->setPixmap( fileNormal );
-		}
-		else if ( fi->isDir() )
-		    (void)new Directory( this, fi->fileName() );
-		else if ( !showDirsOnly ) {
-		    FileItem *item
-			= new FileItem( this, fi->fileName(),
-					     fi->isFile()?"File":"Special" );
-		    item->setPixmap( fileNormal );
-		}
+	const QFileInfoList files = thisDir.entryInfoList();
+	for(int i = 0; i <files.size(); ++i) {
+	    QFileInfo fi = files.at(i);
+	    if ( fi.fileName() == "." || fi.fileName() == ".." )
+		; // nothing
+	    else if ( fi.isSymLink() && !showDirsOnly ) {
+		FileItem *item = new FileItem( this, fi.fileName(),
+		    "Symbolic Link" );
+		item->setPixmap( fileNormal );
+	    }
+	    else if ( fi.isDir() )
+		(void)new Directory( this, fi.fileName() );
+	    else if ( !showDirsOnly ) {
+		FileItem *item
+		    = new FileItem( this, fi.fileName(),
+		    fi.isFile()?"File":"Special" );
+		item->setPixmap( fileNormal );
 	    }
 	}
 	listView()->setUpdatesEnabled( TRUE );
@@ -501,7 +497,7 @@ void DirectoryView::setDir( const QString &s )
 	it.current()->setOpen( FALSE );
     }
 
-    QStringList lst( QStringList::split( "/", s ) );
+    QStringList lst(s.split("/"));
     QListViewItem *item = firstChild();
     QStringList::Iterator it2 = lst.begin();
     for ( ; it2 != lst.end(); ++it2 ) {

@@ -90,19 +90,19 @@ static const char *home[]={
 PixmapView::PixmapView( QWidget *parent )
     : QScrollView( parent )
 {
-    viewport()->setBackgroundMode( PaletteBase );
+    viewport()->setBackgroundRole(QPalette::Base);
 }
 
 void PixmapView::setPixmap( const QPixmap &pix )
 {
     pixmap = pix;
     resizeContents( pixmap.size().width(), pixmap.size().height() );
-    viewport()->repaint( FALSE );
+    viewport()->repaint();
 }
 
 void PixmapView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
-    p->fillRect( cx, cy, cw, ch, colorGroup().brush( QColorGroup::Base ) );
+    p->fillRect(cx, cy, cw, ch, palette().brush(QPalette::Current, QPalette::Base));
     p->drawPixmap( 0, 0, pixmap );
 }
 
@@ -137,7 +137,7 @@ void Preview::showPreview( const QUrl &u, int size )
 		    QTextStream ts( &f );
 		    QString text = ts.read();
 		    f.close();
-		    if ( fi.extension().lower().contains( "htm" ) ) {
+		    if (fi.extension().toLower().indexOf("htm") != -1) {
 			QString url = html->mimeSourceFactory()->makeAbsolute( path, html->context() );
 			html->setText( text, url ); 	
 			raiseWidget( html );
