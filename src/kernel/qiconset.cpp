@@ -68,7 +68,11 @@ public:
 
 	Icon& operator=( const Icon& other ) {
 	    QPixmap *old = pixmap;
-	    pixmap = other.pixmap;
+	    if ( other.pixmap ) {
+		pixmap = new QPixmap( *other.pixmap );
+	    } else {
+		pixmap = 0;
+	    }
 	    supplied = other.supplied;
 	    delete old;
 	    return *this;
@@ -84,13 +88,17 @@ public:
 
     Icon icons[NumSizes][NumModes][NumStates];
     QPixmap defaultPix;
+    QIconSet::PixmapFactory factory;
 
-    QIconSetPrivate() { qiconsetCount++; }
+    QIconSetPrivate() : factory( 0 ) { qiconsetCount++; }
     ~QIconSetPrivate() { qiconsetCount--; }
 
-    Icon *icon( QIconSet::Size size, QIconSet::Mode mode,
-		QIconSet::State state ) {
-	return &icons[(int) size - 1][(int) mode][(int) state];
+    Icon *icon( const QIconSet *iconSet, QIconSet::Size size,
+		QIconSet::Mode mode, QIconSet::State state ) {
+	Icon *ik = &icons[(int) size - 1][(int) mode][(int) state];
+	if ( factory && iconSet && !ik->pixmap )
+	    ik->pixmap = factory( *iconSet, size, mode, state );
+	return ik;
     }
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
@@ -368,7 +376,7 @@ void QIconSet::setPixmap( const QPixmap& pixmap, Size size, Mode mode,
 
     normalize( size, pixmap.size() );
 
-    Icon *icon = d->icon( size, mode, state );
+    Icon *icon = d->icon( 0, size, mode, state );
     if ( icon->pixmap == 0 ) {
 	icon->pixmap = new QPixmap( pixmap );
     } else {
@@ -402,7 +410,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
     if ( size == Automatic )
 	size = Small;
 
-    Icon *icon = d->icon( size, mode, state );
+    Icon *icon = d->icon( this, size, mode, state );
     if ( icon->pixmap )
 	return *icon->pixmap;
 
@@ -410,10 +418,10 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 	return pixmap( size, Normal, state );
 
     Size otherSize = ( size == Large ) ? Small : Large;
-    Icon *otherSizeIcon = d->icon( otherSize, mode, state );
+    Icon *otherSizeIcon = d->icon( this, otherSize, mode, state );
 
     if ( state == Off ) {
-	if ( mode == Disabled && d->icon(size, Normal, Off)->supplied ) {
+	if ( mode == Disabled && d->icon(this, size, Normal, Off)->supplied ) {
 	    icon->pixmap = createDisabled( size, Off );
 	} else if ( otherSizeIcon->supplied ) {
 	    icon->pixmap = createScaled( size, otherSizeIcon->pixmap );
@@ -448,7 +456,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 
 	    for ( int i = 0; i < N; i++ ) {
 		sameSize = tryList[i].sameSize;
-		Icon *tryIcon = d->icon( sameSize ? size : otherSize,
+		Icon *tryIcon = d->icon( this, sameSize ? size : otherSize,
 					 tryList[i].mode, tryList[i].state );
 		if ( tryIcon->supplied ) {
 		    icon->pixmap = new QPixmap( *tryIcon->pixmap );
@@ -473,12 +481,12 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		icon->pixmap = new QPixmap( pixmap(size, mode, Off) );
 	    }
 	} else { /* ( mode == Disabled ) */
-	    Icon *offIcon = d->icon( size, mode, Off );
-	    Icon *otherSizeOffIcon = d->icon( otherSize, mode, Off );
+	    Icon *offIcon = d->icon( this, size, mode, Off );
+	    Icon *otherSizeOffIcon = d->icon( this, otherSize, mode, Off );
 
 	    if ( offIcon->supplied ) {
 		icon->pixmap = new QPixmap( *offIcon->pixmap );
-	    } else if ( d->icon(size, Normal, On)->supplied ) {
+	    } else if ( d->icon(this, size, Normal, On)->supplied ) {
 		icon->pixmap = createDisabled( size, On );
 	    } else if ( otherSizeIcon->supplied ) {
 		icon->pixmap = createScaled( size, otherSizeIcon->pixmap );
@@ -525,7 +533,7 @@ bool QIconSet::isGenerated( Size size, Mode mode, State state ) const
 {
     if ( !d )
 	return TRUE;
-    return !d->icon( size, mode, state )->supplied;
+    return !d->icon( 0, size, mode, state )->supplied;
 }
 
 /*!
@@ -621,6 +629,28 @@ const QSize& QIconSet::iconSize( Size which )
     static QSize size;
     size = QSize( widths[(int) which - 1], heights[(int) which - 1] );
     return size;
+}
+
+/*! \enum typedef QPixmap *(*PixmapFactory)( const QIconSet&, Size, Mode,
+					     State )
+
+  This is used by setPixmapFactory().
+*/
+
+/*!
+  Installs a pixmap factory on the icon set. The pixmap factory \a
+  fact is called whenever a pixmap not supplied by the user needs to
+  be generated. If \a fact is null or returns null for a particular
+  (size, mode, state) setting, the pixmap is created using the
+  algorithm predefined in QIconSet.
+
+  Pixmaps returned by \a fact become the property of the QIconSet,
+  and are deleted when no longer needed.
+*/
+void QIconSet::setPixmapFactory( PixmapFactory fact )
+{
+    detach();
+    d->factory = fact;
 }
 
 void QIconSet::normalize( Size& which, const QSize& pixSize )

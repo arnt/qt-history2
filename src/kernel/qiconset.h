@@ -72,6 +72,9 @@ public:
     bool isGenerated( Size size, Mode mode, State state = Off ) const;
     void clearGenerated();
 
+    typedef QPixmap *(*PixmapFactory)( const QIconSet&, Size, Mode, State );
+    void setPixmapFactory( PixmapFactory fact );
+
     bool isNull() const;
 
     void detach();
