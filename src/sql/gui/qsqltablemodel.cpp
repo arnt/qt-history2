@@ -51,6 +51,16 @@ void QSqlTableModelPrivate::clear()
     filter.clear();
 }
 
+void QSqlTableModelPrivate::revertInsertedRow()
+{
+    if (insertIndex == -1)
+        return;
+
+    int oldIndex = insertIndex;
+    insertIndex = -1;
+    emit q->rowsRemoved(QModelIndex::Null, oldIndex, oldIndex);
+}
+
 void QSqlTableModelPrivate::clearEditBuffer()
 {
     editBuffer = rec;
@@ -73,11 +83,13 @@ void QSqlTableModelPrivate::revertCachedRow(int row)
             QMap<int, QSqlTableModelPrivate::ModifiedRow>::Iterator it = cache.find(row);
             if (it == cache.end())
                 return;
-            while (++it != cache.end()) {
+            it = cache.erase(it);
+            while (it != cache.end()) {
                 int oldKey = it.key();
                 const QSqlTableModelPrivate::ModifiedRow oldValue = it.value();
                 cache.erase(it);
                 it = cache.insert(oldKey - 1, oldValue);
+                ++it;
             }
             emit q->rowsRemoved(QModelIndex::Null, row, row);
         break; }
@@ -402,7 +414,6 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
             return true;
         }
         if (d->editIndex != index.row()) {
-            // ### TODO: refresh/emit after row change
             if (d->editBuffer.isEmpty())
                 d->clearEditBuffer();
             else if (d->editIndex != -1)
@@ -614,11 +625,7 @@ void QSqlTableModel::revertAll()
             emit dataChanged(createIndex(oldIndex, 0),
                              createIndex(oldIndex, columnCount()));
         }
-        if (d->insertIndex != -1) {
-            int oldIndex = d->insertIndex;
-            d->insertIndex = -1;
-            emit rowsRemoved(QModelIndex::Null, oldIndex, oldIndex);
-        }
+        d->revertInsertedRow();
         break;
     case OnManualSubmit: {
         QSqlTableModelPrivate::CacheMap::ConstIterator it = d->cache.constBegin();
@@ -801,7 +808,9 @@ bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
     case OnFieldChange:
     case OnRowChange:
         for (i = 0; i < count; ++i) {
-            if (!deleteRow(row + i))
+            if (row + i == d->insertIndex)
+                d->revertInsertedRow();
+            else if (!deleteRow(row + i))
                 return false;
         }
         select();
@@ -811,7 +820,10 @@ bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
             int idx = row + i;
             if (idx >= rowCount())
                 return false;
-            d->cache[idx].op = QSql::Delete; // TODO - check old state
+            if (d->cache.value(idx).op == QSql::Insert)
+                revertRow(idx);
+            else
+                d->cache[idx].op = QSql::Delete;
         }
         break;
     }

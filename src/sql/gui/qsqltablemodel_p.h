@@ -48,6 +48,7 @@ public:
     bool exec(const QString &stmt, bool prepStatement,
               const QSqlRecord &rec, const QSqlRecord &whereValues = QSqlRecord());
     void revertCachedRow(int row);
+    void revertInsertedRow();
     QSqlDatabase db;
     int editIndex;
     int insertIndex;
