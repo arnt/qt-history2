@@ -92,7 +92,7 @@ platform than Windows, the define will be ignored. You may also perform
 single line conditionals/assignments with qmake like this:
 
 \code
-   win32:DEFINES += QT_DLL
+    win32:DEFINES += QT_DLL
 \endcode
 
 For example, suppose we want to process something on all platforms
@@ -161,13 +161,13 @@ special 'else' scope, it can be combined with other scopes (separated by
 colons as above) for example:
 
 \code
-   win32:thread {
-      DEFINES += QT_THREAD_SUPPORT
-   } else:debug {
-      DEFINES += QT_NOTHREAD_DEBUG
-   } else {
-      warning("Unknown configuration")
-   }
+    win32:thread {
+	DEFINES += QT_THREAD_SUPPORT
+    } else:debug {
+	DEFINES += QT_NOTHREAD_DEBUG
+    } else {
+	warning("Unknown configuration")
+    }
 \endcode
 
 \section1 Variables
@@ -197,7 +197,7 @@ Now the MY_DEFINES variable contains what is in the DEFINES variable at
 this point in the project file.  This is also equivlant to:
 
 \code 
-   MY_DEFINES = $${DEFINES}
+    MY_DEFINES = $${DEFINES}
 \endcode
 
 The second notation allows you to adjoin the variable expansion to another
@@ -238,9 +238,9 @@ substr may be a regular expression as well, and will be matched
 accordingly.
 
 \code
-  MY_VAR = one two three four
-  MY_VAR2 = $$join(MY_VAR, " -L", -L) -Lfive
-  MY_VAR3 = $$member(MY_VAR, 2) $$find(MY_VAR, t.*)
+    MY_VAR = one two three four
+    MY_VAR2 = $$join(MY_VAR, " -L", -L) -Lfive
+    MY_VAR3 = $$member(MY_VAR, 2) $$find(MY_VAR, t.*)
 \endcode
 
 MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MYVAR3 will
@@ -253,10 +253,9 @@ normally expected. You can use this to interrogate information about the
 platform for example.
 
 \code
-  UNAME = $$system(uname -s)
-  contains( UNAME, [lL]inux ):message( This looks like Linux ($$UNAME) to me )
-}
-\endocode
+    UNAME = $$system(uname -s)
+    contains( UNAME, [lL]inux ):message( This looks like Linux ($$UNAME) to me )
+\endcode
 
 \section1 Test Functions
 
