@@ -310,6 +310,16 @@ QGenericListView::ResizeMode QGenericListView::resizeMode() const
     return d->resizeMode;
 }
 
+void QGenericListView::setLayoutMode(LayoutMode mode)
+{
+    d->layoutMode = mode;
+}
+
+QGenericListView::LayoutMode QGenericListView::layoutMode() const
+{
+    return d->layoutMode;
+}
+
 void QGenericListView::setSpacing(int space)
 {
     d->spacing = space;
@@ -737,12 +747,10 @@ void QGenericListView::startItemsLayout()
     d->layoutBounds.setHeight(d->layoutBounds.height() - sbx);
     d->contentsSize = QSize(0, 0);
 
-//     if (itemDelegate()->sameHeight() && itemDelegate()->sameWidth()) {
-//         d->itemSize = itemRect(model()->index(0, 0, root())).size();  // FIXME: atually use this
-//         doItemsLayout(model()->rowCount(root()));
-//     } else {
+    if (d->layoutMode == Instant)
+        doItemsLayout(model()->rowCount(root()));
+    else
         QAbstractItemView::startItemsLayout(); // do delayed layout
-//    }
 }
 
 void QGenericListView::stopItemsLayout()

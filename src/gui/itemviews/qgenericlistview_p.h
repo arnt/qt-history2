@@ -102,6 +102,7 @@ public:
             movement(QGenericListView::Static),
             size(QGenericListView::Small),
             resizeMode(QGenericListView::Fixed),
+            layoutMode(QGenericListView::Instant),
             spacing(5),
             arrange(false),
             layoutStart(0),
@@ -133,6 +134,7 @@ public:
     QGenericListView::Movement movement;
     QGenericListView::Size size;
     QGenericListView::ResizeMode resizeMode;
+    QGenericListView::LayoutMode layoutMode;
     bool wrap;
     uint spacing : 16;
     uint arrange : 1;

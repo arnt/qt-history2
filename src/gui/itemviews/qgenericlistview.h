@@ -18,6 +18,7 @@ public:
     enum Movement { Static, Free, Snap };
     enum Size { Automatic, Small, Large };
     enum ResizeMode { Fixed, Adjust };
+    enum LayoutMode { Instant, Delayed };
 
     QGenericListView(QAbstractItemModel *model, QWidget *parent = 0);
     ~QGenericListView();
@@ -36,6 +37,9 @@ public:
 
     void setResizeMode(ResizeMode mode);
     QGenericListView::ResizeMode resizeMode() const;
+
+    void setLayoutMode(LayoutMode mode);
+    QGenericListView::LayoutMode layoutMode() const;
     
     void setSpacing(int space);
     int spacing() const;
