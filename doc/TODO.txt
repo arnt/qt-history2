@@ -51,10 +51,6 @@ QSemiModal
   but gave its MOC functions linked in if necessary... Probably the MOC
   code needs to be put in the header?
 
-MOC/MetaObject
-  pass the metaobject of the parentclass to this metaobject in moc generated code
-  drop the objectDict.
-
 
 Specific enhancements
 ---------------------
@@ -104,9 +100,6 @@ QSpinBox
 
 QFileDialog
   Re-use the history
-
-QComboBox
-  The Windows kind of auto completion for non-editable comboboxes
 
 Feature Requests
 ----------------
