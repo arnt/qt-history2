@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#38 $
 **
 ** Implementation of QPicture class
 **
@@ -17,7 +17,7 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#38 $")
 
 
 /*----------------------------------------------------------------------------
@@ -154,10 +154,8 @@ bool QPicture::play( QPainter *painter )
 	    warning( "QPicture::play: Invalid checksum %x, %x expected",
 		     ccs, cs );
 #endif
-#if !defined(DEBUG)
-	    pictb.close();			// NOTE!!! PASS THROUGH
+	    pictb.close();
 	    return FALSE;
-#endif
 	}
 
 	UINT16 major, minor;
