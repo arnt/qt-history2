@@ -623,7 +623,7 @@ since the custom delegate will control data entry. We construct a
 table view to display the contents of the model, and this will use
 the custom delegate for editing.
 
-\img itemviews-spinboxdelegate.png
+\img spinboxdelegate-example.png
 
 We subclass the delegate from \l QItemDelegate because we do not want
 to write custom display functions. However, we must still provide
