@@ -1,10 +1,11 @@
 #include "xmlparser.h"
 
-XMLParser::XMLParser( QListView *protocol, QLabel *err, QListView *t )
+XMLParser::XMLParser( QListView *protocol, QLabel *err, QListView *t, QTextStream *ts )
 {
     loc = 0;
 
     parseProtocol = protocol;
+    parseProtocolTS = ts;
     parseProtocolItem = 0;
 
     errorProtocol = err;
@@ -252,4 +253,7 @@ void XMLParser::addToProtocol( const QString& name, const QString &args )
     QListViewItem *tmp = new QListViewItem( parseProtocol, parseProtocolItem,
 	    name, args, row, column );
     parseProtocolItem = tmp;
+
+    *parseProtocolTS << "(" << row << "," << column << ")"
+	<< name << " | " << args << endl;
 }

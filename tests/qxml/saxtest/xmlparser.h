@@ -5,7 +5,7 @@
 class XMLParser : public QXmlDefaultHandler
 {
 public:
-    XMLParser( QListView*, QLabel*, QListView* );
+    XMLParser( QListView*, QLabel*, QListView*, QTextStream* );
     virtual ~XMLParser();
 
     virtual void setDocumentLocator( QXmlLocator* locator );
@@ -44,6 +44,7 @@ private:
 
     QXmlLocator *loc;
     QListView *parseProtocol;
+    QTextStream *parseProtocolTS;
     QListViewItem *parseProtocolItem;
     QLabel *errorProtocol;
     QListView *tree;

@@ -34,10 +34,23 @@ ControlCentral::ControlCentral() : QVBox()
     connect( errorProt, SIGNAL(clicked()), this, SLOT(showErrorProtocol()) );
     connect( tree, SIGNAL(clicked()), this, SLOT(showTree()) );
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
+
+    parseProtocolFile = new QFile( "parseProtocol" );
+    if ( !parseProtocolFile->open( IO_WriteOnly | IO_Truncate ) ) {
+	parseProtocolFile = 0;
+	parseProtocolTS = 0;
+    } else {
+	parseProtocolTS = new QTextStream( parseProtocolFile );
+    }
 }
 
 ControlCentral::~ControlCentral()
 {
+    if ( parseProtocolFile != 0 ) {
+	parseProtocolFile->close();
+	delete parseProtocolFile;
+	delete parseProtocolTS;
+    }
 }
 
 QSize ControlCentral::sizeHint() const
@@ -51,6 +64,10 @@ void ControlCentral::parse( const QString& filename )
     if ( !file.open(IO_ReadOnly) ) {
 	return;
     }
+
+    *parseProtocolTS << endl << "******** "
+	<< filename << " ********" << endl;
+
 #if 0
     QTextStream ts2( &file );
     QString inputString = ts2.read();
@@ -106,7 +123,7 @@ void ControlCentral::parse( const QString& filename )
     connect( listTree, SIGNAL(selectionChanged(QListViewItem*)),
 	    contentTree, SLOT(change(QListViewItem*)) );
 
-    XMLParser hnd( protocol, err, listTree );
+    XMLParser hnd( protocol, err, listTree, parseProtocolTS );
     parser.setEntityResolver( &hnd );
     parser.setDTDHandler( &hnd );
     parser.setContentHandler( &hnd );

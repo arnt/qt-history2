@@ -2,6 +2,7 @@
 #include <qpushbutton.h>
 #include <qlistview.h>
 #include <qfiledialog.h>
+#include <qtextstream.h>
 
 class ControlCentral : public QVBox
 {
@@ -27,4 +28,6 @@ private:
 
     QListView* lview;
     QPushButton* quit;
+    QFile *parseProtocolFile;
+    QTextStream *parseProtocolTS;
 };
