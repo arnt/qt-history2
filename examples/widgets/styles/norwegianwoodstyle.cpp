@@ -10,31 +10,22 @@ static const QPalette::ColorGroup groups[NumGroups] = {
 static QPainterPath roundRectPath(const QRect &rect)
 {
     int radius = qMin(rect.width(), rect.height()) / 2;
+    int diam = 2 * radius;
 
     int x1, y1, x2, y2;
     rect.getCoords(&x1, &y1, &x2, &y2);
 
     QPainterPath path;
-    path.moveTo(x1 + radius, y1);
-    path.lineTo(x2 - radius, y1);
-    path.arcTo(QRect(x2 - 2 * radius, y1, 2 * radius, 2 * radius), 90.0, -90.0);
-    path.lineTo(x2, y2 - radius);
-    path.arcTo(QRect(x2 - 2 * radius, y2 - 2 * radius, 2 * radius, 2 * radius), 0.0, -90.0);
+    path.moveTo(x2, y1 + radius);
+    path.arcTo(QRect(x2 - diam, y2 - diam, diam, diam), 0.0, +90.0);
+    path.lineTo(x1 + radius, y1);
+    path.arcTo(QRect(x1, y1, diam, diam), 90.0, +90.0);
+    path.lineTo(x1, y2 - radius);
+    path.arcTo(QRect(x1, y2 - diam, diam, diam), 180.0, +90.0);
     path.lineTo(x1 + radius, y2);
-    path.arcTo(QRect(x1, y2 - 2 * radius, 2 * radius, 2 * radius), -90.0, -90.0);
-    path.lineTo(x1, y1 + radius);
-    path.arcTo(QRect(x1, y1, 2 * radius, 2 * radius), -180.0, -90.0);
+    path.arcTo(QRect(x2 - diam, y2 - diam, diam, diam), 270.0, +90.0);
+    path.closeSubpath();
     return path;
-}
-
-static inline int buttonThickness(int side)
-{
-    if (side < 10)
-        return 2;
-    else if (side < 20)
-        return 3;
-    else
-        return 5;
 }
 
 NorwegianWoodStyle::NorwegianWoodStyle()
@@ -44,9 +35,7 @@ NorwegianWoodStyle::NorwegianWoodStyle()
     darkImage = buttonImage;
     midImage = buttonImage;
     backgroundImage.load(":/images/woodbackground.xpm");
-    sunkenLightImage = backgroundImage;
     sunkenMidImage = backgroundImage;
-    sunkenDarkImage = backgroundImage;
 
     for (int i = 0; i < buttonImage.numColors(); ++i) {
         QRgb rgb = buttonImage.color(i);
@@ -60,9 +49,7 @@ NorwegianWoodStyle::NorwegianWoodStyle()
         QRgb rgb = backgroundImage.color(j);
         QColor color(rgb);
 
-        sunkenLightImage.setColor(j, color.light().rgb());
         sunkenMidImage.setColor(j, color.dark(120).rgb());
-        sunkenDarkImage.setColor(j, color.dark(180).rgb());
     }
 
     woodPalette = QPalette(QColor(212, 140, 95));
@@ -104,34 +91,19 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
     switch (element) {
     case PE_PanelButtonCommand:
         {
-            painter->setRenderHint(QPainter::Antialiasing, true);
-
             const QStyleOptionButton *buttonOption =
                     qstyleoption_cast<const QStyleOptionButton *>(option);
-            bool isFlat = (buttonOption->features & QStyleOptionButton::Flat);
-
+            bool flat = buttonOption
+                        && (buttonOption->features & QStyleOptionButton::Flat);
             int minorSide = qMin(width, height) / 2;
-            int thickness = buttonThickness(minorSide);
-            QRect insideRect = option->rect.adjusted(thickness, thickness,
-                                                     -thickness, -thickness);
+            QPainterPath roundRect = roundRectPath(option->rect);
 
-            QPainterPath outside = roundRectPath(option->rect);
-            QPainterPath inside = roundRectPath(insideRect);
-/*
-            QPolygon sunnySide;
-            sunnySide << QPoint(x, y)
-                      << QPoint(x + width - 1, y)
-                      << QPoint(x + width - 1 - minorSide, y + minorSide)
-                      << QPoint(x + minorSide, y + height - 1 - minorSide)
-                      << QPoint(x, y + height - 1);
-*/
-
-            QPen oldPen = painter->pen();
+            painter->save();
+            painter->setRenderHint(QPainter::Antialiasing, true);
 
             QBrush brush;
-
             if (option->state & (State_Down | State_On)) {
-                if (isFlat) {
+                if (flat) {
                     brush = QBrush(option->palette.mid().color(),
                                    sunkenMidImage);
                 } else {
@@ -141,37 +113,52 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
                 brush = option->palette.button();
             }
 
-            painter->fillPath(inside, brush);
+            painter->setClipPath(roundRect);
+            painter->fillRect(option->rect, brush); // ### replace with fillPath()
             if ((option->state & (State_Down | State_On)) == State_On) {
-                painter->fillPath(inside,
-                                  QBrush(brush.color(), Qt::Dense4Pattern));
-            }
-
-#if 0
-            QPainterPath inBetween = inside;
-            inBetween.addPath(outside);
-            painter->setClipPath(inBetween);
-            painter->fillRect(option->rect,
-                    (option->state & (State_Down | State_On)
-                     ? QBrush(option->palette.dark().color(), sunkenDarkImage)
-                     : option->palette.brush(QPalette::Light)));
-
-            if (option->state & (State_Raised | State_Down | State_On)) {
-                sunnySide[0] = QPoint(x + width - 1, y + width - 1);
-                painter->setClipPath((QPath(sunnySide) - inside) & outside);
-
                 painter->fillRect(option->rect,
-                        (option->state & (State_Down | State_On)
-                         ? QBrush(option->palette.light().color(),
-                                  sunkenLightImage)
-                         : option->palette.dark()));
+                                  QBrush(brush.color(), Qt::Dense4Pattern)); // ### ditto
             }
-#endif
-            painter->setClipping(false);
+
+            int penWidth;
+            if (minorSide < 10)
+                penWidth = 3;
+            else if (minorSide < 20)
+                penWidth = 5;
+            else
+                penWidth = 7;
+
+            QPen topLeftPen(QColor(255, 255, 255, 127), penWidth);
+            QPen bottomRightPen(QColor(0, 0, 0, 127), penWidth);
+
+            if (option->state & (State_Down | State_On))
+                qSwap(topLeftPen, bottomRightPen);
+
+            QPolygon topLeftHalf;
+            topLeftHalf << QPoint(x, y)
+                        << QPoint(x + width - 1, y)
+                        << QPoint(x + width - 1 - minorSide, y + minorSide)
+                        << QPoint(x + minorSide, y + height - 1 - minorSide)
+                        << QPoint(x, y + height - 1);
+
+            painter->setClipPath(roundRect);
+            painter->setClipRegion(topLeftHalf, Qt::IntersectClip);
+            painter->setPen(topLeftPen);
+            painter->drawPath(roundRect);
+
+            QPolygon bottomRightHalf = topLeftHalf;
+            bottomRightHalf[0] = QPoint(x + width - 1, y + width - 1);
+
+            painter->setClipPath(roundRect);
+            painter->setClipRegion(bottomRightHalf, Qt::IntersectClip);
+            painter->setPen(bottomRightPen);
+            painter->drawPath(roundRect);
+
             painter->setPen(option->palette.foreground().color());
-            painter->drawPath(outside);
-            painter->setPen(oldPen);
-            painter->setRenderHint(QPainter::Antialiasing, false);
+            painter->setClipping(false);
+            painter->drawPath(roundRect);
+
+            painter->restore();
         }
         break;
     default:

@@ -30,9 +30,7 @@ private:
     QImage darkImage;
     QImage midImage;
     QImage backgroundImage;
-    QImage sunkenLightImage;
     QImage sunkenMidImage;
-    QImage sunkenDarkImage;
     QPalette woodPalette;
 };
 
