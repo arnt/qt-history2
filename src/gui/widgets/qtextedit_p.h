@@ -95,8 +95,6 @@ public:
 
     void emitCursorPosChanged(const QTextCursor &someCursor);
 
-    QRect cursorRect() const;
-
     void setBlinkingCursorEnabled(bool enable);
 
     void extendWordwiseSelection(int suggestedNewPosition, qreal mouseXPosition);

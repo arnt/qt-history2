@@ -148,6 +148,8 @@ public:
     QMenu *createStandardContextMenu();
 
     QTextCursor cursorForPosition(const QPoint &pos) const;
+    QRect cursorRect(const QTextCursor &cursor) const;
+    QRect cursorRect() const;
 
 public slots:
     void setFontPointSize(qreal s);

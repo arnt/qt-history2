@@ -566,7 +566,7 @@ void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
         cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, q);
     else
         cursorBlinkTimer.stop();
-    update(cursorRect());
+    update(q->cursorRect());
 }
 
 void QTextEditPrivate::extendWordwiseSelection(int suggestedNewPosition, qreal mouseXPosition)
@@ -1329,7 +1329,7 @@ void QTextEdit::timerEvent(QTimerEvent *e)
             d->cursorOn &= (style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, 0, this)
                             != 0);
 
-        d->update(d->cursorRect());
+        d->update(cursorRect());
     } else if (e->timerId() == d->dragStartTimer.timerId()) {
         d->dragStartTimer.stop();
         d->startDrag();
@@ -1423,7 +1423,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     // want to make sure the old cursor disappears (not noticable when moving
     // only a few pixels but noticable when jumping between cells in tables for
     // example)
-    d->update(d->cursorRect());
+    d->update(cursorRect());
 
     if (e->key() == Qt::Key_Direction_L || e->key() == Qt::Key_Direction_R) {
         QTextBlockFormat fmt;
@@ -1985,7 +1985,7 @@ QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
     QTextBlock block = d->cursor.block();
     switch(property) {
     case Qt::ImMicroFocus:
-        return d->cursorRect();
+        return cursorRect();
     case Qt::ImFont:
         return QVariant(currentFont());
     case Qt::ImCursorPosition:
@@ -2131,6 +2131,37 @@ QTextCursor QTextEdit::cursorForPosition(const QPoint &pos) const
     QTextCursor c(d->doc);
     c.setPosition(cursorPos);
     return c;
+}
+
+/*!
+  returns a rectangle (in contents coordinates) that includes the
+  \a cursor.
+ */
+QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
+{
+    Q_D(const QTextEdit);
+    QTextFrame *frame = cursor.currentFrame();
+    const QAbstractTextDocumentLayout *docLayout = d->doc->documentLayout();
+    QTextBlock block = cursor.block();
+    QTextLayout *layout = block.layout();
+    QPointF layoutPos = layout->position() + docLayout->frameBoundingRect(frame).topLeft();
+    const int relativePos = cursor.position() - block.position();
+    QTextLine line = layout->findLine(relativePos);
+    if (!line.isValid())
+        return QRect(qRound(layoutPos.x()-5), qRound(layoutPos.y()), 10, 10); // #### correct height
+
+    return QRect(qRound(layoutPos.x() + line.cursorToX(relativePos))-5, qRound(layoutPos.y() + line.y()),
+                 10, qRound(line.ascent() + line.descent()+1.));
+}
+
+/*!
+  returns a rectangle (in contents coordinates) that includes the
+  cursor of the text edit.
+ */
+QRect QTextEdit::cursorRect() const
+{
+    Q_D(const QTextEdit);
+    return cursorRect(d->cursor);
 }
 
 /*!
@@ -2690,32 +2721,13 @@ void QTextEdit::append(const QString &text)
 }
 
 /*!
-  Returns the current cursor rectangle.
-*/
-QRect QTextEditPrivate::cursorRect() const
-{
-    QTextFrame *frame = cursor.currentFrame();
-    const QAbstractTextDocumentLayout *docLayout = doc->documentLayout();
-    QTextBlock block = cursor.block();
-    QTextLayout *layout = block.layout();
-    QPointF layoutPos = layout->position() + docLayout->frameBoundingRect(frame).topLeft();
-    const int relativePos = cursor.position() - block.position();
-    QTextLine line = layout->findLine(relativePos);
-    if (!line.isValid())
-        return QRect(qRound(layoutPos.x()-5), qRound(layoutPos.y()), 10, 10); // #### correct height
-
-    return QRect(qRound(layoutPos.x() + line.cursorToX(relativePos))-5, qRound(layoutPos.y() + line.y()),
-                 10, qRound(line.ascent() + line.descent()+1.));
-}
-
-/*!
     Ensures that the cursor is visible by scrolling the text edit if
     necessary.
 */
 void QTextEdit::ensureCursorVisible()
 {
     Q_D(QTextEdit);
-    QRect crect = d->cursorRect();
+    QRect crect = cursorRect();
 
     const int visibleWidth = d->viewport->width();
     const int visibleHeight = d->viewport->height();
