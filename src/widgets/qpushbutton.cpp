@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#212 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#213 $
 **
 ** Implementation of QPushButton class
 **
@@ -368,7 +368,8 @@ QSize QPushButton::sizeHint() const
     if ( isMenuButton() )
 	w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
 
-    return style().sizeFromContents(QStyle::CT_PushButton, this, QSize(w, h));
+    return (style().sizeFromContents(QStyle::CT_PushButton, this, QSize(w, h)).
+	    expandedTo(QApplication::globalStrut()));
 }
 
 
