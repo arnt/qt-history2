@@ -80,9 +80,9 @@ public:
     virtual int         update( bool invalidate = TRUE );
     virtual int         del( bool invalidate = TRUE );
 
-    void              setMode( int flags );
+    virtual void      setMode( int flags );
     int               mode() const;
-    void              setCalculated( const QString& name, bool calculated );
+    virtual void      setCalculated( const QString& name, bool calculated );
     bool              isCalculated( const QString& name ) const;
     bool              isReadOnly() const;
     bool              canInsert() const;
@@ -92,8 +92,11 @@ public:
     bool              select();
     bool              select( const QSqlIndex& sort );
     bool              select( const QSqlIndex & filter, const QSqlIndex & sort );
-    bool              select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
+    virtual bool      select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
+    
+    virtual void      setSort( const QSqlIndex& sort );
     QSqlIndex         sort() const;
+    virtual void      setFilter( const QString& filter );
     QString           filter() const;
     virtual void      setName( const QString& name, bool autopopulate = TRUE );
     QString           name() const;
@@ -109,12 +112,18 @@ protected:
     virtual QVariant  calculateField( const QString& name );
     virtual int       update( const QString & filter, bool invalidate = TRUE );
     virtual int       del( const QString & filter, bool invalidate = TRUE );
+    
+    virtual QString   toString( const QString& prefix, QSqlField* field, const QString& fieldSep ) const;
+    virtual QString   toString( QSqlRecord* rec, const QString& prefix, const QString& fieldSep, 
+				const QString& sep ) const;
+    virtual QString   toString( const QSqlIndex& i, QSqlRecord* rec, const QString& prefix, 
+				const QString& fieldSep, const QString& sep ) const;
 
 private:
     void              sync();
     int               apply( const QString& q, bool invalidate );
     QSqlRecord&       operator=( const QSqlRecord & list );
-    QString           fieldEqualsValue( QSqlRecord* rec, const QString& prefix, const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );
+    
     QSqlCursorPrivate*  d;
 };
 

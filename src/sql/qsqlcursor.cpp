@@ -184,6 +184,16 @@ QSqlCursor& QSqlCursor::operator=( const QSqlCursor& other )
     return *this;
 }
 
+/*!  Sets the current sort to \a sort.  Note that no new records are
+  selected.  To select new records, use select()
+
+*/
+
+void QSqlCursor::setSort( const QSqlIndex& sort )
+{
+    d->srt = sort;
+}
+
 /*!  Returns the current sort, or an empty index if there is no
   current sort.
 
@@ -191,6 +201,15 @@ QSqlCursor& QSqlCursor::operator=( const QSqlCursor& other )
 QSqlIndex QSqlCursor::sort() const
 {
     return d->srt;
+}
+
+/*! Sets the current filter to \a filter.  Note that no new records
+  are selected.  To select new records, use select()
+  
+*/
+void QSqlCursor::setFilter( const QString& filter )
+{
+    d->ftr = filter;
 }
 
 /*!  Returns the current filter, or an empty string if there is no
@@ -413,7 +432,7 @@ bool QSqlCursor::select( const QSqlIndex& sort )
 */
 bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
 {
-    return select( fieldEqualsValue( this, d->nm, "and", filter ), sort );
+    return select( toString( filter, this, d->nm, "=", "and" ), sort );
 }
 
 /*!  Sets the cursor mode to \a mode.  This value can be an OR'ed
@@ -516,44 +535,69 @@ bool QSqlCursor::canDelete() const
     return ( ( d->md & Update ) == Update ) ;
 }
 
-QString qMakeFieldValue( const QSqlDriver* driver, const QString& prefix, QSqlField* field, const QString& op = "=" )
+/*! Returns a formatted string consisting of \a prefix, the \a field
+  name(), \a fieldSep followed by the field value.  This method is
+  useful for generating SQL statements.
+  
+*/
+
+QString QSqlCursor::toString( const QString& prefix, QSqlField* field, const QString& fieldSep ) const
 {
     QString f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
-    f += " " + op + " " + driver->formatValue( field );
+    f += " " + fieldSep + " " + driver()->formatValue( field );
     return f;
 }
 
-/*!
-  \internal
+/*! Returns a formatted string of all fields in \a rec.  Each field is
+  generated as a string consisting of the \a prefix, the field name,
+  the \a fieldSep followed by the field value.  Then, each field
+  string is joined together, separated by \a sep.  This method is
+  useful for generating SQL statements.
 
 */
-QString QSqlCursor::fieldEqualsValue( QSqlRecord* rec, const QString& prefix, const QString& fieldSep, const QSqlIndex & i )
+
+QString QSqlCursor::toString( QSqlRecord* rec, const QString& prefix, const QString& fieldSep, 
+			      const QString& sep ) const
 {
     QString filter;
-    int k = i.count();
-    bool sep = FALSE;
-    if ( k ) { /* use index */
-	for( int j = 0; j < k; ++j ){
-	    if( sep )
-		filter += " " + fieldSep + " " ;
-	    QString fn = i.field(j)->name();
-	    QSqlField* f = rec->field( fn );
-	    filter += qMakeFieldValue( driver(), prefix, f );
-	    sep = FALSE;
-	}
-    } else { /* use all fields */
- 	for ( uint j = 0; j < count(); ++j ) {
-	    QSqlField* f = rec->field( j );
-	    if ( !isCalculated( f->name() ) && isGenerated( f->name() ) ) {
-		if ( sep )
-		    filter += " " + fieldSep + " " ;
-		filter += qMakeFieldValue( driver(), prefix, f );
-		sep = TRUE;
-	    }
+    bool separator = FALSE;
+    for ( uint j = 0; j < count(); ++j ) {
+	QSqlField* f = rec->field( j );
+	if ( !isCalculated( f->name() ) && isGenerated( f->name() ) ) {
+	    if ( separator )
+		filter += " " + sep + " " ;
+	    filter += toString( prefix, f, fieldSep );
+	    separator = TRUE;
 	}
     }
     return filter;
 }
+
+/*! Returns a formatted string of all fields in the index \a i.  Each
+  field is generated as a string consisting of the \a prefix, the
+  field name, the \a fieldSep followed by the field value (which is
+  taken from \a rec).  Then, each field string is joined together,
+  separated by \a sep.  This method is useful for generating SQL
+  statements.
+
+*/
+
+QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString& prefix, 
+				const QString& fieldSep, const QString& sep ) const
+{
+    QString filter;
+    bool separator = FALSE;
+    for( uint j = 0; j < i.count(); ++j ){
+	if( separator )
+	    filter += " " + sep + " " ;
+	QString fn = i.field(j)->name();
+	QSqlField* f = rec->field( fn );
+	filter += toString( prefix, f, fieldSep );
+	separator = TRUE;
+    }
+    return filter;
+}
+
 
 /*!  Returns a pointer to the internal edit buffer.  All previous
   pointers returned by insertBuffer() or updateBuffer() are
@@ -686,9 +730,9 @@ void QSqlCursor::primeUpdate( QSqlRecord* )
 
 int QSqlCursor::update( bool invalidate )
 {
-    if ( !primaryIndex().count() )
+    if ( primaryIndex().isEmpty() )
 	return 0;
-    return update( fieldEqualsValue( &d->editBuffer, "", "and", primaryIndex() ), invalidate );
+    return update( toString( primaryIndex(), &d->editBuffer, d->nm, "=", "and" ), invalidate );
 }
 
 /*!  \overload
@@ -712,7 +756,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     int k = count();
     if( k == 0 ) return 0;
     QString str = "update " + name();
-    str += " set " + fieldEqualsValue( &d->editBuffer, "", "," );
+    str += " set " + toString( &d->editBuffer, QString::null, "=", "," );
     if ( filter.length() )
  	str+= " where " + filter;
     str += ";";
@@ -746,9 +790,9 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
 
 int QSqlCursor::del( bool invalidate )
 {
-    if ( !isActive() || !isValid() ||  !primaryIndex().count() )
+    if ( !isActive() || !isValid() ||  primaryIndex().isEmpty() )
 	return 0;
-    return del( fieldEqualsValue( this, "", "and", primaryIndex() ), invalidate );
+    return del( toString( primaryIndex(), this, d->nm, "=", "and" ), invalidate );
 }
 
 /*! \overload
