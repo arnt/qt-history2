@@ -109,7 +109,18 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			QString flag;
 			if(project->isActiveConfig("debug")) {
-			    if((*it).right(Option::h_ext.length()) != Option::h_ext && (*it).right(5) != ".mocs")
+			    bool debug = TRUE;
+			    if((*it).right(5) == "mocs") {
+				debug = FALSE;
+			    } else {
+				for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) {
+				    if((*it).right((*hit).length()) == (*hit)) { 
+					debug = FALSE;
+					break;
+				    }
+				}
+			    }
+			    if(debug)
 				flag = "Debug";
 			}
 			t << "\t\t\t\t<FILE>" << endl
