@@ -21,6 +21,7 @@
 #endif
 
 class QQuickDrawPaintEnginePrivate;
+class QCoreGraphicsPaintEnginePrivate;
 class QPainterState;
 
 class QQuickDrawPaintEngine : public QPaintEngine
@@ -141,7 +142,7 @@ protected:
     QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *);
     void drawPolyInternal(const QPointArray &a, bool close=true);
 
-    Q_DECL_PRIVATE(QQuickDrawPaintEngine);
+    Q_DECL_PRIVATE(QCoreGraphicsPaintEngine);
 
 private:
 #if defined(Q_DISABLE_COPY)

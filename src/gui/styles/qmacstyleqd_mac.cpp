@@ -354,11 +354,15 @@ void QMacStyleQD::polish(QWidget* w)
     QPopupMenu *popup;
     QTitleBar *tb;
     if ((lined = ::qt_cast<QLineEdit*>(w)) != 0) {
+#if 0
         if(::qt_cast<QComboBox*>(w->parentWidget()))
 	    lined->setFrameStyle(QFrame::LineEditPanel | QFrame::Sunken);
 	SInt32 frame_size;
 	GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
 	lined->setLineWidth(frame_size);
+#else
+# warning "Do we need to replace this with something else for the new QLineEdit? --Sam"	
+#endif
     } else if ((btns = ::qt_cast<QDialogButtons*>(w)) != 0) {
 	if(btns->buttonText(QDialogButtons::Help).isNull())
 	    btns->setButtonText(QDialogButtons::Help, "?");

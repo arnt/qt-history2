@@ -60,7 +60,7 @@ class paintevent_item
     QPaintDevice* dev;
     QRegion clipRegion;
 public:
-    paintevent_item(QPaintDevice *d, QRegion r, QWidget *c) : clippedTo(c), dev(d), clipRegion(r) { }
+    paintevent_item(QPaintDevice *dv, QRegion r, QWidget *c) : clippedTo(c), dev(dv), clipRegion(r) { }
     inline bool operator==(const QPaintDevice *rhs) const { return rhs == dev; }
     inline bool operator!=(const QPaintDevice *rhs) const { return !(this->operator==(rhs)); }
     inline QWidget *clip() const { return clippedTo; }
@@ -1079,15 +1079,13 @@ static inline bool qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d)
   QCoreGraphicsPaintEngine member functions
  *****************************************************************************/
 
-QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate *dptr,
-						   const QPaintDevice *pdev)
+QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(const QPaintDevice *pdev)
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev)
 {
     d->pdev = const_cast<QPaintDevice*>(pdev);
 }
 
-QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr,
-						   const QPaintDevice *pdev)
+QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *pdev)
     : QQuickDrawPaintEngine(dptr, pdev)
 {
     d->pdev = const_cast<QPaintDevice*>(pdev);
