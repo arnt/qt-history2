@@ -6,6 +6,7 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/core/io/qdir.cpp \
            $$QT_SOURCE_TREE/src/core/io/qdir_win.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qstring.cpp \
+           $$QT_SOURCE_TREE/src/core/tools/qstringmatcher.cpp \
            $$QT_SOURCE_TREE/src/core/io/qfileinfo.cpp \
            $$QT_SOURCE_TREE/src/core/io/qfileinfo_win.cpp \
            $$QT_SOURCE_TREE/src/core/io/qfile.cpp \
@@ -14,6 +15,7 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qregexp.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qbitarray.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qbytearray.cpp \
+	   $$QT_SOURCE_TREE/src/core/tools/qbytearraymatcher.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qchar.cpp \
            $$QT_SOURCE_TREE/src/core/io/qdatastream.cpp \
            $$QT_SOURCE_TREE/src/compat/tools/qglist.cpp \

@@ -1391,8 +1391,24 @@ void Configure::buildQmake()
 	args += "-f";
 	args += dictionary[ "QMAKEMAKEFILE" ];
 	if( int r = system( args.join( " " ).latin1() ) ) {
-	    cout << "Building qmake failed, return code " << r << endl << endl;
-	    dictionary[ "DONE" ] = "error";
+	    args.clear();
+	    args += dictionary[ "MAKE" ];
+	    args += "-f";
+	    args += dictionary[ "QMAKEMAKEFILE" ];
+	    args += "clean";
+	    if( int r = system( args.join( " " ).latin1() ) ) {
+		cout << "Cleaning qmake failed, return code " << r << endl << endl;
+                dictionary[ "DONE" ] = "error";
+	    } else {
+		args.clear();
+		args += dictionary[ "MAKE" ];
+		args += "-f";
+		args += dictionary[ "QMAKEMAKEFILE" ];
+		if( int r = system( args.join( " " ).latin1() ) ) {
+		    cout << "Building qmake failed, return code " << r << endl << endl;
+		    dictionary[ "DONE" ] = "error";
+		} 	
+	    }
 	}
 	QDir::setCurrent( pwd );
     }
