@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#2 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#3 $
 **
 ** Definition of something or other
 **
@@ -16,6 +16,7 @@
 #include "qbutton.h"
 #include "qstring.h"
 #include "qpixmap.h"
+#include "qiconset.h"
 #endif // QT_H
 
 
@@ -37,9 +38,9 @@ public:
 
     QSize sizeHint() const;
 
-    virtual QPixmap bigPixmap();
-    virtual QPixmap smallPixmap();
-
+    void setIconSet( const QIconSet & );
+    QIconSet iconSet() const;
+    
     bool usesBigPixmap() const { return ubp; }
     bool usesTextLabel() const { return utl; }
     const char * textLabel() const { return tl; }
@@ -74,6 +75,7 @@ private:
     QString tl;
 
     QToolButtonPrivate * d;
+    QIconSet * s;
 
     uint utl: 1;
     uint ubp: 1;

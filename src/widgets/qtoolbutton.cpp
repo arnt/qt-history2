@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#12 $
 **
 ** Implementation of something useful.
 **
@@ -19,9 +19,10 @@
 #include "qtooltip.h"
 #include "qtoolbar.h"
 #include "qimage.h"
+#include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#12 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -66,6 +67,8 @@ void QToolButton::init()
 
     utl = FALSE;
     ubp = TRUE;
+
+    s = 0;
 }
 
 
@@ -152,66 +155,6 @@ QSize QToolButton::sizeHint() const
     return QSize( w + 7, h + 6 );
 }
 
-
-/*!  Returns the pixmap used if usesBigPixmap() is TRUE.
-
-  \sa smallPixmap() usesBigPixmap()
-*/
-
-QPixmap QToolButton::bigPixmap()
-{
-    if ( !pixmap() )
-	return QPixmap();
-
-    if ( bpID == pixmap()->serialNumber() )
-	return bp;
-
-    bpID = pixmap()->serialNumber();
-    if ( pixmap()->width() < 21 && pixmap()->height() < 21 ) {
-	QImage i( pixmap()->convertToImage() );
-	if ( i.width() > i.height() )
-	    i = i.smoothScale( 24, i.height() * 24 / i.width() );
-	else if ( i.width() < i.height() )
-	    i = i.smoothScale( i.width() * 24 / i.height(), 24 );
-	else
-	    i = i.smoothScale( 24, 24 );
-	
-	bp.convertFromImage( i );
-    } else {
-	bp = *pixmap();
-    }
-    return bp;
-}
-
-
-/*!
-
-*/
-
-QPixmap QToolButton::smallPixmap()
-{
-    if ( !pixmap() )
-	return QPixmap();
-
-    if ( spID == pixmap()->serialNumber() )
-	return sp;
-
-    spID = pixmap()->serialNumber();
-    if ( pixmap()->width() < 21 && pixmap()->height() < 21 ) {
-	sp = *pixmap();
-    } else {
-	QImage i( pixmap()->convertToImage() );
-	if ( i.width() > i.height() )
-	    i = i.smoothScale( 16, i.height() * 16 / i.width() );
-	else if ( i.width() < i.height() )
-	    i = i.smoothScale( i.width() * 16 / i.height(), 16 );
-	else
-	    i = i.smoothScale( 16, 16 );
-
-	sp.convertFromImage( i.smoothScale( 16, 16 ) );
-    }
-    return sp;
-}
 
 
 /* \fn bool QToolButton::usesBigPixmap() const
@@ -371,24 +314,31 @@ void QToolButton::drawButtonLabel( QPainter * p )
     } else {
 	int x, y, fh;
 	fh = fontMetrics().height();
-	x = width()/2 - (usesBigPixmap() ? 16 : 8);
-	y = height()/2 - (usesBigPixmap() ? 16 : 8);
+	x = width()/2 - (usesBigPixmap() ? 12 : 8);
+	y = height()/2 - (usesBigPixmap() ? 12 : 8);
 	if ( usesTextLabel() )
 	    y = y - fh/2 - 2;
 
+	QPixmap pm;
 	if ( usesBigPixmap() ) {
-	    QPixmap pm( bigPixmap() );
-	    qDrawItem( p, style(), x, y, 32, 32,
-		       AlignCenter + ShowPrefix,
-		       colorGroup(), isEnabled(),
-		       &pm, 0 );
+	    if ( !isEnabled() )
+		pm = iconSet().pixmap( QIconSet::Large, QIconSet::Disabled );
+	    else if ( uses3D() )
+		pm = iconSet().pixmap( QIconSet::Large, QIconSet::Active );
+	    else
+		pm = iconSet().pixmap( QIconSet::Large, QIconSet::Normal );
 	} else {
-	    QPixmap pm( smallPixmap() );
-	    qDrawItem( p, style(), x, y, 16, 16,
-		       AlignCenter + ShowPrefix,
-		       colorGroup(), isEnabled(),
-		       &pm, 0 );
+	    if ( !isEnabled() )
+		pm = iconSet().pixmap( QIconSet::Small, QIconSet::Disabled );
+	    else if ( uses3D() )
+		pm = iconSet().pixmap( QIconSet::Small, QIconSet::Active );
+	    else
+		pm = iconSet().pixmap( QIconSet::Small, QIconSet::Normal );
 	}
+
+	qDrawItem( p, style(), x, y,
+		   usesBigPixmap() ? 24 : 16, usesBigPixmap() ? 24 : 16,
+		   AlignCenter, colorGroup(), TRUE, &pm, 0 );
 
 	if ( usesTextLabel() ) {
 	    y += (usesBigPixmap() ? 32 : 16) + 4;
@@ -453,3 +403,46 @@ void QToolButton::setTextLabel( const char * newLabel , bool tipToo )
 
 
 
+
+
+/*!  Sets this tool button to display the icons in \a set.
+  (setPixmap() is effectively a wrapper for this function.)
+
+  QToolButton makes a copy of \a set, so you must delete \a set
+  yourself.
+
+  \sa iconSet() QIconSet
+*/
+
+void QToolButton::setIconSet( const QIconSet & set )
+{
+    if ( s )
+	delete s;
+    s = new QIconSet( set );
+}
+
+
+/*!  Returns a copy of the icon set in use.  If no icon set has been
+  set, iconSeT() creates one from the pixmap().
+
+  If the button doesn't have a pixmap either, iconSet()'s return value
+  is meaningless.
+
+  \sa setIconSet() QIconSet
+*/
+
+QIconSet QToolButton::iconSet() const
+{
+    QToolButton * that = (QToolButton *)this;
+
+    if ( pixmap() && (!that->s || (that->s->pixmap().serialNumber() !=
+				   pixmap()->serialNumber())) )
+	that->setIconSet( *pixmap() );
+
+    if ( that->s )
+	return *that->s;
+    
+    QPixmap tmp1;
+    QIconSet tmp2( tmp1, QIconSet::Small );
+    return tmp2;
+}
