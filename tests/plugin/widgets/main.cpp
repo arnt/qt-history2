@@ -5,6 +5,21 @@
 
 #include <qcanvas.h>
 
+/* XPM */
+static const char * const canvas_xpm[] ={
+"12 8 2 1",
+". c None",
+"c c #ff0000",
+".........ccc",
+"........ccc.",
+".......ccc..",
+"ccc...ccc...",
+".ccc.ccc....",
+"..ccccc.....",
+"...ccc......",
+"....c.......",
+};
+
 class ExtraWidgetsInterface : public WidgetInterface
 {
 public:
@@ -75,12 +90,12 @@ QString ExtraWidgetsInterface::group( const QString& description )
 
 QString ExtraWidgetsInterface::iconSet( const QString& )
 {
-    return "pushbutton.xpm";
+    return QString::null;
 }
 
 QIconSet ExtraWidgetsInterface::iconset( const QString& )
 {
-    return QIconSet();
+    return QIconSet( (const char**)canvas_xpm );
 }
 
 QString ExtraWidgetsInterface::includeFile( const QString& )
