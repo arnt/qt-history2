@@ -5220,6 +5220,7 @@ static const char * const psToStr[QPrinter::NPageSize+1] =
 
 bool QPSPrintEngine::begin(QPaintDevice *pdev)
 {
+    d->pdev = pdev;
     d->printer = static_cast<QPrinter*>(pdev);
     if (d->outputToFile) {
         if (d->outputFileName.isEmpty())
