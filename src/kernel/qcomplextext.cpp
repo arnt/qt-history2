@@ -657,7 +657,8 @@ QChar QComplexText::shapedCharacter( const QString &str, int pos )
     }
 }
 
-QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, int pos, QRect *boundingRect )
+QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
+					 int pos, QRect *boundingRect )
 {
     int len = str.length();
     int nmarks = 0;
@@ -672,7 +673,7 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, in
     int baseOffset = f->textWidth( str, pos, 1 );
 
     //qDebug( "base char: bounding rect at %d/%d (%d/%d)", baseRect.x(), baseRect.y(), baseRect.width(), baseRect.height() );
-    int offset = f->request.pixelSize / 10 + 1;
+    int offset = f->actual.pixelSize / 10 + 1;
     QPointArray pa( nmarks );
     int i;
     unsigned char lastCmb = 0;
@@ -780,7 +781,7 @@ static QChar::Direction basicDirection(const QString &str, int start = 0)
 	++pos;
 	++uc;
     }
-    if ( start != 0 ) 
+    if ( start != 0 )
 	return basicDirection( str );
     return QChar::DirL;
 }
@@ -804,7 +805,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 	    context = new QBidiContext( 1, QChar::DirR );
 	else
 	    context = new QBidiContext( 0, QChar::DirL );
-    } 
+    }
 
     QBidiStatus status = control->status;
     QChar::Direction dir = QChar::DirON;
@@ -825,11 +826,11 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 	} else
 	    dirCurrent = text.at(current).direction();
 
-	
+
 #if BIDI_DEBUG > 1
 	cout << "directions: dir=" << dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << context->dir << " level =" << (int)context->level << endl;
 #endif
-	
+
 	switch(dirCurrent) {
 
 	    // embedding and overrides (X1-X9 in the BiDi specs)
@@ -857,7 +858,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 		else
 		    level += 2;
 		if(level < 61) {
-		    runs->append( new QTextRun(sor, eor, context, dir) );	
+		    runs->append( new QTextRun(sor, eor, context, dir) );
 		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirL, context);
 		    status.last = QChar::DirL;
@@ -913,10 +914,10 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 		    else
 			dir = QChar::DirON;
 		    status.lastStrong = context->dir;
-		}		
+		}
 		break;
 	    }
-	
+
 	    // strong types
 	case QChar::DirL:
 	    if(dir == QChar::DirON)
@@ -1057,7 +1058,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 		    case QChar::DirB:
 		    case QChar::DirS:
 		    case QChar::DirWS:
-		    case QChar::DirON:		
+		    case QChar::DirON:
 			if(status.eor == QChar::DirR) {
 			    // neutrals go to R
 			    eor = current - 1;
@@ -1111,7 +1112,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 		case QChar::DirB:
 		case QChar::DirS:
 		case QChar::DirWS:
-		case QChar::DirON:		
+		case QChar::DirON:
 		    if(status.eor == QChar::DirR) {
 			// neutrals go to R
 			eor = current - 1;
@@ -1170,7 +1171,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 	//cout << "     after: dir=" << //        dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << context->dir << endl;
 
 	if(current >= (int)text.length()) break;
-	
+
 	// set status.last as needed.
 	switch(dirCurrent)
 	    {
@@ -1284,7 +1285,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 
     control->setContext( context );
     control->status = status;
-    
+
     return runs;
 }
 
@@ -1344,9 +1345,9 @@ QTextRun::QTextRun(int _start, int _stop, QBidiContext *context, QChar::Directio
     start = _start;
     stop = _stop;
     if(dir == QChar::DirON) dir = context->dir;
-    
+
     level = context->level;
-    
+
     // add level of run (cases I1 & I2)
     if( level % 2 ) {
 	if(dir == QChar::DirL || dir == QChar::DirAN)

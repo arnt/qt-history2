@@ -898,6 +898,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	} else {
 	    // start of a new set of marks
 	    if (last && lastlen) {
+		// force a cache break when starting a set of marks
 		if (qfs && qfs != (QFontStruct *) -1 && qfs->codec)
 		    cache->mapped =
 			qfs->codec->fromUnicode(str, pos + i - lastlen, lastlen);
@@ -942,9 +943,9 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 			// advance to the next mark/character
 			cache->next = new QFontPrivate::TextRun();
 			cache = cache->next;
-		    }
 
-		    pw = w;
+			current = QFont::UnknownScript;
+		    }
 		}
 
 		last = chars;
@@ -1072,6 +1073,8 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 		    // the box expand it up, and marks below the box expand it down
 		    overall->ascent = QMAX(overall->ascent, p.y());
 		    overall->descent = QMAX(overall->descent, p.y());
+
+		    current = QFont::UnknownScript;
 		}
 
 		// advance one character
