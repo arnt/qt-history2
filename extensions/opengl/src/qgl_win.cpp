@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qgl.h"
+
+#if defined(Q_WGL)
+
 #include <qpixmap.h>
 #include <qapplication.h>
 //#include <qcolormap.h>
@@ -353,9 +356,10 @@ void qwglError( const char* method, const char* func )
 		  (LPTSTR) &lpMsgBuf, 0, 0 );
     qWarning( "%s : %s failed: %s", method, func, (const char *)lpMsgBuf );
     LocalFree( lpMsgBuf );
+#else
+    Q_UNUSED( method );
+    Q_UNUSED( func );
 #endif
-    const char* dummy = method; // Avoid compiler warning
-    dummy = func;
 }
 
 
@@ -488,6 +492,9 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	    cmap->setEntry( lpfd.crTransparent, qRgb( 1, 2, 3 ),
 			    QGLColorMap::Reserved );
 	}
+
+        if ( shareContext && shareContext->isValid() )
+	    sharing = ( wglShareLists( shareContext->rc, rc ) != 0 );
 
 	if ( win )
 	    ReleaseDC( win, myDc );
@@ -733,7 +740,7 @@ void QGLContext::doneCurrent()
 }
 
 
-void QGLContext::swapBuffers()
+void QGLContext::swapBuffers() const
 {
     if ( dc && glFormat.doubleBuffer() && !deviceIsPixmap() ) {
 	if ( glFormat.plane() )
@@ -793,7 +800,7 @@ void QGLWidget::init( const QGLFormat& fmt, const QGLWidget* shareWidget )
 
     if ( isValid() && format().hasOverlay() ) {
 	olcx = new QGLContext( QGLFormat::defaultOverlayFormat(), this );
-	if ( !olcx->create() ) {
+        if ( !olcx->create(shareWidget ? shareWidget->overlayContext() : 0) ) {
 	    delete olcx;
 	    olcx = 0;
 	    glcx->glFormat.setOverlay( FALSE );
@@ -902,3 +909,5 @@ bool QGLWidget::renderCxPm( QPixmap* )
 {
     return FALSE;
 }
+
+#endif // Q_WGL

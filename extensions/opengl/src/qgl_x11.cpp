@@ -24,10 +24,12 @@
 *****************************************************************************/
 
 #include "qgl.h"
+
+#if defined(Q_GLX)
+
 #include <qpixmap.h>
 #include <qapplication.h>
 
-#if defined(Q_GLX)
 #include <qintdict.h>
 #define INT8  dummy_INT8
 #define INT32 dummy_INT32
@@ -40,8 +42,6 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 #include <X11/Xmu/StdCmap.h>
-#endif
-
 
 
 
@@ -543,7 +543,7 @@ void QGLContext::doneCurrent()
 }
 
 
-void QGLContext::swapBuffers()
+void QGLContext::swapBuffers() const
 {
     if ( !valid )
 	return;
@@ -616,7 +616,7 @@ class QGLOverlayWidget : public QGLWidget
     Q_OBJECT
 public:
     QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent, 
-		      const char* name=0 );
+		      const char* name=0, const QGLWidget* shareWidget=0 );
 
 protected:
     void		initializeGL();
@@ -643,8 +643,9 @@ private:	// Disabled copy constructor and operator=
 
 
 QGLOverlayWidget::QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent,
-				    const char* name )
-    : QGLWidget( format, parent, name )
+				    const char* name,
+				    const QGLWidget* shareWidget )
+    : QGLWidget( format, parent, name, shareWidget ? shareWidget->olw : 0 )
 {
     realWidget = parent;
 }
@@ -726,7 +727,7 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 	QCString olwName( name() );
 	olwName += "-QGL_internal_overlay_widget";
 	olw = new QGLOverlayWidget( QGLFormat::defaultOverlayFormat(), 
-				    this, olwName );
+				    this, olwName, shareWidget );
 	if ( olw->isValid() ) {
 	    olw->setAutoBufferSwap( FALSE );
 	    olw->setFocusProxy( this );
@@ -917,3 +918,6 @@ bool QGLWidget::renderCxPm( QPixmap* pm )
     resizeGL( width(), height() );
     return TRUE;
 }
+
+#endif // GLX
+

@@ -1,6 +1,15 @@
 
-Changes from version 4.30 to version 4.40 (Qt 2.??)
+Changes from version 4.40 to version 4.50 (Qt 2.2)
 --------------------------------------------------
+
+QGLContext::swapBuffers() is now const. Inherited classes that
+implement this virtual function should be updated accordingly.
+
+Display list sharing between overlay contexts now works.
+
+
+Changes from version 4.30 to version 4.40 (Qt 2.1.1)
+----------------------------------------------------
 
 Overlay support on Windows implemented.
 

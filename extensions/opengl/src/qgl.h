@@ -27,8 +27,8 @@
 #define QGL_H
 
 
-#define QGL_VERSION	440
-#define QGL_VERSION_STR	"4.4"
+#define QGL_VERSION	450
+#define QGL_VERSION_STR	"4.5"
 
 const char *qGLVersion();
 
@@ -151,7 +151,7 @@ public:
     virtual void	setFormat( const QGLFormat& format );
 
     virtual void	makeCurrent();
-    virtual void	swapBuffers();
+    virtual void	swapBuffers() const;
 
     QPaintDevice*	device() const;
 
@@ -234,12 +234,12 @@ public:
     virtual void	swapBuffers();
 
     QGLFormat		format() const;
-#ifndef QT_NO_COMPAT
+#if 1
     virtual void	setFormat( const QGLFormat& format ); // OBSOLETE
 #endif
 
     const QGLContext*	context() const;
-#ifndef QT_NO_COMPAT
+#if 1
     virtual void	setContext( QGLContext* context,
 				    const QGLContext* shareContext = 0,
 				    bool deleteOldContext = TRUE ); // OBSOLETE

@@ -274,8 +274,13 @@ int main( int argc, char **argv )
 	return -1;
     }
 
-    if ( argc == 2 )
-	timer_interval = atoi(argv[1]);
+    if ( argc >= 2 ) {
+	bool ok = TRUE;
+	timer_interval = QString::fromLatin1( argv[1] ).toInt( &ok );
+	if ( !ok )
+	    timer_interval = 10;
+    }
+
     GearWidget w;
     a.setMainWidget( &w );
     w.show();
