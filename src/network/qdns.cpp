@@ -2301,51 +2301,44 @@ static void doResInit()
     HKEY k1, k2;
 
     bool gotNetworkParams = FALSE;
-#ifndef Q_OS_TEMP
-    if ( QApplication::winVersion() != Qt::WV_95 &&
-	 QApplication::winVersion() != Qt::WV_NT )
-#endif
-	{
-	// for 98 and 2000 try the API call GetNetworkParams()
+    // try the API call GetNetworkParams() first and use registry lookup only
+    // as a fallback
 #ifdef Q_OS_TEMP
-	HINSTANCE hinstLib = LoadLibraryW( L"iphlpapi" );
+    HINSTANCE hinstLib = LoadLibraryW( L"iphlpapi" );
 #else
-	HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" );
+    HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" );
 #endif
-	if ( hinstLib != 0 ) {
+    if ( hinstLib != 0 ) {
 #ifdef Q_OS_TEMP
-	    GNP getNetworkParams = (GNP) GetProcAddressW( hinstLib, L"GetNetworkParams" );
+	GNP getNetworkParams = (GNP) GetProcAddressW( hinstLib, L"GetNetworkParams" );
 #else
-	    GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
+	GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
 #endif
-	    if ( getNetworkParams != 0 ) {
-		ULONG l = 0;
-		DWORD res;
-		res = getNetworkParams( 0, &l );
-		if ( res == ERROR_BUFFER_OVERFLOW ) {
-		    FIXED_INFO *finfo = (FIXED_INFO*)new char[l];
-		    res = getNetworkParams( finfo, &l );
-		    if ( res == ERROR_SUCCESS ) {
-			domainName = finfo->DomainName;
-			nameServer = "";
-			IP_ADDR_STRING *dnsServer = &finfo->DnsServerList;
-			while ( dnsServer != 0 ) {
-			    nameServer += dnsServer->IpAddress.String;
-			    dnsServer = dnsServer->Next;
-			    if ( dnsServer != 0 )
-				nameServer += " ";
-			}
-			searchList = "";
-			separator = ' ';
-			gotNetworkParams = TRUE;
+	if ( getNetworkParams != 0 ) {
+	    ULONG l = 0;
+	    DWORD res;
+	    res = getNetworkParams( 0, &l );
+	    if ( res == ERROR_BUFFER_OVERFLOW ) {
+		FIXED_INFO *finfo = (FIXED_INFO*)new char[l];
+		res = getNetworkParams( finfo, &l );
+		if ( res == ERROR_SUCCESS ) {
+		    domainName = finfo->DomainName;
+		    nameServer = "";
+		    IP_ADDR_STRING *dnsServer = &finfo->DnsServerList;
+		    while ( dnsServer != 0 ) {
+			nameServer += dnsServer->IpAddress.String;
+			dnsServer = dnsServer->Next;
+			if ( dnsServer != 0 )
+			    nameServer += " ";
 		    }
-		    delete[] finfo;
+		    searchList = "";
+		    separator = ' ';
+		    gotNetworkParams = TRUE;
 		}
+		delete[] finfo;
 	    }
-	    FreeLibrary( hinstLib );
 	}
-	if ( !gotNetworkParams )
-	    qWarning( "QDns: call GetNetworkParams() was unsuccessful!" );
+	FreeLibrary( hinstLib );
     }
     if ( !gotNetworkParams ) {
 #ifdef Q_OS_TEMP
