@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#316 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#317 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1489,11 +1489,21 @@ static QStringList makeFiltersList( const QString &filter )
 */
 
 /*!
-  \fn void QFileDialog::showPreview( const QUrlOperator &u )
+  \fn void QFileDialog::showPreview( const QUrl &u )
 
   This signal is emitted when a preview of the URL \a u
   should be shown in the preview widget. Normally you don't need
   to connect to this signal, as this is done automatically.
+*/
+
+/*!
+  \fn void QFileDialog::detailViewSelectionChanged()
+  \internal
+*/
+
+/*!
+  \fn void QFileDialog::listBoxSelectionChanged()
+  \internal
 */
 
 /*!
@@ -3384,6 +3394,9 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     return FALSE;
 }
 
+/*!
+  \internal
+*/
 
 void QFileDialog::drawDragShapes( const QPoint &pnt, bool multRow, int num )
 {

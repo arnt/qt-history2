@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#313 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#314 $
 **
 ** Implementation of QListView widget class
 **
@@ -2603,10 +2603,46 @@ void QListViewItem::widthChanged( int c ) const
 */
 
 
+/*! \fn void QListView::pressed( QListViewItem *item )
+
+  This signal is emitted whenever the user presses the mouse button  
+  on an listview item.
+  \a item is the pointer to the listview item, onto which the user pressed
+  the mouse button.
+
+  Note that you may not delete any QListViewItem objects in slots
+  connected to this signal.
+*/
+
+/*! \fn void QListView::pressed( QListViewItem *item, const QPoint &pnt, int c )
+
+  This signal is emitted whenever the user presses the mouse button  
+  on an listview item.
+  \a item is the pointer to the listview item, onto which the user pressed
+  the mouse button. \a pnt the position of the mouse cursor,and \a c the 
+  column into which the mouse cursor was when the user pressed the mouse
+  button.
+
+  Note that you may not delete any QListViewItem objects in slots
+  connected to this signal.
+*/
+
 /*! \fn void QListView::clicked( QListViewItem *item )
 
-  This signal is emitted whenever the user clicks on an listview item.
+  This signal is emitted whenever the user clicks (moues pressed + mouse released)
+  on an listview item.
   \a item is the pointer to the clicked listview item.
+
+  Note that you may not delete any QListViewItem objects in slots
+  connected to this signal.
+*/
+
+/*! \fn void QListView::clicked( QListViewItem *item, const QPoint &pnt, int c )
+
+  This signal is emitted whenever the user clicks (moues pressed + mouse released)
+  on an listview item.
+  \a item is the pointer to the clicked listview item, \a pnt the position where the user
+  has clicked, and \a c the column into which the user clicked.
 
   Note that you may not delete any QListViewItem objects in slots
   connected to this signal.
@@ -2759,7 +2795,7 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
     QListViewItem *i = itemAt( vp );
     if ( !i )
 	return;
-    
+
     emit clicked( i );
     emit clicked( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
 }

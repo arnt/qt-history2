@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#305 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#306 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2944,6 +2944,9 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     }
 }
 
+/*!
+  Returns the width of the largest item in the listbox.
+*/
 
 long QListBox::maxItemWidth() const
 {
@@ -2987,6 +2990,18 @@ bool QListBox::itemYPos( int index, int *yPos ) const
 
 
 
+/*! \fn bool QListBoxItem::selected() const
+  Returns TRUE if the item is selected, else FALSE.
+  
+  \sa QListBox::isSelected()
+*/
+
+/*! \fn void QListBox::centerCurrentItem()
+  If there is a current item, the listbox is scrolled,
+  so that this item is displayed centered.
+  
+  \sa QListBox::ensureCurrentVisible()
+*/
 
 /*! Returns a pointer to the listbox containing this item.
 */
