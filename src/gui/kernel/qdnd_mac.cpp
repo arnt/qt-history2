@@ -62,7 +62,7 @@ static OSErr qt_mac_send_handler(FlavorType flav, void *handlerRefCon, DragItemR
     QDragObject *o = (QDragObject*)handlerRefCon;
     QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
     {
-        ItemReference ref = NULL;
+        ItemReference ref = 0;
         if(GetDragItemReferenceNumber(theDrag, 1, &ref) == noErr) {
             Size sz;
             extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
@@ -157,7 +157,7 @@ struct QMacDndExtra {
  *****************************************************************************/
 bool QDropEvent::provides(const char *mime) const
 {
-    ItemReference ref = NULL;
+    ItemReference ref = 0;
     if(GetDragItemReferenceNumber(current_dropobj, 1, &ref))
         return false;
 
@@ -185,7 +185,7 @@ QByteArray QDropEvent::encodedData(const char *mime) const
     Size flavorsize=0;
     QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
     {
-        ItemReference ref = NULL;
+        ItemReference ref = 0;
         if(GetDragItemReferenceNumber(current_dropobj, 1, &ref) == noErr) {
             Size sz;
             extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
@@ -202,7 +202,7 @@ QByteArray QDropEvent::encodedData(const char *mime) const
             CountDragItems(current_dropobj, &cnt_items);
             QList<QByteArray> arrs;
             for(int i = 1; i <= cnt_items; i++) {
-                ItemReference ref = NULL;
+                ItemReference ref = 0;
                 if(GetDragItemReferenceNumber(current_dropobj, i, &ref)) {
                     qWarning("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
                     return QByteArray();
@@ -224,7 +224,7 @@ const char* QDropEvent::format(int n) const
 {
     const char* mime = NULL;
     if(n >= 0) {
-        ItemReference ref = NULL;
+        ItemReference ref = 0;
         if(GetDragItemReferenceNumber(current_dropobj, 1, &ref)) 
             return 0;
 

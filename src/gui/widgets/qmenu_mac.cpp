@@ -490,7 +490,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     if(data.style)
         data.whichData |= kMenuItemDataStyle;
     data.whichData |= kMenuItemDataFontID;
-    ATSUFONDtoFontID((ATSFontRef)action->action->font().handle(), NULL, (ATSUFontID*)&data.fontID);
+    ATSUFONDtoFontID((ATSFontRef)action->action->font().handle(), 0, (ATSUFontID*)&data.fontID);
 
     data.whichData |= kMenuItemDataSubmenuHandle;
     if(action->action->menu()) { //submenu

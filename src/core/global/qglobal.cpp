@@ -113,14 +113,16 @@ unsigned char *p_str(const QString &s)
 static QSysInfo::MacVersion macVersion()
 {
     long gestalt_version;
-    if(Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
-        if(gestalt_version >= 0x1030 && gestalt_version < 0x1040)
+    if (Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
+        if (gestalt_version >= 0x1040 && gestalt_version < 0x1050)
+            return QSysInfo::MV_10_DOT_4;
+        else if (gestalt_version >= 0x1030 && gestalt_version < 0x1040)
             return QSysInfo::MV_10_DOT_3;
-        else if(gestalt_version >= 0x1020 && gestalt_version < 0x1030)
+        else if (gestalt_version >= 0x1020 && gestalt_version < 0x1030)
             return QSysInfo::MV_10_DOT_2;
-        else if(gestalt_version >= 0x1010 && gestalt_version < 0x1020)
+        else if (gestalt_version >= 0x1010 && gestalt_version < 0x1020)
             return QSysInfo::MV_10_DOT_1;
-        else if(gestalt_version >= 0x1000 && gestalt_version < 0x1010)
+        else if (gestalt_version >= 0x1000 && gestalt_version < 0x1010)
             return QSysInfo::MV_10_DOT_0;
     }
     return QSysInfo::MV_Unknown;

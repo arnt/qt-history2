@@ -1250,7 +1250,7 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
             if(pixmap.isNull()) {
                 RestoreApplicationDockTileImage();
             } else {
-                QPixmap scaled_pixmap = pixmap.toImage().smoothScale(40, 40);
+                QPixmap scaled_pixmap = pixmap.toImage().scale(40, 40);
                 CGImageRef ir = qt_mac_create_cgimage(scaled_pixmap, Qt::CopyPixmap);
                 SetApplicationDockTileImage(ir);
                 CGImageRelease(ir);
