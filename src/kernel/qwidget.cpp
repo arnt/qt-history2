@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#23 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#23 $";
 #endif
 
 
@@ -112,8 +112,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     extra = 0;					// no extra widget info
     pal   = *qApp->palette();			// default app palette
     create();					// platform-dependent init
-    if ( parent )
-	setBackgroundColor( parent->backgroundColor() );
 }
 
 QWidget::~QWidget()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#1 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#2 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -24,7 +24,7 @@ public:
     QColorGroup();				// all colors black
     QColorGroup( const QColor &foreground, const QColor &background,
 		 const QColor &light, const QColor &dark, const QColor &medium,
-		 const QColor &text, const QColor &itext, const QColor &extra);
+		 const QColor &text, const QColor &base);
    ~QColorGroup();
 
     const QColor &foreground()	const	{ return fg_col; }
@@ -33,8 +33,7 @@ public:
     const QColor &dark()	const	{ return dark_col; }
     const QColor &medium()	const	{ return medium_col; }
     const QColor &text()	const	{ return text_col; }
-    const QColor &invtext()	const	{ return itext_col; }
-    const QColor &extra()	const	{ return extra_col; }
+    const QColor &base()	const	{ return base_col; }
 
     bool	operator==( const QColorGroup &g ) const;
     bool	operator!=( const QColorGroup &g ) const
@@ -46,8 +45,7 @@ private:
     QColor dark_col;
     QColor medium_col;
     QColor text_col;
-    QColor itext_col;
-    QColor extra_col;
+    QColor base_col;
 };
 
 

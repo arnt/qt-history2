@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#14 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#14 $";
 #endif
 
 
@@ -45,12 +45,12 @@ static QPalette *motifPalette = 0;
 static void create_palettes()			// creates default palettes
 {
     QColor lightBlue = blue.light();
-    QColorGroup motif_nor( black, blue, darkBlue, lightBlue, blue,
-			   black, black, white );
+    QColorGroup motif_nor( black, lightGray, lightGray.light(),
+			   lightGray.dark(), gray, black, white );
     QColorGroup motif_dis( darkGray, blue, darkGray, lightGray, gray,
-			   darkGray, darkGray, white );
+			   darkGray, white );
     QColorGroup motif_act( black, blue, darkBlue, lightBlue, blue,
-			   black, black, white );
+			   black, white );
     motifPalette = new QPalette( motif_nor, motif_dis, motif_act );
 }
 
