@@ -31,6 +31,7 @@ public:
     virtual QStringList   tables( const QString& user ) const;
     virtual QSqlIndex     primaryIndex( const QString& tablename ) const;
     virtual QSqlFieldList fields( const QString& tablename ) const;
+    virtual QString       nullText() const;
     QSqlError	          lastError() const;
 
     bool    	          hasTransactionSupport() const;

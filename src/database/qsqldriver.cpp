@@ -278,8 +278,19 @@ QSqlFieldList QSqlDriver::fields( const QString&  ) const
     return QSqlFieldList();
 }
 
+/*!  Returns a string representation of the 'NULL' value for the
+  database.  This is used, for example, when constructing INSERT and
+  UPDATE statements.  The default implementation returns 'NULL'.
+
+*/
+
+QString QSqlDriver::nullText() const
+{
+    return "NULL";
+}
 
 #endif // QT_NO_SQL
+
 
 
 

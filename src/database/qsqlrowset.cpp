@@ -124,7 +124,7 @@ bool QSqlRowset::select( const QString & filter, const QSqlIndex & sort )
     str += " from " + nm;
     if ( !filter.isNull() && filter != "*" )
 	str += " where " + filter;
-    if ( sort.count() )
+    if ( sort.count() > 0 )
 	str += " order by " + sort.toString( nm );
     str += ";";
     srt = sort;
@@ -152,13 +152,17 @@ bool QSqlRowset::select( const QSqlIndex & filter, const QSqlIndex & sort )
     return select( fieldEqualsValue( nm, "and", filter ), sort );
 }
 
-QString qMakeFieldValue( const QString& prefix, QSqlField& field, const QString& op = "=" )
+QString qMakeFieldValue( const QSqlDriver* driver, const QString& prefix, QSqlField& field, const QString& op = "=" )
 {
     QString f = ( prefix.length() > 0 ? QString(".") : QString::null ) + field.name();
-    if( (field.type() == QVariant::String) || (field.type() == QVariant::CString) )
-	f += " " + op + " '" + field.value().toString() + "'";
-    else
-	f += " " + op + " " + field.value().toString();
+    if ( !field.isNull() ) {
+	if( (field.type() == QVariant::String) || (field.type() == QVariant::CString) )
+	    f += " " + op + " '" + field.value().toString() + "'";
+	else
+	    f += " " + op + " " + field.value().toString();
+    } else {
+	f += " " + op + " " + driver->nullText();
+    }
     return f;
 }
 
@@ -177,13 +181,13 @@ QString QSqlRowset::fieldEqualsValue( const QString& prefix, const QString& fiel
 		filter += " " + fieldSep + " " ;
 	    QString fn = i.field(j).name();
 	    QSqlField f = field( fn );
-	    filter += qMakeFieldValue( prefix, f );
+	    filter += qMakeFieldValue( driver(), prefix, f );
 	}
     } else { // use all fields
  	for ( uint j = 0; j < count(); ++j ) {
 	    if ( j > 0 )
 		filter += " " + fieldSep + " " ;
-	    filter += qMakeFieldValue( prefix, field( j ) );
+	    filter += qMakeFieldValue( driver(), prefix, field( j ) );
 	}
     }
     return filter;

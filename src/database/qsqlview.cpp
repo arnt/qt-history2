@@ -73,11 +73,15 @@ int QSqlView::insert( bool invalidate )
 	QVariant::Type type = field(j).type();
 	QVariant       val  = field(j).value();
 	if( j > 0 )
-	    vals += "," ;
-	if( (type == QVariant::String) || (type == QVariant::CString) )
-	    vals += "'" + val.asString() + "'";
-	else
-	    vals += val.asString();
+	    vals += ",";
+	if ( !field(j).isNull() ) {
+	    if( (type == QVariant::String) || (type == QVariant::CString) )
+		vals += "'" + val.toString() + "'";
+	    else
+		vals += val.toString();
+	} else {
+	    vals += driver()->nullText();
+	}
     }
     str += vals + ");";
     return apply( str, invalidate );
@@ -102,7 +106,7 @@ int QSqlView::update( const QString & filter, bool invalidate )
     if ( filter.length() )
  	str+= " where " + filter;
     str += ";";
-    return apply( str, invalidate );    
+    return apply( str, invalidate );
 }
 
 /*!  Updates the database with the current contents of the record
@@ -147,7 +151,7 @@ int QSqlView::del( const QString & filter, bool invalidate )
     if ( filter.length() )
  	str+= " where " + filter;
     str += ";";
-    return apply( str, invalidate );    
+    return apply( str, invalidate );
 }
 
 /*!  Deletes the record from the view using the filter index \a
