@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#37 $
 **
 ** Implementation of QRegion class
 **
@@ -224,3 +224,40 @@ QDataStream &operator>>( QDataStream &s, QRegion &r )
     r.exec( b, s.version() );
     return s;
 }
+
+
+// These are not inline - they can be implemented better on some platforms
+//  (eg. Windows at least provides 3-variable operations).  For now, simple.
+
+
+/*! Equivalent to unite(r) and operator+. */
+QRegion QRegion::operator|( const QRegion &r ) const
+    { return unite(r); }
+/*! Equivalent to unite(r) and operator|. */
+QRegion QRegion::operator+( const QRegion &r ) const
+    { return unite(r); }
+/*! Equivalent to intersect(r). */
+QRegion QRegion::operator&( const QRegion &r ) const
+    { return intersect(r); }
+/*! Equivalent to subtract(r). */
+QRegion QRegion::operator-( const QRegion &r ) const
+    { return subtract(r); }
+/*! Equivalent to eor(r). */
+QRegion QRegion::operator^( const QRegion &r ) const
+    { return eor(r); }
+/*! Equivalent to *this = *this | r. */
+QRegion& QRegion::operator|=( const QRegion &r )
+    { return *this = *this | r; }
+/*! Equivalent to *this = *this + r. */
+QRegion& QRegion::operator+=( const QRegion &r )
+    { return *this = *this + r; }
+/*! Equivalent to *this = *this & r. */
+QRegion& QRegion::operator&=( const QRegion &r )
+    { return *this = *this & r; }
+/*! Equivalent to *this = *this - r. */
+QRegion& QRegion::operator-=( const QRegion &r )
+    { return *this = *this - r; }
+/*! Equivalent to *this = *this ^ r. */
+QRegion& QRegion::operator^=( const QRegion &r )
+    { return *this = *this ^ r; }
+
