@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#7 $
+** $Id: //depot/qt/main/src/tools/qstring.h#8 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -97,6 +97,17 @@ inline char *qstrncpy( char *dest, const char *src, int len )
     return dest;
 }
 
+
+// qstrcmp:  Can handle null pointers. The result is zero when both pointers
+//	     are null, and an undefined non-zero value when only one of the
+//	     pointers is null.
+
+inline int qstrcmp( const char *s1, const char *s2 )
+{
+    return (s1 && s2) ? strcmp(s1,s2) : ((int)s2 - (int)s1);
+}
+
+#define strcmp qstrcmp
 
 // qstricmp:  Case-insensitive string comparision
 // qstrnicmp: Case-insensitive string comparision, compares max len chars

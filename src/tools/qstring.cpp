@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#11 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#11 $";
 #endif
 
 
@@ -63,6 +63,8 @@ int qstricmp( const char *str1, const char *str2 )
     register const uchar *s2 = (const uchar *)str2;
     int res;
     uchar c;
+    if ( !s1 || !s2 )
+	return (int)s2 - (int)s1;
     if ( s1 == s2 )				// identical
 	return 0;
     for ( ; !(res = (c=tolower(*s1)) - tolower(*s2)); s1++, s2++ )
@@ -77,6 +79,8 @@ int qstrnicmp( const char *str1, const char *str2, uint len )
     register const uchar *s2 = (const uchar *)str2;
     int res;
     uchar c;
+    if ( !s1 || !s2 )
+	return (int)s2 - (int)s1;
     if ( s1 == s2 )				// identical
 	return 0;
     for ( ; len--; s1++, s2++ ) {
