@@ -43,7 +43,8 @@ class QStylePrivate
 public:
     QStylePrivate()
 	:sbextent(16,16),
-	 button_default_indiciator_width(0)
+	 button_default_indiciator_width(0),
+	 button_margin( 6 )
     {
     }
 
@@ -362,7 +363,7 @@ void QStyle::drawButtonMask( QPainter * p, int x, int y, int w, int h )
     QPen oldPen = p->pen();
     QBrush oldBrush = p->brush();
 
-    p->fillRect( x, y, w, h, QBrush(color1) ); 
+    p->fillRect( x, y, w, h, QBrush(color1) );
 
     p->setBrush( oldBrush );
     p->setPen( oldPen );
@@ -790,7 +791,7 @@ int QStyle::toolBarHandleExtent() const
 }
 
 /*!\obsolete
-  
+
   Guess who did it? ;-)
  */
 int QStyle::toolBarHandleExtend() const
@@ -965,7 +966,7 @@ int QStyle::menuButtonIndicatorWidth( int h )
 				    bool enabled );
 
   Draws the menu item \a mi using the painter \a p and the ButtonText
-  color of \g. The painter is preset to the right font. \a x, \a y, 
+  color of \g. The painter is preset to the right font. \a x, \a y,
   \a w and \a h determine the geometry of the entire item.
 
   In a future version of the Qt library, this function will become
