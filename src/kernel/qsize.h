@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#23 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#24 $
 **
 ** Definition of QSize class
 **
@@ -32,7 +32,7 @@
 class Q_EXPORT QSize
 {
 public:
-    QSize()	{ wd = ht = -1; }
+    QSize();
     QSize( int w, int h );
 
     bool   isNull()	const;
@@ -88,6 +88,9 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QSize & );
 /*****************************************************************************
   QSize inline functions
  *****************************************************************************/
+
+inline QSize::QSize()
+{ wd = ht = -1; }
 
 inline QSize::QSize( int w, int h )
 { wd=(QCOORD)w; ht=(QCOORD)h; }
