@@ -1596,25 +1596,29 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 	    FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
 	}
 #ifdef FONT_MATCH_DEBUG
-	qDebug("final pattern contains:");
+	printf("final pattern contains:\n");
 	FcPatternPrint(pattern);
 #endif
     }
 
     FcResult result;
-    FcFontSet *fs = FcFontSort(0, pattern, FcTrue, 0, &result);
+    FcFontSet *fs = FcFontSort(0, pattern, FcFalse, 0, &result);
     FcPatternDestroy(pattern);
 #ifdef FONT_MATCH_DEBUG
-    qDebug("fontset contains:");
+    printf("fontset contains:\n");
     for (int i = 0; i < fs->nfont; ++i) {
 	FcPattern *test = fs->fonts[i];
 	FcChar8 *fam;
 	FcPatternGetString(test, FC_FAMILY, 0, &fam);
-	qDebug("    %s", fam);
+	printf("    %s\n", fam);
     }
 #endif
 
     int ch = sampleCharacter(script).unicode();
+    double size_value = request.pixelSize;
+    if ( size_value > MAXFONTSIZE_XFT )
+	size_value = MAXFONTSIZE_XFT;
+
     FcPattern *font = 0;
     for (int i = 0; i < fs->nfont; ++i) {
 	FcPattern *test = fs->fonts[i];
@@ -1624,15 +1628,28 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 	    continue;
 	if (!FcCharSetHasChar(cs, ch))
 	    continue;
+	FcBool scalable;
+	res = FcPatternGetBool(test, FC_SCALABLE, 0, &scalable);
+	if (res != FcResultMatch || !scalable) {
+	    int pixelSize;
+	    res = FcPatternGetInteger(test, FC_PIXEL_SIZE, 0, &pixelSize);
+	    if (res != FcResultMatch || QABS((size_value-pixelSize)/size_value) > 0.2)
+		continue;
+	}
 	font = test;
 	break;
     }
     QFontEngine *fe = 0;
 
     if (font) {
+	XftPattern *pattern = XftPatternDuplicate(font);
+	// add properties back in as the font selected from the list doesn't contain them.
+	addPatternProps(pattern, key, false, fp, request);
+
 	XftResult res;
 	XftPattern *result =
-	    XftFontMatch( QX11Info::appDisplay(), fp->screen, font, &res );
+	    XftFontMatch( QX11Info::appDisplay(), fp->screen, pattern, &res );
+	XftPatternDestroy(pattern);
 
 	// We pass a duplicate to XftFontOpenPattern because either xft font
 	// will own the pattern after the call or the pattern will be
