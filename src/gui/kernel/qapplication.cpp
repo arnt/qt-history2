@@ -1970,7 +1970,7 @@ void QApplication::setActiveWindow(QWidget* act)
         QApplicationPrivate::focus_widget = 0;
 #ifdef Q_WS_WIN
         QInputContext::accept(tmp);
-#elif defined(Q_WS_X11)
+#elif defined(Q_WS_X11) || defined(Q_WS_QWS)
 	tmp->d->unfocusInputContext();
 #endif
         sendSpontaneousEvent(tmp, &out);

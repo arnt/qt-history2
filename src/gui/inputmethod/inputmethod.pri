@@ -10,3 +10,8 @@ contains(QT_CONFIG, inputmethod) {
 		SOURCES += inputmethod/qximinputcontext_x11.cpp
 	}
 }
+
+embedded {
+	HEADERS += inputmethod/qwsinputcontext_p.h
+	SOURCES += inputmethod/qwsinputcontext_qws.cpp
+}
