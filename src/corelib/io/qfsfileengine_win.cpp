@@ -818,12 +818,17 @@ bool QFSFileEnginePrivate::doStat() const
         if (d->fd != -1) {
             could_stat = (QT_FSTAT(d->fd, &st) != -1);
         } else {
-            // Stat on windows doesn't accept drivename : without \ so append \ it if this is the case
             QString statName = QDir::convertSeparators(file);
-            if(statName.length() == 2 && statName.at(1) == ':')
-                statName += '\\';
-            else if(statName.at(statName.length() - 1) == '\\')
+            // Stat on windows doesn't accept d: without \ so append \ it if this is the case.
+            // It also does not accept c:\dir\ so remove it unless if is drive c:\
+            
+            if ((statName.length() == 2 || statName.length() == 3) && statName.at(1) == ':') {
+                if (statName.length() == 2)
+                    statName += '\\';
+            } else if (statName.at(statName.length() - 1) == '\\') {
                 statName.truncate(statName.length() - 1);
+            }
+            
             QT_WA({
                 could_stat = (QT_TSTAT((TCHAR*)statName.utf16(), (QT_STATBUF4TSTAT*)&st) != -1);
             } , {
@@ -1138,7 +1143,7 @@ QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
 {
     QFileEngine::FileFlags ret = 0;
     if(type & PermsMask) {
-	ret |= d->getPermissions();
+        ret |= d->getPermissions();
         // ### Workaround pascals ### above. Since we always set all properties to true
         // we need to disable read and exec access if the file does not exists
         if (d->doStat())
@@ -1147,31 +1152,31 @@ QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
             ret &= 0x2222;
     }
     if(type & TypesMask) {
-	if(d->doStat()) {
-	    if(d->file.endsWith(".lnk"))
-		ret |= LinkType;
-	    else if((d->st.st_mode & S_IFMT) == S_IFREG)
-		ret |= FileType;
-	    else if((d->st.st_mode & S_IFMT) == S_IFDIR)
-		ret |= DirectoryType;
-	}
+        if(d->doStat()) {
+            if(d->file.endsWith(".lnk"))
+                ret |= LinkType;
+            else if((d->st.st_mode & S_IFMT) == S_IFREG)
+                ret |= FileType;
+            else if((d->st.st_mode & S_IFMT) == S_IFDIR)
+                ret |= DirectoryType;
+        }
     }
     if(type & FlagsMask) {
-	if(d->doStat()) {
-	    ret |= QFileEngine::FileFlags(ExistsFlag | LocalDiskFlag);
-	    if(fileName(BaseName)[0] == QChar('.')) {
-		QT_WA({
-		    if(GetFileAttributesW((TCHAR*)d->file.utf16()) & FILE_ATTRIBUTE_HIDDEN)
-			ret |= HiddenFlag;
-		} , {
-		    if(GetFileAttributesA(d->file.toLocal8Bit()) & FILE_ATTRIBUTE_HIDDEN)
-			ret |= HiddenFlag;
-		});
+        if(d->doStat()) {
+            ret |= QFileEngine::FileFlags(ExistsFlag | LocalDiskFlag);
+            if(fileName(BaseName)[0] == QChar('.')) {
+                QT_WA({
+                    if(GetFileAttributesW((TCHAR*)d->file.utf16()) & FILE_ATTRIBUTE_HIDDEN)
+                        ret |= HiddenFlag;
+                } , {
+                    if(GetFileAttributesA(d->file.toLocal8Bit()) & FILE_ATTRIBUTE_HIDDEN)
+                        ret |= HiddenFlag;
+                });
             }
             if(d->file == "/" || d->file == "//" ||
-               (d->file[0].isLetter() && d->file.mid(1,d->file.length()) == ":/"))
+                (d->file[0].isLetter() && d->file.mid(1,d->file.length()) == ":/"))
                 ret |= RootFlag;
-	}
+        }
     }
     return ret;
 }
