@@ -1108,11 +1108,19 @@ void QPainter::setClipping( bool enable )
 	    rgn = rgn.intersect( *paintEventClipRegion );
 #ifndef QT_NO_PRINTER
 	if ( pdev->devType() == QInternal::Printer ) {
+	    double xscale = ((float)pdev->metric( QPaintDeviceMetrics::PdmPhysicalDpiX )) / 
+    		((float)pdev->metric( QPaintDeviceMetrics::PdmDpiX ));
+	    double yscale = ((float)pdev->metric( QPaintDeviceMetrics::PdmPhysicalDpiY )) / 
+    		((float)pdev->metric( QPaintDeviceMetrics::PdmDpiY ));
+	    double xoff = 0;
+	    double yoff = 0;
 	    QPrinter* printer = (QPrinter*)pdev;
 	    if ( printer->fullPage() ) {	// must adjust for margins
 		QSize margins = printer->margins();
-		rgn.translate( -margins.width(), -margins.height() );
+		xoff = -margins.width();
+		yoff = -margins.height();
 	    }
+	    rgn = QWMatrix( xscale, 0, 0, yscale, xoff, yoff ) * rgn;
 	}
 #endif
 	SelectClipRgn( hdc, rgn.handle() );
