@@ -1284,6 +1284,33 @@ QSize LightStyle::sizeFromContents( ContentsType contents,
     QSize ret;
 
     switch (contents) {
+    case CT_PushButton:
+	{
+	    const QPushButton *button = (const QPushButton *) widget;
+	    ret = QCommonStyle::sizeFromContents( contents, widget, contentsSize, data );
+	    int w = ret.width(), h = ret.height();
+
+	    // only expand the button if we are displaying text...
+	    if ( ! button->pixmap() ) {
+		if ( button->isDefault() || button->autoDefault() ) {
+		    // default button minimum size
+		    if ( w < 80 )
+			w = 80;
+		    if ( h < 25 )
+			h = 25;
+		} else {
+		    // regular button minimum size
+		    if ( w < 76 )
+			w = 76;
+		    if ( h < 21 )
+			h = 21;
+		}
+	    }
+
+	    ret = QSize( w, h );
+	    break;
+	}
+
     case CT_PopupMenuItem:
 	{
 	    if (! widget || data.isDefault())
