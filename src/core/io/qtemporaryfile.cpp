@@ -39,13 +39,8 @@ public:
 };
 
 bool
-QTemporaryFileEngine::open(int flags)
+QTemporaryFileEngine::open(int)
 {
-    if(!(flags & QIODevice::WriteOnly)) {
-        qWarning("QTemporaryFileEngine::open: Temporary file must be ReadWrite");
-        return false;
-    }
-
     QString qfilename = d->file;
     if(!qfilename.endsWith(QLatin1String("XXXXXX")))
         qfilename += QLatin1String(".XXXXXX");

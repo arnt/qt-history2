@@ -428,7 +428,17 @@ QFile::rename(const QString &newName)
         if(fileEngine()->rename(newName)) {
             resetStatus();
             return true;
-        }
+        } else {
+            QFile in(fileName());
+            QFile out(newName);
+            if (in.open(QIODevice::ReadOnly)) {
+                if(out.open(IO_WriteOnly | IO_Truncate)) {
+                    out.write(in.readAll());
+                    in.remove();
+                    return true;
+                 }           
+            }
+        } 
         setStatus(QIODevice::RenameError, errno);
     }
     return false;
