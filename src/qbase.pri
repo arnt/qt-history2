@@ -1,7 +1,24 @@
 isEmpty(TARGET):error(You must set TARGET before includ()'ing ${FILE})
 
+# debug/release combos for our libraries
+dll:unix {
+  !build_pass {
+     DebugPackage.target = debug
+     DebugPackage.CONFIG = debug
+     ReleasePackage.target = release
+     ReleasePackage.CONFIG = release
+     BUILDS = DebugPackage ReleasePackage
+  } else:DebugPackage {
+     OBJECTS_DIR ~= s,release,debug,g
+     MOC_DIR ~= s,release,debug,g
+     #TARGET = $${TARGET}d
+  } else:ReleasePackage {
+     OBJECTS_DIR ~= s,debug,release,g
+     MOC_DIR ~= s,debug,release,g
+  }
+}
+
 # Qt project file
-QMAKE_INTERNAL_CACHE_FILE = .qmake.internal.cache.$${TARGET}
 TEMPLATE	= lib
 VERSION		= 4.0.0
 win32 {
@@ -9,7 +26,7 @@ win32 {
     #need to override the version of libq* in all other libq*'s just to be
     #sure the same version is used
     QT_LIBS_OVERRIDE = $$VERSION
-    QT_LIBS_OVERRIDE ~= s/\.//g
+    QT_LIBS_OVERRIDE ~= s/(\.|[0-9]$)//g
     for(lib, $$list(qcore qt qnetwork qxml qopengl qsql core qcompat)) {
         eval(QMAKE_$${upper($$lib)}_VERSION_OVERRIDE = $$QT_LIBS_OVERRIDE)
 	eval(QMAKE_$${upper($$lib)}D_VERSION_OVERRIDE = $$QT_LIBS_OVERRIDE)

@@ -9,3 +9,29 @@ SUBDIRS += compat
 SUBDIRS += plugins
 
 embedded:SUBDIRS -= qopengl.pro
+
+# This gives us a top level debug/release
+unix {
+     EXTRA_DEBUG_TARGETS = 
+     EXTRA_RELEASE_TARGETS =
+     for(sub, SUBDIRS) {
+        !isEqual(sub, moc):!isEqual(sub, plugins) {
+            #debug
+            eval(debug-$${sub}.depends = $${sub}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
+            eval(debug-$${sub}.commands = (cd $$sub && $(MAKE) -f $(MAKEFILE) debug))
+            EXTRA_DEBUG_TARGETS += debug-$${sub}
+            QMAKE_EXTRA_TARGETS += debug-$${sub}
+            #release
+            eval(release-$${sub}.depends = $${sub}/$(MAKEFILE) $$EXTRA_RELEASE_TARGETS)
+            eval(release-$${sub}.commands = (cd $$sub && $(MAKE) -f $(MAKEFILE) debug))
+            EXTRA_RELEASE_TARGETS += release-$${sub}
+            QMAKE_EXTRA_TARGETS += release-$${sub}
+        } else { #both a debug and release target
+            EXTRA_DEBUG_TARGETS += sub-$${sub}
+            EXTRA_RELEASE_TARGETS += sub-$${sub}
+        }
+     }
+     debug.depends = $$EXTRA_DEBUG_TARGETS
+     release.depends = $$EXTRA_RELEASE_TARGETS
+     QMAKE_EXTRA_TARGETS += debug release
+}
