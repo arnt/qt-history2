@@ -57,7 +57,7 @@ struct QLineEditUndoItem
     QLineEditUndoItem( const QString& s, int p )
 	: str(s),pos(p){}
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QLineEditUndoItem& ) const;
+    bool operator==( const QLineEditUndoItem& ) const { return FALSE; }
 #endif
     QString str;
     int pos;
