@@ -16,7 +16,6 @@ int main( int argc, char *argv[] )
     ChartForm *cf = new ChartForm( filename );
     app.setMainWidget( cf );
     cf->show();
-    app.connect( &app, SIGNAL(lastWindowClosed()), cf, SLOT(fileQuit()) );
 
     return app.exec();
 }

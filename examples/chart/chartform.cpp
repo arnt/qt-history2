@@ -274,6 +274,11 @@ void ChartForm::init()
     }
 }
 
+void ChartForm::closeEvent( QCloseEvent * ) 
+{
+    fileQuit();
+}
+
 
 void ChartForm::fileNew()
 {
@@ -363,7 +368,7 @@ void ChartForm::fileQuit()
 {
     if ( okToClear() ) {
 	saveOptions();
-	qApp->exit( 0 );
+        qApp->exit( 0 );
     }
 }
 
@@ -377,9 +382,12 @@ bool ChartForm::okToClear()
 	else
 	    msg = QString( "Chart '%1'\n" ).arg( m_filename );
 	msg += "has been changed.";
-	switch( QMessageBox::information( this, "Chart -- Unsaved Changes",
+
+	int returnValue = QMessageBox::information( this, "Chart -- Unsaved Changes",
 					  msg, "&Save", "Cancel", "&Abandon",
-					  0, 1 ) ) {
+					  0, 1 );
+
+	switch( returnValue ) {
 	    case 0:
 		fileSave();
 		break;
