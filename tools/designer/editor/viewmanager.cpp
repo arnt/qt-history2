@@ -23,7 +23,6 @@
 #include "markerwidget.h"
 #include <qlayout.h>
 #include <private/qrichtext_p.h>
-#include <qdockarea.h>
 #include "paragdata.h"
 #include <qobjectlist.h>
 #include <qlabel.h>
@@ -52,17 +51,9 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
 	     this, SLOT( showMessage( const QString & ) ) );
     messageTimer = new QTimer( this );
     connect( messageTimer, SIGNAL( timeout() ), this, SLOT( clearStatusBar() ) );
-    markerWidget->setFixedWidth( 35 );
-    //dockArea = new QDockArea( Qt::Vertical, QDockArea::Normal, this );
-    //layout->addWidget( dockArea );
-    //dockArea->setMinimumWidth( 5 );
+    markerWidget->setFixedWidth( fontMetrics().width( "0000" ) + 20 );
     l->addWidget( markerWidget );
     layout = new QVBoxLayout( l );
-
-//     QObjectList *l = topLevelWidget()->queryList( "QToolBar" );
-//     for ( QObject *o = l->first(); o; o = l->next() )
-// 	dockArea->setAcceptDockWindow( ( (QDockWindow*)o ), FALSE );
-//     delete l;
 }
 
 void ViewManager::addView( QWidget *view )

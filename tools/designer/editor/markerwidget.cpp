@@ -299,9 +299,16 @@ void MarkerWidget::paintEvent( QPaintEvent * )
 	if ( p->rect().y() + p->rect().height() - yOffset < 0 ) {
 	    p = p->next();
 	    continue;
-	}	
+	}
 	if ( p->rect().y() - yOffset > height() )
 	    break;
+	if ( !((p->paragId() + 1) % 10) ) {
+	    painter.save();
+	    painter.setPen( colorGroup().dark() );
+	    painter.drawText( 0, p->rect().y() - yOffset, width() - 20, p->rect().height(),
+			      Qt::AlignRight | Qt::AlignTop, QString::number( p->paragId() + 1 ) );
+	    painter.restore();
+	}
 	ParagData *paragData = (ParagData*)p->extraData();
 	if ( paragData ) {
 	    switch ( paragData->marker ) {
@@ -322,30 +329,30 @@ void MarkerWidget::paintEvent( QPaintEvent * )
 	    case ParagData::FunctionStart:
 		painter.setPen( colorGroup().foreground() );
 		painter.setBrush( colorGroup().base() );
-		painter.drawLine( 24, p->rect().y() - yOffset,
-				  24, p->rect().y() + p->rect().height() - yOffset );
-		painter.drawRect( 20, p->rect().y() + ( p->rect().height() - 9 ) / 2 - yOffset, 9, 9 );
-		painter.drawLine( 22, p->rect().y() + ( p->rect().height() - 9 ) / 2 - yOffset + 4,
-				  26, p->rect().y() +
+		painter.drawLine( width() - 11, p->rect().y() - yOffset,
+				  width() - 11, p->rect().y() + p->rect().height() - yOffset );
+		painter.drawRect( width() - 15, p->rect().y() + ( p->rect().height() - 9 ) / 2 - yOffset, 9, 9 );
+		painter.drawLine( width() - 13, p->rect().y() + ( p->rect().height() - 9 ) / 2 - yOffset + 4,
+				  width() - 9, p->rect().y() +
 				  ( p->rect().height() - 9 ) / 2 - yOffset + 4 );
 		if ( !paragData->functionOpen )
-		    painter.drawLine( 24,
+		    painter.drawLine( width() - 11,
 				      p->rect().y() + ( p->rect().height() - 9 ) / 2 - yOffset + 2,
-				      24,
+				      width() - 11,
 				      p->rect().y() +
 				      ( p->rect().height() - 9 ) / 2 - yOffset + 6 );
 		break;
 	    case ParagData::InFunction:
 		painter.setPen( colorGroup().foreground() );
-		painter.drawLine( 24, p->rect().y() - yOffset,
-				  24, p->rect().y() + p->rect().height() - yOffset );
+		painter.drawLine( width() - 11, p->rect().y() - yOffset,
+				  width() - 11, p->rect().y() + p->rect().height() - yOffset );
 		break;
 	    case ParagData::FunctionEnd:
 		painter.setPen( colorGroup().foreground() );
-		painter.drawLine( 24, p->rect().y() - yOffset,
-				  24, p->rect().y() + p->rect().height() - yOffset );
-		painter.drawLine( 24, p->rect().y() + p->rect().height() - yOffset,
-				  28, p->rect().y() + p->rect().height() - yOffset );
+		painter.drawLine( width() - 11, p->rect().y() - yOffset,
+				  width() - 11, p->rect().y() + p->rect().height() - yOffset );
+		painter.drawLine( width() - 11, p->rect().y() + p->rect().height() - yOffset,
+				  width() - 7, p->rect().y() + p->rect().height() - yOffset );
 		break;
 	    default:
 		break;
@@ -386,7 +393,7 @@ void MarkerWidget::mousePressEvent( QMouseEvent *e )
 	    if ( !d )
 		return;
 	    ParagData *data = (ParagData*)d;
-	    if ( e->x() < 20 ) {
+	    if ( e->x() < width() - 15 ) {
 		if ( data->marker == ParagData::Breakpoint ) {
 		    data->marker = ParagData::NoMarker;
 		} else {
