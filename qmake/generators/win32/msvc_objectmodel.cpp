@@ -1344,7 +1344,7 @@ VCMIDLTool::VCMIDLTool()
 	IgnoreStandardIncludePath( unset ),
 	InterfaceIdentifierFileName( unset ),
 	MkTypLibCompatible( unset ),
-	StructMemberAlignment( alignNotSet ),
+	StructMemberAlignment( midlAlignNotSet ),
 	SuppressStartupBanner( unset ),
 	TargetEnvironment( midlTargetNotSet ),
 	ValidateParameters( unset ),

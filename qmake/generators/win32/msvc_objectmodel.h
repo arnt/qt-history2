@@ -536,7 +536,7 @@ public:
     QStringList		    PreprocessorDefinitions;
     QString		    ProxyFileName;
     QString		    RedirectOutputAndErrors;
-    structMemberAlignOption StructMemberAlignment;
+    midlStructMemberAlignOption StructMemberAlignment;
     triState		    SuppressStartupBanner;
     midlTargetEnvironment   TargetEnvironment;
     QString		    TypeLibraryName;
