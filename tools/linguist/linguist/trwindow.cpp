@@ -1255,9 +1255,11 @@ void TrWindow::updateTranslation( const QString& translation )
 	    m->setTranslation( stripped );
 	    if ( m->finished() &&
 		 (dngr = danger( m->sourceText(), m->translation(), TRUE )) ) {
+		numFinished -= 1;
 		m->setDanger( dngr );
 		m->setFinished( FALSE );
 		m->contextLVI()->updateStatus();
+		updateProgress();
 	    }
 	    tor.insert( m->message() );
 	    if ( !dirty ) {
@@ -1346,77 +1348,80 @@ void TrWindow::toggleFinished( QListViewItem *item, const QPoint& /* p */,
 
 void TrWindow::nextUnfinished()
 {
-    // Select a message to translate, grab the first available if
-    // there are no current selection.
-    QListViewItem * cItem = lv->currentItem(); // context item
-    QListViewItem * mItem = slv->currentItem(); // message item
+    if ( nextUnfinishedAct->isEnabled() ) {
+	// Select a message to translate, grab the first available if
+	// there are no current selection.
+	QListViewItem * cItem = lv->currentItem(); // context item
+	QListViewItem * mItem = slv->currentItem(); // message item
 
-    // Make sure an item is selected from both the context and the
-    // message list.
-    if( (mItem == 0) && !(mItem = slv->firstChild()) ) {
-	if( (cItem == 0) && !(cItem = lv->firstChild()) ) {
-	    statusBar()->message( tr("No phrase to translate."), MessageMS );
-	    qApp->beep();
-	    return;
-	} else {
-	    showNewScope( cItem );
-	    while( cItem && !(mItem = slv->firstChild()) ) {
-		// no children in this node - try next one
-		cItem = cItem->nextSibling();
-		showNewScope( cItem );
-	    }
-	    setCurrentContextItem( cItem );
-	    if( mItem ) {
-		setCurrentMessageItem( cItem );
-	    } else {
-		statusBar()->message( tr("No phrase to translate."), MessageMS );
+	// Make sure an item is selected from both the context and the
+	// message list.
+	if( (mItem == 0) && !(mItem = slv->firstChild()) ) {
+	    if( (cItem == 0) && !(cItem = lv->firstChild()) ) {
+		statusBar()->message( tr("No phrase to translate."),
+				      MessageMS );
 		qApp->beep();
 		return;
+	    } else {
+		showNewScope( cItem );
+		while( cItem && !(mItem = slv->firstChild()) ) {
+		    // no children in this node - try next one
+		    cItem = cItem->nextSibling();
+		    showNewScope( cItem );
+		}
+		setCurrentContextItem( cItem );
+		if( mItem ) {
+		    setCurrentMessageItem( cItem );
+		} else {
+		    statusBar()->message( tr("No phrase to translate."),
+					  MessageMS );
+		    qApp->beep();
+		    return;
+		}
 	    }
+	} else {
+	    setCurrentMessageItem( mItem );
 	}
-    } else {
-	setCurrentMessageItem( mItem );
-    }
 
-    MessageLVI * m = (MessageLVI *) mItem;
-    MessageLVI * n;
-    ContextLVI * p = (ContextLVI *) cItem;
-    ContextLVI * q;
+	MessageLVI * m = (MessageLVI *) mItem;
+	MessageLVI * n;
+	ContextLVI * p = (ContextLVI *) cItem;
+	ContextLVI * q;
 
-    // Find the next Unfinished sibling within the same context.
-    m = (MessageLVI *) mItem->nextSibling();
-    n = m;
-    do {
-	if ( n == 0 )
-	    break;
-	if ( n && !n->finished() && n != mItem ) {
-	    setCurrentMessageItem( n );
-	    return;
-	}
-	n = (MessageLVI *) n->nextSibling();
-    } while ( n != m );
-
-    // If all siblings are Finished or Obsolete, look in the first Unfinished
-    // context.
-    p = (ContextLVI *) p->nextSibling();
-    q = p;
-    do {
-	if ( q == 0 )
-	    q = (ContextLVI *) lv->firstChild();
-	if ( q && !q->finished() ) {
-	    showNewScope( q );
-	    setCurrentContextItem( q );
-	    n = (MessageLVI *) slv->firstChild();
-	    while ( n && n->finished() )
-		n = (MessageLVI *) n->nextSibling();
-	    if ( n && q ) {
+	// Find the next Unfinished sibling within the same context.
+	m = (MessageLVI *) mItem->nextSibling();
+	n = m;
+	do {
+	    if ( n == 0 )
+		break;
+	    if ( n && !n->finished() && n != mItem ) {
 		setCurrentMessageItem( n );
 		return;
 	    }
-	}
-	q = (ContextLVI *) q->nextSibling();
-    } while ( q != p );
+	    n = (MessageLVI *) n->nextSibling();
+	} while ( n != m );
 
+	// If all siblings are Finished or Obsolete, look in the first
+	// Unfinished context.
+	p = (ContextLVI *) p->nextSibling();
+	q = p;
+	do {
+	    if ( q == 0 )
+		q = (ContextLVI *) lv->firstChild();
+	    if ( q && !q->finished() ) {
+		showNewScope( q );
+		setCurrentContextItem( q );
+		n = (MessageLVI *) slv->firstChild();
+		while ( n && n->finished() )
+		    n = (MessageLVI *) n->nextSibling();
+		if ( n && q ) {
+		    setCurrentMessageItem( n );
+		    return;
+		}
+	    }
+	    q = (ContextLVI *) q->nextSibling();
+	} while ( q != p );
+    }
 
     // If no Unfinished message is left, the user has finished the job.  We
     // congratulate on a job well done with this ringing bell.
@@ -1441,75 +1446,78 @@ static QListViewItem * lastChild( QListView * view )
 
 void TrWindow::prevUnfinished()
 {
-    // Select a message to translate, grab the first available if
-    // there are no current selection.
-    QListViewItem * cItem = lv->currentItem();  // context item
-    QListViewItem * mItem = slv->currentItem(); // message item
+    if ( prevUnfinishedAct->isEnabled() ) {
+	// Select a message to translate, grab the first available if
+	// there are no current selection.
+	QListViewItem * cItem = lv->currentItem();  // context item
+	QListViewItem * mItem = slv->currentItem(); // message item
 
-    // Make sure an item is selected from both the context and the
-    // message list.
-    if( (mItem == 0) && !(mItem = slv->firstChild()) ) {
-	if( (cItem == 0) && !(cItem = lv->firstChild()) ) {
-	    statusBar()->message( tr("No phrase to translate."), MessageMS );
-	    qApp->beep();
-	    return;
-	} else {
-	    showNewScope( cItem );
-	    while( cItem && !(mItem = slv->firstChild()) ) {
-		// no children in this node - try next one
-		cItem = cItem->nextSibling();
-		showNewScope( cItem );
-	    }
-	    setCurrentContextItem( cItem );
-	    if( mItem ) {
-		setCurrentMessageItem( cItem );
-	    } else {
-		statusBar()->message( tr("No phrase to translate."), MessageMS );
+	// Make sure an item is selected from both the context and the
+	// message list.
+	if( (mItem == 0) && !(mItem = slv->firstChild()) ) {
+	    if( (cItem == 0) && !(cItem = lv->firstChild()) ) {
+		statusBar()->message( tr("No phrase to translate."),
+				      MessageMS );
 		qApp->beep();
 		return;
+	    } else {
+		showNewScope( cItem );
+		while( cItem && !(mItem = slv->firstChild()) ) {
+		    // no children in this node - try next one
+		    cItem = cItem->nextSibling();
+		    showNewScope( cItem );
+		}
+		setCurrentContextItem( cItem );
+		if( mItem ) {
+		    setCurrentMessageItem( cItem );
+		} else {
+		    statusBar()->message( tr("No phrase to translate."),
+					  MessageMS );
+		    qApp->beep();
+		    return;
+		}
 	    }
+	} else {
+	    setCurrentMessageItem( mItem );
 	}
-    } else {
-	setCurrentMessageItem( mItem );
-    }
 
-    MessageLVI * m = (MessageLVI *) mItem;
-    MessageLVI * n;
-    ContextLVI * p = (ContextLVI *) cItem;
-    ContextLVI * q;
+	MessageLVI * m = (MessageLVI *) mItem;
+	MessageLVI * n;
+	ContextLVI * p = (ContextLVI *) cItem;
+	ContextLVI * q;
 
-    // Find the next Unfinished sibling within the same context.
-    n = m;
-    do {
-	n = (MessageLVI * ) n->itemAbove();
-	if ( n == 0 )
-	    break;
-	if ( n && !n->finished() ) {
-	    setCurrentMessageItem( n );
-	    return;
-	}
-    } while ( !((ContextLVI *) cItem)->finished() && n != 0 );
-
-    // If all siblings are Finished or Obsolete, look in the prev Unfinished
-    // context.
-    q = p;
-    do {
-	q = (ContextLVI *) q->itemAbove();
-	if ( q == 0 )
-	    q = (ContextLVI *) lastChild( lv );
-	if ( q && !q->finished() ) {
-	    showNewScope( q );
-	    setCurrentContextItem( q );
-	    n = (MessageLVI *) lastChild( slv );
-	    while ( n && n->finished() )
-		n = (MessageLVI *) n->itemAbove();
-	    if ( n && q ) {
+	// Find the next Unfinished sibling within the same context.
+	n = m;
+	do {
+	    n = (MessageLVI * ) n->itemAbove();
+	    if ( n == 0 )
+		break;
+	    if ( n && !n->finished() ) {
 		setCurrentMessageItem( n );
 		return;
 	    }
-	}
-    } while ( q != 0 );
+	} while ( !((ContextLVI *) cItem)->finished() && n != 0 );
 
+	// If all siblings are Finished or Obsolete, look in the prev
+	// Unfinished context.
+	q = p;
+	do {
+	    q = (ContextLVI *) q->itemAbove();
+	    if ( q == 0 )
+		q = (ContextLVI *) lastChild( lv );
+	    if ( q && !q->finished() ) {
+		showNewScope( q );
+		setCurrentContextItem( q );
+		n = (MessageLVI *) lastChild( slv );
+		while ( n && n->finished() )
+		    n = (MessageLVI *) n->itemAbove();
+		if ( n && q ) {
+		    setCurrentMessageItem( n );
+		    return;
+		}
+	    }
+	} while ( q != 0 );
+    }
     statusBar()->message( tr("No untranslated phrases left."), MessageMS );
     qApp->beep();
 }
