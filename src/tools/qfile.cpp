@@ -36,14 +36,13 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
-#if defined(Q_OS_WIN32)
-#ifdef UNICODE
-#ifndef _UNICODE
-#define _UNICODE
+#if defined(Q_OS_WIN32) // ### this seems useless, what is it for?
+#  ifdef UNICODE        // ### shouldn't this go to qplatformdefs.h anyway?
+#   ifndef _UNICODE
+#     define _UNICODE
+#   endif
+#  endif
 #endif
-#endif
-#endif
-
 #include "qfile.h"
 
 

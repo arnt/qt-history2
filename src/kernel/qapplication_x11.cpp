@@ -81,7 +81,6 @@
 static int qt_thread_pipe[2];
 #endif
 
-#define GC GC_QQQ
 #include "qt_x11.h"
 
 #include <stdlib.h>

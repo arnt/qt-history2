@@ -36,7 +36,6 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
-
 #include "qdir.h"
 
 #ifndef QT_NO_DIR

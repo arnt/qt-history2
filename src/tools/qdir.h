@@ -182,7 +182,7 @@ public:
 
 private:
 #ifdef Q_OS_MAC
-	static FSSpec *make_spec(const QString &);
+    static FSSpec *make_spec(const QString &);
 #endif
     void init();
     virtual bool readDirEntries( const QString &nameFilter,
