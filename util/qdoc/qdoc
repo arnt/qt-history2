@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#222 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#223 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1588,7 +1588,11 @@ sub weirdly {
     $bb = $name{$b};
     $bb =~ s/::~/::_/;
     $bb =~ s/[a-zA-Z]*::/::/;
-    if ($aa eq $bb) {
+    if ( defined($internal{$a}) && !defined($internal{$b}) ) {
+	return 1;
+    } elsif ( !defined($internal{$a}) && defined($internal{$b}) ) {
+	return -1;
+    } elsif ($aa eq $bb) {
 	if (defined($overload{$b})) {
 	    if (defined($overload{$a})) {
 		return ($def{$a} cmp $def{$b});
@@ -1603,13 +1607,7 @@ sub weirdly {
 	    }
 	}
     } else {
-	if ( defined($internal{$aa}) && !defined($internal{$bb}) ) {
-	    return -1;
-	} elsif ( !defined($internal{$aa}) && defined($internal{$bb}) ) {
-	    return 1;
-	} else {
-	    return ($aa cmp $bb);
-	}
+	return ($aa cmp $bb);
     }
 }
 
