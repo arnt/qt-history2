@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#13 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#13 $")
 
 
 // --------------------------------------------------------------------------
@@ -27,8 +27,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#12 $")
 static int defaultPixmapDepth()
 {
     static int defDepth = 0;
-    if ( defDepth == 0 )
-	defDepth = GetDeviceCaps( qt_display_dc(), BITSPIXEL );
+    if ( defDepth == 0 ) {
+	HANDLE hdc = GetDC( 0 );
+	defDepth = GetDeviceCaps( hdc, BITSPIXEL );
+	ReleaseDC( 0, hdc );
+    }
     return defDepth;
 }
 
@@ -83,8 +86,11 @@ QPixmap::QPixmap( int w, int h, int depth )
     }
     data->w = w;
     data->h = h;
-    if ( data->d == dd )			// compatible bitmap
-	data->hbm = CreateCompatibleBitmap( qt_display_dc(), w, h );
+    if ( data->d == dd ) {			// compatible bitmap
+	HANDLE hdc = GetDC( 0 );
+	data->hbm = CreateCompatibleBitmap( hdc, w, h );
+	ReleaseDC( 0, hdc );
+    }
     else					// monocrome bitmap
 	data->hbm = CreateBitmap( w, h, 1, 1, 0 );
     if ( data->optim )
@@ -116,8 +122,11 @@ QPixmap::QPixmap( const QSize &size, int depth )
     }
     data->w = w;
     data->h = h;
-    if ( data->d == dd )			// compatible bitmap
-	data->hbm = CreateCompatibleBitmap( qt_display_dc(), w, h );
+    if ( data->d == dd ) {			// compatible bitmap
+	HANDLE hdc = GetDC( 0 );
+	data->hbm = CreateCompatibleBitmap( hdc, w, h );
+	ReleaseDC( 0, hdc );
+    }
     else					// monocrome bitmap
 	data->hbm = CreateBitmap( w, h, 1, 1, 0 );
     if ( data->optim )
@@ -202,12 +211,14 @@ QPixmap::~QPixmap()
 HANDLE QPixmap::allocMemDC()
 {
     if ( !hdc && !isNull() ) {
-	hdc = CreateCompatibleDC( qt_display_dc() );
+	HANDLE hcdScreen = GetDC( 0 );
+	hdc = CreateCompatibleDC( hdcScreen );
 	if ( QColor::hPal() ) {
 	    SelectPalette( hdc, QColor::hPal(), FALSE );
 	    RealizePalette( hdc );
 	}
 	SelectObject( hdc, data->hbm );
+	ReleaseDC( 0, hdcScreen );
     }
     return hdc;
 }
