@@ -93,13 +93,13 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	    t << "\n\t"
 	      << "cd " << subdir << "\n\t";
 	    int lastSlash = subdir.findRev(Option::dir_sep);
-	    if(lastSlash != -1) 
+	    if(lastSlash != -1)
 		subdir = subdir.mid( lastSlash + 1 );
-	    t << "$(QMAKE) " << subdir << ".pro" 
+	    t << "$(QMAKE) " << subdir << ".pro"
 	      << (!project->isEmpty("MAKEFILE") ? QString(" -o ") + var("MAKEFILE") : QString(""))
 	      << " " << buildArgs() << "\n\t"
 	      << "@cd ..";
-	    for(int i = 1; i < subLevels; i++ ) 
+	    for(int i = 1; i < subLevels; i++ )
 		t << Option::dir_sep + "..";
 	}
     } else {
@@ -125,14 +125,14 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 
 		if ( targs[x] == "clean" ) {
 		    int lastSlash = subdir.findRev(Option::dir_sep);
-		    if(lastSlash != -1) 
+		    if(lastSlash != -1)
 			subdir = subdir.mid( lastSlash + 1 );
 		    t << "$(QMAKE) " << subdir << ".pro" << "\n\t";
 		}
 		
 		t << "$(MAKE) " << targs[x] << "\n\t"
 		    << "@cd ..";
-		for(int i = 1; i < subLevels; i++ ) 
+		for(int i = 1; i < subLevels; i++ )
 		    t << Option::dir_sep + "..";
 	    }
 	} else {
@@ -174,18 +174,19 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const
 }
 
 
-bool 
+bool
 Win32MakefileGenerator::findLibraries(const QString &where)
 {
+
     QStringList &l = project->variables()[where];
     QPtrList<MakefileDependDir> dirs;
     dirs.setAutoDelete(TRUE);
     for(QStringList::Iterator it = l.begin(); it != l.end(); ) {
-        QString opt = (*it);
+	QString opt = (*it);
         bool remove = FALSE;
         if(opt.startsWith("-L") || opt.startsWith("/L")) {
             QString r = opt.right(opt.length() - 2), l = Option::fixPathToLocalOS(r);
-            dirs.append(new MakefileDependDir(r.replace("\"",""), 
+            dirs.append(new MakefileDependDir(r.replace("\"",""),
                                               l.replace("\"","")));
             remove = TRUE;
         } else if(opt.startsWith("-l") || opt.startsWith("/l")) {
@@ -193,14 +194,12 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             if(!lib.isEmpty()) {
                 for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
                     int ver = findHighestVersion(mdd->local_dir, lib);
-                    if(ver != -1) {
                         out = QString(mdd->real_dir + Option::dir_sep + lib + "%1" + ".lib");
-			if(ver)
+			if(ver && ver != -1 )
 			    out = out.arg(ver);
 			else
 			    out = out.arg("");
                         break;
-                    }
                 }
             }
             if(out.isEmpty())
@@ -286,7 +285,7 @@ Win32MakefileGenerator::processPrlFiles()
 			    }
 			}
 		    }
-		} 
+		}
 	    }
 	    if(!opt.isEmpty())
 		l_out.append(opt);
