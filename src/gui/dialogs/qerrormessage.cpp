@@ -136,7 +136,7 @@ void jump(QtMsgType t, const char * m)
         rich.chop(4);
 
     if (!metFatal) {
-        qtMessageHandler->message(rich);
+        qtMessageHandler->showMessage(rich);
         metFatal = (t == QtFatalMsg);
     }
 }

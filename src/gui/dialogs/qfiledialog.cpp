@@ -757,7 +757,7 @@ void QFileDialog::accept()
             return;
         if (!info.exists() || acceptMode() == AcceptOpen)
             QDialog::accept();
-        else if (QMessageBox::warning(this, windowTitle(),
+        else if (QMessageBox::showWarning(this, windowTitle(),
                                       fn + tr(" already exists.\n"
                                               "Do you want to replace it?"),
                                       QMessageBox::Yes,
@@ -771,7 +771,7 @@ void QFileDialog::accept()
             if (!info.exists()) {
                 QString message = tr("\nFile not found.\nPlease verify the "
                                      "correct file name was given");
-                QMessageBox::warning(this, d->acceptButton->text(),
+                QMessageBox::showWarning(this, d->acceptButton->text(),
                                      info.fileName() + message);
                 return;
             }
@@ -1090,7 +1090,7 @@ void QFileDialogPrivate::showContextMenu(const QPoint &pos)
         view = listView;
     QModelIndex index = view->indexAt(pos);
     QMenu menu(view);
-        
+
     if (index.isValid()) {
         // file context menu
         menu.addAction(openAction);
@@ -1854,7 +1854,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     args.selection = selection;
     args.filter = filter;
     args.mode = AnyFile;
-    
+
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style()))
         return qt_win_get_save_file_name(args, &qt_working_dir, selectedFilter);
