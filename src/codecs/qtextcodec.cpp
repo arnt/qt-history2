@@ -1315,6 +1315,8 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
     return result;
 }
 
+#ifndef QT_NO_CODECS
+
 /*!
   Reads a POSIX2 charmap definition from \a iod.
   The parser recognizes the following lines:
@@ -1367,6 +1369,7 @@ QTextCodec* QTextCodec::loadCharmapFile(QString filename)
     return 0;
 }
 
+#endif //QT_NO_CODECS
 
 /*!
   Returns a string representing the current language.
@@ -1383,7 +1386,7 @@ const char* QTextCodec::locale()
     return lang;
 }
 
-
+#ifndef QT_NO_CODECS
 
 class QSimpleTextCodec: public QTextCodec
 {
@@ -2089,7 +2092,7 @@ int QSimpleTextCodec::heuristicContentMatch(const char* chars, int len) const
     return r;
 }
 
-
+#endif
 
 class QLatin1Codec: public QTextCodec
 {
@@ -2199,12 +2202,12 @@ static void setupBuiltinCodecs()
 {
     (void)new QLatin1Codec;
 
+#ifndef QT_NO_CODECS
     int i = 0;
     do {
         (void)new QSimpleTextCodec( i );
     } while( unicodevalues[i++].mib != LAST_MIB );
 
-#ifndef QT_NO_CODECS
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
     (void)new QHebrewCodec;
