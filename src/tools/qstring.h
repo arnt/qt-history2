@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#27 $
+** $Id: //depot/qt/main/src/tools/qstring.h#28 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -125,8 +125,7 @@ public:
     bool	truncate( uint pos );		// truncate excl. \0 terminator
     bool	fill( char c, int len = -1 );	// resize and fill string
 
-    QString	copy() const			// deep copy
-		  { QString tmp( (const char *)this->data() ); return tmp; }
+    QString	copy() const { return QString( this->data() ); }  // deep copy
 
     QString    &sprintf( const char *format, ... );
 
