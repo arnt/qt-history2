@@ -296,7 +296,7 @@
 #if defined(QT_NO_DIR)
 # define QT_NO_MIME
 #endif
-#if defined(QT_NO_MIME) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_DRAWUTIL) 
+#if defined(QT_NO_MIME) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_DRAWUTIL)
 // Used to be: || defined(QT_NO_IMAGE_SMOOTHSCALE)
     /*!
 	RichText (HTML) display

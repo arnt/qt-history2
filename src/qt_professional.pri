@@ -1,20 +1,19 @@
-professional {
-	CONFIG += xml iconview
-	ICONVIEW_CPP	= $(QTDIR)/src/iconview
-	XML_CPP	        = $(QTDIR)/src/xml
+contains(QT_PRODUCT,qt-professional) {
+	CONFIG += xml network
+	NETWORK_CPP = $(QTDIR)/src/network
+	XML_CPP = $(QTDIR)/src/xml
 	win32 {
 		WIN_ALL_H = $(QTDIR)/include
-		ICONVIEW_H	= $$WIN_ALL_H
 		XML_H		= $$WIN_ALL_H
+		NETWORK_H	= $$WIN_ALL_H
 	}
-
 	unix {
-		ICONVIEW_H	= $$ICONVIEW_CPP
 		XML_H		= $$XML_CPP
+		NETWORK_H	= $$NETWORK_CPP
 	}
-
-	include( $(QTDIR)/qt_xml.pri )
-	include( $(QTDIR)/src/iconview/qt_iconview.pri )
-	INCLUDEPATH += $(QTDIR)/src/kernel
-	DEFINES     += QT_MODULE_XML
+	INCLUDEPATH += $(QTDIR)/src/xml
+	INCLUDEPATH += $(QTDIR)/src/network
+	include( $(QTDIR)/src/xml/qt_xml.pri )
+	include( $(QTDIR)/src/network/qt_network.pri )
+	DEFINES     += QT_MODULE_XML QT_MODULE_NETWORK
 }

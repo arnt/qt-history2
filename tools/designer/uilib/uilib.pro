@@ -13,8 +13,9 @@ HEADERS		= qwidgetfactory.h \
 sql:SOURCES += 		  ../designer/database.cpp
 sql:HEADERS +=		  ../designer/database.h
 
+include( ../../../src/qt_professional.pri )
 TARGET		= qui
-INCLUDEPATH	+= ../shared ../util ../../../src/3rdparty/zlib/
+INCLUDEPATH	+= ../shared ../../../src/3rdparty/zlib/
 DESTDIR		= ../../../lib
 VERSION		= 1.0.0
 DEFINES		+= RESOURCE

@@ -8,4 +8,5 @@ SOURCES		= fetchtr.cpp \
 		  sametexth.cpp \
 		  ../shared/metatranslator.cpp
 INCLUDEPATH	= ../shared
+include( ../../../src/qt_professional.pri )
 DESTDIR	= ../../../bin

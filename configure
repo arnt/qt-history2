@@ -220,7 +220,7 @@ else
 	    EMB=""
 	fi
 	echo
-	if [ "$QWS_PLATFORM" = "yes" ] 
+	if [ "$QWS_PLATFORM" = "yes" ]
 	then
 	    EMB="/Embedded"
 	else
@@ -314,6 +314,7 @@ if [ -z "$MODULES" ]; then
     MODULES="styles tools kernel widgets dialogs iconview workspace"
     [ "$Products" != "qt-professional" ] && MODULES="$MODULES network canvas table xml opengl sql"
 fi
+QMAKE_VARS="$QMAKE_VARS \"QT_PRODUCT=$Products\""
 
 # Remove the build options file
 [ -f $outpath/.qmake.cache ] && rm $outpath/.qmake.cache
@@ -497,11 +498,11 @@ do
 	XINERAMA=yes
 	;;
    -stl)
-        STL=yes
-        ;;
+	STL=yes
+	;;
    -no-stl)
-        STL=no
-        ;;
+	STL=no
+	;;
    -freetype)
 	FT=yes
 	;;
@@ -583,7 +584,7 @@ do
 	MODULE=`echo $1 | sed "s/-enable-//"`
 	if [ -n $MODULE -a -d "$relpath/src/$MODULE" ]
 	then
-	    
+
 	    if echo "${MODULES}" | grep $MODULE >/dev/null 2>&1
 	    then
 		MODULES="$MODULES $MODULE"
@@ -591,7 +592,7 @@ do
 	fi
 	;;
    -disable-*)
-    	MODULE=`echo $1 | sed -e "s/-disable-//"`
+	MODULE=`echo $1 | sed -e "s/-disable-//"`
 	if [ -d "$relpath/src/$MODULE" ]
 	then
 	    MODULES=`echo $MODULES | sed -e "s/$MODULE//"`
@@ -618,7 +619,7 @@ do
 	HELP=yes
 	;;
    -v)
-        #takes two verboses to turn on qmake debugs
+	#takes two verboses to turn on qmake debugs
 	[ "x$VERBOSE" = "xyes" ] && QMAKE_SWITCHES="$QMAKE_SWITCHES -d"
 	VERBOSE=yes
 	;;
@@ -981,7 +982,7 @@ Installation options:
 
  *  -no-gif ............ Do not compile in GIF reading support.
     -qt-gif ............ Compile in GIF reading support.
-                         See src/kernel/qgif.h
+			 See src/kernel/qgif.h
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
     -system-zlib ....... Use a zlib from the operating system
@@ -1013,7 +1014,7 @@ Installation options:
 			 in directory. You can specify this option multiple
 			 times so as to only make specific directories.
     -nomake regexp ..... This will prevernt matches of regexp from being built
-		         you may use this to exclude certain projects in a directory
+			 you may use this to exclude certain projects in a directory
 			 included in -make.
 
     -profile ........... Enable profiling with gprof (adds -pg options)
@@ -1033,13 +1034,13 @@ Installation options:
 
 
     -enable-<module> .......... Enables a module where module is one of:
-                                $MODULES
+				$MODULES
     -disable-<module> ......... Disables a module where module is one of:
-                                $MODULES
+				$MODULES
 
     -with-<module setting> .... This will activate a setting as described below.
     -without-<module setting> . This will deactivate a setting for any enabled
-                                module, consult each Qt module for their
+				module, consult each Qt module for their
 				specific settings.
 
 EOF
@@ -1095,11 +1096,11 @@ Qt/X11 only:
 
  $XRN  -no-xrender ........ Do not compile XRender support.
  $XRY  -xrender ........... Compile XRender support.
-                         Requires X11/extensions/Xrender.h and libXrender.
+			 Requires X11/extensions/Xrender.h and libXrender.
 
  $XFTN  -no-xft ............ Do not compile XftFreeType (anti-aliased font) support.
  $XFTY  -xft ............... Compile XftFreeType support.
-                         Requires X11/Xft/XftFreetype.h and libXft.
+			 Requires X11/Xft/XftFreetype.h and libXft.
 
 EOF
 fi

@@ -64,6 +64,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	scope_block--;
 	return TRUE;
     } else if(!(scope_flag & (0x01 << scope_block))) {
+	/* adjust scope for each block which appears on a single line */
 	for(int i = (s.contains('{')-s.contains('}')); i; i--)
 	    scope_flag &= ~(0x01 << (++scope_block));
 	debug_msg(1, "Project Parser: %s:%d : Ignored due to block being false.", file.latin1(), line_count);
@@ -76,11 +77,17 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     const char *d = s.latin1();
     SKIP_WS(d);
     bool scope_failed = FALSE;
+    int parens = 0;
     while(*d && *d != '=') {
 	if((*d == '+' || *d == '-' || *d == '*' || *d == '~') && *(d+1) == '=')
 	    break;
-	
-	if(*d == ':' || *d == '{' || *d == ')' ) {
+
+	if ( *d == '(' )
+	    ++parens;
+	else if ( *d == ')' )
+	    --parens;
+
+	if(*d == ':' || *d == '{' || ( *d == ')' && !parens )) {
 	    scope = var.stripWhiteSpace();
 	    if ( *d == ')' )
 		scope += *d; /* need this */
@@ -93,7 +100,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    int lparen = scope.find('(');
 	    if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
 		if(!scope_failed) {
-		    int rparen = scope.find(')', lparen);
+		    int rparen = scope.findRev(')', scope.length()-1);
 		    if(rparen == -1) {
 			QCString error;
 			error.sprintf("Function missing right paren: %s", scope.latin1());
@@ -105,7 +112,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 		    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
 			(*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
 		    test = doProjectTest(func, args, place);
-		    if ( *d == ')' && !*(d+1) ) 
+		    if ( *d == ')' && !*(d+1) )
 			return TRUE;  /* assume we are done */
 		}
 	    } else {
@@ -145,6 +152,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     SKIP_WS(d);
     QString vals(d); /* vals now contains the space separated list of values */
     if(vals.right(1) == "}") {
+	debug_msg(1, "Project Parser: %s:%d : xxx Leaving block %d", file.latin1(), line_count, scope_block);
 	scope_block--;
 	vals.truncate(vals.length()-1);
     }
@@ -216,7 +224,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    case_sense = func[3].find('i') == -1;
 	}
 	QRegExp regexp(func[1], case_sense);
-	for(QStringList::Iterator varit = varlist.begin(); 
+	for(QStringList::Iterator varit = varlist.begin();
 	    varit != varlist.end(); ++varit) {
 	    if((*varit).contains(regexp)) {
 		(*varit) = (*varit).replace(regexp, func[2]);
@@ -226,16 +234,16 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	}
     } else {
 	if(op == "=") {
-	    if(!varlist.isEmpty()) 
-		debug_msg(1, "****Warning*****: Operator=(%s) clears variables previously set: %s:%d", 
+	    if(!varlist.isEmpty())
+		debug_msg(1, "****Warning*****: Operator=(%s) clears variables previously set: %s:%d",
 			  var.latin1(), file.latin1(), line_count);
 	    varlist.clear();
 	}
-	for(QStringList::Iterator valit = vallist.begin(); 
+	for(QStringList::Iterator valit = vallist.begin();
 	    valit != vallist.end(); ++valit) {
 	    if((*valit).isEmpty())
 		continue;
-	    if((op == "*=" && !(*varlist.find((*valit)))) || 
+	    if((op == "*=" && !(*varlist.find((*valit)))) ||
 	       op == "=" || op == "+=")
 		varlist.append((*valit));
 	    else if(op == "-=")
@@ -298,7 +306,7 @@ QMakeProject::read(QString project, QString pwd)
 		    start_dir = QDir::currentDirPath();
 		else
 		    start_dir = pwd;
-		    
+
 		QString dir = QDir::convertSeparators(start_dir);
 		QString ofile = Option::output.name();
 		if(ofile.findRev(Option::dir_sep) != -1) {
@@ -395,7 +403,7 @@ QMakeProject::isActiveConfig(const QString &x)
 {
     if(x.isEmpty())
 	return TRUE;
-	
+
     if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_UNIX_MODE) && x == "unix")
 	return TRUE;
     else if((Option::target_mode == Option::TARG_MAC9_MODE || Option::target_mode == Option::TARG_MACX_MODE) && x == "mac")
@@ -442,7 +450,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	}
 
 	QString file = args.first();
-	Option::fixPathToLocalOS(file);
+	file = Option::fixPathToLocalOS(file);
 	file.replace(QRegExp("\""), "");
 
 	int rep, rep_len;
@@ -467,10 +475,14 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 
 	debug_msg(1, "Project Parser: Including file %s.", file.latin1());
 	int l = line_count;
+	int sb = scope_block;
+	int sf = scope_flag;
 	bool r = read(file.latin1(), place);
 	if(r)
 	    vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(file);
 	line_count = l;
+	scope_flag = sf;
+	scope_block = sb;
 	return r;
     } else if(func == "error" || func == "message") {
 	if(args.count() != 1) {

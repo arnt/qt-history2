@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		+= qt console warn_on release
+CONFIG		+= qt console warn_on release professional
 HEADERS	= uic.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
@@ -13,11 +13,11 @@ SOURCES	= uic.cpp form.cpp object.cpp \
 		  ../shared/parser.cpp \
 		  ../integration/kdevelop/kdewidgets.cpp
 
+include( ../../../src/qt_professional.pri )
+
 TARGET		= uic
-INCLUDEPATH	+= ../shared ../util ../../../src/3rdparty/zlib/
+INCLUDEPATH	+= ../shared ../../../src/3rdparty/zlib/
 !zlib:unix:LIBS	+= -lz
-unix:LIBS	+= -lqutil
-win32:LIBS	+= $(QTDIR)/lib/qutil.lib
 DEFINES 	+= UIC
 DESTDIR		= ../../../bin
 

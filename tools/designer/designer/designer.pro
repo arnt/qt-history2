@@ -101,10 +101,12 @@ SOURCES	= command.cpp \
 		  sourcefile.cpp \
 		  wizardeditorimpl.cpp
 
+include( ../../../src/qt_professional.pri )
+
 TARGET	= designer
-INCLUDEPATH	+= ../shared ../util ../uilib ../../../src/3rdparty/zlib/
-unix:LIBS	+= -lqutil -L$(QTDIR)/lib -lqui
-win32:LIBS	+= $(QTDIR)/lib/qutil.lib $(QTDIR)/lib/qui.lib
+INCLUDEPATH	+= ../shared ../uilib ../../../src/3rdparty/zlib/
+unix:LIBS	+= -L$(QTDIR)/lib -lqui
+win32:LIBS	+= $(QTDIR)/lib/qui.lib
 DEFINES	+= DESIGNER
 DESTDIR	= ../../../bin
 win32-msvc:RC_FILE = designer.rc

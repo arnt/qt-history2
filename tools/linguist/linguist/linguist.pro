@@ -21,6 +21,7 @@ SOURCES		= finddialog.cpp \
 		  trwindow.cpp \
 		  listviews.cpp \
 		  ../shared/metatranslator.cpp
+include( ../../../src/qt_professional.pri )
 INCLUDEPATH	= ../pics \
 		  ../shared \
 		  ../../../src/kernel

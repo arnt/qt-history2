@@ -1,6 +1,5 @@
 TEMPLATE	= subdirs
-SUBDIRS		= util \
-		   uic \
+SUBDIRS		=  uic \
 		   uilib \
 		   designer \
 		   editor \
