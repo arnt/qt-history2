@@ -31,7 +31,8 @@ Q3WhatsThis::~Q3WhatsThis()
 bool Q3WhatsThis::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::WhatsThis && o->isWidgetType()) {
-	if (QString s = text(static_cast<QHelpEvent*>(e)->pos())) {
+	QString s = text(static_cast<QHelpEvent*>(e)->pos());
+	if (s.size()) {
 	    QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(), s, static_cast<QWidget*>(o));
 	    connect(QApplication::activePopupWidget(), SIGNAL(clicked(QString)),
 		    this, SLOT(hyperLinkClicked(QString)));

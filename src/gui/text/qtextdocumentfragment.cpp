@@ -573,7 +573,7 @@ void QTextHTMLImporter::import()
 //	    d->pieceTable->config()->title = node->text;
 	    continue;
 	}
-	if (!node->text)
+	if (node->text.size() == 0)
 	    continue;
 	hasBlock = false;
 
@@ -583,7 +583,7 @@ void QTextHTMLImporter::import()
 	format.setFontUnderline(node->fontUnderline);
 	format.setFontStrikeOut(node->fontStrikeOut);
 	format.setFontFixedPitch(node->fontFixedPitch);
-	if (!!node->fontFamily)
+	if (node->fontFamily.size())
 	    format.setFontFamily(node->fontFamily);
 	format.setFontPointSize(node->fontPointSize);
 	format.setFontWeight(node->fontWeight);

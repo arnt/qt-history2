@@ -370,8 +370,8 @@ QTextHtmlParserNode *QTextHtmlParser::newNode(int parent)
 {
     QTextHtmlParserNode *node = &nodes.last();
     // create new new, or reuse the last one
-    if (nodes.count() == 1 || !!node->tag
-	|| (!!node->text && node->text != QLatin1String("\n"))) {
+    if (nodes.count() == 1 || node->tag.size()
+	|| (node->text.size() && node->text != QLatin1String("\n"))) {
 	nodes.resize(nodes.size() + 1);
 	node = &nodes.last();
     } else {
@@ -550,7 +550,7 @@ void QTextHtmlParser::parseTag()
     }
 
     int p = last();
-    while (p && !at(p).tag)
+    while (p && at(p).tag.size() == 0)
 	p = at(p).parent;
 
     QTextHtmlParserNode *node = newNode(p);
@@ -775,7 +775,7 @@ void QTextHtmlParser::resolveNode()
 	node->fontUnderline = style->fontUnderline();
     if (style->definesFontStrikeOut())
 	node->fontStrikeOut = style->fontStrikeOut();
-    if (!!style->fontFamily())
+    if (style->fontFamily().size())
 	node->fontFamily = style->fontFamily();
     if (style->fontSize() >= 0)
 	node->fontPointSize = style->fontSize();
@@ -813,7 +813,7 @@ void QTextHtmlParser::parseAttributes()
 	    break;
 	QString key = parseWord().toLower();
 	QString value = QLatin1String("1");
-	if (!key)
+	if (key.size() == 0)
 	    continue;
 	eatSpace();
 	if (hasPrefix(QLatin1Char('=')) ){
@@ -821,11 +821,11 @@ void QTextHtmlParser::parseAttributes()
 	    eatSpace();
 	    value = parseWord();
 	}
-	if (!value)
+	if (value.size() == 0)
 	    continue;
 	if (node->tag == QLatin1String("font")) {
 	    // the infamous font tag
-	    if (key == QLatin1String("size") && !!value) {
+	    if (key == QLatin1String("size") && value.size()) {
 		int n = value.toInt();
 		if (value.at(0) == QLatin1Char('+') || value.at(0) == QLatin1Char('-'))
 		    n += 3;

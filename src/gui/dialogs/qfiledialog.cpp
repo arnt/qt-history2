@@ -2473,7 +2473,7 @@ void QFileDialog::init()
 	d->paths->insertItem( *openFolderIcon, fi.absFilePath() );
     }
 
-    if ( !!QDir::homeDirPath() ) {
+    if (QDir::homeDirPath().size()) {
 	if ( !d->paths->listBox()->findItem( QDir::homeDirPath() ) )
 	    d->paths->insertItem( *openFolderIcon, QDir::homeDirPath() );
     }

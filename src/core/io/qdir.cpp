@@ -343,7 +343,7 @@ QString QDir::filePath( const QString &fileName,
 	return QString(fileName);
 
     QString tmp = dPath;
-    if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && !!fileName &&
+    if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && fileName.size() &&
 			   fileName[0] != '/') )
 	tmp += '/';
     tmp += fileName;
@@ -396,7 +396,7 @@ QString QDir::absFilePath( const QString &fileName,
     } else
 #endif
     {
-	if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && !!fileName &&
+	if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && fileName.size() &&
 			       fileName[0] != '/') )
 	    tmp += '/';
 	tmp += fileName;

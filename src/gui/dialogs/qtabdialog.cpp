@@ -640,7 +640,7 @@ void QTabDialog::setTabEnabled( QWidget* w, bool enable)
 */
 void QTabDialog::setApplyButton( const QString &text )
 {
-    if ( !text && d->ab ) {
+    if (text.size() == 0 && d->ab) {
 	delete d->ab;
 	d->ab = 0;
 	setSizes();
@@ -684,7 +684,7 @@ void QTabDialog::setApplyButton()
 
 void QTabDialog::setHelpButton( const QString &text )
 {
-    if ( !text ) {
+    if (text.size() == 0) {
 	delete d->hb;
 	d->hb = 0;
 	setSizes();
@@ -731,7 +731,7 @@ void QTabDialog::setHelpButton()
 
 void QTabDialog::setDefaultButton( const QString &text )
 {
-    if ( !text ) {
+    if (text.size() == 0 ) {
 	delete d->db;
 	d->db = 0;
 	setSizes();
@@ -780,7 +780,7 @@ void QTabDialog::setDefaultButton()
 
 void QTabDialog::setCancelButton( const QString &text )
 {
-    if ( !text ) {
+    if (text.size() == 0) {
 	delete d->cb;
 	d->cb = 0;
 	setSizes();
@@ -1005,7 +1005,7 @@ void QTabDialog::paintEvent( QPaintEvent * )
 
 void QTabDialog::setOkButton( const QString &text )
 {
-    if ( !text ) {
+    if (text.size() == 0) {
 	delete d->ok;
 	d->ok = 0;
 	setSizes();
@@ -1061,7 +1061,7 @@ QString QTabDialog::tabLabel( QWidget * w ) const
 */
 void QTabDialog::changeEvent( QEvent *ev )
 {
-    if(ev->type() == QEvent::StyleChange) 
+    if(ev->type() == QEvent::StyleChange)
 	setSizes();
     QDialog::changeEvent(ev);
 }

@@ -1003,7 +1003,7 @@ void QMenuData::changeItem( int id, const QPixmap &pixmap )
 	bool fast_refresh = i != 0 &&
 	    i->width() == pixmap.width() &&
 	    i->height() == pixmap.height() &&
-	    !mi->text();
+	    mi->text().size() == 0;
 	if ( !mi->text_data.isNull() )		// delete text
 	    mi->text_data = QString::null;
 	if ( !pixmap.isNull() )

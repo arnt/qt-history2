@@ -147,8 +147,8 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
 
     These limitations are not enforced on Unix or Mac OS X.
 
-    \warning Creating multiple, simultaneous instances of QSettings writing 
-    to a text file may lead to data loss! This is a known issue which will 
+    \warning Creating multiple, simultaneous instances of QSettings writing
+    to a text file may lead to data loss! This is a known issue which will
     be fixed in a future release of Qt.
 
     \section1 Notes for Mac OS X Applications
@@ -502,7 +502,7 @@ QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
 	    qWarning("QSettings: error creating %s", dir.path().latin1());
     }
 
-    if ( !!defPath )
+    if ( defPath.size() )
 	searchPaths.append(defPath);
     searchPaths.append(dir.path());
 }

@@ -3120,8 +3120,8 @@ bool QWidget::isActiveWindow() const
 	return TRUE;
 #ifdef Q_WS_MAC
     extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
-    if(qt_mac_is_macdrawer(tlw) && 
-       tlw->parentWidget() && tlw->parentWidget()->isActiveWindow()) 
+    if(qt_mac_is_macdrawer(tlw) &&
+       tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
 	return TRUE;
 #endif
 #ifndef QT_NO_STYLE
@@ -4442,7 +4442,7 @@ bool QWidget::event( QEvent *e )
 	break;
 
     case QEvent::Enter:
-	if (d->statusTip) {
+	if (d->statusTip.size()) {
 	    QStatusTipEvent tip(d->statusTip);
 	    QApplication::sendEvent(this, &tip);
 	}
@@ -4450,7 +4450,7 @@ bool QWidget::event( QEvent *e )
 	break;
 
     case QEvent::Leave:
-	if (d->statusTip) {
+	if (d->statusTip.size()) {
 	    QStatusTipEvent tip(QString::null);
 	    QApplication::sendEvent(this, &tip);
 	}
@@ -4645,7 +4645,7 @@ bool QWidget::event( QEvent *e )
 	break;
 
     case QEvent::ToolTip:
-	if (d->toolTip) {
+	if (d->toolTip.size()) {
 	    Q4ToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
 	} else
 	    return false;
@@ -4653,7 +4653,7 @@ bool QWidget::event( QEvent *e )
 
 #ifndef QT_NO_WHATSTHIS
     case QEvent::WhatsThis:
-	if (d->whatsThis)
+	if (d->whatsThis.size())
             QWhatsThis::showText(static_cast<QHelpEvent *>(e)->globalPos(), d->whatsThis, this);
 	else
 	    return false;
@@ -4662,7 +4662,7 @@ bool QWidget::event( QEvent *e )
 #ifdef QT_ACCESSIBILITY_SUPPORT
     case QEvent::AccessibleQueryHelp: {
         QAccessibleInterface *iface = 0;
-        if ((bool)d->whatsThis && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
+        if (d->whatsThis.size() && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
             iface->setText(QAccessible::Help, 0, d->whatsThis);
             iface->release();
             return true;
@@ -4670,7 +4670,7 @@ bool QWidget::event( QEvent *e )
         break; }
     case QEvent::AccessibleQueryDescription: {
         QAccessibleInterface *iface = 0;
-        if ((bool)d->toolTip && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
+        if (d->toolTip.size() && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
             iface->setText(QAccessible::Description, 0, d->toolTip);
             iface->release();
             return true;
@@ -5985,8 +5985,8 @@ bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
 
   This feature is only present on Mac OS X and Windows 2000 and up.
 
-  \warning Changing this property from opaque to transparent might issue a 
-  paint event that needs to be processed before the window is displayed 
+  \warning Changing this property from opaque to transparent might issue a
+  paint event that needs to be processed before the window is displayed
   correctly. This affects mainly the use of QPixmap::grabWindow(). Also note
   that semi-transparent windows update and resize significantely slower than
   opaque windows.

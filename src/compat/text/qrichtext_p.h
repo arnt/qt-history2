@@ -128,7 +128,7 @@ public:
 
 
     bool isAnchor() const { return ( type & Anchor) != 0; }
-    bool isLink() const { return isAnchor() && !!p.custom->anchorHref; }
+    bool isLink() const { return isAnchor() && p.custom->anchorHref.count(); }
     QString anchorName() const;
     QString anchorHref() const;
     void setAnchor( const QString& name, const QString& href );

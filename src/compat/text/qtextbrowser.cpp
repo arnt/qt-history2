@@ -255,7 +255,7 @@ void QTextBrowser::setSource(const QString& name)
 	url += "#";
 	url += mark;
     }
-    if ( !d->home )
+    if (d->home.count() == 0)
 	d->home = url;
 
     if ( d->stack.isEmpty() || d->stack.top() != url)

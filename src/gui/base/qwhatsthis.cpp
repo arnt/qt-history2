@@ -469,7 +469,7 @@ void QWhatsThis::leaveWhatsThisMode()
 
 void QWhatsThisPrivate::say( QWidget * widget, const QString &text, int x, int y)
 {
-    if (!text)
+    if (text.size() == 0)
 	return;
     // make a fresh widget, and set it up
     QWhatsThat *whatsThat = new QWhatsThat(

@@ -1538,7 +1538,7 @@ bool QPopupMenu::event(QEvent *e)
     switch (e->type()) {
     case QEvent::WhatsThis: {
         QMenuItem *mi = mitems->value(itemAtPos(static_cast<QHelpEvent *>(e)->pos()), 0);
-        if (mi && (bool)mi->whatsThis()) {
+        if (mi && mi->whatsThis().size()) {
             QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(),
 				 mi->whatsThis(), this);
 	    return true;
@@ -1548,7 +1548,7 @@ bool QPopupMenu::event(QEvent *e)
     case QEvent::AccessibleQueryHelp: {
         QAccessibleInterface *iface = 0;
         QMenuItem *mi = mitems->value(itemAtPos(static_cast<QHelpEvent *>(e)->pos()), 0);
-        if (mi && (bool)mi->whatsThis()
+        if (mi && mi->whatsThis().size()
             && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
             iface->setText(QAccessible::Help, 0, mi->whatsThis());
             iface->release();

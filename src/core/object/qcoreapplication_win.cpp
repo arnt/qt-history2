@@ -957,7 +957,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
 					  FLAG_STRING((uint)HWND_TOP,       "HWND_TOP"),
 					  FLAG_STRING((uint)HWND_TOPMOST,   "HWND_TOPMOST"),
 					  FLAG_STRING());
-		if (!hwndAfter)
+		if (hwndAfter.size() == 0)
 		    hwndAfter = QString::number((uint)winPos->hwndInsertAfter, 16);
 		QString flags = flagCheck(winPos->flags,
 					  FLGSTR(SWP_DRAWFRAME),

@@ -928,7 +928,7 @@ int QSpinBox::mapTextToValue( bool* ok )
 {
     QString s = text();
     int newVal = s.toInt( ok );
-    if ( !(*ok) && !( !prefix() && !suffix() ) ) {// Try removing any pre/suffix
+    if ( !(*ok) && ( prefix().size() || suffix().size() ) ) {// Try removing any pre/suffix
 	s = cleanText();
 	newVal = s.toInt( ok );
     }

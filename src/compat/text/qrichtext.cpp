@@ -2336,16 +2336,16 @@ static QString margin_to_string( QStyleSheetItem* style, int t, int b, int l, in
 {
     QString s;
     if ( l > 0 )
-	s += QString(!!s?";":"") + "margin-left:" + QString::number(l+qMax(0,style->margin(QStyleSheetItem::MarginLeft))) + "px";
+	s += QString(s.size() ? ";" : "") + "margin-left:" + QString::number(l+qMax(0,style->margin(QStyleSheetItem::MarginLeft))) + "px";
     if ( r > 0 )
-	s += QString(!!s?";":"") + "margin-right:" + QString::number(r+qMax(0,style->margin(QStyleSheetItem::MarginRight))) + "px";
+	s += QString(s.size() ? ";" : "") + "margin-right:" + QString::number(r+qMax(0,style->margin(QStyleSheetItem::MarginRight))) + "px";
     if ( t > 0 )
-	s += QString(!!s?";":"") + "margin-top:" + QString::number(t+qMax(0,style->margin(QStyleSheetItem::MarginTop))) + "px";
+	s += QString(s.size() ? ";" : "") + "margin-top:" + QString::number(t+qMax(0,style->margin(QStyleSheetItem::MarginTop))) + "px";
     if ( b > 0 )
-	s += QString(!!s?";":"") + "margin-bottom:" + QString::number(b+qMax(0,style->margin(QStyleSheetItem::MarginBottom))) + "px";
+	s += QString(s.size() ? ";" : "") + "margin-bottom:" + QString::number(b+qMax(0,style->margin(QStyleSheetItem::MarginBottom))) + "px";
     if ( fl > 0 )
-	s += QString(!!s?";":"") + "text-indent:" + QString::number(fl+qMax(0,style->margin(QStyleSheetItem::MarginFirstLine))) + "px";
-    if ( !!s )
+	s += QString(s.size() ? ";" : "") + "text-indent:" + QString::number(fl+qMax(0,style->margin(QStyleSheetItem::MarginFirstLine))) + "px";
+    if (s.size())
 	return " style=\"" + s + "\"";
     return QString::null;
 }
@@ -6320,17 +6320,17 @@ QString Q3TextFormat::makeFormatChangeTags( Q3TextFormat* defaultFormat, Q3TextF
 	 || color().rgb() != defaultFormat->color().rgb() ) {
 	QString s;
 	if ( font().family() != defaultFormat->font().family() )
-	    s += QString(!!s?";":"") + "font-family:" + fn.family();
+	    s += QString(s.size()?";":"") + "font-family:" + fn.family();
 	if ( font().italic() && font().italic() != defaultFormat->font().italic() )
-	    s += QString(!!s?";":"") + "font-style:" + (font().italic() ? "italic" : "normal");
+	    s += QString(s.size()?";":"") + "font-style:" + (font().italic() ? "italic" : "normal");
 	if ( font().pointSize() != defaultFormat->font().pointSize() )
-	    s += QString(!!s?";":"") + "font-size:" + QString::number( fn.pointSize() ) + "pt";
+	    s += QString(s.size()?";":"") + "font-size:" + QString::number( fn.pointSize() ) + "pt";
 	if ( font().weight() != defaultFormat->font().weight() )
-	    s += QString(!!s?";":"") + "font-weight:" + QString::number( fn.weight() * 8 );
+	    s += QString(s.size()?";":"") + "font-weight:" + QString::number( fn.weight() * 8 );
 	if ( font().underline() != defaultFormat->font().underline() )
-	    s += QString(!!s?";":"") + "text-decoration:" + ( font().underline() ? "underline" : "none");
+	    s += QString(s.size()?";":"") + "text-decoration:" + ( font().underline() ? "underline" : "none");
 	if ( vAlign() != defaultFormat->vAlign() ) {
-	    s += QString(!!s?";":"") + "vertical-align:";
+	    s += QString(s.size()?";":"") + "vertical-align:";
 	    if ( vAlign() == Q3TextFormat::AlignSuperScript )
 		s += "super";
 	    else if ( vAlign() == Q3TextFormat::AlignSubScript )
@@ -6339,7 +6339,7 @@ QString Q3TextFormat::makeFormatChangeTags( Q3TextFormat* defaultFormat, Q3TextF
 		s += "normal";
 	}
 	if ( color().rgb() != defaultFormat->color().rgb() )
-	    s += QString(!!s?";":"") + "color:" + col.name();
+	    s += QString(s.size()?";":"") + "color:" + col.name();
 	if ( !s.isEmpty() )
 	    tag += "<span style=\"" + s + "\">";
     }
@@ -6429,7 +6429,7 @@ Q3TextFormat Q3TextFormat::makeTextFormat( const QStyleSheetItem *style, const Q
 	it = attr.find("face");
 	if (it != end) {
 	    QString family = (*it).section( ',', 0, 0 );
-	    if ( !!family )
+	    if (family.size())
 		format.fn.setFamily( family );
 	}
 	it = attr.find("size");
@@ -6526,7 +6526,7 @@ QTextImage::QTextImage( Q3TextDocument *p, const QMap<QString, QString> &attr, c
     reg = 0;
     QString imageName = attr["src"];
 
-    if (!imageName)
+    if (imageName.size() == 0)
 	imageName = attr["source"];
 
     if ( !imageName.isEmpty() ) {

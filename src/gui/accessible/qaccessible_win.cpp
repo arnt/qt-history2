@@ -85,7 +85,7 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 	break;
     }
 
-    if ( !!soundName ) {
+    if (soundName.size()) {
 	QT_WA( {
 	    PlaySoundW( (TCHAR*)soundName.ucs2(), 0, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT );
 	} , {
@@ -825,7 +825,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDescription( VARIANT varID,
 	return E_FAIL;
 
     QString descr = accessible->text( Description, varID.lVal );
-    if ( !!descr ) {
+    if (descr.size()) {
 	*pszDescription = QStringToBSTR( descr );
 	return S_OK;
     }
@@ -840,7 +840,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accHelp( VARIANT varID, BSTR *
 	return E_FAIL;
 
     QString help = accessible->text( Help, varID.lVal );
-    if ( !!help ) {
+    if (help.size()) {
 	*pszHelp = QStringToBSTR( help );
 	return S_OK;
     }
@@ -860,7 +860,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accKeyboardShortcut( VARIANT v
 	return E_FAIL;
 
     QString sc = accessible->text( Accelerator, varID.lVal );
-    if ( !!sc ) {
+    if (sc.size()) {
 	*pszKeyboardShortcut = QStringToBSTR( sc );
 	return S_OK;
     }
@@ -875,7 +875,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accName( VARIANT varID, BSTR* 
 	return E_FAIL;
 
     QString n = accessible->text( Name, varID.lVal );
-    if ( !!n ) {
+    if (n.size()) {
 	*pszName = QStringToBSTR( n );
 	return S_OK;
     }

@@ -1070,7 +1070,7 @@ void Q3Action::showStatusText( const QString& text )
     QObject *s = (QObject*)sender();
     if ( s ) {
 	QPopupMenu *menu = qt_cast<QPopupMenu*>(s);
-	if ( menu && !!text )
+	if (menu && text.size())
 	    lastmenu = menu;
 	else if ( menu && text.isEmpty() ) {
 	    if ( lastmenu && menu != lastmenu )
@@ -1302,12 +1302,12 @@ void Q3ActionGroupPrivate::update( const Q3ActionGroup* that )
 
 #ifndef QT_NO_TOOLTIP
 	QToolTip::remove( combobox );
-	if ( !!that->toolTip() )
+	if (that->toolTip().size())
 	    QToolTip::add( combobox, that->toolTip() );
 #endif
 #ifndef QT_NO_WHATSTHIS
 	QWhatsThis::remove( combobox );
-	if ( !!that->whatsThis() )
+	if (that->whatsThis().size())
 	    QWhatsThis::add( combobox, that->whatsThis() );
 #endif
 
@@ -1324,12 +1324,12 @@ void Q3ActionGroupPrivate::update( const Q3ActionGroup* that )
 
 #ifndef QT_NO_TOOLTIP
 	QToolTip::remove(*mb);
-	if ( !!that->toolTip() )
+	if (that->toolTip().size())
 	    QToolTip::add( button, that->toolTip() );
 #endif
 #ifndef QT_NO_WHATSTHIS
 	QWhatsThis::remove( button );
-	if ( !!that->whatsThis() )
+	if (that->whatsThis().size())
 	    QWhatsThis::add( button, that->whatsThis() );
 #endif
     }
@@ -1646,20 +1646,20 @@ bool Q3ActionGroup::addTo( QWidget* w )
 		    btn->setIconSet( iconSet() );
 		else if ( !defAction->iconSet().isNull() )
 		    btn->setIconSet( defAction->iconSet() );
-		if ( !!text() )
+		if (text().size())
 		    btn->setTextLabel( text() );
-		else if ( !!defAction->text() )
+		else if (defAction->text().size())
 		    btn->setTextLabel( defAction->text() );
 #ifndef QT_NO_TOOLTIP
-		if ( !!toolTip() )
+		if (toolTip().size())
 		    QToolTip::add( btn, toolTip() );
-		else if ( !!defAction->toolTip() )
+		else if (defAction->toolTip().size())
 		    QToolTip::add( btn, defAction->toolTip() );
 #endif
 #ifndef QT_NO_WHATSTHIS
-		if ( !!whatsThis() )
+		if (whatsThis().size())
 		    QWhatsThis::add( btn, whatsThis() );
-		else if ( !!defAction->whatsThis() )
+		else if (defAction->whatsThis().size())
 		    QWhatsThis::add( btn, defAction->whatsThis() );
 #endif
 
@@ -1683,11 +1683,11 @@ bool Q3ActionGroup::addTo( QWidget* w )
 		connect( box, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->comboboxes.append( box );
 #ifndef QT_NO_TOOLTIP
-		if ( !!toolTip() )
+		if (toolTip().size())
 		    QToolTip::add( box, toolTip() );
 #endif
 #ifndef QT_NO_WHATSTHIS
-		if ( !!whatsThis() )
+		if (whatsThis().size())
 		    QWhatsThis::add( box, whatsThis() );
 #endif
 

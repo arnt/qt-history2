@@ -485,7 +485,7 @@ void QDialog::contextMenuEvent( QContextMenuEvent *e )
 	if (!w)
 	    return;
     }
-    while (w && !w->whatsThis() && !w->testAttribute(WA_CustomWhatsThis))
+    while (w && w->whatsThis().size() == 0 && !w->testAttribute(WA_CustomWhatsThis))
 	w = w->isTopLevel() ? 0 : w->parentWidget();
     if (w) {
 	QPopupMenu p(0,"qt_whats_this_menu");

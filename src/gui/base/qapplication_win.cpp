@@ -3187,7 +3187,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    d->createTLExtra();
 	    QString txt;
 #ifndef Q_OS_TEMP
-	    if ( IsIconic(winId()) && !!windowIconText() )
+	    if ( IsIconic(winId()) && windowIconText().size() )
 		txt = windowIconText();
 	    else
 #endif
@@ -3195,7 +3195,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		    txt = windowTitle();
 	    if(isWindowModified())
 		txt += " *";
-	    if ( !!txt ) {
+	    if ( txt.size() ) {
 		QT_WA( {
 		    SetWindowText( winId(), (TCHAR*)txt.ucs2() );
 		} , {

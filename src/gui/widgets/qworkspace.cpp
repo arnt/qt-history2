@@ -334,8 +334,8 @@ QSize QWorkspace::sizeHint() const
 /*! \reimp */
 void QWorkspace::setPaletteBackgroundColor( const QColor & c )
 {
-    QPalette p = palette(); 
-    p.setColor(backgroundRole(), c); 
+    QPalette p = palette();
+    p.setColor(backgroundRole(), c);
     setPalette(p);
 }
 
@@ -343,8 +343,8 @@ void QWorkspace::setPaletteBackgroundColor( const QColor & c )
 /*! \reimp */
 void QWorkspace::setPaletteBackgroundPixmap( const QPixmap & pm )
 {
-    QPalette p = palette(); 
-    p.setBrush(backgroundRole(), QBrush(pm)); 
+    QPalette p = palette();
+    p.setBrush(backgroundRole(), QBrush(pm));
     setPalette(p);
 }
 
@@ -643,7 +643,7 @@ void QWorkspace::insertIcon( QWidget* w )
 	return;
     d->icons.append( w );
     if (w->parentWidget() != this ) {
-	w->setParent(this, 0); 
+	w->setParent(this, 0);
 	w->move(0,0);
     }
     QRect cr = updateWorkspace();
@@ -752,7 +752,7 @@ void QWorkspace::minimizeWindow( QWidget* w)
 	    wasMax = TRUE;
 	    d->maxWindow = 0;
 	    inTitleChange = TRUE;
-	    if ( !!d->topTitle )
+	    if ( d->topTitle.size() )
 		topLevelWidget()->setWindowTitle( d->topTitle );
 	    inTitleChange = FALSE;
 	    if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) )
@@ -803,7 +803,7 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    c->setGeometry( d->maxRestore );
 	    d->maxWindow = 0;
 	    inTitleChange = TRUE;
-	    if ( !!d->topTitle )
+	    if ( d->topTitle.size() )
 		topLevelWidget()->setWindowTitle( d->topTitle );
 	    inTitleChange = FALSE;
 	} else {
@@ -862,7 +862,7 @@ void QWorkspace::maximizeWindow( QWidget* w)
 		c->titlebar->setMovable( FALSE );
 	}
 	inTitleChange = TRUE;
-	if ( !!d->topTitle )
+	if ( d->topTitle.size() )
 	    topLevelWidget()->setWindowTitle( tr("%1 - [%2]")
 		.arg(d->topTitle).arg(c->windowTitle()) );
 	inTitleChange = FALSE;
@@ -1007,7 +1007,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 		    hideMaximizeControls();
 		}
 		inTitleChange = TRUE;
-		if ( !!d->topTitle )
+		if ( d->topTitle.size() )
 		    topLevelWidget()->setWindowTitle( d->topTitle );
 		inTitleChange = FALSE;
 	    }
@@ -1015,7 +1015,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 	updateWorkspace();
 	break;
     case QEvent::ShowToParent:
-	if ( (qstrcmp("QWorkspaceChild", o->className()) == 0) 
+	if ( (qstrcmp("QWorkspaceChild", o->className()) == 0)
 	     && !d->focus.contains((QWorkspaceChild*)o) )
 	    d->focus.append( (QWorkspaceChild*)o );
 	updateWorkspace();
@@ -1032,7 +1032,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 		d->topTitle = tlw->windowTitle();
 	}
 
-	if ( d->maxWindow && !!d->topTitle )
+	if ( d->maxWindow && d->topTitle.size() )
 	    topLevelWidget()->setWindowTitle( tr("%1 - [%2]")
 		.arg(d->topTitle).arg(d->maxWindow->windowTitle()));
 	inTitleChange = FALSE;
@@ -2367,9 +2367,9 @@ QRect QWorkspace::updateWorkspace()
 	    vsbExt = 0;
 
 	if ( showv ) {
-	    d->vbar->setSingleStep(qMax(height() / 12, 30)); 
+	    d->vbar->setSingleStep(qMax(height() / 12, 30));
 	    d->vbar->setPageStep(height() - hsbExt);
-	    d->vbar->setMinimum(qMin(0, d->yoffset + qMin(0, r.top()))); 
+	    d->vbar->setMinimum(qMin(0, d->yoffset + qMin(0, r.top())));
 	    d->vbar->setMaximum(qMax(0, d->yoffset + qMax(0, r.bottom() - height() + hsbExt + 1)));
 	    d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
 	    d->vbar->setValue( d->yoffset );

@@ -500,7 +500,7 @@ static void drawSeparator(QPainter *p, int x1, int y1, int x2, int y2,
 
 static void drawSGIPrefix(QPainter *p, int x, int y, QString* miText)
 {
-    if (miText && (!!(*miText))) {
+    if (miText && (miText->size())) {
         int amp = 0;
         bool nextAmp = FALSE;
         while ((amp = miText->indexOf('&', amp)) != -1) {
@@ -1058,7 +1058,7 @@ void QSGIStyle::drawControl(ControlElement element,
 	    int xm = sgiItemFrame + checkcol + sgiItemHMargin;
 
 	    QString s = mi->text();
-	    if (!!s) {
+	    if (s.size()) {
 		int t = s.indexOf('\t');
 		int m = sgiItemVMargin;
 		const int text_flags = AlignVCenter | DontClip | SingleLine; //special underline for &x
@@ -1196,7 +1196,7 @@ void QSGIStyle::drawControl(ControlElement element,
 	    }
 
 	    QString s = mi->text();
-	    if ( !!s ) {
+	    if (s.size()) {
 		int t = s.indexOf( '\t' );
 		int m = sgiItemVMargin;
 		const int text_flags = AlignVCenter | DontClip | SingleLine; //special underline for &x
@@ -1258,7 +1258,7 @@ void QSGIStyle::drawControl(ControlElement element,
 			pal, mi->isEnabled(), &pix, "", -1, &pal.buttonText().color());
 	    }
 
-	    if (!!mi->text()) {
+	    if (mi->text().size()) {
 		QString* text = new QString(mi->text());
 		QRect br = p->fontMetrics().boundingRect(x, y-2, w+1, h,
 			AlignCenter|DontClip|SingleLine|ShowPrefix, mi->text());
@@ -1298,7 +1298,7 @@ void QSGIStyle::drawControl(ControlElement element,
 		drawItem(p, r, AlignCenter|DontClip|SingleLine,
 			pal, mi->isEnabled(), mi->pixmap(), "", -1, &pal.buttonText().color());
 
-	    if (!!mi->text()) {
+	    if (mi->text().size()) {
 		QString* text = new QString(mi->text());
 		QRect br = p->fontMetrics().boundingRect(x, y-2, w+1, h,
 			AlignCenter|DontClip|SingleLine|ShowPrefix, mi->text());

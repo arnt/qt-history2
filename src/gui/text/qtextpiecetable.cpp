@@ -203,7 +203,7 @@ void QTextPieceTable::insertBlockSeparator(int pos, int blockFormat)
 
 void QTextPieceTable::insert(int pos, const QString &str, int format)
 {
-    if (!str)
+    if (str.size() == 0)
 	return;
     Q_ASSERT(pos > 0);
     Q_ASSERT(!str.contains(QTextParagraphSeparator));
