@@ -63,7 +63,10 @@
   The text can be changed anytime later with setText(). You can also
   define a pixmap with setPixmap(). The text/pixmap is manipulated as
   necessary to create "disabled" appearance according to the
-  respective GUI style when the button is disabled.
+  respective GUI style when the button is disabled. A command button
+  can, in addition to the text or pixmap label, also display a little
+  icon. Use the extended constructor or setIconSet() to define this
+  icon.
 
   A push button emits the signal clicked() when it is activated,
   either with the mouse, the spacebar or a keyboard accelerator.
@@ -94,7 +97,7 @@
   </ul>
 
   As a general rule, use a push button when the application or dialog
-  window performs an action when the user clicks it (like Apply,
+  window performs an action when the user clicks on it (like Apply,
   Cancel, Close, Help, ...) \e and when the widget is supposed to have
   a wide, rectangular shape with a text label.  Small, typically
   square buttons that change the state of the window rather than
@@ -128,7 +131,11 @@
 class QPushButtonPrivate
 {
 public:
+    QPushButtonPrivate()
+	:iconset( 0 )
+    {}
     QGuardedPtr<QPopupMenu> popup;
+    QIconSet* iconset;
 };
 
 static QPtrDict<QPushButtonPrivate> *d_ptr = 0;
@@ -152,7 +159,7 @@ static QPushButtonPrivate* d( const QPushButton* foo )
 
 static bool has_d( const QPushButton* foo )
 {
-    return !d_ptr || !d_ptr->find( (void*)foo );
+    return d_ptr && d_ptr->find( (void*)foo );
 }
 
 static void delete_d( const QPushButton* foo )
@@ -188,6 +195,26 @@ QPushButton::QPushButton( const QString &text, QWidget *parent,
     init();
     setText( text );
 }
+
+
+/*!
+  Constructs a push button with an \a icon and a \a text.
+
+  Note that you can also pass a QPixmap object as icon (thanks to C++'
+  implicit type conversion).
+
+  The \a parent and \a name arguments are sent to the QWidget constructor.
+*/
+
+QPushButton::QPushButton( const QIconSet& icon, const QString &text,
+			  QWidget *parent, const char *name )
+	: QButton( parent, name )
+{
+    init();
+    setText( text );
+    setIconSet( icon );
+}
+
 
 
 /*!
@@ -334,7 +361,7 @@ QSize QPushButton::sizeHint() const
 
     if ( pixmap() ) {
 	QPixmap *pm = (QPixmap *)pixmap();
-	w = pm->width()	 + 6;
+	w = pm->width() + 6;
 	h = pm->height() + 6;
     } else {
 	QString s( text() );
@@ -342,10 +369,19 @@ QSize QPushButton::sizeHint() const
 	    s = QString::fromLatin1("XXXX");
 	QFontMetrics fm = fontMetrics();
 	QSize sz = fm.size( ShowPrefix, s );
-	w = sz.width()	+ 6;
+	w = sz.width() + 6;
 	h = sz.height() + sz.height()/8 + 10;
 	w += h;
     }
+
+
+    if ( iconSet() && !iconSet()->isNull() ) {
+	int iw = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
+	int ih = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height();
+	w += iw + 4;
+	h = QMAX( h, ih + 6 );
+    }
+
 
     if ( isDefault() || autoDefault() ) {
 	w += 2*style().buttonDefaultIndicatorWidth();
@@ -380,8 +416,6 @@ QSizePolicy QPushButton::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
-
-
 
 /*!
   Reimplements QWidget::move() for internal purposes.
@@ -600,6 +634,39 @@ void QPushButton::setPopup( QPopupMenu* popup )
     ::d( this )->popup = popup;
     autoDefButton = FALSE;
     setIsMenuButton( popup != 0 );
+}
+
+
+/*!
+  Sets the button to display the icon \a icon in addition to its text
+  or pixmap
+
+  \sa iconSet()
+ */
+void QPushButton::setIconSet( const QIconSet& icon )
+{
+    if ( ::d( this )->iconset )
+	*::d( this )->iconset = icon;
+    else
+	::d( this )->iconset = new QIconSet( icon );
+
+    if ( isVisible() ) {
+	update();
+	updateGeometry();
+    }
+}
+
+
+/*!
+  Returns the button's icon or 0 if no icon has been defined.
+
+  \sa setIconSet()
+ */
+QIconSet* QPushButton::iconSet() const
+{
+    if ( !::has_d( this ) )
+	return 0;
+    return ::d( this )->iconset;
 }
 
 /*!

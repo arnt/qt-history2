@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qbutton.h"
+#include "qiconset.h"
 #endif // QT_H
 
 #if 0
@@ -40,6 +41,7 @@ class Q_EXPORT QPushButton : public QButton
 public:
     QPushButton( QWidget *parent, const char *name=0 );
     QPushButton( const QString &text, QWidget *parent, const char* name=0 );
+    QPushButton( const QIconSet& icon, const QString &text, QWidget *parent, const char* name=0 );
     ~QPushButton();
 
     QSize	sizeHint() const;
@@ -64,9 +66,12 @@ public:
     bool	isMenuButton() const;
 
     virtual void setOn( bool );
-    
+
     void setPopup( QPopupMenu* popup );
     QPopupMenu* popup() const;
+    
+    void setIconSet( const QIconSet& );
+    QIconSet* iconSet() const;
 
 public slots:
     void	toggle();

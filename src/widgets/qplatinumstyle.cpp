@@ -496,7 +496,7 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 	int xx = x+w-dx-4;
 	int yy = y-3;
 	int hh = h+6;
-	    
+	
 	if ( !on ) {
 	    p->setPen( g.mid() );
 	    p->drawLine(xx, yy+2, xx, yy+hh-3);
@@ -507,10 +507,24 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 	}
 	drawArrow( p, DownArrow, FALSE,
 		   x+w-dx-1, y+2, dx, h-4,
-		   btn->colorGroup(), 
+		   btn->colorGroup(),
 		   btn->isEnabled() );
 	w -= dx;
     }
+    
+    if ( btn->iconSet() && !btn->iconSet()->isNull() ) {
+	QIconSet::Mode mode = btn->isEnabled()
+			      ? QIconSet::Normal : QIconSet::Disabled;
+	if ( mode == QIconSet::Normal && btn->hasFocus() )
+	    mode = QIconSet::Active;
+	QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode );
+	int pixw = pixmap.width();
+	int pixh = pixmap.height();
+	p->drawPixmap( x+2, y+h/2-pixh/2, pixmap );
+	x += pixw + 4;
+	w -= pixw + 4;
+    }
+    
     drawItem( p, x, y, w, h,
 	      AlignCenter|ShowPrefix,
 	      btn->colorGroup(), btn->isEnabled(),

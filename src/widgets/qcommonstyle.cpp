@@ -111,14 +111,27 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 	int dx = menuButtonIndicatorWidth( btn->height() );
  	drawArrow( p, DownArrow, FALSE,
  	 	   x+w-dx, y+2, dx-4, h-4,
- 		   btn->colorGroup(), 
+ 		   btn->colorGroup(),
  		   btn->isEnabled() );
 	w -= dx;
     }
+
+    if ( btn->iconSet() && !btn->iconSet()->isNull() ) {
+	QIconSet::Mode mode = btn->isEnabled()
+			      ? QIconSet::Normal : QIconSet::Disabled;
+	if ( mode == QIconSet::Normal && btn->hasFocus() )
+	    mode = QIconSet::Active;
+	QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode );
+	int pixw = pixmap.width();
+	int pixh = pixmap.height();
+	p->drawPixmap( x+2, y+h/2-pixh/2, pixmap );
+	x += pixw + 4;
+	w -= pixw + 4;
+    }
     drawItem( p, x, y, w, h,
-	       AlignCenter|ShowPrefix,
-	       btn->colorGroup(), btn->isEnabled(),
-	       btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
+	      AlignCenter | ShowPrefix,
+	      btn->colorGroup(), btn->isEnabled(),
+	      btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
 }
 
 
@@ -272,7 +285,7 @@ QRect QStyle::pushButtonContentsRect( QPushButton* btn )
     int fw = 0;
     if ( btn->isDefault() || btn->autoDefault() )
 	fw = buttonDefaultIndicatorWidth();
-    
+
     QRect r = buttonRect( fw, fw, btn->width()-2*fw, btn->height()-2*fw );
     if ( btn->isDown() || btn->isOn() ){
 	int sx = 0;
