@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <qvariant.h>
+
 #include "qdesigner_customwidget.h"
 #include <abstractformwindow.h>
 
