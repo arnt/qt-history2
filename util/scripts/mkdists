@@ -27,7 +27,7 @@ DO_FREE=yes
 DO_WIN=yes
 DO_X11=yes
 DO_MAC=yes
-DO_QWS=yes
+DO_EMBEDDED=yes
 DO_US=yes
 #other
 DO_GZIP=auto
@@ -92,7 +92,7 @@ showhelp()
     echo "  -no-mac / -do-mac   (default $DO_MAC)"
     echo "  -no-win / -do-win   (default $DO_WIN)"
     echo "  -no-x11 / -do-x11   (default $DO_X11)"
-    echo "  -no-qws / -do-qws   (default $DO_QWS)"
+    echo "  -no-embedded / -do-qws   (default $DO_EMBEDDED)"
     echo
 
     echo "Various:"
@@ -175,7 +175,7 @@ while [ -n "$1" ]; do
    win) DO_WIN=$VAL ;;
    x11) DO_X11=$VAL ;;
    mac) DO_MAC=$VAL ;;
-   qws) DO_QWS=$VAL ;;
+   embedded) DO_EMBEDDED=$VAL ;;
    #paths
    qdoc_path) QDOC_PATH=$VAL;;
    outdir) OUT_TREE=$VAL;;
@@ -553,15 +553,13 @@ copy_platform_files() {
 	o_file=$a_file
 	{ [ -z $a_file ] || [ -d $a ] ; } && continue
 
-	if [ "$platform" = "qws" ]; then
+	if [ "$platform" = "embedded" ]; then
 	    case `basename $a` in
 	    LICENSE|MAINIFEST|ANNOUNCE|README.QT|README|LICENSE.QPL) continue ;;
 	    README.qws) o_file="README" ;;
 	    esac
 	elif [ "$platform" = "x11" ]; then
 	    [ `basename $a` = "README.qws" ] && continue
-	elif [ "$platform" = "win" ]; then
-	    [ `basename $a` = "qmake.cache" ] && o_file=".qmake.cache"
 	fi
 	case $edition in
 	professional-US|enterprise-US)
@@ -590,7 +588,7 @@ copy_platform_files() {
     return 0
 }
 
-for plat in mac win x11 qws; do
+for plat in mac win x11 embedded; do
     #handle commandline options
     platformname=$plat
     plat2=$plat
@@ -603,9 +601,8 @@ for plat in mac win x11 qws; do
 	plat2=unix
 	plat3=mac9
 	;;
-    qws)
+    embedded)
 	[ "x$DO_QWS" = "xyes" ] || continue
-	platformname="embedded"
 	plat2=unix
 	;;
     x11)
@@ -634,7 +631,7 @@ for plat in mac win x11 qws; do
 	    dist_for_edition="commercial"
 	    ;;
 	free)
-	    { [ "$plat" != "qws" ] && [ "$plat" != "x11" ]; } || [ "x$DO_FREE" != "xyes" ] && continue
+	    { [ "$plat" != "embedded" ] && [ "$plat" != "x11" ]; } || [ "x$DO_FREE" != "xyes" ] && continue
 	    ;;
 	esac
 
@@ -699,8 +696,8 @@ for plat in mac win x11 qws; do
 	    rm -f $PLATDIR/tools/designer/util/util-pro.pro
 	    ;;
 	esac
-	if [ "$plat" != "qws" ]; then
-	    #Remove qws from mkspec so that configure does not think we are running embedded
+	if [ "$plat" != "embedded" ]; then
+	    #Remove embedded from mkspec so that configure does not think we are running embedded
 	    rm -rf $PLATDIR/mkspecs/qws
 	fi
 	rm -rf "$PLATDIR/examples/kiosk"
@@ -718,7 +715,7 @@ for plat in mac win x11 qws; do
 
 	mkdir -p $PLATDIR/lib
 	echo "If this directory is empty, you forgot to build the Qt library" >$PLATDIR/lib/README
-	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ] || [ "$plat" = "mac" ]; then
+	if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ] || [ "$plat" = "mac" ]; then
 	    #configure.bat is for windows only
 	    rm -f "$PLATDIR/configure.bat"
 	    rm -f "$PLATDIR/bin/configure.exe"
@@ -727,7 +724,7 @@ for plat in mac win x11 qws; do
 	    mv "$PLATDIR/GNUmakefile" "$PLATDIR/Makefile"
 
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
-	    if [ "$plat" = "qws" ]; then
+	    if [ "$plat" = "embedded" ]; then
 		rm -rf "$PLATDIR/examples/biff"
 		rm -rf "$PLATDIR/examples/desktop"
 		rm -rf "$PLATDIR/examples/overlay_x11"
@@ -783,7 +780,7 @@ for plat in mac win x11 qws; do
 	    status "Running qdoc.."
 	    QTDIR=$PLATDIR $QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf >/dev/null 2>&1 || die "could not run qdoc, stopped"
 	    find $PLATDIR/gif -exec mv {} $PLATDIR/doc/html/ \; >/dev/null 2>&1
-	    if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
+	    if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ]; then
 		QTDIR=$PLATDIR/ $DISTDIR/qt/util/qdoc/man  $PLATDIR/ >/dev/null 2>&1 || die "could not run man, stopped"
 	    fi
 	fi
@@ -830,7 +827,7 @@ for plat in mac win x11 qws; do
 	#actually package
 	status "Packaging.." "1"
 	(cd "$DISTDIR"
-	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ] || [ "$plat" = "mac" ]; then
+	if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ] || [ "$plat" = "mac" ]; then
 	    status "Tar.."
 	    tar cf "$OUT_TREE/${PLATNAME}.tar" "${PLATNAME}"
 	    [ "$DO_GZIP" = "yes" ] && status "Gzip.." && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
