@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#61 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#62 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -787,8 +787,7 @@ void QXmlInputSource::init()
     userStringData = 0;
     userRawData = 0;
     rawData = 0;
-    encStream = 0;
-    encBuffer = 0;
+    encMapper = 0;
 }
 
 /*!
@@ -841,11 +840,11 @@ QXmlInputSource::QXmlInputSource( QFile& file )
 */
 QXmlInputSource::~QXmlInputSource()
 {
+    delete encMapper;
+
     delete userStringData;
     delete userRawData;
     delete rawData;
-    delete encBuffer;
-    delete encStream;
 }
 
 /*!
@@ -870,7 +869,7 @@ QXmlInputSource::~QXmlInputSource()
 QString QXmlInputSource::data()
 {
     QString str;
-    if ( rawData!=0  && encStream==0 ) {
+    if ( rawData!=0  && encMapper==0 ) {
 	// first call of data()
 	str = inputToString( rawData );
 	return str;
@@ -957,37 +956,29 @@ void QXmlInputSource::getData()
 */
 QString QXmlInputSource::inputToString( QByteArray *data )
 {
-    if ( encStream == 0 ) {
-	QString input;
-	QChar tmp;
-
-	encBuffer = new QBuffer( *data );
-	encBuffer->open( IO_ReadOnly );
-	encStream = new QTextStream( encBuffer );
-	// assume UTF8 or UTF16 at first
-	encStream->setEncoding( QTextStream::UnicodeUTF8 );
-	// read the first 5 characters
-	for ( int i=0; i<5; i++ ) {
-	    *encStream >> tmp;
-	    input += tmp;
-	    // ### unexpected EOF?
+    if ( encMapper == 0 ) {
+	QTextCodec *codec;
+	// look for byte order mark and read the first 5 characters
+	if ( data->size() >= 2 && 
+		( (data->at(0)==(char)0xfe && data->at(1)==(char)0xff ) ||
+		  (data->at(0)==(char)0xff && data->at(1)==(char)0xfe ) )) {
+	    codec = QTextCodec::codecForMib( 1000 ); // UTF-16
+	} else {
+	    codec = QTextCodec::codecForMib( 106 ); // UTF-8
 	}
+	encMapper = codec->makeDecoder();
+	QString input = encMapper->toUnicode( data->data(), data->size() );
+	// ### unexpected EOF? (for incremental parsing)
 	// starts the document with an XML declaration?
-	if ( input == "<?xml" ) {
-	    // read the whole XML declaration
-	    do {
-		*encStream >> tmp;
-		input += tmp;
-		// ### unexpected EOF?
-	    } while( tmp != '>' );
-	    // and try to find out if there is an encoding
+	if ( input.find("<?xml") == 0 ) {
+	    // try to find out if there is an encoding
+	    int endPos = input.find( ">" );
 	    int pos = input.find( "encoding" );
-	    if ( pos != -1 ) {
+	    if ( pos < endPos && pos != -1 ) {
 		QString encoding;
 		do {
 		    pos++;
-		    if ( pos > (int)input.length() ) {
-			input += encStream->read();
+		    if ( pos > endPos ) {
 			return input;
 		    }
 		} while( input[pos] != '"' && input[pos] != '\'' );
@@ -995,26 +986,23 @@ QString QXmlInputSource::inputToString( QByteArray *data )
 		while( input[pos] != '"' && input[pos] != '\'' ) {
 		    encoding += input[pos];
 		    pos++;
-		    if ( pos > (int)input.length() ) {
-			input += encStream->read();
+		    if ( pos > endPos ) {
 			return input;
 		    }
 		}
 
-		delete encStream;
-		encStream = new QTextStream( encBuffer );
-		encStream->setCodec( QTextCodec::codecForName( encoding ) );
-		encBuffer->reset();
-		return encStream->read();
+		codec = QTextCodec::codecForName( encoding );
+		if ( codec == 0 ) {
+		    return input;
+		}
+		delete encMapper;
+		encMapper = codec->makeDecoder();
+		return encMapper->toUnicode( data->data(), data->size() );
 	    }
 	}
-	input += encStream->read();
 	return input;
     }
-    encBuffer->close();
-    encBuffer->setBuffer( *data );
-    encBuffer->open( IO_ReadOnly );
-    return encStream->read();
+    return encMapper->toUnicode( data->data(), data->size() );
 }
 
 

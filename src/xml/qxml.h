@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#31 $
+** $Id: //depot/qt/main/src/xml/qxml.h#32 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -172,8 +172,7 @@ private:
     QString *userStringData;
     QByteArray *userRawData;
     QByteArray *rawData;
-    QBuffer *encBuffer;
-    QTextStream *encStream;
+    QTextDecoder *encMapper;
 
     QXmlInputSourcePrivate *d;
 };
