@@ -1284,14 +1284,14 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	c = currentItem();
 	if ( c > 0 )
 	    setCurrentItem( c-1 );
-	else
-	    setCurrentItem( count()-1 );
     } else if ( d->usingListBox() && e->key() == Key_Down ) {
 	c = currentItem();
 	if ( ++c < count() )
 	    setCurrentItem( c );
-	else
-	    setCurrentItem( 0 );
+    } else if ( d->usingListBox() && e->key() == Key_Home ) {
+	setCurrentItem( 0 );
+    } else if ( d->usingListBox() && e->key() == Key_End ) {
+	setCurrentItem( count()-1 );
     } else if ( /* d->useCompletion && */ d->ed == 0 &&
 		e->text() != QString::null ) {
 	// strictly speaking, we should test for useCompletion, but
