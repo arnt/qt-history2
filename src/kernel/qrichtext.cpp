@@ -2085,6 +2085,14 @@ void QTextDocument::selectAll( int id )
     QTextParag *p = fParag;
     while ( p ) {
 	p->setSelection( id, 0, p->length() - 1 );
+	for ( int i = 0; i < (int)p->length(); ++i ) {
+	    if ( p->at( i )->isCustom() && p->at( i )->customItem()->isNested() ) {
+		QTextTable *t = (QTextTable*)p->at( i )->customItem();
+		QPtrList<QTextTableCell> tableCells = t->tableCells();
+		for ( QTextTableCell *c = tableCells.first(); c; c = tableCells.next() )
+		    c->richText()->selectAll( id );
+	    }
+	}
 	p = p->next();
     }
 
