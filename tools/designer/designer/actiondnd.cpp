@@ -954,6 +954,8 @@ QDesignerPopupMenu::QDesignerPopupMenu( QWidget *w )
 
 void QDesignerPopupMenu::contextMenuEvent( QContextMenuEvent *e )
 {
+    Q_UNUSED( e );
+#if 0
     e->accept();
     int itm = itemAtPos( e->pos(), FALSE );
     if ( itm == -1 )
@@ -969,9 +971,9 @@ void QDesignerPopupMenu::contextMenuEvent( QContextMenuEvent *e )
 	if ( !a )
 	    return;
 	RemoveActionFromPopupCommand *cmd = new RemoveActionFromPopupCommand(
-	    tr( "Remove Action '%1' from the Popup Menu '%2'" ).
-	    arg( a->name() ).arg( caption() ),
-	    formWindow, a, this, itm );
+									     tr( "Remove Action '%1' from the Popup Menu '%2'" ).
+									     arg( a->name() ).arg( caption() ),
+									     formWindow, a, this, itm );
 	formWindow->commandHistory()->addCommand( cmd );
 	cmd->execute();
     } else if ( res == ID_SEP ) {
@@ -979,21 +981,60 @@ void QDesignerPopupMenu::contextMenuEvent( QContextMenuEvent *e )
 	calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
 	QAction *a = new QSeparatorAction( 0 );
 	AddActionToPopupCommand *cmd = new AddActionToPopupCommand(
-	    tr( "Add Separator to the Popup Menu '%1'" ).
-	    arg( name() ),
-	    formWindow, a, this, insertAt );
+								   tr( "Add Separator to the Popup Menu '%1'" ).
+								   arg( name() ),
+								   formWindow, a, this, insertAt );
 	formWindow->commandHistory()->addCommand( cmd );
 	cmd->execute();
 	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
 	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
 	popup( p );
     }
+#endif
 }
 
 void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() == MidButton )
 	return;
+
+    if ( e->button() == RightButton ) {
+	e->accept();
+	int itm = itemAtPos( e->pos(), FALSE );
+	if ( itm == -1 )
+	    return;
+	QPopupMenu menu( 0 );
+	const int ID_DELETE = 1;
+	const int ID_SEP = 2;
+	menu.insertItem( tr( "Delete Item" ), ID_DELETE );
+	menu.insertItem( tr( "Insert Separator" ), ID_SEP );
+	int res = menu.exec( e->globalPos() );
+	if ( res == ID_DELETE ) {
+	    QAction *a = actionList.at( itm );
+	    if ( !a )
+		return;
+	    RemoveActionFromPopupCommand *cmd = new RemoveActionFromPopupCommand(
+										 tr( "Remove Action '%1' from the Popup Menu '%2'" ).
+										 arg( a->name() ).arg( caption() ),
+										 formWindow, a, this, itm );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
+	} else if ( res == ID_SEP ) {
+	    QPoint p( pos() );
+	    calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
+	    QAction *a = new QSeparatorAction( 0 );
+	    AddActionToPopupCommand *cmd = new AddActionToPopupCommand(
+								       tr( "Add Separator to the Popup Menu '%1'" ).
+								       arg( name() ),
+								       formWindow, a, this, insertAt );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
+	    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
+	    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
+	    popup( p );
+	}
+	return;
+    }
 
     mousePressed = TRUE;
     dragStartPos = e->pos();
