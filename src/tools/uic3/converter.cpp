@@ -233,12 +233,14 @@ void Ui3Reader::fixActionGroup(DomActionGroup *g)
             if (pname == QLatin1String("name")) {
                 a->setAttributeName(p->elementCstring());
                 p->setAttributeName("objectName");
-            } else if (pname == QLatin1String("menuText"))
+            } else if (pname == QLatin1String("menuText")) {
                 p->setAttributeName("text");
-            else if (pname == QLatin1String("iconSet"))
+            } else if (pname == QLatin1String("iconSet")) {
                 p->setAttributeName("icon");
-            else if (pname == QLatin1String("accel"))
+            } else if (pname == QLatin1String("accel")) {
                 p->setAttributeName("shortcut");
+                p->setElementShortcut(p->elementString());
+            }
         }
     }
 
@@ -249,12 +251,14 @@ void Ui3Reader::fixActionGroup(DomActionGroup *g)
         if (pname == QLatin1String("name")) {
             g->setAttributeName(p->elementCstring());
             p->setAttributeName("objectName");
-        } else if (pname == QLatin1String("menuText"))
+        } else if (pname == QLatin1String("menuText")) {
             p->setAttributeName("text");
-        else if (pname == QLatin1String("iconSet"))
+        } else if (pname == QLatin1String("iconSet")) {
             p->setAttributeName("icon");
-        else if (pname == QLatin1String("accel"))
+        } else if (pname == QLatin1String("accel")) {
             p->setAttributeName("shortcut");
+            p->setElementShortcut(p->elementString());
+        }
     }
 }
 
@@ -570,11 +574,16 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 prop->setAttributeName("windowTitle");
             }
 
-            if (name == QLatin1String("name"))
+            if (name == QLatin1String("name")) {
                 prop->setAttributeName("objectName");
+            }
+
+            if (name == QLatin1String("accel")) {
+                prop->setAttributeName("shortcut");
+                prop->setElementShortcut(prop->elementString());
+            }
 
             CONVERT_PROPERTY("iconSet", "icon");
-            CONVERT_PROPERTY("accel", "shortcut");
             CONVERT_PROPERTY("textLabel", "text");
 
             name = prop->attributeName(); // sync the name

@@ -1519,7 +1519,8 @@ public:
         Number,
         Date,
         Time,
-        DateTime
+        DateTime,
+        Shortcut
     };
 
     inline Kind kind() const { return m_kind; }
@@ -1594,6 +1595,9 @@ public:
     inline DomDateTime * elementDateTime() const { return m_eDateTime; }
     inline void setElementDateTime(DomDateTime * a) { reset(false); m_eDateTime = a; m_kind = DateTime; };
 
+    inline QString elementShortcut() const { return m_eShortcut; }
+    inline void setElementShortcut(const QString & a) { reset(false); m_eShortcut = a; m_kind = Shortcut; };
+
     inline QString text() const { return m_text; }
     inline void setText(const QString &text) { m_text = text; }
 private:
@@ -1630,6 +1634,7 @@ private:
     DomDate * m_eDate;
     DomTime * m_eTime;
     DomDateTime * m_eDateTime;
+    QString m_eShortcut;
 };
 
 
@@ -2718,6 +2723,7 @@ inline void DomProperty::read(const QDomElement &node)
         else if (tag == QLatin1String("date")) { DomDate* v = new DomDate(); v->read(e); m_eDate = v; m_kind = Date; }
         else if (tag == QLatin1String("time")) { DomTime* v = new DomTime(); v->read(e); m_eTime = v; m_kind = Time; }
         else if (tag == QLatin1String("datetime")) { DomDateTime* v = new DomDateTime(); v->read(e); m_eDateTime = v; m_kind = DateTime; }
+        else if (tag == QLatin1String("shortcut")) { m_eShortcut = e.firstChild().toText().data(); m_kind = Shortcut; }
 
         e = e.nextSibling().toElement();
     }
@@ -3798,6 +3804,16 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
     case DomProperty::DateTime: {
     if (m_eDateTime)
         node.appendChild(m_eDateTime->write(doc, "dateTime"));
+    }
+    break;
+
+    case DomProperty::Shortcut: {
+    if (m_eShortcut.size()) {
+        child = doc.createElement("shortcut");
+        t = doc.createTextNode(m_eShortcut);
+        child.appendChild(t);
+        node.appendChild(child);
+    }
     }
     break;
 

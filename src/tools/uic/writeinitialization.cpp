@@ -568,6 +568,10 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
                             .arg(dt->elementSecond());
             break;
         }
+        case DomProperty::Shortcut:
+            propertyValue = QString("QKeySequence(%1)")
+                            .arg(fixString(p->elementShortcut()));
+            break;
         }
 
         if (propertyValue.size()) {
