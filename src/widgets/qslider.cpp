@@ -393,9 +393,10 @@ void QSlider::mousePressEvent( QMouseEvent *e )
     sliderStartVal = sliderVal;
     QRect r = sliderRect();
 
-    if ( e->button() == RightButton ) {
+    if ( e->button() == RightButton )
 	return;
-    } else if ( r.contains( e->pos() ) ) {
+    
+    if ( r.contains( e->pos() ) ) {
 	state = Dragging;
 	clickOffset = (QCOORD)( goodPart( e->pos() ) - sliderPos );
 	emit sliderPressed();
@@ -406,16 +407,26 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 	clickOffset = slideLength / 2;
     } else if ( orient == Horizontal && e->pos().x() < r.left() //### goodPart
 		|| orient == Vertical && e->pos().y() < r.top() ) {
-	state = TimingDown;
-	subtractPage();
+	if ( QApplication::reverseLayout() ) {
+	    state = TimingUp;
+	    addPage();
+	} else {
+	    state = TimingDown;
+	    subtractPage();
+	}
 	if ( !timer )
 	    timer = new QTimer( this );
 	connect( timer, SIGNAL(timeout()), SLOT(repeatTimeout()) );
 	timer->start( thresholdTime, TRUE );
     } else if ( orient == Horizontal && e->pos().x() > r.right() //### goodPart
 		|| orient == Vertical && e->pos().y() > r.bottom() ) {
-	state = TimingUp;
-	addPage();
+	if ( QApplication::reverseLayout() ) {
+	    state = TimingDown;
+	    subtractPage();
+	} else {
+	    state = TimingUp;
+	    addPage();
+	}
 	if ( !timer )
 	    timer = new QTimer( this );
 	connect( timer, SIGNAL(timeout()), SLOT(repeatTimeout()) );
