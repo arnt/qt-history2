@@ -793,7 +793,9 @@ public:
 	localsql::List list = env->stack()->pop().toList();
 	localsql::List range = list[0].toList();
 	localsql::List columns = list[1].toList();
+	env->addResultSet( p2.toInt() );
 	localsql::ResultSet* result = env->resultSet( p2.toInt() );
+	result->setHeader( columns );
 	return drv->rangeSave( range, columns, result );
     }
 };
