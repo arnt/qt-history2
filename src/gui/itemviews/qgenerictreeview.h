@@ -61,6 +61,7 @@ signals:
 
 public slots:
     void hideColumn(int column);
+    void showColumn(int column);
     void open(const QModelIndex &index);
     void close(const QModelIndex &index);
 

@@ -214,6 +214,16 @@ void QGenericTreeView::hideColumn(int column)
     d->header->hideSection(column);
 }
 
+/*
+  Shows the \a column given.
+
+  \sa hideColumn() */
+
+void QGenericTreeView::showColumn(int column)
+{
+    d->header->showSection(column);
+}
+
 /*!
   \fn void QGenericTreeView::open(const QModelIndex &index)
 
