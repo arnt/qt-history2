@@ -6,6 +6,7 @@ system and compiler you are using.
 Supported platforms and compilers:
 
   linux-g++
+  freebsd-g++ 
 
 Compilation problems:
 
