@@ -201,7 +201,7 @@
     Contructs an event object of type \a type.
 */
 QEvent::QEvent(Type type)
-    : t(type), d(0), posted(false), spont(false), m_accept(true)
+    : d(0), t(type), posted(false), spont(false), m_accept(true)
 {}
 
 /*!
