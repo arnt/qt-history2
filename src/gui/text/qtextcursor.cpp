@@ -99,23 +99,13 @@ void QTextCursorPrivate::remove()
         op = QTextUndoCommand::MoveCursor;
     }
 
-    QTextTable *table = qt_cast<QTextTable *>(priv->frameAt(pos1));
     // deleting inside table? -> delete only content
-    if (table) {
-        QTextTableCell firstCell = table->cellAt(pos1);
-        QTextTableCell lastCell = table->cellAt(pos2);
-        if (firstCell != lastCell) {
+    if (hasComplexSelection()) {
+        int startRow, startCol, numRows, numCols;
+        selectedTableCells(&startRow, &numRows, &startCol, &numCols);
 
-            int startRow = firstCell.row();
-            int startCol = firstCell.column();
-            int numRows = 1;
-            int numCols = lastCell.column() - startCol + 1;
-
-            if (hasComplexSelection())
-                selectedTableCells(&startRow, &numRows, &startCol, &numCols);
-
-            clearCells(table, startRow, startCol, numRows, numCols, op);
-        }
+        QTextTable *table = qt_cast<QTextTable *>(priv->frameAt(pos1));
+        clearCells(table, startRow, startCol, numRows, numCols, op);
     } else {
         priv->remove(pos1, pos2-pos1, op);
     }
@@ -475,11 +465,7 @@ bool QTextCursorPrivate::hasComplexSelection() const
 
     Q_ASSERT(cell_anchor.isValid());
 
-    if (cell_pos == cell_anchor
-        || cell_pos.row() == cell_anchor.row())
-        return false;
-
-    return true;
+    return (cell_pos != cell_anchor);
 }
 
 void QTextCursorPrivate::selectedTableCells(int *firstRow, int *numRows, int *firstColumn, int *numColumns) const
@@ -887,8 +873,8 @@ bool QTextCursor::hasSelection() const
     Returns true if the cursor contains a selection that is not simply a
     range from selectionStart() to selectionEnd(); otherwise returns false.
 
-    Complex selections are ones that span at least two rows of cells
-    in a table; their extent is specified by selectedTableCells().
+    Complex selections are ones that span at least two cells in a table;
+    their extent is specified by selectedTableCells().
 */
 bool QTextCursor::hasComplexSelection() const
 {
