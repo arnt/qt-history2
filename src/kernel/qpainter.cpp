@@ -2571,8 +2571,11 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool noaccel = ( tf & Qt::NoAccel ) == Qt::NoAccel;
 
     bool restoreClipping = FALSE;
-    if ( painter && dontclip  && painter->hasClipping() ){
-	painter->save();
+    bool painterHasClip = FALSE;
+    QRegion painterClipRegion;
+    if ( painter && !( tf & QPainter::DontPrint ) && dontclip  && painter->hasClipping() ){
+	painterHasClip = painter->hasClipping();
+	painterClipRegion = painter->clipRegion();
 	restoreClipping = TRUE;
 	painter->setClipping( FALSE );
     }
@@ -2658,7 +2661,9 @@ void qt_format_text( const QFont& font, const QRect &r,
 		if ( painter->hasClipping() )
 		    reg &= painter->clipRegion();
 
-		painter->save();
+		painterHasClip = painter->hasClipping();
+		painterClipRegion = painter->clipRegion();
+		restoreClipping = TRUE;
 		painter->setClipRegion( reg );
 	    }
 
@@ -2695,168 +2700,167 @@ void qt_format_text( const QFont& font, const QRect &r,
 		if ( lastPos < (int)parStr.length() )
 		    painter->drawText( xoff, yoff, parStr.mid( lastPos, parStr.length() - lastPos ) );
 	    }
-	    if ( !dontclip )
-    		painter->restore();
 	}
-	if ( painter && restoreClipping )
-	    painter->restore();
-	return;
-    }
+
+    } else {
 
 #ifndef QT_NO_RICHTEXT
 #if defined(QT_FORMAT_TEXT_DEBUG)
-    qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
+	qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
 #endif
-    QTextParag *parag;
+	QTextParag *parag;
 
-    QRect rect = r;
+	QRect rect = r;
 
-    if ( decode ) {
-	parag = *internal;
-    } else {
-	QString parStr = str;
-	// str.setLength() always does a deep copy, so the replacement code below is safe.
-	parStr.setLength( len );
-	// need to build paragraph
-	parag = new QTextParag( 0, 0, 0, FALSE );
-	parag->setNewLinesAllowed( TRUE );
-	QTextFormatter *formatter;
-	formatter = new QTextFormatterBreakWords;
-	if ( !wordbreak )
-	    formatter->setWrapEnabled( FALSE );
-	else if ( breakany )
-	    formatter->setAllowBreakInWords( TRUE );
-	parag->pseudoDocument()->pFormatter = formatter;
-	QTextFormat *f = parag->formatCollection()->format( font, painter ? painter->pen().color() : QColor() );
-	f->setPainter( painter );
-	QChar *chr = (QChar*)parStr.unicode();
-	int l = parStr.length();
-	while ( l-- ) {
-	    if ( *chr == '\r' || (singleline && *chr == '\n') )
-		*chr = ' ';
-	    chr++;
-	}
-	if ( showprefix || noaccel ) {
-	    int idx = -1;
-	    int start = 0;
-	    int len = str.length();
-#ifndef QT_NO_ACCEL
-	    QFont fnt( font );
-	    fnt.setUnderline( TRUE );
-	    QTextFormat *ul = parag->formatCollection()->format( fnt, painter ? painter->pen().color() : QColor() );
-	    int num = 0;
-	    while ( (idx = parStr.find( '&', start ) ) != -1 ) {
-		parag->append( parStr.mid( start, idx - start ) );
-		parag->setFormat( start - num, idx - start, f );
-		if ( idx == len -1 || str[idx+1] == '&' ) {
-		    parag->append( QString( "&" ) );
-		    parag->setFormat( start - num, 1, f );
-		} else {
-		    parag->append( parStr.mid(idx + 1, 1) );
-		    if ( !noaccel )
-			parag->setFormat( idx - num, 1, ul );
-		    else
-			parag->setFormat( idx - num, 1, f );
-		    num++;
-		}
-		start = idx + 2;
-	    }
-	    parag->append( parStr.mid( start ) );
-	    parag->setFormat( start - num, parStr.length() - start, f );
-	    ul->removeRef();
-#else
-	    while ( (idx = parStr.find( '&', start ) ) != -1 ) {
-		parag->append( parStr.mid( start, idx - start ) );
-		if ( idx == len -1 || str[idx+1] == '&' ) {
-		    parag->append( QString( "&" ) );
-		} else {
-		    parag->append( parStr.mid(idx + 1, 1) );
-		}
-		start = idx + 2;
-	    }
-	    parag->append( parStr.mid( start ) );
-#endif
+	if ( decode ) {
+	    parag = *internal;
 	} else {
-	    parag->append( parStr );
-	    parag->setFormat( 0, parStr.length(), f );
-	}
-	if ( expandtabs ) {
-	    parag->setTabArray( tabarray );
-	    if ( tabstops > 0 )
-		parag->setTabStops( tabstops );
-	}
-#if defined(QT_FORMAT_TEXT_DEBUG)
-	qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
-#endif
-	parag->pseudoDocument()->docRect = rect;
-	parag->setAlignment( tf & Qt::AlignHorizontal_Mask );
-	parag->invalidate( 0 );
-	parag->format();
-	f->setPainter( 0 );
-	f->removeRef();
-    }
-    int xoff = 0;
-    int yoff = 0;
-    if ( painter || brect ) {
-	if ( tf & Qt::AlignBottom )
-	    yoff += r.height() - parag->rect().height();
-	else if ( tf & Qt::AlignVCenter )
-	    yoff += (r.height() - parag->rect().height())/2;
-    }
-    if ( brect ) {
-	*brect = parag->rect();
-	brect->setWidth( QMAX( brect->width(), parag->pseudoDocument()->wused ) );
-	if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft )
-	    brect->setLeft( brect->left() + parag->leftGap());
-	brect->moveBy( xoff, yoff );
-#if defined(QT_FORMAT_TEXT_DEBUG)
-	qDebug("par: %d/%d", brect->width(), brect->height() );
-#endif
-    }
-    if ( painter && !(tf & QPainter::DontPrint) ) {
-	xoff += r.x();
-	if ( r.width() < parag->pseudoDocument()->wused ) {
-	    if ( ( tf & Qt::AlignHCenter ) == Qt::AlignHCenter )
-		xoff -= parag->pseudoDocument()->wused / 2 - r.width() / 2;
-	    else if ( ( tf & Qt::AlignRight ) == Qt::AlignRight )
-		xoff -= parag->pseudoDocument()->wused - r.width();
-	}
-	if ( tf & Qt::AlignRight )
-	    xoff -= 2; // ### strange
-	yoff += r.y();
-
-	QColorGroup cg;
-	painter->save();
-#if defined(QT_FORMAT_TEXT_DEBUG)
-	QRect parRect = parag->rect();
-	qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
-#endif
-
-#ifndef QT_NO_TRANSFORMATIONS
-	QRegion reg = painter->xmat * rect;
+	    QString parStr = str;
+	    // str.setLength() always does a deep copy, so the replacement code below is safe.
+	    parStr.setLength( len );
+	    // need to build paragraph
+	    parag = new QTextParag( 0, 0, 0, FALSE );
+	    parag->setNewLinesAllowed( TRUE );
+	    QTextFormatter *formatter;
+	    formatter = new QTextFormatterBreakWords;
+	    if ( !wordbreak )
+		formatter->setWrapEnabled( FALSE );
+	    else if ( breakany )
+		formatter->setAllowBreakInWords( TRUE );
+	    parag->pseudoDocument()->pFormatter = formatter;
+	    QTextFormat *f = parag->formatCollection()->format( font, painter ? painter->pen().color() : QColor() );
+	    f->setPainter( painter );
+	    QChar *chr = (QChar*)parStr.unicode();
+	    int l = parStr.length();
+	    while ( l-- ) {
+		if ( *chr == '\r' || (singleline && *chr == '\n') )
+		    *chr = ' ';
+		chr++;
+	    }
+	    if ( showprefix || noaccel ) {
+		int idx = -1;
+		int start = 0;
+		int len = str.length();
+#ifndef QT_NO_ACCEL
+		QFont fnt( font );
+		fnt.setUnderline( TRUE );
+		QTextFormat *ul = parag->formatCollection()->format( fnt, painter ? painter->pen().color() : QColor() );
+		int num = 0;
+		while ( (idx = parStr.find( '&', start ) ) != -1 ) {
+		    parag->append( parStr.mid( start, idx - start ) );
+		    parag->setFormat( start - num, idx - start, f );
+		    if ( idx == len -1 || str[idx+1] == '&' ) {
+			parag->append( QString( "&" ) );
+			parag->setFormat( start - num, 1, f );
+		    } else {
+			parag->append( parStr.mid(idx + 1, 1) );
+			if ( !noaccel )
+			    parag->setFormat( idx - num, 1, ul );
+			else
+			    parag->setFormat( idx - num, 1, f );
+			num++;
+		    }
+		    start = idx + 2;
+		}
+		parag->append( parStr.mid( start ) );
+		parag->setFormat( start - num, parStr.length() - start, f );
+		ul->removeRef();
 #else
-	QRegion reg = rect;
-	reg.translate( painter->xlatex, painter->xlatey );
+		while ( (idx = parStr.find( '&', start ) ) != -1 ) {
+		    parag->append( parStr.mid( start, idx - start ) );
+		    if ( idx == len -1 || str[idx+1] == '&' ) {
+			parag->append( QString( "&" ) );
+		    } else {
+			parag->append( parStr.mid(idx + 1, 1) );
+		    }
+		    start = idx + 2;
+		}
+		parag->append( parStr.mid( start ) );
 #endif
-	if ( !dontclip ) {
-	    if ( painter->hasClipping() )
-		reg &= painter->clipRegion();
-
-	    painter->setClipRegion( reg );
+	    } else {
+		parag->append( parStr );
+		parag->setFormat( 0, parStr.length(), f );
+	    }
+	    if ( expandtabs ) {
+		parag->setTabArray( tabarray );
+		if ( tabstops > 0 )
+		    parag->setTabStops( tabstops );
+	    }
+#if defined(QT_FORMAT_TEXT_DEBUG)
+	    qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
+#endif
+	    parag->pseudoDocument()->docRect = rect;
+	    parag->setAlignment( tf & Qt::AlignHorizontal_Mask );
+	    parag->invalidate( 0 );
+	    parag->format();
+	    f->setPainter( 0 );
+	    f->removeRef();
 	}
-	painter->translate( xoff, yoff );
-	parag->paint( *painter, cg );
-	painter->restore();
-    }
-    if ( encode ) {
-	*internal = parag;
-    } else {
-	delete parag;
+	int xoff = 0;
+	int yoff = 0;
+	if ( painter || brect ) {
+	    if ( tf & Qt::AlignBottom )
+		yoff += r.height() - parag->rect().height();
+	    else if ( tf & Qt::AlignVCenter )
+		yoff += (r.height() - parag->rect().height())/2;
+	}
+	if ( brect ) {
+	    *brect = parag->rect();
+	    brect->setWidth( QMAX( brect->width(), parag->pseudoDocument()->wused ) );
+	    if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft )
+		brect->setLeft( brect->left() + parag->leftGap());
+	    brect->moveBy( xoff, yoff );
+#if defined(QT_FORMAT_TEXT_DEBUG)
+	    qDebug("par: %d/%d", brect->width(), brect->height() );
+#endif
+	}
+	if ( painter && !(tf & QPainter::DontPrint) ) {
+	    xoff += r.x();
+	    if ( r.width() < parag->pseudoDocument()->wused ) {
+		if ( ( tf & Qt::AlignHCenter ) == Qt::AlignHCenter )
+		    xoff -= parag->pseudoDocument()->wused / 2 - r.width() / 2;
+		else if ( ( tf & Qt::AlignRight ) == Qt::AlignRight )
+		    xoff -= parag->pseudoDocument()->wused - r.width();
+	    }
+	    if ( tf & Qt::AlignRight )
+		xoff -= 2; // ### strange
+	    yoff += r.y();
+
+	    QColorGroup cg;
+#if defined(QT_FORMAT_TEXT_DEBUG)
+	    QRect parRect = parag->rect();
+	    qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
+#endif
+
+	    if ( !dontclip ) {
+#ifndef QT_NO_TRANSFORMATIONS
+		QRegion reg = painter->xmat * rect;
+#else
+		QRegion reg = rect;
+		reg.translate( painter->xlatex, painter->xlatey );
+#endif
+		if ( painter->hasClipping() )
+		    reg &= painter->clipRegion();
+
+		painterHasClip = painter->hasClipping();
+		painterClipRegion = painter->clipRegion();
+		restoreClipping = TRUE;
+		painter->setClipRegion( reg );
+	    }
+	    painter->translate( xoff, yoff );
+	    parag->paint( *painter, cg );
+	}
+	if ( encode ) {
+	    *internal = parag;
+	} else {
+	    delete parag;
+	}
     }
 
-    if ( painter && restoreClipping )
-	painter->restore();
-
+    if ( painter && restoreClipping ) {
+	painter->setClipRegion( painterClipRegion );
+	painter->setClipping( painterHasClip );
+    }
 #endif //QT_NO_RICHTEXT
 }
 
