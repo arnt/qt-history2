@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#10 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#10 $");
 
 
 
@@ -695,8 +695,8 @@ void QGManager::freeze( int w, int h )
     h = QMAX( min.height(), QMIN( h, max.height() ) );
     main->setMaximumSize( w, h );
     main->setMinimumSize( w, h );
-    main->resize( w, h );
-
+    main->resize( w, h ); 
+    resizeAll(); // deferred resize!
     frozen = TRUE;
 }
 
