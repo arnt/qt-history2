@@ -263,12 +263,6 @@ Requires: IMAGEIO
 Name: PNG image I/O
 SeeAlso: ???
 
-Feature: IMAGEIO_MNG
-Section: Images
-Requires: IMAGEIO
-Name: MNG image I/O
-SeeAlso: ???
-
 Feature: IMAGEIO_JPEG
 Section: Images
 Requires: IMAGEIO

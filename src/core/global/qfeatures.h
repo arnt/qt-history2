@@ -378,11 +378,6 @@
 #define QT_NO_IMAGEIO_JPEG
 #endif
 
-// MNG image I/O
-#if !defined(QT_NO_IMAGEIO_MNG) && (defined(QT_NO_IMAGEIO))
-#define QT_NO_IMAGEIO_MNG
-#endif
-
 // PNG image I/O
 #if !defined(QT_NO_IMAGEIO_PNG) && (defined(QT_NO_IMAGEIO))
 #define QT_NO_IMAGEIO_PNG
