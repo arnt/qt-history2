@@ -91,6 +91,7 @@ void CompletionItem::setupParagraph() {
 	formatter = new QTextFormatterBreakWords;
 	formatter->setWrapEnabled( FALSE );
 	parag = new QTextParagraph( 0 );
+	parag->setTabStops( listBox()->fontMetrics().width( "propertyXXXX" ) );
 	parag->pseudoDocument()->pFormatter = formatter;
 	parag->insert( 0, " " + type + ( type.isEmpty() ? " " : "\t" ) + prefix +
 		       QListBoxItem::text() + postfix + postfix2 );
