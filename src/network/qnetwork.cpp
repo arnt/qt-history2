@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qnetwork.cpp#6 $
+** $Id: //depot/qt/main/src/network/qnetwork.cpp#7 $
 **
 ** Implementation of qInitNetworkProtocols function.
 **
@@ -61,6 +61,6 @@ void qInitNetworkProtocols()
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
     QNetworkProtocol::registerNetworkProtocol( "http", new QNetworkProtocolFactory< QHttp > );
 #endif
-};
+}
 
 #endif // QT_NO_NETWORKPROTOCOL

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#41 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#42 $
 **
 ** Implementation of QSocket class.
 **
@@ -288,7 +288,7 @@ void QSocket::connectToHost( const QString &host, Q_UINT16 port )
     if ( d->state == HostLookup ) {
 	connect( d->dns, SIGNAL(resultsReady()), this, SLOT(tryConnecting()) );
     }
-};
+}
 
 #endif
 
@@ -1216,13 +1216,13 @@ void QSocket::setSocketIntern( int socket )
         sd = new QSocketDevice( socket, QSocketDevice::Stream );
     else
         sd = new QSocketDevice( QSocketDevice::Stream );
- 
+
     if ( state() != Idle )
         close();
     // close may not have actually deleted the thing.  so, we brutally
     // Act.
     delete d;
- 
+
     d = new QSocketPrivate;
     d->socket = sd;
     d->socket->setBlocking( FALSE );
@@ -1240,14 +1240,14 @@ void QSocket::setSocketIntern( int socket )
     setFlags( IO_Direct );
     setStatus( IO_Ok );
     open( IO_ReadWrite );
- 
+
     // hm... this is not very nice.
     d->host = QString::null;
     d->port = 0;
 #ifndef QT_NO_DNS
     delete d->dns;
     d->dns = 0;
-#endif                                                                                                                                                                                
+#endif
 }
 
 
