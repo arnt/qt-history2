@@ -1099,13 +1099,14 @@ void QAction::objectDestroyed()
 */
 
 /*!
-    \fn void QAction::toggled(bool)
+    \fn void QAction::toggled(bool on)
 
     This signal is emitted when a toggle action changes state; command
     actions and \l{QActionGroup}s don't emit toggled().
 
-    The argument denotes the new state; i.e. TRUE if the toggle action
-    was switched on and FALSE if it was switched off.
+    The \a on argument denotes the new state: If \a on is TRUE the
+    toggle action is switched on, and if \a on is FALSE the toggle
+    action is switched off.
 
     To trigger a user command depending on whether a toggle action has
     been switched on or off connect it to a slot that takes a bool to

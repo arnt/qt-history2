@@ -1987,9 +1987,6 @@ We set the force text label to "FORCE".
 
 \section1 Behavior
 
-The cannon can shoot at a target; a new target is automatically created
-when one has been hit.
-
 The LCDRange widgets look a bit strange - the built-in layout
 management in QVBox gives the labels too much space and the rest not
 enough. We'll fix that in the next chapter.
@@ -2346,6 +2343,9 @@ change.
 
 
 \section1 Behavior
+
+The cannon can shoot at a target; a new target is automatically created
+when one has been hit.
 
 Hits and shots left are displayed and the program keeps track of them.
 The game can end, and there's a button to start a new game.
