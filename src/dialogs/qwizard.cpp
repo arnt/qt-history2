@@ -631,7 +631,7 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 {
     bool hasHelp = FALSE;
     bool hasEarlyFinish = FALSE;
-
+        
     int i = d->pages.count() - 2;
     while ( !hasEarlyFinish && i >= 0 ) {
 	if ( d->pages.at( i ) && d->pages.at( i )->finishEnabled )
@@ -673,7 +673,16 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 	d->finishButton->hide();
 	h->addWidget( d->nextButton );
     }
-
+    
+    // if last page is disabled - show finished btn. at lastpage-1
+    i = d->pages.count()-1;
+    if ( i >= 0 && !appropriate( d->pages.at( i )->w ) && 
+	 d->current == d->pages.at( d->pages.count()-2 ) ) {
+	d->nextButton->hide();
+	d->finishButton->show();
+	h->addWidget( d->finishButton );
+    }
+    
     if ( hasHelp ) {
 	h->addSpacing( 12 );
 	h->addWidget( d->helpButton );
