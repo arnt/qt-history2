@@ -35,6 +35,7 @@ tools {
 		  $$TOOLS_H/qsettings.h \
 		  $$TOOLS_P/qsettings_p.h \
 		  $$TOOLS_H/qshared.h \
+		  $$TOOLS_H/qsharedpointer.h \
 		  $$TOOLS_H/qstack.h \
 		  $$TOOLS_H/qstackarray.h \
 		  $$TOOLS_H/qstring.h \
@@ -93,6 +94,7 @@ tools {
 		  $$TOOLS_CPP/qmap.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
 		  $$TOOLS_CPP/qshared.cpp \
+		  $$TOOLS_CPP/qsharedpointer.cpp \
 		  $$TOOLS_CPP/qdebug.cpp \
 		  $$TOOLS_CPP/qstack.cpp \
 		  $$TOOLS_CPP/qstring.cpp \

@@ -8,7 +8,7 @@
 
 template <class T> class QSharedPointer;
 
-class QSharedObject
+class Q_CORE_EXPORT QSharedObject
 {
 public:
     QAtomic ref;
