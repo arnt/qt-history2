@@ -18,9 +18,7 @@
 #include "qdecorationdefault_qws.h"
 #endif // QT_H
 
-
-#ifndef QT_NO_QWS_DECORATION_HYDRO
-
+#if !defined(QT_NO_QWS_DECORATION_HYDRO) || defined(QT_PLUGIN)
 
 class QDecorationHydro : public QDecorationDefault
 {

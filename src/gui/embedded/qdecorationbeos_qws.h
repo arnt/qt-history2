@@ -18,9 +18,7 @@
 #include "qdecorationdefault_qws.h"
 #endif // QT_H
 
-
-#ifndef QT_NO_QWS_DECORATION_BEOS
-
+#if !defined(QT_NO_QWS_DECORATION_BEOS) || defined(QT_PLUGIN)
 
 class QDecorationBeOS : public QDecorationDefault
 {

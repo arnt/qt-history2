@@ -18,8 +18,7 @@
 #include "qdecorationdefault_qws.h"
 #endif // QT_H
 
-#ifndef QT_NO_QWS_DECORATION_WINDOWS
-
+#if !defined(QT_NO_QWS_DECORATION_WINDOWS) || defined(QT_PLUGIN)
 
 class QDecorationWindows : public QDecorationDefault
 {

@@ -16,7 +16,7 @@
 #include <qdrawutil.h>
 #include "qdecorationbeos_qws.h"
 
-#ifndef QT_NO_QWS_DECORATION_BEOS
+#if !defined(QT_NO_QWS_DECORATION_BEOS) || defined(QT_PLUGIN)
 
 QDecorationBeOS::QDecorationBeOS()
     : QDecorationDefault()

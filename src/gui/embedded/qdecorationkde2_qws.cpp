@@ -20,7 +20,7 @@
 #define QT_NO_STYLE // ##### this file uses old style API
 #endif
 
-#ifndef QT_NO_QWS_DECORATION_KDE2
+#if !defined(QT_NO_QWS_DECORATION_KDE2) || defined(QT_PLUGIN)
 
 QDecorationKDE2::QDecorationKDE2()
     : QDecorationDefault()

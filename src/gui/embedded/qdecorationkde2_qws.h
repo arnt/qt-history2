@@ -18,9 +18,7 @@
 #include "qdecorationdefault_qws.h"
 #endif // QT_H
 
-
-#ifndef QT_NO_QWS_DECORATION_KDE2
-
+#if !defined(QT_NO_QWS_DECORATION_KDE2) || defined(QT_PLUGIN)
 
 class QDecorationKDE2 : public QDecorationDefault
 {

@@ -19,6 +19,8 @@
 #endif // QT_H
 
 #ifndef QT_NO_QWS_MANAGER
+#if !defined(QT_NO_QWS_DECORATION_DEFAULT) || defined(QT_PLUGIN)
+
 
 #define CORNER_GRAB        16
 #define BORDER_WIDTH        4
@@ -59,7 +61,7 @@ private:
     static QPixmap * staticNormalizePixmap;
 
 };
-
+#endif // QT_NO_QWS_DECORATION_DEFAULT
 #endif // QT_NO_QWS_MANAGER
 
 #endif // QDECORATIONDEFAULT_QWS_H

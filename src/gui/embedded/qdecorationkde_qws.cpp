@@ -16,7 +16,7 @@
 #include <qdrawutil.h>
 #include "qdecorationkde_qws.h"
 
-#ifndef QT_NO_QWS_DECORATION_KDE
+#if !defined(QT_NO_QWS_DECORATION_KDE) || defined(QT_PLUGIN)
 
 QDecorationKDE::QDecorationKDE()
     : QDecorationDefault()

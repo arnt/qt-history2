@@ -16,7 +16,7 @@
 #include <qdrawutil.h>
 #include "qdecorationhydro_qws.h"
 
-#ifndef QT_NO_QWS_DECORATION_HYDRO
+#if !defined(QT_NO_QWS_DECORATION_HYDRO) || defined(QT_PLUGIN)
 
 #ifndef QT_NO_IMAGEIO_XPM
 
