@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#64 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -164,8 +164,15 @@ public:
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProc: Destructor for pid %d and QProcess %p", pid, process );
 #endif
-	if ( process != 0 )
+	if ( process != 0 ) {
+	    if ( process->d->notifierStdin )
+		process->d->notifierStdin->setEnabled( FALSE );
+	    if ( process->d->notifierStdout )
+		process->d->notifierStdout->setEnabled( FALSE );
+	    if ( process->d->notifierStderr )
+		process->d->notifierStderr->setEnabled( FALSE );
 	    process->d->proc = 0;
+	}
 	if( socketStdin != 0 )
 	    ::close( socketStdin );
 	// ### close these sockets even on parent exit or is it better only on
@@ -402,15 +409,9 @@ QProcessPrivate::~QProcessPrivate()
     while ( !stdinBuf.isEmpty() ) {
 	delete stdinBuf.dequeue();
     }
-    if ( notifierStdin ) {
-	delete notifierStdin;
-    }
-    if ( notifierStdout ) {
-	delete notifierStdout;
-    }
-    if ( notifierStderr ) {
-	delete notifierStderr;
-    }
+    delete notifierStdin;
+    delete notifierStdout;
+    delete notifierStderr;
 }
 
 /*
@@ -816,15 +817,13 @@ void QProcess::closeStdin()
 	while ( !d->stdinBuf.isEmpty() ) {
 	    delete d->stdinBuf.dequeue();
 	}
-	if ( d->notifierStdin ) {
-	    delete d->notifierStdin;
-	    d->notifierStdin = 0;
-	}
+	delete d->notifierStdin;
+	d->notifierStdin = 0;
 	if ( ::close( d->proc->socketStdin ) != 0 ) {
 	    qWarning( "Could not close stdin of child process" );
 	}
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::closeStdin(): stdin (%d) closed", d->socketStdin );
+	qDebug( "QProcess::closeStdin(): stdin (%d) closed", d->proc->socketStdin );
 #endif
 	d->proc->socketStdin = 0;
     }
