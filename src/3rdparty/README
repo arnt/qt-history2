@@ -6,6 +6,8 @@ have been removed:
     libpng/contrib - a collection of examples and test-suite
     zlib/contrib - a collection of non-zlib code
     zlib/msdos   - Zlib for a platform never supported by Qt ;-)
+    libmng/contrib - ?
+    libmng/Unix - ?
 
 Some patches are applied from time to time.
 
