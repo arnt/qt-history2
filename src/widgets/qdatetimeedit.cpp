@@ -63,6 +63,9 @@ public:
     int selectionEnd() const { return selend; }
     void setSelectionEnd( int s ) { selend = s; }
     int width() const { return selend - selstart; }
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const QNumberSection& ) const;
+#endif
 private:
     int selstart;
     int selend;
