@@ -49,8 +49,11 @@ public:
     QCoreApplicationPrivate(int &aargc,  char **aargv);
     ~QCoreApplicationPrivate();
 
+    bool notify_helper(QObject *, QEvent *);
+
     virtual void createEventDispatcher();
     static void moveToMainThread(QObject *o);
+    static void removePostedEvent(QEvent *);
 
 #ifdef QT_COMPAT
     void removePostedChildInsertedEvents(QObject *receiver, QObject *child);
@@ -69,6 +72,8 @@ public:
     QCoreApplication::EventFilter eventFilter;
 
     static QAbstractEventDispatcher *eventDispatcher;
+    static bool is_app_running;
+    static bool is_app_closing;
 };
 
 #endif

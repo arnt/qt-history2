@@ -1070,10 +1070,10 @@ void QApplication::restoreOverrideCursor()
 }
 #endif
 
-QWidget *QApplication::topLevelAt(int x, int y)
+QWidget *QApplication::topLevelAt(const QPoint &p)
 {
     QWidget *widget;
-    qt_mac_window_at(x, y, &widget);
+    qt_mac_window_at(p.x(), p.y(), &widget);
     return widget;
 }
 

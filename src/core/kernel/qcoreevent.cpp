@@ -13,6 +13,7 @@
 
 #include "qcoreevent.h"
 #include "qcoreapplication.h"
+#include "qcoreapplication_p.h"
 
 /*!
     \class QEvent qcoreevent.h
@@ -190,8 +191,8 @@ QEvent::QEvent(Type type)
 
 QEvent::~QEvent()
 {
-    if (posted && QCoreApplication::self)
-        QCoreApplication::removePostedEvent(this);
+    if (posted && QCoreApplication::instance())
+        QCoreApplicationPrivate::removePostedEvent(this);
 }
 
 

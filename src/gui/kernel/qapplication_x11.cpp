@@ -2297,9 +2297,9 @@ Window QX11Data::findClientWindow(Window win, Atom property, bool leaf)
     return target;
 }
 
-QWidget *QApplication::topLevelAt(int x, int y)
+QWidget *QApplication::topLevelAt(const QPoint &p)
 {
-    QWidget *c = widgetAt_sys(x, y);
+    QWidget *c = widgetAt_sys(p.x(), p.y());
     return c ? c->topLevelWidget() : 0;
 }
 

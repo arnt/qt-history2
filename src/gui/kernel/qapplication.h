@@ -122,10 +122,10 @@ public:
     static QWidget *activeWindow();
     static void setActiveWindow(QWidget* act);
 
-    static QWidget *widgetAt(int x, int y);
-    static inline QWidget *widgetAt(const QPoint &p) { return widgetAt(p.x(), p.y()); }
-    static QWidget *topLevelAt(int x,  int y);
-    static inline QWidget *topLevelAt(const QPoint &p) { return topLevelAt(p.x(), p.y()); }
+    static QWidget *widgetAt(const QPoint &p);
+    static inline QWidget *widgetAt(int x, int y) { return widgetAt(QPoint(x, y)); }
+    static QWidget *topLevelAt(const QPoint &p);
+    static inline QWidget *topLevelAt(int x,  int y)  { return topLevelAt(QPoint(x, y)); }
 
     static void syncX();
     static void beep();

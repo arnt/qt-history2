@@ -799,7 +799,7 @@ void QApplication::initialize()
     const QVariant v = QVariant(int(QMetaType::Int), (void *)0);
     Q_UNUSED(v)
 #endif
-    is_app_running = true; // no longer starting up
+        QApplicationPrivate::is_app_running = true; // no longer starting up
 
 #ifndef QT_NO_SESSIONMANAGER
     // connect to the session manager
@@ -885,7 +885,7 @@ QApplication::~QApplication()
 
     delete qt_desktopWidget;
     qt_desktopWidget = 0;
-    is_app_closing = true;
+    QApplicationPrivate::is_app_closing = true;
 
 #ifndef QT_NO_CLIPBOARD
     delete qt_clipboard;
@@ -962,14 +962,16 @@ QApplication::~QApplication()
 
 /*!
     Returns a pointer to the widget at global screen position
-    (\a{x}, \a{y}), or 0 if there is no Qt widget there.
+    \a p, or 0 if there is no Qt widget there.
 
     This function is normally rather slow.
 
     \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
 */
-QWidget *QApplication::widgetAt(int x, int y)
+QWidget *QApplication::widgetAt(const QPoint &p)
 {
+    int x = p.x();
+    int y = p.y();
     QWidget *ret = widgetAt_sys(x, y);
     if(ret && ret->testAttribute(Qt::WA_TransparentForMouseEvents)) {
         //shoot a hole in the widget and try once again
@@ -1111,7 +1113,8 @@ QStyle *QApplication::style()
     QPalette app_pal_copy (*QApplicationPrivate::app_pal);
     QApplicationPrivate::app_style->polish(*QApplicationPrivate::app_pal);
 
-    if (is_app_running && !is_app_closing && (*QApplicationPrivate::app_pal != app_pal_copy)) {
+    if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing
+        && (*QApplicationPrivate::app_pal != app_pal_copy)) {
         QEvent e(QEvent::ApplicationPaletteChange);
         for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
@@ -1159,7 +1162,7 @@ void QApplication::setStyle(QStyle *style)
 
     // clean up the old style
     if (old) {
-        if (is_app_running && !is_app_closing) {
+        if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
             for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
                 register QWidget *w = *it;
                 if (!w->testWFlags(Qt::WType_Desktop) &&        // except desktop
@@ -1184,7 +1187,7 @@ void QApplication::setStyle(QStyle *style)
 
     // re-polish existing widgets if necessary
     if (old) {
-        if (is_app_running && !is_app_closing) {
+        if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
             for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
                 register QWidget *w = *it;
                 if (!w->testWFlags(Qt::WType_Desktop)) {        // except desktop
@@ -1478,7 +1481,7 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
         hash->insert(className, pal);
     }
 
-    if (is_app_running && !is_app_closing) {
+    if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
         QEvent e(QEvent::ApplicationPaletteChange);
         for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
              it != QWidget::mapper->constEnd(); ++it) {
@@ -1547,7 +1550,7 @@ void QApplication::setFont(const QFont &font, const char* className)
     } else if (hash) {
         hash->insert(className, font);
     }
-    if (is_app_running && !is_app_closing) {
+    if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
         QEvent e(QEvent::ApplicationFontChange);
         for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
              it != QWidget::mapper->constEnd(); ++it) {
@@ -1581,7 +1584,7 @@ void QApplication::setWindowIcon(const QPixmap &pixmap)
         QApplicationPrivate::app_icon = new QPixmap(pixmap);
     else
         *QApplicationPrivate::app_icon = pixmap;
-    if (is_app_running && !is_app_closing) {
+    if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
 #ifdef Q_WS_MAC
         void qt_mac_set_app_icon(const QPixmap &); //qapplication_mac.cpp
         qt_mac_set_app_icon(pixmap);
@@ -2575,7 +2578,7 @@ int QApplication::exec()
 bool QApplication::notify(QObject *receiver, QEvent *e)
 {
     // no events are delivered after ~QCoreApplication() has started
-    if (is_app_closing)
+    if (QApplicationPrivate::is_app_closing)
         return true;
 
     if (receiver == 0) {                        // serious error

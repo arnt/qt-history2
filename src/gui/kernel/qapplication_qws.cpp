@@ -1954,10 +1954,9 @@ QWidget *QApplication::findChildWidget(const QWidget *p, const QPoint &pos)
     return findWidget(p->children(), pos, true);
 }
 
-QWidget *QApplication::topLevelAt(int x, int y)
+QWidget *QApplication::topLevelAt(const QPoint &pos)
 {
     QWidgetList list = topLevelWidgets();
-    QPoint pos(x,y);
 
     for (int i = list.size()-1; i >= 0; --i) {
         QWidget *w = list[i];

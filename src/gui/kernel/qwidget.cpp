@@ -884,7 +884,7 @@ QWidget::~QWidget()
 
     // Remove all shortcuts grabbed by this
     // widget, unless application is closing
-    if (!qApp->is_app_closing && testAttribute(Qt::WA_GrabbedShortcut))
+    if (!QApplicationPrivate::is_app_closing && testAttribute(Qt::WA_GrabbedShortcut))
         qApp->d->shortcutMap.removeShortcut(0, this, QKeySequence());
 
     // delete layout while we still are a valid widget

@@ -87,9 +87,9 @@ void Q_CORE_EXPORT qt_call_post_routines()
 
 
 // app starting up if false
-bool QCoreApplication::is_app_running = false;
+bool QCoreApplicationPrivate::is_app_running = false;
  // app closing down if true
-bool QCoreApplication::is_app_closing = false;
+bool QCoreApplicationPrivate::is_app_closing = false;
 
 
 Q_CORE_EXPORT uint qGlobalPostedEventsCount()
@@ -117,7 +117,7 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
         argc = 0;
         argv = (char **)&empty; // ouch! careful with QApplication::argv()!
     }
-    QCoreApplication::is_app_closing = false;
+    QCoreApplicationPrivate::is_app_closing = false;
 
 #ifdef Q_OS_UNIX
     qt_application_thread_id = QThread::currentThreadId();
@@ -302,7 +302,7 @@ void QCoreApplication::init()
 #endif
 
     Q_ASSERT_X(!self, "QCoreApplication", "there should be only one application object.");
-    self = this;
+    QCoreApplication::self = this;
 
     QThread::initialize();
 
@@ -351,7 +351,7 @@ QCoreApplication::~QCoreApplication()
 #endif
 
     self = 0;
-    is_app_running = false;
+    QCoreApplicationPrivate::is_app_running = false;
 
     QThread::cleanup();
 
@@ -399,7 +399,7 @@ QCoreApplication::~QCoreApplication()
 bool QCoreApplication::notify(QObject *receiver, QEvent *e)
 {
     // no events are delivered after ~QCoreApplication() has started
-    if (is_app_closing)
+    if (QCoreApplicationPrivate::is_app_closing)
         return true;
 
     if (receiver == 0) {                        // serious error
@@ -422,14 +422,14 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
       d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(e)->child());
 #endif // QT_COMPAT
 
-    return receiver->isWidgetType() ? false : notify_helper(receiver, e);
+    return receiver->isWidgetType() ? false : d->notify_helper(receiver, e);
 }
 
 /*!\internal
 
   Helper function called by notify()
  */
-bool QCoreApplication::notify_helper(QObject *receiver, QEvent * e)
+bool QCoreApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
 {
     // send to all application event filters
     for (int i = 0; i < d->eventFilters.size(); ++i) {
@@ -439,7 +439,7 @@ bool QCoreApplication::notify_helper(QObject *receiver, QEvent * e)
     }
 
     // send to all receiver event filters
-    if (receiver != this) {
+    if (receiver != q) {
         for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
             register QObject *obj = receiver->d->eventFilters.at(i);
             if (obj && obj->eventFilter(receiver,e))
@@ -459,7 +459,7 @@ bool QCoreApplication::notify_helper(QObject *receiver, QEvent * e)
 
 bool QCoreApplication::startingUp()
 {
-    return !is_app_running;
+    return !QCoreApplicationPrivate::is_app_running;
 }
 
 /*!
@@ -471,7 +471,7 @@ bool QCoreApplication::startingUp()
 
 bool QCoreApplication::closingDown()
 {
-    return is_app_closing;
+    return QCoreApplicationPrivate::is_app_closing;
 }
 
 
@@ -875,7 +875,7 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
   \threadsafe
 */
 
-void QCoreApplication::removePostedEvent(QEvent * event)
+void QCoreApplicationPrivate::removePostedEvent(QEvent * event)
 {
     if (!event || !event->posted)
         return;

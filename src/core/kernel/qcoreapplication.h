@@ -134,17 +134,12 @@ protected:
     virtual bool compressEvent(QEvent *, QObject *receiver, QPostEventList *);
 
 private:
-    void init();
     static bool sendSpontaneousEvent(QObject *receiver, QEvent *event);
-    static void removePostedEvent(QEvent *);
-    bool notify_helper(QObject *, QEvent *);
 
-    static bool is_app_running;
-    static bool is_app_closing;
+    void init();
 
     static QCoreApplication *self;
 
-    friend class QEvent;
     friend class QEventDispatcherUNIXPrivate;
     friend class QApplication;
     friend class QApplicationPrivate;
