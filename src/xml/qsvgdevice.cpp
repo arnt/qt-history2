@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#7 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#8 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -39,6 +39,7 @@
 
 #ifndef QT_NO_SVG
 
+#include "qpainter.h"
 #include "qpaintdevicemetrics.h"
 #include "qfile.h"
 #include "qmap.h"
@@ -62,7 +63,8 @@ class QSVGDevicePrivate {
  */
 
 QSVGDevice::QSVGDevice()
-    : QPaintDevice( QInternal::ExternalDevice )
+    : QPaintDevice( QInternal::ExternalDevice ),
+      pt( 0 )
 {
     d = new QSVGDevicePrivate;
 }
@@ -101,7 +103,7 @@ bool QSVGDevice::play( QPainter *painter )
     if ( !painter ) {
 #if defined(QT_CHECK_RANGE)
 	Q_ASSERT( painter );
-#endif	
+#endif
 	return FALSE;
     }
     if ( doc.isNull() ) {
@@ -115,8 +117,34 @@ bool QSVGDevice::play( QPainter *painter )
 	return FALSE;
     }
 
+    const struct ElementTable {
+	const char *name;
+	ElementType type;
+    } etab[] = {
+        { "line",     LineElement     },
+        { "circle",   CircleElement   },
+        { "ellipse",  EllipseElement  },
+        { "rect",     RectElement     },
+        { "polyline", PolylineElement },
+        { "polygon",  PolygonElement  },
+        { "path",     PathElement     },
+        { "text",     TextElement     },
+        { "image",    ImageElement    },
+	{ "g",        GroupElement    },
+	{ 0,          InvalidElement  }
+    };
+    // initialize only once
+    if ( typeMap.isEmpty() ) {
+	const ElementTable *t = etab;
+	while ( t->name ) {
+	    typeMap.insert( t->name, t->type );
+	    t++;
+	}
+    }
+
     // 'play' all elements recursively starting with 'svg' as root
-    return play( svg, painter );
+    pt = painter;
+    return play( svg );
 }
 
 /*!  \fn QRect QSVGDevice::boundingRect() const
@@ -184,9 +212,38 @@ bool QSVGDevice::cmd ( int, QPainter*, QPDevCmdParam * )
   Evaluate \a node, drawing on \a p. Allows recursive calls.
 */
 
-bool QSVGDevice::play( const QDomNode & /*node*/, QPainter * /*p*/ )
+bool QSVGDevice::play( const QDomNode &node )
 {
-    return FALSE; //###
+    QDomNode child = node.firstChild();
+
+    while ( !child.isNull() ) {
+	pt->save();
+
+	ElementType t = typeMap[ child.nodeName() ];
+	switch ( t ) {
+	case RectElement:
+	case CircleElement:
+	case EllipseElement:
+	case LineElement:
+	case PolylineElement:
+	case PolygonElement:
+	case GroupElement:
+	case PathElement:
+	case TextElement:
+	case ImageElement:
+	case InvalidElement:
+	    qWarning( "QSVGDevice::play: unknown element type " +
+		      child.nodeName() );
+	    break;
+	};
+
+	pt->restore();
+
+	// move on to the next node
+	child = child.nextSibling();
+    }
+
+    return TRUE;
 }
 
 /*!
@@ -220,7 +277,7 @@ QColor QSVGDevice::parseColor( const QString &col )
 	// ### the latest spec has more
 	{ 0,         0         }
     };
-    
+
     // initialize color map on first use
     if ( colMap.isEmpty() ) {
 	const struct ColorTable *t = coltab;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#4 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#5 $
 **
 ** Definition of the QSVGDevice class
 **
@@ -75,11 +75,27 @@ protected:
     virtual int	 metric( int ) const;
 
 private:
-    bool play( const QDomNode &node, QPainter *p );
+    bool play( const QDomNode &node );
     QColor parseColor( const QString &col );
+
+    enum ElementType {
+	InvalidElement = 0,
+	RectElement,
+	CircleElement,
+	EllipseElement,
+	LineElement,
+	PolylineElement,
+	PolygonElement,
+	PathElement,
+	TextElement,
+	ImageElement,
+	GroupElement
+    };
 
     QRect brect;	    		// bounding rectangle
     QDomDocument doc;			// document tree
+    QPainter *pt;			// used by play() et al
+    QMap<QString,ElementType> typeMap;	// element types
     QMap<QString,QString> colMap;	// recognized color keyword names
 
     QSVGDevicePrivate *d;
