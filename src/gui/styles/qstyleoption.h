@@ -28,7 +28,7 @@ public:
                       // Standard controls
                       SO_Default, SO_FocusRect, SO_Button, SO_Tab, SO_MenuItem,
                       SO_Frame, SO_ProgressBar, SO_ToolBox, SO_Header, SO_DockWindow,
-                      SO_ListViewItem, SO_ViewItem, SO_ToolBar,
+                      SO_ListViewItem, SO_ViewItem,
 
                       // Complex controls
                       SO_Complex = 0xf000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
@@ -329,23 +329,6 @@ public:
 protected:
     QStyleOptionToolBox(int version);
 };
-
-class Q_GUI_EXPORT QStyleOptionToolBar : public QStyleOption
-{
-public:
-    enum { Type = SO_ToolBar };
-    enum { Version = 1 };
-
-    Qt::Orientation orientation;
-
-    QStyleOptionToolBar();
-
-    QDOC_PROPERTY(Qt::Orientation orientation)
-
-protected:
-    QStyleOptionToolBar(int version);
-};
-
 
 // -------------------------- Complex style options -------------------------------
 class Q_GUI_EXPORT QStyleOptionComplex : public QStyleOption
