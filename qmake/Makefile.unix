@@ -25,8 +25,8 @@ distclean:: clean
 qtextstream.o: @REL_QTDIR@/src/tools/qtextstream.cpp
 	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qtextstream.cpp
 
-qlibrary.o: @REL_QTDIR@/src/kernel/qlibrary.cpp
-	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/kernel/qlibrary.cpp
+qlibrary.o: @REL_QTDIR@/src/tools/qlibrary.cpp
+	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qlibrary.cpp
 
 qiodevice.o: @REL_QTDIR@/src/tools/qiodevice.cpp
 	$(CXX) -c -O -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qiodevice.cpp
