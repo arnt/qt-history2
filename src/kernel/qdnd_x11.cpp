@@ -480,15 +480,15 @@ static bool checkEmbedded(QWidget* w, const XEvent* xe)
 
     QWExtra* extra = ((QExtraWidget*)w)->extraData();
     if ( extra && extra->xDndProxy != 0 ) {
-	
+
 	if (current_embedding_widget != w) {
-	
+
  	    last_enter_event.xany.window = extra->xDndProxy;
  	    XSendEvent( qt_xdisplay(), extra->xDndProxy, FALSE, NoEventMask,
  			&last_enter_event );
 	    current_embedding_widget = w;
 	}
-	
+
 	((XEvent*)xe)->xany.window = extra->xDndProxy;
 	XSendEvent( qt_xdisplay(), extra->xDndProxy, FALSE, NoEventMask,
 		    (XEvent*)xe );
@@ -505,7 +505,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe, bool /*passive*/ )
 	//return; // haven't been set up for dnd
 
     qt_motifdnd_active = FALSE;
-    
+
     last_enter_event.xclient = xe->xclient;
 
     qt_xdnd_target_answerwas = FALSE;
@@ -785,7 +785,7 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe, bool passive )
     }
     if ( qt_xdnd_source_object )
 	qt_xdnd_source_object->setTarget( qt_xdnd_current_widget );
-	
+
     if ( !passive ) {
 	QDropEvent de( qt_xdnd_current_position );
 	de.setAction( global_accepted_action );
@@ -1307,27 +1307,6 @@ bool qt_xdnd_handle_badwindow()
 */
 
 
-/*! \fn void QDropEvent::accept (bool y=TRUE)
-  \reimp
-
-  \warning To accept or reject the drop, call acceptAction(), not this
-  function.
-*/
-
-
-/*! \fn bool QDropEvent::isActionAccepted () const
-
-  Returns TRUE if the drop action was accepted by the drop site, and
-  FALSE if not.
-*/
-
-
-/*! \fn void QDropEvent::setPoint (const QPoint & np)
-
-  Sets the drop to happen at \a np.
-*/ // ### here too - what coordinate system?
-
-
 /*!  Returns TRUE if this event provides format \a mimeType or
   FALSE if it does not.
 
@@ -1341,8 +1320,8 @@ bool QDropEvent::provides( const char *mimeType ) const
 	    return TRUE;
 	else
 	    return FALSE;
-    } 
-    
+    }
+
     int n=0;
     const char* f;
     do {
@@ -1478,7 +1457,7 @@ bool qt_dnd_enable( QWidget* w, bool on )
 	    return TRUE; // been there, done that
 	((QExtraWidget*)w)->topData()->dnd  = 1;
     }
-    
+
     qt_motifdnd_enable( w, on );
     return qt_xdnd_enable( w, on );
 }

@@ -677,7 +677,7 @@ QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
 
 /*!
   Returns the reason for this focus event.
-  
+
   \sa setReason()
  */
 QFocusEvent::Reason QFocusEvent::reason()
@@ -687,7 +687,7 @@ QFocusEvent::Reason QFocusEvent::reason()
 
 /*!
   Sets the reason for all future focus events to \a reason.
-  
+
   \sa reason(), resetReason()
  */
 void QFocusEvent::setReason( Reason reason )
@@ -699,7 +699,7 @@ void QFocusEvent::setReason( Reason reason )
 /*!
   Resets the reason for all future focus events to the value before
   the last setReason() call.
-  
+
   \sa reason(), resetReason()
  */
 void QFocusEvent::resetReason()
@@ -1110,13 +1110,6 @@ QCustomEvent::QCustomEvent( int type )
 */
 
 /*!
-  \fn void QDropEvent::setPoint(const QPoint&)
-
-  Sets the drop point. You will not need to use this as it will be
-  set internally before your widget receives the drop event.
-*/
-
-/*!
   \fn bool QDropEvent::isAccepted () const
 
   Returns TRUE if the drop target accepts the event.
@@ -1125,10 +1118,16 @@ QCustomEvent::QCustomEvent( int type )
 /*!
   \fn void QDropEvent::accept(bool y=TRUE)
 
-  Call this to indicate whether the event provided data which your widget
-  processed.  To get the data, use encodedData(), or preferably, the
-  decode() methods of existing QDragObject subclasses, such as
-  QTextDrag::decode(), or your own subclasses.
+  \reimp
+
+  Call this to indicate whether the event provided data which your
+  widget processed.  To get the data, use encodedData(), or
+  preferably, the decode() methods of existing QDragObject subclasses,
+  such as QTextDrag::decode(), or your own subclasses.
+
+  \warning To accept or reject the drop, call acceptAction(), not this
+  function.  This function indicates whether you processed the event
+  at all.
 
   \sa acceptAction()
 */
@@ -1149,11 +1148,6 @@ QCustomEvent::QCustomEvent( int type )
   target.
 */
 
-/*!
-  \fn bool QDropEvent::isActionAccepted() const
-
-  Returns TRUE if acceptAction(TRUE) has been called.
-*/
 
 /*!
   \enum QDropEvent::Action
@@ -1175,17 +1169,17 @@ QCustomEvent::QCustomEvent( int type )
   </ul>
 
   The Link and Move actions only makes sense if the data is
-  a reference, such as \link QUriDrag text/uri-list file lists\endlink.
+  a reference, such as text/uri-list file lists (see QUriDrag).
 */
 
 /*!
   \fn Action QDropEvent::action() const
 
-  Returns the \link QDropEvent::Action action\endlink which the target
-  is requesting be performed with the data.  If your application understands
-  the action and can process the supplied data, call acceptAction(); if your
-  application can process the supplied data but can only perform the
-  Copy action, call accept().
+  Returns the Action which the target is requesting be performed with
+  the data.  If your application understands the action and can
+  process the supplied data, call acceptAction(); if your application
+  can process the supplied data but can only perform the Copy action,
+  call accept().
 */
 
 /*!
@@ -1193,6 +1187,21 @@ QCustomEvent::QCustomEvent( int type )
 
   The opposite of accept().
 */
+
+/*! \fn bool QDropEvent::isActionAccepted () const
+
+  Returns TRUE if the drop action was accepted by the drop site, and
+  FALSE if not.
+*/
+
+
+/*! \fn void QDropEvent::setPoint (const QPoint & np)
+
+  Sets the drop to happen at \a np.  You do normally not need to use
+  this as it will be set internally before your widget receives the
+  drop event.
+*/ // ### here too - what coordinate system?
+
 
 /*!
   \class QDragEnterEvent qevent.h
