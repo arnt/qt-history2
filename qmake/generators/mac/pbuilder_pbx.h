@@ -44,6 +44,7 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
     bool init_flag;
     bool writeMakeParts(QTextStream &);
     bool writeMakefile(QTextStream &);
+    bool writeSubdirs(QTextStream &);
     void init();
 
     QMap<QString, QString> keys;
@@ -55,6 +56,7 @@ public:
     ProjectBuilderMakefileGenerator(QMakeProject *p);
     ~ProjectBuilderMakefileGenerator();
 
+    QString defaultMakefile() const;
 protected:
     virtual bool doDepends() const { return FALSE; } //never necesary
 };

@@ -56,6 +56,7 @@ public:
     MetrowerksMakefileGenerator(QMakeProject *p);
     ~MetrowerksMakefileGenerator();
 
+    QString defaultMakefile() const;
 protected:
     virtual bool doDepends() const { return FALSE; } //never necesary
 };
@@ -63,5 +64,8 @@ protected:
 inline MetrowerksMakefileGenerator::~MetrowerksMakefileGenerator()
 { }
 
-
+inline QString MetrowerksMakefileGenerator::defaultMakefile() const
+{
+    return project->first("TARGET") + ".xml";
+}
 #endif /* __METROWERKSMAKE_H__ */

@@ -1427,3 +1427,39 @@ MakefileGenerator::specdir()
     }
     return spec;
 }
+
+
+//Factory thing
+#include "unixmake.h"
+#include "borland_bmake.h"
+#include "msvc_nmake.h"
+#include "msvc_dsp.h"
+#include "metrowerks_xml.h"
+#include "pbuilder_pbx.h"
+
+MakefileGenerator *
+MakefileGenerator::create(QMakeProject *proj)
+{
+    MakefileGenerator *mkfile = NULL;
+    QString gen = proj->first("MAKEFILE_GENERATOR");
+    if(gen.isEmpty()) {
+	fprintf(stderr, "No generator specified in config file: %s\n", 
+		proj->projectFile().latin1());
+    } else if(gen == "UNIX") {
+	mkfile = new UnixMakefileGenerator(proj);
+    } else if(gen == "MSVC") {
+	if(proj->first("TEMPLATE").find(QRegExp("^vc.*")) != -1) 
+	    mkfile = new DspMakefileGenerator(proj);
+	else 
+	    mkfile = new NmakeMakefileGenerator(proj);
+    } else if(gen == "BMAKE") {
+	mkfile = new BorlandMakefileGenerator(proj);
+    } else if(gen == "METROWERKS") {
+	mkfile = new MetrowerksMakefileGenerator(proj);
+    } else if(gen == "PROJECTBUILDER") {
+	mkfile = new ProjectBuilderMakefileGenerator(proj);
+    } else {
+	fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
+    }
+    return mkfile;
+}

@@ -110,8 +110,15 @@ public:
     MakefileGenerator(QMakeProject *p);
     virtual ~MakefileGenerator();
 
+    static MakefileGenerator *create(QMakeProject *);
     bool write();
+    virtual QString defaultMakefile() const;
 };
+
+inline QString MakefileGenerator::defaultMakefile() const
+{
+    return "Makefile";
+}
 
 inline QString MakefileGenerator::findMocSource(const QString &moc_file) const 
 {

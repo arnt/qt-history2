@@ -37,12 +37,6 @@
 
 #include "project.h"
 #include "option.h"
-#include "unixmake.h"
-#include "borland_bmake.h"
-#include "msvc_nmake.h"
-#include "msvc_dsp.h"
-#include "metrowerks_xml.h"
-#include "pbuilder_pbx.h"
 #include "projectgenerator.h"
 #include <qnamespace.h>
 #include <qregexp.h>
@@ -119,44 +113,14 @@ int main(int argc, char **argv)
 		continue;
 	    }
 
-	    /* figure out generator */
-	    MakefileGenerator *mkfile = NULL;
-	    QString gen = proj.first("MAKEFILE_GENERATOR"), def_mkfile;
-	    if(gen.isEmpty()) {
-		fprintf(stderr, "No generator specified in config file: %s\n", fn.latin1());
-		exit_val = 3;
-	    } else if(gen == "UNIX") {
-		mkfile = new UnixMakefileGenerator(&proj);
-	    } else if(gen == "MSVC") {
-		if(proj.first("TEMPLATE").find(QRegExp("^vc.*")) != -1) {
-		    def_mkfile = proj.first("TARGET") + proj.first( "DSP_EXTENSION" );
-		    mkfile = new DspMakefileGenerator(&proj);
-		} else {
-		    mkfile = new NmakeMakefileGenerator(&proj);
-		}
-	    } else if(gen == "BMAKE") {
-		mkfile = new BorlandMakefileGenerator(&proj);
-	    } else if(gen == "METROWERKS") {
-		def_mkfile = proj.first("TARGET") + ".xml";
-		mkfile = new MetrowerksMakefileGenerator(&proj);
-	    } else if(gen == "PROJECTBUILDER") {
-		def_mkfile = proj.first("TARGET") + ".pbproj/project.pbxproj";
-		mkfile = new ProjectBuilderMakefileGenerator(&proj);
-	    } else {
-		fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
-		exit_val = 4;
-	    }
-
 	    bool using_stdout = FALSE;
+	    MakefileGenerator *mkfile = MakefileGenerator::create(&proj); //figure out generator
 	    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE && mkfile) {
 		/* open make file */
 		if(!(Option::output.state() & IO_Open)) {
 		    QString default_makefile = proj.first("QMAKE_MAKEFILE");
 		    if(default_makefile.isEmpty()) {
-			if(!def_mkfile.isEmpty())
-			    default_makefile = def_mkfile;
-			else
-			    default_makefile = "Makefile";
+			default_makefile = mkfile->defaultMakefile();
 			proj.variables()["QMAKE_MAKEFILE"].append(default_makefile);
 		    }
 		    if(Option::output.name().isEmpty()) {

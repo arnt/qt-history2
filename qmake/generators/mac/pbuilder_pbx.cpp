@@ -65,13 +65,10 @@ ProjectBuilderMakefileGenerator::writeMakefile(QTextStream &t)
 	return TRUE;
     }
 
-    if(project->first("TEMPLATE") == "app" ||
-       project->first("TEMPLATE") == "lib") {
+    if(project->first("TEMPLATE") == "app" || project->first("TEMPLATE") == "lib") 
 	return writeMakeParts(t);
-    } else if(project->first("TEMPLATE") == "subdirs") {
-	qDebug("Subdirs template not supported, sorry.");
-	return TRUE;
-    }
+    else if(project->first("TEMPLATE") == "subdirs") 
+	return writeSubdirs(t);
     return FALSE;
 }
 
@@ -682,4 +679,21 @@ ProjectBuilderMakefileGenerator::keyFor(QString block)
 	ret = keys[block];
     }
     return ret;
+}
+
+
+bool
+ProjectBuilderMakefileGenerator::writeSubdirs(QTextStream &t)
+{
+    fprintf(stderr, "Subdirs not supported yet, sorry.\n");
+    return TRUE;
+}
+
+
+QString
+ProjectBuilderMakefileGenerator::defaultMakefile() const
+{
+    if(project->first("TEMPLATE") == "subdirs")
+	return UnixMakefileGenerator::defaultMakefile();
+    return project->first("TARGET") + ".pbproj/project.pbxproj";
 }

@@ -52,10 +52,15 @@ public:
     DspMakefileGenerator(QMakeProject *p);
     ~DspMakefileGenerator();
 
+    QString defaultMakefile() const;
 };
 
 inline DspMakefileGenerator::~DspMakefileGenerator()
 { }
 
+inline QString DspMakefileGenerator::defaultMakefile() const
+{
+    return project->first("TARGET") + project->first("DSP_EXTENSION");
+}
 
 #endif /* __DSPMAKE_H__ */
