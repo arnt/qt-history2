@@ -39,6 +39,7 @@ QStringList StandardTemplateWizardInterface::featureList() const
 
 void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widget, QComponentInterface *aIface )
 {
+#ifndef QT_NO_SQL
     appIface = aIface;
     if ( templ == "QDesignerSqlWidget" ||
 	 templ == "QDesignerSqlDialog" ||
@@ -48,6 +49,7 @@ void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widg
 	SqlFormWizard *wizard = new SqlFormWizard( appIface, widget, 0, 0, TRUE );
 	wizard->exec();
     }
+#endif
 }
 
 QUnknownInterface *StandardTemplateWizardInterface::queryInterface( const QUuid& uuid )

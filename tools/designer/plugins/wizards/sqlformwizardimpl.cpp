@@ -1,4 +1,7 @@
 #include "sqlformwizardimpl.h"
+
+#ifndef QT_NO_SQL
+
 #include <qlistbox.h>
 #include <qwidget.h>
 #include <qcheckbox.h>
@@ -7,13 +10,15 @@
 #include <qlabel.h>
 #include <qgroupbox.h>
 #include <qlayout.h>
-#include <qsqleditorfactory.h>
-#include <qsqlindex.h>
-#include <qsqlcursor.h>
 #include <qregexp.h>
 #include <qpushbutton.h>
 #include <qmultilineedit.h>
 #include <qlistview.h>
+
+#include <qsqleditorfactory.h>
+#include <qsqlindex.h>
+#include <qsqlcursor.h>
+
 
 #include "../designerinterface.h"
 
@@ -357,3 +362,5 @@ void SqlFormWizard::accept()
 
     SqlFormWizardBase::accept();
 }
+
+#endif
