@@ -128,90 +128,13 @@ QRegion::QRegion( const QRegion &r )
     data->ref();
 }
 
-//OPTIMIZATION FIXME, I think quickdraw can do this, this is just to get something going..
-static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
-{
-    QImage image = bitmap.convertToImage();
-
-    RgnHandle region = NewRgn(), rr;
-
-#define AddSpan \
-	{ \
-    	   Rect rect; \
-	   SetRect(&rect, prev1, y, (x-1)+1, (y+1)); \
-	   rr = NewRgn(); \
-    	   OpenRgn(); \
-	   FrameRect(&rect); \
-	   CloseRgn(rr); \
-	   UnionRgn( rr, region, region ); \
-	   DisposeRgn(rr); \
-	}
-
-    const int zero=0;
-    bool little = image.bitOrder() == QImage::LittleEndian;
-
-    int x, y;
-    for (y=0; y<image.height(); y++) {
-	uchar *line = image.scanLine(y);
-	int w = image.width();
-	uchar all=zero;
-	int prev1 = -1;
-	for (x=0; x<w; ) {
-	    uchar byte = line[x/8];
-	    if ( x>w-8 || byte!=all ) {
-		if ( little ) {
-		    for ( int b=8; b>0 && x<w; b-- ) {
-			if ( !(byte&0x01) == !all ) {
-			    // More of the same
-			} else {
-			    // A change.
-			    if ( all!=zero ) {
-				AddSpan
-				all = zero;
-			    } else {
-				prev1 = x;
-				all = ~zero;
-			    }
-			}
-			byte >>= 1;
-			x++;
-		    }
-		} else {
-		    for ( int b=8; b>0 && x<w; b-- ) {
-			if ( !(byte&0x80) == !all ) {
-			    // More of the same
-			} else {
-			    // A change.
-			    if ( all!=zero ) {
-				AddSpan
-				all = zero;
-			    } else {
-				prev1 = x;
-				all = ~zero;
-			    }
-			}
-			byte <<= 1;
-			x++;
-		    }
-		}
-	    } else {
-		x+=8;
-	    }
-	}
-	if ( all != zero ) {
-	    AddSpan
-	}
-    }
-    return region;
-}
-
-
 QRegion::QRegion( const QBitmap &bm )
 {
     data = new QRegionData;
     Q_CHECK_PTR( data );
     data->is_null = FALSE;
-    data->rgn = qt_mac_bitmapToRegion(bm);
+    data->rgn = NewRgn();
+    BitMapToRegion(data->rgn, (BitMap *)*GetGWorldPixMap((GWorldPtr)bm.handle()));
 }
 
 
