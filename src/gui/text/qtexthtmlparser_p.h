@@ -41,7 +41,7 @@ struct QTextHtmlParserNode {
                           fontStrikeOut(0), fontFixedPitch(0), fontPointSize(12), fontWeight(QFont::Normal),
                           alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
                           imageWidth(-1), imageHeight(-1),
-                          formatIndex(0), formatReference(0), propertyId(0),
+                          formatIndex(0), formatGroupIndex(0), propertyId(0),
                           wsm(QStyleSheetItem::WhiteSpaceModeUndefined), style(0)
     { margin[0] = margin[1] = margin[2] = margin[3] = margin[4] = 0; }
     QString tag;
@@ -74,7 +74,7 @@ struct QTextHtmlParserNode {
 
     // for the xml import
     int formatIndex;
-    int formatReference;
+    int formatGroupIndex;
     int propertyId;
     // ###
     QString propertyType;

@@ -876,17 +876,17 @@ void QTextHtmlParser::parseAttributes()
             if (key == QLatin1String("bgcolor"))
                 node->bgColor.setNamedColor(value);
         } else if (node->tag == QLatin1String("format") // xml import
-                   || node->tag == QLatin1String("formatreference")
+                   || node->tag == QLatin1String("formatgroup")
                    || node->tag == QLatin1String("fragment")) {
             bool ok = false;
             if (key == QLatin1String("index") || key == QLatin1String("format")) {
                 node->formatIndex = value.toInt(&ok);
                 if (!ok)
                     node->formatIndex = -1;
-            } else if (key == QLatin1String("reference")) {
-                node->formatReference = value.toInt(&ok);
+            } else if (key == QLatin1String("groupindex")) {
+                node->formatGroupIndex = value.toInt(&ok);
                 if (!ok)
-                    node->formatReference = -1;
+                    node->formatGroupIndex = -1;
             }
         } else if (node->tag == QLatin1String("property")) {
             if (key == QLatin1String("id")) {

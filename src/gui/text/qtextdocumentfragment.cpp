@@ -65,28 +65,28 @@ QTextFormatCollectionState::QTextFormatCollectionState(const QTextHtmlParser &pa
         formats[formatIdx] = format;
     }
 
-    /* the formatreference in the xml we dump looks like this:
-     * <FormatReference ... />
-     * <FormatReference ... />
-     * <FormatReference ... />
+    /* the formatgroup in the xml we dump looks like this:
+     * <FormatGroup ... />
+     * <FormatGroup ... />
+     * <FormatGroup ... />
      *
      * The html parser however puts them into a tree instead of flattening them out, so
      * it looks like this when parsed:
      *
-     * <FormatReference ... >
-     *     <FormatReference ... >
-     *         <FormatReference ... />
-     *     </FormatReference>
-     * </FormatReference>
+     * <FormatGroup ... >
+     *     <FormatGroup ... >
+     *         <FormatGroup ... />
+     *     </FormatGroup>
+     * </FormatGroup>
      *
      * That is why we have to traverse using findChild on our current node instead of
      * doing a flat traversal like with the format or the fragment nodes!
      */
-    for (int formatReferenceNode = parser.findChild(formatsNode, "formatreference");
-         formatReferenceNode != -1; formatReferenceNode = parser.findChild(formatReferenceNode, "formatreference")) {
+    for (int formatGroupNode = parser.findChild(formatsNode, "formatgroup");
+         formatGroupNode != -1; formatGroupNode = parser.findChild(formatGroupNode, "formatgroup")) {
 
-        const QTextHtmlParserNode &n = parser.at(formatReferenceNode);
-        references[n.formatReference] = n.formatIndex;
+        const QTextHtmlParserNode &n = parser.at(formatGroupNode);
+        references[n.formatGroupIndex] = n.formatIndex;
     }
 }
 
@@ -168,7 +168,7 @@ void QTextFormatCollectionState::save(QTextStream &stream) const
                         break;
                     case QTextFormat::FormatGroup:
                         Q_ASSERT(propId == QTextFormat::GroupIndex);
-                        stream << "FormatReference\">" << format.groupIndex();
+                        stream << "FormatGroupIndex\">" << format.groupIndex();
                         break;
                 }
 
@@ -179,7 +179,7 @@ void QTextFormatCollectionState::save(QTextStream &stream) const
     }
 
     for (ReferenceMap::ConstIterator it = references.begin(); it != references.end(); ++it)
-        stream << "<FormatReference reference=\"" << it.key() << "\" index=\"" << it.value() << "\" />" << endl;
+        stream << "<FormatGroup groupIndex=\"" << it.key() << "\" index=\"" << it.value() << "\" />" << endl;
 
     stream << "</Formats>" << endl;
 }
@@ -195,7 +195,7 @@ QTextFormat::PropertyType QTextFormatCollectionState::stringToPropertyType(const
         return QTextFormat::Float;
     else if (type == QLatin1String("string"))
         return QTextFormat::String;
-    else if (type == QLatin1String("formatreference"))
+    else if (type == QLatin1String("formatgroupindex"))
         return QTextFormat::FormatGroup;
 
     return QTextFormat::Undefined;
