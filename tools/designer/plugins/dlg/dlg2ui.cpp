@@ -31,8 +31,8 @@
 /*
   Possible improvements:
 
-  1.  A user widget that has a Stretch property of 1 should have
-      Expanding as size policy, not Preferred.
+  1.  Convert layout stretch factors to size policy stretches, now
+      that Qt Designer supports the latter.
 */
 
 /*
