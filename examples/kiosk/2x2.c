@@ -213,8 +213,8 @@ static unsigned long wrandom()
 
 void RandInit(int h, int w)
 {
-  swrandom(1); /* must be stable */
   int i;
+  swrandom(1); /* must be stable */
 
   randval_a = (int *) malloc(w*5*sizeof(int));
   randptr_a = (int **) malloc(h*sizeof(int *));
