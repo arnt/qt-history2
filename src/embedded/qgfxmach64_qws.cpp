@@ -1790,9 +1790,13 @@ void QMachCursor::set(const QImage& image,int hx,int hy)
     hoty=hy;
 
     if(cursor->isNull()) {
-        qDebug("Null cursor image!");
-	abort();
-        return;
+	static QImage *img = 0;
+	if ( !img ) {
+	    img = new QImage(8,8,8,3);
+	    img->setColor(2, 0x00000000);
+	    img->fill(2);
+	}
+	cursor = img;
     }
 
     unsigned int offset=myoffset;
