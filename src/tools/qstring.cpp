@@ -1666,7 +1666,7 @@ void QString::truncate( uint newLen )
     \code
 	QString result;
 	int resultLength = 0;
-	result.setLength( newLen ) // allocate some space
+	result.setLength( newLen ); // allocate some space
 	while ( ... ) {
 	    result[resultLength++] = ... // fill (part of) the space with data
 	}
