@@ -264,13 +264,13 @@ QStringList Config::mimePaths()
         // Mime source for .dcf file path
         QFileInfo info( *it );
         QString dcfPath = info.absolutePath();
-        if (lst.contains(dcfPath) == 0)
+        if (!lst.contains(dcfPath))
             lst << dcfPath;
 
         // Image dir for .dcf
         QString imgDir = QDir::convertSeparators( dcfPath + QDir::separator()
                                                   + profil->imageDirs[it.key()] );
-        if (lst.contains(imgDir) == 0)
+        if (!lst.contains(imgDir))
             lst << imgDir;
     }
     return lst;

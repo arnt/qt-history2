@@ -6194,7 +6194,7 @@ void Q3TextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
 // calculate the width of a string in pixels inc. tabs
 static int qStrWidth(const QString& str, int tabWidth, const QFontMetrics& fm)
 {
-    int tabs = str.contains('\t');
+    int tabs = str.count('\t');
 
     if (!tabs)
         return fm.width(str);

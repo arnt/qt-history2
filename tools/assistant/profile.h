@@ -68,7 +68,7 @@ inline void Profile::addDCFTitle(const QString &dcf, const QString &title)
 {
     QString absdcf = QFileInfo(dcf).absoluteFilePath();
     dcfTitles[title] = absdcf;
-    if (docs.contains(absdcf) == 0)
+    if (!docs.contains(absdcf))
         docs << absdcf;
 }
 
