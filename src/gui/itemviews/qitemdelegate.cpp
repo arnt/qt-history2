@@ -313,13 +313,20 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QRect &rect, const QPixmap &pixmap) const
 {
-    if (!pixmap.isNull())
+    if (!pixmap.isNull() && !rect.isEmpty()) {
         painter->drawPixmap(rect.topLeft(), pixmap);
-
-    if (option.state & QStyle::Style_Selected && !rect.isEmpty()) {
-        QColor col = option.palette.highlight();
-        col.setRgba(col.red(),  col.green(), col.blue(), 127);
-        painter->fillRect(rect, col);
+        if (option.state & QStyle::Style_Selected) {
+            QColor col = option.palette.highlight();
+            col.setRgba(col.red(), col.green(), col.blue(), 127);
+#if 1
+            QPen pen = painter->pen();
+            painter->setPen(col);
+            painter->drawPixmap(rect.topLeft(), *pixmap.mask());
+            painter->setPen(pen);
+#else
+            painter->fillRect(rect, col);
+#endif
+        }
     }
 }
 
