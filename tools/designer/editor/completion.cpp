@@ -282,7 +282,12 @@ bool EditorCompletion::doCompletion()
 					completionListBox->horizontalScrollBar()->height() + 4 ) );
 	completionListBox->setCurrentItem( 0 );
 	completionListBox->setFocus();
-	completionPopup->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
+	if ( curEditor->mapToGlobal( QPoint( 0, y ) ).y() + h + completionPopup->height() < QApplication::desktop()->height() )
+	    completionPopup->move( curEditor->mapToGlobal( curEditor->
+							   contentsToViewport( QPoint( x, y + h ) ) ) );
+	else
+	    completionPopup->move( curEditor->mapToGlobal( curEditor->
+							   contentsToViewport( QPoint( x, y - completionPopup->height() ) ) ) );
 	completionPopup->show();
     } else if ( lst.count() == 1 ) {
 	curEditor->insert( lst.first().text.mid( completionOffset, 0xFFFFFF ), TRUE );
@@ -654,6 +659,12 @@ void EditorCompletion::showCompletion( const QValueList<CompletionEntry> &lst )
 				    completionListBox->horizontalScrollBar()->height() + 4 ) );
     completionListBox->setCurrentItem( 0 );
     completionListBox->setFocus();
-    completionPopup->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
+    if ( curEditor->mapToGlobal( QPoint( 0, y ) ).y() + h + completionPopup->height() < QApplication::desktop()->height() )
+	completionPopup->move( curEditor->mapToGlobal( curEditor->
+						       contentsToViewport( QPoint( x, y + h ) ) ) );
+    else
+	completionPopup->move( curEditor->mapToGlobal( curEditor->
+						       contentsToViewport( QPoint( x, y - completionPopup->height() ) ) ) );
+
     completionPopup->show();
 }
