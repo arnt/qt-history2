@@ -104,8 +104,8 @@ bool Streamer::writeOut( QIODevice* dev, int ver, bool printable  )
 #endif
 	
     QBitArray d1( 3 );
-    d1.fill( TRUE );
-    d1[1] = FALSE;
+    d1.fill( 1 );
+    d1[1] = 0;
     s << d1;
 
     QBrush d2( red, CrossPattern );
@@ -198,9 +198,9 @@ bool Streamer::readIn( QIODevice* dev, int ver, bool printable  )
 
     QBitArray d1;
     s >> d1;
-    ASSERT( d1[0] == TRUE );
-    ASSERT( d1[1] == FALSE );
-    ASSERT( d1[2] == TRUE );
+    ASSERT( d1[0] == 1 );
+    ASSERT( d1[1] == 0 );
+    ASSERT( d1[2] == 1 );
 
     QBrush d2( red, CrossPattern );
     s >> d2;
