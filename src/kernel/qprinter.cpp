@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#14 $
 **
 ** Implementation of QPrinter class
 **
@@ -13,7 +13,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#14 $";
 #endif
 
 
@@ -47,8 +47,8 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#13 $";
   inch) system with (0,0) at the upper left corner, with increasing
   values to the right and downwards.  This causes printer output to be
   roughly the same size as screen output on most screens.  You can
-  easily change the coordinate system using QPainter::setViewport()
-  and/or QPainter::setWindow().
+  easily change the coordinate system using QPainter::setViewport().
+  QPainter::setWindow() and/or QPainter::setWorldMatrix().
 
   The newPage() function should be called to finish the current page and
   start printing a new page.

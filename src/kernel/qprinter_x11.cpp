@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#6 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -20,7 +20,7 @@
 #include <unistd.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#6 $";
 #endif
 
 
@@ -55,7 +55,7 @@ QPrinter::QPrinter()
 }
 
 /*----------------------------------------------------------------------------
-  Constructs the printer paint device.
+  Destroys the printer paint device and cleans up.
  ----------------------------------------------------------------------------*/
 
 QPrinter::~QPrinter()
