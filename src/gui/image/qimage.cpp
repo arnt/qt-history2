@@ -3646,8 +3646,8 @@ QWSPaintEngine *QImage::paintEngine()
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 #undef IWX_MSB
 #define IWX_MSB(b)        if (trigx < maxws && trigy < maxhs) {                              \
-                            if (*(sptr+sbpl*(trigy>>16)+(trigx>>19)) &                      \
-                                 (1 << (7-((trigx>>16)&7))))                              \
+                            if (*(sptr+sbpl*(trigy>>12)+(trigx>>15)) &                      \
+                                 (1 << (7-((trigx>>12)&7))))                              \
                                 *dptr |= b;                                              \
                         }                                                              \
                         trigx += m11;                                                      \
@@ -3655,8 +3655,8 @@ QWSPaintEngine *QImage::paintEngine()
         // END OF MACRO
 #undef IWX_LSB
 #define IWX_LSB(b)        if (trigx < maxws && trigy < maxhs) {                              \
-                            if (*(sptr+sbpl*(trigy>>16)+(trigx>>19)) &                      \
-                                 (1 << ((trigx>>16)&7)))                              \
+                            if (*(sptr+sbpl*(trigy>>12)+(trigx>>15)) &                      \
+                                 (1 << ((trigx>>12)&7)))                              \
                                 *dptr |= b;                                              \
                         }                                                              \
                         trigx += m11;                                                      \
@@ -3664,8 +3664,8 @@ QWSPaintEngine *QImage::paintEngine()
         // END OF MACRO
 #undef IWX_PIX
 #define IWX_PIX(b)        if (trigx < maxws && trigy < maxhs) {                              \
-                            if ((*(sptr+sbpl*(trigy>>16)+(trigx>>19)) &              \
-                                 (1 << (7-((trigx>>16)&7)))) == 0)                      \
+                            if ((*(sptr+sbpl*(trigy>>12)+(trigx>>15)) &              \
+                                 (1 << (7-((trigx>>12)&7)))) == 0)                      \
                                 *dptr &= ~b;                                              \
                         }                                                              \
                         trigx += m11;                                                      \
@@ -3675,19 +3675,19 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
                      uchar *dptr, int dbpl, int p_inc, int dHeight,
                      const uchar *sptr, int sbpl, int sWidth, int sHeight)
 {
-    int m11 = int(trueMat.m11()*65536.0 + 1.);
-    int m12 = int(trueMat.m12()*65536.0 + 1.);
-    int m21 = int(trueMat.m21()*65536.0 + 1.);
-    int m22 = int(trueMat.m22()*65536.0 + 1.);
-    int dx  = qRound(trueMat.dx() *65536.0);
-    int dy  = qRound(trueMat.dy() *65536.0);
+    int m11 = int(trueMat.m11()*4096.0 + 1.);
+    int m12 = int(trueMat.m12()*4096.0 + 1.);
+    int m21 = int(trueMat.m21()*4096.0 + 1.);
+    int m22 = int(trueMat.m22()*4096.0 + 1.);
+    int dx  = qRound(trueMat.dx()*4096.0);
+    int dy  = qRound(trueMat.dy()*4096.0);
 
     int m21ydx = dx + (xoffset<<16);
     int m22ydy = dy;
     uint trigx;
     uint trigy;
-    uint maxws = sWidth<<16;
-    uint maxhs = sHeight<<16;
+    uint maxws = sWidth<<12;
+    uint maxhs = sHeight<<12;
 
     for (int y=0; y<dHeight; y++) {                // for each target scanline
         trigx = m21ydx;
@@ -3698,7 +3698,7 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
                 case 8:                                // 8 bpp transform
                 while (dptr < maxp) {
                     if (trigx < maxws && trigy < maxhs)
-                        *dptr = *(sptr+sbpl*(trigy>>16)+(trigx>>16));
+                        *dptr = *(sptr+sbpl*(trigy>>12)+(trigx>>12));
                     trigx += m11;
                     trigy += m12;
                     dptr++;
@@ -3708,8 +3708,8 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
                 case 16:                        // 16 bpp transform
                 while (dptr < maxp) {
                     if (trigx < maxws && trigy < maxhs)
-                        *((ushort*)dptr) = *((ushort *)(sptr+sbpl*(trigy>>16) +
-                                                     ((trigx>>16)<<1)));
+                        *((ushort*)dptr) = *((ushort *)(sptr+sbpl*(trigy>>12) +
+                                                     ((trigx>>12)<<1)));
                     trigx += m11;
                     trigy += m12;
                     dptr++;
@@ -3720,7 +3720,7 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
                 case 24:                        // 24 bpp transform
                 while (dptr < maxp) {
                     if (trigx < maxws && trigy < maxhs) {
-                        const uchar *p2 = sptr+sbpl*(trigy>>16) + ((trigx>>16)*3);
+                        const uchar *p2 = sptr+sbpl*(trigy>>12) + ((trigx>>12)*3);
                         dptr[0] = p2[0];
                         dptr[1] = p2[1];
                         dptr[2] = p2[2];
@@ -3734,8 +3734,8 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
                 case 32:                        // 32 bpp transform
                 while (dptr < maxp) {
                     if (trigx < maxws && trigy < maxhs)
-                        *((uint*)dptr) = *((uint *)(sptr+sbpl*(trigy>>16) +
-                                                   ((trigx>>16)<<2)));
+                        *((uint*)dptr) = *((uint *)(sptr+sbpl*(trigy>>12) +
+                                                   ((trigx>>12)<<2)));
                     trigx += m11;
                     trigy += m12;
                     dptr += 4;
