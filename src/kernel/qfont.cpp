@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#6 $
 **
-** Implementation of QFont and QFontMetrics classes
+** Implementation of QFont and QFontInfo classes
 **
 ** Author  : Eirik Eng
 ** Created : 941207
@@ -12,47 +12,42 @@
 
 #include "qfont.h"
 #include "qfontdta.h"
+#include "qfontmet.h"
+#include "qfontinf.h"
 #include "qpainter.h"
+#include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#6 $";
 #endif
 
 
 QFont::QFont( const QFont &font )
 {
-    data = font.data;
-    data->ref();
+    d = font.d;
+    d->ref();
 }
 
 QFont::~QFont()
 {
-    if ( data->deref() )
-	delete data;
+    if ( d->deref() )
+	delete d;
 }
 
 QFont &QFont::operator=( const QFont &font )
 {
-    font.data->ref();
-    if ( data->deref() )
-	delete data;
-    data = font.data;
+    font.d->ref();
+    if ( d->deref() )
+	delete d;
+    d = font.d;
     return *this;
 }
 
-
-QFont QFont::copy() const
-{
-    QFont f( data->family );
-    return f;
-}
-
-
 void QFont::setFamily( const char *family )
 {
-    if ( data->family != family ) {
-	data->family = family;
-	data->dirty  = TRUE;
+    if ( d->req.family != family ) {
+	d->req.family = family;
+	d->req.dirty  = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
@@ -66,18 +61,18 @@ void QFont::setPointSize( int pointSize )
 #endif
 	return;
     }
-    if ( data->pointSize != pointSize ) {
-	data->pointSize = pointSize * 10;
-	data->dirty     = TRUE;
+    if ( d->req.pointSize != pointSize ) {
+	d->req.pointSize = pointSize * 10;
+	d->req.dirty     = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
 void QFont::setItalic( bool i )
 {
-    if ( data->italic != i ) {
-	data->italic = i;
-	data->dirty  = TRUE;
+    if ( d->req.italic != i ) {
+	d->req.italic = i;
+	d->req.dirty  = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
@@ -90,119 +85,163 @@ void QFont::setWeight( int w )
 	return;
     }
 #endif
-    if ( data->weight != w ) {
-	data->weight = w;
-	data->dirty  = TRUE;
+    if ( d->req.weight != w ) {
+	d->req.weight = w;
+	d->req.dirty  = TRUE;
+	QPainter::changedFont( this, TRUE );	// tell painter about new font
+    }
+}
+
+void QFont::setUnderline( bool b )
+{
+    if ( d->req.underline != b ) {
+	d->req.underline  = b;
+	d->act.underline  = b;                  // underline always possible
+	QPainter::changedFont( this, TRUE );	// tell painter about new font
+    }
+}
+
+void QFont::setStrikeOut( bool b )
+{
+    if ( d->req.strikeOut != b ) {
+	d->req.strikeOut  = b;
+	d->act.strikeOut  = b;                  // strikeOut always posible
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
 void QFont::setFixedPitch( bool b )
 {
-    if ( data->fixedPitch != b ) {
-	data->fixedPitch = b;
-	data->dirty      = TRUE;
+    if ( d->req.fixedPitch != b ) {
+	d->req.fixedPitch = b;
+	d->req.dirty      = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
 void QFont::setStyleHint( StyleHint h )
 {
-    if ( data->styleHint != h ) {
-	data->styleHint	    = h;
-	data->hintSetByUser = TRUE;
-	data->dirty         = TRUE;
+    if ( d->req.styleHint != h ) {
+	d->req.styleHint     = h;
+	d->req.hintSetByUser = TRUE;
+	d->req.dirty         = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
 void QFont::setCharSet( CharSet c )
 {
-    if ( data->charSet != c ) {
-	data->charSet = c;
-	data->dirty   = TRUE;
+    if ( d->req.charSet != c ) {
+	d->req.charSet = c;
+	d->req.dirty   = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
 const char *QFont::family() const
 {
-    return data->family;
+    return d->req.family;
 }
 
 int QFont::pointSize() const
 {
-    return data->pointSize / 10;
+    return d->req.pointSize / 10;
 }
 
 bool QFont::italic() const
 {
-    return data->italic;
+    return d->req.italic;
 }
 
 int QFont::weight() const
 {
-    return (int) data->weight;
+    return (int) d->req.weight;
+}
+
+int QFont::underline() const
+{
+    return (int) d->req.underline;
+}
+
+int QFont::strikeOut() const
+{
+    return (int) d->req.strikeOut;
 }
 
 bool QFont::fixedPitch() const
 {
-    return data->fixedPitch;
+    return d->req.fixedPitch;
 }
 
 QFont::StyleHint QFont::styleHint() const
 {
-    return (StyleHint) data->styleHint;
+    return (StyleHint) d->req.styleHint;
 }
 
 QFont::CharSet QFont::charSet() const
 {
-    return (CharSet) data->charSet;
+    return (CharSet) d->req.charSet;
 }
 
 bool QFont::rawMode() const
 {
-    return data->rawMode;
+    return d->req.rawMode;
 }
 
 bool QFont::exactMatch() const
 {
-    if ( data->dirty )
+    if ( d->req.dirty )
 	loadFont();
-    return data->exactMatch;
+    return d->req.exactMatch;
 }
 
 void QFont::setRawMode( bool b )
 {
-    if ( data->rawMode != b ) {
-	data->rawMode = b;
-	data->dirty = TRUE;
+    if ( d->req.rawMode != b ) {
+	d->req.rawMode = b;
+	d->req.dirty   = TRUE;
 	QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
 bool QFont::operator==( const QFont &f ) const
 {
-    return (f.data == data) || (f.data->family == data->family);
+    return f.d == d;
 }
 
 void QFont::init()
 {
-    data = new QFontData;
-    CHECK_PTR( data );
-    data->styleHint	= AnyStyle;
-    data->charSet	= Latin1;
-    data->fixedPitch	= FALSE;
-    data->dirty		= TRUE;
-    data->exactMatch	= FALSE;
-    data->hintSetByUser = FALSE;
-    data->rawMode	= FALSE;
+    d = new QFontData;
+    CHECK_PTR( d );
+    d->req.styleHint	 = AnyStyle;
+    d->req.charSet	 = Latin1;
+    d->req.underline     = FALSE;
+    d->req.strikeOut     = FALSE;
+    d->req.fixedPitch	 = FALSE;
+    d->req.exactMatch	 = FALSE;
+    d->req.hintSetByUser = FALSE;
+    d->req.rawMode	 = FALSE;
+    d->req.dirty	 = TRUE;
+    d->act.dirty	 = TRUE;
 }
 
 int QFont::deciPointSize() const
 {
-    return data->pointSize;
+    return d->req.pointSize;
 }
+
+
+void QFont::updateSubscribers()
+{
+    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::wmapper()) );
+    register QWidget *w;
+    while ( (w=it.current()) ) {		// for all widgets that use
+	if ( w->font().d == d )			//   this font
+	    w->setFont( *this );		// update the font
+	++it;
+    }    
+}
+
 
 // --------------------------------------------------------------------------
 // QFont stream functions
@@ -214,20 +253,24 @@ QDataStream &operator<<( QDataStream &s, const QFont &f )
 {
     UINT8 bits = 0;
 
-    if ( f.data->italic )
-	bits |= 0x1;
-    if ( f.data->fixedPitch )
-	bits |= 0x2;
-    if ( f.data->hintSetByUser )
-	bits |= 0x4;
-    if ( f.data->rawMode )
-	bits |= 0x8;
+    if ( f.d->req.italic )
+	bits |= 0x01;
+    if ( f.d->req.underline )
+	bits |= 0x02;
+    if ( f.d->req.strikeOut )
+	bits |= 0x04;
+    if ( f.d->req.fixedPitch )
+	bits |= 0x08;
+    if ( f.d->req.hintSetByUser )
+	bits |= 0x0f;
+    if ( f.d->req.rawMode )
+	bits |= 0x10;
 
-    return s << f.data->family
-	     << f.data->pointSize
-	     << (UINT8) f.data->styleHint
-	     << (UINT8) f.data->charSet
-	     << (UINT8) f.data->weight
+    return s << f.d->req.family
+	     << f.d->req.pointSize
+	     << (UINT8) f.d->req.styleHint
+	     << (UINT8) f.d->req.charSet
+	     << (UINT8) f.d->req.weight
 	     << bits;
 }
 
@@ -235,85 +278,98 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
 {
     UINT8 bits, styleH, charS, w;
 
-    s >> f.data->family;
-    s >> f.data->pointSize;
+    if ( f.d->deref() )
+        delete f.d;
+    f.d = new QFontData;
+    CHECK_PTR( f.d );    
+
+    s >> f.d->req.family;
+    s >> f.d->req.pointSize;
     s >> styleH >> charS >> w >> bits;
 
-    f.data->styleHint	  = styleH;
-    f.data->charSet	  = charS;
-    f.data->weight	  = w;
-    f.data->italic	  = ( bits && 0x1 ) ? TRUE : FALSE;
-    f.data->fixedPitch	  = ( bits && 0x2 ) ? TRUE : FALSE;
-    f.data->hintSetByUser = ( bits && 0x4 ) ? TRUE : FALSE;
-    f.data->rawMode	  = ( bits && 0x8 ) ? TRUE : FALSE;
-    f.data->dirty	  = TRUE;
+    f.d->req.styleHint	   = styleH;
+    f.d->req.charSet	   = charS;
+    f.d->req.weight	   = w;
+    f.d->req.italic	   = ( bits && 0x01 ) ? TRUE : FALSE;
+    f.d->req.underline	   = ( bits && 0x02 ) ? TRUE : FALSE;
+    f.d->req.strikeOut	   = ( bits && 0x04 ) ? TRUE : FALSE;
+    f.d->req.fixedPitch	   = ( bits && 0x08 ) ? TRUE : FALSE;
+    f.d->req.hintSetByUser = ( bits && 0x0f ) ? TRUE : FALSE;
+    f.d->req.rawMode	   = ( bits && 0x10 ) ? TRUE : FALSE;
+    f.d->req.dirty	   = TRUE;
     QPainter::changedFont( &f, TRUE );	// tell painter about new font
 
     return s;
 }
 
-
-const char *QFontMetrics::family() const
+const QFont &QFontInfo::font() const
 {
-    if ( data->dirty || f->data->dirty )
-	updateData();
-    return data->family;
+    return f;
 }
 
-int QFontMetrics::pointSize() const
+void QFontInfo::setFont( const QFont &font )
 {
-    if ( data->dirty || f->data->dirty )
-	updateData();
-    return data->pointSize / 10;
+    f = font;
 }
 
-bool QFontMetrics::italic() const
+#define UPDATE_DATA          \
+    if ( f.d->req.dirty )    \
+        f.loadFont();        \
+    if ( f.d->act.dirty )    \
+        f.updateFontInfo();
+
+const char *QFontInfo::family() const
 {
-    if ( data->dirty || f->data->dirty )
-	updateData();
-    return data->italic;
+    UPDATE_DATA
+    return f.d->act.family;
 }
 
-int QFontMetrics::weight() const
+int QFontInfo::pointSize() const
 {
-    if ( data->dirty || f->data->dirty )
-	updateData();
-    return (int) data->weight;
+    UPDATE_DATA
+    return f.d->act.pointSize / 10;
 }
 
-bool QFontMetrics::fixedPitch() const
+bool QFontInfo::italic() const
 {
-    if ( data->dirty || f->data->dirty )
-	updateData();
-    return data->fixedPitch;
+    UPDATE_DATA
+    return f.d->act.italic;
 }
 
-QFont::StyleHint QFontMetrics::styleHint() const
+int QFontInfo::weight() const
 {
-    if ( data->dirty || f->data->dirty )
-	updateData();
-    return (QFont::StyleHint) data->styleHint;
+    UPDATE_DATA
+    return (int) f.d->act.weight;
 }
 
-QFont::CharSet QFontMetrics::charSet() const
+bool QFontInfo::fixedPitch() const
 {
-    if ( data->dirty || f->data->dirty )
-	updateData();
-    return (QFont::CharSet) data->charSet;
+    UPDATE_DATA
+    return f.d->act.fixedPitch;
 }
 
-bool QFontMetrics::rawMode() const
+QFont::StyleHint QFontInfo::styleHint() const
 {
-    if ( data->dirty || f->data->dirty )
-	updateData();
-    return data->rawMode;
+    UPDATE_DATA
+    return (QFont::StyleHint) f.d->act.styleHint;
 }
 
-bool QFontMetrics::exactMatch() const
+QFont::CharSet QFontInfo::charSet() const
 {
-    if ( data->dirty || f->data->dirty )
-	updateData();
-    return data->exactMatch;
+    UPDATE_DATA
+    return (QFont::CharSet) f.d->act.charSet;
+}
+
+bool QFontInfo::rawMode() const
+{
+    UPDATE_DATA
+    return f.d->act.rawMode;
+}
+
+bool QFontInfo::exactMatch() const
+{
+    UPDATE_DATA
+    return f.d->act.exactMatch;
 }
 
 int QFontMetrics::width( char ch ) const
@@ -322,4 +378,14 @@ int QFontMetrics::width( char ch ) const
     tmp[1] = '\0';
     tmp[0] = ch;
     return width( tmp, 1 );
+}
+
+const QFont &QFontMetrics::font() const
+{
+    return f;
+}
+
+void QFontMetrics::setFont( const QFont &font )
+{
+    f = font;
 }

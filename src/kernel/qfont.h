@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#11 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#12 $
 **
 ** Definition of QFont class
 **
@@ -20,11 +20,14 @@ struct QFontData;
 
 class QFont
 {
-friend class QFontMetrics;
-friend class QPainter;
 public:
-    enum StyleHint { Helvetica, Times, Courier, Decorative, System, AnyStyle };
-    enum Weight	   { Light = 25, Normal = 50, Bold = 75, AnyWeight = -1 };
+    enum StyleHint { Helvetica, Times, Courier, OldEnglish,  System, AnyStyle,
+                     SansSerif  = Helvetica,
+                     Serif      = Times,
+                     TypeWriter = Courier,
+                     Decorative = OldEnglish,};
+    enum Weight	   { Light = 25, Normal = 50, DemiBold = 63,
+                     Bold = 75, Black = 87 };
     enum CharSet   { Latin1, AnyCharSet };
 
     QFont();					    // default font
@@ -32,14 +35,15 @@ public:
 	   int weight = Normal, bool italic = FALSE );
     QFont( const QFont & );
     virtual ~QFont();
-    QFont &operator=( const QFont & );
-
+    QFont      &operator=( const QFont & );
     QFont	copy() const;
 
     void	setFamily( const char * );
     void	setPointSize( int pointSize );
     void	setItalic( bool );
     void	setWeight( int );
+    void        setUnderline( bool );
+    void        setStrikeOut( bool );
     void	setFixedPitch( bool );
     void	setStyleHint( StyleHint );
     void	setCharSet( CharSet );
@@ -48,6 +52,8 @@ public:
     int		pointSize()	const;
     bool	italic()	const;
     int		weight()	const;
+    bool        underline()     const;
+    bool        strikeOut()     const;
     bool	fixedPitch()	const;
     StyleHint	styleHint()	const;
     CharSet	charSet()	const;
@@ -56,32 +62,39 @@ public:
     void	setRawMode( bool );
     bool	rawMode()	const;
 
-
     bool	operator==( const QFont &f ) const;
     bool	operator!=( const QFont &f ) const
 				  { return !(operator==(f)); }
 
 #if defined(_WS_X11_)
-    Font	fontId() const;
+    Font	handle() const;
 #endif
 
+    void        updateSubscribers();
+
+    static const QFont &defaultFont();
+    static void  setDefaultFont( const QFont & );
     static void initialize();			// initialize font system
     static void cleanup();			// cleanup font system
 
 protected:
-    QString defaultFamily() const	  { return "helvetica"; };
-    QString systemDefaultFamily() const { return "helvetica"; };
-    QString defaultFont() const	  { return "6x13"; };
+    QString defaultFamily() const;
+    QString lastResortFamily() const;
+    QString lastResortFont() const;
     int  deciPointSize() const;
 
 private:
+    void updateFontInfo() const;
     void init();
     void loadFont() const;
 
+    friend class QFontMetrics;
+    friend class QFontInfo;
+    friend class QWidget;     // QWidget uses the private constructor
     friend QDataStream &operator<<( QDataStream &, const QFont & );
     friend QDataStream &operator>>( QDataStream &, QFont & );
 
-    QFontData *data;	// font data
+    QFontData *d;	// font data
 };
 
 

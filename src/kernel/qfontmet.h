@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmet.h#6 $
+** $Id: //depot/qt/main/src/kernel/qfontmet.h#7 $
 **
 ** Definition of QFontMetrics class
 **
-** Author  : Haavard Nord
+** Author  : Eirik Eng
 ** Created : 940514
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994, 1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,42 +15,29 @@
 
 #include "qfont.h"
 
-
 class QFontMetrics
 {
 public:
-    QFontMetrics();
     QFontMetrics( const QFont & );
-    QFontMetrics( const QFontMetrics & );
-   ~QFontMetrics();
-    QFontMetrics &operator=( const QFontMetrics & );
-
-    QFontMetrics	copy() const;
 
     int			ascent()	const;
     int			descent()	const;
-    int			height()	const;
+    int			height()	const; // ascent() + descent()
+    int                 leading()       const;
+    int                 lineSpacing()   const; // height() + leading()
 
     int			width( const char *, int len = -1 ) const;
     int			width( char ) const;
+    int                 maxWidth() const;
+
+    int                 underlinePos()  const;
+    int			strikeOutPos()  const;
+    int			lineWidth()     const;
 
     void		setFont( const QFont & );
-    QFont	       *font();
-
-    const char	       *family()	const;
-    int			pointSize()	const;
-    bool		italic()	const;
-    int			weight()	const;
-    bool		fixedPitch()	const;
-    QFont::StyleHint	styleHint()	const;
-    QFont::CharSet	charSet()	const;
-    bool		exactMatch()	const;
-    bool		rawMode()	const;
-
+    const QFont	       &font() const;
 private:
-    void		updateData()	const;
-    QFontData	       *data;
-    const QFont	       *f;
+    QFont f;
 };
 
 
