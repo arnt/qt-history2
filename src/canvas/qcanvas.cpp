@@ -312,7 +312,7 @@ private:
 */
 void QCanvasItemList::sort()
 {
-    qHeapSort(*((QList<QCanvasItemPtr>*)this));
+    qHeapSort(*((QLinkedList<QCanvasItemPtr>*)this));
 }
 
 /*!

@@ -21,6 +21,7 @@
 #include "qbrush.h"
 #include "qpen.h"
 #include "qlist.h"
+#include "qlinkedlist.h"
 #include "qpointarray.h"
 #endif // QT_H
 
@@ -774,7 +775,7 @@ private:
 // If we want to be able to a Qt version that was compiled with MSVC 6, in a
 // project that uses MSVC .NET, we have to first export QList<QCanvasItem*> in
 // order to ensure that all symbols of QList as exported.
-class QM_EXPORT_CANVAS QCanvasItemList : public QList<QCanvasItem*> {
+class QM_EXPORT_CANVAS QCanvasItemList : public QLinkedList<QCanvasItem*> {
 public:
     void sort();
     void drawUnique( QPainter& painter );
