@@ -1912,7 +1912,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 
     if ( e->type() == QEvent::ChildRemoved && receiver->postedEvents ) {
 	// if this is a child remove event and the child insert hasn't been
-	// dispatched yet, kill that insert and return.
+	// dispatched yet, kill that insert
 	QPostEventList * l = receiver->postedEvents;
 	QObject * c = ((QChildEvent*)e)->child();
 	QPostEvent * pe;
