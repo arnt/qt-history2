@@ -105,7 +105,6 @@ public:
     virtual ~QItemSelectionModel();
 
     QModelIndex currentItem() const;
-    void setCurrentItem(const QModelIndex &index, SelectionFlags command);
 
     bool isSelected(const QModelIndex &index) const;
     bool isRowSelected(int row, const QModelIndex &parent) const;
@@ -114,7 +113,8 @@ public:
     QAbstractItemModel *model() const;
     QModelIndexList selectedItems() const;
 
-public slots:    
+public slots:
+    void setCurrentItem(const QModelIndex &index, SelectionFlags command);
     virtual void select(const QModelIndex &index, SelectionFlags command);
     virtual void select(const QItemSelection &selection, SelectionFlags command);
     virtual void clear();

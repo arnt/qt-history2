@@ -34,7 +34,7 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
 /*!
   \class QItemSelection
 
-  \brief QItemSelection stores the top-left and bottom-right QModelIndexs in a selection range
+  \brief QItemSelection stores a list of non-overlapping selection ranges
 
   \ingroup model-view
 
