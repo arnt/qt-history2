@@ -995,7 +995,6 @@ void Configure::generateCachefile()
 	    cacheStream << (*var) << endl;
 	}
 	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental create_prl link_prl" << endl;
-	cacheStream << "QT_CONFIG+=" << qtConfig.join( " " ) << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
 	cacheStream << "ARCH=i386" << endl; //### need to detect platform
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
@@ -1012,7 +1011,7 @@ void Configure::generateCachefile()
 
 	cacheFile.close();
     }
-    QFile configFile( dictionary[ "QT_SOURCE_TREE" ] + "\\.qtwinconfig" );
+    QFile configFile( dictionary[ "QT_SOURCE_TREE" ] + "\\.qt.config" );
     if( configFile.open( IO_WriteOnly | IO_Translate ) ) { // Truncates any existing file.
 	QTextStream configStream( &configFile );
 	configStream << "CONFIG+=";
@@ -1029,6 +1028,7 @@ void Configure::generateCachefile()
 	if ( dictionary[ "RTTI" ] == "yes" )
 	    configStream << " rtti";
 	configStream << endl;
+        configStream << "QT_CONFIG += " << qtConfig.join(" ") << endl;
 	configFile.close();
     }
 }
