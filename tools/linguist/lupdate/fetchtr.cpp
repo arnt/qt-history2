@@ -50,10 +50,10 @@ static const char MagicComment[] = "TRANSLATOR ";
   Notice that the 0 doesn't produce any token.
 */
 
-enum { Tok_Eof, Tok_class, Tok_false, Tok_namespace, Tok_return, Tok_tr,
-       Tok_trUtf8, Tok_translate, Tok_true, Tok_Ident, Tok_Comment, Tok_String,
-       Tok_Colon, Tok_Gulbrandsen, Tok_LeftBrace, Tok_RightBrace, Tok_LeftParen,
-       Tok_RightParen, Tok_Comma, Tok_Semicolon };
+enum { Tok_Eof, Tok_class, Tok_namespace, Tok_return, Tok_tr,
+       Tok_trUtf8, Tok_translate, Tok_Ident, Tok_Comment, Tok_String,
+       Tok_Colon, Tok_Gulbrandsen, Tok_LeftBrace, Tok_RightBrace,
+       Tok_LeftParen, Tok_RightParen, Tok_Comma, Tok_Semicolon };
 
 /*
   The tokenizer maintains the following global variables. The names
@@ -132,31 +132,21 @@ static int getToken()
 	    yyIdent[yyIdentLen] = '\0';
 
 	    switch ( yyIdent[0] ) {
-	    case 'F':
-		if ( qstricmp(yyIdent + 1, "alse") == 0 )
-		    return Tok_false;
-		break;
 	    case 'Q':
-		if ( strcmp(yyIdent + 1, "T_TR_NOOP") == 0 )
+		if ( strcmp(yyIdent + 1, "T_TR_NOOP") == 0 ) {
 		    return Tok_tr;
-		else if ( strcmp(yyIdent + 1, "T_TRANSLATE_NOOP") == 0 )
+		} else if ( strcmp(yyIdent + 1, "T_TRANSLATE_NOOP") == 0 ) {
 		    return Tok_translate;
+		}
 		break;
 	    case 'T':
-		if ( qstricmp(yyIdent + 1, "R") == 0 ) {
-		    // TR() for when all else fails
+		// TR() for when all else fails
+		if ( qstricmp(yyIdent + 1, "R") == 0 )
 		    return Tok_tr;
-		} else if ( qstricmp(yyIdent + 1, "RUE") == 0 ) {
-		    return Tok_true;
-		}
 		break;
 	    case 'c':
 		if ( strcmp(yyIdent + 1, "lass") == 0 )
 		    return Tok_class;
-		break;
-	    case 'f':
-		if ( strcmp(yyIdent + 1, "alse") == 0 )
-		    return Tok_false;
 		break;
 	    case 'n':
 		if ( strcmp(yyIdent + 1, "amespace") == 0 )
@@ -177,8 +167,6 @@ static int getToken()
 		    return Tok_trUtf8;
 		else if ( qstrcmp(yyIdent + 1, "ranslate") == 0 )
 		    return Tok_translate;
-		else if ( qstrcmp(yyIdent + 1, "rue") == 0 )
-		    return Tok_true;
 	    }
 	    return Tok_Ident;
 	} else {
@@ -350,12 +338,20 @@ static bool matchString( QCString *s )
     return matches;
 }
 
-static bool matchBool( bool *b )
+static bool matchEncoding( bool *utf8 )
 {
-    bool matches = ( yyTok == Tok_true || yyTok == Tok_false );
-    *b = ( yyTok == Tok_true );
-    yyTok = getToken();
-    return matches;
+    if ( yyTok == Tok_Ident ) {
+	if ( strcmp(yyIdent, "QApplication") == 0 ) {
+	    yyTok = getToken();
+	    if ( yyTok == Tok_Gulbrandsen )
+		yyTok = getToken();
+	}
+	*utf8 = QString( yyIdent ).endsWith( QString("UTF8") );
+	yyTok = getToken();
+	return TRUE;
+    } else {
+	return FALSE;
+    }
 }
 
 static void parse( MetaTranslator *tor, const char *initialContext,
@@ -454,7 +450,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 		      matchString(&com) &&
 		      (match(Tok_RightParen) ||
 		       match(Tok_Comma) &&
-		       matchBool(&utf8) &&
+		       matchEncoding(&utf8) &&
 		       match(Tok_RightParen))) )
 		    tor->insert( MetaTranslatorMessage(context, text, com,
 						       QString::null, utf8) );

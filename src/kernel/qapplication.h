@@ -173,10 +173,11 @@ public:
     void	     installTranslator( QTranslator * );
     void	     removeTranslator( QTranslator * );
 #endif
+    enum Encoding { DefaultCodec, UnicodeUTF8 };
     QString	     translate( const char * context,
 				const char * key,
 				const char * comment = 0,
-				bool utf8 = FALSE ) const;
+				Encoding encoding = DefaultCodec ) const;
 #ifndef QT_NO_PALETTE
     // obsolete functions
     static void      setWinStyleHighlightColor( const QColor &c ) {
@@ -453,10 +454,10 @@ inline bool QApplication::sendSpontaneousEvent( QObject *receiver, QEvent *event
 #ifdef QT_NO_TRANSLATION
 // Simple versions
 inline QString QApplication::translate( const char *, const char *sourceText,
-					const char *, bool utf8 ) const
+					const char *, Encoding encoding ) const
 {
 #ifndef QT_NO_TEXTCODEC
-    if ( utf8 )
+    if ( encoding == UnicodeUTF8 )
 	return QString::fromUtf8( sourceText );
     else
 #endif	

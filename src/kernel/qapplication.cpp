@@ -2323,6 +2323,18 @@ QTextCodec* QApplication::defaultCodec() const
     return default_codec;
 }
 
+/*! \enum QApplication::Encoding
+
+  This enum type defines the 8-bit encoding of character string
+  arguments to translate():
+
+  \value DefaultCodec - the defaultCodec()'s encoding (Latin-1 if
+	 none is set)
+  \value UnicodeUTF8 - UTF-8
+
+  \sa QObject::tr(), QObject::trUtf8(), QString::fromUtf8()
+*/
+
 /*!
   Returns the translation text for \a sourceText, by querying the
   installed messages files. The message files are searched from the most
@@ -2337,26 +2349,25 @@ QTextCodec* QApplication::defaultCodec() const
   the output text will be very long (as for help texts).
 
   \a comment is a disambiguating comment, for when the same \a
-  sourceText is used in different roles within one context.  By default,
-  it is null.
+  sourceText is used in different roles within one context. By
+  default, it is null.
 
   See the \l QTranslator documentation for more information about
   contexts and comments.
 
   If none of the message files contain a translation for \a
   sourceText in \a context, this function returns a QString
-  equivalent of \a sourceText. It \a utf8 is TRUE, the \a sourceText
-  is interpreted as a UTF-8 encoded string. If \a utf8 is FALSE (the
-  default), the defaultCodec() (or Latin-1 if none is set) is used.
+  equivalent of \a sourceText. The encoding of \a sourceText is
+  specified by \e encoding; it defaults to \c DefaultCodec.
 
   This function is not virtual. You can use alternative translation
   techniques by subclassing \l QTranslator.
 
-  \sa QObject::tr() installTranslator() defaultCodec() QString::fromUtf8()
+  \sa QObject::tr() installTranslator() defaultCodec()
 */
 
 QString QApplication::translate( const char * context, const char * sourceText,
-				 const char * comment, bool utf8 ) const
+				 const char * comment, Encoding encoding ) const
 {
     if ( !sourceText )
 	return QString::null;
@@ -2373,7 +2384,7 @@ QString QApplication::translate( const char * context, const char * sourceText,
 	}
     }
 #ifndef QT_NO_TEXTCODEC
-    if ( utf8 )
+    if ( encoding == UnicodeUTF8 )
 	return QString::fromUtf8( sourceText );
     else if ( default_codec != 0 )
 	return default_codec->toUnicode( sourceText );

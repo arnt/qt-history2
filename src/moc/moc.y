@@ -501,8 +501,8 @@ int	   tmpYYStart;			// Used to store the lexers current mode
 int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
-// if the format revision changes, you HAVE to change it in qmetaobject.h too
-const int  formatRevision = 18;		// moc output format revision
+// if the format revision changes, you MUST change it in qmetaobject.h too
+const int formatRevision = 19;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum Flags  {
@@ -510,7 +510,7 @@ enum Flags  {
     Readable		= 0x00000001,
     Writable		= 0x00000002,
     EnumOrSet		= 0x00000004,
-    StdSet			= 0x00000100,
+    StdSet		= 0x00000100,
     Override		= 0x00000200
 };
 
@@ -2927,7 +2927,8 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "QString %s::tr( const char *s, const char *c )\n{\n",
 	     (const char*)qualifiedClassName() );
     fprintf( out, "    if ( qApp )\n" );
-    fprintf( out, "\treturn qApp->translate( \"%s\", s, c, FALSE );\n",
+    fprintf( out, "\treturn qApp->translate( \"%s\", s, c,"
+		  " QApplication::DefaultCodec );\n",
 	     (const char*)qualifiedClassName() );
     fprintf( out, "    else\n" );
     fprintf( out, "\treturn QString::fromLatin1( s );\n");
@@ -2936,7 +2937,8 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "QString %s::trUtf8( const char *s, const char *c )\n{\n",
 	     (const char*)qualifiedClassName() );
     fprintf( out, "    if ( qApp )\n" );
-    fprintf( out, "\treturn qApp->translate( \"%s\", s, c, TRUE );\n",
+    fprintf( out, "\treturn qApp->translate( \"%s\", s, c,"
+		  " QApplication::UnicodeUTF8 );\n",
 	     (const char*)qualifiedClassName() );
     fprintf( out, "    else\n" );
     fprintf( out, "\treturn QString::fromUtf8( s );\n" );

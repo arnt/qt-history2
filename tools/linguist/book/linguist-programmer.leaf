@@ -463,12 +463,11 @@ containing this
 
 \code
     <!DOCTYPE TS><TS>
-    <codec>ISO-8859-1</codec>
     <context>
         <name>QPushButton</name>
         <message>
             <source>Hello world!</source>
-            <translation type='unfinished'></translation>
+            <translation type="unfinished"></translation>
         </message>
     </context>
     </TS>

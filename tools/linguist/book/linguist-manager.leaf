@@ -49,17 +49,18 @@ An example of a complete \c .pro file with four translation source files:
 
 \index QApplication!defaultCodec()
 \index defaultCodec()!QApplication
-\index CODEC!in Project Files
+\index DEFAULTCODEC!in Project Files
 
-If you use the \l QApplication::defaultCodec() mechanism in your
-application, you will also need to set the \c CODEC entry, like this:
+\l QApplication::setDefaultCodec() makes it possible to choose a
+8-bit encoding for literal strings that appear within \c tr() calls.
+If no encoding is set, \c tr() uses Latin-1.
 
+If you use the QApplication::defaultCodec() mechanism in your
+application, \e {Qt Linguist} needs you to set the \c DEFAULTCODEC
+entry in the \c .pro file as well. For example:
 \code
-    CODEC           = ISO-8859-5
+    DEFAULTCODEC    = ISO-8859-5
 \endcode
-
-Otherwise, source texts containing non-Latin characters will be
-displayed incorrectly in \e {Qt Linguist}.
 
 \section1 lupdate
 

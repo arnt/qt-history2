@@ -44,7 +44,7 @@
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 18
+#define Q_MOC_OUTPUT_REVISION 19
 #endif
 
 class QObject;
@@ -105,11 +105,11 @@ public:
 
     enum Flags  {
 	Invalid		= 0x00000000,
-	Readable		= 0x00000001,
-	Writable		= 0x00000002,
-	EnumOrSet		= 0x00000004,
-	StdSet			= 0x00000100,
-	Override		= 0x00000200
+	Readable	= 0x00000001,
+	Writable	= 0x00000002,
+	EnumOrSet	= 0x00000004,
+	StdSet		= 0x00000100,
+	Override	= 0x00000200
     };
 
     uint flags; // internal
@@ -118,7 +118,7 @@ public:
     int id() const; 			// internal
     
     QMetaObject** meta; 		// internal
-    const QMetaEnum* enumData; 	// internal
+    const QMetaEnum* enumData;		// internal
     int _id; 				// internal
     void clear(); 			// internal
 };
@@ -206,14 +206,14 @@ public:
 private:
     QMemberDict		*init( const QMetaData *, int );
 
-    const char		*classname;			// class name
-    const char		*superclassname;		// super class name
+    const char		*classname;		// class name
+    const char		*superclassname;	// super class name
     QMetaObject	*superclass;			// super class meta object
     QMetaObjectPrivate	*d;			// private data for...
     void	*reserved;			// ...binary compatibility
-    const QMetaData		*slotData;			// slot meta data
+    const QMetaData		*slotData;	// slot meta data
     QMemberDict	*slotDict;			// slot dictionary
-    const QMetaData		*signalData;			// signal meta data
+    const QMetaData		*signalData;	// signal meta data
     QMemberDict	*signalDict;			// signal dictionary
     int signaloffset;
     int slotoffset;

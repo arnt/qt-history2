@@ -25,6 +25,19 @@
 
 #include "metatranslator.h"
 
+static bool encodingIsUtf8( const QXmlAttributes& atts )
+{
+    for ( int i = 0; i < atts.length(); i++ ) {
+	// utf8="true" is a pre-3.0 syntax
+	if ( atts.qName(i) == QString("utf8") ) {
+	    return ( atts.value(i) == QString("true") );
+	} else if ( atts.qName(i) == QString("encoding") ) {
+	    return ( atts.value(i) == QString("UTF-8") );
+	}
+    }
+    return FALSE;
+}
+
 class TsHandler : public QXmlDefaultHandler
 {
 public:
@@ -81,24 +94,14 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
 	    source.truncate( 0 );
 	    comment.truncate( 0 );
 	    translation.truncate( 0 );
-
-	    contextIsUtf8 = FALSE;
-	    for ( int i = 0; i < atts.length(); i++ ) {
-		if ( atts.qName(i) == QString("utf8") )
-		    contextIsUtf8 = ( atts.value(i) == QString("true") );
-	    }
+	    contextIsUtf8 = encodingIsUtf8( atts );
 	} else if ( qName == QString("message") ) {
 	    inMessage = TRUE;
 	    type = MetaTranslatorMessage::Finished;
 	    source.truncate( 0 );
 	    comment.truncate( 0 );
 	    translation.truncate( 0 );
-
-	    messageIsUtf8 = FALSE;
-	    for ( int i = 0; i < atts.length(); i++ ) {
-		if ( atts.qName(i) == QString("utf8") )
-		    messageIsUtf8 = ( atts.value(i) == QString("true") );
-	    }
+	    messageIsUtf8 = encodingIsUtf8( atts );
 	} else if ( qName == QString("translation") ) {
 	    for ( int i = 0; i < atts.length(); i++ ) {
 		if ( atts.qName(i) == QString("type") ) {
@@ -120,7 +123,8 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
 			    const QString& /* localName */,
 			    const QString& qName )
 {
-    if ( qName == QString("codec") ) {
+    if ( qName == QString("codec") || qName == QString("defaultcodec") ) {
+	// "codec" is a pre-3.0 syntax
 	tor->setCodec( accum );
     } else if ( qName == QString("name") ) {
 	context = accum;
@@ -316,10 +320,11 @@ bool MetaTranslator::save( const QString& filename ) const
 	return FALSE;
 
     QTextStream t( &f );
-    t.setCodec( QTextCodec::codecForName( "ISO-8859-1" ) );
+    t.setCodec( QTextCodec::codecForName("ISO-8859-1") );
 
     t << "<!DOCTYPE TS><TS>\n";
-    t << "<codec>" << codecName << "</codec>\n";
+    if ( codecName != "ISO-8859-1" )
+	t << "<defaultcodec>" << codecName << "</defaultcodec>\n";
     TMM::ConstIterator m = mm.begin();
     while ( m != mm.end() ) {
 	TMMInv inv;
@@ -341,7 +346,7 @@ bool MetaTranslator::save( const QString& filename ) const
 
 	t << "<context";
 	if ( contextIsUtf8 )
-	    t << " utf8=\"true\"";
+	    t << " encoding=\"UTF-8\"";
 	t << ">\n";
 	t << "    <name>" << evilBytes( context, contextIsUtf8 )
 	  << "</name>\n";
@@ -352,7 +357,7 @@ bool MetaTranslator::save( const QString& filename ) const
 	for ( i = inv.begin(); i != inv.end(); ++i ) {
 	    t << "    <message";
 	    if ( (*i).utf8() )
-		t << " utf8=\"true\"";
+		t << " encoding=\"UTF-8\"";
 	    t << ">\n"
 	      << "        <source>" << evilBytes( (*i).sourceText(),
 						  (*i).utf8() )
@@ -363,9 +368,9 @@ bool MetaTranslator::save( const QString& filename ) const
 		  << "</comment>\n";
 	    t << "        <translation";
 	    if ( (*i).type() == MetaTranslatorMessage::Unfinished )
-		t << " type='unfinished'";
+		t << " type=\"unfinished\"";
 	    else if ( (*i).type() == MetaTranslatorMessage::Obsolete )
-		t << " type='obsolete'";
+		t << " type=\"obsolete\"";
 	    t << ">" << protect( (*i).translation().utf8() )
 	      << "</translation>\n";
 	    t << "    </message>\n";
