@@ -1202,12 +1202,12 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 
 	p->setPen( cg.shadow() );
 	if ( sl->orientation() == Horizontal ) {
-	    qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 1,
+	    qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 2,
 			     &cg.brush( QColorGroup::Mid ) );
 	    sl->erase( 0, 0, sl->width(), tickOffset );
 	    sl->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
 	} else {
-	    qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 1,
+	    qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 2,
 			     &cg.brush( QColorGroup::Mid ) );
 	    sl->erase( 0, 0,  tickOffset, sl->height() );
 	    sl->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
@@ -1333,9 +1333,9 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
     case PM_SliderSpaceAvailable: {
 	QSlider * sl = (QSlider *) widget;
 	if ( sl->orientation() == Horizontal )
-	    ret = sl->width() - pixelMetric( PM_SliderLength, sl ) - 4;
+	    ret = sl->width() - pixelMetric( PM_SliderLength, sl ) - 6;
 	else
-	    ret = sl->height() - pixelMetric( PM_SliderLength, sl ) - 4;
+	    ret = sl->height() - pixelMetric( PM_SliderLength, sl ) - 6;
 	break; }
 
     case PM_DockWindowHandleExtent:
@@ -1407,7 +1407,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 	    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
 	    int len   = pixelMetric( PM_SliderLength, sl );
-	    int motifBorder = 2;
+	    int motifBorder = 3;
 
 	    if ( data )
 		sliderPos = *((int *) data[0]);
@@ -1615,7 +1615,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
     switch ( r ) {
     case SR_SliderFocusRect:
 	rect = QCommonStyle::subRect( r, widget );
-	rect.addCoords( 1, 1, -1, -2 );
+	rect.addCoords( 2, 2, -2, -3 );
 	break;
 
     case SR_ComboBoxFocusRect: {
