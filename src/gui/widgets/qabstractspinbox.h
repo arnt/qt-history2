@@ -73,6 +73,8 @@ protected:
     void focusOutEvent(QFocusEvent *e);
     void contextMenuEvent(QContextMenuEvent *e);
     void changeEvent(QEvent *e);
+    void closeEvent(QCloseEvent *e);
+    void hideEvent(QHideEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);

@@ -563,7 +563,28 @@ void QAbstractSpinBox::focusOutEvent(QFocusEvent *e)
 {
     if (d->pendingemit)
 	d->refresh(EmitIfChanged);
+    d->resetState();
     QWidget::focusOutEvent(e);
+}
+
+/*!
+    \reimp
+*/
+
+void QAbstractSpinBox::closeEvent(QCloseEvent *e)
+{
+    d->resetState();
+    QWidget::closeEvent(e);
+}
+
+/*!
+    \reimp
+*/
+
+void QAbstractSpinBox::hideEvent(QHideEvent *e)
+{
+    d->resetState();
+    QWidget::hideEvent(e);
 }
 
 /*!
