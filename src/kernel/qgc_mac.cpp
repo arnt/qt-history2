@@ -712,11 +712,6 @@ QQuickDrawGC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
     setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
-    setupQDPen();
-#ifdef USE_CORE_GRAPHICS
-    if(type() != CoreGraphics)
-	QMacSavedPortInfo::setClipRegion(d->clip.paintable);
-#endif
     unclippedBitBlt(d->pdev, r.x(), r.y(), &pixmap, sr.x(), sr.y(), sr.width(), sr.height(), (RasterOp)d->current.rop, false, false);
 }
 
@@ -1439,7 +1434,7 @@ QCoreGraphicsGC::drawPoints(const QPointArray &pa, int index, int npoints)
 }
 
 void 
-QCoreGraphicsGC::drawWinFocusRect(const QRect &fr, bool xorPaint, const QColor &penColor)
+QCoreGraphicsGC::drawWinFocusRect(const QRect &fr, bool xorPaint, const QColor &bgColor)
 {
     Q_ASSERT(isActive());
 
@@ -1449,7 +1444,7 @@ QCoreGraphicsGC::drawWinFocusRect(const QRect &fr, bool xorPaint, const QColor &
     //setup
     if(xorPaint) 
 	qWarning("cannot support xor painting!");
-    if(qGray(d->current.bg.color.rgb()) < 128)
+    if(qGray(bgColor.rgb()) < 128)
 	state->pen = QPen(white);
     else
 	state->pen = QPen(black);
@@ -1648,7 +1643,7 @@ QCoreGraphicsGC::drawPolyline(const QPointArray &pa, int index, int npoints)
 }
 
 void 
-QCoreGraphicsGC::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
+QCoreGraphicsGC::drawPolygon(const QPointArray &a, bool, int index, int npoints)
 {
     Q_ASSERT(isActive());
 
@@ -1693,7 +1688,14 @@ QCoreGraphicsGC::drawCubicBezier(const QPointArray &pa, int index)
 void 
 QCoreGraphicsGC::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 {
+    Q_ASSERT(isActive());
+    if(pm.isNull())
+	return;
+#if 0
+    unclippedBitBlt(d->pdev, r.x(), r.y(), &pm, sr.x(), sr.y(), sr.width(), sr.height(), (RasterOp)d->current.rop, false, false);
+#else
     qDebug("Must implement drawPixmap!!");
+#endif
 }
 
 void 
