@@ -2,7 +2,7 @@
 ** $Id: //depot/qt/main/src/kernel/qgfxvga16_qws.cpp $
 **
 ** Implementation of QGfxVga16 (graphics context) class for VGA cards
-*
+**
 ** Created : John Ryland
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
@@ -25,7 +25,7 @@
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
 **
-**********************************************************************/
+***************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2281,7 +2281,7 @@ bool QVga16Screen::connect( const QString &displaySpec, char *,
 {
     BEGIN_PROFILING
     
-    printf("QVGA16 connecting\n");
+//    printf("QVGA16 connecting\n");
     
     bool ret = TRUE;
     
@@ -2314,7 +2314,7 @@ bool QVga16Screen::connect( const QString &displaySpec, char *,
     if (shared_memory == NULL)
 	perror("shared memory / malloc problem");
     
-    printf("shared / alloced memory attached at: %x\n", (int)shared_memory);
+//    printf("shared / alloced memory attached at: %x\n", (int)shared_memory);
     
     vga_register_values = shared_memory;
     screen_double_buffer = shared_memory + 512;
@@ -2322,11 +2322,10 @@ bool QVga16Screen::connect( const QString &displaySpec, char *,
     if (-1 == ioperm (0x3c0, 0x20, 1))
 	perror("IO permissions problem (for VGA16 you probably need to be root)");
 
-
     if (screen_double_buffer == NULL)
-	printf("error\n"), exit(0);
+	printf("error getting screen_double_buffer memory\n"), exit(0);
 	
-    printf("connected\n");
+ //   printf("connected\n");
 
     unsigned char *db_line_ptr = screen_double_buffer;
 
@@ -2426,8 +2425,24 @@ QGfx * QVga16Screen::createGfx(unsigned char * b,int w,int h,int d_arg,int lines
     if (d_arg == 4) {
 	d = d_arg;
     	QGfx *ret = new QGfxVga16(b,w,h);
-
+	    
 	unsigned char *fb_line_ptr = b;
+
+	static bool screen_cleared = false;
+
+	// Blank out the screen time first time this is called
+	if (!screen_cleared) {
+	    set_enable_set_reset_vga16(0x0F);
+	    set_mode_vga16(0x00);
+	    set_write_planes_vga16(0x0F);
+	    memset(b, 0, 640*480/8);
+	    screen_cleared = true;
+	}
+	
+	int x_offset = (640 - w) / 2;
+	int y_offset = (480 - h) / 2;
+
+	fb_line_ptr += (x_offset/8) + (y_offset*640/8);
 
 	for (int i = 0; i < 480; i++)
 	{
@@ -2455,20 +2470,20 @@ extern "C" QScreen * qt_get_screen_vga16( int display_id, const char *spec,
 {
     BEGIN_PROFILING
 
-    printf("vga16 getscreen\n");
+//    printf("vga16 getscreen\n");
  
     // if (!qt_screen && slot!=0) {
     if (!qt_screen) {
-	printf("creating vga16 screen\n");
+//	printf("creating vga16 screen\n");
 	QVga16Screen *ret = new QVga16Screen( display_id );
 	if(ret->connect( spec, slot, config )) {
-	    printf("connecting vga16 screen\n");
+//	    printf("connecting vga16 screen\n");
 	    qt_screen=ret;
 	}
     }
-    printf("finished creating vga16 screen\n");
+//    printf("finished creating vga16 screen\n");
     if( !qt_screen ) {
-	printf("creating linux screen\n");
+//	printf("creating linux screen\n");
 	qt_screen=new QLinuxFbScreen( display_id );
 	qt_screen->connect( spec );
     }
