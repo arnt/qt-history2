@@ -98,6 +98,7 @@ public:
     virtual ~QWSKeyboardHandler();
 };
 
+#ifndef QT_NO_SOUND
 class QWSSoundServerData;
 
 class QWSSoundServer : public QObject {
@@ -111,7 +112,7 @@ private slots:
 private:
     QWSSoundServerData* d;
 };
-
+#endif
 /*********************************************************************
  *
  * Class: QWSServer
