@@ -939,7 +939,10 @@ void QFileDialog::fileNameChanged(const QString &text)
         QModelIndex current = d->selections->currentIndex();
         if (!current.isValid())
             current = d->model->index(0, 0, d->root());
-        QModelIndexList indexes = d->model->match(current, QAbstractItemModel::DisplayRole, text);
+        
+        QModelIndexList indexes = d->model->match(current, QAbstractItemModel::DisplayRole,
+                                                  text, 1, QAbstractItemModel::MatchDefault
+                                                  |QAbstractItemModel::MatchCase);
         int key = d->fileName->lastKeyPressed();
         if (indexes.count() <= 0) { // no matches
             d->selections->clear();
@@ -985,7 +988,9 @@ void QFileDialog::lookInChanged(const QString &text)
         int rowCount = d->model->rowCount(dirIndex);
         QModelIndexList indices = d->model->match(d->model->index(0, 0, dirIndex),
                                                   QAbstractItemModel::DisplayRole,
-                                                  searchText, rowCount);
+                                                  searchText, rowCount,
+                                                  QAbstractItemModel::MatchDefault
+                                                  |QAbstractItemModel::MatchCase);
         for (int i = 0; i < indices.count(); ++i) {
             if (d->model->isDir(indices.at(i))) {
                 result = indices.at(i);
