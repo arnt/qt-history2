@@ -22,6 +22,11 @@ public:
     {
 	return new Trivial;
     }
+
+    void print(QPainter* p)
+    {
+	p->drawText(0,0,"Hello");
+    }
 };
 
 class TrivialPlugin : public QNPlugin {
