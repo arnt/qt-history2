@@ -574,6 +574,7 @@ void QAbstractItemView::reset()
         itemDelegate()->releaseEditor(it.value());
     }
     d->editors.clear();
+    d->persistent.clear();
     d->state = NoState;
     if (isVisible())
         doItemsLayout();
@@ -1161,7 +1162,7 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool commit)
     if (editor && type == QAbstractItemDelegate::Widget) {
         if (commit)
             itemDelegate()->setModelData(editor, model(), index);
-        if (!d->persistent.contains(editor)) {
+        if (!d->persistent.contains(editor)) { // if the editor is not persistent, remove it
             QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
                                 this, SLOT(editorDestroyed(QObject*)));
             d->editors.remove(persistent);
