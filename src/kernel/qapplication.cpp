@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#90 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#90 $");
 
 
 /*!
@@ -68,14 +68,14 @@ void qt_init( int *, char ** );			// defined in qapp_xyz.cpp
 void qt_cleanup();
 
 QApplication *qApp = 0;				// global application object
-QPalette *QApplication::app_pal	      = 0;	// default application palette
-QFont	 *QApplication::app_font      = 0;	// default application font
-QCursor	 *QApplication::app_cursor    = 0;	// default application cursor
-bool	  QApplication::starting_up   = TRUE;	// app starting up
-bool	  QApplication::closing_down  = FALSE;	// app closing down
-int	  QApplication::loop_level    = 0;	// event loop level
-QWidget	 *QApplication::main_widget   = 0;	// main application widget
-QWidget	 *QApplication::focus_widget  = 0;	// has keyboard input focus
+QPalette *QApplication::app_pal	       = 0;	// default application palette
+QFont	 *QApplication::app_font       = 0;	// default application font
+QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
+bool	  QApplication::is_app_running = FALSE;	// app starting up if FALSE
+bool	  QApplication::is_app_closing = FALSE;	// app closing down if TRUE
+int	  QApplication::loop_level     = 0;	// event loop level
+QWidget	 *QApplication::main_widget    = 0;	// main application widget
+QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
 
 
 #if defined(_WS_MAC_)
@@ -180,7 +180,7 @@ QApplication::QApplication( int &argc, char **argv )
 	CHECK_PTR( app_font );
     }
     QWidget::createMapper();			// create widget mapper
-    starting_up = FALSE;			// no longer starting up
+    is_app_running = TRUE;			// no longer starting up
 }
 
 /*!
@@ -190,7 +190,7 @@ QApplication::QApplication( int &argc, char **argv )
 
 QApplication::~QApplication()
 {
-    closing_down = TRUE;
+    is_app_closing = TRUE;
     QWidget::destroyMapper();			// destroy widget mapper
     destroy_palettes();
     delete app_pal;
@@ -350,7 +350,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
     delete app_pal;
     app_pal = new QPalette( palette.copy() );
     CHECK_PTR( app_pal );
-    if ( updateAllWidgets && !(starting_up || closing_down) ) {
+    if ( updateAllWidgets && is_app_running && !is_app_closing ) {
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
@@ -571,7 +571,7 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 
 bool QApplication::startingUp()
 {
-    return starting_up;
+    return !is_app_running;
 }
 
 /*!
@@ -581,7 +581,7 @@ bool QApplication::startingUp()
 
 bool QApplication::closingDown()
 {
-    return closing_down;
+    return is_app_closing;
 }
 
 

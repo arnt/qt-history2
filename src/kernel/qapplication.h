@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#55 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#56 $
 **
 ** Definition of QApplication class
 **
@@ -110,8 +110,8 @@ private:
     static QPalette  *app_pal;
     static QFont    *app_font;
     static QCursor  *app_cursor;
-    static bool	     starting_up;
-    static bool	     closing_down;
+    static bool	     is_app_running;
+    static bool	     is_app_closing;
     static int	     loop_level;
     static QWidget  *main_widget;
     static QWidget  *focus_widget;
