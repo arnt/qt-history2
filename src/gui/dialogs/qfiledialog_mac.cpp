@@ -22,6 +22,7 @@
 
 #include <qapplication.h>
 #include <private/qapplication_p.h>
+#include <private/qfiledialog_p.h>
 #include <private/qt_mac_p.h>
 #include <qregexp.h>
 #include <qbuffer.h>
@@ -40,12 +41,12 @@ extern const char *qt_file_dialog_filter_reg_exp; //qfiledialog.cpp
 /*****************************************************************************
   QFileDialog utility functions
  *****************************************************************************/
-static UInt8 *str_buffer = NULL;
+static UInt8 *str_buffer = 0;
 static void cleanup_str_buffer()
 {
-    if(str_buffer) {
+    if (str_buffer) {
         free(str_buffer);
-        str_buffer = NULL;
+        str_buffer = 0;
     }
 }
 
@@ -61,11 +62,11 @@ static qt_mac_filter_name *qt_mac_extract_filter(const QString &rawFilter)
     QString result = rawFilter;
     QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
     int index = r.indexIn(result);
-    if(index >= 0) {
+    if (index >= 0) {
         ret->description = r.cap(1).trimmed();
         result = r.cap(2);
     }
-    if(ret->description.isEmpty())
+    if (ret->description.isEmpty())
         ret->description = result;
     ret->regxp = result.replace(QChar(' '), QChar(';'));
     return ret;
@@ -78,16 +79,16 @@ static QList<qt_mac_filter_name*> qt_mac_make_filters_list(const QString &filter
     qDebug("QFileDialog:%d - Got filter (%s)", __LINE__, filter.latin1());
 #endif
     QString f(filter);
-    if(f.isEmpty())
+    if (f.isEmpty())
         f = QObject::tr("All Files (*)");
-    if(f.isEmpty())
+    if (f.isEmpty())
         return QList<qt_mac_filter_name*>();
 /*
     QString sep(";;");
     int i = f.indexOf(sep, 0);
-    if(i == -1) {
+    if (i == -1) {
         sep = "\n";
-        if(f.indexOf(sep, 0) != -1)
+        if (f.indexOf(sep, 0) != -1)
             i = f.indexOf(sep, 0);
     }
     QStringList filts = f.split(sep);
@@ -114,40 +115,40 @@ static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
                                              void *myd, NavFilterModes)
 {
     qt_mac_nav_filter_type *t = (qt_mac_nav_filter_type *)myd;
-    if(!t || !t->filts || t->index >= t->filts->count())
+    if (!t || !t->filts || t->index >= t->filts->count())
         return true;
 
     NavFileOrFolderInfo *theInfo = (NavFileOrFolderInfo *)info;
     QString file;
     qt_mac_filter_name *fn = t->filts->at(t->index);
-    if(!fn)
+    if (!fn)
         return true;
-    if(theItem->descriptorType == typeFSS) {
+    if (theItem->descriptorType == typeFSS) {
         AliasHandle alias;
         Str63 str;
         FSSpec      FSSpec;
         AliasInfoType x = 0;
         AEGetDescData(theItem, &FSSpec, sizeof(FSSpec));
-        if(NewAlias(NULL, &FSSpec, &alias) != noErr)
+        if (NewAlias(0, &FSSpec, &alias) != noErr)
             return true;
         GetAliasInfo(alias, (AliasInfoType)x++, str);
-        if(str[0]) {
+        if (str[0]) {
             char tmp[sizeof(Str63)+2];
             strncpy((char *)tmp, (const char *)str+1, str[0]);
             tmp[str[0]] = '\0';
             file = tmp;
         }
-    } else if(theItem->descriptorType == typeFSRef) {
+    } else if (theItem->descriptorType == typeFSRef) {
         FSRef ref;
         AEGetDescData(theItem, &ref, sizeof(ref));
-        if(!str_buffer) {
+        if (!str_buffer) {
             qAddPostRoutine(cleanup_str_buffer);
             str_buffer = (UInt8 *)malloc(1024);
         }
         FSRefMakePath(&ref, str_buffer, 1024);
         file = QString::fromUtf8((const char *)str_buffer);
         int slsh = file.lastIndexOf('/');
-        if(slsh != -1)
+        if (slsh != -1)
             file = file.right(file.length() - slsh - 1);
     }
     QStringList reg = fn->regxp.split(";");
@@ -157,32 +158,32 @@ static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
         qDebug("QFileDialog:%d, asked to filter.. %s (%s)", __LINE__,
                file.latin1(), (*it).latin1());
 #endif
-        if(rg.exactMatch(file))
+        if (rg.exactMatch(file))
             return true;
     }
     return (theInfo->isFolder && !file.endsWith(".app"));
 }
 
 //filter UPP stuff
-static NavObjectFilterUPP mac_navFilterUPP = NULL;
+static NavObjectFilterUPP mac_navFilterUPP = 0;
 static void cleanup_navFilterUPP()
 {
     DisposeNavObjectFilterUPP(mac_navFilterUPP);
-    mac_navFilterUPP = NULL;
+    mac_navFilterUPP = 0;
 }
 static const NavObjectFilterUPP make_navFilterUPP()
 {
-    if(mac_navFilterUPP)
+    if (mac_navFilterUPP)
         return mac_navFilterUPP;
     qAddPostRoutine(cleanup_navFilterUPP);
     return mac_navFilterUPP = NewNavObjectFilterUPP(qt_mac_nav_filter);
 }
 //event UPP stuff
-static NavEventUPP mac_navProcUPP = NULL;
+static NavEventUPP mac_navProcUPP = 0;
 static void cleanup_navProcUPP()
 {
     DisposeNavEventUPP(mac_navProcUPP);
-    mac_navProcUPP = NULL;
+    mac_navProcUPP = 0;
 }
 static bool g_nav_blocking=true;
 static void qt_mac_filedialog_event_proc(const NavEventCallbackMessage msg,
@@ -207,7 +208,7 @@ static void qt_mac_filedialog_event_proc(const NavEventCallbackMessage msg,
 }
 static const NavEventUPP make_navProcUPP()
 {
-    if(mac_navProcUPP)
+    if (mac_navProcUPP)
         return mac_navProcUPP;
     qAddPostRoutine(cleanup_navProcUPP);
     return mac_navProcUPP = NewNavEventUPP(qt_mac_filedialog_event_proc);
@@ -215,11 +216,10 @@ static const NavEventUPP make_navProcUPP()
 
 OSErr qt_mac_create_fsspec(const QString &path, FSSpec *spec); //qglobal.cpp
 
-QStringList qt_mac_get_open_file_names(const QString &filter, QString *pwd,
-                                       QWidget *parent, const QString &caption,
-                                       QString *selectedFilter,
-                                       bool multi, bool directory)
+QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd,
+                                       QString *selectedFilter)
 {
+    QWidget *parent = args.parent;
     OSErr err;
     QStringList retstrl;
 
@@ -227,90 +227,88 @@ QStringList qt_mac_get_open_file_names(const QString &filter, QString *pwd,
     NavGetDefaultDialogCreationOptions(&options);
     options.modality = kWindowModalityAppModal;
     options.optionFlags |= kNavDontConfirmReplacement | kNavSupportPackages;
-    if(multi)
-        options.optionFlags |=         kNavAllowMultipleFiles;
-    if(!caption.isEmpty())
-        options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(),
-                                                           caption.length());
+    if (args.mode == QFileDialog::ExistingFiles)
+        options.optionFlags |= kNavAllowMultipleFiles;
+    if (!args.caption.isEmpty())
+        options.windowTitle = QCFString::toCFStringRef(args.caption);
 
     static const int w = 450, h = 350;
     options.location.h = options.location.v = -1;
-    if(parent && parent->isVisible()) {
-        if(!parent->topLevelWidget()->isDesktop()) {
+    if (parent && parent->isVisible()) {
+        if (!parent->topLevelWidget()->isDesktop()) {
             options.modality = kWindowModalityWindowModal;
             options.parentWindow = qt_mac_window_for(parent);
         } else {
             parent = parent->topLevelWidget();
             QString s = parent->windowTitle();
-            options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
+            options.clientName = QCFString::toCFStringRef(s);
             options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
             options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
 
             QRect r = QApplication::desktop()->screenGeometry(
                 QApplication::desktop()->screenNumber(parent));
-            if(options.location.h + w > r.right())
+            if (options.location.h + w > r.right())
                 options.location.h -= (options.location.h + w) - r.right() + 10;
-            if(options.location.v + h > r.bottom())
+            if (options.location.v + h > r.bottom())
                 options.location.v -= (options.location.v + h) - r.bottom() + 10;
         }
-    } else if(QWidget *p = qApp->mainWidget()) {
+    } else if (QWidget *p = qApp->mainWidget()) {
         static int last_screen = -1;
         int scr = QApplication::desktop()->screenNumber(p);
-        if(last_screen != scr) {
+        if (last_screen != scr) {
             QRect r = QApplication::desktop()->screenGeometry(scr);
             options.location.h = (r.x() + (r.width() / 2)) - (w / 2);
             options.location.v = (r.y() + (r.height() / 2)) - (h / 2);
         }
     }
 
-    QList<qt_mac_filter_name*> filts = qt_mac_make_filters_list(filter);
+    QList<qt_mac_filter_name*> filts = qt_mac_make_filters_list(args.filter);
     qt_mac_nav_filter_type t;
     t.index = 0;
     t.filts = &filts;
-    if(filts.count() > 1) {
+    if (filts.count() > 1) {
         int i = 0;
-        CFStringRef *arr = (CFStringRef *)malloc(sizeof(CFStringRef) * filts.count());
-        for (QList<qt_mac_filter_name*>::Iterator it = filts.begin(); it != filts.end(); ++it) {
-            QString rg = (*it)->description;
-            arr[i++] = CFStringCreateWithCharacters(NULL, (UniChar *)rg.unicode(), rg.length());
-        }
-        options.popupExtension = CFArrayCreate(NULL, (const void **)arr, filts.count(), NULL);
+        CFStringRef *arr = static_cast<CFStringRef *>(malloc(sizeof(CFStringRef) * filts.count()));
+        for (QList<qt_mac_filter_name*>::const_iterator it = filts.constBegin();
+                it != filts.constEnd(); ++it)
+            arr[i++] = QCFString::toCFStringRef((*it)->description);
+        options.popupExtension = CFArrayCreate(0, reinterpret_cast<const void **>(arr), filts.count(), 0);
     }
 
     NavDialogRef dlg;
-    if(directory) {
-        if(NavCreateChooseFolderDialog(&options, make_navProcUPP(), NULL, NULL, &dlg)) {
+    if (args.mode == QFileDialog::DirectoryOnly) {
+        if (NavCreateChooseFolderDialog(&options, make_navProcUPP(), 0, 0, &dlg)) {
             qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
             return retstrl;
         }
     } else {
-        if(NavCreateGetFileDialog(&options, NULL, make_navProcUPP(), NULL,
-                                  make_navFilterUPP(), (void *) (filts.isEmpty() ? NULL : &t),
+        if (NavCreateGetFileDialog(&options, 0, make_navProcUPP(), 0,
+                                  make_navFilterUPP(), (void *) (filts.isEmpty() ? 0 : &t),
                                   &dlg)) {
             qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
             return retstrl;
         }
     }
-    if(pwd && !pwd->isEmpty()) {
+    if (pwd && !pwd->isEmpty()) {
         FSSpec spec;
-        if(qt_mac_create_fsspec(*pwd, &spec) == noErr) {
+        if (qt_mac_create_fsspec(*pwd, &spec) == noErr) {
             AEDesc desc;
-            if(AECreateDesc(typeFSS, &spec, sizeof(FSSpec), &desc) == noErr)
+            if (AECreateDesc(typeFSS, &spec, sizeof(FSSpec), &desc) == noErr)
                 NavCustomControl(dlg, kNavCtlSetLocation, (void*)&desc);
         }
     }
 
     NavDialogRun(dlg);
-    if(options.modality == kWindowModalityWindowModal) { //simulate modality
-        QWidget modal_widg(parent, Qt::WType_TopLevel | Qt::WStyle_Customize | 
+    if (options.modality == kWindowModalityWindowModal) { //simulate modality
+        QWidget modal_widg(parent, Qt::WType_TopLevel | Qt::WStyle_Customize |
                            Qt::WStyle_DialogBorder | Qt::WMacSheet);
         qt_enter_modal(&modal_widg);
-        while(g_nav_blocking)
+        while (g_nav_blocking)
             qApp->processEvents();
         qt_leave_modal(&modal_widg);
     }
 
-    if(!(NavDialogGetUserAction(dlg) &
+    if (!(NavDialogGetUserAction(dlg) &
           (kNavUserActionOpen | kNavUserActionChoose | kNavUserActionNewFolder))) {
         NavDialogDispose(dlg);
         return retstrl;
@@ -321,7 +319,7 @@ QStringList qt_mac_get_open_file_names(const QString &filter, QString *pwd,
 
     long count;
     err = AECountItems(&(ret.selection), &count);
-    if(!ret.validRecord || err != noErr || !count) {
+    if (!ret.validRecord || err != noErr || !count) {
         NavDisposeReply(&ret);
         return retstrl;
     }
@@ -329,10 +327,10 @@ QStringList qt_mac_get_open_file_names(const QString &filter, QString *pwd,
     for(long index = 1; index <= count; index++) {
         FSRef ref;
         err = AEGetNthPtr(&(ret.selection), index, typeFSRef, 0, 0, &ref, sizeof(ref), 0);
-        if(err != noErr)
+        if (err != noErr)
             break;
 
-        if(!str_buffer) {
+        if (!str_buffer) {
             qAddPostRoutine(cleanup_str_buffer);
             str_buffer = (UInt8 *)malloc(1024);
         }
@@ -340,17 +338,17 @@ QStringList qt_mac_get_open_file_names(const QString &filter, QString *pwd,
         retstrl.append(QString::fromUtf8((const char *)str_buffer));
     }
     NavDisposeReply(&ret);
-    if(selectedFilter)
+    if (selectedFilter)
         *selectedFilter = filts.at(t.index)->filter;
     while (!filts.isEmpty())
         delete filts.takeFirst();
     return retstrl;
 }
 
-QString qt_mac_get_save_file_name(const QString &start, const QString &filter,
-                                  QString *pwd, QWidget *parent, const QString &caption,
+QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
                                   QString *selectedFilter)
 {
+    QWidget *parent = args.parent;
     OSErr err;
     QString retstr;
     NavDialogCreationOptions options;
@@ -359,58 +357,54 @@ QString qt_mac_get_save_file_name(const QString &start, const QString &filter,
     options.optionFlags |= kNavDontConfirmReplacement;
     options.modality = kWindowModalityAppModal;
     options.location.h = options.location.v = -1;
-    if (!start.isEmpty())
-        options.saveFileName = CFStringCreateWithCharacters(0,
-                                                            (UniChar *)start.unicode(),
-                                                            start.length());
-    if(!caption.isEmpty())
-        options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(),
-                                                           caption.length());
-    if(parent && parent->isVisible()) {
-        if(!parent->topLevelWidget()->isDesktop()) {
+    if (!args.directory.isEmpty())
+        options.saveFileName = QCFString::toCFStringRef(args.directory);
+    if (!args.caption.isEmpty())
+        options.windowTitle = QCFString::toCFStringRef(args.caption);
+    if (parent && parent->isVisible()) {
+        if (!parent->topLevelWidget()->isDesktop()) {
             options.modality = kWindowModalityWindowModal;
             options.parentWindow = qt_mac_window_for(parent);
         } else {
             parent = parent->topLevelWidget();
             QString s = parent->windowTitle();
-            options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
+            options.clientName = CFStringCreateWithCharacters(0, (UniChar *)s.unicode(), s.length());
             options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
             options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
 
             QRect r = QApplication::desktop()->screenGeometry(
                 QApplication::desktop()->screenNumber(parent));
-            if(options.location.h + w > r.right())
+            if (options.location.h + w > r.right())
                 options.location.h -= (options.location.h + w) - r.right() + 10;
-            if(options.location.v + h > r.bottom())
+            if (options.location.v + h > r.bottom())
                 options.location.v -= (options.location.v + h) - r.bottom() + 10;
         }
-    } else if(QWidget *p = qApp->mainWidget()) {
+    } else if (QWidget *p = qApp->mainWidget()) {
         static int last_screen = -1;
         int scr = QApplication::desktop()->screenNumber(p);
-        if(last_screen != scr) {
+        if (last_screen != scr) {
             QRect r = QApplication::desktop()->screenGeometry(scr);
             options.location.h = (r.x() + (r.width() / 2)) - (w / 2);
             options.location.v = (r.y() + (r.height() / 2)) - (h / 2);
         }
     }
 
-    QList<qt_mac_filter_name*> filts = qt_mac_make_filters_list(filter);
+    QList<qt_mac_filter_name*> filts = qt_mac_make_filters_list(args.filter);
     qt_mac_nav_filter_type t;
     t.index = 0;
     t.filts = &filts;
-    if(filts.count() > 1) {
+    if (filts.count() > 1) {
         int i = 0;
-        CFStringRef *arr = (CFStringRef *)malloc(sizeof(CFStringRef) * filts.count());
-        for (QList<qt_mac_filter_name*>::Iterator it = filts.begin(); it != filts.end(); ++it) {
-            QString rg = (*it)->description;
-            arr[i++] = CFStringCreateWithCharacters(NULL, (UniChar *)rg.unicode(), rg.length());
-        }
-        options.popupExtension = CFArrayCreate(NULL, (const void **)arr, filts.count(), NULL);
+        CFStringRef *arr = static_cast<CFStringRef *>(malloc(sizeof(CFStringRef) * filts.count()));
+        for (QList<qt_mac_filter_name*>::const_iterator it = filts.constBegin();
+             it != filts.constEnd(); ++it)
+            arr[i++] = QCFString::toCFStringRef((*it)->description);
+        options.popupExtension = CFArrayCreate(0, reinterpret_cast<const void **>(arr), filts.count(), 0);
     }
 
     NavDialogRef dlg;
-    if(NavCreatePutFileDialog(&options, 'cute', kNavGenericSignature, make_navProcUPP(),
-                              (void *) (filts.isEmpty() ? NULL : &t), &dlg)) {
+    if (NavCreatePutFileDialog(&options, 'cute', kNavGenericSignature, make_navProcUPP(),
+                               static_cast<void *>(filts.isEmpty() ? 0 : &t), &dlg)) {
         qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
         return retstr;
     }
@@ -423,15 +417,15 @@ QString qt_mac_get_save_file_name(const QString &start, const QString &filter,
         }
     }
     NavDialogRun(dlg);
-    if(options.modality == kWindowModalityWindowModal) { //simulate modality
+    if (options.modality == kWindowModalityWindowModal) { //simulate modality
         QWidget modal_widg(parent, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
         qt_enter_modal(&modal_widg);
-        while(g_nav_blocking)
+        while (g_nav_blocking)
             qApp->processEvents();
         qt_leave_modal(&modal_widg);
     }
 
-    if(NavDialogGetUserAction(dlg) != kNavUserActionSaveAs) {
+    if (NavDialogGetUserAction(dlg) != kNavUserActionSaveAs) {
         NavDialogDispose(dlg);
         return retstr;
     }
@@ -441,7 +435,7 @@ QString qt_mac_get_save_file_name(const QString &start, const QString &filter,
 
     long count;
     err = AECountItems(&(ret.selection), &count);
-    if(!ret.validRecord || err != noErr || !count) {
+    if (!ret.validRecord || err != noErr || !count) {
         NavDisposeReply(&ret);
         return retstr;
     }
@@ -452,8 +446,8 @@ QString qt_mac_get_save_file_name(const QString &start, const QString &filter,
     FSRef ref;
     err = AEGetNthPtr(&(ret.selection), 1, typeFSRef, &keyword,
                       &type, &ref, sizeof(ref), &size);
-    if(err == noErr) {
-        if(!str_buffer) {
+    if (err == noErr) {
+        if (!str_buffer) {
             qAddPostRoutine(cleanup_str_buffer);
             str_buffer = (UInt8 *)malloc(1024);
         }
@@ -464,7 +458,7 @@ QString qt_mac_get_save_file_name(const QString &start, const QString &filter,
         retstr += "/" + QString::fromUtf8((const char *)str_buffer);
     }
     NavDisposeReply(&ret);
-    if(selectedFilter)
+    if (selectedFilter)
         *selectedFilter = filts.at(t.index)->filter;
     while (!filts.isEmpty())
         delete filts.takeFirst();

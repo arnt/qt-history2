@@ -1637,18 +1637,10 @@ extern QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
 extern QString qt_win_get_existing_directory(const QFileDialogArgs &args);
 
 #elif defined(Q_WS_MAC)
-extern QStringList qt_mac_get_open_file_names(const QString &filter,
-                                              QString *pwd,
-                                              QWidget *parent,
-                                              const QString &caption,
-                                              QString *selectedFilter,
-                                              bool multi, bool directory);
+extern QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd,
+                                              QString *selectedFilter);
 
-extern QString qt_mac_get_save_file_name(const QString &start,
-                                         const QString &filter,
-                                         QString *pwd,
-                                         QWidget *parent,
-                                         const QString &caption,
+extern QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
                                          QString *selectedFilter);
 #endif
 
@@ -1755,7 +1747,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     QString selection = QFileDialogPrivate::initialSelection(dir);
 
     // create a native dialog
-    
+
     QFileDialogArgs args;
     args.parent = parent;
     args.caption = caption;
@@ -1769,13 +1761,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
         return qt_win_get_open_file_name(args, &qt_working_dir, selectedFilter);
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(qApp->style())) {
-        QStringList files = qt_mac_get_open_file_names(filter,
-                                                       &qt_working_dir,
-                                                       parent,
-                                                       caption,
-                                                       selectedFilter,
-                                                       false,
-                                                       false);
+        QStringList files = qt_mac_get_open_file_names(args, &qt_working_dir, selectedFilter);
         if (!files.isEmpty())
             return QUnicodeTables::normalize(files.first(), QString::NormalizationForm_C);
         return QString();
@@ -1874,12 +1860,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
         return qt_win_get_save_file_name(args, &qt_working_dir, selectedFilter);
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(qApp->style())) {
-        QString result = qt_mac_get_save_file_name(selection,
-                                                   filter,
-                                                   &qt_working_dir,
-                                                   parent,
-                                                   caption,
-                                                   selectedFilter);
+        QString result = qt_mac_get_save_file_name(args, &qt_working_dir, selectedFilter);
         return QUnicodeTables::normalize(result, QString::NormalizationForm_C);
     }
 #endif
@@ -1956,7 +1937,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     args.caption = caption;
     args.directory = qt_working_dir;
     args.mode = (options & ShowDirsOnly ? DirectoryOnly : Directory);
-    
+
 #if defined(Q_WS_WIN)
     if (!dir.isEmpty() && QFileInfo(dir).isDir())
         args.directory = dir;
@@ -1964,7 +1945,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
         return qt_win_get_existing_directory(args);
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(qApp->style())) {
-        QStringList files = qt_mac_get_open_file_names("", 0, parent, caption, 0, false, true);
+        QStringList files = qt_mac_get_open_file_names(args, 0, 0);
         if (!files.isEmpty())
             return QUnicodeTables::normalize(files.first(), QString::NormalizationForm_C);
         return QString();
@@ -2058,25 +2039,19 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     args.directory = qt_working_dir;
     args.filter = filter;
     args.mode = ExistingFiles;
-    
+
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style()))
         return qt_win_get_open_file_names(args, &qt_working_dir, selectedFilter);
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(qApp->style())) {
-        QStringList result = qt_mac_get_open_file_names(filter,
-                                                        &qt_working_dir,
-                                                        parent,
-                                                        caption,
-                                                        selectedFilter,
-                                                        true,
-                                                        false);
+        QStringList result = qt_mac_get_open_file_names(args, &qt_working_dir, selectedFilter);
         for (int i = 0; i < result.count(); ++i)
             result.replace(i, QUnicodeTables::normalize(result.at(i), QString::NormalizationForm_C));
         return result;
     }
 #endif
-    
+
     args.caption = caption.isEmpty() ? "Open" : caption;
     QFileDialog *dlg = new QFileDialog(args);
     dlg->setModal(true);
