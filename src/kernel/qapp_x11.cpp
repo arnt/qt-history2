@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#295 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#296 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#295 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#296 $");
 
 
 /*****************************************************************************
@@ -1851,6 +1851,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    } else {
 		// set focus to some arbitrary widget with WTabToFocus
 		widget->topLevelWidget()->focusNextPrevChild( TRUE );
+		focus_widget = widget->focusWidget();
 	    }
 	    }
 	    break;

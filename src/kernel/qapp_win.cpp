@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#138 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#137 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#138 $");
 
 
 /*****************************************************************************
@@ -1029,6 +1029,7 @@ void QApplication::winFocus( QWidget *w, bool gotFocus )
 	} else {
 	    // set focus to some arbitrary widget with WTabToFocus
 	    w->topLevelWidget()->focusNextPrevChild( TRUE );
+	    focus_widget = widget->focusWidget();
 	}
     } else {
 	if ( focus_widget ) {
