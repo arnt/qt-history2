@@ -174,11 +174,10 @@ static const int motifItemVMargin       = 4;    // menu item ver text margin
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
     : QFrame( parent, name, 0 )
 {
-#if defined( Q_WS_MAC )
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined( Q_WS_MAC ) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+    mac_eaten_menubar = FALSE;
     mac_d = NULL;
     macCreateNativeMenubar();
-#endif
 #endif
     isMenuBar = TRUE;
 #ifndef QT_NO_ACCEL

@@ -308,7 +308,7 @@ void QMenuBar::macRemoveNativeMenubar()
 }
 void QMenuBar::macDirtyNativeMenubar()
 {
-    if(mac_eaten_menubar) {
+    if(mac_eaten_menubar && mac_d) {
 	mac_d->dirty = 1;
 	qt_event_request_menubarupdate();
     }
