@@ -42,6 +42,7 @@ public:
 
 #ifdef QT_COMPAT
     inline QT_COMPAT QString library() const { return fileName(); }
+    inline QT_COMPAT void setAutoUnload( bool ) {}
 #endif
 private:
     QLibraryPrivate *d;
