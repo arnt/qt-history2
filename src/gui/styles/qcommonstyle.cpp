@@ -664,12 +664,12 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 p->drawLine(opt->rect.left() + 1, opt->rect.top(),
                             opt->rect.right() - 1, opt->rect.top());
                 p->setPen(opt->palette.shadow().color());
-                p->drawLine(opt->rect.left() + 1, opt->rect.bottom() - 1,
-                            opt->rect.right(), opt->rect.bottom() - 1);
-                p->setPen(opt->palette.dark().color());
                 p->drawLine(opt->rect.left() + 1, opt->rect.bottom(),
-                            opt->rect.right() - 1, opt->rect.bottom());
-                p->drawLine(opt->rect.right(), opt->rect.bottom() - 1,
+                            opt->rect.right(), opt->rect.bottom());
+                p->setPen(opt->palette.dark().color());
+                p->drawLine(opt->rect.left() + 1, opt->rect.bottom() - 1,
+                            opt->rect.right() - 1, opt->rect.bottom() - 1);
+                p->drawLine(opt->rect.right(), opt->rect.bottom() - 2,
                             opt->rect.right(), opt->rect.top());
                 break;
             case QTabBar::RoundedEast:
@@ -680,9 +680,12 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                             opt->rect.left(), opt->rect.bottom() - 1);
                 p->drawLine(opt->rect.left(), opt->rect.bottom(),
                             opt->rect.right() - 2, opt->rect.bottom());
+                p->setPen(opt->palette.shadow().color());
+                p->drawLine(opt->rect.left(), opt->rect.bottom(),
+                            opt->rect.right(), opt->rect.bottom());
                 p->setPen(opt->palette.dark().color());
-                p->drawLine(opt->rect.left(), opt->rect.bottom() - 1,
-                            opt->rect.right() - 2, opt->rect.bottom() - 1);
+                p->drawLine(opt->rect.left(), opt->rect.bottom() -1,
+                            opt->rect.right() - 1, opt->rect.bottom() - 1);
                 break;
             }
             p->setPen(oldPen);
@@ -712,18 +715,20 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             case QTabBar::RoundedWest:
             case QTabBar::TriangularWest:
                 p->setPen(opt->palette.shadow().color());
-                p->drawLine(r2.right(), r2.bottom() - 1, r2.left(), r2.bottom() - 1);
-                p->setPen(opt->palette.dark().color());
                 p->drawLine(r2.right(), r2.bottom(), r2.left(), r2.bottom());
+                p->setPen(opt->palette.dark().color());
+                p->drawLine(r2.right(), r2.bottom() - 1, r2.left(), r2.bottom() - 1);
                 p->setPen(opt->palette.light().color());
                 p->drawLine(r2.left(), r2.bottom() - 2, r2.left(), r2.top() - 1);
                 p->drawLine(r2.right(), r2.top(), r2.left(), r2.top());
                 break;
             case QTabBar::RoundedEast:
             case QTabBar::TriangularEast:
+                p->setPen(opt->palette.shadow().color());
+                p->drawLine(r2.left(), r2.bottom(), r2.right() + 1, r2.bottom());
                 p->setPen(opt->palette.dark().color());
-                p->drawLine(r2.left(), r2.bottom(), r2.right(), r2.bottom());
-                p->drawLine(r2.right(), r2.bottom(), r2.right(), r2.top());
+                p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
+                p->drawLine(r2.right() + 1, r2.bottom() - 2, r2.right() + 1, r2.top());
                 p->setPen(opt->palette.light().color());
                 p->drawLine(r2.left(), r2.top(), r2.right(), r2.top());
                 break;

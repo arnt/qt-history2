@@ -526,6 +526,8 @@ void QTabWidgetPrivate::removeTab(int index)
 /*
     Set up the layout.
 */
+
+#include <qdebug.h>
 void QTabWidget::setUpLayout(bool onlyCheck)
 {
     if (onlyCheck && !d->dirty)
@@ -561,14 +563,14 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         if (t.height() > rcw)
             rcw = t.height();
     }
-    int availLength = verticalTabs ? height() : width();
+    int availLength = verticalTabs ? height() - 2 : width();
     int availThickness = verticalTabs ? width() : height();
     int tw = availLength - lcw - rcw;
     if (t.width() > tw)
         t.setWidth(tw);
     int lw = d->stack->lineWidth();
     bool reverse = !verticalTabs && isRightToLeft();
-    int tabx, taby, stacky, /*exty,*/ exth, overlap;
+    int tabx, taby, stacky, exth, overlap;
 
     exth = style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0, this);
     overlap = style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, 0, this);
@@ -580,11 +582,9 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     if (d->pos == South || d->pos == East) {
         taby = availThickness - t.height() - lw;
         stacky = 1;
-        // exty = taby - (exth - overlap);
     } else { // Top
         taby = 0;
         stacky = t.height()-lw + (exth - overlap);
-        // exty = taby + t.height() - overlap;
     }
 
     // do alignment
@@ -598,8 +598,8 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     if (verticalTabs) {
         // Reverse everything.
         d->tabs->setGeometry(taby, tabx, t.height(), t.width());
-        d->panelRect.setRect(stacky, 0, availThickness - (exth-overlap)
-                             - t.height() + qMax(0, lw - 2), availLength);
+        d->panelRect.setRect(d->pos != East ? stacky : 0, 0, availThickness - (exth-overlap)
+                             - t.height() + qMax(0, lw - 2), availLength + 2);
     } else {
         d->tabs->setGeometry(tabx, taby, t.width(), t.height());
         d->panelRect.setRect(0, d->pos != South ? stacky : 0, availLength,

@@ -1809,7 +1809,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 p->setPen(tab->palette.light().color());
 
                 // The line across the panel
-                p->drawLine(r2.right() - 1, r2.bottom() - 1, r2.right() - 1, r2.top());
+                p->drawLine(r2.right() - 1, r2.bottom(), r2.right() - 1, r2.top());
 
                 if (!selected)
                     r2.setRect(r2.left() + 2, r2.top(), r2.width() - 2, r2.height());
@@ -1835,8 +1835,14 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setPen(opt->palette.light().color());
                 }
 
-                if (firstTab && !selected)
-                    p->drawLine(rightSide, y1 + 1, rightSide, y1 + VOFFSET);
+                if (firstTab) {
+                    if (!selected) {
+                        p->drawLine(rightSide, y1 - 1, rightSide, y1 - VOFFSET);
+                        p->drawPoint(rightSide + 1, y1 - VOFFSET);
+                    } else {
+                        p->drawPoint(rightSide + 1, y1);
+                    }
+                }
 
                 if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected) {
                     p->drawLine(rightSide, y1, leftSide + 2, y1);
@@ -1864,12 +1870,15 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setPen(tab->palette.dark().color());
                 } else {
                     p->setPen(tab->palette.shadow().color());
-                    p->drawLine(r2.left() + 1, r2.top() + (rightAligned ? 0 : 1),
-                                r2.left() + 1, r2.bottom() - 2);
-                    p->drawLine(r2.left() + 1, r2.top() + (rightAligned && firstTab ? 0 : 1),
-                                r2.left() + 1, r2.bottom() - (lastTab ? 0 : 2));
+                    p->drawLine(r2.left(), r2.top() + (rightAligned ? 0 : 1),
+                                r2.left(), r2.bottom() - 2);
+                    p->drawLine(r2.left(), r2.top() + (rightAligned && firstTab ? 0 : 1),
+                                r2.left(), r2.bottom() - (lastTab ? 0 : 2));
                     if (rightAligned && lastTab)
                         p->drawPoint(r2.left(), r2.bottom());
+                    else if (!rightAligned && firstTab) {
+                        p->drawPoint(r2.left() - 1, r2.top());
+                    }
                     p->setPen(tab->palette.dark().color());
                     p->drawLine(r2.left(), r2.top(), r2.left(), r2.bottom() - 1);
                     r2.setRect(r2.left(), r2.top(), r2.width() - 2, r2.height());
