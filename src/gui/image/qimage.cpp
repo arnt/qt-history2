@@ -3801,8 +3801,6 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
 #undef IWX_PIX
 #endif // QT_NO_PIXMAP_TRANSFORMATION
 
-#include <math.h>
-
 struct Qargb {
     Qargb() : a(0), r(0), g(0), b(0) {}
     Qargb(uint pixel, uint scale) {
