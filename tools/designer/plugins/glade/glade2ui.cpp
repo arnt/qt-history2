@@ -814,9 +814,9 @@ void Glade2Ui::emitPushButton( const QString& text, const QString& name )
 		 attribute(QString("class"), QString("QPushButton")) );
     emitProperty( QString("name"), name.latin1() );
     emitProperty( QString("text"), text );
-    if ( name.contains(QString("ok")) > 0 ) {
+    if ( name.contains(QString("ok")) ) {
 	emitProperty( QString("default"), QVariant(TRUE, 0) );
-    } else if ( name.contains(QString("help")) > 0 ) {
+    } else if ( name.contains(QString("help")) ) {
 	emitProperty( QString("accel"), (int) Qt::Key_F1 );
     }
     emitClosing( QString("widget") );
@@ -1856,7 +1856,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 			      gtk2qtSelectionMode(selectionMode),
 			      QString("enum") );
 	    if ( !shadowType.endsWith(QString("_NONE")) ) {
-		QString shape = shadowType.contains( QString("_ETCHED_") ) > 0 ?
+		QString shape = shadowType.contains( QString("_ETCHED_") ) ?
 				QString( "Box" ) : QString( "WinPanel" );
 		QString shadow = shadowType.endsWith( QString("_IN") ) ?
 				 QString( "Sunken" ) : QString( "Raised" );
