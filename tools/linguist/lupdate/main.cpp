@@ -178,46 +178,49 @@ int main( int argc, char **argv )
 			 argv[i] );
 	    }
 	} else {
-	    if ( metTsFlag && QString(argv[i]).right(3).lower() == ".ts" ) {
-		QFileInfo fi( argv[i] );
-		if ( fi.permission( QFileInfo::WriteUser ) ) {
-		    tsFileNames.append( QString(argv[i]) );
-		} else {
-		    fprintf( stderr, "lupdate warning: For some reason, I cannot save '%s'\n", argv[i] );
-		    return 1;
-		}
-	    } else {
-		if ( QString(argv[i]).right(4).lower() == ".pro" ) {
-		    QMap<QString, QString> tagMap = proFileTagMap( fullText );
-		    QMap<QString, QString>::Iterator it;
-
-		    for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
-        		QStringList toks = QStringList::split( QChar(' '), it.data() );
-			QStringList::Iterator t;
-
-        		for ( t = toks.begin(); t != toks.end(); ++t ) {
-			    if ( it.key() == QString("HEADERS") ||
-                		 it.key() == QString("SOURCES") ) {
-                		fetchtr_cpp( *t, &fetchedTor, defaultContext, TRUE );
-			    } else if ( it.key() == QString("INTERFACES") ||
-					it.key() == QString("FORMS") ) {
-                		fetchtr_ui( *t, &fetchedTor, defaultContext, TRUE );
-				fetchtr_cpp( *t + QString(".h"), &fetchedTor,
-					     defaultContext, FALSE );
-			    } else if ( it.key() == QString("CODEC") ) {
-                		codec = (*t).latin1();
-			    }
-        		}
+	    if ( metTsFlag ) {
+		if ( QString(argv[i]).right(3).lower() == ".ts" ) {
+		    QFileInfo fi( argv[i] );
+		    if ( fi.permission( QFileInfo::WriteUser ) ) {
+			tsFileNames.append( QString(argv[i]) );
+		    } else {
+			fprintf( stderr, "lupdate warning: For some reason, I cannot save '%s'\n", argv[i] );
+			return 1;
 		    }
-		} else if ( fullText.find(QString("<!DOCTYPE UI>")) == -1 ) {
-        	    fetchtr_cpp( QString(argv[i]), &fetchedTor, defaultContext,
-				 TRUE );
-		} else {
-        	    fetchtr_ui( QString(argv[i]), &fetchedTor, defaultContext,
-				TRUE );
-		    fetchtr_cpp( QString(argv[i]) + QString(".h"), &fetchedTor,
-				 defaultContext, FALSE );
+		    metTsFlag = FALSE;
 		}
+	    }
+	    if ( QString(argv[i]).right(4).lower() == ".pro" ) {
+		fprintf( stderr, "%s", argv[i] );
+		QMap<QString, QString> tagMap = proFileTagMap( fullText );
+		QMap<QString, QString>::Iterator it;
+
+		for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
+        	    QStringList toks = QStringList::split( QChar(' '), it.data() );
+		    QStringList::Iterator t;
+
+        	    for ( t = toks.begin(); t != toks.end(); ++t ) {
+			if ( it.key() == QString("HEADERS") ||
+                	     it.key() == QString("SOURCES") ) {
+                	    fetchtr_cpp( *t, &fetchedTor, defaultContext, TRUE );
+			} else if ( it.key() == QString("INTERFACES") ||
+				    it.key() == QString("FORMS") ) {
+                	    fetchtr_ui( *t, &fetchedTor, defaultContext, TRUE );
+			    fetchtr_cpp( *t + QString(".h"), &fetchedTor,
+					 defaultContext, FALSE );
+			} else if ( it.key() == QString("CODEC") ) {
+                	    codec = (*t).latin1();
+			}
+        	    }
+		}
+	    } else if ( fullText.find(QString("<!DOCTYPE UI>")) == -1 ) {
+        	fetchtr_cpp( QString(argv[i]), &fetchedTor, defaultContext,
+			     TRUE );
+	    } else {
+        	fetchtr_ui( QString(argv[i]), &fetchedTor, defaultContext,
+			    TRUE );
+		fetchtr_cpp( QString(argv[i]) + QString(".h"), &fetchedTor,
+			     defaultContext, FALSE );
 	    }
 	}
     }
