@@ -25,57 +25,6 @@
 
 #include "connectdialog.h"
 
-
-/* XPM */
-static const char* folder_xpm[]={
-    "15 15 6 1",
-    ". c None",
-    "b c #ffff00",
-    "d c #000000",
-    "* c #999999",
-    "a c #cccccc",
-    "c c #ffffff",
-    "...............",
-    "..*****........",
-    ".*ababa*.......",
-    "*abababa******.",
-    "*cccccccccccc*d",
-    "*cbababababab*d",
-    "*cabababababa*d",
-    "*cbababababab*d",
-    "*cabababababa*d",
-    "*cbababababab*d",
-    "*cabababababa*d",
-    "*cbababababab*d",
-    "**************d",
-    ".dddddddddddddd",
-    "..............."};
-
-/* XPM */
-static const char* file_xpm[]={
-    "13 15 5 1",
-    ". c #7f7f7f",
-    "# c None",
-    "c c #000000",
-    "b c #bfbfbf",
-    "a c #ffffff",
-    "..........###",
-    ".aaaaaaaab.##",
-    ".aaaaaaaaba.#",
-    ".aaaaaaaacccc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".aaaaaaaaaabc",
-    ".bbbbbbbbbbbc",
-    "ccccccccccccc"};
-
-
 void FtpMainWindow::init()
 {
     ftp = new QFtp( this );
@@ -142,8 +91,9 @@ void FtpMainWindow::ftp_listInfo( const QUrlInfo &i )
 	    i.name(),
 	    QString::number( i.size() ),
 	    i.lastModified().toString() );
+    // the pixmaps for folders and files are in an image collection
     if ( i.isDir() )
-	item->setPixmap( 0, QPixmap(folder_xpm) );
+	item->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
     else
-	item->setPixmap( 0, QPixmap(file_xpm) );
+	item->setPixmap( 0, QPixmap::fromMimeSource( "file.png" ) );
 }
