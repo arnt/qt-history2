@@ -23,6 +23,9 @@
 
 #include <qstring.h>
 #include <qstringlist.h>
+#include <qmap.h>
+
+class FormWindow;
 
 class Project
 {
@@ -39,15 +42,18 @@ public:
 
     void setDescription( const QString &s );
     QString description() const;
-    
+
     QStringList uiFiles() const;
-    void addUiFile( const QString &f );
+    void addUiFile( const QString &f, FormWindow *fw );
     void setUiFiles( const QStringList &lst );
-    
+
     bool isFormLoaded( const QString &form );
     void setFormLoaded( const QString &form, bool loaded );
 
     bool isValid() const;
+
+    void setFormWindow( const QString &f, FormWindow *fw );
+    void setFormWindowFileName( FormWindow *fw, const QString &f );
     
 private:
     void parse();
@@ -60,7 +66,8 @@ private:
     QString proName;
     QStringList loadedForms;
     QString desc;
-    
+    QMap<FormWindow*, QString> formWindows;
+
 };
 
 #endif

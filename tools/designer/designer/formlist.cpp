@@ -131,8 +131,15 @@ void FormList::addForm( FormWindow *fw )
 	    ( (FormListItem*)currentItem() )->setFormWindow( fw );
 	    ( (FormListItem*)currentItem() )->setText( 0, fw->name() );
 	}
+	if ( project )
+	    project->setFormWindow( fw->fileName(), fw );
 	return;
     }
+    FormListItem *i = new FormListItem( this, fw->name(), fw->fileName(), 0 );
+    i->setFormWindow( fw );
+    if ( !project )
+	return;
+    project->addUiFile( fw->fileName(), fw );
     updateHeader();
 }
 
@@ -158,6 +165,8 @@ void FormList::fileNameChanged( const QString &s, FormWindow *fw )
 	i->setText( 2, tr( "(unnamed)" ) );
     else
 	i->setText( 2, s );
+    if ( project )
+	project->setFormWindowFileName( fw, fw->fileName() );
 }
 
 void FormList::activeFormChanged( FormWindow *fw )

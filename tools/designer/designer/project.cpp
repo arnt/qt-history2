@@ -19,6 +19,8 @@
 **********************************************************************/
 
 #include "project.h"
+#include "formwindow.h"
+
 #include <qfile.h>
 #include <qtextstream.h>
 
@@ -111,9 +113,11 @@ void Project::clear()
     desc = "";
 }
 
-void Project::addUiFile( const QString &f )
+void Project::addUiFile( const QString &f, FormWindow *fw )
 {
     uifiles << f;
+    if ( fw )
+	formWindows.insert( fw, f );
 }
 
 bool Project::isFormLoaded( const QString &form )
@@ -152,4 +156,19 @@ void Project::setUiFiles( const QStringList &lst )
 bool Project::isValid() const
 {
     return TRUE; // #### do actual checking here....
+}
+
+void Project::setFormWindow( const QString &f, FormWindow *fw )
+{
+    formWindows.remove( fw );
+    formWindows.insert( fw, f );
+}
+
+void Project::setFormWindowFileName( FormWindow *fw, const QString &f )
+{
+    QString s = *formWindows.find( fw );
+    uifiles.remove( s );
+    uifiles << f;
+    formWindows.remove( fw );
+    formWindows.insert( fw, f );
 }
