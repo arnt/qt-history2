@@ -212,7 +212,7 @@ QQuickDrawPaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
 }
 
 void
-QQuickDrawPaintEngine::updateFont(const QFont &font)
+QQuickDrawPaintEngine::updateFont(const QFont &)
 {
     clearf(DirtyFont);
     updatePen(d->current.pen);
@@ -230,12 +230,12 @@ void
 QQuickDrawPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
     Q_ASSERT(isActive());
-    d->current.bg.mode = bgMode;
+    d->current.bg.mode = mode;
     d->current.bg.brush = bgBrush;
 }
 
 void
-QQuickDrawPaintEngine::updateXForm(const QWMatrix &matrix)
+QQuickDrawPaintEngine::updateXForm(const QWMatrix &)
 {
 }
 
@@ -255,7 +255,7 @@ void
 QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, bool enable)
 {
     Q_ASSERT(isActive());
-    setClippedRegionInternal(enable ? &region : 0);
+    setClippedRegionInternal(enable ? const_cast<QRegion *>(&region) : 0);
 }
 
 void QQuickDrawPaintEngine::setRasterOp(RasterOp r)
@@ -1198,10 +1198,10 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPoint &brushOr
     Qt::BrushStyle bs = brush.style();
     if(bs == LinearGradientPattern) {
         CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
-        CGFunctionRef fill_func = CGFunctionCreate(&brush, 1, 0, 4, 0, &callbacks);
+        CGFunctionRef fill_func = CGFunctionCreate(const_cast<void *>(reinterpret_cast<const void *>(&brush)), 1, 0, 4, 0, &callbacks);
         CGColorSpaceRef grad_colorspace = CGColorSpaceCreateDeviceRGB();
-        const QPoint start = ps->painter->xForm(brush.gradientStart()),
-                      stop =  ps->painter->xForm(brush.gradientStop());
+        const QPoint start = painter()->xForm(brush.gradientStart()),
+                      stop =  painter()->xForm(brush.gradientStop());
         d->shading = CGShadingCreateAxial(grad_colorspace, CGPointMake(start.x(), start.y()),
                                           CGPointMake(stop.x(), stop.y()), fill_func, true, true);
         CGFunctionRelease(fill_func);
@@ -1258,7 +1258,7 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPoint &brushOr
 }
 
 void
-QCoreGraphicsPaintEngine::updateFont(const QFont &font)
+QCoreGraphicsPaintEngine::updateFont(const QFont &)
 {
     Q_ASSERT(isActive());
     clearf(DirtyFont);

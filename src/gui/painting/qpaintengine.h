@@ -198,6 +198,7 @@ private:
     void updateInternal(QPainterState *state, bool updateGC = true);
 
     friend class QFontEngineBox;
+    friend class QFontEngineMac;
     friend class QFontEngineWin;
     friend class QFontEngineXft;
     friend class QFontEngineXLFD;

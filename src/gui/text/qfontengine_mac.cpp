@@ -134,7 +134,6 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     }
     if(p->type() == QPaintEngine::QuickDraw) {
         QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
-        mgc->updateState(mgc->state);
         mgc->setupQDPort(false, 0, 0);
         mgc->setupQDFont();
     }
@@ -328,8 +327,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     QPaintDevice *device = 0;
     QWidget *widget = 0;
     if(p) {
-        pState = p->painterState();
-        device = pState->painter->device();
+        device = p->painter()->device();
         if(device->devType() == QInternal::Widget)
             widget = static_cast<QWidget *>(device);
     }

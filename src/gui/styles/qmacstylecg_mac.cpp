@@ -90,7 +90,7 @@ static inline const QRect qrectForHIRect(const HIRect &hirect)
                  QSize(int(hirect.size.width), int(hirect.size.height)));
 }
 
-inline static bool qt_mac_is_metal(const QWidget *w)
+static inline bool qt_mac_is_metal(const QWidget *w)
 {
     for (; w; w = w->parentWidget()) {
         if (w->testAttribute(QWidget::WA_MacMetalStyle))
@@ -101,7 +101,7 @@ inline static bool qt_mac_is_metal(const QWidget *w)
     return false;
 }
 
-inline static bool qt_mac_is_metal(QPainter *p)
+static inline bool qt_mac_is_metal(QPainter *p)
 {
     return qt_mac_is_metal(qt_abuse_painter_for_widget(p));
 }

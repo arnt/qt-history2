@@ -41,7 +41,6 @@ void QMacStyleQDPainter::setport()
     if(d->engine && (d->engine->type() == QPaintEngine::QuickDraw || d->engine->type() == QPaintEngine::CoreGraphics))
         mpe = (QQuickDrawPaintEngine*)d->engine;
     if(mpe) {
-        mpe->updateState(mpe->state);
         if(mpe->type() == QPaintEngine::CoreGraphics) {
             mpe->setupQDPort(true);
         } else {
