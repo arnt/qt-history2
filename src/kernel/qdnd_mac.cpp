@@ -142,17 +142,16 @@ enum fuck {
 };
 static struct SM {
     ScrapFlavorType mac_type;
-    enum { Scrap_Raw, Scrap_Other } mac_info;
     const char *qt_type; 
 } scrap_map[] = {
     //text (unicode has highest priority)
-    { kScrapFlavorTypeUnicode, SM::Scrap_Raw, "text/plain;charset=ISO-10646-UCS-2" }, 
-    { kScrapFlavorTypeText, SM::Scrap_Raw, "text/plain" },
+    { kScrapFlavorTypeUnicode, "text/plain;charset=ISO-10646-UCS-2" }, 
+    { kScrapFlavorTypeText, "text/plain;charset=utf-8" },
     //url's (prefer fileURL over HFS)
-    { typeFileURL, SM::Scrap_Other, "text/uri-list" }, 
-    { kDragFlavorTypeHFS, SM::Scrap_Other, "text/uri-list" },
+    { typeFileURL, "text/uri-list" }, 
+    { kDragFlavorTypeHFS, "text/uri-list" },
     //end marker
-    { 0, SM::Scrap_Other, NULL } 
+    { 0, NULL } 
 };
 
 QByteArray QDropEvent::encodedData(const char *fmt) const
@@ -183,7 +182,7 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 			qDebug("Failure to get GetFlavorDataSize for %d", (int)info);
 			return 0;
 		    }
-		    if(scrap_map[sm].mac_info == SM::Scrap_Raw) { //general raw case
+		    if(info == kScrapFlavorTypeUnicode || info == kScrapFlavorTypeText) {
 			buffer = (char *)malloc(flavorsize);
 			GetFlavorData(current_dropobj, ref, info, buffer, &flavorsize, 0);
 			ret.assign(buffer, flavorsize);
@@ -303,6 +302,7 @@ const char* QDropEvent::format(int i) const
 		    return 0;
 		}
 		*(buffer + typesize) = '\0';
+		break;
 	    }
 	}
     }
@@ -389,7 +389,8 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     for (int i = 0; (fmt = o->format(i)); i++) {
 	for(int sm = 0; scrap_map[sm].qt_type; sm++) { //encode it for other Mac applications
 	    if(!qstrcmp(fmt, scrap_map[sm].qt_type)) {
-		if(scrap_map[sm].mac_info == SM::Scrap_Raw) {   //general raw case
+		if((scrap_map[sm].mac_type == kScrapFlavorTypeUnicode) || 
+		   (scrap_map[sm].mac_type == kScrapFlavorTypeText)) {
 		    ar = o->encodedData(scrap_map[sm].qt_type);
 		    AddDragItemFlavor(theDrag, (ItemReference)1, scrap_map[sm].mac_type, 
 				       ar.data(), ar.size(), 0);
