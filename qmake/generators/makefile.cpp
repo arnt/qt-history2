@@ -2259,7 +2259,7 @@ struct FileInfoCacheKey
     FileInfoCacheKey(const QString &f)
     {
         hash = 0;
-        if(QDir::isRelativePath(f))
+        if(isRelativePath(f))
             pwd = qmake_getpwd();
         file = f;
     }
@@ -2272,6 +2272,15 @@ struct FileInfoCacheKey
         if(!hash)
             hash = qHash(file) /*| qHash(pwd)*/;
         return hash;
+    }
+    inline bool isRelativePath(const QString &file) {
+        const QChar c0 = file.at(0);
+        const QChar c1 = file.length() >= 2 ? file.at(1) : QChar(0);
+        return !(c0 == QLatin1Char('/')
+                || c0 == QLatin1Char('\\')
+                || (c0.isLetter() && c1 == QLatin1Char(':'))
+                || (c0 == QLatin1Char('/') && c1 == QLatin1Char('/'))
+                || (c0 == QLatin1Char('\\') && c1 == QLatin1Char('\\')));
     }
 };
 uint qHash(const FileInfoCacheKey &f) { return f.hashCode(); }
