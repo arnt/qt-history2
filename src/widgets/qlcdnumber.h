@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#3 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#4 $
 **
 ** Definition of QLCDNumber class
 **
@@ -41,14 +41,16 @@ slots:						/* methods!!! */
     void    display( const char *str );
     void    setMode( Mode );
     void    smallDecimalPoint( bool );
+
 signals:
-    void overflow();
+    void    overflow();
+
 protected:
     void    resizeEvent( QResizeEvent * );
     void    paintEvent( QPaintEvent * );
 
 private:
-    void    drawString( const char *, QPainter &, QBitArray * = NULL,
+    void    drawString( const char *, QPainter &, QBitArray * = 0,
 			bool = TRUE );
     void    drawDigit( const QPoint &, QPainter &, int, char, char = ' ' );
     void    drawSegment( const QPoint &, char, QPainter &, int, bool = FALSE );
