@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.12 1998/11/17 20:28:32 warwick Exp $
+** $Id: porting.doc,v 1.13 1998/11/21 18:50:08 ettrich Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -105,6 +105,21 @@ Some repaint problems problems might occur with subclasses on QFrame,
 QLabel::setMovie()
 No longer changes the text.
 
+<h3>QDialog</h3>
+
+<p> The semantics of the parent pointer changed for non-modal dialogs:
+In Qt-2.x, dialogs are always toplevel windows. The parent, however,
+takes the ownership of the dialog, i.e. he will delete the dialog on
+destruction time. Furthermore, the window system will be able to tell
+that both the dialog and the parent belong together. Some X11 window
+managers will for instance provide a common taskbar entry in that
+case. To sum it up: If the dialogs belongs to a toplevel main window
+of your application, pass this main window as parent to the dialog's
+constructor. Old code (with 0 pointer) will still run. Old code that
+included QDialogs as simple widget will no longer work (but was broken
+anyway).
+
+<p>
 
 <h3>QString</h3>
 
