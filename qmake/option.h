@@ -77,8 +77,8 @@ struct Option
     static bool postProcessProject(QMakeProject *); 
 
     //and convenience functions    
-    static QString fixPathToLocalOS(const QString& in, bool fix_env=TRUE);
-    static QString fixPathToTargetOS(const QString& in, bool fix_env=TRUE);
+    static QString fixPathToLocalOS(const QString& in, bool fix_env=TRUE, bool canonical=TRUE);
+    static QString fixPathToTargetOS(const QString& in, bool fix_env=TRUE, bool canonical=TRUE);
 
     //global qmake mode, can only be in one mode per invocation!
     enum QMAKE_MODE { QMAKE_GENERATE_NOTHING, QMAKE_GENERATE_PROJECT, QMAKE_GENERATE_MAKEFILE, 

@@ -348,9 +348,9 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
+    targetdir = "$(INSTALL_ROOT)" + Option::fixPathToTargetOS(targetdir, FALSE);
     if(targetdir.right(1) != Option::dir_sep)
 	targetdir += Option::dir_sep;
-    targetdir = QString("$(INSTALL_ROOT)") + targetdir;
 
     QStringList links;
     QString target="$(TARGET)";
@@ -367,7 +367,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    int slsh = dst_prl.findRev('/');
 	    if(slsh != -1)
 		dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
-	    dst_prl = Option::fixPathToTargetOS(targetdir + dst_prl, FALSE);
+	    dst_prl = targetdir + dst_prl;
 	    ret += "-$(COPY) " + project->first("QMAKE_INTERNAL_PRL_FILE") + " " + dst_prl;
 	    if(!uninst.isEmpty())
 		uninst.append("\n\t");
@@ -384,7 +384,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString src_targ = target;
     if(!destdir.isEmpty())
 	src_targ = Option::fixPathToTargetOS(destdir + target, FALSE);
-    QString dst_targ = Option::fixPathToTargetOS(targetdir + target, FALSE);
+    QString dst_targ = targetdir + target;
     if(!ret.isEmpty())
 	ret += "\n\t";
     ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
@@ -412,7 +412,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		int lslash = link.findRev(Option::dir_sep);
 		if(lslash != -1)
 		    link = link.right(link.length() - (lslash + 1));
-		QString dst_link = Option::fixPathToTargetOS(targetdir + link, FALSE);
+		QString dst_link = targetdir + link;
 		fileFixify(dst_link);
 		fileFixify(dst_targ);
 		ret += "\n\t-ln -sf \"$(TARGET)\" \"" + dst_link + "\"";
