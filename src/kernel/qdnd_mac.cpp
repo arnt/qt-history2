@@ -254,7 +254,6 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 
 const char* QDropEvent::format(int i) const
 {
-    int old_i = i;
     char *buffer = NULL;
     FlavorType info = NULL;
     Size flavorsize = 0, typesize = 0, realsize = sizeof(typesize);
@@ -552,7 +551,7 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     acceptfmt = macDndExtra->acceptfmt;
     drag_received = TRUE;
     current_drag_widget = NULL;
-    return macDndExtra->acceptfmt ? noErr : dragNotAcceptedErr;
+    return macDndExtra->acceptfmt ? (OSErr)noErr : (OSErr)dragNotAcceptedErr;
 }
 static DragReceiveHandlerUPP qt_mac_receive_handlerUPP = NULL;
 static void cleanup_dnd_receiveUPP() 

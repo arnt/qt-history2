@@ -149,7 +149,9 @@ struct QCursorData : public QShared
 };
 
 static QCursorData *currentCursor = NULL; //current cursor
+#ifndef QMAC_NO_FAKECURSOR
 static Point currentPoint = { 0, 0 };
+#endif
 void qt_mac_set_cursor(const QCursor *c, const Point *p)
 {
     (void)c->handle(); //force the cursor to get loaded, if it's not
