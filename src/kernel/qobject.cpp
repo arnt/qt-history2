@@ -328,10 +328,10 @@ QObject::QObject( QObject *parent, const char *name )
     connections   = 0;				// no connections yet
     senderObjects = 0;				// no signals connected yet
     eventFilters  = 0;				// no filters installed
+    postedEvents  = 0;				// no events posted
     isSignal   = FALSE;				// assume not a signal object
     isWidget   = FALSE;				// assume not a widget object
     pendTimer  = FALSE;				// no timers yet
-    pendEvent  = FALSE;				// no events yet
     blockSig   = FALSE;				// not blocking signals
     wasDeleted = FALSE;				// double-delete catcher
     isTree = FALSE;				// no tree yet
@@ -376,7 +376,7 @@ QObject::~QObject()
     objname = 0;
     if ( pendTimer )				// might be pending timers
 	qKillTimer( this );
-    if ( pendEvent )
+    if ( postedEvents )
 	QApplication::removePostedEvents( this );
     if ( isTree ) {
 	remove_tree( this );		// remove from global root list
@@ -1062,7 +1062,6 @@ void QObject::insertChild( QObject *obj )
     obj->parentObj = this;
     childObjects->append( obj );
 
-    obj->pendEvent = TRUE;
     QChildEvent *e = new QChildEvent( QEvent::ChildInserted, obj );
     QApplication::postEvent( this, e );
 }
@@ -2945,11 +2944,11 @@ QVariant QObject::property( const char *name ) const
     typedef QSizePolicy (QObject::*ProtoSizePolicy)() const;
     typedef const QSizePolicy* (QObject::*PProtoSizePolicy)() const;
     typedef const QSizePolicy& (QObject::*RProtoSizePolicy)() const;
-    
+
     typedef QDate (QObject::*ProtoDate)() const;
     typedef const QDate* (QObject::*PProtoDate)() const;
     typedef const QDate& (QObject::*RProtoDate)() const;
-    
+
     typedef QTime (QObject::*ProtoTime)() const;
     typedef const QTime* (QObject::*PProtoTime)() const;
     typedef const QTime& (QObject::*RProtoTime)() const;

@@ -973,7 +973,6 @@ void QWidget::createExtra()
 #endif
 	extra->size_policy = QSizePolicy( QSizePolicy::Preferred,
 					  QSizePolicy::Preferred );
-	extra->posted_events = 0;
 	createSysExtra();
     }
 }
@@ -1002,10 +1001,6 @@ void QWidget::deleteExtra()
 	    delete extra->topextra;
 	}
 #if defined(DEUBG)
-	if ( extra->posted_events )
-	    qWarning( "QWidget::deleteExtra: Memory leak for "
-		      "extra->posted_events (%p)", extra->posted_events );
-	// removePostedEvents( this ) must be called before deleteExtra()
 #endif
 	delete extra;
 	// extra->xic destroyed in QWidget::destroy()

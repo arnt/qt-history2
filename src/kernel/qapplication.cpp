@@ -334,9 +334,23 @@ struct QPostEvent {
     QEvent   *event;
 };
 
-typedef QList<QPostEvent>	  QPostEventList;
-typedef QListIterator<QPostEvent> QPostEventListIt;
-static QPostEventList *postedEvents = 0;	// list of posted events
+class Q_EXPORT QPostEventList : public QList<QPostEvent>
+{
+public:
+    QPostEventList() : QList<QPostEvent>() {}
+    QPostEventList( const QPostEventList &list ) : QList<QPostEvent>(list) {}
+   ~QPostEventList() { clear(); }
+    QPostEventList &operator=(const QPostEventList &list)
+	{ return (QPostEventList&)QList<QPostEvent>::operator=(list); }
+};
+class Q_EXPORT QPostEventListIt : public QListIterator<QPostEvent>
+{
+public:
+    QPostEventListIt( const QPostEventList &l ) : QListIterator<QPostEvent>(l) {}
+    QPostEventListIt &operator=(const QPostEventListIt &i)
+{ return (QPostEventListIt&)QListIterator<QPostEvent>::operator=(i); }
+};
+static QPostEventList *globalPostedEvents = 0;	// list of posted events
 
 QCleanUpHandler<QPostEventList> qapp_cleanup_events;
 
@@ -1580,7 +1594,7 @@ void QApplication::closeAllWindows()
 /*!
   Sends event \a e to \a receiver: <code>receiver->event( event )</code>
   Returns the value that is returned from the receiver's event handler.
-  
+
   ##### TODO this function now does propagation of mouse, wheel and
   key events
 
@@ -1624,15 +1638,10 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     }
 
 
-    if ( receiver->pendEvent && e->type() == QEvent::ChildRemoved &&
-	 postedEvents ) {
+    if ( e->type() == QEvent::ChildRemoved && receiver->postedEvents ) {
 	// if this is a child remove event and the child insert hasn't been
 	// dispatched yet, kill that insert and return.
-	QPostEventList * l = postedEvents;
-	if ( receiver->isWidgetType() &&
-	     ((QWidget*)receiver)->extra &&
-	     ((QWidget*)receiver)->extra->posted_events )
-	    l = (QPostEventList*)(((QWidget*)receiver)->extra->posted_events);
+	QPostEventList * l = receiver->postedEvents;
 	QObject * c = ((QChildEvent*)e)->child();
 	QPostEvent * pe;
 	l->first();
@@ -1643,21 +1652,20 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		pe->event->posted = FALSE;
 		delete pe->event;
 		pe->event = 0;
-		if ( l != postedEvents )
-		    l->remove();
+		l->remove();
 		return TRUE;
 	    }
 	    l->next();
 	}
     }
-    
+
     bool res = FALSE;
     if ( !receiver->isWidgetType() )
 	res = internalNotify( receiver, e );
     else switch ( e->type() ) {
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
-    case QEvent::AccelOverride: 
+    case QEvent::AccelOverride:
 	{
 	    QWidget* w = (QWidget*)receiver;
 	    QKeyEvent* key = (QKeyEvent*) e;
@@ -1677,7 +1685,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
-    case QEvent::MouseMove: 
+    case QEvent::MouseMove:
 	{
 	    QWidget* w = (QWidget*)receiver;
 	    QMouseEvent* mouse = (QMouseEvent*) e;
@@ -1739,7 +1747,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 
 
 /*!\internal
-  
+
   Helper function called by notify()
  */
 bool QApplication::internalNotify( QObject *receiver, QEvent * e)
@@ -2054,11 +2062,11 @@ QString QApplication::translate( const char * context, const char * key,
 
 void QApplication::postEvent( QObject *receiver, QEvent *event )
 {
-    if ( !postedEvents ) {			// create list
-	postedEvents = new QPostEventList;
-	CHECK_PTR( postedEvents );
-	postedEvents->setAutoDelete( TRUE );
-	qapp_cleanup_events.addCleanUp( postedEvents );
+    if ( !globalPostedEvents ) {			// create list
+	globalPostedEvents = new QPostEventList;
+	CHECK_PTR( globalPostedEvents );
+	globalPostedEvents->setAutoDelete( TRUE );
+	qapp_cleanup_events.addCleanUp( globalPostedEvents );
     }
     if ( receiver == 0 ) {
 #if defined(CHECK_NULL)
@@ -2067,36 +2075,28 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	return;
     }
 
-    QPostEventList ** l = &postedEvents;
-
-    // use an object-specific list, if there is one.
-    if ( receiver->isWidgetType() ) {
-	if ( !((QWidget*)receiver)->extra )
-	    ((QWidget*)receiver)->createExtra();
-	if ( ((QWidget*)receiver)->extra->posted_events == 0 )
-	    ((QWidget*)receiver)->extra->posted_events
-		= (void*) new QPostEventList;
-	l = (QPostEventList**)&(((QWidget*)receiver)->extra->posted_events);
-    }
+    if ( !receiver->postedEvents )
+	receiver->postedEvents = new QPostEventList;
+    QPostEventList * l = receiver->postedEvents;
 
     // if this is one of the compressible events, do compression
     if ( event->type() == QEvent::Paint ||
 	 event->type() == QEvent::LayoutHint ||
 	 event->type() == QEvent::Resize ||
 	 event->type() == QEvent::Move ) {
-	(*l)->first();
+	l->first();
 	QPostEvent * cur = 0;
 	while ( TRUE ) {
-	    while ( (cur=(*l)->current()) != 0 &&
+	    while ( (cur=l->current()) != 0 &&
 		    ( cur->receiver != receiver ||
 		      cur->event == 0 ||
 		      cur->event->type() != event->type() ) )
-		(*l)->next();
-	    if ( (*l)->current() != 0 ) {
+		l->next();
+	    if ( l->current() != 0 ) {
 		if ( cur->event->type() == QEvent::Paint ) {
 		    QPaintEvent * p = (QPaintEvent*)(cur->event);
 		    if ( p->erase != ((QPaintEvent*)event)->erase ) {
-			(*l)->next();
+			l->next();
 			continue;
 		    }
 		    p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
@@ -2121,13 +2121,10 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
     }
 
     // if no compression could be done, just append something
-    receiver->pendEvent = TRUE;
     event->posted = TRUE;
     QPostEvent * pe = new QPostEvent( receiver, event );
-    if ( l != &postedEvents )
-	(*l)->append( pe );
-
-    postedEvents->append( pe );
+    l->append( pe );
+    globalPostedEvents->append( pe );
 }
 
 
@@ -2150,26 +2147,17 @@ void QApplication::sendPostedEvents()
 
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
-    if ( !postedEvents || receiver && !receiver->pendEvent )
+    if ( !globalPostedEvents || ( receiver && !receiver->postedEvents ) )
 	return;
 
-    QPostEventList ** l = &postedEvents;
-    bool usingGlobalList = TRUE;
-
-    // override that with an object-specific list, if possible
-    if ( receiver && receiver->isWidgetType() &&
-	 ((QWidget*)receiver)->extra &&
-	 ((QWidget*)receiver)->extra->posted_events ) {
-	l = (QPostEventList**)&(((QWidget*)receiver)->extra->posted_events);
-	usingGlobalList = FALSE;
-    }
-
-    QPostEventListIt it( **l );
-
-    QPostEvent *pe;
+    // if we have a receiver, use the local list. Otherwise, use the
+    // global list
+    QPostEventList * l = receiver ? receiver->postedEvents : globalPostedEvents;
 
     // okay.  here is the tricky loop.  be careful about optimizing
     // this, it looks the way it does for good reasons.
+    QPostEventListIt it( *l );
+    QPostEvent *pe;
     while ( (pe=it.current()) != 0 ) {
 	++it;
 	if ( pe->event // hasn't been sent yet
@@ -2185,46 +2173,23 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    pe->event = 0;
 
 	    // next, update the data structure so that we're ready
-	    // for the next event.  the current version of this
-	    // can leave pendEvent set in a few cases where there
-	    // are no pending events, since pendEvent is never
-	    // cleared for non-QWidgets.
+	    // for the next event.
 
-	    if ( usingGlobalList ) {
-		// if we're delivering to something that has a
-		// local list, look for that list, and take
-		// whatever we're delivering out of it.
-		if ( r->isWidgetType() && ((QWidget*)r)->extra &&
-		     ((QWidget*)r)->extra->posted_events ) {
-		    QPostEventList* wl
-			= (QPostEventList*)
-			(((QWidget*)r)->extra->posted_events);
-		    wl->removeRef( pe );
-		    // and if possible, get rid of that list.
-		    // this is not ideal - we will create and
-		    // delete a list for each update() call.  it
-		    // would be better if we'd leave the list
-		    // empty here, and delete it somewhere else if
-		    // it isn't being used.
-		    if ( wl->isEmpty() ) {
-			delete wl;
-			((QWidget*)r)->extra->posted_events = 0;
-			r->pendEvent = FALSE;
-		    }
-		}
-	    } else {
-		// if it's a per-widget list, we do as for "wl"
-		// case above.  the global list is not touched,
-		// since we have to delete things from that AFTER
-		// the local one.
-		(*l)->removeRef( pe );
-		if ( (*l)->isEmpty() ) {
-		    receiver->pendEvent = FALSE;
-		    delete *l;
-		    *l = 0;
+	    // look for the local list, and take whatever we're
+	    // delivering out of it. r->postedEvents maybe *l
+	    if ( r->postedEvents ) {
+		r->postedEvents->removeRef( pe );
+		// if possible, get rid of that list.  this is not
+		// ideal - we will create and delete a list for
+		// each update() call.  it would be better if we'd
+		// leave the list empty here, and delete it
+		// somewhere else if it isn't being used.
+		if ( r->postedEvents->isEmpty() ) {
+		    delete r->postedEvents;
+		    r->postedEvents = 0;
 		}
 	    }
-
+	
 	    // after all that work, it's time to deliver the event.
 	    if ( e->type() == QEvent::Paint && r->isWidgetType() ) {
 		QWidget * w = (QWidget*)r;
@@ -2243,13 +2208,13 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 
     // clear the global list, i.e. remove everything that was
     // delivered yet.
-    if ( usingGlobalList ) {
-	postedEvents->first();
-	while( (pe=postedEvents->current()) != 0 ) {
+    if ( l == globalPostedEvents ) {
+	globalPostedEvents->first();
+	while( (pe=globalPostedEvents->current()) != 0 ) {
 	    if ( pe->event )
-		postedEvents->next();
+		globalPostedEvents->next();
 	    else
-		postedEvents->remove();
+		globalPostedEvents->remove();
 	}
     }
 }
@@ -2265,40 +2230,25 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 
 void QApplication::removePostedEvents( QObject *receiver )
 {
-    if ( !postedEvents || !receiver || !receiver->pendEvent )
+    if ( !receiver || !receiver->postedEvents )
 	return;
 
-    // iterate over the object-specifc list, or maybe over the general
-    // list, and delete the events.  leave the QPostEvent objects;
-    // they'll be deleted by sendPostedEvents().
-    if ( receiver && receiver->isWidgetType() &&
-	 ((QWidget*)receiver)->extra &&
-	 ((QWidget*)receiver)->extra->posted_events ) {
-	QPostEventList * l
-	    = (QPostEventList*)(((QWidget*)receiver)->extra->posted_events);
-	((QWidget*)receiver)->extra->posted_events = 0;
-	l->first();
-	QPostEvent * pe;
-	while( (pe=l->current()) != 0 ) {
-	    if ( pe->event ) {
-		pe->event->posted = FALSE;
-		delete pe->event;
-		pe->event = 0;
-	    }
-	    l->remove();
+    // iterate over the object-specifc list and delete the events.
+    // leave the QPostEvent objects; they'll be deleted by
+    // sendPostedEvents().
+    QPostEventList * l = receiver->postedEvents;
+    receiver->postedEvents = 0;
+    l->first();
+    QPostEvent * pe;
+    while( (pe=l->current()) != 0 ) {
+	if ( pe->event ) {
+	    pe->event->posted = FALSE;
+	    delete pe->event;
+	    pe->event = 0;
 	}
-	delete l;
-    } else {
-	postedEvents->first();
-	QPostEvent * pe;
-	while( (pe=postedEvents->current()) != 0 ) {
-	    if ( pe->receiver == receiver && pe->event )
-		postedEvents->remove();
-	    else
-		postedEvents->next();
-	}
+	l->remove();
     }
-    receiver->pendEvent = FALSE;
+    delete l;
 }
 
 
@@ -2314,7 +2264,7 @@ void QApplication::removePostedEvent( QEvent *  event )
     if ( !event || !event->posted )
 	return;
 
-    if ( !postedEvents ) {
+    if ( !globalPostedEvents ) {
 #if defined(DEBUG)
 	qDebug( "QApplication::removePostedEvent: %p %d is posted: impossible",
 		event, event->type() );
@@ -2322,7 +2272,7 @@ void QApplication::removePostedEvent( QEvent *  event )
 #endif
     }
 
-    QPostEventListIt it( *postedEvents );
+    QPostEventListIt it( *globalPostedEvents );
     QPostEvent * pe;
     while( (pe = it.current()) != 0 ) {
 	++it;

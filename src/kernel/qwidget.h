@@ -407,7 +407,7 @@ public:
     bool		testWFlags( WFlags f ) const;
     static QWidget *	find( WId );
     static QWidgetMapper *wmapper();
-    
+
     QWidget  *childAt( int x, int y, bool includeThis = FALSE ) const;
     QWidget  *childAt( const QPoint &, bool includeThis = FALSE ) const;
 
@@ -751,10 +751,10 @@ inline void QWidget::drawText( const QPoint &p, const QString &s )
 { drawText( p.x(), p.y(), s ); }
 
 inline QWidget *QWidget::parentWidget( bool sameWindow ) const
-{ 
+{
     if ( sameWindow )
-	return isTopLevel() ? 0 : (QWidget *)QObject::parent(); 
-    return (QWidget *)QObject::parent(); 
+	return isTopLevel() ? 0 : (QWidget *)QObject::parent();
+    return (QWidget *)QObject::parent();
 }
 
 inline QWidgetMapper *QWidget::wmapper()
@@ -872,7 +872,6 @@ struct QWExtra {
 #endif
     QRect micro_focus_hint;                     // micro focus hint
     QSizePolicy size_policy;
-    void * posted_events;			// in qapplication
 };
 
 

@@ -51,6 +51,7 @@
 
 class QMetaObject;
 class QVariant;
+class QPostEventList;
 
 #ifndef QT_MOC_CPP
 
@@ -161,7 +162,6 @@ private:
     uint	isSignal   : 1;
     uint	isWidget   : 1;
     uint	pendTimer  : 1;
-    uint	pendEvent  : 1;
     uint	blockSig   : 1;
     uint	wasDeleted : 1;
     uint	isTree : 1;
@@ -173,6 +173,7 @@ private:
     QSignalVec *connections;
     QObjectList *senderObjects;
     QObjectList *eventFilters;
+    QPostEventList *postedEvents;
     void * d;
 
     friend class QApplication;
