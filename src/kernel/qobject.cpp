@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#177 $
 **
 ** Implementation of QObject class
 **
@@ -33,7 +33,7 @@
 
 /*! \class Qt qnamespace.h
   \brief The Qt class is a namespace for miscellaneous identifiers
-  that need to global-like.
+  that need to be global-like.
 
   Normally, you can ignore this class.  QObject and a few other
   classes inherit it, so that all the identifiers in the Qt namespace
