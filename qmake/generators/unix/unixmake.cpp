@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -564,12 +564,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString dst_targ = root + fileFixify(targetdir + target);
     if(!ret.isEmpty())
 	ret += "\n\t";
-    if(resource) {
-	ret += QString("-$(DEL_FILE) -r \"") + dst_targ + "\"" + "\n\t";
-	ret += QString("-$(COPY_DIR) \"") + src_targ + "\" \"" + dst_targ + "\"";
-    } else {
-	ret += QString("-$(COPY) \"") + src_targ + "\" \"" + dst_targ + "\"";
-    }
+    ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
+	   src_targ + "\" \"" + dst_targ + "\"";
     if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP")) {
 	ret += "\n\t-" + var("QMAKE_STRIP");
 	if(!project->isEmpty("QMAKE_STRIPFLAGS_LIB") && project->first("TEMPLATE") == "lib")
