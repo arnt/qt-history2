@@ -196,7 +196,7 @@ cat  <<EOF
 .SUFFIXES: .cpp
 
 .cpp.o:
-	\$(CC) -I\$(INCDIR) -c \$(CFLAGS) -fPIC \$<
+	\$(CC) -I\$(INCDIR) -c \$(CFLAGS) -fpic \$<
 
 # VERSION - the version number of the shared library, where applicable
 

@@ -19,7 +19,7 @@ diff -uwr template/library/Makefile solaris-cc-shared/library/Makefile
  .SUFFIXES: .cpp
  
  .cpp.o:
--	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
 +	$(CC) -I$(INCDIR) -c $(CFLAGS) -pic $<
  
  # VERSION - the version number of the shared library, where applicable

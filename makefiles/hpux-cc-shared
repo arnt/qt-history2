@@ -19,7 +19,7 @@ diff -uwr template/library/Makefile hpux-cc-shared/library/Makefile
  .SUFFIXES: .cpp
  
  .cpp.o:
--	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
 +	$(CC) -I$(INCDIR) -c $(CFLAGS) +z $<
  
  # VERSION - the version number of the shared library, where applicable

@@ -9,7 +9,7 @@ diff -uwr template/library/Makefile hpux-gcc-shared/library/Makefile
 -	$(CC) -shared -Wl,-soname,libqt.so.0 \
 -		-o ../../../lib/libqt.so.$(VERSION) \
 +	-rm -f ../../../lib/libqt.sl
-+	$(CC) -fPIC -shared -o ../../../lib/libqt.sl \
++	$(CC) -fpic -shared -o ../../../lib/libqt.sl \
  		$(OBJECTS) $(METAOBJ) -lX11
 -	-rm -f ../../../lib/libqt.so
 -	-ln -sf libqt.so.$(VERSION) ../../../lib/libqt.so
