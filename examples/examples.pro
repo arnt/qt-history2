@@ -24,6 +24,7 @@ SUBDIRS     =	aclock \
 		drawdemo \
 		drawlines \
 		forever \
+		guithreads \
 		hello \
 		helpviewer \
 		i18n \
