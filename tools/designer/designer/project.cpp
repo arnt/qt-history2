@@ -1236,7 +1236,8 @@ void Project::addObject( QObject *o )
 				   MetaDataBase::languageInterface( language() ), FALSE );
     fw->setMainWindow( MainWindow::self );
     fw->setProject( this );
-    fw->setGeometry( -100, -100, 50, 50 );
+    QApplication::sendPostedEvents( MainWindow::self->qWorkspace(), QEvent::ChildInserted );
+    fw->parentWidget()->setFixedSize( 1, 1 );
     fw->show();
     connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
 	     MainWindow::self, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
