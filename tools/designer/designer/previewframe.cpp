@@ -18,27 +18,32 @@
 **
 **********************************************************************/
 
-#include <qhbox.h>
+#include <qvbox.h>
+#include <qpainter.h>
+
 #include "previewframe.h"
 
 PreviewFrame::PreviewFrame( QWidget *parent, const char *name )
-    : QFrame( parent, name )
+    : QVBox( parent, name )
 {
     setMinimumSize(200, 200);
-    setFrameStyle(StyledPanel | Sunken);
+    setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setLineWidth(1);
-    setEraseColor(QColor(180, 180, 180));
 
-    QHBox* box = new QHBox(this);
-    box->setFrameStyle(StyledPanel | Raised);
-    box->setLineWidth(2);
-    box->move(10, 10);
-    previewWidget = new PreviewWidget(box);
-    box->resize(previewWidget->width() + 2 * box->lineWidth(),
-		previewWidget->height() + 2 * box->lineWidth());
+    Workspace * w = new Workspace( this );
+    w->setEraseColor(colorGroup().dark());
+    previewWidget = new PreviewWidget( w );
+    previewWidget->move( 10, 10 );
 }
 
 void PreviewFrame::setPreviewPalette(QPalette pal)
 {
     previewWidget->setPalette(pal);
+}
+
+void Workspace::paintEvent( QPaintEvent* )
+{
+    QPainter p ( this );
+    p.setPen( QPen( white ) );
+    p.drawText ( 0, height() / 2,  width(), height(), AlignHCenter, "Follow the white rabbit!" );
 }

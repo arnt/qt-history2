@@ -190,26 +190,30 @@ void PaletteEditorAdvanced::onToggleBuildEffects( bool on )
 QColorGroup::ColorRole PaletteEditorAdvanced::centralFromItem( int item )
 {
     switch( item ) {
-    case 0:
-	return QColorGroup::Background;
-    case 1:
-	return QColorGroup::Foreground;
-    case 2:
-	return QColorGroup::Button;
-    case 3:
-	return QColorGroup::Base;
-    case 4:
-	return QColorGroup::Text;
-    case 5:
-	return QColorGroup::BrightText;
-    case 6:
-	return QColorGroup::ButtonText;
-    case 7:
-	return QColorGroup::Highlight;
-    case 8:
-	return QColorGroup::HighlightedText;
-    default:
-	return QColorGroup::NColorRoles;
+        case 0:
+            return QColorGroup::Background;
+        case 1:
+            return QColorGroup::Foreground;
+        case 2:
+            return QColorGroup::Button;
+        case 3:
+            return QColorGroup::Base;
+        case 4:
+            return QColorGroup::Text;
+        case 5:
+            return QColorGroup::BrightText;
+        case 6:
+            return QColorGroup::ButtonText;
+        case 7:
+            return QColorGroup::Highlight;
+        case 8:
+            return QColorGroup::HighlightedText;
+        case 9:
+            return QColorGroup::Link;
+        case 10:
+            return QColorGroup::LinkVisited;
+        default:
+            return QColorGroup::NColorRoles;
     }
 }
 
@@ -253,7 +257,7 @@ void PaletteEditorAdvanced::onCentral( int item )
     }
 
     buttonCentral->setColor(c);
-	
+
     if (p)
 	buttonPixmap->setPixmap( *p );
     else

@@ -21,15 +21,29 @@
 #ifndef __previewframe_h__
 #define __previewframe_h__
 
-#include <qframe.h>
+#include <qvbox.h>
+#include <qworkspace.h>
+
 #include "previewwidgetimpl.h"
 
-class PreviewFrame : public QFrame
+class Workspace : public QWorkspace
+{
+    Q_OBJECT
+public:
+    Workspace( QWidget* parent = 0, const char* name = 0 )
+        : QWorkspace( parent, name ) {}
+    ~Workspace() {}
+
+protected:
+    void paintEvent( QPaintEvent* );
+};
+
+class PreviewFrame : public QVBox
 {
     Q_OBJECT
 
 public:
-    PreviewFrame( QWidget *parent = 0, const char *name = 0 );	
+    PreviewFrame( QWidget *parent = 0, const char *name = 0 );
     void setPreviewPalette(QPalette);
 
 private:

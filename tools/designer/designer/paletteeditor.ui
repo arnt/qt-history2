@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>478</width>
-            <height>461</height>
+            <width>457</width>
+            <height>447</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -64,8 +64,12 @@
                 <string>Build Palette</string>
             </property>
             <property name="alignment">
+                <set>AlignAuto</set>
             </property>
             <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
@@ -101,6 +105,7 @@
                         <string>&amp;3-D Effects:</string>
                     </property>
                     <property name="alignment">
+                        <set>AlignAuto|AlignVCenter</set>
                     </property>
                     <property name="buddy" stdset="0">
                         <cstring>buttonMainColor</cstring>
@@ -158,6 +163,7 @@
                         <string>Back&amp;ground:</string>
                     </property>
                     <property name="alignment">
+                        <set>AlignAuto|AlignVCenter</set>
                     </property>
                     <property name="buddy" stdset="0">
                         <cstring>buttonMainColor2</cstring>
@@ -191,6 +197,7 @@
                         <cstring>Spacer1</cstring>
                     </property>
                     <property name="orientation">
+                        <enum>Horizontal</enum>
                     </property>
                     <property name="sizeType">
                         <enum>Expanding</enum>
@@ -226,6 +233,9 @@
                 <string>Preview</string>
             </property>
             <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
@@ -383,6 +393,16 @@
                                     <green>255</green>
                                     <blue>255</blue>
                                 </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
                             </active>
                             <disabled>
                                 <color>
@@ -454,6 +474,16 @@
                                     <red>255</red>
                                     <green>255</green>
                                     <blue>255</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
                                 </color>
                             </disabled>
                             <inactive>
@@ -527,6 +557,16 @@
                                     <green>255</green>
                                     <blue>255</blue>
                                 </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
                             </inactive>
                         </palette>
                     </property>
@@ -542,6 +582,7 @@
                         <cstring>Horizontal Spacing11</cstring>
                     </property>
                     <property name="orientation">
+                        <enum>Horizontal</enum>
                     </property>
                     <property name="sizeType">
                         <enum>Expanding</enum>
