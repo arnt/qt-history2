@@ -96,7 +96,7 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 		    }
 		} 
 	    } else
-		filename = qtdirenv + "/src/" + item->parent()->parent()->text(0) + "/src/" + item->parent()->text(0);
+		filename = qtdirenv + "/src/" + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
 	    
 	    QString itemtext = item->text(0);
 	    QRegExp rxp( "(\\d+)" );
@@ -115,7 +115,7 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 		procedit = new QProcess( this );
 		procedit->addArgument( editText );
 		procedit->addArgument( QString("+" + linenumber) );
-		procedit->addArgument( " " + filename );
+		procedit->addArgument( filename );
 		connect( procedit, SIGNAL(processExited()), this, SLOT(editorFinished()));
 		if ( !procedit->start() ) {
 		    // Fix for crappy editors
