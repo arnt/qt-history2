@@ -377,15 +377,30 @@ const QMetaData* QMetaObject::signal( int index, bool super ) const
   Returns the index of the signal with name \n or -1 if no such signal exists.
 
   If  \a super is TRUE, inherited signals are included.
- */
+*/
 int QMetaObject::findSignal( const char* n, bool super ) const
 {
-    const QMetaData *md = signalDict ? signalDict->find( n ) : 0;
-    if ( md )
-	return signalOffset() + ( md - signalData );
-    if ( !super || !superclass)
-	return -1;
-    return superclass->findSignal( n, super );
+    const QMetaObject *mo = this;
+    int offset = -1;
+
+    do {
+	const QMetaData *md = mo->signalDict ? mo->signalDict->find( n ) : 0;
+	if ( md ) {
+#if defined(QT_CHECK_RANGE)
+	    if ( offset != -1 ) {
+		qWarning( "QMetaObject::findSignal:%s: Conflict with %s::%s",
+			  className(), mo->className(), n );
+		return offset;
+	    }
+#endif
+	    offset = mo->signalOffset() + ( md - mo->signalData );
+#if !defined(QT_CHECK_RANGE)
+	    return offset;
+#endif
+	}
+    } while ( super && (mo = mo->superclass) );
+
+    return offset;
 }
 
 /*!
