@@ -211,7 +211,7 @@
 #define I_SIGN_MASK	0x0f00
 
 
-static const QChar QEOF = QChar(0xffff); //guaranteed not to be a character.
+static const unsigned short QEOF = 0xffff; //guaranteed not to be a character.
 static const uint getstr_tmp_size  = 64; //these are the temp buffers created on the stack,
 static const uint getnum_tmp_size  = 8;  //they are low to prevent excessive allocation.
 static const uint getbuf_cache_size  = 1024;
@@ -1417,7 +1417,7 @@ double QTextStream::input_double()
 	    if ( i > (buf_size - 5) ) {	// ignore rest of digits
 		do { c = ts_getc(); } while ( c.unicode() != QEOF && c.isDigit() );
 	    }
-	    if ( c != QEOF )
+	    if ( c.unicode() != QEOF )
 		ts_ungetc( c );
 	    buf[i] = '\0';
 	    char *end;
