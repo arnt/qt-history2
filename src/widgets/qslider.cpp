@@ -46,7 +46,6 @@
 #include "qaccessible.h"
 #endif
 
-static const int motifBorder = 2;
 static const int thresholdTime = 500;
 static const int repeatTime = 100;
 
