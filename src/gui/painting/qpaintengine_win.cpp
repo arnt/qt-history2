@@ -369,6 +369,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 
     SetBkMode(d->hdc, TRANSPARENT);
     SetTextAlign(d->hdc, TA_BASELINE);
+    SetTextColor(d->hdc, RGB(0, 0, 0));
     return true;
 }
 
