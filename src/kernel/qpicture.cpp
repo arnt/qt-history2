@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#47 $
 **
 ** Implementation of QPicture class
 **
@@ -13,10 +13,11 @@
 #include "qpaintdc.h"
 #include "qpainter.h"
 #include "qpixmap.h"
+#include "qimage.h"
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#47 $");
 
 
 /*!
@@ -336,6 +337,12 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		painter->drawPixmap( p, pixmap );
 		}
 		break;
+	    case PDC_DRAWIMAGE: {
+		QImage image;
+		s >> p >> image;
+		painter->drawImage( p, image );
+		}
+		break;
 	    case PDC_BEGIN:
 		s >> ul;			// number of records
 		if ( !exec( painter, s, ul ) )
@@ -518,6 +525,10 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	case PDC_DRAWPIXMAP:
 	    s << *p[0].point;
 	    s << *p[1].pixmap;
+	    break;
+	case PDC_DRAWIMAGE:
+	    s << *p[0].point;
+	    s << *p[1].image;
 	    break;
 	case PDC_SAVE:
 	case PDC_RESTORE:
