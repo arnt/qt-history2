@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#148 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#147 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#148 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -116,9 +116,9 @@ bool QWidget::create()
 	    otherDesktop->setWinId( 0 );	// remove id from widget mapper
 	    setWinId( id );			// make sure otherDesktop is
 	    otherDesktop->setWinId( id );	//   found first
-	}
-	else
+	} else {
 	    setWinId( id );
+	}
     } else {
 	id = XCreateSimpleWindow( dpy, parentw,
 				  frect.left(), frect.top(),
@@ -383,8 +383,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	    delete extra->bg_pix;
 	    extra->bg_pix = 0;
 	}
-    }
-    else {
+    } else {
 	QPixmap pm = pixmap;
 	if ( pm.depth() == 1 && QPixmap::defaultDepth() > 1 ) {
 	    pm = QPixmap( pixmap.size() );
@@ -1205,8 +1204,7 @@ void QWidget::scroll( int dx, int dy )
 	x1 = 0;
 	x2 = dx;
 	w -= dx;
-    }
-    else {
+    } else {
 	x1 = -dx;
 	x2 = 0;
 	w += dx;
@@ -1215,8 +1213,7 @@ void QWidget::scroll( int dx, int dy )
 	y1 = 0;
 	y2 = dy;
 	h -= dy;
-    }
-    else {
+    } else {
 	y1 = -dy;
 	y2 = 0;
 	h += dy;

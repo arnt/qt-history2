@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#52 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#52 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -698,9 +698,9 @@ void QWidget::erase( int x, int y, int w, int h )
     if ( tmphdc ) {
 	ReleaseDC( winId(), hdc );
 	hdc = 0;
-    }
-    else if ( pal )
+    } else if ( pal ) {
 	SelectPalette( hdc, pal, FALSE );
+    }
 }
 
 
