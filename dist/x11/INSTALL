@@ -46,7 +46,7 @@ where you choose to install Qt.
 	then
 		MANPATH=$QTDIR/man:$MANPATH
 	else
-		MANPATH=$QTDIR/man
+		MANPATH=$QTDIR/man:
 	fi
 	if [ $LD_LIBRARY_PATH ]
 	then
@@ -78,7 +78,7 @@ where you choose to install Qt.
 	if ( $?MANPATH ) then
 	    setenv MANPATH $QTDIR/man:$MANPATH
 	else
-	    setenv MANPATH $QTDIR/man
+	    setenv MANPATH $QTDIR/man:
 	endif
 	if ( $?LD_LIBRARY_PATH ) then
 	    setenv LD_LIBRARY_PATH $QTDIR/lib:$LD_LIBRARY_PATH
@@ -138,6 +138,7 @@ where you choose to install Qt.
 5.  The online HTML documentation is installed in /usr/local/qt/doc/
     The main page is /usr/local/qt/doc/index.html
     The man pages are installed in /usr/local/qt/man/
+
 
 
 That's all.  Qt is now installed.
