@@ -329,7 +329,7 @@ private:
 
     static QSize     app_strut;
 
-    static QStringList app_libpaths;
+    static QStringList *app_libpaths;
 
     static QSettings *app_settings;
 
@@ -419,11 +419,6 @@ inline QString QApplication::sessionId() const
 inline QSize QApplication::globalStrut()
 {
     return app_strut;
-}
-
-inline QStringList QApplication::libraryPaths()
-{
-    return app_libpaths;
 }
 
 inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )

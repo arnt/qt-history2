@@ -283,7 +283,7 @@ bool	  QApplication::fade_menu	= FALSE;
 bool	  QApplication::animate_combo	= FALSE;
 bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
-QStringList QApplication::app_libpaths;
+QStringList *QApplication::app_libpaths = 0;
 QSettings *QApplication::app_settings = 0;
 
 
@@ -1108,13 +1108,18 @@ void QApplication::setGlobalStrut( const QSize& strut )
 }
 
 /*!
-  \fn QStringList QApplication::libraryPaths()
-
   Returns a list of paths where the application will search when dynamically
   loading libraries.
 
   \sa setLibraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
 */
+QStringList QApplication::libraryPaths()
+{
+    if ( !app_libpaths )
+	app_libpaths = new QStringList;
+    return *app_libpaths;
+}
+
 
 /*!
   Sets the list of directories to search when loading libraries to \a paths.
@@ -1125,7 +1130,8 @@ void QApplication::setGlobalStrut( const QSize& strut )
  */
 void QApplication::setLibraryPaths(const QStringList &paths)
 {
-    app_libpaths = paths;
+    delete app_libpaths;
+    app_libpaths = new QStringList(paths);
 }
 
 /*!
@@ -1140,8 +1146,11 @@ void QApplication::addLibraryPath(const QString &path)
 	return;
     }
 
-    if (! app_libpaths.contains(path)) {
-	app_libpaths.append(path);
+    if ( !app_libpaths )
+	app_libpaths = new QStringList;
+
+    if (! app_libpaths->contains(path)) {
+	app_libpaths->append(path);
     }
 }
 
@@ -1157,8 +1166,11 @@ void QApplication::removeLibraryPath(const QString &path)
 	return;
     }
 
-    if (! app_libpaths.contains(path)) {
-	app_libpaths.remove(path);
+    if ( !app_libpaths )
+	app_libpaths = new QStringList;
+
+    if (! app_libpaths->contains(path)) {
+	app_libpaths->remove(path);
     }
 }
 
