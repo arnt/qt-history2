@@ -105,6 +105,15 @@ after seeing each message.
 */
 
 static QErrorMessage * qtMessageHandler = 0;
+
+static void deleteStaticcQErrorMessage() // post-routine
+{
+    if ( qtMessageHandler ) {
+	delete qtMessageHandler;
+	qtMessageHandler = 0;
+    }
+}
+
 static bool metFatal = FALSE;
 
 void jump( QtMsgType t, const char * m )
@@ -212,6 +221,7 @@ QErrorMessage * QErrorMessage::qtHandler()
 {
     if ( !qtMessageHandler ) {
 	qtMessageHandler = new QErrorMessage( 0, "automatic message handler" );
+	qAddPostRoutine( deleteStaticcQErrorMessage ); // clean up
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	if ( qApp->mainWidget() )
 	    qtMessageHandler->setCaption( qApp->mainWidget()->caption() );
