@@ -1633,7 +1633,9 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 
 static QRect fixRect( const QRect &r )
 {
-    return QRect( r.x() + 1, r.y() + 1, r.width() - 2, r.height() - 2 ); 
+    if ( r.width() > r.height() )
+	return QRect( r.x() + 1, r.y(), r.width() - 2, r.height() );
+    return QRect( r.x(), r.y() + 1, r.width(), r.height() - 2 );
 }
 
 /*!
