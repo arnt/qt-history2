@@ -2094,38 +2094,23 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
                     parser.file.toLatin1().constData(), parser.line_no);
             return false;
         }
-        QMakeProject proj(place);
-        QString file = fixEnvVariables(args[0]);
-        int di = file.lastIndexOf(Option::dir_sep);
-        QString oldpwd = qmake_getpwd();
-        if(di != -1) {
-            if(!qmake_setpwd(file.left(file.lastIndexOf(Option::dir_sep)))) {
-                fprintf(stderr, "Cannot find directory: %s\n", file.left(di).toLatin1().constData());
-                return false;
-            }
-            file = file.right(file.length() - di - 1);
-        }
-        parser_info pi = parser;
-        bool ret = !proj.read(file);
-        parser = pi;
-        if(ret) {
-            fprintf(stderr, "Error processing project file: %s\n", file.toLatin1().constData());
-            qmake_setpwd(oldpwd);
-            return false;
-        }
-        if(args.count() == 2) {
-            ret = !proj.isEmpty(args[1]);
-        } else {
-            QRegExp regx(args[2]);
-            QStringList &l = proj.values(args[1]);
-            for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-                if(regx.exactMatch((*it)) || (*it) == args[2]) {
-                    ret = true;
-                    break;
+
+        bool ret = false;
+        QMap<QString, QStringList> tmp = place;
+        if(doProjectInclude(Option::fixPathToLocalOS(args[0]), false, tmp, args[1]) == IncludeSuccess) {
+            if(args.count() == 2) {
+                ret = tmp.contains(args[1]);
+            } else {
+                QRegExp regx(args[2]);
+                const QStringList &l = tmp[args[1]];
+                for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+                    if(regx.exactMatch((*it)) || (*it) == args[2]) {
+                        ret = true;
+                        break;
+                    }
                 }
             }
         }
-        qmake_setpwd(oldpwd);
         return ret;
     } else if(func == "count") {
         if(args.count() != 2 && args.count() != 3) {
@@ -2214,33 +2199,35 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         if(func == "error")
             exit(2);
         return true;
-    } else if(FunctionBlock *defined = testFunctions[func]) {
-        QString ret;
-        function_blocks.push(defined);
-        defined->exec(args, this, place, ret);
-        Q_ASSERT(function_blocks.pop() == defined);
+    } else {
+        if(FunctionBlock *defined = testFunctions[func]) {
+            QString ret;
+            function_blocks.push(defined);
+            defined->exec(args, this, place, ret);
+            Q_ASSERT(function_blocks.pop() == defined);
 
-        if(ret.isEmpty()) {
-            return true;
-        } else {
-            if(ret == "true") {
+            if(ret.isEmpty()) {
                 return true;
-            } else if(ret == "false") {
-                return false;
             } else {
-                bool ok;
-                int val = ret.toInt(&ok);
-                if(ok)
-                    return val;
-                fprintf(stderr, "%s:%d Unexpected return value from test %s [%s].\n", parser.file.toLatin1().constData(),
-                        parser.line_no, func.toLatin1().constData(), ret.toLatin1().constData());
+                if(ret == "true") {
+                    return true;
+                } else if(ret == "false") {
+                    return false;
+                } else {
+                    bool ok;
+                    int val = ret.toInt(&ok);
+                    if(ok)
+                        return val;
+                    fprintf(stderr, "%s:%d Unexpected return value from test %s [%s].\n", parser.file.toLatin1().constData(),
+                            parser.line_no, func.toLatin1().constData(), ret.toLatin1().constData());
+                }
+                return false;
             }
-            return false;
+        } else {
+            fprintf(stderr, "%s:%d: Unknown test function: %s\n", parser.file.toLatin1().constData(), parser.line_no,
+                    func.toLatin1().constData());
         }
         return false;
-    } else {
-        fprintf(stderr, "%s:%d: Unknown test function: %s\n", parser.file.toLatin1().constData(), parser.line_no,
-                func.toLatin1().constData());
     }
     return false;
 }
