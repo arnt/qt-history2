@@ -830,6 +830,7 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
     static char *aargv[] = { (char*)"unknown", 0 };
 
     qt_is_gui_used = TRUE;
+    qt_appType = GuiClient;
     init_precmdline();
     // ... no command line.
 
@@ -867,6 +868,7 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
 			   HANDLE visual, HANDLE colormap)
 {
     qt_is_gui_used = TRUE;
+    qt_appType = GuiClient;
     init_precmdline();
 
     if ( ! dpy ) {
