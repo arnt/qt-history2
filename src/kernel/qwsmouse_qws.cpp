@@ -564,7 +564,7 @@ static const MouseData mouseData[] = {
 };
 
 
-static const int mouseBufSize = 100;
+static const int mouseBufSize = 128;
 
 class QMouseHandlerPrivate : public QMouseHandler {
     Q_OBJECT
@@ -1015,8 +1015,10 @@ private:
     QPoint oldmouse;
     bool waspressed;
     QPointArray samples;
-    int currSample;
-    int numSamples;
+    unsigned int currSample;
+    unsigned int numSamples;
+    int mouseIdx;
+    uchar mouseBuf[mouseBufSize];
     
 private slots:
     void readMouseData();   
@@ -1028,20 +1030,19 @@ QIpaqHandlerPrivate::QIpaqHandlerPrivate( MouseProtocol, QString )
 {
 #ifdef QT_QWS_IPAQ
 # ifdef QT_QWS_IPAQ_RAW
-    if ((mouseFD = open( "/dev/h3600_tsraw", O_RDONLY)) < 0) {
+    if ((mouseFD = open( "/dev/h3600_tsraw", O_RDONLY | O_NDELAY)) < 0) {
 # else
-    if ((mouseFD = open( "/dev/h3600_ts", O_RDONLY)) < 0) {
+    if ((mouseFD = open( "/dev/h3600_ts", O_RDONLY | O_NDELAY)) < 0) {
 # endif
         qWarning( "Cannot open /dev/h3600_ts (%s)", strerror(errno));
 	return;
-    } else {
     }
 
     QSocketNotifier *mouseNotifier;
     mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read,
 					 this );
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
-    waspressed=false;
+    waspressed=FALSE;
 #endif
 }
 
@@ -1058,24 +1059,27 @@ void QIpaqHandlerPrivate::readMouseData()
 #ifdef QT_QWS_IPAQ
     if(!qt_screen)
 	return;
-    TS_EVENT data;
-    
-    int ret;
 
-    ret=read(mouseFD,&data,sizeof(TS_EVENT));
+    int n;
+    do {
+	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
+	if ( n > 0 )
+	    mouseIdx += n;
+    } while ( n > 0 && mouseIdx < mouseBufSize );
 
-    if(ret==8) {
-	QPoint q;
-	q.setX(data.x);
-	q.setY(data.y);
-	if(data.pressure > 0) {
-	    samples[currSample] = q;
+    TS_EVENT *data;
+    int idx = 0;
+    while ( mouseIdx-idx >= (int)sizeof( TS_EVENT ) ) {
+	uchar *mb = mouseBuf+idx;
+	data = (TS_EVENT *) mb;
+	if(data->pressure > 0) {
+	    samples[currSample] = QPoint( data->x, data->y );
 	    numSamples++;
 	    if ( numSamples > samples.count() ) {
 		int maxd = 0;
-		int ignore = 0;
+		unsigned int ignore = 0;
 		// throw away the "worst" sample
-		for ( int i = 0; i < samples.count(); i++ ) {
+		for ( unsigned int i = 0; i < samples.count(); i++ ) {
 		    int d = ( mousePos - samples[i] ).manhattanLength();
 		    if ( d > maxd ) {
 			maxd = d;
@@ -1084,7 +1088,7 @@ void QIpaqHandlerPrivate::readMouseData()
 		}
 		bool first = TRUE;
 		// average the rest
-		for ( int i = 0; i < samples.count(); i++ ) {
+		for ( unsigned int i = 0; i < samples.count(); i++ ) {
 		    if ( ignore != i ) {
 			if ( first ) {
 			    mousePos = samples[i];
@@ -1113,11 +1117,13 @@ void QIpaqHandlerPrivate::readMouseData()
 		waspressed=false;
 	    }
 	}
+	idx += sizeof( TS_EVENT );
     }
 
-    if(ret<0) {
-	qDebug("Error %s",strerror(errno));
-    }
+    int surplus = mouseIdx - idx;
+    for ( int i = 0; i < surplus; i++ )
+	mouseBuf[i] = mouseBuf[idx+i];
+    mouseIdx = surplus;
 #endif
 }
 
