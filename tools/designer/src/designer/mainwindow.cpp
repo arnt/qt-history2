@@ -406,10 +406,14 @@ void MainWindow::setupMenuBar()
     m_tabOrderEditMode->setShortcut(Qt::Key_F4);
     m_editModeGrp->addAction(m_tabOrderEditMode);
     m_formActionList.append(m_tabOrderEditMode);
+    m_buddyEditMode = menu->addAction(tr("Edit Buddies"));
+    m_buddyEditMode->setCheckable(true);
+    m_buddyEditMode->setShortcut(Qt::Key_F5);
+    m_editModeGrp->addAction(m_buddyEditMode);
+    m_formActionList.append(m_buddyEditMode);
 #ifdef DESIGNER_VIEW3D
     m_view3DEditMode = menu->addAction(tr("3D View"));
     m_view3DEditMode->setCheckable(true);
-    m_view3DEditMode->setShortcut(Qt::Key_F5);
     m_editModeGrp->addAction(m_view3DEditMode);
     m_formActionList.append(m_view3DEditMode);
 #endif
@@ -513,6 +517,8 @@ void MainWindow::editMode(QAction *action)
             newMode = AbstractFormWindow::ConnectionEditMode;
         else if (action == m_tabOrderEditMode)
             newMode = AbstractFormWindow::TabOrderEditMode;
+        else if (action == m_buddyEditMode)
+            newMode = AbstractFormWindow::BuddyEditMode;
 #ifdef DESIGNER_VIEW3D
         else if (action == m_view3DEditMode)
             newMode = AbstractFormWindow::View3DEditMode;

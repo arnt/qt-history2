@@ -142,8 +142,9 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
         return false;
 
     bool view_handles_events = fw->editMode() == AbstractFormWindow::ConnectionEditMode
+                                || fw->editMode() == AbstractFormWindow::BuddyEditMode
 #ifdef DESIGNER_VIEW3D
-                                 || fw->editMode() == AbstractFormWindow::View3DEditMode
+                                || fw->editMode() == AbstractFormWindow::View3DEditMode
 #endif
     ;
 

@@ -7,5 +7,6 @@ SUBDIRS = propertyeditor \
     formeditor \
     widgetbox \
     specialeditor \
-    imagecollection
+    imagecollection \
+    buddyeditor
 

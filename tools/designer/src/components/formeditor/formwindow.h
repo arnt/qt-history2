@@ -46,6 +46,7 @@ class FormWindowManager;
 class OrderIndicator;
 class FormEditor;
 class SignalSlotEditor;
+class BuddyEditor;
 class View3D;
 
 class FormWindowDnDItem : public AbstractDnDItem
@@ -344,6 +345,7 @@ private:
     int m_lastIndex;
 
     SignalSlotEditor *m_signalSlotEditor;
+    BuddyEditor *m_buddyEditor;
     EditMode m_editMode;
 
     WidgetToActionMap m_widget_to_action_map;

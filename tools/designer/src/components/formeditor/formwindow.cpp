@@ -24,6 +24,7 @@
 #include "qdesigner_stackedbox.h"
 #include "qdesigner_resource.h"
 #include "signalsloteditor.h"
+#include "buddyeditor.h"
 #include "layoutdecoration.h"
 
 #ifdef DESIGNER_VIEW3D
@@ -288,6 +289,7 @@ void FormWindow::init()
     setFocusPolicy(Qt::ClickFocus);
 
     m_signalSlotEditor = 0;
+    m_buddyEditor = 0;
     m_mainContainer = 0;
     m_currentWidget = 0;
     sizePreviewLabel = 0;
@@ -311,7 +313,13 @@ void FormWindow::init()
                 m_signalSlotEditor, SLOT(deleteWidgetItem(QWidget*)));
     m_signalSlotEditor->setGeometry(rect());
     m_signalSlotEditor->show();
-    
+
+    m_buddyEditor = new BuddyEditor(this, this);
+    connect(this, SIGNAL(widgetUnmanaged(QWidget*)),
+                m_buddyEditor, SLOT(deleteWidgetItem(QWidget*)));
+    m_buddyEditor->setGeometry(rect());
+    m_buddyEditor->show();
+        
 #ifdef DESIGNER_VIEW3D    
     m_view_3d = new View3D(this, this);
     m_view_3d->setGeometry(rect());
@@ -365,6 +373,7 @@ void FormWindow::setMainContainer(QWidget *w)
     }
 
     m_signalSlotEditor->setBackground(w);
+    m_buddyEditor->setBackground(w);
 }
 
 void FormWindow::handlePaintEvent(QWidget *w, QPaintEvent *e)
@@ -1571,6 +1580,7 @@ void FormWindow::setContents(QIODevice *dev)
     m_insertedWidgets.clear();
     m_widgets.clear();
     m_signalSlotEditor->clear();
+    m_buddyEditor->clear();
     emit changed();
 
     QDesignerResource r(this);
@@ -1837,6 +1847,8 @@ void FormWindow::resizeEvent(QResizeEvent *e)
         m_mainContainer->setGeometry(rect());
     if (m_signalSlotEditor != 0)
         m_signalSlotEditor->setGeometry(rect());
+    if (m_buddyEditor != 0)
+        m_buddyEditor->setGeometry(rect());
 #ifdef DESIGNER_VIEW3D
     if (m_view_3d != 0)
         m_view_3d->setGeometry(rect());
@@ -2077,6 +2089,12 @@ void FormWindow::setEditMode(EditMode mode)
 
         case TabOrderEditMode:
             showOrderIndicators();
+            break;
+            
+        case BuddyEditMode:
+            m_buddyEditor->updateBackground();
+            m_buddyEditor->raise();
+            m_buddyEditor->updateAllItems();
             break;
 
 #ifdef DESIGNER_VIEW3D                        

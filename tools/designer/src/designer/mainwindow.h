@@ -112,6 +112,7 @@ private:
     QAction *m_widgetEditMode;
     QAction *m_connectionEditMode;
     QAction *m_tabOrderEditMode;
+    QAction *m_buddyEditMode;
 #ifdef DESIGNER_VIEW3D    
     QAction *m_view3DEditMode;
 #endif

@@ -31,7 +31,8 @@ public:
     {
         WidgetEditMode,
         ConnectionEditMode,
-        TabOrderEditMode
+        TabOrderEditMode,
+        BuddyEditMode
 #ifdef DESIGNER_VIEW3D        
         ,View3DEditMode
 #endif

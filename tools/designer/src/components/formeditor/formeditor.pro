@@ -13,7 +13,8 @@ INCLUDEPATH += ../../lib/sdk \
     ../../uilib \
     ../../lib/extension \
     ../propertyeditor \
-    ../signalsloteditor
+    ../signalsloteditor \
+    ../buddyeditor
 
 HEADERS += qdesigner_widget.h \
            qdesigner_tabwidget.h \

@@ -48,6 +48,7 @@ LIBS += -L../../lib \
     -lspecialeditor \
     -luilib \
     -lsignalsloteditor \
+    -lbuddyeditor \
     -lshared \
     -L../../../../lib \
     -lQtDesigner
