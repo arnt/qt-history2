@@ -1,7 +1,7 @@
 TEMPLATE	= app
 TARGET		= moc
 
-CONFIG 	       = console release qtinc
+CONFIG 	       += console release qtinc
 CONFIG         -= qt
 mac:CONFIG     -= resource_fork
 DEFINES	       += QT_MOC QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT \
