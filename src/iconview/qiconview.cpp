@@ -171,8 +171,8 @@ public:
 class QIconDragPrivate
 {
 public:
-    QValueList<QIconDragDataItem> items;
-    static bool decode( QMimeSource* e, QValueList<QIconDragDataItem> &lst );
+    QLinkedList<QIconDragDataItem> items;
+    static bool decode( QMimeSource* e, QLinkedList<QIconDragDataItem> &lst );
 };
 
 #endif
@@ -197,7 +197,7 @@ public:
     QIconView::ResizeMode resizeMode;
     QSize oldSize;
 #ifndef QT_NO_DRAGANDDROP
-    QValueList<QIconDragDataItem> iconDragData;
+    QLinkedList<QIconDragDataItem> iconDragData;
 #endif
     int numDragItems, cachedW, cachedH;
     int maxItemWidth, maxItemTextLength;
@@ -657,7 +657,7 @@ QByteArray QIconDrag::encodedData( const char* mime ) const
 	 "application/x-qiconlist" )
 	return QByteArray();
 
-    QValueList<QIconDragDataItem>::ConstIterator it = d->items.begin();
+    QLinkedList<QIconDragDataItem>::ConstIterator it = d->items.begin();
     QString s;
     for ( ; it != d->items.end(); ++it ) {
 	QString k( "%1$@@$%2$@@$%3$@@$%4$@@$%5$@@$%6$@@$%7$@@$%8$@@$" );
@@ -694,7 +694,7 @@ bool QIconDrag::canDecode( QMimeSource* e )
     data. Returns TRUE if there was some data, FALSE otherwise.
 */
 
-bool QIconDragPrivate::decode( QMimeSource* e, QValueList<QIconDragDataItem> &lst )
+bool QIconDragPrivate::decode( QMimeSource* e, QLinkedList<QIconDragDataItem> &lst )
 {
     QByteArray ba = e->encodedData( "application/x-qiconlist" );
     if ( ba.size() ) {
@@ -2064,7 +2064,7 @@ void QIconViewItem::paintFocus( QPainter *p, const QPalette &cg )
 }
 
 /*!
-    \fn void QIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem> &lst )
+    \fn void QIconViewItem::dropped( QDropEvent *e, const QLinkedList<QIconDragItem> &lst )
 
     This function is called when something is dropped on the item. \a
     e provides all the information about the drop. If the drag object
@@ -2079,7 +2079,7 @@ void QIconViewItem::paintFocus( QPainter *p, const QPalette &cg )
 */
 
 #ifndef QT_NO_DRAGANDDROP
-void QIconViewItem::dropped( QDropEvent *, const QValueList<QIconDragItem> & )
+void QIconViewItem::dropped( QDropEvent *, const QLinkedList<QIconDragItem> & )
 {
 }
 #endif
@@ -2347,7 +2347,7 @@ void QIconViewItem::checkRect()
     QIconViews and their QIconViewItems can also be the targets of drag
     and drops. To make the QIconView itself able to accept drops connect
     to the dropped() signal. When a drop occurs this signal will be
-    emitted with a QDragEvent and a QValueList of QIconDragItems. To
+    emitted with a QDragEvent and a QLinkedList of QIconDragItems. To
     make a QIconViewItem into a drop target subclass QIconViewItem and
     reimplement QIconViewItem::acceptDrop() and
     QIconViewItem::dropped().
@@ -2360,7 +2360,7 @@ void QIconViewItem::checkRect()
 	return FALSE;
     }
 
-    void MyIconViewItem::dropped( QDropEvent *evt, const QValueList<QIconDragItem>& )
+    void MyIconViewItem::dropped( QDropEvent *evt, const QLinkedList<QIconDragItem>& )
     {
 	QString label;
 	if ( QTextDrag::decode( evt, label ) )
@@ -2392,7 +2392,7 @@ void QIconViewItem::checkRect()
     connect to the dropped() signal and reimplement
     QIconViewItem::acceptDrop() and QIconViewItem::dropped(). If you've
     used a QIconDrag (or a subclass of it) the second argument to the
-    dropped signal contains a QValueList of QIconDragItems -- you can
+    dropped signal contains a QLinkedList of QIconDragItems -- you can
     access their data by calling QIconDragItem::data() on each one.
 
     For an example implementation of complex drag-and-drop look at the
@@ -2473,7 +2473,7 @@ void QIconViewItem::checkRect()
 */
 
 /*!
-    \fn void  QIconView::dropped ( QDropEvent * e, const QValueList<QIconDragItem> &lst )
+    \fn void  QIconView::dropped ( QDropEvent * e, const QLinkedList<QIconDragItem> &lst )
 
     This signal is emitted when a drop event occurs in the viewport
     (but not on any icon) which the icon view itself can't handle.
@@ -4798,21 +4798,21 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	}
 	e->acceptAction();
     } else if ( !i && ( e->source() != viewport() || d->cleared ) ) {
-	QValueList<QIconDragItem> lst;
+	QLinkedList<QIconDragItem> lst;
 	if ( QIconDrag::canDecode( e ) ) {
-	    QValueList<QIconDragDataItem> l;
+	    QLinkedList<QIconDragDataItem> l;
 	    QIconDragPrivate::decode( e, l );
-	    QValueList<QIconDragDataItem>::Iterator it = l.begin();
+	    QLinkedList<QIconDragDataItem>::Iterator it = l.begin();
 	    for ( ; it != l.end(); ++it )
 		lst << ( *it ).data;
 	}
 	emit dropped( e, lst );
     } else if ( i ) {
-	QValueList<QIconDragItem> lst;
+	QLinkedList<QIconDragItem> lst;
 	if ( QIconDrag::canDecode( e ) ) {
-	    QValueList<QIconDragDataItem> l;
+	    QLinkedList<QIconDragDataItem> l;
 	    QIconDragPrivate::decode( e, l );
-	    QValueList<QIconDragDataItem>::Iterator it = l.begin();
+	    QLinkedList<QIconDragDataItem>::Iterator it = l.begin();
 	    for ( ; it != l.end(); ++it )
 		lst << ( *it ).data;
 	}
@@ -5510,7 +5510,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	p.setRasterOp( NotROP );
 	p.setPen( QPen( color0 ) );
 
-	QValueList<QIconDragDataItem>::Iterator it = d->iconDragData.begin();
+	QLinkedList<QIconDragDataItem>::Iterator it = d->iconDragData.begin();
 	for ( ; it != d->iconDragData.end(); ++it ) {
 	    QRect ir = (*it).item.pixmapRect();
 	    QRect tr = (*it).item.textRect();
