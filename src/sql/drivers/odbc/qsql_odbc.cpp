@@ -427,7 +427,7 @@ bool QODBCPrivate::setConnectionOptions( const QString& connOpts )
 	QMap<QString, QString>::ConstIterator it;
 	QString opt, val;
 	SQLUINTEGER v = 0;
-	for ( it = connMap.begin(); it != connMap.end(); ++it ) {
+	for ( it = connMap.constBegin(); it != connMap.constEnd(); ++it ) {
 	    opt = it.key().upper();
 	    val = it.data().upper();
 	    r = SQL_SUCCESS;
@@ -438,7 +438,7 @@ bool QODBCPrivate::setConnectionOptions( const QString& connOpts )
 		    v = SQL_MODE_READ_WRITE;
 		} else {
 		    qWarning( QString( "QODBCDriver::open: Unknown option value '%1'" ).arg( *it ) );
-		    break;
+		    continue;
 		}
 		r = SQLSetConnectAttr( hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
 	    } else if ( opt == "SQL_ATTR_CONNECTION_TIMEOUT" ) {
@@ -463,7 +463,7 @@ bool QODBCPrivate::setConnectionOptions( const QString& connOpts )
 		    v = SQL_FALSE;
 		} else {
 		    qWarning( QString( "QODBCDriver::open: Unknown option value '%1'" ).arg( *it ) );
-		    break;
+		    continue;
 		}
 		r = SQLSetConnectAttr( hDbc, SQL_ATTR_METADATA_ID, (SQLPOINTER) v, 0 );
 	    } else if ( opt == "SQL_ATTR_PACKET_SIZE" ) {
@@ -484,18 +484,31 @@ bool QODBCPrivate::setConnectionOptions( const QString& connOpts )
 		} else if ( val == "SQL_OPT_TRACE_ON" ) {
 		    v = SQL_OPT_TRACE_ON;
 		} else {
-		    qWarning( QString( "QODBCDriver::open: Unknown option value '%1'" ).arg( *it ) );
-		    break;
+		    qWarning( QString( "QODBCDriver::open: Unknown option value '%1'" ).arg( val ) );
+		    continue;
 		}
 		r = SQLSetConnectAttr( hDbc, SQL_ATTR_TRACE, (SQLPOINTER) v, 0 );
-	    }
-              else {
+#ifndef Q_ODBC_VERSION_2
+	    } else if (opt == "SQL_ATTR_CONNECTION_POOLING") {
+		if (val == "SQL_CP_OFF")
+		    v = SQL_CP_OFF;
+		else if (val == "SQL_CP_ONE_PER_DRIVER")
+		    v = SQL_CP_ONE_PER_DRIVER;
+		else if (val == "SQL_CP_ONE_PER_HENV")
+		    v = SQL_CP_ONE_PER_HENV;
+		else if (val == "SQL_CP_DEFAULT")
+		    v = SQL_CP_DEFAULT;
+		else {
+		    qWarning( QString( "QODBCDriver::open: Unknown option value '%1'" ).arg( val ) );
+		    continue;
+		}
+		r = SQLSetConnectAttr(hDbc, SQL_ATTR_CONNECTION_POOLING, (SQLPOINTER)v, 0);
+#endif
+	    } else {
 		  qWarning( QString("QODBCDriver::open: Unknown connection attribute '%1'").arg( opt ) );
 	    }
-	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
+	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
 		qSqlWarning( QString("QODBCDriver::open: Unable to set connection attribute '%1'").arg( opt ), this );
-		return FALSE;
-	    }
 	}
     }
     return TRUE;

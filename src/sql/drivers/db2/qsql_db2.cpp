@@ -1080,7 +1080,7 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 	QMap<QString, QString>::ConstIterator it;
 	QString opt, val;
 	SQLUINTEGER v = 0;
-	for ( it = connMap.begin(); it != connMap.end(); ++it ) {
+	for ( it = connMap.constBegin(); it != connMap.constEnd(); ++it ) {
 	    opt = it.key().upper();
 	    val = it.data().upper();
 	    r = SQL_SUCCESS;
@@ -1091,7 +1091,7 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 		    v = SQL_MODE_READ_WRITE;
 		} else {
 		    qWarning( "QDB2Driver::open: Unknown option value '%s'", (*it).latin1() );
-		    break;
+		    continue;
 		}
 		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
 	    } else if ( opt == "SQL_ATTR_LOGIN_TIMEOUT" ) {
@@ -1099,12 +1099,12 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER) v, 0 );
 	    }
 	    else {
-		  qWarning( "QDB2Driver::open: Unknown connection attribute '%s'", it.key().latin1() );
+		  qWarning( "QDB2Driver::open: Unknown connection attribute '%s'",
+			    it.key().latin1() );
 	    }
-	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-		qSqlWarning( QString("QDB2Driver::open: Unable to set connection attribute '%1'").arg( opt ), d );
-		return FALSE;
-	    }
+	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
+		qSqlWarning( QString("QDB2Driver::open: Unable to set connection attribute '%1'"
+				    ).arg( opt ), d );
 	}
     }
         
