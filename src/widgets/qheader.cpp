@@ -1425,11 +1425,9 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, fr,
 			       colorGroup(), flags );
     } else {
+	p->save();
+	p->setClipRect( fr ); // hack to keep styles working
 	if ( orientation() == Horizontal ) {
-	    p->save();
-
-	    // ### Hack to keep styles working
-	    p->setClipRect( fr );
 	    style().drawPrimitive( QStyle::PE_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
 				   colorGroup(), flags );
@@ -1445,12 +1443,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 		p->setPen( colorGroup().color( QColorGroup::Mid ) );
 		p->drawLine( fr.x() + fr.width() - 2, fr.y(), fr.x() + fr.width() - 2, fr.y() + fr.height() - 1 );
 	    }
-	    p->restore();
 	} else {
-	    p->save();
-
-	    // ### Hack to keep styles working
-	    p->setClipRect( fr );
 	    style().drawPrimitive( QStyle::PE_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
 				   colorGroup(), flags );
@@ -1466,8 +1459,8 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 		p->setPen( colorGroup().color( QColorGroup::Mid ) );
 		p->drawLine( fr.x(), fr.y() + fr.height() - 2, fr.x() + fr.width() - 1, fr.y() + fr.height() - 2 );
 	    }
-	    p->restore();
 	}
+	p->restore();
     }
 
     paintSectionLabel( p, index, fr );
@@ -1518,20 +1511,23 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     p->setPen(colorGroup().buttonText());
     p->drawText( r, AlignVCenter, s );
 
-    int arrowWidth = orient == Qt::Horizontal ? height() / 2 : width() / 2;
+    int arrowWidth = ( orient == Qt::Horizontal ? height() : width() ) / 2;
     int arrowHeight = fr.height() - 6;
-    int tw = tw = p->fontMetrics().width( s ) + 16, ew = 0;
-    if( style().styleHint( QStyle::SH_Header_ArrowAlignment, this ) & AlignRight)
+    QSize ssh = sectionSizeHint( section, p->fontMetrics() );
+    int tw = ( orient == Qt::Horizontal ? ssh.width() : ssh.height() );
+    int ew = 0;
+
+    if ( style().styleHint( QStyle::SH_Header_ArrowAlignment, this ) & AlignRight )
 	ew = fr.width() - tw - pw - arrowWidth - 8;
     if ( d->sortColumn == section && pw + tw + arrowWidth + 2 < fr.width() ) {
-	if( reverse() ) {
+	if ( reverse() ) {
 	    tw = fr.width() - tw;
 	    ew = fr.width() - ew - tw;
 	}
 	QStyle::SFlags flags = QStyle::Style_Default;
-	if(isEnabled())
+	if ( isEnabled() )
 	    flags |= QStyle::Style_Enabled;
-	if(d->sortDirection)
+	if ( d->sortDirection )
 	    flags |= QStyle::Style_Down;
 	else
 	    flags |= QStyle::Style_Up;
