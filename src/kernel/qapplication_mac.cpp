@@ -1966,7 +1966,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    if(widget) {
 		widget->raise();
 		QWidget *tlw = widget->topLevelWidget();
-		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || !tlw->isDialog())) 
+		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || !tlw->testWFlags( WStyle_Tool )))
 		    app->setActiveWindow(tlw);
 		if (widget->focusWidget())
 		    widget->focusWidget()->setFocus();
