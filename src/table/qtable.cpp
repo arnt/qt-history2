@@ -2118,8 +2118,12 @@ QTable::~QTable()
 {
     delete d;
     setUpdatesEnabled( FALSE );
-    for (int i = 0; i < contents.size(); ++i)
-	delete contents.at(i);
+    for (int i = 0; i < contents.size(); ++i) {
+	if (contents.at(i)) {
+	    contents.at(i)->t = 0;
+	    delete contents.at(i);
+	}
+    }
     for (int i = 0; i < widgets.size(); ++i)
 	delete widgets.at(i);
 }
@@ -2979,7 +2983,7 @@ void QTable::setItem( int row, int col, QTableItem *item )
     if ( !item )
 	return;
 
-    if ( contents.size() != numRows() * numCols() )
+    if ( contents.capacity() != numRows() * numCols() )
 	resizeData( numRows() * numCols() );
 
     int orow = item->row();
@@ -2988,7 +2992,7 @@ void QTable::setItem( int row, int col, QTableItem *item )
 
     int idx = indexOf( row, col );
     delete contents.at(idx);
-    contents.insert( idx, item );
+    contents[idx] = item;
     item->setRow( row );
     item->setCol( col );
     item->t = this;

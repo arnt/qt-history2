@@ -60,7 +60,6 @@
 #include "qcheckbox.h"
 #include "qsplitter.h"
 #include "qmap.h"
-#include "qnetworkprotocol.h"
 #include "qsemimodal.h"
 #include "qpainter.h"
 #include "qcleanuphandler.h"
