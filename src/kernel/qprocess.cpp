@@ -58,7 +58,20 @@
 
   You can start and finish an external program with this class. You can also
   write to stdin of the started program. You can read the output of the program
-  on stdout and stderr. You get notified when the program exists.
+  on stdout and stderr. You get notified when the program exits.
+
+  There are two different ways to run a process: If you use start(), you have
+  full control over the process; you can write to the stdin via the dataStdin()
+  slots whenever you want, and you can close stdin via the closeStdin() slot.
+
+  If you know the data that should be written to the stdin of the process
+  already when you want to run the process, you can use the launch() functions
+  instead. These functions take the data that should be written to stdin as an
+  argument, write it to stdin and automatically close stdin if all data was
+  written.
+
+  If you use a launch() function to run the process, you should not use the
+  slots dataStdin() and closeStdin().
 */
 
 /*!
@@ -161,8 +174,10 @@ int QProcess::exitStatus()
 
 
 /*!
-  Starts a process and writes the data \a buf to stdin of the process. If all
+  Runs the process and writes the data \a buf to stdin of the process. If all
   data is written to stdin, it closes stdin.
+
+  Returns TRUE on success, otherwise FALSE.
 
   Notice that you should not use the slots dataStdin() and closeStdin() on
   processes started with launch(). If you need these slots, use start()

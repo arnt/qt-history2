@@ -257,9 +257,13 @@ QProcess::~QProcess()
 }
 
 /*!
-  Starts the program.
+  Runs the process. You can write data to the stdin of the process with
+  dataStdin(), you can close stdin with closeStdin() and you can terminate the
+  process hangUp() resp. kill().
 
-  Returns TRUE on success, otherwise FALSE.
+  Returns TRUE if the process could be started, otherwise FALSE.
+
+  \sa launch()
 */
 bool QProcess::start()
 {
