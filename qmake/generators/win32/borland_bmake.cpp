@@ -175,7 +175,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
       << varGlue("QMAKE_CLEAN","-del ","\n\t-del ","") << "\n\t"
       << varGlue("CLEAN_FILES","-del ","\n\t-del ","");
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
-	t << "\n\t-del" << var("DLLDESTDIR") << "\\$(TARGET)";
+	t << "\n\t-del " << var("DLLDESTDIR") << "\\$(TARGET)";
     }
     t << endl << endl;
 
