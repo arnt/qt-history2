@@ -2578,7 +2578,7 @@ QFontInfo::QFontInfo( const QPainter *p )
 //     else
 // 	d = painter->cfont.d;
 // #else
-    d = painter->font().d;  
+    d = painter->font().d;
     ++d->ref;
 }
 
@@ -2998,7 +2998,7 @@ void QFontCache::cleanupPrinterFonts()
 		continue;
 	    }
 
-	    if( it.value()->count > 0 ) {
+	    if( it.value()->ref != 0 ) {
 #ifdef Q_WS_WIN
 		for(int i = 0; i < QFont::LastPrivateScript; ++i) {
 		    if( it.value()->engines[i] ) {
@@ -3030,14 +3030,14 @@ void QFontCache::cleanupPrinterFonts()
     EngineCache::Iterator it = engineCache.begin(),
 			 end = engineCache.end();
     while( it != end ) {
-	if ( it.value().data->count > 0 || it.key().screen == 0) {
+	if ( it.value().data->ref != 0 || it.key().screen == 0) {
 	    ++it;
 	    continue;
 	}
 
 	FC_DEBUG( "    %p: timestamp %4u hits %2u ref %2d/%2d, type '%s'",
 		  it.value().data, it.value().timestamp, it.value().hits,
-		  it.value().data->count, it.value().data->cache_count,
+		  it.value().data->ref.atomic, it.value().data->cache_count,
 		  it.value().data->name() );
 
 	if ( --it.value().data->cache_count == 0 ) {
