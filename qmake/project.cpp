@@ -561,8 +561,6 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 
     if((!scope_count && !var.isEmpty()) || (scope_count == 1 && else_line))
         scope_blocks.top().else_status = ScopeBlock::TestNone;
-    if(scope_failed)
-        return true; // oh well
     if(!*d) {
         if(!var.trimmed().isEmpty())
             qmake_error_msg("Parse Error ('" + s + "')");
@@ -588,6 +586,8 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
         warn_msg(WarnParser, "Possible braces mismatch {%s} %s:%d",
                  vals.latin1(), parser.file.latin1(), parser.line_no);
     }
+    if(scope_failed)
+        return true; // oh well
 #undef SKIP_WS
 
     doVariableReplace(vals, place);
