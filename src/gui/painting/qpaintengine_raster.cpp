@@ -912,8 +912,12 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 #endif
     Q_D(QRasterPaintEngine);
 #ifdef Q_WS_WIN
+
     QRectF logRect(p.x(), p.y() - ti.ascent, ti.width, ti.ascent + ti.descent);
     QRect devRect = d->matrix.mapRect(logRect).toRect();
+
+    if(devRect.width() == 0 || devRect.height() == 0)
+        return;
 
     d->fontRasterBuffer->prepare(devRect.width(), devRect.height());
     d->fontRasterBuffer->resetBuffer(255);
