@@ -1019,23 +1019,50 @@ void SetupWizardImpl::doFinalIntegration()
 	    description );
     }
 
+#if defined(QSA)
+    QString qsaExamplesName;
+    if( qWinVersion() & WV_DOS_based ) {
+	shell.createShortcut( dirName, common,
+		"QSA Examples",
+		optionsPageQsa->installPath->text() + "\\examples" );
+    } else {
+	qsaExamplesName = shell.createFolder( foldersPage->folderPath->text() + "\\QSA Examples", common );
+	installIcons( qsaExamplesName, optionsPageQsa->installPath->text() + "\\examples", common );
+    }
+#endif
     if( optionsPage->installTutorials->isChecked() ) {
 	if( qWinVersion() & WV_DOS_based ) {
 	    shell.createShortcut( dirName, common,
+#if defined(QSA)
+		"Qt Tutorials",
+#else
 		"Tutorials",
+#endif
 		QEnvironment::getEnv( "QTDIR" ) + "\\tutorial" );
 	} else {
+#if defined(QSA)
+	    tutorialsName = shell.createFolder( foldersPage->folderPath->text() + "\\Qt Tutorials", common );
+#else
 	    tutorialsName = shell.createFolder( foldersPage->folderPath->text() + "\\Tutorials", common );
+#endif
 	    installIcons( tutorialsName, QEnvironment::getEnv( "QTDIR" ) + "\\tutorial", common );
 	}
     }
     if( optionsPage->installExamples->isChecked() ) {
 	if( qWinVersion() & WV_DOS_based ) {
 	    shell.createShortcut( dirName, common,
+#if defined(QSA)
+		"Qt Examples",
+#else
 		"Examples",
+#endif
 		QEnvironment::getEnv( "QTDIR" ) + "\\examples" );
 	} else {
+#if defined(QSA)
+	    examplesName = shell.createFolder( foldersPage->folderPath->text() + "\\Qt Examples", common );
+#else
 	    examplesName = shell.createFolder( foldersPage->folderPath->text() + "\\Examples", common );
+#endif
 	    installIcons( examplesName, QEnvironment::getEnv( "QTDIR" ) + "\\examples", common );
 	}
     }
@@ -1045,7 +1072,12 @@ void SetupWizardImpl::doFinalIntegration()
 
 void SetupWizardImpl::makeDone()
 {
-    if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) ) {
+    makeDone( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) );
+}
+
+void SetupWizardImpl::makeDone( bool error )
+{
+    if( error ) {
 	logOutput( "The build process failed!\n" );
 	emit wizardPageFailed( indexOf(currentPage()) );
 	QMessageBox::critical( this, "Error", "The build process failed!\nSee the log for details." );
@@ -1121,6 +1153,11 @@ void SetupWizardImpl::configDone()
 		args << "sub-examples";
 	    if ( optionsPage->installExtensions->isChecked() )
 		args << "sub-extensions";
+	}
+	if ( args.count() == 1 ) {
+	    make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
+	    makeDone( FALSE );
+	    return;
 	}
 #endif
 	if ( globalInformation.sysId() == GlobalInformation::MinGW ) {
@@ -2427,8 +2464,13 @@ void SetupWizardImpl::accept()
 #if defined(Q_OS_WIN32)
     if ( finishPage->showReadmeCheck->isChecked() ) {
 	QProcess proc( QString("notepad.exe") );
+#if defined(QSA)
+	QString qsaDir = optionsPageQsa->installPath->text();
+	proc.addArgument( qsaDir + "\\README" );
+#else
 	QString qtDir = QEnvironment::getEnv( "QTDIR" );
 	proc.addArgument( qtDir + "\\README" );
+#endif
 	proc.start();
     }
 #endif

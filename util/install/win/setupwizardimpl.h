@@ -88,6 +88,8 @@ private:
     bool findFile( const QString &fileName );
     bool findFileInPaths( const QString &fileName, const QStringList &paths );
 
+    void makeDone( bool error );
+
     void setStaticEnabled( bool se );
     void setJpegDirect( bool jd );
     void readLicenseAgreement();
