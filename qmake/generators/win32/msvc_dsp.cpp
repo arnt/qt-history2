@@ -402,9 +402,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    QString build = "\n\n# Begin Custom Build - Uic'ing " + base + "...\n"
 			"InputPath=.\\" + base + "\n\n" "BuildCmds= \\\n\t" + uicpath + base +
 				    " -o " + uiHeadersDir + fname + ".h \\\n" "\t" + uicpath  + base +
-				    QString(usePCH? " -pch " + precomph: QString("")) +
+				    QString((usePCH? " -pch " + precomph: QString(""))) +
 				    " -i " + fname + ".h -o " + uiSourcesDir + fname + ".cpp \\\n"
-				    "\t" + mocpath + QString(usePCH?" -pch " + precomph: QString("")) + " " + uiHeadersDir +
+				    "\t" + mocpath + QString((usePCH?" -pch " + precomph: QString(""))) + " " + uiHeadersDir +
 				    fname + ".h -o " + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + " \\\n";
 
 		    build.append("\n\"" + uiHeadersDir + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
