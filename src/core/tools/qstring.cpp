@@ -899,23 +899,6 @@ QString &QString::operator=(const QString &other)
     go through QObject::tr(), for exaple.
 */
 
-/*!
-    \fn QString& QString::operator=(const std::string &str)
-
-    \overload
-
-    Assigns \a str to this string. \a str is converted to Unicode
-    using fromAscii().
-
-    You can disable this function by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
-
-    This function is only available if Qt is configured with STL
-    compabitility enabled.
-*/
-
 /*! \fn QString &QString::operator=(const char *str)
 
     \overload
@@ -1093,22 +1076,6 @@ QString &QString::append(const QLatin1String &str)
     go through QObject::tr(), for example.
 */
 
-/*! \fn QString &QString::append(const std::string &str)
-
-    \overload
-
-    Appends the string \a str to this string. \a str is converted to
-    Unicode using fromAscii().
-
-    You can disable this function by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
-
-    This function is only available if Qt is configured with STL
-    compabitility enabled.
-*/
-
 /*! \fn QString &QString::append(const char *str)
 
     \overload
@@ -1171,22 +1138,6 @@ QString &QString::append(QChar ch)
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
     can be useful if you want to ensure that all user-visible strings
     go through QObject::tr(), for example.
-*/
-
-/*! \fn QString &QString::prepend(const std::string &str)
-
-    \overload
-
-    Prepends the string \a str to this string. \a str is converted to
-    Unicode using fromAscii().
-
-    You can disable this function by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
-
-    This function is only available if Qt is configured with STL
-    compabitility enabled.
 */
 
 /*! \fn QString &QString::prepend(const char *str)
@@ -3617,22 +3568,6 @@ QString& QString::fill(QChar ch, int size)
     go through QObject::tr(), for example.
 */
 
-/*! \fn QString &QString::operator+=(const std::string &str)
-
-    \overload
-
-    Appends the string \a str to this string. \a str is converted to
-    Unicode using fromAscii().
-
-    You can disable this operator by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
-
-    This operator is only available if Qt is configured with STL
-    compabitility enabled.
-*/
-
 /*! \fn QString &QString::operator+=(const char *str)
 
     \overload
@@ -5896,16 +5831,6 @@ void QString::updateProperties() const
     to prepend(\a other).
 */
 
-/*! \fn void QString::push_front(const std::string &str)
-
-    \overload
-
-    Same as prepend(\a str).
-
-    This function is only available if Qt is configured with STL
-    compabitility enabled.
-*/
-
 /*! \fn void QString::push_front(QChar ch)
 
     \overload
@@ -5917,16 +5842,6 @@ void QString::updateProperties() const
 
     This function is provided for STL compatibility. It is equivalent
     to append(\a other).
-*/
-
-/*! \fn void QString::push_back(const std::string &str)
-
-    \overload
-
-    Same as append(\a str).
-
-    This function is only available if Qt is configured with STL
-    compabitility enabled.
 */
 
 /*! \fn void QString::push_back(QChar ch)
@@ -5955,7 +5870,7 @@ void QString::updateProperties() const
     \sa ascii(), latin1(), utf8(), local8Bit()
 */
 
-/*! \fn QString::operator const std::string() const
+/*! \fn std::string QString::toStdString() const
 
     Returns a std::string object with the data contained in this
     QString. The Unicode data is converted into 8-bit characters
@@ -6291,58 +6206,16 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 #endif // QT_NO_DATASTREAM
 
 #ifndef QT_NO_STL
-# ifndef QT_NO_CAST_TO_ASCII
-QString::operator const std::string() const
-{ return ascii(); }
-# endif
-# ifndef QT_NO_CAST_FROM_ASCII
+std::string QString::toStdString() const
+{
+    return ascii();
+}
 QString::QString(const std::string &s)
     : d(&shared_null)
 {
     ++d->ref;
     *this = fromAscii(s.c_str());
 }
-
-QString &QString::operator=(const std::string &s)
-{
-    return operator=(s.c_str());
-}
-
-void QString::push_back(const std::string &s)
-{
-    append(QString(s.c_str()));
-}
-
-void QString::push_front(const std::string &s)
-{
-    prepend(QString(s.c_str()));
-}
-
-QString &QString::prepend(const std::string &s)
-{
-    return prepend(QString(s.c_str()));
-}
-
-QString &QString::append(const std::string &s)
-{
-    return append(QString(s.c_str()));
-}
-
-QString &QString::operator+=(const std::string &s)
-{
-    return append(QString(s.c_str()));
-}
-
-const QString operator+(const QString &s1, const std::string &s2)
-{
-    return s1 + QString(s2.c_str());
-}
-
-const QString operator+(const std::string &s1, const QString &s2)
-{
-    return QString(s2).prepend(s1.c_str());
-}
-# endif
 #endif
 
 /*!

@@ -336,19 +336,10 @@ public:
     inline void push_back(const QString &s) { append(s); }
     inline void push_front(QChar c) { prepend(c); }
     inline void push_front(const QString &s) { prepend(s); }
+
 #ifndef QT_NO_STL
-#ifndef QT_NO_CAST_TO_ASCII
-    operator const std::string() const;
-#endif
-#ifndef QT_NO_CAST_FROM_ASCII
-    QString(const std::string &s);
-    QString &operator=(const std::string &s);
-    void push_back(const std::string &s);
-    void push_front(const std::string &s);
-    QString &prepend(const std::string &s);
-    QString &append(const std::string &s);
-    QString &operator+=(const std::string &s);
-#endif
+    Q_EXPLICIT QString(const std::string &s);
+    std::string toStdString() const;
 #endif
 
     // compatibility
@@ -735,10 +726,6 @@ inline const QString operator+(const QByteArray &ba, const QString &s)
 { QString t(ba); t += s; return t; }
 inline const QString operator+(const QString &s, const QByteArray &ba)
 { QString t(s); t += ba; return t; }
-#ifndef QT_NO_STL
-const QString operator+(const QString &s1, const std::string &s2);
-const QString operator+(const std::string &s1, const QString &s2);
-#endif
 #endif
 
 #ifdef QT_COMPAT
