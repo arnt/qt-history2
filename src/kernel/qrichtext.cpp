@@ -4075,7 +4075,7 @@ QTextPreProcessor::QTextPreProcessor()
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextFormatter::QTextFormatter()
-    : wrapEnabled( TRUE ), wrapColumn( -1 )
+    : wrapEnabled( TRUE ), wrapColumn( -1 ), biw( FALSE )
 {
 }
 
@@ -4549,7 +4549,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		tminw = marg;
 	    continue;
 	}
-	if ( isWrapEnabled() && lastBreak != -1 &&
+	if ( isWrapEnabled() && ( lastBreak != -1 || allowBreakInWords() ) &&
 	     ( wrapAtColumn() == -1 && x + ww > w ||
 	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
 	       parag->isNewLinesAllowed() && lastChr == '\n' ) {

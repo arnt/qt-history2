@@ -1225,6 +1225,8 @@ public:
     int wrapAtColumn() const { return wrapColumn;}
     virtual void setWrapEnabled( bool b );
     virtual void setWrapAtColumn( int c );
+    virtual void setAllowBreakInWords( bool b ) { biw = b; }
+    bool allowBreakInWords() const { return biw; }
 
 protected:
     virtual QTextParagLineStart *formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextStringChar *start,
@@ -1237,6 +1239,7 @@ protected:
 private:
     bool wrapEnabled;
     int wrapColumn;
+    bool biw;
 
 #ifdef HAVE_THAI_BREAKS
     static QCString *thaiCache;

@@ -61,6 +61,7 @@
 #include "qptrdict.h"
 #include "qstringlist.h"
 #include "qcleanuphandler.h"
+#include "../kernel/qrichtext_p.h"
 
 #include <stdlib.h>
 #include <math.h>
@@ -356,15 +357,16 @@ QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *pare
     setHScrollBarMode( AlwaysOff );
     setVScrollBarMode( AlwaysOff );
 
-    setWordWrap( FixedPixelWidth );
+    setWordWrap( WidgetWidth );
     setWrapColumnOrWidth( item->iconView()->maxItemWidth() -
 			  ( item->iconView()->itemTextPos() == QIconView::Bottom ?
 			    0 : item->pixmapRect().width() ) );
+    document()->formatter()->setAllowBreakInWords( TRUE );
     resize( 200, 200 ); // ### some size, there should be a forceReformat()
     setText( text );
     setAlignment( Qt::AlignCenter );
 
-    resize( wrapColumnOrWidth() + 6, heightForWidth( wrapColumnOrWidth() ) + 6 );
+    resize( wrapColumnOrWidth() + 2, heightForWidth( wrapColumnOrWidth() ) + 2 );
 }
 
 void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
@@ -377,7 +379,8 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 	item->renameItem();
     } else {
 	QTextEdit::keyPressEvent( e );
-	resize( wrapColumnOrWidth() + 6, heightForWidth( wrapColumnOrWidth() ) + 6 );
+	sync();
+	resize( width(), document()->height() + 2 );
 
     }
 }
@@ -1713,7 +1716,7 @@ void QIconViewItem::calcRect( const QString &text_ )
 	r = QRect( view->d->fm->boundingRect( 0, 0, iconView()->maxItemWidth() -
 					      ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
 						pixmapRect().width() ) - 4,
-					      0xFFFFFFFF, AlignHCenter | WordBreak, t ) );
+					      0xFFFFFFFF, AlignHCenter | WordBreak | BreakAnywhere, t ) );
 	r.setWidth( r.width() + 4 );
     } else {
 	r = QRect( 0, 0, view->d->fm->width( t ), view->d->fm->height() );
@@ -1801,7 +1804,7 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 
 	int align = view->itemTextPos() == QIconView::Bottom ? AlignHCenter : AlignAuto;
 	if ( view->d->wordWrapIconText )
-	    align |= WordBreak;
+	    align |= WordBreak | BreakAnywhere;
 	p->drawText( textRect( FALSE ), align, view->d->wordWrapIconText ? itemText : tmpText );
 	p->restore();
 	return;
@@ -1848,7 +1851,7 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 
 	int align = AlignHCenter;
 	if ( view->d->wordWrapIconText )
-	    align |= WordBreak;
+	    align |= WordBreak | BreakAnywhere;
 	p->drawText( textRect( FALSE ), align, view->d->wordWrapIconText ? itemText : tmpText );
 
 	p->restore();
@@ -1891,7 +1894,7 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 
 	int align = AlignAuto;
 	if ( view->d->wordWrapIconText )
-	    align |= WordBreak;
+	    align |= WordBreak | BreakAnywhere;
 	p->drawText( textRect( FALSE ), align, view->d->wordWrapIconText ? itemText : tmpText );
 
 	p->restore();

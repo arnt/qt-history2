@@ -116,7 +116,8 @@ public:
 	ExpandTabs	= 0x0200,
 	ShowPrefix	= 0x0400,
 	WordBreak	= 0x0800,
-	DontPrint	= 0x1000		// internal
+	BreakAnywhere = 0x1000,
+	DontPrint	= 0x2000		// internal
     };
 
     // ### document me!!!
@@ -694,7 +695,7 @@ public:
     };
 
     typedef uint ComparisonFlags;
-    
+
     // Documented in qstring.cpp
     enum StringComparisonMode {
         CaseSensitive   = 0x00001, // 0 0001

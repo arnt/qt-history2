@@ -2242,6 +2242,7 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool expandtabs = (tf & Qt::ExpandTabs) == Qt::ExpandTabs;
     bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
+    bool breakany = (tf & Qt::BreakAnywhere ) == Qt::BreakAnywhere;
 
     bool simple = !decode && singleline && !showprefix && !expandtabs;
 
@@ -2304,7 +2305,9 @@ void qt_format_text( const QFont& font, const QRect &r,
 	QTextFormatter *formatter;
 	formatter = new QTextFormatterBreakWords;
 	if ( !wordbreak )
-		formatter->setWrapEnabled( FALSE );
+	    formatter->setWrapEnabled( FALSE );
+	else if ( breakany )
+	    formatter->setAllowBreakInWords( TRUE );
 	parag->setFormatter( formatter );
 	QTextFormat *f = parag->formatCollection()->format( font, painter ? painter->pen().color() : QColor() );
 	if ( singleline ) {
