@@ -4130,7 +4130,7 @@ void QListBox::clearInputString()
   \a text and returns it, or returns 0 of no
   such item could be found.  If ComparisonFlags are
   specified in \a compare then these flags are used, otherwise
-  the default is a case-sensitive, exact match search.
+  the default is a case-insensitive, begins with search.
 
   \sa Qt::StringComparisonMode
 */

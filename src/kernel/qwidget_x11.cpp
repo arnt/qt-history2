@@ -1782,8 +1782,15 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     if ( isVisible() ) {
 	if ( isMove && pos() != oldPos ) {
-	    QMoveEvent e( pos(), oldPos );
-	    QApplication::sendEvent( this, &e );
+	    if ( ! qt_broken_wm ) {
+		// pos() is right according to ICCCM 4.1.5
+		QMoveEvent e( pos(), oldPos );
+		QApplication::sendEvent( this, &e );
+	    } else {
+		// work around 4Dwm's incompliance with ICCCM 4.1.5
+		QMoveEvent e( crect.topLeft(), oldGeom.topLeft() );
+		QApplication::sendEvent( this, &e );
+	    }
 	}
 	if ( isResize ) {
 
@@ -1794,9 +1801,15 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QApplication::sendEvent( this, &e );
 	}
     } else {
-	if ( isMove && pos() != oldPos )
-	    QApplication::postEvent( this,
-				     new QMoveEvent( pos(), oldPos ) );
+	if ( isMove && pos() != oldPos ) {
+	    if ( ! qt_broken_wm )
+		// pos() is right according to ICCCM 4.1.5
+		QApplication::postEvent( this, new QMoveEvent( pos(), oldPos ) );
+	    else
+		// work around 4Dwm's incompliance with ICCCM 4.1.5
+		QApplication::postEvent( this, new QMoveEvent( crect.topLeft(),
+							       oldGeom.topLeft() ) );
+	}
 	if ( isResize )
 	    QApplication::postEvent( this,
 				     new QResizeEvent( size(), oldSize ) );
