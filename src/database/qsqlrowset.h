@@ -19,12 +19,12 @@ class QSqlDatabase;
 class Q_EXPORT QSqlRowset : public QSqlFieldList, public QSql
 {
 public:
-    QSqlRowset( QSqlDatabase * db, const QString & table );
+    QSqlRowset( const QString & name, const QString& databaseName = "default" );
     QSqlRowset( const QSqlRowset & s );
 
     QVariant& operator[]( int i );
     QVariant& operator[]( const QString& name );
-    QVariant& value( int i ); 
+    QVariant& value( int i );
     QVariant& value( const QString& name );
 
     bool select();

@@ -21,10 +21,10 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
   before a QSqlRowset object can operate properly.
 
 */
-QSqlRowset::QSqlRowset( QSqlDatabase * dbase, const QString & table )
-    : QSqlFieldList(), QSql( dbase->driver()->createResult() ), lastAt( QSqlResult::BeforeFirst ), tableName( table )
+QSqlRowset::QSqlRowset( const QString & name, const QString& databaseName )
+    : QSqlFieldList(), QSql( QSqlConnection::database( databaseName )->driver()->createResult() ), lastAt( QSqlResult::BeforeFirst ), tableName( name )
 {
-    *this = driver()->fields( table );
+    *this = driver()->fields( name );
 }
 
 /*!
@@ -184,7 +184,7 @@ QVariant& QSqlRowset::operator[]( const QString& name )
 QVariant& QSqlRowset::value( int i )
 {
     sync();
-    return QSqlFieldList::value( i ); 
+    return QSqlFieldList::value( i );
 }
 
 QVariant& QSqlRowset::value( const QString& name )

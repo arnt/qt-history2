@@ -9,8 +9,8 @@
 
 */
 
-QSqlView::QSqlView( QSqlDatabase * db, const QString & name )
-    : QSqlRowset( db, name )
+QSqlView::QSqlView( const QString & name, const QString& databaseName )
+    : QSqlRowset( name, databaseName )
 {
 
 }

@@ -14,9 +14,11 @@ int main( int argc, char** argv )
     qDebug("Qt SQL Catalog Test");
     QApplication app( argc, argv );
 
-    database = new QSqlDatabase( qApp->argv()[1] );
-    database->reset( qApp->argv()[2], qApp->argv()[3], qApp->argv()[4], qApp->argv()[5]);
-
+    database = QSqlConnection::addDatabase( qApp->argv()[1],
+					    qApp->argv()[2], 
+					    qApp->argv()[3], 
+					    qApp->argv()[4], 
+					    qApp->argv()[5]);
     qDebug("Opening database...");
     database->open();
     if ( database->isOpen() )
@@ -39,14 +41,13 @@ int main( int argc, char** argv )
     for ( i = 0; i < tables.count(); ++i ) {
 	QSqlIndex pk = database->primaryIndex( tables[i] );
 	qDebug( "..." + tables[i] );
-	QSqlFieldList fil = pk.fields();
-	for ( uint j = 0; j < fil.count(); ++j )
-	    qDebug("......" + fil.field(j).name() );
+	for ( uint j = 0; j < pk.count(); ++j )
+	    qDebug("......" + pk.field(j).name() );
     }
 
     qDebug("Creating rowset...");
-    QSqlView v(database, "key_test");
-    
+    QSqlView v( "key_test" );
+
     // insert a value
     v["id"] = 999;
     v["name"] = QString("Dave");
@@ -55,27 +56,26 @@ int main( int argc, char** argv )
     ASSERT( v.next() );
     ASSERT( v["id"].toInt() == 999 );
     ASSERT( v["name"].toString() == QString("Dave") );
-    qDebug("name:" + v["name"].toString());    
-    
+    qDebug("name:" + v["name"].toString());
+
     // put pack a new value
     v["name"] = "Kaja";
     v.update( v.primaryIndex() );
     v.select( v.primaryIndex() );
     ASSERT( v.next() );
-    ASSERT( v["id"].toInt() == 999 );    
+    ASSERT( v["id"].toInt() == 999 );
     ASSERT( v["name"].toString() == "Kaja" );
-    
+
     // delete the record
     v["id"] = 999;
     v.del( v.primaryIndex() );
     v.select( v.primaryIndex() );
     ASSERT( !v.next() );
-    
+
     qDebug("Closing database...");
     database->close();
     if ( !database->isOpen() )
 	qDebug("...success.");
-    delete database;
     qDebug("Done.");
     return 0;
 };

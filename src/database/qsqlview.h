@@ -14,7 +14,7 @@ class Q_EXPORT QSqlDatabase;
 class QSqlView : public QSqlRowset
 {
 public:
-    QSqlView( QSqlDatabase * db, const QString & name );
+    QSqlView( const QString & name, const QString& databaseName = "default" );
     QSqlView( const QSqlView & s );
 
     QSqlIndex     primaryIndex() const;

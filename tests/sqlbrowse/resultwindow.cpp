@@ -10,10 +10,10 @@
 class MyDataGrid : public DataGrid
 {
 public:
-    MyDataGrid ( QSqlDatabase* db, QWidget * parent = 0, const char * name = 0 )
+    MyDataGrid ( QWidget * parent = 0, const char * name = 0 )
 	: DataGrid( parent, name )
     {
-	r = new QSqlRowset( db, "sheet1" );
+	r = new QSqlRowset( "sheet1" );
 	QSqlIndex sort( "sheet1", "sheetSort" );
 	sort.append( r->field("d") );
 	r->select( sort );
@@ -49,7 +49,7 @@ ResultWindow::~ResultWindow()
 void ResultWindow::slotExec()
 {
     if ( db->isOpen() ) {
-	view = new QSqlView( db, tableList->currentText() );
+	view = new QSqlView( tableList->currentText() );
 	view->select(); // all records
 	dataGrid->take( view );
     }
