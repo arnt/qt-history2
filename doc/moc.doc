@@ -75,13 +75,15 @@ like this skeleton:
 <p> In addition to the signals and slots shown above, the moc also
 implements object properties as in the next skeleton. The "Q_PROPERTY"
 macro declares an object property with a quadrupel <em>( type, name,
-set function, get function )</em>.
+get function, set function )</em>. In this particular case we declare
+a property of type \c Priority that is also called "priority" and has
+a get function \c priority() and a set function \c setPriority().
 
 \code
     class MyClass : public QObject
     {
         Q_OBJECT
-        Q_PROPERTY( Priority,  "Priority",  setPriority, priority )
+        Q_PROPERTY( Priority,  priority,  priority, setPriority )
     public:
         MyClass( QObject * parent=0, const char * name=0 );
         ~MyClass();
@@ -524,10 +526,10 @@ the parameter types, like this:
 This will work as expected.
 
 <h4>Properties need to be declared before the public section that
-contains the respective set and get functions</h4>
+contains the respective get and set functions</h4>
 
 Declaring the first property within or after the public section that
-contains the respective set and get functions does not work as
+contains the respective get and set functions does not work as
 expected. The moc will complain that it cannot find these functions.
 Here is an example of the illegal syntax:
 
@@ -536,7 +538,8 @@ Here is an example of the illegal syntax:
 	Q_OBJECT
     public:
     [...]
-        Q_PROPERTY( Priority,  "Priority",  setPriority, priority ) // illegal
+        Q_PROPERTY( Priority,  priority,  priority, setPriority ) // illegal
+        enum Priority { High, Low, VeryHigh, VeryLow };
         void setPriority( Priority );
         Priority priority() const;
     [...]
@@ -549,9 +552,10 @@ beginning of the class declaration, right after Q_OBJECT:
 \code
     class SomeClass : public QObject {
 	Q_OBJECT
-        Q_PROPERTY( Priority,  "Priority",  setPriority, priority )
+        Q_PROPERTY( Priority,  priority,  priority, setPriority )
     public:
     [...]
+        enum Priority { High, Low, VeryHigh, VeryLow };
         void setPriority( Priority );
         Priority priority() const;
     [...]

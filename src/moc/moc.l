@@ -431,6 +431,7 @@ extern void moc_warn( char *msg );
 <IN_EXPR>.		  { addExpressionChar( yytext[0] ); }
 <IN_ENUM>.		  { addExpressionChar( yytext[0] ); }
 <IN_TEMPL_ARGS>.	  { addExpressionChar( yytext[0] ); }
+<IN_PROPERTY>.		  { return CHAR_VAL; }
 <OUTSIDE>.		;
 <SKIP>.		        ;
 <QT_DEF>.		{

@@ -56,42 +56,42 @@ struct QMetaProperty 				// property meta data
 {
     QMetaProperty()
 	:type(0),name(0),
-	 set(0),get(0),enumType(0),
-	 sspec(Unspecified),gspec(Unspecified),
-	 state(0)
+	 get(0),set(0),enumType(0),
+	 gspec(Unspecified),sspec(Unspecified),
+	 flags(0)
     {
     }
 
     const char 	*type;				// type of the property
     const char*	name;				// name of the property
-    QMember 	set;				// set-function or 0
     QMember 	get;				// get-function or 0 ( 0 indicates an error )
+    QMember 	set;				// set-function or 0
     QMetaEnum	*enumType;			// the enum-type or 0
 
     bool writeable() const { return set != 0; }
-    bool isValid() const { return get != 0 && !testState( UnresolvedEnum) ; }
+    bool isValid() const { return get != 0 && !testFlags( UnresolvedEnum) ; }
 
     bool isEnumType() const { return enumType != 0; }
     QStrList enumNames() const;			// convenience function
 
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
 
-    Specification sspec;			// specification of the set-function
     Specification gspec;			// specification of the get-function
+    Specification sspec;			// specification of the set-function
 
-    enum State  {
+    enum Flags  {
 	UnresolvedEnum = 0x00000001
     };
 
-    inline bool testState( State s ) const
-	{ return ((uint)state & s) == (uint)s; }
-    inline void setState( State s )
-	{ state |= s; }
-    inline void clearState( State s )
-	{ state &= ~s; }
+    inline bool testFlags( Flags f ) const
+	{ return (flags & (uint)f) == (uint)f; }
+    inline void setFlags( Flags f )
+	{ flags |= (uint)f; }
+    inline void clearFlags( Flags f )
+	{ flags &= ~(uint)f; }
 
 private:
-    uint state;
+    uint flags;
 };
 
 struct QClassInfo 				// class info meta data
@@ -169,8 +169,8 @@ private:
     QMetaData		*mdata( int code, const char *, bool ) const;
     QMetaData		*mdata( int code, int index, bool super ) const;
 
-    char		*classname;			// class name
-    char		*superclassname;		// super class name
+    const char		*classname;			// class name
+    const char		*superclassname;		// super class name
     QMetaObject 	*superclass;			// super class meta object
     QMetaObjectPrivate	*d;				// private data for...
     void        	*reserved;			// ...binary compatibility

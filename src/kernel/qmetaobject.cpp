@@ -124,8 +124,8 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 	objectDict->setAutoDelete( TRUE );	// use as master dict
     }
 
-    classname = (char *)class_name;		// set meta data
-    superclassname = (char *)superclass_name;
+    classname = class_name;			// set meta data
+    superclassname = superclass_name;
     slotDict = init( slotData = slot_data, n_slots );
     signalDict = init( signalData = signal_data, n_signals );
 
@@ -161,8 +161,8 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 	objectDict->setAutoDelete( TRUE );	// use as master dict
     }
 
-    classname = (char *)class_name;		// set meta data
-    superclassname = (char *)superclass_name;
+    classname = class_name;			// set meta data
+    superclassname = superclass_name;
     slotDict = init( slotData = slot_data, n_slots );
     signalDict = init( signalData = signal_data, n_signals );
 
@@ -425,11 +425,11 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 		}
 	    }
 	}
-	if ( prop->testState( QMetaProperty::UnresolvedEnum ) ) {
+	if ( prop->testFlags( QMetaProperty::UnresolvedEnum ) ) {
 	    QMetaEnum* e = super->enumerator( prop->type );
 	    if ( e ) {
 		prop->enumType = e;
-		prop->clearState( QMetaProperty::UnresolvedEnum );
+		prop->clearFlags( QMetaProperty::UnresolvedEnum );
 	    }
 	}
 	super = super->superclass;
@@ -439,22 +439,13 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 
 QMetaProperty* QMetaObject::property( const char* name, bool super ) const
 {
-    for( int i = 0; i < d->numPropData; ++i )
+    for( int i = 0; i < d->numPropData; ++i ) {
 	if ( d->propData[i].isValid() && strcmp( d->propData[i].name, name ) == 0 )
 	    return &(d->propData[i]);
-
-    if ( !super )
-	return 0;
-
-    QMetaObject* meta = superclass;
-    while ( meta ) {
-	QMetaProperty* p = meta->property( name, super );
-	if ( p )
-	    return p;
-	meta = meta->superclass;
     }
-
-    return 0;
+    if ( !super || !superclass )
+	return 0;
+    return superclass->property( name, super );
 }
 
 QStrList QMetaObject::propertyNames( bool super ) const

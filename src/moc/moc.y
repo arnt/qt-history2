@@ -221,7 +221,7 @@ bool	   Q_PROPERTYdetected;			// TRUE if current class
 QCString   tmpExpression;
 int	   tmpYYStart;
 
-const int  formatRevision = 6;			// moc output format revision
+const int  formatRevision = 7;			// moc output format revision
 
 %}
 
@@ -325,6 +325,7 @@ const int  formatRevision = 6;			// moc output format revision
 %type  <string>		ptr_operators
 %type  <string>		ptr_operators_opt
 %type  <string>		prop_access_function
+%type  <string>		string_or_identifier
 
 %%
 declaration_seq:	  /* empty */
@@ -742,7 +743,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			      Q_OBJECTdetected = TRUE;
 			  }
 			| Q_PROPERTY { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
-			  '(' IDENTIFIER ',' STRING ',' prop_access_function ',' prop_access_function ')'
+			  '(' IDENTIFIER ',' string_or_identifier ',' prop_access_function ',' prop_access_function ')'
 				  {
 				      Q_PROPERTYdetected = TRUE;
 				      props.append( new Property( lineNo, $4,$6,$10,$8) );
@@ -1029,6 +1030,10 @@ enumerator:		  IDENTIFIER { if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 )
 
 prop_access_function:	  IDENTIFIER 	{ $$ = $1; }
 			| '0'		{ $$ = ""; }
+			;
+
+string_or_identifier:	  STRING
+			| IDENTIFIER
 			;
 
 %%
@@ -1784,75 +1789,6 @@ int generateProps()
 	Property* p = it.current();
 	++it;
 	
-	// verify set function
-	if ( !p->set.isEmpty() ) {
-	    FuncList candidates = propfuncs.find( p->set );
-	    for ( Function* f = candidates.first(); f; f = candidates.next() ) {
-		if ( !f->args || f->args->isEmpty() )
-		    continue;
-		QCString tmp = f->args->first()->leftType;
-		tmp = tmp.simplifyWhiteSpace();
-		Property::Specification spec = Property::Unspecified;
-		if ( tmp.right(1) == "&" ) {
-		    tmp = tmp.left( tmp.length() - 1 );
-		    spec = Property::Reference;
-		}
-		else {
-		    spec = Property::Class;
-		}
-		if ( p->type == "QCString" && (tmp == "const char*" || tmp == "const char *" ) ) {
-		    tmp = "QCString";
-		    spec = Property::ConstCharStar;
-		}
-		if ( tmp.left(6) == "const " )
-		    tmp = tmp.mid( 6, tmp.length() - 6 );
-		tmp = tmp.simplifyWhiteSpace();
-		
-		if ( p->type == tmp && f->args->count() == 1 ) {
-		    p->sspec = spec;
-		    p->setfunc = f;
-		    break;
-		}
-	    }
-	    if ( p->setfunc == 0 ) {
-		if ( displayWarnings ) {
-		    fprintf( stderr, "%s:%d: Warning: Property '%s' not available.\n",
-			     fileName.data(), p->lineNo, (const char*) p->name );
-		    fprintf( stderr, "   Have been looking for public set functions \n"
-			     "      void %s( %s )\n"
-			     "      void %s( %s& )\n"
-			     "      void %s( const %s& )\n",
-			     (const char*) p->set, (const char*) p->type,
-			     (const char*) p->set, (const char*) p->type,
-			     (const char*) p->set, (const char*) p->type );
-
-		    if ( p->type == "QCString" )
-			fprintf( stderr, "      void %s( const char* ) const\n",
-				 (const char*) p->set );
-		
-		    if ( !candidates.isEmpty() ) {
-			fprintf( stderr, "   but only found the missmatching candidate(s)\n");
-			for ( Function* f = candidates.first(); f; f = candidates.next() ) {
-			    QCString typstr = "";
-			    Argument *a = f->args->first();
-			    int count = 0;
-			    while ( a ) {
-				if ( !a->leftType.isEmpty() || ! a->rightType.isEmpty() ) {
-				    if ( count++ )
-					typstr += ",";
-				    typstr += a->leftType;
-				    typstr += a->rightType;
-				}
-				a = f->args->next();
-			    }
-			    fprintf( stderr, "      %s:%d: %s %s(%s)\n", fileName.data(), f->lineNo,
-				     (const char*) f->type,(const char*) f->name, (const char*) typstr );
-			}
-		    }
-		}
-	    }
-	}
-	
 	// verify get function
 	if ( !p->get.isEmpty() ) {
 	    FuncList candidates = propfuncs.find( p->get );
@@ -1926,6 +1862,76 @@ int generateProps()
 		}
 	    }
 	}
+	
+	// verify set function
+	if ( !p->set.isEmpty() ) {
+	    FuncList candidates = propfuncs.find( p->set );
+	    for ( Function* f = candidates.first(); f; f = candidates.next() ) {
+		if ( !f->args || f->args->isEmpty() )
+		    continue;
+		QCString tmp = f->args->first()->leftType;
+		tmp = tmp.simplifyWhiteSpace();
+		Property::Specification spec = Property::Unspecified;
+		if ( tmp.right(1) == "&" ) {
+		    tmp = tmp.left( tmp.length() - 1 );
+		    spec = Property::Reference;
+		}
+		else {
+		    spec = Property::Class;
+		}
+		if ( p->type == "QCString" && (tmp == "const char*" || tmp == "const char *" ) ) {
+		    tmp = "QCString";
+		    spec = Property::ConstCharStar;
+		}
+		if ( tmp.left(6) == "const " )
+		    tmp = tmp.mid( 6, tmp.length() - 6 );
+		tmp = tmp.simplifyWhiteSpace();
+		
+		if ( p->type == tmp && f->args->count() == 1 ) {
+		    p->sspec = spec;
+		    p->setfunc = f;
+		    break;
+		}
+	    }
+	    if ( p->setfunc == 0 ) {
+		if ( displayWarnings ) {
+		    fprintf( stderr, "%s:%d: Warning: Property '%s' not writable.\n",
+			     fileName.data(), p->lineNo, (const char*) p->name );
+		    fprintf( stderr, "   Have been looking for public set functions \n"
+			     "      void %s( %s )\n"
+			     "      void %s( %s& )\n"
+			     "      void %s( const %s& )\n",
+			     (const char*) p->set, (const char*) p->type,
+			     (const char*) p->set, (const char*) p->type,
+			     (const char*) p->set, (const char*) p->type );
+
+		    if ( p->type == "QCString" )
+			fprintf( stderr, "      void %s( const char* ) const\n",
+				 (const char*) p->set );
+		
+		    if ( !candidates.isEmpty() ) {
+			fprintf( stderr, "   but only found the missmatching candidate(s)\n");
+			for ( Function* f = candidates.first(); f; f = candidates.next() ) {
+			    QCString typstr = "";
+			    Argument *a = f->args->first();
+			    int count = 0;
+			    while ( a ) {
+				if ( !a->leftType.isEmpty() || ! a->rightType.isEmpty() ) {
+				    if ( count++ )
+					typstr += ",";
+				    typstr += a->leftType;
+				    typstr += a->rightType;
+				}
+				a = f->args->next();
+			    }
+			    fprintf( stderr, "      %s:%d: %s %s(%s)\n", fileName.data(), f->lineNo,
+				     (const char*) f->type,(const char*) f->name, (const char*) typstr );
+			}
+		    }
+		}
+	    }
+	}
+
     }
 
     //
@@ -1973,24 +1979,24 @@ int generateProps()
 	    fprintf( out, "    props_tbl[%d].name = \"%s\";\n",
 		     entry, (const char*) it.current()->name );
 	
-	    if ( it.current()->setfunc )
-		fprintf( out, "    props_tbl[%d].set = *((QMember*)&v%d_%d);\n",
-			 entry, Prop_Num, count + 1 );
-	    else
-		fprintf( out, "    props_tbl[%d].set = 0;\n", entry );
-	
 	    if ( it.current()->getfunc )
 		fprintf( out, "    props_tbl[%d].get = *((QMember*)&v%d_%d);\n",
 			 entry, Prop_Num, count );
 	    else
 		fprintf( out, "    props_tbl[%d].get = 0;\n", entry );
 
-
-	    fprintf( out, "    props_tbl[%d].sspec = QMetaProperty::%s;\n",
-		     entry, Property::specToString(it.current()->sspec ));
+	    if ( it.current()->setfunc )
+		fprintf( out, "    props_tbl[%d].set = *((QMember*)&v%d_%d);\n",
+			 entry, Prop_Num, count + 1 );
+	    else
+		fprintf( out, "    props_tbl[%d].set = 0;\n", entry );
+	
 	
 	    fprintf( out, "    props_tbl[%d].gspec = QMetaProperty::%s;\n",
 		     entry, Property::specToString(it.current()->gspec ));
+
+	    fprintf( out, "    props_tbl[%d].sspec = QMetaProperty::%s;\n",
+		     entry, Property::specToString(it.current()->sspec ));
 
 	    int enumpos = -1;
 	    int k = 0;
@@ -2002,7 +2008,7 @@ int generateProps()
 	    if ( enumpos != -1 )
 		fprintf( out, "    props_tbl[%d].enumType = &enum_tbl[%i];\n", entry, enumpos );
 	    else if (!isPropertyType( it.current()->type ) )
-		fprintf( out, "    props_tbl[%d].setState(QMetaProperty::UnresolvedEnum);\n", entry );
+		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedEnum);\n", entry );
 
 	    ++entry;
 	    count += 2;
