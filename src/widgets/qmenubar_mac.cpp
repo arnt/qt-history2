@@ -664,13 +664,14 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 
 static bool qt_mac_no_native_menubar = false;
 void qt_mac_set_no_native_menubar(bool b) { qt_mac_no_native_menubar = b; } //backdoor to disable menubars
-static QHash<QWidget *, QMenuBar *> *menubars = 0;
+static QHash<QWidget *, QMenuBar *> menubars;
 /*!
   \internal
   Internal function that cleans up the menubar.
 */
 void QMenuBar::macCreateNativeMenubar()
 {
+    menubars.ensure_constructed();
     macDirtyNativeMenubar();
     QWidget *p = parentWidget();
     mac_eaten_menubar = false;
@@ -681,24 +682,22 @@ void QMenuBar::macCreateNativeMenubar()
 	mac_eaten_menubar = true;
 	if(!mac_d)
 	    mac_d = new MacPrivate;
-    } else if(p && (!menubars || !menubars->find(topLevelWidget())) &&
+    } else if(p && !menubars.find(topLevelWidget()) &&
        (((p->isDialog() || p->inherits("QMainWindow")) && p->isTopLevel()) ||
 	p->inherits("QToolBar") ||
 	topLevelWidget() == qApp->mainWidget() || !qApp->mainWidget())) {
 	mac_eaten_menubar = true;
-	if(!menubars)
-	    menubars = new QHash<QWidget *, QMenuBar *>();
-	menubars->insert(topLevelWidget(), this);
+	menubars.insert(topLevelWidget(), this);
 	if(!mac_d)
 	    mac_d = new MacPrivate;
     }
 }
 void QMenuBar::macRemoveNativeMenubar()
 {
-    if (mac_eaten_menubar && menubars) {
-	for(QHash<QWidget *, QMenuBar *>::Iterator it = menubars->begin(); it != menubars->end(); ) {
+    if (mac_eaten_menubar) {
+	for(QHash<QWidget *, QMenuBar *>::Iterator it = menubars.begin(); it != menubars.end(); ) {
 	    if (*it == this)
-		it = menubars->erase(it);
+		it = menubars.erase(it);
 	    else
 		++it;
 	}
@@ -733,8 +732,7 @@ void QMenuBar::initialize()
 */
 void QMenuBar::cleanup()
 {
-    delete menubars;
-    menubars = 0;
+    menubars.clear();
 }
 
 /*!
@@ -743,41 +741,40 @@ void QMenuBar::cleanup()
 bool QMenuBar::macUpdateMenuBar()
 {
     if(qt_mac_no_native_menubar) //nothing to be done..
-	return true; 
+	return true;
+    menubars.ensure_constructed();
 
     QMenuBar *mb = 0;
     bool fall_back_to_empty = false;
     //find a menubar
-    if(menubars) {
-	QWidget *w = qApp->activeWindow();
-	if(!w) {
-	    WindowClass c;
-	    for(WindowPtr wp = FrontWindow(); wp; wp = GetNextWindow(wp)) {
-		if(GetWindowClass(wp, &c))
-		    break;
-		if(c == kOverlayWindowClass)
-		    continue;
-		w = QWidget::find((WId)wp);
+    QWidget *w = qApp->activeWindow();
+    if(!w) {
+	WindowClass c;
+	for(WindowPtr wp = FrontWindow(); wp; wp = GetNextWindow(wp)) {
+	    if(GetWindowClass(wp, &c))
 		break;
-	    }
+	    if(c == kOverlayWindowClass)
+		continue;
+	    w = QWidget::find((WId)wp);
+	    break;
 	}
-	if(!w) //last ditch effort
-	    w = qApp->mainWidget();
-	if(w && menubars) {
-	    mb = menubars->value(w);
-	    if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop()) && w->inherits("QDockWindow")) {
-		if(QWidget *area = ((QDockWindow*)w)->area()) {
-		    QWidget *areaTL = area->topLevelWidget();
-		    if((mb = menubars->value(areaTL)))
-			w = areaTL;
-		}
-	    }
-	    while(w && /*!w->testWFlags(WShowModal) &&*/ !mb)
-		mb = menubars->value((w = w->parentWidget()));
-	}
-	if(!w || (!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup)))
-	    fall_back_to_empty = true;
     }
+    if(!w) //last ditch effort
+	w = qApp->mainWidget();
+    if(w) {
+	mb = menubars.value(w);
+	if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop()) && w->inherits("QDockWindow")) {
+	    if(QWidget *area = ((QDockWindow*)w)->area()) {
+		QWidget *areaTL = area->topLevelWidget();
+		if((mb = menubars.value(areaTL)))
+		    w = areaTL;
+	    }
+	}
+	while(w && /*!w->testWFlags(WShowModal) &&*/ !mb)
+	    mb = menubars.value((w = w->parentWidget()));
+    }
+    if(!w || (!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup)))
+	fall_back_to_empty = true;
     if(!mb)
 	mb = fallbackMenuBar;
     //now set it
@@ -786,7 +783,7 @@ bool QMenuBar::macUpdateMenuBar()
 	if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) {
 	    if(mb->mac_d->modal != qt_modal_state()) {
 		bool qms = qt_modal_state();
-		if(!qms || (menubars && menubars->value(qApp->activeModalWidget()) != mb))
+		if(!qms || (menubars.value(qApp->activeModalWidget()) != mb))
 		    qt_mac_set_modal_state(mb->mac_d->modal = qms, mb);
 	    }
 	    return mb->mac_eaten_menubar;
@@ -807,7 +804,7 @@ bool QMenuBar::macUpdateMenuBar()
 	}
 	if(mb->mac_d->modal != qt_modal_state()) {
 	    bool qms = qt_modal_state();
-	    if(!qms || (menubars && menubars->value(qApp->activeModalWidget()) != mb))
+	    if(!qms || (menubars.value(qApp->activeModalWidget()) != mb))
 		qt_mac_set_modal_state(mb->mac_d->modal = qms, mb);
 	}
 	return true;
