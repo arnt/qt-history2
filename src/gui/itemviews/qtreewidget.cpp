@@ -367,7 +367,6 @@ QMimeData *QTreeModel::mimeData(const QModelIndexList &indexes) const
 bool QTreeModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
                               int row, const QModelIndex &parent)
 {
-    qDebug() << "dropping data";
     // FIXME: just do copy for now
     if (action == QDrag::MoveAction)
         qWarning("QDrag::MoveAction is not supported yet");

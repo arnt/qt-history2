@@ -611,6 +611,8 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         position = columnViewportPosition(headerSection);
         width = header->sectionSize(headerSection);
         modelIndex = d->model->index(index.row(), headerSection, parent);
+        if (!modelIndex.isValid())
+            continue;
         opt.state = state;
         opt.state |= (focus && current == modelIndex
                      ? QStyle::Style_HasFocus : QStyle::Style_None);
