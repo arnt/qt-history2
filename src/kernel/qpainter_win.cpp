@@ -477,7 +477,8 @@ void QPainter::updatePen()
 #endif
     }
 #ifndef Q_OS_TEMP
-    if ( (qt_winver & WV_NT_based) && cpen.width() > 1 ) {
+    if ( cpen.width() > 1  &&
+	 ( (qt_winver & WV_NT_based) || ps == SolidLine ) ) {
 	LOGBRUSH lb;
 	lb.lbStyle = 0;
 	lb.lbColor = pix;
@@ -1346,12 +1347,8 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	map( x1, y1, &x1, &y1 );
 	map( x2, y2, &x2, &y2 );
     }
-    POINT pts[2];
     bool plot_pixel = FALSE;
-    if ( qt_winver & WV_NT_based )
-	plot_pixel = (cpen.width() == 0) && (cpen.style() == SolidLine);
-    else
-	plot_pixel = (cpen.width() <= 1) && (cpen.style() == SolidLine);
+    plot_pixel = (cpen.width() == 0) && (cpen.style() == SolidLine);
     if ( plot_pixel ) {
 	if ( x1 == x2 ) {				// vertical
 	    if ( y1 < y2 )
@@ -1367,18 +1364,26 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	    plot_pixel = FALSE;
 	}
     }
-    pts[0].x = x1;  pts[0].y = y1;
-    pts[1].x = x2;  pts[1].y = y2;
-    Polyline( hdc, pts, 2 );
+    bool path = FALSE;
+    if ( (qt_winver & WV_DOS_based) && cpen.width() > 1 ) {
+	// on DOS based systems caps and joins are only supported on paths, so let's use them.
+	BeginPath( hdc );
+	path = TRUE;
+    }
+    MoveToEx( hdc, x1, y1, 0 );
+    LineTo( hdc, x2, y2 );
+    if ( path ) {
+	EndPath( hdc );
+	StrokePath( hdc );
+	MoveToEx( hdc, x2, y2, 0 );
+    }
     if ( plot_pixel )
 #ifndef Q_OS_TEMP
 	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
 #else
 	SetPixel( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
 #endif
-#ifndef Q_OS_TEMP
-    MoveToEx( hdc, x2, y2, 0 );
-#else
+#ifdef Q_OS_TEMP
     internalCurrentPos = QPoint( x2, y2 );
 #endif
 }
