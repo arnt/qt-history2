@@ -28,10 +28,6 @@
 #include "qmenubar.h"
 #include "qapplication.h"
 
-#ifdef QT_BUILDER
-#include "qdom.h"
-#endif // QT_BUILDER
-
 // NOT REVISED
 /*!
   \class QLayoutItem qabstractlayout.h
@@ -1638,60 +1634,3 @@ void QLayout::setAutoAdd( bool b )
 }
 
 
-#ifdef QT_BUILDER
-
-/*!
-  Returns TRUE if the passed string could be mapped to an alignment flag ( Qt::AlignXXXX ).
-  This functionality is needed by several layout classes so it is provided in the basic
-  QLayout class for convenience.
-*/
-bool QLayout::stringToAlign( const QString& tmp, int* _align )
-{
-    if ( tmp == "top" )
-      *_align = Qt::AlignTop;
-    else if ( tmp == "bottom" )
-      *_align = Qt::AlignBottom;
-    else if ( tmp == "center" )
-      *_align = Qt::AlignCenter;
-    else if ( tmp == "left" )
-      *_align = Qt::AlignLeft;
-    else if ( tmp == "right" )
-      *_align = Qt::AlignRight;
-    else
-      return FALSE;
-    return TRUE;
-}
-
-bool QLayout::event( QEvent* e )
-{
-    if ( e->type() == QEvent::ConfigureLayout )
-    {
-	configureEvent( (QConfigureLayoutEvent*)e );
-	return TRUE;
-    }
-
-    return QObject::event( e );
-}
-
-bool QLayout::configure( const QDomElement& element, QWidget* mainwidget )
-{
-    QDomElement e = element;
-    QConfigureLayoutEvent ev( &e, mainwidget );
-    QApplication::sendEvent( this, &ev );
-
-    return TRUE;
-}
-
-void QLayout::configureEvent( QConfigureLayoutEvent* ev )
-{
-    const QDomElement* element = ev->element();
-    
-    if ( element->hasAttribute( "margin" ) )
-	setMargin( element->attribute( "margin" ).toInt() );
-    if ( element->hasAttribute( "spacing" ) )
-	setSpacing( element->attribute( "spacing" ).toInt() );
-
-    QObject::configureEvent( ev );
-}
-
-#endif

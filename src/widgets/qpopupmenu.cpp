@@ -38,10 +38,6 @@
 #include "qguardedptr.h"
 #include <ctype.h>
 
-#ifdef QT_BUILDER
-#include "qdom.h"
-#endif // QT_BUILDER
-
 // Motif style parameters
 
 static const int motifArrowHMargin	= 6;	// arrow horizontal margin
@@ -1822,28 +1818,3 @@ void QPopupMenu::toggleTearOff()
     }
 }
 
-#ifdef QT_BUILDER
-bool QPopupMenu::event( QEvent* e )
-{
-    if ( e->type() == QEvent::Configure )
-    {
-	configureEvent( (QConfigureEvent*) e );
-	return TRUE;
-    }
-
-    return QFrame::event( e );
-}
-
-void QPopupMenu::configureEvent( QConfigureEvent* ev )
-{
-    // Dont call QWidget configure since we do not accept layouts or
-    // or direct child widget except for bars and the central widget
-    if ( !QMenuData::configure( this, *(ev->element()) ) )
-    {
-	ev->ignore();
-	return;
-    }
-
-    QFrame::configureEvent( ev );
-}
-#endif

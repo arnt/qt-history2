@@ -35,7 +35,6 @@ class QAccel;
 class QGroupBoxPrivate;
 class QVBoxLayout;
 class QGridLayout;
-class QDomElement;
 class QSpacerItem;
 
 class Q_EXPORT QGroupBox : public QFrame
@@ -55,14 +54,7 @@ public:
     int alignment() const { return align; }
     virtual void setAlignment( int );
 
-#ifdef QT_BUILDER
-    bool event( QEvent* event );
-#endif // QT_BUILDER
-
 protected:
-#ifdef QT_BUILDER
-    void configureEvent( QConfigureEvent* );
-#endif
     void childEvent( QChildEvent * );
     void resizeEvent( QResizeEvent * );
     void paintEvent( QPaintEvent * );

@@ -32,7 +32,6 @@
 
 class QLayoutArray;
 class QLayoutBox;
-class QDomElement;
 
 #if 0
 Q_OBJECT
@@ -87,14 +86,7 @@ public:
     QLayoutIterator iterator();
     void setGeometry( const QRect& );
 
-#ifdef QT_BUILDER
-    bool event( QEvent* event );
-#endif // QT_BUILDER
-
 protected:
-#ifdef QT_BUILDER
-    void configureEvent( QConfigureLayoutEvent* );
-#endif // QT_BUILDER
     bool findWidget( QWidget* w, int *r, int *c );
     void add( QLayoutItem*, int row, int col );
 private:
@@ -176,14 +168,6 @@ public:
 
     ~QHBoxLayout();
 
-#ifdef QT_BUILDER
-    bool event( QEvent* event );
-#endif
-
-protected:
-#ifdef QT_BUILDER
-    void configureEvent( QConfigureLayoutEvent* );
-#endif // QT_BUILDER
 };
 
 
@@ -199,15 +183,6 @@ public:
     QVBoxLayout( int space = -1, const char *name=0 );
 
     ~QVBoxLayout();
-
-#ifdef QT_BUILDER
-    bool event( QEvent* event );
-#endif
-
-protected:
-#ifdef QT_BUILDER
-    void configureEvent( QConfigureLayoutEvent* );
-#endif // QT_BUILDER
 
 };
 

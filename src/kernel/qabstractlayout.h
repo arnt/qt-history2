@@ -204,19 +204,10 @@ public:
     QSize totalSizeHint() const;
     QLayout *layout();
 
-#ifdef QT_BUILDER
-    bool configure( const QDomElement&, QWidget* mainwidget );
-    bool event( QEvent* event );
-#endif
 protected:
     bool  eventFilter( QObject *, QEvent * );
     void addChildLayout( QLayout *l );
     void deleteAllItems();
-
-#ifdef QT_BUILDER
-    void configureEvent( QConfigureLayoutEvent* );
-    static bool stringToAlign( const QString& _string, int* _align );
-#endif // QT_BUILDER
 
 private:
     void setWidgetLayout( QWidget *, QLayout * );

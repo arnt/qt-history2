@@ -58,14 +58,9 @@ public:
     void	resize( int w, int h );
     void	resize( const QSize & );
     void	setGeometry( int x, int y, int w, int h );
-    
+
 qproperties:
     void	setGeometry( const QRect & );
-
-public:
-#ifdef QT_BUILDER
-    bool event( QEvent* event );
-#endif
 
 protected slots:
     virtual void done( int );
@@ -76,9 +71,6 @@ protected:
     void	setResult( int r )	{ rescode = r; }
     void	keyPressEvent( QKeyEvent * );
     void	closeEvent( QCloseEvent * );
-#ifdef QT_BUILDER
-    void configureEvent( QConfigureEvent* );
-#endif // QT_BUILDER
 private:
     virtual void	setDefault( QPushButton * );
     int		rescode;

@@ -30,7 +30,6 @@ class QPixmap;
 class QFont;
 class QHeader;
 class QIconSet;
-class QDomElement;
 
 class QListView;
 struct QListViewPrivate;
@@ -134,11 +133,6 @@ public:
     void repaint() const;
 
     void sort(); // ######## make virtual in next major release
-
-#ifdef QT_BUILDER
-    // ## Make virtual in Qt 3.0
-    bool configure( const QDomElement& item, int columns );
-#endif // QT_BUILDER
 
 protected:
     virtual void enforceSortOrder() const;
@@ -299,10 +293,6 @@ protected:
     void resizeEvent( QResizeEvent *e );
 
     void showEvent( QShowEvent * );
-
-#ifdef QT_BUILDER
-    void configureEvent( QConfigureEvent* );
-#endif
 
     void drawContentsOffset( QPainter *, int ox, int oy,
 			     int cx, int cy, int cw, int ch );

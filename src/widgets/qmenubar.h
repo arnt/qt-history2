@@ -30,8 +30,6 @@
 #include "qpopupmenu.h"
 #endif // QT_H
 
-class QDomElement;
-
 class Q_EXPORT QMenuBar : public QFrame, public QMenuData
 {
     Q_OBJECT
@@ -54,10 +52,6 @@ public:
 
     bool customWhatsThis() const;
 
-#ifdef QT_BUILDER
-    bool event( QEvent* e );
-#endif
-
 signals:
     void	activated( int itemId );
     void	highlighted( int itemId );
@@ -65,9 +59,6 @@ signals:
 protected:
     void	drawContents( QPainter * );
     void	fontChange( const QFont & );
-#ifdef QT_BUILDER
-    void	configureEvent( QConfigureEvent* );
-#endif
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );

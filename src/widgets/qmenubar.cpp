@@ -32,10 +32,6 @@
 #include "qguardedptr.h"
 #include <ctype.h>
 
-#ifdef QT_BUILDER
-#include "qdom.h"
-#endif // QT_BUILDER
-
 class QMenuDataData {
     // attention: also defined in qmenudata.cpp
 public:
@@ -1159,29 +1155,5 @@ void QMenuBar::focusOutEvent( QFocusEvent * )
 	setAltMode( FALSE );
 }
 
-#ifdef QT_BUILDER
-bool QMenuBar::event( QEvent* e )
-{
-    if ( e->type() == QEvent::Configure )
-    {
-	configureEvent( (QConfigureEvent*) e );
-	return TRUE;
-    }
 
-    return QFrame::event( e );
-}
-
-void QMenuBar::configureEvent( QConfigureEvent* ev )
-{
-    if ( !QMenuData::configure( this, *(ev->element()) ) )
-    {
-	ev->ignore();
-	return;
-    }
-
-    // Dont call QWidget configure since we do not accept layouts or
-    // or direct child widget except for bars and the central widget
-    QObject::configureEvent( ev );
-}
-#endif // QT_BUILDER
 

@@ -31,12 +31,9 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-#ifdef QT_BUILDER
 #include "qvariant.h"
 #include "qpixmap.h"
 #include "qiconset.h"
-#include "qdom.h"
-#endif // QT_BUILDER
 
 // NOT REVISED
 /*! \class Qt qnamespace.h
@@ -681,11 +678,6 @@ bool QObject::event( QEvent *e )
       case QEvent::ChildInserted: case QEvent::ChildRemoved:
 	childEvent( (QChildEvent*)e );
 	return TRUE;
-#ifdef QT_BUILDER
-      case QEvent::Configure:
-	  configureEvent( (QConfigureEvent*)e );
-	  return TRUE;
-#endif // QT_BUILDER
       default:
 	break;
     }
@@ -1786,7 +1778,6 @@ void QObject::initMetaObject()
 }
 
 
-#ifdef QT_BUILDER
 /*!
   The functionality of initMetaObject(), provided as a static function.
 */
@@ -1827,13 +1818,6 @@ QMetaObject* QObject::createMetaObject()
     return metaObj;
 }
 
-// ## To disappear in Qt 3.0
-void QObject::staticMetaObject()
-{
-    createMetaObject();
-}
-
-#else
 
 // ## To disappear in Qt 3.0
 /*!
@@ -1858,7 +1842,6 @@ void QObject::staticMetaObject()
 	slot_tbl, 1,
 	signal_tbl, 1 );
 }
-#endif // QT_BUILDER
 
 /*!
   \internal
@@ -2068,8 +2051,6 @@ void QObject::dumpObjectInfo()
 #endif
 }
 
-
-#ifdef QT_BUILDER
 
 bool QObject::setProperty( const char *_name, const QVariant& _value )
 {
@@ -2894,166 +2875,3 @@ bool QObject::property( const char *_name, QVariant* _value ) const
   return FALSE;
 }
 
-/*!
-  The configure function configures the object with the QDom tree \e element.
-  Configuration means that properties specified in the QDom tree are set and
-  child widgets might be generated from the QDom tree. The specific behaviour
-  depends on the widgets implementation of the configureEvent() method.
-  
-  configure() just sends a QConfigureEvent to itself. This event triggers in turn
-  the configureEvent() method of this object. So if your widget must understand special
-  XML tags then you have to overloade configureEvent() and not configure().
-  
-  If the object is derived from QLayout, then you must call the QLayout::configure()
-  method which takes a widget as an additional argument. Calling the QObject::configure()
-  method of a QLayout directly would only set its properties but it would not create child
-  widgets of the layout if any are described in the QDom tree.
-*/
-bool QObject::configure( const QDomElement& element )
-{
-    QDomElement e = element;
-    QConfigureEvent ev( &e );
-    QApplication::sendEvent( this, &ev );
-
-    return ev.isAccepted();
-}
-
-/*!
-  This function is triggered by the QConfigureEvent. It sets all
-  properties of the object which are described in the QDom tree passed by
-  the event.
-  
-  If your widget must understand special XML tags then you have to overload
-  this method, but make shure that you call your super classes configureEvent()
-  method unless you have good reasons for not calling it.
-  
-  If you want to configure an object, call configure(). This will send a QConfigureEvent
-  event which triggers this function.
-  
-  If you intend to implement configuration of a class derived from QLayout, then you
-  must overload QLayout::configure() which features a QWidget as an additional second parameter.
-*/
-void QObject::configureEvent( QConfigureEvent* ev )
-{
-    const QDomElement* element = ev->element();
-    
-    // Need a meta object to set teh properties
-    QMetaObject* m = queryMetaObject();
-    if ( !m )
-    {
-	ev->ignore();
-	return;
-    }
-    
-    // Process all known properties
-    QStringList props = m->propertyNames();
-    QStringList::Iterator it = props.begin();
-    for( ; it != props.end(); ++it )
-    {
-	QMetaProperty* p = queryMetaObject()->property( *it, TRUE );
-	if ( p && !p->readonly )
-	    setProperty( p, *element );
-    }
-
-    QDomElement e = element->firstChild().toElement();
-    for( ; !e.isNull(); e = e.nextSibling().toElement() )
-    {
-	if ( e.tagName() == "Connection" )
-        {
-	    QString signal = e.attribute( "signal" ).prepend("2");
-	    QString slot;
-	    if ( e.hasAttribute( "slot" ) )
-		slot = e.attribute("slot").prepend("1");
-	    else if ( e.hasAttribute( "transmitter" ) )
-		slot = e.attribute("transmitter").prepend("2");
-	    else
-	    {
-		ev->ignore();
-		return;
-	    }
-	    
-	    QString tmp = e.attribute( "sender" );
-	    QObject *sender;
-	    if ( tmp == name() )
-		sender = this;
-	    else if ( !tmp.isEmpty() )
-		sender = child( tmp );
-	    else
-		sender = this;
-	    if ( !sender )
-		qDebug("Did not find sender object %s\n", tmp.ascii());
-
-	    tmp = e.attribute( "receiver" );
-	    QObject *receiver;
-	    if ( tmp == name() )
-		receiver = this;
-	    else if ( !tmp.isEmpty() )
-		receiver = child( tmp );
-	    else
-		receiver = this;
-	    if ( !receiver )
-		qDebug("Did not find receiver object %s\n", tmp.ascii());
-	    
-	    if ( !sender || !receiver )
-	    {
-		ev->ignore();
-		return;
-	    }
-	    
-	    connect( sender, signal, receiver, slot );
-	}
-    }
-}
-
-bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
-{
-    QString name( p->name );
-
-    QVariant::Type type = QVariant::String;
-    if ( !p->enumType )
-	type = QVariant::nameToType( p->type );
-
-    QVariant prop = element.property( name, type );
-    return setProperty( name, prop );
-}
-
-#if 0
-QDomElement QObject::configuration( QDomDocument& doc, bool properties ) const
-{
-    QDomElement e = doc.createElement( className() );
-
-    if ( properties )
-    {
-	QMetaObject* m = metaObject();
-	if ( m )
-	{
-	    QStringList props = m->propertyNames();
-
-	    QStringList::Iterator it = props.begin();
-	    for( ; it != props.end(); ++it )
-	    {
-		QMetaProperty* p = m->property( *it, TRUE );
-		QVariant prop;
-		if ( property( p->name, &prop ) )
-		{
-		    // Save enums as attributes
-		    if ( p->enumType )
-			e.setAttribute( p->name, prop.stringValue() );
-		    else
-			e.setProperty( p->name, prop );
-		}
-	    }
-	}
-    }
-    else
-    {
-	QString x;
-	x.setNum( (long)this );
-	e.setAttribute( "__ptr", x );
-    }
-
-    return e;
-}
-#endif 0
-
-#endif // QT_BUILDER

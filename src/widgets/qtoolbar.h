@@ -34,7 +34,6 @@
 class QButton;
 class QBoxLayout;
 class QToolBarPrivate;
-class QDomElement;
 
 class Q_EXPORT QToolBar: public QWidget
 {
@@ -67,16 +66,9 @@ public:
 
     void clear();
 
-#ifdef QT_BUILDER
-    static QObject* factory( QObject* parent );
-#endif // QT_BUILDER
-
 protected:
     void paintEvent( QPaintEvent * );
-#ifdef QT_BUILDER
-    void configureEvent( QConfigureEvent* );
-#endif
-    
+
 private:
     virtual void setUpGM();
 

@@ -34,7 +34,6 @@ class QMenuBar;
 class QToolBar;
 class QStatusBar;
 class QToolTipGroup;
-class QDomElement;
 
 class QMainWindowPrivate;
 
@@ -90,9 +89,6 @@ protected slots:
     virtual void setUpLayout();
 
 protected:
-#ifdef QT_BUILDER
-    void configureEvent( QConfigureEvent* );
-#endif // QT_BUILDER
     void paintEvent( QPaintEvent * );
     void resizeEvent( QResizeEvent * );
     void childEvent( QChildEvent * );

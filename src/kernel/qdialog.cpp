@@ -30,9 +30,6 @@
 #include "qobjectdict.h"
 #include "qwidgetlist.h"
 
-#ifdef QT_BUILDER
-#include "qdom.h"
-#endif // QT_BUILDER
 
 // NOT REVISED
 /*!
@@ -133,27 +130,6 @@ QDialog::~QDialog()
     // will not be called in ~QWidget.
     hide();
 }
-
-#ifdef QT_BUILDER
-bool QDialog::event( QEvent* e )
-{
-    if ( e->type() == QEvent::Configure )
-    {
-	configureEvent( (QConfigureEvent*) e );
-	return TRUE;
-    }
-
-    return QWidget::event( e );
-}
-
-void QDialog::configureEvent( QConfigureEvent* ev )
-{
-  if ( ev->element()->hasAttribute( "modal" ) && ev->element()->attribute( "modal" ).toInt() == 1 )
-    setWFlags( getWFlags() | WType_Modal );
-
-  QWidget::configureEvent( ev );
-}
-#endif
 
 /*!
   \internal
@@ -308,7 +284,7 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_Up:
 	case Key_Left:
-	    if ( focusWidget() && 
+	    if ( focusWidget() &&
 		 ( focusWidget()->focusPolicy() == QWidget::StrongFocus ||
 		   focusWidget()->focusPolicy() == QWidget::WheelFocus ) ) {
 		e->ignore();
@@ -320,7 +296,7 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_Down:
 	case Key_Right:
-	    if ( focusWidget() && 
+	    if ( focusWidget() &&
 		 ( focusWidget()->focusPolicy() == QWidget::StrongFocus ||
 		   focusWidget()->focusPolicy() == QWidget::WheelFocus ) ) {
 		e->ignore();

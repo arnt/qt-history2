@@ -36,12 +36,6 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 
-#ifdef QT_BUILDER
-#include "qdom.h"
-#include "qtoolbutton.h"
-#include "qwhatsthis.h"
-#include "qaction.h"
-#endif
 
 // NOT REVISED
 /*! \class QToolBar qtoolbar.h
@@ -361,14 +355,6 @@ void QToolBar::setStretchableWidget( QWidget * w )
 
 bool QToolBar::event( QEvent * e )
 {
-#ifdef QT_BUILDER
-    if ( e->type() == QEvent::Configure )
-    {
-	configureEvent( (QConfigureEvent*) e );
-	return TRUE;
-    }
-#endif
-
     if ( e->type() == QEvent::LayoutHint ) {
 	setUpGM();
     } else if ( e->type() == QEvent::ChildInserted ) {
@@ -432,66 +418,6 @@ void QToolBar::clear()
     }
 }
 
-#ifdef QT_BUILDER
-void QToolBar::configureEvent( QConfigureEvent* ev )
-{
-    // When this code changes then the code in the builder
-    // must be changed, too. Unfortunately it had to be copied.
-    QDomElement r = ev->element()->firstChild().toElement();
-    for( ; !r.isNull(); r = r.nextSibling().toElement() )
-    {
-	if ( r.tagName() == "Widget" )
-        {
-	    if ( !r.firstChild().toElement().toWidget( this ) )
-	    {
-		ev->ignore();
-		return;
-	    }
-	}
-	else if ( r.tagName() == "Separator" )
-	    addSeparator();
-	else if ( r.tagName() == "WhatsThis" )
-        {
-	    QToolButton *tb = QWhatsThis::whatsThisButton( this );
-	    // Changing that name would break the builder
-	    tb->setName( "whatsthis button" );
-	}
-        else if ( r.tagName() == "Action" )
-        {
-	    // Find the collection
-	    QActionCollection* col = (QActionCollection*)mainWindow()->child( "qt_actions", "QActionCollection" );
-	    if ( !col )
-            {
-		qDebug("DGridLayout: The toplevel widget does not have a QActionCollection." );
-		ev->ignore();
-		return;
-	    }
-
-	    // Find the action
-	    QString aname = r.attribute( "name" );
-	    QAction* action = col->action( aname );
-	    if ( action )
-		action->plug( this );
-	}
-    }
-
-    // Dont call QWidget configure: For example we dont
-    // allow for layouts
-    QObject::configureEvent( ev );
-}
-
-QObject* QToolBar::factory( QObject* parent )
-{
-    if ( !parent || !parent->inherits("QMainWindow") )
-    {
-	qDebug( "The parent of a toolbar must always be a QMainWindow.\n" );
-	return 0;
-    }
-
-    return new QToolBar( (QMainWindow*)parent );
-}
-
-#endif // QT_BUILDER
 
 /* from chaunsee:
 

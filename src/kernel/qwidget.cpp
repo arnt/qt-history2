@@ -38,10 +38,6 @@
 #include "qt_windows.h"
 #endif
 
-#ifdef QT_BUILDER
-#include "qdom.h"
-#endif // QT_BUILDER
-
 // NOT REVISED
 /*!
   \class QWidget qwidget.h
@@ -3682,11 +3678,6 @@ bool QWidget::event( QEvent *e )
 	case QEvent::ChildRemoved:
 	    childEvent( (QChildEvent*) e);
 	    break;
-#ifdef QT_BUILDER
-        case QEvent::Configure:
-	    configureEvent( (QConfigureEvent*)e );
-	    break;
-#endif // QT_BUILDER
         default:
 	    if ( e->type() >= QEvent::User ) {
 		customEvent( (QCustomEvent*) e );
@@ -4468,35 +4459,3 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
     reparent( parent, getWFlags() & ~WType_Mask, p, showIt );
 }
 
-#ifdef QT_BUILDER
-
-void QWidget::configureEvent( QConfigureEvent* ev )
-{
-    // Some widgets handle their children on their own.
-    if ( !inherits( "QGroupBox" ) ) {
-	QDomElement e = ev->element()->firstChild().toElement();
-	while ( !e.isNull() ) {
-	    if ( e.tagName() == "Widget" )
-	    {
-		if ( !e.firstChild().toElement().toWidget( this ) )
-	        {
-		    ev->ignore();
-		    return;
-		}
-	    }
-	    else if ( e.tagName() == "Layout" )
-	    {
-		if ( !( e.firstChild().toElement().toLayout( this ) ) )
-	        {
-		    ev->ignore();
-		    return;
-		}
-	    }
-	    e = e.nextSibling().toElement();
-	}
-    }
-
-    QObject::configureEvent( ev );
-}
-
-#endif // QT_BUILDER

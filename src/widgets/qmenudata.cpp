@@ -28,12 +28,6 @@
 #include "qpopupmenu.h"
 #include "qapplication.h"
 #include "qguardedptr.h"
-#ifdef QT_BUILDER
-#include "qdom.h"
-#include "qvariant.h"
-#include "qaction.h"
-#include "qmenubar.h"
-#endif // QT_BUILDER
 
 // Not used yet...
 class QMenuItemData { };
@@ -645,15 +639,6 @@ int QMenuData::insertItem( const QIconSet& icon, QCustomMenuItem* custom, int id
 }
 
 
-
-#ifdef QT_BUILDER
-int QMenuData::insertSeparator( int index )
-{
-    return insertAny( 0, 0, 0, 0, 0, index );
-}
-
-#else
-
 /*!
   Inserts a separator at position \a index.
   The separator becomes the last menu item if \a index is negative.
@@ -664,11 +649,10 @@ int QMenuData::insertSeparator( int index )
   menubar, all separator are ignored (to comply with the Windows style
   guide).
 */
-void QMenuData::insertSeparator( int index )
+int QMenuData::insertSeparator( int index )
 {
-    insertAny( 0, 0, 0, 0, 0, index );
+    return insertAny( 0, 0, 0, 0, 0, index );
 }
-#endif // QT_BUILDER
 
 /*!
   \fn void QMenuData::removeItem( int id )
@@ -1252,7 +1236,7 @@ QString QMenuData::whatsThis( int id ) const
   accelerator key. You can, however, reimplement fullSpan() to return
   TRUE if you want the item to span the entire popup menu width. This
   is in particular useful for labels.
-  
+
   If you want the custom item to be treated as a separator only,
   reimplement isSeparator() to return TRUE.
 
@@ -1340,97 +1324,3 @@ bool QCustomMenuItem::isSeparator() const
  */
 
 
-#ifdef QT_BUILDER
-bool QMenuData::configure( QWidget* _this, const QDomElement& element )
-{
-  QDomElement r = element.firstChild().toElement();
-  for( ; !r.isNull(); r = r.nextSibling().toElement() )
-  {
-    if ( r.tagName() == "Entry" )
-    {
-      QString text;
-      QString whatsthis;
-      QPopupMenu* menu = 0;
-      int id = -1;
-
-      QVariant prop = r.property( "text", QVariant::String );
-      if ( !prop.isEmpty() )
-	text = prop.stringValue();
-      prop = r.property( "whatsthis", QVariant::String );
-      if ( !prop.isEmpty() )
-	whatsthis = prop.stringValue();
-      if ( r.hasAttribute( "id" ) )
-	id = r.attribute( "id" ).toInt();
-
-      QDomElement c = r.firstChild().toElement();
-      for( ; !c.isNull(); c = c.nextSibling().toElement() )
-      {
-	if ( c.tagName() == "Menu" )
-	{
-	  QWidget* w = c.firstChild().toElement().toWidget( _this );
-	  if ( w == 0 )
-	    return FALSE;
-	  if ( !w->inherits( "QPopupMenu" ) )
-	  {
-	    warning("%s does not derive from QPopupMenu", c.firstChild().nodeName().ascii() );
-	    return FALSE;
-	  }
-	  menu = (QPopupMenu*)w;
-	}
-      }
-
-      if ( menu )
-	id = insertItem( text, menu, id );
-      else
-	id = insertItem( text, id );
-      if ( !whatsthis.isEmpty() )
-	setWhatsThis( id, whatsthis );
-
-      if ( r.hasAttribute( "iconset" ) )
-      {
-	QVariant v = r.property( "iconset", QVariant::Pixmap );
-	if ( !v.isEmpty() )
-	  changeItem( id, QIconSet( v.pixmapValue() ), text );
-      }
-    }
-    else if ( r.tagName() == "Separator" )
-    {
-	insertSeparator();
-    }
-    else if ( r.tagName() == "Action" )
-    {
-	// Find the toplevel widget that is NOT a QPopupMenu in
-	// order of finding the QActionCollection
-	QWidget* top = _this->topLevelWidget();
-	while( top && top->parent() && top->inherits("QPopupMenu") )
-	    top = top->parentWidget()->topLevelWidget();	
-
-	// Find the collection
-	QActionCollection* col = 0;
-	if ( top )
-	    col = (QActionCollection*)top->child( "qt_actions", "QActionCollection" );
-	if ( !col )
-        {
-	    qDebug("QMenuData: The toplevel widget does not have a QActionCollection." );
-	    return FALSE;
-	}
-	
-	// Find the action
-	QString aname = r.attribute( "name" );
-	QAction* action = col->action( aname );
-	if ( action )
-        {
-	    if ( _this->inherits( "QMenuBar" ) && action->inherits("QActionMenu" ) )
-		((QActionMenu*)action)->plug( (QMenuBar*)_this );
-	    else if ( _this->inherits( "QPopupMenu" ) )
-		action->plug( (QPopupMenu*)_this );
-	    else
-		ASSERT( 0 );
-	}
-	else
-	    qDebug("QMenuData: A QAction of name %s is not available.", aname.latin1() );
-    }
-  }
-  return TRUE;
-}
-#endif

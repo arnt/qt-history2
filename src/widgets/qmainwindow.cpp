@@ -44,10 +44,6 @@
 
 #include "qlayoutengine.h"
 
-#ifdef QT_BUILDER
-#include "qdom.h"
-#include "qaction.h"
-#endif
 
 // NOT REVISED
 /*! \class QMainWindow qmainwindow.h
@@ -1079,15 +1075,6 @@ void QMainWindow::paintEvent( QPaintEvent * )
 
 bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 {
-#ifdef QT_BUILDER
-    if ( e->type() == QEvent::Configure )
-    {
-	QDomElement* e = (QDomElement*) ((QCustomEvent*)e)->data();
-	configure( *e );
-	return TRUE;
-    }
-#endif // QT_BUILDER
-
     if ( ( e->type() == QEvent::MouseButtonPress ||
 		  e->type() == QEvent::MouseMove ||
 		  e->type() == QEvent::MouseButtonRelease ) &&
@@ -1139,12 +1126,6 @@ void QMainWindow::childEvent( QChildEvent* e)
 
 bool QMainWindow::event( QEvent * e )
 {
-    if ( e->type() == QEvent::Configure )
-    {
-	configureEvent( (QConfigureEvent*) e );
-	return TRUE;
-    }
-
     if ( e->type() == QEvent::LayoutHint )
 	triggerLayout();
     return QWidget::event( e );
@@ -1659,98 +1640,3 @@ void QMainWindow::styleChange( QStyle& old )
     QWidget::styleChange( old );
 }
 
-#ifdef QT_BUILDER
-void QMainWindow::configureEvent( QConfigureEvent* ev )
-{
-    QActionCollection* col = 0;
-    QDomElement ecol;
-
-    QDomElement r = ev->element()->firstChild().toElement();
-    for( ; !r.isNull(); r = r.nextSibling().toElement() )
-    {
-	if ( r.tagName() == "ToolBar" )
-	{
-	    if ( !r.firstChild().toElement().toWidget( this ) )
-	    {
-		ev->ignore();
-		return;
-	    }
-	}
-	else if ( r.tagName() == "MenuBar" )
-        {
-	    if ( !r.firstChild().toElement().toWidget( this ) )
-	    {
-		ev->ignore();
-		return;
-	    }
-	}
-	else if ( r.tagName() == "CentralWidget" )
-	{
-	    QDomElement ch = r.firstChild().toElement();
-	    if ( ch.tagName() == "Widget" )
-	    {
-		QWidget* w = ch.firstChild().toElement().toWidget( this );
-		if ( w == 0 )
-	        {
-		    ev->ignore();
-		    return;
-		}
-		setCentralWidget( w );
-	    }
-	    else if ( ch.tagName() == "Layout" )
-	    {
-		QWidget* w = new QWidget( this );
-		QLayout* l = ch.firstChild().toElement().toLayout( w );
-		if ( l == 0 )
-	        {
-		    ev->ignore();
-		    return;
-		}
-		setCentralWidget( w );
-	    }
-	    else
-	    {
-		ev->ignore();
-		return;
-	    }
-	}
-	else if ( r.tagName() == "Actions" )
-        {
-	    ecol = r.firstChild().toElement();
-	
-	    QObject* o = ecol.toObject( this );
-	    if ( !o )
-	    {
-		ev->ignore();
-		return;
-	    }
-	    if ( o->inherits("QActionCollection") )
-	    {
-		col = (QActionCollection*)o;
-		col->setName( "qt_actions" );
-	    }
-	}
-    }
-
-    // Dont call QWidget configure since we do not accept layouts or
-    // or direct child widget except for bars and the central widget
-    QObject::configureEvent( ev );
-    if ( !ev->isAccepted() )
-	return;
-
-    // Lets connect the actions with their components
-    // This can not be done earlier since the components, which are
-    // children of the QMainWindow have to be created first.
-    if ( col )
-    {
-	QDomElement it = ecol.firstChild().toElement();
-	for( ; !it.isNull(); it = it.nextSibling().toElement() )
-        {
-	    QAction* action = col->action( it.attribute("name") );
-	    QObject* component = child( it.attribute("component") );
-	    if ( action && component )
-		action->setComponent( component );
-	}
-    }
-}
-#endif

@@ -31,7 +31,6 @@
 #include "qmenudata.h"
 #endif // QT_H
 
-class QDomElement;
 
 class Q_EXPORT QPopupMenu : public QFrame, public QMenuData
 {
@@ -61,10 +60,6 @@ public:
 
     bool 	customWhatsThis() const;
 
-#ifdef QT_BUILDER
-    bool	event( QEvent* e );
-#endif
-
     int	insertTearOffHandle( int id=-1, int index=-1 );
 
 signals:
@@ -82,9 +77,6 @@ protected:
 
     void 	drawContents( QPainter * );
 
-#ifdef QT_BUILDER
-    void	configureEvent( QConfigureEvent* );
-#endif
     void 	closeEvent( QCloseEvent *e );
     void	paintEvent( QPaintEvent * );
     void	mousePressEvent( QMouseEvent * );

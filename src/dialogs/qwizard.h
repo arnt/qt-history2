@@ -35,7 +35,6 @@
 class QWizardPrivate;
 class QWizardPagePrivate;
 class QWizard;
-class QDomElement;
 class QHBoxLayout;
 
 #if 0
@@ -51,7 +50,7 @@ public:
     ~QWizard();
 
     void show();
-    
+
 qproperties:
     void setFont( const QFont & font );
 
@@ -65,8 +64,9 @@ public:
 
     QWidget * currentPage() const;
 #ifdef QT_BUILDER
+    // ####
     QWidget* page( int pos ) const;
-    bool event( QEvent* e );
+    int count() const;
 #endif
 
     virtual bool appropriate( QWidget * ) const;
@@ -79,10 +79,6 @@ public:
     QPushButton * helpButton() const;
 
     bool eventFilter( QObject *, QEvent * );
-
-#ifdef QT_BUILDER
-    int count() const;
-#endif // QT_BUILDER
 
 public slots:
     virtual void setBackEnabled( QWidget *, bool );

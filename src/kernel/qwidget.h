@@ -44,7 +44,6 @@ struct QWExtra;
 struct QTLWExtra;
 class QFocusData;
 class QStyle;
-class QDomElement;
 
 #if 0
 Q_OBJECT
@@ -370,10 +369,6 @@ protected:
     virtual void showEvent( QShowEvent * );
     virtual void hideEvent( QHideEvent * );
     virtual void customEvent( QCustomEvent * );
-
-#ifdef QT_BUILDER
-    void configureEvent( QConfigureEvent* );
-#endif
 
 #if defined(_WS_MAC_)
     virtual bool macEvent( MSG * );		// Macintosh event

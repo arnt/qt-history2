@@ -37,7 +37,6 @@
 
 class QPopupMenu;
 class QMenuDataData;
-class QDomElement;
 
 #if defined(INCLUDE_MENUITEM_DEF)
 
@@ -181,11 +180,7 @@ public:
     int		insertItem( QCustomMenuItem* custom, int id=-1, int index=-1 );
 
 
-#ifdef QT_BUILDER
     int		insertSeparator( int index=-1 );
-#else
-    void	insertSeparator( int index=-1 );
-#endif // QT_BUILDER
 
     void	removeItem( int id )		{ removeItemAt(indexOf(id)); }
     void	removeItemAt( int index );
@@ -235,9 +230,6 @@ public:
     QMenuItem  *findItem( int id )	const;
     QMenuItem  *findItem( int id, QMenuData ** parent )	const;
 
-#ifdef QT_BUILDER
-    bool configure( QWidget* _this, const QDomElement& element );
-#endif // QT_BUILDER
 
 protected:
     int		   actItem;

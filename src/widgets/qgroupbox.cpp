@@ -33,10 +33,6 @@
 #include "qobjectlist.h"
 #include "qdrawutil.h"
 
-#ifdef QT_BUILDER
-#include "qdom.h"
-#endif
-
 // NOT REVISED
 /*!
   \class QGroupBox qgroupbox.h
@@ -343,7 +339,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 
     vbox->addLayout( grid );
     vbox->addStretch( 1 );
-    
+
     // Add all children
     const QObjectList *list = children();
     if ( list )
@@ -464,57 +460,3 @@ void QGroupBox::calculateFrame()
     setFrameRect( QRect(0,0,0,0) );		//  then use client rect
 }
 
-#ifdef QT_BUILDER
-bool QGroupBox::event( QEvent* e )
-{
-    if ( e->type() == QEvent::Configure )
-    {
-	configureEvent( (QConfigureEvent*) e );
-	return TRUE;
-    }
-
-    return QFrame::event( e );
-}
-
-void QGroupBox::configureEvent( QConfigureEvent* ev )
-{
-    // Use the -1 one here to tell the group box:
-    // Dont use your QGridLayout. We will use ours.
-    setColumnLayout( -1, Qt::Vertical );
-
-    // Handle our children. QWidget knows about this and wont
-    // create them again.
-    QDomElement l = ev->element()->namedItem( "Layout" ).toElement();
-    if ( !l.isNull() )
-    {
-	if ( !( l.firstChild().toElement().toLayout( vbox ) ) )
-        {
-	    ev->ignore();
-	    return;
-	}
-    }
-    else
-    {
-	// The "Widget" tag only appears because people want to have
-	// absolute positioning. We have to create a placeholder widget here
-	// in order of not overwriting the title. This will break some Styles, but
-	// when people ue absolute positioning I cant help them anyways.
-	QWidget* w = new QWidget( this );
-	vbox->addWidget( w );
-	QDomElement e = ev->element()->firstChild().toElement();
-	for( ; !e.isNull(); e = e.nextSibling().toElement() )
-	{
-	    if ( e.tagName() == "Widget" )
-	    {
-		if ( !e.firstChild().toElement().toWidget( w ) )
-	        {
-		    ev->ignore();
-		    return;
-		}
-	    }
-	}
-    }
-
-    QFrame::configureEvent( ev );
-}
-#endif // QT_BUILDER

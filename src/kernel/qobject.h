@@ -40,10 +40,7 @@
 
 class QMetaObject;
 class QVariant;
-class QDomElement;
-class QDomDocument;
 struct QMetaProperty;
-class QConfigureEvent;
 
 class Q_EXPORT QObject: public Qt
 {
@@ -103,13 +100,9 @@ public:
     void	 dumpObjectTree();
     void	 dumpObjectInfo();
 
-#ifdef QT_BUILDER
     // ## Make these virtual in Qt 3.0
     bool setProperty( const char *name, const QVariant& value );
     bool property( const char *name, QVariant* value ) const;
-    bool configure( const QDomElement& element );
-    // ##### Torben: ??? virtual QDomElement configuration( QDomDocument& doc, bool properties = TRUE ) const;
-#endif
 
 signals:
     void	 destroyed();
@@ -134,16 +127,9 @@ protected:
 
     const QObject *sender();
 
-#ifdef QT_BUILDER
-    bool setProperty( const QMetaProperty* p, const QDomElement& element );
-    
-    void configureEvent( QConfigureEvent* );
-#endif // QT_BUILDER
 
     virtual void initMetaObject();
-#ifdef QT_BUILDER
     static QMetaObject* createMetaObject();
-#endif // QT_BUILDR
     // ## To disappear in Qt 3.0
     static void staticMetaObject();
 
