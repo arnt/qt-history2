@@ -230,10 +230,10 @@ not marked as done, the original text will be used instead.
 language there must be an entry in the \c TRANSLATIONS section of the
 project file. A typical entry looks like this:
 
-\walkthrough tt2/tt2.pro
-\skip TRANSLATIONS
-\line TRANSLATIONS
-\until ^$
+\walkthrough  linguist/tutorial/tt2/tt2.pro
+\skipto TRANSLATIONS
+\printline TRANSLATIONS
+\printuntil ^$
 
 Using a locale within the filename is useful for determining which
 language to load at runtime -- this is explained in 
@@ -807,36 +807,36 @@ produce the \c .qm files used by the application at runtime.
 For \e lupdate to work successfully, it must know which translation
 files to produce. The files are simply listed in the application's \c
 .pro Qt project file, for example:
-\walkthrough tt2/tt2.pro
-\skip TRANSLATIONS
-\line TRANSLATIONS
-\until ^$
+\walkthrough  linguist/tutorial/tt2/tt2.pro
+\skipto TRANSLATIONS
+\printline TRANSLATIONS
+\printuntil ^$
 
 See the <a href="#lupdate">"lupdate"</a> and
 <a href="#lrelease">"lrelease"</a> sections.
 
 <h3><a name="Loading_Translations">Loading Translations</a></h3>
 
-\walkthrough tt1/main.cpp
-\skip main(
-\line main(
-\until QApplication
+\walkthrough  linguist/tutorial/tt1/main.cpp
+\skipto main(
+\printline main(
+\printuntil QApplication
 
 This is how the \c main() function of a canonical Qt application begins.
 
-\walkthrough tt1/main.cpp
-\skip main(
-\line main(
-\until app.installTrans
+\walkthrough  linguist/tutorial/tt1/main.cpp
+\skipto main(
+\printline main(
+\printuntil app.installTrans
 
 For a translation-aware application a translator object is created, a
 translation loaded and the translator object installed into the
 application.
 
-\walkthrough tt2/main.cpp
-\skip main(
-\line main(
-\until app.installTrans
+\walkthrough  linguist/tutorial/tt2/main.cpp
+\skipto main(
+\printline main(
+\printuntil app.installTrans
 
 In production applications a more flexible approach, for example,
 loading translations according to locale, might be more appropriate. If
@@ -905,10 +905,10 @@ and
 
 Ctrl key accelerators are also translatable:
 
-\walkthrough tt3/mainwindow.cpp
-\skip quit()
-\line quit()
-\until Quit
+\walkthrough  linguist/tutorial/tt3/mainwindow.cpp
+\skipto quit()
+\printline quit()
+\printuntil Quit
 
 It is strongly recommended that the two argument form of \c tr() is used
 for Ctrl key accelerators. The second argument is the only clue the
@@ -967,37 +967,37 @@ from the Qt tutorial, with a Latin translation.
 The <em>Tutorial 1 Screenshot, English version</em>, above, shows the
 English version.
 
-\walkthrough tt1/main.cpp
+\walkthrough  linguist/tutorial/tt1/main.cpp
 
 <h4>Line by Line Walk-Through</h4>
 
-\walkthrough tt1/main.cpp
+\walkthrough  linguist/tutorial/tt1/main.cpp
 
-\skip qtranslator
-\line qtranslator
+\skipto qtranslator
+\printline qtranslator
 
 This line includes the definition of the
 <a href="http://doc.trolltech.com/qtranslator.html">QTranslator</a>
 class.  Objects of this class provide translations for user-visible
 text.
 
-\skip QTranslator
-\until tor
+\skipto QTranslator
+\printuntil tor
 
 Create a QTranslator object without a parent.
 
-\line load
+\printline load
 
 Try to load a file called \c tt1_la.qm (the \c .qm file extension is
 implicit) that contains Latin translations for the source texts used in
 the program. No error will occur if the file is not found.
 
-\line installTranslator
+\printline installTranslator
 
 Add the translations from \c tt1_la.qm to the pool of translations used
 by the program. No error will occur if the file was not found.
 
-\line hello
+\printline hello
 
 Creates a push button that displays "Hello world!".  If \c tt1_la.qm was
 found and contains a translation for "Hello world!", the translation
@@ -1027,12 +1027,12 @@ for the project.  The project file can be a
 <a href="http://www.trolltech.com/freebies/tmake.html">tmake</a>
 project file, or even an ordinary makefile.  Any file that contains
 
-\walkthrough tt1/tt1.pro
+\walkthrough  linguist/tutorial/tt1/tt1.pro
 
-\skip SOURCES
-\line SOURCES
-\skip TRANSLATIONS
-\line TRANSLATIONS
+\skipto SOURCES
+\printline SOURCES
+\skipto TRANSLATIONS
+\printline TRANSLATIONS
 
 will work. \e TRANSLATIONS specifies the message files we want to
 maintain. In this example, we just maintain one set of translations,
@@ -1165,8 +1165,8 @@ effective limit on the number of possible translations that can be used
 with an application. The relevant lines of 
 \link tt2-tt2-pro.html tt2.pro\endlink are
 
-\skip HEADERS
-\until tt2_nl.ts
+\skipto HEADERS
+\printuntil tt2_nl.ts
 
 Run \e lupdate; it should produce two identical message files
 \c tt2_fr.ts and \c tt2_nl.ts. These files will contain all the source
@@ -1180,9 +1180,9 @@ ArrowPad subclass which is a subclass of
 <em>Tutorial 2 Screenshot, English version</em>, above, the central
 widget with the four buttons is an ArrowPad.
 
-\walkthrough tt2/arrowpad.h
-\skip class ArrowPad
-\line class ArrowPad
+\walkthrough  linguist/tutorial/tt2/arrowpad.h
+\skipto class ArrowPad
+\printline class ArrowPad
 
 When \e lupdate is run it not only extracts the source texts but it also
 groups them into contexts. A context is the name of the class in which
@@ -1208,9 +1208,9 @@ conflicts.
 In \link tt2-arrowpad-cpp.html arrowpad.cpp\endlink we implement the
 ArrowPad class.
 
-\walkthrough tt2/arrowpad.cpp
-\skip QPushButton
-\line QPushButton
+\walkthrough  linguist/tutorial/tt2/arrowpad.cpp
+\skipto QPushButton
+\printline QPushButton
 
 We call \c ArrowPad::tr() for each button's label since the labels are
 user-visible text.
@@ -1220,10 +1220,10 @@ user-visible text.
 alt="Screenshot of the English version of tutorial 2">
 <h5>Tutorial 2 Screenshot, English version</h5></center>
 
-\walkthrough tt2/mainwindow.h
-\skip QMainWindow
-\line QMainWindow
-\until Q_OBJECT
+\walkthrough  linguist/tutorial/tt2/mainwindow.h
+\skipto QMainWindow
+\printline QMainWindow
+\printuntil Q_OBJECT
 
 In the <em>Tutorial 2 Screenshot, English version</em>, above, the whole
 window is a MainWindow.  This is defined in the \link
@@ -1235,16 +1235,16 @@ In the implementation of MainWindow,
 \link tt2-mainwindow-cpp.html mainwindow.cpp\endlink,
 we create an instance of our ArrowPad class
 
-\walkthrough tt2/mainwindow.cpp
-\skip arrow pad
-\line arrow pad
+\walkthrough  linguist/tutorial/tt2/mainwindow.cpp
+\skipto arrow pad
+\printline arrow pad
 
 We also call MainWindow::tr() twice, once for the menu item and once for
 the accelerator
 
-\skip quit()
-\line quit()
-\until stringToKey
+\skipto quit()
+\printline quit()
+\printuntil stringToKey
 
 Note the use of
 <a href="http://doc.trolltech.com/qaccel.html#7c073d">
@@ -1258,10 +1258,10 @@ argument describing the function that the accelerator performs.
 Our \c main() function is defined in 
 \link tt2-main-cpp.html main.cpp\endlink as usual.
 
-\walkthrough tt2/main.cpp
-\skip QTranslator
-\line QTranslator
-\until install
+\walkthrough  linguist/tutorial/tt2/main.cpp
+\skipto QTranslator
+\printline QTranslator
+\printuntil install
 
 We choose which translation to use according to the current
 locale. <a href="http://doc.trolltech.com/qtextcodec.html#75defa">
@@ -1430,10 +1430,10 @@ Version 1.0 consists of these files:
 The PrintPanel is defined in 
 \link tt3-printpanel-h.html printpanel.h\endlink.
 
-\walkthrough tt3/printpanel.h
-\skip QVBox
-\line QVBox
-\until Q_OBJECT
+\walkthrough  linguist/tutorial/tt3/printpanel.h
+\skipto QVBox
+\printline QVBox
+\printuntil Q_OBJECT
 
 PrintPanel is a <a href="http://doc.trolltech.com/qwidget.html">
 QWidget</a>.  It needs the Q_OBJECT macro for \c tr() to work properly.
@@ -1441,22 +1441,22 @@ QWidget</a>.  It needs the Q_OBJECT macro for \c tr() to work properly.
 The implementation file is 
 \link tt3-printpanel-cpp.html printpanel.cpp\endlink.
 
-\walkthrough tt3/printpanel.cpp
-\skip setSpacing
-\skip /
-\line /
-\line
-\line
-\line
+\walkthrough  linguist/tutorial/tt3/printpanel.cpp
+\skipto setSpacing
+\skipto /
+\printline /
+\printline
+\printline
+\printline
 
 
 Some of the code is commented out in Troll Print 1.0; you will uncomment
 it later, for Troll Print 1.1.
 
-\walkthrough tt3/printpanel.cpp
-\skip twoSided
-\line twoSided
-\until \} 
+\walkthrough  linguist/tutorial/tt3/printpanel.cpp
+\skipto twoSided
+\printline twoSided
+\printuntil \} 
 
 Notice the two occurrences of \c tr("Enabled") and of \c tr("Disabled")
 in PrintPanel.  Since both "Enabled"s and "Disabled"s appear in the same
@@ -1473,24 +1473,24 @@ In the implementation,
 \link tt3-mainwindow-cpp.html mainwindow.cpp\endlink, we have some
 user-visible source texts that must be marked for translation.
 
-\walkthrough tt3/mainwindow.cpp
-\skip setCaption
-\line setCaption
+\walkthrough  linguist/tutorial/tt3/mainwindow.cpp
+\skipto setCaption
+\printline setCaption
 
 We must translate the window's caption. 
 
-\skip quit
-\line quit
-\until Help
+\skipto quit
+\printline quit
+\printuntil Help
 
 We also need to translate the menu items. Note that the two argument
 form of \c tr() is used for the keyboard accelerator, Ctrl+Q, since the
 second argument is the only clue the translator has to indicate what
 function that accelerator will perform. 
 
-\walkthrough tt3/main.cpp
-\skip QTranslator
-\until installTranslator
+\walkthrough  linguist/tutorial/tt3/main.cpp
+\skipto QTranslator
+\printuntil installTranslator
 
 The \c main() function in
 \link tt3-main-cpp.html main.cpp\endlink, is the same as the one in
