@@ -140,7 +140,7 @@ proportion (but never less than their minimum size hint), e.g.
 \section1 QLayout
 
 If you need more control over the layout, use a \link QLayout QLayout\endlink
- subclass. The layout classes included in Qt 2.1 are \link QGridLayout
+ subclass. The layout classes included in Qt are \link QGridLayout
  QGridLayout\endlink and \link QBoxLayout QBoxLayout\endlink.
 (\link QHBoxLayout  QHBoxLayout\endlink and
 \link QVBoxLayout  QVBoxLayout\endlink are trivial subclasses of QBoxLayout,
