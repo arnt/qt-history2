@@ -1509,33 +1509,24 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		QString h = QString::number( r.height() );
 
 		QWidget *btn_prnt = toolbutton->parentWidget();
+		QString mod = (down || on) ? "on_" : "off_";
 		if ( btn_prnt && btn_prnt->inherits("QToolBar") ) {
 		    QToolBar * bar  = (QToolBar *) btn_prnt;
+		    if( bar->orientation() == Qt::Vertical ) 
+			mod += "v";
 		    QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
 		    QObjectListIt it( *l );
-		    if ( it.toFirst() == toolbutton ) {
-			if ( on || down )
-			    qAquaPixmap( "toolbtn_on_left_" + w + "_" + h, px );
-			else
-			    qAquaPixmap( "toolbtn_off_left_" + w + "_" + h, px );
-		    } else if( it.toLast() == toolbutton && !toolbutton->popup() ){
-			if ( on || down )
-			    qAquaPixmap( "toolbtn_on_right_" + w + "_" + h, px );
-			else
-			    qAquaPixmap( "toolbtn_off_right_" + w + "_" + h, px );
-		    } else {
-			if ( on || down )
-			    qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
-			else
-			    qAquaPixmap( "toolbtn_off_mid_"+ w + "_" + h, px );
-		    }
+		    if ( it.toFirst() == toolbutton ) 
+			mod += "left";
+		    else if( it.toLast() == toolbutton && !toolbutton->popup() )
+			mod += "right";
+		    else 
+			mod += "mid";
 		    delete l;
 		} else {
-		    if ( down || on )
-			qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
-		    else
-			qAquaPixmap( "toolbtn_off_mid_" + w + "_" + h, px );
+		    mod += "mid";
 		}
+		qAquaPixmap( "toolbtn_" + mod + "_" + w + "_" + h, px );
 		p->drawPixmap( r.x(), r.y(), px );
 	    } else if ( toolbutton->parentWidget() &&
 			toolbutton->parentWidget()->backgroundPixmap() &&
@@ -1605,28 +1596,27 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    QString w = QString::number( menuarea.width() );
 	    QString h = QString::number( menuarea.height() );
 	    QWidget *btn_prnt = toolbutton->parentWidget();
+	    QString mod = (down || on || (subActive & SC_ToolButtonMenu)) ? "on_" : "off_";
 	    if ( btn_prnt && btn_prnt->inherits("QToolBar") ) {
 		QToolBar * bar  = (QToolBar *) btn_prnt;
+		if( bar->orientation() == Qt::Vertical ) 
+		    mod += "v";
 		QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
 		QObjectListIt it( *l );
-		if( it.toLast() == toolbutton ){
-		    if ( (flags & Style_On) || (flags & Style_Down) )
-			qAquaPixmap( "toolbtn_on_right_" + w + "_" + h, px );
-		    else
-			qAquaPixmap( "toolbtn_off_right_" + w + "_" + h, px );
+		if ( it.toFirst() == toolbutton ) {
+		    if( bar->orientation() == Qt::Horizontal ) 
+			mod += "left";
+		} else if( it.toLast() == toolbutton && !toolbutton->popup() ){
+		    if( bar->orientation() == Qt::Horizontal ) 
+			mod += "right";
 		} else {
-		    if ( (flags & Style_On) || (flags & Style_Down) )
-			qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
-		    else
-			qAquaPixmap( "toolbtn_off_mid_"+ w + "_" + h, px );
+		    mod += "mid";
 		}
 		delete l;
 	    } else {
-		if ( (flags & Style_On) || (flags & Style_Down) )
-		    qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
-		else
-		    qAquaPixmap( "toolbtn_off_mid_" + w + "_" + h, px );
+		mod += "mid";
 	    }
+	    qAquaPixmap( "toolbtn_" + mod + "_" + w + "_" + h, px );
 	    p->drawPixmap( menuarea.x(), menuarea.y(), px );
 	    drawPrimitive(PE_ArrowDown, p, QRect(menuarea.x()+2,
 						 menuarea.y()+(menuarea.height()-menuarea.width()-4),

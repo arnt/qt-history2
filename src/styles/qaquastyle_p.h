@@ -11714,15 +11714,10 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     }
 
     // Tool buttons
-    if( s.contains("toolbtn_") ){
-        // Normal state buttons
-        QPixmap on_l( (const char **) aqua_toolbtn_on_left_xpm );
-        QPixmap on_m( (const char **) aqua_toolbtn_on_mid_xpm );
-        QPixmap on_r( (const char **) aqua_toolbtn_on_right_xpm );
-        QPixmap off_l( (const char **) aqua_toolbtn_off_left_xpm );
-        QPixmap off_m( (const char **) aqua_toolbtn_off_mid_xpm );
-        QPixmap off_r( (const char **) aqua_toolbtn_off_right_xpm );
-
+    if( s.contains("toolbtn_on") ){
+        QPixmap on_l( (const char **) aqua_toolbtn_on_left_xpm ),
+	    on_m( (const char **) aqua_toolbtn_on_mid_xpm ),
+	    on_r( (const char **) aqua_toolbtn_on_right_xpm );
         int width = 0, height = 0, j;
         i = s.findRev( '_' );
         if( i != -1 ){
@@ -11735,25 +11730,61 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         QString wstr = QString::number( width );
         QString hstr = QString::number( height );
 
+	QWMatrix wm;
+	wm.rotate( 90.0 );
+
         im = on_l;
         px = im.smoothScale( width, height );
         QPixmapCache::insert( "$qt_aqua_toolbtn_on_left_" + wstr + "_" + hstr, px );
+        px = im.xForm(wm).smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_on_vleft_" + wstr + "_" + hstr, px );
+
         im = on_m;
         px = im.smoothScale( width, height );
         QPixmapCache::insert( "$qt_aqua_toolbtn_on_mid_" + wstr + "_" + hstr, px );
+        px = im.xForm(wm).smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_on_vmid_" + wstr + "_" + hstr, px );
+
         im = on_r;
         px = im.smoothScale( width, height );
         QPixmapCache::insert( "$qt_aqua_toolbtn_on_right_" + wstr + "_" + hstr, px );
+        px = im.xForm(wm).smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_on_vright_" + wstr + "_" + hstr, px );
+    } else if( s.contains("toolbtn_off") ){
+        // Normal state buttons
+        QPixmap off_l( (const char **) aqua_toolbtn_off_left_xpm ),
+	    off_m( (const char **) aqua_toolbtn_off_mid_xpm ), 
+	    off_r( (const char **) aqua_toolbtn_off_right_xpm );
+        int width = 0, height = 0, j;
+        i = s.findRev( '_' );
+        if( i != -1 )
+            height = s.right( (s.length() - 1) - i ).toInt();
+        j = s.findRev( '_', i - 1 );
+        if( j != -1 )
+            width = s.mid( j + 1, i - j - 1 ).toInt();
+        QString wstr = QString::number( width );
+        QString hstr = QString::number( height );
+
+	QWMatrix wm;
+	wm.rotate( 90.0 );
 
         im = off_l;
         px = im.smoothScale( width, height );
         QPixmapCache::insert( "$qt_aqua_toolbtn_off_left_" + wstr + "_" + hstr, px );
+        px = im.xForm(wm).smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_off_vleft_" + wstr + "_" + hstr, px );
+
         im = off_m;
         px = im.smoothScale( width, height );
         QPixmapCache::insert( "$qt_aqua_toolbtn_off_mid_" + wstr + "_" + hstr, px );
+        px = im.xForm(wm).smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_off_vmid_" + wstr + "_" + hstr, px );
+
         im = off_r;
         px = im.smoothScale( width, height );
         QPixmapCache::insert( "$qt_aqua_toolbtn_off_right_" + wstr + "_" + hstr, px );
+        px = im.xForm(wm).smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_off_vright_" + wstr + "_" + hstr, px );
     }
 
     // Tool bar separators
