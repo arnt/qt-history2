@@ -1490,6 +1490,13 @@ QString qt_makePSFontName( const QFont &f, int *listpos, int *ftype)
   ps = family.simplifyWhiteSpace();
   i = 0;
   while( (unsigned int)i < ps.length() ) {
+    if ( i != 0 && ps[i] == '[') {
+      if ( ps[i-1] == ' ' )
+	ps.truncate (i-1);
+      else
+	ps.truncate (i);
+      break;
+    }
     if ( i == 0 || ps[i-1] == ' ' ) {
       ps[i] = ps[i].upper();
       if ( i )
@@ -4042,6 +4049,13 @@ QString QPSPrinterFontAsian::makePSFontName( const QFont &f, int type ) const
     ps = family.simplifyWhiteSpace();
     i = 0;
     while( (unsigned int)i < ps.length() ) {
+        if ( i != 0 && ps[i] == '[') {
+          if ( ps[i-1] == ' ' )
+	    ps.truncate (i-1);
+          else
+	    ps.truncate (i);
+          break;
+        }
 	if ( i == 0 || ps[i-1] == ' ' ) {
 	    ps[i] = ps[i].upper();
 	    if ( i )
@@ -4137,6 +4151,7 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, uint spaces, const QPoi
         mdf += " " + QString().setNum( y + d->fm.strikeOutPos() ) +
                " " + toString( d->fm.lineWidth() ) + " Tl";
     QChar ch;
+    QCString mb;
     QCString out;
     int l = text.length();
     for ( int i = 0; i <= l; i++ ) {
@@ -4146,17 +4161,15 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, uint spaces, const QPoi
 		; // ignore, we should never get here anyway
             } else {
                 if ( codec )
-                    ch = codec->characterFromUnicode( text, i );
+                    mb = codec->fromUnicode( QString (ch) );
                 else
-                    ch = QChar( 0x2222 ); // box
-                char chj = ch.row();
-                if ( chj == '(' || chj == ')' || chj == '\\' )
-                    out += "\\";
-                out += chj;
-                chj = ch.cell();
-                if ( chj == '(' || chj == ')' || chj == '\\' )
-                    out += "\\";
-                out += chj;
+                    mb = "  ";
+
+		for ( unsigned int j = 0; j < mb.length (); j++ ) {
+                    if ( mb[j] == '(' || mb[j] == ')' || mb[j] == '\\' )
+                        out += "\\";
+                    out += mb[j];
+		}
             }
         }
     }
@@ -4569,7 +4582,6 @@ static const psfont * const SimplifiedReplacements[] = {
     SongGBK2K, FangSongGBK2K, KaiGBK2K, HeiGBK2K,
     Simplified, MSungGBK, FangSong, BousungEG, GBZenKai, Helvetica, 0
 	};
-#if 0
 static const psfont * const SongGBK2KReplacements[] = {
     SongGBK2K, MSungGBK, BousungEG, Helvetica, 0
 	};
@@ -4583,8 +4595,6 @@ static const psfont * const HeiGBK2KReplacements[] = {
     HeiGBK2K, LucidaSans, 0
 	};
 
-#endif
-
 class QPSPrinterFontSimplifiedChinese
   : public QPSPrinterFontAsian {
 public:
@@ -4596,11 +4606,21 @@ QPSPrinterFontSimplifiedChinese::QPSPrinterFontSimplifiedChinese(const QFont& f)
 {
     codec = QTextCodec::codecForMib( 114 ); // GB18030
     int type = getPsFontType( f );
-    psname = makePSFontName( f, type );
-    QString best = "[ /" + psname + " 1.0 0.0 ]";
-    replacementList.append( best );
+    QString family = f.family().lower ();
+    if( family.contains("kai",FALSE) ) {
+	psname = KaiGBK2K[type].psname;
+	appendReplacements( replacementList, KaiGBK2KReplacements, type );
+    } else if( family.contains("fangsong",FALSE) ) {
+	psname = FangSongGBK2K[type].psname;
+	appendReplacements( replacementList, FangSongGBK2KReplacements, type );
+    } else if( family.contains("hei",FALSE) ) {
+	psname = HeiGBK2K[type].psname;
+	appendReplacements( replacementList, HeiGBK2KReplacements, type );
+    } else {
+	psname = SongGBK2K[type].psname;
+	appendReplacements( replacementList, SimplifiedReplacements, type );
+    }
     //qDebug("simplified chinese: fontname is %s, psname=%s", f.family().latin1(), psname.latin1() );
-    appendReplacements( replacementList, SimplifiedReplacements, type );
 }
 
 QString QPSPrinterFontSimplifiedChinese::extension() const
