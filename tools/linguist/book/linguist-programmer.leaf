@@ -427,7 +427,7 @@ their translations.
 The \c .ts format is human-readable XML that can be emailed directly
 and is easy to put under version control. If you edit this file
 manually, be aware that the default encoding for XML is UTF-8, not
-Latin-1 (ISO 8859-1). One way to type in a Latin-1 character such as
+Latin1 (ISO 8859-1). One way to type in a Latin1 character such as
 '\OSLASH' (Norwegian o with slash) is to use an XML entity:
 "\&#xf8;". This will work for any Unicode character.
 

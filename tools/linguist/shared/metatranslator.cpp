@@ -251,7 +251,7 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
     /*
       Don't use UTF-8 if it makes no difference. UTF-8 should be
       reserved for the real problematic case: non-ASCII (possibly
-      non-Latin-1) characters in .ui files.
+      non-Latin1) characters in .ui files.
     */
     if ( utf8 ) {
 	if ( sourceText != 0 ) {
