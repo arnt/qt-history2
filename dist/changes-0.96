@@ -1,19 +1,25 @@
 Here is a list of (major) changes in Qt from 0.95 to 0.96.
 
-Bug-fixes, optimizations and much improved documentation, of course.
+Bug-fixes, optimizations and improved documentation, of course.
 QClipboard is new.
 
-There are few changes in the API (Qt header files).  Some functions have
-been renamed or the arguments have changed.  We keep the old functions
-until the next release.  Compile with -DOBSOLETE to compile programs that
-depend on the obsoleted functions. Note that, with some compilers, the
-Qt library also must be compiled with -DOBSOLETE ( for gcc 2.7.2 you can
-compile your code with -O2 -DOBSOLETE and it will work with both kinds
-of libraries. This is because obsoleted functions are inline #ifdef'ed
-functions.) 
+There are some changes in the API (Qt header files).  Some functions have
+been renamed or the arguments have changed. These functions have been
+obsoleted. A call to an obsoleted function will by default generate a
+runtime warning the first time it is called, but it will be executed
+correctly. If you really need to ship code fast, you can turn off the
+runtime obsolescence warnings by calling qSuppressObsoleteWarnings().
 
-When you compile with -DOBSOLETE, a message will be written to debug output
-the first time you call each of the obsoleted functions.
+Obsoleted functions will disappear in a future release.  To get
+compile-time errors for each use of an obsoleted function, compile your
+code with -DTEST_OBSOLETE. You should recompile without this option when
+you have upgraded your code (otherwise, some weird compilers may give
+linking errors). Note: it is probably not a good idea to compile the Qt
+library with -DTEST_OBSOLETE, it may cause problems if you try to link or
+run programs that use obsoleted functions.
+
+For new users: obsoleted functions are no longer documented, in fact they
+are not even visible in the documentation.
 
 *************** Changes that might affect runtime behavior *****************
 
@@ -31,7 +37,7 @@ QPopupMenu
   connecting to signals both in menu bar and its submenus.
 
 *************** Changes that might generate compile errors *****************
-**************    when compiling old code with -DOBSOLETE  *****************
+**************           when compiling old code           *****************
 
 QDataStream:
 -----------
@@ -41,6 +47,10 @@ QDataStream:
 QImage:
 -------
   24-bpp pixel format no longer supported, use 32-bpp instead.
+
+QKeyEvent:
+----------
+  ascii() now returns int (previously uchar).
 
 QWidget:
 --------
@@ -74,16 +84,7 @@ QTextStream:
   int used instead of long (flags() etc.)
 
 
-***************** All other changes from 0.95 to 0.96 **********************
-
-moc
-----------
-    Gives a warning if no output is generated.
-
-qglobal.h:
-----------
-  INT32 and UINT32 typedefs changed to work with DEC Alpha.
-
+*****************         Obsoleted functions         **********************
 
 QAccel:
 -------
@@ -98,7 +99,6 @@ QApplication:
   cursor(), setCursor() and restoreCursor() obsoleted.
   Use overrideCursor(), setOverrideCursor() and restoreOverrideCursor()
   instead.
-  clipboard() is new.
 
 
 QBitmap:
@@ -113,14 +113,8 @@ QButton:
   toggleButton() is obsolete, renamed to isToggleButton().
 
 
-QButtonGroup:
--------------
-  Exclusive group setting added (isExclusive and setExclusive).
-  find() is new.
-
 QColor:
 -------
-  New type QRgb (uint), used for RGB triplet.
   The functions QRED, QGREEN, QBLUE, QRGB, QGRAY obsolete.
   Instead, use  qRed, qGreen, qBlue, qRgb, qGray.
 
@@ -131,18 +125,9 @@ QComboBox:
   string() obsolete, use text() instead.
 
 
-QKeyEvent:
-----------
-  ascii() now returns int (previously uchar).
-
-
 QLCDNumber:
 ----------
   longValue() is obsolete, use intValue() instead.
-
-QLineEdit:
-----------
-  You can now mark text, and copy and paste to/from the clipboard.
 
 
 QListbox:
@@ -161,25 +146,9 @@ QMenuData:
   Use setItemChecked(TRUE/FALSE) instead.
 
 
-QPaintDevice:
----------
-  The bitblt function now takes an ignoreMask parameter. It has a default
-  value, so no old code will be broken.
-
-
-QPainter:
----------
-  drawBezier draws cubic bezier, requires 4 control points. 
-
-
 QPointArray:
 ------------
   move() is obsolete, use translate() instead.
-
-
-QPrinter:
-------------
-  fixed minor bugs in handling of polygons and beziers.
 
 
 QRect:
@@ -202,12 +171,6 @@ QSocketNotifier:
 
 QWidget:
 --------
-  New protected virtual functions styleChange(), backgroundColorChange(),
-  backgroundPixmapChange(), paletteChange() and fontChange().
-  These functions are called from setStyle(), setBackgroundColor() etc.
-  You can reimplement them to if you need to know when widget properties
-  changed and to optimize updates.
-
   enable(), disable() and isDisabled() are obsolete.
   Use setEnabled(TRUE/FALSE) and !isEnabled() instead.
 
@@ -217,6 +180,63 @@ QWidget:
   enableUpdates() obsolete, use isUpdatesEnabled()/setUpdatesEnabled().
 
   id() is obsolete, it has been renamed to winId().
+
+***************** All other changes from 0.95 to 0.96 **********************
+
+moc
+----------
+    Gives a warning if no output is generated.
+
+
+qglobal.h:
+----------
+  INT32 and UINT32 typedefs changed to work with DEC Alpha.
+
+
+QApplication:
+-------------
+  clipboard() is new.
+
+
+QButtonGroup:
+-------------
+  Exclusive group setting added (isExclusive and setExclusive).
+  find() is new.
+
+
+QColor:
+-------
+  New type QRgb (uint), used for RGB triplet.
+
+
+QLineEdit:
+----------
+  You can now mark text, and copy and paste to/from the clipboard.
+
+
+QPaintDevice:
+---------
+  The bitblt function now takes an ignoreMask parameter. It has a default
+  value, so no old code will be broken.
+
+
+QPainter:
+---------
+  drawBezier draws cubic bezier, requires 4 control points. 
+
+
+QPrinter:
+------------
+  fixed minor bugs in handling of polygons and beziers.
+
+
+QWidget:
+--------
+  New protected virtual functions styleChange(), backgroundColorChange(),
+  backgroundPixmapChange(), paletteChange() and fontChange().
+  These functions are called from setStyle(), setBackgroundColor() etc.
+  You can reimplement them to if you need to know when widget properties
+  changed and to optimize updates.
 
   The destroyed() signal has been moved to QObject.
 
