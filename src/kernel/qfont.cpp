@@ -452,9 +452,17 @@ void QFont::detach()
 */
 QFont::QFont()
 {
-    const QFont appfont = QApplication::font();
-    d = appfont.d;
-    d->ref();
+    d = new QFontPrivate;
+    d->count = 1;
+
+    d->request.resolve( QApplication::font().d->request );
+
+    /*
+      reset the font def mask. the properties are identical to the
+      default font, but nothing has been explicitly set by the
+      programmer
+    */
+    d->request.mask = 0;
 }
 
 /*!
@@ -482,10 +490,17 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
     Q_CHECK_PTR( d );
 
     d->request.family = family;
+    d->request.mask |= QFontDef::Family;
+
     d->request.pointSize = pointSize * 10;
     d->request.pixelSize = -1;
     d->request.weight = weight;
     d->request.italic = italic;
+
+    // set the mask if the attributes are non-default
+    if ( pointSize != 12 ) d->request.mask |= QFontDef::Size;
+    if ( weight != Normal ) d->request.mask |= QFontDef::Weight;
+    if ( italic ) d->request.mask |= QFontDef::Italic;
 }
 
 /*!
@@ -502,9 +517,9 @@ QFont::QFont( const QFont &font )
 */
 QFont::~QFont()
 {
-    if ( d->deref() ) {
+    if ( d->deref() )
 	delete d;
-    }
+    d = 0;
 }
 
 /*!
@@ -549,7 +564,9 @@ QString QFont::family() const
 */
 void QFont::setFamily( const QString &family )
 {
-    if ( d->request.family == family ) return;
+    if ( ( d->request.mask & QFontDef::Family ) &&
+	 d->request.family == family )
+	return;
 
     detach();
 
@@ -603,7 +620,9 @@ void QFont::setPointSize( int pointSize )
     }
 
     pointSize *= 10;
-    if (d->request.pointSize == pointSize) return;
+    if ( ( d->request.mask & QFontDef::Size ) &&
+	 d->request.pointSize == pointSize )
+	return;
 
     detach();
     d->request.pointSize = pointSize;
@@ -629,7 +648,9 @@ void QFont::setPointSizeFloat( float pointSize )
     }
 
     int ps = int(pointSize * 10.0 + 0.5);
-    if (d->request.pointSize == ps) return;
+    if ( ( d->request.mask & QFontDef::Size ) &&
+	 d->request.pointSize == ps )
+	return;
 
     detach();
     d->request.pointSize = (int) ps;
@@ -646,7 +667,7 @@ void QFont::setPointSizeFloat( float pointSize )
 */
 float QFont::pointSizeFloat() const
 {
-    return float(d->request.pointSize == -1 ? -10 : d->request.pointSize) / 10.0;
+    return float( d->request.pointSize == -1 ? -10 : d->request.pointSize ) / 10.0;
 }
 
 /*!
@@ -666,7 +687,10 @@ void QFont::setPixelSize( int pixelSize )
 #endif
 	return;
     }
-    if (d->request.pixelSize == pixelSize) return;
+
+    if ( ( d->request.mask & QFontDef::Size ) &&
+	 d->request.pixelSize == pixelSize )
+	return;
 
     detach();
     d->request.pixelSize = pixelSize;
@@ -715,9 +739,12 @@ bool QFont::italic() const
 */
 void QFont::setItalic( bool enable )
 {
-    if ((bool) d->request.italic == enable) return;
+    if ( ( d->request.mask & QFontDef::Italic ) &&
+	 (bool) d->request.italic == enable )
+	return;
 
     detach();
+
     d->request.italic = enable;
     d->request.mask |= QFontDef::Italic;
 }
@@ -766,9 +793,12 @@ void QFont::setWeight( int weight )
 	return;
     }
 
-    if ((int) d->request.weight == weight) return;
+    if ( ( d->request.mask & QFontDef::Weight ) &&
+	 (int) d->request.weight == weight )
+	return;
 
     detach();
+
     d->request.weight = weight;
     d->request.mask |= QFontDef::Weight;
 }
@@ -812,7 +842,9 @@ bool QFont::underline() const
 */
 void QFont::setUnderline( bool enable )
 {
-    if ((bool) d->request.underline == enable) return;
+    if ( ( d->request.mask & QFontDef::Underline ) &&
+	 (bool) d->request.underline == enable )
+	return;
 
     detach();
     d->request.underline = enable;
@@ -837,7 +869,9 @@ bool QFont::strikeOut() const
 */
 void QFont::setStrikeOut( bool enable )
 {
-    if ((bool) d->request.strikeOut == enable) return;
+    if ( ( d->request.mask & QFontDef::StrikeOut ) &&
+	 (bool) d->request.strikeOut == enable )
+	return;
 
     detach();
     d->request.strikeOut = enable;
@@ -862,7 +896,9 @@ bool QFont::fixedPitch() const
 */
 void QFont::setFixedPitch( bool enable )
 {
-    if ((bool) d->request.fixedPitch == enable) return;
+    if ( ( d->request.mask & QFontDef::FixedPitch ) &&
+	 (bool) d->request.fixedPitch == enable )
+	return;
 
     detach();
     d->request.fixedPitch = enable;
@@ -965,7 +1001,8 @@ QFont::StyleHint QFont::styleHint() const
 */
 void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 {
-    if ( (StyleHint) d->request.styleHint == hint &&
+    if ( ( d->request.mask & ( QFontDef::StyleHint | QFontDef::StyleStrategy ) ) &&
+	 (StyleHint) d->request.styleHint == hint &&
 	 (StyleStrategy) d->request.styleStrategy == strategy )
 	return;
 
@@ -987,7 +1024,10 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 */
 void QFont::setStyleStrategy( StyleStrategy s )
 {
-    if ( s == (StyleStrategy)d->request.styleStrategy ) return;
+    if ( ( d->request.mask & QFontDef::StyleStrategy ) &&
+	 s == (StyleStrategy)d->request.styleStrategy )
+	return;
+
     detach();
     d->request.styleStrategy = s;
     d->request.mask |= QFontDef::StyleStrategy;
@@ -1030,7 +1070,9 @@ void QFont::setStretch( int factor )
 	return;
     }
 
-    if ( d->request.stretch == (uint)factor ) return; // nothing to do
+    if ( ( d->request.mask & QFontDef::Stretch ) &&
+	 d->request.stretch == (uint)factor )
+	return;
 
     detach();
     d->request.stretch = (uint)factor;
@@ -1077,6 +1119,7 @@ bool QFont::exactMatch() const
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
 #endif // QT_CHECK_STATE
+
     return d->request == engine->fontDef;
 }
 
@@ -1131,6 +1174,17 @@ bool QFont::isCopyOf( const QFont & f ) const
 bool QFont::rawMode() const
 {
     return d->request.mask & QFontDef::RawMode;
+}
+
+/*!
+    Returns a new QFont that has attributes copied from \a other.
+*/
+QFont QFont::resolve( const QFont &other ) const
+{
+    QFont font;
+    font.d->request = d->request;
+    font.d->request.resolve( other.d->request );
+    return font;
 }
 
 #ifndef QT_NO_COMPAT

@@ -63,6 +63,8 @@
 #if defined(Q_WS_QWS)
 #include "qwsmanager_qws.h"
 #endif
+#include "qfontdata_p.h"
+
 
 /*!
     \class QWidget qwidget.h
@@ -500,6 +502,24 @@ inline bool QWidgetMapper::remove( WId id )
 	cur_widget = 0;
     }
     return QWidgetIntDict::remove((long)id);
+}
+
+
+/*****************************************************************************
+  QWidget utility functions
+ *****************************************************************************/
+
+static QFont qt_resolveWidgetFont( QWidget* w, const QFont& fnt )
+{
+    QFont basefont = QApplication::font( w );
+    if ( ! w->isTopLevel() ) {
+	if ( ! basefont.isCopyOf( QApplication::font() ) ) {
+	    basefont = w->parentWidget()->font().resolve( basefont );
+	} else {
+	    basefont = w->parentWidget()->font();
+	}
+    }
+    return fnt.resolve( basefont );
 }
 
 
@@ -2695,15 +2715,14 @@ void QWidget::paletteChange( const QPalette & )
 void QWidget::setFont( const QFont &font )
 {
     own_font = TRUE;
-    if ( fnt == font )
+    if ( fnt == font && fnt.d->request.mask == font.d->request.mask )
 	return;
     QFont old = fnt;
-    fnt = font;
+    fnt = qt_resolveWidgetFont( this, font );
 #if defined(Q_WS_X11)
     // make sure the font set on this widget is associated with the correct screen
     fnt.x11SetScreen( x11Screen() );
 #endif
-    fnt.handle(); // force load font
     fontChange( old );
     if ( children() ) {
 	QEvent e( QEvent::ParentFontChange );
@@ -2721,13 +2740,11 @@ void QWidget::setFont( const QFont &font )
 
 void QWidget::unsetFont()
 {
-    if ( own_font ) {
-	if ( !isTopLevel() && QApplication::font( this ).isCopyOf( QApplication::font() ) )
-	    setFont( parentWidget()->font() );
-	else
-	    setFont( QApplication::font( this ) );
-	own_font = FALSE;
-    }
+    if ( ! own_font ) return;
+
+    // reset the font
+    setFont( QFont() );
+    own_font = FALSE;
 }
 
 /*!

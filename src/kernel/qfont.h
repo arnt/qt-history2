@@ -295,12 +295,12 @@ public:
 
 #endif // QT_NO_COMPAT
 
+    QFont resolve( const QFont & ) const;
 
 protected:
     // why protected?
     bool dirty() const;
     int deciPointSize() const;
-
 
 private:
     QFont( QFontPrivate *, QPaintDevice *pd );
