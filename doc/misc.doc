@@ -411,7 +411,7 @@ NORWAY<br>
 
 \title Qt Free Edition License Agreement
 
-<p>Qt Free Edition version 2.0 is distributed under the Q Public
+<p>Qt Free Edition version 3.0 is distributed under the Q Public
 License (QPL). It allows free use of Qt Free Edition for running
 software developed by others, and free use of Qt Free Edition for
 development of free/Open Source software. There is <a
@@ -577,7 +577,7 @@ by Oslo City Court.
 /*! \page gpl.html
 \title GNU General Public License
 
- The Qt GUI Toolkit is Copyright (C) 1994-2000 Trolltech AS.
+ The Qt GUI Toolkit is Copyright (C) 1994-2001 Trolltech AS.
 
  The Qt Free Edition and the Qt/Embedded Free Edition are available
  under the GPL. The Qt Free Edition (for Unix/X11) is also available
