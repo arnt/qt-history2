@@ -289,7 +289,8 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 	if(ekind == kEventControlDraw) {
 	    if(widget) {
 #if 0
-		qDebug("asked to draw %p [%s]", hiview, widget->className());
+		qDebug("asked to draw %p [%s::%s] %p", hiview, widget->className(), widget->objectName(),
+		       (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1));
 #endif
 		//update clip
 		widget->d->clp_serial++;
@@ -878,6 +879,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     } else {
 	data->fstrut_dirty = false; // non-toplevel widgets don't have a frame, so no need to update the strut
 	if(HIViewRef hiview = qt_mac_create_widget((HIViewRef)parentWidget()->winId())) {
+	    qDebug("created hiview %p (%s::%s) [%p]", hiview, objectName(), className(), (HIViewRef)parentWidget()->winId());
 	    HIRect bounds = CGRectMake(data->crect.x(), data->crect.y(), data->crect.width(), data->crect.height());
 	    HIViewSetFrame(hiview, &bounds);
 	    setWinId((WId)hiview);
@@ -950,6 +952,7 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
     QWidget* oldtlw = topLevelWidget();
     reparentFocusWidgets(parent);		// fix focus chains
 
+    //recreate and seutp flags
     setWinId(0);
     QObject::setParent_helper(parent);
     bool     dropable = acceptDrops();
@@ -964,6 +967,17 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
 	setWState(WState_Hidden);
     if(dropable)
 	setAcceptDrops(false);
+
+    //reparent children
+    QObjectList chlist = children();
+    for (int i = 0; i < chlist.size(); ++i) { 
+	QObject *obj = chlist.at(i);
+	if(obj->isWidgetType()) {
+	    QWidget *w = (QWidget *)obj;
+	    if(!w->isTopLevel()) 
+		HIViewAddSubview((HIViewRef)winId(), (HIViewRef)w->winId());
+	}
+    }
 
     //get new hd, now move
     setGeometry(p.x(), p.y(), s.width(), s.height());
@@ -986,8 +1000,9 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
     if(old_window_event) 
 	RemoveEventHandler(old_window_event);
     if(old_id) { //don't need old window anymore
-	if(isTopLevel())
+	if(oldtlw == this)
 	    DisposeWindow(HIViewGetWindow(old_id));
+	HIViewRemoveFromSuperview(old_id);
 	CFRelease(old_id);
     }
 }
@@ -1156,6 +1171,12 @@ void QWidget::setWindowIconText(const QString &iconText)
 {
     d->createTLExtra();
     d->topData()->iconText = iconText;
+    if(isTopLevel()) {
+	CFStringRef str = 0;
+	if(!iconText.isNull())
+	    CFStringCreateWithCharacters(0, (UniChar *)iconText.unicode(), iconText.length());
+	SetWindowAlternateTitle(HIViewGetWindow((HIViewRef)winId()), str);
+    }
     QEvent e(QEvent::IconTextChange);
     QApplication::sendEvent(this, &e);
 }
