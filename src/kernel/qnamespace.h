@@ -145,7 +145,7 @@ public:
 	WStyle_Tool		= 0x00000800,
 	WStyle_StaysOnTop	= 0x00001000,
 	WStyle_Dialog 		= 0x00002000,
-	WStyle_Reserved2	= 0x00004000,
+	WStyle_ContextHelp	= 0x00004000,
 	WStyle_Reserved3	= 0x00008000,
 	WStyle_Mask		= 0x0000fff0,
 

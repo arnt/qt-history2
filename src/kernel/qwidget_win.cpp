@@ -166,6 +166,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		style |= WS_MAXIMIZEBOX;
 	    if ( testWFlags(WStyle_Tool) )
 		exsty |= WS_EX_TOOLWINDOW;
+	    if ( testWFlags(WStyle_ContextHelp) )
+		exsty |= WS_EX_CONTEXTHELP;
 	}
     }
     if ( testWFlags(WStyle_Title) )
@@ -445,7 +447,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 	ImmSetCompositionWindow( imc, &cf );
 	ImmReleaseContext( winId(), imc );
     }
-    
+
     if ( QRect( x, y, width, height ) != microFocusHint() )
 	extraData()->micro_focus_hint.setRect( x, y, width, height );
 }
