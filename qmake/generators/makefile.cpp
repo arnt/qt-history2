@@ -216,15 +216,18 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	return TRUE;
 
     fn = Option::fixPathToLocalOS(fn, FALSE);
-
-    QString fndir;
+    QString fix_env_fn = Option::fixPathToLocalOS(fn);
+    int file = open(fix_env_fn.latin1(), O_RDONLY);
+    if(file == -1) 
+	return FALSE;
+    QString fndir, fix_env_fndir;
     int dl = fn.findRev(Option::dir_sep);
     if(dl != -1) 
 	fndir = fn.left(dl+1);
+    dl = fix_env_fn.findRev(Option::dir_sep);
+    if(dl != -1)
+	fix_env_fndir = fix_env_fn.left(dl + 1);
 
-    int file = open(fn.latin1(), O_RDONLY);
-    if(file == -1)
-	return FALSE;
 
     struct stat fst;
     if(fstat(file, &fst))
@@ -326,7 +329,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	    }
 
 	    QString fqn;
-	    if(project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH") && !stat(fndir + inc, &fst)) {
+	    if(project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH") && !stat(fix_env_fndir + inc, &fst)) {
 		fqn = fndir + inc;
 	    } else {
 		if((Option::target_mode == Option::TARG_MAC9_MODE && inc.find(':')) ||
@@ -1476,10 +1479,14 @@ MakefileGenerator::createObjectList(const QString &var)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi(Option::fixPathToLocalOS((*it)));
 	QString dirName;
-	if ( dir.isEmpty() )
-	    dirName = Option::fixPathToTargetOS(fi.dirPath(), FALSE) + Option::dir_sep;
-	else
+	if ( dir.isEmpty() ) {
+	    QString fName = Option::fixPathToTargetOS((*it), FALSE);
+	    int dl = fName.findRev(Option::dir_sep);
+	    if(dl != -1)
+		dirName = fName.left(dl + 1);
+	} else {
 	    dirName = dir;
+	}
 
 	file = dirName + fi.baseName(TRUE) + Option::obj_ext;
 	fileFixify(file);
