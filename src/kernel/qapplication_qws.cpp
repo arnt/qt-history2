@@ -1781,10 +1781,12 @@ void QApplication::setGlobalMouseTracking( bool enable )
 	    if ( app_tracking > 0 ) {		// switch on
 		if ( !w->testWState(WState_MouseTracking) ) {
 		    w->setMouseTracking( TRUE );
+		    w->clearWState(WState_MouseTracking);
 		}
 	    } else {				// switch off
 		if ( !w->testWState(WState_MouseTracking) ) {
 		    w->setWState(WState_MouseTracking);
+		    w->setMouseTracking( FALSE );
 		}
 	    }
 	    ++it;
@@ -1875,10 +1877,12 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
     if ( event->type == QWSEvent::PropertyNotify ) {
 	QWSPropertyNotifyEvent *e = (QWSPropertyNotifyEvent*)event;
 	if ( e->simpleData.property == 424242 ) {       // Clipboard
+#ifndef QT_NO_CLIPBOARD
 	    if ( qt_clipboard ) {
 		QCustomEvent e( QEvent::Clipboard, event );
 		QApplication::sendEvent( qt_clipboard, &e );
 	    }
+#endif
 	}
     } else if ( event->type == QWSEvent::PropertyReply ) {
 	QWSPropertyReplyEvent *e = (QWSPropertyReplyEvent*)event;
