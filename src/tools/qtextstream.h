@@ -166,7 +166,7 @@ private:
     QTextStreamPrivate * d;
     QChar	ungetcBuf;
     bool	latin1;
-    bool 	littleEndian;
+    bool 	internalOrder;
     bool	doUnicodeHeader;
     void	*reserved_ptr;
 

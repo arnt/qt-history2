@@ -798,6 +798,8 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		return rnum;
 	    if ( isNetworkOrder() )
 		*buf = QChar( c2, c1 );
+	    else
+		*buf = QChar( c1, c2 );
 	    buf++;
 	    rnum++;
 	} else {
