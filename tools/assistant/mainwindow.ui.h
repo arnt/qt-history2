@@ -72,10 +72,11 @@ void MainWindow::init()
     setupGoActions();
 
     if ( !config->isMaximized() ) {
-	QRect geom = config->geometry();
-	if( geom.isValid() ) {
-	    QRect desktop =  QApplication::desktop()->geometry();
-	    setGeometry( geom.intersect( desktop ) );
+	QRect desktop =  QApplication::desktop()->availableGeometry();
+	QRect geom = config->geometry() & desktop;
+	if( config->geometry().isValid() && geom.isValid() ) {
+	    resize(geom.size());
+	    move(geom.topLeft());
 	}
     }
 
