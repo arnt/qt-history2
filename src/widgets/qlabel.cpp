@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#46 $
 **
 ** Implementation of QLabel widget class
 **
@@ -12,8 +12,9 @@
 #include "qlabel.h"
 #include "qpixmap.h"
 #include "qpainter.h"
+#include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#46 $");
 
 
 /*!
@@ -154,23 +155,19 @@ void QLabel::setPixmap( const QPixmap &pixmap )
 	h = lpixmap->height();
     } else {
 	lpixmap = new QPixmap;
+	CHECK_PTR( lpixmap );
 	w = h = -1;
     }
+    bool sameSize = w == lpixmap->width() && h == lpixmap->height();
     *lpixmap = pixmap;
+    if ( lpixmap->depth() == 1 && !lpixmap->mask() )
+	lpixmap->setMask( *((QBitmap *)lpixmap) );
     if ( !ltext.isNull() )
 	ltext.resize( 0 );
-    if ( autoresize && (w != lpixmap->width() || h != lpixmap->height()) ) {
+    if ( autoresize && !sameSize )
 	adjustSize();
-    } else {
-	if ( w >= 0 && w <= lpixmap->width() && h <= lpixmap->height() ) {
-	    QPainter paint;
-	    paint.begin( this );
-	    drawContents( &paint );		// don't erase contentsRect()
-	    paint.end();
-	} else {
-	    updateLabel();
-	}
-    }
+    else
+	updateLabel();
 }
 
 
@@ -354,44 +351,27 @@ QSize QLabel::sizeHint() const
 
 void QLabel::drawContents( QPainter *p )
 {
-    p->setPen( colorGroup().text() );
     QRect cr = contentsRect();
-    int fw = frameWidth();
-    int m  = margin();
+    int m = margin();
     if ( m < 0 ) {
-	if ( fw > 0 )
+	if ( frameWidth() > 0 )
 	    m = p->fontMetrics().width("x")/2;
 	else
 	    m = 0;
     }
-    if ( align & AlignLeft )
-	cr.setLeft( cr.left() + m );
-    if ( align & AlignRight )
-	cr.setRight( cr.right() - m );
-    if ( align & AlignTop )
-	cr.setTop( cr.top() + m );
-    if ( align & AlignBottom )
-	cr.setBottom( cr.bottom() - m );
-    if ( lpixmap ) {
-	int x, y, w, h;
-	cr.rect( &x, &y, &w, &h );
-	int pmw=lpixmap->width(), pmh=lpixmap->height();
-	if ( fw > 0 && (pmw > w || pmh > h) )
-	     p->setClipRect( x, y, w, h );
-	if ( (align & AlignRight) == AlignRight )
-	    x += w - pmw;
-	else if ( (align & AlignHCenter) == AlignHCenter )
-	    x += w/2 - pmw/2;
-	if ( (align & AlignBottom) == AlignBottom )
-	    y += h - pmh;
-	else if ( (align & AlignVCenter) == AlignVCenter )
-	    y += h/2 - pmh/2;
-	p->drawPixmap( x, y, *lpixmap );
-	if ( fw > 0 )
-	    p->setClipping( FALSE );
+    if ( m > 0 ) {
+	if ( align & AlignLeft )
+	    cr.setLeft( cr.left() + m );
+	if ( align & AlignRight )
+	    cr.setRight( cr.right() - m );
+	if ( align & AlignTop )
+	    cr.setTop( cr.top() + m );
+	if ( align & AlignBottom )
+	    cr.setBottom( cr.bottom() - m );
     }
-    else
-	p->drawText( cr, align, ltext );
+    qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
+	       align, colorGroup(), isEnabled(),
+	       lpixmap, ltext );
 }
 
 
