@@ -43,9 +43,12 @@ platform-specific features, and still maintain a platform-independent
 source tree, you should protect the platform-specific code using the
 appropriate \c{#ifdef} statements (see below).
 
+\tableofcontents
+
 For information about which platforms are supported by Qt, see the
 \link http://www.trolltech.com/products/platforms/ Platform
-Notes\endlink.
+Notes\endlink. For information on distributing Qt applications, see
+\link distributingqt.html Deploying Qt Applications\endlink.
 
 \target x11
 \section1 Qt/X11
@@ -54,6 +57,8 @@ When compiling for this platform, the macro \c{Q_WS_X11} is defined.
 
 \e{Not documented here. Please contact Trolltech Technical Support
 if you have queries.}
+
+\img dependencies.png Qt/X11 Dependencies
 
 \target win
 \section1 Qt/Windows
@@ -64,7 +69,7 @@ When compiling for this platform, the macro \c{Q_WS_WIN} is defined.
 if you have queries.}
 
 \target macosx
-\section1 Qt/Mac
+\section1 Qt/Mac OS X
 
 When compiling for this platform, the macro \c{Q_WS_MACX} is defined.
 
