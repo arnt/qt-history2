@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#43 $
 **
 ** Implementation of QPixmap class
 **
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#43 $")
 
 
 /*----------------------------------------------------------------------------
@@ -290,13 +290,17 @@ bool qt_image_did_turn_scanlines()
   using the specified format.  If \e format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
+  The \e depth argument is the desired depth of the loaded pixmap.  See
+  the convertFromImage() documentation for a description of how \e depth
+  works.
+
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
 
   \sa loadFromData(), save(), imageFormat()
  ----------------------------------------------------------------------------*/
 
-bool QPixmap::load( const char *fileName, const char *format )
+bool QPixmap::load( const char *fileName, const char *format, int depth )
 {
     QImageIO io( fileName, format );
 #if defined(_WS_WIN_)
@@ -305,7 +309,7 @@ bool QPixmap::load( const char *fileName, const char *format )
     bool result = io.read();
     if ( result ) {
 	detach();
-	result = convertFromImage( io.image() );
+	result = convertFromImage( io.image(), depth );
     }
 #if defined(_WS_WIN_)
     can_turn_scanlines = did_turn_scanlines = FALSE;
@@ -321,13 +325,18 @@ bool QPixmap::load( const char *fileName, const char *format )
   using the specified format.  If \e format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
+  The \e depth argument is the desired depth of the loaded pixmap.  See
+  the convertFromImage() documentation for a description of how \e depth
+  works.
+
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
 
   \sa load(), save(), imageFormat()
  ----------------------------------------------------------------------------*/
 
-bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format )
+bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
+			    int depth )
 {
     QByteArray a;
     a.setRawData( (char *)buf, len );
@@ -342,7 +351,7 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format )
     a.resetRawData( (char *)buf, len );
     if ( result ) {
 	detach();
-	result = convertFromImage( io.image() );
+	result = convertFromImage( io.image(), depth );
     }
 #if defined(_WS_WIN_)
     can_turn_scanlines = did_turn_scanlines = FALSE;
