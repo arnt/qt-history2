@@ -1273,7 +1273,7 @@ QFontEngine *loadEngine(QFont::Script script,
         FcPattern *result =
             XftFontMatch(QX11Info::display(), fp->screen, pattern, &res);
 
- 	if (script == QFont::Latin) {
+ 	if (result && script == QFont::Latin) {
  	    // since we added the Euro char on top, check we actually got the family
  	    // we requested. If we didn't get it correctly, remove the Euro from the pattern
 	    // and try again.
@@ -1290,6 +1290,8 @@ QFontEngine *loadEngine(QFont::Script script,
  	    }
  	}
 	FcPatternDestroy(pattern);
+	if (!result)
+	    return 0;
 
         // We pass a duplicate to XftFontOpenPattern because either xft font
         // will own the pattern after the call or the pattern will be
