@@ -495,6 +495,10 @@ bool QLinuxFbScreen::initDevice()
     shared->fifocount=0;
     shared->buffer_offset=0xffffffff;  // 0 would be a sensible offset (screen)
     shared->linestep=0;
+    shared->cliptop=0xffffffff;
+    shared->clipleft=0xffffffff;
+    shared->clipright=0xffffffff;
+    shared->clipbottom=0xffffffff;
 
 #ifndef QT_NO_QWS_REPEATER
     screen_optype=(int *)optype;

@@ -289,11 +289,27 @@ QGfxMach64<depth,type>::QGfxMach64(unsigned char * a,int b,int c)
 template<const int depth,const int type>
 inline void QGfxMach64<depth,type>::do_scissors(QRect & r)
 {
-    wait_for_fifo(4);
-    regw(SC_LEFT,r.left());
-    regw(SC_TOP,r.top());
-    regw(SC_RIGHT,r.right());
-    regw(SC_BOTTOM,r.bottom());
+    QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
+    if(tmp->clipleft!=r.left()) {
+      tmp->clipleft=r.left();
+      wait_for_fifo(1);
+      regw(SC_LEFT,r.left());
+    }
+    if(tmp->cliptop!=r.top()) {
+      tmp->cliptop=r.top();
+      wait_for_fifo(1);
+      regw(SC_TOP,r.top());
+    }
+    if(tmp->clipright!=r.right()) {
+      tmp->clipright=r.right();
+      wait_for_fifo(1);
+      regw(SC_RIGHT,r.right());
+    }
+    if(tmp->clipbottom!=r.bottom()) {
+      tmp->clipbottom=r.bottom(); 
+      wait_for_fifo(1);
+      regw(SC_BOTTOM,r.bottom());
+    }
 }
 
 // Sets up the graphics engine's idea of bits-per-pixel for destination
@@ -561,16 +577,15 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
     if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_RECT) {
-	wait_for_fifo(7);
 
 	// probably not needed
 	// we reset the clip rectangle because we do our own software
 	// clipping (rectangle<->rectangle intersections are fast)
-	regw(SC_LEFT,0);
-	regw(SC_TOP,0);
-	regw(SC_RIGHT,width);
-	regw(SC_BOTTOM,height);
 
+        QRect tmprect(0,0,width,height);
+        do_scissors(tmprect);
+
+        wait_for_fifo(3);
         regw(DP_SRC,0x00000100);
         regw(DP_MIX,(MIX_SRC << 16) | MIX_DST);
         regw(DST_CNTL,0x00000003);
@@ -1098,11 +1113,8 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 
     (*gfx_optype)=1;
 
-    wait_for_fifo(4);
-    regw(SC_LEFT,0);
-    regw(SC_TOP,0);
-    regw(SC_RIGHT,width);
-    regw(SC_BOTTOM,height);
+    QRect tmprect(0,0,width,height);
+    do_scissors(tmprect);
 
     int xp2,yp2;
     int xp3,yp3;
@@ -1705,10 +1717,6 @@ bool QMachScreen::initDevice()
     regw(PAT_REG0,0);
     regw(PAT_REG1,0);
     regw(PAT_CNTL,0);
-    regw(SC_LEFT,0);
-    regw(SC_TOP,0);
-    regw(SC_BOTTOM,h-1);
-    regw(SC_RIGHT,w-1);
     regw(DP_BKGD_CLR,0);
     regw(DP_FRGD_CLR,0xffffffff);
     regw(DP_WRITE_MASK,0xffffffff);

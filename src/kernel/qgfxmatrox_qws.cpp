@@ -114,12 +114,26 @@ private:
 template<const int depth,const int type>
 inline void QGfxMatrox<depth,type>::do_scissors(QRect & r)
 {
-    matrox_regw(CXLEFT,r.left());
-    matrox_regw(CXRIGHT,r.right());
+    QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
     int t=linestep();
     t=(t*8)/depth;
-    matrox_regw(YTOP,r.top()*t);
-    matrox_regw(YBOT,(r.bottom())*t);
+
+    if(tmp->clipleft!=r.left()) {
+      tmp->clipleft=r.left();
+      matrox_regw(CXLEFT,r.left());
+    }
+    if(tmp->cliptop!=r.top()) {
+      tmp->cliptop=r.top();
+      matrox_regw(YTOP,r.top()*t);
+    }
+    if(tmp->clipright!=r.right()) {
+      tmp->clipright=r.right();
+      matrox_regw(CXRIGHT,r.right());
+    }
+    if(tmp->clipbottom!=r.bottom()) {
+      tmp->clipbottom=r.bottom(); 
+      matrox_regw(YBOT,r.bottom()*t);
+    }
 }
 
 template<const int depth,const int type>
@@ -193,8 +207,6 @@ inline void QGfxMatrox<depth,type>::setDest()
     matrox_regw(YDSTORG,b);
     matrox_regw(PITCH,0x8000 | t);
     matrox_regw(MACCESS,d);
-    matrox_regw(CXLEFT,0);
-    matrox_regw(CXRIGHT,width);
     matrox_regw(PLNWT,0xffffffff);
 
 }
@@ -287,6 +299,9 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 #endif
 
     (*gfx_optype)=1;
+
+    QRect tmprect(0,0,width,height);
+    do_scissors(tmprect);
 
     // Last in 1d00-1dff range
 

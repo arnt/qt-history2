@@ -46,6 +46,11 @@ public:
     unsigned int forecol;     // Foreground colour cacheing
     unsigned int buffer_offset;   // Destination
     unsigned int linestep;
+    unsigned int cliptop;    // Clip rectangle
+    unsigned int clipleft;
+    unsigned int clipright;
+    unsigned int clipbottom;
+
 };
 
 class QLinuxFbScreen : public QScreen

@@ -144,9 +144,20 @@ inline void QGfxVoodoo<depth,type>::do_scissors(QRect & r)
 {
     // Voodoo clipping includes minimum values but excludes maximum values
 
-    wait_for_fifo(2);
-    regw(CLIP0MIN,(r.top()) << 16 | r.left());
-    regw(CLIP0MAX,(r.bottom()) << 16 | (r.right()));
+    QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
+    if(tmp->clipleft!=r.left() || tmp->cliptop!=r.top()) {
+        wait_for_fifo(1);
+        regw(CLIP0MIN,(r.top()) << 16 | r.left());
+	tmp->clipleft=r.left();
+	tmp->cliptop=r.top();
+    }
+    if(tmp->clipright!=r.right() || 
+       tmp->clipbottom!=r.bottom()) {
+        wait_for_fifo(1);
+        regw(CLIP0MIN,(r.bottom()) << 16 | r.right());
+	tmp->clipright=r.right();
+	tmp->clipbottom=r.bottom();
+    }
 }
 
 template<const int depth,const int type>
@@ -198,9 +209,8 @@ inline void QGfxVoodoo<depth,type>::setDest()
     ulong buffer_offset;
     gfx_screen->onCard(buffer,buffer_offset);
 
-    wait_for_fifo(2);
-    regw(CLIP0MIN,0);
-    regw(CLIP0MAX,(height << 16) | width);
+    QRect tmprect(0,0,width,height);
+    do_scissors(tmprect);
 
     QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
     if(tmp->buffer_offset==buffer_offset && tmp->linestep==linestep()) {
@@ -575,11 +585,8 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	    wait_for_fifo(1);
 	    regw(LAUNCHAREA,xp2 | (yp2 << 16));
 	}
-	wait_for_fifo(4);
-	regw(CLIP0MIN,0);
-	regw(CLIP0MAX,(height << 16) | width);
-	regw(CLIP0MIN,0);
-	regw(CLIP0MAX,(height << 16) | width);
+	QRect tmprect(0,0,width,height);
+	do_scissors(tmprect);
 
 	GFX_END
 #if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
@@ -655,11 +662,8 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
       regw(SRCXY,x1 | (y1 << 16));
       regw(LAUNCHAREA,x2 | (y2 << 16));
     }
-    wait_for_fifo(4);
-    regw(CLIP0MIN,0);
-    regw(CLIP0MAX,(height << 16) | width);
-    regw(CLIP0MIN,0);
-    regw(CLIP0MAX,(height << 16) | width);
+    QRect tmprect(0,0,width,height);
+    do_scissors(tmprect);
 
     GFX_END
 #if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
