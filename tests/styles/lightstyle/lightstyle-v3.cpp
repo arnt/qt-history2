@@ -521,6 +521,8 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 			   pixelMetric( PM_DefaultFrameWidth ) : data.lineWidth() );
 	    cover = reallw - 1;
 
+	    if ( ! ( flags & Style_Sunken ) )
+		flags |= Style_Raised;
 	    drawLightBevel( p, br, cg, flags, 1, false, false );
 	    br.addCoords( 1, 1, -1, -1 );
 

@@ -385,6 +385,8 @@ void LightStyleV2::drawPrimitive( PrimitiveElement pe,
 	    int lw = data.isDefault() ?
 		     pixelMetric(PM_DefaultFrameWidth) : data.lineWidth();
 
+	    if ( ! ( flags & Style_Sunken ) )
+		flags |= Style_Raised;
 	    if (lw == 2)
 		drawLightBevel(p, r, cg, flags);
 	    else
