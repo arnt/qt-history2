@@ -1,9 +1,9 @@
 @Include { welcome-flyer.lout }
 @Doc @Text @Begin
 @Place 
-    x { right - 3.5c }
+    x { right - 4.0c }
     y { foot + 1c }
-{ darkgrey @Colour 9p @Font WEL300505-12"/"02 }
+{ darkgrey @Colour 9p @Font WEL300505NO-12"/"02 }
 @CD @Heading { Welcome to Qt! }
 @PP
 Congratulations! If you're new to Qt then you are going to be amazed by how
