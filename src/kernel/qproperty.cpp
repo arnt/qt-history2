@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qproperty.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qproperty.cpp#4 $
 **
 ** Implementation of QProperty class
 **
@@ -26,8 +26,10 @@
 #include <qstring.h>
 #include <qfont.h>
 #include <qpixmap.h>
+#include <qimage.h>
 // #include <qmovie.h>
 #include <qbrush.h>
+#include <qpoint.h>
 #include <qrect.h>
 #include <qsize.h>
 #include <qcolor.h>
@@ -37,9 +39,19 @@
 
 /*!
   \class QProperty qproperty.h
-  \brief The class needs documentation.
+  \brief Acts like a union for the most common Qt data types.
 
-  Not documented.
+  Unfortunately one can not use C++ unions with classes that have
+  constructors and destructors since the compiler and the runtime
+  library could not determine which destructor to call.
+
+  To come around this QProperty can store the most common Qt and C++
+  data types. Like every union it can hold one value of a certain type
+  at a time.
+*/
+
+/*!
+  Creates an empty property.
 */
 QProperty::QProperty()
 {
@@ -56,17 +68,26 @@ QProperty::~QProperty()
     clear();
 }
 
+/*!
+  Constructs a deep copy of the property passed as argument to this constructor.
+*/
 QProperty::QProperty( const QProperty& p ) : QShared()
 {
   typ = Empty;
   *this = p;
 }
 
+/*!
+  Reads the property from the data stream.
+*/
 QProperty::QProperty( QDataStream& s )
 {
   s >> *this;
 }
 
+/*!
+  Assigns the value of one property to another. This creates a deep copy.
+*/
 QProperty& QProperty::operator= ( const QProperty& p )
 {
   clear();
@@ -96,8 +117,14 @@ QProperty& QProperty::operator= ( const QProperty& p )
     case PixmapType:
       val.ptr = new QPixmap( p.pixmapValue() );
       break;
+    case ImageType:
+      val.ptr = new QImage( p.imageValue() );
+      break;
     case BrushType:
       val.ptr = new QBrush( p.brushValue() );
+      break;
+    case PointType:
+      val.ptr = new QPoint( p.pointValue() );
       break;
     case RectType:
       val.ptr = new QRect( p.rectValue() );
@@ -132,11 +159,19 @@ QProperty& QProperty::operator= ( const QProperty& p )
   return *this;
 }
 
+/*!
+  Returns the type stored in the property currently in ASCII format.
+  The returned strings describe the C++ datatype used to store the
+  data, for example "QFont", "QString" or "QValueList<int>".
+*/
 QString QProperty::typeName() const
 {
   return typeToName( typ );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( const QString& _value )
 {
   clear();
@@ -144,6 +179,11 @@ void QProperty::setValue( const QString& _value )
   val.ptr = new QString( _value );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+  This function creates a copy of the list. This is very fast since
+  QStringList is implicit shared.
+*/
 void QProperty::setValue( const QStringList& _value )
 {
   clear();
@@ -151,6 +191,11 @@ void QProperty::setValue( const QStringList& _value )
   val.ptr = new QStringList( _value );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+  This function creates a copy of the list. This is very fast since
+  QStringList is implicit shared.
+*/
 void QProperty::setValue( const QValueList<int>& _value )
 {
   clear();
@@ -158,6 +203,11 @@ void QProperty::setValue( const QValueList<int>& _value )
   val.ptr = new QValueList<int>( _value );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+  This function creates a copy of the list. This is very fast since
+  QStringList is implicit shared.
+*/
 void QProperty::setValue( const QValueList<double>& _value )
 {
   clear();
@@ -165,6 +215,9 @@ void QProperty::setValue( const QValueList<double>& _value )
   val.ptr = new QValueList<double>( _value );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( const QFont& _value )
 {
   clear();
@@ -172,11 +225,24 @@ void QProperty::setValue( const QFont& _value )
   val.ptr = new QFont( _value );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( const QPixmap& _value )
 {
   clear();
   typ = PixmapType;
   val.ptr = new QPixmap( _value );
+}
+
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
+void QProperty::setValue( const QImage& _value )
+{
+  clear();
+  typ = ImageType;
+  val.ptr = new QImage( _value );
 }
 
 // void QProperty::setValue( const QMovie& _value )
@@ -186,6 +252,9 @@ void QProperty::setValue( const QPixmap& _value )
 //  val.ptr = new QMovie( _value );
 // }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( const QBrush& _value )
 {
   clear();
@@ -193,6 +262,9 @@ void QProperty::setValue( const QBrush& _value )
   val.ptr = new QBrush( _value );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( const QRect& _value )
 {
   clear();
@@ -200,6 +272,19 @@ void QProperty::setValue( const QRect& _value )
   val.ptr = new QRect( _value );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
+void QProperty::setValue( const QPoint& _value )
+{
+  clear();
+  typ = PointType;
+  val.ptr = new QPoint( _value );
+}
+
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( const QSize& _value )
 {
   clear();
@@ -207,6 +292,9 @@ void QProperty::setValue( const QSize& _value )
   val.ptr = new QSize( _value );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( const QColor& _value )
 {
   clear();
@@ -214,6 +302,9 @@ void QProperty::setValue( const QColor& _value )
   val.ptr = new QColor( _value );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( const QPalette& _value )
 {
   clear();
@@ -221,6 +312,9 @@ void QProperty::setValue( const QPalette& _value )
   val.ptr = new QPalette( _value );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( const QColorGroup& _value )
 {
   clear();
@@ -228,6 +322,9 @@ void QProperty::setValue( const QColorGroup& _value )
   val.ptr = new QColorGroup( _value );
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( int _value )
 {
   clear();
@@ -235,6 +332,9 @@ void QProperty::setValue( int _value )
   val.i = _value;
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( bool _value )
 {
   clear();
@@ -242,6 +342,9 @@ void QProperty::setValue( bool _value )
   val.b = _value;
 }
 
+/*!
+  Changes the value of this property. The previous value is dropped.
+*/
 void QProperty::setValue( double _value )
 {
   clear();
@@ -282,8 +385,14 @@ void QProperty::clear()
     case PixmapType:
       delete (QPixmap*)val.ptr;
       break;
+    case ImageType:
+      delete (QImage*)val.ptr;
+      break;
     case BrushType:
       delete (QBrush*)val.ptr;
+      break;
+    case PointType:
+      delete (QPoint*)val.ptr;
       break;
     case RectType:
       delete (QRect*)val.ptr;
@@ -307,6 +416,10 @@ void QProperty::clear()
   typ = Empty;
 }
 
+/*!
+  Converts the enum representation of the storage type to its
+  string representation.
+*/
 QString QProperty::typeToName( QProperty::Type _typ )
 {
   switch( _typ )
@@ -327,10 +440,14 @@ QString QProperty::typeToName( QProperty::Type _typ )
       // return "QMovie";
     case PixmapType:
       return "QPixmap";
+    case ImageType:
+      return "QImage";
     case BrushType:
       return "QBrush";
     case RectType:
       return "QRect";
+    case PointType:
+      return "QPoint";
     case SizeType:
       return "QSize";
     case ColorType:
@@ -352,6 +469,10 @@ QString QProperty::typeToName( QProperty::Type _typ )
   return QString();
 }
 
+/*!
+  Converts the string representation of the storage type to
+  its enum representation.
+*/
 QProperty::Type QProperty::nameToType( const QString& _name )
 {
    if ( _name.isEmpty() )
@@ -364,7 +485,9 @@ QProperty::Type QProperty::nameToType( const QString& _name )
    if ( _name == "QFont" ) return FontType;
    // if ( _name == "QMovie" ) return MovieType;
    if ( _name == "QPixmap" ) return PixmapType;
+   if ( _name == "QImage" ) return ImageType;
    if ( _name == "QBrush" ) return BrushType;
+   if ( _name == "QPoint" ) return PointType;
    if ( _name == "QRect" ) return RectType;
    if ( _name == "QSize" ) return SizeType;
    if ( _name == "QColor" ) return ColorType;
@@ -377,6 +500,10 @@ QProperty::Type QProperty::nameToType( const QString& _name )
    return Empty;
 }
 
+/*!
+  Internal function for loading a property. Use the stream operators
+  instead.
+*/
 void QProperty::load( QDataStream& s )
 {
   Q_UINT32 u;
@@ -408,11 +535,17 @@ void QProperty::load( QDataStream& s )
     case PixmapType:
       { QPixmap x; s >> x; setValue( x ); }
       break;
+    case ImageType:
+      { QImage x; s >> x; setValue( x ); }
+      break;
     case BrushType:
       { QBrush x; s >> x; setValue( x ); }
       break;
     case RectType:
       { QRect x; s >> x; setValue( x ); }
+      break;
+    case PointType:
+      { QPoint x; s >> x; setValue( x ); }
       break;
     case SizeType:
       { QSize x; s >> x; setValue( x ); }
@@ -440,6 +573,10 @@ void QProperty::load( QDataStream& s )
     }  
 }
 
+/*!
+  Internal function for saving a property. Use the stream operators
+  instead.
+*/
 void QProperty::save( QDataStream& s ) const
 {
   s << (Q_UINT32)type();
@@ -469,8 +606,14 @@ void QProperty::save( QDataStream& s ) const
     case PixmapType:
       s << pixmapValue();
       break;
+    case ImageType:
+      s << imageValue();
+      break;
     case BrushType:
       s << brushValue();
+      break;
+    case PointType:
+      s << pointValue();
       break;
     case RectType:
       s << rectValue();
@@ -501,3 +644,256 @@ void QProperty::save( QDataStream& s ) const
     }  
 }
 
+/*!
+  Reads a property from the stream.
+*/
+QDataStream& operator>> ( QDataStream& s, QProperty& p )
+{
+  p.load( s );
+  return s;
+}
+
+/*!
+  Writes a property to the stream.
+*/
+QDataStream& operator<< ( QDataStream& s, const QProperty& p )
+{
+  p.save( s );
+  return s;
+}
+
+/*!
+  Reads a property type in enum representation from the stream
+*/
+QDataStream& operator>> ( QDataStream& s, QProperty::Type& p )
+{
+  Q_UINT32 u;
+  s >> u;
+  p = (QProperty::Type) u;
+  
+  return s;
+}
+
+/*!
+  Writes a property type to the stream.
+*/
+QDataStream& operator<< ( QDataStream& s, const QProperty::Type p )
+{
+  s << (Q_UINT32)p;
+  
+  return s;
+}
+
+
+/*! \fn QProperty::QProperty( const QString& _v )
+  Creates a new property with a string value.
+*/
+
+/*! \fn QProperty::QProperty( const QStringList& _v )
+  Creates a new property with a string list value.
+*/
+
+/*! \fn QProperty::QProperty( const QValueList<int>& _v )
+  Creates a new property with a integer list value.
+*/
+
+/*! \fn QProperty::QProperty( const QValueList<double>& _v )
+  Creates a new property with a floating point list value.
+*/
+
+/*! \fn QProperty::QProperty( const QFont& _v )
+  Creates a new property with a font value.
+*/
+
+/*! \fn QProperty::QProperty( const QPixmap& _v )
+  Creates a new property with a pixmap value.
+*/
+
+/*! \fn QProperty::QProperty( const QImage& _v )
+  Creates a new property with an image value.
+*/
+
+/*! \fn QProperty::QProperty( const QBrush& _v )
+  Creates a new property with a brush value.
+*/
+
+/*! \fn QProperty::QProperty( const QPoint& _v )
+  Creates a new property with a point value.
+*/
+
+/*! \fn QProperty::QProperty( const QRect& _v )
+  Creates a new property with a rect value.
+*/
+
+/*! \fn QProperty::QProperty( const QSize& _v )
+  Creates a new property with a size value.
+*/
+
+/*! \fn QProperty::QProperty( const QColor& _v )
+  Creates a new property with a color value.
+*/
+
+/*! \fn QProperty::QProperty( const QPalette& _v )
+  Creates a new property with a color palette value.
+*/
+
+/*! \fn QProperty::QProperty( const QColorGroup& _v )
+  Creates a new property with a color group value.
+*/
+
+/*! \fn QProperty::QProperty( int _v )
+  Creates a new property with an integer value.
+*/
+
+/*! \fn QProperty::QProperty( bool _v )
+  Creates a new property with a boolean value.
+*/
+
+/*! \fn QProperty::QProperty( double _v )
+  Creates a new property with a floating point value.
+*/
+
+/*! \fn Type QProperty::type() const
+  Returns the stoarge type of the value stored in the
+  property currently.
+*/
+
+/*! \fn bool QProperty::isEmpty() const
+  Returns TRUE if the storage type of this property is QProperty::Empty.
+*/
+
+/*! \fn const QString& QProperty::stringValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QStringList& QProperty::stringListValue() const
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QValueList<int>& QProperty::intListValue() const
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QValueList<double>& QProperty::doubleListValue() const
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QFont& QProperty::fontValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QPixmap& QProperty::pixmapValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QImage& QProperty::imageValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QBrush& QProperty::brushValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QPoint& QProperty::pointValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QRect& QProperty::rectValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QSize& QProperty::sizeValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QColor& QProperty::colorValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QPalette& QProperty::paletteValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn const QColorGroup& QProperty::colorgroupValue() const
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn int QProperty::intValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+
+/*! \fn bool QProperty::boolValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
+  
+/*! \fn double QProperty::doubleValue() const 
+  Returns the value stored in the property. If the properties
+  value does not match the return type of this function then
+  this function will abort your process. So check with type()
+  or typeName() first wether the property holds the correct
+  data type.
+*/
