@@ -4581,7 +4581,7 @@ bool QWidget::event( QEvent *e )
 #ifdef QT_ACCESSIBILITY_SUPPORT
     case QEvent::AccessibleQueryHelp: {
         QAccessibleInterface *iface = 0;
-        if (d->whatsThis && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
+        if ((bool)d->whatsThis && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
             iface->setText(QAccessible::Help, 0, d->whatsThis);
             iface->release();
             return true;
@@ -4589,7 +4589,7 @@ bool QWidget::event( QEvent *e )
         break; }
     case QEvent::AccessibleQueryDescription: {
         QAccessibleInterface *iface = 0;
-        if (d->toolTip && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
+        if ((bool)d->toolTip && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
             iface->setText(QAccessible::Description, 0, d->toolTip);
             iface->release();
             return true;
