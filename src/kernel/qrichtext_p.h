@@ -965,7 +965,7 @@ private:
     bool oTextValid : 1;
     int nSelections;
     QTextFlow *flow_;
-#ifndef QT_NO_TEXTCUSTOMITEM  
+#ifndef QT_NO_TEXTCUSTOMITEM
     QPtrList<QTextCustomItem> customItems;
 #endif
     QTextDocument *par;
@@ -1389,7 +1389,7 @@ private:
     QTextCommandHistory *commandHistory;
     int list_val;
     QColor *bgcol;
-
+    QTextFormatCollection *fCollection;
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1627,6 +1627,9 @@ public:
     void updateFontAttributes( const QFont &f, const QFont &old );
     QDict<QTextFormat> dict() const { return cKey; }
 
+    QPaintDevice *paintDevice() const { return paintdevice; }
+    void setPaintDevice( QPaintDevice * );
+
 private:
     QTextFormat *defFormat, *lastFormat, *cachedFormat;
     QDict<QTextFormat> cKey;
@@ -1636,7 +1639,7 @@ private:
     QString kof, knf;
     int cflags;
     QStyleSheet *sheet;
-
+    QPaintDevice *paintdevice;
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

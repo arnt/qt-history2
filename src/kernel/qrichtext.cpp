@@ -1,4 +1,4 @@
-#/****************************************************************************
+/****************************************************************************
 ** $Id$
 **
 ** Implementation of the internal Qt classes dealing with rich text
@@ -67,8 +67,6 @@
 //#define DEBUG_COLLECTION// ---> also in qrichtext_p.h
 //#define DEBUG_TABLE_RENDERING
 
-static QTextFormatCollection *qFormatCollection = 0;
-
 const int QStyleSheetItem_WhiteSpaceNoCompression = 3; // ### belongs in QStyleSheetItem, fix 3.1
 
 #if defined(PARSER_DEBUG)
@@ -91,7 +89,8 @@ static inline int scale( int value, QPainter *painter )
     if ( is_printer( painter ) ) {
 	QPaintDeviceMetrics metrics( painter->device() );
 #if defined(Q_WS_X11)
-	value = value * metrics.logicalDpiY() / QPaintDevice::x11AppDpiY();
+	value = value * metrics.logicalDpiY() /
+		QPaintDevice::x11AppDpiY( painter->device()->x11Screen() );
 #elif defined (Q_WS_WIN)
 	int gdc = GetDeviceCaps( GetDC( 0 ), LOGPIXELSY );
 	if ( gdc )
@@ -1635,7 +1634,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    }
 		    attribs.replace( "title", title );
 		}
-		
+
 		const QStyleSheetItem* nstyle = sheet_->item(tagname);
 		if ( nstyle ) {
 		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem )
@@ -1662,7 +1661,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    }
 
 		}
-		
+
 #ifndef QT_NO_TEXTCUSTOMITEM
 		QTextCustomItem* custom =  0;
 #endif
@@ -2413,7 +2412,7 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 		s += "\n";
 	    }
 	}
-#else	
+#else
 	s += p->string()->toString().mid( c1.index(), end - c1.index() );
 #endif
 	return s;
@@ -2730,6 +2729,8 @@ bool QTextDocument::inSelection( int selId, const QPoint &pos ) const
 
 void QTextDocument::doLayout( QPainter *p, int w )
 {
+    if ( p )
+	fCollection->setPaintDevice( p->device() );
     if ( !is_printer( p ) )
 	p = 0;
     withoutDoubleBuffer = ( p != 0 );
@@ -3577,7 +3578,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
       tc( 0 ), numCustomItems( 0 ),
 #endif
       pFormatter( 0 ), tArray( 0 ), tabStopWidth( 0 ),
-      eData( 0 ), pntr( 0 ), commandHistory( 0 )
+      eData( 0 ), pntr( 0 ), commandHistory( 0 ), fCollection( 0 )
 {
     bgcol = 0;
     breakable = TRUE;
@@ -3587,6 +3588,8 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
     list_val = -1;
     newLinesAllowed = FALSE;
     lastInFrame = FALSE;
+    if ( !doc )
+	fCollection = new QTextFormatCollection;
     defFormat = formatCollection()->defaultFormat();
     if ( !doc ) {
 	tabStopWidth = defFormat->width( 'x' ) * 8;
@@ -3656,6 +3659,7 @@ QTextParag::~QTextParag()
     if ( !doc ) {
 	delete pFormatter;
 	delete commandHistory;
+	delete fCollection;
     }
     delete [] tArray;
     delete eData;
@@ -4648,9 +4652,7 @@ QTextFormatCollection *QTextParag::formatCollection() const
 {
     if ( doc )
 	return doc->formatCollection();
-    if ( !qFormatCollection )
-	qFormatCollection = new QTextFormatCollection;
-    return qFormatCollection;
+    return fCollection;
 }
 
 QString QTextParag::richText() const
@@ -4664,7 +4666,7 @@ QString QTextParag::richText() const
 	    s += c->format()->makeFormatChangeTags( lastFormat );
 	    lastFormat = c->format();
 	}
-	
+
 	if ( c->c == ' ' || c->c == '\t' ) {
 	    spaces += c->c;
 	    continue;
@@ -4675,7 +4677,7 @@ QString QTextParag::richText() const
 		s += spaces;
 	    spaces = QString::null;
 	}
-	
+
 	if ( c->c == '<' ) {
 	    s += "&lt;";
 	} else if ( c->c == '>' ) {
@@ -5424,7 +5426,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	// last character ("invisible" space) has no width
 	if ( i == len - 1 )
 	    ww = 0;
-#ifndef QT_NO_TEXTCUSTOMITEM  	
+#ifndef QT_NO_TEXTCUSTOMITEM
 	if ( c->isCustom() && c->customItem()->ownLine() ) {
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
@@ -5614,7 +5616,7 @@ QTextIndent::QTextIndent()
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextFormatCollection::QTextFormatCollection()
-    : cKey( 307 ), sheet( 0 )
+    : cKey( 307 ), sheet( 0 ), paintdevice( 0 )
 {
     defFormat = new QTextFormat( QApplication::font(),
 				 QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
@@ -5627,6 +5629,26 @@ QTextFormatCollection::QTextFormatCollection()
 QTextFormatCollection::~QTextFormatCollection()
 {
     delete defFormat;
+}
+
+void QTextFormatCollection::setPaintDevice( QPaintDevice *pd )
+{
+    paintdevice = pd;
+
+#if defined(Q_WS_X11)
+    int scr = ( paintdevice ) ? paintdevice->x11Screen() : QPaintDevice::x11AppScreen();
+
+    defFormat->fn.x11SetScreen( scr );
+    defFormat->update();
+
+    QDictIterator<QTextFormat> it( cKey );
+    QTextFormat *format;
+    while ( ( format = it.current() ) != 0 ) {
+	++it;
+	format->fn.x11SetScreen( scr );
+	format->update();
+    }
+#endif // Q_WS_X11
 }
 
 QTextFormat *QTextFormatCollection::format( QTextFormat *f )
@@ -7642,6 +7664,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     col_ = column;
     stretch_ = 0;
     richtext = new QTextDocument( table->parent );
+    richtext->formatCollection()->setPaintDevice( table->parent->formatCollection()->paintDevice() );
     richtext->setTableCell( this );
     QString a = *attr.find( "align" );
     if ( !a.isEmpty() ) {

@@ -611,6 +611,7 @@ QTextEdit::~QTextEdit()
 
 void QTextEdit::init()
 {
+    doc->formatCollection()->setPaintDevice( this );
     undoEnabled = TRUE;
     readonly = TRUE;
     setReadOnly( FALSE );
@@ -878,7 +879,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	if ( e->state() & ShiftButton ) {
 	    cut();
 	    break;
-	} else 
+	} else
 #endif
         if ( doc->hasSelection( QTextDocument::Standard, TRUE ) ) {
 	    removeSelectedText();

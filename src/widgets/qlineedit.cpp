@@ -114,7 +114,6 @@ struct QLineEditPrivate {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
 	cursor->setParag( parag );
-
     }
     static QPixmap* pm; // only used when we have focus
 
@@ -374,6 +373,7 @@ QLineEdit::~QLineEdit()
 void QLineEdit::init()
 {
     d = new QLineEditPrivate( this );
+    d->parag->formatCollection()->setPaintDevice( this );
     connect( &d->blinkTimer, SIGNAL(timeout()),
 	     this, SLOT(blinkSlot()) );
     connect( &d->dragTimer, SIGNAL(timeout()),
@@ -1091,9 +1091,9 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	return;
 #ifndef QT_NO_CURSOR
     if ( !d->mousePressed ) {
-	if ( !isReadOnly() && dragEnabled() 
+	if ( !isReadOnly() && dragEnabled()
 #ifndef QT_NO_WHATSTHIS
-	     && !QWhatsThis::inWhatsThisMode() 
+	     && !QWhatsThis::inWhatsThisMode()
 #endif
 	     ) {
 	    if ( hasSelectedText() &&
