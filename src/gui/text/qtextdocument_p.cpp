@@ -153,7 +153,7 @@ QTextDocumentPrivate::QTextDocumentPrivate()
     lout = 0;
 
     modified = false;
-    lastUnmodifiedUndoStackPos = -1;
+    lastUnmodifiedUndoStackPos = 0;
 }
 
 void QTextDocumentPrivate::init()
@@ -164,6 +164,8 @@ void QTextDocumentPrivate::init()
     undoEnabled = false;
     insertBlock(0, formats.indexForFormat(QTextBlockFormat()), formats.indexForFormat(QTextCharFormat()));
     undoEnabled = true;
+    modified = false;
+    lastUnmodifiedUndoStackPos = 0;
 }
 
 QTextDocumentPrivate::~QTextDocumentPrivate()
