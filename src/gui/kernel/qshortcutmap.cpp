@@ -302,19 +302,30 @@ QKeySequence::SequenceMatch QShortcutMap::state()
 */
 bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
 {
+    bool wasAccepted = e->isAccepted();
     if (d->currentState == QKeySequence::NoMatch) {
         ushort orgType = e->t;
         e->t = QEvent::ShortcutOverride;
         e->ignore();
         QApplication::sendSpontaneousEvent(w, e);
         e->t = orgType;
-        if (e->isAccepted())
+        if (e->isAccepted()) {
+            if (!wasAccepted)
+                e->ignore();
             return false;
+        }
     }
+
     QKeySequence::SequenceMatch result = nextState(e);
+    bool stateWasAccepted = e->isAccepted();
+    if (wasAccepted)
+        e->accept();
+    else
+        e->ignore();
+
     switch(result) {
     case QKeySequence::NoMatch:
-        return e->isAccepted();
+        return stateWasAccepted;
     case QKeySequence::ExactMatch:
         resetState();
         dispatchEvent();
