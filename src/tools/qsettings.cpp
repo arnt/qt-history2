@@ -316,29 +316,25 @@ static void closelock( HANDLE fd )
 #define Q_LOCKREAD 1
 #define Q_LOCKWRITE 2
 
-static HANDLE openlock( const QString &name, int /*type*/ )
+static HANDLE openlock( const QString &name, int type )
 {
     if ( !QFile::exists( name ) )
 	return 0;
 
-    return 0;
-
     HANDLE fd = 0;
+    DWORD shareFlag = (type & Q_LOCKREAD) ? 0 : FILE_SHARE_READ;
+    shareFlag |= (type & Q_LOCKWRITE) ? 0 : FILE_SHARE_WRITE;
 
     QT_WA( {
-	fd = CreateFileW( (TCHAR*)name.ucs2(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	fd = CreateFileW( (TCHAR*)name.ucs2(), GENERIC_READ, shareFlag, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
     } , {
-	fd = CreateFileA( name.local8Bit(), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	fd = CreateFileA( name.local8Bit(), GENERIC_READ, shareFlag, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
     } );
 
-#ifndef Q_OS_TEMP
-    if ( !LockFile( fd, 0, 0, (DWORD)-1, (DWORD)-1 ) )
-#endif
-    { // ### (DWORD)-1 ???
 #ifdef QT_CHECK_STATE
+    if ( !fd )
 	qWarning( "QSettings: openlock failed!" );
 #endif
-    }
     return fd;
 }
 
@@ -347,14 +343,6 @@ static void closelock( HANDLE fd )
     if ( !fd )
 	return;
 
-#ifndef Q_OS_TEMP
-    if ( !UnlockFile( fd, 0, 0, (DWORD)-1, (DWORD)-1 ) )
-#endif
-    { // ### (DWORD)-1 ???
-#ifdef QT_CHECK_STATE
-	qWarning( "QSettings: closelock failed!");
-#endif
-    }
     CloseHandle( fd );
 }
 #endif
