@@ -2602,10 +2602,8 @@ void PropertyList::setCurrentItem( QListViewItem *i )
 
 void PropertyList::updateEditorSize()
 {
-    QSize s( header()->sectionPos(1) + header()->sectionSize(1), height() );
-    QResizeEvent e( s, size() );
-    resizeEvent( &e );
-    viewport()->repaint( s.width(), 0, width() - s.width(), height(), FALSE );
+    if ( currentItem() )
+	( ( PropertyItem* )currentItem() )->showEditor();
 }
 
 /*!  This has to be called if the value if \a i should be set as
