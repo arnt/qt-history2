@@ -60,9 +60,10 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
     QValueList<CompletionEntry> lst;
 
     if ( obj->children() ) {
-	for ( QObjectListIt cit( *obj->children() ); cit.current(); ++cit ) {
+	for ( QObjectListIterator cit( *obj->children() ); cit.current(); ++cit ) {
 	    QString s( cit.current()->name() );
-	    if ( s.find( " " ) == -1 && s.find( "qt_" ) == -1 && s.find( "unnamed" ) == -1 ) {
+	    if ( s.find( " " ) == -1 && s.find( "qt_" ) == -1 &&
+		 s.find( "unnamed" ) == -1 ) {
 		CompletionEntry c;
 		c.type = "variable";
 		c.text = s;
