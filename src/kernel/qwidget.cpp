@@ -3093,6 +3093,23 @@ bool QWidget::isActiveWindow() const
 	}
     }
 #endif
+#if defined(Q_WS_WIN32)
+    HWND parent = ::GetParent( tlw->winId() );
+    HWND topparent = 0;
+    while ( parent ) {
+	topparent = parent;
+	parent = ::GetParent( parent );
+    }
+    if ( topparent ) {
+	WINDOWINFO info;
+	memset( &info, 0, sizeof(WINDOWINFO) );
+	info.cbSize = sizeof(WINDOWINFO);
+	GetWindowInfo( topparent, &info );
+	if ( info.dwWindowStatus == WS_ACTIVECAPTION )
+	    return TRUE;
+    }
+#endif
+
     return FALSE;
 }
 
