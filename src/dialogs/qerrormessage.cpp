@@ -51,6 +51,7 @@
 #include "qtextview.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 class QErrorMessageTextView : public QTextView
 {
