@@ -552,7 +552,7 @@ QByteArray QMacMimeImage::convertToMime(QList<QByteArray> data, const char* mime
             DrawPicture(pic, &r);
         }
         QByteArray ofmt = mime+6;
-        QBuffer iod(ret);
+        QBuffer iod(&ret);
         iod.open(IO_WriteOnly);
         QImage img = px.convertToImage();
         QImageIO iio(&iod, ofmt.toUpper());
