@@ -229,7 +229,7 @@
  <customwidgets>
   <customwidget>
    <class>ConnectionWidget</class>
-   <extends>QWidget</extends>
+   <extends>QTreeView</extends>
    <header>connectionwidget.h</header>
    <container>0</container>
    <pixmap></pixmap>
