@@ -118,6 +118,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 				   SFlags flags,
 				   const QStyleOption& opt ) const
 {
+    QRect rr( r );
     switch (pe) {
     case PE_ButtonCommand:
 	{
@@ -243,35 +244,45 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		fill = cg.brush( QColorGroup::Background );
 
 	    qDrawWinPanel( p, r, cg, TRUE, &fill );
-	    if (! (flags & Style_Off)) {
-		QPointArray a( 7*2 );
-		int i, xx, yy;
-		xx = r.x() + 3;
-		yy = r.y() + 5;
 
-		for ( i=0; i<3; i++ ) {
-		    a.setPoint( 2*i,   xx, yy );
-		    a.setPoint( 2*i+1, xx, yy+2 );
-		    xx++; yy++;
-		}
-
-		yy -= 2;
-		for ( i=3; i<7; i++ ) {
-		    a.setPoint( 2*i,   xx, yy );
-		    a.setPoint( 2*i+1, xx, yy+2 );
-		    xx++; yy--;
-		}
-
-		if (flags & Style_NoChange)
-		    p->setPen( cg.dark() );
-		else
-		    p->setPen( cg.text() );
-
-		p->drawLineSegments( a );
-	    }
-#endif
-	    break;
+	    if (flags & Style_NoChange )
+		p->setPen( cg.dark() );
+	    else
+		p->setPen( cg.text() );
+	} // FALLTHROUGH
+    case PE_CheckListIndicator:
+	if ( pe == PE_CheckListIndicator ) { //since we fall through from PE_Indicator
+	    if ( flags & Style_Enabled )
+		p->setPen( QPen( cg.text(), 1 ) );
+	    else
+		p->setPen( QPen( cg.dark(), 1 ) );
+	    rr.addCoords( 1, 2, -3, -3 );
+	    p->drawRect( rr );
+	    rr.addCoords( 0, -1, 0, 0 );
 	}
+	if (! (flags & Style_Off)) {
+	    QPointArray a( 7*2 );
+	    int i, xx, yy;
+	    xx = rr.x() + 3;
+	    yy = rr.y() + 5;
+	    
+	    for ( i=0; i<3; i++ ) {
+		a.setPoint( 2*i,   xx, yy );
+		a.setPoint( 2*i+1, xx, yy+2 );
+		xx++; yy++;
+	    }
+	    
+	    yy -= 2;
+	    for ( i=3; i<7; i++ ) {
+		a.setPoint( 2*i,   xx, yy );
+		a.setPoint( 2*i+1, xx, yy+2 );
+		xx++; yy--;
+	    }
+	    	    
+	    p->drawLineSegments( a );
+	}
+#endif
+	break;
 
     case PE_ExclusiveIndicator:
 	{
