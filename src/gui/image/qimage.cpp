@@ -346,7 +346,7 @@ QImageData::~QImageData()
     \value IgnoreEndian  Endianness does not matter. Useful for some
                          operations that are independent of endianness.
     \value BigEndian     Network byte order, as on SPARC and Motorola CPUs.
-    \value LittleEndian  PC/Alpha byte order.
+    \value LittleEndian  Little endian byte order, as on Intel x86.
 */
 
 /*!
@@ -361,6 +361,24 @@ QImageData::~QImageData()
     \value InvertRgba   Invert all channels, including the alpha channel.
 */
 
+/*!
+    \enum QImage::Format
+
+    \value Format_Invalid   The image is invalid.
+    \value Format_Mono      The image is stored using 1-bit per pixel. Bytes are
+                            packed with the most significant bit (MSB) first.
+    \value Format_MonoLSB   The image is stored using 1-bit per pixel. Bytes are
+                            packed with the less significant bit (LSB) first.
+    \value Format_Indexed8  The image is stored using 8-bit indexes into a colormap.
+    \value Format_RGB32     The image is stored using a 32-bit RGB format (0xffRRGGBB).
+    \value Format_ARGB32    The image is stored using a 32-bit ARGB format (0xAARRGGBB).
+    \value Format_ARGB32_Premultiplied  The image is stored using a premultiplied 32-bit
+                            ARGB format (0xAARRGGBB), i.e. the red,
+                            green, and blue channels are multiplied
+                            by the alpha component divided by 255.
+
+    \sa format(), convertToFormat()
+*/
 
 /*****************************************************************************
   QImage member functions
