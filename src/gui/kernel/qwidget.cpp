@@ -6232,7 +6232,27 @@ QString QWidget::whatsThis() const
 }
 
 /*!
-  \brief
+  \enum Qt::ShortcutType
+  \value WhereFocusWidget Shortcut triggers only when widget has focus.
+  \value WhereActiveWindow Shortcut triggers if its owner is a logical
+  sub window of the current top-level widget.
+*/
+
+/*!
+  \brief Grabs a keysequence.
+
+  When \a key is grabbed it's added to the shortcut system, which will
+  send a QShortcut event when the user triggers the shortcut. If a \a key
+  sequence is grabbed by several widgets, the QShortcut event is sent to
+  all those widgets on a Round-Robin basis, with its ambiguous flag raised.
+
+  In most cases, you will not need to use this function directly. Use the
+  QAction class to create actions with accelerators that can be used in
+  both menus and toolbars; or use the QShortcut class which will handle the
+  event filtering for you, and provide signals which are triggered when
+  the user triggers the key sequence.
+
+  \sa QShortcut releaseShortcut setShortcutEnabled
 */
 int QWidget::grabShortcut(const QKeySequence &key, ShortcutType type)
 {
@@ -6244,7 +6264,16 @@ int QWidget::grabShortcut(const QKeySequence &key, ShortcutType type)
 }
 
 /*!
-  \brief
+  \brief Releases a previously grabbed shortcut.
+
+  When a shortcut is released it's removed from the shortcut system, and
+  the widget will not receive QShortcut events for that key sequence, unless
+  the widget has grabbed the same key sequence several times. 
+
+  It is not recommended to release shortcuts manually since this is done
+  automatically on widget destruction, and is a rather expensive operation.
+
+  \sa QShortcut grabShortcut setShortcutEnabled
 */
 void QWidget::releaseShortcut(int id)
 {
@@ -6254,7 +6283,13 @@ void QWidget::releaseShortcut(int id)
 }
 
 /*!
-  \brief
+  \brief Enables or disables a grabbed shortcut.
+
+  This function lets you turn on and off a grabbed shortcut. You do not have
+  to manually change this state when ever your widget changes its enabled or
+  visibility state, since the shortcut system will handle these situations.
+
+  \sa QShortcut grabShortcut releaseShortcut
 */
 void QWidget::setShortcutEnabled(int id, bool enable)
 {
