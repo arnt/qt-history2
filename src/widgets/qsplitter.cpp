@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#78 $
 **
 **  Splitter widget
 **
@@ -647,10 +647,12 @@ void QSplitter::doResize()
 	    a[i].stretch = 0;
 	    a[i].sizeHint = a[i].minimumSize = s->sizer;
 	    a[i].maximumSize = pick( s->wid->maximumSize() );
+	    a[i].empty = FALSE;
 	} else { //proportional
 	    a[i].stretch = s->sizer;
 	    a[i].maximumSize = pick( s->wid->maximumSize() );
 	    a[i].sizeHint = a[i].minimumSize = pick( minSize(s->wid) );
+	    a[i].empty = FALSE;
 	}
     }
 
@@ -739,7 +741,7 @@ void QSplitter::recalc( bool update )
 */
 
 /*!
-  Sets resize mode of \a w to \a mode. 
+  Sets resize mode of \a w to \a mode.
 
   \sa ResizeMode
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#73 $
 **
 ** Implementation of QMainWindow class
 **
@@ -259,6 +259,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 		QLayoutStruct &a = (*array)[i];
 		QLayoutItem *o = list.at(i);
 		a.init();
+		a.empty = FALSE;
 		a.sizeHint = o->sizeHint().width();
 		a.expansive = o->expanding() & QSizePolicy::Horizontal;
 	    }
@@ -600,7 +601,7 @@ void QMainWindow::addToolBar( QToolBar * toolBar,
 	toolBar->mw->removeToolBar( toolBar );
 	toolBar->mw = this;
     }
-    
+
     setDockEnabled( edge, TRUE );
 
     QMainWindowPrivate::ToolBarDock * dl = 0;
