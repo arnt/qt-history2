@@ -110,9 +110,9 @@ QString QDir::canonicalPath() const
     char cur[PATH_MAX];
     GETCWD( cur, PATH_MAX );
     if ( qt_winunicode ) {
-	if ( _tchdir((TCHAR*)qt_winTchar(dPath,TRUE)) >= 0 ) {
+	if ( ::_tchdir((TCHAR*)qt_winTchar(dPath,TRUE)) >= 0 ) {
 	    TCHAR tmp[PATH_MAX];
-	    if ( _tgetcwd( tmp, PATH_MAX ) )
+	    if ( ::_tgetcwd( tmp, PATH_MAX ) )
 		r = qt_winQString(tmp);
 	}
     } else {
@@ -142,7 +142,7 @@ QString QDir::canonicalPath() const
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
     if ( qt_winunicode ) {
-	return _tmkdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
+	return ::_tmkdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
     } else {
 	return _mkdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
     }
@@ -165,7 +165,7 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
     if ( qt_winunicode ) {
-	return _trmdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
+	return ::_trmdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
     } else {
 	return _rmdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
     }
@@ -184,7 +184,7 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 bool QDir::isReadable() const
 {
     if ( qt_winunicode ) {
-	return _taccess((const TCHAR*)qt_winTchar(dPath,TRUE), R_OK) == 0;
+	return ::_taccess((const TCHAR*)qt_winTchar(dPath,TRUE), R_OK) == 0;
     } else {
 	return ACCESS(qt_win95Name(dPath), R_OK) == 0;
     }
@@ -243,7 +243,7 @@ bool QDir::rename( const QString &name, const QString &newName,
     QString fn2 = filePath( newName, acceptAbsPaths );
     if ( qt_winunicode ) {
 	TCHAR* t2 = (TCHAR*)qt_winTchar_new(fn2);
-	bool r = _trename((const TCHAR*)qt_winTchar(fn1,TRUE), t2) == 0;
+	bool r = ::_trename((const TCHAR*)qt_winTchar(fn1,TRUE), t2) == 0;
 	delete [] t2;
 	return r;
     } else {
@@ -260,7 +260,7 @@ bool QDir::setCurrent( const QString &path )
     int r;
 
     if ( qt_winunicode ) {
-	r = _tchdir((const TCHAR*)qt_winTchar(path,TRUE));
+	r = ::_tchdir((const TCHAR*)qt_winTchar(path,TRUE));
     } else {
 	r = CHDIR(qt_win95Name(path));
     }
@@ -279,7 +279,7 @@ QString QDir::currentDirPath()
 
     if ( qt_winunicode ) {
 	TCHAR currentName[PATH_MAX];
-	if ( _tgetcwd(currentName,PATH_MAX) >= 0 ) {
+	if ( ::_tgetcwd(currentName,PATH_MAX) >= 0 ) {
 	    result = qt_winQString(currentName);
 	}
     } else {
