@@ -1194,6 +1194,14 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
     return true;
 }
 
+/*! \reimp
+ */
+bool QAbstractSocket::waitForBytesWritten(int msecs)
+{
+    Q_UNUSED(msecs);
+    return false;
+}
+
 /*!
     Waits until the socket is connected, up to \a msecs
     milliseconds. If the connection has been established, this

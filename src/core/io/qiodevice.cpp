@@ -17,6 +17,7 @@
 
 #define d d_func()
 #define q q_func()
+#define Q_VOID
 
 #define CHECK_OPEN(function, returnType) \
     do { \
@@ -605,6 +606,8 @@ bool QIODevice::putChar(char c)
 
 void QIODevice::ungetChar(char c)
 {
+    CHECK_OPEN(write, Q_VOID);
+    CHECK_READABLE(read, Q_VOID);
     d->ungetBuffer.append(c);
 }
 

@@ -91,8 +91,9 @@ public:
     inline bool isSequential() const { return true; }
 
     // for synchronous access
-    bool waitForReadyRead(int msecs = 30000);
     bool waitForConnected(int msecs = 30000);
+    bool waitForReadyRead(int msecs = 30000);
+    bool waitForBytesWritten(int msecs = 30000);
     bool waitForClosed(int msecs = 30000);
 
     void setDefaultTimeout(int msecs);
@@ -105,7 +106,6 @@ signals:
     void closed();
     void stateChanged(int);
     void error(int);
-
 
 protected:
     QAbstractSocket(Qt::SocketType socketType,

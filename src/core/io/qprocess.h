@@ -63,6 +63,7 @@ public:
 
     bool waitForStarted(int msecs = 30000);
     bool waitForReadyRead(int msecs = 30000);
+    bool waitForBytesWritten(int msecs = 30000);
     bool waitForFinished(int msecs = 30000);
 
     void kill();
@@ -72,12 +73,14 @@ public:
 
     // QIODevice
     Q_LONGLONG bytesAvailable() const;
+    bool isSequential() const;
     bool canReadLine() const;
     void close();
     bool flush();
 
 signals:
     void started();
+    void finishing();
     void finished(int exitStatus);
     void error(QProcess::ProcessError error);
     void stateChanged(QProcess::ProcessState state);
@@ -96,9 +99,9 @@ private:
     Q_DECLARE_PRIVATE(QProcess)
     Q_DISABLE_COPY(QProcess)
 
-    Q_PRIVATE_SLOT(d, void readyReadStandardOutput());
-    Q_PRIVATE_SLOT(d, void readyReadStandardError());
-    Q_PRIVATE_SLOT(d, void readyWrite());
+    Q_PRIVATE_SLOT(d, void canReadStandardOutput());
+    Q_PRIVATE_SLOT(d, void canReadStandardError());
+    Q_PRIVATE_SLOT(d, void canWrite());
     Q_PRIVATE_SLOT(d, void startupNotification());
     Q_PRIVATE_SLOT(d, void processDied());
     Q_PRIVATE_SLOT(d, void notified());

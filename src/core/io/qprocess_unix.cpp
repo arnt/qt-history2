@@ -116,7 +116,7 @@ private:
     QSocketNotifier *shutdownNotifier;
 };
 
-void QProcessPrivate::createPipe(int *pipe)
+static void qt_create_pipe(int *pipe)
 {
     if (pipe[0] != -1)
         ::close(pipe[0]);
@@ -145,38 +145,37 @@ void QProcessPrivate::startProcess()
     Q_Q(QProcess);
 
     // Initialize pipes
-    createPipe(childStartedPipe);
+    qt_create_pipe(childStartedPipe);
     startupSocketNotifier = new QSocketNotifier(childStartedPipe[0],
                                                 QSocketNotifier::Read, q);
     QObject::connect(startupSocketNotifier, SIGNAL(activated(int)),
-                     q, SLOT(startupNotification(int)));
+                     q, SLOT(startupNotification()));
 
-    createPipe(writePipe);
+    qt_create_pipe(writePipe);
     writeSocketNotifier = new QSocketNotifier(writePipe[1],
                                               QSocketNotifier::Write, q);
     QObject::connect(writeSocketNotifier, SIGNAL(activated(int)),
-                     q, SLOT(readyWrite(int)));
+                     q, SLOT(canWrite()));
     writeSocketNotifier->setEnabled(false);
 
-    createPipe(standardReadPipe);
-    createPipe(errorReadPipe);
+    qt_create_pipe(standardReadPipe);
+    qt_create_pipe(errorReadPipe);
 
     standardReadSocketNotifier = new QSocketNotifier(standardReadPipe[0],
                                                      QSocketNotifier::Read,
                                                      q);
     QObject::connect(standardReadSocketNotifier, SIGNAL(activated(int)),
-                     q, SLOT(readyReadStandardOutput(int)));
+                     q, SLOT(canReadStandardOutput()));
 
     errorReadSocketNotifier = new QSocketNotifier(errorReadPipe[0],
                                                   QSocketNotifier::Read,
                                                   q);
     QObject::connect(errorReadSocketNotifier, SIGNAL(activated(int)),
-                     q, SLOT(readyReadStandardError(int)));
+                     q, SLOT(canReadStandardError()));
 
     // Start the process (platform dependent)
     processState = QProcess::Starting;
     emit q->stateChanged(processState);
-
 
     QProcessManager::instance().initialize();
 
@@ -417,6 +416,12 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
     return true;
 }
 
+bool QProcessPrivate::waitForBytesWritten(int msecs)
+{
+    Q_UNUSED(msecs);
+    return false;
+}
+
 bool QProcessPrivate::waitForFinished(int msecs)
 {
     Q_Q(QProcess);
@@ -439,6 +444,10 @@ bool QProcessPrivate::waitForFinished(int msecs)
 bool QProcessPrivate::waitForWrite(int msecs)
 {
     return qt_native_select(QList<int>() << writePipe[1], msecs < 0 ? 0 : msecs, false) == 1;
+}
+
+void QProcessPrivate::notified()
+{
 }
 
 #include "qprocess_unix.moc"

@@ -41,9 +41,9 @@ public:
     virtual ~QProcessPrivate();
 
     // private slots
-    void readyReadStandardOutput();
-    void readyReadStandardError();
-    void readyWrite();
+    void canReadStandardOutput();
+    void canReadStandardError();
+    void canWrite();
     void startupNotification();
     void processDied();
     void notified();
@@ -66,7 +66,6 @@ public:
     Q_PIPE errorReadPipe[2];
     Q_PIPE writePipe[2];
     Q_PIPE childStartedPipe[2];
-    void createPipe(Q_PIPE pipe[2]);
     void destroyPipe(Q_PIPE pipe[2]);
 
     QSocketNotifier *standardReadSocketNotifier;
@@ -87,6 +86,7 @@ public:
 
     bool waitForStarted(int msecs = 30000);
     bool waitForReadyRead(int msecs = 30000);
+    bool waitForBytesWritten(int msecs = 30000);
     bool waitForFinished(int msecs = 30000);
     bool waitForWrite(int msecs = 30000);
 

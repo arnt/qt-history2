@@ -107,12 +107,12 @@ void QProcessPrivate::cleanup()
     destroyPipe(childStartedPipe);
 }
 
-void QProcessPrivate::readyReadStandardOutput()
+void QProcessPrivate::canReadStandardOutput()
 {
     Q_Q(QProcess);
     Q_LONGLONG available = bytesAvailableFromStdout();
 #if defined QPROCESS_DEBUG
-    qDebug("QProcessPrivate::readyReadStandardOutput(), %lld bytes available",
+    qDebug("QProcessPrivate::canReadStandardOutput(), %lld bytes available",
            available);
 #endif
 
@@ -138,12 +138,12 @@ void QProcessPrivate::readyReadStandardOutput()
     emit q->readyReadStandardOutput();
 }
 
-void QProcessPrivate::readyReadStandardError()
+void QProcessPrivate::canReadStandardError()
 {
     Q_Q(QProcess);
     Q_LONGLONG available = bytesAvailableFromStderr();
 #if defined QPROCESS_DEBUG
-    qDebug("QProcessPrivate::readyReadStandardError(), %lld bytes available",
+    qDebug("QProcessPrivate::canReadStandardError(), %lld bytes available",
            available);
 #endif
 
@@ -169,7 +169,7 @@ void QProcessPrivate::readyReadStandardError()
     emit q->readyReadStandardError();
 }
 
-void QProcessPrivate::readyWrite()
+void QProcessPrivate::canWrite()
 {
     Q_Q(QProcess);
     if (writeSocketNotifier)
@@ -199,11 +199,12 @@ void QProcessPrivate::processDied()
     // in case there is data in the pipe line and this slot by chance
     // got called before the read notifications, call these two slots
     // so the data is made available before the process dies.
-    readyReadStandardOutput();
-    readyReadStandardError();
+    canReadStandardOutput();
+    canReadStandardError();
 
     processState = QProcess::Finishing;
     emit q->stateChanged(processState);
+    emit q->finishing();
 
     if (crashed) {
         processError = QProcess::Crashed;
@@ -234,11 +235,6 @@ void QProcessPrivate::startupNotification()
         cleanup();
     }
 }
-
-#ifndef Q_WS_WIN
-void QProcessPrivate::notified()
-{ }
-#endif // Q_WS_WIN
 
 QProcess::QProcess(QObject *parent)
     : QIODevice(*new QProcessPrivate, parent)
@@ -299,11 +295,15 @@ bool QProcess::flush()
     Q_D(QProcess);
 
     while (!d->writeBuffer.isEmpty()) {
-        if (!d->waitForWrite()) {
+        if (!d->waitForWrite())
             return false;
-        }
-        d->readyWrite();
+        d->canWrite();
     }
+    return true;
+}
+
+bool QProcess::isSequential() const
+{
     return true;
 }
 
@@ -378,11 +378,11 @@ bool QProcess::waitForReadyRead(int msecs)
     bool emitReadyRead = false;
     if (d->processChannel == QProcess::StandardOutput) {
         int size = d->outputReadBuffer.size();
-        d->readyReadStandardOutput();
+        d->canReadStandardOutput();
         emitReadyRead = (size < d->outputReadBuffer.size());
     } else {
         int size = d->errorReadBuffer.size();
-        d->readyReadStandardError();
+        d->canReadStandardError();
         emitReadyRead = (size < d->errorReadBuffer.size());
     }
     if (emitReadyRead) {
@@ -390,6 +390,12 @@ bool QProcess::waitForReadyRead(int msecs)
         return true;
     }
     return false;
+}
+
+bool QProcess::waitForBytesWritten(int msecs)
+{
+    Q_D(QProcess);
+    return d->waitForBytesWritten(msecs);
 }
 
 bool QProcess::waitForFinished(int msecs)
@@ -480,6 +486,11 @@ QByteArray QProcess::readAllStandardError()
 void QProcess::start(const QString &program, const QStringList &arguments)
 {
     Q_D(QProcess);
+    if (d->processState != NotRunning) {
+        qWarning("QProcess::start() called when a process is already running.");
+        return;
+    }
+
     setOpenMode(QIODevice::ReadWrite);
 
     d->program = program;
