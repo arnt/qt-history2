@@ -61,3 +61,9 @@ INSTALLS        += target
 mkspecs.path=$$data.path/mkspecs
 mkspecs.files=$$QT_SOURCE_TREE/mkspecs
 INSTALLS        += mkspecs
+
+*-g++:profiling {
+  QMAKE_CFLAGS = -pg
+  QMAKE_CXXFLAGS = -pg
+  QMAKE_LFLAGS = -pg
+}
