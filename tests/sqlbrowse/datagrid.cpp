@@ -20,7 +20,7 @@ DataGrid::~DataGrid()
 
 void DataGrid::take( QSqlRowset* r, bool autoCreate )
 {
-    setUpdatesEnabled( FALSE );    
+    setUpdatesEnabled( FALSE );
     setNumRows(0);
     setNumCols(0);
     colIndex.clear();
@@ -38,17 +38,20 @@ void DataGrid::take( QSqlRowset* r, bool autoCreate )
 void DataGrid::addColumn( const QSqlField& field )
 {
     if ( field.isVisible() && !field.isPrimaryIndex() ) {
-	setNumCols( numCols() + 1 );	
+	setNumCols( numCols() + 1 );
 	colIndex.append( field.fieldNumber() );
-	QHeader* h = horizontalHeader();    
+	QHeader* h = horizontalHeader();
 	h->setLabel( numCols()-1, field.name() );
     }
-} 
+}
 
 void DataGrid::removeColumn( uint col )
 {
+    if ( col >= (uint)numCols() )
+	return;
     QHeader* h = horizontalHeader();    
-    h->removeLabel( col );
+    for ( uint i = col; i < (uint)numCols()-1; ++i )
+	h->setLabel( i, h->label(i+1) );
     setNumCols( numCols()-1 );
     ColIndex::Iterator it = colIndex.at( col );
     if ( it != colIndex.end() )
@@ -61,7 +64,7 @@ void DataGrid::setColumn( uint col, const QSqlField& field )
 	return;
     if ( field.isVisible() && !field.isPrimaryIndex() ) {
 	colIndex[ col ] = field.fieldNumber();
-	QHeader* h = horizontalHeader();    
+	QHeader* h = horizontalHeader();
 	h->setLabel( col, field.name() );
     } else {
 	removeColumn( col );
@@ -86,5 +89,5 @@ QWidget * DataGrid::createEditor( int row, int col, bool initFromCell ) const
     return 0;
     Q_UNUSED( row );
     Q_UNUSED( col );
-    Q_UNUSED( initFromCell );    
+    Q_UNUSED( initFromCell );
 }
