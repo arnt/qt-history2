@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#21 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#21 $";
 #endif
 
 
@@ -97,7 +97,7 @@ Constructs a color with the RGB value (r,g,b).
 */
 
 /*!
-\fn QColor::QColor( ulong rgb, ulong pix=0xffffffff )
+\fn QColor::QColor( ulong rgb, ulong pix )
 Constructs a color with a RGB value and a custom pixel value.
 
 If the \e pix = 0xffffffff, then the color uses this RGB value

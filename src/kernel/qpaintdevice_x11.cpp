@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#33 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#33 $";
 #endif
 
 
@@ -331,7 +331,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 
 /*!
-\fn void bitBlt( QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, RasterOp rop=CopyROP )
+\fn void bitBlt( QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, RasterOp rop )
 Synonymous bitBlt with the destination point \e dp and source rectangle \e sr.
 
 \relates QPaintDevice
