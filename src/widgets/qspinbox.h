@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#2 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#3 $
 **
 ** Definition of QSpinBox widget class
 **
 ** Created : 940206
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -32,8 +32,8 @@ public:
     virtual const char * text( int index ) const;
     int current() const { return c; }
 
-    void setWrapping( bool wrap ) { w = wrap ? 1 : 0; }
-    bool wrapping() const { return (bool)w; }
+    void setWrapping( bool wrap );
+    bool wrapping() const { return w; }
 
     QSize sizeHint() const;
 
@@ -53,11 +53,13 @@ protected:
 
     void doResize( const QSize & );
 
+    void enableButtons();
+
 private:
     int c;
     QStrList * l;
     struct QSpinBoxData * d;
-    uint w : 1;
+    bool w;
     QPushButton * up;
     QPushButton * down;
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#2 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -39,6 +39,8 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
     setFocusPolicy( TabFocus );
     up = new QPushButton( this, "up" );
     down = new QPushButton( this, "down" );
+    up->setFocusPolicy( QWidget::NoFocus );
+    down->setFocusPolicy( QWidget::NoFocus );
     doResize( size() ); // ### work around kernel bug
     if ( style() == WindowsStyle )
 	setFrameStyle( WinPanel | Sunken );
@@ -57,8 +59,7 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
 QSpinBox::~QSpinBox()
 {
     delete l;
-    delete up;
-    delete down;
+    l = 0;
 }
 
 
@@ -76,6 +77,7 @@ void QSpinBox::append( const char * item )
 	l = new QStrList;
 
     l->append( item );
+    enableButtons();
 }
 
 
@@ -95,6 +97,7 @@ void QSpinBox::append( const char ** items )
     int i = 1;
     while ( items[i] )
 	l->append( items[i] );
+    enableButtons();
 }
 
 
@@ -107,7 +110,9 @@ void QSpinBox::append( const char ** items )
 void QSpinBox::clear()
 {
     delete l;
+    l = 0;
     c = 0;
+    enableButtons();
 }
 
 
@@ -122,13 +127,17 @@ const char * QSpinBox::text( int index ) const
 }
 
 
-/*! \fn void QSpinBox::setWrapping( bool wrap )
-
-  Makes the spin box wrap around from the last to the first item of
+/*!  Makes the spin box wrap around from the last to the first item of
   \a wrap is TRUE, or not if not.
 
   \sa wrapping() setCurrent()
 */
+
+void QSpinBox::setWrapping( bool wrap )
+{
+    w = wrap;
+    enableButtons();
+}
 
 
 /*!  Sets the spin box to display item \a i.
@@ -142,8 +151,9 @@ const char * QSpinBox::text( int index ) const
 void QSpinBox::setCurrent( int i )
 {
     c = i;
-    emit selected( text( i ) );
+    enableButtons();
     repaint();
+    emit selected( text( i ) );
 }
 
 
@@ -235,7 +245,9 @@ QSize QSpinBox::sizeHint() const
 {
     QFontMetrics fm = fontMetrics();
     int h = fm.height();
-    int w = 40; // never less that 40 pixels for the value
+    if ( h < 22 ) // enough space for the button pixmaps
+	h = 22;
+    int w = 40; // never less than 40 pixels for the value
 
     if ( l && l->first() ) { // find longest string
 	int lw;
@@ -336,4 +348,15 @@ void QSpinBox::doResize( const QSize & s )
 
     up->move( x, frameWidth() );
     down->move( x, height() - frameWidth() - up->height() );
+}
+
+
+/*!  Set the up and down buttons to enabled or disabled state, as
+  appropriate.
+*/
+
+void QSpinBox::enableButtons()
+{
+    up->setEnabled( l && ( wrapping() || c < (int)l->count()-1 ) );
+    down->setEnabled( l && ( wrapping() || c > 0 ) );
 }
