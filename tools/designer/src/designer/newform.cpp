@@ -43,6 +43,7 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
     ui.treeWidget->header()->hide();
     ui.treeWidget->header()->setStretchLastSection(true);
     ui.lblPreview->setBackgroundRole(QPalette::Base);
+    ui.chkShowOnStartup->setChecked(QDesignerSettings().showNewFormOnStartup());
 
     loadFrom(":/trolltech/designer/templates/forms");
 
@@ -53,6 +54,7 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
 
 NewForm::~NewForm()
 {
+    QDesignerSettings().setShowNewFormOnStartup(ui.chkShowOnStartup->isChecked());
 }
 
 void NewForm::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)

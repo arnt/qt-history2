@@ -41,6 +41,9 @@ public:
     void setUIMode(int mode);
     int uiMode() const;
 
+    void setUseBigIcons(bool useBig);
+    bool useBigIcons() const;
+
 private:
     QStringList defaultFormTemplatePaths() const;
 

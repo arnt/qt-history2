@@ -86,6 +86,8 @@ void QDesignerWorkbench::addFormWindow(QDesignerFormWindow *formWindow)
     // ### Q_ASSERT(formWindow->windowTitle().isEmpty() == false);
 
     m_formWindows.append(formWindow);
+    if (m_windowActions->actions().isEmpty())
+        m_windowMenu->addSeparator();
 
     if (QAction *action = formWindow->action()) {
         m_windowActions->addAction(action);
@@ -98,6 +100,7 @@ void QDesignerWorkbench::addFormWindow(QDesignerFormWindow *formWindow)
 
 void QDesignerWorkbench::initialize()
 {
+    QDesignerSettings settings;
     m_core = new FormEditor(this);
 
     initializeCorePlugins();
@@ -134,14 +137,23 @@ void QDesignerWorkbench::initialize()
         m_editMenu->addAction(action);
     }
 
+    m_editMenu->addSeparator();
+    QMenu *menu = m_editMenu->addMenu(tr("UI &Mode"));
+    foreach (QAction *action, m_actionManager->uiMode()->actions())
+        menu->addAction(action);
+
+
     m_formMenu = m_globalMenuBar->addMenu(tr("F&orm"));
     foreach (QAction *action, m_actionManager->formActions()->actions()) {
         m_formMenu->addAction(action);
     }
 
     m_toolMenu = m_globalMenuBar->addMenu(tr("&Tool"));
+
+    QAction *bigAction = m_actionManager->useBigIconsAction();
+    connect(bigAction, SIGNAL(toggled(bool)), this, SLOT(setUseBigIcons(bool)));
+    m_toolMenu->addAction(bigAction);
     m_toolMenu->addSeparator();
-    m_toolMenu->addAction(m_actionManager->preferences());
 
     m_windowMenu = m_globalMenuBar->addMenu(tr("&Window"));
     foreach (QAction *action, m_actionManager->windowActions()->actions()) {
@@ -152,8 +164,6 @@ void QDesignerWorkbench::initialize()
     foreach (QAction *action, m_actionManager->helpActions()->actions()) {
         m_helpMenu->addAction(action);
     }
-
-    m_windowMenu->addSeparator();
 
     addToolWindow(new QDesignerWidgetBox(this));
     addToolWindow(new QDesignerObjectInspector(this));
@@ -199,6 +209,8 @@ void QDesignerWorkbench::initialize()
         if (action->icon().isNull() == false)
             m_formToolBar->addAction(action);
     }
+
+    changeToolBarIconSize(settings.useBigIcons());
 
     m_geometries.clear();
 
@@ -522,8 +534,17 @@ void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
         m_windowMenu->removeAction(action);
     }
 
-    if (formWindowCount() == 0)
+    if (formWindowCount() == 0) {
         m_actionManager->minimizeAction()->setEnabled(false);
+        QList<QAction *> actions = m_windowMenu->actions();
+        for (int i = actions.size() - 1; i >= 0; --i) {
+            QAction *act = actions.at(i);
+            if (act->isSeparator()) {
+                delete act;
+                break;
+            }
+        }
+    }
 }
 
 void QDesignerWorkbench::initializeCorePlugins()
@@ -657,4 +678,26 @@ void QDesignerWorkbench::updateWindowMenu(AbstractFormWindow *fw)
         return;
     if (QDesignerFormWindow *dfw = qobject_cast<QDesignerFormWindow *>(fw->parentWidget()))
         dfw->action()->setChecked(true);
+}
+
+void QDesignerWorkbench::setUseBigIcons(bool superSizeMe)
+{
+    QDesignerSettings settings;
+    if (settings.useBigIcons() == superSizeMe)
+        return;
+    settings.setUseBigIcons(superSizeMe);
+    changeToolBarIconSize(superSizeMe);
+}
+
+void QDesignerWorkbench::changeToolBarIconSize(bool big)
+{
+    if (big) {
+        m_toolToolBar->setIconSize(QSize(32, 32));
+        m_formToolBar->setIconSize(QSize(32, 32));
+        m_editToolBar->setIconSize(QSize(32, 32));
+    } else {
+        m_toolToolBar->setIconSize(QSize(16, 16));
+        m_formToolBar->setIconSize(QSize(16, 16));
+        m_editToolBar->setIconSize(QSize(16, 16));
+    }
 }

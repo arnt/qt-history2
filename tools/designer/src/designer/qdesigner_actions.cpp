@@ -16,7 +16,6 @@
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
 #include "qdesigner_settings.h"
-#include "qdesigner_settingsdialog.h"
 #include "newform.h"
 #include "saveformastemplate.h"
 
@@ -36,6 +35,7 @@
 #include <QtGui/QActionGroup>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QFileDialog>
+#include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QIcon>
 
@@ -54,6 +54,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     AbstractFormWindowManager *formWindowManager = m_core->formWindowManager();
     Q_ASSERT(formWindowManager != 0);
 
+    QDesignerSettings settings;
     m_fileActions = new QActionGroup(this);
     m_fileActions->setExclusive(false);
 
@@ -201,6 +202,18 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
         }
     }
 
+    m_uiMode = new QActionGroup(this);
+    m_uiMode->setExclusive(true);
+    m_sdiAction = m_uiMode->addAction(tr("Multiple Top-Level Windows"));
+    m_sdiAction->setCheckable(true);
+    m_mdiAction = m_uiMode->addAction(tr("All-in-One Window"));
+    m_mdiAction->setCheckable(true);
+    if (settings.uiMode() == QDesignerWorkbench::WorkspaceMode)
+        m_mdiAction->setChecked(true);
+    else
+        m_sdiAction->setChecked(true);
+    connect(m_uiMode, SIGNAL(triggered(QAction *)), this, SLOT(updateUIMode(QAction *)));
+
 //
 // form actions
 //
@@ -237,8 +250,9 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 //
 // tools actions
 //
-    m_preferences = new QAction(tr("Options..."), this);
-    connect(m_preferences, SIGNAL(triggered()), this, SLOT(editPreferences()));
+    m_useBigIcons = new QAction(tr("Use &Big Toolbar Icons"), this);
+    m_useBigIcons->setCheckable(true);
+    m_useBigIcons->setChecked(settings.useBigIcons());
 
 //
 // window actions
@@ -373,9 +387,6 @@ QAction *QDesignerActions::sendToBackAction() const
 QAction *QDesignerActions::bringToFrontAction() const
 { return m_bringToFrontAction; }
 
-QAction *QDesignerActions::preferences() const
-{ return m_preferences; }
-
 QAction *QDesignerActions::mainHelpAction() const
 { return m_mainHelpAction; }
 
@@ -497,15 +508,11 @@ void QDesignerActions::notImplementedYet()
     QMessageBox::information(core()->topLevel(), tr("Designer"), tr("Feature not implemented yet!"));
 }
 
-void QDesignerActions::editPreferences()
+void QDesignerActions::updateUIMode(QAction *act)
 {
-    QDesignerSettingsDialog *dlg = new QDesignerSettingsDialog(workbench(), core()->topLevel());
-    dlg->show();
-}
-
-void QDesignerActions::handlePreferenceChange()
-{
-    m_workbench->setUIMode(QDesignerWorkbench::UIMode(QDesignerSettings().uiMode()));
+    QDesignerSettings settings;
+    settings.setUIMode(act == m_sdiAction ? QDesignerWorkbench::TopLevelMode : QDesignerWorkbench::WorkspaceMode);
+    m_workbench->setUIMode(QDesignerWorkbench::UIMode(settings.uiMode()));
 }
 
 void QDesignerActions::previewForm()
@@ -795,3 +802,12 @@ void QDesignerActions::aboutDesigner()
     mb.exec();
 
 }
+
+QActionGroup *QDesignerActions::uiMode() const
+{
+    return m_uiMode;
+}
+
+
+QAction *QDesignerActions::useBigIconsAction() const
+{ return m_useBigIcons; }

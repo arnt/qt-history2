@@ -188,3 +188,19 @@ int QDesignerSettings::uiMode() const
 {
     return value("UI/currentMode", QDesignerWorkbench::TopLevelMode).toInt();
 }
+
+void QDesignerSettings::setUseBigIcons(bool useBig)
+{
+    setValue("UI/useBigIcons", useBig);
+}
+
+bool QDesignerSettings::useBigIcons() const
+{
+    return value("UI/useBigIcons",
+#ifdef Q_WS_MAC
+                 true
+#else
+                 false
+#endif
+            ).toBool();
+}

@@ -47,6 +47,9 @@ public:
     QActionGroup *windowActions() const;
     QActionGroup *toolActions() const;
     QActionGroup *helpActions() const;
+    QActionGroup *uiMode() const;
+
+    QAction *useBigIconsAction() const;
 
 //
 // file actions
@@ -71,8 +74,6 @@ public:
     QAction *selectAllAction() const;
     QAction *sendToBackAction() const;
     QAction *bringToFrontAction() const;
-
-    QAction *preferences() const;
 
 //
 // edit mode actions
@@ -112,6 +113,9 @@ public slots:
     void activeFormWindowChanged(AbstractFormWindow *formWindow);
     void createForm();
 
+signals:
+    void useBigIcons(bool);
+
 private slots:
     void openForm();
     void saveForm();
@@ -119,18 +123,17 @@ private slots:
     void saveFormAsTemplate();
     void previewForm();
     void notImplementedYet();
-    void editPreferences();
     void shutdown();
     void editWidgets();
     void openRecentForm();
     void clearRecentFiles();
     void closeForm();
-    void handlePreferenceChange();
     void minimizeForm();
     void bringAllToFront();
     void showDesignerHelp();
     void showWhatsNew();
     void aboutDesigner();
+    void updateUIMode(QAction *act);
 
 private:
     bool saveFormAs(AbstractFormWindow *fw);
@@ -152,6 +155,7 @@ private:
     QActionGroup *m_windowActions;
     QActionGroup *m_toolActions;
     QActionGroup *m_helpActions;
+    QActionGroup *m_uiMode;
 
     QAction *m_editWidgetsAction;
 
@@ -173,7 +177,6 @@ private:
     QAction *m_bringToFrontAction;
     QAction *m_selectAllAction;
 
-    QAction *m_preferences;
 
     QAction *m_layoutHorizontallyAction;
     QAction *m_layoutVerticallyAction;
@@ -191,6 +194,10 @@ private:
     QAction *m_whatsNewAction;
     QAction *m_aboutQtAction;
     QAction *m_aboutDesignerAction;
+    QAction *m_mdiAction;
+    QAction *m_sdiAction;
+
+    QAction *m_useBigIcons;
 };
 
 #endif // QDESIGNER_ACTIONS_H
