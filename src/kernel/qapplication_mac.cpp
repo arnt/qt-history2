@@ -117,7 +117,6 @@ QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac fi
 #if defined(QT_DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
-
 static EventLoopTimerRef mac_select_timer = NULL;
 static EventLoopTimerUPP mac_select_timerUPP = NULL;
 static EventHandlerRef app_proc_handler = NULL;
@@ -128,12 +127,65 @@ static EventHandlerUPP app_proc_handlerUPP = NULL;
 static bool qt_closed_popup = FALSE;
 EventRef qt_replay_event = NULL;
 
+
+//Input Method stuff
+class QMacInputMethod {
+    bool composing;
+    QWidget *widget;
+    TSMDocumentID id;
+public:
+    QMacInputMethod() : composing(FALSE), widget(NULL), id(0) { }
+    ~QMacInputMethod() { endCompose(); }
+
+    QWidget *getWidget() const { return composing ? widget : NULL; }
+    void endCompose();
+    void startCompose(QWidget *);
+};
+void QMacInputMethod::endCompose() 
+{
+    if(!composing)
+	return;
+    if(id) {
+	DeleteTSMDocument(id);
+	DeactivateTSMDocument(id);
+    }
+    id = 0;
+    if(widget) {
+	QIMEvent event(QEvent::IMEnd, QString::null, -1);
+	QApplication::sendEvent(widget, &event);
+    }
+    widget = NULL;
+}
+void QMacInputMethod::startCompose(QWidget *w)
+{
+    if(composing && w == widget)
+	return;
+    endCompose();
+    composing = TRUE;
+    widget = w;
+    OSType doc = kUnicodeDocument;
+    OSErr err = NewTSMDocument(1, &doc, &id, (long int)w);
+    if(err != noErr) {
+	qDebug("%s:%d %d", __FILE__, __LINE__, err);
+    } else {
+	UseInputWindow(id, TRUE); //non-inline
+	err = ActivateTSMDocument(id);
+	if(err != noErr)
+	    qDebug("%s:%d %d", __FILE__, __LINE__, err);
+	else
+	    qDebug("all systems go..");
+    }
+}
+static QMacInputMethod qt_app_im;
+
 void qt_mac_destroy_widget(QWidget *w)
 {
     if(qt_button_down == w)
 	qt_button_down = NULL;
     if(qt_mouseover == w)
 	qt_mouseover = NULL;
+    if(w == qt_app_im.getWidget())
+	qt_app_im.endCompose();
 }
 
 bool qt_nograb()				// application no-grab option
@@ -1722,13 +1774,23 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		}
 	    }
 	    if(!isAccel) {
-		if((modifiers & (Qt::ControlButton | Qt::AltButton)) || (mychar > 127 || mychar < 0)) {
-		    mystr = QString();
-		    chr = 0;
+		if((modifiers & Qt::ControlButton) && mychar == ' ') { //eat it
+		    if(etype == QEvent::KeyPress) {
+			QIMEvent event(QEvent::IMStart, QString::null, -1);
+			QApplication::sendEvent(widget, &event);
+			if(event.isAccepted())
+			    qt_app_im.startCompose(widget);
+		    }
+		} else {
+		    if((modifiers & (Qt::ControlButton | Qt::AltButton)) || 
+		       (mychar > 127 || mychar < 0)) {
+			mystr = QString();
+			chr = 0;
+		    }
+		    QKeyEvent ke(etype,mychar, chr, modifiers, 
+				 mystr, ekind == kEventRawKeyRepeat, mystr.length());
+		    QApplication::sendEvent(widget,&ke);
 		}
-
-		QKeyEvent ke(etype,mychar, chr, modifiers, mystr, ekind == kEventRawKeyRepeat, mystr.length());
-		QApplication::sendEvent(widget,&ke);
 	    }
 	}
 	break;
