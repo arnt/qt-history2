@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** This is a utility program for translating Qt applications
 **
@@ -126,7 +126,7 @@ void QTConfig::clearGroup()
     ( *git ).clear();
 }
 
-void QTConfig::write( const QString &fn = QString::null )
+void QTConfig::write( const QString &fn )
 {
     if ( !fn.isEmpty() )
         filename = fn;
