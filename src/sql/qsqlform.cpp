@@ -1,3 +1,39 @@
+/****************************************************************************
+**
+** Implementation of QSqlForm class
+**
+** Created : 001103
+**
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the sql module of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #include "qcleanuphandler.h"
 #include "qobjcoll.h"
 #include "qsqldatabase.h"
@@ -15,12 +51,12 @@
 /*!
   \class QSqlPropertyMap qsqlform.h
   \module sql
-  \brief A class used for mapping editor values to database fields in 
+  \brief A class used for mapping editor values to database fields in
   QSqlForm and QSqlTable
 
   This class is used to map SQL editor class names to the properties
   used to insert and extract values into and from the editor.
-  
+
   For instance, a QLineEdit is used to edit text strings and other
   data types in QSqlTable and QSqlForm. QLineEdit defines several
   properties, but it is only the "text" property that is used to
@@ -28,17 +64,17 @@
   wants to edit a field which uses a QLineEdit as its editor, a
   quick look in this map tells the table to use the "text" property to
   set/get values from the editor.
-  
+
   If you want to use custom editors with your QSqlTable or QSqlForm,
   you have to install your own QSqlPropertyMap for that table/form.
   Example:
-  
+
   \code
   MyEditorFactory myFactory;
   QSqlCursor cursor( "mytable" );
   QSqlForm form;
   QSqlPropertyMap myMap;
-  
+
   myMap.insert( "MySuperEditor", "content" );
   form.installPropertyMap( &map );
   form.installEditorFactory( &myFactory );
@@ -46,14 +82,14 @@
   // Generate form, which uses MySuperEditor for special fields
   form.populate( myWidget, cursor, cursor->updateBuffer() );
   \endcode
-  
+
   \sa QSqlTable, QSqlForm, QSqlEditorFactory
 */
 
 /*!
-  
+
   Constructs a QSqlPropertyMap.
-  
+
  */
 QSqlPropertyMap::QSqlPropertyMap()
 {
@@ -72,7 +108,7 @@ QSqlPropertyMap::QSqlPropertyMap()
 /*!
 
   Returns thw property of \a widget as a QVariant.
-  
+
 */
 QVariant QSqlPropertyMap::property( QWidget * widget )
 {
@@ -87,7 +123,7 @@ QVariant QSqlPropertyMap::property( QWidget * widget )
 /*!
 
   Sets the property associated with \a widget to \a value.
-  
+
 */
 void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
 {
@@ -103,7 +139,7 @@ void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
   Insert a new classname/property pair, which is used for custom SQL
   field editors. There ust be a Q_PROPERTY clause in the \a classname
   class declaration for the \a property.
-  
+
 */
 void QSqlPropertyMap::insert( const QString & classname,
 			      const QString & property )
@@ -114,7 +150,7 @@ void QSqlPropertyMap::insert( const QString & classname,
 /*!
 
   Removes a classname/property pair from the map.
-  
+
 */
 void QSqlPropertyMap::remove( const QString & classname )
 {
@@ -144,7 +180,7 @@ QSqlPropertyMap * QSqlPropertyMap::defaultMap()
 
   This class is used by the QSqlForm to manage the mapping between SQL
   data fields and actual widgets.
-  
+
  */
 
 /*!
@@ -270,7 +306,7 @@ QSqlField * QSqlFormMap::widgetToField( QWidget * widget ) const
 /*!
 
   Update the widgets in the map with values from the associated fields.
-  
+
 */
 void QSqlFormMap::readRecord()
 {
@@ -309,19 +345,19 @@ void QSqlFormMap::writeRecord()
 
   \module sql
 
-  This class is used to create and manage data entry forms. 
-  
+  This class is used to create and manage data entry forms.
+
   Populate the form with widgets created by the QSqlEditorFactory
   class to get the proper widget for a certain data field. Use the
   populate() function generate a form automatically. The generated
   form contains a label and an editor for each field in the
   QSqlRecord.
-  
+
   The form needs a valid QSqlCursor on which to perform its operations
   like insert, update and delete.
-  
+
   Some sample code to initialize a form successfully:
-  
+
   \code
   QSqlForm form;
   QSqlEditorFactory * factory = QSqlEditorFactory::defaultFactory();
@@ -336,22 +372,22 @@ void QSqlFormMap::writeRecord()
 
   // Get the insert buffer from the cursor
   QSqlRecord* buf = myCursor.insertBuffer();
-  
+
   // Associate the newly created widget with field 0 in myCursor
   form.associate( w, buf->field( 0 ) );
 
   // Now, update the contents of the form from the fields in the form.
   form.readRecord();
-  
+
   // edit/save record, etc...
-  
+
   \endcode
 
   If you want to use custom editors for displaying/editing data
   fields, you will have to install a custom QSqlPropertyMap. The form
   uses this object to get or set the value of a widget (ie. the text
   in a QLineEdit, the index in a QComboBox).
-  
+
   \sa installPropertyMap(), QSqlPropertyMap
 */
 
@@ -374,7 +410,7 @@ QSqlForm::QSqlForm( QObject * parent, const char * name )
 
   \sa populate()
 */
-QSqlForm::QSqlForm( QWidget * widget, QSqlRecord * fields, uint columns, 
+QSqlForm::QSqlForm( QWidget * widget, QSqlRecord * fields, uint columns,
 		    QObject * parent, const char * name )
     : QObject( parent, name ),
       readOnly( FALSE ),
@@ -394,7 +430,7 @@ QSqlForm::~QSqlForm()
 /*!
 
   Associates a widget with a database field.
-  
+
 */
 void QSqlForm::associate( QWidget * widget, QSqlField * field )
 {
@@ -457,7 +493,7 @@ bool QSqlForm::isReadOnly() const
   Refresh the widgets in the form with values from the associated SQL
   cursor. Also emits the stateChanged() signal to indicate that the
   form state has changed.
-  
+
 */
 void QSqlForm::readRecord()
 {
@@ -498,7 +534,7 @@ void QSqlForm::populate( QWidget * widget, QSqlRecord* fields, uint columns )
 
     if( !widget || !fields ) return;
 
-    QSqlEditorFactory * f = (factory == 0) ? 
+    QSqlEditorFactory * f = (factory == 0) ?
 			    QSqlEditorFactory::defaultFactory() : factory;
     QWidget * editor;
     QLabel * label;
@@ -528,7 +564,7 @@ void QSqlForm::populate( QWidget * widget, QSqlRecord* fields, uint columns )
 	    currentCol += 2;
 	}
 
-	if( fields->field( j )->isPrimaryIndex() || 
+	if( fields->field( j )->isPrimaryIndex() ||
 	    !fields->field( j )->isVisible() )
 	{
 	    continue;

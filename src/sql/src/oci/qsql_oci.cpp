@@ -1,3 +1,39 @@
+/****************************************************************************
+**
+** Implementation of OCI driver classes
+**
+** Created : 001103
+**
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the sql module of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #include "qsql_oci.h"
 
 #define OCIEXTP_ORACLE // not needed
@@ -168,7 +204,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     if ( r != 0 )
 	qWarning( "qMakeOraField: " + qOraWarn( p ) );
 #endif
-    
+
     r = OCIAttrGet( (dvoid*) param,
 		    OCI_DTYPE_PARAM,
 		    &colPrecision,
@@ -179,7 +215,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     if ( r != 0 )
 	qWarning( "qMakeOraField: " + qOraWarn( p ) );
 #endif
-    
+
     r = OCIAttrGet( (dvoid*) param,
 		    OCI_DTYPE_PARAM,
 		    &colScale,
@@ -272,7 +308,7 @@ public:
 	ind.setAutoDelete( TRUE );
 	typ.setAutoDelete( TRUE );
 	def.setAutoDelete( FALSE );
-	
+
 	ub4 dataSize(0);
 	OCIDefine* dfn;
 	int r;
@@ -285,7 +321,7 @@ public:
 				  d->err,
 				  (void**)&param,
 				  count );
-	
+
 	while ( parmStatus == OCI_SUCCESS ) {
 	    OraFieldInfo ofi = qMakeOraField( d, param );
 	    dataSize = ofi.oraLength;
@@ -595,7 +631,7 @@ bool QOCIResult::cacheNext()
     int r = 0;
     r = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
     if ( r == OCI_NEED_DATA ) { /* piecewise */
-	OCIDefine 	*dfn;	
+	OCIDefine 	*dfn;
 	ub4            typep;
 	ub1            in_outp;
 	ub4            iterp;
@@ -606,9 +642,9 @@ bool QOCIResult::cacheNext()
 				 (dvoid**) &dfn,
 				 &typep,
 				 &in_outp,
-				 &iterp, 
+				 &iterp,
 				 &idxp,
-				 &piecep );	
+				 &piecep );
 	switch ( piecep ) {
 	case OCI_FIRST_PIECE:
 	    qDebug("first piece");

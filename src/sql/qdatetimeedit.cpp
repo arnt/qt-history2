@@ -1,3 +1,39 @@
+/****************************************************************************
+**
+** Implementation of date and time edit classes
+**
+** Created : 001103
+**
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the sql module of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #include "qdatetimeedit.h"
 
 #ifndef QT_NO_SQL
@@ -53,7 +89,7 @@ void QDateTimeEditBase::init()
 	setFrameStyle( Panel | Sunken );
     setLineWidth( 2 );
 
-    QPalette p = palette();    
+    QPalette p = palette();
     p.setBrush( QPalette::Inactive, QColorGroup::Background,
 		palette().inactive().brush( QColorGroup::Background ) );
     p.setBrush( QPalette::Active, QColorGroup::Background,
@@ -66,10 +102,10 @@ void QDateTimeEditBase::init()
 
     sep[0] = new QLabel( this );
     sep[1] = new QLabel( this );
-    
+
     // sep[0]->setBackgroundMode( PaletteBase );
     // sep[1]->setBackgroundMode( PaletteBase );
-    
+
     up   = new QPushButton( this );
     up->setFocusPolicy( QWidget::NoFocus );
     up->setAutoDefault( FALSE );
@@ -79,7 +115,7 @@ void QDateTimeEditBase::init()
     down->setFocusPolicy( QWidget::NoFocus );
     down->setAutoDefault( FALSE );
     down->setAutoRepeat( TRUE );
-    
+
     connect( up, SIGNAL( clicked() ), SLOT( stepUp() ) );
     connect( down, SIGNAL( clicked() ), SLOT( stepDown() ) );
 
@@ -102,7 +138,7 @@ QSize QDateTimeEditBase::sizeHint() const
     int w = 35; 	// minimum width for the value
     int wx = fm.width( ' ' )*2;
     QString s;
-    s = ed[0]->text() + sep[0]->text() +ed[1]->text() + sep[1]->text() + 
+    s = ed[0]->text() + sep[0]->text() +ed[1]->text() + sep[1]->text() +
 	ed[2]->text();
     w = QMAX( w, fm.width( s ) + wx);
     QSize r( h // buttons AND frame both sides - see resizeevent()
@@ -673,7 +709,7 @@ void QDateTimeEdit::init()
     te = new QTimeEdit( this );
     hb->addWidget( de );
     hb->addWidget( te );
-    setFocusProxy( de );    
+    setFocusProxy( de );
 }
 
 /*!
