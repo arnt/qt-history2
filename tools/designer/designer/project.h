@@ -244,7 +244,7 @@ private:
     PixmapCollection *pixCollection;
     QList<SourceFile*> sourcefiles;
     QList<FormFile*> formfiles;
-    QMap<QString, QString> inclPath, defs, lbs, cfg;
+    QMap<QString, QString> inclPath, defs, lbs, cfg, sources, headers;
     QString templ;
     bool isDummyProject;
     bool modified;

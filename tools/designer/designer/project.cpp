@@ -319,6 +319,8 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
     if ( start )
 	*start = -1;
     QString lastWord;
+    // Account for things like win32: SOURCES
+    int extraWhiteSpaceCount = 0;
     int braceCount = 0;
     for ( int i = 0; i < (int)contents.length(); ++i ) {
 	QChar c( contents[ i ] );
@@ -331,7 +333,15 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
 	    braceCount--;
 	    lastWord = "";
 	    break;
-	case ' ': case '\t': case '\\': case '\n':
+	case ' ': case '\t':
+	    if (!key.startsWith(lastWord)) {
+		lastWord = "";
+		extraWhiteSpaceCount = 0;
+	    } else {
+		extraWhiteSpaceCount++;
+	    }
+	    break;
+	case '\\': case '\n':
 	    lastWord = "";
 	    break;
 	default:
@@ -341,7 +351,7 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
 	// ### we should read the 'bla { SOURCES= ... }' stuff as well (braceCount > 0)
 	if ( lastWord == key && braceCount == 0 ) {
 	    if ( start )
-		*start = i - lastWord.length() + 1;
+		*start = i - lastWord.length() - extraWhiteSpaceCount + 1;
 	    QStringList lst;
 	    bool inName = FALSE;
 	    QString currName;
@@ -430,6 +440,8 @@ void Project::parse()
     readPlatformSettings( contents, "LIBS", lbs );
     readPlatformSettings( contents, "INCLUDEPATH", inclPath );
     readPlatformSettings( contents, "DEFINES", defs );
+    readPlatformSettings( contents, "SOURCES", sources );
+    readPlatformSettings( contents, "HEADERS", headers );
 
     LanguageInterface *iface = MetaDataBase::languageInterface( lang );
     if ( iface ) {
@@ -620,6 +632,8 @@ void Project::save( bool onlyProjectFile )
 	removePlatformSettings( contents, "DEFINES" );
 	removePlatformSettings( contents, "LIBS" );
 	removePlatformSettings( contents, "INCLUDEPATH" );
+	removePlatformSettings( contents, "SOURCES" );
+	removePlatformSettings( contents, "HEADERS" );
 	remove_multiline_contents( contents, "FORMS" );
 	remove_multiline_contents( contents, "INTERFACES" ); // compatibility
 	remove_multiline_contents( contents, "IMAGES" );
@@ -656,6 +670,8 @@ void Project::save( bool onlyProjectFile )
     writePlatformSettings( contents, "LIBS", lbs );
     writePlatformSettings( contents, "DEFINES", defs );
     writePlatformSettings( contents, "INCLUDEPATH", inclPath );
+    writePlatformSettings( contents, "SOURCES", sources );
+    writePlatformSettings( contents, "HEADERS", headers );
 
     // unix
     if ( !hasPreviousContents ) {
@@ -1219,7 +1235,12 @@ void Project::writePlatformSettings( QString &contents, const QString &setting,
 				     const QMap<QString, QString> &input )
 {
     const QString platforms[] = { "", "win32", "unix", "mac", QString::null };
-    for ( int i = 0; platforms[ i ] != QString::null; ++i ) {
+    int i;
+    if (setting == "SOURCES") // The (all) part will be saved later on
+	i = 1;
+    else
+	i = 0;
+    for ( i; platforms[ i ] != QString::null; ++i ) {
 	QString p = platforms[ i ];
 	if ( !p.isEmpty() )
 	    p += ":";
