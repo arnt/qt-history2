@@ -349,13 +349,15 @@ bool Project::DatabaseConnection::connect( bool keepOpen )
 {
     // register our name, if nec
     if ( name == "(default)" ) {
-	connection = QSqlDatabase::database();
-	if ( !connection )
+	if ( !QSqlDatabase::contains() ) // default doesn't exists?
 	    connection = QSqlDatabase::addDatabase( driver );
+	else
+	    connection = QSqlDatabase::database();
     } else {
-	connection = QSqlDatabase::database( name );
-	if ( !connection )
+	if ( !QSqlDatabase::contains( name ) )
 	    connection = QSqlDatabase::addDatabase( driver, name );
+	else
+	    connection = QSqlDatabase::database( name );
     }
     connection->setDatabaseName( dbName );
     connection->setUserName( username );
