@@ -9,10 +9,17 @@ CppEditorCompletion::CppEditorCompletion( Editor *e )
 {
 }
 
-bool CppEditorCompletion::doObjectCompletion( const QString &object )
+bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 {
     if ( !ths )
 	return FALSE;
+    QString object( objName );
+    int i = -1;
+    if ( ( i = object.findRev( "->" ) ) != -1 )
+	object = object.mid( i + 2 );
+    if ( ( i = object.findRev( "." ) ) != -1 )
+	object = object.mid( i + 1 );
+    object = object.simplifyWhiteSpace();
     QObject *obj = 0;
     if ( ths->name() == object || object == "this" ) {
 	obj = ths;
@@ -44,8 +51,11 @@ bool CppEditorCompletion::doObjectCompletion( const QString &object )
     }
 
     if ( obj->children() ) {
-	for ( QObjectListIt cit( *obj->children() ); cit.current(); ++cit )
-	    lst << cit.current()->name();
+	for ( QObjectListIt cit( *obj->children() ); cit.current(); ++cit ) {
+	    QString s( cit.current()->name() );
+	    if ( s.find( " " ) == -1 && s.find( "qt_" ) == -1 )
+		lst << s;
+	}
     }
     lst = lst.grep( QRegExp( "[^unnamed]" ) ); // filter out unnamed objects
     if ( lst.isEmpty() )
