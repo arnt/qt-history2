@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/gifanim/gifanim.cpp#2 $
+** $Id: //depot/qt/main/util/gifanim/gifanim.cpp#3 $
 **
 ** C++ file skeleton
 **
@@ -126,8 +126,8 @@ bool write_gif_animation( QIODevice* iod, QImage *images, unsigned int count )
     int x, y;
 
     const int delay_time = 30;
-    const int dithermode = PreferDither|ThresholdDither;
-    //const int dithermode = PreferDither|OrderedDither;
+    //const int dithermode = Qt::PreferDither|Qt::ThresholdDither;
+    const int dithermode = Qt::PreferDither|Qt::OrderedDither;
     const int loop_count = 1;  // Infinite
 
     unsigned int i;

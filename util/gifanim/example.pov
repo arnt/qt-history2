@@ -3,12 +3,12 @@
 
 plane {
     -z,-0.7
-    pigment { rgb <1,1,1>*1.225 }
+    pigment { rgb <1,1,1>*1.43 }
 }
 
 #declare Font = "timesbd.ttf"
 
-/*
+/**/
 union {
     text { ttf Font "Troll", 0.2, 0.0 translate <0,1,0> }
     text { ttf Font "Tech", 0.2, 0.0 }
@@ -24,7 +24,7 @@ union {
     translate <-0.1,-0.8,0.6>
     scale 0.9
 }
-*/
+/**/
 
 #declare R = 0.07
 union {
@@ -65,14 +65,14 @@ union {
 }
 
 camera {
-    location <-0.7,0,-2.9>
+    location <0,0,-2.9>
     direction z*1.5
-    right x
-    look_at <-0.7,0,0>
+    right x*2
+    look_at <0,0,0>
 }
 
 light_source {
-    <-5,4,-13>*1000
+    <-10,4,-13>*1000
     colour rgb<1,1,1>
     area_light x*1000,y*1000,4,4
     adaptive 1
