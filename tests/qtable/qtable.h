@@ -30,7 +30,7 @@ public:
     QTableItem( QTable *table, const QString &t, const QPixmap p )
 	: txt( t ), pix( p ), t( table ) {}
     virtual ~QTableItem() {}
-    
+
     virtual QPixmap pixmap() const;
     virtual QString text() const;
     virtual void setPixmap( const QPixmap &p );
@@ -40,25 +40,25 @@ public:
     virtual void setContentFromEditor( QWidget *w );
 
     virtual int alignment() const;
-    
+
 protected:
-    virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr );
-    
+    virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
+
 private:
     QString txt;
     QPixmap pix;
     QTable *t;
-    
+
 };
 
 class QTable : public QScrollView
 {
     Q_OBJECT
     friend class QTableItem;
-    
+
 public:
     enum EditMode { NotEditing, Editing, Replacing };
-    
+
     QTable( int numRows, int numCols, QWidget* parent=0, const char* name=0 );
     ~QTable();
 
@@ -69,7 +69,7 @@ public:
     QString cellText( int row, int col ) const;
     QPixmap cellPixmap( int row, int col ) const;
     virtual void clearCell( int row, int col );
-    
+
     virtual QRect cellGeometry( int row, int col ) const;
     virtual int columnWidth( int col ) const;
     virtual int rowHeight( int row ) const;
@@ -86,24 +86,27 @@ public:
 
     virtual void setDefaultValidator( QValidator *validator );
     virtual QValidator *defaultValidator() const;
-    QWidget *editor( int row, int col, bool initFromCell ) const;    
+    QWidget *editor( int row, int col, bool initFromCell ) const;
     virtual void beginEdit( int row, int col, bool replace );
-    virtual void endEdit( int row, int col, bool accept, QWidget *editor );    
+    virtual void endEdit( int row, int col, bool accept, QWidget *editor );
     virtual void setCellContentFromEditor( int row, int col, QWidget *editor );
     bool isEditing() const;
     EditMode editMode() const;
-    
+
     bool eventFilter( QObject * o, QEvent * );
 
     void setCurrentCell( int row, int col );
     int currentRow() const { return curRow; }
     int currentCol() const { return curCol; }
-     
+
+    bool isSelected( int row, int col );
+    
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
     void contentsMouseMoveEvent( QMouseEvent* );
     void contentsMouseDoubleClickEvent( QMouseEvent* );
+    void contentsMouseReleaseEvent( QMouseEvent* );
     void keyPressEvent( QKeyEvent* );
     void focusInEvent( QFocusEvent* );
     void focusOutEvent( QFocusEvent* );
@@ -119,12 +122,29 @@ protected slots:
 
 signals:
     void currentChanged( int row, int col );
-    
+
 private:
-    void paintCell( QPainter *p, int row, int col, const QRect &cr );
+    struct SelectionRange
+    {
+	SelectionRange() 
+	    : active( FALSE ), topRow( -1 ), leftCol( -1 ), bottomRow( -1 ), 
+	      rightCol( -1 ), anchorRow( -1 ), anchorCol( -1 ) {}
+	void init( int row, int col );
+	void expandTo( int row, int col );
+	
+	bool active;
+	int topRow, leftCol, bottomRow, rightCol;
+	int anchorRow, anchorCol;
+    };
+
+    void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
     int indexOf( int row, int col ) const;
     void updateGeometries();
-
+    void repaintSelections( SelectionRange oldSelection );
+    void clearSelections();
+    QRect rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol );
+    void activateNextCell();
+    
 private:
     QVector<QTableItem> contents;
     int curRow;
@@ -134,32 +154,34 @@ private:
     EditMode edMode;
     int editCol, editRow;
     QWidget *editorWidget;
+    QValueList<SelectionRange> selections;
+    SelectionRange currentSelection;
     
 };
 
 class QTableHeader : public QHeader
 {
     Q_OBJECT
-    
+
 public:
     enum SectionState {
 	Normal,
 	Bold,
 	Selected
     };
-    
+
     QTableHeader( QWidget *parent=0, const char *name=0 );
     QTableHeader( int, QWidget *parent=0, const char *name=0 );
-    
+
     void setSectionState( int s, SectionState state );
     SectionState sectionState( int s ) const;
 
 protected:
     void paintEvent( QPaintEvent *e );
-    
+
 private:
     QArray<SectionState> states;
-    
+
 };
 
 #endif // TABLE_H
