@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#49 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#49 $");
 
 
 /*!
@@ -337,7 +337,10 @@ void QFrame::updateFrameWidth()
 
 QRect QFrame::frameRect() const
 {
-    return frect.isNull() ? rect() : frect;
+    if ( frect.isNull() )
+	return rect();
+    else
+	return frect;
 }
 
 
