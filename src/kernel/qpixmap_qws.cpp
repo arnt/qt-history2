@@ -644,45 +644,47 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ws = width();
     hs = height();
 
-    QWMatrix mat = trueMatrix( matrix, ws, hs ); // true matrix
+    QWMatrix mat( matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0. );
 
-    // calculate new width and height
-    QPointArray a( QRect(0,0,ws,hs) );
-    a = mat.map( a );
-    QRect r = a.boundingRect().normalize();
-    w = r.width();
-    h = r.height();
-
-    if ( matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
-	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F &&
-	 depth() == defaultDepth() && // ### stretchBlt limitation
-	 !data->mask
-	)
-    {
-	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
+    if ( matrix.m12() == 0.0F && matrix.m21() == 0.0F ) {
+	if ( matrix.m11() == 1.0F && matrix.m22() == 1.0F )
 	    return *this;			// identity matrix
+	h = qRound( matrix.m22()*hs );
+	w = qRound( matrix.m11()*ws );
+	h = QABS( h );
+	w = QABS( w );
+	if ( matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F &&
+		depth() == defaultDepth() ) // ### stretchBlt limitation
+	{
+	     if ( w==0 || h==0 )
+		 return *this;
 
-	if(w==0 || h==0) {
-	    return *this;
-	}
-
-	QPixmap pm( w, h, depth(), NormalOptim );
-	QGfx * mygfx=pm.graphicsContext();
-	if ( mygfx ) {
-	    mygfx->setSource(this);
-	    mygfx->setAlphaType(QGfx::IgnoreAlpha);
-	    mygfx->stretchBlt(0,0,w,h,ws,hs);
-	    delete mygfx;
-	}
-	if ( data->mask ) {
-	    QBitmap bm =
-		data->selfmask ? *((QBitmap*)(&pm)) :
-					 data->mask->xForm(matrix);
-	    pm.setMask( bm );
-	}
-	return pm;
-
+	     QPixmap pm( w, h, depth(), NormalOptim );
+	     QGfx * mygfx=pm.graphicsContext();
+	     if ( mygfx ) {
+		 mygfx->setSource(this);
+		 mygfx->setAlphaType(QGfx::IgnoreAlpha);
+		 mygfx->stretchBlt(0,0,w,h,ws,hs);
+		 delete mygfx;
+	     }
+	     if ( data->mask ) {
+		 QBitmap bm =
+		     data->selfmask ? *((QBitmap*)(&pm)) :
+		     data->mask->xForm(matrix);
+		 pm.setMask( bm );
+	     }
+	     return pm;
+	 }
+    } else {					// rotation or shearing
+	QPointArray a( QRect(0,0,ws+1,hs+1) );
+	a = mat.map( a );
+	QRect r = a.boundingRect().normalize();
+	w = r.width()-1;
+	h = r.height()-1;
     }
+
+    mat = trueMatrix( mat, ws, hs ); // true matrix
+
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
 
