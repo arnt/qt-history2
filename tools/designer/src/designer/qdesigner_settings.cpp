@@ -75,8 +75,6 @@ void QDesignerSettings::setGeometryFor(QWidget *w, const QRect &fallBack) const
 {
     Q_ASSERT(w && !w->objectName().isEmpty());
     QWidget *widgetToPass = w;
-    if (w->parentWidget())
-        widgetToPass = w->parentWidget();
 
     setGeometryHelper(widgetToPass, w->objectName(),
                       fallBack.isNull() ? QRect(QPoint(0, 0), w->sizeHint()) : fallBack);

@@ -51,8 +51,7 @@ QDesignerWorkbench::QDesignerWorkbench()
 {
     initialize();
 
-    switchToTopLevelMode();
-    // ### setUIMode(UIMode(QDesignerSettings().uiMode()));
+    setUIMode(UIMode(QDesignerSettings().uiMode()));
 }
 
 QDesignerWorkbench::~QDesignerWorkbench()
