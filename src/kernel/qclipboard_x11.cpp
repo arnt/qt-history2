@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#7 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#6 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#7 $")
 
 
 /*****************************************************************************
@@ -364,6 +364,7 @@ bool QClipboard::event( QEvent *e )
 
 	case SelectionClear:			// new selection owner
 	    clipboardData()->clear();
+	    emit dataChanged();
 	    break;
 
 	case SelectionNotify:
