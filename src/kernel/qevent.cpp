@@ -46,7 +46,6 @@
   event classes. Event objects contain event parameters.
 
   \ingroup environment
-  \ingroup event
 
   The main event loop of Qt (QApplication::exec()) fetches
   native window system events from the event queue, translates them
@@ -174,8 +173,6 @@
   \brief The QTimerEvent class contains parameters that describe a
   timer event.
 
-  \ingroup event
-
   Timer events are sent at regular intervals to objects that have
   started one or more timers.  Each timer has a unique identifier.
   A timer is started with  QObject::startTimer().
@@ -205,8 +202,6 @@
   \class QMouseEvent qevent.h
 
   \brief The QMouseEvent class contains parameters that describe a mouse event.
-
-  \ingroup event
 
   Mouse events occur when a mouse button is pressed or released inside a
   widget or when the mouse cursor is moved.
@@ -415,9 +410,6 @@ Qt::ButtonState QMouseEvent::stateAfter() const
   \class QWheelEvent qevent.h
   \brief The QWheelEvent class contains parameters that describe a wheel event.
 
-  \ingroup event
-
-
   Wheel events occur when a mouse wheel is turned while the widget has
   focus.  The rotation distance is provided by delta(). The functions
   pos() and globalPos() return the mouse pointer location at the
@@ -581,8 +573,6 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
   \class QKeyEvent qevent.h
   \brief The QKeyEvent class contains parameters that describe a key event.
 
-  \ingroup event
-
   Key events occur when a key is pressed or released when a widget has
   keyboard input focus.
 
@@ -738,8 +728,6 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   \brief The QFocusEvent class contains event parameters for widget focus
   events.
 
-  \ingroup event
-
   Focus events are sent to widgets when the keyboard input focus
   changes.  This happens due to a mouse action, the Tab or Backtab keys,
   the window system, a keyboard shortcut, or some other application-specific issue. The actual reason for a specific event is obtained by
@@ -825,8 +813,6 @@ void QFocusEvent::resetReason()
   \class QPaintEvent qevent.h
   \brief The QPaintEvent class contains event parameters for paint events.
 
-  \ingroup event
-
   Paint events are sent to widgets that need to update themselves, for
   instance when part of a widget is exposed because an overlying widget is
   moved.
@@ -884,8 +870,6 @@ void QFocusEvent::resetReason()
   \class QMoveEvent qevent.h
   \brief The QMoveEvent class contains event parameters for move events.
 
-  \ingroup event
-
   Move events are sent to widgets that have been moved to a new position
   relative to their parent.
 
@@ -915,9 +899,6 @@ void QFocusEvent::resetReason()
   \class QResizeEvent qevent.h
   \brief The QResizeEvent class contains event parameters for resize events.
 
-  \ingroup event
-
-
   Resize events are sent to widgets that have been resized.
 
   The event handler QWidget::resizeEvent() receives resize events.
@@ -945,8 +926,6 @@ void QFocusEvent::resetReason()
 /*!
   \class QCloseEvent qevent.h
   \brief The QCloseEvent class contains parameters that describe a close event.
-
-  \ingroup event
 
   Close events are sent to widgets that the user wants to close, usually
   by choosing "Close" from the window menu. They are also sent when you
@@ -1039,8 +1018,6 @@ void QFocusEvent::resetReason()
 /*!
   \class QContextMenuEvent qevent.h
   \brief The QContextMenuEvent class contains parameters that describe a context menu event.
-
-  \ingroup event
 
   Context events are sent to widgets when a user triggers a menu. What
   triggers this is platform dependant. On windows, for example, pressing
@@ -1202,8 +1179,6 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   \brief The QChildEvent class contains event parameters for child object
   events.
 
-  \ingroup event
-
   Child events are sent to objects when children are inserted or removed.
 
   A \c ChildRemoved event is sent immediately, but a \c ChildInserted event
@@ -1244,8 +1219,6 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \class QCustomEvent qevent.h
   \brief The QCustomEvent class provides support for custom events.
-
-  \ingroup event
 
   QCustomEvent is a generic event class for user-defined events. User
   defined events can be sent to widgets or other QObject instances
