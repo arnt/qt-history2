@@ -726,7 +726,7 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 	t << decl << ": " << (*it) << " " << deps << "\n\t"
 	  << "$(UIC) " << (*it) << " -o " << decl << endl << endl;
 
-	t << impl << ": " << (*it) << " " << deps << "\n\t"
+	t << impl << ": " << decl << " " << (*it) << " " << deps << "\n\t"
 	  << "$(UIC) " << (*it) << " -i " << decl << " -o " << impl << endl << endl;
     }
 }
