@@ -3220,11 +3220,11 @@ QTextFormatter::QTextFormatter()
 
 /* only used for bidi or complex text reordering
  */
-QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextParag::LineStart *line,
-				 QTextString::Char *startChar, QTextString::Char *lastChar, int align, int space )
+QTextParag::LineStart *QTextFormatter::formatLine( QTextParag *parag, QTextString *string, QTextParag::LineStart *line,
+						   QTextString::Char *startChar, QTextString::Char *lastChar, int align, int space )
 {
     if( string->isBidi() )
-	return bidiReorderLine( string, line, startChar, lastChar, align, space );
+	return bidiReorderLine( parag, string, line, startChar, lastChar, align, space );
     space = QMAX( space, 0 ); // #### with nested tables this gets negative because of a bug I didn't find yet, so workaround for now. This also means non-left aligned nested tables do not work at the moment
     int start = (startChar - &string->at(0));
     int last = (lastChar - &string->at(0) );
@@ -3294,8 +3294,8 @@ struct QTextBidiRun {
 #endif
 
 // collects one line of the paragraph and transforms it to visual order
-QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QTextParag::LineStart *line,
-				 QTextString::Char *startChar, QTextString::Char *lastChar, int align, int space )
+QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextString *text, QTextParag::LineStart *line,
+							QTextString::Char *startChar, QTextString::Char *lastChar, int align, int space )
 {
     int start = (startChar - &text->at(0));
     int last = (lastChar - &text->at(0) );
@@ -3789,7 +3789,10 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 
     // now construct the reordered string out of the runs...
 
-    int x = 4;
+    int left = parag->document() ? parag->leftMargin() + 4 : 4;
+    int x = left;
+    if ( parag->document() )
+	x = parag->document()->flow()->adjustLMargin( parag->rect().y(), left, 4 );
     int numSpaces = 0;
     // set the correct alignment. This is a bit messy....
     if( align == Qt::AlignAuto ) {
@@ -4029,7 +4032,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    w = dw;
 	    y += h;
 	    h = c->height();
-	    lineStart = formatLine( parag->string(), lineStart, firstChar, c-1 );
+	    lineStart = formatLine( parag, parag->string(), lineStart, firstChar, c-1 );
 	    lineStart->y = y;
 	    insertLineStart( parag, i, lineStart );
 	    lineStart->baseLine = c->ascent();
@@ -4142,7 +4145,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	if ( c->isCustom && c->customItem()->ownLine() ) {
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
-	    lineStart = formatLine( string, lineStart, firstChar, c-1, align, w - x );
+	    lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
 	    c->customItem()->resize( parag->painter(), dw );
 	    if ( x != left || w != dw )
 		fullWidth = FALSE;
@@ -4175,7 +4178,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    h = QMAX( h, tmph );
 		    lineStart->h = h;
 		}
-		lineStart = formatLine( string, lineStart, firstChar, c-1, align, w - x );
+		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
 		if ( parag->isNewLinesAllowed() && c->c == '\t' ) {
@@ -4204,7 +4207,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		col = 0;
 	    } else {
 		i = lastBreak;
-		lineStart = formatLine( string, lineStart, firstChar, parag->at( lastBreak ), align, w - string->at( i ).x );
+		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ), align, w - string->at( i ).x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
 		if ( parag->isNewLinesAllowed() && c->c == '\t' ) {
@@ -4258,7 +4261,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	// last line in a paragraph is not justified
 	if ( align == Qt::AlignJustify )
 	    align = Qt::AlignAuto;
-	lineStart = formatLine( string, lineStart, firstChar, c, align, w - x );
+	lineStart = formatLine( parag, string, lineStart, firstChar, c, align, w - x );
 	delete lineStart;
     }
 

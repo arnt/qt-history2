@@ -828,9 +828,9 @@ public:
     virtual void setWrapAtColumn( int c ) { wrapColumn = c; }
 
 protected:
-    virtual QTextParag::LineStart *formatLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
+    virtual QTextParag::LineStart *formatLine( QTextParag *parag, QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
 					       QTextString::Char *last, int align = Qt::AlignAuto, int space = 0 );
-    virtual QTextParag::LineStart *bidiReorderLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
+    virtual QTextParag::LineStart *bidiReorderLine( QTextParag *parag, QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
 						    QTextString::Char *last, int align, int space );
     virtual bool isBreakable( QTextString *string, int pos ) const;
     void insertLineStart( QTextParag *parag, int index, QTextParag::LineStart *ls );
