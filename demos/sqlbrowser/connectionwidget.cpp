@@ -22,7 +22,7 @@ ConnectionWidget::ConnectionWidget(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
     tree = new QTreeWidget(this);
     tree->setObjectName(QLatin1String("tree"));
-    tree->setHeaderLabels(tr("database"));
+    tree->setHeaderLabels(QStringList(tr("database")));
     tree->header()->setResizeMode(QHeaderView::Stretch);
 
     layout->addWidget(tree);
