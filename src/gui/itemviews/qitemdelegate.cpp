@@ -550,7 +550,7 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
 
 bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
 {
-    QLineEdit *editor = ::qt_cast<QLineEdit*>(object);
+    QWidget *editor = ::qt_cast<QWidget*>(object);
     if (!editor)
         return false;
     if (event->type() == QEvent::KeyPress) {
