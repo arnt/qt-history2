@@ -704,8 +704,8 @@ void QRasterPaintEngine::updateBrush(const QBrush &brush, const QPointF &offset)
     d->brush = brush;
     d->brushMatrix = d->matrix;
 
-    // Offset the brush matrix with offset and the coordinate offset.
-    d->brushMatrix.translate(offset.x() + d->deviceRect.x(), offset.y() + d->deviceRect.y());
+    // Offset the brush matrix with offset.
+    d->brushMatrix.translate(offset.x(), offset.y());
 }
 
 

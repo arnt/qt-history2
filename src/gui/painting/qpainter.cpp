@@ -895,7 +895,7 @@ void QPainter::initFrom(const QWidget *widget)
     d->state->bgBrush = pal.brush(widget->backgroundRole());
     d->state->font = widget->font();
     const QWidget *w = widget;
-    d->state->bgOrigin = -d->redirection_offset;
+    d->state->bgOrigin = QPointF();
     while (w->d_func()->isBackgroundInherited()) {
         d->state->bgOrigin -= w->pos();
         w = w->parentWidget();
@@ -1034,7 +1034,7 @@ bool QPainter::begin(QPaintDevice *pd)
 #endif
 
 
-    d->state->bgOrigin = -d->redirection_offset;
+    d->state->bgOrigin = QPointF();
 
     d->device = pd;
     d->engine = pd->paintEngine();
@@ -1224,7 +1224,7 @@ QFontInfo QPainter::fontInfo() const
 QPoint QPainter::brushOrigin() const
 {
     Q_D(const QPainter);
-    return QPointF(d->state->bgOrigin + d->redirection_offset).toPoint();
+    return QPointF(d->state->bgOrigin).toPoint();
 }
 
 /*!
@@ -1260,7 +1260,7 @@ void QPainter::setBrushOrigin(const QPointF &p)
     if (qt_show_painter_debug_output)
         printf("QPainter::setBrushOrigin(), (%.2f,%.2f)\n", p.x(), p.y());
 #endif
-    d->state->bgOrigin = p - d->redirection_offset;
+    d->state->bgOrigin = p;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyBrush);
 }
