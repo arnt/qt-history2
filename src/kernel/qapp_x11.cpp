@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#136 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#137 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,8 +31,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 
 #if defined(_OS_LINUX_) && defined(DEBUG)
-#include <qfile.h>
-#include <qstring.h>
+#include "qfile.h"
 #include <unistd.h>
 #endif
 
@@ -40,7 +39,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#136 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#137 $")
 
 
 /*****************************************************************************
@@ -2068,8 +2067,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 #endif
 #if 0 // defined(DEBUG)
     if ( count > 1 ) {
-	ascii[15] = '\0';		// ### need to support and test this
-	debug( "translateKey: Multibyte translation disabled (%d, %s)",
+	ascii[15] = '\0';			// not supported
+	debug( "translateKey: Multibyte translation not supported (%d, %s)",
 	       count, ascii );
 	return FALSE;
     }
@@ -2091,28 +2090,73 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 //
 // When receiving many expose events, we compress them (union of all expose
 // rectangles) into one event which is sent to the widget.
+// Some X servers send expose events before resize (configure) events.
+// We try to remedy that, too.
 //
+
+struct PaintEventInfo {
+    Window window;
+    int	   w, h;
+    bool   check;
+    int	   config;
+};
+
+static Bool isPaintEvent( Display *, XEvent *ev, XPointer a )
+{
+    PaintEventInfo *info = (PaintEventInfo *)a;
+    if ( ev->type == Expose || ev->type == GraphicsExpose ) {
+	if ( ev->xexpose.window == info->window )
+	    return TRUE;
+    }
+    else if ( ev->type == ConfigureNotify && info->check ) {
+	XConfigureEvent *c = (XConfigureEvent *)ev;
+	if ( c->window == info->window &&
+	     (c->width != info->w || c->height != info->h) ) {
+	    info->config++;
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
 
 bool QETWidget::translatePaintEvent( const XEvent *event )
 {
-    bool  firstTime = TRUE;
-    QRect paintRect;
-    int	  type = event->xany.type;
-    XEvent *xevent = (XEvent *)event;
+    QRect paintRect( event->xexpose.x,	   event->xexpose.y,
+		     event->xexpose.width, event->xexpose.height );
+    Display  *dpy = x11Display();
+    XEvent    xevent;
+    PaintEventInfo info;
+
+    info.window = id();
+    info.w	= width();
+    info.h	= height();
+    info.check  = testWFlags(WType_Overlap);
+    info.config = 0;
 
     while ( TRUE ) {
-	QRect rect( QPoint(xevent->xexpose.x,xevent->xexpose.y),
-		    QSize(xevent->xexpose.width,xevent->xexpose.height) );
-	if ( firstTime ) {			// set rectangle
-	    paintRect = rect;
-	    firstTime = FALSE;
+	if ( !XCheckIfEvent(dpy,&xevent,isPaintEvent,(XPointer)&info) )
+	    break;
+	if ( qApp->x11EventFilter(&xevent) )	// send event through filter
+	    break;
+	if ( !info.config ) {
+	    paintRect = paintRect.unite( QRect(xevent.xexpose.x,
+					       xevent.xexpose.y,
+					       xevent.xexpose.width,
+					       xevent.xexpose.height) );
 	}
-	else					// make union rectangle
-	    paintRect = paintRect.unite( rect );
-	if ( !XCheckTypedWindowEvent( x11Display(), id(), type, xevent ) )
-	    break;
-	if ( qApp->x11EventFilter( xevent ) )	// send event through filter
-	    break;
+    }
+
+    if ( info.config ) {
+	XClearArea( dpy, id(), 0, 0, 0, 0, FALSE );
+	XConfigureEvent *c = (XConfigureEvent *)&xevent;
+	int  x, y;
+	uint w, h, b, d;
+	Window root;
+	XGetGeometry( dpy, id(), &root, &x, &y, &w, &h, &b, &d );
+	c->width  = w;				// send resize event first
+	c->height = h;
+	translateConfigEvent( (XEvent*)c );
+	paintRect = QRect( 0, 0, w, h );
     }
 
     QPaintEvent e( paintRect );
