@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#42 $
 **
 ** Implementation of QToolBar class
 **
@@ -147,7 +147,7 @@ QToolBar::~QToolBar()
 }
 
 
-/*!  Adds a separator in here.  Cool, man. */
+/*!  Adds a separator to the end of the toolbar. */
 
 void QToolBar::addSeparator()
 {
