@@ -93,10 +93,16 @@ sub find_exports {
 			    $last_interesting = $i + 1;
 			}
 			if($definition) {
-			    if($definition =~ /^typedef /) {
-				#perhaps typedefs are interesting too..
+			    my $symbol = 0;
+			    if($definition =~ /^typedef .*\(\*([^\)]*)\)\(.*\);$/) {
+				$symbol = $1;
+			    } elsif($definition =~ /^typedef (.*) ([^ ]*);$/) {
+				$symbol = $2;
 			    } elsif($definition =~ /^(class|struct) $export_symbol ([^ ]*) ?((,|:) (public|private) .*)? ?\{\}$/) {
-				    print "$file: I see $1 of $2 in library $export_name\n";
+				$symbol = $2;
+			    }
+			    if($symbol && $symbol =~ /^Q/) {
+				print "$file: I see a symbol of $symbol in library $export_name\n";
 			    }
 			}
 		    }
