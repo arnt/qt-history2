@@ -573,7 +573,7 @@ QDataStream &QDataStream::operator>>( Q_INT32 &i )
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
-	i = read_int_ascii( this );
+	i = (Q_INT32)read_int_ascii( this );
     } else if ( noswap ) {			// no conversion needed
 	dev->readBlock( (char *)&i, sizeof(Q_INT32) );
     } else {					// swap bytes
@@ -637,7 +637,7 @@ QDataStream &QDataStream::operator>>( Q_LONG &i )
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
-	i = read_int_ascii( this );
+	i = (Q_LONG)read_int_ascii( this );
     } else if ( noswap ) {			// no conversion needed
 	dev->readBlock( (char *)&i, sizeof(Q_LONG) );
     } else {					// swap bytes
