@@ -2594,12 +2594,11 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
     if ( !firstParag() )
 	return;
 
-    QBrush bgBrush = paper ? *paper : cg.brush( QColorGroup::Base );
-    {
+    if ( paper ) {
 	p->setBrushOrigin( -int( p->translationX() ),
 			   -int( p->translationY() ) );
 
-	p->fillRect( rect, bgBrush );
+	p->fillRect( rect, *paper );
     }
 
     QTextParag *parag = firstParag();
