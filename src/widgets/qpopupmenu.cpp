@@ -1749,7 +1749,7 @@ void QPopupMenu::subMenuTimer() {
     }
 
     // hidePopups() may change actItem etc.
-    if ( !isVisible() || (actItem < 0 && popupActive < 0) || actItem == popupActive )
+    if ( !isVisible() || actItem < 0 || actItem == popupActive )
 	return;
 
     QMenuItem *mi = mitems->at(actItem);
