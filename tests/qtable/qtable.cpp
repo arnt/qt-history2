@@ -1893,11 +1893,18 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
 			       newSelection->bottomRow,
 			       newSelection->rightCol );
 
-    QRect r( old.unite( cur ) );
-    repaintContents( r, FALSE );
-
+    QRegion r1( old );
+    QRegion r2( cur );
+    QRegion r3 = r1.subtract( r2 );
+    QRegion r4 = r2.subtract( r1 );
+    
     int i;
 
+    for ( i = 0; i < (int)r3.rects().count(); ++i )
+	repaintContents( r3.rects()[ i ], FALSE );
+    for ( i = 0; i < (int)r4.rects().count(); ++i )
+	repaintContents( r4.rects()[ i ], FALSE );
+    
     if ( updateHorizontal ) {
 	for ( i = 0; i <= columns(); ++i ) {
 	    if ( !isColumnSelected( i ) )
