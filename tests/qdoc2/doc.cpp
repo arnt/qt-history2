@@ -259,7 +259,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     int mustquoteBegin = -1;
     uint mustquoteEnd = 0;
     bool internal = FALSE;
-    bool overload = FALSE;
+    bool overloads = FALSE;
     int numBugs = 0;
     bool metNL = FALSE; // never met N.L.
     int begin, end;
@@ -621,7 +621,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    metNL = TRUE;
 		} else {
 		    consume( "overload" );
-		    overload = TRUE;
+		    overloads = TRUE;
 		    yyOut += QString( "This is an overloaded member function,"
 				      " provided for convenience.  It differs"
 				      " from the above function only in what"
@@ -766,7 +766,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     case Doc::Fn:
 	sanitize( prototype );
 	sanitize( relates );
-	doc = new FnDoc( loc, yyOut, prototype, relates, parameters, overload );
+	doc = new FnDoc( loc, yyOut, prototype, relates, parameters,
+			 overloads );
 	break;
     case Doc::Class:
 	if ( briefBegin == -1 )
@@ -1664,9 +1665,9 @@ QString Doc::finalHtml() const
 
 FnDoc::FnDoc( const Location& loc, const QString& html,
 	      const QString& prototype, const QString& relates,
-	      const StringSet& parameters, bool overload )
+	      const StringSet& parameters, bool overloads )
     : Doc( Fn, loc, html ), proto( prototype ), rel( relates ),
-      params( parameters ), over( overload )
+      params( parameters ), over( overloads )
 {
 }
 

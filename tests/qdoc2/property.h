@@ -8,7 +8,8 @@
 #include <qstring.h>
 
 /*
-  The Property class represents a Qt property.
+  The Property class represents a Qt property.  See
+  http://doc.trolltech.com/properties.html for details.
 */
 class Property
 {
@@ -39,7 +40,8 @@ public:
 
 private:
     /*
-      A Trool is a bit like a bool, except that it admits three truth values.
+      A Trool is a bit like a bool, except that it admits three truth values
+      (true, false, and default).
     */
     enum Trool { Ttrue, Tfalse, Tdef };
 

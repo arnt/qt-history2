@@ -833,11 +833,11 @@ void ClassDecl::fillInDocsThis()
 	*/
 	g = (*f).begin();
 	while ( g != (*f).end() ) {
-	    if ( (*g)->fnDoc() != 0 && (*g)->fnDoc()->overload() ) {
+	    if ( (*g)->fnDoc() != 0 && (*g)->fnDoc()->overloads() ) {
 		warning( 2, (*g)->fnDoc()->location(),
 			 "Suspicious '\\overload' in doc comment for"
 			 " constructor" );
-		(*g)->fnDoc()->setOverload( FALSE );
+		(*g)->fnDoc()->setOverloads( FALSE );
 	    }
 	    ++g;
 	}
@@ -850,7 +850,7 @@ void ClassDecl::fillInDocsThis()
 	while ( g != (*f).end() ) {
 	    (*g)->setOverloadNumber( overloadNo );
 	    if ( overloadNo > 1 && (*g)->fnDoc() != 0 )
-		(*g)->fnDoc()->setOverload( TRUE );
+		(*g)->fnDoc()->setOverloads( TRUE );
 	    overloadNo++;
 	    ++g;
 	}
@@ -887,7 +887,7 @@ void ClassDecl::fillInDocsThis()
 		overloadNo = (*g)->overloadNumber() + 1;
 
 	    if ( (*g)->fnDoc() != 0 ) {
-		if ( (*g)->fnDoc()->overload() ) {
+		if ( (*g)->fnDoc()->overloads() ) {
 		    if ( scapeGoat == 0 )
 			scapeGoat = (*g)->fnDoc();
 		} else if ( (*g)->internal() ) {
@@ -917,11 +917,11 @@ void ClassDecl::fillInDocsThis()
 		warning( 2, scapeGoat->location(),
 			 "All documented versions of this function are"
 			 " '\\overload'" );
-		scapeGoat->setOverload( FALSE );
+		scapeGoat->setOverloads( FALSE );
 	    }
 	} else {
 	    /*
-	      Ideally, there would be one best candidate.
+	      Ideally, there would be a single best candidate.
 	    */
 	    g = candidates[badness].begin();
 	    canonical = *g;
@@ -933,7 +933,7 @@ void ClassDecl::fillInDocsThis()
 	    ++g;
 	    while ( g != candidates[badness].end() ) {
 		warning( 3, (*g)->fnDoc()->location(), "Missing '\\overload'" );
-		(*g)->fnDoc()->setOverload( TRUE );
+		(*g)->fnDoc()->setOverloads( TRUE );
 		++g;
 	    }
 
@@ -944,7 +944,7 @@ void ClassDecl::fillInDocsThis()
 	    while ( badness < NumCandidateLists ) {
 		g = candidates[badness].begin();
 		while ( g != candidates[badness].end() ) {
-		    (*g)->fnDoc()->setOverload( TRUE );
+		    (*g)->fnDoc()->setOverloads( TRUE );
 		    ++g;
 		}
 		badness++;
@@ -959,7 +959,7 @@ void ClassDecl::fillInDocsThis()
 	g = (*f).begin();
 	while ( g != (*f).end() ) {
 	    if ( (*g)->overloadNumber() == 1 &&
-		 ((*g)->fnDoc() == 0 || (*g)->fnDoc()->overload()) )
+		 ((*g)->fnDoc() == 0 || (*g)->fnDoc()->overloads()) )
 		(*g)->setOverloadNumber( overloadNo++ );
 
 	    if ( canonical != 0 && (*g)->fnDoc() != 0 ) {

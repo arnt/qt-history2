@@ -20,6 +20,28 @@
 
 /* tmake ignore Q_OBJECT */
 
+/*
+  What is parsing?  Even though source files and header files are written in the
+  same language (C++), qdoc distinguishes them.  It first reads the header files using a parser that looks for declarations and class definitions.
+  Then it reads the source files using another parser that looks for
+  slashasterbang comments.  Both parsers have much in common, but they are also
+  quite different.  For that reason, they are tangled here in one file, with
+  some shared parts.
+
+  The parser is quite peculiar.  It looks like a typical recursive-descent
+  parser (supposedly one of the least maintainable and most hard to read parsing
+  techniques).  However, most of this beast has nothing to do with Standard C++
+  grammar.  It parses something that could be called Intuitive C.  It is quite
+  gross in the details, and will try to parse anything that starts with 'class'
+  as a class definition, until it meets something that doesn't fit.  What does
+  the parser do then?  If your answer is backtrack, you're wrong.  It just looks
+  for something to hold on and goes on, without ever emitting a warning about
+  syntax.
+*/
+
+/*
+  ###
+*/
 static void setLink( Steering *steering, Doc *doc, const QString& link,
 		     const QString& text )
 {
@@ -76,6 +98,11 @@ static bool matchTemplateHeader()
     return matchTemplateAngles();
 }
 
+/*
+  Tries to match a data type and possibly a variable name.  The variable name
+  belongs here because of cases such as 'char *xpm[]' and 'int (*f)( int )'.
+  The inventors of C are to blame for these inside-out declarations.
+*/
 static bool matchDataType( CodeChunk *type, QString *var = 0 )
 {
     static QRegExp *varComment = 0;
@@ -165,6 +192,13 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
 	    if ( match(Tok_Ident) ) {
 		*var = yyTokenizer->previousLexeme();
 	    } else if ( match(Tok_Comment) ) {
+		/*
+		  A neat hack:  Commented-out parameter names are recognized by
+		  qdoc.  It's impossible to illustrate here inside a C comment,
+		  because it requires an asterslash.  It's also impossible to
+		  illustrate inside a C++ comment, because the explanation does
+		  not fit on one line.
+		*/
 		if ( varComment->match(yyTokenizer->previousLexeme()) )
 		    *var = varComment->cap( 1 );
 	    }
@@ -593,6 +627,23 @@ void matchDocsAndStuff( Steering *steering )
 	    Doc *doc = Doc::create( loc, t.mid(3, t.length() - 5) );
 	    bool deleteDoc = TRUE;
 	    yyTok = getToken();
+
+	    /*
+	      Have you read tokenizer.h? If so, you must have noticed the two
+	      concrete subclasses of Tokenizer, namely FileTokenizer and
+	      StringTokenizer.  A FileTokenizer is obviously useful for parsing
+	      source files.  If you don't understand the need for a
+	      StringTokenizer yet, consider doc comments containing a function
+	      prototype, like
+
+		  \fn int QWidget::width() const
+
+	      The comment is first slurped by a FileTokenizer.  Then
+	      Doc::create() discovers the '\fn' line and makes it available
+	      throught FnDoc::prototype().  Finally the C++ source file parser
+	      is tweaked to use a StringTokenizer instead of the usual
+	      FileTokenizer.
+	    */
 
 	    if ( doc->kind() == Doc::Fn ) {
 		FnDoc *fn = (FnDoc *) doc;

@@ -28,5 +28,6 @@ QString Location::fileName() const
 
 QString Location::shortFilePath() const
 {
+    // this line of code is a puzzle
     return fp.mid( fp.findRev(QChar('/'), fp.findRev(QChar('/')) - 1) + 1 );
 }

@@ -35,12 +35,12 @@ enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
        Tok_FirstKeyword = Tok_char, Tok_LastKeyword = Tok_Q_PROPERTY };
 
 /*
-  The class Tokenizer implements lexical analysis of C++ source files.
+  The Tokenizer class implements lexical analysis of C++ source files.
 
   Not every operator or keyword of C++ is recognized; only those that are
   interesting to us.  Some Qt keywords or macros are also recognized.
 
-  The class is an abstract base class.  You should use FileTokenizer or
+  The class is an abstract base class inherited by FileTokenizer and
   StringTokenizer.
 */
 class Tokenizer

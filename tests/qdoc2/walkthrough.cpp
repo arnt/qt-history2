@@ -102,11 +102,11 @@ QString Walkthrough::start( bool localLinks, const QString& fileName,
     }
 
     /*
-      Clean a bit.  This has to be done here, no later, because the plain lines
+      Clean a bit.  This has to be done here, not later, because the plain lines
       and the processed lines have to be synchronized.
 
       We make sure no two empty lines occur in a row, because the old qdoc did
-      that.  Maybe the source files shouldn't contain such things anyway.
+      that.  Maybe the source files should be fixed.
     */
     fullText.replace( *trailingSpaces, QChar('\n') );
     fullText.replace( *manyNLsInARow, QString("\n\n") );
@@ -123,7 +123,7 @@ QString Walkthrough::start( bool localLinks, const QString& fileName,
       \include and once in the walkthrough).
     */
     if ( localLinks )
-	walkthroughText.replace( *aname, QString("") );
+	walkthroughText.replace( *aname, QString::null );
 
     processedlines = QStringList::split( QChar('\n'), walkthroughText, TRUE );
 

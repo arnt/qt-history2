@@ -94,14 +94,15 @@ class FnDoc : public Doc
 {
 public:
     FnDoc( const Location& loc, const QString& html, const QString& prototype,
-	   const QString& relates, const StringSet& parameters, bool overload );
+	   const QString& relates, const StringSet& parameters,
+	   bool overloads );
 
-    void setOverload( bool overload ) { over = overload; }
+    void setOverloads( bool overloads ) { over = overloads; }
 
     const QString& prototype() const { return proto; }
     const QString& relates() const { return rel; }
     const StringSet& parameterNames() const { return params; }
-    bool overload() const { return over; }
+    bool overloads() const { return over; }
 
 private:
     QString proto;

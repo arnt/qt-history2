@@ -49,18 +49,18 @@ HtmlWriter::HtmlWriter( const QString& fileName )
 
     QDir dir( filePath ); 
 
-    if ( ! dir.exists() ) {
-	if ( ! dir.mkdir( filePath ) ) {
-		warning( "Can't create '%s' ", filePath.latin1()); 
-		return;
+    if ( !dir.exists() ) {
+	if ( !dir.mkdir(filePath) ) {
+	    warning( 1, "Can't create '%s'", filePath.latin1() );
+	    return;
 	}
-	warning( "Creating '%s' ", filePath.latin1());
+	warning( 3, "Creating '%s' ", filePath.latin1() );
     }
 
     QString file = filePath + QChar( '/' ) + fileName;
     out = fopen( QFile::encodeName(file), "w" );
     if ( out == 0 ) {
-	syswarning( "Cannot open '%s' for writing HTML", file.latin1());
+	syswarning( "Cannot open '%s' for writing HTML", file.latin1() );
 	return;
     }
 }
@@ -82,6 +82,7 @@ void HtmlWriter::enterFooter()
 	return;
     footFlushed = TRUE;
 
+    // the eof marker makes HtmlReader's task easier
     putsMeta( "<!-- eof -->\n" );
 }
 
