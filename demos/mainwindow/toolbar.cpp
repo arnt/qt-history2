@@ -37,7 +37,7 @@ static QPixmap genIcon(const QString &string, const QColor &color)
     p.drawText(0, 0, w, h, Qt::AlignCenter, string);
     p.end();
 
-    QImage image = pixmap;
+    QImage image = pixmap.toImage();
     image.setAlphaBuffer(true);
     for (int y = 0; y < image.height(); ++y) {
         for (int x = 0; x < image.width(); ++x) {
