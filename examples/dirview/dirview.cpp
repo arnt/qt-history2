@@ -20,6 +20,7 @@
 #include <qdragobject.h>
 #include <qmime.h>
 #include <qstrlist.h>
+#include <qstringlist.h>
 
 static const char* folder_closed_xpm[]={
     "16 16 9 1",
@@ -501,4 +502,31 @@ void DirectoryView::contentsMouseMoveEvent( QMouseEvent* e )
 void DirectoryView::contentsMouseReleaseEvent( QMouseEvent * )
 {
     mousePressed = FALSE;
+}
+
+void DirectoryView::setDir( const QString &s )
+{
+    QListViewItemIterator it( this );
+    ++it;
+    for ( ; it.current(); ++it ) {
+	it.current()->setOpen( FALSE );
+    }
+    
+    QStringList lst( QStringList::split( "/", s ) );
+    QListViewItem *item = firstChild();
+    QStringList::Iterator it2 = lst.begin();
+    for ( ; it2 != lst.end(); ++it2 ) {
+	while ( item ) {
+	    if ( item->text( 0 ) == *it2 ) {
+		item->setOpen( TRUE );
+		break;
+	    }
+	    item = item->itemBelow();
+	}
+    }
+    
+    if ( item ) {
+	setCurrentItem( item );
+	ensureItemVisible( item );
+    }
 }

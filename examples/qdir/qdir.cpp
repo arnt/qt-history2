@@ -9,135 +9,150 @@
 *****************************************************************************/
 
 #include <qapplication.h>
-#include <qwidgetstack.h>
-#include <qscrollview.h>
-#include <qpixmap.h>
-#include <qfiledialog.h>
 #include <qtextview.h>
 #include <qfileinfo.h>
 #include <qfile.h>
 #include <qtextstream.h>
-#include <qvbox.h>
 #include <qhbox.h>
 #include <qspinbox.h>
 #include <qlabel.h>
 #include <qmultilineedit.h>
+#include <qheader.h>
+#include <qevent.h>
 
-class PixmapView : public QScrollView
+#include "../dirview/dirview.h"
+#include "qdir.h"
+
+// ****************************************************************************************************
+
+PixmapView::PixmapView( QWidget *parent )
+    : QScrollView( parent ) 
 {
-    Q_OBJECT
+    viewport()->setBackgroundMode( PaletteBase );
+}
 
-public:
-    PixmapView( QWidget *parent )
-	: QScrollView( parent ) {}
-
-    void setPixmap( const QPixmap &pix ) {
-	pixmap = pix;
-	resizeContents( pixmap.size().width(), pixmap.size().height() );
-	viewport()->repaint( FALSE );
-    }
-
-    void drawContents( QPainter *p, int, int, int, int ) {
-	p->drawPixmap( 0, 0, pixmap );
-    }
-
-private:
-    QPixmap pixmap;
-
-};
-
-class Preview : public QWidgetStack
+void PixmapView::setPixmap( const QPixmap &pix ) 
 {
-    Q_OBJECT
+    pixmap = pix;
+    resizeContents( pixmap.size().width(), pixmap.size().height() );
+    viewport()->repaint( FALSE );
+}
 
-public:
-    Preview( QWidget *parent )
-	: QWidgetStack( parent ) {
-	    normalText = new QMultiLineEdit( this );
-	    normalText->setReadOnly( TRUE );
-	    html = new QTextView( this );
-	    pixmap = new PixmapView( this );
+void PixmapView::drawContents( QPainter *p, int, int, int, int ) 
+{
+    viewport()->erase();
+    p->drawPixmap( 0, 0, pixmap );
+}
+
+// ****************************************************************************************************
+
+Preview::Preview( QWidget *parent )
+    : QWidgetStack( parent ) 
+{
+    normalText = new QMultiLineEdit( this );
+    normalText->setReadOnly( TRUE );
+    html = new QTextView( this );
+    pixmap = new PixmapView( this );
+    raiseWidget( normalText );
+}
+
+void Preview::showPreview( const QUrl &u, int size ) 
+{
+    if ( u.isLocalFile() ) {
+	QString path = u.path();
+	QFileInfo fi( path );
+	if ( fi.isFile() && (int)fi.size() > size * 1000 ) {
+	    normalText->setText( tr( "The File\n%1\nis too large, so I don't show it!" ).arg( path ) );
 	    raiseWidget( normalText );
-    }
-
-    void showPreview( const QUrl &u, int size ) {
-	if ( u.isLocalFile() ) {
-	    QString path = u.path();
-	    QFileInfo fi( path );
-	    if ( fi.isFile() && (int)fi.size() > size * 1000 ) {
-		normalText->setText( tr( "The File\n%1\nis too large, so I don't show it!" ).arg( path ) );
-		raiseWidget( normalText );
-		return;
-	    }
+	    return;
+	}
 	
-	    QPixmap pix( path );
-	    if ( pix.isNull() ) {
-		if ( fi.isFile() ) {
-		    QFile f( path );
-		    if ( f.open( IO_ReadOnly ) ) {
-			QTextStream ts( &f );
-			QString text = ts.read();
-			f.close();
-			if ( fi.extension().lower().contains( "htm" ) ) {
-			    QString url = html->mimeSourceFactory()->makeAbsolute( path, html->context() );
-			    html->setText( text, url ); 	
-			    raiseWidget( html );
-			    return;
-			} else {
-			    normalText->setText( text ); 	
-			    raiseWidget( normalText );
-			    return;
-			}
+	QPixmap pix( path );
+	if ( pix.isNull() ) {
+	    if ( fi.isFile() ) {
+		QFile f( path );
+		if ( f.open( IO_ReadOnly ) ) {
+		    QTextStream ts( &f );
+		    QString text = ts.read();
+		    f.close();
+		    if ( fi.extension().lower().contains( "htm" ) ) {
+			QString url = html->mimeSourceFactory()->makeAbsolute( path, html->context() );
+			html->setText( text, url ); 	
+			raiseWidget( html );
+			return;
+		    } else {
+			normalText->setText( text ); 	
+			raiseWidget( normalText );
+			return;
 		    }
 		}
-		normalText->setText( QString::null );
-		raiseWidget( normalText );
-	    } else {
-		pixmap->setPixmap( pix );
-		raiseWidget( pixmap );
 	    }
-	} else {
-	    normalText->setText( "I only show local files!" );
+	    normalText->setText( QString::null );
 	    raiseWidget( normalText );
+	} else {
+	    pixmap->setPixmap( pix );
+	    raiseWidget( pixmap );
 	}
+    } else {
+	normalText->setText( "I only show local files!" );
+	raiseWidget( normalText );
     }
+}
 
-private:
-    QMultiLineEdit *normalText;
-    QTextView *html;
-    PixmapView *pixmap;
+// ****************************************************************************************************
 
-};
-
-class PreviewWidget : public QVBox
+PreviewWidget::PreviewWidget( QWidget *parent )
+    : QVBox( parent ) 
 {
-    Q_OBJECT
+    setSpacing( 5 );
+    setMargin( 5 );
+    QHBox *row = new QHBox( this );
+    row->setSpacing( 5 );
+    (void)new QLabel( tr( "Only show files smaller than: " ), row );
+    sizeSpinBox = new QSpinBox( 1, 10000, 1, row );
+    sizeSpinBox->setSuffix( " KB" );
+    sizeSpinBox->setValue( 64 );
+    row->setFixedHeight( 10 + sizeSpinBox->sizeHint().height() );
+    preview = new Preview( this );
+}
 
-public:
-    PreviewWidget( QWidget *parent )
-	: QVBox( parent ) {
-	    setSpacing( 5 );
-	    setMargin( 5 );
-	    QHBox *row = new QHBox( this );
-	    row->setSpacing( 5 );
-	    (void)new QLabel( tr( "Only show files smaller than: " ), row );
-	    sizeSpinBox = new QSpinBox( 1, 10000, 1, row );
-	    sizeSpinBox->setSuffix( " KB" );
-	    sizeSpinBox->setValue( 64 );
-	    row->setFixedHeight( 10 + sizeSpinBox->sizeHint().height() );
-	    preview = new Preview( this );
-    }
+void PreviewWidget::showPreview( const QUrl &u )
+{
+    preview->showPreview( u, sizeSpinBox->value() );
+}
 
-public slots:
-    void showPreview( const QUrl &u ) {
-	preview->showPreview( u, sizeSpinBox->value() );
-    }
+// ****************************************************************************************************
 
-private:
-    QSpinBox *sizeSpinBox;
-    Preview *preview;
+CustomFileDialog::CustomFileDialog() 
+    :  QFileDialog( 0, 0, TRUE ) 
+{
+    dirView = new DirectoryView( this, 0, TRUE );
+    dirView->addColumn( "" );
+    dirView->header()->hide();
+    class Directory *root = new class Directory( dirView, "/" );
+    root->setOpen( TRUE );
+    dirView->setFixedWidth( 150 );
+    addLeftWidget( dirView );
+    connect( dirView, SIGNAL( folderSelected( const QString & ) ),
+	     this, SLOT( setDir2( const QString & ) ) );
+    connect( this, SIGNAL( dirEntered( const QString & ) ),
+	     dirView, SLOT( setDir( const QString & ) ) );
+}
 
-};
+void CustomFileDialog::setDir2( const QString &s )
+{
+    blockSignals( TRUE );
+    setDir( s );
+    blockSignals( FALSE );
+}
+
+void CustomFileDialog::showEvent( QShowEvent *e )
+{
+    QFileDialog::showEvent( e );
+    dirView->setDir( dirPath() );
+}
+
+// ****************************************************************************************************
 
 int main( int argc, char ** argv )
 {
@@ -146,6 +161,7 @@ int main( int argc, char ** argv )
     QString filter;
     QString caption;
     bool preview = FALSE;
+    bool custom = FALSE;
     QApplication a( argc, argv );
     for (int i=1; i<argc; i++) {
 	QString arg = argv[i];
@@ -159,6 +175,8 @@ int main( int argc, char ** argv )
 	    filter = argv[++i];
 	else if ( arg == "-preview" )
 	    preview = TRUE;
+	else if ( arg == "-custom" )
+	    custom = TRUE;
 	else if ( arg[0] == '-' ) {
 	    qDebug("Usage: qdir [-any | -dir] [ -preview] [-default f] {-filter f} [caption ...]\n"
 		   "      -any         Get any filename, need not exist.\n"
@@ -183,22 +201,26 @@ int main( int argc, char ** argv )
 	caption = mode == QFileDialog::Directory
 		    ? "Choose directory..." : "Choose file...";
 
-    QFileDialog fd( QString::null, filter, 0, 0, TRUE );
-    fd.setMode( mode );
-    if ( preview ) {
-	fd.setPreviewMode( FALSE, TRUE );
-	fd.setContentsPreviewWidget( new PreviewWidget( &fd ) );
-	fd.setViewMode( QFileDialog::ListView | QFileDialog::PreviewContents );
-    }
-    fd.setCaption( caption );
-    fd.setSelection( start );
-    if ( fd.exec() == QDialog::Accepted ) {
-	QString result = fd.selectedFile();
-	printf("%s\n", (const char*)result);
-	return 0;
+    if ( !custom ) {
+	QFileDialog fd( QString::null, filter, 0, 0, TRUE );
+	fd.setMode( mode );
+	if ( preview ) {
+	    fd.setPreviewMode( FALSE, TRUE );
+	    fd.setContentsPreviewWidget( new PreviewWidget( &fd ) );
+	    fd.setViewMode( QFileDialog::ListView | QFileDialog::PreviewContents );
+	}
+	fd.setCaption( caption );
+	fd.setSelection( start );
+	if ( fd.exec() == QDialog::Accepted ) {
+	    QString result = fd.selectedFile();
+	    printf("%s\n", (const char*)result);
+	    return 0;
+	} else {
+	    return 1;
+	}
     } else {
+	CustomFileDialog fd;
+	fd.exec();
 	return 1;
     }
 }
-
-#include "qdir.moc"

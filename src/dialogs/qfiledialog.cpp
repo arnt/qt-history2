@@ -1947,7 +1947,7 @@ static QStringList makeFiltersList( const QString &filter )
 
   This class implements a dialog which can be used if the user should select
   a file or a directory.
-  
+
   Example (e.g. to get a filename for saving a file):
 
   \code
@@ -1959,7 +1959,7 @@ static QStringList makeFiltersList( const QString &filter )
 
   To let the user specify a filename for e.g. opening a file, you could use following
   code:
-  
+
   \code
     QString s( QFileDialog::getOpenFileName( QString::null, "Images (*.png *.xpm *.jpg)", this ) );
     if ( s.isEmpty() )
@@ -1971,17 +1971,20 @@ static QStringList makeFiltersList( const QString &filter )
   Other convenient static methods are QFileDialog::getExistingDirectory() to let the user
   choode a directory or QFileDialog::getOpenFileNames() to let the user select multiple
   files.
-  
+
   Additionally to these convenient static methods you can use one of QFileDialog's
   constructors, set a mode (see setMode()) and do more things, like adding a preview
   widget which will preview the current file or information of the current file while
-  the user does the selection (see setPreviewMode(), setInfoPreviewWidget and 
-  setContentsPreviewWidget()) or add additional widgets to the filedialog then 
+  the user does the selection (see setPreviewMode(), setInfoPreviewWidget and
+  setContentsPreviewWidget()) or add additional widgets to the filedialog then
   (see addWidgets(), addToolButton(), addLeftWidget() and addRightWidget()).
-  
+
   To get the selection the user did then, see selectedFile(), selectedFiles(), selectedFilter()
   and url(). To set these things see setUrl() and setSelection().
-  
+
+  For an example about how to use this customization of the QFileDialog, take a look
+  at the qdir example (qt/examples/qdir/qdir.cpp)
+
   <img src=qfiledlg-m.png> <img src=qfiledlg-w.png>
 
   \sa QPrintDialog
@@ -2281,7 +2284,8 @@ void QFileDialog::init()
     QHBoxLayout *lay = new QHBoxLayout( this );
     lay->setMargin( 5 );
     d->leftLayout = new QHBoxLayout( lay, 5 );
-    d->topLevelLayout = new QVBoxLayout( lay, 5 );
+    d->topLevelLayout = new QVBoxLayout( (QWidget*)0, 5 );
+    lay->addLayout( d->topLevelLayout, 1 );
     d->extraWidgetsLayouts.setAutoDelete( FALSE );
     d->extraLabels.setAutoDelete( FALSE );
     d->extraWidgets.setAutoDelete( FALSE );
@@ -2328,7 +2332,9 @@ void QFileDialog::init()
     h->addWidget( cancelB );
 
     d->rightLayout = new QHBoxLayout( lay, 5 );
-
+    d->topLevelLayout->setStretchFactor( d->mcView, 1 );
+    d->topLevelLayout->setStretchFactor( files, 1 );
+    
     updateGeometries();
 
     setTabOrder( d->paths, d->cdToParent );
@@ -3881,7 +3887,7 @@ void QFileDialog::addToolButton( QButton *b, bool separator )
 
 /*!
   Adds the widget \a w to the left of the filedialog.
-  
+
   \sa addRightWidget(), addWidgets(), addToolButton()
 */
 
@@ -3899,7 +3905,7 @@ void QFileDialog::addLeftWidget( QWidget *w )
 
 /*!
   Adds the widget \a w to the right of the filedialog.
-  
+
   \sa addLeftWidget(), addWidgets(), addToolButton()
 */
 

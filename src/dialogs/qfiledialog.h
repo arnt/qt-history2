@@ -125,10 +125,10 @@ public:
     void setContentsPreviewWidget( QWidget *w );
 
     QUrlOperator url() const;
-    void setUrl( const QUrlOperator &url );
 
 public slots:
     void setDir( const QString& );
+    void setUrl( const QUrlOperator &url );
     void setFilter( const QString& );
     void setFilters( const QString& );
     void setFilters( const char ** );

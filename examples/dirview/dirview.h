@@ -52,6 +52,9 @@ public:
     DirectoryView( QWidget *parent = 0, const char *name = 0, bool sdo = FALSE );
     bool showDirsOnly() { return dirsOnly; }
 
+public slots:
+    void setDir( const QString & );
+    
 signals:
     void folderSelected( const QString & );
 
@@ -76,7 +79,7 @@ private:
     QTimer autoopen_timer;
     QPoint presspos;
     bool mousePressed;
-    
+
     // ############# Move this to QScrollView
 private:
     QTimer autoscroll_timer;
