@@ -8,16 +8,10 @@ SOURCES		= main.cpp \
 
 unix {
 	OBJECTS_DIR	= .obj
-#	!contains( LIBS, .*odbc.* ) {
-#	    LIBS 	*= -lodbc
-#	}
+	!contains( LIBS, .*db2.* ) {
+	    LIBS 	*= -ldb2
+	}
 }
-
-#win32 {
-#	OBJECTS_DIR		= obj
-#	!win32-borland:LIBS	*= odbc32.lib
-#	win32-borland:LIBS	*= $(BCB)/lib/PSDK/odbc32.lib
-#}
 
 REQUIRES	= sql
 
