@@ -2459,7 +2459,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
 	QBitmap *comb = new QBitmap( sw, sh );
 	comb->detach();
-	GC cgc = qt_xget_temp_gc( TRUE );	// get temporary mono GC
+	GC cgc = qt_xget_temp_gc( pixmap.x11Screen(), TRUE );	// get temporary mono GC
 	XSetForeground( dpy, cgc, 0 );
 	XFillRectangle( dpy, comb->handle(), cgc, 0, 0, sw, sh );
 	XSetBackground( dpy, cgc, 0 );

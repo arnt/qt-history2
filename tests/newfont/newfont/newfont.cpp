@@ -13,7 +13,7 @@
 class NewFont : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     NewFont(QWidget *parent = 0, const char *name = 0)
 	: QWidget(parent, name)
@@ -29,7 +29,7 @@ public:
 
 	fbutton = new QPushButton("&Font Dialog", this, "newfont testing font button");
 	connect(fbutton, SIGNAL(clicked()), this, SLOT(showFD()));
-	
+
         qbutton = new QPushButton("&Quit", this, "new font testing QUITBUTTON");
         connect(qbutton, SIGNAL(clicked()), qApp, SLOT(quit()));
 
@@ -38,8 +38,8 @@ public:
         hbox->addWidget(fbutton);
         hbox->addWidget(qbutton);
     }
-    
-    
+
+
 public slots:
     void showFD();
 
@@ -54,9 +54,9 @@ void NewFont::showFD()
 {
     bool ok;
     QFont font = QFontDialog::getFont(&ok, QApplication::font(), this);
-    
+
     if (ok) {
-	textview->setFont(font);
+	qApp->setFont(font);
     }
 }
 
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     NewFont newfont(0, "newfont testing widget");
-    
+
     newfont.resize(600, 1000);
     app.setMainWidget(&newfont);
     newfont.show();
