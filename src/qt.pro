@@ -16,8 +16,8 @@ CONFIG		+= builder
 #
 # Install jpegsrc.v6b.tar.gz (find with http://ftpsearch.lycos.com)
 #
-# unix:DEFINES += QT_JPEG_SUPPORT
-# unix:LIBS	+= -ljpeg
+unix:DEFINES += QT_JPEG_SUPPORT
+unix:LIBS	+= -ljpeg
 # win32:DEFINES += QT_JPEG_SUPPORT
 # win32:LIBS	+= libjpeg.lib
 
