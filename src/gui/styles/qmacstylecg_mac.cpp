@@ -835,8 +835,6 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             else
                 bdi.state = kThemeStateActive;
             bdi.adornment = kThemeAdornmentNone;
-            if (btn->state & Style_ButtonDefault)
-                bdi.adornment = kThemeAdornmentDefault;
             bdi.value = kThemeButtonOff;
             if (btn->features != QStyleOptionButton::None)
                 bdi.kind = kThemeBevelButton;

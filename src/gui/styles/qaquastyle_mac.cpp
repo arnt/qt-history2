@@ -319,10 +319,6 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
             // It is very confusing to keep the button pulsing, so just stop the animation.
             stopAnimate(AquaPushButton, btn);
             break;
-        case QEvent::Paint:
-            if(btn->isDefault() && btn->topLevelWidget()->isActiveWindow())
-                startAnimate(AquaPushButton, btn);
-            break;
         case QEvent::MouseButtonRelease:
         case QEvent::FocusOut:
         case QEvent::Show: {
