@@ -1488,9 +1488,13 @@ bool QStyleSheet::mightBeRichText( const QString& text)
 {
     if ( text.isEmpty() )
 	return FALSE;
-    if ( text.left(5).lower() == "<!doc" )
+    int start = 0;
+    
+    while ( start < int(text.length()) && text[start].isSpace() )
+	++start;
+    if ( text.mid( start, 5 ).lower() == "<!doc" )
 	return TRUE;
-    int open = 0;
+    int open = start;
     while ( open < int(text.length()) && text[open] != '<'
 	    && text[open] != '\n' && text[open] != '&')
 	++open;
