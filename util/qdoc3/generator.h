@@ -84,6 +84,8 @@ private:
     void appendFullName( Text& text, const Node *apparentNode,
 			 const Node *relative, CodeMarker *marker,
 			 const Node *actualNode = 0 );
+    void Generator::appendSortedNames(Text& text, const ClassNode *classe,
+				      CodeMarker *marker);
 
     QRegExp amp;
     QRegExp lt;
