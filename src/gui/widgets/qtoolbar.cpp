@@ -168,15 +168,15 @@ int QToolBarPrivate::indexOf(QAction *action) const
 /*!
     \fn bool QToolBar::isDockable(Qt::ToolBarArea area)
 
-    Returns true if this tool bar is dockable in the given \a area;
+    Returns true if this toolbar is dockable in the given \a area;
     otherwise returns false.
 */
 
 /*!
     \fn void QToolBar::actionTriggered(QAction *action)
 
-    This signal is emitted when a tool bar button is pressed. The
-    parameter holds the tool bar button's associated \a action.
+    This signal is emitted when a toolbar button is pressed. The
+    parameter holds the toolbar button's associated \a action.
 */
 
 /*!
@@ -201,7 +201,7 @@ QToolBar::QToolBar(QWidget *parent, const char *name)
 #endif
 
 /*!
-    Destroys the tool bar.
+    Destroys the toolbar.
 */
 QToolBar::~QToolBar()
 {
@@ -220,7 +220,7 @@ QToolBar::~QToolBar()
 }
 
 /*! \property QToolBar::movable
-    \brief whether the user can move the toolbar within the tool bar area,
+    \brief whether the user can move the toolbar within the toolbar area,
     or between toolbar areas
 
     By default, this property is true when the toolbar is added to a
@@ -240,7 +240,7 @@ bool QToolBar::isMovable() const
 { return d->movable; }
 
 /*! \property QToolBar::allowedAreas
-    \brief areas where the tool bar may be placed.
+    \brief areas where the toolbar may be placed.
 
     The default is \c Qt::AllToolBarAreas.
 */
@@ -252,7 +252,7 @@ Qt::ToolBarAreas QToolBar::allowedAreas() const
 { return d->allowedAreas; }
 
 /*! \property QToolBar::orientation
-    \brief orientation of the tool bar.
+    \brief orientation of the toolbar.
 
     The default is \c Qt::Horizontal.
 
@@ -298,7 +298,7 @@ Qt::Orientation QToolBar::orientation() const
 { return d->orientation; }
 
 /*!
-    Removes all actions from the tool bar.
+    Removes all actions from the toolbar.
 
     \sa removeAction()
 */
@@ -311,7 +311,7 @@ void QToolBar::clear()
 
 /*! \fn void QToolBar::addAction(QAction *action)
 
-    Adds \a action to the end of the tool bar.
+    Adds \a action to the end of the toolbar.
 
     \sa addAction()
 */
@@ -319,7 +319,7 @@ void QToolBar::clear()
 /*! \overload
 
     Creates a new action with text \a text. This action is added to
-    the end of the tool bar.
+    the end of the toolbar.
 */
 QAction *QToolBar::addAction(const QString &text)
 {
@@ -331,7 +331,7 @@ QAction *QToolBar::addAction(const QString &text)
 /*! \overload
 
     Creates a new action with the icon \a icon and text \a text. This
-    action is added to the end of the tool bar.
+    action is added to the end of the toolbar.
 */
 QAction *QToolBar::addAction(const QIcon &icon, const QString &text)
 {
@@ -343,7 +343,7 @@ QAction *QToolBar::addAction(const QIcon &icon, const QString &text)
 /*! \overload
 
     Creates a new action with text \a text. This action is added to
-    the end of the tool bar. The action's \link QAction::triggered()
+    the end of the toolbar. The action's \link QAction::triggered()
     triggered()\endlink signal is connected to \a member in \a
     receiver.
 */
@@ -359,7 +359,7 @@ QAction *QToolBar::addAction(const QString &text,
 /*! \overload
 
     Creates a new action with the icon \a icon and text \a text. This
-    action is added to the end of the tool bar. The action's \link
+    action is added to the end of the toolbar. The action's \link
     QAction::triggered() triggered()\endlink signal is connected to \a
     member in \a receiver.
 */
@@ -374,7 +374,7 @@ QAction *QToolBar::addAction(const QIcon &icon, const QString &text,
 
 /*! \fn void QToolBar::insertAction(QAction *before, QAction *action)
 
-    Inserts the given \a action into the tool bar in front of the tool
+    Inserts the given \a action into the toolbar in front of the tool
     bar item associated with the \a before action.
 
     \sa addAction()
@@ -383,7 +383,7 @@ QAction *QToolBar::addAction(const QIcon &icon, const QString &text,
 /*! \overload
 
     Creates a new action with the given \a text. This action is
-    inserted into the tool bar in front of the tool bar item
+    inserted into the toolbar in front of the toolbar item
     associated with the \a before action.
 */
 QAction *QToolBar::insertAction(QAction *before, const QString &text)
@@ -396,7 +396,7 @@ QAction *QToolBar::insertAction(QAction *before, const QString &text)
 /*! \overload
 
     Creates a new action with the given \a icon and \a text. This
-    action is inserted into the tool bar in front of the tool bar item
+    action is inserted into the toolbar in front of the toolbar item
     associated with the \a before action.
 */
 QAction *QToolBar::insertAction(QAction *before, const QIcon &icon, const QString &text)
@@ -409,7 +409,7 @@ QAction *QToolBar::insertAction(QAction *before, const QIcon &icon, const QStrin
 /*! \overload
 
     Creates a new action with the given \a text. This action is inserted
-    into the tool bar in front of the tool bar item associated with
+    into the toolbar in front of the toolbar item associated with
     the \a before action. The action's \link QAction::triggered()
     triggered()\endlink signal is connected to the \a member in \a
     receiver.
@@ -426,7 +426,7 @@ QAction *QToolBar::insertAction(QAction *before, const QString &text,
 /*! \overload
 
     Creates a new action with the given \a icon and \a text. This
-    action is inserted into the tool bar in front of the tool bar item
+    action is inserted into the toolbar in front of the toolbar item
     associated with the \a before action. The action's \link
     QAction::triggered() triggered()\endlink signal is connected to
     the \a member in the \a receiver.
@@ -454,7 +454,7 @@ QAction *QToolBar::addSeparator()
 }
 
 /*!
-    Inserts a separator into the tool bar in front of the tool bar
+    Inserts a separator into the toolbar in front of the toolbar
     item associated with the \a before action.
 
     \sa addSeparator()
@@ -468,7 +468,7 @@ QAction *QToolBar::insertSeparator(QAction *before)
 }
 
 /*!
-    Adds the given \a widget to the tool bar as the tool bar's last
+    Adds the given \a widget to the toolbar as the toolbar's last
     item.
 
     \sa insertWidget()
@@ -481,7 +481,7 @@ QAction *QToolBar::addWidget(QWidget *widget)
 }
 
 /*!
-    Inserts the given \a widget in front of the tool bar item
+    Inserts the given \a widget in front of the toolbar item
     associated with the \a before action.
 
     \sa addWidget()
@@ -496,7 +496,7 @@ QAction *QToolBar::insertWidget(QAction *before, QWidget *widget)
 /*!
     \internal
 
-    Returns the geometry of the tool bar item associated with the given
+    Returns the geometry of the toolbar item associated with the given
     \a action, or an invalid QRect if no matching item is found.
 */
 QRect QToolBar::actionGeometry(QAction *action) const
@@ -769,9 +769,9 @@ bool QToolBar::event(QEvent *event)
 
 /*!
     Returns a checkable action that can be used to show or hide this
-    tool bar.
+    toolbar.
 
-    The action's text is set to the tool bar's window title.
+    The action's text is set to the toolbar's window title.
 
     \sa QAction::text QWidget::windowTitle
 */
