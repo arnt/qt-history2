@@ -4775,7 +4775,7 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::ToolTip:
-        if (d->toolTip.size()) {
+        if (d->toolTip.size() && isActiveWindow()) {
             QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
         } else
             return false;
