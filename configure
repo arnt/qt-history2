@@ -14,7 +14,7 @@ relpath=`(cd $relpath; pwd)`
 outpath=$relpath
 
 #internal variables
-LAZY_DEPS_ALLOWED=yes
+LAZY_DEPS_ALLOWED=no
 PROFILECFLAGS=
 CONFIG_CMDLINE=`echo $@ | sed "s,-v,,g"` #cache the commandline for config.status
 QMAKE_SWITCHES=""
@@ -81,7 +81,10 @@ then
     ln -s $relpath/mkspecs $outpath/mkspecs
 
     # create the include directory (will hold links and a real qconfig.h)
-    mkdir $outpath/include
+    if [ ! -d $outpath/include ]
+    then
+	mkdir $outpath/include
+    fi
 
     # symlink the doc directory
     rm -f $outpath/doc
@@ -124,9 +127,11 @@ else
     rm .test.qt.
 fi
 
-mv $outpath/include/qconfig.h qconfig.h-hold
+if [ -f $outpath/include/qconfig.h ]
+then
+    mv $outpath/include/qconfig.h qconfig.h-hold
+fi
 echo "// All features enabled while configuring" >$outpath/include/qconfig.h
-echo $outpath/include/qconfig.h
 
 
 if [ "$1" = -h -o "$1" = -help -o "$1" = --help ]
@@ -357,6 +362,7 @@ JPEG=no
 MNG=no
 XRENDER=auto
 XFTFREETYPE=auto
+XINPUT=auto
 STL=auto
 FT=yes
 NAS_SOUND=no
@@ -518,8 +524,14 @@ do
    -xinerama)
 	XINERAMA=yes
 	;;
+   -no-xinput)
+	XINPUT=no
+	;;
+   -xinput)
+	XINPUT=yes
+	;;
    -stl)
-	STL=yes
+	SL=yes
 	;;
    -no-stl)
 	STL=no
@@ -553,7 +565,7 @@ do
 	MNG=no
 	;;
    -system-libmng)
-	MNG=yes
+	MNG=system
 	;;
    -no-jpeg)
 	JPEG=no
@@ -898,52 +910,68 @@ fi
 #x11
 if [ "$X11_PLATFORM" = "yes" ]
 then
-   x11tests=$relpath/config.tests/x11
+    x11tests=$relpath/config.tests/x11
 
-   #opengl
-   if echo $MODULES | grep opengl >/dev/null
-   then
-       $x11tests/opengl.test $XQMAKESPEC $THREAD $VERBOSE && MODULES=`echo $MODULES | sed -e 's/opengl//'`
-   fi
-   # XRender support
-   if [ $XRENDER = auto ]
-   then
-       XRENDER=yes
-       $x11tests/xrender.test $XQMAKESPEC $VERBOSE && XRENDER=no && XFTFREETYPE=no
-   else
+    # Auto-detect OpenGL support
+    if echo $MODULES | grep opengl >/dev/null
+    then
+	$x11tests/opengl.test $XQMAKESPEC $THREAD $VERBOSE && MODULES=`echo $MODULES | sed -e 's/opengl//'`
+    fi
+    # Auto-detect XRender support
+    if [ $XRENDER = auto ]
+    then
+	XRENDER=yes
+	$x11tests/xrender.test $XQMAKESPEC $VERBOSE && XRENDER=no && XFTFREETYPE=no
+    elif [ $XRENDER = no ]
+    then
 	XFTFREETYPE=no
-   fi
-   # Auto-detect XftFreeType support
-   if [ $XRENDER = yes ] && [ $XFTFREETYPE = auto ]
-   then
-       XFTFREETYPE=yes
-       $x11tests/xfreetype.test $XQMAKESPEC $VERBOSE $x11tests && XFTFREETYPE=no
-   fi
-   # Add freetype2 include path
-   if [ $XFTFREETYPE = yes ] && [ -f $x11tests/xfreetype.inc ]
-   then
-       QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=`cat $x11tests/xfreetype.inc`\""
-   fi
-   rm -f $x11tests/xfreetype.inc
-   # Add XftFreetype specific config options
-   if [ $XFTFREETYPE = yes ] && [ -f $x11tests/xfreetype.cfg ]
-   then
-       QMAKE_CONFIG="$QMAKE_CONFIG `cat $x11tests/xfreetype.cfg`"
-   fi
-   rm -f $x11tests/xfreetype.cfg
-   # Auto-detect session management support
-   if [ $SM = auto ]
-   then
-       SM=yes
-       $x11tests/sm.test $XQMAKESPEC $VERBOSE && SM=no
-   fi
-
-   # Auto-detect Xinerama support
-   if [ $XINERAMA = auto ]
-   then
-       XINERAMA=yes
-       $x11tests/xinerama.test $XQMAKESPEC $VERBOSE && XINERAMA=no
-   fi
+    fi
+    # Auto-detect XftFreeType support
+    if [ $XRENDER = yes ] && [ $XFTFREETYPE = auto ]
+    then
+	XFTFREETYPE=yes
+	$x11tests/xfreetype.test $XQMAKESPEC $VERBOSE $x11tests && XFTFREETYPE=no
+    fi
+    # Add freetype2 include path
+    if [ $XFTFREETYPE = yes ] && [ -f $x11tests/xfreetype.inc ]
+    then
+	QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=`cat $x11tests/xfreetype.inc`\""
+    fi
+    rm -f $x11tests/xfreetype.inc
+    # Add XftFreetype specific config options
+    if [ $XFTFREETYPE = yes ] && [ -f $x11tests/xfreetype.cfg ]
+    then
+	QMAKE_CONFIG="$QMAKE_CONFIG `cat $x11tests/xfreetype.cfg`"
+    fi
+    rm -f $x11tests/xfreetype.cfg
+    # Auto-detect Session Management support
+    if [ $SM = auto ]
+    then
+	SM=yes
+	$x11tests/sm.test $XQMAKESPEC $VERBOSE && SM=no
+    fi
+    # Auto-detect Xinerama support
+    if [ $XINERAMA = auto ]
+    then
+	XINERAMA=yes
+	$x11tests/xinerama.test $XQMAKESPEC $VERBOSE && XINERAMA=no
+    fi
+    # Auto-detect XInput support (currenlty only in IRIX)
+    case $PLATFORM in
+    irix-*)
+	if [ $XINPUT = auto ]
+	then
+	    XINPUT=yes
+	    $x11tests/xinput.test $XQMAKESPEC $VERBOSE && XINPUT=no
+	fi
+	;;
+    *)
+	if [ $XINPUT = auto ]
+	then
+	    XINPUT=no
+	fi
+	;;
+    esac
 fi
 
 #unix
@@ -953,7 +981,7 @@ unixtests=$relpath/config.tests/unix
 # Next, emit a usage message if something failed.
 if [ "$HELP" = "yes" ]
 then
-   [ "x$ERROR" = "xyes" ] && echo
+    [ "x$ERROR" = "xyes" ] && echo
     if [ "x$THREAD" = "xyes" ]
     then
 	THY="*"
@@ -1094,7 +1122,6 @@ if [ "$X11_PLATFORM" = "yes" ]; then
 	XRY="*"
 	XRN=" "
     fi
-
     if [ "x$XFTFREETYPE" = "xno" ]
     then
 	XFTY=" "
@@ -1103,7 +1130,6 @@ if [ "$X11_PLATFORM" = "yes" ]; then
 	XFTY="*"
 	XFTN=" "
     fi
-
     if [ "x$XRENDER" = "xno" ]
     then
 	XRY=" "
@@ -1111,6 +1137,14 @@ if [ "$X11_PLATFORM" = "yes" ]; then
     else
 	XRY="*"
 	XRN=" "
+    fi
+    if [ "x$XINPUT" = "xno" ]
+    then
+	XIY=" "
+	XIN="*"
+    else
+	XIY="*"
+	XIN=" "
     fi
     cat << EOF
 
@@ -1130,6 +1164,9 @@ Qt/X11 only:
  $XFTN  -no-xft ............ Do not compile XftFreeType (anti-aliased font) support.
  $XFTY  -xft ............... Compile XftFreeType support.
 			 Requires X11/Xft/XftFreetype.h and libXft.
+
+ $XIY  -no-xinput ......... Do not compile XInput support.
+ $XIN  -xinput ............ Compile XInput support (currently only on IRIX).
 
 EOF
 fi
@@ -1205,7 +1242,6 @@ then
 	echo "########################################################################" >>$mkfile
 	grep "QMAKE_CC[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CC,CC," >>$mkfile
 	grep "QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CXX,CXX", >>$mkfile
-	grep "QMAKE_CFLAGS_QMAKE[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
 	if [ "$DEBUG" = "yes" ]
 	then
 	    grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
@@ -1326,7 +1362,10 @@ then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VNC"
 fi
 
-mv qconfig.h-hold $outpath/include/qconfig.h
+if [ -f qconfig.h-hold ]
+then
+    mv qconfig.h-hold $outpath/include/qconfig.h
+fi
 
 case "$QCONFIG" in
   minimal|small|medium|large|full)
@@ -1418,6 +1457,7 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$JPEG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
 [ "x$JPEG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
 [ "x$MNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG mng"
+[ "x$MNG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG mng"
 [ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
 if [ "$X11_PLATFORM" = "yes" ]
 then
@@ -1442,6 +1482,11 @@ then
 	# up as a dependency if libXft isn't a shared library, so we have to add
 	# libfreetype as well as libXt to the program/lib link command
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXft -lfreetype\""
+    fi
+    if [ "x$XINPUT" = "xyes" ]
+    then
+	QMAKE_CONFIG="$QMAKE_CONFIG xinput"
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXi\""
     fi
 fi
 [ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
@@ -1505,7 +1550,7 @@ then
     rm -f $relpath/src/tools/qmodules.h.new
 else
     [ -f $relpath/src/tools/qmodules.h ] && chmod +w $relpath/src/tools/qmodules.h
-    mv $relpath/src/tools/qmodules.h.new $relpath/src/tools/qmodules.h
+    mv -f $relpath/src/tools/qmodules.h.new $relpath/src/tools/qmodules.h
     chmod -w $relpath/src/tools/qmodules.h
 fi
 
@@ -1617,6 +1662,7 @@ if [ "$X11_PLATFORM" = "yes" ]
 then
     echo "Session management... $SM"
     echo "Xinerama support..... $XINERAMA"
+    echo "XInput support ...... $XINPUT"
     echo "XRender support ..... $XRENDER"
     echo "XftFreeType support . $XFTFREETYPE"
 fi
