@@ -749,8 +749,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 	    argv[j++] = argv[i];
 	    continue;
 	}
-	QCString arg = argv[i];
-	if ( arg == "-nograb" )
+	if ( qstrcmp(argv[i], "-nograb") == 0 )
 	    appNoGrab = !appNoGrab;
 	else
 	    argv[j++] = argv[i];
