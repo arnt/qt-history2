@@ -259,6 +259,13 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                     // guaranteed not to wait.
                     if ( fork() > 0 ) {
                         closeAllOpenFds();
+
+			// try to replace this process with "true" - this prevents
+			// global destructors from being called (that could possibly
+			// do wrong things to the parent process)
+			(void)execlp("true", "true", 0);
+			(void)execl("/bin/true", "true", 0);
+			(void)execl("/usr/bin/true", "true", 0);
                         exit( 0 );
                     }
                     dup2( fds[0], 0 );
