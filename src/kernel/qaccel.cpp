@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#65 $
 **
 ** Implementation of QAccel class
 **
@@ -94,7 +94,6 @@ public:
 };
 
 
-// ### hack: we cast merrily.
 static QAccelItem *find_id( QAccelList &list, int id )
 {
     register QAccelItem *item = list.first();

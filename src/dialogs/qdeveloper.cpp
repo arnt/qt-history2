@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#7 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#8 $
 **
 ** Implementation of QDeveloper class
 **
@@ -349,7 +349,7 @@ QDeveloper::QDeveloper() :
     if ( nclasses ) {
 	msg.sprintf(tr("Qt Developer - %d classes"), nclasses);
 	QListViewItem *lvi = new QDeveloperClassItem( d->classes, QObject::metaObject(), d );
-	lvi->setOpen(TRUE); // #### WWA: Arnt, why needed?
+	lvi->setOpen(TRUE);
     } else {
 	msg = tr("Sorry, your compiler/platform is insufficient for "
 		"the Qt Developer to operate");
@@ -374,7 +374,7 @@ void QDeveloper::addTopLevelWidget(QWidget* tlw)
     if ( !d->findTopLevel(tlw) ) {
 	QDeveloperObjectItem *lvi = new QDeveloperObjectItem( d->objects, tlw, d );
 	lvi->fillExistingTree();
-	lvi->setOpen(TRUE); // #### WWA: Arnt, why needed?
+	lvi->setOpen(TRUE);es
     }
 }
 
