@@ -271,7 +271,9 @@ void QRecursiveMutexPrivate::lock()
     if (count > 0 && owner == (unsigned long) Q_THREAD_SELF()) {
 	count++;
     } else {
+	Q_MUTEX_UNLOCK(&handle2);
 	Q_MUTEX_LOCK(&handle);
+	Q_MUTEX_LOCK(&handle2);
 	count = 1;
 	owner = (unsigned long) Q_THREAD_SELF();
     }
