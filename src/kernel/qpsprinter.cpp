@@ -4881,8 +4881,8 @@ QPSPrinterFontKorean::QPSPrinterFontKorean(const QFont& f)
 {
     codec = QTextCodec::codecForMib( 36 ); // ksc5601.1987-0
     int type = getPsFontType( f );
-    psname = SMMyungjo[type].psname;
-    slant = SMMyungjo[type].slant;
+    psname = SMGothic[type].psname;
+    slant = SMGothic[type].slant;
     appendReplacements( replacementList, KoreanReplacements, type );
 }
 
@@ -4980,8 +4980,8 @@ static const psfont MOEKai [] = {
 };
 
 static const psfont * const TraditionalReplacements[] = {
-    SongB5, ShanHeiSun, MingB5, MSung, FangSongB5, KaiB5, ZenKai, HeiB5,
-    LinGothic, YenRound, MOESung, MOEKai, Helvetica, 0
+    MOESung, SongB5, ShanHeiSun, MingB5, MSung, FangSongB5, KaiB5, ZenKai, HeiB5,
+    LinGothic, YenRound, MOEKai, Helvetica, 0
 	};
 
 #if 0
@@ -5161,6 +5161,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     QString fontfilename;
     QString fontname;
 
+    enum { NONE, PFB, PFA, TTF } type = NONE;
 
 #ifdef Q_WS_X11
     // append qsettings fontpath
@@ -5241,7 +5242,8 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     else if ( script == QFont::Bopomofo )
 	script = QFont::Han;
 
-#ifdef Q_WS_X11
+    QString searchname = xfontname;
+#ifdef Q_WS_X11    
     // we need an extension here due to the fact that we use different
     // fonts for different scripts
     if ( xlfd && script >= QFont::Han && script <= QFont::Bopomofo ) 
@@ -5325,7 +5327,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 			// fold to lower (since X folds to lowercase)
 			//qWarning(xfontname);
 			//qWarning(mapping);
-			if (mapping.lower().contains(xfontname.lower())) {
+			if (mapping.lower().contains(searchname.lower())) {
 			    int index = mapping.find(' ',0);
 			    QString ffn = mapping.mid(0,index);
 				// remove the most common bitmap formats
@@ -5362,8 +5364,6 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	    fontfile.close();
 	}
     }
-
-    enum { NONE, PFB, PFA, TTF } type = NONE;
 
     if (!data.isNull() && data.size() > 0) {
         unsigned char* d = (unsigned char *)data.data();
