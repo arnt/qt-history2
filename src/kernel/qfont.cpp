@@ -1983,12 +1983,15 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 int QFontMetrics::ascent() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+    QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
+    Q_ASSERT( latin_engine != 0 );
 #endif // QT_CHECK_STATE
 
-    return engine->ascent();
+    return QMAX(engine->ascent(), latin_engine->ascent());
 }
+
 
 /*!
     Returns the descent of the font.
@@ -2004,11 +2007,13 @@ int QFontMetrics::ascent() const
 int QFontMetrics::descent() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+    QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
+    Q_ASSERT( latin_engine != 0 );
 #endif // QT_CHECK_STATE
 
-    return engine->descent();
+    return QMAX(engine->descent(), latin_engine->descent());
 }
 
 /*!
@@ -2022,11 +2027,14 @@ int QFontMetrics::descent() const
 int QFontMetrics::height() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+    QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
+    Q_ASSERT( latin_engine != 0 );
 #endif // QT_CHECK_STATE
 
-    return engine->ascent() + engine->descent();
+    return QMAX(engine->ascent() + engine->descent(),
+		latin_engine->ascent() + latin_engine->descent());
 }
 
 /*!
@@ -2039,11 +2047,13 @@ int QFontMetrics::height() const
 int QFontMetrics::leading() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+    QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
+    Q_ASSERT( latin_engine != 0 );
 #endif // QT_CHECK_STATE
 
-    return engine->leading();
+    return QMAX(engine->leading(), latin_engine->leading());
 }
 
 /*!
@@ -2056,11 +2066,14 @@ int QFontMetrics::leading() const
 int QFontMetrics::lineSpacing() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+    QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
+    Q_ASSERT( latin_engine != 0 );
 #endif // QT_CHECK_STATE
 
-    return engine->leading() + engine->ascent() + engine->descent();
+    return QMAX(engine->leading() + engine->ascent() + engine->descent(),
+		latin_engine->leading() + latin_engine->ascent() + latin_engine->descent());
 }
 
 /*!
@@ -2076,11 +2089,13 @@ int QFontMetrics::lineSpacing() const
 int QFontMetrics::minLeftBearing() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+    QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
+    Q_ASSERT( latin_engine != 0 );
 #endif // QT_CHECK_STATE
 
-    return engine->minLeftBearing();
+    return QMIN(engine->minLeftBearing(), latin_engine->minLeftBearing());
 }
 
 /*!
@@ -2096,11 +2111,13 @@ int QFontMetrics::minLeftBearing() const
 int QFontMetrics::minRightBearing() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+    QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
+    Q_ASSERT( latin_engine != 0 );
 #endif // QT_CHECK_STATE
 
-    return engine->minRightBearing();
+    return QMIN(engine->minRightBearing(), latin_engine->minRightBearing());
 }
 
 /*!
@@ -2109,11 +2126,13 @@ int QFontMetrics::minRightBearing() const
 int QFontMetrics::maxWidth() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+    QFontEngine *lengine = d->engineForScript( QFont::Latin );
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
+    Q_ASSERT( lengine != 0 );
 #endif // QT_CHECK_STATE
 
-    return engine->maxCharWidth();
+    return QMAX(engine->maxCharWidth(), lengine->maxCharWidth());
 }
 
 /*!
