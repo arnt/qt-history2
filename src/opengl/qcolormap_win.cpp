@@ -57,6 +57,9 @@ public:
 	hpal = CreatePalette( lpal );
 
 	if ( hpal != 0 ) {
+	    HDC hdc = GetDC( w->topLevelWidget()->winId() );
+	    SelectPalette( hdc, hpal, FALSE );
+	    ReleaseDC( w->topLevelWidget()->winId(), hdc );
 	    size   = 256;
 	    widget = w;
 	    valid  = TRUE;
@@ -96,6 +99,8 @@ QColormap::QColormap( const QColormap & map )
 
 QColormap::~QColormap()
 {
+    if ( d->deref() )
+	delete d;
 }
 
 QColormap & QColormap::operator=( const QColormap & map )
@@ -122,10 +127,11 @@ void QColormap::setRgb( int idx, QRgb color )
 
     SetPaletteEntries( d->hpal, idx, 1, &pe );
     d->cells[ idx ] = color;
-    HDC hdc = GetDC( d->widget->topLevelWidget()->winId() );
-    SelectPalette( hdc, d->hpal, FALSE );
-    //RealizePalette( hdc );
-    ReleaseDC( d->widget->topLevelWidget()->winId(), hdc );
+    // ### needed if we want to set a colormap AFTER the window has been created
+    // ### - disabled for now (maybe add a QColormap::realize()??)
+//    HDC hdc = GetDC( d->widget->topLevelWidget()->winId() );
+//    RealizePalette( hdc ); 
+//    ReleaseDC( d->widget->topLevelWidget()->winId(), hdc );
 }
 
 void QColormap::setColor( int idx, const QColor & color )
