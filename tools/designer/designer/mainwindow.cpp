@@ -1123,7 +1123,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	return TRUE;
     case QEvent::FocusIn:
     case QEvent::FocusOut:
-	if ( isAFormWindowChild( o ) )
+	if ( !o->inherits( "FormWindow" ) && isAFormWindowChild( o ) )
 	    return TRUE;
 	break;
     default:
