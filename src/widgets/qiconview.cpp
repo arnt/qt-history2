@@ -2944,8 +2944,10 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
     if ( !item )
 	return;
 
-    ensureVisible( item->x(), item->y(),
-		   item->width(), item->height() );
+    int w = item->width();
+    int h = item->height();
+    ensureVisible( item->x() + w / 2, item->y() + h / 2,
+		   w / 2 + 1, h / 2 + 1 );
 }
 
 /*!
