@@ -547,7 +547,8 @@ int QBig5hkscsCodec::heuristicNameMatch(const char* hint) const
     if (p) {
 	if ( qstricmp(p, "Big5-HKSCS") == 0 ||
 	     qstricmp(p, "HKSCS-Big5") == 0 ||
-	     qstricmp(p, "Big5HKSCS") == 0   ) {
+	     qstricmp(p, "Big5HKSCS")  == 0 ||
+	     qstricmp(p, "hkbig5")     == 0 ) {
 	    return score + 10;
         }
 	else if (qstrnicmp(p, "Big5", 4) == 0) {

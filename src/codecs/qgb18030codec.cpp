@@ -669,7 +669,8 @@ int QGb2312Codec::heuristicNameMatch(const char* hint) const
     	p = hint;
     }
     if (p) {
-	if (qstricmp(p, "GB2312") == 0)
+	if (qstricmp(p, "GB2312") == 0 ||
+	    qstricmp(p, "hp15cn") == 0)
 	    return score + 7;
 	else if (qstricmp(p, "eucCN") == 0)
 	    return score + 4;
