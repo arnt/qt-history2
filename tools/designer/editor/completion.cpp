@@ -614,7 +614,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     if ( label.isEmpty() )
 	return FALSE;
     if ( functionLabel->isVisible() ) {
-	functionLabel->resize( w, QMAX( functionLabel->fontMetrics().height(), 16 ) );
+	functionLabel->resize( w + 50, QMAX( functionLabel->fontMetrics().height(), 16 ) );
     } else {
 	QTextStringChar *chr = cursor->parag()->at( cursor->index() );
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
@@ -622,7 +622,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	int y, dummy;
 	cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
 	y += cursor->parag()->rect().y();
-	functionLabel->resize( w, QMAX( functionLabel->fontMetrics().height(), 16 ) );
+	functionLabel->resize( w + 50, QMAX( functionLabel->fontMetrics().height(), 16 ) );
 	functionLabel->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
 	if ( functionLabel->x() + functionLabel->width() > QApplication::desktop()->width() )
 	    functionLabel->move( QMAX( 0, QApplication::desktop()->width() - functionLabel->width() ),
