@@ -3,7 +3,7 @@
 **
 ** Implementation of QAction class
 **
-** Created : 000000
+** Created : 241200
 **
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
@@ -53,40 +53,41 @@
 
 /*! \class QAction qaction.h
 
-  \brief The QAction class provides an abstract user interface action that can
-  appear both in menus and tool bars.
+  \brief The QAction class provides an abstract user interface action
+  that can appear both in menus and tool bars.
 
-  In modern GUIs many user commands can be invoked via a menu entry, a
-  tool button and/or a keyboard accelerator.
-  To make the program less error-prone it is advisable to not
-  implement all these incidences separately but use an abstraction that ties
-  together all invokation methods. These abstractions are called \e actions.
+  In modern GUIs most user commands can be invoked via a menu entry, a
+  tool button and/or a keyboard accelerator.  To make the program
+  simpler and more robust you can combine these in one object: an \e
+  action.
 
-  A QAction may contain items like an icon set, an appropriate menu text,
-  an accelerator, a help text, a tool tip etc. that \e represent the user command.
-  These items are referred to with the term \e properties. Although the term
-  \e action might suggest so they do not include the function to be invoked itself.
-  On user interaction QActions emit signals that should be used to tie the
-  functionality to the user interface.
+  A QAction may have properties like an icon set, an appropriate menu
+  text, an accelerator, a help text, a tool tip etc. Although the term
+  action might suggest so they do not include the function to be
+  invoked.  QAction emits signals; the functionality must be located
+  in corresponding slots.
 
   There are two basic kinds of user interface actions, command actions
-  and toggle actions. The former triggers the execution of a command (for example
-  "open file"). To do this it emits the activated() signal when the user
-  invokes the command. The application
-  programmer is responsible for connecting activated() to a slot that executes
+  and toggle actions. The former triggers the execution of a command
+  (for example "open file"). To do this it emits the activated()
+  signal when the user invokes the command. The application programmer
+  is responsible for connecting activated() to a slot that executes
   the respective function.
 
-  Toggle actions on the other hand give the user the possibility to opt on/off
-  for a certain tool or modus. The drawing tools in a
-  paint program or the setting of font characteristics like bold/underlined/italics
-  in a text processor are examples that should be represented by toggle actions.
-  A toggle action emits a toggled() signal whenever it changes state.
+  Toggle actions on the other hand give the user the possibility to
+  opt on/off for a certain tool or modus. The drawing tools in a paint
+  program or the setting of font characteristics like
+  bold/underlined/italics in a text processor are examples that should
+  be represented by toggle actions.  A toggle action emits a toggled()
+  signal whenever it changes state.
 
-  Whether an action is a command action or a toggle action can be defined via
-  the setToggleAction() function.
+  Both kinds are often organized in groups, and QAction also provides
+  support for that. The drawing tools mentioned would typically be an
+  ExclusiveGroup, and the tree tools for bold, underlined and italics
+  could be a group.
 
-  To insert an action into a menu or a tool bar, use addTo().
-  It will appear as either a menu entry or a tool button:
+  To insert an action into a menu or a tool bar, use addTo().  It will
+  appear as either a menu entry or a tool button:
 
   \walkthrough action/application.cpp
   \skipto fileOpenAction
@@ -104,27 +105,24 @@
   \skipto fileOpenAction
   \printline fileOpenAction
 
-  (Refer to the \link simple-application-action.html Simple Application Walkthrough
-  featuring QAction \endlink for a detailed explanation of the above code.)
+  (Refer to the \link simple-application-action.html Simple
+  Application Walkthrough featuring QAction \endlink for a detailed
+  explanation of this code.)
 
   You can add an action to an arbitrary number of menus and toolbars
-  and remove it again with removeFrom().
-  Several actions can be combined in a QActionGroup.
+  and remove it again with removeFrom(). If you change a property, the
+  change shows up instantly in all representations. (Note that this
+  may cause some flicker.)
 
-  Changing an action's properties using one of the set-functions shows instant
-  effect on all representations. Whilst properties like isEnabled(), text(),
-  menuText(), toolTip(), statusTip(), accel(), iconSet() and
-  whatsThis() are equally useful
-  for both command and toggle actions, the isOn() property does show effect
-  only when isToggleAction() returns TRUE.
+  While properties like isEnabled(), text(), menuText(), toolTip(),
+  statusTip(), accel(), iconSet() and whatsThis() are equally useful
+  for all types of actions, some are specific to one type of
+  action. isOn() is specific to toggle actions. ...
 
-  Since accelerators and status tips are window specific, the application
-  window has to be an ancestor of an action with accel() or statusTip()
-  holding TRUE. Therefore it is a good idea to always create actions as direct
-  children of the main window.
-
-  To prevent recursions it is advisable to never create an action as a child of a widget
-  it is added to later.
+  Since accelerators and status tips are specific to one window, a
+  QAction has to be the child of a QWidget for these features to
+  work. We strongly recommend making QAction objects children of the
+  relevant top-level widget.
 */
 
 
@@ -142,66 +140,79 @@ public:
     int key;
     QAccel* accel;
     int accelid;
+    QAction::Type type;
     uint enabled : 1;
-    uint toggleaction :1;
     uint on : 1;
+    uint dropdown : 1;
+    QAction * group;
+
     QToolTipGroup* tipGroup;
 
     struct MenuItem {
-	MenuItem():popup(0),id(0){}
-	QPopupMenu* popup;
+	MenuItem() : popup(0), child(0), id(0) {}
+	QPopupMenu * popup;
+	QPopupMenu * child;
 	int id;
     };
-    // ComboItem is only necessary for actions that are 
-    // in dropdown/exclusive actiongroups. The actiongroup 
-    // will clean this up
+    // ComboItem is only necessary for actions that are in
+    // dropdown/exclusive actiongroups. The actiongroup will clean
+    // this up
     struct ComboItem {
 	ComboItem():combo(0), id(0) {}
 	QComboBox* combo;
 	int id;
     };
     QList<MenuItem> menuitems;
-    QList<QToolButton> toolbuttons;
-    QList<ComboItem> comboitems;
+    QList<ComboItem> comboitems;// ### new
+    QList<QWidget> widgets;
 
-    enum Update { Everything, Icons, State }; // Everything means everything but icons and state
-    void update( Update upd = Everything );
-
-    QString menuText() const;
-    QString toolTip() const;
-    QString statusTip() const;
+    QList<QAction> actions;
+    QAction* selected;
 };
+
 
 QActionPrivate::QActionPrivate()
 {
     iconset = 0;
     accel = 0;
     accelid = 0;
+    dropdown = 0;
     key = 0;
+    type = QAction::Command;
     enabled = 1;
-    toggleaction  = 0;
     on = 0;
+    group = 0;
     menuitems.setAutoDelete( TRUE );
+    selected = 0;
     tipGroup = new QToolTipGroup( 0 );
+    comboitems.setAutoDelete( TRUE );
+    widgets.setAutoDelete( TRUE );
 }
+
 
 QActionPrivate::~QActionPrivate()
 {
-    QListIterator<QToolButton> ittb( toolbuttons );
-    QToolButton *tb;
+    // first do the menu items, then the widget - wouldn't want to
+    // firste delete a menu and then access a menu item in it.
 
-    while ( ( tb = ittb.current() ) ) {
-	++ittb;
-	delete tb;
+    if ( !menuitems.isEmpty() ) {
+	QListIterator<QActionPrivate::MenuItem> it( menuitems );
+	QActionPrivate::MenuItem* mi;
+	while ( (mi=it.current()) != 0 ) {
+	    ++it;
+	    QPopupMenu* menu = mi->popup;
+	    if ( menu->findItem( mi->id ) )
+		menu->removeItem( mi->id );
+	}
     }
 
-    QListIterator<QActionPrivate::MenuItem> itmi( menuitems);
-    QActionPrivate::MenuItem* mi;
-    while ( ( mi = itmi.current() ) ) {
-	++itmi;
-	QPopupMenu* menu = mi->popup;
-	if ( menu->findItem( mi->id ) )
-	    menu->removeItem( mi->id );
+    if ( !widgets.isEmpty() ) {
+	QListIterator<QWidget> it( widgets );
+	QWidget *tb;
+	while ( (tb=it.current()) != 0 ) {
+	    ++it;
+	    delete tb;
+	}
     }
 
     delete accel;
@@ -209,93 +220,125 @@ QActionPrivate::~QActionPrivate()
     delete tipGroup;
 }
 
-void QActionPrivate::update( Update upd )
+
+void QAction::updateVectors()
 {
-    for ( QListIterator<MenuItem> it( menuitems); it.current(); ++it ) {
-	MenuItem* mi = it.current();
-	QString t = menuText();
-	if ( key )
-	    t += '\t' + QAccel::keyToString( key );
-	switch ( upd ) {
-	case State:
-	    mi->popup->setItemEnabled( mi->id, enabled );
-	    if ( toggleaction )
-		mi->popup->setItemChecked( mi->id, on );
-	    break;
-	case Icons:
-	    if ( iconset )
-		mi->popup->changeItem( mi->id, *iconset, t );
-	    break;
-	default:
+    /* long complex function to update all properties of all shapes of
+       this action.  not terribly well optimized; functions like
+       QToolButton::setText() are supposed to guard against flicker,
+       so we don't do it here.	(we used to do about half of it, but
+       not any more.) */
+
+    if ( !d->actions.isEmpty() ) {
+	QListIterator<QAction> it( d->actions );
+	QAction * a;
+	while( (a=it.current()) != 0 ) {
+	    ++it;
+	    a->setEnabled( d->enabled );
+	}
+    }
+
+    QString wt( whatsThis() );
+
+    if ( !d->menuitems.isEmpty() ) {
+	QListIterator<QActionPrivate::MenuItem> it( d->menuitems );
+	QActionPrivate::MenuItem* mi;
+	while( (mi=it.current()) != 0 ) {
+	    ++it;
+	    QString t = menuText();
+	    if ( d->key )
+		t += '\t' + QAccel::keyToString( d->key );
 	    mi->popup->changeItem( mi->id, t );
-	    if ( !whatsthis.isEmpty() )
-		mi->popup->setWhatsThis( mi->id, whatsthis );
-	    if ( toggleaction ) {
-		mi->popup->setCheckable( TRUE );
-		mi->popup->setItemChecked( mi->id, on );
+	    // ### dubious - how do we clear the iconset?
+	    if ( d->iconset )
+		mi->popup->changeItem( mi->id, *d->iconset, t );
+	    if ( !wt.isEmpty() )
+		mi->popup->setWhatsThis( mi->id, wt );
+	    mi->popup->setCheckable( d->type == QAction::Toggle );
+	    if ( d->type == QAction::Toggle )
+		mi->popup->setItemChecked( mi->id, d->on );
+	    QPopupMenu * popup = mi->popup;
+	    // ### if the next if() is necessary, there's a bug in the
+	    // menu system.
+	    if ( popup->parentWidget() &&
+		 popup->parentWidget()->inherits( "QPopupMenu" ) )
+		popup = (QPopupMenu*)(popup->parentWidget());
+	    popup->setItemEnabled( mi->id, d->enabled );
+	}
+    }
+
+    if ( !d->widgets.isEmpty() ) {
+	QListIterator<QWidget> it( d->widgets );
+	QWidget * w;
+	while( (w=it.current()) != 0 ) {
+	    ++it;
+	    if ( w->inherits( "QToolButton" ) ) {
+		QToolButton* btn = (QToolButton*)w;
+		if ( !d->text.isEmpty() )
+		    btn->setTextLabel( d->text, FALSE );
+		if ( d->iconset )
+		    btn->setIconSet( *d->iconset );
+		btn->setEnabled( d->enabled );
+		btn->setToggleButton( d->type == QAction::Toggle );
+		if ( d->type == QAction::Toggle )
+		    btn->setOn( d->on );
+		QToolTip::remove( btn );
+		QToolTip::add( btn, toolTip(), d->tipGroup, statusTip() );
+		QWhatsThis::remove( btn );
+		if ( !wt.isEmpty() )
+		    QWhatsThis::add( btn, wt );
+	    } else if ( w->inherits( "QComboBox" ) ) {
+		QComboBox * cb = (QComboBox*)w;
+		cb->setEnabled( d->enabled );
+		QToolTip::remove( cb );
+		QWhatsThis::remove( cb );
+		QString tmp = toolTip();
+		if ( tmp.length() )
+		    QToolTip::add( cb, tmp );
+		if ( !wt.isEmpty() )
+		    QWhatsThis::add( cb, wt );
+		// ### cb->setCurrent() ?
+	    } else if ( w->inherits( "QPopupMenu" ) ) {
+		// nothing should be necessary
 	    }
 	}
     }
-    for ( QListIterator<QToolButton> it2( toolbuttons); it2.current(); ++it2 ) {
-	QToolButton* btn = it2.current();
-	switch ( upd ) {
-	case State:
-	    btn->setEnabled( enabled );
-	    if ( toggleaction )
-		btn->setOn( on );
-	    break;
-	case Icons:
-	    if ( iconset )
-		btn->setIconSet( *iconset );
-	    break;
-	default:
-	    btn->setToggleButton( toggleaction );
-	    if ( !text.isEmpty() )
-		btn->setTextLabel( text, FALSE );
-	    QToolTip::remove( btn );
-	    QToolTip::add( btn, toolTip(), tipGroup, statusTip() );
-	    QWhatsThis::remove( btn );
-	    if ( !whatsthis.isEmpty() )
-		QWhatsThis::add( btn, whatsthis );
+    if ( d->accel ) {
+	d->accel->setEnabled( d->enabled );
+	if ( !wt.isEmpty() )
+	    d->accel->setWhatsThis( d->accelid, wt );
+    }
+
+    if ( !d->comboitems.isEmpty() ) {
+	QListIterator<QActionPrivate::ComboItem> it( d->comboitems );
+	QActionPrivate::ComboItem * ci;
+	while( (ci=it.current()) != 0 ) {
+	    ++it;
+	    if ( d->iconset )
+		ci->combo->changeItem( d->iconset->pixmap(), text(), ci->id );
+	    else
+		ci->combo->changeItem( text(), ci->id );
 	}
     }
-    // Only used by actiongroup
-    for ( QListIterator<ComboItem> it3( comboitems ); it3.current(); ++it3 ) {
-	ComboItem *ci = it3.current();
-	if ( iconset )
-	    ci->combo->changeItem( iconset->pixmap(), text, ci->id );
-	else
-	    ci->combo->changeItem( text, ci->id );
-    }
 }
 
-QString QActionPrivate::menuText() const
+
+/*!  Constructs an action of type \a t, with parent \a parent and name
+  \a name. If \a parent is a QAction, the new action inserts itself
+  into \a parent, otherwise \a parent and \a name are as for QObject.
+*/
+
+QAction::QAction( Type t, QObject* parent, const char* name )
+    : QObject( parent, name )
 {
-    if ( menutext.isNull() )
-	return text;
-    return menutext;
+    d = new QActionPrivate;
+    d->type = t;
+    init();
 }
 
-QString QActionPrivate::toolTip() const
-{
-    if ( tooltip.isNull() ) {
-	if ( accel )
-	    return text + " (" + QAccel::keyToString( accel->key( accelid )) + ")";
-	return text;
-    }
-    return tooltip;
-}
+/*! \obsolete
 
-QString QActionPrivate::statusTip() const
-{
-    if ( statustip.isNull() )
-	return toolTip();
-    return statustip;
-}
-
-
-
-/*! Constructs an action skeleton with parent \a parent and name \a name.
+  Constructs an action skeleton with parent \a parent and name \a name.
 
   The \a toggle parameter defines whether the action becomes a toggle action
   (TRUE) or a command action (FALSE).
@@ -309,12 +352,14 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
     d = new QActionPrivate;
-    d->toggleaction = toggle;
+    d->type = toggle ? Toggle : Command;
     init();
 }
 
 
-/*! This constructor creates an action with the following properties:
+/*! \obsolete
+
+  This constructor creates an action with the following properties:
   the description \a text, the icon or iconset \a icon, the menu text
   \a menuText and a keyboard accelerator \a accel. It is a child of \a parent
   and named \a name. As long as \a toggle isn't set to TRUE the new
@@ -334,7 +379,7 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
     : QObject( parent, name )
 {
     d = new QActionPrivate;
-    d->toggleaction = toggle;
+    d->type = toggle ? Toggle : Command;
     if ( !icon.pixmap().isNull() )
 	setIconSet( icon );
     d->text = text;
@@ -343,7 +388,9 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
     init();
 }
 
-/*! This constructor results in an iconless action with the description text
+/*! \obsolete
+
+  This constructor results in an iconless action with the description text
   \a text, the menu text \a menuText and the keyboard accelerator \a accel.
   Its parent is \a parent and its name \a
   name. Depending on the value of \a toggle a command action (default,
@@ -363,7 +410,7 @@ QAction::QAction( const QString& text, const QString& menuText, int accel, QObje
     : QObject( parent, name )
 {
     d = new QActionPrivate;
-    d->toggleaction = toggle;
+    d->type = toggle ? Toggle : Command;
     d->text = text;
     d->menutext = menuText;
     setAccel( accel );
@@ -375,15 +422,40 @@ QAction::QAction( const QString& text, const QString& menuText, int accel, QObje
 */
 void QAction::init()
 {
-    if ( parent() && parent()->inherits("QActionGroup") ) {
-	((QActionGroup*) parent())->insert( this );		// insert into action group
+    if ( parent() && parent()->inherits("QAction") ) {
+	d->group = (QAction*)parent();
+	// insert() should be done by the parent's childEvent(), not
+	// here. by that time, the child's properly set up and can be
+	// added to things.
+	((QAction*) parent())->insert( this ); // insert into action group
     }
 }
 
-/*! Destructs the object and frees allocated resources. */
+/*! Destructs the object and frees all the widgets allocated. */
 
 QAction::~QAction()
 {
+    if ( !d->menuitems.isEmpty() ) {
+	QListIterator<QActionPrivate::MenuItem> it( d->menuitems );
+	QActionPrivate::MenuItem *mi;
+	while ( (mi=it.current()) != 0 ) {
+	    ++it;
+	    if ( mi->popup )
+		mi->popup->disconnect( SIGNAL(destroyed()),
+				       this, SLOT(objectDestroyed()) );
+	}
+    }
+
+    if ( !d->widgets.isEmpty() ) {
+	QListIterator<QWidget> it( d->widgets );
+	QWidget * w;
+	while( (w=it.current()) != 0 ) {
+	    ++it;
+	    disconnect( w, SIGNAL(destroyed()),
+			this, SLOT(objectDestroyed()) );
+	}
+    }
+
     delete d;
 }
 
@@ -403,10 +475,17 @@ QAction::~QAction()
 */
 void QAction::setIconSet( const QIconSet& icon )
 {
-    register QIconSet *i = d->iconset;
-    d->iconset = new QIconSet( icon );
-    delete i;
-    d->update( QActionPrivate::Icons );
+#if 0
+    // be nice to do this, but at present QIconSet can't test for
+    // equality, and it's not obvious to me what the test should do.
+    if ( d->iconset && *(d->iconset) == icon )
+	return;
+    #else
+    if ( !d->iconset )
+	d->iconset = new QIconSet;
+#endif
+    *(d->iconset) = icon;
+    updateVectors();
 }
 
 /*! Returns the icon set.
@@ -431,8 +510,10 @@ QIconSet QAction::iconSet() const
 */
 void QAction::setText( const QString& text )
 {
+    if ( d->text == text )
+	return;
     d->text = text;
-    d->update();
+    updateVectors();
 }
 
 /*! Returns the current description text.
@@ -463,8 +544,10 @@ QString QAction::text() const
 */
 void QAction::setMenuText( const QString& text )
 {
+    if ( d->menutext == text )
+	return;
     d->menutext = text;
-    d->update();
+    updateVectors();
 }
 
 /*! Returns the text used in menu entries.
@@ -475,7 +558,9 @@ void QAction::setMenuText( const QString& text )
 */
 QString QAction::menuText() const
 {
-    return d->menuText();
+    if ( !d->menutext.isEmpty() )
+	return d->menutext;
+    return text();
 }
 
 /*! Sets the tool tip text to \a tip.
@@ -487,42 +572,55 @@ QString QAction::menuText() const
 */
 void QAction::setToolTip( const QString& tip )
 {
+    if ( d->tooltip == tip )
+	return;
     d->tooltip = tip;
-    d->update();
+    updateVectors();
 }
 
 /*! Returns the current tool tip.
 
-  If no tool tip has been defined yet, it returns text()
-  and the accelerator description as returned by QAccel::keyToString().
+  If no tool tip has been defined yet, toolTip() tries to build a
+  suitable text based on the text(), the accel() and (if this QAction
+  is part of a group) the group's toolTip().
 
-  toolTip() serves as statusTip() as long as no
-  separate message for the status bar has been set.
+  toolTip() also serves as statusTip() if no separate message for the
+  status bar has been set.
 
   \sa setToolTip(), setStatusTip(), text(), accel(), QAccel::keyToString()
 */
 QString QAction::toolTip() const
 {
-    return d->toolTip();
+    if ( !d->tooltip.isEmpty() )
+	return d->tooltip;
+    QString result = text();
+    if ( d->group && d->group->d->tooltip )
+	result = d->group->d->tooltip;
+    if ( d->accel ) {
+	if ( result.length() > 0 )
+	    result += ' ';
+	result = result + "(" +
+		 QAccel::keyToString( d->accel->key( d->accelid )) + ")";
+    }
+    return result;
+
 }
 
-/*! Sets the status tip to \a tip. It is displayed on
-  all status bars the toplevel widget parenting this action provides.
+/*! Sets the status tip to \a tip. It is displayed on all status bars
+  the toplevel widget parenting this action provides.
 
   Note that QActions that were created with only non-windows as
   ancestors can't display status tips.
 
   \sa statusTip(), toolTip()
 */
-//#### Please reimp for QActionGroup!
-//#### For consistency reasons even action groups should show
-//#### status tips (as they already do with tool tips)
-//#### Please change QActionGroup class doc appropriately after
-//#### reimplementation.
+
 void QAction::setStatusTip( const QString& tip )
 {
+    if ( d->statustip == tip )
+	return;
     d->statustip = tip;
-    d->update();
+    updateVectors();
 }
 
 /*!  Returns the current status tip.
@@ -533,7 +631,9 @@ void QAction::setStatusTip( const QString& tip )
 */
 QString QAction::statusTip() const
 {
-    return d->statusTip();
+    if ( !d->statustip.isNull() )
+	return d->statustip;
+    return toolTip();
 }
 
 /*!
@@ -558,18 +658,24 @@ void QAction::setWhatsThis( const QString& whatsThis )
     d->whatsthis = whatsThis;
     if ( !d->whatsthis.isEmpty() && d->accel )
 	d->accel->setWhatsThis( d->accelid, d->whatsthis );
-    d->update();
+    updateVectors();
 }
 
 /*! Returns the What's This help text for this action.
 
-  Unlike for tips and menu entries text() does not serve
-  as default value here.
+  If no What's This text has been set and this action is a child of
+  another, the parent's What's This text is returned. This makes it
+  easy to to have the same What's This text for all actions in an
+  action group.
+
+  Note that text() does not serve as default value here.
 
   \sa setWhatsThis()
 */
 QString QAction::whatsThis() const
 {
+    if ( d->whatsthis.isNull() && parent()->inherits( "QAction" ) )
+	return ((QAction*)parent())->whatsThis();
     return d->whatsthis;
 }
 
@@ -589,11 +695,6 @@ QString QAction::whatsThis() const
 
   \sa accel()
 */
-//#### Please reimp for QActionGroup!
-//#### For consistency reasons even QActionGroups should respond to
-//#### their accelerators and e.g. open the relevant submenu.
-//#### Please change appropriate QActionGroup class doc after
-//#### reimplementation.
 void QAction::setAccel( int key )
 {
     d->key = key;
@@ -604,21 +705,21 @@ void QAction::setAccel( int key )
 	return;
 
     QObject* p = parent();
-    while ( p && !p->isWidgetType() ) {
+    while ( p && !p->isWidgetType() )
 	p = p->parent();
-    }
     if ( p ) {
-	d->accel = new QAccel( (QWidget*)p, 0, "qt_action_accel" );
+	QString n = QString::fromLatin1( "created by " ) + name();
+	d->accel = new QAccel( (QWidget*)p, 0, n.latin1() );
 	d->accelid = d->accel->insertItem( d->key );
-	d->accel->connectItem( d->accelid, this, SLOT( internalActivation() ) );
-	if ( !d->whatsthis.isEmpty() )
-	    d->accel->setWhatsThis( d->accelid, d->whatsthis );
-    }
+	d->accel->connectItem( d->accelid,
+			       this, SLOT( internalActivation() ) );
+    } else {
 #if defined(QT_CHECK_STATE)
-    else
-	qWarning( "QAction::setAccel()  (%s) requires widget in parent chain.", name( "unnamed" ) );
+	qWarning( "QAction::setAccel() (%s) requires widget in parent chain.",
+		  name() );
 #endif
-    d->update();
+    }
+    updateVectors();
 }
 
 
@@ -634,7 +735,11 @@ int QAction::accel() const
 }
 
 
-/*! Makes the action a toggle action if \a enable is TRUE, or a
+/*! \obsolete
+
+  setType( QAction::Toggle ) is the recommended API.
+
+  Makes the action a toggle action if \a enable is TRUE, or a
   command action if \a enable is FALSE.
 
   You may want to add toggle actions to a QActionGroup for exclusive
@@ -648,10 +753,8 @@ int QAction::accel() const
 */
 void QAction::setToggleAction( bool enable )
 {
-    if ( enable == (bool)d->toggleaction )
-	return;
-    d->toggleaction = enable;
-    d->update();
+    if ( d->type == Toggle || d->type == Command )
+	setType( enable ? Toggle : Command );
 }
 
 /*! Returns whether the action is a toggle action or not.
@@ -660,7 +763,7 @@ void QAction::setToggleAction( bool enable )
 */
 bool QAction::isToggleAction() const
 {
-    return d->toggleaction;
+    return d->type == QAction::Toggle;
 }
 
 /*! Switches a toggle action on if \a enable is TRUE or off if \e enable is
@@ -672,7 +775,7 @@ bool QAction::isToggleAction() const
 */
 void QAction::setOn( bool enable )
 {
-    if ( !isToggleAction() ) {
+    if ( d->type == QAction::Toggle ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QAction::setOn() (%s) Only toggle actions "
 		  "may be switched", name( "unnamed" ) );
@@ -682,7 +785,7 @@ void QAction::setOn( bool enable )
     if ( enable == (bool)d->on )
 	return;
     d->on = enable;
-    d->update( QActionPrivate::State );
+    updateVectors();
     emit toggled( enable );
 }
 
@@ -711,10 +814,10 @@ bool QAction::isOn() const
 */
 void QAction::setEnabled( bool enable )
 {
+    if ( enable == d->enabled )
+	return;
     d->enabled = enable;
-    if ( d->accel )
-	d->accel->setEnabled( enable );
-    d->update( QActionPrivate::State );
+    updateVectors();
 }
 
 
@@ -750,11 +853,10 @@ void QAction::toolButtonToggled( bool on )
 
 /*! Adds this action to widget \a w.
 
-  Currently supported widget types are QToolBar and QPopupMenu.
+  Currently, QToolBar and QPopupMenu are supported.
 
-  An action added to a tool bar is automatically displayed
-  as a tool button; an action added to a pop up menu appears
-  as a menu entry:
+  An action added to a tool bar is automatically displayed as a tool
+  button; an action added to a pop up menu appears as a menu entry:
 
   \walkthrough action/application.cpp
   \skipto fileTools
@@ -773,48 +875,117 @@ void QAction::toolButtonToggled( bool on )
   addTo() returns TRUE if the action was added successfully and FALSE
   if \a w is of an unsupported class.
 
+  Note that if you call addTo() with one of the action's parent or
+  grandparent objects as argument, there is a danger of recursion.
+
   \sa removeFrom()
 */
 bool QAction::addTo( QWidget* w )
 {
+    bool needUpdate = FALSE;
+    QWidget * addChildrenTo = 0;
+
     if ( w->inherits( "QToolBar" ) ) {
-	if ( !qstrcmp( name(), "qt_separator_action" ) ) {
-	    ((QToolBar*)w)->addSeparator();
-	} else {
-	    QToolButton* btn = new QToolButton( (QToolBar*) w );
+	QToolBar * t = (QToolBar*)w;
+	if ( d->type == Command || d->type == Toggle ) {
+	    QToolButton* btn = new QToolButton( t );
 	    addedTo( btn, w );
-	    btn->setToggleButton( d->toggleaction );
-	    d->toolbuttons.append( btn );
-	    if ( d->iconset )
-		btn->setIconSet( *d->iconset );
-	    d->update( QActionPrivate::State );
-	    d->update( QActionPrivate::Everything );
-	    connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
-	    connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
-	    connect( btn, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
-	    connect( d->tipGroup, SIGNAL(showTip(const QString&)), this, SLOT(showStatusText(const QString&)) );
-	    connect( d->tipGroup, SIGNAL(removeTip()), this, SLOT(clearStatusText()) );
+	    btn->setToggleButton( d->type == Toggle );
+	    d->widgets.append( btn );
+	    needUpdate = TRUE;
+	    connect( btn, SIGNAL( clicked() ),
+		     this, SIGNAL( activated() ) );
+	    connect( btn, SIGNAL( toggled(bool) ),
+		     this, SLOT( toolButtonToggled(bool) ) );
+	    connect( btn, SIGNAL( destroyed() ),
+		     this, SLOT( objectDestroyed() ) );
+	    connect( d->tipGroup, SIGNAL(showTip(const QString&)),
+		     this, SLOT(showStatusText(const QString&)) );
+	    connect( d->tipGroup, SIGNAL(removeTip()),
+		     this, SLOT(clearStatusText()) );
+	} else if ( d->type == Separator ) {
+	    t->addSeparator();
+	} else if ( d->type == Group ) {
+	    if ( d->dropdown ) {
+		QAction *defAction = d->actions.first();
+
+		QToolButton* btn = new QToolButton( (QToolBar*) w );
+		addedTo( btn, w, defAction );
+		connect( btn, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
+		d->widgets.append( btn );
+		needUpdate = TRUE;
+		connect( btn, SIGNAL( clicked() ),
+			 defAction, SIGNAL( activated() ) );
+		connect( btn, SIGNAL( toggled(bool) ),
+			 defAction, SLOT( toolButtonToggled(bool) ) );
+		connect( btn, SIGNAL( destroyed() ),
+			 defAction, SLOT( objectDestroyed() ) );
+
+		QPopupMenu *menu = new QPopupMenu( btn );
+		btn->setPopupDelay( 0 );
+		btn->setPopup( menu );
+		addChildrenTo = menu;
+	    } else {
+		// in the non-dropdown case, the children will insert
+		// themselves and there's nothing to do except perhaps
+		// to make sure they're exclusive.
+	    }
+	} else if ( d->type == ExclusiveGroup ) {
+	    if ( d->dropdown ) {
+		QComboBox *box = new QComboBox( w );
+		addedTo( box, w );
+		connect( box, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
+		d->widgets.append( box );
+		needUpdate = TRUE;
+		QListIterator<QAction> it( d->actions);
+		QAction * a;
+		while( (a=it.current()) != 0 ) {
+		    ++it;
+		    box->insertItem( a->iconSet().pixmap(), a->text() );
+		}
+		connect( box, SIGNAL(activated(int)),
+			 this, SLOT( internalComboBoxActivated(int)) );
+	    } else {
+		// nothing here either.
+	    }
 	}
     } else if ( w->inherits( "QPopupMenu" ) ) {
-	if ( !qstrcmp( name(), "qt_separator_action" ) ) {
-	    ((QPopupMenu*)w)->insertSeparator();
-	} else {
+	QPopupMenu * p = (QPopupMenu *)w;
+	if ( d->type == Command || d->type == Toggle ) {
 	    QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
-	    mi->popup = (QPopupMenu*) w;
-	    QIconSet* diconset = d->iconset;
-	    if ( diconset )
-		mi->id = mi->popup->insertItem( *diconset, QString::fromLatin1("") );
-	    else
-		mi->id = mi->popup->insertItem( QString::fromLatin1("") );
-	    addedTo( mi->popup->indexOf( mi->id ), mi->popup );
-	    mi->popup->connectItem( mi->id, this, SLOT(internalActivation()) );
+	    mi->id = p->insertItem( QString::null );
+	    needUpdate = TRUE; // very, very TRUE :)
+	    mi->popup = p;
 	    d->menuitems.append( mi );
-	    d->update( QActionPrivate::State );
-	    d->update( QActionPrivate::Everything );
-	    w->topLevelWidget()->className();
-	    connect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText( int )) );
-	    connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
-	    connect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+	    mi->popup->connectItem( mi->id, this, SLOT(internalActivation()) );
+	    connect( p, SIGNAL(highlighted( int )),
+		     this, SLOT(menuStatusText( int )) );
+	    connect( p, SIGNAL(aboutToHide()),
+		     this, SLOT(clearStatusText()) );
+	    connect( p, SIGNAL( destroyed() ),
+		     this, SLOT( objectDestroyed() ) );
+	    addedTo( p->indexOf( mi->id ), p );
+	    // ##### why was next line here?
+	    // w->topLevelWidget()->className();
+	    // ##### has to be a bug?
+	} else if ( d->type == Separator ) {
+	    p->insertSeparator();
+	} else if ( d->type == Group || d->type == ExclusiveGroup ) {
+	    if ( d->dropdown ) {
+		QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
+		QPopupMenu *popup = new QPopupMenu( p );
+		connect( popup, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
+		mi->id = p->insertItem( QString::null, popup );
+		mi->popup = p;
+		mi->child = popup;
+		needUpdate = TRUE;
+		d->menuitems.append( mi );
+
+		addedTo( p->indexOf( mi->id ), p );
+		addChildrenTo = popup;
+	    } else {
+		addChildrenTo = w;
+	    }
 	}
     // Makes only sense when called by QActionGroup::addTo
     } else if ( w->inherits( "QComboBox" ) ) {
@@ -829,10 +1000,23 @@ bool QAction::addTo( QWidget* w )
 	    d->comboitems.append( ci );
 	}
     } else {
-	qWarning( "QAction::addTo(), unknown object" );
+	qWarning( "QAction::addTo(): cannot add to type %s", w->className() );
 	return FALSE;
     }
-    return TRUE;
+
+    if ( !addChildrenTo )
+	return TRUE;
+
+    QListIterator<QAction> it( d->actions );
+    QAction * a;
+    bool ok = TRUE;
+    while ( (a=it.current()) != 0 ) {
+	++it;
+	ok = it.current()->addTo( addChildrenTo ) && ok; // && ok must be last!
+    }
+    if ( needUpdate )
+	updateVectors();
+    return ok;
 }
 
 /*! This function is called from the addTo() function when it created
@@ -857,22 +1041,23 @@ void QAction::addedTo( int index, QPopupMenu *menu )
     Q_UNUSED( menu );
 }
 
-/*! Sets the status message to \a text */
+/*! Sets the status message to \a text, if possible. */
 void QAction::showStatusText( const QString& text )
 {
-    QObject* par;
-    if ( ( par = parent() ) && par->inherits( "QActionGroup" ) )
+    QObject* par = this;
+    while( par && !par->isWidgetType() )
 	par = par->parent();
-    if ( !par || !par->isWidgetType() )
+    if ( !par )
 	return;
-    QStatusBar *bar = 0;
-    bar = (QStatusBar*)( (QWidget*)par )->topLevelWidget()->child( 0, "QStatusBar", FALSE );
+    QWidget * w = (QWidget*)par;
+    QStatusBar*bar = (QStatusBar*)(w->topLevelWidget()->child( 0, "QStatusBar",
+							       FALSE ));
     if ( !bar ) {
-	QObjectList *l = ( (QWidget*)par )->topLevelWidget()->queryList( "QStatusBar" );
+	QObjectList *l = w->topLevelWidget()->queryList( "QStatusBar" );
 	if ( !l )
 	    return;
 	// #### hopefully the last one is the one of the mainwindow...
-	bar = (QStatusBar*)l->last();
+	bar = (QStatusBar*)(l->last());
 	delete l;
     }
     if ( bar ) {
@@ -883,28 +1068,25 @@ void QAction::showStatusText( const QString& text )
     }
 }
 
-/*! Sets the status message to the menuitem's status text, or
-  to the tooltip, if there is no status text.
-*/
+/*! Sets the status message to the text that is most appropriate for
+  menu item \a id. */
 void QAction::menuStatusText( int id )
 {
     QString text;
     QListIterator<QActionPrivate::MenuItem> it( d->menuitems);
     QActionPrivate::MenuItem* mi;
-    while ( ( mi = it.current() ) ) {
+    while ( text.isEmpty() && (mi=it.current()) != 0 ) {
 	++it;
-	if ( mi->id == id ) {
+	if ( mi->id == id )
 	    text = statusTip();
-	    break;
-	}
     }
 
     if ( !text.isEmpty() )
 	showStatusText( text );
 }
 
-/*! Clears the status text.
-*/
+
+/*! Clears the status text. */
 void QAction::clearStatusText()
 {
     showStatusText( QString::null );
@@ -919,27 +1101,51 @@ void QAction::clearStatusText()
 */
 bool QAction::removeFrom( QWidget* w )
 {
-    if ( w->inherits( "QToolBar" ) ) {
-	QListIterator<QToolButton> it( d->toolbuttons);
-	QToolButton* btn;
-	while ( ( btn = it.current() ) ) {
+    if ( d->actions.count() > 0 && !d->dropdown ) {
+	QListIterator<QAction> it( d->actions);
+	QAction * a;
+	while( (a=it.current()) != 0 ) {
 	    ++it;
-	    if ( btn->parentWidget() == w ) {
-		d->toolbuttons.removeRef( btn );
-		disconnect( btn, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
-		delete btn;
-		// no need to disconnect from statusbar
+	    a->removeFrom( w );
+	}
+    }
+
+    QList<QWidget> deletia;
+
+    if ( w->inherits( "QToolButton" ) ) {
+	d->widgets.first();
+	QWidget * c;
+	while( (c=d->widgets.current()) != 0 ) {
+	    if ( c->parentWidget() == w ) {
+		d->widgets.take();
+		deletia.append( w );
+	    } else {
+		d->widgets.next();
 	    }
 	}
     } else if ( w->inherits( "QPopupMenu" ) ) {
-	QListIterator<QActionPrivate::MenuItem> it( d->menuitems);
+	QListIterator<QActionPrivate::MenuItem> it( d->menuitems );
 	QActionPrivate::MenuItem* mi;
-	while ( ( mi = it.current() ) ) {
+	while ( (mi=it.current()) != 0 ) {
 	    ++it;
 	    if ( mi->popup == w ) {
-		disconnect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText(int)) );
-		disconnect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
-		disconnect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+		disconnect( mi->popup, SIGNAL(highlighted( int )),
+			    this, SLOT(menuStatusText(int)) );
+		disconnect( mi->popup, SIGNAL(aboutToHide()),
+			    this, SLOT(clearStatusText()) );
+		disconnect( mi->popup, SIGNAL( destroyed() ),
+			    this, SLOT( objectDestroyed() ) );
+		if ( mi->child ) {
+		    disconnect( mi->child, SIGNAL( destroyed() ),
+				this, SLOT( objectDestroyed() ) );
+		    deletia.append( mi->child );
+		    QListIterator<QAction> it( d->actions);
+		    QAction * a;
+		    while( (a=it.current()) != 0 ) {
+			++it;
+			a->removeFrom( mi->child );
+		    }
+		}
 		mi->popup->removeItem( mi->id );
 		d->menuitems.removeRef( mi );
 	    }
@@ -948,6 +1154,15 @@ bool QAction::removeFrom( QWidget* w )
 	qWarning( "QAction::removeFrom(), unknown object" );
 	return FALSE;
     }
+
+    QWidget * c;
+    while( (c=deletia.current()) != 0 ) {
+	disconnect( c, SIGNAL( destroyed() ),
+		    this, SLOT( objectDestroyed() ) );
+	delete c;
+	deletia.next();
+    }
+
     return TRUE;
 }
 
@@ -956,7 +1171,10 @@ bool QAction::removeFrom( QWidget* w )
 */
 void QAction::objectDestroyed()
 {
-    const QObject* obj = sender();
+    const QObject * obj = sender();
+    if ( obj->isWidgetType() )
+	d->widgets.removeRef( (QWidget *)obj );
+
     QListIterator<QActionPrivate::MenuItem> it( d->menuitems);
     QActionPrivate::MenuItem* mi;
     while ( ( mi = it.current() ) ) {
@@ -964,7 +1182,6 @@ void QAction::objectDestroyed()
 	if ( mi->popup == obj )
 	    d->menuitems.removeRef( mi );
     }
-    d->toolbuttons.removeRef( (QToolButton*) obj );
 }
 
 /*! \fn void QAction::activated()
@@ -1004,82 +1221,6 @@ void QAction::objectDestroyed()
   \sa activated(), setToggleAction(), setOn()
 */
 
-
-
-class QActionGroupPrivate
-{
-public:
-    uint exclusive: 1;
-    uint dropdown: 1;
-    QList<QAction> actions;
-    QAction* selected;
-    QAction* separatorAction;
-
-    struct MenuItem {
-	MenuItem():popup(0),id(0){}
-	QPopupMenu* popup;
-	int id;
-    };
-
-    QList<QComboBox> comboboxes;
-    QList<QToolButton> menubuttons;
-    QList<MenuItem> menuitems;
-    QList<QPopupMenu> popupmenus;
-
-    void update( const QActionGroup * );
-};
-
-void QActionGroupPrivate::update( const QActionGroup* that )
-{
-    for ( QListIterator<QAction> it( actions ); it.current(); ++it ) {
-	it.current()->setEnabled( that->isEnabled() );
-    }
-    for ( QListIterator<QComboBox> cb( comboboxes ); cb.current(); ++cb ) {
-	cb.current()->setEnabled( that->isEnabled() );
-
-	QToolTip::remove( cb.current() );
-	QWhatsThis::remove( cb.current() );
-	if ( !!that->toolTip() )
-	    QToolTip::add( cb.current(), that->toolTip() );
-	if ( !!that->whatsThis() )
-	    QWhatsThis::add( cb.current(), that->whatsThis() );
-    }
-    for ( QListIterator<QToolButton> mb( menubuttons ); mb.current(); ++mb ) {
-	mb.current()->setEnabled( that->isEnabled() );
-
-	mb.current()->setTextLabel( that->text() );
-	mb.current()->setIconSet( that->iconSet() );
-
-	QToolTip::remove( mb.current() );
-	QWhatsThis::remove( mb.current() );
-	if ( !!that->toolTip() )
-	    QToolTip::add( mb.current(), that->toolTip() );
-	if ( !!that->whatsThis() )
-	    QWhatsThis::add( mb.current(), that->whatsThis() );
-    }
-    for ( QListIterator<QActionGroupPrivate::MenuItem> pu( menuitems ); pu.current(); ++pu ) {
-	QWidget* parent = pu.current()->popup->parentWidget();
-	if ( parent->inherits( "QPopupMenu" ) ) {
-	    QPopupMenu* ppopup = (QPopupMenu*)parent;
-	    ppopup->setItemEnabled( pu.current()->id, that->isEnabled() );
-	} else {
-	    pu.current()->popup->setEnabled( that->isEnabled() );
-	}
-    }
-    for ( QListIterator<QPopupMenu> pm( popupmenus ); pm.current(); ++pm ) {
-	QPopupMenu *popup = pm.current();
-	QPopupMenu *parent = popup->parentWidget()->inherits( "QPopupMenu" ) ? (QPopupMenu*)popup->parentWidget() : 0;
-	if ( !parent )
-	    continue;
-
-	int index;
-	parent->findPopup( popup, &index );
-	int id = parent->idAt( index );
-	parent->changeItem( id, that->iconSet(), that->menuText() );
-	parent->setItemEnabled( id, that->isEnabled() );
-	parent->setAccel( that->accel(), id );
-    }
-}
 
 /*! \class QActionGroup qaction.h
 
@@ -1177,54 +1318,15 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 
 */
 QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
-    : QAction( parent, name )
+    : QAction( (exclusive ? ExclusiveGroup : Group), parent, name )
 {
-    d = new QActionGroupPrivate;
-    d->exclusive = exclusive;
-    d->dropdown = FALSE;
-    d->selected = 0;
-    d->separatorAction = 0;
-
-    connect( this, SIGNAL(selected(QAction*)), SLOT(internalToggle(QAction*)) );
+    // nothing
 }
 
 /*! Destructs the object and frees allocated resources. */
 
 QActionGroup::~QActionGroup()
 {
-    QListIterator<QActionGroupPrivate::MenuItem> mit( d->menuitems );
-    while ( mit.current() ) {
-	QActionGroupPrivate::MenuItem *mi = mit.current();
-	++mit;
-	if ( mi->popup )
-	    mi->popup->disconnect( SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
-    }
-
-    QListIterator<QComboBox> cbit( d->comboboxes );
-    while ( cbit.current() ) {
-	QComboBox *cb = cbit.current();
-	++cbit;
-	cb->disconnect(  SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
-    }
-    QListIterator<QToolButton> mbit( d->menubuttons );
-    while ( mbit.current() ) {
-	QToolButton *mb = mbit.current();
-	++mbit;
-	mb->disconnect(  SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
-    }
-    QListIterator<QPopupMenu> pmit( d->popupmenus );
-    while ( pmit.current() ) {
-	QPopupMenu *pm = pmit.current();
-	++pmit;
-	pm->disconnect(  SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
-    }
-
-    delete d->separatorAction;
-    d->menubuttons.setAutoDelete( TRUE );
-    d->comboboxes.setAutoDelete( TRUE );
-    d->menuitems.setAutoDelete( TRUE );
-    d->popupmenus.setAutoDelete( TRUE );
-    delete d;
 }
 
 /*! Makes this action group exclusive if \a enable is TRUE
@@ -1240,7 +1342,8 @@ QActionGroup::~QActionGroup()
 */
 void QActionGroup::setExclusive( bool enable )
 {
-    d->exclusive = enable;
+    if ( type() == Group || type() == ExclusiveGroup )
+	setType( enable ? ExclusiveGroup : Group );
 }
 
 /*! Returns TRUE if the action group is exclusive, otherwise FALSE.
@@ -1250,7 +1353,7 @@ void QActionGroup::setExclusive( bool enable )
 
 bool QActionGroup::isExclusive() const
 {
-    return d->exclusive;
+    return type() == ExclusiveGroup;
 }
 
 /*! When \a enable is TRUE, the group members are displayed in a
@@ -1285,31 +1388,33 @@ bool QActionGroup::isExclusive() const
 
   \sa usesDropDown
 */
-void QActionGroup::setUsesDropDown( bool enable )
+void QAction::setUsesDropDown( bool enable )
 {
+    // ### remove
     d->dropdown = enable;
+    // ### addto
 }
 
 /*! Returns whether this group uses a subwidget to represent its member actions.
 
   \sa setUsesDropDown
 */
-bool QActionGroup::usesDropDown() const
+bool QAction::usesDropDown() const
 {
     return d->dropdown;
 }
 
 /*! Inserts action \a action into this group.
 
-  QActions with this action group as their parent object became members
-  at creation time and don't have to be inserted manually.
+  QActions with this action group as their parent object became
+  members at creation time and don't have to be inserted manually.
 
-  Note that all members of an action group must be
-  inserted before the group is added to a widget.
+  Note that all members of an action group must be inserted before the
+  group is added to a widget.
 
   \sa addTo()
 */
-void QActionGroup::insert( QAction* action )
+void QAction::insert( QAction* action )
 {
     if ( d->actions.containsRef( action ) )
 	return;
@@ -1321,36 +1426,42 @@ void QActionGroup::insert( QAction* action )
     if ( action->toolTip().isNull() )
 	action->setToolTip( toolTip() );
 
-    connect( action, SIGNAL( destroyed() ), this, SLOT( childDestroyed() ) );
-    connect( action, SIGNAL( activated() ), this, SIGNAL( activated() ) );
-    connect( action, SIGNAL( toggled( bool ) ), this, SLOT( childToggled( bool ) ) );
+    connect( action, SIGNAL( destroyed() ),
+	     this, SLOT( childDestroyed() ) );
+    connect( action, SIGNAL( activated() ),
+	     this, SIGNAL( activated() ) );
+    connect( action, SIGNAL( toggled( bool ) ),
+	     this, SLOT( childToggled( bool ) ) );
 
-    for ( QListIterator<QComboBox> cb( d->comboboxes ); cb.current(); ++cb ) {
-	cb.current()->insertItem( action->iconSet().pixmap(), action->text() );
+    if ( !d->widgets.isEmpty() ) {
+	QListIterator<QWidget> it( d->widgets );
+	QWidget * w;
+	while( (w=it.current()) != 0 ) {
+	    ++it;
+	    action->addTo( w );
+	}
     }
-    for ( QListIterator<QToolButton> mb( d->menubuttons ); mb.current(); ++mb ) {
-	QPopupMenu* popup = mb.current()->popup();
-	if ( !popup )
-	    continue;
-	action->addTo( popup );
-    }
-    for ( QListIterator<QActionGroupPrivate::MenuItem> mi( d->menuitems ); mi.current(); ++mi ) {
-	QPopupMenu* popup = mi.current()->popup;
-	if ( !popup )
-	    continue;
-	action->addTo( popup );
+    if ( !d->menuitems.isEmpty() ) {
+	QListIterator<QActionPrivate::MenuItem> it( d->menuitems );
+	QActionPrivate::MenuItem * mi;
+	while( (mi=it.current()) != 0 ) {
+	    ++it;
+	    QPopupMenu* popup = mi->popup;
+	    if ( popup )
+		action->addTo( popup );
+	}
     }
 }
 
 /*! Inserts a separator into the group. */
-void QActionGroup::insertSeparator()
+void QAction::insertSeparator()
 {
-    if ( !d->separatorAction )
-	d->separatorAction = new QAction( 0, "qt_separator_action" );
-    d->actions.append( d->separatorAction );
+    (void) new QAction( Separator, this, "automatic separator" );
 }
 
-/*! Adds this action group to the widget \a w.
+/*! \fn bool QActionGroup::addTo( QWidget* w )
+  
+  Adds this action group to the widget \a w.
 
   Depending on the class of \a w all member actions are automatically presented
   as menu or tool bar entries.
@@ -1374,275 +1485,97 @@ void QActionGroup::insertSeparator()
 
   \sa setExclusive, setUsesDropDown, removeFrom()
 */
-bool QActionGroup::addTo( QWidget* w )
+
+
+/*! \internal */
+void QAction::childToggled( bool b )
 {
-    if ( w->inherits( "QToolBar" ) ) {
-	if ( d->dropdown ) {
-	    if ( !d->exclusive ) {
-		QListIterator<QAction> it( d->actions);
-		if ( !it.current() )
-		    return TRUE;
-
-		QAction *defAction = it.current();
-
-		QToolButton* btn = new QToolButton( (QToolBar*) w );
-		addedTo( btn, w, defAction );
-		connect( btn, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
-		d->menubuttons.append( btn );
-
-		if ( !iconSet().isNull() )
-		    btn->setIconSet( iconSet() );
-		if ( !!text() )
-		    btn->setTextLabel( text() );
-		if ( !!toolTip() )
-		    QToolTip::add( btn, toolTip() );
-		if ( !!whatsThis() )
-		    QWhatsThis::add( btn, whatsThis() );
-
-		connect( btn, SIGNAL( clicked() ), defAction, SIGNAL( activated() ) );
-		connect( btn, SIGNAL( toggled(bool) ), defAction, SLOT( toolButtonToggled(bool) ) );
-		connect( btn, SIGNAL( destroyed() ), defAction, SLOT( objectDestroyed() ) );
-
-		QPopupMenu *menu = new QPopupMenu( btn );
-		btn->setPopupDelay( 0 );
-		btn->setPopup( menu );
-
-		while( it.current() ) {
-		    it.current()->addTo( menu );
-		    ++it;
-		}
-		return TRUE;
-	    } else {
-		QComboBox *box = new QComboBox( w );
-		addedTo( box, w );
-		connect( box, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
-		d->comboboxes.append( box );
-		if ( !!toolTip() )
-		    QToolTip::add( box, toolTip() );
-		if ( !!whatsThis() )
-		    QWhatsThis::add( box, whatsThis() );
-
-		for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
-		    it.current()->addTo( box );
-		}
-		connect( box, SIGNAL(activated(int)), this, SLOT( internalComboBoxActivated(int)) );
-		return TRUE;
-	    }
-	}
-    } else if ( w->inherits( "QPopupMenu" ) ) {
-	QPopupMenu *popup;
-	if ( d->dropdown ) {
-	    QPopupMenu *menu = (QPopupMenu*)w;
-	    popup = new QPopupMenu( w );
-	    d->popupmenus.append( popup );
-	    connect( popup, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
-
-	    int id;
-	    if ( !iconSet().pixmap().isNull() ) {
-		if ( menuText().isEmpty() )
-		    id = menu->insertItem( iconSet(), text(), popup );
-		else
-		    id = menu->insertItem( iconSet(), menuText(), popup );
-	    } else {
-		if ( menuText().isEmpty() )
-		    id = menu->insertItem( text(), popup );
-		else
-		    id = menu->insertItem( menuText(), popup );
-	    }
-
-	    addedTo( menu->indexOf( id ), menu );
-	
-	    QActionGroupPrivate::MenuItem *item = new QActionGroupPrivate::MenuItem;
-	    item->id = id;
-	    item->popup = popup;
-	    d->menuitems.append( item );
-	} else {
-	    popup = (QPopupMenu*)w;
-	}
-	for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
-	    // #### do an addedTo( index, popup, action), need to find out index
-	    it.current()->addTo( popup );
-	}
-	return TRUE;
-    }
-
-    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
-	// #### do an addedTo( index, popup, action), need to find out index
-	it.current()->addTo( w );
-    }
-
-    return TRUE;
-}
-
-/*! \reimp
-*/
-bool QActionGroup::removeFrom( QWidget* w )
-{
-    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
-	it.current()->removeFrom( w );
-    }
-
-    if ( w->inherits( "QToolBar" ) ) {
-	QListIterator<QComboBox> cb( d->comboboxes );
-	while( cb.current() ) {
-	    QComboBox *box = cb.current();
-	    ++cb;
-	    if ( box->parentWidget() == w )
-		delete box;
-	}
-	QListIterator<QToolButton> mb( d->menubuttons );
-	while( mb.current() ) {
-	    QToolButton *btn = mb.current();
-	    ++mb;
-	    if ( btn->parentWidget() == w )
-		delete btn;
-	}
-    } else if ( w->inherits( "QPopupMenu" ) ) {
-	QListIterator<QActionGroupPrivate::MenuItem> pu( d->menuitems );
-	while ( pu.current() ) {
-	    QActionGroupPrivate::MenuItem *mi = pu.current();
-	    ++pu;
-	    delete mi->popup;
-	}
-    }
-
-    return TRUE;
-}
-
-/*! \internal
-*/
-void QActionGroup::childToggled( bool b )
-{
-    if ( !isExclusive() )
+    if ( d->type != ExclusiveGroup || !sender()->inherits( "QAction" ) )
 	return;
     QAction* s = (QAction*) sender();
     if ( b ) {
 	if ( s != d->selected ) {
 	    d->selected = s;
-	    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
-		if ( it.current()->isToggleAction() && it.current() != s )
-		    it.current()->setOn( FALSE );
+	    QListIterator<QAction> it( d->actions);
+	    QAction * a;
+	    while( (a=it.current()) != 0 ) {
+		++it;
+		if ( a->isToggleAction() && a != s )
+		    a->setOn( FALSE );
 	    }
+	    internalToggle( s );
 	    emit activated();
 	    emit selected( s );
 	}
     } else {
 	if ( s == d->selected ) {
-	    // at least one has to be selected
+	    // ### should this ever be executed?
 	    s->setOn( TRUE );
 	}
     }
 }
 
-/*! \internal
-*/
-void QActionGroup::childDestroyed()
+/*! \internal */
+void QAction::childDestroyed()
 {
-    d->actions.removeRef( (QAction*) sender() );
-    if ( d->selected == sender() )
+    if ( !sender()->inherits( "QAction" ) )
+	return;
+    QAction * a = (QAction*)sender();
+    d->actions.removeRef( a );
+    if ( d->selected == a )
 	d->selected = 0;
+    // this may leave a popup menu or combo box empty. so be it.
 }
 
-/*! \reimp
-*/
-void QActionGroup::setEnabled( bool enable )
-{
-    if ( enable == isEnabled() )
-	return;
 
-    QAction::setEnabled( enable );
-    d->update( this );
-}
-
-/*! \reimp
-*/
-void QActionGroup::setIconSet( const QIconSet& icon )
-{
-    QAction::setIconSet( icon );
-    d->update( this );
-}
-
-/*! \reimp
-*/
-void QActionGroup::setText( const QString& txt )
-{
-    if ( txt == text() )
-	return;
-
-    QAction::setText( txt );
-    d->update( this );
-}
-
-/*! \reimp
-*/
-void QActionGroup::setMenuText( const QString& text )
-{
-    if ( text == menuText() )
-	return;
-
-    QAction::setMenuText( text );
-    d->update( this );
-}
-
-/*! \reimp
-*/
-void QActionGroup::setToolTip( const QString& text )
-{
-    if ( text == toolTip() )
-	return;
-    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
-	if ( it.current()->toolTip().isNull() )
-	    it.current()->setToolTip( text );
-    }
-    QAction::setToolTip( text );
-    d->update( this );
-}
-
-/*! \reimp
-*/
-void QActionGroup::setWhatsThis( const QString& text )
-{
-    if ( text == whatsThis() )
-	return;
-    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
-	if ( it.current()->whatsThis().isNull() )
-	    it.current()->setWhatsThis( text );
-    }
-    QAction::setWhatsThis( text );
-    d->update( this );
-}
-
-/*! \reimp
-*/
-void QActionGroup::childEvent( QChildEvent *e )
+/*! \reimp */
+void QAction::childEvent( QChildEvent *e )
 {
     if ( !e->child()->inherits( "QAction" ) )
 	return;
 
     QAction *action = (QAction*)e->child();
 
-    if ( !e->removed() )
-	return;
+    if ( e->inserted() ) {
+	// ### should iterate over the widgets and call action->addTo.
+    }
 
-    for ( QListIterator<QComboBox> cb( d->comboboxes ); cb.current(); ++cb ) {
-	for ( int i = 0; i < cb.current()->count(); i++ ) {
-	    if ( cb.current()->text( i ) == action->text() ) {
-		cb.current()->removeItem( i );
-		break;
+    // the remainder of this function looks very fishy to arnt's
+    // unskilled eyes.
+
+    if ( e->removed() && d->widgets.count() ) {
+	QListIterator<QWidget> it( d->widgets );
+	QWidget * w;
+	while( (w=it.current()) != 0 ) {
+	    ++it;
+	    if ( w->inherits( "QComboBox" ) ) {
+		// this is unsound - it assumes that the actions have
+		// unique texts.
+		QComboBox * cb = (QComboBox*)w;
+		for ( int i = 0; i < cb->count(); i++ ) {
+		    if ( cb->text( i ) == action->text() ) {
+			cb->removeItem( i );
+			break;
+		    }
+		}
+	    } else if ( w->inherits( "QToolButton" ) ) {
+		QToolButton * p = (QToolButton*)w;
+		if ( p )
+		    action->removeFrom( p );
 	    }
 	}
     }
-    for ( QListIterator<QToolButton> mb( d->menubuttons ); mb.current(); ++mb ) {
-	QPopupMenu* popup = mb.current()->popup();
-	if ( !popup )
-	    continue;
-	action->removeFrom( popup );
-    }
-    for ( QListIterator<QActionGroupPrivate::MenuItem> mi( d->menuitems ); mi.current(); ++mi ) {
-	QPopupMenu* popup = mi.current()->popup;
-	if ( !popup )
-	    continue;
-	action->removeFrom( popup );
+
+    if ( e->removed() && d->menuitems.count() ) {
+	QListIterator<QActionPrivate::MenuItem> mi( d->menuitems );
+	QActionPrivate::MenuItem * m;
+	while( (m=mi.current()) != 0 ) {
+	    ++mi;
+	    QPopupMenu* popup = mi.current()->child;
+	    if ( !popup )
+		continue;
+	    action->removeFrom( popup );
+	}
     }
 }
 
@@ -1663,7 +1596,7 @@ void QActionGroup::childEvent( QChildEvent *e )
   \printuntil SLOT
 
   (This code including the implementation of the
-  \link actiongroup.html#setFontColor() setFontColor() \endlink 
+  \link actiongroup.html#setFontColor() setFontColor() \endlink
   slot can be found in the \link actiongroup.html QActionGroup Walkthrough. \endlink)
 
   \sa setExclusive(), isOn()
@@ -1671,13 +1604,14 @@ void QActionGroup::childEvent( QChildEvent *e )
 
 /*! \internal
 */
-void QActionGroup::internalComboBoxActivated( int index )
+void QAction::internalComboBoxActivated( int index )
 {
     QAction *a = d->actions.at( index );
     if ( a ) {
 	if ( a != d->selected ) {
 	    d->selected = a;
-	    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
+	    for ( QListIterator<QAction> it( d->actions);
+		  it.current(); ++it ) {
 		if ( it.current()->isToggleAction() && it.current() != a )
 		    it.current()->setOn( FALSE );
 	    }
@@ -1685,6 +1619,7 @@ void QActionGroup::internalComboBoxActivated( int index )
 		a->setOn( TRUE );
 
 	    emit activated();
+	    internalToggle( d->selected );
 	    emit selected( d->selected );
 	    emit ((QActionGroup*)a)->activated();
 	}
@@ -1693,71 +1628,19 @@ void QActionGroup::internalComboBoxActivated( int index )
 
 /*! \internal
 */
-void QActionGroup::internalToggle( QAction *a )
+void QAction::internalToggle( QAction *a )
 {
-    for ( QListIterator<QComboBox> it( d->comboboxes); it.current(); ++it ) {
-	int index = d->actions.find( a );
-	if ( index != -1 )
-	    it.current()->setCurrentItem( index );
-    }
-}
-
-/*! \internal
-*/
-void QActionGroup::objectDestroyed()
-{
-    const QObject* obj = sender();
-    d->menubuttons.removeRef( (QToolButton*)obj );
-    for ( QListIterator<QActionGroupPrivate::MenuItem> mi( d->menuitems ); mi.current(); ++mi ) {
-	if ( mi.current()->popup == obj ) {
-	    d->menuitems.removeRef( mi.current() );
-	    break;
+    QListIterator<QWidget> it( d->widgets);
+    QWidget * w;
+    while( (w=it.current()) != 0 ) {
+	++it;
+	if ( w->inherits( "QComboBox" ) ) {
+	    QComboBox * cb = (QComboBox*)w;
+	    int index = d->actions.find( a );
+	    if ( index != -1 )
+		cb->setCurrentItem( index );
 	}
     }
-    d->popupmenus.removeRef( (QPopupMenu*)obj );
-    d->comboboxes.removeRef( (QComboBox*)obj );
-}
-
-/*! This function is called from the addTo() function when it created
-  a widget (\a actionWidget) for the child action \a a in the \a
-  container.
-*/
-
-void QActionGroup::addedTo( QWidget *actionWidget, QWidget *container, QAction *a )
-{
-    Q_UNUSED( actionWidget );
-    Q_UNUSED( container );
-    Q_UNUSED( a );
-}
-
-/*! \overload
-
-  This function is called from the addTo() function when it created a
-  menu item for the child action at the index \a index in the popup
-  menu \a menu.
-*/
-
-void QActionGroup::addedTo( int index, QPopupMenu *menu, QAction *a )
-{
-    Q_UNUSED( index );
-    Q_UNUSED( menu );
-    Q_UNUSED( a );
-}
-
-/* \reimp */
-
-void QActionGroup::addedTo( QWidget *actionWidget, QWidget *container )
-{
-    Q_UNUSED( actionWidget );
-    Q_UNUSED( container );
-}
-
-/* \reimp */
-
-void QActionGroup::addedTo( int index, QPopupMenu *menu )
-{
-    Q_UNUSED( index );
-    Q_UNUSED( menu );
 }
 
 #endif
