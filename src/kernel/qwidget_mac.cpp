@@ -1443,7 +1443,11 @@ void QWidget::repaint(const QRegion &r)
 		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
 		    qt_set_paintevent_clipping(w, prgn, q);
 		    QPaintEvent e(prgn);
+		    bool was_in_paint_event = w->testWState(WState_InPaintEvent);
+		    w->setWState(WState_InPaintEvent);
 		    QApplication::sendEvent(w, &e);
+		    if(!was_in_paint_event)
+			w->clearWState(WState_InPaintEvent);
 		    qt_clear_paintevent_clipping(w);
 		}
 		if (!parents)

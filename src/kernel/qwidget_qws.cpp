@@ -683,7 +683,11 @@ void QWidget::repaint( const QRegion& r )
 		    QRect rr = q->rect();
 		    rr.moveBy(offset);
 		    QPaintEvent e(rr);
+		    bool was_in_paint_event = w->testWState(WState_InPaintEvent);
+		    w->setWState(WState_InPaintEvent);
 		    QApplication::sendEvent(w, &e);
+		    if(!was_in_paint_event)
+			w->clearWState(WState_InPaintEvent);
 		    QPainter::restoreRedirected(w);
 		}
 		if (!parents)
