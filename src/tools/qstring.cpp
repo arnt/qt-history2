@@ -15497,25 +15497,22 @@ public:
 	    w += bitCount[b[i]];
 	return w;
     }
+
+    static QString::CoMatrix reunion( const QString::CoMatrix& m, const QString::CoMatrix& n )
+    {
+	CoMatrix p;
+	for ( int i = 0; i < 13; i++ )
+	    p.w[i] = m.w[i] | n.w[i];
+	return p;
+    }
+    static QString::CoMatrix intersection( const QString::CoMatrix& m,const QString::CoMatrix& n )
+    {
+	CoMatrix p;
+	for ( int i = 0; i < 13; i++ )
+	    p.w[i] = m.w[i] & n.w[i];
+	return p;
+    }
 };
-
-static inline QString::CoMatrix reunion( const QString::CoMatrix& m,
-					 const QString::CoMatrix& n )
-{
-    QString::CoMatrix p;
-    for ( int i = 0; i < 13; i++ )
-	p.w[i] = m.w[i] | n.w[i];
-    return p;
-}
-
-static inline QString::CoMatrix intersection( const QString::CoMatrix& m,
-					      const QString::CoMatrix& n )
-{
-    QString::CoMatrix p;
-    for ( int i = 0; i < 13; i++ )
-	p.w[i] = m.w[i] & n.w[i];
-    return p;
-}
 
 /*!
   Returns an index telling how similar this string is to a \a target
@@ -15536,8 +15533,8 @@ int QString::similarityWith( const QString& target ) const
 {
     QString::CoMatrix matrixForThis( *this );
     QString::CoMatrix matrixForTarget( target );
-    return ( 15 * (intersection(matrixForThis, matrixForTarget).worth() + 1) ) /
-	   ( reunion(matrixForThis, matrixForTarget).worth() + 1 );
+    return ( 15 * (QString::CoMatrix::intersection(matrixForThis, matrixForTarget).worth() + 1) ) /
+	   ( QString::CoMatrix::reunion(matrixForThis, matrixForTarget).worth() + 1 );
 }
 
 #if defined(Q_OS_WIN32)
