@@ -38,7 +38,6 @@ protected:
 private:
     void createImage();
 
-    bool dragging;
     bool hasImage;
     QGridLayout *grid;
     QImage originalImage;

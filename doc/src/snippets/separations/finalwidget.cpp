@@ -37,7 +37,6 @@ A widget to display an image and a label containing a description.
 FinalWidget::FinalWidget(QWidget *parent, const QString &name)
     : QFrame(parent)
 {
-    dragging = false;
     hasImage = false;
 
     imageLabel = new QLabel(this);
@@ -57,8 +56,6 @@ FinalWidget::FinalWidget(QWidget *parent, const QString &name)
 void FinalWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (!(event->buttons() & Qt::LeftButton))
-        return;
-    if (dragging)
         return;
     if ((event->pos() - dragStartPosition).manhattanLength()
          < QApplication::startDragDistance())
@@ -81,9 +78,7 @@ void FinalWidget::mouseMoveEvent(QMouseEvent *event)
     drag->setHotSpot(QPoint(drag->pixmap().width()/2,
                             drag->pixmap().height()));
 
-    dragging = true;
     drag->start();
-    dragging = false;
 }
 
 /*!
