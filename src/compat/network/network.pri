@@ -1,17 +1,17 @@
 # Qt compat module
 
 HEADERS +=      network/q3dns.h \
-                network/qsocket.h \
-                network/qsocketdevice.h \
-                network/qsocketdevice_p.h \
-                network/qserversocket.h
+                network/q3socket.h \
+                network/q3socketdevice.h \
+                network/q3socketdevice_p.h \
+                network/q3serversocket.h
 
 SOURCES +=      network/q3dns.cpp \
-                network/qsocket.cpp \
-                network/qsocketdevice.cpp \
-                network/qserversocket.cpp
+                network/q3socket.cpp \
+                network/q3socketdevice.cpp \
+                network/q3serversocket.cpp
 
-win32:SOURCES +=  network/qsocketdevice_win.cpp
-unix:SOURCES += network/qsocketdevice_unix.cpp
+win32:SOURCES +=  network/q3socketdevice_win.cpp
+unix:SOURCES += network/q3socketdevice_unix.cpp
 
 
