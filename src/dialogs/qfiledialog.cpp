@@ -5343,7 +5343,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     } else if ( o == nameEdit && e->type() == QEvent::KeyPress && d->mode != AnyFile ) {
 	if ( ( nameEdit->cursorPosition() == (int)nameEdit->text().length() || nameEdit->hasSelectedText() ) &&
 	     isprint(((QKeyEvent *)e)->ascii()) ) {
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	    QString nt( nameEdit->text().lower() );
 #else
 	    QString nt( nameEdit->text() );
@@ -5351,7 +5351,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	    nt.truncate( nameEdit->cursorPosition() );
 	    nt += (char)(((QKeyEvent *)e)->ascii());
 	    QListViewItem * i = files->firstChild();
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	    while( i && i->text( 0 ).left(nt.length()).lower() != nt )
 #else
 	    while( i && i->text( 0 ).left(nt.length()) != nt )
