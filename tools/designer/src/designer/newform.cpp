@@ -43,6 +43,7 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
     ui.treeWidget->header()->hide();
     ui.treeWidget->header()->setStretchLastSection(true);
     ui.lblPreview->setBackgroundRole(QPalette::Base);
+    ui.lblPreview->setAlignment(Qt::AlignCenter);
     ui.chkShowOnStartup->setChecked(QDesignerSettings().showNewFormOnStartup());
 
     loadFrom(":/trolltech/designer/templates/forms");
@@ -177,6 +178,12 @@ void NewForm::loadFrom(const QString &path)
         QTreeWidgetItem *item = new QTreeWidgetItem(root);
         item->setText(0, fi.baseName());
         item->setData(0, TemplateNameRole, fi.absoluteFilePath());
+
+        QTreeWidgetItem *i = ui.treeWidget->currentItem();
+        if (i == 0) {
+            ui.treeWidget->setCurrentItem(item);
+            ui.treeWidget->setItemSelected(item, true);
+        }
     }
     ui.treeWidget->setItemExpanded(root, true);
 }

@@ -11,8 +11,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>454</width>
-    <height>300</height>
+    <width>601</width>
+    <height>319</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -48,13 +48,13 @@
         <rect>
          <x>1</x>
          <y>1</y>
-         <width>214</width>
-         <height>231</height>
+         <width>256</width>
+         <height>250</height>
         </rect>
        </property>
        <property name="sizePolicy" >
         <sizepolicy>
-         <hsizetype>13</hsizetype>
+         <hsizetype>1</hsizetype>
          <vsizetype>7</vsizetype>
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
@@ -81,15 +81,15 @@
        </property>
        <property name="geometry" >
         <rect>
-         <x>221</x>
+         <x>263</x>
          <y>1</y>
-         <width>214</width>
-         <height>231</height>
+         <width>319</width>
+         <height>250</height>
         </rect>
        </property>
        <property name="sizePolicy" >
         <sizepolicy>
-         <hsizetype>13</hsizetype>
+         <hsizetype>7</hsizetype>
          <vsizetype>5</vsizetype>
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
@@ -119,8 +119,8 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>248</y>
-       <width>436</width>
+       <y>267</y>
+       <width>583</width>
        <height>3</height>
       </rect>
      </property>
@@ -151,9 +151,9 @@
        <property name="geometry" >
         <rect>
          <x>1</x>
-         <y>7</y>
-         <width>202</width>
-         <height>20</height>
+         <y>6</y>
+         <width>174</width>
+         <height>22</height>
         </rect>
        </property>
        <property name="text" >
@@ -168,9 +168,9 @@
        </property>
        <property name="geometry" >
         <rect>
-         <x>209</x>
+         <x>181</x>
          <y>1</y>
-         <width>8</width>
+         <width>237</width>
          <height>32</height>
         </rect>
        </property>
@@ -195,10 +195,10 @@
        </property>
        <property name="geometry" >
         <rect>
-         <x>223</x>
-         <y>1</y>
-         <width>103</width>
-         <height>32</height>
+         <x>424</x>
+         <y>2</y>
+         <width>77</width>
+         <height>29</height>
         </rect>
        </property>
        <property name="text" >
@@ -219,10 +219,10 @@
        </property>
        <property name="geometry" >
         <rect>
-         <x>332</x>
-         <y>1</y>
-         <width>103</width>
-         <height>32</height>
+         <x>507</x>
+         <y>3</y>
+         <width>75</width>
+         <height>27</height>
         </rect>
        </property>
        <property name="text" >
