@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#53 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#54 $
 **
 ** Definition of QIconView widget class
 **
@@ -360,9 +360,11 @@ signals:
     void itemRightPressed( QIconViewItem *item );
     void viewportRightPressed();
     void rightButtonPressed( QIconViewItem* item, const QPoint& pos );
+    void mouseButtonPressed( int button, QIconViewItem* item, const QPoint& pos );
     void itemRightClicked( QIconViewItem *item );
     void viewportRightClicked();
     void rightButtonClicked( QIconViewItem* item, const QPoint& pos );
+    void mouseButtonClicked( int button, QIconViewItem* item, const QPoint& pos );
     void selectionChanged();
     void selectionChanged( int numItems );
     void currentChanged();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#114 $
 **
 ** Definition of QIconView widget class
 **
@@ -1571,12 +1571,12 @@ void QIconViewItem::setIconRect( const QRect &r )
 */
 
 /*! \fn void  QIconView::itemRightClicked (QIconViewItem * item)
-  This signal is emitted, if the user clicked (pressed + released) on the 
+  This signal is emitted, if the user clicked (pressed + released) on the
   item \a item using the right mouse button.
 */
 
 /*! \fn void  QIconView::viewportRightClicked ()
-  This signal is emitted, when the user clicked (pressed + released) with 
+  This signal is emitted, when the user clicked (pressed + released) with
   the right mouse button onto the viewport (not on an item)
 */
 
@@ -1622,16 +1622,32 @@ void QIconViewItem::setIconRect( const QRect &r )
 
 /*!
   \fn void QIconView::rightButtonPressed (QIconViewItem * item, const QPoint & pos)
-  This signal is emitted wher the user pressed with the right mouse button on 
+  This signal is emitted wher the user pressed with the right mouse button on
   either and item (then \a item is the item under the mouse cursor) or
-  somewhere else (then \a item is NULL). \a pos the position of the mouse cursor. 
+  somewhere else (then \a item is NULL). \a pos the position of the mouse cursor.
 */
 
 /*!
   \fn void QIconView::rightButtonClicked (QIconViewItem * item, const QPoint & pos)
-  This signal is emitted wher the user clicked (pressed + released) with the right 
+  This signal is emitted wher the user clicked (pressed + released) with the right
   mouse button on either and item (then \a item is the item under the mouse cursor) or
-  somewhere else (then \a item is NULL). \a pos the position of the mouse cursor. 
+  somewhere else (then \a item is NULL). \a pos the position of the mouse cursor.
+*/
+
+/*!
+  \fn void QIconView:mouseButtonPressed (int button, QIconViewItem * item, const QPoint & pos)
+  This signal is emitted wher the user pressed with any mouse button on
+  either and item (then \a item is the item under the mouse cursor) or
+  somewhere else (then \a item is NULL). \a button is the number of the mouse button which
+  the user pressed, and \a pos the position of the mouse cursor.
+*/
+
+/*!
+  \fn void QIconView:mouseButtonClicked (int button, QIconViewItem * item, const QPoint & pos)
+  This signal is emitted wher the user clicked (pressed + released) with any mouse button on
+  either and item (then \a item is the item under the mouse cursor) or
+  somewhere else (then \a item is NULL). \a button is the number of the mouse button which
+  the user clicked, and \a pos the position of the mouse cursor.
 */
 
 /*!
@@ -2695,16 +2711,18 @@ bool QIconView::sortOrder() const
 
 void QIconView::contentsMousePressEvent( QMouseEvent *e )
 {
+    QIconViewItem *item = findItem( e->pos() );
+    emit mouseButtonPressed( e->button(), item, e->globalPos() ); 
+
     if ( d->currentItem )
 	d->currentItem->renameItem();
 
     if ( e->button() == LeftButton ) {
 	d->startDrag = FALSE;
 
-	QIconViewItem *item = findItem( e->pos() );
 	QIconViewItem *oldCurrent = d->currentItem;
-
-	if ( item  && item->isSelected() &&
+	
+	if ( item && item->isSelected() &&
 	     item->textRect( FALSE ).contains( e->pos() ) ) {
 
 	    if ( !item->renameEnabled() )
@@ -2742,12 +2760,13 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 
 	d->mousePressed = TRUE;
     } else if ( e->button() == RightButton ) {
-	QIconViewItem *item = findItem( e->pos() );
 	emit rightButtonPressed( item, e->globalPos() );
 	if ( item )
 	    emit itemRightPressed( item );
 	else
 	    emit viewportRightPressed();
+    } else if ( e->button() == MidButton ) {
+	emit mouseButtonPressed( 1, item, e->globalPos() ); 
     }
 }
 
@@ -2757,6 +2776,9 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 
 void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 {
+    QIconViewItem *item = findItem( e->pos() );
+    emit mouseButtonClicked( e->button(), item, e->globalPos() ); 
+    
     d->mousePressed = FALSE;
     d->startDrag = FALSE;
 
@@ -2774,7 +2796,6 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 	delete d->rubber;
 	d->rubber = 0;
     } else if ( !d->startDrag && d->singleClickMode ) {
-	QIconViewItem *item = findItem( e->pos() );
 	if ( item && !item->renameBox ) {
 	    selectAll( FALSE );
 	    item->setSelected( TRUE, TRUE );
@@ -2790,7 +2811,6 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
     }
 
     if ( e->button() == RightButton ) {
-	QIconViewItem *item = findItem( e->pos() );
 	emit rightButtonClicked( item, e->globalPos() );
 	if ( item )
 	    emit itemRightClicked( item );
@@ -3993,7 +4013,7 @@ static int cmpIconViewItems( const void *n1, const void *n2 )
   Sorts the items of the listview. If \a ascending is TRUE, the items
   are sorted in increasing order, else in decreasing order. For sorting
   the key of the items is used.
-  
+
   \sa QIconViewItem::key(), QIconViewItem::setKey()
 */
 
