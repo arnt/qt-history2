@@ -1100,7 +1100,7 @@ bool QODBCResult::exec()
                     QString str(val.toString());
                     str.ucs2();
                     if (bindValueType(i) & QSql::Out) {
-                        QByteArray ba((char*)str.constData(), str.length() * sizeof(QChar) * 2);
+                        QByteArray ba((char*)str.constData(), str.capacity() * sizeof(QChar));
                         r = SQLBindParameter(d->hStmt,
                                             i + 1,
                                             qParamType[ (QFlag)(bindValueType(i)) & QSql::InOut ],
@@ -1109,7 +1109,7 @@ bool QODBCResult::exec()
                                             0, // god knows... don't change this!
                                             0,
                                             (void *)ba.constData(),
-                                            ba.capacity(),
+                                            ba.size(),
                                             ind);
                         break;
                     }

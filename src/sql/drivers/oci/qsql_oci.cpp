@@ -209,11 +209,11 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
             default: {
                 QString s = values.at(i).toString();
                 if (isOutValue(i)) {
-                    QByteArray ba((char*)s.ucs2(), s.length() * sizeof(QChar) * 2);
+                    QByteArray ba((char*)s.ucs2(), s.capacity() * sizeof(QChar));
                     r = OCIBindByPos(sql, &hbnd, err,
                                     i + 1,
                                     (dvoid *)ba.constData(),
-                                    ba.capacity(),
+                                    ba.size(),
                                     SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                     (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
                     tmpStorage.append(ba);
