@@ -317,7 +317,10 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 */
 
 QStyleOptionHeader::QStyleOptionHeader()
-    : QStyleOption(QStyleOptionHeader::Version, SO_Header), section(0)
+    : QStyleOption(QStyleOptionHeader::Version, SO_Header),
+      section(0), textAlignment(0), iconAlignment(0),
+      position(QStyleOptionHeader::Beginning),
+      selectedPosition(QStyleOptionHeader::NotAdjacent), sortIndicator(None)
 {
 }
 
@@ -325,7 +328,10 @@ QStyleOptionHeader::QStyleOptionHeader()
     \internal
 */
 QStyleOptionHeader::QStyleOptionHeader(int version)
-    : QStyleOption(version, SO_Header), section(0)
+    : QStyleOption(version, SO_Header),
+      section(0), textAlignment(0), iconAlignment(0),
+      position(QStyleOptionHeader::Beginning),
+      selectedPosition(QStyleOptionHeader::NotAdjacent), sortIndicator(None)
 {
 }
 
@@ -440,7 +446,7 @@ QStyleOptionTab::QStyleOptionTab()
       shape(QTabBar::RoundedNorth),
       row(0),
       position(Beginning),
-      selectedPosition(NotAdjacent)
+      selectedPosition(NotAdjacent), cornerWidgets(QStyleOptionTab::NoCornerWidgets)
 {
 }
 
@@ -452,7 +458,7 @@ QStyleOptionTab::QStyleOptionTab(int version)
       shape(QTabBar::RoundedNorth),
       row(0),
       position(Beginning),
-      selectedPosition(NotAdjacent)
+      selectedPosition(NotAdjacent), cornerWidgets(QStyleOptionTab::NoCornerWidgets)
 {
 }
 

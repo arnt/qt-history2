@@ -129,6 +129,7 @@ public:
     enum SectionPosition { Beginning, Middle, End, OnlyOneSection };
     enum SelectedPosition { NotAdjacent, NextIsSelected, PreviousIsSelected,
                             NextAndPreviousAreSelected };
+    enum SortIndicator { None, SortUp, SortDown };
 
     int section;
     QString text;
@@ -137,6 +138,7 @@ public:
     Qt::Alignment iconAlignment;
     SectionPosition position;
     SelectedPosition selectedPosition;
+    SortIndicator sortIndicator;
 
     QStyleOptionHeader();
     QStyleOptionHeader(const QStyleOptionHeader &other) : QStyleOption(Version, Type) { *this = other; }
@@ -186,6 +188,9 @@ public:
 
     enum TabPosition { Beginning, Middle, End, OnlyOneTab };
     enum SelectedPosition { NotAdjacent, NextIsSelected, PreviousIsSelected };
+    enum CornerWidget { NoCornerWidgets = 0x00, LeftCornerWidget = 0x01,
+                        RightCornerWidget = 0x02 };
+    Q_DECLARE_FLAGS(CornerWidgets, CornerWidget)
 
     QTabBar::Shape shape;
     QString text;
@@ -193,6 +198,7 @@ public:
     int row;
     TabPosition position;
     SelectedPosition selectedPosition;
+    CornerWidgets cornerWidgets;
 
     QStyleOptionTab();
     QStyleOptionTab(const QStyleOptionTab &other) : QStyleOption(Version, Type) { *this = other; }
@@ -207,6 +213,8 @@ public:
 protected:
     QStyleOptionTab(int version);
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionTab::CornerWidgets);
 
 class Q_GUI_EXPORT QStyleOptionProgressBar : public QStyleOption
 {

@@ -130,7 +130,12 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     } else {
         opt.position = QStyleOptionTab::Middle;
     }
-
+    if (const QTabWidget *tw = qobject_cast<const QTabWidget *>(q->parentWidget())) {
+        if (tw->cornerWidget(Qt::TopLeftCorner) || tw->cornerWidget(Qt::BottomLeftCorner))
+            opt.cornerWidgets |= QStyleOptionTab::LeftCornerWidget;
+        if (tw->cornerWidget(Qt::TopRightCorner) || tw->cornerWidget(Qt::BottomRightCorner))
+            opt.cornerWidgets |= QStyleOptionTab::RightCornerWidget;
+    }
     return opt;
 }
 

@@ -1334,6 +1334,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
 {
     Q_D(const QHeaderView);
     // get the state of the section
+    QStyleOptionHeader opt = d->getStyleOption();
     QStyle::State state = QStyle::State_None;
     if (isEnabled())
         state |= QStyle::State_Enabled;
@@ -1345,14 +1346,16 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
         else if (d->highlightSelected && d->isSectionSelected(logicalIndex))
             state |= QStyle::State_On;
     }
-    if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex)
-        state |= (sortIndicatorOrder() == Qt::AscendingOrder
-                  ? QStyle::State_Down : QStyle::State_Up);
+    if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {
+        opt.sortIndicator = (sortIndicatorOrder() == Qt::AscendingOrder)
+                            ? QStyleOptionHeader::SortDown : QStyleOptionHeader::SortUp;
+    } else {
+        opt.sortIndicator = QStyleOptionHeader::None;
+    }
 
     // setup the style options structure
     int textAlignment = d->model->headerData(logicalIndex, orientation(),
                                              QAbstractItemModel::TextAlignmentRole).toInt();
-    QStyleOptionHeader opt = d->getStyleOption();
     opt.rect = rect;
     opt.section = logicalIndex;
     opt.state |= state;
