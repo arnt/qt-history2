@@ -298,8 +298,9 @@ bool QMenuBar::updateMenuBar()
 	    continue;
 
 	MenuRef mp = createMacPopup(item->popup(), FALSE, TRUE);
+	qDebug("%d %d", item->id(), x);
 	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
-	InsertMenu(mp, 666);
+	InsertMenu(mp, 0);
     }
     InvalMenuBar();
     return TRUE;

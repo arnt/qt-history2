@@ -54,6 +54,9 @@
 #include "qclipboard.h"
 #include "qpaintdevicemetrics.h"
 #include "qcursor.h"
+#ifdef QT_EVAL_COPY
+#include "qmessagebox.h"
+#endif
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
@@ -1055,6 +1058,22 @@ bool QApplication::processNextEvent( bool canWait )
     sendPostedEvents();
     activateNullTimers(); //try to send null timers..
 
+#ifdef QT_EVAL_COPY
+    static bool in = FALSE;
+    if(!in && (QDate::currentDate().month() > 10 || QDate::currentDate().year() != 2001)) {
+	if(QWidgetList *list   = qApp->topLevelWidgets()) {
+	    for ( QWidget     *widget = list->first(); widget; widget = list->next() ) 
+		widget->hide();
+	}
+	in = TRUE;
+	QMessageBox::critical(NULL, "Expired", "<b>This evaluation of Qt/Mac has expired.</b><br>"
+			   "Please contact sales@trolltech.com for further licensing, or try:<br>"
+			   "<em>http://www.trolltech.com</em>");
+	exit(1);
+	in = FALSE;
+    }
+#endif
+    
     EventRef event;
     OSStatus ret;
     do {
@@ -2002,7 +2021,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		else
 		    widget->setFocus();
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-		qt_event_request_menubarupdate();
+		QMenuBar::macUpdateMenuBar();
 #endif
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
