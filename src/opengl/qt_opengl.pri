@@ -1,9 +1,9 @@
 # Qt opengl module
 
-opengl {
+!mac:opengl {
 	HEADERS += $$OPENGL_H/qgl.h
 	SOURCES	+= $$OPENGL_CPP/qgl.cpp
-	0:mac {
+	mac {
 	   INCLUDEPATH += /System/Library/Frameworks/OpenGL.framework/Headers/
 	   LIBS += -framework OpenGL
 	   SOURCES += $$OPENGL_CPP/qgl_mac.cpp
