@@ -57,7 +57,7 @@ void QColor::initialize()
     if ( color_init )				// already initialized
 	return;
     color_init = TRUE;
-    if (qApp->desktop()->qwsDisplay()->depth() <= 8)
+    if (QPainterDevice::qwsDisplay()->depth() <= 8)
 	colormodel = d8;
     else
 	colormodel = d32;
