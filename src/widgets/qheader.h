@@ -156,8 +156,9 @@ private:
     int 	findLine( int );
     bool reverse() const;
     void calculatePositions( bool onlyVisible = FALSE, int start = 0 );
-
     void	handleColumnResize(int, int, bool, bool = TRUE );
+    void	setSectionSizeAndHeight( int section, int size,
+					 const QString& s );
 
     int		offs;
     int		handleIdx;

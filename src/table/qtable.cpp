@@ -78,7 +78,10 @@ public:
 
     QTableHeader( int, QTable *t, QWidget* Q_PARENT, const char* Q_NAME );
     ~QTableHeader() {};
-    void addLabel( const QString &s , int size );
+    void addLabel( const QString &s, int size );
+    void setLabel( int section, const QString & s, int size = -1 );
+    void setLabel( int section, const QIconSet & iconset, const QString & s,
+		   int size = -1 );
 
     void setSectionState( int s, SectionState state );
     void setSectionStateToAll( SectionState state );
@@ -116,6 +119,7 @@ private:
     void setCaching( bool b );
     void swapSections( int oldIdx, int newIdx );
     bool doSelection( QMouseEvent *e );
+    void sectionLabelChanged( int section );
 
 private:
     QMemArray<int> states, oldStates;
@@ -5300,6 +5304,19 @@ void QTableHeader::addLabel( const QString &s , int size )
     QHeader::addLabel( s , size );
 }
 
+void QTableHeader::setLabel( int section, const QString & s, int size )
+{
+    QHeader::setLabel( section, s, size );
+    sectionLabelChanged( section );
+}
+
+void QTableHeader::setLabel( int section, const QIconSet & iconset,
+			     const QString & s, int size )
+{
+    QHeader::setLabel( section, iconset, s, size );
+    sectionLabelChanged( section );
+}
+
 /*!
     Sets the SectionState of section \a s to \a astate.
 
@@ -5507,9 +5524,32 @@ bool QTableHeader::doSelection( QMouseEvent *e )
     return FALSE;
 }
 
-/*! \reimp
-*/
+static inline bool mayOverwriteMargin( int before, int after )
+{
+    /*
+      0 is the only user value that we always respect. We also never
+      shrink a margin, in case the user wanted it that way.
+    */
+    return before != 0 && before < after;
+}
 
+void QTableHeader::sectionLabelChanged( int section )
+{
+    emit sectionSizeChanged( section );
+
+    // this does not really belong here
+    if ( orientation() == Horizontal ) {
+	int h = sizeHint().height();
+	if ( h != height() && mayOverwriteMargin(table->topMargin(), h) )
+	    table->setTopMargin( h );
+    } else {
+	int w = sizeHint().width();
+	if ( w != width() && mayOverwriteMargin(table->leftMargin(), w) )
+	    table->setLeftMargin( w );
+    }
+}
+
+/*! \reimp */
 void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )

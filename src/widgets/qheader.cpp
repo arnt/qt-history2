@@ -68,7 +68,7 @@ public:
 	clicks.resize(n);
 	resize.resize(n);
 	int p =0;
-	for ( int i = 0; i < n ; i ++ ) {
+	for ( int i = 0; i < n; i ++ ) {
 	    sizes[i] = 88;
 	    // heights[i] = 10; set properly in QHeader::init()
 	    i2s[i] = i;
@@ -386,8 +386,8 @@ void QHeader::init( int n )
     cachedIdx = 0; // unused
     cachedPos = 0; // unused
     d = new QHeaderData(n);
-    for ( int i = 0; i < n ; i ++ ) {
-	d->heights[i] = fontMetrics().lineSpacing()+6;
+    for ( int i = 0; i < n; i ++ ) {
+	d->heights[i] = fontMetrics().lineSpacing() + 6;
     }
     offs = 0;
     if( reverse() )
@@ -412,7 +412,8 @@ void QHeader::init( int n )
 
 void QHeader::setOrientation( Orientation orientation )
 {
-    if (orient==orientation) return;
+    if ( orient == orientation )
+	return;
     orient = orientation;
     if ( orient == Horizontal )
 	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
@@ -770,11 +771,12 @@ QRect QHeader::sRect( int index )
 
     int section = mapToSection( index );
     if ( count() > 0 && index >= count() ) {
-	int s = d->positions[count()-1]-offset()+d->sizes[mapToSection(count()-1)];
+	int s = d->positions[count() - 1] - offset() +
+		d->sizes[mapToSection(count() - 1)];
 	if ( orient == Horizontal )
-	    return QRect( s, 0, width()-s+10, height() );
+	    return QRect( s, 0, width() - s + 10, height() );
 	else
-	    return QRect( 0, s, width(), height() - s +10);
+	    return QRect( 0, s, width(), height() - s + 10 );
     }
     if ( section < 0 )
 	return rect(); // ### eeeeevil
@@ -837,8 +839,10 @@ void QHeader::setLabel( int section, const QString &s, int size )
     if ( section < 0 || section >= count() )
 	return;
     d->labels.insert( section, new QString( s ) );
-    if ( size >= 0 )
-	d->sizes[section] = size;
+
+    setSectionSizeAndHeight( section, size, s );
+
+    updateGeometry();
     if ( isUpdatesEnabled() ) {
 	calculatePositions();
 	update();
@@ -918,7 +922,7 @@ void QHeader::removeLabel( int section )
 
     for ( i = section; i < n; ++i )
 	d->s2i[i] = d->s2i[i+1];
-    d->s2i.resize( n  );
+    d->s2i.resize( n );
 
     if ( isUpdatesEnabled() ) {
 	for ( i = 0; i < n; ++i )
@@ -931,18 +935,45 @@ void QHeader::removeLabel( int section )
     d->i2s.resize( n );
 
     if ( isUpdatesEnabled() ) {
-	for ( i = 0; i < n ; ++i )
+	for ( i = 0; i < n; ++i )
 	    if ( d->i2s[i] > section )
 		--d->i2s[i];
     }
 
+    updateGeometry();
     if ( isUpdatesEnabled() ) {
 	calculatePositions();
 	update();
     }
 }
 
+/*!
+  Sets d->sizes[\a section] and d->heights[\a section] to the bounding
+  rect of \a s, with the constraint \a size.
+*/
+void QHeader::setSectionSizeAndHeight( int section, int size, const QString& s )
+{
+    int iw = 0;
+    int ih = 0;
+    if ( d->iconsets[section] != 0 ) {
+	QSize isize = d->iconsets[section]->pixmap( QIconSet::Small,
+						    QIconSet::Normal ).size();
+	iw = isize.width() + 2;
+	ih = isize.height();
+    }
 
+    QFontMetrics fm = fontMetrics();
+    QRect bound = fm.boundingRect( 0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX,
+				   AlignVCenter, s );
+    int height = QMAX( bound.height() + 2, ih ) + 4;
+    int width = bound.width() + QH_MARGIN * 4 + iw;
+
+    if ( size < 0 )
+	size = ( orient == Horizontal ) ? width : height;
+    d->sizes[section] = size;
+    // we abuse the heights as widths for vertical layout
+    d->heights[section] = ( orient == Horizontal ) ? height : width;
+}
 
 /*!
   Adds a new section with label text \a s. Returns the index position
@@ -963,30 +994,12 @@ int QHeader::addLabel( const QString &s, int size )
     d->positions.resize( n );
     d->heights.resize( n );
     int section = n - 1;
-    d->labels.insert( section, new QString( s ) );  // n-1 is last real idx
-    int iw = 0;
-    int ih = 0;
-    if ( d->iconsets[section] != 0 ) {
-	iw = d->iconsets[section]->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
-	ih = d->iconsets[section]->pixmap( QIconSet::Small, QIconSet::Normal ).height();
-    }
+    d->labels.insert( section, new QString( s ) );  // n - 1 is last real idx
 
-    QFontMetrics fm = fontMetrics();
-    int height = QMAX( fm.lineSpacing() + 6, ih );
-    int width = fm.boundingRect( s ).width()+ QH_MARGIN * 4 + iw;
-
-    if ( size < 0 ) {
-	if ( orient == Horizontal )
-	    size = width;
-	else
-	    size = height;
-    }
+    setSectionSizeAndHeight( section, size, s );
 
     int index = section;
-    d->sizes[section] = size;
     d->positions[index] = d->lastPos;
-    // we abuse the heights as widths for vertical layout
-    d->heights[section] = orient == Horizontal ? height : width;
 
     d->i2s.resize( n );
     d->s2i.resize( n );
@@ -997,6 +1010,7 @@ int QHeader::addLabel( const QString &s, int size )
     d->clicks.setBit( section, d->clicks_default );
     d->resize.setBit( section, d->resize_default );
 
+    updateGeometry();
     if ( isUpdatesEnabled() ) {
 	calculatePositions();
 	update();
@@ -1005,30 +1019,31 @@ int QHeader::addLabel( const QString &s, int size )
 }
 
 
-/*!\reimp
-*/
+/*! \reimp */
 QSize QHeader::sizeHint() const
 {
+    int width;
+    int height;
+
     constPolish();
     QFontMetrics fm = fontMetrics();
     if ( orient == Horizontal ) {
-	int height = fm.lineSpacing() + 6;
-	int width = 0;
-	for ( int i=0 ; i<count() ; i++ ) {
-	    height = QMAX( height , d->heights[i] );
+	height = fm.lineSpacing() + 6;
+	width = 0;
+	for ( int i = 0; i < count(); i++ ) {
+	    height = QMAX( height, d->heights[i] );
 	    width += d->sizes[i];
 	}
-	return QSize( width, height );
     }
     else {
-	int width = fm.width( ' ' );
-	int height = 0;
-	for ( int i=0 ; i<count() ; i++ ) {
-	    width = QMAX( width , d->heights[i] );
+	width = fm.width( ' ' );
+	height = 0;
+	for ( int i = 0; i < count(); i++ ) {
+	    width = QMAX( width, d->heights[i] );
 	    height += d->sizes[i];
 	}
-	return QSize( width, height );
     }
+    return QSize( width, height );
 }
 
 /*! \property QHeader::offset
@@ -1342,21 +1357,24 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 	dy = style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, this);
     }
 
-    QRect r( fr.x() + QH_MARGIN + dx, fr.y() + 2 + dy, fr.width() - 6, fr.height() - 4 );
+    QRect r( fr.x() + QH_MARGIN + dx, fr.y() + 2 + dy, fr.width() - 6,
+	     fr.height() - 4 );
 
     int pw = 0;
     if ( d->iconsets[section] ) {
-	QIconSet::Mode mode = isEnabled()?QIconSet::Normal:QIconSet::Disabled;
+	QIconSet::Mode mode = isEnabled() ? QIconSet::Normal
+			      : QIconSet::Disabled;
 	QPixmap pixmap = d->iconsets[section]->pixmap( QIconSet::Small, mode );
 	int pixw = pixmap.width();
 	pw = pixw;
 	int pixh = pixmap.height();
-	p->drawPixmap( r.left(), r.center().y()-pixh/2, pixmap );
+	// "pixh - 1" because of tricky integer division
+	p->drawPixmap( r.left(), r.center().y() - (pixh - 1) / 2, pixmap );
 	r.setLeft( r.left() + pixw + 2 );
     }
 
     p->setPen(colorGroup().buttonText());
-    p->drawText ( r, AlignAuto|AlignVCenter|SingleLine, s );
+    p->drawText( r, AlignVCenter, s );
 
     int arrowWidth = orient == Qt::Horizontal ? height() / 2 : width() / 2;
     int arrowHeight = fr.height() - 6;
@@ -1374,15 +1392,12 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 }
 
 
-/*!\reimp
-*/
+/*! \reimp */
 void QHeader::paintEvent( QPaintEvent *e )
 {
     QPainter p( this );
     p.setPen( colorGroup().buttonText() );
-    int pos = orient == Horizontal
-		     ? e->rect().left()
-		     : e->rect().top();
+    int pos = orient == Horizontal ? e->rect().left() : e->rect().top();
     int id = mapToIndex( sectionAt( pos + offset() ) );
     if ( id < 0 ) {
 	if ( pos > 0 )
@@ -1400,15 +1415,21 @@ void QHeader::paintEvent( QPaintEvent *e )
 		return;
 	}
     } else {
-	for ( int i = id; i <= count(); i++ ) {
-	    QRect r = sRect( i );
-	    if ( i < count() || d->clicks[ mapToSection( count() - 1 ) ] )
-		paintSection( &p, i, r );
-	    if ( orient == Horizontal && r. right() >= e->rect().right() ||
-		 orient == Vertical && r. bottom() >= e->rect().bottom() )
-		return;
+	if ( count() > 0 ) {
+	    for ( int i = id; i <= count(); i++ ) {
+		QRect r = sRect( i );
+		/*
+		  If the last section is clickable (and thus is
+		  painted raised), draw the virtual section count()
+		  as well. Otherwise it looks ugly.
+		*/
+		if ( i < count() || d->clicks[ mapToSection( count() - 1 ) ] )
+		    paintSection( &p, i, r );
+		if ( orient == Horizontal && r. right() >= e->rect().right() ||
+		     orient == Vertical && r. bottom() >= e->rect().bottom() )
+		    return;
+	    }
 	}
-
     }
 }
 
@@ -1528,7 +1549,7 @@ void QHeader::moveSection( int section, int toIndex )
 	d->i2s[toIndex-1] = idx;
 	d->s2i[idx] = toIndex-1;
     } else {
-	for ( i = fromIndex; i > toIndex ; i-- ) {
+	for ( i = fromIndex; i > toIndex; i-- ) {
 	    int t;
 	    d->i2s[i] = t = d->i2s[i-1];
 	    d->s2i[t] = i;

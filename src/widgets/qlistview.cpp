@@ -2877,6 +2877,7 @@ int QListView::addColumn( const QString &label, int width )
     d->column.resize( c+1 );
     d->column.insert( c, new QListViewPrivate::Column );
     d->column[c]->wmode = width >=0 ? Manual : Maximum;
+    updateGeometries();
     return c;
 }
 
@@ -2898,6 +2899,7 @@ int QListView::addColumn( const QIconSet& iconset, const QString &label, int wid
     d->column.resize( c+1 );
     d->column.insert( c, new QListViewPrivate::Column );
     d->column[c]->wmode = width >=0 ? Manual : Maximum;
+    updateGeometries();
     return c;
 }
 
@@ -2972,7 +2974,7 @@ void QListView::removeColumn( int index )
 
     d->h->removeLabel( index );
 
-    triggerUpdate();
+    updateGeometries();
     if ( d->column.count() == 0 )
 	clear();
 }
@@ -2984,8 +2986,10 @@ void QListView::removeColumn( int index )
 */
 void QListView::setColumnText( int column, const QString &label )
 {
-    if ( column < d->h->count() )
+    if ( column < d->h->count() ) {
 	d->h->setLabel( column, label );
+	updateGeometries();
+    }
 }
 
 /*! \overload
@@ -2997,8 +3001,10 @@ void QListView::setColumnText( int column, const QString &label )
 */
 void QListView::setColumnText( int column, const QIconSet& iconset, const QString &label )
 {
-    if ( column < d->h->count() )
+    if ( column < d->h->count() ) {
 	d->h->setLabel( column, iconset, label );
+	updateGeometries();
+    }
 }
 
 /*! Sets the width of column \a column to \a w pixels.  Note that if the
@@ -3220,7 +3226,7 @@ void QListView::handleSizeChange( int section, int os, int ns )
     int actual = d->h->mapToActual( section );
     int dx = ns - os;
     int left = d->h->cellPos( actual ) - contentsX() + d->h->cellSize( actual );
-    if ( dx > 0)
+    if ( dx > 0 )
 	left -= dx;
     if ( left < visibleWidth() )
 	viewport()->scroll( dx, 0, QRect( left, 0, visibleWidth() - left, visibleHeight() ) );
