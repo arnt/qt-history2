@@ -864,6 +864,11 @@ QOleDropTarget::Release(void)
 STDMETHODIMP
 QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
+    if (!qt_tryModalHelper(widget)) {
+        *pdwEffect = DROPEFFECT_NONE;
+        return NOERROR;
+    }
+
     current_dropobj = pDataObj;
     QDragEnterEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)));
 
@@ -891,13 +896,17 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     else if (de.action() == QDropEvent::Link)
         *pdwEffect = DROPEFFECT_LINK;
 
-
     return NOERROR;
 }
 
 STDMETHODIMP
 QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
+    if (!qt_tryModalHelper(widget)) {
+        *pdwEffect = DROPEFFECT_NONE;
+        return NOERROR;
+    }
+
     bool old_acceptfmt = acceptfmt; // set this to get the correct action.
     acceptfmt = true;
     QueryDrop(grfKeyState, pdwEffect);
@@ -941,6 +950,9 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 STDMETHODIMP
 QOleDropTarget::DragLeave()
 {
+    if (!qt_tryModalHelper(widget))
+        return NOERROR;
+
     acceptfmt = false;
     current_dropobj = 0;
     QDragLeaveEvent de;
@@ -951,6 +963,11 @@ QOleDropTarget::DragLeave()
 STDMETHODIMP
 QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
+    if (!qt_tryModalHelper(widget)) {
+        *pdwEffect = DROPEFFECT_NONE;
+        return NOERROR;
+    }
+
     if (QueryDrop(grfKeyState, pdwEffect))
     {
         current_dropobj = pDataObj;
