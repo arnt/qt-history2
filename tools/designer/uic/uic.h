@@ -52,6 +52,8 @@ public:
     void createColorGroupImpl( const QString& cg, const QDomElement& e );
     QColorGroup loadColorGroup( const QDomElement &e );
 
+    QString getPixmapLoaderFunction( const QDomElement& e );
+    QString getFormClassName( const QDomElement& e );
     QString getClassName( const QDomElement& e );
     QString getObjectName( const QDomElement& e );
     QString getLayoutName( const QDomElement& e );
@@ -101,6 +103,7 @@ private:
     uint item_used : 1;
     uint cg_used : 1;
     uint pal_used : 1;
+    uint stdsetdef : 1;
 
     QString nameOfClass;
     QString pixmapLoaderFunction;
@@ -109,7 +112,7 @@ private:
     bool isWidgetInTable( const QDomElement& e, const QString& connection, const QString& table );
     QString getFieldName( const QDomElement& e );
     QString getTableName( const QDomElement& e );
-    QString getConnectionName( const QDomElement& e );    
+    QString getConnectionName( const QDomElement& e );
     void createDatabaseImpl( const QDomElement& e );
     void createFormImpl( const QDomElement& e, const QString& form, const QString& connection, const QString& table );
     QStringList                  dbConnections;

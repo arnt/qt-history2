@@ -65,6 +65,55 @@ static QString mkStdSet( const QString& prop )
 }
 
 
+// convert Qt 2.x format to Qt 3.0 format
+static void fixDocument( QDomDocument& doc ) 
+{
+    QDomElement e;
+    QDomNode n;
+    QDomNodeList nl;
+    int i = 0;
+
+    e = doc.firstChild().toElement();
+    if ( e.tagName() != "UI" )
+	return;
+    e.setAttribute("stdsetdef", 1 );
+    nl = doc.elementsByTagName( "property" );
+    for ( i = 0; i <  (int) nl.length(); i++ ) {
+	e = nl.item(i).toElement();
+	QString name;
+	QDomElement n2 = e.firstChild().toElement();
+	if ( n2.tagName() == "name" ) {
+	    name = n2.firstChild().toText().data();
+	    e.setAttribute( "name", name );
+	    e.removeChild( n2 );
+	}
+	bool stdset = toBool( e.attribute( "stdset" ) );
+	if ( stdset || name == "toolTip" || name == "whatsThis" || 
+	     name == "buddy" || 
+	     e.parentNode().toElement().tagName() == "item" ||
+	     e.parentNode().toElement().tagName() == "spacer" ||
+	     e.parentNode().toElement().tagName() == "column" 
+	     )
+	    e.removeAttribute( "stdset" );
+	else
+	    e.setAttribute( "stdset", 0 );
+    }
+
+    nl = doc.elementsByTagName( "widget" );
+    for ( i = 0; i <  (int) nl.length(); i++ ) {
+	e = nl.item(i).toElement();
+	QString name;
+	QDomElement n2 = e.firstChild().toElement();
+	if ( n2.tagName() == "class" ) {
+	    name = n2.firstChild().toText().data();
+	    e.setAttribute( "class", name );
+	    e.removeChild( n2 );
+	}
+    }
+
+}
+
+
 /*!
   \class Uic uic.h
   \brief User Interface Compiler
@@ -83,8 +132,11 @@ Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const
     tags = layouts;
     tags << "widget";
 
-    nameOfClass = getClassName( doc.firstChild().toElement() );
+    pixmapLoaderFunction = getPixmapLoaderFunction( doc.firstChild().toElement() );
+    nameOfClass = getFormClassName( doc.firstChild().toElement() );
 
+    stdsetdef = toBool( doc.firstChild().toElement().attribute("stdsetdef") );
+    
     QDomElement firstWidget = doc.firstChild().firstChild().toElement();
     while ( firstWidget.tagName() != "widget" )
 	firstWidget = firstWidget.nextSibling().toElement();
@@ -106,9 +158,22 @@ Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const
 
 }
 
-/*! Extracts a class name from \a e
+/*! Extracts a pixmap loader function from \a e
  */
-QString Uic::getClassName( const QDomElement& e )
+QString Uic::getPixmapLoaderFunction( const QDomElement& e )
+{
+    QDomElement n;
+    for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "pixmapfunction" )
+	    return n.firstChild().toText().data();
+    }
+    return QString::null;
+}
+
+
+/*! Extracts the forms class name from \a e
+ */
+QString Uic::getFormClassName( const QDomElement& e )
 {
     QDomElement n;
     QString cn;
@@ -119,11 +184,16 @@ QString Uic::getClassName( const QDomElement& e )
 	    while ( ( i = s.find(' ' )) != -1  )
 		s[i] = '_';
 	    cn = s;
-	} else if ( n.tagName() == "pixmapfunction" ) {
-	    pixmapLoaderFunction = n.firstChild().toText().data();
 	}
     }
     return cn;
+}
+
+/*! Extracts a class name from \a e
+ */
+QString Uic::getClassName( const QDomElement& e )
+{
+    return e.attribute( "class" );
 }
 
 /*! Extracts an object name from \a e. It's stored in the 'name'
@@ -133,12 +203,9 @@ QString Uic::getObjectName( const QDomElement& e )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" && n2.firstChild().toText().data() == "name" ) {
-		return n2.nextSibling().toElement().firstChild().toText().data();
-	    }
-	}
+	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "name" 
+	     && n.firstChild().toElement().tagName() == "cstring" )
+	    return n.firstChild().toElement().firstChild().toText().data();
     }
     return QString::null;
 }
@@ -156,12 +223,9 @@ QString Uic::getLayoutName( const QDomElement& e )
 
     QDomElement n;
     for ( n = p.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" && n2.firstChild().toText().data() == "name" ) {
-		return n2.nextSibling().toElement().firstChild().toText().data() + tail;
-	    }
-	}
+	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "name" 
+	     && n.firstChild().toElement().tagName() == "cstring" )
+	    return n.firstChild().toElement().firstChild().toText().data() + tail;
     }
     return e.tagName();
 }
@@ -173,12 +237,9 @@ QString Uic::getConnectionName( const QDomElement& e )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" && n2.firstChild().toText().data() == "database" ) {
-		return n2.nextSibling().toElement().firstChild().toText().data();
-	    }
-	}
+	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "database" 
+	     && n.firstChild().toElement().tagName() == "cstring" )
+	    return n.firstChild().toElement().firstChild().toText().data();
     }
     return QString::null;
 }
@@ -191,12 +252,9 @@ QString Uic::getTableName( const QDomElement& e )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" && n2.firstChild().toText().data() == "database" ) {
-		return n2.nextSibling().nextSibling().toElement().firstChild().toText().data();
-	    }
-	}
+	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "table" 
+	     && n.firstChild().toElement().tagName() == "cstring" )
+	    return n.firstChild().toElement().firstChild().toText().data();
     }
     return QString::null;
 }
@@ -208,12 +266,9 @@ QString Uic::getFieldName( const QDomElement& e )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" && n2.firstChild().toText().data() == "database" ) {
-		return n2.nextSibling().nextSibling().nextSibling().toElement().firstChild().toText().data();
-	    }
-	}
+	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "field" 
+	     && n.firstChild().toElement().tagName() == "cstring" )
+	    return n.firstChild().toElement().firstChild().toText().data();
     }
     return QString::null;
 }
@@ -828,36 +883,36 @@ void Uic::createFormImpl( const QDomElement &e )
     // set the properties
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
-	    bool stdset = toBool( n.attribute( "stdset" ) );
+	    bool stdset = stdsetdef;
+	    if ( n.hasAttribute( "stdset" ) )
+		stdset = toBool( n.attribute( "stdset" ) );
+	    QString prop = n.attribute("name");
 	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString prop = n2.firstChild().toText().data();
-		QString value = setObjectProperty( objClass, QString::null, prop, n2.nextSibling().toElement(), stdset );
-		if ( value.isEmpty() )
-		    continue;
-		if ( prop == "name" ) {
-		    out << "    if ( !name() )" << endl;
-		    out << "\t";
-		} else {
-		    out << indent;
+	    QString value = setObjectProperty( objClass, QString::null, prop, n2, stdset );
+	    if ( value.isEmpty() )
+		continue;
+	    if ( prop == "name" ) {
+		out << "    if ( !name )" << endl;
+		out << "\t";
+	    } else {
+		out << indent;
+	    }
+	    if ( prop == "geometry" && n2.tagName() == "rect") {
+		QDomElement n3 = n2.firstChild().toElement();
+		int w = 0, h = 0;
+		while ( !n3.isNull() ) {
+		    if ( n3.tagName() == "width" )
+			w = n3.firstChild().toText().data().toInt();
+		    else if ( n3.tagName() == "height" )
+			h = n3.firstChild().toText().data().toInt();
+		    n3 = n3.nextSibling().toElement();
 		}
-		if ( prop == "geometry" && n2.nextSibling().toElement().tagName() == "rect") {
-		    QDomElement n3 = n2.nextSibling().toElement().firstChild().toElement();
-		    int w = 0, h = 0;
-		    while ( !n3.isNull() ) {
-			if ( n3.tagName() == "width" )
-			    w = n3.firstChild().toText().data().toInt();
-			else if ( n3.tagName() == "height" )
-			    h = n3.firstChild().toText().data().toInt();
-			n3 = n3.nextSibling().toElement();
-		    }
-		    out << "resize( " << w << ", " << h << " ); " << endl;
-		} else {
-		    if ( stdset )
-			out << mkStdSet(prop ) << "( " << value << " );" << endl;
-		    else
-			out << "setProperty( \"" << prop << "\", " << value << " );" << endl;
-		}
+		out << "resize( " << w << ", " << h << " ); " << endl;
+	    } else {
+		if ( stdset )
+		    out << mkStdSet(prop ) << "( " << value << " );" << endl;
+		else
+		    out << "setProperty( \"" << prop << "\", " << value << " );" << endl;
 	    }
 	}
     }
@@ -1376,40 +1431,39 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
     // set the properties and insert items
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
-	    bool stdset = toBool( n.attribute( "stdset" ) );
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString prop = n2.firstChild().toText().data();
-		QString value = setObjectProperty( objClass, objName, prop, n2.nextSibling().toElement(), stdset );
-		if ( value.isEmpty() )
-		    continue;
-		if ( prop == "name" )
-		    continue;
-		if ( prop == "buddy" && value[0] == '\"' && value[(int)value.length()-1] == '\"' ) {
-		    buddies << Buddy( objName, value.mid(1, value.length() - 2 ) );
-		    continue;
-		}
-		if ( isLine && prop == "orientation" ) {
-		    prop = "frameStyle";
-		    if ( value.right(10)  == "Horizontal" )
-			value = "QFrame::HLine | QFrame::Sunken";
-		    else
-			value = "QFrame::VLine | QFrame::Sunken";
-		}
-		if ( prop == "buttonGroupId" ) {
-		    if ( parentClass == "QButtonGroup" )
-			out << indent << parent << "->insert( " << objName << ", " << value << " );" << endl;
-		    continue;
-		}
+	    bool stdset = stdsetdef;
+	    if ( n.hasAttribute( "stdset" ) )
+		stdset = toBool( n.attribute( "stdset" ) );
+	    QString prop = n.attribute("name");
+	    QString value = setObjectProperty( objClass, objName, prop, n.firstChild().toElement(), stdset );
+	    if ( value.isEmpty() )
+		continue;
+	    if ( prop == "name" )
+		continue;
+	    if ( prop == "buddy" && value[0] == '\"' && value[(int)value.length()-1] == '\"' ) {
+		buddies << Buddy( objName, value.mid(1, value.length() - 2 ) );
+		continue;
+	    }
+	    if ( isLine && prop == "orientation" ) {
+		prop = "frameStyle";
+		if ( value.right(10)  == "Horizontal" )
+		    value = "QFrame::HLine | QFrame::Sunken";
+		else
+		    value = "QFrame::VLine | QFrame::Sunken";
+	    }
+	    if ( prop == "buttonGroupId" ) {
+		if ( parentClass == "QButtonGroup" )
+		    out << indent << parent << "->insert( " << objName << ", " << value << " );" << endl;
+		continue;
+	    }
 
-		if ( prop == "geometry") {
-			out << indent << objName << "->setGeometry( " << value << " ); " << endl;
-		} else {
-		    if ( stdset )
-			out << indent << objName << "->" << mkStdSet(prop ) << "( " << value << " );" << endl;
-		    else
-			out << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
-		}
+	    if ( prop == "geometry") {
+		out << indent << objName << "->setGeometry( " << value << " ); " << endl;
+	    } else {
+		if ( stdset )
+		    out << indent << objName << "->" << mkStdSet(prop ) << "( " << value << " );" << endl;
+		else
+		    out << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
 	    }
 	} else if ( n.tagName() == "item" ) {
 	    if ( objClass.mid( 1 ) == "ListBox" ) {
@@ -1469,18 +1523,15 @@ QString Uic::createListBoxItemImpl( const QDomElement &e, const QString &parent 
     QString pix;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString attrib = n2.firstChild().toText().data();
-		QVariant v = DomTool::elementToVariant( n2.nextSibling().toElement(), QVariant() );
-		if ( attrib == "text" )
-		    txt = v.toString();
-		else if ( attrib == "pixmap" ) {
-		    pix = v.toString();
-		    if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
-			pix.prepend( pixmapLoaderFunction + "( " );
-			pix.append( " )" );
-		    }
+	    QString attrib = n.attribute("name");
+	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
+	    if ( attrib == "text" )
+		txt = v.toString();
+	    else if ( attrib == "pixmap" ) {
+		pix = v.toString();
+		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
+		    pix.prepend( pixmapLoaderFunction + "( " );
+		    pix.append( " )" );
 		}
 	    }
 	}
@@ -1504,18 +1555,15 @@ QString Uic::createIconViewItemImpl( const QDomElement &e, const QString &parent
     QString pix;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString attrib = n2.firstChild().toText().data();
-		QVariant v = DomTool::elementToVariant( n2.nextSibling().toElement(), QVariant() );
-		if ( attrib == "text" )
-		    txt = v.toString();
-		else if ( attrib == "pixmap" ) {
-		    pix = v.toString();
-		    if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
-			pix.prepend( pixmapLoaderFunction + "( " );
-			pix.append( " )" );
-		    }
+	    QString attrib = n.attribute("name");
+	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
+	    if ( attrib == "text" )
+		txt = v.toString();
+	    else if ( attrib == "pixmap" ) {
+		pix = v.toString();
+		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
+		    pix.prepend( pixmapLoaderFunction + "( " );
+		    pix.append( " )" );
 		}
 	    }
 	}
@@ -1563,20 +1611,17 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
     QStringList pixmaps;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString attrib = n2.firstChild().toText().data();
-		QVariant v = DomTool::elementToVariant( n2.nextSibling().toElement(), QVariant() );
-		if ( attrib == "text" )
-		    textes << v.toString();
-		else if ( attrib == "pixmap" ) {
-		    QString pix = v.toString();
-		    if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
-			pix.prepend( pixmapLoaderFunction + "( " );
-			pix.append( " )" );
-		    }
-		    pixmaps << pix;
+	    QString attrib = n.attribute("name");
+	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
+	    if ( attrib == "text" )
+		textes << v.toString();
+	    else if ( attrib == "pixmap" ) {
+		QString pix = v.toString();
+		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
+		    pix.prepend( pixmapLoaderFunction + "( " );
+		    pix.append( " )" );
 		}
+		pixmaps << pix;
 	    }
 	} else if ( n.tagName() == "item" ) {
 	    s += indent + item + "->setOpen( TRUE );\n";
@@ -1608,23 +1653,20 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
     bool clickable = FALSE, resizeable = FALSE;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString attrib = n2.firstChild().toText().data();
-		QVariant v = DomTool::elementToVariant( n2.nextSibling().toElement(), QVariant() );
-		if ( attrib == "text" )
-		    txt = v.toString();
-		else if ( attrib == "pixmap" ) {
-		    pix = v.toString();
-		    if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
-			pix.prepend( pixmapLoaderFunction + "( " );
-			pix.append( " )" );
-		    }
-		} else if ( attrib == "clickable" )
-		    clickable = v.toBool();
-		else if ( attrib == "resizeable" )
-		    resizeable = v.toBool();
-	    }
+	    QString attrib = n.attribute("name");
+	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
+	    if ( attrib == "text" )
+		txt = v.toString();
+	    else if ( attrib == "pixmap" ) {
+		pix = v.toString();
+		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
+		    pix.prepend( pixmapLoaderFunction + "( " );
+		    pix.append( " )" );
+		}
+	    } else if ( attrib == "clickable" )
+		clickable = v.toBool();
+	    else if ( attrib == "resizeable" )
+		resizeable = v.toBool();
 	}
 	n = n.nextSibling().toElement();
     }
@@ -1782,20 +1824,18 @@ void Uic::createExclusiveProperty( const QDomElement & e, const QString& exclusi
 	return;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
-	    bool stdset = toBool( n.attribute( "stdset" ) );
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString prop = n2.firstChild().toText().data();
-		if ( prop != exclusiveProp )
-		    continue;
-		QString value = setObjectProperty( objClass, objName, prop, n2.nextSibling().toElement(), stdset );
-		if ( value.isEmpty() )
-		    continue;
-		out << indent << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
-	    }
+	    bool stdset = stdsetdef;
+	    if ( n.hasAttribute( "stdset" ) )
+		stdset = toBool( n.attribute( "stdset" ) );
+	    QString prop = n.attribute("name");
+	    if ( prop != exclusiveProp )
+		continue;
+	    QString value = setObjectProperty( objClass, objName, prop, n.firstChild().toElement(), stdset );
+	    if ( value.isEmpty() )
+		continue;
+	    out << indent << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
 	}
     }
-
 }
 
 
@@ -2102,23 +2142,20 @@ bool Uic::isWidgetInTable( const QDomElement& e, const QString& connection, cons
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	QDomElement n2;
 	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString prop = n2.firstChild().toText().data();
-		if ( prop == "database" ) {
+	    QString prop = n.attribute("name");
+	    if ( prop == "database" ) {
+		n2 = n.firstChild().toElement();
+		if ( n2.tagName() == "connection" ) {
+		    QString con = n2.firstChild().toText().data();
+		    if ( con != connection )
+			return FALSE;
 		    n2 = n2.nextSibling().toElement();
-		    if ( n2.tagName() == "connection" ) {
-			QString con = n2.firstChild().toText().data();
-			if ( con != connection )
+		    if ( n2.tagName() == "table" ) {
+			QString tab = n2.firstChild().toText().data();
+			if ( tab == table )
+			    return TRUE;
+			else
 			    return FALSE;
-			n2 = n2.nextSibling().toElement();
-			if ( n2.tagName() == "table" ) {
-			    QString tab = n2.firstChild().toText().data();
-			    if ( tab == table )
-				return TRUE;
-			    else
-				return FALSE;
-			}
 		    }
 		}
 	    }
@@ -2142,22 +2179,19 @@ void Uic::registerDatabases( const QDomElement& e )
 	for ( int j = 0; j < (int) nl2.length(); ++j ) {
 	    n = nl2.item(j).toElement();
 	    if ( n.tagName() == "property" ) {
+		QString prop = n.attribute("name");
 		QDomElement n2 = n.firstChild().toElement();
-		if ( n2.tagName() == "name" ) {
-		    QString prop = n2.firstChild().toText().data();
-		    if ( prop == "database" ) {
+		if ( prop == "database" ) {
+		    if ( n2.tagName() == "connection" ) {
+			QString con = n2.text();
+			dbConnections += con;
 			n2 = n2.nextSibling().toElement();
-			if ( n2.tagName() == "connection" ) {
-			    QString con = n2.text();
-			    dbConnections += con;
+			if ( n2.tagName() == "table" ) {
+			    QString tab = n2.text();
+			    dbCursors[con] += tab;
 			    n2 = n2.nextSibling().toElement();
-			    if ( n2.tagName() == "table" ) {
-				QString tab = n2.text();
-				dbCursors[con] += tab;
-				n2 = n2.nextSibling().toElement();
-				if ( n2.tagName() == "field" ) {
-				    dbForms[con] += tab;
-				}
+			    if ( n2.tagName() == "field" ) {
+				dbForms[con] += tab;
 			    }
 			}
 		    }
@@ -2542,6 +2576,8 @@ int main( int argc, char * argv[] )
     if ( !doc.setContent( &file ) )
 	qFatal( "uic: Failed to parse %s\n", fileName );
 
+    fixDocument( doc );
+    
     if ( !subcl ) {
 	out << "/****************************************************************************" << endl;
 	out << "** Form "<< (impl? "implementation" : "interface") << " generated from reading ui file '" << fileName << "'" << endl;
