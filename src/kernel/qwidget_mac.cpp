@@ -1014,7 +1014,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    RGBBackColor( &f );
 
 		    //calculate new and old rectangles
-		    int nx = px + x, ny = py + y;
+		    int nx = px + pos().x(), ny = py + pos().y();
 		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
 		    int ox = px + oldp.x(), oy = py + oldp.y();
 		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
