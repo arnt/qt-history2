@@ -1249,6 +1249,12 @@ void QWidget::showMaximized()
 	QDesktopWidget *dsk = QApplication::desktop();
 	QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
 	SetRect(&bounds, avail.x(), avail.y(), avail.x() + avail.width(), avail.y() + avail.height());
+	if(QWExtra   *extra = extraData()) {
+	    if(bounds.right - bounds.left > extra->maxw)
+		bounds.right = bounds.left + extra->maxw;
+	    if(bounds.bottom - bounds.top > extra->maxh)
+		bounds.bottom = bounds.top + extra->maxh;
+	}
 	if(QTLWExtra *tlextra = topData()) {
 	    if ( tlextra->normalGeometry.width() < 0 )
 		tlextra->normalGeometry = geometry();
