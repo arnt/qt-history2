@@ -152,6 +152,7 @@ kernel {
 		          $$KERNEL_CPP/qclipboard_mac.cpp \
 			  $$KERNEL_CPP/qcolor_mac.cpp \
 			  $$KERNEL_CPP/qcursor_mac.cpp \
+			  $$KERNEL_CPP/qmime_mac.cpp \
 			  $$KERNEL_CPP/qdnd_mac.cpp \
 			  $$KERNEL_CPP/qdesktopwidget_mac.cpp \
 			  $$KERNEL_CPP/qpixmap_mac.cpp \

@@ -745,6 +745,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 #if defined(QT_THREAD_SUPPORT)
     QThread::initialize();
 #endif
+    QMacMime::initialize();
 
     qApp->setName(appName);
     if(qt_is_gui_used) {
@@ -1862,16 +1863,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 				  NULL, unilen, NULL, unicode);
 		QString text((QChar*)unicode, unilen / sizeof(UniChar));
 		DisposePtr((char*)unicode);
-		if(!doc->inputWidget()) {
-		    QIMEvent imstart(QEvent::IMStart, text, text.length());
-		    QApplication::sendSpontaneousEvent(widget, &imstart);
-		    if(imstart.isAccepted()) {
-			handled_event = TRUE;
-			doc->setInputWidget(widget);
-			QIMEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
-			QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
-		    }
-		} else if(doc->inputWidget()) {
+		if(doc->inputWidget()) {
 		    long fixed_length;
 		    GetEventParameter(event, kEventParamTextInputSendFixLen, typeLongInteger, NULL,
 				      sizeof(fixed_length), NULL, &fixed_length);
@@ -1901,6 +1893,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			    if(imcompose.isAccepted())
 				handled_event = TRUE;
 			}
+		    }
+		} else {
+		    QIMEvent imstart(QEvent::IMStart, text, text.length());
+		    QApplication::sendSpontaneousEvent(widget, &imstart);
+		    if(imstart.isAccepted()) {
+			handled_event = TRUE;
+			doc->setInputWidget(widget);
+			QIMEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
+			QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
 		    }
 		}
 	    }

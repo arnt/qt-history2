@@ -154,7 +154,42 @@ public:
     virtual QByteArray convertFromMime( QByteArray data, const char* mime, int cf )=0;
 };
 
-#endif // Q_WS_WIN
+#elif defined(Q_WS_MAC)
+
+#ifndef QT_H
+#include "qptrlist.h" // down here for GCC 2.7.* compatibility
+#endif // QT_H
+
+/*
+  Encapsulation of conversion between MIME and Mac flavor.
+  Not need on X11, as the underlying protocol uses the MIME standard
+  directly.
+*/
+
+class Q_EXPORT QMacMime {
+    char type;
+public:
+    enum QMacMimeType { MIME_DND=0x01, MIME_CLIP=0x02, MIME_QT_CONVERTOR=0x04, MIME_ALL=MIME_DND|MIME_CLIP };
+    QMacMime(char);
+    virtual ~QMacMime();
+
+    static void initialize();
+
+    static QPtrList<QMacMime> all(QMacMimeType);
+    static QMacMime* convertor(QMacMimeType, const char* mime, int flav);
+    static const char* flavorToMime(QMacMimeType, int flav);
+
+    virtual const char* convertorName()=0;
+    virtual int countFlavors()=0;
+    virtual int flavor(int index)=0;
+    virtual bool canConvert(const char* mime, int flav)=0;
+    virtual const char* mimeFor(int flav)=0;
+    virtual int flavorFor(const char*)=0;
+    virtual QByteArray convertToMime(QValueList<QByteArray> data, const char* mime, int flav)=0;
+    virtual QValueList<QByteArray> convertFromMime(QByteArray data, const char* mime, int flav)=0;
+};
+
+#endif // Q_WS_MAC
 
 #endif // QT_NO_MIME
 
