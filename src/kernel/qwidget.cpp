@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#417 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#418 $
 **
 ** Implementation of QWidget class
 **
@@ -2779,7 +2779,8 @@ static bool noVisibleTLW()
     QWidgetList *list   = qApp->topLevelWidgets();
     QWidget     *widget = list->first();
     while ( widget ) {
-	if ( widget->isVisible() && !widget->isDesktop() )
+	if ( (widget->isVisible() || widget->isMinimized()) 
+	     && !widget->isDesktop() )
 	    break;
 	widget = list->next();
     }
