@@ -67,6 +67,23 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+
+class QPrintDialogSpinBox : public QSpinBox
+{
+public:
+    QPrintDialogSpinBox(int min, int max, int steps, QWidget *parent, const char *name)
+	: QSpinBox(min, max, steps, parent, name)
+    {}
+
+    void interpretText()
+    {
+	QSpinBox::interpretText();
+    }
+};
+
+
+
+
 enum { Success = 's', Unavail = 'u', NotFound = 'n', TryAgain = 't' };
 enum { Continue = 'c', Return = 'r' };
 
@@ -84,9 +101,9 @@ public:
 
     QButtonGroup * printRange;
     QLabel * firstPageLabel;
-    QSpinBox * firstPage;
+    QPrintDialogSpinBox * firstPage;
     QLabel * lastPageLabel;
-    QSpinBox * lastPage;
+    QPrintDialogSpinBox * lastPage;
     QRadioButton * printAllButton;
     QRadioButton * printRangeButton;
     QRadioButton * printSelectionButton;
@@ -102,7 +119,7 @@ public:
     QButtonGroup * colorMode;
     QPrinter::ColorMode colorMode2;
 
-    QSpinBox * copies;
+    QPrintDialogSpinBox * copies;
     int numCopies;
 
     QBoxLayout *customLayout;
@@ -1180,7 +1197,7 @@ QGroupBox * QPrintDialog::setupOptions()
     horiz->addSpacing( 19 );
     horiz->addWidget( d->firstPageLabel );
 
-    d->firstPage = new QSpinBox( 1, 9999, 1, g, "first page" );
+    d->firstPage = new QPrintDialogSpinBox( 1, 9999, 1, g, "first page" );
     d->firstPage->setValue( 1 );
     horiz->addWidget( d->firstPage, 1 );
     connect( d->firstPage, SIGNAL(valueChanged(int)),
@@ -1193,7 +1210,7 @@ QGroupBox * QPrintDialog::setupOptions()
     horiz->addSpacing( 19 );
     horiz->addWidget( d->lastPageLabel );
 
-    d->lastPage = new QSpinBox( 1, 9999, 1, g, "last page" );
+    d->lastPage = new QPrintDialogSpinBox( 1, 9999, 1, g, "last page" );
     d->lastPage->setValue( 9999 );
     horiz->addWidget( d->lastPage, 1 );
     connect( d->lastPage, SIGNAL(valueChanged(int)),
@@ -1224,7 +1241,7 @@ QGroupBox * QPrintDialog::setupOptions()
     QLabel * l = new QLabel( tr("Number of copies:"), g, "Number of copies" );
     horiz->addWidget( l );
 
-    d->copies = new QSpinBox( 1, 99, 1, g, "copies" );
+    d->copies = new QPrintDialogSpinBox( 1, 99, 1, g, "copies" );
     d->copies->setValue( 1 );
     horiz->addWidget( d->copies, 1 );
     connect( d->copies, SIGNAL(valueChanged(int)),
@@ -1353,7 +1370,7 @@ bool QPrintDialog::getPrinterSetup( QPrinter * p, QWidget* w  )
 		globalPrintDialog->setWindowIcon( pm );
 	}
     }
-   bool r = globalPrintDialog->exec() == QDialog::Accepted;
+    bool r = globalPrintDialog->exec() == QDialog::Accepted;
     globalPrintDialog->setPrinter( 0 );
     return r;
 }
@@ -1441,6 +1458,9 @@ void QPrintDialog::browseClicked()
 
 void QPrintDialog::okClicked()
 {
+    d->lastPage->interpretText();
+    d->firstPage->interpretText();
+    d->copies->interpretText();
     if ( d->outputToFile ) {
 	d->printer->setOutputToFile( TRUE );
 	d->printer->setOutputFileName( d->fileName->text() );
