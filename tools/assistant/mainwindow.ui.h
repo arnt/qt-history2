@@ -369,6 +369,7 @@ void MainWindow::showBookmark(int id)
 
 void MainWindow::showLinkFromClient(const QString &link)
 {
+    setWindowState(windowState() & ~WindowMinimized);
     raise();
     setActiveWindow();
     showLink(link);
