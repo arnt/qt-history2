@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#221 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#222 $
 #
 # this is a massive hack, written very quickly
 #
@@ -257,8 +257,10 @@ sub findlink {
 	sprintf("<a href=\"%s\">%s</a>", $anchor{$_}, &html($_));
     } elsif (defined($anchor{$_}) && $anchor{$_} ne $url && $_ ne $class) {
 	sprintf("<a href=\"%s\">%s</a>", $anchor{$_}, &html($_));
-    } elsif ((($ismethod eq "(") || (/^[A-Z]/)) &&
-	     defined($anchor{$class . $_}) && $anchor{$class . $_} ne $url) {
+    } elsif ( (($ismethod eq "(") || (/^[A-Z]/)) &&
+	      defined($anchor{$class . $_}) &&
+	      $anchor{$class . $_} ne $url &&
+	      !defined($internal{$class . $_}) ) {
 	sprintf("<a href=\"%s\">%s</a>", $anchor{$class . $_}, &html($_));
     } elsif ((($ismethod eq "(") || (/^[A-Z]/)) &&
 	     defined($anchor{"::" . $_}) && $anchor{"::" . $_} ne $url) {
@@ -291,6 +293,10 @@ sub preprocessdocs {
 	    $home{$url} = $1;
 	    sprintf("");
 	@egsx;
+    }
+
+    foreach $url ( sort keys %type ) {
+	$internal{$url} = 1 if ( $doc{$url} =~ /^\s*\\internal\s/ );
     }
 
     foreach $url ( sort keys %type ) {
@@ -440,9 +446,6 @@ sub processdocs {
 	    "\n";
 	    }
 	/egsx;
-	$capt{$url} = $1
-	    if ($doc =~ s/\s*\\capt\s+(.*?)
-		(?:(?:\n\s*\n\s*)|(?:$ ))/\n\n/sx);
 	$name{$url} = $1
 	    if ($doc =~ s/\s*\\name\s+(.*?)
 		(?:(?:\n\s*?\n\s*)|(?:$ ))/\n/sx);
@@ -473,6 +476,7 @@ sub processdocs {
 	if ($doc =~ s/\s*\\important\s+(.*?)(?:(?:\n\s*\n\s*)|(?:$ ))/\n\n/s) {
 	    #print "$url has important stuff: $1\n";
 	    $important{$url} = $1;
+	    $important{$url} =~ s/,?\s+/ /gs;
 	}
 
 	# this code is _really_ hard to follow... sorry
@@ -700,6 +704,7 @@ sub writepages {
 		}
 	    -egsx;
 	
+	    $doc =~ s/\\internal\s.*//s if (!$internal);
 	    $doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
 	
 	    $doc =~ s/\\\&/&amp;/gs;
@@ -708,7 +713,6 @@ sub writepages {
 	
 	    $doc =~ s!\\code\b(.*?)\\endcode!&processcode($1)!esg;
 	
-	    print $file, "\n";
 	    $doc = &codeincludes($doc);
 	
 	    $doc =~ s!\\classhierarchy!&classhierarchy()!es;
@@ -1420,8 +1424,8 @@ sub makenames {
 			 ($type{$urls{$url}} eq "enum"));
 	    $member = $class = $url;
 	    $class =~ s/::.*//;
-	    $member =~ s/.*:://;
 	    $member =~ s/\(.*//;
+	    $member =~ s/^.*:://;
 	    next if (($member eq $class) || ($member eq "~".$class));
 	    foreach ( split( /\s+/, $subclasses{$class} ) ) {
 		$possible = $url;
@@ -1449,15 +1453,16 @@ sub makenames {
     }
 
     foreach ( keys %examples ) {
-	next if (defined($anchor{$_}));
-	$dum = $_;
-	s@/@-@;
-	s/\.cpp$/-cpp.html/;
-	$anchor{$dum} = $_;
-	$type{$_} = "example";
+	unless (defined($anchor{$_})) {
+	    $dum = $_;
+	    s@/@-@;
+	    s/\.cpp$/-cpp.html/;
+	    $anchor{$dum} = $_;
+	    $type{$_} = "example";
+	}
     }
 
-#   foreach ( sort keys %anchor ) { print $_, ": ", $anchor{$_}, "\n"; }
+#   foreach ( sort keys %anchor ) { print $_, ": ", $anchor{$_}, " - ", $name{$anchor{$_}}, "\n"; }
 }
 
 
@@ -1598,7 +1603,13 @@ sub weirdly {
 	    }
 	}
     } else {
-	return ($aa cmp $bb);
+	if ( defined($internal{$aa}) && !defined($internal{$bb}) ) {
+	    return -1;
+	} elsif ( !defined($internal{$aa}) && defined($internal{$bb}) ) {
+	    return 1;
+	} else {
+	    return ($aa cmp $bb);
+	}
     }
 }
 
@@ -1774,9 +1785,14 @@ sub printclass {
 		$c = $2;
 		$u = &manglefn($r, $name{$url},
 			       "_cast", "", $c);
-		if ($type{$u} eq "fn" && $doc{$u} =~ /[a-z]/si ) {
-		    $_ = join("", "operator <a href=", $u, "><b>",
-			      &html($r), "</b></a> ()", $c);
+		if ( $type{$u} eq "fn" && $doc{$u} =~ /[a-z]/si ) {
+		    if ( defined($internal{$u}) ) {
+			$_ = join("", "operator <b>", &html($r), "</b> ()",
+				  $c, " (internal)");
+		    } else {
+			$_ = join("", "operator <a href=", $u, "><b>",
+				  &html($r), "</b></a> ()", $c);
+		    }
 		    $fndocs{$u} = $mode;
 		} else {
 		    print "undocumented: ", $name{$url}, "::operator ", $r,
@@ -1784,8 +1800,6 @@ sub printclass {
 		    $_ = join("", "operator <b>", &html($r),
 			      "</b> ()", $c);
 		}
-		$_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
-		    if (defined($capt{$u}));
 	    } elsif (/^\s*((?:[^\(\~]*[\s\&\*]+)?)(?=[\w~]) (?# prelude
 							     )
 		     ((?:(?:operator(?:(?:\(\s*\))|(?:[^\s\(]{1,3})))
@@ -1814,8 +1828,17 @@ sub printclass {
 		    if ( defined($virtual{$u}) );
 		&fixdefvalues($u, $a) if ($type{$u} eq "fn");
 		if ( $type{$u} eq "fn" && $doc{$u} =~ /[a-z]/si ) {
-		    # only for templates: promote the .cpp variable names
-		    if ( defined( $templatecookie{$url} ) ) {
+		    if ( defined( $internal{$u} ) ) {
+			# maybe we should delete argument names and
+			# values for these.  but I'm too lazy to do it
+			# now.
+			#$a =~ s/\s*=[^,]*(?=,)//g;
+			#$a =~ s/\s*=[^\)]*\))/ /g;
+			$_ = join("", &html($t), "<b>",
+			      &html($f), "</b> (",
+			      &html($a), ") ", $c, " (internal)" );
+		    } elsif ( defined( $templatecookie{$url} ) ) {
+			# only for templates: promote the .cpp variable names
 			$a = $def{$u};
 			$a =~ s/^.*?\((\)\()?\s*//s;
 			$a =~ s/\s*\).*?$//s;
@@ -1832,7 +1855,7 @@ sub printclass {
 		    }
 		    $fndocs{$u} = $mode;
 		    # second uglest hack in qdoc
-		    $_ .= " <b>(obsolete)</b>" 
+		    $_ .= " (obsolete)" 
 		      if ($doc{$u} =~ /^<b>This function is obsolete./si );
 		} else {
 		    print "undocumented: ", $t," ", $name{$url}, "::", $f,
@@ -1841,8 +1864,6 @@ sub printclass {
 			      &html($f), "</b> (",
 			      &html($a), ") ", $c);
 		}
-		$_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
-		    if (defined($capt{$u}));
 	    } elsif ( /^\s*enum\s+(\w+)/s ) {
 		my($name);
 		$name = $1;
@@ -2038,7 +2059,7 @@ sub importants {
 		    $importants{$url} .= $f . ";";
 		}
 	    } else {
-		print "did not find important function ", $p, "\n";
+		print "did not find important function ", $p, " (", $anchor{$p}, ")\n";
 	    }
 	}
     }
