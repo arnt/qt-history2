@@ -1,13 +1,13 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#43 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#44 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
 $verbose=0;
 $skipdoc=0;
-$dryrun=1;
+$dryrun=0;
 
 use File::Find;
 
