@@ -48,6 +48,9 @@ QMultiLineEdit
     not move when the TAB key is pressed at the beginning of the line.  The text is correctly placed
     however.  (Was: Lucida font problem)
 
+QListBox
+    QListBox::centerCurrentItem() doesn't actually center the item at all.
+
 Cosmetic
 --------
 
