@@ -433,6 +433,7 @@ Q_LONGLONG QIODevice::size() const
 */
 bool QIODevice::seek(Q_LONGLONG pos)
 {
+    Q_UNUSED(pos);
     return false;
 }
 
@@ -576,10 +577,8 @@ bool QIODevice::canReadLine() const
 
 bool QIODevice::getChar(char *c)
 {
-    CHECK_OPEN(getChar, false);
-    CHECK_READABLE(getChar, false);
     char tmp;
-    if (readData(&tmp, 1) != 1)
+    if (read(&tmp, 1) != 1)
         return false;
     if (c)
         *c = tmp;
@@ -601,9 +600,7 @@ Q_LONGLONG QIODevice::write(const QByteArray &byteArray)
 
 bool QIODevice::putChar(char c)
 {
-    CHECK_OPEN(putChar, false);
-    CHECK_WRITABLE(putChar, false);
-    return writeData(&c, 1) == 1;
+    return write(&c, 1) == 1;
 }
 
 void QIODevice::ungetChar(char c)
