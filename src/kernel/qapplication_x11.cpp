@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#5 $
 **
 ** Implementation of X11 startup routines and event handling
 **
 ** Author  : Haavard Nord
 ** Created : 931029
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#5 $";
 #endif
 
 
@@ -286,25 +286,22 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 
 		case ReparentNotify:		// window manager reparents
 		    if ( event.xreparent.parent != root_win ) {
-			int x = event.xreparent.x;
-			int y = event.xreparent.y;
-			if ( !x && !y ) {	// cannot trust window manager
-			    int retry_count = 5;
-			    widget->setFlag( WX11_OddWM );
-			    while ( !x && !y ) {
-				Window child;
-				XTranslateCoordinates( widget->dpy,
-						       widget->id(),
-						       event.xreparent.parent,
-						       0, 0, &x, &y, &child );
-				if ( !retry_count-- )
-				    break;
-			    }
-			}
-			widget->ncrect = QRect(QPoint(widget->rect.left() - x,
-						      widget->rect.top() - y),
-					       QPoint(widget->rect.right(),
-						      widget->rect.bottom()) );
+			XWindowAttributes a1, a2;
+			Window parent = event.xreparent.parent;
+			XGetWindowAttributes( widget->dpy, widget->id(), &a1 );
+			XGetWindowAttributes( widget->dpy, parent, &a2 );
+			QRect *r = &widget->rect;
+			XWindowAttributes *a;
+			if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0) )
+			    a = &a2;		// typical for mwm, fvwm
+			else
+			    a = &a1;		// typical for twm, olwm
+			a->x += a2.border_width;// a->x = parent frame width
+			a->y += a2.border_width;// a->y = parent caption height
+			widget->ncrect = QRect(QPoint(r->left() - a->x,
+						      r->top() - a->y),
+					       QPoint(r->right() + a->x,
+						      r->bottom() + a->x) );
 		    }
 		    break;
 
@@ -894,6 +891,57 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
 
 // --------------------------------------------------------------------------
+// Safe configuration (move,resize,changeGeometry) mechanism to avoid
+// getting two events back when performing a geometry change from the
+// program.
+//
+
+#include "qintdict.h"
+
+declare(QIntDictM,int);
+static QIntDictM(int) *configCount = 0;
+
+void qXRequestConfig( const QWidget *widget )	// add user config request
+{
+    if ( !widget->isVisible() )			// no need if invisible
+	return;
+    if ( !configCount )	{			// create dict
+	configCount = new QIntDictM(int);
+	configCount->setAutoDelete( TRUE );
+    }
+    int *count = configCount->find( (long)widget );
+    if ( count ) {				// early config request there
+	(*count)++;
+#if defined(CHECK_STATE)
+	if ( *count > 64 )
+	    fatal( "%s: Internal error.  Config event stack overflow!",
+		   appName );
+#endif
+    }
+    else {					// make new request
+	count = new int;
+	*count = 1;
+	configCount->insert( (long)widget, count );
+    }
+}
+
+bool qXPassConfigEvent( const QWidget *widget )	// pass config event to app?
+{
+    int *count = configCount ? configCount->find( (long)widget ) : 0;
+    if ( count ) {
+	(*count)--;
+	if ( *count <= 0 )
+	    configCount->remove( (long)widget );
+	if ( configCount->count() == 0 ) {	// dict becomes empty
+	    delete configCount;
+	    configCount = 0;
+	}
+    }
+    return count == 0;
+}
+
+
+// --------------------------------------------------------------------------
 // ConfigureNotify (window move and resize) event translation
 //
 // The problem with ConfigureNotify is that one cannot trust x and y values
@@ -904,14 +952,16 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
+    if ( !qXPassConfigEvent(this) )		// skip event
+	return FALSE;
     QPoint newPos( event->xconfigure.x, event->xconfigure.y );
     QSize newSize( event->xconfigure.width, event->xconfigure.height );
     QRect r = clientGeometry();
     bool  moveOk = event->xconfigure.send_event;
-    if ( newSize != r.size() ) {		// size changed
+    if ( newSize != clientSize() ) {		// size changed
 	r.setSize( newSize );
 	setRect( r );
-	QResizeEvent evt( geometry().size() );
+	QResizeEvent evt( newSize );
 	SEND_EVENT( this, &evt );		// send resize event
 	if ( !parentWidget() ) {		// top level widget
 	    int x, y;
@@ -922,8 +972,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	}
 	moveOk = TRUE;
     }
-    if ( newPos != r.topLeft() &&		// position changed
-	 moveOk ) {
+    if ( newPos != r.topLeft() && moveOk ) {	// position changed
 	r.setTopLeft( newPos );
 	setRect( r );
 	QMoveEvent evt( geometry().topLeft() );
