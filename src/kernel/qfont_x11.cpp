@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#122 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#123 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1242,7 +1242,7 @@ XCharStruct* charStr(const QTextCodec* mapper, XFontStruct *f, QChar ch)
 	uint ch16 = ch.cell+ch.row*256;
 	if ( !(ch16 >= f->min_char_or_byte2
 	    && ch16 <= f->max_char_or_byte2) )
-	    ch = QChar((ushort)f->default_char);
+	    ch16 = f->default_char;
 	return f->per_char + ch16;
     } else {
 	if ( !( ch.cell >= f->min_char_or_byte2
