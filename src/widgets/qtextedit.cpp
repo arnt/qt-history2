@@ -121,6 +121,8 @@ public:
     virtual QByteArray encodedData( const char *mime ) const;
     virtual const char* format( int i ) const;
 
+    static bool decode( QMimeSource *e, QString &str, const QCString &mimetype,
+			const QCString &subtype );
     static bool canDecode( QMimeSource* e );
 
 private:
@@ -135,10 +137,31 @@ QRichTextDrag::QRichTextDrag( QWidget *dragSource, const char *name )
 
 QByteArray QRichTextDrag::encodedData( const char *mime ) const
 {
-    if ( qstrcmp( "application/x-qrichtext", mime ) == 0 )
-	return QCString( richTxt.latin1() ); // #### how to correctly convert that?
-    else
+    if ( qstrcmp( "application/x-qrichtext", mime ) == 0 ) {
+	return richTxt.utf8(); // #### perhaps we should use USC2 instead?
+    } else
 	return QTextDrag::encodedData( mime );
+}
+
+bool QRichTextDrag::decode( QMimeSource *e, QString &str, const QCString &mimetype,
+			    const QCString &subtype )
+{
+    if ( mimetype == "application/x-qrichtext" ) {
+	// do richtext decode
+	const char *mime;
+	int i;
+	for ( i = 0; ( mime = e->format( i ) ); ++i ) {
+	    if ( qstrcmp( "application/x-qrichtext", mime ) != 0 )
+		continue;
+	    str = QString::fromUtf8( e->encodedData( mime ) );
+	    return TRUE;
+	}
+	return FALSE;
+    }
+
+    // do a regular text decode
+    QCString subt = subtype;
+    return QTextDrag::decode( e, str, subt );
 }
 
 bool QRichTextDrag::canDecode( QMimeSource* e )
@@ -4450,8 +4473,8 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 	removeSelectedText();
     if ( !m->provides( st.latin1() ) )
 	return;
-    QString t = QString::fromLatin1( m->encodedData( st ) );
-    if ( t.isEmpty() )
+    QString t;
+    if ( !QRichTextDrag::decode( m, t, st.latin1(), subtype ) )
 	return;
     if ( st == "application/x-qrichtext" ) {
 	if ( t.startsWith( "<selstart/>" ) ) {
