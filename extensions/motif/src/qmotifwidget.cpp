@@ -47,7 +47,7 @@ const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
 
-// ApplicationShell subclass to wrap toplevel motif widgets into QWidgets
+// TopLevelShell subclass to wrap toplevel motif widgets into QWidgets
 
 typedef struct {
     QMotifWidget *widget;
@@ -62,7 +62,6 @@ typedef struct _QMotifWidgetShellRec
     WMShellPart			wmshell;
     VendorShellPart		vendorshell;
     TopLevelShellPart		toplevelshell;
-    ApplicationShellPart	applicationshell;
     QMotifWidgetShellPart	qmotifwidgetshell;
 } QMotifWidgetShellRec;
 
@@ -79,7 +78,6 @@ typedef struct _QMotifWidgetShellClassRec {
     WMShellClassPart		wmshell_class;
     VendorShellClassPart	vendorshell_class;
     TopLevelShellClassPart	toplevelshell_class;
-    ApplicationShellClassPart	applicationshell_class;
     QMotifWidgetShellClassPart	qmotifwidgetshell_class;
 } QMotifWidgetShellClassRec;
 
@@ -92,7 +90,7 @@ externaldef(qmotifwidgetshellclassrec)
     QMotifWidgetShellClassRec qmotifWidgetShellClassRec = {
 	// core
 	{
-	    (WidgetClass) &applicationShellClassRec,	// superclass
+	    (WidgetClass) &topLevelShellClassRec,	// superclass
 	    "QMotifWidgetShell",			// class name
 	    sizeof(QMotifWidgetShellRec),		// widget size
 	    NULL,					/* class_initialize proc */
@@ -140,8 +138,6 @@ externaldef(qmotifwidgetshellclassrec)
 	// vendorshell extension record
 	{ NULL },
 	// toplevelshell extension record
-	{ NULL },
-	// applicationshell extension record
 	{ NULL },
 	// qmotifwidgetshell extension record
 	{ NULL }
@@ -197,8 +193,8 @@ public:
     If \a parent is a QMotifWidget, the Xt/Motif widget is created as
     a child of the parent's motifWidget(). If \ parent is 0 or a
     normal QWidget, the Xt/Motif widget is created as a child of a
-    special ApplicationShell widget. Xt/Motif widgets can use this
-    special ApplicationShell parent as the parent for existing
+    special TopLevelShell widget. Xt/Motif widgets can use this
+    special TopLevelShell parent as the parent for existing
     Xt/Motif dialogs or QMotifDialogs.
 */
 QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
@@ -213,7 +209,8 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
     if ( parent && parent->inherits( "QMotifWidget" ) )
 	motifparent = ( (QMotifWidget *) parent )->motifWidget();
 
-    if ( ! motifparent || widgetclass == applicationShellWidgetClass ) {
+    if ( ! motifparent || ( widgetclass == applicationShellWidgetClass ||
+			    widgetclass == topLevelShellWidgetClass ) ) {
 	d->shell = XtAppCreateShell( name, name, qmotifWidgetShellWidgetClass,
 				     QPaintDevice::x11AppDisplay(),
 				     args, argcount );
@@ -221,14 +218,15 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 	motifparent = d->shell;
     }
 
-    if ( widgetclass == applicationShellWidgetClass )
+    if ( widgetclass == applicationShellWidgetClass ||
+	 widgetclass == topLevelShellWidgetClass )
 	d->widget = d->shell;
     else
 	d->widget = XtCreateWidget( name, widgetclass, motifparent, args, argcount );
 }
 
 /*!
-    Destroys the QMotifWidget. The special ApplicationShell is also
+    Destroys the QMotifWidget. The special TopLevelShell is also
     destroyed, if it was created during construction.
 */
 QMotifWidget::~QMotifWidget()
@@ -303,29 +301,7 @@ void QMotifWidget::realize( Widget w )
 	// geometry we want
 	QRect save( w->core.x, w->core.y, w->core.width, w->core.height );
 
-	Window newid = XtWindow( w );
-	if ( children() ) {
-	    QObjectListIt it( *children() );
-	    for ( ; it.current(); ++it ) {
-		if ( it.current()->isWidgetType() ) {
-		    QWidget *widget = (QWidget *) it.current();
-		    XReparentWindow( QPaintDevice::x11AppDisplay(),
-				     widget->winId(),
-				     newid,
-				     widget->x(),
-				     widget->y() );
-		    if ( !widget->isHidden() )
-			XMapWindow( QPaintDevice::x11AppDisplay(), widget->winId() );
-		}
-	    }
-	}
-	QApplication::syncX();
-
-	// re-create this QWidget with the winid from the motif
-	// widget... the geometry will be reset to roughly 1/4 of the
-	// screen, so we need to restore it below
-	create( newid, TRUE, TRUE );
-
+	// save the caption
 	QString cap;
 	if ( ! caption().isNull() ) {
 	    cap = caption();
@@ -354,6 +330,30 @@ void QMotifWidget::realize( Widget w )
 	    }
 	}
 
+	Window newid = XtWindow( w );
+	if ( children() ) {
+	    QObjectListIt it( *children() );
+	    for ( ; it.current(); ++it ) {
+		if ( it.current()->isWidgetType() ) {
+		    QWidget *widget = (QWidget *) it.current();
+		    XReparentWindow( QPaintDevice::x11AppDisplay(),
+				     widget->winId(),
+				     newid,
+				     widget->x(),
+				     widget->y() );
+		    if ( !widget->isHidden() )
+			XMapWindow( QPaintDevice::x11AppDisplay(), widget->winId() );
+		}
+	    }
+	}
+	QApplication::syncX();
+
+	// re-create this QWidget with the winid from the motif
+	// widget... the geometry will be reset to roughly 1/4 of the
+	// screen, so we need to restore it below
+	create( newid, TRUE, TRUE );
+
+	// restore the caption
 	setCaption( cap );
 
 	// restore geometry of the shell
@@ -363,10 +363,8 @@ void QMotifWidget::realize( Widget w )
 	// if this QMotifWidget has a parent widget, we should
 	// reparent the shell into that parent
 	if ( parentWidget() ) {
-	    XReparentWindow( QPaintDevice::x11AppDisplay(),
-			     winId(),
-			     parentWidget()->winId(),
-			     x(), y() );
+	    XReparentWindow( x11Display(), winId(),
+			     parentWidget()->winId(), x(), y() );
 	}
     }
     QMotif::registerWidget( this );
@@ -380,7 +378,7 @@ void qmotif_widget_shell_realize( Widget w, XtValueMask *mask,
 				  XSetWindowAttributes *attr )
 {
     XtRealizeProc realize =
-	((CoreWidgetClass)applicationShellClassRec.core_class.
+	((CoreWidgetClass)topLevelShellClassRec.core_class.
 	 superclass)->core_class.realize;
     (*realize)( w, mask, attr );
 
@@ -398,7 +396,7 @@ void qmotif_widget_shell_realize( Widget w, XtValueMask *mask,
 void qmotif_widget_shell_change_managed( Widget w )
 {
     XtWidgetProc change_managed =
-	((CompositeWidgetClass)applicationShellClassRec.core_class.
+	((CompositeWidgetClass)topLevelShellClassRec.core_class.
 	 superclass)->composite_class.change_managed;
     (*change_managed)( w );
 
