@@ -52,7 +52,7 @@
 # include "qt_mac.h"
 #endif
 
-static int coord_limit = -1;
+static const int coord_limit = 4000;
 static const int autoscroll_margin = 16;
 static const int initialScrollTime = 30;
 static const int initialScrollAccel = 5;
@@ -2567,15 +2567,6 @@ void QScrollView::enableClipper(bool y)
     if ( d->children.count() )
 	qFatal("May only call QScrollView::enableClipper() before adding widgets");
     if ( y ) {
-	if( coord_limit == -1 ) {
-#if defined ( Q_WS_WIN )
-	    if( qWinVersion() & WV_DOS_based ) {
-		coord_limit = 2000;
-	    }
-#else
-	    coord_limit = 4000;
-#endif
-	}
 	d->clipped_viewport = new QClipperWidget(clipper(), "qt_clipped_viewport", d->flags);
 	d->clipped_viewport->setGeometry(-coord_limit/2,-coord_limit/2,
 					 coord_limit,coord_limit);
