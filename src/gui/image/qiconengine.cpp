@@ -88,3 +88,16 @@ QPixmap QIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State st
 void QIconEngine::addPixmap(const QPixmap &/*pixmap*/, QIcon::Mode /*mode*/, QIcon::State /*state*/)
 {
 }
+
+
+/*!  Called by QIcon::addFile(). Adds a specialized pixmap from the
+  file with the given \a fileName, \a size, \a mode and \a state. The
+  default pixmap-based engine stores any supplied file names, and it
+  loads the pixmaps on demand instead of using scaled pixmaps if the
+  size of a pixmap matches the size of icon requested. Custom icon
+  engines that implement scalable vector formats are free to ignores
+  any extra files.
+ */
+void QIconEngine::addFile(const QString &/*fileName*/, const QSize &/*size*/, QIcon::Mode /*mode*/, QIcon::State /*state*/)
+{
+}

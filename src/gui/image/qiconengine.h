@@ -26,6 +26,7 @@ public:
     virtual QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
 
     virtual void addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state);
+    virtual void addFile(const QString &fileName, const QSize &size, QIcon::Mode mode, QIcon::State state);
 
 #if 0
     virtual int frameCount(QIcon::Mode fromMode, QIcon::State fromState, QIcon::Mode toMode, QIcon::State toState);

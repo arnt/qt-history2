@@ -51,6 +51,7 @@ public:
     bool isDetached() const;
 
     void addPixmap(const QPixmap &pixmap, Mode mode = Normal, State state = Off);
+    void addFile(const QString &fileName, const QSize &size = QSize(), Mode mode = Normal, State state = Off);
 
 #ifdef QT3_SUPPORT
     enum Size { Small, Large, Automatic = Small };

@@ -69,40 +69,32 @@ struct QPixmapIconEngineEntry
 {
     QPixmapIconEngineEntry():mode(QIcon::Normal), state(QIcon::Off){}
     QPixmapIconEngineEntry(const QPixmap &pm, QIcon::Mode m = QIcon::Normal, QIcon::State s = QIcon::Off)
-        :pixmap(pm), mode(m), state(s){}
+        :pixmap(pm), size(pm.size()), mode(m), state(s){}
+    QPixmapIconEngineEntry(const QString &file, const QSize &sz = QSize(), QIcon::Mode m = QIcon::Normal, QIcon::State s = QIcon::Off)
+        :fileName(file), size(sz), mode(m), state(s){}
     QPixmap pixmap;
+    QString fileName;
+    QSize size;
     QIcon::Mode mode;
     QIcon::State state;
+    bool isNull() const {return (fileName.isEmpty() && pixmap.isNull()); }
 };
 
 class QPixmapIconEngine : public QIconEngine{
 public:
-    QPixmapIconEngine(){}
-    QPixmapIconEngine(const QPixmap &);
-    QPixmapIconEngine(const QString &);
+    QPixmapIconEngine();
     ~QPixmapIconEngine();
     void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state);
     QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
     QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state);
     void addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state);
+    void addFile(const QString &fileName, const QSize &size, QIcon::Mode mode, QIcon::State state);
 private:
-    QString fileName;
     QVector<QPixmapIconEngineEntry> pixmaps;
 };
 
-QPixmapIconEngine::QPixmapIconEngine(const QPixmap &pm)
+QPixmapIconEngine::QPixmapIconEngine()
 {
-    if (!pm.isNull())
-        pixmaps += QPixmapIconEngineEntry(pm);
-}
-
-QPixmapIconEngine::QPixmapIconEngine(const QString &fileName)
-{
-    if (!fileName.isEmpty())
-        if (fileName.at(0) != QLatin1Char(':'))
-            this->fileName = QFileInfo(fileName).absoluteFilePath();
-        else
-            this->fileName = fileName;
 }
 
 QPixmapIconEngine::~QPixmapIconEngine()
@@ -117,11 +109,11 @@ void QPixmapIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode 
 static inline int area(const QSize &s) { return s.width() * s.height(); }
 
 // returns the largest of the two that is still smaller than size.
-static QPixmap bestSizeMatch( const QSize &size, const QPixmap &pa, const QPixmap &pb)
+static QPixmapIconEngineEntry bestSizeMatch( const QSize &size, const QPixmapIconEngineEntry &pa, const QPixmapIconEngineEntry &pb)
 {
     int s = area(size);
-    int a = area(pa.size());
-    int b = area(pb.size());
+    int a = area(pa.size);
+    int b = area(pb.size);
     int res = a;
     if (qMax(a,b) <= s)
         res = qMax(a,b);
@@ -134,41 +126,45 @@ static QPixmap bestSizeMatch( const QSize &size, const QPixmap &pa, const QPixma
 
 QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
-    if (pixmaps.isEmpty() && !fileName.isEmpty()) {
-        QPixmap pm(fileName);
-        if (!pm.isNull())
-            pixmaps += QPixmapIconEngineEntry(pm);
-    }
-
     bool hasCorrectMode = true;
-    QPixmap pm;
+    QPixmapIconEngineEntry pe;
     for (int i = 0; i < pixmaps.count(); ++i)
         if (pixmaps.at(i).mode == mode && pixmaps.at(i).state == state) {
-            if (!pm.isNull())
-                pm = bestSizeMatch(size, pixmaps.at(i).pixmap, pm);
+            if (!pe.isNull())
+                pe = bestSizeMatch(size, pixmaps.at(i), pe);
             else
-                pm = pixmaps.at(i).pixmap;
+                pe = pixmaps.at(i);
         }
-    if (pm.isNull()) {
+    if (pe.isNull()) {
         for (int i = 0; i < pixmaps.count(); ++i)
             if (pixmaps.at(i).mode == mode) {
-                if (!pm.isNull())
-                    pm = bestSizeMatch(size, pixmaps.at(i).pixmap, pm);
+                if (!pe.isNull())
+                    pe = bestSizeMatch(size, pixmaps.at(i), pe);
                 else
-                    pm = pixmaps.at(i).pixmap;
+                    pe = pixmaps.at(i);
             }
     }
-    if (pm.isNull()) {
+    if (pe.isNull()) {
         hasCorrectMode = false;
         for (int i = 0; i < pixmaps.count(); ++i)
             if (pixmaps.at(i).mode != QIcon::Disabled) {
-                if (!pm.isNull())
-                    pm = bestSizeMatch(size, pixmaps.at(i).pixmap, pm);
+                if (!pe.isNull())
+                    pe = bestSizeMatch(size, pixmaps.at(i), pe);
                 else
-                    pm = pixmaps.at(i).pixmap;
+                    pe = pixmaps.at(i);
             }
     }
 
+    if (pe.isNull())
+        return pe.pixmap;
+
+    if (pe.pixmap.isNull()) {
+        pe.pixmap = QPixmap(pe.fileName);
+        if (!pe.pixmap.isNull())
+            pe.size = pe.pixmap.size();
+    }
+
+    QPixmap pm = pe.pixmap;
     if (pm.isNull())
         return pm;
 
@@ -200,61 +196,49 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
     return pm;
 }
 
-// returns the largest of the two that is still smaller than size.
-static QSize bestSizeMatch( const QSize &size, const QSize &pa, const QSize &pb)
-{
-    int s = area(size);
-    int a = area(pa);
-    int b = area(pb);
-    int res = a;
-    if (qMax(a,b) <= s)
-        res = qMax(a,b);
-    else
-        res = qMin(a,b);
-    if (res == a)
-        return pa;
-    return pb;
-}
-
 QSize QPixmapIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
-    if (pixmaps.isEmpty() && !fileName.isEmpty()) {
-        QPixmap pm(fileName);
-        if (!pm.isNull())
-            pixmaps += QPixmapIconEngineEntry(pm);
-    }
-
-    QSize pm;
+    QPixmapIconEngineEntry pe;
     for (int i = 0; i < pixmaps.count(); ++i)
         if (pixmaps.at(i).mode == mode && pixmaps.at(i).state == state) {
-            if (!pm.isNull())
-                pm = bestSizeMatch(size, pixmaps.at(i).pixmap.size(), pm);
+            if (!pe.isNull())
+                pe = bestSizeMatch(size, pixmaps.at(i), pe);
             else
-                pm = pixmaps.at(i).pixmap.size();
+                pe = pixmaps.at(i);
         }
-    if (pm.isNull()) {
+    if (pe.isNull()) {
         for (int i = 0; i < pixmaps.count(); ++i)
             if (pixmaps.at(i).mode == mode) {
-                if (!pm.isNull())
-                    pm = bestSizeMatch(size, pixmaps.at(i).pixmap.size(), pm);
+                if (!pe.isNull())
+                    pe = bestSizeMatch(size, pixmaps.at(i), pe);
                 else
-                    pm = pixmaps.at(i).pixmap.size();
+                    pe = pixmaps.at(i);
             }
     }
-    if (pm.isNull()) {
+    if (pe.isNull()) {
         for (int i = 0; i < pixmaps.count(); ++i)
             if (pixmaps.at(i).mode != QIcon::Disabled) {
-                if (!pm.isNull())
-                    pm = bestSizeMatch(size, pixmaps.at(i).pixmap.size(), pm);
+                if (!pe.isNull())
+                    pe = bestSizeMatch(size, pixmaps.at(i), pe);
                 else
-                    pm = pixmaps.at(i).pixmap.size();
+                    pe = pixmaps.at(i);
             }
     }
 
-    if (!pm.isNull() && (pm.width() > size.width() || pm.height() > size.height()))
-        pm.scale(size, Qt::KeepAspectRatio);
+    if (pe.isNull())
+        return QSize();
 
-    return pm;
+    if (pe.size.isNull()) {
+        pe.pixmap = QPixmap(pe.fileName);
+        if (!pe.pixmap.isNull())
+            pe.size = pe.pixmap.size();
+    }
+
+
+    QSize actualSize = pe.size;
+    if (!actualSize.isNull())
+        actualSize.scale(size, Qt::KeepAspectRatio);
+    return actualSize;
 }
 
 void QPixmapIconEngine::addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state)
@@ -262,6 +246,17 @@ void QPixmapIconEngine::addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon
     if (!pixmap.isNull())
         pixmaps += QPixmapIconEngineEntry(pixmap, mode, state);
 }
+
+void QPixmapIconEngine::addFile(const QString &fileName, const QSize &size, QIcon::Mode mode, QIcon::State state)
+{
+    if (!fileName.isEmpty()) {
+        QString abs = fileName;
+        if (fileName.at(0) != QLatin1Char(':'))
+            abs = QFileInfo(fileName).absoluteFilePath();
+        pixmaps += QPixmapIconEngineEntry(abs, size, mode, state);
+    }
+}
+
 
 
 #ifndef QT_NO_COMPONENT
@@ -353,10 +348,7 @@ QIcon::QIcon()
 QIcon::QIcon(const QPixmap &pixmap)
     :d(0)
 {
-    if (!pixmap.isNull()) {
-        d = new QIconPrivate;
-        d->engine = new QPixmapIconEngine(pixmap);
-    }
+    addPixmap(pixmap);
 }
 
 /*!
@@ -370,9 +362,9 @@ QIcon::QIcon(const QIcon &other)
 }
 
 /*!
-    Constructs an icon from the file with the given \a fileName. If
-    the file does not exist or is of an unknown format, the icon
-    becomes a null icon.
+    Constructs an icon from the file with the given \a fileName. The
+    file will be loaded on demand. If the file does not exist or is of
+    an unknown format, the icon becomes a null icon.
 
     If \a fileName contains a relative path (e.g. the filename only)
     the relevant file must be found relative to the runtime working
@@ -385,15 +377,18 @@ QIcon::QIcon(const QIcon &other)
     executable.
 */
 QIcon::QIcon(const QString &fileName)
-    :d(new QIconPrivate)
+    :d(0)
 {
     QFileInfo info(fileName);
     QString suffix = info.suffix();
     if (!suffix.isEmpty())
         if (QIconEngineFactoryInterface *factory = qt_cast<QIconEngineFactoryInterface*>(loader()->instance(suffix)))
-            d->engine = factory->create(fileName);
-    if (!d->engine)
-        d->engine = new QPixmapIconEngine(QPixmap(fileName));
+            if (QIconEngine *engine = factory->create(fileName)) {
+                d = new QIconPrivate;
+                d->engine = engine;
+                return;
+            }
+    addFile(fileName);
 }
 
 
@@ -497,6 +492,34 @@ void QIcon::addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State stat
     }
     d->engine->addPixmap(pixmap, mode, state);
 }
+
+
+/*!  Adds a pixmap from the file with the given \a fileName to the
+     icon, as a specialization for \a size, \a mode and \a state. The
+     file will be loaded on demand. Note: custom icon engines are free
+     to ignore additionally added pixmaps.
+
+     If \a fileName contains a relative path (e.g. the filename only)
+     the relevant file must be found relative to the runtime working
+     directory.
+
+    The file name can be either refer to an actual file on disk or to
+    one of the application's embedded resources. See the
+    \l{resources.html}{Resource System} overview for details on how to
+    embed images and other resource files in the application's
+    executable.
+ */
+void QIcon::addFile(const QString &fileName, const QSize &size, Mode mode, State state)
+{
+    if (fileName.isEmpty())
+        return;
+    if (!d) {
+        d = new QIconPrivate;
+        d->engine = new QPixmapIconEngine;
+    }
+    d->engine->addFile(fileName, size, mode, state);
+}
+
 
 
 #ifdef QT3_SUPPORT
