@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#15 $
 **
 ** Implementation of QDialog class
 **
@@ -17,7 +17,7 @@
 #include "qobjcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#15 $";
 #endif
 
 
@@ -188,10 +188,13 @@ void QDialog::show()
 	adjustSize();
     if ( !did_move ) {
 	QWidget *w = parentWidget();
-	if ( !w )
+	QPoint p( 0, 0 );
+	if ( w )
+	    p = w->mapToGlobal( p );
+	else
 	    w = QApplication::desktop();
-	move( w->width()/2  - width()/2,
-	      w->height()/2 - height()/2 );
+	move( p.x() + w->width()/2  - width()/2,
+	      p.y() + w->height()/2 - height()/2 );
     }
     QWidget::show();
 }
@@ -201,11 +204,19 @@ void QDialog::show()
 // Detects any widget geometry changes done by the user.
 //
 
+/*!
+  Reimplements QWidget::move() for internal purposes.
+*/
+
 void QDialog::move( int x, int y )
 {
     did_move = TRUE;
     QWidget::move( x, y );
 }
+
+/*!
+  Reimplements QWidget::move() for internal purposes.
+*/
 
 void QDialog::move( const QPoint &p )
 {
@@ -213,11 +224,19 @@ void QDialog::move( const QPoint &p )
     QWidget::move( p );
 }
 
+/*!
+  Reimplements QWidget::resize() for internal purposes.
+*/
+
 void QDialog::resize( int w, int h )
 {
     did_resize = TRUE;
     QWidget::resize( w, h );
 }
+
+/*!
+  Reimplements QWidget::resize() for internal purposes.
+*/
 
 void QDialog::resize( const QSize &s )
 {
@@ -225,12 +244,20 @@ void QDialog::resize( const QSize &s )
     QWidget::resize( s );
 }
 
+/*!
+  Reimplements QWidget::setGeometry() for internal purposes.
+*/
+
 void QDialog::setGeometry( int x, int y, int w, int h )
 {
     did_move   = TRUE;
     did_resize = TRUE;
     QWidget::setGeometry( x, y, w, h );
 }
+
+/*!
+  Reimplements QWidget::setGeometry() for internal purposes.
+*/
 
 void QDialog::setGeometry( const QRect &r )
 {
