@@ -96,7 +96,8 @@ protected:
     void childEvent( QChildEvent * );
     bool event( QEvent * );
     void styleChange( QStyle& );
-
+    ToolBarDock findDockArea( const QPoint &pos );
+    
 private:
     QMainWindowPrivate * d;
     void triggerLayout();

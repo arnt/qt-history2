@@ -91,7 +91,7 @@
   The current release of QMainWindow does not provide draggable
   toolbars.  This feature is planned for inclusion in one of the next
   releases.
-  
+
   For multidocument interfaces (MDI), use a QWorkspace as central
   widget.
 
@@ -999,7 +999,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
     if ( ( e->type() == QEvent::MouseButtonPress ||
 		  e->type() == QEvent::MouseMove ||
 		  e->type() == QEvent::MouseButtonRelease ) &&
-		0 && // 1.4x
+		1 && // 1.4x
 		o && ( d->moving || o->inherits( "QToolBar" ) ) ) {
 	moveToolBar( d->moving ? d->moving : (QToolBar *)o, (QMouseEvent *)e );
 	return TRUE;
@@ -1143,12 +1143,72 @@ void QMainWindow::triggerLayout()
 }
 
 
+QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos )
+{
+    int x = pos.x();
+    int y = pos.y();
+    
+    // calculate the docking areas
+    int left, right, top, bottom;
+    left = right = top = bottom = 30;
+    int h1 = d->mb ? d->mb->height() : 0;
+    int h2 = d->sb ? d->sb->height() : 0;
+    if ( d->mc ) {
+	if ( d->mc->x() > 0 )
+	    left = QMAX( left, d->mc->x() );
+	if ( d->mc->x() + d->mc->width() < width() )
+	    right = QMAX( right, width() - ( d->mc->x() + d->mc->width() ) );
+	if ( d->mc->y() > h1 )
+	    top = QMAX( top, d->mc->y() - h1 );
+	if ( d->mc->y() + d->mc->height() < height() - h2  )
+	    bottom = QMAX( bottom, height() - ( d->mc->y() + d->mc->height() ) - h2 );
+    }
+    top += h1;
+    bottom += h2;
+    
+    // find the docking area into which the toolbar should be moved
+    if ( x < left && y > top && y < height()- bottom )
+	return Left;
+    if ( x > left && y < top && x < width()- right )
+	return Top;
+    if ( x > width()- right && y > top && y < height()- bottom )
+	return Right;
+    if ( x > left && y > height()- bottom && x < width()- right )
+	return Bottom;
+
+    return Unmanaged;
+}
+
 /*!  Handles mouse event \e e on behalf of tool bar \a t and does all
   the funky docking.
 */
 
-void QMainWindow::moveToolBar( QToolBar* /*t*/ , QMouseEvent * /*e*/ )
+void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 {
+    if ( e->type() == QEvent::MouseButtonPress ) {
+	QApplication::setOverrideCursor( Qt::pointingHandCursor );
+	d->moving = 0;
+	d->offset = e->pos();
+	d->pos = QCursor::pos();
+	return;
+    } else if ( e->type() == QEvent::MouseButtonRelease ) {
+	QApplication::restoreOverrideCursor();
+	d->moving = 0;
+	return;
+    }
+
+    QPoint p( QCursor::pos() );
+    if ( !d->moving &&
+	 QABS( p.x() - d->pos.x() ) < 3 &&
+	 QABS( p.y() - d->pos.y() ) < 3 )
+	return;
+    
+    QPoint pos = mapFromGlobal( p );
+    ToolBarDock dock = findDockArea( pos );
+    if ( dock != Unmanaged )
+	moveToolBar( t, dock );
+    
+    
 #if 0
     if ( e->type() == QEvent::MouseButtonPress ) {
 	//debug( "saw press" );
