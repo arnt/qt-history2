@@ -229,7 +229,9 @@ bool QPicture::load( const QString &fileName, const char *format )
 	if ( !svg.load( fileName ) )
 	    return FALSE;
  	QPainter p( this );
-	return svg.play( &p );
+	bool b = svg.play( &p );
+	d->brect = svg.boundingRect();
+	return b;
     }
 #endif
     if ( format ) {
