@@ -614,6 +614,8 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
 #ifndef Q_WS_WIN
     if(!oldPressed && dockWindow->opaqueMoving())
 	grabMouse();
+#else
+    Q_UNUSED( oldPressed );
 #endif
 }
 

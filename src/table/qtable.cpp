@@ -4067,10 +4067,10 @@ void QTable::focusInEvent( QFocusEvent * )
 /*! \reimp
 */
 
-void QTable::focusOutEvent( QFocusEvent *e )
+void QTable::focusOutEvent( QFocusEvent * )
 {
     updateCell( curRow, curCol );
-    if ( e->reason() != QFocusEvent::Popup && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
+    if ( QFocusEvent::reason() != QFocusEvent::Popup && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
 	repaintSelections();
 }
 

@@ -1330,7 +1330,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 
 	    bits = new uchar[bmh->biSizeImage];
             if ( bmh->biBitCount == 24 ) {
-		int height = image.height();
 		int width = image.width();
 		uchar *b = bits;
 		uint lineFill = (3*width+3)/4*4 - 3*width;

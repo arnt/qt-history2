@@ -488,7 +488,7 @@ void QProcess::socketRead( int fd )
     }
 }
 
-void QProcess::socketWrite( int fd )
+void QProcess::socketWrite( int )
 {
     DWORD written;
     while ( !d->stdinBuf.isEmpty() && isRunning() ) {

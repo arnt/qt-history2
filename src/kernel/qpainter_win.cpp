@@ -392,11 +392,11 @@ void QPainter::updateFont()
 	    return;
     }
     if ( pdev->devType() == QInternal::Printer ) {
-	int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
-	int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
+	//int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
+	//int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
 	// ### fix compat mode
-	bool vxfScale = testf(Qt2Compat) && testf(VxF)
-			&& ( dw != ww || dw != vw || dh != wh || dh != vh );
+	//bool vxfScale = testf(Qt2Compat) && testf(VxF)
+	//		&& ( dw != ww || dw != vw || dh != wh || dh != vh );
 
 	if ( pfont ) temp = pfont;
 	pfont = new QFont( cfont.d, pdev );
