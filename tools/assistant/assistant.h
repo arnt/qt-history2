@@ -5,6 +5,7 @@
 
 class QSizeGrip;
 class QTextBrowser;
+class QToolButton;
 
 class Assistant : public QWidget
 {
@@ -24,7 +25,6 @@ private:
     QSizeGrip *sizeGrip;
     QTextBrowser *browser;
     QToolButton *closeButton;
-
 };
 
 
