@@ -691,6 +691,8 @@ void QWorkspace::normalizeWindow( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
     if ( c ) {
+	if ( d->maxWindow )
+	    hideMaximizeControls();
 	if ( c == d->maxWindow ) {
 	    c->setGeometry( d->maxRestore );
 	    d->maxWindow = 0;
@@ -759,7 +761,7 @@ void QWorkspace::showWindow( QWidget* w)
 {
     if ( d->maxWindow && w->testWFlags( WStyle_MinMax ) && !w->testWFlags( WStyle_Tool) )
 	maximizeWindow( w );
-    else
+    else if ( !w->testWFlags( WStyle_Tool ) )
 	normalizeWindow( w );
     if ( d->maxWindow )
 	d->maxWindow->raise();
