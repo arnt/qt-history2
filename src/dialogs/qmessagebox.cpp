@@ -673,7 +673,6 @@ void QMessageBox::resizeButtons()
     int i;
     QSize maxSize( style() == MotifStyle ? 0 : 75, 0 );
     for ( i=0; i<mbd->numButtons; i++ ) {
-	mbd->pb[i]->polish();
 	QSize s = mbd->pb[i]->sizeHint();
 	maxSize.setWidth(  QMAX(maxSize.width(), s.width()) );
 	maxSize.setHeight( QMAX(maxSize.height(),s.height()) );
@@ -908,7 +907,7 @@ void QMessageBox::adjustSize()
     if ( !testWState(WState_Polished) )
 	polish();
     resizeButtons();
-    label->adjustSize(); // also polishes
+    label->adjustSize();
     QSize labelSize( label->size() );
     QSize smax = mbd->buttonSize;
     int border = smax.height()/2;
