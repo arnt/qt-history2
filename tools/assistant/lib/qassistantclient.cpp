@@ -25,59 +25,71 @@
 #include "qassistantclient.h"
 
 /*!
-  \class QAssistantClient qassistantclient.h
+    \class QAssistantClient qassistantclient.h
+    \brief The QAssistantClient class provides a means of using Qt
+    Assistant as an application's help tool.
 
-  \brief The QAssistantClient class provides an easy way
-  to use Qt Assistant from any application as help tool.
+    Using Qt Assistant is simple: Create a QAssistantClient instance,
+    then call showPage() as often as necessary to show your help
+    pages. When you call showPage(), Qt Assistant will be launched if
+    it isn't already running.
 
-  In order to use Qt Assistant form your own application,
-  the first step you have to do, is to create an instance
-  of QAssistantClient. Afterwards call the function openAssistant()
-  for actually opening the Qt Assistant. Each instance of
-  QAssistantClient can only open/handle one Qt Assistant, no
-  matter how often openAssistant() is called.
+    The QAssistantClient instance can open (openAssistant()) or close
+    (closeAssistant()) Qt Assistant whenever required. If Qt Assistant
+    is open, isOpen() returns TRUE.
 
-  To tell Qt Assistant which page should be displayed, use
-  showPage().
+    One QAssistantClient instance interacts with one Qt Assistant
+    instance, so every time you call openAssistant(), showPage() or
+    closeAssistant() they are applied to the particular Qt Assistant
+    instance associated with the QAssistantClient.
 
-  This class is not included in the Qt library itself. To
-  use it you must link against libqassistantclient.so (Unix)
-  or qassistantclient.lib (Windows), which is built into INSTALL/lib
-  if you built the Qt tools (INSTALL is the directory where
-  Qt is installed ).
-*/
+    When you call openAssistant() the assistantOpened() signal is
+    emitted. Similarly when closeAssistant() is called,
+    assistantClosed() is emitted. In either case, if an error occurs,
+    error() is emitted.
 
-/*! \fn void QAssistantClient::assistantOpened()
+    This class is not included in the Qt library itself. To use it you
+    must link against \c libqassistantclient.so (Unix) or \c
+    qassistantclient.lib (Windows), which is built into \c INSTALL/lib
+    if you built the Qt tools (\c INSTALL is the directory where Qt is
+    installed).
 
-  This signal is emmited when the Qt Assistant is open
-  and the client-server communication is set up.
-*/
-
-/*! \fn void QAssistantClient::assistantClosed()
-
-  This signal is emmited when the connection to the Qt
-  Assistant is closed. This happens either when the Qt
-  Assistant is quit manually, an error in the server or
-  client occurs, or if the function closeAssistant() is
-  called.
-*/
-
-/*! \fn void QAssistantClient::error( const QString &msg )
-
-  This signal is emmited if the Qt Assistant cannot be started
-  or an error occurs during the initialisation of the connection
-  between Qt Assistant and the calling application.
+    See also "Adding Documentation to Qt Assistant" in the \link
+    assistant.book Qt Assistant manual\endlink.
 */
 
 /*!
-  Constructs a assistantclient object. The argument path
-  specifies the path (respectively the directory) in the
-  file system where the executable of the Qt Assistant is
-  located. If the path is empty, QAssistantClient takes the
-  Qt Assistant executable from the path system variable.
+    \fn void QAssistantClient::assistantOpened()
 
-  The assistantclient object is a child of \a parent and is
-  called \a name.
+    This signal is emitted when Qt Assistant is open and the
+    client-server communication is set up.
+*/
+
+/*!
+    \fn void QAssistantClient::assistantClosed()
+
+    This signal is emitted when the connection to Qt Assistant is
+    closed. This happens when the user exits Qt Assistant, or when an
+    error in the server or client occurs, or if closeAssistant() is
+    called.
+*/
+
+/*!
+    \fn void QAssistantClient::error( const QString &msg )
+
+    This signal is emitted if Qt Assistant cannot be started or if an
+    error occurs during the initialisation of the connection between
+    Qt Assistant and the calling application. The \a msg provides an
+    explanation of the error.
+*/
+
+/*!
+    Constructs an assistant client object. The \a path specifies the
+    path to the Qt Assistant executable. If the \a path is not
+    specified the system path (\c{%PATH%} or \c $PATH) is used.
+
+    The assistant client object is a child of \a parent and is called
+    \a name.
 */
 QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const char *name )
     : QObject( parent, name ), host ( "localhost" )
@@ -98,8 +110,8 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const 
 }
 
 /*!
-  Destroys the assistantclient object and frees up all allocated
-  resources.
+    Destroys the assistant client object and frees up all allocated
+    resources.
 */
 QAssistantClient::~QAssistantClient()
 {
@@ -110,11 +122,12 @@ QAssistantClient::~QAssistantClient()
 }
 
 /*!
-  This function opens the Qt Assistant and sets up the
-  client-server communiction between an application and
-  Qt Assistant.
-  If it is already open, this function does nothing. If an
-  error occurs, the signal error() is emmited.
+    This function opens Qt Assistant and sets up the client-server
+    communiction between the application and Qt Assistant. If it is
+    already open, this function does nothing. If an error occurs,
+    error() is emitted.
+
+    \sa assistantOpened()
 */
 void QAssistantClient::openAssistant()
 {
@@ -147,7 +160,9 @@ void QAssistantClient::readPort()
 }
 
 /*!
-  Use this function to close the Qt Assistant.
+    Use this function to close Qt Assistant.
+
+    \sa assistantClosed()
 */
 void QAssistantClient::closeAssistant()
 {
@@ -158,9 +173,13 @@ void QAssistantClient::closeAssistant()
 }
 
 /*!
-  This function tells the Qt Assistant which page to display,
-  \a page is the name of the file. If the Qt Assistant have
-  not been opened yet, this function will do that.
+    Call this function to make Qt Assistant show a particular \a page.
+    The \a page is a filename (e.g. \c myhelpfile.html). See "Adding
+    Documentation to Qt Assistant" in the \link assistant.book Qt
+    Assistant manual\endlink for further information.
+
+    If Qt Assistant hasn't been \link openAssistant() opened\endlink,
+    this function will open it.
 */
 void QAssistantClient::showPage( const QString &page )
 {
@@ -174,7 +193,7 @@ void QAssistantClient::showPage( const QString &page )
 }
 
 /*!
-  Returns TRUE is the Qt Assistant is opened, otherwise FALSE.
+    Returns TRUE is Qt Assistant is open; otherwise returns FALSE.
 */
 bool QAssistantClient::isOpen() const
 {
