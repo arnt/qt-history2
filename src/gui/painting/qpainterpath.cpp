@@ -543,7 +543,7 @@ void QPainterPath::addRect(const QRectF &r)
         lineTo(r.x(), r.y());
     lineTo(r.x() + r.width(), r.y());
     lineTo(r.x() + r.width(), r.y() + r.height());
-    lineTo(r.x(), r.y() + r.width());
+    lineTo(r.x(), r.y() + r.height());
     lineTo(r.x(), r.y());
 }
 
