@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#10 $
 **
 **  Splitter widget
 **
@@ -101,7 +101,7 @@ private:
 };
 
 QInternalSplitter::QInternalSplitter( QSplitter::Orientation o, 
-				      QSplitter *parent, const char *name=0 )
+				      QSplitter *parent, const char *name )
     : QWidget( parent, name ) 
 { 
     if ( !hSplitterCur )
