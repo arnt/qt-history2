@@ -1635,76 +1635,91 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
         return pm;
     }
 
+    // ### enable this when the X server manages to do it quicker than we can
 #if 0 //!defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-    // server side pixmap transformations. We have to find a way to fix the alpha
-    // channel to get it to work correctly.
     if (X11->has_xft && X11->use_xrender && data->xft_hd) {
-        ::Picture pict = XftDrawPicture((XftDraw *) data->xft_hd);
-
+        // server side pixmap transformations using RENDER
         QPixmap result(w, h, depth());
-        XTransform tranform = {{
-            { XDoubleToFixed(mat.m11()), XDoubleToFixed(mat.m21()), XDoubleToFixed(mat.dx()) },
-            { XDoubleToFixed(mat.m12()), XDoubleToFixed(mat.m22()), XDoubleToFixed(mat.dy()) },
-            { 0, 0, XDoubleToFixed(1.) }
-        }};
-        XTransform unity = {{
-            { XDoubleToFixed(1.), 0, 0 },
-            { 0, XDoubleToFixed(1.), 0 },
-            { 0, 0, XDoubleToFixed(1.) }
-        }};
-        XRenderSetPictureTransform (dpy, pict, &tranform);
-        XRenderSetPictureFilter(dpy, pict,
-                                 (char *)(mode == Qt::SmoothTransformation ? "bilinear" : "nearest"), 0, 0);
+        XTransform xtransform = {{
+                { XDoubleToFixed(mat.m11()), XDoubleToFixed(mat.m21()), XDoubleToFixed(mat.dx()) },
+                { XDoubleToFixed(mat.m12()), XDoubleToFixed(mat.m22()), XDoubleToFixed(mat.dy()) },
+                { 0, 0, XDoubleToFixed(1.) }
+            }};
+        XTransform xunity = {{
+                { XDoubleToFixed(1.), 0, 0 },
+                { 0, XDoubleToFixed(1.), 0 },
+                { 0, 0, XDoubleToFixed(1.) }
+            }};
 
-        XRenderComposite(dpy, PictOpSrc, pict,
-                         0, result.xftPictureHandle(),
-                         0, 0, 0, 0, 0, 0, w, h);
-        if (mat.m12() != 0. || mat.m21() != 0.) {
-            result.data->alphapm = new QPixmap; // create a null pixmap
-            // setup pixmap data
-            result.data->alphapm->data->w = w;
-            result.data->alphapm->data->h = h;
-            result.data->alphapm->data->d = 8;
+        ::Picture src = XftDrawPicture((XftDraw *) data->xft_hd);
+        ::Picture dst = result.xftPictureHandle();
+        XRenderSetPictureTransform (dpy, src, &xtransform);
+        XRenderSetPictureFilter(dpy, src,
+                                (char *)(mode == Qt::SmoothTransformation
+                                         ? "bilinear"
+                                         : "nearest"),
+                                0, 0);
+        XRenderComposite(dpy, PictOpSrc, src, XNone, dst, 0, 0, 0, 0, 0, 0, w, h);
+        XRenderSetPictureTransform(dpy, src, &xunity);
 
-            // create 8bpp pixmap and render picture
-            result.data->alphapm->data->hd =
-                XCreatePixmap(dpy, RootWindow(dpy, result.data->xinfo.screen()), w, h, 8);
-            result.data->alphapm->data->xft_hd =
-                (Qt::HANDLE) XftDrawCreateAlpha(dpy, result.data->alphapm->data->hd, 8);
-//             XRenderColor color = { 0,0,0,0 };
-//             XRenderFillRectangle(dpy, PictOpOver, result.data->alphapm->xftPictureHandle(), &color, 0, 0, w, h);
+        // create an alpha pixmap
+        result.data->alphapm = new QPixmap;
 
-            Pixmap alpha_pm;
-            XftDraw *alpha_draw;
-            ::Picture apict = 0;
-            if (data->alphapm) {
-                alpha_draw = (XftDraw *) data->alphapm->data->xft_hd;
+        // setup pixmap data
+        result.data->alphapm->data->w = w;
+        result.data->alphapm->data->h = h;
+        result.data->alphapm->data->d = 8;
+
+        // create 8bpp pixmap and render picture
+        result.data->alphapm->data->hd =
+            XCreatePixmap(dpy, RootWindow(dpy, result.data->xinfo.screen()), w, h, 8);
+        result.data->alphapm->data->xft_hd =
+            (Qt::HANDLE) XftDrawCreateAlpha(dpy, result.data->alphapm->data->hd, 8);
+
+        ::Picture adst = result.data->alphapm->xftPictureHandle();
+
+        XRenderColor clear = { 0x0000, 0x0000, 0x0000, 0x0000 };
+        XRenderFillRectangle(dpy, PictOpSrc, adst, &clear, 0, 0, w, h);
+
+        Pixmap alphamap;
+        XftDraw *xftdraw;
+        ::Picture asrc;
+        if (data->alphapm) {
+            // transform existing alpha map
+            asrc = data->alphapm->xftPictureHandle();
+        } else {
+            // create temporary alpha map
+            alphamap =
+                XCreatePixmap(dpy, RootWindow(dpy, result.data->xinfo.screen()), ws, hs, 8);
+            xftdraw = XftDrawCreateAlpha(dpy, alphamap, 8);
+            asrc = XftDrawPicture(xftdraw);
+
+            if (data->mask) {
+                // use existing mask as a starting point
+                ::Picture mask = data->mask->xftPictureHandle();
+                XRenderComposite(dpy, PictOpSrc, mask, 0, asrc, 0, 0, 0, 0, 0, 0, ws, hs);
             } else {
-                // create 8bpp pixmap and render picture
-                alpha_pm = XCreatePixmap(dpy, RootWindow(dpy, result.data->xinfo.screen()), ws, hs, 8);
-                alpha_draw = XftDrawCreateAlpha(dpy, alpha_pm, 8);
-            }
-            apict = XftDrawPicture(alpha_draw);
-            if (!data->alphapm) {
-                XRenderColor color = { 0xffffff, 0xffffff, 0xffffff, 0xffffff };
-                XRenderFillRectangle(dpy, PictOpSrc, apict, &color, 0, 0, ws, hs);
-            }
-            XRenderSetPictureTransform (dpy, apict, &tranform);
-            XRenderSetPictureFilter(dpy, apict,
-                                    (char *)(mode == Qt::SmoothTransformation ? "bilinear" : "nearest"), 0, 0);
-            XRenderComposite(dpy, PictOpSrc, apict,
-                             0, result.data->alphapm->xftPictureHandle(),
-                             0, 0, 0, 0, 0, 0, w, h);
-            // reset transform
-
-
-            XRenderSetPictureTransform(dpy, apict, &unity);
-            if (!data->alphapm) {
-                XftDrawDestroy(alpha_draw);
-                XFreePixmap(dpy, alpha_pm);
+                // all pixels are fully opaque
+                XRenderColor set = { 0xffff, 0xffff, 0xffff, 0xffff };
+                XRenderFillRectangle(dpy, PictOpSrc, asrc, &set, 0, 0, ws, hs);
             }
         }
-        XRenderSetPictureTransform(dpy, pict, &unity);
+
+        XRenderSetPictureTransform (dpy, asrc, &xtransform);
+        XRenderSetPictureFilter(dpy, asrc,
+                                (char *)(mode == Qt::SmoothTransformation
+                                         ? "bilinear"
+                                         : "nearest"),
+                                0, 0);
+        XRenderComposite(dpy, PictOpSrc, asrc, XNone, adst, 0, 0, 0, 0, 0, 0, w, h);
+        XRenderSetPictureTransform(dpy, asrc, &xunity);
+
+        if (!data->alphapm) {
+            // free temporary alpha map
+            XftDrawDestroy(xftdraw);
+            XFreePixmap(dpy, alphamap);
+        }
+
         return result;
     }
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
