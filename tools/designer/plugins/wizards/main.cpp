@@ -26,6 +26,7 @@
 #include "sqlformwizardimpl.h"
 #endif
 #include "mainwindowwizard.h"
+#include <qapplication.h>
 
 class StandardTemplateWizardInterface : public TemplateWizardInterface, public QLibraryInterface
 {
@@ -92,12 +93,12 @@ void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widg
 	 templ == "QDataView" ||
 	 templ == "QDataBrowser" ||
 	 templ == "QDataTable" ) {
-	SqlFormWizard wizard( aIface, widget, 0, fw, 0, TRUE );
+	SqlFormWizard wizard( aIface, widget, qApp->mainWidget(), fw, 0, TRUE );
 	wizard.exec();
     }
 #endif
     if ( templ == "QMainWindow" ) {
-	MainWindowWizardBase wizard( 0, 0, TRUE );
+	MainWindowWizardBase wizard( qApp->mainWidget(), 0, TRUE );
 	wizard.setAppInterface( aIface, fw, widget );
 	wizard.exec();
     }
