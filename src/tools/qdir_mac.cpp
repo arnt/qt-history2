@@ -189,7 +189,8 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     QFileInfo fi;
 
     OSErr ret;
-    FSSpec matches[5000];
+    FSSpec * matches;
+    matches=(FSSpec *)malloc(sizeof(FSSpec)*500);
     CInfoPBRec myspec1;
     CInfoPBRec myspec2;
     short myvrefnum;
@@ -219,7 +220,7 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     params.csParam.ioNamePtr=0;
     params.csParam.ioVRefNum=myvrefnum;
     params.csParam.ioMatchPtr=(FSSpecArrayPtr)matches;
-    params.csParam.ioReqMatchCount=5000;
+    params.csParam.ioReqMatchCount=500;
     params.csParam.ioSearchBits=fsSBDrParID;
     params.csParam.ioSearchInfo1=&myspec1;
     params.csParam.ioSearchInfo2=&myspec2;
@@ -240,7 +241,7 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     char namebuf[256];
     
     do {
-	done=PBCatSearchSync(&params);
+	done=PBCatSearchSync(&params.csParam);
 	if(done==noErr) {
 	    int loopc;
 	    for(loopc=0;loopc<params.csParam.ioActMatchCount;loopc++) {
