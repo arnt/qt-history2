@@ -352,12 +352,6 @@ struct QLineEditPrivate {
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
     : QFrame( parent, name, WRepaintNoErase | WResizeNoErase )
 {
-    QPalette pal = palette();
-    QColorGroup dis = pal.disabled();
-    dis.setColor( QColorGroup::Base, dis.background() );
-    pal.setDisabled( dis );
-    setPalette( pal );
-
     init();
 }
 
@@ -995,15 +989,7 @@ void QLineEdit::drawContents( QPainter *painter )
 {
     int marg = frameWidth();
     painter->translate( marg, 0 );
-
-    const QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode( backgroundMode() );
-    QBrush bg;
-    if ( !isEnabled() || isReadOnly() )
-	bg = palette().disabled().color( role );
-    else if ( isActiveWindow() )
-	bg = palette().active().color( role );
-    else
-	bg = palette().inactive().color( role );
+    const QColorGroup & g = colorGroup();
 
     int lineheight = QMIN( fontMetrics().lineSpacing() + 4, height() );
     int linetop = (height() - lineheight ) / 2;
@@ -1011,6 +997,9 @@ void QLineEdit::drawContents( QPainter *painter )
     QSharedDoubleBuffer buffer( painter, 0, linetop, width(), lineheight,
 				hasFocus() ? QSharedDoubleBuffer::Force : 0 );
     buffer.painter()->setPen( colorGroup().text() );
+
+    QBrush bg = isEnabled() ? QBrush( paletteBackgroundColor() ) :
+  			      g.brush( QColorGroup::Background);
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     if ( linetop ) {
 	painter->fillRect( 0, 0, width(), linetop, bg );
