@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#66 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -251,7 +251,7 @@ void QDragManager::timerEvent( QTimerEvent* )
 {
 }
 
-void QDragManager::cancel()
+void QDragManager::cancel( bool /* deleteSource */ )
 {
     if ( object ) {
 	beingCancelled = TRUE;

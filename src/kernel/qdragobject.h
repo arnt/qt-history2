@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#43 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#44 $
 **
 ** Definition of QDragObject
 **
@@ -174,7 +174,7 @@ private:
 
     bool drag( QDragObject *, QDragObject::DragMode );
 
-    void cancel();
+    void cancel( bool deleteSource = TRUE );
     void move( const QPoint & );
     void drop();
     void updatePixmap();

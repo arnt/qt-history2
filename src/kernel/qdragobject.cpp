@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#98 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -39,8 +39,7 @@
 // the name space
 
 struct QDragData {
-    QDragData(): autoDelete( TRUE ), hot(0,0) {}
-    bool autoDelete;
+    QDragData(): hot(0,0) {}
     QPixmap pixmap;
     QPoint hot;
 };
@@ -284,9 +283,8 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 
 QDragObject::~QDragObject()
 {
-    d->autoDelete = FALSE; // so cancel() won't delete this object
     if ( manager && manager->object == this )
-	manager->cancel();
+	manager->cancel( FALSE );
     delete d;
 }
 

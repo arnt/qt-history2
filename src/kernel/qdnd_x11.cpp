@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#101 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -974,7 +974,7 @@ void QDragManager::updateCursor()
 }
 
 
-void QDragManager::cancel()
+void QDragManager::cancel( bool deleteSource )
 {
     if ( object ) {
 	beingCancelled = TRUE;
@@ -990,7 +990,8 @@ void QDragManager::cancel()
 	restoreCursor = FALSE;
     }
 
-    delete qt_xdnd_source_object;
+    if ( deleteSource )
+	delete qt_xdnd_source_object;
     qt_xdnd_source_object = 0;
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
