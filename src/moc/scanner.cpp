@@ -29,7 +29,7 @@ Symbols Scanner::scan(const QByteArray &input)
         int state = 0;
         Token token = NOTOKEN;
         for (;;) {
-            if (*data<0) {
+            if (static_cast<signed char>(*data) < 0) {
                 ++data;
                 continue;
             }

@@ -162,7 +162,7 @@ static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode m
         int state = 0;
         PP_Token token = PP_NOTOKEN;
         for (;;) {
-            if (*data<0) {
+            if (static_cast<signed char>(*data) < 0) {
                 ++data;
                 continue;
             }
