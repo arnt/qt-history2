@@ -183,6 +183,12 @@ public:
 	AlignSubScript
     };
 
+    enum TextInsertionFlags {
+	RedoIndentation = 0x0001,
+	CheckNewLines = 0x0002,
+	RemoveSelected = 0x0004
+    };
+
     QTextEdit( const QString& text, const QString& context = QString::null,
 	       QWidget* parent=0, const char* name=0);
     QTextEdit( QWidget* parent=0, const char* name=0 );
@@ -330,12 +336,6 @@ public slots:
     virtual void setOverwriteMode( bool b ) { overWrite = b; }
 
     virtual void scrollToBottom();
-
-    enum TextInsertionFlags {
-	RedoIndentation = 0x0001,
-	CheckNewLines = 0x0002,
-	RemoveSelected = 0x0004
-    };
 
     void insert( const QString &text, uint insertionFlags = CheckNewLines | RemoveSelected ); // ## virtual in 4.0
 
