@@ -165,6 +165,7 @@ public:
     bool dirty;
     QTabWidget::TabPosition pos;
     QTabWidget::TabShape shape;
+    int alignment;
 };
 
 
@@ -626,10 +627,10 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     }
     
     // do alignment
-    if ( d->tabs->alignment() != AlignLeft && d->tabs->width() < width() ) {
-	if ( d->tabs->alignment() == AlignHCenter )
+    if ( d->alignment != AlignLeft && d->tabs->width() < width() ) {
+	if ( d->alignment == AlignHCenter )
 	    tabx += width()/2 - d->tabs->width()/2;
-	else if ( d->tabs->alignment() == AlignRight )
+	else if ( d->alignment == AlignRight )
 	    tabx += width() - d->tabs->width();
     }
     
@@ -815,13 +816,13 @@ QString QTabWidget::label( int index ) const
 
 
 /*!
-  Returns the current alignment for the tabs in the tab bar.
+  Returns the current alignment of the tabs in the tab bar.
   
-  \sa QTabBar::alignment()
+  \sa QTabWidget::setAlignment()
 */
 int QTabWidget::tabAlignment() const
 {
-    return d->tabs->alignment();
+    return d->alignment;
 }
 
 /*!
@@ -829,11 +830,11 @@ int QTabWidget::tabAlignment() const
   
   Possible values are Qt::AlignLeft, Qt::AlignHCenter, Qt::AlignRight.
   
-  \sa QTabBar::setAlignment()
+  \sa QTabWidget::alignment()
 */
 void QTabWidget::setTabAlignment( int a )
 {
-    d->tabs->setAlignment( a );
+    d->alignment = a;
     setUpLayout();
 }
 

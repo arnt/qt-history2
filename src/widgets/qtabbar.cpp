@@ -144,7 +144,6 @@ struct QTabPrivate {
     QToolButton* rightB;
     QToolButton* leftB;
     bool  scrolls;
-    int alignment;
 };
 
 
@@ -168,7 +167,6 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     : QWidget( parent, name, WRepaintNoErase | WResizeNoErase  )
 {
     d = new QTabPrivate;
-    d->alignment = AlignLeft;
     d->id = 0;
     d->focus = 0;
     d->a = new QAccel( this, "tab accelerators" );
@@ -970,24 +968,4 @@ void QTabBar::updateArrowButtons()
 	d->rightB->hide();
     }
 }
-
-/*! \property QTabBar::alignment
-    \brief the alignment of the tabs in the tab bar
-    
-    Possible values are Qt::AlignLeft, Qt::AlignHCenter and Qt::AlignRight.
-    
-    Attempting to set the alignment with invalid flags does nothing.
-    
-    \sa Qt::AlignmentFlags
-*/
-int QTabBar::alignment() const
-{
-    return d->alignment;
-}
-
-void QTabBar::setAlignment( int a )
-{
-    d->alignment = a;
-}
-
 #endif

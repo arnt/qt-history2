@@ -55,6 +55,7 @@
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include "qslider.h"
+#include "qtabwidget.h"
 #include "qtabbar.h"
 #include "qlistview.h"
 #include "qbitmap.h"
@@ -418,10 +419,14 @@ void QWindowsStyle::drawControl( ControlElement element,
 	break; }
 
     case CE_TabBarTab: {
-	QTabBar * tb = (QTabBar *) widget;
+	if ( !widget || !widget->parentWidget() )
+	    break;
+	
+	QTabBar * tb = (QTabBar *) widget;	
+	QTabWidget * tw = (QTabWidget *) tb->parentWidget();
 	bool lastIsCurrent = FALSE;
 	
-	if ( tb->alignment() == AlignRight && 
+	if ( tw->tabAlignment() == AlignRight && 
 	     tb->currentTab() == tb->indexOf(tb->count()-1) )
 	    lastIsCurrent = TRUE;
 	

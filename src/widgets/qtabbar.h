@@ -127,12 +127,9 @@ public:
     virtual void layoutTabs();
     virtual QTab * selectTab( const QPoint & p ) const;
     
-    int alignment() const;
-
 public slots:
     virtual void setCurrentTab( int );
     virtual void setCurrentTab( QTab * );
-    virtual void setAlignment( int );
 
 signals:
     void  selected( int );
