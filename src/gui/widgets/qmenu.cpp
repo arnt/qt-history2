@@ -1467,7 +1467,7 @@ void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 	   break;
 	if(d->currentAction->action->menu()) {
 	    d->popupAction(d->currentAction, true);
-	} else if(key == Key_Enter || key == Key_Return | key == Key_Space) {
+	} else if(key == Key_Enter || key == Key_Return || key == Key_Space) {
 	    d->currentAction->action->activate(QAction::Trigger);
 	    d->setCurrentAction(d->currentAction, false);
 	}
