@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#22 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#22 $");
 
 
 // QPrinter states
@@ -198,9 +198,15 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    uchar *bits = new uchar[bmh->biSizeImage];
 	    GetDIBits( pixmap.handle(), pixmap.hbm(), 0, h,
 		       bits, bmi, DIB_RGB_COLORS );
-	    StretchDIBits( hdc, pos.x(), pos.y(),
-			   dw, dh, 0, 0, w, h,
-			   bits, bmi, DIB_RGB_COLORS, SRCCOPY );
+	    HANDLE hdcPrn = CreateCompatibleDC( hdc );
+	    HANDLE hbm = CreateDIBitmap( hdc, bmh, CBM_INIT,
+					 bits, bmi, DIB_RGB_COLORS );
+	    HANDLE oldHbm = SelectObject( hdcPrn, hbm );
+	    StretchBlt( hdc, pos.x(), pos.y(), dw, dh,
+			hdcPrn, 0, 0, w, h, SRCCOPY );
+	    SelectObject( hdcPrn, oldHbm );
+	    DeleteObject( hbm );
+	    DeleteObject( hdcPrn );
 	    delete [] bits;
 	    free( bmi );
 	    return FALSE;			// don't bitblt
