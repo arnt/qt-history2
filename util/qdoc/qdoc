@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#205 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#206 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1052,7 +1052,7 @@ sub readh {
 
     while( $h =~ /\ntypedef (\w+)\s*<([a-zA-Z]+?)\s*>\s*(\w+);/g ) {
 	$declared{$3} = $1 . " " . $2 . " " . $filename;
-	print "saw $3: ", $declared{$3}, "\n";
+	#print "saw $3: ", $declared{$3}, "\n";
     }
 
     $headerfiles{$filename} = $filename;
@@ -1123,7 +1123,7 @@ sub templates {
 			    $url = &manglefn($type, $n, $mm, $args,
 					     $const, &mangleclass($n));
 			} else {
-			    print "1: ", $def{$m}, "\n";
+			    #print "1: ", $def{$m}, "\n";
 			}
 		    }
 
@@ -2001,7 +2001,6 @@ sub classlist {
 	    if ( $j < $colindex[$col+1] ) {
 		my $ex, $n, $url;
 		$url = $classurls[$j];
-		print "$col $colindex[$col] $i $j $url\n";
 		$ex = defined( $extension{$url} ) ? "*" : "";
 		$n = $name{$url};
 		$result = join( "", $result, "<a href=\"", $url, "\">",
@@ -2389,8 +2388,6 @@ if ( defined( @docdirs ) ) {
 }
 
 chdir( "/tmp" );
-
-print "1\n";
 
 &templates();
 &preprocessdocs();
