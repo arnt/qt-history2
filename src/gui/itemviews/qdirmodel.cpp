@@ -86,11 +86,10 @@ QFileIconProviderPrivate::QFileIconProviderPrivate()
 
     dir.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DirOpenIcon),
                   Qt::SmallIconSize, QIcon::Normal, QIcon::On);
-    dir.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DirClosedIcon), Qt::SmallIconSize,
-                  QIcon::Normal, QIcon::Off);
-    dirLink.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DirLinkIcon), Qt::SmallIconSize,
-                      QIcon::Normal, QIcon::On);
-
+    dir.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DirClosedIcon),
+                  Qt::SmallIconSize, QIcon::Normal, QIcon::Off);
+    dirLink.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DirLinkIcon),
+                      Qt::SmallIconSize, QIcon::Normal, QIcon::On);
     driveHD.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DriveHDIcon),
                       Qt::SmallIconSize);
     computer.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_ComputerIcon),
@@ -679,7 +678,8 @@ QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
     QList<QUrl> urls;
     QList<QModelIndex>::const_iterator it = indexes.begin();
     for (; it != indexes.end(); ++it)
-        urls << QUrl::fromLocalFile(path(*it));
+        if ((*it).column() == 0)
+            urls << QUrl::fromLocalFile(path(*it));
     QMimeData *data = new QMimeData();
     data->setUrls(urls);
     return data;
