@@ -987,7 +987,9 @@ HRESULT QAxServerBase::InternalQueryInterface( REFIID iid, void **iface )
     }
 
     if ( !(*iface) ) {
-	if ( iid == IID_IDispatch)
+	if ( iid == qAxFactory()->interfaceID(class_name) )
+	    *iface = (IDispatch*)this;
+	if ( iid == IID_IDispatch )
 	    *iface = (IDispatch*)this;
 	else if ( iid == IID_IAxServerBase)
 	    *iface = (IAxServerBase*)this;
