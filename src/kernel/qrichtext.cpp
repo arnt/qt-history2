@@ -6559,14 +6559,14 @@ void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int
 
 bool QTextDocument::hasPrefix(const QChar* doc, int length, int pos, QChar c)
 {
-    if ( pos >= length )
+    if ( pos + 1 > length )
 	return FALSE;
     return doc[ pos ].lower() == c.lower();
 }
 
 bool QTextDocument::hasPrefix( const QChar* doc, int length, int pos, const QString& s )
 {
-    if ( pos + (int) s.length() >= length )
+    if ( pos + (int) s.length() > length )
 	return FALSE;
     for ( int i = 0; i < (int)s.length(); i++ ) {
 	if ( doc[ pos + i ].lower() != s[ i ].lower() )
@@ -7030,22 +7030,27 @@ QString QTextDocument::parseWord(const QChar* doc, int length, int& pos, bool lo
 
     if (doc[pos] == '"') {
 	pos++;
-	while ( pos < length  && doc[pos] != '"' ) {
-	    s += doc[pos];
-	    pos++;
+	while ( pos < length && doc[pos] != '"' ) {
+	    if ( doc[pos] == '&' ) {
+		s += parseHTMLSpecialChar( doc, length, pos );
+	    } else {
+		s += doc[pos];
+		pos++;
+	    }
 	}
 	eat(doc, length, pos, '"');
     } else {
 	static QString term = QString::fromLatin1("/>");
-	while( pos < length &&
-	       (doc[pos] != '>' && !hasPrefix( doc, length, pos, term))
-	       && doc[pos] != '<'
-	       && doc[pos] != '='
-	       && !doc[pos].isSpace())
+	while ( pos < length
+		&& doc[pos] != '>'
+		&& !hasPrefix(doc, length, pos, term)
+		&& doc[pos] != '<'
+		&& doc[pos] != '='
+		&& !doc[pos].isSpace() )
 	{
-	    if ( doc[pos] == '&')
+	    if ( doc[pos] == '&' ) {
 		s += parseHTMLSpecialChar( doc, length, pos );
-	    else {
+	    } else {
 		s += doc[pos];
 		pos++;
 	    }
