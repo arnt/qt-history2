@@ -87,19 +87,19 @@ Component model - plugins
 
 The QLibrary class provides a platform independent wrapper for
 runtime loading of shared libraries and accessing of functionality
-using a COM-like interface concept. QPluginManager makes it trivial to 
+using a COM-like interface concept. QPluginManager makes it trivial to
 implement plugin support in applications.
-The Qt library is capable to load additional styles, database drivers and 
+The Qt library is capable to load additional styles, database drivers and
 text codecs from plugins implementing interfaces QStyleFactoryInterface,
 QSqlDriverInterface or QTextCodecInterface. Thus it is both possible
 to remove unused components from the Qt library, and easy to extend any
 application with 3rd party styles or text codecs.
 
 The Qt Designer supports custom widgets in plugins, and will use the
-widgets both when designing and previewing forms. 
+widgets both when designing and previewing forms.
 
-QComponentFactory makes it easy to register any kind of component in a 
-global database (e.g. the Windows Registry) and to use any registered 
+QComponentFactory makes it easy to register any kind of component in a
+global database (e.g. the Windows Registry) and to use any registered
 component.
 
 
@@ -189,15 +189,15 @@ Accessibility
 -------------
 
 Accessibility means making software usable and accessible to a wide range of
-users, including those with disabilities. In Qt 3.0, most widgets provide 
+users, including those with disabilities. In Qt 3.0, most widgets provide
 accessibility information for assistive tools that can be used by a wide range
 of handicapped users. Qt standard widgets like buttons or range controls are
 fully supported. Support for complex widgets, like e.g. QListView, is in development.
 Existing applications that make use of standard widgets will become accessible just
 by using Qt 3.0.
 
-Qt uses the Active Accessibility infrastructure on Windows, and needs the MSAA SDK, 
-which is part of most Platform SDKs. With improving standardization of accessibility 
+Qt uses the Active Accessibility infrastructure on Windows, and needs the MSAA SDK,
+which is part of most Platform SDKs. With improving standardization of accessibility
 on other platforms, Qt will support assistive technologies on other systems, too.
 
 
@@ -565,7 +565,7 @@ Another new feature of QFont is a much more flexible substitution mechanism.
 Each family can have a list of appropriate substitutes. The font substitution
 feature that allows you to specify a list of substitute fonts. Substitute fonts
 are used when a font cannot be loaded, or if the specified font doesn't have a
-particular character (X11 only). 
+particular character (X11 only).
 
 For example (on X11), you select the font Lucida, which doesn't have Korean
 characters. For Korean text, you want to use the Mincho font family. By
@@ -874,6 +874,16 @@ New property:
 New functions:
 	QIconSet iconSet() const
 	virtual void setIconSet( const QIconSet & )
+
+QWidget
+
+New Functions:
+
+    const QColor & eraseColor() const;
+    virtual void setEraseColor( const QColor & );
+    const QPixmap *	erasePixmap() const;
+    virtual void setErasePixmap( const QPixmap & );
+
 
 
 QWizard
