@@ -635,34 +635,34 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
 
     out() << "</ul>\n";
 
+    bool needOtherSection = false;
+
     sections = marker->sections(inner, CodeMarker::Summary, CodeMarker::Okay);
     s = sections.begin();
     while ( s != sections.end() ) {
-	out() << "<a name=\"" << registerRef((*s).name.toLower()) << "\"></a>\n";
-	out() << "<h3>" << protect((*s).name) << "</h3>\n";
+        if (s->members.isEmpty()) {
+            if (!s->inherited.isEmpty())
+                needOtherSection = true;
+        } else {
+	    out() << "<a name=\"" << registerRef((*s).name.toLower()) << "\"></a>\n";
+	    out() << "<h3>" << protect((*s).name) << "</h3>\n";
 
-	generateSectionList(*s, inner, marker, CodeMarker::Summary);
-
-	if (!(*s).inherited.isEmpty()) {
-	    out() << "<ul>\n";
-	    QList<QPair<ClassNode *, int> >::ConstIterator p = (*s).inherited.begin();
-	    while ( p != (*s).inherited.end() ) {
-		out() << "<li><div class=\"fn\"/>";
-		out() << (*p).second << " ";
-		if ( (*p).second == 1 ) {
-		    out() << (*s).singularMember;
-		} else {
-		    out() << (*s).pluralMember;
-		}
-		out() << " inherited from <a href=\"" << fileName((*p).first)
-		      << "#" << cleanRef((*s).name.toLower()) << "\">"
-		      << protect(marker->plainFullName((*p).first, inner))
-		      << "</a></li>\n";
-		++p;
-	    }
-	    out() << "</ul>\n";
-	}
+	    generateSectionList(*s, inner, marker, CodeMarker::Summary);
+        }
 	++s;
+    }
+
+    if (needOtherSection) {
+	out() << "<h3>Additional Inherited Members</h3>\n"
+                 "<ul>\n";
+
+        s = sections.begin();
+        while ( s != sections.end() ) {
+            if (s->members.isEmpty() && !s->inherited.isEmpty())
+                generateSectionInheritedList(*s, inner, marker);
+            ++s;
+        }
+	out() << "</ul>\n";
     }
 
     out() << "<a name=\"" << registerRef( "details" ) << "\"></a>\n";
@@ -1425,6 +1425,32 @@ void HtmlGenerator::generateSectionList(const Section& section, const Node *rela
 	out() << "</ul>\n";
 	if ( twoColumn )
 	    out() << "</td></tr>\n</table>\n";
+    }
+
+    if (style == CodeMarker::Summary && !section.inherited.isEmpty()) {
+	out() << "<ul>\n";
+        generateSectionInheritedList(section, relative, marker);
+	out() << "</ul>\n";
+    }
+}
+
+void HtmlGenerator::generateSectionInheritedList(const Section& section, const Node *relative,
+					         CodeMarker *marker)
+{
+    QList<QPair<ClassNode *, int> >::ConstIterator p = section.inherited.begin();
+    while ( p != section.inherited.end() ) {
+	out() << "<li><div class=\"fn\"/>";
+	out() << (*p).second << " ";
+	if ( (*p).second == 1 ) {
+	    out() << section.singularMember;
+	} else {
+	    out() << section.pluralMember;
+	}
+	out() << " inherited from <a href=\"" << fileName((*p).first)
+	      << "#" << cleanRef(section.name.toLower()) << "\">"
+	      << protect(marker->plainFullName((*p).first, relative))
+	      << "</a></li>\n";
+	++p;
     }
 }
 

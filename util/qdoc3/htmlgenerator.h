@@ -72,6 +72,8 @@ private:
 			  CodeMarker::SynopsisStyle style);
     void generateSectionList(const Section& section, const Node *relative,
 			     CodeMarker *marker, CodeMarker::SynopsisStyle style);
+    void generateSectionInheritedList(const Section& section, const Node *relative,
+                                      CodeMarker *marker);
     void generateFullName(const Node *apparentNode, const Node *relative, CodeMarker *marker,
 			  const Node *actualNode = 0);
     void generateDetailedMember(const Node *node, const InnerNode *relative, CodeMarker *marker);
