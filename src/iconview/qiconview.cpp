@@ -2119,7 +2119,7 @@ void QIconViewItem::checkRect()
 /*!
   \class QIconView qiconview.h
   \brief The QIconView class provides an area with movable labelled icons.
-  \module icon view
+  \module iconview
 
   \ingroup advanced
 
