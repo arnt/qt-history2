@@ -16,21 +16,14 @@ win32-msvc.net
 
 irix-cc
 irix-g++
-tru64-cxx
-tru64-g++
 solaris-cc
 solaris-g++
 linux-g++
-linux-kcc
 freebsd-g++
-unixware7-g++
-unixware7-cc
 aix-g++
 aix-xlc
 hpux-acc
 hpux-g++
-openunix-cc
-openunix-g++
 
 macx-g++
 macx-pbuilder
