@@ -582,7 +582,7 @@ void QDialog::show()
 	QApplication::sendEvent( fw, &e );
 	QFocusEvent::resetReason();
     }
-    
+
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::DialogStart );
@@ -597,6 +597,10 @@ void QDialog::adjustPosition( QWidget* w)
     adjustPositionInternal( w );
 }
 
+#if defined(Q_WS_X11)
+extern "C" { int XSetTransientForHint( Display *, unsigned long, unsigned long ); }
+#endif
+
 void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 {
     /* need to make sure these events are already sent to be sure
@@ -610,9 +614,15 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 	w = w->topLevelWidget();
     QWidget *relative = w ? w : qApp->mainWidget();
     QRect desk;
-    if ( relative )
-	scrn =  QApplication::desktop()->screenNumber( w ? w : qApp->mainWidget() );
-    else
+    if ( relative ) {
+	scrn =  QApplication::desktop()->screenNumber( relative);
+
+#if defined(Q_WS_X11)
+        // make sure the transient for hint is set properly
+        XSetTransientForHint( QPaintDevice::x11AppDisplay(), winId(),
+                              relative->winId() );
+#endif
+        } else
 	scrn = QApplication::desktop()->screenNumber( QCursor::pos() );
     desk = QApplication::desktop()->availableGeometry( scrn );
 
