@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#12 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#12 $";
 #endif
 
 
@@ -132,17 +132,20 @@ all event types.
 Returns the event type.
 */
 
-/*!
-\class QTimerEvent qevent.h
-\brief The QTimerEvent class contains parameters that describe a timer event.
+/*! \class QTimerEvent qevent.h
 
-Timer events are sent at regular intervals to objects that have started
-one or more timers.  Each timer has a unique identifier.
+  \brief The QTimerEvent class contains parameters that describe a
+  timer event.
 
-The virtual function QWidget::timerEvent() receives timer events.
+  Timer events are sent at regular intervals to objects that have
+  started one or more timers.  Each timer has a unique identifier.
 
-\sa QObject::startTimer() and QObject::killTimer().
-*/
+  If the interval is zero, the event will be sent on every iteration
+  of the event loop.
+
+  The virtual function QWidget::timerEvent() receives timer events.
+
+  \sa QObject::startTimer() and QObject::killTimer(). */
 
 /*!
 \fn QTimerEvent::QTimerEvent( int timerId )
