@@ -177,7 +177,7 @@ void QPicturePaintEngine::updateClipRegion(QPainterState *ps)
 {
     int pos;
     SERIALIZE_CMD(PdcSetClipRegion);
-    d->s << ps->clipRegion;
+    d->s << ps->clipRegion << Q_INT8(0);
     writeCmdLength(pos, QRect(), false);
 
     SERIALIZE_CMD(PdcSetClip);

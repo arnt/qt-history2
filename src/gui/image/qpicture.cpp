@@ -865,7 +865,7 @@ bool QPicture::QPicturePrivate::cmd(int c, QPainter *pt, QPDevCmdParam *p)
 #endif
         case PdcSetClipRegion:
             s << *p[0].rgn;
-            s << (Q_INT8)p[1].ival;
+            s << (Q_INT8)p[1].ival; // currently an empty byte due to no more CoordMode
             break;
         default:
             qWarning("QPicture::cmd: Command %d not recognized", c);
