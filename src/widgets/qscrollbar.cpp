@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#62 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#62 $");
 
 
 /*!
@@ -31,6 +31,10 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#61 $");
   QScrollBar only offers integer ranges.
 
   The recommended thickness of a scroll bar is 16 pixels.
+
+  A scroll bar can be controlled by the keyboard, but it has a
+  default focusPolicy() of \a NoFocus. Use setFocusPolicy() to
+  enable keyboard focus.
 
   \ingroup realwidgets
 */

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#62 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#62 $");
 
 
 /*!
@@ -44,19 +44,16 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#61 $");
   available for real work.
 
   QComboBox supports three different appearances: Motif 1.x, Motif 2.0
-  and Windows 95.  In Motif 1.x, a combo box was called XmOptionMenu,
-  presumably because OSF's naming policy suffers from the NIH
-  syndrome.  In Motif 2.0, OSF introduced an improved combo box and
+  and Windows 95.  In Motif 1.x, a combo box was called XmOptionMenu.
+  In Motif 2.0, OSF introduced an improved combo box and
   named that XmComboBox.  QComboBox provides both.
 
-
+  A combo box has a default focusPolicy() of \c TabFocus, i.e. it will
+  not grab focus if clicked.
 
   A combo box emits two signals, activated() and highlighted(), when a
   new item has been activated (selected) or highlighted (set to
   current).
-
-  
-
 */
 
 

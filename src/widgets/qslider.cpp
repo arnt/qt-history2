@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#8 $
 **
 ** Implementation of QSlider class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#8 $");
 
 #define SLIDE_BORDER	2
 #define MOTIF_WIDTH	30
@@ -38,6 +38,11 @@ static const int repeatTime    = 100;
   QSlider only offers integer ranges.
 
   The recommended thickness of a slider is given by sizeHint().
+
+
+  A slider can be controlled by the keyboard, but it has a
+  default focusPolicy() of \a NoFocus. Use setFocusPolicy() to
+  enable keyboard focus.
 
   \ingroup realwidgets
   \internal

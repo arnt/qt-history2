@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#87 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#87 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -110,6 +110,9 @@ static inline bool checkIndex( const char *method, int count, int index )
 	return pm.width() + lb->fontMetrics().width( text() ) + 6;
     }
   \endcode
+
+  A list box has \c StrongFocus as a default focusPolicy(), i.e. it can 
+  get keyboard focus both by tabbing and clicking.
 
   \sa QListBox
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#78 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#78 $");
 
 
 /*!
@@ -28,6 +28,10 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#77 $");
 
   A default push button in a dialog emits the clicked signal if the user
   presses the Enter key.
+
+  A push button has \c TabFocus as a default focusPolicy(), i.e. it can 
+  get keyboard focus by tabbing but not by clicking.
+
 */
 
 const int extraMotifWidth = 10;
