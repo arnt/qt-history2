@@ -1,0 +1,170 @@
+#!/usr/bin/perl -w
+
+#
+# this function must accept one line, which is presumed to be an error
+# message, and return an array of three strings: the file name, the
+# line number and the variable that is undefined.
+#
+# it may also return an empty list, if the line isn't an error message.
+#
+# the function is called on each line in turn and only once on each
+# line, so it's possible to save state.
+#
+
+sub parseline{
+    my( $line ) = @_;
+
+    chomp $line;
+
+    if ( $line =~ m%^([-a-zA-Z0-9_\./]+\.[a-zA-Z]+):(\d+):\s*\`(.+)\' undeclared% ) {
+	@r = ($1,$2,$3);
+	$r[0] = $currentdir . $r[0] if ( defined($currentdir) && 
+					 $r[0] =~ m%^[^/]% );
+	return @r;
+    } elsif ( $line =~ m%^([-a-zA-Z0-9_\./]+\.[a-zA-Z]+):(\d+):\s*\`(.+)\' was not declared% ) {
+	@r = ($1,$2,$3);
+	$r[0] = $currentdir . $r[0] if ( defined($currentdir) && 
+					 $r[0] =~ m%^[^/]% );
+	return @r;
+    } elsif ( $line =~ m%^g?make\[(\d+)\]: Entering directory \`(.*)\'% ) {
+	# make[1]: Entering directory `/home/agulbra/2x/src/ui'
+	my( $l, $c ) = ( $1, $2 );
+	$c =~ s-/?$-/-;
+	$dirs[$l] = $c;
+	$currentdir = $c;
+	print "$line\n";
+    } elsif ( $line =~ m%make\[(\d+)\]: Leaving directory \`.*\'$% ) {
+	# make[1]: Leaving directory `/home/agulbra/2x/src/ui'
+	$currentdir = defined( $dirs[$1 - 1] ) ? $dirs[$1 - 1] : "";
+	print "$line\n";
+    } elsif ( $line =~ m%^\S+:(?:\d+:)?\s+\S% ) {
+	# other compiler message - skip it
+    } else {
+	print "$line\n";
+    }
+
+    return ();
+}
+
+
+#
+# this is the big array of globals and their replacements.  add stuff
+# at will.
+#
+
+%globals = 
+(
+ "Event_None" => "QEvent::None",
+ "Event_Timer" => "QEvent::Timer",
+ "Event_MouseButtonPress" => "QEvent::MouseButtonPress",
+ "Event_MouseButtonRelease" => "QEvent::MouseButtonRelease",
+ "Event_MouseButtonDblClick" => "QEvent::MouseButtonDblClick",
+ "Event_MouseMove" => "QEvent::MouseMove",
+ "Event_KeyPress" => "QEvent::KeyPress",
+ "Event_KeyRelease" => "QEvent::KeyRelease",
+ "Event_FocusIn" => "QEvent::FocusIn",
+ "Event_FocusOut" => "QEvent::FocusOut",
+ "Event_Enter" => "QEvent::Enter",
+ "Event_Leave" => "QEvent::Leave",
+ "Event_Paint" => "QEvent::Paint",
+ "Event_Move" => "QEvent::Move",
+ "Event_Resize" => "QEvent::Resize",
+ "Event_Create" => "QEvent::Create",
+ "Event_Destroy" => "QEvent::Destroy",
+ "Event_Show" => "QEvent::Show",
+ "Event_Hide" => "QEvent::Hide",
+ "Event_Close" => "QEvent::Close",
+ "Event_Quit" => "QEvent::Quit",
+ "Event_Accel" => "QEvent::Accel",
+ "Event_Clipboard" => "QEvent::Clipboard",
+ "Event_SockAct" => "QEvent::SockAct",
+ "Event_DragEnter" => "QEvent::DragEnter",
+ "Event_DragMove" => "QEvent::DragMove",
+ "Event_DragLeave" => "QEvent::DragLeave",
+ "Event_Drop" => "QEvent::Drop",
+ "Event_DragResponse" => "QEvent::DragResponse",
+ "Event_ChildInserted" => "QEvent::ChildInserted",
+ "Event_ChildRemoved" => "QEvent::ChildRemoved",
+ "Event_LayoutHint" => "QEvent::LayoutHint",
+ "Event_User" => "QEvent::User",
+
+ "NoButton" => "QMouseEvent::NoButton",
+ "LeftButton" => "QMouseEvent::LeftButton",
+ "RightButton" => "QMouseEvent::RightButton",
+ "MidButton" => "QMouseEvent::MidButton",
+ "MouseButtonMask" => "QMouseEvent::MouseButtonMask",
+ "ShiftButton" => "QMouseEvent::ShiftButton",
+ "ControlButton" => "QMouseEvent::ControlButton",
+ "AltButton" => "QMouseEvent::AltButton",
+ "KeyButtonMask" => "QMouseEvent::KeyButtonMask",
+
+ "color0" => "QColor::color0",
+ "color1" => "QColor::color1",
+ "black" => "QColor::black",
+ "white" => "QColor::white",
+ "darkGray" => "QColor::darkGray",
+ "gray" => "QColor::gray",
+ "lightGray" => "QColor::lightGray",
+ "red" => "QColor::red",
+ "green" => "QColor::green",
+ "blue" => "QColor::blue",
+ "cyan" => "QColor::cyan",
+ "magenta" => "QColor::magenta",
+ "yellow" => "QColor::yellow",
+ "darkRed" => "QColor::darkRed",
+ "darkGreen" => "QColor::darkGreen",
+ "darkBlue" => "QColor::darkBlue",
+ "darkCyan" => "QColor::darkCyan",
+ "darkMagenta" => "QColor::darkMagenta",
+ "darkYellow" => "QColor::darkYellow",
+);
+
+# 
+# do the do
+#
+
+while( <STDIN> ) {
+    @r = parseline($_);
+    next unless @r;
+    ($file, $line, $variable) = @r;
+    if ( defined( $variable ) && defined($globals{$variable}) ) {
+	if ( !defined($lastfile) || ($file ne $lastfile) ) {
+	    $lastfile = undef if ( !$changes );
+	    if ( defined( $lastfile ) ) {
+		open( O, "> $lastfile" ) ||
+		  die "cannot write to $lastfile, stopped";
+		print "qt20fix: writing $lastfile (changes: $changes)\n";
+		print O @currentfile;
+		close O;
+	    }
+	    open( I, "< $file" ) || die "cannot read $file, stopped";
+	    @currentfile = <I>;
+	    close I;
+	    $lastfile = $file;
+	    $changes = 0;
+	}
+	next unless ( defined( $currentfile[$line-1] ) );
+	next unless ( $currentfile[$line-1] =~ /\b$variable\b/ );
+	if ( $currentfile[$line-1] =~ s/([^a-zA-Z0-9])::$variable\b/$1$globals{$variable}/ ||
+	     $currentfile[$line-1] =~ s/([^a-zA-Z0-9:])$variable\b/$1$globals{$variable}/ ) {
+	    print "$file:$line:replaced \`$variable\' with \`$globals{$variable}\'\n";
+	    $changes++;
+	    $totalchanges++
+	}
+    } elsif ( defined( $variable ) ) {
+	print "$file:$line: unknown undefined variable $variable\n";
+    }
+}
+
+if ( defined( $changes) && $changes > 0 && defined( $lastfile ) ) {
+    open( O, "> $lastfile" ) ||
+      die "cannot write to $lastfile, stopped";
+    print "qt20fix: writing $lastfile (changes: $changes)\n";
+    print O @currentfile;
+    close O;
+}
+
+
+if ( defined( $totalchanges) && $totalchanges > 0 ) {
+    print "qt20fix: total changes: $totalchanges\nqt20fix: rerun recommended\n";
+}
