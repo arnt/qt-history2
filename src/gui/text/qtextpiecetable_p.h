@@ -72,8 +72,6 @@ public:
         BlockAdded = 6,
         BlockDeleted = 7,
         GroupFormatChange = 8,
-        FrameInserted = 9,
-        FrameRemoved = 10,
         Custom = 256
     };
     enum Operation {
@@ -91,7 +89,6 @@ public:
         Q_UINT32 length;
         QAbstractUndoItem *custom;
         QTextGroup *group;
-        QTextFrame *frame;
     };
 
     bool tryMerge(const UndoCommand &other);
@@ -115,7 +112,6 @@ public:
     void insertBlock(int pos, int blockFormat, int charFormat, UndoCommand::Operation = UndoCommand::MoveCursor);
     void remove(int pos, int length, UndoCommand::Operation = UndoCommand::MoveCursor);
 
-    void scanFrames();
     QTextFrame *insertFrame(int start, int end, const QTextFrameFormat &format);
     void removeFrame(QTextFrame *frame);
 
@@ -184,6 +180,8 @@ private:
 
     void insert_frame(QTextFrame *f);
     void remove_frame(QTextFrame *f);
+    void scan_frames(int pos, int charsRemoved, int charsAddded);
+    static void clearFrame(QTextFrame *f);
 
     void adjustDocumentChangesAndCursors(int from, int addedOrRemoved, UndoCommand::Operation op);
     void documentChange(int from, int length);
@@ -210,6 +208,7 @@ private:
     int docChangeFrom;
     int docChangeOldLength;
     int docChangeLength;
+    bool framesDirty;
 
     QTextFormatCollection *formats;
     QTextFrame *frame;

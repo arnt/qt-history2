@@ -87,6 +87,7 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
     if (!layout)
         layout = new QTextDocumentLayout();
     frame = new QTextFrame(this);
+    framesDirty = false;
 
     lout = layout;
     // take ownership
@@ -126,6 +127,10 @@ void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int forma
 
     Q_ASSERT(blocks.length() == fragments.length());
 
+    QTextFrame *frame = qt_cast<QTextFrame *>(formats->format(format).group());
+    if (frame)
+        framesDirty = true;
+
     adjustDocumentChangesAndCursors(pos, length, op);
 }
 
@@ -164,6 +169,10 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     QTextGroup *group = formats->format(blockFormat).group();
     if (group)
         group->insertBlock(QTextBlockIterator(this, b));
+
+    QTextFrame *frame = qt_cast<QTextFrame *>(formats->format(format).group());
+    if (frame)
+        framesDirty = true;
 
     adjustDocumentChangesAndCursors(pos, 1, op);
 }
@@ -206,6 +215,10 @@ void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
     Q_ASSERT(pos >= 0 && pos < fragments.length());
     Q_ASSERT(formats->format(format).isCharFormat());
 
+    QTextFrame *frame = qt_cast<QTextFrame *>(formats->format(format).group());
+    if (frame)
+        framesDirty = true;
+
     insert_string(pos, strPos, strLength, format, UndoCommand::MoveCursor);
 
     beginEditBlock();
@@ -244,6 +257,11 @@ int QTextPieceTable::remove_string(int pos, uint length, UndoCommand::Operation 
     Q_ASSERT(noBlockInString(text.mid(fragments.fragment(x)->stringPosition, length)));
 
     blocks.setSize(b, blocks.size(b)-length);
+
+    QTextFrame *frame = qt_cast<QTextFrame *>(formats->format(fragments.fragment(x)->format).group());
+    if (frame)
+        remove_frame(frame);
+
     const int w = fragments.erase_single(x);
 
     adjustDocumentChangesAndCursors(pos, -length, op);
@@ -283,8 +301,11 @@ int QTextPieceTable::remove_block(int pos, int *blockFormat, int command, UndoCo
     if (group)
         group->removeBlock(QTextBlockIterator(this, b));
 
-    blocks.erase_single(b);
+    QTextFrame *frame = qt_cast<QTextFrame *>(formats->format(fragments.fragment(x)->format).group());
+    if (frame)
+        remove_frame(frame);
 
+    blocks.erase_single(b);
     const int w = fragments.erase_single(x);
 
     adjustDocumentChangesAndCursors(pos, -1, op);
@@ -583,14 +604,6 @@ void QTextPieceTable::undoRedo(bool undo)
             c.format = oldFormat;
 	    break;
 	}
-        case UndoCommand::FrameInserted:
-            remove_frame(c.frame);
-            c.command = UndoCommand::FrameRemoved;
-            break;
-        case UndoCommand::FrameRemoved:
-            insert_frame(c.frame);
-            c.command = UndoCommand::FrameInserted;
-            break;
 	case UndoCommand::Custom:
             if (undo)
                 c.custom->undo();
@@ -682,6 +695,9 @@ void QTextPieceTable::endEditBlock()
 
     if (undoEnabled && undoPosition > 0)
         undoStack[undoPosition - 1].block = false;
+
+    if (framesDirty)
+        scan_frames(docChangeFrom, docChangeOldLength, docChangeLength);
 
     if (docChangeFrom >= 0)
         lout->documentChange(docChangeFrom, docChangeOldLength, docChangeLength);
@@ -840,10 +856,23 @@ QTextFrame *QTextPieceTable::frameAt(int pos) const
 
 #define d d_func()
 
-void QTextPieceTable::scanFrames()
+void QTextPieceTable::clearFrame(QTextFrame *f)
 {
+    for (int i = 0; i < f->d->childFrames.count(); ++i)
+        clearFrame(f->d->childFrames.at(i));
+    f->d->childFrames.clear();
+    f->d->parentFrame = 0;
+}
+
+void QTextPieceTable::scan_frames(int pos, int charsRemoved, int charsAddded)
+{
+    // ###### optimise
+    Q_UNUSED(pos);
+    Q_UNUSED(charsRemoved);
+    Q_UNUSED(charsAddded);
+
     QTextFrame *f = frame;
-    frame->d->children.clear();
+    clearFrame(f);
 
     for (FragmentIterator it = begin(); it != end(); ++it) {
         QTextFormat fmt = formats->format(it->format);
@@ -857,20 +886,23 @@ void QTextPieceTable::scanFrames()
         QTextFrame *frame = static_cast<QTextFrame *>(group);
 
         if (ch == QTextBeginningOfFrame) {
+            Q_ASSERT(f != frame);
             frame->d->fragment_start = it.n;
             frame->d->parentFrame = f;
-            frame->d->children.clear();
-            f->d->children.append(frame);
+            f->d->childFrames.append(frame);
             f = frame;
         } else if (ch == QTextEndOfFrame) {
+            Q_ASSERT(f == frame);
             frame->d->fragment_end = it.n;
-            f = f->d->parentFrame;
+            f = frame->d->parentFrame;
         } else if (ch == QChar::ObjectReplacementCharacter) {
+            Q_ASSERT(f != frame);
             frame->d->fragment_start = it.n;
             frame->d->fragment_end = it.n;
             frame->d->parentFrame = f;
-            f->d->children.append(frame);
+            f->d->childFrames.append(frame);
         } else if (ch == QTextTableCellSeparator) {
+            Q_ASSERT(f == frame);
             ; // nothing for now
         } else {
             Q_ASSERT(false);
@@ -911,6 +943,8 @@ void QTextPieceTable::insert_frame(QTextFrame *f)
 void QTextPieceTable::remove_frame(QTextFrame *f)
 {
     QTextFrame *parent = f->d->parentFrame;
+    if (!parent)
+        return;
 
     int index = parent->d->childFrames.indexOf(f);
 
@@ -921,24 +955,20 @@ void QTextPieceTable::remove_frame(QTextFrame *f)
         c->d->parentFrame = parent;
         ++index;
     }
-    f->d->childFrames.clear();
     Q_ASSERT(parent->d->childFrames.at(index) == f);
-
     parent->d->childFrames.removeAt(index);
+
+    f->d->childFrames.clear();
     f->d->parentFrame = 0;
 }
 
-/*!
-  end == -1 means we have a frame on a single character in the piecetable, as e.g. a
-  floating image
-*/
 QTextFrame *QTextPieceTable::insertFrame(int start, int end, const QTextFrameFormat &format)
 {
     Q_ASSERT(start >= 0 && start < length());
     Q_ASSERT(end >= 0 && end < length());
     Q_ASSERT(start <= end || end == -1);
 
-    if (start != end && end != -1 && frameAt(start) != frameAt(end))
+    if (start != end && frameAt(start) != frameAt(end))
         return 0;
 
     beginEditBlock();
@@ -952,22 +982,14 @@ QTextFrame *QTextPieceTable::insertFrame(int start, int end, const QTextFrameFor
     cfmt.setGroup(frame);
     int charIdx = formats->indexForFormat(cfmt);
 
-    if (end != -1) {
-        insertBlock(QTextBeginningOfFrame, start, idx, charIdx, UndoCommand::MoveCursor);
-        insertBlock(QTextEndOfFrame, ++end, idx, charIdx, UndoCommand::KeepCursor);
-    } else {
-        Q_ASSERT(text.at(find(start)->stringPosition) == QChar::ObjectReplacementCharacter);
-        end = start;
-    }
+    insertBlock(QTextBeginningOfFrame, start, idx, charIdx, UndoCommand::MoveCursor);
+    insertBlock(QTextEndOfFrame, ++end, idx, charIdx, UndoCommand::KeepCursor);
 
     frame->d_func()->fragment_start = find(start).n;
     frame->d_func()->fragment_end = find(end).n;
 
     insert_frame(frame);
-    UndoCommand c = { UndoCommand::FrameInserted, true, UndoCommand::KeepCursor, 0,
-                      0, 0, { 1 } };
-    c.frame = frame;
-    appendUndoItem(c);
+    framesDirty = false;
 
     endEditBlock();
 
@@ -986,12 +1008,7 @@ void QTextPieceTable::removeFrame(QTextFrame *frame)
 
     beginEditBlock();
 
-    remove_frame(frame);
-    UndoCommand c = { UndoCommand::FrameRemoved, true, UndoCommand::KeepCursor, 0,
-                          0, 0, { 1 } };
-    c.frame = frame;
-    appendUndoItem(c);
-
+    // remove already removes the frames from the tree
     remove(end, 1);
     remove(start, 1);
 

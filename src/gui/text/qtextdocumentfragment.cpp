@@ -110,6 +110,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     QMap<int, int> formatIndexMap = fillFormatCollection(formats);
 
     QTextPieceTablePointer destPieceTable = cursor.d->pieceTable;
+    destPieceTable->beginEditBlock();
 
     Q_FOREACH(const Block &b, blocks) {
         if (b.createBlockUponInsertion) {
@@ -134,7 +135,8 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
             destPieceTable->insert(cursor.position(), text, formatIdx);
         }
     }
-    cursor.d->pieceTable->scanFrames();
+
+    destPieceTable->endEditBlock();
 }
 
 void QTextDocumentFragmentPrivate::appendBlock(int blockFormatIndex, int charFormatIndex)
