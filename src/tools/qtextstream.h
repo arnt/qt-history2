@@ -154,6 +154,7 @@ private:
     QChar	eat_ws();
     void	ts_ungetc( QChar );
     QChar	ts_getc();
+    uint	ts_getbuf( QChar*, uint );
     void	ts_putc(int);
     void	ts_putc(QChar);
     bool	ts_isspace(QChar);
@@ -241,6 +242,11 @@ inline int QTextStream::precision() const
 inline int QTextStream::precision( int p )
 { int oldp = fprec;  fprec = p;	 return oldp;  }
 
+/*!
+  Returns one character from the stream, or EOF.
+*/
+inline QChar QTextStream::ts_getc()
+{ QChar r; return ( ts_getbuf( &r,1 ) == 1 ? r : QChar((ushort)0xffff) ); }
 
 /*****************************************************************************
   QTextStream manipulators

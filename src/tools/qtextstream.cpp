@@ -25,6 +25,7 @@
 
 #include "qtextstream.h"
 #include "qtextcodec.h"
+#include "qregexp.h"
 #include "qbuffer.h"
 #include "qfile.h"
 #include <stdio.h>
@@ -556,16 +557,23 @@ void QTextStream::skipWhiteSpace()
 */
 
 /*!
-  Returns one character from the stream, or EOF.
+  Tries to read len characters from the stream and strores them in buf.
+  Returns the number of characters really read.
+  Attention: There will no QEOF appended if the read reaches the end of
+  the file. EOF is reached when the return value does not equal len.
 */
-QChar QTextStream::ts_getc()
+uint QTextStream::ts_getbuf( QChar* buf, uint len )
 {
-    QChar r;
+    uint rnum=len;   // the number of QChars really read
+
+    if( len<1 )
+	return 0;
     if ( doUnicodeHeader ) {
 	doUnicodeHeader = FALSE; //only at the top
 	int c1 = dev->getch();
-	if ( c1 == EOF )
-	    return QEOF;
+	if ( c1 == EOF ) {
+	    return 0;
+	}
 	int c2 = dev->getch();
 	if ( c1 == 0xfe && c2 == 0xff ) {
 	    mapper = 0;
@@ -582,38 +590,70 @@ QChar QTextStream::ts_getc()
 	}
     }
     if ( mapper ) {
-	if ( ungetcBuf != QEOF ) {
-	    r = ungetcBuf;
-	    ungetcBuf = QEOF;
-	} else {
-	    if ( !decoder )
-		decoder = mapper->makeDecoder();
-	    QString s;
-	    do {
-		int c = dev->getch();
-		if ( c == EOF )
-		    return QEOF;
-		char b = c;
-		s  = decoder->toUnicode( &b, 1 );
-	    } while ( s.isEmpty() );
-	    r = s.constref(0);
+	if ( !decoder )
+	    decoder = mapper->makeDecoder();
+	QString s;
+	for ( uint i=0; i<len; i++ ) {
+	    if ( ungetcBuf != QEOF ) {
+		buf[i] = ungetcBuf;
+		ungetcBuf = QEOF;
+	    } else {
+		do {
+		    // TODO: can this getch() call be optimized to read
+		    // more than one character after another?
+		    int c = dev->getch();
+		    if ( c == EOF ) {
+			return i;
+		    }
+		    char b = c;
+		    s  = decoder->toUnicode( &b, 1 );
+		} while ( s.isEmpty() );
+		buf[i] = s.constref(0);
+	    }
 	}
     } else if ( latin1 ) {
-	int c = dev->getch();
-	if ( c == EOF )
-	    return QEOF;
-	r = (char)c;
+	if ( len==1 ) {
+	    // choose this method for one character because it is more efficient
+	    int c = dev->getch();
+	    if ( c == EOF ) {
+		return 0;
+	    } else {
+		buf[0] = (char)c;
+		return 1;
+	    }
+	} else {
+	    char *cbuf = new char[len];
+	    rnum = dev->readBlock( cbuf, len );
+	    for ( uint i=0; i<rnum; i++ ) {
+		buf[i] = cbuf[i];
+	    }
+	    delete[] cbuf;
+	}
     } else { //Unicode
-	int c1 = dev->getch();
-	if ( c1 == EOF )
-	    return QEOF;
-	int c2 = dev->getch();
-	if ( isNetworkOrder() )
-	    r = QChar( c2, c1 );
-	else
-	    r = QChar( c1, c2 );
+	if ( len==1 ) {
+	    int c1 = dev->getch();
+	    if ( c1 == EOF ) {
+		return 0;
+	    }
+	    int c2 = dev->getch();
+	    if ( isNetworkOrder() )
+		buf[0] = QChar( c2, c1 );
+	    else
+		buf[0] = QChar( c1, c2 );
+	} else {
+	    char *cbuf = new char[2*len]; // for paranoids: overflow possible
+	    rnum = dev->readBlock( cbuf, 2*len );
+	    rnum/=2;
+	    for ( uint i=0; i<rnum; i++ ) {
+		if ( isNetworkOrder() )
+		    buf[i] = QChar( cbuf[2*i+1], cbuf[2*i] );
+		else
+		    buf[i] = QChar( cbuf[2*i] , cbuf[2*i+1] );
+	    }
+	    delete[] cbuf;
+	}
     }
-    return r;
+    return rnum;
 }
 
 
@@ -1338,29 +1378,41 @@ QString QTextStream::read()
 	return QString::null;
     }
 #endif
-    QString   result;
-    QChar     c = ts_getc();
-    bool      skipped_cr = FALSE;
+    QString    result;
+    const uint bufsize = 512;
+    QChar      buf[bufsize];
+    uint       i, num, start;
+    bool       skipped_cr = FALSE;
 
-    while ( c != QEOF ) {
-	if ( c == '\r' ) {
-	    // Only skip single cr's preceeding lf's
-	    if ( skipped_cr ) {
-		result += c;
-	    } else {
-		skipped_cr = TRUE;
-	    }
-	} else {
-	    if ( c != '\n' ) {
+    while ( 1 ) {
+	num = ts_getbuf(buf,bufsize);
+	// do a s/\r\n/\n
+	start = 0;
+	for ( i=0; i<num; i++ ) {
+	    if ( buf[i] == '\r' ) {
+		// Only skip single cr's preceeding lf's
 		if ( skipped_cr ) {
-		    // Should not have skipped it, append now
-		    result += '\r';
+		    result += buf[i];
+		    start++;
+		} else {
+		    result += QString( &buf[start], i-start );
+		    start = i+1;
+		    skipped_cr = TRUE;
+		}
+	    } else {
+		if ( skipped_cr ) {
+		    if ( buf[i] != '\n' ) {
+			// Should not have skipped it
+			result += '\r';
+		    }
+		    skipped_cr = FALSE;
 		}
 	    }
-	    skipped_cr = FALSE;
-	    result += c;
 	}
-	c = ts_getc();
+	if ( start < num )
+	    result += QString( &buf[start], i-start );
+	if ( num != bufsize ) // if ( EOF )
+	    break;
     }
     return result;
 }
