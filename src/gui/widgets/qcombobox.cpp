@@ -1329,11 +1329,6 @@ void QComboBox::setView(QAbstractItemView *itemView)
 QSize QComboBox::sizeHint() const
 {
     Q_D(const QComboBox);
-    if (!d->shownOnce && d->sizeAdjustPolicy == AdjustToContentsOnFirstShow) {
-        d->sizeHint = QSize();
-        const_cast<QComboBox *>(this)->updateGeometry(); // ### evil?
-    }
-
     if (d->sizeHint.isValid())
         return d->sizeHint.expandedTo(QApplication::globalStrut());
 
@@ -1598,6 +1593,10 @@ void QComboBox::paintEvent(QPaintEvent *)
 void QComboBox::showEvent(QShowEvent *e)
 {
     Q_D(QComboBox);
+    if (!d->shownOnce && d->sizeAdjustPolicy == QComboBox::AdjustToContentsOnFirstShow) {
+        d->sizeHint = QSize();
+        updateGeometry();
+    }
     d->shownOnce = true;
     QWidget::showEvent(e);
 }
