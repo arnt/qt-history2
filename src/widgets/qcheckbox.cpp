@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#8 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#8 $";
 #endif
 
 
@@ -179,18 +179,25 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     }
     else if ( gs == MotifStyle ) {		// Motif check box
 	QColor tColor, bColor, fColor;
+	bool down;
 	if ( (isUp() && !isOn()) || (isDown() && isOn()) ) {
 	    tColor = white;			// button is up
 	    bColor = darkGray;
 	    fColor = backgroundColor();
+	    down = FALSE;
 	}
 	else {					// button is down
-	    tColor = black;
+	    tColor = darkGray;
 	    bColor = white;
-	    fColor = darkGray;
+	    fColor = QColor( 64, 64, 64 );
+	    down = TRUE;
 	}
 	p->setBrush( fColor );
 	p->drawShadePanel( x, y, w, h, tColor, bColor, 2, 2, TRUE );
+	if ( down ) {
+	    p->setPen( backgroundColor() );
+	    p->drawRect( x+2, y+2, w-4, h-4 );
+	}
 	p->setBrush( NoBrush );
     }
 
