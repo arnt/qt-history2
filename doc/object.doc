@@ -467,7 +467,22 @@ will explain enough for 99% of applications.
 The normal way for an event to be delivered is by calling a virtual
 function. For example, \l QPaintEvent is delivered by calling \l
 QWidget::paintEvent(). This virtual function is responsible for
-reacting appropriately, normally by repainting the widget.
+reacting appropriately, normally by repainting the widget. If you
+do not perform all the necessary work in your implementation of the
+virtual function, you may need to call the base class's
+implementation; for example:
+\code
+    MyTable::contentsMouseMoveEvent( QMouseEvent *me )
+    {
+	// my implementation
+
+	QTable::contentsMouseMoveEvent( me ); // hand it on
+    }
+\endcode
+If you want to replace the base class's function then you must
+implement everything yourself; but if you only want to extend the base
+class's functionality, then you implement what you want and then call
+the base class.
 
 Occasionally there isn't such an event-specific function, or the
 event-specific function isn't sufficient. The most common example is
