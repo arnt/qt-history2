@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.13 1996/01/09 14:48:35 agulbra Exp $
+** $Id: tutorial.doc,v 1.14 1996/02/09 22:59:03 agulbra Exp $
 **
 ** Tutorial
 **
@@ -58,7 +58,7 @@ Qt Tutorial - Chapter 1
 
 <h1>Chapter 1: Hello, World!</h1>
 
-<img src=t1.gif>
+<img src=t1.gif alt="Screenshot of tutorial one">
 
 This first program is a simple hello-world example.  It contains only
 the bare minimum you need to get a Qt application up and running.
@@ -186,7 +186,7 @@ Qt Tutorial - Chapter 2
 
 <h1>Chapter 2: Calling it Quits</h1>
 
-<img src=t2.gif>
+<img src=t2.gif alt="Screenshot of tutorial two">
 
 Having created a window in \link t1.html chapter one, \endlink we will
 now go on to make the application quit properly when the user tells it to.
@@ -275,7 +275,7 @@ Qt Tutorial - Chapter 3
 
 <h1>Chapter 3: Family Values</h1>
 
-<img src=t3.gif>
+<img src=t3.gif alt="Screenshot of tutorial three">
 
 This example shows how to create mother and child widgets.
 
@@ -361,7 +361,7 @@ Qt Tutorial - Chapter 4
 
 <h1>Chapter 4: Let There Be Widgets</h1>
 
-<img src=t4.gif>
+<img src=t4.gif alt="Screenshot of tutorial four">
 
 This example shows how to create your own widget, how to control the
 minimum and maximum sizes of a widget, and introduces widget names.
@@ -475,7 +475,7 @@ Qt Tutorial - Chapter 5
 
 <h1>Chapter 5: Building Blocks</h1>
 
-<img src=t5.gif>
+<img src=t5.gif alt="Screenshot of tutorial five">
 
 This example shows how to create and connect together several widgets
 using signals and slots, and how to handle resize events.
@@ -629,7 +629,7 @@ Qt Tutorial - Chapter 6
 
 <h1>Chapter 6: Building Blocks Galore!</h1>
 
-<img src=t6.gif>
+<img src=t6.gif alt="Screenshot of tutorial six">
 
 This example shows how to encapsulate two widgets into a new component and
 how easy it is to use many widgets.  For the first time, we use a custom
@@ -762,7 +762,7 @@ Qt Tutorial - Chapter 7
 
 <h1>Chapter 7: One Thing Leads to Another</h1>
 
-<img src=t7.gif>
+<img src=t7.gif alt="Screenshot of tutorial seven">
 
 This example shows how to create custom widgets with signals and
 slots, and how to connect them together in more complex ways.  For the
@@ -783,7 +783,7 @@ href=metaobjects.html>signal/slot creation.</a>
 
 <h3>\link t7-lcdrange-h.html lcdrange.h\endlink</h3>
 
-This file is mainly lifted from <a href=t6.html#main-cpp>main.cpp</a> in
+This file is mainly lifted from <a href=t6.html#main>main.cpp</a> in
 chapter 6 and only the changes are noted here.
 
 \dontinclude t7/lcdrange.h
@@ -982,7 +982,7 @@ Qt Tutorial - Chapter 8
 
 <h1>Chapter 8: Preparing for Battle</h1>
 
-<img src=t8.gif>
+<img src=t8.gif alt="Screenshot of tutorial eight">
 
 In this example, we introduce the first custom widget that can paint
 itself.
@@ -1269,7 +1269,7 @@ Qt Tutorial - Chapter 9
 
 <h1>Chapter 9: With Cannon You Can</h1>
 
-<img src=t9.gif>
+<img src=t9.gif alt="Screenshot of tutorial nine">
 
 In this example, we use a QPainter for the first time.
 It is used to draw a cute little blue cannon.
@@ -1359,7 +1359,7 @@ In this case, the coordinate system is first translated, then rotated.
 If the rectangle QRect(33, -4, 15, 8) had been drawn in the translated
 coordinate system, it would have looked like this:
 
-<img src=t9_1.gif>
+<img src=t9_1.gif alt="The cannon, translated but not rotated">
 
 Note that the rectangle is clipped by the border of the CannonField widget.
 When we rotate the coordinate system, for instance 60 degrees, the
@@ -1367,7 +1367,7 @@ rectangle will be rotated around (0,0), which is the bottom left corner,
 since we have translated the coordinate system.
 The result looks like this:
 
-<img src=t9_2.gif>
+<img src=t9_2.gif alt="The cannon, translated and rotated">
 
 \skip end
 \line end
@@ -1459,7 +1459,7 @@ Qt Tutorial - Chapter 10
 
 <h1>Chapter 10: Smooth as Silk</h1>
 
-<img src=t10.gif>
+<img src=t10.gif alt="Screenshot of tutorial ten">
 
 In this example, we introduce painting in a pixmap to remove flickering.
 We also add a force control.
@@ -1720,7 +1720,7 @@ Qt Tutorial - Chapter 11
 
 <h1>Chapter 11: Giving It a Shot</h1>
 
-<img src=t11.gif>
+<img src=t11.gif alt="Screenshot of tutorial eleven">
 
 In this example, we introduce timer events to implement shooting.
 
@@ -1999,7 +1999,7 @@ Qt Tutorial - Chapter 12
 
 <h1>Chapter 12: Hanging in the Air the Way Bricks Don't</h1>
 
-<img src=t12.gif>
+<img src=t12.gif alt="Screenshot of tutorial twelve">
 
 In this example, we extend our LCDRange class to include a text label.
 We also provide something to shoot at.
@@ -2393,7 +2393,7 @@ Qt Tutorial - Chapter 13
 
 <h1>Chapter 13: Game Over</h1>
 
-<img src=t13.gif>
+<img src=t13.gif alt="Screenshot of tutorial thirteen">
 
 In this example we start to approach a real playable game. We give
 MyWidget a new name; GameBoard and add some slots.
@@ -2714,7 +2714,7 @@ Qt Tutorial - Chapter 14
 
 <h1>Chapter 14: Facing the Wall</h1>
 
-<img src=t14.gif>
+<img src=t14.gif alt="Screenshot of tutorial fourteen">
 
 This is the final example, which is a complete game.
 
