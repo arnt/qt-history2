@@ -4777,7 +4777,7 @@ void Q3TextParagraph::drawString( QPainter &painter, const QString &str, int sta
 	allSelected = (it != mSelections->end() && (*it).start <= start && (*it).end >= start+len);
     }
     if (!allSelected)
-	painter.drawText(xstart, y + baseLine, str, start, len, dir);
+	painter.drawText(xstart, y + baseLine, str.mid(start, len), dir);
 
 #ifdef BIDI_DEBUG
     painter.save();
@@ -4864,7 +4864,7 @@ void Q3TextParagraph::drawString( QPainter &painter, const QString &str, int sta
 		if ( extendRight )
 		    tmpw = fullSelectionWidth - xleft;
 		painter.fillRect( xleft, y, tmpw, h, color );
-		painter.drawText( xstart, y + baseLine, str, start, len, dir );
+		painter.drawText( xstart, y + baseLine, str.mid(start, len), dir );
 		if (selStart != start || selEnd != start + len || selWrap)
 		    painter.restore();
 	    }
