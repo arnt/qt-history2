@@ -673,9 +673,10 @@ void QMenuBar::openActPopup()
 
     QRect  r = itemRect( actItem );
     bool reverse = QApplication::reverseLayout();
-    QPoint pos = r.bottomLeft() + QPoint(0,1);
+    const int yoffset = (style().styleHint( QStyle::SH_GUIStyle ) == QStyle::WindowsStyle) ? 4 : 1;
+    QPoint pos = r.bottomLeft() + QPoint(0,yoffset);
     if( reverse ) {
-	pos = r.bottomRight() + QPoint(0,1);
+	pos = r.bottomRight() + QPoint(0,yoffset);
 	pos.rx() -= popup->sizeHint().width();
     }
 
