@@ -634,7 +634,7 @@ QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
     CreateEvent(NULL, kEventClassQt, kEventQtRequestTimer, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &tmr_ev );
     SetEventParameter(tmr_ev, kEventParamTimer, typeTimerInfo, sizeof(tmr), &tmr);
-    PostEventToQueue( GetCurrentEventQueue(), tmr_ev, kEventPriorityLow );
+    PostEventToQueue( GetCurrentEventQueue(), tmr_ev, kEventPriorityStandard );
 }
 
 //central cleanup

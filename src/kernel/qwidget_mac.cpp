@@ -120,6 +120,7 @@ static inline void dirty_wndw_rgn(const char *where, QWidget *w, const QRegion &
     if(!w->testWFlags( Qt::WType_Desktop )) {
 	debug_wndw_rgn(where, w, r, FALSE);
 	InvalWindowRgn((WindowPtr)w->handle(), (RgnHandle)r.handle());
+	qt_event_request_updates();
     }
 }
 static inline void dirty_wndw_rgn(const char *where, QWidget *w, const Rect *r)
@@ -127,19 +128,24 @@ static inline void dirty_wndw_rgn(const char *where, QWidget *w, const Rect *r)
     if(!w->testWFlags( Qt::WType_Desktop )) {
 	debug_wndw_rgn(where, w, r, FALSE);
 	InvalWindowRect((WindowPtr)w->handle(), r);
+	qt_event_request_updates();
     }
 }
 #define clean_wndw_rgn(x, y, z) debug_wndw_rgn(x, y, z, TRUE);
 #else
 static inline void dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r) 
 { 
-    if(!p->testWFlags( Qt::WType_Desktop ))
+    if(!p->testWFlags( Qt::WType_Desktop )) {
 	InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)r.handle()); 
+	qt_event_request_updates();
+    }
 }
 static inline void dirty_wndw_rgn_internal(const QWidget *p, const Rect *r) 
 { 
-    if(!p->testWFlags( Qt::WType_Desktop ))
+    if(!p->testWFlags( Qt::WType_Desktop )) {
 	InvalWindowRect((WindowPtr)p->handle(), r); 
+	qt_event_request_updates();
+    }
 }
 #define dirty_wndw_rgn(x, who, where) dirty_wndw_rgn_internal(who, where)
 #define clean_wndw_rgn(x, y, z)
