@@ -648,6 +648,10 @@ void QAbstractSocketPrivate::startConnecting(const QDnsHostInfo &hostInfo)
     // If there are no addresses in the host list, report this to the
     // user.
     if (addresses.isEmpty()) {
+#if defined(QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocketPrivate::startConnecting(), host not found",
+               s.latin1());
+#endif
         state = Qt::UnconnectedState;
         socketError = Qt::HostNotFoundError;
         q->setErrorString(QT_TRANSLATE_NOOP(QAbstractSocket, "Host not found"));
@@ -958,7 +962,7 @@ void QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port,
 #endif
 
     if (d->state == Qt::ConnectingState || d->state == Qt::ConnectedState)
-        close();
+        abort();
 
     d->hostName = hostName;
     d->port = port;
@@ -1282,6 +1286,8 @@ bool QAbstractSocket::waitForConnected(int msecs)
         qDebug("QAbstractSocket::waitForConnected(%i) doing host name lookup", msecs);
 #endif
         d->startConnecting(QDns::getHostByName(d->hostName));
+        if (socketState() == Qt::UnconnectedState)
+            return false;
     }
 
     bool timedOut = true;
