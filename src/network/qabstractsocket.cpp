@@ -1254,7 +1254,8 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
                    msecs, d->socketError, errorString().latin1());
 #endif
             emit error(d->socketError);
-            close();
+            if (d->socketError != SocketTimeoutError)
+                close();
             return false;
         }
 
@@ -1306,7 +1307,8 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
             qDebug("QAbstractSocket::waitForBytesWritten(%i) failed (%i, %s)",
                    msecs, d->socketError, errorString().latin1());
 #endif
-            emit error(d->socketError);
+            if (d->socketError != SocketTimeoutError)
+                emit error(d->socketError);
             close();
             return false;
         }
@@ -1370,7 +1372,8 @@ bool QAbstractSocket::waitForDisconnected(int msecs)
                    msecs, d->socketError, errorString().latin1());
 #endif
             emit error(d->socketError);
-            close();
+            if (d->socketError != SocketTimeoutError)
+                close();
             return false;
         }
 
