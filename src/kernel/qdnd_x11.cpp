@@ -202,7 +202,7 @@ extern void qt_motifdnd_enable( QWidget *, bool );
 extern QByteArray qt_motifdnd_obtain_data();
 
 bool qt_motifdnd_active = FALSE;
-
+static bool dndCancelled = FALSE;
 
 // Shift/Ctrl handling, and final drop status
 static QDragObject::DragMode drag_mode;
@@ -1026,6 +1026,8 @@ void QDragManager::cancel( bool deleteSource )
     qt_xdnd_source_object = 0;
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
+
+    dndCancelled = TRUE;
 }
 
 static
@@ -1588,19 +1590,27 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     updateCursor();
 #endif
 
+    dndCancelled = FALSE;
+    qDebug("DND: entering loop");
     qApp->enter_loop(); // Do the DND.
 
 #ifndef QT_NO_CURSOR
     qApp->restoreOverrideCursor();
 #endif
 
+    if (dndCancelled)
+	qDebug("DND: cancelled");
+    else
+	qDebug("DND: success");
+
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
     killTimer(heartbeat);
     heartbeat = 0;
 
-    return global_accepted_action == QDropEvent::Copy
-	    && global_requested_action == QDropEvent::Move; // source del?
+    return ((! dndCancelled) && // source del?
+	    (global_accepted_action == QDropEvent::Copy &&
+	     global_requested_action == QDropEvent::Move));
 
     // qt_xdnd_source_object persists for a while...
 }
