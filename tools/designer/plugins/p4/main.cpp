@@ -561,29 +561,28 @@ void P4Interface::p4Refresh()
         return;
 
     P4Info::files.clear();
-/*
-    DesignerFormListInterface *flIface = 0;
-    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) ) 
-	return;
 
-    DesignerFormInterface *fw = flIface->current();
-    while ( fw ) {
-	QString filename = fw->property( "fileName" ).toString();
-	qDebug( "fstat for %s", filename.latin1() );
-	if ( !!filename ) {
-	    P4FStat* fs = new P4FStat( filename );
-	    connect( fs, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
-	    connect( fs, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-	    fs->execute();
+    QList<DesignerProject> projects = appInterface->projectList();
+    QListIterator<DesignerProject> pit( projects );
+    while ( pit.current() ) {
+	DesignerProject *pIface = pit.current();
+	++pit;
+
+	QList<DesignerFormWindow> forms = pIface->formList();
+	QListIterator<DesignerFormWindow> fit( forms );
+	while ( fit.current() ) {
+	    DesignerFormWindow *fwIface = fit.current();
+	    ++fit;
+	    QString filename = fwIface->fileName();
+	    if ( !!filename ) {
+		P4FStat* fs = new P4FStat( filename );
+		connect( fs, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
+		connect( fs, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
+		fs->execute();
+	    }
 	}
-	delete fw;
-	fw = flIface->next();
     }
-*/
     formChanged();
-/*
-    flIface->release();
-*/
 }
 
 void P4Interface::p4MightEdit( bool b )
@@ -643,6 +642,7 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 	return;
 
     QPixmap pix;
+
 /*
     pix = fwIface->property( "icon" ).toPixmap();
 */
