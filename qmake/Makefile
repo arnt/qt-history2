@@ -83,14 +83,14 @@ qiodevice.obj: ..\src\tools\qiodevice.cpp
 qglobal.obj: ..\src\tools\qglobal.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qglobal.cpp
 
-qgdict.obj: ..\src\tools\qgdict.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qgdict.cpp
+qgdict.obj: ..\src\compat\qgdict.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qgdict.cpp
 
 qbytearray.obj: ..\src\tools\qbytearray.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qbytearray.cpp
 
-qcstring.obj: ..\src\tools\qcstring.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qcstring.cpp
+qcstring.obj: ..\src\compat\qcstring.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qcstring.cpp
 
 qchar.obj: ..\src\tools\qchar.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qchar.cpp
@@ -104,19 +104,20 @@ quuid.obj: ..\src\tools\quuid.cpp
 qdatastream.obj: ..\src\tools\qdatastream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qdatastream.cpp
 
-qgarray.obj: ..\src\tools\qgarray.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qgarray.cpp
+qgarray.obj: ..\src\compat\qgarray.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qgarray.cpp
 
 qbuffer.obj: ..\src\tools\qbuffer.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qbuffer.cpp
 
-qglist.obj: ..\src\tools\qglist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qglist.cpp
+qglist.obj: ..\src\compat\qglist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qglist.cpp
 
 qlist.obj: ..\src\tools\qlist.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qlist.cpp
-qptrcollection.obj: ..\src\tools\qptrcollection.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qptrcollection.cpp
+
+qptrcollection.obj: ..\src\compat\qptrcollection.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qptrcollection.cpp
 
 qfile.obj: ..\src\tools\qfile.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qfile.cpp
@@ -130,8 +131,8 @@ qtextcodec.obj: ..\src\codecs\qtextcodec.cpp
 qregexp.obj: ..\src\tools\qregexp.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qregexp.cpp
 
-qgvector.obj: ..\src\tools\qgvector.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qgvector.cpp
+qgvector.obj: ..\src\compat\qgvector.cpp
+	$(CXX) $(CXXFLAGS) ..\src\compat\qgvector.cpp
 
 qvector.obj: ..\src\tools\qvector.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qvector.cpp
