@@ -133,7 +133,6 @@ QGroupBox *Window::secondExclusiveGroup()
     exclusiveGroup->addButton(radio1);
     exclusiveGroup->addButton(radio2);
     exclusiveGroup->addButton(radio3);
-    //exclusiveGroup->setExclusive(true);
     radio1->setChecked(true);
 
     groupLayout->addWidget(radio1);
