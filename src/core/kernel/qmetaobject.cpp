@@ -1537,7 +1537,7 @@ int QMetaType::type(const char *typeName)
     if (!types[i].type) {
         customTypes.ensure_constructed();
         for (int v = 0; v < customTypes.count(); ++v) {
-            if (strcmp(customTypes.at(v).typeName, typeName))
+            if (strcmp(customTypes.at(v).typeName, typeName) == 0)
                 return v + User;
         }
     }
