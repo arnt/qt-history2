@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#171 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#172 $
 **
 ** Implementation of QListBox widget class
 **
@@ -693,7 +693,7 @@ int QListBox::inSort( const QListBoxItem *lbi )
 
 
 /*!
-  \overload void QListBox::inSort( const QString &text )
+  \overload int QListBox::inSort( const QString &text )
 */
 
 int QListBox::inSort( const QString &text )

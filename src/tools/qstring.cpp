@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#145 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#146 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -457,7 +457,7 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
 
 
 /*!
-  Returns whether the character is a white space.
+  Returns whether the character is a whitespace character.
 */
 bool QChar::isSpace() const
 {
@@ -465,7 +465,7 @@ bool QChar::isSpace() const
 }
 
 /*!
-  \fn operator char() const { return row?0:cell; } 
+  \fn QChar::operator char() const
 
   Returns the Latin1 character equivalent to the QChar,
   or 0.  This is mainly useful for non-internationalized software.

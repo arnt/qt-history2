@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#73 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#74 $
 **
 ** Implementation of QTextStream class
 **
@@ -1761,7 +1761,7 @@ QTextStream &reset( QTextStream &s )
 */
 
 /*!
-  \fn QTextIStream::QTextIStream( QString &s, Encoding m=Unicode )
+  \fn QTextIStream::QTextIStream( QString &s )
 
   Constructs a stream to read from string \a s.
 */
@@ -1796,7 +1796,7 @@ QTextStream &reset( QTextStream &s )
 */
 
 /*!
-  \fn QTextOStream::QTextOStream( QString &s, Encoding m=Unicode )
+  \fn QTextOStream::QTextOStream( QString &s )
 
   Constructs a stream to write to string \a s.
 */

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#168 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#169 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1078,11 +1078,12 @@ void QLineEdit::markWord( int pos )
 
 void QLineEdit::copyText()
 {
-        copy();
+    copy();
 }
 
 
-/*! Copies the marked text to the clipboard, if there is any.
+/*!
+  Copies the marked text to the clipboard, if there is any.
 
   \sa cut() paste()
 */
@@ -1099,7 +1100,8 @@ void QLineEdit::copy() const
 }
 
 
-/* Inserts the clipboard's text at the cursor position, deleting any
+/*!
+  Inserts the clipboard's text at the cursor position, deleting any
   previous marked text.
 
   If the end result is not acceptable for the current validator,
