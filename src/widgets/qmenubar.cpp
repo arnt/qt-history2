@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#164 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#165 $
 **
 ** Implementation of QMenuBar class
 **
@@ -142,7 +142,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     isMenuBar = TRUE;
     autoaccel = 0;
     irects    = 0;
-    rightSide = 0; // Right of hear is rigth-aligned content
+    rightSide = 0; // Right of here is rigth-aligned content
     mseparator = 0;
     windowsaltactive = 0;
     if ( parent ) {
@@ -345,8 +345,8 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	     event->type() == QEvent::KeyRelease &&
 	     (((QKeyEvent *)event)->key() == Key_Alt ||
 	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
-	    windowsaltactive = FALSE; // trigger update
-	    setWindowsAltMode( TRUE, 0 );
+	    actItem = 0;
+	    setFocus();
 	    if ( object->parent() )
 		object->removeEventFilter( this );
 	    QWidget * tlw = ((QWidget *)object)->topLevelWidget();
@@ -1060,7 +1060,8 @@ void QMenuBar::resizeEvent( QResizeEvent * )
 }
 
 
-/*!  Set actItem to \a i and repaint( \a clear ).
+/*!  Sets actItem to \a i and calls repaint( \a clear ) for the
+  changed things.
 
   Takes care to optimize the repainting.  Assumes that
   calculateRects() has been called as appropriate.
@@ -1114,6 +1115,8 @@ void QMenuBar::setWindowsAltMode( bool enable, int index )
 		setUpdatesEnabled( TRUE );
 	    }
 	}
+	if ( index == actItem ) // force setActItem to repaint
+	    actItem = -1;
 	setActItem( index, FALSE );
     } else {
 	if ( windowsaltactive ) {
@@ -1124,6 +1127,8 @@ void QMenuBar::setWindowsAltMode( bool enable, int index )
 	    }
 	    windowsaltactive = 0;
 	}
+	if ( index == actItem ) // force setActItem to repaint
+	    actItem = -1;
 	setActItem( index, FALSE );
     }
 }
