@@ -7,6 +7,7 @@ INCLUDEPATH += \
     ../../lib/sdk \
     ../../lib/extension \
     ../../lib/shared \
+    $$QT_BUILD_TREE/tools/designer/src/lib \
     ../../lib
 
 TARGET = taskmenu
