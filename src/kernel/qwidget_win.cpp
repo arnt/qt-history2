@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#184 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#185 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -32,6 +32,7 @@
 #include "qlayout.h"
 #include "qt_windows.h"
 
+extern Qt::WindowsVersion qt_winver;
 
 #if !defined(WS_EX_TOOLWINDOW)
 #define WS_EX_TOOLWINDOW 0x00000080

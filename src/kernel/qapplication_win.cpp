@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#257 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#258 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -275,48 +275,62 @@ static void qt_show_system_menu( QWidget* tlw)
 				tlw->winId(),
 				0);
     if (ret)
-	DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
+	if ( qt_winver == Qt::WV_NT )
+	    DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
+	else
+	    DefWindowProcA(tlw->winId(), WM_SYSCOMMAND, ret, 0);
 }
 
+static QFont LOGFONT_AorW_to_QFont(LOGFONT& lf)
+{
+    QFont qf(
+	qt_winver == Qt::WV_NT
+	    ? qt_winQString(lf.lfFaceName)
+	    : QString(lf.lfFaceName)
+    );
+    if (lf.lfItalic)
+	qf.setItalic( TRUE );
+    if (lf.lfWeight != FW_DONTCARE)
+	qf.setWeight(lf.lfWeight*99/900);
+    if ( lf.lfHeight < 0 ) {
+	// The value is already adjusted
+	qf.setPointSize( -lf.lfHeight );
+	qf.setResolutionAdjusted( FALSE );
+    } else {
+	qf.setPointSize( lf.lfHeight );
+    }
+    return qf;
+}
 
 static void qt_set_windows_resources()
 {
+    QFont menuFont;
+    QFont messageFont;
 
-    // windows supports special fonts for the menus
-    NONCLIENTMETRICS ncm;
-    ncm.cbSize = sizeof( NONCLIENTMETRICS );
-    SystemParametersInfo( SPI_GETNONCLIENTMETRICS,
-			  sizeof( NONCLIENTMETRICS),
-			  &ncm,
-			  NULL);
-
-    QString menuFontName = qt_winQString(ncm.lfMenuFont.lfFaceName);
-    QFont menuFont(menuFontName);
-    if (ncm.lfMenuFont.lfItalic)
-	menuFont.setItalic( TRUE );
-    if (ncm.lfMenuFont.lfWeight != FW_DONTCARE) {
-	menuFont.setWeight(ncm.lfMenuFont.lfWeight*99/900);
+    if ( qt_winver == Qt::WV_NT ) {
+	// W or A version
+	NONCLIENTMETRICS ncm;
+	ncm.cbSize = sizeof( ncm );
+	SystemParametersInfo( SPI_GETNONCLIENTMETRICS,
+			      sizeof( ncm ), &ncm, NULL);
+	menuFont = LOGFONT_AotW_to_QFont(ncm.lfMenuFont);
+	messageFont = LOGFONT_AotW_to_QFont(ncm.lfMessageFont);
+    } else {
+	// A version
+	NONCLIENTMETRICSA ncm;
+	ncm.cbSize = sizeof( ncm );
+	SystemParametersInfoA( SPI_GETNONCLIENTMETRICS,
+			      sizeof( ncm ), &ncm, NULL);
+	menuFont = LOGFONTA_to_QFont((LOGFONT&)ncm.lfMenuFont);
+	messageFont = LOGFONTA_to_QFont((LOGFONT&)ncm.lfMessageFont);
     }
-    menuFont.setPointSize( -ncm.lfMenuFont.lfHeight );
-    menuFont.setResolutionAdjusted( FALSE ); // The value is already adjusted
 
     if (menuFont != QFont::defaultFont()) {
 	QApplication::setFont( menuFont, FALSE, "QPopupMenu");
- 	QApplication::setFont( menuFont, TRUE, "QMenuBar");
+	QApplication::setFont( menuFont, TRUE, "QMenuBar");
     }
-
-    QString messageFontName = qt_winQString(ncm.lfMessageFont.lfFaceName);
-    QFont messageFont(messageFontName);
-    if (ncm.lfMessageFont.lfItalic)
-	messageFont.setItalic( TRUE );
-    if (ncm.lfMessageFont.lfWeight != FW_DONTCARE) {
-	messageFont.setWeight(ncm.lfMessageFont.lfWeight*99/900);
-    }
-    messageFont.setPointSize( -ncm.lfMessageFont.lfHeight );
-    messageFont.setResolutionAdjusted( FALSE ); // It is already adjusted
-
     if (messageFont != QFont::defaultFont()) {
- 	QApplication::setFont( messageFont, TRUE, "QMessageBoxLabel");
+	QApplication::setFont( messageFont, TRUE, "QMessageBoxLabel");
     }
 
     // Same technique could apply to set the statusbar or tooltip
@@ -416,7 +430,7 @@ void qt_init( int *argcptr, char **argv )
 
     set_winapp_name();
     if ( appInst == 0 )
-	appInst = GetModuleHandle( 0 );
+	appInst = GetModuleHandleA( 0 );
 
   // Detect the Windows version
 
@@ -602,18 +616,33 @@ const char* qt_reg_winclass( int flags )	// register window class
     if ( winclassNames->find(cname) )		// already registered
 	return cname;
 
-    WNDCLASS wc;
-    wc.style		= style;
-    wc.lpfnWndProc	= (WNDPROC)QtWndProc;
-    wc.cbClsExtra	= 0;
-    wc.cbWndExtra	= 0;
-    wc.hInstance	= (HINSTANCE)qWinAppInst();
-    wc.hIcon		= icon ? LoadIcon(0,IDI_APPLICATION) : 0;
-    wc.hCursor		= 0;
-    wc.hbrBackground	= 0;
-    wc.lpszMenuName	= 0;
-    wc.lpszClassName	= (TCHAR*)qt_winTchar(cname,TRUE);
-    RegisterClass( &wc );
+    if ( qt_winver == Qt::WV_NT ) {
+	WNDCLASS wc;
+	wc.style	= style;
+	wc.lpfnWndProc	= (WNDPROC)QtWndProc;
+	wc.cbClsExtra	= 0;
+	wc.cbWndExtra	= 0;
+	wc.hInstance	= (HINSTANCE)qWinAppInst();
+	wc.hIcon	= icon ? LoadIcon(0,IDI_APPLICATION) : 0;
+	wc.hCursor	= 0;
+	wc.hbrBackground= 0;
+	wc.lpszMenuName	= 0;
+	wc.lpszClassName= (TCHAR*)qt_winTchar(QString(cname),TRUE);
+	RegisterClass( &wc );
+    } else {
+	WNDCLASSA wc;
+	wc.style	= style;
+	wc.lpfnWndProc	= (WNDPROC)QtWndProc;
+	wc.cbClsExtra	= 0;
+	wc.cbWndExtra	= 0;
+	wc.hInstance	= (HINSTANCE)qWinAppInst();
+	wc.hIcon	= icon ? LoadIconA(0,(char*)IDI_APPLICATION) : 0;
+	wc.hCursor	= 0;
+	wc.hbrBackground= 0;
+	wc.lpszMenuName	= 0;
+	wc.lpszClassName= cname;
+	RegisterClass( &wc );
+    }
 
     winclassNames->insert( cname, (int*)1 );
     return cname;
@@ -626,8 +655,12 @@ static void unregWinClasses()
     QDictIterator<int> it(*winclassNames);
     const char* k;
     while ( (k = (const char*)(void*)it.currentKeyLong()) ) {
-	UnregisterClass( (TCHAR*)qt_winTchar(k,TRUE),
-			 (HINSTANCE)qWinAppInst() );
+	if ( qt_winver == Qt::WV_NT ) {
+	    UnregisterClass( (TCHAR*)qt_winTchar(k,TRUE),
+			     (HINSTANCE)qWinAppInst() );
+	} else {
+	    UnregisterClassA( k, (HINSTANCE)qWinAppInst() );
+	}
 	++it;
     }
     delete winclassNames;
@@ -1063,6 +1096,25 @@ int QApplication::exec()
     return quit_code;
 }
 
+static
+bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+		     UINT wMsgFilterMax, UINT wRemoveMsg )
+{
+    if ( qt_winver == Qt::WV_NT )
+	return PeekMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
+    else
+	return PeekMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
+}
+
+static
+bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+		     UINT wMsgFilterMax )
+{
+    if ( qt_winver == Qt::WV_NT )
+	return GetMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
+    else
+	return GetMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
+}
 
 bool QApplication::processNextEvent( bool canWait )
 {
@@ -1073,18 +1125,18 @@ bool QApplication::processNextEvent( bool canWait )
     if ( canWait ) {				// can wait if necessary
 	if ( numZeroTimers ) {			// activate full-speed timers
 	    int ok;
-	    while ( numZeroTimers && !(ok=PeekMessage(&msg,0,0,0,PM_REMOVE)) )
+	    while ( numZeroTimers && !(ok=winPeekMessage(&msg,0,0,0,PM_REMOVE)) )
 		activateZeroTimers();
 	    if ( !ok )				// no event
 		return FALSE;
 	} else {
-	    if ( !GetMessage(&msg,0,0,0) ) {
+	    if ( !winGetMessage(&msg,0,0,0) ) {
 		quit();				// WM_QUIT received
 		return FALSE;
 	    }
 	}
     } else {					// no-wait mode
-	if ( !PeekMessage(&msg,0,0,0,PM_REMOVE) ) { // no pending events
+	if ( !winPeekMessage(&msg,0,0,0,PM_REMOVE) ) { // no pending events
 	    if ( numZeroTimers > 0 )		// there are 0-timers
 		activateZeroTimers();
 	    return FALSE;
@@ -1098,7 +1150,10 @@ bool QApplication::processNextEvent( bool canWait )
 
 
     TranslateMessage( &msg );			// translate to WM_CHAR
-    DispatchMessage( &msg );			// send to QtWndProc
+    if ( qt_winver == Qt::WV_NT )
+	DispatchMessage( &msg );		// send to QtWndProc
+    else
+	DispatchMessageA( &msg );		// send to QtWndProc
     if ( configRequests )			// any pending configs?
 	qWinProcessConfigRequests();
 
@@ -1180,7 +1235,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			    LPARAM lParam )
 {
     if ( !qApp )				// unstable app state
-	return DefWindowProc(hwnd,message,wParam,lParam);
+	goto do_default;
 
     MSG msg;
     msg.hwnd = hwnd;				// create MSG structure
@@ -1193,7 +1248,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
     QETWidget *widget = (QETWidget*)QWidget::find( hwnd );
     if ( !widget )				// don't know this widget
-	return DefWindowProc(hwnd,message,wParam,lParam);
+	goto do_default;
 
     if ( app_do_modal )				// modal event handling
 	if ( !qt_try_modal(widget, &msg) )
@@ -1381,7 +1436,14 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	QEvent e( evt_type );
 	result = QApplication::sendEvent(widget, &e);
     }
-    return result ? 0 : DefWindowProc(hwnd,message,wParam,lParam);
+    if ( result )
+	return FALSE;
+
+do_default:
+    if ( qt_winver == Qt::WV_NT )
+	return DefWindowProc(hwnd,message,wParam,lParam);
+    else
+	return DefWindowProcA(hwnd,message,wParam,lParam);
 }
 
 
@@ -1731,7 +1793,7 @@ static void cleanupTimers()			// remove pending timers
 	// Dangerous to leave WM_TIMER events in the queue if they have our
 	// timerproc (eg. Qt-based DLL plugins may be unloaded)
 	MSG msg;
-	while (PeekMessage( &msg, (HWND)-1, WM_TIMER, WM_TIMER, PM_REMOVE ))
+	while (winPeekMessage( &msg, (HWND)-1, WM_TIMER, WM_TIMER, PM_REMOVE ))
 	    continue;
     }
 }
@@ -2211,7 +2273,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    MSG wm_char;
 	    UINT charType = ( t == WM_KEYDOWN ? WM_CHAR :
 			      t == WM_IME_KEYDOWN ? WM_IME_CHAR : WM_SYSCHAR );
-	    if ( PeekMessage(&wm_char, 0, charType, charType, PM_REMOVE) ) {
+	    if ( winPeekMessage(&wm_char, 0, charType, charType, PM_REMOVE) ) {
 		// Found a XXX_CHAR
 		uch = QChar(wm_char.wParam & 0xff, (wm_char.wParam>>8) & 0xff);
 		if ( t == WM_SYSKEYDOWN && !uch.row &&
@@ -2226,8 +2288,14 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		// No XXX_CHAR; deduce uch from XXX_KEYDOWN params
 		if ( msg.wParam == VK_DELETE )
 		    uch = QChar((char)0x7f); // Windows doesn't know this one.
-		else
-		    uch = QChar((char)MapVirtualKey( msg.wParam, 2 ));
+		else {
+		    if ( qt_winver == Qt::WV_NT ) {
+			uch = QChar((ushort)MapVirtualKey( msg.wParam, 2 ));
+		    } else {
+			// ### Should perhaps cast to char?
+			uch = QChar((ushort)MapVirtualKeyA( msg.wParam, 2 ));
+		    }
+		}
 		if ( !code )
 		    code = asciiToKeycode( uch.cell, state);
 	    }
@@ -2418,10 +2486,18 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		}
 		extra->topextra->iconic = 0;
 	    }
+	    QString txt;
 	    if ( IsIconic(winId()) && iconText() )
-		SetWindowText( winId(), (TCHAR*)qt_winTchar(iconText(),TRUE) );
+		txt = iconText();
 	    else if ( !caption().isNull() )
-		SetWindowText( winId(), (TCHAR*)qt_winTchar(caption(),TRUE) );
+		txt = caption();
+
+	    if ( txt ) {
+		if ( qt_winver == Qt::WV_NT )
+		    SetWindowText( winId(), (TCHAR*)qt_winTchar(txt,TRUE) );
+		else
+		    SetWindowTextA( winId(), txt.ascii() );
+	    }
 	}
 	if ( isVisible() ) {
 	    QResizeEvent e( newSize, oldSize );
