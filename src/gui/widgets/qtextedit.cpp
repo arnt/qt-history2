@@ -1189,24 +1189,25 @@ process:
 
 void QTextEdit::resizeEvent(QResizeEvent *)
 {
-    QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(d->doc->documentLayout());
-    Q_ASSERT(layout);
+    QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
 
-    if (d->wordWrap == NoWrap)
-        layout->setBlockTextFlags(layout->blockTextFlags() | Qt::TextSingleLine);
-    else
-        layout->setBlockTextFlags(layout->blockTextFlags() & ~Qt::TextSingleLine);
+    if (QTextDocumentLayout *tlayout = qt_cast<QTextDocumentLayout *>(layout)) {
+        if (d->wordWrap == NoWrap)
+            tlayout->setBlockTextFlags(tlayout->blockTextFlags() | Qt::TextSingleLine);
+        else
+            tlayout->setBlockTextFlags(tlayout->blockTextFlags() & ~Qt::TextSingleLine);
+
+        if (d->wordWrap == FixedColumnWidth)
+            tlayout->setFixedColumnWidth(d->wrapColumnOrWidth);
+        else
+            tlayout->setFixedColumnWidth(-1);
+    }
 
     int width = d->viewport->width();
     if (d->wordWrap == FixedPixelWidth)
         width = d->wrapColumnOrWidth;
 
-    if (d->wordWrap == FixedColumnWidth)
-        layout->setFixedColumnWidth(d->wrapColumnOrWidth);
-    else
-        layout->setFixedColumnWidth(-1);
-
-    d->doc->documentLayout()->setPageSize(QSize(width, INT_MAX));
+    layout->setPageSize(QSize(width, INT_MAX));
 
     d->adjustScrollbars();
 }
@@ -1598,7 +1599,6 @@ void QTextEdit::setWordWrap(WordWrap wrap)
     if (d->wordWrap == wrap)
         return;
     d->wordWrap = wrap;
-    // ####
     resizeEvent(0);
 }
 
