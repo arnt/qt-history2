@@ -52,18 +52,19 @@ class Q_GUI_EXPORT QPaintEngine
     Q_DECLARE_PRIVATE(QPaintEngine)
 public:
     enum PaintEngineFeature {
-        CoordTransform          = 0x0001,               // Points are transformed
-        PenWidthTransform       = 0x0002,               // Pen width is transformed
-        PatternTransform        = 0x0004,               // Brush patterns
-        PixmapTransform         = 0x0008,               // Pixmap transforms
-        LinearGradients   	= 0x0010,               // Can fill gradient areas.
-        PixmapScale             = 0x0020,               // Can scale (w/o XForm) in drawPixmap
-	AlphaFill               = 0x0080,               // Can fill with alpha.
-        AlphaStroke             = 0x0100,               // Can outline with alpha.
-        PainterPaths            = 0x0200,               // Can fill, outline and clip paths
-        ClipTransform           = 0x0400,               // Can trasform clip regions.
-        UsesFontEngine          = 0x10000000,           // Internal use, QWidget and QPixmap
-        PaintOutsidePaintEvent  = 0x20000000            // Engine is capable of painting outside paint events
+        CoordTransform            = 0x0001,               // Points are transformed
+        PenWidthTransform         = 0x0002,               // Pen width is transformed
+        PatternTransform          = 0x0004,               // Brush patterns
+        PixmapTransform           = 0x0008,               // Pixmap transforms
+        LinearGradients   	  = 0x0010,               // Can fill gradient areas.
+        PixmapScale               = 0x0020,               // Can scale (w/o XForm) in drawPixmap
+	AlphaFill                 = 0x0080,               // Can fill with alpha.
+        AlphaStroke               = 0x0100,               // Can outline with alpha.
+        PainterPaths              = 0x0200,               // Can fill, outline and clip paths
+        ClipTransform             = 0x0400,               // Can transform clip regions.
+        LinearGradientFillPolygon = 0x0800,               // Can fill polygons with linear gradients.
+        UsesFontEngine            = 0x10000000,           // Internal use, QWidget and QPixmap
+        PaintOutsidePaintEvent    = 0x20000000            // Engine is capable of painting outside paint events
     };
     Q_DECLARE_FLAGS(PaintEngineFeatures, PaintEngineFeature);
 

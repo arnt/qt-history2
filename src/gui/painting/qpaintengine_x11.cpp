@@ -608,7 +608,7 @@ static void populateXTrapezoid(XTrapezoid *trap, float y,
 // }
 
 static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPolygon &pg,
-                                 bool winding, bool smooth_edges)
+                                 bool winding, bool need_rounding)
 {
     QList<XTrapezoid> atps; // active trapezoids
     QList<QEdge> et; 	    // edge list
@@ -745,7 +745,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
             traps->resize(start + atps.size());
             for (int i = 0; i < atps.size(); ++i) {
                 (*traps)[start + i] = atps.at(i);
-                (*traps)[start + i].bottom = smooth_edges ? IntToXFixed(qRound(y))
+                (*traps)[start + i].bottom = need_rounding ? IntToXFixed(qRound(y))
                                              : FloatToXFixed(y);
             }
             atps.clear();
@@ -764,14 +764,14 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 		if (!left || !right)
 		    break;
                 XTrapezoid trap;
-                populateXTrapezoid(&trap, y, *left, *right, smooth_edges);
+                populateXTrapezoid(&trap, y, *left, *right, need_rounding);
                 atps.append(trap);
 	    }
 	} else {
 	    // odd-even fill rule
 	    for (int i = 0; i < isects.size()-2; i += 2) {
                 XTrapezoid trap;
-                populateXTrapezoid(&trap, y, *isects[i].edge, *isects[i+1].edge, smooth_edges);
+                populateXTrapezoid(&trap, y, *isects[i].edge, *isects[i+1].edge, need_rounding);
                 atps.append(trap);
             }
 	}
@@ -784,7 +784,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
         traps->resize(start + atps.size());
         for (int i = 0; i < atps.size(); ++i) {
             (*traps)[start + i] = atps.at(i);
-            (*traps)[start + i].bottom = smooth_edges ? IntToXFixed(qRound(currentScanline))
+            (*traps)[start + i].bottom = need_rounding ? IntToXFixed(qRound(currentScanline))
                                          : FloatToXFixed(currentScanline);
         }
     }
@@ -814,7 +814,11 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
  */
 
 QX11PaintEngine::QX11PaintEngine()
-    : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine | AlphaFill)
+    : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine | AlphaFill
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+                   | LinearGradientFillPolygon
+#endif
+        )
 {
     d->dpy = 0;
     d->scrn = 0;
@@ -824,7 +828,11 @@ QX11PaintEngine::QX11PaintEngine()
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
-    : QPaintEngine(dptr, UsesFontEngine | AlphaFill)
+    : QPaintEngine(dptr, UsesFontEngine | AlphaFill
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+                   | LinearGradientFillPolygon
+#endif
+        )
 {
     d->dpy = 0;
     d->scrn = 0;
@@ -1336,6 +1344,8 @@ void QX11PaintEngine::drawEllipse(const QRectF &rect)
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, 0, 360*64);
 }
 
+void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &brush);
+
 void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
 {
 
@@ -1351,22 +1361,52 @@ void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         bool smooth_edges = renderHints() & QPainter::LineAntialiasing;
         if (d->cbrush.style() != Qt::NoBrush &&
-            (d->cbrush.color().alpha() != 255 || smooth_edges)) {
-            XftColor xfc;
-            QColor qc = d->cbrush.color();
-
-            const uint A = qc.alpha(),
-                       R = qc.red(),
-                       G = qc.green(),
-                       B = qc.blue();
-
-            xfc.pixel = QColormap::instance(d->scrn).pixel(qc);
-            xfc.color.alpha = (A | A << 8);
-            xfc.color.red   = (R | R << 8) * xfc.color.alpha / 0x10000;
-            xfc.color.green = (B | G << 8) * xfc.color.alpha / 0x10000;
-            xfc.color.blue  = (B | B << 8) * xfc.color.alpha / 0x10000;
-            ::Picture src = d->xft_hd ? XftDrawSrcPicture(d->xft_hd, &xfc) : 0;
+            (smooth_edges || d->cbrush.color().alpha() != 255
+             || d->cbrush.style() == Qt::LinearGradientPattern))
+        {
+            QPixmap gpix;
+            ::Picture src = 0;
             ::Picture dst = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
+            int x_offset = 0;
+            if (d->cbrush.style() == Qt::LinearGradientPattern) {
+                // hmm.. for some reason Xrender uses the first pt (x
+                // coord only) that is scanline coverted in a polygon
+                // as the brush/fill x offset - we need to calc that
+                // pt and set it as an offset to counter that behavior
+                QPointF offset = pa.at(0);
+                for (int i = 1; i < pa.size(); ++i) {
+                    if (offset.y() > pa.at(i).y())
+                        offset = pa.at(i);
+                    else if (offset.y() == pa.at(i).y() && offset.x() > pa.at(i).x())
+                        offset = pa.at(i);
+                }
+                QRect r(a.boundingRect().toRect());
+                x_offset = qRound(offset.x()) - r.x();
+
+                gpix.resize(r.size());
+                QPoint redir;
+                QPainter::redirected(d->pdev, &redir);
+                QBrush br(d->cbrush.gradientStart() - r.topLeft() - redir, d->cbrush.color(),
+                          d->cbrush.gradientStop() - r.topLeft() - redir, d->cbrush.gradientColor());
+                QPainter p(&gpix);
+                qt_fill_linear_gradient(QRect(0,0,r.width(), r.height()), &p, br);
+                src = gpix.xftPictureHandle();
+            } else {
+                XftColor xfc;
+                QColor qc = d->cbrush.color();
+
+                const uint A = qc.alpha(),
+                           R = qc.red(),
+                           G = qc.green(),
+                           B = qc.blue();
+
+                xfc.pixel = QColormap::instance(d->scrn).pixel(qc);
+                xfc.color.alpha = (A | A << 8);
+                xfc.color.red   = (R | R << 8) * xfc.color.alpha / 0x10000;
+                xfc.color.green = (B | G << 8) * xfc.color.alpha / 0x10000;
+                xfc.color.blue  = (B | B << 8) * xfc.color.alpha / 0x10000;
+                src = d->xft_hd ? XftDrawSrcPicture(d->xft_hd, &xfc) : 0;
+            }
 
             if (src && dst) {
                 XRenderPictureAttributes attrs;
@@ -1375,8 +1415,9 @@ void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
 
                 QVarLengthArray<XTrapezoid> traps;
                 qt_tesselate_polygon(&traps, pa, mode == WindingMode, smooth_edges);
-                XRenderCompositeTrapezoids(d->dpy, PictOpOver, src, dst, 0, 0, 0,
-                                           traps.data(), traps.size());
+
+                XRenderCompositeTrapezoids(d->dpy, PictOpOver, src, dst, 0,
+                                           x_offset, 0, traps.data(), traps.size());
             }
         } else
 #endif

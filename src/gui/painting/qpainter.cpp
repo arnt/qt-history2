@@ -1419,6 +1419,11 @@ void QPainter::drawPath(const QPainterPath &path)
 
     save();
 
+    uint emulationSpecifier = d->engine->emulationSpecifier;
+    if ((emulationSpecifier & QPaintEngine::LinearGradients)
+        && d->engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
+        emulationSpecifier &= ~QPaintEngine::LinearGradients;
+
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
         QList<QPolygon> fills = path.toFillPolygons();
@@ -1426,7 +1431,7 @@ void QPainter::drawPath(const QPainterPath &path)
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);
         for (int i=0; i<fills.size(); ++i) {
-            if (d->engine->emulationSpecifier)
+            if (emulationSpecifier)
                 d->draw_helper(&fills.at(i), path.fillMode() == QPainterPath::Winding,
                                QPainterPrivate::PolygonShape);
             else
@@ -2314,8 +2319,13 @@ void QPainter::drawPolygon(const QPolygon &polygon, bool winding, int index, int
     if (d->state->pen.style() != Qt::NoPen && pa.first() != pa.last())
         pa << QPointF(pa.first());
 
-    if (d->engine->emulationSpecifier) {
-        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+    uint emulationSpecifier = d->engine->emulationSpecifier;
+    if ((emulationSpecifier & QPaintEngine::LinearGradients)
+        && d->engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
+        emulationSpecifier &= ~QPaintEngine::LinearGradients;
+
+    if (emulationSpecifier) {
+        if (emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
             pa.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
