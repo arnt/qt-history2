@@ -631,7 +631,7 @@ DomLayoutItem *Ui3Reader::createLayoutItem(const QDomElement &e)
 
         QByteArray name = DomTool::readProperty(e, QLatin1String("name"), "spacer").toByteArray();
         QCoreVariant def;
-        qVariantSet(def, defaultSize, "Variant");
+        qVariantSet(def, defaultSize);
         Size size = asVariant(DomTool::readProperty(e, QLatin1String("sizeHint"), def)).size;
         QString sizeType = DomTool::readProperty(e, QLatin1String("sizeType"), "Expanding").toString();
         QString orientation = DomTool::readProperty(e, QLatin1String("orientation"), "Horizontal").toString();

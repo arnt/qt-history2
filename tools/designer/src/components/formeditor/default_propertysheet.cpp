@@ -112,7 +112,7 @@ QVariant QDesignerPropertySheet::property(int index) const
             e.items.insert(k, me.keyToValue(k.toLatin1()));
         }
 
-        qVariantSet(v, e, "FlagType");
+        qVariantSet(v, e);
     } else if (p.isEnumType()) {
         EnumType e;
         e.value = v;
@@ -124,7 +124,7 @@ QVariant QDesignerPropertySheet::property(int index) const
             e.items.insert(k, me.keyToValue(k.toLatin1()));
         }
 
-        qVariantSet(v, e, "EnumType");
+        qVariantSet(v, e);
     }
 
     return v;
@@ -150,7 +150,7 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
             e.items.insert(key, me.keyToValue(key.toLatin1()));
         }
 
-        qVariantSet(v, e, "FlagType");
+        qVariantSet(v, e);
     } else if (p.isEnumType()) {
         EnumType e;
         e.value = v;
@@ -164,7 +164,7 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
             e.items.insert(key, me.keyToValue(key.toLatin1()));
         }
 
-        qVariantSet(v, e, "EnumType");
+        qVariantSet(v, e);
     }
 
     return v;
@@ -199,11 +199,11 @@ void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
         v = value;
     } else if (qVariantGet(v, f, "FlagType")) {
         f.value = value;
-        qVariantSet(v, f, "FlagType");
+        qVariantSet(v, f);
         Q_ASSERT(f.value.type() == QVariant::Int);
     } else if (qVariantGet(v, e, "EnumType")) {
         e.value = value;
-        qVariantSet(v, e, "EnumType");
+        qVariantSet(v, e);
         Q_ASSERT(e.value.type() == QVariant::Int);
     } else {
         v = value;

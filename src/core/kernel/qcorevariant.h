@@ -271,15 +271,15 @@ protected:
 };
 
 template <typename T>
-void qVariantSet(QCoreVariant &v, const T &t, const char *typeName)
+void qVariantSet(QCoreVariant &v, const T &t)
 {
-    v = QCoreVariant(qRegisterMetaType<T>(typeName), &t);
+    v = QCoreVariant(qt_metatype_id<T>(static_cast<T *>(0)), &t);
 }
 
 template <typename T>
-bool qVariantGet(const QCoreVariant &v, T &t, const char *typeName)
+bool qVariantGet(const QCoreVariant &v, T &t)
 {
-    if (qstrcmp(v.typeName(), typeName) != 0)
+    if (qt_metatype_id<T>(static_cast<T *>(0)) != v.userType())
         return false;
     t = *reinterpret_cast<const T *>(v.constData());
     return true;

@@ -100,4 +100,41 @@ static void qRegisterMetaTypeStreamOperators(const char *typeName, T * = 0)
                                        reinterpret_cast<QMetaType::LoadOperator>(lptr));
 }
 
+/* helper class for compile time asserts */
+template<class T>
+class UNDECLARED_METATYPE
+{
+    /*
+       If you get compile errors about this constructor being private,
+       please read about Q_DECLARE_METATYPE
+     */
+    UNDECLARED_METATYPE() {}
+};
+
+template <class T>
+static int qt_metatype_id(T * = 0) { UNDECLARED_METATYPE<T> tp; return QMetaType::Void; }
+
+#define Q_DECLARE_METATYPE(TYPE) \
+template<> static int qt_metatype_id(TYPE *) \
+{ \
+    static int tp = qRegisterMetaType<TYPE>(#TYPE); \
+    return tp; \
+}
+
+template<> static inline int qt_metatype_id(QString *) { return QMetaType::QString; }
+template<> static inline int qt_metatype_id(int *) { return QMetaType::Int; }
+template<> static inline int qt_metatype_id(uint *) { return QMetaType::UInt; }
+template<> static inline int qt_metatype_id(bool *) { return QMetaType::Bool; }
+template<> static inline int qt_metatype_id(double *) { return QMetaType::Double; }
+template<> static inline int qt_metatype_id(QByteArray *) { return QMetaType::QByteArray; }
+template<> static inline int qt_metatype_id(QChar *) { return QMetaType::QChar; }
+template<> static inline int qt_metatype_id(void **) { return QMetaType::VoidStar; }
+template<> static inline int qt_metatype_id(long *) { return QMetaType::Long; }
+template<> static inline int qt_metatype_id(short *) { return QMetaType::Short; }
+template<> static inline int qt_metatype_id(char *) { return QMetaType::Char; }
+template<> static inline int qt_metatype_id(ulong *) { return QMetaType::ULong; }
+template<> static inline int qt_metatype_id(ushort *) { return QMetaType::UShort; }
+template<> static inline int qt_metatype_id(uchar *) { return QMetaType::UChar; }
+template<> static inline int qt_metatype_id(float *) { return QMetaType::Float; }
+
 #endif // QMETATYPE_H

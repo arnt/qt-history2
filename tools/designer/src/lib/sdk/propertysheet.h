@@ -50,11 +50,15 @@ struct EnumType
     QMap<QString, QVariant> items;
 };
 
+Q_DECLARE_METATYPE(EnumType)
+
 struct FlagType
 {
     QVariant value;
     QMap<QString, QVariant> items;
 };
+
+Q_DECLARE_METATYPE(FlagType)
 
 namespace Utils 
 {
@@ -63,9 +67,9 @@ inline int valueOf(const QVariant &value, bool *ok = 0)
 {
     EnumType e;
     FlagType f;
-    if (qVariantGet(value, e, "EnumType"))
+    if (qVariantGet(value, e))
         return e.value.toInt(ok);
-    else if (qVariantGet(value, f, "FlagType")) 
+    else if (qVariantGet(value, f)) 
         return f.value.toInt(ok);
         
     return value.toInt(ok);

@@ -87,6 +87,8 @@ struct Size
     }
 };
 
+Q_DECLARE_METATYPE(Size)
+
 struct Rect
 {
     Common common;
@@ -202,6 +204,8 @@ union Variant
     { cursor.init(shape); return *this; }
 };
 
+Q_DECLARE_METATYPE(Variant)
+
 class DomTool
 {
 public:
@@ -223,7 +227,7 @@ public:
 inline Variant asVariant(const QCoreVariant &v)
 {
     Variant var;
-    qVariantGet(v, var, "Variant");
+    qVariantGet(v, var);
     return var;
 }
 
