@@ -1748,6 +1748,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_Table_GridLineColor
 
+    \value SH_UnderlineAccelerator whether accelerators are underlined
+
     \sa styleHint()
 */
 

@@ -238,7 +238,10 @@ void QToolBoxButton::drawButton( QPainter *p )
 	 !tb->testAttribute(WA_NoSystemBackground))
 	fill = &pal.color( foregroundRole() );
 
-    style().drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, pal,
+    int alignment = AlignLeft | AlignVCenter | ShowPrefix;
+    if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
+	alignment |= NoAccel;
+    style().drawItem( p, tr, alignment, pal,
 		      isEnabled(), 0, txt, -1, fill );
 
     if ( !txt.isEmpty() && hasFocus() )

@@ -760,6 +760,8 @@ void QLabel::drawContents( QPainter *p )
 	    pix = d->pix;
 	}
 #endif
+	if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
+	    align |= NoAccel;
 	// ordinary text or pixmap label
 	style().drawItem( p, cr, align, palette(), isEnabled(),
 			  pix, ltext );

@@ -332,6 +332,8 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	if(va & AlignTop)
 	    r.moveBy(0, fm.descent());
 	QColor pen( (QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, this )  );
+	if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
+	    va |= NoAccel;
 	style().drawItem( &paint, r, ShowPrefix | AlignHCenter | va, palette(),
 			  isEnabled(), 0, str, -1, ownPalette() ? 0 : &pen );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title

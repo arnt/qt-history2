@@ -665,6 +665,9 @@ public:
 	// QEvent::Type - which mouse event to select a list view expansion
 	SH_ListViewExpand_SelectMouseType,
 
+	//bool - if underline for accelerators
+	SH_UnderlineAccelerator,
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };

@@ -35,6 +35,14 @@ public:
     QWindowsStyle();
     ~QWindowsStyle();
 
+    void polish(QApplication*);
+    void unPolish(QApplication*);
+
+    void polish(QWidget*);
+    void unPolish(QWidget*);
+
+    void polish( QPalette & );
+
     virtual void polishPopupMenu( QPopupMenu* );
 
     // new stuff
@@ -82,6 +90,9 @@ public:
 
 
 private:
+    class Private;
+    Private *d;
+
     // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QWindowsStyle( const QWindowsStyle & );
