@@ -396,18 +396,17 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
 
 void FormWindow::handleMouseReleaseEvent(QWidget * /*w*/, QMouseEvent *e)
 {
-    if (e->button() != Qt::LeftButton)
-        return;
+    e->accept();
 
     if (drawRubber) { // we were drawing a rubber selection
         endRectDraw(); // get rid of the rectangle
         bool block = blockSignals(true);
         selectWidgets(); // select widgets which intersect the rect
         blockSignals(block);
+
+        drawRubber = false;
         emitSelectionChanged(); // inform about selection changes
     }
-
-    drawRubber = false;
 }
 
 void FormWindow::checkPreviewGeometry(QRect &r)
