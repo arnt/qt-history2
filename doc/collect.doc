@@ -235,6 +235,7 @@ In almost all cases you would choose \l QStringList, a value
 list of implicitly shared QString unicode strings. QPtrStrList and
 QPtrStrIList store only char pointers, not the strings themselves.
 
-\section1 List of All Container Classes and Related Iterator Classes
+\section1 List of Pointer-based Collection Classes and Related
+Iterator Classes
 
 */
