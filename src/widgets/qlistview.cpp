@@ -610,7 +610,7 @@ void QListViewItem::startRename()
     renameBox->setText( text( col ) );
     renameBox->selectAll();
     renameBox->installEventFilter( lv );
-    lv->addChild( box, r.x(), r.y() );
+    lv->addChild( box, r.x(), r.y() - 3 );
     box->resize( r.size() + QSize( 0, 6 ) );
     lv->viewport()->setFocusProxy( renameBox );
     renameBox->setFocus();
@@ -3408,6 +3408,9 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 {
     if ( !e )
 	return;
+
+    if ( currentItem() && currentItem()->renameBox )
+	currentItem()->cancelRename();
 
     d->startDragItem = 0;
     d->dragStartPos = e->pos();
