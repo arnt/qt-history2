@@ -1173,8 +1173,11 @@ void QWorkspace::showMaximizeControls()
 #ifndef QT_NO_MENUBAR
     QMenuBar* b = 0;
 
+    // Do a breadth-first search first, and query recoursively is nothing is found.
     QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0,
 						   FALSE, FALSE );
+    if ( !l || !l->count() )
+	l = topLevelWidget()->queryList( "QMenuBar", 0, 0, TRUE );
     if ( l && l->count() )
 	b = (QMenuBar *)l->first();
     delete l;
