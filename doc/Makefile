@@ -1,7 +1,7 @@
 #############################################################################
 # Qt Makefile - doc
 #############################################################################
-# $Id: //depot/qt/main/doc/Makefile#1 $
+# $Id: //depot/qt/main/doc/Makefile#2 $
 
 showfiles showsources:
 	@echo *.doc
@@ -21,3 +21,5 @@ checkout:
 	    co ${CODATE} $$file ;\
 	done; \
 	/bin/true	# tell make it worked
+
+obj include depend:
