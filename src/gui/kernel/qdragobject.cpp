@@ -33,6 +33,7 @@
 #include "qregexp.h"
 #include "qdir.h"
 #include <ctype.h>
+#include <netinet/in.h>
 #include <private/qdragobject_p.h>
 
 static QWidget* last_target;
