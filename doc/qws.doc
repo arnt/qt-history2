@@ -3,7 +3,7 @@
 \title Installing Qt/Embedded
 
 <p>
-This installation procedure is written for Linux/i386. It may need
+This installation procedure is written for Linux. It may need
 to be modified for other platforms.
 
 <h3>  Unpack the archive if you have not done so already:</h3>
