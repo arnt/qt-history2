@@ -57,6 +57,7 @@ public:
     QRect eraseArea;
     bool eraseAreaValid;
     bool showNotches;
+    bool onlyFocus;
 
     QPointArray lines;
 };
@@ -118,11 +119,12 @@ public:
 /*!  Constructs a dial with the default range of QRangeControl. */
 
 QDial::QDial( QWidget *parent, const char *name )
-    : QWidget( parent, name ), QRangeControl()
+    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase ), QRangeControl()
 {
     d = new QDialPrivate;
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
+    d->onlyFocus = FALSE;
     setFocusPolicy( QWidget::WeakWheelFocus );
     setBackgroundMode( NoBackground );
 }
@@ -140,12 +142,13 @@ QDial::QDial( QWidget *parent, const char *name )
 
 QDial::QDial( int minValue, int maxValue, int pageStep, int value,
 	      QWidget *parent, const char *name )
-    : QWidget( parent, name ),
+    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase ),
       QRangeControl( minValue, maxValue, 1, pageStep, value )
 {
     d = new QDialPrivate;
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
+    d->onlyFocus = FALSE;
     setFocusPolicy( QWidget::WeakWheelFocus );
     setBackgroundMode( NoBackground );
 }
@@ -234,11 +237,12 @@ void QDial::repaintScreen( const QRect *cr )
 {
     QPainter p( this );
 
-    // calculate clip-region for erasing background
     bool resetClipping = FALSE;
+
+    // calculate clip-region for erasing background
     if ( cr ) {
 	p.setClipRect( *cr );
-    } else if ( d->eraseAreaValid ) {
+    } else if ( !d->onlyFocus && d->eraseAreaValid ) {
 	QRegion reg = d->eraseArea;
 	double a;
 	reg = reg.subtract( calcArrow( a ) );
@@ -257,13 +261,15 @@ void QDial::repaintScreen( const QRect *cr )
 	p.setBackgroundMode( OpaqueMode );
     }
     // erase background of dial
-    p.drawEllipse( br );
-
+    if ( !d->onlyFocus )
+	p.drawEllipse( br );
+    
     // erase remaining space around the dial
     p.save();
     QRegion remaining( 0, 0, width(), height() );
     remaining = remaining.subtract( QRegion( br, QRegion::Ellipse ) );
-    remaining = remaining.intersect( p.clipRegion() );
+    if ( p.hasClipping() )
+	remaining = remaining.intersect( p.clipRegion() );
     p.setClipRegion( remaining );
     p.fillRect( remaining.boundingRect(), colorGroup().brush( QColorGroup::Background ) );
     p.restore();
@@ -296,7 +302,8 @@ void QDial::repaintScreen( const QRect *cr )
 
     p.setPen( NoPen );
     p.setBrush( colorGroup().brush( QColorGroup::Button ) );
-    p.drawPolygon( arrow );
+    if ( !d->onlyFocus )
+	p.drawPolygon( arrow );
 
     a = angle( QPoint( width() / 2, height() / 2 ), arrow[ 0 ] );
     p.setBrush( Qt::NoBrush );
@@ -425,10 +432,11 @@ void QDial::wheelEvent( QWheelEvent * )
   \reimp
 */
 
-void QDial::focusInEvent( QFocusEvent *e )
+void QDial::focusInEvent( QFocusEvent * )
 {
-    QWidget::focusInEvent( e );
+    d->onlyFocus = TRUE;
     repaintScreen();
+    d->onlyFocus = FALSE;
 }
 
 
@@ -436,14 +444,15 @@ void QDial::focusInEvent( QFocusEvent *e )
   \reimp
 */
 
-void QDial::focusOutEvent( QFocusEvent * e )
+void QDial::focusOutEvent( QFocusEvent * )
 {
-    QWidget::focusOutEvent(e );
+    d->onlyFocus = TRUE;
     repaintScreen();
+    d->onlyFocus = FALSE;
 }
 
 /*!
-  
+
 */
 
 void QDial::valueChange()
