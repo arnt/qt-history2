@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#4 $
 **
 ** Implementation of something useful.
 **
@@ -23,7 +23,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#4 $");
 
 
 class QMainWindowPrivate {
@@ -290,6 +290,7 @@ bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
     case Bottom:
 	return d->bottom != 0;
     }
+    return FALSE; // for illegal values of dock
 }
 
 
