@@ -577,11 +577,7 @@ QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 	return ResultFromScode(DRAGDROP_S_DROP);
     } else {
 	qApp->sendPostedEvents();
-	if ( qApp->hasPendingEvents() ) {
-	    qApp->processOneEvent();
-	} else {
-	    qApp->processEvents();
-	}
+	qApp->processEvents();
 	qApp->sendPostedEvents();
 	return NOERROR;
     }
