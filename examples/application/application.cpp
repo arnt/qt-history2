@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.cpp#8 $
+** $Id: //depot/qt/main/examples/application/application.cpp#9 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -242,11 +242,15 @@ void ApplicationWindow::print()
 
 void ApplicationWindow::closeEvent( QCloseEvent* e )
 {
-    QMessageBox::warning( this, "Qt Application Example", "Help me, I'm closed!", "No, die!" );
-
-    e->accept(); // except the event. 
-    // Note: We fill be deleted afterwards since we used the
-    // WDestructiveClose flag in the constructor
+    if ( QMessageBox::warning( this, "Qt Application Example", 
+			       "Help me, I'm being closed!", 
+			       "Close", "Cancel"
+			       ) == 0 )
+	e->accept();
+    
+    // Note: If we accepted the close event, we will be deleted
+    // afterwards since we used the WDestructiveClose flag in the
+    // constructor
 }
 
 
