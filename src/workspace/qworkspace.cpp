@@ -50,35 +50,35 @@
     \ingroup organizers
     \mainclass
 
-    An MDI (multiple document interface) application has one main
-    window with a menu bar. The central widget of this window is a
-    workspace. The workspace itself contains zero, one or more
-    document windows, each of which displays a document.
+    MDI (multiple document interface) applications typically have one
+    main window with a menu bar and toolbar, and a central widget that
+    is a QWorkspace. The workspace itself contains zero, one or more
+    document windows, each of which is a widget.
 
     The workspace itself is an ordinary Qt widget. It has a standard
     constructor that takes a parent widget and an object name. The
     parent window is usually a QMainWindow, but it need not be.
 
     Document windows (i.e. MDI windows) are also ordinary Qt widgets
-    which have the workspace as parent widget. When you call show(),
-    hide(), showMaximized(), setCaption(), etc. on a document window,
-    it is shown, hidden, etc. with a frame, caption, icon and icon
-    text, just as you'd expect. You can provide widget flags which
-    will be used for the layout of the decoration or the behaviour of
-    the widget itself.
+    which have the workspace as their parent widget. When you call
+    show(), hide(), showMaximized(), setCaption(), etc. on a document
+    window, it is shown, hidden, etc. with a frame, caption, icon and
+    icon text, just as you'd expect. You can provide widget flags
+    which will be used for the layout of the decoration or the
+    behaviour of the widget itself.
 
-    To change the geometry of the MDI windows it is necessary to make
-    the function calls to the parentWidget() of the widget, as this
-    will move or resize the decorated window. Similarily you have to
-    make the function calls to the parentWidget() of the MDI window to
-    get the geometry of decorated window.
+    To change or retrieve the geometry of MDI windows you must operate
+    on the MDI widget's parentWidget(). (The parentWidget() provides
+    access to the decorated window in which the MDI window's widget is
+    shown.)
 
     A document window becomes active when it gets the keyboard focus.
-    You can activate it using setFocus(), and the user can activate it
-    by moving focus in the normal ways. The workspace emits a signal
-    windowActivated() when it detects the activation change, and the
-    function activeWindow() always returns a pointer to the active
-    document window.
+    You can also activate a window in code using setFocus(). The user
+    can activate a window by moving focus in the usual ways, for
+    example by clicking a window or by pressing Tab. The workspace
+    emits a signal windowActivated() when it detects the activation
+    change, and the function activeWindow() always returns a pointer
+    to the active document window.
 
     The convenience function windowList() returns a list of all
     document windows. This is useful to create a popup menu
@@ -216,8 +216,8 @@ static bool isChildOf( QWidget * child, QWidget * parent )
 }
 
 /*!
-  Constructs a workspace with a \a parent and a \a name.
- */
+    Constructs a workspace with a \a parent and a \a name.
+*/
 QWorkspace::QWorkspace( QWidget *parent, const char *name )
     : QWidget( parent, name, WNoMousePropagation )
 {
@@ -498,8 +498,8 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 
 
 /*!
-  Returns the active window, or 0 if no window is active.
- */
+    Returns the active window, or 0 if no window is active.
+*/
 QWidget* QWorkspace::activeWindow() const
 {
     return d->active?d->active->windowWidget():0;
@@ -1212,8 +1212,8 @@ void QWorkspace::closeActiveWindow()
 /*!
     Closes all child windows.
 
-    The windows are closed in random order, until one window does
-    not accept the close event.
+    The windows are closed in random order. The operation stops if a
+    window does not accept the close event.
 
     \sa closeActiveWindow()
 */
@@ -1426,7 +1426,7 @@ void QWorkspace::activatePrevWindow()
 
   This signal is emitted when the window widget \a w becomes active.
   Note that \a w can be null, and that more than one signal may be
-  fired for one activation event.
+  emitted for a single activation event.
 
   \sa activeWindow(), windowList()
 */
@@ -1434,10 +1434,10 @@ void QWorkspace::activatePrevWindow()
 
 
 /*!
-  Arranges all child windows in a cascade pattern.
+    Arranges all the child windows in a cascade pattern.
 
-  \sa tile()
- */
+    \sa tile()
+*/
 void QWorkspace::cascade()
 {
     blockSignals(TRUE);
@@ -1509,10 +1509,10 @@ void QWorkspace::cascade()
 }
 
 /*!
-  Arranges all child windows in a tile pattern.
+    Arranges all child windows in a tile pattern.
 
-  \sa cascade()
- */
+    \sa cascade()
+*/
 void QWorkspace::tile()
 {
     blockSignals(TRUE);
@@ -2225,6 +2225,9 @@ void QWorkspaceChild::titleBarDoubleClicked()
 
 void QWorkspaceChild::adjustToFullscreen()
 {
+    if ( !childWidget )
+	return;
+
     qApp->sendPostedEvents( this, QEvent::Resize );
     qApp->sendPostedEvents( childWidget, QEvent::Resize );
     qApp->sendPostedEvents( childWidget, QEvent::Move );
@@ -2319,7 +2322,8 @@ bool QWorkspace::scrollBarsEnabled() const
     return d->vbar != 0;
 }
 
-/*! \property QWorkspace::scrollBarsEnabled
+/*!
+    \property QWorkspace::scrollBarsEnabled
     \brief whether the workspace provides scrollbars
 
     If this property is set to TRUE, it is possible to resize child
