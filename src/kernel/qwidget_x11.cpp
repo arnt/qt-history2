@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#329 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#330 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -44,6 +44,8 @@ bool qt_modal_state();				// --- "" ---
 void qt_insert_sip( QWidget*, int, int );	// --- "" ---
 int  qt_sip_count( QWidget* );			// --- "" ---
 void qt_updated_rootinfo();
+extern XIM qt_xim;
+extern XIMStyle qt_xim_style;
 
 
 extern bool qt_nograb();
@@ -1638,7 +1640,27 @@ void QWidget::deleteSysExtra()
 
 void QWidget::createTLSysExtra()
 {
-    extra->topextra->xic = 0;
+    XPoint spot; spot.x = 1; spot.y = 1; // dummmy
+
+    // ##### TODO: use fontset of focus widget
+    QFontMetrics fm = fontMetrics();
+    XFontSet fontset = (XFontSet)fm.fontSet();
+
+    XVaNestedList preedit_att = XVaCreateNestedList(0,
+		    XNFontSet, fontset,
+		    XNSpotLocation, &spot,
+		    NULL);
+    XVaNestedList status_att = XVaCreateNestedList(0,
+		    XNFontSet, fontset,
+		    NULL);
+
+    extra->topextra->xic = (void*)XCreateIC( qt_xim,
+		    XNInputStyle, qt_xim_style,
+		    XNClientWindow, winId(),
+		    XNFocusWindow, winId(),
+		    XNPreeditAttributes, preedit_att,
+		    XNStatusAttributes, status_att,
+		    0 );
 }
 
 void QWidget::deleteTLSysExtra()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#448 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#449 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -217,10 +217,9 @@ static timeval	watchtime;			// watch if time is turned back
 #endif
 
 #if !defined(NO_XIM)
-static XIM	xim;
-static XIMStyle xim_style = 0;
+XIM	qt_xim = 0;
+XIMStyle qt_xim_style = 0;
 static XIMStyle xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
-static XFontSet xim_fixed_fontset;
 #endif
 static QTextCodec * input_mapper = 0;
 
@@ -300,12 +299,10 @@ public:
 
 static void close_xim()
 {
-    if ( xim_fixed_fontset )
-	XFreeFontSet( appDpy, xim_fixed_fontset );
     // Calling XCloseIM gives a Purify FMR error
     // Instead we get a non-critical memory leak
-    // XCloseIM( xim );
-    xim = 0;
+    // XCloseIM( qt_xim );
+    qt_xim = 0;
 }
 
 
@@ -911,20 +908,20 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
 
-    xim = 0;
+    qt_xim = 0;
     if ( XSupportsLocale() ) {
 	if(XSetLocaleModifiers ("") == NULL)
 	{
 	    debug("Qt: Cannot set locale modifiers");
 	} else {
-	    xim = XOpenIM( appDpy, 0, 0, 0 );
+	    qt_xim = XOpenIM( appDpy, 0, 0, 0 );
 #if 0
 	    char* lm;
 	    if ( qstrlen(lm=XSetLocaleModifiers( "" )) ) {
-		xim = XOpenIM( appDpy, 0, 0, 0 );
+		qt_xim = XOpenIM( appDpy, 0, 0, 0 );
 	    } else if ( qstrlen(lm=XSetLocaleModifiers( "@im=none" )) ) {
 		debug("Qt: Disabling input methods for this locale, %s",lm);
-		xim = XOpenIM( appDpy, 0, 0, 0 );
+		qt_xim = XOpenIM( appDpy, 0, 0, 0 );
 	    } else {
 		debug("Qt: No valid input methods");
 	    }
@@ -934,50 +931,35 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	debug("Qt: Locales not supported on X server");
     }
 
-    if ( xim ) {
+    if ( qt_xim ) {
 	XIMStyles *styles;
-	XGetIMValues(xim, XNQueryInputStyle, &styles, NULL, NULL);
+	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
 	for (int i = 0; i < styles->count_styles; i++) {
 	    if (styles->supported_styles[i] == xim_preferred_style) {
-	        xim_style = xim_preferred_style;
+	        qt_xim_style = xim_preferred_style;
 		break;
 	    } else if (styles->supported_styles[i] ==
 			(XIMPreeditNone | XIMStatusNone) ||
 		       styles->supported_styles[i] ==
 			(XIMPreeditNothing | XIMStatusNothing) ) {
 		// Either of these will suffice as a default
-	        if ( !xim_style )
-		    xim_style = styles->supported_styles[i];
+	        if ( !qt_xim_style )
+		    qt_xim_style = styles->supported_styles[i];
 	    }
 	}
-	if ( !xim_style ) {
+	if ( !qt_xim_style ) {
 	    // Give up
 	    warning("Input style unsupported.  See InputMethod documentation.");
 	    close_xim();
-	} else {
-	    char **missing=0;
-	    char *def_string=0;
-	    int nmissing=0;
-	    xim_fixed_fontset = XCreateFontSet( appDpy,
-		"-*-times-medium-r-normal--16-*-*-*-*-*-*-*,"
-		"-*-*-medium-r-normal--16-*-*-*-*-*-*-*,"
-		"*--16-*", &missing, &nmissing, &def_string );
-	    if ( missing ) {
-		warning("Could not load all fonts for this locale");
-		XFreeStringList(missing);
-	    }
-	    if ( !xim_fixed_fontset ) {
-		close_xim();
-	    }
 	}
-	if ( xim ) {
-	    const char* locale = XLocaleOfIM(xim);
+	if ( qt_xim ) {
+	    const char* locale = XLocaleOfIM(qt_xim);
 	    input_mapper = QTextCodec::codecForName(locale);
 debug("Codec for %s is %s", locale, input_mapper ? input_mapper->name() : "<null>");
 	}
     }
 
-    if ( !xim )
+    if ( !qt_xim )
 #endif
     {
 	const char* locale = setlocale( LC_CTYPE, 0 );
@@ -1025,7 +1007,7 @@ void qt_cleanup()
     QColor::cleanup();
 
 #if !defined(NO_XIM)
-    if ( xim ) {
+    if ( qt_xim ) {
 	close_xim();
     }
 #endif
@@ -3320,30 +3302,11 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     }
 
     if ( type == QEvent::KeyPress ) {
-	if ( xim ) {
+	if ( qt_xim ) {
 	    QTLWExtra*  xd = tlw->extraData()?tlw->extraData()->topextra:0;
 	    if ( !xd ) {
 		tlw->createTLExtra();
 		xd = tlw->extraData()->topextra;
-	    }
-	    if ( xd->xic == 0 ) {
-		XPoint spot; spot.x = 1; spot.y = 1; // dummmy
-
-		XVaNestedList preedit_att = XVaCreateNestedList(0,
-				XNFontSet, xim_fixed_fontset,
-				XNSpotLocation, &spot,
-				NULL);
-		XVaNestedList status_att = XVaCreateNestedList(0,
-				XNFontSet, xim_fixed_fontset,
-				NULL);
-
-		xd->xic = (void*)XCreateIC( xim,
-				XNInputStyle, xim_style,
-				XNClientWindow, tlw->winId(),
-				XNFocusWindow, tlw->winId(),
-				XNPreeditAttributes, preedit_att,
-				XNStatusAttributes, status_att,
-				0 );
 	    }
 	    count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
 				     chars.data(), chars.size(), &key, &status );
