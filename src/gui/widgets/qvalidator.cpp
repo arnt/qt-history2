@@ -58,10 +58,10 @@
 
     \i For an editable combobox that accepts URLs, any well-formed URL
     is \c Acceptable, "http://www.trolltech.com/," is \c Intermediate
-    (it might be a cut-and-paste that accidentally took in a comma at
-    the end), the empty string is valid (the user might select and
-    delete all of the text in preparation of entering a new URL) and
-    "http:///./" is \c Invalid.
+    (it might be a cut and paste action that accidentally took in a
+    comma at the end), the empty string is valid (the user might
+    select and delete all of the text in preparation of entering a new
+    URL) and "http:///./" is \c Invalid.
 
     \i For a spin box that accepts lengths, "11cm" and "1in" are \c
     Acceptable, "11" and the empty string are \c Intermediate and
