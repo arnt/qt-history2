@@ -246,7 +246,7 @@ bool QFile::open( int m )
 	    length = INT_MAX;
 	    ioIndex  = 0;
 	} else {
-	    length = (int)st.st_size;
+	    length = (Offset)st.st_size;
 	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
 	    if ( !(flags()&IO_Truncate) && length == 0 && isReadable() ) {
 		// try if you can read from it (if you can, it's a sequential
@@ -313,14 +313,14 @@ bool QFile::open( int m, FILE *f )
     ext_f = TRUE;
     QT_STATBUF st;
     QT_FSTAT( QT_FILENO(fh), &st );
-    ioIndex = (int)ftell( fh );
+    ioIndex = (Offset)ftell( fh );
     if ( (st.st_mode & QT_STAT_MASK) != QT_STAT_REG || f == stdin ) { //stdin is non seekable
 	// non-seekable
 	setType( IO_Sequential );
 	length = INT_MAX;
 	ioIndex  = 0;
     } else {
-	length = (int)st.st_size;
+	length = (Offset)st.st_size;
 	if ( !(flags()&IO_Truncate) && length == 0 && isReadable() ) {
 	    // try if you can read from it (if you can, it's a sequential
 	    // device; e.g. a file in the /proc filesystem)
@@ -378,7 +378,7 @@ bool QFile::open( int m, int f )
 	length = INT_MAX;
 	ioIndex  = 0;
     } else {
-	length = (int)st.st_size;
+	length = (Offset)st.st_size;
 	if ( length == 0 && isReadable() ) {
 	    // try if you can read from it (if you can, it's a sequential
 	    // device; e.g. a file in the /proc filesystem)
