@@ -1859,6 +1859,7 @@ int QWindowsStyle::styleHint( StyleHint hint,
     case SH_MenuBar_MouseTracking:
     case SH_PopupMenu_MouseTracking:
     case SH_ComboBox_ListMouseTracking:
+    case SH_ScrollBar_StopMouseOverSlider:
 	ret = 1;
 	break;
 
