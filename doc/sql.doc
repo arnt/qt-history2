@@ -133,10 +133,9 @@ Systems (7th ed.)</em> by C. J. Date, ISBN 0201385902.
 
 Whilst this module overview presents the classes from a purely
 programmatic point of view the <em>Qt Designer</em> manual's "Data Aware
-Widgets" chapter takes a higher-level approach. The manual and its
-examples demonstrate how to drilldown from one table to another, how to
-\c UPDATE, \c DELETE and \c INSERT records in both QSqlTables and
-QSqlDialogs and how to deal with foreign key lookups.
+Widgets" chapter takes a higher-level approach demonstrating how to set
+up master-detail relationships between widgets, perform drilldown and
+handle foreign key lookups.
 
 The SQL classes are divided into three layers:
 
