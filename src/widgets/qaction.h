@@ -119,17 +119,10 @@ private:
 class Q_EXPORT QActionGroup : public QAction
 {
     Q_OBJECT
-    Q_ENUMS( ToolBarMode )
     Q_PROPERTY( bool exclusive READ isExclusive WRITE setExclusive )
-    Q_PROPERTY( ToolBarMode toolBarMode READ toolBarMode WRITE setToolBarMode )
+    Q_PROPERTY( bool usesDropDown READ usesDropDown WRITE setUsesDropDown )
 
 public:
-    enum ToolBarMode {
-	ButtonList,
-	MenuButton,
-	ComboBox
-    };
-
     QActionGroup( QObject* parent, const char* name = 0, bool exclusive = TRUE );
     ~QActionGroup();
     void setExclusive( bool );
@@ -140,8 +133,8 @@ public:
     bool removeFrom( QWidget* );
     void setEnabled( bool );
 
-    void setToolBarMode( ToolBarMode mode );
-    ToolBarMode toolBarMode() const;
+    void setUsesDropDown( bool enable );
+    bool usesDropDown() const;
 
 signals:
     void selected( QAction* );
@@ -150,9 +143,9 @@ private slots:
     void childToggled( bool );
     void childDestroyed();
     void internalComboBoxActivated( int );
+    void internalToggle( QAction* );
 
 private:
-    ToolBarMode tbmode;
     QActionGroupPrivate* d;
 };
 

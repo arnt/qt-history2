@@ -810,9 +810,14 @@ class QActionGroupPrivate
 {
 public:
     uint exclusive: 1;
+    uint dropdown: 1;
     QList<QAction> actions;
     QAction* selected;
     QAction* separatorAction;
+
+    QList<QComboBox> comboboxes;
+    QList<QToolButton> menubuttons;
+    QList<QPopupMenu> popups;
 };
 
 
@@ -852,9 +857,11 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
 {
     d = new QActionGroupPrivate;
     d->exclusive = exclusive;
+    d->dropdown = FALSE;
     d->selected = 0;
     d->separatorAction = 0;
-    tbmode = ButtonList;
+
+    connect( this, SIGNAL(selected(QAction*)), SLOT(internalToggle(QAction*)) );
 }
 
 /*! Destroys the object and frees any allocated resources. */
@@ -890,6 +897,20 @@ bool QActionGroup::isExclusive() const
     return d->exclusive;
 }
 
+/*! Sets the representation of this actiongroup in toolbars
+ */
+
+void QActionGroup::setUsesDropDown( bool enable )
+{
+    d->dropdown = enable;
+}
+
+/*! Returns the current representation of this actiongroup in toolbars
+*/
+bool QActionGroup::usesDropDown() const
+{
+    return d->dropdown;
+}
 
 /*!
   Inserts action \a action to the group.
@@ -924,14 +945,15 @@ void QActionGroup::insertSeparator()
 bool QActionGroup::addTo( QWidget* w )
 {
     if ( w->inherits( "QToolBar" ) ) {
-	switch ( tbmode ) {
-	case MenuButton:
-	    {
+	if ( d->dropdown ) {
+	    if ( !d->exclusive ) {
 		QListIterator<QAction> it( d->actions);
 		if ( !it.current() )
 		    return TRUE;
 
 		QToolButton* btn = new QToolButton( (QToolBar*) w );
+		d->menubuttons.append( btn );
+
 		if ( !!text() )
 		    btn->setText( it.current()->text() );
 		if ( !iconSet().isNull() )
@@ -949,25 +971,40 @@ bool QActionGroup::addTo( QWidget* w )
 		    it.current()->addTo( menu );
 		    ++it;
 		}
-	    }
-	    return TRUE;
-	case ComboBox:
-	    {
+		return TRUE;
+	    } else {
 		QComboBox *box = new QComboBox( w );
+		d->comboboxes.append( box );
+
 		for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
 		    box->insertItem( it.current()->iconSet().pixmap(), it.current()->text() );
 		}
 		connect( box, SIGNAL(activated(int)), this, SLOT( internalComboBoxActivated(int)) );
+		return TRUE;
 	    }
-	    return TRUE;
-	default:
-	    break;
 	}
+    } else if ( w->inherits( "QPopupMenu" ) ) {
+	QPopupMenu *popup;
+	if ( d->dropdown ) {
+	    QPopupMenu *menu = (QPopupMenu*)w;
+	    popup = new QPopupMenu( w );
+	    d->popups.append( popup );
+
+	    menu->insertItem( menuText(), popup );
+	} else {
+	    popup = (QPopupMenu*)w;
+	}
+	for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
+	    it.current()->addTo( popup );
+	}
+	return TRUE;
     }
 
     for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
-	it.current()->addTo( w );
+	if ( !it.current()->addTo( w ) )
+	    return FALSE;
     }
+
     return TRUE;
 }
 
@@ -976,16 +1013,6 @@ bool QActionGroup::addTo( QWidget* w )
 bool QActionGroup::removeFrom( QWidget* w )
 {
     if ( w->inherits( "QToolBar" ) ) {
-	switch ( tbmode ) {
-	case MenuButton:
-	    return TRUE;
-	    break;
-	case ComboBox:
-	    return TRUE;
-	    break;
-	default:
-	    break;
-	}
     }
 
     for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
@@ -1029,8 +1056,14 @@ void QActionGroup::childDestroyed()
  */
 void QActionGroup::setEnabled( bool enable )
 {
-    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
+    for ( QListIterator<QAction> it( d->actions ); it.current(); ++it ) {
 	it.current()->setEnabled( enable );
+    }
+    for ( QListIterator<QComboBox> cb( d->comboboxes ); cb.current(); ++cb ) {
+	cb.current()->setEnabled( enabled );
+    }
+    for ( QListIterator<QToolButtons> mb( d->menubuttons ); mb.current(); ++mb ) {
+	mb.current()->setEnabled( FALSE );
     }
     QAction::setEnabled( enable );
 }
@@ -1044,26 +1077,33 @@ void QActionGroup::setEnabled( bool enable )
  \sa setExclusive()
 */
 
-/*! Sets the representation of this actiongroup in toolbars
- */
-
-void QActionGroup::setToolBarMode( ToolBarMode mode )
-{
-    tbmode = mode;
-}
-
-/*! Returns the current representation of this actiongroup in toolbars
-*/
-QActionGroup::ToolBarMode QActionGroup::toolBarMode() const
-{
-    return tbmode;
-}
-
 void QActionGroup::internalComboBoxActivated( int index )
 {
     QAction *a = d->actions.at( index );
-    if ( a )
-	emit ((QActionGroup*)a)->activated();
+    if ( a ) {
+	if ( a != d->selected ) {
+	    d->selected = a;
+	    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
+		if ( it.current()->isToggleAction() && it.current() != a )
+		    it.current()->setOn( FALSE );
+	    }
+	    if ( a->isToggleAction() )
+		a->setOn( TRUE );
+
+	    emit activated();
+	    emit selected( d->selected );
+	    emit ((QActionGroup*)a)->activated();
+	}
+    }
+}
+
+void QActionGroup::internalToggle( QAction *a )
+{
+    for ( QListIterator<QComboBox> it( d->comboboxes); it.current(); ++it ) {
+	int index = d->actions.find( a );
+	if ( index != -1 )
+	    it.current()->setCurrentItem( index );
+    }
 }
 
 #endif
