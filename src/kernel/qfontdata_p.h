@@ -158,7 +158,7 @@ public:
 class QFontStruct : public QShared
 {
 public:
-    inline QFontStruct( const QFontDef& d ) :   s(d), info(NULL), cache_cost(0) { }
+    inline QFontStruct( const QFontDef& d ) :   QShared(d), s(d), info(NULL), cache_cost(0) { }
     inline const QFontDef *spec()  const { return &s; }
     int ascent() const { return info->ascent+2; /*2?? fixme!*/ }
     int descent() const { return info->descent; /*2?? fixme!*/ }
@@ -303,7 +303,7 @@ public:
 
 public:
     QFontPrivate()
-	: exactMatch(FALSE), lineWidth(1)
+	: QShared(), exactMatch(FALSE), lineWidth(1)
     {
 
 	charsetcompat = QFont::Unicode;
