@@ -179,7 +179,7 @@ int main(int argc, char * argv[])
     }
 
     if (argc < 2 || error || (!fileName && !imagecollection)) {
-        fprintf(stderr, "Qt user interface compiler.\n");
+        fprintf(stderr, "Qt user interface compiler\n");
         if (error)
             fprintf(stderr, "uic: %s\n", error);
 

@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#include "qaxbindable.h"
+#include "qaxfactory.h"
+
 #include <qapplication.h>
 #include <qdir.h>
 #include <qmap.h>
@@ -18,9 +21,6 @@
 #include <qmetaobject.h>
 #include <qsettings.h>
 #include <qvariant.h>
-
-#include "qaxbindable.h"
-#include "qaxfactory.h"
 
 #include <qt_windows.h>
 #include <olectl.h>

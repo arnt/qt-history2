@@ -175,7 +175,7 @@ int main( int argc, char * argv[] )
     }
 
     if ( argc < 2 || error || (!fileName && !imagecollection ) ) {
-	fprintf( stderr, "Qt user interface compiler.\n" );
+	fprintf( stderr, "Qt user interface compiler\n" );
 	if ( error )
 	    fprintf( stderr, "uic: %s\n", error );
 
@@ -301,7 +301,7 @@ int main( int argc, char * argv[] )
 	out << "** Form "<< (impl? "implementation" : "interface") << " generated from reading ui file '" << fileName << "'" << endl;
 	out << "**" << endl;
 	out << "** Created: " << QDateTime::currentDateTime().toString() << endl;
-	out << "**      by: The User Interface Compiler ($Id: $)" << endl;
+	out << "**      by: The User Interface Compiler for Qt version " << QT_VERSION_STR << endl;
 	out << "**" << endl;
 	out << "** WARNING! All changes made in this file will be lost!" << endl;
 	out << "****************************************************************************/" << endl << endl;

@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include <qfileinfo.h>
 #include <qdatetime.h>
 #include <qfile.h>
@@ -112,7 +113,7 @@ main(int argc, char **argv)
         }
     }
     if (!files.size() || error || show_help) {
-	fprintf(stderr, "Qt resource compiler.\n");
+	fprintf(stderr, "Qt resource compiler\n");
 	if (error)
 	    fprintf(stderr, "%s: %s\n", argv[0], error);
         fprintf(stderr, "Usage: %s  [options] <inputs>\n\n"
@@ -143,11 +144,11 @@ main(int argc, char **argv)
     fprintf(out, "** Resource object code\n");
     fprintf(out, "**\n");
     fprintf(out, "** Created: %s\n", QDateTime::currentDateTime().toString().latin1());
-    fprintf(out, "**      by: The Qt Resource Compiler ($Id: $)\n");
+    fprintf(out, "**      by: The Resource Compiler for Qt version %s\n", QT_VERSION_STR);
     fprintf(out, "**\n");
     fprintf(out, "** WARNING! All changes made in this file will be lost!\n");
-    fprintf(out, "*****************************************************************************/\n");
-    fprintf(out, "\n#include <qresource.h>\n");
+    fprintf(out, "*****************************************************************************/\n\n");
+    fprintf(out, "#include <qresource.h>\n");
 
     //process files
     QStringList global_resources;
@@ -254,4 +255,3 @@ main(int argc, char **argv)
     //done
     return 0;
 }
-

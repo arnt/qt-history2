@@ -119,7 +119,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "**      " << *it << "\n";
     out << "**\n";
     out << "** Created: " << QDateTime::currentDateTime().toString() << "\n";
-    out << "**      by: The User Interface Compiler ($Id: $)\n";
+    out << "**      by: The User Interface Compiler for Qt version " << QT_VERSION_STR << "\n";
     out << "**\n";
     out << "** WARNING! All changes made in this file will be lost!\n";
     out << "****************************************************************************/\n";
