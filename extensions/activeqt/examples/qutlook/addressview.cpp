@@ -34,7 +34,7 @@ public:
     AddressBookModel(AddressView *parent);
     ~AddressBookModel();
 
-    int rowCount() const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QVariant data(const QModelIndex &index, int role) const;
@@ -72,7 +72,7 @@ AddressBookModel::~AddressBookModel()
         Outlook::NameSpace(outlook.Session()).Logoff();
 }
 
-int AddressBookModel::rowCount() const
+int AddressBookModel::rowCount(const QModelIndex &) const
 {
     return contactItems ? contactItems->Count() : 0;
 }
