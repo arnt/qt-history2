@@ -187,7 +187,7 @@ void QSqlDatabasePrivate::addDatabase(const QSqlDatabase &db, const QString & na
 }
 
 /*! \internal
- */
+*/
 QSqlDatabase QSqlDatabasePrivate::database(const QString& name, bool open)
 {
     QSqlDatabase db = dbDict().value(name);
@@ -203,7 +203,7 @@ QSqlDatabase QSqlDatabasePrivate::database(const QString& name, bool open)
 
 
 /*! \internal
-    Copies the connection data from \a other
+    Copies the connection data from \a other.
 */
 void QSqlDatabasePrivate::copy(const QSqlDatabasePrivate *other)
 {
@@ -301,7 +301,9 @@ void QSqlDatabasePrivate::disable()
     To make programming more convenient, QSqlDatabase is a value
     class. Any changes done to a database connection through one
     QSqlDatabase object will affect other QSqlDatabase objects
-    representing the same connection.
+    representing the same connection. Call cloneConnection() if you
+    want to create an independent database connection based on an
+    existing one.
 
     If you need multiple database connections simultaneously, specify
     an arbitrary name to addDatabase() and database(). Call
@@ -339,13 +341,12 @@ void QSqlDatabasePrivate::disable()
 
     If \a connectionName is not specified, the newly added database
     connection becomes the default database connection for the
-    application, and subsequent calls to database() (without a
-    database name parameter) will return a reference to it. If \a
-    connectionName is given, use \link QSqlDatabase::database()
-    database(connectionName)\endlink to retrieve a pointer to the
-    database connection.
+    application, and subsequent calls to database() without a
+    database name parameter will return a reference to it. If \a
+    connectionName is given, use database(\a connectionName) to
+    retrieve a pointer to the database connection.
 
-    To make use of the connection you will need to set it up, for
+    To make use of the connection, you will need to set it up, for
     example by calling some or all of setDatabaseName(),
     setUserName(), setPassword(), setHostName(), setPort(), and
     setConnectOptions(), and then you'll need to open() the
@@ -353,7 +354,7 @@ void QSqlDatabasePrivate::disable()
 
     \sa database() removeDatabase()
 */
-QSqlDatabase QSqlDatabase::addDatabase(const QString& type, const QString& connectionName)
+QSqlDatabase QSqlDatabase::addDatabase(const QString &type, const QString &connectionName)
 {
     QSqlDatabase db(type);
     QSqlDatabasePrivate::addDatabase(db, connectionName);
@@ -385,19 +386,20 @@ QSqlDatabase QSqlDatabase::database(const QString& connectionName, bool open)
     connection when this function is called, otherwise a resource leak
     will occur.
 
-    Since QSqlDatabase is reference counted, a warning will be issued if
-    the connection is still in use.
+    Example:
 
     \code
     // WRONG
     QSqlDatabase db = QSqlDatabase::database("sales");
     QSqlQuery query("SELECT NAME, DOB FROM EMPLOYEES", db);
     QSqlDatabase::removeDatabase("sales"); // will output a warning
+
     // "db" is now a dangling invalid database connection,
     // "query" contains an invalid result set
     \endcode
 
     The correct way to do it:
+
     \code
     {
         QSqlDatabase db = QSqlDatabase::database("sales");
@@ -406,6 +408,8 @@ QSqlDatabase QSqlDatabase::database(const QString& connectionName, bool open)
     // Both "db" and "query" are destroyed because they are out of scope
     QSqlDatabase::removeDatabase("sales"); // correct
     \endcode
+
+    \sa database()
 */
 
 void QSqlDatabase::removeDatabase(const QString& connectionName)
@@ -416,78 +420,61 @@ void QSqlDatabase::removeDatabase(const QString& connectionName)
 /*!
     Returns a list of all the available database drivers.
 
-    Note that if you want to iterate over the list, you should iterate
-    over a copy, e.g.
-    \code
-    QStringList list = QSqlDatabase::drivers();
-    QStringList::Iterator i = list.begin();
-    while(i != list.end()) {
-        myProcessing(*i);
-        ++i;
-    }
-    \endcode
+    \sa registerSqlDriver()
 */
 
 QStringList QSqlDatabase::drivers()
 {
-    QStringList l;
-    if (QFactoryLoader *fl = loader())
-        l = fl->keys();
-
-    DriverDict dict = QSqlDatabasePrivate::driverDict();
-    for (DriverDict::ConstIterator itd = dict.constBegin(); itd != dict.constEnd(); ++itd) {
-        if (!l.contains(itd.key()))
-            l << itd.key();
-    }
+    QStringList list;
 
 #ifdef QT_SQL_PSQL
-    if (!l.contains(QLatin1String("QPSQL7")))
-        l << QLatin1String("QPSQL7");
-    if (!l.contains(QLatin1String("QPSQL")))
-        l << QLatin1String("QPSQL");
+    list << QLatin1String("QPSQL7");
+    list << QLatin1String("QPSQL");
 #endif
 #ifdef QT_SQL_MYSQL
-    if (!l.contains(QLatin1String("QMYSQL3")))
-        l << QLatin1String("QMYSQL3");
-    if (!l.contains(QLatin1String("QMYSQL")))
-        l << QLatin1String("QMYSQL");
+    list << QLatin1String("QMYSQL3");
+    list << QLatin1String("QMYSQL");
 #endif
 #ifdef QT_SQL_ODBC
-    if (!l.contains(QLatin1String("QODBC3")))
-        l << QLatin1String("QODBC3");
-    if (!l.contains(QLatin1String("QODBC")))
-        l << QLatin1String("QODBC");
+    list << QLatin1String("QODBC3");
+    list << QLatin1String("QODBC");
 #endif
 #ifdef QT_SQL_OCI
-    if (!l.contains(QLatin1String("QOCI8")))
-        l << QLatin1String("QOCI8");
-    if (!l.contains(QLatin1String("QOCI")))
-        l << QLatin1String("QOCI");
+    list << QLatin1String("QOCI8");
+    list << QLatin1String("QOCI");
 #endif
 #ifdef QT_SQL_TDS
-    if (!l.contains(QLatin1String("QTDS7")))
-        l << QLatin1String("QTDS7");
-    if (!l.contains(QLatin1String("QTDS")))
-        l << QLatin1String("QTDS");
+    list << QLatin1String("QTDS7");
+    list << QLatin1String("QTDS");
 #endif
 #ifdef QT_SQL_DB2
-    if (!l.contains(QLatin1String("QDB2")))
-        l << QLatin1String("QDB2");
+    list << QLatin1String("QDB2");
 #endif
 #ifdef QT_SQL_SQLITE
-    if (!l.contains(QLatin1String("QSQLITE")))
-        l << QLatin1String("QSQLITE");
+    list << QLatin1String("QSQLITE");
 #endif
 #ifdef QT_SQL_SQLITE2
-    if (!l.contains(QLatin1String("QSQLITE2")))
-        l << QLatin1String("QSQLITE2");
+    list << QLatin1String("QSQLITE2");
 #endif
 #ifdef QT_SQL_IBASE
-    if (!l.contains(QLatin1String("QIBASE")))
-        l << QLatin1String("QIBASE");
+    list << QLatin1String("QIBASE");
 #endif
 
-    return l;
+    if (QFactoryLoader *fl = loader()) {
+        QStringList keys = fl->keys();
+        for (QStringList::const_iterator i = keys.constBegin(); i != keys.constEnd(); ++i) {
+            if (!list.contains(*i))
+                list << *i;
+        }
+    }
+
+    DriverDict dict = QSqlDatabasePrivate::driverDict();
+    for (DriverDict::const_iterator i = dict.constBegin(); i != dict.constEnd(); ++i) {
+        if (!list.contains(i.key()))
+            list << i.key();
+    }
+
+    return list;
 }
 
 /*!
@@ -497,15 +484,17 @@ QStringList QSqlDatabase::drivers()
 
     Example:
     \code
-    QSqlDatabase::registerSqlDriver("MYDRIVER", new QSqlDriverCreator<MyDatabaseDriver>);
+    QSqlDatabase::registerSqlDriver("MYDRIVER",
+                                    new QSqlDriverCreator<MyDatabaseDriver>);
     QSqlDatabase db = QSqlDatabase::addDatabase("MYDRIVER");
-    ...
     \endcode
 
-    \warning The framework takes ownership of the \a creator pointer,
-    so it should not be deleted.
+    QSqlDatabase takes ownership of the \a creator pointer, so you
+    mustn't delete it yourself.
+
+    \sa drivers()
 */
-void QSqlDatabase::registerSqlDriver(const QString& name, QSqlDriverCreatorBase* creator)
+void QSqlDatabase::registerSqlDriver(const QString& name, QSqlDriverCreatorBase *creator)
 {
     delete QSqlDatabasePrivate::driverDict().take(name);
     if (creator)
@@ -515,6 +504,8 @@ void QSqlDatabase::registerSqlDriver(const QString& name, QSqlDriverCreatorBase*
 /*!
     Returns true if the list of database connections contains \a
     connectionName; otherwise returns false.
+
+    \sa connectionNames(), database()
 */
 
 bool QSqlDatabase::contains(const QString& connectionName)
@@ -523,8 +514,10 @@ bool QSqlDatabase::contains(const QString& connectionName)
 }
 
 /*!
-    Returns a list containing the names of all connections
- */
+    Returns a list containing the names of all connections.
+
+    \sa contains(), database()
+*/
 QStringList QSqlDatabase::connectionNames()
 {
     return QSqlDatabasePrivate::dbDict().keys();
@@ -533,8 +526,8 @@ QStringList QSqlDatabase::connectionNames()
 /*!
     \overload
 
-    Creates a QSqlDatabase connection that uses the driver referred to
-    by \a type. If the \a type is not recognized, the database
+    Creates a QSqlDatabase connection that uses the driver referred
+    to by \a type. If the \a type is not recognized, the database
     connection will have no functionality.
 
     The currently available driver types are:
@@ -551,10 +544,10 @@ QStringList QSqlDatabase::connectionNames()
     \row \i QTDS    \i Sybase Adaptive Server
     \endtable
 
-    Additional third party drivers, including your own custom drivers,
-    can be loaded dynamically.
+    Additional third party drivers, including your own custom
+    drivers, can be loaded dynamically.
 
-    \sa registerSqlDriver()
+    \sa registerSqlDriver(), drivers()
 */
 
 QSqlDatabase::QSqlDatabase(const QString &type)
@@ -575,11 +568,10 @@ QSqlDatabase::QSqlDatabase(QSqlDriver *driver)
 }
 
 /*!
-    Creates an empty, invalid QSqlDatabase object. Note that you
-    should never create QSqlDatabase objects like this; instead you
-    should use addDatabase(), removeDatabase() and database() to get
-    QSqlDatabase objects.
- */
+    Creates an empty, invalid QSqlDatabase object. Use addDatabase(),
+    removeDatabase(), and database() to get valid QSqlDatabase
+    objects.
+*/
 QSqlDatabase::QSqlDatabase()
 {
     d = QSqlDatabasePrivate::shared_null();
@@ -605,9 +597,9 @@ QSqlDatabase &QSqlDatabase::operator=(const QSqlDatabase &other)
 }
 
 /*!
-  \internal
+    \internal
 
-  Create the actual driver instance \a type.
+    Create the actual driver instance \a type.
 */
 
 void QSqlDatabasePrivate::init(const QString &type)
@@ -615,7 +607,6 @@ void QSqlDatabasePrivate::init(const QString &type)
     drvName = type;
 
     if (!driver) {
-
 #ifdef QT_SQL_PSQL
         if (type == QLatin1String("QPSQL") || type == QLatin1String("QPSQL7"))
             driver = new QPSQLDriver();
@@ -652,12 +643,11 @@ void QSqlDatabasePrivate::init(const QString &type)
         if (type == QLatin1String("QIBASE"))
             driver = new QIBaseDriver();
 #endif
-
     }
 
     if (!driver) {
         DriverDict dict = QSqlDatabasePrivate::driverDict();
-        for (DriverDict::ConstIterator it = dict.constBegin();
+        for (DriverDict::const_iterator it = dict.constBegin();
              it != dict.constEnd() && !driver; ++it) {
             if (type == it.key()) {
                 driver = ((QSqlDriverCreatorBase*)(*it))->createObject();
@@ -671,7 +661,6 @@ void QSqlDatabasePrivate::init(const QString &type)
     }
 
     if (!driver) {
-
         qWarning("QSqlDatabase: %s driver not loaded", type.latin1());
         qWarning("QSqlDatabase: available drivers: %s",
                         QSqlDatabase::drivers().join(QLatin1String(" ")).latin1());
@@ -680,8 +669,12 @@ void QSqlDatabasePrivate::init(const QString &type)
 }
 
 /*!
-    Destroys the object, closes the connection, and frees any
-    allocated resources.
+    Destroys the object and frees any allocated resources.
+
+    If this is the last QSqlDatabase object that uses a certain
+    database connection, the is automatically closed.
+
+    \sa close()
 */
 
 QSqlDatabase::~QSqlDatabase()
@@ -693,13 +686,12 @@ QSqlDatabase::~QSqlDatabase()
 }
 
 /*!
-    Executes a SQL statement (e.g. an \c INSERT, \c UPDATE or \c
-    DELETE statement), on the database, and returns a QSqlQuery
-    object. Use lastError() to retrieve error information. If \a query
-    is empty, an empty, invalid query is returned and lastError() is
-    not affected.
+    Executes a SQL statement on the database and returns a QSqlQuery
+    object. Use lastError() to retrieve error information. If \a
+    query is empty, an empty, invalid query is returned and
+    lastError() is not affected.
 
-    \sa QSqlQuery lastError()
+    \sa QSqlQuery, lastError()
 */
 
 QSqlQuery QSqlDatabase::exec(const QString & query) const
@@ -713,9 +705,9 @@ QSqlQuery QSqlDatabase::exec(const QString & query) const
 }
 
 /*!
-    Opens the database connection using the current connection values.
-    Returns true on success; otherwise returns false. Error
-    information can be retrieved using the lastError() function.
+    Opens the database connection using the current connection
+    values. Returns true on success; otherwise returns false. Error
+    information can be retrieved using lastError().
 
     \sa lastError() setDatabaseName() setUserName() setPassword() setHostName() setPort() setConnectOptions()
 */
@@ -749,6 +741,7 @@ bool QSqlDatabase::open(const QString& user, const QString& password)
 
 /*!
     Closes the database connection, freeing any resources acquired.
+    This will also affect copies of this QSqlDatabase object.
 
     \sa removeDatabase()
 */
@@ -784,7 +777,7 @@ bool QSqlDatabase::isOpenError() const
     transactions. Returns true if the operation succeeded; otherwise
     returns false.
 
-    \sa QSqlDriver::hasFeature() commit() rollback()
+    \sa QSqlDriver::hasFeature(), commit(), rollback()
 */
 
 bool QSqlDatabase::transaction()
@@ -811,8 +804,8 @@ bool QSqlDatabase::commit()
 
 /*!
     Rolls a transaction back on the database if the driver supports
-    transactions and a transaction() has been started. Returns true if
-    the operation succeeded; otherwise returns false.
+    transactions and a transaction() has been started. Returns true
+    if the operation succeeded; otherwise returns false.
 
     \sa QSqlDriver::hasFeature() commit()
 */
@@ -830,26 +823,26 @@ bool QSqlDatabase::rollback()
     the connection, call this function and open() the connection
     again). The name is database-specific.
 
-    For the QOCI8 (Oracle) driver the database name is the TNS Service
-    Name.
+    For the QOCI (Oracle) driver, the database name is the TNS
+    Service Name.
 
-    For the QODBC3 driver the \a name can either be a DSN, a DSN
+    For the QODBC driver, the \a name can either be a DSN, a DSN
     filename (in which case the file must have a \c .dsn extension),
     or a connection string.
 
     For example, Microsoft Access users can use the following
     connection string to open an \c .mdb file directly, instead of
     having to create a DSN entry in the ODBC manager:
+
     \code
     ...
-    db = QSqlDatabase::addDatabase("QODBC3");
+    db = QSqlDatabase::addDatabase("QODBC");
     db.setDatabaseName("DRIVER={Microsoft Access Driver (*.mdb)};FIL={MS Access};DBQ=myaccessfile.mdb");
     if (db.open()) {
         // success!
     }
     ...
     \endcode
-    ("FIL" is the required spelling in Microsoft's API.)
 
     There is no default value.
 
@@ -864,7 +857,7 @@ void QSqlDatabase::setDatabaseName(const QString& name)
 
 /*!
     Sets the connection's user name to \a name. This must be done
-    before the connection is opened or it has no effect; (or you can
+    before the connection is opened or it has no effect (or you can
     close() the connection, call this function and open() the
     connection again).
 
@@ -882,7 +875,7 @@ void QSqlDatabase::setUserName(const QString& name)
 
 /*!
     Sets the connection's password to \a password. This must be done
-    before the connection is opened or it has no effect; (or you can
+    before the connection is opened or it has no effect (or you can
     close() the connection, call this function and open() the
     connection again).
 
@@ -903,7 +896,7 @@ void QSqlDatabase::setPassword(const QString& password)
 
 /*!
     Sets the connection's host name to \a host. This must be done
-    before the connection is opened or it has no effect; (or you can
+    before the connection is opened or it has no effect (or you can
     close() the connection, call this function and open() the
     connection again).
 
@@ -919,8 +912,8 @@ void QSqlDatabase::setHostName(const QString& host)
 }
 
 /*!
-    Sets the connection's port number to \a p. This must be done
-    before the connection is opened or it has no effect; (or you can
+    Sets the connection's port number to \a port. This must be done
+    before the connection is opened or it has no effect (or you can
     close() the connection, call this function and open() the
     connection again).
 
@@ -930,10 +923,10 @@ void QSqlDatabase::setHostName(const QString& host)
     setDatabaseName() setConnectOptions() open()
 */
 
-void QSqlDatabase::setPort(int p)
+void QSqlDatabase::setPort(int port)
 {
     if (isValid())
-        d->port = p;
+        d->port = port;
 }
 
 /*!
@@ -967,7 +960,7 @@ QString QSqlDatabase::password() const
 }
 
 /*!
-    Returns the connection's host name; it may be empty.
+    Returns the connection's host name. It may be empty.
 
     \sa setHostName()
 */
@@ -979,7 +972,7 @@ QString QSqlDatabase::hostName() const
 /*!
     Returns the connection's driver name.
 
-    \sa addDatabase() driver()
+    \sa addDatabase(), driver()
 */
 QString QSqlDatabase::driverName() const
 {
@@ -988,7 +981,9 @@ QString QSqlDatabase::driverName() const
 
 /*!
     Returns the connection's port number. The value is undefined if
-    the port number has not been set, for example using setPort().
+    the port number has not been set.
+
+    \sa setPort()
 */
 int QSqlDatabase::port() const
 {
@@ -1021,6 +1016,8 @@ QSqlError QSqlDatabase::lastError() const
 /*!
     Returns a list of the database's tables, system tables and views,
     as specified by the parameter \a type.
+
+    \sa primaryIndex(), record()
 */
 
 QStringList QSqlDatabase::tables(QSql::TableType type) const
@@ -1031,6 +1028,8 @@ QStringList QSqlDatabase::tables(QSql::TableType type) const
 /*!
     Returns the primary index for table \a tablename. If no primary
     index exists an empty QSqlIndex is returned.
+
+    \sa tables(), record()
 */
 
 QSqlIndex QSqlDatabase::primaryIndex(const QString& tablename) const
@@ -1054,7 +1053,7 @@ QSqlRecord QSqlDatabase::record(const QString& tablename) const
 
 /*!
     Sets database-specific \a options. This must be done before the
-    connection is opened or it has no effect; (or you can close() the
+    connection is opened or it has no effect (or you can close() the
     connection, call this function and open() the connection again).
 
     The format of the \a options string is a semicolon separated list
@@ -1146,15 +1145,15 @@ QSqlRecord QSqlDatabase::record(const QString& tablename) const
     \sa connectOptions()
 */
 
-void QSqlDatabase::setConnectOptions(const QString& options)
+void QSqlDatabase::setConnectOptions(const QString &options)
 {
     if (isValid())
         d->connOptions = options;
 }
 
 /*!
-    Returns the connection options string used for this connection;
-    the string may be empty.
+    Returns the connection options string used for this connection.
+    The string may be empty.
 
     \sa setConnectOptions()
  */
@@ -1178,15 +1177,16 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
 /*! \overload
 
     This function is useful if you need to set up the database
-    connection and instantiate the driver yourself. If you do this, it
-    is recommended that you include the driver code in your own
+    connection and instantiate the driver yourself. If you do this,
+    it is recommended that you include the driver code in your own
     application. For example, setting up a custom PostgreSQL
-    connection and instantiating the QPSQL7 driver can be done like
+    connection and instantiating the QPSQL driver can be done like
     this:
 
     \code
-    #include "qtdir/src/sql/drivers/psql/qsql_psql.cpp"
+        #include "qtdir/src/sql/drivers/psql/qsql_psql.cpp"
     \endcode
+
     (We assume that \c qtdir is the directory where Qt is installed.)
     This will pull in the code that is needed to use the PostgreSQL
     client library and to instantiate a QPSQLDriver object, assuming
@@ -1194,12 +1194,12 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     search path.
 
     \code
-    PGconn* con = PQconnectdb("host=server user=bart password=simpson dbname=springfield");
-    QPSQLDriver* drv =  new QPSQLDriver(con);
-    QSqlDatabase db = QSqlDatabase::addDatabase(drv); // becomes the new default connection
-    QSqlQuery query;
-    query.exec("SELECT NAME, ID FROM STAFF");
-    ...
+        PGconn *con = PQconnectdb("host=server user=bart password=simpson dbname=springfield");
+        QPSQLDriver *drv =  new QPSQLDriver(con);
+        QSqlDatabase db = QSqlDatabase::addDatabase(drv); // becomes the new default connection
+        QSqlQuery query;
+        query.exec("SELECT NAME, ID FROM STAFF");
+        ...
     \endcode
 
     The above code sets up a PostgreSQL connection and instantiates a
@@ -1214,8 +1214,8 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     lines like the ones below to your \c .pro file:
 
     \code
-    unix:LIBS += -lpq
-    win32:LIBS += libpqdll.lib
+        unix:LIBS += -lpq
+        win32:LIBS += libpqdll.lib
     \endcode
 
     You will need to have the client library in your linker's search
@@ -1230,17 +1230,17 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     \row
     \i QPSQL
     \i QPSQLDriver
-    \i PGconn* connection
+    \i PGconn *connection
     \i \c qsql_psql.cpp
     \row
     \i QMYSQL
     \i QMYSQLDriver
-    \i MYSQL* connection
+    \i MYSQL *connection
     \i \c qsql_mysql.cpp
     \row
     \i QOCI
     \i QOCIDriver
-    \i OCIEnv* environment, OCIError* error, OCISvcCtx* serviceContext
+    \i OCIEnv *environment, OCIError *error, OCISvcCtx *serviceContext
     \i \c qsql_oci.cpp
     \row
     \i QODBC
@@ -1255,12 +1255,12 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     \row
     \i QTDS
     \i QTDSDriver
-    \i LOGINREC* loginRecord, DBPROCESS* dbProcess, const QString& hostName
+    \i LOGINREC *loginRecord, DBPROCESS *dbProcess, const QString &hostName
     \i \c qsql_tds.cpp
     \row
     \i QSQLITE
     \i QSQLiteDriver
-    \i sqlite* connection
+    \i sqlite *connection
     \i \c qsql_sqlite.cpp
     \row
     \i QIBASE
@@ -1269,14 +1269,14 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     \i \c qsql_ibase.cpp
     \endtable
 
-    Note: The host name (or service name) is needed when constructing
+    The host name (or service name) is needed when constructing
     the QTDSDriver for creating new connections for internal
     queries. This is to prevent the simultaneous usage of several
     QSqlQuery/\l{QSqlCursor} objects from blocking each other.
 
     \warning The SQL framework takes ownership of the \a driver pointer,
     and it should not be deleted. If you want to
-    explicitly remove the connection, use removeDatabase()
+    explicitly remove the connection, use removeDatabase().
 
     \sa drivers()
 */
@@ -1289,16 +1289,20 @@ QSqlDatabase QSqlDatabase::addDatabase(QSqlDriver* driver, const QString& connec
 }
 
 /*!
-   Returns true if the QSqlDatabase has a valid driver.
-   \code
-   QSqlDatabase db;
-   qDebug() << db.isValid(); // false, db is not valid
-   db = QSqlDatabase::database("sales");
-   qDebug() << db.isValid(); // true if "sales" connection exists
-   QSqlDatabase::removeDatabase("sales");
-   qDebug() << db.isValid(); // false since "sales" does not exist anymore
-   \endcode
- */
+    Returns true if the QSqlDatabase has a valid driver.
+
+    Example:
+    \code
+        QSqlDatabase db;
+        qDebug() << db.isValid();    // Returns false
+
+        db = QSqlDatabase::database("sales");
+        qDebug() << db.isValid();    // Returns true if "sales" connection exists
+
+        QSqlDatabase::removeDatabase("sales");
+        qDebug() << db.isValid();    // Returns false
+    \endcode
+*/
 bool QSqlDatabase::isValid() const
 {
     return d->driver && d->driver != d->shared_null()->driver;
@@ -1316,16 +1320,24 @@ QSqlRecord QSqlDatabase::record(const QSqlQuery& query) const
 */
 QSqlRecord QSqlDatabase::recordInfo(const QSqlQuery& query) const
 { return query.record(); }
+
+/*!
+    \fn QSqlRecord QSqlDatabase::recordInfo(const QString& tablename) const
+
+    Use record() instead.
+*/
 #endif
 
 /*!
-   Clones the database connection \a other and and stores it as \a
-   connectionName. All the settings from the original database, e.g.
-   databaseName(), hostName(), etc., are copied across. Does nothing
-   if \a other is an invalid database. Returns the newly created
-   database connection. Note that the connection is not opened, to use
-   it, it is neccessary to call open() first.
- */
+    Clones the database connection \a other and and stores it as \a
+    connectionName. All the settings from the original database, e.g.
+    databaseName(), hostName(), etc., are copied across. Does nothing
+    if \a other is an invalid database. Returns the newly created
+    database connection.
+
+    Note that the connection is not opened, to use it, it is
+    neccessary to call open() first.
+*/
 QSqlDatabase QSqlDatabase::cloneDatabase(const QSqlDatabase &other, const QString &connectionName)
 {
     if (!other.isValid())
@@ -1336,12 +1348,6 @@ QSqlDatabase QSqlDatabase::cloneDatabase(const QSqlDatabase &other, const QStrin
     QSqlDatabasePrivate::addDatabase(db, connectionName);
     return db;
 }
-
-/*!
-    \fn QSqlRecord QSqlDatabase::recordInfo(const QString& tablename) const
-
-    Use record() instead.
-*/
 
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QSqlDatabase &d)
@@ -1357,4 +1363,3 @@ QDebug operator<<(QDebug dbg, const QSqlDatabase &d)
     return dbg.space();
 }
 #endif
-
