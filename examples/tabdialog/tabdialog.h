@@ -21,6 +21,7 @@ class TabDialog : public QTabDialog
 
 public:
     TabDialog( QWidget *parent, const char *name, const QString &_filename );
+    void show();
 
 protected:
     QString filename;
@@ -29,6 +30,10 @@ protected:
     void setupTab1();
     void setupTab2();
     void setupTab3();
+    void setupFocus();
+
+private:
+    QWidget *focus;
 
 };
 

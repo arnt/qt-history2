@@ -36,7 +36,7 @@ void TabDialog::setupTab1()
 
     (void)new QLabel( "Filename:", tab1 );
     QLineEdit *fname = new QLineEdit( filename, tab1 );
-    fname->setFocus();
+    focus = fname;
 
     (void)new QLabel( "Path:", tab1 );
     QLabel *path = new QLabel( fileinfo.dirPath( TRUE ), tab1 );
@@ -107,4 +107,15 @@ void TabDialog::setupTab3()
     (void)new QCheckBox( QString( "Open files with the extension '%1' always with this application" ).arg( fileinfo.extension() ), tab3 );
 
     addTab( tab3, "Applications" );
+}
+
+void TabDialog::setupFocus()
+{
+    focus->setFocus();
+}
+
+void TabDialog::show()
+{
+    QTabDialog::show();
+    setupFocus();
 }
