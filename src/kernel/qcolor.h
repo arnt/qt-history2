@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#53 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#54 $
 **
 ** Definition of QColor class
 **
@@ -46,8 +46,14 @@ Q_EXPORT inline int qGreen( QRgb rgb )		// get green part of RGB
 Q_EXPORT inline int qBlue( QRgb rgb )		// get blue part of RGB
 { return (int)((rgb >> 16) & 0xff); }
 
+Q_EXPORT inline int qAlpha( QRgb rgb )		// get alpha part of RGBA
+{ return (int)((rgb >> 24) & 0xff); }
+
 Q_EXPORT inline QRgb qRgb( int r, int g, int b )// set RGB value
 { return (uint)(r & 0xff) |((uint)(g & 0xff) << 8) |((uint)(b & 0xff) << 16); }
+
+Q_EXPORT inline QRgb qRgba( int r, int g, int b, int a )// set RGBA value
+{ return qRgb(r,g,b) | ((uint)(a & 0xff) << 24); }
 
 Q_EXPORT inline int qGray( int r, int g, int b )// convert R,G,B to gray 0..255
 { return (r*11+g*16+b*5)/32; }

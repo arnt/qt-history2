@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#199 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#200 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1755,16 +1755,6 @@ bool QImage::isGrayscale() const
       }
     }
     return FALSE;
-}
-
-inline int qAlpha(QRgb c)
-{
-    return c>>24;
-}
-
-inline QRgb qRgba(int r, int g, int b, int a)
-{
-    return qRgb(r,g,b) | (a<<24);
 }
 
 static
