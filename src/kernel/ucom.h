@@ -10,6 +10,10 @@
 struct UObject;
 struct UInterfaceDescription;
 
+#if defined( Q_WS_MAC ) && defined(check)
+#undef check
+#endif
+
 
 //######### TODO useful error codes, prepare for proper exception
 //handling
