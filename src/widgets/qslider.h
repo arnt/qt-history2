@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#10 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#11 $
 **
 ** Definition of QSlider class
 **
@@ -15,8 +15,10 @@
 #include "qwidget.h"
 #include "qrangect.h"
 
+
 class QTimer;
 struct QSliderData;
+
 
 class QSlider : public QWidget, public QRangeControl
 {
@@ -27,7 +29,7 @@ public:
     QSlider( QWidget *parent=0, const char *name=0 );
     QSlider( Orientation, QWidget *parent=0, const char *name=0 );
     QSlider( int minValue, int maxValue, int step, int value, Orientation,
-		QWidget *parent=0, const char *name=0 );
+	     QWidget *parent=0, const char *name=0 );
 
     void	setOrientation( Orientation );
     Orientation orientation() const;
@@ -66,8 +68,9 @@ protected:
 
 private slots:
     void	repeatTimeout();
+
 private:
-    enum State { None, Dragging, TimingUp, TimingDown };
+    enum State { Idle, Dragging, TimingUp, TimingDown };
 
     void	init();
     int		positionFromValue( int ) const;
@@ -106,4 +109,5 @@ inline QSlider::Orientation QSlider::orientation() const
     return orient;
 }
 
-#endif //QSLIDER_H
+
+#endif // QSLIDER_H

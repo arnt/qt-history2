@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#19 $
 **
 ** Implementation of QSlider class
 **
@@ -15,16 +15,14 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#19 $");
+
 
 static const int motifBorder = 2;
 static const int motifLength = 30;
 static const int motifThickness = 16;
 static const int winLength = 10;
 static const int winThickness = 20;
-
-
-
 static const int thresholdTime = 500;
 static const int repeatTime    = 100;
 
@@ -33,9 +31,8 @@ static int sliderStartVal = 0; //##### class member?
 
 /*!
   \class QSlider qslider.h
-
   \brief The QSlider widget provides a vertical or horizontal slider.
-
+  \ingroup realwidgets
 
   A slider is used to let the user control a value within a
   program-definable range. In contrast to a QScrollBar, the QSlider
@@ -45,12 +42,9 @@ static int sliderStartVal = 0; //##### class member?
 
   The recommended thickness of a slider is given by sizeHint().
 
-
   A slider can be controlled by the keyboard, but it has a
   default focusPolicy() of \a NoFocus. Use setFocusPolicy() to
   enable keyboard focus.
-
-  \ingroup realwidgets
 */
 
 /*!
@@ -74,8 +68,7 @@ QSlider::QSlider( QWidget *parent, const char *name )
   The \e parent and \e name arguments are sent to the QWidget constructor.
 */
 
-QSlider::QSlider( Orientation orientation, QWidget *parent,
-			const char *name )
+QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     orient = orientation;
@@ -104,17 +97,19 @@ QSlider::QSlider( int minValue, int maxValue, int step,
     init();
 }
 
+
 void QSlider::init()
 {
-    state = None;
     timer = 0;
-    track = TRUE;
+    sliderVal = 0;
     sliderPos = 0;
+    state = Idle;
+    track = TRUE;
+    tickOffset = 0; //###
+    tickmarksAbove = tickmarksBelow = FALSE;
     if ( style() == MotifStyle )
 	setBackgroundColor( colorGroup().mid() );
     setFocusPolicy( NoFocus );
-    tickOffset = 0; //###
-    tickmarksAbove = tickmarksBelow = FALSE;
 }
 
 
@@ -172,16 +167,19 @@ void QSlider::setTracking( bool enable )
 /*!
   Calculates slider position corresponding to value \a v. Does not perform
   rounding.
- */
+*/
+
 int QSlider::positionFromValue( int v ) const
 {
     int  a = available();
     int range = maxValue() - minValue();
     return range > 0 ? ( (v - minValue() ) * a ) / (range): 0;
 }
+
 /*!
   Returns the available space in which the slider can move.
-  */
+*/
+
 int QSlider::available() const
 {
     int a;
@@ -201,7 +199,8 @@ int QSlider::available() const
 
 /*!
   Calculates value corresponding to slider position \a p. Performs rounding.
- */
+*/
+
 int QSlider::valueFromPosition( int p ) const
 {
     int a = available();
@@ -212,6 +211,7 @@ int QSlider::valueFromPosition( int p ) const
 /*!
   Implements the virtual QRangeControl function.
 */
+
 void QSlider::rangeChange()
 {
     int newPos = positionFromValue( value() );
@@ -223,6 +223,7 @@ void QSlider::rangeChange()
 /*!
   Implements the virtual QRangeControl function.
 */
+
 void QSlider::valueChange()
 {
     if ( sliderVal != value() ) {
@@ -235,7 +236,7 @@ void QSlider::valueChange()
 
 
 /*!
-    Handles resize events for the slider.
+  Handles resize events for the slider.
 */
 
 void QSlider::resizeEvent( QResizeEvent * )
@@ -304,7 +305,8 @@ void QSlider::setOrientation( Orientation orientation )
 
 /*!
   Returns the slider handle rectangle. (The actual moving-around thing.)
-  */
+*/
+
 QRect QSlider::sliderRect() const
 {
     QRect r;
@@ -371,7 +373,7 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
 
 /*!
   Performs the actual moving of the slider.
- */
+*/
 
 void QSlider::reallyMoveSlider( int newPos )
 {
@@ -461,9 +463,11 @@ void QSlider::paintEvent( QPaintEvent * )
     p.end();
 }
 
+
 /*!
   Handles mouse press events for the slider.
- */
+*/
+
 void QSlider::mousePressEvent( QMouseEvent *e )
 {
     resetState();
@@ -551,6 +555,7 @@ void QSlider::mouseReleaseEvent( QMouseEvent *e )
     resetState();
 }
 
+
 /*!
   Moves the left (or top) edge of the slider to position 
   \a pos. Performs snapping.
@@ -603,12 +608,12 @@ void QSlider::resetState()
 	emit sliderReleased();
 	break;
     }
-    case None:
+    case Idle:
 	break;
     default:
 	warning("QSlider: in wrong state");
     }
-    state = None;
+    state = Idle;
 }
 
 
@@ -729,10 +734,8 @@ int QSlider::goodPart( const QPoint &p )
 
 
 /*!  
-
   Returns the recommended size of the slider. Only the thickness is
   relevant.
-
 */
 
 QSize QSlider::sizeHint() const
