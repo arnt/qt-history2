@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#9 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#10 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -187,8 +187,10 @@ private:
     QGLContext*		glcx;
 
 private:	// Disabled copy constructor and operator=
-    QGLWidget( const QGLWidget& ) {}
-    QGLWidget&		operator=( const QGLWidget& ) { return *this; }
+#if defined(Q_DISABLE_COPY)
+    QGLWidget( const QGLWidget& );
+    QGLWidget&		operator=( const QGLWidget& );
+#endif
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#24 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#25 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -72,7 +72,7 @@ const char *qGLVersion()
   <li> \link setDoubleBuffer() Double or single buffering.\endlink
   <li> \link setDepth() Depth buffer.\endlink
   <li> \link setRgba() RGBA or color index mode.\endlink
-  <li> \link setAlpha() Alpha blending.\endlink
+  <li> \link setAlpha() Alpha channel.\endlink
   <li> \link setAccum() Accumulation buffer.\endlink
   <li> \link setStencil() Stencil buffer.\endlink
   <li> \link setStereo() Stereo buffer.\endlink
@@ -82,10 +82,11 @@ const char *qGLVersion()
   you want from an OpenGL rendering context.
 
   OpenGL drivers or accelerated hardware may or may not support
-  advanced features like alpha blending or stereographic viewing.
-  If you request alpha blending and the driver/hardware does not
-  provide it, you will get an invalid context. You can then try
-  again with a less demanding format.
+  advanced features like alpha channel or stereographic viewing.  If
+  you request such features and the driver/hardware does not provide
+  it, you will get an invalid context, which can be detected by
+  calling the isValid() method. You can then try again with a less
+  demanding format.
 
   There are different ways of defining the display characteristics
   of a rendering context. One is to create a QGLFormat and make
@@ -296,19 +297,22 @@ void QGLFormat::setRgba( bool enable )
 
 /*!
   \fn bool QGLFormat::alpha() const
-  Returns TRUE if the alpha buffer is enabled, otherwise FALSE.
-  The alpha buffer is disabled by default.
+
+  Returns TRUE if the alpha channel of the framebuffer is enabled,
+  otherwise FALSE.  The alpha channel is disabled by default.
+
   \sa setAlpha()
 */
 
 /*!
-  Enables the alpha buffer if \a enable is TRUE, or disables
-  it if \a enable is FALSE.
+
+  Enables the alpha channel of the framebuffer if \a enable is TRUE,
+  or disables it if \a enable is FALSE.
 
   The alpha buffer is disabled by default.
 
-  Alpha blending lets you draw transparent or translucent objects.
-  The A in RGBA specifies the transparency of a pixel.
+  The alpha channel is typically used for implementing transparency or
+  translucency.  The A in RGBA specifies the transparency of a pixel.
 
   \sa alpha()
 */
@@ -1018,7 +1022,6 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
 		      const QGLWidget* shareWidget, WFlags f )
     : QWidget(parent, name, f)
 {
-    setBackgroundMode( NoBackground );
     initDone = FALSE;
     glcx = 0;
     if ( shareWidget )
@@ -1026,6 +1029,7 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
 		    shareWidget->context() );
     else
 	setContext( new QGLContext( QGLFormat::defaultFormat(), this ) );
+    setBackgroundMode( NoBackground );
 }
 
 
@@ -1054,13 +1058,13 @@ QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 		      WFlags f )
     : QWidget(parent, name, f)
 {
-    setBackgroundMode( NoBackground );
     initDone = FALSE;
     glcx = 0;
     if ( shareWidget )
 	setContext( new QGLContext( format, this ), shareWidget->context() );
     else
 	setContext( new QGLContext( format, this ) );
+    setBackgroundMode( NoBackground );
 }
 
 
@@ -1333,7 +1337,7 @@ void QGLWidget::setContext( QGLContext *context,
     glXReleaseBuffersMESA( dpy, winId() );
 #endif
     create( w );
-    clearWFlags( WState_Visible );   //## workaround for Qt 1.30 bug
+    //clearWFlags( WState_Visible );   //## workaround for Qt 1.30 bug
 
     XSetWMColormapWindows( dpy, topLevelWidget()->winId(), cmw, count );
     delete [] cmw;
