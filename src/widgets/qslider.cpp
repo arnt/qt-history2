@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#22 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#22 $");
 
 
 static const int motifBorder = 2;
@@ -532,9 +532,9 @@ void QSlider::paintEvent( QPaintEvent * )
 	if ( hasFocus() ) {
 	    QRect r;
 	    if ( orient == Horizontal )
-		r.setRect( 0, tickOffset, width(), thickness() );
+		r.setRect( 0, tickOffset-1, width(), thickness()+2 );
 	    else
-		r.setRect( tickOffset, 0, thickness(), height() );
+		r.setRect( tickOffset-1, 0, thickness()+2, height() );
 	    r = r.intersect( rect() );
 	    qDrawPlainRect( &p, r, g.background() );
 	    p.drawWinFocusRect( r );
@@ -870,16 +870,15 @@ QSize QSlider::sizeHint() const
 {
     const int length = 84;
     int thick = 16;
+    //    if ( style() == WindowsStyle )
+    //	thick += 4;
 
     if ( tickmarksAbove )
 	thick += 4;
-
     if ( tickmarksBelow )
 	thick += 4;
-
     if ( style() == WindowsStyle && tickmarksBelow != tickmarksAbove )
 	thick += winLength / 4;
-
     if ( orient == Horizontal )
 	return QSize( length, thick );
     else
@@ -894,9 +893,26 @@ QSize QSlider::sizeHint() const
 
 int QSlider::thickness() const
 {
-    int thick = 16;
     int space = (orient == Horizontal) ? height() : width();
-    return QMIN( space, thick );
+    int n = 0;
+    if ( tickmarksAbove )
+	n++;
+    if ( tickmarksBelow )
+	n++;
+    if ( !n )
+	return space;
+
+    int thick = 8;
+    //    if ( style() == WindowsStyle)
+    //	thick += 4;
+    if ( style() == WindowsStyle && tickmarksBelow != tickmarksAbove ) {
+	thick += winLength / 4;
+    }
+    space -= thick;
+
+    if ( space > 0 )
+	thick += space * 2 / ( n + 2);
+    return thick;
 }
 
 
