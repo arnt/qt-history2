@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#39 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#39 $");
 
 
 /*****************************************************************************
@@ -902,7 +902,12 @@ static uint get_rgb_val( const char * )
 void QColor::setSystemNamedColor( const char *name )
 {
     rgbVal = get_rgb_val( name );
-    pix = rgbVal & 0x00ffffff;
+    if ( lalloc ) {
+	rgbVal |= RGB_DIRTY;			// alloc later
+	pix = 0;
+    } else {
+	alloc();				// alloc now
+    }
 }
 
 
