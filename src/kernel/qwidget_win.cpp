@@ -1039,8 +1039,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	w = 1;
     if ( h < 1 )
 	h = 1;
-    QSize  olds( size() );
-    if ( isMove == FALSE && olds.width()==w && olds.height()==h )
+    QSize  oldSize( size() );
+    QPoint oldPos( pos() );
+    if ( isMove == FALSE && oldSize.width()==w && oldSize.height()==h )
 	return;
     clearWState(WState_Maximized);
     if ( testWState(WState_ConfigPending) ) {	// processing config event
@@ -1061,6 +1062,27 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    MoveWindow( winId(), x, y, w, h, TRUE );
 	}
 	clearWState( WState_ConfigPending );
+    }
+    
+     bool isResize = w != oldSize.width() || h != oldSize.height();
+     if ( isVisible() ) {
+	if ( isMove && pos() != oldPos ) {
+	    QMoveEvent e( pos(), oldPos );
+	    QApplication::sendEvent( this, &e );
+	}
+	if ( isResize ) {
+	    QResizeEvent e( size(), oldSize );
+	    QApplication::sendEvent( this, &e );
+	    if ( !testWFlags( WNorthWestGravity ) )
+		repaint( visibleRect(), !testWFlags(WResizeNoErase) );
+	}
+    } else {
+	if ( isMove && pos() != oldPos )
+	    QApplication::postEvent( this,
+				     new QMoveEvent( pos(), oldPos ) );
+	if ( isResize )
+	    QApplication::postEvent( this,
+				     new QResizeEvent( size(), oldSize ) );
     }
 }
 

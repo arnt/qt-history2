@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#482 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#483 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -3174,24 +3174,24 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		    SetWindowTextA( winId(), txt.local8Bit() );
 	    }
 	}
-	if ( msg.wParam != SIZE_MINIMIZED ) {
+	if ( msg.wParam != SIZE_MINIMIZED && oldSize != newSize) {
 	    if ( isVisible() ) {
 		QResizeEvent e( newSize, oldSize );
 		QApplication::sendSpontaneousEvent( this, &e );
+		if ( !testWFlags( WNorthWestGravity ) )
+		    repaint( visibleRect(), !testWFlags(WResizeNoErase) );
 	    } else {
 		QResizeEvent *e = new QResizeEvent( newSize, oldSize );
 		QApplication::postEvent( this, e );
 	    }
 	}
-	if ( !testWFlags( WNorthWestGravity ) )
-	    repaint( visibleRect(), !testWFlags(WResizeNoErase) );
     } else if ( msg.message == WM_MOVE ) {	// move event
 	int a = (int) (short) LOWORD(msg.lParam);
 	int b = (int) (short) HIWORD(msg.lParam);
 	QPoint oldPos = geometry().topLeft();
+	QPoint newCPos( a, b );
 	// Ignore silly Windows move event to wild pos after iconify.
-	if ( !isMinimized() ) {
-	    QPoint newCPos( a, b );
+	if ( !isMinimized() && newCPos != oldPos ) {
 	    cr.moveTopLeft( newCPos );
 	    crect = cr;
 	    if ( isVisible() ) {
