@@ -1090,7 +1090,7 @@ void QObject::removeChild( QObject *obj )
 {
     if ( childObjects && childObjects->removeRef(obj) ) {
 	obj->parentObj = 0;
-	if ( !wasDeleted ) {
+	if ( !obj->wasDeleted ) {
 	    insert_tree( obj );			// it's a root object now
 	    isTree = TRUE;
 	}
