@@ -988,34 +988,34 @@ double QSvgDevice::parseLen( const QString &str, bool *ok, bool horiz ) const
 	return 0.0;
     }
 
-    double d = reg.cap( 1 ).toDouble();
+    double dbl = reg.cap( 1 ).toDouble();
     QString u = reg.cap( 2 );
     if ( !u.isEmpty() && u != "px" ) {
 	QPaintDeviceMetrics m( pt->device() );
 	if ( u == "em" ) {
 	    QFontInfo fi( pt->font() );
-	    d *= fi.pixelSize();
+	    dbl *= fi.pixelSize();
 	} else if ( u == "ex" ) {
 	    QFontInfo fi( pt->font() );
-	    d *= 0.5 * fi.pixelSize();
+	    dbl *= 0.5 * fi.pixelSize();
 	} else if ( u == "%" )
-	    d *= (horiz ? pt->window().width() : pt->window().height())/100.0;
+	    dbl *= (horiz ? pt->window().width() : pt->window().height())/100.0;
 	else if ( u == "cm" )
-	    d *= m.logicalDpiX() / 2.54;
+	    dbl *= m.logicalDpiX() / 2.54;
 	else if ( u == "mm" )
-	    d *= m.logicalDpiX() / 25.4;
+	    dbl *= m.logicalDpiX() / 25.4;
 	else if ( u == "in" )
-	    d *= m.logicalDpiX();
+	    dbl *= m.logicalDpiX();
 	else if ( u == "pt" )
-	    d *= m.logicalDpiX() / 72.0;
+	    dbl *= m.logicalDpiX() / 72.0;
 	else if ( u == "pc" )
-	    d *= m.logicalDpiX() / 6.0;
+	    dbl *= m.logicalDpiX() / 6.0;
 	else
 	    qWarning( "QSvgDevice::parseLen: Unknown unit " + u );
     }
     if ( ok )
 	*ok = TRUE;
-    return d;
+    return dbl;
 }
 
 /*!
@@ -1031,9 +1031,9 @@ int QSvgDevice::lenToInt( const QDomNamedNodeMap &map, const QString &attr,
 {
     if ( map.contains( attr ) ) {
 	bool ok;
-	double d = parseLen( map.namedItem( attr ).nodeValue(), &ok );
+	double dbl = parseLen( map.namedItem( attr ).nodeValue(), &ok );
 	if ( ok )
-	    return qRound( d );
+	    return qRound( dbl );
     }
     return def;
 }
