@@ -696,12 +696,30 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 
 void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
 {
+    const QPoint p(e->pos());
+    const StepEnabled se = stepEnabled();
+    QStyleOptionSpinBox opt = d->styleOption();
+    opt.subControls = QStyle::SC_All;
     d->dragging = true;
+    if (d->spinclicktimerid != -1) {
+        if ((se & StepUpEnabled)
+            && style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
+                                               QStyle::SC_SpinBoxUp, this).contains(p)) {
+            d->updateState(true);
+        } else if ((se & StepDownEnabled)
+            && style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
+                                               QStyle::SC_SpinBoxDown, this).contains(p)) {
+            d->updateState(false);
+        } else {
+            d->resetState();
+        }
+    }
     if (d->sliderpressed && d->useprivate) {
         d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
     } else {
         QWidget::mouseMoveEvent(e);
     }
+
 }
 
 /*!
@@ -720,15 +738,11 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
     if ((se & StepUpEnabled)
         && style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
                                            QStyle::SC_SpinBoxUp, this).contains(p)) {
-        d->spinclicktimerid = startTimer(d->spinclicktimerinterval);
-        d->buttonstate = (Mouse | Up);
-        stepBy(1);
+        d->updateState(true);
     } else if ((se & StepDownEnabled)
                && style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
                                                   QStyle::SC_SpinBoxDown, this).contains(p)) {
-        d->spinclicktimerid = startTimer(d->spinclicktimerinterval);
-        d->buttonstate = (Mouse | Down);
-        stepBy(-1);
+        d->updateState(false);
     } else if (d->slider && style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
                                                             QStyle::SC_SpinBoxSlider, this).contains(p)) {
         d->sliderpressed = true;
@@ -962,6 +976,25 @@ void QAbstractSpinBoxPrivate::resetState()
         updateSpinBox();
     }
 }
+
+/*!
+    \internal
+
+    Updates the state of the spinbox.
+*/
+
+void QAbstractSpinBoxPrivate::updateState(bool up)
+{
+    if ((up && buttonstate & Up) || (!up && buttonstate & Down))
+        return;
+    resetState();
+    if (q) {
+        spinclicktimerid = q->startTimer(spinclicktimerinterval);
+        buttonstate = (up ? (Mouse | Up) : (Mouse | Down));
+        q->stepBy(up ? 1 : -1);
+    }
+}
+
 /*!
     \internal
 

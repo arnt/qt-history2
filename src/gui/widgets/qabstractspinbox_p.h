@@ -73,6 +73,7 @@ public:
 
     void init();
     void resetState();
+    void updateState(bool up);
     void strip(QString *text) const;
     bool specialValue() const;
     QCoreVariant getZeroVariant() const;
