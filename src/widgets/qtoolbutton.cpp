@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#136 $
 **
 ** Implementation of QToolButton class
 **
@@ -268,7 +268,8 @@ QSize QToolButton::sizeHint() const
     int w = 0;
     int h = 0;
 
-    if ( !text().isNull()) {
+    // see also QToolButton::drawButtonLabel()
+    if ( iconSet().isNull() && !text().isNull() && !usesTextLabel() ) {
 	w = fontMetrics().width( text() );
 	h = fontMetrics().height(); // boundingRect()?
     } else if ( usesBigPixmap() ) {
@@ -459,9 +460,10 @@ void QToolButton::drawButtonLabel( QPainter * p )
 	return;
     }
 
-    QColor btnText =  colorGroup().buttonText();
+    QColor btnText = colorGroup().buttonText();
 
-    if ( !text().isNull() && !usesTextLabel() ) {
+    // see also QToolButton::sizeHint()
+    if ( iconSet().isNull() && !text().isNull() && !usesTextLabel() ) {
 	style().drawItem( p, x, y, w, h,
 			  AlignCenter + ShowPrefix,
 			  colorGroup(), isEnabled(),
@@ -669,12 +671,15 @@ void QToolButton::setOffIconSet( const QIconSet& set )
 /*! \property QToolButton::iconSet
     \brief the icon set providing the icon shown on the button
 
+  Setting this property sets \l pixmap to a null pixmap.
+
   \sa pixmap(), setToggleButton(), isOn()
 */
 void QToolButton::setIconSet( const QIconSet & set )
 {
     if ( s )
 	delete s;
+    setPixmap( QPixmap() );
     s = new QIconSet( set );
     if ( isVisible() )
 	update();
@@ -702,19 +707,21 @@ QIconSet QToolButton::iconSet() const
 {
     QToolButton *that = (QToolButton *) this;
 
-    if ( pixmap() && (!that->s || (that->s->pixmap().serialNumber() !=
-	pixmap()->serialNumber())) ) {
+    if ( pixmap() && !pixmap()->isNull() &&
+	 (!that->s || (that->s->pixmap().serialNumber() !=
+	 pixmap()->serialNumber())) ) {
 	if ( that->s )
 	    delete that->s;
 	that->s = new QIconSet( *pixmap() );
     }
-
     if ( that->s )
 	return *that->s;
-
-    QPixmap dummy_pm;
-    QIconSet dummy_set( dummy_pm, QIconSet::Small );
-    return dummy_set;
+    /*
+      In 2.x, we used to return a temporary nonnull QIconSet. If you
+      revert to the old behavior, you will break calls to
+      QIconSet::isNull() in this file.
+    */
+    return QIconSet();
 }
 
 /*! \overload
