@@ -484,8 +484,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << var("QMAKE_AR_CMD");
 	    if(do_incremental)
 		t << " $(INCREMENTAL_OBJECTS)";
-	    t << varGlue("QMAKE_RANLIB","\n\t"," "," $(TARGETA)")
-	      << endl << endl;
+	    if(!project->isEmpty("QMAKE_RANLIB"))
+		t << "\n\t" << "$(RANLIB) $(TARGETA)";
+	    t << endl << endl;
 	}
     } else {
 	t << "all: " << deps << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << "\n\n"
@@ -501,8 +502,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(!project->isEmpty("QMAKE_POST_LINK"))
 	    t << var("QMAKE_POST_LINK") << "\n\t";
 
-	t << varGlue("QMAKE_RANLIB",""," "," $(TARGET)")
-	  << endl << endl;
+	if(!project->isEmpty("QMAKE_RANLIB"))
+	    t << "$(RANLIB) $(TARGET)";
+	t << endl << endl;
     }
 
     t << "mocables: $(SRCMOC)" << endl << endl;
