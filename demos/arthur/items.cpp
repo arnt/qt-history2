@@ -23,7 +23,8 @@ class Item
 public:
     enum Shape {Circle, Rectangle, Text};
 
-    Item(QPoint topLeft, Shape _shape) : shape(_shape), sel(false) {
+    Item(QPoint topLeft, Shape _shape, const QColor &c)
+        : shape(_shape), sel(false), color(c) {
         translate(topLeft);
     }
 
@@ -35,11 +36,11 @@ public:
             p->setPen(Qt::black);
         switch (shape) {
         case Circle:
-            p->setBrush(QColor(120, 120, 255, 127));
+            p->setBrush(color);
             p->drawEllipse(trans.x(), trans.y(), 100, 100);
             break;
         case Rectangle:
-            p->setBrush(QColor(120, 255, 120, 127));
+            p->setBrush(color);
             p->drawRect(trans.x(), trans.y(), 100, 100);
             break;
         case Text:
@@ -87,15 +88,18 @@ private:
     QPoint trans;
     Shape shape;
     bool sel;
+    QColor color;
 };
 
 Items::Items(QWidget *parent)
     : DemoWidget(parent)
 {
     srand(QTime::currentTime().msec());
-    for (int i = 0; i < 200; ++i) {
-        items.append(new Item(QPoint(rand()%512, rand()%512), Item::Rectangle));
-        items.append(new Item(QPoint(rand()%512, rand()%512), Item::Circle));
+    for (int i = 0; i < 100; ++i) {
+        items.append(new Item(QPoint(rand()%512, rand()%512), Item::Rectangle,
+                              QColor(rand()%255,rand()%256,rand()%256,rand()%256)));
+        items.append(new Item(QPoint(rand()%512, rand()%512), Item::Circle,
+                              QColor(rand()%255,rand()%256,rand()%256,rand()%256)));
     }
 }
 
@@ -105,7 +109,7 @@ Items::~Items()
         delete items[i];
 }
 
-void Items::paintEvent(QPaintEvent *pe)
+void Items::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     p.drawPixmap(0, 0, buffer);
@@ -150,7 +154,7 @@ void Items::mouseMoveEvent(QMouseEvent *event)
     update();
 }
 
-void Items::mouseReleaseEvent(QMouseEvent *event)
+void Items::mouseReleaseEvent(QMouseEvent *)
 {
     anchor = current = QPoint();
     drawItems(itemBr);
@@ -170,6 +174,7 @@ void Items::drawItems(const QRect &rect)
 {
     QRect result = rect;
     QPainter px(&buffer);
+
     int drawn = 0;
     for (int i = 0; i < items.size(); ++i) {
         if (rect.isEmpty() || items.at(i)->boundingRect().intersects(rect)) {
@@ -184,4 +189,10 @@ void Items::drawItems(const QRect &rect)
             items[i]->draw(&px);
     }
 //    qDebug() << drawn;
+}
+
+void Items::resetState()
+{
+    drawItems(QRect());
+    update();
 }

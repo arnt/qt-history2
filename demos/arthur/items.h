@@ -24,9 +24,11 @@ public:
     Items(QWidget *parent = 0);
     ~Items();
 
+    void resetState();
     void startAnimation() {}
     void stopAnimation() {}
     void drawItems(const QRect &rect);
+
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
