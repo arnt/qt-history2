@@ -721,16 +721,6 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     \sa QListWidgetItem \link model-view-programming.html Model/View Programming\endlink
 */
 
-
-/*!
-    \fn void QListWidget::insertItem(int row, const QString &label)
-
-    Inserts an item with the text \a label in the list widget at the
-    position given by \a row.
-
-    \sa addItem()
-*/
-
 /*!
     \fn void QListWidget::addItem(QListWidgetItem *item)
 
@@ -874,6 +864,18 @@ void QListWidget::insertItem(int row, QListWidgetItem *item)
 }
 
 /*!
+    Inserts an item with the text \a label in the list widget at the
+    position given by \a row.
+
+    \sa addItem()
+*/
+
+void QListWidget::insertItem(int row, const QString &label)
+{
+    d->model()->insert(row, new QListWidgetItem(label));
+}
+
+/*!
     Inserts items from the list of \a labels into the list, starting at the
     given \a row.
 
@@ -884,11 +886,8 @@ void QListWidget::insertItems(int row, const QStringList &labels)
 {
     QListModel *model = d->model();
     int r = (row > -1 && row <= count()) ? row : count();
-    for (int i = 0; i < labels.count(); ++i) {
-        QListWidgetItem *item = new QListWidgetItem();
-        item->setText(labels.at(i));
-        model->insert(r + i, item);
-    }
+    for (int i = 0; i < labels.count(); ++i)
+        model->insert(r + i, new QListWidgetItem(labels.at(i)));
 }
 
 /*!
@@ -1024,8 +1023,7 @@ QList<QListWidgetItem*> QListWidget::selectedItems() const
 }
 
 /*!
-  Finds items that matches the \a text, using the criteria given in the
-  \a flags (see QAbstractItemModel::MatchFlags).
+  Finds items with the text that matches the regular expression \a rx.
 */
 
 QList<QListWidgetItem*> QListWidget::findItems(const QRegExp &rx) const
