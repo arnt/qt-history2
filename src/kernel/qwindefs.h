@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#88 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#89 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -140,7 +140,6 @@ typedef struct _XDisplay Display;
 typedef union  _XEvent XEvent;
 typedef struct _XGC *GC;
 typedef struct _XRegion *Region;
-struct QXFontStruct;
 
 Display *qt_xdisplay();
 int	 qt_xscreen();
