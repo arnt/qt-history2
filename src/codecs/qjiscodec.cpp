@@ -110,14 +110,16 @@
 
 #ifndef QT_NO_BIG_CODECS
 
-static const uchar Esc = 0x1b;
-static const uchar So = 0x0e;	// Shift Out
-static const uchar Si = 0x0f;	// Shift In
+enum {
+    Esc = 0x1b,
+    So = 0x0e, 	// Shift Out
+    Si = 0x0f, 	// Shift In
 
-static const uchar ReverseSolidus = 0x5c;
-static const uchar YenSign = 0x5c;
-static const uchar Tilde = 0x7e;
-static const uchar Overline = 0x7e;
+    ReverseSolidus = 0x5c,
+    YenSign = 0x5c,
+    Tilde = 0x7e,
+    Overline = 0x7e
+};
 
 #define	IsKana(c)	(((c) >= 0xa1) && ((c) <= 0xdf))
 #define	IsJisChar(c)	(((c) >= 0x21) && ((c) <= 0x7e))
@@ -132,7 +134,7 @@ enum Iso2022State{ Ascii, MinState = Ascii,
 
 static const char Esc_CHARS[] = "()*+-./";
 
-static const char Esc_Ascii[]		= {Esc, '(', 'B', 0 };
+static const char Esc_Ascii[] 		= {Esc, '(', 'B', 0 };
 static const char Esc_JISX0201_Latin[]	= {Esc, '(', 'J', 0 };
 static const char Esc_JISX0201_Kana[]	= {Esc, '(', 'I', 0 };
 static const char Esc_JISX0208_1978[]	= {Esc, '$', '@', 0 };

@@ -23,9 +23,9 @@
 #include <limits.h>
 
 #if defined(Q_FS_FAT) && !defined(Q_OS_UNIX)
-const bool CaseSensitiveFS = FALSE;
+enum { CaseSensitiveFS = QString::CaseInsensitive };
 #else
-const bool CaseSensitiveFS = TRUE;
+enum { CaseSensitiveFS = QString::CaseSensitive };
 #endif
 
 
@@ -313,7 +313,7 @@ QString QDir::absPath() const
 
 QString QDir::dirName() const
 {
-    int pos = dPath.findRev( '/' );
+    int pos = dPath.lastIndexOf( '/' );
     if ( pos == -1  )
 	return dPath;
     return dPath.right( dPath.length() - pos - 1 );
@@ -464,7 +464,7 @@ bool QDir::cd( const QString &dirName, bool acceptAbsPath )
 	}
 
 	dPath += dirName;
-	if ( dirName.find('/') >= 0
+	if ( dirName.indexOf('/') >= 0
 		|| old == QString::fromLatin1(".")
 		|| dirName == QString::fromLatin1("..") ) {
 	    dPath = cleanDirPath( dPath );
@@ -1049,14 +1049,14 @@ QList<QRegExp> qt_makeFilterList( const QString &filter )
 	return regExps;
 
     QChar sep( ';' );
-    int i = filter.find( sep, 0 );
-    if ( i == -1 && filter.find( ' ', 0 ) != -1 )
+    int i = filter.indexOf( sep, 0 );
+    if ( i == -1 && filter.indexOf( ' ', 0 ) != -1 )
 	sep = QChar( ' ' );
 
     QStringList list = QStringList::split( sep, filter );
     QStringList::Iterator it = list.begin();
     while ( it != list.end() ) {
-	regExps << QRegExp( (*it).stripWhiteSpace(), CaseSensitiveFS, TRUE );
+	regExps << QRegExp( (*it).trimmed(), CaseSensitiveFS, TRUE );
 	++it;
     }
     return regExps;
@@ -1146,7 +1146,7 @@ QString QDir::cleanDirPath( const QString &filePath )
     upLevel = 0;
     int len;
 
-    while ( pos && (pos = name.findRev('/', pos - 1)) != -1 ) {
+    while ( pos && (pos = name.lastIndexOf('/', pos - 1)) != -1 ) {
 	len = ePos - pos - 1;
 	if ( len == 2 && name.at(pos + 1) == '.'
 		      && name.at(pos + 2) == '.' ) {
@@ -1225,10 +1225,10 @@ int qt_cmp_si( const void *n1, const void *n2 )
 	bool ic = qt_cmp_si_sortSpec & QDir::IgnoreCase;
 
 	if ( f1->filename_cache.isNull() )
-	    f1->filename_cache = ic ? f1->item.fileName().lower()
+	    f1->filename_cache = ic ? f1->item.fileName().toLower()
 				    : f1->item.fileName();
 	if ( f2->filename_cache.isNull() )
-	    f2->filename_cache = ic ? f2->item.fileName().lower()
+	    f2->filename_cache = ic ? f2->item.fileName().toLower()
 				    : f2->item.fileName();
 
 	r = f1->filename_cache.compare(f2->filename_cache);

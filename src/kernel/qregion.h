@@ -39,8 +39,8 @@ public:
     ~QRegion();
     QRegion &operator=(const QRegion &);
 
-#ifndef QT_NO_COMPAT
-    inline bool isNull() const { return isEmpty(); }
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool isNull() const { return isEmpty(); }
 #endif
     bool isEmpty() const;
 

@@ -271,12 +271,10 @@ public:
     QString lastResortFamily() const;
     QString lastResortFont() const;
 
-#ifndef QT_NO_COMPAT
-
-    static QFont defaultFont();
-    static void setDefaultFont( const QFont & );
-
-#endif // QT_NO_COMPAT
+#ifdef QT_COMPAT
+    static QT_COMPAT QFont defaultFont();
+    static QT_COMPAT void setDefaultFont( const QFont & );
+#endif // QT_COMPAT
 
     QFont resolve( const QFont & ) const;
     inline uint resolve() const { return resolve_mask; }

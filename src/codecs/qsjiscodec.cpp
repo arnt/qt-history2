@@ -68,7 +68,9 @@
 
 #ifndef QT_NO_BIG_CODECS
 
-static const uchar Esc = 0x1b;
+enum {
+    Esc = 0x1b
+};
 
 #define	IsKana(c)	(((c) >= 0xa1) && ((c) <= 0xdf))
 #define	IsSjisChar1(c)	((((c) >= 0x81) && ((c) <= 0x9f)) ||	\

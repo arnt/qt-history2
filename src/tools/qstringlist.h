@@ -50,13 +50,13 @@ public:
     QStringList &gres(const QString &before, const QString &after, QString::CaseSensitivity cs = QString::CaseSensitive);
     QStringList &gres(const QRegExp &expr, const QString &after);
 
-#ifndef QT_NO_COMPAT
-    inline QStringList grep(const QString &str, bool cs) const
+#ifdef QT_COMPAT
+    inline QT_COMPAT QStringList grep(const QString &str, bool cs) const
 	{ return grep(str, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
-    inline QStringList &gres(const QString &before, const QString &after, bool cs)
+    inline QT_COMPAT QStringList &gres(const QString &before, const QString &after, bool cs)
 	{  return gres(before, after, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
-    Iterator fromLast() { return (isEmpty() ? end() : --end()); }
-    ConstIterator fromLast() const { return (isEmpty() ? end() : --end()); }
+    Iterator QT_COMPAT fromLast() { return (isEmpty() ? end() : --end()); }
+    ConstIterator QT_COMPAT fromLast() const { return (isEmpty() ? end() : --end()); }
 #endif
 };
 

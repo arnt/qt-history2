@@ -2186,7 +2186,7 @@ QString QLocalePrivate::doubleToString(double d,
 
     	if (zero().unicode() != '0') {
 	    for (int i = 0; i < digits.length(); ++i)
-	    	digits.ref(i).unicode() += zero().unicode() - '0';
+	    	digits[i] = digits.at(i).unicode() + zero().unicode() - '0';
 	}
 
 	if (buff != 0)
@@ -2248,7 +2248,7 @@ QString QLocalePrivate::doubleToString(double d,
     	num_str.prepend(' ');
 
     if (flags & QLocalePrivate::CapitalEorX)
-    	num_str = num_str.upper();
+    	num_str = num_str.toUpper();
 
     return num_str;
 }
@@ -2333,7 +2333,7 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
     	num_str.prepend(' ');
 
     if (flags & CapitalEorX)
-    	num_str = num_str.upper();
+    	num_str = num_str.toUpper();
 
     return num_str;
 }
@@ -2392,7 +2392,7 @@ QString QLocalePrivate::unsLongLongToString(Q_ULLONG l, int precision,
     	num_str.prepend("0x");
 
     if (flags & CapitalEorX)
-    	num_str = num_str.upper();
+    	num_str = num_str.toUpper();
 
     return num_str;
 }
@@ -2427,9 +2427,9 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	    idx += nan().length();
 	    break;
 	}
-	else if (compareSubstr(l_num, idx, nan().upper())) {
+	else if (compareSubstr(l_num, idx, nan().toUpper())) {
 	    for (int i = idx; i < idx + nan().length(); ++i)
-	    	l_num.ref(i) = l_num.unicode()[i].lower();
+	    	l_num[i] = l_num.unicode()[i].lower();
 	    idx += nan().length();
 	    break;
 	}
@@ -2448,9 +2448,9 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	    idx += infinity().length();
 	    break;
 	}
-	else if (compareSubstr(l_num, idx, infinity().upper())) {
+	else if (compareSubstr(l_num, idx, infinity().toUpper())) {
 	    for (int i = idx; i < idx + infinity().length(); ++i)
-	    	l_num.ref(i) = l_num.unicode()[i].lower();
+	    	l_num[i] = l_num.unicode()[i].lower();
 	    idx += infinity().length();
 	    break;
 	}
@@ -2529,7 +2529,7 @@ double QLocalePrivate::stringToDouble(QString num,
 Q_LLONG QLocalePrivate::stringToLongLong(QString num, int base,
                                     bool *ok) const
 {
-    num = num.stripWhiteSpace();
+    num = num.trimmed();
     if (num.isEmpty()) {
 	if (ok != 0)
             *ok = false;
@@ -2557,7 +2557,7 @@ Q_LLONG QLocalePrivate::stringToLongLong(QString num, int base,
 Q_ULLONG QLocalePrivate::stringToUnsLongLong(QString num, int base,
                                     bool *ok) const
 {
-    num = num.stripWhiteSpace();
+    num = num.trimmed();
     if (num.isEmpty()) {
 	if (ok != 0)
             *ok = false;

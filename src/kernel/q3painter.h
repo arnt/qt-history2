@@ -414,7 +414,7 @@ private:	// Disabled copy constructor and operator=
 	TxRotShear  = 3
     };
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 public:
     static inline void redirect( QPaintDevice *pdev, QPaintDevice *replacement )
     { if (replacement) setRedirected(pdev, replacement); else restoreRedirected(pdev); }

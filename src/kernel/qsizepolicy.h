@@ -38,7 +38,7 @@ public:
     enum ExpandData { NoDirection = 0,
 		      Horizontally = 1,
 		      Vertically = 2,
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 		      Horizontal = Horizontally,
 		      Vertical = Vertically,
 #endif

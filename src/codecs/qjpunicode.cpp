@@ -741,13 +741,13 @@ QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
     if ( rule == Default && (e=getenv("UNICODEMAP_JP")) != 0 ) {
 	QString env( e );
 	for (int i = 0; i < (int)env.length(); ) {
-	    int j = env.find(',', i);
+	    int j = env.indexOf(',', i);
 	    QByteArray s;
 	    if (j < 0) {
-		s = env.mid(i).stripWhiteSpace();
+		s = env.mid(i).trimmed();
 		i = env.length();
 	    } else {
-		s = env.mid(i, j - i).stripWhiteSpace();
+		s = env.mid(i, j - i).trimmed();
 		i = j + 1;
 	    }
 	    if (qstricmp(s, "unicode-0.9") == 0) {

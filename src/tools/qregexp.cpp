@@ -889,15 +889,15 @@ public:
     };
 #endif
 
-    QRegExpEngine(bool caseSensitive):ref(1) { setup(caseSensitive); }
-    QRegExpEngine(const QString& rx, bool caseSensitive);
+    QRegExpEngine(QString::CaseSensitivity caseSensitive):ref(1) { setup(caseSensitive); }
+    QRegExpEngine(const QString& rx, QString::CaseSensitivity caseSensitive);
 #ifndef QT_NO_REGEXP_OPTIM
     ~QRegExpEngine();
 #endif
     int ref;
 
     bool isValid() const { return valid; }
-    bool caseSensitive() const { return cs; }
+    QString::CaseSensitivity caseSensitive() const { return cs; }
     const QString& errorString() const { return yyError; }
     int numCaptures() const { return officialncap; }
     void match(const QString& str, int pos, bool minimal, bool oneTest,
@@ -1004,7 +1004,7 @@ public:
 #endif
 
     enum { InitialState = 0, FinalState = 1 };
-    void setup(bool caseSensitive);
+    void setup(QString::CaseSensitivity caseSensitive);
     int setupState(int match);
 
     /*
@@ -1066,7 +1066,7 @@ public:
     bool trivial; // is the good-string all that needs to match?
 #endif
     bool valid; // is the regular expression valid?
-    bool cs; // case sensitive?
+    QString::CaseSensitivity cs; // case sensitive?
 #ifndef QT_NO_REGEXP_BACKREF
     int nbrefs; // number of back-references
 #endif
@@ -1215,7 +1215,7 @@ public:
     int mmOneTestMatchedLen; // length of partial match
 };
 
-QRegExpEngine::QRegExpEngine(const QString& rx, bool caseSensitive)
+QRegExpEngine::QRegExpEngine(const QString& rx, QString::CaseSensitivity caseSensitive)
     : ref(1)
 {
     setup(caseSensitive);
@@ -1247,7 +1247,7 @@ void QRegExpEngine::match(const QString& str, int pos, bool minimal,
 
 #ifndef QT_NO_REGEXP_OPTIM
     if (trivial && !oneTest) {
-	mmPos = str.find(goodStr, pos, cs);
+	mmPos = str.indexOf(goodStr, pos, cs);
 	mmMatchLen = goodStr.length();
 	matched = (mmPos != -1);
     } else
@@ -1526,7 +1526,7 @@ void QRegExpEngine::dump() const
 }
 #endif
 
-void QRegExpEngine::setup(bool caseSensitive)
+void QRegExpEngine::setup(QString::CaseSensitivity caseSensitive)
 {
     s.setAutoDelete(true);
 #ifndef QT_NO_REGEXP_CAPTURE
@@ -1694,7 +1694,7 @@ bool QRegExpEngine::testAnchor(int i, int a, const int *capBegin)
 bool QRegExpEngine::goodStringMatch()
 {
     int k = mmPos + goodEarlyStart;
-    while ((k = mmStr->find(goodStr, k, cs)) != -1) {
+    while ((k = mmStr->indexOf(goodStr, k, cs)) != -1) {
 	int from = k - goodLateStart;
 	int to = k - goodEarlyStart;
 	if (from > mmPos)
@@ -1975,8 +1975,7 @@ bool QRegExpEngine::matchHere()
 			*/
 			if (scur->reenter != 0 &&
 			     (q = at(*scur->reenter, next)) != 0) {
-			    QBitArray b;
-			    b.fill(false, nf);
+			    QBitArray b(nf, false);
 			    b.setBit(q, true);
 			    for (int ell = q + 1; ell < nf; ell++) {
 				if (b.testBit(f[ell].parent)) {
@@ -2485,7 +2484,7 @@ void QRegExpEngine::Box::setupHeuristics()
 {
     eng->goodEarlyStart = earlyStart;
     eng->goodLateStart = lateStart;
-    eng->goodStr = eng->cs ? str : str.lower();
+    eng->goodStr = eng->cs ? str : str.toLower();
 
     eng->minl = minl;
     if (eng->cs) {
@@ -3157,7 +3156,7 @@ struct QRegExpPrivate
     bool wc : 1; // wildcard mode?
 #endif
     bool min : 1; // minimal matching? (instead of maximal)
-    bool cs : 1; // case sensitive?
+    QString::CaseSensitivity cs : 1; // case sensitive?
 #ifndef QT_NO_REGEXP_CAPTURE
     QString t; // last string passed to QRegExp::search() or searchRev()
     QStringList capturedCache; // what QRegExp::capturedTexts() returned last
@@ -3172,7 +3171,7 @@ static QCache<QString,QRegExpEngine*> engineCache;
 #endif
 
 static void regexpEngine( QRegExpEngine *&eng, const QString &pattern,
-			  bool caseSensitive, bool deref )
+			  QString::CaseSensitivity caseSensitive, bool deref )
 {
 #if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD) || defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
     engineCache.ensure_constructed();
@@ -3192,7 +3191,7 @@ static void regexpEngine( QRegExpEngine *&eng, const QString &pattern,
 	    return;
 	}
 #endif
-	eng = new QRegExpEngine( pattern, caseSensitive );
+	eng = new QRegExpEngine(pattern, caseSensitive);
 	return;
     }
 
@@ -3239,7 +3238,7 @@ QRegExp::QRegExp()
     priv->wc = false;
 #endif
     priv->min = false;
-    priv->cs = true;
+    priv->cs = QString::CaseSensitive;
 }
 
 /*!
@@ -3260,7 +3259,7 @@ QRegExp::QRegExp(const QString& pattern, QString::CaseSensitivity cs, bool wildc
     priv->wc = wildcard;
 #endif
     priv->min = false;
-    priv->cs = cs != 0;
+    priv->cs = cs;
 }
 
 /*!
@@ -3282,7 +3281,7 @@ QRegExp::QRegExp(const QString& pattern, bool caseSensitive, bool wildcard)
     priv->wc = wildcard;
 #endif
     priv->min = false;
-    priv->cs = caseSensitive;
+    priv->cs = caseSensitive ? QString::CaseSensitive : QString::CaseInsensitive;
 }
 
 /*!
@@ -3437,7 +3436,7 @@ void QRegExp::setPattern(const QString& pattern)
 */
 bool QRegExp::caseSensitive() const
 {
-    return priv->cs;
+    return priv->cs == QString::CaseSensitive ? true : false;
 }
 
 /*!
@@ -3450,8 +3449,8 @@ bool QRegExp::caseSensitive() const
 */
 void QRegExp::setCaseSensitive(bool sensitive)
 {
-    if (sensitive != priv->cs) {
-	priv->cs = sensitive;
+    if (sensitive != (priv->cs == QString::CaseSensitive)) {
+	priv->cs = sensitive ? QString::CaseSensitive : QString::CaseInsensitive;
 	invalidateEngine();
     }
 }

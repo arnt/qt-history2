@@ -354,14 +354,14 @@ const QLibrary* QGPluginManager::library( const QString& _feature ) const
 	group.sort(); // sort according to the base name
 	QStringList::ConstIterator git = group.begin();
 	while ( git != group.end() ) {
-	    QString lib = (*git).mid( (*git).find( QChar(0xfffd) ) + 1 );
-	    QString basename = (*git).left( (*git).find( QChar(0xfffd) ) );
+	    QString lib = (*git).mid( (*git).indexOf( QChar(0xfffd) ) + 1 );
+	    QString basename = (*git).left( (*git).indexOf( QChar(0xfffd) ) );
 	    ++git;
 
 	    QStringList sameBasename;
 	    while( git != group.end() &&
-		   basename == (*git).left( (*git).find( QChar(0xfffd) ) )  ) {
-		sameBasename << (*git).mid( (*git).find( QChar(0xfffd) ) + 1 );
+		   basename == (*git).left( (*git).indexOf( QChar(0xfffd) ) )  ) {
+		sameBasename << (*git).mid( (*git).indexOf( QChar(0xfffd) ) + 1 );
 		++git;
 	    }
 

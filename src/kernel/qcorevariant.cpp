@@ -687,7 +687,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
 	    break;
 	case QCoreVariant::String:
 	{
-	    QString str = static_cast<QString *>(d->value.ptr)->lower();
+	    QString str = static_cast<QString *>(d->value.ptr)->toLower();
 	    *b = !(str == "0" || str == "false" || str.isEmpty());
 	    break;
 	}
@@ -1204,7 +1204,7 @@ static const char* const type_map[ntypes] =
     "QSize",
     "QColor",
     "QPalette",
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     "QColorGroup",
 #else
     "",

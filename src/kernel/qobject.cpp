@@ -279,7 +279,7 @@ QObject::QObject(QObject *parent)
 }
 
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 QObject::QObject( QObject *parent, const char *name )
     :
     isWidget( FALSE ), 				// assume not a widget object
@@ -636,7 +636,7 @@ bool QObject::event( QEvent *e )
 
     case QEvent::ChildAdded:
     case QEvent::ChildPolished:
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     case QEvent::ChildInserted:
 #endif
     case QEvent::ChildRemoved:
@@ -1143,7 +1143,7 @@ void QObject::setParent_helper(QObject *parent)
 	    QChildEvent e(QEvent::ChildPolished, this);
 	    QCoreApplication::sendEvent(parentObj, &e);
 	}
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	QCoreApplication::postEvent(parentObj, new QChildEvent(QEvent::ChildInserted, this));
 #endif
     }

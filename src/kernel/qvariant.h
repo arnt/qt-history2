@@ -41,7 +41,7 @@ class QPixmap;
 class QBrush;
 class QColor;
 class QPalette;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 class QColorGroup;
 #endif
 class QIconSet;
@@ -72,9 +72,9 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QVariant(const QColor &color);
 #ifndef QT_NO_PALETTE
     inline QVariant(const QPalette &palette);
-#ifndef QT_NO_COMPAT
-    inline QVariant(const QColorGroup &cg);
-#endif // QT_NO_COMPAT
+#ifdef QT_COMPAT
+    inline QT_COMPAT QVariant(const QColorGroup &cg);
+#endif // QT_COMPAT
 #endif // QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
     inline QVariant(const QIconSet &iconset);
@@ -102,8 +102,8 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QVariant(Q_ULLONG ull);
     inline QVariant(double d);
     inline QVariant(bool b);
-#ifndef QT_NO_COMPAT
-    inline QVariant(bool b, int);
+#ifdef QT_COMPAT
+    inline QT_COMPAT QVariant(bool b, int);
 #endif
 
     inline QVariant(const char *str);
@@ -132,8 +132,8 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QBrush toBrush() const;
     QColor toColor() const;
     QPalette toPalette() const;
-#ifndef QT_NO_COMPAT
-    QColorGroup toColorGroup() const;
+#ifdef QT_COMPAT
+    QT_COMPAT QColorGroup toColorGroup() const;
 #endif
     QIconSet toIconSet() const;
     const QPointArray toPointArray() const;
@@ -164,9 +164,9 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QColor &asColor();
 #ifndef QT_NO_PALETTE
     QPalette &asPalette();
-#ifndef QT_NO_COMPAT
-    QColorGroup &asColorGroup();
-#endif // QT_NO_COMPAT
+#ifdef QT_COMPAT
+    QT_COMPAT QColorGroup &asColorGroup();
+#endif // QT_COMPAT
 #endif // QT_NO_PALETTE
     QIconSet &asIconSet();
     QPointArray &asPointArray();
@@ -196,7 +196,7 @@ inline QVariant::QVariant(Q_LLONG ll) : QCoreVariant(ll) {};
 inline QVariant::QVariant(Q_ULLONG ull) : QCoreVariant(ull) {};
 inline QVariant::QVariant(bool b) : QCoreVariant(b) {};
 inline QVariant::QVariant(double d) : QCoreVariant(d) {};
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 inline QVariant::QVariant(bool b, int) : QCoreVariant(b) {};
 #endif
 
@@ -236,7 +236,7 @@ inline QVariant::QVariant(const QColor &val)
 #ifndef QT_NO_PALETTE
 inline QVariant::QVariant(const QPalette &val)
 { d = create(Palette, &val); }
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 inline QVariant::QVariant(const QColorGroup &val)
 { d = create(ColorGroup, &val); }
 #endif
@@ -275,10 +275,10 @@ inline QColor& QVariant::asColor()
 #ifndef QT_NO_PALETTE
 inline QPalette& QVariant::asPalette()
 { return *static_cast<QPalette *>(castOrDetach(Palette)); }
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 inline QColorGroup& QVariant::asColorGroup()
 { return *static_cast<QColorGroup *>(castOrDetach(ColorGroup)); }
-#endif // QT_NO_COMPAT
+#endif // QT_COMPAT
 #endif // QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
 inline QIconSet& QVariant::asIconSet()
@@ -364,7 +364,7 @@ inline QPalette QVariant::toPalette() const
     return *static_cast<QPalette *>(d->value.ptr);
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 inline QColorGroup QVariant::toColorGroup() const
 {
     if (d->type != ColorGroup)

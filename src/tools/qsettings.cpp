@@ -387,7 +387,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 	    return;
 	}
 
-	int i = line.find('=');
+	int i = line.indexOf('=');
        	if (i == -1) {
 	    qWarning("QSettings: malformed line '%s' in group '%s'",
 		     line.latin1(), git.key().latin1());
@@ -522,7 +522,7 @@ QSettingsGroup QSettingsPrivate::readGroup()
 	if ( !globalScope )
 	    ++it;
 	while (it != searchPaths.end()) {
-	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
+	    QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
 	    if (! hd.contains(fn + "cached")) {
 		hd.read(fn);
@@ -558,7 +558,7 @@ void QSettingsPrivate::removeGroup(const QString &key)
 	if ( !globalScope )
 	    ++it;
 	while (it != searchPaths.end()) {
-	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
+	    QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
 	    if (! hd.contains(fn + "cached")) {
 		hd.read(fn);
@@ -611,7 +611,7 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
 	if ( !globalScope )
 	    ++it;
 	while (it != searchPaths.end()) {
-	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
+	    QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
 	    if (! hd.contains(fn + "cached")) {
 		hd.read(fn);
@@ -925,7 +925,7 @@ bool QSettings::sync()
 	if ( !d->globalScope )
 	    ++pit;
 	while (pit != d->searchPaths.end()) {
-	    QString filebase = it.key().lower().replace(QRegExp("\\s+"), "_");
+	    QString filebase = it.key().toLower().replace(QRegExp("\\s+"), "_");
 	    QFileInfo di(*pit);
 	    if ( !di.exists() ) {
 		QDir dir;
@@ -1056,9 +1056,9 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 
     QString value = readEntry( key, ( def ? "true" : "false" ), ok );
 
-    if (value.lower() == "true")
+    if (value.toLower() == "true")
 	return true;
-    else if (value.lower() == "false")
+    else if (value.toLower() == "false")
 	return false;
     else if (value == "1")
 	return true;
@@ -1544,7 +1544,7 @@ QStringList QSettings::entryList(const QString &key) const
 		itkey.remove( 0, realkey.length() + 1 );
 	}
 
-	if ( itkey.find( '/' ) != -1 )
+	if ( itkey.indexOf( '/' ) != -1 )
 	    continue;
 
 	ret << itkey;
@@ -1650,7 +1650,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 		itkey.remove( 0, realkey.length() + 1 );
 	}
 
-	int slash = itkey.find( '/' );
+	int slash = itkey.indexOf( '/' );
 	if ( slash == -1 )
 	    continue;
 	itkey.truncate( slash );
@@ -1898,7 +1898,7 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
     d->globalScope = scope == Global;
 
     QString actualSearchPath;
-    int lastDot = domain.findRev( '.' );
+    int lastDot = domain.lastIndexOf( '.' );
 
 #if defined(Q_WS_WIN)
     actualSearchPath = "/" + domain.mid( 0, lastDot ) + "/" + product;

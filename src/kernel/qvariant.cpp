@@ -77,7 +77,7 @@ static void construct(QVariant::Private *x, const void *v)
 	case QVariant::Palette:
 	    x->value.ptr = new QPalette(*static_cast<const QPalette *>(v));
 	    break;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	case QVariant::ColorGroup:
 	    x->value.ptr = new QColorGroup(*static_cast<const QColorGroup *>(v));
 	    break;
@@ -148,7 +148,7 @@ static void construct(QVariant::Private *x, const void *v)
 	case QVariant::Palette:
 	    x->value.ptr = new QPalette;
 	    break;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	case QVariant::ColorGroup:
 	    x->value.ptr = new QColorGroup;
 	    break;
@@ -227,7 +227,7 @@ static void clear(QVariant::Private *p)
     case QVariant::Palette:
 	delete static_cast<QPalette *>(p->value.ptr);
 	break;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     case QVariant::ColorGroup:
 	delete static_cast<QColorGroup *>(p->value.ptr);
 	break;
@@ -291,7 +291,7 @@ static bool isNull(const QVariant::Private *d)
     case QVariant::Color:
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     case QVariant::ColorGroup:
 #endif
 #endif
@@ -357,7 +357,7 @@ static void load(QVariant::Private *d, QDataStream &s)
     case QVariant::Palette:
 	s >> *static_cast<QPalette *>(d->value.ptr);
 	break;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     case QVariant::ColorGroup:
 	s >> *static_cast<QColorGroup *>(d->value.ptr);
 	break;
@@ -442,7 +442,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
     case QVariant::Palette:
 	s << *static_cast<QPalette *>(d->value.ptr);
 	break;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     case QVariant::ColorGroup:
 	s << *static_cast<QColorGroup *>(d->value.ptr);
 	break;
@@ -522,7 +522,7 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     case QVariant::Palette:
 	return *static_cast<QPalette *>(a->value.ptr)
 	    == *static_cast<QPalette *>(b->value.ptr);
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     case QVariant::ColorGroup:
 	return *static_cast<QColorGroup *>(a->value.ptr)
 	    == *static_cast<QColorGroup *>(b->value.ptr);

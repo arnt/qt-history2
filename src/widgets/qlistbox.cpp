@@ -11,7 +11,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #include "qglobal.h"
 #if defined(Q_CC_BOR)
 // needed for qsort() because of a std namespace problem on Borland
@@ -1221,7 +1220,7 @@ uint QListBox::count() const
 }
 
 // ### fix before Qt 4.0
-#if !defined(QT_NO_COMPAT) && 0
+#if defined(QT_COMPAT) && 0
 /*!
     Inserts the string list \a list into the list at position \a
     index.
@@ -1275,7 +1274,7 @@ void QListBox::insertStringList( const QStringList & list, int index )
 
 
 // ### fix before Qt 4.0
-#if !defined(QT_NO_COMPAT) && 0
+#if defined(QT_COMPAT) && 0
 /*!
     \overload
 
@@ -3873,7 +3872,7 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 }
 
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 
 /*!
   \obsolete
@@ -3892,7 +3891,6 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 */
 int QListBox::inSort( const QListBoxItem * lbi )
 {
-    qObsolete( "QListBox", "inSort", "insertItem" );
     if ( !lbi )
 	return -1;
 
@@ -3924,8 +3922,17 @@ int QListBox::inSort( const QListBoxItem * lbi )
 */
 int QListBox::inSort( const QString& text )
 {
-    qObsolete( "QListBox", "inSort", "insertItem" );
-    return inSort( new QListBoxText(text) );
+    QListBoxItem *lbi = new QListBoxText(text);
+
+    QListBoxItem * i = d->head;
+    int c = 0;
+
+    while( i && i->text() < lbi->text() ) {
+	i = i->n;
+	c++;
+    }
+    insertItem( lbi, c );
+    return c;
 }
 
 #endif
@@ -4062,7 +4069,7 @@ void QListBox::showEvent( QShowEvent * )
     ensureCurrentVisible();
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 
 /*!
   \obsolete
@@ -4073,7 +4080,6 @@ void QListBox::showEvent( QShowEvent * )
 */
 bool QListBox::itemYPos( int index, int *yPos ) const
 {
-    qObsolete( "QListBox", "itemYPos" );
     QListBoxItem* i = item(index);
     if ( !i )
 	return FALSE;

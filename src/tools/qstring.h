@@ -304,66 +304,72 @@ public:
 #endif
 
     // compatibility
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     static struct Null {
 	inline bool operator==(const Null&){return true; }
 	inline bool operator!=(const Null&){return false; }
     } null;
-    inline QString(const Null &): d(&shared_null) { ++d->ref; }
-    inline QString &operator=(const Null &) { *this = QString(); return *this; }
-    inline bool isNull() const { return d == &shared_null; }
-    inline void setLength(int nl) { resize(nl); }
-    inline QString copy() const { return *this; }
-    inline QString &insert(int i, const QChar *uc, int len)
+    inline QT_COMPAT QString(const Null &): d(&shared_null) { ++d->ref; }
+    inline QT_COMPAT QString &operator=(const Null &) { *this = QString(); return *this; }
+    inline QT_COMPAT bool isNull() const { return d == &shared_null; }
+    inline QT_COMPAT void setLength(int nl) { resize(nl); }
+    inline QT_COMPAT QString copy() const { return *this; }
+    inline QT_COMPAT QString &insert(int i, const QChar *uc, int len)
     { return insert(i, QString(uc, len)); }
-    inline QString &replace(int i, int len, const QChar *s, int clen)
+    inline QT_COMPAT QString &replace(int i, int len, const QChar *s, int clen)
     { return replace(i, len, QString(s, clen)); }
-    inline QString &remove(QChar c, bool cs)
+    inline QT_COMPAT QString &remove(QChar c, bool cs)
     { return remove(c, cs?CaseSensitive:CaseInsensitive); }
-    inline QString &remove(const QString  &s, bool cs)
+    inline QT_COMPAT QString &remove(const QString  &s, bool cs)
     { return remove(s, cs?CaseSensitive:CaseInsensitive); }
-    inline QString &replace(QChar c, const QString  &after, bool cs)
+    inline QT_COMPAT QString &replace(QChar c, const QString  &after, bool cs)
     { return replace(c, after, cs?CaseSensitive:CaseInsensitive); }
-    inline QString &replace(const QString  &before, const QString  &after, bool cs)
+    inline QT_COMPAT QString &replace(const QString  &before, const QString  &after, bool cs)
     { return replace(before, after, cs?CaseSensitive:CaseInsensitive); }
-    inline int find(QChar c, int i = 0, bool cs = true) const
+    inline QT_COMPAT int find(QChar c, int i = 0, bool cs = true) const
     { return indexOf(c, i, cs?CaseSensitive:CaseInsensitive); }
-    inline int find(const QString &s, int i = 0, bool cs = true) const
+    inline QT_COMPAT int find(const QString &s, int i = 0, bool cs = true) const
     { return indexOf(s, i, cs?CaseSensitive:CaseInsensitive); }
-    inline int findRev(QChar c, int i = -1, bool cs = true) const
+    inline QT_COMPAT int findRev(QChar c, int i = -1, bool cs = true) const
     { return lastIndexOf(c, i, cs?CaseSensitive:CaseInsensitive); }
-    inline int findRev(const QString &s, int i = -1, bool cs = true) const
+    inline QT_COMPAT int findRev(const QString &s, int i = -1, bool cs = true) const
     { return lastIndexOf(s, i, cs?CaseSensitive:CaseInsensitive); }
 #ifndef QT_NO_REGEXP
-    int find(const QRegExp &rx, int i=0) const
+    inline QT_COMPAT int find(const QRegExp &rx, int i=0) const
     { return indexOf(rx, i); }
-    int findRev(const QRegExp &rx, int i=-1) const
+    inline QT_COMPAT int findRev(const QRegExp &rx, int i=-1) const
     { return lastIndexOf(rx, i); }
 #endif
-    inline QBool contains(QChar c, bool cs) const
+    inline QT_COMPAT QBool contains(QChar c, bool cs) const
     { return contains(c, cs?CaseSensitive:CaseInsensitive); }
-    inline QBool contains(const QString &s, bool cs) const
+    inline QT_COMPAT QBool contains(const QString &s, bool cs) const
     { return contains(s, cs?CaseSensitive:CaseInsensitive); }
-    inline bool startsWith(const QString &s, bool cs) const
+    inline QT_COMPAT bool startsWith(const QString &s, bool cs) const
     { return startsWith(s, cs?CaseSensitive:CaseInsensitive); }
-    inline bool endsWith(const QString &s, bool cs) const
+    inline QT_COMPAT bool endsWith(const QString &s, bool cs) const
     { return endsWith(s, cs?CaseSensitive:CaseInsensitive); }
     QCharRef at(int i);
-    inline QString &setAscii( const char *str, int len=-1 )
+    inline QT_COMPAT QString &setAscii( const char *str, int len=-1 )
     { *this = fromAscii(str, len); return *this; }
-    inline QString &setLatin1( const char *str, int len=-1 )
+    inline QT_COMPAT QString &setLatin1( const char *str, int len=-1 )
     { *this = fromLatin1(str, len); return *this; }
-    inline QChar constref(uint i) const
+    inline QT_COMPAT QChar constref(uint i) const
     { return at(i); }
-    QChar &ref(uint i);
-    inline QString leftJustify(int width, QChar fill=' ', bool trunc=false) const
+    QT_COMPAT QChar &ref(uint i);
+    inline QT_COMPAT QString leftJustify(int width, QChar fill=' ', bool trunc=false) const
     { return leftJustified(width, fill, trunc); }
-    inline QString rightJustify(int width, QChar fill=' ', bool trunc=false) const
+    inline QT_COMPAT QString rightJustify(int width, QChar fill=' ', bool trunc=false) const
     { return rightJustified(width, fill, trunc); }
-    inline QString lower() const { return toLower(); }
-    inline QString upper() const { return toUpper(); }
-    inline QString stripWhiteSpace() const { return trimmed(); }
-    inline QString simplifyWhiteSpace() const { return simplified(); }
+    inline QT_COMPAT QString lower() const { return toLower(); }
+    inline QT_COMPAT QString upper() const { return toUpper(); }
+    inline QT_COMPAT QString stripWhiteSpace() const { return trimmed(); }
+    inline QT_COMPAT QString simplifyWhiteSpace() const { return simplified(); }
+
+    friend bool operator==(QString::Null, const QString &s);
+    friend bool operator==(const QString &s, QString::Null);
+    friend bool operator!=(QString::Null, const QString &s);
+    friend bool operator!=(const QString &s, QString::Null);
+
 #endif
 
     inline bool ensure_constructed()
@@ -620,15 +626,15 @@ inline const QString operator+(const QString &s, char c)
 { return QString(s) += c; }
 #endif
 
-#ifndef QT_NO_COMPAT
-inline bool operator==(QString::Null, const QString &s)
-{ return s.isNull(); }
-inline bool operator==(const QString &s, QString::Null)
-{ return s.isNull(); }
-inline bool operator!=(QString::Null, const QString &s)
-{ return !s.isNull(); }
-inline bool operator!=(const QString &s, QString::Null)
-{ return !s.isNull(); }
+#ifdef QT_COMPAT
+inline QT_COMPAT bool operator==(QString::Null, const QString &s)
+{ return s.d == &QString::shared_null; }
+inline QT_COMPAT bool operator==(const QString &s, QString::Null)
+{ return s.d == &QString::shared_null; }
+inline QT_COMPAT bool operator!=(QString::Null, const QString &s)
+{ return s.d != &QString::shared_null; }
+inline QT_COMPAT bool operator!=(const QString &s, QString::Null)
+{ return s.d != &QString::shared_null; }
 inline QCharRef QString::at(int i)
 { Q_ASSERT(i >= 0); return QCharRef(*this, i); }
 inline QChar &QString::ref(uint i)

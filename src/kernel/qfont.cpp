@@ -1313,7 +1313,7 @@ QFont QFont::resolve( const QFont &other ) const
 /*!\internal \fn uint QFont::resolve() const */
 /*!\internal \fn void QFont::resolve(uint mask) */
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 
 /*! \obsolete
 

@@ -401,7 +401,7 @@ QString QFileInfo::filePath() const
 QString QFileInfo::baseName( bool complete ) const
 {
     QString tmp = fileName();
-    int pos = complete ? tmp.findRev( '.' ) : tmp.find( '.' );
+    int pos = complete ? tmp.lastIndexOf( '.' ) : tmp.indexOf( '.' );
     if ( pos == -1 )
 	return tmp;
     else
@@ -432,7 +432,7 @@ QString QFileInfo::baseName( bool complete ) const
 QString QFileInfo::extension( bool complete ) const
 {
     QString s = fileName();
-    int pos = complete ? s.find( '.' ) : s.findRev( '.' );
+    int pos = complete ? s.indexOf( '.' ) : s.lastIndexOf( '.' );
     if ( pos < 0 )
 	return QString::fromLatin1( "" );
     else

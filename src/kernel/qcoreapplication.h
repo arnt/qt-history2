@@ -82,11 +82,11 @@ public:
 
     static void flush();
 
-#if defined(QT_THREAD_SUPPORT) && !defined(QT_NO_COMPAT)
-    void	     lock();
-    void	     unlock(bool wakeUpGui = TRUE);
-    bool	     locked();
-    bool             tryLock();
+#if defined(QT_THREAD_SUPPORT) && defined(QT_COMPAT)
+    QT_COMPAT void	     lock();
+    QT_COMPAT void	     unlock(bool wakeUpGui = TRUE);
+    QT_COMPAT bool	     locked();
+    QT_COMPAT bool             tryLock();
 #endif
 
 #if defined(Q_WS_WIN)

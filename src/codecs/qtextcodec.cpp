@@ -464,7 +464,7 @@ static QString lettersAndNumbers( const char * input )
 	}
 	input++;
     }
-    return result.simplifyWhiteSpace();
+    return result.simplified();
 }
 
 /*!
@@ -486,7 +486,7 @@ int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
     if ( h == n )
 	return qstrlen( hint )-1;
 
-    if ( h.stripWhiteSpace() == n.stripWhiteSpace() )
+    if ( h.trimmed() == n.trimmed() )
 	return qstrlen( hint )-2;
 
     // could do some more here, but I don't think it's worth it
@@ -2357,7 +2357,7 @@ int QSimpleTextCodec::heuristicNameMatch(const char* hint) const
     if ( qstricmp( hint, mimeName() ) == 0 )
 	return 10000; // return a large value
     if ( hint[0]=='k' ) {
-	QString lhint = QString(hint).lower();
+	QString lhint = QString(hint).toLower();
 	// Help people with messy fonts
 	if ( lhint == "koi8-1" )
 	    return QTextCodec::heuristicNameMatch("koi8-r")-1;

@@ -31,10 +31,10 @@ public:
     QPointArray(const QRect &r, bool closed=FALSE);
     QPointArray(int nPoints, const QCOORD *points);
 
-#ifndef QT_NO_COMPAT
-    inline QPointArray copy() const
+#ifdef QT_COMPAT
+    inline QT_COMPAT QPointArray copy() const
 	{ return *this; }
-    inline bool isNull() { return isEmpty(); }
+    inline QT_COMPAT bool isNull() { return isEmpty(); }
 #endif
 
     void translate(int dx, int dy);

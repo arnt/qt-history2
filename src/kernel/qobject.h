@@ -45,6 +45,7 @@ class Q_CORE_EXPORT QObject: public Qt
     Q_PROPERTY( QByteArray objectName READ objectName WRITE setObjectName )
 
 public:
+    QObject(QObject *parent, const char *name);
     QObject(QObject *parent=0);
     virtual ~QObject();
 
@@ -151,26 +152,25 @@ protected:
     virtual void connectNotify(const char *signal);
     virtual void disconnectNotify(const char *signal);
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 public:
-    QObject(QObject *parent, const char *name);
-    inline void insertChild(QObject *o)
+    inline QT_COMPAT void insertChild(QObject *o)
 	{ if (o) o->setParent(this); }
-    inline void removeChild(QObject *o)
+    inline QT_COMPAT void removeChild(QObject *o)
 	{ if (o) o->setParent(0); }
-    inline bool isA(const char *classname) const
+    inline QT_COMPAT bool isA(const char *classname) const
 	{ return qstrcmp(classname, className() ) == 0; }
-    inline bool inherits(const char *classname) const
+    inline QT_COMPAT bool inherits(const char *classname) const
 	{ return metaObject()->inherits(classname); }
-    inline const char *name() const { return objectName(); }
-    inline const char *name(const char *defaultName) const { return objectName(defaultName); }
-    inline void setName(const char *name) { setObjectName(name); }
+    inline QT_COMPAT const char *name() const { return objectName(); }
+    inline QT_COMPAT const char *name(const char *defaultName) const { return objectName(defaultName); }
+    inline QT_COMPAT void setName(const char *name) { setObjectName(name); }
 protected:
-    inline bool checkConnectArgs(const char *signal,
+    inline QT_COMPAT bool checkConnectArgs(const char *signal,
 				  const QObject *,
 				  const char *member)
 	{ return QMetaObject::checkConnectArgs(signal, member); }
-    static inline QByteArray normalizeSignalSlot(const char *signalSlot)
+    static inline QT_COMPAT QByteArray normalizeSignalSlot(const char *signalSlot)
 	{ return QMetaObject::normalizedSignature(signalSlot); }
 #endif
 
@@ -185,7 +185,7 @@ private:
     uint wasDeleted : 1;
     uint ownObjectName : 1;
     uint hasPostedEvents : 1;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     uint hasPostedChildInsertedEvents : 1;
     uint unused : 25;
 #else

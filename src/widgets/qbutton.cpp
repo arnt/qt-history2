@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#undef QT_NO_COMPAT
+#define QT_COMPAT
 #include "qbutton.h"
 #ifndef QT_NO_BUTTON
 #include "qbuttongroup.h"
@@ -521,7 +521,7 @@ void QButton::setAccel( const QKeySequence& key )
 }
 #endif
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 
 void QButton::setAutoResize( bool enable )
 {

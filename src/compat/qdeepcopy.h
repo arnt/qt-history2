@@ -19,9 +19,9 @@
 #  include "qglobal.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 template <class T>
-class QDeepCopy
+class QT_COMPAT QDeepCopy
 {
 public:
     inline QDeepCopy()

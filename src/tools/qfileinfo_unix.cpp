@@ -278,7 +278,7 @@ QString QFileInfo::dirPath( bool absPath ) const
 	s = absFilePath();
     else
 	s = fn;
-    int pos = s.findRev( '/' );
+    int pos = s.lastIndexOf( '/' );
     if ( pos == -1 ) {
 	return QString::fromLatin1( "." );
     } else {
@@ -303,7 +303,7 @@ QString QFileInfo::dirPath( bool absPath ) const
 
 QString QFileInfo::fileName() const
 {
-    int p = fn.findRev( '/' );
+    int p = fn.lastIndexOf( '/' );
     if ( p == -1 ) {
 	return fn;
     } else {

@@ -33,7 +33,7 @@ public:
     QTranslatorMessage( const char * context,
 			const char * sourceText,
 			const char * comment,
-			const QString& translation = QString::null );
+			const QString& translation = QString() );
     QTranslatorMessage( QDataStream & );
     QTranslatorMessage( const QTranslatorMessage & m );
 
@@ -82,6 +82,7 @@ class Q_CORE_EXPORT QTranslator : public QObject
     Q_OBJECT
     Q_DECL_PRIVATE(QTranslator);
 public:
+    QTranslator( QObject * parent, const char * name);
     QTranslator(QObject *parent = 0);
     ~QTranslator();
 
@@ -129,10 +130,9 @@ private:
 #endif
 
     bool do_load( const uchar *data, int len );
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 public:
-    QTranslator( QObject * parent, const char * name);
-    QString find( const char *context, const char *sourceText, const char * comment = 0 ) const {
+    QT_COMPAT QString find( const char *context, const char *sourceText, const char * comment = 0 ) const {
 	return findMessage( context, sourceText, comment ).translation();
     }
 #endif

@@ -65,7 +65,7 @@ public:
 	DragResponse = 64,			// drag accepted/rejected
 	ChildAdded = 68,			// new child widget
 	ChildPolished = 69,			// polished child widget
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	ChildInserted = 70,			// compatibility posted insert
 	LayoutHint = 72,			// compatibility relayout request
 #endif
@@ -108,7 +108,7 @@ public:
 	WindowUnblocked = 104,			// windows modal blocking has ended
 	WindowStateChange = 105,
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	CaptionChange = WindowTitleChange,
 	IconChange = WindowIconChange,
 #endif
@@ -153,8 +153,8 @@ public:
 	: QEvent(type), c(child) {}
     QObject *child() const { return c; }
     bool added() const { return type() == ChildAdded; }
-#ifndef QT_NO_COMPAT
-    bool inserted() const { return type() == ChildInserted; }
+#ifdef QT_COMPAT
+    QT_COMPAT bool inserted() const { return type() == ChildInserted; }
 #endif
     bool polished() const { return type() == ChildPolished; }
     bool removed() const { return type() == ChildRemoved; }

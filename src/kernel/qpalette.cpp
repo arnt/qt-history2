@@ -33,7 +33,7 @@ static QColor qt_mix_colors(QColor a, QColor b)
 		   (a.blue() + b.blue()) / 2);
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 void QColorGroup::init()
 {
     is_colorgroup = 1;
@@ -436,7 +436,7 @@ QPalette::QPalette()
     : d(QApplication::palette().d),
       current_group(Active),
       resolve_mask(0)
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     ,is_colorgroup(0)
 #endif
 {
@@ -553,7 +553,7 @@ QPalette::QPalette(const QPalette &p)
     d = p.d;
     ++d->ref;
     resolve_mask = p.resolve_mask;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     is_colorgroup = p.is_colorgroup;
 #endif
     current_group = p.current_group;
@@ -572,7 +572,7 @@ QPalette::~QPalette()
 void QPalette::init() {
     d = new QPalettePrivate;
     resolve_mask = 0;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     is_colorgroup = 0;
 #endif
     current_group = Active; //as a default..
@@ -592,7 +592,7 @@ QPalette &QPalette::operator=(const QPalette &p)
     ++x->ref;
     resolve_mask = p.resolve_mask;
     current_group = p.current_group;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     is_colorgroup = p.is_colorgroup;
 #endif
     x = qAtomicSetPtr(&d, x);
@@ -708,7 +708,7 @@ void QPalette::detach()
 */
 bool QPalette::operator==(const QPalette &p) const
 {
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     Q_ASSERT(is_colorgroup == p.is_colorgroup);
 #endif
     for(int grp = 0; grp < (int)NColorGroups; grp++) {

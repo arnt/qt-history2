@@ -102,14 +102,14 @@ public:
     virtual void setActive(bool yes);
     bool isActive() const
 	{ return (bool)act; }
-#ifndef QT_NO_COMPAT
-    bool visible() const
+#ifdef QT_COMPAT
+    QT_COMPAT bool visible() const
 	{ return (bool)vis; }
-    bool selected() const
+    QT_COMPAT bool selected() const
 	{ return (bool)sel; }
-    bool enabled() const
+    QT_COMPAT bool enabled() const
 	{ return (bool)ena; }
-    bool active() const
+    QT_COMPAT bool active() const
 	{ return (bool)act; }
 #endif
 

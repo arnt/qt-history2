@@ -199,10 +199,10 @@
 #define CHECK_STREAM_PRECOND
 #endif
 
-static int  systemWordSize = 0;
-static bool systemBigEndian;
+enum {
+    DefaultStreamVersion = 6
+};
 
-static const int DefaultStreamVersion = 6;
 // ### 4.0: when streaming invalid QVariants, just the type should
 // be written, no "data" after it
 // 6 is default in Qt 4.0
@@ -220,14 +220,12 @@ static const int DefaultStreamVersion = 6;
 
 QDataStream::QDataStream()
 {
-    if ( systemWordSize == 0 )			// get system features
-	qSysInfo( &systemWordSize, &systemBigEndian );
     dev	      = 0;				// no device set
     owndev    = FALSE;
     byteorder = BigEndian;			// default byte order
     printable = FALSE;
     ver	      = DefaultStreamVersion;
-    noswap    = systemBigEndian;
+    noswap    = QSysInfo::ByteOrder == QSysInfo::BigEndian;
 }
 
 /*!
@@ -244,14 +242,12 @@ QDataStream::QDataStream()
 
 QDataStream::QDataStream( QIODevice *d )
 {
-    if ( systemWordSize == 0 )			// get system features
-	qSysInfo( &systemWordSize, &systemBigEndian );
     dev	      = d;				// set device
     owndev    = FALSE;
     byteorder = BigEndian;			// default byte order
     printable = FALSE;
     ver	      = DefaultStreamVersion;
-    noswap    = systemBigEndian;
+    noswap    = QSysInfo::ByteOrder == QSysInfo::BigEndian;
 }
 
 /*!
@@ -275,15 +271,13 @@ QDataStream::QDataStream( QIODevice *d )
 
 QDataStream::QDataStream( QByteArray &a, int mode )
 {
-    if ( systemWordSize == 0 )			// get system features
-	qSysInfo( &systemWordSize, &systemBigEndian );
     dev	      = new QBuffer( a );		// create device
     ((QBuffer *)dev)->open( mode );		// open device
     owndev    = TRUE;
     byteorder = BigEndian;			// default byte order
     printable = FALSE;
     ver	      = DefaultStreamVersion;
-    noswap    = systemBigEndian;
+    noswap    = QSysInfo::ByteOrder == QSysInfo::BigEndian;
 }
 
 /*!
@@ -296,15 +290,13 @@ QDataStream::QDataStream( QByteArray &a, int mode )
 */
 QDataStream::QDataStream( const QByteArray &a, int mode )
 {
-    if ( systemWordSize == 0 )			// get system features
-	qSysInfo( &systemWordSize, &systemBigEndian );
     dev	      = new QBuffer( a );		// create device
     ((QBuffer *)dev)->open( mode );		// open device
     owndev    = TRUE;
     byteorder = BigEndian;			// default byte order
     printable = FALSE;
     ver	      = DefaultStreamVersion;
-    noswap    = systemBigEndian;
+    noswap    = QSysInfo::ByteOrder == QSysInfo::BigEndian;
 }
 
 /*!
@@ -404,13 +396,13 @@ void QDataStream::unsetDevice()
     \sa byteOrder()
 */
 
-void QDataStream::setByteOrder( int bo )
+void QDataStream::setByteOrder( ByteOrder bo )
 {
     byteorder = bo;
-    if ( systemBigEndian )
-	noswap = byteorder == BigEndian;
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian)
+	noswap = (byteorder == BigEndian);
     else
-	noswap = byteorder == LittleEndian;
+	noswap = (byteorder == LittleEndian);
 }
 
 

@@ -40,8 +40,8 @@ public:
     bool	 eof() const;
 
     enum ByteOrder { BigEndian, LittleEndian };
-    int		 byteOrder()	const;
-    void	 setByteOrder( int );
+    ByteOrder byteOrder()	const;
+    void	 setByteOrder( ByteOrder );
 
     bool	 isPrintableData() const;
     void	 setPrintableData( bool );
@@ -93,7 +93,7 @@ private:
     bool	 owndev;
     bool	 printable;
     bool	 noswap;
-    int		 byteorder;
+    ByteOrder    byteorder;
     int		 ver;
 
 private:	// Disabled copy constructor and operator=
@@ -117,7 +117,7 @@ inline bool QDataStream::atEnd() const
 inline bool QDataStream::eof() const
 { return atEnd(); }
 
-inline int QDataStream::byteOrder() const
+inline QDataStream::ByteOrder QDataStream::byteOrder() const
 { return byteorder; }
 
 inline bool QDataStream::isPrintableData() const

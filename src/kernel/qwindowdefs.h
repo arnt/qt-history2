@@ -28,7 +28,7 @@ class QWidget;
 class QDialog;
 class QColor;
 class QPalette;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 class QColorGroup;
 #endif
 class QCursor;

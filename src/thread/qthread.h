@@ -30,8 +30,8 @@ class QEvent;
 class Q_CORE_EXPORT QThread
 {
 public:
-#ifndef QT_NO_COMPAT
-    static void postEvent( QObject *,QEvent * );
+#ifdef QT_COMPAT
+    static QT_COMPAT void postEvent( QObject *,QEvent * );
 #endif
 
     static Qt::HANDLE currentThread();

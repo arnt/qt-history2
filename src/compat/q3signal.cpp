@@ -211,7 +211,7 @@ QCoreVariant Q3Signal::value() const
     \internal
 */
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 /*! \obsolete */
 void Q3Signal::setParameter( int value )
 {

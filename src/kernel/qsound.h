@@ -40,8 +40,8 @@ public:
 	?
     */
 
-#ifndef QT_NO_COMPAT
-    static bool available() { return isAvailable(); }
+#ifdef QT_COMPAT
+    static QT_COMPAT bool available() { return isAvailable(); }
 #endif
 
     int loops() const;

@@ -1159,7 +1159,7 @@ void QApplication::setStyle( QStyle *style )
 			app_style->polish(w);		// repolish
 		    QEvent e(QEvent::StyleChange);
 		    QApplication::sendEvent(w, &e);
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 		    w->styleChange( *old );
 #endif
 		    if ( w->isVisible() )
@@ -2611,7 +2611,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	       .arg(QString::number((ulong) receiver->thread(), 16)));
 #endif
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->hasPostedChildInsertedEvents) {
 	QEventLoop *eventloop = QEventLoop::instance();
 	QPostEventList *postedEvents = eventloop->d->postedEvents;
@@ -2644,7 +2644,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	    receiver->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
 	}
     }
-#endif // QT_NO_COMPAT
+#endif // QT_COMPAT
 
     bool res;
     switch ( e->type() ) {

@@ -20,7 +20,7 @@
 */
 
 #ifndef QT_H
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 #include "qlayout.h"
 #endif
 #endif // QT_H

@@ -940,7 +940,7 @@ int QByteArray::lastIndexOf(const QByteArray& a, int i) const
     if (i > delta)
 	i = delta;
     if (sl == 1)
-	return findRev(*a.d->data, i);
+	return lastIndexOf(*a.d->data, i);
 
     const char *needle = a.d->data;
     const char *haystack = d->data + i;
@@ -1258,6 +1258,6 @@ QByteArray QByteArray::rightJustified(int width, char fill, bool truncate) const
     return result;
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 bool QByteArray::isNull() const { return d == &shared_null; }
 #endif

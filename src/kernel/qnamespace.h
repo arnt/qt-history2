@@ -218,7 +218,7 @@ public:
 #else
 	WStyle_Splash           = WStyle_NoBorder | WMacNoSheet | WStyle_Tool | WWinOwnDC
 #endif
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
         ,
 	WStaticContents		= 0x00400000,
 	WNoAutoErase		= 0x00800000,
@@ -278,7 +278,7 @@ public:
 	OpaqueMode
     };
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     // documented in qpainter.cpp
     enum PaintUnit {				// paint unit
 	PixelUnit,
@@ -291,10 +291,10 @@ public:
 #endif
 
     // documented in qstyle.cpp
-#ifdef QT_NO_COMPAT
+#ifndef QT_COMPAT
     enum GUIStyle {
-	WindowsStyle = 1,     // ### Qt 4.0: either remove the obsolete enums or clean up compat vs.
-	MotifStyle = 4        // ### QT_NO_COMPAT by reordering or combination into one enum.
+	WindowsStyle = 1,     // ### Qt 4.0: either remove the obsolete enums or clean up no compat vs.
+	MotifStyle = 4        // ### QT_COMPAT by reordering or combination into one enum.
     };
 #else
     enum GUIStyle {
@@ -534,7 +534,7 @@ public:
 	Key_Yacute = 0x0dd,
 	Key_THORN = 0x0de,
 	Key_ssharp = 0x0df,
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	Key_agrave = Key_Agrave,
 	Key_aacute = Key_Aacute,
 	Key_acircumflex = Key_Acircumflex,
@@ -560,7 +560,7 @@ public:
 	Key_odiaeresis = Key_Odiaeresis,
 #endif
 	Key_division = 0x0f7,
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	Key_oslash = Key_Ooblique,
 	Key_ugrave = Key_Ugrave,
 	Key_uacute = Key_Uacute,
@@ -769,7 +769,7 @@ public:
 	LastCursor	= BusyCursor,
 	BitmapCursor	= 24
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	,
 	arrowCursor = ArrowCursor,
 	upArrowCursor = UpArrowCursor,
@@ -812,7 +812,7 @@ public:
 	DockRight,
 	DockLeft,
 	DockMinimized
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
         ,
 	Unmanaged = DockUnmanaged,
 	TornOff = DockTornOff,
@@ -850,7 +850,7 @@ public:
 	Sunday = 7
     };
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     enum BackgroundMode {
 	FixedColor,
 	FixedPixmap,

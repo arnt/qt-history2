@@ -75,7 +75,7 @@ QUuid::QUuid( const QString &text )
 	*this = QUuid();
 	return;
     }
-    QString temp = text.upper();
+    QString temp = text.toUpper();
     if ( temp[0] != '{' )
 	temp = "{" + text;
     if ( text[(int)text.length()-1] != '}' )
@@ -161,13 +161,13 @@ QString QUuid::toString() const
 {
     QString result;
 
-    result = "{" + QString::number( data1, 16 ).rightJustify( 8, '0' ) + "-";
-    result += QString::number( (int)data2, 16 ).rightJustify( 4, '0' ) + "-";
-    result += QString::number( (int)data3, 16 ).rightJustify( 4, '0' ) + "-";
-    result += QString::number( (int)data4[0], 16 ).rightJustify( 2, '0' );
-    result += QString::number( (int)data4[1], 16 ).rightJustify( 2, '0' ) + "-";
+    result = "{" + QString::number( data1, 16 ).rightJustified( 8, '0' ) + "-";
+    result += QString::number( (int)data2, 16 ).rightJustified( 4, '0' ) + "-";
+    result += QString::number( (int)data3, 16 ).rightJustified( 4, '0' ) + "-";
+    result += QString::number( (int)data4[0], 16 ).rightJustified( 2, '0' );
+    result += QString::number( (int)data4[1], 16 ).rightJustified( 2, '0' ) + "-";
     for ( int i = 2; i < 8; i++ )
-	result += QString::number( (int)data4[i], 16 ).rightJustify( 2, '0' );
+	result += QString::number( (int)data4[i], 16 ).rightJustified( 2, '0' );
 
     return result + "}";
 }
@@ -246,7 +246,7 @@ bool QUuid::isNull() const
 
 /*!
     \fn Qt::UuidVariant QUuid::variant() const
-    
+
     Returns the variant of the UUID.
     The null UUID is considered of an unknown variant.
 
@@ -266,8 +266,8 @@ Qt::UuidVariant QUuid::variant() const
 
 /*!
     \fn Qt::UuidVersion QUuid::version() const
-    
-    Returns the version of the UUID, if the UUID is of the 
+
+    Returns the version of the UUID, if the UUID is of the
     UV_DCE variant; otherwise returns UV_VerUnknown.
 
     \sa variant()
@@ -276,9 +276,9 @@ Qt::UuidVersion QUuid::version() const
 {
     // Check the 4 MSB of data3
     Qt::UuidVersion ver = (Qt::UuidVersion)(data3>>12);
-    if ( isNull() 
+    if ( isNull()
 	 || (variant() != Qt::UV_DCE)
-	 || ver < Qt::UV_Time 
+	 || ver < Qt::UV_Time
 	 || ver > Qt::UV_Random )
 	return Qt::UV_VerUnknown;
     return ver;
@@ -334,17 +334,17 @@ bool QUuid::operator>(const QUuid &other ) const
 
 /*!
     \fn QUuid QUuid::createUuid()
-    
+
     Returns a new UUID of Standard variant, and Random type. The UUID
     generated are based on the platform specific pseudo-random generator,
-    which is usually not a crypto-quality random number generator. 
+    which is usually not a crypto-quality random number generator.
     Therefore, a UUID is not guaranteed to be unique cross application
     instances.
 
     On Windows, the new UUID is to a very high degree of certainty
     guaranteed to be unique on the same or any other system, networked
     or not.
-    
+
     /sa variant(), version()
 */
 #if defined(Q_OS_WIN32)

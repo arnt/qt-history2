@@ -255,14 +255,14 @@ private:
 #endif
 
     static void propagateSpacing( QLayout *layout );
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 public:
-    inline QWidget *mainWidget() const { return parentWidget(); }
-    inline void remove(QWidget *w) { removeWidget(w); }
-    void add(QWidget *w) { addWidget(w); }
+    inline QT_COMPAT QWidget *mainWidget() const { return parentWidget(); }
+    inline QT_COMPAT void remove(QWidget *w) { removeWidget(w); }
+    inline QT_COMPAT void add(QWidget *w) { addWidget(w); }
 
-    inline void setAutoAdd( bool a ) { autoNewChild = a; }
-    inline bool autoAdd() const { return autoNewChild; }
+    inline QT_COMPAT void setAutoAdd( bool a ) { autoNewChild = a; }
+    inline QT_COMPAT bool autoAdd() const { return autoNewChild; }
 #endif
 };
 
@@ -333,7 +333,7 @@ private:
 
     void init( int rows, int cols );
     QGridLayoutData *data;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 public:
     void expand( int rows, int cols );
     inline void addRowSpacing( int row, int minsize ) { addItem(new QSpacerItem(0,minsize), row, 0); }

@@ -54,7 +54,7 @@ int QIsciiCodec::heuristicNameMatch(const char* hint) const
     else
         p = hint;
 
-    if (QString::fromLatin1(p).lower() == QString::fromLatin1(codecs[idx].name).lower())
+    if (QString::fromLatin1(p).toLower() == QString::fromLatin1(codecs[idx].name).toLower())
 	return 4;
     else
 	return QTextCodec::heuristicNameMatch(hint);
@@ -205,7 +205,7 @@ QByteArray QIsciiCodec::fromUnicode(const QString& uc, int& len_in_out) const
 QString QIsciiCodec::toUnicode( const char* chars, int len_in ) const
 {
     QString result;
-    result.setLength(len_in);
+    result.resize(len_in);
 
     QChar *uc = (QChar *)result.unicode();
 

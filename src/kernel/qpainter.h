@@ -217,10 +217,10 @@ public:
     static const QPaintDevice *redirected(const QPaintDevice *device, QPoint *offset = 0);
     static void restoreRedirected(const QPaintDevice *device);
 
-#ifndef QT_NO_COMPAT
-    static inline void redirect(QPaintDevice *pdev, QPaintDevice *replacement)
+#ifdef QT_COMPAT
+    static inline QT_COMPAT void redirect(QPaintDevice *pdev, QPaintDevice *replacement)
 	{ setRedirected(pdev, replacement); }
-    static inline QPaintDevice *redirect( QPaintDevice *pdev )
+    static inline QT_COMPAT QPaintDevice *redirect( QPaintDevice *pdev )
 	{ return const_cast<QPaintDevice*>(redirected(pdev)); }
 #endif
 

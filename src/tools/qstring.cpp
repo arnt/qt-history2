@@ -741,7 +741,7 @@ QString& QString::remove(const QString & s, QString::CaseSensitivity cs)
     d->cache = 0;
     if (s.d->size) {
 	int i = 0;
-	while ((i = find(s, i, cs)) != -1)
+	while ((i = indexOf(s, i, cs)) != -1)
 	    remove(i, s.d->size);
     }
     return *this;
@@ -1019,7 +1019,7 @@ int QString::indexOf(const QString& s, int from, QString::CaseSensitivity cs) co
 	return from;
 
     if (sl == 1)
-	return find(*(const QChar*) s.d->data, from, cs);
+	return indexOf(*(const QChar*) s.d->data, from, cs);
 
     // we use the Boyer-Moore algorithm in cases where the overhead
     // for the hash table should pay off, otherwise we use a simple
@@ -1114,7 +1114,7 @@ int QString::lastIndexOf(const QString& s, int from, QString::CaseSensitivity cs
 	from = delta;
 
     if (sl == 1)
-	return findRev(*(const QChar*) s.d->data, from, cs);
+	return lastIndexOf(*(const QChar*) s.d->data, from, cs);
 
     const QChar *needle = (const QChar*) s.d->data;
     const QChar *haystack = (const QChar*) d->data + from;
@@ -1481,7 +1481,7 @@ int QString::count(const QString& s, QString::CaseSensitivity cs) const
 {
     int num = 0;
     int i = -1;
-    while ((i = find(s, i+1, cs)) != -1)
+    while ((i = indexOf(s, i+1, cs)) != -1)
 	++num;
     return num;
 }
@@ -2514,7 +2514,7 @@ QString QString::fromUtf8( const char* utf8, int len )
     if ( len < 0 )
 	len = strlen( utf8 );
     QString result;
-    result.setLength( len*2 ); // worst case
+    result.resize( len*2 ); // worst case
     unsigned short *qch = result.d->data;
     uint uc = 0;
     int need = 0;
@@ -3676,9 +3676,9 @@ QString &QString::sprintf( const char* cformat, ... )
 	}
 
 	if (flags & QLocalePrivate::LeftAdjusted)
-	    result.append(subst.leftJustify(width));
+	    result.append(subst.leftJustified(width));
 	else
-	    result.append(subst.rightJustify(width));
+	    result.append(subst.rightJustified(width));
     }
 
     va_end(ap);
@@ -4314,7 +4314,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
 			    *QMAX(abs_field_width, larg.length());
 
     QString result;
-    result.setLength(result_len);
+    result.resize(result_len);
     QChar *result_buff = (QChar*) result.unicode();
 
     QChar *rc = result_buff;
@@ -4904,7 +4904,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 	    str = QString::null;
 	} else if ( bytes > 0 ) {                       // not empty
 	    int byteOrder = s.byteOrder();
-	    str.setLength( bytes/2 );
+	    str.resize( bytes/2 );
 	    QChar* ch = str.data();
 	    static const uint auto_size = 1024;
 	    char t[auto_size];

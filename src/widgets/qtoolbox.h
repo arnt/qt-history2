@@ -81,10 +81,10 @@ private:
 private:
     QToolBoxPrivate *d;
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 public:
-    QWidget *currentItem() const { return item(currentIndex()); }
-    void setCurrentItem( QWidget *item ) { setCurrentIndex(indexOf(item)); }
+    QT_COMPAT QWidget *currentItem() const { return item(currentIndex()); }
+    QT_COMPAT void setCurrentItem( QWidget *item ) { setCurrentIndex(indexOf(item)); }
 #endif
 };
 

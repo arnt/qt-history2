@@ -38,8 +38,8 @@ public:
 	     const QBrush &bright_text, const QBrush &base, const QBrush &background);
     QPalette(const QColor &foreground, const QColor &background, const QColor &light,
 	     const QColor &dark, const QColor &mid, const QColor &text, const QColor &base);
-#ifndef QT_NO_COMPAT
-    QPalette(const QColorGroup &active, const QColorGroup &disabled, const QColorGroup &inactive);
+#ifdef QT_COMPAT
+    QPalette(const QColorGroup &active, const QColorGroup &disabled, const QColorGroup &inactive) QT_COMPAT;
 #endif
     QPalette(const QPalette &palette);
     ~QPalette();
@@ -90,17 +90,17 @@ public:
     inline const QBrush &link() const { return brush(Link); }
     inline const QBrush &linkVisited() const { return brush(LinkVisited); }
 
-#ifndef QT_NO_COMPAT
-    QPalette copy() const { QPalette p = *this; p.detach(); return p; }
-    QColorGroup normal() const;
-    inline void setNormal(const QColorGroup &cg) { setActive(cg); }
+#ifdef QT_COMPAT
+    QT_COMPAT QPalette copy() const { QPalette p = *this; p.detach(); return p; }
+    QT_COMPAT QColorGroup normal() const;
+    inline QT_COMPAT void setNormal(const QColorGroup &cg) { setColorGroup(Active, cg); }
 
-    QColorGroup active() const;
-    QColorGroup disabled() const;
-    QColorGroup inactive() const;
-    inline void setActive(const QColorGroup &cg) { setColorGroup(Active, cg); }
-    void setDisabled(const QColorGroup &cg) { setColorGroup(Disabled, cg); }
-    void setInactive(const QColorGroup &cg) { setColorGroup(Inactive, cg); }
+    QT_COMPAT QColorGroup active() const;
+    QT_COMPAT QColorGroup disabled() const;
+    QT_COMPAT QColorGroup inactive() const;
+    inline QT_COMPAT void setActive(const QColorGroup &cg) { setColorGroup(Active, cg); }
+    QT_COMPAT void setDisabled(const QColorGroup &cg) { setColorGroup(Disabled, cg); }
+    QT_COMPAT void setInactive(const QColorGroup &cg) { setColorGroup(Inactive, cg); }
 #endif
 
     bool operator==(const QPalette &p) const;
@@ -121,7 +121,7 @@ private:
 		       const QBrush &button_text, const QBrush &shadow,
 		       const QBrush &highlight, const QBrush &highlighted_text,
 		       const QBrush &link, const QBrush &link_visited);
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     void setColorGroup(ColorGroup, const QColorGroup &);
     QColorGroup createColorGroup(ColorGroup) const;
 #endif
@@ -131,15 +131,15 @@ private:
     QPalettePrivate *d;
     uint current_group : 4;
     uint resolve_mask : 27;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     friend class QColorGroup;
     uint is_colorgroup : 1;
 #endif
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &s, const QPalette &p);
 };
 
-#ifndef QT_NO_COMPAT
-class Q_GUI_EXPORT QColorGroup : public QPalette
+#ifdef QT_COMPAT
+class Q_GUI_EXPORT QT_COMPAT QColorGroup : public QPalette
 {
 public:
     inline QColorGroup() : QPalette() { init(); }

@@ -72,7 +72,7 @@ QSignalMapper::QSignalMapper(QObject* parent) :
 {
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 QSignalMapper::QSignalMapper(QObject* parent, const char* name) :
     QObject(*new QSignalMapperPrivate, parent)
 {

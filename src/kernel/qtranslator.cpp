@@ -98,9 +98,9 @@ static int cmp_uint32_little( const void* target, const void* candidate )
     const uchar* t = (const uchar*) target;
     const uchar* c = (const uchar*) candidate;
     return t[3] != c[0] ? (int) t[3] - (int) c[0]
-	   : t[2] != c[1] ? (int) t[2] - (int) c[1]
-	   : t[1] != c[2] ? (int) t[1] - (int) c[2]
-	   : (int) t[0] - (int) c[3];
+	 : t[2] != c[1] ? (int) t[2] - (int) c[1]
+	 : t[1] != c[2] ? (int) t[1] - (int) c[2]
+		   : (int) t[0] - (int) c[3];
 }
 
 #ifdef Q_OS_TEMP
@@ -120,9 +120,6 @@ static int cmp_uint32_big( const void* target, const void* candidate )
 #if defined(Q_C_CALLBACKS)
 }
 #endif
-
-static int systemWordSize = 0;
-static bool systemBigEndian;
 
 static uint elfHash( const char * name )
 {
@@ -323,7 +320,7 @@ QTranslator::QTranslator(QObject * parent)
 {
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 QTranslator::QTranslator( QObject * parent, const char * name )
     : QObject(*new QTranslatorPrivate, parent)
 {
@@ -421,7 +418,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 
 	int rightmost = 0;
 	for ( int i = 0; i < (int)delims.length(); i++ ) {
-	    int k = fname.findRev( delims[i] );
+	    int k = fname.lastIndexOf( delims[i] );
 	    if ( k > rightmost )
 		rightmost = k;
 	}
@@ -972,15 +969,12 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
     if ( !numItems )
 	return QTranslatorMessage();
 
-    if ( systemWordSize == 0 )
-	qSysInfo( &systemWordSize, &systemBigEndian );
-
     for ( ;; ) {
 	Q_UINT32 h = elfHash( QByteArray(sourceText) + comment );
 
 	char *r = (char *) bsearch( &h, *d->offsetArray, numItems,
 				    2 * sizeof(Q_UINT32),
-				    systemBigEndian ? cmp_uint32_big
+				    (QSysInfo::ByteOrder == QSysInfo::BigEndian) ? cmp_uint32_big
 				    : cmp_uint32_little );
 	if ( r != 0 ) {
 	    // go back on equal key
@@ -1087,7 +1081,7 @@ QList<QTranslatorMessage> QTranslator::messages() const
 */
 
 QTranslatorMessage::QTranslatorMessage()
-    : h( 0 ), cx( 0 ), st( 0 ), cm( 0 )
+    : h( 0 )
 {
 }
 

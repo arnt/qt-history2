@@ -123,7 +123,7 @@ public:
     inline reference back() { return last(); }
     inline const_reference back() const { return last(); }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     // compatibility
 #endif
 

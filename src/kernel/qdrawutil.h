@@ -21,7 +21,7 @@
 #endif // QT_H
 
 class QPainter;
-#ifdef QT_NO_COMPAT
+#ifndef QT_COMPAT
 class QColorGroup;
 #endif
 class QPalette;

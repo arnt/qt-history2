@@ -47,7 +47,7 @@ void qRemovePostRoutine(QtCleanUpFunction p)
     QVFuncList::Iterator it = postRList->begin();
     while ( it != postRList->end() ) {
 	if ( *it == p ) {
-	    postRList->remove( it );
+	    postRList->erase( it );
 	    it = postRList->begin();
 	} else {
 	    ++it;
@@ -159,7 +159,7 @@ QCoreApplication::~QCoreApplication()
 	QVFuncList::Iterator it = postRList->begin();
 	while ( it != postRList->end() ) {	// call post routines
 	    (**it)();
-	    postRList->remove( it );
+	    postRList->erase( it );
 	    it = postRList->begin();
 	}
 	delete postRList;
@@ -257,7 +257,7 @@ bool QCoreApplication::notify( QObject *receiver, QEvent *e )
 	       .arg(QString::number((ulong) receiver->thread(), 16)));
 #endif
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->hasPostedChildInsertedEvents) {
 	QEventLoop *eventloop = QEventLoop::instance();
 	QPostEventList *postedEvents = eventloop->d->postedEvents;
@@ -290,7 +290,7 @@ bool QCoreApplication::notify( QObject *receiver, QEvent *e )
 	    receiver->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
 	}
     }
-#endif // QT_NO_COMPAT
+#endif // QT_COMPAT
 
     return receiver->isWidgetType() ? FALSE : notify_helper( receiver, e );
 }
@@ -529,7 +529,7 @@ void QCoreApplication::postEvent( QObject *receiver, QEvent *event )
     // if this is one of the compressible events, do compression
     if (receiver->hasPostedEvents
 	&& (event->type() == QEvent::UpdateRequest
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	    || event->type() == QEvent::LayoutHint
 #endif
 	    || event->type() == QEvent::LayoutRequest
@@ -544,7 +544,7 @@ void QCoreApplication::postEvent( QObject *receiver, QEvent *event )
 	    if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type() )
 		continue;
 	    if ( cur.event->type() == QEvent::LayoutRequest
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 		 || cur.event->type() == QEvent::LayoutHint
 #endif
 		 || cur.event->type() == QEvent::UpdateRequest ) {
@@ -572,7 +572,7 @@ void QCoreApplication::postEvent( QObject *receiver, QEvent *event )
 
     event->posted = TRUE;
     receiver->hasPostedEvents = true;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     if (event->type() == QEvent::ChildInserted)
 	receiver->hasPostedChildInsertedEvents = true;
 #endif
@@ -611,7 +611,7 @@ void QCoreApplication::sendPostedEvents( QObject *receiver, int event_type )
 	       "Cannot send events without an event loop");
     QPostEventList *postedEvents = eventloop->d->postedEvents;
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
     if (receiver && event_type == QEvent::ChildInserted && !receiver->hasPostedChildInsertedEvents)
 	return;
@@ -692,7 +692,7 @@ void QCoreApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    for (i = 0; i < postedEvents->size(); ++i) {
 		if ((receiver = postedEvents->at(i).receiver)) {
 		    receiver->hasPostedEvents = false;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 		    receiver->hasPostedChildInsertedEvents = false;
 #endif
 		}
@@ -701,12 +701,12 @@ void QCoreApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    postedEvents->offset = 0;
 	} else {
 	    receiver->hasPostedEvents = false;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	    receiver->hasPostedChildInsertedEvents = false;
 #endif
 	}
     }
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     else if (event_type == QEvent::ChildInserted) {
 	if (!receiver) {
 	    for (i = 0; i < postedEvents->size(); ++i)
@@ -927,7 +927,7 @@ void QCoreApplication::quit()
   \sa lock(), unlock() \link threads.html Thread Support in Qt\endlink
 */
 
-#if defined(QT_THREAD_SUPPORT) && !defined(QT_NO_COMPAT)
+#if defined(QT_THREAD_SUPPORT) && defined(QT_COMPAT)
 void QCoreApplication::lock()
 {
 }
@@ -1051,7 +1051,7 @@ QString QCoreApplication::translate( const char * context, const char * sourceTe
 				       const char * comment, Encoding encoding ) const
 {
     if ( !sourceText )
-	return QString::null;
+	return QString();
 
     if (!d->translators.isEmpty()) {
 	QList<QTranslator*>::ConstIterator it;

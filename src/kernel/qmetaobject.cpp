@@ -980,7 +980,7 @@ int QMetaEnum::keysToValue(const char *keys) const
     int count = mobj->d.data[handle + 2];
     int data = mobj->d.data[handle + 3];
     for (int li = 0; li < (int)l.size(); ++li) {
-	QString s = l[li].stripWhiteSpace();
+	QString s = l[li].trimmed();
 	int i;
 	for (i = count-1; i >= 0; --i)
 	    if (!strcmp(s.latin1(),
@@ -1178,9 +1178,9 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
     if (isEnumType()) {
 	if (v.type() == QCoreVariant::String || v.type() == QCoreVariant::CString) {
 	    if ( isFlagType() )
-		v = QCoreVariant(menum.keysToValue(value.toCString()));
+		v = QCoreVariant(menum.keysToValue(value.toByteArray()));
 	    else
-		v = QCoreVariant(menum.keyToValue(value.toCString()));
+		v = QCoreVariant(menum.keyToValue(value.toByteArray()));
 	} else if (v.type() != QCoreVariant::Int && v.type() != QCoreVariant::UInt) {
 	    return false;
 	}

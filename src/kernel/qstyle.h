@@ -706,19 +706,19 @@ public:
 
     // Old 2.x QStyle API
 
-#ifndef QT_NO_COMPAT
-    int defaultFrameWidth() const
+#ifdef QT_COMPAT
+    int QT_COMPAT defaultFrameWidth() const
     {
 	return pixelMetric( PM_DefaultFrameWidth );
     }
-    void tabbarMetrics( const QWidget* t,
+    void QT_COMPAT tabbarMetrics( const QWidget* t,
 			int& hf, int& vf, int& ov ) const
     {
 	hf = pixelMetric( PM_TabBarTabHSpace, t );
 	vf = pixelMetric( PM_TabBarTabVSpace, t );
 	ov = pixelMetric( PM_TabBarBaseOverlap, t );
     }
-    QSize scrollBarExtent() const
+    QSize QT_COMPAT scrollBarExtent() const
     {
 	return QSize(pixelMetric(PM_ScrollBarExtent),
 		     pixelMetric(PM_ScrollBarExtent));
@@ -727,40 +727,40 @@ public:
 
 
 private:
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     // cause a compile error when trying to use style functions that
     // accept QColorGroup arguments... remove 5.x
-    void drawItem( QPainter *p, const QRect &r,
+    void QT_COMPAT drawItem( QPainter *p, const QRect &r,
 		   int flags, const QColorGroup &colorgroup, bool enabled,
 		   const QString &text, int len = -1,
 		   const QColor *penColor = 0 ) const;
 
-    void drawItem( QPainter *p, const QRect &r,
+    void QT_COMPAT drawItem( QPainter *p, const QRect &r,
 		   int flags, const QColorGroup colorgroup, bool enabled,
 		   const QPixmap &pixmap,
 		   const QColor *penColor = 0 ) const;
 
-    void drawItem( QPainter *p, const QRect &r,
+    void QT_COMPAT drawItem( QPainter *p, const QRect &r,
 		   int flags, const QColorGroup colorgroup, bool enabled,
 		   const QPixmap *pixmap,
 		   const QString &text, int len = -1,
 		   const QColor *penColor = 0 ) const;
 
-    void drawPrimitive( PrimitiveElement pe, QPainter *p, const QRect &r,
+    void QT_COMPAT drawPrimitive( PrimitiveElement pe, QPainter *p, const QRect &r,
 			const QColorGroup &cg, SFlags flags = Style_Default,
 			const QStyleOption& = QStyleOption::Default ) const;
 
-    void drawControl( ControlElement element,
+    void QT_COMPAT drawControl( ControlElement element,
 		      QPainter *p, const QWidget *widget, const QRect &r,
 		      const QColorGroup &cg, SFlags how = Style_Default,
 		      const QStyleOption& = QStyleOption::Default ) const;
 
-    void drawComplexControl( ComplexControl control,
+    void QT_COMPAT drawComplexControl( ComplexControl control,
 			     QPainter *p, const QWidget *widget, const QRect &r,
 			     const QColorGroup &cg, SFlags how = Style_Default,
 			     SCFlags sub = SC_All, SCFlags subActive = SC_None,
 			     const QStyleOption& = QStyleOption::Default ) const;
-#endif // QT_NO_COMPAT
+#endif // QT_COMPAT
 
 #if defined(Q_DISABLE_COPY)
     QStyle( const QStyle & );

@@ -59,8 +59,8 @@ public:
     virtual void setPrimaryIndex( const QSqlIndex& idx );
 
     virtual void append( const QSqlFieldInfo& fieldInfo );
-#ifndef QT_NO_COMPAT
-    inline void insert(int pos, const QSqlFieldInfo &fieldInfo) { replace(pos, fieldInfo); }
+#ifdef QT_COMPAT
+    inline QT_COMPAT void insert(int pos, const QSqlFieldInfo &fieldInfo) { replace(pos, fieldInfo); }
 #endif
     virtual void replace(int pos, const QSqlFieldInfo &fieldInfo);
     void remove( int pos );
@@ -103,7 +103,7 @@ public:
 				const QString& sep = "," ) const;
     bool 		isNull( int i ) const;
     bool 		isNull( const QString& name ) const;
-    
+
 protected:
     void		afterSeek();
     bool		exec( const QString & sql );

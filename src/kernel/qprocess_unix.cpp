@@ -23,7 +23,7 @@
 
 #ifndef QT_NO_PROCESS
 
-#include "qapplication.h"
+#include "qcoreapplication.h"
 #include "qlist.h"
 #include "qsocketnotifier.h"
 #include "qtimer.h"

@@ -196,7 +196,7 @@ QStringList QStringList::split(const QString &sep, const QString &str,
     QStringList lst;
 
     int j = 0;
-    int i = str.find(sep, j);
+    int i = str.indexOf(sep, j);
 
     while (i != -1) {
 	if (i > j && i <= (int)str.length())
@@ -204,7 +204,7 @@ QStringList QStringList::split(const QString &sep, const QString &str,
 	else if (allowEmptyEntries)
 	    lst << QString::null;
 	j = i + sep.length();
-	i = str.find(sep, sep.length() > 0 ? j : j+1);
+	i = str.indexOf(sep, sep.length() > 0 ? j : j+1);
     }
 
     int l = str.length() - 1;

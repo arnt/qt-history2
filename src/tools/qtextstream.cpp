@@ -311,7 +311,7 @@ void QTextStream::init()
     d->doUnicodeHeader = TRUE; // autodetect
     d->mapper = 0;
     d->latin1 = TRUE; // should use locale?
-    d->internalOrder = QChar::networkOrdered();
+    d->internalOrder = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
     d->networkOrder = TRUE;
 }
 
@@ -772,12 +772,12 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 	if ( c1 == 0xfe && c2 == 0xff ) {
 	    d->mapper = 0;
 	    d->latin1 = FALSE;
-	    d->internalOrder = QChar::networkOrdered();
+	    d->internalOrder = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
 	    d->networkOrder = TRUE;
 	} else if ( c1 == 0xff && c2 == 0xfe ) {
 	    d->mapper = 0;
 	    d->latin1 = FALSE;
-	    d->internalOrder = !QChar::networkOrdered();
+	    d->internalOrder = (QSysInfo::ByteOrder != QSysInfo::BigEndian);
 	    d->networkOrder = FALSE;
 	} else {
 	    if ( c2 != EOF ) {
@@ -2058,9 +2058,9 @@ QTextStream &QTextStream::operator<<( const QString& s )
     QString s1 = s;
     if ( fwidth ) {				// field width set
 	if ( (flags() & left) )
-	    s1 = s.leftJustify(fwidth, (char)fillchar);
+	    s1 = s.leftJustified(fwidth, (char)fillchar);
 	else
-	    s1 = s.rightJustify(fwidth, (char)fillchar);
+	    s1 = s.rightJustified(fwidth, (char)fillchar);
 	fwidth = 0;				// reset width
     }
     writeBlock( s1.unicode(), s1.length() );
@@ -2392,7 +2392,7 @@ void QTextStream::setEncoding( Encoding e )
 	d->latin1 = FALSE;
 	d->doUnicodeHeader = TRUE;
 	d->internalOrder = TRUE;
-	d->networkOrder = QChar::networkOrdered();
+	d->networkOrder = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
 	break;
     case UnicodeUTF8:
 #ifndef QT_NO_TEXTCODEC
@@ -2400,7 +2400,7 @@ void QTextStream::setEncoding( Encoding e )
 	d->latin1 = FALSE;
 	d->doUnicodeHeader = TRUE;
 	d->internalOrder = TRUE;
-	d->networkOrder = QChar::networkOrdered();
+	d->networkOrder = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
 #else
 	d->mapper = 0;
 	d->latin1 = TRUE;
@@ -2411,14 +2411,14 @@ void QTextStream::setEncoding( Encoding e )
 	d->mapper = 0;
 	d->latin1 = FALSE;
 	d->doUnicodeHeader = TRUE;
-	d->internalOrder = QChar::networkOrdered();
+	d->internalOrder = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
 	d->networkOrder = TRUE;
 	break;
     case UnicodeReverse:
 	d->mapper = 0;
 	d->latin1 = FALSE;
 	d->doUnicodeHeader = TRUE;
-	d->internalOrder = !QChar::networkOrdered();
+	d->internalOrder = (QSysInfo::ByteOrder != QSysInfo::BigEndian);
 	d->networkOrder = FALSE;
 	break;
     case RawUnicode:
@@ -2426,7 +2426,7 @@ void QTextStream::setEncoding( Encoding e )
 	d->latin1 = FALSE;
 	d->doUnicodeHeader = FALSE;
 	d->internalOrder = TRUE;
-	d->networkOrder = QChar::networkOrdered();
+	d->networkOrder = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
 	break;
     case Locale:
 	d->latin1 = TRUE; // fallback to Latin1

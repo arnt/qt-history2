@@ -66,23 +66,23 @@ static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate*
 		buf = QString::number( dt->hour() );
 	} else if ( f == "hh" ) {
 	    if ( ( am_pm ) && ( dt->hour() > 12 ) )
-		buf = QString::number( dt->hour() - 12 ).rightJustify( 2, '0', TRUE );
+		buf = QString::number( dt->hour() - 12 ).rightJustified( 2, '0', TRUE );
 	    else if ( ( am_pm ) && ( dt->hour() == 0 ) )
 		buf = "12";
 	    else
-		buf = QString::number( dt->hour() ).rightJustify( 2, '0', TRUE );
+		buf = QString::number( dt->hour() ).rightJustified( 2, '0', TRUE );
 	} else if ( f == "m" ) {
 	    buf = QString::number( dt->minute() );
 	} else if ( f == "mm" ) {
-	    buf = QString::number( dt->minute() ).rightJustify( 2, '0', TRUE );
+	    buf = QString::number( dt->minute() ).rightJustified( 2, '0', TRUE );
 	} else if ( f == "s" ) {
 	    buf = QString::number( dt->second() );
 	} else if ( f == "ss" ) {
-	    buf = QString::number( dt->second() ).rightJustify( 2, '0', TRUE );
+	    buf = QString::number( dt->second() ).rightJustified( 2, '0', TRUE );
 	} else if ( f == "z" ) {
 	    buf = QString::number( dt->msec() );
 	} else if ( f == "zzz" ) {
-	    buf = QString::number( dt->msec() ).rightJustify( 3, '0', TRUE );
+	    buf = QString::number( dt->msec() ).rightJustified( 3, '0', TRUE );
 	} else if ( f == "ap" ) {
 	    buf = dt->hour() < 12 ? "am" : "pm";
 	} else if ( f == "AP" ) {
@@ -94,11 +94,11 @@ static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate*
 	if ( f == "d" ) {
 	    buf = QString::number( dd->day() );
 	} else if ( f == "dd" ) {
-	    buf = QString::number( dd->day() ).rightJustify( 2, '0', TRUE );
+	    buf = QString::number( dd->day() ).rightJustified( 2, '0', TRUE );
 	} else if ( f == "M" ) {
 	    buf = QString::number( dd->month() );
 	} else if ( f == "MM" ) {
-	    buf = QString::number( dd->month() ).rightJustify( 2, '0', TRUE );
+	    buf = QString::number( dd->month() ).rightJustified( 2, '0', TRUE );
 #ifndef QT_NO_TEXTDATE
 	} else if ( f == "ddd" ) {
 	    buf = dd->shortDayName( dd->dayOfWeek() );
@@ -729,8 +729,8 @@ QString QDate::toString( Qt::DateFormat f ) const
 #endif
     case Qt::ISODate:
 	{
-	    QString month( QString::number( m ).rightJustify( 2, '0' ) );
-	    QString day( QString::number( d ).rightJustify( 2, '0' ) );
+	    QString month( QString::number( m ).rightJustified( 2, '0' ) );
+	    QString day( QString::number( d ).rightJustified( 2, '0' ) );
 	    return QString::number( y ) + "-" + month + "-" + day;
 	}
     }
@@ -1047,8 +1047,8 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 	      This will fail gracefully if the input string doesn't
 	      contain any space.
 	    */
-	    int monthPos = s.find( ' ' ) + 1;
-	    int dayPos = s.find( ' ', monthPos ) + 1;
+	    int monthPos = s.indexOf( ' ' ) + 1;
+	    int dayPos = s.indexOf( ' ', monthPos ) + 1;
 
 	    QString monthName( s.mid(monthPos, dayPos - monthPos - 1) );
 	    int month = -1;
@@ -1076,7 +1076,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 		d.jd = 0;
 		return d;
 	    }
-	    int day = s.mid( dayPos, 2 ).stripWhiteSpace().toInt();
+	    int day = s.mid( dayPos, 2 ).trimmed().toInt();
 	    int year = s.right( 4 ).toInt();
 	    return QDate( year, month, day );
 	}
@@ -2425,12 +2425,12 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 	    dt.d.jd = 0;
 	    return dt;
 	}
-	int day = s.mid( 8, 2 ).simplifyWhiteSpace().toInt();
+	int day = s.mid( 8, 2 ).simplified().toInt();
 	int year = s.right( 4 ).toInt();
 	QDate date( year, month, day );
 	QTime time;
 	int hour, minute, second;
-	int pivot = s.find( QRegExp(QString::fromLatin1("[0-9][0-9]:[0-9][0-9]:[0-9][0-9]")) );
+	int pivot = s.indexOf( QRegExp(QString::fromLatin1("[0-9][0-9]:[0-9][0-9]:[0-9][0-9]")) );
 	if ( pivot != -1 ) {
 	    hour = s.mid( pivot, 2 ).toInt();
 	    minute = s.mid( pivot+3, 2 ).toInt();

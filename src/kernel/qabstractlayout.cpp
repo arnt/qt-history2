@@ -855,7 +855,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	break;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     case QEvent::ChildInserted:
 	if ( topLevel && autoNewChild ) {
 	    QChildEvent *c = (QChildEvent *)e;

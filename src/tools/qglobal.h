@@ -261,7 +261,7 @@
 #    define Q_WRONG_SB_CTYPE_MACROS
 #  endif
 #  if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
-#    define Q_PACKED __attribute__ ((packed))
+#    define Q_PACKED __attribute__ ((__packed__))
 #  endif
 #  if !defined(__EXCEPTIONS)
 #    define Q_NO_EXCEPTIONS
@@ -632,6 +632,42 @@ typedef unsigned long long	Q_UINT64;	// 64 bit unsigned
 typedef Q_INT64			Q_LLONG;	// signed long long
 typedef Q_UINT64		Q_ULLONG;	// unsigned long long
 
+//
+// Warnings and errors when sing deprecated methods
+//
+
+// make sure QT_COMPAT is defined to be void
+#ifdef QT_COMPAT
+#  undef QT_COMPAT
+#  define QT_COMPAT
+#endif
+
+#if defined(QT_COMPAT_WARNINGS)
+#  ifdef QT_COMPAT
+#    undef QT_COMPAT
+#  endif
+#  if defined(Q_CC_GNU) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
+#    define QT_COMPAT __attribute__ ((__deprecated__))
+#  elif defined(Q_CC_MSVC) && (_MSC_VER > 1300)
+#    define QT_COMPAT __declspec(deprecated)
+#  else
+#    define QT_COMPAT
+#  endif
+#endif
+
+
+#if defined(QT_DEPRECATED_WARNINGS)
+#  if defined(Q_CC_GNU) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
+#    define QT_DEPRECATED __attribute__ ((__deprecated__))
+#  elif defined(Q_CC_MSVC) && (_MSC_VER > 1300)
+#    define QT_DEPRECATED __declspec(deprecated)
+#  else
+#    define QT_DEPRECATED
+#  endif
+#else
+#  define QT_DEPRECATED
+#endif
+
 
 //
 // Utility macros and inline functions
@@ -647,7 +683,7 @@ inline T qMin(T a, T b) { return (a < b) ? a : b; }
 template <typename T>
 inline T qMax(T a, T b) { return (b < a) ? a : b; }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 #  define QMAX(a, b) qMax((a), (b))
 #  define QMIN(a, b) qMin((a), (b))
 #endif
@@ -955,8 +991,8 @@ public:
     };
 
     enum {
-	LittleEndian,
-	BigEndian
+	BigEndian,
+	LittleEndian
 
 #ifdef Q_BYTE_ORDER
 #  if Q_BYTE_ORDER == Q_BIG_ENDIAN
@@ -966,18 +1002,20 @@ public:
 #  else
 #    error "undefined byte order"
 #  endif
+#endif
     };
-#elif defined(QT_BUILD_QMAKE)
+#if !defined(Q_BYTE_ORDER)
+#  if defined(QT_BUILD_QMAKE)
     // needed to bootstrap qmake
-    };
     static const int ByteOrder;
-#else
-#  error "Qt not configured correctly, please run configure."
+#  else
+#    error "Qt not configured correctly, please run configure."
+#  endif
 #endif
 };
 
-#ifndef QT_NO_COMPAT
-inline bool qSysInfo( int *wordSize, bool *bigEndian )
+#ifdef QT_COMPAT
+inline QT_COMPAT bool qSysInfo( int *wordSize, bool *bigEndian )
 {
     *wordSize = QSysInfo::WordSize;
     *bigEndian = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
@@ -1101,12 +1139,10 @@ enum QtMsgType { QtDebugMsg, QtSystemMsg, QtWarningMsg, QtFatalMsg };
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
 Q_CORE_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
 
-Q_CORE_EXPORT void qSuppressObsoleteWarnings( bool = true );
-
-Q_CORE_EXPORT void qObsolete( const char *obj, const char *oldfunc, const char *newfunc );
-Q_CORE_EXPORT void qObsolete( const char *obj, const char *oldfunc );
-Q_CORE_EXPORT void qObsolete( const char *message );
-
+#ifdef QT_COMPAT
+inline QT_COMPAT void qSuppressObsoleteWarnings( bool = true ) {}
+inline QT_COMPAT void qObsolete( const char *, const char * = 0, const char * = 0) {}
+#endif
 
 //
 // Install paths from configure

@@ -175,8 +175,8 @@ public:
 	explicit inline Iterator(void *node = 0) { i = (Node *) node; }
 	inline const Key &key() const { return i->key; }
 	inline T &value() const { return i->value; }
-#ifndef QT_NO_COMPAT
-	inline T &data() const { return i->value; }
+#ifdef QT_COMPAT
+	inline QT_COMPAT T &data() const { return i->value; }
 #endif
 	inline T &operator*() const { return i->value; }
 	inline bool operator==(const Iterator &o) { return i == o.i; }
@@ -203,8 +203,8 @@ public:
 	explicit inline ConstIterator(void *node = 0) { i = (Node *) node; }
 	inline const Key &key() const { return i->key; }
 	inline const T &value() const { return i->value; }
-#ifndef QT_NO_COMPAT
-	inline const T &data() const { return i->value; }
+#ifdef QT_COMPAT
+	inline QT_COMPAT const T &data() const { return i->value; }
 #endif
 	inline const T &operator*() const { return i->value; }
 	inline bool operator==(const ConstIterator &o) { return i == o.i; }
@@ -239,9 +239,9 @@ public:
     typedef Iterator iterator;
     typedef ConstIterator const_iterator;
 
-#ifndef QT_NO_COMPAT
-    inline Iterator remove(Iterator it) { return erase(it); }
-    inline int count() const { return d->size; }
+#ifdef QT_COMPAT
+    inline QT_COMPAT Iterator remove(Iterator it) { return erase(it); }
+    inline QT_COMPAT int count() const { return d->size; }
 #endif
 
     inline bool ensure_constructed()

@@ -233,7 +233,7 @@ QDialog::QDialog( QWidget *parent, WFlags f )
 {
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QWidget( *new QDialogPrivate, parent,
 	       (modal ? (f|WShowModal) : f) | WType_Dialog ),

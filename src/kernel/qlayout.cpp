@@ -1091,7 +1091,7 @@ QRect QGridLayout::cellGeometry( int row, int col ) const
 {
     return data->cellGeometry( row, col );
 }
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 /*!
     Expands this grid so that it will have \a nRows rows and \a nCols
     columns. Will not shrink the grid. You should not need to call

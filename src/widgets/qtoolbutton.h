@@ -68,13 +68,13 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-#ifndef QT_NO_COMPAT
-    void setOnIconSet( const QIconSet& );
-    void setOffIconSet( const QIconSet& );
-    void setIconSet( const QIconSet &, bool on );
-    QIconSet onIconSet() const;
-    QIconSet offIconSet( ) const;
-    QIconSet iconSet( bool on ) const;
+#ifdef QT_COMPAT
+    QT_COMPAT void setOnIconSet( const QIconSet& );
+    QT_COMPAT void setOffIconSet( const QIconSet& );
+    QT_COMPAT void setIconSet( const QIconSet &, bool on );
+    QT_COMPAT QIconSet onIconSet() const;
+    QT_COMPAT QIconSet offIconSet( ) const;
+    QT_COMPAT QIconSet iconSet( bool on ) const;
 #endif
     virtual void setIconSet( const QIconSet & );
     QIconSet iconSet() const;

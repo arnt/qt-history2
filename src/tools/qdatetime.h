@@ -44,9 +44,9 @@ public:
     int weekNumber( int *yearNum = 0 ) const;
 
 #ifndef QT_NO_TEXTDATE
-#ifndef QT_NO_COMPAT
-    static QString monthName( int month ) { return shortMonthName( month ); }
-    static QString dayName( int weekday ) { return shortDayName( weekday ); }
+#ifdef QT_COMPAT
+    static QT_COMPAT QString monthName( int month ) { return shortMonthName( month ); }
+    static QT_COMPAT QString dayName( int weekday ) { return shortDayName( weekday ); }
 #endif
     static QString shortMonthName( int month );
     static QString shortDayName( int weekday );

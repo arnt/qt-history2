@@ -26,11 +26,10 @@
 #define QM_EXPORT_OPENGL Q_OPENGL_EXPORT
 #endif
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 #define QGL_VERSION	450
 #define QGL_VERSION_STR	"4.5"
-QM_EXPORT_OPENGL inline const char *qGLVersion() {
-    qObsolete( 0, "qGLVersion", "qVersion" );
+QM_EXPORT_OPENGL QT_COMPAT inline const char *qGLVersion() {
     return QGL_VERSION_STR;
 }
 #endif

@@ -48,7 +48,7 @@ protected:
 };
 
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 #define QCollection QPtrCollection
 #endif
 

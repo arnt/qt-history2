@@ -554,7 +554,7 @@ int QComboBox::count() const
 	return d->popup()->count();
 }
 
-#if !defined(QT_NO_COMPAT) && 0 // ### probably take out for Qt 4.0
+#if defined(QT_COMPAT) && 0 // ### probably take out for Qt 4.0
 /*!
     \overload
 

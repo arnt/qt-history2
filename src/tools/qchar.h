@@ -159,12 +159,11 @@ public:
     inline void setCell(uchar cell) { ucs = (ucs & 0xff00) + cell; }
     inline void setRow(uchar row) { ucs = (((ushort) row)<<8) + (ucs&0xff); }
 
-    static bool networkOrdered() {
-	int wordSize;
-	bool bigEndian = false;
-	qSysInfo(&wordSize, &bigEndian);
-	return bigEndian;
+#ifdef QT_COMPAT
+    static inline QT_COMPAT bool networkOrdered() {
+	return QSysInfo::ByteOrder == QSysInfo::BigEndian;
     }
+#endif
 
     friend bool operator==(QChar c1, QChar c2);
     friend bool operator!=(QChar c1, QChar c2);

@@ -55,7 +55,7 @@ bool qSharedBuild()
   System detection routines
  *****************************************************************************/
 
-#if defined(QT_BUILD_QMAKE)
+#if !defined(Q_BYTE_ORDER) && defined(QT_BUILD_QMAKE)
 // needed to bootstrap qmake
 static const unsigned int qt_one = 1;
 const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian : LittleEndian);
@@ -643,71 +643,6 @@ void qt_assert(const char *assertion, const char *file, int line)
 void qt_assert_x(const char *where, const char *what, const char *file, int line)
 {
     qFatal("ASSERT failure in %s: \"%s\", file %s, line %d", where, what, file, line);
-}
-
-
-static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
-{
-    static QHash<QString,int*> *obsoleteDict = 0;
-    if ( !obsoleteDict ) {			// first time func is called
-	obsoleteDict = new QHash<QString,int*>;
-#if defined(QT_DEBUG)
-	qDebug(
-      "You are using obsolete functions in the Qt library. Call the function\n"
-      "qSuppressObsoleteWarnings() to suppress obsolete warnings.\n"
-	     );
-#endif
-    }
-    QByteArray s( obj );
-    s += "::";
-    s += oldfunc;
-    if ( obsoleteDict->find(s) == 0 ) {
-	obsoleteDict->insert( s, (int*)1 );	// anything different from 0
-	return true;
-    }
-    return false;
-}
-
-static bool suppressObsolete = false;
-
-void qSuppressObsoleteWarnings( bool suppress )
-{
-    suppressObsolete = suppress;
-}
-
-void qObsolete(	 const char *obj, const char *oldfunc, const char *newfunc )
-{
-    if ( suppressObsolete )
-	return;
-    if ( !firstObsoleteWarning(obj, oldfunc) )
-	return;
-    if ( obj )
-	qDebug( "%s::%s: This function is obsolete, use %s instead.",
-	       obj, oldfunc, newfunc );
-    else
-	qDebug( "%s: This function is obsolete, use %s instead.",
-	       oldfunc, newfunc );
-}
-
-void qObsolete(	 const char *obj, const char *oldfunc )
-{
-    if ( suppressObsolete )
-	return;
-    if ( !firstObsoleteWarning(obj, oldfunc) )
-	return;
-    if ( obj )
-	qDebug( "%s::%s: This function is obsolete.", obj, oldfunc );
-    else
-	qDebug( "%s: This function is obsolete.", oldfunc );
-}
-
-void qObsolete(	 const char *message )
-{
-    if ( suppressObsolete )
-	return;
-    if ( !firstObsoleteWarning( "Qt", message) )
-	return;
-    qDebug( "%s", message );
 }
 
 

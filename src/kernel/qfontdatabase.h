@@ -71,25 +71,23 @@ public:
 #endif
 
     // For source compatibility with < 3.0
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
+    QT_COMPAT QStringList families(bool) const;
+    QT_COMPAT QStringList styles( const QString &, const QString & ) const;
+    QT_COMPAT QList<int> pointSizes( const QString &, const QString &, const QString & );
+    QT_COMPAT QList<int> smoothSizes( const QString &, const QString &, const QString & );
 
-    QStringList families(bool) const;
-    QStringList styles( const QString &, const QString & ) const;
-    QList<int> pointSizes( const QString &, const QString &, const QString & );
-    QList<int> smoothSizes( const QString &, const QString &, const QString & );
+    QT_COMPAT QFont font( const QString &, const QString &, int, const QString &);
 
-    QFont font( const QString &, const QString &, int, const QString &);
+    QT_COMPAT bool isBitmapScalable( const QString &, const QString &, const QString & ) const;
+    QT_COMPAT bool isSmoothlyScalable( const QString &, const QString &, const QString & ) const;
+    QT_COMPAT bool isScalable( const QString &, const QString &, const QString & ) const;
+    QT_COMPAT bool isFixedPitch( const QString &, const QString &, const QString & ) const;
 
-    bool isBitmapScalable( const QString &, const QString &, const QString & ) const;
-    bool isSmoothlyScalable( const QString &, const QString &, const QString & ) const;
-    bool isScalable( const QString &, const QString &, const QString & ) const;
-    bool isFixedPitch( const QString &, const QString &, const QString & ) const;
-
-    bool italic( const QString &, const QString &, const QString & ) const;
-    bool bold( const QString &, const QString &, const QString & ) const;
-    int weight( const QString &, const QString &, const QString & ) const;
-
-#endif // QT_NO_COMPAT
+    QT_COMPAT bool italic( const QString &, const QString &, const QString & ) const;
+    QT_COMPAT bool bold( const QString &, const QString &, const QString & ) const;
+    QT_COMPAT int weight( const QString &, const QString &, const QString & ) const;
+#endif // QT_COMPAT
 
 private:
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
@@ -110,8 +108,7 @@ private:
 };
 
 
-#ifndef QT_NO_COMPAT
-
+#ifdef QT_COMPAT
 inline QStringList QFontDatabase::families( bool ) const
 {
     return families();
@@ -193,8 +190,7 @@ inline int QFontDatabase::weight( const QString &family,
 {
     return weight(family, style);
 }
-
-#endif // QT_NO_COMPAT
+#endif // QT_COMPAT
 
 #endif // QT_NO_FONTDATABASE
 

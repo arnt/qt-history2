@@ -718,7 +718,7 @@ QWidget::QWidget(QWidget *parent, WFlags f)
     d->init(f);
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
     : QObject(*new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
@@ -752,7 +752,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
 
     q->winid = 0;
     q->widget_attributes = 0;
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     if (f & Qt::WNoAutoErase)
 	q->setAttribute(QWidget::WA_NoBackground);
     if (f & Qt::WStaticContents)
@@ -810,7 +810,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
     if (q->parent()) {
 	QChildEvent e(QEvent::ChildAdded, q);
 	QApplication::sendEvent(q->parent(), &e);
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	QApplication::postEvent(q->parent(), new QChildEvent(QEvent::ChildInserted, q));
 #endif
     }
@@ -1353,7 +1353,7 @@ void QWidget::setStyle( QStyle *style )
     }
     QEvent e(QEvent::StyleChange);
     QApplication::sendEvent(this, &e);
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     styleChange( old );
 #endif
 }
@@ -1720,7 +1720,7 @@ void QWidget::setEnabled_helper(bool enable)
 #endif
     QEvent e(QEvent::EnabledChange);
     QApplication::sendEvent(this, &e);
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     enabledChange(!enable); // compatibility
 #endif
 }
@@ -2290,7 +2290,7 @@ QWidget *QWidget::topLevelWidget() const
     return w;
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 /*!
     Returns the color role used for painting the widget's background.
 */
@@ -2343,7 +2343,7 @@ Qt::BackgroundMode QWidget::backgroundMode() const
     Sets the color role used for painting the widget's background to
     background mode \a m.
 */
-void QWidget::setBackgroundMode( BackgroundMode m )
+void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode )
 {
     if(m == NoBackground) {
 	setAttribute(WA_NoSystemBackground, true);
@@ -2587,7 +2587,7 @@ void QWidgetPrivate::setFont_helper( const QFont &font )
     if (q->fnt == font && q->fnt.resolve() == font.resolve())
 	return;
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     QFont old = q->fnt;
 #endif
     q->fnt = font;
@@ -2607,7 +2607,7 @@ void QWidgetPrivate::setFont_helper( const QFont &font )
 	setFont_syshelper();
     QEvent e(QEvent::FontChange);
     QApplication::sendEvent(q, &e);
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     q->fontChange(old);
 #endif
 }
@@ -3498,7 +3498,7 @@ void QWidget::show_helper()
     // polish if necessary
     ensurePolished();
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 #endif
 #ifndef QT_NO_LAYOUT
@@ -3531,7 +3531,7 @@ void QWidget::show_helper()
     // finally show all children recursively
     showChildren(false);
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     if ( parentWidget() )
 	QApplication::sendPostedEvents( parentWidget(),
 					QEvent::ChildInserted );
@@ -4419,7 +4419,7 @@ bool QWidget::event( QEvent *e )
 	    d->resolvePalette();
 #endif
 	qApp->polish(this);
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 #endif
 
@@ -4439,7 +4439,7 @@ bool QWidget::event( QEvent *e )
 	    QEvent ae(QEvent::ActivationChange);
 	    QApplication::sendEvent(this, &ae);
 	}
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	windowActivationChange( e->type() != QEvent::WindowActivate );
 #endif
 #ifndef QT_NO_PALETTE
@@ -4470,7 +4470,7 @@ bool QWidget::event( QEvent *e )
 
     case QEvent::LanguageChange:
 	changeEvent(e);
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	languageChange();
 #endif
 	// fall through
@@ -4512,7 +4512,7 @@ bool QWidget::event( QEvent *e )
 	break;
 #endif
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     case QEvent::WindowStateChange:
 	{
 	    QEvent::Type type;
@@ -5571,14 +5571,14 @@ void QWidget::repaint(const QRect &r)
     This version repaints a region \a rgn inside the widget.
 */
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 /*!
     Clear the rectangle at point (\a x, \a y) of width \a w and height
     \a h.
 
     \warning This is best done in a paintEvent().
 */
-void QWidget::erase( int x, int y, int w, int h )
+void QWidget::erase_helper( int x, int y, int w, int h )
 {
     if (testAttribute(WA_NoSystemBackground))
 	return;
@@ -5609,17 +5609,12 @@ void QWidget::erase( const QRegion& rgn )
     p.eraseRect(rgn.boundingRect());
 }
 
-/*!
-    Draw the text in \a str at point \a p.
-
-    \warning This is best done in a paintEvent().
-*/
-void QWidget::drawText(const QPoint &p, const QString &str)
+void QWidget::drawText_helper(int x, int y, const QString &str)
 {
     if(!testWState(WState_Visible))
 	return;
     QPainter paint(this);
-    paint.drawText(p.x(), p.y(), str);
+    paint.drawText(x, y, str);
 }
 
 
@@ -5637,7 +5632,7 @@ const QPixmap *QWidget::icon() const
     return ( d->extra && d->extra->topextra ) ? d->extra->topextra->icon : 0;
 }
 
-#endif // QT_NO_COMPAT
+#endif // QT_COMPAT
 
 /*!
     \enum QWidget::WidgetAttribute

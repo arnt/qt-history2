@@ -34,12 +34,14 @@ public:
 
     void	activate();
 
-#ifndef QT_NO_COMPAT
-    bool	isBlocked()	 const		{ return QObject::signalsBlocked(); }
-    void	block( bool b )		{ QObject::blockSignals( b ); }
+#ifdef QT_COMPAT
+    QT_COMPAT bool	isBlocked() const
+	{ return QObject::signalsBlocked(); }
+    QT_COMPAT void	block( bool b )
+	{ QObject::blockSignals( b ); }
 #ifndef QT_NO_VARIANT
-    void	setParameter( int value );
-    int		parameter() const;
+    QT_COMPAT void	setParameter( int value );
+    QT_COMPAT int	parameter() const;
 #endif
 #endif
 

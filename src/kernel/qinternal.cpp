@@ -123,7 +123,8 @@ int QMembuf::ungetch( int ch )
 {
     if ( buf.isEmpty() || _index==0 ) {
 	// we need a new QByteArray
-	QByteArray *ba = new QByteArray( 1 );
+	QByteArray *ba = new QByteArray;
+	ba->resize(1);
 	buf.insert( 0, ba );
 	_size++;
 	(*ba)[0] = ch;

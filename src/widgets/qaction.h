@@ -180,9 +180,9 @@ private slots:
 private:
     QActionGroupPrivate* d;
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 public:
-    void insert( QAction* a ) { add( a ); }
+    QT_COMPAT void insert( QAction* a ) { add( a ); }
 #endif
 
 private:

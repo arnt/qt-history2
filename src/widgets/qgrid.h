@@ -31,7 +31,7 @@ public:
 
     void setSpacing( int );
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
     typedef Orientation Direction;
 #endif
 

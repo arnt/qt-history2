@@ -52,8 +52,8 @@ public:
     int		width( const QString &, int len = -1 ) const;
 
     int		width( QChar ) const;
-#ifndef QT_NO_COMPAT
-    int		width( char c ) const { return width( (QChar) c ); }
+#ifdef QT_COMPAT
+    QT_COMPAT int		width( char c ) const { return width( (QChar) c ); }
 #endif
 
     int 		charWidth( const QString &str, int pos ) const;

@@ -27,8 +27,8 @@
 #include <list>
 #endif
 
-#ifndef QT_NO_COMPAT
-template <typename T> class QValueListIterator : public QLinkedList<T>::Iterator
+#ifdef QT_COMPAT
+template <typename T> class QT_COMPAT QValueListIterator : public QLinkedList<T>::Iterator
 {
 public:
     inline QValueListIterator<T>() :
@@ -39,7 +39,7 @@ public:
 	QLinkedList<T>::Iterator(o) {}
 };
 
-template <typename T> class QValueListConstIterator : public QLinkedList<T>::ConstIterator
+template <typename T> class QT_COMPAT QValueListConstIterator : public QLinkedList<T>::ConstIterator
 {
 public:
     inline QValueListConstIterator<T>() :

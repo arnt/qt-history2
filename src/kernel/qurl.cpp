@@ -196,8 +196,8 @@ QUrl::QUrl( const QUrl& url )
 
 bool QUrl::isRelativeUrl( const QString &url )
 {
-    int colon = url.find( ":" );
-    int slash = url.find( "/" );
+    int colon = url.indexOf(':');
+    int slash = url.indexOf('/');
 
     return ( slash != 0 && ( colon == -1 || ( slash != -1 && colon > slash ) ) );
 }
@@ -647,13 +647,13 @@ bool QUrl::parse( const QString& url )
 	relPath = forceRel = TRUE;
 
     int hasNoHost = -1;
-    int cs = url_.find( ":/" );
+    int cs = url_.indexOf( ":/" );
     if ( cs != -1 ) // if a protocol is there, find out if there is a host or directly the path after it
-	hasNoHost = url_.find( "///", cs );
+	hasNoHost = url_.indexOf( "///", cs );
     table[ 4 ][ 1 ] = User;
     table[ 4 ][ 2 ] = User;
     if ( cs == -1 || forceRel ) { // we have a relative file
-	if ( url.find( ':' ) == -1 || forceRel ) {
+	if ( url.indexOf( ':' ) == -1 || forceRel ) {
 	    table[ 0 ][ 1 ] = Path;
 	    // Filenames may also begin with a digit
 	    table[ 0 ][ 2 ] = Path;
@@ -669,7 +669,7 @@ bool QUrl::parse( const QString& url )
 	++cs;
 	while ( url_[ cs ] == '/' )
 	    ++cs;
-	int slash = url_.find( "/", cs );
+	int slash = url_.indexOf( "/", cs );
 	if ( slash == -1 )
 	    slash = url_.length() - 1;
 	QString tmp = url_.mid( cs, slash - cs + 1 );
@@ -677,7 +677,7 @@ bool QUrl::parse( const QString& url )
 	if ( !tmp.isEmpty() ) { // if this part exists
 
 	    // look for the @ in this part
-	    int at = tmp.find( "@" );
+	    int at = tmp.indexOf( "@" );
 	    if ( at != -1 )
 		at += cs;
 	    // we have no @, which means host[:port], so directly
@@ -923,7 +923,7 @@ void QUrl::setFileName( const QString& name )
 	p = "/";
     } else {
 	p = path();
-	int slash = p.findRev( QChar( '/' ) );
+	int slash = p.lastIndexOf( QChar( '/' ) );
 	if ( slash == -1 ) {
 	    p = "/";
 	} else if ( p[ (int)p.length() - 1 ] != '/' ) {
@@ -969,7 +969,7 @@ QString QUrl::encodedPathAndQuery()
 void QUrl::setEncodedPathAndQuery( const QString& pathAndQuery )
 {
     d->cleanPathDirty = TRUE;
-    int pos = pathAndQuery.find( '?' );
+    int pos = pathAndQuery.indexOf( '?' );
     if ( pos == -1 ) {
 	d->path = pathAndQuery;
 	d->queryEncoded = "";
@@ -1125,7 +1125,7 @@ QString QUrl::dirPath() const
 	return QString::null;
 
     QString s = path();
-    int pos = s.findRev( '/' );
+    int pos = s.lastIndexOf( '/' );
     if ( pos == -1 ) {
 	return QString::fromLatin1(".");
     } else {

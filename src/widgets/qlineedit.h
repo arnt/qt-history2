@@ -83,9 +83,9 @@ public:
 
     int alignment() const;
 
-#ifndef QT_NO_COMPAT
-    void cursorLeft( bool mark, int steps = 1 ) { cursorForward( mark, -steps ); }
-    void cursorRight( bool mark, int steps = 1 ) { cursorForward( mark, steps ); }
+#ifdef QT_COMPAT
+    QT_COMPAT void cursorLeft( bool mark, int steps = 1 ) { cursorForward( mark, -steps ); }
+    QT_COMPAT void cursorRight( bool mark, int steps = 1 ) { cursorForward( mark, steps ); }
 #endif
     void cursorForward( bool mark, int steps = 1 );
     void cursorBackward( bool mark, int steps = 1 );
@@ -109,9 +109,9 @@ public:
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
-#ifndef QT_NO_COMPAT
-    bool hasMarkedText() const { return hasSelectedText(); }
-    QString markedText() const { return selectedText(); }
+#ifdef QT_COMPAT
+    QT_COMPAT bool hasMarkedText() const { return hasSelectedText(); }
+    QT_COMPAT QString markedText() const { return selectedText(); }
 #endif
 
     bool dragEnabled() const;
@@ -175,8 +175,8 @@ protected:
     void changeEvent( QEvent * );
     void contextMenuEvent( QContextMenuEvent * );
     virtual QPopupMenu *createPopupMenu();
-#ifndef QT_NO_COMPAT
-    void repaintArea( int, int ) { update(); }
+#ifdef QT_COMPAT
+    QT_COMPAT void repaintArea( int, int ) { update(); }
 #endif
 
 private slots:

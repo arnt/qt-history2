@@ -50,7 +50,7 @@ class Q_CORE_EXPORT QCoreVariant
 	Size = 9,
 	Color = 10,
 	Palette = 11,
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 	ColorGroup = 12,
 #endif
 	IconSet = 13,
@@ -174,10 +174,10 @@ class Q_CORE_EXPORT QCoreVariant
     static const char *typeToName(Type type);
     static Type nameToType(const char *name);
 
-#ifndef QT_NO_COMPAT
-    inline const QByteArray toCString() const { return toByteArray(); }
-    inline QByteArray &asCString() { return asByteArray(); }
-    inline QCoreVariant(bool b, int) { d = create(Bool, &b); }
+#ifdef QT_COMPAT
+    inline QT_COMPAT const QByteArray toCString() const { return toByteArray(); }
+    inline QT_COMPAT QByteArray &asCString() { return asByteArray(); }
+    inline QT_COMPAT QCoreVariant(bool b, int) { d = create(Bool, &b); }
 #endif
 
     void *rawAccess(void *ptr = 0, Type typ = Invalid, bool deepCopy = FALSE);

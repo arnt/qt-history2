@@ -70,9 +70,9 @@ public:
     enum ToggleState { Off, NoChange, On };
     ToggleState	state() const;
 
-#ifndef QT_NO_COMPAT
-    bool	autoResize() const;
-    void	setAutoResize( bool );
+#ifdef QT_COMPAT
+    QT_COMPAT bool	autoResize() const;
+    QT_COMPAT void	setAutoResize( bool );
 #endif
 
     bool	autoRepeat() const;
@@ -169,7 +169,7 @@ inline bool QButton::isOn() const
     return stat != Off;
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 inline bool QButton::autoResize() const
 {
     return autoresize;

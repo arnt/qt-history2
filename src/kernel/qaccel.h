@@ -56,9 +56,9 @@ public:
     bool ignoreWhatsThis() const;
 
     static QKeySequence shortcutKey( const QString & );
-#ifndef QT_NO_COMPAT
-    static QString keyToString(const QKeySequence &k );
-    static QKeySequence stringToKey( const QString & );
+#ifdef QT_COMPAT
+    static QT_COMPAT QString keyToString(const QKeySequence &k );
+    static QT_COMPAT QKeySequence stringToKey( const QString & );
 #endif
 
 signals:
@@ -76,7 +76,7 @@ private:
     friend class QAccelManager;
 };
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 inline QString QAccel::keyToString( const QKeySequence &k )
 {
     return (QString) k;

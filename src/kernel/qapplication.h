@@ -24,7 +24,7 @@
 #ifdef QT_INCLUDE_COMPAT
 # include "qdesktopwidget.h"
 #endif
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 # include "qwidget.h"
 #endif
 #endif // QT_H
@@ -206,32 +206,32 @@ protected:
 protected:
     bool event(QEvent *);
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 public:
-    inline static bool hasGlobalMouseTracking() {return true;}
-    inline static void setGlobalMouseTracking(bool) {};
-    inline static void flushX() { flush(); }
+    inline static QT_COMPAT bool hasGlobalMouseTracking() {return true;}
+    inline static QT_COMPAT void setGlobalMouseTracking(bool) {};
+    inline static QT_COMPAT void flushX() { flush(); }
 #ifndef QT_NO_PALETTE
     // obsolete functions
-    static inline void setWinStyleHighlightColor( const QColor &c ) {
-	QPalette p( palette() );
-	p.setColor( QPalette::Highlight, c );
-	setPalette( p, TRUE);
+    static inline QT_COMPAT void setWinStyleHighlightColor( const QColor &c ) {
+	QPalette p(palette());
+	p.setColor(QPalette::Highlight, c);
+	setPalette(p);
     }
-    static inline const QColor &winStyleHighlightColor()
+    static inline QT_COMPAT const QColor &winStyleHighlightColor()
 	{ return palette().color(QPalette::Active, QPalette::Highlight); }
-    static inline void setPalette(const QPalette &pal, bool, const char* className = 0)
+    static inline QT_COMPAT void setPalette(const QPalette &pal, bool, const char* className = 0)
 	{ setPalette(pal, className); };
 #endif // QT_NO_PALETTE
-    static inline void setFont(const QFont &font, bool, const char* className = 0)
+    static inline QT_COMPAT void setFont(const QFont &font, bool, const char* className = 0)
 	{ setFont(font, className); }
 
-    static inline QWidget *widgetAt(int x, int y, bool child)
+    static inline QT_COMPAT QWidget *widgetAt(int x, int y, bool child)
 	{ QWidget *w = widgetAt(x, y); return child ? w : (w ? w->topLevelWidget() : 0); }
-    static inline QWidget *widgetAt(const QPoint &p, bool child)
-	{ return widgetAt(p.x(), p.y(), child); }
+    static inline QT_COMPAT QWidget *widgetAt(const QPoint &p, bool child)
+	{ QWidget *w = widgetAt(p); return child ? w : (w ? w->topLevelWidget() : 0); }
 
-#endif // QT_NO_COMPAT
+#endif // QT_COMPAT
 private:
     bool notify_helper( QObject *receiver, QEvent * e);
 

@@ -35,7 +35,7 @@ class QByteArray;
 #define Q_OVERRIDE( text )
 #define Q_ENUMS( x )
 #define Q_FLAGS( x )
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 # define Q_SETS( x )
 #endif
 
@@ -77,7 +77,7 @@ private:
 #define Q_OVERRIDE( text ) Q_OVERRIDE( text )
 #define Q_ENUMS( x ) Q_ENUMS( x )
 #define Q_FLAGS( x ) Q_FLAGS( x )
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 # define Q_SETS( x ) Q_SETS( x )
 #endif
  /* tmake ignore Q_OBJECT */
@@ -193,9 +193,9 @@ struct Q_CORE_EXPORT QMetaObject
 	QueryPropertyEditable
     };
 
-#ifndef QT_NO_COMPAT
-    const char *superClassName() const;
-    bool inherits(const char* classname) const;
+#ifdef QT_COMPAT
+    QT_COMPAT const char *superClassName() const;
+    /*QT_COMPAT*/ bool inherits(const char* classname) const;
 #endif
 
     struct { // private data
@@ -211,7 +211,7 @@ inline const char *QMetaObject::className() const
 inline const QMetaObject *QMetaObject::superClass() const
 { return d.superdata; }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 inline const char *QMetaObject::superClassName() const
 { return d.superdata ? d.superdata->className() : 0; }
 #endif

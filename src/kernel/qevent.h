@@ -139,15 +139,15 @@ public:
 	    ignore();
     }
     int	   key()	const	{ return k; }
-#ifndef QT_NO_COMPAT
-    QKeyEvent( Type type, int key, int /*ascii*/, int state, const QString& text=QString::null,
-	       bool autorep=FALSE, ushort count=1 )
+#ifdef QT_COMPAT
+    QT_COMPAT QKeyEvent( Type type, int key, int /*ascii*/, int state, const QString& text=QString::null,
+			     bool autorep=FALSE, ushort count=1 )
 	: QInputEvent(type), txt(text), k(key), s((ushort)state), c(count), autor(autorep)
     {
 	if ( key >= Key_Back && key <= Key_MediaLast )
 	    ignore();
     }
-    int	   ascii()	const	{ return k > 255 ? 0 : k; }
+    QT_COMPAT int	   ascii()	const	{ return k > 255 ? 0 : k; }
 #endif
     ButtonState state()	const	{ return ButtonState(s); }
     ButtonState stateAfter() const;
@@ -204,8 +204,8 @@ public:
     const QRect &rect() const	  { return rec; }
     const QRegion &region() const { return reg; }
 
-#ifndef QT_NO_COMPAT
-    bool erased() const { return true; }
+#ifdef QT_COMPAT
+    QT_COMPAT bool erased() const { return true; }
 #endif
 protected:
     friend class QApplication;

@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#undef QT_NO_COMPAT
+#define QT_COMPAT
 #include "qtoolbutton.h"
 #ifndef QT_NO_TOOLBUTTON
 
@@ -663,7 +663,7 @@ void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 
 QIconSet QToolButton::onIconSet() const
 {
@@ -765,7 +765,7 @@ void QToolButton::setIconSet( const QIconSet & set )
   \sa iconSet QIconSet::State
 */
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 
 void QToolButton::setIconSet( const QIconSet & set, bool /* on */ )
 {
@@ -796,7 +796,7 @@ QIconSet QToolButton::iconSet() const
     return QIconSet();
 }
 
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 /*! \overload
     \obsolete
 

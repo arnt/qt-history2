@@ -141,7 +141,7 @@ public:
     QString toUnicode(const char* chars, int len)
     {
 	QString result;
-	result.setLength( len ); // worst case
+	result.resize( len ); // worst case
 	QChar *qch = (QChar *)result.unicode();
 	uchar ch;
 	for (int i=0; i<len; i++) {
@@ -264,7 +264,7 @@ public:
     QString toUnicode(const char* chars, int len)
     {
 	QString result;
-	result.setLength( len ); // worst case
+	result.resize( len ); // worst case
 	QChar *qch = (QChar *)result.unicode();
 	QChar ch;
 	while ( len-- ) {

@@ -117,9 +117,9 @@ private:
     QRegion exposed;
     int last_focus_time;
     QWSWindowData *d;
-#ifndef QT_NO_COMPAT
-    inline QRegion requested() const { return requested_region; }
-    inline QRegion allocation() const { return allocated_region; }
+#ifdef QT_COMPAT
+    inline QT_COMPAT QRegion requested() const { return requested_region; }
+    inline QT_COMPAT QRegion allocation() const { return allocated_region; }
 #endif
 };
 
@@ -467,7 +467,7 @@ private:
     int microX;
     int microY;
 #endif
-#ifndef QT_NO_COMPAT
+#ifdef QT_COMPAT
 #ifndef QT_NO_QWS_KEYBOARD
     static inline void setKeyboardFilter(KeyboardFilter *f)
 	{ if (f) addKeyboardFilter(f); else removeKeyboardFilter(); }

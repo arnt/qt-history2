@@ -50,8 +50,8 @@ public:
     QVariant::Type type() const;
     virtual void setType(QVariant::Type type);
 
-#ifndef QT_NO_COMPAT
-    inline void setNull() { clear(); }
+#ifdef QT_COMPAT
+    inline QT_COMPAT void setNull() { clear(); }
 #endif
 
 private:

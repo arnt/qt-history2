@@ -44,10 +44,8 @@ public slots:
 private slots:
     void removeMapping();
 
-#ifndef QT_NO_COMPAT
 public:
     QSignalMapper(QObject *parent, const char *name);
-#endif
 };
 
 #endif // QT_NO_SIGNALMAPPER

@@ -233,10 +233,10 @@ private: // Disabled copy constructor and operator=
 public:
     void disableSizeHintCaching();
 
-#ifndef QT_NO_COMPAT
-    void repaintContents( int x, int y, int w, int h, bool) {repaintContents(x, y, w, h); }
-    void repaintContents( const QRect& r, bool ) { repaintContents(r); }
-    void repaintContents( bool ) { repaintContents(); }
+#ifdef QT_COMPAT
+    QT_COMPAT void repaintContents( int x, int y, int w, int h, bool) {repaintContents(x, y, w, h); }
+    QT_COMPAT void repaintContents( const QRect& r, bool ) { repaintContents(r); }
+    QT_COMPAT void repaintContents( bool ) { repaintContents(); }
 
 #endif
 
