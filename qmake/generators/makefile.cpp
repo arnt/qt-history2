@@ -863,6 +863,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 			dirstr = f.left(slsh+1);
 			f = f.right(f.length() - slsh - 1);
 		    }
+		    if(dirstr.right(Option::dir_sep.length()) != Option::dir_sep)
+			dirstr += Option::dir_sep;
 		    QDir dir(dirstr, f);
 		    for(uint x = 0; x < dir.count(); x++) {
 			QString file = dir[x];
