@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#47 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#48 $
 **
 ** Implementation of QMessageBox class
 **
@@ -20,7 +20,7 @@
 #include "qmlined.h"
 #include "qpushbt.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#48 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -488,8 +488,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 		mbd->pb[i]->setDefault( TRUE );
 		mbd->pb[i]->setFocus();
 	    }
-	    if ( mbd->defButton >= 0 )
-		mbd->pb[i]->setAutoDefault( TRUE );
+	    mbd->pb[i]->setAutoDefault( TRUE );
 	    mbd->pb[i]->setFocusPolicy( QWidget::StrongFocus );
 	    connect( mbd->pb[i], SIGNAL(clicked()), SLOT(buttonClicked()) );
 	}
@@ -1204,12 +1203,12 @@ void QMessageBox::aboutQt( QWidget *parent, const char *caption )
 		     "Window System.\n\n"
 		     "If you want to use Qt on Microsoft Windows or for\n"
 		     "non-free software on the X Window System, please\n"
-		     "look at our web server, or write to sales@troll.no",
+		     "contact sales@troll.no.",
 		     "OK", "&More about Qt" );
     if ( r != 1 )
 	return;
 
-    QDialog * tlw = new QDialog( 0, "Qt blurb", TRUE /* ? */ );
+    QDialog * tlw = new QDialog( 0, "Qt blurb", TRUE );
     CHECK_PTR( tlw );
 
     tlw->setCaption( QString( "About Qt - " ) + caption );
@@ -1226,7 +1225,7 @@ void QMessageBox::aboutQt( QWidget *parent, const char *caption )
     QPushButton * ok = new QPushButton( "Close", tlw, "enough blurbery" );
     CHECK_PTR( ok );
     ok->setDefault( TRUE );
-    QSize s( ok->minimumSize() );
+    QSize s( ok->sizeHint() );
     if ( ok->style() == WindowsStyle && s.width() < 75 )
 	s.setWidth( 75 );
     ok->setFixedSize( s );
