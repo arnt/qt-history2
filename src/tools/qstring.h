@@ -8,8 +8,15 @@
 #endif // QT_H
 
 #ifndef QT_NO_STL
-#include <string>
-#endif
+#if defined ( Q_CC_MSVC_NET ) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
+#  pragma warning ( push )
+#  pragma warning ( disable : 4189 )
+#  include <string>
+#  pragma warning ( pop )
+#else
+#  include <string>
+#endif // avoid warning in xlocale on windows .net 1310
+#endif // QT_NO_STL
 
 #ifdef QT_INCLUDE_COMPAT
 #include <qcstring.h>
