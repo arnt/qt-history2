@@ -46,7 +46,7 @@ its operation, and also allows very large data sources to be read.
 RSSListing::RSSListing(QWidget *parent, const char *name, WFlags flags)
     : QWidget(parent, name, flags)
 {
-    setCaption(tr("RDF listing example"));
+    setCaption(tr("RSS listing example"));
 
     lineEdit = new QLineEdit(this);
 
@@ -126,7 +126,7 @@ void RSSListing::fetch()
     QUrl url(lineEdit->text());
 
     http.setHost(url.host());
-    connectionId = http.get(url.path(true));
+    connectionId = http.get(url.encodedPathAndQuery());
 }
 
 /*!
@@ -145,7 +145,7 @@ void RSSListing::readData(const QHttpResponseHeader &resp)
 {
     bool ok;
 
-    if (resp.statusCode() != QHttp::NoError)
+    if (resp.statusCode() != 200)
         http.abort();
     else {
         xmlInput.setData(http.readAll());
