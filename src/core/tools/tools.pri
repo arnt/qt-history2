@@ -42,12 +42,10 @@ SOURCES += \
 	tools/qlocale.cpp \
         tools/qpoint.cpp \
 	tools/qmap.cpp \
-	tools/qqueue.cpp \
         tools/qrect.cpp \
 	tools/qregexp.cpp \
 	tools/qshareddata.cpp \
         tools/qsize.cpp \
-	tools/qstack.cpp \
 	tools/qstring.cpp \
 	tools/qstringlist.cpp \
 	tools/qstringmatcher.cpp \

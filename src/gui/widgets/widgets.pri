@@ -68,7 +68,6 @@ SOURCES += \
         widgets/qabstractbutton.cpp \
         widgets/qabstractslider.cpp \
         widgets/qabstractspinbox.cpp \
-        widgets/qbuttongroup.cpp \
         widgets/qcheckbox.cpp \
         widgets/qcombobox.cpp \
         widgets/qdatetimeedit.cpp \

@@ -106,7 +106,7 @@
 Q_CORE_EXPORT bool qt_resolve_symlinks = true;
 
 // needed by the punycode encoder/decoder
-#define MAXINT ((uint)((uint)(-1)>>1))
+#define Q_MAXINT ((uint)((uint)(-1)>>1))
 static const uint base = 36;
 static const uint tmin = 1;
 static const uint tmax = 26;
@@ -2251,7 +2251,7 @@ QByteArray QUrl::toPunycode(const QString &uc)
     while (h < (uint) ucLength) {
         // find the character in the input string with the lowest
         // unicode value.
-        uint m = MAXINT;
+        uint m = Q_MAXINT;
         uint j;
         for (j = 0; j < (uint) ucLength; ++j) {
             if (uc.at(j).unicode() >= n && uc.at(j).unicode() < m)
@@ -2259,7 +2259,7 @@ QByteArray QUrl::toPunycode(const QString &uc)
         }
 
         // reject out-of-bounds unicode characters
-        if (m - n > (MAXINT - delta) / (h + 1))
+        if (m - n > (Q_MAXINT - delta) / (h + 1))
             return ""; // punycode_overflow
 
         delta += (m - n) * (h + 1);
@@ -2355,7 +2355,7 @@ QString QUrl::fromPunycode(const QByteArray &pc)
             else digit = base;
 
             // reject out of range digits
-            if (digit >= base || digit > (MAXINT - i) / w)
+            if (digit >= base || digit > (Q_MAXINT - i) / w)
                 return QLatin1String("");
 
             i += (digit * w);
