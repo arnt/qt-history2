@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#39 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#38 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#39 $";
 #endif
 
 
@@ -85,7 +85,7 @@ static QPalette *motifPalette = 0;
 static void create_palettes()			// creates default palettes
 {
     QColorGroup motif_nor( black, lightGray,
-			   lightGray.light(), lightGray.dark(), gray, 
+			   white, lightGray.dark(), gray, 
 			   black, white );
     QColorGroup motif_dis( darkGray, lightGray, 
 			   lightGray.light(), lightGray.dark(), gray,
@@ -189,7 +189,7 @@ Only MotifStyle is fully supported in the current version of Qt.
 
 void QApplication::setStyle( GUIStyle s )	// set application GUI style
 {
-#if defined(DEBUG)
+#if defined(LINUX_RESTRICTED)
     if ( s != MotifStyle ) {
 	warning( "QApplication::setStyle: Only Motif style is supported" );
 	return;
