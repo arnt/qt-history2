@@ -2186,9 +2186,8 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 	    }
 	    else if ( a == qt_wm_take_focus ) {
 		QWidget * amw = activeModalWidget();
-		if ( amw && amw != widget && amw->isActiveWindow() ) {
-		    beep();
-		    amw->raise(); // support broken window managers
+		if ( amw && amw != widget ) {
+		    amw->raise(); //  help broken window managers
 		}
 		XSetInputFocus( appDpy, (amw?amw:widget)->winId(),
 				RevertToParent, event->xclient.data.l[1] );
@@ -2833,9 +2832,6 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	    break;
     }
 
-    if ( top->parentWidget() == 0 && (block_event || expose_event) )
-	XRaiseWindow( appDpy, top->winId() );	// raise app-modal widget
-
     return !block_event;
 }
 
@@ -2910,7 +2906,7 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	if ( !qt_nograb() && popupGrabOk ) {	// grabbing not disabled
 	    XUngrabKeyboard( popup->x11Display(), CurrentTime );
-	    if ( mouseButtonState != 0 
+	    if ( mouseButtonState != 0
 		 || popup->geometry(). contains(QPoint(mouseGlobalXPos, mouseGlobalYPos) ) )
 		{	// mouse release event or inside
 		    XAllowEvents( popup->x11Display(), AsyncPointer,
