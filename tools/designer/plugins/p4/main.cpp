@@ -621,16 +621,13 @@ void P4Interface::p4Refresh()
 
     P4Info::files()->clear();
 
-    QPtrList<DesignerProject> projects = appInterface->projectList();
-    QPtrListIterator<DesignerProject> pit( projects );
-    while ( pit.current() ) {
-	DesignerProject *pIface = pit.current();
-	++pit;
+    QList<DesignerProject*> projects = appInterface->projectList();
+    for(QList<DesignerProject*>::Iterator pit = projects.begin(); pit != projects.end(); ++pit) {
+	DesignerProject *pIface = (*pit);
 
-	QPtrList<DesignerFormWindow> forms = pIface->formList();
-	QPtrListIterator<DesignerFormWindow> fit( forms );
-	while ( fit.current() ) {
-	    DesignerFormWindow *fwIface = fit.current();
+	QList<DesignerFormWindow*> forms = pIface->formList();
+	for(QList<DesignerFormWindow*>::Iterator fit = forms.begin(); fit != forms.end(); ++fit) {
+	    DesignerFormWindow *fwIface = (*fit);
 	    ++fit;
 	    QString filename = fwIface->fileName();
 	    if ( !!filename ) {
@@ -714,16 +711,13 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
     QWidget *form = 0;
     DesignerFormWindow *fwIface = 0;
 
-    QPtrList<DesignerProject> projects = appInterface->projectList();
-    QPtrListIterator<DesignerProject> pit( projects );
-    while ( pit.current() ) {
-	DesignerProject *pIface = pit.current();
-	++pit;
+    QList<DesignerProject*> projects = appInterface->projectList();
+    for(QList<DesignerProject*>::Iterator pit = projects.begin(); pit != projects.end(); ++pit) {
+	DesignerProject *pIface = (*pit);
 
-	QPtrList<DesignerFormWindow> forms = pIface->formList();
-	QPtrListIterator<DesignerFormWindow> fit( forms );
-	while ( fit.current() ) {
-	    fwIface = fit.current();
+	QList<DesignerFormWindow*> forms = pIface->formList();
+	for(QList<DesignerFormWindow*>::Iterator fit = forms.begin(); fit != forms.end(); ++fit) {
+	    fwIface = (*fit);
 	    ++fit;
 	    if ( fwIface->fileName() == filename ) {
 		form = fwIface->form();
