@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book6/book.ui'
 **
-** Created: Thu Jan 25 12:06:26 2001
+** Created: Thu Jan 25 12:14:19 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -30,7 +30,7 @@ BookForm::BookForm( QWidget* parent,  const char* name, bool modal, WFlags fl )
 {
     if ( !name )
 	setName( "BookForm" );
-    resize( 506, 512 ); 
+    resize( 502, 510 ); 
     setCaption( tr( "Book" ) );
     BookFormLayout = new QVBoxLayout( this ); 
     BookFormLayout->setSpacing( 6 );
@@ -132,7 +132,9 @@ void BookForm::editClicked()
     dialog->BookDataBrowser->setSort(QSqlIndex::fromStringList( 
     	BookDataTable->sort(), &cur ) );
     dialog->BookDataBrowser->refresh();
-    dialog->BookDataBrowser->seek( BookDataTable->currentRow() );
+    int i = BookDataTable->currentRow();
+    if ( i == -1 ) i = 0; // Always use the first row
+    dialog->BookDataBrowser->seek( i );
     dialog->exec();
     delete dialog;
     BookDataTable->refresh();

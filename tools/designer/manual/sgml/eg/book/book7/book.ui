@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>498</width>
-            <height>508</height>
+            <width>494</width>
+            <height>506</height>
         </rect>
     </property>
     <property name="caption">
@@ -202,7 +202,9 @@
     dialog-&gt;BookDataBrowser-&gt;setSort(QSqlIndex::fromStringList( 
     	BookDataTable-&gt;sort(), &amp;cur ) );
     dialog-&gt;BookDataBrowser-&gt;refresh();
-    dialog-&gt;BookDataBrowser-&gt;seek( BookDataTable-&gt;currentRow() );
+    int i = BookDataTable-&gt;currentRow();
+    if ( i == -1 ) i = 0; // Always use the first row
+    dialog-&gt;BookDataBrowser-&gt;seek( i );
     dialog-&gt;exec();
     delete dialog;
     BookDataTable-&gt;refresh();
