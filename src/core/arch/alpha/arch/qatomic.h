@@ -53,9 +53,9 @@ extern "C" {
                      "stq_c %0,%1\n"   /* if ((*ptr=tmp)!=tmp) tmp=0; else tmp=1; */
                      "beq   %0,2f\n"   /* if (ret==0) goto 2;                     */
                      "br    3f\n"      /* goto 3;                                 */
-                     "2: bg 1b\n"      /* goto 1;                                 */
+                     "2: br 1b\n"      /* goto 1;                                 */
                      "3:\n"
-                     : "=&r" (ret), "+m" (*ptr)
+                     : "=&r" (ret), "+m" (*reinterpret_cast<volatile long *>(ptr))
                      : "r" (expected), "r" (newval)
                      : "memory");
         return static_cast<int>(reinterpret_cast<long>(ret));
@@ -127,7 +127,7 @@ extern "C" {
                      "br    3f\n"      /* goto 3;                                 */
                      "2: br 1b\n"      /* goto 1;                                 */
                      "3:\n"
-                     : "=&r" (old), "=&r" (tmp), "+m" (*ptr)
+                     : "=&r" (old), "=&r" (tmp), "+m" (*reinterpret_cast<volatile long *>(ptr))
                      : "r" (newval)
                      : "memory");
         return old;
