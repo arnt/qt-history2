@@ -33,6 +33,7 @@
 #include <qrubberband.h>
 #include <qstyleoption.h>
 #include <qtabbar.h>
+#include <qtreeview.h>
 #include <qviewport.h>
 
 /*****************************************************************************
@@ -820,14 +821,15 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             bdi.version = qt_mac_hitheme_version;
             bdi.state = tds;
             SFlags flags = header->state;
-            if (w && w->parentWidget()->inherits("QTable")) {
+            if (w && (qt_cast<QTreeView *>(w->parentWidget())
+			|| w->parentWidget()->inherits("Q3ListView"))) {
+                bdi.kind = kThemeListHeaderButton;
+            } else {
                 bdi.kind = kThemeBevelButton;
                 if (p->font().bold())
                     flags |= Style_Sunken;
                 else
                     flags &= ~Style_Sunken;
-            } else {
-                bdi.kind = kThemeListHeaderButton;
             }
             if (flags & Style_Sunken)
                 bdi.value = kThemeButtonOn;

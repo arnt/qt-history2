@@ -31,6 +31,7 @@
 #include <qsizegrip.h>
 #include <qslider.h>
 #include <qtoolbutton.h>
+#include <qtreeview.h>
 
 #include <qmacstyle_mac.h>
 #include <private/qt_mac_p.h>
@@ -677,8 +678,8 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
                 ret = QSize(-1, 19);
         }
     } else if(ct == QStyle::CT_Header) {
-	if(sz == QAquaSizeLarge && (widg && !widg->parentWidget()->inherits("QTable")))
-            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricListHeaderHeight));
+	if(sz == QAquaSizeLarge && (widg && (qt_cast<QTreeView *>(widg) || widg->parentWidget()->inherits("Q3ListView"))))
+           ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricListHeaderHeight));
     } else if(ct == QStyle::CT_MenuBar) {
         if(sz == QAquaSizeLarge) {
             SInt16 size;
