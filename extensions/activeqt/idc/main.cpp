@@ -2,20 +2,39 @@
 
 #include <qt_windows.h>
 
-static bool attachTypeLibrary( const QString &applicationName, char *resourceName, const QByteArray &data, QString *errorMessage )
+static bool attachTypeLibrary( const QString &applicationName, int resource, const QByteArray &data, QString *errorMessage )
 {
-    HANDLE hExe = BeginUpdateResourceA( applicationName.latin1(), FALSE );
-    if ( hExe == 0 ) {
-	if ( errorMessage )
-	    *errorMessage = QString("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
-	return FALSE;
-    }
-    if ( !UpdateResourceA(hExe,(char*)"TYPELIB",resourceName,0,data.data(),data.count()) ) {
-	EndUpdateResource( hExe, TRUE );
-	if ( errorMessage )
-	    *errorMessage = QString("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
-	return FALSE;
-    }
+    HANDLE hExe = 0;
+    QT_WA( {
+	TCHAR *resourceName = MAKEINTRESOURCEW(resource);
+	hExe = BeginUpdateResourceW( (TCHAR*)applicationName.ucs2(), FALSE );
+	if ( hExe == 0 ) {
+	    if ( errorMessage )
+		*errorMessage = QString("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
+	    return FALSE;
+	}
+	if ( !UpdateResourceW(hExe,L"TYPELIB",resourceName,0,data.data(),data.count()) ) {
+	    EndUpdateResource( hExe, TRUE );
+	    if ( errorMessage )
+		*errorMessage = QString("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
+	    return FALSE;
+	}
+    }, {
+	char *resourceName = MAKEINTRESOURCEA(resource);
+	hExe = BeginUpdateResourceA( applicationName.local8Bit(), FALSE );
+	if ( hExe == 0 ) {
+	    if ( errorMessage )
+		*errorMessage = QString("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
+	    return FALSE;
+	}
+	if ( !UpdateResourceA(hExe,"TYPELIB",resourceName,0,data.data(),data.count()) ) {
+	    EndUpdateResource( hExe, TRUE );
+	    if ( errorMessage )
+		*errorMessage = QString("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
+	    return FALSE;
+	}
+    } );
+
     if ( !EndUpdateResource(hExe,FALSE) ) {
 	if ( errorMessage )
 	    *errorMessage = QString("Failed to attach type library to binary %1 - could not write file.").arg(applicationName);
@@ -113,12 +132,17 @@ int main( int argc, char **argv )
 	    qFatal( "Couldn't open %s for read", tlbfile.latin1() );
 	QByteArray data = file.readAll();
 	QString error;
-	bool ok = attachTypeLibrary( input, MAKEINTRESOURCE(1), data, &error );
+	bool ok = attachTypeLibrary( input, 1, data, &error );
 	qWarning( error );
 	return ok ? 0 : -1;
     } else if ( idlfile ) {
 	slashify( idlfile );
-	HMODULE hdll = LoadLibrary( input.local8Bit() );
+	HMODULE hdll = 0;
+	QT_WA( {
+	    hdll = LoadLibraryW( (TCHAR*)input.ucs2() );
+	}, {
+	    hdll = LoadLibraryA( input.local8Bit() );
+	} );
 	if ( !hdll ) {
 	    qFatal( "Couldn't load library file %s", input.local8Bit() );
 	    return 3;

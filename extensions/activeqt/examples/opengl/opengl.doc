@@ -72,11 +72,11 @@ Z:<input type="edit" name="ZEdit" value="0"><br>
   \quotefile opengl/glbox.cpp
   \skipto objsafe.h
   The implementation file of the \c GLBox class includes the \c objsafe.h
-  system header, in which the \c IObjectSafety COM interface is declared.
+  system header, in which the \c IObjectSafety COM interface is defined.
   \printuntil objsafe.h
-  \printto IObjectSafety
-  A class \c ObjectSafetyImpl is declared, which uses multiple inheritance
-  to subclass the QAxAggregated class and to implement the IObjectSafety
+  \skipto ObjectSafetyImpl
+  A class \c ObjectSafetyImpl is declared using multiple inheritance
+  to subclass the QAxAggregated class, and to implement the IObjectSafety
   interface.
   \printuntil public:
   The class declares a default constructor, and implements the queryInterface
@@ -93,7 +93,7 @@ Z:<input type="edit" name="ZEdit" value="0"><br>
   \printuntil };
   The implementation of the \c createAggregate() function just returns a new
   \c ObjectSafetyImpl object.
-  printuntil }
+  \printuntil }
 
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 
@@ -106,8 +106,8 @@ Z:<input type="edit" name="ZEdit" value="0"><br>
 
   In contrast to the other QAxServer examples Internet Explorer will not
   open a dialog box to ask the user whether or not the scripting of the GLBox
-  control should be allowed (whether or no it did this before might depend on
-  the security settings in the Internet Options dialog).
+  control should be allowed (the exact browser behaviour depends on the security 
+  settings in the Internet Options dialog).
 
   \quotefile opengl/opengl.doc
   \skipuntil raw html
