@@ -233,7 +233,7 @@
     \sa QAbstractSocket::error()
 */
 
-/*! 
+/*!
     \enum QAbstractSocket::SocketState
 
     This enum describes the different states in which a socket can be.
@@ -726,7 +726,8 @@ void QAbstractSocketPrivate::connectToNextAddress()
         }
 
         // Start the connect timer.
-        d->connectTimer.start(QT_CONNECT_TIMEOUT);
+        if (QAbstractEventDispatcher::instance(q->thread()))
+            d->connectTimer.start(QT_CONNECT_TIMEOUT);
 
         // Wait for a write notification that will eventually call
         // testConnection().
@@ -743,7 +744,8 @@ void QAbstractSocketPrivate::connectToNextAddress()
 */
 void QAbstractSocketPrivate::testConnection()
 {
-    connectTimer.stop();
+    if (QAbstractEventDispatcher::instance(q->thread()))
+        connectTimer.stop();
 
     if (socketLayer.state() == QAbstractSocket::ConnectedState || socketLayer.connectToHost(host, port)) {
         state = QAbstractSocket::ConnectedState;
@@ -954,7 +956,8 @@ void QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port,
     if (temp.setAddress(hostName)) {
         d->startConnecting(QDns::getHostByName(hostName));
     } else {
-        QDns::getHostByName(hostName, this, SLOT(startConnecting(const QDnsHostInfo &)));
+        if (QAbstractEventDispatcher::instance(q->thread()))
+            QDns::getHostByName(hostName, this, SLOT(startConnecting(const QDnsHostInfo &)));
     }
 
 #if defined(QABSTRACTSOCKET_DEBUG)

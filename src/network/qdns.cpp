@@ -14,6 +14,7 @@
 #include "qdns.h"
 #include "qdns_p.h"
 
+#include <qabstracteventdispatcher.h>
 #include <private/qunicodetables_p.h>
 #include <qcoreapplication.h>
 #include <qmetaobject.h>
@@ -21,6 +22,7 @@
 #include <qsignal.h>
 #include <private/qsocketlayer_p.h>
 #include <qstringlist.h>
+#include <qthread.h>
 #include <qtimer.h>
 #include <qurl.h>
 
@@ -102,6 +104,10 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
 #if defined QDNS_DEBUG
     qDebug("QDns::getHostByName(\"%s\", %p, %s)", name.latin1(), receiver, member ? member + 1 : 0);
 #endif
+    if (!QAbstractEventDispatcher::instance(QThread::currentThread())) {
+        qWarning("QDns::getHostByName() called with no event dispatcher");
+        return;
+    }
 
     qRegisterMetaType<QDnsHostInfo>("QDnsHostInfo");
 
