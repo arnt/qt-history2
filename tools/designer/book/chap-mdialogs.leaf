@@ -24,10 +24,10 @@ Into' combobox.
 
 The 'Dialog' file type is highlighted by default when the \Dialog{New
 File} dialog pops up. Click on the file type you want to use and click
-\OK to create it. Click \CANCEL to leave the dialog
-without creating a new file. Note that if you select C++ Project, the
-'Insert Into' combobox will be greyed out, since it is not possible to
-insert a new C++ Project into an existing project.
+\OK to create it. Click \CANCEL to leave the dialog without creating a
+new file. Note that if you select C++ Project, the 'Insert Into'
+combobox will be greyed out, since it is not possible to insert a new
+C++ Project into an existing project.
 
 \section3 C++ Project Files
 

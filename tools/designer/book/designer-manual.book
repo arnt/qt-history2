@@ -1,4 +1,4 @@
-\title Qt Designer Manual
+\\title Qt Designer Manual
 \granularity chapter
 
 \input chap-preface.leaf
@@ -14,3 +14,4 @@
 \input chap-menus.leaf
 \input chap-toolbuttons.leaf
 \input chap-mdialogs.leaf
+\input chap-wizards.leaf
