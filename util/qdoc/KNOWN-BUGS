@@ -4,6 +4,7 @@ Here are the bugs I am aware of:
   * lots of wrong warnings
   * --supervisor mode does not (yet) produce more warnings
   * No "Example" link yet (e.g., QApplication::desktop()).
+  * First BROKEN LINK so far in page qpopupmenu.html to sizeHint().
 
 Please warn me if you find something new.
 

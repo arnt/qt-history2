@@ -210,6 +210,21 @@ void Steering::emitHtml() const
     }
 
     /*
+      Examples have to be done first, so that the documentation can link to it.
+    */
+    QValueList<ExampleDoc *>::ConstIterator ex = examples.begin();
+    while ( ex != examples.end() ) {
+	HtmlWriter out( config->verbatimHref((*ex)->fileName()) );
+	if ( (*ex)->title().isEmpty() )
+	    out.setTitle( (*ex)->fileName() + QString(" Example File") );
+	else
+	    out.setTitle( (*ex)->title() );
+	out.setHeading( (*ex)->heading() );
+	(*ex)->printHtml( out );
+	++ex;
+    }
+
+    /*
       Generate class documentation.
     */
     QValueList<Decl *>::ConstIterator child = root.children().begin();
@@ -294,18 +309,6 @@ void Steering::emitHtml() const
 	out.setHeading( (*pa)->heading() );
 	(*pa)->printHtml( out );
 	++pa;
-    }
-
-    QValueList<ExampleDoc *>::ConstIterator ex = examples.begin();
-    while ( ex != examples.end() ) {
-	HtmlWriter out( config->verbatimHref((*ex)->fileName()) );
-	if ( (*ex)->title().isEmpty() )
-	    out.setTitle( (*ex)->fileName() + QString(" Example File") );
-	else
-	    out.setTitle( (*ex)->title() );
-	out.setHeading( (*ex)->heading() );
-	(*ex)->printHtml( out );
-	++ex;
     }
 
     /*

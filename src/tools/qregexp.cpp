@@ -3228,7 +3228,7 @@ QStringList QRegExp::capturedTexts()
 
 /*! Returns the text captured by the \a nth subexpression. The regular
   expression itself has index 0 and the parenthesised subexpression
-  have indexes 1 and above.
+  have indices 1 and above.
 
   \code
     QRegExp length( "(\d+)(cm|inch)" );
@@ -3259,15 +3259,16 @@ QStringList QRegExp::capturedTexts()
   <tt>((\d+)(,\s)?)*</tt> is a series of such numbers.
 
   cap() indexing follows the position of the '(' character. In this
-  expression, the first paren wraps <tt>(\d+)(,\s)?</tt>, so cap(1)
-  returns the last number and its optional ", " suffix. The second
-  parent wraps <tt>(\d+)</tt>, so cap(2) returns the last number.
+  expression, the first parenthesis wraps <tt>(\d+)(,\s)?</tt>, so
+  cap(1) returns the last number and its optional ", " suffix. The
+  second parenthesis wraps <tt>(\d+)</tt>, so cap(2) returns the last
+  number.
 
   There is also a function, pos(), that returns the position of each
   match, and one to return all of the subexpression matches,
   capturedTexts().
 
-  \sa pos() capturedTexts() search()
+  \sa search()
 */
 QString QRegExp::cap( int nth )
 {

@@ -500,7 +500,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    warning( 2, location(), "Unexpected '\\endcode'" );
 		} else if ( command[3] == QChar('l') ) {
 		    consume( "endlink" );
-		    // we've found the missing link: it's Eirik Aavitsland
+		    // we've found the missing link: Eirik Aavitsland
 		    warning( 2, location(), "Missing '\\link'" );
 		} else {
 		    consume( "example" );
@@ -887,7 +887,10 @@ void DocParser::setKindHasToBe( Doc::Kind kind, const QString& thanksToCommand )
 
 QStringList DocParser::getStringList()
 {
+    static QRegExp ahref( QString("^<a[ \t\n]+href=[^>]*>.*</a>") );
     QStringList stringl;
+
+    ahref.setMinimal( TRUE );
 
     skipSpaces( yyIn, yyPos );
     while ( TRUE ) {
@@ -905,6 +908,10 @@ QStringList DocParser::getStringList()
 		if ( yyPos < yyLen && QString(".,:;").find(yyIn[yyPos]) != -1 )
 		    yyPos++;
 	    }
+	} else if ( yyIn[yyPos].unicode() == '<' &&
+		    ahref.search(yyIn.mid(yyPos)) != -1 ) {
+	    end = begin + ahref.matchedLength();
+	    yyPos = end;
 	} else {
 	    while ( yyPos < yyLen && !yyIn[yyPos].isSpace() )
 		yyPos++;
