@@ -1381,7 +1381,7 @@ const QPixmap * QListViewItem::pixmap( int column ) const
 
 /*!  This virtual function paints the contents of one column of one item.
 
-  \a p is a QPainter open on the relevant paint device.  \a pa is
+  \a p is a QPainter open on the relevant paint device.  \a p is
   translated so 0, 0 is the top-left pixel in the cell and \a width-1,
   height()-1 is the bottom-right pixel \e in the cell.  The other
   properties of \a p (pen, brush, etc) are undefined.  \a cg is the
