@@ -35,6 +35,7 @@ public:
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateXForm(const QWMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
+    void updateRenderHints(QPainter::RenderHints hints);
 
     void drawLine(const QPoint &p1, const QPoint &p2);
     void drawRect(const QRect &r);

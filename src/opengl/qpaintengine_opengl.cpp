@@ -394,6 +394,20 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &, bool )
 
 }
 
+void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
+{
+    if (hints & QPainter::LineAntialiasing) {
+	dgl->makeCurrent();
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+    } else { // i.e. !LineAntialiasing
+	dgl->makeCurrent();
+	glDisable(GL_LINE_SMOOTH);
+    }
+}
+
 void QOpenGLPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     dgl->makeCurrent();
