@@ -92,7 +92,7 @@ bool Option::mkfile::do_preprocess = FALSE;
 bool Option::mkfile::do_cache = TRUE;
 QString Option::mkfile::cachefile;
 QStringList Option::mkfile::project_files;
-
+QString Option::mkfile::qmakespec_commandline;
 
 bool usage(const char *a0)
 {
@@ -218,6 +218,7 @@ Option::parseCommandLine(int argc, char **argv)
 			Option::mkfile::cachefile = argv[++x];
 		    } else if(opt == "spec") {
 			Option::mkfile::qmakespec = argv[++x];
+			Option::mkfile::qmakespec_commandline = argv[x];
 		    } else {
 			fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
 			return usage(argv[0]);

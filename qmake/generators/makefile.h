@@ -70,6 +70,8 @@ protected:
     };
     bool generateDependencies(QPtrList<MakefileDependDir> &dirs, QString x, bool recurse);
 
+    QString buildArgs();
+
     QString specdir();
     QString cleanFilePath(const QString &file) const;
     bool generateMocList(QString fn);

@@ -113,6 +113,7 @@ struct Option
 	static QString cachefile;
 	static int cachefile_depth;
 	static QStringList project_files;
+	static QString qmakespec_commandline;
     };
 };
 

@@ -1007,24 +1007,14 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     return TRUE;
 }
 
-//get store argv, but then it would have more options than are probably necesary
-//this will try to guess the bare minimum..
-QString MakefileGenerator::build_args()
+QString MakefileGenerator::buildArgs()
 {
     static QString ret;
     if(ret.isEmpty()) {
-	ret = "$(QMAKE)";
-
 	//special variables
 	if(!project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
 	    ret += " QMAKE_ABSOLUTE_SOURCE_PATH=\"" + project->first("QMAKE_ABSOLUTE_SOURCE_PATH") + "\"";
 
-	//output
-	QString ofile = Option::fixPathToTargetOS(Option::output.name());
-	if(ofile.findRev(Option::dir_sep) != -1)
-	    ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
-	if (!ofile.isEmpty() && ofile != project->first("QMAKE_MAKEFILE"))
-	    ret += " -o " + ofile;
 	//warnings
 	else if(Option::warn_level == WarnNone)
 	    ret += " -Wnone";
@@ -1039,6 +1029,8 @@ QString MakefileGenerator::build_args()
 	    ret += " -nodepend";
 	if(!Option::mkfile::do_dep_heuristics)
 	    ret += " -nodependheuristics";
+	if(!Option::mkfile::qmakespec_commandline.isEmpty())
+	    ret += " -spec " + Option::mkfile::qmakespec_commandline;
 
 	//arguments
 	for(QStringList::Iterator it = Option::before_user_vars.begin(); 
@@ -1054,6 +1046,27 @@ QString MakefileGenerator::build_args()
 		    ret += " \"" + (*it) + "\"";
 	    }
 	}
+    }
+    return ret;
+}
+
+//get store argv, but then it would have more options than are probably necesary
+//this will try to guess the bare minimum..
+QString MakefileGenerator::build_args()
+{
+    static QString ret;
+    if(ret.isEmpty()) {
+	ret = "$(QMAKE)";
+
+	// general options and arguments
+	ret += buildArgs();
+
+	//output
+	QString ofile = Option::fixPathToTargetOS(Option::output.name());
+	if(ofile.findRev(Option::dir_sep) != -1)
+	    ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
+	if (!ofile.isEmpty() && ofile != project->first("QMAKE_MAKEFILE"))
+	    ret += " -o " + ofile;
 
 	//inputs
 	QStringList files = Option::mkfile::project_files;

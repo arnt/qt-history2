@@ -113,7 +113,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	    if( lastSeparator ) {
 		subdir = subdir.mid( lastSeparator + 1 );
 	    }
-	    t << "$(QMAKE) " << subdir << ".pro -o $(MAKEFILE)" << "\n\t"
+	    t << "$(QMAKE) " << subdir << ".pro -o $(MAKEFILE)" << buildArgs() << "\n\t"
 	      << "@cd ..";
 	    for( i = 1; i < subLevels; i++ ) {
 		t << "\\..";
