@@ -144,7 +144,7 @@ UnixMakefileGenerator::init()
 	Option::obj_ext = ".lo"; //override the .o
 
     MakefileGenerator::init();
-    if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
+    if(project->isActiveConfig("resource_fork")) {
 	if(!project->isEmpty("QMAKE_APP_FLAG")) {
 	    if(project->isEmpty("DESTDIR"))
 		project->values("DESTDIR").append("");
@@ -578,7 +578,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString target="$(TARGET)";
     if(project->first("TEMPLATE") == "app") {
 	target = "$(QMAKE_TARGET)";
-	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
+	if(project->isActiveConfig("resource_fork")) {
 	    destdir += "../../../";
 	    target += ".app";
 	    resource = TRUE;

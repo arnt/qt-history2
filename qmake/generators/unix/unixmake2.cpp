@@ -826,8 +826,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
     t << "distclean: " << "clean\n";
-    if(project->first("TEMPLATE") == "app" &&
-       project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
+    if(project->first("TEMPLATE") == "app" && project->isActiveConfig("resource_fork"))
 	t << "\t-$(DEL_FILE) -r " << destdir.section(Option::dir_sep, 0, -4) << "\n";
     else if(project->isActiveConfig("compile_libtool"))
 	t << "\t-$(LIBTOOL) --mode=clean $(DEL_FILE) " << "$(TARGET)" << "\n";
