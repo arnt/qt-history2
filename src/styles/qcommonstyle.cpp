@@ -1088,6 +1088,11 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	{
 #ifndef QT_NO_CHECKBOX
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
+	    if ( !checkbox->pixmap() && checkbox->text().isEmpty() ) {
+		rect = subRect( SR_CheckBoxIndicator, widget );
+		rect.addCoords( 1, 1, -1, -1 );
+		break;
+	    }
 	    QRect cr = subRect(SR_CheckBoxContents, widget);
 
 	    // don't create a painter if we have an active one
@@ -1128,6 +1133,11 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	{
 #ifndef QT_NO_RADIOBUTTON
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
+	    if ( !radiobutton->pixmap() && radiobutton->text().isEmpty() ) {
+		rect = subRect( SR_RadioButtonIndicator, widget );
+		rect.addCoords( 1, 1, -1, -1 );
+		break;
+	    }
 	    QRect cr = subRect(SR_RadioButtonContents, widget);
 
 	    // don't create a painter if we have an active one
