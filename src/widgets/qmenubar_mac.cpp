@@ -727,8 +727,8 @@ void QMenuBar::cleanup()
 */
 bool QMenuBar::macUpdateMenuBar()
 {
-    if(!qt_mac_no_native_menubar) //nothing to be done..
-	return true; 
+    if(qt_mac_no_native_menubar) //nothing to be done..
+	return TRUE; 
 
     QMenuBar *mb = 0;
     bool fall_back_to_empty = false;
