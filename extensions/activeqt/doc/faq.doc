@@ -1,6 +1,7 @@
 /*! \page qaxcontainer-faq.html
 
     \title QAxContainer FAQ
+    \tableofcontents
 
     \section1 The QAxContainer build system
 
@@ -10,6 +11,47 @@
     LIBS += qaxcontainer.lib
     \endcode
     to the application's \c .pro file.
+
+    \section1 Accessing the object API
+
+    ActiveQt provides a Qt API to the COM object, and replaces COM
+    datatypes with the Qt equivalent as appropriate. Use the
+    \c dumpdoc example program to get the documentation of the Qt API 
+    for any COM object and it's subobjects.
+
+    \section2 Typical error messages
+
+    ActiveQt prints error messages to the debug output when it
+    encounters error situations in runtime. Usually you need to run 
+    your program in the debugger to see those messages (ie. in Visual
+    Studio's Debug output).
+
+    \section3 Requested control could not be instantiated
+
+    The control requested in QAxBase::setControl() is not installed
+    on this system, or not accessible for the current user.
+
+    The control might require administrative rights, or a license key.
+    If the control is licensed, reimplement initialize() and use the
+    COM APIs to call the IClassFactory2 interface functions.
+
+    \section3 QAxBase::internalInvoke: No such method
+
+    A \c dynamicCall() failed - the function prototype did not
+    match any function available in the API of the object.
+
+    \section3 Error calling IDispatch member: Non-optional parameter 
+    missing
+
+    A \c dynamicCall() failed - the function prototype was correct,
+    but too few parameters were provided.
+
+    \section3 Error calling IDispatch member: Type mismatch in 
+    parameter \c n
+
+    A \c dynamicCall() failed - the function prototype was correct,
+    but the paramter at index \c n was of the wrong type and could 
+    not be coerced into the correct type.
 
     \section1 Distributing QAxContainer applications
 
@@ -25,6 +67,7 @@
 /*! \page qaxserver-faq.html
 
     \title QAxServer FAQ
+    \tableofcontents
 
     \section1 The QAxServer build system
 
@@ -228,12 +271,43 @@
     INF and CAB files are documented in almost every book available about
     ActiveX and COM programming as well as in the MSDN library and various
     other Online resources. The examples include INF files that can be used
-    to build CAB archives, e.g. using the CABARC tool from Microsoft:
+    to build CAB archives:
 
-	cabarc N simpleax.cab simpleax.exe simple.inf
+    \quotefile simple/simple.inf
+    \printuntil RegisterServer
+
+    The CABARC tool from Microsoft can easily generate CAB archives:
+    \code cabarc N simpleax.cab simpleax.exe simple.inf \endcode
 
     The INF files assume a static build of Qt, so no dependencies to other DLLs
     are listed in the INF files. To distribute an ActiveX server depending on
     DLLs you will have to add the respective dependencies, and provide the
     library files with the archive.
+
+    \section1 Supported and Unsupported ActiveX clients
+
+    The following sections list standard applications that have been reported
+    to work or not work with ActiveX controls developed with ActiveQt.
+
+    \section2 Supported Clients
+
+    \list
+    \i Internet Explorer
+    \i Microsoft ActiveX Control Test Container
+    \i Microsoft Visual Studio 6.0 (dialog editor)
+    \i Microsoft Visual Basic 6.0 (only in-process controls)
+    \i MFC- and ATL-based containers
+    \i Sybase PowerBuilder
+    \i ActiveQt based containers
+    \endlist
+
+    \section2 Unsupported Clients
+
+    \list
+    \i Visual Studio.NET - the unmanged code wrapper of Microsoft is reported
+    to be buggy for C++ controls that don't expose a dual interface.
+    \i Borland Builder, Delphi - don't support C++ COM objects that don't 
+    expose a dual interface.
+    \i Microsoft Office Applications - requires support for aggregation
+    \endlist
 */
