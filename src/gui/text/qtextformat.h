@@ -391,6 +391,8 @@ public:
 
     inline void setBackgroundColor(const QColor &color)
     { setProperty(BlockBackgroundColor, color); }
+    inline void clearBackgroundColor()
+    { clearProperty(BlockBackgroundColor); }
     inline QColor backgroundColor() const
     { return colorProperty(BlockBackgroundColor); }
 };
@@ -532,6 +534,8 @@ public:
 
     inline void setBackgroundColor(const QColor &color)
     { setProperty(TableBackgroundColor, color); }
+    inline void clearBackgroundColor()
+    { clearProperty(TableBackgroundColor); }
     inline QColor backgroundColor() const
     { return colorProperty(TableBackgroundColor); }
 };

@@ -701,7 +701,11 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
     fmt.setCellSpacing(at(tableNodeIdx).tableCellSpacing);
     fmt.setCellPadding(at(tableNodeIdx).tableCellPadding);
     fmt.setAlignment(at(tableNodeIdx).alignment);
-    fmt.setBackgroundColor(at(tableNodeIdx).bgColor);
+    if (at(tableNodeIdx).bgColor.isValid())
+        fmt.setBackgroundColor(at(tableNodeIdx).bgColor);
+    else
+        fmt.clearBackgroundColor();
+
     fmt.setColumns(table->columns);
     fmt.setColumnWidthConstraints(columnWidths);
     table->tableIndex = d->formatCollection.createObjectIndex(fmt);
