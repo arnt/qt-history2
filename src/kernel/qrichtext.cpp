@@ -4261,7 +4261,7 @@ void QTextFormat::setBold( bool b )
 
 void QTextFormat::setMisspelled( bool b )
 {
-    if ( b == missp )
+    if ( b == (bool)missp )
 	return;
     missp = b;
     update();
