@@ -358,7 +358,9 @@ for a in `find $DISTDIR/qt/extensions/nsplugin/src -name 'np*' -o -name 'jri*'`;
 done
 
 # qt.h
-rm -f "$DISTDIR/qt/include/qt.h"
+if [ "x$DO_EMBEDDED" != "xyes" ]; then
+   rm -f "$DISTDIR/qt/include/qt.h"
+fi
 
 #qgif.h
 qgif="$DISTDIR/src/kernel/qgif.h"
