@@ -491,7 +491,7 @@ bool QMotifWidget::event( QEvent* e )
  */
 bool QMotifWidget::eventFilter( QObject *object, QEvent *event )
 {
-    if ( object != topLevelWidget() || event->type() != QEvent::Move )
+    if (object != topLevelWidget() || event->type() != QEvent::Move || !d->shell)
 	return FALSE;
 
     // the motif widget is embedded in our special shell, so when the
