@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#18 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#19 $
 **
 ** Definition of the QSvgDevice class
 **
@@ -45,10 +45,15 @@
 #endif // QT_H
 
 #include "qfeatures.h"
+#include "qfeatures.h"
+
+#if !defined(QT_MODULE_XML)
+#define QM_EXPORT
+#else
+#define QM_EXPORT Q_EXPORT
+#endif
 
 #ifndef QT_NO_SVG
-
-#define QM_EXPORT Q_EXPORT
 
 class QPainter;
 class QDomNode;

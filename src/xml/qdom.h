@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#20 $
+** $Id: //depot/qt/main/src/xml/qdom.h#21 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -42,11 +42,16 @@
 #include "qstring.h"
 #endif // QT_H
 
+#include "qmodules.h"
 #include "qfeatures.h"
 
-#ifndef QT_NO_DOM
-
+#if !defined(QT_MODULE_XML)
+#define QM_EXPORT
+#else
 #define QM_EXPORT Q_EXPORT
+#endif
+
+#ifndef QT_NO_DOM
 
 class QIODevice;
 class QTextStream;
