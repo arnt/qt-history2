@@ -30,7 +30,7 @@ done
 LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	 ]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XCONFIG`
 GLDIRS=`sed -n -e '/^QMAKE_LIBDIR_OPENGL[	 ]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	 ]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
-LIBDIRS="$IN_LIBDIRS $GLDIRS $XDIRS /usr/lib /lib"
+LIBDIRS="$IN_LIBDIRS $GLDIRS $XDIRS /usr/shlib /usr/lib /lib"
 for L in $LIBS
 do
     FOUND_LIB=

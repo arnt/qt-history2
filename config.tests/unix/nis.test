@@ -19,7 +19,7 @@ do
         IN_INCDIRS="$IN_INCDIRS $CINCDIR"
         ;;
     *) ;;
-    esac 
+    esac
 done
 
 # debuggery
@@ -33,7 +33,7 @@ then
 else
     LIBS=`sed -n -e '/^QMAKE_LIBS_NIS[	 ]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XCONFIG`
 fi
-LIBDIRS="$IN_LIBDIRS /usr/lib /lib"
+LIBDIRS="$IN_LIBDIRS /usr/shlib /usr/lib /lib"
 if [ -z "$LIBS" ]
 then
     NIS=no

@@ -31,7 +31,7 @@ rm -f $x11tests/xfreetype.inc
 
 # check for lib
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
-LIBDIRS="$IN_LIBDIRS $XDIRS /usr/lib /lib"
+LIBDIRS="$IN_LIBDIRS $XDIRS /usr/shlib /usr/lib /lib"
 F=
 for LIBDIR in $LIBDIRS
 do
