@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#120 $
+** $Id: //depot/qt/main/src/tools/qstring.h#121 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -266,6 +266,8 @@ public:
     QString arg(ulong a, int fieldwidth=0, int base=10) const;
     QString arg(int a, int fieldwidth=0, int base=10) const;
     QString arg(uint a, int fieldwidth=0, int base=10) const;
+    QString arg(short a, int fieldwidth=0, int base=10) const;
+    QString arg(ushort a, int fieldwidth=0, int base=10) const;
     QString arg(char a, int fieldwidth=0) const;
     QString arg(QChar a, int fieldwidth=0) const;
     QString arg(const QString& a, int fieldwidth=0) const;
@@ -579,6 +581,12 @@ inline QString QString::arg(int a, int fieldwidth, int base) const
 inline QString QString::arg(uint a, int fieldwidth, int base) const
 { return arg((ulong)a, fieldwidth, base); }
 
+inline QString QString::arg(short a, int fieldwidth, int base) const
+{ return arg((long)a, fieldwidth, base); }
+
+inline QString QString::arg(ushort a, int fieldwidth, int base) const
+{ return arg((ulong)a, fieldwidth, base); }
+
 
 
 /*****************************************************************************
@@ -663,6 +671,8 @@ Q_EXPORT inline QString operator+( char c1, const QString &s2 )
 extern Q_EXPORT QString qt_winQString(void*);
 extern Q_EXPORT const void* qt_winTchar(const QString& str, bool addnul);
 extern Q_EXPORT void* qt_winTchar_new(const QString& str);
+extern Q_EXPORT QCString qt_winQString2MB( const QString& s );
+extern Q_EXPORT QString qt_winMB2QString( const char* mb );
 #endif
 
 #endif // QSTRING_H

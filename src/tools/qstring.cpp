@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#222 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#223 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10831,6 +10831,18 @@ QString QString::arg(ulong a, int fieldwidth, int base) const
   See QString::arg(ulong a, int fieldwidth, int base).
 */
 
+/*!
+  \fn QString QString::arg(short a, int fieldwidth, int base) const
+
+  See QString::arg(long a, int fieldwidth, int base).
+*/
+
+/*!
+  \fn QString QString::arg(ushort a, int fieldwidth, int base) const
+
+  See QString::arg(ulong a, int fieldwidth, int base).
+*/
+
 
 /*!
   Returns a string equal to this one, but with the first
@@ -12980,6 +12992,68 @@ QString qt_winQString(void* tc)
     return (TCHAR*)tc;
 #endif
 }
+
+QCString qt_winQString2MB( const QString& s )
+{
+    BOOL used_def;
+    QCString mb(4096);
+    int len;
+    while ( !(len=WideCharToMultiByte(CP_ACP, 0, (const ushort*)s.unicode(), s.length(),
+		mb.data(), mb.size()-1, 0, &used_def)) )
+    {
+	int r = GetLastError();
+	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
+	    mb.resize(1+WideCharToMultiByte( CP_ACP, 0,
+				(const ushort*)s.unicode(), s.length(),
+				0, 0, 0, &used_def));
+		// and try again...
+	} else {
+	    // Fail.
+	    warning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF8)",
+		r, s.utf8().data());
+	    break;
+	}
+    }
+    mb[len]='\0';
+    return mb;
+}
+
+QString qt_winMB2QString( const char* mb )
+{
+    const int wclen_auto = 4096;
+    QChar wc_auto[wclen_auto];
+    int wclen = wclen_auto;
+    QChar *wc = wc_auto;
+    int len;
+    while ( !(len=MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
+		mb, -1, (ushort*)wc, wclen )) )
+    {
+	int r = GetLastError();
+	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
+	    if ( wc != wc_auto ) {
+		warning("Size changed in MultiByteToWideChar");
+		wclen = 0;
+		break;
+	    } else {
+		wclen = MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
+				    mb, -1, 0, 0 );
+		wc = new QChar[wclen];
+		// and try again...
+	    }
+	} else {
+	    // Fail.
+	    warning("MultiByteToWideChar cannot convert multibyte text");
+	    wclen = 0;
+	    break;
+	}
+    }
+    QString s(wc, len-1/*don't want terminator*/);
+    if ( wc != wc_auto )
+	delete [] wc;
+    return s;
+}
+
+
 
 #endif // _OS_WIN32_
 

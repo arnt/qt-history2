@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#81 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#82 $
 **
 ** Implementation of QFile class
 **
@@ -174,7 +174,7 @@ bool qt_file_access( const QString& fn, int t )
     if ( qt_winunicode ) {
 	return _taccess((const TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
     } else {
-	return _access(fn.ascii(), t) == 0;
+	return _access(qt_winQString2MB(fn), t) == 0;
     }
 #endif
 }
@@ -232,7 +232,7 @@ bool QFile::remove( const QString &fileName )
     if ( qt_winunicode ) {
 	return _tremove((const TCHAR*)qt_winTchar(fileName,TRUE)) == 0;
     } else {
-	return ::remove(fileName.ascii()) == 0;
+	return ::remove(qt_winQString2MB(fileName)) == 0;
     }
 #endif
 }
@@ -354,7 +354,7 @@ bool QFile::open( int m )
 	if ( qt_winunicode ) {
 	    fd = _topen((const TCHAR*)qt_winTchar(fn,TRUE), oflags, 0666 );
 	} else {
-	    fd = _open(fn.ascii(), oflags, 0666 );
+	    fd = _open(qt_winQString2MB(fn), oflags, 0666 );
 	}
 #endif
 
@@ -406,7 +406,7 @@ bool QFile::open( int m )
 		tperm2[3] = perm2[3];
 		fh = _tfopen((const TCHAR*)qt_winTchar(fn,TRUE), tperm2 );
 	    } else {
-		fh = fopen(fn.ascii(), perm2 );
+		fh = fopen(qt_winQString2MB(fn), perm2 );
 	    }
 #endif
 	    if ( !fh && try_create ) {
@@ -601,7 +601,7 @@ uint QFile::size() const
 	if ( qt_winunicode ) {
 	    _tstat((const TCHAR*)qt_winTchar(fn,TRUE), &st);
 	} else {
-	    _stat(fn.ascii(), &st);
+	    _stat(qt_winQString2MB(fn), &st);
 	}
 #endif
     }

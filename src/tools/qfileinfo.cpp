@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#50 $
 **
 ** Implementation of QFileInfo class
 **
@@ -864,11 +864,11 @@ void QFileInfo::doStat() const
 #if defined (UNIX)
     r = STAT( QFile::encodeName(fn), b );
 #else
-debug("QDir::doStat");
     if ( qt_winunicode ) {
 	r = _tstat((const TCHAR*)qt_winTchar(fn,TRUE), b);
     } else {
-	r = _stat(fn.ascii(), b);
+	r = _stat(qt_winQString2MB(fn), b);
+debug("%d for %s",r,qt_winQString2MB(fn).data());
     }
 #endif
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#80 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#81 $
 **
 ** Implementation of QDir class
 **
@@ -72,6 +72,8 @@ static void slashify( QString& )
 }
 
 #endif
+
+
 
 
 /*!
@@ -336,7 +338,7 @@ QString QDir::canonicalPath() const
 		r = qt_winQString(tmp);
 	}
     } else {
-	if ( _chdir(dPath.ascii()) >= 0 ) {
+	if ( _chdir(qt_winQString2MB(dPath)) >= 0 ) {
 	    char tmp[PATH_MAX];
 	    if ( _getcwd( tmp, PATH_MAX ) )
 		r = tmp;
@@ -869,7 +871,7 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
     if ( qt_winunicode ) {
 	return _tmkdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
     } else {
-	return _mkdir(filePath(dirName,acceptAbsPath).ascii()) == 0;
+	return _mkdir(qt_winQString2MB(filePath(dirName,acceptAbsPath))) == 0;
     }
 #endif
 }
@@ -896,7 +898,7 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
     if ( qt_winunicode ) {
 	return _trmdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
     } else {
-	return _rmdir(filePath(dirName,acceptAbsPath).ascii()) == 0;
+	return _rmdir(qt_winQString2MB(filePath(dirName,acceptAbsPath))) == 0;
     }
 #endif
 }
@@ -918,7 +920,7 @@ bool QDir::isReadable() const
     if ( qt_winunicode ) {
 	return _taccess((const TCHAR*)qt_winTchar(dPath,TRUE), R_OK) == 0;
     } else {
-	return _access(dPath.ascii(), R_OK) == 0;
+	return _access(qt_winQString2MB(dPath), R_OK) == 0;
     }
 #endif
 }
@@ -1100,7 +1102,7 @@ bool QDir::rename( const QString &name, const QString &newName,
 	delete [] t2;
 	return r;
     } else {
-	return rename(fn1.ascii(), fn2.ascii()) == 0;
+	return rename(qt_winQString2MB(fn1), qt_winQString2MB(fn2)) == 0;
     }
 #endif
 }
@@ -1164,7 +1166,7 @@ bool QDir::setCurrent( const QString &path )
     if ( qt_winunicode ) {
 	r = _tchdir((const TCHAR*)qt_winTchar(path,TRUE));
     } else {
-	r = _chdir(path.ascii());
+	r = _chdir(qt_winQString2MB(path));
     }
 #else
     r = CHDIR( QFile::encodeName(path) );
@@ -1456,7 +1458,6 @@ static int cmp_si( const void *n1, const void *n2 )
 	return r;
 }
 
-
 /*!
   \internal
   Reads directory entries.
@@ -1491,19 +1492,14 @@ bool QDir::readDirEntries( const QString &nameFilter,
     bool doSystem   = (filterSpec & System)	!= 0;
 #endif
 
-#if defined(_OS_WIN32_) || defined(_OS_MSDOS_)
+#if defined(_OS_WIN32_)
 
     QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
     bool      first = TRUE;
     QString   p = dPath.copy();
     int	      plen = p.length();
-#if defined(_OS_WIN32_)
     HANDLE    ff;
     WIN32_FIND_DATA finfo;
-#else
-    long      ff;
-    _finddata_t finfo;
-#endif
     QFileInfo fi;
 
 #undef	IS_SUBDIR
@@ -1511,33 +1507,14 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #undef	IS_ARCH
 #undef	IS_HIDDEN
 #undef	IS_SYSTEM
-#undef	FF_GETFIRST
-#undef	FF_GETNEXT
 #undef	FF_ERROR
 
-#if defined(_OS_WIN32_)
 #define IS_SUBDIR   FILE_ATTRIBUTE_DIRECTORY
 #define IS_RDONLY   FILE_ATTRIBUTE_READONLY
 #define IS_ARCH	    FILE_ATTRIBUTE_ARCHIVE
 #define IS_HIDDEN   FILE_ATTRIBUTE_HIDDEN
 #define IS_SYSTEM   FILE_ATTRIBUTE_SYSTEM
-#if defined(_WIN32_X11_)
-#define FF_GETFIRST(f,i) FindFirstFile(f.data(),i)
-#else
-#define FF_GETFIRST(f,i) FindFirstFile((TCHAR*)qt_winTchar(f,TRUE),i)
-#endif
-#define FF_GETNEXT  FindNextFile
 #define FF_ERROR    INVALID_HANDLE_VALUE
-#else
-#define IS_SUBDIR   _A_SUBDIR
-#define IS_RDONLY   _A_RDONLY
-#define IS_ARCH	    _A_ARCH
-#define IS_HIDDEN   _A_HIDDEN
-#define IS_SYSTEM   _A_SYSTEM
-#define FF_GETFIRST(f,i) _findfirst(f.data(),i)
-#define FF_GETNEXT  _findnext
-#define FF_ERROR    -1
-#endif
 
     if ( plen == 0 ) {
 #if defined(CHECK_NULL)
@@ -1549,11 +1526,16 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	p += '/';
     p += "*.*";
 
-    ff = FF_GETFIRST( p, &finfo );
+    if ( qt_winunicode ) {
+	ff = FindFirstFile((TCHAR*)qt_winTchar(p,TRUE),&finfo);
+    } else {
+	// Cast is safe, since char is at end of WIN32_FIND_DATA
+	ff = FindFirstFileA(qt_winQString2MB(p),(WIN32_FIND_DATAA*)&finfo);
+    }
     if ( ff == FF_ERROR ) {
 #if defined(CHECK_RANGE)
-	warning( "QDir::readDirEntries: Cannot read the directory: %s",
-		 dPath.latin1() );
+	warning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
+		 dPath.utf8().data() );
 #endif
 	return FALSE;
     }
@@ -1562,19 +1544,15 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	if ( first )
 	    first = FALSE;
 	else {
-#if defined(_OS_WIN32_)
-	    if ( !FF_GETNEXT(ff,&finfo) )
-		break;
-#else
-	    if ( FF_GETNEXT(ff,&finfo) == -1 )
-		break;
-#endif
+	    if ( qt_winunicode ) {
+		if ( !FindNextFile(ff,&finfo) )
+		    break;
+	    } else {
+		if ( !FindNextFileA(ff,(WIN32_FIND_DATAA*)&finfo) )
+		    break;
+	    }
 	}
-#if defined(_OS_WIN32_)
 	int  attrib = finfo.dwFileAttributes;
-#else
-	int  attrib = finfo.attrib;
-#endif
 	bool isDir	= (attrib & IS_SUBDIR) != 0;
 	bool isFile	= !isDir;
 	bool isSymLink	= FALSE;
@@ -1585,13 +1563,12 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	bool isHidden	= (attrib & IS_HIDDEN) != 0;
 	bool isSystem	= (attrib & IS_SYSTEM) != 0;
 
-#if defined(_WIN32_X11_)
-	QString fname = finfo.cFileName;
-#elif defined(_OS_WIN32_)
-	QString fname = qt_winQString(finfo.cFileName);
-#else
-	QString fname = finfo.name;
-#endif
+	QString fname;
+	if ( qt_winunicode ) {
+	    fname = qt_winQString(finfo.cFileName);
+	} else {
+	    fname = qt_winMB2QString((const char*)finfo.cFileName);
+	}
 	if ( wc.match(fname) == -1 && !(allDirs && isDir) )
 	    continue;
 
@@ -1621,22 +1598,16 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	    fiList->append( new QFileInfo( fi ) );
 	}
     }
-#if defined(_OS_WIN32_)
     FindClose( ff );
-#else
-    _findclose( ff );
-#endif
 
 #undef	IS_SUBDIR
 #undef	IS_RDONLY
 #undef	IS_ARCH
 #undef	IS_HIDDEN
 #undef	IS_SYSTEM
-#undef	FF_GETFIRST
-#undef	FF_GETNEXT
 #undef	FF_ERROR
 
-#elif defined(UNIX)
+#else // UNIX
 
 #if defined(_OS_OS2EMX_)
     QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
@@ -1678,8 +1649,8 @@ bool QDir::readDirEntries( const QString &nameFilter,
     }
     if ( closedir(dir) != 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QDir::readDirEntries: Cannot close the directory: %s",
-		 dPath.ascii() );
+	warning( "QDir::readDirEntries: Cannot close the directory: %s (UTF8)",
+		 dPath.utf8().data() );
 #endif
     }
 
