@@ -16,7 +16,7 @@ class QCache
     };
     Node *f, *l;
     QMap<Key, Node> map;
-    int max, total;
+    int mx, total;
     inline void unlink(Node &n) {
 	if (n.p) n.p->n = n.n;
 	if (n.n) n.n->p = n.p;
@@ -42,10 +42,10 @@ class QCache
 
  public:
     inline QCache(int maxCost = 100, int /*size*/ = 17)
-	: f(0), l(0), max(maxCost), total(0) {}
+	: f(0), l(0), mx(maxCost), total(0) {}
     inline ~QCache() { clear(); }
 
-    inline int maxCost() const { return max; }
+    inline int maxCost() const { return mx; }
     void setMaxCost(int m);
     inline int totalCost() const { return total; }
 
@@ -64,7 +64,7 @@ class QCache
     T *take(const Key &key);
 
     inline bool ensure_constructed()
-    { if (!map.ensure_constructed()) { max = 100; return false; } return true; }
+    { if (!map.ensure_constructed()) { mx = 100; return false; } return true; }
 };
 
 template <class Key, class T>
@@ -74,7 +74,7 @@ inline void QCache<Key,T>::clear()
 
 template <class Key, class T>
 inline void QCache<Key,T>::setMaxCost(int m)
-{ max = m; while (l && total > max) unlink(*l); }
+{ mx = m; while (l && total > mx) unlink(*l); }
 
 template <class Key, class T>
 inline T *QCache<Key,T>::find(const Key &key) const
@@ -99,7 +99,7 @@ void QCache<Key,T>::insert(const Key &key, T *data, int cost)
 {
     remove(key);
     Node *n = l;
-    while (n && total > max - cost) {
+    while (n && total > mx - cost) {
 	Node *u = n;
 	n = n->p;
 	if (qIsDetached(*u->t))
