@@ -61,8 +61,8 @@ class Q_EXPORT QDockWindow : public QFrame
     Q_PROPERTY( int closeMode READ closeMode  WRITE setCloseMode )
     Q_PROPERTY( bool resizeEnabled READ isResizeEnabled  WRITE setResizeEnabled )
     Q_PROPERTY( bool movingEnabled READ isMovingEnabled  WRITE setMovingEnabled )
-    Q_PROPERTY( bool horizontalStretchable READ isHorizontalStretchable  WRITE setHorizontalStretchable )
-    Q_PROPERTY( bool verticalStretchable READ isVerticalStretchable  WRITE setVerticalStretchable )
+    Q_PROPERTY( bool horizontallyStretchable READ isHorizontallyStretchable  WRITE setHorizontallyStretchable )
+    Q_PROPERTY( bool verticallyStretchable READ isVerticallyStretchable  WRITE setVerticallyStretchable )
     Q_PROPERTY( bool stretchable READ isStretchable )
     Q_PROPERTY( bool newLine READ newLine  WRITE setNewLine )
     Q_PROPERTY( bool opaqueMoving READ opaqueMoving  WRITE setOpaqueMoving )
@@ -97,10 +97,14 @@ public:
     bool isResizeEnabled() const;
     bool isMovingEnabled() const;
 
-    virtual void setHorizontalStretchable( bool b );
-    virtual void setVerticalStretchable( bool b );
-    bool isHorizontalStretchable() const;
-    bool isVerticalStretchable() const;
+    virtual void setHorizontallyStretchable( bool b );
+    virtual void setVerticallyStretchable( bool b );
+    bool isHorizontallyStretchable() const;
+    bool isVerticallyStretchable() const;
+    void setHorizontalStretchable( bool b ) { setHorizontallyStretchable( b ); }
+    void setVerticalStretchable( bool b ) { setVerticallyStretchable( b ); }
+    bool isHorizontalStretchable() const { return isHorizontallyStretchable(); }
+    bool isVerticalStretchable() const { return isVerticallyStretchable(); }
     bool isStretchable() const;
 
     virtual void setOffset( int o );

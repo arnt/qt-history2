@@ -659,7 +659,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
     window to start on a new line when it is docked use setNewLine().
     The setFixedExtentWidth() and setFixedExtentHeight()
     functions can be used to define the dock window's preferred size,
-    and the setHorizontalStretchable() and setVerticalStretchable()
+    and the setHorizontallyStretchable() and setVerticallyStretchable()
     functions set whether the dock window can be stretched or not.
     Dock windows can be moved by default, but this can be changed with
     setMovingEnabled(). When a dock window is moved it is shown as a
@@ -1241,10 +1241,10 @@ int QDockWindow::closeMode() const
     If \a b is FALSE the dock window will not be horizontally
     stretchable..
 
-    \sa setVerticalStretchable()
+    \sa setVerticallyStretchable()
 */
 
-void QDockWindow::setHorizontalStretchable( bool b )
+void QDockWindow::setHorizontallyStretchable( bool b )
 {
     stretchable[ Horizontal ] = b;
 }
@@ -1253,10 +1253,10 @@ void QDockWindow::setHorizontalStretchable( bool b )
     If \a b is TRUE the dock window will be vertically stretchable.
     If \a b is FALSE the dock window will not be vertically stretchable.
 
-    \sa setHorizontalStretchable()
+    \sa setHorizontallyStretchable()
 */
 
-void QDockWindow::setVerticalStretchable( bool b )
+void QDockWindow::setVerticallyStretchable( bool b )
 {
     stretchable[ Vertical ] = b;
 }
@@ -1264,10 +1264,10 @@ void QDockWindow::setVerticalStretchable( bool b )
 /*!  Returns TRUE if the dock window is horizontally stretchable,
     otherwise returns FALSE.
 
-  \sa setHorizontalStretchable()
+  \sa setHorizontallyStretchable()
  */
 
-bool QDockWindow::isHorizontalStretchable() const
+bool QDockWindow::isHorizontallyStretchable() const
 {
     return isResizeEnabled() || stretchable[ Horizontal ];
 }
@@ -1275,10 +1275,10 @@ bool QDockWindow::isHorizontalStretchable() const
 /*!  Returns TRUE if the dock window is vertically stretchable,
     otherwise returns FALSE.
 
-  \sa setVerticalStretchable()
+  \sa setVerticallyStretchable()
  */
 
-bool QDockWindow::isVerticalStretchable() const
+bool QDockWindow::isVerticallyStretchable() const
 {
     return isResizeEnabled() || stretchable[ Vertical ];
 }
@@ -1286,14 +1286,14 @@ bool QDockWindow::isVerticalStretchable() const
 /*! Returns TRUE if the dock window is stretchable in the current
   orientation(), otherwise returns FALSE.
 
-  \sa isVerticalStretchable() isHorizontalStretchable()
+  \sa isVerticallyStretchable() isHorizontallyStretchable()
 */
 
 bool QDockWindow::isStretchable() const
 {
     if ( orientation() == Horizontal )
-	return isHorizontalStretchable();
-    return isVerticalStretchable();
+	return isHorizontallyStretchable();
+    return isVerticallyStretchable();
 }
 
 /*! Returns the orientation of the dock window.
