@@ -29,6 +29,16 @@ public:
     virtual QCString queryPlugInInterface() const = 0;
 };
 
+#ifdef _WS_WIN_
+#undef QTPLUGINEXPORT
+#define QTPLUGINEXPORT __declspec(dllexport)
+#else
+#define QTPLUGINEXPORT
+#endif
+
+#define QtExportInterface(INTERFACE, IMPLEMENTATION) \
+    extern "C" QTPLUGINEXPORT INTERFACE *loadInterface() { return new IMPLEMENTATION(); }
+
 #endif
 
 #endif //QPLUGININTERFACE_H
