@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#133 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#134 $
 **
 ** Implementation of QListView widget class
 **
@@ -46,7 +46,8 @@ struct QListViewPrivate
     // classes that are here to avoid polluting the global name space
 
     // the magical hidden mother of all items
-    struct Root: public QListViewItem {
+    class Root: public QListViewItem {
+      public:
 	Root( QListView * parent );
 
 	void setHeight( int );
@@ -58,7 +59,8 @@ struct QListViewPrivate
     };
 
     // for the stack used in drawContentsOffset()
-    struct Pending {
+    class Pending {
+      public:
 	Pending( int level, int ypos, QListViewItem * item)
 	    : l(level), y(ypos), i(item) {};
 
@@ -68,7 +70,8 @@ struct QListViewPrivate
     };
 
     // to remember what's on screen
-    struct DrawableItem {
+    class DrawableItem {
+      public:
 	DrawableItem( Pending * pi ) { y=pi->y; l=pi->l; i=pi->i; };
 	int y;
 	int l;
@@ -76,12 +79,14 @@ struct QListViewPrivate
     };
 
     // for sorting
-    struct SortableItem {
+    class SortableItem {
+      public:
 	QString key;
 	QListViewItem * i;
     };
 
-    struct ItemColumnInfo {
+    class ItemColumnInfo {
+      public:
 	ItemColumnInfo(): text( 0 ), pm( 0 ), next( 0 ) {}
 	~ItemColumnInfo() { if (text) delete[] text; delete pm; delete next; }
 	/*const*/ char * text;
@@ -89,7 +94,8 @@ struct QListViewPrivate
 	ItemColumnInfo * next;
     };
 
-    struct ViewColumnInfo {
+    class ViewColumnInfo {
+      public:
 	ViewColumnInfo(): align(AlignLeft), sortable(TRUE), next( 0 ) {}
 	~ViewColumnInfo() { delete next; }
 	int align;
@@ -1350,7 +1356,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
     QRect r;
     int fx = -1, x, fc = 0, lc = 0;
     int tx = -1;
-    struct QListViewPrivate::DrawableItem * current;
+    class QListViewPrivate::DrawableItem * current;
 
     while ( (current = it.current()) != 0 ) {
 	++it;
@@ -1523,7 +1529,7 @@ void QListView::buildDrawableList() const
     d->topPixel = cy + ch; // one below bottom
     d->bottomPixel = cy - 1; // one above top
 
-    struct QListViewPrivate::Pending * cur;
+    class QListViewPrivate::Pending * cur;
 
     // used to work around lack of support for mutable
     QList<QListViewPrivate::DrawableItem> * dl;
