@@ -3800,7 +3800,7 @@ QSize QWidget::minimumSizeHint() const
 /*!
   \fn bool QWidget::testWFlags( WFlags f ) const
 
-  Returns TRUE if any of the widget flags in \f n are set.
+  Returns TRUE if any of the widget flags in \a f are set.
 
   Widget flags are a combination of Qt::WidgetFlags.
 
