@@ -45,18 +45,19 @@
   \internal
 */
 
-#include "qcstring.h"
+#include "qjpunicode.h"
 
 #ifndef QT_NO_BIG_CODECS
 
-#include <stdlib.h>
-#include <ctype.h>
+#include "qcstring.h"
 
 #ifdef Q_OS_TEMP
 #include "qwinfunctions.h"
 #endif
 
-#include "qjpunicode.h"
+#include <stdlib.h>
+#include <ctype.h>
+
 
 #define	USE_JISX0212
 
