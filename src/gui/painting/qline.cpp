@@ -246,7 +246,6 @@ QLineF QLineF::unitVector() const
 
     qreal len = sqrt(x*x + y*y);
     QLineF f(start(), QPointF(p1.x() + x/len, p1.y() + y/len));
-    Q_ASSERT(qAbs(f.length() - 1) < 0.001);
 #else
 
     qint64 xx = x.value();
@@ -258,9 +257,13 @@ QLineF QLineF::unitVector() const
     qreal dy = QFixedPoint(int((yy<<36)/len), QFixedPoint::FixedPoint);
 
     QLineF f(start(), QPointF(p1.x() + dx, p1.y() + dy));
-
-    Q_ASSERT(qAbs(f.length() - 1).value() < 4 );
 #endif
+
+#ifndef QT_NO_DEBUG
+    if (qAbs(f.length() - 1) >= 0.001)
+        qWarning("QLine::unitVector(), new line does not have length of 1");
+#endif
+
     return f;
 }
 
