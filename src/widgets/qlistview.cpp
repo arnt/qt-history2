@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#261 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#262 $
 **
 ** Implementation of QListView widget class
 **
@@ -2593,6 +2593,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	if ( it.current() ) {
 	    x1 -= treeStepSize() * (it.current()->l - 1);
 	    if ( x1 >= 0 && ( !i->isSelectable() || x1 < treeStepSize() ) ) {
+		setCurrentItem( i );
 		setOpen( i, !i->isOpen() );
 		if ( !d->currentSelected ) {
 		    setCurrentItem( i );
@@ -2869,7 +2870,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Return:
         d->currentPrefix.truncate( 0 );
         if ( i && !i->isSelectable() &&
-             ( i->childCount() || i->isExpandable() ) ) {
+             ( i->childCount() || i->isExpandable() || i->isOpen() ) ) {
             i->setOpen( !i->isOpen() );
             return;
         }
