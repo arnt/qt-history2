@@ -9,11 +9,10 @@ Roads::Roads(QWidget *parent)
 
     yellowLine.curveTo(100, 0, 100, 100, 0, 100);
 
-    QPainterPath carPath = yellowLine.createPathOutline(10,
-                                                        Qt::SolidLine,
-                                                        Qt::RoundCap,
-                                                        Qt::RoundJoin);
-    carVector = carPath.toPolygon();
+
+    QPainterPathStroker stroker;
+    stroker.setWidth(10);
+    carVector = stroker.createStroke(yellowLine).toFillPolygon();
 }
 
 void Roads::paintEvent(QPaintEvent *e)
