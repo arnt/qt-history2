@@ -690,7 +690,7 @@ void QSlider::moveSlider( int pos )
 	emit sliderMoved( sliderVal );
     }
     if ( tracking() && sliderVal != value() ) {
-	directSetValue( sliderVal );
+	setValue( sliderVal );
 	emit valueChanged( sliderVal );
     }
 
