@@ -280,6 +280,7 @@ for example:
 If a program is unable to find a supporting file, but can do perfectly
 well without:
 
+\code
   QMessageBox::information( this, "Application name",
                             "Unable to find the user preferences file.\n"
 			    "The factory default will be used instead." );
