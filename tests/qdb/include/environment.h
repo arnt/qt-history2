@@ -178,6 +178,7 @@ struct LocalSQLFileDriver : public LocalSQLDataSet
     virtual bool starDescription( QVariant& v ) = 0;
     virtual QValueList<uint> columnSizes() const = 0;
     virtual QValueList<uint> columnPrecs() const = 0;
+    virtual QStringList notNullColumnNames() const = 0;
 };
 
 

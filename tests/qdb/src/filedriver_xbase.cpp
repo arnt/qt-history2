@@ -496,6 +496,15 @@ QStringList FileDriver::columnNames() const
     return l;
 }
 
+QStringList FileDriver::notNullColumnNames() const
+{
+    QStringList names = columnNames();
+    QStringList nullnames;
+    for ( uint i = 0; i < d->notnulls.count(); ++i )
+	nullnames += names[d->notnulls[i]];
+    return nullnames;
+}
+
 uint FileDriver::count() const
 {
     return d->file.FieldCount();

@@ -205,14 +205,17 @@ int main( int argc, char** argv )
 	if ( !suppressheader ) {
 	    outstream << "Table \"" << tablename << "\"" << endl;
 	    outstream << sep << "   Attribute   " << sep << "     Type      " << sep
-		      << "    Size       " << sep << "    Prec       " << sep << endl;
+		      << "    Size       " << sep << "    Prec       " << sep
+		      << "    NOT NULL   " << sep << endl;
 	    outstream << sep << "---------------" << sep << "---------------" << sep
-		      << "---------------" << sep << "---------------" << sep << endl;
+		      << "---------------" << sep << "---------------" << sep
+		      << "---------------" << sep<< endl;
 	}
 	QStringList cols = driver->columnNames();
 	QValueList<QVariant::Type> types = driver->columnTypes();
 	QValueList<uint> sizes = driver->columnSizes();
 	QValueList<uint> precs = driver->columnPrecs();
+	QStringList notnullCols = driver->notNullColumnNames();
 	for ( i = 0; i < cols.count(); ++i ) {
 	    QVariant v;
 	    QString name = cols[i];
@@ -223,10 +226,14 @@ int main( int argc, char** argv )
 		typeName = typeName.mid( 1, typeName.length() );
 	    uint size = sizes[i];
 	    uint prec = precs[i];
+	    QString notnull;
+	    if ( notnullCols.contains( name ) )
+		notnull = "X";
 	    outstream << sep << " " << name.leftJustify( 14 ) << sep
 		      << " " << typeName.leftJustify( 14 ) << sep
 		      << " " << QString::number( size ).leftJustify( 14 ) << sep
-		      << " " << QString::number( prec ).leftJustify( 14 ) <<  sep << endl;
+		      << " " << QString::number( prec ).leftJustify( 14 ) <<  sep
+		      << " " << notnull.leftJustify( 14 ) << sep << endl;
 	}
 	QStringList priIdxDesc = driver->primaryIndex();
 	QString priIdx;

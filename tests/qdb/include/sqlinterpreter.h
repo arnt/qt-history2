@@ -81,6 +81,7 @@ public:
     QValueList<uint> columnPrecs() const;
     bool isNull( uint i, bool& v );
     bool isNull( const QString& name, bool& v );
+    QStringList notNullColumnNames() const;
 
 protected:
     virtual void setName( const QString& name ) { nm = name; }
@@ -201,7 +202,7 @@ private:
     int resolveTableId( const QString& tableName );
     void resolveFieldNames( QVariant *expr );
     void resolveFieldNames( QValueList<QVariant> *exprs );
-    void resolveResultColumnNos( QVariant *expr, 
+    void resolveResultColumnNos( QVariant *expr,
 	    const QMap<QString, QMap<int, int> >& fieldColumnNos );
     void resolveResultColumnNos( QValueList<QVariant> *exprs,
 	    const QMap<QString, QMap<int, int> >& fieldColumnNos );
