@@ -521,7 +521,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
     if ( d->maxWindow && d->maxWindow != d->active && d->active->windowWidget() &&
 	 d->active->windowWidget()->testWFlags( WStyle_MinMax ) &&
 	 !d->active->windowWidget()->testWFlags( WStyle_Tool ) ) {
-	maximizeWindow( d->active->windowWidget() );
+	d->active->windowWidget()->showMaximized();
 	if ( d->maxtools ) {
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	    if ( w->icon() ) {
