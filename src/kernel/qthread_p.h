@@ -63,6 +63,7 @@
 #include <errno.h>
 
 
+
 static QMutex *dictMutex = 0;
 #ifdef QWS
 static QPtrDict<QThread> *thrDict = 0;

@@ -573,12 +573,14 @@ QOleDropSource::Release(void)
 STDMETHODIMP
 QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {
-    if (fEscapePressed)
+    if (fEscapePressed) {
 	return ResultFromScode(DRAGDROP_S_CANCEL);
-    else if ( !(grfKeyState & (MK_LBUTTON|MK_MBUTTON|MK_RBUTTON)) )
+    } else if ( !(grfKeyState & (MK_LBUTTON|MK_MBUTTON|MK_RBUTTON)) ) {
 	return ResultFromScode(DRAGDROP_S_DROP);
-    else
+    } else {
+	qApp->processOneEvent();
 	return NOERROR;
+    }
 }
 
 STDMETHODIMP
