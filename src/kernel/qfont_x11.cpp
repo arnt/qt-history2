@@ -1484,17 +1484,17 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      sizeFormat, XftTypeDouble, size_value,
 				      0);
     }
-    if ( request.styleStrategy & ( QFont::PreferAntialias | QFont::NoAntialias) ) {
-	bool requestAA;
-	if ( request.styleStrategy & QFont::PreferAntialias )
-	    requestAA = TRUE;
-	else
-	    requestAA = FALSE;
-	qDebug("requesting AA: %d", requestAA );
-	XftPatternAddBool( pattern, XFT_ANTIALIAS, (request.styleStrategy & QFont::PreferAntialias) );
-    } else 
-	qDebug("not caring about AA, style strat = %d", request.styleStrategy);
 
+    static bool useAA = QSettings().readBoolEntry("/qt/useXft");
+    if ( !useAA || request.styleStrategy & ( QFont::PreferAntialias | QFont::NoAntialias) ) {
+	bool requestAA;
+	if ( !useAA || request.styleStrategy & QFont::NoAntialias )
+	    requestAA = FALSE;
+	else
+	    requestAA = TRUE;
+	XftPatternAddBool( pattern, XFT_ANTIALIAS,requestAA );
+    }
+    
     if (pattern) {
 	result = XftFontMatch(QPaintDevice::x11AppDisplay(),
 			      QPaintDevice::x11AppScreen(), pattern, &res);
@@ -2616,9 +2616,7 @@ void QFont::initialize()
 #ifndef QT_NO_XFTFREETYPE
     qt_has_xft = FALSE;
 
-    QSettings settings;
     if (qt_use_xrender &&
-	settings.readBoolEntry("/qt/useXft") &&
 	XftInit(0) && XftInitFtLibrary()) {
 	qt_has_xft = TRUE;
 	qt_xft_render_sources = new QPixmapDict();
