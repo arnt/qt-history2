@@ -36,7 +36,7 @@ extern Q_CORE_EXPORT bool        qt_win_use_simple_timers = true;
 extern Q_CORE_EXPORT bool        qt_win_use_simple_timers = false;
 #endif
 void CALLBACK   qt_simple_timer_func(HWND, UINT, UINT, DWORD);
-extern Q_CORE_EXPORT bool qt_winEventFilter(MSG* msg);
+extern Q_CORE_EXPORT bool qt_winEventFilter(MSG* msg, long &res);
 
 static TimerVec  *timerVec = 0;
 static TimerDict *timerDict = 0;
@@ -91,7 +91,8 @@ void CALLBACK qt_simple_timer_func(HWND, UINT, UINT idEvent, DWORD)
 
 bool qt_dispatch_timer(uint timerId, MSG *msg)
 {
-    if (!msg || !QCoreApplication::instance() || !qt_winEventFilter(msg))
+    long res;
+    if (!msg || !QCoreApplication::instance() || !qt_winEventFilter(msg, res))
         return activateTimer(timerId);
     return true;
 }

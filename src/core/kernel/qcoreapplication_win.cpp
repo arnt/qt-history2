@@ -35,8 +35,21 @@ Q_CORE_EXPORT HINSTANCE qWinAppPrevInst()                // get Windows prev app
     return appPrevInst;
 }
 
-Q_CORE_EXPORT bool qt_winEventFilter(MSG* msg)
+typedef bool (*QWinEventFilter)(MSG*,long&);
+static QWinEventFilter qt_win_event_filter = 0;
+
+Q_CORE_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter)
 {
+    QWinEventFilter old_filter = qt_win_event_filter;
+    qt_win_event_filter = filter;
+    return old_filter;
+}
+
+Q_CORE_EXPORT bool qt_winEventFilter(MSG* msg, long &res)
+{
+    if (qt_win_event_filter && qt_win_event_filter(msg, res))
+        return true;
+
     return QCoreApplication::instance()->winEventFilter(msg);
 }
 
