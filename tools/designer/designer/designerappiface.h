@@ -37,7 +37,7 @@ public:
     DesignerProject *currentProject() const;
     DesignerFormWindow *currentForm() const;
     QList<DesignerProject> projectList() const;
-    void showStatusMessage( const QString & ) const;
+    void showStatusMessage( const QString &, int ms = 0 ) const;
     DesignerDock *createDock() const;
     DesignerOutputDock *outputDock() const;
     void setModified( bool b, QWidget *window );
