@@ -288,7 +288,6 @@ void GLTeapots::mousePressEvent( QMouseEvent* e )
     rubberP1 = e->pos();
     rubberP2 = rubberP1;
     rubberOn = TRUE;
-    setMouseTracking( TRUE );
 }
 
 /*!
@@ -314,7 +313,6 @@ void GLTeapots::mouseReleaseEvent( QMouseEvent* )
 	rubberOn = FALSE;
 	updateOverlayGL();
     }
-    setMouseTracking( FALSE );
 }
 
 
