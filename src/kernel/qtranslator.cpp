@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#8 $
 **
 ** Localization database support.
 **
@@ -300,8 +300,9 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 		       PROT_READ, // read-only memory
 		       MAP_FILE | MAP_PRIVATE, // swap-backed map from file
 		       f, 0 ); // from offset 0 of f
-    if ( !tmp ) {
+    if ( !tmp || tmp == (char*)MAP_FAILED ) {
 	// debug( "can't mmap %s: %s", filename.ascii(), strerror( errno ) );
+	// #### could revert to file io?
 	return FALSE;
     }
 
