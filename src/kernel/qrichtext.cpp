@@ -4845,7 +4845,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 {
     QTextStringChar *c = 0;
     QTextStringChar *firstChar = 0;
-    int left = doc ? parag->leftMargin() + 4 : 4;
+    int left = doc ? parag->leftMargin() + 4 : 0;
     int x = left + ( doc ? parag->firstLineMargin() : 0 );
     int dw = parag->documentVisibleWidth() - ( doc ? 8 : 0 );
     int y = doc && doc->addMargins() ? parag->topMargin() : 0;
@@ -4888,11 +4888,11 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	if ( c->c.unicode() >= 32 || c->isCustom() ) {
 	    ww = parag->string()->width( i );
 	} else if ( c->c == '\t' ) {
-	    int nx = parag->nextTab( i, x );
+	    int nx = parag->nextTab( i, x - left ) + left;
 	    if ( nx < x )
 		ww = w - x;
 	    else
-		ww = nx - x + 1;
+		ww = nx - x;
 	} else {
 	    ww = c->format()->width( ' ' );
 	}
@@ -5038,11 +5038,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	if ( c->c.unicode() >= 32 || c->isCustom() ) {
 	    ww = string->width( i );
 	} else if ( c->c == '\t' ) {
-	    int nx = parag->nextTab( i, x );
+	    int nx = parag->nextTab( i, x - left ) + left;
 	    if ( nx < x )
 		ww = w - x;
 	    else
-		ww = nx - x + 1;
+		ww = nx - x;
 	} else {
 	    ww = c->format()->width( ' ' );
 	}
@@ -5101,11 +5101,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 		if ( parag->isNewLinesAllowed() && c->c == '\t' ) {
-		    int nx = parag->nextTab( i, x );
+		    int nx = parag->nextTab( i, x - left ) + left;
 		    if ( nx < x )
 			ww = w - x;
 		    else
-			ww = nx - x + 1;
+			ww = nx - x;
 		}
 		if ( x != left || w != dw )
 		    fullWidth = FALSE;
@@ -5129,11 +5129,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 		if ( parag->isNewLinesAllowed() && c->c == '\t' ) {
-		    int nx = parag->nextTab( i, x );
+		    int nx = parag->nextTab( i, x - left ) + left;
 		    if ( nx < x )
 			ww = w - x;
 		    else
-			ww = nx - x + 1;
+			ww = nx - x;
 		}
 		if ( x != left || w != dw )
 		    fullWidth = FALSE;
