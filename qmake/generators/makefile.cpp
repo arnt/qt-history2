@@ -436,7 +436,7 @@ MakefileGenerator::init()
 	    debug_msg(1, "Dependancy Directories: %s", incDirs.join(" :: ").latin1());
 	}
 
-	QString sources[] = { QString("LEXSOURCES"), QString("YACCSOURCES"),
+	QString sources[] = { QString("OBJECTS"), QString("LEXSOURCES"), QString("YACCSOURCES"),
 				  QString("HEADERS"), QString("SOURCES"), QString("FORMS"), 
 			      QString::null };
 	for(int x = 0; sources[x] != QString::null; x++) {
@@ -487,18 +487,17 @@ MakefileGenerator::init()
 			    }
 			} 
 		    }
-		    generateDependencies(deplist, (*val_it), doDepends());
-		    if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || 
-			Option::mkfile::do_mocs) && mocAware())
-			generateMocList((*val_it));
+		    if(sources[x] != "OBJECTS") {
+			generateDependencies(deplist, (*val_it), doDepends());
+			if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || 
+			    Option::mkfile::do_mocs) && mocAware())
+			    generateMocList((*val_it));
+		    }
 		}
 	    }
 	}
     }
-
-    /* init variables */
-    v["OBJECTS"].clear();
-    v["OBJECTS"] += createObjectList("SOURCES");
+    v["OBJECTS"] = createObjectList("SOURCES") + v["OBJECTS"]; // init variables
 
     //UI files
     {
