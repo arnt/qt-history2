@@ -1,2 +1,2 @@
-!contains(TEMPLATE, lib):error("Using CONFIG feature 'dll' when TEMPLATE is not 'lib'")
+#!contains(TEMPLATE, lib):error("Using CONFIG feature 'dll' when TEMPLATE is not 'lib'")
 CONFIG -= staticlib
