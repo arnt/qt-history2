@@ -83,12 +83,10 @@
 #define QT_SOCKLEN_T		int
 #endif
 
-#if 0
-// on Irix 6.5 and better only - but how to check for it?
+// Irix 6.5 and better
 #if defined(_SGIAPI)
 #define QT_SNPRINTF		::snprintf
 #define QT_VSNPRINTF		::vsnprintf
-#endif
 #endif
 
 
