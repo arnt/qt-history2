@@ -179,7 +179,7 @@ bool QShadowFbScreen::connect( const QString &displaySpec )
     data=(uchar *)malloc(size);
 
     to_update=QRect(0,0,w,h);
-    
+
     return true;
 }
 
@@ -287,9 +287,18 @@ void QShadowFbScreen::checkUpdate()
     for(unsigned int loopc=0;loopc<rectlist.size();loopc++) {
 	QRect& r=rectlist[loopc];
 	for(int loopc2=r.top();loopc2<=r.bottom();loopc2++) {
-	    int offset=( lstep*loopc2 )+( ( r.left() *d )/8 );
-	    int width=( ( ( r.right()-r.left() ) +1 ) *d )/8;
-	    memcpy(real_screen+offset,data+offset,width);
+	    int offset=( ( r.left() * d )/8 );
+	    int width=( ( ( r.right()-r.left() ) +1 ) * d )/8;
+	    offset/=8;
+	    width=(width/8)+1;
+	    double * dest=( (double *) (real_screen + ( lstep*loopc2 ) ) ) 
+			  +offset;
+	    double * src=( (double *) ( data+  ( lstep*loopc2 ) ) ) + offset;
+	    for(int loopc3=0;loopc3<width;loopc3++) {
+		*dest=*src;
+		dest++;
+		src++;
+	    }
 	}
     }
     to_update=QRegion();
