@@ -266,7 +266,12 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
         return;
 
     d->left = d->header->indexAt(d->header->offset() + area.left());
-    d->right = d->header->indexAt(d->header->offset() + area.right());
+    d->right = d->header->indexAt(d->header->offset() + area.right() - 1);
+
+    if (d->left == -1)
+        d->left = 0;
+    if (d->right == -1)
+        d->right = d->header->count() - 1;
     if (d->left > d->right) {
         int tmp = d->left;
         d->left = d->right;
