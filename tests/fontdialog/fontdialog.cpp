@@ -7,13 +7,13 @@ main(int argc, char** argv)
 {
     QApplication app(argc, argv);
 
-    // QFont fnt( "utopia", 8, 48, FALSE );
+    QFont fnt( "utopia", 72, QFont::Bold, FALSE );
     //fnt.setCharSet( QFont::ISO_8859_1 );
     //app.setFont( fnt );
 
 #if 1
     bool ok;
-    QFont f = QFontDialog::getFont( &ok );
+    QFont f = QFontDialog::getFont( &ok, fnt );
     if ( ok ) {
 	qWarning( "OK!" );
     } else {
