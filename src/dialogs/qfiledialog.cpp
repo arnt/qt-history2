@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#603 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#604 $
 **
 ** Implementation of QFileDialog class
 **
@@ -5827,7 +5827,7 @@ void QFileDialog::goBack()
   \brief The QFilePreview class provides previewing in QFileDialog.
 
   This class is an abstract base class which is used to implement
-  widgets that can display a preview of a file in the QFileDialog.
+  widgets that can display a preview of a file in the \l{QFileDialog}.
 
   If you want to do that, you have to derive your preview widget
   from any QWidget and from this class. Then you have to reimplement

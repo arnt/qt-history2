@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#36 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#37 $
 **
 ** Definition of QFileInfo class
 **
@@ -82,7 +82,7 @@ public:
 #ifndef QT_NO_DIR //###
     QString	absFilePath()	const;
 #endif
-    QString	baseName()	const;
+    QString	baseName( bool complete = FALSE ) const;
     QString	extension( bool complete = TRUE ) const;
 
 #ifndef QT_NO_DIR //###

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#84 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#85 $
 **
 ** Implementation of QFileInfo class
 **
@@ -96,6 +96,25 @@ extern bool qt_file_access( const QString& fn, int t );
   If you need to read and traverse directories, see the QDir class.
 */
 
+/*!
+    \enum QFileInfo::PermissionSpec
+
+    This enum is used by the permission() function to report the
+    permissions and ownership of a file. The values may be 0R-ed
+    together to test multiple permissions and ownership values.
+
+    \value ReadUser The file is readable by the user.
+    \value WriteUser The file is writable by the user.
+    \value ExeUser The file is executable by the user.
+    \value ReadGroup The file is readable by the group.
+    \value WriteGroup The file is writable by the group.
+    \value ExeGroup The file is executable by the group.
+    \value ReadOther The file is readable by anyone.
+    \value WriteOther The file is writable by anyone.
+    \value ExeOther The file is executable by anyone.
+
+*/
+
 
 /*!
   Constructs a new empty QFileInfo.
@@ -112,7 +131,7 @@ QFileInfo::QFileInfo()
 
 /*!
   Constructs a new QFileInfo that gives information about the given file.
-  The string given can be an absolute or a relative file path.
+  The \a file can be an absolute or a relative file path.
 
   \sa bool setFile(QString ), isRelative(), QDir::setCurrent(),
   QDir::isRelativePath()
@@ -130,9 +149,10 @@ QFileInfo::QFileInfo( const QString &file )
 }
 
 /*!
-  Constructs a new QFileInfo that gives information about \e file.
+  Constructs a new QFileInfo that gives information about file \a file.
 
-  If the file has a relative path, the QFileInfo will also have one.
+  If the \a file has a relative path, the QFileInfo will also have a
+  relative path.
 
   \sa isRelative()
 */
@@ -150,9 +170,10 @@ QFileInfo::QFileInfo( const QFile &file )
 
 /*!
   Constructs a new QFileInfo that gives information about the file
-  named \e fileName in the directory \e d.
+  named \a fileName in the directory \a d.
 
-  If the directory has a relative path, the QFileInfo will also have one.
+  If the directory has a relative path, the QFileInfo will also have a
+  relative path.
 
   \sa isRelative()
 */
@@ -169,7 +190,7 @@ QFileInfo::QFileInfo( const QDir &d, const QString &fileName )
 }
 #endif
 /*!
-  Constructs a new QFileInfo that is a copy of \e fi.
+  Constructs a new QFileInfo that is a copy of \a fi.
 */
 
 QFileInfo::QFileInfo( const QFileInfo &fi )
@@ -188,7 +209,7 @@ QFileInfo::QFileInfo( const QFileInfo &fi )
 }
 
 /*!
-  Destroys the QFileInfo.
+  Destroys the QFileInfo and frees its resources.
 */
 
 QFileInfo::~QFileInfo()
@@ -198,7 +219,7 @@ QFileInfo::~QFileInfo()
 
 
 /*!
-  Makes a copy of \e fi and assigns it to this QFileInfo.
+  Makes a copy of \a fi and assigns it to this QFileInfo.
 */
 
 QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
@@ -223,33 +244,27 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
 
 
 /*!
-  Sets the file to obtain information about.
+  Sets the file that the QFileInfo provides information about to \a file.
 
-  The string given can be an absolute or a relative file path. Absolute file
-  paths begin with the directory separator (e.g. '/' under UNIX) or a drive
-  specification (not applicable to UNIX). Relative file names begin with a
+  The string given can be an absolute or a relative file path. Absolute 
+  paths begin with the directory separator (e.g. "/" under Unix) or a drive
+  specification (not applicable to Unix). Relative file names begin with a
   directory name or a file name and specify a path relative to the current
   directory.
 
   Example:
   \code
-    #include <qfileinfo.h>
-    #include <qdir.h>
+    QString absolute = "/local/bin";
+    QString relative = "local/bin";
+    QFileInfo absFile( absolute );
+    QFileInfo relFile( relative );
 
-    void test()
-    {
-	QString absolute = "/liver/aorta";
-	QString relative = "liver/aorta";
-	QFileInfo fi1( absolute );
-	QFileInfo fi2( relative );
+    QDir::setCurrent( QDir::rootDirPath() ); 
+    // absFile and relFile now point to the same file
 
-	QDir::setCurrent( QDir::rootDirPath() );
-				// fi1 and fi2 now point to the same file
-
-	QDir::setCurrent( "/tmp" );
-				// fi1 now points to "/liver/aorta",
-				// while fi2 points to "/tmp/liver/aorta"
-    }
+    QDir::setCurrent( "/tmp" );
+    // absFile now points to "/local/bin",
+    // while relFile points to "/tmp/local/bin"
   \endcode
 
   \sa isRelative(), QDir::setCurrent(), QDir::isRelativePath()
@@ -264,9 +279,10 @@ void QFileInfo::setFile( const QString &file )
 }
 
 /*!
-  Sets the file to obtain information about.
+  Sets the file that the QFileInfo provides information about to \a file.
 
-  If the file has a relative path, the QFileInfo will also have one.
+  If the file has a relative path, the QFileInfo will also have a
+  relative path.
 
   \sa isRelative()
 */
@@ -280,10 +296,11 @@ void QFileInfo::setFile( const QFile &file )
 }
 
 /*!
-  Sets the file to obtain information about to \e fileName in the
-  directory \e d.
+  Sets the file that the QFileInfo provides information about to \a
+  fileName in directory \a d.
 
-  If the directory has a relative path, the QFileInfo will also have one.
+  If the file has a relative path, the QFileInfo will also have a
+  relative path.
 
   \sa isRelative()
 */
@@ -298,7 +315,7 @@ void QFileInfo::setFile( const QDir &d, const QString &fileName )
 #endif
 
 /*!
-  Returns TRUE if the file pointed to exists, otherwise FALSE.
+  Returns TRUE if the file exists; otherwise returns FALSE.
 */
 
 bool QFileInfo::exists() const
@@ -307,8 +324,8 @@ bool QFileInfo::exists() const
 }
 
 /*!
-  Refreshes the information about the file, i.e., reads in information from the
-  file system the next time a cached property is fetched.
+  Refreshes the information about the file, i.e. reads in information
+  from the file system the next time a cached property is fetched.
 
   \sa setCaching()
 */
@@ -322,16 +339,16 @@ void QFileInfo::refresh() const
 
 /*!
   \fn bool QFileInfo::caching() const
-  Returns TRUE if caching is enabled.
+  Returns TRUE if caching is enabled; otherwise returns FALSE.
   \sa setCaching(), refresh()
 */
 
 /*!
-  Enables caching of file information if \e enable is TRUE or disables it
-  if \e enable is FALSE.
+  If \a enable is TRUE, enables caching of file information. If \a
+  enable is FALSE caching is disabled.
 
-  When caching is enabled, QFileInfo reads the file information the first
-  time it's needed, but generally not later.
+  When caching is enabled, QFileInfo reads the file information from the
+  file system the first time it's needed, but generally not later.
 
   Caching is enabled by default.
 
@@ -351,8 +368,8 @@ void QFileInfo::setCaching( bool enable )
 
 
 /*!
-  Returns the name, i.e., the file name including the path (which can be
-  absolute or relative).
+  Returns the file name, including the path (which may be absolute or
+  relative).
 
   \sa isRelative(), absFilePath()
 */
@@ -365,22 +382,29 @@ QString QFileInfo::filePath() const
 /*!
   Returns the base name of the file.
 
-  The base name consists of all characters in the file name up to (but not
-  including) the first '.' character.  The path is not included.
+  If \a complete is FALSE (the default) the base name consists of all
+  characters in the file name up to (but not including) the \e first '.'
+  character.  
+
+  If \a complete is TRUE the base name consists of all characters in the
+  file up to (but not including) the \e last '.' character.  
+
+  The path is not included in either case.
 
   Example:
   \code
-     QFileInfo fi( "/tmp/abdomen.lower" );
-     QString base = fi.baseName();		// base = "abdomen"
+     QFileInfo fi( "/tmp/archive.tar.gz" );
+     QString base = fi.baseName();  // base = "archive"
+     base = fi.baseName( TRUE );    // base = "archive.tar"
   \endcode
 
   \sa fileName(), extension()
 */
 
-QString QFileInfo::baseName() const
+QString QFileInfo::baseName( bool complete ) const
 {
     QString tmp = fileName();
-    int pos = tmp.find( '.' );
+    int pos = complete ? tmp.findRev( '.' ) : tmp.find( '.' );
     if ( pos == -1 )
 	return tmp;
     else
@@ -388,22 +412,21 @@ QString QFileInfo::baseName() const
 }
 
 /*!
-  Returns the extension name of the file.
+  Returns the file's extension name.
 
   If \a complete is TRUE (the default), extension() returns the string
   of all characters in the file name after (but not including) the
-  first '.'  character.  For a file named "archive.tar.gz", this
-  returns "tar.gz".
+  first '.'  character.  
 
   If \a complete is FALSE, extension() returns the string of all
   characters in the file name after (but not including) the last '.'
-  character.  For a file named "archive.tar.gz", this returns "gz".
+  character.  
 
   Example:
   \code
-     QFileInfo fi( "lex.yy.c" );
-     QString ext = fi.extension();		// ext = "yy.c"
-     QString ext = fi.extension( FALSE );	// ext = "c"
+     QFileInfo fi( "/tmp/archive.tar.gz" );
+     QString ext = fi.extension();  // ext = "tar.gz"
+     ext = fi.extension( FALSE );   // ext = "gz"
   \endcode
 
   \sa fileName(), baseName()
@@ -423,7 +446,7 @@ QString QFileInfo::extension( bool complete ) const
 /*!
   Returns the directory path of the file.
 
-  If the QFileInfo is relative and \e absPath is FALSE, the QDir will be
+  If the QFileInfo is relative and \a absPath is FALSE, the QDir will be
   relative; otherwise it will be absolute.
 
   \sa dirPath(), filePath(), fileName(), isRelative()
@@ -437,7 +460,7 @@ QDir QFileInfo::dir( bool absPath ) const
 
 
 /*!
-  Returns TRUE if the file is readable.
+  Returns TRUE if the file is readable; otherwise returns FALSE.
   \sa isWritable(), isExecutable(), permission()
 */
 
@@ -447,7 +470,7 @@ bool QFileInfo::isReadable() const
 }
 
 /*!
-  Returns TRUE if the file is writable.
+  Returns TRUE if the file is writable; otherwise returns FALSE.
   \sa isReadable(), isExecutable(), permission()
 */
 
@@ -457,7 +480,7 @@ bool QFileInfo::isWritable() const
 }
 
 /*!
-  Returns TRUE if the file is executable.
+  Returns TRUE if the file is executable; otherwise returns FALSE.
   \sa isReadable(), isWritable(), permission()
 */
 
@@ -468,9 +491,9 @@ bool QFileInfo::isExecutable() const
 
 
 /*!
-  Returns TRUE if the file path name is relative to the current directory,
-  FALSE if the path is absolute (e.g., under UNIX a path is relative if it
-  does not start with a '/').
+  Returns TRUE if the file path name is relative. Returns FALSE if the 
+  path is absolute (e.g. under Unix a path is absolute if it
+  begins with a "/").
 */
 #ifndef QT_NO_DIR
 bool QFileInfo::isRelative() const
