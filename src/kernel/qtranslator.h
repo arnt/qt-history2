@@ -34,12 +34,7 @@
 
 
 class QTranslatorPrivate;
-
-
-struct QTranslatorInputItem {
-    QCString scope;
-    QCString key;
-};
+class QTranslatorMessage;
 
 
 class Q_EXPORT QTranslator: public QObject
@@ -49,7 +44,13 @@ public:
     QTranslator( QObject * parent, const char * name = 0 );
     ~QTranslator();
 
+// ### find( const char *, const char *, const char * ) obsolete in Qt 3 ?
+    QString find( const char *, const char *, const char * ) const;
+// ### find( const char *, const char * ) obsolete in Qt 3
     virtual QString find( const char *, const char * ) const;
+// ### findMessage made virtual in Qt 3
+    QTranslatorMessage findMessage( const char *, const char *,
+				    const char * ) const;
 
     bool load( const QString & filename,
 	       const QString & directory = QString::null,
@@ -62,22 +63,25 @@ public:
 
     void clear();
 
+    void insert( const QTranslatorMessage& );
+// ### insert() obsolete in Qt 3
     void insert( const char *, const char *, const QString & );
+    void remove( const QTranslatorMessage& );
+// ### first remove obsolete in Qt 3
     void remove( const char *, const char * );
+    bool contains( const char *, const char *, const char * ) const;
+// ### contains removed in Qt 3,
     bool contains( const char *, const char * ) const;
 
+// ### squeeze() obsolete in Qt 3,
+// ### replaced by squeeze( SaveMode mode = Everything )
+    void squeeze( SaveMode );
     void squeeze();
     void unsqueeze();
 
-    QValueList<QTranslatorInputItem> inputKeys() const;
+    QValueList<QTranslatorMessage> messages() const;
+    QString toUnicode( const char * ) const;
 
-    void setComment( const char *, const char *, const char * );
-    QString comment( const char *, const char * );
-
-    enum TranslationType { Unfinished, Finished, Obsolete };
-    void setTranslationType( enum TranslationType );
-    TranslationType mode() const;
-    
 private:
     QTranslatorPrivate * d;
 
@@ -86,6 +90,53 @@ private:	// Disabled copy constructor and operator=
     QTranslator( const QTranslator & );
     QTranslator &operator=( const QTranslator & );
 #endif
+};
+
+
+class Q_EXPORT QTranslatorMessage {
+public:
+    enum Type { Unfinished, Finished, Obsolete };
+
+    QTranslatorMessage();
+    QTranslatorMessage( const char * context,
+			const char * sourceText,
+			const char * comment,
+			const QString& translation = QString::null,
+			Type type = Unfinished );
+    QTranslatorMessage( QDataStream & );
+
+    uint hash() const { return h; }
+    const char *context() const { return cx; }
+    const char *sourceText() const { return st; }
+    const char *comment() const { return cm; }
+
+    void setTranslation( const QString & translation ) { tn = translation; }
+    QString translation() const { return tn; }
+
+    void setType( Type type ) { ty = type; }
+    Type type() const { return ty; }
+
+    enum Prefix { NoPrefix, Hash, HashContext, HashContextSourceText,
+    		  HashContextSourceTextComment };
+    void write( QDataStream & s,
+    		QTranslator::SaveMode mode = QTranslator::Everything,
+		Prefix prefix = HashContextSourceTextComment ) const;
+    Prefix commonPrefix( const QTranslatorMessage& ) const;
+
+    bool operator<( const QTranslatorMessage& ) const;
+
+private:
+    uint rehash();
+
+    uint h;
+    QCString cx;
+    QCString st;
+    QCString cm;
+    QString tn;
+    Type ty;
+
+    enum Tag { Tag_End = 1, Tag_SourceText16, Tag_Translation, Tag_Context16,
+	       Tag_Hash, Tag_SourceText, Tag_Context, Tag_Comment, Tag_Type };
 };
 
 

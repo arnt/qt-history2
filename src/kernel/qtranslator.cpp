@@ -26,8 +26,6 @@
 
 #include "qtranslator.h"
 #include "qfileinfo.h"
-#include "qtextcodec.h"
-#include "qlist.h"
 
 #if defined(UNIX)
 #define QT_USE_MMAP
@@ -63,6 +61,8 @@
 #include "qbuffer.h"
 #include "qdatastream.h"
 #include "qmap.h"
+#include "qtl.h"
+#include "qtextcodec.h"
 
 /*
 $ mcookie
@@ -76,6 +76,33 @@ static const uchar magic[magic_length] = { // magic number for the file.
     0xcd, 0x21, 0x1c, 0xbf, 0x60, 0xa1, 0xbd, 0xdd
 };
 
+static bool match( const char* found, const char* target )
+{
+    return found[0] == '\0' || strcmp(found, target) == 0;
+}
+
+static int cmp_uint32_little( const void* target, const void* candidate )
+{
+    const uchar* t = (const uchar*) target;
+    const uchar* c = (const uchar*) candidate;
+    return t[3] != c[0] ? (int) t[3] - c[0]
+	   : t[2] != c[1] ? (int) t[2] - c[1]
+	   : t[1] != c[2] ? (int) t[1] - c[2]
+	   : (int) t[0] - c[3];
+}
+
+static int cmp_uint32_big( const void* target, const void* candidate )
+{
+    const uchar* t = (const uchar*) target;
+    const uchar* c = (const uchar*) candidate;
+    return t[0] != c[0] ? (int) t[0] - c[0]
+	   : t[1] != c[1] ? (int) t[1] - c[1]
+	   : t[2] != c[2] ? (int) t[2] - c[2]
+	   : (int) t[3] - c[3];
+}
+
+static int systemWordSize = 0;
+static bool systemBigEndian;
 
 static uint hash( const char * name )
 {
@@ -85,8 +112,8 @@ static uint hash( const char * name )
 
     if ( name ) {
 	k = (const uchar*)name;
-	while ( *k ) {
-	    h = (h<<4) + *k++;
+	while( *k ) {
+	    h = (h << 4) + *k++;
 	    if ( (g = (h & 0xf0000000)) != 0 )
 		h ^= g >> 24;
 	    h &= ~g;
@@ -102,72 +129,12 @@ static uint hash( const char * name )
 
 class QTranslatorPrivate {
 public:
-    // a single message, with any combination of contents
-    class Message {
-    public:
-	Message(): t( QTranslator::Unfinished ), h(0), collision( FALSE ) {}
-	Message( QDataStream & );
-
-	void setInput( const char * ni )
-	{
-	    QTextCodec* codec = qApp ? qApp->defaultCodec() : 0;
-	    if ( codec )
-		i = codec->toUnicode( ni );
-	    else
-		i = QString::fromLatin1( ni );
-	}
-	QString input() const { return i; }
-
-	void setOutput( const QString & newOutput ) { o = newOutput; }
-	QString output() const { return o; }
-
-	void setScope( const QString & newScope ) { s = newScope; }
-	QString scope() const { return s; }
-
-	uint hash()
-	{
-	    if ( !h ) {
-		QTextCodec* codec = qApp ? qApp->defaultCodec() : 0;
-		if ( codec )
-		    h = ::hash( codec->fromUnicode(i) );
-		else
-		    h = ::hash( i.latin1() );
-	    }
-	    return h;
-	}
-
-	void write( QTranslator::SaveMode, QDataStream & );
-
-	bool sane() { return i.length() > 0 && o.length() > 0 && hash() != 0; }
-
-	void setComment( const QString & newComment) { c = newComment; }
-	QString comment() const { return c; }
-
-	void setTranslationType( QTranslator::TranslationType nt ) { t = nt; }
-	QTranslator::TranslationType translationType() { return t; }
-
-	void setHashCollision( bool asdf ) { collision = asdf; }
-	bool hashCollision() const { return collision; }
-
-    private:
-	QString i;
-	QString o;
-	QString s;
-	QString c;
-	QTranslator::TranslationType t;
-	uint h;
-	bool collision;
-
-	enum Tag { End = 1, Input, Output, Scope, Hash, Comment, Type };
-
-    };
-
     struct Offset {
 	Offset() { h=0; o=0; }
-	Offset( Message * m, int offset )
-	{ h = m->hash(); o = offset; } // ### qChecksum
+	Offset( const QTranslatorMessage& m, int offset )
+	{ h = m.hash(); o = offset; } // ### qChecksum
 
-	bool operator<(const Offset&k) const { return ( h != k.h )
+	bool operator<( const Offset&k ) const { return ( h != k.h )
 							     ? h < k.h
 							     : o < k.o; }
 
@@ -175,11 +142,11 @@ public:
 	uint o;
     };
 
-    enum { Hashes = 0x42, Messages = 0x69 } Tag;
+    enum { Codec = 0x1d, Hashes = 0x42, Messages = 0x69 } Tag;
 
     QTranslatorPrivate() :
 	unmapPointer( 0 ), unmapLength( 0 ),
-	messageArray( 0 ), offsetArray( 0 ),
+	messageArray( 0 ), offsetArray( 0 ), mib( (Q_UINT32) 0 ),
 	messages( 0 ) {}
     // note: QTranslator must finalize this before deallocating it.
 
@@ -191,126 +158,31 @@ public:
     // for squeezed but non-file data, this is what needs to be deleted
     QByteArray * messageArray;
     QByteArray * offsetArray;
+    Q_UINT32 mib;
 
-    QList<Message> * messages;
+    QMap<QTranslatorMessage, void *> * messages;
 
 };
 
 
-QTranslatorPrivate::Message::Message( QDataStream & stream )
-{
-    h = 0;
-    t = QTranslator::Unfinished;
-    collision = FALSE;
-    char tag;
-
-    while( TRUE ) {
-	tag = 0;
-	if ( !stream.atEnd() )
-	    stream.readRawBytes( &tag, 1 );
-	switch( (Tag)tag ) {
-	case End:
-	    return;
-	    //break;
-	case Input:
-	    stream >> i;
-	    break;
-	case Output:
-	    stream >> o;
-	    break;
-	case Scope:
-	    stream >> s;
-	    break;
-	case Hash:
-	    stream >> h;
-	    break;
-	case Comment:
-	    stream >> c;
-	    break;
-	case Type:
-	    { // a scope for tmp, to silence the compiler
-		Q_UINT8 tmp;
-		stream >> tmp;
-		t = (QTranslator::TranslationType)tmp;
-		if ( t != QTranslator::Unfinished &&
-		     t != QTranslator::Finished &&
-		     t != QTranslator::Obsolete )
-		    t = QTranslator::Unfinished;
-	    }
-	    break;
-	default:
-	    i = o = s = c = QString::null;
-	    h = 0;
-	    t = QTranslator::Unfinished;
-	    return;
-	}
-    }
-}
-
-
-void QTranslatorPrivate::Message::write( QTranslator::SaveMode m,
-					 QDataStream & stream )
-{
-    char tag;
-
-    tag = (char)Output;
-    stream.writeRawBytes( &tag, 1 );
-    stream << o;
-
-    bool mustWriteHash = TRUE;
-
-    if ( ( m == QTranslator::Everything || collision ) &&
-	 s && i ) {
-	tag = (char)Scope;
-	stream.writeRawBytes( &tag, 1 );
-	stream << s;
-	tag = (char)Input;
-	stream.writeRawBytes( &tag, 1 );
-	stream << i;
-    }
-
-    if ( mustWriteHash ) {
-	tag = (char)Hash;
-	stream.writeRawBytes( &tag, 1 );
-	stream << h;
-    }
-
-    if ( m == QTranslator::Everything ) {
-	if ( c ) {
-	    tag = (char)Comment;
-	    stream.writeRawBytes( &tag, 1 );
-	    stream << c;
-	}
-	tag = (char)Type;
-	stream.writeRawBytes( &tag, 1 );
-	stream << (Q_UINT8)t;
-    }
-
-    tag = (char)End;
-    stream.writeRawBytes( &tag, 1 );
-}
-
-
-
-
-// NOT REVISED
 /*! \class QTranslator qtranslator.h
 
-  \brief The QTranslator class provides internationalization support for text output.
+  \brief The QTranslator class provides internationalization support for text
+  output.
 
   \ingroup environment
 
-  The class is conceptually very simple: An object of this class
-  contains a set of translations from the reference language to a
-  target language, and provides functions to add, look up and remove
-  such translations as well as the ability to load and save the object
-  to a file.
+  An object of this class contains a set of \l QTranslatorMessage objects, each
+  of which specifies a translation from the source language to a target
+  language, and provides functions to add, look up. and remove such translations
+  as well as the ability to load and save the object to a file.
 
-  The most common use of QTranslator is expected to be loading one
-  from a file, installing it using QApplication::installTranslator(),
-  and using it via QObject::tr(). Like this:
+  The most common use of QTranslator is expected to be loading one from a file,
+  installing it using QApplication::installTranslator(), and using it via
+  QObject::tr(), like this:
+
   \code
-  main( int argc, char** argv )
+  int main( int argc, char ** argv )
   {
     QApplication app( argc, argv );
 
@@ -326,27 +198,44 @@ void QTranslatorPrivate::Message::write( QTranslator::SaveMode m,
   }
   \endcode
 
+  Slightly more advanced usage of QTranslator includes direct lookup using
+  find(), adding new translations using insert() and removing existing ones
+  using remove() or even clear(), and testing whether the QTranslator contains a
+  translation using contains().
 
-  Slightly more advanced usage of QTranslator includes direct lookup
-  using find(), adding new translations using insert() and removing
-  existing ones using remove() or even clear(), and testing whether
-  the QTranslator contains a translation using contains().
+  The lookup is performed using a \e key, which consists of
+  <ul>
+  <li> a \e context - the name of the class that uses the translation
+  <li> a \e source \e text - the fallback text if no translation is available
+  <li> an optional \e comment that may help the human translator provide a
+       better translation, but which isn't seen by end-users.
+  </ul>
 
-  The hash() function mentioned is a variant on the standard ELF hash,
-  modified to work well with Unicode strings in UCS-2 format.  Its
-  algorithm is not specified beyond the fact that it will remain
-  unchanged in future versions of Qt.
+  The comment is part of the key because it disambiguates identical text (for a
+  given context) that requires different translations.  Thus, the key
+  ( "FunnyDialog", "&Save...", "File > Save" ) is distinct from ( "FunnyDialog",
+  "&Save...", "Macro > Save" ).
+
+  \sa QTranslatorMessage QApplication::installTranslator(), QApplication::removeTranslator() QObject::tr() QApplication::translate()
 */
 
 /*! \enum QTranslator::SaveMode
-  This enum type defines how QTranslator can write translation files.
-  There are currently only two modes: <ul>
+  This enum type defines how QTranslator can write translation files.  There are
+  two modes:
 
-  <li> \c Everything - files are saved with all contennts
+  <ul>
+  <li> \c Everything - files are saved with all contents
+  <li> \c Stripped - files are saved with just what's needed for end-users.
+  </ul>
 
-  <li> \c Stripped - files are saved with just what's needed for
-  end-user use of the files.
+  \warning Once stripped, only the following member functions should be called:
 
+  <ul>
+  <li> find(), but only with a key for which there existed a Finished message in
+       the translator before stripping (other keys may produce random
+       translations instead of QString::null)
+  <li> clear(), after which everything is permitted again
+  <li> load().
   </ul>
 */
 
@@ -360,7 +249,7 @@ QTranslator::QTranslator( QObject * parent, const char * name )
 }
 
 
-/*! Destructs the object and frees any allocated resources.
+/*!  Destructs the object and frees any allocated resources.
 */
 
 QTranslator::~QTranslator()
@@ -378,7 +267,7 @@ QTranslator::~QTranslator()
   <ol>
    <li>Filename with \a suffix appended (".qm" if suffix is QString::null)
    <li>Filename with text after a character in \a search_delimiters stripped
-	("_." is the default for \a search_delimiters if it is QString::null)
+       ("_." is the default for \a search_delimiters if it is QString::null)
    <li>Filename stripped and \a suffix appended.
    <li>Filename stripped further, etc.
   </ol>
@@ -391,11 +280,13 @@ QTranslator::~QTranslator()
    <li>/opt/foolib/foo
    <li>/opt/foolib/foo.qm
   </ol>
+
+  \sa save()
 */
 
 bool QTranslator::load( const QString & filename, const QString & directory,
-		        const QString & search_delimiters,
-		        const QString & suffix )
+			const QString & search_delimiters,
+			const QString & suffix )
 {
     clear();
 
@@ -422,7 +313,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     delims = search_delimiters.isNull() ?
 	     QString::fromLatin1("_.") : search_delimiters;
 
-    while( 1 ) {
+    while( TRUE ) {
 	bool done = FALSE;
 	QFileInfo fi;
 
@@ -530,7 +421,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     Q_UINT8 tag = 0;
     Q_UINT32 length = 0;
     s >> tag >> length;
-    while ( tag && length ) {
+    while( tag && length ) {
 	if ( tag == QTranslatorPrivate::Hashes && !d->offsetArray ) {
 	    d->offsetArray = new QByteArray;
 	    d->offsetArray->setRawData( tmpArray.data()+s.device()->at(),
@@ -539,6 +430,8 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	    d->messageArray = new QByteArray;
 	    d->messageArray->setRawData( tmpArray.data()+s.device()->at(),
 					 length );
+	} else if ( tag == QTranslatorPrivate::Codec ) {
+	    s >> d->mib;
 	}
 	s.device()->at( s.device()->at() + length );
 	tag = 0;
@@ -553,20 +446,26 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 
 
 /*!  Saves this message file to \a filename, overwriting the previous
-  contents of \a filename.
+  contents of \a filename.  If \a mode is Everything (this is the default), all
+  the information is preserved.  If \a mode is Stripped, the information that is
+  only necessary for translation tools is stripped away.
 
   \sa load()
 */
 
-bool QTranslator::save( const QString & filename, SaveMode )
+bool QTranslator::save( const QString & filename, SaveMode mode )
 {
     QFile f( filename );
     if ( f.open( IO_WriteOnly ) ) {
-	squeeze();
+	squeeze( mode );
 
 	QDataStream s( &f );
 	s.writeRawBytes( (const char *)magic, magic_length );
 	Q_UINT8 tag;
+
+	tag = (Q_UINT8) QTranslatorPrivate::Codec;
+	if ( d->mib )
+	    s << tag << (Q_UINT32) 4 << d->mib;
 
 	tag = (Q_UINT8) QTranslatorPrivate::Hashes;
 	Q_UINT32 oas = d->offsetArray ? (Q_UINT32) d->offsetArray->size() : 0;
@@ -608,22 +507,27 @@ void QTranslator::clear()
     d->messageArray = 0;
     delete d->offsetArray;
     d->offsetArray = 0;
+    d->mib = (Q_UINT32) 0;
     delete d->messages;
     d->messages = 0;
 }
 
 
-/*!  Converts this message file to the compact format used to store
-  message files on disk.  You should never need to call this directly;
-  save() and other functions call it as necessary.
+/*! Converts this message file to the compact format used to store message files
+  on disk.
+
+  You should never need to call this directly; save() and other functions call
+  it as necessary.
+
+  \sa save() unsqueeze()
 */
 
-void QTranslator::squeeze()
+void QTranslator::squeeze( SaveMode mode )
 {
     if ( !d->messages )
 	return;
 
-    QList<QTranslatorPrivate::Message> * messages = d->messages;
+    QMap<QTranslatorMessage, void *> * messages = d->messages;
 
     d->messages = 0;
     clear();
@@ -631,20 +535,35 @@ void QTranslator::squeeze()
     d->messageArray = new QByteArray;
     d->offsetArray = new QByteArray;
 
-    QMap<QTranslatorPrivate::Offset,void*> offsets;
+    QMap<QTranslatorPrivate::Offset, void *> offsets;
 
     QDataStream ms( *d->messageArray, IO_WriteOnly );
-    QListIterator<QTranslatorPrivate::Message> it( *messages );
-    QTranslatorPrivate::Message * m;
-    while( (m = it.current()) != 0 ) {
-	++it;
-	offsets.replace( QTranslatorPrivate::Offset(m,ms.device()->at()),
-			 (void*)0 );
-	m->write( Everything, ms );
+    QMap<QTranslatorMessage, void *>::Iterator it = messages->begin(), next;
+    int cpPrev = 0, cpNext = 0;
+    for ( it = messages->begin(); it != messages->end(); ++it ) {
+	/*
+	  These should really be stripped in a first pass.  By doing it here,
+	  the result is correct but suboptimal.
+	 */
+	if ( mode == Stripped &&
+	     it.key().type() != QTranslatorMessage::Finished )
+	    continue;
+
+	cpPrev = cpNext;
+	next = it;
+	++next;
+	if ( next == messages->end() )
+	    cpNext = 0;
+	else
+	    cpNext = (int) it.key().commonPrefix( next.key() );
+	offsets.replace( QTranslatorPrivate::Offset(it.key(),
+			 ms.device()->at()), (void*)0 );
+	it.key().write( ms, mode,
+		       (QTranslatorMessage::Prefix) QMAX(cpPrev, cpNext + 1) );
     }
 
     d->offsetArray->resize( 0 );
-    QMap<QTranslatorPrivate::Offset,void*>::Iterator offset;
+    QMap<QTranslatorPrivate::Offset, void *>::Iterator offset;
     offset = offsets.begin();
     QDataStream ds( *d->offsetArray, IO_WriteOnly );
     while( offset != offsets.end() ) {
@@ -655,11 +574,23 @@ void QTranslator::squeeze()
 }
 
 
-/*!  Converts this message file into an easily modifiable data
-  structure, less compact than the format used in the files.
+/*! \overload
 
-  You should never need to call this function; it is called by
-  insert() etc. as necessary.
+  This function calls squeeze( Everything ).  It is provided for compatibility;
+  in Qt 3.0, it will be replaced by a default argument.
+*/
+
+void QTranslator::squeeze()
+{
+    squeeze( Everything );
+}
+
+
+/*!  Converts this message file into an easily modifiable data structure, less
+  compact than the format used in the files.
+
+  You should never need to call this function; it is called by insert() and
+  friends as necessary.
 
   \sa squeeze()
 */
@@ -669,186 +600,514 @@ void QTranslator::unsqueeze()
     if ( d->messages )
 	return;
 
-    QList<QTranslatorPrivate::Message> * messages
-	= new QList<QTranslatorPrivate::Message>;
-    if ( !d->messageArray ) {
-	d->messages = messages;
+    d->messages = new QMap<QTranslatorMessage, void *>;
+    if ( !d->messageArray )
 	return;
-    }
 
     QDataStream s( *d->messageArray, IO_ReadOnly );
-    QTranslatorPrivate::Message * m;
     while( TRUE ) {
-	m = new QTranslatorPrivate::Message( s );
-	if ( m->sane() ) {
-	    messages->append( m );
-	} else {
-	    delete m;
-	    clear();
-	    d->messages = messages;
+	QTranslatorMessage m( s );
+	if ( m.hash() == 0 )
+	    break;
+	d->messages->replace( m, (void *) 0 );
+    }
+}
+
+
+/*!  Returns TRUE if this message file contains a message with the key
+  ( \a context, \a sourceText, \a comment ), and FALSE if it does not.
+
+  (This is is a one-liner that calls find().)
+*/
+
+bool QTranslator::contains( const char* context, const char* sourceText,
+			    const char* comment ) const
+{
+    return find( context, sourceText, comment ) != QString::null;
+}
+
+
+/*! \overload
+  \obsolete
+
+  Returns TRUE if this message file contains a message with the key
+  ( \a context, \a sourceText, "" ), and FALSE if it does not.
+*/
+
+bool QTranslator::contains( const char* context, const char* sourceText ) const
+{
+    return contains( context, sourceText, "" );
+}
+
+/*!  Inserts \a message into this message file.
+
+  \sa remove()
+*/
+
+void QTranslator::insert( const QTranslatorMessage& message )
+{
+    unsqueeze();
+    d->messages->replace( message, (void *) 0 );
+}
+
+
+/*! \overload
+  \obsolete
+*/
+
+void QTranslator::insert( const char * context, const char * sourceText,
+			  const QString & translation )
+{
+    insert( QTranslatorMessage(context, sourceText, "", translation) );
+}
+
+
+/*!  Removes \a message from this translator.
+
+  \sa insert()
+*/
+
+void QTranslator::remove( const QTranslatorMessage& message )
+{
+    unsqueeze();
+    d->messages->remove( message );
+}
+
+
+/*! \overload
+  \obsolete
+
+  Removes the translation associated to the key ( \a context, \a sourceText,
+  "" ) from this translator.
+*/
+
+void QTranslator::remove( const char *context, const char *sourceText )
+{
+    remove( QTranslatorMessage(context, sourceText, "") );
+}
+
+
+/*!  Returns the translation for the key ( \a context, \a sourceText,
+  \a comment ), or QString::null if there is none in this translator.
+
+  \sa findMessage
+*/
+
+QString QTranslator::find( const char* context, const char* sourceText,
+			   const char* comment ) const
+{
+    if ( comment == 0 || comment[0] == '\0' )
+	return find( context, sourceText );
+    else
+	return findMessage( context, sourceText, comment ).translation();
+}
+
+
+/*! \overload
+  \obsolete
+
+  Returns the translation for the key ( \a context, \a sourceText, "" ), or
+  QString::null if there is none in this translator.
+*/
+
+QString QTranslator::find( const char* context, const char* sourceText ) const
+{
+    return findMessage( context, sourceText, "" ).translation();
+}
+
+
+/*!  Returns the \l QTranslatorMessage for the key ( \a context, \a sourceText,
+  \a comment ).
+*/
+
+QTranslatorMessage QTranslator::findMessage( const char* context,
+					     const char* sourceText,
+					     const char* comment ) const
+{
+    if ( d->messages ) {
+	QMap<QTranslatorMessage, void *>::ConstIterator it
+	    = d->messages->find( QTranslatorMessage(context, sourceText,
+				 comment) );
+	if ( it == d->messages->end() )
+	    return QTranslatorMessage();
+	return it.key();
+    }
+
+    if ( !d->offsetArray )
+	return QTranslatorMessage();
+
+    uint h = ::hash( QCString(sourceText) + comment );
+
+    Q_UINT32 rh;
+    Q_UINT32 ro;
+
+    size_t numItems = d->offsetArray->size() / ( 2 * sizeof(Q_UINT32) );
+    if ( !numItems )
+	return QTranslatorMessage();
+
+    if ( systemWordSize == 0 )
+	qSysInfo( &systemWordSize, &systemBigEndian );
+    char *r = (char *) bsearch( &h, d->offsetArray->data(), numItems,
+	    2 * sizeof(Q_UINT32),
+	    systemBigEndian ? cmp_uint32_big : cmp_uint32_little );
+    if ( r == 0 )
+	return QTranslatorMessage();
+
+    while ( r != d->offsetArray->data() && cmp_uint32_big( r - 8, r ) == 0 )
+	r -= 8;
+
+    QDataStream s( *d->offsetArray, IO_ReadOnly );
+    s.device()->at( r - d->offsetArray->data() );
+
+    s >> rh >> ro;
+
+    QDataStream ms( *d->messageArray, IO_ReadOnly );
+    while( rh == h ) {
+	ms.device()->at( ro );
+	QTranslatorMessage m( ms );
+	if ( match(m.context(), context)
+		&& match(m.sourceText(), sourceText)
+		&& match(m.comment(), comment) )
+	    return m;
+	if ( s.atEnd() )
+	    return QTranslatorMessage();
+	s >> rh >> ro;
+    }
+
+    return QTranslatorMessage();
+}
+
+
+/*!  Returns a list of the messages in the translator.  This function is
+  somewhat slow; since it's seldom called it's optimized for simplicity and
+  small size, not speed.
+*/
+
+QValueList<QTranslatorMessage> QTranslator::messages() const
+{
+    ((QTranslator *) this)->unsqueeze();
+    QValueList<QTranslatorMessage> result;
+    QMap<QTranslatorMessage, void *>::ConstIterator it;
+    for ( it = d->messages->begin(); it != d->messages->end(); ++it )
+	result.append( it.key() );
+    return result;
+}
+
+
+/*!  Decodes the 8-bit string \a str using the default codec for the machine on
+  which the translator file was created, if possible.
+
+  \sa QTranslatorMessage::sourceText() QTranslatorMessage::comment()
+*/
+
+QString QTranslator::toUnicode( const char * str ) const
+{
+    QTextCodec * codec;
+    if ( d->mib && (codec = QTextCodec::codecForMib((int) d->mib)) )
+	return codec->toUnicode( str );
+    return QString::fromLatin1( str );
+}
+
+
+/*! \class QTranslatorMessage qtranslator.h
+
+  \brief The QTranslatorMessage class contains an extended translator lookup key
+  together with a translation.
+
+  \ingroup environment
+
+  For a \l QTranslator object, a lookup \e key is a triple ( \e context,
+  \e source \e text, \e comment ) that uniquely identifies a message.  An
+  \e extended \e key is a quadruple ( \e hash, \e context, \e source \e text,
+  \e comment ), where \a hash is computed from the source text and the comment.
+  Unless you plan to read and write messages yourself, you need not worry about
+  the hash value.
+
+  An object of this class also contains the translation, in Unicode, of the
+  source text, with a type.
+
+  \sa QTranslator
+*/
+
+/*! \enum QTranslatorMessage::Type
+
+  This enum defines the types of messages in a translator object.
+
+  <ul>
+  <li> \c Unfinished - the translation is absent or unusable
+  <li> \c Finished - the translation is present and useful
+  <li> \c Obsolete - the translation is present but useless for the user (it
+       might still be useful for the human translator).
+  </ul>
+
+  \sa setType() type()
+*/
+
+/*!  Constructs an Unfinished translator message with extended key ( 0, "", "",
+  "" ) and QString::null as translation.
+*/
+
+QTranslatorMessage::QTranslatorMessage()
+    : h( 0 ), cx( "" ), st( "" ), cm( "" ), ty( Unfinished )
+{
+}
+
+
+/*!  Constructs an translator message of a certain \a type (Unfinished by
+  default) with extended key ( \e h, \a context, \a sourceText, \a comment ),
+  where \e h is computed from \a sourceText and \a comment, and possibly with a
+  \a translation.
+*/
+
+QTranslatorMessage::QTranslatorMessage( const char * context,
+					const char * sourceText,
+					const char * comment,
+					const QString& translation,
+					Type type )
+    : cx( context ), st( sourceText ), cm( comment ), tn( translation ),
+      ty( type )
+{
+    rehash();
+}
+
+
+/*!  Constructs a translator message read from a \a stream.  The resulting
+  message may have any combination of content.
+
+  \sa save()
+ */
+
+QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
+    : cx( "" ), st( "" ), cm( "" )
+{
+    QString str16;
+    ty = Unfinished;
+    char tag;
+
+    while( TRUE ) {
+	tag = 0;
+	if ( !stream.atEnd() )
+	    stream.readRawBytes( &tag, 1 );
+	switch( (Tag)tag ) {
+	case Tag_End:
+	    rehash();
+	    return;
+	case Tag_SourceText16:
+	    stream >> str16;
+	    st = str16.latin1();
+	    break;
+	case Tag_Translation:
+	    stream >> tn;
+	    break;
+	case Tag_Context16:
+	    stream >> str16;
+	    cx = str16.latin1();
+	    break;
+	case Tag_Hash:
+	    stream >> h;
+	    break;
+	case Tag_SourceText:
+	    stream >> st;
+	    break;
+	case Tag_Context:
+	    stream >> cx;
+	    break;
+	case Tag_Comment:
+	    stream >> cm;
+	    break;
+	case Tag_Type:
+	    {
+		Q_UINT8 tmp;
+		stream >> tmp;
+		ty = (QTranslatorMessage::Type)tmp;
+		if ( ty != Unfinished && ty != Finished && ty != Obsolete )
+		    ty = Unfinished;
+	    }
+	    break;
+	default:
+	    st = cx = cm = "";
+	    tn = QString::null;
+	    h = 0;
+	    ty = Unfinished;
 	    return;
 	}
     }
 }
 
 
-/*!  Returns TRUE if this message file contains a message with hash
-  value \a h, and FALSE if it does not.
+/*! \fn uint QTranslatorMessage::hash() const
 
-  (This is is a one-liner that calls find().)
+  Returns the hash value used internally to represent the lookup key.  This
+  value is zero only if this translator message was constructed from a stream
+  containing invalid data.
+  
+  The hashing function is unspecified, but it will remain unchanged in future
+  versions of Qt.
 */
 
-bool QTranslator::contains( const char* scope, const char* key ) const
-{
-    return find( scope, key ) != QString::null;
-}
 
+/*! \fn const char *QTranslatorMessage::context() const
 
-/*! Inserts \a translation of \a message
-  into this message file.
+  Returns the context for this message (e.g., "FunnyDialog").
 */
 
-void QTranslator::insert( const char* scope,
-			  const char* message,
-			  const QString& translation )
-{
-    unsqueeze();
-    d->messages->first();
-    QTranslatorPrivate::Message * m;
-    while( (m=d->messages->current()) != 0 &&
-	   (m->input() != message || m->scope() != scope) )
-	d->messages->next();
+/*! \fn const char *QTranslatorMessage::sourceText() const
 
-    if ( m )
-	d->messages->take();
-    else
-	m = new QTranslatorPrivate::Message();
-
-    m->setInput( message );
-    m->setScope( scope );
-    m->setOutput( translation );
-    d->messages->append( m );
-}
-
-
-/*!  Removes the string for \a h from this message file.  If there is
-  no string for h, this function does nothing.
-
+  Returns the source text of this message (e.g., "&Save").  The source text is
+  used as is for lookup; it should be converted using
+  \l QTranslator::toUnicode() before it shows up properly.
 */
 
-void QTranslator::remove( const char *scope, const char *message )
-{
-    unsqueeze();
-    d->messages->first();
-    QTranslatorPrivate::Message * m;
-    while( (m=d->messages->current()) != 0 &&
-	   (m->input() != message || m->scope() != scope) )
-	d->messages->next();
+/*! \fn const char *QTranslatorMessage::comment() const
 
-    if ( m )
-	d->messages->remove();
-}
-
-
-/*!
-  Returns the translation for (\a scope, \a key), or  QString::null in
-  case there is none in this translator.
+  Returns the comment for this message (e.g., "File > Save").  The comment is
+  used as is for lookup; it should be converted using
+  \l QTranslator::toUnicode() before it shows up properly.
 */
 
-QString QTranslator::find( const char* scope, const char* message ) const
+/*! \fn void QTranslatorMessage::setTranslation( const QString & translation )
+
+  Sets the translation of the source text.
+
+  \sa translation()
+*/
+
+/*! \fn QString QTranslatorMessage::translation() const
+
+  Returns the translation of the source text (e.g., "&Sauvegarder...").
+
+  \sa setTranslation()
+*/
+
+/*! \fn void QTranslatorMessage::setType( Type type )
+
+  Sets the type of this message.
+
+  \sa type()
+*/
+
+/*! \fn Type QTranslatorMessage::type() const
+
+  Returns the type of this message.
+
+  The default value is Unfinished.
+
+  \sa setType()
+*/
+
+/*! \enum QTranslatorMessage::Prefix
+
+  Let ( \e h, \e c, \e s, \e m ) be the extended key.  The possible prefixes are
+
+  <ul>
+  <li> \c NoPrefix - no prefix
+  <li> \c Hash - only ( \e h )
+  <li> \c HashContext - only ( \e h, \e c )
+  <li> \c HashContextSourceText - only ( \e h, \e c, \e s )
+  <li> \c HashContextSourceTextComment - the whole extended key, ( \e h, \e c,
+       \e s, \e m ).
+  </ul>
+
+  \sa write() commonPrefix()
+*/
+
+/*!  Writes this translator message to a \a stream.  If \a mode is Everything
+  (the default), all the information in the message is written.  If \a mode is
+  Stripped, only the part of the extended key specified by \a prefix is written
+  with the translation (HashContextSourceTextComment by default).
+
+  \sa commonPrefix()
+*/
+
+void QTranslatorMessage::write( QDataStream & stream,
+				QTranslator::SaveMode mode,
+				Prefix prefix ) const
 {
-    if ( d->messages ) {
-	d->messages->first();
-	QTranslatorPrivate::Message * m;
-	while( (m=d->messages->current()) != 0 &&
-	       (m->input() != message || m->scope() != scope) )
-	    d->messages->next();
-	if ( m )
-	    return m->output();
-	return QString::null;
+    char tag;
+
+    tag = (char)Tag_Translation;
+    stream.writeRawBytes( &tag, 1 );
+    stream << tn;
+
+    bool mustWriteHash = TRUE;
+
+    if ( mode == QTranslator::Everything )
+	prefix = HashContextSourceTextComment;
+
+    switch ( prefix ) {
+    case HashContextSourceTextComment:
+	tag = (char)Tag_Comment;
+	stream.writeRawBytes( &tag, 1 );
+	stream << cm;
+	// fall through
+    case HashContextSourceText:
+	tag = (char)Tag_SourceText;
+	stream.writeRawBytes( &tag, 1 );
+	stream << st;
+	// fall through
+    case HashContext:
+	tag = (char)Tag_Context;
+	stream.writeRawBytes( &tag, 1 );
+	stream << cx;
+	// fall through
+    default:
+	if ( mustWriteHash ) {
+	    tag = (char)Tag_Hash;
+	    stream.writeRawBytes( &tag, 1 );
+	    stream << h;
+	}
     }
 
-    uint h = ::hash( message );
-    if ( !d->offsetArray )
-	return QString::null;
-
-    QDataStream s( *d->offsetArray, IO_ReadOnly );
-    s.device()->at( 0 );
-    Q_UINT32 rh = 0; // h is >= 1
-    Q_UINT32 ro;
-    while( rh < h && !s.atEnd() )
-	s >> rh >> ro; // ### a long, slow loop.  needs fixing.
-
-    if ( rh > h )
-	return QString::null;
-
-    QDataStream ms( *d->messageArray, IO_ReadOnly );
-    while( rh == h ) {
-	ms.device()->at( ro );
-	QTranslatorPrivate::Message m( ms );
-	if ( m.input().isNull() ||
-	     ( m.input() == message && m.scope() == scope ) )
-	    return m.output();
-	if ( s.atEnd() )
-	    return QString::null;
-	s >> rh >> ro;
+    if ( mode == QTranslator::Everything ) {
+	tag = (char)Tag_Type;
+	stream.writeRawBytes( &tag, 1 );
+	stream << (Q_UINT8)ty;
     }
 
-    return QString::null;
+    tag = (char)Tag_End;
+    stream.writeRawBytes( &tag, 1 );
 }
 
 
+/*!  Returns the widest lookup prefix that is common to this translator message
+  and message \a m.
+  
+  For example, if the extended key is for this message is ( 42, "FunnyDialog",
+  "Yes", "Funny?" ) and that for \a m is ( 42, "FunnyDialog", "No", "Funny?" ),
+  returns \l HashContext.
 
-
-/*  Returns a list of the inputs in the translator.  This function is
-somewhat slow; since it's seldom called it's optimized for simplicity
-and small size, not speed.
-*/
-QValueList<QTranslatorInputItem> QTranslator::inputKeys() const
-{
-    QValueList<QTranslatorInputItem> result;
-
-    ((QTranslator *)this)->unsqueeze();
-    d->messages->first();
-    QTranslatorPrivate::Message * m;
-    while( (m=d->messages->current()) != 0 ) {
-	QTranslatorInputItem i;
-	i.scope = m->scope();
-	i.key = m->input();
-	result.append( i );
-	d->messages->next();
-    }
-    return result;
-}
-
-
-/*!  Sets the comment for \a message in \a scope to \a comment.  The
-comment is a string which may help the translator provide a better
-translation, but which isn't seen by any end-users.  Most applications
-will never need to call this.
+  \sa write()
 */
 
-void QTranslator::setComment( const char * scope, const char * message,
-			      const char * comment )
+QTranslatorMessage::Prefix QTranslatorMessage::commonPrefix(
+	const QTranslatorMessage& m ) const
 {
-    unsqueeze();
-    QTranslatorPrivate::Message * m;
-    while( (m=d->messages->current()) != 0 &&
-	   (m->input() != message || m->scope() != scope) )
-	d->messages->next();
-    if ( m )
-	m->setComment( comment );
+    if ( h != m.h )
+	return NoPrefix;
+    if ( cx != m.cx )
+	return Hash;
+    if ( st != m.st )
+	return HashContext;
+    if ( cm != m.cm )
+	return HashContextSourceText;
+    return HashContextSourceTextComment;
 }
 
 
-/*!  Returns the comment for \a message in \a scope. */
+/*!  Returns TRUE if the extended key of this object is lexicographically less
+  than that of \a m, otherwise FALSE.
+*/
 
-QString QTranslator::comment( const char * scope, const char * message )
+bool QTranslatorMessage::operator<( const QTranslatorMessage& m ) const
 {
-    unsqueeze();
-    QTranslatorPrivate::Message * m;
-    while( (m=d->messages->current()) != 0 &&
-	   (m->input() != message || m->scope() != scope) )
-	d->messages->next();
-    return m ? m->comment() : QString::null;
+    return h != m.h ? h < m.h
+	   : ( cx != m.cx ? cx < m.cx
+	     : (st != m.st ? st < m.st : cm < m.cm) );
+}
+
+
+uint QTranslatorMessage::rehash()
+{
+    h = ::hash( st + cm );
+    return h;
 }
