@@ -83,7 +83,6 @@ public:
     bool isVerticalStretchable() const;
 
     bool event( QEvent * e );
-    bool eventFilter( QObject *, QEvent * );
 
     virtual void setLabel( const QString & );
     QString label() const;

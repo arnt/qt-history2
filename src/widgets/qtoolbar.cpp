@@ -282,7 +282,8 @@ void QToolBar::init()
     sw = 0;
 
     bl = new QBoxLayout( this, orientation() == Vertical
-			? QBoxLayout::Down : QBoxLayout::LeftToRight,
+			? QBoxLayout::Down : ( QApplication::reverseLayout() ? QBoxLayout::RightToLeft :
+					       QBoxLayout::LeftToRight ),
 			style() == WindowsStyle ? 2 : 1, 0 );
     boxLayout()->setAutoAdd( TRUE );
     if ( !mw || mw->toolBarsMovable() )
@@ -306,7 +307,8 @@ QBoxLayout *QToolBar::boxLayout()
 {
     if ( !layout() ) {
 	bl = new QBoxLayout( this, orientation() == Vertical
-			     ? QBoxLayout::Down : QBoxLayout::LeftToRight,
+			     ? QBoxLayout::Down : ( QApplication::reverseLayout() ? QBoxLayout::RightToLeft :
+						    QBoxLayout::LeftToRight ),
 			     style() == WindowsStyle ? 2 : 1, 0 );
 	if ( !mw || mw->toolBarsMovable() )
 	    boxLayout()->addSpacing( 9 );
@@ -469,15 +471,6 @@ bool QToolBar::event( QEvent * e )
 	    d->back = 0;
     }
     return r;
-}
-
-
-/*! \reimp */
-
-bool QToolBar::eventFilter( QObject * obj, QEvent * e )
-{
-    //Does nothing, present for binary compatibility
-    return QWidget::eventFilter( obj, e );
 }
 
 
@@ -899,13 +892,23 @@ void QToolBar::paintToolBar()
     QPainter p( this );
     int w = width();
     int h = height();
-    if ( orientation() == Horizontal && w < sizeHint().width() )
+    int hw = w;
+    int hh =h;
+    if ( orientation() == Horizontal && w < sizeHint().width() ) {
 	w++;
-    else if ( orientation() == Vertical && h < sizeHint().height() )
+	hw = 14;
+    } else if ( orientation() == Vertical && h < sizeHint().height() ) {
 	h++;
+	hh = 14;
+    }
     style().drawPanel( &p, 0, 0, w, h,
  		       colorGroup(), FALSE, 1, 0 );
-    style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),
+    int xpos;
+    if ( QApplication::reverseLayout() )
+	xpos = width() - 14;
+    else 
+	xpos = 0;
+    style().drawToolBarHandle( &p, QRect( xpos, 0, hw, hh ),
  			       orientation(), d->moving, colorGroup() );
 }
 

@@ -1389,5 +1389,65 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
     return QMotifStyle::eventFilter(object, event);
 }
 
+/*!\reimp
+ */
+void QMotifPlusStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
+				bool highlight, const QColorGroup &cg,
+				bool drawBorder )
+{
+    p->save();
+    p->translate( r.x(), r.y() );
+
+    unsigned int i;
+    
+    if (orientation == Qt::Vertical) {
+	drawButton(p, r.x(), r.y(), r.width(), toolBarHandleExtent(),
+		   cg, FALSE, &cg.brush(((highlight) ?
+					 QColorGroup::Highlight :
+					 QColorGroup::Button)));
+	
+	if (r.width() > 8) {
+	    QPointArray a( 2 * ((r.width()-8)/3) );
+	    
+	    int x = 3 + (r.width()%3)/2;
+	    p->setPen( cg.dark() );
+	    for( i=0; 2*i < a.size(); i ++ ) {
+		a.setPoint( 2*i, x+1+3*i, 6 );
+		a.setPoint( 2*i+1, x+2+3*i, 3 );
+	    }
+	    p->drawPoints( a );
+	    p->setPen( cg.light() );
+	    for( i=0; 2*i < a.size(); i++ ) {
+		a.setPoint( 2*i, x+3*i, 5 );
+		a.setPoint( 2*i+1, x+1+3*i, 2 );
+	    }
+	    p->drawPoints( a );
+	}
+    } else {
+	drawButton(p, r.x(), r.y(), toolBarHandleExtent(), r.height(),
+		   cg, FALSE, &cg.brush(((highlight) ?
+					 QColorGroup::Highlight :
+					 QColorGroup::Button)));
+	
+	if ( r.height() > 8 ) {
+	    QPointArray a( 2 * ((r.height()-8)/3) );
+	    
+	    int y = 3 + (r.height()%3)/2;
+	    p->setPen( cg.dark() );
+	    for( i=0; 2*i < a.size(); i ++ ) {
+		a.setPoint( 2*i, 5, y+1+3*i );
+		a.setPoint( 2*i+1, 2, y+2+3*i );
+	    }
+	    p->drawPoints( a );
+	    p->setPen( cg.light() );
+	    for( i=0; 2*i < a.size(); i++ ) {
+		a.setPoint( 2*i, 4, y+3*i );
+		a.setPoint( 2*i+1, 1, y+1+3*i );
+	    }
+	    p->drawPoints( a );
+	}
+    }
+    p->restore();
+}
 
 #endif // QT_NO_STYLE_MOTIFPLUS

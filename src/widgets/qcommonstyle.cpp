@@ -349,147 +349,28 @@ QRect QStyle::pushButtonContentsRect( QPushButton* btn ) const
 }
 
 
-void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
+void QCommonStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
 				bool highlight, const QColorGroup &cg,
 				bool drawBorder )
 {
     p->save();
     p->translate( r.x(), r.y() );
 
-    if ( guiStyle() == Qt::MotifStyle ) {
-#ifndef QT_NO_STYLE_MOTIFPLUS
-	if (inherits("QMotifPlusStyle")) {
-	    QMotifPlusStyle *mp = (QMotifPlusStyle *) this;
-	    unsigned int i;
-
-	    if (orientation == Qt::Vertical) {
-		mp->drawButton(p, r.x(), r.y(), r.width(), toolBarHandleExtent(),
-			       cg, FALSE, &cg.brush(((highlight) ?
-						     QColorGroup::Highlight :
-						     QColorGroup::Button)));
-
-		if (r.width() > 8) {
-		    QPointArray a( 2 * ((r.width()-8)/3) );
-
-		    int x = 3 + (r.width()%3)/2;
-		    p->setPen( cg.dark() );
-		    for( i=0; 2*i < a.size(); i ++ ) {
-			a.setPoint( 2*i, x+1+3*i, 6 );
-			a.setPoint( 2*i+1, x+2+3*i, 3 );
-		    }
-		    p->drawPoints( a );
-		    p->setPen( cg.light() );
-		    for( i=0; 2*i < a.size(); i++ ) {
-			a.setPoint( 2*i, x+3*i, 5 );
-			a.setPoint( 2*i+1, x+1+3*i, 2 );
-		    }
-		    p->drawPoints( a );
-		}
-	    } else {
-		mp->drawButton(p, r.x(), r.y(), toolBarHandleExtent(), r.height(),
-			       cg, FALSE, &cg.brush(((highlight) ?
-						     QColorGroup::Highlight :
-						     QColorGroup::Button)));
-
-		if ( r.height() > 8 ) {
-		    QPointArray a( 2 * ((r.height()-8)/3) );
-
-		    int y = 3 + (r.height()%3)/2;
-		    p->setPen( cg.dark() );
-		    for( i=0; 2*i < a.size(); i ++ ) {
-			a.setPoint( 2*i, 5, y+1+3*i );
-			a.setPoint( 2*i+1, 2, y+2+3*i );
-		    }
-		    p->drawPoints( a );
-		    p->setPen( cg.light() );
-		    for( i=0; 2*i < a.size(); i++ ) {
-			a.setPoint( 2*i, 4, y+3*i );
-			a.setPoint( 2*i+1, 1, y+1+3*i );
-		    }
-		    p->drawPoints( a );
-		}
-	    }
-	} else
-#endif // QT_NO_STYLE_MOTIFPLUS
-	{
-	    QColor dark( cg.dark() );
-	    QColor light( cg.light() );
-	    unsigned int i;
-	    if ( orientation == Qt::Vertical ) {
-		int w = r.width();
-		if ( w > 6 ) {
-		    if ( highlight )
-			p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
-		    QPointArray a( 2 * ((w-6)/3) );
-
-		    int x = 3 + (w%3)/2;
-		    p->setPen( dark );
-		    p->drawLine( 1, 8, w-2, 8 );
-		    for( i=0; 2*i < a.size(); i ++ ) {
-			a.setPoint( 2*i, x+1+3*i, 6 );
-			a.setPoint( 2*i+1, x+2+3*i, 3 );
-		    }
-		    p->drawPoints( a );
-		    p->setPen( light );
-		    p->drawLine( 1, 9, w-2, 9 );
-		    for( i=0; 2*i < a.size(); i++ ) {
-			a.setPoint( 2*i, x+3*i, 5 );
-			a.setPoint( 2*i+1, x+1+3*i, 2 );
-		    }
-		    p->drawPoints( a );
-		    if ( drawBorder ) {
-			p->setPen( QPen( Qt::darkGray ) );
-			p->drawLine( r.width() - 1, 0,
-				     r.width() - 1, toolBarHandleExtent() );
-		    }
-		}
-	    } else {
-		int h = r.height();
-		if ( h > 6 ) {
-		    if ( highlight )
-			p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
-		    QPointArray a( 2 * ((h-6)/3) );
-		    int y = 3 + (h%3)/2;
-		    p->setPen( dark );
-		    p->drawLine( 8, 1, 8, h-2 );
-		    for( i=0; 2*i < a.size(); i ++ ) {
-			a.setPoint( 2*i, 5, y+1+3*i );
-			a.setPoint( 2*i+1, 2, y+2+3*i );
-		    }
-		    p->drawPoints( a );
-		    p->setPen( light );
-		    p->drawLine( 9, 1, 9, h-2 );
-		    for( i=0; 2*i < a.size(); i++ ) {
-			a.setPoint( 2*i, 4, y+3*i );
-			a.setPoint( 2*i+1, 1, y+1+3*i );
-		    }
-		    p->drawPoints( a );
-		    if ( drawBorder ) {
-			p->setPen( QPen( Qt::darkGray ) );
-			p->drawLine( 0, r.height() - 1,
-				     toolBarHandleExtent(), r.height() - 1 );
-		    }
-		}
-	    }
+    if ( orientation == Qt::Vertical ) {
+	if ( r.width() > 4 ) {
+	    qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
+			     cg, highlight, 1, 0 );
+	    qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
+			     cg, highlight, 1, 0 );
 	}
     } else {
-	if ( orientation == Qt::Vertical ) {
-	    if ( r.width() > 4 ) {
-		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
-				 cg, highlight, 1, 0 );
-		qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
-				 cg, highlight, 1, 0 );
-	    }
-	} else {
-	    if ( r.height() > 4 ) {
-		qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
-				 cg, highlight, 1, 0 );
-		qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
-				 cg, highlight, 1, 0 );
-	    }
+	if ( r.height() > 4 ) {
+	    qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
+			     cg, highlight, 1, 0 );
+	    qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
+			     cg, highlight, 1, 0 );
 	}
     }
-
     p->restore();
 }
 

@@ -274,7 +274,7 @@ public:
     virtual void drawToolBarHandle( QPainter *p, const QRect &r,
 				    Qt::Orientation orientation,
 				    bool highlight, const QColorGroup &cg,
-				    bool drawBorder = FALSE );
+				    bool drawBorder = FALSE ) = 0;
 
 protected:
     void setScrollBarExtent( int w, int h=-1 ); // ### remove 3.0

@@ -119,6 +119,10 @@ public:
     void drawSliderGroove(QPainter *p, int x, int y, int w, int h,
 			  const QColorGroup& g, QCOORD,
 			  Orientation );
+    void drawToolBarHandle( QPainter *p, const QRect &r,
+			    Qt::Orientation orientation,
+			    bool highlight, const QColorGroup &cg,
+			    bool drawBorder = FALSE );
 
 
 protected:

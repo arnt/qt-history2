@@ -2743,8 +2743,13 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 {
     if ( e->type() == QEvent::MouseButtonPress && !d->inMovement ) {
 	if ( t->orientation() == Horizontal ) {
-	    if ( e->x() > 10 )
-		return;
+	    if( QApplication::reverseLayout() ) {
+		if ( e->x() < t->width() - 10 )
+		    return;
+	    } else {
+		if ( e->x() > 10 )
+		    return;
+	    }
 	}
 	
 	if ( t->orientation() == Vertical ) {

@@ -1174,4 +1174,76 @@ QRect QMotifStyle::comboButtonFocusRect( int x, int y, int w, int h ) const
 			  ew, awh, ax, ay, sh, dh, sy );
     return QRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
 }
+
+/*!\reimp
+ */
+void QMotifStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
+				bool highlight, const QColorGroup &cg,
+				bool drawBorder )
+{
+    p->save();
+    p->translate( r.x(), r.y() );
+
+    QColor dark( cg.dark() );
+    QColor light( cg.light() );
+    unsigned int i;
+    if ( orientation == Qt::Vertical ) {
+	int w = r.width();
+	if ( w > 6 ) {
+	    if ( highlight )
+		p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
+	    QPointArray a( 2 * ((w-6)/3) );
+	    
+	    int x = 3 + (w%3)/2;
+	    p->setPen( dark );
+	    p->drawLine( 1, 8, w-2, 8 );
+	    for( i=0; 2*i < a.size(); i ++ ) {
+		a.setPoint( 2*i, x+1+3*i, 6 );
+		a.setPoint( 2*i+1, x+2+3*i, 3 );
+	    }
+	    p->drawPoints( a );
+	    p->setPen( light );
+	    p->drawLine( 1, 9, w-2, 9 );
+	    for( i=0; 2*i < a.size(); i++ ) {
+		a.setPoint( 2*i, x+3*i, 5 );
+		a.setPoint( 2*i+1, x+1+3*i, 2 );
+	    }
+	    p->drawPoints( a );
+	    if ( drawBorder ) {
+		p->setPen( QPen( Qt::darkGray ) );
+		p->drawLine( r.width() - 1, 0,
+			     r.width() - 1, toolBarHandleExtent() );
+	    }
+	}
+    } else {
+	int h = r.height();
+	if ( h > 6 ) {
+	    if ( highlight )
+		p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
+	    QPointArray a( 2 * ((h-6)/3) );
+	    int y = 3 + (h%3)/2;
+	    p->setPen( dark );
+	    p->drawLine( 8, 1, 8, h-2 );
+	    for( i=0; 2*i < a.size(); i ++ ) {
+		a.setPoint( 2*i, 5, y+1+3*i );
+		a.setPoint( 2*i+1, 2, y+2+3*i );
+	    }
+	    p->drawPoints( a );
+	    p->setPen( light );
+	    p->drawLine( 9, 1, 9, h-2 );
+	    for( i=0; 2*i < a.size(); i++ ) {
+		a.setPoint( 2*i, 4, y+3*i );
+		a.setPoint( 2*i+1, 1, y+1+3*i );
+	    }
+	    p->drawPoints( a );
+	    if ( drawBorder ) {
+		p->setPen( QPen( Qt::darkGray ) );
+		p->drawLine( 0, r.height() - 1,
+			     toolBarHandleExtent(), r.height() - 1 );
+	    }
+	}
+    }
+    p->restore();
+}
+
 #endif

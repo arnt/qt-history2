@@ -101,6 +101,10 @@ public:
     void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int& ) const;
     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart,
 				uint controls, uint activeControl );
+    void drawToolBarHandle( QPainter *p, const QRect &r,
+			    Qt::Orientation orientation,
+			    bool highlight, const QColorGroup &cg,
+			    bool drawBorder = FALSE );
 
     int sliderLength() const;
     void drawSlider( QPainter *p,

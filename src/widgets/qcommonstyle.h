@@ -102,6 +102,12 @@ public:
 				    QMenuItem* mi, QColorGroup& g,
 				    bool enabled, bool active );
 
+    void drawToolBarHandle( QPainter *p, const QRect &r,
+			    Qt::Orientation orientation,
+			    bool highlight, const QColorGroup &cg,
+			    bool drawBorder = FALSE );
+
+    
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QCommonStyle( const QCommonStyle & );
