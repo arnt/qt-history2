@@ -67,10 +67,12 @@ kernel {
 	 	  $$KERNEL_P/qinputcontext_p.h \
 		  $$KERNEL_P/qrichtext_p.h \
 		  $$KERNEL_H/qsimplerichtext.h \
-		  $$KERNEL_CPP/qscriptengine_p.h \
-		  $$KERNEL_CPP/qtextengine_p.h \
-		  $$KERNEL_CPP/qfontengine_p.h \
-		  $$KERNEL_CPP/qtextlayout_p.h
+		  $$KERNEL_H/qscriptengine_p.h \
+		  $$KERNEL_H/qtextengine_p.h \
+		  $$KERNEL_H/qfontengine_p.h \
+		  $$KERNEL_H/qtextlayout_p.h \
+		  $$KERNEL_H/qtextformat_p.h \
+		  $$KERNEL_H/qtextformat.h
 
 	win32 {
 		HEADERS    += \
@@ -215,6 +217,7 @@ kernel {
 		  $$KERNEL_CPP/qstylesheet.cpp \
 		  $$KERNEL_CPP/qtextengine.cpp \
 		  $$KERNEL_CPP/qtextlayout.cpp \
+		  $$KERNEL_CPP/qtextformat.cpp \
 		  $$KERNEL_CPP/qvariant.cpp \
 		  $$KERNEL_CPP/qwidget.cpp \
 		  $$KERNEL_CPP/qwmatrix.cpp
