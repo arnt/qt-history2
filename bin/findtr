@@ -104,7 +104,7 @@ foreach $file ( @ARGV ) {
 		# $6,$7 - scoped one-argument msgid
 		(?:\b
 		    # The scope
-		    (\w+::)
+		    (\w+)::
 		    # One of the marks
 		    (?:$real_mark)
 		    \s*
