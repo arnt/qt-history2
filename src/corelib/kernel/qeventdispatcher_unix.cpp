@@ -122,8 +122,8 @@ QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
     fcntl(thread_pipe[1], F_SETFL, fcntl(thread_pipe[1], F_GETFL) | O_NONBLOCK);
 
     sn_highest = -1;
-    timerList = 0;
-    timerBitVec = 0;
+
+    timerBitVec.fill(false, 128);
 
     interrupt = false;
 
@@ -136,15 +136,8 @@ QEventDispatcherUNIXPrivate::~QEventDispatcherUNIXPrivate()
     close(thread_pipe[0]);
     close(thread_pipe[1]);
 
-    //cleanup timer
-    if (timerList) {
-        while (!timerList->isEmpty())
-            delete timerList->takeFirst();
-        delete timerList;
-        timerList = 0;
-    }
-    delete timerBitVec;
-    timerBitVec = 0;
+    // cleanup timers
+    qDeleteAll(timerList);
 }
 
 int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, timeval *timeout)
@@ -279,14 +272,14 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
 #if defined(QT_DEBUG)
     int dangerCount = 0;
 #endif
-    for (; index < timerList->size(); ++index) {
-        register const QTimerInfo * const t = timerList->at(index);
+    for (; index < timerList.size(); ++index) {
+        register const QTimerInfo * const t = timerList.at(index);
 #if defined(QT_DEBUG)
         if (t->obj == ti->obj) ++dangerCount;
 #endif
         if (ti->timeout < t->timeout) break;
     }
-    timerList->insert(index, ti);
+    timerList.insert(index, ti);
 
 #if defined(QT_DEBUG)
     if (dangerCount > 16)
@@ -303,8 +296,8 @@ void QEventDispatcherUNIXPrivate::timerRepair(const timeval &time)
 {
     timeval diff = watchtime - time;
     // repair all timers
-    for (int i = 0; i < timerList->size(); ++i) {
-        register QTimerInfo *t = timerList->at(i);
+    for (int i = 0; i < timerList.size(); ++i) {
+        register QTimerInfo *t = timerList.at(i);
         t->timeout = t->timeout - diff;
     }
 }
@@ -321,10 +314,10 @@ bool QEventDispatcherUNIXPrivate::timerWait(timeval &tm)
         timerRepair(currentTime);
     watchtime = currentTime;
 
-    if (!timerList || timerList->isEmpty())
+    if (timerList.isEmpty())
         return false;
 
-    QTimerInfo *t = timerList->first();        // first waiting timer
+    QTimerInfo *t = timerList.first();        // first waiting timer
     if (currentTime < t->timeout) {
         // time to wait
         tm = t->timeout - currentTime;
@@ -382,33 +375,25 @@ int QEventDispatcherUNIX::registerTimer(int interval, QObject *obj)
                "timers cannot be started from another thread");
 
     Q_D(QEventDispatcherUNIX);
-    if (!d->timerList) {                                // initialize timer data
-        d->timerBitVec = new QBitArray(128);
-        int i = d->timerBitVec->size();
-        while(i-- > 0)
-            d->timerBitVec->clearBit(i);
-        d->timerList = new QTimerList;
-        gettimeofday(&d->watchtime, 0);
-    }
 
     int id = 0;
     {
-        int i = d->timerBitVec->size()-1;
-        while (i >= 0 && (*d->timerBitVec)[i])
+        int i = d->timerBitVec.size()-1;
+        while (i >= 0 && d->timerBitVec[i])
             i--;
         if (i < 0) {
-            i = d->timerBitVec->size();
-            d->timerBitVec->resize(4 * i);
-            for(int j=d->timerBitVec->size()-1; j > i; j--)
-                d->timerBitVec->clearBit(j);
+            i = d->timerBitVec.size();
+            d->timerBitVec.resize(4 * i);
+            for(int j=d->timerBitVec.size()-1; j > i; j--)
+                d->timerBitVec.clearBit(j);
         }
-        d->timerBitVec->setBit(i);
+        d->timerBitVec.setBit(i);
         id = i+1;
     }
     if (id <= 0 ||
-         id > (int)d->timerBitVec->size() || !obj)// cannot create timer
+         id > (int)d->timerBitVec.size() || !obj)// cannot create timer
         return 0;
-    d->timerBitVec->setBit(id-1);                // set timer active
+    d->timerBitVec.setBit(id-1);                // set timer active
     QTimerInfo *t = new QTimerInfo;                // create timer
     t->id = id;
     t->interval.tv_sec  = interval / 1000;
@@ -427,17 +412,17 @@ int QEventDispatcherUNIX::registerTimer(int interval, QObject *obj)
 bool QEventDispatcherUNIX::unregisterTimer(int id)
 {
     Q_D(QEventDispatcherUNIX);
-    if (!d->timerList || id <= 0 ||
-        id > (int)d->timerBitVec->size() || !d->timerBitVec->testBit(id-1)) {
-        // not initialized or invalid timer
+    if (d->timerList.isEmpty()
+        || id <= 0 || id > (int)d->timerBitVec.size() || !d->timerBitVec.testBit(id-1)) {
+        // invalid timer
         return false;
     }
     // set timer inactive
-    for (int i = 0; i < d->timerList->size(); ++i) {
-        register QTimerInfo *t = d->timerList->at(i);
+    for (int i = 0; i < d->timerList.size(); ++i) {
+        register QTimerInfo *t = d->timerList.at(i);
         if (t->id == id) {
-            d->timerBitVec->clearBit(id - 1);
-            d->timerList->removeAt(i);
+            d->timerBitVec.clearBit(id - 1);
+            d->timerList.removeAt(i);
             delete t;
             return true;
         }
@@ -456,22 +441,19 @@ bool QEventDispatcherUNIX::unregisterTimers(QObject *obj)
                "timers cannot be stopped from another thread");
 
     Q_D(QEventDispatcherUNIX);
-    if (!d->timerList)                                // not initialized
+    if (d->timerList.isEmpty())
         return false;
-
-    for (int i = 0; i < d->timerList->size(); ++i) {
-        register QTimerInfo *t = d->timerList->at(i);
+    for (int i = 0; i < d->timerList.size(); ++i) {
+        register QTimerInfo *t = d->timerList.at(i);
         if (t->obj == obj) {
             // object found
-            d->timerBitVec->clearBit(t->id - 1);
-            d->timerList->removeAt(i);
+            d->timerBitVec.clearBit(t->id - 1);
+            d->timerList.removeAt(i);
             delete t;
-
             // move back one so that we don't skip the new current item
             --i;
         }
     }
-
     return true;
 }
 
@@ -614,12 +596,12 @@ int QEventDispatcherUNIX::activateTimers()
     Q_ASSERT(thread() == QThread::currentThread());
 
     Q_D(QEventDispatcherUNIX);
-    if (qt_disable_lowpriority_timers || !d->timerList || d->timerList->isEmpty())
+    if (qt_disable_lowpriority_timers || d->timerList.isEmpty())
         return 0; // nothing to do
 
     bool first = true;
     timeval currentTime;
-    int n_act = 0, maxCount = d->timerList->size();
+    int n_act = 0, maxCount = d->timerList.size();
     QTimerInfo *begin = 0;
 
     while (maxCount--) {
@@ -632,8 +614,8 @@ int QEventDispatcherUNIX::activateTimers()
             d->watchtime = currentTime;
         }
 
-        if (d->timerList->isEmpty()) break;
-        register QTimerInfo *t = d->timerList->first();
+        if (d->timerList.isEmpty()) break;
+        register QTimerInfo *t = d->timerList.first();
         if (currentTime < t->timeout)
             break; // no timer has expired
 
@@ -647,7 +629,7 @@ int QEventDispatcherUNIX::activateTimers()
         }
 
         // remove from list
-        d->timerList->removeFirst();
+        d->timerList.removeFirst();
         t->timeout += t->interval;
         if (t->timeout < currentTime)
             t->timeout = currentTime + t->interval;
@@ -661,7 +643,7 @@ int QEventDispatcherUNIX::activateTimers()
         QTimerEvent e(t->id);
         QCoreApplication::sendEvent(t->obj, &e);
 
-        if (!d->timerList->contains(begin)) begin = 0;
+        if (!d->timerList.contains(begin)) begin = 0;
     }
     return n_act;
 }

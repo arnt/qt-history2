@@ -26,14 +26,11 @@
 //
 
 #include "qabstracteventdispatcher_p.h"
-
-class QBitArray;
+#include <qbitarray.h>
+#include <qlist.h>
 
 // internal timer info
 struct QTimerInfo;
-
-// list of TimerInfo structs
-typedef QList<QTimerInfo*> QTimerList;
 
 struct Q_CORE_EXPORT QSockNot
 {
@@ -76,8 +73,8 @@ public:
     // 3 socket notifier types - read, write and exception
     QSockNotType sn_vec[3];
 
-    QBitArray *timerBitVec;
-    QTimerList *timerList;
+    QBitArray timerBitVec;
+    QList<QTimerInfo*> timerList;
     bool timerWait(timeval &);
     void timerInsert(QTimerInfo *);
     void timerRepair(const timeval &);
