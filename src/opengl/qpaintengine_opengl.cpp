@@ -414,17 +414,17 @@ void QOpenGLPaintEngine::updateXForm(const QMatrix &mtx)
 
 void QOpenGLPaintEngine::updateClipRegion(const QRegion &rgn, bool clip)
 {
-    bool useStencil = dgl->format().stencil();
-    bool useDepth = dgl->format().depth() && !useStencil;
+    bool useStencilBuffer = dgl->format().stencil();
+    bool useDepthBuffer = dgl->format().depth() && !useStencilBuffer;
 
     // clipping is only supported when a stencil or depth buffer is
     // available
-    if (!useStencil && !useDepth)
+    if (!useStencilBuffer && !useDepthBuffer)
 	return;
 
     dgl->makeCurrent();
     if (clip) {
-	if (useStencil) {
+	if (useStencilBuffer) {
 	    glClearStencil(0x0);
 	    glClear(GL_STENCIL_BUFFER_BIT);
 	    glClearStencil(0x1);
@@ -440,11 +440,11 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &rgn, bool clip)
 	for (int i = 0; i < rects.size(); ++i) {
 	    glScissor(rects.at(i).left(), dgl->height() - rects.at(i).bottom(),
 		      rects.at(i).width(), rects.at(i).height());
-	    glClear(useStencil ? GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT);
+	    glClear(useStencilBuffer ? GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT);
 	}
 	glDisable(GL_SCISSOR_TEST);
 
-	if (useStencil) {
+	if (useStencilBuffer) {
 	    glStencilFunc(GL_EQUAL, 0x1, 0x1);
 	    glEnable(GL_STENCIL_TEST);
 	} else {
@@ -452,7 +452,7 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &rgn, bool clip)
  	    glEnable(GL_DEPTH_TEST);
 	}
     } else {
-	if (useStencil)
+	if (useStencilBuffer)
 	    glDisable(GL_STENCIL_TEST);
 	else
 	    glDisable(GL_DEPTH_TEST);
