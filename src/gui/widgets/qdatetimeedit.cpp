@@ -129,7 +129,7 @@ QDateTimeEdit::QDateTimeEdit(QWidget *parent)
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
     d->value = d->minimum;
-    if (!setFormat("yyyy.MM.dd hh:mm.ss"))
+    if (!setFormat("yyyy.MM.dd hh:mm:ss"))
 	qFatal("Could not parse format 'yyyy.MM.dd hh:mm:ss'");
 }
 
@@ -145,7 +145,7 @@ QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent)
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
     d->value = datetime.isValid() ? QCoreVariant(datetime) : d->getZeroVariant();
-    if (!setFormat("yyyy.MM.dd hh:mm.ss"))
+    if (!setFormat("yyyy.MM.dd hh:mm:ss"))
 	qFatal("Could not parse format 'yyyy.MM.dd hh:mm:ss'");
 }
 
@@ -178,8 +178,10 @@ QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
 {
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
-    d->value = QCoreVariant(QDateTime(QDate(2000, 01, 01), time.isValid() ? time : QTime())); // ### hack
-    if (!setFormat("hh:mm.ss"))
+    QDateTime dt = d->getZeroVariant().toDateTime();
+    dt.setTime(time.isValid() ? time : QTime());
+    d->value = QCoreVariant(dt);
+    if (!setFormat("hh:mm:ss"))
 	qFatal("Could not parse format 'hh:mm:ss'");
 }
 
@@ -1181,7 +1183,7 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
 
 */
 
-bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not escape yet
+bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 {
     QList<SectionNode> list;
     QDateTimeEdit::Sections newDisplay = 0;
