@@ -527,7 +527,7 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QWidget *w, QWidg
     if (context == Qt::ApplicationShortcut)
         return qt_tryModalHelper(w, 0); // true, unless w is shadowed by a modal dialog
 
-    if (context == Qt::WindowShortcut)
+    if (context == Qt::WidgetShortcut)
         return w == QApplication::focusWidget();
 
     QWidget *tlw = w->topLevelWidget();

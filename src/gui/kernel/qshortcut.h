@@ -31,7 +31,7 @@ public:
     QShortcut(QWidget *parent);
     QShortcut(const QKeySequence& key, QWidget *parent,
               const char *member = 0, const char *ambiguousMember = 0,
-              Qt::ShortcutContext context = Qt::ApplicationShortcut);
+              Qt::ShortcutContext context = Qt::WindowShortcut);
     ~QShortcut();
 
     void setKey(const QKeySequence& key);
