@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#48 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -119,7 +119,7 @@ static int xPosToCursorPos( const char *s, const QFontMetrics &fm,
 QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     :QTableView( parent, name)
 {
-    QFontMetrics fm = fontMetrics();
+    QFontMetrics fm( font() );
     setCellHeight( fm.lineSpacing() + 1 );
     setNumCols( 1 );
 
@@ -303,7 +303,7 @@ static QPixmap *getCacheBuffer( QSize sz )
 void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 {
     QColorGroup	 g    = colorGroup();
-    QFontMetrics fm = painter->fontMetrics();
+    QFontMetrics fm( painter->font() );
     QString *s = contents->at( row );
     if ( !s ) {
 	warning( "QMultiLineEdit::paintCell, no text at line %d", row );
@@ -410,7 +410,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
 int QMultiLineEdit::textWidth( QString *s )
 {
-    int w = textWidthWithTabs( fontMetrics(), *s, -1 );
+    int w = textWidthWithTabs( QFontMetrics( font() ), *s, -1 );
     return w + 2 * BORDER;
 }
 
@@ -1499,7 +1499,8 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
     if ( newY < 0 )
 	newY = lastRowVisible();
     newY = QMIN( (int)contents->count() - 1, newY );
-    cursorX = xPosToCursorPos( *getString( newY ), fontMetrics(),
+    QFontMetrics fm( font() );
+    cursorX = xPosToCursorPos( *getString( newY ), fm,
 			       m->pos().x() - BORDER + xOffset(),
 			       cellWidth() - 2 * BORDER );
     if ( m->button() ==  LeftButton ) {
@@ -1557,7 +1558,8 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 	    newY = lastRowVisible();
     }
     newY = QMIN( (int)contents->count() - 1, newY );
-    int newX = xPosToCursorPos( *getString( newY ), fontMetrics(),
+    QFontMetrics fm( font() );
+    int newX = xPosToCursorPos( *getString( newY ), fm,
 				e->pos().x() - BORDER + xOffset(),
 				cellWidth() - 2 * BORDER );
 
@@ -1659,7 +1661,8 @@ int QMultiLineEdit::mapFromView( int xPos, int line )
     QString *s = getString( line );
     if ( !s )
 	return 0;
-    int index = xPosToCursorPos( *s, fontMetrics(),
+    QFontMetrics fm( font() );
+    int index = xPosToCursorPos( *s, fm,
 				 xPos - BORDER,
 				 cellWidth() - 2 * BORDER );
     return index;
@@ -1674,7 +1677,8 @@ int QMultiLineEdit::mapToView( int xIndex, int line )
 {
     QString *s = getString( line );
     xIndex = QMIN( (int)s->length(), xIndex );
-    return BORDER + textWidthWithTabs( fontMetrics(), *s, xIndex ) - 1;
+    QFontMetrics fm( font() );
+    return BORDER + textWidthWithTabs( fm, *s, xIndex ) - 1;
 }
 
 /*!
@@ -1685,7 +1689,7 @@ int QMultiLineEdit::mapToView( int xIndex, int line )
 void QMultiLineEdit::updateCellWidth()
 {
     QString *s = contents->first();
-    QFontMetrics fm = fontMetrics();
+    QFontMetrics fm( font() );
     int maxW = 0;
     int w;
     while ( s ) {
@@ -1759,7 +1763,8 @@ void QMultiLineEdit::clear()
 void QMultiLineEdit::setFont( const QFont &font )
 {
     QWidget::setFont( font );
-    setCellHeight( fontMetrics().lineSpacing() + 1 );
+    QFontMetrics fm( font );
+    setCellHeight( fm.lineSpacing() + 1 );
     updateCellWidth();
 }
 
