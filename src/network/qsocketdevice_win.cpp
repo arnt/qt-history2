@@ -90,7 +90,8 @@ static inline void qt_socket_getportaddr(struct sockaddr *sa, Q_UINT16 *port, QH
         Q_IPV6ADDR tmp;
         for (int i = 0; i < 16; ++i)
             tmp.c[i] = sa6->sin6_addr.qt_s6_addr[i];
-        QHostAddress a(tmp);
+        QHostAddress a;
+	a.setAddress(tmp);
         *addr = a;
         *port = ntohs(sa6->sin6_port);
         return;
@@ -98,7 +99,9 @@ static inline void qt_socket_getportaddr(struct sockaddr *sa, Q_UINT16 *port, QH
 #endif
     struct sockaddr_in *sa4 = (struct sockaddr_in *)sa;
     *port = ntohs(sa4->sin_port);
-    *addr = QHostAddress(ntohl(sa4->sin_addr.s_addr));
+    QHostAddress a;
+    a.setAddress(ntohl(sa4->sin_addr.s_addr));
+    *addr = a;
 }
 
 void QSocketDevicePrivate::init()
