@@ -308,7 +308,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 	    deleteCurrent();
 	    return TRUE;
 	}
-	if ( editorWidget && o == editorWidget ) {
+	if ( d->mode != QSqlTable::None ) {
 	    if ( ( ke->key() == Key_Tab ) && ( c < numCols() - 1 ) )
 		d->continuousEdit = TRUE;
 	    else if ( ( ke->key() == Key_BackTab ) && ( c > 0 ) )
@@ -319,7 +319,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 	break;
     }
     case QEvent::FocusOut: {
-	if ( !d->cancelMode && editorWidget && o == editorWidget && (d->mode != QSqlTable::None) ) {
+	if ( !d->cancelMode && editorWidget && o == editorWidget && (d->mode != QSqlTable::None) && !d->continuousEdit) {
 	    setCurrentCell( r, c );
 	    endEdit( r, c, TRUE, FALSE );
 	    return TRUE;
@@ -480,7 +480,7 @@ void QSqlTable::endInsert()
 
 void QSqlTable::endUpdate()
 {
-    //    qDebug("endUpdate()");
+    //qDebug("endUpdate()");
     d->mode = QSqlTable::None;
     d->editBuffer.clear();
     updateRow( d->editRow );
