@@ -577,9 +577,9 @@ int QWindowsMimeImage::cf(int index)
 int QWindowsMimeImage::cfFor(const char* mime)
 {
     if ( qstrnicmp(mime,"image/",5)==0 ) {
-	QStrList ofmts = QImage::outputFormats();
-	for (const char* fmt=ofmts.first(); fmt; fmt=ofmts.next())
-	    if ( qstricmp(fmt,mime+6)==0 )
+	QList<QByteArray> ofmts = QImage::outputFormats();
+	for (int i = 0; i < ofmts.count(); ++i) 
+	    if ( qstricmp(ofmts.at(i),mime+6)==0 )
 		return CF_DIB;
     }
     return 0;
@@ -596,9 +596,9 @@ const char* QWindowsMimeImage::mimeFor(int cf)
 bool QWindowsMimeImage::canConvert( const char* mime, int cf )
 {
     if ( cf == CF_DIB && qstrnicmp(mime,"image/",5)==0 ) {
-	QStrList ofmts = QImage::outputFormats();
-	for (const char* fmt=ofmts.first(); fmt; fmt=ofmts.next())
-	    if ( qstricmp(fmt,mime+6)==0 )
+	QList<QByteArray> ofmts = QImage::outputFormats();
+	for (int i = 0; i < ofmts.count(); ++i) 
+	    if ( qstricmp(ofmts.at(i),mime+6)==0 )
 		return TRUE;
     }
     return FALSE;
