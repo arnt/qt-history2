@@ -154,7 +154,7 @@ bool QSql::setQuery ( const QString& query )
 	*this = driver()->createResult();
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setAt( QSqlResult::BeforeFirst );
-    d->sqlResult->sql = query.stripWhiteSpace();
+    d->sqlResult->setQuery( query.stripWhiteSpace() );
     if ( !driver()->isOpen() || driver()->isOpenError() )
 	return FALSE;
     return d->sqlResult->reset( query );
@@ -198,7 +198,7 @@ QVariant QSql::value( int i )
 
 int QSql::at() const
 {
-    return d->sqlResult->idx;
+    return d->sqlResult->at();
 }
 
 
@@ -208,7 +208,7 @@ int QSql::at() const
 
 QString QSql::query() const
 {
-    return d->sqlResult->sql;
+    return d->sqlResult->query();
 }
 
 /*! Returns the database driver associated with the result.
@@ -217,7 +217,7 @@ QString QSql::query() const
 
 const QSqlDriver* QSql::driver() const
 {
-    return d->sqlResult->sqldriver;
+    return d->sqlResult->driver();
 }
 
 /*! Positions the result to a random index \a i.  If \a relative is TRUE,
@@ -411,18 +411,20 @@ QSqlFieldList QSql::fields() const
     return d->sqlResult->fields();
 }
 
-/*!
-  Returns the size of the result, or -1 if it cannot be determined.
-  Note that for non-SELECT statements, size() will return -1.  To
-  determine the number of rows affected by a non-SELECT statement,
+/*!  Returns the size of the result, or -1 if it cannot be determined
+  or the database does not support reporting information about query
+  sizes.  Note that for non-SELECT statements, size() will return -1.
+  To determine the number of rows affected by a non-SELECT statement,
   use affectedRows().
 
-  \sa affectedRows()
+  \sa affectedRows() QSqlDatabase
 
 */
 int QSql::size() const
 {
-    return d->sqlResult->size();
+    if ( d->sqlResult->driver()->hasQuerySizeSupport() )
+	return d->sqlResult->size();
+    return -1;
 }
 
 /*!
@@ -448,7 +450,7 @@ int QSql::affectedRows() const
 
 QSqlError QSql::lastError() const
 {
-    return d->sqlResult->error;
+    return d->sqlResult->lastError();
 }
 
 bool QSql::isValid() const
@@ -459,6 +461,16 @@ bool QSql::isValid() const
 bool QSql::isActive() const
 {
     return d->sqlResult->isActive();
+}
+
+/*!
+  Returns TRUE is the current query is a SQL SELECT statement, otherwise false.
+
+*/
+
+bool QSql::isSelect() const
+{
+    return d->sqlResult->isSelect();
 }
 
 /*!
@@ -480,7 +492,7 @@ void QSql::deref()
 bool QSql::checkDetach()
 {
     if ( d->count > 1 ) {
-	QString sql = d->sqlResult->sql;
+	QString sql = d->sqlResult->query();
 	*this = driver()->createResult();
 	setQuery( sql );
 	return TRUE;

@@ -24,6 +24,8 @@
 QSqlDriver::QSqlDriver( QObject * parent, const char * name )
 : QObject(parent, name),
   dbState(0),
+  hasTrans(FALSE),
+  hasQuerySize(FALSE),
   error()
 {
 }
@@ -107,6 +109,21 @@ bool QSqlDriver::isOpenError() const
 bool QSqlDriver::hasTransactionSupport() const
 {
     return hasTrans;
+}
+
+/*! Returns TRUE if the database supports reporting information about
+    the size of a query, FALSE otherwise.  Note that some databases do
+    not support returning the size (in number of rows returned) of a
+    query, so therefore QSql::size() will return -1.  The default
+    implementation returns FALSE.
+
+    \sa setQuerySizeSupport()
+
+*/
+
+bool QSqlDriver::hasQuerySizeSupport() const
+{
+    return hasQuerySize;
 }
 
 /*! Protected method which sets the open state of the database to \a o.

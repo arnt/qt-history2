@@ -14,7 +14,7 @@ class QSqlDriver;
 class QSql;
 struct QSqlResultShared;
 class QSqlResultInfo;
-
+class QSqlResultPrivate;
 class Q_EXPORT QSqlResult
 {
 friend class QSql;
@@ -27,13 +27,18 @@ public:
     virtual ~QSqlResult();
 protected:
     QSqlResult(const QSqlDriver * db );
-    int		    at() const {return idx;}
+    int		    at() const;
     void            setAt( int at );
     void            setActive( bool a );
     void	    setLastError( const QSqlError& e );
+    void            setQuery( const QString& query );
+    QString         query() const;
+    QSqlError       lastError() const;
     bool            isValid() const;
     bool            isActive() const;
-    const QSqlDriver* driver() const {return sqldriver;}
+    void            setSelect( bool s );
+    bool            isSelect() const;
+    const QSqlDriver* driver() const;
     virtual QVariant data( int i ) = 0;
     virtual bool    isNull( int i ) = 0;
     virtual bool    reset ( const QString& sqlquery ) = 0;
@@ -46,11 +51,7 @@ protected:
     virtual int             size() = 0;
     virtual int             affectedRows() = 0;
 private:
-    const QSqlDriver*   sqldriver;
-    int             idx;
-    QString         sql;
-    bool            active;
-    QSqlError	    error;
+    QSqlResultPrivate* d;
     QSqlResult( const QSqlResult & );
     QSqlResult &operator=( const QSqlResult & );
 };

@@ -50,6 +50,7 @@ public:
     int             size() const;
     int             affectedRows() const;
     QSqlError	    lastError() const;
+    bool            isSelect() const;
 protected:
     const QSqlDriver*   driver() const;
 private:
