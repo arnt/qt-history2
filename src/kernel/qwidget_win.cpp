@@ -931,8 +931,10 @@ void QWidget::showWindow()
 #endif
 	topData()->showMode = 0; // reset
     }
+
     if ( testWFlags(WStyle_Tool) || isPopup() )
 	sm = SW_SHOWNOACTIVATE;
+    
     ShowWindow( winId(), sm );
     UpdateWindow( winId() );
 }
