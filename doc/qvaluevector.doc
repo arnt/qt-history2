@@ -116,14 +116,14 @@
     int main()
     {
 	typedef QValueVector<Employee> EmployeeVector;
-	EmployeeVector vec( 4 );	// vector of 4 Employees
+	EmployeeVector vec( 3 );  // vector of 3 Employees
 
 	vec[0] = Employee( "Bill", 50000 );
 	vec[1] = Employee( "Steve", 80000 );
 	vec[2] = Employee( "Ron", 60000 );
 
 	Employee joe( "Joe", 50000 );
-	vec.append( joe );
+	vec.push_back( joe );  // vector expands to accommodate 4 Employees
 	joe.setSalary( 4000 );
 
 	EmployeeVector::iterator it;
