@@ -968,6 +968,9 @@ void QTextLine::layoutFixedColumnWidth(int numColumns)
 
 void QTextLine::layout_helper(int maxGlyphs)
 {
+    if(!eng->string.length())
+        return;
+
     QScriptLine &line = eng->lines[i];
 
     if (!eng->items.size()) {
