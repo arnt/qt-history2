@@ -240,7 +240,7 @@ inline int QTextStream::precision( int p )
   Returns one character from the stream, or EOF.
 */
 inline QChar QTextStream::ts_getc()
-{ QChar r; if ( !ts_getbuf( &r,1 ) ) r = QChar(0xffff); return r; }
+{ QChar r; uint l; ts_getbuf(&r, 1, 0, &l); if (!l) r = QChar(0xffff); return r; }
 
 /*****************************************************************************
   QTextStream manipulators
