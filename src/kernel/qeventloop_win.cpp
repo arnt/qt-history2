@@ -43,9 +43,9 @@ extern Q_CORE_EXPORT bool qt_winEventFilter(MSG* msg);
 static TimerVec  *timerVec = 0;
 static TimerDict *timerDict = 0;
 
-Q_CORE_EXPORT bool    qt_dispatch_timer( uint, MSG * );
-Q_CORE_EXPORT bool	activateTimer( uint );
-Q_CORE_EXPORT void	activateZeroTimers();
+Q_CORE_EXPORT bool qt_dispatch_timer( uint, MSG * );
+Q_CORE_EXPORT bool activateTimer( uint );
+Q_CORE_EXPORT void activateZeroTimers();
 
 extern Q_CORE_EXPORT int	 numZeroTimers	= 0;		// number of full-speed timers
 
@@ -146,7 +146,6 @@ int QEventLoop::registerTimer( int interval, QObject *obj )
     register TimerInfo *t;
     if ( !timerVec ) {				// initialize timer data
 	timerVec = new TimerVec;
-	timerVec->setAutoDelete( TRUE );
 	timerDict = new TimerDict;
     }
     int ind = timerVec->size();
@@ -190,6 +189,7 @@ bool QEventLoop::unregisterTimer( int ind )
 	KillTimer( 0, t->id );
     timerDict->remove( t->id );
     timerVec->removeAt( ind-1 );
+    delete t;
     return TRUE;
 }
 
@@ -207,6 +207,7 @@ bool QEventLoop::unregisterTimers( QObject *obj )
 		KillTimer( 0, t->id );
 	    timerDict->remove( t->id );
 	    timerVec->removeAt( i );
+            delete t;
 	}
     }
     return TRUE;
@@ -303,11 +304,10 @@ static void sn_init()
 
 void qt_sn_activate_fd( int sockfd, int type )
 {
-    QSNDict  *dict = *sn_vec[type];
-    QSockNot *sn   = dict ? (*dict)[sockfd] : 0;
-    if ( sn ) {
+    QSNDict *dict = *sn_vec[type];
+    QSockNot *sn = dict ? dict->value(sockfd) : 0;
+    if ( sn )
 	QCoreApplication::eventLoop()->setSocketNotifierPending( sn->obj );
-    }
 }
 
 /*****************************************************************************
@@ -327,11 +327,12 @@ void QEventLoop::cleanup()
 	    t = timerVec->at( i );
 	    if ( t && !t->zero )
 		KillTimer( 0, t->id );
+	    delete t;
 	}
 	delete timerDict;
 	timerDict = 0;
 	delete timerVec;
-	timerVec  = 0;
+	timerVec = 0;
 
 	if ( qt_win_use_simple_timers ) {
 	    // Dangerous to leave WM_TIMER events in the queue if they have our
@@ -354,7 +355,7 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 	return;
     }
 
-    QSNDict  *dict = *sn_vec[type];
+    QSNDict *dict = *sn_vec[type];
 
     if ( !dict && QCoreApplication::closingDown() )
 	return; // after sn_cleanup, don't reinitialize.
@@ -412,21 +413,18 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 	return;
     }
 
-    QSNDict  *dict = *sn_vec[type];
-
-    if ( !dict && QCoreApplication::closingDown() )
-	return; // after sn_cleanup, don't reinitialize.
-
-    if ( dict == 0 )
+    QSNDict *dict = *sn_vec[type];
+    if (!dict)
 	return;
 
-    QSockNot *sn = (*dict)[sockfd];
-    if ( !sn )
+    QSockNot *sn = dict->value(sockfd);
+    if (!sn)
 	return;
+
     d->sn_pending_list.remove( sn );		// remove from activation list
 
-    if ( !dict->remove(sockfd) )		// did not find sockfd
-	return;
+    dict->remove(sockfd);
+    delete sn;
 
 #ifndef Q_OS_TEMP // ### This probably needs fixing
     int sn_event = 0;
@@ -463,9 +461,9 @@ void QEventLoop::setSocketNotifierPending( QSocketNotifier *notifier )
 	return;
     }
 
-    QSNDict  *dict = *sn_vec[type];
+    QSNDict *dict = *sn_vec[type];
     QSockNot *sn   = dict ? (*dict)[sockfd] : 0;
-    if ( !sn )
+    if (!sn)
 	return;
 
     if ( d->sn_pending_list.indexOf(sn) >= 0 )
