@@ -377,7 +377,7 @@ public:
     QValueList() { sh = new QValueListPrivate<T>; }
     QValueList( const QValueList<T>& l ) { sh = l.sh; sh->ref(); }
 #ifndef QT_NO_STL
-    QValueList( const typename std::list<T>& l )
+    QValueList( const Q_TYPENAME std::list<T>& l )
     {
 	sh = new QValueListPrivate<T>;
 	qCopy( l.begin(), l.end(), std::back_inserter( *this ) );
@@ -393,18 +393,18 @@ public:
 	return *this;
     }
 #ifndef QT_NO_STL
-    QValueList<T>& operator= ( const typename std::list<T>& l )
+    QValueList<T>& operator= ( const Q_TYPENAME std::list<T>& l )
     {
 	detach();
 	qCopy( l.begin(), l.end(), std::back_inserter( *this ) );
 	return *this;
     }
-    bool operator== ( const typename std::list<T>& l ) const
+    bool operator== ( const Q_TYPENAME std::list<T>& l ) const
     {
 	if ( size() != l.size() )
 	    return FALSE;
 	const_iterator it2 = begin();
-	typename std::list<T>::const_iterator it = l.begin();
+	Q_TYPENAME std::list<T>::const_iterator it = l.begin();
 	for ( ; it2 != end(); ++it2, ++it )
 	if ( !((*it2) == (*it)) )
 	    return FALSE;

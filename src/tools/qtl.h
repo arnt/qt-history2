@@ -43,6 +43,12 @@
 #include "qstring.h"
 #endif // QT_H
 
+#if !defined(Q_CC_MIPS)
+#define Q_TYPENAME typename
+#else
+#define Q_TYPENAME
+#endif
+
 #ifndef QT_NO_TEXTSTREAM
 template <class T>
 class QTextOStreamIterator

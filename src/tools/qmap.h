@@ -576,7 +576,7 @@ public:
     }
 
 #ifndef QT_NO_STL
-    QMap( const typename std::map<Key,T>& m )
+    QMap( const Q_TYPENAME std::map<Key,T>& m )
     {
 	sh = new QMapPrivate<Key,T>;
 #if defined(Q_OS_WIN32)
@@ -604,7 +604,7 @@ public:
 	return *this;
     }
 #ifndef QT_NO_STL
-    QMap<Key,T>& operator= ( const typename std::map<Key,T>& m )
+    QMap<Key,T>& operator= ( const Q_TYPENAME std::map<Key,T>& m )
     {
 	clear();
 #if defined(Q_OS_WIN32)
@@ -752,7 +752,7 @@ public:
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QMap<Key,T>& ) const { return FALSE; }
 #ifndef QT_NO_STL
-    bool operator==( const typename std::map<Key,T>& ) const { return FALSE; }
+    bool operator==( const Q_TYPENAME std::map<Key,T>& ) const { return FALSE; }
 #endif
 #endif
 
