@@ -1419,13 +1419,6 @@ QMakeProject::doProjectTest(QString func, const QString &params,
     return doProjectTest(func, split_arg_list(params), place);
 }
 
-QString
-QMakeProject::doProjectExpand(QString func, const QString &params,
-                              QMap<QString, QStringList> &place)
-{
-    return doProjectExpand(func, split_arg_list(params), place);
-}
-
 QMakeProject::IncludeStatus
 QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringList> &place)
 {
@@ -1523,6 +1516,13 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
     if(!parsed)
         return IncludeParseFailure;
     return IncludeSuccess;
+}
+
+QString
+QMakeProject::doProjectExpand(QString func, const QString &params,
+                              QMap<QString, QStringList> &place)
+{
+    return doProjectExpand(func, split_arg_list(params), place);
 }
 
 QString
