@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#265 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#266 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -584,6 +584,7 @@ void QPopupMenu::updateSize()
 	if ( mi->widget() ) {
 	    hasWidgetItems = TRUE;
 	    QSize s( mi->widget()->sizeHint() );
+	    s.expandedTo( mi->widget()->minimumSize() );
 	    mi->widget()->resize( s );
 	    if ( s.width()  > maxWidgetWidth )
 		maxWidgetWidth = s.width();
@@ -1599,7 +1600,7 @@ void QPopupMenu::configureEvent( QConfigureEvent* ev )
 	ev->ignore();
 	return;
     }
-    
+
     QFrame::configureEvent( ev );
 }
 #endif
