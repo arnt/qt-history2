@@ -28,6 +28,10 @@
 #   include "qt_windows.h"
 #endif
 
+#ifdef Q_OS_LINUX
+#    include <fenv.h>
+#endif
+
 #if !defined(QWS) && defined(Q_OS_MAC)
 #   include <private/qcore_mac_p.h>
 #endif
@@ -49,6 +53,8 @@
 
 #ifndef QT_QLOCALE_USES_FCVT
 static char *qdtoa(double d, int mode, int ndigits, int *decpt,
+                        int *sign, char **rve, char **digits_str);
+static char *_qdtoa(double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
 static double qstrtod(const char *s00, char const **se, bool *ok);
 #endif
@@ -5566,6 +5572,34 @@ static int quorem(Bigint *b, Bigint *S)
    cast to a char*. Do NOT try to modify the return value. */
 
 static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
+{
+    // Some values of the floating-point control word can cause _qdtoa to crash with an underflow.
+    // We set a safe value here.
+#ifdef Q_OS_WIN
+    unsigned int oldbits = _control87(0, 0);
+    _control87(0x9001F, 0xFFFFF);
+#endif
+
+#ifdef Q_OS_LINUX
+    fenv_t envp;
+    feholdexcept(&envp);
+#endif
+
+    char *s = _qdtoa(d, mode, ndigits, decpt, sign, rve, resultp);
+
+#ifdef Q_OS_WIN
+    _clear87();
+    _control87(oldbits, 0xFFFFF);
+#endif
+
+#ifdef Q_OS_LINUX
+    fesetenv(&envp);
+#endif
+    
+    return s;
+}
+
+static char *_qdtoa( double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
 {
     /*
       Arguments ndigits, decpt, sign are similar to those
