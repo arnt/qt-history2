@@ -1053,85 +1053,97 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		slide = (const QSlider*)widget;
 		
 		if ( sub & SC_SliderGroove ) {
-		    QWindowsStyle::drawComplexControl( control, p, widget, r,
-						      cg,
-						      how, SC_SliderGroove,
-						      subActive, data );
-	 	    // ### okay stop, need to draw groove, this should be
-	 	    // a primitive, but it isn't for the moment...
+// 		    QWindowsStyle::drawComplexControl( control, p, widget, r,
+// 						      cg,
+// 						      how, SC_SliderGroove,
+// 						      subActive, data );
+				
+		    int tickOffset = pixelMetric( PM_SliderTickmarkOffset,
+						  slide );
 		
+		    int thickness = pixelMetric( PM_SliderControlThickness,
+						 slide );
+		    int mid = thickness / 2;
+		    int ticks = slide->tickmarks();
+		    int len = pixelMetric( PM_SliderLength, slide );
+		    int x, y, wi, he;
+
+		    if ( ticks & QSlider::Above )
+			mid += len / 8;
+		    if ( ticks & QSlider::Below )
+			mid -= len / 8;
 		
-// 		    int tickOffset = pixelMetric( PM_SliderTickmarkOffset,
-// 						  slide );
+
+// 		    QRect ir = querySubControlMetrics( control, widget,
+//  						       SC_SliderGroove, data );
+		    QRect ir;
+		    if ( slide->orientation() == QSlider::Horizontal )
+			ir.setRect( 0, tickOffset, slide->width(), thickness );
+		    else
+			ir.setRect( tickOffset, 0, thickness, slide->width() );
 		
-// 		    int thickness = pixelMetric( PM_SliderControlThickness,
-// 						 slide );
-// 		    int mid = thickness / 2;
-// 		    int ticks = slide->tickmarks();
-// 		    int len = pixelMetric( PM_SliderLength, slide );
-// 		    int x, y, wi, he;
-		    	
-// 		    QRect ir = r;
-// 		    p->fillRect( ir.x(), ir.y(), ir.width(), ir.height(),
-// 				 cg.brush(QColorGroup::Background) );
-// 		    if ( slide->orientation() == Horizontal ) {
-// 			x = 0;
-// 			y = r.y() + tickOffset - 3;
-// 			wi = slide->width();
-// 			he = 7;
-// 		    }
-// 		    else {
-// 			x = r.x()+ tickOffset - 3;
-// 			y = 0;
-// 			wi = 7;
-// 			he = slide->height();		
-// 		    }
-// 		    p->fillRect(x, y, wi, he, cg.brush( QColorGroup::Dark ));
-// 		    // the dark side
-// 		    p->setPen( cg.dark() );
-// 		    p->drawLine(x, y, x + wi - 1, y);
-// 		    p->drawLine(x, y, x, y + he - 1);
-// 		    p->setPen( cg.shadow() );
-// 		    p->drawLine(x+1, y+1, x+wi-2, y+1);
-// 		    p->drawLine(x+1, y+1, x+1, y+he-2);
-// 		    // 	    // the bright side!
-// 		    p->setPen(cg.shadow());
-// 		    p->drawLine(x+1, y+he-2 ,x+wi-2, y+he-2);
-// 		    p->drawLine(x+wi-2, y+1, x+wi-2, y+he-2);
-// 		    p->setPen(cg.light());
-// 		    p->drawLine(x, y+he-1,x+wi-1, y+he-1);
-// 		    p->drawLine(x+wi-1, y, x+wi-1, y+he-1);
-// 		    // top left corner:
-// 		    p->setPen(cg.background());
-// 		    p->drawPoint(x, y);
-// 		    p->drawPoint(x+1, y);
-// 		    p->drawPoint(x, y+1);
-// 		    p->setPen(cg.shadow());
-// 		    p->drawPoint(x+1, y+1);
-// 		    // bottom left corner:
-// 		    p->setPen(cg.background());
-// 		    p->drawPoint(x, y+he-1);
-// 		    p->drawPoint(x+1, y+he-1);
-// 		    p->drawPoint(x, y+he-2);
-// 		    p->setPen(cg.light());
-// 		    p->drawPoint(x+1, y+he-2);
-// 		    // top right corner:
-// 		    p->setPen(cg.background());
-// 		    p->drawPoint(x+wi-1, y);
-// 		    p->drawPoint(x+wi-2, y);
-// 		    p->drawPoint(x+wi-1, y+1);
-// 		    p->setPen( cg.dark());
-// 		    p->drawPoint(x+wi-2, y+1);
-// 		    // bottom right corner:
-// 		    p->setPen(cg.background());
-// 		    p->drawPoint(x+wi-1, y+he-1);
-// 		    p->drawPoint(x+wi-2, y+he-1);
-// 		    p->drawPoint(x+wi-1, y+he-2);
-// 		    p->setPen(cg.light());
-// 		    p->drawPoint(x+wi-2, y+he-2);
-// 		    p->setPen(cg.dark());
-// 		    p->drawPoint(x+wi-3, y+he-3);
-// 		    // ### end slider groove
+		    p->fillRect( ir, cg.brush(QColorGroup::Background) );
+		    if ( slide->orientation() == Horizontal ) {
+			x = 0;
+			y = r.y() + mid - 3;
+			wi = slide->width();
+			he = 7;
+		    }
+		    else {
+			x = r.x()+ mid - 3;
+			y = 0;
+			wi = 7;
+			he = slide->height();		
+		    }
+		    p->fillRect( x, y, wi, he, cg.brush( QColorGroup::Dark ));
+		    // the dark side
+		    p->setPen( cg.dark() );
+		    p->drawLine( x, y, x + wi - 1, y );
+		    p->drawLine( x, y, x, y + he - 1);
+		    p->setPen( cg.shadow() );
+		    p->drawLine( x + 1, y + 1, x + wi - 2, y + 1 );
+		    p->drawLine( x + 1, y + 1, x + 1, y + he - 2 );
+		    // the bright side!
+		    p->setPen(cg.shadow());
+		    p->drawLine(x+1, y+he-2 ,x+wi-2, y+he-2);
+		    p->drawLine(x+wi-2, y+1, x+wi-2, y+he-2);
+		    p->setPen(cg.light());
+		    p->drawLine(x, y+he-1,x+wi-1, y+he-1);
+		    p->drawLine(x+wi-1, y, x+wi-1, y+he-1);
+		    // top left corner:
+		    p->setPen(cg.background());
+		    p->drawPoint(x, y);
+		    p->drawPoint(x+1, y);
+		    p->drawPoint(x, y+1);
+		    p->setPen(cg.shadow());
+		    p->drawPoint(x+1, y+1);
+		    // bottom left corner:
+		    p->setPen(cg.background());
+		    p->drawPoint(x, y+he-1);
+		    p->drawPoint(x+1, y+he-1);
+		    p->drawPoint(x, y+he-2);
+		    p->setPen(cg.light());
+		    p->drawPoint(x+1, y+he-2);
+		    // top right corner:
+		    p->setPen(cg.background());
+		    p->drawPoint(x+wi-1, y);
+		    p->drawPoint(x+wi-2, y);
+		    p->drawPoint(x+wi-1, y+1);
+		    p->setPen( cg.dark());
+		    p->drawPoint(x+wi-2, y+1);
+		    // bottom right corner:
+		    p->setPen(cg.background());
+		    p->drawPoint(x+wi-1, y+he-1);
+		    p->drawPoint(x+wi-2, y+he-1);
+		    p->drawPoint(x+wi-1, y+he-2);
+		    p->setPen(cg.light());
+		    p->drawPoint(x+wi-2, y+he-2);
+		    p->setPen(cg.dark());
+		    p->drawPoint(x+wi-3, y+he-3);
+		    // ### end slider groove
+		    if ( slide->hasFocus() )
+			drawPrimitive( PE_FocusRect, p, ir, cg );
+
 		}
 		
 		if ( sub & SC_SliderTickmarks )
@@ -1331,13 +1343,51 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 		break;
 	    }
 	    break;
-	}	
-	default:
-	    rect = QWindowsStyle::querySubControlMetrics( control, widget,
-							  sc, data );
 	}
-	return rect;
+//     case CC_Slider:
+// 	{
+// 	    const QSlider *slide;
+// 	    slide = (const QSlider*)widget;
+// 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset,
+// 					  slide );
+		
+// 	    int thickness = pixelMetric( PM_SliderControlThickness,
+// 					 slide );
+// 	    int mid = thickness / 2;
+// 	    int ticks = slide->tickmarks();
+// 	    int len = pixelMetric( PM_SliderLength, slide );
+// 	    int x, y, wi, he;
+	
+// 	    if ( ticks & QSlider::Above )
+// 		mid += len / 8;
+// 	    if ( ticks & QSlider::Below )
+// 		mid -= len / 8;
+// 	    if ( slide->orientation() == QSlider::Horizontal )
+// 		rect.setRect( 0, tickOffset, slide->width(), thickness );
+// 	    else
+// 		rect.setRect( tickOffset, 0, thickness, slide->width() );
+	
+// // 	    if ( slide->orientation() == Horizontal ) {
+// // 		rect.setX( 0 );
+// // 		rect.setY( rect.y() + mid - 3 );
+// // 		rect.setWidth( slide->width() );
+// // 		rect.setHeight( 7 );
+// // 	    }
+// // 	    else {
+// // 		rect.setX( rect.x()+ mid - 3 );
+// // 		rect.setY( 0 );
+// // 		rect.setWidth( 7 );
+// // 		rect.setHeight( slide->height() );
+// //	}
+//	    break;
+	    //	}
+    default:
+	rect = QWindowsStyle::querySubControlMetrics( control, widget,
+							  sc, data );
+	break;
     }
+    return rect;
+}
 
 
 /*!\reimp
