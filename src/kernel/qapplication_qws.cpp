@@ -741,22 +741,21 @@ void QWSDisplay::Data::fillQueue()
 
 void QWSDisplay::Data::waitForConnection()
 {
-#ifndef QT_NO_QWS_MULTIPROCESS
-    if ( csocket )
-	csocket->flush();
-#endif
     fillQueue();
-    if ( connected_event )
-	return;
 #ifndef QT_NO_QWS_MULTIPROCESS
     for ( int i = 0; i < 5; i++ ) {
-	if ( csocket )
-	    csocket->waitForMore(2000);
 	fillQueue();
 	if ( connected_event )
 	    return;
+	if ( csocket ) {
+	    csocket->flush();
+	    csocket->waitForMore(2000);
+	}
 	usleep( 50000 );
     }
+#else
+    if ( connected_event )
+	return;
 #endif
     qWarning("No Qt/Embedded server appears to be running.");
     qWarning("If you want to run this program as a server,");
@@ -767,17 +766,15 @@ void QWSDisplay::Data::waitForConnection()
 
 void QWSDisplay::Data::waitForRegionAck()
 {
-#ifndef QT_NO_QWS_MULTIPROCESS
-    if ( csocket )
-	csocket->flush();
-#endif
     for (;;) {
 	fillQueue();
 	if ( region_ack )
 	    break;
 #ifndef QT_NO_QWS_MULTIPROCESS
-	if ( csocket )
+	if ( csocket ) {
+	    csocket->flush();
 	    csocket->waitForMore(1000);
+	}
 #endif
     }
     queue.prepend(region_ack);
@@ -786,15 +783,13 @@ void QWSDisplay::Data::waitForRegionAck()
 
 void QWSDisplay::Data::waitForCreation()
 {
-#ifndef QT_NO_QWS_MULTIPROCESS
-    if ( csocket )
-	csocket->flush();
-#endif
     fillQueue();
     while ( unused_identifiers.count() == 0 ) {
 #ifndef QT_NO_QWS_MULTIPROCESS
-	if ( csocket )
+	if ( csocket ) {
+	    csocket->flush();
 	    csocket->waitForMore(1000);
+	}
 #endif
 	fillQueue();
     }
@@ -803,17 +798,15 @@ void QWSDisplay::Data::waitForCreation()
 #ifndef QT_NO_COP
 void QWSDisplay::Data::waitForQCopResponse()
 {
-#ifndef QT_NO_QWS_MULTIPROCESS
-    if ( csocket )
-	csocket->flush();
-#endif
     for (;;) {
 	fillQueue();
 	if ( qcop_response )
 	    break;
 #ifndef QT_NO_QWS_MULTIPROCESS
-	if ( csocket )
+	if ( csocket ) {
+	    csocket->flush();
 	    csocket->waitForMore(1000);
+	}
 #endif
     }
     queue.prepend(qcop_response);
