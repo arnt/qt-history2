@@ -35,8 +35,7 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
     bool ret = true;
 
     if (PMSessionValidatePrintSettings(d->session, d->settings, kPMDontWantBoolean) != noErr
-        || PMSessionValidatePageFormat(d->session, d->format, kPMDontWantBoolean) != noErr
-        || PMSessionBeginDocument(d->session, d->settings, d->format) != noErr) {
+        || PMSessionValidatePageFormat(d->session, d->format, kPMDontWantBoolean) != noErr) {
         d->state == QPrinter::Error;
         ret = false;
     }
@@ -52,6 +51,12 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
             ret = false;
         }
     }
+    
+    if (PMSessionBeginDocument(d->session, d->settings, d->format) != noErr) {
+        d->state == QPrinter::Error;
+        ret = false;
+    }
+    
     if (ret) {
         d->state = QPrinter::Active;
         d->newPage_helper();
