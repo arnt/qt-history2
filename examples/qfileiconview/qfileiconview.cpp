@@ -478,7 +478,7 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
 	itemType = Link;
 
     viewModeChanged( ( (QtFileIconView*)iconView() )->viewMode() );
-    
+
     if ( itemFileInfo->fileName() == "." ||
 	 itemFileInfo->fileName() == ".." )
 	setRenameEnabled( FALSE );
@@ -498,29 +498,29 @@ void QtFileIconViewItem::viewModeChanged( QtFileIconView::ViewMode m )
     case Dir: {
 	if ( !QDir( itemFileName ).isReadable() ) {
 	    if ( m == QtFileIconView::Small )
-		setIcon( *iconFolderLockedSmall, TRUE, FALSE );
+		setIcon( *iconFolderLockedSmall, FALSE, FALSE );
 	    else
-		setIcon( *iconFolderLockedLarge, TRUE, FALSE );
+		setIcon( *iconFolderLockedLarge, FALSE, FALSE );
 	} else {
 	    if ( m == QtFileIconView::Small )
-		setIcon( *iconFolderSmall, TRUE, FALSE );
+		setIcon( *iconFolderSmall, FALSE, FALSE );
 	    else
-		setIcon( *iconFolderLarge, TRUE, FALSE );
+		setIcon( *iconFolderLarge, FALSE, FALSE );
 	}
 	setDropEnabled( QDir( itemFileName ).isReadable() );
     } break;
     case File: {
 	    if ( m == QtFileIconView::Small )
-		setIcon( *iconFileSmall, TRUE, FALSE );
+		setIcon( *iconFileSmall, FALSE, FALSE );
 	    else
-		setIcon( *iconFileLarge, TRUE, FALSE );
+		setIcon( *iconFileLarge, FALSE, FALSE );
 	    setDropEnabled( FALSE );
     } break;
     case Link: {
 	    if ( m == QtFileIconView::Small )
-		setIcon( *iconLinkSmall, TRUE, FALSE );
+		setIcon( *iconLinkSmall, FALSE, FALSE );
 	    else
-		setIcon( *iconLinkLarge, TRUE, FALSE );
+		setIcon( *iconLinkLarge, FALSE, FALSE );
 	    setDropEnabled( FALSE );
     } break;
     }
@@ -645,7 +645,7 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
     }
 
     vm = Large;
-    
+
     setGridX( 100 );
     setResizeMode( Adjust );
     setWordWrapIconText( FALSE );
@@ -796,7 +796,7 @@ QDragObject *QtFileIconView::dragObject()
     QtFileIconDrag *drag = new QtFileIconDrag( viewport() );
     drag->setPixmap( QPixmap( currentItem()->icon() ),
  		     QPoint( currentItem()->iconRect().width() / 2, currentItem()->iconRect().height() / 2 ) );
-    for ( QtFileIconViewItem *item = (QtFileIconViewItem*)firstItem(); item; 
+    for ( QtFileIconViewItem *item = (QtFileIconViewItem*)firstItem(); item;
 	  item = (QtFileIconViewItem*)item->nextItem() )
 	if ( item->isSelected() )
 	    drag->append( QtFileIconDragItem( QRect( item->iconRect( FALSE ).x() - orig.x(),
@@ -1037,6 +1037,6 @@ void QtFileIconView::setViewMode( ViewMode m )
     QtFileIconViewItem *item = (QtFileIconViewItem*)firstItem();
     for ( ; item; item = (QtFileIconViewItem*)item->nextItem() )
 	item->viewModeChanged( vm );
-    
+
     alignItemsInGrid();
 }

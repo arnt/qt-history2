@@ -53,7 +53,6 @@ int main( int argc, char **argv )
 
     QIconView qiconview;
     qiconview.setSelectionMode( QIconView::Multi );
-    qiconview.setViewMode( QIconSet::Large );
     qiconview.resize( 600, 480 );
 
     for ( unsigned int i = 0; i < 350; i++ )

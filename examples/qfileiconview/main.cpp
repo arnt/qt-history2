@@ -23,16 +23,16 @@ int main( int argc, char **argv )
 	a.setMainWidget( &fiv );
 	fiv.setFrameStyle( QFrame::NoFrame );
 	fiv.setCaption( "desktop" );
-	fiv.showMaximized();
 	fiv.setSelectionMode( QIconView::Extended );
 	fiv.setDirectory( "/" );
+	fiv.showMaximized();
 	return a.exec();
     } else {
 	FileMainWindow mw;
 	mw.resize( 700, 480 );
 	a.setMainWidget( &mw );
-	mw.show();
 	mw.fileView()->setDirectory( "/" );
+	mw.show();
 	return a.exec();
     }
 }
