@@ -909,7 +909,6 @@ static unsigned char *getCMap(HDC hdc, bool &symbol)
     unsigned int unicode_table = 0;
     for (int n = 0; n < numTables; n++) {
         quint32 v = getUInt(maps + 8*n);
-        qDebug("format is %x", v);
         // accept both symbol and Unicode encodings. prefer unicode.
         if(v == 0x00030001 || v == 0x00030000 || v == 0x0003000a) {
             if (v > version) {
