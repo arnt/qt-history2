@@ -1008,13 +1008,13 @@ void Configure::generateMakefiles()
 	    ++makeListIterator;
 	    QStringList args;
 	    switch( projectType( projectName ) ) {
-	    case ProjectType::Subdirs:
+	    case Subdirs:
 		qmakeTemplate = "subdirs";
 		break;
-	    case ProjectType::App:
+	    case App:
 		qmakeTemplate = "vcapp";
 		break;
-	    case ProjectType::Lib:
+	    case Lib:
 		qmakeTemplate = "vclib";
 	    }
 	    args << QDir::convertSeparators( qtDir + "/bin/qmake" );
@@ -1075,15 +1075,15 @@ Configure::ProjectType Configure::projectType( const QString& proFileName )
 
 	    if( keyword == "TEMPLATE" ) {
 		if( value == "lib" )
-		    return ProjectType::Lib;
+		    return Lib;
 		else if( value == "subdirs" )
-		    return ProjectType::Subdirs;
+		    return Subdirs;
 	    }
 	}
 	proFile.close();
     }
     // Default to app handling
-    return ProjectType::App;
+    return App;
 }
 
 void Configure::readLicense()
