@@ -29,7 +29,6 @@
 #include "qpainter.h"
 #include "qpointer.h"
 #include "qscrollbar.h"
-#include "qsignal.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qtoolbutton.h"
@@ -1106,7 +1105,7 @@ bool Q3Workspace::eventFilter(QObject *o, QEvent * e)
             QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
             const char *theSlot = d->shortcutMap.value(se->shortcutId(), 0);
             if (theSlot)
-                qInvokeMetaMember(this, theSlot);
+                QMetaObject::invokeMember(this, theSlot);
         }
         break;
     default:
