@@ -23,7 +23,7 @@
 
 class QScrollViewPrivate;
 
-class Q_GUI_EXPORT QScrollView : public QFrame
+class Q_COMPAT_EXPORT QScrollView : public QFrame
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QScrollView)
