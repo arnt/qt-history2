@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#36 $
 **
 ** Implementation of QCheckBox class
 **
@@ -12,10 +12,11 @@
 
 #include "qchkbox.h"
 #include "qpainter.h"
+#include "qdrawutl.h"
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#36 $")
 
 
 /*----------------------------------------------------------------------------
@@ -100,7 +101,8 @@ void QCheckBox::setChecked( bool checked )
 
 
 
-static int extraWidth(int gs) {
+static int extraWidth( int gs )
+{
     if ( gs == MacStyle || gs == Win3Style )
 	return 7;
     else if ( gs == MotifStyle )
@@ -126,10 +128,10 @@ void QCheckBox::adjustSize()
     int h = fm.height();
     int gs = style();
     int wbm, hbm;
-    getSizeOfBitmap( style(), &wbm, &hbm );
+    getSizeOfBitmap( gs, &wbm, &hbm );
     if ( h < hbm )
 	h = hbm;
-    w += wbm+extraWidth( style() );
+    w += wbm+extraWidth( gs );
     if ( w!=width() || h!=height() )
 	resize( w, h );
     else
@@ -190,24 +192,10 @@ void QCheckBox::drawButton( QPainter *paint )
 	}
     }
     else if ( gs == WindowsStyle ) {		// Windows check box
-	int x1=x, y1=y, x2=x+w-1, y2=y+h-1;
-	QPointArray a;
-	a.setPoints( 3, x1,y2-1, x1,y1, x2-1,y1 );
-	p->setPen( g.dark() );
-	p->drawPolyline( a );
-	a.setPoints( 3, x1+1,y2-2, x1+1,y1+1, x2-2,y1+1 );
-	p->setPen( black );
-	p->drawPolyline( a );
-	a.setPoints( 3, x1+1,y2-1, x2-1,y2-1, x2-1,y1+1 );
-	p->setPen( g.background() );
-	p->drawPolyline( a );
-	a.setPoints( 3, x1,y2, x2,y2, x2,y1 );
-	p->setPen( white );
-	p->drawPolyline( a );
-	p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3,
-		     isDown() ? g.background() : g.base() );
+	QBrush fill( g.base() );
+	drawWinPanel( p, x, y, w, h, g, TRUE, &fill );
 	if ( isOn() ) {
-	    a.resize( 7*2 );
+	    QPointArray a( 7*2 );
 	    int i, xx, yy;
 	    xx = x+3;
 	    yy = y+5;
@@ -279,18 +267,9 @@ void QCheckBox::drawButton( QPainter *paint )
 	}
     }
     else if ( gs == MotifStyle ) {		// Motif check box
-	QColor tColor, bColor, fColor;
-	if ( (isUp() && !isOn()) || (isDown() && isOn()) ) {
-	    tColor = g.light();			// button is up
-	    bColor = g.dark();
-	    fColor = g.background();
-	}
-	else {					// button is down
-	    tColor = g.dark();
-	    bColor = g.light();
-	    fColor = g.mid();
-	}
-	p->drawShadePanel( x, y, w, h, tColor, bColor, 2, fColor, TRUE );
+	bool up = (isUp() && !isOn()) || (isDown() && isOn());
+	QBrush fill( up ? g.background() : g.mid() );
+	drawShadePanel( p, x, y, w, h, g, !up, 2, &fill );
     }
 
 #if defined(SAVE_CHECKBOX_PIXMAPS)

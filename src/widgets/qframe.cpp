@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#22 $
 **
 ** Implementation of QFrame widget class
 **
@@ -12,8 +12,10 @@
 
 #include "qframe.h"
 #include "qpainter.h"
+#include "qdrawutl.h"
+#include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#22 $")
 
 
 /*!
@@ -34,7 +36,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#21 $")
   a \link setMidLineWidth() mid-line width\endlink.
 
   The frame style is specified by a frame shape and a shadow style.
-  The frame shapes are \c NoFrame, \c Box, \c Panel, \c HLine and
+  The frame shapes are \c NoFrame, \c Box, \c Panel, \c WinPanel, \c HLine and
   \c VLine.  Notice that the two latter ones specify lines, not rectangles.
   The shadow styles are \c Plain, \c Raised and \c Sunken.
 
@@ -109,6 +111,8 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   <li> \c NoFrame draws nothing.
   <li> \c Box draws a rectangular box.
   <li> \c Panel draws a rectangular panel that can be raised or sunken.
+  <li> \c WinPanel draws a rectangular panel that can be raised or sunken.
+  Specifying this shape sets the line width to 2 pixels.
   <li> \c HLine draws a horizontal line (vertically centered).
   <li> \c VLine draws a vertical line (horizontally centered).
   </ul>
@@ -226,6 +230,16 @@ void QFrame::updateFrameWidth()
 	    }
 	    break;
 
+	case WinPanel:
+	    switch ( style ) {
+		case Plain:
+		case Raised:
+		case Sunken:
+		    fwidth = lwidth = 2;
+		    break;
+	    }
+	    break;
+
 	case HLine:
 	case VLine:
 	    switch ( style ) {
@@ -263,10 +277,14 @@ void QFrame::updateFrameWidth()
 */
 
 
-/*!  Returns the frame rectangle.
+/*!
+  Returns the frame rectangle.
 
   The default frame rectangle is equivalent to the \link
-  QWidget::rect() widget rectangle\endlink.  \sa setFrameRect() */
+  QWidget::rect() widget rectangle\endlink.
+
+  \sa setFrameRect()
+*/
 
 QRect QFrame::frameRect() const
 {
@@ -274,13 +292,15 @@ QRect QFrame::frameRect() const
 }
 
 
-/*!  Sets the frame rectangle to \e r.
+/*!
+  Sets the frame rectangle to \e r.
 
   If \e r is a null rectangle (for example
   <code>QRect(0,0,0,0)</code>), then the frame rectangle will be
   equivalent to the \link QWidget::rect() widget rectangle\endlink.
 
-  \sa frameRect(). */
+  \sa frameRect()
+*/
 
 void QFrame::setFrameRect( const QRect &r )
 {
@@ -290,7 +310,7 @@ void QFrame::setFrameRect( const QRect &r )
 
 /*!
   Returns the rectangle inside the frame.
-  \sa frameRect().
+  \sa frameRect()
 */
 
 QRect QFrame::contentsRect() const
@@ -345,43 +365,32 @@ void QFrame::drawFrame( QPainter *p )
 {
     QPoint	p1, p2;
     QRect	r     = frameRect();
-    QPainter   *paint = p;
     int		type  = fstyle & MShape;
     int		style = fstyle & MShadow;
     QColorGroup g     = colorGroup();
-    QColor	fg    = g.foreground();
-    QColor	light = g.light();
-    QColor	dark  = g.dark();
-    QColor	mid   = g.mid();
 
     switch ( type ) {
 
 	case Box:
-	    switch ( style ) {
-		case Plain:
-		    paint->drawShadePanel( r, fg, fg, lwidth );
-		    break;
-		case Raised:
-		    paint->drawShadeRect( r, light, dark, lwidth, mid, mwidth);
-		    break;
-		case Sunken:
-		    paint->drawShadeRect( r, dark, light, lwidth, mid, mwidth);
-		    break;
-	    }
+	    if ( style == Plain )
+		drawPlainRect( p, r, g.foreground(), lwidth );
+	    else
+		drawShadeRect( p, r, g, style == Sunken, lwidth,
+			       mwidth );
 	    break;
 
 	case Panel:
-	    switch ( style ) {
-		case Plain:
-		    paint->drawShadePanel( r, fg, fg, lwidth );
-		    break;
-		case Raised:
-		    paint->drawShadePanel( r, light, dark, lwidth );
-		    break;
-		case Sunken:
-		    paint->drawShadePanel( r, dark, light, lwidth );
-		    break;
-	    }
+	    if ( style == Plain )
+		drawPlainRect( p, r, g.foreground(), lwidth );
+	    else
+		drawShadePanel( p, r, g, style == Sunken, lwidth );
+	    break;
+
+	case WinPanel:
+	    if ( style == Plain )
+		drawPlainRect( p, r, g.foreground(), lwidth );
+	    else
+		drawWinPanel( p, r, g, style == Sunken );
 	    break;
 
 	case HLine:
@@ -394,23 +403,15 @@ void QFrame::drawFrame( QPainter *p )
 		p1 = QPoint( r.x()+r.width()/2, 0 );
 		p2 = QPoint( p1.x(), r.height() );
 	    }
-	    switch ( style ) {
-		case Plain: {
-		    QPen oldPen = paint->pen();
-		    paint->setPen( QPen(fg,lwidth) );
-		    paint->drawLine( p1, p2 );
-		    paint->setPen( oldPen );
-		    }
-		    break;
-		case Raised:
-		    paint->drawShadeLine( p1, p2, light, dark,
-					  lwidth, mid, mwidth );
-		    break;
-		case Sunken:
-		    paint->drawShadeLine( p1, p2, dark, light,
-					  lwidth, mid, mwidth );
-		    break;
+	    if ( style == Plain ) {
+		QPen oldPen = p->pen();
+		p->setPen( QPen(g.foreground(),lwidth) );
+		p->drawLine( p1, p2 );
+		p->setPen( oldPen );
 	    }
+	    else
+		drawShadeLine( p, p1, p2, g, style == Sunken,
+			       lwidth, mwidth );
 	    break;
     }
 }

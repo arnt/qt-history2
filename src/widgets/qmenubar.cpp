@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#40 $
 **
 ** Implementation of QMenuBar class
 **
@@ -14,10 +14,12 @@
 #include "qmenubar.h"
 #include "qaccel.h"
 #include "qpainter.h"
+#include "qdrawutl.h"
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#40 $")
+
 
 /*!
   \class QMenuBar qmenubar.h
@@ -28,7 +30,9 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#39 $")
 
   This class is not yet documented.  Our <a
   href=http://www.troll.no/>home page</a> contains a pointer to the
-  current version of Qt. */
+  current version of Qt.
+*/
+
 
 // Motif style parameters
 
@@ -407,13 +411,10 @@ void QMenuBar::drawContents( QPainter *p )	// draw menu bar
 	QMenuItem *mi = mitems->at( i );
 	QRect r = irects[i];
 	if ( gs == MotifStyle ) {
-	    if ( i == actItem ) {			// active item frame
-		p->drawShadePanel( r, g.light(), g.dark(), motifItemFrame );
-	    }
-	    else {					// incognito frame
-		p->drawShadePanel( r, g.background(), g.background(),
-				   motifItemFrame );
-	    }
+	    if ( i == actItem )				// active item frame
+		drawShadePanel( p, r, g, FALSE, motifItemFrame );
+	    else					// incognito frame
+		drawPlainRect( p, r, g.background(), motifItemFrame );
 	}
 	else {
 	    if ( i == actItem ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#46 $
 **
 ** Implementation of QPushButton class
 **
@@ -14,10 +14,11 @@
 #include "qdialog.h"
 #include "qfontmet.h"
 #include "qpainter.h"
+#include "qdrawutl.h"
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#45 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#46 $")
 
 
 /*----------------------------------------------------------------------------
@@ -395,12 +396,10 @@ void QPushButton::drawButton( QPainter *paint )
 	    x1++; y1++;
 	    x2--; y2--;
 	}
-	if ( isDown() )
-	    p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, g.dark(), g.light(),
-			       1, fillcol, updated );
-	else
-	    p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, g.light(), g.dark(),
-			       2, fillcol, updated );
+	int lw = isDown() ? 1 : 2;
+	QBrush fill( fillcol );
+	drawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, isDown(), lw,
+			updated ? &fill : 0 );
     }
     else if ( gs == PMStyle ) {			// PM push button
 	p->setPen( g.dark() );
@@ -435,25 +434,16 @@ void QPushButton::drawButton( QPainter *paint )
 	p->drawPolyline( abottom );
     }
     else if ( gs == MotifStyle ) {		// Motif push button
-	QColor tColor, bColor;
 	if ( defButton ) {			// default Motif button
-	    p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, g.dark(), g.light() );
+	    drawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g );
 	    x1 += extraMotifWidth/2;
 	    y1 += extraMotifHeight/2;
 	    x2 -= extraMotifWidth/2;
 	    y2 -= extraMotifHeight/2;
 	}
-	if ( isDown() ) {
-	    tColor  = g.dark();
-	    bColor  = g.light();
-	    fillcol = g.mid();
-	}
-	else {
-	    tColor = g.light();
-	    bColor = g.dark();
-	}
-	p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, tColor, bColor,
-			   2, fillcol, updated );
+	QBrush fill( fillcol );
+	drawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, isDown(), 2,
+			updated ? &fill : 0 );
     }
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );

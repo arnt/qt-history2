@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#37 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -12,11 +12,12 @@
 
 #include "qlined.h"
 #include "qpainter.h"
+#include "qdrawutl.h"
 #include "qfontmet.h"
 #include "qpixmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#37 $")
 
 
 /*!
@@ -383,13 +384,13 @@ void QLineEdit::paint( bool frame )
 }
 
 /*!
-\internal
-Paints the line editor in a pixmap and then blts the pixmap onto the screen.
+  \internal
+  Paints the line editor in a pixmap and then blts the pixmap onto the screen.
 */
 
 void QLineEdit::pixmapPaint()
 {
-    pm->fill( backgroundColor() );
+    pm->fill( colorGroup().base() );
     QPainter p;
     p.begin( pm );
     p.setFont( font() );
@@ -400,31 +401,32 @@ void QLineEdit::pixmapPaint()
 
 
 /*!
-\internal
-Paints the line editor.
+  \internal
+  Paints the line editor.
 */
 
-void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
+void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
 {
     QColorGroup	 g  = colorGroup();
     QFontMetrics fm = fontMetrics();
     char *displayText = &tbuf[(int)offset];
 
-    if ( frame )
-	p->drawShadePanel( 0, 0, sz.width(), sz.height(),
-			   g.dark(), g.light() );
+    if ( frame ) {
+	QBrush fill( g.base() );
+	drawWinPanel( p, 0, 0, s.width(), s.height(), g, TRUE, &fill );
+    }
     p->setClipRect( LEFT_MARGIN, TOP_MARGIN,
-		    sz.width()	- LEFT_MARGIN - RIGHT_MARGIN + 1,
-		    sz.height() - TOP_MARGIN - BOTTOM_MARGIN + 1 );
+		    s.width()  - LEFT_MARGIN - RIGHT_MARGIN + 1,
+		    s.height() - TOP_MARGIN - BOTTOM_MARGIN + 1 );
 
-    int tDispWidth = sz.width() - LEFT_MARGIN - RIGHT_MARGIN;
+    int tDispWidth = s.width() - LEFT_MARGIN - RIGHT_MARGIN;
     int displayLength = xPosToCursorPos( displayText, fontMetrics(),
 					 tDispWidth, tDispWidth );
     if ( displayText[ displayLength ] != '\0' )
 	displayLength++;
 
     p->setPen( g.text() );
-    p->drawText( LEFT_MARGIN, sz.height() - BOTTOM_MARGIN - fm.descent(),
+    p->drawText( LEFT_MARGIN, s.height() - BOTTOM_MARGIN - fm.descent(),
 		 displayText, displayLength );
     p->setPen( g.foreground() );
 
@@ -432,30 +434,20 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
     if( cursorOn ) {
 	uint curPos = LEFT_MARGIN +
 		      fm.width( displayText, cursorPos - offset ) - 1;
-	if ( style() == MotifStyle ) {
-	    if ( !hasFocus() ) {
-		QPen new_pen = p->pen();
-		new_pen.setStyle( DotLine );
-		p->setPen( new_pen );
-		p->setBackgroundMode( OpaqueMode );
-	    }
-	    p->drawLine( curPos - 2, TOP_MARGIN, curPos + 2, TOP_MARGIN );
+	if ( hasFocus() ) {
+	    p->drawLine( curPos- 2, TOP_MARGIN, curPos + 2, TOP_MARGIN );
 	    p->drawLine( curPos	  , TOP_MARGIN,
-			 curPos	  , sz.height() - BOTTOM_MARGIN );
-	    p->drawLine( curPos - 2, sz.height() - BOTTOM_MARGIN,
-			 curPos + 2, sz.height() - BOTTOM_MARGIN );
-	}
-	else if ( hasFocus() ) {
-	    p->drawLine( curPos, TOP_MARGIN,
-			 curPos, sz.height() - BOTTOM_MARGIN );
+			 curPos	  , s.height() - BOTTOM_MARGIN );
+	    p->drawLine( curPos - 2, s.height() - BOTTOM_MARGIN,
+			 curPos + 2, s.height() - BOTTOM_MARGIN );
 	}
     }
 }
 
 
 /*!
-Moves the cursor leftwards one character.
-\sa cursorRight().
+  Moves the cursor leftwards one character.
+  \sa cursorRight()
 */
 
 void QLineEdit::cursorLeft()
@@ -472,8 +464,8 @@ void QLineEdit::cursorLeft()
 }
 
 /*!
-Moves the cursor rightwards one character.
-\sa cursorLeft().
+  Moves the cursor rightwards one character.
+  \sa cursorLeft()
 */
 
 void QLineEdit::cursorRight()
@@ -498,9 +490,9 @@ void QLineEdit::cursorRight()
 
 
 /*!
-Deletes the character on the left side of the text cursor and
-moves the cursor one position to the left.
-\sa del().
+  Deletes the character on the left side of the text cursor and
+  moves the cursor one position to the left.
+  \sa del()
 */
 
 void QLineEdit::backspace()
@@ -512,8 +504,8 @@ void QLineEdit::backspace()
 }
 
 /*!
-Deletes the character on the right side of the text cursor.
-\sa backspace().
+  Deletes the character on the right side of the text cursor.
+  \sa backspace()
 */
 
 void QLineEdit::del()
@@ -526,8 +518,8 @@ void QLineEdit::del()
 }
 
 /*!
-Moves the text cursor to the left end of the line.
-\sa end()
+  Moves the text cursor to the left end of the line.
+  \sa end()
 */
 
 void QLineEdit::home()
@@ -543,8 +535,8 @@ void QLineEdit::home()
 }
 
 /*!
-Moves the text cursor to the right end of the line.
-\sa home().
+  Moves the text cursor to the right end of the line.
+  \sa home()
 */
 
 void QLineEdit::end()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#50 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -15,10 +15,11 @@
 #include "qmenubar.h"
 #include "qaccel.h"
 #include "qpainter.h"
+#include "qdrawutl.h"
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#49 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#50 $")
 
 
 // Mac style parameters
@@ -662,11 +663,9 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     if ( gs != MotifStyle )
 	pw = 1;
     if ( row == actItem )			// active item frame
-	p->drawShadePanel( 0, 0, cellw, cellh, g.light(), g.dark(),
-			   pw );
+	drawShadePanel( p, 0, 0, cellw, cellh, g, FALSE, pw );
     else					// incognito frame
-	p->drawShadePanel( 0, 0, cellw, cellh, g.background(), g.background(),
-			   pw );
+	drawPlainRect( p, 0, 0, cellw, cellh, g.background(), pw );
     p->setPen( g.text() );
     if ( mi->pixmap() ) {			// draw pixmap
 	QPixmap *pixmap = mi->pixmap();

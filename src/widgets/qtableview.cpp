@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#6 $
 **
 ** Implementation of QTableView class
 **
@@ -18,8 +18,9 @@
 #include "qtablevw.h"
 #include "qscrbar.h"
 #include "qpainter.h"
+#include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#5 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#6 $")
 
 
 const int sbDim = 16;
@@ -56,7 +57,7 @@ void CornerSquare::paintEvent( QPaintEvent * )
 	QPainter p;
 	QColorGroup g = colorGroup();
 	p.begin( this );
-	p.drawShadePanel( rect(), colorGroup().dark(), colorGroup().light() );
+	drawShadePanel( &p, rect(), colorGroup() );
 	p.end();
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#36 $
 **
 ** Implementation of QScrollBar class
 **
@@ -12,36 +12,10 @@
 
 #include "qscrbar.h"
 #include "qpainter.h"
+#include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#36 $")
 
-
-void qDrawWinButton( QPainter *p, int x1, int y1, int w, int h,
-		     const QColor &t1, const QColor &t2,
-		     const QColor &b1, const QColor &b2,
-		     const QColor &fill )
-{
-    int x2=x1+w-1, y2=y1+h-1;
-    QPointArray a;
-    QPen   pen	 = p->pen();
-    QBrush brush = p->brush();
-    p->setBrush( NoBrush );
-    a.setPoints( 3, x1,y2-1, x1,y1, x2-1,y1 );
-    p->setPen( t1 );
-    p->drawPolyline( a );
-    a.setPoints( 3, x1+1,y2-2, x1+1,y1+1, x2-2,y1+1 );
-    p->setPen( t2 );
-    p->drawPolyline( a );
-    a.setPoints( 3, x1+1,y2-1, x2-1,y2-1, x2-1,y1+1 );
-    p->setPen( b2 );
-    p->drawPolyline( a );
-    a.setPoints( 3, x1,y2, x2,y2, x2,y1 );
-    p->setPen( b1 );
-    p->drawPolyline( a );
-    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, fill );
-    p->setPen( pen );
-    p->setBrush( brush );
-}
 
 /*----------------------------------------------------------------------------
   \class QScrollBar qscrbar.h
@@ -123,7 +97,7 @@ public:
 
     void	  drawControls( uint controls, uint activeControl ) const;
     void	  drawControls( uint controls, uint activeControl,
-				QPainter &p ) const;
+				QPainter *p ) const;
 };
 
 
@@ -339,11 +313,10 @@ void QScrollBar::resizeEvent( QResizeEvent * )
 void QScrollBar::paintEvent( QPaintEvent * )
 {
     QPainter p;
-    QColorGroup g = colorGroup();
     p.begin( this );
-    p.drawShadePanel( rect(), g.dark(), g.light() );
+    drawShadePanel( &p, rect(), colorGroup(), TRUE );
     PRIV->drawControls( ADD_LINE | SUB_LINE | ADD_PAGE | SUB_PAGE | SLIDER,
-			pressedControl, p );
+			pressedControl, &p );
     p.end();
 }
 
@@ -593,17 +566,18 @@ void QScrollBar_Private::action( ScrollControl control )
 }
 
 
-void QScrollBar_Private::drawControls(uint controls, uint activeControl) const
+void QScrollBar_Private::drawControls( uint controls,
+				       uint activeControl ) const
 {
     QPainter p;
     p.begin( this );
-    drawControls( controls, activeControl, p );
+    drawControls( controls, activeControl, &p );
     p.end();
 }
 
 
 void QScrollBar_Private::drawControls( uint controls, uint activeControl,
-				       QPainter &p ) const
+				       QPainter *p ) const
 {
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
 #define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
@@ -653,53 +627,53 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
     switch ( style() ) {
 	case WindowsStyle:
 	    if ( controls & ADD_LINE ) {
-		qDrawWinButton( &p, addB.x(), addB.y(),
-				addB.width(), addB.height(),
-				g.background(), g.light(),
-				black, g.dark(), g.background() );
-		qDrawArrow( &p, VERTICAL ? DownArrow : RightArrow,WindowsStyle,
-				ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
-				addB.width()-4, addB.height()-4, g );
+		drawWinPanel( p, addB.x(), addB.y(),
+			      addB.width(), addB.height(), g,
+			      ADD_LINE_ACTIVE );
+		qDrawArrow( p, VERTICAL ? DownArrow : RightArrow,WindowsStyle,
+			    ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
+			    addB.width()-4, addB.height()-4, g );
 	    }
 	    if ( controls & SUB_LINE ) {
-		qDrawWinButton( &p, subB.x(), subB.y(),
-				subB.width(), subB.height(),
-				g.background(), g.light(),
-				black, g.dark(), g.background() );
-		qDrawArrow( &p, VERTICAL ? UpArrow : LeftArrow, WindowsStyle,
-				SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
-				subB.width()-4, subB.height()-4, g );
+		drawWinPanel( p, subB.x(), subB.y(),
+			      subB.width(), subB.height(), g,
+			      ADD_LINE_ACTIVE );
+		qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow, WindowsStyle,
+			    SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
+			    subB.width()-4, subB.height()-4, g );
 	    }
-	    p.setBrush( QBrush(white,Dense4Pattern) );
-	    p.setPen( NoPen );
-	    p.setBackgroundMode( OpaqueMode );
+	    p->setBrush( QBrush(white,Dense4Pattern) );
+	    p->setPen( NoPen );
+	    p->setBackgroundMode( OpaqueMode );
 	    if ( controls & SUB_PAGE )
-		p.drawRect( subPageR );
+		p->drawRect( subPageR );
 	    if ( controls & ADD_PAGE )
-		p.drawRect( addPageR );
-	    if ( controls & SLIDER )
-		qDrawWinButton( &p, sliderR.x(), sliderR.y(),
-				sliderR.width(), sliderR.height(),
-				g.background(), g.light(),
-				black, g.dark(), g.background() );
+		p->drawRect( addPageR );
+	    if ( controls & SLIDER ) {
+		QBrush fill( g.background() );
+		drawWinPanel( p, sliderR.x(), sliderR.y(),
+			      sliderR.width(), sliderR.height(), g,
+			      FALSE, &fill );
+	    }
 	    break;
 	default:
 	case MotifStyle:
 	    if ( controls & ADD_LINE )
-		qDrawArrow( &p, VERTICAL ? DownArrow : RightArrow, MotifStyle,
-				ADD_LINE_ACTIVE, addB.x(), addB.y(),
-				addB.width(), addB.height(), g );
+		qDrawArrow( p, VERTICAL ? DownArrow : RightArrow, MotifStyle,
+			    ADD_LINE_ACTIVE, addB.x(), addB.y(),
+			    addB.width(), addB.height(), g );
 	    if ( controls & SUB_LINE )
-		qDrawArrow( &p, VERTICAL ? UpArrow : LeftArrow, MotifStyle,
-				SUB_LINE_ACTIVE, subB.x(), subB.y(),
-				subB.width(), subB.height(), g );
+		qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow, MotifStyle,
+			    SUB_LINE_ACTIVE, subB.x(), subB.y(),
+			    subB.width(), subB.height(), g );
 	    if ( controls & SUB_PAGE )
-		p.fillRect( subPageR, g.mid() );
+		p->fillRect( subPageR, g.mid() );
 	    if ( controls & ADD_PAGE )
-		p.fillRect( addPageR, g.mid() );
-	    if ( controls & SLIDER )
-		p.drawShadePanel( sliderR, g.light(), g.dark(), 2,
-				  g.background(), TRUE );
+		p->fillRect( addPageR, g.mid() );
+	    if ( controls & SLIDER ) {
+		QBrush fill( g.background() );
+		drawShadePanel( p, sliderR, g, FALSE, 2, &fill );
+	    }
 	    break;
     }
 #undef ADD_LINE_ACTIVE
