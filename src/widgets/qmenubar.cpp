@@ -353,8 +353,12 @@ void QMenuBar::menuContentsChanged()
     if( pendingDelayedContentsChanges )
         return;
     pendingDelayedContentsChanges = 1;
-    if( !pendingDelayedStateChanges ) // if the timer hasn't been started yet
-        QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+    if( !pendingDelayedStateChanges ) { // if the timer hasn't been started yet
+	if ( isVisible() )
+	    QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+	else
+	    performDelayedContentsChanged();
+    }
 }
 
 void QMenuBar::performDelayedContentsChanged()
@@ -412,8 +416,12 @@ void QMenuBar::menuStateChanged()
     if( pendingDelayedStateChanges )
         return;
     pendingDelayedStateChanges = 1;
-    if( !pendingDelayedContentsChanges ) // if the timer hasn't been started yet
-        QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+    if( !pendingDelayedContentsChanges ) { // if the timer hasn't been started yet
+	if ( isVisible() )
+	    QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+	else
+	    performDelayedStateChanged();
+    }
 }
 
 void QMenuBar::performDelayedStateChanged()
@@ -1062,6 +1070,7 @@ QMenuBar::Separator QMenuBar::separator() const
 
 void QMenuBar::drawContents( QPainter *p )
 {
+    performDelayedChanges();
     QRegion reg( contentsRect() );
     QColorGroup g = colorGroup();
     bool e;
