@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------
 #
 # Usage:
-#	mkdist.generic [options] {commercial|free} {version}
+#	mkdist.generic [options] {version}
 #
 # Options:
 #	-nodoc	Don't generate documentation
@@ -134,6 +134,10 @@ for $i ( readdir NSPLUGIN ) {
     close NSFILE;
 }
 
+#
+# We should just insert the version parameter into the qglobal.h, and have
+# qglobal.h use $Id: //depot/qt/main/util/scripts/mkdists#2 $ or something for purely internal use.
+#
 $qglobalfile="$DISTDIR/qt/src/tools/qglobal.h";
 open QGLOBAL, $qglobalfile;
 $qglobal=join "",<QGLOBAL>;
