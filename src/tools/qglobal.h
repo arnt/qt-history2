@@ -56,6 +56,7 @@
 //   GNU	- GNU Hurd
 //   DGUX	- DG Unix
 //   UNIX	- Any UNIX bsd/sysv system
+//   VMS	- DEC OpenVMS
 //
 
 #if defined(macintosh)
@@ -147,6 +148,7 @@
 //   DEC	- DEC C++
 //   HP		- HPUX C++
 //   USLC	- SCO UnixWare C++
+//   KAI	- KAI C++
 //
 
 
