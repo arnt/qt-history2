@@ -42,18 +42,19 @@ QTextLayout *QTextBlockIterator::layout() const
         QString text = blockText();
         b->layout->setText(text);
 
-        // ######### looks wrong if a fragment spans a block boundary!
         if (!text.isEmpty()) {
             int lastTextPosition = 0;
             int textLength = 0;
 
-            QTextPieceTable::FragmentIterator it = pt->find(position());
-            QTextPieceTable::FragmentIterator e = pt->find(position() + length() - 1);
-            int lastFormatIdx = it.value()->format;
-            for (; it != e; ++it) {
-                const QTextFragment *fragment = it.value();
-                int formatIndex = fragment->format;
+            int pos = position();
+            const int endPos = pos + length() - 1; // -1 do omit the block separator char
+            int lastFormatIdx = pt->find(pos).value()->format;
+            QTextPieceTable::FragmentIterator it = pt->find(pos);
 
+            while (pos < endPos) {
+                const QTextFragment *frag = it.value();
+
+                const int formatIndex = frag->format;
                 if (formatIndex != lastFormatIdx) {
                     Q_ASSERT(lastFormatIdx != -1);
                     b->layout->setFormat(lastTextPosition, textLength, lastFormatIdx);
@@ -63,7 +64,12 @@ QTextLayout *QTextBlockIterator::layout() const
                     textLength = 0;
                 }
 
-                textLength += fragment->size;
+                const int inFragmentOffset = pos - it.position();
+                const int size = qMin(int(frag->size - inFragmentOffset), endPos - pos);
+
+                pos += size;
+                textLength += size;
+                ++it;
             }
 
             Q_ASSERT(lastFormatIdx != -1);
@@ -99,14 +105,20 @@ QString QTextBlockIterator::blockText() const
     const QString buffer = pt->buffer();
     QString text;
 
-    // ######### looks wrong if a fragment spans a block boundary!
-    QTextPieceTable::FragmentIterator it = pt->find(position());
-    QTextPieceTable::FragmentIterator e = pt->find(position() + length() - 1);
+    int pos = position();
+    const int endPos = pos + length() - 1; // -1 do omit the block separator char
+    QTextPieceTable::FragmentIterator it = pt->find(pos);
 
-    for (; it != e; ++it) {
-        const QTextFragment *fragment = it.value();
+    while (pos < endPos) {
+        const QTextFragment *frag = it.value();
+        const QChar *fragText = buffer.constData() + frag->stringPosition;
+        Q_ASSERT(pos >= it.position());
+        const int inFragmentOffset = pos - it.position();
+        const int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
 
-        text += QString::fromRawData(buffer.unicode() + fragment->stringPosition, fragment->size);
+        text += QString::fromRawData(fragText + inFragmentOffset, charsToCopy);
+        pos += charsToCopy;
+        ++it;
     }
 
     return text;
