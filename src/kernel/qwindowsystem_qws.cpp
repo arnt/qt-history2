@@ -1816,7 +1816,7 @@ void QWSServer::openKeyboard()
 {
     QString keyboards = getenv("QWS_KEYBOARD");
     if ( keyboards.isEmpty() ) {
-#ifdef __MIPSEL__
+#if defined( __MIPSEL__ ) || defined( QT_QWS_IPAQ )
 	keyboards = "Buttons";
 #elif !defined(QT_NO_QWS_VFB)
 	extern bool qvfbEnabled;
