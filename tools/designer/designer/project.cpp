@@ -28,7 +28,7 @@
 #include "dbconnectionimpl.h"
 #endif
 #include "resource.h"
-#include "../uilib/qwidgetfactory.h"
+#include <qwidgetfactory.h>
 #include "outputwindow.h"
 
 #include <qfile.h>
