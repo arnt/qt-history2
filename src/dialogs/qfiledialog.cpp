@@ -580,7 +580,7 @@ private slots:
     void changeDirDuringDrag();
     void dragObjDestroyed();
     void contentsMoved( int, int );
-    
+
 private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
@@ -1049,9 +1049,8 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	if ( item ) {
 	    if ( !itemRect( item ).contains( e->pos() ) )
 		return;
-	    QUrl u( filedialog->url(), item->text() );
 	    QUriDrag* drag = new QUriDrag( viewport() );
-	    drag->setUnicodeUris( u.toString() );
+	    drag->setUnicodeUris( filedialog->selectedFiles() );
 
 	    if ( lined->isVisible() )
 		cancelRename();
@@ -1309,7 +1308,7 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
 	     this, SLOT( changeSortColumn2( int ) ) );
     connect( this, SIGNAL( contentsMoving( int, int ) ),
 	     this, SLOT( contentsMoved( int, int ) ) );
-    
+
     viewport()->setAcceptDrops( TRUE );
     sortcolumn = 0;
     ascending = TRUE;
@@ -1568,10 +1567,10 @@ void QFileListView::setCurrentDropItem( const QPoint &pnt )
 	item = 0;
 
     currDropItem = item;
-    
+
     if ( currDropItem )
 	setCurrentItem( currDropItem );
-    
+
     changeDirTimer->start( 750 );
 }
 
