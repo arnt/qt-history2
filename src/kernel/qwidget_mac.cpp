@@ -1129,15 +1129,25 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    RGBForeColor( &f );
 		    f.red = f.green = f.blue = ~0;
 		    RGBBackColor( &f );
-		    SetClip((RgnHandle)bltregion.handle());
-
+			    
+		    //temporary gworld
+		    GWorldPtr tmppix;
+		    Rect pixr; SetRect(&pixr, 0, 0, ow, oh);
+		    ASSERT(NewGWorld(&tmppix, 32, &pixr, NULL, 0, alignPix | stretchPix | newDepth) == noErr);
+		    BitMap *pixn = (BitMap *)*GetGWorldPixMap(tmppix);
 		    //calculate new and old rectangles
 		    int nx = px + pos().x(), ny = py + pos().y();  //new
 		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
 		    int ox = px + oldp.x(), oy = py + oldp.y(); //old
 		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
 		    BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
-		    CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
+		    //copy
+		    CopyBits(scrn, pixn, &oldr, &pixr, srcCopy, 0);
+		    SetClip((RgnHandle)bltregion.handle());
+		    CopyBits(pixn, scrn, &pixr, &newr, srcCopy, 0);
+
+		    //cleanup
+		    DisposeGWorld(tmppix);
 		}
 	    }
 	    if(isResize)
@@ -1148,16 +1158,17 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    if(isResize && !testWFlags(WNorthWestGravity))
 		upd += clippedRegion();
 	    dirty_wndw_rgn("internalSetGeometry",this, upd);
-	}
-	//Do these last, as they may cause an event which paints, and messes up
-	//what we blt above
-	if ( isMove ) { //send the move event..
-	    QMoveEvent e( pos(), oldp );
-	    QApplication::sendEvent( this, &e );
-	}
-	if ( isResize ) { //send the resize event..
-	    QResizeEvent e( size(), olds );
-	    QApplication::sendEvent( this, &e );
+
+	    //Do these last, as they may cause an event which paints, and messes up
+	    //what we blt above
+	    if ( isMove ) { //send the move event..
+		QMoveEvent e( pos(), oldp );
+		QApplication::sendEvent( this, &e );
+	    }
+	    if ( isResize ) { //send the resize event..
+		QResizeEvent e( size(), olds );
+		QApplication::sendEvent( this, &e );
+	    }
 	}
     }
 }
