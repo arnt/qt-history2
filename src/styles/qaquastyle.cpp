@@ -337,8 +337,14 @@ void QAquaStyle::polish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
-    if( QAquaFocusWidget::handles(w) )
+    if( QAquaFocusWidget::handles(w) ) {
+	if(w->hasFocus()) {
+	    if (!d->focusWidget)
+		d->focusWidget = new QAquaFocusWidget();
+	    d->focusWidget->setFocusWidget( w );
+	}
 	w->installEventFilter( this );
+    }
 }
 
 /*! \reimp */
