@@ -2215,10 +2215,7 @@ void QPainter::setPen(const QColor &color)
 #endif
     Q_D(QPainter);
     QPen newPen = QPen(color.isValid() ? color : QColor(Qt::black), 0, Qt::SolidLine);
-    if (newPen == d->state->pen)
-        return;
     d->state->pen = newPen;
-
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyPen);
 }
@@ -2242,8 +2239,6 @@ void QPainter::setPen(const QPen &pen)
 #endif
 
     Q_D(QPainter);
-    if (d->state->pen == pen)
-        return;
     d->state->pen = pen;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyPen);
@@ -2266,10 +2261,6 @@ void QPainter::setPen(Qt::PenStyle style)
 #endif
 
     Q_D(QPainter);
-    if (d->state->pen.style() == style
-        && d->state->pen.color() == Qt::black
-        && d->state->pen.width() == 0)
-        return;
     d->state->pen = QPen(Qt::black, 0, style);
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyPen);
@@ -2304,18 +2295,8 @@ void QPainter::setBrush(const QBrush &brush)
     if (qt_show_painter_debug_output)
         printf("QPainter::setBrush(), color=%04x, style=%d\n", brush.color().rgb(), brush.style());
 #endif
-
     Q_D(QPainter);
-
-    QBrush newBrush = brush;
-
-    if (d->state->brush == newBrush) {
-        return;
-    }
-    d->state->brush = newBrush;
-    if (!newBrush.color().isValid())
-        d->state->brush.setColor(Qt::black);
-
+    d->state->brush = brush;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyBrush);
 }
@@ -2336,9 +2317,6 @@ void QPainter::setBrush(Qt::BrushStyle style)
 #endif
 
     Q_D(QPainter);
-    if (d->state->brush.style() == style &&
-        d->state->brush.color() == Qt::black)
-        return;
     d->state->brush = QBrush(Qt::black, style);
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyBrush);
