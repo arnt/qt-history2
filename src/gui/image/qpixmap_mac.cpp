@@ -519,35 +519,10 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
          matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F) {
         if(mat.m11() == 1.0F && mat.m22() == 1.0F)
             return *this;                        // identity matrix
-
         h = qRound(mat.m22()*hs);
         w = qRound(mat.m11()*ws);
         h = QABS(h);
         w = QABS(w);
-
-        if(w==0 || h==0)
-            return *this;
-
-        QPixmap* save_alpha = data->alphapm;
-        data->alphapm = 0;
-        QPixmap pm(w, h, depth(), NormalOptim);
-        {
-            QPainter p(&pm);
-            p.drawPixmap(QRect(0, 0, w, h), *this, QRect(0, 0, width(), height()), true);
-        }
-        if(data->mask) {
-            QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
-            pm.setMask(bm);
-        }
-        if(save_alpha) {
-            data->alphapm = save_alpha;
-            pm.data->alphapm = new QPixmap(w, h, save_alpha->depth(), NormalOptim);
-            {
-                QPainter p(pm.data->alphapm);
-                p.drawPixmap(QRect(0, 0, w, h), *save_alpha, QRect(0, 0, width(), height()), true);
-            }
-        }
-        return pm;
     } else {                                        // rotation or shearing
         QPointArray a(QRect(0,0,ws+1,hs+1));
         a = mat.map(a);
