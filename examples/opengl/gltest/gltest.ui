@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>520</width>
-            <height>364</height>
+            <width>448</width>
+            <height>463</height>
         </rect>
     </property>
     <property name="caption">
@@ -63,6 +63,18 @@
                     <widget class="GLStencil">
                         <property name="name">
                             <cstring>glstencil</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>1</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                            <size>
+                                <width>290</width>
+                                <height>240</height>
+                            </size>
                         </property>
                     </widget>
                     <widget class="QLayoutWidget">
@@ -134,6 +146,18 @@
                     <widget class="GLAlpha">
                         <property name="name">
                             <cstring>glalpha</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>1</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                            <size>
+                                <width>290</width>
+                                <height>240</height>
+                            </size>
                         </property>
                     </widget>
                     <widget class="QLayoutWidget">
@@ -269,35 +293,103 @@
 <customwidgets>
     <customwidget>
         <class>GLStencil</class>
-        <header location="global">0</header>
+        <header location="global"></header>
         <sizehint>
-            <width>-1</width>
+            <width>0</width>
             <height>0</height>
         </sizehint>
         <container>0</container>
         <sizepolicy>
-            <hordata>5</hordata>
-            <verdata>5</verdata>
+            <hordata>0</hordata>
+            <verdata>0</verdata>
         </sizepolicy>
         <pixmap>image0</pixmap>
+        <slot access="0">3</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="3">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="3">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">3</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="3">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="3">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
         <property type="0">3</property>
+        <property type="0">GLStencil</property>
+        <property type="3">-1</property>
+        <property type="0">GLStencil</property>
+        <property type="0">-1</property>
         <property type="GLStencil"></property>
         <property type="-1">0</property>
     </customwidget>
     <customwidget>
         <class>GLAlpha</class>
-        <header location="global">1</header>
+        <header location="global"></header>
         <sizehint>
-            <width>-1</width>
+            <width>0</width>
             <height>0</height>
         </sizehint>
         <container>0</container>
         <sizepolicy>
-            <hordata>5</hordata>
-            <verdata>5</verdata>
+            <hordata>0</hordata>
+            <verdata>0</verdata>
         </sizepolicy>
         <pixmap>image0</pixmap>
+        <slot access="0">3</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="3">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="3">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">3</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="3">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="3">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
         <property type="0">3</property>
+        <property type="1">GLAlpha</property>
+        <property type="3">-1</property>
+        <property type="1">GLAlpha</property>
+        <property type="0">-1</property>
         <property type="GLAlpha"></property>
         <property type="-1">1</property>
     </customwidget>
