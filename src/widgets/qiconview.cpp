@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#136 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#137 $
 **
 ** Definition of QIconView widget class
 **
@@ -137,7 +137,7 @@ struct QIconViewPrivate
     QFont ownFont;
     bool wordWrapIconText;
     int cachedContentsX, cachedContentsY;
-    
+
     struct SingleClickConfig {
 	SingleClickConfig()
 	    : normalText( 0 ), normalTextCol( 0 ),
@@ -1922,7 +1922,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->hasOwnFont = FALSE;
     d->wordWrapIconText = TRUE;
     d->cachedContentsX = d->cachedContentsY = -1;
-    
+
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -2077,10 +2077,10 @@ void QIconView::slotUpdate()
 
     int cx = d->cachedContentsX == -1 ? contentsX() : d->cachedContentsX;
     int cy = d->cachedContentsY == -1 ? contentsY() : d->cachedContentsY;
-    
+
     if ( cx != contentsX() || cy != contentsY() )
 	setContentsPos( cx, cy );
-    
+
     d->cachedContentsX = d->cachedContentsY = -1;
     d->cachedW = d->cachedH = 0;
 }
@@ -4429,6 +4429,27 @@ void QIconView::sortItems( bool ascending )
 
     orderItemsInGrid();
     viewport()->repaint( FALSE );
+}
+
+QSize QIconView::sizeHint() const
+{
+    // should be mutable
+    ( (QIconView*)this )->orderItemsInGrid();
+    
+    int w = 100;
+    int h = 100;
+    
+    QIconViewItem *item = d->firstItem;
+    for ( ; item; item = item->next ) {
+	w = QMAX( w, item->x() + item->width() );
+	h = QMAX( h, item->y() + item->height() );
+    }
+    
+    w += d->spacing;
+    h += d->spacing;
+    
+    return QSize( QMIN( 400, w ), 
+		  QMIN( 400, h ) );
 }
 
 #include "qiconview.moc"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#63 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#64 $
 **
 ** Definition of QIconView widget class
 **
@@ -368,6 +368,7 @@ public:
 
     QSize minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
+    QSize sizeHint() const;
 
     virtual void sortItems( bool ascending = TRUE );
 
