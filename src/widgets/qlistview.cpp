@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#65 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#65 $");
 
 
 const int Unsorted = 32767;
@@ -128,7 +128,7 @@ struct QListViewPrivate
   it:
 
   \code
-     (void) new QListViewItem( parent, "first column", "second column", 0 );
+     (void) new QListViewItem( parent, "first column", "second column" );
   \endcode
 
   This object will be deleted when \e parent is deleted, as for \link
@@ -165,7 +165,7 @@ QListViewItem::QListViewItem( QListViewItem * parent )
   \a parent, with at most 8 constant strings as contents.
 
   \code
-     (void)new QListViewItem( lv, "/", "Root directory", 0 );
+     (void)new QListViewItem( lv, "/", "Root directory" );
   \endcode
 */
 
