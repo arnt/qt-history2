@@ -528,7 +528,7 @@ void QWorkspace::insertIcon( QWidget* w )
 	w->reparent( this, 0, QPoint(0,0), FALSE);
 
     int x = 0;
-    int y = height();
+    int y = height() - w->height();
     for (QWidget* i = d->icons.first(); i ; i = d->icons.next() ) {
 
 	if ( x > 0 && x + i->width() > width() ){
@@ -537,10 +537,10 @@ void QWorkspace::insertIcon( QWidget* w )
 	}
 
 	if ( i != w &&
-	    i->geometry().intersects( QRect( x, y-w->height(), w->width(), w->height() ) ) )
+	    i->geometry().intersects( QRect( x, y, w->width(), w->height() ) ) )
 	    x += i->width();
     }
-    w->move( x, y-w->height() );
+    w->move( x, y );
 
     if ( isVisibleTo( parentWidget() ) )
 	w->show();
@@ -613,8 +613,8 @@ void QWorkspace::minimizeWindow( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
     if ( c ) {
-	c->hide();
 	insertIcon( c->iconWidget() );
+	c->hide();
 	d->focus.append( c );
     }
 }
