@@ -15,6 +15,8 @@
 #include "qfileengine_p.h"
 #include <qplatformdefs.h>
 
+extern QString qt_fixToQtSlashes(const QString &path);
+
 #if defined(O_NONBLOCK)
 # define HAS_ASYNC_FILEMODE
 # define QT_OPEN_ASYNC O_NONBLOCK
@@ -100,7 +102,7 @@ QFSFileEngine::open(int mode, const QString &file)
         oflags |= QT_OPEN_ASYNC;
 #endif
     d->cachedCharRead = -1;
-    d->fd = d->sysOpen(QFile::encodeName(file), oflags);
+    d->fd = d->sysOpen(file, oflags);
     if(d->fd != -1) {
         d->sequential = 0;
         struct stat st;

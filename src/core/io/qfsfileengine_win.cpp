@@ -19,6 +19,25 @@
 #define d d_func()
 #define q q_func()
 
+QString qt_fixToQtSlashes(const QString &path)
+{
+    if (!path.length())
+        return path;
+
+    QString ret;
+    for (int i=0, lastSlash=-1; i<(int)path.length(); i++) {
+	if(path[i] == '/' || path[i] == '\\') {
+	    if(i <= 3 || 
+	       (i < path.length() - 1) && (lastSlash == -1 || i != lastSlash+1))
+		ret += '/';
+	    lastSlash = i;
+	} else {
+	    ret += path[i];
+	}
+    }
+    return ret;
+}
+
 QByteArray qt_win95Name(const QString s)
 {
     QString ss(s);
@@ -59,12 +78,12 @@ QFSFileEnginePrivate::init()
 }
 
 int
-QFSFileEnginePrivate::sysOpen(const QString &file, int flags)
+QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 {
     QT_WA({
-	return ::_wopen((TCHAR*)file.utf16(), flags, 0666);
+	return ::_wopen((TCHAR*)fileName.utf16(), flags, 0666);
     } , {
-	return QT_OPEN(qt_win95Name(file), flags, 0666);
+	return QT_OPEN(qt_win95Name(fileName), flags, 0666);
     });
 }
     

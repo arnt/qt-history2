@@ -37,6 +37,7 @@
 #define d d_func()
 #define q q_func()
 
+extern QString qt_fixToQtSlashes(const QString &path);
 extern QByteArray qt_win95Name(const QString s);
 
 bool QFSDirEnginePrivate::sysExists(const QString &dirName) const 
@@ -193,7 +194,7 @@ QFSDirEngine::entryList(int filterSpec, const QStringList &filters) const
         }
 #endif
         if  ((doDirs && isDir) || (doFiles && isFile)) {
-            QString name = QDir::convertSeparators(fname);
+            QString name = qt_fixToQtSlashes(fname);
             if (doExecable) {
                 QString ext = name.right(4).toLower();
                 if (ext == ".exe" || ext == ".com" || ext == ".bat" ||
@@ -271,7 +272,7 @@ QFSDirEngine::currentDirPath(const QString &fileName)
                 ::_getdcwd(drv, buf, PATH_MAX);
                 ret = buf;
             });
-            return QDir::convertSeparators(ret);
+            return qt_fixToQtSlashes(ret);
         }
     }
     //just the pwd
@@ -286,7 +287,7 @@ QFSDirEngine::currentDirPath(const QString &fileName)
             ret = QString::fromLocal8Bit(currentName);
         }
     });
-    return QDir::convertSeparators(ret);
+    return qt_fixToQtSlashes(ret);
 }
 
 QString 
@@ -301,7 +302,7 @@ QFSDirEngine::homeDirPath()
                 ret = rootDirPath();
         }
     }
-    return QDir::convertSeparators(ret);
+    return qt_fixToQtSlashes(ret);
 }
 
 QString

@@ -18,6 +18,8 @@
 #define d d_func()
 #define q q_func()
 
+extern QString qt_fixToQtSlashes(const QString &path);
+
 QFileInfoEngine::QFileInfoEngine(QFileInfoEnginePrivate &dd)  : d_ptr(&dd)
 { 
     d->q_ptr = this;
@@ -36,44 +38,17 @@ QFSFileInfoEnginePrivate::QFSFileInfoEnginePrivate() : QFileInfoEnginePrivate()
     init();
 }
 
-void QFSFileInfoEnginePrivate::slashify()
-{
-    // Filename cleanup
-    if (!file.length())
-        return;
-
-    // Standardize: turn all \ to /
-    for (int i=0; i<(int)file.length(); i++) {
-        if (file[i] == '\\')
-            file[i] = '/';
-    }
-
-    // Cleanup: remove trailing slash
-    if (file[(int)file.length() - 1] == '/' && file.length() > 3)
-        file.remove((int)file.length() - 1, 1);
-
-    // Cleanup: remove all "//" after 3 character
-    int index;
-    do {
-        index = file.indexOf("//", 3);
-        if (index != -1)
-            file.remove(index, 1);
-    } while (index != -1);
-}
-
 //**************** QFSFileInfoEngine
 QFSFileInfoEngine::QFSFileInfoEngine(const QString &file) : QFileInfoEngine(*new QFSFileInfoEnginePrivate)
 {
-    d->file = file;
-    d->slashify();
+    d->file = qt_fixToQtSlashes(file);
 }
 
 void
 QFSFileInfoEngine::setFileName(const QString &file)
 {
-    d->file = file;
+    d->file = qt_fixToQtSlashes(file);
     d->tried_stat = false;
-    d->slashify();
 }
 
 uint

@@ -33,6 +33,7 @@
 #define SECURITY_WIN32
 #include <security.h>
 
+extern QString qt_fixToQtSlashes(const QString &path);
 extern QByteArray qt_win95Name(const QString s);
 Q_CORE_EXPORT int qt_ntfs_permission_lookup = 0;
 
@@ -141,7 +142,7 @@ static QString currentDirOfDrive(char ch)
         if (_getdcwd(toupper((uchar) ch) - 'A' + 1, currentName, PATH_MAX) >= 0)
             ret = QString::fromLocal8Bit(currentName);
     });
-    return QDir::convertSeparators(ret);
+    return qt_fixToQtSlashes(ret);
 }
 
 #define d d_func()
@@ -501,9 +502,9 @@ QFSFileInfoEngine::fileName(FileName file) const
             }
             QT_CHDIR(cur);
         });
-        return QDir::convertSeparators(ret);
+        return qt_fixToQtSlashes(ret);
     } else if(file == LinkName) {
-	return d->getLink();
+	return qt_fixToQtSlashes(d->getLink());
     }
     return d->file;
 }

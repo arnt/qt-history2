@@ -14,6 +14,8 @@
 #include "qdirengine.h"
 #include "qdirengine_p.h"
 
+extern QString qt_fixToQtSlashes(const QString &path);
+
 #define d d_func()
 #define q q_func()
 
@@ -37,7 +39,7 @@ QFSDirEnginePrivate::QFSDirEnginePrivate() : QDirEnginePrivate()
 //**************** QFSDirEngine
 QFSDirEngine::QFSDirEngine(const QString &path)  : QDirEngine(*new QFSDirEnginePrivate)
 {
-    d->path = path;
+    d->path = qt_fixToQtSlashes(path);
 }
 
 bool
@@ -45,7 +47,7 @@ QFSDirEngine::setPath(const QString &path, bool force)
 {
     if(!force && !d->sysExists(path))
         return false;
-    d->path = path;
+    d->path = qt_fixToQtSlashes(path);
     return true;
 }
 

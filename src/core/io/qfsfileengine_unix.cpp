@@ -19,6 +19,11 @@
 #define d d_func()
 #define q q_func()
 
+QString qt_fixToQtSlashes(const QString &path)
+{
+    return path;
+}
+
 void 
 QFSFileEnginePrivate::init()
 {
