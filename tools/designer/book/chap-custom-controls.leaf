@@ -535,7 +535,7 @@ Note that if two different interface implementations, e.g. from two
 
 \quotefile filechooser/plugin/plugin.cpp
 \skipto ::queryInterface
-\printuntil addRef
+\printuntil QS_OK
 \printline }
 
 	    \index UUID (Universal Unique Identifier)
