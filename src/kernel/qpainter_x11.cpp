@@ -2252,10 +2252,11 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     if ( winding )				// set to winding fill rule
 	XSetFillRule( dpy, gc_brush, WindingRule );
 
-    int x1, y1, x2, y2;				// connect last to first point
-    pa.point( index+npoints-1, &x1, &y1 );
-    pa.point( index, &x2, &y2 );
-    bool closed = x1 == x2 && y1 == y2;
+    if ( pa[index] != pa[index+npoints-1] ){   // close open pointarray
+    	pa.resize( index+npoints+1 );
+    	pa.setPoint( index+npoints, pa[index] ); 
+    	npoints++;
+    }
 
     if ( cbrush.style() != NoBrush ) {		// draw filled polygon
 	XFillPolygon( dpy, hd, gc_brush,
@@ -2265,8 +2266,6 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     if ( cpen.style() != NoPen ) {		// draw outline
 	XDrawLines( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )),
 		    npoints, CoordModeOrigin );
-	if ( !closed )
-	    XDrawLine( dpy, hd, gc, x1, y1, x2, y2 );
     }
     if ( winding )				// set to normal fill rule
 	XSetFillRule( dpy, gc_brush, EvenOddRule );
