@@ -328,7 +328,7 @@ void HierarchyList::changeDatabaseOf( QWidget *w, const QString &info )
 
 void HierarchyList::setup()
 {
-    if ( !formWindow )
+    if ( !formWindow || qstrcmp( formWindow->name(), "qt_fakewindow" ) == 0 )
 	return;
     clear();
     QWidget *w = formWindow->mainContainer();
@@ -961,9 +961,9 @@ void HierarchyView::clear()
     }
 }
 
-void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
+void HierarchyView::setFormWindow( FormWindow *fw, QObject *o )
 {
-    if ( fw == 0 || w == 0 ) {
+    if ( fw == 0 || o == 0 ) {
 	listview->clear();
 	fView->clear();
 	listview->setFormWindow( fw );
@@ -976,7 +976,10 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
     setTabEnabled( fView, TRUE );
 
     if ( fw == formwindow ) {
-	listview->setCurrent( w );
+	if ( o->isWidgetType() )
+	    listview->setCurrent( (QWidget*)o );
+	else
+	    listview->clear();
 	if ( MainWindow::self->qWorkspace()->activeWindow() == fw )
 	    showPage( listview );
 	else
@@ -985,10 +988,18 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
     }
 
     formwindow = fw;
-    listview->setFormWindow( fw );
+    if ( o->isWidgetType() ) {
+	listview->setFormWindow( fw );
+    } else {
+	listview->clear();
+	listview->setFormWindow( 0 );
+    }
+
     fView->setFormWindow( fw );
-    listview->setup();
-    listview->setCurrent( w );
+    if ( o->isWidgetType() ) {
+	listview->setup();
+	listview->setCurrent( (QWidget*)o );
+    }
     fView->setup();
 
     if ( MainWindow::self->qWorkspace()->activeWindow() == fw )

@@ -40,7 +40,7 @@ public:
 	WAnyOrAll = WFormWindow | WFormCode
     };
 
-    FormFile( const QString &fn, bool temp, Project *p );
+    FormFile( const QString &fn, bool temp, Project *p, const char *name = 0 );
     ~FormFile();
 
     void setFormWindow( FormWindow *f );

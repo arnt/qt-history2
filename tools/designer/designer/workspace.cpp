@@ -383,6 +383,8 @@ void Workspace::setCurrentProject( Project *pro )
     for ( QPtrListIterator<FormFile> forms = project->formFiles();
 	  forms.current(); ++forms ) {
 	FormFile* f = forms.current();
+	if ( qstrcmp( f->name(), "qt_fakewindow" ) == 0 )
+	    continue;
 	(void) new WorkspaceItem( projectItem, f );
     }
 
@@ -412,6 +414,8 @@ void Workspace::sourceFileRemoved( SourceFile* sf )
 
 void Workspace::formFileAdded( FormFile* ff )
 {
+    if ( qstrcmp( ff->name(), "qt_fakewindow" ) == 0 )
+	return;
     (void) new WorkspaceItem( projectItem, ff );
     updateColors();
 }
@@ -570,6 +574,7 @@ void Workspace::itemClicked( int button, QListViewItem *i, const QPoint& )
 	break;
     case WorkspaceItem::ObjectType:
 	mainWindow->propertyeditor()->setWidget( wi->object, project->fakeFormFor( wi->object ) );
+	mainWindow->objectHierarchy()->setFormWindow( project->fakeFormFor( wi->object ), wi->object );
 	break;
     }
 }

@@ -167,7 +167,7 @@ public:
     HierarchyView( QWidget *parent );
     ~HierarchyView();
 
-    void setFormWindow( FormWindow *fw, QWidget *w );
+    void setFormWindow( FormWindow *fw, QObject *o );
     FormWindow *formWindow() const;
     SourceEditor *sourceEditor() const { return editor; }
     void clear();

@@ -1162,13 +1162,11 @@ void Project::addObject( QObject *o )
     objs.append( o );
     emit objectAdded( o );
     MetaDataBase::addEntry( o );
-    FormFile *ff = new FormFile( "", TRUE, this );
+    FormFile *ff = new FormFile( "", TRUE, this, "qt_fakewindow" );
     FormWindow *fw = new FormWindow( ff, MainWindow::self, "qt_fakewindow" );
     fw->setMainWindow( MainWindow::self );
     fw->setProject( this );
     fw->hide();
-    formfiles.removeRef( ff );
-    emit formFileRemoved( ff );
     fakeForms.insert( (void*)o, fw );
 }
 
@@ -1178,14 +1176,12 @@ void Project::setObjects( const QObjectList &ol )
     for ( QObjectListIt it( objs ); it.current(); ++it ) {
 	emit objectAdded( it.current() );
 	MetaDataBase::addEntry( it.current() );
-	FormFile *ff = new FormFile( "", TRUE, this );
+	FormFile *ff = new FormFile( "", TRUE, this, "qt_fakewindow" );
 	FormWindow *fw = new FormWindow( ff, MainWindow::self, "qt_fakewindow" );
 	fw->setMainWindow( MainWindow::self );
 	fw->setProject( this );
 	fw->hide();
 	fakeForms.insert( (void*)it.current(), fw );
-	formfiles.removeRef( ff );
-	emit formFileRemoved( ff );
     }
 }
 
