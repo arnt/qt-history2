@@ -2035,6 +2035,14 @@ QPopupMenu *QMainWindow::createDockWindowMenu( DockWindows dockWindows ) const
     return menu;
 }
 
+/*! This slot is called from the aboutToShow() signal of the default
+  dock menu of the mainwindow. The default implementation initializes
+  the menu with all dock windows and toolbars in this slot.
+
+  If you want to do small adjustments to the menu, you can do it in
+  this slot. Else reimplement createDockWindowMenu().
+*/
+
 void QMainWindow::menuAboutToShow()
 {
     QPopupMenu *menu = (QPopupMenu*)sender();
