@@ -635,6 +635,8 @@ aussi:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+int QTextEditDocument::numSelections = 4; // Don't count the Temp one!
+
 QTextEditDocument::QTextEditDocument( const QString &fn, bool tabify )
     : filename( fn )
 {
@@ -665,6 +667,10 @@ QTextEditDocument::QTextEditDocument( const QString &fn, bool tabify )
     selectionColors[ ParenMismatch ] = Qt::magenta;
     selectionColors[ ParenMatch ] = Qt::green;
     selectionColors[ Search ] = Qt::yellow;
+    selectionText[ Standard ] = TRUE;
+    selectionText[ ParenMismatch ] = FALSE;
+    selectionText[ ParenMatch ] = FALSE;
+    selectionText[ Search ] = FALSE;
     commandHistory = new QTextEditCommandHistory( 100 ); // ### max undo/redo steps should be configurable
 }
 
@@ -1625,25 +1631,21 @@ void QTextEditParag::paint( QPainter &painter, const QColorGroup &cg, QTextEditC
     int curx = -1, cury, curh;
 	
     // #### draw other selections too here!!!!!!!
-    int selStart = -1, selEnd = -1;
-    int matchStart = -1, matchEnd = -1;
-    int mismatchStart = -1, mismatchEnd = -1;
-    if ( hasSelection( QTextEditDocument::Standard ) ) {
-	selStart = selectionStart( QTextEditDocument::Standard );
-	selEnd = selectionEnd( QTextEditDocument::Standard );
-    }
-    if ( hasSelection( QTextEditDocument::ParenMatch ) ) {
-	matchStart = selectionStart( QTextEditDocument::ParenMatch );
-	matchEnd = selectionEnd( QTextEditDocument::ParenMatch );
-    }
-    if ( hasSelection( QTextEditDocument::ParenMismatch ) ) {
-	mismatchStart = selectionStart( QTextEditDocument::ParenMismatch );
-	mismatchEnd = selectionEnd( QTextEditDocument::ParenMismatch );
+    int selectionStarts[ doc->numSelections ];
+    int selectionEnds[ doc->numSelections ];
+    for ( i = 0; i < doc->numSelections; ++i ) {
+	if ( !drawSelections || !hasSelection( i ) ) {
+	    selectionStarts[ i ] = -1;
+	    selectionEnds[ i ] = -1;
+	} else {
+	    selectionStarts[ i ] = selectionStart( i );
+	    selectionEnds[ i ] = selectionEnd( i );
+	}
     }
 	
     int line = -1;
     int cw;
-    for ( ; i < length(); i++ ) {
+    for ( i = 0; i < length(); i++ ) {
 	chr = at( i );
 	cw = chr->format->width( chr->c );
 
@@ -1659,7 +1661,7 @@ void QTextEditParag::paint( QPainter &painter, const QColorGroup &cg, QTextEditC
 	if ( line == 0 && type() == QTextEditParag::BulletList ) {
 	    int ext = QMIN( doc->listIndent( 0 ), h );
 	    ext -= 8;
-	    
+	
 	    // ######## use pixmaps for drawing that stuff - this way it's very slow when having long lists!
 	    switch ( doc->bullet( listDepth() ) ) {
 	    case QTextEditDocument::FilledCircle: {
@@ -1701,22 +1703,20 @@ void QTextEditParag::paint( QPainter &painter, const QColorGroup &cg, QTextEditC
 	    continue;
 	}
 	
-	// if something (format, etc.) changed, draw what we have so far
-	if ( lastY != cy || chr->format != lastFormat ||
-	     buffer == "\t" || chr->c == '\t' || i == selStart || i == selEnd || i ==matchStart ||
-	     i == matchEnd || i == mismatchStart || i == mismatchEnd ) {
-	    painter.setPen( QPen( lastFormat->color() ) );
-	    painter.setFont( lastFormat->font() );
-	    if ( i > selStart && i <= selEnd ) {
-		painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
-		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::Standard ) );
+	// check if selection state changed
+	bool selectionChange = FALSE;
+	if ( drawSelections ) {
+	    for ( int j = 0; j < doc->numSelections; ++j ) {
+		selectionChange = selectionStarts[ j ] == i || selectionEnds[ j ] == i;
+		if ( selectionChange )
+		    break;
 	    }
-	    if ( i > matchStart && i <= matchEnd )
-		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMatch ) );
-	    if ( i > mismatchStart && i <= mismatchEnd )
-		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMismatch ) );
-	    if ( buffer != "\t" )
-		painter.drawText( startX, lastY + lastBaseLine, buffer );
+	}
+	
+	// if something (format, etc.) changed, draw what we have so far
+	if ( lastY != cy || chr->format != lastFormat || buffer == "\t" || chr->c == '\t' || selectionChange ) {
+	    drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
+			     lastFormat, i, selectionStarts, selectionEnds, cg );
 	    buffer = chr->c;
 	    lastFormat = chr->format;
 	    lastY = cy;
@@ -1731,23 +1731,41 @@ void QTextEditParag::paint( QPainter &painter, const QColorGroup &cg, QTextEditC
 	
     // if we are through thge parag, but still have some stuff left to draw, draw it now
     if ( !buffer.isEmpty() ) {
-	painter.setPen( QPen( lastFormat->color() ) );
-	painter.setFont( lastFormat->font() );
-	if ( i > selStart && i <= selEnd ) {
-	    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
-	    painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::Standard ) );
+	bool selectionChange = FALSE;
+	if ( drawSelections ) {
+	    for ( int j = 0; j < doc->numSelections; ++j ) {
+		selectionChange = selectionStarts[ j ] == i || selectionEnds[ j ] == i;
+		if ( selectionChange )
+		    break;
+	    }
 	}
-	if ( i > matchStart && i <= matchEnd )
-	    painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMatch ) );
-	if ( i > mismatchStart && i <= mismatchEnd )
-	    painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMismatch ) );
-	if ( buffer != "\t" )
-	    painter.drawText( startX, lastY + lastBaseLine, buffer );
+	drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
+			 lastFormat, i, selectionStarts, selectionEnds, cg );
     }
 	
     // if we should draw a cursor, draw it now
     if ( curx != -1 && cursor )
 	painter.fillRect( QRect( curx, cury, 2, curh ), Qt::black );
+}
+
+void QTextEditParag::drawParagBuffer( QPainter &painter, const QString &buffer, int startX, 
+				      int lastY, int baseLine, int bw, int h, bool drawSelections,
+				      QTextEditFormat *lastFormat, int i, int *selectionStarts, 
+				      int *selectionEnds, const QColorGroup &cg )
+{
+    painter.setPen( QPen( lastFormat->color() ) );
+    painter.setFont( lastFormat->font() );
+    if ( drawSelections ) {
+	for ( int j = 0; j < doc->numSelections; ++j ) {
+	    if ( i > selectionStarts[ j ] && i <= selectionEnds[ j ] ) {
+		if ( doc->invertSelectionText( j ) )
+		    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
+		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( j ) );
+	    }
+	}
+    }
+    if ( buffer != "\t" )
+	painter.drawText( startX, lastY + baseLine, buffer );
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

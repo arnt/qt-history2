@@ -156,9 +156,12 @@ public:
 	ParenMismatch,
 	ParenMatch,
 	Search,
-	Temp // This selection must not be drawn, it's used e.g. by undo/redo to remove multiple lines with removeSelectedText()
+	Temp // This selection must not be drawn, it's used e.g. by undo/redo to 
+	// remove multiple lines with removeSelectedText()
     };
 
+    static int numSelections;
+    
     enum Bullet {
 	FilledCircle,
 	FilledSquare,
@@ -197,6 +200,7 @@ public:
     bool isParenCheckingEnabled() const;
 
     QColor selectionColor( int id ) const;
+    bool invertSelectionText( int id ) const;
     bool hasSelection( int id ) const;
     void setSelectionStart( int id, QTextEditCursor *cursor );
     bool setSelectionEnd( int id, QTextEditCursor *cursor );
@@ -246,6 +250,7 @@ private:
     QTextEditSyntaxHighlighter *syntaxHighlighte;
     QMap<int, QColor> selectionColors;
     QMap<int, Selection> selections;
+    QMap<int, bool> selectionText;
     QString filename;
     bool parenCheck, completion;
     QTextEditCommandHistory *commandHistory;
@@ -325,7 +330,7 @@ public:
 
     QTextEditParag( QTextEditDocument *d, QTextEditParag *pr, QTextEditParag *nx, bool updateIds = TRUE );
     virtual ~QTextEditParag() {}
-    
+
     Type type() const;
     void setType( Type t );
 
@@ -403,6 +408,12 @@ public:
     virtual void paint( QPainter &painter, const QColorGroup &cg,
 			QTextEditCursor *cusror = 0, bool drawSelections = FALSE );
 
+private:
+    void drawParagBuffer( QPainter &painter, const QString &buffer, int startX, 
+			  int lastY, int baseLine, int bw, int h, bool drawSelections,
+			  QTextEditFormat *lastFormat, int i, int *selectionStarts, 
+			  int *selectionEnds, const QColorGroup &cg  );
+    
 private:
     struct Selection {
 	int start, end;
@@ -716,6 +727,11 @@ inline bool QTextEditDocument::isParenCheckingEnabled() const
 inline QColor QTextEditDocument::selectionColor( int id ) const
 {
     return selectionColors[ id ];
+}
+
+inline bool QTextEditDocument::invertSelectionText( int id ) const
+{
+    return selectionText[ id ];
 }
 
 inline bool QTextEditDocument::hasSelection( int id ) const
