@@ -1477,7 +1477,7 @@ void QToggleAction::setChecked( bool checked )
     }
 
     // Uncheck all the other toggle actions in the same group
-    if ( parent() && !m_exclusiveGroup.isEmpty() )
+    if ( parent() && !m_exclusiveGroup.isEmpty() && checked )
     {
 	const QObjectList *list = parent()->children();
 	if ( list )
@@ -1486,7 +1486,8 @@ void QToggleAction::setChecked( bool checked )
 	    for( ; it.current(); ++it )
 	    {
 		if ( it.current()->inherits( "QToggleAction" ) &&
-		     ((QToggleAction*)it.current())->exclusiveGroup() == m_exclusiveGroup )
+		     ((QToggleAction*)it.current())->exclusiveGroup() == m_exclusiveGroup &&
+		     it.current() != this )
 		    ((QToggleAction*)it.current())->setChecked( FALSE );
 	    }
 	}
