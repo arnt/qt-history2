@@ -42,11 +42,6 @@ static double sqr(double x)
     return x*x;
 }
 
-static double sqr(int i)
-{
-    return i*i;
-}
-
 template <typename T>
 static void swap(T &t1, T &t2)
 {
@@ -167,18 +162,18 @@ CEItem::CEItem(ConnectionEdit *edit)
 void CEItem::paint(QPainter *p)
 {
     Q_UNUSED(p);
-#if 0    
+#if 0
     p->save();
     p->setClipping(false);
     QPoint pos = rect().center();
     QFontMetrics fm = edit()->fontMetrics();
     QString text = "0x" + QString::number((uint)this, 16);
-    
+
     if (type() == CEItem::EndPointItem) {
         CEEndPointItem *ep = qt_cast<CEEndPointItem*>(this);
         text += " " + QString::number(ep->xRatio()) + " " + QString::number(ep->yRatio());
     }
-    
+
     p->setPen(Qt::black);
     p->setBrush(Qt::black);
     p->drawRect(QRect(pos, fm.size(Qt::TextSingleLine, text)));
@@ -191,7 +186,7 @@ void CEItem::paint(QPainter *p)
 QColor CEItem::colorForStatus()
 {
     QColor color;
- 
+
     switch (status()) {
         case Dragged:
             return Qt::red;
@@ -204,7 +199,7 @@ QColor CEItem::colorForStatus()
         case Normal:
             return Qt::blue;
     }
-    
+
     return Qt::blue;
 }
 
@@ -248,9 +243,9 @@ CELabelItem::CELabelItem(ConnectionEdit *edit)
 void CELabelItem::move(const QPoint &delta)
 {
     update();
-    
+
     QPoint new_pos = m_rect.topLeft() + delta;
-    
+
     QRect constraint_rect(m_anchor_pos.x() - m_rect.width()*3/2, m_anchor_pos.y() - m_rect.height()*3/2,
                             m_rect.width()*2, m_rect.height()*2);
     if (new_pos.x() < constraint_rect.left())
@@ -261,9 +256,9 @@ void CELabelItem::move(const QPoint &delta)
         new_pos.setY(constraint_rect.top());
     if (new_pos.y() > constraint_rect.bottom())
         new_pos.setY(constraint_rect.bottom());
-    
+
     m_rect.moveTopLeft(new_pos);
-    
+
     update();
     emit moved();
 }
@@ -271,18 +266,18 @@ void CELabelItem::move(const QPoint &delta)
 void CELabelItem::setAnchorPos(const QPoint &pos)
 {
     QPoint delta = pos - m_anchor_pos;
-    
+
     update();
     m_rect.moveTopLeft(m_rect.topLeft() + pos - m_anchor_pos);
     update();
-    
+
     m_anchor_pos = pos;
 }
-    
+
 void CELabelItem::setText(const QString &text)
 {
     m_text = text;
-    
+
     update();
     QFontMetrics fm = edit()->fontMetrics();
     m_rect = QRect(m_rect.topLeft(), fm.size(Qt::TextSingleLine, text));
@@ -306,11 +301,11 @@ void CELabelItem::paint(QPainter *p)
 /*******************************************************************************
 ** CEEndPointItem
 */
-    
+
 void CEEndPointItem::paint(QPainter *p)
 {
     CEItem::paint(p);
-    
+
     if (status() == Normal)
         return;
 
@@ -321,7 +316,7 @@ void CEEndPointItem::paint(QPainter *p)
 void CEEndPointItem::move(const QPoint &delta)
 {
     update();
-    
+
     m_pos += delta;
     adjustRatio();
     update();
@@ -342,7 +337,7 @@ void CEEndPointItem::adjustRatio()
         } else {
             m_x_ratio = (m_pos.x() - first->pos().x() + 0.0)/(last->pos().x() - first->pos().x());
         }
-            
+
         if (first->pos().y() == last->pos().y()) {
             QRect r = first->rect();
             if (r.top() == r.bottom())
@@ -367,7 +362,7 @@ void CEEndPointItem::adjustPos()
     CEEndPointItem *last = lastEndPoint(this);
     if (first == 0 || last == 0)
         return;
-    
+
     int x, y;
     if (first->pos().x() == last->pos().x()) {
         QRect r = first->rect();
@@ -375,7 +370,7 @@ void CEEndPointItem::adjustPos()
     } else {
         x = first->pos().x() + (int)((last->pos().x() - first->pos().x())*m_x_ratio);
     }
-     
+
     if (first->pos().y() == last->pos().y()) {
         QRect r = first->rect();
         y = r.top() + (int)(m_y_ratio*(r.bottom() - r.top()));
@@ -386,7 +381,7 @@ void CEEndPointItem::adjustPos()
     QPoint pos(x, y);
     if (pos == m_pos)
         return;
-    
+
     update();
     m_pos = pos;
     update();
@@ -407,7 +402,7 @@ void CEEndPointItem::edgeDestroyed(QObject *o)
 CEEdgeItem *CEEndPointItem::edgeTo(CEEndPointItem *other) const
 {
     foreach (CEEdgeItem *edge, m_edge_list) {
-        if (edge->otherEndPoint(this) == other) 
+        if (edge->otherEndPoint(this) == other)
             return edge;
     }
     return 0;
@@ -482,7 +477,7 @@ static QString regionToString(const QRegion &region)
         const QRect &r = rects.at(i);
         result += QString("[%1, %2, %3, %4] ").arg(r.x()).arg(r.y()).arg(r.width()).arg(r.height());
     }
-    
+
     return result;
 }
 */
@@ -510,16 +505,16 @@ QRect CEWidgetItem::widgetRect() const
 void CEWidgetItem::updateGeometry()
 {
     QRect new_rect = widgetRect();
-    
+
     qDebug() << "CEWidgetItem::updateGeometry():" << new_rect << rect();
-    
+
     if (rect() == new_rect)
         return;
-            
+
     update();
     m_rect = new_rect;
     update();
-    
+
     emit moved();
 }
 
@@ -538,13 +533,13 @@ CEEdgeItem::CEEdgeItem(CEEndPointItem *ep1, CEEndPointItem *ep2, ConnectionEdit 
 
     m_ep1->addEdge(this);
     m_ep2->addEdge(this);
-    
+
     m_exit_pos = QPoint(-1, -1);
     m_enter_pos = QPoint(-1, -1);
-    
+
     recalculate();
 }
-    
+
 void CEEdgeItem::endPointDestroyed(QObject *o)
 {
     if (o == m_ep1)
@@ -555,7 +550,7 @@ void CEEdgeItem::endPointDestroyed(QObject *o)
 
 static QPoint rotate(QPoint pos, double alpha)
 {
-    return QPoint((int)(pos.x()*cos(alpha) + pos.y()*sin(alpha)), 
+    return QPoint((int)(pos.x()*cos(alpha) + pos.y()*sin(alpha)),
                     (int)(-pos.x()*sin(alpha) + pos.y()*cos(alpha)));
 }
 
@@ -565,15 +560,15 @@ static EdgeType classifyEdge(QPoint p1, QPoint p2, const QRect &rect)
     Q_ASSERT(rect.contains(p2));
 
     int dx = p1.x() - p2.x();
-    int dy = p2.y() - p1.y();    
-    
+    int dy = p2.y() - p1.y();
+
     if (dx == 0)
         return HorEdge;
     if (dy == 0)
         return VerEdge;
-        
+
     double r = (dy + 0.0)/dx;
-    
+
     if (dx > 0) {
         int d = rect.right() - p2.x();
         if (d == 0)
@@ -582,7 +577,7 @@ static EdgeType classifyEdge(QPoint p1, QPoint p2, const QRect &rect)
         double r3 = (p2.y() - rect.bottom() + 0.0)/d; // -
         return r2 > r && r > r3 ? VerEdge : HorEdge;
     }
-    
+
     int d = p2.x() - rect.left();
     if (d == 0)
         return VerEdge;
@@ -604,18 +599,18 @@ static QPoint enterPos(const QPoint &p1, const QPoint &p2, const QRect &rect)
         else
             return QPoint(p2.x(), rect.bottom());
     }
-    
+
     if (dy == 0) {
         if (p1.x() > p2.x())
             return QPoint(rect.right(), p2.y());
         else
             return QPoint(rect.left(), p2.y());
     }
-        
-    EdgeType exit_edge = classifyEdge(p1, p2, rect);            
-    
+
+    EdgeType exit_edge = classifyEdge(p1, p2, rect);
+
     double r = (dx + 0.0)/dy;
-    
+
     if (exit_edge == HorEdge) {
         if (p1.y() < p2.y()) {
             return QPoint(p2.x(), rect.top())
@@ -642,12 +637,12 @@ static double angle(const QPoint &p1, const QPoint &p2)
 
     if (dx == 0)
         return dy < 0 ? -M_PI/2 : M_PI/2;
-        
+
     double result = atan((dy + 0.0)/dx);
     if (dx < 0)
         result += M_PI;
 
-    return result;    
+    return result;
 }
 
 void CEEdgeItem::recalculate()
@@ -659,7 +654,7 @@ void CEEdgeItem::recalculate()
     m_pos2 = m_ep2->pos();
 
     QPoint d;
-    
+
     if (m_pos1.y() == m_pos2.y()) {
         d = QPoint(0, ENDPOINT_RADIUS);
         if (m_pos1.x() <= m_pos2.x())
@@ -667,16 +662,16 @@ void CEEdgeItem::recalculate()
     } else if (m_pos1.x() == m_pos2.x()) {
         d = QPoint(ENDPOINT_RADIUS, 0);
         if (m_pos1.y() >= m_pos2.y())
-            d = -d;        
+            d = -d;
     } else {
         double r = (m_pos2.y() - m_pos1.y() + 0.0)/(m_pos2.x() - m_pos1.x());
         double u = (ENDPOINT_RADIUS + 0.0)/sqrt(1 + sqr(1/r));
         d = QPoint((int)u, (int)(-u/r));
-        
+
         if (m_pos1.y() > m_pos2.y())
             d = -d;
     }
-    
+
     if (m_pos1.x() < m_pos2.x() && m_pos1.y() <= m_pos2.y()) {
         m_top = m_pos1 + d;
         m_side1 = m_pos1 - d;
@@ -724,22 +719,22 @@ bool CEEdgeItem::contains(const QPoint &p) const
 {
     if (m_pos1.x() == m_pos2.x() || m_pos1.y() == m_pos2.y())
         return rect().contains(p);
- 
+
     bool b1 = m_top.x() == m_side1.x() ? p.x() > m_top.x() : belowLine(m_top, m_side1, p);
     bool b2 = m_top.x() == m_side2.x() ? p.x() < m_top.x() : belowLine(m_top, m_side2, p);
     bool a1 = m_side1.x() == m_bottom.x() ? p.x() > m_bottom.x() : aboveLine(m_side1, m_bottom, p);
     bool a2 = m_side2.x() == m_bottom.x() ? p.x() < m_bottom.x() : aboveLine(m_side2, m_bottom, p);
 
-/*    qDebug() << "CEEdgeItem::contains():" 
+/*    qDebug() << "CEEdgeItem::contains():"
                 << "top" << m_top
                 << "side1" << m_side1
                 << "side2" << m_side2
                 << "bottom" << m_bottom
-                << "b1" << b1 
-                << "b2" << b2 
-                << "a1" << a1 
+                << "b1" << b1
+                << "b2" << b2
+                << "a1" << a1
                 << "a2" << a2; */
-    
+
     return b1 && b2 && a1 && a2;
 }
 
@@ -747,31 +742,31 @@ void CEEdgeItem::paint(QPainter *p)
 {
     if (m_ep1 == 0 || m_ep1 == 0)
         return;
-    
+
     p->save();
-    
+
     QPoint p1 = m_pos1;
     QPoint p2 = m_pos2;
     if (m_exit_pos != QPoint(-1, -1))
         p1 = m_exit_pos;
     if (m_enter_pos != QPoint(-1, -1))
         p2 = m_enter_pos;
-    
+
     p->setPen(colorForStatus());
     p->drawLine(p1, p2);
-    
+
     if (!m_arrow_head.isEmpty()) {
         p->setBrush(colorForStatus());
         p->drawPolygon(m_arrow_head);
     }
-/*    
+/*
     p->setPen(Qt::green);
     p->drawLine(m_top, m_side1);
     p->drawLine(m_top, m_side2);
     p->setPen(Qt::red);
     p->drawLine(m_bottom, m_side1);
     p->drawLine(m_bottom, m_side2);
-*/    
+*/
     p->restore();
     CEItem::paint(p);
 }
@@ -798,7 +793,7 @@ CEEndPointItem *CEEdgeItem::otherEndPoint(const CEEndPointItem *ep) const
         return 0;
 
     Q_ASSERT(ep == m_ep1 || ep == m_ep2);
-    
+
     if (ep == m_ep1)
         return m_ep2;
     else
@@ -817,13 +812,13 @@ void CEEdgeItem::setEnterPos(const QPoint &pos)
 {
     if (pos == m_enter_pos)
         return;
-    
+
     m_enter_pos = pos;
     m_arrow_head.clear();
-    
+
     if (m_enter_pos != QPoint(-1, -1)) {
         double alpha = angle(m_pos1, m_pos2);
-        
+
         QPoint pos1(3*ENDPOINT_RADIUS, -(int)(ENDPOINT_RADIUS*1.5));
         QPoint pos2(3*ENDPOINT_RADIUS, (int)(ENDPOINT_RADIUS*1.5));
         pos1 = rotate(pos1, alpha);
@@ -832,7 +827,7 @@ void CEEdgeItem::setEnterPos(const QPoint &pos)
         m_arrow_head.append(m_enter_pos + pos1);
         m_arrow_head.append(m_enter_pos + pos2);
     }
-    
+
     update();
 }
 
@@ -852,9 +847,9 @@ Connection::Connection(ConnectionEdit *edit)
 Connection::HintList Connection::hints() const
 {
     HintList result;
-    
+
     QList<CEItem*> item_list = m_edit->connectionItems(this);
-    
+
     CEEdgeItem *some_edge = 0;
     for (int i = 0; i < item_list.size(); ++i) {
         CEItem *item = item_list.at(i);
@@ -865,7 +860,7 @@ Connection::HintList Connection::hints() const
     }
     if (some_edge == 0)
         return result;
-        
+
     for (CEEdgeItem *edge = firstEdge(some_edge); edge != 0; edge = nextEdge(edge)) {
         CEEndPointItem *item = edge->endPoint1();
         if (item == 0)
@@ -889,14 +884,14 @@ void Connection::setLabelItems(CELabelItem *source_label, CELabelItem *destinati
 {
     m_source_label_item = source_label;
     m_destination_label_item = destination_label;
-    
+
     if (m_source_label_item != 0)
         m_source_label_item->setText(m_source_label_data.value(DisplayRole).toString());
 
     if (m_destination_label_item != 0)
         m_destination_label_item->setText(m_destination_label_data.value(DisplayRole).toString());
 }
-    
+
 void Connection::setDestinationLabel(LabelRole role, const QVariant &v)
 {
     m_destination_label_data[role] = v;
@@ -927,7 +922,7 @@ ConnectionEdit::ConnectionEdit(QWidget *parent)
     m_start_draw_on_move = false;
     m_current_line = NoLine;
     m_old_target = 0;
-    
+
     new SignalDumper(this);
 }
 
@@ -943,7 +938,7 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
 
     QPainter p(this);
     p.drawPixmap(m_bg_pixmap.rect(), m_bg_pixmap);
-    
+
     foreach (CEItem *item, m_item_list) {
         if (item->visible() && e->region().contains(item->rect()))
             item->paint(&p);
@@ -961,7 +956,7 @@ CEItem *ConnectionEdit::itemUnderMouse(CEItem::Type type) const
 {
     if (m_items_under_mouse.isEmpty())
         return 0;
-        
+
     int i = m_items_under_mouse.size();
     do {
         --i;
@@ -969,7 +964,7 @@ CEItem *ConnectionEdit::itemUnderMouse(CEItem::Type type) const
         if (item->type() == type)
             return item;
     } while (i > 0);
-    
+
     return 0;
 }
 
@@ -979,31 +974,31 @@ void ConnectionEdit::insertEndPoint(const QPoint &pos)
         return;
 
     selectNone();
-        
+
     CEItem *item = itemUnderMouse(CEItem::EdgeItem);
     CEEdgeItem *edge = qt_cast<CEEdgeItem*>(item);
-    
+
     if (edge == 0)
         return;
-        
+
     CEEndPointItem *ep = new CEEndPointItem(pos, this);
     insertItem(ep);
     CEEdgeItem *new_edge1 = new CEEdgeItem(edge->endPoint1(), ep, this);
     CEEdgeItem *new_edge2 = new CEEdgeItem(ep, edge->endPoint2(), this);
     insertItem(new_edge1);
     insertItem(new_edge2);
-    
+
     Connection *con = m_connection_map.value(edge, 0);
     if (con != 0) {
         m_connection_map.insert(ep, con);
         m_connection_map.insert(new_edge1, con);
         m_connection_map.insert(new_edge2, con);
     }
-    
+
     updateUnderMouse(pos);
     m_start_drag_on_move = true;
     deleteItem(edge);
-    
+
     updateLine(new_edge1);
 //    update();
     ep->adjustRatio();
@@ -1015,7 +1010,7 @@ void ConnectionEdit::initConnection(Connection *con, const Connection::HintList 
     Q_ASSERT(source != 0);
     QWidget *destination = con->destination();
     Q_ASSERT(destination != 0);
-    
+
     CEWidgetItem *source_item = widgetItem(source);
     if (source_item == 0) {
         source_item = new CEWidgetItem(source, this);
@@ -1023,16 +1018,16 @@ void ConnectionEdit::initConnection(Connection *con, const Connection::HintList 
     }
     QList<CEItem*> item_list;
     item_list.append(source_item);
-    
+
     CEWidgetItem *dest_item = widgetItem(destination);
     if (dest_item == 0) {
         dest_item = new CEWidgetItem(destination, this);
         insertItem(dest_item);
     }
-        
+
     CEEndPointItem *last_ep = source_item;
     ConnectionHint source_label_hint, destination_label_hint;
-        
+
     foreach (ConnectionHint hint, hint_list) {
         switch (hint.type) {
             case ConnectionHint::EndPoint: {
@@ -1055,14 +1050,14 @@ void ConnectionEdit::initConnection(Connection *con, const Connection::HintList 
             }
         }
     }
-        
+
     CEEdgeItem *edge = new CEEdgeItem(last_ep, dest_item, this);
     insertItem(edge);
     item_list.append(edge);
     item_list.append(dest_item);
 
     initConnection(con, item_list);
-    
+
     con->sourceLabelItem()->move(source_label_hint.pos - con->sourceLabelItem()->pos());
     con->destinationLabelItem()->move(destination_label_hint.pos - con->destinationLabelItem()->pos());
 }
@@ -1071,10 +1066,10 @@ void ConnectionEdit::initConnection(Connection *con, const ItemList &item_list)
 {
     int n = item_list.size();
     Q_ASSERT(n > 1);
-    
+
     connect(con, SIGNAL(aboutToDelete(Connection*)), this, SIGNAL(aboutToRemove(Connection*)));
     connect(con, SIGNAL(selected(Connection*)), this, SIGNAL(selected(Connection*)));
-    
+
     foreach (CEItem *item, item_list)
         m_connection_map.insert(item, con);
 
@@ -1085,18 +1080,18 @@ void ConnectionEdit::initConnection(Connection *con, const ItemList &item_list)
     insertItem(destination_label);
     m_connection_map.insert(source_label, con);
     m_connection_map.insert(destination_label, con);
-    
+
     m_connection_list.append(con);
-    
+
     updateLine(con);
-    
+
     foreach (CEItem *item, item_list) {
         if (item->type() == CEItem::EndPointItem)
             qt_cast<CEEndPointItem*>(item)->adjustRatio();
         item->update();
     }
-    
-    emit added(con);        
+
+    emit added(con);
 }
 
 Connection *ConnectionEdit::createConnection(QWidget *source, QWidget *destination)
@@ -1115,7 +1110,7 @@ void ConnectionEdit::checkConnection(Connection *con)
     ItemList item_list = m_connection_map.keys(con);
     if (item_list.size() > 2)
         return;
-    
+
     // remove if only widget items are left associated with this connection
     foreach (CEItem *item, item_list) {
         if (item->type() != CEItem::WidgetItem)
@@ -1124,7 +1119,7 @@ void ConnectionEdit::checkConnection(Connection *con)
 
     for (int i = 0; i < item_list.size(); ++i) {
         CEItem *item = item_list.at(i);
-        
+
         ConnectionMap::iterator it = m_connection_map.lowerBound(item);
         while (it != m_connection_map.end() && it.key() == item) {
             if (it.value() == con) {
@@ -1137,7 +1132,7 @@ void ConnectionEdit::checkConnection(Connection *con)
 
     emit aboutToRemove(con);
     m_connection_list.removeAll(con);
-    delete con;    
+    delete con;
 }
 
 void ConnectionEdit::deleteItem(CEItem *item)
@@ -1147,17 +1142,17 @@ void ConnectionEdit::deleteItem(CEItem *item)
 
     m_item_list.removeAll(item);
     m_items_under_mouse.removeAll(item);
-    
+
     QList<Connection*> connection_list = m_connection_map.values(item);
     m_connection_map.remove(item);
     CEEndPointItem *ep_item = 0;
     if (item->type() == CEItem::EndPointItem)
         ep_item = qt_cast<CEEndPointItem*>(item);
     foreach (Connection *con, connection_list)
-        checkConnection(con);        
+        checkConnection(con);
 
     item->update();
-                        
+
     delete item;
 }
 
@@ -1191,7 +1186,7 @@ CEWidgetItem *ConnectionEdit::widgetItem(QWidget *widget) const
 {
     if (widget == 0)
         return 0;
-        
+
     for (int i = 0; i < m_item_list.size(); ++i) {
         CEWidgetItem *widget_item = qt_cast<CEWidgetItem*>(m_item_list.at(i));
         if (widget_item == 0)
@@ -1199,7 +1194,7 @@ CEWidgetItem *ConnectionEdit::widgetItem(QWidget *widget) const
         if (widget_item->widget() == widget)
             return widget_item;
     }
-    
+
     return 0;
 }
 
@@ -1212,12 +1207,12 @@ void ConnectionEdit::updateUnderMouse(const QPoint &pos)
         insertItem(item);
         item->update();
     }
-    
+
     foreach (CEItem *item, m_items_under_mouse)
         item->update();
-    
+
     m_items_under_mouse.clear();
-        
+
     int i = 0;
     while (i < m_item_list.size()) {
         CEItem *item = m_item_list.at(i);
@@ -1228,13 +1223,13 @@ void ConnectionEdit::updateUnderMouse(const QPoint &pos)
             deleteItem(witem);
             continue;
         }
-    
+
         if (item->rect().contains(pos) && item->contains(pos))
             m_items_under_mouse.append(item);
-        
+
         ++i;
     }
-    
+
     foreach (CEItem *item, m_items_under_mouse)
         item->update();
 }
@@ -1243,9 +1238,9 @@ void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 {
     e->accept();
     updateUnderMouse(e->pos());
-    
+
     CEItem *item = itemUnderMouse();
-    
+
     if (mode() == EditMode) {
         if (e->modifiers() & Qt::ControlModifier) {
             insertEndPoint(e->pos());
@@ -1255,11 +1250,11 @@ void ConnectionEdit::mousePressEvent(QMouseEvent *e)
                 if (item->type() == CEItem::WidgetItem)
                     m_start_draw_on_move = true;
                 else
-                    m_start_drag_on_move = true;            
+                    m_start_drag_on_move = true;
             }
         }
     }
-    
+
     m_last_mouse_pos = e->pos();
     if (!(e->modifiers() & Qt::ShiftModifier))
         selectNone();
@@ -1281,7 +1276,7 @@ static bool isDescendant(QWidget *child, QWidget *parent)
 {
     while (child != 0 && child != parent)
         child = child->parentWidget();
-    
+
     return child != 0;
 }
 
@@ -1303,32 +1298,32 @@ ConnectionEdit::LineType ConnectionEdit::classifyLine(CEWidgetItem *source, CEWi
                 return TopLine;
             else
                 return BottomLine;
-        }        
+        }
     } else {
         QRect r = target->rect();
         Q_ASSERT(r.contains(pos));
-        
+
         int min_dist = pos.y() - r.top();
         LineType result = TopLoopLine;
-    
+
         int dist = pos.x() - r.left();
         if (dist < min_dist) {
             min_dist = dist;
             result = LeftLoopLine;
-        } 
-    
+        }
+
         dist = r.bottom() - pos.y();
         if (dist < min_dist) {
             min_dist = dist;
             result = BottomLoopLine;
         }
-    
+
         dist = r.right() - pos.x();
         if (dist < min_dist) {
             min_dist = dist;
             result = RightLoopLine;
         }
-        
+
         return result;
     }
 }
@@ -1342,7 +1337,7 @@ void ConnectionEdit::createLine(LineType type, CEWidgetItem *target, const QPoin
     delete_items.removeAll(target);
     delete_items.removeAll(m_new_item_list.first());
     deleteItems(delete_items);
-        
+
     CEWidgetItem *start = firstEndPoint();
     QPoint c = start->rect().center();
 
@@ -1353,7 +1348,7 @@ void ConnectionEdit::createLine(LineType type, CEWidgetItem *target, const QPoin
         if (sr.contains(tr))
             tr = sr;
     }
-    
+
     switch (type) {
         case LeftLine:
         case RightLine:
@@ -1384,18 +1379,18 @@ void ConnectionEdit::createLine(LineType type, CEWidgetItem *target, const QPoin
         default:
             Q_ASSERT(false);
     }
-    
+
     addEdgeTo(pos);
     if (target != 0) {
         CEEdgeItem *edge = new CEEdgeItem(lastEndPoint(), target, this);
         insertItem(edge);
         m_new_item_list.append(edge);
         m_new_item_list.append(target);
-    }    
+    }
 }
 
 void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
-{    
+{
     CEItem *under_mouse = itemUnderMouse();
 
     if (m_start_drag_on_move) {
@@ -1413,29 +1408,29 @@ void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
         selectNone();
     }
 
-    if (mode() != DragMode)        
+    if (mode() != DragMode)
         updateUnderMouse(e->pos());
-    
+
     if (mode() == DrawMode) {
         QPoint pos = e->pos();
         CEWidgetItem *start = firstEndPoint();
         CEWidgetItem *target = qt_cast<CEWidgetItem*>(itemUnderMouse(CEItem::WidgetItem));
-                        
+
         LineType needed_line = classifyLine(start, target, pos);
         if (needed_line != m_current_line || target != m_old_target) {
             createLine(needed_line, target, pos);
             m_current_line = needed_line;
             m_old_target = target;
         }
-        
+
         int cnt = m_new_item_list.size();
         Q_ASSERT(cnt >= 5);
-        --cnt;        
+        --cnt;
         CEEndPointItem *ep1 = qt_cast<CEEndPointItem*>(m_new_item_list.at(cnt));
         if (ep1->type() == CEItem::WidgetItem)
-            ep1 = qt_cast<CEEndPointItem*>(m_new_item_list.at(cnt -= 2));        
+            ep1 = qt_cast<CEEndPointItem*>(m_new_item_list.at(cnt -= 2));
         CEEndPointItem *ep2 = qt_cast<CEEndPointItem*>(m_new_item_list.at(cnt -= 2));
-        
+
         ep1->move(pos - ep1->pos());
         if (m_current_line == LeftLoopLine || m_current_line == RightLoopLine)
             ep2->move(QPoint(ep2->pos().x(), pos.y()) - ep2->pos());
@@ -1448,7 +1443,7 @@ void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
         if (con != 0)
             updateLine(con);
     }
-    
+
     m_last_mouse_pos = e->pos();
 }
 
@@ -1473,7 +1468,7 @@ void ConnectionEdit::resizeEvent(QResizeEvent *)
 void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
 {
     updateUnderMouse(e->pos());
-    
+
     if (mode() == DragMode) {
         m_dragged_item->update();
         m_dragged_item = 0;
@@ -1508,19 +1503,19 @@ void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
 void ConnectionEdit::mouseDoubleClickEvent(QMouseEvent *e)
 {
     e->accept();
-    
+
     if (mode() != EditMode)
         return;
 
     CEEdgeItem *edge = qt_cast<CEEdgeItem*>(itemUnderMouse(CEItem::EdgeItem));
     if (edge == 0)
         return;
-        
-    
+
+
     Connection *con = m_connection_map.value(edge, 0);
     if (con == 0)
         return;
-    
+
     emit activated(con);
 }
 
@@ -1540,7 +1535,7 @@ QRect ConnectionEdit::widgetRect(QWidget *w) const
         return QRect();
     QRect r = w->rect();
     r.moveTopLeft(w->mapTo(m_bg_widget, QPoint(0, 0)));
-    
+
     return r;
 }
 
@@ -1548,11 +1543,11 @@ void ConnectionEdit::clear()
 {
     foreach (CEItem *item, m_item_list)
         delete item;
-    
+
     m_item_list.clear();
     m_selected_item_set.clear();
     m_new_item_list.clear();
-    
+
     m_dragged_item = 0;
     m_start_drag_on_move = false;
     m_start_draw_on_move = false;
@@ -1564,10 +1559,10 @@ void ConnectionEdit::abortNewItems()
 {
     if (mode() != DrawMode)
         return;
-        
+
     deleteItems(m_new_item_list);
     m_new_item_list.clear();
-    
+
     update();
 }
 
@@ -1604,11 +1599,11 @@ void ConnectionEdit::deleteEndPoint(CEEndPointItem *ep)
         if (ep1 != 0 && ep2 != 0) {
             CEEdgeItem *new_edge = new CEEdgeItem(ep1, ep2, this);
             insertItem(new_edge);
-            
+
             Connection *con = m_connection_map.value(ep, 0);
             if (con != 0)
                 m_connection_map.insert(new_edge, con);
-            
+
             deleteItem(ep->edge(0));
             deleteItem(ep->edge(0));
             deleteItem(ep);
@@ -1636,16 +1631,16 @@ void ConnectionEdit::selectNone()
 void ConnectionEdit::deleteWidgetItem(CEWidgetItem *widget)
 {
     m_selected_item_set.clear();
-    
+
     QMap<CEItem*, CEItem*> item_set;
-    
+
     QList<Connection*> con_list = m_connection_map.values(widget);
     foreach (Connection *con, con_list) {
         QList<CEItem*> item_list = m_connection_map.keys(con);
         foreach (CEItem *item, item_list)
             item_set.insert(item, item);
     }
-    
+
     deleteItems(item_set.keys());
 }
 
@@ -1682,7 +1677,7 @@ void ConnectionEdit::geometryChanged(QWidget *w)
         }
     }
 }
-    
+
 void ConnectionEdit::deleteItems(ItemList item_list)
 {
     // If a single endpoint is selected, just delete that and fix the line
@@ -1690,11 +1685,11 @@ void ConnectionEdit::deleteItems(ItemList item_list)
                                 && item_list.first()->type() == CEItem::EndPointItem;
 
     QMap<CEItem*, CEItem*> deleted_set;
-                                
+
     if (single_ep_selected) {
         CEEndPointItem *ep = qt_cast<CEEndPointItem*>(item_list.first());
         deleteEndPoint(ep);
-    } else {    
+    } else {
         // First delete the edges
         int i = 0;
         while (i < item_list.size()) {
@@ -1703,9 +1698,9 @@ void ConnectionEdit::deleteItems(ItemList item_list)
                 item_list.removeAt(i);
                 continue;
             }
-            
+
             CEItem::Type type = item->type();
-            
+
             if (type != CEItem::EndPointItem
                     && type != CEItem::WidgetItem) {
                 deleteItem(item);
@@ -1713,10 +1708,10 @@ void ConnectionEdit::deleteItems(ItemList item_list)
                 deleted_set.insert(item, item);
                 continue;
             }
-            
+
             ++i;
         }
-        
+
         // Then delete those endpoints which no longer have any edges attached
         i = 0;
         while (i < item_list.size()) {
@@ -1727,17 +1722,17 @@ void ConnectionEdit::deleteItems(ItemList item_list)
             }
             CEEndPointItem *ep_item = qt_cast<CEEndPointItem*>(item);
             Q_ASSERT(ep_item != 0);
-            
+
             if (ep_item->edgeCount() == 0) {
                 deleteItem(ep_item);
                 item_list.removeAt(i);
                 deleted_set.insert(item, item);
                 continue;
             }
-            
+
             ++i;
         }
-    }    
+    }
 }
 
 void ConnectionEdit::dumpItems()
@@ -1766,7 +1761,7 @@ void ConnectionEdit::setSelected(CEItem *item, bool selected)
 {
     ItemList item_list;
     item_list.append(item);
-    
+
     if (CEEdgeItem *edge = qt_cast<CEEdgeItem*>(item)) {
         Connection *con = m_connection_map.value(edge, 0);
         if (con != 0) {
@@ -1776,7 +1771,7 @@ void ConnectionEdit::setSelected(CEItem *item, bool selected)
                 item_list.append(item);
         }
     }
-    
+
     setSelectedItems(item_list, selected);
 }
 
@@ -1785,7 +1780,7 @@ void ConnectionEdit::setSelectedItems(const ItemList &item_list, bool selected)
     foreach (CEItem *item, item_list) {
         SelectedSet::iterator it = m_selected_item_set.find(item);
         bool found = it != m_selected_item_set.end();
-        
+
         if (selected) {
             if (!found) {
                 m_selected_item_set.insert(item, item);
@@ -1804,7 +1799,7 @@ CEWidgetItem *ConnectionEdit::firstEndPoint() const
 {
     if (m_new_item_list.isEmpty())
         return 0;
-    
+
     CEWidgetItem *widget_item = qt_cast<CEWidgetItem*>(m_new_item_list.first());
     Q_ASSERT(widget_item != 0);
     return widget_item;
@@ -1836,7 +1831,7 @@ static QWidget *otherWidget(Connection *con, QWidget *w)
 void ConnectionEdit::updateLine(Connection *con)
 {
     ItemList item_list = m_connection_map.keys(con);
-        
+
     if (!con->source()->isVisible() || !con->destination()->isVisible()) {
         foreach (CEItem *item, item_list) {
             item->setVisible(false);
@@ -1871,7 +1866,7 @@ void ConnectionEdit::updateLine(Connection *con)
                     some_edge = qt_cast<CEEdgeItem*>(item_list.at(i));
             }
         }
-        
+
         if (some_edge != 0)
             updateLine(some_edge);
     }
@@ -1888,20 +1883,20 @@ static int rectDist(const QRect &r1, const QRect &r2)
         vdist = r2.top() - r1.bottom();
     else if (r2.bottom() < r1.top())
         vdist = r1.top() - r2.bottom();
-    
+
     return qMax(hdist, vdist);
 }
 
 void ConnectionEdit::updateLine(CEEdgeItem *e)
 {
     Connection *con = m_connection_map.value(e, 0);
-    
+
     CEEdgeItem *first_edge = firstEdge(e);
     Q_ASSERT(first_edge != 0);
     CEWidgetItem *source = qt_cast<CEWidgetItem*>(first_edge->endPoint1());
     Q_ASSERT(source != 0);
     QRect sr = source->rect();
-    
+
     for (CEEdgeItem *edge = first_edge; edge != 0; edge = nextEdge(edge)) {
         edge->setVisible(true);
         edge->setEnterPos(QPoint(-1, -1));
@@ -1913,14 +1908,14 @@ void ConnectionEdit::updateLine(CEEdgeItem *e)
         QPoint pos2 = edge->endPoint2()->pos();
         bool b1 = sr.contains(pos1);
         bool b2 = sr.contains(pos2);
-        
+
         if (b1 && b2) {
             edge->setVisible(false);
             continue;
         }
-        
+
         Q_ASSERT(b1 && !b2);
-        
+
         QPoint pos = enterPos(pos2, pos1, sr);
         edge->setExitPos(pos);
         if (con != 0) {
@@ -1936,26 +1931,26 @@ void ConnectionEdit::updateLine(CEEdgeItem *e)
     CEWidgetItem *target = qt_cast<CEWidgetItem*>(last_edge->endPoint2());
     if (target != 0) {
         QRect tr = target->rect();
-    
+
         for (CEEdgeItem *edge = last_edge; edge != 0; edge = prevEdge(edge)) {
             QPoint pos1 = edge->endPoint1()->pos();
             QPoint pos2 = edge->endPoint2()->pos();
             bool b1 = tr.contains(pos1);
             bool b2 = tr.contains(pos2);
-            
+
             if (b1 && b2) {
                 edge->setVisible(false);
                 continue;
             }
-            
+
             Q_ASSERT(!b1 && b2);
-            
+
             QPoint pos;
             if (!sr.intersects(tr) && rectDist(sr, tr) <= 4*ENDPOINT_RADIUS)
                 pos = pos2;
-            else 
+            else
                 pos = enterPos(pos1, pos2, tr);
-            
+
             edge->setEnterPos(pos);
             if (con != 0) {
                 CELabelItem *dl = con->destinationLabelItem();
@@ -1965,7 +1960,7 @@ void ConnectionEdit::updateLine(CEEdgeItem *e)
             break;
         }
     }
-    
+
 /*    CEEndPointItem *some_ep = e->endPoint1();
     if (some_ep->type() == CEItem::WidgetItem)
         some_ep = e->endPoint2();
