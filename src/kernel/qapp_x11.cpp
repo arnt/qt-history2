@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#21 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#21 $";
 #endif
 
 
@@ -62,6 +62,8 @@ void		qResetColorAvailFlag();		// defined in qcolor.cpp
 
 class QETWidget : public QWidget {		// event translator widget
 public:
+    void setFlag( WFlags n )		{ QWidget::setFlag(n); }
+    void clearFlag( WFlags n )		{ QWidget::clearFlag(n); }
     bool translateMouseEvent( const XEvent * );
     bool translateKeyEvent( const XEvent * );
     bool translatePaintEvent( const XEvent * );
@@ -243,6 +245,54 @@ QWidget *QApplication::desktop()
 
 
 // --------------------------------------------------------------------------
+// Special lookup functions for windows that have been recreated recently.
+//
+
+#include "qintdict.h"
+
+declare(QIntDictM,QWidget);
+declare(QIntDictIteratorM,QWidget);
+static QIntDictM(QWidget) *wPRmapper = 0;	// alternative widget mapper
+
+void qPRCreate( const QWidget *widget, Window oldwin )
+{						// QWidget::recreate mechanism
+    if ( !wPRmapper ) {
+	wPRmapper = new QIntDictM(QWidget);
+	CHECK_PTR( wPRmapper );
+    }
+    wPRmapper->insert( (long)oldwin, widget );	// add old window to mapper
+    QETWidget *w = (QETWidget *)widget;
+    w->setFlag( WRecreated );			// set recreated flag
+}
+
+void qPRCleanup( QETWidget *widget )
+{
+    if ( !(wPRmapper && widget->testFlag(WRecreated)) ) {
+	return;					// not a recreated widget
+    }
+    QIntDictIteratorM(QWidget) it(*wPRmapper);
+    QWidget *w;
+    while ( (w=it.current()) ) {
+	if ( w == widget ) {			// found widget
+	    widget->clearFlag( WRecreated );	// clear recreated flag
+	    wPRmapper->remove( it.currentKey());// old window no longer needed
+	    if ( wPRmapper->count() == 0 ) {	// became empty
+		delete wPRmapper;		// then reset alt mapper
+		wPRmapper = 0;
+	    }
+	    return;
+	}
+	++it;
+    }
+}
+
+QETWidget *qPRFindWidget( Window oldwin )
+{
+    return wPRmapper ? (QETWidget*)wPRmapper->find((long)oldwin) : 0;
+}
+
+
+// --------------------------------------------------------------------------
 // Main event loop
 //
 
@@ -272,6 +322,21 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 		continue;
 
 	    QETWidget *widget = (QETWidget*)QWidget::find( event.xany.window );
+	    if ( wPRmapper ) {			// just did a widget recreate?
+		if ( widget == 0 ) {		// not in std widget mapper
+		    switch ( event.type ) {	// only for mouse/key events
+			case ButtonPress:
+			case ButtonRelease:
+			case MotionNotify:
+			case KeyPress:
+			case KeyRelease:
+			    widget = qPRFindWidget( event.xany.window );
+			    break;
+		    }
+		}
+		else if ( widget->testFlag(WRecreated) )
+		    qPRCleanup( widget );	// remove from alt mapper
+	    }
 	    if ( !widget )			// don't know this window
 		continue;
 
