@@ -18,22 +18,6 @@
 
 QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), 0, 0, 0};
 
-/*
-  This is how X represents regions internally.
-*/
-
-struct BOX {
-    short x1, x2, y1, y2;
-};
-
-struct _XRegion {
-    long size;
-    long numRects;
-    BOX *rects;
-    BOX  extents;
-};
-
-
 void QRegion::updateX11Region() const
 {
     d->rgn = XCreateRegion();
