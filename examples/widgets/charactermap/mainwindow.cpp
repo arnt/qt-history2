@@ -28,7 +28,7 @@ MainWindow::MainWindow()
     lineEdit = new QLineEdit(centralWidget);
     QPushButton *clipboardButton = new QPushButton(tr("&To clipboard"), centralWidget);
 
-    clipboard = qApp->clipboard();
+    clipboard = QApplication::clipboard();
 
     connect(fontCombo, SIGNAL(activated(const QString &)),
             this, SLOT(findStyles()));
