@@ -146,14 +146,20 @@ void QDockWidgetResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 		dy = e->globalPos().y() - firstPos.y();
 	    else
 		dy =  firstPos.y() - e->globalPos().y();
-	    dockWidget->setFixedExtentHeight( dockWidget->height() + dy );
+	    int d = dockWidget->height() + dy;
+	    if ( orientation() != dockWidget->area()->orientation() )
+		d = QMAX( d, dockWidget->minimumHeight() );
+	    dockWidget->setFixedExtentHeight( d );
 	} else {
 	    int dx;
 	    if ( dockWidget->area()->gravity() == QDockArea::Normal )
 		dx = e->globalPos().x() - firstPos.x();
 	    else
 		dx = firstPos.x() - e->globalPos().x();
-	    dockWidget->setFixedExtentWidth( dockWidget->width() + dx );
+	    int d = dockWidget->width() + dx;
+	    if ( orientation() != dockWidget->area()->orientation() )
+		d = QMAX( d, dockWidget->minimumWidth() );
+	    dockWidget->setFixedExtentWidth( d );
 	}
 	if ( orientation() != dockWidget->area()->orientation() )
 	    dockWidget->area()->invalidNextOffset( dockWidget );
@@ -479,7 +485,7 @@ QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
 {
     widgetResizeHandler = new QWidgetResizeHandler( this );
     widgetResizeHandler->setMovingEnabled( FALSE );
-    
+
     hbox = new QVBoxLayout( this );
     hbox->setMargin( 2 );
     hbox->setSpacing( 1 );
