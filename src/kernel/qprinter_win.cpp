@@ -1067,7 +1067,11 @@ bool QPrinter::printSetup( QWidget *parent )
 
     bool result = FALSE;
 
-    qt_enter_modal( parent );
+    if ( parent ) {
+	QEvent e(QEvent::WindowBlocked);
+	QApplication::sendEvent(parent, &e);
+	qt_enter_modal( parent );
+    }
     QT_WA( {
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
@@ -1204,7 +1208,11 @@ bool QPrinter::printSetup( QWidget *parent )
                 readPdlgA( &pd );
         }
     } );
-    qt_leave_modal(parent);
+    if ( parent ) {
+	qt_leave_modal(parent);
+	QEvent e(QEvent::WindowUnblocked);
+	QApplication::sendEvent(parent, &e);
+    }
     setPrinterMapping( hdc, res );
 
     return result;

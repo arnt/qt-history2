@@ -322,8 +322,11 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	idx = filterLst.findIndex( *selectedFilter );
     }
 
-    if ( parent )
+    if ( parent ) {
+	QEvent e(QEvent::WindowBlocked);
+	QApplication::sendEvent(parent, &e);
 	qt_enter_modal( parent );
+    }
     QT_WA( {
 	// Use Unicode strings and API
 	OPENFILENAME* ofn = makeOFN( parent, isel,
@@ -348,10 +351,12 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFNA( &ofn );
-
     } );
-    if ( parent )
-	qt_leave_modal( parent );
+    if ( parent ) {
+	qt_leave_modal(parent);
+	QEvent e(QEvent::WindowUnblocked);
+	QApplication::sendEvent(parent, &e);
+    }
 
     if ( result.isEmpty() ) {
 	return result;
@@ -401,8 +406,11 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	idx = filterLst.findIndex( *selectedFilter );
     }
 
-    if ( parent )
+    if ( parent ) {
+	QEvent e(QEvent::WindowBlocked);
+	QApplication::sendEvent(parent, &e);
 	qt_enter_modal( parent );
+    }
     QT_WA( {
 	// Use Unicode strings and API
 	OPENFILENAME* ofn = makeOFN( parent, isel,
@@ -428,9 +436,11 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	}
 	cleanUpOFNA( &ofn );
     } );
-
-    if ( parent )
-	qt_leave_modal( parent );
+    if ( parent ) {
+	qt_leave_modal(parent);
+	QEvent e(QEvent::WindowUnblocked);
+	QApplication::sendEvent(parent, &e);
+    }
 
     if ( result.isEmpty() ) {
 	return result;
@@ -480,8 +490,11 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	idx = filterLst.findIndex( *selectedFilter );
     }
 
-    if ( parent )
+    if ( parent ) {
+	QEvent e(QEvent::WindowBlocked);
+	QApplication::sendEvent(parent, &e);
 	qt_enter_modal( parent );
+    }
     QT_WA( {
 	OPENFILENAME* ofn = makeOFN( parent, QString::null,
 				     *initialDirectory, title,
@@ -545,8 +558,11 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	    cleanUpOFNA( &ofn );
 	}
     } );
-    if ( parent )
-	qt_leave_modal( parent );
+    if ( parent ) {
+	qt_leave_modal(parent);
+	QEvent e(QEvent::WindowUnblocked);
+	QApplication::sendEvent(parent, &e);
+    }
 
     if ( !result.isEmpty()) {
 	*initialDirectory = fi.dirPath();    // only save the path if there is a result
@@ -621,8 +637,11 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
     if ( title.isNull() )
 	title = tr( "Select a Directory" );
 
-    if ( parent )
+    if ( parent ) {
+	QEvent e(QEvent::WindowBlocked);
+	QApplication::sendEvent(parent, &e);
 	qt_enter_modal( parent );
+    }
     QT_WA( {
 	resolveLibs();
 	QString initDir = QDir::convertSeparators(initialDirectory);
@@ -682,8 +701,11 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	} else
 	    result = QString::null;
     } );
-    if ( parent )
-	qt_leave_modal( parent );
+    if ( parent ) {
+	qt_leave_modal(parent);
+	QEvent e(QEvent::WindowUnblocked);
+	QApplication::sendEvent(parent, &e);
+    }
 
     // Due to a bug on Windows Me, we need to reset the current
     // directory
