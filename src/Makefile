@@ -94,7 +94,7 @@ shareddbg:
 	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
 	/bin/rm -f $(SHAREDTARGET)
 	$(CC) -shared -Wl,-soname,libqt.so.1 -o $(SHAREDTARGET) \
-		obj/shareddbg/*/*.o -lX11 -lgcc -lc
+		obj/shareddbg/*/*.o -L/usr/X11R6/lib -lX11 -lgcc -lc
 
 showdirs:
 	@echo $(DIRS)
