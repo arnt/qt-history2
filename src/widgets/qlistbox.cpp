@@ -1095,7 +1095,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 
     if ( hasFocus() && !d->current )
 	setCurrentItem( d->head );
-    
+
     d->count++;
     triggerUpdate( TRUE );
 }
@@ -1410,7 +1410,7 @@ void QListBox::setCurrentItem( int index )
 
 void QListBox::setCurrentItem( QListBoxItem * i )
 {
-    if ( d->current == i || ( !i && d->head ) )
+    if ( d->current == i || ( !i && d->head && d->head->n ) )
 	return;
     QListBoxItem * o = d->current;
     d->current = i;

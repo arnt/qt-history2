@@ -55,6 +55,9 @@ public:
 	pb = new QPushButton( "unselect current", hb );
 	connect( pb, SIGNAL( clicked() ),
 		 this, SLOT( listboxUnselect() ) );
+	pb = new QPushButton( "Remove Item", hb );
+	connect( pb, SIGNAL( clicked() ),
+		 this, SLOT( listboxRemove() ) );
 	
 	hb = new QVBox( this );
 	lv = new QListView( hb );
@@ -76,6 +79,9 @@ public:
 	pb = new QPushButton( "unselect current", hb );
 	connect( pb, SIGNAL( clicked() ),
 		 this, SLOT( listviewUnselect() ) );
+	pb = new QPushButton( "Remove Item", hb );
+	connect( pb, SIGNAL( clicked() ),
+		 this, SLOT( listviewRemove() ) );
 
 	hb = new QVBox( this );
 	iv = new QIconView( hb );
@@ -94,6 +100,9 @@ public:
 	pb = new QPushButton( "unselect current", hb );
 	connect( pb, SIGNAL( clicked() ),
 		 this, SLOT( iconviewUnselect() ) );
+	pb = new QPushButton( "Remove Item", hb );
+	connect( pb, SIGNAL( clicked() ),
+		 this, SLOT( iconviewRemove() ) );
 
 	for ( unsigned int i = 0; i < 10; ++i ) {
 	    new QListBoxText( lb, tr( "Item %1" ).arg( i ) );
@@ -170,6 +179,18 @@ private slots:
 	    iv->setSelected( iv->currentItem(), FALSE );
 	iv->setCurrentItem( 0 );
     }
+    void listboxRemove() {
+	if ( lb->currentItem() != -1 )
+	    delete lb->item( lb->currentItem() );
+    }
+    void listviewRemove() {
+	if ( lv->currentItem() )
+	    delete lv->currentItem();
+    }
+    void iconviewRemove() {
+	if ( iv->currentItem() )
+	    delete iv->currentItem();
+    }
     void singleSelection() {
 	lb->setSelectionMode( QListBox::Single );
 	lv->setSelectionMode( QListView::Single );
@@ -206,7 +227,7 @@ int main( int argc, char ** argv )
     a.setMainWidget( &v );
     v.show();
     v.resize( 900, 480 );
-    
+
     return a.exec();
 }
 

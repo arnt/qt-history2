@@ -2154,7 +2154,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 
     if ( !d->currentItem && hasFocus() )
  	setCurrentItem( d->firstItem );
-    
+
     d->count++;
     d->dirty = TRUE;
 }
@@ -2247,7 +2247,7 @@ void QIconView::takeItem( QIconViewItem *item )
     item->d->container1 = 0;
 
     bool block = signalsBlocked();
-    blockSignals( TRUE );
+    blockSignals( d->clearing );
 
     QRect r = item->rect();
 
@@ -2366,7 +2366,7 @@ QIconViewItem *QIconView::currentItem() const
 
 void QIconView::setCurrentItem( QIconViewItem *item )
 {
-    if ( item == d->currentItem || ( !item && d->firstItem ) )
+    if ( item == d->currentItem || ( !item && d->firstItem && d->firstItem->next ) )
 	return;
     QIconViewItem *old = d->currentItem;
     d->currentItem = item;
@@ -2969,7 +2969,7 @@ void QIconView::clear()
     blockSignals( FALSE );
     setContentsPos( 0, 0 );
     d->currentItem = 0;
-    
+
     if ( !d->firstItem ) {
 	d->clearing = FALSE;
 	return;

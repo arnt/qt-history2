@@ -648,8 +648,16 @@ void QListViewItem::takeItem( QListViewItem * item )
 	    const QListViewItem * c = lv->d->focusItem;
 	    while( c && c != item )
 		c = c->parentItem;
-	    if ( c == item )
-		lv->d->focusItem = 0;
+	    if ( c == item || !c ) {
+		if ( !c )
+		    c = item;
+		if ( item->itemBelow() )
+		    lv->d->focusItem = item->itemBelow();
+		else if ( item->itemAbove() )
+		    lv->d->focusItem = item->itemAbove();
+		else
+		    lv->d->focusItem = 0;
+	    }
 	}
     }
 
@@ -3307,7 +3315,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 {
     if ( !e || !firstChild() )
 	return; // subclass bug
-    
+
     QListViewItem* oldCurrent = currentItem();
     if ( !oldCurrent ) {
 	setCurrentItem( firstChild() );
@@ -3739,7 +3747,8 @@ QListViewItem * QListView::selectedItem() const
 
 void QListView::setCurrentItem( QListViewItem * i )
 {
-    if ( !i && firstChild() )
+    if ( !i && firstChild() && firstChild() && 
+	 ( firstChild()->firstChild() || firstChild()->nextSibling() ) )
 	return;
 
     QListViewItem * prev = d->focusItem;
