@@ -4285,8 +4285,13 @@ void QTable::updateHeaderAndResizeContents( QTableHeader *header,
 	    header->addLabel( QString::null, width );
     } else {
 	clearSelection( FALSE );
-	while ( num > rowCol )
-	    header->removeLabel( num - 1 );
+	if ( header == leftHeader ) {
+	    while ( numRows() > rowCol ) 
+		header->removeLabel( numRows() - 1 );
+	} else {
+	    while ( numCols() > rowCol ) 
+		header->removeLabel( numCols() - 1 );
+	}
     }
 
     contents.setAutoDelete( FALSE );
