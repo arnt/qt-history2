@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#46 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -12,7 +12,7 @@
 #include "qptrdict.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#46 $");
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.40 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.41 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -394,7 +394,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 		    wakeUp.start( 100, TRUE );
 		else {
 		    previousTip = 0;
-		    wakeUp.start( 1000, TRUE );
+		    wakeUp.start( 700, TRUE );
 		}
 		widget = w;
 		pos = mousePos;
@@ -526,7 +526,7 @@ void QTipManager::hideTip()
   in active mode until the user either clicks a mouse button, presses
   a key, lets the mouse rest for five seconds, or moves the mouse
   outside \e all tip-equpped regions for at least a second.
-  
+
   The QToolTip class can be used in three different ways: <ol> <li>
   Adding a tip to an entire widget. <li> Adding a tip to a fixed
   rectangle within a widget. <li> Adding a tip to a dynamic rectangle
@@ -581,7 +581,7 @@ void QTipManager::hideTip()
   the user lets the mouse rest within the same rectangle again.  You
   can forcibly remove the tip by calling remove() with no arguments.
   This is handy if the widget scrolls.
-  
+
   \sa QStatusBar QWhatsThis
 */
 
