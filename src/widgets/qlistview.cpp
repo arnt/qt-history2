@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#70 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#70 $");
 
 
 const int Unsorted = 32767;
@@ -2017,6 +2017,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	d->currentPrefix.truncate( 0 );
 	e->accept();
 	break;
+    case Key_Escape:
+	break;
     default:
 	if ( e->ascii() ) {
 	    QString input( d->currentPrefix );
@@ -2902,7 +2904,7 @@ bool QListView::rootIsDecorated() const
 
 /*!  Ensures that \a i is makde visible, scrolling the list view
   vertically as required.
-  
+
   \sa itemRect() QSCrollView::ensureVisible()
 */
 
@@ -2910,7 +2912,7 @@ void QListView::ensureItemVisible( const QListViewItem * i )
 {
     if ( !i )
 	return;
-    
+
     int h = (i->height()+1)/2;
     ensureVisible( -contentsX(), itemPos( i )+h, 0, h );
 }
