@@ -524,7 +524,7 @@ void QColorWell::mouseMoveEvent(QMouseEvent *e)
         return;
     if ((pressPos - e->pos()).manhattanLength() > QApplication::startDragDistance()) {
         setCurrent(oldCurrent.x(), oldCurrent.y());
-        int i = rowAt(e->y()) + columnAt(e->x()) * numRows();
+        int i = rowAt(pressPos.y()) + columnAt(pressPos.x()) * numRows();
         QColor col(values[i]);
         QColorDrag *drg = new QColorDrag(col, this);
         QPixmap pix(cellWidth(), cellHeight());
