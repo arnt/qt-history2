@@ -1,0 +1,105 @@
+/****************************************************************************
+** $Id: layout.doc,v 2.1 1999/04/22 19:10:10 paul Exp $
+**
+** Explanation of the layout subsystem
+**
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees with valid Qt Professional Edition licenses may distribute and
+** use this file in accordance with the Qt Professional Edition License
+** provided at sale or upon request.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+/*! \page layout.html
+
+<title>
+Qt toolkit - Layout
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Qt Layout Classes</h1><br clear="all">
+
+The Qt layout system provides a simple and powerful way of specifying
+the layout of child widgets.
+<p>
+By specifying the logical layout once, you get the following benefits:
+<ul>
+<li> Positioning of child widgets.
+<li> Sensible default sizes for top-level widgets.
+<li> Sensible minimum sizes for top-level widgets.
+<li> Resize handling.
+<li> Automatic update when contents change:
+	<ul>
+	<li> Font size, text or other contents of subwidgets.
+	<li> Hiding or showing a subwidget.
+	<li> Removal of subwidget.
+	</ul>
+</ul>
+
+<h2>Layout Widgets</h2>
+
+The easiest way to give your widgets a good layout is to use the
+layout widgets: QHBox, QVBox and QGrid. A layout widget automatically
+lays out its children in the order they are constructed. To make more
+complex layouts, you can nest layout widgets inside each other.
+
+<dl>
+  <dt>QHBox
+      <dd>A QHBox lays out its children in a horizontal row, left to right.
+	<br><img src="qhbox.gif" alt="QHBox with five children.">
+
+  <dt>QVBox
+      <dd>A QVBox lays out its children in a vertical row, top to bottom.
+	<br><img src="qvbox.gif" alt="QVBox with five children.">
+  <dt>QGrid
+      <dd>A QGrid lays out its children in a table. You specify how
+	many columns the table has, and it is filled left to right,
+	beginning a new row when the previous is filled up. The grid
+	is fixed; the children will not flow to other rows as the
+	widget is resized.
+	<br><img src="qgrid.gif" alt="Two-column QGrid with five children.">
+</dl>
+
+You can adjust the layout somewhat by calling setMinimumSize() or
+setFixedSize() on the children.
+
+<h2>QLayout</h2>
+
+If you need more control over the layout, use a QLayout subclass.
+Currently Qt includes QGridLayout and QBoxLayout.
+<p>
+When you use a layout, you have to insert each child both into its
+parent widget (done in the constructor) and into its layout (typically
+done with addWidget()). This way, you can give layout parameters for
+each widget, specifying properties like alignment, stretch, and
+placement.
+
+<h2>Custom Layouts</h2>
+
+If the built-in layout classes are not sufficient, you can define your
+own. You will have to make a subclass of QLayout that handles resizing
+and size calculations, and a subclass of QGLayoutIterator to iterate
+over your layout class.
+
+<h2>If All Else Fails</h2>
+
+If you are making a one-of-a-kind widget class with special layout
+requirements, you can also reimplement QWidget::resizeEvent().
+Calculate the required distribution of sizes and call setGeometry() on
+each child. In this case, it is a good idea also to reimplement
+sizePolicy(), sizeHint() and minimumSizeHint().
+
+*/
+
