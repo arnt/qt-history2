@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#89 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#89 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -714,6 +714,7 @@ void QButton::paintEvent( QPaintEvent *event )
 	ASSERT( pm );
 
 	paint.begin( pm );
+	paint.setFont( font() );
 	pm->fill( this, 0, 0 );
 	drawButton( &paint );
 	paint.end();
