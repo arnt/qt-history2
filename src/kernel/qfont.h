@@ -136,6 +136,7 @@ public:
     QFont &operator=( const QFont & );
     bool operator==( const QFont & ) const;
     bool operator!=( const QFont & ) const;
+    bool operator<( const QFont & ) const;
     bool isCopyOf( const QFont & ) const;
 
 

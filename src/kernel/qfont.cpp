@@ -1240,6 +1240,41 @@ bool QFont::operator==( const QFont &f ) const
 			 f.d->strikeOut == d->strikeOut );
 }
 
+
+/*!
+  Gives an arbitrary ordering of QFonts. All that is guaranteed is that
+  the operator returns false if both fonts are equal and that
+  (f1 < f2) == !(f2<f1) if the fonts are not equal.
+
+  This function is useful, if one wants to use QFont objects as key in
+  eg. a QMap.
+
+    \sa operator==() operator!=() isCopyOf()
+*/
+bool QFont::operator<( const QFont &f ) const
+{
+    if (f.d == d) return false;
+    // the < operator for fontdefs ignores point sizes.
+    QFontDef &r1 = f.d->request;
+    QFontDef &r2 = d->request;
+    if (r1.pointSize != r2.pointSize) return r1.pointSize < r2.pointSize;
+    if (r1.pixelSize != r2.pixelSize) return r1.pixelSize < r2.pixelSize;
+    if ( r1.weight != r2.weight ) return r1.weight < r2.weight;
+    if ( r1.italic != r2.italic ) return r1.italic < r2.italic;
+    if ( r1.stretch != r2.stretch ) return r1.stretch < r2.stretch;
+    if ( r1.styleHint != r2.styleHint ) return r1.styleHint < r2.styleHint;
+    if ( r1.styleStrategy != r2.styleStrategy ) return r1.styleStrategy < r2.styleStrategy;
+    if ( r1.family != r2.family ) return r1.family < r2.family;
+#ifdef Q_WS_X11
+    if ( r1.addStyle != r2.addStyle ) return r1.addStyle < r2.addStyle;
+#endif // Q_WS_X11
+
+    int f1attrs = f.d->underline<<2 + f.d->overline<<1 + f.d->strikeOut;
+    int f2attrs = d->underline<<2 + d->overline<<1 + d->strikeOut;
+    return f1attrs < f2attrs;
+}
+
+
 /*!
     Returns TRUE if this font is different from \a f; otherwise
     returns FALSE.
