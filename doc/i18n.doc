@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.9 1999/03/11 11:03:23 warwick Exp $
+** $Id: i18n.doc,v 1.10 1999/03/11 11:53:32 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -55,6 +55,7 @@ in the following stages:
 	Strings that are in "programmer space" - such as QObject
 	names and file format texts need not use QString - the
 	traditional char*, or the QCString class will suffice.
+	</p>
  <li><b>Use \link QObject::tr() tr()\endlink for all literal text.</b>
 	<p>
 	Whe you use <tt>"quoted text"</tt> in the program for text
@@ -62,15 +63,38 @@ in the following stages:
 	the QApplication::translate() function by using tr() if the
 	quoted text is in a QObject/QWidget subclass, eg.:
 	\code
+	LoginWidget::LoginWidget()
+	{
 	    QLabel *label = new QLabel( tr("Password:"), this );
+	    ...
+	}
 	\endcode
 	or, if the quoted text is not in a member function, by using
 	the tr() function of an approriate class, or the
-	QApplication::translate() function directly.
+	QApplication::translate() function directly:
+	\code
+	void some_global_function(LoginWidget* logwid)
+	{
+	    QLabel *label = new QLabel( LoginWidget::tr("Password:"), logwid );
+	}
+
+	void same_global_function(LoginWidget* logwid)
+	{
+	    QLabel *label = new QLabel( qApp->translate("LoginWidget", "Password:"), logwid );
+	}
+	\endcode
+	</p>
  <li><b>Use QTranslator to load translated text.</b>
 	<p>
 	Once you are using tr() sufficiently, you can start producing
 	translations of the user-visible text in your program.
+	<p>
+	Provided with Qt is a utility program, findtr, that will extract
+	information about text to be translated.
+	<i>The current version is a simple shell script that produces
+	    a .po file, which can be converted to a .qm file that QTranslator
+	    can load.</i>
+	</p>
  <li><b>Use the QString::arg() for simple arguments.</b>
 	<p>
 	The printf style of inserting arguments in strings
@@ -78,6 +102,7 @@ in the following stages:
 	necessary to change the order of arguments when translating.
 	The QString::arg() functions offer simple
 	means for numbered arguments.
+	</p>
  <li><b>Support encodings.</b>
 	<p>
 	The QTextCodec class and the facilities in QTextStream
@@ -86,11 +111,16 @@ in the following stages:
 	that Unicode I/O be used as this maximizes the portability
 	of documents between users around the world, but in reality
 	it is useful to support all the appropriate formats that
-	your users' will need to process existing documents.
+	your users' will need to process existing documents. In general,
+	Unicode (Utf16 or Utf8) is the best for information transferred
+	between arbitrary people, while within a language or national group,
+	a local standard is often more appropriate.
+	</p>
  <li><b>Localization.</b>
 	<p>
 	Localization is the process of adapting to local conventions
 	such as date presentation.
+	</p>
 </ol>
 
 
