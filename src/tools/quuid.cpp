@@ -223,64 +223,65 @@ bool QUuid::isNull() const
 }
 
 /*!
-    \enum QUuid::UuidVariant
+    \enum QUuid::Variant
 
-    This enum defines the variant of the UUID.
-    \value UV_VarUnknown Variant unknown
-    \value UV_NCS Reserved for NCS (Network Computing System) backward compatibility
-    \value UV_DCE Distributed Computing Environment
-    \value UV_Microsoft Reserved for Microsoft backward compatibility (GUID)
-    \value UV_Reserved Reserved for future definition
+    This enum defines the variant of the UUID, which is the scheme explaining the
+    layout of the 128bits value.
+    \value VarUnknown Variant is unknown
+    \value NCS Reserved for NCS (Network Computing System) backward compatibility
+    \value DCE Distributed Computing Environment, the scheme used by QUuid
+    \value Microsoft Reserved for Microsoft backward compatibility (GUID)
+    \value Reserved Reserved for future definition
 */
 
 /*!
-    \enum QUuid::UuidVersion
+    \enum QUuid::Version
 
     This enum defines the version of the UUID.
-    \value UV_VerUnknown Version unknown
-    \value UV_Time Time-based, by using timestamp, clock sequence, and MAC network card address (if available) for the node sections
-    \value UV_EmbeddedPOSIX DCE Security version, with embedded POSIX UUIDs
-    \value UV_Name Name-based, by using values from a name for all sections
-    \value UV_Random Random-based, by using random numbers for all sections
+    \value VerUnknown Version is unknown
+    \value Time Time-based, by using timestamp, clock sequence, and MAC network card address (if available) for the node sections
+    \value EmbeddedPOSIX DCE Security version, with embedded POSIX UUIDs
+    \value Name Name-based, by using values from a name for all sections
+    \value Random Random-based, by using random numbers for all sections
 */
 
 /*!
-    \fn Qt::UuidVariant QUuid::variant() const
-
+    \fn QUuid::Variant QUuid::variant() const
+    
     Returns the variant of the UUID.
     The null UUID is considered of an unknown variant.
 
     \sa version()
 */
-Qt::UuidVariant QUuid::variant() const
+QUuid::Variant QUuid::variant() const
 {
     if ( isNull() )
-	return Qt::UV_VarUnknown;
+	return VarUnknown;
     // Check the 3 MSB of data4[0]
-    if ( (data4[0] & 0x80) == 0x00 ) return Qt::UV_NCS;
-    else if ( (data4[0] & 0xC0) == 0x80 ) return Qt::UV_DCE;
-    else if ( (data4[0] & 0xE0) == 0xC0 ) return Qt::UV_Microsoft;
-    else if ( (data4[0] & 0xE0) == 0xE0 ) return Qt::UV_Reserved;
-    return Qt::UV_VarUnknown;
+    if ( (data4[0] & 0x80) == 0x00 ) return NCS;
+    else if ( (data4[0] & 0xC0) == 0x80 ) return DCE;
+    else if ( (data4[0] & 0xE0) == 0xC0 ) return Microsoft;
+    else if ( (data4[0] & 0xE0) == 0xE0 ) return Reserved;
+    return VarUnknown;
 }
 
 /*!
-    \fn Qt::UuidVersion QUuid::version() const
-
-    Returns the version of the UUID, if the UUID is of the
-    UV_DCE variant; otherwise returns UV_VerUnknown.
+    \fn QUuid::Version QUuid::version() const
+    
+    Returns the version of the UUID, if the UUID is of the 
+    DCE variant; otherwise returns VerUnknown.
 
     \sa variant()
 */
-Qt::UuidVersion QUuid::version() const
+QUuid::Version QUuid::version() const
 {
     // Check the 4 MSB of data3
-    Qt::UuidVersion ver = (Qt::UuidVersion)(data3>>12);
-    if ( isNull()
-	 || (variant() != Qt::UV_DCE)
-	 || ver < Qt::UV_Time
-	 || ver > Qt::UV_Random )
-	return Qt::UV_VerUnknown;
+    Version ver = (Version)(data3>>12);
+    if ( isNull() 
+	 || (variant() != DCE)
+	 || ver < Time 
+	 || ver > Random )
+	return VerUnknown;
     return ver;
 }
 

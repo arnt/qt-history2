@@ -894,24 +894,6 @@ public:
 	BottomRight = 0x00003
     };
 
-    // Documented in quuid.cpp
-    enum UuidVariant {
-	UV_VarUnknown	=-1,
-	UV_NCS		= 0, // 0 - -
-	UV_DCE		= 2, // 1 0 -
-	UV_Microsoft	= 6, // 1 1 0
-	UV_Reserved	= 7  // 1 1 1
-    };
-
-    // Documented in quuid.cpp
-    enum UuidVersion {
-	UV_VerUnknown	=-1,
-	UV_Time		= 1, // 0 0 0 1
-	UV_EmbeddedPOSIX= 2, // 0 0 1 0
-	UV_Name		= 3, // 0 0 1 1
-	UV_Random	= 4  // 0 1 0 0
-    };
-
     enum ConnectionType {
 	AutoConnection,
 	DirectConnection,

@@ -16,7 +16,6 @@
 #define QUUID_H
 
 #ifndef QT_H
-#include "qnamespace.h"
 #include "qstring.h"
 #endif // QT_H
 
@@ -37,6 +36,22 @@ typedef struct _GUID
 
 struct Q_CORE_EXPORT QUuid
 {
+    enum Variant {
+	VarUnknown	=-1,
+	NCS		= 0, // 0 - -
+	DCE		= 2, // 1 0 -
+	Microsoft	= 6, // 1 1 0
+	Reserved	= 7  // 1 1 1
+    };
+
+    enum Version {
+	VerUnknown	=-1,
+	Time		= 1, // 0 0 0 1
+	EmbeddedPOSIX	= 2, // 0 0 1 0
+	Name		= 3, // 0 0 1 1
+	Random		= 4  // 0 1 0 0
+    };
+
     QUuid()
     {
 	memset( this, 0, sizeof(QUuid) );
@@ -135,8 +150,8 @@ struct Q_CORE_EXPORT QUuid
     }
 #endif
     static QUuid createUuid();
-    Qt::UuidVariant variant() const;
-    Qt::UuidVersion version() const;
+    QUuid::Variant variant() const;
+    QUuid::Version version() const;
 
     uint    data1;
     ushort  data2;
