@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#76 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#76 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -202,6 +202,7 @@ QButton::~QButton()
     if ( group() )				// remove from button group
 	group()->remove( this );
     delete bpixmap;
+    delete d;
 }
 
 
