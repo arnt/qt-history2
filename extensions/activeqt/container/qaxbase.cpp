@@ -490,8 +490,7 @@ static QCache<QAxMetaObject> *metaObjectCache()
 {
     if ( !mo_cache ) {
 	mo_cache = new QCache<QAxMetaObject>;
-	mo_cache->setAutoDelete( TRUE );
-	mo_cache->setMaxCost( 5 );
+	mo_cache->setMaxCost( 10 );
     }
     return mo_cache;
 }
@@ -520,7 +519,8 @@ public:
 	delete propWritable;
 	propWritable = 0;
 
-	if ( !--mo_cache_ref ) {
+	if ( !--mo_cache_ref && mo_cache ) {
+	    mo_cache->setAutoDelete( TRUE );
 	    delete mo_cache;
 	    mo_cache = 0;
 	}
@@ -1164,10 +1164,12 @@ QMetaObject *QAxBase::metaObject() const
     // what went wrong...
     QCString debugInfo;
 
-    // create class information
+    // Caching metaobjects for class ID
+    QString cacheKey;
+
+    // Read class information
     IProvideClassInfo *classinfo = 0;
     d->ptr->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
-    QString coClassID;
     if ( classinfo ) {
 	ITypeInfo *info = 0;
 	classinfo->GetClassInfo( &info );
@@ -1175,6 +1177,7 @@ QMetaObject *QAxBase::metaObject() const
 	if ( info )
 	    info->GetTypeAttr( &typeattr );
 
+	QString coClassID;
 	if ( typeattr ) {
 	    QUuid clsid( typeattr->guid );
 	    coClassID = clsid.toString().upper();
@@ -1193,10 +1196,34 @@ QMetaObject *QAxBase::metaObject() const
 	if ( info ) info->Release();
 	classinfo->Release();
 	classinfo = 0;
+
+	if ( !coClassID.isEmpty() )
+	    cacheKey = QString( "%1$%2$%3" ).arg( coClassID ).arg( d->useEventSink ).arg( d->useClassInfo );
+    } else {
+	IDispatch *disp = d->dispatch();
+	if ( disp ) {
+	    ITypeInfo *info = 0;
+	    disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &info );
+	    TYPEATTR *typeattr = 0;
+	    if ( info )
+		info->GetTypeAttr( &typeattr );
+
+	    QString interfaceID;
+	    if ( typeattr ) {
+		QUuid iid( typeattr->guid );
+		interfaceID = iid.toString().upper();
+
+		info->ReleaseTypeAttr( typeattr );
+	    }
+	    if ( info ) info->Release();
+
+	    if ( !interfaceID.isEmpty() )
+		cacheKey = QString( "%1$%2$%3" ).arg( interfaceID ).arg( d->useEventSink ).arg( d->useClassInfo );
+	}
     }
 
-    if ( mo_cache && !coClassID.isEmpty() ) {
-	d->metaobj = metaObjectCache()->find( coClassID );
+    if ( mo_cache && !cacheKey.isEmpty() ) {
+	d->metaobj = metaObjectCache()->find( cacheKey );
 	if ( d->metaobj ) {
 	    d->cachedMetaObject = TRUE;
 	    return d->metaobj;
@@ -1998,8 +2025,8 @@ QMetaObject *QAxBase::metaObject() const
 	0, 0 );
 #endif
 
-    if ( !coClassID.isEmpty() ) {
-	metaObjectCache()->insert( coClassID, d->metaobj );
+    if ( !cacheKey.isEmpty() ) {
+	metaObjectCache()->insert( cacheKey, d->metaobj );
 	d->cachedMetaObject = TRUE;
     }
 

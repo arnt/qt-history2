@@ -679,10 +679,18 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		const QUParameter *param = slotdata->method->parameters + p;
 		bool returnValue = FALSE;
 
-		if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
-		    paramType = convertTypes( QString((const char*)param->typeExtra), &ok ) + " ";
-		else
-		    paramType = convertTypes( param->type->desc(), &ok ) + " ";
+		if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+		    QString typeExtra = (const char*)param->typeExtra;
+		    if ( typeExtra.endsWith( "&" ) )
+			typeExtra = typeExtra.left( typeExtra.length()-1 );
+		    paramType = convertTypes( typeExtra, &ok );
+		} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
+		    const QUEnum *uenum = (const QUEnum*)param->typeExtra;
+		    paramType = convertTypes( uenum->name, &ok );
+		} else {
+		    paramType = convertTypes( param->type->desc(), &ok );
+		}
+		paramType += " ";
 
 		if ( param->inOut == QUParameter::In ) {
 		    slot += " [in] " + paramType;
@@ -762,10 +770,19 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		const QUParameter *param = signaldata->method->parameters + p;
 		bool returnValue = FALSE;
 
-		if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
-		    paramType = convertTypes( QString((const char*)param->typeExtra), &ok ) + " ";
-		else
-		    paramType = convertTypes( param->type->desc(), &ok ) + " ";
+
+		if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+		    QString typeExtra = (const char*)param->typeExtra;
+		    if ( typeExtra.endsWith( "&" ) )
+			typeExtra = typeExtra.left( typeExtra.length()-1 );
+		    paramType = convertTypes( typeExtra, &ok );
+		} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
+		    const QUEnum *uenum = (const QUEnum*)param->typeExtra;
+		    paramType = convertTypes( uenum->name, &ok );
+		} else {
+		    paramType = convertTypes( param->type->desc(), &ok );
+		}
+		paramType += " ";
 
 		if ( param->inOut == QUParameter::In ) {
 		    signal += " [in] " + paramType;
