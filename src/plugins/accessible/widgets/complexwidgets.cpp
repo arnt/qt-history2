@@ -1,6 +1,8 @@
 #include "complexwidgets.h"
 
 #include <qapplication.h>
+#include <qabstractbutton.h>
+#include <qbutton.h>
 #include <qevent.h>
 #include <q3header.h>
 #include <qtabbar.h>
