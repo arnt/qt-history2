@@ -353,14 +353,81 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
 
 /*!
     \class QTextBlock qtextblock.h
-    \brief The QTextBlock class offers an API to access the block structure of QTextDocuments.
+    \brief The QTextBlock class offers an API to access the block
+    structure of QTextDocuments.
 
     \ingroup text
 
     A QTextBlock is an object that provides read-only access to the
-    block/paragraph structure of QTextDocuments. It is mainly interesting if you want to
-    implement your own layouting for the visual representation of a QTextDocument.
+    block/paragraph structure of QTextDocuments. It is mainly
+    of use if you want to implement your own layouts for the
+    visual representation of a QTextDocument, or if you want to
+    iterate over a document and output its contents in your own custom
+    format.
+
+    The text block has a position() in the document, a length(), a
+    text layout(), a charFormat(), a blockFormat(), and a text(). And
+    it belongs to a document(). Navigation between blocks can be done
+    using next() and previous().
  */
+
+/*!
+    \fn QTextBlock::QTextBlock(QTextDocumentPrivate *priv, int b)
+
+    \internal
+*/
+
+/*!
+    \fn QTextBlock::QTextBlock()
+
+    \internal
+*/
+
+/*!
+    \fn QTextBlock::QTextBlock(const QTextBlock &other)
+
+    Copies the \a other text block's attributes to this text block.
+*/
+
+/*!
+    \fn bool QTextBlock::isValid() const
+
+    Returns true if this text block is valid; otherwise returns false.
+*/
+
+/*!
+    \fn QTextBlock &QTextBlock::operator=(const QTextBlock &other)
+
+    Assigns the \a other text block to this text block.
+*/
+
+/*!
+    \fn bool QTextBlock::operator==(const QTextBlock &other) const
+
+    Returns true if this text block is the same as the \a other text
+    block.
+*/
+
+/*!
+    \fn bool QTextBlock::operator!=(const QTextBlock &other) const
+
+    Returns true if this text block is different from the \a other
+    text block.
+*/
+
+/*!
+    \fn bool QTextBlock::operator<(const QTextBlock &other) const
+
+    Returns true if this text block occurs before the \a other text
+    block in the document.
+*/
+
+/*!
+    \fn QTextDocumentPrivate *QTextBlock::docHandle() const
+
+    \internal
+*/
+
 
 /*!
     Returns the starting position of the block within the document.
@@ -385,7 +452,8 @@ int QTextBlock::length() const
 }
 
 /*!
-    Returns true if the given position is located within the block.
+    Returns true if the given \a position is located within the text
+    block; otherwise returns false.
  */
 bool QTextBlock::contains(int position) const
 {
@@ -499,12 +567,22 @@ QString QTextBlock::text() const
 }
 
 
+/*!
+    Returns the text document this text block belongs to, or 0 if the
+    text block doesn't belong to any document.
+*/
 const QTextDocument *QTextBlock::document() const
 {
     return p ? p->document() : 0;
 }
 
 
+/*!
+    Returns a text block iterator pointing to the beginning of the
+    text block.
+
+    \sa end()
+*/
 QTextBlock::iterator QTextBlock::begin() const
 {
     if (!p || !n)
@@ -517,6 +595,12 @@ QTextBlock::iterator QTextBlock::begin() const
     return iterator(p, b, e, b);
 }
 
+/*!
+    Returns a text block iterator pointing to the end of the text
+    block.
+
+    \sa begin()
+*/
 QTextBlock::iterator QTextBlock::end() const
 {
     if (!p || !n)
@@ -530,6 +614,12 @@ QTextBlock::iterator QTextBlock::end() const
 }
 
 
+/*!
+    Returns the text block after this one, or an empty text block if
+    this is the last one.
+
+    \sa previous()
+*/
 QTextBlock QTextBlock::next() const
 {
     if (!p)
@@ -538,6 +628,12 @@ QTextBlock QTextBlock::next() const
     return QTextBlock(p, p->blockMap().next(n));
 }
 
+/*!
+    Returns the text block before this one, or an empty text block if
+    this is the first one.
+
+    \sa next()
+*/
 QTextBlock QTextBlock::previous() const
 {
     if (!p)
