@@ -38,7 +38,6 @@
 #ifndef QDIR_P_H
 #define QDIR_P_H
 
-
 //
 //  W A R N I N G
 //  -------------
@@ -53,10 +52,12 @@
 //
 
 #ifndef QT_H
+#include "qregexp.h"
+#include "qvaluelist.h"
 #endif // QT_H
 
-extern QStringList qt_makeFilterList( const QString & );
-
+extern QValueList<QRegExp> qt_makeFilterList( const QString & );
+extern bool qt_matchFilterList( const QValueList<QRegExp> &, const QString & );
 
 extern int qt_cmp_si_sortSpec;
 

@@ -186,7 +186,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	fiList->clear();
     }
 
-    QStringList filters = qt_makeFilterList( nameFilter );
+    QValueList<QRegExp> filters = qt_makeFilterList( nameFilter );
 
     bool doDirs	    = (filterSpec & Dirs)	!= 0;
     bool doFiles    = (filterSpec & Files)	!= 0;
@@ -197,11 +197,6 @@ bool QDir::readDirEntries( const QString &nameFilter,
     bool doHidden   = (filterSpec & Hidden)	!= 0;
     bool doSystem   = (filterSpec & System)     != 0;
 
-#if defined(Q_OS_OS2EMX)
-    //QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
-#else
-    //QRegExp   wc( nameFilter, TRUE, TRUE );	// wild card, case sensitive
-#endif
     QFileInfo fi;
     DIR	     *dir;
     dirent   *file;
@@ -215,13 +210,14 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	struct dirent mt_file;
 	char b[sizeof(struct dirent) + MAXNAMLEN + 1];
     } u;
-    while ( readdir_r(dir, &u.mt_file, &file ) == 0 && file ) {
+    while ( readdir_r(dir, &u.mt_file, &file ) == 0 && file )
 #else
-    while ( (file = readdir(dir)) ) {
+    while ( (file = readdir(dir)) )
 #endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
+    {
 	QString fn = QFile::decodeName(file->d_name);
 	fi.setFile( *this, fn );
-	if ( !match( filters, fn ) && !(allDirs && fi.isDir()) )
+	if ( !qt_matchFilterList(filters, fn) && !(allDirs && fi.isDir()) )
 	     continue;
 	if  ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ||
 	      (doSystem && (!fi.isFile() && !fi.isDir())) ) {

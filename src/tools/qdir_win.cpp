@@ -349,7 +349,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 {
     int i;
 
-    QStringList filters = qt_makeFilterList( nameFilter );
+    QValueList<QRegExp> filters = qt_makeFilterList( nameFilter );
 
     bool doDirs	    = (filterSpec & Dirs)	!= 0;
     bool doFiles    = (filterSpec & Files)	!= 0;
@@ -365,7 +365,6 @@ bool QDir::readDirEntries( const QString &nameFilter,
     bool doModified = (filterSpec & Modified)	!= 0;
     bool doSystem   = (filterSpec & System)	!= 0;
 
-    //QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
     bool      first = TRUE;
     QString   p = dPath.copy();
     int	      plen = p.length();
@@ -469,7 +468,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	    fname = QString::fromLocal8Bit( (const char*)finfo.cFileName );
 	} );
 
-	if ( !match( filters, fname ) && !(allDirs && isDir) )
+	if ( !qt_matchFilterList(filters, fname) && !(allDirs && isDir) )
 	    continue;
 
 	if  ( (doDirs && isDir) || (doFiles && isFile) ) {

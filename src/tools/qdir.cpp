@@ -44,6 +44,12 @@
 #include "qregexp.h"
 #include "qstringlist.h"
 
+#if defined(Q_FS_FAT) && !defined(Q_OS_UNIX)
+const bool CaseSensitiveFS = FALSE;
+#else
+const bool CaseSensitiveFS = TRUE;
+#endif
+
 
 /*!
     \class QDir
@@ -1119,10 +1125,11 @@ QDir QDir::root()
     \sa home()
 */
 
-QStringList qt_makeFilterList( const QString &filter )
+QValueList<QRegExp> qt_makeFilterList( const QString &filter )
 {
+    QValueList<QRegExp> regExps;
     if ( filter.isEmpty() )
-	return QStringList();
+	return regExps;
 
     QChar sep( ';' );
     int i = filter.find( sep, 0 );
@@ -1131,14 +1138,25 @@ QStringList qt_makeFilterList( const QString &filter )
 
     QStringList list = QStringList::split( sep, filter );
     QStringList::Iterator it = list.begin();
-    QStringList list2;
-
-    for ( ; it != list.end(); ++it ) {
-	QString s = *it;
-	list2 << s.stripWhiteSpace();
+    while ( it != list.end() ) {
+	regExps << QRegExp( (*it).stripWhiteSpace(), CaseSensitiveFS, TRUE );
+	++it;
     }
-    return list2;
+    return regExps;
 }
+
+bool qt_matchFilterList( const QValueList<QRegExp>& filters,
+			 const QString &fileName )
+{
+    QValueList<QRegExp>::ConstIterator rit = filters.begin();
+    while ( rit != filters.end() ) {
+	if ( (*rit).exactMatch(fileName) )
+	    return TRUE;
+	++rit;
+    }
+    return FALSE;
+}
+
 
 /*!
     \overload
@@ -1155,11 +1173,7 @@ bool QDir::match( const QStringList &filters, const QString &fileName )
 {
     QStringList::ConstIterator sit = filters.begin();
     while ( sit != filters.end() ) {
-#if defined(Q_FS_FAT) && !defined(Q_OS_UNIX)
-	QRegExp rx( *sit, FALSE, TRUE ); // The FAT FS is not case sensitive..
-#else
-	QRegExp rx( *sit, TRUE, TRUE );  // ..while others are.
-#endif
+	QRegExp rx( *sit, CaseSensitiveFS, TRUE );
 	if ( rx.exactMatch(fileName) )
 	    return TRUE;
 	++sit;
@@ -1179,8 +1193,7 @@ bool QDir::match( const QStringList &filters, const QString &fileName )
 
 bool QDir::match( const QString &filter, const QString &fileName )
 {
-    QStringList lst = qt_makeFilterList( filter );
-    return match( lst, fileName );
+    return qt_matchFilterList( qt_makeFilterList(filter), fileName );
 }
 
 

@@ -146,22 +146,21 @@ bool QDir::setCurrent( const QString &path )
 
 QString QDir::currentDirPath()
 {
-    if(qt_cwd.isEmpty())
-        qt_cwd = drives()->getFirst()->filePath();
+    if ( qt_cwd.isEmpty() )
+	qt_cwd = drives()->getFirst()->filePath();
     const char *foo = qt_cwd.latin1();
-	return qt_cwd;
+    return qt_cwd;
 }
 
 QString QDir::rootDirPath()
 {
-	//FIXME
-   return QString("");
+    return QString(""); // FIXME
 }
 
 bool QDir::isRelativePath( const QString &path )
 {
     int len = path.length();
-    if( len == 0)
+    if ( len == 0 )
 	return TRUE;
     return path[0] != '/';
 }
@@ -181,7 +180,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	fiList->clear();
     }
 
-    QStringList filters = qt_makeFilterList( nameFilter );
+    QValueList<QRegExp> filters = qt_makeFilterList( nameFilter );
 
     bool doDirs	    = (filterSpec & Dirs)	!= 0;
     bool doFiles    = (filterSpec & Files)	!= 0;
@@ -193,53 +192,53 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
     QFileInfo fi;
     FSIterator dir;
-	FSRef ref;
-	
-	FSSpec *spec = make_spec(dPath);
-	if( !spec )
-		return FALSE;
- 	if( FSpMakeFSRef(spec, &ref) != noErr)
- 		return FALSE;	
-	if( FSOpenIterator( &ref, kFSIterateFlat, &dir ) != noErr)
-		return FALSE;
+    FSRef ref;
 
-	char hacky[512];
-	FSRefMakePath(&ref, (UInt8 *)hacky, 512);
+    FSSpec *spec = make_spec(dPath);
+    if ( !spec )
+	return FALSE;
+    if ( FSpMakeFSRef(spec, &ref) != noErr )
+	return FALSE;	
+    if ( FSOpenIterator( &ref, kFSIterateFlat, &dir ) != noErr )
+	return FALSE;
 
-	ItemCount specn = 512;
-	FSSpec *specs = (FSSpec *)calloc(specn, sizeof(FSSpec));
-	FSGetCatalogInfoBulk( dir, specn, &specn, 0, kFSCatInfoNone, 0, 0, specs, 0 );
-	Str255 tmp_n;
- for(ItemCount specx = 0; specx < specn; specx++) {
-		memcpy(tmp_n, &(specs[specx].name[1]), specs[specx].name[0]);
-		tmp_n[specs[specx].name[0]] = '\0';
-		QString fn = QFile::decodeName((char *)tmp_n);
-		fi.setFile( *this, fn );
-		if ( !match( filters, fn ) && !(allDirs && fi.isDir()) )
-	     	continue;
-		if  ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ) {
-	   		if ( noSymLinks && fi.isSymLink() )
-	        	continue;
-	    	if ( (filterSpec & RWEMask) != 0 )
-	        	if ( (doReadable && !fi.isReadable()) ||
-	             	 (doWritable && !fi.isWritable()) ||
-	             	(doExecable && !fi.isExecutable()) )
-	            	continue;
-	    		if ( !doHidden && fn[0] == '.' &&
-	         		fn != QString::fromLatin1(".")
-	         		&& fn != QString::fromLatin1("..") )
-	        		continue;
-	    		fiList->append( new QFileInfo( fi ) );
-		}
+    char hacky[512];
+    FSRefMakePath( &ref, (UInt8 *)hacky, 512 );
+
+    ItemCount specn = 512;
+    FSSpec *specs = (FSSpec *)calloc( specn, sizeof(FSSpec) );
+    FSGetCatalogInfoBulk( dir, specn, &specn, 0, kFSCatInfoNone, 0, 0, specs,
+			  0 );
+    Str255 tmp_n;
+    for ( ItemCount specx = 0; specx < specn; specx++ ) {
+	memcpy( tmp_n, &(specs[specx].name[1]), specs[specx].name[0] );
+	tmp_n[specs[specx].name[0]] = '\0';
+	QString fn = QFile::decodeName( (char *)tmp_n );
+	fi.setFile( *this, fn );
+	if ( !qt_matchFilterList(filters, fn) && !(allDirs && fi.isDir()) )
+	    continue;
+	if ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ) {
+	    if ( noSymLinks && fi.isSymLink() )
+		continue;
+	if ( (filterSpec & RWEMask) != 0 )
+	    if ( (doReadable && !fi.isReadable()) ||
+		 (doWritable && !fi.isWritable()) ||
+		 (doExecable && !fi.isExecutable()) )
+		continue;
+	    if ( !doHidden && fn[0] == '.' && fn != QString::fromLatin1(".")
+		 && fn != QString::fromLatin1("..") )
+		continue;
+	    fiList->append( new QFileInfo( fi ) );
+	}
     }
-    FSCloseIterator(dir);
-    free(specs);
+    FSCloseIterator( dir );
+    free( specs );
     
     // Sort...
-    if(fiList->count()) {
-	QDirSortItem* si= new QDirSortItem[fiList->count()];
+    if (fiList->count() ) {
+	QDirSortItem* si = new QDirSortItem[fiList->count()];
 	QFileInfo* itm;
-	i=0;
+	i = 0;
 	for (itm = fiList->first(); itm; itm = fiList->next())
 	    si[i++].item = itm;
 	qt_cmp_si_sortSpec = sortSpec;
@@ -256,11 +255,8 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	fiList->setAutoDelete( TRUE );
     }
 
-    if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
-	 nameFilter == nameFilt )
-	dirty = FALSE;
-    else
-	dirty = TRUE;
+    dirty = !( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS
+	       && nameFilter == nameFilt );
     return TRUE;
 }
 

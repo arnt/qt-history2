@@ -189,7 +189,7 @@ private:
     virtual bool readDirEntries( const QString &nameFilter,
 				 int FilterSpec, int SortSpec  );
 
-    static void slashify ( QString &);
+    static void slashify( QString & );
 
     QString	dPath;
     QStringList   *fList;
