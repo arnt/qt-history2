@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#379 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#380 $
 **
 ** Implementation of QWidget class
 **
@@ -572,7 +572,7 @@ QWidget::~QWidget()
     if ( f ) {
 	QListIterator<QWidget> it(f->focusWidgets);
 	QWidget *w;
-	while ( w = it.current() ) {
+	while ( (w = it.current()) ) {
 	    ++it;
 	    QWidget * p = w;
 	    while( p && p != this )
