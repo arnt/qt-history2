@@ -34,6 +34,7 @@
 #include <AGL/aglRenderers.h>
 #include <OpenGL/gl.h>
 
+#include <private/qfontdata_p.h>
 #include <qt_mac.h>
 #include <qpixmap.h>
 #include <qtimer.h>
@@ -551,5 +552,26 @@ void QGLWidget::macInternalFixBufferRect()
 {
     glcx->fixBufferRect();
     update();
+}
+
+void QGLWidget::generateFontDisplayLists( const QFont & fnt, int listBase )
+{
+    Style fstyle = normal; //from MacTypes.h
+    if ( fnt.bold() ) {
+	fstyle |= bold;
+    }
+    if ( fnt.italic() ) {
+	fstyle |= italic;
+    }
+    if ( fnt.underline() ) {
+	fstyle |= underline;
+    }
+    int fnum = 0;
+    if ( QFontPrivate *fp = (QFontPrivate*)fnt.handle() ) {
+	if ( fp->fin ) {
+	    fnum = fp->fin->fnum;
+	}
+    }
+    aglUseFont( (AGLContext) glcx->cx, fnum, fstyle, fnt.pointSize(), 0, 256, listBase );
 }
 #endif

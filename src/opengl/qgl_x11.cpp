@@ -1106,4 +1106,9 @@ void QGLWidget::macInternalFixBufferRect()
 {
 }
 
+void QGLWidget::generateFontDisplayLists( const QFont & fnt, int listBase )
+{
+    glXUseXFont( (Font) fnt.handle(), 0, 256, listBase );
+}
+
 #endif

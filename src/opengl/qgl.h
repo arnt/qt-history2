@@ -41,6 +41,7 @@
 #ifndef QT_H
 #include <qwidget.h>
 #include "qglcolormap.h"
+#include <qapplication.h>
 #endif // QT_H
 
 #if !defined( QT_MODULE_OPENGL ) || defined( QT_LICENSE_PROFESSIONAL )
@@ -305,7 +306,11 @@ public:
 
     const QGLColormap & colormap() const;
     void                setColormap( const QGLColormap & map );
-
+    
+    void 		renderText( int x, int y, const QString & str, const QFont & fnt = QApplication::font(),
+				    int listBase = 2000 );
+    void 		renderText( double x, double y, double z, const QString & str,
+				    const QFont & fnt = QApplication::font(), int listBase = 2000 );
 public slots:
     virtual void	updateGL();
     virtual void	updateOverlayGL();
@@ -329,7 +334,8 @@ protected:
     virtual void	glDraw();
 
 private:
-    void                cleanupColormaps();
+    void 		generateFontDisplayLists( const QFont & fnt, int listBase );
+    void 		cleanupColormaps();
     void		init( const QGLFormat& fmt,
 			      const QGLWidget* shareWidget );
     bool		renderCxPm( QPixmap* pm );
