@@ -27,6 +27,7 @@
 
 #include "qpainter_p.h"
 #include <qtextlayout.h>
+#include <qvarlengtharray.h>
 #include <private/qfontdata_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qtextengine_p.h>
@@ -487,7 +488,7 @@ void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
  */
 
 QX11PaintEngine::QX11PaintEngine(QPaintDevice *target)
-    : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine)
+    : QPaintEngine(*(new QX11PaintEnginePrivate), DrawRects | UsesFontEngine)
 {
     d->dpy = QX11Info::appDisplay();
     d->scrn = QX11Info::appScreen();
@@ -497,7 +498,7 @@ QX11PaintEngine::QX11PaintEngine(QPaintDevice *target)
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr, QPaintDevice *target)
-    : QPaintEngine(dptr, UsesFontEngine)
+    : QPaintEngine(dptr, DrawRects | UsesFontEngine)
 {
     d->dpy = QX11Info::appDisplay();
     d->scrn = QX11Info::appScreen();
@@ -668,6 +669,37 @@ void QX11PaintEngine::drawRect(const QRect &r)
     }
     if (d->cpen.style() != NoPen)
         XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width()-1, r.height()-1);
+}
+
+void QX11PaintEngine::drawRects(const QList<QRect> &rects)
+{
+    if (!isActive())
+        return;
+
+    if (d->cbrush.style() != NoBrush && d->cpen.style() != NoPen) {
+	for (int i = 0; i < rects.size(); ++i)
+	    drawRect(rects.at(i));
+    }
+
+    QVarLengthArray<XRectangle> xrects(rects.size());
+    for (int i = 0; i < rects.size(); ++i) {
+	xrects[i].x = short(rects.at(i).x());
+	xrects[i].y = short(rects.at(i).y());
+	xrects[i].width = ushort(rects.at(i).width());
+	xrects[i].height = ushort(rects.at(i).height());
+    }
+
+    if (d->cbrush.style() != NoBrush && d->cpen.style() == NoPen) {
+	XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects, rects.size());
+	return;
+    }
+    if (d->cpen.style() != NoPen && d->cbrush.style() == NoBrush) {
+	for (int i = 0; i < rects.size(); ++i) { // ### this is kinda makes it useless but it's needed
+	    xrects[i].width -= 1;
+	    xrects[i].height -= 1;
+	}
+        XDrawRectangles(d->dpy, d->hd, d->gc, xrects, rects.size());
+    }
 }
 
 void QX11PaintEngine::drawPoint(const QPoint &p)

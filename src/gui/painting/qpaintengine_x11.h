@@ -42,6 +42,7 @@ public:
 
     virtual void drawLine(const QPoint &p1, const QPoint &ps);
     virtual void drawRect(const QRect &r);
+    virtual void drawRects(const QList<QRect> &rects);
     virtual void drawPoint(const QPoint &p);
     virtual void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
     virtual void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor);
