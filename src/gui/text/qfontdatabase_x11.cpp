@@ -1048,12 +1048,6 @@ static void initializeDb()
 #endif // QFONTDATABASE_DEBUG
 }
 
-void QFontDatabase::createDatabase()
-{
-    initializeDb();
-}
-
-
 // --------------------------------------------------------------------------------------
 // font loader
 // --------------------------------------------------------------------------------------

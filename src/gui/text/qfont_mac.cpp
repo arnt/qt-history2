@@ -23,19 +23,15 @@
 #include "qt_mac.h"
 #include <private/qunicodetables_p.h>
 #include <qapplication.h>
+#include "qfontdatabase.h"
 #include <qdict.h>
 #include <qpainter.h>
 #include "qtextengine_p.h"
 #include <stdlib.h>
 
-QString pstring2qstring(const unsigned char *c);
-void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1); //qglobal.cpp
-CFStringRef qstring2cfstring(const QString &str); //qglobal.cpp
-QString cfstring2qstring(CFStringRef str); //qglobal.cpp
-
 QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
 
-static inline int qt_mac_pixelsize(const QFontDef &def, QPaintDevice *pdev)
+int qt_mac_pixelsize(const QFontDef &def, QPaintDevice *pdev)
 {
     float ret;
     if(def.pixelSize == -1) {
@@ -51,7 +47,7 @@ static inline int qt_mac_pixelsize(const QFontDef &def, QPaintDevice *pdev)
     }
     return (int)(ret + .5);
 }
-static inline int qt_mac_pointsize(const QFontDef &def, QPaintDevice *pdev)
+int qt_mac_pointsize(const QFontDef &def, QPaintDevice *pdev)
 {
     float ret;
     if(def.pointSize == -1) {
@@ -117,8 +113,6 @@ void QFontPrivate::load(QFont::Script script)
 	qWarning("Must construct a QApplication before a QFont");
     Q_ASSERT(script >= 0 && script < QFont::LastPrivateScript);
 
-    QFontEngineMac *engine = NULL;
-
     QFontDef req = request;
     req.pixelSize = qt_mac_pixelsize(request, paintdevice);
     req.pointSize = 0;
@@ -130,9 +124,47 @@ void QFontPrivate::load(QFont::Script script)
     } else {
 	engineData->ref();
     }
-    if(engineData->engine) // already loaded
+    if(engineData->engine ) // already loaded
 	return;
 
+#if 0
+    /* It is unclear why this method doesn't work (findFont) so rather than fight any longer I will
+       submit this, and come back to visit what is actually going wrong (something about doTextTask not
+       doing the correct thing) */
+    QStringList family_list;     // list of families to try
+    if(!req.family.isEmpty()) {
+	family_list = req.family.split(',');
+
+	// append the substitute list for each family in family_list
+	QStringList subs_list;
+	for(QStringList::ConstIterator it = family_list.begin(); it != family_list.end(); ++it)
+	    subs_list += QFont::substitutes( *it );
+	family_list += subs_list;
+    }
+    family_list << QString::null;     // null family means find the first font matching the specified script
+
+    //find the best font
+    QFontEngine *engine = 0;
+    for(QStringList::ConstIterator it = family_list.begin(); it != family_list.end(); ++it) {
+	req.family = *it;
+	engine = QFontDatabase::findFont(script, this, req);
+	if(engine) {
+	    if(engine->type() != QFontEngine::Box)
+		break;
+	    if(!req.family.isEmpty())
+		engine = 0;
+	    continue;
+	}
+    }
+    if(engine) { //done
+	engine->ref();
+	engineData->engine = engine;
+    }
+#else
+    extern QString cfstring2qstring(CFStringRef str); //qglobal.cpp
+    extern CFStringRef qstring2cfstring(const QString &str); //qglobal.cpp
+
+    QFontEngineMac *engine = NULL;
     if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
 	Q_ASSERT(e->type() == QFontEngine::Mac);
 	e->ref();
@@ -181,11 +213,12 @@ void QFontPrivate::load(QFont::Script script)
 	{
 	    CFStringRef actualName;
 	    Q_ASSERT(engine->type() == QFontEngine::Mac);
-	    if(ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName) == noErr)
+	    if(ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName) == noErr) 
 		engine->fontDef.family = cfstring2qstring(actualName);
 	}
     }
     QFontCache::instance->insertEngine(key, engine);
+#endif
 }
 
 void QFont::initialize()

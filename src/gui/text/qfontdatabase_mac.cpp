@@ -16,7 +16,12 @@
 #include "qfontengine_p.h"
 #include <stdlib.h>
 
-void QFontDatabase::createDatabase()
+QString cfstring2qstring(CFStringRef str); //qglobal.cpp
+CFStringRef qstring2cfstring(const QString &str); //qglobal.cpp
+int qt_mac_pixelsize(const QFontDef &def, QPaintDevice *pdev); //qfont_mac.cpp
+int qt_mac_pointsize(const QFontDef &def, QPaintDevice *pdev); //qfont_mac.cpp
+
+static void initializeDb()
 {
     if(db)
 	return;
@@ -24,7 +29,7 @@ void QFontDatabase::createDatabase()
     qfontdatabase_cleanup.set(&db);
 
     FMFontFamilyIterator it;
-    QString foundry_name = "Mac";
+    QString foundry_name = "ATSUI";
     if(!FMCreateFontFamilyIterator(NULL, NULL, kFMUseGlobalScopeOption, &it)) {
 	FMFontFamily fam;
 	QString fam_name;
@@ -49,10 +54,14 @@ void QFontDatabase::createDatabase()
 	    free(buff);
 	    DisposeTextToUnicodeInfo(&uni_info);
 
-	    QtFontFamily *family = db->family( fam_name, TRUE );
+	    //sanity check the font, and see if we can use it at all! --Sam
+	    if(!ATSFontFindFromName(qstring2cfstring((fam_name)), kATSOptionFlagsDefault))
+		continue;
+
+	    QtFontFamily *family = db->family(fam_name, true);
 	    for(int script = 0; script < QFont::LastPrivateScript; ++script)
 		family->scripts[script] = QtFontFamily::Supported;
-	    QtFontFoundry *foundry = family->foundry( foundry_name, TRUE );
+	    QtFontFoundry *foundry = family->foundry(foundry_name, true);
 
 	    FMFontFamilyInstanceIterator fit;
 	    if(!FMCreateFontFamilyInstanceIterator(fam, &fit)) {
@@ -68,24 +77,25 @@ void QFontDatabase::createDatabase()
 		    styleKey.oblique = false;
 		    styleKey.weight = weight;
 
-		    QtFontStyle *style = foundry->style( styleKey, TRUE );
-		    style->smoothScalable = TRUE;
-		    if( !italic ) {
-			styleKey.oblique = TRUE;
-			style = foundry->style( styleKey, TRUE );
-			style->smoothScalable = TRUE;
+		    QtFontStyle *style = foundry->style(styleKey, true);
+		    style->pixelSize(font_size, true);
+		    style->smoothScalable = true;
+		    if(!italic) {
+			styleKey.oblique = true;
+			style = foundry->style(styleKey, true);
+			style->smoothScalable = true;
 			styleKey.oblique = FALSE;
 		    }
 		    if(weight < QFont::DemiBold) {
 			// Can make bolder
 			styleKey.weight = QFont::Bold;
 			if(italic) {
-			    style = foundry->style( styleKey, TRUE );
-			    style->smoothScalable = TRUE;
+			    style = foundry->style(styleKey, true);
+			    style->smoothScalable = true;
 			} else {
-			    styleKey.oblique = TRUE;
-			    style = foundry->style( styleKey, TRUE );
-			    style->smoothScalable = TRUE;
+			    styleKey.oblique = true;
+			    style = foundry->style(styleKey, true);
+			    style->smoothScalable = true;
 			}
 		    }
 		}
@@ -96,6 +106,49 @@ void QFontDatabase::createDatabase()
     }
 }
 
-static inline void load(const QString & = QString::null,  int = -1 )
+static inline void load(const QString & = QString::null,  int = -1)
 {
 }
+
+static
+QFontEngine *loadEngine(QFont::Script, const QFontPrivate *, const QFontDef &request, 
+			QtFontFamily *family, QtFontFoundry *, QtFontStyle *)
+{
+    QFontEngineMac *engine = new QFontEngineMac;
+    { //find the font
+	QStringList family_list;
+	if(family)
+	    family_list += family->name;
+	family_list += request.family;
+	{   // append the substitute list for each family in family_list
+	    QStringList subs_list;
+	    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+	    for ( ; it != end; ++it )
+		subs_list += QFont::substitutes( *it );
+	    family_list += subs_list;
+	}
+	family_list << QApplication::font().defaultFamily(); 	// add defaultFamily (compatibility)
+	for(QStringList::ConstIterator it = family_list.begin(); it !=  family_list.end(); ++it) {
+	    if(ATSFontRef fontref = ATSFontFindFromName(qstring2cfstring((*it)), kATSOptionFlagsDefault)) {
+		CFStringRef actualName;
+		if(ATSFontGetName(fontref, kATSOptionFlagsDefault, &actualName) == noErr) {
+		    if(cfstring2qstring(actualName) == (*it)) {
+			engine->fontref = fontref;
+			break;
+		    }
+		}
+		if(!engine->fontref) //just take one if it isn't set yet
+		    engine->fontref = fontref;
+	    }
+	}
+    }
+    if(engine->fontref) { //fill in actual name
+	CFStringRef actualName;
+	if(ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName) == noErr) 
+	    engine->fontDef.family = cfstring2qstring(actualName);
+    }
+    return engine;
+}
+
+
+

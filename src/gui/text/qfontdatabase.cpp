@@ -346,6 +346,18 @@ struct QtFontFamily
     QtFontFoundry *foundry( const QString &f, bool = FALSE );
 };
 
+#if defined(Q_OS_MAC) && !defined(QWS)
+inline static void qt_mac_get_fixed_pitch(QtFontFamily *f) 
+{
+    if(f && !f->fixedPitchComputed) {
+	QFontMetrics fm(f->name);
+	f->fixedPitch = fm.width('i') == fm.width('m');
+	f->fixedPitchComputed = TRUE;
+    }
+}
+#endif
+
+
 QtFontFoundry *QtFontFamily::foundry( const QString &f, bool create )
 {
     if ( f.isNull() && count == 1 )
@@ -416,10 +428,7 @@ QtFontFamily *QFontDatabasePrivate::family( const QString &f, bool create )
     return families[pos];
 }
 
-
-
-
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 static const unsigned short sample_chars[QFont::LastPrivateScript] =
 {
     // European Alphabetic Scripts
@@ -616,10 +625,7 @@ static QFontDatabasePrivate *db=0;
 #  include "qfontdatabase_qws.cpp"
 #endif
 
-
-
-
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 static
 unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStrategy,
 			  const QtFontFamily *family, const QString &foundry_name,
@@ -634,7 +640,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
     Q_UNUSED( script );
     Q_UNUSED( pitch );
 
-    FM_DEBUG( "  REMARK: looking for best foundry for family '%s'", family->name.latin1() );
+    FM_DEBUG( "  REMARK: looking for best foundry for family '%s' [%d]", family->name.latin1(), family->count );
 
     for ( int x = 0; x < family->count; ++x ) {
 	QtFontFoundry *foundry = family->foundries[x];
@@ -642,8 +648,8 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	     ucstricmp( foundry->name, foundry_name ) != 0 )
 	    continue;
 
-	FM_DEBUG( "          looking for matching style in foundry '%s'",
-		  foundry->name.isEmpty() ? "-- none --" : foundry->name.latin1() );
+	FM_DEBUG( "          looking for matching style in foundry '%s' %d",
+		  foundry->name.isEmpty() ? "-- none --" : foundry->name.latin1(), foundry->count );
 
 	QtFontStyle *style = 0;
 	int best = 0;
@@ -779,6 +785,9 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
  	}
 #else
 	if (pitch != '*') {
+#if defined(Q_OS_MAC) && !defined(QWS)
+	    qt_mac_get_fixed_pitch(const_cast<QtFontFamily*>(family));
+#endif
 	    if ((pitch == 'm' && !family->fixedPitch)
 		|| (pitch == 'p' && family->fixedPitch))
 		this_score += 200;
@@ -841,14 +850,15 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	}
 
 	QFontCache::Key key( request, script,
-#ifdef Q_WS_WIN
+#ifdef Q_WS_WIN || Q_WS_MAC
 			     (int)fp->paintdevice
 #else
 			     fp->screen
 #endif
 	    );
 	fe = QFontCache::instance->findEngine( key );
-	if ( fe ) return fe;
+	if ( fe ) 
+	    return fe;
     }
 
     QString family_name, foundry_name;
@@ -1054,6 +1064,8 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 #elif defined(Q_WS_WIN)
 		fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
 						 GetDeviceCaps(shared_dc,LOGPIXELSY) );
+#elif defined(Q_WS_MAC)
+		fe->fontDef.pointSize = qt_mac_pointsize(fe->fontDef, fp->paintdevice);
 #else
 		fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
 						 96.0 );
@@ -1072,6 +1084,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	}
     }
 
+
     if ( fe ) {
 	if ( script != QFont::Unicode && !canRender( fe, script ) ) {
 	    FM_DEBUG( "  WARN: font loaded cannot render sample 0x%04x",
@@ -1087,7 +1100,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    if ( fp ) {
 		QFontCache::Key key( request, script,
-#ifdef Q_WS_WIN
+#if defined( Q_WS_WIN ) || defined( Q_WS_MAC )
 				    (int)fp->paintdevice
 #else
 				    fp->screen
@@ -1101,7 +1114,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	if ( fp ) {
 	    QFontCache::Key key( request, script,
-#ifdef Q_WS_WIN
+#if defined( Q_WS_WIN ) || defined( Q_WS_MAC )
 				 (int)fp->paintdevice
 #else
 				 fp->screen
@@ -1127,7 +1140,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    if ( fp ) {
 		QFontCache::Key key( request, script,
-#ifdef Q_WS_WIN
+#if defined( Q_WS_WIN ) || defined( Q_WS_MAC )
 				     (int)fp->paintdevice
 #else
 				     fp->screen
@@ -1140,9 +1153,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
     return fe;
 }
-#endif // Q_WS_X11 || Q_WS_WIN
-
-
+#endif // Q_WS_X11 || Q_WS_WIN || Q_WS_MAC
 
 
 static QString styleString( int weight, bool italic, bool oblique )
@@ -1388,15 +1399,8 @@ bool QFontDatabase::isFixedPitch(const QString &family,
 
     QtFontFamily *f = d->family( familyName );
 #if defined(Q_OS_MAC) && !defined(QWS)
-    if (f) {
-	if (!f->fixedPitchComputed) {
-	    QFontMetrics fm(familyName);
-	    f->fixedPitch = fm.width('i') == fm.width('m');
-	    f->fixedPitchComputed = TRUE;
-	}
-    }
+    qt_mac_get_fixed_pitch(f);
 #endif
-
     return ( f && f->fixedPitch );
 }
 
@@ -2323,3 +2327,8 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
 }
 
 #endif // QT_NO_FONTDATABASE
+void QFontDatabase::createDatabase()
+{
+    initializeDb();
+}
+

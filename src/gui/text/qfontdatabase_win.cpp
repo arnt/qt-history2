@@ -415,11 +415,6 @@ static void initializeDb()
 
 }
 
-void QFontDatabase::createDatabase()
-{
-    initializeDb();
-}
-
 static inline void load(const QString &family = QString::null,  int = -1 )
 {
     populate_database( family );

@@ -90,7 +90,7 @@ public:
 #endif // QT_COMPAT
 
 private:
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
     static QFontEngine *findFont( QFont::Script script, const QFontPrivate *fp,
 				  const QFontDef &request, int force_encoding_id = -1 );
 #endif // Q_WS_X11

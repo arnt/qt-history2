@@ -241,7 +241,7 @@ enum IndicFeatures {
     HalantFeature
 };
 
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 class QFontEngineBox : public QFontEngine
 {
 public:
@@ -512,15 +512,13 @@ private:
 struct QATSUStyle;
 class QFontEngineMac : public QFontEngine
 {
-    ATSFontRef fontref;
     mutable QATSUStyle *internal_fi;
     enum { widthCacheSize = 0x500 };
     mutable unsigned char widthCache[widthCacheSize];
-    friend class QFont;
-    friend class QFontPrivate;
     QATSUStyle *getFontStyle() const;
 
 public:
+    ATSFontRef fontref;
     QFontEngineMac();
     ~QFontEngineMac();
 
