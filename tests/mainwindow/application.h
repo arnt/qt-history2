@@ -45,7 +45,8 @@ private slots:
     void toggleBigpix();
     void toggleTextLabel();
     void toggleOpaque();
-
+    void hideToolbar();
+    
     void about();
     void aboutQt();
 

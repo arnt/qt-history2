@@ -138,6 +138,8 @@ ApplicationWindow::ApplicationWindow()
 				    SLOT(toggleTextLabel()), CTRL+Key_T );
     opaqueId = appMenu->insertItem( "&Opaque Toolbar moving", this,
 				    SLOT(toggleOpaque()), ALT+Key_O );
+    appMenu->insertItem( "&Show/Hide first toolbar", this,
+			 SLOT(hideToolbar()), ALT+Key_H );
 
     appMenu->insertSeparator();
     fullScreenId = appMenu->insertItem( "&Full Screen", this,
@@ -463,10 +465,6 @@ void ApplicationWindow::toggleOpaque()
     debug( "toggleOpaque" );
     setOpaqueMoving( !opaqueMoving() );
     menuBar()->setItemChecked( opaqueId, opaqueMoving() );
-    if ( myTb->isVisible() )
-	myTb->hide();
-    else
-	myTb->show();
 }
 
 void ApplicationWindow::toggleFullScreen()
@@ -478,6 +476,15 @@ void ApplicationWindow::toggleFullScreen()
 	showFullScreen();
     else
 	showNormal();
+}
+
+void ApplicationWindow::hideToolbar()
+{
+    debug( "hide/show Toolbar" );
+    if ( myTb->isVisible() )
+	myTb->hide();
+    else
+	myTb->show();
 }
 
 void ApplicationWindow::orientationChanged()
