@@ -308,6 +308,7 @@ QProcessPrivate::QProcessPrivate()
     processError = QProcess::UnknownError;
     processState = QProcess::NotRunning;
     pid = 0;
+    sequenceNumber = 0;
     exitCode = 0;
     standardReadSocketNotifier = 0;
     errorReadSocketNotifier = 0;
@@ -361,6 +362,7 @@ void QProcessPrivate::cleanup()
 
 #endif
     pid = 0;
+    sequenceNumber = 0;
     // exitCode = 0; // We deliberately do not reset the exit code.
     crashed = false;
     if (standardReadSocketNotifier) {

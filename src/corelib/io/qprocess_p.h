@@ -67,6 +67,7 @@ public:
     QProcess::ProcessState processState;
     QString workingDirectory;
     Q_PID pid;
+    int sequenceNumber;
 
     bool standardOutputClosed;
     bool standardErrorClosed;
@@ -101,7 +102,7 @@ public:
     QWinEventNotifier *processFinishedNotifier;
 
     void startProcess();
-    void execChild();
+    void execChild(const QByteArray &encodedProgramName);
     bool processStarted();
     void killProcess();
     void findExitCode();

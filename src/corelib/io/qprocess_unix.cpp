@@ -64,6 +64,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 #include <qlist.h>
 #include <qmap.h>
 #include <qmutex.h>
+#include <qsemaphore.h>
 #include <qsignal.h>
 #include <qsocketnotifier.h>
 #include <qthread.h>
@@ -80,6 +81,12 @@ static void qt_sa_sigchld_handler(int signum)
         qt_sa_old_sigchld_handler(signum);
 }
 
+struct QProcessInfo {
+    QProcess *process;
+    int deathPipe;
+    int exitResult;
+};
+
 class QProcessManager : public QThread
 {
     Q_OBJECT
@@ -90,26 +97,26 @@ public:
     void run();
     void catchDeadChildren();
     void add(int pid, QProcess *process);
-    int takeExitResult(int pid);
+    int takeExitResult(QProcess *process);
 
 private:
     QMutex mutex;
-    QMap<int, QProcess *> children;
-    QMap<int, int> deathPipes;
-    QMap<int, int> exitResults;
+    QMap<int, QProcessInfo> children;
 };
 
 Q_GLOBAL_STATIC(QProcessManager, processManager)
 
 QProcessManager::QProcessManager()
 {
-#if defined QPROCESS_DEBUG
-    qDebug("QProcessManager::QProcessManager(), initializing");
-#endif
+    // initialize the dead child pipe and make it non-blocking. in the
+    // extremely unlikely event that the pipe fills up, we do not under any
+    // circumstances want to block.
     ::pipe(qt_qprocess_deadChild_pipe);
     ::fcntl(qt_qprocess_deadChild_pipe[0], F_SETFL,
 	    ::fcntl(qt_qprocess_deadChild_pipe[0], F_GETFL) | O_NONBLOCK);
 
+    // set up the SIGCHLD handler, which writes a single byte to the dead
+    // child pipe every time a child dies.
     struct sigaction oldAction;
     struct sigaction action;
     memset(&action, 0, sizeof(action));
@@ -122,14 +129,13 @@ QProcessManager::QProcessManager()
 
 QProcessManager::~QProcessManager()
 {
-#if defined QPROCESS_DEBUG
-    qDebug("QProcessManager::QProcessManager(), shutting down");
-#endif
+    // notify the thread that we're shutting down.
     ::write(qt_qprocess_deadChild_pipe[1], "@", 1);
     ::close(qt_qprocess_deadChild_pipe[1]);
     wait();
 
-    ::close(qt_qprocess_deadChild_pipe[1]);
+    // on certain unixes, closing the reading end of the pipe will cause
+    // select in run() to block forever, rather than return with EBADF.
     ::close(qt_qprocess_deadChild_pipe[0]);
 
     qt_qprocess_deadChild_pipe[0] = -1;
@@ -142,6 +148,10 @@ void QProcessManager::run()
         fd_set readset;
         FD_ZERO(&readset);
         FD_SET(qt_qprocess_deadChild_pipe[0], &readset);
+
+        // block forever, or until activity is detected on the dead child
+        // pipe. the only other peers are the SIGCHLD signal handler, and the
+        // QProcessManager destructor.
         int nselect = select(qt_qprocess_deadChild_pipe[0] + 1, &readset, 0, 0, 0);
         if (nselect < 0) {
             if (errno == EINTR)
@@ -149,31 +159,42 @@ void QProcessManager::run()
             break;
         }
 
+        // empty only one byte from the pipe, even though several SIGCHLD
+        // signals may have been delivered in the meantime, to avoid race
+        // conditions.
         char c;
         if (::read(qt_qprocess_deadChild_pipe[0], &c, 1) < 0 || c == '@')
             break;
 
+        // catch any and all children that we can.
         catchDeadChildren();
     }
 }
 
 void QProcessManager::catchDeadChildren()
 {
-    int result;
     QMutexLocker locker(&mutex);
-    QMap<int, QProcess *>::ConstIterator it = children.begin();
+
+    // try to catch all children whose pid we have registered, and whose
+    // deathPipe is still valid (i.e, we have not already notified it).
+    int result;
+    QMap<int, QProcessInfo>::Iterator it = children.begin();
     while (it != children.end()) {
-        if (waitpid(it.key(), &result, WNOHANG) != 0) {
-#if defined QPROCESS_DEBUG
-            qDebug("QProcessManager::catchDeadChildren(), caught %d", it.key());
-#endif
-            exitResults[it.key()] = result;
-            int dpipe = deathPipes.value(it.key());
-            if (dpipe != -1) {
-                ::write(dpipe, "", 1);
-                deathPipes.remove(it.key());
+        if (it.value().deathPipe != -1 && waitpid(it.key(), &result, WNOHANG) != 0) {
+            // store the exit result, and notify the QProcess through the
+            // death pipe. The assigned QProcess will later get the exit
+            // result by calling takeExitResult().
+            QProcessInfo &info = children[it.key()];
+            info.exitResult = result;
+            if (info.deathPipe != -1) {
+                ::write(info.deathPipe, "", 1);
+                info.deathPipe = -1;
             }
-            children.remove(it.key());
+
+#if defined QPROCESS_DEBUG
+            qDebug("QProcessManager(), caught child with pid %d, QProcess %p",
+                   it.key(), info.process);
+#endif
         }
         
         ++it;
@@ -183,17 +204,33 @@ void QProcessManager::catchDeadChildren()
 void QProcessManager::add(int pid, QProcess *process)
 {
     QMutexLocker locker(&mutex);
-    children[pid] = process;
-    deathPipes[pid] = process->d_func()->deathPipe[1];
-    exitResults.remove(pid);
+
+    // insert a new info structure for this process
+    QProcessInfo info;
+    info.process = process;
+    info.deathPipe = process->d_func()->deathPipe[1];
+    info.exitResult = 0;
+    children.insert(pid, info);
 }
 
-int QProcessManager::takeExitResult(int pid)
+int QProcessManager::takeExitResult(QProcess *process)
 {
     QMutexLocker locker(&mutex);
-    int tmp = exitResults.value(pid);
-    exitResults.remove(pid);
-    return tmp;
+
+    // get the exit result from this pid and sequence number, then remove the
+    // entry from the manager's list and return the exit result.
+    QMultiMap<int, QProcessInfo>::Iterator it = children.begin();
+    while (it != children.end()) {
+        if (it.value().process == process) {
+            int tmp = it.value().exitResult;
+            children.erase(it);
+            return tmp;
+        }
+        ++it;
+    }
+
+    // never reached
+    return -1;
 }
 
 static void qt_create_pipe(int *pipe)
@@ -286,13 +323,28 @@ void QProcessPrivate::startProcess()
     processState = QProcess::Starting;
     emit q->stateChanged(processState);
 
-    pid = (Q_PID) fork();
-    if (pid == 0) {
-        execChild();
+    // Create a pipe to stall the child process until its pid has been
+    // registered by QProcessManager.
+    int waitForParentPipe[2] = {-1, -1};
+    qt_create_pipe(waitForParentPipe);
+
+    QByteArray encodedProg = QFile::encodeName(program);
+    
+    if ((pid = (Q_PID) fork()) == 0) {
+        char c;
+        read(waitForParentPipe[0], &c, 1);
+        close(waitForParentPipe[0]);
+        close(waitForParentPipe[1]);
+
+        execChild(encodedProg);
         ::_exit(-1);
     }
 
     processManager()->add(pid, q);
+    write(waitForParentPipe[1], "", 1);
+
+    ::close(waitForParentPipe[1]);
+    ::close(waitForParentPipe[0]);
 
     // parent
     ::close(childStartedPipe[1]);
@@ -312,10 +364,9 @@ void QProcessPrivate::startProcess()
     ::fcntl(writePipe[1], F_SETFL, ::fcntl(writePipe[1], F_GETFL) | O_NONBLOCK);
 }
 
-void QProcessPrivate::execChild()
+void QProcessPrivate::execChild(const QByteArray &encodedProgramName)
 {
     Q_Q(QProcess);
-    QByteArray prog = QFile::encodeName(program);
 
     // create argument list with right number of elements, and set the
     // final one to 0.
@@ -324,8 +375,8 @@ void QProcessPrivate::execChild()
 
     // allow invoking of .app bundles on the Mac.
 #ifdef Q_OS_MAC
-    QFileInfo fileInfo(prog);
-    if (prog.endsWith(".app") && fileInfo.isDir()) {
+    QFileInfo fileInfo(encodedProgramName);
+    if (encodedProgramName.endsWith(".app") && fileInfo.isDir()) {
         QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0,
                                                           QCFString(fileInfo.absoluteFilePath()),
                                                           kCFURLPOSIXPathStyle, true);
@@ -333,22 +384,18 @@ void QProcessPrivate::execChild()
         url = CFBundleCopyExecutableURL(bundle);
         if (url) {
             QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-            prog += "/Contents/MacOS/" + static_cast<QString>(str).toUtf8();
+            encodedProgramName += "/Contents/MacOS/" + static_cast<QString>(str).toUtf8();
         }
     }
 #endif
 
     // add the program name
-    argv[0] = new char[prog.size() + 1];
-    memcpy(argv[0], prog.data(), prog.size());
-    argv[0][prog.size()] = '\0';
+    argv[0] = ::strdup(encodedProgramName.constData());
 
     // add every argument to the list
     for (int i = 0; i < arguments.count(); ++i) {
         QString arg = arguments.at(i);
-        argv[i + 1] = new char[arg.size() + 1];
-        memcpy(argv[i + 1], arg.toLocal8Bit(), arg.size());
-        argv[i + 1][arg.size()] = '\0';
+        argv[i + 1] = ::strdup(arg.toLocal8Bit().constData());
     }
 
     // on all pipes, close the end that we don't use
@@ -375,14 +422,14 @@ void QProcessPrivate::execChild()
 
     // enter the working directory
     if (!workingDirectory.isEmpty())
-        ::chdir(QFile::encodeName(workingDirectory).data());
+        ::chdir(QFile::encodeName(workingDirectory).constData());
 
     // this is a virtual call, and it base behavior is to do nothing.
     q->setupChildProcess();
 
     // execute the process
     if (environment.isEmpty()) {
-        ::execvp(prog.data(), argv);
+        ::execvp(argv[0], argv);
     } else {
         // if LD_LIBRARY_PATH exists in the current environment, but
         // not in the environment list passed by the programmer, then
@@ -406,24 +453,23 @@ void QProcessPrivate::execChild()
 
         for (int j = 0; j < environment.count(); ++j) {
             QString item = environment.at(j);
-            envp[j] = new char[item.size() + 1];
-            memcpy(envp[j], item.toLocal8Bit(), item.size());
-            envp[j][item.size()] = '\0';
+            envp[j] = ::strdup(item.toLocal8Bit().constData());
         }
 
-        if (!prog.contains("/")) {
+        if (!encodedProgramName.contains("/")) {
             char *path = ::getenv("PATH");
             if (path) {
                 QStringList pathEntries = QString(path).split(":");
                 for (int k = 0; k < pathEntries.size(); ++k) {
                     QByteArray tmp = QFile::encodeName(pathEntries.at(k));
                     if (!tmp.endsWith('/')) tmp += '/';
-                    tmp += prog;
-                    ::execve(tmp.data(), argv, envp);
+                    tmp += encodedProgramName;
+                    argv[0] = tmp.data();
+                    ::execve(argv[0], argv, envp);
                 }
             }
         } else {
-            ::execve(prog.data(), argv, envp);
+            ::execve(argv[0], argv, envp);
         }
     }
 
@@ -706,7 +752,8 @@ bool QProcessPrivate::waitForFinished(int msecs)
         if (errorReadPipe[0] != -1)
             FD_SET(errorReadPipe[0], &fdread);
 
-        FD_SET(deathPipe[0], &fdread);
+        if (processState == QProcess::Running)
+            FD_SET(deathPipe[0], &fdread);
 
         if (!writeBuffer.isEmpty() && writePipe[1] != -1)
             FD_SET(writePipe[1], &fdwrite);
@@ -751,7 +798,9 @@ bool QProcessPrivate::waitForWrite(int msecs)
 
 void QProcessPrivate::findExitCode()
 {
-    int result = processManager()->takeExitResult(pid);
+    Q_Q(QProcess);
+    int result = processManager()->takeExitResult(q);
+   
     crashed = !WIFEXITED(result);
     exitCode = WEXITSTATUS(result);
 }
