@@ -2928,7 +2928,7 @@ void QFileDialog::setSelectedFilter( const QString& mask )
     }
     \endcode
 
-  \sa selectedFile, selectedFilter, QList::empty()
+  \sa selectedFile, selectedFilter, QList::isEmpty()
 */
 
 QStringList QFileDialog::selectedFiles() const

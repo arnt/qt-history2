@@ -539,6 +539,14 @@ QString &QString::operator=(const char *s)
 }
 
 /*!
+    \fn bool QString::operator!() const
+
+    Returns true if the string is empty; otherwise returns false.
+
+    \sa isEmpty()
+*/
+
+/*!
     Inserts \a c into the string at position \a i and returns a
     reference to the string.
 

@@ -32,15 +32,15 @@
 
     Example:
     \code
-	QPointer<QLabel> label = new QLabel( 0, "label" );
-	label->setText( "I like guarded pointers" );
+    QPointer<QLabel> label = new QLabel(0, "label");
+    label->setText("I like guarded pointers");
 
-	delete (QLabel*) label; // simulate somebody destroying the label
+    delete (QLabel*) label; // simulate somebody destroying the label
 
-	if ( label)
-	    label->show();
-	else
-	    qDebug("The label has been destroyed");
+    if (label)
+	label->show();
+    else
+	qDebug("The label has been destroyed");
     \endcode
 
     The program will output \c{The label has been destroyed} rather
@@ -49,16 +49,18 @@
     The functions and operators available with a QPointer are the
     same as those available with a normal unguarded pointer, except
     the pointer arithmetic operators (++, --, -, and +), which are
-    normally used only with arrays of objects. Use them like normal
-    pointers and you will not need to read this class documentation.
+    normally used only with arrays of objects.
+
+    Use QPointers like normal pointers and you will not need to read
+    this class documentation.
 
     For creating guarded pointers, you can construct or assign to them
-    from an T* or from another guarded pointer of the same type. You
+    from a T* or from another guarded pointer of the same type. You
     can compare them with each other using operator==() and
     operator!=(), or test for 0 with isNull(). And you can dereference
     them using either the \c *x or the \c x->member notation.
 
-    A guarded pointer will automatically cast to an T*, so you can
+    A guarded pointer will automatically cast to a T*, so you can
     freely mix guarded and unguarded pointers. This means that if you
     have a QPointer<QWidget>, you can pass it to a function that
     requires a QWidget*. For this reason, it is of little value to
@@ -66,8 +68,8 @@
     normal pointers. Use a QPointer when you are storing a pointer
     over time.
 
-    Note again that class \e T must inherit QObject, or a compilation
-    or link error will result.
+    Note again that class \c T \e must inherit QObject, or a
+    compilation or link error will result.
 */
 
 /*!
@@ -88,7 +90,7 @@
 /*!
     \fn QPointer::QPointer(const QPointer<T> &p)
 
-    Copy one guarded pointer from another. The constructed guarded
+    Copies one guarded pointer from another. The constructed guarded
     pointer points to the same object that \a p points to (which may
     be 0).
 */
@@ -104,8 +106,8 @@
 /*!
     \fn QPointer<T>& QPointer::operator=(const QPointer<T> &p)
 
-    Assignment operator. This guarded pointer then points to the same
-    object as \a p points to.
+    Assignment operator. This guarded pointer will now point to the
+    same object as \a p points to.
 */
 
 /*!
@@ -113,17 +115,17 @@
 
     \overload
 
-    Assignment operator. This guarded pointer then points to the same
-    object as \a p points to.
+    Assignment operator. This guarded pointer will now point to the
+    same object as \a p points to.
 */
 
 /*!
     \fn bool QPointer::operator==( const QPointer<T> &p ) const
 
     Equality operator; implements traditional pointer semantics.
-    Returns TRUE if both \a p and this guarded pointer are 0, or if
+    Returns true if both \a p and this guarded pointer are 0, or if
     both \a p and this pointer point to the same object; otherwise
-    returns FALSE.
+    returns false.
 
     \sa operator!=()
 */
@@ -134,9 +136,9 @@
     \overload
 
     Equality operator; implements traditional pointer semantics.
-    Returns TRUE if both \a p and this guarded pointer are 0, or if
+    Returns true if both \a p and this guarded pointer are 0, or if
     both \a p and this pointer point to the same object; otherwise
-    returns FALSE.
+    returns false.
 
     \sa operator!=()
 */
@@ -145,8 +147,8 @@
     \fn bool QPointer::operator!= ( const QPointer<T>& p ) const
 
     Inequality operator; implements pointer semantics, the negation of
-    operator==(). Returns TRUE if \a p and this guarded pointer are
-    not pointing to the same object; otherwise returns FALSE.
+    operator==(). Returns true if \a p and this guarded pointer are
+    not pointing to the same object; otherwise returns false.
 */
 
 /*!
@@ -155,15 +157,15 @@
     \overload
 
     Inequality operator; implements pointer semantics, the negation of
-    operator==(). Returns TRUE if \a p and this guarded pointer are
-    not pointing to the same object; otherwise returns FALSE.
+    operator==(). Returns true if \a p and this guarded pointer are
+    not pointing to the same object; otherwise returns false.
 */
 
 /*!
     \fn bool QPointer::isNull() const
 
-    Returns \c TRUE if the referenced object has been destroyed or if
-    there is no referenced object; otherwise returns FALSE.
+    Returns \c true if the referenced object has been destroyed or if
+    there is no referenced object; otherwise returns false.
 */
 
 /*!
@@ -184,7 +186,7 @@
     \fn QPointer::operator T*() const
 
     Cast operator; implements pointer semantics. Because of this
-    function you can pass a QPointer\<T\> to a function where an T*
+    function you can pass a QPointer\<T\> to a function where a T*
     is required.
 */
 

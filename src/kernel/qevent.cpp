@@ -993,8 +993,7 @@ void QFocusEvent::resetReason()
     \fn QPaintEvent::QPaintEvent( const QRect &paintRect )
 
     Constructs a paint event object with the rectangle that should be
-    updated. The region is given by \a paintRect. If \a erased is TRUE
-    the region will be cleared before repainting.
+    updated. The region is given by \a paintRect.
 */
 
 /*!

@@ -53,9 +53,6 @@ The available options are:
      \i &nbsp;
 
 \header \i31 Animation
-\row \i QT_NO_ASYNC_IO
-     \i Asynchronous I/O (\l QAsyncIO)
-     \i &nbsp;
 \row \i QT_NO_ASYNC_IMAGE_IO
      \i Asynchronous Image I/O and GIF image support (\l QImageDecoder, ...)
      \i &nbsp;
@@ -208,8 +205,8 @@ The available options are:
 \row \i QT_NO_STYLE_CDE
      \i Open Group CDE style (\l QCDEStyle)
      \i QT_NO_STYLE_MOTIF
-\row \i QT_NO_STYLE_AQUA
-     \i MacOS X style (\l QAquaStyle)
+\row \i QT_NO_STYLE_MAC
+     \i MacOS X style (\l QMacStyle)
 \row \i QT_NO_STYLE_PLATINUM
      \i MacOS 9 style (\l QPlatinumStyle)
      \i QT_NO_WIDGETS

@@ -392,15 +392,18 @@ void qt_setMaxWindowRect(const QRect& r)
 }
 
 /*!
-  \relates QApplication
+    \fn qAddPostRoutine( QtCleanUpFunction ptr )
 
-  Adds a global routine that will be called from the QApplication
-  destructor. This function is normally used to add cleanup routines
-  for program-wide functionality.
+    \relates QApplication
 
-  The function given by \a p should take no arguments and return
-  nothing, like this:
-  \code
+    Adds a global routine that will be called from the QApplication
+    destructor. This function is normally used to add cleanup routines
+    for program-wide functionality.
+
+    The function given by \a ptr should take no arguments and should
+    return nothing. For example:
+
+    \code
     static int *global_ptr = 0;
 
     static void cleanup_ptr()
@@ -414,30 +417,32 @@ void qt_setMaxWindowRect(const QRect& r)
 	global_ptr = new int[100];	// allocate data
 	qAddPostRoutine( cleanup_ptr );	// delete later
     }
-  \endcode
+    \endcode
 
-  Note that for an application- or module-wide cleanup,
-  qAddPostRoutine() is often not suitable. People have a tendency to
-  make such modules dynamically loaded, and then unload those modules
-  long before the QApplication destructor is called, for example.
+    Note that for an application- or module-wide cleanup,
+    qAddPostRoutine() is often not suitable. For example, if the
+    program is split into dynamically loaded modules, the relevant
+    module may be unloaded long before the QApplication destructor is
+    called.
 
-  For modules and libraries, using a reference-counted initialization
-  manager or Qt' parent-child delete mechanism may be better. Here is
-  an example of a private class which uses the parent-child mechanism
-  to call a cleanup function at the right time:
+    For modules and libraries, using a reference-counted
+    initialization manager or Qt's parent-child deletion mechanism may
+    be better. Here is an example of a private class which uses the
+    parent-child mechanism to call a cleanup function at the right
+    time:
 
-  \code
+    \code
     class MyPrivateInitStuff: public QObject {
     private:
-	MyPrivateInitStuff( QObject * parent ): QObject( parent) {
+	MyPrivateInitStuff(QObject *parent): QObject(parent) {
 	    // initialization goes here
 	}
-	MyPrivateInitStuff * p;
+	MyPrivateInitStuff *p;
 
     public:
-	static MyPrivateInitStuff * initStuff( QObject * parent ) {
-	    if ( !p )
-		p = new MyPrivateInitStuff( parent );
+	static MyPrivateInitStuff *initStuff(QObject *parent) {
+	    if (!p)
+		p = new MyPrivateInitStuff(parent);
 	    return p;
 	}
 
@@ -445,10 +450,11 @@ void qt_setMaxWindowRect(const QRect& r)
 	    // cleanup (the "post routine") goes here
 	}
     }
-  \endcode
+    \endcode
 
-  By selecting the right parent widget/object, this can often be made
-  to clean up the module's data at the exact right moment.
+    By selecting the right parent widget/object, this can often be
+    made to clean up the module's data at the exactly the right
+    moment.
 */
 
 // Default application palettes and fonts (per widget type)
@@ -491,6 +497,9 @@ static void qt_fix_tooltips()
 }
 #endif
 
+/*!
+    \internal
+*/
 void QApplication::process_cmdline()
 {
     // process platform-indep command line
@@ -696,6 +705,9 @@ QApplication::QApplication( int &argc, char **argv, Type type )
     construct(type);
 }
 
+/*!
+    \internal
+*/
 void QApplication::construct(Type type)
 {
     qt_appType = type;

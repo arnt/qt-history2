@@ -798,6 +798,8 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
+    \fn QPixmap QVariant::toPixmap() const
+
     Returns the variant as a QPixmap if the variant has type() Pixmap;
     otherwise returns a null pixmap.
 
@@ -805,12 +807,16 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
+    \fn const QImage QVariant::toImage() const
+
     Returns the variant as a QImage if the variant has type() Image;
     otherwise returns a null image.
 
     \sa asImage()
 */
 /*!
+    \fn QBrush QVariant::toBrush() const
+
     Returns the variant as a QBrush if the variant has type() Brush;
     otherwise returns a default brush (with all black colors).
 
@@ -851,7 +857,7 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
-  \fn QColor QVariant::toColor() const
+    \fn QColor QVariant::toColor() const
 
     Returns the variant as a QColor if the variant has type() Color;
     otherwise returns an invalid color.
@@ -860,6 +866,8 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
+    \fn QPalette &QVariant::asPalette()
+
     Returns the variant as a QPalette if the variant has type()
     Palette; otherwise returns a completely black palette.
 
@@ -867,16 +875,24 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
+    \fn QColorGroup &QVariant::asColorGroup()
+
     Returns the variant as a QColorGroup if the variant has type()
     ColorGroup; otherwise returns an empty color group.
 */
+
 /*!
+    \fn QIconSet &QVariant::asIconSet()
+
     Returns the variant as a QIconSet if the variant has type()
     IconSet; otherwise returns an icon set of null pixmaps.
 
     \sa asIconSet()
 */
+
 /*!
+    \fn QPointArray &QVariant::asPointArray()
+
     Returns the variant as a QPointArray if the variant has type()
     PointArray; otherwise returns an empty QPointArray.
 
@@ -884,6 +900,8 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
+    \fn QBitmap &QVariant::asBitmap()
+
     Returns the variant as a QBitmap if the variant has type() Bitmap;
     otherwise returns a null QBitmap.
 
@@ -891,12 +909,17 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
+    \fn QRegion &QVariant::asRegion()
+
     Returns the variant as a QRegion if the variant has type() Region;
     otherwise returns an empty QRegion.
 
     \sa asRegion()
 */
+
 /*!
+    \fn QCursor &QVariant::asCursor()
+
     Returns the variant as a QCursor if the variant has type() Cursor;
     otherwise returns the default arrow cursor.
 
@@ -921,17 +944,14 @@ const QVariant::Handler qt_gui_variant_handler = {
 #endif // QT_NO_ACCEL
 
 /*!
+    \fn QPen &QVariant::asPen()
+
     Returns the variant as a QPen if the variant has type()
     Pen; otherwise returns an empty QPen.
 
     \sa asPen()
 */
 
-/*!
-    Returns the variant as a QSizePolicy if the variant has type()
-    SizePolicy; otherwise returns an undefined (but legal) size
-    policy.
-*/
 
 QVariant::QVariant(const QPixmap &val)
 {

@@ -2289,14 +2289,6 @@ int QFontMetrics::width( const QString &str, int len ) const
     \sa boundingRect(), charWidth()
 */
 
-/*! \fn int QFontMetrics::width( char c ) const
-
-  \overload
-  \obsolete
-
-  Provided to aid porting from Qt 1.x.
-*/
-
 /*! \fn int QFontMetrics::charWidth( const QString &str, int pos ) const
     Returns the width of the character at position \a pos in the
     string \a str.

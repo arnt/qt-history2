@@ -2026,6 +2026,9 @@ void qt_init( QApplicationPrivate *priv, int,
 
 #ifndef QT_NO_STYLE
     // run-time search for default style
+/*!
+    \internal
+*/
 void QApplication::x11_initialize_style()
 {
     Atom type;

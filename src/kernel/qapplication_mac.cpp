@@ -1346,6 +1346,9 @@ static int get_key(int modif, int key, int scan)
     return Qt::Key_unknown;
 }
 
+/*!
+    \internal
+*/
 bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 {
     QWidget *widget;
@@ -2729,6 +2732,9 @@ bool QApplication::macEventFilter(EventHandlerCallRef, EventRef)
     return FALSE;
 }
 
+/*!
+    \internal
+*/
 void QApplication::openPopup(QWidget *popup)
 {
     if(!popupWidgets) {			// create list
@@ -2747,6 +2753,9 @@ void QApplication::openPopup(QWidget *popup)
     QFocusEvent::resetReason();
 }
 
+/*!
+    \internal
+*/
 void QApplication::closePopup(QWidget *popup)
 {
     if(!popupWidgets)
@@ -2871,6 +2880,9 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
     }
 }
 
+/*!
+    \internal
+*/
 bool QApplication::qt_mac_apply_settings()
 {
     QSettings settings;

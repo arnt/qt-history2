@@ -1959,6 +1959,8 @@ QX11Info *QPixmap::x11Info() const
 }
 
 /*!
+    \fn void copyBlt( QPixmap *dst, int dx, int dy,
+		       const QPixmap *src, int sx, int sy, int sw, int sh )
     \relates QPixmap
 
     Copies a block of pixels from \a src to \a dst.  The alpha channel

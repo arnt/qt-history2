@@ -1232,81 +1232,81 @@ int main( int argc, char **argv )
     each family/style combination.
 */
 /*!
-    \obsolete
     \fn inline QStringList QFontDatabase::families( bool ) const
+    \obsolete
 */
 /*!
-    \obsolete
     \fn inline QStringList QFontDatabase::styles( const QString &family,
 					  const QString & ) const
+    \obsolete
 */
 /*!
-    \obsolete
     \fn inline QList<int> QFontDatabase::pointSizes( const QString &family,
 						  const QString &style ,
 						  const QString & )
+    \obsolete
 */
 
 /*!
-    \obsolete
     \fn inline QList<int> QFontDatabase::smoothSizes( const QString &family,
 						   const QString &style,
 						   const QString & )
+    \obsolete
 */
 /*!
-    \obsolete
     \fn inline QFont QFontDatabase::font( const QString &familyName,
 				  const QString &style,
 				  int pointSize,
 				  const QString &)
+    \obsolete
 */
 /*!
-    \obsolete
     \fn inline bool QFontDatabase::isBitmapScalable( const QString &family,
 					     const QString &style,
 					     const QString & ) const
+    \obsolete
 */
 
 /*!
-    \obsolete
     \fn inline bool QFontDatabase::isSmoothlyScalable( const QString &family,
 					       const QString &style,
 					       const QString & ) const
+    \obsolete
 */
 
 /*!
-    \obsolete
     \fn inline bool QFontDatabase::isScalable( const QString &family,
 				       const QString &style,
 				       const QString & ) const
+    \obsolete
 */
 
 /*!
-    \obsolete
     \fn inline bool QFontDatabase::isFixedPitch( const QString &family,
 					 const QString &style,
 					 const QString & ) const
+    \obsolete
 */
 
 /*!
-    \obsolete
     \fn inline bool QFontDatabase::italic( const QString &family,
 				   const QString &style,
 				   const QString & ) const
+    \obsolete
 */
 
 /*!
-    \obsolete
     \fn inline bool QFontDatabase::bold( const QString &family,
 				 const QString &style,
 				 const QString & ) const
+    \obsolete
 */
 
 /*!
-    \obsolete
     \fn inline int QFontDatabase::weight( const QString &family,
 				  const QString &style,
 				  const QString & ) const
+    \obsolete
 */
 
 

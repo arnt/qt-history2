@@ -1881,6 +1881,9 @@ void QApplication::restoreOverrideCursor()
   Routines to find a Qt widget from a screen position
  *****************************************************************************/
 
+/*!
+    \internal
+*/
 QWidget *QApplication::findWidget( const QObjectList& list,
 				   const QPoint &pos, bool rec )
 {
@@ -1901,6 +1904,10 @@ QWidget *QApplication::findWidget( const QObjectList& list,
     return 0;
 }
 
+/*!
+    Recursively searches all of \a p's child widgets and returns the
+    most nested widget that contains point \a pos.
+*/
 QWidget *QApplication::findChildWidget( const QWidget *p, const QPoint &pos )
 {
     return findWidget( p->children(), pos, true );

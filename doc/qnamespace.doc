@@ -13,6 +13,45 @@
 ****************************************************************************/
 
 /*!
+    \enum Qt::AlignmentFlags
+
+    This enum type is used to describe alignment. It contains
+    horizontal and vertical flags.
+
+    The horizontal flags are:
+
+    \value AlignAuto Aligns according to the language. Left for most,
+	right for Arabic and Hebrew.
+    \value AlignLeft Aligns with the left edge.
+    \value AlignRight Aligns with the right edge.
+    \value AlignHCenter Centers horizontally in the available space.
+    \value AlignJustify Justifies the text in the available space.
+	Does not work for everything and may be interpreted as
+	AlignAuto in some cases.
+
+    The vertical flags are:
+
+    \value AlignTop Aligns with the top.
+    \value AlignBottom Aligns with the bottom.
+    \value AlignVCenter Centers vertically in the available space.
+
+    You can use only one of the horizontal flags at a time. There is
+    one two-dimensional flag:
+
+    \value AlignCenter Centers in both dimensions.
+
+    You can use at most one horizontal and one vertical flag at a time. \c
+    AlignCenter counts as both horizontal and vertical.
+
+    Masks:
+
+    \value AlignHorizontal_Mask
+    \value AlignVertical_Mask
+
+    Conflicting combinations of flags have undefined meanings.
+*/
+
+/*!
     \enum Qt::GlobalColor
 
     Qt's 19 predefined QColor objects
@@ -40,6 +79,21 @@
     \img qt-colors.png Qt Colors
 
     \sa QColor
+
+*/
+
+/*!
+    \enum Qt::StringComparisonFlags
+
+    Many Qt string functions accept a StringComparisonFlags argument
+    which can be the OR of these values. (A flag value of 0 signifies
+    a case-insensitive match anywhere in the string.)
+
+    \value CaseSensitive
+    \value BeginsWith
+    \value EndsWith
+    \value Contains
+    \value ExactMatch
 
 */
 
