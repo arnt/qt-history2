@@ -181,6 +181,7 @@ private:
     static bool activate(MenuRef, short, bool highlight=FALSE, bool by_accel=FALSE);
     static bool activateCommand(uint cmd);
     static bool macUpdateMenuBar();
+    static bool macUpdatePopupVisible(MenuRef, bool);
     static bool macUpdatePopup(MenuRef);
 #endif
 

@@ -581,6 +581,7 @@ static EventTypeSpec events[] = {
     { kEventClassApplication, kEventAppDeactivated },
 
     { kEventClassMenu, kEventMenuOpening },
+    { kEventClassMenu, kEventMenuClosed },
     { kEventClassMenu, kEventMenuTargetItem },
 
     { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
@@ -2249,18 +2250,20 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
     case kEventClassMenu:
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-	if(ekind == kEventMenuOpening) {
-	    Boolean first;
-	    GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean,
-			      NULL, sizeof(first), NULL, &first);
-	    if(first) {
-		MenuRef mr;
-		GetEventParameter(event, kEventParamDirectObject, typeMenuRef,
-				  NULL, sizeof(mr), NULL, &mr);
-		if(!QMenuBar::macUpdatePopup(mr))
+	if(ekind == kEventMenuOpening || ekind == kEventMenuClosed) {
+	    MenuRef mr;
+	    GetEventParameter(event, kEventParamDirectObject, typeMenuRef,
+			      NULL, sizeof(mr), NULL, &mr);
+	    if(ekind == kEventMenuOpening) {
+		Boolean first;
+		GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean,
+				  NULL, sizeof(first), NULL, &first);
+		if(first && !QMenuBar::macUpdatePopup(mr))
 		    handled_event = FALSE;
-	    } else {
-		handled_event = FALSE;
+	    }
+	    if(handled_event) {
+		if(!QMenuBar::macUpdatePopupVisible(mr, ekind == kEventMenuOpening))
+		    handled_event = FALSE;
 	    }
 	} else if(ekind == kEventMenuTargetItem) {
 	    MenuRef mr;

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QMenuBar class for mac
+** Implementation of QMenuBar bindings for Apple System Menubar
 **
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
@@ -143,8 +143,8 @@ QMenuBar::qt_mac_menubar_event(EventHandlerCallRef er, EventRef event, void *)
 		::RGBColor f;
 		f.red = 256*256;
 		f.blue = f.green = 0;
-		RGBForeColor( &f );
-		PaintRect( &r );
+		RGBForeColor(&f);
+		PaintRect(&r);
 		handled_event = FALSE;
 	    }
 	} else {
@@ -186,7 +186,7 @@ void QMenuBar::qt_mac_install_menubar_event(MenuRef ref)
     InstallMenuEventHandler(ref, mac_menubarEventUPP,
 			    GetEventTypeCount(menu_events), menu_events, 0,
 			    &mac_menubarEventHandler);
-    qAddPostRoutine( qt_mac_clean_menubar_event );
+    qAddPostRoutine(qt_mac_clean_menubar_event);
 }
 #endif
 
@@ -297,7 +297,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    if(activeMenuBar->mac_d->commands) {
 		bool found = FALSE;
 		QIntDictIterator<QMenuBar::MacPrivate::CommandBinding> it(*(activeMenuBar->mac_d->commands));
-		for( ; it.current() && !(found = (it.current()->index == x && it.current()->qpopup == d)); ++it);
+		for(; it.current() && !(found = (it.current()->index == x && it.current()->qpopup == d)); ++it);
 		if(found)
 		    continue;
 	    }
@@ -377,13 +377,13 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		    SetMenuItemHierarchicalMenu(ret, id, createMacPopup(item->popup(), FALSE));
 		} else if(accel_key != Qt::Key_unknown) {
 		    char mod = 0;
-		    if ((accel_key & Qt::CTRL) != Qt::CTRL)
+		    if((accel_key & Qt::CTRL) != Qt::CTRL)
 			mod |= kMenuNoCommandModifier;
-		    if ((accel_key & Qt::META) == Qt::META)
+		    if((accel_key & Qt::META) == Qt::META)
 			mod |= kMenuControlModifier;
-		    if ((accel_key & Qt::ALT) == Qt::ALT)
+		    if((accel_key & Qt::ALT) == Qt::ALT)
 			mod |= kMenuOptionModifier;
-		    if ((accel_key & Qt::SHIFT) == Qt::SHIFT)
+		    if((accel_key & Qt::SHIFT) == Qt::SHIFT)
 			mod |= kMenuShiftModifier;
 		    int keycode = (accel_key & ~(Qt::MODIFIER_MASK | Qt::UNICODE_ACCEL));
 		    if(keycode) {
@@ -631,6 +631,9 @@ void QMenuBar::cleanup()
     menubars = 0;
 }
 
+/*!
+    \internal
+*/
 bool QMenuBar::macUpdateMenuBar()
 {
     QMenuBar *mb = NULL;
@@ -693,12 +696,15 @@ bool QMenuBar::macUpdateMenuBar()
     return FALSE;
 }
 
+/*!
+    \internal
+*/
 bool QMenuBar::macUpdatePopup(MenuRef mr)
 {
     if(!mr || !activeMenuBar)
 	return FALSE;
 
-    int mid = GetMenuID( mr );
+    int mid = GetMenuID(mr);
     if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
 	if(mpb->qpopup) {
 	    emit mpb->qpopup->aboutToShow();
@@ -713,6 +719,25 @@ bool QMenuBar::macUpdatePopup(MenuRef mr)
     return FALSE;
 }
 
+/*!
+    \internal
+*/
+bool QMenuBar::macUpdatePopupVisible(MenuRef mr, bool vis)
+{
+    if(!mr || !activeMenuBar || !qApp)
+	return FALSE;
+
+    int mid = GetMenuID(mr);
+    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
+	if(mpb->qpopup) 
+	    return TRUE;
+    }
+    return FALSE;
+}
+
+/*!
+    \internal
+*/
 void QMenuBar::macWidgetChangedWindow()
 {
     int was_eaten = mac_eaten_menubar;
