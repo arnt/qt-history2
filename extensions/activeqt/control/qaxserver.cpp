@@ -28,6 +28,9 @@ char qAxModuleFilename[MAX_PATH];
 // The QAxFactory instance
 static QAxFactoryInterface* _factory;
 extern QUnknownInterface *ucm_instantiate();
+extern CLSID CLSID_QRect;
+extern CLSID CLSID_QSize;
+extern CLSID CLSID_QPoint;
 
 QAxFactoryInterface *qAxFactory()
 {
@@ -425,6 +428,10 @@ static const char* const type_map[][2] =
     { "Q_ULLONG",	"CY" },
     { "Q_LLONG",	"CY" },
     { "QByteArray",	"SAFEARRAY(BYTE)" },
+    // Userdefined Qt datatypes
+    { "QRect",		"struct QRect" },
+    { "QSize",		"struct QSize" },
+    { "QPoint",		"struct QPoint" },
     // And we support COM data types
     { "BOOL",		"BOOL" },
     { "BSTR",		"BSTR" },
@@ -536,7 +543,11 @@ static const char* const ignore_props[] =
     "geometry",
     "pos",
     "frameSize",
+    "frameGeometry",
     "size",
+    "sizeHint",
+    "minimumSizeHint",
+    "microFocusHint",
     "rect",
     "childrenRect",
     "childrenRegion",
@@ -578,6 +589,9 @@ static const char* const ignore_slots[] =
     "stackUnder",
     "setShown",
     "setHidden",
+    "move_1",
+    "resize_1",
+    "setGeometry_1",
     0
 };
 
@@ -680,7 +694,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
     out << endl;
     out << "\t[" << endl;
     out << "\t\tuuid(" << interfaceID << ")," << endl;
-    out << "\t\thelpstring(\"" << className << " Interface\")," << endl;
+    out << "\t\thelpstring(\"" << className << " Interface\")" << endl;
     out << "\t]" << endl;
     out << "\tdispinterface I" << className  << endl;
     out << "\t{" << endl;
@@ -737,6 +751,9 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	    continue;
 
 	QString slot = renameOverloads( replaceKeyword( slotdata->method->name ) );
+	if (ignore(slot.latin1(), ignore_slots))
+	    continue;
+
 	QString returnType = "void ";
 	QString paramType;
 	slot += "(";
@@ -984,7 +1001,14 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
 	int lastdot = version.findRev( '.' );
 	version = version.left( lastdot ) + version.right( version.length() - lastdot - 1 );
     }
-    
+
+    QString idQRect(QUuid(CLSID_QRect).toString());
+    STRIPCB(idQRect);
+    QString idQSize(QUuid(CLSID_QSize).toString());
+    STRIPCB(idQSize);
+    QString idQPoint(QUuid(CLSID_QPoint).toString());
+    STRIPCB(idQPoint);
+
     out << "/****************************************************************************" << endl;
     out << "** Interface definition generated from '" << qAxModuleFilename << "'" << endl;
     out << "**" << endl;
@@ -1012,6 +1036,28 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
 
     QStringList keys = qAxFactory()->featureList();
     QStringList::Iterator key;
+
+    out << "\t/* Declaration of common Qt classes that might be used as parameters */" << endl << endl;
+
+    out << "\t[uuid(" << idQRect << ")]" << endl;
+    out << "\tstruct QRect {" << endl;
+    out << "\t\tint left;" << endl;
+    out << "\t\tint top;" << endl;
+    out << "\t\tint right;" << endl;
+    out << "\t\tint bottom;" << endl;
+    out << "\t};" << endl << endl;
+
+    out << "\t[uuid(" << idQSize << ")]" << endl;
+    out << "\tstruct QSize {" << endl;
+    out << "\t\tint width;" << endl;
+    out << "\t\tint height;" << endl;
+    out << "\t};" << endl << endl;
+
+    out << "\t[uuid(" << idQPoint << ")]" << endl;
+    out << "\tstruct QPoint {" << endl;
+    out << "\t\tint x;" << endl;
+    out << "\t\tint y;" << endl;
+    out << "\t};" << endl << endl;
 
     out << "\t/* Forward declaration of classes that might be used as parameters */" << endl << endl;
 
