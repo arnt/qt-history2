@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#22 $
 **
 ** Implementation of QGArray class
 **
@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#22 $")
 
 
 #if !defined(CHECK_MEMORY)
@@ -50,67 +50,48 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#21 $")
 #endif
 
 
-/*!
-  \class QArray qarray.h
+/*----------------------------------------------------------------------------
+  \class QGArray qgarray.h
+  \brief The QGArray class is an internal class for implementing the QArray class.
 
-  \ingroup tools
+  QGArray is a strictly internal class that acts as base class for the
+  QArray template array.
 
-  \brief The QArray class is a template class for arrays (even where
-  the compiler does not support templates).
+  It contains an array of bytes and has no notion of an array element.
+ ----------------------------------------------------------------------------*/
 
-  It provides an array of simple types, where "simple" means a single
-  word.
 
-  \todo proper docs */
-
-/*! \fn QArray::QArray()
-
-  FIXME
-
-  Documentation put here is instantiated in the constructors that
-  don't supply their own text.
-
-*/
-
-/*! \class QGArray qgarray.h
-
-  \brief The QGArray class is a generic array, intended to be
-  subclassed by real array classes such as QArray.
-
+/*----------------------------------------------------------------------------
   \internal
+  Constructs a null array.
+ ----------------------------------------------------------------------------*/
 
-  It provides <em>no</em> type checking and other new-fangled luxury.
-  See the entry for Real Programmer in <i>The New Hackers
-  Dictionary,</i> and please consider using QArray instead.
-
-  \sa QGCache QGDict QGList QGVector */
-
-/*! Creates an empty QGArray. */
-
-QGArray::QGArray()				// create empty array
+QGArray::QGArray()
 {
     shd = newData();
     CHECK_PTR( shd );
 }
 
-/*! Dummy constructor; does nothing.
+/*----------------------------------------------------------------------------
+  \internal
+  Dummy constructor; does not allocate any data.
 
-  There has to be a default constructor, but for this class, the
-  default constructor has no meaning.  If you don't understand, do
-  yourself a favour and use QArray.  If you do understand, you know
-  why you should use QArray.
+  This constructor does not initialize any array data so subclasses
+  must do it. The intention is to make the code more efficient.
 
-  \sa QArray */
+  \sa QArray
+ ----------------------------------------------------------------------------*/
 
-QGArray::QGArray( int, int )			// dummy; does not alloc
+QGArray::QGArray( int, int )
 {
 }
 
-/*!
+/*----------------------------------------------------------------------------
+  \internal
   Creates an array with size \e size bytes.
-*/
+ ----------------------------------------------------------------------------*/
 
-QGArray::QGArray( int size )			// allocate room
+QGArray::QGArray( int size )
 {
     if ( size < 0 ) {
 #if defined(CHECK_RANGE)
@@ -127,9 +108,10 @@ QGArray::QGArray( int size )			// allocate room
     shd->len = size;
 }
 
-/*!
+/*----------------------------------------------------------------------------
+  \internal
   Creates a shallow copy of \e a.
-*/
+ ----------------------------------------------------------------------------*/
 
 QGArray::QGArray( const QGArray &a )		// shallow copy
 {
@@ -137,10 +119,11 @@ QGArray::QGArray( const QGArray &a )		// shallow copy
     shd->ref();
 }
 
-/*!
+/*----------------------------------------------------------------------------
+  \internal
   Deletes the array, and the data too unless there are other QGArrays
   around that reference the same data.
-*/
+ ----------------------------------------------------------------------------*/
 
 QGArray::~QGArray()
 {
@@ -151,10 +134,11 @@ QGArray::~QGArray()
     }
 }
 
-/*!
-  Returns TRUE if this array and \e a are equal.  (The comparison is
-  bitwise, of course.)
-*/
+/*----------------------------------------------------------------------------
+  \internal
+  Returns TRUE if this array and \e a are equal, otherwise FALSE.
+  The comparison is bitwise, of course.
+ ----------------------------------------------------------------------------*/
 
 
 bool QGArray::isEqual( const QGArray &a ) const
@@ -166,11 +150,10 @@ bool QGArray::isEqual( const QGArray &a ) const
     return (size() ? memcmp( data(), a.data(), size() ) : 0) == 0;
 }
 
-/*!
-  Changes the size of the array to \e newsize bytes.
-
-  \todo check out possible memory loss involving realloc()
-*/
+/*----------------------------------------------------------------------------
+  \internal
+  Resizes the array to \e newsize bytes.
+ ----------------------------------------------------------------------------*/
 
 bool QGArray::resize( uint newsize )
 {
@@ -199,7 +182,8 @@ bool QGArray::resize( uint newsize )
     return TRUE;
 }
 
-/*!
+/*----------------------------------------------------------------------------
+  \internal
   Resizes the array and fills it with repeated occurences of \e d,
   which is \e sz bytes long.
 
@@ -211,7 +195,7 @@ bool QGArray::resize( uint newsize )
   memory.
 
   \sa resize()
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QGArray::fill( const char *d, int len, uint sz )
 {						// resize and fill array
@@ -243,14 +227,14 @@ bool QGArray::fill( const char *d, int len, uint sz )
     return TRUE;
 }
 
-/*!
+/*----------------------------------------------------------------------------
+  \internal
   Makes this array into a shallow copy of \e a.
-
   \sa duplicate(), operator=()
-*/
+ ----------------------------------------------------------------------------*/
 
 QGArray &QGArray::assign( const QGArray &a )
-{						// shallow copy
+{
     a.shd->ref();				// avoid 'a = a'
     if ( shd->deref() ) {			// delete when last reference
 	if ( shd->data )			// is lost
@@ -261,12 +245,12 @@ QGArray &QGArray::assign( const QGArray &a )
     return *this;
 }
 
-/*!
+/*----------------------------------------------------------------------------
+  \internal
   Makes this array into a shallow copy of the \e len bytes at
   address \e d.
-
-  \sa duplicate(), operator=
-*/
+  \sa duplicate(), operator=()
+ ----------------------------------------------------------------------------*/
 
 QGArray &QGArray::assign( const char *d, uint len )
 {						// shallow copy
@@ -284,11 +268,11 @@ QGArray &QGArray::assign( const char *d, uint len )
     return *this;
 }
 
-/*!
+/*----------------------------------------------------------------------------
+  \internal
   Makes this array into a deep copy of \e a.
-
-  \sa assign(), operator=
-*/
+  \sa assign(), operator=()
+ ----------------------------------------------------------------------------*/
 
 QGArray &QGArray::duplicate( const QGArray &a )
 {
@@ -331,15 +315,16 @@ QGArray &QGArray::duplicate( const QGArray &a )
     return *this;
 }
 
-/*!
+/*----------------------------------------------------------------------------
+  \internal
   Makes this array into a deep copy of the \e len bytes at
   address \e d.
 
   \sa assign(), operator=()
-*/
+ ----------------------------------------------------------------------------*/
 
 QGArray &QGArray::duplicate( const char *d, uint len )
-{						// deep copy
+{
     bool overlap = d >= shd->data && d < shd->data + shd->len;
     char *oldptr = 0;
     bool null = !(d && len);
@@ -381,13 +366,14 @@ QGArray &QGArray::duplicate( const char *d, uint len )
     return *this;
 }
 
-/*!
+/*----------------------------------------------------------------------------
+  \internal
   Resizes this array to \e len bytes and copies the \e len bytes at
   address \e into it.
 
   \warning This function disregards the reference count mechanism.  If
   other QGArrays reference the same data as this, all will be updated.
-*/
+ ----------------------------------------------------------------------------*/
 
 void QGArray::store( const char *d, uint len )
 {						// store, but not deref
@@ -397,6 +383,7 @@ void QGArray::store( const char *d, uint len )
 
 
 /*
+  \internal
   Sets raw data and returns a reference to the array.
 
   Deletes the current data and sets the new array data to \e d and
@@ -432,7 +419,7 @@ void QGArray::store( const char *d, uint len )
   \warning If you do not call resetRawData(), QGArray will attempt to
   deallocate or reallocate the raw data, which might not be too good.
   Be careful.
-*/
+ ----------------------------------------------------------------------------*/
 
 QGArray &QGArray::setRawData( const char *d, uint len )
 {
@@ -444,11 +431,12 @@ QGArray &QGArray::setRawData( const char *d, uint len )
 }
 
 /*
+  \internal
   Resets raw data.
 
   The arguments must be the data and length that were passed to
   setRawData().	 This is for consistency checking.
-*/
+ ----------------------------------------------------------------------------*/
 
 void QGArray::resetRawData( const char *d, uint len )
 {
@@ -463,7 +451,9 @@ void QGArray::resetRawData( const char *d, uint len )
 }
 
 
-/*! Searches for and returns the address of the first occurence of the
+/*----------------------------------------------------------------------------
+  \internal
+  Searches for and returns the address of the first occurence of the
   \e sz bytes at \e d at or after position \e index of this array.
 
   Note that \e index is given in units of \e sz, not bytes.
@@ -471,7 +461,8 @@ void QGArray::resetRawData( const char *d, uint len )
   This function only compares whole cells, not bytes.  It is not like
   strstr.  If sz is 4, the raw contents of the array is "bananana",
   and you search for "nana", you will get a match at position 1, which
-  translates to byte 4. */
+  translates to byte 4.
+ ----------------------------------------------------------------------------*/
 
 int QGArray::find( const char *d, uint index, uint sz ) const
 {
@@ -523,14 +514,15 @@ int QGArray::find( const char *d, uint index, uint sz ) const
     return i<shd->len ? (int)ii : -1;
 }
 
-/*!
+/*----------------------------------------------------------------------------
+  \internal
   Returns the number of occurences of the \e sz bytes at \e d in
   this array.
 
   If you have an 144-byte array containing only null bytes and ask for
   the number of occurences of the 32-bit word 0 (ie. \e d points to 4
   null bytes and \e sz is 4) you will get 36.
-*/
+ ----------------------------------------------------------------------------*/
 
 int QGArray::contains( const char *d, uint sz ) const
 {
@@ -573,7 +565,10 @@ int QGArray::contains( const char *d, uint sz ) const
     return count;				// number of identical objects
 }
 
-/*! Returns a pointer to the byte at offset \e index of this array. */
+/*----------------------------------------------------------------------------
+  \internal
+  Returns a pointer to the byte at offset \e index of this array.
+ ----------------------------------------------------------------------------*/
 
 char *QGArray::at( uint index ) const		// checked indexing
 {
@@ -586,7 +581,9 @@ char *QGArray::at( uint index ) const		// checked indexing
     return &shd->data[index];
 }
 
-/*! Expand the array if necessary, and copies (the first part of) its
+/*----------------------------------------------------------------------------
+  \internal
+  Expand the array if necessary, and copies (the first part of) its
   contents from the \e index*zx bytes at \e d.
 
   Returns TRUE if the operation succeeds, FALSE if it runs out of
@@ -594,8 +591,7 @@ char *QGArray::at( uint index ) const		// checked indexing
 
   \warning This function disregards the reference count mechanism.  If
   other QGArrays reference the same data as this, all will be changed.
-
-  */
+ ----------------------------------------------------------------------------*/
 
 bool QGArray::setExpand( uint index, const char *d, uint sz )
 {						// set and expand if necessary
