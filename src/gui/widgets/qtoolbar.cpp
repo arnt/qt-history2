@@ -509,7 +509,8 @@ void QToolBar::resizeEvent(QResizeEvent *)
     QList<int> hidden;
     Qt::Orientation o;
     QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
-    if (box->direction() == QBoxLayout::LeftToRight || box->direction() == QBoxLayout::RightToLeft)
+    if (box->direction() == QBoxLayout::LeftToRight
+	|| box->direction() == QBoxLayout::RightToLeft)
 	o = Qt::Horizontal;
     else
 	o = Qt::Vertical;
@@ -526,8 +527,9 @@ void QToolBar::resizeEvent(QResizeEvent *)
     i = 1;  // tb handle is always the first item in the layout
 
     // only consider the size of the extension if the tb is shrinking
-    // and the size is smaller than the real size hint
-    bool use_extension = (pick(o, size()) < pick(o, d->old_size)) || (pick(o, size()) < pick(o, real_sh));
+    int action_idx = 0;
+    bool use_extension = (pick(o, size()) < pick(o, d->old_size))
+			 || (pick(o, size()) < pick(o, real_sh));
     while (layout()->itemAt(i)) {
 	QWidget *w = layout()->itemAt(i)->widget();
 	if (pick(o, w->pos()) + pick(o, w->size())
@@ -535,20 +537,27 @@ void QToolBar::resizeEvent(QResizeEvent *)
 				   ? pick(o, d->extension->size()) : 0)))
 	{
 	    w->hide();
-	    hidden.append(i-1);
+	    if (w->actions().size() > 0)
+		hidden.append(action_idx);
 	} else {
 	    w->show();
 	}
+	if (w->actions().size() > 0)
+	    ++action_idx;
 	++i;
     }
 
     if (hidden.size() > 0) {
 	if (o == Qt::Horizontal)
  	    d->extension->setGeometry(width() - d->extension->sizeHint().width() - frameWidth(),
-				      frameWidth(), d->extension->sizeHint().width() - frameWidth()*2, height() - frameWidth()*2);
+				      frameWidth(),
+				      d->extension->sizeHint().width() - frameWidth()*2,
+				      height() - frameWidth()*2);
  	else
- 	    d->extension->setGeometry(frameWidth(), height() - d->extension->sizeHint().height() - frameWidth()*2,
-				      width() - frameWidth()*2, d->extension->sizeHint().height());
+ 	    d->extension->setGeometry(frameWidth(),
+				      height() - d->extension->sizeHint().height() - frameWidth()*2,
+				      width() - frameWidth()*2,
+				      d->extension->sizeHint().height());
 
 	QMenu *pop = d->extension->menu();
 	if (!pop) {
@@ -559,11 +568,11 @@ void QToolBar::resizeEvent(QResizeEvent *)
 	}
 	pop->clear();
 	for(int i = 0; i < hidden.size(); ++i) {
-	    // ### needs special handling of custom widgets and combo boxes
-	    if (hidden.at(i) < actions().size())
-		pop->addAction(actions().at(hidden.at(i)));
+	    // ### needs special handling of custom widgets and
+	    // ### e.g. combo boxes - only actions are supported in
+	    // ### the preview
+	    pop->addAction(actions().at(hidden.at(i)));
 	}
-
 	d->extension->show();
     } else if (d->extension->isShown() && hidden.size() == 0) {
 	if (d->extension->menu())
