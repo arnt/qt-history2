@@ -31,7 +31,9 @@ QSize CharacterWidget::sizeHint() const
 
 void CharacterWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    showToolTip(event->globalPos());
+    QPoint widgetPosition = mapFromGlobal(event->globalPos());
+    int key = (widgetPosition.y()/24)*32 + widgetPosition.x()/24;
+    QToolTip::showText(event->globalPos(), QString::number(key), this);
 }
 
 void CharacterWidget::mousePressEvent(QMouseEvent *event)
@@ -82,11 +84,4 @@ void CharacterWidget::paintEvent(QPaintEvent *event)
                              QString(QChar(key)));
         }
     }
-}
-
-void CharacterWidget::showToolTip(const QPoint &position)
-{
-    QPoint widgetPosition = mapFromGlobal(position);
-    int key = (widgetPosition.y()/24)*32 + widgetPosition.x()/24;
-    QToolTip::showText(position, QString::number(key), this);
 }

@@ -31,8 +31,6 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 private:
-    void showToolTip(const QPoint &position);
-
     QFont displayFont;
     int currentKey;
 };
