@@ -173,18 +173,19 @@ void PlugMainWindow::fileClose()
 			}
 		    }
 		}
-	    }
-	    if ( !widgetManager->removeLibrary( file ) ) {
-		QMessageBox::information( this, "Error", tr("Couldn't unload library\n%1").arg( file ) );
-		return;
+		if ( !widgetManager->removeLibrary( file ) ) {
+		    QMessageBox::information( this, "Error", tr("Couldn't unload library\n%1").arg( file ) );
+		    return;
+		}
 	    }
 	} else if ( item->parent() == aplugins ) {
 	    QPlugIn* plugin = actionManager->plugInFromFile( file );
-	    if ( plugin )
+	    if ( plugin ) {
 		info = QString( "\"%1\"").arg( ((QPlugIn*)plugin)->name() );
-	    if ( !actionManager->removeLibrary( file ) ) {
-		QMessageBox::information( this, "Error", tr("Couldn't unload library\n%1").arg( file ) );
-		return;
+		if ( !actionManager->removeLibrary( file ) ) {
+		    QMessageBox::information( this, "Error", tr("Couldn't unload library\n%1").arg( file ) );
+		    return;
+		}
 	    }
 	} else {
 	    qDebug( "Bogus plugin!" );
