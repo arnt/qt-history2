@@ -438,6 +438,18 @@ public:
     operator GUIStyle() const { return gs; }
     bool operator==(GUIStyle s) const { return gs==s; }
     bool operator!=(GUIStyle s) const { return gs!=s; }
+
+    int defaultFrameWidth() const
+    {
+	return pixelMetric( PM_DefaultFrameWidth );
+    }
+    void tabbarMetrics( const QWidget* t,
+		    int& hf, int& vf, int& ov ) const
+    {
+	hf = pixelMetric( PM_TabBarTabHSpace, t );
+	vf = pixelMetric( PM_TabBarTabVSpace, t );
+	ov = pixelMetric( PM_TabBarBaseOverlap, t );
+    }
 #endif
 
     GUIStyle guiStyle() const { return gs; }
