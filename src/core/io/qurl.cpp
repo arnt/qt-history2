@@ -1253,13 +1253,13 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     QURL_SETFLAG(that->stateFlags, Validated | Parsed);
 
 #if defined (QURL_DEBUG)
-    qDebug("QUrl::setUrl(), scheme = %s", QUrl::fromPercentEncoding(__scheme).latin1());
-    qDebug("QUrl::setUrl(), userInfo = %s", QUrl::fromPercentEncoding(__userInfo).latin1());
-    qDebug("QUrl::setUrl(), host = %s", QUrl::fromPercentEncoding(__host).latin1());
+    qDebug("QUrl::setUrl(), scheme = %s", QUrl::fromPercentEncoding(__scheme).toLatin1().constData());
+    qDebug("QUrl::setUrl(), userInfo = %s", QUrl::fromPercentEncoding(__userInfo).toLatin1().constData());
+    qDebug("QUrl::setUrl(), host = %s", QUrl::fromPercentEncoding(__host).toLatin1().constData());
     qDebug("QUrl::setUrl(), port = %i", __port);
-    qDebug("QUrl::setUrl(), path = %s", QUrl::fromPercentEncoding(__path).latin1());
-    qDebug("QUrl::setUrl(), query = %s", QUrl::fromPercentEncoding(__query).ascii());
-    qDebug("QUrl::setUrl(), fragment = %s", QUrl::fromPercentEncoding(__fragment).latin1());
+    qDebug("QUrl::setUrl(), path = %s", QUrl::fromPercentEncoding(__path).toLatin1().constData());
+    qDebug("QUrl::setUrl(), query = %s", QUrl::fromPercentEncoding(__query).toLatin1().constData());
+    qDebug("QUrl::setUrl(), fragment = %s", QUrl::fromPercentEncoding(__fragment).toLatin1().constData());
 #endif
 }
 
@@ -1433,7 +1433,7 @@ QUrl::~QUrl()
     \code
         bool checkUrl(const QUrl &url) {
             if (!url.isValid()) {
-                qDebug("Invalid URL: %s", url.toString().latin1());
+                qDebug(QString("Invalid URL: %1").arg(url.toString()));
                 return false;
             }
 
@@ -2256,7 +2256,7 @@ QString QUrl::fromPercentEncoding(const QByteArray &input)
     *data = '\0';
 
 #if defined QURL_DEBUG
-    qDebug("QUrl::fromPercentEncoding(\"%s\") == \"%s\"", input.data(), QString::fromUtf8(tmp.data()).latin1());
+    qDebug("QUrl::fromPercentEncoding(\"%s\") == \"%s\"", input.data(), QString::fromUtf8(tmp.data()).toLatin1().constData());
 #endif
 
     return QString::fromUtf8(tmp.data());
@@ -2352,7 +2352,7 @@ QByteArray QUrl::toPercentEncoding(const QString &input, const QByteArray &exclu
     }
 
 #if defined QURL_DEBUG
-    qDebug("QUrl::toPercentEncoding(\"%s\") == \"%s\"", input.latin1(), QByteArray(output.data(), length).data());
+    qDebug("QUrl::toPercentEncoding(\"%s\") == \"%s\"", input.toLatin1().constData(), QByteArray(output.data(), length).data());
 #endif
 
     return QByteArray(output.data(), length);
