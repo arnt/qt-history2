@@ -46,7 +46,9 @@
   \brief A class used to create editors used in QSqlTable and QSqlForm
 
   QSqlEditorFactory is used by QSqlTable and QSqlForm to automatically
-  create appropriate editors for a given QSqlField.
+  create appropriate editors for a given QSqlField. For example if the
+  field is a QVariant::String a QLineEdit would be the default editor,
+  whereas a QVariant::Int's default editor would be a QSpinBox.
 
   If you want to create different editors for fields with the same
   data type, subclass QSqlEditorFactory and reimplement the createEditor()
