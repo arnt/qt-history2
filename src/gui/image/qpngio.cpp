@@ -120,9 +120,6 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
                 return;
             image.setAlphaBuffer(true);
 
-            if (QImage::systemByteOrder() == QImage::BigEndian)
-                png_set_swap_alpha(png_ptr);
-
             png_read_update_info(png_ptr, info_ptr);
         } else {
             if (bit_depth == 16)
@@ -199,15 +196,11 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
         if (!(color_type & PNG_COLOR_MASK_ALPHA)
            && !png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
             png_set_filler(png_ptr, 0xff,
-                QImage::systemByteOrder() == QImage::BigEndian ?
-                    PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
+                           QImage::systemByteOrder() == QImage::BigEndian ?
+                           PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
             // We want 4 bytes, but it isn't an alpha channel
         } else {
             image.setAlphaBuffer(true);
-        }
-
-        if (QImage::systemByteOrder() == QImage::BigEndian) {
-            png_set_swap_alpha(png_ptr);
         }
 
         png_read_update_info(png_ptr, info_ptr);
