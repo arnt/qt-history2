@@ -229,7 +229,7 @@ QVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) cons
     For relational columns, \a value must be the index, not the
     display value.
 
-    \sa editStrategy(), data(), submitChanges(), revertRow()
+    \sa editStrategy(), data(), submit(), revertRow()
 */
 bool QSqlRelationalTableModel::setData(const QModelIndex &index, const QVariant &value,
                                        int role)

@@ -459,7 +459,7 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
 
     \endlist
 
-    \sa QVariant::toString().
+    \sa QVariant::toString()
 
 */
 QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const

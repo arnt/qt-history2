@@ -258,16 +258,18 @@ QBrush::QBrush(Qt::GlobalColor color, const QPixmap &pixmap)
 }
 
 /*!
-    Constructs a brush that is a \link shclass.html shallow
-    copy\endlink of \a b.
+    Constructs a copy of \a other.
 */
 
-QBrush::QBrush(const QBrush &b)
+QBrush::QBrush(const QBrush &other)
 {
-    d = b.d;
+    d = other.d;
     d->ref.ref();
 }
 
+/*!
+    Constructs a brush based on the given \a gradient.
+*/
 QBrush::QBrush(const QGradient &gradient)
 {
     const Qt::BrushStyle enum_table[] = {
@@ -374,45 +376,21 @@ QBrush::operator QVariant() const
 */
 
 /*!
-    Sets the brush style to \a s.
-
-    The brush styles are:
-    \table
-    \header \i Pattern \i Meaning
-    \row \i Qt::NoBrush \i will not fill shapes (default).
-    \row \i Qt::SolidPattern  \i solid (100%) fill pattern.
-    \row \i Qt::Dense1Pattern \i11 94% fill pattern.
-    \row \i Qt::Dense2Pattern \i11 88% fill pattern.
-    \row \i Qt::Dense3Pattern \i11 63% fill pattern.
-    \row \i Qt::Dense4Pattern \i11 50% fill pattern.
-    \row \i Qt::Dense5Pattern \i11 37% fill pattern.
-    \row \i Qt::Dense6Pattern \i11 12% fill pattern.
-    \row \i Qt::Dense7Pattern \i11 6% fill pattern.
-    \row \i Qt::HorPattern \i horizontal lines pattern.
-    \row \i Qt::VerPattern \i vertical lines pattern.
-    \row \i Qt::CrossPattern \i crossing lines pattern.
-    \row \i Qt::BDiagPattern \i diagonal lines (directed /) pattern.
-    \row \i Qt::FDiagPattern \i diagonal lines (directed \) pattern.
-    \row \i Qt::DiagCrossPattern \i diagonal crossing lines pattern.
-    \row \i Qt::TexturePattern \i set when a pixmap pattern is being used.
-    \endtable
+    Sets the brush style to \a style.
 
     On Windows, dense and custom patterns cannot be transparent.
-
-    See the \link #details Detailed Description\endlink for a picture
-    of all the styles.
 
     \sa style()
 */
 
-void QBrush::setStyle(Qt::BrushStyle s)
+void QBrush::setStyle(Qt::BrushStyle style)
 {
-    if (d->style == s)
+    if (d->style == style)
         return;
-    if (s == Qt::TexturePattern)
+    if (style == Qt::TexturePattern)
         qWarning("QBrush::setStyle: TexturePattern is for internal use");
-    detach(s);
-    d->style = s;
+    detach(style);
+    d->style = style;
 }
 
 

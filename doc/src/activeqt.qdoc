@@ -26,7 +26,7 @@
     library implementing QObject and QWidget subclasses, \l QAxObject and
     \l QAxWidget, that act as a containers for COM objects and ActiveX 
     controls. If built against a shared Qt library QAxWidget integrates 
-    as a widget plugin into \link designer-manual.book Qt Designer\endlink.
+    as a widget plugin into \l{Qt Designer}.
 
     The module also provides classes QAxScript, QAxScriptManager and 
     QAxScriptEngine that allow using Windows Script Host technologies to 

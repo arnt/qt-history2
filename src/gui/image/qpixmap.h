@@ -125,7 +125,8 @@ public:
     virtual int bytesPerLine() const;
     QRgb *clut() const;
     int numCols() const;
-#elif defined(Q_WS_X11)
+#endif
+#if defined(Q_WS_X11)
     static int x11SetDefaultScreen(int screen);
     void x11SetScreen(int screen);
     const QX11Info &x11Info() const;

@@ -279,7 +279,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
     Returns the sum of \a s1 and \a s2; each component is added separately.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!
@@ -290,7 +290,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
     Returns \a s2 subtracted from \a s1; each component is subtracted
     separately.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!
@@ -300,7 +300,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
     Multiplies \a size by \a coeff and returns the result.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!
@@ -311,7 +311,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
     Multiplies \a size by \a coeff and returns the result.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!
@@ -324,7 +324,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
     Note that the result is truncated.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!
@@ -337,7 +337,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
     Note that the result is truncated.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!
@@ -698,7 +698,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     Returns the sum of \a s1 and \a s2; each component is added separately.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!
@@ -709,7 +709,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
     Returns \a s2 subtracted from \a s1; each component is subtracted
     separately.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!
@@ -720,7 +720,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     Multiplies \a size by \a coeff and returns the result.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!
@@ -731,7 +731,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     Multiplies \a s by \a c and returns the result.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!
@@ -744,7 +744,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     Note that the result is truncated.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!
@@ -757,7 +757,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     Note that the result is truncated.
 
-    \sa scale()
+    \sa QSize::scale()
 */
 
 /*!

@@ -753,7 +753,7 @@ void QSqlTableModel::revertAll()
 /*!
     Reverts all changes for the specified \a row.
 
-    \sa revert(), revertAll(), submitRow(), submitAll()
+    \sa revert(), revertAll(), submit(), submitAll()
 */
 void QSqlTableModel::revertRow(int row)
 {
@@ -810,7 +810,7 @@ QSqlDatabase QSqlTableModel::database() const
     This will immediately select data, use setSort()
     to set a sort order without populating the model with data.
 
-    \sa setSort(), isSortable(), select(), orderByClause()
+    \sa setSort(), select(), orderByClause()
 */
 void QSqlTableModel::sort(int column, Qt::SortOrder order)
 {
@@ -825,7 +825,7 @@ void QSqlTableModel::sort(int column, Qt::SortOrder order)
     affect the current data, to refresh the data using the new
     sort order, call select().
 
-    \sa select(), isSortable(), orderByClause()
+    \sa select(), orderByClause()
 */
 void QSqlTableModel::setSort(int column, Qt::SortOrder order)
 {

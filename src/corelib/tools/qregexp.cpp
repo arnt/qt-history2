@@ -500,7 +500,7 @@
     The equivalent of Perl's \c{/i} option is
     setCaseSensitivity(Qt::CaseInsensitive).
 
-    Perl's \c{/g} option can be emulated using a \l{#cap_in_a_loop}{loop}.
+    Perl's \c{/g} option can be emulated using a \l{cap_in_a_loop}{loop}.
 
     In QRegExp \bold{.} matches any character, therefore all QRegExp
     regexps have the equivalent of Perl's \c{/s} option. QRegExp
@@ -3242,7 +3242,7 @@ static void invalidateEngine(QRegExpPrivate *priv)
     The syntax used to interpret the meaning of the pattern.
 
     \value RegExp A rich Perl-like pattern matching syntax. This is
-    the default. See the \link #details Detailed Description\endlink.
+    the default.
 
     \value Wildcard This provides a simple pattern matching syntax
     similar to that used by shells (command interpreters) for "file
@@ -3707,7 +3707,7 @@ int QRegExp::numCaptures() const
     \c{rx.indexIn(str)}, capturedTexts() will return the list ("12",
     "12"), i.e. the entire match was "12" and the first subexpression
     matched was "12". The correct approach is to use cap() in a
-    \l{#cap_in_a_loop}{loop}.
+    \l{cap_in_a_loop}{loop}.
 
     The order of elements in the string list is as follows. The first
     element is the entire matching string. Each subsequent element

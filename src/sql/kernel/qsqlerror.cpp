@@ -149,7 +149,7 @@ void QSqlError::setDatabaseText(const QString& databaseText)
 /*!
     Returns the error type, or -1 if the type cannot be determined.
 
-    \sa setType() QSqlError::Type
+    \sa setType()
 */
 
 QSqlError::ErrorType QSqlError::type() const

@@ -671,9 +671,6 @@
 /*! \fn T &QMutableListIterator::previous()
     \fn T &QMutableLinkedListIterator::previous()
     \fn T &QMutableVectorIterator::previous()
-    \fn T &QMutableListIterator::peekPrevious() const
-    \fn T &QMutableLinkedListIterator::peekPrevious() const
-    \fn T &QMutableVectorIterator::peekPrevious() const
 
     Returns a reference to the previous item and moves the iterator
     back by one position.
@@ -1457,7 +1454,7 @@
     just after the matching item; otherwise, the iterator is
     positioned at the back of the container.
 
-    \sa findNextKey(), findPrevious()
+    \sa findPrevious()
 */
 
 /*! \fn bool QMapIterator::findPrevious(const T &value)

@@ -13,7 +13,8 @@
 
 #include "qglobal.h"
 
-/*! \class QSqlRelationalDelegate
+/*!
+    \class QSqlRelationalDelegate
     \brief The QSqlRelationalDelegate provides a delegate that is used to
     display and edit data from a QSqlRelationalTableModel.
 
@@ -33,18 +34,40 @@
 
     \image relationaltable.png
 
-    \sa QSqlRelationalTableModel, \link model-view-programming.html Model/View Programming \endlink
+    \sa QSqlRelationalTableModel, {Model/View Programming}
 */
 
 
-/*! \fn QSqlRelationalDelegate::QSqlRelationalDelegate(QObject *parent)
+/*!
+    \fn QSqlRelationalDelegate::QSqlRelationalDelegate(QObject *parent)
+
     Constructs a QSqlRelationalDelegate object with the given \a
     parent.
 */
 
-/*! \fn QSqlRelationalDelegate::~QSqlRelationalDelegate()
+/*!
+    \fn QSqlRelationalDelegate::~QSqlRelationalDelegate()
+
     Destroys the QSqlRelationalDelegate object and frees any
     allocated resources.
 */
 
+/*!
+    \fn QWidget *QSqlRelationalDelegate::createEditor(QWidget *parent,
+                                                      const QStyleOptionViewItem &option,
+                                                      const QModelIndex &index) const
+    \reimp
+*/
 
+/*!
+    \fn void QSqlRelationalDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+    \reimp
+*/
+
+/*!
+    \fn void QSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+                                                  const QModelIndex &index) const
+    \reimp
+*/
+
+#endif // QSQLRELATIONALDELEGATE_H

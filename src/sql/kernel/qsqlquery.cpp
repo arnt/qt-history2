@@ -93,6 +93,8 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
     active query must be navigated to a valid record (so that
     isValid() returns true) before values can be retrieved.
 
+    \target QSqlQuery examples
+
     Navigating records is performed with the following functions:
 
     \list
@@ -791,7 +793,7 @@ void QSqlQuery::clear()
     contain placeholders for binding values. Both Oracle style
     colon-name (e.g., \c{:surname}), and ODBC style (\c{?})
     placeholders are supported; but they cannot be mixed in the same
-    query. See the \link #details Description\endlink for examples.
+    query. See the \l{QSqlQuery examples}{Detailed Description} for examples.
 
     \sa exec(), bindValue(), addBindValue()
 */

@@ -277,8 +277,8 @@
     migration project has a large online help system, we recommend looking
     at the \link helpviewer-example.html Simple HTML Help Browser\endlink
     example for information on how to build an rich text help system with
-    hypertext navigation and full printing capabilities, or using \link
-    assistant.book Qt Assistant\endlink.
+    hypertext navigation and full printing capabilities, or using
+    \l{Qt Assistant}.
 
     Removing the existing \e Help dialog is relatively simple. We remove
     the \c Xmd/Help.h, \c Xmd/HelpP.h and \c Xmd/Help.c files from our
@@ -518,11 +518,9 @@
     dialogs. This project has a single custom dialog: the \e {Page Edit}
     dialog.
 
-    Instead of writing the code ourselves, we use \link
-    designer-manual.book Qt Designer\endlink to design our dialog. 
-    Designing a custom dialog is beyond the scope of
-    this document: see the \link
-    designer-manual.book Qt Designer Manual\endlink if you're unfamiliar
+    Instead of writing the code ourselves, we use Qt Designer
+    to create our dialog.  Designing a custom dialog is beyond the scope of
+    this document: see the \l{Qt Designer Manual} if you're unfamiliar
     with Qt's visual design tool.
 
     \section1 Replacing the \e {Page Edit} Dialog
@@ -709,8 +707,7 @@
     popup-menu heirarchy with \link application.html Qt Main Window
     Classes\endlink.
 
-    We will use \link designer-manual.book Qt Designer\endlink to design
-    our new main window. 
+    We will use Qt Designer to design our new main window. 
 
     \section1 Implementing the \e {Main Window}
 
@@ -1141,8 +1138,8 @@
     QSpinBox to provide a similar look. The only difference is that we
     will not have tabs.
 
-    We use \link designer-manual.book Qt Designer\endlink to add the
-    QTextEdit, QLabel and QSpinBox widgets to the \e {Main Window} widget.
+    We use Qt Designer to add the QTextEdit, QLabel and QSpinBox widgets to
+    the \e {Main Window} widget.
 
     \section1 Data Structure Modifications
 

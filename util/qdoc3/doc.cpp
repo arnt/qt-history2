@@ -1016,7 +1016,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
                             } else {
                                 break;
                             }
-                        } else if (latin1Ch == '_') {
+                        } else if (latin1Ch == '_' || latin1Ch == '@') {
                             ++numStrangeSymbols;
                             ++pos;
                         } else if (latin1Ch == ':' && pos < len - 1

@@ -2439,7 +2439,7 @@ bool QDomNode::isComment() const
     otherwise returns the last child element.  Returns a null element if no
     such child exists.
 
-    \sa lastChildElement() previousChildElement() nextChildElement()
+    \sa lastChildElement() previousSiblingElement() nextSiblingElement()
 */
 
 QDomElement QDomNode::firstChildElement(const QString &tagName) const
@@ -2459,7 +2459,7 @@ QDomElement QDomNode::firstChildElement(const QString &tagName) const
     otherwise returns the first child element. Returns a null element if no
     such child exists.
 
-    \sa firstChildElement() previousChildElement() nextChildElement()
+    \sa firstChildElement() previousSiblingElement() nextSiblingElement()
 */
 
 QDomElement QDomNode::lastChildElement(const QString &tagName) const
@@ -2479,7 +2479,7 @@ QDomElement QDomNode::lastChildElement(const QString &tagName) const
     is non-empty; otherwise returns any next sibling element.
     Returns a null element if no such sibling exists.
 
-    \sa firstChildElement() previousChildElement() lastChildElement()
+    \sa firstChildElement() previousSiblingElement() lastChildElement()
 */
 
 QDomElement QDomNode::nextSiblingElement(const QString &tagName) const
@@ -2499,7 +2499,7 @@ QDomElement QDomNode::nextSiblingElement(const QString &tagName) const
     is non-empty; otherwise returns any previous sibling element.
     Returns a null element if no such sibling exists.
 
-    \sa firstChildElement() nextChildElement() lastChildElement()
+    \sa firstChildElement(), nextSibilingElement(), lastChildElement()
 */
 
 QDomElement QDomNode::previousSiblingElement(const QString &tagName) const
@@ -4438,12 +4438,12 @@ void QDomElement::removeAttributeNS(const QString& nsURI, const QString& localNa
 }
 
 /*!
-    Returns the QDomAttr object that corresponds to the attribute with
-    the local name \a localName and the namespace URI \a nsURI. If no
-    such attribute exists a \link QDomNode::isNull() null
-    attribute\endlink is returned.
+    Returns the QDomAttr object that corresponds to the attribute
+    with the local name \a localName and the namespace URI \a nsURI.
+    If no such attribute exists a \l{QDomNode::isNull()}{null
+    attribute} is returned.
 
-    \sa setAttributeNode() attribute() setAttribute() attributeNodeNS()
+    \sa setAttributeNode() attribute() setAttribute()
 */
 QDomAttr QDomElement::attributeNodeNS(const QString& nsURI, const QString& localName)
 {

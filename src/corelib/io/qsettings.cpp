@@ -1656,7 +1656,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     In addition to groups, QSettings also supports an "array"
     concept. See beginReadArray() and beginWriteArray() for details.
 
-    \section1 Fallback Mechanism
+    \section1 Locations for Storing Settings
 
     Let's assume that you have created a QSettings object with
     the organization domain name "software.org" and the application
@@ -1861,9 +1861,9 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
                          configuration files in INI format.
     \value IniFormat  Store the settings in INI files.
 
-    On Unix/X11, \c NativeFormat and \c IniFormat mean the same
+    On Unix/X11, NativeFormat and IniFormat mean the same
     thing, except that the file extension is different (\c .conf for
-    \c NativeFormat, \c .ini for \c IniFormat).
+    NativeFormat, \c .ini for IniFormat).
 
     The INI file format is a standard Windows file format that Qt
     supports on all platforms.
@@ -1922,8 +1922,8 @@ QSettings::QSettings(const QString &organization, const QString &application, QO
     only access the organization-wide
     \l{Locations for Storing Settings}{locations}.
 */
-QSettings::QSettings(QSettings::Scope scope, const QString &organization,
-                     const QString &application, QObject *parent)
+QSettings::QSettings(Scope scope, const QString &organization, const QString &application,
+                     QObject *parent)
     : QObject(*QSettingsPrivate::create(NativeFormat, scope, organization, application), parent)
 {
 }
@@ -1947,9 +1947,8 @@ QSettings::QSettings(QSettings::Scope scope, const QString &organization,
     only access the organization-wide
     \l{Locations for Storing Settings}{locations}.
 */
-QSettings::QSettings(QSettings::Format format, QSettings::Scope scope,
-                             const QString &organization, const QString &application,
-                             QObject *parent)
+QSettings::QSettings(Format format, Scope scope, const QString &organization,
+                     const QString &application, QObject *parent)
     : QObject(*QSettingsPrivate::create(format, scope, organization, application),
               parent)
 {
@@ -1970,10 +1969,8 @@ QSettings::QSettings(QSettings::Format format, QSettings::Scope scope,
 
     \sa fileName()
 */
-QSettings::QSettings(const QString &fileName, QSettings::Format format,
-                             QObject *parent)
-    : QObject(*QSettingsPrivate::create(fileName, format),
-              parent)
+QSettings::QSettings(const QString &fileName, Format format, QObject *parent)
+    : QObject(*QSettingsPrivate::create(fileName, format), parent)
 {
 }
 
@@ -2002,10 +1999,10 @@ QSettings::QSettings(const QString &fileName, QSettings::Format format,
     If QApplication::setOrganizationDomain() and
     QApplication::setApplicationName() has not been previously called,
     the QSettings object will not be able to read or write any
-    settings, and status() will return \c AccessError.
+    settings, and status() will return AccessError.
 */
 QSettings::QSettings(QObject *parent)
-    : QObject(*QSettingsPrivate::create(QSettings::NativeFormat, QSettings::UserScope,
+    : QObject(*QSettingsPrivate::create(NativeFormat, UserScope,
                                         QCoreApplication::organizationDomain(),
                                         QCoreApplication::applicationName()),
               parent)
@@ -2019,20 +2016,20 @@ QSettings::QSettings(const QString &organization, const QString &application)
     d_ptr->q_ptr = this;
 }
 
-QSettings::QSettings(QSettings::Scope scope, const QString &organization, const QString &application)
+QSettings::QSettings(Scope scope, const QString &organization, const QString &application)
     : d_ptr(QSettingsPrivate::create(QSettings::NativeFormat, scope, organization, application))
 {
     d_ptr->q_ptr = this;
 }
 
-QSettings::QSettings(QSettings::Format format, QSettings::Scope scope,
-                     const QString &organization, const QString &application)
+QSettings::QSettings(Format format, Scope scope, const QString &organization,
+                     const QString &application)
     : d_ptr(QSettingsPrivate::create(format, scope, organization, application))
 {
     d_ptr->q_ptr = this;
 }
 
-QSettings::QSettings(const QString &fileName, QSettings::Format format)
+QSettings::QSettings(const QString &fileName, Format format)
     : d_ptr(QSettingsPrivate::create(fileName, format))
 {
     d_ptr->q_ptr = this;
@@ -2101,7 +2098,7 @@ QString QSettings::fileName() const
 
 /*!
     Returns a status code indicating the first error that was met by
-    QSettings, or \c QSettings::NoError if no error occurred.
+    QSettings, or QSettings::NoError if no error occurred.
 */
 QSettings::Status QSettings::status() const
 {
@@ -2620,7 +2617,7 @@ QVariant QSettings::value(const QString &key, const QVariant &defaultValue) cons
 }
 
 /*!
-    Sets the directory where QSettings stores its \c SystemScope .ini files to \a dir.
+    Sets the directory where QSettings stores its SystemScope \c .ini files to \a dir.
 
     On Unix systems, the default directory is \c /etc/xdg in accordance with FreeDesktop's
     XDG Base Directory Specification. This default can be changed when compiling Qt by passing
@@ -2638,7 +2635,7 @@ void QSettings::setSystemIniPath(const QString &dir)
 }
 
 /*!
-    Sets the directory where QSettings stores its \c UserScope .ini files to \a dir.
+    Sets the directory where QSettings stores its UserScope \c .ini files to \a dir.
 
     On Unix systems, the default directory is read from the \c $XDG_CONFIG_HOME environment
     variable. If this variable is empty or unset, \c $HOME/.config is used, in accordance with
@@ -2649,7 +2646,7 @@ void QSettings::setSystemIniPath(const QString &dir)
 
     A call to this function should precede any instantiations of QSettings objects.
 
-    \sa setUserConfigPath()
+    \sa setSystemIniPath()
 */
 
 void QSettings::setUserIniPath(const QString &dir)

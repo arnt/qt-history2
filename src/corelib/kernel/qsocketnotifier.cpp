@@ -43,6 +43,8 @@
     QUdpSocket provide notification through signals, so there is
     normally no need to use a QSocketNotifier on them.
 
+    \target write notifiers
+
     There are three types of socket notifiers: read, write, and
     exception. You must specify one of these in the constructor.
 
@@ -207,7 +209,7 @@ QSocketNotifier::~QSocketNotifier()
 
     Write notifiers should normally be disabled immediately after the
     activated() signal has been emitted; see discussion of write
-    notifiers in the \link #details class description\endlink above.
+    notifiers in the \l{write notifiers}{class description} above.
 
     \sa isEnabled(), activated()
 */

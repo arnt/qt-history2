@@ -41,7 +41,7 @@
 
     If you are using a shared configuration of Qt enter the \c plugin subdirectory
     and run \c qmake and your make tool to build a plugin that integrates the
-    QAxWidget class into \link designer-manual.book Qt Designer\endlink.
+    QAxWidget class into \l{Qt Designer}.
 
     \section1 Using the library
 
