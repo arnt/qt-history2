@@ -1175,9 +1175,9 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value PM_MenuDesktopFrameWidth
 
     \value PM_CheckListButtonSize  Area (width/height) of the
-        checkbox/radio button in a QCheckListItem
+        checkbox/radio button in a Q3CheckListItem
     \value PM_CheckListControllerSize  Area (width/height) of the
-        controller in a QCheckListItem
+        controller in a Q3CheckListItem
 
     \value PM_DialogButtonsSeparator  Distance between buttons in a dialog buttons widget
     \value PM_DialogButtonsButtonWidth  Minimum width of a button in a dialog buttons widget

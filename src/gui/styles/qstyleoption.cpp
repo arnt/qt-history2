@@ -901,7 +901,7 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     \value Expandable The item has children that can be shown.
     \value MultiLine The item is more than one line tall.
     \value Visible The item is visible.
-    \value ParentControl The item's parent is a type of item control (QCheckListItem::Controller).
+    \value ParentControl The item's parent is a type of item control (Q3CheckListItem::Controller).
 
     \sa features, Q3ListViewItem::isVisible(), Q3ListViewItem::multiLinesEnabled(),
         Q3ListViewItem::isExpandable()

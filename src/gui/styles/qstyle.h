@@ -23,7 +23,6 @@
 
 class QAction;
 class QTab;
-class QCheckListItem;
 class QFontMetrics;
 
 class QStyleHintReturn; // not defined yet
