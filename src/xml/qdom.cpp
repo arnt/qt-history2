@@ -40,7 +40,6 @@
 #ifndef QT_NO_DOM
 
 #include "qxml.h"
-#include "qmap.h"
 #include "qptrlist.h"
 #include "qdict.h"
 #include "qtextstream.h"
