@@ -252,4 +252,19 @@ void QSplashScreen::drawContents(QPainter *painter)
     painter->drawText(r, d->currAlign, d->currStatus);
 }
 
+/*!
+    \fn void QSplashScreen::message(const QString &message, int alignment,
+                                    const QColor &color)
+    \compat
+
+    Use showMessage() instead.
+*/
+
+/*!
+    \fn void QSplashScreen::clear()
+    \compat
+
+    Use clearMessage() instead.
+*/
+
 #endif //QT_NO_SPLASHSCREEN

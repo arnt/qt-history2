@@ -113,10 +113,13 @@
     \enum QTabWidget::TabPosition
 
     This enum type defines where QTabWidget draws the tab row:
-    \value North  above the pages
-    \value South  below the pages
-    \value West  left of the pages
-    \value South  right of the pages
+
+    \value North  The tabs are drawn above the pages.
+    \value South  The tabs are drawn below the pages.
+    \value West  The tabs are drawn to the left of the pages.
+    \value East  The tabs are drawn to the right of the pages.
+    \omitvalue Bottom
+    \omitvalue Top
 */
 
 /*!

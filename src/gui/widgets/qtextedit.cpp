@@ -1471,6 +1471,8 @@ int QTextEdit::heightForWidth(int width) const
 }
 
 /*!
+    Loads the resource specified by the given \a type and \a name.
+
     This function is an extension of QTextDocument::loadResource().
 
     \sa QTextDocument::loadResource
@@ -1787,13 +1789,16 @@ bool QTextEdit::focusNextPrevChild(bool)
     return d->readOnly;
 }
 
-/*! Shows the standard context menu created with createStandardContextMenu().
+/*!
+  Shows the standard context menu created with createStandardContextMenu().
 
   If you do not want the text edit to have a context menu, you can set
   its \l contextMenuPolicy to Qt::NoContextMenu. If you want to
   customize the context menu, reimplement this function. If you want
   to extend the standard context menu, reimplement this function, call
   createStandardContextMenu() and extend the menu returned.
+
+  Information about the event is passed in \a e.
 
     \code
     void TextEdit::contextMenuEvent(QContextMenuEvent * e) {
@@ -2071,10 +2076,11 @@ QMimeData *QTextEdit::createMimeDataFromSelection() const
 };
 
 /*!
-    This function inserts the contents of the MIME data object into the
-    text edit at the current cursor position. It is called whenever text
-    is inserted as the result of a clipboard paste operation, or when
-    the text edit accepts data from a drag and drop operation.
+    This function inserts the contents of the MIME data object, specified
+    by \a source, into the text edit at the current cursor position. It is
+    called whenever text is inserted as the result of a clipboard paste
+    operation, or when the text edit accepts data from a drag and drop
+    operation.
 */
 void QTextEdit::insertFromMimeData(const QMimeData *source)
 {

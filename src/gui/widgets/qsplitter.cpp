@@ -951,12 +951,25 @@ void QSplitter::resizeEvent(QResizeEvent *)
     d->doResize();
 }
 
+/*!
+    \fn void QSplitter::addWidget(QWidget *widget)
+    Adds the given \a widget to the splitter's layout after all the other
+    items.
 
+    \sa insertWidget() widget() indexOf()
+*/
 void QSplitter::addWidget(QWidget *w)
 {
     insertWidget(d->list.count(), w);
 }
 
+/*!
+    \fn void QSplitter::insertWidget(int index, QWidget *widget)
+    Inserts the \a widget specified into the splitter's layout at the
+    given \a index.
+
+    \sa addWidget() indexOf() widget()
+*/
 void QSplitter::insertWidget(int index, QWidget *w)
 {
     QBoolBlocker b(d->blockChildAdd);
@@ -968,6 +981,12 @@ void QSplitter::insertWidget(int index, QWidget *w)
     d->recalc(isVisible());
 }
 
+/*!
+    \fn int QSplitter::indexOf(QWidget *widget) const
+    Returns the index in the splitter's layout of the specified \a widget.
+
+    \sa widget()
+*/
 int QSplitter::indexOf(QWidget *w) const
 {
     for (int i = 0; i < d->list.size(); ++i) {
@@ -978,17 +997,21 @@ int QSplitter::indexOf(QWidget *w) const
     return -1;
 }
 
-/*
-  Returns a new QSplitterHandle which is a child of this splitter. Can
-  be reimplemented in subclasses to return custom handles.
- */
-
+/*!
+  Returns a new splitter handle as a child widget of this splitter.
+  This function can be reimplemented in subclasses to provide support
+  for custom handles.
+*/
 QSplitterHandle *QSplitter::createHandle()
 {
     return new QSplitterHandle(d->orient, this);
 }
 
+/*!
+    Returns the index in the splitter's layout for the given \a handle.
 
+    \sa handle()
+*/
 int QSplitter::indexOfHandle(QSplitterHandle *handle) const
 {
     for (int i = 0; i < d->list.size(); ++i) {
@@ -999,17 +1022,30 @@ int QSplitter::indexOfHandle(QSplitterHandle *handle) const
     return -1;
 }
 
+/*!
+    Returns the handle for the item in the splitter's layout at the
+    given \a index.
+
+    \sa widget()
+*/
 QSplitterHandle *QSplitter::handle(int index) const
 {
     return d->list.at(index)->handle;
 }
 
+/*!
+    Returns the widget at the given \a index in the splitter's layout.
 
+    \sa handle() indexOf() insertWidget()
+*/
 QWidget *QSplitter::widget(int index) const
 {
     return d->list.at(index)->widget;
 }
 
+/*!
+    Returns the number of items contained in the splitter's layout.
+*/
 int QSplitter::count() const
 {
     return d->list.count();
@@ -1094,14 +1130,14 @@ bool QSplitter::event(QEvent *e)
 }
 
 /*!
-  \fn QSplitter::splitterMoved(int pos, int index)
+  \fn QSplitter::splitterMoved(int position, int index)
 
-  This signal is emitted when the splitter handle at index \a index
-  has been moved to positon \a pos.
+  This signal is emitted when the splitter handle at a particular \a index
+  has been moved to the given \a position .
 
   For Arabic, Hebrew and other right-to-left languages the layout is
-  reversed.  \a p is then the distance from the right (or top) edge
-  of the widget.
+  reversed. The \a position is then the distance from the right edge
+  of the widget (or top edge for vertical splitters).
 
   \sa moveSplitter()
 */
@@ -1386,7 +1422,9 @@ void QSplitter::changeEvent(QEvent *ev)
 
 
 
-
+/*!
+    Saves the state of the splitter's layout.
+*/
 QByteArray QSplitter::saveState() const
 {
     QByteArray b;
@@ -1412,6 +1450,9 @@ QByteArray QSplitter::saveState() const
     return b;
 }
 
+/*!
+    Restores the splitter's layout to the \a state specified.
+*/
 bool QSplitter::restoreState(const QByteArray &state)
 {
     int index = 0;

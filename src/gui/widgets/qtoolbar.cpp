@@ -171,7 +171,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
 */
 
 /*!
-    \fn bool QToolBar::isAreaAllowed(Qt::ToolBarArea area)
+    \fn bool QToolBar::isAreaAllowed(Qt::ToolBarArea area) const
 
     Returns true if this toolbar is dockable in the given \a area;
     otherwise returns false.
@@ -185,12 +185,41 @@ int QToolBarPrivate::indexOf(QAction *action) const
 */
 
 /*!
+    \fn void QToolBar::allowedAreasChanged(Qt::ToolBarAreas allowedAreas)
+
+    This signal is emitted when the collection of allowed areas for the
+    toolbar is changed. The new areas in which the toolbar can be positioned
+    are specified by \a allowedAreas.
+
+    \sa QToolBar::allowedAreas
+*/
+
+/*!
     \fn void QToolBar::iconSizeChanged(Qt::IconSize iconSize)
 
     This signal is emitted when the icon size is changed.  The \a
     iconSize parameter holds the toolbar's new icon size.
 
     \sa QToolBar::iconSize QMainWindow::iconSize
+*/
+
+/*!
+    \fn void QToolBar::movableChanged(bool movable)
+
+    This signal is emitted when the toolbar becomes movable or fixed.
+    If the toolbar can be moved, \a movable is true; otherwise it is
+    false.
+
+    \sa QToolBar::movable
+*/
+
+/*!
+    \fn void QToolBar::orientationChanged(Qt::Orientation orientation)
+
+    This signal is emitted when the orientation of the toolbar changes.
+    The new orientation is specified by the \a orientation given.
+
+    \sa QToolBar::orientation
 */
 
 /*!
@@ -269,7 +298,7 @@ bool QToolBar::isMovable() const
 
 /*!
     \property QToolBar::allowedAreas
-    \brief areas where the toolbar may be placed.
+    \brief areas where the toolbar may be placed
 
     The default is \c Qt::AllToolBarAreas.
 */
@@ -287,7 +316,7 @@ Qt::ToolBarAreas QToolBar::allowedAreas() const
 { return d->allowedAreas; }
 
 /*! \property QToolBar::orientation
-    \brief orientation of the toolbar.
+    \brief orientation of the toolbar
 
     The default is \c Qt::Horizontal.
 

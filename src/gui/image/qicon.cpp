@@ -475,6 +475,7 @@ QSize QIcon::sizeHint(Qt::IconSize size)
 static int widths[2] = { 22, 32 };
 static int heights[2] = { 22, 32 };
 
+/*! \compat */
 static QSize pixmapSize(QIcon::Size which) {
     int i = 0;
     if (which == QIcon::Large)
@@ -482,16 +483,21 @@ static QSize pixmapSize(QIcon::Size which) {
     return QSize(widths[i], heights[i]);
 }
 
+/*! \compat */
 QPixmap QIcon::pixmap(Size size, QIcon::Mode mode, QIcon::State state) const
 { return pixmap(::pixmapSize(size), mode, state); }
+/*! \compat */
 QPixmap QIcon::pixmap(Size size, bool enabled, QIcon::State state) const
 { return pixmap(::pixmapSize(size), enabled ? Normal : Disabled, state); }
+/*! \compat */
 QPixmap QIcon::pixmap() const
 { return pixmap(::pixmapSize(Small), Normal, Off); }
 
 
 
 /*!
+  \compat
+
   Set the preferred size for all small or large pixmaps that are
   generated after this call. If \a which is Small, sets the preferred
   size of small generated pixmaps to \a size. Similarly, if \a which is
@@ -514,6 +520,8 @@ void QIcon::setPixmapSize(QIcon::Size which, const QSize &size)
 }
 
 /*!
+    \compat
+
     If \a which is Small, returns the preferred size of a small
     generated icon; if \a which is Large, returns the preferred size
     of a large generated icon.
