@@ -4,7 +4,7 @@
 **
 ** Created : 20000605
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -208,6 +208,7 @@ void QVFb::createMenu(QMenuData *menu)
 
     QPopupMenu *help = new QPopupMenu( this );
     help->insertItem("&About", this, SLOT(about()));
+    help->insertItem("About &Qt", this, SLOT(aboutQt()));
     menu->insertSeparator();
     menu->insertItem( "&Help", help );
 }
@@ -303,6 +304,11 @@ void QVFb::about()
 	"This means you can comfortably use your other development tools such "
 	"as GUI profilers and debuggers."
     );
+}
+
+void QVFb::aboutQt()
+{
+    QMessageBox::aboutQt( this, tr("QVFB") );
 }
 
 void QVFb::configure()

@@ -4,7 +4,7 @@
 **
 ** Created : 20000605
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -45,6 +45,7 @@ protected slots:
     void toggleCursor();
     void changeRate();
     void about();
+    void aboutQt();
 
     void configure();
 
