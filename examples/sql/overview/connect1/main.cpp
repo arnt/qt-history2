@@ -14,14 +14,14 @@
 
 int main( int argc, char *argv[] )
 {
-    QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL6" );
+    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );
 
-    db->setDatabaseName( "pingpong" );
-    db->setUserName( "db" );
-    db->setPassword( "db" );
-    db->setHostName( "silverfish" );
+    defaultDB->setDatabaseName( "sales" );
+    defaultDB->setUserName( "salesuser" );
+    defaultDB->setPassword( "salespw" );
+    defaultDB->setHostName( "saleshost" );
 
-    if ( db->open() ) {
+    if ( defaultDB->open() ) {
         // Database successfully opened; we can now issue SQL commands.
     }
 

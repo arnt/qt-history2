@@ -24,9 +24,9 @@ int main( int argc, char *argv[] )
 	cur.setValue( "surname", "Bloggs" );
 	cur.select( filter, order ); 
 	while ( cur.next() ) {
-	    debug( cur.value( "id" ).toString() + ": " +
-		   cur.value( "surname" ).toString() + " " +
-		   cur.value( "forename" ).toString() );
+	    qDebug( cur.value( "id" ).toString() + ": " +
+		    cur.value( "surname" ).toString() + " " +
+		    cur.value( "forename" ).toString() );
         }
     }
 
@@ -37,11 +37,11 @@ int main( int argc, char *argv[] )
 bool create_connections()
 {
 
-    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QPSQL6" );
-    defaultDB->setDatabaseName( "testdb" );
-    defaultDB->setUserName( "db" );
-    defaultDB->setPassword( "db" );
-    defaultDB->setHostName( "silverfish" );
+    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );
+    defaultDB->setDatabaseName( "sales" );
+    defaultDB->setUserName( "salesuser" );
+    defaultDB->setPassword( "salespw" );
+    defaultDB->setHostName( "saleshost" );
     if ( ! defaultDB->open() ) { 
 	qWarning( "Failed to open sales database: " + 
 		  defaultDB->lastError().driverText() );
@@ -49,11 +49,11 @@ bool create_connections()
 	return false;
     }
 
-    QSqlDatabase *oracle = QSqlDatabase::addDatabase( "QPSQL6", "ORACLE" );
-    oracle->setDatabaseName( "pingpong" );
-    oracle->setUserName( "db" );
-    oracle->setPassword( "db" );
-    oracle->setHostName( "silverfish" );
+    QSqlDatabase *oracle = QSqlDatabase::addDatabase( "QOCI", "ORACLE" );
+    oracle->setDatabaseName( "orders" );
+    oracle->setUserName( "ordersuser" );
+    oracle->setPassword( "orderspw" );
+    oracle->setHostName( "ordershost" );
     if ( ! oracle->open() ) {
 	qWarning( "Failed to open orders database: " + 
 		  oracle->lastError().driverText() );

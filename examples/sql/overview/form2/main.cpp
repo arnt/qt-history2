@@ -78,6 +78,15 @@ int main( int argc, char *argv[] )
 bool create_connections()
 {
 
+>>>> ORIGINAL main.cpp#1
+    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QPSQL6" );
+    defaultDB->setDatabaseName( "testdb" );
+    defaultDB->setUserName( "db" );
+    defaultDB->setPassword( "db" );
+    defaultDB->setHostName( "silverfish" );
+    if ( ! defaultDB->open() ) { 
+	qWarning( "Failed to open sales database: " + 
+==== THEIRS main.cpp#2
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QPSQL6" );
     defaultDB->setDatabaseName( "testdb" );
     defaultDB->setUserName( "db" );
@@ -85,16 +94,25 @@ bool create_connections()
     defaultDB->setHostName( "silverfish" );
     if ( ! defaultDB->open() ) {
 	qWarning( "Failed to open sales database: " +
+==== YOURS main.cpp
+    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );
+    defaultDB->setDatabaseName( "sales" );
+    defaultDB->setUserName( "salesuser" );
+    defaultDB->setPassword( "salespw" );
+    defaultDB->setHostName( "saleshost" );
+    if ( ! defaultDB->open() ) { 
+	qWarning( "Failed to open sales database: " + 
+<<<<
 		  defaultDB->lastError().driverText());
 	qWarning( defaultDB->lastError().databaseText() );
 	return false;
     }
 
     QSqlDatabase *oracle = QSqlDatabase::addDatabase( "QPSQL6", "oracle" );
-    oracle->setDatabaseName( "pingpong" );
-    oracle->setUserName( "db" );
-    oracle->setPassword( "db" );
-    oracle->setHostName( "silverfish" );
+    oracle->setDatabaseName( "orders" );
+    oracle->setUserName( "ordersuser" );
+    oracle->setPassword( "orderspw" );
+    oracle->setHostName( "ordershost" );
     if ( ! oracle->open() ) {
 	qWarning( "Failed to open orders database: " +
 		  oracle->lastError().driverText() );
