@@ -9,6 +9,7 @@
 #if defined(QT_COMPAT)
 #include <qtextcursor.h>
 #include <qtextformat.h>
+#include <qtextobject.h>
 #endif
 
 class QTextCharFormat;
@@ -257,6 +258,18 @@ public:
         c.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, para);
         c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, index);
         setCursor(c);
+    }
+
+    inline QT_COMPAT void getCursorPosition(int *parag, int *index) const
+    {
+        QTextCursor c = cursor();
+        QTextBlock block = c.block();
+
+        *parag = 0;
+        for (QTextBlock tmp = block; tmp.isValid(); tmp = tmp.previous())
+            (*parag)++;
+
+        *index = c.position() - block.position();
     }
 
 #endif
