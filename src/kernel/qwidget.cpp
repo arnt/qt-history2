@@ -2646,7 +2646,6 @@ void QWidget::setPalette( const QPalette &palette )
     QPalette old = pal;
     pal = palette;
     setBackgroundFromMode();
-    paletteChange( old );
     QEvent ev( QEvent::PaletteChange );
     QApplication::sendEvent( this, &ev );
     if ( children() ) {
@@ -2659,6 +2658,7 @@ void QWidget::setPalette( const QPalette &palette )
 		QApplication::sendEvent( w, &e );
 	}
     }
+    paletteChange( old );
     update();
 }
 
@@ -2728,7 +2728,6 @@ void QWidget::setFont( const QFont &font )
     // make sure the font set on this widget is associated with the correct screen
     fnt.x11SetScreen( x11Screen() );
 #endif
-    fontChange( old );
     if ( children() ) {
 	QEvent e( QEvent::ParentFontChange );
 	QObjectListIt it( *children() );
@@ -2741,6 +2740,7 @@ void QWidget::setFont( const QFont &font )
     }
     if ( hasFocus() )
 	setFontSys();
+    fontChange( old );
 }
 
 void QWidget::unsetFont()
