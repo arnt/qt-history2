@@ -97,7 +97,7 @@ public:
 
 static QTextCodec* codec(MYSQL* mysql)
 {
-#if MYSQL_VERSION_ID >= 40000
+#if MYSQL_VERSION_ID >= 32321
     QTextCodec* heuristicCodec = QTextCodec::codecForName(mysql_character_set_name(mysql));
     if (heuristicCodec)
         return heuristicCodec;
@@ -150,7 +150,6 @@ static QVariant::Type qDecodeMYSQLType(int mysqltype, uint flags)
     case FIELD_TYPE_TINY_BLOB :
     case FIELD_TYPE_MEDIUM_BLOB :
     case FIELD_TYPE_LONG_BLOB :
- //       type = (flags & BINARY_FLAG) ? QVariant::ByteArray : QVariant::CString; ### FIXME
         type = QVariant::ByteArray;
         break;
     default:
