@@ -394,6 +394,8 @@ int QDate::daysInYear() const
 }
 
 /*!
+  Computes the ISO 8601 Week Number.
+
   If it returns TRUE, then the ISO 8601 week number in \a *week and year number in
   \a *year for this date.  Otherwise it returns FALSE, and \a *week and \a *year are
   undefined.
