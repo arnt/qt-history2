@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#181 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#182 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2405,7 +2405,7 @@ QImageIO::QImageIO()
 {
     iostat = 0;
     iodev  = 0;
-    params = descr = 0;
+    params = 0;
 }
 
 /*!
@@ -2417,7 +2417,7 @@ QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
 {
     iostat = 0;
     iodev  = ioDevice;
-    params = descr = 0;
+    params = 0;
 }
 
 /*!
@@ -2429,7 +2429,7 @@ QImageIO::QImageIO( const QString &fileName, const char* format )
 {
     iostat = 0;
     iodev  = 0;
-    params = descr = 0;
+    params = 0;
 }
 
 /*!
@@ -2440,8 +2440,6 @@ QImageIO::~QImageIO()
 {
     if ( params )
 	delete [] params;
-    if ( descr )
-	delete [] descr;
 }
 
 
@@ -2716,9 +2714,7 @@ void QImageIO::setParameters( const char *parameters )
 
 void QImageIO::setDescription( const QString &description )
 {
-    if ( descr )
-	delete [] descr;
-    descr = qstrdup( description );
+    descr = description;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#119 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#120 $
 **
 ** Implementation of QButton widget class
 **
@@ -105,12 +105,17 @@ QTimer *QButton::timer()
     shortcutChar("E&xit") returns 'x'.
 */
 
-static int shortcutChar( const QString &str )
+static QChar shortcutChar( const QString &str )
 {
-    QString p = str ? strchr(str, '&') : 0;
-    while ( !p.isEmpty() && p[1] == '&' )
-	p = strchr( p+2, '&' );
-    return (!p.isEmpty() && p[1] && p[1] != '&') ? p[1] : QChar();
+    int p = 0;
+    while ( p >= 0 ) {
+	p = str.find('&',p);
+	if ( p < 0 )
+	    return QChar::null;
+	p++;
+	if ( str[p] != '&' )
+	    return str[p];
+    }
 }
 
 
@@ -303,8 +308,8 @@ void QButton::setText( const QString &text )
 {
     if ( btext == text )
 	return;
-    int oldAccelChar = shortcutChar(btext);
-    int newAccelChar = shortcutChar(text);
+    QChar oldAccelChar = shortcutChar(btext);
+    QChar newAccelChar = shortcutChar(text);
     btext = text;
     if ( bpixmap ) {
 	delete bpixmap;
@@ -312,10 +317,15 @@ void QButton::setText( const QString &text )
     }
     if ( autoresize )
 	adjustSize();
-    if ( oldAccelChar && !newAccelChar && !accel() )
+    if ( oldAccelChar!=QChar::null
+	&& newAccelChar==!QChar::null && !accel() )
 	setAccel( 0 );
-    if ( newAccelChar )
-	setAccel( ALT+toupper(newAccelChar) );
+
+    // ##### Just ASCII accelerators for now
+    char ascii = newAccelChar;
+    if ( ascii )
+	setAccel( ALT+toupper(ascii) );
+
     repaint( FALSE );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#37 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#38 $
 **
 ** Definition of QTextStream class
 **
@@ -40,7 +40,9 @@ public:
 	Utf8,
 	UnicodeBigEndian,
 	UnicodeLittleEndian,
-	Unicode=UnicodeBigEndian,
+	// C3 - A process shall interpret a Unicode value ...
+	//      by most significant byte first... -- The Unicode Standard 2.0
+	Unicode=UnicodeBigEndian
     };
 
     void	 setEncoding(Encoding);

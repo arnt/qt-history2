@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#268 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#269 $
 **
 ** Implementation of QWidget class
 **
@@ -837,10 +837,6 @@ void QWidget::createExtra()
 void QWidget::deleteExtra()
 {
     if ( extra ) {				// if exists
-	if ( extra->caption )			// Avoid purify complaint.
-	    delete [] extra->caption;
-	if ( extra->iconText )			// Avoid purify complaint.
-	    delete [] extra->iconText;
 	delete extra->icon;
 	delete extra->bg_pix;
 	delete extra->focusData;
@@ -1803,7 +1799,7 @@ const QCursor &QWidget::cursor() const
 
 QString QWidget::caption() const
 {
-    return extra ? extra->caption : 0;
+    return extra ? extra->caption : QString::null;
 }
 
 /*!
@@ -1823,7 +1819,7 @@ const QPixmap *QWidget::icon() const
 
 QString QWidget::iconText() const
 {
-    return extra ? extra->iconText : 0;
+    return extra ? extra->iconText : QString::null;
 }
 
 

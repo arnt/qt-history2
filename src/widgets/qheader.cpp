@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#54 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -35,7 +35,7 @@ static const int QH_MARGIN = 4;
 struct QHeaderData
 {
     QArray<QCOORD>	sizes;
-    QArray<char*>	labels;
+    QArray<QString>	labels;
     QArray<int>	        a2l;
     QArray<int>	        l2a;
 
@@ -98,9 +98,6 @@ QHeader::QHeader( int n,  QWidget *parent, const char *name )
  */
 QHeader::~QHeader()
 {
-    for ( int i=0; i < count(); i++ )
-	if ( data->labels[i] )                      // Avoid purify complaints
-	    delete [] (char *)data->labels[i];
     delete data;
 }
 
@@ -209,7 +206,7 @@ void QHeader::init( int n )
     data->clicks.resize(n+1);
     data->resize.resize(n+1);
     for ( int i = 0; i < n ; i ++ ) {
-	data->labels[i] = 0;
+	data->labels[i] = QString::null;
 	data->sizes[i] = 88;
 	data->a2l[i] = i;
 	data->l2a[i] = i;
@@ -233,7 +230,7 @@ void QHeader::init( int n )
     }
     handleIdx = 0;
     //################
-    data->labels[n] = 0;
+    data->labels[n] = QString::null;
     data->sizes[n] = 0;
     data->a2l[n] = 0;
     data->l2a[n] = 0;
@@ -424,7 +421,7 @@ void QHeader::paintCell( QPainter *p, int row, int col )
 	p->setWorldMatrix( m );
     }
 
-    if ( s ) {
+    if ( !s.isNull() ) {
 	p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
     } else {
 	QString str;
@@ -610,9 +607,7 @@ QRect QHeader::sRect( int i )
 void QHeader::setLabel( int i, const QString &s, int size )
 {
     if ( i >= 0 && i < count() ) {
-	if ( data->labels[i] )                      // Avoid purify complaints
-	    delete [] (char *)data->labels[i];
-	data->labels[i] = qstrdup(s);
+	data->labels[i] = s;
 	if ( size >= 0 )
 	    data->sizes[i] = size;
     }
@@ -638,7 +633,7 @@ int QHeader::addLabel( const QString &s, int size )
 {
     int n = count() + 1; //###########
     data->labels.resize( n + 1 );
-    data->labels[n-1] = qstrdup(s);
+    data->labels[n-1] = s;
     data->sizes.resize( n + 1 );
     if ( size < 0 ) {
 	QFontMetrics fm = fontMetrics();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#81 $
 **
 ** Implementation of QRadioButton class
 **
@@ -146,7 +146,7 @@ QSize QRadioButton::sizeHint() const
 	sz.setHeight( bmsz.height() );
 
     return sz + QSize( bmsz.width()
-			+ (text() ? gutter+margin : 0),
+			+ (text().isEmpty() ? 0 : gutter+margin),
 			4 );
 }
 

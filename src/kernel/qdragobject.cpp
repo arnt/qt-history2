@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#49 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -510,6 +510,10 @@ QTextDrag::~QTextDrag()
 */
 void QTextDrag::setText( const QString &text )
 {
+    // ##### No Unicode yet - XDND needs charset info,
+    // ##### or we could use "text/plain; Charset=Unicode-1-1..."
+    // ##### Soon though, we will use "text/utf16" and damn the torpedoes.
+
     int l = qstrlen(text);
     QByteArray tmp(l);
     memcpy(tmp.data(),text,l);

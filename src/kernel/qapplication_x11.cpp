@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#336 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#337 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -476,7 +476,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
     ulong  nitems, after = 1;
     long offset = 0;
     char *data;
-    QString res;
+    Q1String res;
     while (after > 0) {
 	XGetWindowProperty( appDpy, appRootWin, qt_resource_manager,
 			    offset, 256, FALSE, AnyPropertyType,
@@ -486,8 +486,8 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	XFree(data);
     }
     int l = 0, r, i;
-    QString item, key, value;
-    QString resFont, resFG, resBG;
+    Q1String item, key, value;
+    Q1String resFont, resFG, resBG;
     while( (unsigned) l < res.length()) {
 	r = res.find( "\n", l );
 	if ( r < 0 )
@@ -581,7 +581,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		argv[j++] = argv[i];
 		continue;
 	    }
-	    QString arg = argv[i];
+	    Q1String arg = argv[i];
 	    if ( arg == "-display" ) {
 		if ( ++i < argc )
 		    appDpyName = argv[i];
@@ -610,7 +610,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    } else if ( stricmp(arg, "-style=motif") == 0 ) {
 		QApplication::setStyle( MotifStyle );
 	    } else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
-		QString s = argv[++i];
+		Q1String s = argv[++i];
 		s = s.lower();
 		if ( s == "windows" )
 		    QApplication::setStyle( WindowsStyle );
@@ -625,7 +625,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		    qt_ncols_option = QMAX(0,atoi(argv[i]));
 	    } else if ( arg == "-visual" ) {  // xv and netscape use this name
 		if ( ++i < argc ) {
-		    QString s = QString(argv[i]).lower();
+		    Q1String s = Q1String(argv[i]).lower();
 		    if ( s == "truecolor" ) {
 			qt_visual_option = TrueColor;
 		    } else {
@@ -651,7 +651,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 #if defined(DEBUG) && defined(_OS_LINUX_)
 	if ( !appNoGrab && !appDoGrab ) {
-	    QString s;
+	    Q1String s;
 	    s.sprintf( "/proc/%d/cmdline", getppid() );
 	    QFile f( s );
 	    if ( f.open( IO_ReadOnly ) ) {
@@ -3092,17 +3092,17 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
 };
 
 
-static QIntDict<void>    *keyDict   = 0;
-static QIntDict<QString> *asciiDict = 0;
+static QIntDict<void>    *keyDict  = 0;
+static QIntDict<QString> *textDict = 0; // ##### Just ASCII now
 
 static void deleteKeyDicts()
 {
     if ( keyDict )
 	delete keyDict;
     keyDict = 0;
-    if ( asciiDict )
-	delete asciiDict;
-    asciiDict = 0;
+    if ( textDict )
+	delete textDict;
+    textDict = 0;
 }
 
 
@@ -3110,7 +3110,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 {
     int	   type;
     int	   code = -1;
-    char   ascii[16];
+    char   ascii[16]; // ##### Needs to be Unicode (XIM work)
     int	   count = 0;
     int	   state;
     KeySym key = 0;
@@ -3118,8 +3118,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     if ( !keyDict ) {
 	keyDict = new QIntDict<void>( 13 );
 	keyDict->setAutoDelete( FALSE );
-	asciiDict = new QIntDict<QString>( 13 );
-	asciiDict->setAutoDelete( TRUE );
+	textDict = new QIntDict<QString>( 13 );
+	textDict->setAutoDelete( TRUE );
 	qAddPostRoutine( deleteKeyDicts );
     }
 
@@ -3166,14 +3166,14 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	if ( count < 15 )
 	    ascii[count] = '\0';
 	if ( count )
-	    asciiDict->replace( keycode, new QString(ascii) );
+	    textDict->replace( keycode, new QString(ascii) );
     } else {
 	key = (int)(long)keyDict->find( keycode );
 	if ( key )
 	    keyDict->take( keycode );
-	QString * s = asciiDict->find( keycode );
+	QString * s = textDict->find( keycode );
 	if ( s ) {
-	    asciiDict->take( keycode );
+	    textDict->take( keycode );
 	    qstrcpy( ascii, *s );
 	    count = qstrlen( ascii );
 	    delete s;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#32 $
 **
 ** Implementation of draw utilities
 **
@@ -513,7 +513,7 @@ QRect qItemRect( QPainter *p, GUIStyle gs,
 	else if ( (flags & AlignHCenter) == AlignHCenter )
 	    x += w/2 - pixmap->width()/2;
 	result = QRect(x, y, pixmap->width(), pixmap->height());
-    } else if ( text && p ) {
+    } else if ( !text.isNull() && p ) {
 	result = p->boundingRect( x, y, w, h, flags, text, len );
 	if ( gs == WindowsStyle && !enabled ) {
 	    result.setWidth(result.width()+1);

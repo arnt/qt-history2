@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#125 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -358,7 +358,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
     if ( capt ) {
-	extra->caption = 0;
+	extra->caption = QString::null;
 	setCaption( capt );
     }
     if ( showIt )
@@ -471,11 +471,8 @@ void QWidget::setCaption( const QString &caption )
     if ( caption && extra && extra->caption &&
 	 !strcmp( extra->caption, caption ) )
 	return; // for less flicker
-    if ( extra && extra->caption )
-	delete [] extra->caption;
-    else
-	createExtra();
-    extra->caption = qstrdup( caption );
+    createExtra();
+    extra->caption = caption;
     SetWindowText( winId(), extra->caption );
 }
 
@@ -542,11 +539,8 @@ void QWidget::setIcon( const QPixmap &pixmap )
 
 void QWidget::setIconText( const QString &iconText )
 {
-    if ( extra && extra->iconText )
-	delete [] extra->iconText;
-    else
-	createExtra();
-    extra->iconText = qstrdup( iconText );
+    createExtra();
+    extra->iconText = iconText;
 }
 
 

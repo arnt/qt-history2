@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#154 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#155 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -193,9 +193,9 @@ QLineEdit::~QLineEdit()
 void QLineEdit::setText( const QString &text )
 {
     QString oldText( tbuf );
-    tbuf = text ? text : QString("");
+    tbuf = text;
     if ( (int)tbuf.length() > maxLen ) {
-	tbuf.resize( maxLen+1 );
+	tbuf.truncate( maxLen );
 	tbuf[maxLen] = '\0';
     }
     offset    = 0;
@@ -378,9 +378,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
     if ( e->ascii() >= 32 &&
 	 e->key() != Key_Delete &&
 	 e->key() != Key_Backspace ) {
-	QString t( 2 );
-	t[0] = e->ascii();
-	t[1] = '\0';
+	QString t;
+	t += e->ascii();
 	insert( t );
 	return;
     }
@@ -877,7 +876,7 @@ void QLineEdit::cursorRight( bool mark, int steps )
 	cursorLeft( mark, -steps );
 	return;
     }
-    int len = (int)strlen( tbuf );
+    int len = (int)tbuf.length();
     if ( cursorPos < len || (!mark && hasMarkedText()) ) {
 	int minP = QMIN( cursorPos, minMark() );
 	cursorPos += steps;
@@ -928,7 +927,7 @@ void QLineEdit::del()
     if ( hasMarkedText() ) {
 	test.remove( minMark(), maxMark() - minMark() );
 	validateAndSet( test, minMark(), minMark(), minMark() );
-    } else if ( cursorPos != (int)strlen(tbuf) ) {
+    } else if ( cursorPos != (int)tbuf.length() ) {
 	test.remove( cursorPos, 1 );
 	validateAndSet( test, minMark(), minMark(), minMark() );
     }
@@ -973,7 +972,7 @@ void QLineEdit::home( bool mark )
 
 void QLineEdit::end( bool mark )
 {
-    int tlen = strlen( tbuf );
+    int tlen = tbuf.length();
     if ( cursorPos != tlen || (!mark && hasMarkedText()) ) {
 	int mo = showLastPartOffset( tbuf, offset, fontMetrics(),
 				     width() - (frame() ? 8 : 4) );

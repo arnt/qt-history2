@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#66 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#67 $
 **
 ** Implementation of QFile class
 **
@@ -319,7 +319,7 @@ bool QFile::open( int m )
 	if ( isAsynchronous() )
 	    oflags |= OPEN_ASYNC;
 #endif
-	fd = OPEN( (QString)fn, oflags, 0666 );
+	fd = OPEN( fn, oflags, 0666 );
 	if ( fd != -1 ) {			// open successful
 	    STATBUF st;
 	    FSTAT( fd, &st );
@@ -329,7 +329,7 @@ bool QFile::open( int m )
 	    ok = FALSE;
 	}
     } else {					// buffered file I/O
-	QString perm = 0;
+	Q1String perm;
 	char perm2[4];
 	bool try_create = FALSE;
 	if ( flags() & IO_Append ) {		// append to end of file?
@@ -391,7 +391,7 @@ bool QFile::open( int m )
   \code
     #include <stdio.h>
 
-    void printError( QString msg )
+    void printError( const char* msg )
     {
 	QFile f;
 	f.open( IO_WriteOnly, stderr );

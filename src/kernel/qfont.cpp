@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#101 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -890,7 +890,7 @@ QString QFont::substitute( const QString &familyName )
 {
     initFontSubst();
     QString f = fontSubst->find( familyName );
-    return f ? f : familyName;
+    return f.isNull() ? familyName : f;
 }
 
 /*!
@@ -1815,7 +1815,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
 				  int *tabarray, char **intern ) const
 {
     if ( len < 0 )
-	len = strlen( str );
+	len = str.length();
 
     int tabarraylen=0;
     if (tabarray)

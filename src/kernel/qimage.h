@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#64 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#65 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -199,7 +199,7 @@ private:
     QIODevice  *iodev;				// IO device
     QString	fname;				// file name
     char       *params;				// image parameters
-    char       *descr;				// image description
+    QString     descr;				// image description
 
 private:	// Disabled copy constructor and operator=
     QImageIO( const QImageIO & );

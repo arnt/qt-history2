@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#261 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#262 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -688,14 +688,10 @@ void QWidget::setCursor( const QCursor &cursor )
 
 void QWidget::setCaption( const QString &caption )
 {
-    if ( caption && extra && extra->caption &&
-	 !strcmp( extra->caption, caption ) )
+    if ( extra && extra->caption == caption )
 	return; // for less flicker
-    if ( extra && extra->caption )
-	delete [] extra->caption;
-    else
-	createExtra();
-    extra->caption = qstrdup( caption );
+    createExtra();
+    extra->caption = caption;
     XStoreName( dpy, winId(), extra->caption );
 }
 
@@ -747,11 +743,8 @@ void QWidget::setIcon( const QPixmap &pixmap )
 
 void QWidget::setIconText( const QString &iconText )
 {
-    if ( extra && extra->iconText )
-	delete [] extra->iconText;
-    else
-	createExtra();
-    extra->iconText = qstrdup( iconText );
+    createExtra();
+    extra->iconText = iconText;
     XSetIconName( dpy, winId(), extra->iconText );
 }
 
@@ -1618,7 +1611,7 @@ void QWidget::scroll( int dx, int dy )
 
 
 /*!
-  \overload void QWidget::drawText( const QPoint &pos, QString str )
+  \overload void QWidget::drawText( const QPoint &pos, const QString& str )
 */
 
 /*!

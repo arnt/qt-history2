@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#63 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#64 $
 **
 ** Implementation of QTextStream class
 **
@@ -474,7 +474,9 @@ QTextStream::~QTextStream()
   The availables modes are:
   <ol>
     <li>Ascii - 8-bit text
-    <li>Unicode - Unicode text
+    <li>Utf7 - UTF-7 format (not yet supported)
+    <li>Utf8 - UTF-8 format (not yet supported)
+    <li>Unicode - Unicode text, unspecified order
     <li>UnicodeBigEndian - big endian Unicode text
     <li>UnicodeLittleEndian - little endian Unicode text
   </ol>

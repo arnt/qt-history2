@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#154 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#155 $
 **
 ** Implementation of QListBox widget class
 **
@@ -43,7 +43,7 @@ int QLBItemList::compareItems( GCI i1, GCI i2)
 {
     QListBoxItem *lbi1 = (QListBoxItem *)i1;
     QListBoxItem *lbi2 = (QListBoxItem *)i2;
-    return strcmp( lbi1->text(), lbi2->text() );
+    return QString::compare( lbi1->text(), lbi2->text() );
 }
 
 
@@ -631,12 +631,6 @@ void QListBox::insertItem( const QString &text, int index )
 {
     if ( !checkInsertIndex( "insertItem", name(), count(), &index ) )
 	return;
-    if ( !text ) {
-#if defined ( CHECK_NULL )
-	ASSERT( text != 0 );
-#endif
-	return;
-    }
     insert( new QListBoxText(text), index, TRUE );
     updateNumRows( FALSE );
     if ( currentItem() < 0 && numRows() > 0 && hasFocus() )
@@ -690,13 +684,6 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
 
 void QListBox::inSort( const QListBoxItem *lbi )
 {
-    if ( !lbi->text() ) {
-#if defined (CHECK_NULL)
-	ASSERT( lbi->text() != 0 );
-#endif
-	return;
-    }
-
     itemList->inSort( lbi );
     int index = itemList->at();
     itemList->remove();
@@ -710,12 +697,6 @@ void QListBox::inSort( const QListBoxItem *lbi )
 
 void QListBox::inSort( const QString &text )
 {
-    if ( !text ) {
-#if defined ( CHECK_NULL )
-	ASSERT( text != 0 );
-#endif
-	return;
-    }
     QListBoxText lbi( text );
     itemList->inSort(&lbi);
     int index = itemList->at();
@@ -747,7 +728,7 @@ void QListBox::removeItem( int index )
     if ( count() == 0 ) {
 	current = -1;
     } else if ( currentChanged ) {
-	QString tmp = 0;
+	QString tmp;
 	if ( item( currentItem() ) )
 	    tmp = item( currentItem() )->text();
 	emit highlighted( current );
@@ -919,7 +900,7 @@ void QListBox::setCurrentItem( int index )
     current	   = index;
     updateItem( oldCurrent );
     updateItem( current, FALSE ); // Do not clear, current marker covers item
-    QString tmp = 0;
+    QString tmp;
     if ( item( currentItem() ) )
 	tmp = item( currentItem() )->text();
     emit highlighted( current );

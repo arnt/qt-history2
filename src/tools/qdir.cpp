@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#60 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#61 $
 **
 ** Implementation of QDir class
 **
@@ -1241,7 +1241,7 @@ QString QDir::cleanDirPath( const QString &filePath )
 
 bool QDir::isRelativePath( const QString &path )
 {
-    int len = strlen( path );
+    int len = path.length();
     if ( len == 0 )
 	return TRUE;
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)

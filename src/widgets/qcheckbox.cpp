@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#78 $
 **
 ** Implementation of QCheckBox class
 **
@@ -126,7 +126,7 @@ QSize QCheckBox::sizeHint() const
 	sz.setHeight( bmsz.height() );
 
     return sz + QSize( bmsz.width() + (style()==MotifStyle ? 1 : 0)
-			+ (text() ? 4 + extraWidth(gs) : 0),
+			+ (text().isEmpty() ? 0 : 4 + extraWidth(gs)),
 			4 );
 }
 

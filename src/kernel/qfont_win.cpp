@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#63 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -647,7 +647,7 @@ int QFontMetrics::width( char ch ) const
 int QFontMetrics::width( const QString &str, int len ) const
 {
     if ( len < 0 )
-	len = strlen( str );
+	len = str.length();
     SIZE s;
     if ( type() == FontInternal ) {
 	GetTextExtentPoint( u.f->dc(), str, len, &s );
@@ -660,7 +660,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
     if ( len < 0 )
-	len = strlen( str );
+	len = str.length();
     SIZE s;
     TEXTMETRIC *tm = TM;
     GetTextExtentPoint32( hdc(), str, len, &s );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#169 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#170 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -746,17 +746,17 @@ void QPopupMenu::updateSize()
 	    itemHeight = motifSepHeight;
 	else if ( mi->pixmap() ) {
 	    itemHeight = mi->pixmap()->height() + 2*motifItemFrame;
-	    if ( mi->text() ) {
+	    if ( mi->text().isNull() ) {
+		w = mi->pixmap()->width();	// pixmap only
+	    } else {
 		if ( gs == MotifStyle )
 		    itemHeight += 2;		// Room for check rectangle
 		hasTextAndPixmapItem = TRUE; // has text, w will be set below
 		if ( mi->pixmap()->width() > max_pm_width )
 		    max_pm_width = mi->pixmap()->width();
-	    } else {
-		w = mi->pixmap()->width();	// pixmap only
 	    }
 	}
-	if ( mi->text() && !mi->isSeparator() ) {
+	if ( !mi->text().isNull() && !mi->isSeparator() ) {
 	    if ( itemHeight < cellh )
 		itemHeight = cellh;
 	    QString s = mi->text();
@@ -772,7 +772,7 @@ void QPopupMenu::updateSize()
 	}
 	height += itemHeight;
 #if defined(CHECK_NULL)
-	if ( !mi->text() && !mi->pixmap() && !mi->isSeparator() )
+	if ( mi->text().isNull() && !mi->pixmap() && !mi->isSeparator() )
 	    warning( "QPopupMenu: (%s) Popup has invalid menu item",
 		     name( "unnamed" ) );
 #endif
@@ -846,7 +846,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	    }
 	    int k = mi->key();
 	    autoaccel->insertItem( k, mi->id() );
-	    if ( mi->text() ) {
+	    if ( !mi->text().isNull() ) {
 		QString s = mi->text();
 		int i = s.find('\t');
 		QString t = accel_str( k );
@@ -1029,7 +1029,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
 				 g, TRUE, 1, &b );
 	    } else if ( gs == WindowsStyle ||
-			mi->pixmap() && mi->text() ) {
+			mi->pixmap() && !mi->text().isNull() ) {
 		QBrush b( g.background() );
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
 				 g, TRUE, 1, &b );
@@ -1039,7 +1039,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 			    g.background(), 1, 0 );
 	}		
 
-	if ( mi->text() && mi->pixmap() ) {		// draw pixmap
+	if ( !mi->text().isNull() && mi->pixmap() ) {		// draw pixmap
 	    QPixmap *pixmap = mi->pixmap();
 	    int pixw = pixmap->width();
 	    int pixh = pixmap->height();
@@ -1131,8 +1131,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     }
 
     int x = motifItemHMargin + ( isCheckable() ? 0 : motifItemFrame);
-    if ( mi->text() ) {			// draw text
-	QString s = mi->text();
+    QString s = mi->text();
+    if ( !s.isNull() ) {			// draw text
 	int t = s.find( '\t' );
 	int m = motifItemVMargin;
 	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#91 $
+** $Id: //depot/qt/main/src/moc/moc.y#92 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,9 +37,9 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#91 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#92 $");
 
-static QString rmWS( const char * );
+static Q1String rmWS( const char * );
 
 enum AccessPerm { _PRIVATE, _PROTECTED, _PUBLIC };
 
@@ -52,8 +52,8 @@ struct Argument					// single arg meta data
 	  if ( leftType == "void" && rightType.isEmpty() )
 	      leftType = "";
 	}
-    QString leftType;
-    QString rightType;
+    Q1String leftType;
+    Q1String rightType;
 };
 
 Q_DECLARE(QListM,Argument);
@@ -67,9 +67,9 @@ public:
 struct Function					// member function meta data
 {						//   used for signals and slots
     AccessPerm accessPerm;
-    QString    qualifier;			// const or volatile
-    QString    name;
-    QString    type;
+    Q1String    qualifier;			// const or volatile
+    Q1String    name;
+    Q1String    type;
     int	       lineNo;
     ArgList   *args;
     Function() { args=0; }
@@ -113,7 +113,7 @@ AccessPerm tmpAccessPerm;			// current access permission
 AccessPerm subClassPerm;			// current access permission
 bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
-QString	   tmpExpression;
+Q1String	   tmpExpression;
 
 const int  formatRevision = 2;			// moc output format revision
 
@@ -773,17 +773,17 @@ void 	  init();				// initialize
 void 	  initClass();				// prepare for new class
 void 	  generateClass();			// generate C++ code for class
 void 	  initExpression();			// prepare for new expression
-QString	  combinePath( const char *, const char * );
+Q1String  combinePath( const char *, const char * );
 
-QString	  fileName;				// file name
-QString	  outputFile;				// output file name
-QString   includeFile;				// name of #include file
-QString	  includePath;				// #include file path
-QString	  qtPath;				// #include qt file path
+Q1String  fileName;				// file name
+Q1String  outputFile;				// output file name
+Q1String  includeFile;				// name of #include file
+Q1String  includePath;				// #include file path
+Q1String  qtPath;				// #include qt file path
 bool	  noInclude     = FALSE;		// no #include <filename>
 bool	  generatedCode = FALSE;		// no code generated
-QString	  className;				// name of parsed class
-QString	  superclassName;			// name of super class
+Q1String  className;				// name of parsed class
+Q1String  superclassName;			// name of super class
 FuncList  signals;				// signal interface
 FuncList  slots;				// slots interface
 QDict<char> defines;				// simple #defines
@@ -801,9 +801,9 @@ int main( int argc, char **argv )
     qtPath = "";
 
     for ( int n=1; n<argc && error==0; n++ ) {
-	QString arg = argv[n];
+	Q1String arg = argv[n];
 	if ( arg[0] == '-' ) {			// option
-	    QString opt = &arg[1];
+	    Q1String opt = &arg[1];
 	    if ( opt[0] == 'o' ) {		// output redirection
 		if ( opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {
@@ -965,17 +965,17 @@ void replace( char *s, char c1, char c2 )
     /tmp/abc	xyz/klm		-)	/tmp/abc
  */
 
-QString combinePath( const char *infile, const char *outfile )
+Q1String combinePath( const char *infile, const char *outfile )
 {
-    QString a = infile;  replace(a.data(),'\\','/');
-    QString b = outfile; replace(b.data(),'\\','/');
+    Q1String a = infile;  replace(a.data(),'\\','/');
+    Q1String b = outfile; replace(b.data(),'\\','/');
     a = a.stripWhiteSpace();
     b = b.stripWhiteSpace();
 #if !defined(UNIX)
     a = a.lower();
     b = b.lower();
 #endif
-    QString r;
+    Q1String r;
     int i = 0;
     int ncommondirs = 0;
     while ( a[i] && a[i] == b[i] ) {
@@ -1065,9 +1065,9 @@ inline bool isSpace( char x )
 #endif
 }
 
-static QString rmWS( const char *src )
+static Q1String rmWS( const char *src )
 {
-    QString result( strlen(src)+1 );
+    Q1String result( strlen(src)+1 );
     char *d = result.data();
     char *s = (char *)src;
     char last = 0;
@@ -1226,7 +1226,7 @@ void generateFuncs( FuncList *list, char *functype, int num )
 {
     Function *f;
     for ( f=list->first(); f; f=list->next() ) {
-	QString typstr = "";
+	Q1String typstr = "";
 	int count = 0;
 	Argument *a = f->args->first();
 	while ( a ) {
@@ -1266,7 +1266,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.25 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.26 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1295,8 +1295,8 @@ void generateClass()		      // generate C++ source code for a class
     generatedCode = TRUE;
     if ( gen_count++ == 0 ) {			// first class to be generated
 	QDateTime dt = QDateTime::currentDateTime();
-	QString dstr = dt.toString();
-	QString fn = fileName;
+	Q1String dstr = dt.toString().ascii();
+	Q1String fn = fileName;
 	i = fileName.length()-1;
 	while ( i>0 && fileName[i-1] != '/' && fileName[i-1] != '\\' )
 	    i--;				// skip path
@@ -1379,12 +1379,12 @@ void generateClass()		      // generate C++ source code for a class
     f = signals.first();			// make internal signal methods
     static bool included_list_stuff = FALSE;
     while ( f ) {
-	QString typstr = "";			// type string
-	QString valstr = "";			// value string
-	QString argstr = "";			// argument string (type+value)
+	Q1String typstr = "";			// type string
+	Q1String valstr = "";			// value string
+	Q1String argstr = "";			// argument string (type+value)
 	char	buf[12];
 	Argument *a = f->args->first();
-	QString typvec[32], valvec[32], argvec[32];
+	Q1String typvec[32], valvec[32], argvec[32];
 	typvec[0] = "";
 	valvec[0] = "";
 	argvec[0] = "";

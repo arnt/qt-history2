@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#119 $
 **
 ** Implementation of QMenuBar class
 **
@@ -553,7 +553,7 @@ int QMenuBar::calculateRects( int max_width )
 	if ( mi->pixmap() ) {			// pixmap item
 	    w = mi->pixmap()->width();
 	    h = mi->pixmap()->height();
-	} else if ( mi->text() ) {		// text item
+	} else if ( !mi->text().isNull() ) {	// text item
 	    w = fm.width(mi->text()) + 2*motifItemHMargin;
 	    h = fm.height() + motifItemVMargin;
 	} else if ( mi->isSeparator() ) {	// separator item
@@ -684,7 +684,7 @@ void QMenuBar::drawContents( QPainter *p )
 
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
-	if ( mi->text() || mi->pixmap() ) {
+	if ( !mi->text().isNull() || mi->pixmap() ) {
 	    QRect r = irects[i];
 	    e = mi->isEnabled();
 	    if ( e )

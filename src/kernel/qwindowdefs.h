@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#112 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#113 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -27,6 +27,7 @@
 
 #ifndef QT_H
 #include "qobjectdefs.h"
+#include "qstring.h"
 #endif // QT_H
 
 
@@ -261,8 +262,8 @@ struct QWExtra {
     short    minw, minh;			// minimum size
     short    maxw, maxh;			// maximum size
     short    incw, inch;			// size increments
-    char    *caption;				// widget caption
-    char    *iconText;				// widget icon text
+    QString  caption;				// widget caption
+    QString  iconText;				// widget icon text
     QPixmap *icon;				// widget icon
 #if defined(_WS_WIN_)
     HANDLE   winIcon;				// internal Windows icon

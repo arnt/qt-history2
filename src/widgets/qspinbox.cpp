@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#44 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -241,18 +241,15 @@ void QSpinBox::setSpecialValueText( const QString &text )
 
 
 /*!
-  Returns the currently special-value text, or 0 if no special-value
-  text is currently set.
+  Returns the currently special-value text, or a null string if no
+  special-value text is currently set.
 
   \sa setSpecialValueText()
 */
 
 QString QSpinBox::specialValueText() const
 {
-    if ( specText.isEmpty() )
-	return 0;
-    else
-	return specText;
+    return specText;
 }
 
 
@@ -776,10 +773,9 @@ int QSpinBox::mapTextToValue( bool* ok )
 QString QSpinBox::currentValueText()
 {
     QString s;
-    if ( (value() == minValue()) && specialValueText() ) {
+    if ( (value() == minValue()) ) {
 	s = specialValueText();
-    }
-    else {
+    } else {
 	s = prefix();
 	s.append( mapValueToText( value() ) );
 	s.append( suffix() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#112 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1196,8 +1196,7 @@ int QFontMetrics::width( char ch ) const
   boundingRect() returns a rectangle describing the pixels this string
   will cover whereas width() returns the distance to where the next string
   should be drawn.  Thus, width(stra)+width(strb) is always equal to
-  width(strcat(stra, strb)).  This is almost never the case with
-  boundingRect().
+  width(stra+strb).  This is almost never the case with boundingRect().
 
   \sa boundingRect()
 */
@@ -1205,8 +1204,8 @@ int QFontMetrics::width( char ch ) const
 int QFontMetrics::width( const QString &str, int len ) const
 {
     if ( len < 0 )
-	len = strlen( str );
-    return printerAdjusted(XTextWidth( FS, str, len ));
+	len = str.length();
+    return printerAdjusted(XTextWidth16( FS, (XChar2b*)str.unicode(), len ));
 }
 
 
@@ -1233,7 +1232,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     // Values are printerAdjusted during calculations.
 
     if ( len < 0 )
-	len = strlen( str );
+	len = str.length();
     XFontStruct    *f = FS;
     int direction;
     int ascent;
@@ -1257,7 +1256,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	underline = strikeOut = FALSE;
     }
 
-    XTextExtents( f, str, len, &direction, &ascent, &descent, &overall );
+    XTextExtents16( f, (XChar2b*)str.unicode(), len, &direction, &ascent, &descent, &overall );
 
     overall.lbearing = printerAdjusted(overall.lbearing);
     overall.rbearing = printerAdjusted(overall.rbearing);
@@ -1505,11 +1504,11 @@ static int getWeight( const QString &weightString, bool adjustScore )
 {
     // Test in decreasing order of commonness
     //
-    if (!qstricmp( weightString, "medium" ))       return QFont::Normal;
-    else if (!qstricmp( weightString, "bold" ))    return QFont::Bold;
-    else if (!qstricmp( weightString, "demibold")) return QFont::DemiBold;
-    else if (!qstricmp( weightString, "black" ))   return QFont::Black;
-    else if (!qstricmp( weightString, "light" ))   return QFont::Light;
+    if ( weightString == "medium" )       return QFont::Normal;
+    else if ( weightString == "bold" )    return QFont::Bold;
+    else if ( weightString == "demibold") return QFont::DemiBold;
+    else if ( weightString == "black" )   return QFont::Black;
+    else if ( weightString == "light" )   return QFont::Light;
 
     QString s = weightString;
     s = s.lower();

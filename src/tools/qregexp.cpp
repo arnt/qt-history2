@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#55 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#56 $
 **
 ** Implementation of QRegExp class
 **
@@ -925,7 +925,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
     if ( isEmpty() )
 	return *this;
     int index = 0;
-    int slen  = strlen( str );
+    int slen  = str.length();
     int len;
     QString a=ascii();
     while ( index < (int)length()-1 ) {

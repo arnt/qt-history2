@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#65 $
+** $Id: //depot/qt/main/src/tools/qstring.h#66 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -296,6 +296,9 @@ public:
     static QChar* asciiToUnicode( const char*, uint& len );
     static QChar* asciiToUnicode( const QByteArray&, uint& len );
     static char* unicodeToAscii( const QChar*, uint len );
+    int compare( const QString& s ) const;
+    static int compare( const QString& s1, const QString& s2 )
+	{ return s1.compare(s2); }
 
     friend QDataStream &operator>>( QDataStream &, QString & );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#22 $
+** $Id: //depot/qt/main/src/moc/moc.l#23 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -40,7 +40,7 @@ int fctLevel   = 1;  /* Used to keep track of nested parentheses in IN_FCT */
 int templLevel = 1;  /* Used to keep track of levels in IN_TEMPL_ARGS */
 int ifdefDepth = 0;  /* Tracks #ifdef depth */
 int ignoreDepth = 0; /* Tracks #ifdefs inside ifdef-ed out code */
-static QString in_id;
+static Q1String in_id;
 extern QDict<char> defines; /* in moc.y */
 
 #define inputId() \

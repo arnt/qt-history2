@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#141 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#142 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -772,7 +772,7 @@ QSize QComboBox::sizeHint() const
 
     for( i = 0; i < count(); i++ ) {
 	tmp = text( i );
-	if ( tmp ) {
+	if ( !tmp.isNull() ) {
 	    w = fm.width( tmp );
 	    h = 0;
 	} else {
@@ -833,7 +833,7 @@ void QComboBox::internalHighlight( int index )
 {
     emit highlighted( index );
     QString t = text( index );
-    if ( t )
+    if ( !t.isNull() )
 	emit highlighted( t );
 }
 
@@ -1344,7 +1344,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    update();
 	} else if ( d->useCompletion && d->completeNow ) {
 	    if ( d->ed->text() &&  d->ed->cursorPosition() > d->completeAt &&
-		 d->ed->cursorPosition() == (int)qstrlen(d->ed->text()) ) {
+		 d->ed->cursorPosition() == (int)d->ed->text().length() ) {
 		d->completeNow = FALSE;
 		QString ct( d->ed->text() );
 		QString it;
@@ -1355,10 +1355,10 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		    it = text( i );
 		    if ( it.length() >= ct.length() ) {
 			it.truncate( ct.length() );
-			int itlen = qstrlen( text( i ) );
+			int itlen = text( i ).length();
 			if ( it == ct && itlen < foundLength ) {
 			    foundAt = i;
-			    foundLength = qstrlen( text( i ) );
+			    foundLength = text( i ).length();
 			}
 		    }
 		    i++;
