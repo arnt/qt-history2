@@ -32,8 +32,7 @@ QDragObject *ActionListView::dragObject()
     if ( !i )
 	return 0;
     QStoredDrag *drag = new QStoredDrag( "application/x-designer-actions", viewport() );
-    QString s;
-    s.sprintf( "%p", i->action() );
+    QString s = QString::number( (long)i->action() ); // #### huha, that is evil
     drag->setEncodedData( QCString( s.latin1() ) );
     drag->setPixmap( i->action()->iconSet().pixmap() );
     return drag;

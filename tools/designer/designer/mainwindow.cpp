@@ -92,6 +92,7 @@
 #include <qdockwindow.h>
 #include <qregexp.h>
 #include "actioneditorimpl.h"
+#include "actiondnd.h"
 
 static int forms = 0;
 
@@ -2589,7 +2590,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
     } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
 	QMainWindow *mw = (QMainWindow*)fw->mainContainer();
 	if ( id == commands[ "add_toolbar" ] ) {
-	    QToolBar *tb = new QToolBar( this );
+	    QToolBar *tb = new QDesignerToolBar( mw );
 	    mw->addToolBar( tb, "Toolbar" );
 	} else if ( id == commands[ "add_menu_item" ] ) {
 	    QPopupMenu *popup = new QPopupMenu( mw );
