@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#61 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#62 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -345,8 +345,8 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 		2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
 	bool down = activeControl & TitleCloseButton;
 	QPixmap pm(titleBarPixmap(tb, TitleCloseButton));
-	// drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
-	// tb->colorGroup(), FALSE, down, TRUE, FALSE );
+	drawPrimitive(PO_ButtonTool, p, r, tb->colorGroup(),
+		      down ? PStyle_Sunken : PStyle_Default);
 	int xoff = 0, yoff = 0;
 	if (down) {
 	    xoff = pixelMetric(PM_ButtonShiftHorizontal);
@@ -361,8 +361,8 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 
 	down = activeControl & TitleMaxButton;
 	pm = QPixmap(titleBarPixmap(tb, TitleMaxButton));
-	// drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
-	// tb->colorGroup(), FALSE, down, TRUE, FALSE );
+	drawPrimitive(PO_ButtonTool, p, r, tb->colorGroup(),
+		      down ? PStyle_Sunken : PStyle_Default);
 	xoff = 0;
 	yoff = 0;
 	if(down) {
@@ -378,8 +378,8 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	QStyle::TitleControl ctrl = controls & TitleNormalButton ? TitleNormalButton : TitleMinButton;
 	down = activeControl & ctrl;
 	pm = QPixmap(titleBarPixmap(tb, ctrl));
-	// drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
-	// tb->colorGroup(), FALSE, down, TRUE, FALSE );
+	drawPrimitive(PO_ButtonTool, p, r, tb->colorGroup(),
+		      down ? PStyle_Sunken : PStyle_Default);
 	xoff=0, yoff=0;
 	if(down) {
 	    xoff = pixelMetric(PM_ButtonShiftHorizontal);
@@ -658,7 +658,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	qDrawShadeLine( p, p1, p2, cg, 1, 1, 0 );
 	break; }
 
-    case PO_DockWindowPanel: {
+    case PO_PanelDockWindow: {
 	void **sdata = (void **) data;
 	int lw = pixelMetric(PM_DockWindowFrameWidth);
 	if (sdata)
@@ -667,7 +667,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	qDrawShadePanel(p, r, cg, FALSE, lw);
 	break; }
 
-    case PO_MenuBarPanel: {
+    case PO_PanelMenuBar: {
 	void **sdata = (void **) data;
 	int lw = pixelMetric(PM_MenuBarFrameWidth);
 	if (sdata)

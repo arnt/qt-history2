@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#111 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#112 $
 **
 ** Definition of QStyle class
 **
@@ -121,21 +121,17 @@ public:
 
 	PO_DockWindowHandle,
 	PO_DockWindowSeparator,
-	PO_DockWindowPanel,
 
 	PO_MenuBarItem,
-	PO_MenuBarPanel,
 
 	PO_Panel,
 	PO_PanelPopup,
-	
-	PO_TabBarBase
-/*
-	  PO_Panel,
-	  PO_PanelPopup,
-	  PO_PanelMenu,
-	  PO_PanelToolbar,
+	PO_PanelMenuBar,
+	PO_PanelDockWindow,
 
+	PO_TabBarBase
+
+        /*
 	  PO_CheckMark,
 
 	  PO_ScrollBarLineUp,
@@ -241,7 +237,8 @@ public:
 	CC_ComboBox,
 	CC_ScrollBar,
 	CC_Slider,
-	CC_ToolButton
+	CC_ToolButton,
+	CC_TitleBar
 
 	/*
 	  CC_MenuItem,
@@ -274,7 +271,16 @@ public:
 	SC_SliderTickmarks = 		0x00000200,
 
 	SC_ToolButton =			0x00000001,
-	SC_ToolButtonMenu =		0x00000002
+	SC_ToolButtonMenu =		0x00000002,
+
+	SC_TitleBarSysMenu =		0x00000001,
+	SC_TitleBarMinButton =		0x00000002,
+	SC_TitleBarMaxButton =		0x00000004,
+	SC_TitleBarCloseButton =       	0x00000008,
+	SC_TitleBarLabel =		0x00000010,
+	SC_TitleBarNormalButton =	0x00000020,
+	SC_TitleBarShadeButton =       	0x00000040,
+	SC_TitleBarUnshadeButton =	0x00000080
 
 	/*
 	  SC_MenuItemCheck =		0x00000001,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#134 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#135 $
 **
 ** Implementation of QFrame widget class
 **
@@ -561,7 +561,7 @@ void QFrame::drawFrame( QPainter *p )
 
     case MenuBarPanel:
 #ifndef QT_NO_STYLE
-	style().drawPrimitive(QStyle::PO_MenuBarPanel, p, r, g,
+	style().drawPrimitive(QStyle::PO_PanelMenuBar, p, r, g,
 			      ((cstyle == Sunken) ? QStyle::PStyle_Sunken :
 			       QStyle::PStyle_Default),
 			      data);
@@ -570,7 +570,7 @@ void QFrame::drawFrame( QPainter *p )
 
     case ToolBarPanel:
 #ifndef QT_NO_STYLE
-	style().drawPrimitive( QStyle::PO_DockWindowPanel, p, rect(), g,
+	style().drawPrimitive( QStyle::PO_PanelDockWindow, p, rect(), g,
 			       ((cstyle == Sunken) ? QStyle::PStyle_Sunken :
 				QStyle::PStyle_Default),
 			       data);

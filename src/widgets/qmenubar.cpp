@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#287 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#288 $
 **
 ** Implementation of QMenuBar class
 **
@@ -216,8 +216,8 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     if ( gs == WindowsStyle ) {
 	h = 2 + fm.height() + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
     } else {
-	h =  style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ) + 
-	    motifBarVMargin + fm.height() + motifItemVMargin + 
+	h =  style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ) +
+	    motifBarVMargin + fm.height() + motifItemVMargin +
 	    2*frameWidth() + 2*motifItemFrame;
     }
 
@@ -245,7 +245,7 @@ void QMenuBar::styleChange( QStyle& old )
 	    setMouseTracking( TRUE );
 	    break;
 	case MotifStyle:
-	    setLineWidth( style().pixelMetric( QStyle::PM_DefaultFrameWidth, 
+	    setLineWidth( style().pixelMetric( QStyle::PM_DefaultFrameWidth,
 					       this ) );
 	    setMouseTracking( FALSE );
 	    break;
@@ -441,7 +441,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     // look for Alt release
     if ( ((QWidget*)object)->focusWidget() == object ||
 	 (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0) ) {
-	if ( waitforalt && 
+	if ( waitforalt &&
 	     event->type() == QEvent::KeyRelease &&
 	     (((QKeyEvent *)event)->key() == Key_Alt ||
 	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
@@ -560,7 +560,7 @@ void QMenuBar::openActPopup()
 	inMenu = TRUE;
     }
 #endif
-    
+
     if ( actItem < 0 )
 	return;
     QPopupMenu *popup = mitems->at(actItem)->popup();
@@ -943,7 +943,7 @@ void QMenuBar::drawContents( QPainter *p )
 	return;
 
     // Draw the menu bar contents in the current style
-    style().drawPrimitive( QStyle::PO_MenuBarPanel, p, rect(), g );
+    style().drawPrimitive( QStyle::PO_PanelMenuBar, p, rect(), g );
 
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
@@ -962,7 +962,7 @@ void QMenuBar::drawContents( QPainter *p )
 	    buffer.painter()->setFont( p->font() );
 	    buffer.painter()->setPen( p->pen() );
 	    buffer.painter()->setBrush( p->brush() );
-	    
+
 	    void * data[1];
 	    data[0] = (void *) mi;
 	    QStyle::PFlags flags = QStyle::PStyle_Default;
@@ -973,7 +973,7 @@ void QMenuBar::drawContents( QPainter *p )
 		flags |= QStyle::PStyle_Sunken;
 	    if ( hasFocus() || hasmouse || popupvisible )
 		flags |= QStyle::PStyle_HasFocus;
-	    
+
 	    style().drawPrimitive( QStyle::PO_MenuBarItem, buffer.painter(),
 				   r, g, flags, data );
 	}
