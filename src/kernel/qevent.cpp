@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#87 $
 **
 ** Implementation of event classes
 **
@@ -561,12 +561,12 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 */
 
 /*!
-  \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion )
+  \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion, bool erased=TRUE )
   Constructs a paint event object with the region that should be updated.
 */
 
 /*!
-  \fn QPaintEvent::QPaintEvent( const QRect &paintRect )
+  \fn QPaintEvent::QPaintEvent( const QRect &paintRect, bool erased=TRUE )
   Constructs a paint event object with the rectangle that should be updated.
 */
 
@@ -584,6 +584,11 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   \sa rect(), QPainter::setClipRegion()
 */
 
+/*!
+  \sa bool QPaintEvent::erased()
+  Returns whether the paint event region (or rectangle) has been
+  erased with the widget's background.
+*/
 
 /*!
   \class QMoveEvent qevent.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#319 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#320 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -999,7 +999,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
-	QPaintEvent e( QRect(x,y,w,h) );
+	QPaintEvent e( QRect(x,y,w,h), erase );
 	if ( erase && w != 0 && h != 0 )
 	    XClearArea( x11Display(), winId(), x, y, w, h, FALSE );
 	QApplication::sendEvent( this, &e );

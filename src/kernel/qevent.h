@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#75 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#76 $
 **
 ** Definition of event classes
 **
@@ -189,19 +189,23 @@ public:
 class Q_EXPORT QPaintEvent : public QEvent
 {
 public:
-    QPaintEvent( const QRegion& paintRegion )
+    QPaintEvent( const QRegion& paintRegion, bool erased = TRUE)
 	: QEvent(Paint),
 	  rec(paintRegion.boundingRect()),
-	  reg(paintRegion) {}
-    QPaintEvent( const QRect &paintRect )
+	  reg(paintRegion),
+	  erase(erased){}
+    QPaintEvent( const QRect &paintRect, bool erased = TRUE )
 	: QEvent(Paint),
 	  rec(paintRect),
-          reg(paintRect) {}
+	  reg(paintRect),
+	  erase(erased){}
     const QRect &rect() const	  { return rec; }
     const QRegion &region() const { return reg; }
+    bool erased() const { return erase; }
 protected:
     QRect rec;
     QRegion reg;
+    bool erase;
 };
 
 

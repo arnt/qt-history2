@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#193 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#194 $
 **
 ** Implementation of QApplication class
 **
@@ -343,7 +343,7 @@ void QApplication::initialize( int argc, char **argv )
 
     app_style->polish( *app_pal );
     app_style->polish( this ); //##### wrong place, still inside the qapplication constructor...grmbl....
-    
+
 
     if ( makeqdevel ) {
 	qdevel = new QDeveloper;
@@ -654,7 +654,7 @@ QPalette *QApplication::palette(const QWidget* w)
   Widgets created after this call get \e   palette as their
   \link QWidget::palette() palette\endlink when they
   access it.
-  
+
   The palette may be changed according to the current GUI style in
   QStyle::polish().
 
@@ -664,11 +664,11 @@ QPalette *QApplication::palette(const QWidget* w)
 void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, const char* className )
 {
     QPalette* pal = new QPalette( palette );
-    
-    if ( !startingUp() ) 
+
+    if ( !startingUp() )
 	qApp->style().polish( *pal );
 
-    
+
     if (!className) {
 	QPalette* old =  app_pal;
 	app_pal = pal;
@@ -1356,7 +1356,8 @@ void QApplication::sendPostedEvents()
 	     ( pe->event->type() == QEvent::LayoutHint ||
 	       pe->event->type() == QEvent::ChildInserted ||
 	       pe->event->type() == QEvent::Move ||
-	       pe->event->type() == QEvent::Resize ) ) {
+	       pe->event->type() == QEvent::Resize ||
+	       pe->event->type() == QEvent::Paint ) ) {
 	    // uglehack: get rid of this sort of event now, by calling
 	    // the more-specific function
 	    sendPostedEvents( pe->receiver, pe->event->type() );
@@ -1394,6 +1395,8 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     // For accumulating compressed events
     QPoint oldpos, newpos;
     QSize oldsize, newsize;
+    QRegion paintRegion;
+    QRegion erasePaintRegion;
     bool first=TRUE;
 
     while ( (pe = it.current()) ) {
@@ -1420,6 +1423,13 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    case QEvent::LayoutHint:
 		first = FALSE;
 		break;
+	    case QEvent::Paint:
+		if ( ((QPaintEvent*)pe->event)->erased() )
+		    erasePaintRegion = erasePaintRegion.unite(  ((QPaintEvent*)pe->event)->region() );
+		else
+		    paintRegion = paintRegion.unite(  ((QPaintEvent*)pe->event)->region() );
+		first = FALSE;
+		break;
 	    default:
 		sendEvent( receiver, pe->event );
 	    }
@@ -1438,6 +1448,17 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	} else if ( event_type == QEvent::Resize ) {
 	    QResizeEvent e(newsize, oldsize);
 	    sendEvent( receiver, &e );
+	} else if ( event_type == QEvent::Paint ) {
+	    if (! erasePaintRegion.isEmpty() ) {
+		QPaintEvent e( erasePaintRegion, TRUE );
+		if ( receiver->isWidgetType() )
+		    ((QWidget*)receiver)->erase(erasePaintRegion);
+		sendEvent( receiver, &e );
+	    }
+	    if (! paintRegion.isEmpty() ) {
+		QPaintEvent e( paintRegion, FALSE );
+		sendEvent( receiver, &e );
+	    }
 	}
     }
 }
