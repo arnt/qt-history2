@@ -34,8 +34,9 @@ void WriteDeclaration::acceptUI(DomUI *node)
     QString varName = driver->findOrInsertWidget(node->elementWidget());
     QString widgetClassName = node->elementWidget()->attributeClass();
 
-    output << "struct " << className << "\n"
-           << "{\n";
+    output << "class " << className << "\n"
+           << "{\n"
+           << "public:\n";
 
     QStringList connections = uic->databaseInfo()->connections();
     for (int i=0; i<connections.size(); ++i) {
