@@ -2333,6 +2333,8 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	if ( w->inherits( "FormWindow" ) ) {
 	    if ( ( (FormWindow*)w )->formFile()->editor() )
 		windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
+	    if ( ( (FormWindow*)w )->formFile()->formWindow() )
+		windows.removeRef( ( (FormWindow*)w )->formFile()->formWindow() );
 	    if ( !( (FormWindow*)w )->formFile()->close() ) {
 		e->ignore();
 		return;
