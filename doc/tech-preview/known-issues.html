@@ -2,6 +2,12 @@
 <head>
 <title>Known issues</title>
 <link rel="stylesheet" href="http://www.trolltech.com/trollstyle.css">
+<style type="text/css">
+    H2 { position: relative; top: 10px; }
+    H4 { margin-left: 15px; }
+    .issue { margin-left: 15px; }
+    .workaround { margin-left: 30px; background: #AACA00; border-style: solid; border-color: green; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 5px; border-right-width: 0px }
+</style>
 </head>
 <body bgcolor="#ffffff">
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -23,49 +29,64 @@
     <tr><td align="left"><b><a href="#mac">Mac specific</a></b></td></tr>
 </table>
 <br><br>
-<a name="buildissues"></a><h2>Build Issues</h2>
+<!-- Build section ------------------------------------------------- -->
+<a name="buildissues"></a>
+<h2>Build Issues</h2>
+    <h4>Static libraries on Mac OS X</h4>
+    <p class="issue">Building a static build on mac will fail the first time.</p>
+    <p class="workaround">Run qmake a second time.</p>
+    
+    <h4>QTDIR</h4>
+    <p class="issue">Some applications(e.g. uic3) need QTDIR set and QTDIR/bin in the path to work.</p>
+    <p class="workaround">Set QTDIR and PATH as described in INSTALL.</p>
 
-    <h3>Static libraries on Mac OS X</h3> Building a static build on mac will
-        fail the first time. qmake needs to be run again for it to work.
-
-    <h3>QTDIR</h3>QTDIR and PATH must be set as INSTALL
-    dictates. It is needed by uic3 for example.
-
-    <h3>ODBC driver on Windows</h3>Change the include from qapplication.h to
-        qcoreapplication.h
-		
-
-<a name="general"></a><h2>General</h2>
-
-    <h3>N/A</h3>
-
-
-<a name="demos"></a><h2>Demos</h2>
-
-    <h3>N/A</h3>
+    <h4>ODBC driver on Windows</h4>
+    <p class="issue">Problems compiling the ODBC driver.</p>
+    <p class="workaround">Change the include from qapplication.h to qcoreapplication.h</p>
 
 
+<!-- General section ----------------------------------------------- -->
+<a name="general"></a>
+<h2>General</h2>
 
-<a name="window"></a><h2>Windows specific</h2>
-
-    <h3>Qt Assistant</h3> Problems with zooming and laying out
-    text. Sometimes the text overlaps.
-
-
-<a name="x11"></a><h2>X11 specific</h2>
-
-    <h3>N/A</h3>
+    <h4>-</h4>
 
 
-<a name="mac"></a><h2>Mac specific</h2>
+<!-- Demos section ------------------------------------------------- -->
+<a name="demos"></a>
+<h2>Demos</h2>
 
-    <h3>QComboBox</h3> Does not have the native Mac look and feel
-    yet. It is rendered in a Windows-like style.
-
-    <h3>Clicking on widgets</h3> <i>Jaguar 10.2 only:</i> Clicking
-    on widgets that has a focusrect may fail. Use 10.3 for now.
+    <h4>-</h4>
 
 
+<!-- Windows platform section -------------------------------------- -->
+<a name="window"></a>
+<h2>Windows specific</h2>
+
+    <h4>Qt Assistant</h4>
+    <p class="issue">Problems with zooming and laying out text. Sometimes the text overlaps.</p>
+
+
+<!-- X11 platform section ------------------------------------------ -->
+<a name="x11"></a>
+<h2>X11 specific</h2>
+
+    <h4>-</h4>
+
+
+<!-- Mac platform section ------------------------------------------ -->
+<a name="mac"></a>
+<h2>Mac specific</h2>
+
+    <h4>QComboBox</h4>
+    <p class="issue">Does not have the native Mac look and feel yet. It is rendered in a Windows-like style.</p>
+
+    <h4>Clicking on widgets</h4>
+    <p class="issue"><i>Jaguar 10.2 only:</i> Clicking on widgets that has a focusrect may fail.</p>
+    <p class="workaround">Workaround: Use 10.3 for now.</p>
+
+    
+<!-- [Page footer] ------------------------------------------------- -->
 <table width="100%">
     <tr><td><hr size="1" noshade></td></tr>
     <tr><td align="center" valign="bottom"><a href="http://www.trolltech.com">www.trolltech.com</a></td></tr>
