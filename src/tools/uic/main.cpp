@@ -31,8 +31,9 @@ void showHelp(const char *appName)
             "  -v, -version              display version\n"
             "  -o <file>                 place the output into <file>\n"
             "  -tr <func>                use func() for i18n\n"
+            "  -3 /path/to/uic3          change the path of uic3 [%s/uic3]\n"
             "  -p, -no-protection        disable header protection\n"
-            "\n", appName);
+            "\n", appName, qInstallPathBins());
 
 }
 
@@ -43,6 +44,8 @@ int main(int argc, char *argv[])
     Driver driver;
 
     const char *fileName = 0;
+
+    driver.option().uic3 = QString::fromUtf8(qInstallPathBins());
 
     int arg = 1;
     while (arg < argc) {
@@ -62,6 +65,13 @@ int main(int argc, char *argv[])
             driver.option().outputFile = QFile::decodeName(argv[arg]);
         } else if (opt == QLatin1String("-p") || opt == QLatin1String("-no-protection")) {
             driver.option().headerProtection = false;
+        } else if (opt == QLatin1String("-3")) {
+            ++arg;
+            if (!argv[arg]) {
+                showHelp(argv[0]);
+                return 1;
+            }
+            driver.option().uic3 = QFile::decodeName(argv[arg]);
         } else if (opt == QLatin1String("-tr") || opt == QLatin1String("-translate")) {
             ++arg;
             if (!argv[arg]) {

@@ -29,6 +29,7 @@ struct Option
     QString indent;
     QString postfix;
     QString translateFunction;
+    QString uic3;
 
     Option()
         : headerProtection(1),
