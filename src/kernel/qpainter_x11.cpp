@@ -2204,6 +2204,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     }
 }
 
+int global_polygon_shape = Complex;
 
 /*!
   Draws the polygon defined by the \a npoints points in \a a starting at
@@ -2268,7 +2269,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     if ( cbrush.style() != NoBrush ) {		// draw filled polygon
 	XFillPolygon( dpy, hd, gc_brush,
 		      (XPoint*)(pa.shortPoints( index, npoints )),
-		      npoints, Complex, CoordModeOrigin );
+		      npoints, global_polygon_shape, CoordModeOrigin );
     }
     if ( cpen.style() != NoPen ) {		// draw outline
 	XDrawLines( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )),
@@ -2277,6 +2278,23 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     if ( winding )				// set to normal fill rule
 	XSetFillRule( dpy, gc_brush, EvenOddRule );
 }
+
+/*!
+  Draws the convex polygon defined by the \a npoints points in \a a starting at
+  \a a[index].  (\a index defaults to 0.)
+
+  If the supplied polygon is \e not convex, the results are undefined.
+
+  On some platforms (eg. X11), this is faster than drawPolygon().
+*/
+void QPainter::drawConvexPolygon( const QPointArray &pa,
+			     int index, int npoints )
+{
+    global_polygon_shape = Convex;
+    drawPolygon(pa,FALSE,index,npoints);
+    global_polygon_shape = Complex;
+}
+
 
 
 /*!

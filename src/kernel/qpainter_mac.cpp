@@ -1181,6 +1181,13 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 }
 
 
+void QPainter::drawConvexPolygon( const QPointArray &pa,
+			     int index, int npoints )
+{
+    // Any efficient way?
+    drawPolygon(pa,FALSE,index,npoints);
+}
+
 void QPainter::drawPolygon( const QPointArray &a, bool winding,
                             int index, int npoints )
 {
