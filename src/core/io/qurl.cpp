@@ -373,39 +373,39 @@ static bool QT_FASTCALL _h16(char **ptr, QByteArray *c)
 static bool QT_FASTCALL _decOctet(char **ptr, QByteArray *octet)
 {
     char c1 = **ptr;
-    
+
     if (c1 < '0' || c1 > '9')
 	return false;
-    
+
     *octet += c1;
-    
+
     ++(*ptr);
-    
+
     if (c1 == '0')
         return true;
-    
+
     char c2 = **ptr;
-    
+
     if (c2 < '0' || c2 > '9')
         return true;
-    
+
     *octet += c2;
-    
+
     ++(*ptr);
-    
+
     char c3 = **ptr;
     if (c3 < '0' || c3 > '9')
         return true;
-    
+
     *octet += c3;
-    
+
     // If there is a three digit number larger than 255, reject the
     // whole token.
     if (c1 >= '2' && c2 >= '5' && c3 > '5')
         return false;
-    
+
     ++(*ptr);
-    
+
     return true;
 }
 
@@ -467,7 +467,7 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
     char *ptrBackup = *ptr;
 
     QByteArray tmp;
-    
+
     // count of (h16 ":") to the left of and including ::
     int leftHexColons = 0;
     // count of (h16 ":") to the right of ::
@@ -484,9 +484,9 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
 	}
 	tmp += ':';
 	++leftHexColons;
-	
+
 	// check for case 1, the only time when there can be no ::
-	if (leftHexColons == 6 && _ls32(ptr, &tmp)) { 
+	if (leftHexColons == 6 && _ls32(ptr, &tmp)) {
 	    *host += tmp;
 	    return true;
 	}
@@ -506,8 +506,8 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
 
     int canBeCase = -1;
     bool ls32WasRead = false;
- 
-    QByteArray tmp2; 
+
+    QByteArray tmp2;
     char *tmpBackup = *ptr;
 
     // count the number of (h16 ":") on the right of ::
@@ -521,7 +521,7 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
 		}
 
 		// the address ended with :: (case 9)
-		// only valid if 1 <= leftHexColons <= 7 
+		// only valid if 1 <= leftHexColons <= 7
 		canBeCase = 9;
 	    } else {
 		ls32WasRead = true;
@@ -553,7 +553,7 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
 
     // determine which case it is based on the number of rightHexColons
     if (canBeCase == -1) {
-	
+
 	// check if a ls32 was read. If it wasn't and rightHexColons >= 2 then the
 	// last 2 HexColons are in fact a ls32
 	if (!ls32WasRead && rightHexColons >= 2)
@@ -2196,7 +2196,10 @@ inline char encodeDigit(uint digit)
 }
 
 /*!
-    \internal
+    Returns a \a uc in Punycode encoding.
+
+    Punycode is a Unicode encoding used for internationalized domain
+    names, as defined in RFC3492.
 */
 QByteArray QUrl::toPunycode(const QString &uc)
 {
@@ -2232,7 +2235,6 @@ QByteArray QUrl::toPunycode(const QString &uc)
     // while there are still unprocessed non-basic code points left in
     // the input string...
     while (h < (uint) ucLength) {
-
         // find the character in the input string with the lowest
         // unicode value.
         uint m = MAXINT;
@@ -2297,7 +2299,10 @@ QByteArray QUrl::toPunycode(const QString &uc)
 }
 
 /*!
-  \internal
+    Returns the Punycode decoded representation of \a pc.
+
+    Punycode is a Unicode encoding used for internationalized domain
+    names, as defined in RFC3492.
 */
 QString QUrl::fromPunycode(const QByteArray &pc)
 {
@@ -2361,7 +2366,6 @@ QString QUrl::fromPunycode(const QByteArray &pc)
 
         // insert the character n at position i
         output.insert((uint) i, QChar((ushort) n));
-
         ++i;
     }
 
