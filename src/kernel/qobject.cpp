@@ -235,14 +235,14 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 /*!
   \relates QObject
 
-  Returns a pointer to the child named \a name of QObject \a parent
-  which inherits type \a type.
+  Returns a pointer to the child named \a name that inherits \a type
+  of a \a parent.
 
   Returns 0 if there is no such child.
 
   \code
-    QListBox * c = (QListBox *)::qt_find_obj_child(myWidget,QListBox,
-						   "listboxname");
+    QListBox *c = (QListBox *) qt_find_obj_child( myWidget, "QListBox",
+						  "my list box" );
     if ( c )
 	c->insertItem( "another string" );
   \endcode
@@ -254,10 +254,10 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
     if ( list ) {
 	QObjectListIt it( *list );
 	QObject *obj;
-	while ( (obj=it.current()) ) {
+	while ( (obj = it.current()) ) {
 	    ++it;
 	    if ( qstrcmp(name,obj->name()) == 0 &&
-		obj->inherits(type) )
+		 obj->inherits(type) )
 		return obj;
 	}
     }
@@ -298,7 +298,7 @@ static void remove_tree( QObject* obj )
  *****************************************************************************/
 
 /*!
-  Constructs an object with the parent object \e parent and a \e name.
+  Constructs an object with the parent object \a parent and a \a name.
 
   The parent of an object may be viewed as the object's owner. For
   instance, a \link QDialog dialog box\endlink is the parent of the
@@ -306,7 +306,7 @@ static void remove_tree( QObject* obj )
 
   The destructor of a parent object destroys all child objects.
 
-  Setting \e parent to 0 constructs an object with no parent.
+  Setting \a parent to 0 constructs an object with no parent.
   If the object is a widget, it will become a top-level window.
 
   The object name is a text that can be used to identify this QObject.
@@ -353,7 +353,7 @@ QObject::QObject( QObject *parent, const char *name )
 
   All signals to and from the object are automatically disconnected.
 
-  \warning \e All child objects are deleted.  If any of these objects are
+  \warning All child objects are deleted.  If any of these objects are
   on the stack or global, sooner or later your program will crash.  We do
   not recommend holding pointers to child objects from outside the parent.
   If you still do, the QObject::destroyed() signal gives you an
@@ -467,35 +467,38 @@ const char *QObject::className() const
   Example:
   \code
     QTimer *t = new QTimer;		// QTimer inherits QObject
-    t->isA("QTimer");			// returns TRUE
-    t->isA("QObject");			// returns FALSE
+    t->isA( "QTimer" );			// returns TRUE
+    t->isA( "QObject" );		// returns FALSE
   \endcode
 
-  \sa inherits(), metaObject()
+  \sa inherits() metaObject()
 */
 
 bool QObject::isA( const char *clname ) const
 {
-    return qstrcmp(clname, className() ) == 0;
+    return qstrcmp( clname, className() ) == 0;
 }
 
 /*!
   Returns TRUE if this object is an instance of a class that inherits
   \e clname, and \a clname inherits QObject.
 
-  (A class is considered to inherit itself.)
+  A class is considered to inherit itself.
 
   Example:
   \code
     QTimer *t = new QTimer;		// QTimer inherits QObject
-    t->inherits("QTimer");		// returns TRUE
-    t->inherits("QObject");		// returns TRUE
-    t->inherits("QButton");		// returns FALSE
+    t->inherits( "QTimer" );		// returns TRUE
+    t->inherits( "QObject" );		// returns TRUE
+    t->inherits( "QButton" );		// returns FALSE
 
-    QScrollBar * s = new QScrollBar;	// inherits QWidget and QRangeControl
+    // QScrollBar inherits QWidget and QRangeControl
+    QScrollBar *s = new QScrollBar( 0 );
     s->inherits( "QWidget" );		// returns TRUE
     s->inherits( "QRangeControl" ); 	// returns FALSE
   \endcode
+
+  (\l QRangeControl is not a QObject.)
 
   \sa isA(), metaObject()
 */
@@ -545,7 +548,7 @@ const char * QObject::name( const char * defaultName ) const
 
 
 /*!
-  Sets the name of this object to \e name.  The default name is the
+  Sets the name of this object to \a name.  The default name is the
   one assigned by the constructor.
 
   You can find an object by name (and type) using child(), and more
@@ -563,17 +566,18 @@ void QObject::setName( const char *name )
 
 /*!  Searches the children and optinally grandchildren of this object,
   and returns a child that is named \a objName that inherits \a
-  inheritsClass.If \a inheritsClass is 0 (the default), all classes
-  match.
+  inheritsClass. If \a inheritsClass is 0 (the default), any class
+  matches.
 
   If \a recursiveSearch is TRUE (the default), child() searches
   nth-generation as well as first-generation children.
   
-  If there is no such object, this function returns null. If there are
+  If there is no such object, this function returns 0. If there are
   more than one, the first one in depth-first is retured; if you need
   all of them, use queryList() instead.
 */
-QObject* QObject::child( const char *objName, const char *inheritsClass, bool recursiveSearch )
+QObject* QObject::child( const char *objName, const char *inheritsClass,
+			 bool recursiveSearch )
 {
     const QObjectList *list = children();
     if ( !list )
@@ -669,7 +673,7 @@ void QObject::timerEvent( QTimerEvent * )
   Child events are sent to objects when children are inserted or removed.
 
   Note that events with QEvent::type() \c QEvent::ChildInserted are
-  \e posted (with QApplication::postEvent()) to make sure that the
+  \a posted (with QApplication::postEvent()) to make sure that the
   child's construction is completed before this function is called.
 
   If you change state based on \c ChildInserted events, call
@@ -688,22 +692,23 @@ void QObject::childEvent( QChildEvent * )
 
 /*!
   Filters events if this object has been installed as an event filter for
-  another object.
+  the \a watched object.
 
-  The reimplementation of this virtual function must return TRUE if the
-  event should be stopped, or FALSE if the event should be dispatched normally.
+  The reimplementation of this virtual function should return TRUE if the
+  event \a e should be stopped, or FALSE if the event should be dispatched
+  normally.
 
   \warning
   If you delete the receiver object in this function, be sure to return TRUE.
-  If you return FALSE, Qt sends the event to the deleted object and the
-  program will crash.
+  Otherwise, Qt will forward the event to the deleted object and the
+  program might crash.
 
   \sa installEventFilter()
 */
 
-bool QObject::eventFilter( QObject *, QEvent * )
+bool QObject::eventFilter( QObject * /* watched */, QEvent * /* e */ )
 {
-    return FALSE;				// don't do anything with it
+    return FALSE;
 }
 
 
@@ -739,7 +744,7 @@ bool QObject::activate_filters( QEvent *e )
 */
 
 /*!
-  Blocks signals if \e block is TRUE, or unblocks signals if \e block is FALSE.
+  Blocks signals if \a block is TRUE, or unblocks signals if \a block is FALSE.
 
   Emitted signals disappear into hyperspace if signals are blocked.
 */
@@ -760,8 +765,8 @@ void QObject::blockSignals( bool block )
   Starts a timer and returns a timer identifier, or returns zero if
   it could not start a timer.
 
-  A timer event will occur every \e interval milliseconds until
-  killTimer() or killTimers() is called.  If \e interval is 0, then
+  A timer event will occur every \a interval milliseconds until
+  killTimer() or killTimers() is called.  If \a interval is 0, then
   the timer event occurs once every time there are no more window system
   events to process.
 
@@ -785,9 +790,9 @@ void QObject::blockSignals( bool block )
     MyObject::MyObject( QObject *parent, const char *name )
 	: QObject( parent, name )
     {
-	startTimer( 50 );			// 50 millisecond timer
-	startTimer( 1000 );			// 1 second timer
-	startTimer( 60000 );			// 1 minute timer
+	startTimer( 50 );			// 50-millisecond timer
+	startTimer( 1000 );			// 1-second timer
+	startTimer( 60000 );			// 1-minute timer
     }
 
     void MyObject::timerEvent( QTimerEvent *e )
@@ -815,7 +820,7 @@ int QObject::startTimer( int interval )
 }
 
 /*!
-  Kills the timer with the identifier \e id.
+  Kills the timer with the identifier \a id.
 
   The timer identifier is returned by startTimer() when a timer event is
   started.
@@ -905,7 +910,8 @@ static void objSearch( QObjectList *result,
 
 
 /*!
-  Returns a pointer to the list of all object trees (their root objects respectively), or 0 if there are no objects.
+  Returns a pointer to the list of all object trees (their root objects),
+  or 0 if there are no objects.
 
   The QObjectList class is defined in the qobjcoll.h header file.
 
@@ -924,7 +930,7 @@ const QObjectList *QObject::objectTrees()
 /*!  Searches the children and optinally grandchildren of this object,
   and returns a list of those objects that are named or matches \a
   objName and inherit \a ineritsClass.  If \a inheritsClass is 0 (the
-  default), all classes match.  IF \a objName is 0 (the default), all
+  default), all classes match.  If \a objName is 0 (the default), all
   object names match.
 
   If \a regexpMatch is TRUE (the default), \a objName is a regexp that
@@ -971,7 +977,7 @@ QObjectList *QObject::queryList( const char *inheritsClass,
 {
     QObjectList *list = new QObjectList;
     Q_CHECK_PTR( list );
-    bool onlyWidgets = (inheritsClass && qstrcmp( inheritsClass, "QWidget" ) == 0 );
+    bool onlyWidgets = ( inheritsClass && qstrcmp(inheritsClass, "QWidget") == 0 );
     if ( regexpMatch && objName ) {		// regexp matching
 	QRegExp rx(QString::fromLatin1(objName));
 	objSearch( list, (QObjectList *)children(), inheritsClass, onlyWidgets,
@@ -1019,7 +1025,7 @@ QConnectionList *QObject::receivers( int signal ) const
 
 
 /*!
-  Inserts an object \e obj into the list of child objects.
+  Inserts an object \a obj into the list of child objects.
 
   \warning This function cannot be used to make a widget a child
   widget of another.  Child widgets can be created only by setting the
@@ -1062,7 +1068,7 @@ void QObject::insertChild( QObject *obj )
 }
 
 /*!
-  Removes the child object \e obj from the list of children.
+  Removes the child object \a obj from the list of children.
 
   \warning
   This function will not remove a child widget from the screen.
@@ -1092,11 +1098,11 @@ void QObject::removeChild( QObject *obj )
 
 
 /*!
-  Installs an event filter \e obj for this object.
+  Installs an event filter \a obj for this object.
 
   An event filter is an object that receives all events that are sent to
   this object.	The filter can either stop the event or forward it to this
-  object.  The event filter \e obj receives events via its eventFilter()
+  object.  The event filter \a obj receives events via its eventFilter()
   function.  The eventFilter() function must return TRUE if the event
   should be stopped, or FALSE if the event should be dispatched normally.
 
@@ -1162,7 +1168,7 @@ void QObject::installEventFilter( const QObject *obj )
 }
 
 /*!
-  Removes an event filter object \e obj from this object.
+  Removes an event filter object \a obj from this object.
   The request is ignored if such an event filter has not been installed.
 
   All event filters for this object are automatically removed when this
@@ -1305,7 +1311,7 @@ const QObject *QObject::sender()
   \fn void QObject::connectNotify( const char *signal )
 
   This virtual function is called when something has been connected to
-  \e signal in this object.
+  \a signal in this object.
 
   \warning
   This function violates the object-oriented principle of modularity.
@@ -1323,7 +1329,7 @@ void QObject::connectNotify( const char * )
   \fn void QObject::disconnectNotify( const char *signal )
 
   This virtual function is called when something has been disconnected from
-  \e signal in this object.
+  \a signal in this object.
 
   \warning
   This function violates the object-oriented principle of modularity.
@@ -1340,7 +1346,7 @@ void QObject::disconnectNotify( const char * )
 /*!
   \fn bool QObject::checkConnectArgs( const char *signal, const QObject *receiver, const char *member )
 
-  Returns TRUE if the \e signal and the \e member arguments are compatible,
+  Returns TRUE if the \a signal and the \a member arguments are compatible,
   otherwise FALSE.
 
   \warning
@@ -1389,19 +1395,19 @@ QCString QObject::normalizeSignalSlot( const char *signalSlot )
 /*!
   \overload bool QObject::connect( const QObject *sender, const char *signal, const char *member ) const
 
-  Connects \e signal from the \e sender object to \e member in this object.
+  Connects \a signal from the \a sender object to \a member in this object.
 
   Equivalent to: <code>QObject::connect(sender, signal, this, member)</code>.
 
   \sa disconnect()
 */
 
-/*!  Connects \e signal from the \e sender object to \e member in object
-  \e receiver, and returns TRUE if the connection succeeds, or FALSE if it
+/*!  Connects \a signal from the \a sender object to \a member in object
+  \a receiver, and returns TRUE if the connection succeeds, or FALSE if it
   does not.
 
-  You must use the SIGNAL() and SLOT() macros when specifying the \e signal
-  and the \e member, like this:
+  You must use the SIGNAL() and SLOT() macros when specifying the \a signal
+  and the \a member, like this:
   \code
     QLabel     *label  = new QLabel;
     QScrollBar *scroll = new QScrollBar;
@@ -1557,7 +1563,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 /*!
   \overload bool QObject::disconnect( const char *signal, const QObject *receiver, const char *member )
 
-  Disconnects \e signal from \e member of \e receiver.
+  Disconnects \a signal from \a member of \a receiver.
 
   A signal-slot connection is removed when either of the objects
   involved are destroyed.
@@ -1566,14 +1572,14 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 /*!
   \overload bool QObject::disconnect( const QObject *receiver, const char *member )
 
-  Disconnects all signals in this object from \e member of \e receiver.
+  Disconnects all signals in this object from \a member of \a receiver.
 
   A signal-slot connection is removed when either of the objects
   involved are destroyed.
 */
 
 /*!
-  Disconnects \e signal in object \e sender from \e member in object \e
+  Disconnects \a signal in object \a sender from \a member in object \a
   receiver.
 
   A signal-slot connection is removed when either of the objects
@@ -1611,18 +1617,18 @@ bool QObject::connect( const QObject *sender,	const char *signal,
   0 may be used as a wildcard, meaning "any signal", "any receiving
   object", or "any slot in the receiving object", respectively.
 
-  The \e sender may never be 0.  (You cannot disconnect signals from
+  The \a sender may never be 0.  (You cannot disconnect signals from
   more than one object.)
 
-  If \e signal is 0, it disconnects \e receiver and \e member from any
+  If \a signal is 0, it disconnects \a receiver and \a member from any
   signal.  If not, only the specified signal is disconnected.
 
-  If \e receiver is 0, it disconnects anything connected to \e signal.
-  If not, slots in objects other than \e receiver are not disconnected.
+  If \a receiver is 0, it disconnects anything connected to \a signal.
+  If not, slots in objects other than \a receiver are not disconnected.
 
-  If \e member is 0, it disconnects anything that is connected to \e
-  receiver.  If not, only slots named \e member will be disconnected,
-  and all other slots are left alone.  The \e member must be 0 if \e
+  If \a member is 0, it disconnects anything that is connected to \a
+  receiver.  If not, only slots named \a member will be disconnected,
+  and all other slots are left alone.  The \a member must be 0 if \a
   receiver is left out, so you cannot disconnect a specifically-named
   slot on all objects.
 
