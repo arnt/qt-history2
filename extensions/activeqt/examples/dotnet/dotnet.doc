@@ -274,10 +274,14 @@
     As ActiveQt introduces three layers at once - the RCW, COM and
     finally ActiveQt itself - the performance penalty when using
     the generic Qt/ActiveQt/COM/RCW/.NET bridge rather than a 
-    hand-crafter IJW-wrapper class is significant. The execution
-    speed is however still sufficient for connecting to and modifying
-    interactive elements in a user interface, and as soon as the 
-    benefit of using Qt and C++ to implement performance-critical
-    algorithms kicks in ActiveQt becomes a valid choice for making
-    also non-visual parts of your application accessible to .NET.
+    hand-crafter IJW-wrapper class can be significant.
+    \footnote With ActiveQt string-based function calls are factor 50 
+    slower than with IJW, and IJW is factor 20 slower than calls 
+    without crossing from bytecode to native code. \endfootnote
+    The execution speed is however still sufficient for connecting to 
+    and modifying interactive elements in a user interface, and as 
+    soon as the benefit of using Qt and C++ to implement and compile
+    performance critical algorithms into native code kicks in ActiveQt
+    becomes a valid choice for making also non-visual parts of your 
+    application accessible to .NET.
 */
