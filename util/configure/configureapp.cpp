@@ -53,18 +53,18 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "BIG_CODECS" ]	    = "yes";
     dictionary[ "TABLET" ]	    = "no";
 
-    dictionary[ "WINDOWS" ]	    = "direct";
-    dictionary[ "MOTIF" ]	    = "direct";
-    dictionary[ "MOTIFPLUS" ]	    = "direct";
-    dictionary[ "PLATINUM" ]	    = "direct";
-    dictionary[ "SGI" ]		    = "direct";
-    dictionary[ "CDE" ]		    = "direct";
+    dictionary[ "STYLE_WINDOWS" ]   = "direct";
+    dictionary[ "STYLE_MOTIF" ]	    = "direct";
+    dictionary[ "STYLE_MOTIFPLUS" ] = "direct";
+    dictionary[ "STYLE_PLATINUM" ]  = "direct";
+    dictionary[ "STYLE_SGI" ]	    = "direct";
+    dictionary[ "STYLE_CDE" ]	    = "direct";
 
-    dictionary[ "MYSQL" ]	    = "no";
-    dictionary[ "ODBC" ]	    = "no";
-    dictionary[ "OCI" ]		    = "no";
-    dictionary[ "PSQL" ]	    = "no";
-    dictionary[ "TDS" ]		    = "no";
+    dictionary[ "SQL_MYSQL" ]	    = "no";
+    dictionary[ "SQL_ODBC" ]	    = "no";
+    dictionary[ "SQL_OCI" ]	    = "no";
+    dictionary[ "SQL_PSQL" ]	    = "no";
+    dictionary[ "SQL_TDS" ]	    = "no";
 
     QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -208,81 +208,81 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "JPEG" ] = "system";
 
 	else if( (*args) == "-qt-style-windows" )
-	    dictionary[ "WINDOWS" ] = "yes";
+	    dictionary[ "STYLE_WINDOWS" ] = "yes";
 	else if( (*args) == "-plugin-style-windows" )
-	    dictionary[ "WINDOWS" ] = "plugin";
+	    dictionary[ "STYLE_WINDOWS" ] = "plugin";
 	else if( (*args) == "-no-style-windows" )
-	    dictionary[ "WINDOWS" ] = "no";
+	    dictionary[ "STYLE_WINDOWS" ] = "no";
 
 	else if( (*args) == "-qt-style-motif" )
-	    dictionary[ "MOTIF" ] = "yes";
+	    dictionary[ "STYLE_MOTIF" ] = "yes";
 	else if( (*args) == "-plugin-style-motif" )
-	    dictionary[ "MOTIF" ] = "plugin";
+	    dictionary[ "STYLE_MOTIF" ] = "plugin";
 	else if( (*args) == "-no-style-motif" )
-	    dictionary[ "MOTIF" ] = "no";
+	    dictionary[ "STYLE_MOTIF" ] = "no";
 
 	else if( (*args) == "-qt-style-platinum" )
-	    dictionary[ "PLATINUM" ] = "yes";
+	    dictionary[ "STYLE_PLATINUM" ] = "yes";
 	else if( (*args) == "-plugin-style-platinum" )
-	    dictionary[ "PLATINUM" ] = "plugin";
+	    dictionary[ "STYLE_PLATINUM" ] = "plugin";
 	else if( (*args) == "-no-style-platinum" )
-	    dictionary[ "PLATINUM" ] = "no";
+	    dictionary[ "STYLE_PLATINUM" ] = "no";
 
 	else if( (*args) == "-qt-style-motifplus" )
-	    dictionary[ "MOTIFPLUS" ] = "yes";
+	    dictionary[ "STYLE_MOTIFPLUS" ] = "yes";
 	else if( (*args) == "-plugin-style-motifplus" )
-	    dictionary[ "MOTIFPLUS" ] = "plugin";
+	    dictionary[ "STYLE_MOTIFPLUS" ] = "plugin";
 	else if( (*args) == "-no-style-motifplus" )
-	    dictionary[ "MOTIFPLUS" ] = "no";
+	    dictionary[ "STYLE_MOTIFPLUS" ] = "no";
 
 	else if( (*args) == "-qt-style-cde" )
-	    dictionary[ "CDE" ] = "yes";
+	    dictionary[ "STYLE_CDE" ] = "yes";
 	else if( (*args) == "-plugin-style-cde" )
-	    dictionary[ "CDE" ] = "plugin";
+	    dictionary[ "STYLE_CDE" ] = "plugin";
 	else if( (*args) == "-no-style-cde" )
-	    dictionary[ "CDE" ] = "no";
+	    dictionary[ "STYLE_CDE" ] = "no";
 
 	else if( (*args) == "-qt-style-sgi" )
-	    dictionary[ "SGI" ] = "yes";
+	    dictionary[ "STYLE_SGI" ] = "yes";
 	else if( (*args) == "-plugin-style-sgi" )
-	    dictionary[ "SGI" ] = "plugin";
+	    dictionary[ "STYLE_SGI" ] = "plugin";
 	else if( (*args) == "-no-style-sgi" )
-	    dictionary[ "SGI" ] = "no";
+	    dictionary[ "STYLE_SGI" ] = "no";
 
 	else if( (*args) == "-qt-sql-mysql" )
-	    dictionary[ "MYSQL" ] = "yes";
+	    dictionary[ "SQL_MYSQL" ] = "yes";
 	else if( (*args) == "-plugin-sql-mysql" )
-	    dictionary[ "MYSQL" ] = "plugin";
+	    dictionary[ "SQL_MYSQL" ] = "plugin";
 	else if( (*args) == "-no-sql-mysql" )
-	    dictionary[ "MYSQL" ] = "no";
+	    dictionary[ "SQL_MYSQL" ] = "no";
 
 	else if( (*args) == "-qt-sql-odbc" )
-	    dictionary[ "ODBC" ] = "yes";
+	    dictionary[ "SQL_ODBC" ] = "yes";
 	else if( (*args) == "-plugin-sql-odbc" )
-	    dictionary[ "ODBC" ] = "plugin";
+	    dictionary[ "SQL_ODBC" ] = "plugin";
 	else if( (*args) == "-no-sql-odbc" )
-	    dictionary[ "ODBC" ] = "no";
+	    dictionary[ "SQL_ODBC" ] = "no";
 
 	else if( (*args) == "-qt-sql-oci" )
-	    dictionary[ "OCI" ] = "yes";
+	    dictionary[ "SQL_OCI" ] = "yes";
 	else if( (*args) == "-plugin-sql-oci" )
-	    dictionary[ "OCI" ] = "plugin";
+	    dictionary[ "SQL_OCI" ] = "plugin";
 	else if( (*args) == "-no-sql-oci" )
-	    dictionary[ "OCI" ] = "no";
+	    dictionary[ "SQL_OCI" ] = "no";
 
 	else if( (*args) == "-qt-sql-psql" )
-	    dictionary[ "PSQL" ] = "yes";
+	    dictionary[ "SQL_PSQL" ] = "yes";
 	else if( (*args) == "-plugin-sql-psql" )
-	    dictionary[ "PSQL" ] = "plugin";
+	    dictionary[ "SQL_PSQL" ] = "plugin";
 	else if( (*args) == "-no-sql-psql" )
-	    dictionary[ "PSQL" ] = "no";
+	    dictionary[ "SQL_PSQL" ] = "no";
 
 	else if( (*args) == "-qt-sql-tds" )
-	    dictionary[ "TDS" ] = "yes";
+	    dictionary[ "SQL_TDS" ] = "yes";
 	else if( (*args) == "-plugin-sql-tds" )
-	    dictionary[ "TDS" ] = "plugin";
+	    dictionary[ "SQL_TDS" ] = "plugin";
 	else if( (*args) == "-no-sql-tds" )
-	    dictionary[ "TDS" ] = "no";
+	    dictionary[ "SQL_TDS" ] = "no";
 
 
 	else if( (*args) == "-internal" )
@@ -474,7 +474,6 @@ bool ConfigureApp::displayHelp()
 
 	cout << "-disable-*          Disable the specified module, where module is one of" << endl;
 	cout << "                    " << modules.join( " " ) << endl << endl << endl;
-	cout << "-sql-*              Compile the specified SQL driver." << endl << endl << endl;
 
 	cout << "-redo               Run configure with the same parameters as last time." << endl << endl;
 	return true;
@@ -556,59 +555,59 @@ void ConfigureApp::generateOutputVars()
     else if( dictionary[ "TABLET" ] == "no" )
 	qmakeConfig += "no-tablet";
 
-    if ( dictionary[ "WINDOWS" ] == "yes" )
+    if ( dictionary[ "STYLE_WINDOWS" ] == "yes" )
 	qmakeConfig += "style-windows";
-    else if ( dictionary[ "WINDOWS" ] == "no" )
+    else if ( dictionary[ "STYLE_WINDOWS" ] == "no" )
 	qmakeConfig += "no-style-windows";
 
-    if ( dictionary[ "MOTIF" ] == "yes" )
+    if ( dictionary[ "STYLE_MOTIF" ] == "yes" )
 	qmakeConfig += "style-motif";
-    else if ( dictionary[ "MOTIF" ] == "no" )
+    else if ( dictionary[ "STYLE_MOTIF" ] == "no" )
 	qmakeConfig += "no-style-motif";
 
-    if ( dictionary[ "MOTIFPLUS" ] == "yes" )
+    if ( dictionary[ "STYLE_MOTIFPLUS" ] == "yes" )
 	qmakeConfig += "style-motifplus";
-    else if ( dictionary[ "MOTIFPLUS" ] == "no" )
+    else if ( dictionary[ "STYLE_MOTIFPLUS" ] == "no" )
 	qmakeConfig += "no-style-motifplus";
 
-    if ( dictionary[ "PLATINUM" ] == "yes" )
+    if ( dictionary[ "STYLE_PLATINUM" ] == "yes" )
 	qmakeConfig += "style-platinum";
-    else if ( dictionary[ "PLATINUM" ] == "no" )
+    else if ( dictionary[ "STYLE_PLATINUM" ] == "no" )
 	qmakeConfig += "no-style-platinum";
 
-    if ( dictionary[ "SGI" ] == "yes" )
+    if ( dictionary[ "STYLE_SGI" ] == "yes" )
 	qmakeConfig += "style-sgi";
-    else if ( dictionary[ "SGI" ] == "no" )
+    else if ( dictionary[ "STYLE_SGI" ] == "no" )
 	qmakeConfig += "no-style-sgi";
 
-    if ( dictionary[ "CDE" ] == "yes" )
+    if ( dictionary[ "STYLE_CDE" ] == "yes" )
 	qmakeConfig += "style-cde";
-    else if ( dictionary[ "CDE" ] == "no" )
+    else if ( dictionary[ "STYLE_CDE" ] == "no" )
 	qmakeConfig += "no-style-cde";
 
-    if ( dictionary[ "MYSQL" ] == "yes" )
+    if ( dictionary[ "SQL_MYSQL" ] == "yes" )
 	qmakeConfig += "sql-mysql";
-    else if ( dictionary[ "MYSQL" ] == "no" )
+    else if ( dictionary[ "SQL_MYSQL" ] == "no" )
 	qmakeConfig += "no-sql-mysql";
 
-    if ( dictionary[ "ODBC" ] == "yes" )
+    if ( dictionary[ "SQL_ODBC" ] == "yes" )
 	qmakeConfig += "sql-odbc";
-    else if ( dictionary[ "ODBC" ] == "no" )
+    else if ( dictionary[ "SQL_ODBC" ] == "no" )
 	qmakeConfig += "no-sql-odbc";
 
-    if ( dictionary[ "OCI" ] == "yes" )
+    if ( dictionary[ "SQL_OCI" ] == "yes" )
 	qmakeConfig += "sql-oci";
-    else if ( dictionary[ "OCI" ] == "no" )
+    else if ( dictionary[ "SQL_OCI" ] == "no" )
 	qmakeConfig += "no-sql-oci";
 
-    if ( dictionary[ "PSQL" ] == "yes" )
+    if ( dictionary[ "SQL_PSQL" ] == "yes" )
 	qmakeConfig += "sql-psql";
-    else if ( dictionary[ "PSQL" ] == "no" )
+    else if ( dictionary[ "SQL_PSQL" ] == "no" )
 	qmakeConfig += "no-sql-psql";
 
-    if ( dictionary[ "TDS" ] == "yes" )
+    if ( dictionary[ "SQL_TDS" ] == "yes" )
 	qmakeConfig += "sql-tds";
-    else if ( dictionary[ "TDS" ] == "no" )
+    else if ( dictionary[ "SQL_TDS" ] == "no" )
 	qmakeConfig += "no-sql-tds";
 
 
@@ -776,19 +775,19 @@ void ConfigureApp::displayConfig()
     cout << "PNG support................." << dictionary[ "PNG" ] << endl << endl;
 
     cout << "Styles:" << endl;
-    cout << "Windows....................." << dictionary[ "WINDOWS" ] << endl;
-    cout << "Motif......................." << dictionary[ "MOTIF" ] << endl;
-    cout << "Platinum...................." << dictionary[ "PLATINUM" ] << endl;
-    cout << "MotifPlus..................." << dictionary[ "MOTIFPLUS" ] << endl;
-    cout << "CDE........................." << dictionary[ "CDE" ] << endl;
-    cout << "SGI........................." << dictionary[ "SGI" ] << endl << endl;
+    cout << "Windows....................." << dictionary[ "STYLE_WINDOWS" ] << endl;
+    cout << "Motif......................." << dictionary[ "STYLE_MOTIF" ] << endl;
+    cout << "Platinum...................." << dictionary[ "STYLE_PLATINUM" ] << endl;
+    cout << "MotifPlus..................." << dictionary[ "STYLE_MOTIFPLUS" ] << endl;
+    cout << "CDE........................." << dictionary[ "STYLE_CDE" ] << endl;
+    cout << "SGI........................." << dictionary[ "STYLE_SGI" ] << endl << endl;
 
     cout << "Sql Drivers:" << endl;
-    cout << "ODBC........................" << dictionary[ "ODBC" ] << endl;
-    cout << "MySQL......................." << dictionary[ "MYSQL" ] << endl;
-    cout << "OCI........................." << dictionary[ "OCI" ] << endl;
-    cout << "PostgreSQL.................." << dictionary[ "PSQL" ] << endl;
-    cout << "TDS........................." << dictionary[ "TDS" ] << endl << endl;
+    cout << "ODBC........................" << dictionary[ "SQL_ODBC" ] << endl;
+    cout << "MySQL......................." << dictionary[ "SQL_MYSQL" ] << endl;
+    cout << "OCI........................." << dictionary[ "SQL_OCI" ] << endl;
+    cout << "PostgreSQL.................." << dictionary[ "SQL_PSQL" ] << endl;
+    cout << "TDS........................." << dictionary[ "SQL_TDS" ] << endl << endl;
 
     cout << endl;
     if( !qmakeDefines.isEmpty() ) {
