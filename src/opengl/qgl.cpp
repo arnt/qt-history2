@@ -2201,7 +2201,7 @@ void QGLWidget::renderText( double x, double y, double z, const QString & str, c
     glRasterPos3d( x, y, z );
     glPushAttrib( GL_LIST_BIT );
     glListBase( displayListBase( fnt, listBase ) );
-    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit().data() );
+    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit() );
     glPopAttrib();
 }
 
