@@ -1961,9 +1961,10 @@ QMetaObject *QAxBase::metaObject() const
 	    epoints->Reset();
 	    do {
 		if ( cpoint ) cpoint->Release();
+		IConnectionPoint *oldcpoint = cpoint;
 		cpoint = 0;
-		epoints->Next( c, &cpoint, &c );
-		if ( !c )
+		HRESULT hres = epoints->Next( c, &cpoint, &c );
+		if ( !c || cpoint == oldcpoint )
 		    break;
 
 		IID conniid;
