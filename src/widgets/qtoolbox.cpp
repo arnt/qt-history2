@@ -130,7 +130,7 @@ public:
     // #### directions and find the closest available page
     QWidget *findClosestPage( QWidget *page )
 	{
-	    QWidget *p;
+	    QWidget *p = 0;
 	    QPtrDictIterator<QWidget> it( pages );
 	    while ( it.current() ) {
 		if ( it.current() != page ) {
