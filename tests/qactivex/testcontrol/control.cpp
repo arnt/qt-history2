@@ -38,7 +38,7 @@ class QTestControl : public QWidget, public QAxBindable
     Q_PROPERTY( uint posnumber READ posnumber WRITE setPosnumber )
     Q_PROPERTY( double real READ real WRITE setReal )
     Q_PROPERTY( QColor color READ color WRITE setColor )
-    Q_PROPERTY( QDateTime date READ date WRITE setDate )
+    Q_PROPERTY( QDate date READ date WRITE setDate )
     Q_PROPERTY( QDateTime time READ time WRITE setTime )
     Q_PROPERTY( QDateTime datetime READ datetime WRITE setDatetime )
     Q_PROPERTY( QFont font READ font WRITE setFont )
@@ -46,10 +46,6 @@ class QTestControl : public QWidget, public QAxBindable
     Q_PROPERTY( QValueList list READ list WRITE setList )
     Q_PROPERTY( Alpha beta READ beta WRITE setBeta )
     
-//  QVariant does not support short or long
-//    Q_PROPERTY( short shortnumber READ shortnumber WRITE setShortnumber )
-//    Q_PROPERTY( long longnumber READ longnumber WRITE setLongnumber )
-
 public:
     QTestControl( QWidget *parent = 0, const char *name = 0 )
     : QWidget( parent, name )
@@ -87,20 +83,20 @@ public:
     QColor color() const { PROP(color) }
     void setColor( QColor color ) { SET_PROP(color) }
 
-    QDateTime date() const { PROP(date) }
-    void setDate( QDateTime date ) { SET_PROP(date) }
+    QDate date() const { PROP(date) }
+    void setDate( const QDate &date ) { SET_PROP(date) }
 
     QDateTime time() const { PROP(time) }
-    void setTime( QDateTime time ) { SET_PROP(time) }
+    void setTime( const QDateTime &time ) { SET_PROP(time) }
 
     QDateTime datetime() const { PROP(datetime) }
-    void setDatetime( QDateTime datetime ) { SET_PROP(datetime) }
+    void setDatetime( const QDateTime &datetime ) { SET_PROP(datetime) }
 
     QFont font() const { PROP(font) }
-    void setFont( QFont font ) { SET_PROP(font) }
+    void setFont( const QFont &font ) { SET_PROP(font) }
 
     QPixmap pixmap() const { PROP(pixmap) }
-    void setPixmap( QPixmap pixmap ) { SET_PROP(pixmap) }
+    void setPixmap( const QPixmap &pixmap ) { SET_PROP(pixmap) }
 
     QValueList<QVariant> list() const { PROP(list) }
     void setList( QValueList<QVariant> list ) { SET_PROP(list) }
@@ -108,13 +104,6 @@ public:
     Alpha beta() const { PROP(beta) }
     void setBeta( Alpha beta ) { SET_PROP(beta) }
 
-/*
-    short shortnumber() const { PROP(shortnumber) }
-    void setShortnumber( short shortnumber ) { SET_PROP(shortnumber) }
-
-    long longnumber() const { PROP(longnumber) }
-    void setLongnumber( long longnumber ) { SET_PROP(longnumber) }
-*/
 public slots:
     QString getUnicodeSlot() const { GET_PROP_SLOT(unicode) }
     void setUnicodeSlot( const QString &unicode ) { SET_PROP_SLOT(unicode) }
@@ -151,13 +140,13 @@ public slots:
     QColor getAndSetColorSlot( QColor& color ) { GET_AND_SET(color, QColor) }
     QColor emitColorRefSignal() { EMIT_REF(color, QColor) }
 
-    QDateTime getDateSlot() const { GET_PROP_SLOT(date) }
-    void setDateSlot( QDateTime date ) { SET_PROP_SLOT(date) }
-    QDateTime getAndSetDateSlot( QDateTime& date ) { GET_AND_SET(date, QDateTime) }
-    QDateTime emitDateRefSignal() { EMIT_REF(date, QDateTime) }
+    QDate getDateSlot() const { GET_PROP_SLOT(date) }
+    void setDateSlot( const QDate &date ) { SET_PROP_SLOT(date) }
+    QDate getAndSetDateSlot( QDate& date ) { GET_AND_SET(date, QDate) }
+    QDate emitDateRefSignal() { EMIT_REF(date, QDate) }
 
     QDateTime getTimeSlot() const { GET_PROP_SLOT(time) }
-    void setTimeSlot( QDateTime time ) { SET_PROP_SLOT(time) }
+    void setTimeSlot( const QDateTime &time ) { SET_PROP_SLOT(time) }
     QDateTime getAndSetTimeSlot( QDateTime& time ) { GET_AND_SET(time, QDateTime) }
     QDateTime emitTimeRefSignal() { EMIT_REF(time, QDateTime) }
 
@@ -194,7 +183,7 @@ public slots:
     void posnumberPointerSlot( uint *posnumber ) { PROP_POINTER(posnumber) }
     void realPointerSlot( double *real ) { PROP_POINTER(real) }
     void colorPointerSlot( QColor *color ) { PROP_POINTER(color) }
-    void datePointerSlot( QDateTime *date ) { PROP_POINTER(date) }
+    void datePointerSlot( QDate *date ) { PROP_POINTER(date) }
     void timePointerSlot( QDateTime *time ) { PROP_POINTER(time) }
     void datetimePointerSlot( QDateTime *datetime ) { PROP_POINTER(datetime) }
     void fontPointerSlot( QFont *font ) { PROP_POINTER(font) }
@@ -202,17 +191,6 @@ public slots:
     void listPointerSlot( QValueList<QVariant> *list) { PROP_POINTER(list) }
     void betaPointerSlot( Alpha *beta ) { PROP_POINTER(beta) }
 
-/*
-    short getShortnumberSlot() const { GET_PROP_SLOT(shortnumber) }
-    void setShortnumberSlot( short shortnumber ) { SET_PROP_SLOT(shortnumber) }
-    short getAndSetShortnumberSlot( short& shortnumber ) { GET_AND_SET(shortnumber, short) }
-    short emitShortnumberRefSignal() { EMIT_REF(shortnumber, short) }
-
-    long getLongnumberSlot() const { GET_PROP_SLOT(longnumber) }
-    void setLongnumberSlot( long longnumber ) { SET_PROP_SLOT(longnumber) }
-    long getAndSetLongnumberSlot( long& longnumber ) { GET_AND_SET(longnumber, long) }
-    long emitLongnumberRefSignal() { EMIT_REF(longnumber, long) }
-*/
 signals:
     void unicodeChanged( const QString& );
     void unicodeRefSignal( QString& );
@@ -235,8 +213,8 @@ signals:
     void colorChanged( const QColor& );
     void colorRefSignal( QColor& );
 
-    void dateChanged( const QDateTime& );
-    void dateRefSignal( QDateTime& );
+    void dateChanged( const QDate& );
+    void dateRefSignal( QDate& );
     
     void timeChanged( const QDateTime& );
     void timeRefSignal( QDateTime& );
@@ -256,13 +234,6 @@ signals:
     void betaChanged( Alpha );
     void betaRefSignal( Alpha& );
 
-/*
-    void shortnumberChanged( short );
-    void shortnumberRefSignal( short& );
-
-    void longnumberChanged( long );
-    void longnumberRefSignal( long& );
-*/
 private:
     QString m_unicode;
     QCString m_text;
@@ -271,18 +242,13 @@ private:
     uint m_posnumber;
     double m_real;
     QColor m_color;
-    QDateTime m_date;
+    QDate m_date;
     QDateTime m_time;
     QDateTime m_datetime;
     QFont m_font;
     QPixmap m_pixmap;
     QValueList<QVariant> m_list;
     Alpha m_beta;
-
-/*
-    short m_shortnumber;
-    long m_longnumber;
-*/
 };
 
 #include "control.moc"
