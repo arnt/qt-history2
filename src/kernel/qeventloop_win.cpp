@@ -629,6 +629,8 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 #endif
 	if ( type >= 0 )
 	    sn_activate_fd( msg.wParam, type );
+    } else if ( !msg.hwnd && msg.message ) {
+	qt_winEventFilter( &msg );
     }
 
     QInputContext::TranslateMessage( &msg );			// translate to WM_CHAR
