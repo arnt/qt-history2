@@ -120,7 +120,6 @@ QTestControl::QTestControl()
 
     nameDelimiterString = "";
     nameDelimiterString += nameDelimiterChar;
-    qDebug("QTestControl created.....");
 }
 
 /*!
@@ -134,9 +133,10 @@ QTestControl::~QTestControl()
     close();
 
     delete curMessage;
+    testWidgets.setSocket( 0 );
+    m_socket->flush();
+    m_socket->close();
     delete m_socket;
-
-    qDebug("QTestControl destroyed.....");
 }
 
 /*!
@@ -264,10 +264,12 @@ void QTestControl::onCommand()
 
 void QTestControl::handleCommand(QRemoteMessage *msg)
 {
+    qDebug("QTestControl::handleCommand( " + msg->event() + "::" + msg->message() + " )");
+
     if (msg->event() == "SimulateEvent") {
 //qDebug("Receive command: " + msg->event());
 	if (simulateEvent(msg)) {
-	    QRemoteMessage S("ACK","");
+	    QRemoteMessage S("ACK", msg->event() + "::" + msg->message() );
 	    S.send(m_socket);
 	} else {
 	    // No need to give more info here, this is already done in simulateEvent()
@@ -275,6 +277,12 @@ void QTestControl::handleCommand(QRemoteMessage *msg)
 	    S.send(m_socket);
 	}
 	return;
+
+    } else if (msg->event() == "PING") {
+	
+        QRemoteMessage S("PONG", "" );
+	S.send(m_socket);
+
     } else if (msg->event() == "MouseInfo") {
 
 	QPoint gp = QCursor::pos ();
@@ -330,8 +338,14 @@ void QTestControl::handleCommand(QRemoteMessage *msg)
 	
 	QUuid id = qApp->applicationId();
 
-	// Signal the other side the id of the application
-	QRemoteMessage s2("AppId",id.toString());
+	// Signal the other side the id and testcase name of the application
+	QString s;
+        s.sprintf("<ID>%s</ID><CASE>", id.toString().latin1() );
+        if (m_remoteClient) 
+            s+= m_remoteClient->className();
+        s+= "</CASE>";
+
+	QRemoteMessage s2("AppId",s);
 	s2.send(m_socket);
 	return;
 
@@ -353,7 +367,7 @@ void QTestControl::handleCommand(QRemoteMessage *msg)
 	    return;
 	}
 
-	QRemoteMessage S("ACK","");
+	QRemoteMessage S("ACK", msg->event() + "::" + msg->message() );
 	S.send(m_socket);
     } else if (msg->event() == "StartRecording") {
 
@@ -366,7 +380,7 @@ void QTestControl::handleCommand(QRemoteMessage *msg)
     } else if (msg->event() == "StartReplay") {
 
 	startReplay();
-	QRemoteMessage S("ACK","");
+	QRemoteMessage S("ACK", msg->event() + "::" + msg->message() );
 	S.send(m_socket);
 	return;
     } else if (msg->event() == "StopReplay") {
@@ -375,15 +389,23 @@ void QTestControl::handleCommand(QRemoteMessage *msg)
 	return;
     } else if (msg->event() == "Terminate") {
 
-	QRemoteMessage S("ACK","");
-	S.send(m_socket);
+	QRemoteMessage S1( "TERMINATE", "Good-bye" );
+	S1.send(m_socket);
 
-	if (qApp)
-	    qApp->quit();
-	else {
-	    m_socket->close();
-	    exit(0);
+        if (qApp) {
+            QTimer::singleShot(100,qApp,SLOT(quit()));
+        } else {
+	    QRemoteMessage S( "NAK", msg->event() + "::" + msg->message() );
+	    S.send(m_socket);
 	}
+	return;
+    } else if (msg->event() == "Kill") {
+
+	QRemoteMessage S( "ACK", msg->event() + "::" + msg->message() );
+	S.send(m_socket);
+//        m_socket->flush();
+//	m_socket->close();
+        exit(0);
 	return;
 /*
     } else if (msg->event() == "TopLeftScaling") {
