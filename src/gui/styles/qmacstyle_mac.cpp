@@ -1490,7 +1490,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
         bi.kind = kThemeDisclosureButton;
         bi.value = opt->state & QStyle::Style_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
         bi.adornment = kThemeAdornmentNone;
-        HIRect hirect = qt_hirectForQRect(opt->rect, p);
+        HIRect hirect = qt_hirectForQRect(opt->rect); // ### passing the painter causes bad stuff in Q3ListView...
         HIThemeDrawButton(&hirect, &bi, cg, kHIThemeOrientationNormal, 0);
         break; }
     case QStyle::PE_RubberBandMask:
@@ -3742,19 +3742,13 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 int y = lv->rect.y(),
                 h = lv->rect.height(),
                 x = lv->rect.right() - 10;
-                qt_mac_set_port(p);
-                ::RGBColor f;
-                f.red = lv->viewportPalette.color(lv->viewportBGRole).red() * 256;
-                f.green = lv->viewportPalette.color(lv->viewportBGRole).green() * 256;
-                f.blue = lv->viewportPalette.color(lv->viewportBGRole).blue() * 256;
-                RGBBackColor(&f);
-
-                QPixmap pm;
-                QPainter pm_paint;
                 for (int i = 1; i < lv->items.size() && y < h; ++i) {
                     QStyleOptionListViewItem child = lv->items.at(i);
                     if (y + child.height > 0 && (child.childCount > 0
-                        || child.features & QStyleOptionListViewItem::Expandable)) {
+                        || (child.features & (QStyleOptionListViewItem::Expandable
+                                            | QStyleOptionListViewItem::Visible))
+                            == (QStyleOptionListViewItem::Expandable
+                                | QStyleOptionListViewItem::Visible))) {
                         QStyleOption treeOpt(0);
                         treeOpt.rect.setRect(x, y + child.height / 2 - 4, 9, 9);
                         treeOpt.palette = lv->palette;
