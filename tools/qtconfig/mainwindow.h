@@ -34,6 +34,11 @@ public slots:
     virtual void downLibpath();
     virtual void upLibpath();
     virtual void browseLibpath();
+    virtual void removeFontpath();
+    virtual void addFontpath();
+    virtual void downFontpath();
+    virtual void upFontpath();
+    virtual void browseFontpath();
     virtual void fileSave();
     virtual void fileExit();
     virtual void somethingModified();
@@ -59,6 +64,7 @@ private:
 
     QPalette editPalette, previewPalette;
     QStyle *previewstyle;
+    QStringList fontpaths;
     bool modified;
 };
 

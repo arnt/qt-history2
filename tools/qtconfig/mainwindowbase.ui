@@ -10,7 +10,7 @@
             <x>0</x>
             <y>0</y>
             <width>650</width>
-            <height>520</height>
+            <height>518</height>
         </rect>
     </property>
     <property name="caption">
@@ -1138,6 +1138,151 @@
                     </widget>
                 </vbox>
             </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Font Paths</string>
+                </attribute>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>4</number>
+                    </property>
+                    <property name="spacing">
+                        <number>4</number>
+                    </property>
+                    <widget class="QGroupBox">
+                        <property name="name">
+                            <cstring>GroupBox10</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Font Paths</string>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>8</number>
+                            </property>
+                            <property name="spacing">
+                                <number>4</number>
+                            </property>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>Layout9</cstring>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <property name="margin">
+                                        <number>0</number>
+                                    </property>
+                                    <property name="spacing">
+                                        <number>4</number>
+                                    </property>
+                                    <widget class="QPushButton" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>PushButton11</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Up</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QPushButton" row="1" column="2">
+                                        <property name="name">
+                                            <cstring>PushButton13</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Remove</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QListBox" row="0" column="0" rowspan="1" colspan="3">
+                                        <property name="name">
+                                            <cstring>fontpathlistbox</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget class="QPushButton" row="1" column="1">
+                                        <property name="name">
+                                            <cstring>PushButton12</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Down</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>Layout10</cstring>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <property name="margin">
+                                        <number>0</number>
+                                    </property>
+                                    <property name="spacing">
+                                        <number>4</number>
+                                    </property>
+                                    <spacer row="2" column="0">
+                                        <property name="name">
+                                            <cstring>Spacer4</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Minimum</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>20</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                    <widget class="QLabel" row="0" column="0" rowspan="1" colspan="3">
+                                        <property name="name">
+                                            <cstring>TextLabel15_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Press the &lt;b&gt;Browse&lt;/b&gt; button or enter a directory and press Enter to add them to the list.</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QPushButton" row="2" column="2">
+                                        <property name="name">
+                                            <cstring>PushButton15</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Add</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit" row="1" column="0" rowspan="1" colspan="3">
+                                        <property name="name">
+                                            <cstring>fontpathlineedit</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget class="QPushButton" row="2" column="1">
+                                        <property name="name">
+                                            <cstring>PushButton14</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Browse...</string>
+                                        </property>
+                                    </widget>
+                                </grid>
+                            </widget>
+                        </vbox>
+                    </widget>
+                </hbox>
+            </widget>
         </widget>
     </hbox>
 </widget>
@@ -1472,13 +1617,57 @@
         <receiver>MainWindowBase</receiver>
         <slot>pageChanged(QWidget*)</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <connection>
+        <sender>PushButton11</sender>
+        <signal>clicked()</signal>
+        <receiver>MainWindowBase</receiver>
+        <slot>upFontpath()</slot>
+    </connection>
+    <connection>
+        <sender>PushButton12</sender>
+        <signal>clicked()</signal>
+        <receiver>MainWindowBase</receiver>
+        <slot>downFontpath()</slot>
+    </connection>
+    <connection>
+        <sender>PushButton13</sender>
+        <signal>clicked()</signal>
+        <receiver>MainWindowBase</receiver>
+        <slot>removeFontpath()</slot>
+    </connection>
+    <connection>
+        <sender>PushButton14</sender>
+        <signal>clicked()</signal>
+        <receiver>MainWindowBase</receiver>
+        <slot>browseFontpath()</slot>
+    </connection>
+    <connection>
+        <sender>PushButton15</sender>
+        <signal>clicked()</signal>
+        <receiver>MainWindowBase</receiver>
+        <slot>addFontpath()</slot>
+    </connection>
+    <connection>
+        <sender>libpathlineedit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>MainWindowBase</receiver>
+        <slot>addLibpath()</slot>
+    </connection>
+    <connection>
+        <sender>fontpathlineedit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>MainWindowBase</receiver>
+        <slot>addFontpath()</slot>
+    </connection>
+    <slot access="public" language="C++" returnType="void">addFontpath()</slot>
     <slot access="public" language="C++" returnType="void">addLibpath()</slot>
     <slot access="public" language="C++" returnType="void">addSubstitute()</slot>
+    <slot access="public" language="C++" returnType="void">browseFontpath()</slot>
     <slot access="public" language="C++" returnType="void">browseLibpath()</slot>
     <slot access="public" language="C++" returnType="void">buildFont()</slot>
     <slot access="public" language="C++" returnType="void">buildPalette()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">downFontpath()</slot>
     <slot access="public" language="C++" returnType="void">downLibpath()</slot>
     <slot access="public" language="C++" returnType="void">downSubstitute()</slot>
     <slot access="public" language="C++" returnType="void">familySelected( const QString &amp; )</slot>
@@ -1486,29 +1675,30 @@
     <slot access="public" language="C++" returnType="void">fileSave()</slot>
     <slot access="public" language="C++" returnType="void">helpAbout()</slot>
     <slot access="public" language="C++" returnType="void">helpAboutQt()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="public" language="C++" returnType="void">new_slot()</slot>
     <slot access="public" language="C++" returnType="void">pageChanged(QWidget *)</slot>
     <slot access="public" language="C++" returnType="void">paletteSelected( int )</slot>
+    <slot access="public" language="C++" returnType="void">removeFontpath()</slot>
     <slot access="public" language="C++" returnType="void">removeLibpath()</slot>
     <slot access="public" language="C++" returnType="void">removeSubstitute()</slot>
     <slot access="public" language="C++" returnType="void">somethingModified()</slot>
     <slot access="public" language="C++" returnType="void">styleSelected( const QString &amp; )</slot>
     <slot access="public" language="C++" returnType="void">substituteSelected( const QString &amp; )</slot>
     <slot access="public" language="C++" returnType="void">tunePalette()</slot>
+    <slot access="public" language="C++" returnType="void">upFontpath()</slot>
     <slot access="public" language="C++" returnType="void">upLibpath()</slot>
     <slot access="public" language="C++" returnType="void">upSubstitute()</slot>
 </connections>
 <functions>
-    <function name="init()" >{
-}</function>
-    <function name="destroy()" >{
-
-}</function>
+    <function name="" ></function>
     <function name="addLibpath()" >{
 
 }</function>
     <function name="addSubstitute()" >{
 
 }</function>
+    <function name="" ></function>
     <function name="browseLibpath()" >{
 
 }</function>
@@ -1518,6 +1708,10 @@
     <function name="buildPalette()" >{
 
 }</function>
+    <function name="destroy()" >{
+
+}</function>
+    <function name="" ></function>
     <function name="downLibpath()" >{
 
 }</function>
@@ -1539,10 +1733,14 @@
     <function name="helpAboutQt()" >{
 
 }</function>
+    <function name="init()" >{
+}</function>
+    <function name="" ></function>
     <function name="" ></function>
     <function name="paletteSelected(int)" >{
 
 }</function>
+    <function name="" ></function>
     <function name="removeLibpath()" >{
 
 }</function>
@@ -1561,6 +1759,7 @@
     <function name="tunePalette()" >{
 
 }</function>
+    <function name="" ></function>
     <function name="upLibpath()" >{
 
 }</function>

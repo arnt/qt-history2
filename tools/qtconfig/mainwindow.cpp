@@ -24,23 +24,23 @@ extern bool qt_has_xft;
 
 
 static const char *appearance_text =
-"<p><b><font size+=2>Appearance</font></b></p>
-<hr>
-
-<p>Here you can customize the appearance of your Qt applications.</p>
-<p>You may select the default GUI Style from the drop down list and
-customize the colors.</p>
-
-<p>Any GUI Style plugins in your plugin path will automatically be added
-to the list of built-in Qt styles.</p>
-
-<p>Upon choosing 3-D Effects and Background colors, the Qt Configutaion
-program will automatically generate a palette for you.  To customize
-colors further, press the Tune Palette button to open the advanced
-palette editor.
-
-<p>The preview will show your selected Style and colors, allowing
-you to see how your Qt programs will look.";
+"<p><b><font size+=2>Appearance</font></b></p>"
+"<hr>"
+""
+"<p>Here you can customize the appearance of your Qt applications.</p>"
+"<p>You may select the default GUI Style from the drop down list and"
+"customize the colors.</p>"
+""
+"<p>Any GUI Style plugins in your plugin path will automatically be added"
+"to the list of built-in Qt styles.</p>"
+""
+"<p>Upon choosing 3-D Effects and Background colors, the Qt Configutaion"
+"program will automatically generate a palette for you.  To customize"
+"colors further, press the Tune Palette button to open the advanced"
+"palette editor."
+""
+"<p>The preview will show your selected Style and colors, allowing"
+"you to see how your Qt programs will look.";
 
 static const char *font_text =
 "<p><b><font size+=2>Fonts</font></b></p>
@@ -89,6 +89,10 @@ $HOME/plugins/styles and Qt Designer plugins in $HOME/plugins/designer,
 you would add $HOME/plugins to your Library Path.  NOTE: Qt automatically
 searches in the directory where you installed Qt for component plugins.
 Removing that path is not possible.</p>";
+
+static const char *fontpath_text =
+"<p><b><font size+=2>Font Paths</font></b></p>"
+"<hr>";
 
 static const char *about_text =
 "<p><b><font size+=4>About Qt Configuration</font></b><br>
@@ -272,6 +276,10 @@ MainWindow::MainWindow()
 
     xftcheckbox->setChecked(qt_has_xft);
 
+    QSettings settings;
+    fontpaths = settings.readListEntry("/qt/fontPath");
+    fontpathlistbox->insertStringList(fontpaths);
+
     setModified(FALSE);
 }
 
@@ -314,6 +322,7 @@ void MainWindow::fileSave()
 	settings.writeEntry("/qt/Palette/inactive", inactcg);
 	settings.writeEntry("/qt/Palette/disabled", discg);
 	settings.writeEntry("/qt/libraryPath", QApplication::libraryPaths(), ':');
+	settings.writeEntry("/qt/fontPath", fontpaths, ':');
 	settings.writeEntry("/qt/style", gstylecombo->currentText());
 	settings.writeEntry("/qt/useXft", xftcheckbox->isChecked());
 	settings.writeEntry("/qt/doubleClickInterval",
@@ -792,6 +801,96 @@ void MainWindow::browseLibpath()
 }
 
 
+void MainWindow::removeFontpath()
+{
+    if (fontpathlistbox->currentItem() < 0 ||
+	uint(fontpathlistbox->currentItem()) > fontpathlistbox->count())
+	return;
+
+    int item = fontpathlistbox->currentItem();
+    fontpaths.remove(fontpaths.at(fontpathlistbox->currentItem()));
+    fontpathlistbox->clear();
+    fontpathlistbox->insertStringList(fontpaths);
+    if (uint(item) > fontpathlistbox->count())
+	item = int(fontpathlistbox->count()) - 1;
+    fontpathlistbox->setCurrentItem(item);
+    setModified(TRUE);
+}
+
+
+void MainWindow::addFontpath()
+{
+    if (fontpathlineedit->text().isEmpty())
+	return;
+
+    if (fontpathlistbox->currentItem() < 0 ||
+	uint(fontpathlistbox->currentItem()) > fontpathlistbox->count()) {
+	fontpaths.append(fontpathlineedit->text());
+	fontpathlistbox->clear();
+	fontpathlistbox->insertStringList(fontpaths);
+	setModified(TRUE);
+
+	return;
+    }
+
+    int item = fontpathlistbox->currentItem();
+    fontpaths.insert(++fontpaths.at(fontpathlistbox->currentItem()),
+		     fontpathlineedit->text());
+    fontpathlistbox->clear();
+    fontpathlistbox->insertStringList(fontpaths);
+    fontpathlistbox->setCurrentItem(item);
+    setModified(TRUE);
+}
+
+
+void MainWindow::downFontpath()
+{
+    if (fontpathlistbox->currentItem() < 0 ||
+	uint(fontpathlistbox->currentItem()) >= fontpathlistbox->count() - 1)
+	return;
+
+    int item = fontpathlistbox->currentItem();
+    QStringList::Iterator it = fontpaths.at(item);
+    QString fam = *it;
+    fontpaths.remove(it);
+    it = fontpaths.at(item);
+    fontpaths.insert(++it, fam);
+    fontpathlistbox->clear();
+    fontpathlistbox->insertStringList(fontpaths);
+    fontpathlistbox->setCurrentItem(item + 1);
+    setModified(TRUE);
+}
+
+
+void MainWindow::upFontpath()
+{
+    if (fontpathlistbox->currentItem() < 1)
+	return;
+
+    int item = fontpathlistbox->currentItem();
+    QStringList::Iterator it = fontpaths.at(item);
+    QString fam = *it;
+    fontpaths.remove(it);
+    it = fontpaths.at(item - 1);
+    fontpaths.insert(it, fam);
+    fontpathlistbox->clear();
+    fontpathlistbox->insertStringList(fontpaths);
+    fontpathlistbox->setCurrentItem(item - 1);
+    setModified(TRUE);
+}
+
+
+void MainWindow::browseFontpath()
+{
+    QString dirname = QFileDialog::getExistingDirectory(QString::null, this, 0,
+							tr("Select a Directory"));
+    if (dirname.isNull())
+	return;
+
+   fontpathlineedit->setText(dirname);
+}
+
+
 void MainWindow::somethingModified()
 {
     setModified(TRUE);
@@ -821,6 +920,8 @@ void MainWindow::pageChanged(QWidget *page)
 	helpview->setText(tr(interface_text));
     else if (page == tab_4)
 	helpview->setText(tr(libpath_text));
+    else if (page == tab_5)
+	helpview->setText(tr(fontpath_text));
 }
 
 
