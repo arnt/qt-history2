@@ -10,7 +10,7 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
     if (isValid()) {
         for (int column=l; column<=r; ++column)
             for (int row=t; row<=b; ++row)
-                items.append(model->index(row, column, parent()));
+                items.append(model->index(row, column, parent())); //###does not specify Type
     }
     return items;
 }
@@ -80,23 +80,43 @@ static void split(QItemSelectionRange &range, const QItemSelectionRange &other, 
 /*!
   \internal
 
-  returns a QItemSelection where all ranges have been expanded to left: 0 and right: columnCount(range.parent())-1
+  returns a QItemSelection where all ranges have been expanded to:
+  SelectRows: left: 0 and right: columnCount()-1
+  SelectColumns: top: 0 and bottom: rowCount()-1
 */
 
-QItemSelection QItemSelectionModelPrivate::expandRows(const QItemSelection &selection) const
+QItemSelection QItemSelectionModelPrivate::expandSelection(
+    const QItemSelection &selection,
+    QItemSelectionModel::SelectionBehavior behavior) const
 {
     if (selection.count() == 0)
         return selection;
 
-    QItemSelection rows;
-    for (int i=0; i<selection.count(); ++i)
-        rows.append(QItemSelectionRange(selection.at(i).parent(),
-                                        selection.at(i).top(),
-                                        0,
-                                        selection.at(i).bottom(),
-                                        model->columnCount(selection.at(i).parent())-1));
-    return rows;
+    QItemSelection expanded;
+    switch (behavior) {
+    case QItemSelectionModel::SelectRows:
+        for (int i=0; i<selection.count(); ++i)
+            expanded.append(QItemSelectionRange(selection.at(i).parent(),
+                                                selection.at(i).top(),
+                                                0,
+                                                selection.at(i).bottom(),
+                                                model->columnCount(selection.at(i).parent())-1));
+        break;
+    case QItemSelectionModel::SelectColumns:
+        for (int i=0; i<selection.count(); ++i)
+            expanded.append(QItemSelectionRange(selection.at(i).parent(),
+                                                0,
+                                                selection.at(i).left(),
+                                                model->rowCount(selection.at(i).parent())-1,
+                                                selection.at(i).right()));
+        break;
+    default:
+        expanded = selection;
+        break;
+    }
+    return expanded;
 }
+
 
 /*!
   \class QItemSelectionModel
@@ -134,8 +154,17 @@ void QItemSelectionModel::select(const QItemSelection &selection,
 {
     QItemSelection sel = selection;
     QItemSelection old;
-    if (behavior == SelectRows)
-        sel = d->expandRows(sel);
+
+    if (d->selectionMode == Single && !sel.isEmpty()) {
+        QModelIndex singleIndex = model()->index(sel.at(sel.count()-1).bottom(),
+                                                 sel.at(sel.count()-1).right(),
+                                                 sel.at(sel.count()-1).parent());
+        sel = QItemSelection(singleIndex, singleIndex, model());
+    }
+
+    if (behavior != SelectItems)
+        sel = d->expandSelection(sel, behavior);
+
     switch (updateMode) {
     case NoUpdate:
         return;

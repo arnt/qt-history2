@@ -17,7 +17,8 @@ public:
             ranges.removeAll(*it);
     }
 
-    QItemSelection expandRows(const QItemSelection &selection) const;
+    QItemSelection expandSelection(const QItemSelection &selection,
+                                   QItemSelectionModel::SelectionBehavior behavior) const;
 
     QAbstractItemModel *model;
     QItemSelectionModel::SelectionMode selectionMode;

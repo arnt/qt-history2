@@ -96,7 +96,8 @@ public:
 
     enum SelectionBehavior {
         SelectItems,
-        SelectRows
+        SelectRows,
+        SelectColumns
     };
 
     QItemSelectionModel(QAbstractItemModel *model, QObject *parent = 0);
