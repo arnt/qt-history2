@@ -213,7 +213,6 @@ Atom            qt_clipboard_sentinel   = 0;
 Atom		qt_selection_sentinel	= 0;
 Atom		qt_wm_state		= 0;
 static Atom     qt_settings_timestamp	= 0;    // Qt >=3 settings timestamp
-static Atom	qt_desktop_properties	= 0;	// Qt desktop properties
 static Atom	qt_input_encoding	= 0;	// Qt desktop properties
 static Atom	qt_resource_manager	= 0;	// X11 Resource manager
 Atom		qt_sizegrip		= 0;	// sizegrip
@@ -788,8 +787,6 @@ static void qt_x11_process_intern_atoms()
 }
 
 
-static bool ignore_settings_change = FALSE;
-
 /*! \internal
     apply the settings to the application
 */
@@ -804,6 +801,7 @@ bool QApplication::x11_apply_settings()
     unsigned long nitems, after = 1;
     unsigned char *data = 0;
     QDateTime timestamp, settingsstamp;
+    static QDateTime appliedstamp;
     bool update_timestamp = FALSE;
 
     if (XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
@@ -837,6 +835,10 @@ bool QApplication::x11_apply_settings()
     settingsstamp = settings.lastModficationTime("/qt/font");
     if (! settingsstamp.isValid())
 	return FALSE;
+
+    if ( appliedstamp == settingsstamp )
+	return TRUE;
+    appliedstamp = settingsstamp;
 
     if (! timestamp.isValid() || settingsstamp > timestamp)
 	update_timestamp = TRUE;
@@ -1005,93 +1007,7 @@ bool QApplication::x11_apply_settings()
 			qt_settings_timestamp, 8, PropModeReplace,
 			(unsigned char *) stamp.buffer().data(),
 			stamp.buffer().size());
-
-	ignore_settings_change = TRUE;
     }
-
-    return TRUE;
-}
-
-
-static bool seems_like_KDE_is_running = FALSE;
-
-
-// read the _QT_DESKTOP_PROPERTIES property and apply the settings to the application
-static bool qt_set_desktop_properties()
-{
-    if ( !qt_std_pal )
-	qt_create_std_palette();
-
-    Atom type;
-    int format;
-    ulong  nitems, after = 1;
-    long offset = 0;
-    const char *data;
-
-    int e = XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
-				qt_desktop_properties, 0, 1,
-				False, AnyPropertyType, &type, &format, &nitems,
-				&after,  (unsigned char**)&data );
-    if ( data )
-	XFree( (char *)data );
-    if ( e != Success || !nitems )
-	return FALSE;
-
-    QBuffer  properties;
-    properties.open( IO_WriteOnly );
-    while (after > 0) {
-	XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
-			    qt_desktop_properties,
-			    offset, 1024, False, AnyPropertyType,
-			    &type, &format, &nitems, &after, (unsigned char**) &data );
-	if (format == 8) {
-	    properties.writeBlock(data, nitems);
-	    offset += nitems / 4;
-	}
-
-	XFree( (char *)data );
-    }
-
-    QDataStream d( properties.buffer(), IO_ReadOnly );
-    d.setVersion(3); // data stream version 3 is from Qt 2.1.0 to Qt 2.3.x
-
-    QPalette pal;
-    QFont font;
-    d >> pal >> font;
-
-    // check the palette to see if the disabled foreground and background color
-    // are the same, if they are, we are going to do a hack and set the disabled
-    // foreground color to something sensible - this works around a bug in KDE that
-    // sets the disabled foreground color to the active foregroundcolor
-    QColor actfg(pal.color(QPalette::Active, QColorGroup::Foreground)),
-	disfg(pal.color(QPalette::Disabled, QColorGroup::Foreground));
-    if (actfg == disfg) {
-	int h, s, v;
-	disfg.hsv( &h, &s, &v );
-	if (v > 128)
-	    // dark bg, light fg - need a darker disabled fg
-	    disfg = disfg.dark();
-	else if (disfg != Qt::black)
-	    // light bg, dark fg - need a lighter disabled fg - but only if !black
-	    disfg = disfg.light();
-	else
-	    // black fg - use darkgrey disabled fg
-	    disfg = Qt::darkGray;
-
-	pal.setColor(QPalette::Disabled, QColorGroup::Foreground, disfg);
-    }
-
-    // the palette in 2.x did not support links
-    pal.setColor( QColorGroup::Link, Qt::blue );
-    pal.setColor( QColorGroup::LinkVisited, Qt::magenta );
-
-    if ( pal != *qt_std_pal && pal != QApplication::palette() )
-	QApplication::setPalette( pal, TRUE );
-    *qt_std_pal = pal;
-    if ( font != QApplication::font() )
-	QApplication::setFont( font, TRUE );
-
-    seems_like_KDE_is_running = TRUE;
 
     return TRUE;
 }
@@ -1148,8 +1064,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, FALSE );
     QApplication::setEffectEnabled( Qt::UI_FadeTooltip, FALSE );
 
-    if ( QApplication::desktopSettingsAware() &&
-	 (! QApplication::x11_apply_settings() && ! qt_set_desktop_properties() ) ) {
+    if ( QApplication::desktopSettingsAware() && !QApplication::x11_apply_settings()  ) {
 	int format;
 	ulong  nitems, after = 1;
 	QCString res;
@@ -1897,7 +1812,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_x11_intern_atom( "_QT_CLIPBOARD_SENTINEL", &qt_clipboard_sentinel );
 	qt_x11_intern_atom( "_QT_SELECTION_SENTINEL", &qt_selection_sentinel );
 	qt_x11_intern_atom( "_QT_SCROLL_DONE", &qt_qt_scrolldone );
-	qt_x11_intern_atom( "_QT_DESKTOP_PROPERTIES", &qt_desktop_properties );
 	qt_x11_intern_atom( "_QT_INPUT_ENCODING", &qt_input_encoding );
 	qt_x11_intern_atom( "_QT_SIZEGRIP", &qt_sizegrip );
 	qt_x11_intern_atom( "_NET_WM_CONTEXT_HELP", &qt_net_wm_context_help );
@@ -2267,51 +2181,39 @@ void QApplication::x11_initialize_style()
     int format;
     unsigned long length, after;
     uchar *data;
-    if ( app_style )
-	return;
-    if ( !seems_like_KDE_is_running ) {
-	if ( XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
-				 qt_kwin_running, 0, 1,
-				 False, AnyPropertyType, &type, &format,
-				 &length, &after, &data ) == Success
-	     && length ) {
-	    seems_like_KDE_is_running = TRUE;
-	    if ( data )
-		XFree( (char *)data );
-	}
-    }
-    if ( !seems_like_KDE_is_running ) {
-	if ( XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
-				 qt_kwm_running, 0, 1,
-				 False, AnyPropertyType, &type, &format,
-				 &length, &after, &data ) == Success
-	     && length ) {
-	    seems_like_KDE_is_running = TRUE; // KDE1, to be precise
-	    if ( data )
-		XFree( (char *)data );
-	}
-    }
-    if ( seems_like_KDE_is_running ) {
 #ifndef QT_NO_STYLE_WINDOWS
-	// check if KDE's styles are available
-	app_style = QStyleFactory::create("highcolor");
-	if(!app_style) 	// No, use windows style on KDE
+    if ( !app_style
+	 && XGetWindowProperty( appDpy, appRootWin, qt_kwin_running, 0, 1,
+			     False, AnyPropertyType, &type, &format,
+			     &length, &after, &data ) == Success
+	 && length ) {
+	if ( data ) XFree( (char *)data );
+	// kwin is there. check if KDE's styles are available, otherwise use windows style
+	if ( (app_style = QStyleFactory::create("highcolor") ) == 0 )
 	    app_style = QStyleFactory::create("windows");
-#endif
-    } else { // maybe another desktop?
-	if ( XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
-				 qt_gbackground_properties, 0, 1,
-				 False, AnyPropertyType, &type, &format,
-				 &length, &after, &data ) == Success
-	     && length ) {
-#ifndef QT_NO_STYLE_MOTIFPLUS
-	    // default to MotifPlus with hovering
-	    app_style = QStyleFactory::create("motifplus" );
-#endif
-	    if ( data )
-		XFree( (char *)data );
-	}
     }
+    if ( !app_style
+	 && XGetWindowProperty( appDpy, appRootWin, qt_kwm_running, 0, 1,
+			     False, AnyPropertyType, &type, &format,
+			     &length, &after, &data ) == Success
+	 && length ) {
+	if ( data ) XFree( (char *)data );
+	// kwm is there, looks like KDE1
+	app_style = QStyleFactory::create("windows");
+    }
+#endif
+#ifndef QT_NO_STYLE_MOTIFPLUS
+    // maybe another desktop?
+    if ( !app_style
+	 && XGetWindowProperty( appDpy, appRootWin, qt_gbackground_properties, 0, 1,
+			     False, AnyPropertyType, &type, &format,
+			     &length, &after, &data ) == Success
+	 && length ) {
+	if ( data ) XFree( (char *)data );
+	// default to MotifPlus with hovering
+	app_style = QStyleFactory::create("motifplus" );
+    }
+#endif
 }
 #endif
 
@@ -3217,13 +3119,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    } else if ( obey_desktop_settings ) {
 		if ( event->xproperty.atom == qt_resource_manager )
 		    qt_set_x11_resources();
-		else if ( event->xproperty.atom == qt_desktop_properties )
-		    qt_set_desktop_properties();
-		else if ( event->xproperty.atom == qt_settings_timestamp ) {
-		    if (! ignore_settings_change)
-			QApplication::x11_apply_settings();
-		    ignore_settings_change = FALSE;
-		}
+		else if ( event->xproperty.atom == qt_settings_timestamp )
+		    QApplication::x11_apply_settings();
 	    }
 	} else if ( widget ) {
 	    if (event->xproperty.window == widget->winId()) { // widget properties
