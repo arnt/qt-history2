@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#7 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#8 $
 **
 ** Implementation of QColorDialog class
 **
@@ -573,7 +573,8 @@ void QColorDialogPrivate::newStandard( int r, int c )
     custom->setSelected(-1,-1);
 }
 
-QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog )
+QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
+    QObject(dialog)
 {
     QHBoxLayout *topLay = new QHBoxLayout( dialog, 12, 6 );
     QVBoxLayout *leftLay = new QVBoxLayout( topLay );
