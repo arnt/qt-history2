@@ -80,6 +80,35 @@ QAbstractItemViewPrivate::~QAbstractItemViewPrivate()
 {
 }
 
+void QAbstractItemViewPrivate::init()
+{
+    q->setAttribute(QWidget::WA_NoBackground);
+    q->setAttribute(QWidget::WA_StaticContents);
+    q->setSelectionModel(new QItemSelectionModel(model));
+
+    QObject::connect(model, SIGNAL(contentsChanged(const QModelIndex &, const QModelIndex &)),
+                     q, SLOT(contentsChanged(const QModelIndex &, const QModelIndex &)));
+    QObject::connect(model, SIGNAL(contentsInserted(const QModelIndex &, const QModelIndex &)),
+                     q, SLOT(contentsInserted(const QModelIndex &, const QModelIndex &)));
+    QObject::connect(model,
+        SIGNAL(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)),
+                     q,
+        SLOT(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)));
+
+    q->viewport()->setFocusProxy(q);
+    q->viewport()->setFocusPolicy(QWidget::WheelFocus);
+
+    // FIXME: this is only true when we have a view that is layed out TopToBottom
+    QObject::connect(q->verticalScrollBar(), SIGNAL(sliderReleased()), q, SLOT(fetchMore()));
+    QObject::connect(q->verticalScrollBar(), SIGNAL(valueChanged(int)), q, SLOT(fetchMore()));
+
+    q->viewport()->setBackgroundRole(QPalette::Base);
+
+    //emit model->contentsChanged(); // initial emit to start layout
+    QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot,
+                            q->metaObject()->indexOfSlot("startItemsLayout()"), q));
+}
+
 
 /*!
   \class QViewItem qgenericitemview.h
@@ -132,30 +161,17 @@ QAbstractItemView::QAbstractItemView(QGenericItemModel *model, QWidget *parent, 
     : QScrollView(*new QAbstractItemViewPrivate, parent, name)
 {
     Q_ASSERT(model)
-    setAttribute(WA_NoBackground);
-    setAttribute(WA_StaticContents);
     d->model = model;
-    setSelectionModel(new QItemSelectionModel(model));
+    d->init();
+}
 
-    QObject::connect(model, SIGNAL(contentsChanged(const QModelIndex &, const QModelIndex &)),
-		     this, SLOT(contentsChanged(const QModelIndex &, const QModelIndex &)));
-    QObject::connect(model, SIGNAL(contentsInserted(const QModelIndex &, const QModelIndex &)),
-		     this, SLOT(contentsInserted(const QModelIndex &, const QModelIndex &)));
-    QObject::connect(model, SIGNAL(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)),
-		     this, SLOT(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)));
-
-    viewport()->setFocusProxy(this);
-    viewport()->setFocusPolicy(WheelFocus);
-
-    // FIXME: this is only true when we have a view that is layed out TopToBottom
-    connect(verticalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(fetchMore()));
-    connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(fetchMore()));
-
-    viewport()->setBackgroundRole(QPalette::Base);
-
-    //emit model->contentsChanged(); // initial emit to start layout
-    QApplication::postEvent(this, new QMetaCallEvent(QEvent::InvokeSlot,
-                            metaObject()->indexOfSlot("startItemsLayout()"), this));
+QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QGenericItemModel *model,
+                                     QWidget *parent, const char *name)
+    : QScrollView(dd, parent, name)
+{
+    Q_ASSERT(model)
+    d->model = model;
+    d->init();
 }
 
 QAbstractItemView::~QAbstractItemView()

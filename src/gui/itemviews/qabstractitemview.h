@@ -62,6 +62,9 @@ protected slots:
     virtual void updateGeometries();
 
 protected:
+    QAbstractItemView(QAbstractItemViewPrivate &, QGenericItemModel *model,
+                      QWidget *parent = 0, const char *name = 0);
+
     virtual void updateItem(const QModelIndex &item);
     virtual void updateRow(const QModelIndex &item);
     virtual void ensureItemVisible(const QModelIndex &item);

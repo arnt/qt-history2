@@ -1,6 +1,9 @@
 #ifndef QSCROLLVIEW_P_H
 #define QSCROLLVIEW_P_H
 
+#include <qhash.h>
+#include <qtimer.h>
+
 #include <private/qframe_p.h>
 
 class QSVChildRec;

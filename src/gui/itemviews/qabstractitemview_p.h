@@ -10,6 +10,8 @@ public:
     QAbstractItemViewPrivate();
     virtual ~QAbstractItemViewPrivate();
 
+    void init();
+
     inline bool shouldEdit(const QModelIndex &item, QItemDelegate::StartEditAction action)
     { return q_func()->model()->isEditable(item) && (action & startEditActions); }
 
