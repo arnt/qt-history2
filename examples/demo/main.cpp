@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#7 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#8 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -10,6 +10,7 @@
 
 #include "frame.h"
 #include "graph.h"
+#include "display.h"
 #include "icons.h"
 
 #include "textdrawing/textedit.h"
@@ -53,10 +54,11 @@ int main( int argc, char **argv )
     tab->addTab( w, "Database" );
     frame.addCategory( tab, dbpix, "Database" );
 
-    // example 3
+    // 2D Graphics
     tab = new QTabWidget();
     w = new GraphWidget( tab );
     tab->addTab( w, "Graph Drawing" );
+    tab->addTab( new DisplayWidget(), "Display" );
     frame.addCategory( tab, pix, "2D Graphics" );
 
     // example 4

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.cpp#4 $
+** $Id: //depot/qt/main/examples/demo/frame.cpp#5 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -111,6 +111,10 @@ Frame::Frame( QWidget *parent, const char *name )
     // category chooser
     QSplitter *splitter = new QSplitter( this );
     categories = new QListBox( splitter );
+    QFont f = categories->font();
+    f.setWeight( QFont::Bold );
+    categories->setFont( f );
+
     connect( categories, SIGNAL( clicked( QListBoxItem *) ),
 	     SLOT( clickedCategory( QListBoxItem *) ) );
 
