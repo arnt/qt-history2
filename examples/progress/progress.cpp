@@ -227,7 +227,8 @@ public slots:
 private:
     void timerEvent( QTimerEvent* )
     {
-	pb->setProgress( pb->totalSteps() - rects );
+	if (!got_stop)
+	    pb->setProgress( pb->totalSteps() - rects );
 	rects--;
 
 	{
@@ -247,7 +248,8 @@ private:
 	}
 
 	if (!rects || got_stop) {
-	    pb->setProgress( pb->totalSteps() );
+	    if (!got_stop)
+		pb->setProgress( pb->totalSteps() );
 	    QPainter p(this);
 	    p.fillRect(0, 0, width(), height(), backgroundColor());
 	    enableDrawingItems(TRUE);
