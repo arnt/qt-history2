@@ -2510,7 +2510,7 @@ QWidget *QApplication::desktop()
     if ( !desktopWidget || // not created yet
 	 !desktopWidget->isDesktop() ) { // reparented away
 	desktopWidget = new QWidget( 0, "desktop", WType_Desktop );
-	CHECK_PTR( desktopWidget );
+	Q_CHECK_PTR( desktopWidget );
     }
     return desktopWidget;
 }
