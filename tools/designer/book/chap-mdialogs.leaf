@@ -496,10 +496,12 @@ the dialog.
 \target dialog-save-project-settings
 \section1 Save Project Settings Dialog
 
-The \Dialog {Save Project Settings} dialog is invoked by clicking
+The \Dialog {Save Project Settings} message box is invoked by clicking
 File|Close or File|Exit for an open project to which changes have been
 made, but not previously saved. The dialog displays the text 'Save
 changes to your project.pro'?. Click \Button Yes to save the changes.
+If the project has any forms which have not been previously saved, the
+\Dialog {Save Form As} dialog is invoked when you click \Button Yes.
 Click \Button No to close the project without saving any changes.
 Click \Button Cancel to leave the dialog without closing the project
 and without making any changes.
@@ -507,7 +509,7 @@ and without making any changes.
 \target dialog-save-form
 \section1 Save Form Dialog
 
-The \Dialog {Save Form} dialog is invoked in several ways. One way is
+The \Dialog {Save Form} message is invoked in several ways. One way is
 to click File|Close for a form that has never been saved, or has been
 saved previously but has had changes made to it. The dialog is also
 invoked by clicking File|Exit for a form that has never been saved, or
