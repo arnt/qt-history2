@@ -5,5 +5,6 @@ SUBDIRS       = dialogs \
                 mainwindows \
                 network \
                 sql \
+		threads \
                 tools \
                 widgets
