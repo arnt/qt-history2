@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#142 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#141 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#142 $")
 
 
 // --------------------------------------------------------------------------
@@ -281,8 +281,7 @@ static bool obtain_gc( void **ref, GC *gc, ulong pix, Display *dpy, HANDLE hd )
     if ( !gc_cache_init )
 	init_gc_cache();
 
-    int k = (pix % gc_cache_size) * 4;
-
+    int   k = (pix % gc_cache_size) * 4;
     QGCC *g = gc_cache[k++];
     QGCC *prev = 0;
 
@@ -844,11 +843,11 @@ bool QPainter::begin( const QPaintDevice *pd )
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
     }
-    else if ( dt == PDT_PRINTER ) {		// device is a printer
+    else if ( testf(ExtDev) ) {			// external device
 	ww = vw = pdev->metric( PDM_WIDTH );
 	wh = vh = pdev->metric( PDM_HEIGHT );
     }
-    else
+    if ( ww == 0 )
 	ww = wh = vw = vh = 1024;
 
     if ( testf(ExtDev) ) {			// external device
@@ -2219,7 +2218,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		return;
 	    }
 	    if ( testf(ExtDev) ) {
-		QPDevCmdParam param[3];
+		QPDevCmdParam param[2];
 		QPoint p(x,y);
 		param[0].point	= &p;
 		param[1].pixmap = &pixmap;
