@@ -56,7 +56,7 @@
 #endif
 
 #ifdef QT_QWS_IPAQ
-#include <linux/h3650_ts.h>
+#include <linux/h3600_ts.h>
 #endif
 
 //#define QWS_CUSTOMTOUCHPANEL
