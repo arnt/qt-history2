@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#42 $
+** $Id: //depot/qt/main/src/xml/qxml.h#43 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -48,7 +48,7 @@
 #include "qmodules.h"
 #include "qfeatures.h"
 
-#if !defined(QT_MODULE_XML)
+#if !defined(QT_MODULE_XML) || defined( QT_LICENSE_PROFESSIONAL )
 #define QM_EXPORT
 #else
 #define QM_EXPORT Q_EXPORT

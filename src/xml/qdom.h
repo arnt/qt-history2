@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#23 $
+** $Id: //depot/qt/main/src/xml/qdom.h#24 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -45,7 +45,7 @@
 #include "qmodules.h"
 #include "qfeatures.h"
 
-#if !defined(QT_MODULE_XML)
+#if !defined(QT_MODULE_XML) || defined( QT_LICENSE_PROFESSIONAL )
 #define QM_EXPORT
 #else
 #define QM_EXPORT Q_EXPORT
