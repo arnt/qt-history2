@@ -22,17 +22,21 @@ public:
 
     int         value() const;
     const char *text()  const;
+
 public slots:
     void setValue( int );
     void setRange( int minVal, int maxVal );
     void setText( const char * );
+
 signals:
     void valueChanged( int );
+
 private:
     void init();
 
     QSlider     *slider;
     QLabel      *label;
 };
+
 
 #endif // LCDRANGE_H

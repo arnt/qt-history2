@@ -20,16 +20,20 @@ public:
     int   force()      const { return f; }
     bool  isShooting() const { return shooting; }
     QSizePolicy sizePolicy() const;
+
 public slots:
     void  setAngle( int degrees );
     void  setForce( int newton );
     void  shoot();
+
 signals:
     void  angleChanged( int );
     void  forceChanged( int );
+
 protected:
     void  timerEvent( QTimerEvent * );
     void  paintEvent( QPaintEvent * );
+
 private:
     void  stopShooting();
     void  paintShot( QPainter * );
@@ -45,5 +49,6 @@ private:
     float shoot_ang;
     float shoot_f;
 };
+
 
 #endif // CANNON_H

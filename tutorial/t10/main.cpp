@@ -41,17 +41,21 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     CannonField *cannonField = new CannonField( this, "cannonField" );
     cannonField->setBackgroundColor( QColor( 250, 250, 200) );
 
-    connect( angle,SIGNAL(valueChanged(int)), cannonField,SLOT(setAngle(int)));
-    connect( cannonField,SIGNAL(angleChanged(int)), angle,SLOT(setValue(int)));
+    connect( angle, SIGNAL(valueChanged(int)),
+	     cannonField, SLOT(setAngle(int)) );
+    connect( cannonField, SIGNAL(angleChanged(int)),
+	     angle,SLOT(setValue(int)) );
 
-    connect( force,SIGNAL(valueChanged(int)), cannonField,SLOT(setForce(int)));
-    connect( cannonField,SIGNAL(forceChanged(int)), force,SLOT(setValue(int)));
+    connect( force, SIGNAL(valueChanged(int)),
+	     cannonField, SLOT(setForce(int)) );
+    connect( cannonField, SIGNAL(forceChanged(int)),
+	     force, SLOT(setValue(int)) );
 
     QGridLayout *grid = new QGridLayout( this, 2, 2, 10 );
     grid->addWidget( quit, 0, 0 );
     grid->addWidget( cannonField, 1, 1 );
     grid->setColStretch( 1, 10 );
-    
+
     QVBoxLayout *leftBox = new QVBoxLayout;
     grid->addLayout( leftBox, 1, 0 );
     leftBox->addWidget( angle );

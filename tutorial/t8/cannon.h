@@ -18,14 +18,19 @@ public:
 
     int angle() const { return ang; }
     QSizePolicy sizePolicy() const;
+
 public slots:
     void setAngle( int degrees );
+
 signals:
     void angleChanged( int );
+
 protected:
     void paintEvent( QPaintEvent * );
+
 private:
     int ang;
 };
+
 
 #endif // CANNON_H

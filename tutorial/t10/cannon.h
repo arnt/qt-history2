@@ -19,14 +19,18 @@ public:
     int   angle() const { return ang; }
     int   force() const { return f; }
     QSizePolicy sizePolicy() const;
+
 public slots:
     void  setAngle( int degrees );
     void  setForce( int newton );
+
 signals:
     void  angleChanged( int );
     void  forceChanged( int );
+
 protected:
     void  paintEvent( QPaintEvent * );
+
 private:
     void  paintCannon( QPainter * );
     QRect cannonRect() const;
@@ -34,5 +38,6 @@ private:
     int ang;
     int f;
 };
+
 
 #endif // CANNON_H

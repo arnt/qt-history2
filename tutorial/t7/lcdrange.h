@@ -19,12 +19,16 @@ public:
     LCDRange( QWidget *parent=0, const char *name=0 );
 
     int value() const;
+
 public slots:
     void setValue( int );
+
 signals:
     void valueChanged( int );
+
 private:
-    QSlider  *slider;
+    QSlider *slider;
 };
+
 
 #endif // LCDRANGE_H

@@ -5,12 +5,16 @@
 ****************************************************************/
 
 #include "cannon.h"
+#include <qpainter.h>
+
 
 CannonField::CannonField( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
     ang = 45;
+    setPalette( QPalette( QColor( 250, 250, 200) ) );
 }
+
 
 void CannonField::setAngle( int degrees )
 {
@@ -25,12 +29,14 @@ void CannonField::setAngle( int degrees )
     emit angleChanged( ang );
 }
 
+
 void CannonField::paintEvent( QPaintEvent * )
 {
-    QString s;
-    s.sprintf( "Angle = %i", ang );
-    drawText( 200, 100, s );
+    QString s = "Angle = " + QString::number( ang );
+    QPainter p( this );
+    p.drawText( 200, 200, s );
 }
+
 
 QSizePolicy CannonField::sizePolicy() const
 {

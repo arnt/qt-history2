@@ -38,12 +38,13 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
 	for( int c = 0 ; c < 4 ; c++ ) {
 	    LCDRange* lr = new LCDRange( grid );
 	    if ( previous )
-		connect( lr , SIGNAL(valueChanged(int)),
-			 previous , SLOT(setValue(int)) );
+		connect( lr, SIGNAL(valueChanged(int)),
+			 previous, SLOT(setValue(int)) );
 	    previous = lr;
 	}
     }
 }
+
 
 int main( int argc, char **argv )
 {

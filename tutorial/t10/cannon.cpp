@@ -8,12 +8,14 @@
 #include <qpainter.h>
 #include <qpixmap.h>
 
+
 CannonField::CannonField( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
     ang = 45;
     f   = 0;
 }
+
 
 void CannonField::setAngle( int degrees )
 {
@@ -28,6 +30,7 @@ void CannonField::setAngle( int degrees )
     emit angleChanged( ang );
 }
 
+
 void CannonField::setForce( int newton )
 {
     if ( newton < 0 )
@@ -38,39 +41,34 @@ void CannonField::setForce( int newton )
     emit forceChanged( f );
 }
 
+
 void CannonField::paintEvent( QPaintEvent *e )
 {
-    QRect updateR = e->rect();
-    QPainter p;
-
-    p.begin( this );
-    if ( updateR.intersects( cannonRect() ) )
+    if ( e->rect().intersects( cannonRect() ) ) {
+	QPainter p( this );
 	paintCannon( &p );
-    p.end();
+    }
 }
 
-const QRect barrel_rect(33, -4, 15, 8);
 
 void CannonField::paintCannon( QPainter *p )
 {
-    QRect    cr = cannonRect();
-    QPixmap  pix( cr.size() );
-    QPainter tmp;
-
+    QRect cr = cannonRect();
+    QPixmap pix( cr.size() );
     pix.fill( this, cr.topLeft() );
 
-    tmp.begin( &pix );
+    QPainter tmp( &pix );
     tmp.setBrush( blue );
     tmp.setPen( NoPen );
-
     tmp.translate( 0, pix.height() - 1 );
     tmp.drawPie( QRect( -35,-35, 70, 70 ), 0, 90*16 );
     tmp.rotate( -ang );
-    tmp.drawRect( barrel_rect );
+    tmp.drawRect( QRect(33, -4, 15, 8) );
     tmp.end();
 
     p->drawPixmap( cr.topLeft(), pix );
 }
+
 
 QRect CannonField::cannonRect() const
 {
@@ -78,6 +76,7 @@ QRect CannonField::cannonRect() const
     r.moveBottomLeft( rect().bottomLeft() );
     return r;
 }
+
 
 QSizePolicy CannonField::sizePolicy() const
 {

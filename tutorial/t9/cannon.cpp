@@ -7,11 +7,14 @@
 #include "cannon.h"
 #include <qpainter.h>
 
+
 CannonField::CannonField( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
     ang = 45;
+    setPalette( QPalette( QColor( 250, 250, 200) ) );
 }
+
 
 void CannonField::setAngle( int degrees )
 {
@@ -26,23 +29,20 @@ void CannonField::setAngle( int degrees )
     emit angleChanged( ang );
 }
 
+
 void CannonField::paintEvent( QPaintEvent * )
 {
-    QPainter p;
-    QBrush   brush( blue );
-    QPen     pen( NoPen );
+    QPainter p( this );
 
-    p.begin( this );
-    p.setBrush( brush );
-    p.setPen( pen );
+    p.setBrush( blue );
+    p.setPen( NoPen );
 
     p.translate( 0, rect().bottom() );
     p.drawPie( QRect(-35, -35, 70, 70), 0, 90*16 );
     p.rotate( -ang );
     p.drawRect( QRect(33, -4, 15, 8) );
-
-    p.end();
 }
+
 
 QSizePolicy CannonField::sizePolicy() const
 {

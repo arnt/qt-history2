@@ -21,6 +21,7 @@ public:
     bool  gameOver()   const { return gameEnded; }
     bool  isShooting() const { return shooting; }
     QSizePolicy sizePolicy() const;
+
 public slots:
     void  setAngle( int degrees );
     void  setForce( int newton );
@@ -28,14 +29,17 @@ public slots:
     void  newTarget();
     void  setGameOver();
     void  restartGame();
+
 signals:
     void  hit();
     void  missed();
     void  angleChanged( int );
     void  forceChanged( int );
+
 protected:
     void  timerEvent( QTimerEvent * );
     void  paintEvent( QPaintEvent * );
+
 private:
     void  stopShooting();
     void  paintShot( QPainter * );
@@ -57,5 +61,6 @@ private:
 
     bool gameEnded;
 };
+
 
 #endif // CANNON_H
