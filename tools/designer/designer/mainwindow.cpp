@@ -611,24 +611,24 @@ void MainWindow::previewForm( const QString & style )
 	w = previewFormInternal( st, &p );
     } else if ( style == "CDE" ) {
 	QPalette p( QColor( 75, 123, 130 ) );
-	p.setColor( QPalette::Active, QColorGroup::Base, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Inactive, QColorGroup::Base, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Disabled, QColorGroup::Base, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Active, QColorGroup::Highlight, Qt::white );
-	p.setColor( QPalette::Active, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Inactive, QColorGroup::Highlight, Qt::white );
-	p.setColor( QPalette::Inactive, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Disabled, QColorGroup::Highlight, Qt::white );
-	p.setColor( QPalette::Disabled, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
-	p.setColor( QPalette::Active, QColorGroup::Foreground, Qt::white );
-	p.setColor( QPalette::Active, QColorGroup::Text, Qt::white );
-	p.setColor( QPalette::Active, QColorGroup::ButtonText, Qt::white );
-	p.setColor( QPalette::Inactive, QColorGroup::Foreground, Qt::white );
-	p.setColor( QPalette::Inactive, QColorGroup::Text, Qt::white );
-	p.setColor( QPalette::Inactive, QColorGroup::ButtonText, Qt::white );
-	p.setColor( QPalette::Disabled, QColorGroup::Foreground, Qt::lightGray );
-	p.setColor( QPalette::Disabled, QColorGroup::Text, Qt::lightGray );
-	p.setColor( QPalette::Disabled, QColorGroup::ButtonText, Qt::lightGray );
+	p.setColor( QPalette::Active, QPalette::Base, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Inactive, QPalette::Base, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Disabled, QPalette::Base, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Active, QPalette::Highlight, Qt::white );
+	p.setColor( QPalette::Active, QPalette::HighlightedText, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Inactive, QPalette::Highlight, Qt::white );
+	p.setColor( QPalette::Inactive, QPalette::HighlightedText, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Disabled, QPalette::Highlight, Qt::white );
+	p.setColor( QPalette::Disabled, QPalette::HighlightedText, QColor( 55, 77, 78 ) );
+	p.setColor( QPalette::Active, QPalette::Foreground, Qt::white );
+	p.setColor( QPalette::Active, QPalette::Text, Qt::white );
+	p.setColor( QPalette::Active, QPalette::ButtonText, Qt::white );
+	p.setColor( QPalette::Inactive, QPalette::Foreground, Qt::white );
+	p.setColor( QPalette::Inactive, QPalette::Text, Qt::white );
+	p.setColor( QPalette::Inactive, QPalette::ButtonText, Qt::white );
+	p.setColor( QPalette::Disabled, QPalette::Foreground, Qt::lightGray );
+	p.setColor( QPalette::Disabled, QPalette::Text, Qt::lightGray );
+	p.setColor( QPalette::Disabled, QPalette::ButtonText, Qt::lightGray );
 
 	w = previewFormInternal( st, &p );
     } else if ( style == "SGI" ) {
@@ -641,15 +641,15 @@ void MainWindow::previewForm( const QString & style )
 	QColor gtkbs(0xff, 0xff, 0xff);
 	QColor gtkbg(0xd6, 0xd6, 0xd6);
 	QColor gtksl(0x00, 0x00, 0x9c);
-	QColorGroup active(gtkfg,            // foreground
-			   gtkbg,            // button
-			   gtkbg.light(),    // light
-			   gtkbg.dark(142),  // dark
-			   gtkbg.dark(110),  // mid
-			   gtkfg,            // text
-			   gtkfg,            // bright text
-			   gtkbs,            // base
-			   gtkbg),           // background
+	QPalette active(gtkfg,            // foreground
+			gtkbg,            // button
+			gtkbg.light(),    // light
+			gtkbg.dark(142),  // dark
+			gtkbg.dark(110),  // mid
+			gtkfg,            // text
+			gtkfg,            // bright text
+			gtkbs,            // base
+			gtkbg),           // background
 	    disabled(gtkdf,            // foreground
 		     gtkbg,            // button
 		     gtkbg.light(), // light
@@ -662,17 +662,17 @@ void MainWindow::previewForm( const QString & style )
 
 	QPalette pal(active, disabled, active);
 
-	pal.setColor(QPalette::Active, QColorGroup::Highlight,
+	pal.setColor(QPalette::Active, QPalette::Highlight,
 		     gtksl);
-	pal.setColor(QPalette::Active, QColorGroup::HighlightedText,
+	pal.setColor(QPalette::Active, QPalette::HighlightedText,
 		     gtksf);
-	pal.setColor(QPalette::Inactive, QColorGroup::Highlight,
+	pal.setColor(QPalette::Inactive, QPalette::Highlight,
 		     gtksl);
-	pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText,
+	pal.setColor(QPalette::Inactive, QPalette::HighlightedText,
 		     gtksf);
-	pal.setColor(QPalette::Disabled, QColorGroup::Highlight,
+	pal.setColor(QPalette::Disabled, QPalette::Highlight,
 		     gtksl);
-	pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText,
+	pal.setColor(QPalette::Disabled, QPalette::HighlightedText,
 		     gtkdf);
 	w = previewFormInternal( st, &pal );
     } else {

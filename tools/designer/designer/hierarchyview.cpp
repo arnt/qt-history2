@@ -61,12 +61,12 @@ HierarchyItem::HierarchyItem( Type type, QListView *parent, QListViewItem *after
 {
 }
 
-void HierarchyItem::paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align )
+void HierarchyItem::paintCell( QPainter *p, const QPalette &pal, int column, int width, int align )
 {
-    QColorGroup g( cg );
-    g.setColor( QColorGroup::Base, backgroundColor() );
-    g.setColor( QColorGroup::Foreground, Qt::black );
-    g.setColor( QColorGroup::Text, Qt::black );
+    QPalette pal2( pal );
+    pal2.setColor( QPalette::Base, backgroundColor() );
+    pal2.setColor( QPalette::Foreground, Qt::black );
+    pal2.setColor( QPalette::Text, Qt::black );
     QString txt = text( 0 );
     if ( rtti() == Function &&
 	 MainWindow::self->currProject()->isCpp() &&
@@ -76,14 +76,14 @@ void HierarchyItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
 	    setText( 0, txt + " " + "(Constructor)" );
 	else
 	    setText( 0, txt + " " + "(Destructor)" );
-	QListViewItem::paintCell( p, g, column, width, align );
+	QListViewItem::paintCell( p, pal2, column, width, align );
 	setText( 0, txt );
 	listView()->setUpdatesEnabled( TRUE );
     } else {
-	QListViewItem::paintCell( p, g, column, width, align );
+	QListViewItem::paintCell( p, pal2, column, width, align );
     }
     p->save();
-    p->setPen( QPen( cg.dark(), 1 ) );
+    p->setPen( QPen( pal2.dark(), 1 ) );
     if ( column == 0 )
 	p->drawLine( 0, 0, 0, height() - 1 );
     if ( listView()->firstChild() != this ) {
@@ -166,7 +166,7 @@ HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
     addColumn( tr( "Name" ) );
     addColumn( tr( "Class" ) );
     QPalette p( palette() );
-    p.setColor( QColorGroup::Base, QColor( *backColor2 ) );
+    p.setColor( QPalette::Base, QColor( *backColor2 ) );
     (void)*selectedBack; // hack
     setPalette( p );
     disconnect( header(), SIGNAL( sectionClicked( int ) ),
@@ -488,7 +488,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	}
 	insertObject( obj, item );
     }
-    
+
     if ( fakeMainWindow ) {
 	QObjectList l = o->parent()->queryList( "QDesignerToolBar" );
 	for (int i = 0; i < l.size(); ++i) {

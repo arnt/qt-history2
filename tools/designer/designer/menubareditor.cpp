@@ -565,8 +565,7 @@ void MenuBarEditor::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
     QRect r = rect();
-    style().drawPrimitive( QStyle::PE_PanelMenuBar, &p,
-			   r, colorGroup() );
+    style().drawPrimitive( QStyle::PE_PanelMenuBar, &p, r, palette() );
     drawItems( p );
 }
 
@@ -806,7 +805,7 @@ void MenuBarEditor::drawItems( QPainter & p )
     QPoint pos( borderSize, 0 );
     uint c = 0;
 
-    p.setPen( colorGroup().buttonText() );
+    p.setPen( palette().buttonText() );
 
     MenuBarEditorItem * i = itemList.first();
     while ( i ) {

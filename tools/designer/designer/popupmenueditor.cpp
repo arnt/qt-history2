@@ -699,7 +699,7 @@ void PopupMenuEditor::paintEvent( QPaintEvent * )
 		 rect().width() - borderSize * 2, rect().height() - borderSize * 2 );
     reg -= mid;
     p.setClipRegion( reg );
-    style().drawPrimitive( QStyle::PE_PanelPopup, &p, rect(), colorGroup() );
+    style().drawPrimitive( QStyle::PE_PanelPopup, &p, rect(), palette() );
     p.restore();
     drawItems( &p );
 }
@@ -985,12 +985,12 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
     int y = r.y();
     int h = r.height();
 
-    p->fillRect( r, colorGroup().brush( QColorGroup::Background ) );
+    p->fillRect(r, palette().background());
 
     if ( i->isSeparator() ) {
 	style().drawPrimitive( QStyle::PE_Separator, p,
 			       QRect( r.x(), r.y() + 2, r.width(), 1 ),
-			       colorGroup(), QStyle::Style_Sunken | f );
+			       palette(), QStyle::Style_Sunken | f );
 	return;
     }
 
@@ -998,7 +998,7 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
     if ( a->isToggleAction() && a->isOn() ) {
 	style().drawPrimitive( QStyle::PE_CheckMark, p,
 			       QRect( x , y, iconWidth, h ),
-			       colorGroup(), f );
+			       palette(), f );
     } else {
 	QPixmap icon = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal );
 	p->drawPixmap( x + ( iconWidth - icon.width() ) / 2,
@@ -1020,7 +1020,7 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
     if ( i->count() ) // Item has submenu
 	style().drawPrimitive( QStyle::PE_ArrowRight, p,
 			       QRect( r.width() - arrowWidth, r.y(), arrowWidth, r.height() ),
-			       colorGroup(), f );
+			       palette(), f );
 }
 
 void PopupMenuEditor::drawWinFocusRect( QPainter * p, const QRect & r ) const
@@ -1045,8 +1045,8 @@ void PopupMenuEditor::drawItems( QPainter * p )
 {
     int flags = 0;
     int idx = 0;
-    
-    QColorGroup enabled = colorGroup();
+
+    QColorGroup enabled = palette().active();
     QColorGroup disabled = palette().disabled();
     QRect focus;
     QRect rect( borderSize, borderSize, width() - borderSize * 2, 0 );

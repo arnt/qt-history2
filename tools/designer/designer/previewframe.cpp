@@ -23,7 +23,7 @@ PreviewFrame::PreviewFrame( QWidget *parent, const char *name )
     setLineWidth(1);
 
     PreviewWorkspace * w = new PreviewWorkspace( this );
-    w->setEraseColor(colorGroup().dark());
+    w->setEraseColor(palette().dark());
     previewWidget = new PreviewWidget( w );
     previewWidget->move( 10, 10 );
 }

@@ -138,14 +138,14 @@ void StyledButton::resizeEvent( QResizeEvent* e )
 
 void StyledButton::drawButton( QPainter *paint )
 {
-    style().drawPrimitive(QStyle::PE_ButtonBevel, paint, rect(), colorGroup(),
+    style().drawPrimitive(QStyle::PE_ButtonBevel, paint, rect(), palette(),
 			  isDown() ? QStyle::Style_Sunken : QStyle::Style_Raised);
     drawButtonLabel(paint);
 
     if (hasFocus())
 	style().drawPrimitive(QStyle::PE_FocusRect, paint,
 			      style().subRect(QStyle::SR_PushButtonFocusRect, this),
-			      colorGroup(), QStyle::Style_Default);
+			      palette(), QStyle::Style_Default);
 }
 
 void StyledButton::drawButtonLabel( QPainter *paint )
@@ -156,7 +156,7 @@ void StyledButton::drawButtonLabel( QPainter *paint )
     paint->setPen( pen );
 
     if(!isEnabled()) {
-	paint->setBrush( QBrush( colorGroup().button() ) );
+	paint->setBrush( palette().button() );
     }
     else if ( edit == PixmapEditor && spix ) {
 	paint->setBrush( QBrush( col, *spix ) );

@@ -32,8 +32,7 @@ class ConnectionItem : public QObject,
 public:
     ConnectionItem( QTable *table, FormWindow *fw );
 
-    void paint( QPainter *p, const QColorGroup &cg,
-		const QRect &cr, bool selected );
+    void paint( QPainter *p, const QPalette &pal, const QRect &cr, bool selected );
 
     void setSender( SenderItem *i );
     void setReceiver( ReceiverItem *i );

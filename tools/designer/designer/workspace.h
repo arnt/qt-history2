@@ -38,7 +38,7 @@ public:
     WorkspaceItem( QListViewItem *parent, FormFile* ff, Type t = FormFileType );
     WorkspaceItem( QListViewItem *parent, QObject *o, Project *p );
 
-    void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
+    void paintCell( QPainter *p, const QPalette &pal, int column, int width, int align );
 
     Type type() const { return t; }
 

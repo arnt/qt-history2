@@ -236,7 +236,7 @@ void FormWindow::paintGrid( QWidget *w, QPaintEvent *e )
     grid_name.sprintf("FormWindowGrid_%d_%d", mainWindow()->grid().x(), mainWindow()->grid().y());
     if( !QPixmapCache::find( grid_name, grid ) ) {
 	grid = QPixmap( 350 + ( 350 % mainWindow()->grid().x() ), 350 + ( 350 % mainWindow()->grid().y() ) );
-	grid.fill( colorGroup().color( QColorGroup::Foreground ) );
+	grid.fill(palette().foreground());
 	QBitmap mask( grid.width(), grid.height() );
 	mask.fill( color0 );
 	QPainter p( &mask );
@@ -297,7 +297,7 @@ QPoint FormWindow::gridPoint( const QPoint &p )
 void FormWindow::drawSizePreview( const QPoint &pos, const QString& text )
 {
     unclippedPainter->save();
-    unclippedPainter->setPen( QPen( colorGroup().foreground(), 1  ));
+    unclippedPainter->setPen( QPen( palette().foreground(), 1  ));
     unclippedPainter->setRasterOp( CopyROP );
     if ( !sizePreviewPixmap.isNull() )
 	unclippedPainter->drawPixmap( sizePreviewPos, sizePreviewPixmap );
@@ -799,7 +799,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 			targetContainer = wa;
 			hadOwnPalette = wa->ownPalette();
 			restorePalette = wa->palette();
-			wa->setPaletteBackgroundColor( wa->colorGroup().midlight() );
+			wa->setPaletteBackgroundColor( wa->palette().midlight() );
 		    }
 		}
 		else if ( targetContainer ) {

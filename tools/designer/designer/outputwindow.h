@@ -30,8 +30,7 @@ public:
     ErrorItem( QListView *parent, QListViewItem *after, const QString &message, int line,
 	       const QString &locationString, QObject *locationObject );
 
-    void paintCell( QPainter *, const QColorGroup & cg,
-		    int column, int width, int alignment );
+    void paintCell( QPainter *, const QPalette &pal, int column, int width, int alignment );
 
     void setRead( bool b ) { read = b; repaint(); }
 

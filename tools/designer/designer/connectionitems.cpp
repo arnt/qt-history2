@@ -130,12 +130,11 @@ void ConnectionItem::setSlot( SlotItem *i )
 	     this, SLOT( slotChanged( const QString & ) ) );
 }
 
-void ConnectionItem::paint( QPainter *p, const QColorGroup &cg,
-			    const QRect &cr, bool selected )
+void ConnectionItem::paint( QPainter *p, const QPalette &pal, const QRect &cr, bool selected )
 {
     p->fillRect( 0, 0, cr.width(), cr.height(),
-		 selected ? cg.brush( QColorGroup::Highlight )
-			  : cg.brush( QColorGroup::Base ) );
+		 selected ? pal.brush( QPalette::Highlight )
+			  : pal.brush( QPalette::Base ) );
 
     int w = cr.width();
     int h = cr.height();
@@ -145,9 +144,9 @@ void ConnectionItem::paint( QPainter *p, const QColorGroup &cg,
     if ( currentText()[0] == '<' )
 	p->setPen( QObject::red );
     else if ( selected )
-	p->setPen( cg.highlightedText() );
+	p->setPen( pal.highlightedText() );
     else
-	p->setPen( cg.text() );
+	p->setPen( pal.text() );
 
     QFont f( p->font() );
     QFont oldf( p->font() );

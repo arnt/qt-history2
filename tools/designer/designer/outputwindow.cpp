@@ -179,15 +179,15 @@ ErrorItem::ErrorItem( QListView *parent, QListViewItem *after, const QString &me
     }
 }
 
-void ErrorItem::paintCell( QPainter *p, const QColorGroup & cg,
+void ErrorItem::paintCell( QPainter *p, const QPalette &pal,
 			   int column, int width, int alignment )
 {
-    QColorGroup g( cg );
-    g.setColor( QColorGroup::Text, type == Error ? Qt::red : Qt::darkYellow );
+    QPalette pal2( pal );
+    pal2.setColor( QPalette::Text, type == Error ? Qt::red : Qt::darkYellow );
     if ( !read ) {
 	QFont f( p->font() );
 	f.setBold( TRUE );
 	p->setFont( f );
     }
-    QListViewItem::paintCell( p, g, column, width, alignment );
+    QListViewItem::paintCell( p, pal2, column, width, alignment );
 }

@@ -204,12 +204,12 @@ void PropertyItem::initChildren()
 {
 }
 
-void PropertyItem::paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align )
+void PropertyItem::paintCell( QPainter *p, const QPalette &pal, int column, int width, int align )
 {
-    QColorGroup g( cg );
-    g.setColor( QColorGroup::Base, backgroundColor() );
-    g.setColor( QColorGroup::Foreground, Qt::black );
-    g.setColor( QColorGroup::Text, Qt::black );
+    QPalette pal2( pal );
+    pal2.setColor( QPalette::Base, backgroundColor() );
+    pal2.setColor( QPalette::Foreground, Qt::black );
+    pal2.setColor( QPalette::Text, Qt::black );
     int indent = 0;
     if ( column == 0 ) {
 	indent = 20 + ( property ? 20 : 0 );
@@ -226,7 +226,7 @@ void PropertyItem::paintCell( QPainter *p, const QColorGroup &cg, int column, in
     }
 
     if ( !hasCustomContents() || column != 1 ) {
-	QListViewItem::paintCell( p, g, column, width - indent, align  );
+	QListViewItem::paintCell( p, pal2, column, width - indent, align  );
     } else {
 	p->fillRect( 0, 0, width, height(), backgroundColor() );
 	drawCustomContents( p, QRect( 0, 0, width, height() ) );
@@ -238,8 +238,8 @@ void PropertyItem::paintCell( QPainter *p, const QColorGroup &cg, int column, in
 	p->restore();
     if ( hasSubItems() && column == 0 ) {
 	p->save();
-	p->setPen( cg.foreground() );
-	p->setBrush( cg.base() );
+	p->setPen( pal2.foreground() );
+	p->setBrush( pal2.base() );
 	p->drawRect( 5, height() / 2 - 4, 9, 9 );
 	p->drawLine( 7, height() / 2, 11, height() / 2 );
 	if ( !isOpen() )
@@ -247,28 +247,28 @@ void PropertyItem::paintCell( QPainter *p, const QColorGroup &cg, int column, in
 	p->restore();
     }
     p->save();
-    p->setPen( QPen( cg.dark(), 1 ) );
+    p->setPen( QPen( pal2.dark(), 1 ) );
     p->drawLine( 0, height() - 1, width, height() - 1 );
     p->drawLine( width - 1, 0, width - 1, height() );
     p->restore();
 
     if ( listview->currentItem() == this && column == 0 &&
 	 !listview->hasFocus() && !listview->viewport()->hasFocus() )
-	paintFocus( p, cg, QRect( 0, 0, width, height() ) );
+	paintFocus( p, pal2, QRect( 0, 0, width, height() ) );
 }
 
-void PropertyItem::paintBranches( QPainter * p, const QColorGroup & cg,
+void PropertyItem::paintBranches( QPainter * p, const QPalette &pal,
 				  int w, int y, int h )
 {
-    QColorGroup g( cg );
-    g.setColor( QColorGroup::Base, backgroundColor() );
-    QListViewItem::paintBranches( p, g, w, y, h );
+    QPalette pal2( pal );
+    pal2.setColor( QPalette::Base, backgroundColor() );
+    QListViewItem::paintBranches( p, pal2, w, y, h );
 }
 
-void PropertyItem::paintFocus( QPainter *p, const QColorGroup &cg, const QRect &r )
+void PropertyItem::paintFocus( QPainter *p, const QPalette &pal, const QRect &r )
 {
     p->save();
-    QApplication::style().drawPrimitive(QStyle::PE_Panel, p, r, cg,
+    QApplication::style().drawPrimitive(QStyle::PE_Panel, p, r, pal,
 					QStyle::Style_Sunken, QStyleOption(1,1) );
     p->restore();
 }
@@ -1603,7 +1603,7 @@ PropertyPixmapItem::PropertyPixmapItem( PropertyList *l, PropertyItem *after, Pr
     box->hide();
     pixPrev = new QLabel( box );
     pixPrev->setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Minimum ) );
-    pixPrev->setBackgroundColor( pixPrev->colorGroup().color( QColorGroup::Base ) );
+    pixPrev->setBackgroundColor( pixPrev->palette().color( QPalette::Base ) );
     button = new QPushButton( "...", box );
     setupStyle( button );
     button->setFixedWidth( 20 );
@@ -1707,8 +1707,8 @@ PropertyColorItem::PropertyColorItem( PropertyList *l, PropertyItem *after, Prop
     colorPrev->setFrameStyle( QFrame::Plain | QFrame::Box );
     colorPrev->setLineWidth( 2 );
     QPalette pal = colorPrev->palette();
-    QColorGroup cg = pal.active();
-    cg.setColor( QColorGroup::Foreground, cg.color( QColorGroup::Base ) );
+    QPalette cg = pal.active();
+    cg.setColor( QPalette::Foreground, cg.color( QPalette::Base ) );
     pal.setActive( cg );
     pal.setInactive( cg );
     pal.setDisabled( cg );
@@ -2630,8 +2630,8 @@ void EnumBox::popupClosed()
 void EnumBox::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    const QColorGroup & g = colorGroup();
-    p.setPen(g.text());
+    const QPalette &pal = palette();
+    p.setPen(pal.text());
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
@@ -2640,18 +2640,15 @@ void EnumBox::paintEvent( QPaintEvent * )
 	flags |= QStyle::Style_HasFocus;
 
     if ( width() < 5 || height() < 5 ) {
-	qDrawShadePanel( &p, rect().x(), rect().y(), rect().width(), rect().height(), g, FALSE, 2,
-		&g.brush( QColorGroup::Button ) );
+	qDrawShadePanel( &p, rect().x(), rect().y(), rect().width(), rect().height(), pal,
+			 FALSE, 2, &pal.brush( QPalette::Button ) );
 	return;
     }
-    style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
-				    flags, QStyle::SC_All,
-				    (arrowDown ?
-				     QStyle::SC_ComboBoxArrow :
-				     QStyle::SC_None ));
+    style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), pal, flags, QStyle::SC_All,
+				(arrowDown ? QStyle::SC_ComboBoxArrow : QStyle::SC_None ));
 
     QRect re = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
-	    QStyle::SC_ComboBoxEditField );
+					       QStyle::SC_ComboBoxEditField );
     re = QStyle::visualRect(re, this);
     p.setClipRect( re );
 

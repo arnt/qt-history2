@@ -59,7 +59,7 @@ public:
     HierarchyItem( Type type, QListView *parent, QListViewItem *after,
 		   const QString &txt1, const QString &txt2, const QString &txt3 );
 
-    void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
+    void paintCell( QPainter *p, const QPalette &pal, int column, int width, int align );
     void updateBackColor();
 
     void setObject( QObject *o );

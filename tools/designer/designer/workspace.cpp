@@ -92,20 +92,20 @@ void WorkspaceItem::init()
     formFile = 0;
 }
 
-void WorkspaceItem::paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align )
+void WorkspaceItem::paintCell( QPainter *p, const QPalette &pal, int column, int width, int align )
 {
-    QColorGroup g( cg );
-    g.setColor( QColorGroup::Base, backgroundColor() );
-    g.setColor( QColorGroup::Foreground, Qt::black );
+    QPalette pal2(pal);
+    pal2.setColor( QPalette::Base, backgroundColor() );
+    pal2.setColor( QPalette::Foreground, Qt::black );
 
     if ( type() == FormSourceType &&
 	 ( !formFile->hasFormCode() || ( formFile->codeFileState() == FormFile::Deleted && formFile->formWindow() ) ) &&
 	 parent() && parent()->parent() && ( (WorkspaceItem*)parent()->parent() )->project &&
 	 ( (WorkspaceItem*)parent()->parent() )->project->isCpp() ) {
-	g.setColor( QColorGroup::Text, listView()->palette().disabled().color( QColorGroup::Text) );
-	g.setColor( QColorGroup::HighlightedText, listView()->palette().disabled().color( QColorGroup::Text) );
+	pal2.setColor( QPalette::Text, listView()->palette().disabled().color( QPalette::Text) );
+	pal2.setColor( QPalette::HighlightedText, listView()->palette().disabled().color( QPalette::Text) );
     } else {
-	g.setColor( QColorGroup::Text, Qt::black );
+	pal2.setColor( QPalette::Text, Qt::black );
     }
     p->save();
 
@@ -115,8 +115,8 @@ void WorkspaceItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
 	p->setFont( f );
     }
 
-    QListViewItem::paintCell( p, g, column, width, align );
-    p->setPen( QPen( cg.dark(), 1 ) );
+    QListViewItem::paintCell( p, pal2, column, width, align );
+    p->setPen( QPen( pal2.dark(), 1 ) );
     if ( column == 0 )
 	p->drawLine( 0, 0, 0, height() - 1 );
     if ( listView()->firstChild() != this ) {
@@ -267,7 +267,7 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw )
     setResizePolicy( QScrollView::Manual );
 #ifndef Q_WS_MAC
     QPalette p( palette() );
-    p.setColor( QColorGroup::Base, QColor( *backColor2 ) );
+    p.setColor( QPalette::Base, QColor( *backColor2 ) );
     (void)*selectedBack; // hack
     setPalette( p );
 #endif

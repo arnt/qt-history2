@@ -30,7 +30,6 @@
 class PropertyList;
 class PropertyEditor;
 class QPainter;
-class QColorGroup;
 class QLineEdit;
 class QPushButton;
 class QHBox;
@@ -51,10 +50,10 @@ public:
     PropertyItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName );
     ~PropertyItem();
 
-    void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
-    void paintBranches( QPainter * p, const QColorGroup & cg,
+    void paintCell( QPainter *p, const QPalette &pal, int column, int width, int align );
+    void paintBranches( QPainter * p, const QPalette &pal,
 			int w, int y, int h );
-    void paintFocus( QPainter *p, const QColorGroup &cg, const QRect &r );
+    void paintFocus( QPainter *p, const QPalette &pal, const QRect &r );
 
     virtual bool hasSubItems() const;
     virtual void createChildren();

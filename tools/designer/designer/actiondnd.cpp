@@ -132,8 +132,7 @@ void QDesignerToolBarSeparator::paintEvent( QPaintEvent * )
     if ( orientation() == Horizontal )
 	flags |= QStyle::Style_Horizontal;
 
-    style().drawPrimitive( QStyle::PE_DockWindowSeparator, &p, rect(),
-			   colorGroup(), flags );
+    style().drawPrimitive( QStyle::PE_DockWindowSeparator, &p, rect(), palette(), flags );
 }
 
 

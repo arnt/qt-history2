@@ -62,7 +62,7 @@ bool DatabaseConnection::refreshCatalog()
     for ( QStringList::Iterator it = tbls.begin(); it != tbls.end(); ++it ) {
 	QSqlRecord fil = conn->record( *it );
 	QStringList lst;
-	for ( uint j = 0; j < fil.count(); ++j )
+	for ( int j = 0; j < fil.count(); ++j )
 	    lst << fil.field( j )->name();
 	flds.insert( *it, lst );
     }
