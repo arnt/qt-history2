@@ -27,9 +27,11 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
       m_mainWindow(mainWindow)
 {
     Q_ASSERT(m_mainWindow != 0);
-    Q_ASSERT(m_mainWindow->core() != 0);
 
-    AbstractFormWindowManager *formWindowManager = m_mainWindow->core()->formWindowManager();
+    m_core = m_mainWindow->core();
+    Q_ASSERT(m_core != 0);
+
+    AbstractFormWindowManager *formWindowManager = m_core->formWindowManager();
     Q_ASSERT(formWindowManager != 0);
 
     m_fileActions = new QActionGroup(this);
@@ -124,8 +126,13 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_editConnections->setCheckable(true);
     m_editModeActions->addAction(m_editConnections);
 
+    m_editTabOrders= new QAction(tr("Edit Tab Orders"), this);
+    m_editTabOrders->setShortcut(tr("F4"));
+    m_editTabOrders->setCheckable(true);
+    m_editModeActions->addAction(m_editTabOrders);
+
     m_editBuddies = new QAction(tr("Edit Buddies"), this);
-    m_editBuddies->setShortcut(tr("F4"));
+    m_editBuddies->setShortcut(tr("F5"));
     m_editBuddies->setCheckable(true);
     m_editModeActions->addAction(m_editBuddies);
 
@@ -158,6 +165,13 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_previewFormAction = new QAction(tr("&Preview"), this);
     m_previewFormAction->setShortcut(tr("CTRL+R"));
     m_formActions->addAction(m_previewFormAction);
+
+
+//
+// connections
+//
+    connect(editModeActions(), SIGNAL(triggered(QAction*)),
+            this, SLOT(updateEditMode(QAction*)));
 }
 
 QDesignerActions::~QDesignerActions()
@@ -257,4 +271,32 @@ QAction *QDesignerActions::editConnections() const
 QAction *QDesignerActions::editBuddies() const
 { return m_editBuddies; }
 
+QAction *QDesignerActions::editTabOrders() const
+{ return m_editTabOrders; }
 
+void QDesignerActions::updateEditMode(QAction *action)
+{
+    Q_ASSERT(m_editModeActions->actions().contains(action) == true);
+
+    AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
+    AbstractFormWindow::EditMode mode = AbstractFormWindow::WidgetEditMode;
+
+    if (action == m_editWidgets)
+        mode = AbstractFormWindow::WidgetEditMode;
+    else if (action == m_editConnections)
+        mode = AbstractFormWindow::ConnectionEditMode;
+    else if (action == m_editTabOrders)
+        mode = AbstractFormWindow::TabOrderEditMode;
+    else if (action == m_editBuddies)
+        mode = AbstractFormWindow::BuddyEditMode;
+    else
+        Q_ASSERT(0);
+
+    for (int i=0; i<formWindowManager->formWindowCount(); ++i) {
+        AbstractFormWindow *formWindow = formWindowManager->formWindow(i);
+        formWindow->setEditMode(mode);
+    }
+}
+
+AbstractFormEditor *QDesignerActions::core() const
+{ return m_core; }

@@ -19,6 +19,7 @@
 class QDesignerMainWindow;
 class QAction;
 class QActionGroup;
+class AbstractFormEditor;
 
 class QDesignerActions: public QObject
 {
@@ -62,6 +63,7 @@ public:
 //
     QAction *editWidgets() const;
     QAction *editConnections() const;
+    QAction *editTabOrders() const;
     QAction *editBuddies() const;
 
 //
@@ -76,8 +78,14 @@ public:
     QAction *adjustSizeAction() const;
     QAction *previewFormAction() const;
 
+    AbstractFormEditor *core() const;
+
+private slots:
+    void updateEditMode(QAction *action);
+
 private:
     QDesignerMainWindow *m_mainWindow;
+    AbstractFormEditor *m_core;
 
     QActionGroup *m_fileActions;
     QActionGroup *m_editActions;
@@ -102,6 +110,7 @@ private:
     QAction *m_selectAllAction;
 
     QAction *m_editWidgets;
+    QAction *m_editTabOrders;
     QAction *m_editConnections;
     QAction *m_editBuddies;
 
