@@ -115,10 +115,19 @@ public:
     enum GUIMode { NoGui = FALSE, NormalGUI = TRUE, Server };
     
     static void sendKeyEvent(int unicode, int modifiers, bool isPress,
-		      bool autoRepeat);
+			     bool autoRepeat);
     static void processKeyEvent(int unicode, int modifiers, bool isPress,
-		      bool autoRepeat);
+				bool autoRepeat);
 
+    typedef struct KeyMap {
+	int  key_code;
+	ushort unicode;
+	ushort shift_unicode;
+	ushort ctrl_unicode;
+    };
+
+
+    static const KeyMap *keyMap();
     
     class KeyboardFilter
     {

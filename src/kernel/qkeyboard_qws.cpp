@@ -40,15 +40,9 @@ static QSocketNotifier *kbNotifier = 0;
 static bool vtActive = true;
 static int  vtQws = 0;
 
-typedef struct KeyMap {
-    int  key_code;
-    ushort unicode;
-    ushort shift_unicode;
-    ushort ctrl_unicode;
-};
 
 // ###### This is a gross hack to get some keyboard stuff working before Monday
-static const KeyMap keyMap[] = {
+static const QWSServer::KeyMap keyM[] = {
     {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
     {	Qt::Key_Escape,		27      , 27      , 0xffff  },
     {	Qt::Key_1,		'1'     , '!'     , 0xffff  },
@@ -142,6 +136,11 @@ static const KeyMap keyMap[] = {
     {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }	// 90
 };
 
+
+const QWSServer::KeyMap *QWSServer::keyMap()
+{
+    return keyM;
+}
 
 void vtSwitchHandler(int /*sig*/)
 {
@@ -367,7 +366,7 @@ void QWSServer::readKeyboardData()
 	{
 	    if (ch < 90)
 	    {
-		keyCode = keyMap[ch].key_code;
+		keyCode = keyM[ch].key_code;
 	    }
 	}
 
@@ -403,11 +402,11 @@ void QWSServer::readKeyboardData()
 	    if (!extended)
 	    {
 		if (shift)
-		    unicode =  keyMap[ch].shift_unicode ?  keyMap[ch].shift_unicode : 0xffff;
+		    unicode =  keyM[ch].shift_unicode ?  keyM[ch].shift_unicode : 0xffff;
 		else if (ctrl)
-		    unicode =  keyMap[ch].ctrl_unicode ?  keyMap[ch].ctrl_unicode : 0xffff;
+		    unicode =  keyM[ch].ctrl_unicode ?  keyM[ch].ctrl_unicode : 0xffff;
 		else
-		    unicode =  keyMap[ch].unicode ?  keyMap[ch].unicode : 0xffff;
+		    unicode =  keyM[ch].unicode ?  keyM[ch].unicode : 0xffff;
 		//printf("unicode: %c\r\n", unicode);
 	    }
 	    unicode |= keyCode << 16;
