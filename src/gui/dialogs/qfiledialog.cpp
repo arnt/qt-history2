@@ -4328,7 +4328,7 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
     QString s = QFileDialog::getExistingDirectory(
                     "/home",
 		    this,
-		    "get existing directory"
+		    "get existing directory",
 		    "Choose a directory",
 		    TRUE );
   \endcode
