@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#124 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#125 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -385,19 +385,19 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 // ##### Unicode fns need to ifdef UNICODE (if we go that way)
 QChar uctolower(QChar c)
 {
-    return c.hi ? c : QChar(tolower(c.lo));
+    return c.row ? c : QChar(tolower(c.cell));
 }
 QChar uctoupper(QChar c)
 {
-    return c.hi ? c : QChar(toupper(c.lo));
+    return c.row ? c : QChar(toupper(c.cell));
 }
 bool ucisspace(QChar c)
 {
-    return c.hi ? FALSE : isspace(c.lo);
+    return c.row ? FALSE : isspace(c.cell);
 }
 bool ucisdigit(QChar c)
 {
-    return c.hi ? FALSE : isdigit(c.lo);
+    return c.row ? FALSE : isdigit(c.cell);
 }
 int ucstrcmp( const QString &as, const QString &bs )
 {
@@ -410,7 +410,7 @@ int ucstrcmp( const QString &as, const QString &bs )
 	a++,b++;
     if ( l==-1 )
 	return ( as.length()-bs.length() );
-    return a->hi == b->hi ? a->lo - b->lo : a->hi - b->hi;
+    return a->row == b->row ? a->cell - b->cell : a->row - b->row;
 }
 int ucstrncmp( const QChar *a, const QChar *b, int l )
 {
@@ -428,7 +428,7 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
 	return 0;
     QChar al = uctolower(*a);
     QChar bl = uctolower(*b);
-    return al.hi == bl.hi ? al.lo - bl.lo : al.hi - bl.hi;
+    return al.row == bl.row ? al.cell - bl.cell : al.row - bl.row;
 }
 
 /*!

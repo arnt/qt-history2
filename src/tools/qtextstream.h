@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#35 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#36 $
 **
 ** Definition of QTextStream class
 **
@@ -38,9 +38,9 @@ public:
 	Ascii,
 	Utf7,
 	Utf8,
-	Unicode=Utf7
 	UnicodeBigEndian,
 	UnicodeLittleEndian,
+	Unicode=UnicodeLittleEndian,
     };
 
     void	 setEncoding(Encoding);

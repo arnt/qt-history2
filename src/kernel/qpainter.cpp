@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#146 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#147 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1912,9 +1912,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     uint tw;					// text width
 
 #define CWIDTH(x) fm.width(x) // Could cache, but put that it in fm
-#define ENCCHAR(x) (((x).lo << LO_SHIFT) | ((x).hi << HI_SHIFT))
+#define ENCCHAR(x) (((x).cell << LO_SHIFT) | ((x).row << HI_SHIFT))
 #define DECCHAR(x) QChar(((x)&LO)>>LO_SHIFT,((x)&HI)>>HI_SHIFT)
-#define ISPRINT(x) ((x).hi || (x).lo>' ')
+#define ISPRINT(x) ((x).row || (x).cell>' ')
 // ##### should use (unicode) QChar::isPrint() -- WWA to AG
 
     bool wordbreak  = (tf & WordBreak)	== WordBreak;

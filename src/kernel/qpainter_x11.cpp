@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#254 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#255 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2401,7 +2401,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 // to insert and find bitmaps in the global pixmap cache.
 //
 static Q1String gen_xbm_key( const QWMatrix &m, const QFontInfo &fi,
-			    QString str, int len )
+			    const QString& str, int len )
 {
     // Only for ASCII, else we return null
 
@@ -2409,8 +2409,8 @@ static Q1String gen_xbm_key( const QWMatrix &m, const QFontInfo &fi,
     int i;
     for (i=0; i<len; i++) {
 	QChar ch = str[i];
-	if ( ch.hi ) return Q1String();
-        s[i] = ch.lo;
+	if ( ch.row ) return Q1String();
+        s[i] = ch.cell;
     }
     s[i]=0;
     Q1String k;

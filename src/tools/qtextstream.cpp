@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#61 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#62 $
 **
 ** Implementation of QTextStream class
 **
@@ -1517,7 +1517,7 @@ QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
       case UnicodeBigEndian: {
 	    QChar *u = new QChar[len];
 	    for (uint i=0; i<len; i++)
-		u[i] = p[i].reversedBytes();
+		u[i] = QChar(p[i].row,p[i].cell);
 	    dev->writeBlock( (char*)u, len*sizeof(QChar) );
 	    delete [] u;
 	}

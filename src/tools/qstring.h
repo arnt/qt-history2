@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#64 $
+** $Id: //depot/qt/main/src/tools/qstring.h#65 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -149,8 +149,6 @@ QDataStream &operator>>( QDataStream &, QByteArray & );
 
 class QRegExp;
 
-#define UNICODE // ###### We need to decide - libqtu AND libqt? ???
-#ifdef UNICODE
 
 class QChar {
 public:
@@ -182,56 +180,10 @@ public:
 	return c != cell || row;
     }
 
-    int bytes()
-    {
-	return row << 8 || cell;
-    }
-
-    int reversedBytes()
-    {
-	return row || cell << 8;
-    }
-
-private:
     uchar row;
     uchar cell;
 };
 
-#else
-
-class QChar {
-public:
-    QChar() cell(0) { }
-    QChar( uchar l ) : cell(l) { }
-    QChar( const QChar& c ) : cell(c.cell) { }
-
-    static const QChar null;
-
-    operator char() const { return cell; }
-
-    bool operator==( const QChar& c )
-    {
-	return c.cell == cell;
-    }
-    bool operator==( char c )
-    {
-	return c == cell;
-    }
-
-    bool operator!=( const QChar& c )
-    {
-	return c.cell != cell;
-    }
-    bool operator!=( char c )
-    {
-	return c != cell;
-    }
-
-private:
-    uchar cell;
-};
-
-#endif
 
 
 class QString
