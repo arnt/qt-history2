@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#286 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#287 $
 **
 ** Implementation of QListView widget class
 **
@@ -2279,8 +2279,8 @@ void QListView::enabledChange( bool e )
 
 void QListView::triggerUpdate()
 {
-    if ( !isVisible() )
-	return; // it will update when shown.
+    if ( !isVisible() || !isUpdatesEnabled() )
+	return; // it will update when shown, or something.
 
     if ( d && d->drawables ) {
 	delete d->drawables;
