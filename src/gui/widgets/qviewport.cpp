@@ -390,7 +390,7 @@ bool QViewport::viewportEvent(QEvent *e)
 #endif
         return QFrame::event(e);
     case QEvent::Wheel:
-        if (!QFrame::event(e)) {
+        if (!QFrame::event(e) || !e->isAccepted()) {
             if (static_cast<QWheelEvent*>(e)->orientation() == Qt::Horizontal)
                 return QApplication::sendEvent(d->hbar, e);
             return QApplication::sendEvent(d->vbar, e);
