@@ -10,15 +10,12 @@ SOURCES		= main.cpp \
 
 unix {
 	OBJECTS_DIR	= .obj
-	isEmpty(LIBS) {
-		LIBS += -lsybdb
+	LIBS 	*= -lsybdb
 	}
 }
 win32 {
 	OBJECTS_DIR	= obj
-	isEmpty(LIBS) {
-		LIBS += NTWDBLIB.LIB
-	}
+	LIBS 	*= NTWDBLIB.LIB
 }
 
 REQUIRES	= sql

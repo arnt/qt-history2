@@ -8,17 +8,13 @@ SOURCES		= main.cpp \
 
 unix {
 	OBJECTS_DIR	= .obj
-	isEmpty(LIBS) {
-		LIBS += -lodbc
-	}
+	LIBS 	*= -lodbc
 }
 
 win32 {
 	OBJECTS_DIR		= obj
-	isEmpty(LIBS) {
-		!win32-borland:LIBS	+= odbc32.lib
-		win32-borland:LIBS	+= $(BCB)/lib/PSDK/odbc32.lib
-	}
+	!win32-borland:LIBS	*= odbc32.lib
+	win32-borland:LIBS	*= $(BCB)/lib/PSDK/odbc32.lib
 }
 
 REQUIRES	= sql

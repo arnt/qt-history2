@@ -5,16 +5,12 @@ SOURCES		= main.cpp \
 		  ../../../../src/sql/drivers/psql/qsql_psql.cpp 
 unix {
 	OBJECTS_DIR	= .obj
-	isEmpty(LIBS) {
-		LIBS    += -lpq
-	}
+	LIBS   	*= -lpq
 }
 
 win32 {
 	OBJECTS_DIR	= obj
-	isEmpty(LIBS) {
-		LIBS	+= libpqdll.lib
-	}
+	LIBS	*= libpqdll.lib
 }
 
 REQUIRES	= sql
