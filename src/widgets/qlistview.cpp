@@ -4106,9 +4106,11 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 	    QRect r = itemRect( item );
 	    QPoint p = r.topLeft();
 	    if ( allColumnsShowFocus() )
-		p += QPoint( width() / 2, ( r.height() / 2 )+ ( header()->isVisible() ? header()->height() : 0 ) );
+		p += QPoint( width() / 2, ( r.height() / 2 ) );
 	    else
-		p += QPoint( columnWidth( 0 ) / 2, ( r.height() / 2 )+ ( header()->isVisible() ? header()->height() : 0 ) );
+		p += QPoint( columnWidth( 0 ) / 2, ( r.height() / 2 ) );
+	    p.rx() = QMAX( 0, p.x() );
+	    p.rx() = QMIN( visibleWidth(), p.x() );
 	    emit contextMenuRequested( item, viewport()->mapToGlobal( p ), -1 );
 	}
     } else {
