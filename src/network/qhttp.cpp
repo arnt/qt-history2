@@ -1460,7 +1460,7 @@ int QHttp::setHost(const QString &hostname, Q_UINT16 port )
 
     \sa setHost() post() head() request() requestStarted() requestFinished() done()
 */
-int QHttp::get( const QString& path, QIODevice* to=0 )
+int QHttp::get( const QString& path, QIODevice* to )
 {
     QHttpRequestHeader header( "GET", path );
     header.setValue( "Connection", "Keep-Alive" );
@@ -1486,7 +1486,7 @@ int QHttp::get( const QString& path, QIODevice* to=0 )
 
     \sa setHost() get() head() request() requestStarted() requestFinished() done()
 */
-int QHttp::post( const QString& path, QIODevice* data, QIODevice* to=0  )
+int QHttp::post( const QString& path, QIODevice* data, QIODevice* to  )
 {
     QHttpRequestHeader header( "POST", path );
     header.setValue( "Connection", "Keep-Alive" );
@@ -1496,7 +1496,7 @@ int QHttp::post( const QString& path, QIODevice* data, QIODevice* to=0  )
 /*! \overload
     \a data is used as the content data of the HTTP request.
 */
-int QHttp::post( const QString& path, const QByteArray& data, QIODevice* to=0 )
+int QHttp::post( const QString& path, const QByteArray& data, QIODevice* to )
 {
     QHttpRequestHeader header( "POST", path );
     header.setValue( "Connection", "Keep-Alive" );
