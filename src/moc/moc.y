@@ -60,6 +60,7 @@ void yyerror( const char *msg );
 #include "qdatetime.h"
 #include "qdict.h"
 #include "qfile.h"
+#include "qdir.h"
 #include "qptrlist.h"
 #include "qregexp.h"
 #include "qstrlist.h"
@@ -1955,21 +1956,12 @@ QCString combinePath( const char *infile, const char *outfile )
 	b = &b[i];
     }
 
-    if(b.left(3) == "../") {
-	QCString cdir;
-	char currentName[PATH_MAX+1];
-// ### should be using QDir::currentDirPath() instead
-#if defined(Q_OS_WIN32)
-	if ( QT_GETCWD(currentName,PATH_MAX) != 0 ) {
-#else
-	if ( ::getcwd(currentName,PATH_MAX) != 0 ) {
-#endif
-	    cdir = QString::fromLatin1(currentName);
-	    replace(cdir.data(),'\\','/');
-	    if(isRelativePath(cdir))
-		fprintf(stderr, "Got relative path from CWD, help!?");
-	}
-	while(b.left(3) == "../") {
+    if (b.left(3) == "../") {
+	QCString cdir( QDir::currentDirPath() );
+	replace(cdir.data(),'\\','/');
+	if (isRelativePath(cdir))
+	    fprintf(stderr, "Got relative path from CWD, help!?");
+	while (b.left(3) == "../") {
 	    int l = cdir.findRev('/');
 	    a.prepend(cdir.right(cdir.length() - l - 1) + '/');
 	    cdir = cdir.left(l);

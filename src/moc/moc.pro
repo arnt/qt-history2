@@ -15,6 +15,8 @@ SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../tools/qdatastream.cpp  \
 		  ../tools/qdatetime.cpp    \
 		  ../tools/qfile.cpp	    \
+		  ../tools/qdir.cpp	    \
+		  ../tools/qfileinfo.cpp    \
 		  ../tools/qgarray.cpp	    \
 		  ../tools/qgdict.cpp	    \
 		  ../tools/qglist.cpp	    \
@@ -31,9 +33,9 @@ SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../codecs/qtextcodec.cpp \
 		  ../codecs/qutfcodec.cpp
 
-unix:SOURCES	+= ../tools/qfile_unix.cpp
-win32:SOURCES	+= ../tools/qfile_win.cpp
-macx:LIBS += -framework Carbon
+unix:SOURCES	+= ../tools/qfile_unix.cpp ../tools/qdir_unix.cpp ../tools/qfileinfo_unix.cpp
+win32:SOURCES	+= ../tools/qfile_win.cpp ../tools/qdir_win.cpp ../tools/qfileinfo_win.cpp
+macx:LIBS	+= -framework Carbon
 
 TARGET		= moc
 
