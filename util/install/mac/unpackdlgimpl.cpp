@@ -1,10 +1,12 @@
 #include "unpackdlgimpl.h"
+#include <qdir.h>
 #include <qfiledialog.h>
 #include <qlineedit.h>
 #include <qtextview.h>
 #include <qpushbutton.h>
 #include <qarchive.h>
 #include <qmessagebox.h>
+#include "keyinfo.h"
 
 UnpackDlgImpl::UnpackDlgImpl( QWidget* pParent, const char* pName, WFlags f ) : 
     UnpackDlg( pParent, pName, f )
@@ -25,27 +27,26 @@ void UnpackDlgImpl::clickedUnpack()
 
     unpackButton->setDisabled( true );
 
-
     archive.setVerbosity( QArchive::Destination | QArchive::Verbose );
-#if 0
-    QString src = sourcePath->text(), dest = destPath->text();
-    int slsh = src.findRev('/');
-    if(slsh != -1)
-	src = src.right(src.length() - slsh - 1);
+
+    QString dest = destPath->text(), src="qtmac.arq";
     if(!dest.isEmpty() && dest.right(1) != "/")
 	dest += "/";
-    if(!QFile::exists(sourcePath->text())) {
-	QMessageBox::critical( NULL, "Failure", "Cannot open: " + sourcePath->text() );
-    } else if(!dest.isEmpty() && !QFile::exists(dest) ) {
-	QMessageBox::critical( NULL, "Failure", "Cannot open: " +  dest );
-    } else {
-	archive.setPath( dest + src );
-	if( archive.open( IO_WriteOnly ) ) {
-	    archive.writeDir( sourcePath->text(), true, src );
-	    archive.close();
+    archive.setPath( src );
+    if( !archive.open( IO_ReadOnly ) ) {
+	QMessageBox::critical( NULL, "Failure", "Failed to open input " + src);
+	return;
+    } else if(!QFile::exists(dest) ) {
+	QDir d;
+	if(!d.mkdir(dest)) {
+	    QMessageBox::critical( NULL, "Failure", "Failed to open directory " + dest);
+	    return;
 	}
     }
-#endif
+    if(!archive.readArchive( dest, srcKey->text() )) {
+	QMessageBox::critical( NULL, "Failure", "Failed to unpack " + src);
+	archive.close();
+    }
     unpackButton->setDisabled( false );
 }
 
