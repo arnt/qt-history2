@@ -1376,7 +1376,7 @@ int QApplication::macProcessEvent(MSG * m)
 	    QApplication::sendEvent( popupwidget, &qme );
 	}
 
-	if(special_case) {
+	if(qt_button_down || mac_mouse_grabber || special_case) {
 
 	    //figure out which widget to send it to
 	    if( er->what == mouseUp && qt_button_down )
