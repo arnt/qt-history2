@@ -110,28 +110,28 @@ public:
     QPictureIO(const QString &fileName, const char* format);
    ~QPictureIO();
 
-    const QPicture &picture()        const;
-    int                status()        const;
-    const char *format()        const;
-    QIODevice  *ioDevice()        const;
-    QString        fileName()        const;
-    int                quality()        const;
-    QString        description()        const;
-    const char *parameters()        const;
+    const QPicture &picture() const;
+    int status() const;
+    const char *format() const;
+    QIODevice *ioDevice() const;
+    QString fileName() const;
+    int quality() const;
+    QString description() const;
+    const char *parameters() const;
     float gamma() const;
 
-    void        setPicture(const QPicture &);
-    void        setStatus(int);
-    void        setFormat(const char *);
-    void        setIODevice(QIODevice *);
-    void        setFileName(const QString &);
-    void        setQuality(int);
-    void        setDescription(const QString &);
-    void        setParameters(const char *);
-    void        setGamma(float);
+    void setPicture(const QPicture &);
+    void setStatus(int);
+    void setFormat(const char *);
+    void setIODevice(QIODevice *);
+    void setFileName(const QString &);
+    void setQuality(int);
+    void setDescription(const QString &);
+    void setParameters(const char *);
+    void setGamma(float);
 
-    bool        read();
-    bool        write();
+    bool read();
+    bool write();
 
     static QByteArray pictureFormat(const QString &fileName);
     static QByteArray pictureFormat(QIODevice *);

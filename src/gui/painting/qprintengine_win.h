@@ -56,7 +56,7 @@ public:
     QString creator() const;
 
     void setOrientation(QPrinter::Orientation);
-    QPrinter::Orientation orientation()   const;
+    QPrinter::Orientation orientation() const;
 
     void setPageSize(QPrinter::PageSize);
     QPrinter::PageSize pageSize() const;
@@ -80,7 +80,7 @@ public:
     bool collateCopies() const;
 
     void setPaperSource(QPrinter::PaperSource);
-    QPrinter::PaperSource paperSource()   const;
+    QPrinter::PaperSource paperSource() const;
 
     QList<int> supportedResolutions() const;
 

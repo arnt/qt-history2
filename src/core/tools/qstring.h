@@ -142,7 +142,7 @@ public:
     QString section(const QRegExp &reg, int start, int end = -1, int flags = SectionDefault) const;
 #endif
 
-    QString left(int len)  const;
+    QString left(int len) const;
     QString right(int len) const;
     QString mid(int i, int len = -1) const;
 
@@ -228,9 +228,9 @@ public:
 
     short  toShort(bool *ok=0, int base=10) const;
     ushort toUShort(bool *ok=0, int base=10) const;
-    int toInt(bool *ok=0, int base=10)   const;
-    uint toUInt(bool *ok=0, int base=10)  const;
-    long toLong(bool *ok=0, int base=10)  const;
+    int toInt(bool *ok=0, int base=10) const;
+    uint toUInt(bool *ok=0, int base=10) const;
+    long toLong(bool *ok=0, int base=10) const;
     ulong toULong(bool *ok=0, int base=10) const;
     Q_LONGLONG toLongLong(bool *ok=0, int base=10) const;
     Q_ULONGLONG toULongLong(bool *ok=0, int base=10) const;

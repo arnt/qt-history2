@@ -63,7 +63,7 @@ public:
     const QBitmap *mask() const;
     QPoint hotSpot() const;
 #if defined(Q_WS_WIN)
-    HCURSOR handle()  const;
+    HCURSOR handle() const;
     QCursor(HCURSOR cursor);
 #elif defined(Q_WS_X11)
     Qt::HANDLE handle() const;

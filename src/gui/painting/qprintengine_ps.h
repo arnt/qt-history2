@@ -89,7 +89,7 @@ public:
     virtual QString creator() const;
 
     virtual void setOrientation(QPrinter::Orientation);
-    virtual QPrinter::Orientation orientation()   const;
+    virtual QPrinter::Orientation orientation() const;
 
     virtual void setPageSize(QPrinter::PageSize);
     virtual QPrinter::PageSize pageSize() const;
@@ -110,7 +110,7 @@ public:
     virtual bool collateCopies() const;
 
     virtual void setPaperSource(QPrinter::PaperSource);
-    virtual QPrinter::PaperSource paperSource()   const;
+    virtual QPrinter::PaperSource paperSource() const;
 
     virtual QList<int> supportedResolutions() const;
 

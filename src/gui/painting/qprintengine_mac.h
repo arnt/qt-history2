@@ -79,7 +79,7 @@ public:
     bool collateCopies() const;
 
     void setPaperSource(QPrinter::PaperSource);
-    QPrinter::PaperSource paperSource()   const;
+    QPrinter::PaperSource paperSource() const;
 
     QList<int> supportedResolutions() const;
 

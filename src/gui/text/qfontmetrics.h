@@ -37,39 +37,39 @@ public:
 
     QFontMetrics &operator=(const QFontMetrics &);
 
-    int                ascent()        const;
-    int                descent()        const;
-    int                height()        const;
-    int                leading()        const;
-    int                lineSpacing()        const;
-    int                minLeftBearing() const;
-    int                minRightBearing() const;
-    int                maxWidth()        const;
+    int ascent() const;
+    int descent() const;
+    int height() const;
+    int leading() const;
+    int lineSpacing() const;
+    int minLeftBearing() const;
+    int minRightBearing() const;
+    int maxWidth() const;
 
-    bool        inFont(QChar)        const;
+    bool inFont(QChar) const;
 
-    int                leftBearing(QChar) const;
-    int                rightBearing(QChar) const;
-    int                width(const QString &, int len = -1) const;
+    int leftBearing(QChar) const;
+    int rightBearing(QChar) const;
+    int width(const QString &, int len = -1) const;
 
-    int                width(QChar) const;
+    int width(QChar) const;
 
-    int                 charWidth(const QString &str, int pos) const;
-    QRect        boundingRect(const QString &, int len = -1) const;
-    QRect        boundingRect(QChar) const;
-    QRect        boundingRect(int x, int y, int w, int h, int flags,
-                              const QString& str, int len=-1, int tabstops=0,
-                              int *tabarray=0) const;
-    QSize        size(int flags,
-                      const QString& str, int len=-1, int tabstops=0,
-                      int *tabarray=0) const;
+    int charWidth(const QString &str, int pos) const;
+    QRect boundingRect(const QString &, int len = -1) const;
+    QRect boundingRect(QChar) const;
+    QRect boundingRect(int x, int y, int w, int h, int flags,
+                       const QString& str, int len=-1, int tabstops=0,
+                       int *tabarray=0) const;
+    QSize size(int flags,
+               const QString& str, int len=-1, int tabstops=0,
+               int *tabarray=0) const;
 
-    int                underlinePos()        const;
-    int         overlinePos()   const;
-    int                strikeOutPos()        const;
-    int                lineWidth()        const;
+    int underlinePos() const;
+    int overlinePos() const;
+    int strikeOutPos() const;
+    int lineWidth() const;
 
-    bool operator ==(const QFontMetrics &other);
+    bool operator==(const QFontMetrics &other);
     inline bool operator !=(const QFontMetrics &other) { return !operator==(other); }
 private:
     friend class QWidget;

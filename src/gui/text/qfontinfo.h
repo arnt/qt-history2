@@ -25,23 +25,22 @@ public:
     QFontInfo(const QFontInfo &);
     ~QFontInfo();
 
-    QFontInfo               &operator=(const QFontInfo &);
+    QFontInfo &operator=(const QFontInfo &);
 
-    QString                   family()        const;
-    int                        pixelSize()        const;
-    int                        pointSize()        const;
-    bool                italic()        const;
-    int                        weight()        const;
-    bool                bold()                const;
-    bool                underline()        const;
-    bool                overline()      const;
-    bool                strikeOut()        const;
-    bool                fixedPitch()        const;
-    QFont::StyleHint        styleHint()        const;
-    bool                rawMode()        const;
+    QString family() const;
+    int pixelSize() const;
+    int pointSize() const;
+    bool italic() const;
+    int weight() const;
+    inline bool bold() const { return weight() > QFont::Normal; }
+    bool underline() const;
+    bool overline() const;
+    bool strikeOut() const;
+    bool fixedPitch() const;
+    QFont::StyleHint styleHint() const;
+    bool rawMode() const;
 
-    bool                exactMatch()        const;
-
+    bool exactMatch() const;
 
 private:
     QFontInfo(const QPainter *);
@@ -53,10 +52,5 @@ private:
     friend class QWidget;
     friend class QPainter;
 };
-
-
-inline bool QFontInfo::bold() const
-{ return weight() > QFont::Normal; }
-
 
 #endif // QFONTINFO_H

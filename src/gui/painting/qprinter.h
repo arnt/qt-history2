@@ -90,10 +90,10 @@ public:
     QString creator() const;
 
     void setOrientation(Orientation);
-    Orientation orientation()   const;
+    Orientation orientation() const;
 
     void setPageSize(PageSize);
-    PageSize pageSize()      const;
+    PageSize pageSize() const;
 
     void setPageOrder(PageOrder);
     PageOrder pageOrder() const;

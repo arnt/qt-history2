@@ -29,17 +29,17 @@ public:
 #endif
     ~QSocketNotifier();
 
-    int                 socket()        const;
-    Type         type()                const;
+    inline int socket() const { return sockfd; }
+    inline Type type() const { return sntype; }
 
-    bool         isEnabled()        const;
+    inline bool isEnabled() const { return snenabled; }
     virtual void setEnabled(bool);
 
 signals:
-    void         activated(int socket);
+    void activated(int socket);
 
 protected:
-    bool         event(QEvent *);
+    bool event(QEvent *);
 
 private:
     Q_DISABLE_COPY(QSocketNotifier)
@@ -48,16 +48,6 @@ private:
     Type sntype;
     bool snenabled;
 };
-
-inline int QSocketNotifier::socket() const
-{ return sockfd; }
-
-inline QSocketNotifier::Type QSocketNotifier::type() const
-{ return sntype; }
-
-inline bool QSocketNotifier::isEnabled() const
-{ return snenabled; }
-
 
 //#define Q_WIN_EVENT_NOTIFIER
 #ifdef Q_WIN_EVENT_NOTIFIER

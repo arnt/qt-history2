@@ -196,9 +196,9 @@ public:
 
     short toShort(bool *ok = 0, int base = 10) const;
     ushort toUShort(bool *ok = 0, int base = 10) const;
-    int toInt(bool *ok = 0, int base = 10)   const;
-    uint toUInt(bool *ok = 0, int base = 10)  const;
-    long toLong(bool *ok = 0, int base = 10)  const;
+    int toInt(bool *ok = 0, int base = 10) const;
+    uint toUInt(bool *ok = 0, int base = 10) const;
+    long toLong(bool *ok = 0, int base = 10) const;
     ulong toULong(bool *ok = 0, int base = 10) const;
     Q_LONGLONG toLongLong(bool *ok = 0, int base = 10) const;
     Q_ULONGLONG toULongLong(bool *ok = 0, int base = 10) const;

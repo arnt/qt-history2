@@ -22,12 +22,12 @@ public:
     QPoint();
     QPoint(int xpos, int ypos);
 
-    bool   isNull()        const;
+    bool isNull() const;
 
-    int           x()                const;
-    int           y()                const;
-    void   setX(int x);
-    void   setY(int y);
+    int x() const;
+    int y() const;
+    void setX(int x);
+    void setY(int y);
 
     int manhattanLength() const;
 
@@ -41,8 +41,8 @@ public:
     QPoint &operator/=(int c);
     QPoint &operator/=(double c);
 
-    friend inline bool         operator==(const QPoint &, const QPoint &);
-    friend inline bool         operator!=(const QPoint &, const QPoint &);
+    friend inline bool operator==(const QPoint &, const QPoint &);
+    friend inline bool operator!=(const QPoint &, const QPoint &);
     friend inline const QPoint operator+(const QPoint &, const QPoint &);
     friend inline const QPoint operator-(const QPoint &, const QPoint &);
     friend inline const QPoint operator*(const QPoint &, int);

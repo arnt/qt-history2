@@ -35,10 +35,10 @@ public:
     QFrame(QWidget* parent = 0, Qt::WFlags f = 0);
     ~QFrame();
 
-    int frameStyle()    const;
+    int frameStyle() const;
     void setFrameStyle(int);
 
-    int frameWidth()    const;
+    int frameWidth() const;
 
     QSize sizeHint() const;
 
@@ -69,18 +69,18 @@ public:
         MShadow = 0x00f0 // mask for the shadow
     };
 
-    Shape frameShape()    const;
+    Shape frameShape() const;
     void setFrameShape(Shape);
-    Shadow frameShadow()   const;
+    Shadow frameShadow() const;
     void setFrameShadow(Shadow);
 
-    int lineWidth()     const;
+    int lineWidth() const;
     void setLineWidth(int);
 
-    int midLineWidth()  const;
+    int midLineWidth() const;
     void setMidLineWidth(int);
 
-    QRect frameRect()     const;
+    QRect frameRect() const;
     void setFrameRect(const QRect &);
 
 protected:
