@@ -154,7 +154,7 @@ QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
     if (noerase)
         setAttribute(Qt::WA_NoSystemBackground, true);
 }
-#if 1
+#if 0
 /* It's a real bummer I cannot use this, but you'll notice that sometimes
    the widget will scroll "offscreen" and the focus widget will remain visible
    (which looks quite bad). --Sam */
