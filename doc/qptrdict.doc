@@ -194,9 +194,11 @@
 */
 
 /*!
-  \fn bool QPtrDict::remove( void *key ) Removes the item associated
-  with \a key from the dictionary. Returns TRUE if successful, or
-  FALSE if the key does not exist in the dictionary.
+  \fn bool QPtrDict::remove( void *key ) 
+  
+  Removes the item associated with \a key from the dictionary. Returns
+  TRUE if successful, or FALSE if the key does not exist in the
+  dictionary.
 
   If there are two or more items with equal keys, then the last item
   that was inserted of will be removed.

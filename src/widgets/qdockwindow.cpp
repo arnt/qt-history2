@@ -1245,6 +1245,10 @@ void QDockWindow::endRectDraw( bool drawRect )
   A resizeable dock window can be resized using splitter-like handles
   inside a dock area and like every other top level window when
   floating.
+
+  A dock window is both horizontally and vertically stretchable if you call
+  or setResizeEnabled(TRUE).
+  \sa setVerticallyStretchable() setHorizontallyStretchable()
 */
 
 void QDockWindow::setResizeEnabled( bool b )
@@ -1315,6 +1319,9 @@ int QDockWindow::closeMode() const
 
 /*! \property QDockWindow::horizontallyStretchable
   \brief whether the dock window is horizontally stretchable.
+  A dock window is horizontally stretchable if you call
+  setHorizontallyStretchable(TRUE) or setResizeEnabled(TRUE).
+  \sa setResizeEnabled()
 */
 
 void QDockWindow::setHorizontallyStretchable( bool b )
@@ -1324,6 +1331,9 @@ void QDockWindow::setHorizontallyStretchable( bool b )
 
 /*! \property QDockWindow::verticallyStretchable
   \brief whether the dock window is vertically stretchable.
+  A dock window is horizontally stretchable if you call
+  setVerticallyStretchable(TRUE) or setResizeEnabled(TRUE).
+  \sa setResizeEnabled()
 */
 
 void QDockWindow::setVerticallyStretchable( bool b )
@@ -1345,7 +1355,8 @@ bool QDockWindow::isVerticallyStretchable() const
   \brief whether the dock window is stretchable in the current orientation()
 
   This property can be set using setHorizontallyStretchable() and
-  setVerticallyStretchable()
+  setVerticallyStretchable(), or with setResizeEnabled().
+  \sa setResizeEnabled()
 */
 
 bool QDockWindow::isStretchable() const
@@ -1383,7 +1394,7 @@ void QDockWindow::setOffset( int o )
 
 /*! Returns the dock window's preferred size (fixed extent).
 
-    \sa setFixedExtent()
+    \sa setFixedExtentWidth() setFixedExtentHeight()
 */
 
 QSize QDockWindow::fixedExtent() const

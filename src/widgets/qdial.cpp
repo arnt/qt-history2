@@ -134,7 +134,7 @@ public:
 
 
 
-/*!  Constructs a dial called \a name with parent \a parent. 
+/*!  Constructs a dial called \a name with parent \a parent.
     \a f is propagated to the QWidget constructor.
     It has the default range of a QRangeControl.
 */
@@ -401,7 +401,7 @@ void QDial::updateMask()
 	calcLines();
 	p.drawLineSegments( d->lines );
     }
-    
+
     setMask( bm );
 }
 
@@ -891,7 +891,7 @@ void QDial::calcLines()
   \property QDial::minValue
   \brief the current minimum value
 
-  When setting this property, the \l maxValue is adjusted so that the
+  When setting this property, the \l QDial::maxValue is adjusted so that the
   range remains valid if necessary.
 
   \sa setRange()
@@ -905,7 +905,7 @@ int QDial::minValue() const
   \property QDial::maxValue
   \brief the current maximum value
 
-  When setting this property, the \l minValue is adjusted so that the
+  When setting this property, the \l QDial::minValue is adjusted so that the
   range remains valid if necessary.
 
   \sa setRange()
@@ -968,7 +968,8 @@ void QDial::setPageStep( int i )
   \property QDial::value
   \brief the current dial value
 
-  This is guaranteed to be within the range \l{minValue}..\l{maxValue}.
+  This is guaranteed to be within the range
+  \l{QDial::minValue}..\l{QDial::maxValue}.
 
   \sa minValue maxValue
 */

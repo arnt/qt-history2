@@ -786,8 +786,8 @@ void QSlider::styleChange( QStyle& old )
   \property QSlider::minValue
   \brief the current minimum value of the slider
 
-  When setting this property, the \l maxValue is adjusted so that the
-  range remains valid if necessary.
+  When setting this property, the \l QSlider::maxValue is adjusted so
+  that the range remains valid if necessary.
 
   \sa setRange()
 */
@@ -800,8 +800,8 @@ int QSlider::minValue() const
   \property QSlider::maxValue
   \brief the current maximum value of the slider
 
-  When setting this property, the \l minValue is adjusted so that the
-  range remains valid if necessary.
+  When setting this property, the \l QSlider::minValue is adjusted so
+  that the range remains valid if necessary.
 
   \sa setRange()
 */

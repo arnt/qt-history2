@@ -71,12 +71,9 @@ public:
   string, a number or an item from a list. A label has to be set to tell
   the user what they should input.
 
-  In this Qt version the 4 static convenience functions,
-  getText(), getInteger(), getDouble() and getItem()
-  are available.
-
-  Use it like this:
-
+  Four static convenience functions are provided:
+  getText(), getInteger(), getDouble() and getItem(). All the
+  functions can be used in a similar way, for example:
   \code
   bool ok = FALSE;
   QString text = QInputDialog::getText(
@@ -84,14 +81,11 @@ public:
 		    tr( "Please enter your name" ),
 		    QLineEdit::Normal, QString::null, &ok, this );
   if ( ok && !text.isEmpty() )
-      ;// user entered something and pressed ok
+      ;// user entered something and pressed OK
   else
-      ;// user entered nothing or pressed cancel
+      ;// user entered nothing or pressed Cancel
   \endcode
 
-  There are more static convenience methods!
-
-  \sa getText(), getInteger(), getDouble(), getItem()
 */
 
 /*!
@@ -103,14 +97,15 @@ public:
   \value LineEdit  A QLineEdit is used for obtaining the input which may be
   a string or (e.g. using a QValidator) a number. The QLineEdit can be
   accessed using lineEdit().
-  \value SpinBox  A QSpinBox is used for obtaining a numerical input.
+  \value SpinBox  A QSpinBox is used for obtaining integer input.
   Use spinBox() to access the QSpinBox.
-  \value ComboBox  A read-only QComboBox is used for taking the input,
-  so one item of the combobox's list can be chosen. Use comboBox() to
-  access the QComboBox.
-  \value EditableComboBox  An editable QComboBox is used for taking the
-  input, so an item from the combobox's list can be chosen or the user
-  can enter a string. Use editableComboBox() to access the QComboBox.
+  \value ComboBox  A read-only QComboBox is used to provide a fixed
+  list of choices from which the user can choose.
+  Use comboBox() to access the QComboBox.
+  \value EditableComboBox  An editable QComboBox is used to provide a fixed
+  list of choices from which the user can choose, but which also
+  allows the user to enter their own value instead.
+  Use editableComboBox() to access the QComboBox.
 */
 
 /*!
@@ -287,9 +282,9 @@ QInputDialog::~QInputDialog()
 		    tr( "Please enter your name" ),
 		    QLineEdit::Normal, QString::null, &ok, this );
   if ( ok && !text.isEmpty() )
-      ;// user entered something and pressed ok
+      ;// user entered something and pressed OK
   else
-      ;// user entered nothing or pressed cancel
+      ;// user entered nothing or pressed Cancel
   \endcode
 */
 
@@ -340,9 +335,9 @@ QString QInputDialog::getText( const QString &caption, const QString &label, QLi
 		tr( "Application name" ),
 		tr( "Please enter a number" ), 22, 0, 1000, 2, &ok, this );
   if ( ok )
-      ;// user entered something and pressed ok
+      ;// user entered something and pressed OK
   else
-      ;// user pressed cancel
+      ;// user pressed Cancel
   \endcode
 */
 
@@ -393,9 +388,9 @@ int QInputDialog::getInteger( const QString &caption, const QString &label, int 
 		tr( "Please enter a decimal number" ),
 		33.7, 0, 1000, 2, &ok, this );
   if ( ok )
-      ;// user entered something and pressed ok
+      ;// user entered something and pressed OK
   else
-      ;// user pressed cancel
+      ;// user pressed Cancel
   \endcode
 */
 
@@ -461,9 +456,9 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
 		    tr( "Application name" ),
 		    tr( "Please select an item" ), lst, 1, TRUE, &ok, this );
   if ( ok )
-      ;// user selected an item and pressed ok
+      ;// user selected an item and pressed OK
   else
-      ;// user pressed cancel
+      ;// user pressed Cancel
   \endcode
 */
 

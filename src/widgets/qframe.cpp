@@ -400,7 +400,7 @@ void QFrame::updateFrameWidth()
 /*! \property QFrame::frameWidth
     \brief the width of the frame that is drawn.
 
-  Note that the frame width depends on the \link setFrameStyle() frame
+  Note that the frame width depends on the \link QFrame::setFrameStyle() frame
   style \endlink, not only the line width and the mid-line width.  For
   example, the style \c NoFrame always has a frame width 0, whereas the
   style \c Panel has a frame width equivalent to the line width.

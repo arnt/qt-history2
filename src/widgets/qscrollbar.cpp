@@ -876,8 +876,8 @@ void QScrollBar::styleChange( QStyle& old )
   \property QScrollBar::minValue
   \brief the current minimum value of the scroll bar
 
-  When setting this property, the \l maxValue is adjusted so that the
-  range remains valid if necessary.
+  When setting this property, the \l QScrollBar::maxValue is adjusted
+  so that the range remains valid if necessary.
 
   \sa setRange()
 */
@@ -895,8 +895,8 @@ void QScrollBar::setMinValue( int minVal )
   \property QScrollBar::maxValue
   \brief the current maximum value of the scroll bar
 
-  When setting this property, the \l minValue is adjusted so that the
-  range remains valid if necessary.
+  When setting this property, the \l QScrollBar::minValue is adjusted
+  so that the range remains valid if necessary.
 
   \sa setRange()
 */

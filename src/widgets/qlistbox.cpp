@@ -2593,7 +2593,8 @@ QListBox::SelectionMode QListBox::selectionMode() const
   \property QListBox::multiSelection
   \brief whether or not the list box is in Multi selection mode
 
-  Consider using the \l selectionMode property instead of this property.
+  Consider using the \l QListBox::selectionMode property instead of
+  this property.
 
   When setting this property, Multi selection mode is used if set to TRUE and
   to Single selection mode if set to FALSE.
@@ -2980,8 +2981,8 @@ QListBox::LayoutMode QListBox::rowMode() const
   \property QListBox::numColumns
   \brief the number of columns in the list box
 
-  This is normally 1, but can be different if \l columnMode or
-  \l rowMode has been set.
+  This is normally 1, but can be different if \l QListBox::columnMode or
+  \l QListBox::rowMode has been set.
 
   \sa columnMode rowMode numRows
 */

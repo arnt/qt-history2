@@ -838,7 +838,7 @@ void QMessageBox::resizeButtons()
   \brief the message box text to be displayed.
 
   The text will be interpreted either as a plain text or as a rich
-  text, depending on the text format setting (\l textFormat). The
+  text, depending on the text format setting (\l QMessageBox::textFormat). The
   default setting is \c AutoText, i.e. the message box will try to
   auto-detect the format of the text.
 
@@ -871,8 +871,8 @@ void QMessageBox::setText( const QString &text )
   \endlist
 
   The actual pixmap used for displaying the icon depends on the current
-  \link style() GUI style\endlink.  You can also set a custom pixmap icon
-  using the \l iconPixmap property.
+  \link QWidget::style() GUI style\endlink.  You can also set a custom
+  pixmap icon using the \l QMessageBox::iconPixmap property.
 
   \sa iconPixmap
 */

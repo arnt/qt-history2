@@ -350,8 +350,9 @@ QLCDNumber::~QLCDNumber()
   \property QLCDNumber::numDigits
   \brief the current number of digits displayed
 
-  Corresponds to the current number of digits.  If \l smallDecimalPoint is
-  FALSE, the decimal point occupies one digit position.
+  Corresponds to the current number of digits.  If \l
+  QLCDNumber::smallDecimalPoint is FALSE, the decimal point occupies
+  one digit position.
 
   \sa numDigits, smallDecimalPoint
 */

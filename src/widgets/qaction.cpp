@@ -656,7 +656,7 @@ bool QAction::isOn() const
   greyed out.
 
   What's this? help on disabled actions is still available
-  provided the \l whatsThis property is set.
+  provided the \l QAction::whatsThis property is set.
 
 */
 void QAction::setEnabled( bool enable )

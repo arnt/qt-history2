@@ -616,12 +616,12 @@ QIconSet QToolButton::offIconSet( ) const
   \obsolete
 
   Since Qt 3.0, QIconSet contains both the On and Off icons. There is
-  now an \l iconSet property that replaces both \l onIconSet and
-  \l offIconSet.
+  now an \l QToolButton::iconSet property that replaces both \l
+  QToolButton::onIconSet and \l QToolButton::offIconSet.
 
-  For ease of porting, this property is a synonym for \l iconSet. You
-  probably want to go over your application code and use the QIconSet
-  On/Off mechanism.
+  For ease of porting, this property is a synonym for \l
+  QToolButton::iconSet. You probably want to go over your application
+  code and use the QIconSet On/Off mechanism.
 
   \sa iconSet QIconSet::State
 */
@@ -643,12 +643,12 @@ void QToolButton::setOnIconSet( const QIconSet& set )
   \obsolete
 
   Since Qt 3.0, QIconSet contains both the On and Off icons. There is
-  now an \l iconSet property that replaces both \l onIconSet and
-  \l offIconSet.
+  now an \l QToolButton::iconSet property that replaces both \l
+  QToolButton::onIconSet and \l QToolButton::offIconSet.
 
-  For ease of porting, this property is a synonym for \l iconSet. You
-  probably want to go over your application code and use the QIconSet
-  On/Off mechanism.
+  For ease of porting, this property is a synonym for \l
+  QToolButton::iconSet. You probably want to go over your application
+  code and use the QIconSet On/Off mechanism.
 
   \sa iconSet QIconSet::State
 */
@@ -660,7 +660,7 @@ void QToolButton::setOffIconSet( const QIconSet& set )
 /*! \property QToolButton::iconSet
     \brief the icon set providing the icon shown on the button
 
-  Setting this property sets \l pixmap to a null pixmap.
+  Setting this property sets \l QToolButton::pixmap to a null pixmap.
 
   \sa pixmap(), setToggleButton(), isOn()
 */

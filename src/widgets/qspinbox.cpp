@@ -277,13 +277,13 @@ QString QSpinBox::cleanText() const
   choose.  Your code must then interpret the spin box value of -1 as
   the user requesting automatic margin width.
 
-  Neither \link prefix prefix\endlink nor \link suffix
-  suffix,\endlink if set, are added to the special-value text when
+  Neither \link QSpinBox::prefix prefix\endlink nor \link QSpinBox::suffix
+  suffix\endlink, if set, are added to the special-value text when
   displayed.
 
   To turn off the special-value text display, set this property to
   an empty string as the parameter. The default is no special-value text,
-  i.e., the numeric value is shown as usual.
+  i.e. the numeric value is shown as usual.
 
   If no special-value text is currently set, the getter function
   specialValueText() returns a null string.
@@ -881,8 +881,8 @@ QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
 
   \brief the minimum value of the spin box
 
-  When setting this property, the \l maxValue is adjusted so that the
-  range remains valid if necessary.
+  When setting this property, the \l QSpinBox::maxValue is adjusted so
+  that the range remains valid if necessary.
 
   \sa setRange()
 */
@@ -901,8 +901,8 @@ void QSpinBox::setMinValue( int minVal )
   \property QSpinBox::maxValue
   \brief the maximum value of the spin box
 
-  When setting this property, the \l minValue is adjusted so that the
-  range remains valid if necessary.
+  When setting this property, the \l QSpinBox::minValue is adjusted so
+  that the range remains valid if necessary.
 
   \sa setRange()
 */

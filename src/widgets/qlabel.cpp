@@ -305,7 +305,8 @@ void QLabel::clear()
   If no pixmap has been set this will return an invalid pixmap.
 
   Setting the pixmap clears any previous content, and resizes the label
-  if \l autoResize() is TRUE. The buddy accelerator, if any, is disabled.
+  if \l QLabel::autoResize() is TRUE. The buddy accelerator, if any,
+  is disabled.
 */
 void QLabel::setPixmap( const QPixmap &pixmap )
 {

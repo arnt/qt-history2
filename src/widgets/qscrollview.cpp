@@ -330,7 +330,6 @@ public:
     bool inresize;
 };
 
-// NOT REVISED
 /*!
 \class QScrollView qscrollview.h
 \brief The QScrollView widget provides a scrolling area with on-demand scroll bars.
@@ -339,8 +338,8 @@ public:
 
 The QScrollView is a large canvas - potentially larger than the
 coordinate system normally supported by the underlying window system.
-This is important because it is quite easy to go beyond such limitations
-(e.g., many web pages are more than 32000 pixels high).  Additionally,
+This is important because it is quite easy to go beyond these limitations
+(e.g. many web pages are more than 32000 pixels high).  Additionally,
 the QScrollView can have QWidgets positioned on it that scroll around
 with the drawn content.  These subwidgets can also have positions
 outside the normal coordinate range (but they are still limited in
@@ -348,25 +347,24 @@ size).
 
 To provide content for the widget, inherit from QScrollView,
 reimplement drawContents() and use resizeContents() to set the size
-of the viewed area.  Use addChild()/moveChild() to position widgets
+of the viewed area.  Use addChild() and moveChild() to position widgets
 on the view.
 
 To use QScrollView effectively it is important to understand its
-widget structure in the three styles of usage: a single large child widget,
-a large panning area with some widgets and a large panning area with many widgets.
+widget structure in the three styles of use: a single large child
+widget, a large panning area with some widgets and a large panning
+area with many widgets.
 
-<dl>
-<dt><b>One Big Widget</b>
-<dd>
+\section1 Using One Big Widget
 
 <img src=qscrollview-vp2.png>
 
-The first, simplest usage of QScrollView depicted above is
-appropriate for scrolling areas
-that are never more than about 4000 pixels in either dimension (this
-is about the maximum reliable size on X11 servers).  In this usage, you
-just make one large child in the QScrollView.  The child should
-be a child of the viewport() of the scrollview and be added with addChild():
+The first, simplest usage of QScrollView (depicted above), is
+appropriate for scrolling areas that are never more than about 4000
+pixels in either dimension (this is about the maximum reliable size on
+X11 servers).  In this usage, you just make one large child in the
+QScrollView.  The child should be a child of the viewport() of the
+scrollview and be added with addChild():
 \code
     QScrollView* sv = new QScrollView(...);
     QVBox* big_box = new QVBox(sv->viewport());
@@ -383,23 +381,23 @@ the scrollview as you would with any widget:
 
 Here the QScrollView has four children: the viewport(), the
 verticalScrollBar(), the horizontalScrollBar() and a small cornerWidget().
-The viewport() has one child - the big QVBox. The QVBox has the three
+The viewport() has one child -- the big QVBox. The QVBox has the three
 QLabel objects as child widgets.  When the view is scrolled, the QVBox
 is moved; its children move with it as child widgets normally do.
 
-<dt><b>Very Big View, Some Widgets</b>
-<dd>
+\section1 Using a Very Big View with Some Widgets
 
 <img src=qscrollview-vp.png>
 
-The second usage of QScrollView depicted above is appropriate when
+The second usage of QScrollView (depicted above) is appropriate when
 few, if any, widgets are on a very large scrolling area that is
 potentially larger than 4000 pixels in either dimension. In this
 usage you call resizeContents() to set the size of the area and
 reimplement drawContents() to paint the contents.  You may also add
 some widgets by making them children of the viewport() and adding
 them with addChild() (this is the same as the process for the single
-large widget in the previous example): \code
+large widget in the previous example):
+\code
     QScrollView* sv = new QScrollView(...);
     QLabel* child1 = new QLabel("CHILD", sv->viewport());
     sv->addChild(child1);
@@ -414,19 +412,17 @@ cornerWidget().  The viewport() has the three QLabel objects as child
 widgets.  When the view is scrolled, the scrollview moves the child
 widgets individually.
 
-<dt><b>Very Big View, Many Widgets</b>
-<dd>
+\section1 Using a Very Big View with Many Widgets
 
 <img src=qscrollview-cl.png>
 
-The final usage of QScrollView depicted above is
-appropriate when many widgets are on a very large scrolling area
-that is potentially larger than 4000 pixels in either dimension. In this
-usage you call resizeContents() to set the size of the area and reimplement
-drawContents() to paint the contents.  You then call enableClipper(TRUE)
-and add widgets, again
-by making them children of the viewport() and adding them with
-addChild():
+The final usage of QScrollView (depicted above) is appropriate when
+many widgets are on a very large scrolling area that is potentially
+larger than 4000 pixels in either dimension. In this usage you call
+resizeContents() to set the size of the area and reimplement
+drawContents() to paint the contents.  You then call
+enableClipper(TRUE) and add widgets, again by making them children of
+the viewport(), and adding them with addChild():
 \code
     QScrollView* sv = new QScrollView(...);
     sv->enableClipper(TRUE);
@@ -445,7 +441,7 @@ one child: the viewport().  The viewport() has the same three labels as
 child widgets.  When the view is scrolled the viewport() is moved;
 its children move with it as child widgets normally do.
 
-</dl>
+\section1 Details Relevant for All Views
 
 Normally you will use the first or third method if you want any child
 widgets in the view.
@@ -456,7 +452,7 @@ example, use viewport()->setMouseTracking(TRUE).
 
 To enable drag-and-drop, you would setAcceptDrops(TRUE) on the
 QScrollView (because drag-and-drop events propagate to the parent). But
-to work out what logical position in the view, you would need to map
+to work out the logical position in the view, you would need to map
 the drop co-ordinate from being relative to the QScrollView to being
 relative to the contents; use the function viewportToContents() for this.
 
@@ -464,17 +460,19 @@ To handle mouse events on the scrolling area, subclass scrollview as you
 would subclass other widgets, but rather than reimplementing
 mousePressEvent(), reimplement contentsMousePressEvent() instead.  The
 contents specific event handers provide translated events in the
-coordinate system of the scrollview. aIf you reimplement
+coordinate system of the scrollview. If you reimplement
 mousePressEvent(), you'll get called only when part of the QScrollView is
-clicked - and the only such part is the "corner" (if you don't set a
+clicked -- and the only such part is the "corner" (if you don't set a
 cornerWidget()) and the frame; everything else is covered up by the
 viewport, clipper or scroll bars.
 
 When you construct a QScrollView, some of the widget flags apply to the
 viewport() instead of being sent to the QWidget constructor for the
 QScrollView. This applies to \c WResizeNoErase, \c WStaticContents,
-\c WRepaintNoErase and \c WPaintClever. See Qt::WidgetFlags for
-documentation about these flags.  Here are some examples: \list
+\c WRepaintNoErase and \c WPaintClever. See \l Qt::WidgetFlags for
+documentation about these flags.  Here are some examples:
+
+\list
 
 \i An image-manipulation widget would use \c
 WResizeNoErase|WStaticContents because the widget draws all pixels
@@ -493,7 +491,7 @@ WStaticContents and \c WResizeNoErase) so that the window system
 background does not flash in and out during scrolling.
 \endlist
 
-\warning WResizeNoErase is currently set by default, i.e., you always
+\warning \c WResizeNoErase is currently set by default, i.e. you always
 have to clear the background manually in scrollview subclasses. This
 will change in a future version of Qt and we recommend specifying the
 flag explicitly.
@@ -506,10 +504,10 @@ flag explicitly.
 
 /*! \enum QScrollView::ResizePolicy
 
-  This enum type is used to control QScrollView's reaction to resize
+  This enum type is used to control a QScrollView's reaction to resize
   events.  There are four possible settings:
 
-  \value Default  QScrollView selects one of the other settings
+  \value Default  the QScrollView selects one of the other settings
   automatically when it has to.  In this version of Qt, QScrollView
   changes to \c Manual if you resize the contents with resizeContents()
   and to \c AutoOne if a child is added.
@@ -519,10 +517,10 @@ flag explicitly.
   \value AutoOne  if there is only one child widget the view stays
   the size of that widget.  Otherwise the behaviour is undefined.
 
-  \value AutoOneFit - if there is only one child widget the view stays
-  the size of that widget's sizeHint(). If the scrollview is resized bigger
-  than the child's sizeHint(), the child will be resized to fit.
-  If there is more than one child, the behaviour is undefined.
+  \value AutoOneFit if there is only one child widget the view stays
+  the size of that widget's sizeHint(). If the scrollview is resized
+  larger than the child's sizeHint(), the child will be resized to
+  fit. If there is more than one child, the behaviour is undefined.
 
 */
 //####  The widget will be resized to its sizeHint() when a LayoutHint event
@@ -568,7 +566,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 
 /*!
   Destroys the QScrollView.  Any children added with addChild()
-  will be destructed.
+  will be deleted.
 */
 QScrollView::~QScrollView()
 {
@@ -654,7 +652,7 @@ void QScrollView::setVBarGeometry( QScrollBar& vbar,
 
 /*! Returns the viewport size for size (\a x, \a y).
 
-  The viewport size depends on \a x,y (the size of the contents), the
+  The viewport size depends on \a (x, y) (the size of the contents), the
   size of this widget and the modes of the horizontal and vertical scroll
   bars.
 
@@ -911,7 +909,7 @@ void QScrollView::updateScrollBars()
         if ( reverse )
             x =QMIN(0,contentsWidth()-visibleWidth());
         else
-#endif	
+#endif
             x =QMAX(0,contentsWidth()-visibleWidth());
         d->hbar->setValue(x);
         // Do it even if it is recursive
@@ -939,7 +937,7 @@ void QScrollView::updateScrollBars()
     if ( d->clipped_viewport && oldVisibleSize != newVisibleSize ) {
 	QResizeEvent e( oldVisibleSize, newVisibleSize );
 	viewportResizeEvent( &e );
-    }	
+    }
 }
 
 
@@ -1071,7 +1069,7 @@ QScrollView::ScrollBarMode QScrollView::vScrollBarMode() const
   bars.  The defined modes are:
 
    \value Auto  QScrollView shows a scroll bar when the content is
-   too tall to fit and not otherwise.  This is the default.
+   too large to fit and not otherwise.  This is the default.
 
    \value AlwaysOff  QScrollView never shows a scroll bar.
 
@@ -1130,7 +1128,7 @@ QWidget* QScrollView::cornerWidget() const
   Sets the widget in the \a corner between the two scroll bars.
 
   You will probably also want to
-  set at least one of the scroll bar modes to AlwaysOn.
+  set at least one of the scroll bar modes to \c AlwaysOn.
 
   Passing 0 shows no widget in the corner.
 
@@ -1138,9 +1136,9 @@ QWidget* QScrollView::cornerWidget() const
 
   You may call setCornerWidget() with the same widget at different times.
 
-  All widgets set here will be deleted by the QScrollView when it is destroyed
-  unless you separately
-  reparent the widget after setting some other corner widget (or 0).
+  All widgets set here will be deleted by the QScrollView when it is
+  destroyed unless you separately reparent the widget after setting
+  some other corner widget (or 0).
 
   Any \e newly set widget should have no current parent.
 
@@ -1211,9 +1209,9 @@ void QScrollView::removeChild(QObject* child)
 }
 
 /*!
-  Inserts \a child into the scrolled area positioned at (\a x, \a y).
-  The position defaults to (0,0). If the child is already in the view,
-  it is just moved.
+  Inserts the widget, \a child, into the scrolled area positioned at
+  (\a x, \a y). The position defaults to (0, 0). If the child is
+  already in the view, it is just moved.
 
   You may want to call enableClipper(TRUE) if you add a large number
   of widgets.
@@ -1253,8 +1251,8 @@ void QScrollView::addChild(QWidget* child, int x, int y)
 }
 
 /*!
-  Repositions \a child to (\a x, \a y).
-  This functions the same as addChild().
+  Repositions the \a child widget to (\a x, \a y).
+  This function is the same as addChild().
 */
 void QScrollView::moveChild(QWidget* child, int x, int y)
 {

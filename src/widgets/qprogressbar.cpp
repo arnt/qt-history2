@@ -219,7 +219,8 @@ QSize QProgressBar::minimumSizeHint() const
 
   \brief whether the indicator string should be centered
 
-  Changing this property sets \l indicatorFollowsStyle to FALSE.
+  Changing this property sets \l QProgressBar::indicatorFollowsStyle
+  to FALSE.
 */
 
 void QProgressBar::setCenterIndicator( bool on )
