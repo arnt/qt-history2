@@ -26,7 +26,7 @@
 #include <qiconview.h>
 #include <qtextedit.h>
 #include <qwidgetstack.h>
-#include "../../../../src/widgets/qtitlebar_p.h"
+#include <private/qtitlebar_p.h>
 
 
 QString buddyString( QWidget *widget ) 
