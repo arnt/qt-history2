@@ -948,7 +948,7 @@ then
     fi
     if [ "x$STL" = "xauto" ]
     then
-	SHY="+"
+	SHY="*"
 	SHN=" "
     else
 	SHY=" "
