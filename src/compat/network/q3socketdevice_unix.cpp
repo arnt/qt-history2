@@ -748,7 +748,7 @@ qint64 Q3SocketDevice::readData( char *data, qint64 maxlen )
 	    r = ::read( fd, data, maxlen );
 	}
 	done = true;
-        if ( r == 0 && t == Stream ) {
+        if ( r == 0 && t == Stream && maxlen > 0 ) {
             // connection closed
             close();
         } else if ( r >= 0 || errno == EAGAIN || errno == EWOULDBLOCK ) {

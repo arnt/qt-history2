@@ -691,7 +691,7 @@ qint64 Q3SocketDevice::readData( char *data, qint64 maxlen )
     } else {
 	r = ::recv( fd, data, maxlen, 0 );
     }
-    if ( r == 0 && t == Stream ) {
+    if ( r == 0 && t == Stream && maxlen > 0 ) {
         // connection closed
         close();
     } else if ( r == SOCKET_ERROR && e == NoError ) {
