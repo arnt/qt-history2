@@ -19,10 +19,7 @@ static void blend_color(ARGB *target, const QSpan *span, ARGB color)
     int rev_alpha = 255 - alpha;
 
     for (int i = span->len; i > 0 ; --i) {
-        qt_alpha_pixel_pm(pr, target->r, rev_alpha);
-        qt_alpha_pixel_pm(pg, target->g, rev_alpha);
-        qt_alpha_pixel_pm(pb, target->b, rev_alpha);
-        target->a = 255;
+        qt_blend_pixel(color, target, span->coverage); // ### fix me: use premultiplied
         ++target;
     }
 }
