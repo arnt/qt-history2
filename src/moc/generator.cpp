@@ -94,6 +94,13 @@ bool isVariantType(const char* type)
 }
 
 
+static inline QByteArray noRef(const QByteArray &type)
+{
+    if (type.endsWith('&'))
+	return type.left(type.length()-1);
+    return type;
+}
+
 Generator::Generator(FILE *outfile, ClassDef *classDef) :out(outfile), cdef(classDef)
 {
     /*
@@ -469,19 +476,19 @@ void Generator::generateMetacall()
 	    const FunctionDef &f = cdef->slotList.at(slotindex);
 	    fprintf(out, "        case %d: ", slotindex);
 	    if (f.normalizedType.size())
-		fprintf(out, "{ %s _r = ", f.normalizedType.constData());
+		fprintf(out, "{ %s _r = ", noRef(f.normalizedType).constData());
 	    fprintf(out, "%s(", f.name.constData());
 	    int offset = 1;
 	    for (int j = 0; j < f.arguments.count(); ++j) {
 		const ArgumentDef &a = f.arguments.at(j);
 		if (j)
 		    fprintf(out, ",");
-		fprintf(out, "*(%s*)_a[%d]",a.normalizedType.constData(), offset++);
+		fprintf(out, "*(%s*)_a[%d]",noRef(a.normalizedType).constData(), offset++);
 	    }
 	    fprintf(out, ");");
 	    if (f.normalizedType.size())
 		fprintf(out, "\n            if (_a[0]) *(%s*)_a[0] = _r; } ",
-			f.normalizedType.constData());
+			noRef(f.normalizedType).constData());
 	    fprintf(out, " break;\n");
 	}
 	fprintf(out,
@@ -499,19 +506,19 @@ void Generator::generateMetacall()
 	    const FunctionDef &f = cdef->signalList.at(signalindex);
 	    fprintf(out, "        case %d: ", signalindex);
 	    if (f.normalizedType.size())
-		fprintf(out, "{ %s _r = ", f.normalizedType.constData());
+		fprintf(out, "{ %s _r = ", noRef(f.normalizedType).constData());
 	    fprintf(out, "%s(", f.name.constData());
 	    int offset = 1;
 	    for (int j = 0; j < f.arguments.size(); ++j) {
 		const ArgumentDef &a = f.arguments.at(j);
 		if (j)
 		    fprintf(out, ",");
-		fprintf(out, "*(%s*)_a[%d]", a.normalizedType.constData(), offset++);
+		fprintf(out, "*(%s*)_a[%d]", noRef(a.normalizedType).constData(), offset++);
 	    }
 	    fprintf(out, ");");
 	    if (f.normalizedType.size())
 		fprintf(out, "\n            if (_a[0]) *(%s*)_a[0] = _r; } ",
-			f.normalizedType.constData());
+			noRef(f.normalizedType).constData());
 	    fprintf(out, " break;\n");
 	}
 	fprintf(out,
@@ -733,7 +740,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
     }
     fprintf(out, ")\n{\n");
     if (def->type.size() && def->normalizedType.size())
-	fprintf(out, "    %s _t0;\n", def->normalizedType.constData());
+	fprintf(out, "    %s _t0;\n", noRef(def->normalizedType).constData());
 
     fprintf(out, "    void *_a[] = { %s",
 	     def->normalizedType.isEmpty() ? "0" : "(void*)&_t0");
