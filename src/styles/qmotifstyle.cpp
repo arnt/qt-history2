@@ -823,9 +823,13 @@ void QMotifStyle::drawControl( ControlElement element,
 		    flags |= Style_On;
 		if (btn->isDown())
 		    flags |= Style_Down;
+		p->save();
+		p->setBrushOrigin( -widget->backgroundOffset().x(),
+				   -widget->backgroundOffset().y() );
 		drawPrimitive( PE_ButtonCommand, p,
 			       tmp, newCg,
  			       flags );
+		p->restore();
 	    }
  	    if ( p->brush().style() != NoBrush )
  		p->setBrush( NoBrush );

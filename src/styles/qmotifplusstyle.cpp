@@ -669,7 +669,11 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 
 	    if (flags & Style_HasFocus)
 		br.addCoords(1, 1, -1, -1);
+	    p->save();
+	    p->setBrushOrigin( -button->backgroundOffset().x(),
+			       -button->backgroundOffset().y() );
 	    drawPrimitive(PE_ButtonCommand, p, br, cg, flags);
+	    p->restore();
 #endif
 	    break;
 	}

@@ -904,6 +904,8 @@ void QSGIStyle::drawControl( ControlElement element,
 
 	    p->setPen( cg.foreground() );
 	    p->setBrush( QBrush( cg.button(),Qt::NoBrush ) );
+	    p->setBrushOrigin( -widget->backgroundOffset().x(),
+			       -widget->backgroundOffset().y() );
 
 	    int diw = pixelMetric( QStyle::PM_ButtonDefaultIndicator );
 	    if ( btn->isDefault() || btn->autoDefault() ) {
