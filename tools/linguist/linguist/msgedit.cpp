@@ -191,11 +191,15 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     setLineWidth( 1 );
     setFrameStyle( QFrame::Box | QFrame::Plain );
 
-    QPalette p = palette();
+    // Use white explicitly as the background color for the editor page.
+    QPalette p = palette();    
+    p.setColor( QPalette::Active, QColorGroup::Base, QColor( white ) );
+    p.setColor( QPalette::Inactive, QColorGroup::Base, QColor( white ) );
+
     p.setColor( QPalette::Active, QColorGroup::Background,
-		palette().active().color( QColorGroup::Base ) );
+		p.active().color( QColorGroup::Base ) );
     p.setColor( QPalette::Inactive, QColorGroup::Background,
-		palette().inactive().color( QColorGroup::Base ) );
+		p.inactive().color( QColorGroup::Base ) );
     setPalette( p );
 
     srcTextLbl = new QLabel( tr("Source text"), this, "source text label" );
