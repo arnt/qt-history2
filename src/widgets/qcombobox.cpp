@@ -198,7 +198,7 @@
 /*! \property QComboBox::autoCompletion
     \brief Whether auto completion is enabled or not
 
-  This property can only be set for editable comboboxes, for non-editable 
+  This property can only be set for editable comboboxes, for non-editable
   comboboxes it has no effect.
 */
 
@@ -234,7 +234,7 @@
 
 /*! \property QComboBox::insertionPolicy
     \brief The position of the items inserted by the user
-  
+
   The default insertion policy is \c AtBottom.
 */
 
@@ -245,8 +245,8 @@
 /*! \property QComboBox::sizeLimit
     \brief The maximum on-screen size of the combo box.
 
-  This is disregarded in Motif 1.x style.  The default limit is ten lines. 
-  If the number of items in the combo box is/grows larger than lines, a list box is added. 
+  This is disregarded in Motif 1.x style.  The default limit is ten lines.
+  If the number of items in the combo box is/grows larger than lines, a list box is added.
 */
 
 class QComboBoxPopup : public QPopupMenu
@@ -1360,7 +1360,7 @@ void QComboBox::popup()
 	d->listBox()->blockSignals( TRUE );
 	d->listBox()->setCurrentItem( d->listBox()->item( d->current ) );
 	d->listBox()->blockSignals( block );
-	/*	d->listBox()->setAutoScrollBar( TRUE ); ###NO_COMPAT???*/
+	d->listBox()->setVScrollBarMode(QScrollView::Auto);
 
 #ifndef QT_NO_EFFECTS
 	if ( QApplication::isEffectEnabled( UI_AnimateCombo ) )
@@ -1810,9 +1810,8 @@ void QComboBox::setListBox( QListBox * newListBox )
     newListBox->reparent( this, WType_Popup, QPoint(0,0), FALSE );
     d->setListBox( newListBox );
     d->listBox()->setFont( font() );
-    /* d->listBox()->setAutoScrollBar( FALSE ); ########QT_NO_COMPAT ??? */
-    /*d->listBox()->setBottomScrollBar( FALSE );########QT_NO_COMPAT ??? */
-    /*d->listBox()->setAutoBottomScrollBar( FALSE );########QT_NO_COMPAT ??? */
+    d->listBox()->setVScrollBarMode(QScrollView::AlwaysOff);
+    d->listBox()->setHScrollBarMode(QScrollView::AlwaysOff);
     d->listBox()->setFrameStyle( QFrame::Box | QFrame::Plain );
     d->listBox()->setLineWidth( 1 );
     d->listBox()->resize( 100, 10 );
