@@ -1722,10 +1722,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    switch ( sc ) {
 	    case SC_SliderHandle:
 		{
-		    const QSlider * sl = (const QSlider *) widget;
 		    int sliderPos = 0;
-		    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
-		    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
 		    int len   = pixelMetric( PM_SliderLength, sl );
 
 		    sliderPos = sl->sliderStart();
@@ -1739,21 +1736,10 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 
 	    case SC_SliderGroove:
 		{
-		    int x, y, wi, he;
-
-		    if ( sl->orientation() == Horizontal ) {
-			x = 0;
-			y = tickOffset;
-			wi = sl->width();
-			he = thickness;
-		    } else {
-			x = tickOffset;
-			y = 0;
-			wi = thickness;
-			he = sl->height();
-		    }
-
-		    rect.setRect(x, y, wi, he);
+		    if ( sl->orientation() == Horizontal )
+			rect.setRect( 0, tickOffset, sl->width(), thickness );
+		    else
+			rect.setRect( tickOffset, 0, thickness, sl->height() );
 		    break;
 		}
 
