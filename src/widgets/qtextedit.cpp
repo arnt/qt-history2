@@ -1376,6 +1376,11 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			drawCursor( TRUE );
 			break;
 		    }
+		} else if ( e->key() == Key_BackTab ) {
+		    if ( d->tabChangesFocus ) {
+			e->ignore();
+			break;
+		    }
 		}
 
 		if ( ( autoFormatting() & AutoBulletList ) &&
