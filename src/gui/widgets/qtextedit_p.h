@@ -67,6 +67,8 @@ public:
 
     void ensureVisible(int documentPosition);
 
+    void emitCursorPosChanged(const QTextCursor &someCursor);
+
     QRect cursorRect() const;
 
     void setBlinkingCursorEnabled(bool enable);

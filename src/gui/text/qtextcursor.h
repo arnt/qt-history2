@@ -41,6 +41,7 @@ public:
     QTextCursor(QTextDocumentPrivate *p, int pos);
     QTextCursor(QTextFrame *frame);
     QTextCursor(const QTextBlock &block);
+    Q_EXPLICIT QTextCursor(QTextCursorPrivate *d);
     QTextCursor(const QTextCursor &cursor);
     QTextCursor &operator=(const QTextCursor &other);
     ~QTextCursor();
@@ -160,6 +161,8 @@ public:
     bool operator==(const QTextCursor &rhs) const;
     bool operator>=(const QTextCursor &rhs) const;
     bool operator>(const QTextCursor &rhs) const;
+
+    bool isCopyOf(const QTextCursor &other) const;
 
 private:
     QSharedDataPointer<QTextCursorPrivate> d;

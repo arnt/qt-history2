@@ -353,6 +353,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         vbar->setSingleStep(20);
 
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SLOT(updateCurrentCharFormatAndSelection()));
+        QObject::connect(doc, SIGNAL(cursorPositionChanged(const QTextCursor &)), q, SLOT(emitCursorPosChanged(const QTextCursor &)));
 
         // compat signals
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
@@ -564,6 +565,12 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
 //     r.translate(d->doc->documentLayout()->frameBoundingRect(frame).topLeft());
 //     return r;
 // }
+
+void QTextEditPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
+{
+    if (someCursor.isCopyOf(cursor))
+        emit q->cursorPositionChanged();
+}
 
 void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
 {

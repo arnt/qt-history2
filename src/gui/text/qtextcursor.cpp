@@ -56,12 +56,12 @@ QTextCursorPrivate::~QTextCursorPrivate()
         priv->removeCursor(this);
 }
 
-void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRemoved, QTextUndoCommand::Operation op)
+QTextCursorPrivate::AdjustResult QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRemoved, QTextUndoCommand::Operation op)
 {
     // not(!) <= , so that inserting text adjusts the cursor correctly
     if (position < positionOfChange ||
         (position == positionOfChange && op == QTextUndoCommand::KeepCursor))
-        return;
+        return CursorUnchanged;
 
     if (charsAddedOrRemoved < 0 && position < positionOfChange - charsAddedOrRemoved)
         position = positionOfChange;
@@ -75,6 +75,8 @@ void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRe
         adjusted_anchor += charsAddedOrRemoved;
     }
     currentCharFormat = -1;
+
+    return CursorMoved;
 }
 
 void QTextCursorPrivate::setX()
@@ -701,6 +703,15 @@ QTextCursor::QTextCursor(QTextDocumentPrivate *p, int pos)
     d->adjusted_anchor = d->anchor = d->position = pos;
 
     d->setX();
+}
+
+/*!
+    \internal
+*/
+QTextCursor::QTextCursor(QTextCursorPrivate *d)
+{
+    Q_ASSERT(d);
+    this->d = d;
 }
 
 /*!
@@ -1807,5 +1818,17 @@ void QTextCursor::endEditBlock()
         return;
 
     d->priv->endEditBlock();
+}
+
+/*!
+    Returns true if this cursor and \a other are copies of each other, i.e.
+    one of them was created as a copy of the other and neither has moved since.
+    This is much stricter than equality.
+
+    \sa operator=() operator==()
+*/
+bool QTextCursor::isCopyOf(const QTextCursor &other) const
+{
+    return d == other.d;
 }
 

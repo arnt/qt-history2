@@ -129,6 +129,7 @@ signals:
     void undoAvailable(bool);
     void redoAvailable(bool);
     void modificationChanged(bool m);
+    void cursorPositionChanged(const QTextCursor &cursor);
 
 public slots:
     void undo();

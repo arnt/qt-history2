@@ -174,6 +174,7 @@ signals:
     void currentCharFormatChanged(const QTextCharFormat &format);
     void copyAvailable(bool b);
     void selectionChanged();
+    void cursorPositionChanged();
 
 protected:
     virtual void timerEvent(QTimerEvent *ev);
@@ -291,7 +292,7 @@ private:
     Q_PRIVATE_SLOT(d, void update(const QRect &r))
     Q_PRIVATE_SLOT(d, void updateCurrentCharFormatAndSelection())
     Q_PRIVATE_SLOT(d, void adjustScrollbars())
-
+    Q_PRIVATE_SLOT(d, void emitCursorPosChanged(const QTextCursor &));
 };
 
 #endif // QTEXTEDIT_H

@@ -211,7 +211,7 @@ private:
 
 public:
     inline void addCursor(QTextCursorPrivate *c) { cursors.append(c); }
-    inline void removeCursor(QTextCursorPrivate *c) { cursors.removeAll(c); }
+    inline void removeCursor(QTextCursorPrivate *c) { cursors.removeAll(c); changedCursors.removeAll(c); }
 
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const { return frame; }
@@ -252,6 +252,7 @@ private:
     BlockMap blocks;
 
     QList<QTextCursorPrivate*> cursors;
+    QList<QTextCursorPrivate*> changedCursors;
     QMap<int, QTextObject *> objects;
 
     QTextDocumentConfig docConfig;

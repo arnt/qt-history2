@@ -28,8 +28,6 @@
 #include <stdlib.h>
 #include <new>
 
-#define TAG(a,b,c,d) (((Q_UINT32)a) << 24) | (((Q_UINT32)b) << 16) | (((Q_UINT32)c) << 8) | d;
-
 #define PMDEBUG if(0) qDebug
 
 /*
@@ -827,6 +825,12 @@ void QTextDocumentPrivate::endEditBlock()
         lout->documentChange(docChangeFrom, docChangeOldLength, docChangeLength);
 
     docChangeFrom = -1;
+
+    while (!changedCursors.isEmpty()) {
+        QTextCursorPrivate *curs = changedCursors.takeFirst();
+        emit q->cursorPositionChanged(QTextCursor(curs));
+    }
+
     contentsChanged();
 }
 
@@ -849,8 +853,15 @@ void QTextDocumentPrivate::documentChange(int from, int length)
 
 void QTextDocumentPrivate::adjustDocumentChangesAndCursors(int from, int addedOrRemoved, QTextUndoCommand::Operation op)
 {
-    for (int i = 0; i < cursors.size(); ++i)
-        cursors.at(i)->adjustPosition(from, addedOrRemoved, op);
+    for (int i = 0; i < cursors.size(); ++i) {
+        QTextCursorPrivate *curs = cursors.at(i);
+        if (curs->adjustPosition(from, addedOrRemoved, op) == QTextCursorPrivate::CursorMoved) {
+            if (editBlock)
+                changedCursors.append(curs);
+            else
+                emit q->cursorPositionChanged(QTextCursor(curs));
+        }
+    }
 
 //     qDebug("QTextDocumentPrivate::adjustDocumentChanges: from=%d,addedOrRemoved=%d", from, addedOrRemoved);
     if (docChangeFrom < 0) {
