@@ -22,17 +22,17 @@
 
 #include <qstring.h>
 
-AsciiValidator::AsciiValidator( QWidget * parent, const char *name )
+AsciiValidator::AsciiValidator( QObject * parent, const char *name )
     : QValidator( parent, name ), functionName( FALSE )
 {
 }
 
-AsciiValidator::AsciiValidator( bool funcName, QWidget * parent, const char *name )
+AsciiValidator::AsciiValidator( bool funcName, QObject * parent, const char *name )
     : QValidator( parent, name ), functionName( funcName )
 {
 }
 
-AsciiValidator::AsciiValidator( const QString &allow, QWidget * parent, const char *name )
+AsciiValidator::AsciiValidator( const QString &allow, QObject * parent, const char *name )
     : QValidator( parent, name ), functionName( FALSE ), allowedChars( allow )
 {
 }
