@@ -3,7 +3,7 @@
 @Place 
     x { right - 4.0c }
     y { foot + 1c }
-{ darkgrey @Colour 9p @Font WEL300505NO-12"/"02 }
+{ darkgrey @Colour 9p @Font WEL300505NO-03"/"03 }
 @CD @Heading { Welcome to Qt! }
 @PP
 Congratulations! If you're new to Qt then you are going to be amazed by how
@@ -23,9 +23,14 @@ and extensive functionality, to help you build your own world-class
 applications. We're so proud of Qt's quality that we include our
 source code so that you can see it for yourself.
 @DP
-We've included a flyer that explains how to install Qt for each version
+We've included a flyer that explains how to install Qt for each edition
 supplied on the CD. Pick the installation flyer for your operating system and
 follow the instructions to get Qt installed on your machine.
+@DP
+Please note that the CD you have received might not contain the most 
+recent Qt version. You will however find the latest verion of Qt 
+in your download area on our server. A separate email with login information
+has been sent you.
 @DP
 If you're new to Qt we have some suggestions for where to begin, since Qt
 introduces some innovations to C++ programming, especially its signals and
