@@ -1888,7 +1888,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 		qDebug("%d %d (%d %d) - Would send (%s) event to %s %s (%d %d %d)", p.x(), p.y(),
 		       plocal.x(), plocal.y(), desc, widget->name(), widget->className(),
-		       button|keys, state|keys, wheel_delta);
+		       button, state|keys, wheel_delta);
 #endif
 		if(wheel_delta) {
 		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
@@ -1912,7 +1912,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			}
 		    }
 #endif
-		    QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
+		    QMouseEvent qme( etype, plocal, p, button, state | keys );
 		    QApplication::sendSpontaneousEvent( widget, &qme );
 		}
 	    }

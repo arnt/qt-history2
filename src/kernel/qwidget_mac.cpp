@@ -943,7 +943,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	extra->topextra->icon = new QPixmap( pixmap );
 #ifdef Q_WS_MACX
     if(isTopLevel()) {
-	if(this == qApp->mainWidget()) {
+	if(qApp && qApp->mainWidget() == this) {
 	    if(pixmap.isNull()) {
 		RestoreApplicationDockTileImage();
 	    } else {
