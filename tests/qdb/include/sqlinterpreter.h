@@ -122,7 +122,11 @@ public:
     bool field( const QString& name, QVariant& v );
     QValueList<QVariant::Type> columnTypes() const;
     bool setGroupSet( const QVariant& v );
-    GroupSet& groupSet();
+    bool nextGroupSet();
+    bool groupSetField( uint i, QVariant& v );
+    bool groupSetField( const QString& name, QVariant& v );
+    bool groupSetCount( uint i, QVariant& v );
+    bool groupSetCount( const QString& name, QVariant& v );
 
 private:
     class Header;
@@ -140,6 +144,14 @@ private:
     };
     Pos pos;
     GroupSet group;
+    int currentGroup;
+
+    enum GroupSetAction{
+	Value,
+	Count
+    };
+    bool groupSetAction( GroupSetAction action, const QString& name, QVariant& v );
+    bool groupSetAction( GroupSetAction action, uint i, QVariant& v );
 };
 
 class Parser : public LocalSQLParser

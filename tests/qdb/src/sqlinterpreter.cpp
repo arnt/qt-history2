@@ -727,6 +727,7 @@ bool ResultSet::sort( const List& index )
 bool ResultSet::setGroupSet( const QVariant& v )
 {
     group.clear();
+    currentGroup = -1;
     if ( !head ) {
 	env->setLastError( "Internal error: No header defined" );
 	return FALSE;
@@ -739,11 +740,10 @@ bool ResultSet::setGroupSet( const QVariant& v )
 	return FALSE;
     }
     List sortList;
-    uint i = 0;
-    for ( ; i < groupByFields.count(); ++i ) {
+    for ( uint f = 0; f < groupByFields.count(); ++f ) {
 	List fieldDescription;
-	fieldDescription.append( head->fields[groupByFields[i].toInt()].name );
-	fieldDescription.append( head->fields[groupByFields[i].toInt()].type );
+	fieldDescription.append( head->fields[groupByFields[f].toInt()].name );
+	fieldDescription.append( head->fields[groupByFields[f].toInt()].type );
 	fieldDescription.append( QVariant() );
 	fieldDescription.append( QVariant() );
 	QVariant sort = QVariant( FALSE, 1 ); /*bool*/
@@ -755,31 +755,118 @@ bool ResultSet::setGroupSet( const QVariant& v )
     if ( !sort( sortList ) )
 	return FALSE;
     /* create groupset on sorted result*/
-    uint count = 0;
-    if ( first() ) {
-	Record last = currentRecord();
-	do {
-	    Record& cur = currentRecord();
+    GroupSetItem groupSetItem;
+    groupSetItem.start = sortKey.begin();
+    groupSetItem.substart = 0;
+    ColumnKey::Iterator lastLast = sortKey.begin();
+    Record lastrec = data[ (groupSetItem.start.data()[0]) ];
+    for ( ColumnKey::Iterator it = sortKey.begin();
+	  it != sortKey.end();
+	  ++it ) {
+	bool boundry = FALSE;
+	for ( uint k = 0; k < (*it).count(); ++k ) {
+	    Record& currec = data[ (it.data()[k]) ];
 	    /* check if the group by fields have changed */
 	    bool changed = FALSE;
-	    for ( i = 0; i < groupByFields.count(); ++i ) {
-		if ( last[groupByFields[i].toInt()] != cur[groupByFields[i].toInt()] ) {
+	    for ( uint f = 0; f < groupByFields.count(); ++f ) {
+		if ( lastrec[groupByFields[f].toInt()] != currec[groupByFields[f].toInt()] ) {
 		    changed = TRUE;
 		    break;
 		}
 	    }
 	    if ( changed ) {
-		group.append( count );
-		count = 0;
-		last = cur;
+		if ( k == 0 ) { /* boundry */
+		    groupSetItem.last = lastLast;
+		    lastLast = it;
+		} else {
+		    groupSetItem.last = it;
+		}
+		group.append( groupSetItem );
+		groupSetItem.start = it;
+		groupSetItem.substart = k;
+		lastrec = currec;
 	    }
-	    ++count;
-	} while ( next() );
+	    groupSetItem.sublast = k;
+	}
     }
     return TRUE;
 }
 
-localsql::GroupSet& ResultSet::groupSet()
+bool ResultSet::nextGroupSet()
 {
-    return group;
+    if ( currentGroup + 1 > (int)group.count()-1 )
+	return FALSE;
+    currentGroup++;
+    return TRUE;
+}
+
+bool ResultSet::groupSetAction( GroupSetAction action, const QString& name, QVariant& v )
+{
+    for ( uint i = 0; i < head->fields.count(); ++i ) {
+	if ( head->fields[i].name == name )
+	    return groupSetAction( action, i, v );
+    }
+    return FALSE;
+}
+
+bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
+{
+    if ( currentGroup == -1 ) {
+	env->setLastError( "Internal error: not on valid group" );
+	return FALSE;
+    }
+    if ( i > count() ) {
+	env->setLastError( "Unknown field number: " + QString::number(i) );
+	return FALSE;
+    }
+
+    ColumnKey::Iterator startit = group[currentGroup].start;
+    int substart = group[currentGroup].substart;
+    ColumnKey::Iterator lastit = group[currentGroup].last;
+    int sublast = group[currentGroup].sublast;
+    switch ( action ) {
+    case Value: {
+	Record& rec = data[ startit.data()[substart] ];
+	v = rec[i];
+	break;
+    }
+    case Count: {
+	int count = 0;
+	for ( ColumnKey::Iterator it = startit;
+	      ;
+	      ++it ){
+	    bool processingLast = ( startit == lastit );
+	    for ( uint s = 0; s < (*it).count(); ++s ) {
+		if ( processingLast && s > sublast )
+		     break;
+		++count;
+	    }
+	    if ( processingLast )
+		break;
+	}
+	v = count;
+	break;
+    }
+    }
+    return TRUE;
+}
+
+bool ResultSet::groupSetField( const QString& name, QVariant& v )
+{
+    return groupSetAction( Value, name, v );
+}
+
+bool ResultSet::groupSetField( uint i, QVariant& v )
+{
+    return groupSetAction( Value, i, v );
+}
+
+bool ResultSet::groupSetCount( const QString& name, QVariant& v )
+{
+    return groupSetAction( Count, name, v );
+}
+
+bool ResultSet::groupSetCount( uint i, QVariant& v )
+{
+    return groupSetAction( Count, i, v );
 }

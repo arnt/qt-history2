@@ -55,7 +55,13 @@ struct localsql {
     /*! The stack. */
     typedef QValueStack<QVariant> Stack;
     /*! A group set for an ordered result set */
-    typedef QValueList<int> GroupSet;
+    struct GroupSetItem {
+	ColumnKey::Iterator start;
+	int substart;
+	ColumnKey::Iterator last;
+	int sublast;
+    };
+    typedef QValueList<GroupSetItem> GroupSet;
 };
 
 class LocalSQLEnvironment;
@@ -119,8 +125,17 @@ struct LocalSQLResultSet : public LocalSQLDataSet
     virtual Record& currentRecord() = 0;
     /*! Sets the group set for the result */
     virtual bool setGroupSet( const QVariant& v ) = 0;
-    /*! Returns the group set for the result */
-    virtual GroupSet& groupSet() = 0;
+    /*! Moves the internal pointer to the next group set */
+    virtual bool nextGroupSet() = 0;
+    /*! Returns the value of groupset field \a i (zero-based) */
+    virtual bool groupSetField( uint i, QVariant& v ) = 0;
+    /*! Returns the value of the groupset field named \a name */
+    virtual bool groupSetField( const QString& name, QVariant& v ) = 0;
+    /*! Returns the count of groupset field \a i (zero-based) */
+    virtual bool groupSetCount( uint i, QVariant& v ) = 0;
+    /*! Returns the count of the groupset field named \a name */
+    virtual bool groupSetCount( const QString& name, QVariant& v ) = 0;
+
 };
 
 /*! \struct FileDriver

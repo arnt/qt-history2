@@ -1067,5 +1067,53 @@ public:
 };
 
 
+/* Go to next group of the result which is identified by 'id'.  On
+ failure goto P2.
+*/
+
+class NextGroupSet : public Op
+{
+public:
+    NextGroupSet( const QVariant& id,
+	  const QVariant& P2 )
+	: Op( id, P2 ) {}
+    QString name() const { return "nextgroupset"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
+	if ( !res->nextGroupSet() )
+	    env->program()->setCounter( p2.toInt() );
+	return TRUE;
+    }
+};
+
+/* Push the value of field number P2 from the current group of the
+ result set identified by 'id' on to the top of the stack.  The result set
+ must be positioned on a valid group (see NextGroup).
+*/
+
+class PushGroupValue : public Op
+{
+public:
+    PushGroupValue( const QVariant& id, const QVariant& P2 )
+	: Op( id, P2 ) {}
+    QString name() const { return "pushgroupvalue"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
+	QVariant v;
+	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
+	    if ( !res->groupSetField( p2.toString(), v ) )
+		return FALSE;
+	} else {
+	    if ( !res->groupSetField( p2.toInt(), v ) )
+		return FALSE;
+	}
+	env->stack()->push( v );
+	return TRUE;
+    }
+};
+
+
 
 #endif
