@@ -834,21 +834,23 @@ void QMotifStyle::drawControl( ControlElement element,
     case CE_TabBarTab:
 	{
 #ifndef QT_NO_TABBAR
-	    if ( !widget || !widget->parentWidget() )
+	    if ( !widget || !widget->parentWidget() || !opt.tab() )
 		break;
 
 	    const QTabBar * tb = (const QTabBar *) widget;
+	    const QTab * t = opt.tab();
+	    
 	    int dfw = pixelMetric( PM_DefaultFrameWidth, tb );
 	    bool selected = flags & Style_Selected;
 	    int o =  dfw > 1 ? 1 : 0;
-	    bool lastIsCurrent = FALSE;
-
-	    if ( styleHint( SH_TabBar_Alignment, tb ) == AlignRight &&
-		 tb->currentTab() == tb->indexOf(tb->count()-1) )
-		lastIsCurrent = TRUE;
+	    bool lastTab = FALSE;
 
 	    QRect r2( r );
-	    if ( tb->shape()  == QTabBar::RoundedAbove ) {
+	    if ( tb->shape() == QTabBar::RoundedAbove ) {
+		if ( styleHint( SH_TabBar_Alignment, tb ) == AlignRight &&
+		     tb->indexOf( t->identifier() ) == tb->count()-1 )
+		    lastTab = TRUE;
+
 		if ( o ) {
 		    p->setPen( tb->colorGroup().light() );
 		    p->drawLine( r2.left(), r2.bottom(), r2.right(), r2.bottom() );
@@ -896,10 +898,13 @@ void QMotifStyle::drawControl( ControlElement element,
 		    p->drawPoint( r2.right() - 1, r2.top() + 1 );
 		    p->drawLine( r2.right(), r2.top() + 2, r2.right(),
 				 r2.bottom() -
-				 (selected ? (lastIsCurrent ? 0:1):1+o));
+				 (selected ? (lastTab ? 0:1):1+o));
 		    p->drawPoint( r2.right() - 1, r2.top() + 1 );
 		}
 	    } else if ( tb->shape()  == QTabBar::RoundedBelow ) {
+		if ( styleHint( SH_TabBar_Alignment, tb ) == AlignLeft &&
+		     tb->indexOf( t->identifier() ) == tb->count()-1 )
+		    lastTab = TRUE;
 		if ( selected ) {
 		    p->fillRect( QRect( r2.left()+1, r2.top(), r2.width()-3, 1),
 				 tb->palette().active().brush( QColorGroup::Background ));
@@ -910,6 +915,9 @@ void QMotifStyle::drawControl( ControlElement element,
 		} else {
 		    p->setPen( tb->colorGroup().dark() );
 		    p->drawLine( r2.left(), r2.top(), r2.right(), r2.top() );
+		    p->drawLine( r2.left() + 1, r2.top() + 1, 
+				 r2.right() - (lastTab ? 0 : 2), 
+				 r2.top() + 1 );
 		    r2.setRect( r2.left() + 2, r2.top(),
 				r2.width() - 4, r2.height() - 2 );
 		}
@@ -930,8 +938,10 @@ void QMotifStyle::drawControl( ControlElement element,
 		}
 
 		p->setPen( tb->colorGroup().light() );
-		p->drawLine( r2.left(), r2.top(),
+		p->drawLine( r2.left(), r2.top() + (selected ? 0 : 2),
 			     r2.left(), r2.bottom() - 2 );
+		p->drawLine( r2.left() + 1, r2.top() + (selected ? 0 : 2),
+			     r2.left() + 1, r2.bottom() - 3 );
 
 	    } else {
 		QCommonStyle::drawControl( element, p, widget, r, cg, flags, opt );
