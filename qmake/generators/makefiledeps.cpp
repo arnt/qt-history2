@@ -358,33 +358,33 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
         file->deps = new SourceDependChildren;
 
     int line_count = 1;
-    for(int x = 0; x < buffer_len; x++) {
+    for(int x = 0; x < buffer_len; ++x) {
         bool try_local = true;
         char *inc = 0;
         if(file->type == QMakeSourceFileInfo::TYPE_UI) {
             // skip whitespaces
             while(x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t'))
-                x++;
+                ++x;
             if(*(buffer + x) == '<') {
-                x++;
+                ++x;
                 if(buffer_len >= x + 12 && !strncmp(buffer + x, "includehint", 11) &&
                    (*(buffer + x + 11) == ' ' || *(buffer + x + 11) == '>')) {
-                    for(x += 11; *(buffer + x) != '>'; x++);
+                    for(x += 11; *(buffer + x) != '>'; ++x);
                     int inc_len = 0;
-                    for(x += 1 ; *(buffer + x + inc_len) != '<'; inc_len++);
+                    for(x += 1 ; *(buffer + x + inc_len) != '<'; ++inc_len);
                     *(buffer + x + inc_len) = '\0';
                     inc = buffer + x;
                 } else if(buffer_len >= x + 13 && !strncmp(buffer + x, "customwidget", 12) &&
                           (*(buffer + x + 12) == ' ' || *(buffer + x + 12) == '>')) {
-                    for(x += 13; *(buffer + x) != '>'; x++); //skip up to >
+                    for(x += 13; *(buffer + x) != '>'; ++x); //skip up to >
                     while(x < buffer_len) {
-                        for(x++; *(buffer + x) != '<'; x++); //skip up to <
+                        for(x++; *(buffer + x) != '<'; ++x); //skip up to <
                         x++;
                         if(buffer_len >= x + 7 && !strncmp(buffer+x, "header", 6) &&
                            (*(buffer + x + 6) == ' ' || *(buffer + x + 6) == '>')) {
-                            for(x += 7; *(buffer + x) != '>'; x++); //skip up to >
+                            for(x += 7; *(buffer + x) != '>'; ++x); //skip up to >
                             int inc_len = 0;
-                            for(x += 1 ; *(buffer + x + inc_len) != '<'; inc_len++);
+                            for(x += 1 ; *(buffer + x + inc_len) != '<'; ++inc_len);
                             *(buffer + x + inc_len) = '\0';
                             inc = buffer + x;
                             break;
@@ -396,20 +396,20 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     }
                 } else if(buffer_len >= x + 8 && !strncmp(buffer + x, "include", 7) &&
                           (*(buffer + x + 7) == ' ' || *(buffer + x + 7) == '>')) {
-                    for(x += 8; *(buffer + x) != '>'; x++) {
+                    for(x += 8; *(buffer + x) != '>'; ++x) {
                         if(buffer_len >= x + 9 && *(buffer + x) == 'i' &&
                            !strncmp(buffer + x, "impldecl", 8)) {
-                            for(x += 8; *(buffer + x) != '='; x++);
+                            for(x += 8; *(buffer + x) != '='; ++x);
                             if(*(buffer + x) != '=')
                                 continue;
-                            for(x++; *(buffer+x) == '\t' || *(buffer+x) == ' '; x++);
+                            for(++x; *(buffer+x) == '\t' || *(buffer+x) == ' '; ++x);
                             char quote = 0;
                             if(*(buffer+x) == '\'' || *(buffer+x) == '"') {
                                 quote = *(buffer + x);
-                                x++;
+                                ++x;
                             }
                             int val_len;
-                            for(val_len = 0; true; val_len++) {
+                            for(val_len = 0; true; ++val_len) {
                                 if(quote) {
                                     if(*(buffer+x+val_len) == quote)
                                         break;
@@ -426,13 +426,13 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                         }
                     }
                     int inc_len = 0;
-                    for(x += 1 ; *(buffer + x + inc_len) != '<'; inc_len++);
+                    for(x += 1 ; *(buffer + x + inc_len) != '<'; ++inc_len);
                     *(buffer + x + inc_len) = '\0';
                     inc = buffer + x;
                 }
             }
             //read past new line now..
-            for(; x < buffer_len && !qmake_endOfLine(*(buffer + x)); x++);
+            for(; x < buffer_len && !qmake_endOfLine(*(buffer + x)); ++x);
             ++line_count;
         } else if(file->type == QMakeSourceFileInfo::TYPE_QRC) {
         } else if(file->type == QMakeSourceFileInfo::TYPE_C) {
@@ -441,7 +441,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     ++x;
                     if(buffer_len >= x) {
                         if(*(buffer+x) == '/') { //c++ style comment
-                            for(; x < buffer_len && !qmake_endOfLine(*(buffer + x)); x++);
+                            for(; x < buffer_len && !qmake_endOfLine(*(buffer + x)); ++x);
                         } else if(*(buffer+x) == '*') { //c style comment
                             while(x < buffer_len) {
                                 ++x;
@@ -450,7 +450,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                                         x += 2;
                                         break;
                                     }
-                                } else if(Option::debug_level && qmake_endOfLine(*(buffer+x))) {
+                                } else if(qmake_endOfLine(*(buffer+x))) {
                                     ++line_count;
                                 }
                             }
@@ -458,8 +458,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     }
                 } else if(*(buffer+x) == '\'' || *(buffer+x) == '"') {
                     beginning = 0;
-                    const char term = *(buffer+x);
-                    ++x;
+                    const char term = *(buffer+(x++));
                     while(x < buffer_len) {
                         if(*(buffer+x) == term)
                             break;
@@ -522,7 +521,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 x++;
 
                 int inc_len;
-                for(inc_len = 0; *(buffer + x + inc_len) != term && !qmake_endOfLine(*(buffer + x + inc_len)); inc_len++);
+                for(inc_len = 0; *(buffer + x + inc_len) != term && !qmake_endOfLine(*(buffer + x + inc_len)); ++inc_len);
                 *(buffer + x + inc_len) = '\0';
                 inc = buffer + x;
             } else if(keyword_len == 13 && !strncmp(keyword, "qmake_warning", keyword_len)) {
@@ -535,9 +534,23 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     x++;
 
                 int msg_len;
-                for(msg_len = 0; (term && *(buffer + x + msg_len) != term) && !qmake_endOfLine(*(buffer + x + msg_len)); msg_len++);
+                for(msg_len = 0; (term && *(buffer + x + msg_len) != term) &&
+                              !qmake_endOfLine(*(buffer + x + msg_len)); ++msg_len);
                 *(buffer + x + msg_len) = '\0';
                 debug_msg(0, "%s:%d %s -- %s", file->file.local().toLatin1().constData(), line_count, keyword, buffer+x);
+            } else if(*(buffer+x) == '\'' || *(buffer+x) == '"') {
+                const char term = *(buffer+(x++));
+                while(x < buffer_len) {
+                    if(*(buffer+x) == term)
+                        break;
+                    if(*(buffer+x) == '\\') {
+                        x+=2;
+                    } else {
+                        if(qmake_endOfLine(*(buffer+x)))
+                            ++line_count;
+                        ++x;
+                    }
+                }
             }
         }
 
