@@ -205,10 +205,10 @@ the driver, set up the connection information, and open the
 connection.
 
 \dontinclude sql/overview/connect1/main.cpp
-\skip include
-\line include
-\until return 0
-\line
+\skipto include
+\printline include
+\printuntil return 0
+\printline
 <h5 align="center">From \l sql/overview/connect1/main.cpp </h5>
 
 First we activate the driver by calling \l
@@ -233,10 +233,10 @@ identifier distinguishing the connection.
 
 <a name="create_connections"/>
 \dontinclude sql/overview/create_connections/main.cpp
-\skip include
-\line include
-\until return true 
-\line
+\skipto include
+\printline include
+\printuntil return true 
+\printline
 <h5 align="center">From \l sql/overview/create_connections/main.cpp 
 </h5>
 
@@ -268,10 +268,10 @@ section and use the \l QSqlCursor class covered in
 <h2><a name="Basic_Browsing">Basic Browsing</a></h2> 
 
 \dontinclude sql/overview/basicbrowsing/main.cpp
-\skip include
-\line include
-\until return 0 
-\line
+\skipto include
+\printline include
+\printuntil return 0 
+\printline
 <h5 align="center">From \l sql/overview/basicbrowsing/main.cpp
 </h5>
 
@@ -290,11 +290,11 @@ creating and executing queries against the default database using the \c
 target QSqlQuery.
 
 \dontinclude sql/overview/basicbrowsing2/main.cpp
-\skip count
-\line 
-\until numRows 
-\line
-\line
+\skipto count
+\printline 
+\printuntil numRows 
+\printline
+\printline
 <h5 align="center">From \l sql/overview/basicbrowsing2/main.cpp
 </h5>
 
@@ -306,10 +306,10 @@ cannot be determined, e.g. if the query fails.
 <h2><a name="Basic_Data_Manipulation">Basic Data Manipulation</a></h2> 
 
 \dontinclude sql/overview/basicdatamanip/main.cpp
-\skip main
-\line main
-\until return ( rows 
-\line
+\skipto main
+\printline main
+\printuntil return ( rows 
+\printline
 <h5 align="center">From \l sql/overview/basicdatamanip/main.cpp
 </h5>
 
@@ -335,10 +335,10 @@ first record in the dataset is zero. The number of the last record is
 \c SELECT query and in such cases \l size() returns -1.
 
 \dontinclude sql/overview/navigating/main.cpp
-\skip if (
-\line if (
-\until i == 4 
-\line
+\skipto if (
+\printline if (
+\printuntil i == 4 
+\printline
 <h5 align="center">From \l sql/overview/navigating/main.cpp
 </h5>
 
@@ -362,13 +362,13 @@ Once we have located the record we are interested in we may wish to
 retrieve data from it. 
 
 \dontinclude sql/overview/retrieve1/main.cpp
-\skip if (
-\line if (
-\until qDebug 
-\line
-\line
-\line
-\line
+\skipto if (
+\printline if (
+\printuntil qDebug 
+\printline
+\printline
+\printline
+\printline
 <h5 align="center">From \l sql/overview/retrieve1/main.cpp
 </h5>
 
@@ -416,10 +416,10 @@ The \l QSqlCursor class requires the \c qsqlcursor.h header file.
 <h2><a name="Retrieving_Records">Retrieving Records</a></h2>
 
 \dontinclude sql/overview/retrieve2/main.cpp
-\skip include
-\line include
-\until return 0 
-\line
+\skipto include
+\printline include
+\printuntil return 0 
+\printline
 <h5 align="center">From \l sql/overview/retrieve2/main.cpp
 </h5>
 
@@ -492,9 +492,9 @@ multiple fields.  Ascending and descending order can be set using
 QSqlIndex::setDescending(); the default is ascending.
 
 \dontinclude sql/overview/order1/main.cpp
-\skip QSqlCursor
-\line QSqlCursor
-\until while 
+\skipto QSqlCursor
+\printline QSqlCursor
+\printuntil while 
 <h5 align="center">From \l sql/overview/order1/main.cpp
 </h5>
 
@@ -511,9 +511,9 @@ If we need to retrieve records with fields that match specific criteria we
 can create a filter based on an index.
 
 \dontinclude sql/overview/order2/main.cpp
-\skip QSqlCursor
-\line QSqlCursor
-\until while 
+\skipto QSqlCursor
+\printline QSqlCursor
+\printuntil while 
 <h5 align="center">From \l sql/overview/order2/main.cpp
 </h5>
 
@@ -534,10 +534,10 @@ setValue() to ensure the value used is the one we want.
 <h3><a name="Extracting_Data">Extracting Data</a></h3>
 
 \dontinclude sql/overview/extract/main.cpp
-\skip QSqlCursor
-\line QSqlCursor
-\until qDebug
-\line
+\skipto QSqlCursor
+\printline QSqlCursor
+\printuntil qDebug
+\printline
 <h5 align="center">From \l sql/overview/extract/main.cpp
 </h5>
 
@@ -577,9 +577,9 @@ or del() we must make a fresh select() call.
 <h3><a name="Inserting_Records">Inserting Records</a></h3>
 
 \dontinclude sql/overview/insert/main.cpp
-\skip QSqlCursor
-\line QSqlCursor
-\until } 
+\skipto QSqlCursor
+\printline QSqlCursor
+\printuntil } 
 <h5 align="center">From \l sql/overview/insert/main.cpp
 </h5>
 
@@ -600,10 +600,10 @@ calls as shown in this and the following example.
 <h3><a name="Updating_Records">Updating Records</a></h3>
 
 \dontinclude sql/overview/update/main.cpp
-\skip QSqlCursor
-\line QSqlCursor
-\until update
-\line
+\skipto QSqlCursor
+\printline QSqlCursor
+\printuntil update
+\printline
 <h5 align="center">From \l sql/overview/update/main.cpp
 </h5>
 
@@ -627,10 +627,10 @@ with \l QSqlQuery is more efficient, e.g.
 <h3><a name="Deleting_Records">Deleting Records</a></h3>
 
 \dontinclude sql/overview/del/main.cpp
-\skip QSqlCursor
-\line QSqlCursor
-\until del
-\line
+\skipto QSqlCursor
+\printline QSqlCursor
+\printuntil del
+\printline
 <h5 align="center">From \l sql/overview/del/main.cpp
 </h5>
 
@@ -656,10 +656,10 @@ examples and explanations provide the introduction you need.
 <h2><a name="Data-Aware_Tables">Data-Aware Tables</a></h2> 
 
 \dontinclude sql/overview/table1/main.cpp
-\skip include
-\line include
-\until return 1
-\line
+\skipto include
+\printline include
+\printuntil return 1
+\printline
 <h5 align="center">From \l sql/overview/table1/main.cpp
 </h5>
 
@@ -681,9 +681,9 @@ want to specify the order in which the columns appear and the label
 each column is given.
 
 \dontinclude sql/overview/table2/main.cpp
-\skip staffCursor
-\line staffCursor
-\until show 
+\skipto staffCursor
+\printline staffCursor
+\printuntil show 
 <h5 align="center">From \l sql/overview/table2/main.cpp
 </h5>
 
@@ -716,10 +716,10 @@ See the <em>Qt Designer</em> documentation for more details.
 <h3><a name="Displaying_a_Record">Displaying a Record</a></h3>
 
 \dontinclude sql/overview/form1/main.cpp
-\skip include
-\line include
-\until app.exec
-\line
+\skipto include
+\printline include
+\printuntil app.exec
+\printline
 <h5 align="center">From \l sql/overview/form1/main.cpp
 </h5>
 
@@ -748,9 +748,9 @@ This example is similar to the previous one so we will focus on the
 differences.
 
 \dontinclude sql/overview/form2/main.h
-\skip class
-\line class
-\until };
+\skipto class
+\printline class
+\printuntil };
 <h5 align="center">From \l sql/overview/form2/main.h
 </h5>
 
@@ -760,57 +760,57 @@ QSqlForm since they will need to be accessed outside the constructor.
 
 
 \dontinclude sql/overview/form2/main.cpp
-\skip forenameEdit
-\line forenameEdit
+\skipto forenameEdit
+\printline forenameEdit
 
-\skip saveButton
-\line saveButton
-\line connect
+\skipto saveButton
+\printline saveButton
+\printline connect
 
 The FormDialog constructor is similar to the one in the previous
 example. We have changed the forename and surname widgets to QLineEdits
 to make them editable and have added a \l QPushButton the user can click
 to save their updates.
 
-\skip saveButton
-\line saveButton
+\skipto saveButton
+\printline saveButton
 
 We add an extra row to the grid containing the save button.
 
-\skip staffCursor
-\line staffCursor
-\until first
+\skipto staffCursor
+\printline staffCursor
+\printuntil first
 
 We create the \l QSqlCursor dynamically, create a \l QSqlIndex object
 and then execute a select() using the index. We then move to the first
 record in the result set.
 
-\skip buffer
-\line buffer
+\skipto buffer
+\printline buffer
 
 We get a pointer to the cursor's update buffer by calling primeUpdate().
 This buffer is populated with the current record's data. 
 
-\skip insert
-\line insert
-\until readFields
+\skipto insert
+\printline insert
+\printuntil readFields
 
 Now we link the buffer's fields to the \l QLineEdit controls. (In the
 previous example we linked the cursor's fields.) The edit controls are
 populated by the readFields() call as before.
 
-\skip FormDialog::
-\line FormDialog::
-\until }
+\skipto FormDialog::
+\printline FormDialog::
+\printuntil }
 
 In the destructor we delete the \l QSqlCursor we created in the
 constructor. We don't have to worry about the widgets or QSqlForm since
 they are children of the form and will be deleted by Qt at the right
 time.
 
-\skip Save
-\line Save
-\until }
+\skipto Save
+\printline Save
+\printuntil }
 
 Finally we add the save functionality for when the user presses the save
 button. We write back the data from the widgets to the \l QSqlRecord
@@ -835,37 +835,37 @@ will only cover the differences here. The full source is in
 \l sql/overview/custom1/main.h and \l sql/overview/custom1/main.cpp
 
 \dontinclude sql/overview/custom1/main.h
-\skip CustomEdit
-\line CustomEdit
-\until };
+\skipto CustomEdit
+\printline CustomEdit
+\printuntil };
 
 We've created a simple subclass of QLineEdit and added a property,
 upperLine, which will hold an uppercase version of the text. We also
 created a slot, slotChanged.
 
-\skip propMap
-\line propMap
+\skipto propMap
+\printline propMap
 
 We will be using a property map so we add a pointer to a property map to
 our FormDialog's private data.
 
 \dontinclude sql/overview/custom1/main.cpp
-\skip CustomEdit
-\line CustomEdit
-\until }
+\skipto CustomEdit
+\printline CustomEdit
+\printuntil }
 
 In the CustomEdit constructor we use the QLineEdit constructor and add a
 connection between the textChanged signal and our own slotChanged slot.
 
-\skip slotChanged
-\line slotChanged
-\until }
+\skipto slotChanged
+\printline slotChanged
+\printuntil }
 
 The slotChanged() slot calls our setUpperLine() function.
 
-\skip setUpperLine
-\line setUpperLine
-\until }
+\skipto setUpperLine
+\printline setUpperLine
+\printuntil }
 
 The setUpperLine() function places an uppercase copy of the text in the
 upper_line buffer and then sets the text of the widget to this 
@@ -875,28 +875,28 @@ Our CustomEdit class ensures that the text entered is always uppercase
 and provides a property that can be used with a property map to link
 CustomEdit instances directly to database fields.
 
-\skip FormDialog
-\skip CustomEdit
-\line CustomEdit
+\skipto FormDialog
+\skipto CustomEdit
+\printline CustomEdit
 
-\skip CustomEdit
-\line CustomEdit
+\skipto CustomEdit
+\printline CustomEdit
 
 We use the same FormDialog as we did before, but this time replace two
 of the QLineEdit widgets with our own CustomEdit widgets. 
 
 Laying out the grid and setting up the cursor is the same as before.
 
-\skip propMap
-\line propMap
-\line propMap
+\skipto propMap
+\printline propMap
+\printline propMap
 
 We create a new property map on the heap and register our CustomEdit
 class and its upperLine property with the property map.
 
-\skip QSqlForm
-\line QSqlForm
-\line propMap
+\skipto QSqlForm
+\printline QSqlForm
+\printline propMap
 
 The final change is to install the property map into the QSqlForm once
 the QSqlForm has been created. This passes responsibility for the
@@ -916,9 +916,9 @@ QComboBox and a QSqlEditorFactory subclass to show how a QTable can use
 a custom editor.
 
 \dontinclude sql/overview/table3/main.h
-\skip StatusPicker
-\line StatusPicker
-\until }; 
+\skipto StatusPicker
+\printline StatusPicker
+\printuntil }; 
 <h5 align="center">From \l sql/overview/table3/main.h
 </h5>
 
@@ -927,19 +927,19 @@ for it. The statusid's in the status table will probably be different
 from the combobox's indexes so we create a QMap to map combobox indexes
 to/from the statusids that we will list in the combobox.
 
-\skip CustomSqlEditor
-\line CustomSqlEditor
-\until }; 
+\skipto CustomSqlEditor
+\printline CustomSqlEditor
+\printuntil }; 
 
 We also need to subclass QSqlEditorFactory declaring a createEditor()
 function since that is the only function we need to reimplement. 
 
 \dontinclude sql/overview/table3/main.cpp
-\skip StatusPicker
-\line StatusPicker
-\until index2id
-\line
-\line
+\skipto StatusPicker
+\printline StatusPicker
+\printuntil index2id
+\printline
+\printline
 <h5 align="center">From \l sql/overview/table3/main.cpp
 </h5>
 
@@ -949,19 +949,19 @@ status table inserting each name into the combobox. We store the
 statusid for each name in the index2id QMap using the same QMap index as
 the combobox index.
 
-\skip StatusPicker
-\line StatusPicker
-\until } 
+\skipto StatusPicker
+\printline StatusPicker
+\printuntil } 
 
 The statusid property READ function simply involves looking up the
 combobox's index for the currently selected item in the index2id QMap
 which maps combobox indexes to statusids.
 
-\skip StatusPicker
-\line StatusPicker
-\until } 
-\line
-\line
+\skipto StatusPicker
+\printline StatusPicker
+\printuntil } 
+\printline
+\printline
 
 The statusId() function implements the statusid property's WRITE
 function. We create an iterator over a QMap and iterate over the
@@ -979,10 +979,10 @@ shows us how to display the looked up values of foreign keys.
 <h2><a name="Subclassing_QSqlCursor">Subclassing QSqlCursor</a></h2>
 
 \dontinclude sql/overview/subclass1/main.cpp
-\skip include
-\line include
-\until return 1
-\line
+\skipto include
+\printline include
+\printuntil return 1
+\printline
 <h5 align="center">From \l sql/overview/subclass1/main.cpp
 </h5>
 
@@ -1000,19 +1000,19 @@ cost of each invoiceitem. Finally it would be good if we could default
 some of the values when the user adds a new record. 
 
 \dontinclude sql/overview/subclass2/main.h
-\skip InvoiceItem
-\line InvoiceItem
-\until };
-\line
+\skipto InvoiceItem
+\printline InvoiceItem
+\printuntil };
+\printline
 <h5 align="center">From \l sql/overview/subclass2/main.h
 </h5>
 
 We have created a separate header file and subclassed QSqlCursor.
 
 \dontinclude sql/overview/subclass2/main.cpp
-\skip InvoiceItem
-\line InvoiceItem
-\until }
+\skipto InvoiceItem
+\printline InvoiceItem
+\printuntil }
 <h5 align="center">From \l sql/overview/subclass2/main.cpp
 </h5>
 
@@ -1022,8 +1022,8 @@ fields. Although we can set the display label in the addColumn() call
 setting them in our custom cursor means that they will be correctly set
 automatically whenever the custom cursor is used.
 
-\skip InvoiceItemCursor
-\line InvoiceItemCursor
+\skipto InvoiceItemCursor
+\printline InvoiceItemCursor
 
 Whenever we require a cursor over the invoiceitem table we can create an
 InvoiceItemCursor instead of a generic QSqlCursor. 
@@ -1032,9 +1032,9 @@ This has taken care of the display characteristics, but we still need to
 show the product name rather than the pricesid.
 
 \dontinclude sql/overview/subclass3/main.h
-\skip protected
-\line protected
-\line
+\skipto protected
+\printline protected
+\printline
 <h5 align="center">From \l sql/overview/subclass3/main.h
 </h5>
 
@@ -1042,10 +1042,10 @@ The change in the header file is minimal: we simply add the signature of
 the calculateField() function since we will be overriding it.
 
 \dontinclude sql/overview/subclass3/main.cpp
-\skip InvoiceItem
-\line InvoiceItem
-\until return QVariant
-\line
+\skipto InvoiceItem
+\printline InvoiceItem
+\printuntil return QVariant
+\printline
 <h5 align="center">From \l sql/overview/subclass3/main.cpp
 </h5>
 
@@ -1058,8 +1058,8 @@ setCalculated(). The first argument to setCalculated() is the field
 name, the second a bool which if TRUE signifies that calculateField()
 must be called to get the field's value.
 
-\skip addColumn
-\line addColumn
+\skipto addColumn
+\printline addColumn
 
 We use the single argument form of addColumn() passing just the
 field name; all the characteristics we want, e.g. display name and
@@ -1078,9 +1078,9 @@ from the previous example, but the constructor and calculateField()
 function require some simple expansion. We'll look at each in turn.
 
 \dontinclude sql/overview/subclass4/main.cpp
-\skip InvoiceItem
-\line InvoiceItem
-\until }
+\skipto InvoiceItem
+\printline InvoiceItem
+\printuntil }
 <h5 align="center">From \l sql/overview/subclass4/main.cpp
 </h5>
 
@@ -1089,10 +1089,10 @@ cursor's set of fields. Both have their display labels and alignment set
 and both are registered as calculated fields with calls to
 setCalculated().
 
-\skip InvoiceItem
-\line InvoiceItem
-\until QString::null
-\line
+\skipto InvoiceItem
+\printline InvoiceItem
+\printuntil QString::null
+\printline
 <h5 align="center">From \l sql/overview/subclass4/main.cpp
 </h5>
 
@@ -1111,8 +1111,8 @@ The last feature that we need to add is defaulting values when the user
 attempts to insert a new record. 
 
 \dontinclude sql/overview/subclass5/main.h
-\skip primeInsert
-\line primeInsert
+\skipto primeInsert
+\printline primeInsert
 <h5 align="center">From \l sql/overview/subclass5/main.h
 </h5>
 
@@ -1122,9 +1122,9 @@ reimplement this.
 The constructor and the calculateField() function remain unchanged.
 
 \dontinclude sql/overview/subclass5/main.cpp
-\skip primeInsert
-\line primeInsert
-\until }
+\skipto primeInsert
+\printline primeInsert
+\printuntil }
 <h5 align="center">From \l sql/overview/subclass5/main.cpp
 </h5>
 
