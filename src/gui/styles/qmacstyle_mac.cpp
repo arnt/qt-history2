@@ -1882,11 +1882,14 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
         if (const QStyleOptionButton *btn = ::qt_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (QStyle::State_Raised | QStyle::State_Down | QStyle::State_On)))
                 break;
+	    bool hasClickThrough = btn->palette.currentColorGroup() == QPalette::Active;
             if (btn->state & QStyle::State_On)
                 tds = kThemeStatePressed;
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = tds;
+	    if (hasClickThrough && tds == kThemeStateInactive)
+		bdi.state = kThemeStateActive;
             bdi.adornment = kThemeAdornmentNone;
             bdi.value = kThemeButtonOff;
             if (btn->features & ((QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
@@ -1921,6 +1924,9 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 QRect ir = btn->rect;
                 QStyleOptionButton newBtn = *btn;
                 newBtn.rect = QRect(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
+		if (hasClickThrough && tds == kThemeStateInactive)
+		    newBtn.state |= QStyle::State_Active;
+
                 q->drawPrimitive(QStyle::PE_IndicatorArrowDown, &newBtn, p, w);
             }
         }
