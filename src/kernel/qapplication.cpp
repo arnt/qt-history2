@@ -32,7 +32,9 @@
 #include "qptrdict.h"
 
 #include "qwindowsstyle.h"
+#ifdef _WS_QWS_
 #include "qcompactstyle.h"
+#endif
 #include "qmotifstyle.h"
 #include "qplatinumstyle.h"
 #include "qcdestyle.h"
