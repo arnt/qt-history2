@@ -511,7 +511,7 @@ void QTextDocumentLayoutPrivate::relayoutDocument()
 {
     widthUsed = 0;
     const QTextDocument *doc = q->document();
-    q->documentChange(0, 0, doc->end().position() + doc->end().length());
+    q->documentChange(0, 0, doc->docHandle()->length());
 }
 
 void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, int layoutTo)
