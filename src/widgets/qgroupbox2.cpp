@@ -343,8 +343,9 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
 	if(va & AlignTop)
 	    r.moveBy(0, fm.descent());
+	QColor pen( (QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, this )  );
 	style().drawItem( &paint, r, ShowPrefix | AlignHCenter | va, colorGroup(),
-			  isEnabled(), 0, str );
+			  isEnabled(), 0, str, -1, ownPalette() ? 0 : &pen );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
     } else if ( isCheckable() ) {
 	QRect cbClip = d->checkbox->geometry();
@@ -403,7 +404,7 @@ void QGroupBox::addSpace( int size )
 
 /* IGNORE!
   \property QGroupBox::columns
-  \brief the number of columns or rows (depending on \l orientation) in the group box
+  \brief the number of columns or rows (depending on \l QGroupBox::orientation) in the group box
 
   Usually it is not a good idea to set this property because it is slow
   (it does a complete layout).  It is better to set the number of columns

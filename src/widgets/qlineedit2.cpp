@@ -355,7 +355,15 @@ struct QLineEditPrivate {
     \sa hasSelectedText(), selectedText()
 */
 
-/* IGNORE!
+/*!
+    \fn void QLineEdit::lostFocus()
+
+    This signal is emitted when the line edit has lost focus.
+
+    \sa hasFocus(), QWidget::focusInEvent(), QWidget::focusOutEvent()
+*/
+
+/*!
   \fn void QLineEdit::invalidInput()
 
   This signal is emitted whenever the QLineEdit loses focus and the input
@@ -363,7 +371,7 @@ struct QLineEditPrivate {
   not return Acceptable.
 */
 
-/* IGNORE!
+/*!
     Constructs a line edit with no text.
 
     The maximum text length is set to 32767 characters.
@@ -706,7 +714,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
     if ( e->key() == Key_Enter || e->key() == Key_Return ) {
 #ifdef QT_NO_VALIDATOR
 	emit returnPressed();
-	e->ignore();
 #else
 	const QValidator * v = validator();
 	QString str = text( FALSE );
@@ -716,7 +723,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		    emit returnPressed();
 	    } else
 		emit returnPressed();
-	    e->ignore();
 	} else if ( v ) {
 	    QString old = text( FALSE );
 	    QString vstr = old;
@@ -724,16 +730,16 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    if ( old != vstr ) {
 		setText( vstr );
 		update();
-	    }
-	    if ( hasMask() ) {
-		if ( isValidInput() ) emit returnPressed();
-	    } else {
 		if ( v->validate( vstr, cursorPos ) == QValidator::Acceptable )
 		    emit returnPressed();
 	    }
-	    e->ignore();
+	    if ( hasMask() && isValidInput() )
+		emit returnPressed();
+	    else if ( v->validate( vstr, cursorPos ) == QValidator::Acceptable )
+		emit returnPressed();
 	}
 #endif
+	e->ignore();
 	return;
     }
     if ( !d->readonly ) {
@@ -741,6 +747,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	if ( !t.isEmpty() && (!e->ascii() || e->ascii()>=32) &&
 	     e->key() != Key_Delete &&
 	     e->key() != Key_Backspace ) {
+#ifdef Q_WS_X11
+	    // the X11 keyboard layout is broken and does not reverse
+	    // braces correctly. This is a hack to get halfway correct
+	    // behaviour
 	    if ( d->parag && d->parag->string() && d->parag->string()->isRightToLeft() ) {
 		QChar *c = (QChar *)t.unicode();
 		int l = t.length();
@@ -750,6 +760,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		    c++;
 		}
 	    }
+#endif
 	    insert( t );
 	    return;
 	}
@@ -817,12 +828,20 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Insert:
 	    copy();
 	    break;
+#endif
+#endif
 	case Key_Delete:
-	    if ( !d->readonly )
+	    if ( !d->readonly ) {
+		cursorWordForward( TRUE );
 		del();
+	    }
 	    break;
-#endif
-#endif
+	case Key_Backspace:
+	    if ( !d->readonly ) {
+		cursorWordBackward( TRUE );
+		del();
+	    }
+	    break;
 	case Key_Right:
 	case Key_Left:
 	    if ( d->parag->string()->isRightToLeft() == (e->key() == Key_Right) ) {
@@ -1048,6 +1067,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
     if ( hasMask() && !isValidInput() )
 	emit invalidInput();
     update();
+    emit lostFocus();
 }
 
 /* IGNORE!\reimp
@@ -1066,8 +1086,12 @@ void QLineEdit::drawContents( QPainter *painter )
 				hasFocus() ? QSharedDoubleBuffer::Force : 0 );
     buffer.painter()->setPen( colorGroup().text() );
 
-    QBrush bg = isEnabled() ? QBrush( paletteBackgroundColor() ) :
-  			      g.brush( QColorGroup::Background);
+    QBrush bg = QBrush( paletteBackgroundColor() );
+    if ( paletteBackgroundPixmap() )
+	bg = QBrush( g.background(), *paletteBackgroundPixmap() );
+    else if ( !isEnabled() )
+	bg = g.brush( QColorGroup::Background );
+
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     if ( linetop ) {
 	painter->fillRect( 0, 0, width(), linetop, bg );
@@ -1199,8 +1223,10 @@ static bool inSelection( int x, QTextParagraph *p )
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() == RightButton )
+    if ( e->button() == RightButton ) {
+	e->ignore();
 	return;
+    }
 
     if ( d->trippleClickTimer.isActive() &&
 	 ( e->globalPos() - d->trippleClickPoint ).manhattanLength() <
@@ -1283,8 +1309,6 @@ void QLineEdit::doDrag()
 */
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( e->button() == RightButton )
-	return;
 #ifndef QT_NO_CURSOR
     if ( !d->mousePressed ) {
 	if ( !isReadOnly() && dragEnabled()
@@ -1326,10 +1350,36 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 void QLineEdit::dragSlot()
 {
     QPoint p( d->lastMovePos.x() + d->offset - frameWidth() - margin() - 1, 0 );
+
     QTextParagraph *par;
     QTextCursor *c;
     d->getTextObjects(&par, &c);
+    QTextCursor oldCursor = *c;
     c->place( p, par );
+
+    if ( d->inDoubleClick ) {
+	QTextCursor cl = *c;
+	cl.gotoPreviousWord( TRUE );
+	QTextCursor cr = *c;
+	cr.gotoNextWord( TRUE );
+
+	int diff = QABS( oldCursor.paragraph()->at( oldCursor.index() )->x - p.x() );
+	int ldiff = QABS( cl.paragraph()->at( cl.index() )->x - p.x() );
+	int rdiff = QABS( cr.paragraph()->at( cr.index() )->x - p.x() );
+
+
+	if ( c->paragraph()->lineStartOfChar( c->index() ) !=
+	     oldCursor.paragraph()->lineStartOfChar( oldCursor.index() ) )
+	    diff = 0xFFFFFF;
+
+	if ( rdiff < diff && rdiff < ldiff )
+	    *c = cr;
+	else if ( ldiff < diff && ldiff < rdiff )
+	    *c = cl;
+	else
+	    *c = oldCursor;
+    }
+
     d->releaseTextObjects( &par, &c );
     updateSelection();
     update();
@@ -1356,13 +1406,11 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 
 	return;
     }
-    if ( d->inDoubleClick ) {
+
+    if ( !d->mousePressed ) {
 	d->inDoubleClick = FALSE;
 	return;
     }
-
-    if ( !d->mousePressed )
-	return;
     d->mousePressed = FALSE;
 
 #ifndef QT_NO_CLIPBOARD
@@ -1382,8 +1430,10 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
     }
 #endif
 
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton || d->inDoubleClick ) {
+	d->inDoubleClick = FALSE;
 	return;
+    }
 
     QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
     QTextParagraph *par;
@@ -1399,18 +1449,27 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 */
 void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 {
+    if ( e->button() != Qt::LeftButton ) {
+	e->ignore();
+	return;
+    }
+
     bool oldHST = hasSelectedText();
     d->inDoubleClick = TRUE;
+    d->dnd_primed = FALSE;
+    d->dndTimer.stop();
+    d->mousePressed = TRUE;
 
     if ( echoMode() == Password ) {
 	selectAll();
     } else {
 	QTextCursor c1 = *d->cursor;
 	QTextCursor c2 = *d->cursor;
-	c1.gotoPreviousWord();
-	c2.gotoNextWord();
+	c1.gotoPreviousWord( TRUE );
+	c2.gotoNextWord( TRUE );
 
 	d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
+	d->selectionStart = c1.index();
 	*d->cursor = c2;
 
 	d->trippleClickTimer.start( qApp->doubleClickInterval(), TRUE );
@@ -2065,6 +2124,7 @@ void QLineEdit::setCursorPosition( int newPos )
 {
     d->cursor->setIndex( newPos );
     deselect();
+    d->selectionStart = d->cursor->index();
 }
 
 

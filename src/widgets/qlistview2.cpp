@@ -235,7 +235,6 @@ struct QListViewPrivate
     QListViewToolTip *toolTip;
     int pressedColumn;
     QListView::ResizeMode resizeMode;
-
 };
 
 #ifndef QT_NO_TOOLTIP
@@ -1397,9 +1396,18 @@ void QListViewItem::setOpen( bool o )
 	return;
     open = o;
 
-    // Has children to show, so trigger update
-    if ( nChildren )
-	invalidateHeight();
+    // If no children to show simply emit signals and return
+    if ( !nChildren ) {
+        QListView *lv = listView();
+	if ( lv && this != lv->d->r ) {
+	    if ( o )
+		emit lv->expanded( this );
+	    else
+		emit lv->collapsed( this );
+	}
+	return;
+    }
+    invalidateHeight();
 
     if ( !configured ) {
 	QListViewItem * l = this;
@@ -1468,7 +1476,9 @@ void QListViewItem::setup()
     if ( mlenabled ) {
 	h = ph;
 	for ( int c = 0; c < v->columns(); ++c ) {
-	    int tmph = v->fontMetrics().size( AlignVCenter, text( c ) ).height();
+	    int lines = text( c ).contains( QChar('\n') ) + 1;
+	    int tmph = v->d->fontMetricsHeight
+		       + v->fontMetrics().lineSpacing() * ( lines - 1 );
 	    h = QMAX( h, tmph );
 	}
 	h += 2*v->itemMargin();
@@ -1913,7 +1923,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 		ci->truncated = TRUE;
 		ci->tmpText = "...";
 		int i = 0;
-		while ( fm.width( ci->tmpText + t[ i ] ) + pw < width )
+		int len = t.length();
+		while ( i < len && fm.width( ci->tmpText + t[ i ] ) + pw < width )
 		    ci->tmpText += t[ i++ ];
 		ci->tmpText.remove( 0, 3 );
 		if ( ci->tmpText.isEmpty() )
@@ -1927,7 +1938,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 			ci->truncated = TRUE;
 			QString tempText = "...";
 			int i = 0;
-			while ( fm.width( tempText + z[ i ]) + pw < width )
+			int len = z.length();
+			while ( i < len && fm.width( tempText + z[ i ]) + pw < width )
 			    tempText += z[i++];
 			tempText.remove( 0, 3 );
 			if ( tempText.isEmpty() )
@@ -3971,8 +3983,8 @@ void QListViewItem::widthChanged( int c ) const
     \c Single selection mode (normally after the screen update). The
     argument is the newly selected item.
 
-    The no argument overload of this signal is more useful in \c Multi
-    selection mode.
+    When in Multi selection mode, use the no argument overload of this
+    signal.
 
     \warning Do not delete any QListViewItem objects in slots
     connected to this signal.
@@ -4466,9 +4478,7 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 
 void QListView::doAutoScroll()
 {
-    QPoint pos = QCursor::pos();
-    pos = viewport()->mapFromGlobal( pos );
-
+    QPoint pos = viewport()->mapFromGlobal( QCursor::pos() );
     if ( !d->focusItem || ( d->pressedEmptyArea && pos.y() > contentsHeight() ) )
 	return;
 
@@ -6771,7 +6781,10 @@ void QListView::contentsDragEnterEvent( QDragEnterEvent *e )
 	d->focusItem->dragEntered();
 	d->focusItem->repaint();
     }
-    e->accept();
+    if ( i && i->dropEnabled() && i->acceptDrop( e ) )
+	e->accept();
+    else
+	e->ignore();
 }
 
 /* IGNORE! \reimp */
@@ -6790,7 +6803,10 @@ void QListView::contentsDragMoveEvent( QDragMoveEvent *e )
 	    d->focusItem->dragEntered();
 	d->focusItem->repaint();
     }
-    e->accept();
+    if ( i && i->dropEnabled() && i->acceptDrop( e ) )
+	e->accept();
+    else
+	e->ignore();
 }
 
 /* IGNORE! \reimp */
@@ -6810,7 +6826,7 @@ void QListView::contentsDropEvent( QDropEvent *e )
 {
     setCurrentItem( d->oldFocusItem );
     QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
-    if ( i )
+    if ( i && i->dropEnabled() && i->acceptDrop( e ) )
 	i->dropped( e );
     else
 	emit dropped( e );
