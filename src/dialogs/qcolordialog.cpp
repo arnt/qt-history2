@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#5 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#6 $
 **
 ** Implementation of QColorDialog class
 **
@@ -576,8 +576,7 @@ void QColorDialogPrivate::newStandard( int r, int c )
 QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog )
 {
     QHBoxLayout *topLay = new QHBoxLayout( dialog, 12, 6 );
-    QVBoxLayout *leftLay = new QVBoxLayout;
-    topLay->addLayout( leftLay );
+    QVBoxLayout *leftLay = new QVBoxLayout( topLay );
 
     if ( !initrgb ) {
 	initrgb = TRUE;
@@ -616,8 +615,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog )
     custbut->setEnabled( FALSE );
     leftLay->addWidget( custbut );
 
-    QHBoxLayout *buttons = new QHBoxLayout;
-    leftLay->addLayout( buttons );
+    QHBoxLayout *buttons = new QHBoxLayout( leftLay );
 
     QPushButton *ok, *cancel;
     ok = new QPushButton( tr("Ok"), dialog );
@@ -629,11 +627,9 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog )
     buttons->addWidget( cancel );
     buttons->addStretch();
 
-    QVBoxLayout *rightLay = new QVBoxLayout;
-    topLay->addLayout( rightLay );
+    QVBoxLayout *rightLay = new QVBoxLayout( topLay );
 
-    QHBoxLayout *pickLay = new QHBoxLayout;
-    rightLay->addLayout( pickLay );
+    QHBoxLayout *pickLay = new QHBoxLayout( rightLay );
 
     cp = new QColorPicker( dialog );
     cp->setFrameStyle( QFrame::Panel + QFrame::Sunken );
@@ -695,7 +691,7 @@ QColor QColorDialog::getColor( QColor initial, QWidget *parent,
     if ( resultCode == QDialog::Accepted )
 	result = dlg->selectedColor();
     QColor::destroyAllocContext(allocContext);
-
+    delete dlg;
     return result;
 }
 
