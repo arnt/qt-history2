@@ -361,9 +361,9 @@
 */
 //#define QT_NO_QWS_VFB
 /*!
-    Emachine support
+    Experimental
 */
-//#define QT_NO_QWS_PS2
+//#define QT_NO_QWS_E_PROJ
 /*!
     Transformed frame buffer
 */

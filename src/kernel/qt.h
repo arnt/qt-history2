@@ -272,7 +272,9 @@
 #include "qwsproperty_qws.h"
 #include <qwsregionmanager_qws.h>
 #include <qwindowsystem_qws.h>
-#include <qgfxps2_qws.h>
+#ifndef QT_NO_QWS_E_PROJ
+#include <qgfxee_qws.h>
+#endif
 
 #include "../src/kernel/qrichtext_p.h"
 #include "../src/widgets/qtitlebar_p.h"

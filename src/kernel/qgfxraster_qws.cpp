@@ -3705,8 +3705,8 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 # include "qgfxsvgalib_qws.cpp"
 #endif
 
-#if !defined(QT_NO_QWS_PS2)
-# include "qgfxps2_qws.cpp"
+#if !defined(QT_NO_QWS_E_PROJ)
+# include "qgfxee_qws.cpp"
 #endif
 
 struct DriverTable
@@ -3736,8 +3736,8 @@ struct DriverTable
 #if !defined(QT_NO_QWS_SVGALIB)
     { "SVGALIB", qt_get_screen_svgalib },
 #endif
-#if !defined(QT_NO_QWS_PS2)
-    { "PS2", qt_get_screen_ps2 },
+#if !defined(QT_NO_QWS_E_PROJ)
+    { "EE", qt_get_screen_ee },
 #endif
 #if !defined(QT_NO_QWS_VGA_16)
     { "VGA16", qt_get_screen_vga16 },
