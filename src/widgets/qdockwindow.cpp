@@ -1876,7 +1876,13 @@ void QDockWindow::removeFromDock( bool fixNewLines )
     area it was docked in does not exist (e.g. the dock area has been
     deleted), nothing happens.
 
-    \sa undock()
+    The dock window will dock with the dock area regardless of the return value
+    of QDockArea::isDockWindowAccepted().
+
+    \sa undock() QDockArea::moveDockWindow(),
+    QDockArea::removeDockWindow(), QMainWindow::moveDockWindow(),
+    QMainWindow::removeDockWindow(), QDockArea::isDockWindowAccepted()
+
 */
 
 void QDockWindow::dock()
