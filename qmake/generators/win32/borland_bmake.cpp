@@ -409,6 +409,7 @@ BorlandMakefileGenerator::init()
 	project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
 	project->variables()["RES_FILE"].first().replace(".rc",".res");
 	project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
+	project->variables()["CLEAN_FILES"] += project->variables()["RES_FILE"];
     }
     MakefileGenerator::init();
     if ( !project->variables()["VERSION"].isEmpty()) {

@@ -589,6 +589,7 @@ MingwMakefileGenerator::init()
 	project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
         project->variables()["RES_FILE"].first().replace(".rc",".o");
 	project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
+	project->variables()["CLEAN_FILES"] += project->variables()["RES_FILE"];
     }
     if ( !project->variables()["RES_FILE"].isEmpty())
 	project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
