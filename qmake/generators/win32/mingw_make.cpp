@@ -110,8 +110,8 @@ void MingwMakefileGenerator::init()
 	MakefileGenerator::init();
 	if(project->variables()["MAKEFILE"].isEmpty())
 	    project->variables()["MAKEFILE"].append("Makefile");
-	if(project->variables()["QMAKE"].isEmpty())
-	    project->variables()["QMAKE"].append("qmake");
+	if(project->variables()["QMAKE_QMAKE"].isEmpty())
+	    project->variables()["QMAKE_QMAKE"].append("qmake");
 	return;
     }
 

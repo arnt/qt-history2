@@ -41,8 +41,8 @@ UnixMakefileGenerator::init()
 	MakefileGenerator::init();
 	if(project->isEmpty("MAKEFILE"))
 	    project->variables()["MAKEFILE"].append("Makefile");
-	if(project->isEmpty("QMAKE"))
-	    project->variables()["QMAKE"].append("qmake");
+	if(project->isEmpty("QMAKE_QMAKE"))
+	    project->variables()["QMAKE_QMAKE"].append("qmake");
 	if(project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].indexOf("qmake_all") == -1)
 	    project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].append("qmake_all");
 	return; /* subdirs is done */
