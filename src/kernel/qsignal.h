@@ -21,7 +21,7 @@
 
 
 // internal helper class for QSignal
-class QSignalEmitter : public QObject{
+class Q_KERNEL_EXPORT QSignalEmitter : public QObject{
 public:
     QSignalEmitter(const char *type = 0);
     ~QSignalEmitter();
