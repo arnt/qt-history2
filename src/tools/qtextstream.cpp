@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#45 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#46 $
 **
 ** Implementation of QTextStream class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#46 $");
 
 
 /*!
@@ -138,9 +138,12 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#45 $");
 #define I_SIGN_MASK	0x0f00
 
 
-const int QTS::basefield   = I_BASE_MASK;
-const int QTS::adjustfield = QTS::left | QTS::right | QTS::internal;
-const int QTS::floatfield  = QTS::scientific | QTS::fixed;
+const int QTextStream::basefield   = I_BASE_MASK;
+const int QTextStream::adjustfield = ( QTextStream::left |
+				       QTextStream::right |
+				       QTextStream::internal );
+const int QTextStream::floatfield  = ( QTextStream::scientific |
+				       QTextStream::fixed );
 
 
 int eat_ws( QIODevice *d )
