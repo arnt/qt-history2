@@ -4,7 +4,7 @@
 Qt can access functions from dynamic libraries platform-independently.
 Qt also supports plugins, which allow developers to create and
 distribute Qt codecs, database drivers, image format converters,
-styles and custom widgets as independent components. 
+styles and custom widgets as independent components.
 \endquote
 
   \index Codec
@@ -57,7 +57,7 @@ and adding a macro.
 
 For example, if a developer has created a \Class QStyle subclass
 called \Class CopperStyle that they want to make available as a plugin,
-they would create a subclass like this: 
+they would create a subclass like this:
 \code
     class CopperStylePlugin : public QStylePlugin
     {
@@ -66,11 +66,11 @@ they would create a subclass like this:
 	~CopperStylePlugin() { }
 
 	QStringList keys() const {
-	    return QStringList() << "CopperStyle"; 
+	    return QStringList() << "CopperStyle";
 	}
 
-	QStyle *create( const QString& key ) { 
-	    if ( key == "CopperStyle" ) 
+	QStyle *create( const QString& key ) {
+	    if ( key == "CopperStyle" )
 		return new CopperStyle;
 	    return 0;
 	}

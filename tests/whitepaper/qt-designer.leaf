@@ -1,4 +1,4 @@
-\chapter Qt Designer 
+\chapter Qt Designer
 
   \index Designer
   \index Qt Designer
@@ -43,7 +43,7 @@ own templates to ensure consistency across an application or family of
 applications. \QD uses wizards to make creating toolbars, menus and
 database applications as fast and easy as possible. Programmers can
 create their own custom widgets that can easily be integrated with
-\QD. 
+\QD.
 
   \index .pro
   \index Inheriting
@@ -57,7 +57,7 @@ to generate Makefiles. Developers create a new project and then add
 forms and source files as required. Developers can completely separate
 the user interface from the underlying functionality by subclassing,
 or they can keep their source code and forms together by editing the
-form's source directly in \QD. 
+form's source directly in \QD.
 
 Icons and other images used in the application are automatically
 shared across all forms in a project to reduce executable size and
@@ -82,7 +82,7 @@ application executables along with the customer-modifiable forms in
 \File .ui format, and the customer can use \QD to customize the
 appearance of the application's forms. Loading a dynamic dialog is
 trivial:
-\code 
+\code
     QDialog *creditForm = (QDialog *)
 			  QWidgetFactory::create( "creditform.ui" );
 \endcode

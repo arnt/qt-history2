@@ -45,21 +45,24 @@ the child widgets are automatically resized.
 Qt's built-in layout managers are \Class QHBoxLayout, \Class
 QVBoxLayout and \Class QGridLayout.
 
-  \img qhbox.png
-  \caption \Class QHBoxLayout with five child widgets
-
-  \img qvbox.png
-  \caption \Class QVBoxLayout with five child widgets
-
-  \img qgrid.png
-  \caption \Class QGridLayout with five child widgets
-
   \index Box layout
   \index Grid layout
 
+  \img qhbox.png
+  \caption \Class QHBoxLayout
+
 \Class QHBoxLayout organizes the managed widgets in a single
-horizontal row from left to right. \Class QVBoxLayout organizes the
-managed widgets in a single vertical column, from top to bottom.
+horizontal row from left to right.
+
+  \img qvbox.png
+  \caption \Class QVBoxLayout
+
+\Class QVBoxLayout organizes the managed widgets in a single vertical
+column, from top to bottom.
+
+  \img qgrid.png
+  \caption \Class QGridLayout
+
 \Class QGridLayout organizes the managed widgets in a grid of cells;
 widgets may span multiple cells.
 

@@ -363,7 +363,7 @@ use the native file dialog when compiled for Windows.
   \index QFontDialog
 
   \img qfontdialog.png
-  \caption A \Class QFontDialog 
+  \caption A \Class QFontDialog
 
 \Class QFontDialog is used to select a font.
 

@@ -74,7 +74,7 @@ writeBlock() that can be used independently of any stream.
   \index Directory
   \index QDir
   \index QFileInfo
- 
+
 Directories are read and traversed using \Class QDir. \Class QDir can
 be used to manipulate path names and access the underlying file
 system (e.g. create a directory or delete a file). \Class QFileInfo

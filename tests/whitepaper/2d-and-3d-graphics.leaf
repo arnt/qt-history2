@@ -307,7 +307,7 @@ In \File box3d.h, \Class Box3D is defined like this:
   \quotefile box3d/box3d.h
   \skipuntil #define
   \printto #endif
- 
+
 In \File box3d.cpp, the functions declared in \File box3d.h are
 implemented:
 

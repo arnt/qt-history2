@@ -134,7 +134,7 @@ in the current font.
 
 Qt takes advantage of X extensions where they are available. Qt
 supports the RENDER extension for anti-aliased fonts and
-alpha-blending. Qt provides on-the-spot editing for X Input Methods. 
+alpha-blending. Qt provides on-the-spot editing for X Input Methods.
 Qt supports multiple screens both with traditional multi-head and
 with Xinerama.
 

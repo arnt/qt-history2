@@ -40,7 +40,7 @@ simplify coding. Qt also includes \l {Qt Designer}, a tool for
 designing user interfaces graphically. \l {Qt Designer} supports Qt's
 powerful \l Layouts in addition to absolute positioning. \l {Qt
 Designer} can be used purely as a design tool, or it can be used to
-create entire applications with the built-in C++ code editor. 
+create entire applications with the built-in C++ code editor.
 
 Qt has excellent support for \l {2D and 3D Graphics}. Qt is the
 de-facto standard GUI toolkit for platform-independent OpenGL
@@ -52,7 +52,7 @@ for Oracle, Microsoft SQL Server, Sybase Adaptive Server, PostgreSQL,
 MySQL and ODBC-compliant databases. Qt's database functionality is
 fully integrated with \l {Qt Designer}, which offers live preview of
 database data. Qt includes database-specific widgets, and any
-built-in or custom widget can be made data aware. 
+built-in or custom widget can be made data aware.
 
   \index .dsp
   \index Makefile
