@@ -189,6 +189,7 @@ QMoviePrivate::QMoviePrivate(QIODevice *src, QMovie *movie, int bufsize) :
 {
     ref = 1;
     polltimer = new QTimer(this);
+    polltimer->setSingleShot(true);
     connect(polltimer, SIGNAL(timeout()), this, SLOT(pollForData()));
     frametimer = new QTimer(this);
     connect(frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
@@ -241,7 +242,7 @@ void QMoviePrivate::init(bool fully)
     framenumber = 0;
     frameperiod = -1;
     if (fully) {
-        polltimer->start(0, true);
+        polltimer->start(0);
         frametimer->stop();
     }
     lasttimerinterval = -1;
@@ -533,7 +534,7 @@ void QMoviePrivate::pollForData()
             source->reset();
             framenumber = 0;
             movie_ended = false;
-            polltimer->start(0, true);
+            polltimer->start(0);
         } else {
             delete decoder;
             decoder = 0;
@@ -553,7 +554,7 @@ void QMoviePrivate::pollForData()
         if(avail == -1)
             source->close();
         else
-            polltimer->start(0, true);
+            polltimer->start(0);
     }
 }
 
