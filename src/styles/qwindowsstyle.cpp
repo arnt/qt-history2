@@ -1616,39 +1616,28 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 				    void * data ) const
 {
     switch( subCtrl ) {
-    case SC_SpinWidgetUp: {
+    case SC_SpinWidgetUp:
+    case SC_SpinWidgetDown: {
 	QSpinWidget * sw = (QSpinWidget *) w;
 	PFlags flags = PStyle_Default;
-	PrimitiveOperation op = PO_SpinWidgetUp;
+	PrimitiveOperation op = (subCtrl == SC_SpinWidgetUp) ? 
+	                        PO_SpinWidgetUp : PO_SpinWidgetDown;
 
 	flags |= PStyle_Enabled;
 	if (subActive == subCtrl) {
 	    flags |= PStyle_On;
 	    flags |= PStyle_Sunken;
 	}
-	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
-	    op = PO_SpinWidgetPlus;
+	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus ) {
+	    if ( subCtrl == SC_SpinWidgetUp )
+		op = PO_SpinWidgetPlus;
+	    else
+		op = PO_SpinWidgetMinus;
+	}
 
 	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
 	drawPrimitive(op, p, r, cg, flags);
     	break; }
-
-    case SC_SpinWidgetDown: {
-	QSpinWidget * sw = (QSpinWidget *) w;
-	PFlags flags = PStyle_Default;
-	PrimitiveOperation op = PO_SpinWidgetDown;
-
-	flags |= PStyle_Enabled;
-	if (subActive == subCtrl) {
-	    flags |= PStyle_On;
-	    flags |= PStyle_Sunken;
-	}
-	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
-	    op = PO_SpinWidgetMinus;
-
-	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
-	drawPrimitive(op, p, r, cg, flags);
-	break; }
 
     case SC_SpinWidgetFrame:
 	qDrawWinPanel( p, r, cg, TRUE ); //cstyle == Sunken );

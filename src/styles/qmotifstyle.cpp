@@ -386,7 +386,86 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 #undef CTOP
 #undef CBOT
 	break; }	
-	// just pass it on...
+
+    case PO_SpinWidgetPlus:
+    case PO_SpinWidgetMinus: {
+	p->save();
+	int fw = 1;
+	QRect br;
+	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2,
+		    r.height() - fw*2 );
+
+	if ( flags & PStyle_Sunken )
+	    p->fillRect( r, cg.brush( QColorGroup::Dark ) );
+	else
+	    p->fillRect( r, cg.brush( QColorGroup::Button ) );
+	
+	p->setPen( cg.buttonText() );
+	p->setBrush( cg.buttonText() );
+
+	int length;
+	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
+	if ( w <= 8 || h <= 6 )
+	    length = QMIN( w-2, h-2 );
+	else
+	    length = QMIN( 2*w / 3, 2*h / 3 );
+
+	if ( !(length & 1) )
+	    length -=1;
+	int xmarg = ( w - length ) / 2;
+	int ymarg = ( h - length ) / 2;
+
+	p->drawLine( x + xmarg, ( y + h / 2 - 1 ),
+		     x + xmarg + length - 1, ( y + h / 2 - 1 ) );
+	if ( op == PO_SpinWidgetPlus )
+	    p->drawLine( ( x+w / 2 ) - 1, y + ymarg,
+			 ( x+w / 2 ) - 1, y + ymarg + length - 1 );
+	p->restore();
+	break; }
+
+    case PO_SpinWidgetUp:
+    case PO_SpinWidgetDown: {
+	p->save();
+	int fw = 1;
+	QRect br;
+	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2,
+		    r.height() - fw*2 );
+	if ( flags & PStyle_Sunken )
+	    p->fillRect( br, cg.brush( QColorGroup::Mid ) );
+	else
+	    p->fillRect( br, cg.brush( QColorGroup::Button ) );
+
+	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
+	int sw = w-4;
+	if ( sw < 3 )
+	    return;
+	else if ( !(sw & 1) )
+	    sw--;
+	sw -= ( sw / 7 ) * 2;	// Empty border
+	int sh = sw/2 + 2;      // Must have empty row at foot of arrow
+
+	int sx = x + w / 2 - sw / 2 - 1;
+	int sy = y + h / 2 - sh / 2 - 1;
+
+	QPointArray a;
+	if ( op == PO_SpinWidgetDown )
+	    a.setPoints( 3,  0, 1,  sw-1, 1,  sh-2, sh-1 );
+	else
+	    a.setPoints( 3,  0, sh-1,  sw-1, sh-1,  sh-2, 1 );
+	int bsx = 0;
+	int bsy = 0;
+	if ( flags & PStyle_Sunken ) {
+	    bsx = pixelMetric(PM_ButtonShiftHorizontal);
+	    bsy = pixelMetric(PM_ButtonShiftVertical);
+	}
+	p->translate( sx + bsx, sy + bsy );
+	p->setPen( cg.buttonText() );
+	p->setBrush( cg.buttonText() );
+	p->drawPolygon( a );
+	p->restore();
+	break; }
+    
+    // just pass it on...
     default:
 	QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
 	break;
@@ -616,53 +695,40 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 				 SCFlags subActive, void *data ) const
 {
     switch( subCtrl ) {
-    case SC_SpinWidgetUp: {
-	QSpinWidget * sw = (QSpinWidget *) w;
-	PFlags flags = PStyle_Default;
-	PrimitiveOperation op = PO_SpinWidgetUp;
-
-	flags |= PStyle_Enabled;
-	if (subActive == subCtrl) {
-	    flags |= PStyle_On;
-	    flags |= PStyle_Sunken;
-	}
-	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
-	    op = PO_SpinWidgetPlus;
-
-	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
-	drawPrimitive(op, p, r, cg, flags);
-    	break; }
-
+    case SC_SpinWidgetUp:
     case SC_SpinWidgetDown: {
 	QSpinWidget * sw = (QSpinWidget *) w;
 	PFlags flags = PStyle_Default;
-	PrimitiveOperation op = PO_SpinWidgetDown;
+	PrimitiveOperation op = (subCtrl == SC_SpinWidgetUp) ? 
+	                        PO_SpinWidgetUp : PO_SpinWidgetDown;
 
 	flags |= PStyle_Enabled;
 	if (subActive == subCtrl) {
 	    flags |= PStyle_On;
 	    flags |= PStyle_Sunken;
 	}
-	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
-	    op = PO_SpinWidgetMinus;
+	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus ) {
+	    if ( subCtrl == SC_SpinWidgetUp )
+		op = PO_SpinWidgetPlus;
+	    else
+		op = PO_SpinWidgetMinus;
+	}
 
-	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
+	qDrawShadePanel( p, r, cg, flags & PStyle_Sunken, 1,
+			 &cg.brush( QColorGroup::Button ) );
 	drawPrimitive(op, p, r, cg, flags);
-	break; }
-
+    	break; }
+    
     case SC_SpinWidgetFrame:
-	qDrawWinPanel( p, r, cg, TRUE ); //cstyle == Sunken );
+	qDrawShadePanel( p, r, cg, TRUE, pixelMetric( PM_DefaultFrameWidth) );
 	break;
 	
     default:
 	break;
     }
-
-	//cheat
-    //    QCommonStyle::drawSubControl(subCtrl, p, w, r, cg, flags, subActive, data);
 }
 
-int QMotifStyle::pixelMetric( PixelMetric metic, const QWidget *widget ) const
+int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 {
      int ret;
 
@@ -728,7 +794,7 @@ int QMotifStyle::pixelMetric( PixelMetric metic, const QWidget *widget ) const
 	
 	
     // cheat
-    ret =  QCommonStyle::pixelMetric( metic, widget );
+    ret =  QCommonStyle::pixelMetric( metric, widget );
     return ret;
 }
 
@@ -738,16 +804,51 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 					   SubControl sc,
 					   void *data ) const
 {
+    QRect rect;
     switch ( control ) {
-    case SC_SpinWidgetUp:
-	break;
-    case SC_SpinWidgetDown:
-	break;
-    case SC_SpinWidgetFrame:
-	break;
+    case CC_SpinWidget: {
+	if ( !widget )
+	    break;
+	int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
+	QSize bs;
+	bs.setHeight( widget->height()/2 );
+	if ( bs.height() < 8 )
+	    bs.setHeight( 8 );
+	bs.setWidth( bs.height() * 8 / 5 ); // 1.6 -approximate golden mean
+	bs = bs.expandedTo( QApplication::globalStrut() );
+	int y = 0;
+	int x, lx, rx;
+	x = widget->width() - y - bs.width();
+	lx = fw;
+	rx = x - fw * 2;
+
+	switch ( sc ) {
+	case SC_SpinWidgetUp:
+	    rect.setRect(x, y, bs.width(), bs.height());
+	    break;
+	case SC_SpinWidgetDown:
+	    rect.setRect(x, y + bs.height(), bs.width(), bs.height());
+	    break;
+	case SC_SpinWidgetButtonField:
+	    rect.setRect(x, y, bs.width(), widget->height() - 2*fw);
+	    break;
+	case SC_SpinWidgetEditField:
+	    rect.setRect(lx, fw, rx, widget->height() - 2*fw);
+	    break;
+	case SC_SpinWidgetFrame:
+	    rect.setRect( widget->x(), widget->y(), 
+			  widget->width() - bs.width(),
+			  widget->height() );
+	default:
+	    break;
+	}
+	break; }
+	
     default:
-	QCommonStyle::querySubControlMetrics( control, widget, sc, data );
+	return QCommonStyle::querySubControlMetrics( control, widget, sc, data );
     }
+    
+    return rect;
 }
 
 QSize QMotifStyle::sizeFromContents( ContentsType contents,
@@ -1758,6 +1859,8 @@ QRect QMotifStyle::comboButtonFocusRect( int x, int y, int w, int h ) const
 //     get_combo_parameters( buttonRect( x, y, w, h ),
 //                           ew, awh, ax, ay, sh, dh, sy );
 //     return QRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
+
+    return QRect();
 }
 
 /*!\reimp
