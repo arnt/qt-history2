@@ -32,6 +32,7 @@
 #include "qfont.h"
 #include "qcursor.h"
 #include "qmutex.h"
+#include "qtranslator.h"
 
 #include "qkernelapplication_p.h"
 #include "qapplication.h"
@@ -84,6 +85,7 @@ public:
     bool is_session_restored;
 #endif
 
+    QList<QTranslator*> translators;
 };
 
 

@@ -258,7 +258,6 @@ private:
 
     void construct( int &argc, char **argv, Type );
     void initialize();
-    void init_precmdline();
     void process_cmdline( int* argcptr, char ** argv );
 #if defined(Q_WS_QWS)
     static QWidget *findChildWidget( const QWidget *p, const QPoint &pos );
@@ -305,7 +304,6 @@ private:
     static bool	     animate_toolbox;
     static bool	     widgetCount; // Coupled with -widgetcount switch
 
-    QList<QTranslator*> *translators;
 #if defined(Q_WS_X11) && !defined (QT_NO_STYLE )
     static void x11_initialize_style();
 #endif
@@ -331,7 +329,6 @@ private:
     friend class QDialog;
     friend class QAccelManager;
     friend class QTranslator;
-    friend Q_EXPORT void qt_ucm_initialize( QApplication * );
 #if defined(Q_WS_QWS)
     friend class QInputContext;
 #endif

@@ -71,6 +71,8 @@ QKernelApplication::QKernelApplication( int &argc, char **argv )
 // ### move to QKernelApplicationPrivate constructor?
 void QKernelApplication::init()
 {
+    is_app_closing = FALSE;
+
     if (self)
 	qFatal("cannot construct to application objects");
     self = this;

@@ -549,7 +549,7 @@ bool QTranslator::do_load( const uchar *data, int len )
     }
     array.resetRawData( (const char *) data, len );
 
-    if ( qApp && qApp->translators && qApp->translators->contains(this) )
+    if ( qApp && qApp->d->translators.contains(this) )
 	qApp->setReverseLayout( qt_detectRTLLanguage() );
     return ok;
 }

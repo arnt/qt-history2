@@ -55,7 +55,9 @@
 QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
     : QKernelApplicationPrivate(argc, argv)
 {
-
+#ifndef QT_NO_SESSIONMANAGER
+    is_session_restored = FALSE;
+#endif
 }
 
 
@@ -692,22 +694,10 @@ QApplication::QApplication( int &argc, char **argv, Type type )
     construct( argc, argv, type );
 }
 
-Q_EXPORT void qt_ucm_initialize( QApplication *theApp )
-{
-    if ( qApp )
-	return;
-    int argc = theApp->argc();
-    char **argv = theApp->argv();
-    theApp->construct( argc, argv, qApp->type() );
-
-    Q_ASSERT( qApp == theApp );
-}
-
 void QApplication::construct( int &argc, char **argv, Type type )
 {
     qt_appType = type;
     qt_is_gui_used = (type != Tty);
-    init_precmdline();
     static const char *empty = "";
     if ( argc == 0 || argv == 0 ) {
 	argc = 0;
@@ -720,15 +710,6 @@ void QApplication::construct( int &argc, char **argv, Type type )
 	qt_maxWindowRect = desktop()->rect();
     if ( eventloop )
 	eventloop->appStartingUp();
-}
-
-/*!
-    Returns the type of application, Tty, GuiClient or GuiServer.
-*/
-
-QApplication::Type QApplication::type() const
-{
-    return qt_appType;
 }
 
 #if defined(Q_WS_X11)
@@ -755,7 +736,6 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
     qt_appType = GuiClient;
     qt_is_gui_used = TRUE;
     qt_appType = GuiClient;
-    init_precmdline();
     // ... no command line.
 
     if ( ! dpy ) {
@@ -792,7 +772,6 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
     qt_appType = GuiClient;
     qt_is_gui_used = TRUE;
     qt_appType = GuiClient;
-    init_precmdline();
 
     if ( ! dpy ) {
 	qWarning( "QApplication: invalid Display* argument." );
@@ -814,15 +793,6 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
 #endif // Q_WS_X11
 
 
-void QApplication::init_precmdline()
-{
-    translators = 0;
-    is_app_closing = FALSE;
-#ifndef QT_NO_SESSIONMANAGER
-    d->is_session_restored = FALSE;
-#endif
-}
-
 /*!
   Initializes the QApplication object, called from the constructors.
 */
@@ -842,6 +812,14 @@ void QApplication::initialize()
 
 }
 
+/*!
+    Returns the type of application, Tty, GuiClient or GuiServer.
+*/
+
+QApplication::Type QApplication::type() const
+{
+    return qt_appType;
+}
 
 /*****************************************************************************
   Functions returning the active popup and modal widgets.
@@ -959,9 +937,6 @@ QApplication::~QApplication()
 #ifndef QT_NO_CURSOR
     delete app_cursor;
     app_cursor = 0;
-#endif
-#ifndef QT_NO_TRANSLATION
-    delete translators;
 #endif
 
 #ifndef QT_NO_DRAGANDDROP
@@ -2222,10 +2197,8 @@ void QApplication::installTranslator( QTranslator * mf )
 {
     if ( !mf )
 	return;
-    if ( !translators )
-	translators = new QList<QTranslator*>;
 
-    translators->prepend( mf );
+    d->translators.prepend( mf );
 
 #ifndef QT_NO_TRANSLATION_BUILDER
     if ( mf->isEmpty() )
@@ -2252,10 +2225,10 @@ void QApplication::installTranslator( QTranslator * mf )
 
 void QApplication::removeTranslator( QTranslator * mf )
 {
-    if ( !translators || !mf )
+    if (!mf)
 	return;
 
-    if ( translators->remove( mf ) && ! qApp->closingDown() ) {
+    if ( d->translators.remove( mf ) && !qApp->closingDown() ) {
 	setReverseLayout( qt_detectRTLLanguage() );
 
 	QWidgetList list = topLevelWidgets();
@@ -2339,11 +2312,11 @@ QString QApplication::translate( const char * context, const char * sourceText,
     if ( !sourceText )
 	return QString::null;
 
-    if ( translators ) {
+    if (!d->translators.isEmpty()) {
 	QList<QTranslator*>::ConstIterator it;
 	QTranslator * mf;
 	QString result;
-	for ( it = translators->constBegin(); it != translators->constEnd(); ++it ) {
+	for ( it = d->translators.constBegin(); it != d->translators.constEnd(); ++it ) {
 	    mf = *it;
 	    result = mf->findMessage( context, sourceText, comment ).translation();
 	    if ( !result.isNull() )
