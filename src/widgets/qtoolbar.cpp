@@ -701,6 +701,12 @@ void QToolBar::setupArrowMenu()
     }
 }
 
+/*! \reimp */
+
+void QToolBar::setMinimumSize( int, int )
+{
+}
+
 /* from chaunsee:
 
 1.  Tool Bars should contain only high-frequency functions.  Avoid putting

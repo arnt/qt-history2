@@ -83,6 +83,7 @@ public:
     QSize minimumSizeHint() const;
 
     void setOrientation( Orientation o );
+    void setMinimumSize( int minw, int minh );
 
 protected:
     void resizeEvent( QResizeEvent *e );
