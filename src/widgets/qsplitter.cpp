@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#70 $
 **
 **  Splitter widget
 **
@@ -647,8 +647,6 @@ void QSplitter::doResize()
 	    a[i].stretch = s->sizer;
 	    a[i].maximumSize = pick( s->wid->maximumSize() );
 	    a[i].sizeHint = a[i].minimumSize = pick( minSize(s->wid) );
-	    //a[i].expansive = TRUE; //may not be necessary, but cannot hurt
-	    // ### why keep that line, commented out?
 	}
     }
 
@@ -673,29 +671,37 @@ void QSplitter::recalc( bool update )
     int mint = fi;
     int n = data->list.count();
     bool first = TRUE;
+    /*
+      The splitter before a hidden widget is always hidden.
+      The splitter before the first visible widget is hidden.
+      The splitter before any other visible widget is visible.
+    */
     for ( int i = 0; i< n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
-	if ( s->isSplitter ) {
-	    if ( !s->wid->testWState(WState_ForceHide) ) {
+	if ( !s->isSplitter ) {
+	    QSplitterLayoutStruct *p = (i > 0) ? p = data->list.at( i-1 ) : 0;
+	    if ( p && p->isSplitter )
+		if ( first || s->wid->testWState(WState_ForceHide) )
+		    p->wid->hide(); //may trigger new recalc
+		else
+		    p->wid->show(); //may trigger new recalc
+	    if ( !s->wid->testWState(WState_ForceHide) )
+		first = FALSE;
+	}
+    }
+
+    for ( int i = 0; i< n; i++ ) {
+	QSplitterLayoutStruct *s = data->list.at(i);
+	if ( !s->wid->testWState(WState_ForceHide) ) {
+	    if ( s->isSplitter ) {
 		minl += s->sizer;
 		maxl += s->sizer;
-	    }
-	} else {
-	    int splid = first?i+1:i-1;
-	    QSplitterLayoutStruct *p = splid < (int)data->list.count() ?
-				      data->list.at( splid ) : 0;	
-	    if ( !s->wid->testWState(WState_ForceHide) ) {
+	    } else {
 		QSize minS = minSize(s->wid);
 		minl += pick( minS );
 		maxl += pick( s->wid->maximumSize() );
-		mint = QMAX( mint,  trans( minS ));
-		maxt = QMIN( maxt,  trans( s->wid->maximumSize() ));
-		first = FALSE;
-		if ( p && p->isSplitter )
-		    p->wid->show(); //may trigger new recalc
-	    } else {
-		if ( p && p->isSplitter )
-		    p->wid->hide(); //may trigger new recalc
+		mint = QMAX( mint, trans( minS ));
+		maxt = QMIN( maxt, trans( s->wid->maximumSize() ));
 	    }
 	}
     }
