@@ -24,6 +24,7 @@
 #include "pixmapchooser.h"
 #include "command.h"
 #include "listviewdnd.h"
+#include "listboxdnd.h"
 
 #include <qlistview.h>
 #include <qheader.h>
@@ -58,10 +59,15 @@ ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
 	itemsPreview->setSelected( itemsPreview->firstChild(), TRUE );
     }
 
-    ListViewDnd *editorDnd = new ListViewDnd( itemsPreview );
-    editorDnd->setDragMode( ListViewDnd::Internal | ListViewDnd::Move );
-    QObject::connect( editorDnd, SIGNAL( dropped( QListViewItem * ) ),
-			editorDnd, SLOT( confirmDrop( QListViewItem * ) ) );
+    ListViewDnd *itemsDnd = new ListViewDnd( itemsPreview );
+    itemsDnd->setDragMode( ListViewDnd::Internal | ListViewDnd::Move );
+    QObject::connect( itemsDnd, SIGNAL( dropped( QListViewItem * ) ),
+		      itemsDnd, SLOT( confirmDrop( QListViewItem * ) ) );
+
+    ListBoxDnd *columnsDnd = new ListBoxDnd( colPreview );
+    columnsDnd->setDragMode( ListBoxDnd::Internal | ListBoxDnd::Move );
+    QObject::connect( columnsDnd, SIGNAL( dropped( QListBoxItem * ) ),
+		      columnsDnd, SLOT( confirmDrop( QListBoxItem * ) ) );
 }
 
 void ListViewEditor::applyClicked()
