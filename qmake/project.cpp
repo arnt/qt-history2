@@ -74,12 +74,12 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
     int iterate_count = 0;
     //save state
     p->iterator = this;
-    parser_info pi = ::parser; 	
+    parser_info pi = ::parser;
     //do the loop
     while(loop_forever || it != list.end()) {
 	if(!loop_forever && (*it).isEmpty()) //ignore empty items
 	    continue;
-	    
+
 	//set up the loop variable
 	QStringList va;
 	if(!variable.isEmpty()) {
@@ -100,10 +100,10 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
 		break;
 	}
 	if(succeed) {
-	    for(QList<Parse>::Iterator parse_it = parser.begin(); parse_it != parser.end(); 
+	    for(QList<Parse>::Iterator parse_it = parser.begin(); parse_it != parser.end();
 		++parse_it) {
 		::parser = (*parse_it).pi;
-		if(!(ret = p->parse((*parse_it).text, p->variables()))) 
+		if(!(ret = p->parse((*parse_it).text, p->variables())))
 		    break;
 	    }
 	}
@@ -118,7 +118,7 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
 	    break;
     }
     //restore state
-    ::parser = pi; 
+    ::parser = pi;
     p->iterator = 0;
     return ret;
 }
@@ -229,7 +229,7 @@ static QStringList split_arg_list(const QString &params)
 	} else if(!parens && !quote.unicode() && params[x] == ',') {
 	    args << params.mid(last, x - last).trimmed();
 	    last = x+1;
-	} 
+	}
     }
     return args;
 }
@@ -267,7 +267,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     return ret;
 }
 
-void 
+void
 QMakeProject::init(QMakeProperty *p)
 {
     iterator = 0;
@@ -298,7 +298,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	/* adjust scope for each block which appears on a single line */
 	for(int i = 0; i < s.length(); i++) {
 	    if(s[i] == '{') {
-		scope_blocks.push(ScopeBlock(true));		
+		scope_blocks.push(ScopeBlock(true));
 	    } else if(s[i] == '}') {
 		ScopeBlock sb = scope_blocks.pop();
 		if(sb.iterate)
@@ -336,7 +336,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	    append += *d;
 	    d++;
 	}
-	if(!append.isEmpty()) 
+	if(!append.isEmpty())
 	    scope_blocks.top().iterate->parser.append(ScopeIterator::Parse(append));
 	if(iterate_finished) {
 	    scope_blocks.top().iterate = 0;
@@ -425,7 +425,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 			}
 			if(func == "for") { //for is a builtin function here, as it modifies state
 			    if(args.count() > 2 || args.count() < 1) {
-				fprintf(stderr, "%s:%d: for(iterate, list) requires two arguments.\n", 
+				fprintf(stderr, "%s:%d: for(iterate, list) requires two arguments.\n",
 					parser.file.latin1(), parser.line_no);
 				return false;
 			    }
@@ -437,7 +437,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 				if(it_list != "ever") {
 				    delete iterator;
 				    iterator = 0;
-				    fprintf(stderr, "%s:%d: for(iterate, list) requires two arguments.\n", 
+				    fprintf(stderr, "%s:%d: for(iterate, list) requires two arguments.\n",
 					    parser.file.latin1(), parser.line_no);
 				    return false;
 				}
@@ -480,7 +480,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 			    if(*d == ')' && !*(d+1)) {
 				if(invert_test)
 				    test = !test;
-				scope_blocks.top().else_status = 
+				scope_blocks.top().else_status =
 				    (test ? ScopeBlock::TestFound : ScopeBlock::TestSeek);
 				return true;  /* assume we are done */
 			    }
@@ -520,7 +520,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     }
     var = var.trimmed();
 
-    if(!else_line || (else_line && !scope_failed)) 
+    if(!else_line || (else_line && !scope_failed))
 	scope_blocks.top().else_status = (!scope_failed ? ScopeBlock::TestFound : ScopeBlock::TestSeek);
     if(start_scope) {
 	ScopeBlock next_scope(scope_failed);
@@ -541,7 +541,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	return ret;
     }
 
-    if((!scope_count && !var.isEmpty()) || (scope_count == 1 && else_line)) 
+    if((!scope_count && !var.isEmpty()) || (scope_count == 1 && else_line))
 	scope_blocks.top().else_status = ScopeBlock::TestNone;
     if(scope_failed)
 	return true; /* oh well */
@@ -573,7 +573,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 #undef SKIP_WS
 
     doVariableReplace(vals, place);
-    doVariableReplace(var, place); 
+    doVariableReplace(var, place);
     var = varMap(var); //backwards compatability
     if(!var.isEmpty() && Option::mkfile::do_preprocess) {
 	static QString last_file("*none*");
@@ -862,7 +862,7 @@ QMakeProject::read(uchar cmd)
 	QStringList configs = vars["CONFIG"], processed = configs;
 	while(1) {
 	    debug_msg(1, "Processing CONFIG features");
-	    for(QStringList::ConstIterator it = configs.begin(); it != configs.end(); ++it) 
+	    for(QStringList::ConstIterator it = configs.begin(); it != configs.end(); ++it)
 		doProjectInclude((*it), true, vars);
 	    /* Process the CONFIG again to see if anything has been added (presumably by the feature files)
 	       We cannot handle them being removed, but we want to process those that are added! */
@@ -1079,7 +1079,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 	    feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
 	    if(const char *qtdir = getenv("QTDIR")) {
 		for(QStringList::Iterator concat_it = concat.begin();
-		    concat_it != concat.end(); ++concat_it) 
+		    concat_it != concat.end(); ++concat_it)
 		    feature_roots << (QString(qtdir) + mkspecs_concat + (*concat_it));
 	    }
 #ifdef QT_INSTALL_PREFIX
@@ -1237,17 +1237,17 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	    return false;
 	}
 #ifdef Q_OS_UNIX
-	for(QMap<QString, QStringList>::ConstIterator it = place.begin(); 
+	for(QMap<QString, QStringList>::ConstIterator it = place.begin();
 	    it != place.end(); ++it) {
-	    if(!it.key().startsWith(".")) 
+	    if(!it.key().startsWith("."))
 		setenv(Option::sysenv_mod + it.key(), it.value().join(" "), 1);
 	}
 #endif
 	bool ret = system(args.first().latin1()) == 0;
 #ifdef Q_OS_UNIX
-	for(QMap<QString, QStringList>::ConstIterator it = place.begin(); 
+	for(QMap<QString, QStringList>::ConstIterator it = place.begin();
 	    it != place.end(); ++it) {
-	    if(!it.key().startsWith(".")) 
+	    if(!it.key().startsWith("."))
 		putenv(const_cast<char*>(QString(Option::sysenv_mod + it.key()).ascii()));
 	}
 #endif
@@ -1345,9 +1345,10 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	file = Option::fixPathToLocalOS(file);
 	file.replace("\"", "");
 	bool ret = doProjectInclude(file, !include_statement, place, seek_var);
-	if(!ret && !ignore_error) {
+	if(!ret) {
 	    printf("Project LOAD(): Feature %s cannot be found.\n", file.latin1());
-	    exit(3);
+	    if (!ignore_error)
+		exit(3);
 	}
 	return ret;
     } else if(func == "error" || func == "message" || func == "warning") {
@@ -1546,14 +1547,14 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 				}
 			    }
 			    if(!ok)
-				fprintf(stderr, "%s:%d: member() argument 2 (start) '%s' invalid.\n", 
+				fprintf(stderr, "%s:%d: member() argument 2 (start) '%s' invalid.\n",
 					parser.file.latin1(), parser.line_no, start_str.latin1());
 			} else {
 			    end = start;
 			    if(arg_list.count() == 3)
 				end = arg_list[2].toInt(&ok);
 			    if(!ok)
-				fprintf(stderr, "%s:%d: member() argument 3 (end) '%s' invalid.\n", 
+				fprintf(stderr, "%s:%d: member() argument 3 (end) '%s' invalid.\n",
 					parser.file.latin1(), parser.line_no, arg_list[2].latin1());
 			}
 		    }
@@ -1613,7 +1614,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    replacement = arg_list.first().replace("\"", "");
 		    QStringList::Iterator arg_it = arg_list.begin();
 		    ++arg_it;
-		    for(; arg_it != arg_list.end(); ++arg_it) 
+		    for(; arg_it != arg_list.end(); ++arg_it)
 			replacement = replacement.arg((*arg_it).replace("\"", ""));
 		}
 	    } else if(val.toLower() == "join") {
@@ -1672,9 +1673,9 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			    parser.file.latin1(), parser.line_no);
 		} else {
 #ifdef Q_OS_UNIX
-		    for(QMap<QString, QStringList>::ConstIterator it = place.begin(); 
+		    for(QMap<QString, QStringList>::ConstIterator it = place.begin();
 			it != place.end(); ++it) {
-			if(!it.key().startsWith(".")) 
+			if(!it.key().startsWith("."))
 			    setenv(Option::sysenv_mod + it.key(), it.value().join(" "), 1);
 		    }
 #endif
@@ -1692,9 +1693,9 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			replacement += buff;
 		    }
 #ifdef Q_OS_UNIX
-		    for(QMap<QString, QStringList>::ConstIterator it = place.begin(); 
+		    for(QMap<QString, QStringList>::ConstIterator it = place.begin();
 			it != place.end(); ++it) {
-			if(!it.key().startsWith(".")) 
+			if(!it.key().startsWith("."))
 			    putenv(const_cast<char*>(QString(Option::sysenv_mod
 						     + it.key()).ascii()));
 		    }
