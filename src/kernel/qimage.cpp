@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#105 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#104 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#105 $");
 
 
 /*!
@@ -1002,7 +1002,7 @@ QImage QImage::convertDepth( int depth ) const
     return image;
 }
 
-#ifdef 0
+#if 0
 const QRgb QImage::pixel( int x, int y ) const
 {
     if ( x < 0 || y < 0 || x > width() || y > height() )
@@ -2660,27 +2660,29 @@ static void write_pbm_image( QImageIO *iio )
     str.sprintf("P\n%d %d\n", w, h);
 
     switch (image.depth()) {
-     case 1:
-	str.insert(1, '4');
-	if ((uint)out->writeBlock(str, str.length()) != str.length()) {
-	    iio->setStatus(1);
-	    return;
-	}
-	for (uint y=0; y<h; y++) {
-	    uchar* line = image.scanLine(y);
-	    if ( w != (uint)out->writeBlock((char*)line, w) ) {
+        case 1: {
+	    str.insert(1, '4');
+	    if ((uint)out->writeBlock(str, str.length()) != str.length()) {
 		iio->setStatus(1);
 		return;
 	    }
-	}
-    break; case 8:
-	str.insert(1, '6');
-	str.append("255\n");
-	if ((uint)out->writeBlock(str, str.length()) != str.length()) {
-	    iio->setStatus(1);
-	    return;
-	}
-	{
+	    for (uint y=0; y<h; y++) {
+		uchar* line = image.scanLine(y);
+	        if ( w != (uint)out->writeBlock((char*)line, w) ) {
+	    	    iio->setStatus(1);
+		    return;
+		}
+	    }
+	    }
+	    break;
+	
+	case 8: {
+	    str.insert(1, '6');
+	    str.append("255\n");
+	    if ((uint)out->writeBlock(str, str.length()) != str.length()) {
+		iio->setStatus(1);
+		return;
+	    }
 	    QRgb* color = image.colorTable();
 	    char* buf = new char[w*3];
 	    for (uint y=0; y<h; y++) {
@@ -2696,15 +2698,16 @@ static void write_pbm_image( QImageIO *iio )
 		    return;
 		}
 	    }
-	}
-    break; case 32:
-	str.insert(1, '6');
-	str.append("255\n");
-	if ((uint)out->writeBlock(str, str.length()) != str.length()) {
-	    iio->setStatus(1);
-	    return;
-	}
-	{
+	    }
+	    break;
+	
+	case 32: {
+	    str.insert(1, '6');
+	    str.append("255\n");
+	    if ((uint)out->writeBlock(str, str.length()) != str.length()) {
+		iio->setStatus(1);
+		return;
+	    }
 	    char* buf = new char[w*3];
 	    for (uint y=0; y<h; y++) {
 		ulong* line = (ulong*)image.scanLine(y);
@@ -2720,7 +2723,7 @@ static void write_pbm_image( QImageIO *iio )
 		    return;
 		}
 	    }
-	}
+	    }
     }
 
     iio->setStatus(0);
