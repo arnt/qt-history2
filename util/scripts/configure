@@ -40,6 +40,7 @@ DEBUG=no
 SHARED=yes
 GIF=no
 SM=no
+THREAD=no
 ZLIB=yes
 LIBPNG=yes
 JPEG=no
@@ -78,6 +79,12 @@ while [ -n "$1" ]; do
 	;;
    -sm)
        SM=yes
+	;;
+   -no-thread)
+       THREAD=no
+	;;
+   -thread)
+       THREAD=yes
 	;;
    -qt-zlib)
        ZLIB=yes
@@ -143,7 +150,7 @@ if [ "$HELP" = "yes" ]; then
    cat <<EOF
 Usage: $0 [-debug] [-release] [-gif] [-no-gif] [-sm] [-no-sm] \\
         [-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
-        [-no-jpeg] [-system-jpeg] \\
+        [-no-jpeg] [-system-jpeg] [-no-thread] [-thread] \\
         [-Istring] [-lstring] [-Lstring] \\
 
 The defaults (*) are usually acceptable.  Here is a short explanation of
@@ -160,6 +167,9 @@ each option:
 
  *  -no-sm ............. Do not support X Session Management.
     -sm ................ Support X Session Management, links in -lXSM -lICE.
+
+ *  -no-thread ......... Do not compile with Threading Support
+    -thread ............ Compile with Threading Support(links in -lpthread)
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
     -system-zlib ....... Use a zlib from the operating system
@@ -371,6 +381,7 @@ QT_CXX=""
 [ "x$JPEG" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_JPEG_SUPPORT"
 [ "x$NAS_SOUND" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_NAS_SUPPORT"
 [ "x$SM" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_SM_SUPPORT"
+[ "x$THREAD" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_QT_THREAD_SUPPORT"
 [ "x$ZLIB" = "xyes" ] && I_FLAGS="${I_FLAGS} -I\$(QTDIR)/src/3rdparty/zlib"
 [ "x$LIBPNG" = "xyes" ] && I_FLAGS="${I_FLAGS} -I\$(QTDIR)/src/3rdparty/libpng"
 
@@ -378,6 +389,7 @@ QT_LIBS=""
 QT_PNG=""
 QT_ZLIB=""
 [ "x$SM" = "xyes" ] && QT_LIBS="${QT_LIBS} -lICE -lSM"
+[ "x$THREAD" = "xyes" ] && QT_LIBS="${QT_LIBS} -lpthread"
 [ "x$ZLIB" = "xyes" ] && QT_ZLIB=' $(ZLIB_OBJECTS)'
 [ "x$LIBPNG" = "xyes" ] && QT_PNG=' $(PNG_OBJECTS)'
 [ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lz"
