@@ -115,7 +115,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     }
 
     switch (pd->devType()) {
-    case QInternal::Widget:
+	case QInternal::Widget:
 	{
 	    const QWidget *widget = static_cast<const QWidget *>(pd);
 	    Q_ASSERT(widget);
@@ -133,7 +133,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	    d->state->wh = d->state->vh = widget->height();
 	    break;
 	}
-    case QInternal::Pixmap:
+	case QInternal::Pixmap:
 	{
 	    const QPixmap *pm = static_cast<const QPixmap *>(pd);
 	    Q_ASSERT(pm);
@@ -141,7 +141,15 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	    d->state->wh = d->state->vh = pm->height();
 	    break;
 	}
+	case QInternal::ExternalDevice:
+	{
+	    d->state->ww = d->state->vw = pd->metric(QPaintDeviceMetrics::PdmWidth);
+	    d->state->wh = d->state->vh = pd->metric(QPaintDeviceMetrics::PdmHeight);
+	}
     }
+
+    if (d->state->ww == 0) // For compat with 3.x painter defaults
+        d->state->ww = d->state->wh = d->state->vw = d->state->vh = 1024;
 
     const QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
     if (rpd) {

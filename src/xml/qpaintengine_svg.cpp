@@ -585,8 +585,8 @@ bool QSVGPaintEngine::play(QPainter *pt)
 	Q_ASSERT(pt);
 	return false;
     }
-//     d->wwidth = 400;//pt->window().width();
-//     d->wheight = 400;//pt->window().height();
+    d->wwidth = pt->window().width();
+    d->wheight = pt->window().height();
 
     pt->setPen(Qt::NoPen); // SVG default pen and brush
     pt->setBrush(Qt::black);
