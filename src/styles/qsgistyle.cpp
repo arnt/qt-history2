@@ -53,7 +53,7 @@
 #include "qslider.h"
 #include <limits.h>
 
-class QSGIStylePrivate 
+class QSGIStylePrivate
 {
 public:
     QSGIStylePrivate()
@@ -232,8 +232,6 @@ QSGIStyle::polish( QWidget* w )
 void
 QSGIStyle::unPolish( QWidget* w )
 {
-    w->unsetPalette( );
-
     if ( w->inherits("QButton") || w->inherits("QSlider") || w->inherits("QScrollBar") )
         w->removeEventFilter( this );
 }
@@ -1273,7 +1271,7 @@ QSGIStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     }
 }
 
-/*! \reimp
+*! \reimp
 *
 int QSGIStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi,
                                     const QFontMetrics& fm ) const
