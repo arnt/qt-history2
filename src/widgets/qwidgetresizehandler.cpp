@@ -57,7 +57,9 @@ QWidgetResizeHandler::QWidgetResizeHandler( QWidget *parent, QWidget *cw, const 
       extrahei( 0 ), buttonDown( FALSE ), moveResizeMode( FALSE ), sizeprotect( TRUE ), moving( TRUE ), 
       showContents( TRUE )
 {
-#ifdef Q_WS_WIN
+#if defined(Q_OS_TEMP)
+    showContents = TRUE;
+#elif defined(Q_WS_WIN)
     BOOL dfw;
     SystemParametersInfo( SPI_GETDRAGFULLWINDOWS, 0, &dfw, 0 );
     showContents = dfw;
