@@ -4466,7 +4466,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
     // otherwise)
     QChar* uc = (QChar*) qstr.unicode();
     for ( int ii = 0; ii < qstr.length(); ii++ )
-	if ( uc[(int)ii]== '\n' || uc[(int)ii] == QChar_linesep || uc[(int)ii] == '\t' )
+	if ( uc[(int)ii]== '\n' || uc[(int)ii] == '\t' )
 	    uc[(int)ii] = 0x20;
 
     int line = -1;
@@ -4661,7 +4661,9 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 
     QPainter::TextDirection dir = rightToLeft ? QPainter::RTL : QPainter::LTR;
 
-    if ( dir != QPainter::RTL && start + len == length() ) // don't draw the last character (trailing space)
+    if (len && dir != QPainter::RTL && start + len == length() ) // don't draw the last character (trailing space)
+	len--;
+    if (len && str.unicode()[start+len-1] == QChar_linesep)
 	len--;
 
 
@@ -4718,7 +4720,7 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 		extendRight = (fullSelectionWidth != 0);
  		if (!extendRight && !rightToLeft)
 		    tmpw += painter.fontMetrics().width(' ');
-	    } 
+	    }
 	    if (fullSelectionWidth && (selStart == 0 || this->str->at(selStart).lineStart)) {
 		extendLeft = TRUE;
 	    }
@@ -4731,7 +4733,7 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 		extendRight = tmp;
 	    }
 
-	    if ((selStart < selEnd || 
+	    if ((selStart < selEnd ||
 		 (fullSelected(0) && fullSelectionWidth && extendRight)) &&
 		// don't draw the standard selection on a printer=
 		(it.key() != QTextDocument::Standard || !is_printer( &painter))) {
@@ -5441,7 +5443,7 @@ QTextFormatterBreakInWords::QTextFormatterBreakInWords()
 {
 }
 
-#define SPACE(s) s /*doc?(s>0?s:0):s*/
+#define SPACE(s) s
 
 int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParagraph *parag,
 					int start, const QMap<int, QTextLineStart*> & )
@@ -5686,7 +5688,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 #ifndef QT_NO_TEXTCUSTOMITEM
 	QTextCustomItem* ci = c->customItem();
 	if ( c->isCustom() && ci->ownLine() ) {
-	    QTextLineStart *lineStart2 = formatLine( parag, string, lineStart, firstChar, c-1, align, SPACE(w - x) );
+	    QTextLineStart *lineStart2 = formatLine( parag, string, lineStart, firstChar, c-1, align, SPACE(w - x - ww) );
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 	    ci->resize(w - x);
@@ -5789,7 +5791,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
   		DO_FLOW( lineStart );
 		c->x = x;
 		i = lastBreak;
-		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ),align, SPACE(w - string->at( i ).x) );
+		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ),align, SPACE(w - string->at( i+1 ).x) );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 		if ( !doc && c->c == '\t' ) { // qt_format_text tab handling
