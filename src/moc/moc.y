@@ -178,7 +178,7 @@ QCString uTypeExtra( QCString ctype )
 	if ( raw == "char" )
 	    ;
 	else if ( isVariantType( raw ) )
-	    typeExtra.sprintf(" %d", qvariant_nameToType( raw ) );
+	    typeExtra.sprintf("qt_variant_types+%d", qvariant_nameToType( raw ) );
 	else
 	    typeExtra.sprintf( "\"%s\"", raw.stripWhiteSpace().data() );
 
@@ -2913,7 +2913,7 @@ void generateClass()		      // generate C++ source code for a class
 		 " this version of Qt.\"\n#error \"(The moc has changed too"
 		 " much.)\"\n", QT_VERSION_STR );
 	fprintf( out, "#endif\n\n" );
-	fprintf( out, "extern Q_EXPORT const int qt_variant_types[];\n" );
+	fprintf( out, "extern const int qt_variant_types[];\n" );
     } else {
 	fprintf( out, "\n\n" );
     }
