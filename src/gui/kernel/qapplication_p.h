@@ -104,8 +104,11 @@ public:
     QApplicationPrivate(int &argc, char **argv, QApplication::Type type);
     ~QApplicationPrivate();
 
+#if defined(Q_WS_X11)
     static bool x11_apply_settings();
-
+#elif defined(Q_WS_QWS)
+    static bool qws_apply_settings();
+#endif
     static bool quitOnLastWindowClosed;
     static void emitLastWindowClosed();
 
