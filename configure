@@ -22,7 +22,8 @@ HELP=
 
 if [ "$relpath" != `pwd` ]; then
     outpath=`pwd`
-    QMAKE_VARS="$QMAKE_VARS \"DEPENDPATH=$outpath/src/tools\"" #let qmake see it for qconfig/qmodules.h
+    #let qmake see qconfig/qmodules.h
+    QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=$outpath/src/tools\" \"DEPENDPATH+=$outpath/src/tools\"" 
 else
     touch .test.qt.
     if [ '!' -f ${QTDIR}/.test.qt. ];
