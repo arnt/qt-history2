@@ -75,6 +75,7 @@ inline QChar::Direction direction( const QChar &c )
     const Q_UINT8 *rowp = QUnicodeTables::direction_info[c.row()];
     return (QChar::Direction) ( *(rowp+c.cell()) & 0x1f );
 #else
+    Q_UNUSED(c);
     return QChar::DirL;
 #endif
 }
@@ -85,6 +86,7 @@ inline bool mirrored( const QChar &c )
     const Q_UINT8 *rowp = QUnicodeTables::direction_info[c.row()];
     return *(rowp+c.cell())>128;
 #else
+    Q_UNUSED(c);
     return FALSE;
 #endif
 }
@@ -112,6 +114,7 @@ inline QChar::Joining joining( const QChar &ch )
     const Q_UINT8 *rowp = QUnicodeTables::direction_info[ch.row()];
     return (QChar::Joining) ((*(rowp+ch.cell()) >> 5) &0x3);
 #else
+    Q_UNUSED(ch);
     return QChar::OtherJoining;
 #endif
 }
@@ -128,6 +131,7 @@ inline unsigned char combiningClass( const QChar &ch )
     const Q_UINT8 *rowp = QUnicodeTables::combining_info[ch.row()];
     return *(rowp+ch.cell());
 #else
+    Q_UNUSED(ch);
     return 0;
 #endif
 }
