@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#21 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#22 $
 **
 ** Defintion of  QSplitter class
 **
@@ -67,6 +67,8 @@ protected:
 
     void layoutHintEvent( QEvent * );
     void resizeEvent( QResizeEvent * );
+
+    int idAfter( QWidget* ) const;
 
     void moveSplitter( QCOORD pos, int id );
     virtual void drawSplitter( QPainter*, QCOORD x, QCOORD y,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#50 $
 **
 **  Splitter widget
 **
@@ -44,7 +44,7 @@ public:
     QSize sizeHint() const;
     QSizePolicy sizePolicy() const;
 
-    int id() const { return myId; }
+    int id() const { return myId; } // data->list.at(id())->wid == this
     void setId( int i ) { myId = i; }
 
 protected:
@@ -445,9 +445,29 @@ void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD 
 }
 
 /*!
-  Moves the left/top edge of the splitter handle with id \a \id as close as possible to
+  Returns the id of the splitter to the right of or below the widget \a w,
+  or 0 if there is no such splitter.
+  (ie. it is either not in this QSplitter, or it is at the end).
+*/
+int QSplitter::idAfter( QWidget* w ) const
+{
+    QSplitterLayoutStruct *s = data->list.first();
+    bool seen_w = FALSE;
+    while ( s ) {
+	if ( s->isSplitter && seen_w )
+	    return data->list.at();
+	if ( !s->isSplitter && s->wid == w )
+	    seen_w = TRUE;
+	s = data->list.next();
+    }
+    return 0;
+}
+
+/*!
+  Moves the left/top edge of the splitter handle with id \a id as close as possible to
   \a p which is the distance from the left (or top) edge of the widget.
 
+  \sa idAfter()
 */
 void QSplitter::moveSplitter( QCOORD p, int id )
 {
@@ -474,6 +494,8 @@ void QSplitter::setG( QWidget *w, int p, int s )
 
 /*!
   Places the right/bottom edge of the widget at \a id at position \a pos.
+
+  \sa idAfter()
 */
 void QSplitter::moveBefore( int pos, int id, bool upLeft )
 {
@@ -504,6 +526,8 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
 
 /*!
   Places the left/top edge of the widget at \a id at position \a pos.
+
+  \sa idAfter()
 */
 void QSplitter::moveAfter( int pos, int id, bool upLeft )
 {
@@ -536,6 +560,8 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 
 /*!
   Returns the valid range of the splitter with id \a id in \a min and \a max.
+
+  \sa idAfter()
  */
 void QSplitter::getRange( int id, int *min, int *max )
 {
@@ -577,8 +603,9 @@ void QSplitter::getRange( int id, int *min, int *max )
 
 /*!
   Returns the legal position closest to \a p of the splitter with id \a id.
-*/
 
+  \sa idAfter()
+*/
 int QSplitter::adjustPos( int p, int id )
 {
     int min = 0;
