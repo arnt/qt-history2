@@ -60,7 +60,7 @@ QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &op
 */
 
 ItemViewContainer::ItemViewContainer(QAbstractItemView *itemView, QComboBox *parent)
-    : QFrame(parent), combo(parent), view(0), top(0), bottom(0)
+    : QFrame(parent, Qt::Popup), combo(parent), view(0), top(0), bottom(0)
 {
     // we need the combobox
     Q_ASSERT(parent);
@@ -508,7 +508,6 @@ void QComboBoxPrivate::init()
     Q_Q(QComboBox);
     QListView *l = new QListView(0);
     container = new ItemViewContainer(l, q);
-    container->setParent(q, Qt::Popup);
     q->setModel(new QStandardItemModel(0, 1, q));
     q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
