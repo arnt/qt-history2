@@ -2685,7 +2685,8 @@ struct qt_truple
 
 
 /*!
-  Draws at most \a len characters from \a str at position \a (x,y).
+  Draws at most \a len characters starting at position \a pos fomr the string \a str to
+  position \a (x,y).
 
   \a (x,y) is the base line position.  Note that the meaning of \a y
   is not the same for the two drawText() varieties.
