@@ -104,7 +104,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
         if(!is.isNull())
             const_cast<QMenuPrivate *>(this)->maxIconWidth =
                 qMax(maxIconWidth,
-                     (uint)is.pixmap(QIcon::Small, QIcon::Normal).width() + 4);
+                     (uint)is.pixmap(Qt::SmallIconSize, QIcon::Normal).width() + 4);
     }
 
     //calculate size
@@ -141,7 +141,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
 
             QIcon is = action->icon();
             if(!is.isNull()) {
-                QSize is_sz = is.pixmap(QIcon::Small, QIcon::Normal).size();
+                QSize is_sz = is.pixmap(Qt::SmallIconSize, QIcon::Normal).size();
                 if(is_sz.height() > sz.height())
                     sz.setHeight(is_sz.height());
             }

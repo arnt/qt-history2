@@ -116,23 +116,23 @@ public:
     }
     ~QIconPrivate() {}
 
-    QIconVariant *iconVariant(const QIcon *icon, QIcon::Size size, QIcon::Mode mode,
+    QIconVariant *iconVariant(const QIcon *icon, Qt::IconSize size, QIcon::Mode mode,
                               QIcon::State state);
-    QPixmap generatePixmap(const QIcon *icon, QIcon::Size size, QIcon::Mode mode,
+    QPixmap generatePixmap(const QIcon *icon, Qt::IconSize size, QIcon::Mode mode,
                            QIcon::State state);
 
     Q_DUMMY_COMPARISON_OPERATOR(QIconPrivate)
 
-    void normalize(QIcon::Size &which, const QSize &pixSize);
-    QPixmap *createScaled(QIcon::Size size, const QPixmap *suppliedPix);
-    QPixmap *createIcon(const QIcon *icon, QIcon::Size size, QIcon::Mode mode,
+    void normalize(Qt::IconSize &which, const QSize &pixSize);
+    QPixmap *createScaled(Qt::IconSize size, const QPixmap *suppliedPix);
+    QPixmap *createIcon(const QIcon *icon, Qt::IconSize size, QIcon::Mode mode,
                         QIcon::State state);
 
-    static QPixmap *defaultGenerator(const QIcon &icon, QIcon::Size size, QIcon::Mode mode,
+    static QPixmap *defaultGenerator(const QIcon &icon, Qt::IconSize size, QIcon::Mode mode,
                                      QIcon::State state);
 };
 
-QIconVariant *QIconPrivate::iconVariant(const QIcon *icon, QIcon::Size size, QIcon::Mode mode,
+QIconVariant *QIconPrivate::iconVariant(const QIcon *icon, Qt::IconSize size, QIcon::Mode mode,
                                         QIcon::State state)
 {
     QIconVariant *variant = &iconVariants[(int)size - 1][(int)mode][(int)state];
@@ -171,11 +171,11 @@ QIconVariant *QIconPrivate::iconVariant(const QIcon *icon, QIcon::Size size, QIc
     return variant;
 }
 
-QPixmap QIconPrivate::generatePixmap(const QIcon *icon, QIcon::Size size, QIcon::Mode mode,
+QPixmap QIconPrivate::generatePixmap(const QIcon *icon, Qt::IconSize size, QIcon::Mode mode,
                                      QIcon::State state)
 {
-    if (size == QIcon::Automatic)
-        size = QIcon::Small;
+    if (size == Qt::AutomaticIconSize)
+        size = Qt::SmallIconSize;
 
     QIconVariant *variant = iconVariant(icon, size, mode, state);
     if (variant->pixmap)
@@ -190,7 +190,7 @@ QPixmap QIconPrivate::generatePixmap(const QIcon *icon, QIcon::Size size, QIcon:
         return QPixmap();
     }
 
-    QIcon::Size otherSize = (size == QIcon::Large) ? QIcon::Small : QIcon::Large;
+    Qt::IconSize otherSize = (size == Qt::LargeIconSize) ? Qt::SmallIconSize : Qt::LargeIconSize;
     QIconVariant *otherSizeIcon = iconVariant(icon, otherSize, mode, state);
 
     if (state == QIcon::Off) {
@@ -271,24 +271,24 @@ QPixmap QIconPrivate::generatePixmap(const QIcon *icon, QIcon::Size size, QIcon:
     return QPixmap();
 }
 
-void QIconPrivate::normalize(QIcon::Size &which, const QSize &pixSize)
+void QIconPrivate::normalize(Qt::IconSize &which, const QSize &pixSize)
 {
-    if (which == QIcon::Automatic)
-        which = pixSize.width() > widths[QIcon::Small - 1] ? QIcon::Large : QIcon::Small;
+    if (which == Qt::AutomaticIconSize)
+        which = pixSize.width() > widths[Qt::SmallIconSize - 1] ? Qt::LargeIconSize : Qt::SmallIconSize;
 }
 
 /*
     Returns a new pixmap that is a copy of \a suppliedPix, scaled to
     the icon size \a size.
 */
-QPixmap *QIconPrivate::createScaled(QIcon::Size size, const QPixmap *suppliedPix)
+QPixmap *QIconPrivate::createScaled(Qt::IconSize size, const QPixmap *suppliedPix)
 {
     if (!suppliedPix || suppliedPix->isNull())
         return 0;
 
     QImage img = suppliedPix->toImage();
     QSize imgSize(widths[size - 1], heights[size - 1]);
-    if (size == QIcon::Small) {
+    if (size == Qt::SmallIconSize) {
         imgSize = imgSize.boundedTo(img.size());
     } else {
         imgSize = imgSize.expandedTo(img.size());
@@ -308,7 +308,7 @@ QPixmap *QIconPrivate::createScaled(QIcon::Size size, const QPixmap *suppliedPix
     Returns a new pixmap that has a mode \a mode look, taking as its
     base the pixmap with size \a size and state \a state.
 */
-QPixmap *QIconPrivate::createIcon(const QIcon *icon, QIcon::Size size, QIcon::Mode mode,
+QPixmap *QIconPrivate::createIcon(const QIcon *icon, Qt::IconSize size, QIcon::Mode mode,
                                   QIcon::State state)
 {
     Q_ASSERT_X(mode != QIcon::Normal, "QIconPrivate::createIcon", "Mode cannot be \"Normal\"");
@@ -324,7 +324,7 @@ QPixmap *QIconPrivate::createIcon(const QIcon *icon, QIcon::Size size, QIcon::Mo
     return new QPixmap(pix);
 }
 
-QPixmap *QIconPrivate::defaultGenerator(const QIcon &, QIcon::Size, QIcon::Mode, QIcon::State)
+QPixmap *QIconPrivate::defaultGenerator(const QIcon &, Qt::IconSize, QIcon::Mode, QIcon::State)
 {
     return 0;
 }
@@ -400,7 +400,7 @@ QPixmap *QIconPrivate::defaultGenerator(const QIcon &, QIcon::Size, QIcon::Mode,
   \code
     void MyWidget::drawIcon(QPainter *painter, QPoint pos)
     {
-        QPixmap pixmap = icons->pixmap(QIcon::Small,
+        QPixmap pixmap = icons->pixmap(Qt::SmallIconSize,
                                        isEnabled() ? QIcon::Normal
                                                    : QIcon::Disabled,
                                        isOn() ? QIcon::On
@@ -508,7 +508,7 @@ QIcon::QIcon()
 
   \sa setPixmapSize() reset()
 */
-QIcon::QIcon(const QPixmap &pixmap, Size size)
+QIcon::QIcon(const QPixmap &pixmap, Qt::IconSize size)
     : d(0)
 {
     reset(pixmap, size);
@@ -521,8 +521,8 @@ QIcon::QIcon(const QPixmap &pixmap, Size size)
 QIcon::QIcon(const QPixmap &smallPix, const QPixmap &largePix)
     : d(0)
 {
-    reset(smallPix, Small);
-    reset(largePix, Large);
+    reset(smallPix, Qt::SmallIconSize);
+    reset(largePix, Qt::LargeIconSize);
 }
 
 /*!
@@ -553,7 +553,7 @@ QIcon::~QIcon()
 
   This function does nothing if \a pixmap is a null pixmap.
 */
-void QIcon::reset(const QPixmap &pixmap, Size size)
+void QIcon::reset(const QPixmap &pixmap, Qt::IconSize size)
 {
     if (pixmap.isNull())
         return;
@@ -581,7 +581,7 @@ void QIcon::reset(const QPixmap &pixmap, Size size)
 
   \sa reset()
 */
-void QIcon::setPixmap(const QPixmap &pixmap, Size size, Mode mode, State state)
+void QIcon::setPixmap(const QPixmap &pixmap, Qt::IconSize size, Mode mode, State state)
 {
     if (pixmap.isNull())
         return;
@@ -608,9 +608,9 @@ void QIcon::setPixmap(const QPixmap &pixmap, Size size, Mode mode, State state)
 
   The pixmap is loaded from \a fileName when it becomes necessary.
 */
-void QIcon::setPixmap(const QString &fileName, Size size, Mode mode, State state)
+void QIcon::setPixmap(const QString &fileName, Qt::IconSize size, Mode mode, State state)
 {
-    if (size == Automatic) {
+    if (size == Qt::AutomaticIconSize) {
         setPixmap(QPixmap(fileName), size, mode, state);
     } else {
         detach();
@@ -630,7 +630,7 @@ void QIcon::setPixmap(const QString &fileName, Size size, Mode mode, State state
   Returns a pixmap with the required \a size, \a mode, and \a state,
   generating one if necessary. Generated pixmaps are cached.
 */
-QPixmap QIcon::pixmap(Size size, Mode mode, State state) const
+QPixmap QIcon::pixmap(Qt::IconSize size, Mode mode, State state) const
 {
     if (!d) {
         if (defaultGeneratorFn != QIconPrivate::defaultGenerator) {
@@ -650,7 +650,7 @@ QPixmap QIcon::pixmap(Size size, Mode mode, State state) const
 
     This is the same as pixmap(\a size, \a enabled, \a state).
 */
-QPixmap QIcon::pixmap(Size size, bool enabled, State state) const
+QPixmap QIcon::pixmap(Qt::IconSize size, bool enabled, State state) const
 {
     return pixmap(size, enabled ? Normal : Disabled, state);
 }
@@ -675,7 +675,7 @@ QPixmap QIcon::pixmap() const
   state \a state is generated from other pixmaps; otherwise returns
   false.
 */
-bool QIcon::isGenerated(Size size, Mode mode, State state) const
+bool QIcon::isGenerated(Qt::IconSize size, Mode mode, State state) const
 {
     if (!d)
         return true;
@@ -779,7 +779,7 @@ QIcon &QIcon::operator=(const QIcon &other)
 
   \sa pixmapSize()
 */
-void QIcon::setPixmapSize(Size which, const QSize &size)
+void QIcon::setPixmapSize(Qt::IconSize which, const QSize &size)
 {
     widths[(int)which - 1] = size.width();
     heights[(int)which - 1] = size.height();
@@ -792,7 +792,7 @@ void QIcon::setPixmapSize(Size which, const QSize &size)
 
   \sa setPixmapSize()
 */
-QSize QIcon::pixmapSize(Size which)
+QSize QIcon::pixmapSize(Qt::IconSize which)
 {
     return QSize(widths[(int)which - 1], heights[(int)which - 1]);
 }

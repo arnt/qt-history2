@@ -874,7 +874,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
                 QIcon::State state = QIcon::Off;
                 if (btn->isCheckable() && btn->isChecked())
                     state = QIcon::On;
-                QPixmap pixmap = btn->icon().pixmap(QIcon::Small, mode, state);
+                QPixmap pixmap = btn->icon().pixmap(Qt::SmallIconSize, mode, state);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 p->drawPixmap(x + 2, y + h / 2 - pixh / 2, pixmap);

@@ -1219,7 +1219,7 @@ QSize QPocketPCStyle::sizeFromContents(ContentsType           contents,
                              2*CE_ITEMFRAME);
 
                 if (mi->iconSet() != 0)
-                    h = qMax(h, mi->iconSet()->pixmap(QIcon::Small,
+                    h = qMax(h, mi->iconSet()->pixmap(Qt::SmallIconSize,
                                                       QIcon::Normal).height() +
                              2*CE_ITEMFRAME);
             }
@@ -2397,9 +2397,9 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                     mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 if (act && !dis && !mi->isChecked())
@@ -2540,7 +2540,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 break;
 
             QAction *mi = opt.action();
-            QPixmap pix = mi->icon().pixmap(QIcon::Small, QIcon::Normal);
+            QPixmap pix = mi->icon().pixmap(Qt::SmallIconSize, QIcon::Normal);
             drawItem(p, r, Qt::AlignCenter|Qt::TextShowMnemonic|Qt::TextDontClip|Qt::TextSingleLine, pal,
                       mi->isEnabled(), pix.isNull() ? 0 : &pix, mi->text(), -1,
                       &pal.color(QPalette::ButtonText));
@@ -2779,7 +2779,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 if (button->isToggleButton() && button->isOn())
                     state = QIcon::On;
 
-                QPixmap pixmap = button->iconSet()->pixmap(QIcon::Small, mode, state);
+                QPixmap pixmap = button->iconSet()->pixmap(Qt::SmallIconSize, mode, state);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
 
@@ -2844,8 +2844,8 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                              toolbutton->text().length(), &btext);
                 } else {
                     QPixmap pm;
-                    QIcon::Size size =
-                        toolbutton->usesBigPixmap() ? QIcon::Large : QIcon::Small;
+                    Qt::IconSize size =
+                        toolbutton->usesBigPixmap() ? Qt::LargeIconSize : Qt::SmallIconSize;
                     QIcon::State state =
                         toolbutton->isOn() ? QIcon::On : QIcon::Off;
                     QIcon::Mode mode;
@@ -2899,7 +2899,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 
                 QIcon* icon = header->iconSet(section);
                 if (icon) {
-                    QPixmap pixmap = icon->pixmap(QIcon::Small,
+                    QPixmap pixmap = icon->pixmap(Qt::SmallIconSize,
                                                 flags & Style_Enabled ?
                                                 QIcon::Normal : QIcon::Disabled);
                     int pixw = pixmap.width();

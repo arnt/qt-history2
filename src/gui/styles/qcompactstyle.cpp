@@ -99,7 +99,7 @@ static int popupMenuItemHeight(bool /*checkable*/, Q3MenuItem* mi, const QFontMe
         h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame - 1;
 
     if (!mi->isSeparator() && mi->iconSet() != 0) {
-        h = qMax(h, mi->iconSet()->pixmap(QIcon::Small, QIcon::Normal).height() + 2*motifItemFrame);
+        h = qMax(h, mi->iconSet()->pixmap(Qt::SmallIconSize, QIcon::Normal).height() + 2*motifItemFrame);
     }
     if (mi->custom())
         h = qMax(h, mi->custom()->sizeHint().height() + 2*motifItemVMargin + 2*motifItemFrame) - 1;
@@ -179,9 +179,9 @@ void QCompactStyle::drawControl(ControlElement element, QPainter *p, const QWidg
                     mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 if (act && !dis) {

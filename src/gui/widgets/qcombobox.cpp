@@ -973,7 +973,7 @@ QPixmap QComboBox::pixmap(int row) const
     QStyleOptionComboBox opt = d->getStyleOption();
     QModelIndex index = model()->index(row, 0, root());
     return model()->data(d->currentIndex, QAbstractItemModel::DecorationRole).toIconSet()
-        .pixmap(QIcon::Automatic,
+        .pixmap(Qt::AutomaticIconSize,
                 opt.state & QStyle::Style_Enabled ? QIcon::Normal : QIcon::Disabled);
 }
 

@@ -131,7 +131,7 @@ QSize QToolBoxButton::sizeHint() const
 {
     QSize iconSize(8, 8);
     if (!icon().isNull())
-        iconSize += icon().pixmap(QIcon::Small, QIcon::Normal).size() + QSize(2, 0);
+        iconSize += icon().pixmap(Qt::SmallIconSize, QIcon::Normal).size() + QSize(2, 0);
     QSize textSize = fontMetrics().size(Qt::TextShowMnemonic, text()) + QSize(0, 8);
 
     QSize total(iconSize.width() + textSize.width(), qMax(iconSize.height(), textSize.height()));
@@ -142,7 +142,7 @@ QSize QToolBoxButton::minimumSizeHint() const
 {
     if (icon().isNull())
         return QSize();
-    return QSize(8, 8) + icon().pixmap(QIcon::Small, QIcon::Normal).size();
+    return QSize(8, 8) + icon().pixmap(Qt::SmallIconSize, QIcon::Normal).size();
 }
 
 void QToolBoxButton::paintEvent(QPaintEvent *)
@@ -161,7 +161,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     opt.icon = icon();
     style()->drawControl(QStyle::CE_ToolBoxTab, &opt, p, parentWidget());
 
-    QPixmap pm = icon().pixmap(QIcon::Small, isEnabled() ? QIcon::Normal : QIcon::Disabled);
+    QPixmap pm = icon().pixmap(Qt::SmallIconSize, isEnabled() ? QIcon::Normal : QIcon::Disabled);
 
     QRect cr = style()->subRect(QStyle::SR_ToolBoxTabContents, &opt, fontMetrics(), this);
     QRect tr, ir;

@@ -1028,9 +1028,9 @@ void QSGIStyle::drawControl(ControlElement element,
                     mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->icon().pixmap(QIcon::Small, mode, QIcon::On);
+                    pixmap = mi->icon().pixmap(Qt::SmallIconSize, mode, QIcon::On);
                 else
-                    pixmap = mi->icon().pixmap(QIcon::Small, mode);
+                    pixmap = mi->icon().pixmap(Qt::SmallIconSize, mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
@@ -1158,9 +1158,9 @@ void QSGIStyle::drawControl(ControlElement element,
                     mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
@@ -1265,7 +1265,7 @@ void QSGIStyle::drawControl(ControlElement element,
 
             QAction *mi = opt.action();
             if (!mi->icon().isNull()) {
-                QPixmap pix = mi->icon().pixmap(QIcon::Small, QIcon::Normal);
+                QPixmap pix = mi->icon().pixmap(Qt::SmallIconSize, QIcon::Normal);
                 drawItem(p, r, Qt::AlignCenter|Qt::TextDontClip|Qt::TextSingleLine,
                         pal, mi->isEnabled(), pix, "", -1, &pal.buttonText().color());
             }

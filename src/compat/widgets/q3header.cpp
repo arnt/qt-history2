@@ -1074,7 +1074,7 @@ QSize Q3Header::sectionSizeHint(int section, const QFontMetrics& fm) const
     int iw = 0;
     int ih = 0;
     if (d->icons[section] != 0) {
-        QSize isize = d->icons[section]->pixmap(QIcon::Small,
+        QSize isize = d->icons[section]->pixmap(Qt::SmallIconSize,
                                                     QIcon::Normal).size();
         iw = isize.width() + 2;
         ih = isize.height();

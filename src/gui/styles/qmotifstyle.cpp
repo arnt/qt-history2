@@ -1062,9 +1062,9 @@ void QMotifStyle::drawControl(ControlElement element,
                 mode = QIcon::Active;
             QPixmap pixmap;
             if (checkable && mi->isChecked())
-                pixmap = is.pixmap(QIcon::Small, mode, QIcon::On);
+                pixmap = is.pixmap(Qt::SmallIconSize, mode, QIcon::On);
             else
-                pixmap = is.pixmap(QIcon::Small, mode);
+                pixmap = is.pixmap(Qt::SmallIconSize, mode);
 
             int pixw = pixmap.width();
             int pixh = pixmap.height();
@@ -1201,9 +1201,9 @@ void QMotifStyle::drawControl(ControlElement element,
                     mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();

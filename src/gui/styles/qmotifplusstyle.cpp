@@ -674,7 +674,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
             drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled,
-                     !checkbox->icon().isNull() ? checkbox->icon().pixmap(QIcon::Small,
+                     !checkbox->icon().isNull() ? checkbox->icon().pixmap(Qt::SmallIconSize,
                                                                           QIcon::Normal)
                                                 : QPixmap(),
                      checkbox->text());
@@ -703,7 +703,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
             drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled,
-                    !radiobutton->icon().isNull() ? radiobutton->icon().pixmap(QIcon::Small,
+                    !radiobutton->icon().isNull() ? radiobutton->icon().pixmap(Qt::SmallIconSize,
                                                                                QIcon::Normal)
                                                   : QPixmap(),
                      radiobutton->text());
@@ -728,7 +728,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 p->fillRect(r, pal.button());
 
             QAction *mi = opt.action();
-            QPixmap pix = mi->icon().pixmap(QIcon::Small, QIcon::Normal);
+            QPixmap pix = mi->icon().pixmap(Qt::SmallIconSize, QIcon::Normal);
             drawItem(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
                      pal, flags & Style_Enabled, pix, mi->text(), -1,
                      &pal.buttonText().color());
@@ -814,9 +814,9 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
                 QPixmap pixmap;
                 if(checkable && mi->isChecked())
-                    pixmap = mi->icon().pixmap(QIcon::Small, mode, QIcon::On);
+                    pixmap = mi->icon().pixmap(Qt::SmallIconSize, mode, QIcon::On);
                 else
-                    pixmap = mi->icon().pixmap(QIcon::Small, mode);
+                    pixmap = mi->icon().pixmap(Qt::SmallIconSize, mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
@@ -939,9 +939,9 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();

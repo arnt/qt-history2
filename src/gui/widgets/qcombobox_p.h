@@ -150,7 +150,7 @@ private:
         menuOption.maxIconWidth = 0;
         if (!menuOption.icon.isNull())
             menuOption.maxIconWidth
-                = menuOption.icon.pixmap(QIcon::Small, QIcon::Normal).width() + 4;
+                = menuOption.icon.pixmap(Qt::SmallIconSize, QIcon::Normal).width() + 4;
         menuOption.menuRect = option.rect;
         menuOption.rect = option.rect;
         return menuOption;

@@ -626,7 +626,7 @@ QSize QTabBar::minimumSizeHint() const
 QSize QTabBar::tabSizeHint(int index) const
 {
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {
-        QSize iconSize = tab->icon.pixmapSize(QIcon::Small);
+        QSize iconSize = tab->icon.pixmapSize(Qt::SmallIconSize);
         const QFontMetrics fm = fontMetrics();
         QSize csz(fm.width(tab->text) + iconSize.width() + 5,
                   qMax(fm.height() + 10, iconSize.height()));

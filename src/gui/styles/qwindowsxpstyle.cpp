@@ -1259,9 +1259,9 @@ void QWindowsXPStyle::drawControl(ControlElement element,
                     mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode, QIcon::On);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(QIcon::Small, mode);
+                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 if (act && !dis && !mi->isChecked())
@@ -1385,7 +1385,7 @@ void QWindowsXPStyle::drawControl(ControlElement element,
                 p->fillRect(r, pal.brush(QPalette::Button));
 
             QAction *mi = opt.action();
-            QPixmap pix = mi->icon().pixmap(QIcon::Small, QIcon::Normal);
+            QPixmap pix = mi->icon().pixmap(Qt::SmallIconSize, QIcon::Normal);
             drawItem(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine, pal,
                      flags & Style_Enabled, pix, mi->text(), -1,
                      flags & Style_Active ? &pal.highlightedText().color() : &pal.buttonText().color());
@@ -2563,7 +2563,7 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType contents,
                              2*windowsItemFrame);
 
                 if (mi->iconSet() != 0)
-                    h = qMax(h, mi->iconSet()->pixmap(QIcon::Small,
+                    h = qMax(h, mi->iconSet()->pixmap(Qt::SmallIconSize,
                                                       QIcon::Normal).height() +
                              2*windowsItemFrame);
             }

@@ -80,21 +80,21 @@ public:
 
 QFileIconProviderPrivate::QFileIconProviderPrivate()
 {
-    file.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_FileIcon), QIcon::Small);
+    file.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_FileIcon), Qt::SmallIconSize);
     fileLink.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_FileLinkIcon),
-                       QIcon::Small);
+                       Qt::SmallIconSize);
 
     dir.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DirOpenIcon),
-                  QIcon::Small, QIcon::Normal, QIcon::On);
-    dir.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DirClosedIcon), QIcon::Small,
+                  Qt::SmallIconSize, QIcon::Normal, QIcon::On);
+    dir.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DirClosedIcon), Qt::SmallIconSize,
                   QIcon::Normal, QIcon::Off);
-    dirLink.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DirLinkIcon), QIcon::Small,
+    dirLink.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DirLinkIcon), Qt::SmallIconSize,
                       QIcon::Normal, QIcon::On);
 
     driveHD.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_DriveHDIcon),
-                      QIcon::Small);
+                      Qt::SmallIconSize);
     computer.setPixmap(QApplication::style()->standardPixmap(QStyle::SP_ComputerIcon),
-                       QIcon::Small);
+                       Qt::SmallIconSize);
 }
 
 /*!

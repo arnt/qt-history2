@@ -317,17 +317,17 @@ QSize QToolButton::sizeHint() const
         w = fm.width(text());
         h = fm.height(); // boundingRect()?
     } else if (usesBigPixmap()) {
-        QPixmap pm = icon().pixmap(QIcon::Large, QIcon::Normal);
+        QPixmap pm = icon().pixmap(Qt::LargeIconSize, QIcon::Normal);
         w = pm.width();
         h = pm.height();
-        QSize iconSize = QIcon::pixmapSize(QIcon::Large);
+        QSize iconSize = QIcon::pixmapSize(Qt::LargeIconSize);
         if (w < iconSize.width())
             w = iconSize.width();
         if (h < iconSize.height())
             h = iconSize.height();
     } else if (!icon().isNull()) {
-        // ### in 3.1, use QIcon::iconSize(QIcon::Small);
-        QPixmap pm = icon().pixmap(QIcon::Small, QIcon::Normal);
+        // ### in 3.1, use QIcon::iconSize(Qt::SmallIconSize);
+        QPixmap pm = icon().pixmap(Qt::SmallIconSize, QIcon::Normal);
         w = pm.width();
         h = pm.height();
         if (w < 16)
