@@ -1042,7 +1042,7 @@ void QPopupMenu::updateSize()
 	    itemHeight = sz.height();
 
 #if defined(QT_CHECK_NULL)
-	    if ( mi->text().isNull() && !mi->pixmap() &&
+	    if ( mi->text().isNull() && !mi->pixmap() && !mi->iconSet() &&
 		 !mi->isSeparator() && !mi->widget() && !mi->custom() )
 		qWarning( "QPopupMenu: (%s) Popup has invalid menu item",
 			  name( "unnamed" ) );
