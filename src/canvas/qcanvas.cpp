@@ -1112,6 +1112,7 @@ void QCanvas::drawViewArea(QCanvasView* view, QPainter* p, const QRect& vr, bool
 	qt_setcliprect(&dbp,QRect(0,0,vr.width(), vr.height()));
         dbp.setBrushOrigin(-vr.x(), -vr.y());
         drawCanvasArea(ivr,&dbp,false);
+        dbp.end();
         p->drawPixmap(vr.x(), vr.y(), offscr, 0, 0, vr.width(), vr.height());
     } else {
         QRect r = vr; r.moveBy(tl.x(),tl.y()); // move to untransformed co-ords
