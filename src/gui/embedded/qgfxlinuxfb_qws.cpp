@@ -194,15 +194,29 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
                   malloc(sizeof(unsigned short int)*screencols);
         startcmap.transp=(unsigned short int *)
                     malloc(sizeof(unsigned short int)*screencols);
-        if (ioctl(fd,FBIOGETCMAP,startcmap)) {
+        if (ioctl(fd,FBIOGETCMAP,&startcmap)) {
             perror("reading fb cmap");
             qWarning("Error reading palette from framebuffer, using default palette");
             createPalette(startcmap, vinfo, finfo);
         }
+        int bits_used = 0;
         for(loopc=0;loopc<screencols;loopc++) {
             screenclut[loopc]=qRgb(startcmap.red[loopc] >> 8,
                                    startcmap.green[loopc] >> 8,
                                    startcmap.blue[loopc] >> 8);
+            bits_used |= startcmap.red[loopc]
+                         | startcmap.green[loopc]
+                         | startcmap.blue[loopc];
+        }
+        // WORKAROUND: Some framebuffer drivers only return 8 bit
+        // color values, so we need to not bit shift them..
+        if ((bits_used & 0x00ff) && !(bits_used & 0xff00)) {
+            for(loopc=0;loopc<screencols;loopc++) {
+                screenclut[loopc] = qRgb(startcmap.red[loopc],
+                                         startcmap.green[loopc],
+                                         startcmap.blue[loopc]);
+            }
+            qWarning("8 bits cmap returned due to faulty FB driver, colors corrected");
         }
         free(startcmap.red);
         free(startcmap.green);
