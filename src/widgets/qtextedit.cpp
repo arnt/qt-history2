@@ -1794,7 +1794,9 @@ void QTextEdit::contentsContextMenuEvent( QContextMenuEvent *e )
 
     e->accept();
 #ifndef QT_NO_POPUPMENU
-    QPopupMenu *popup = createPopupMenu();
+    QPopupMenu *popup = createPopupMenu( e->pos() );
+    if ( !popup )
+	popup = createPopupMenu();
     if ( !popup )
 	return;
     int r = popup->exec( e->globalPos() );
@@ -3927,15 +3929,20 @@ bool QTextEdit::getParagraphFormat( int para, QFont *font, QColor *color,
     return TRUE;
 }
 
-/*!
-    This function is called to create a right mouse button popup menu.
-    If you want to create a custom popup menu, reimplement this function
-    and return the created popup menu. Ownership of the popup menu is
-    transferred to the caller.
+
+
+/*!  
+  
+    This function is called to create a right mouse button popup menu
+     at the document position \a pos.  If you want to create a custom
+     popup menu, reimplement this function and return the created
+     popup menu. Ownership of the popup menu is transferred to the
+     caller.
 */
 
-QPopupMenu *QTextEdit::createPopupMenu()
+QPopupMenu *QTextEdit::createPopupMenu( const QPoint& pos )
 {
+    Q_UNUSED( pos )
     if ( isReadOnly() )
 	return 0;
 #ifndef QT_NO_POPUPMENU
@@ -3968,6 +3975,18 @@ QPopupMenu *QTextEdit::createPopupMenu()
 #else
     return 0;
 #endif
+}
+
+/*! \overload
+    This function is called to create a right mouse button popup menu.
+    If you want to create a custom popup menu, reimplement this function
+    and return the created popup menu. Ownership of the popup menu is
+    transferred to the caller.
+*/
+
+QPopupMenu *QTextEdit::createPopupMenu()
+{
+    return 0;
 }
 
 /*! \reimp */

@@ -333,6 +333,7 @@ protected:
     QTextDocument *document() const;
     QTextCursor *textCursor() const;
     void setDocument( QTextDocument *doc );
+    virtual QPopupMenu *createPopupMenu( const QPoint& pos );
     virtual QPopupMenu *createPopupMenu();
     void drawCursor( bool visible );
 
