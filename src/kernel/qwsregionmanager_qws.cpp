@@ -1,5 +1,6 @@
 #include "qwsdisplay_qws.h"
 #include "qwsregionmanager_qws.h"
+#include <stdlib.h>
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 #include <sys/ipc.h>

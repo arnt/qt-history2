@@ -597,7 +597,7 @@ QWSServer::QWSServer( int displayId, int flags,
     nextCursor = 0;
 #endif
 
-    //#################### remove shmem from NO_MULTIPROCESS 
+#ifndef QT_NO_QWS_MULTIPROCESS
     
     if ( !geteuid() ) {
 	if(mount(0,"/var/shm","shm",0,0)) {
@@ -607,7 +607,8 @@ QWSServer::QWSServer( int displayId, int flags,
 	    */
 	}
     }
-
+#endif
+    
     // no selection yet
     selectionOwner.windowid = -1;
     selectionOwner.time.set( -1, -1, -1, -1 );
