@@ -2888,7 +2888,8 @@ HRESULT QAxServerBase::internalActivate()
 	    create(hwndParent, rcPos);
 	}
 
-	SetObjectRects(&rcPos, &rcClip);
+	if ( !activeqt->testWState( WState_Resized ) )
+	    SetObjectRects(&rcPos, &rcClip);
     }
 
     // Gone active by now, take care of UIACTIVATE
