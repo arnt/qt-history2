@@ -126,6 +126,29 @@ QString QTextBrowserPrivate::findFile(const QString &name) const
 */
 
 /*!
+    \property QTextBrowser::modified
+    \brief whether the contents of the text browser have been modified
+*/
+
+/*!
+    \property QTextBrowser::readOnly
+    \brief whether the text browser is read-only
+*/
+
+/*!
+    \property QTextBrowser::undoRedoEnabled
+    \brief whether the text browser supports undo/redo operations
+*/
+
+/*!
+    \property QTextBrowser::searchPaths
+    \brief the search paths used by the text browser to find supporting
+    content
+
+    QTextBrowser uses this list to locate images and documents.
+*/
+
+/*!
     Constructs an empty QTextBrowser with parent \a parent.
 */
 QTextBrowser::QTextBrowser(QWidget *parent)
@@ -186,12 +209,6 @@ QString QTextBrowser::source() const
         return d->stack.top();
 }
 
-/*!
-    \property QTextBrowser::searchPaths
-    \brief the list of paths to search in for documents and images.
-
-    QTextBrowser uses this list to locate images and documents.
-*/
 QStringList QTextBrowser::searchPaths() const
 {
     return d->searchPaths;
