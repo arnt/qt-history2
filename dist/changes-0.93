@@ -1,4 +1,11 @@
-Here is a list of changes in Qt from 0.92 to 0.93.
+Here is a list of (major) changes in Qt from 0.92 to 0.93.
+
+Bug-fixes and improved documentation, of course.
+
+
+QObject:
+--------
+  timerEvent() moved from QWidget, does not affect old code.
 
 
 QPainter:
@@ -6,3 +13,10 @@ QPainter:
   drawShade* moved to qdrawutl.h
 	- now global functions that take a QPainter * and QColorGroup
 	- added drawWinPanel and drawWinButton for Windows 95 look
+!!qDrawShade
+  GC caching (internal optimization) makes drawing very fast.
+
+
+New classes:
+------------
+  QSocketNotifier, makes it possible to write async socket code.
