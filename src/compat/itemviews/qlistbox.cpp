@@ -660,9 +660,7 @@ int QListBoxPixmap::rtti() const
     the mouse wheel.
 
     New items can be inserted using insertItem(), insertStrList() or
-    insertStringList(). inSort() is obsolete because this method is
-    quite inefficient. It's preferable to insert the items normally
-    and call sort() afterwards, or to insert a sorted QStringList().
+    insertStringList().
 
     By default, vertical and horizontal scroll bars are added and
     removed as necessary. setHScrollBarMode() and setVScrollBarMode()
@@ -2563,7 +2561,6 @@ QListBox::SelectionMode QListBox::selectionMode() const
 
 
 /*!
-  \obsolete
   \property QListBox::multiSelection
   \brief whether or not the list box is in Multi selection mode
 
@@ -2807,8 +2804,7 @@ void QListBox::invertSelection()
 
 
 /*!
-  \obsolete
-  Not used anymore; provided for binary compatibility
+  Not used anymore; provided for compatibility.
 */
 
 void QListBox::emitChangedSignal(bool)
@@ -3709,8 +3705,6 @@ QRect QListBox::itemRect(QListBoxItem *item) const
 #ifdef QT_COMPAT
 
 /*!
-  \obsolete
-
   Using this method is quite inefficient. We suggest to use insertItem()
   for inserting and sort() afterwards.
 
@@ -3740,7 +3734,6 @@ int QListBox::inSort(const QListBoxItem * lbi)
 }
 
 /*!
-  \obsolete
   \overload
   Using this method is quite inefficient. We suggest to use insertItem()
   for inserting and sort() afterwards.
@@ -4021,7 +4014,7 @@ int QListBoxPrivate::findItemByName(int start, const QString &text)
 }
 
 /*!
-  \internal --- obsolete!
+  \internal
 */
 
 void QListBox::clearInputString()

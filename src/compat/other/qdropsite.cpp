@@ -24,12 +24,8 @@
 
   \compat
 
-  If your code uses it, you can safely delete it.
-
   It was used in Qt 1.x to do some drag and drop; that has since been
   folded into QWidget.
-
-  For detailed information about drag-and-drop, see the QDragObject class.
 
   \sa QDragObject, QTextDrag, QImageDrag
 */

@@ -26,7 +26,7 @@ class Q_COMPAT_EXPORT Q3Frame : public QFrame
 public:
     Q3Frame(QWidget* parent, const char* name = 0, Qt::WFlags f = 0);
     ~Q3Frame();
-#ifndef Q_QDOC
+#ifndef qdoc
     bool        lineShapesOk()  const { return true; }
 #endif
 

@@ -629,7 +629,6 @@ public:
 
 /*!
   \class QDataManager qsqlmanager_p.h
-    \ingroup database
 
   \brief The QDataManager class is an internal class for implementing
   the data-aware widgets.

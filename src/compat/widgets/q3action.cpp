@@ -412,7 +412,7 @@ Q3Action::Q3Action(QObject* parent, const char* name)
     init();
 }
 
-/*! \obsolete
+/*!
     Constructs an action called \a name with parent \a parent.
 
     If \a toggle is true the action will be a toggle action, otherwise
@@ -506,7 +506,7 @@ Q3Action::Q3Action(const QString& menuText, QKeySequence accel,
     init();
 }
 
-/*! \obsolete
+/*!
     This constructor creates an action with the following properties:
     the description \a text, the icon or iconset \a icon, the menu
     text \a menuText and keyboard accelerator \a accel. It is a child
@@ -537,7 +537,7 @@ Q3Action::Q3Action(const QString& text, const QIconSet& icon, const QString& men
     init();
 }
 
-/*! \obsolete
+/*!
     This constructor results in an icon-less action with the
     description \a text, the menu text \a menuText and the keyboard
     accelerator \a accel. Its parent is \a parent and it is called \a

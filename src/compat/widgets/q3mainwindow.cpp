@@ -740,7 +740,6 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 /*!
     \fn void Q3MainWindow::addToolBar(Q3DockWindow *dockWindow,
     Qt::Dock position, bool newLine);
-    \obsolete
 
     Adds a new toolbar to the \a dockWindow. The toolbar is placed in
     the given \a position. If \a newLine is true the toolbar is put on
@@ -750,7 +749,6 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 /*!
     \fn void Q3MainWindow::addToolBar(Q3DockWindow *dockWindow, const
     QString &label, Qt::Dock position, bool newLine)
-    \obsolete
     \overload
 
     The toolbar has the caption \a label and is placed in the given \a
@@ -759,7 +757,6 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 
 /*!
     \fn void Q3MainWindow::moveToolBar(Q3DockWindow *dockWindow, Qt::Dock position);
-    \obsolete
 
     Moves the given \a dockWindow into the given \a position.
 */
@@ -767,7 +764,6 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 /*!
     \fn void Q3MainWindow::moveToolBar(Q3DockWindow *dockWindow,
     Qt::Dock position, bool nl, int index, int extraOffset)
-    \obsolete
     \overload
 
     The \a dockWindow is made the \a{index}-th item in the toolbar,
@@ -777,14 +773,12 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 
 /*!
     \fn void Q3MainWindow::removeToolBar(Q3DockWindow *dockWindow);
-    \obsolete
 
     Removes the toolbar from the given \a dockWindow.
 */
 
 /*!
     \fn void Q3MainWindow::lineUpToolBars(bool keepNewLines);
-    \obsolete
 
     Lines up the toolbars. Line breaks are preserved if \a
     keepNewLines is true.
@@ -792,19 +786,16 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 
 /*!
     \fn void Q3MainWindow::toolBarPositionChanged(Q3ToolBar *toolbar);
-    \obsolete
 
     This signal is emitted when a \a toolbar is moved.
 */
 
 /*!
     \fn bool Q3MainWindow::toolBarsMovable() const
-    \obsolete
 */
 
 /*!
     \fn void Q3MainWindow::setToolBarsMovable(bool b)
-    \obsolete
     If \a b is true the tool bars can be moved.
 */
 
@@ -1728,7 +1719,6 @@ void Q3MainWindow::setRightJustification(bool enable)
 
 
 /*!
-    \obsolete
     \property Q3MainWindow::rightJustification
     \brief whether the main window right-justifies its dock windows
 

@@ -52,7 +52,6 @@
 /*!
   \class QShared qshared.h
   \reentrant
-  \ingroup shared
   \brief The QShared class is used internally for implementing shared classes.
 
   \compat

@@ -46,9 +46,4 @@ protected:
     virtual void     deleteItem(Item) = 0;        // delete object
 };
 
-
-#ifdef QT_COMPAT
-#define QCollection QPtrCollection
-#endif
-
 #endif // QPTRCOLLECTION_H

@@ -39,7 +39,7 @@ public:
           operator type *() const        { return (type *)QGList::cfirst(); }
     type *current() const                { return (type *)QGList::cfirst(); }
 
-#ifdef Q_QDOC
+#ifdef qdoc
 protected:
     virtual QDataStream& read(QDataStream&, QPtrCollection::Item&);
     virtual QDataStream& write(QDataStream&, QPtrCollection::Item) const;

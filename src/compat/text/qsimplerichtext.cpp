@@ -322,8 +322,6 @@ void QSimpleRichText::draw(QPainter *p,  int x, int y, const QRect& clipRect,
 /*! \fn void QSimpleRichText::draw(QPainter *p,  int x, int y, const QRegion& clipRegion,
   const QPalette &pal, const QBrush* paper) const
 
-  \obsolete
-
   Use the version with clipRect instead of this \a clipRegion version,
   since this region version has problems with larger documents on some
   platforms (on X11 regions internally are represented with 16-bit

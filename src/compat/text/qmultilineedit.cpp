@@ -59,7 +59,6 @@
 
 /*!
     \fn bool QMultiLineEdit::autoUpdate() const
-    \obsolete
 */
 
 /*!
@@ -70,23 +69,18 @@
 
 /*!
     \fn int QMultiLineEdit::totalWidth() const
-    \obsolete
 */
 
 /*!
     \fn int QMultiLineEdit::totalHeight() const
-    \obsolete
 */
 
 /*!
     \fn int QMultiLineEdit::maxLines() const
-    \obsolete
 */
 
 /*!
     \fn void QMultiLineEdit::setMaxLines(int max)
-
-    \obsolete
 
     Sets the maximum number of lines this QMultiLineEdit will hold to
     \a max.
@@ -94,7 +88,6 @@
 
 /*!
     \fn void QMultiLineEdit::deselect()
-    \obsolete
 */
 
 

@@ -106,8 +106,6 @@
 /*!
   \fn void QTabDialog::selected(const QString &name);
 
-  \obsolete
-
   This signal is emitted whenever a tab is selected (raised),
   including during the first show(). The tab's \a name is passed.
 
@@ -475,7 +473,7 @@ void QTabDialog::showPage(QWidget * w)
 }
 
 
-/*! \obsolete
+/*!
   Returns true if the page with object name \a name is enabled and
   false if it is disabled.
 
@@ -503,7 +501,7 @@ bool QTabDialog::isTabEnabled(const char* name) const
 }
 
 
-/*!\obsolete
+/*!
 
   Finds the page with object name \a name, enables/disables it
   according to the value of \a enable and redraws the page's tab
@@ -985,17 +983,10 @@ void QTabDialog::setOkButton()
 
 
 /*
-    \overload
-  Old version of setOkButton(), provided for backward compatibility.
+    \fn void QTabDialog::setOKButton(const QString &text)
+
+    Use setOkButton() instead.
 */
-void QTabDialog::setOKButton(const QString &text)
-{
-    // Ugly workaround for original "OK" default argument
-    QString newText(text);
-    if (text.isNull())
-        newText = QString::fromLatin1("OK");
-    setOkButton(newText);
-}
 
 
 /*!  Returns the text in the tab for page \a w.

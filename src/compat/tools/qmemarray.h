@@ -84,8 +84,4 @@ public:
     ConstIterator end() const { return data() + size(); }
 };
 
-#ifdef QT_COMPAT
-#define QArray QMemArray
-#endif
-
 #endif // QARRAY_H

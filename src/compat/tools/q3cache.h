@@ -20,7 +20,7 @@
 
 template<class type>
 class Q3Cache
-#ifdef Q_QDOC
+#ifdef qdoc
         : public QPtrCollection
 #else
         : public QGCache

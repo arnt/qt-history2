@@ -20,8 +20,6 @@
 /*!
   \class QGCache qgcache.h
   \reentrant
-  \ingroup shared
-  \ingroup collection
   \brief The QGCache class is an internal class for implementing QCache
   template classes.
 
@@ -640,8 +638,6 @@ void QGCache::statistics() const
 /*!
   \class QGCacheIterator qgcache.h
   \reentrant
-  \ingroup shared
-  \ingroup collection
   \brief The QGCacheIterator class is an internal class for implementing QCacheIterator and
   QIntCacheIterator.
 

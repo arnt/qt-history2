@@ -96,6 +96,7 @@ public:
         WhiteSpaceNormal, but no automatic line-breaks occur. To break
         lines manually, use the \c{<br>} tag.
 
+    \omitvalue WhiteSpaceModeUndefined
 */
 
 /*!
@@ -110,6 +111,7 @@ public:
     \value MarginHorizontal  left and right margins
     \value MarginFirstLine  margin (indentation) of the first line of
         a paragarph (in addition to the MarginLeft of the paragraph)
+    \value MarginUndefined
 */
 
 /*!
@@ -247,6 +249,8 @@ QStyleSheetItem::DisplayMode QStyleSheetItem::displayMode() const
         sequence (e.g. \c{<li>...</li>}).
 
     \value DisplayNone  elements are not displayed at all.
+
+    \omitvalue DisplayModeUndefined
 */
 
 /*!
@@ -546,7 +550,7 @@ void QStyleSheetItem::setFontFamily(const QString& fam)
 }
 
 
-/*!\obsolete
+/*!
   Returns the number of columns for this style.
 
   \sa setNumberOfColumns(), displayMode(), setDisplayMode()
@@ -558,7 +562,7 @@ int QStyleSheetItem::numberOfColumns() const
 }
 
 
-/*!\obsolete
+/*!
   Sets the number of columns for this style to \a ncols. Elements in the style
   are divided into columns.
 
@@ -704,6 +708,7 @@ QStyleSheetItem::ListStyle QStyleSheetItem::listStyle() const
     \value ListDecimal  an integer in base 10: \e 1, \e 2, \e 3, ...
     \value ListLowerAlpha  a lowercase letter: \e a, \e b, \e c, ...
     \value ListUpperAlpha  an uppercase letter: \e A, \e B, \e C, ...
+    \omitvalue ListStyleUndefined
 */
 
 /*!
@@ -801,9 +806,7 @@ void QStyleSheetItem::setLineSpacing(int ls)
 }
 
 /*!
-  \obsolete
-
-  Returns the linespacing
+  Returns the line spacing.
 */
 
 int QStyleSheetItem::lineSpacing() const

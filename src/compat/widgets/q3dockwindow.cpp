@@ -831,7 +831,6 @@ void Q3DockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
 
 /*!
     \fn void Q3DockWindow::setHorizontalStretchable(bool b)
-    \obsolete
 
     If \a b is true the dock window is set to be horizontally
     stretchable.
@@ -839,18 +838,14 @@ void Q3DockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
 /*!
     \fn void Q3DockWindow::setVerticalStretchable(bool b)
 
-    \obsolete
-
     If \a b is true the dock window is set to be vertically
     stretchable.
 */
 /*!
     \fn bool Q3DockWindow::isHorizontalStretchable() const
-    \obsolete
 */
 /*!
     \fn bool Q3DockWindow::isVerticalStretchable() const
-    \obsolete
 */
 /*!
     \fn void Q3DockWindow::orientationChanged(Qt::Orientation o)

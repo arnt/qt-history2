@@ -2845,8 +2845,6 @@ bool Q3TextEdit::eventFilter(QObject *o, QEvent *e)
 }
 
 /*!
-    \obsolete
-
     Inserts the given \a text. If \a indent is true the paragraph that
     contains the text is reindented; if \a checkNewLine is true the \a
     text is checked for newlines and relaid out. If \a removeSelected
@@ -4224,8 +4222,6 @@ QColor Q3TextEdit::color() const
 }
 
 /*!
-    \obsolete
-
     Returns QScrollView::font()
 
     \warning In previous versions this function returned the font of
@@ -5381,7 +5377,6 @@ QPopupMenu *Q3TextEdit::createPopupMenu(const QPoint& pos)
 }
 
 /*! \overload
-    \obsolete
     This function is called to create a right mouse button popup menu.
     If you want to create a custom popup menu, reimplement this function
     and return the created popup menu. Ownership of the popup menu is

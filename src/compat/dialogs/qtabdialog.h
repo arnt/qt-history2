@@ -46,8 +46,8 @@ public:
 
     bool isTabEnabled( QWidget *) const;
     void setTabEnabled(QWidget *, bool);
-    bool isTabEnabled(const char *) const; // compatibility
-    void setTabEnabled(const char *, bool); // compatibility
+    bool isTabEnabled(const char *) const;
+    void setTabEnabled(const char *, bool);
 
     void showPage(QWidget *);
     void removePage(QWidget *);
@@ -71,11 +71,12 @@ public:
     void setApplyButton();
     bool hasApplyButton() const;
 
-#ifndef Q_QDOC
-    void setOKButton(const QString &text = QString::null);
-#endif
     void setOkButton(const QString &text);
     void setOkButton();
+#ifdef QT_COMPAT
+    inline QT_COMPAT void setOKButton(const QString &text = QString())
+        { if (text.isEmpty()) setOkButton(QLatin1String("OK")); else setOkButton(text); }
+#endif
     bool hasOkButton() const;
 
 protected:

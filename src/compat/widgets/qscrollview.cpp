@@ -1370,14 +1370,12 @@ int QScrollView::childY(QWidget* child)
 }
 
 /*! \fn bool QScrollView::childIsVisible(QWidget*)
-  \obsolete
 
   Returns true if \a child is visible. This is equivalent
   to child->isVisible().
 */
 
 /*! \fn void QScrollView::showChild(QWidget* child, bool y)
-  \obsolete
 
   Sets the visibility of \a child to \a y. Equivalent to
   QWidget::show() or QWidget::hide().

@@ -185,17 +185,13 @@ QCoreVariant Q3Signal::value() const
     \internal
 */
 
-#ifdef QT_COMPAT
-/*! \obsolete */
 void Q3Signal::setParameter(int value)
 {
     val = value;
 }
 
-/*! \obsolete */
 int Q3Signal::parameter() const
 {
     return val.toInt();
 }
-#endif
 #endif //QT_NO_VARIANT

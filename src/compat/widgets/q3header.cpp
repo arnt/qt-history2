@@ -292,7 +292,6 @@ void Q3Header::showEvent(QShowEvent *e)
 
 /*!
   \fn void Q3Header::moved(int fromIndex, int toIndex)
-  \obsolete
 
   Use indexChange() instead.
 
@@ -302,7 +301,6 @@ void Q3Header::showEvent(QShowEvent *e)
 
 /*!
   \fn void Q3Header::sectionClicked(int index)
-  \obsolete
 
   Use clicked() instead.
 
@@ -314,7 +312,6 @@ void Q3Header::showEvent(QShowEvent *e)
 */
 
 /*! \fn int Q3Header::cellSize(int) const
-  \obsolete
 
   Use sectionSize() instead.
 
@@ -330,7 +327,6 @@ void Q3Header::showEvent(QShowEvent *e)
 */
 
 /*!
-  \obsolete
 
   Use sectionPos() instead.
 
@@ -483,7 +479,6 @@ void Q3Header::unMarkLine(int idx)
 }
 
 /*! \fn int Q3Header::cellAt(int) const
-  \obsolete
 
   Use sectionAt() instead.
 
@@ -544,8 +539,6 @@ int Q3Header::handleAt(int p)
 }
 
 /*!
-  \obsolete
-
   Use moveSection() instead.
 
   Moves the section that is currently displayed at index \a fromIdx
@@ -1306,8 +1299,6 @@ int Q3Header::pSize(int i) const
 }
 
 /*!
-  \obsolete
-
   Use mapToSection() instead.
 
   Translates from actual index \a a (index at which the section is displayed)  to
@@ -1323,8 +1314,6 @@ int Q3Header::mapToLogical(int a) const
 
 
 /*!
-  \obsolete
-
   Use mapToIndex() instead.
 
   Translates from logical index \a l to actual index (index at which the section \a l is displayed) .
@@ -1340,8 +1329,6 @@ int Q3Header::mapToActual(int l) const
 
 
 /*!
-  \obsolete
-
   Use resizeSection() instead.
 
   Sets the size of the section \a section to \a s pixels.
@@ -1621,7 +1608,6 @@ void Q3Header::paintEvent(QPaintEvent *e)
 
 /*!
     \overload
-    \obsolete
 
     Sets the sort indicator to \a ascending. Use the other overload instead.
 */

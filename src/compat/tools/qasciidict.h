@@ -20,7 +20,7 @@
 
 template<class type>
 class QAsciiDict
-#ifdef Q_QDOC
+#ifdef qdoc
         : public QPtrCollection
 #else
         : public QGDict
@@ -52,7 +52,7 @@ public:
     void  resize(uint n)                { QGDict::resize(n); }
     void  statistics() const                { QGDict::statistics(); }
 
-#ifdef Q_QDOC
+#ifdef qdoc
 protected:
     virtual QDataStream& read(QDataStream &, QPtrCollection::Item &);
     virtual QDataStream& write(QDataStream &, QPtrCollection::Item) const;

@@ -447,12 +447,10 @@ void QWizard::setHelpEnabled(bool enable)
 /*!
   \fn void QWizard::setFinish(QWidget *widget, bool b)
 
-  \obsolete
-
   If \a b is true the given \a widget has a Finish button;
   otherwise it does not have a Finish button.
 
-  Use setFinishEnabled() instead
+  Use setFinishEnabled() instead.
 */
 
 /*!

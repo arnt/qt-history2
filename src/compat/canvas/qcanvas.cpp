@@ -3094,11 +3094,7 @@ bool QCanvasPixmapArray::readPixmaps(const QString& datafilenamepattern,
 #endif
 
 /*!
-  \obsolete
-
-  Use isValid() instead.
-
-  This returns false if the array is valid, and true if it is not.
+   This is the same as !isValid().
 */
 bool QCanvasPixmapArray::operator!()
 {

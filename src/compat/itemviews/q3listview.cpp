@@ -1137,8 +1137,6 @@ void Q3ListViewItem::insertItem(Q3ListViewItem * newChild)
 /*!
     \fn void Q3ListViewItem::removeItem(Q3ListViewItem *item)
 
-    \obsolete
-
     Removes the given \a item. Use takeItem() instead.
 */
 
@@ -1565,9 +1563,6 @@ void Q3ListViewItem::activate()
     returns false and does not change \a pos.
 
     \a pos is relative to the top-left corner of this item.
-
-    \warning We recommend that you ignore this function; it is
-    scheduled to become obsolete.
 
     \sa activate()
 */
@@ -5056,7 +5051,7 @@ int Q3ListView::itemPos(const Q3ListViewItem * item)
 }
 
 
-/*! \obsolete
+/*!
     \property Q3ListView::multiSelection
     \brief whether the list view is in multi-selection or extended-selection mode
 
@@ -5392,8 +5387,6 @@ QRect Q3ListView::itemRect(const Q3ListViewItem * item) const
 
 /*!
     \fn void Q3ListView::doubleClicked(Q3ListViewItem *item)
-
-    \obsolete (use doubleClicked(Q3ListViewItem *, const QPoint&, int))
 
     This signal is emitted whenever an item is double-clicked. It's
     emitted on the second button press, not the second button release.
@@ -6978,7 +6971,6 @@ int Q3ListViewItem::itemPos() const
 
 /*!
   \fn void Q3ListView::removeItem(Q3ListViewItem *item)
-  \obsolete
 
     Removes the given \a item. Use takeItem() instead.
 */

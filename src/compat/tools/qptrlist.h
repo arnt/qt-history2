@@ -36,7 +36,7 @@ public:
 
 template<class type>
 class QPtrList
-#ifdef Q_QDOC
+#ifdef qdoc
         : public QPtrCollection
 #else
         : public QGList
@@ -111,8 +111,7 @@ public:
     typedef Iterator iterator;
     typedef ConstIterator const_iterator;
 
-
-#ifdef Q_QDOC
+#ifdef qdoc
 protected:
     virtual int compareItems(QPtrCollection::Item, QPtrCollection::Item);
     virtual QDataStream& read(QDataStream&, QPtrCollection::Item&);

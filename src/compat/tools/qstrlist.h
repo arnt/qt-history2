@@ -21,7 +21,7 @@
 #include "qdatastream.h"
 #endif // QT_H
 
-#if defined(Q_QDOC)
+#if defined(qdoc)
 class QStrListIterator : public QPtrListIterator<char>
 {
 };

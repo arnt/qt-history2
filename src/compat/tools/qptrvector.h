@@ -20,7 +20,7 @@
 
 template<class type>
 class QPtrVector
-#ifdef Q_QDOC
+#ifdef qdoc
         : public QPtrCollection
 #else
         : public QGVector
@@ -60,7 +60,7 @@ public:
     type *at(uint i) const                { return (type *)QGVector::at(i); }
     void  toList(QGList *list) const        { QGVector::toList(list); }
 
-#ifdef Q_QDOC
+#ifdef qdoc
 protected:
     virtual int compareItems(QPtrCollection::Item d1, QPtrCollection::Item d2);
     virtual QDataStream& read(QDataStream &s, QPtrCollection::Item &d);
