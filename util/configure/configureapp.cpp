@@ -813,7 +813,10 @@ bool ConfigureApp::readLicense()
     QFile licenseFile( qtDir + "/.qt-license" );
 
     if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
-	licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
+	if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" )
+	    licenseInfo[ "PRODUCTS" ]= "qt-professional";
+	else
+	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
 	return true;
     }
     if( licenseFile.open( IO_ReadOnly ) ) {
