@@ -16,7 +16,7 @@
 #include "qbrush.h"
 #include "qlibrary.h"
 #include "qpaintdevice.h"
-#include "qpaintdevice.h"
+#include "qpaintdevicemetrics.h"
 #include "qpaintengine_win.h"
 #include "qpaintengine_win_p.h"
 #include "qpainter.h"
@@ -512,6 +512,11 @@ void QWin32PaintEngine::drawRect(const QRect &r)
     --w;
     --h;
 #endif
+
+    if (d->brushStyle == Qt::LinearGradientPattern) {
+        d->fillGradient(r);
+        return;
+    }
 
     if (d->nocolBrush) {
         SetTextColor(d->hdc, d->bColor);
@@ -1269,8 +1274,11 @@ set:
 
 void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
 {
+    d->brush = brush;
     d->brushStyle = brush.style();
-    d->brushAlphaColor = d->brushStyle != Qt::NoBrush && brush.color().alpha() != 255;
+    d->brushAlphaColor = (d->brushStyle != Qt::NoBrush
+                          && d->brushStyle != Qt::LinearGradientPattern
+                          && brush.color().alpha() != 255);
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updateBrush(brush, bgOrigin);
         return;
@@ -1585,6 +1593,178 @@ QPainter::RenderHints QWin32PaintEngine::supportedRenderHints() const
     return 0;
 }
 
+#define COLSCALE(x) uint( (x) * 0xff00 / 255.0 )
+
+inline TRIVERTEX createVertex(int x, int y, const QColor &col)
+{
+    TRIVERTEX v;
+    v.x = x;
+    v.y = y;
+    v.Alpha = COLSCALE(col.alpha());
+    double premultiply = col.alpha() / 255.0;
+    v.Red   = COLSCALE(col.red()*premultiply);
+    v.Green = COLSCALE(col.green()*premultiply);
+    v.Blue  = COLSCALE(col.blue()*premultiply);
+    return v;
+}
+
+template <class T> void qt_swap(T &a, T &b) { T tmp=a; a=b; b=tmp; }
+
+void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
+{
+    QColor gcol1 = brush.color();
+    QColor gcol2 = brush.gradientColor();
+
+    bool useMemDC = !(rect.x() == 0
+                     && rect.y() == 0
+                     && rect.width() == QPaintDeviceMetrics(pdev).width()
+                     && rect.height() == QPaintDeviceMetrics(pdev).height()
+                     && gcol1.alpha() == 255
+                     && gcol2.alpha() == 255);
+    HDC memdc = hdc;
+    HBITMAP bitmap;
+    if (useMemDC) {
+        memdc = CreateCompatibleDC(hdc);
+        bitmap = CreateCompatibleBitmap(hdc, rect.width(), rect.height());
+        SelectObject(memdc, bitmap);
+    }
+
+    Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
+
+    QPoint gstart = brush.gradientStart();
+    QPoint gstop  = brush.gradientStop();
+
+    gstart -= rect.topLeft();
+    gstop -= rect.topLeft();
+
+
+    int dx = gstop.x() - gstart.x();
+    int dy = gstop.y() - gstart.y();
+
+    int rw = rect.width();
+    int rh = rect.height();
+
+    if (QABS(dx) > QABS(dy)) { // Fill horizontally
+        // Make sure we fill left to right.
+        if (gstop.x() < gstart.x()) {
+            qt_swap(gcol1, gcol2);
+            qt_swap(gstart, gstop);
+        }
+        // Find the location where the lines covering the gradient intersect
+        // the lines making up the top and bottom of the target rectangle.
+        // Note: This might be outside the target rect, but that is ok.
+        int xtop1, xtop2, xbot1, xbot2;
+        if (dy == 0) {
+            xtop1 = xbot1 = gstart.x();
+            xtop2 = xbot2 = gstop.x();
+        } else {
+            double gamma = double(dx) / double(-dy);
+            xtop1 = qRound((-gstart.y() + gamma * gstart.x() ) / gamma);
+            xtop2 = qRound((-gstop.y()  + gamma * gstop.x()  ) / gamma);
+            xbot1 = qRound((rh - gstart.y() + gamma * gstart.x() ) / gamma);
+            xbot2 = qRound((rh - gstop.y()  + gamma * gstop.x()  ) / gamma);
+            Q_ASSERT(xtop2 > xtop1);
+        }
+
+#ifndef QT_GRAD_NO_POLY
+        // Fill the area to the left of the gradient
+        TRIVERTEX polygon[4];
+        int polyCount = 0;
+	if (xtop1 > 0)
+            polygon[polyCount++] = createVertex(0, 0, gcol1);
+        polygon[polyCount++] = createVertex(xtop1+1, 0, gcol1);
+        polygon[polyCount++] = createVertex(xbot1+1, rh, gcol1);
+        if (xbot1 > 0)
+            polygon[polyCount++] = createVertex(0, rh, gcol1);
+        GRADIENT_TRIANGLE gtr[] = { { 0, 1, 2 }, { 2, 3, 0 } };
+        int gtrCount = polyCount == 4 ? 2 : 1;
+        GradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
+
+        // Fill the area to the right of the gradient
+        polyCount = 0;
+	polygon[polyCount++] = createVertex(xtop2-1, 0, gcol2);
+	if (xtop2 < rw)
+	    polygon[polyCount++] = createVertex(rw, 0, gcol2);
+	if (xbot2 < rw)
+	    polygon[polyCount++] = createVertex(rw, rh, gcol2);
+	polygon[polyCount++] = createVertex(xbot2-1, rh, gcol2);
+        gtrCount = polyCount == 4 ? 2 : 1;
+        GradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
+#endif // QT_GRAD_NO_POLY
+
+        polygon[0] = createVertex(xtop1, 0, gcol1);
+        polygon[1] = createVertex(xbot1, rh, gcol1);
+        polygon[2] = createVertex(xbot2, rh, gcol2);
+        polygon[3] = createVertex(xtop2, 0, gcol2);
+        GradientFill(memdc, polygon, 4, gtr, 2, GRADIENT_FILL_TRIANGLE);
+
+    } else {
+        // Fill Verticallty
+        // Code below is a conceptually equal to the one above except that all
+        // coords are swapped x <-> y.
+        // Make sure we fill top to bottom...
+        if (gstop.y() < gstart.y()) {
+            qt_swap(gstart, gstop);
+            qt_swap(gcol1, gcol2);
+        }
+        int yleft1, yleft2, yright1, yright2;
+        if (dx == 0) {
+            yleft1 = yright1 = gstart.y();
+            yleft2 = yright2 = gstop.y();
+        } else {
+            double gamma = double(dy) / double(-dx);
+            yleft1 = qRound((-gstart.x() + gamma * gstart.y()) / gamma);
+            yleft2 = qRound((-gstop.x() + gamma * gstop.y()) / gamma);
+            yright1 = qRound((rw - gstart.x() + gamma*gstart.y()) / gamma);
+            yright2 = qRound((rw - gstop.x() + gamma*gstop.y()) / gamma);
+            Q_ASSERT(yleft2 > yleft1);
+        }
+
+#ifndef QT_GRAD_NO_POLY
+        TRIVERTEX polygon[4];
+        int polyCount = 0;
+        polygon[polyCount++] = createVertex(0, yleft1+1, gcol1);
+	if (yleft1 > 0)
+	    polygon[polyCount++] = createVertex(0, 0, gcol1);
+	if (yright1 > 0)
+	    polygon[polyCount++] = createVertex(rw, 0, gcol1);
+	polygon[polyCount++] = createVertex(rw, yright1+1, gcol1);
+        GRADIENT_TRIANGLE gtr[] = { { 0, 1, 2 }, { 2, 3, 0 } };
+        int gtrCount = polyCount == 4 ? 2 : 1;
+        GradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
+
+        polyCount = 0;
+	polygon[polyCount++] = createVertex(0, yleft2-1, gcol2);
+	if (yleft2 < rh)
+	    polygon[polyCount++] = createVertex(0, rh, gcol2);
+	if (yright2 < rh)
+	    polygon[polyCount++] = createVertex(rw, rh, gcol2);
+	polygon[polyCount++] = createVertex(rw, yright2-1, gcol2);
+        gtrCount = polyCount == 4 ? 2 : 1;
+        GradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
+#endif // QT_GRAD_NO_POLY
+
+        polygon[0] = createVertex(0, yleft1, gcol1);
+        polygon[1] = createVertex(rw, yright1, gcol1);
+        polygon[2] = createVertex(rw, yright2, gcol2);
+        polygon[3] = createVertex(0, yleft2, gcol2);
+        GradientFill(memdc, polygon, 4, gtr, 2, GRADIENT_FILL_TRIANGLE);
+    }
+
+
+    if (useMemDC) {
+        if (gcol1.alpha() != 255 || gcol2.alpha() != 255) {
+            BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+            AlphaBlend(hdc, rect.x(), rect.y(), rw, rh, memdc, 0, 0, rw, rh, bf);
+        } else {
+            BitBlt(hdc, rect.x(), rect.y(), rw, rh, memdc, 0, 0, SRCCOPY);
+        }
+
+        DeleteObject(bitmap);
+        DeleteDC(memdc);
+    }
+}
+
 void QWin32PaintEnginePrivate::beginGdiplus()
 {
     if (!qt_resolved_gdiplus)
@@ -1629,6 +1809,7 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
                                                  | QPaintEngine::PixmapScale
                                                  | QPaintEngine::UsesFontEngine
                                                  | QPaintEngine::SolidAlphaFill
+                                                 | QPaintEngine::LinearGradients
                                                  | QPaintEngine::PainterPaths);
     } else { // GDI only
         return QPaintEngine::PaintEngineFeatures(QPaintEngine::CoordTransform
@@ -1636,6 +1817,7 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
                                                  | QPaintEngine::PixmapTransform
                                                  | QPaintEngine::PixmapScale
                                                  | QPaintEngine::UsesFontEngine
+                                                 | QPaintEngine::LinearGradients
                                                  | QPaintEngine::PainterPaths);
     }
 }

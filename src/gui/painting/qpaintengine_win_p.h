@@ -135,6 +135,7 @@ public:
     int pWidth;
     COLORREF pColor;
     COLORREF bColor;
+    QBrush brush;
 
     QPainter::TransformationCodes txop;
 
@@ -178,6 +179,11 @@ public:
         }
         return usesGdiplus();
     }
+
+    /*!
+      Fill rect with current gradient brush, using native function call
+    */
+    void fillGradient(const QRect &r);
 
     uint gdiplusInUse : 1;
     QGdiplusPaintEngine *gdiplusEngine;
