@@ -1149,6 +1149,13 @@ QFont QTextEngine::font(const QScriptItem &si) const
     return QFont(fp, 0);
 }
 
+QFont QTextEngine::font() const
+{
+    if (fnt)
+        return QFont(fnt, fnt->paintdevice);
+    return QFont();
+}
+
 QFontEngine *QTextEngine::fontEngine(const QScriptItem &si) const
 {
     if (!fnt) {

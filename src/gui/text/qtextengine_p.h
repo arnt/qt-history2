@@ -372,7 +372,7 @@ public:
 
     QFontEngine *fontEngine(const QScriptItem &si) const;
     QFont font(const QScriptItem &si) const;
-    QFont font() const { if (fnt) return QFont(fnt, 0); return QFont(); }
+    QFont font() const;
 
     void splitItem(int item, int pos);
 
