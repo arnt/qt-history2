@@ -2673,8 +2673,9 @@ void Base64Doc::print( BinaryWriter& out )
 
 PlainpageDoc::PlainpageDoc( const Location& loc, const QString& html,
 			    const QString& fileName )
-    : PageLikeDoc( Plainpage, loc, html, fileName )
+    : PageLikeDoc( Plainpage, loc, html )
 {
+    setFileName( fileName );
 }
 
 void PlainpageDoc::print( BinaryWriter& out )
