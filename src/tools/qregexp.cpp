@@ -2981,7 +2981,7 @@ bool QRegExp::match( const QString& str )
 #endif
 
     priv->captured = eng->match( str, 0, priv->min, TRUE );
-    if ( priv->captured[0] == 0 ) {
+    if ( priv->captured[1] == (int) str.length() ) {
 	return TRUE;
     } else {
 	priv->captured.detach();
