@@ -1009,31 +1009,31 @@ void QIconSet::detach()
 	return;
 
     QIconSetPrivate * p = new QIconSetPrivate;
-    p->vsmall.pm = d->vsmall.pm;
+    p->vsmall.pm = d->vsmall.pm ? new QPixmap( *d->vsmall.pm ) : 0;
     p->vsmall.generated = d->vsmall.generated;
-    p->smallActive.pm = d->smallActive.pm;
+    p->smallActive.pm = d->smallActive.pm ? new QPixmap( *d->smallActive.pm ) : 0;
     p->smallActive.generated = d->smallActive.generated;
-    p->smallDisabled.pm = d->smallDisabled.pm;
+    p->smallDisabled.pm = d->smallDisabled.pm ? new QPixmap( *d->smallDisabled.pm ) : 0;
     p->smallDisabled.generated = d->smallDisabled.generated;
-    p->vlarge.pm = d->vlarge.pm;
+    p->vlarge.pm = d->vlarge.pm ? new QPixmap( *d->vlarge.pm ) : 0;
     p->vlarge.generated = d->vlarge.generated;
-    p->largeActive.pm = d->largeActive.pm;
+    p->largeActive.pm = d->largeActive.pm ? new QPixmap( *d->largeActive.pm ) : 0;
     p->largeActive.generated = d->largeActive.generated;
-    p->largeDisabled.pm = d->largeDisabled.pm;
+    p->largeDisabled.pm = d->largeDisabled.pm ? new QPixmap( *d->largeDisabled.pm ) : 0;
     p->largeDisabled.generated = d->largeDisabled.generated;
     p->defpm = d->defpm;
 
-    p->on_vsmall.pm = d->on_vsmall.pm;
+    p->on_vsmall.pm = d->on_vsmall.pm ? new QPixmap( *d->on_vsmall.pm ) : 0;
     p->on_vsmall.generated = d->on_vsmall.generated;
-    p->on_smallActive.pm = d->on_smallActive.pm;
+    p->on_smallActive.pm = d->on_smallActive.pm ? new QPixmap( *d->on_smallActive.pm ) : 0;
     p->on_smallActive.generated = d->on_smallActive.generated;
-    p->on_smallDisabled.pm = d->on_smallDisabled.pm;
+    p->on_smallDisabled.pm = d->on_smallDisabled.pm ? new QPixmap( *d->on_smallDisabled.pm ) : 0;
     p->on_smallDisabled.generated = d->on_smallDisabled.generated;
-    p->on_vlarge.pm = d->on_vlarge.pm;
+    p->on_vlarge.pm = d->on_vlarge.pm ? new QPixmap( *d->on_vlarge.pm ) : 0;
     p->on_vlarge.generated = d->on_vlarge.generated;
-    p->on_largeActive.pm = d->on_largeActive.pm;
+    p->on_largeActive.pm = d->on_largeActive.pm ? new QPixmap( *d->on_largeActive.pm ) : 0;
     p->on_largeActive.generated = d->on_largeActive.generated;
-    p->on_largeDisabled.pm = d->on_largeDisabled.pm;
+    p->on_largeDisabled.pm = d->on_largeDisabled.pm ? new QPixmap( *d->on_largeDisabled.pm ) : 0;
     p->on_largeDisabled.generated = d->on_largeDisabled.generated;
 
     d->deref();
