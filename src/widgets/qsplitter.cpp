@@ -178,10 +178,15 @@ QCOORD QSplitterLayoutStruct::getSizer( Orientation orient )
 	const int presizer = (orient == Horizontal) ? s.width() : s.height();
 	const int realsize = (orient == Horizontal) ? wid->size().width() : wid->size().height();
 	if ( !s.isValid()
-		|| (wid->testWState(WState_Resized) && (realsize > presizer)) )
+		|| (wid->testWState(WState_Resized) && (realsize > presizer)) ) {
 	    sizer = (orient == Horizontal) ? wid->size().width() : wid->size().height();
-	else
+	} else {
 	    sizer = presizer;
+	}
+	QSizePolicy p = wid->sizePolicy();
+	int sizePolicyStretch = (orient == Horizontal) ? p.horStretch() : p.verStretch();
+	if (sizePolicyStretch > 1)
+	    sizer *= sizePolicyStretch;
     }
     return sizer;
 }
@@ -835,7 +840,6 @@ void QSplitter::doResize()
 		a[i].empty = FALSE;
 	    } else {
 		int mode = s->resizeMode;
-		int stretch = 1;
 
 		if ( mode == DefaultResizeMode ) {
 		    QSizePolicy p = s->wid->sizePolicy();
@@ -843,7 +847,6 @@ void QSplitter::doResize()
 			    pick( QSize(p.horStretch(), p.verStretch()) );
 		    if ( sizePolicyStretch > 0 ) {
 			mode = Stretch;
-			stretch = sizePolicyStretch;
 			numAutoWithStretch++;
 		    } else {
 			/*
@@ -865,6 +868,7 @@ void QSplitter::doResize()
 		a[i].empty = FALSE;
 
 		if ( mode == Stretch ) {
+		    int stretch = 1;
 		    if ( s->getSizer(orient) > 1 )
 			stretch *= s->getSizer( orient );
 		    a[i].stretch = stretch;
