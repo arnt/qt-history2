@@ -872,27 +872,27 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	QRegExp reg_var;
 	reg_var.setMinimal(TRUE);
 	if( x == 0 ) //function blocked out by {}'s
-	    reg_var = QRegExp("\\$\\$\\{([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)\\}");
+	    reg_var = QRegExp("(^|[^\\\\])\\$\\$\\{([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)\\}");
 	else if( x == 1 ) //variables blocked out by {}'s
-	    reg_var = QRegExp("\\$\\$\\{([a-zA-Z0-9_\\.-]*)\\}");
+	    reg_var = QRegExp("(^|[^\\\\])\\$\\$\\{([a-zA-Z0-9_\\.-]*)\\}");
 	else if(x == 2) //environment
-	    reg_var = QRegExp("\\$\\$\\(([a-zA-Z0-9_\\.-]*)\\)");
+	    reg_var = QRegExp("(^|[^\\\\])\\$\\$\\(([a-zA-Z0-9_\\.-]*)\\)");
 	else if(x == 3) //function
-	    reg_var = QRegExp("\\$\\$([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)");
+	    reg_var = QRegExp("(^|[^\\\\])\\$\\$([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)");
 	else if(x == 4) //normal variable
-	    reg_var = QRegExp("\\$\\$([a-zA-Z0-9_\\.-]*)");
+	    reg_var = QRegExp("(^|[^\\\\])\\$\\$([a-zA-Z0-9_\\.-]*)");
 	while((rep = reg_var.search(str)) != -1) {
 	    QString replacement;
 	    if(x == 2) {//environment
-		replacement = getenv(reg_var.cap(1));
+		replacement = getenv(reg_var.cap(2));
 	    } else if(x == 0 || x == 3) { //function
-		QStringList args = split_arg_list(reg_var.cap(2));
+		QStringList args = split_arg_list(reg_var.cap(3));
 		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
 		    (*arit) = (*arit).stripWhiteSpace(); // blah, get rid of space
 		    doVariableReplace((*arit), place);
 		}
-		debug_msg(1, "Running function: %s( %s )", reg_var.cap(1).latin1(), args.join("::").latin1());
-		if(reg_var.cap(1).lower() == "member") {
+		debug_msg(1, "Running function: %s( %s )", reg_var.cap(2).latin1(), args.join("::").latin1());
+		if(reg_var.cap(2).lower() == "member") {
 		    if(args.count() < 1 || args.count() > 2) {
 			fprintf(stderr, "%s:%d: member(var, place) requires two arguments.\n",
 				parser.file.latin1(), parser.line_no);
@@ -904,7 +904,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			if(var.count() >= pos)
 			    replacement = var[pos];
 		    }
-		} else if(reg_var.cap(1).lower() == "list") {
+		} else if(reg_var.cap(2).lower() == "list") {
 		    if(args.count() != 1) {
 			fprintf(stderr, "%s:%d: list(vals) requires one"
 				"argument.\n", parser.file.latin1(), parser.line_no);
@@ -913,7 +913,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			replacement.sprintf(".QMAKE_INTERNAL_TMP_VAR_%d", x++);
 			(*((QMap<QString, QStringList>*)&place))[replacement] = split_value_list(args.first());
 		    }
-		} else if(reg_var.cap(1).lower() == "join") {
+		} else if(reg_var.cap(2).lower() == "join") {
 		    if(args.count() < 1 || args.count() > 4) {
 			fprintf(stderr, "%s:%d: join(var, glue, before, after) requires four"
 				"arguments.\n", parser.file.latin1(), parser.line_no);
@@ -929,7 +929,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			if(!var.isEmpty())
 			    replacement = before + var.join(glue) + after;
 		    }
-		} else if(reg_var.cap(1).lower() == "find") {
+		} else if(reg_var.cap(2).lower() == "find") {
 		    if(args.count() != 2) {
 			fprintf(stderr, "%s:%d find(var, str) requires two arguments\n",
 				parser.file.latin1(), parser.line_no);
@@ -945,7 +945,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			    }
 			}
 		    }
-		} else if(reg_var.cap(1).lower() == "system") {
+		} else if(reg_var.cap(2).lower() == "system") {
 		    if(args.count() != 1) {
 			fprintf(stderr, "%s:%d system(execut) requires one argument\n",
 				parser.file.latin1(), parser.line_no);
@@ -966,19 +966,19 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    }
 		} else {
 		    fprintf(stderr, "%s:%d: Unknown replace function: %s\n",
-			    parser.file.latin1(), parser.line_no, reg_var.cap(1).latin1());
+			    parser.file.latin1(), parser.line_no, reg_var.cap(2).latin1());
 		}
 	    } else { //variable
-		if(reg_var.cap(1).left(1) == ".")
+		if(reg_var.cap(2).left(1) == ".")
 		    replacement = "";
-		else if(reg_var.cap(1) == "LITERAL_WHITESPACE")
+		else if(reg_var.cap(2) == "LITERAL_WHITESPACE")
 		    replacement = "\t";
 		else
-		    replacement = place[varMap(reg_var.cap(1))].join(" ");
+		    replacement = place[varMap(reg_var.cap(2))].join(" ");
 	    }
 	    debug_msg(2, "Project parser: %d (%s) :: %s -> %s", x, str.latin1(),
 		      reg_var.capturedTexts().join("::").latin1(), replacement.latin1());
-	    str.replace(rep, reg_var.matchedLength(), replacement);
+	    str.replace(rep, reg_var.matchedLength(), reg_var.cap(1) + replacement);
 	}
     }
     return str;
