@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listviews/listviews.cpp#3 $
+** $Id: //depot/qt/main/examples/listviews/listviews.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -109,7 +109,6 @@ ListViews::ListViews( QWidget *parent, const char *name )
     initFolders();
     setupFolders();
 
-    folders->setMinimumSize( QSize( 200, 0 ) );
     folders->setRootIsDecorated( TRUE );
     setResizeMode( folders, QSplitter::KeepSize );
 
@@ -120,7 +119,6 @@ ListViews::ListViews( QWidget *parent, const char *name )
     messages->addColumn( "Subject" );
     messages->addColumn( "Date" );
     messages->setAllColumnsShowFocus( TRUE );
-    messages->resize( 0, 200 );
     vsplitter->setResizeMode( messages, QSplitter::KeepSize );
 
     message = new QLabel( vsplitter );
@@ -137,6 +135,10 @@ ListViews::ListViews( QWidget *parent, const char *name )
 
     messages->setSelected( messages->firstChild(), TRUE );
     messages->setCurrentItem( messages->firstChild() );
+
+    QValueList<int> lst;
+    lst.append( 170 );
+    setSizes( lst );
 }
 
 void ListViews::initFolders()

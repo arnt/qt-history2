@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#268 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#269 $
 **
 ** Implementation of QListView widget class
 **
@@ -2753,6 +2753,12 @@ void QListView::doAutoScroll()
     bool down = pos.y() > itemRect( d->focusItem ).y();
 
     int g = pos.y() + contentsY();
+    
+    if ( down && pos.y() > height()  )
+        g = height() + contentsY();
+    else if ( pos.y() < 0 )
+        g = contentsY();
+    
     QListViewItem *c = d->focusItem, *old = 0L;
     if ( down ) {
         int y = itemRect( d->focusItem ).y() + contentsY();
@@ -2778,23 +2784,21 @@ void QListView::doAutoScroll()
     if ( !c || c == d->focusItem )
         return;
 
-    QListViewItem * i = c;
-
     if ( isMultiSelection() && d->focusItem ) {
         // also (de)select the ones in between
         QListViewItem * b = d->focusItem;
-        bool down = ( itemPos( i ) > itemPos( b ) );
-        while( b && b != i ) {
+        bool down = ( itemPos( c ) > itemPos( b ) );
+        while( b && b != c ) {
             if ( b->isSelectable() )
                 setSelected( b, d->select );
             b = down ? b->itemBelow() : b->itemAbove();
         }
     }
 
-    if ( i->isSelectable() )
-        setSelected( i, d->select );
+    if ( c->isSelectable() )
+        setSelected( c, d->select );
 
-    setCurrentItem( i );
+    setCurrentItem( c );
     d->visibleTimer->start( 1, TRUE );
 }
 
@@ -4238,8 +4242,7 @@ void QListView::takeItem( QListViewItem * i )
 
 /*!
   \class QListViewItemIterator qlistview.h
-  \brief The QListViewItemIterator class provides an iterator for collections of
-  QListViewItems (QListViews)
+  \brief The QListViewItemIterator class provides an iterator for collections of QListViewItems (QListViews)
 
   Construct an instance of a QListViewItemIterator with either a QListView* or
   a QListViewItem* as argument, to operate on the tree of QListViewItems.
