@@ -73,7 +73,7 @@ QString QAccessibleButton::actionText(int action, Text text, int child) const
                 if (state(child) & Checked)
                     return QCheckBox::tr("Uncheck");
                 QCheckBox *cb = qt_cast<QCheckBox*>(object());
-                if (!cb || !cb->isTristate() || cb->state() == QCheckBox::NoChange)
+                if (!cb || !cb->isTristate() || cb->checkState() == Qt::PartiallyChecked)
                     return QCheckBox::tr("Check");
                 return QCheckBox::tr("Toggle");
             }
@@ -144,7 +144,7 @@ QAccessible::State QAccessibleButton::state(int child) const
     QCheckBox *cb = qt_cast<QCheckBox *>(b);
     if (b->isChecked())
         state |= Checked;
-    else if (cb && cb->state() == QCheckBox::NoChange)
+    else if (cb && cb->checkState() == Qt::PartiallyChecked)
         state |= Mixed;
     if (b->isDown())
         state |= Pressed;

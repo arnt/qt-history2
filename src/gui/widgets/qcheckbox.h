@@ -34,12 +34,11 @@ public:
 
     QSize sizeHint() const;
 
-    void setTristate(bool y=true);
+    void setTristate(bool y = true);
     bool isTristate() const;
 
-    enum ToggleState { Off, NoChange, On };
-    ToggleState state() const;
-    void setState(ToggleState state);
+    Qt::CheckState checkState() const;
+    void setCheckState(Qt::CheckState state);
 
 signals:
     void stateChanged(int);
@@ -53,7 +52,17 @@ protected:
 
 #ifdef QT_COMPAT
 public:
-    inline QT_COMPAT void setNoChange() { setState(NoChange); }
+    enum ToggleState {
+        Off =      Qt::Unchecked,
+        NoChange = Qt::PartiallyChecked,
+        On =       Qt::Checked
+    };
+    inline QT_COMPAT ToggleState state() const
+        { return static_cast<ToggleState>(checkState()); }
+    inline QT_COMPAT void setState(ToggleState state)
+        { setCheckState(static_cast<Qt::CheckState>(state)); }
+    inline QT_COMPAT void setNoChange()
+        { setCheckState(Qt::PartiallyChecked); }
     QT_COMPAT_CONSTRUCTOR QCheckBox(QWidget *parent, const char* name);
     QT_COMPAT_CONSTRUCTOR QCheckBox(const QString &text, QWidget *parent, const char* name);
 #endif

@@ -173,32 +173,32 @@ bool QCheckBox::isTristate() const
 
 
 /*!
-    Returns the check box's toggle state.
+    Returns the check box's check state.
 
-    \sa setState() ToggleState
+    \sa setCheckState() Qt::CheckState
 */
-QCheckBox::ToggleState QCheckBox::state() const
+Qt::CheckState QCheckBox::checkState() const
 {
     if (d->tristate &&  d->noChange)
-        return NoChange;
-    return d->checked ? On : Off;
+        return Qt::PartiallyChecked;
+    return d->checked ? Qt::Checked : Qt::Unchecked;
 }
 
 /*!
-    Sets the check box's toggle state to \a state.
+    Sets the check box's check state to \a state.
 
-    \sa state() ToggleState
+    \sa checkState() Qt::CheckState
 */
-void QCheckBox::setState(ToggleState state)
+void QCheckBox::setCheckState(Qt::CheckState state)
 {
-    if (state == NoChange) {
+    if (state == Qt::PartiallyChecked) {
         d->tristate = true;
         d->noChange = true;
     } else {
         d->noChange = false;
     }
     d->blockRefresh = true;
-    setChecked(state != Off);
+    setChecked(state != Qt::Unchecked);
     d->blockRefresh = false;
     d->refresh();
     emit stateChanged(state);
@@ -270,14 +270,14 @@ bool QCheckBox::hitButton(const QPoint &pos) const
 void QCheckBox::checkStateSet()
 {
     d->noChange = false;
-    emit stateChanged(state());
+    emit stateChanged(checkState());
 }
 
 /*!\reimp*/
 void QCheckBox::nextCheckState()
 {
     if (d->tristate)
-        setState((ToggleState)((state() + 1) % 3));
+        setCheckState((Qt::CheckState)((checkState() + 1) % 3));
     else
         QAbstractButton::nextCheckState();
 }
