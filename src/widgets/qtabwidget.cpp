@@ -469,9 +469,8 @@ void QTabWidget::removePage( QWidget * w )
 	d->tabs->removeTab( d->tabs->tab(id) );
 	setUpLayout();
 	
-	// ### Why do we set the frame style to NoFrame?
-	/*if ( !currentPage() && d->stack->frameStyle() != QFrame::NoFrame )
-	    d->stack->setFrameStyle( QFrame::NoFrame );*/
+	if ( d->tabs->count() == 0 ) 
+	    d->stack->setFrameStyle( QFrame::NoFrame );
     }
 }
 
