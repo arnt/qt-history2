@@ -194,7 +194,7 @@ void read_jpeg_image(QImageIO* iio)
 	(void) jpeg_start_decompress(&cinfo);
 
 	QString params = iio->parameters();
-	params.simplifyWhiteSpace();
+	params.simplified();
 	int sWidth = 0, sHeight = 0;
 	char sModeStr[1024] = "";
 	QImage::ScaleMode sMode;
