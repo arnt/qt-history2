@@ -663,7 +663,7 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 	p->dwFlags |= PFD_DOUBLEBUFFER;
     if ( glFormat.stereo() )
 	p->dwFlags |= PFD_STEREO;
-    if ( glFormat.depth() )
+    if ( glFormat.depth() && !deviceIsPixmap() )
 	p->cDepthBits = 32;
     else
 	p->dwFlags |= PFD_DEPTH_DONTCARE;
