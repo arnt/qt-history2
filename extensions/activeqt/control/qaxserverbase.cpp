@@ -1400,7 +1400,7 @@ void QAxServerBase::readMetaData()
 	    BSTR bstrNames = QStringToBSTR( property->name() );
 	    DISPID dispId;
 	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId );
-	    if ( dispId >= 0 ) {
+	    if ( dispId >= 0 && !proplist->find( dispId ) ) {
 		proplist->insert( dispId, property );
 		proplist2->insert( iproperty, dispId );
 	    }
