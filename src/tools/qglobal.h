@@ -414,7 +414,6 @@
 #      define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    endif
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
-#    endif
 #  endif
 
 /* the older UnixWare compiler is not based on EDG */
