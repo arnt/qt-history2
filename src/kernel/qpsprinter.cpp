@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#108 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -328,10 +328,11 @@ static const char *ps_header[] = {
 "	 /ry2 ry 2 mul d",
 "	 NP",
 "	 x rx add y MT",
-"	 x w add rx2 sub y		 rx2 ry2 90  -90 ARC",
-"	 x w add rx2 sub y h add ry2 sub rx2 ry2 0   -90 ARC",
-"	 x		 y h add ry2 sub rx2 ry2 270 -90 ARC",
-"	 x		 y		 rx2 ry2 180 -90 ARC",
+"	 x		 y		 rx2 ry2 180 -90",
+"	 x		 y h add ry2 sub rx2 ry2 270 -90",
+"	 x w add rx2 sub y h add ry2 sub rx2 ry2 0   -90",
+"	 x w add rx2 sub y		 rx2 ry2 90  -90",
+"	 ARC ARC ARC ARC",
 "	 CP",
 "	 QF",
 "	 QS",
