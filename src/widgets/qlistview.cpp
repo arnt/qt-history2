@@ -7043,7 +7043,8 @@ bool QListView::isRenaming() const
     its QListViewItems. So when a QListViewItem gets removed all
     iterators that point to this item are updated and point to the
     following item if possible, otherwise to a valid item before the
-    current one or to 0.
+    current one or to 0. Note however that deleting the parent item of
+    an item that an iterator points to is not safe.
 
     \sa QListView, QListViewItem
 */
