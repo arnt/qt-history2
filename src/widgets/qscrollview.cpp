@@ -2263,7 +2263,7 @@ void QScrollView::repaintContents( bool erase )
 
 /*!
     Calls repaint() on a rectangle defined by \a x, \a y, \a w, \a h,
-    translated appropriately. If the rectangle in not visible, nothing
+    translated appropriately. If the rectangle is not visible, nothing
     is repainted. If \a erase is TRUE the background is cleared using
     the background color.
 
