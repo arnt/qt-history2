@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#79 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#80 $
 **
 ** Implementation of QMessageBox class
 **
@@ -1188,5 +1188,5 @@ static const char *textAboutQt =
 void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 {
     information( parent, caption.isNull() ? QString("About Qt") : caption,
-	tr( textAboutQt ) );
+		 qApp->translate( "QMessageBox", textAboutQt ) );
 }
