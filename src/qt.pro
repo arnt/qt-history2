@@ -40,13 +40,11 @@ win32:DEPENDPATH = ../include
 unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 
 HEADERS		= $$DIALOGS_H/qcolordialog.h \
-		  $$DIALOGS_H/qdeveloper.h \
 		  $$DIALOGS_H/qfiledialog.h \
 		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
-		  $$DIALOGS_H/qtranslatordialog.h \
 		  $$DIALOGS_H/qwizard.h \
 		  $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
@@ -96,7 +94,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
 		  $$KERNEL_H/qprinter.h \
-		  $$KERNEL_H/qproperty.h \
 		  $$KERNEL_H/qrect.h \
 		  $$KERNEL_H/qregion.h \
 		  $$KERNEL_H/qsemimodal.h \
@@ -108,8 +105,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qsize.h \
 		  $$KERNEL_H/qsizegrip.h \
 		  $$KERNEL_H/qsizepolicy.h \
-		  $$KERNEL_H/qsocket.h \
-		  $$KERNEL_H/qsocketdevice.h \
 		  $$KERNEL_H/qsocketnotifier.h \
 		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qstylesheet.h \
@@ -174,7 +169,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_H/qcommonstyle.h \
-		  $$WIDGETS_H/qdial.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgroupbox.h \
 		  $$WIDGETS_H/qgrid.h \
@@ -220,10 +214,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qwellarray.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
-		  $$WIDGETS_H/qwindowsstyle.h \
-		  $$WIDGETS_H/qworkspace.h \
-		  $$WIDGETS_H/qworkspacechild.h
-
+		  $$WIDGETS_H/qwindowsstyle.h
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
 
@@ -328,7 +319,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qpointarray.cpp \
 		  kernel/qpoint.cpp \
 		  kernel/qprinter.cpp \
-		  kernel/qproperty.cpp \
 		  kernel/qrect.cpp \
 		  kernel/qregion.cpp \
 		  kernel/qrichtext.cpp \
@@ -339,8 +329,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qsize.cpp \
 		  kernel/qsizegrip.cpp \
 		  kernel/qstyle.cpp \
-		  kernel/qsocket.cpp \
-		  kernel/qsocketdevice.cpp \
 		  kernel/qsocketnotifier.cpp \
 		  kernel/qstylesheet.cpp \
 		  kernel/qtimer.cpp \
@@ -352,7 +340,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
 		  widgets/qcommonstyle.cpp \
-		  widgets/qdial.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgroupbox.cpp \
 		  widgets/qgrid.cpp \
@@ -399,16 +386,12 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp \
 		  widgets/qwindowsstyle.cpp \
-		  widgets/qworkspace.cpp \
-		  widgets/qworkspacechild.cpp \
 		  dialogs/qcolordialog.cpp \
-		  dialogs/qdeveloper.cpp \
 		  dialogs/qfiledialog.cpp \
 		  dialogs/qfontdialog.cpp \
 		  dialogs/qmessagebox.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
-		  dialogs/qtranslatordialog.cpp \
 		  dialogs/qwizard.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
