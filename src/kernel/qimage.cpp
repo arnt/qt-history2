@@ -5610,26 +5610,26 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 	}
 	QString index;
 	index = buf.left( cpp );
-	QString sbuf = QString(buf.mid( cpp )).simplifyWhiteSpace().lower();
-	sbuf.prepend( " " );
-	i = sbuf.find( " c " );
+ 	buf = buf.mid( cpp ).simplifyWhiteSpace().lower();
+	buf.prepend( " " );
+	i = buf.find( " c " );
 	if ( i < 0 )
-	    i = sbuf.find( " g " );
+	    i = buf.find( " g " );
 	if ( i < 0 )
-	    i = sbuf.find( " g4 " );
+	    i = buf.find( " g4 " );
 	if ( i < 0 )
-	    i = sbuf.find( " m " );
+	    i = buf.find( " m " );
 	if ( i < 0 ) {
 	    qWarning( "QImage: XPM color specification is missing: %s", buf.constData());
 	    return;	// no c/g/g4/m specification at all
 	}
-	sbuf = sbuf.mid( i+3 );
+	buf = buf.mid( i+3 );
 	// Strip any other colorspec
-	int end = sbuf.find(' ', 4);
+	int end = buf.find(' ', 4);
 	if ( end >= 0 )
-	    sbuf.truncate(end);
-	sbuf = sbuf.stripWhiteSpace();
-	if ( sbuf == "none" ) {
+	    buf.truncate(end);
+	buf = buf.stripWhiteSpace();
+	if ( buf == "none" ) {
 	    image.setAlphaBuffer( TRUE );
 	    int transparentColor = currentColor;
 	    if ( image.depth() == 8 ) {
@@ -5642,13 +5642,13 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 	    }
 	} else {
 	    QRgb c_rgb;
-	    if ( ((sbuf.length()-1) % 3) && (sbuf[0] == '#') ) {
-		sbuf.truncate (((buf.length()-1) / 4 * 3) + 1); // remove alpha channel left by imagemagick
+	    if ( ((buf.length()-1) % 3) && (buf[0] == '#') ) {
+		buf.truncate (((buf.length()-1) / 4 * 3) + 1); // remove alpha channel left by imagemagick
 	    }
-	    if (sbuf[0] == '#') {
-		qt_get_hex_rgb( sbuf, &c_rgb );
+	    if (buf[0] == '#') {
+		qt_get_hex_rgb( buf, &c_rgb );
 	    } else {
-		qt_get_named_rgb( sbuf, &c_rgb );
+		qt_get_named_rgb( buf, &c_rgb );
 	    }
 	    if ( image.depth() == 8 ) {
 		image.setColor( currentColor, 0xff000000 | c_rgb );
