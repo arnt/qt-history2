@@ -1300,15 +1300,16 @@ QString QTextStream::readLine()
     QChar c = ts_getc();
     if ( c == QEOF )
 	return QString::null;
+
     QString result( "" );
     while ( c != QEOF && c != '\n' ) {
 	result += c;
 	c = ts_getc();
     }
 
-    if ( !!result && result[int(result.length())-1] == '\r' )
-	result.truncate(result.length()-1);
-	    // (if there are two \r, let one stay)
+    int len = (int)result.length();
+    if ( len && result[len-1] == '\r' )
+	result.truncate(len-1);		// (if there are two \r, let one stay)
 
     return result;
 }
