@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#63 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#64 $
 **
 ** Global type declarations and definitions
 **
@@ -304,7 +304,9 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #if !defined(DEBUG)
 #define RCSTAG(string)
 #elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
-#define RCSTAG(string) static char ident[] __attribute__ ((unused)) = string;
+#define RCSTAG(string) static char ident[] __attribute__ ((unused)) = string
+#elif defined(_CC_CXX_)
+#define RCSTAG(string) typedef int QUnusedSemicolon
 #else
 #define RCSTAG(string)
 #endif
