@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qregion.h"
+#include "qpainterpath.h"
 #include "qpointarray.h"
 #include "qbuffer.h"
 #include "qimage.h"
@@ -2200,8 +2201,9 @@ QRegion::QRegion(const QRect &r, RegionType t)
         if (t == Rectangle) {
             d->qt_rgn = new QRegionPrivate(r);
         } else if (t == Ellipse) {
-            QPointArray a;
-            a.makeEllipse(r.x(), r.y(), r.width(), r.height());
+            QPainterPath path;
+            path.addEllipse(r.x(), r.y(), r.width(), r.height());
+            QPointArray a = path.toSubpathPolygons().at(0).toPointArray();
             d->qt_rgn = PolygonRegion(a.constData(), a.size(), EvenOddRule);
         }
     }

@@ -445,26 +445,9 @@ void QWSPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 
 void QWSPaintEngine::drawEllipse(const QRectF &r)
 {
-    int x = int(r.x());
-    int y = int(r.y());
-    int w = int(r.width());
-    int h = int(r.height());
-
-    QPointArray a;
-// #ifndef QT_NO_TRANSFORMATIONS
-//     a.makeArc(x, y, w, h, 0, 360*16, xmat);
-//     a.translate(-redirection_offset);
-// #else
-//     map(x, y, &x, &y);
-    a.makeEllipse(x, y, w, h);
-//#endif
-/*###########
-    QPen oldpen=pen();
-    QPen tmppen=oldpen;
-    tmppen.setJoinStyle(Qt::BevelJoin);
-    setPen(tmppen);
-*/
-    drawPolyInternal(a);
+    QPainterPath path;
+    path.addEllipse(r.x(), r.y(), r.width(), r.height());
+    drawPolyInternal(path.toSubpathPolygons().at(0).toPointArray());
 }
 
 void QWSPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
