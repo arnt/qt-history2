@@ -55,9 +55,6 @@
 #ifndef QT_NO_LIBRARY
 
 #ifndef QT_H
-#if defined(Q_CC_GNU)
-#warning "avoid including header file \"qwindowdefs.h\" in directory 'tools'"
-#endif
 #include "qwindowdefs.h"
 #endif // QT_H
 
