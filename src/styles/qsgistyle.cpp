@@ -342,11 +342,11 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 }
 
 static const int sgiItemFrame           = 2;    // menu item frame width
-// static const int sgiSepHeight           = 1;    // separator item height
+// static const int sgiSepHeight 	= 1;    // separator item height
 static const int sgiItemHMargin         = 3;    // menu item hor text margin
 static const int sgiItemVMargin         = 2;    // menu item ver text margin
 static const int sgiArrowHMargin        = 6;    // arrow horizontal margin
-// static const int sgiTabSpacing               = 12;   // space between text and tab ### not used?!?
+static const int sgiTabSpacing 		= 12;   // space between text and tab
 // static const int sgiCheckMarkHMargin = 2;    // horiz. margins of check mark ### not used?!?
 static const int sgiCheckMarkSpace      = 20;
 
@@ -990,8 +990,6 @@ void QSGIStyle::drawControl( ControlElement element,
 		p->drawPixmap( pmr.topLeft(), pixmap );
 	    } else {
 		if ( checkable ) {
-		    int mw = checkcol;
-		    int mh = h - 2*sgiItemFrame;
 		    SFlags cflags = Style_Default;
 		    if (! dis)
 			cflags |= Style_Enabled;
@@ -1002,7 +1000,6 @@ void QSGIStyle::drawControl( ControlElement element,
 			QRect er( x+sgiItemFrame+1, y+sgiItemFrame+3, 
 				  pixelMetric(PM_IndicatorWidth), 
 				  pixelMetric(PM_IndicatorHeight) );
-			int iflags = flags & ~Style_On;
 			er.addCoords( 1, 1, -1, -1 );
 			drawPrimitive( PE_ButtonBevel, p, er, cg, cflags, opt );
 			er.addCoords( 0, 1, 1, 1 );
@@ -1316,6 +1313,40 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	QMotifStyle::drawComplexControl( control, p, widget, r, cg, flags, sub, subActive, opt );
 	break;
     }
+}
+
+/*!\reimp
+*/
+QSize QSGIStyle::sizeFromContents( ContentsType contents,
+				     const QWidget *widget,
+				     const QSize &contentsSize,
+				     const QStyleOption& opt ) const
+{
+    QSize sz(contentsSize);
+
+    switch(contents) {
+    case CT_PopupMenuItem:
+	{
+#ifndef QT_NO_POPUPMENU
+	    if (! widget || opt.isDefault())
+		break;
+
+	    QMenuItem *mi = opt.menuItem();
+	    sz = QMotifStyle::sizeFromContents( contents, widget, contentsSize,
+						opt );
+	    // submenu indicator needs a bit more room
+	    if (mi->popup())
+		sz.setWidth( sz.width() + sgiTabSpacing );
+#endif
+	    break;
+	}
+
+    default:
+	sz = QMotifStyle::sizeFromContents( contents, widget, contentsSize, opt );
+	break;
+    }
+
+    return sz;
 }
 
 /*! \reimp */

@@ -92,6 +92,12 @@ public:
 			     const QStyleOption& = QStyleOption::Default ) const;
 
     int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
+
+    QSize sizeFromContents( ContentsType contents,
+			    const QWidget *widget,
+			    const QSize &contentsSize,
+			    const QStyleOption& = QStyleOption::Default ) const;
+
     QRect subRect( SubRect r, const QWidget *widget ) const;
     QRect querySubControlMetrics( ComplexControl control,
 				  const QWidget *widget,
