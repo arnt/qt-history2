@@ -49,7 +49,6 @@ extern QPoint posInWindow(const QWidget *w); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
-extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern CGImageRef qt_mac_create_cgimage(const QPixmap &, Qt::PixmapDrawingMode); //qpixmap_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern const uchar *qt_patternForBrush(int, bool); //qbrush.cpp
