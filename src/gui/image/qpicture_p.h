@@ -74,6 +74,7 @@ public:
         PdcDrawPoints = 22, // ptarr,ival,ival
         PdcDrawWinFocusRect = 23, // rect,color
         PdcDrawTiledPixmap = 24, // rect,pixmap,point
+        PdcDrawPath = 25, // path
 
         // no painting commands below PdcDrawLast.
 

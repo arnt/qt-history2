@@ -22,7 +22,7 @@
 #include "qpixmap.h"
 #include "qregexp.h"
 #include "qtextstream.h"
-#include "q3pointarray.h"
+#include "private/qbezier_p.h"
 
 #include <math.h>
 
@@ -44,7 +44,7 @@ struct PixElement {
 };
 
 struct Q3SVGPaintEngineState {
-    int textx, texty; // current text position
+    double textx, texty; // current text position
     int textalign; // text alignment
     Q_DUMMY_COMPARISON_OPERATOR(Q3SVGPaintEngineState)
 };
@@ -130,7 +130,23 @@ public:
 #define q q_func()
 
 Q3SVGPaintEngine::Q3SVGPaintEngine()
-    : QPaintEngine(*(new Q3SVGPaintEnginePrivate))
+    : QPaintEngine(*(new Q3SVGPaintEnginePrivate),
+                   CoordTransform
+                   | PenWidthTransform
+                   | PatternBrush
+                   | PixmapTransform
+                   | LinearGradients
+                   | LinearGradientFillPolygon
+                   | PixmapScale
+                   | AlphaFill
+                   | AlphaFillPolygon
+                   | AlphaStroke
+                   | AlphaPixmap
+                   | PainterPaths
+                   | ClipTransform
+                   | LineAntialiasing
+                   | FillAntialiasing
+                   | PaintOutsidePaintEvent)
 {
     QDomImplementation domImpl;
     QDomDocumentType docType = domImpl.createDocumentType("svg", publicId, systemId);
@@ -142,7 +158,23 @@ Q3SVGPaintEngine::Q3SVGPaintEngine()
 }
 
 Q3SVGPaintEngine::Q3SVGPaintEngine(Q3SVGPaintEnginePrivate &dptr)
-    : QPaintEngine(dptr)
+    : QPaintEngine(dptr,
+                   CoordTransform
+                   | PenWidthTransform
+                   | PatternBrush
+                   | PixmapTransform
+                   | LinearGradients
+                   | LinearGradientFillPolygon
+                   | PixmapScale
+                   | AlphaFill
+                   | AlphaFillPolygon
+                   | AlphaStroke
+                   | AlphaPixmap
+                   | PainterPaths
+                   | ClipTransform
+                   | LineAntialiasing
+                   | FillAntialiasing
+                   | PaintOutsidePaintEvent)
 {
     QDomImplementation domImpl;
     QDomDocumentType docType = domImpl.createDocumentType("svg", publicId, systemId);
@@ -243,9 +275,8 @@ void Q3SVGPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpera
     d->appendChild(e, QPicturePrivate::PdcSetClipRegion);
 }
 
-void Q3SVGPaintEngine::updateRenderHints(QPainter::RenderHints hints)
+void Q3SVGPaintEngine::updateRenderHints(QPainter::RenderHints)
 {
-
 }
 
 void Q3SVGPaintEngine::drawRect(const QRectF &r)
@@ -272,27 +303,6 @@ void Q3SVGPaintEngine::drawPoints(const QPointF *points, int pointCount)
         QLineF l(points[i], points[i]);
         drawLines(&l, 1);
     }
-}
-
-void Q3SVGPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
-{
-    QDomElement e;
-    int x, y, width, height;
-
-    // ### code dup - maybe operate with a current dom element?
-    e = d->doc.createElement("rect");
-    x = r.x();
-    y = r.y();
-    width = r.width();
-    height = r.height();
-
-    e.setAttribute("x", x);
-    e.setAttribute("y", y);
-    e.setAttribute("width", width);
-    e.setAttribute("height", height);
-    e.setAttribute("rx", (xRnd*r.width())/200);
-    e.setAttribute("ry", (yRnd*r.height())/200);
-    d->appendChild(e, QPicturePrivate::PdcDrawRoundRect);
 }
 
 void Q3SVGPaintEngine::drawEllipse(const QRect &r)
@@ -412,6 +422,41 @@ void Q3SVGPaintEngine::drawLines(const QLineF *lines, int lineCount)
         e.setAttribute("y2", lines[i].endY());
         d->appendChild(e, QPicturePrivate::PdcDrawLineSegments);
     }
+}
+
+void Q3SVGPaintEngine::drawPath(const QPainterPath &path)
+{
+    QString str, tmp;
+    for (int i = 0; i < path.elementCount(); ++i) {
+        const QPainterPath::Element &elm = path.elementAt(i);
+        switch (elm.type) {
+        case QPainterPath::LineToElement:
+            tmp.sprintf("L %f %f ", elm.x, elm.y);
+            str += tmp;
+            break;
+        case QPainterPath::MoveToElement:
+            tmp.sprintf("M %f %f ", elm.x, elm.y);
+            str += tmp;
+            break;
+        case QPainterPath::CurveToElement:
+        {
+            Q_ASSERT(path.elementCount() > i+2);
+            const QPainterPath::Element cd1 = path.elementAt(i+1);
+            const QPainterPath::Element cd2 = path.elementAt(i+2);
+            Q_ASSERT(cd1.type == QPainterPath::CurveToDataElement
+                     && cd2.type == QPainterPath::CurveToDataElement);
+            tmp.sprintf("C %f %f %f %f %f %f ", elm.x, elm.y, cd1.x, cd1.y, cd2.x, cd2.y);
+            str += tmp;
+            i += 2;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    QDomElement e = d->doc.createElement("path");
+    e.setAttribute("d", str);
+    d->appendChild(e, QPicturePrivate::PdcDrawPath);
 }
 
 void Q3SVGPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
@@ -888,7 +933,7 @@ bool Q3SVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
         pt->setFont(font);
     }
 
-    int x1, y1, x2, y2, rx, ry, w, h;
+    double x1, y1, x2, y2, rx, ry, w, h;
     double cx1, cy1, crx, cry;
     switch (t) {
     case CommentElement:
@@ -896,51 +941,51 @@ bool Q3SVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
         break;
     case RectElement:
         rx = ry = 0;
-        x1 = lenToInt(attr, "x");
-        y1 = lenToInt(attr, "y");
-        w = lenToInt(attr, "width");
-        h = lenToInt(attr, "height");
+        x1 = lenToDouble(attr, "x");
+        y1 = lenToDouble(attr, "y");
+        w = lenToDouble(attr, "width");
+        h = lenToDouble(attr, "height");
         if (w == 0 || h == 0) // prevent div by zero below
             break;
-        x2 = (int) attr.contains("rx"); // tiny abuse of x2 and y2
-        y2 = (int) attr.contains("ry");
+        x2 = attr.contains("rx"); // tiny abuse of x2 and y2
+        y2 = attr.contains("ry");
         if (x2)
-            rx = lenToInt(attr, "rx");
+            rx = lenToDouble(attr, "rx");
         if (y2)
-            ry = lenToInt(attr, "ry");
+            ry = lenToDouble(attr, "ry");
         if (x2 && !y2)
             ry = rx;
         else if (!x2 && y2)
             rx = ry;
-        rx = int(200.0*double(rx) / double(w));
-        ry = int(200.0*double(ry) / double(h));
-        pt->drawRoundRect(x1, y1, w, h, rx, ry);
+        rx = 200.0*rx / w;
+        ry = 200.0*ry / h;
+        pt->drawRoundRect(QRectF(x1, y1, w, h), int(rx), int(ry));
         break;
     case CircleElement:
         cx1 = lenToDouble(attr, "cx") + 0.5;
         cy1 = lenToDouble(attr, "cy") + 0.5;
         crx = lenToDouble(attr, "r");
-        pt->drawEllipse((int)(cx1-crx), (int)(cy1-crx), (int)(2*crx), (int)(2*crx));
+        pt->drawEllipse(QRectF(cx1-crx, cy1-crx, 2*crx, 2*crx));
         break;
     case EllipseElement:
         cx1 = lenToDouble(attr, "cx") + 0.5;
         cy1 = lenToDouble(attr, "cy") + 0.5;
         crx = lenToDouble(attr, "rx");
         cry = lenToDouble(attr, "ry");
-        pt->drawEllipse((int)(cx1-crx), (int)(cy1-cry), (int)(2*crx), (int)(2*cry));
+        pt->drawEllipse(QRectF(cx1-crx, cy1-cry, 2*crx, 2*cry));
         break;
     case LineElement:
         {
-            x1 = lenToInt(attr, "x1");
-            x2 = lenToInt(attr, "x2");
-            y1 = lenToInt(attr, "y1");
-            y2 = lenToInt(attr, "y2");
+            x1 = lenToDouble(attr, "x1");
+            x2 = lenToDouble(attr, "x2");
+            y1 = lenToDouble(attr, "y1");
+            y2 = lenToDouble(attr, "y2");
             QPen p = pt->pen();
             w = p.width();
             p.setWidth((unsigned int)(w * (qAbs(pt->worldMatrix().m11()) + qAbs(pt->worldMatrix().m22())) / 2));
             pt->setPen(p);
-            pt->drawLine(x1, y1, x2, y2);
-            p.setWidth(w);
+            pt->drawLine(QLineF(x1, y1, x2, y2));
+            p.setWidthF(w);
             pt->setPen(p);
         }
         break;
@@ -951,11 +996,11 @@ bool Q3SVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
             pts = pts.simplified();
             QStringList sl = pts.split(QRegExp(QString::fromLatin1("[,\\s]")),
                                                QString::SkipEmptyParts);
-            Q3PointArray ptarr((uint) sl.count() / 2);
+            QPolygonF ptarr((uint) sl.count() / 2);
             for (int i = 0; i < (int) sl.count() / 2; i++) {
                 double dx = sl[2*i].toDouble();
                 double dy = sl[2*i+1].toDouble();
-                ptarr.setPoint(i, int(dx), int(dy));
+                ptarr[i] = QPointF(dx, dy);
             }
             if (t == PolylineElement) {
                 if (pt->brush().style() != Qt::NoBrush) {
@@ -988,12 +1033,12 @@ bool Q3SVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
     case TextElement:
         {
             if (attr.contains("x"))
-                 d->curr->textx = lenToInt(attr, "x");
+                 d->curr->textx = lenToDouble(attr, "x");
             if (attr.contains("y"))
-                 d->curr->texty = lenToInt(attr, "y");
+                 d->curr->texty = lenToDouble(attr, "y");
             if (t == TSpanElement) {
-                d->curr->textx += lenToInt(attr, "dx");
-                d->curr->texty += lenToInt(attr, "dy");
+                d->curr->textx += lenToDouble(attr, "dx");
+                d->curr->texty += lenToDouble(attr, "dy");
             }
             // backup old colors
             QPen pn = pt->pen();
@@ -1012,7 +1057,7 @@ bool Q3SVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
                         d->curr->textx -= w / 2;
                     else if (d->curr->textalign == Qt::AlignRight)
                         d->curr->textx -= w;
-                    pt->drawText(d->curr->textx, d->curr->texty, text);
+                    pt->drawText(QPointF(d->curr->textx, d->curr->texty), text);
                     // restore pen
                     pn.setColor(pcolor);
                     pt->setPen(pn);
@@ -1033,10 +1078,10 @@ bool Q3SVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
         break;
     case ImageElement:
         {
-            x1 = lenToInt(attr, "x");
-            y1 = lenToInt(attr, "y");
-            w = lenToInt(attr, "width");
-            h = lenToInt(attr, "height");
+            x1 = lenToDouble(attr, "x");
+            y1 = lenToDouble(attr, "y");
+            w = lenToDouble(attr, "width");
+            h = lenToDouble(attr, "height");
             QString href = attr.namedItem("xlink:href").nodeValue();
             // ### catch references to embedded .svg files
             QPixmap pix;
@@ -1044,7 +1089,7 @@ bool Q3SVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
                 qWarning("Q3SVGPaintEngine::play: Couldn't load image %s",href.latin1());
                 break;
             }
-            pt->drawPixmap(QRect(x1, y1, w, h), pix);
+            pt->drawPixmap(QRectF(x1, y1, w, h), pix, QRectF());
         }
         break;
     case DescElement:
@@ -1348,9 +1393,9 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
     double x0 = 0, y0 = 0;                // starting point
     double x = 0, y = 0;                // current point
     double controlX = 0, controlY = 0;        // last control point for curves
-    Q3PointArray path(500);                // resulting path
+    QPolygonF path(500);                // resulting path
     QList<int> subIndex;                // start indices for subpaths
-    Q3PointArray quad(4), bezier;        // for curve calculations
+    QPolygonF quad(4), bezier;        // for curve calculations
     int pcount = 0;                        // current point array index
     int idx = 0;                        // current data position
     int mode = 0, lastMode = 0;                // parser state
@@ -1401,15 +1446,15 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
         switch (mode) {
         case 0:                                        // 'M' move to
             if (x != x0 || y != y0)
-                path.setPoint(pcount++, int(x0), int(y0));
+                path[pcount++] = QPointF(x0, y0);
             x = x0 = arg[0] + offsetX;
             y = y0 = arg[1] + offsetY;
             subIndex.append(pcount);
-            path.setPoint(pcount++, int(x0), int(y0));
+            path[pcount++] = QPointF(x0, y0);
             mode = 2;                                // -> 'L'
             break;
         case 1:                                        // 'Z' close path
-            path.setPoint(pcount++, int(x0), int(y0));
+            path[pcount++] = QPointF(x0, y0);
             x = x0;
             y = y0;
             mode = 0;
@@ -1417,22 +1462,22 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
         case 2:                                        // 'L' line to
             x = arg[0] + offsetX;
             y = arg[1] + offsetY;
-            path.setPoint(pcount++, int(x), int(y));
+            path[pcount++] = QPointF(x, y);
             break;
         case 3:                                        // 'H' horizontal line
             x = arg[0] + offsetX;
-            path.setPoint(pcount++, int(x), int(y));
+            path[pcount++] = QPointF(x, y);
             break;
         case 4:                                        // 'V' vertical line
             y = arg[0] + offsetY;
-            path.setPoint(pcount++, int(x), int(y));
+            path[pcount++] = QPointF(x, y);
             break;
 #ifndef QT_NO_BEZIER
         case 5:                                        // 'C' cubic bezier curveto
         case 6:                                        // 'S' smooth shorthand
         case 7:                                        // 'Q' quadratic bezier curves
         case 8: {                                // 'T' smooth shorthand
-            quad.setPoint(0, int(x), int(y));
+            quad[0] = QPointF(x, y);
             // if possible, reflect last control point if smooth shorthand
             if (mode == 6 || mode == 8) {         // smooth 'S' and 'T'
                 bool cont = mode == lastMode ||
@@ -1440,34 +1485,34 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
                             mode == 8 && lastMode == 7;        // 'T' and 'Q'
                 x = cont ? 2*x-controlX : x;
                 y = cont ? 2*y-controlY : y;
-                quad.setPoint(1, int(x), int(y));
-                quad.setPoint(2, int(x), int(y));
+                quad[1] = QPointF(x, y);
+                quad[2] = QPointF(x, y);
             }
             for (int j = 0; j < numArgs/2; j++) {
                 x = arg[2*j  ] + offsetX;
                 y = arg[2*j+1] + offsetY;
-                quad.setPoint(j+4-numArgs/2, int(x), int(y));
+                quad[j+4-numArgs/2] = QPointF(x, y);
             }
             // remember last control point for next shorthand
             controlX = quad[2].x();
             controlY = quad[2].y();
             // transform quadratic into cubic Bezier
             if (mode == 7 || mode == 8) {        // cubic 'Q' and 'T'
-                int x31 = quad[0].x()+int(2.0*(quad[2].x()-quad[0].x())/3.0);
-                int y31 = quad[0].y()+int(2.0*(quad[2].y()-quad[0].y())/3.0);
-                int x32 = quad[2].x()+int(2.0*(quad[3].x()-quad[2].x())/3.0);
-                int y32 = quad[2].y()+int(2.0*(quad[3].y()-quad[2].y())/3.0);
-                quad.setPoint(1, x31, y31);
-                quad.setPoint(2, x32, y32);
+                double x31 = quad[0].x()+2.0*(quad[2].x()-quad[0].x())/3.0;
+                double y31 = quad[0].y()+2.0*(quad[2].y()-quad[0].y())/3.0;
+                double x32 = quad[2].x()+2.0*(quad[3].x()-quad[2].x())/3.0;
+                double y32 = quad[2].y()+2.0*(quad[3].y()-quad[2].y())/3.0;
+                quad[1] = QPointF(x31, y31);
+                quad[2] = QPointF(x32, y32);
             }
             // calculate points on curve
-            bezier = quad.cubicBezier();
+            bezier = QBezier(quad.at(0), quad.at(1), quad.at(2), quad.at(3)).toPolygon();
             // reserve more space if needed
             if (bezier.size() > path.size() - pcount)
                 path.resize(path.size() - pcount + bezier.size());
             // copy
             for (int k = 0; k < (int)bezier.size(); k ++)
-                path.setPoint(pcount++, bezier[k]);
+                path[pcount++] = bezier[k];
             break;
         }
 #endif // QT_NO_BEZIER
@@ -1475,7 +1520,7 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
             // ### just a straight line
             x = arg[5] + offsetX;
             y = arg[6] + offsetY;
-            path.setPoint(pcount++, int(x), int(y));
+            path[pcount++] = QPointF(x, y);
             break;
         };
         lastMode = mode;
@@ -1488,7 +1533,7 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
     if (pt->brush().style() != Qt::NoBrush) {
         // fill the area without stroke first
         if (x != x0 || y != y0)
-            path.setPoint(pcount++, int(x0), int(y0));
+            path[pcount++] = QPointF(x0, y0);
         QPen pen = pt->pen();
         pt->setPen(Qt::NoPen);
         pt->drawPolygon(path, false, 0, pcount);
@@ -1504,7 +1549,7 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
             // ### always joins ends if first and last point coincide.
             // ### 'Z' can't have the desired effect
             if (next-start > 0)
-                pt->drawPolyline(path, start, next-start);
+                pt->drawPolyline(path.data()+start, next-start);
             start = next;
         }
     }

@@ -39,7 +39,6 @@ public:
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);
 
-    void drawRoundRect(const QRect &r, int xRnd, int yRnd);
     void drawEllipse(const QRect &r);
     void drawArc(const QRect &r, int a, int alen);
     void drawPie(const QRect &r, int a, int alen);
@@ -51,7 +50,7 @@ public:
     void drawRect(const QRectF &r);
     void drawPoint(const QPointF &p);
     void drawPoints(const QPointF *points, int pointCount);
-
+    void drawPath(const QPainterPath &path);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode);
 
