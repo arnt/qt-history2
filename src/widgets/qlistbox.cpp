@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#226 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#227 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1246,16 +1246,24 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     switch ( e->key() ) {
     case Key_Up:
 	if ( currentRow() > 0 ) {
-	    setCurrentItem( currentItem() - 1 );
-	    if ( e->state() & ShiftButton )
+	    if ( e->state() & ShiftButton ) {
+	        int i = currentItem();
+		setCurrentItem( i - 1 );
 		toggleCurrentItem();
+	        setCurrentItem( i );
+	    }
+	    setCurrentItem( currentItem() - 1 );
 	}
 	break;
     case Key_Down:
 	if ( currentRow() < numRows()-1 ) {
-	    setCurrentItem( currentItem()+1 );
-	    if ( e->state() & ShiftButton )
+	    if ( e->state() & ShiftButton ) {
+	        int i = currentItem();
+		setCurrentItem( i + 1 );
 		toggleCurrentItem();
+		setCurrentItem( i );
+	    }
+	    setCurrentItem( currentItem()+1 );
 	}
 	break;
     case Key_Left:
@@ -2074,31 +2082,39 @@ void QListBox::ensureCurrentVisible()
 	return;
 
     doLayout();
+    
+    int h = (d->current->height( this ) + 1) / 2;
+    int w = (d->current->width( this ) + 1) / 2;
     int row = currentRow();
     int column = currentColumn();
 
-    if ( d->rowPos[row] >= contentsY() &&
-	 d->rowPos[row+1] <= contentsY()+viewport()->height() &&
-	 d->columnPos[column] >= contentsX() &&
-	 d->columnPos[column+1] <= contentsX()+viewport()->width() )
-	return;
+    ensureVisible( d->columnPos[column] + w, d->rowPos[row] + h, w, h);
+    
+//     int row = currentRow();
+//     int column = currentColumn();
 
-    int y = (d->rowPos[row] + d->rowPos[row+1] - viewport()->height())/2;
-    // fuddle y to get good-looking alignment?
+//     if ( d->rowPos[row] >= contentsY() &&
+// 	 d->rowPos[row+1] <= contentsY()+viewport()->height() &&
+// 	 d->columnPos[column] >= contentsX() &&
+// 	 d->columnPos[column+1] <= contentsX()+viewport()->width() )
+// 	return;
 
-    // see whether mere vertical scrolling will do
-    if ( contentsX() < d->columnPos[column] &&
-	 contentsX()+contentsWidth() < d->columnPos[column+1] &&
-	 contentsY() < d->rowPos[row] &&
-	 contentsY()+contentsHeight() < d->rowPos[row+1] ) {
-	setContentsPos( contentsX(), y );
-    } else {
-	int x = (d->columnPos[column] +
-		 d->columnPos[column+1] -
-		 viewport()->width())/2;
-	// fuddle x too?
-	setContentsPos( x, y );
-    }
+//     int y = (d->rowPos[row] - d->rowPos[row+1] - viewport()->height())/2;
+//     // fuddle y to get good-looking alignment?
+
+//     // see whether mere vertical scrolling will do
+//     if ( contentsX() < d->columnPos[column] &&
+// 	 contentsX()+contentsWidth() < d->columnPos[column+1] &&
+// 	 contentsY() < d->rowPos[row] &&
+// 	 contentsY()+contentsHeight() < d->rowPos[row+1] ) {
+// 	setContentsPos( contentsX(), y );
+//     } else {
+// 	int x = (d->columnPos[column] +
+// 		 d->columnPos[column+1] -
+// 		 viewport()->width())/2;
+// 	// fuddle x too?
+// 	setContentsPos( x, y );
+//     }
 }
 
 
@@ -2134,9 +2150,10 @@ void QListBox::doAutoScroll()
 	if ( y < 0 )
 	    y = 0;
 	if ( y != contentsY() ) {
+	    setContentsPos( contentsX(), y );
+	    y = contentsY() - verticalScrollBar()->lineStep();
 	    d->mouseMoveRow = rowAt( y );
 	    updateSelection();
-	    setContentsPos( contentsX(), y );
 	}
     } else if ( d->scrollPos.y() > 0 ) {
 	// scroll down
@@ -2144,9 +2161,10 @@ void QListBox::doAutoScroll()
 	if ( y + viewport()->height() > contentsHeight() )
 	    y = contentsHeight() - viewport()->height();
 	if ( y != contentsY() ) {
-	    d->mouseMoveRow = rowAt( y + viewport()->height() - 1 );
-	    updateSelection();
 	    setContentsPos( contentsX(), y );
+	    y = contentsY() + verticalScrollBar()->lineStep();
+	    d->mouseMoveRow = rowAt(y + viewport()->height() - 1 );
+	    updateSelection();
 	}
     }
 
