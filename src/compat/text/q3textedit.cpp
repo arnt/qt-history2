@@ -3079,8 +3079,8 @@ void Q3TextEdit::undo()
         return;
     }
     lastFormatted = 0;
-    ensureCursorVisible();
     repaintChanged();
+    ensureCursorVisible();
     drawCursor(true);
     setModified();
     // ### If we get back to a completely blank textedit, it
