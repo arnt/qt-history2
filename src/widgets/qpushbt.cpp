@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#62 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#61 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#62 $")
 
 
 /*----------------------------------------------------------------------------
@@ -73,7 +73,7 @@ void QPushButton::init()
   boxes. \endlink A push button is initially not a toggle button.
 
   \sa setOn(), toggle(), toggleButton() toggled()
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 void QPushButton::setToggleButton( bool enable )
 {
@@ -148,7 +148,7 @@ void QPushButton::setAutoDefault( bool enable )
 
   Default push buttons are only allowed in dialogs.
 
-  \sa default(), setAutoDefault(), QDialog
+  \sa isDefault(), setAutoDefault(), QDialog
  ----------------------------------------------------------------------------*/
 
 void QPushButton::setDefault( bool enable )
