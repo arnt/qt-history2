@@ -493,20 +493,30 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
 */
 void QTextBrowser::scrollToAnchor(const QString& name)
 {
-    qDebug("scroll to anchor %s", name.latin1() );
-    QPainter p( viewport() );
-    QFontMetrics fm( p.fontMetrics() );
-    QTextCursor tc( richText() );
-    tc.gotoParagraph( &p, &richText() );
-    tc.makeLineLayout( &p, fm );
-    tc.gotoLineStart( &p, fm );
-    do {
-	if ( !tc.currentFormat()->anchorName().isEmpty() )
-	if ( tc.currentFormat()->anchorName() == name ) {
-	    resizeContents( viewport()->width(), richText().flow()->height );
-	    setContentsPos( contentsX(), tc.lineGeometry().top() );
-	    return;
+    if ( name.isEmpty() )
+	return;
+    
+    QTextParagraph* b = &richText();
+    while ( b->child )
+	b = b->child;
+    while ( b ) {
+	for (int i = 0; i < b->text.length(); i++ ) {
+	    QString s = b->text.formatAt( i ) ->anchorName();
+	    if ( s == name ) {
+		QPainter p( viewport() );
+		QFontMetrics fm( p.fontMetrics() );
+		QTextCursor tc( richText() );
+		if ( b->dirty )
+		    tc.updateLayout( &p );
+		tc.gotoParagraph( &p, b );
+		while ( i-- )
+		    tc.rightOneItem( &p );
+		resizeContents( viewport()->width(), richText().flow()->height );
+		setContentsPos( contentsX(), tc.lineGeometry().top() );
+		return;
+	    }
 	}
-    } while ( tc.rightOneItem( &p ) );
+	b = b->nextInDocument();
+    }
 }
 
