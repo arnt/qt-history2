@@ -46,6 +46,7 @@
 
 class QTextCodec;
 class QIODevice;
+class QFont;
 
 class Q_EXPORT QTextEncoder {
 public:
@@ -73,7 +74,7 @@ public:
     static QTextCodec* codecForIndex(int i);
     static QTextCodec* codecForLocale();
     static void setCodecForLocale(QTextCodec *c);
-    
+
     static void deleteAllCodecs();
 
     static const char* locale();
@@ -97,9 +98,13 @@ public:
     virtual int heuristicContentMatch(const char* chars, int len) const = 0;
     virtual int heuristicNameMatch(const char* hint) const;
 
+    virtual unsigned short characterFromUnicode(const QChar &character) const;
+
 protected:
     QTextCodec();
     static int simpleHeuristicNameMatch(const char* name, const char* hint);
+
+    friend class QFont;
 };
 #endif // QT_NO_TEXTCODEC
 #endif // QTEXTCODEC_H

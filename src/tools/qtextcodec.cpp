@@ -826,6 +826,15 @@ QString QTextCodec::toUnicode(const char* chars) const
     return toUnicode(chars,qstrlen(chars));
 }
 
+
+unsigned short QTextCodec::characterFromUnicode(const QChar &character) const
+{
+    QCString result = QTextCodec::fromUnicode(QString(character));
+    if (result.length() == 2)
+	return ((unsigned short) result[0] << 8) | (unsigned short) result[1];
+    return (unsigned short) result[0];
+}
+
 /*!
   Returns TRUE if the unicode character \a ch can be fully encoded
   with this codec.  The default implementation tests if the result of
@@ -1319,6 +1328,7 @@ public:
 
     QString toUnicode(const char* chars, int len) const;
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+    // unsigned short characterFromUnicode(const QChar &character) const;
 
     const char* name() const;
     int mibEnum() const;
@@ -1945,6 +1955,7 @@ public:
 
     QString toUnicode(const char* chars, int len) const;
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+    unsigned short characterFromUnicode(const QChar &character) const;
 
     const char* name() const;
     int mibEnum() const;
@@ -1992,6 +2003,13 @@ QCString QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
     }
     r[len] = 0;
     return r;
+}
+
+
+unsigned short QLatin1Codec::characterFromUnicode(const QChar &character) const
+{
+    if (character.row()) return (unsigned short) '?';
+    return (unsigned short) character.cell();
 }
 
 
