@@ -411,7 +411,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 		p++;
 	    *r = '\0';
 
-	    if ( argc >= (int)argv.size() )	// expand array
+	    if ( argc >= (int)argv.size()-1 )	// expand array
 		argv.resize( argv.size()*2 );
 	    argv[argc++] = start;
 	}
