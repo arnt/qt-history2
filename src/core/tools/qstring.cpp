@@ -2239,7 +2239,8 @@ QString QString::fromLatin1(const char *s, int size)
 	d = &shared_empty;
 	++d->ref;
     } else {
-	int len = size < 0 ? strlen(s) : size;
+	int slen = strlen(s);
+	int len = size < 0 ? slen : qMin(slen, size);
 	d = (Data*) qMalloc(sizeof(Data)+len*sizeof(QChar));
 	d->ref = 1;
 	d->alloc = d->size = len;
@@ -2343,12 +2344,12 @@ QString qt_winMB2QString( const char* mb, int mblen )
 
     See QTextCodec for more diverse coding/decoding of Unicode strings.
 */
-QString QString::fromLocal8Bit( const char* local8Bit, int len )
+QString QString::fromLocal8Bit( const char* local8Bit, int size )
 {
     if ( !local8Bit )
 	return QString::null;
-    if (len < 0)
-	len = strlen(local8Bit);
+    int slen = strlen(local8Bit);
+    int len = size < 0 ? slen : qMin(slen, size);
 #if defined(Q_OS_DARWIN)
     return fromUtf8(local8Bit,len);
 #elif defined(Q_OS_WIN32)
@@ -2388,20 +2389,20 @@ QString QString::fromLocal8Bit( const char* local8Bit, int len )
 	// str == "12345"
     \endcode
  */
-QString QString::fromAscii( const char* ascii, int len )
+QString QString::fromAscii( const char* ascii, int size )
 {
 #ifndef QT_NO_TEXTCODEC
     if ( codecForCStrings ) {
 	if ( !ascii )
 	    return QString::null;
-	if ( len < 0 )
-	    len = strlen( ascii );
+	int slen = strlen(ascii);
+	int len = size < 0 ? slen : qMin(slen, size);
 	if ( len == 0 || *ascii == '\0' )
 	    return QString::fromLatin1( "" );
 	return codecForCStrings->toUnicode( ascii, len );
     }
 #endif
-    return fromLatin1( ascii, len );
+    return fromLatin1( ascii, size );
 }
 
 
@@ -2418,13 +2419,13 @@ QString QString::fromAscii( const char* ascii, int len )
 
     See QTextCodec for more diverse coding/decoding of Unicode strings.
 */
-QString QString::fromUtf8( const char* utf8, int len )
+QString QString::fromUtf8( const char* utf8, int size )
 {
     if ( !utf8 )
 	return QString::null;
 
-    if ( len < 0 )
-	len = strlen( utf8 );
+    int slen = strlen(utf8);
+    int len = size < 0 ? slen : qMin(slen, size);
     QString result;
     result.resize( len*2 ); // worst case
     unsigned short *qch = result.d->data;
@@ -3775,7 +3776,7 @@ ulong QString::toULong(bool *ok, int base) const
 
 int QString::toInt(bool *ok, int base) const
 {
-    long v = toLongLong(ok, base);
+    Q_LLONG v = toLongLong(ok, base);
     if (v < INT_MIN || v > INT_MAX) {
 	if (ok)
 	    *ok = false;
@@ -3802,7 +3803,7 @@ int QString::toInt(bool *ok, int base) const
 
 uint QString::toUInt(bool *ok, int base) const
 {
-    ulong v = toULongLong(ok, base);
+    Q_ULLONG v = toULongLong(ok, base);
     if (v > UINT_MAX) {
 	if (ok)
 	    *ok = false;
