@@ -448,18 +448,12 @@ void QLabel::setAlignment( int alignment )
 
 /*!
   \property QLabel::indent
-  \brief the label's indent in pixels
+  \brief the label's text indent in pixels
 
-  The indent applies to the left edge if alignment() is \c AlignLeft,
-  to the right edge if alignment() is \c AlignRight, to the top edge
-  if alignment() is \c AlignTop, and to to the bottom edge if
-  alignment() is \c AlignBottom.
-
-  If the indent is negative, or if no indent has been set, the label
-  computes the effective indent as follows: if frameWidth() is 0, the
-  effective indent becomes 0. If frameWidth() is greater than 0, the
-  effective indent becomes half the width of the "x" character of the
-  widget's current font().
+  If a label displays text, the indent applies to the left edge if
+  alignment() is \c AlignLeft, to the right edge if alignment() is \c
+  AlignRight, to the top edge if alignment() is \c AlignTop, and to to
+  the bottom edge if alignment() is \c AlignBottom.
 
   \sa alignment, frameWidth(), font()
 */
@@ -516,71 +510,63 @@ void QLabel::setAutoResize( bool enable )
 
 QSize QLabel::sizeForWidth( int w ) const
 {
-    QFontMetrics fm = fontMetrics();
     QRect br;
     QPixmap *pix = pixmap();
 #ifndef QT_NO_PICTURE
     QPicture *pic = picture();
+#else
+    const int pic = 0;
 #endif
 #ifndef QT_NO_MOVIE
     QMovie *mov = movie();
+#else
+    const int mov = 0;
 #endif
-    int fw = frameWidth();
-    int hm = -1;
-    int horizAlign = QApplication::horizontalAlignment( align );
-    if ( (horizAlign & AlignLeft) || (horizAlign & AlignRight ) )
-	hm = indent();
-    if ( hm < 0 ) {
-	if ( fw > 0 )
-	    hm = fm.width( 'x' ) / 2;
-	else
-	    hm = 0;
+    int hextra = 2 * frameWidth();
+    int vextra = hextra;
+    QFontMetrics fm( fontMetrics() );
+    int xw = fm.width( 'x' );
+    if ( !mov && !pix && !pic ) {
+	if ( hextra > 0 )  { // we have a frame
+	    hextra += 2*(xw/2);
+	    vextra = hextra;
+	}
+	if ( indent() >= 0 ) {
+	    int horizAlign = QApplication::horizontalAlignment( align );
+	    if ( (horizAlign & AlignLeft) || (horizAlign & AlignRight ) )
+		hextra += indent();
+	    if ( (align & AlignTop) || (align & AlignBottom ) )
+		vextra += indent();
+	}
     }
-    int vm = -1;
-    if ( (align & AlignTop) || (align & AlignBottom ) )
-	vm = indent();
-    if ( vm < 0 ) {
-	if ( fw > 0 )
-	    vm = fm.width( 'x' ) / 2;
-	else
-	    vm = 0;
-    }
-    if ( pix ) {
+
+    if ( pix )
 	br = pix->rect();
-	vm = hm = 0;
-    }
 #ifndef QT_NO_PICTURE
-    else if ( pic ) {
+    else if ( pic )
 	br = pic->boundingRect();
-	vm = hm = 0;
-    }
 #endif
 #ifndef QT_NO_MOVIE
-    else if ( mov ) {
+    else if ( mov )
 	br = mov->framePixmap().rect();
-	vm = hm = 0;
-    }
 #endif
 #ifndef QT_NO_RICHTEXT
     else if ( doc ) {
 	int oldW = doc->width();
 	if ( align & WordBreak ) {
-	    if ( w < 0 ) {
+	    if ( w < 0 )
 		doc->adjustSize();
-	    } else {
-		w -= 2*fw + hm;
-		doc->setWidth( w );
-	    }
+	    else
+		doc->setWidth( w-hextra );
 	}
 	br = QRect( 0, 0, doc->widthUsed(), doc->height() );
 	doc->setWidth( oldW );
     }
-    else
 #endif
-    {
+    else {
 	bool tryWidth = (w < 0) && (align & WordBreak);
 	if ( tryWidth )
-	    w = fm.width( 'x' ) * 80;
+	    w = xw * 80;
 	else if ( w < 0 )
 	    w = 2000;
 	br = fm.boundingRect( 0, 0, w ,2000, alignment(), text() );
@@ -589,8 +575,8 @@ QSize QLabel::sizeForWidth( int w ) const
 	if ( tryWidth && br.height() < 2*fm.lineSpacing() && br.width() > w/4 )
 	    br = fm.boundingRect( 0, 0, w/4, 2000, alignment(), text() );
     }
-    int wid = br.width() + hm + 2*fw;
-    int hei = br.height() + vm + 2*fw;
+    int wid = br.width() + hextra;
+    int hei = br.height() + vextra;
 
     return QSize( wid, hei );
 }
@@ -725,29 +711,34 @@ void QLabel::drawContents( QPainter *p )
     QRect cr = contentsRect();
 
     QPixmap *pix = pixmap();
+#ifndef QT_NO_PICTURE
+    QPicture *pic = picture();
+#else
+    const int pic = 0;
+#endif
 #ifndef QT_NO_MOVIE
     QMovie *mov = movie();
 #else
     const int mov = 0;
 #endif
 
-    int m = indent();
-    if ( m < 0 && !mov && !pix ) {
-	if ( frameWidth() > 0 )
-	    m = p->fontMetrics().width('x') / 2;
-	else
-	    m = 0;
-    }
-    if ( m > 0 ) {
-	int hAlign = QApplication::horizontalAlignment( align );
-	if ( hAlign & AlignLeft )
-	    cr.setLeft( cr.left() + m );
-	if ( hAlign & AlignRight )
-	    cr.setRight( cr.right() - m );
-	if ( align & AlignTop )
-	    cr.setTop( cr.top() + m );
-	if ( align & AlignBottom )
-	    cr.setBottom( cr.bottom() - m );
+    if ( !mov && !pix && !pic ) {
+	if ( frameWidth() > 0 ) {
+	    int xw = fontMetrics().width('x')/2;
+	    cr.addCoords( xw, xw, -xw, -xw );
+	}
+	if ( indent() > 0 ) {
+	    int hAlign = QApplication::horizontalAlignment( align );
+	    if ( hAlign & AlignLeft )
+		cr.setLeft( cr.left() + indent() );
+	    if ( hAlign & AlignRight )
+		cr.setRight( cr.right() - indent() );
+	    if ( align & AlignTop )
+		cr.setTop( cr.top() + indent() );
+	    if ( align & AlignBottom )
+		cr.setBottom( cr.bottom() - indent() );
+	}
+	
     }
 
 #ifndef QT_NO_MOVIE
@@ -788,8 +779,8 @@ void QLabel::drawContents( QPainter *p )
     } else
 #endif
 #ifndef QT_NO_PICTURE
-    if ( lpicture ) {
-	QRect br = lpicture->boundingRect();
+    if ( pic ) {
+	QRect br = pic->boundingRect();
 	int rw = br.width();
 	int rh = br.height();
 	if ( scaledcontents ) {
@@ -798,7 +789,7 @@ void QLabel::drawContents( QPainter *p )
 #ifndef QT_NO_TRANSFORMATIONS
 	    p->scale( (double)cr.width()/rw, (double)cr.height()/rh );
 #endif
-	    p->drawPicture( -br.x(), -br.y(), *lpicture );
+	    p->drawPicture( -br.x(), -br.y(), *pic );
 	    p->restore();
 	} else {
 	    int xo = 0;
@@ -811,7 +802,7 @@ void QLabel::drawContents( QPainter *p )
 		xo = cr.width()-rw;
 	    else if ( align & AlignHCenter )
 		xo = (cr.width()-rw)/2;
-	    p->drawPicture( cr.x()+xo-br.x(), cr.y()+yo-br.y(), *lpicture );
+	    p->drawPicture( cr.x()+xo-br.x(), cr.y()+yo-br.y(), *pic );
 	}
     } else
 #endif
