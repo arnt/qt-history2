@@ -44,8 +44,8 @@ private slots:
     void bookmChosen( int );
     void addBookmark();
 
-    void newData( const QCString &data, QNetworkOperation *op );
-    
+    void newData( const QByteArray &data, QNetworkOperation *op );
+
 private:
     bool eventFilter( QObject * o, QEvent * e );
     void readHistory();
@@ -61,7 +61,7 @@ private:
     QPopupMenu *hist, *bookm;
     QUrlOperator url;
     QCString pageData;
-    
+
 };
 
 

@@ -139,8 +139,8 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
 
     browser->setFocus();
 
-    connect( &url, SIGNAL( data( const QCString &, QNetworkOperation * ) ),
-	     this, SLOT( newData( const QCString &, QNetworkOperation * ) ) );
+    connect( &url, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
+	     this, SLOT( newData( const QByteArray &, QNetworkOperation * ) ) );
 }
 
 
@@ -336,7 +336,7 @@ void HelpWindow::addBookmark()
     mBookmarks[ bookm->insertItem( caption() ) ] = caption();
 }
 
-void HelpWindow::newData( const QCString &data, QNetworkOperation *op )
+void HelpWindow::newData( const QByteArray &data, QNetworkOperation *op )
 {
     pageData += data;
     browser->setText( pageData );
