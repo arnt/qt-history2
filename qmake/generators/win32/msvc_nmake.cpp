@@ -394,16 +394,16 @@ NmakeMakefileGenerator::var(const QString &value, const QString &src, const QStr
 	||  value == "QMAKE_RUN_CXX_IMP"
 	||  value == "QMAKE_RUN_CXX_IMP_BATCH"))
     {
-	QFileInfo srcInfo(src);
-	QString precompRule = QString("-c -Yu%1 /Fp%2")
-	    .arg((src.isEmpty()?precomph
-			       :fileFixify(precomph, 
-					   (srcInfo.isDir()?srcInfo.absFilePath():srcInfo.dirPath(TRUE)), 
-					   QDir::currentDirPath(), 
-					   TRUE)))
+	QFileInfo precomphInfo(precomph);
+	QString precompRule = QString("-c -FI%1 -Yu%2 /Fp%3")
+	    .arg(precomphInfo.fileName())
+	    .arg(precomphInfo.fileName())
 	    .arg(pch);
 	QString p = MakefileGenerator::var(value);
 	p.replace("-c", precompRule);
+	// Cannot use -Gm with -FI & -Yu, as this gives an 
+	// internal compiler error, on the newer compilers
+	p.remove("-Gm");
 	return p;
     }
 

@@ -1547,11 +1547,6 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 	    mildDecl = mildDecl.mid( k + 1 );
 	t << impl << ": " << decl << " " << (*it) << " " << deps << "\n\t"
 	  << "$(UIC)";
-	if (!precomph.isEmpty()) {
-	    t << " -pch "
-	    // Correct precomph path, based on moc implementation output
-	    << fileFixify(precomph, QFileInfo(impl).dirPath(TRUE), QDir::currentDirPath());
-	}
 	t << " " << (*it) << " -i " << mildDecl << " -o " << impl << endl << endl;
     }
 }
