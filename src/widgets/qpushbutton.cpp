@@ -158,7 +158,7 @@
   If this property is set to TRUE then the push button will be the focused
   item in a dialog when the dialog is first shown.
 
-  This property's default is FALSE.
+  This property's default is TRUE.
 */
 
 /*! \property QPushButton::autoMask
