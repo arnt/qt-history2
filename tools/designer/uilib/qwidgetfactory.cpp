@@ -30,6 +30,7 @@
 #include <private/qpluginmanager_p.h>
 #include <qmime.h>
 #include <qdragobject.h>
+#include <qlist.h>
 
 #ifndef QT_NO_SQL
 #include <qsqlrecord.h>
@@ -89,10 +90,10 @@ class QWidgetFactoryPrivate
 public:
     QCString translationContext;
     QListViewItem *lastItem;
-    QDict<bool> customWidgets;
+    QHash<QString, bool> customWidgets;
 };
 
-static QPtrList<QWidgetFactory> widgetFactories;
+static QList<QWidgetFactory*> widgetFactories;
 static QPluginManager<LanguageInterface> *languageInterfaceManager = 0;
 static QPluginManager<WidgetInterface> *widgetInterfaceManager = 0;
 
@@ -232,7 +233,6 @@ QWidgetFactory::QWidgetFactory()
       usePixmapCollection( FALSE ), defMargin( 11 ), defSpacing( 6 )
 {
     widgetFactories.setAutoDelete( TRUE );
-    d->customWidgets.setAutoDelete( TRUE );
 }
 
 /*! \fn QWidgetFactory::~QWidgetFactory()
@@ -356,7 +356,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    if ( widgetFactory->noDatabaseWidgets.find( table->name() ) !=
 		 widgetFactory->noDatabaseWidgets.end() )
 		continue;
-	    QValueList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
+	    QList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
 	    QString conn = (*it)[ 0 ];
 	    QSqlCursor* c = 0;
 	    QSqlDatabase *db = 0;
@@ -764,7 +764,7 @@ void QWidgetFactory::inputItem( const UibStrTable& strings, QDataStream& in,
 				QObject *parent, QListViewItem *parentItem )
 {
     QStringList texts;
-    QValueList<QPixmap> pixmaps;
+    QList<QPixmap> pixmaps;
     QCString name;
     QVariant value;
     QCString comment;
@@ -822,7 +822,7 @@ void QWidgetFactory::inputItem( const UibStrTable& strings, QDataStream& in,
 	}
 
 	int j = 0;
-	QValueList<QPixmap>::ConstIterator p = pixmaps.begin();
+	QList<QPixmap>::ConstIterator p = pixmaps.begin();
 	while ( p != pixmaps.end() ) {
 	    item->setPixmap( j, *p );
 	    ++j;
@@ -1519,14 +1519,14 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     if ( iface ) {
 	QWidget *w = iface->create( className, parent, name );
 	if ( w ) {
-	    d->customWidgets.replace( className.latin1(), new bool(TRUE) );
+	    d->customWidgets.insert( className.latin1(), true );
 	    return w;
 	}
     }
 
     // hope we have a factory which can do it
-    for ( QWidgetFactory* f = widgetFactories.first(); f; f = widgetFactories.next() ) {
-	QWidget *w = f->createWidget( className, parent, name );
+    for( QList<QWidgetFactory*>::Iterator it = widgetFactories.begin(); it != widgetFactories.end(); ++it) {
+	QWidget *w = (*it)->createWidget( className, parent, name );
 	if ( w )
 	    return w;
     }
@@ -1612,7 +1612,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
     }
 
     QString parentClassName = parent ? parent->className() : 0;
-    bool isPlugin = parent ? !!d->customWidgets.find( parent->className() ) : FALSE;
+    bool isPlugin = parent ? (d->customWidgets.contains( parent->className() ) && d->customWidgets.value( parent->className() )): FALSE;
     if ( isPlugin )
 	qWarning( "####### loading custom container widgets without page support not implemented!" );
     // ### TODO loading for custom container widgets without pages
@@ -1968,7 +1968,7 @@ void QWidgetFactory::loadImageCollection( const QDomElement &e )
 
 QImage QWidgetFactory::loadFromCollection( const QString &name )
 {
-    QValueList<Image>::Iterator it = images.begin();
+    QList<Image>::Iterator it = images.begin();
     for ( ; it != images.end(); ++it ) {
 	if ( ( *it ).name == name )
 	    return ( *it ).img;
@@ -2176,7 +2176,7 @@ void QWidgetFactory::createTableColumnOrRow( QTable *table, const QString& txt,
 	    table->setNumCols( table->numCols() + 1 );
     }
 
-    QValueList<Field> fieldMap;
+    QList<Field> fieldMap;
     if ( fieldMaps.find( table ) != fieldMaps.end() ) {
 	fieldMap = *fieldMaps.find( table );
 	fieldMaps.remove( table );
@@ -2311,7 +2311,7 @@ void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListVie
     } else if ( widget->inherits( "QListView" ) ) {
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
-	QValueList<QPixmap> pixmaps;
+	QList<QPixmap> pixmaps;
 	QStringList textes;
 	QListViewItem *item = 0;
 	QListView *lv = (QListView*)widget;
@@ -2490,7 +2490,8 @@ void QWidgetFactory::loadFunctions( const QDomElement & )
 
 QAction *QWidgetFactory::findAction( const QString &name )
 {
-    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
+    for( QList<QAction*>::Iterator it = actionList.begin(); it != actionList.end(); ++it ) {
+	QAction *a = (*it);
 	if ( QString( a->name() ) == name )
 	    return a;
 	QAction *ac = (QAction*)a->child( name.latin1(), "QAction" );

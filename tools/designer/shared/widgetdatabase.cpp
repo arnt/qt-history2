@@ -16,8 +16,8 @@
 #include <qapplication.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
-#include <qstrlist.h>
-#include <qdict.h>
+#include <qhash.h>
+#include <qlist.h>
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qcleanuphandler.h>
@@ -29,11 +29,11 @@ const int dbsize = 300;
 const int dbcustom = 200;
 const int dbdictsize = 211;
 static WidgetDatabaseRecord* db[ dbsize ];
-static QDict<int> *className2Id = 0;
+static QHash<QString, int*> *className2Id = 0;
 static int dbcount  = 0;
 static int dbcustomcount = 200;
-static QStrList *wGroups;
-static QStrList *invisibleGroups;
+static QList<const char*> *wGroups;
+static QList<const char*> *invisibleGroups;
 static bool whatsThisLoaded = FALSE;
 static QPluginManager<WidgetInterface> *widgetPluginManager = 0;
 static bool plugins_set_up = FALSE;
@@ -103,12 +103,12 @@ void WidgetDatabase::setupDataBase( int id )
 	return;
 #endif
 
-    wGroups = new QStrList;
-    invisibleGroups = new QStrList;
+    wGroups = new QList<const char*>;
+    invisibleGroups = new QList<const char*>;
     invisibleGroups->append( "Forms" );
     invisibleGroups->append( "Temp" );
-    className2Id = new QDict<int>( dbdictsize );
-    className2Id->setAutoDelete( TRUE );
+    className2Id = new QHash<QString, int*>;
+    className2Id->setAutoDelete( true );
 
     WidgetDatabaseRecord *r = 0;
 
@@ -762,14 +762,14 @@ int WidgetDatabase::idFromClassName( const QString &name )
     setupDataBase( -1 );
     if ( name.isEmpty() )
 	return 0;
-    int *i = className2Id->find( name );
+    int *i = className2Id->value( name );
     if ( i )
 	return *i;
     if ( name == "FormWindow" )
 	return idFromClassName( "QLayoutWidget" );
 #ifdef UIC
     setupDataBase( -2 );
-    i = className2Id->find( name );
+    i = className2Id->value( name );
     if ( i )
 	return *i;
 #endif
@@ -778,7 +778,7 @@ int WidgetDatabase::idFromClassName( const QString &name )
 
 bool WidgetDatabase::hasWidget( const QString &name )
 {
-    return className2Id->find( name ) != 0;
+    return className2Id->value( name ) != 0;
 }
 
 WidgetDatabaseRecord *WidgetDatabase::at( int index )
@@ -811,7 +811,7 @@ void WidgetDatabase::append( WidgetDatabaseRecord *r )
 
 QString WidgetDatabase::widgetGroup( const QString &g )
 {
-    if ( wGroups->find( g ) == -1 )
+    if ( wGroups->findIndex( g ) == -1 )
 	wGroups->append( g );
     return g;
 }
@@ -845,7 +845,7 @@ int WidgetDatabase::numWidgetGroups()
 bool WidgetDatabase::isGroupVisible( const QString &g )
 {
     setupDataBase( -1 );
-    return invisibleGroups->find( g ) == -1;
+    return invisibleGroups->findIndex( g ) == -1;
 }
 
 int WidgetDatabase::addCustomWidget( WidgetDatabaseRecord *r )

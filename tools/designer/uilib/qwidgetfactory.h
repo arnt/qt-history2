@@ -15,10 +15,9 @@
 
 #ifndef QT_H
 #include <qstring.h>
-#include <qptrlist.h>
 #include <qimage.h>
 #include <qpixmap.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qmap.h>
 #include <qaction.h>
 #include <qcstring.h>
@@ -147,15 +146,15 @@ private:
 	Q_DUMMY_COMPARISON_OPERATOR( SqlWidgetConnection )
     };
 
-    QValueList<Image> images;
+    QList<Image> images;
     QWidget *toplevel;
     QWidgetFactoryPrivate *d;
     QMap<QString, QString> *dbControls;
     QMap<QString, QStringList> dbTables;
     QMap<QWidget*, SqlWidgetConnection> sqlWidgetConnections;
     QMap<QString, QString> buddies;
-    QMap<QTable*, QValueList<Field> > fieldMaps;
-    QPtrList<QAction> actionList;
+    QMap<QTable*, QList<Field> > fieldMaps;
+    QList<QAction*> actionList;
     QMap<QString, QString> languageSlots;
     QStringList noDatabaseWidgets;
     bool usePixmapCollection;
