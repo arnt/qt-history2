@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#10 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -47,7 +47,7 @@ Here are the <a name=cursors>predefined cursors</a>:
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#10 $";
 #endif
 
 
@@ -207,7 +207,7 @@ QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
     data->bm  = new QBitmap( bitmap );
     data->bmm = new QBitmap( mask );
     data->hcurs = 0;
-    data->cshape = BitMapCursor;
+    data->cshape = BitmapCursor;
     data->hx = hotX >= 0 ? hotX : bitmap.width()/2;
     data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
 }
@@ -381,7 +381,7 @@ void QCursor::update() const			// update/load cursor
 	cur_bdiag_bits, mcur_bdiag_bits, cur_fdiag_bits, mcur_fdiag_bits };
 
     Display *dpy = qt_xdisplay();
-    if ( d->cshape == BitMapCursor ) {
+    if ( d->cshape == BitmapCursor ) {
 	XColor bg, fg;				// ignore stupid CFront message
 	bg.red = bg.green = bg.blue = 255 << 8;
 	fg.red = fg.green = fg.blue = 0;
@@ -466,7 +466,7 @@ written as well.
 QDataStream &operator<<( QDataStream &s, const QCursor &c )
 {
     s << (INT16)c.data->cshape;			// write shape id to stream
-    if ( c.data->cshape == BitMapCursor ) {
+    if ( c.data->cshape == BitmapCursor ) {
 	s << *(c.data->bm) << *(c.data->bmm);
 	s << (INT16)c.data->hx << (INT16)c.data->hy;
     }
@@ -483,7 +483,7 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
 {
     INT16 shape;
     s >> shape;					// read shape id from stream
-    if ( shape == BitMapCursor ) {		// read bitmap cursor
+    if ( shape == BitmapCursor ) {		// read bitmap cursor
 	if ( c.data->deref() )
 	    delete c.data;
 	c.data = new QCursorData;
@@ -496,7 +496,7 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
 	c.data->bm  = new QBitmap( bm );
 	c.data->bmm = new QBitmap( bmm );
 	c.data->hcurs  = 0;
-	c.data->cshape = BitMapCursor;
+	c.data->cshape = BitmapCursor;
 	c.data->hx = hx;
 	c.data->hy = hy;
 	c.update();
