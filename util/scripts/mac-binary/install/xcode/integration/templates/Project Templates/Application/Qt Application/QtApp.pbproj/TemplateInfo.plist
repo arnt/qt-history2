@@ -4,6 +4,7 @@
 	};
 	FilesToMacroExpand = (
 		"ÇPROJECTNAMEÈ.mocs",
+		"Info.plist",
 		"main.cpp",
 	);
 	Description = "This project builds a Qt application that uses .ui  files for interfaces.";

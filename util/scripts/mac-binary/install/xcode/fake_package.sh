@@ -23,6 +23,7 @@ make_link()
 }
 
 #copy the templates
+rm -rf "$PWD/faked_integration"
 mkdir -p "$PWD/faked_integration"
 translate_cp integration/templates "$PWD/faked_integration"
 (cd "$PWD/faked_integration/CustomDataViews/QtDataFormatters.bundle/Contents/MacOS" 
@@ -34,12 +35,16 @@ make_link "$PWD/faked_integration/CustomDataViews/QtDataFormatters.bundle" "$tem
 make_link "$PWD/faked_integration/Project Templates/Application/Qt Application" "$templ_dir/Project Templates/Application"
 make_link "$PWD/faked_integration/File Templates/Qt" "$templ_dir/File Templates"
 make_link "$PWD/faked_integration/Scripts/999-Qt" "$templ_dir/Scripts"
+for a in `find "$PWD/faked_integration/Specifications/" -name *.pb*spec`; do
+    make_link "$a" "$templ_dir/Specifications"
+done
 
 #copy the scripts
-SCRPT_DIR="$OUTDIR/Library/Frameworks/QtCore.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/Resources/xcode"
+SCRPT_DIR="/Library/Frameworks/QtCore.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/Resources/xcode"
 mkdir -p "$SCRPT_DIR"
 for script in integration/scripts; do
     base=`basename "$script"`
     rm -rf "$SCRPT_DIR/$base"
     ln -s "$PWD/$script" "$SCRPT_DIR"
 done
+ln -sf "Versions/${VERSION_MAJOR}.${VERSION_MINOR}/Resources" "/Library/Frameworks/QtCore.framework/Resources"

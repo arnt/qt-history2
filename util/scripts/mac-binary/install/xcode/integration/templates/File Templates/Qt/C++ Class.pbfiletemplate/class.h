@@ -15,7 +15,7 @@ class «FILEBASENAME» : public QWidget
 {
     Q_OBJECT
 public:
-    «FILEBASENAME»(QWidget *parent);
+    «FILEBASENAME»(QWidget *parent=0);
     ~«FILEBASENAME»();
 };
 

@@ -32,6 +32,7 @@ translate_cp integration/scripts "$SCRPT_DIR"
 for a in $SCRPT_DIR/*.sh; do
   chmod a+x "$a"
 done
+ln -sf "Versions/${VERSION_MAJOR}.${VERSION_MINOR}/Resources" "$OUTDIR/Library/Frameworks/QtCore.framework/Resources"
 
 #copy the templates
 mkdir -p "$OUTDIR/Library/Application Support/Apple/Developer Tools/"
