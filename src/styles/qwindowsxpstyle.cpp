@@ -1228,12 +1228,12 @@ void QWindowsXPStyle::drawTabBarExtension( QPainter * p, int x, int y, int w, in
 #if defined(Q_WS_WIN)
     HTHEME htheme = Private::getThemeData( L"TAB" );
     if ( !htheme ) {
-	QWindowsXPStyle::drawTabBarExtension( p, x, y, w, h, cg, tw );
+	QWindowsStyle::drawTabBarExtension( p, x, y, w, h, cg, tw );
 	return;
     }
     Private::CloseThemeData( htheme );
 #else
-    QWindowsXPStyle::drawTabBarExtension( p, x, y, w, h, cg, tw );
+    QWindowsStyle::drawTabBarExtension( p, x, y, w, h, cg, tw );
 #endif
 }
 
