@@ -92,7 +92,8 @@ QString richText( const QString& text )
 	} else if ( ch == '&' ) {
 	    rich += QString( "&amp;" );
 	} else if ( ch == ' ' ) {
-	    if ( text[i - 1] == ' ' || text[i + 1] == ' ' ) {
+	    if ( i == 0 || i == text.length() - 1 || text[i - 1].isSpace() ||
+		 text[i + 1].isSpace() ) {
 		rich += richMeta( MessageEditor::tr("sp") );
 	    } else {
 		rich += ' ';
