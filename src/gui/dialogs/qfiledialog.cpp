@@ -358,14 +358,14 @@ QFileDialog::QFileDialog(const QFileDialogArgs &args)
     : QDialog(*new QFileDialogPrivate, args.parent, 0)
 {
     d->fileMode = args.mode;
-    setResolveSymlinks(!(args.options & DontResolveSymlinks));
-    setConfirmOverwrite(!(args.options & DontConfirmOverwrite));
+    d->confirmOverwrite = !(args.options & DontConfirmOverwrite);
     setWindowTitle(args.caption);
     QStringList nameFilter = qt_make_filter_list(args.filter);
     if (nameFilter.isEmpty())
         d->setup(args.directory, QStringList(tr("All Files (*)")));
     else
         d->setup(args.directory, nameFilter);
+    setResolveSymlinks(!(args.options & DontResolveSymlinks));
 }
 
 /*!
