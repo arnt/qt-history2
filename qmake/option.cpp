@@ -373,10 +373,10 @@ Option::parseCommandLine(int argc, char **argv)
             if(QFile::exists(proj)) {
                 Option::mkfile::project_files.append(proj);
             } else { //last try..
-                QDir d(pwd, QString("*" + Option::pro_ext));
-                if(d.count() != 1)
+                QStringList profiles = QDir(pwd).entryList(QStringList("*" + Option::pro_ext));
+                if(profiles.isEmpty())
                     return usage(argv[0]);
-                Option::mkfile::project_files.append(pwd + "/" + d[0]);
+                Option::mkfile::project_files.append(pwd + "/" + profiles[0]);
             }
         }
     }

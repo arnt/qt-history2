@@ -1250,8 +1250,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
             dirstr = file.left(slsh+1);
             file = file.right(file.length() - slsh - 1);
         }
-        QDir dir(dirstr, file);
-        return dir.count() != 0;
+        return QDir(dirstr).entryList(QStringList(file)).count();
     } else if(func == "eval") {
         if(args.count() < 1) {
             fprintf(stderr, "%s:%d: eval(project) requires one argument.\n", parser.file.latin1(),

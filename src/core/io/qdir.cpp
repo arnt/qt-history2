@@ -368,14 +368,15 @@ inline static QStringList qt_makeFilterStringList(const QString &nameFilter)
 */
 
 /*!
-    Constructs a QDir pointing to the current directory (".").
+    Constructs a QDir pointing to the current directory \a path. If
+    path is empty the pwd (".") will be used.
 
     \sa currentPath()
 */
 
-QDir::QDir() : d_ptr(new QDirPrivate(this))
+QDir::QDir(const QString &path) : d_ptr(new QDirPrivate(this))
 {
-    d->setPath(QString::fromLatin1("."));
+    d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
     d->data->nameFilters = QStringList(QString::fromLatin1("*"));
     d->data->filterSpec = All;
     d->data->sortSpec = SortSpec(Name | IgnoreCase);
@@ -392,49 +393,19 @@ QDir::QDir(const QString &path, const QString &nameFilter,
     d->data->sortSpec = sortSpec;
     d->data->filterSpec = filterSpec;
 }
-#endif
-
-/*!
-    Constructs a QDir with path \a path, that filters its entries by
-    name using \a nameFilters and by attributes using \a filterSpec. It
-    also sorts the names using \a sortSpec.
-
-    The default \a nameFilters is an empty string, which excludes
-    nothing; the default \a filterSpec is \c All, which also means
-    exclude nothing. The default \a sortSpec is \c Name|IgnoreCase,
-    i.e. sort by name case-insensitively.
-
-    Example that lists all the files in "/tmp":
-    \code
-    QDir d("/tmp");
-    for (int i = 0; i < d.count(); i++)
-        printf("%s\n", d[i]);
-    \endcode
-
-    If \a path is "" or QString::null, QDir uses "." (the current
-    directory). If \a nameFilters is "" or QString::null, QDir uses the
-    name filter "*" (all files).
-
-    Note that \a path need not exist.
-
-    \sa exists(), setPath(), setNameFilters(), setFilter(), setSorting()
-*/
 
 QDir::QDir(const QString &path, const QStringList &nameFilters,
              int sortSpec, int filterSpec) : d_ptr(new QDirPrivate(this))
 {
     d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
-    d->data->nameFilters = nameFilters;
-    if(d->data->nameFilters.count() == 1) {
-        QStringList filterStringList = qt_makeFilterStringList(d->data->nameFilters.first());
-        if(filterStringList.count() > d->data->nameFilters.count())
-            d->data->nameFilters = filterStringList;
-    } else if (d->data->nameFilters.isEmpty()) {
+    if (d->data->nameFilters.isEmpty()) 
         d->data->nameFilters = QString::fromLatin1("*");
-    }
+    else 
+        d->data->nameFilters = nameFilters;
     d->data->sortSpec = sortSpec;
     d->data->filterSpec = filterSpec;
 }
+#endif
 
 /*!
     Constructs a QDir that is a copy of the directory \a d.
@@ -1666,7 +1637,6 @@ QDir::refresh() const
     d->data->clear();
 }
 
-#ifdef QT_COMPAT
 static inline QChar getFilterSepChar(const QString &nameFilter)
 {
     QChar sep(';');
@@ -1676,16 +1646,17 @@ static inline QChar getFilterSepChar(const QString &nameFilter)
     return sep;
 }
 
-QStringList QDir::entryList(const QString &nameFilter, int filterSpec, int sortSpec) const
+/*!
+   ####
+*/
+
+QStringList 
+QDir::nameFiltersFromString(const QString &nameFilter)
 {
-    return entryList(nameFilter.split(getFilterSepChar(nameFilter)), filterSpec, sortSpec);
+    return nameFilter.split(getFilterSepChar(nameFilter));
 }
 
-QFileInfoList QDir::entryInfoList(const QString &nameFilter, int filterSpec, int sortSpec) const
-{
-    return entryInfoList(nameFilter.split(getFilterSepChar(nameFilter)), filterSpec, sortSpec);
-}
-
+#ifdef QT_COMPAT
 QString QDir::nameFilter() const
 {
     return nameFilters().join(QString(d->filterSepChar));

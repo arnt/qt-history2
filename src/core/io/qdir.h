@@ -60,15 +60,14 @@ public:
                       DirsLast    = 0x20,
                       DefaultSort = -1 };
 
-    QDir();
-#ifdef QT_COMPAT
-    QDir(const QString &path, const QString &nameFilter,
-         int sortSpec = Name | IgnoreCase, int filterSpec = All);
-#endif
-    QDir(const QString &path, const QStringList &nameFilters = QStringList(),
-         int sortSpec = Name | IgnoreCase, int filterSpec = All);
     QDir(const QDir &);
-
+    QDir(const QString &path="");
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QDir(const QString &path, const QString &nameFilter,
+                               int sortSpec = Name | IgnoreCase, int filterSpec = All);
+    QT_COMPAT_CONSTRUCTOR QDir(const QString &path, const QStringList &nameFilters,
+                               int sortSpec = Name | IgnoreCase, int filterSpec = All);
+#endif
     ~QDir();
 
     QDir &operator=(const QDir &);
@@ -116,23 +115,30 @@ public:
     uint count() const;
     QString operator[](int) const;
 
-    QStringList entryList(int filterSpec = DefaultFilter,
+    static QStringList nameFiltersFromString(const QString &nameFilter);
+
+    QStringList entryList(int filterSpec = DefaultFilter, int sortSpec = DefaultSort) const;
+    QStringList entryList(const QStringList &nameFilters, int filterSpec = DefaultFilter,
                           int sortSpec = DefaultSort) const;
 #ifdef QT_COMPAT
-    QT_COMPAT QStringList entryList(const QString &nameFilter, int filterSpec = DefaultFilter,
-                                    int sortSpec = DefaultSort) const;
-    QT_COMPAT QFileInfoList entryInfoList(const QString &nameFilter, int filterSpec = DefaultFilter,
-                                          int sortSpec = DefaultSort) const;
+    inline QT_COMPAT QStringList entryList(const QString &nameFilter, int filterSpec = DefaultFilter,
+                                           int sortSpec = DefaultSort) const
+      { return entryList(nameFiltersFromString(nameFilter), filterSpec, sortSpec); }
+#endif
+
+    QFileInfoList entryInfoList(int filterSpec = DefaultFilter, int sortSpec = DefaultSort) const;
+    QFileInfoList entryInfoList(const QStringList &nameFilters, int filterSpec = DefaultFilter,
+                                int sortSpec = DefaultSort) const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT QFileInfoList entryInfoList(const QString &nameFilter, int filterSpec = DefaultFilter,
+                                                 int sortSpec = DefaultSort) const
+       { return entryInfoList(nameFiltersFromString(nameFilter), filterSpec, sortSpec); }
+#endif
+
+#ifdef QT_COMPAT
     QT_COMPAT QString nameFilter() const;
     QT_COMPAT void setNameFilter(const QString &nameFilter);
 #endif
-    QStringList entryList(const QStringList &nameFilters, int filterSpec = DefaultFilter,
-                          int sortSpec = DefaultSort) const;
-
-    QFileInfoList entryInfoList(int filterSpec = DefaultFilter,
-                                int sortSpec = DefaultSort) const;
-    QFileInfoList entryInfoList(const QStringList &nameFilters, int filterSpec = DefaultFilter,
-                                int sortSpec = DefaultSort) const;
 
     enum Recursion { Recursive = 0, NonRecursive = 1 };
     bool mkdir(const QString &dirName, Recursion recurse=NonRecursive, bool acceptAbsPath=true) const;
@@ -185,9 +191,6 @@ public:
     inline QT_COMPAT static QString homeDirPath() { return homePath(); }
     inline QT_COMPAT static QString rootDirPath() { return rootPath(); }
 #endif
-
-
-
 
 #ifndef QT_NO_REGEXP
     bool match(const QStringList &filters, const QString &fileName);

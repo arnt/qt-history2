@@ -282,22 +282,22 @@ MakefileGenerator::init()
                                 regex = regex.right(regex.length() - dir.length());
                             }
                             if(real_dir.isEmpty() || QFile::exists(real_dir)) {
-                                QDir d(real_dir, regex);
-                                if(!d.count()) {
+                                QStringList files = QDir(real_dir).entryList(QStringList(regex));
+                                if(files.isEmpty()) {
                                     debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
                                               __FILE__, __LINE__,
                                               val.latin1(), vpath.join("::").latin1());
                                     warn_msg(WarnLogic, "Failure to find: %s", val.latin1());
                                     continue;
                                 } else {
-                                    for(int i = (int)d.count()-1; i >= 0; i--) {
-                                        QString file = fileFixify(dir + d[i]);
+                                    for(int i = (int)files.count()-1; i >= 0; i--) {
+                                        QString file = fileFixify(dir + files[i]);
                                         if(!i) 
                                             val = file;
                                         else 
                                             l.insert(val_it+1, file);
                                     }
-                                    val_it += d.count();
+                                    val_it += files.count();
                                 }
                             } else {
                                 debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
@@ -495,13 +495,13 @@ MakefileGenerator::init()
                             dir = regex.left(regex.lastIndexOf(Option::dir_sep) + 1);
                             regex = regex.right(regex.length() - dir.length());
                         }
-                        QDir qdir(dir, regex);
-                        if(qdir.count()) {
-                            for(uint i = 0; i < qdir.count(); i++)
-                                out_deps.append(dir + qdir[i]);
-                        } else {
+                        QStringList files = QDir(dir).entryList(QStringList(regex));
+                        if(files.isEmpty()) {
                             warn_msg(WarnLogic, "Dependency for [%s]: Not found %s", (*file_it).latin1(),
                                      (*dep_it).latin1());
+                        } else {
+                            for(uint i = 0; i < files.count(); i++)
+                                out_deps.append(dir + files[i]);
                         }
                     }
                 }
@@ -1063,9 +1063,9 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
                 }
                 QString local_dirstr = dirstr;
                 fixEnvVariables(local_dirstr);
-                QDir dir(local_dirstr, filestr);
-                for(uint x = 0; x < dir.count(); x++) {
-                    QString file = dir[x];
+                QStringList files = QDir(local_dirstr).entryList(QStringList(filestr));
+                for(uint x = 0; x < files.count(); x++) {
+                    QString file = files[x];
                     if(file == "." || file == "..") //blah
                         continue;
                     if(!uninst.isEmpty())
