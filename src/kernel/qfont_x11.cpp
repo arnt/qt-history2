@@ -1,4 +1,4 @@
-S/****************************************************************************
+/****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#190 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
