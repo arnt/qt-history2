@@ -13,6 +13,8 @@
 
 #include <qtextoption.h>
 
+#include <QtCore/qlist.h>
+
 struct QTextOptionPrivate
 {
     QList<qReal> tabStops;
