@@ -18,7 +18,6 @@
 ****************************************************************************/
 
 #include "glstencil.h"
-#include "GL/glut.h"
 
 #if defined(Q_CC_MSVC)
 #pragma warning(disable:4305) // init: truncation from const double to float
