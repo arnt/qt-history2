@@ -28,10 +28,26 @@ ftp.troll.no.
 
 			 PORTING INSTRUCTIONS
 
-Create a new file in the configs/ directory, describing the compilation
-requirements for your platform.  Edit qt/configure to support the new
-architecture.  Run "make clean" and then "configure".  You should not
-have to modify any other Makefiles (but let us know if you do).
+In the configs/ directory you will find several build configuration
+files for all platforms supported by Qt.  You can generate your own
+config files by using the makeconfig script in the bin/ directory.
+
+1) Download and install tmake; ftp://ftp.troll.no/freebies/tmake/
+
+2) Create your own tmake configuration, for example:
+
+	/local/tmake/lib/solaris-cxx/
+
+   This directory must contain a tmake.conf file (with compiler
+   options) and a few tmake template (*.t) files.  Copy these from
+   one of the other configurations and modify tmake.conf as needed.
+
+3) Now run the makeconfig script to generate Qt build configuration
+   files in the configs/ directory:
+
+	makeconfig /local/tmake/lib/solaris-cxx
+
+4) Run the configure script to create your new makefiles.
 
 Modify qt/src/tools/qglobal.h as required: you need to ensure that
 _OS_whatever_ is defined.  We've done it for many platforms in the
@@ -46,7 +62,8 @@ Some compilers emit bad warnings when they compile Qt.  If yours does, and
 the code in Qt is sane, please use a #pragma or two to shut your compiler
 up.  (This is a good reason for wanting the _CC_whatever_ define above.)
 
-Make a unified diff (diff -u) and send the patch to qt-bugs@troll.no
+Make a unified diff (diff -u) and send the patch and your new tmake
+configuration to qt-bugs@troll.no.
 
 For most Unix varieties, that's all.  Some may need some include file
 tweaks.  Good luck, and again, feel free to send mail to qt-bugs@troll.no.
