@@ -112,6 +112,9 @@ STRING		{ALMOSTSTRING}\"
 <OUTSIDE>"class"		{ X;
 				  BEGIN QT_DEF;
 				  return CLASS; }
+<OUTSIDE>"struct"		{ X;
+				  BEGIN QT_DEF;
+				  return STRUCT; }
 <OUTSIDE>"namespace"		{ X;
 				  BEGIN QT_DEF;
 				  return NAMESPACE; }
@@ -158,6 +161,9 @@ STRING		{ALMOSTSTRING}\"
 <IN_NAMESPACE>"class" 		{ X;
                                   BEGIN QT_DEF;
 				  return CLASS; }
+<IN_NAMESPACE>"struct" 		{ X;
+                                  BEGIN QT_DEF;
+				  return STRUCT; }
 <IN_NAMESPACE>"template"	{ X;
                                   BEGIN QT_DEF;
                                   return TEMPLATE; }
