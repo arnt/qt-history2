@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#20 $
 **
 ** Implementation of QIconSet class
 **
@@ -288,7 +288,8 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 	case Disabled:
 	    if ( !p->largeDisabled.pm ) {
 		QBitmap tmp;
-		if ( p->large.generated && !p->smallDisabled.generated ) {
+		if ( p->large.generated && !p->smallDisabled.generated &&
+		     p->smallDisabled.pm && !p->smallDisabled.pm->isNull() ) {
 		    // if there's a hand-drawn disabled small image,
 		    // but the normal big one is generated, use the
 		    // hand-drawn one to generate this one.
@@ -364,7 +365,8 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 	case Disabled:
 	    if ( !p->smallDisabled.pm ) {
 		QBitmap tmp;
-		if ( p->small.generated && !p->largeDisabled.generated ) {
+		if ( p->small.generated && !p->largeDisabled.generated &&
+		     p->largeDisabled.pm && !p->largeDisabled.pm->isNull() ) {
 		    // if there's a hand-drawn disabled large image,
 		    // but the normal small one is generated, use the
 		    // hand-drawn one to generate this one.
