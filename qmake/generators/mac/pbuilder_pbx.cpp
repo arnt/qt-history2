@@ -998,7 +998,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(!project->isEmpty("COMPAT_VERSION"))
         t << "\t\t\t\t" << "DYLIB_COMPATIBILITY_VERSION = \"" << project->first("COMPAT_VERSION") << "\";" << "\n";
-
+    if(!project->isEmpty("QMAKE_MACOSX_DEPLOYMENT_TARGET"))
+        t << "\t\t\t\t" << "MACOSX_DEPLOYMENT_TARGET = \"" 
+          << project->first("QMAKE_MACOSX_DEPLOYMENT_TARGET") << "\";" << "\n";
     if(ideType() == MAC_XCODE) {
         if(!project->isEmpty("OBJECTS_DIR"))
             t << "\t\t\t\t" << "OBJROOT = \"" << project->first("OBJECTS_DIR") << "\";" << "\n";
