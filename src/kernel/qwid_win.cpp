@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#88 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#88 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -49,6 +49,7 @@ static QCursor *mouseGrbCur = 0;
 static QWidget *keyboardGrb = 0;
 static HANDLE	journalRec  = 0;
 
+extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
 /*****************************************************************************
   QWidget member functions
@@ -113,7 +114,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     int	 style = WS_CHILD;
     int	 exsty = 0;
 
-    if ( popup ) {
+    if ( window ) {
+	style = GetWindowLong( window, GWL_STYLE );
+	topLevel = FALSE; // #### needed for some IE plugins??
+    } else if ( popup ) {
 	style = WS_POPUP;
 	exsty = WS_EX_TOOLWINDOW;
     } else if ( modal ) {
@@ -163,6 +167,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    destroyw = winid;
 	id = window;
 	setWinId( window );
+	SetWindowLong( window, GWL_STYLE, style );
+	SetWindowLong( window, GWL_WNDPROC, (LONG)WndProc );
     } else if ( desktop ) {			// desktop widget
 	id = GetDesktopWindow();
 	QWidget *otherDesktop = find( id );	// is there another desktop?
