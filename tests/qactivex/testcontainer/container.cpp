@@ -19,6 +19,8 @@ static int loopcount = 50;
 #define TEST_DYNC_LOOP(prop) QVariant prop = property( #prop ); for ( i = 0; i < loopcount; ++i ) {object->dynamicCall( #prop, prop ); object->dynamicCall( #prop );}
 #define TEST_EMITPSIG_LOOP(prop) for ( i = 0; i < loopcount; ++i ) emit prop##PointerSlot( m_##prop );
 
+struct IDispatch;
+
 #define VERIFY_EQUAL( value, expected ) { \
     QVariant valvar = value; \
     QVariant expvar = expected; \
@@ -353,6 +355,11 @@ public:
 	emit listPointerSlot( m_list );
 	VERIFY_EQUAL( object->property( "list" ), m_list );
 
+	IDispatch *disp = 0;
+	emit setDispatchSlot( disp );
+	QAxObject *o = object->querySubObject( "getDispatchSlot()" );
+	delete o;
+
 /*	Difficult to support
 	emit betaPointerSlot( m_beta );
 	VERIFY_EQUAL( object->property( "beta" ), m_beta );
@@ -574,6 +581,8 @@ signals:
     void pixmapPointerSlot( const QPixmap &pixmap );
     void listPointerSlot( const QValueList<QVariant> &list );
     void betaPointerSlot( Alpha beta );
+
+    void setDispatchSlot( IDispatch *disp );
 
 private:
     QAxObject *object;

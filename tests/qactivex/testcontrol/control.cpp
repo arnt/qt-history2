@@ -27,6 +27,8 @@
 #define EMIT_REF(prop, type) type old = m_##prop; emit prop##RefSignal( m_##prop ); return old;
 #define PROP_POINTER(prop) m_##prop = *prop;
 
+struct IDispatch;
+
 class QTestControl : public QWidget, public QAxBindable
 {
     Q_OBJECT
@@ -175,6 +177,8 @@ public slots:
     Alpha getAndSetBetaSlot( Alpha& beta ) { GET_AND_SET(beta, Alpha) }
     Alpha emitBetaRefSignal() { EMIT_REF(beta, Alpha) }
 
+    IDispatch *getDispatchSlot() const { GET_PROP_SLOT(disp) }
+    void setDispatchSlot( IDispatch *disp ) { SET_PROP_SLOT(disp) }
 
     void unicodePointerSlot( QString *unicode ) { PROP_POINTER(unicode) }
     void textPointerSlot( QCString *text ) { PROP_POINTER(text) }
@@ -249,6 +253,7 @@ private:
     QPixmap m_pixmap;
     QValueList<QVariant> m_list;
     Alpha m_beta;
+    IDispatch *m_disp;
 };
 
 #include "control.moc"
