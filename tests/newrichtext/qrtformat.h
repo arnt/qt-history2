@@ -27,7 +27,7 @@ public:
 
     enum VerticalAlignment { AlignNormal, AlignSuperScript, AlignSubScript };
 
-    static void statistics();
+    static bool statistics( bool print = FALSE );
 private:
     friend class QRTFormatArray;
     QRTFormat( QRTFormatPrivate *p );
@@ -38,7 +38,7 @@ private:
 class QRTFormatPrivate
 {
 public:
-    QRTFormatPrivate() : refCount( 0 ) {}
+    QRTFormatPrivate() : color( Qt::black ), refCount( 0 ) {}
     QRTFormatPrivate( const QFont &f, const QColor &c )
 	: font( f ), color( c ), refCount( 0 ) {}
     void ref() { refCount++; }

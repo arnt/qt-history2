@@ -63,16 +63,28 @@ void QRTFormatPrivate::deleteMe()
 }
 
 
-void QRTFormat::statistics()
+bool QRTFormat::statistics( bool print )
 {
-    qDebug("------- QRTFormat statistics -------");
-    qDebug("default format: %d", QRTFormatCollection::defaultFormat()->refCount );
+    if ( print ) {
+	qDebug("------- QRTFormat statistics -------");
+	qDebug("default format: %d", QRTFormatCollection::defaultFormat()->refCount );
+	if ( QRTFormatCollection::formats ) {
+	    QDictIterator<QRTFormatPrivate> it( *QRTFormatCollection::formats );
+	    for( ; it.current(); ++it )
+		qDebug("   entry %p: ref=%d", it.current(), it.current()->refCount );
+	}
+	qDebug("------- end statistics -------------");
+    }
+    bool retval = TRUE;
+    if ( QRTFormatCollection::defaultFormat()->refCount > 1 )
+	retval = FALSE;
     if ( QRTFormatCollection::formats ) {
 	QDictIterator<QRTFormatPrivate> it( *QRTFormatCollection::formats );
 	for( ; it.current(); ++it )
-	    qDebug("   entry %p: ref=%d", it.current(), it.current()->refCount );
+	    if ( it.current()->refCount > 1 )
+		retval = FALSE;
     }
-    qDebug("------- end statistics -------------");
+    return retval;
 }
 
 
@@ -186,6 +198,7 @@ void QRTFormatArray::insert( int pos, int len, const QRTFormat &f )
     if ( p == pos ) {
 	// special case, we only need to insert one hint.
 	insertFormatHints( i, 1, f.d );
+	formatHints[i].length = len;
     } else {
 	// need to split the current one and insert the new one
 	insertFormatHints( i+1, 2 );

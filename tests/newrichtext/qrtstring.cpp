@@ -33,6 +33,8 @@ QRTString::~QRTString()
 
 void QRTString::setFormat( const QRTFormat &format, unsigned int start, int length )
 {
+    if ( start >= string.length() )
+	return;
     if ( length == -1 || start + length > string.length() )
 	length = string.length() - start;
     formats.set( start, length, format );
