@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QHtpp and related classes.
 **
@@ -561,10 +561,8 @@ QHttpHeader::Connection QHttpHeader::connection() const
 
     const char* c = m_values[ "connection" ].latin1();
 
-//    if ( strcasecmp( c, "close" ) == 0 ) ### correct change?
     if ( qstrcmp( c, "close" ) == 0 )
 	return Close;
-//    if ( strcasecmp( c, "keep-alive" ) == 0 ) ### correct change?
     if ( qstrcmp( c, "keep-alive" ) == 0 )
 	return KeepAlive;
 
