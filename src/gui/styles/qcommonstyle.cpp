@@ -1625,14 +1625,6 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         else
             r.setRect(x + 5, y, h / 2, h - margin * 2);
         break; }
-    case SR_PanelTab:
-        r = opt->rect;
-        // ### Need to take the icon into account.
-        if (opt->state & QStyle::Style_Bottom)
-            r.setHeight(r.height() - opt->fontMetrics.height() - 11);
-        else
-            r.setY(r.y() + opt->fontMetrics.height() + 8);
-        break;
     default:
         break;
     }

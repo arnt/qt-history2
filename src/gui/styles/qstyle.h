@@ -259,8 +259,6 @@ public:
         SR_HeaderLabel,
         SR_HeaderArrow,
 
-        SR_PanelTab,
-
         // do not add any values below/greater than this
         SR_CustomBase = 0xf0000000
     };

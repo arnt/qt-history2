@@ -2090,24 +2090,6 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
     case QStyle::SR_ProgressBarContents:
         r = opt->rect;
         break;
-    case QStyle::SR_PanelTab: {
-        HIRect hirect = qt_hirectForQRect(opt->rect);
-        QCFType<HIShapeRef> shape;
-        HIThemeGetTabPaneContentShape(&hirect,
-                        opt->state & QStyle::Style_Bottom ? kThemeTabSouth : kThemeTabNorth,
-                        kHIThemeTabSizeNormal, &shape);
-        HIShapeGetBounds(shape, &hirect);
-        r = qt_qrectForHIRect(hirect);
-        bool newStyleTabs =
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-            QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4 ? true :
-#endif
-            false;
-        if (opt->state & QStyle::Style_Bottom)
-            r.setHeight(r.height() - (newStyleTabs ? 3 : 3));
-        else
-            r.setY(r.y() + (newStyleTabs ? 4 : 6));
-        break; }
     default:
         r = q->QWindowsStyle::subRect(sr, opt, widget);
         break;
@@ -3615,15 +3597,6 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
     case QStyle::SR_ProgressBarGroove:
     case QStyle::SR_ProgressBarLabel:
         break;
-    case QStyle::SR_PanelTab: {
-        r = opt->rect;
-        int newOffset = q->pixelMetric(QStyle::PM_TabBarBaseHeight, opt, widget)
-                        + q->pixelMetric(QStyle::PM_TabBarBaseOverlap, opt, widget);
-        if (opt->state & QStyle::Style_Bottom)
-            r.setHeight(r.height() - newOffset - 11);
-        else
-            r.setY(r.y() + newOffset + 8);
-        break; }
     default:
         r = q->QWindowsStyle::subRect(sr, opt, widget);
         break;
