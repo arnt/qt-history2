@@ -556,14 +556,23 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     if ( t.width() > width() )
 	t.setWidth( width() );
     int lw = d->stack->lineWidth();
+    bool reverse = QApplication::reverseLayout();
+    int tabx, taby, stacky;
+    if( reverse ) {
+	tabx = QMIN( width() - t.width(), width() - t.width() - lw + 2 );
+    } else {
+	tabx = QMAX( 0, lw - 2 );
+    }
     if ( d->pos == Bottom ) {
-	d->tabs->setGeometry( QMAX(0, lw-2), height() - t.height() - lw, t.width(), t.height() );
-	d->stack->setGeometry( 0, 0, width(), height()-t.height()+QMAX(0, lw-2) );
+	taby = height() - t.height() - lw;
+	stacky = 0;
     }
     else { // Top
-	d->tabs->setGeometry( QMAX(0, lw-2), 0, t.width(), t.height() );
-	d->stack->setGeometry( 0, t.height()-lw, width(), height()-t.height()+QMAX(0, lw-2));
+	taby = 0;
+	stacky = t.height()-lw, width();
     }
+    d->tabs->setGeometry( tabx, taby, t.width(), t.height() );
+    d->stack->setGeometry( 0, stacky, width(), height()-t.height()+QMAX(0, lw-2));
 
     d->dirty = FALSE;
     if ( !onlyCheck )

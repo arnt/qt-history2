@@ -108,7 +108,6 @@ public:
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
-    QSizePolicy sizePolicy() const;
 
     int currentTab() const;
     int keyboardFocusTab() const;

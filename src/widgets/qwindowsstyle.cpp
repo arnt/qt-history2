@@ -162,35 +162,40 @@ void QWindowsStyle::drawWinShades( QPainter *p,
 				   const QColor &c3, const QColor &c4,
 				   const QBrush *fill )
 {
-    if ( w < 2 || h < 2 )			// nothing to draw
+    if ( w < 2 || h < 2 )			// can't do anything with that
 	return;
+    bool reverse = QApplication::reverseLayout();
     QPen oldPen = p->pen();
     QPointArray a( 3 );
-    a.setPoint( 0, x, y+h-2 );
-    a.setPoint( 1, x, y );
-    a.setPoint( 2, x+w-2, y );
+    if ( reverse )
+	a.setPoints( 3, x+w-1, y+h-2, x+w-1, y, x+1, y );
+    else
+	a.setPoints( 3, x, y+h-2, x, y, x+w-2, y );
     p->setPen( c1 );
     p->drawPolyline( a );
-    a.setPoint( 0, x, y+h-1 );
-    a.setPoint( 1, x+w-1, y+h-1 );
-    a.setPoint( 2, x+w-1, y );
+    if ( reverse )
+	a.setPoints( 3, x+w-1, y+h-1, x, y+h-1, x, y );
+    else
+	a.setPoints( 3, x, y+h-1, x+w-1, y+h-1, x+w-1, y );
     p->setPen( c2 );
     p->drawPolyline( a );
     if ( w > 4 && h > 4 ) {
-	a.setPoint( 0, x+1, y+h-3 );
-	a.setPoint( 1, x+1, y+1 );
-	a.setPoint( 2, x+w-3, y+1 );
+	if ( reverse )
+	    a.setPoints( 3, x+w-2, y+h-3, x+w-2, y+1, x+2, y+1 );
+	else
+	    a.setPoints( 3, x+1, y+h-3, x+1, y+1, x+w-3, y+1 );
 	p->setPen( c3 );
 	p->drawPolyline( a );
-	a.setPoint( 0, x+1, y+h-2 );
-	a.setPoint( 1, x+w-2, y+h-2 );
-	a.setPoint( 2, x+w-2, y+1 );
+	if ( reverse )
+	    a.setPoints( 3, x+w-2, y+h-2, x+1, y+h-2, x+1, y+1 );
+	else
+	    a.setPoints( 3, x+1, y+h-2, x+w-2, y+h-2, x+w-2, y+1 );
 	p->setPen( c4 );
 	p->drawPolyline( a );
 	if ( fill ) {
 	    QBrush oldBrush = p->brush();
 	    p->setBrush( *fill );
-	    p->setPen( NoPen );
+	    p->setPen( Qt::NoPen );
 	    p->drawRect( x+2, y+2, w-4, h-4 );
 	    p->setBrush( oldBrush );
 	}
@@ -315,24 +320,54 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
 	11,4, 10,3, 10,2 };
     static const QCOORD pts5[] = {		// inner fill
 	4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+    // in right to left mode, we need it reversed
+    static const QCOORD rpts1[] = {		// dark lines
+	11-1,9, 11-1,8, 11-0,7, 11-0,4, 11-1,3, 11-1,2, 11-2,1, 11-3,1, 11-4,0, 11-7,0, 11-8,1, 11-9,1 };
+    static const QCOORD rpts2[] = {		// black lines
+	11-2,8, 11-1,7, 11-1,4, 11-2,3, 11-2,2, 11-3,2, 11-4,1, 11-7,1, 11-8,2, 11-9,2 };
+    static const QCOORD rpts3[] = {		// background lines
+	11-2,9, 11-3,9, 11-4,10, 11-7,10, 11-8,9, 11-9,9, 11-9,8, 11-10,7, 11-10,4, 11-9,3 };
+    static const QCOORD rpts4[] = {		// white lines
+	11-2,10, 11-3,10, 11-4,11, 11-7,11, 11-8,10, 11-9,10, 11-10,9, 11-10,8, 11-11,7,
+	    11-11,4, 11-10,3, 11-10,2 };
+    static const QCOORD rpts5[] = {		// inner fill
+	11-4,2, 11-7,2, 11-9,4, 11-9,7, 11-7,9, 11-4,9, 11-2,7, 11-2,4 };
+
     p->eraseRect( x, y, w, h );
-    QPointArray a( QCOORDARRLEN(pts1), pts1 );
+    bool reverse = QApplication::reverseLayout();
+    QPointArray a;
+    if( reverse )
+	a.setPoints( QCOORDARRLEN(rpts1), rpts1 );
+    else
+	a.setPoints( QCOORDARRLEN(pts1), pts1 );
     a.translate( x, y );
     p->setPen( g.dark() );
     p->drawPolyline( a );
-    a.setPoints( QCOORDARRLEN(pts2), pts2 );
+    if( reverse )
+	a.setPoints( QCOORDARRLEN(rpts2), rpts2 );
+    else
+	a.setPoints( QCOORDARRLEN(pts2), pts2 );
     a.translate( x, y );
     p->setPen( g.shadow() );
     p->drawPolyline( a );
-    a.setPoints( QCOORDARRLEN(pts3), pts3 );
+    if( reverse )
+	a.setPoints( QCOORDARRLEN(rpts3), rpts3 );
+    else
+	a.setPoints( QCOORDARRLEN(pts3), pts3 );
     a.translate( x, y );
     p->setPen( g.midlight() );
     p->drawPolyline( a );
-    a.setPoints( QCOORDARRLEN(pts4), pts4 );
+    if( reverse )
+	a.setPoints( QCOORDARRLEN(rpts4), rpts4 );
+    else
+	a.setPoints( QCOORDARRLEN(pts4), pts4 );
     a.translate( x, y );
     p->setPen( g.light() );
     p->drawPolyline( a );
-    a.setPoints( QCOORDARRLEN(pts5), pts5 );
+    if( reverse )
+	a.setPoints( QCOORDARRLEN(rpts5), rpts5 );
+    else
+	a.setPoints( QCOORDARRLEN(pts5), pts5 );
     a.translate( x, y );
     QColor fillColor = down ? g.button() : g.base();
     p->setPen( fillColor );
@@ -535,6 +570,8 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     QRect r( t->rect() );
+    bool reverse = QApplication::reverseLayout();
+    int x1, x2;
     if ( tb->shape()  == QTabBar::RoundedAbove ) {
 	p->setPen( tb->colorGroup().midlight() );
 	p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
@@ -542,10 +579,10 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 	p->drawLine( r.left(), r.bottom()-1, r.right(), r.bottom()-1 );
 	if ( r.left() == 0 )
 	    p->drawPoint( tb->rect().bottomLeft() );
-	else {
-	    p->setPen( tb->colorGroup().midlight() );
-	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
-	}
+//	else {
+//	    p->setPen( tb->colorGroup().midlight() );
+//	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+//	}
 
 	if ( selected ) {
 	    p->fillRect( QRect( r.left()+1, r.bottom()-1, r.width()-3, 2),
@@ -559,33 +596,67 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 		       r.width() - 4, r.height() - 2 );
 	}
 
-	p->drawLine( r.left(), r.bottom()-1, r.left(), r.top() + 2 );
-	p->drawPoint( r.left()+1, r.top() + 1 );
-	p->drawLine( r.left()+2, r.top(),
-		     r.right() - 2, r.top() );
+	int x1, x2;
+	if( reverse ) {
+	    x2 = r.left() + 2;
+	    x1 = r.right();
+	} else {
+	    x1 = r.left();
+	    x2 = r.right() - 2;
+	}
+	p->drawLine( x1, r.bottom()-1, x1, r.top() + 2 );
+	if ( reverse ) 
+	    x1--;
+	else
+	    x1++;
+	p->drawPoint( x1, r.top() + 1 );
+	if ( reverse ) 
+	    x1--;
+	else
+	    x1++;
+	p->drawLine( x1, r.top(), x2, r.top() );
 	if ( r.left() > 0 ) {
 	    p->setPen( tb->colorGroup().midlight() );
 	}
-	p->drawPoint( r.left(), r.bottom());
+	if ( reverse )
+	    x1 = r.right();
+	else
+	    x1 = r.left();
+	p->drawPoint( x1, r.bottom());
 
 	p->setPen( tb->colorGroup().midlight() );
-	p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top() + 2 );
-	p->drawLine( r.left()+2, r.top()+1,
-		     r.right() - 2, r.top()+1 );
+	if ( reverse ) 
+	    x1--;
+	else
+	    x1++;
+	p->drawLine( x1, r.bottom(), x1, r.top() + 2 );
+	if ( reverse ) 
+	    x1--;
+	else
+	    x1++;
+	p->drawLine( x1, r.top()+1, x2, r.top()+1 );
 
 	p->setPen( tb->colorGroup().dark() );
-	p->drawLine( r.right() - 1, r.top() + 2,
-		     r.right() - 1, r.bottom() - 1 + (selected?1:-1));
+	if( reverse ) {
+	    x2 = r.left() + 1;
+	} else {
+	    x2 = r.right() - 1;
+	}
+	p->drawLine( x2, r.top() + 2, x2, r.bottom() - 1 + (selected?1:-1));
 	p->setPen( tb->colorGroup().shadow() );
-	p->drawPoint( r.right() - 1, r.top() + 1 );
-	p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - (selected?1:2));
-	p->drawPoint( r.right() - 1, r.top() + 1 );
+	p->drawPoint( x2, r.top() + 1 );
+	p->drawPoint( x2, r.top() + 1 );
+	if ( reverse )
+	    x2--;
+	else
+	    x2++;
+	p->drawLine( x2, r.top() + 2, x2, r.bottom() - (selected?1:2));
     } else if ( tb->shape() == QTabBar::RoundedBelow ) {
 	if ( selected ) {
+	    // ### add right to left support here!!!!
 	    p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),
 			 tb->palette().active().brush( QColorGroup::Background ));
 	    p->setPen( tb->colorGroup().background() );
-// 	    p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
 	    p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
 	    p->setPen( tb->colorGroup().dark() );
 	} else {
@@ -820,9 +891,11 @@ void QWindowsStyle::drawSlider( QPainter *p,
     int y1 = y;
     int y2 = y+h-1;
 
+    bool reverse = QApplication::reverseLayout();
+    
     p->fillRect( x, y, w, h, g.brush( QColorGroup::Background ) );
 
-    if ( tickAbove && tickBelow || !tickAbove && !tickBelow ) {
+    if ( (tickAbove && tickBelow) || (!tickAbove && !tickBelow) ) {
 	qDrawWinButton( p, QRect(x,y,w,h), g, FALSE,
 			&g.brush( QColorGroup::Button ) );
 	return;
@@ -885,15 +958,27 @@ void QWindowsStyle::drawSlider( QPainter *p,
 	p->drawLine( x1, y1+1, x2, y1+1 );
     }
     if ( dir != SlLeft ) {
-	p->setPen( c3 );
+	if ( reverse )
+	    p->setPen( c1 );
+	else
+	    p->setPen( c3 );
 	p->drawLine( x1+1, y1+1, x1+1, y2 );
-	p->setPen( c4 );
+	if ( reverse )
+	    p->setPen( c0 );
+	else
+	    p->setPen( c4 );
 	p->drawLine( x1, y1, x1, y2 );
     }
     if ( dir != SlRight ) {
-	p->setPen( c0 );
+	if ( reverse )
+	    p->setPen( c4 );
+	else
+	    p->setPen( c0 );
 	p->drawLine( x2, y1, x2, y2 );
-	p->setPen( c1 );
+	if ( reverse )
+	    p->setPen( c3 );
+	else
+	    p->setPen( c1 );
 	p->drawLine( x2-1, y1+1, x2-1, y2-1 );
     }
     if ( dir != SlDown ) {
@@ -905,27 +990,51 @@ void QWindowsStyle::drawSlider( QPainter *p,
 
     switch ( dir ) {
 	case SlUp:
-	    p->setPen( c4 );
+	    if ( reverse )
+		p->setPen( c0 );
+	    else
+		p->setPen( c4 );
 	    p->drawLine( x1, y1, x1+d, y1-d);
-	    p->setPen( c0 );
+	    if ( reverse )
+		p->setPen( c4 );
+	    else
+		p->setPen( c0 );
 	    d = w - d - 1;
 	    p->drawLine( x2, y1, x2-d, y1-d);
 	    d--;
-	    p->setPen( c3 );
+	    if ( reverse )
+		p->setPen( c1 );
+	    else
+		p->setPen( c3 );
 	    p->drawLine( x1+1, y1, x1+1+d, y1-d );
-	    p->setPen( c1 );
+	    if ( reverse )
+		p->setPen( c3 );
+	    else
+		p->setPen( c1 );
 	    p->drawLine( x2-1, y1, x2-1-d, y1-d);
 	    break;
 	case SlDown:
-	    p->setPen( c4 );
+	    if ( reverse )
+		p->setPen( c0 );
+	    else
+		p->setPen( c4 );
 	    p->drawLine( x1, y2, x1+d, y2+d);
-	    p->setPen( c0 );
+	    if ( reverse )
+		p->setPen( c4 );
+	    else
+		p->setPen( c0 );
 	    d = w - d - 1;
 	    p->drawLine( x2, y2, x2-d, y2+d);
 	    d--;
-	    p->setPen( c3 );
+	    if ( reverse )
+		p->setPen( c1 );
+	    else
+		p->setPen( c3 );
 	    p->drawLine( x1+1, y2, x1+1+d, y2+d );
-	    p->setPen( c1 );
+	    if ( reverse )
+		p->setPen( c3 );
+	    else
+		p->setPen( c1 );
 	    p->drawLine( x2-1, y2, x2-1-d, y2+d);
 	    break;
 	case SlLeft:

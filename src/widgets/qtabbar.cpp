@@ -360,15 +360,6 @@ QSize QTabBar::minimumSizeHint() const
     return QSize( d->rightB->sizeHint().width() * 2 + 75, sizeHint().height() );
 }
 
-/*!\reimp
-*/
-QSizePolicy QTabBar::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
-
 /*!  Paint the single tab \a t using \a p.  If and only if \a selected
   is TRUE, \a t is currently selected.
 
@@ -801,7 +792,12 @@ void QTabBar::layoutTabs()
     int x = 0;
     QRect r;
     QTab *t;
-    for ( t = lstatic->first(); t; t = lstatic->next() ) {
+    bool reverse = QApplication::reverseLayout();
+    if ( reverse )
+	t = lstatic->last();
+    else
+	t = lstatic->first();
+    while ( t ) {
 	int lw = fm.width( t->label );
 	int iw = 0;
 	int ih = 0;
@@ -817,6 +813,10 @@ void QTabBar::layoutTabs()
 		    QApplication::globalStrut().width() ), h );
 	x += t->r.width() - overlap;
 	r = r.unite( t->r );
+	if ( reverse )
+	    t = lstatic->prev();
+	else
+	    t = lstatic->next();
     }
     for ( t = lstatic->first(); t; t = lstatic->next() )
 	t->r.setHeight( r.height() );
