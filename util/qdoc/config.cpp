@@ -73,9 +73,7 @@ static bool isYes( const QString& key, const QStringList& val )
 
 static const char *toYN( bool yes )
 {
-    static const char ny[2][4] = { "no", "yes" };
-
-    return ny[yes ? 1 : 0];
+    return yes ? "yes" : "no";
 }
 
 static void setPattern( QRegExp *rx, const QString& pattern, bool plus )
@@ -131,7 +129,7 @@ Config::Config( int argc, char **argv )
     if ( !f.open(IO_ReadOnly) ) {
 	warning( 0, "Cannot open configuration file '%s'",
 		 confFilePath.latin1() );
-	return;
+	exit(EXIT_FAILURE);
     }
 
     QTextStream t( &f );
