@@ -64,6 +64,8 @@ class QPaintDevice;
 
 #ifdef Q_WS_X11
 #include <qt_x11.h>
+
+class QCharStruct;
 #endif
 
 // font description
@@ -108,7 +110,7 @@ class QFontStruct : public QShared
 {
 public:
     QFontStruct(Qt::HANDLE h, Qt::HANDLE xfth, QCString n, QTextCodec *c, int a) :
-	QShared(), handle(h), xfthandle(xfth), name(n), codec(c), cache_cost(a)
+	QShared(), handle(h), xfthandle(xfth), name(n), codec(c), cache_cost(a), scale( 1. )
     { ; }
 
     ~QFontStruct();
@@ -117,6 +119,7 @@ public:
     QCString name;
     QTextCodec *codec;
     int cache_cost;
+    float scale; // needed for printing, to correctly scale font metrics for bitmap fonts
 };
 
 #endif // Q_WS_X11
@@ -397,7 +400,7 @@ public:
     void computeLineWidth();
 
     int textWidth( const QString &str, int pos, int len, TextRun *cache );
-    void textExtents( const QString &str, int pos, int len, XCharStruct *overall );
+    void textExtents( const QString &str, int pos, int len, QCharStruct *overall );
     void drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE rendhd,
 		   GC gc, const QColor &pen, Qt::BGMode, const QColor &bgcolor,
 		   int x, int y, const TextRun *cache );

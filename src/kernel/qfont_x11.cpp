@@ -759,7 +759,8 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 {
     const QChar *chars = str.unicode() + pos;
     QFont::Script current = QFont::NoScript, tmp;
-    int i, w = 0;
+    int i;
+    float w = 0;
 
     QFontStruct *qfs = 0;
     XCharStruct *xcs = 0;
@@ -800,14 +801,14 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 			tmp = current = QFont::UnknownScript;
 			w += actual.pixelSize * 3 / 4;
 		    } else if (xcs)
-			w += xcs->width;
+			w += xcs->width * qfs->scale;
 		}
 	}
 
 	chars++;
     }
 
-    return w;
+    return (int)w;
 }
 
 
@@ -997,10 +998,28 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
     return w;
 }
 
+// needed to get printer font metrics right, and because
+// XCharStruct is limited to shorts.
+struct QCharStruct 
+{
+    QCharStruct() {
+	ascent = -1000000;
+	descent = -1000000;
+	lbearing = 1000000;
+	rbearing = -1000000;
+	width = 0;
+    }
+    float ascent;
+    float descent;
+    float lbearing;
+    float rbearing;
+    float width;
+};    
+
 
 // return the text extents in overall, replaces XTextExtents
 void QFontPrivate::textExtents( const QString &str, int pos, int len,
-				XCharStruct *overall )
+				QCharStruct *overall )
 {
     const QChar *chars = str.unicode() + pos;
     QFont::Script current = QFont::NoScript, tmp;
@@ -1018,6 +1037,7 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
     XGlyphInfo *xgi = 0;
 #endif // QT_NO_XFTFREETYPE
 
+    float scale = 1;
     for (i = 0; i < len; i++) {
 	if (chars->combiningClass() == 0 || pos + i == 0) {
 	    tmp = scriptForChar(*chars);
@@ -1027,8 +1047,11 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 		if (tmp != QFont::UnknownScript) {
 		    load(tmp);
 		    qfs = x11data.fontstruct[tmp];
-		} else
+		    scale = qfs->scale;
+		} else {
 		    qfs = 0;
+		    scale = 1.;
+		}
 
 		current = tmp;
 	    }
@@ -1039,7 +1062,7 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 		    // character isn't in the font, set the script to UnknownScript
 		    tmp = current = QFont::UnknownScript;
 
-		    int size = (actual.pixelSize * 3 / 4);
+		    float size = (actual.pixelSize * 3. / 4.);
 		    overall->ascent = QMAX(overall->ascent, size);
 		    overall->descent = QMAX(overall->descent, 0);
 		    overall->lbearing = QMIN(overall->lbearing, 0);
@@ -1049,34 +1072,31 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 		    overall->ascent = QMAX(overall->ascent, xgi->y);
 		    overall->descent = QMAX(overall->descent, xgi->height - xgi->y);
 		    overall->lbearing = QMIN(overall->lbearing, xgi->x);
-		    overall->rbearing = QMAX(overall->rbearing,
-					     overall->width + (xgi->width - xgi->x));
+		    overall->rbearing = QMAX(overall->rbearing, overall->width + (xgi->width - xgi->x));
 		    overall->width += xgi->xOff;
 		}
 	    } else
 #endif // QT_NO_XFTFREETYPE
-		{
-		    xcs = getCharStruct(qfs, str, pos + i);
-		    if (xcs == (XCharStruct *) -1) {
-			// character isn't in the font, set the script to UnknownScript
-			tmp = current = QFont::UnknownScript;
+	    {
+		xcs = getCharStruct(qfs, str, pos + i);
+		if (xcs == (XCharStruct *) -1) {
+		    // character isn't in the font, set the script to UnknownScript
+		    tmp = current = QFont::UnknownScript;
 
-			int size = (actual.pixelSize * 3 / 4);
-			overall->ascent = QMAX(overall->ascent, size);
-			overall->descent = QMAX(overall->descent, 0);
-			overall->lbearing = QMIN(overall->lbearing, 0);
-			overall->width += size;
-			overall->rbearing = QMAX(overall->rbearing, overall->width);
-		    } else if (xcs) {
-			overall->ascent = QMAX(overall->ascent, xcs->ascent);
-			overall->descent = QMAX(overall->descent, xcs->descent);
-			overall->lbearing = QMIN(overall->lbearing,
-						 overall->width + xcs->lbearing);
-			overall->rbearing = QMAX(overall->rbearing,
-						 overall->width + xcs->rbearing);
-			overall->width += xcs->width;
-		    }
+		    int size = (actual.pixelSize * 3 / 4);
+		    overall->ascent = QMAX(overall->ascent, size);
+		    overall->descent = QMAX(overall->descent, 0);
+		    overall->lbearing = QMIN(overall->lbearing, 0);
+		    overall->width += size;
+		    overall->rbearing = QMAX(overall->rbearing, overall->width);
+		} else if (xcs) {
+		    overall->ascent = QMAX(overall->ascent, xcs->ascent*scale);
+		    overall->descent = QMAX(overall->descent, xcs->descent*scale);
+		    overall->lbearing = QMIN(overall->lbearing, overall->width + xcs->lbearing*scale);
+		    overall->rbearing = QMAX(overall->rbearing, overall->width + xcs->rbearing*scale);
+		    overall->width += xcs->width*scale;
 		}
+	    }
 
 	    chars++;
 	} else {
@@ -1101,8 +1121,8 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 		if (markexists) {
 		    // yes, really do both, this makes sure that marks that rise above
 		    // the box expand it up, and marks below the box expand it down
-		    overall->ascent = QMAX(overall->ascent, p.y());
-		    overall->descent = QMAX(overall->descent, p.y());
+		    overall->ascent = QMAX(overall->ascent, p.y()*scale);
+		    overall->descent = QMAX(overall->descent, p.y()*scale);
 
 		    current = QFont::UnknownScript;
 		}
@@ -1730,7 +1750,6 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 	sc = fontMatchScore( xFontNames[i], matchBuffer,
 			     &pointDiff, &weightDiff,
 			     &scalable, &smoothScalable, script );
-	//qDebug("font '%s' has score %d", xFontNames[i], sc );
 
 	if ( scalable ) {
 	    if ( sc > bestScalable.score ||
@@ -1782,7 +1801,6 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 		resy = atoi(tokens[ResolutionY]);
 	    }
 	    pSize = (int)pixelSize( request, paintdevice );
-	    //qDebug("requesting font with %d pixels", pSize );
 
 	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-%i-*-%i-%i-%s-*-%s-%s",
 			      tokens[Foundry],
@@ -1801,7 +1819,6 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 	}
     }
 
-    //qDebug("best match ='%s', score=%d", best.name, best.score);
     *score = best.score;
     bestName = best.name;
 
@@ -1958,6 +1975,24 @@ void QFontPrivate::computeLineWidth()
 // fill the actual fontdef with data from the loaded font
 void QFontPrivate::initFontInfo(QFont::Script script)
 {
+    if ( paintdevice ) {
+	// we have a printer font
+	actual = request;
+	float _pointSize = pointSize( actual, paintdevice );
+	float _pixelSize = pixelSize( actual, paintdevice );
+	if ( actual.pointSize == -1 )
+	    actual.pointSize = (int)_pointSize;
+	else
+	    actual.pixelSize = (int)_pixelSize;
+
+	QFontDef font;
+	if ( fillFontDef(x11data.fontstruct[script]->name, &font, 0)) {
+	    if ( pixelSize != 0 )
+		x11data.fontstruct[script]->scale = _pixelSize/((float) font.pixelSize);
+	}
+	return;
+    }
+    
     if (script != QFont::Unicode && script != defaultScript || !actual.dirty)
 	return;
 
@@ -2782,7 +2817,7 @@ int QFontMetrics::ascent() const
 #endif // QT_NO_XFTFREETYPE
 
     XFontStruct *f = (XFontStruct *) qfs->handle;
-    return f->max_bounds.ascent;
+    return (int) (f->max_bounds.ascent * qfs->scale);
 }
 
 
@@ -2810,7 +2845,7 @@ int QFontMetrics::descent() const
 #endif // QT_NO_XFTFREETYPE
 
     XFontStruct *f = (XFontStruct *) qfs->handle;
-    return f->max_bounds.descent - 1;
+    return (int) ((f->max_bounds.descent - 1)*qfs->scale);
 }
 
 
@@ -2849,7 +2884,7 @@ int QFontMetrics::leftBearing(QChar ch) const
     XCharStruct *xcs = getCharStruct(qfs, QString(ch), 0);
     if (! xcs || xcs == (XCharStruct *) -1)
 	return 0;
-    return xcs->lbearing;
+    return (int) (xcs->lbearing * qfs->scale);
 }
 
 
@@ -2878,7 +2913,7 @@ int QFontMetrics::rightBearing(QChar ch) const
     XCharStruct *xcs = getCharStruct(qfs, QString(ch), 0);
     if (! xcs || xcs == (XCharStruct *) -1)
 	return 0;
-    return xcs->width - xcs->rbearing;
+    return (int) (xcs->width - xcs->rbearing * qfs->scale);
 }
 
 
@@ -2916,7 +2951,7 @@ int QFontMetrics::minLeftBearing() const
 		    mx = nmx;
 	    }
 
-	    d->actual.lbearing = mx;
+	    d->actual.lbearing = (int) (mx * qfs->scale);
 	} else
 	    d->actual.lbearing = f->min_bounds.lbearing;
     }
@@ -2960,7 +2995,7 @@ int QFontMetrics::minRightBearing() const
 		    mx = nmx;
 	    }
 
-	    d->actual.rbearing = mx;
+	    d->actual.rbearing = (int) (mx * qfs->scale);
 	} else
 	    d->actual.rbearing = f->max_bounds.width - f->max_bounds.rbearing;
     }
@@ -2991,7 +3026,7 @@ int QFontMetrics::height() const
 #endif // QT_NO_XFTFREETYPE
 
     XFontStruct *f = (XFontStruct *) qfs->handle;
-    return f->max_bounds.ascent + f->max_bounds.descent;
+    return (int) ((f->max_bounds.ascent + f->max_bounds.descent) * qfs->scale);
 }
 
 
@@ -3019,7 +3054,7 @@ int QFontMetrics::leading() const
 	l = xftfs->height - (xftfs->ascent + xftfs->descent);
     else
 #endif // QT_NO_XFTFREETYPE
-	l = f->ascent + f->descent - f->max_bounds.ascent - f->max_bounds.descent;
+	l = (int) ((f->ascent + f->descent - f->max_bounds.ascent - f->max_bounds.descent) * qfs->scale);
 
     return (l > 0) ? l : 0;
 }
@@ -3100,7 +3135,7 @@ int QFontMetrics::width(QChar ch) const
 	    else if (! xcs)
 		w = 0;
 	    else
-		w = xcs->width;
+		w = (int) (xcs->width * qfs->scale);
 	}
 
     return w;
@@ -3151,7 +3186,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	    else if (! xcs)
 		w = 0;
 	    else
-		w = xcs->width;
+		w = (int) (xcs->width * qfs->scale);
 	}
 
     return w;
@@ -3213,23 +3248,16 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     // this algorithm is similar to width(const QString &, int)
     QString shaped = QComplexText::shapedString( str, 0, len);
 
-    XCharStruct overall;
-
-    // zero overall
-    overall.lbearing = 0x4000;
-    overall.rbearing = -0x4000;
-    overall.ascent = -0x4000;
-    overall.descent = -0x4000;
-    overall.width = 0;
+    QCharStruct overall;
 
     d->textExtents( shaped, 0, shaped.length(), &overall );
 
     bool underline;
     bool strikeOut;
-    int startX = overall.lbearing;
-    int width = overall.rbearing - startX;
-    int ascent = overall.ascent;
-    int descent = overall.descent;
+    int startX = (int)overall.lbearing;
+    int width = (int)(overall.rbearing - startX);
+    int ascent = (int)overall.ascent;
+    int descent = (int)overall.descent;
 
     if ( painter ) {
 	underline = painter->cfont.underline();
@@ -3239,16 +3267,14 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	strikeOut = strikeOutFlag();
     }
 
-    if ( !underline && !strikeOut ) {
-	width = overall.rbearing - startX;
-    } else {
+    if ( underline || strikeOut ) {
 	if ( startX > 0 )
 	    startX = 0;
 
 	if ( overall.rbearing < overall.width )
-	    width =  overall.width - startX;
+	    width =  (int)(overall.width - startX);
 	else
-	    width =  overall.rbearing - startX;
+	    width =  (int)(overall.rbearing - startX);
 
 	if ( underline && len != 0 ) {
 	    int ulTop = underlinePos();
@@ -3298,14 +3324,14 @@ int QFontMetrics::maxWidth() const
 #ifndef QT_NO_XFTFREETYPE
 	if (d->x11data.fontstruct[i]->xfthandle) {
 	    XftFontStruct *xftfs =
-		(XftFontStruct *) d->x11data.fontstruct[i]->xfthandle;
+		(XftFontStruct *) qfs->xfthandle;
 	    ww = xftfs->max_advance_width;
 	} else
 #endif // QT_NO_XFTFREETYPE
 	    {
 		XFontStruct *f =
-		    (XFontStruct *) d->x11data.fontstruct[i]->handle;
-		ww = f->max_bounds.width;
+		    (XFontStruct *) qfs->handle;
+		ww = (int) (f->max_bounds.width * qfs->scale);
 	    }
 
 	if (ww > w)
