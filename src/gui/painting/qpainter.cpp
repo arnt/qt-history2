@@ -290,6 +290,7 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
             path = path * state->matrix;
             q->save();
             q->resetMatrix();
+            doRestore = true;
         }
         width = 1;
     }
@@ -398,8 +399,11 @@ void QPainterPrivate::draw_helper(const void *data, Qt::FillRule fillRule, Shape
 
             // XFormed fills
         } else if (emulationSpecifier & QPaintEngine::CoordTransform) {
-            outlineMode = None;
             q->save();
+            if (outlineMode == PathBased)
+                q->setPen(Qt::NoPen);
+            else
+                outlineMode = None;
             if (shape == PathShape) {
                 Q_ASSERT_X(engine->hasFeature(QPaintEngine::PainterPaths), "draw_helper",
                            "PathShape is only used when engine supports painterpaths.");
