@@ -81,7 +81,7 @@ protected:
     BlockIterator end() const;
 
     int formatIndex(int pos);
-    QTextFormat format(int pos);
+    QTextCharFormat format(int pos);
 
 private slots:
     void handlerDestroyed(QObject *obj);

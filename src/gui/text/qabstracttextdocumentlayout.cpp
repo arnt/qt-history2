@@ -183,11 +183,11 @@ int QAbstractTextDocumentLayout::formatIndex(int pos)
     return pieceTable->find(pos).value()->format;
 }
 
-QTextFormat QAbstractTextDocumentLayout::format(int pos)
+QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
     if (!pieceTable)
-	return QTextFormat();
+	return QTextCharFormat();
     int idx = pieceTable->find(pos).value()->format;
-    return pieceTable->formatCollection()->blockFormat(idx);
+    return pieceTable->formatCollection()->charFormat(idx);
 }
