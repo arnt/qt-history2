@@ -43,10 +43,8 @@
 #include "qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
-#ifndef QT_NO_NETWORK
 class Q3SocketPrivate;
 class Q3SocketDevice;
-
 
 class Q_COMPAT_EXPORT Q3Socket : public QIODevice
 {
@@ -143,5 +141,4 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif //QT_NO_NETWORK
 #endif // Q3SOCKET_H

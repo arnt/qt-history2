@@ -35,15 +35,14 @@
 **
 **********************************************************************/
 
-#ifndef QSERVERSOCKET_H
-#define QSERVERSOCKET_H
+#ifndef Q3SERVERSOCKET_H
+#define Q3SERVERSOCKET_H
 
 #ifndef QT_H
 #include "qobject.h"
 #include "qhostaddress.h"
 #include "q3socketdevice.h" // ### remove or keep for users' convenience?
 #endif // QT_H
-#ifndef QT_NO_NETWORK
 
 class Q3ServerSocketPrivate;
 
@@ -80,5 +79,4 @@ private:
     void init( const QHostAddress & address, Q_UINT16 port, int backlog );
 };
 
-#endif // QT_NO_NETWORK
 #endif // QSERVERSOCKET_H
