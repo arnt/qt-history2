@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#1 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#2 $
 **
 ** Definition of QRangeControl class
 **
@@ -18,69 +18,66 @@ class QRangeControl
 {
 public:
     QRangeControl();
-    QRangeControl(int minValue, int maxValue,
-		  int lineStep, int pageStep,int value);
-    void    setValue(int value);
+    QRangeControl(long minValue, long maxValue,
+		  long lineStep, long pageStep,long value);
+    void    setValue(long value);
     void    addPage();
     void    subtractPage();
     void    addLine();
     void    subtractLine();
-    void    setRange(int minValue, int maxValue);
-    void    setSteps(int line,int page);
-    void    setRangeAndSteps(int minValue, int maxValue,
-			     int lineStep, int pageStep);
-    int	    minValue() const;
-    int	    maxValue() const;
-    int	    lineStep() const;
-    int	    pageStep() const;
-    int	    value() const;
+    void    setRange(long minValue, long maxValue);
+    void    setSteps(long line,long page);
+    long    minValue() const;
+    long    maxValue() const;
+    long    lineStep() const;
+    long    pageStep() const;
+    long    value() const;
 
 protected:
-    void    directSetValue(int val);
-    int	    previousValue() const;
+    void    directSetValue(long val);
+    long    previousValue() const;
     
 private:
-	    void adjustValue();
-    virtual void valueChange(){}
-    virtual void stepChange(){}
-    virtual void rangeChange(){}
+    void adjustValue();
+    virtual void valueChange();
+    virtual void stepChange();
+    virtual void rangeChange();
 
-    int minVal,maxVal;
-    int line,page;
-    int val;
-    int previousVal;
+    long minVal,maxVal;
+    long line,page;
+    long val;
+    long previousVal;
 };
 
 
-inline int QRangeControl::minValue() const
+inline long QRangeControl::minValue() const
 {
     return minVal;
 }
 
-inline int QRangeControl::maxValue() const
+inline long QRangeControl::maxValue() const
 {
     return maxVal;
 }
 
-inline int QRangeControl::lineStep() const
+inline long QRangeControl::lineStep() const
 {
     return line;
 }
 
-inline int QRangeControl::pageStep() const
+inline long QRangeControl::pageStep() const
 {
     return page;
 }
 
-inline int QRangeControl::value() const
+inline long QRangeControl::value() const
 {
     return val;
 }
 
-inline int QRangeControl::previousValue() const
+inline long QRangeControl::previousValue() const
 {
     return previousVal;
 }
-
 
 #endif // QRANGECT_H
