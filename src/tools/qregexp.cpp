@@ -3210,8 +3210,15 @@ bool QRegExp::operator==( const QRegExp& rx ) const
 */
 
 /*!
-  Returns TRUE if the pattern string is empty, otherwise FALSE.  An empty
-  pattern matches an empty string.
+  Returns TRUE if the pattern string is empty, otherwise FALSE.  
+
+  If you call match() with an empty pattern on an empty string it will
+  return TRUE otherwise it returns FALSE since match() operates over the
+  whole string. If you call search() with an empty pattern on \e any
+  string it will return the start position (0 by default) since it will
+  match at the start position, because the empty pattern matches the
+  'emptiness' at the start of the string, and the length of the match
+  returned by matchedLength() will be 0.
 
   See QString::isEmpty().
 */
