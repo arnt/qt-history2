@@ -57,7 +57,7 @@ public:
     bool hasTracking() const;
 
     void setSliderDown(bool);
-    bool isSliderDown();
+    bool isSliderDown() const;
 
     void setSliderPosition(int);
     int sliderPosition() const;

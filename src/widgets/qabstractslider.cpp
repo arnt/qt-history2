@@ -337,7 +337,7 @@ void QAbstractSlider::setSliderDown(bool down)
 	triggerAction(SliderMove);
 }
 
-bool QAbstractSlider::isSliderDown()
+bool QAbstractSlider::isSliderDown() const
 {
     return d->pressed;
 }
