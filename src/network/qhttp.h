@@ -171,6 +171,7 @@ class QM_EXPORT_HTTP QHttp : public QNetworkProtocol
 public:
     QHttp();
     QHttp( QObject* parent, const char* name = 0 ); // ### Qt 4.0: join the two constructors
+    QHttp( const QString &hostname, Q_UINT16 port=80, QObject* parent=0, const char* name = 0 );
     virtual ~QHttp();
 
     int supportedOperations() const;
@@ -180,7 +181,7 @@ protected:
     void operationPut( QNetworkOperation *op );
 
 private slots:
-    void clientReply( const QHttpResponseHeader & rep, const QByteArray & dataA );
+    void clientReply( const QHttpResponseHeader &rep, const QByteArray & dataA );
     void clientFinishedSuccess();
     void clientFinishedError( const QString &detail, int );
     void clientConnected();
@@ -194,8 +195,9 @@ private:
 
     // new API
 public:
-    enum State { Closed, Connecting, Sending, Reading, Alive, Idle };
+    enum State { Unconnected, HostLookup, Connecting, Sending, Reading, Connected, Closing };
     enum Error {
+	NoError,
 	UnknownError,
 	ConnectionRefused,
 	HostNotFound,
@@ -204,11 +206,13 @@ public:
 	WrongContentLength
     };
 
-    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size );
-    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const QByteArray& data );
-    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const QCString& data );
-    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, QIODevice* device );
-    bool request( const QString& hostname, int port, const QHttpRequestHeader& header );
+    void setHost(const QString &hostname, Q_UINT16 port=80 );
+
+    bool request( const QHttpRequestHeader& header, const char* data, uint size );
+    bool request( const QHttpRequestHeader& header, const QByteArray& data );
+    bool request( const QHttpRequestHeader& header, const QCString& data );
+    bool request( const QHttpRequestHeader& header, QIODevice* device );
+    bool request( const QHttpRequestHeader& header );
 
     void close();
 
@@ -217,10 +221,10 @@ public:
     QIODevice* device() const;
 
 signals:
-    void response( const QHttpResponseHeader& repl, const QByteArray& data );
-    void response( const QHttpResponseHeader& repl, const QIODevice* device );
-    void responseChunk( const QHttpResponseHeader& repl, const QByteArray& data );
-    void responseHeader( const QHttpResponseHeader& repl );
+    void response( const QHttpResponseHeader& resp, const QByteArray& data );
+    void response( const QHttpResponseHeader& resp, const QIODevice* device );
+    void responseChunk( const QHttpResponseHeader& resp, const QByteArray& data );
+    void responseHeader( const QHttpResponseHeader& resp );
 
     void finishedError( const QString& detail, int error );
     void finishedSuccess();

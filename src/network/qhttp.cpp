@@ -53,7 +53,9 @@ class QHttpPrivate
 {
 public:
     QHttpPrivate() :
-	state( QHttp::Idle ),
+	state( QHttp::Unconnected ),
+	hostname( QString::null ),
+	port( 0 ),
 	idleTimer( 0 ),
 	device( 0 ),
 	postDevice( 0 )
@@ -66,6 +68,9 @@ public:
     QHttp::State state;
     bool readHeader;
     QHttpResponseHeader response;
+
+    QString hostname;
+    Q_UINT16 port;
 
     int idleTimer;
 
@@ -851,7 +856,8 @@ void QHttp::operationGet( QNetworkOperation *op )
     QUrl u( operationInProgress()->arg( 0 ) );
     QHttpRequestHeader header( "GET", u.encodedPathAndQuery(), 1, 0 );
     header.setValue( "Host", u.host() );
-    request( u.host(), u.port() != -1 ? u.port() : 80, header );
+    setHost( u.host(), u.port() != -1 ? u.port() : 80 );
+    request( header );
 }
 
 /*! \reimp
@@ -863,7 +869,8 @@ void QHttp::operationPut( QNetworkOperation *op )
     QUrl u( operationInProgress()->arg( 0 ) );
     QHttpRequestHeader header( "POST", u.encodedPathAndQuery(), 1, 0 );
     header.setValue( "Host", u.host() );
-    request( u.host(), u.port() != -1 ? u.port() : 80, header, op->rawArg(1) );
+    setHost( u.host(), u.port() != -1 ? u.port() : 80 );
+    request( header, op->rawArg(1) );
 }
 
 void QHttp::clientReply( const QHttpResponseHeader &rep, const QByteArray & dataA )
@@ -972,10 +979,10 @@ void QHttp::clientClosed()
  ****************************************************/
 
 /*!
-  \fn void QHttp::response( const QHttpResponseHeader& repl, const QByteArray& data )
+  \fn void QHttp::response( const QHttpResponseHeader& resp, const QByteArray& data )
 
   This signal is emitted when the response is available. The response header is
-  passed in \a repl and the data of the response is passed in \a data. Do not
+  passed in \a resp and the data of the response is passed in \a data. Do not
   call request() in response to this signal. Instead wait for finishedSuccess().
 
   If this QHttp has a device set, then this signal is not emitted.
@@ -983,11 +990,11 @@ void QHttp::clientClosed()
   \sa responseChunk()
 */
 /*!
-  \fn void QHttp::response( const QHttpResponseHeader& repl, const QIODevice* device )
+  \fn void QHttp::response( const QHttpResponseHeader& resp, const QIODevice* device )
   \overload
 
   This signal is emitted when the response is available and the data was written
-  to the device \a device. The response header is passed in \a repl. Do not call
+  to the device \a device. The response header is passed in \a resp. Do not call
   request() in response to this signal. Instead wit for finishedSuccess().
 
   If this QHttp has no device set, then this signal is not emitted.
@@ -995,13 +1002,13 @@ void QHttp::clientClosed()
   \sa responseChunk()
 */
 /*!
-  \fn void QHttp::responseChunk( const QHttpResponseHeader& repl, const QByteArray& data )
+  \fn void QHttp::responseChunk( const QHttpResponseHeader& resp, const QByteArray& data )
 
   This signal is emitted if the client has received a piece of the response data.
   This is useful for slow connections: you don't have to wait until all data is
   available; you can present the data that is already loaded to the user.
 
-  The header is passed in \a repl and the data chunk in \a data.
+  The header is passed in \a resp and the data chunk in \a data.
 
   If you are only interested in the complete document, use one of the response()
   signals instead.
@@ -1011,10 +1018,10 @@ void QHttp::clientClosed()
   \sa finishedSuccess() response()
 */
 /*!
-  \fn void QHttp::responseHeader( const QHttpResponseHeader& repl )
+  \fn void QHttp::responseHeader( const QHttpResponseHeader& resp )
 
   This signal is emitted if the HTTP header of the response is available. The
-  header is passed in \a repl.
+  header is passed in \a resp.
 
   It is now possible to decide wether the response data should be read in memory
   or rather in some device by calling setDevice().
@@ -1034,7 +1041,7 @@ void QHttp::clientClosed()
   \fn void QHttp::finishedSuccess()
 
   This signal is emitted when the QHttp is able to start a new request.
-  The QHttp is either in the state Idle or Alive now.
+  The QHttp is either in the state Unconnected or Connected now.
 
   \sa response() responseChunk()
 */
@@ -1051,6 +1058,23 @@ QHttp::QHttp( QObject* parent, const char* name )
     init();
 }
 
+/*!
+    Constructs a HTTP client. Following requests are done by connecting to the
+    server \a hostname on port \a port. The parameters \a parent and \a name
+    are passed on to the QObject constructor.
+
+    \sa setHost()
+*/
+QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const char* name )
+{
+    if ( parent )
+	parent->insertChild( this );
+    setName( name );
+    init();
+
+    d->hostname = hostname;
+    d->port = port;
+}
 
 /*!
     Closes the connection. This will abort a running request.
@@ -1060,11 +1084,11 @@ QHttp::QHttp( QObject* parent, const char* name )
 void QHttp::close()
 {
     // If no connection is open -> ignore
-    if ( d->state == Closed || d->state == Idle )
+    if ( d->state == Closing || d->state == Unconnected )
 	return;
 
     d->postDevice = 0;
-    d->state = Closed;
+    d->state = Closing;
 
     // Already closed ?
     if ( !d->socket->isOpen() ) {
@@ -1082,43 +1106,61 @@ void QHttp::close()
     }
 }
 
-/*! \overload
+/*!
+    Sets the HTTP server that is used for requests to \a hostname on port \a
+    port.
+
+    \sa request()
 */
-bool QHttp::request( const QString& hostname, int port, const QHttpRequestHeader& header )
+void QHttp::setHost(const QString &hostname, Q_UINT16 port )
 {
-    return request( hostname, port, header, QByteArray(), 0 );
+    d->hostname = hostname;
+    d->port = port;
 }
 
 /*! \overload
 */
-bool QHttp::request( const QString& hostname, int port, const QHttpRequestHeader& header, const QByteArray& data )
+bool QHttp::request( const QHttpRequestHeader& header )
 {
-    return request( hostname, port, header, data, data.size() );
+    return request( header, QByteArray(), 0 );
 }
 
 /*! \overload
 */
-bool QHttp::request( const QString& hostname, int port, const QHttpRequestHeader& header, const QCString& data )
+bool QHttp::request( const QHttpRequestHeader& header, const QByteArray& data )
 {
-    return request( hostname, port, header, data, data.length() );
+    return request( header, data, data.size() );
+}
+
+/*! \overload
+*/
+bool QHttp::request( const QHttpRequestHeader& header, const QCString& data )
+{
+    return request( header, data, data.length() );
 }
 
 /*!
-    Sends a request to the server \a hostname at port \a port. Use the
-    \a header as the HTTP request header. You are responsible for
-    setting up a \a header that is appropriate appropriate for your
-    request. \a data is a char array of size \a size; it is used as
-    the content data of the HTTP request.
+    Sends a request to the server set by setHost() or as specified in the
+    constructor. Use the \a header as the HTTP request header. You are
+    responsible for setting up a \a header that is appropriate appropriate for
+    your request. \a data is a char array of size \a size; it is used as the
+    content data of the HTTP request.
 
     Call this function after the client was created or after the
     finishedSuccess() signal is emitted. Returns TRUE if it is able to make
     the request (i.e. no request is pending); otherwise returns FALSE.
+
+    \sa setHost()
 */
-bool QHttp::request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size )
+bool QHttp::request( const QHttpRequestHeader& header, const char* data, uint size )
 {
     // Is it allowed to make a new request now ?
-    if ( d->state != Idle && d->state != Alive ) {
+    if ( d->state != Unconnected && d->state != Connected ) {
 	qWarning("The client is currently busy with a pending request. You can not invoke a request now.");
+	return FALSE;
+    }
+    if ( d->hostname.isNull() ) {
+	qWarning( "QHttp::request() - no server to set to connect to" );
 	return FALSE;
     }
 
@@ -1127,8 +1169,8 @@ bool QHttp::request( const QString& hostname, int port, const QHttpRequestHeader
 
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
-    if ( d->socket->peerName() != hostname || d->socket->state() != QSocket::Connection ) {
-	d->socket->connectToHost( hostname, port );
+    if ( d->socket->peerName() != d->hostname || d->socket->state() != QSocket::Connection ) {
+	d->socket->connectToHost( d->hostname, d->port );
     }
 
     // Get a deep copy of the data
@@ -1144,19 +1186,21 @@ bool QHttp::request( const QString& hostname, int port, const QHttpRequestHeader
 /*!
     \overload
 
-    Sends a request to the server \a hostname at port \a port. Use the
-    \a header as the HTTP request header. You are responsible for
-    setting up a \a header that is appropriate appropriate for your
-    request. The content data is read from \a device (the device must
-    be opened for reading).
+    Sends a request to the server set by setHost() or as specified in the
+    constructor. Use the \a header as the HTTP request header. You are
+    responsible for setting up a \a header that is appropriate appropriate for
+    your request. The content data is read from \a device (the device must be
+    opened for reading).
 
     Call this function after the client was created or after the
     finishedSuccess() signal is emitted. Returns TRUE if it is able to make
     the request (i.e. no request is pending); otherwise returns FALSE.
+
+    \sa setHost()
 */
-bool QHttp::request( const QString& hostname, int port, const QHttpRequestHeader& header, QIODevice* device )
+bool QHttp::request( const QHttpRequestHeader& header, QIODevice* device )
 {
-    if ( d->state != Idle ) {
+    if ( d->state != Unconnected ) {
 	qWarning("The client is currently busy with a pending request. You can not invoke a request now.");
 	return FALSE;
     }
@@ -1174,8 +1218,8 @@ bool QHttp::request( const QString& hostname, int port, const QHttpRequestHeader
 
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
-    if ( d->socket->peerName() != hostname || d->socket->state() != QSocket::Connection ) {
-	d->socket->connectToHost( hostname, port );
+    if ( d->socket->peerName() != d->hostname || d->socket->state() != QSocket::Connection ) {
+	d->socket->connectToHost( d->hostname, d->port );
     }
 
     // Get a deep copy of the header
@@ -1190,7 +1234,7 @@ bool QHttp::request( const QString& hostname, int port, const QHttpRequestHeader
 */
 void QHttp::slotClosed()
 {
-    if ( d->state == Closed )
+    if ( d->state == Closing )
 	return;
 
     // If the other side closed the connection then there
@@ -1222,7 +1266,7 @@ void QHttp::slotClosed()
     emit closed();
 
     d->postDevice = 0;
-    d->state = Closed;
+    d->state = Closing;
     d->idleTimer = startTimer( 0 );
 }
 
@@ -1396,7 +1440,7 @@ void QHttp::slotReadyRead()
 	    if ( d->response.value("connection") == "close" ) {
 		close();
 	    } else {
-		d->state = Alive;
+		d->state = Connected;
 		// Start a timer, so that we emit the keep alive signal
 		// "after" this method returned.
 		d->idleTimer = startTimer( 0 );
@@ -1410,8 +1454,8 @@ void QHttp::slotReadyRead()
 
     This enum is used to specify the state the client is in.
 
-    \value Closed The connection was just closed, but is still not
-    ready to accept new requests. (Wait until the client is Idle.)
+    \value Closing The connection is shutting down, but is still not
+    ready to accept new requests. (Wait until the client is Unconnected.)
 
     \value Connecting A request was issued and the client is looking up
     IP addresses or connecting to the remote host.
@@ -1421,10 +1465,10 @@ void QHttp::slotReadyRead()
     \value Reading The client has sent its request and is reading the
     server's response.
 
-    \value Alive The connection to the host is open. It is possible to
+    \value Connected The connection to the host is open. It is possible to
     make new requests.
 
-    \value Idle There is no open connection. It is possible to make new
+    \value Unconnected There is no open connection. It is possible to make new
     requests.
 */
 /*!
@@ -1443,10 +1487,10 @@ void QHttp::timerEvent( QTimerEvent *e )
 	killTimer( d->idleTimer );
 	d->idleTimer = 0;
 
-	if ( d->state == Alive ) {
+	if ( d->state == Connected ) {
 	    emit finishedSuccess();
-	} else if ( d->state != Idle ) {
-	    d->state = Idle;
+	} else if ( d->state != Unconnected ) {
+	    d->state = Unconnected;
 	    emit finishedSuccess();
 	}
     } else {
