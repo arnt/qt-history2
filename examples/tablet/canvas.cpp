@@ -18,10 +18,10 @@
 const bool no_writing = FALSE;
 
 Canvas::Canvas( QWidget *parent, const char *name, WFlags fl )
-    : QWidget( parent, name, WStaticContents | fl ), 
+    : QWidget( parent, name, WStaticContents | fl ),
       pen( Qt::red, 3 ), polyline(3),
       mousePressed( FALSE ), oldPressure( 0 ), saveColor( red ),
-      buffer( width(), height() ) 
+      buffer( width(), height() )
 {
 
     if ((qApp->argc() > 0) && !buffer.load(qApp->argv()[1]))
@@ -81,7 +81,7 @@ void Canvas::mouseMoveEvent( QMouseEvent *e )
 void Canvas::tabletEvent( QTabletEvent *e )
 {
     e->accept();
-	// change the width based on range of pressure
+    // change the width based on range of pressure
     if ( e->device() == QTabletEvent::Stylus )	{
 	if ( e->pressure() >= 0 && e->pressure() <= 32 )
 	    pen.setColor( saveColor.light(175) );
@@ -115,7 +115,41 @@ void Canvas::tabletEvent( QTabletEvent *e )
 	      ((yt < -30 && yt > -45) || (yt > 30 && yt < 45)) )
 	pen.setWidth( 9 );
     else if (  (xt < -45 || xt > 45 ) && ( yt < -45 || yt > 45 ) )
-	pen.setWidth( 12 );	
+	pen.setWidth( 12 );
+
+    switch ( e->type() ) {
+    case QEvent::TabletPress:
+	mousePressed = TRUE;
+	polyline[2] = polyline[1] = polyline[0] = e->pos();
+	break;
+    case QEvent::TabletRelease:
+	mousePressed = FALSE;
+	break;
+    case QEvent::TabletMove:
+	if ( mousePressed ) {
+	    QPainter painter;
+	    painter.begin( &buffer );
+	    painter.setPen( pen );
+	    polyline[2] = polyline[1];
+	    polyline[1] = polyline[0];
+	    polyline[0] = e->pos();
+	    painter.drawPolyline( polyline );
+	    painter.end();
+
+	    QRect r = polyline.boundingRect();
+	    r = r.normalize();
+	    r.setLeft( r.left() - penWidth() );
+	    r.setTop( r.top() - penWidth() );
+	    r.setRight( r.right() + penWidth() );
+	    r.setBottom( r.bottom() + penWidth() );
+
+	    bitBlt( this, r.x(), r.y(), &buffer, r.x(), r.y(), r.width(),
+		    r.height() );
+	}
+	break;
+    default:
+	break;
+    }
 }
 
 void Canvas::resizeEvent( QResizeEvent *e )

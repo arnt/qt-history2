@@ -28,7 +28,7 @@ MyOrientation::~MyOrientation()
 }
 
 void MyOrientation::newOrient( int tiltX, int tiltY )
-{    
+{
     double PI = 3.14159265359;
     int realWidth,
         realHeight,
@@ -40,13 +40,13 @@ void MyOrientation::newOrient( int tiltX, int tiltY )
     realWidth = width() - 2 * frameWidth();
     realHeight = height() - 2 * frameWidth();
 
-    
+
 
     QRect cr( 0 + frameWidth(), 0 + frameWidth(), realWidth, realHeight );
     QPixmap pix( cr.size() );
     pix.fill( this, cr.topLeft() );
     QPainter p( &pix );
-    
+
     if ( realWidth > realHeight )
 	hypot = realHeight / 2;
     else
@@ -86,13 +86,28 @@ void StatsCanvas::tabletEvent( QTabletEvent *e )
 {
     static QRect oldR( -1, -1, -1, -1);
     QPainter p;
-    
+
     e->accept();
+    switch( e->type() ) {
+    case QEvent::TabletPress:
+	qDebug( "tablet press" );
+	mousePressed = TRUE;
+	break;
+    case QEvent::TabletRelease:
+	qDebug( "tablet release" );
+	mousePressed = FALSE;
+	clearScreen();
+	emit signalNewTilt( 0, 0 );
+	break;
+    default:
+	break;
+    }
+
     r.setRect( e->x() - e->pressure() / 2,
 	e->y() - e->pressure() / 2, e->pressure(), e->pressure() );
     QRect tmpR = r | oldR;
     oldR = r;
-    
+
     update( tmpR );
     emit signalNewTilt( e->xTilt(), e->yTilt() );
     emit signalNewDev( e->device() );
@@ -102,17 +117,28 @@ void StatsCanvas::tabletEvent( QTabletEvent *e )
 
 void StatsCanvas::mouseMoveEvent( QMouseEvent *e )
 {
+	qDebug( "mouse move" );
     // do nothing
     QWidget::mouseMoveEvent( e );
 }
 
 
+void StatsCanvas::mousePressEvent( QMouseEvent *e )
+{
+	qDebug( "Press" );
+	QWidget::mousePressEvent( e );
+}
+
 void StatsCanvas::mouseReleaseEvent( QMouseEvent *e )
 {
+/*
     Canvas::mouseReleaseEvent( e );
     clearScreen();
     // a bad cheat to get rid of the old data...
     emit signalNewTilt( 0, 0 );
+*/
+	qDebug( "release" );
+	QWidget::mouseReleaseEvent( e );
 }
 
 void StatsCanvas::paintEvent( QPaintEvent *e )
@@ -120,14 +146,14 @@ void StatsCanvas::paintEvent( QPaintEvent *e )
     QPainter p;
     p.begin( &buffer );
     p.fillRect( e->rect(), colorGroup().base() );
-    
+
     // draw a circle if we have the tablet down
     if ( mousePressed ) {
 	p.setBrush( red );
 	p.drawEllipse( r );
     }
-    bitBlt( this, e->rect().x(), e->rect().y(), &buffer, e->rect().x(), e->rect().y(),
-	    e->rect().width(), e->rect().height() );
+    bitBlt( this, e->rect().x(), e->rect().y(), &buffer, e->rect().x(),
+	    e->rect().y(), e->rect().width(), e->rect().height() );
     p.end();
 }
 

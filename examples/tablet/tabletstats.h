@@ -46,6 +46,7 @@ protected:
     void tabletEvent( QTabletEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void paintEvent( QPaintEvent *e );
+    void mousePressEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
 
 private:
