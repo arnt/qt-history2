@@ -1104,9 +1104,26 @@ void Resource::saveExtraInfo(QWidget *widget, DomWidget *ui_widget, DomWidget *u
 
 void Resource::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    Q_UNUSED(ui_widget);
-    Q_UNUSED(widget);
     Q_UNUSED(parentWidget);
+
+    if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
+        foreach (DomItem *ui_item, ui_widget->elementItem()) {
+            QHash<QString, DomProperty*> properties = propertyMap(ui_item->elementProperty());
+            QListWidgetItem *item = new QListWidgetItem(listWidget);
+
+            DomProperty *p = 0;
+
+            p = properties.value(QLatin1String("text"));
+            if (p && p->kind() == DomProperty::String) {
+                item->setText(p->elementString()->text());
+            }
+
+            p = properties.value(QLatin1String("icon"));
+            if (p && p->kind() == DomProperty::IconSet) {
+                // ### not implemented yet
+            }
+        }
+    }
 }
 
 
