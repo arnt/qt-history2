@@ -402,7 +402,7 @@ void QWidgetItem::setGeometry( const QRect &r )
     else if ( !(align & Qt::AlignTop) )
 	y = y + ( r.height() - s.height() ) / 2;
 
-    if ( !wid->isHidden() )
+    if ( !wid->isHidden() && !wid->isTopLevel() )
 	wid->setGeometry( x, y, s.width(), s.height() );
 }
 
@@ -578,7 +578,7 @@ bool QSpacerItem::isEmpty() const
 */
 bool QWidgetItem::isEmpty() const
 {
-    return wid->isHidden();
+    return wid->isHidden() || wid->isTopLevel();
 }
 
 
@@ -981,7 +981,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    QResizeEvent *r = (QResizeEvent*)e;
 	    int mbh = 0;
 #ifndef QT_NO_MENUBAR
-	    if ( menubar && !menubar->isHidden() )
+	    if ( menubar && !menubar->isHidden() && !menubar->isTopLevel() )
 		mbh = menubar->heightForWidth( r->size().width() );
 #endif
 	    int b = marginImpl ? 0 : outsideBorder;
@@ -1055,7 +1055,7 @@ int QLayout::totalHeightForWidth( int w ) const
     int b = (topLevel && !marginImpl) ? 2*outsideBorder : 0;
     int h = heightForWidth( w - b ) + b;
 #ifndef QT_NO_MENUBAR
-    if ( menubar )
+    if ( menubar && !menubar->isTopLevel() )
 	h += menubar->heightForWidth( w );
 #endif
     return h;
@@ -1079,7 +1079,7 @@ QSize QLayout::totalMinimumSize() const
     QSize s = minimumSize();
     int h = b;
 #ifndef QT_NO_MENUBAR
-    if ( menubar )
+    if ( menubar && !menubar->isTopLevel() )
 	h += menubar->heightForWidth( s.width() );
 #endif
     return s + QSize(b,h);
@@ -1105,7 +1105,7 @@ QSize QLayout::totalSizeHint() const
     QSize s = sizeHint();
     int h = b;
 #ifndef QT_NO_MENUBAR
-    if ( menubar )
+    if ( menubar && !menubar->isTopLevel() )
 	h += menubar->heightForWidth( s.width() );
 #endif
     return s + QSize(b,h);
@@ -1130,7 +1130,7 @@ QSize QLayout::totalMaximumSize() const
     QSize s = maximumSize();
     int h = b;
 #ifndef QT_NO_MENUBAR
-    if ( menubar )
+    if ( menubar && !menubar->isTopLevel() )
 	h += menubar->heightForWidth( s.width() );
 #endif
 
@@ -1336,7 +1336,7 @@ bool QLayout::activate()
     QSize s = mainWidget()->size();
     int mbh = 0;
 #ifndef QT_NO_MENUBAR
-    mbh = menubar ? menubar->heightForWidth( s.width() ) : 0;
+    mbh = menubar && !menubar->isTopLevel() ? menubar->heightForWidth( s.width() ) : 0;
 #endif
     int b = marginImpl ? 0 : outsideBorder;
     setGeometry( QRect( b, mbh + b,
