@@ -217,7 +217,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
 			      |OLEMISC_RECOMPOSEONRESIZE;
 		if (!control)
 		    olemisc |= OLEMISC_INVISIBLEATRUNTIME;
-		else if (object->findChild(0, (QMenuBar*)0) && !qax_disable_inplaceframe)
+		else if (qFindChild<QMenuBar*>(object) && !qax_disable_inplaceframe)
 		    olemisc |= OLEMISC_WANTSTOMENUMERGE;
 
 		settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/.", className + " Class" );
