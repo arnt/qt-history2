@@ -59,8 +59,9 @@ private:
 
     void showCustom( bool=TRUE );
 private:
-     QColorDialogPrivate *d;
-
+    QColorDialogPrivate *d;
+    friend class QColorDialogPrivate;
+    
 };
 
 #endif //QCOLORDIALOG_H
