@@ -191,8 +191,8 @@
 #ifndef EXTERN_PERFORMANCE_DATA
     const char* PM_str_header1 = "> Performance measurements ------- @ %11" PM_LLI "u";
     const char* PM_str_header1b= "                                  -> %11" PM_LLI "u, using ";
-    const char* PM_str_header2 = "  1 ms           : %7" PM_LLI "u cycles";
-    const char* PM_str_header3 = "  Delta overhead : %7" PM_LLI "u cycles";
+    const char* PM_str_header2 = "  1 ms           : %7" PM_LLI "u cycles %s";
+    const char* PM_str_header3 = "  Delta overhead : %7" PM_LLI "u cycles %s";
     const char* PM_str_header4 = "  [From]-> [ To] : ( Totaltime)  Separatetime  ( CPU clockcycle)  To's textlabel";
     const char* PM_str_sep     = "  -----------------------------------------------------------------------------";
     const char* PM_str_main1   = "  [%03d] -> [%03d] : (%6.2lf %3s)  %9.2lf ms  (%11" PM_LLI "u cyc)  ";
@@ -374,11 +374,12 @@ private:
 inline
 PM::PM()
 {
-    if (!perf_ms || !perf_delta) {
+    if (!perf_ms) {
 	// Get number of cycles per millisecond
 	PM_GetFreq( &(perf_meas[0].perf_value) );
 	perf_ms = perf_meas[0].perf_value / 1000;
-
+    }
+    if (!perf_delta) {
 	// Get average overhead for measurements
 	measure( "0" );  measure( "1" );
 	measure( "2" );  measure( "3" );
@@ -468,8 +469,8 @@ void PM::display()
              perf_meas[perf_count-1].perf_value);
     if (CODE_STR) strcat(buffer, CODE_STR); // CE sprintf workaround
     PM_Debug( buffer );
-    PM_Debug( PM_str_header2, perf_ms );
-    PM_Debug( PM_str_header3, perf_delta );
+    PM_Debug( PM_str_header2, perf_ms, PM_MSEC ? "(override)" : "" );
+    PM_Debug( PM_str_header3, perf_delta, PM_DELTA ? "(override)" : "(average)" );
     PM_Debug( PM_str_header4 );
     PM_Debug( PM_str_sep );
 
@@ -479,6 +480,14 @@ void PM::display()
         _delta_ = perf_meas[perf_run].perf_value
                 - perf_meas[perf_run-1].perf_value
 		- perf_delta;
+
+	// Sometimes the overhead is larger that the time passed
+	// between two measurements. If so, then set delta to zero,
+	// as it's too small for this tool to detect properly. We
+	// need to do instruction counting to get a better result.
+	// That's for version 2.0 :-)
+	if ( _delta_ < 0 ) 
+	    _delta_ = 0;
 
         // Update current sum
         sum += _delta_ / ((double)perf_ms
