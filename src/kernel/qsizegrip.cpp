@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#5 $
 **
 ** Implementation of QSizeGrip class
 **
@@ -40,7 +40,7 @@ extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
   \ingroup realwidgets
   \ingroup application
 
-  This widgets works like the standard Windows resize handle.  In the
+  This widget works like the standard Windows resize handle.  In the
   X11 version this resize handle generally works differently than the
   one provided by the system; we hope to reduce this difference in the
   future.
