@@ -174,7 +174,8 @@ if ( $abort ) {
 print "Checking for gaps in integration: $files\n";
 for ( $count = 0; $count < @fromBranchFiles; $count++ ) {
     $linecount = 0;
-    open( P4, "$P4 integrate -n \"$fromBranchFiles[$count]\@$change\" \"$toBranchFiles[$count]\" |") || die "$0: Couldn't exec $P4: $!\n";
+    my $p4cmd = "$P4 integrate -n \"$fromBranchFiles[$count]\@$change\" \"$toBranchFiles[$count]\"";
+    open( P4, "$p4cmd |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
 	$linecount++;
 	chomp( $line );
@@ -192,7 +193,13 @@ for ( $count = 0; $count < @fromBranchFiles; $count++ ) {
     close( P4 );
 
     if ( !$linecount ) {
-	die "$0: No lines read while checking $fromBranchFiles[$count]\@$change for gaps in integration\n";
+	open( P4, "$p4cmd 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
+	if ( <P4> =~ /all revision.s. already integrated./ ) {
+	    # OK (probably had to be done manually)
+	    $alldone{$toBranchFiles[$count]}++;
+	} else {
+	    die "$0: No lines read while checking $fromBranchFiles[$count]\@$change for gaps in integration\n";
+	}
     }
 
 }
@@ -221,7 +228,7 @@ for ( $count = 0; $count < @fromBranchFiles; $count++ ) {
     }
     close( P4 );
 
-    if ( !$linecount ) {
+    if ( !$linecount && !$alldone{$toBranchFiles[$count]} ) {
 	die "$0: No lines read while integrating $fromBranchFiles[$count]\@$change\n";
     }
 
@@ -258,7 +265,7 @@ while ( @filesToResolve ) {
 	$line = <STDIN>;
     }
 
-    if ( !$linecount ) {
+    if ( !$linecount && !$alldone{$toBranchFiles[$count]} ) {
 	die "$0: No lines read while resolving $files\n";
     }
 
@@ -285,7 +292,7 @@ print P4 "Description:\n";
 print P4 "\tp4i integration\n";
 print P4 "\tIntegrate $change from $fromBranch to $toBranch:\n";
 print P4 "\t".join( "\t", @changeDescription )."\n";
-print P4 "Files:\n\t".join( "\n\t", @toBranchFiles )."\n";
+print P4 "Files:\n\t".join( "\n\t", grep { !$alldone{$_} } @toBranchFiles )."\n";
 
 close( P4 );
 
