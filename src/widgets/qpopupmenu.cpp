@@ -548,25 +548,19 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	if(off_bottom || off_top) {
 	    int ch = updateSize().height(); //store the old height, before setting scrollable --Sam
 	    const int vextra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this);
-	    d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollNone;
+	    d->scroll.scrollableSize = h - off_top - off_bottom - 2*vextra;
 	    if(off_top) {
 		move( x, y = sy );
 		d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollUp;
-	    }
-	    if(off_bottom)
+	    } 
+	    if( off_bottom )
 		d->scroll.scrollable = d->scroll.scrollable | QPopupMenuPrivate::Scroll::ScrollDown;
-	    h = d->scroll.scrollableSize = h - off_top - off_bottom - 2*vextra;
 	    if( off_top != off_bottom && indexAtPoint >= 0 ) {
-		ch -= vextra * 2;
-		const int scrollh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-		if( d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp )
-		    ch -= scrollh;
-		if( d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown )
-		    ch -= scrollh;
+		ch -= (vextra * 2);
 		if(ch > sh) //no bigger than the screen!
 		    ch = sh;
-		if( ch > d->scroll.scrollableSize )
-		    h = d->scroll.scrollableSize = ch;
+		if( ch > d->scroll.scrollableSize ) 
+		    d->scroll.scrollableSize = ch;
 	    }
 
 	    updateSize(TRUE); //now set the size using the scrollable/scrollableSize as above
@@ -987,6 +981,14 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	return ret;
     }
 
+    int scrheight = 0;
+    if(d->scroll.scrollableSize) {
+	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp)
+	    scrheight += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
+	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown)
+	    scrheight += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
+    }
+
     if(badSize || force_update) {
 #ifndef QT_NO_ACCEL
 	updateAccel( 0 );
@@ -1085,17 +1087,8 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	    }
 	    height += itemHeight;
 	    if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {
-		if(d->scroll.scrollable && d->scroll.scrollableSize) {
-		    int scrheight = 0;
-		    if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp)
-			scrheight += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-		    if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown)
-			scrheight += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-		    if(height >= d->scroll.scrollableSize - scrheight) {
-			height = d->scroll.scrollableSize - scrheight;
-			break;
-		    }
-		}
+		if(scrheight && height >= d->scroll.scrollableSize) 
+		    break;
 	    } else if( height + 2*frameWidth() >= dh ) {
 		ncols++;
 		max_height = qMax(max_height, height - itemHeight);
@@ -1107,8 +1100,10 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	if( ncols == 1 && !max_height )
 	    max_height = height;
 
-	if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
+	if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {
+	    height += scrheight;
 	    setMouseTracking(TRUE);
+	}
 
 	if ( tab )
 	    tab -= fontMetrics().minRightBearing();
