@@ -266,17 +266,3 @@ bool QThread::wait(unsigned long time)
 
     return ret;
 }
-
-void QThread::exit()
-{
-    QThread *thread = QThread::currentQThread();
-
-    if (!thread) {
-        qWarning("QThread::exit() called without a QThread instance.");
-        _endthreadex(0);
-        return;
-    }
-
-    QThreadPrivate::finish(thread);
-    _endthreadex(0);
-}
