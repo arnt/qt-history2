@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#6 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#6 $");
 
 // what comes out of the dict
 struct QTip
@@ -28,7 +28,7 @@ struct QTip
 
 
 // the class which does all the work
-// just one instance of this class exists...
+// just one instance of this class exists -
 class QTipManager : public QObject
 {
 public:
@@ -38,6 +38,11 @@ public:
     bool eventFilter( QObject * o, QEvent * e );
     void add( QWidget *, const QRect &, const char *, bool );
     void remove( QWidget *, const QRect & );
+
+    void remove( QToolTipGroup * );
+
+public slots:
+    void someWidgetDestroyed();
 
 private:
     void maybeTip( const QPoint & = 0 );
@@ -58,7 +63,7 @@ private:
 };
 
 
-// ... and here it is.	a real workhorse.
+// - and here it is.  a real workhorse.
 static QTipManager * tipManager;
 
 
@@ -293,6 +298,14 @@ void QTipManager::hideTip()
 }
 
 
+void QTipManager::remove( QToolTipGroup * g )
+{
+    
+
+
+}
+
+
 
 /*! \class QToolTip qtooltip.h
 
@@ -373,6 +386,16 @@ void QToolTip::add( QWidget * widget, const char * text )
 }
 
 
+/*!
+
+*/
+
+static void QToolTip::add( QWidget *, const char *,
+			   QToolTipGroup *, const char * )
+{
+    
+}
+
 void QToolTip::remove( QWidget * widget )
 {
     if ( tipManager )
@@ -387,6 +410,18 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
 	tipManager = new QTipManager();
     tipManager->add( widget, rect, text, FALSE );
 }
+
+
+/*!
+
+*/
+
+static void QToolTip::add( QWidget *, const QRect &, const char *,
+			   QToolTipGroup *, const char * )
+{
+    
+}
+
 
 
 void QToolTip::remove( QWidget * widget, const QRect & rect )
@@ -410,3 +445,25 @@ void QToolTip::clear()
 {
 }
 
+
+/*!
+
+*/
+
+QToolTipGroup::QToolTipGroup( QObject * parent, const char * name )
+    : QObject( parent, name )
+{
+    initMetaObject();
+}
+
+
+
+/*!
+  Destroy this tool tip groups and all tool tips in it.
+*/
+
+QToolTipGroup::~QToolTipGroup::QToolTipGroup()
+{
+    if ( tipManager )
+	tipManager->remove( this );
+}

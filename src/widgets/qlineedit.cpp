@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#56 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#56 $");
 
 
 /*!
@@ -382,8 +382,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 
 
 /*!
-  \internal
-  Starts cursor blinking.
+  Handles the cursor blinking.
 */
 
 void QLineEdit::focusInEvent( QFocusEvent * )
@@ -396,8 +395,7 @@ void QLineEdit::focusInEvent( QFocusEvent * )
 }
 
 /*!
-  \internal
-  Stops text cursor blinking.
+  Handles the cursor blinking.
 */
 
 void QLineEdit::focusOutEvent( QFocusEvent * )
@@ -411,6 +409,10 @@ void QLineEdit::focusOutEvent( QFocusEvent * )
 }
 
 
+/*!
+  Handles paint events for the line editor.
+*/  
+
 void QLineEdit::paintEvent( QPaintEvent * )
 {
     paint( TRUE );
@@ -418,7 +420,6 @@ void QLineEdit::paintEvent( QPaintEvent * )
 
 
 /*!
-  \internal
   This event is used to implement the blinking text cursor
   and scrolling when marking text.
 */
@@ -487,6 +488,11 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     startTimer( blinkTime );
     paint();
 }
+
+/*!
+  Handles mouse move events for the line editor, primarily for
+  marking text.
+*/
 
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#27 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#28 $
 **
 ** Definition of QComboBox class
 **
@@ -17,6 +17,7 @@
 
 struct QComboData;
 class  QStrList;
+class  QLineEdit;
 
 
 class QComboBox : public QWidget
@@ -31,7 +32,6 @@ public:
     void	insertStrList( const QStrList *, int index=-1 );
     void	insertStrList( const char **, int numStrings=-1, int index=-1);
 
-
     void	insertItem( const char *text, int index=-1 );
     void	insertItem( const QPixmap &pixmap, int index=-1 );
 
@@ -44,7 +44,7 @@ public:
     void	changeItem( const char *text, int index );
     void	changeItem( const QPixmap &pixmap, int index );
 
-    int		currentItem()	const;
+    int		currentItem() const;
     void	setCurrentItem( int index );
 
     bool	autoResize()	const;
@@ -87,6 +87,42 @@ private:
 private:	// Disabled copy constructor and operator=
     QComboBox( const QComboBox & ) {}
     QComboBox &operator=( const QComboBox & ) { return *this; }
+};
+
+
+class QEditableComboBox: public QComboBox
+{
+    Q_OBJECT
+public:
+    QEditableComboBox( QWidget *parent=0, const char *name=0 );
+
+    void	insertItem( const char *text, int index=-1 )
+		{ QComboBox::insertItem( text, index ); }
+    void	changeItem( const char *text, int index=-1 )
+		{ QComboBox::changeItem( text, index ); }
+
+signals:
+    void	activated( const char * );
+    void	highlighted( const char * );
+
+protected:
+    void	resizeEvent( QResizeEvent * );
+
+private slots:
+    void	translateActivate( int );
+    void	translateHighlight( int );
+    void	returnPressed();
+
+private:
+    QLineEdit * ed;  // /bin/ed rules!
+
+private:	// Disabled functions
+    QEditableComboBox( const QEditableComboBox & ) {}
+    QEditableComboBox &operator=( const QEditableComboBox & ) { return *this; }
+
+    void insertItem( const QPixmap &, int =1 ) {}
+    const QPixmap *pixmap( int ) const { return 0; }
+    void changeItem( const QPixmap &, int ) {}
 };
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#52 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -20,8 +20,9 @@
 #include "qpixmap.h"
 #include "qtimer.h"
 #include "qapp.h"
+#include "qlined.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#52 $");
 
 
 /*!
@@ -512,7 +513,8 @@ void QComboBox::internalHighlight( int index )
 
 /*!
   \internal
-  Receives timeouts after a click. Used to decide if a Motif style popup should stay up or not after a click.
+  Receives timeouts after a click. Used to decide if a Motif style
+  popup should stay up or not after a click.
 */
 void QComboBox::internalClickTimeout()
 {
@@ -921,4 +923,50 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    break;
     }
     return FALSE;				// Don't block the event
+}
+
+
+
+QEditableComboBox::QEditableComboBox( QWidget *parent, const char *name )
+    : QComboBox( parent, name )
+{
+    initMetaObject();
+    ed = new QLineEdit( this, "this is not /bin/ed" );
+    ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
+    connect( ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
+    connect( this, SIGNAL(activated(int)), SLOT(translateActivate(int)) );
+    connect( this, SIGNAL(highlighted(int)), SLOT(translateHighlight(int)) );
+}
+
+
+void QEditableComboBox::resizeEvent( QResizeEvent * )
+{
+    ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
+}
+
+
+void QEditableComboBox::translateActivate( int index )
+{
+    const char * t = text( index );
+    if ( !text )
+	return; // I don't see why but so what?
+    ed->setText( t );
+    emit activated( t );
+}
+
+
+void QEditableComboBox::translateHighlight( int index )
+{
+    const char * t = text( index );
+    if ( text )
+	emit highlighted( t );
+}
+
+
+void QEditableComboBox::returnPressed() {
+    const char * s = ed->text();
+    if ( s && qstrcmp( s, text( currentItem() ) ) ) {
+	changeItem( s, currentItem() );
+	emit activated( s );
+    }
 }
