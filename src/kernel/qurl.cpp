@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#7 $
 **
 ** Implementation of QFileDialog class
 **
@@ -70,15 +70,15 @@ struct QUrlPrivate
 
 /*!
   \fn void QUrl::entry( const QUrlInfo &i )
-  
-  This signal is emitted after listEntries() was called and 
+
+  This signal is emitted after listEntries() was called and
   a new entry (file) has been read from the list of files. \a i
   holds the information about the new etry.
 */
 
 /*!
   \fn void QUrl::finished()
-  
+
   This signal is emitted when a data transfer of some sort finished.
 */
 
@@ -90,7 +90,7 @@ struct QUrlPrivate
 
 /*!
   \fn void QUrl::createdDirectory( const QUrlInfo &i )
-  
+
   This signal is emitted when mkdir() has been succesful
   and the directory has been created. \a i holds the information
   about the new directory.
@@ -115,11 +115,11 @@ struct QUrlPrivate
 
 /*!
   \fn void QUrl::error( int ecode, const QString &msg )
-  
+
   This signal is emitted whenever an error occures. \a ecode
   is the error code, and \a msg an error message which can be
   e.g. displayed to the user.
-  
+
   \a ecode is one of
 	DeleteFile
 	RenameFile
@@ -132,30 +132,119 @@ struct QUrlPrivate
 
 /*!
   \fn void QUrl::data( const QString &data )
-  
+
   This signal is emitted when new \a data has been received after e.g. calling get().
 */
 
 /*!
   \fn void QUrl::putSuccessful( const QString &data )
-  
+
   This signal is emitted after successfully calling put(). \a data is the data
   which has been put.
 */
 
 /*!
   \fn void QUrl::urlIsDir()
-  
+
   When calling isFile() or isDir() and the URL is a dir, this signal
   is emitted.
 */
 
 /*!
   \fn void QUrl::urlIsFile()
-  
+
   When calling isFile() or isDir() and the URL is a file, this signal
   is emitted.
 */
+
+/*!
+  \fn void QUrl::emitEntry( const QUrlInfo & );
+
+  Emits the signal entry( const QUrlInfo & ). This method is mainly
+  provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
+
+/*!
+  \fn void QUrl::emitFinished(;
+
+  Emits the signal finished(). This method is mainly
+  provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
+
+/*!
+  \fn void QUrl::emitStart()
+
+  Emits the signal start(). This method is mainly
+  provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
+
+/*!
+  \fn void QUrl::emitCreatedDirectory( const QUrlInfo & )
+
+  Emits the signal createdDirectory( const QUrlInfo & ). This method is mainly
+  provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
+
+/*!
+  \fn void QUrl::emitRemoved( const QString & )
+
+  Emits the signal removed( const QString & ). This method is mainly
+  provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
+
+/*!
+  \fn void QUrl::emitItemChanged( const QString &oldname, const QString &newname )
+
+  Emits the signal itemChanged( const QString &, const QString & ). This method is mainly
+  provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
+
+/*!
+  \fn void QUrl::emitError( int ecode, const QString &msg )
+
+  Emits the signal error( int, const QString & ). This method is mainly
+  provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
+
+/*!
+  \fn void QUrl::emitData( const QString &d )
+
+  Emits the signal data( const QString & ). This method is mainly
+  provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
+
+/*!
+  \fn void QUrl::emitUrlIsDir()
+
+  Emits the signal urlIsDir(). This method is mainly
+  provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
+
+/*!
+  \fn void QUrl::emitUrlIsFile()
+
+  Emits the signal urlIsFile(). This method is mainly
+  provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
+
+/*!
+  \fn void QUrl::emitPutSuccessful( const QString &d )
+
+  Emits the signal putSuccessful( const QString & ). This method is mainly
+  provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
+
 
 /*!
   \a url is considered to be encoded. You can pass strings like
