@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#197 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#198 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -46,7 +46,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#197 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#198 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2272,6 +2272,13 @@ static Bool isPaintEvent( Display *, XEvent *ev, XPointer a )
 
 bool QETWidget::translatePaintEvent( const XEvent *event )
 {
+    QWExtra *data = extraData();
+    if ( data && !data->resized ) {		// force resize
+	data->resized = TRUE;
+	QResizeEvent e( size(), size() );
+	QApplication::sendEvent( this, &e );
+    }
+
     QRect  paintRect( event->xexpose.x,	   event->xexpose.y,
 		      event->xexpose.width, event->xexpose.height );
     bool   clever = testWFlags(WPaintClever);
@@ -2338,6 +2345,9 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
     QRect  r = geometry();
     if ( newSize != size() ) {			// size changed
+	QWExtra *d = extraData();
+	if ( d )
+	    d->resized = TRUE;
 	XClearArea( dpy, winId(), 0, 0, 0, 0, FALSE );
 	QSize oldSize = size();
 	r.setSize( newSize );

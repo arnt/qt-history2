@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#80 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#80 $");
 
 
 /*****************************************************************************
@@ -1704,6 +1704,12 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 
 bool QETWidget::translatePaintEvent( const MSG & )
 {
+    QWExtra *data = extraData();
+    if ( data && !data->resized ) {		// force resize
+	data->resized = TRUE;
+	QResizeEvent e( size(), size() );
+	QApplication::sendEvent( this, &e );
+    }
     PAINTSTRUCT ps;
     RECT rect;
     GetUpdateRect( winId(), &rect, FALSE );
@@ -1732,6 +1738,9 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
     WORD a = LOWORD(msg.lParam);
     WORD b = HIWORD(msg.lParam);
     if ( msg.message == WM_SIZE ) {		// resize event
+	QWExtra *d = extraData();
+	if ( d )
+	    d->resized = TRUE;
 	QSize oldSize = size();
 	QSize newSize( a, b );
 	r.setSize( newSize );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#160 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#161 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#160 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#161 $");
 
 
 /*!
@@ -613,6 +613,7 @@ void QWidget::createExtra()
 	extra->incw = extra->inch = 0;
 	extra->caption = extra->iconText = 0;
 	extra->icon = extra->bg_pix = 0;
+	extra->resized = TRUE;
     }
 }
 
