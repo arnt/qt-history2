@@ -49,6 +49,7 @@
 #include "qcombobox.h"
 #include "qcheckbox.h"
 #include "qdragobject.h"
+#include "qevent.h"
 #include <stdlib.h>
 #include <limits.h>
 
@@ -328,39 +329,39 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   cell. Currently the following possibilities exist:
 
   \value Always  The cell always is and always looks editable,
-                 even if QTable::isColumnReadOnly(), QTable::isRowReadOnly()
-                 or QTable::isReadOnly() return TRUE.
+		 even if QTable::isColumnReadOnly(), QTable::isRowReadOnly()
+		 or QTable::isReadOnly() return TRUE.
 
-                 This means that the editor created with createEditor()
-                 (by default a QLineEdit) is always visible. This has
-                 implications on the alignment of the content:
-                 the default editor aligns everything (even numbers)
-                 to the left whilst numerical values in the cell are by default
-                 aligned to the right.
+		 This means that the editor created with createEditor()
+		 (by default a QLineEdit) is always visible. This has
+		 implications on the alignment of the content:
+		 the default editor aligns everything (even numbers)
+		 to the left whilst numerical values in the cell are by default
+		 aligned to the right.
 
-                 If a cell with the edit type \c Always looks
-                 misaligned you might decide to reimplement createEditor()
-                 for this particular item.
+		 If a cell with the edit type \c Always looks
+		 misaligned you might decide to reimplement createEditor()
+		 for this particular item.
 
   \value WhenCurrent  The cell is editable, and looks editable
-                      whenever it has keyboard focus
-                      (see QTable::setCurrentCell()).
+		      whenever it has keyboard focus
+		      (see QTable::setCurrentCell()).
 
-                      This setting does not overwrite QTable::isColumnReadOnly(),
-                      QTable::isRowReadOnly() or QTable::isReadOnly().
+		      This setting does not overwrite QTable::isColumnReadOnly(),
+		      QTable::isRowReadOnly() or QTable::isReadOnly().
 
   \value OnTyping  The cell is editable, but looks editable only when
-                   the user types in it or double-clicks it.
-                   It resembles the \c WhenCurrent functionality
-                   but can look a bit cleaner.
+		   the user types in it or double-clicks it.
+		   It resembles the \c WhenCurrent functionality
+		   but can look a bit cleaner.
 
-                   Note that this setting does not overwrite
-                   QTable::isColumnReadOnly(),
-                   QTable::isRowReadOnly() or QTable::isReadOnly().
+		   Note that this setting does not overwrite
+		   QTable::isColumnReadOnly(),
+		   QTable::isRowReadOnly() or QTable::isReadOnly().
 
-                   The \c OnTyping edit type is the default when QTableItem objects
-                   are created by the convenient functions QTable::setText()
-                   and QTable::setPixmap().
+		   The \c OnTyping edit type is the default when QTableItem objects
+		   are created by the convenient functions QTable::setText()
+		   and QTable::setPixmap().
 
   \value Never  The cell isn't editable.
 */
@@ -525,7 +526,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
 {
     p->fillRect( 0, 0, cr.width(), cr.height(),
 		 selected ? cg.brush( QColorGroup::Highlight )
-		          : cg.brush( QColorGroup::Base ) );
+			  : cg.brush( QColorGroup::Base ) );
 
     int w = cr.width();
     int h = cr.height();
@@ -1211,7 +1212,7 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
 {
     p->fillRect( 0, 0, cr.width(), cr.height(),
 		 selected ? cg.brush( QColorGroup::Highlight )
-		          : cg.brush( QColorGroup::Base ) );
+			  : cg.brush( QColorGroup::Base ) );
 
     int w = cr.width();
     int h = cr.height();
@@ -1414,9 +1415,9 @@ bool QCheckTableItem::isChecked() const
 
   \value NotEditing  No cell is currently being edited.
   \value Editing  A cell is currently being edited. To start with the
-                  user was presented with the old content.
+		  user was presented with the old content.
   \value Replacing  A cell is currently being edited, and was cleared at the time
-         editing started.
+	 editing started.
 */
 
 /*! \enum QTable::SelectionMode
@@ -2469,7 +2470,7 @@ void QTable::setCurrentCell( int row, int col )
 	topHeader->setSectionState( curCol, isColumnSelected( curCol, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
 	leftHeader->setSectionState( curRow, isRowSelected( curRow, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
 	itm = item( curRow, curCol );
-	
+
 	QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(), rowPos( curRow ) + topMargin() - contentsY() );
 	setMicroFocusHint( cellPos.x(), cellPos.y(), columnWidth( curCol ), rowHeight( curRow ), ( itm && itm->editType() != QTableItem::Never ) );
 
@@ -2700,7 +2701,7 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     shouldClearSelection = FALSE;
     mousePressed = TRUE;
     if ( isEditing() )
- 	endEdit( editRow, editCol, TRUE, edMode != Editing );
+	endEdit( editRow, editCol, TRUE, edMode != Editing );
 
     int tmpRow = rowAt( e->pos().y() );
     int tmpCol = columnAt( e->pos().x() );
@@ -3035,20 +3036,27 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	}
 	if ( isEditing() && editorWidget && o == editorWidget && ( (QFocusEvent*)e )->reason() != QFocusEvent::Popup ) {
 	    QTableItem *itm = item( editRow, editCol );
- 	    if ( !itm || itm->editType() == QTableItem::OnTyping ) {
- 		endEdit( editRow, editCol, TRUE, edMode != Editing );
+	    if ( !itm || itm->editType() == QTableItem::OnTyping ) {
+		endEdit( editRow, editCol, TRUE, edMode != Editing );
 		return TRUE;
 	    }
 	}
 	break;
     case QEvent::FocusIn:
- 	if ( o == this || o == viewport() ) {
+	if ( o == this || o == viewport() ) {
 	    updateCell( curRow, curCol );
 	    if ( isEditing() && editorWidget )
 		editorWidget->setFocus();
 	    return TRUE;
 	}
 	break;
+    case QEvent::Wheel:
+	if ( o == this || o == viewport() ) {
+	    QWheelEvent* we = (QWheelEvent*)e;
+	    scrollBy( 0, we->delta() );
+	    we->accept();
+	    return TRUE;
+	}
     default:
 	break;
     }
@@ -3076,7 +3084,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
     case Key_Left:
 	tmpCol = QMAX( 0, tmpCol - 1 );
 	navigationKey = TRUE;
-    	break;
+	break;
     case Key_Right:
 	tmpCol = QMIN( numCols() - 1, tmpCol + 1 );
 	navigationKey = TRUE;
@@ -3289,7 +3297,7 @@ void QTable::columnWidthChanged( int col )
 	    moveChild( w, columnPos( j ), rowPos( i ) );
 	    w->resize( columnWidth( j ) - 1, rowHeight( i ) - 1 );
 	}
- 	qApp->processEvents();
+	qApp->processEvents();
     }
 }
 
@@ -3321,7 +3329,7 @@ void QTable::rowHeightChanged( int row )
 	    moveChild( w, columnPos( i ), rowPos( j ) );
 	    w->resize( columnWidth( i ) - 1, rowHeight( j ) - 1 );
 	}
- 	qApp->processEvents();
+	qApp->processEvents();
     }
 }
 
@@ -3818,7 +3826,7 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 	if ( row == editRow && col == editCol )
 	    setEditMode( NotEditing, -1, -1 );
 	clearCellWidget( row, col );
-    	updateCell( row, col );
+	updateCell( row, col );
 	viewport()->setFocus();
 	updateCell( row, col );
 	return;
@@ -4420,7 +4428,7 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
 
     QWidget *w = cellWidget( row, col );
     if ( w && row == editRow && col == editCol )
- 	endEdit( editRow, editCol, FALSE, edMode != Editing );
+	endEdit( editRow, editCol, FALSE, edMode != Editing );
 
     e->installEventFilter( this );
     clearCellWidget( row, col );
@@ -4529,7 +4537,7 @@ void QTable::insertRows( int row, int count )
     setNumRows( numRows() + count );
 
     for ( int i = numRows() - count - 1; i > row; --i )
-        ( (QTableHeader*)verticalHeader() )->swapSections( i, i + count );
+	( (QTableHeader*)verticalHeader() )->swapSections( i, i + count );
 
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
@@ -4551,7 +4559,7 @@ void QTable::insertColumns( int col, int count )
     setNumCols( numCols() + count );
 
     for ( int i = numCols() - count - 1; i > col; --i )
-        ( (QTableHeader*)horizontalHeader() )->swapSections( i, i + count );
+	( (QTableHeader*)horizontalHeader() )->swapSections( i, i + count );
 
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
@@ -4791,7 +4799,7 @@ QString	QTable::typeDescription() const
   \value Normal    The section title appears in roman letters.
   \value Bold      The section title appears in bold letters.
   \value Selected  The section itself appears in a sunken fashion
-                   ("pressed").
+		   ("pressed").
 */
 
 /*! Creates a new table header object \a name with \a i sections as a child of
@@ -5391,4 +5399,3 @@ void QTableHeader::indexChanged( int sec, int oldIdx, int newIdx )
 #include "qtable.moc"
 
 #endif // QT_NO_TABLE
-
