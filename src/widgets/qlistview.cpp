@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#342 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#343 $
 **
 ** Implementation of QListView widget class
 **
@@ -165,7 +165,6 @@ struct QListViewPrivate
     // suggested height for the items
     int fontMetricsHeight;
     bool allColumnsShowFocus;
-    bool autoSort;
 
     // currently typed prefix for the keyboard interface, and the time
     // of the last key-press
@@ -460,6 +459,23 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after,
     setText( 6, label7 );
     setText( 7, label8 );
 }
+
+/*!
+  Resorts all child items of this item using the last
+  sorting configuration (sort column and direction)
+*/
+
+void QListViewItem::resort()
+{
+    lsc = 9999; // ### some stupid value
+    if ( firstChild() )
+	firstChild()->resort();
+    if ( listView() ) {
+	sortChildItems( listView()->d->sortcolumn, listView()->d->ascending );
+	listView()->triggerUpdate();
+    }
+}
+
 
 /*!  Performs the initializations that's common to the constructors. */
 
@@ -1066,15 +1082,7 @@ void QListViewItem::setText( int column, const QString &text )
     widthChanged( column );
     if ( !lv )
 	return;
-    if ( lv && lv->autoSort() && lv->d->sortcolumn != -1 ) {
- 	if ( parent() )
-	    parent()->lsc = Unsorted;
-	lv->triggerUpdate();
-    } else if ( parent() ) {
-	// if this is part of a sub-tree that's not currently in any
-	// list view, force sort.
-	parent()->lsc = Unsorted;
-    } else if ( oldW != lv->columnWidth( column ) )
+    if ( oldW != lv->columnWidth( column ) )
 	listView()->triggerUpdate();
     else
 	repaint();
@@ -1657,7 +1665,6 @@ QListView::QListView( QWidget * parent, const char *name )
     d->column.setAutoDelete( TRUE );
     d->iterators = 0;
     d->scrollTimer = 0;
-    d->autoSort = FALSE;
     d->sortIndicator = FALSE;
 
     connect( d->timer, SIGNAL(timeout()),
@@ -3670,7 +3677,7 @@ void QListView::setSorting( int column, bool ascending )
 
     d->ascending = ascending;
     d->sortcolumn = column;
-    if ( d->sortcolumn != -1 )
+    if ( d->sortcolumn != -1 && d->sortIndicator )
 	d->h->setSortIndicator( d->sortcolumn, d->ascending );
     triggerUpdate();
 }
@@ -3685,50 +3692,14 @@ void QListView::changeSortColumn( int column )
 }
 
 /*!
-  Sorts the listview using the last sorting configuration (sort column
+  Resorts the listview using the last sorting configuration (sort column
   and ascending/descending)
 */
 
-void QListView::refreshSorting()
+void QListView::resort()
 {
-    if ( d->r ) {
-	d->r->lsc = 9999; // ### some stupid value
-	d->r->sortChildItems( d->sortcolumn, d->ascending );
-	triggerUpdate();
-    }
-}
-
-/*NODOC This feature is completely undocumented.
-
-  And the next paragraph isn't good, either.
-
-  When setting \a b to TRUE, changing the text of an item will
-  sort the listview immediately. But this only works, if the
-  current sortcolumn is valid, this means if you didn't set
-  it to -1 before (using QListView::setSorting()).
-  If \a b is FALSE, this listview is never sorted if an item
-  text changed.
-
-  \sa QListView::setSorting()
-*/
-
-void QListView::setAutoSort( bool b )
-{
-    d->autoSort = b;
-}
-
-/*NODOC This feature is completely undocumented.
-
-  And the next paragraph isn't good, either.
-
-  Returns the state of autoSorting.
-
-  \sa QListView::setAutoSort()
-*/
-
-bool QListView::autoSort() const
-{
-    return d->autoSort;
+    if ( d->r )
+	d->r->resort();
 }
 
 /*! Sets the advisory item margin which list items may use to \a m.
