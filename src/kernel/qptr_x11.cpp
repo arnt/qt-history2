@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#92 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#91 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#92 $";
 #endif
 
 
@@ -246,7 +246,7 @@ void QPen::setColor( const QColor &c )		// set pen color
     ulong pixel = data->color.pixel();
     detach();
     data->color = c;
-    if ( pixel != c.pixel() )
+    if ( pixel != data->color.pixel() )
 	QPainter::changedPen( this, CHANGE_COLOR );
 }
 
@@ -515,7 +515,7 @@ void QBrush::setColor( const QColor &c )	// set brush color
     ulong pixel = data->color.pixel();
     detach();
     data->color = c;
-    if ( pixel != c.pixel() )
+    if ( pixel != data->color.pixel() )
 	QPainter::changedBrush( this, CHANGE_COLOR );
 }
 
@@ -882,11 +882,11 @@ the text color.
 void QPainter::setPen( const QColor &color )	// set solid pen with color
 {
     QPen pen( color );
+    cpen = pen;
     if ( isActive() && gc && cpen.style() == SolidLine && cpen.width() == 0 )
-	XSetForeground( dpy, gc, color.pixel() );
+	XSetForeground( dpy, gc, cpen.color().pixel() );
     else if ( cpen != pen )
 	setf( DirtyPen );
-    cpen = pen;
 }
 
 /*!
@@ -927,12 +927,12 @@ The brush defines how to fill shapes.
 void QPainter::setBrush( const QColor &color )	// set solid brush width color
 {
     QBrush brush( color );
-    if ( isActive() && gc_brush && cbrush.style() == SolidPattern )
-	XSetForeground( dpy, gc_brush, color.pixel() );
-    else if ( cbrush != brush )
-	setf( DirtyBrush );
     cbrush = brush;
     cbrush.data->dpy = dpy;
+    if ( isActive() && gc_brush && cbrush.style() == SolidPattern )
+	XSetForeground( dpy, gc_brush, cbrush.color().pixel() );
+    else if ( cbrush != brush )
+	setf( DirtyBrush );
 }
 
 
