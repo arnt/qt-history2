@@ -74,7 +74,7 @@ public:
 #ifndef QT_NO_COMPAT
     int		width( QChar ) const;
     int		width( char c ) const { return width( (QChar) c ); }
-#endif // QT_NO_COMPAT
+#endif
     
     int 		charWidth( const QString &str, int pos ) const;
     QRect	boundingRect( const QString &, int len = -1 ) const;

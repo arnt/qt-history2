@@ -3418,6 +3418,7 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 
 /*!
   \obsolete
+
   Using this method is quite inefficient. We suggest to use insertItem()
   for inserting and sort() afterwards.
 
@@ -3430,6 +3431,7 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 
   \sa insertItem(), sort()
 */
+#ifndef QT_NO_COMPAT
 int QListBox::inSort( const QListBoxItem * lbi )
 {
     if ( !lbi )
@@ -3445,9 +3447,11 @@ int QListBox::inSort( const QListBoxItem * lbi )
     insertItem( lbi, c );
     return c;
 }
+#endif
 
 
-/*! \obsolete
+/*!
+  \obsolete
 
   Using this method is quite inefficient. We suggest to use insertItem()
   for inserting and sort() afterwards.
@@ -3461,10 +3465,12 @@ int QListBox::inSort( const QListBoxItem * lbi )
 
   \sa insertItem(), sort()
 */
+#ifndef QT_NO_COMPAT
 int QListBox::inSort( const QString& text )
 {
     return inSort( new QListBoxText(text) );
 }
+#endif
 
 
 /*! \reimp */
@@ -3586,10 +3592,13 @@ void QListBox::showEvent( QShowEvent * )
 }
 
 /*!
+  \obsolete
+
   Returns the vertical pixel-coordinate in \e *yPos, of the list box
   item at position \e index in the list.  Returns FALSE if the item is
   outside the visible area.
 */
+#ifndef QT_NO_COMPAT
 bool QListBox::itemYPos( int index, int *yPos ) const
 {
     QListBoxItem* i = item(index);
@@ -3599,7 +3608,7 @@ bool QListBox::itemYPos( int index, int *yPos ) const
 	*yPos = i->y;
     return TRUE;
 }
-
+#endif
 
 
 /*! \fn bool QListBoxItem::selected() const

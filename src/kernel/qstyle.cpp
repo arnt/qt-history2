@@ -133,7 +133,6 @@ QStyle::~QStyle()
 /*!
   \fn GUIStyle QStyle::guiStyle() const
 
-
   Returns an indicator to the additional "feel" component of a
   style. Current supported values are Qt::WindowsStyle and Qt::MotifStyle.
 */

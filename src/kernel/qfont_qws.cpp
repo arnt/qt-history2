@@ -506,10 +506,12 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     return (ch != 0) ? width(ch) : 0; 
 }
 
+#ifndef QT_NO_COMPAT
 int QFontMetrics::width( QChar ch ) const
 {
     return memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->internal()->handle(),ch)->advance;
 }
+#endif
 
 int QFontMetrics::width( const QString &str, int len ) const
 {

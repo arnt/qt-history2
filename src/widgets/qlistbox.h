@@ -166,7 +166,7 @@ public:
 
     void viewportPaintEvent( QPaintEvent * );
 
-#ifndef QT_NO_COMPAT // obsolete, provided for source compatibility
+#ifndef QT_NO_COMPAT
     bool dragSelect() const { return TRUE; }
     void setDragSelect( bool ) {}
     bool autoScroll() const { return TRUE; }
@@ -261,9 +261,9 @@ protected:
 
     void doLayout() const;
 
-#ifndef QT_NO_COMPAT // obsolete, provided for source compatibility
+#ifndef QT_NO_COMPAT
     bool itemYPos( int index, int *yPos ) const;
-    int findItem( int yPos ) const {return index(itemAt(QPoint(0,yPos)));}
+    int findItem( int yPos ) const { return index(itemAt(QPoint(0,yPos)) ); }
 #endif
 
 protected slots:

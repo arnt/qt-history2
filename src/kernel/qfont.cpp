@@ -2074,6 +2074,7 @@ bool QFontInfo::fixedPitch() const
   Returns the style of the matched window system font.
 
   Currently only returns the hint set in QFont.
+
   \sa QFont::styleHint()
 */
 QFont::StyleHint QFontInfo::styleHint() const
@@ -2084,12 +2085,15 @@ QFont::StyleHint QFontInfo::styleHint() const
 
 /*! \obsolete
   Returns the character set of the matched window system font.
+
   \sa QFont::charSet()
 */
+#ifndef QT_NO_COMPAT
 QFont::CharSet QFontInfo::charSet() const
 {
     return d->charsetcompat;
 }
+#endif
 
 
 /*!
