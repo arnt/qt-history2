@@ -683,6 +683,10 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             (QSysInfo::WindowsVersion != QSysInfo::WV_95 &&
               QSysInfo::WindowsVersion != QSysInfo::WV_NT)) {
         hasRealAlpha = true;
+        if (image.depth() == 8) {
+            image = image.convertDepth(32, flags);
+            d = image.depth();
+        }
     }
 #endif
 
