@@ -44,6 +44,7 @@
 #include "qmap.h"
 #include "qdir.h"
 #include "qptrdict.h"
+#include "qguardedptr.h"
 
 //#define QURLOPERATOR_DEBUG
 
@@ -77,7 +78,7 @@ public:
     QPtrDict<QNetworkProtocol> getOpPutProtMap;
     QPtrDict<QNetworkProtocol> getOpGetProtMap;
     QPtrDict<QNetworkOperation> getOpRemoveOpMap;
-    QNetworkProtocol *currPut;
+    QGuardedPtr<QNetworkProtocol> currPut;
     QStringList waitingCopies;
     QString waitingCopiesDest;
     bool waitingCopiesMove;
