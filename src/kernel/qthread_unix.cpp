@@ -296,6 +296,7 @@ void QThread::start(Priority priority)
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
+#if _POSIX_THREAD_PRIORITY_SCHEDULING-0 >= 0
     switch (priority) {
     case InheritPriority:
 	{
@@ -307,13 +308,20 @@ void QThread::start(Priority priority)
 	{
 	    int sched_policy;
 	    if (pthread_attr_getschedpolicy(&attr, &sched_policy) != 0) {
-		qDebug("couldn't get the default schedule policy?");
+		qDebug("QThread: could not determine the default schedule policy");
 		sched_policy = SCHED_RR;
 		pthread_attr_setschedpolicy(&attr, SCHED_RR);
 	    }
 
 	    int prio_min = sched_get_priority_min(sched_policy);
 	    int prio_max = sched_get_priority_max(sched_policy);
+            if (prio_min < 0 || prio_max < 0) {
+                // failed to get the scheduling parameters, don't
+                // bother setting the priority
+                qWarning("QThread: could not determine priority range");
+                break;
+            }
+
 	    int prio;
 	    switch (priority) {
 	    case IdlePriority:
@@ -340,6 +348,7 @@ void QThread::start(Priority priority)
 	    break;
 	}
     }
+#endif // _POSIX_THREAD_PRIORITY_SCHEDULING
 
     if ( d->stacksize > 0 ) {
 	ret = pthread_attr_setstacksize( &attr, d->stacksize );
