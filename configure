@@ -3596,7 +3596,7 @@ FNR == 1 {
 }
 
 /^(TARGET.*=)/ {
-    if ( \$3 == "qt" || \$3 == "moc" ) {
+    if ( \$3 == "moc" || \$3 ~ /^Qt/ ) {
   target_file = first
 	matched_target = 1
     }
