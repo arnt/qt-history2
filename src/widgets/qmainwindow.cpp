@@ -780,7 +780,7 @@ protected:
 		else if ( res == bottom )
 		    win->moveToolBar( tb->t, QMainWindow::Bottom );
 		else if ( res == hide )
-		    win->moveToolBar( tb->t,  dock );
+		    win->moveToolBar( tb->t, tb->oldDock, tb->nl, tb->oldIndex, tb->extraOffset );
 		else
 		    return;
 		tb->t->show();
@@ -1922,12 +1922,14 @@ void QMainWindow::setUpLayout()
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
 
-    if ( d->mb && !d->mb->testWState(Qt::WState_ForceHide) )
+    bool space = FALSE;
+    if ( d->mb && !d->mb->testWState(Qt::WState_ForceHide) ) {
 	d->tll->setMenuBar( d->mb );
-
-    d->tll->addWidget( d->hideDock );
+	space = TRUE;
+    }
+    
     d->hideDock->setFixedHeight( style().toolBarHandleExtend() );
-    d->tll->addSpacing( 1 );
+
     if ( d->hidden && !d->hidden->isEmpty() ) {
 	int visibles = 0;
 	d->hideDock->show();
@@ -1947,6 +1949,10 @@ void QMainWindow::setUpLayout()
     } else {
 	d->hideDock->hide();
     }
+    if ( d->hideDock->isVisible() && space && style() == WindowsStyle )
+	d->tll->addSpacing( 2 );
+    d->tll->addWidget( d->hideDock );
+    d->tll->addSpacing( 1 );
 
     d->lTop = new QToolLayout( d->tll, d->top, QBoxLayout::Down, d->justify );
 
