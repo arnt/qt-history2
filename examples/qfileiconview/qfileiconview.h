@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#7 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#8 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -80,7 +80,8 @@ class QtFileIconView : public QIconView
     Q_OBJECT
 
 public:
-    QtFileIconView( const QString &dir, QWidget *parent = 0, const char *name = 0 );
+    QtFileIconView( const QString &dir, bool isdesktop = FALSE,
+                    QWidget *parent = 0, const char *name = 0 );
 
 public slots:
     void setDirectory( const QString &dir );
@@ -112,10 +113,16 @@ protected:
     virtual int dragItems( QDropEvent *e );
 
     virtual void keyPressEvent( QKeyEvent *e );
+    virtual void drawBackground( QPainter *p, const QRect &r );
+    static void makeGradient( QPixmap &pmCrop, const QColor &_color1, 
+                              const QColor &_color2, int _xSize, int _ySize );
 
     QDir viewDir;
     int newFolderNum;
-
+    bool isDesktop;
+    QSize sz;
+    QPixmap pix;
+    
 };
 
 #endif

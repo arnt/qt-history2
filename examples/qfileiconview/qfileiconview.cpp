@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#12 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#13 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -358,8 +358,9 @@ void QtFileIconViewItem::openFolder()
  *
  *****************************************************************************/
 
-QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char *name )
-    : QIconView( parent, name ), viewDir( dir ), newFolderNum( 0 )
+QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop, 
+                                QWidget *parent, const char *name )
+    : QIconView( parent, name ), viewDir( dir ), newFolderNum( 0 ), isDesktop( isdesktop )
 {
     setRastX( 100 );
     setRastY( 75 );
@@ -577,4 +578,64 @@ int QtFileIconView::dragItems( QDropEvent *e )
     }
     else
         return QIconView::dragItems( e );
+}
+
+void QtFileIconView::drawBackground( QPainter *p, const QRect &r )
+{
+    if ( !isDesktop ) {
+        QIconView::drawBackground( p, r );
+        return;
+    } else {
+        QSize s( viewport()->width(), viewport()->height() );
+        if ( sz != s ) {
+            makeGradient( pix, Qt::blue, Qt::yellow, s.width(), s.height() );
+            sz = s;
+        }
+        bitBlt(  p->device(), r.x(), r.y(),
+                 &pix, r.x(), r.y(), r.width(), r.height() );
+        
+        //p->fillRect( rect, QColor( 0, 139, 139 ) );
+
+        
+    }
+    
+}
+
+void QtFileIconView::makeGradient( QPixmap &pmCrop, const QColor &_color1,
+                                   const QColor &_color2, int _xSize, int _ySize ) 
+{
+    QColor cRow;
+    int rca, gca, bca;
+    int rDiff, gDiff, bDiff;
+    float rat;
+    unsigned int *p;
+    unsigned int rgbRow;
+
+    pmCrop.resize( _xSize, _ySize );
+    QImage image( _xSize, _ySize, 32 );
+
+    rca = _color1.red();
+    gca = _color1.green();
+    bca = _color1.blue();
+    rDiff = _color2.red() - _color1.red();
+    gDiff = _color2.green() - _color1.green();
+    bDiff = _color2.blue() - _color1.blue();
+
+    for ( int y = _ySize; y > 0; y-- ) {
+        p = ( unsigned int* )image.scanLine( _ySize - y );
+        rat = 1.0 * y / _ySize;
+
+        cRow.setRgb( rca + (int)( rDiff * rat ),
+                     gca + (int)( gDiff * rat ),
+                     bca + (int)( bDiff * rat ) );
+
+        rgbRow = cRow.rgb();
+
+        for( int x = 0; x < _xSize; x++ ) {
+            *p = rgbRow;
+            p++;
+        }
+    }
+
+    pmCrop.convertFromImage( image );
 }
