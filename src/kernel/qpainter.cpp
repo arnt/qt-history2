@@ -312,7 +312,7 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     By far the most useful ones are \c CopyROP and \c XorROP.
 
     On Qt/Mac, only \c CopyROP, \c OrROP, \c XorROP, \c NotAndROP,
-    \c NotCopyROP, \c NotOrROP, \c NotXorROP, and \c AndROP are 
+    \c NotCopyROP, \c NotOrROP, \c NotXorROP, and \c AndROP are
     supported.
 */
 
@@ -1541,9 +1541,8 @@ void QPainter::updateXForm()
 {
     QWMatrix m;
     if ( testf(VxF) ) {
-	m.translate( vx, vy );
-	m.scale( 1.0*vw/ww, 1.0*vh/wh );
-	m.translate( -wx, -wy );
+	double scale = (double)vw/(double)ww;
+	m.setMatrix( scale, 0,  0,  scale, vx - wx*scale, vy - wy*scale );
     }
     if ( testf(WxF) ) {
 	if ( testf(VxF) )
@@ -1647,7 +1646,7 @@ void QPainter::map( int x, int y, int *rx, int *ry ) const
     } else {
 	switch ( txop ) {
 	    case TxNone:
-		*rx = x;  
+		*rx = x;
 		*ry = y;
 		break;
 	    case TxTranslate:
@@ -1791,7 +1790,7 @@ void QPainter::mapInv( int x, int y, int w, int h,
 	*rh = th >= 0 ? int(th + 0.5) : int(th - 0.5);
     } else {
 	*rx = qRound( im11()*x + idx() );
-	*ry = qRound( im22()*y + idy() ); 
+	*ry = qRound( im22()*y + idy() );
 	*rw = qRound( im11()*w );
 	*rh = qRound( im22()*h );
     }
@@ -2761,7 +2760,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 #endif
 
     if ( simple ) {
-#ifdef QT_FORMAT_TEXT_DEBUG	
+#ifdef QT_FORMAT_TEXT_DEBUG
 	qDebug("using simple format for string %s", str.utf8().data() );
 #endif
 	// we can use a simple drawText instead of the QTextParagraph.
