@@ -1190,8 +1190,8 @@ void QFocusEvent::resetReason()
 
     Context menu events contain a special accept flag that indicates
     whether the receiver accepted the event. If the event handler does
-    not accept the event, then whatever triggered the event will be
-    handled as a regular input event if possible.
+    not accept the event then, if possible, whatever triggered the event will be
+    handled as a regular input event.
 */
 
 /*!
@@ -1290,8 +1290,9 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 /*!
     \fn ButtonState QContextMenuEvent::state() const
 
-    Returns the button state immediately before the event was generated
-    (a combination of mouse buttons and keyboard modifiers).
+    Returns the button state (a combination of mouse buttons
+    and keyboard modifiers) immediately before the event was
+    generated.
 
     The returned value is a selection of the following values,
     combined with the logical OR operator:
@@ -1302,7 +1303,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 /*!
     \enum QContextMenuEvent::Reason
 
-    This enum describes the reason the ContextMenuEvent was sent:
+    This enum describes the reason why the event was sent.
 
     \value Mouse The mouse caused the event to be sent. Normally this
     means the right mouse button was clicked, but this is platform
@@ -1662,10 +1663,10 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 
 
 /*!
-    \fn QDragMoveEvent::QDragMoveEvent(const QPoint &position, Type type)
+    \fn QDragMoveEvent::QDragMoveEvent(const QPoint &point, Type type)
 
-    Creates a QDragMoveEvent of the given \a type indicating the
-    \a position of the mouse within a widget.
+    Creates a QDragMoveEvent of the required \a type indicating
+    that the mouse is at the \a point given within a widget.
 
     \warning Do not create a QDragMoveEvent yourself since these
     objects rely on Qt's internal state.
@@ -1675,9 +1676,9 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
     \fn void QDragMoveEvent::accept(const QRect &rectangle)
 
     The same as accept(), but also notifies that future moves will
-    also be acceptable if they remain within the \a rectangle on the
-    widget. This can improve performance, but may also be ignored by
-    the underlying system.
+    also be acceptable if they remain within the \a rectangle
+    given on the widget. This can improve performance, but may
+    also be ignored by the underlying system.
 
     If the rectangle is \link QRect::isEmpty() empty \endlink, then
     drag move events will be sent continuously. This is useful if the
@@ -1687,7 +1688,7 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 /*!
     \fn void QDragMoveEvent::ignore(const QRect &rectangle)
 
-    The opposite of accept(const QRect&).
+    The opposite of the accept(const QRect&) function.
     Moves within the \a rectangle are not acceptable, and will be
     ignored.
 */
@@ -1834,8 +1835,8 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 /*!
     \fn QDragEnterEvent::QDragEnterEvent (const QPoint &point)
 
-    Constructs a QDragEnterEvent entering a widget at the given
-    \a point.
+    Constructs a QDragEnterEvent that represents a drag entering
+    a widget at the given \a point.
 
     \warning Do not create a QDragEnterEvent yourself since these
     objects rely on Qt's internal state.
@@ -1848,8 +1849,8 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
     \ingroup events
     \ingroup draganddrop
 
-    This event is always preceded by a QDragEnterEvent and a series of
-    \l{QDragMoveEvent}s. It is not sent if a QDropEvent is sent
+    This event is always preceded by a QDragEnterEvent and a series
+    of \l{QDragMoveEvent}s. It is not sent if a QDropEvent is sent
     instead.
 
     \sa QDragEnterEvent, QDragMoveEvent, QDropEvent
