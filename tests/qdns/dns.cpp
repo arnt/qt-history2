@@ -79,6 +79,8 @@ public slots:
 	HostAddresses::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it )
 	    cout << (*it).toString().latin1() << endl;
+	cout << endl;
+	reportCname();
 	if ( !sync ) {
 	    if ( !dns->isWorking() )
 		qApp->quit();
@@ -92,6 +94,8 @@ public slots:
 	HostAddresses::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it )
 	    cout << (*it).toString().latin1() << endl;
+	cout << endl;
+	reportCname();
 	if ( !sync ) {
 	    if ( !dns->isWorking() )
 		qApp->quit();
@@ -107,6 +111,8 @@ public slots:
 	    cout << (*it).name.latin1() <<
 		" (" << (*it).priority << ")" << endl;
 	}
+	cout << endl;
+	reportCname();
 	if ( !sync ) {
 	    if ( !dns->isWorking() )
 		qApp->quit();
@@ -123,6 +129,8 @@ public slots:
 		" (" << (*it).priority << ")" <<
 		"weight: " << (*it).weight << endl;
 	}
+	cout << endl;
+	reportCname();
 	if ( !sync ) {
 	    if ( !dns->isWorking() )
 		qApp->quit();
@@ -147,6 +155,8 @@ public slots:
 	for( it = list.begin(); it != list.end(); ++it ) {
 	    cout << (*it).latin1() << endl;
 	}
+	cout << endl;
+	reportCname();
 	if ( !sync ) {
 	    if ( !dns->isWorking() )
 		qApp->quit();
@@ -161,6 +171,8 @@ public slots:
 	for( it = list.begin(); it != list.end(); ++it ) {
 	    cout << (*it).latin1() << endl;
 	}
+	cout << endl;
+	reportCname();
 	if ( !sync ) {
 	    if ( !dns->isWorking() )
 		qApp->quit();
