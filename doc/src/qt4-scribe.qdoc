@@ -1,6 +1,6 @@
 /*!
     \page qt4-scribe.html
-    \title Qt 4: The Scribe Classes
+    \title The Qt 4 Scribe Classes
 
     Scribe introduces a set of text layout classes to Qt 4. These classes
     replace the old rich text engine found in Qt 3, and provide new features

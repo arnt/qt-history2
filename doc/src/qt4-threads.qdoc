@@ -1,6 +1,6 @@
 /*!
     \page qt4-threads.html
-    \title Qt 4: Thread Support
+    \title Thread Support in Qt 4
 
     Qt 4 makes it easier than ever to write multithreaded
     applications. More classes have been made usable from non-GUI

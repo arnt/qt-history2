@@ -1,6 +1,6 @@
 /*!
     \page qt4-mainwindow.html
-    \title Qt 4: The Main Window Classes
+    \title The Qt 4 Main Window Classes
 
     Qt 4 introduces a new set of main window classes that will replace the
     Qt 3 main window classes, providing a more efficient implementation

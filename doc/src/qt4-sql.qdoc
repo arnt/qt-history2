@@ -1,6 +1,6 @@
 /*!
     \page qt4-sql.html
-    \title Qt 4: Database GUI Layer
+    \title The Qt 4 Database GUI Layer
 
     The GUI layer of the SQL module in Qt 4 has been entirely
     redesigned to work with \l{qt4-interview.html}{Interview} (Qt's

@@ -1,7 +1,7 @@
 /*!
     \page qt4-tulip.html
 
-    \title Qt 4: The Tulip Container Classes
+    \title The Qt 4 Tulip Container Classes
 
     Qt 4 introduces a new set of containers that will replace both the old
     QCollection pointer-based containers and the newer "QTL" value-based

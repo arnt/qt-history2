@@ -1,6 +1,6 @@
 /*!
     \page qt4-accessibility.html
-    \title Qt 4: Cross-Platform Accessibility Support
+    \title Cross-Platform Accessibility Support in Qt 4
 
     Qt 4 allows developers to write cross-platform applications that
     are usable by visually impaired users as well as by users with

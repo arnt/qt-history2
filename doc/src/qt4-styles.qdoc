@@ -1,6 +1,6 @@
 /*!
     \page qt4-styles.html
-    \title Qt 4: Style API
+    \title The Qt 4 Style API
 
     Qt's style API is responsible for performing the widget drawing
     for built-in widgets. The Qt 4 style API has been revised to make

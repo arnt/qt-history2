@@ -1,6 +1,6 @@
 /*!
     \page qt4-interview.html
-    \title Qt 4: The Interview Classes
+    \title The Qt 4 Interview Classes
 
     The Interview classes provide a model/view framework for Qt
     applications based on the well known Model-View-Controller design

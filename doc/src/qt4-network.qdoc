@@ -1,6 +1,6 @@
 /*!
     \page qt4-network.html
-    \title Qt 4: The Network Module
+    \title The Network Module in Qt 4
 
     The network module in Qt 4 provides some new features, such as
     support for internationalized domain names, better IPv6 support,
