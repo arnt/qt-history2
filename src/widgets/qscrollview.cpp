@@ -231,7 +231,7 @@ QSVChildRec* QScrollViewData::ancestorRec(QWidget* w)
     return rec(w);
 }
 
-void QScrollViewData::hideOrShowAll(QScrollView* sv, bool isScroll = FALSE )
+void QScrollViewData::hideOrShowAll(QScrollView* sv, bool isScroll )
 {
     if ( clipped_viewport ) {
 	if ( clipped_viewport->x() <= 0
