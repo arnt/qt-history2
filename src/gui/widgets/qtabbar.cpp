@@ -91,7 +91,7 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     QStyleOptionTab opt;
     const QTabBarPrivate::Tab *ptab = &tabList.at(tab);
     opt.init(q);
-    opt.state &= ~QStyle::State_HasFocus;
+    opt.state &= ~(QStyle::State_HasFocus | QStyle::State_MouseOver);
     opt.rect = q->tabRect(tab);
     bool isCurrent = tab == currentIndex;
     opt.row = 0;
@@ -105,7 +105,7 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
         opt.state |= QStyle::State_Enabled;
     if (q->isActiveWindow())
         opt.state |= QStyle::State_Active;
-    if (opt.rect.contains(q->mapFromGlobal(QCursor::pos())))
+    if (opt.rect == hoverRect)
         opt.state |= QStyle::State_MouseOver;
     opt.shape = shape;
     opt.text = ptab->text;
@@ -827,6 +827,10 @@ bool QTabBar::event(QEvent *e)
                 update(oldHoverRect);
             update(d->hoverRect);
         }
+    } else if (e->type() == QEvent::HoverLeave ) {
+        QRect oldHoverRect = d->hoverRect;
+        d->hoverRect = QRect();
+        update(oldHoverRect);
     } else if (e->type() == QEvent::ToolTip) {
         if (const QTabBarPrivate::Tab *tab = d->at(d->indexAtPos(static_cast<QHelpEvent*>(e)->pos()))) {
             if (!tab->toolTip.isEmpty()) {
