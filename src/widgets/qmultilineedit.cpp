@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#45 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1950,6 +1950,8 @@ void QMultiLineEdit::dragMoveEvent( QDragMoveEvent* event )
     if ( !inside_margin.contains(event->pos()) ) {
 	startAutoScroll();
     }
+    if ( event->source() == this && event->action() == QDropEvent::Move )
+	event->acceptAction();
 }
 
 /*!
