@@ -619,7 +619,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const int y = option.rect.y();
     const QModelIndex parent = index.parent();
     const QHeaderView *header = d->header;
-    const QModelIndex current = selectionModel()->currentIndex();
+    const QModelIndex current = currentIndex();
     const bool focus = hasFocus() && current.isValid();
     const bool reverse = isRightToLeft();
     const QStyle::State state = opt.state;
@@ -641,7 +641,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             continue;
         opt.state = state;
         opt.state |= (focus && current == modelIndex ? QStyle::State_HasFocus : QStyle::State_None);
-        opt.state |= (selectionModel()->isSelected(modelIndex)
+        opt.state |= (selectionModel() && selectionModel()->isSelected(modelIndex)
                      ? QStyle::State_Selected : QStyle::State_None);
         if ((model()->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
             opt.state &= ~QStyle::State_Enabled;

@@ -392,8 +392,8 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         connect(d->model, SIGNAL(reset()), this, SLOT(reset()));
     }
 
-    setRootIndex(QModelIndex());// triggers layout
     setSelectionModel(new QItemSelectionModel(d->model));
+    setRootIndex(QModelIndex());// triggers layout
 }
 
 /*!
