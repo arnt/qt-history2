@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.1 1997/03/20 21:15:41 agulbra Exp $
+** $Id: examples.doc,v 2.2 1997/03/24 17:15:39 hanord Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.1 1997/03/20 21:15:41 agulbra Exp $";
+static char ident[] = "$Id: examples.doc,v 2.2 1997/03/24 17:15:39 hanord Exp $";
 #endif
 
 
@@ -170,7 +170,7 @@ cursor is on.
 */
 
 
-/*! \example tellme/tellme.cpp
+/*! \example tooltip/tooltip.cpp
 
   <h1 align=center>Advanced use of tool tips</h1>
 
