@@ -67,7 +67,7 @@ unix {
 
 	DEFINES    += QT_FATAL_ASSERT
 	!mac { #macx is a unix, but doesn't need this
-		!freebsd-g++:LIBS += -ldl
+		!osf1-cxx:!osf1-g++:!freebsd-g++:LIBS += -ldl
 		CONFIG	   += x11 x11inc
 	}
 }
