@@ -1685,7 +1685,6 @@ typedef int (__stdcall *PtrGdipDrawLineI) (QtGpGraphics *, QtGpPen *, int x1, in
 typedef int (__stdcall *PtrGdipDrawPath) (QtGpGraphics *, QtGpPen *, QtGpPath *);
 typedef int (__stdcall *PtrGdipDrawPolygonI) (QtGpGraphics *, QtGpPen *, const QPoint *, int);
 
-
 typedef int (__stdcall *PtrGdipCreateMatrix2) (float, float, float, float, float, float, QtGpMatrix **);
 typedef int (__stdcall *PtrGdipDeleteMatrix) (QtGpMatrix *);
 
@@ -1712,6 +1711,7 @@ typedef int (__stdcall *PtrGdipAddPathBezier)(QtGpPath *path,
                                               float, float, float, float,
                                               float, float, float, float);
 typedef int (__stdcall *PtrGdipClosePathFigure) (QtGpPath *path);
+typedef int (__stdcall *PtrGdipSetPathFillMode) (QtGpPath *path, int fillmode);
 
 typedef int (__stdcall *PtrGdipCreateBitmapFromHBITMAP)(HBITMAP, HPALETTE, QtGpBitmap **);
 typedef int (__stdcall *PtrGdipCreateBitmapFromScan0)(int w, int h, int stride, int format,
@@ -1765,6 +1765,7 @@ static PtrGdipAddPathLine GdipAddPathLine = 0;               // Path::AddLine(x1
 static PtrGdipAddPathArc GdipAddPathArc = 0;                 // Path::AddArc(x, y, w, h, start, sweep)
 static PtrGdipAddPathBezier GdipAddPathBezier = 0;           // Path::AddPathBezier(x1, y1, ... x4, y4)
 static PtrGdipClosePathFigure GdipClosePathFigure = 0;       // Path::CloseFigure()
+static PtrGdipSetPathFillMode GdipSetPathFillMode = 0;       // Path::SetFillMode(mode);
 
 static PtrGdipCreateBitmapFromHBITMAP GdipCreateBitmapFromHBITMAP = 0;  // Bitmap::Bitmap(hbm, hpalette)
 static PtrGdipCreateBitmapFromScan0 GdipCreateBitmapFromScan0 = 0;      // Bitmap::Bitmap(w, h .. bits)
@@ -1839,6 +1840,7 @@ static void qt_resolve_gdiplus()
     GdipAddPathArc               = (PtrGdipAddPathArc)         lib.resolve("GdipAddPathArc");
     GdipAddPathBezier            = (PtrGdipAddPathBezier)      lib.resolve("GdipAddPathBezier");
     GdipClosePathFigure          = (PtrGdipClosePathFigure)    lib.resolve("GdipClosePathFigure");
+    GdipSetPathFillMode          = (PtrGdipSetPathFillMode)    lib.resolve("GdipSetPathFillMode");
 
     // Bitmap functions
     GdipCreateBitmapFromHBITMAP
@@ -1887,6 +1889,7 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdipAddPathArc);
     Q_ASSERT(GdipAddPathBezier);
     Q_ASSERT(GdipClosePathFigure);
+    Q_ASSERT(GdipSetPathFillMode);
     Q_ASSERT(GdipCreateBitmapFromHBITMAP);
     Q_ASSERT(GdipCreateBitmapFromScan0);
     Q_ASSERT(GdipGetImageGraphicsContext);
@@ -2263,6 +2266,8 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
         }
         GdipClosePathFigure(path);
     }
+
+    GdipSetPathFillMode(path, p.fillMode() == QPainterPath::Winding ? 1 : 0);
 
     if (d->brush)
         GdipFillPath(d->graphics, d->brush, path);
