@@ -40,7 +40,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSize() const;
     QSizePolicy::ExpandData expanding() const;
-    QLayoutItem *itemAt(int);
+    QLayoutItem *itemAt(int) const;
     QLayoutItem *takeAt(int);
 
 protected:

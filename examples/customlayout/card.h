@@ -21,25 +21,23 @@
 class CardLayout : public QLayout
 {
 public:
-    CardLayout( QWidget *parent, int dist )
-	: QLayout( parent, 0, dist ) {}
-    CardLayout( QLayout* parent, int dist)
-	: QLayout( parent, dist ) {}
-    CardLayout( int dist )
-	: QLayout( dist ) {}
+    CardLayout(QWidget *parent, int dist)
+	: QLayout(parent, 0, dist) {}
+    CardLayout(QLayout* parent, int dist)
+	: QLayout(parent, dist) {}
+    CardLayout(int dist)
+	: QLayout(dist) {}
     ~CardLayout();
 
-    void addItem( QLayoutItem *item );
+    void addItem(QLayoutItem *item);
     QSize sizeHint() const;
     QSize minimumSize() const;
-    QLayoutItem *itemAt(int);
+    QLayoutItem *itemAt(int) const;
     QLayoutItem *takeAt(int);
-
-    void setGeometry( const QRect &rect );
+    void setGeometry(const QRect &rect);
 
 private:
     QList<QLayoutItem*> list;
-
 };
 
 #endif

@@ -22,16 +22,21 @@
 #include <qmultilineedit.h>
 #include <qcolor.h>
 
+class ColorWidget : public QWidget
+{
+public:
+    ColorWidget(QColor col, QWidget *parent = 0) : QWidget(parent) { setPalette(col); }
+};
+
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    QWidget *f = new QWidget;
-    QBoxLayout *gm = new QVBoxLayout( f, 5 );
+    QWidget mainWidget;
+    
+    QBoxLayout *gm = new QVBoxLayout( &mainWidget, 5 );
 
-#if 1
-    SimpleFlow *b1 = new SimpleFlow;
-    gm->addLayout( b1 );
+    SimpleFlow *b1 = new SimpleFlow(gm);
 
     b1->addWidget( new QPushButton( "Short" ) );
     b1->addWidget( new QPushButton( "Longer" ) );
@@ -41,12 +46,8 @@ int main( int argc, char **argv )
     QPushButton* qb = new QPushButton( "Quit" );
     a.connect( qb, SIGNAL( clicked() ), SLOT( quit() ) );
     b1->addWidget( qb );
-#else
-    gm->addWidget( new QLabel( "Testlabel" ) );
-#endif
 
-    BorderLayout *large = new BorderLayout;
-    gm->addLayout( large );
+    BorderLayout *large = new BorderLayout(gm);
     large->setSpacing( 5 );
     large->addWidget( new QPushButton( "North" ), BorderLayout::North );
     large->addWidget( new QPushButton( "West" ), BorderLayout::West );
@@ -61,38 +62,23 @@ int main( int argc, char **argv )
     //Left-to-right tab order looks better:
     QWidget::setTabOrder( east2, east1 );
 
-    CardLayout *card = new CardLayout( 10 );
-    gm->addLayout( card );
+    CardLayout *card = new CardLayout( gm, 10 );
 
-    QWidget *crd = new QWidget;
-    crd->setPalette(QPalette(Qt::red));
-    card->addWidget(crd);
-    crd = new QWidget;
-    crd->setPalette(QPalette(Qt::green));
-    card->addWidget( crd );
-    crd = new QWidget;
-    crd->setPalette(QPalette(Qt::blue));
-    card->addWidget( crd );
-    crd = new QWidget;
-    crd->setPalette(QPalette(Qt::white));
-    card->addWidget( crd );
-    crd = new QWidget;
-    crd->setPalette(QPalette(Qt::black));
-    card->addWidget( crd );
-    crd = new QWidget;
-    crd->setPalette(QPalette(Qt::yellow));
-    card->addWidget( crd );
+    card->addWidget(new ColorWidget(Qt::red));
+    card->addWidget(new ColorWidget(Qt::green));
+    card->addWidget(new ColorWidget(Qt::blue));
+    card->addWidget(new ColorWidget(Qt::white));
+    card->addWidget(new ColorWidget(Qt::black));
+    card->addWidget(new ColorWidget(Qt::yellow));
 
     QLabel* s = new QLabel;
     s->setText( "outermost box" );
     s->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     s->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
     gm->addWidget( s );
-    a.setMainWidget( f );
-    f->setWindowTitle("Qt Example - Custom Layout");
-    f->show();
+    a.setMainWidget( &mainWidget );
+    mainWidget.setWindowTitle("Qt Example - Custom Layout");
+    mainWidget.show();
 
-    int result = a.exec();
-    delete f;
-    return result;
+    return a.exec();
 }

@@ -12,7 +12,7 @@
 
 #include "border.h"
 
-QLayoutItem *BorderLayout::itemAt(int idx)
+QLayoutItem *BorderLayout::itemAt(int idx) const
 {
     BorderLayoutStruct *b =  list.value(idx);
     return b ? b->item : 0;

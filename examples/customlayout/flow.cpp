@@ -57,7 +57,7 @@ void SimpleFlow::setGeometry( const QRect &r )
     doLayout( r );
 }
 
-QLayoutItem *SimpleFlow::itemAt(int idx)
+QLayoutItem *SimpleFlow::itemAt(int idx) const
 {
     return list.value(idx);
 }

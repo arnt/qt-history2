@@ -17,24 +17,24 @@ CardLayout::~CardLayout()
     deleteAllItems();
 }
 
-void CardLayout::addItem(  QLayoutItem *item  )
+void CardLayout::addItem(QLayoutItem *item)
 {
-    list.append( item );
+    list.append(item);
 }
 
-void CardLayout::setGeometry( const QRect &rct )
+void CardLayout::setGeometry(const QRect &r)
 {
-    QLayout::setGeometry( rct );
+    QLayout::setGeometry(r);
 
-    if ( list.size() == 0 )
+    if (list.size() == 0)
         return;
 
-    int w = rct.width() - (list.count() - 1) * spacing();
-    int h = rct.height() - (list.count() - 1) * spacing();
+    int w = r.width() - (list.count() - 1) * spacing();
+    int h = r.height() - (list.count() - 1) * spacing();
     int i = 0;
     while (i < list.size()) {
         QLayoutItem *o = list.at(i);
-        QRect geom(rct.x() + i * spacing(), rct.y() + i * spacing(), w, h);
+        QRect geom(r.x() + i * spacing(), r.y() + i * spacing(), w, h);
         o->setGeometry(geom);
         ++i;
     }
@@ -44,7 +44,7 @@ QSize CardLayout::sizeHint() const
 {
     QSize s(0,0);
     int n = list.count();
-    if ( n > 0 )
+    if (n > 0)
         s = QSize(100,70); //start with a nice default size
     int i = 0;
     while (i < n) {
@@ -69,7 +69,7 @@ QSize CardLayout::minimumSize() const
 }
 
 
-QLayoutItem *CardLayout::itemAt(int idx)
+QLayoutItem *CardLayout::itemAt(int idx) const
 {
     return list.value(idx);
 }
