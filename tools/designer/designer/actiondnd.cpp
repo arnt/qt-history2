@@ -1056,14 +1056,15 @@ void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 
     if ( e->button() == RightButton ) {
 	// A popup for a popup, we only need one, so make sure that
-	// we don't create multiple.  The timer keeps the event loop sane.
+	// we don't show multiple.
 	popupPos = e->globalPos();
 	popupLocalPos = e->pos();
 	if ( popupMenu ) {
 	    popupMenu->close();
+	    popupMenu = 0;
 	}
 	e->accept();
-	QTimer::singleShot( 0, this, SLOT(createPopupMenu()) );
+	createPopupMenu();
 	return;
     }
     mousePressed = TRUE;
@@ -1073,6 +1074,7 @@ void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 
 void QDesignerPopupMenu::createPopupMenu()
 {
+    QPopupMenu *oldPopup = popupMenu;
     // actually creates our popup for the popupmenu.
     QPopupMenu menu( 0 );
     popupMenu = &menu;
@@ -1133,8 +1135,8 @@ void QDesignerPopupMenu::createPopupMenu()
 	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
 	popup( p );
     }
-    // set this back to zero so we know a popup (will soon) not exist.
-    popupMenu = 0;
+    // set this back to old one so we know a popup (will soon) not exist.
+    popupMenu = oldPopup;
 }
 
 void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )
