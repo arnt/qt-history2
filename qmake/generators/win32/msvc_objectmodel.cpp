@@ -2170,6 +2170,9 @@ void VCProject::outputFilter(XmlOutput &xml,
             root->addElement(filter.Files.at(x));
     }
 
+    if (!root->hasElements())
+        return;
+
     // Actual XML output ----------------------------------
     xml << tag(_Filter)
             << attrS(_Name, name)
