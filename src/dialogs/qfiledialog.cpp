@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#121 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#122 $
 **
 ** Implementation of QFileDialog class
 **
@@ -737,13 +737,13 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
     : QDialog( parent, name, modal )
 {
     init();
-    if ( filter ) {
+    if ( !filter.isEmpty() ) {
 	cwd.setNameFilter( filter );
 	d->types->insertItem( filter );
     } else {
 	d->types->insertItem( tr( "All files (*)" ) );
     }
-    if ( dirName )
+    if ( !dirName.isEmpty() )
 	cwd.setPath( dirName );
 
     cwd.convertToAbs();
@@ -1212,7 +1212,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     const int all_len = sizeof(all_filter); // 15
     char* win_filter;
     int total_len = 0;
-    if (filter) {
+    if (!filter.isEmpty()) {
 	int fl = strlen(filter)+1; // Include nul
 	win_filter = new char[2*fl+all_len];
 	for (int i=0; i<2; i++) {
@@ -1347,8 +1347,8 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     const int all_len = sizeof(all_filter); // 15
     char* win_filter;
     int total_len = 0;
-    if (filter) {
-	int fl = strlen(filter)+1; // Include nul
+    if (!filter.isEmpty()) {
+	int fl = filter.length()+1; // Include nul
 	win_filter = new char[2*fl+all_len];
 	for (int i=0; i<2; i++) {
 	    memcpy(win_filter+total_len, filter, fl);

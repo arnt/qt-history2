@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#74 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#75 $
 **
 ** Implementation of QMessageBox class
 **
@@ -706,7 +706,7 @@ QString QMessageBox::buttonText() const
 
 void QMessageBox::setButtonText( const QString &text )
 {
-    setButtonText( Ok, text ? text : QString("OK") );
+    setButtonText( Ok, !text.isNull() ? text : QString("OK") );
 }
 
 

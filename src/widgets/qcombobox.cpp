@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#142 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#143 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -401,7 +401,7 @@ void QComboBox::setStyle( GUIStyle s )
 	    if ( p ) {
 		int n;
 		for( n=p->count()-1; n>=0; n-- ) {
-		    if ( p->text( n ) )
+		    if ( !p->text( n ).isNull() )
 			d->listBox->insertItem( p->text( n ), 0 );
 		    else if ( p->pixmap( n ) )
 			d->listBox->insertItem( *(p->pixmap( n )), 0 );
@@ -447,7 +447,7 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 	return;
     }
     QStrListIterator it( *list );
-    QString tmp;
+    const char* tmp;
     if ( index < 0 )
 	index = count();
     while ( (tmp=it.current()) ) {
@@ -951,7 +951,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 			 buttonW, buttonH, g, FALSE, 2 );
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
 	QString str = d->popup->text( d->current );
-	if ( str ) {
+	if ( !str.isNull() ) {
 	    p.drawText( clip, AlignCenter | SingleLine, str );
 	} else {
 	    QPixmap *pix = d->popup->pixmap( d->current );
@@ -1019,7 +1019,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	} else {
 	    QRect clip( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
 	    QString str = d->listBox->text( d->current );
-	    if ( str ) {
+	    if ( !str.isNull() ) {
 		p.setPen( g.foreground() );
 		p.drawText( clip, AlignCenter | SingleLine, str );
 	    } else {
@@ -1068,7 +1068,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	    p.setPen( g.text() );
 	    p.setBackgroundColor( bg );
 	}
-	if ( str ) {
+	if ( !str.isNull() ) {
 	    p.drawText( textR, AlignLeft | AlignVCenter | SingleLine, str);
 	} else {
 	    const QPixmap *pix = d->listBox->pixmap( d->current );
@@ -1184,7 +1184,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 
     c = currentItem();
     emit highlighted( c );
-    if ( text( c ) )
+    if ( !text( c ).isNull() )
 	emit activated( text( c ) );
     emit activated( c );
 }

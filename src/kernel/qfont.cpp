@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#102 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -937,7 +937,7 @@ void QFont::listSubstitutions( QStrList *list )
     list->clear();
     list->setAutoDelete( TRUE );
     QFontSubstIt it( *fontSubst );
-    QString n;
+    const char* n;
     while ( (n=it.currentKey()) ) {
 	list->inSort( qstrdup(n) );
 	++it;
@@ -1193,7 +1193,7 @@ void QFontMetrics::reset( const QPainter *p )
   \sa QFont, QFontInfo
 */
 
-#warning "Fix doc above. No longer automatic font metrics update"
+//#warning "Fix doc above. No longer automatic font metrics update"
 
 /*!
   Constructs a font metrics object for \a font.
@@ -1457,8 +1457,8 @@ void QFontInfo::reset( const QPainter *p )
   \sa QFont, QFontMetrics
 */
 
-#warning "Fix doc above. No longer automatic font info update"
-#warning "Get rid of FontInternalExactMatch"
+//#warning "Fix doc above. No longer automatic font info update"
+//#warning "Get rid of FontInternalExactMatch"
 
 /*!
   Constructs a font info object for \a font.

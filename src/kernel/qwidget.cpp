@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#269 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#270 $
 **
 ** Implementation of QWidget class
 **
@@ -1756,7 +1756,7 @@ void QWidget::fontChange( const QFont & )
 }
 
 
-#warning "Fix doc below. No longer automatic font metrics update"
+//#warning "Fix doc below. No longer automatic font metrics update"
 
 /*!
   \fn QFontMetrics QWidget::fontMetrics() const

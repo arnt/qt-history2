@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#64 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -91,7 +91,7 @@ inline bool QFontInternal::dirty() const
     return hdc == 0;
 }
 
-inline QString QFontInternal::key() const
+inline const char* QFontInternal::key() const
 {
     return k;
 }

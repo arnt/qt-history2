@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#101 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1938,7 +1938,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    QPoint p( x, y );
 	    QString newstr( str, len+1 );
 	    param[0].point = &p;
-	    param[1].str = newstr.data();
+	    param[1].str = new QString(newstr);
 	    if ( !pdev->cmd(PDC_DRAWTEXT2,this,param) || !hdc )
 		return;
 	}

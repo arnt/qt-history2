@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#126 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -299,7 +299,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
-	    qt_close_popup( this );
+	    qApp->closePopup( this );
 	if ( destroyWindow && !testWFlags(WType_Desktop) ) {
 	    DestroyWindow( winId() );
 	}
@@ -357,7 +357,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     bg_col = bgc;
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
-    if ( capt ) {
+    if ( !capt.isNull() ) {
 	extra->caption = QString::null;
 	setCaption( capt );
     }

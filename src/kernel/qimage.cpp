@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#182 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#183 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -4115,8 +4115,8 @@ static void write_xpm_image( QImageIO * iio )
 
     QIntDict<void> colorMap( 569 );
 
-    int w = image.width(), h = image.height(), colors=0;
-    int x, y;
+    uint w = image.width(), h = image.height(), colors=0;
+    uint x, y;
 
     // build color table
     for( y=0; y<h; y++ ) {
@@ -4162,7 +4162,7 @@ static void write_xpm_image( QImageIO * iio )
 	    int color = (int)(*(yp + x));
 	    QString chars = xpm_color_name( cpp,
 						 (int)(long)colorMap.find(color) );
-	    line[ x*cpp ] = chars[0];
+	    line[ x*cpp ] = chars[(uint) 0];
 	    if ( cpp == 2 )
 		line[ x*cpp + 1 ] = chars[1];
 	}

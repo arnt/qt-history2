@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#34 $
 **
 ** Implementation of QToolButton class
 **
@@ -188,7 +188,7 @@ QSize QToolButton::sizeHint() const
 {
     int w, h;
 
-    if ( text() ) {
+    if ( !text().isNull()) {
 	w = fontMetrics().width( text() );
 	h = fontMetrics().height(); // boundingRect()?
     } else if ( usesBigPixmap() ) {
@@ -371,7 +371,7 @@ void QToolButton::drawButton( QPainter * p )
 
 void QToolButton::drawButtonLabel( QPainter * p )
 {
-    if ( text() ) {
+    if ( !text().isNull() ) {
 	qDrawItem( p, style(), 1, 1, width()-2, height()-2,
 		   AlignCenter + ShowPrefix,
 		   colorGroup(), isEnabled(),

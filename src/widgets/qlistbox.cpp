@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#155 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#156 $
 **
 ** Implementation of QListBox widget class
 **
@@ -539,7 +539,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
 	return;
     }
     QStrListIterator it( *list );
-    QString txt;
+    const char* txt;
     if ( index < 0 )
 	index = itemList->count();
     while ( (txt=it.current()) ) {

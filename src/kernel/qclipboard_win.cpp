@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#17 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -145,7 +145,7 @@ QString QClipboard::text() const
 {
     // #### Only ASCII at the moment.  Add Unicode CF format.
 
-    ClipboardFormat f = CFText:
+    ClipboardFormat f = CFText;
 
     if ( !OpenClipboard(clipboardOwner()->winId()) )
 	return 0;
@@ -204,7 +204,7 @@ void QClipboard::setText( const QString &text )
 
 QPixmap QClipboard::pixmap() const
 {
-    ClipboardFormat f = CFPixmap:
+    ClipboardFormat f = CFPixmap;
 
     if ( !OpenClipboard(clipboardOwner()->winId()) )
 	return 0;
@@ -215,14 +215,13 @@ QPixmap QClipboard::pixmap() const
 	return 0;
 }
 
-    QPixmap pixmap;
 
     BITMAP bm;
     HDC    hdc = GetDC( 0 );
     HDC    hdcMemSrc = CreateCompatibleDC( hdc );
     GetObject( h, sizeof(BITMAP), &bm );
     SelectObject( hdcMemSrc, h );
-    pixmap = QPixmap( bm.bmWidth, bm.bmHeight );
+    QPixmap pixmap( bm.bmWidth, bm.bmHeight );
     BitBlt( pixmap.handle(), 0,0, pixmap.width(), pixmap.height(),
 	    hdcMemSrc, 0, 0, SRCCOPY );
     DeleteDC( hdcMemSrc );
@@ -242,16 +241,17 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
 
     EmptyClipboard();
 
-    QPixmap *pixmap = (QPixmap *)data;
-    if ( pixmap && !pixmap->isNull() ) {
+    //QPixmap *pixmap = (QPixmap *)data; //what is that???
+    // if ( pixmap && !pixmap->isNull() ) {
+    if ( !pixmap.isNull() ){
 	BITMAP bm;
-	GetObject( pixmap->hbm(), sizeof(BITMAP), &bm );
+	GetObject( pixmap.hbm(), sizeof(BITMAP), &bm );
 	HANDLE hbm = CreateBitmapIndirect( &bm );
 	HDC	   hdc = GetDC( 0 );
 	HDC	   hdcMemDst = CreateCompatibleDC( hdc );
 	SelectObject( hdcMemDst, hbm );
 	BitBlt( hdcMemDst, 0,0, bm.bmWidth, bm.bmHeight,
-		pixmap->handle(), 0, 0, SRCCOPY );
+		pixmap.handle(), 0, 0, SRCCOPY );
 	DeleteDC( hdcMemDst );
 	ReleaseDC( 0, hdc );
 	SetClipboardData( f, hbm );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#29 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -80,6 +80,9 @@ const QCursor sizeBDiagCursor;
 const QCursor sizeFDiagCursor;
 const QCursor sizeAllCursor;
 const QCursor blankCursor;
+const QCursor splitHCursor;
+const QCursor splitVCursor;
+
 
 
 /*****************************************************************************
@@ -101,7 +104,7 @@ static QCursor *cursorTable[] = {		// the order is important!!
     0
 };
 
-static QCursor *QCursor::find_cur( int shape )	// find predefined cursor
+QCursor *QCursor::find_cur( int shape )	// find predefined cursor
 {
     return (uint)shape <= LastCursor ? cursorTable[shape] : 0;
 }

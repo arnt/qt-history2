@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#165 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#166 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -74,7 +74,6 @@ static bool	app_do_modal	= FALSE;	// modal mode
 static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 
 static QWidgetList *modal_stack = 0;		// stack of modal widgets
-static QWidgetList *popupWidgets= 0;		// list of popup widgets
 static QWidget	   *popupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
 
@@ -86,7 +85,7 @@ typedef void  (*VFPTR)();
 typedef Q_DECLARE(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-static void	msgHandler( QtMsgType, const QString &);
+static void	msgHandler( QtMsgType, const char* );
 
 static void	cleanupPostedEvents();
 static void     unregWinClasses();
@@ -369,11 +368,11 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-static void msgHandler( QtMsgType t, const QString &str )
+static void msgHandler( QtMsgType t, const char* str )
 {
     QString s = str;
     s += "\n";
-    OutputDebugString( s.data() );
+    OutputDebugString( str );
     if ( t == QtFatalMsg )
 	ExitProcess( 1 );
 }
@@ -1042,11 +1041,11 @@ bool QApplication::winEventFilter( MSG * )	// Windows event filter
 }
 
 
-void QApplication::winFocus( QWidget *w, bool gotFocus )
+void QApplication::winFocus( QWidget *widget, bool gotFocus )
 {
     if ( gotFocus ) {
 	if ( inPopupMode() ) // some delayed focus event to ignore
-	    break;
+	    return;
 	active_window = widget->topLevelWidget();
 	QWidget *w = widget->focusWidget();
 	if (w && (w->isFocusEnabled() || w->isTopLevel() ) )
@@ -1056,7 +1055,7 @@ void QApplication::winFocus( QWidget *w, bool gotFocus )
 	    widget->focusNextPrevChild( TRUE );
 	}
     } else {
-	if ( focus_widget && !inPopupMode) {
+	if ( focus_widget && !inPopupMode() ) {
 	    QFocusEvent out( Event_FocusOut );
 	    QWidget *widget = focus_widget;
 	    focus_widget = 0;
@@ -1135,12 +1134,12 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    QWidget *g = QWidget::keyboardGrabber();
 	    if ( g )
 		widget = (QETWidget*)g;
-	    else if ( focus_widget )
-		widget = (QETWidget*)focus_widget;
+	    else if ( qApp->focusWidget() )
+		widget = (QETWidget*)qApp->focusWidget();
 	    else
 		widget = (QETWidget*)widget->topLevelWidget();
 	    if ( widget->isEnabled() )
-		result = widget->translateKeyEvent( event, g != 0 );
+		result = widget->translateKeyEvent( msg, g != 0 );
 	    break;
 	  }
 	case WM_SYSCHAR:
@@ -1220,7 +1219,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_NCACTIVATE:
-	    if ( !wParam && popupWidgets )
+	    if ( !wParam && qApp->activePopupWidget() )
 		result = TRUE;
 	    else
 		result = FALSE;
@@ -1413,7 +1412,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
-void openPopup( QWidget *popup )
+void QApplication::openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
@@ -1432,7 +1431,7 @@ void openPopup( QWidget *popup )
 	active_window->setFocus();
 }
 
-void closePopup( QWidget *popup )
+void QApplication::closePopup( QWidget *popup )
 {
     if ( !popupWidgets )
 	return;
@@ -1842,8 +1841,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	pos.ry() = HIWORD(msg.lParam);
     }
 
-    if ( popupWidgets ) {			// in popup mode
-	QWidget *popup = popupWidgets->last();
+    if ( qApp->inPopupMode() ) {			// in popup mode
+	QWidget *popup = qApp->activePopupWidget();
 	if ( popup != this ) {
 	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
 		popup = this;
@@ -2101,7 +2100,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     globalPos.rx() = LOWORD ( msg.lParam );
     globalPos.ry() = HIWORD ( msg.lParam );
 
-    QWheelEvent e( Event_Wheel, globalPos, delta, state );
+    QWheelEvent e( globalPos, delta, state );
     e.ignore();	
 
     // send the event to the widget that has the focus or its ancestors
@@ -2155,10 +2154,13 @@ bool QETWidget::translatePaintEvent( const MSG & )
     PAINTSTRUCT ps;
     HRGN reg = CreateRectRgn(0,0,1,1); // empty would do
     GetUpdateRgn( winId(), reg, FALSE );
-    QPaintEvent e( reg );
+    //QPaintEvent e( reg );
+//#warning broken
+    QPaintEvent e(rect());
+
     setWFlags( WState_PaintEvent );
     hdc = BeginPaint( winId(), &ps );
-    QApplication::sendEvent( this, &e );
+    QApplication::sendEvent( this, (QEvent*) &e );
     EndPaint( winId(), &ps );
     hdc = 0;
     clearWFlags( WState_PaintEvent );
@@ -2195,7 +2197,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 #endif
 	    if ( IsIconic(winId()) && iconText() )
 		SetWindowText( winId(), iconText() );
-	    else if ( caption() )
+	    else if ( !caption().isNull() )
 		SetWindowText( winId(), caption() );
 	}
 	if ( isVisible() ) {

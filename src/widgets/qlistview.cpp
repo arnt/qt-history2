@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#145 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#146 $
 **
 ** Implementation of QListView widget class
 **
@@ -1022,7 +1022,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     }
 
     QString t = text( column );
-    if ( t ) {
+    if ( !t.isEmpty() ) {
 	// should do the ellipsis thing in drawText()
 	p->drawText( r, 0, width-marg-r, height(),
 		     align | AlignVCenter, t );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#45 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -186,13 +186,13 @@ QString QSpinBox::text() const
 QString QSpinBox::cleanText() const
 {
     QString s = QString(text()).stripWhiteSpace();
-    if ( prefix() ) {
+    if ( !prefix().isEmpty() ) {
 	QString px = QString(prefix()).stripWhiteSpace();
 	int len = px.length();
 	if ( len && s.left(len) == px )  // Remove _only_ if it is the prefix
 	    s.remove( 0, len );
     }
-    if ( suffix() ) {
+    if ( !suffix().isEmpty() ) {
 	QString sx = QString(suffix()).stripWhiteSpace();
 	int len = sx.length();
 	if ( len && s.right(len) == sx )  // Remove _only_ if it is the suffix
@@ -652,7 +652,7 @@ void QSpinBox::interpretText()
     bool ok = TRUE;
     bool done = FALSE;
     int newVal = 0;
-    if ( specialValueText() ) {
+    if ( !specialValueText().isEmpty() ) {
 	QString s = QString(text()).stripWhiteSpace();
 	QString t = QString(specialValueText()).stripWhiteSpace();
 	if ( s == t ) {

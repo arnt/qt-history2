@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#10 $
 **
 ** Implementation of QSignalMapper class
 **
@@ -126,7 +126,7 @@ void QSignalMapper::map()
     if ( rec ) {
 	if ( rec->has_int )
 	    emit mapped( rec->int_id );
-	if ( rec->str_id )
+	if ( !rec->str_id.isEmpty() )
 	    emit mapped( rec->str_id );
     }
 }

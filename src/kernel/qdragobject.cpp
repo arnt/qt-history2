@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#51 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -44,7 +44,7 @@ struct QDragData {
 
 struct QStoredDragData {
     QStoredDragData() {}
-    const char* fmt;
+    char* fmt;
     QByteArray enc;
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#33 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -550,9 +550,9 @@ void QClipboard::setText( const QString &text )
   \sa setText()
 */
 
-QPixmap *QClipboard::pixmap() const
+QPixmap QClipboard::pixmap() const
 {
-    return (QPixmap *)data("PIXMAP");
+    return *((QPixmap *)data("PIXMAP"));
 }
 
 /*!

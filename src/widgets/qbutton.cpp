@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#121 $
 **
 ** Implementation of QButton widget class
 **
@@ -116,6 +116,7 @@ static QChar shortcutChar( const QString &str )
 	if ( str[p] != '&' )
 	    return str[p];
     }
+    return QChar::null;
 }
 
 
@@ -318,7 +319,7 @@ void QButton::setText( const QString &text )
     if ( autoresize )
 	adjustSize();
     if ( oldAccelChar!=QChar::null
-	&& newAccelChar==!QChar::null && !accel() )
+	&& newAccelChar!=QChar::null && !accel() )
 	setAccel( 0 );
 
     // ##### Just ASCII accelerators for now

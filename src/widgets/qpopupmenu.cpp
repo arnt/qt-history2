@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#170 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#171 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -961,7 +961,7 @@ int QPopupMenu::cellHeight( int row )
 	h = motifSepHeight;
     } else if ( mi->pixmap() ) {		// pixmap height
 	h = mi->pixmap()->height() + 2*motifItemFrame;
-	if ( mi->text() ) {			// pixmap and text
+	if ( !mi->text().isNull() ) {			// pixmap and text
 	    if ( style() == MotifStyle )
 		h += 2;				// Room for check rectangle
 	    QFontMetrics fm = fontMetrics();

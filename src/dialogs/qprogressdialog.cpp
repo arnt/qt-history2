@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#32 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#33 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -288,7 +288,7 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
 
 void QProgressDialog::setCancelButtonText( const QString &cancelButtonText )
 {
-    if ( cancelButtonText ) {
+    if ( !cancelButtonText.isNull() ) {
 	if ( d->cancel )
 	    d->cancel->setText(cancelButtonText);
 	else
