@@ -1170,6 +1170,8 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
 /*!
     \class QLocale
+    \reentrant
+    \ingroup text
 
     \brief The QLocale class converts between numbers and their
     string representations in various languages.
@@ -1644,6 +1646,8 @@ QLocale::QLocale(Language language, Country country)
 }
 
 /*!
+  \nonreentrant
+
     Sets the global default locale to \a language / \a country. These values
     are used when a QLocale object is constructed with DefaultLanguage/DefaultCountry.
 
