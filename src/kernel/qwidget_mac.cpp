@@ -768,8 +768,11 @@ void QWidget::raise()
     if(isTopLevel()) {
 	SelectWindow((WindowPtr)hd);
     } else {
-	//FIXME should probaably really "lower" a child
+	QWidget *p = parentWidget();
+	if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
+	    p->childObjects->append( p->childObjects->take() );
 	dirtyClippedRegion(TRUE);
+	update(geometry());
     }
 }
 
