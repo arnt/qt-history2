@@ -4558,6 +4558,7 @@ bool QWidget::event( QEvent *e )
 	break;
 
     case QEvent::EmbeddingControl:
+	clearWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
 	d->topData()->ftop = 0;
 	d->topData()->fright = 0;
 	d->topData()->fleft = 0;
