@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.h#4 $
+** $Id: //depot/qt/main/src/tools/qdstream.h#5 $
 **
 ** Definition of QDataStream class
 **
@@ -28,6 +28,10 @@ public:
     void	 unsetDevice();			// set NULL stream device
 
     bool	 eos() const;			// end of stream data?
+
+    enum ByteOrder { BigEndian, LittleEndian };
+    ByteOrder	 byteOrder()	const;
+    void	 setByteOrder( ByteOrder );
 
     bool	 isPrintableData() const;	// using printable data
     void	 setPrintableData( bool );	// set printable data on/off
@@ -63,7 +67,9 @@ public:
 
 private:
     QIODevice   *dev;				// I/O device
+    ByteOrder	 byteorder;			// serialization byte order
     bool	 printable;			// printable data
+    bool	 noswap;			// byte swapping not needed
 };
 
 
@@ -82,6 +88,9 @@ inline void QDataStream::unsetDevice()
 
 inline bool QDataStream::eos() const
 { return dev ? dev->atEnd() : TRUE; }
+
+inline QDataStream::ByteOrder QDataStream::byteOrder() const
+{ return byteorder; }
 
 inline bool QDataStream::isPrintableData() const
 { return printable; }

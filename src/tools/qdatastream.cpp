@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#5 $
 **
 ** Implementation of QDataStream class
 **
@@ -22,7 +22,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#5 $";
 #endif
 
 
@@ -38,24 +38,28 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#4 $";
 #define CHECK_STREAM_PRECOND
 #endif
 
-static int wordSize = 0;
-static int bigEndian;
+static int  systemWordSize = 0;
+static bool systemBigEndian;
 
 
 QDataStream::QDataStream()
 {
-    if ( wordSize == 0 )			// get system features
-	qSysInfo( &wordSize, &bigEndian );
+    if ( systemWordSize == 0 )			// get system features
+	qSysInfo( &systemWordSize, &systemBigEndian );
     dev = 0;					// no device set
+    byteorder = BigEndian;			// default byte order
     printable = FALSE;
+    noswap = systemBigEndian;
 }
 
 QDataStream::QDataStream( QIODevice *d )
 {
-    if ( wordSize == 0 )			// get system features
-	qSysInfo( &wordSize, &bigEndian );
+    if ( systemWordSize == 0 )			// get system features
+	qSysInfo( &systemWordSize, &systemBigEndian );
     dev = d;					// set device
+    byteorder = BigEndian;			// default byte order
     printable = FALSE;
+    noswap = systemBigEndian;
 }
 
 QDataStream::~QDataStream()
@@ -63,17 +67,27 @@ QDataStream::~QDataStream()
 }
 
 
+void QDataStream::setByteOrder( ByteOrder bo )
+{
+    byteorder = bo;
+    if ( byteorder == LittleEndian )
+	noswap = !systemBigEndian;
+    else
+	noswap = systemBigEndian;
+}
+
+
 // --------------------------------------------------------------------------
 // QDataStream read functions
 //
 
-static INT32 read_int_d7( QDataStream *s )	// read data7 int constant
+static INT32 read_int_ascii( QDataStream *s )	// read data7 int constant
 {
     register int n = 0;
     char buf[40];
     while ( TRUE ) {
 	buf[n] = s->device()->getch();
-	if ( buf[n] == '$' || n > 38 )		// $-terminator
+	if ( buf[n] == '\n' || n > 38 )		// $-terminator
 	    break;
 	n++;
     }
@@ -103,21 +117,14 @@ QDataStream &QDataStream::operator>>( INT16 &i )// read 16-bit signed int
 {
     CHECK_STREAM_PRECOND
     if ( printable )				// printable data
-	i = (INT16)read_int_d7( this );
+	i = (INT16)read_int_ascii( this );
     else
-    if ( bigEndian )				// no conversion needed
+
+    if ( noswap )				// no conversion needed
 	dev->readBlock( (char *)&i, sizeof(INT16) );
-    else {					// convert to little endian
-#if defined(UNIX)
+    else {					// swap bytes
 	dev->readBlock( (char *)&i, sizeof(INT16) );
-	i = (INT16)ntohs( i );
-#else
-	register unsigned char *p = (unsigned char *)(&i);
-	char x[2];
-	dev->readBlock( x, 2 );
-	*p++ = x[1];
-	*p = x[0];
-#endif
+	i = ((i >> 8) & 0xff) | ((i<< 8) & 0xff00);
     }
     return *this;
 }
@@ -127,23 +134,14 @@ QDataStream &QDataStream::operator>>( INT32 &i )// read 32-bit signed int
 {
     CHECK_STREAM_PRECOND
     if ( printable )				// printable data
-	i = read_int_d7( this );
+	i = read_int_ascii( this );
     else
-    if ( bigEndian )				// no conversion needed
+    if ( noswap )				// no conversion needed
 	dev->readBlock( (char *)&i, sizeof(INT32) );
-    else {					// convert to little endian
-#if defined(UNIX)
-	dev->readBlock( (char *)&i, sizeof(INT32) );
-	i = (INT32)ntohl( i );
-#else
+    else {					// swap bytes
 	register unsigned char *p = (unsigned char*)(&i);
-	char x[4];
-	dev->readBlock( x, 4 );
-	*p++ = x[3];
-	*p++ = x[2];
-	*p++ = x[1];
-	*p = x[0];
-#endif
+	dev->readBlock( (char *)p, 4 );
+	i = p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3];
     }
     return *this;
 }
@@ -167,13 +165,13 @@ QDataStream &QDataStream::operator>>( uint &i )	// read uinteger as UINT32
 }
 
 
-static double read_double_d7( QDataStream *s )	// read data7 double constant
+static double read_double_ascii( QDataStream *s )// read data7 double constant
 {
     register int n = 0;
     char buf[80];
     while ( TRUE ) {
 	buf[n] = s->device()->getch();
-	if ( buf[n] == '$' || n > 78 )		// $-terminator
+	if ( buf[n] == '\n' || n > 78 )		// $-terminator
 	    break;
 	n++;
     }
@@ -186,11 +184,11 @@ QDataStream &QDataStream::operator>>( float &f )// read 32-bit floating point
 {
     CHECK_STREAM_PRECOND
     if ( printable )				// printable data
-	f = (float)read_double_d7( this );
+	f = (float)read_double_ascii( this );
     else
-    if ( bigEndian )				// no conversion needed
+    if ( noswap )				// no conversion needed
 	dev->readBlock( (char *)&f, sizeof(float) );
-    else {					// convert to little endian
+    else {					// swap bytes
 	register unsigned char *p = (unsigned char *)(&f);
 	char x[4];
 	dev->readBlock( x, 4 );
@@ -207,11 +205,11 @@ QDataStream &QDataStream::operator>>( double &f)// read 64-bit floating point
 {
     CHECK_STREAM_PRECOND
     if ( printable )				// printable data
-	f = read_double_d7( this );
+	f = read_double_ascii( this );
     else
-    if ( bigEndian )				// no conversion needed
+    if ( noswap )				// no conversion needed
 	dev->readBlock( (char *)&f, sizeof(double) );
-    else {					// convert to little endian
+    else {					// swap bytes
 	register unsigned char *p = (unsigned char *)(&f);
 	char x[8];
 	dev->readBlock( x, 8 );
@@ -290,23 +288,15 @@ QDataStream &QDataStream::operator<<( INT16 i )	// write 16-bit signed int
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	char buf[16];
-	sprintf( buf, "%d$", i );
+	sprintf( buf, "%d\n", i );
 	dev->writeBlock( buf, strlen(buf) );
     }
     else
-    if ( bigEndian )				// no conversion needed
+    if ( noswap )				// no conversion needed
 	dev->writeBlock( (char *)&i, sizeof(INT16) );
-    else {					// convert to big endian
-#if defined(UNIX)
-	i = (INT16)htons( i );
-	dev->writeBlock( (char *)&i, sizeof(INT16) );
-#else
-	register puchar p = (puchar)(&i);
-	char x[2];
-	x[1] = *p++;
-	x[0] = *p;
-	dev->writeBlock( x, 2 );
-#endif
+    else {					// swap bytes
+	i = ((i >> 8) & 0xff) | ((i<< 8) & 0xff00);
+	dev->writeBlock( (char *)&i, 2 );
     }
     return *this;
 }
@@ -317,25 +307,16 @@ QDataStream &QDataStream::operator<<( INT32 i )	// write 32-bit signed int
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	char buf[16];
-	sprintf( buf, "%ld$", i );
+	sprintf( buf, "%ld\n", i );
 	dev->writeBlock( buf, strlen(buf) );
     }
     else
-    if ( bigEndian )				// no conversion needed
+    if ( noswap )				// no conversion needed
 	dev->writeBlock( (char *)&i, sizeof(INT32) );
-    else {					// convert to big endian
-#if defined(UNIX)
-	i = (INT32)htonl( i );
-	dev->writeBlock( (char *)&i, sizeof(INT32) );
-#else
+    else {					// swap bytes
 	register unsigned char *p = (unsigned char *)(&i);
-	char x[4];
-	x[3] = *p++;
-	x[2] = *p++;
-	x[1] = *p++;
-	x[0] = *p;
-	dev->writeBlock( x, 4 );
-#endif
+	i = p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3];
+	dev->writeBlock( (char *)p, 4 );
     }
     return *this;
 }
@@ -346,14 +327,14 @@ QDataStream &QDataStream::operator<<( float f )	// write 32-bit floating point
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	char buf[32];
-	sprintf( buf, "%g$", f );
+	sprintf( buf, "%g\n", f );
 	dev->writeBlock( buf, strlen(buf) );
     }
     else {
 	float g = f;				// fixes float-on-stack problem
-	if ( bigEndian )			// no conversion needed
+	if ( noswap )				// no conversion needed
 	    dev->writeBlock( (char *)&g, sizeof(float) );
-	else {					// convert to big endian
+	else {					// swap bytes
 	    register unsigned char *p = (unsigned char *)(&g);
 	    char x[4];
 	    x[3] = *p++;
@@ -372,14 +353,14 @@ QDataStream &QDataStream::operator<<( double f )// write 64-bit floating point
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	char buf[32];
-	sprintf( buf, "%g$", f );
+	sprintf( buf, "%g\n", f );
 	dev->writeBlock( buf, strlen(buf) );
     }
     else
-    if ( bigEndian )				// no conversion needed
+    if ( noswap )				// no conversion needed
 	dev->writeBlock( (char *)&f, sizeof(double) );
-    else {					// convert to big endian
-	register puchar p = (puchar)(&f);
+    else {					// swap bytes
+	register unsigned char *p = (unsigned char *)(&f);
 	char x[8];
 	x[7] = *p++;
 	x[6] = *p++;
