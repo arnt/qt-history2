@@ -138,10 +138,9 @@ void SettingsDialog::insertCategories()
     catListView->clear();
     catItemList.clear();
     
-    CheckListItem *all;
-    all = new CheckListItem( catListView, tr( "all" ), "all" );
-    checkItem( all );
-    catItemList.append( all );
+    allItem = new CheckListItem( catListView, tr( "all" ), "all" );
+    checkItem( allItem );
+    catItemList.append( allItem );
     
     makeCategoryList();
     
@@ -167,7 +166,7 @@ void SettingsDialog::insertCategories()
     while ( (item = pit.current()) != 0 ) {
 	++pit;
 	if( item->d == 0 ){
-	    listItem = new CheckListItem( all, item->sname, item->lname );    	    
+	    listItem = new CheckListItem( allItem, item->sname, item->lname ); 	    
 	    checkItem( listItem );
 	    catItemList.append( listItem );
 	    stack.push( listItem );
@@ -191,7 +190,7 @@ void SettingsDialog::insertCategories()
 	    }
 	}
     }        
-    all->setOpen( TRUE );
+    allItem->setOpen( TRUE );
     if ( !itemList.isEmpty() )
 	listItem->stateChange( FALSE );    
 }
@@ -283,7 +282,7 @@ void SettingsDialog::addCategory()
     if( cat.isEmpty() || cat.find( '/' ) > -1  )
 	return;
     
-    CheckListItem *item;
+    CheckListItem *item = allItem;
     item = item->getCurrentItem( catListView );
     
     if ( item == 0 )
@@ -299,7 +298,7 @@ void SettingsDialog::addCategory()
 
 void SettingsDialog::deleteCategory()
 {
-    CheckListItem *item;
+    CheckListItem *item = allItem;
     item = item->getCurrentItem( catListView );
     
     if ( item->getFullCategory().lower() == "all" ) {
@@ -398,7 +397,7 @@ QStringList SettingsDialog::getCheckedItemList()
 {
     QStringList list;    
     QPtrStack<stateListItem> stackState;
-    CheckListItem *ci;
+    CheckListItem *ci = allItem;
    
     QListViewItemIterator it( catListView );
     bool root = FALSE;

@@ -93,6 +93,7 @@ private:
     bool changed;
     QStringList pathList, catListAvail, catListSel;
     QPtrList<CheckListItem> catItemList;
+    CheckListItem *allItem;
 };
 
 #endif
