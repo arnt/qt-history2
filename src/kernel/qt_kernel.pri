@@ -15,7 +15,6 @@ kernel {
 		  $$KERNEL_H/qnamespace.h \
 		  $$KERNEL_H/qobject.h \
 		  $$KERNEL_H/qobjectdefs.h \
-		  $$KERNEL_H/qobjectdict.h \
 		  $$KERNEL_H/qprocess.h \
 		  $$KERNEL_H/qsignal.h \
 		  $$KERNEL_H/qsignalmapper.h \

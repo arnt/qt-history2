@@ -17,6 +17,7 @@
 
 #ifndef QT_H
 #include "qglist.h"
+#include "qlist.h"
 #endif // QT_H
 
 template<class type>
@@ -49,6 +50,11 @@ public:
     ~QPtrList()				{ clear(); }
     QPtrList<type> &operator=(const QPtrList<type> &l)
 			{ return (QPtrList<type>&)QGList::operator=(l); }
+
+    QPtrList( const QList<type *> &l );
+    QPtrList<type> &operator=(const QList<type *> &l);
+    operator QList<type *>();
+
     bool operator==( const QPtrList<type> &list ) const
     { return QGList::operator==( list ); }
     bool operator!=( const QPtrList<type> &list ) const
@@ -130,6 +136,32 @@ template<class type> inline void QPtrList<type>::deleteItem( QPtrCollection::Ite
 }
 
 template<class type>
+QPtrList<type>::QPtrList(const QList<type *> &l)
+    : QGList()
+{
+    for (int i = 0; i < l.size(); ++l)
+	append(l.at(i));
+}
+
+template<class type>
+QPtrList<type> &QPtrList<type>::operator=(const QList<type *> &l)
+{
+    QPtrList<type> pl(l);
+    *this = pl;
+    return *this;
+}
+
+template<class type>
+QPtrList<type>::operator QList<type *>()
+{
+    QList<type *> l;
+    for (QPtrList<type>::Iterator it = begin(); it != end(); ++it)
+	l.append(*it);
+    return l;
+}
+
+
+template<class type>
 class QPtrListIterator : public QGListIterator
 {
 public:
@@ -159,6 +191,5 @@ public:
     QPtrListIterator<type>& operator=(const QPtrListIterator<type>&it)
 			      { QGListIterator::operator=(it); return *this; }
 };
-
 
 #endif // QPTRLIST_H

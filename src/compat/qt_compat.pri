@@ -15,6 +15,7 @@ compat {
 		  $$COMPAT_H/qintcache.h \
 		  $$COMPAT_H/qintdict.h \
 		  $$COMPAT_H/qmemarray.h \
+		  $$COMPAT_H/qobjectdict.h \
 		  $$COMPAT_H/qptrcollection.h \
 		  $$COMPAT_H/qptrdict.h \
 		  $$COMPAT_H/qptrlist.h \
