@@ -268,10 +268,15 @@ void QFrame::setFrameStyle( int style )
     switch (fstyle & MShape) {
     case HLine:
 	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+	break;
     case VLine:
 	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ) );
+	break;
     default:
-	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+	// only reset if it was hline or vline
+	if ( sizePolicy().horData() == QSizePolicy::Minimum && sizePolicy().verData() == QSizePolicy::Fixed || 
+	     sizePolicy().horData() == QSizePolicy::Fixed && sizePolicy().verData() == QSizePolicy::Minimum )
+	    setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     }
     updateFrameWidth();
 }
@@ -511,7 +516,7 @@ QSizePolicy QFrame::sizePolicy() const
 {
     //### removeme 3.0
     return QWidget::sizePolicy();
-   
+
 }
 
 
