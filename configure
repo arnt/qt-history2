@@ -1261,7 +1261,7 @@ then
 	    -e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
     done
 
-    (cd $outpath/qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
+    (cd $outpath/qmake; /bin/sh -c "$MAKE" || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
 #stl must be way down here after qmake has been made, because the test itself uses qmake
