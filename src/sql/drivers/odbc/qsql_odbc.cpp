@@ -565,7 +565,7 @@ bool QODBCResult::fetch(int i)
 			    actualIdx );
     }
     if ( r != SQL_SUCCESS ){
-	return FALSE;
+ 	return FALSE;
     }
     setAt( i );
     return TRUE;
@@ -625,15 +625,16 @@ bool QODBCResult::fetchLast()
     SQLRETURN r;
     fieldCache.clear();
     nullCache.clear();
-    
+
     if ( isForwardOnly() ) {
+	// cannot seek to last row in forwardOnly mode, so we have to use brute force
 	int i = at();
 	while ( fetchNext() ) 
 	    ++i;
 	setAt( i );
 	return TRUE;
     }
-    
+
     r = SQLFetchScroll( d->hStmt,
 		       SQL_FETCH_LAST,
 		       0 );
