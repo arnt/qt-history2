@@ -16,8 +16,10 @@ class QCategoryBar;
 class QStyle;
 class QWidgetStack;
 
-class Frame : public QMainWindow {
+class Frame : public QMainWindow
+{
     Q_OBJECT
+
 public:
     Frame( QWidget *parent=0, const char *name=0 );
     void setCategories( const QPtrList<CategoryInterface> &l );
@@ -36,9 +38,9 @@ private:
     QWidget *createCategoryPage( CategoryInterface *c );
 
 private:
-    QString title;
     QCategoryBar *categoryBar;
     QWidgetStack *stack;
     QIntDict<QWidget> categoryPages;
     QPtrList<CategoryInterface> categories;
+
 };

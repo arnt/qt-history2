@@ -57,6 +57,16 @@
 
 #include "categoryinterface.h"
 
+static void qdemo_set_caption( CategoryInterface *c, int i )
+{
+    QWidget *w = qApp->mainWidget();
+    if ( !w )
+	return;
+    QString title = Frame::tr( "Qt Demo Collection" );
+    title += " - " + c->categoryName( i - c->categoryOffset() );
+    w->setCaption( title );
+}
+
 class WidgetCategory : public CategoryInterface
 {
 public:
@@ -77,7 +87,11 @@ public:
 	return QString::null;
     }
     QIconSet categoryIcon( int ) const { return QIconSet(); }
-    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void setCurrentCategory( int i ) {
+	create();
+	stack->raiseWidget( i );
+	qdemo_set_caption( this, i );
+    }
     void create() {
 	if ( created )
 	    return;
@@ -111,7 +125,11 @@ public:
 	return QString::null;
     }
     QIconSet categoryIcon( int ) const { return QIconSet(); }
-    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void setCurrentCategory( int i ) {
+	create();
+	stack->raiseWidget( i );
+	qdemo_set_caption( this, i );
+    }
     void create() {
 	if ( created )
 	    return;
@@ -148,7 +166,11 @@ public:
 	return QString::null;
     }
     QIconSet categoryIcon( int ) const { return QIconSet(); }
-    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void setCurrentCategory( int i ) {
+	create();
+	stack->raiseWidget( i );
+	qdemo_set_caption( this, i );
+    }
     void create() {
 	if ( created )
 	    return;
@@ -186,7 +208,11 @@ public:
 	return QString::null;
     }
     QIconSet categoryIcon( int ) const { return QIconSet(); }
-    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void setCurrentCategory( int i ) {
+	create();
+	stack->raiseWidget( i );
+	qdemo_set_caption( this, i );
+    }
     void create() {
 	if ( created )
 	    return;
@@ -222,7 +248,11 @@ public:
 	return QString::null;
     }
     QIconSet categoryIcon( int ) const { return QIconSet(); }
-    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void setCurrentCategory( int i ) {
+	create();
+	stack->raiseWidget( i );
+	qdemo_set_caption( this, i );
+    }
     void create() {
 	if ( created )
 	    return;
@@ -262,7 +292,11 @@ public:
 	return QString::null;
     }
     QIconSet categoryIcon( int ) const { return QIconSet(); }
-    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void setCurrentCategory( int i ) {
+	create();
+	stack->raiseWidget( i );
+	qdemo_set_caption( this, i );
+    }
     void create() {
 	if ( created )
 	    return;
@@ -294,7 +328,11 @@ public:
 	return QString::null;
     }
     QIconSet categoryIcon( int ) const { return QIconSet(); }
-    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void setCurrentCategory( int i ) {
+	create();
+	stack->raiseWidget( i );
+	qdemo_set_caption( this, i );
+    }
     void create() {
 	if ( created )
 	    return;
@@ -314,13 +352,10 @@ int main( int argc, char **argv )
     QString category;
     QApplication a( argc, argv );
 
-    for(int i = 1; i < argc-1; i++) {
-	if(!qstrcmp(argv[i], "-demo"))
-	    category = argv[++i];
-    }
-
     Frame::updateTranslators();
     Frame frame;
+    a.setMainWidget( &frame );
+
     QPtrList<CategoryInterface> categories;
     categories.append( new WidgetCategory( frame.widgetStack() ) );
     categories.append( new DatabaseCategory( frame.widgetStack() ) );
@@ -331,8 +366,6 @@ int main( int argc, char **argv )
     categories.append( new GameCategory( frame.widgetStack() ) );
     frame.setCategories( categories );
 
-
-    a.setMainWidget( &frame );
     frame.resize( 1000, 700 );
     frame.show();
 

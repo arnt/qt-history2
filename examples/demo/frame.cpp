@@ -33,10 +33,6 @@ static QTranslator *qt_translator = 0;
 Frame::Frame( QWidget *parent, const char *name )
     : QMainWindow( parent, name )
 {
-    title = tr( "Qt Demo Collection" );
-    setCaption( title );
-
-    // set up the menu bar
     QMenuBar *mainMenu = menuBar();
     QPopupMenu *fileMenu = new QPopupMenu( this, "file" );
     fileMenu->insertItem( tr( "&Exit" ), this, SLOT( close() ),
@@ -47,7 +43,8 @@ Frame::Frame( QWidget *parent, const char *name )
     QActionGroup *ag = new QActionGroup( this, 0 );
     ag->setExclusive( TRUE );
     QSignalMapper *styleMapper = new QSignalMapper( this );
-    connect( styleMapper, SIGNAL( mapped( const QString& ) ), this, SLOT( setStyle( const QString& ) ) );
+    connect( styleMapper, SIGNAL( mapped( const QString& ) ),
+	     this, SLOT( setStyle( const QString& ) ) );
 
     QStringList list = QStyleFactory::keys();
     list.sort();
