@@ -860,6 +860,7 @@ QX11PaintEngine::QX11PaintEngine()
     if (!X11->use_xrender) {
         gccaps &= ~AlphaFillPolygon;
         gccaps &= ~AlphaPixmap;
+        gccaps &= ~FillAntialiasing;
     }
 }
 
@@ -880,6 +881,7 @@ QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
     if (!X11->use_xrender) {
         gccaps &= ~AlphaFillPolygon;
         gccaps &= ~AlphaPixmap;
+        gccaps &= ~FillAntialiasing;
     }
 }
 
