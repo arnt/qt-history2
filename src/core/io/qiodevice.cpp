@@ -293,6 +293,10 @@ QIODevice::~QIODevice()
 {
 }
 
+/*!
+    Returns true if this device is sequential; otherwise returns
+    false.
+*/
 bool QIODevice::isSequential() const
 {
     return false;
@@ -470,6 +474,11 @@ QByteArray QIODevice::readLine(Q_LONGLONG maxlen)
 
     tmp.resize(readSoFar);
     return tmp;
+}
+
+bool QIODevice::canReadLine() const
+{
+    return false;
 }
 
 bool QIODevice::getChar(char *c)

@@ -79,12 +79,13 @@ public:
     QByteArray readAll();
     Q_LONGLONG readLine(char *data, Q_LONGLONG maxlen);
     QByteArray readLine(Q_LONGLONG maxlen = 0);
-    bool getChar(char *c);
+    virtual bool canReadLine() const;
 
     Q_LONGLONG write(const char *data, Q_LONGLONG len);
     Q_LONGLONG write(const QByteArray &data);
-    bool putChar(char c);
 
+    bool getChar(char *c);
+    bool putChar(char c);
     void ungetChar(char c);
 
     QString errorString() const;
