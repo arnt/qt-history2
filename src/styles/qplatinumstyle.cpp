@@ -1087,8 +1087,93 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 					      SubControl sc,
 					      void ** data ) const
 {
-    return QWindowsStyle::querySubControlMetrics( control, widget, sc, data );
-}
+    QRect rect;
+    switch( control ) {
+    case CC_ScrollBar:
+	{
+	    const QScrollBar *sb;
+	    sb = (const QScrollBar *)widget;
+	    int sliderStart = 0;
+	    int sbextent = pixelMetric( PM_ScrollBarExtent, widget );
+	    int maxlen = ((sb->orientation() == Qt::Horizontal) ?
+			  sb->width() : sb->height()) - ( sbextent * 2 );
+	
+	    int sliderlen;
+	    if ( data )
+		sliderStart = *((int*) data[0]);
+	    else
+		sliderStart = sbextent;
+	
+	    // sliderStart += sbextent;
+	
+	    // calculate length
+	    if ( sb->maxValue() != sb->minValue() ) {
+		uint range = sb->maxValue() - sb->minValue();
+		sliderlen = ( sb->pageStep() * maxlen ) /
+			    ( range + sb->pageStep() );
+		
+		int slidermin = pixelMetric( PM_ScrollBarSliderMin, widget );
+		if ( sliderlen < slidermin || range > INT_MAX / 2 )
+		    sliderlen = slidermin;
+		if ( sliderlen > maxlen )
+		    sliderlen = maxlen;
+	    } else
+		sliderlen = maxlen;
+	
+
+	    switch ( sc ) {
+	    case SC_ScrollBarSubLine:
+		if ( sb->orientation() == Qt::Horizontal )
+		    rect.setRect( sb->width() - 2 * sbextent, 0,
+				  sbextent, sbextent );
+		else
+		    rect.setRect( 0, sb->height() - 2 * sbextent,
+				  sbextent, sbextent );
+		break;
+	    case SC_ScrollBarAddLine:
+		if ( sb->orientation() == Qt::Horizontal )
+		    rect.setRect( sb->width() - sbextent, 0, sbextent,
+				  sbextent);
+		else
+		    rect.setRect(0, sb->height() - sbextent, sbextent,
+				 sbextent);
+		break;
+	    case SC_ScrollBarSubPage:
+		if ( sb->orientation() == Qt::Horizontal )
+		    rect.setRect( 0, 0, sliderStart, sbextent );
+		else
+		    rect.setRect( 0, 0, sbextent, sliderStart );
+		break;
+	    case SC_ScrollBarAddPage:
+		if ( sb->orientation() == Qt::Horizontal )
+		    rect.setRect( sliderStart + sliderlen, 0,
+				  maxlen - sliderStart
+				  - sliderlen, sbextent );
+		else
+		    rect.setRect( 0, sliderStart + sliderlen,
+				  sbextent, maxlen - sliderStart - sliderlen );
+		break;
+	    case SC_ScrollBarGroove:
+		if ( sb->orientation() == Qt::Horizontal )
+		    rect.setRect( 0, 0, sb->width() - sbextent * 2,
+				  sb->height() );
+		else
+		    rect.setRect( 0, 0, sb->width(),
+				  sb->height() - sbextent * 2 );
+		break;
+	    default:
+		rect = QWindowsStyle::querySubControlMetrics( control, widget,
+							  sc, data );
+		break;
+	    }
+	    break;
+	}	
+	default:
+	    rect = QWindowsStyle::querySubControlMetrics( control, widget,
+							  sc, data );
+	}
+	return rect;
+    }
 
 int QPlatinumStyle::pixelMetric( PixelMetric metric,
 				 const QWidget *widget ) const
@@ -1113,6 +1198,7 @@ int QPlatinumStyle::pixelMetric( PixelMetric metric,
 	break;
     case PM_SliderLength:
 	ret = 17;
+	break;
     default:
 	ret = QWindowsStyle::pixelMetric( metric, widget );
 	break;
@@ -1551,7 +1637,7 @@ QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2) const
 // 	sliderR .setRect( b, sliderStart, sliderW, sliderLength );
 //     }
 
-//     bool maxedOut = (sb->maxValue() == sb->minValue());
+//     bool maxedOut = (sb->maxValue() == sb->minValue());if
 //     if ( controls & AddLine ) {
 // 	drawBevelButton( p, addB.x(), addB.y(),
 // 			 addB.width(), addB.height(), g,
@@ -1654,186 +1740,6 @@ void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 	    }
 	}
 }
-
-// /*! \reimp */
-
-// void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
-// 				      const QColorGroup &g, bool /* sunken */,
-// 				      bool editable,
-// 				      bool /* enabled */,
-// 				      const QBrush *fill )
-// {
-//     QPen oldPen = p->pen();
-
-
-//     p->fillRect(x+2, y+2, w-4, h-4,fill?*fill:g.brush( QColorGroup::Button ));
-//     // the bright side
-//     p->setPen(g.shadow());
-//     p->drawLine(x, y, x+w-1, y);
-//     p->drawLine(x, y, x, y+h-1);
-
-//     p->setPen(g.light());
-//     p->drawLine(x+1, y+1, x+w-2, y+1);
-//     p->drawLine(x+1, y+1, x+1, y+h-2);
-
-
-// 	 // the dark side!
-
-
-//     p->setPen(g.mid());
-//     p->drawLine(x+2, y+h-2 ,x+w-2, y+h-2);
-//     p->drawLine(x+w-2, y+2, x+w-2, y+h-2);
-
-//     p->setPen(g.shadow());
-//     p->drawLine(x+1, y+h-1,x+w-1, y+h-1);
-//     p->drawLine(x+w-1, y, x+w-1, y+h-1);
-
-
-//     // top left corner:
-//     p->setPen(g.background());
-//     p->drawPoint(x, y);
-//     p->drawPoint(x+1, y);
-//     p->drawPoint(x, y+1);
-//     p->setPen(g.shadow());
-//     p->drawPoint(x+1, y+1);
-//     p->setPen(white);
-//     p->drawPoint(x+3, y+3);
-//     // bottom left corner:
-//     p->setPen(g.background());
-//     p->drawPoint(x, y+h-1);
-//     p->drawPoint(x+1, y+h-1);
-//     p->drawPoint(x, y+h-2);
-//     p->setPen(g.shadow());
-//     p->drawPoint(x+1, y+h-2);
-//     // top right corner:
-//     p->setPen(g.background());
-//     p->drawPoint(x+w-1, y);
-//     p->drawPoint(x+w-2, y);
-//     p->drawPoint(x+w-1, y+1);
-//     p->setPen(g.shadow());
-//     p->drawPoint(x+w-2, y+1);
-//     // bottom right corner:
-//     p->setPen(g.background());
-//     p->drawPoint(x+w-1, y+h-1);
-//     p->drawPoint(x+w-2, y+h-1);
-//     p->drawPoint(x+w-1, y+h-2);
-//     p->setPen(g.shadow());
-//     p->drawPoint(x+w-2, y+h-2);
-//     p->setPen(g.dark());
-//     p->drawPoint(x+w-3, y+h-3);
-// //     p->setPen(g.mid());
-// //     p->drawPoint(x+w-4, y+h-4);
-
-
-// //     drawButton(p, w-2-16,2,16,h-4, g, sunken );
-
-
-//     // now the arrow button
-
-//     {
-// 	int xx;
-// 	if( QApplication::reverseLayout() )
-// 	    xx = x;
-// 	else
-// 	    xx = x+w-20;
-// 	int yy = y;
-// 	int ww = 20;
-// 	int hh = h;
-// 	// the bright side
-
-// 	 p->setPen(g.mid());
-// 	 p->drawLine(xx, yy+2, xx, yy+hh-3);
-
-// 	p->setPen(g.button());
-// 	p->drawLine(xx+1, yy+1, xx+ww-2, yy+1);
-// 	p->drawLine(xx+1, yy+1, xx+1, yy+hh-2);
-
-// 	p->setPen(g.light());
-// 	p->drawLine(xx+2, yy+2, xx+2, yy+hh-2);
-// 	p->drawLine(xx+2, yy+2, xx+ww-2, yy+2);
-
-
-// 	// the dark side!
-
-// 	p->setPen(g.mid());
-// 	p->drawLine(xx+3, yy+hh-3 ,xx+ww-3, yy+hh-3);
-// 	p->drawLine(xx+ww-3, yy+3, xx+ww-3, yy+hh-3);
-
-// 	p->setPen(g.dark());
-// 	p->drawLine(xx+2, yy+hh-2 ,xx+ww-2, yy+hh-2);
-// 	p->drawLine(xx+ww-2, yy+2, xx+ww-2, yy+hh-2);
-
-// 	p->setPen(g.shadow());
-// 	p->drawLine(xx+1, yy+hh-1,xx+ww-1, yy+hh-1);
-// 	p->drawLine(xx+ww-1, yy, xx+ww-1, yy+hh-1);
-
-// 	// top right corner:
-// 	p->setPen(g.background());
-// 	p->drawPoint(xx+ww-1, yy);
-// 	p->drawPoint(xx+ww-2, yy);
-// 	p->drawPoint(xx+ww-1, yy+1);
-// 	p->setPen(g.shadow());
-// 	p->drawPoint(xx+ww-2, yy+1);
-// 	// bottom right corner:
-// 	p->setPen(g.background());
-// 	p->drawPoint(xx+ww-1, yy+hh-1);
-// 	p->drawPoint(xx+ww-2, yy+hh-1);
-// 	p->drawPoint(xx+ww-1, yy+hh-2);
-// 	p->setPen(g.shadow());
-// 	p->drawPoint(xx+ww-2, yy+hh-2);
-// 	p->setPen(g.dark());
-// 	p->drawPoint(xx+ww-3, yy+hh-3);
-// 	p->setPen(g.mid());
-// 	p->drawPoint(xx+ww-4, yy+hh-4);
-
-// 	// and the arrows
-// 	p->setPen( g.foreground() );
-// 	QPointArray a;
-// 	a.setPoints( 7, -3,1, 3,1, -2,0, 2,0, -1,-1, 1,-1, 0,-2 );
-// 	a.translate( xx+ww/2, yy+hh/2-3 );
-// 	p->drawLineSegments( a, 0, 3 );		// draw arrow
-// 	p->drawPoint( a[6] );
-// 	a.setPoints( 7, -3,-1, 3,-1, -2,0, 2,0, -1,1, 1,1, 0,2 );
-// 	a.translate( xx+ww/2, yy+hh/2+2 );
-// 	p->drawLineSegments( a, 0, 3 );		// draw arrow
-// 	p->drawPoint( a[6] );
-
-//     }
-
-
-//     if (editable) {
-// 	QRect r = comboButtonRect(x, y, w, h);
-// 	r.setRect( r.left()-1, r.top()-1, r.width()+2, r.height()+2 );
-// 	qDrawShadePanel( p, r, g, TRUE, 2, 0 );
-//     }
-//     p->setPen( oldPen );
-
-// }
-
-
-// /*! \reimp */
-
-// QRect QPlatinumStyle::comboButtonRect( int x, int y, int w, int h) const
-// {
-//     QRect r(x+3, y+3, w-6-16, h-6);
-//     if( QApplication::reverseLayout() )
-// 	r.moveBy( 16, 0 );
-//     return r;
-// }
-
-// /*! \reimp */
-
-// QRect QPlatinumStyle::comboButtonFocusRect( int x, int y, int w, int h) const
-// {
-//     return QRect(x+4, y+4, w-8-16, h-8);
-// }
-
-
-// /*! \reimp */
-// int QPlatinumStyle::sliderLength() const
-// {
-//     return 17;
-// }
 
 // /*! \reimp */
 // void QPlatinumStyle::drawSlider( QPainter *p,
@@ -2023,11 +1929,4 @@ void QPlatinumStyle::polishPopupMenu( QPopupMenu* p)
     QWindowsStyle::polishPopupMenu( p );
 }
 
-// /*!\reimp
-//  */
-// void QPlatinumStyle::getButtonShift( int &x, int &y) const
-// {
-//     x = 0;
-//     y = 0;
-// }
 #endif
