@@ -33,7 +33,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <stdio.h>
-
+#include "wglext.h"
 
 GLInfo::GLInfo(QWidget* parent, const char* name)
     : QDialog(parent, name)
@@ -46,25 +46,26 @@ GLInfo::GLInfo(QWidget* parent, const char* name)
     QSplitter *sp = new QSplitter( Qt::Vertical, this, "splitter" );
     QVBoxLayout *layout = new QVBoxLayout(this);
     infoView = new QTextView( sp, "infoView" );
+    infoView->setTextFormat( Qt::PlainText );
     layout->addWidget( sp );
  
     infoList = new QListView( sp, "infoList" );
-    infoList->addColumn( trUtf8( "Nr", "" ) );
+    infoList->addColumn( trUtf8( "Id", "" ) );
     infoList->addColumn( trUtf8( "Colorbits", "" ) );
     infoList->addColumn( trUtf8( "Draw to", "" ) );
     infoList->addColumn( trUtf8( "Transparent", "" ) );
-    infoList->addColumn( trUtf8( "buff size", "" ) );
-    infoList->addColumn( trUtf8( "level", "" ) );
-    infoList->addColumn( trUtf8( "render type", "" ) );
+    infoList->addColumn( trUtf8( "Buff size", "" ) );
+    infoList->addColumn( trUtf8( "Level", "" ) );
+    infoList->addColumn( trUtf8( "Render Type", "" ) );
     infoList->addColumn( trUtf8( "DB", "" ) );
-    infoList->addColumn( trUtf8( "stereo", "" ) );
+    infoList->addColumn( trUtf8( "Stereo", "" ) );
     infoList->addColumn( trUtf8( "R sz", "" ) );
     infoList->addColumn( trUtf8( "G sz", "" ) );
     infoList->addColumn( trUtf8( "B sz", "" ) );
     infoList->addColumn( trUtf8( "A sz", "" ) );
-    infoList->addColumn( trUtf8( "aux buff", "" ) );
-    infoList->addColumn( trUtf8( "depth", "" ) );
-    infoList->addColumn( trUtf8( "stencil", "" ) );
+    infoList->addColumn( trUtf8( "Aux Buff", "" ) );
+    infoList->addColumn( trUtf8( "Depth", "" ) );
+    infoList->addColumn( trUtf8( "Stencil", "" ) );
     infoList->addColumn( trUtf8( "R accum", "" ) );
     infoList->addColumn( trUtf8( "G accum", "" ) );
     infoList->addColumn( trUtf8( "B accum", "" ) );
@@ -73,7 +74,6 @@ GLInfo::GLInfo(QWidget* parent, const char* name)
     infoList->addColumn( trUtf8( "MS bufs", "" ) );
     infoList->setSelectionMode( QListView::Extended );
     infoList->setAllColumnsShowFocus( TRUE );
-//     layout->addWidget( infoList, 10 );
     
     QHBoxLayout *buttonLayout = new QHBoxLayout( 0 );
     layout->addLayout( buttonLayout );
@@ -97,61 +97,35 @@ GLInfo::GLInfo(QWidget* parent, const char* name)
         }
         infoList->insertItem(item);
     }
-};
+}
 
 QString GLInfo::getText()
 {
-    int   i;
-    char* s;
-    char  t[80];
-    char* p;
     HDC dc;
 
     glw->makeCurrent();
-
-    infotext->sprintf("%sdisplay: N/A\n"
-		      "server wgl vendor string: N/A\n"
-		      "server wgl version string: N/A\n"
-		      "server wgl extensions (WGL_): N/A\n"
-		      "client wgl version: N/A\n"
-		      "client wgl extensions (WGL_): none\n"
-		      "OpenGL vendor string: %s\n", (const char*)*infotext, 
-		      ((const char*)glGetString(GL_VENDOR)));
-    infotext->sprintf("%sOpenGL renderer string: %s\n", (const char*)*infotext, 
-		      glGetString(GL_RENDERER));
-    infotext->sprintf("%sOpenGL version string: %s\n", (const char*)*infotext, 
-		      glGetString(GL_VERSION));
-    infotext->sprintf("%sOpenGL extensions (GL_): \n", (const char*)*infotext);
-
-
-    /* do the magic to separate all extensions with comma's, except
-       for the last one that _may_ terminate in a space. */
-    i = 0;
-    s = (char*)glGetString(GL_EXTENSIONS);
-    t[79] = '\0';
-    while(*s) {
-        t[i++] = *s;
-	if(*s == ' ') {
-	    if (*(s+1) != '\0') {
-	        t[i-1] = ',';
-		t[i] = ' ';
-		p = &t[i++];
-	    } else {       // zoinks! last one terminated in a space! //
-	        t[i-1] = '\0';
-	    }
-	}
-	if(i > 80 - 5) {
-	    *p = t[i] = '\0';
-	    infotext->sprintf("%s    %s\n", (const char*)*infotext, t);
-	    p++;
-	    i = strlen(p);
-	    strcpy(t, p);
-	}
-	s++;
+    // get hold of WGL extensions
+    PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB = 
+	(PFNWGLGETEXTENSIONSSTRINGARBPROC) wglGetProcAddress("wglGetExtensionsStringARB");
+    QString wglExts;
+    if ( wglGetExtensionsStringARB ) {
+	wglExts = (char *) wglGetExtensionsStringARB( wglGetCurrentDC() );
+	wglExts.replace( ' ', '\n' );
     }
-    t[i] = '\0';
-    infotext->sprintf("%s    %s.", (const char*)*infotext, t);
-
+    infotext->sprintf( "OpenGL vendor string: %s\n", (const char*) glGetString(GL_VENDOR) );
+    infotext->sprintf( "%sOpenGL renderer string: %s\n",
+		       infotext->latin1(), 
+		       glGetString(GL_RENDERER));
+    infotext->sprintf( "%sOpenGL version string: %s\n",
+		       infotext->latin1(), 
+		       glGetString(GL_VERSION));
+    infotext->sprintf( "%s\nWGL extension version: %.1f\nWGL extensions (WGL_):\n%s\n",
+		       infotext->latin1(),
+		       (float) WGL_WGLEXT_VERSION,
+		       !wglExts.isEmpty() ? wglExts.latin1() : "None" );
+    infotext->sprintf("%sOpenGL extensions (GL_): \n", infotext->latin1() );
+    *infotext += QString( (char *) glGetString( GL_EXTENSIONS ) ).replace( ' ', '\n' );
+    
     dc = GetDC( winId() );
     VisualInfo( dc );	
     ReleaseDC( winId(), dc );
@@ -272,7 +246,6 @@ void GLInfo::VisualInfo(HDC hDC)
 
 	/* no multisample in Win32 */
 	str.sprintf("%s0 0", (const char*)str);
-
 	viewlist->append(str);
     }
 }
