@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#52 $
 **
 ** Implementation of QLabel widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#52 $");
 
 #if QT_VERSION == 200
 #error "Remove QLabel dict!"
@@ -174,7 +174,7 @@ QLabel::QLabel( QWidget *buddy,  const char *text,
 QLabel::~QLabel()
 {
     delete lpixmap;
-    QLabel_Private * d;
+    QLabel_Private * d = 0;
     if ( qlabel_extraStuff && (d=qlabel_extraStuff->find( (long)this )) ) {
 	qlabel_extraStuff->take( (long)this );
 	delete d;
