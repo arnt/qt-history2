@@ -3442,31 +3442,45 @@ QSize QWidget::frameSize() const
     return crect.size();
 }
 
+/*! 
+    \internal
+
+    Recursive function that updates \a widget and all its children,
+    if they have some parent background origin.
+*/
+static void qt_update_bg_recursive( QWidget *widget )
+{
+    if ( !widget || widget->isHidden() || widget->backgroundOrigin() == QWidget::WidgetOrigin || !widget->backgroundPixmap() )
+	return;
+
+    const QObjectList *lst = widget->children();
+   
+    if ( lst ) {
+	QObjectListIterator it( *lst );
+	QWidget *widget;
+	while ( (widget = (QWidget*)it.current()) ) {
+	    ++it;
+	    if ( widget->isWidgetType() && !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) )
+		    qt_update_bg_recursive( widget );
+	}
+    }
+    QApplication::postEvent( widget, new QPaintEvent( widget->visibleRect(), !widget->testWFlags(Qt::WRepaintNoErase) ) );
+}
+
 /*!
     \overload
 
     This corresponds to move( QSize(\a x, \a y) ).
 */
+
 void QWidget::move( int x, int y )
 {
     QPoint oldp(pos());
     internalSetGeometry( x + geometry().x() - QWidget::x(),
 			 y + geometry().y() - QWidget::y(),
 			 width(), height(), TRUE );
-    if ( isVisible() && !isTopLevel() && !testWFlags(Qt::WSubWindow) && oldp != pos() ) {
-	QObjectList lst;
-	if(children())
-	    lst = *children();
-	lst.append(this);
-	for(QObject *object = lst.first(); object; object = lst.next()) {
-	    if ( object->isWidgetType() ) {
-		QWidget *widget = (QWidget*)object;
-		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) &&
-		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() )
-		    widget->update();
-	    }
-	}
-    }
+    if ( isVisible() && oldp != pos() )
+	qt_update_bg_recursive( this );
 }
 
 /*!
@@ -3490,20 +3504,8 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     QPoint oldp( pos( ));
     internalSetGeometry( x, y, w, h, TRUE );
     setWState( WState_Resized );
-    if ( isVisible() && !isTopLevel() && !testWFlags(Qt::WSubWindow) && oldp != pos() ) {
-	QObjectList lst;
-	if(children())
-	    lst = *children();
-	lst.append(this);
-	for(QObject *object = lst.first(); object; object = lst.next()) {
-	    if ( object->isWidgetType() ) {
-		QWidget *widget = (QWidget*)object;
-		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) &&
-		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() )
-		    widget->update();
-	    }
-	}
-    }
+    if ( isVisible() && oldp != pos() )
+	qt_update_bg_recursive( this );
 }
 
 /*!
