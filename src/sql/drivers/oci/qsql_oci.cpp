@@ -26,6 +26,12 @@
 static const ub2 CSID_UTF8 = 871; // UTF8 not defined in Oracle 8 libraries
 static const ub1 CSID_NCHAR = SQLCS_NCHAR;
 
+#ifdef OCI_UTF16ID
+static const ub2 CSID_UTF16 = OCI_UTF16ID;
+#else
+static const ub2 CSID_UTF16 = 0;
+#endif
+
 QByteArray qMakeOraDate( const QDateTime& dt );
 QDateTime qMakeDate( const char* oraDate );
 QString qOraWarn( const QOCIPrivate* d );
@@ -76,6 +82,40 @@ public:
 	return (sb4)str.length();
     }
 
+    void setCharset( OCIBind* hbnd )
+    {
+	int r = 0;
+	
+#ifdef QOCI_USES_VERSION_9
+	if ( serverVersion > 8 && !CSID_UTF16 ) {
+	    
+	    r = OCIAttrSet( (void*)hbnd,
+			    OCI_HTYPE_BIND,
+			    (void*) &CSID_NCHAR,
+			    (ub4) 0,
+			    (ub4) OCI_ATTR_CHARSET_FORM,
+			    err );
+	    
+#ifdef QT_CHECK_RANGE
+	    if ( r != 0 )
+		qOraWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_FORM: ", this );
+#endif
+	}
+#endif //QOCI_USES_VERSION_9
+	
+	const ub2* csid = utf16bind ? &CSID_UTF16 : &CSID_UTF8;
+	r = OCIAttrSet( (void*)hbnd,
+			OCI_HTYPE_BIND,
+			(void*) &csid,
+			(ub4) 0,
+			(ub4) OCI_ATTR_CHARSET_ID,
+			err );
+#ifdef QT_CHECK_RANGE
+	if ( r != 0 )
+	    qOraWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", this );
+#endif
+    }
+    
     int bindValues( QVector<QVariant>& values, QPtrList<QVirtualDestructor> & tmpStorage )
     {
 	int r = OCI_SUCCESS;	
@@ -134,13 +174,7 @@ public:
 				      (str->length() + 1) * sizeof(QChar), // number of bytes + 0 term. scan limit
 				      SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 				      (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-		    ub2 csid = OCI_UTF16ID;
-		    r = OCIAttrSet( (dvoid*)hbnd,
-				    OCI_HTYPE_BIND,
-				    (dvoid*) &csid,
-				    (ub4) 0,
-				    (ub4) OCI_ATTR_CHARSET_ID,
-				    err );
+		    setCharset( hbnd );
 		    break; }
 	    }
 	}
