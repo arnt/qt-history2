@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#14 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#14 $";
 #endif
 
 
@@ -87,10 +87,26 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
 #endif
 	return;
     }
-    GC        gc = qXGetTempGC();
+
+    bool copy_plane = FALSE;
+    bool mono = FALSE;
+
+    if ( ts == PDT_PIXMAP )
+	copy_plane = ((QPixMap*)this)->depth() == 1;
+    if ( td == PDT_PIXMAP ) {
+	bool single_plane = ((QPixMap*)dest)->depth() == 1;
+	if ( single_plane && !copy_plane ) {	
+#if defined(CHECK_RANGE)
+		warning( "QPaintDevice::bitBlt: Incompatible destination pixmap" );
+#endif
+		return;			// dest is 1-bit pixmap, source is not
+	}
+	mono = copy_plane && single_plane;
+	copy_plane ^= single_plane;
+    }
+    GC        gc = qXGetTempGC( mono );
     XGCValues gcvals;
-    ulong     gcflags = 0;
-    bool      copy_plane  = FALSE;
+    ulong     gcflags = GCBackground | GCForeground;
 
     if ( rop != CopyROP ) {			// use non-default ROP code
 	gcflags |= GCFunction;
@@ -98,25 +114,15 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
     }
     if ( td == PDT_WIDGET ) {			// set GC colors
 	QWidget *w = (QWidget *)dest;
-	gcflags |= GCBackground | GCForeground;
 	gcvals.background = w->backgroundColor().pixel();
 	gcvals.foreground = w->foregroundColor().pixel();
     }
-    if ( gcflags != 0 )
-	XChangeGC( dpy, gc, gcflags, &gcvals );
-
-    if ( ts == PDT_PIXMAP )
-	copy_plane = ((QPixMap*)this)->depth() == 1;
-    if ( td == PDT_PIXMAP ) {
-	bool singleplane = ((QPixMap*)dest)->depth() == 1;
-	if ( singleplane && !copy_plane ) {	
-#if defined(CHECK_RANGE)
-		warning( "QPaintDevice::bitBlt: Incompatible destination pixmap" );
-#endif
-		return;			// dest is 1-bit pixmap, source is not
-	}
-	copy_plane ^= singleplane;
+    else {
+	gcvals.background = white.pixel();
+	gcvals.foreground = black.pixel();
     }
+    XChangeGC( dpy, gc, gcflags, &gcvals );
+
     if ( copy_plane )
 	XCopyPlane( dpy, hd, dest->hd, gc, sx, sy, sw, sh, dx, dy, 1 );
     else
