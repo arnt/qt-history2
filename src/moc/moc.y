@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#216 $
+** $Id: //depot/qt/main/src/moc/moc.y#217 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2022,8 +2022,8 @@ int generateEnums()
     for ( QListIterator<Enum> it( enums ); it.current(); ++it, ++i ) {
 	fprintf( out, "    enum_tbl[%i].name = \"%s\";\n", i, (const char*)it.current()->name );
 	fprintf( out, "    enum_tbl[%i].count = %u;\n", i, it.current()->count() );
-	fprintf( out, "    enum_tbl[%i].items = QMetaObject::new_metaenum_item( %i );\n",
-		 i,(const char*)it.current()->count() );
+	fprintf( out, "    enum_tbl[%i].items = QMetaObject::new_metaenum_item( %u );\n",
+		 i, it.current()->count() );
 
 	if ( it.current()->set )
 		fprintf( out, "    enum_tbl[%i].set = TRUE;\n", i );
@@ -2404,28 +2404,25 @@ int generateProps()
 	    if ( it.current()->getfunc ) {
 		fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n",
 			 Prop_Num, count, Prop_Num, count,
-			 (const char*)className, (const char*)it.current()->getfunc->name);
+			 (const char*)className, (const char*)it.current()->getfunc->name );
 		fprintf( out, "    om%d_t%d ov%d_%d = (om%d_t%d)v%d_%d;\n",
-			 Prop_Num, count, Prop_Num, count, Prop_Num, count, Prop_Num, count,
-			 (const char*)className, (const char*)it.current()->getfunc->name);
+			 Prop_Num, count, Prop_Num, count, Prop_Num, count, Prop_Num, count );
 	    }
 	    ++count;
 	    if ( it.current()->setfunc ) {
 		fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n",
 			 Prop_Num, count, Prop_Num, count,
-			 (const char*)className, (const char*)it.current()->setfunc->name);
+			 (const char*)className, (const char*)it.current()->setfunc->name );
 		fprintf( out, "    om%d_t%d ov%d_%d = (om%d_t%d)v%d_%d;\n",
-			 Prop_Num, count, Prop_Num, count, Prop_Num, count, Prop_Num, count,
-			 (const char*)className, (const char*)it.current()->setfunc->name);
+			 Prop_Num, count, Prop_Num, count, Prop_Num, count, Prop_Num, count );
 	    }
 	    ++count;
 	    if ( it.current()->resetfunc ) {
 		fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n",
 			 Prop_Num, count, Prop_Num, count,
-			 (const char*)className, (const char*)it.current()->resetfunc->name);
+			 (const char*)className, (const char*)it.current()->resetfunc->name );
 		fprintf( out, "    om%d_t%d ov%d_%d = (om%d_t%d)v%d_%d;\n",
-			 Prop_Num, count, Prop_Num, count, Prop_Num, count, Prop_Num, count,
-			 (const char*)className, (const char*)it.current()->resetfunc->name);
+			 Prop_Num, count, Prop_Num, count, Prop_Num, count, Prop_Num, count );
 	    }
 	    ++count;
 	}
@@ -2563,7 +2560,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#216 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#217 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
