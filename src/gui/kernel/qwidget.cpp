@@ -37,6 +37,9 @@
 #include "qt_windows.h"
 #include "qinputcontext_p.h"
 #endif
+#ifdef Q_WS_MAC
+# include "qt_mac_p.h"
+#endif
 #if defined(Q_WS_X11)
 #include "qinputcontext.h"
 #endif
@@ -3279,6 +3282,14 @@ bool QWidget::isActiveWindow() const
     if(tlw == qApp->activeWindow() || (isVisible() && tlw->isPopup()))
         return true;
 #ifdef Q_WS_MAC
+    { //check process 
+        Boolean compare;
+        ProcessSerialNumber current, front;
+        GetCurrentProcess(&current);
+        GetFrontProcess(&front);
+        if(SameProcess(&current, &front, &compare) == noErr && !compare)
+            return false;
+    }
     extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
     if(qt_mac_is_macdrawer(tlw) &&
        tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
