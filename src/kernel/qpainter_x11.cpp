@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#182 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#183 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#182 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#183 $")
 
 
 /*****************************************************************************
@@ -2775,9 +2775,9 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		    if ( *p != '&' && isprint(*p) )
 			cc = PREFIX | *p;	// use prefix char
 		}
+	    } else {
+		cc = *(unsigned char *)p;
 	    }
-	    else
-		cc = *p;
 	    cw = CWIDTH( cc & 0xff );
 	}
 
