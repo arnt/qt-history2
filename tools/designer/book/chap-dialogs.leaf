@@ -26,7 +26,7 @@ slot so that we can make it add a color.
 Click \Menu{Edit|Connections} to invoke the \Widget{View and Edit
 Connections} dialog. Click \Button{New} to create a new connection.
 Change the Sender to "editAddAction", the signal to "activated()" and
-the reciever to "MainForm". We need to create a new slot to connect
+the receiver to "MainForm". We need to create a new slot to connect
 to. Click \Button{Edit Slots} to invoke the \Widget{Edit Functions}
 dialog. Change the slot's name to "editAdd()", then click \OK. Now
 change the slot we connect to "editAdd()", then click \OK to close the

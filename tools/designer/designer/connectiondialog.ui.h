@@ -199,9 +199,9 @@ void ConnectionDialog::okClicked()
 	if ( !conn.sender ) // if no sender widget, find sender action
 	    conn.sender = MainWindow::self->formWindow()->findAction( c->senderItem()->currentText() );
 
-	// find reciever widget
+	// find receiver widget
 	conn.receiver = MainWindow::self->formWindow()->child( c->receiverItem()->currentText() );
-	if ( !conn.receiver ) // if no reciever widget, find reciever action
+	if ( !conn.receiver ) // if no receiver widget, find receiver action
 	    conn.receiver = MainWindow::self->formWindow()->findAction( c->receiverItem()->currentText() );
 
 	conn.signal = c->signalItem()->currentText();

@@ -453,7 +453,7 @@ a slot which we'll call if ther is no match.
 Click Edit|Connections to invoke the View and Edit Connections dialog.
 
 Click New. Change the Sender to closePushButton, signal to clicked(),
-reciever to FindForm and slot to accept(). This will work in preview
+receiver to FindForm and slot to accept(). This will work in preview
 mode; it will close the form when the user clicks Close.
 
 Click New. Change the Sender to findPushButton, signal to clicked(),
