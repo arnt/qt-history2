@@ -111,6 +111,9 @@ private:
     void	  update() const;
     QCursorData	 *data;
     QCursor	 *find_cur(int);
+#if defined(Q_WS_MAC)
+    friend void qt_mac_set_cursor(const QCursor *c);
+#endif
 };
 
 

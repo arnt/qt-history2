@@ -78,42 +78,50 @@ struct QCursorData : public QShared
 {
     QCursorData( int s = 0 );
    ~QCursorData();
+
     int	      cshape;
     int hx, hy;
     QBitmap  *bm, *bmm;
-    bool my_cursor;
-    CursPtr   hcurs;
-#if 0
-    XColor    fg,bg;
-    Pixmap    pm, pmm;
-#endif
+
+    enum { TYPE_None, TYPE_CursorImage, TYPE_CursPtr } type;
+    union {
+	struct {
+	    uint my_cursor:1;
+	    CursPtr   hcurs;
+	} cp;
+	CCrsrc *ci;
+    } curs;
 };
+
+void qt_mac_set_cursor(const QCursor *c)
+{
+    if(c->data->type == QCursorData::TYPE_CursPtr) {
+	SetCursor(c->data->curs.cp.hcurs);
+    } else if(c->data->type == QCursorData::TYPE_CursorImage) {
+
+    } else {
+	qDebug("whoa! that shouldn't happen!");
+    }
+}
 
 QCursorData::QCursorData( int s )
 {
     cshape = s;
     bm = bmm = 0;
     hx = hy  = -1;
-    hcurs = NULL;
-    my_cursor = FALSE;
-
-#if 0
-
-    pm = pmm = 0;
-#endif
+    type = TYPE_None;
 }
 
 QCursorData::~QCursorData()
 {
-#if 0
-    Display *dpy = qt_xdisplay();
-    if ( pm )
-	XFreePixmap( dpy, pm );
-    if ( pmm )
-	XFreePixmap( dpy, pmm );
-#endif
-    if ( hcurs && my_cursor )
-	free(hcurs);
+    if(type == TYPE_CursPtr) {
+	if ( curs.cp.hcurs && curs.cp.my_cursor )
+	    free(curs.cp.hcurs);
+    } else if(type == TYPE_CursorImage) {
+	free(curs.ci);
+    }
+    type = TYPE_None;
+
     if ( bm )
 	delete bm;
     if ( bmm )
@@ -203,16 +211,6 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
     data->cshape = BitmapCursor;
     data->hx = hotX >= 0 ? hotX : bitmap.width()/2;
     data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
-    data->hcurs = NULL;
-
-#if 0
-    data->fg.red   = 0 << 8;
-    data->fg.green = 0 << 8;
-    data->fg.blue  = 0 << 8;
-    data->bg.red   = 255 << 8;
-    data->bg.green = 255 << 8;
-    data->bg.blue  = 255 << 8;
-#endif
 }
 
 
@@ -292,9 +290,11 @@ Qt::HANDLE QCursor::handle() const
 {
     if ( !initialized )
 	initialize();
-    if ( !data->hcurs )
+    if( data->type == QCursorData::TYPE_None )
 	update();
-    return data->hcurs;
+    if( data->type == QCursorData::TYPE_CursorImage )
+	return data->curs.ci;
+    return data->curs.cp.hcurs;
 }
 
 
@@ -330,21 +330,20 @@ void QCursor::update() const
     if ( !initialized )
 	initialize();
     register QCursorData *d = data;		// cheat const!
-    if ( d->hcurs )				// already loaded
+    if ( d->type != QCursorData::TYPE_None )				// already loaded
 	return;
 
     if ( d->cshape == BitmapCursor ) {
-#if 0
-	d->hcurs = XCreatePixmapCursor( dpy, d->bm->handle(), d->bmm->handle(),
-					&d->fg, &d->bg, d->hx, d->hy );
-
-#else
-//	qDebug("Oops.. fix this.. %s:%d", __FILE__, __LINE__); //FIXME
-#endif
+	d->type = QCursorData::TYPE_CursorImage;
+	d->curs.ci = (CCrsrc*)malloc(sizeof(CCrsrc));
+	d->curs.ci->majorVersion = kCursorImageMajorVersion;
+	d->curs.ci->minorVersion = kCursorImageMinorVersion;
+	d->curs.ci->cursorPixMap = GetGWorldPixMap((GWorldPtr)d->bm->handle());
+	d->curs.ci->cursorBitMask = (BitMap **)GetGWorldPixMap((GWorldPtr)d->bmm->handle());
 	return;
     }
 
-    switch ( d->cshape ) {			// map Q cursor to X cursor
+    switch ( d->cshape ) {			// map Q cursor to MAC cursor
     case ArrowCursor:
     {
 	static Cursor arrow;
@@ -353,31 +352,45 @@ void QCursor::update() const
 	    got_arrow = TRUE;
 	    GetQDGlobalsArrow(&arrow);
 	}
-	d->hcurs = &arrow;
+	d->type = QCursorData::TYPE_CursPtr;
+	d->curs.cp.my_cursor = FALSE;
+	d->curs.cp.hcurs = &arrow;
 	break;
     }
     case CrossCursor:
     {
-	if(CursHandle c = GetCursor(::crossCursor))
-	    d->hcurs = *c;
+	if(CursHandle c = GetCursor(::crossCursor)) {
+	    d->type = QCursorData::TYPE_CursPtr;
+	    d->curs.cp.my_cursor = FALSE;
+	    d->curs.cp.hcurs = *c;
+	}
 	break;
     }
     case WaitCursor:
     {
-	if(CursHandle c = GetCursor(::watchCursor))
-	    d->hcurs = *c;
+	if(CursHandle c = GetCursor(::watchCursor)) {
+	    d->type = QCursorData::TYPE_CursPtr;
+	    d->curs.cp.my_cursor = FALSE;
+	    d->curs.cp.hcurs = *c;
+	}
 	break;
     }
     case IbeamCursor:
     {
-	if(CursHandle c = GetCursor(::iBeamCursor))
-	    d->hcurs = *c;
+	if(CursHandle c = GetCursor(::iBeamCursor)) {
+	    d->type = QCursorData::TYPE_CursPtr;
+	    d->curs.cp.my_cursor = FALSE;
+	    d->curs.cp.hcurs = *c;
+	}
 	break;
     }
     case SizeAllCursor:
     {
-	if(CursHandle c = GetCursor(::plusCursor))
-	    d->hcurs = *c;
+	if(CursHandle c = GetCursor(::plusCursor)) {
+	    d->type = QCursorData::TYPE_CursPtr;
+	    d->curs.cp.my_cursor = FALSE;
+	    d->curs.cp.hcurs = *c;
+	}
 	break;
     }
 
@@ -394,10 +407,11 @@ void QCursor::update() const
 	    0x7f, 0xfc, 0x07, 0xc0, 0x07, 0xc0, 0x07, 0xc0, 0x7f, 0xfc, 0x3f, 0xf8,
 	    0x1f, 0xf0, 0x0f, 0xe0, 0x07, 0xc0, 0x03, 0x80 };
 
-	d->my_cursor = TRUE;
-	d->hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->hcurs->data, cur_ver_bits, sizeof(cur_ver_bits));
-	memcpy(d->hcurs->mask, mcur_ver_bits, sizeof(mcur_ver_bits));
+	d->type = QCursorData::TYPE_CursPtr;
+	d->curs.cp.my_cursor = TRUE;
+	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memcpy(d->curs.cp.hcurs->data, cur_ver_bits, sizeof(cur_ver_bits));
+	memcpy(d->curs.cp.hcurs->mask, mcur_ver_bits, sizeof(mcur_ver_bits));
 	break;
     }
 
@@ -412,10 +426,11 @@ void QCursor::update() const
 	    0x7f, 0xfc, 0xff, 0xfe, 0xff, 0xfe, 0xff, 0xfe, 0x7f, 0xfc, 0x3c, 0x78,
 	    0x1c, 0x70, 0x0c, 0x60, 0x04, 0x40, 0x00, 0x00 };
 
-	d->my_cursor = TRUE;
-	d->hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->hcurs->data, cur_hor_bits, sizeof(cur_hor_bits));
-	memcpy(d->hcurs->mask, mcur_hor_bits, sizeof(mcur_hor_bits));
+	d->type = QCursorData::TYPE_CursPtr;
+	d->curs.cp.my_cursor = TRUE;
+	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memcpy(d->curs.cp.hcurs->data, cur_hor_bits, sizeof(cur_hor_bits));
+	memcpy(d->curs.cp.hcurs->mask, mcur_hor_bits, sizeof(mcur_hor_bits));
 	break;
     }
 
@@ -430,10 +445,12 @@ void QCursor::update() const
 	    0x41, 0xfc, 0x63, 0xfc, 0x77, 0xdc, 0x7f, 0x8c, 0x7f, 0x04, 0x7e, 0x00,
 	    0x7f, 0x00, 0x7f, 0x80, 0x7f, 0xc0, 0x00, 0x00 };
 
-	d->my_cursor = TRUE;
-	d->hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->hcurs->data, cur_fdiag_bits, sizeof(cur_fdiag_bits));
-	memcpy(d->hcurs->mask, mcur_fdiag_bits, sizeof(mcur_fdiag_bits));
+
+	d->type = QCursorData::TYPE_CursPtr;
+	d->curs.cp.my_cursor = TRUE;
+	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memcpy(d->curs.cp.hcurs->data, cur_fdiag_bits, sizeof(cur_fdiag_bits));
+	memcpy(d->curs.cp.hcurs->mask, mcur_fdiag_bits, sizeof(mcur_fdiag_bits));
 	break;
     }
     case SizeFDiagCursor:
@@ -447,18 +464,20 @@ void QCursor::update() const
 	    0x7f, 0x8c, 0x77, 0xdc, 0x63, 0xfc, 0x41, 0xfc, 0x00, 0xfc, 0x01, 0xfc,
 	    0x03, 0xfc, 0x07, 0xfc, 0x00, 0x00, 0x00, 0x00 };
 
-	d->my_cursor = TRUE;
-	d->hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->hcurs->data, cur_bdiag_bits, sizeof(cur_bdiag_bits));
-	memcpy(d->hcurs->mask, mcur_bdiag_bits, sizeof(mcur_bdiag_bits));
+	d->type = QCursorData::TYPE_CursPtr;
+	d->curs.cp.my_cursor = TRUE;
+	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memcpy(d->curs.cp.hcurs->data, cur_bdiag_bits, sizeof(cur_bdiag_bits));
+	memcpy(d->curs.cp.hcurs->mask, mcur_bdiag_bits, sizeof(mcur_bdiag_bits));
 	break;
     }
     case BlankCursor:
     {
-	d->my_cursor = TRUE;
-	d->hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memset(d->hcurs->data, 0x00, sizeof(d->hcurs->data));
-	memset(d->hcurs->mask, 0x00, sizeof(d->hcurs->data));
+	d->type = QCursorData::TYPE_CursPtr;
+	d->curs.cp.my_cursor = TRUE;
+	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memset(d->curs.cp.hcurs->data, 0x00, sizeof(d->curs.cp.hcurs->data));
+	memset(d->curs.cp.hcurs->mask, 0x00, sizeof(d->curs.cp.hcurs->data));
 	break;
     }
 
@@ -474,10 +493,11 @@ void QCursor::update() const
 	    0x07, 0xf0, 0x0f, 0xf8, 0x0f, 0xf8, 0x01, 0xc0, 0x01, 0xc0, 0x01, 0xc0,
 	    0x01, 0xc0, 0x01, 0xc0, 0x01, 0xc0, 0x01, 0xc0 };
 
-	d->my_cursor = TRUE;
-	d->hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->hcurs->data, cur_up_arrow_bits, sizeof(cur_up_arrow_bits));
-	memcpy(d->hcurs->mask, mcur_up_arrow_bits, sizeof(mcur_up_arrow_bits));
+	d->type = QCursorData::TYPE_CursPtr;
+	d->curs.cp.my_cursor = TRUE;
+	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memcpy(d->curs.cp.hcurs->data, cur_up_arrow_bits, sizeof(cur_up_arrow_bits));
+	memcpy(d->curs.cp.hcurs->mask, mcur_up_arrow_bits, sizeof(mcur_up_arrow_bits));
 	break;
     }
 
@@ -493,10 +513,11 @@ void QCursor::update() const
 	    0x24, 0x90, 0x7c, 0xf8, 0x24, 0x90, 0x04, 0x80, 0x04, 0x80, 0x04, 0x80, 
 	    0x04, 0x80, 0x04, 0x80, 0x04, 0x80, 0x00, 0x00 };
 
-	d->my_cursor = TRUE;
-	d->hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->hcurs->data, cur_vsplit_bits, sizeof(cur_vsplit_bits));
-	memcpy(d->hcurs->mask, mcur_vsplit_bits, sizeof(mcur_vsplit_bits));
+	d->type = QCursorData::TYPE_CursPtr;
+	d->curs.cp.my_cursor = TRUE;
+	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memcpy(d->curs.cp.hcurs->data, cur_vsplit_bits, sizeof(cur_vsplit_bits));
+	memcpy(d->curs.cp.hcurs->mask, mcur_vsplit_bits, sizeof(mcur_vsplit_bits));
 	break;
     }
     case SplitHCursor:
@@ -510,27 +531,28 @@ void QCursor::update() const
 	    0xff, 0xfe, 0x00, 0x00, 0x00, 0x00, 0xff, 0xfe, 0x01, 0x00, 0x01, 0x00, 
 	    0x03, 0x80, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-	d->my_cursor = TRUE;
-	d->hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->hcurs->data, cur_hsplit_bits, sizeof(cur_hsplit_bits));
-	memcpy(d->hcurs->mask, mcur_hsplit_bits, sizeof(mcur_hsplit_bits));
+	d->type = QCursorData::TYPE_CursPtr;
+	d->curs.cp.my_cursor = TRUE;
+	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memcpy(d->curs.cp.hcurs->data, cur_hsplit_bits, sizeof(cur_hsplit_bits));
+	memcpy(d->curs.cp.hcurs->mask, mcur_hsplit_bits, sizeof(mcur_hsplit_bits));
 	break;
     }
 #if 0
     case PointingHandCursor:
     {
 	d->my_cursor = TRUE;
-	d->hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->hcurs->data, cur_ver_bits, sizeof(cur_ver_bits));
-	memcpy(d->hcurs->mask, mcur_ver_bits, sizeof(mcur_ver_bits));
+	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memcpy(d->curs.cp.hcurs->data, cur_ver_bits, sizeof(cur_ver_bits));
+	memcpy(d->curs.cp.hcurs->mask, mcur_ver_bits, sizeof(mcur_ver_bits));
 	break;
     }
     case ForbiddenCursor:
     {
 	d->my_cursor = TRUE;
-	d->hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->hcurs->data, cur_ver_bits, sizeof(cur_ver_bits));
-	memcpy(d->hcurs->mask, mcur_ver_bits, sizeof(mcur_ver_bits));
+	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
+	memcpy(d->curs.cp.hcurs->data, cur_ver_bits, sizeof(cur_ver_bits));
+	memcpy(d->curs.cp.hcurs->mask, mcur_ver_bits, sizeof(mcur_ver_bits));
 	break;
     }
 #endif
@@ -543,8 +565,8 @@ void QCursor::update() const
 	return;
     }
 
-    if(d->hcurs && d->my_cursor) {
-	d->hcurs->hotSpot.h = data->hx >= 0 ? data->hx : 8;
-	d->hcurs->hotSpot.v = data->hy >= 0 ? data->hy : 8;
+    if(d->type == QCursorData::TYPE_CursPtr && d->curs.cp.hcurs && d->curs.cp.my_cursor) {
+	d->curs.cp.hcurs->hotSpot.h = data->hx >= 0 ? data->hx : 8;
+	d->curs.cp.hcurs->hotSpot.v = data->hy >= 0 ? data->hy : 8;
     }
 }

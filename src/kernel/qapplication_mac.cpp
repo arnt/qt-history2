@@ -112,7 +112,7 @@ static int mouse_button_state = 0;
 static bool	app_do_modal	= FALSE;	// modal mode
 extern QWidgetList *qt_modal_stack;		// stack of modal widgets
 static char    *appName;                        // application name
-static Cursor *currentCursor;                  //current cursor
+static Qt::HANDLE currentCursor;                  //current cursor
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
@@ -129,7 +129,6 @@ static EventHandlerUPP app_proc_handlerUPP = NULL;
 //and very special case, if you plan on using these variables be VERY careful!!
 static bool qt_closed_popup = FALSE;
 EventRef qt_replay_event = NULL;
-
 
 //Input Method stuff
 class QMacInputMethod {
@@ -200,9 +199,11 @@ bool qt_nograb()				// application no-grab option
 #endif
 }
 
-// Paint event clipping magic
+// Paint event clipping magic - qpainter_mac.cpp
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
+//Cursor switching - qcursor_mac.cpp
+extern void qt_mac_set_cursor(const QCursor *);
 
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 static QWidget     *popupButtonFocus = 0;
@@ -995,33 +996,29 @@ bool QApplication::processNextEvent( bool canWait )
 	//try to send null timers..
 	activateNullTimers();
 
-	/* Where noted (by wtf) we have to hack around brokenness in
-	   the OSX RC, hopefully this will be fixed before we ship,
-	   otherwise these hacks will have to be left in until we can
-	   convince apple to fix it
-	*/
 	EventRef event;
 	OSStatus ret;
 	do {
 	    do {
-		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, FALSE, &event ); //wtf^3
+		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
 		if(ret != noErr) {
 		    broke_early = TRUE;
 		    break;
 		}
 
-		//wtf^4: That's right kids, apple is that lame!
+//#define PLAY_EVENT_GAMES
+#ifdef PLAY_EVENT_GAMES
 		UInt32 ekind = GetEventKind(event), eclass=GetEventClass(event);
 		if(0 && eclass == kEventClassMouse && ekind == kEventMouseDown) {
-		    EventRecord event_hack;
-		    if(WaitNextEvent(mDownMask, &event_hack, 0, NULL))
-			nevents++;
-		} else {
-		    ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
-		    if(SendEventToApplication(event) == noErr)
-			nevents++;
-		    ReleaseEvent(event);
-		}
+		    WindowRef wid;
+		    GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
+				      sizeof(WindowRef), NULL, &wid);
+		    SelectWindow( wid );
+		} 
+#endif
+		if(SendEventToApplication(event) == noErr)
+		    nevents++;
+		ReleaseEvent(event);
 	    } while(GetNumEventsInQueue(GetCurrentEventQueue()));
 	    sendPostedEvents();
 	} while(GetNumEventsInQueue(GetCurrentEventQueue()));
@@ -1406,6 +1403,10 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *d)
 QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
 {
+#ifdef PLAY_EVENT_GAMES
+    return 1;
+#endif
+
     bool remove_context_timer = TRUE;
     QApplication *app = (QApplication *)data;
     if ( app->macEventFilter( event ) )
@@ -1646,17 +1647,19 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	case kEventMouseMoved:
 	{
 	    //set the cursor up
-	    Cursor *n = NULL;
+	    const QCursor *n = NULL;
 	    if(!widget) //not over the app, don't set a cursor..
 		;
 	    else if(widget->extra && widget->extra->curs)
-		n = (Cursor *)widget->extra->curs->handle();
+		n = widget->extra->curs;
 	    else if(cursorStack)
-		n = (Cursor *)app_cursor->handle();
+		n = app_cursor;
 	    if(!n)
-		n = (Cursor *)arrowCursor.handle(); //I give up..
-	    if(currentCursor != n)
-		SetCursor(currentCursor = n);
+		n = &arrowCursor; //I give up..
+	    if(currentCursor != n->handle()) {
+		currentCursor = n->handle();
+		qt_mac_set_cursor(n);
+	    }
 	    if ( qt_mouseover != widget ) {
 		qt_dispatchEnterLeave( widget, qt_mouseover );
 		qt_mouseover = widget;
