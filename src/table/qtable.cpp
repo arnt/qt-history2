@@ -6159,6 +6159,8 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	QHeader::paintSection( p, index, fr );
    } else {
        QStyle::SFlags flags = ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
+       if(isEnabled())
+	   flags |= QStyle::Style_Enabled;
        if(isClickEnabled()) {
 	   if(sectionState(index) == Selected) {
 	       flags |= QStyle::Style_Down;
