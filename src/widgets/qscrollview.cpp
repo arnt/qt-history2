@@ -995,7 +995,7 @@ void QScrollView::contextMenuEvent( QContextMenuEvent *e )
 	return;
 
     QContextMenuEvent ce( e->reason(), viewport()->mapFromGlobal( e->globalPos() ),
-			  e->globalPos() );
+			  e->globalPos(), e->state() );
     viewportContextMenuEvent( &ce );
     if ( ce.isAccepted() )
 	e->accept();
@@ -1626,7 +1626,7 @@ void QScrollView::viewportWheelEvent( QWheelEvent* e )
 */
 void QScrollView::viewportContextMenuEvent( QContextMenuEvent *e )
 {
-    QContextMenuEvent ce(e->reason(), viewportToContents(e->pos()), e->globalPos() );
+    QContextMenuEvent ce(e->reason(), viewportToContents(e->pos()), e->globalPos(), e->state() );
     contentsContextMenuEvent( &ce );
     if ( ce.isAccepted() )
 	e->accept();
