@@ -677,15 +677,6 @@ inline QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
     return boundingRect( r, tf, str, len, i );
 }
 
-#if defined(Q_WS_WIN)
-inline void *QPainter::textMetric()
-{
-    if ( testf(DirtyFont) )
-	updateFont();
-    return textmet;
-}
-#endif
-
 #if defined(Q_WS_QWS)
 inline QGfx * QPainter::internalGfx()
 {

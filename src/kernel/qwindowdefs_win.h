@@ -61,8 +61,6 @@ Q_EXPORT HDC	   qt_display_dc();
     HBRUSH	hbrush;		\
     HBITMAP	hbrushbm;	\
     HPALETTE	holdpal;	\
-    void       *textmet;	\
-    uint	killFont    : 1;\
     uint	nocolBrush  : 1;\
     uint	pixmapBrush : 1;\
     void       *textMetric();	\

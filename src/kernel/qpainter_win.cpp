@@ -351,9 +351,8 @@ void QPainter::init()
     hbrush = 0;
     hbrushbm = 0;
     hfont = 0;
-    textmet = 0;
     txop = txinv = 0;
-    pixmapBrush = nocolBrush = killFont = FALSE;
+    pixmapBrush = nocolBrush = FALSE;
     penRef = brushRef = 0;
     pfont = 0;
 }
@@ -381,64 +380,25 @@ void QPainter::updateFont()
 	if ( !pdev->cmd( QPaintDevice::PdcSetFont, this, param ) || !hdc )
 	    return;
     }
-    HANDLE hfont_old = hfont;
-    bool   killFont_old = killFont;
     bool   ownFont = pdev->devType() == QInternal::Printer;
     if ( ownFont ) {
 	int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
 	int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
+	// ### fix compat mode
 	bool vxfScale = testf(Qt2Compat) && testf(VxF)
 			&& ( dw != ww || dw != vw || dh != wh || dh != vh );
+
 	if ( pfont ) delete pfont;
 	pfont = new QFont( cfont.d, pdev );
-
 	hfont = pfont->handle();
-	killFont = FALSE;
     } else {
 	if ( pfont ) {
 	    delete pfont;
 	    pfont = 0;
 	}
 	hfont = cfont.handle();
-	killFont = FALSE;
     }
     SelectObject( hdc, hfont );
-    if ( hfont_old && killFont_old)
-	DeleteObject( hfont_old );
-    if ( !textmet ) {
-#ifdef Q_OS_TEMP
-	    textmet = new char[sizeof(TEXTMETRICW)];
-#else
-#ifdef UNICODE
-	if ( qt_winver & WV_NT_based ) {
-	    textmet = new char[sizeof(TEXTMETRICW)];
-	} else
-#endif
-	{
-	    textmet = new char[sizeof(TEXTMETRICA)];
-	}
-#endif
-    }
-#ifdef UNICODE
-#ifndef Q_OS_TEMP
-    if ( qt_winver & WV_NT_based ) {
-#endif
-	if ( ownFont )
-	    GetTextMetricsW( hdc, (TEXTMETRICW*)textmet );
-	else
-	    memcpy( textmet, cfont.textMetric(), sizeof(TEXTMETRICW) );
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
-	if ( ownFont )
-	    GetTextMetricsA( hdc, (TEXTMETRICA*)textmet );
-	else
-	    memcpy( textmet, cfont.textMetric(), sizeof(TEXTMETRICA) );
-    }
-#endif
 }
 
 
@@ -903,13 +863,7 @@ bool QPainter::end()
     }
     if ( hfont ) {
 	SelectObject( hdc, stock_sysfont );
-	if ( killFont ) {
-	    DeleteObject( hfont );
-	    killFont = FALSE;
-	}
 	hfont = 0;
-	delete [] (char*)textmet;
-	textmet = 0;
     }
     if ( holdpal ) {
 	SelectPalette( hdc, holdpal, TRUE );
@@ -2252,15 +2206,15 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     bool force_bitmap = FALSE;//rop != CopyROP;
     if ( force_bitmap ) {
 #ifdef Q_OS_TEMP
-	    force_bitmap &= !(((TEXTMETRICW*)textmet)->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
+	    force_bitmap &= !(((TEXTMETRICW*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
 #else
 #ifdef UNICODE
 	if ( qt_winver & WV_NT_based ) {
-	    force_bitmap &= !(((TEXTMETRICW*)textmet)->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
+	    force_bitmap &= !(((TEXTMETRICW*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
 	} else
 #endif
 	{
-	    force_bitmap &= !(((TEXTMETRICA*)textmet)->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
+	    force_bitmap &= !(((TEXTMETRICA*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
 	}
 #endif
     }
@@ -2476,3 +2430,15 @@ QPoint QPainter::pos() const
 	return internalCurrentPos;
 #endif
 }
+
+
+#if defined(Q_WS_WIN)
+void *QPainter::textMetric()
+{
+    if ( testf(DirtyFont) )
+	updateFont();
+    if ( pfont )
+	return pfont->textMetric();
+    return cfont.textMetric();
+}
+#endif
