@@ -49,7 +49,7 @@ static int get_window_id()
  * Class: QWSClient
  *
  *********************************************************************/
-
+//### shmid < 0 means use frame buffer
 QWSClient::QWSClient( int socket, int shmid ) :
     QSocket(socket),
     s(socket),
@@ -60,6 +60,7 @@ QWSClient::QWSClient( int socket, int shmid ) :
     header.height = SHEIGHT;
     header.depth = 32;
     header.shmid = shmid;
+    header.fbid = shmid < 0 ? 0 : -1; //### always use FB 0
     writeBlock((char*)&header,sizeof(header));
     flush();
 }
@@ -116,10 +117,13 @@ void QWSClient::sendPropertyNotifyEvent( int property, int state )
  *
  *********************************************************************/
 
+//### parent == 0 means use real frame buffer
+
 QWSServer::QWSServer( QObject *parent=0, const char *name=0 ) :
     QServerSocket(QTFB_PORT,parent,name),
     pending_region_acks(0)
 {
+    if ( parent ) {
     shmid = shmget(IPC_PRIVATE, SWIDTH*SHEIGHT*sizeof(QRgb),
 			IPC_CREAT|IPC_EXCL|0666);
     if ( shmid < 0 )
@@ -130,7 +134,9 @@ QWSServer::QWSServer( QObject *parent=0, const char *name=0 ) :
     int e=shmctl(shmid, IPC_RMID, 0);
     if ( e<0 )
 	perror("shmctl IPC_RMID");
-
+    } else {
+	shmid = -1;
+    }
     if ( !start() )
 	qFatal("Failed to bind to port %d",QTFB_PORT);
 }
@@ -489,16 +495,21 @@ main(int argc, char** argv)
 {
     int refresh_delay=500;
 
-    QApplication app(argc, argv);
+    bool useGUI = getenv( "DISPLAY" ) != 0;
+
+    QApplication app(argc, argv, useGUI);
 
     if ( argc > 1 ) {
 	refresh_delay = atoi(argv[1]);
     }
 
-    Main m;
-    app.setMainWidget(&m);
-    m.serve(refresh_delay);
-    m.show();
-
+    if ( useGUI ) {
+	Main *m = new Main;
+	app.setMainWidget(m);
+	m->serve(refresh_delay);
+	m->show();
+    } else {
+	QWSServer *server = new QWSServer;
+    }
     return app.exec();
 }

@@ -8,6 +8,7 @@ struct QWSHeader {
     int height;
     int depth;
     int shmid;
+    int fbid;
 };
 
 struct QWSAnyEvent {
