@@ -1704,9 +1704,6 @@ static int indic_nextSyllableBoundary( int script, const QString &s, int start, 
     return pos+start;
 }
 
-#undef IDEBUG
-#define IDEBUG qDebug
-
 static bool indic_shape(QShaperItem *item)
 {
     Q_ASSERT( item->script >= QFont::Devanagari && item->script <= QFont::Sinhala );
