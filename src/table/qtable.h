@@ -233,9 +233,9 @@ class Q_EXPORT QTable : public QScrollView
     friend class QCheckTableItem;
 
 public:
-    QTable( QWidget* Q_PARENT, const char* Q_NAME );
+    QTable( QWidget* parent=0, const char* name=0 );
     QTable( int numRows, int numCols,
-            QWidget* Q_PARENT, const char* Q_NAME );
+            QWidget* parent=0, const char* name=0 );
     ~QTable();
 
     QHeader *horizontalHeader() const;

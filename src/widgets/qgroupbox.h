@@ -60,13 +60,13 @@ class Q_EXPORT QGroupBox : public QFrame
     Q_PROPERTY( int columns READ columns WRITE setColumns DESIGNABLE false )
 	
 public:
-    QGroupBox( QWidget* Q_PARENT, const char* Q_NAME );
+    QGroupBox( QWidget* parent=0, const char* name=0 );
     QGroupBox( const QString &title,
-	       QWidget* Q_PARENT, const char* Q_NAME );
+	       QWidget* parent=0, const char* name=0 );
     QGroupBox( int columns, Orientation o,
-	       QWidget* Q_PARENT, const char* Q_NAME );
+	       QWidget* parent=0, const char* name=0 );
     QGroupBox( int columns, Orientation o, const QString &title,
-	       QWidget* Q_PARENT, const char* Q_NAME );
+	       QWidget* parent=0, const char* name=0 );
 
     virtual void setColumnLayout(int columns, Orientation o);
 

@@ -132,7 +132,7 @@ class QWorkspaceChild : public QFrame
 
 public:
     QWorkspaceChild( QWidget* window,
-		     QWorkspace* Q_PARENT, const char* Q_NAME );
+		     QWorkspace* parent=0, const char* name=0 );
     ~QWorkspaceChild();
 
     void setActive( bool );

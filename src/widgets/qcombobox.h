@@ -69,8 +69,8 @@ class Q_EXPORT QComboBox : public QWidget
     Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
-    QComboBox( QWidget* Q_PARENT, const char* Q_NAME );
-    QComboBox( bool rw, QWidget* Q_PARENT, const char* Q_NAME );
+    QComboBox( QWidget* parent=0, const char* name=0 );
+    QComboBox( bool rw, QWidget* parent=0, const char* name=0 );
     ~QComboBox();
 
     int		count() const;

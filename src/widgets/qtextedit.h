@@ -131,15 +131,9 @@ public:
 	AlignSubScript
     };
 
-#if defined (QT_STRICT_NAMES)
-    // unfortunately no default possible for 'context'
-    QTextEdit( const QString& text, const QString& context,
-	       QWidget* Q_PARENT, const char* Q_NAME);
-#else
     QTextEdit( const QString& text, const QString& context = QString::null,
-	       QWidget* Q_PARENT, const char* Q_NAME);
-#endif
-    QTextEdit( QWidget* Q_PARENT, const char* Q_NAME );
+	       QWidget* parent=0, const char* name=0);
+    QTextEdit( QWidget* parent=0, const char* name=0 );
     virtual ~QTextEdit();
     void setPalette( const QPalette & );
 

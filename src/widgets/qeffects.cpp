@@ -54,7 +54,7 @@ class QAccessWidget : public QWidget
     friend class QAlphaWidget;
     friend class QRollEffect;
 public:
-    QAccessWidget( QWidget* Q_PARENT, const char* Q_NAME, WFlags f = 0 )
+    QAccessWidget( QWidget* parent=0, const char* name=0, WFlags f = 0 )
 	: QWidget( parent, name, f ) {}
 };
 

@@ -634,7 +634,7 @@ class QGLOverlayWidget : public QGLWidget
     Q_OBJECT
 public:
     QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent,
-		      const char* Q_NAME, const QGLWidget* shareWidget=0 );
+		      const char* name=0, const QGLWidget* shareWidget=0 );
 
 protected:
     void		initializeGL();

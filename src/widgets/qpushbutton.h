@@ -61,9 +61,9 @@ class Q_EXPORT QPushButton : public QButton
     Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
-    QPushButton( QWidget *parent, const char* Q_NAME );
-    QPushButton( const QString &text, QWidget *parent, const char* Q_NAME );
-    QPushButton( const QIconSet& icon, const QString &text, QWidget *parent, const char* Q_NAME );
+    QPushButton( QWidget *parent, const char* name=0 );
+    QPushButton( const QString &text, QWidget *parent, const char* name=0 );
+    QPushButton( const QIconSet& icon, const QString &text, QWidget *parent, const char* name=0 );
     ~QPushButton();
 
     QSize	sizeHint() const;

@@ -48,8 +48,8 @@ class Q_EXPORT QHGroupBox : public QGroupBox
 {
     Q_OBJECT
 public:
-    QHGroupBox( QWidget* Q_PARENT, const char* Q_NAME );
-    QHGroupBox( const QString &title, QWidget* Q_PARENT, const char* Q_NAME );
+    QHGroupBox( QWidget* parent=0, const char* name=0 );
+    QHGroupBox( const QString &title, QWidget* parent=0, const char* name=0 );
     ~QHGroupBox();
 
 private:	// Disabled copy constructor and operator=

@@ -48,8 +48,8 @@ class Q_EXPORT QHButtonGroup : public QButtonGroup
 {
     Q_OBJECT
 public:
-    QHButtonGroup( QWidget* Q_PARENT, const char* Q_NAME );
-    QHButtonGroup( const QString &title, QWidget* Q_PARENT, const char* Q_NAME );
+    QHButtonGroup( QWidget* parent=0, const char* name=0 );
+    QHButtonGroup( const QString &title, QWidget* parent=0, const char* name=0 );
     ~QHButtonGroup();
 
 private:	// Disabled copy constructor and operator=

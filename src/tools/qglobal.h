@@ -807,18 +807,6 @@ Q_EXPORT void qObsolete( const char *obj, const char *oldfunc,
 Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 
-// The next define will enable/disable strict naming.
-#if defined (QT_STRICT_NAMES)
-// create defines for name and parent without default values.
-// This will force the developer to specify values.
-#define Q_NAME name
-#define Q_PARENT parent
-#else
-// create defines for name and parent with the old style " = 0" default values.
-#define Q_NAME name = 0
-#define Q_PARENT parent = 0
-#endif
-
 #endif // __cplusplus
 
 #endif // QGLOBAL_H

@@ -60,7 +60,7 @@ class Q_EXPORT QInputDialog : public QDialog
 private:
     enum Type { LineEdit, SpinBox, ComboBox, EditableComboBox };
 
-    QInputDialog( const QString &label, QWidget* Q_PARENT, const char* Q_NAME,
+    QInputDialog( const QString &label, QWidget* parent=0, const char* name=0,
 		 bool modal = TRUE, Type type = LineEdit );
     ~QInputDialog();
 

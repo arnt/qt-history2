@@ -295,7 +295,7 @@
 class QComboBoxPopup : public QPopupMenu
 {
 public:
-    QComboBoxPopup( QWidget *Q_PARENT, const char *Q_NAME )
+    QComboBoxPopup( QWidget *parent=0, const char *name=0 )
 	: QPopupMenu( parent, name )
     {
     }

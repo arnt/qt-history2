@@ -68,10 +68,10 @@ public:
     enum TickSetting { NoMarks = 0, Above = 1, Left = Above,
 		       Below = 2, Right = Below, Both = 3 };
 
-    QSlider( QWidget *parent, const char* Q_NAME );
-    QSlider( Orientation, QWidget *parent, const char* Q_NAME );
+    QSlider( QWidget *parent, const char* name=0 );
+    QSlider( Orientation, QWidget *parent, const char* name=0 );
     QSlider( int minValue, int maxValue, int pageStep, int value, Orientation,
-	     QWidget *parent, const char* Q_NAME );
+	     QWidget *parent, const char* name=0 );
 
     virtual void	setOrientation( Orientation );
     Orientation orientation() const;

@@ -56,7 +56,7 @@ friend class QPushButton;
     Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )
 
 public:
-    QDialog( QWidget* Q_PARENT, const char* Q_NAME, bool modal=FALSE,
+    QDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE,
 	     WFlags f=0 );
     ~QDialog();
 

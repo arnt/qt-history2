@@ -66,15 +66,9 @@ class Q_EXPORT QSpinBox: public QWidget, public QRangeControl
     Q_PROPERTY( int value READ value WRITE setValue )
 
 public:
-    QSpinBox( QWidget* Q_PARENT, const char* Q_NAME );
-#if defined (QT_STRICT_NAMES)
-    // unfortunately no default possible for step
-    QSpinBox( int minValue, int maxValue, int step,
-	      QWidget* Q_PARENT, const char* Q_NAME );
-#else
+    QSpinBox( QWidget* parent=0, const char* name=0 );
     QSpinBox( int minValue, int maxValue, int step = 1,
-	      QWidget* Q_PARENT, const char* Q_NAME );
-#endif
+	      QWidget* parent=0, const char* name=0 );
     ~QSpinBox();
 
     QString		text() const;

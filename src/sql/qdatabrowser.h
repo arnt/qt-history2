@@ -67,7 +67,7 @@ class Q_EXPORT QDataBrowser : public QWidget
     Q_PROPERTY( bool autoEdit READ autoEdit WRITE setAutoEdit )
 
 public:
-    QDataBrowser( QWidget* Q_PARENT, const char* Q_NAME, WFlags fl = 0 );
+    QDataBrowser( QWidget* parent=0, const char* name=0, WFlags fl = 0 );
     ~QDataBrowser();
 
     enum Boundary {

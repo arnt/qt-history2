@@ -64,7 +64,7 @@ class QWellArray : public QGridView
     Q_PROPERTY( int selectedRow READ selectedRow )
 
 public:
-    QWellArray( QWidget* Q_PARENT, const char* Q_NAME, bool popup = FALSE );
+    QWellArray( QWidget* parent=0, const char* name=0, bool popup = FALSE );
 
     ~QWellArray() {}
     QString cellContent( int row, int col ) const;
@@ -604,7 +604,7 @@ class QColorPicker : public QFrame
 {
     Q_OBJECT
 public:
-    QColorPicker(QWidget* Q_PARENT, const char* Q_NAME);
+    QColorPicker(QWidget* parent=0, const char* name=0);
     ~QColorPicker();
 
 public slots:
@@ -638,7 +638,7 @@ class QColorLuminancePicker : public QWidget
 {
     Q_OBJECT
 public:
-    QColorLuminancePicker(QWidget* Q_PARENT, const char* Q_NAME);
+    QColorLuminancePicker(QWidget* parent=0, const char* name=0);
     ~QColorLuminancePicker();
 
 public slots:
@@ -879,7 +879,7 @@ QValidator::State QColIntValidator::validate( QString &s, int &pos ) const
 class QColNumLineEdit : public QLineEdit
 {
 public:
-    QColNumLineEdit( QWidget *parent, const char* Q_NAME )
+    QColNumLineEdit( QWidget *parent, const char* name=0 )
 	: QLineEdit( parent, name ) { setMaxLength( 3 );}
     QSize sizeHint() const {
 	return QSize( 30, //#####
@@ -900,7 +900,7 @@ class QColorShower : public QWidget
 {
     Q_OBJECT
 public:
-    QColorShower( QWidget *parent, const char *Q_NAME );
+    QColorShower( QWidget *parent, const char *name=0 );
 
     //things that don't emit signals
     void setHsv( int h, int s, int v );

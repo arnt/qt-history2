@@ -68,14 +68,14 @@ class Q_EXPORT QToolButton : public QButton
     Q_OVERRIDE( bool on WRITE setOn )
 
 public:
-    QToolButton( QWidget * parent, const char* Q_NAME );
+    QToolButton( QWidget * parent, const char* name=0 );
 #ifndef QT_NO_TOOLBAR
     QToolButton( const QIconSet& s, const QString &textLabel,
 		 const QString& grouptext,
 		 QObject * receiver, const char* slot,
-		 QToolBar * parent, const char* Q_NAME );
+		 QToolBar * parent, const char* name=0 );
 #endif
-    QToolButton( ArrowType type, QWidget *parent, const char* Q_NAME );
+    QToolButton( ArrowType type, QWidget *parent, const char* name=0 );
     ~QToolButton();
 
     QSize sizeHint() const;

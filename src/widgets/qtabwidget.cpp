@@ -154,7 +154,7 @@
 class QTabBarBase : public QWidget
 {
 public:
-    QTabBarBase( QTabWidget* Q_PARENT, const char* Q_NAME )
+    QTabBarBase( QTabWidget* parent=0, const char* name=0 )
         : QWidget( parent, name ) {};
 protected:
     void paintEvent( QPaintEvent * )

@@ -360,7 +360,7 @@ class QIconViewItemLineEdit : public QTextEdit
     friend class QIconViewItem;
 
 public:
-    QIconViewItemLineEdit( const QString &text, QWidget *parent, QIconViewItem *theItem, const char* Q_NAME );
+    QIconViewItemLineEdit( const QString &text, QWidget *parent, QIconViewItem *theItem, const char* name=0 );
 
 protected:
     void keyPressEvent( QKeyEvent *e );

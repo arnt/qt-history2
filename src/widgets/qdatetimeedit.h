@@ -49,7 +49,7 @@ class QDateTimeEditBase : public QWidget
 {
     Q_OBJECT
 public:
-    QDateTimeEditBase( QWidget* Q_PARENT, const char* Q_NAME )
+    QDateTimeEditBase( QWidget* parent=0, const char* name=0 )
 	: QWidget( parent, name ) {}
     
     virtual bool setFocusSection( int sec ) = 0;
@@ -75,8 +75,8 @@ class Q_EXPORT QDateEdit : public QDateTimeEditBase
     Q_PROPERTY( QDate minValue READ minValue WRITE setMinValue )
 
 public:
-    QDateEdit( QWidget* Q_PARENT,  const char* Q_NAME );
-    QDateEdit( const QDate& date, QWidget* Q_PARENT,  const char* Q_NAME );
+    QDateEdit( QWidget* parent=0,  const char* name=0 );
+    QDateEdit( const QDate& date, QWidget* parent=0,  const char* name=0 );
     ~QDateEdit();
 
     enum Order {
@@ -145,8 +145,8 @@ class Q_EXPORT QTimeEdit : public QDateTimeEditBase
     Q_PROPERTY( QTime minValue READ minValue WRITE setMinValue )
 
 public:
-    QTimeEdit( QWidget* Q_PARENT,  const char* Q_NAME );
-    QTimeEdit( const QTime& time, QWidget* Q_PARENT,  const char* Q_NAME );
+    QTimeEdit( QWidget* parent=0,  const char* name=0 );
+    QTimeEdit( const QTime& time, QWidget* parent=0,  const char* name=0 );
     ~QTimeEdit();
 
     QSize sizeHint() const;
@@ -200,9 +200,9 @@ class Q_EXPORT QDateTimeEdit : public QWidget
     Q_PROPERTY( QDateTime dateTime READ dateTime WRITE setDateTime )
 
 public:
-    QDateTimeEdit( QWidget* Q_PARENT, const char* Q_NAME );
-    QDateTimeEdit( const QDateTime& datetime, QWidget* Q_PARENT,
-		   const char* Q_NAME );
+    QDateTimeEdit( QWidget* parent=0, const char* name=0 );
+    QDateTimeEdit( const QDateTime& datetime, QWidget* parent=0,
+		   const char* name=0 );
     ~QDateTimeEdit();
 
     QSize sizeHint() const;

@@ -54,7 +54,7 @@ class Q_EXPORT QWidgetStack: public QFrame
 {
     Q_OBJECT
 public:
-    QWidgetStack( QWidget* Q_PARENT, const char* Q_NAME );
+    QWidgetStack( QWidget* parent=0, const char* name=0 );
 
     ~QWidgetStack();
 

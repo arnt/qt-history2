@@ -51,15 +51,9 @@ class Q_EXPORT QTextView : public QTextEdit
     Q_OVERRIDE( bool overwriteMode DESIGNABLE false SCRIPTABLE false )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    // unfortunately no default value possible for 'context'
-    QTextView( const QString& text, const QString& context,
-	       QWidget* Q_PARENT, const char* Q_NAME);
-#else
     QTextView( const QString& text, const QString& context = QString::null,
-	       QWidget* Q_PARENT, const char* Q_NAME);
-#endif
-    QTextView( QWidget* Q_PARENT, const char* Q_NAME );
+	       QWidget* parent=0, const char* name=0);
+    QTextView( QWidget* parent=0, const char* name=0 );
 
     virtual ~QTextView();
 

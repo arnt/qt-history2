@@ -82,12 +82,7 @@ public:
     enum Place { InDock, OutsideDock };
     enum CloseMode { Never = 0, Docked = 1, Undocked = 2, Always = Docked | Undocked };
 
-#if defined (QT_STRICT_NAMES)
-    // unfortunately no default value for "Place p" possible
-    QDockWindow( Place p, QWidget* Q_PARENT, const char* Q_NAME, WFlags f = 0 );
-#else
-    QDockWindow( Place p = InDock, QWidget* Q_PARENT, const char* Q_NAME, WFlags f = 0 );
-#endif
+    QDockWindow( Place p = InDock, QWidget* parent=0, const char* name=0, WFlags f = 0 );
     ~QDockWindow();
 
     virtual void setWidget( QWidget *w );

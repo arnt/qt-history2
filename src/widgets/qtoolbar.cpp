@@ -103,7 +103,7 @@ class QToolBarSeparator : public QWidget
 {
     Q_OBJECT
 public:
-    QToolBarSeparator( Orientation, QToolBar *parent, const char* Q_NAME );
+    QToolBarSeparator( Orientation, QToolBar *parent, const char* name=0 );
 
     QSize sizeHint() const;
     Orientation orientation() const { return orient; }

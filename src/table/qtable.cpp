@@ -74,7 +74,7 @@ public:
 	Selected
     };
 
-    QTableHeader( int, QTable *t, QWidget* Q_PARENT, const char* Q_NAME );
+    QTableHeader( int, QTable *t, QWidget* parent=0, const char* name=0 );
     ~QTableHeader() {};
     void addLabel( const QString &s, int size );
     void setLabel( int section, const QString & s, int size = -1 );

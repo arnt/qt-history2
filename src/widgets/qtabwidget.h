@@ -65,7 +65,7 @@ class Q_EXPORT QTabWidget : public QWidget
 
 public:
     QTabWidget( QWidget *parent, const char *name, WFlags f);
-    QTabWidget( QWidget* Q_PARENT, const char* Q_NAME);
+    QTabWidget( QWidget* parent=0, const char* name=0);
     ~QTabWidget();
 
     virtual void addTab( QWidget *, const QString & );

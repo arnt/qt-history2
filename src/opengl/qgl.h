@@ -257,9 +257,9 @@ class QM_EXPORT_OPENGL QGLWidget : public QWidget, public QGL
 {
     Q_OBJECT
 public:
-    QGLWidget( QWidget* Q_PARENT, const char* Q_NAME,
+    QGLWidget( QWidget* parent=0, const char* name=0,
 	       const QGLWidget* shareWidget = 0, WFlags f=0 );
-    QGLWidget( const QGLFormat& format, QWidget* Q_PARENT, const char* Q_NAME,
+    QGLWidget( const QGLFormat& format, QWidget* parent=0, const char* name=0,
 	       const QGLWidget* shareWidget = 0, WFlags f=0 );
     ~QGLWidget();
 

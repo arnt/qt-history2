@@ -251,7 +251,7 @@ class Q_EXPORT QListView: public QScrollView
     Q_PROPERTY( RenameAction defaultRenameAction READ defaultRenameAction WRITE setDefaultRenameAction )
 
 public:
-    QListView( QWidget* Q_PARENT, const char* Q_NAME, WFlags f = 0 );
+    QListView( QWidget* parent=0, const char* name=0, WFlags f = 0 );
     ~QListView();
 
     int treeStepSize() const;

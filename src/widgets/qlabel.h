@@ -58,11 +58,11 @@ class Q_EXPORT QLabel : public QFrame
     Q_PROPERTY( int indent READ indent WRITE setIndent )
 
 public:
-    QLabel( QWidget *parent, const char* Q_NAME, WFlags f=0 );
-    QLabel( const QString &text, QWidget *parent, const char* Q_NAME,
+    QLabel( QWidget *parent, const char* name=0, WFlags f=0 );
+    QLabel( const QString &text, QWidget *parent, const char* name=0,
 	    WFlags f=0 );
     QLabel( QWidget *buddy, const QString &,
-	    QWidget *parent, const char* Q_NAME, WFlags f=0 );
+	    QWidget *parent, const char* name=0, WFlags f=0 );
     ~QLabel();
 
     QString	 text()		const	{ return ltext; }

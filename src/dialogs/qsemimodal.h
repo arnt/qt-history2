@@ -48,7 +48,7 @@ class Q_EXPORT QSemiModal : public QDialog
 {
     Q_OBJECT
 public:
-    QSemiModal( QWidget* Q_PARENT, const char* Q_NAME, bool modal=FALSE, WFlags f=0 )
+    QSemiModal( QWidget* parent=0, const char* name=0, bool modal=FALSE, WFlags f=0 )
 	: QDialog( parent, name, modal, f ) { }
 };
 #endif

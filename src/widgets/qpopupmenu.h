@@ -51,7 +51,7 @@ class Q_EXPORT QPopupMenu : public QFrame, public QMenuData
     Q_OBJECT
     Q_PROPERTY( bool checkable READ isCheckable WRITE setCheckable )
 public:
-    QPopupMenu( QWidget* Q_PARENT, const char* Q_NAME );
+    QPopupMenu( QWidget* parent=0, const char* name=0 );
     ~QPopupMenu();
 
     void	popup( const QPoint & pos, int indexAtPoint = 0 ); // open

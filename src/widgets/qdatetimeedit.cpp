@@ -303,8 +303,8 @@ class QDateTimeEditor : public QWidget
 {
     Q_OBJECT
 public:
-    QDateTimeEditor( QDateTimeEditBase * Q_PARENT,
-		       const char * Q_NAME );
+    QDateTimeEditor( QDateTimeEditBase * parent=0,
+		       const char * name=0 );
     ~QDateTimeEditor();
 
     void setControlWidget( QDateTimeEditBase * widget );

@@ -58,7 +58,7 @@ class QM_EXPORT_SQL QDataView : public QWidget
     Q_OBJECT
 
 public:
-    QDataView( QWidget* Q_PARENT, const char* Q_NAME, WFlags fl = 0 );
+    QDataView( QWidget* parent=0, const char* name=0, WFlags fl = 0 );
     ~QDataView();
 
     virtual void setForm( QSqlForm* form );

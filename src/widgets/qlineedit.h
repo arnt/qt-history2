@@ -72,8 +72,8 @@ class Q_EXPORT QLineEdit : public QFrame
     Q_PROPERTY( bool redoAvailable READ isRedoAvailable )
 
 public:
-    QLineEdit( QWidget* parent, const char* Q_NAME );
-    QLineEdit( const QString &, QWidget* parent, const char* Q_NAME );
+    QLineEdit( QWidget* parent, const char* name=0 );
+    QLineEdit( const QString &, QWidget* parent, const char* name=0 );
     ~QLineEdit();
 
     QString text() const;

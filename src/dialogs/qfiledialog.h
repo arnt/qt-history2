@@ -100,15 +100,9 @@ class Q_EXPORT QFileDialog : public QDialog
     Q_PROPERTY( bool contentsPreview READ isContentsPreviewEnabled WRITE setContentsPreviewEnabled )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    // unfortunately no default value possible for 'filter'
-    QFileDialog( const QString& dirName, const QString& filter,
-		 QWidget* Q_PARENT, const char* Q_NAME, bool modal = FALSE );
-#else
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
-		 QWidget* Q_PARENT, const char* Q_NAME, bool modal = FALSE );
-#endif
-    QFileDialog( QWidget* Q_PARENT, const char* Q_NAME, bool modal = FALSE );
+		 QWidget* parent=0, const char* name=0, bool modal = FALSE );
+    QFileDialog( QWidget* parent=0, const char* name=0, bool modal = FALSE );
     ~QFileDialog();
 
     // recommended static functions

@@ -68,7 +68,7 @@ class Q_EXPORT QTitleBar : public QWidget
     Q_OBJECT
 
 public:
-    QTitleBar (QWidget* w, QWidget* parent, const char* Q_NAME);
+    QTitleBar (QWidget* w, QWidget* parent, const char* name=0);
     ~QTitleBar();
 
     bool isActive() const;

@@ -128,7 +128,7 @@ class Q_EXPORT QSpinWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QSpinWidget( QWidget* Q_PARENT, const char* Q_NAME );
+    QSpinWidget( QWidget* parent=0, const char* name=0 );
     ~QSpinWidget();
 
     void 	setEditWidget( QWidget * widget );

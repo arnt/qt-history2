@@ -53,7 +53,7 @@ class Q_EXPORT QTabDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QTabDialog( QWidget* Q_PARENT, const char* Q_NAME, bool modal=FALSE,
+    QTabDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE,
 		WFlags f=0 );
     ~QTabDialog();
 

@@ -54,7 +54,7 @@ class Q_EXPORT QStatusBar: public QWidget
     Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )
 
 public:
-    QStatusBar( QWidget* Q_PARENT, const char* Q_NAME );
+    QStatusBar( QWidget* parent=0, const char* name=0 );
     virtual ~QStatusBar();
 
     virtual void addWidget( QWidget *, int stretch = 0, bool = FALSE );

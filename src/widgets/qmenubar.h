@@ -56,7 +56,7 @@ class Q_EXPORT QMenuBar : public QFrame, public QMenuData
     Q_PROPERTY( bool defaultUp READ isDefaultUp WRITE setDefaultUp )
 	
 public:
-    QMenuBar( QWidget* Q_PARENT, const char* Q_NAME );
+    QMenuBar( QWidget* parent=0, const char* name=0 );
     ~QMenuBar();
 
     void	updateItem( int id );

@@ -304,7 +304,7 @@ public:
 	Right
     };
 
-    QIconView( QWidget* Q_PARENT, const char* Q_NAME, WFlags f = 0 );
+    QIconView( QWidget* parent=0, const char* name=0, WFlags f = 0 );
     virtual ~QIconView();
 
     virtual void insertItem( QIconViewItem *item, QIconViewItem *after = 0L );

@@ -58,7 +58,7 @@ class Q_EXPORT QMultiLineEdit : public QTextEdit
     Q_PROPERTY( bool edited READ edited WRITE setEdited DESIGNABLE false )
 
 public:
-    QMultiLineEdit( QWidget* Q_PARENT, const char* Q_NAME );
+    QMultiLineEdit( QWidget* parent=0, const char* name=0 );
     ~QMultiLineEdit();
 
     QString textLine( int line ) const;

@@ -56,7 +56,7 @@ class Q_EXPORT QTextBrowser : public QTextEdit
     Q_PROPERTY( QString source READ source WRITE setSource )
 
 public:
-    QTextBrowser( QWidget* Q_PARENT, const char* Q_NAME );
+    QTextBrowser( QWidget* parent=0, const char* name=0 );
     ~QTextBrowser();
 
     QString source() const;

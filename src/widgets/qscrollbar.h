@@ -61,11 +61,11 @@ class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
 
 public:
-    QScrollBar( QWidget *parent, const char* Q_NAME );
-    QScrollBar( Orientation, QWidget *parent, const char* Q_NAME );
+    QScrollBar( QWidget *parent, const char* name=0 );
+    QScrollBar( Orientation, QWidget *parent, const char* name=0 );
     QScrollBar( int minValue, int maxValue, int LineStep, int PageStep,
 		int value, Orientation,
-		QWidget *parent, const char* Q_NAME );
+		QWidget *parent, const char* name=0 );
 
     virtual void setOrientation( Orientation );
     Orientation orientation() const;

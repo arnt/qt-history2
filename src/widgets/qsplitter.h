@@ -56,8 +56,8 @@ class Q_EXPORT QSplitter : public QFrame
 public:
     enum ResizeMode { Stretch, KeepSize, FollowSizeHint };
 
-    QSplitter( QWidget* Q_PARENT, const char* Q_NAME );
-    QSplitter( Orientation, QWidget* Q_PARENT, const char* Q_NAME );
+    QSplitter( QWidget* parent=0, const char* name=0 );
+    QSplitter( Orientation, QWidget* parent=0, const char* name=0 );
     ~QSplitter();
 
     virtual void setOrientation( Orientation );

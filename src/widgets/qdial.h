@@ -63,9 +63,9 @@ class Q_EXPORT QDial: public QWidget, public QRangeControl
     Q_PROPERTY( int value READ value WRITE setValue )
 	
 public:
-    QDial( QWidget* Q_PARENT, const char* Q_NAME, WFlags f = 0 );
+    QDial( QWidget* parent=0, const char* name=0, WFlags f = 0 );
     QDial( int minValue, int maxValue, int pageStep, int value,
-	   QWidget* Q_PARENT, const char* Q_NAME );
+	   QWidget* parent=0, const char* name=0 );
     ~QDial();
 
     bool tracking() const;

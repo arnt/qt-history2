@@ -60,10 +60,10 @@ class Q_EXPORT QMessageBox : public QDialog
 public:
     enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3 };
 
-    QMessageBox( QWidget* Q_PARENT, const char* Q_NAME );
+    QMessageBox( QWidget* parent=0, const char* name=0 );
     QMessageBox( const QString& caption, const QString &text, Icon icon,
 		 int button0, int button1, int button2,
-		 QWidget* Q_PARENT, const char* Q_NAME, bool modal=TRUE,
+		 QWidget* parent=0, const char* name=0, bool modal=TRUE,
 		 WFlags f=WStyle_DialogBorder  );
     ~QMessageBox();
 

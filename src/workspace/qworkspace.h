@@ -61,7 +61,7 @@ class QM_EXPORT_WORKSPACE QWorkspace : public QWidget
     Q_OBJECT
     Q_PROPERTY( bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled )
 public:
-    QWorkspace( QWidget* Q_PARENT, const char* Q_NAME );
+    QWorkspace( QWidget* parent=0, const char* name=0 );
     ~QWorkspace();
 
     QWidget* activeWindow() const;

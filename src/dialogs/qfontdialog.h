@@ -67,11 +67,11 @@ class Q_EXPORT QFontDialog: public QDialog
 
 public:
     static QFont getFont( bool *ok, const QFont &def,
-			  QWidget* Q_PARENT, const char* Q_NAME);
-    static QFont getFont( bool *ok, QWidget* Q_PARENT, const char* Q_NAME);
+			  QWidget* parent=0, const char* name=0);
+    static QFont getFont( bool *ok, QWidget* parent=0, const char* name=0);
 
 private:
-    QFontDialog( QWidget* Q_PARENT, const char* Q_NAME, bool modal=FALSE,
+    QFontDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE,
 		 WFlags f=0 );
     ~QFontDialog();
 
@@ -119,7 +119,7 @@ private slots:
 
 private:
     static QFont getFont( bool *ok, const QFont *def,
-			  QWidget* Q_PARENT, const char* Q_NAME);
+			  QWidget* parent=0, const char* name=0);
 
     QFontDialogPrivate * d;
     friend class QFontDialogPrivate;

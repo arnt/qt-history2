@@ -48,8 +48,8 @@ class Q_EXPORT QVGroupBox : public QGroupBox
 {
     Q_OBJECT
 public:
-    QVGroupBox( QWidget* Q_PARENT, const char* Q_NAME );
-    QVGroupBox( const QString &title, QWidget* Q_PARENT, const char* Q_NAME );
+    QVGroupBox( QWidget* parent=0, const char* name=0 );
+    QVGroupBox( const QString &title, QWidget* parent=0, const char* name=0 );
 
     ~QVGroupBox();
 

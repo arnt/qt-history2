@@ -60,8 +60,8 @@ class Q_EXPORT QHeader : public QWidget
     Q_PROPERTY( bool stretching READ isStretchEnabled WRITE setStretchEnabled )
 
 public:
-    QHeader( QWidget* Q_PARENT, const char* Q_NAME );
-    QHeader( int, QWidget* Q_PARENT, const char* Q_NAME );
+    QHeader( QWidget* parent=0, const char* name=0 );
+    QHeader( int, QWidget* parent=0, const char* name=0 );
     ~QHeader();
 
     int		addLabel( const QString &, int size = -1 );

@@ -52,7 +52,7 @@ class QSplitterHandle : public QWidget
     Q_OBJECT
 public:
     QSplitterHandle( Qt::Orientation o,
-		       QSplitter *parent, const char* Q_NAME );
+		       QSplitter *parent, const char* name=0 );
     void setOrientation( Qt::Orientation o );
     Qt::Orientation orientation() const { return orient; }
 

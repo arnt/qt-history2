@@ -48,7 +48,7 @@ class Q_EXPORT QSizeGrip: public QWidget
 {
     Q_OBJECT
 public:
-    QSizeGrip( QWidget* parent, const char* Q_NAME );
+    QSizeGrip( QWidget* parent, const char* name=0 );
     ~QSizeGrip();
 
     QSize sizeHint() const;

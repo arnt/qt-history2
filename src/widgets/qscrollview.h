@@ -64,7 +64,7 @@ class Q_EXPORT QScrollView : public QFrame
 #endif
 
 public:
-    QScrollView(QWidget* Q_PARENT, const char* Q_NAME, WFlags f=0);
+    QScrollView(QWidget* parent=0, const char* name=0, WFlags f=0);
     ~QScrollView();
 
     enum ResizePolicy { Default, Manual, AutoOne, AutoOneFit };

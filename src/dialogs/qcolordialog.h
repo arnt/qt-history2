@@ -51,17 +51,9 @@ class Q_EXPORT QColorDialog : public QDialog
     Q_OBJECT
 
 public:
-#if defined (QT_STRICT_NAMES)
-    // unfortunately no default value possible for 'init'
-    static QColor getColor( const QColor& init, QWidget* Q_PARENT, const char* Q_NAME );
-    // unfortunately no default value possible for 'ok'
-    static QRgb getRgba( QRgb, bool* ok,
-			 QWidget* Q_PARENT, const char* Q_NAME );
-#else
-    static QColor getColor( const QColor& init = white, QWidget* Q_PARENT, const char* Q_NAME );
+    static QColor getColor( const QColor& init = white, QWidget* parent=0, const char* name=0 );
     static QRgb getRgba( QRgb, bool* ok = 0,
-			 QWidget* Q_PARENT, const char* Q_NAME );
-#endif // QT_STRICT_NAMES
+			 QWidget* parent=0, const char* name=0 );
 
     static int customCount();
     static QRgb customColor( int );
@@ -69,7 +61,7 @@ public:
 
 private:
     ~QColorDialog();
-    QColorDialog( QWidget* Q_PARENT, const char* Q_NAME, bool modal=FALSE );
+    QColorDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE );
 
     void setColor( const QColor& );
     QColor color() const;
