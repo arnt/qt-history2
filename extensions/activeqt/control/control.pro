@@ -9,10 +9,10 @@ internal {
 	ACTIVEQT_H  = $$QT_SOURCE_TREE/include
 }
 
-!contains( QT_PRODUCT, qt-enterprise ) {
+!contains( QT_PRODUCT, qt-(enterprise|internal) ) {
     message( "ActiveQt requires a Qt/Enterprise license." )
 }
-contains( QT_PRODUCT, qt-enterprise ) {
+contains( QT_PRODUCT, qt-(enterprise|internal) ) {
     HEADERS     = $$ACTIVEQT_H/qaxbindable.h \
 		  $$ACTIVEQT_H/qaxfactory.h \
 		  ../shared/types.h
