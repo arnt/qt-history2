@@ -17,7 +17,7 @@
 
 #include "qmenu.h"
 
-class Q_GUI_EXPORT QPopupMenu : public QMenu
+class Q_COMPAT_EXPORT QPopupMenu : public QMenu
 {
     Q_OBJECT
 public:
