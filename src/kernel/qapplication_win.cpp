@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#383 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#384 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -902,6 +902,8 @@ bool QApplication::winEffectSupport( Qt::WindowsEffect effect )
     return result;
 }
 
+#ifndef QT_NO_CURSOR
+
 /*****************************************************************************
   QApplication cursor stack
  *****************************************************************************/
@@ -943,6 +945,8 @@ void QApplication::restoreOverrideCursor()
 	    SetCursor( arrowCursor.handle() );
     }
 }
+
+#endif
 
 /*
   Internal function called from QWidget::setCursor()

@@ -259,8 +259,10 @@ QDragManager::QDragManager()
 
 QDragManager::~QDragManager()
 {
+#ifndef QT_NO_CURSOR
     if ( restoreCursor )
 	QApplication::restoreOverrideCursor();
+#endif
     manager = 0;
     delete [] pm_cursor;
 }

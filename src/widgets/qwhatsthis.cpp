@@ -157,7 +157,9 @@ public:
     QPtrDict<QWhatsThisButton> * buttons;
     State state;
 
+#ifndef QT_NO_CURSOR
     QCursor * cursor;
+#endif
 
     QString currentText;
     
@@ -205,6 +207,8 @@ static const char * button_image[] = {
 "     ooo        ",
 "     ooo        "};
 
+#ifndef QT_NO_CURSOR
+
 #define cursor_bits_width 32
 #define cursor_bits_height 32
 static unsigned char cursor_bits_bits[] = {
@@ -235,6 +239,7 @@ static unsigned char cursor_mask_bits[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
 
+#endif
 
 
 // the button class
@@ -264,7 +269,9 @@ void QWhatsThisButton::mouseReleased()
 {
     if ( wt->state == QWhatsThisPrivate::Inactive && isOn() ) {
 	QWhatsThisPrivate::setUpWhatsThis();
+#ifndef QT_NO_CURSOR
 	QApplication::setOverrideCursor( *wt->cursor, FALSE );
+#endif
 	wt->state = QWhatsThisPrivate::Waiting;
 	qApp->installEventFilter( wt );
     }
@@ -282,17 +289,21 @@ QWhatsThisPrivate::QWhatsThisPrivate()
     wt = this;
     buttons = new QPtrDict<QWhatsThisButton>;
     state = Inactive;
+#ifndef QT_NO_CURSOR
     cursor = new QCursor( QBitmap( cursor_bits_width, cursor_bits_height,
 				   cursor_bits_bits, TRUE ),
 			  QBitmap( cursor_mask_width, cursor_mask_height,
 				   cursor_mask_bits, TRUE ),
 			  1, 1 );
+#endif
 }
 
 QWhatsThisPrivate::~QWhatsThisPrivate()
 {
+#ifndef QT_NO_CURSOR
     if ( state == Waiting )
 	QApplication::restoreOverrideCursor();
+#endif
 
     // the two straight-and-simple dicts
     delete tlw;
@@ -311,7 +322,9 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 	    delete i;
     }
     delete dict;
+#ifndef QT_NO_CURSOR
     delete cursor;
+#endif
     delete whatsThat;
 
     // and finally lose wt
@@ -434,7 +447,9 @@ void QWhatsThisPrivate::leaveWhatsThisMode()
 	    ++it;
 	    b->setOn( FALSE );
 	}
+#ifndef QT_NO_CURSOR
 	QApplication::restoreOverrideCursor();
+#endif
 	state = Inactive;
 	qApp->removeEventFilter( this );
     }
@@ -827,7 +842,9 @@ void QWhatsThis::enterWhatsThisMode()
 {
     QWhatsThisPrivate::setUpWhatsThis();
     if ( wt->state == QWhatsThisPrivate::Inactive ) {
+#ifndef QT_NO_CURSOR
 	QApplication::setOverrideCursor( *wt->cursor, FALSE );
+#endif
 	wt->state = QWhatsThisPrivate::Waiting;
 	qApp->installEventFilter( wt );
     }

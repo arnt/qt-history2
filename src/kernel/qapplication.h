@@ -145,10 +145,10 @@ public:
     QTextCodec*	     defaultCodec() const;
     void	     installTranslator( QTranslator * );
     void	     removeTranslator( QTranslator * );
+#endif
     QString	     translate( const char *, const char * ) const;
     QString	     translate( const char *, const char *,
 				const char * ) const;
-#endif
 #ifndef QT_NO_PALETTE
     static void      setWinStyleHighlightColor( const QColor & );
     static const QColor &winStyleHighlightColor();
@@ -386,5 +386,13 @@ inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 { return qApp->notify( receiver, event ); }
 #endif
 
+#ifdef QT_NO_TRANSLATION
+// Simple versions
+inline QString QApplication::translate( const char *, const char *key ) const
+{ return key; }
+inline QString	QApplication::translate( const char *, const char *key,
+			    const char * ) const
+{ return key; }
+#endif
 
 #endif // QAPPLICATION_H

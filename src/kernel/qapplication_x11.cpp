@@ -1528,6 +1528,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
     }
 }
 
+#ifndef QT_NO_CURSOR
 
 /*****************************************************************************
   QApplication cursor stack
@@ -1638,6 +1639,7 @@ void QApplication::restoreOverrideCursor()
     }
 }
 
+#endif
 
 /*!
   \fn bool QApplication::hasGlobalMouseTracking()

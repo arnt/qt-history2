@@ -142,8 +142,10 @@ QTextBrowser::~QTextBrowser()
 */
 void QTextBrowser::setSource(const QString& name)
 {
+#ifndef QT_NO_CURSOR
     if ( isVisible() )
 	qApp->setOverrideCursor( waitCursor );
+#endif
     QString source = name;
     QString mark;
     int hash = name.find('#');
@@ -185,7 +187,9 @@ void QTextBrowser::setSource(const QString& name)
 	    delete formats; //#### fix inheritance structure in rich text
 	    if ( doReturn ) {
  		popupDetail( txt, d->lastClick );
+#ifndef QT_NO_CURSOR
  		qApp->restoreOverrideCursor();
+#endif
  		return;
  	    }
  	}
@@ -224,8 +228,10 @@ void QTextBrowser::setSource(const QString& name)
     else
 	setContentsPos( 0, 0 );
 
+#ifndef QT_NO_CURSOR
     if ( isVisible() )
 	qApp->restoreOverrideCursor();
+#endif
 }
 
 /*!
@@ -395,7 +401,9 @@ void QTextBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 		emit highlighted( QString::null );
 		d->highlight = QString::null;
 	    }
+#ifndef QT_NO_CURSOR
 	    viewport()->setCursor( d->highlight.isEmpty()?arrowCursor:pointingHandCursor );
+#endif
 	}
     }
 

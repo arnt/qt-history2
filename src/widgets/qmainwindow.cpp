@@ -180,7 +180,9 @@ public:
 	movable = TRUE;
 	inMovement = FALSE;
 	dockMenu = TRUE;
+#ifndef QT_NO_CURSOR
 	oldCursor = ArrowCursor;
+#endif
     }
 
     ToolBar *findToolbar( QToolBar *t, QMainWindowPrivate::ToolBarDock *&dock );
@@ -252,7 +254,9 @@ public:
     bool inMovement;
     bool dockMenu;
 
+#ifndef QT_NO_CURSOR
     QCursor oldCursor;
+#endif
 
     QMap< int, bool > dockable;
 };
@@ -2794,8 +2798,10 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
 	// finally really move the toolbar, if the mouse was moved...
 	if ( d->movedEnough ) {
+#ifndef QT_NO_CURSOR
 	    if ( t->cursor().shape() == ForbiddenCursor )
 		t->setCursor( d->oldCursor );
+#endif
 	    if ( !d->opaque ) {
 		ToolBarDock dock = d->oldDock;
 		if ( dock != Unmanaged && isDockEnabled( dock ) &&
@@ -2900,6 +2906,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
     if ( d->rectPainter && !d->opaque ) {
 	if ( d->oldPosRectValid && d->oldPosRect != r )
 	    d->rectPainter->drawRect( d->oldPosRect );
+#ifndef QT_NO_CURSOR
 	if ( dock == Unmanaged || !isDockEnabled( dock ) ||
 	     !isDockEnabled( t, dock ) ) {
 	    if ( t->cursor().shape() != ForbiddenCursor ) {
@@ -2911,6 +2918,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		t->setCursor( d->oldCursor );
 	    }
 	}
+#endif
 	if ( !d->oldPosRectValid || d->oldPosRect != r )
 	    d->rectPainter->drawRect( r );
     } else if ( d->opaque ) {

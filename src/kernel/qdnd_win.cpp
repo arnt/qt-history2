@@ -261,12 +261,14 @@ void QDragManager::cancel( bool /* deleteSource */ )
 	object = 0;
     }
 
+#ifndef QT_NO_CURSOR
     // insert cancel code here
 
     if ( restoreCursor ) {
 	QApplication::restoreOverrideCursor();
 	restoreCursor = FALSE;
     }
+#endif
 }
 
 

@@ -573,6 +573,8 @@ void QApplication::closePopup(QWidget * popup)
     }
 }
 
+#ifndef QT_NO_CURSOR
+
 void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
 {
     if ( !cursorStack ) {
@@ -610,6 +612,8 @@ void QApplication::restoreOverrideCursor()
         cursorStack = 0;
     }
 }
+
+#endif
 
 void * qt_xdisplay()
 {

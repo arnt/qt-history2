@@ -309,14 +309,14 @@
 
 // Printing
 /*!
-    PostScript printing
+    Printing
 */
-//#define QT_NO_PSPRINTER
-#if defined(QT_NO_PSPRINTER) && !defined(_WS_WIN_)
+//#define QT_NO_PRINTER
+#if defined(QT_NO_PRINTER)
     /*!
-	Printing
+	PostScript printing
     */
-    #define QT_NO_PRINTER
+    #define QT_NO_PSPRINTER
 #endif
 
 // Metafiles
@@ -337,7 +337,7 @@
 */
 //#define QT_NO_STYLE
 
-#if defined(QT_NO_PALETTE) || defined (QT_NO_STYLE)
+#if defined(QT_NO_PALETTE) || defined (QT_NO_STYLE) || defined(QT_NO_IMAGE_SMOOTHSCALE)
     /*!
 	Pre-defined widgets
     */
@@ -363,7 +363,7 @@
     #define QT_NO_ICONVIEW
 #endif
 
-#if defined(QT_NO_WIDGETS) || defined(QT_NO_STYLE)
+#if defined(QT_NO_WIDGETS)
     /*!
 	Windows style
     */

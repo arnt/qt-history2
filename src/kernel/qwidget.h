@@ -85,8 +85,10 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool ownPalette READ ownPalette )
     Q_PROPERTY( QFont font READ font WRITE setFont RESET unsetFont )
     Q_PROPERTY( bool ownFont READ ownFont )
+#ifndef QT_NO_CURSOR
     Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
     Q_PROPERTY( bool ownCursor READ ownCursor )
+#endif
     Q_PROPERTY( QString caption READ caption WRITE setCaption )
     Q_PROPERTY( QPixmap icon READ icon WRITE setIcon )
     Q_PROPERTY( QString iconText READ iconText WRITE setIconText )
@@ -276,7 +278,9 @@ public:
     // Grab functions
 
     void		grabMouse();
+#ifndef QT_NO_CURSOR
     void		grabMouse( const QCursor & );
+#endif
     void		releaseMouse();
     void		grabKeyboard();
     void		releaseKeyboard();

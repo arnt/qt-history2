@@ -235,7 +235,9 @@ void QLineEdit::init()
     scrollingLeft = FALSE;
     tbuf = QString::fromLatin1("");
     setFocusPolicy( StrongFocus );
+#ifndef QT_NO_CURSOR
     setCursor( ibeamCursor );
+#endif
     setBackgroundMode( PaletteBase );
     setKeyCompression( TRUE );
     alignmentFlag = Qt::AlignLeft;

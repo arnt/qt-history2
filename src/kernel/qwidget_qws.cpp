@@ -580,18 +580,17 @@ void QWidget::grabMouse()
     mouseGrb = this;
 }
 
+#ifndef QT_NO_CURSOR    
 void QWidget::grabMouse( const QCursor &cursor )
 {
     if ( mouseGrb )
 	mouseGrb->releaseMouse();
 
     qwsDisplay()->grabMouse(this,TRUE);
-#ifndef QT_NO_CURSOR    
     qwsDisplay()->selectCursor(this, (int)cursor.handle());
-#endif
     mouseGrb = this;
 }
-
+#endif
 
 void QWidget::releaseMouse()
 {

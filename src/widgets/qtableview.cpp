@@ -1443,7 +1443,9 @@ QScrollBar *QTableView::verticalScrollBar() const
     QTableView *that = (QTableView*)this; // semantic const
     if ( !vScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Vertical, that );
+#ifndef QT_NO_CURSOR
 	sb->setCursor( arrowCursor );
+#endif
         sb->resize( sb->sizeHint() ); // height is irrelevant
 	CHECK_PTR(sb);
 	sb->setTracking( FALSE );
@@ -1472,7 +1474,9 @@ QScrollBar *QTableView::horizontalScrollBar() const
     QTableView *that = (QTableView*)this; // semantic const
     if ( !hScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Horizontal, that );
+#ifndef QT_NO_CURSOR
 	sb->setCursor( arrowCursor );
+#endif
 	sb->resize( sb->sizeHint() ); // width is irrelevant
 	sb->setFocusPolicy( NoFocus );
 	CHECK_PTR(sb);

@@ -498,7 +498,9 @@ private:
     };
     MousePosition mode;
     bool moveResizeMode;
+#ifndef QT_NO_CURSOR
     void setMouseCursor( MousePosition m );
+#endif
     bool isMove() const {
 	return moveResizeMode && mode == Center;
     }
@@ -1861,7 +1863,9 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 	    mode = Right;
 	else
 	    mode = Center;
+#ifndef QT_NO_CURSOR
 	setMouseCursor( mode );
+#endif
 	return;
     }
 
@@ -1951,8 +1955,10 @@ void QWorkspaceChild::enterEvent( QEvent * )
 
 void QWorkspaceChild::leaveEvent( QEvent * )
 {
+#ifndef QT_NO_CURSOR
     if ( !buttonDown )
 	setCursor( arrowCursor );
+#endif
 }
 
 
@@ -2104,6 +2110,7 @@ void QWorkspaceChild::adjustToFullscreen()
 }
 
 
+#ifndef QT_NO_CURSOR
 /*!
   Sets an appropriate cursor shape for the logical mouse position \a m
 
@@ -2133,6 +2140,7 @@ void QWorkspaceChild::setMouseCursor( MousePosition m )
 	break;
     }
 }
+#endif
 
 void QWorkspaceChild::keyPressEvent( QKeyEvent * e )
 {
@@ -2159,8 +2167,12 @@ void QWorkspaceChild::keyPressEvent( QKeyEvent * e )
 		mode = BottomLeft;
 	    else if ( mode == TopRight )
 		mode = TopLeft;
+#ifndef QT_NO_CURSOR
 	    setMouseCursor( mode );
 	    grabMouse( cursor() );
+#else
+	    grabMouse();
+#endif
 	}
 	break;
     case Key_Right:
@@ -2180,8 +2192,12 @@ void QWorkspaceChild::keyPressEvent( QKeyEvent * e )
 		mode = BottomRight;
 	    else if ( mode == TopLeft )
 		mode = TopRight;
+#ifndef QT_NO_CURSOR
 	    setMouseCursor( mode );
 	    grabMouse( cursor() );
+#else
+	    grabMouse();
+#endif
 	}
 	break;
     case Key_Up:
@@ -2201,8 +2217,12 @@ void QWorkspaceChild::keyPressEvent( QKeyEvent * e )
 		mode = TopLeft;
 	    else if ( mode == BottomRight )
 		mode = TopRight;
+#ifndef QT_NO_CURSOR
 	    setMouseCursor( mode );
 	    grabMouse( cursor() );
+#else
+	    grabMouse();
+#endif
 	}
 	break;
     case Key_Down:
@@ -2222,8 +2242,12 @@ void QWorkspaceChild::keyPressEvent( QKeyEvent * e )
 		mode = BottomLeft;
 	    else if ( mode == TopRight )
 		mode = BottomRight;
+#ifndef QT_NO_CURSOR
 	    setMouseCursor( mode );
 	    grabMouse( cursor() );
+#else
+	    grabMouse();
+#endif
 	}
 	break;
     case Key_Space:
@@ -2258,8 +2282,12 @@ void QWorkspaceChild::doResize()
 	    mode = BottomRight;
     }
     invertedMoveOffset = rect().bottomRight() - moveOffset;
+#ifndef QT_NO_CURSOR
     setMouseCursor( mode );
     grabMouse( cursor()  );
+#else
+    grabMouse();
+#endif
     grabKeyboard();
     resizeHorizontalDirectionFixed = FALSE;
     resizeVerticalDirectionFixed = FALSE;
@@ -2272,7 +2300,11 @@ void QWorkspaceChild::doMove()
     buttonDown = TRUE;
     moveOffset = mapFromGlobal( QCursor::pos() );
     invertedMoveOffset = rect().bottomRight() - moveOffset;
+#ifndef QT_NO_CURSOR
     grabMouse( arrowCursor );
+#else
+    grabMouse();
+#endif
     grabKeyboard();
 }
 

@@ -26,4 +26,5 @@ private slots:
     void showInfo(QListViewItem* i);
     void open();
     void save();
+    void testAll();
 };

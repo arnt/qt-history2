@@ -12,6 +12,7 @@
 #include <qmenubar.h>
 #include <qstatusbar.h>
 #include <qsplitter.h>
+#include <unistd.h>
 
 #define FIXED_LAYOUT
 
@@ -112,6 +113,9 @@ Main::Main()
     QPopupMenu* file = new QPopupMenu( menuBar() );
     file->insertItem( "&Open",  this, SLOT(open()), CTRL+Key_O );
     file->insertItem( "&Save", this, SLOT(save()), CTRL+Key_S );
+    file->insertSeparator();
+    file->insertItem( "&Test all", this, SLOT(testAll()), CTRL+Key_T );
+    file->insertSeparator();
     file->insertItem( "E&xit",  qApp, SLOT(quit()), CTRL+Key_Q );
 
     menuBar()->insertItem("&File",file);
@@ -126,6 +130,45 @@ void Main::open()
 void Main::save()
 {
 }
+
+void Main::testAll()
+{
+    QString qtdir = getenv("QTDIR");
+    chdir((qtdir+"/src").ascii());
+    QString c;
+    for (QStringList::ConstIterator it = choices.begin(); it != choices.end(); ++it)
+    {
+	c += (*it);
+	c += " ";
+	c += dependencies[*it].join(" ");
+	c += "\n";
+    }
+    QFile f("featurelist");
+    f.open(IO_WriteOnly);
+    f.writeBlock(c.ascii(),c.length());
+    f.close();
+    // system("./feature_size_calculator");
+
+#if 0
+    system("mv ../include/qconfig.h ../include/qconfig.h-orig");
+    for (QStringList::ConstIterator it = choices.begin(); it != choices.end(); ++it)
+    {
+	QString choice = *it;
+	QFile f("../include/qconfig.h");
+	f.open(IO_WriteOnly);
+	QCString s = "#define ";
+	s += choice.latin1();
+	s += "\n";
+	f.writeBlock(s,s.length());
+	f.close();
+	int err = system("make");
+	if ( err != 0 )
+	    break;
+    }
+    system("mv ../include/qconfig.h-orig ../include/qconfig.h");
+#endif
+}
+
 
 // ##### should be in QMap?
 template <class K, class D>

@@ -221,7 +221,9 @@ public:
     bool dirty, rearrangeEnabled;
     QIconView::ItemTextPos itemTextPos;
     bool reorderItemsWhenInsert;
+#ifndef QT_NO_CURSOR
     QCursor oldCursor;
+#endif
     bool resortItemsWhenInsert, sortDirection;
     bool wordWrapIconText;
     int cachedContentsX, cachedContentsY;
@@ -2251,7 +2253,9 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->rearrangeEnabled = TRUE;
     d->itemTextPos = Bottom;
     d->reorderItemsWhenInsert = TRUE;
+#ifndef QT_NO_CURSOR
     d->oldCursor = arrowCursor;
+#endif
     d->resortItemsWhenInsert = FALSE;
     d->sortDirection = TRUE;
     d->wordWrapIconText = TRUE;

@@ -92,7 +92,9 @@ static QWidget* qt_sizegrip_workspace( QWidget* w )
 QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     : QWidget( parent, name )
 {
+#ifndef QT_NO_CURSOR
     setCursor( sizeFDiagCursor );
+#endif
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 #if defined(_WS_X11_)
     if ( !qt_sizegrip_workspace( this ) ) {

@@ -985,8 +985,10 @@ void QDragManager::updateCursor()
 	if ( qt_xdnd_deco )
 	    qt_xdnd_deco->hide();
     }
+#ifndef QT_NO_CURSOR
     if ( c )
 	qApp->setOverrideCursor( *c, TRUE );
+#endif
 }
 
 
@@ -1001,10 +1003,12 @@ void QDragManager::cancel( bool deleteSource )
 	qt_xdnd_send_leave();
     }
 
+#ifndef QT_NO_CURSOR
     if ( restoreCursor ) {
 	QApplication::restoreOverrideCursor();
 	restoreCursor = FALSE;
     }
+#endif
 
     if ( deleteSource )
 	delete qt_xdnd_source_object;
@@ -1252,10 +1256,12 @@ void QDragManager::drop()
 	XSendEvent( qt_xdisplay(), qt_xdnd_current_proxy_target, FALSE, emask,
 		    (XEvent*)&drop );
 
+#ifndef QT_NO_CURSOR
     if ( restoreCursor ) {
 	QApplication::restoreOverrideCursor();
 	restoreCursor = FALSE;
     }
+#endif
 }
 
 
@@ -1565,13 +1571,17 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     move(QCursor::pos());
     heartbeat = startTimer(200);
 
+#ifndef QT_NO_CURSOR
     qApp->setOverrideCursor( arrowCursor );
     restoreCursor = TRUE;
     updateCursor();
+#endif
 
     qApp->enter_loop(); // Do the DND.
 
+#ifndef QT_NO_CURSOR
     qApp->restoreOverrideCursor();
+#endif
 
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;

@@ -91,10 +91,12 @@ QSize QSplitterHandle::sizeHint() const
 void QSplitterHandle::setOrientation( Qt::Orientation o )
 {
     orient = o;
+#ifndef QT_NO_CURSOR
     if ( o == QSplitter::Horizontal )
 	setCursor( splitHCursor );
     else
 	setCursor( splitVCursor );
+#endif
 }
 
 

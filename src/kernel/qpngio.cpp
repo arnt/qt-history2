@@ -299,6 +299,7 @@ void QPNGImageWriter::setFrameDelay(int msecs)
 }
 
 
+#ifndef QT_NO_IMAGE_TEXT
 static void set_text(const QImage& image, png_structp png_ptr, png_infop info_ptr, bool short_not_long)
 {
     QValueList<QImageTextKeyLang> keys = image.textList();
@@ -326,6 +327,7 @@ static void set_text(const QImage& image, png_structp png_ptr, png_infop info_pt
 	delete [] text_ptr;
     }
 }
+#endif
 
 bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
 {
@@ -445,9 +447,17 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 		PNG_RESOLUTION_METER);
     }
 
+#ifndef QT_NO_IMAGE_TEXT
+    // Write short texts early.
     set_text(image,png_ptr,info_ptr,TRUE);
+#endif
+
     png_write_info(png_ptr, info_ptr);
+
+#ifndef QT_NO_IMAGE_TEXT
+    // Write long texts later.
     set_text(image,png_ptr,info_ptr,FALSE);
+#endif
 
     if ( image.depth() != 1 )
 	png_set_packing(png_ptr);
@@ -950,6 +960,7 @@ void QPNGFormat::end(png_structp png, png_infop info)
     image->setOffset(QPoint(offx,offy));
     image->setDotsPerMeterX(png_get_x_pixels_per_meter(png,info));
     image->setDotsPerMeterY(png_get_y_pixels_per_meter(png,info));
+#ifndef QT_NO_IMAGE_TEXT
     png_textp text_ptr;
     int num_text=0;
     png_get_text(png,info,&text_ptr,&num_text);
@@ -957,6 +968,7 @@ void QPNGFormat::end(png_structp png, png_infop info)
 	image->setText(text_ptr->key,0,text_ptr->text);
 	text_ptr++;
     }
+#endif
     QRect r(0,0,image->width(),image->height());
     consumer->frameDone(QPoint(offx,offy),r);
     state = FrameStart;
@@ -1001,6 +1013,7 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
     }
 #endif
 
+#ifndef QT_NO_IMAGE_TEXT
     if ( 0==strcmp((char*)png->chunk_name, "iTXt") && length>=6 ) {
 	const char* keyword = (const char*)data;
 	if ( !skip(length,data) ) return 0;
@@ -1021,6 +1034,7 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 	    return 1;
 	}
     }
+#endif
 
     return 0;
 }

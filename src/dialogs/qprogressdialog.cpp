@@ -71,7 +71,9 @@ struct QProgressData
     bool	  shown_once;
     bool	  cancellation_flag;
     QTime	  starttime;
+#ifndef QT_NO_CURSOR
     QCursor	  parentCursor;
+#endif
     int		  showTime;
     bool autoClose;
     bool autoReset;
@@ -276,8 +278,10 @@ QProgressDialog::QProgressDialog( const QString &labelText,
 
 QProgressDialog::~QProgressDialog()
 {
+#ifndef QT_NO_CURSOR
     if ( d->creator )
 	d->creator->setCursor( d->parentCursor );
+#endif
     delete d;
 }
 
@@ -477,10 +481,12 @@ void QProgressDialog::setTotalSteps( int totalSteps )
 
 void QProgressDialog::reset()
 {
+#ifndef QT_NO_CURSOR
     if ( progress() >= 0 ) {
 	if ( d->creator )
 	    d->creator->setCursor( d->parentCursor );
     }
+#endif
     if ( d->autoClose || d->forceHide )
 	hide();
     bar()->reset();
@@ -544,10 +550,12 @@ void QProgressDialog::setProgress( int progress )
 	    qApp->processEvents();
     } else {
 	if ( progress == 0 ) {
+#ifndef QT_NO_CURSOR
 	    if ( d->creator ) {
 		d->parentCursor = d->creator->cursor();
 		d->creator->setCursor( waitCursor );
 	    }
+#endif
 	    d->starttime.start();
 	    return;
 	} else {

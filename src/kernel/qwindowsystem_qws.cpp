@@ -377,11 +377,13 @@ void QWSServer::clientClosed()
 		if ( mouseGrabber == w ) {
 		    mouseGrabber = 0;
 		    mouseGrabbing = FALSE;
+#ifndef QT_NO_CURSOR
 		    if (nextCursor) {
 			// Not grabbing -> set the correct cursor
 			setCursor(nextCursor);
 			nextCursor = 0;
 		    }
+#endif
 		}
 		exposed += w->allocation();
 		rgnMan->remove( w->allocationIndex() );
@@ -599,10 +601,12 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 	(*it)->sendEvent( &event );
 
     if ( !state && !mouseGrabbing ) {
+#ifndef QT_NO_CURSOR
 	if (mouseGrabber && nextCursor) {
 	    setCursor(nextCursor);
 	    nextCursor = 0;
 	}
+#endif
 	mouseGrabber = 0;
     }
 }
@@ -959,11 +963,13 @@ void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 	if ( !cmd->simpleData.grab ) {
 	    mouseGrabbing = FALSE;
 	    mouseGrabber = 0;
+#ifndef QT_NO_CURSOR
 	    if (nextCursor) {
 		// Not grabbing -> set the correct cursor
 		setCursor(nextCursor);
 		nextCursor = 0;
 	    }
+#endif
 	}
     } else if ( cmd->simpleData.grab ) {
 	mouseGrabbing = TRUE;

@@ -543,7 +543,9 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	handleColumnResize( handleIdx, c, TRUE );
 	} break;
     case Moving: {
+#ifndef QT_NO_CURSOR
 	unsetCursor();
+#endif
 	int section = d->i2s[handleIdx];
 	if ( handleIdx != moveToIdx && moveToIdx != -1 ) {
 	    moveSection( section, moveToIdx );
@@ -592,15 +594,19 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
 		    section = d->i2s[--index];
 		if ( d->resize.testBit(section) ) {
 		    hit = TRUE;
+#ifndef QT_NO_CURSOR
 		    if ( orient == Horizontal )
 			setCursor( splitHCursor );
 		    else
 			setCursor( splitVCursor );
+#endif
 		}
 	    }
 	}
+#ifndef QT_NO_CURSOR
 	if ( !hit )
 	    unsetCursor();
+#endif
 	break;
     case Blocked:
 	break;
@@ -608,10 +614,12 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
 	if ( QABS( c - clickPos ) > 4 && d->move ) {
 	    state = Moving;
 	    moveToIdx = -1;
+#ifndef QT_NO_CURSOR
 	    if ( orient == Horizontal )
 		setCursor( sizeHorCursor );
 	    else
 		setCursor( sizeVerCursor );
+#endif
 	}
 	break;
     case Sliding:
