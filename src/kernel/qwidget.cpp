@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#80 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#79 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#80 $")
 
 
 /*!
@@ -989,8 +989,14 @@ void QWidget::mouseMoveEvent( QMouseEvent * )
 
   The default implementation does nothing.
 
-  \sa mouseReleaseEvent(), event()
-*/
+  If you create new widgets in the mousePressEvent() the
+  mouseReleaseEvent() may not end up where you expect, depending on
+  your window manager, the widgets' location and maybe more.  It is
+  probably a good idea to only note cursor location, shift state and
+  so on in mousePressEvent(), and delay actual processing to
+  mouseReleaseEvent().
+
+  \sa mouseReleaseEvent(), event() */
 
 void QWidget::mousePressEvent( QMouseEvent * )
 {
@@ -1015,8 +1021,10 @@ void QWidget::mouseReleaseEvent( QMouseEvent * )
 
   The default implementation generates a normal mouse press event.
 
-  \sa mousePressEvent(), event()
-*/
+  Note that the widgets gets a mousePressEvent() and a
+  mouseReleaseEvent() before the mouseDoubleClickEvent().
+
+  \sa mousePressEvent(), event() */
 
 void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 {
