@@ -112,6 +112,7 @@ namespace csharp
 		private void resetLineWidth(object sender, System.EventArgs e)
 		{
 			this.circleWidget.lineWidth = 1;
+			this.resetButton.setFocus();
 		}
 
 		private void circleClicked(object sender, System.EventArgs e)
