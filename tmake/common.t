@@ -34,9 +34,9 @@ SYSCONF_MOC		= #$ Expand('TMAKE_MOC');
 SYSCONF_LINK_SHLIB	= #$ Expand('TMAKE_LINK_SHLIB');
 SYSCONF_LINK_LIB_SHARED	= #${
     if ( Project('TMAKE_HPUX_SHLIB') ) {
-	$targ = 'lib$(TARGET).sl' . "\n";
+	$targ = 'lib$(TARGET).sl';
     } else {
-	$targ = 'lib$(TARGET).so.$(VER_MAJ).$(VER_MIN)' . "\n";
+	$targ = 'lib$(TARGET).so.$(VER_MAJ).$(VER_MIN)';
     }
     if ( Project('TMAKE_HPUX_SHLIB') ) {
 	$text .= ' $(SYSCONF_LINK_SHLIB) '
