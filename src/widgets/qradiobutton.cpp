@@ -197,6 +197,8 @@ void QRadioButton::drawButton( QPainter *paint )
     QSize lsz = fm.size(ShowPrefix, text());
     QSize sz = style().exclusiveIndicatorSize();
     x = 0;
+    if( QApplication::reverseLayout() )
+	x = width() - gutter -sz.width();
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
 #ifndef QT_NO_TEXTSTREAM
@@ -274,15 +276,17 @@ void QRadioButton::drawButtonLabel( QPainter *p )
     x = sz.width() + gutter;
     w = width() - x;
     h = height();
-
+    if( QApplication::reverseLayout() )
+	x = 0;
+    
     style().drawItem( p, x, y, w, h,
-		      AlignLeft|AlignVCenter|ShowPrefix,
+		      AlignAuto|AlignVCenter|ShowPrefix,
 		      colorGroup(), isEnabled(),
 		      pixmap(), text() );
 
     if ( hasFocus() ) {
 	QRect br = style().itemRect( p, x, y, w, h,
-				     AlignLeft|AlignVCenter|ShowPrefix,
+				     AlignAuto|AlignVCenter|ShowPrefix,
 				     isEnabled(),
 				     pixmap(), text() );
 	br.setLeft( br.left()-3 );

@@ -217,6 +217,8 @@ void QCheckBox::drawButton( QPainter *paint )
     QSize lsz = fm.size(ShowPrefix, text());
     QSize sz = style().indicatorSize();
     x = gs == MotifStyle ? 1 : 0;
+    if( QApplication::reverseLayout() )
+	x = width() - x -sz.width();
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
 #ifndef QT_NO_TEXTSTREAM
@@ -290,16 +292,18 @@ void QCheckBox::drawButtonLabel( QPainter *p )
     y = 0;
     x = sz.width() + extraWidth( gs ); //###
     w = width() - x;
+    if ( QApplication::reverseLayout() )
+	x = extraWidth( gs );
     h = height();
 
     style().drawItem( p, x, y, w, h,
-		      AlignLeft|AlignVCenter|ShowPrefix,
+		      AlignAuto|AlignVCenter|ShowPrefix,
 		      colorGroup(), isEnabled(),
 		      pixmap(), text() );
 
     if ( hasFocus() ) {
 	QRect br = style().itemRect( p, x, y, w, h,
-				   AlignLeft|AlignVCenter|ShowPrefix,
+				   AlignAuto|AlignVCenter|ShowPrefix,
 				   isEnabled(),
 				   pixmap(), text() );
 	br.setLeft( br.left()-3 );

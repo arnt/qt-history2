@@ -142,7 +142,7 @@ QGroupBox::QGroupBox( int strips, Orientation orientation,
 void QGroupBox::init()
 {
     int fs;
-    align = AlignLeft;
+    align = AlignAuto;
     fs = QFrame::Box | QFrame::Sunken;
     setFrameStyle( fs );
     accel = 0;
@@ -230,7 +230,7 @@ void QGroupBox::setTitle( const QString &title )
   \fn int QGroupBox::alignment() const
   Returns the alignment of the group box title.
 
-  The default alignment is \c AlignLeft.
+  The default alignment is \c AlignAuto.
 
   \sa setAlignment(), Qt::AlignmentFlags
 */
@@ -241,8 +241,9 @@ void QGroupBox::setTitle( const QString &title )
   The title is always placed on the upper frame line, however,
   the horizontal alignment can be specified by the \e alignment parameter.
 
-  The \e alignment is the bitwise OR of the following flags:
+  The \e alignment is one of the following flags:
   <ul>
+  <li> \c AlignAuto aligns the title accroding to the language, usually left.
   <li> \c AlignLeft aligns the title text to the left.
   <li> \c AlignRight aligns the title text to the right.
   <li> \c AlignHCenter aligns the title text centered.
@@ -284,8 +285,14 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	    x = frameRect().width()/2 - tw/2;
 	else if ( align & AlignRight )	// right alignment
 	    x = frameRect().width() - tw - 8;
-	else				// left alignment
+	else if ( align & AlignLeft )		 // left alignment
 	    x = 8;
+	else { // auto align
+	    if( QApplication::reverseLayout() )
+		x = frameRect().width() - tw - 8;
+	    else
+		x = 8;
+	}
 	qDrawItem( &paint, style(), x, 0, tw, h, AlignCenter + ShowPrefix,
 		   colorGroup(), isEnabled(), 0, str, lenvisible, 0 );
 	QRect r( x, 0, tw, h );
