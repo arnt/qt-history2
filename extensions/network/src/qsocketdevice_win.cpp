@@ -30,47 +30,6 @@
 #include <winsock.h>
 #include <errno.h>
 
-#define EWOULDBLOCK             WSAEWOULDBLOCK
-#define EINPROGRESS             WSAEINPROGRESS
-#define EALREADY                WSAEALREADY
-#define ENOTSOCK                WSAENOTSOCK
-#define EDESTADDRREQ            WSAEDESTADDRREQ
-#define EMSGSIZE                WSAEMSGSIZE
-#define EPROTOTYPE              WSAEPROTOTYPE
-#define ENOPROTOOPT             WSAENOPROTOOPT
-#define EPROTONOSUPPORT         WSAEPROTONOSUPPORT
-#define ESOCKTNOSUPPORT         WSAESOCKTNOSUPPORT
-#define EOPNOTSUPP              WSAEOPNOTSUPP
-#define EPFNOSUPPORT            WSAEPFNOSUPPORT
-#define EAFNOSUPPORT            WSAEAFNOSUPPORT
-#define EADDRINUSE              WSAEADDRINUSE
-#define EADDRNOTAVAIL           WSAEADDRNOTAVAIL
-#define ENETDOWN                WSAENETDOWN
-#define ENETUNREACH             WSAENETUNREACH
-#define ENETRESET               WSAENETRESET
-#define ECONNABORTED            WSAECONNABORTED
-#define ECONNRESET              WSAECONNRESET
-#define ENOBUFS                 WSAENOBUFS
-#define EISCONN                 WSAEISCONN
-#define ENOTCONN                WSAENOTCONN
-#define ESHUTDOWN               WSAESHUTDOWN
-#define ETOOMANYREFS            WSAETOOMANYREFS
-#define ETIMEDOUT               WSAETIMEDOUT
-#define ECONNREFUSED            WSAECONNREFUSED
-#define ELOOP                   WSAELOOP
-//#define ENAMETOOLONG            WSAENAMETOOLONG
-#define EHOSTDOWN               WSAEHOSTDOWN
-#define EHOSTUNREACH            WSAEHOSTUNREACH
-#define ENOTEMPTY               WSAENOTEMPTY
-#define EPROCLIM                WSAEPROCLIM
-#define EUSERS                  WSAEUSERS
-#define EDQUOT                  WSAEDQUOT
-#define ESTALE                  WSAESTALE
-#define EREMOTE                 WSAEREMOTE
-
-//#define QSOCKETDEVICE_DEBUG
-
-
 
 // this mess (it's not yet a mess but I'm sure it'll be one before
 // it's done) defines SOCKLEN_T to socklen_t or whatever else, for
@@ -83,22 +42,12 @@
 
 #define SOCKLEN_T int // #### What's that really?
 
-// test that EAGAIN exists, and that if EWOULDBLOCK also exists, that
-// they have the same value.
-
-// #if !defined(EAGAIN)
-// #error "requires EAGAIN (mostly for simplicity)"
-// #elif defined(EWOULDBLOCK) && ( EAGAIN != EWOULDBLOCK )
-// #error "does not support EWOULDBLOCK that is different from EAGAIN"
-// #endif
-
-
-
 
 static void cleanupWinSock() // post-routine
 {
     WSACleanup();
 }
+
 
 void QSocketDevice::init()
 {
@@ -117,21 +66,10 @@ void QSocketDevice::init()
 	qDebug( "QSocketDevice: WinSock initialization %s",
 		(error ? "failed" : "OK") );
 #endif
+	init = TRUE;
     }
 }
 
-
-
-
-/*!
-  Creates a QSocketDevice object for a stream or datagram socket.
-
-  The \a type argument must be either \c QSocketDevice::Stream for a
-  reliable, connection-oriented TCP socket, or \c
-  QSocketDevice::Datagram for an unreliable UDP socket.
-
-  \sa blocking()
-*/
 
 QSocketDevice::QSocketDevice( Type type, bool )
     : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ), d( 0 )
@@ -146,20 +84,20 @@ QSocketDevice::QSocketDevice( Type type, bool )
 	// leave fd at -1 but set the type
 	t = type;
 	switch( errno ) {
-	case EPROTONOSUPPORT:
+	case WSAEPROTONOSUPPORT:
 	    e = Bug; // 0 is supposed to work for both types
 	    break;
-	case ENFILE:
+	case WSAENFILE:
 	    e = NoFiles; // special case for this
 	    break;
-	case EACCES:
+	case WSAEACCES:
 	    e = Inaccessible;
 	    break;
-	case ENOBUFS:
-	case ENOMEM:
+	case WSAENOBUFS:
+	case WSAENOMEM:
 	    e = NoResources;
 	    break;
-	case EINVAL:
+	case WSAEINVAL:
 	    e = Impossible;
 	    break;
 	default:
@@ -171,19 +109,6 @@ QSocketDevice::QSocketDevice( Type type, bool )
     }
 }
 
-
-/*! \reimp
-
-  Closes the socket and sets the socket identifier to -1 (invalid).
-
-  (This function ignores errors; if there are any then a file
-  descriptor leakage might result.  As far as we know, the only error
-  that can arise is EBADF, and that would of course not cause leakage.
-  There may be OS-specfic errors that we haven't come across,
-  however.)
-
-  \sa open()
-*/
 
 void QSocketDevice::close()
 {
@@ -200,18 +125,6 @@ void QSocketDevice::close()
 }
 
 
-/*!
-  Returns TRUE if the socket is in blocking mode, or FALSE if it
-  is in nonblocking mode or if the socket is invalid.
-
-  Note that this function does not set error().
-
-  \warning On Windows, this function always returns TRUE since the
-  ioctlsocket() function is broken.
-
-  \sa setBlocking(), isValid()
-*/
-
 bool QSocketDevice::blocking() const
 {
     if ( !isValid() )
@@ -219,22 +132,6 @@ bool QSocketDevice::blocking() const
     return TRUE;
 }
 
-
-/*!
-  Makes the socket blocking if \a enable is TRUE or nonblocking if
-  \a enable is FALSE.
-
-  Sockets are blocking by default, but we recommend using
-  nonblocking socket operations, especially for GUI programs that need
-  to be responsive.
-
-  \warning On Windows, this function does nothing since the
-  ioctlsocket() function is broken.  Whenever you use a
-  QSocketNotifier on Windows, the socket is immediately made
-  nonblocking.
-
-  \sa blocking(), isValid()
-*/
 
 void QSocketDevice::setBlocking( bool enable )
 {
@@ -245,10 +142,6 @@ void QSocketDevice::setBlocking( bool enable )
 	return;
 }
 
-
-/*!
-  Returns a socket option.
-*/
 
 int QSocketDevice::option( Option opt ) const
 {
@@ -295,10 +188,6 @@ int QSocketDevice::option( Option opt ) const
 }
 
 
-/*!
-  Sets a socket option.
-*/
-
 void QSocketDevice::setOption( Option opt, int v )
 {
     if ( !isValid() )
@@ -338,16 +227,6 @@ void QSocketDevice::setOption( Option opt, int v )
 }
 
 
-/*!
-  Connects to the IP address and port specified by \a addr.  Returns
-  TRUE if it establishes a connection, and FALSE if not.  error()
-  explains why.
-
-  Note that error() commonly returns NoError for non-blocking sockets;
-  this just means that you can call connect() again in a little while
-  and it'll probably succeed.
-*/
-
 bool QSocketDevice::connect( const QHostAddress &addr, uint port )
 {
     if ( !isValid() )
@@ -374,15 +253,6 @@ bool QSocketDevice::connect( const QString & )
 }
 
 
-/*!
-  Assigns a name to an unnamed socket.  If the operation succeeds,
-  bind() returns TRUE.  Otherwise, it returns FALSE without changing
-  what port() and address() return.
-
-  bind() is used by servers for setting up incoming connections.
-  Call bind() before listen().
-*/
-
 bool QSocketDevice::bind( const QHostAddress &address, uint port )
 {
     if ( !isValid() )
@@ -397,25 +267,25 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
     int r = ::bind( fd, (struct sockaddr*)&a,sizeof(struct sockaddr_in) );
     if ( r < 0 ) {
 	switch( r ) {
-	case EINVAL:
+	case WSAEINVAL:
 	    e = AlreadyBound;
 	    break;
-	case EACCES:
+	case WSAEACCES:
 	    e = Inaccessible;
 	    break;
-	case ENOMEM:
+	case WSAENOMEM:
 	    e = NoResources;
 	    break;
-	case EFAULT: // a was illegal
-	case ENAMETOOLONG: // sz was wrong
+	case WSAEFAULT: // a was illegal
+	case WSAENAMETOOLONG: // sz was wrong
 	    e = Bug;
 	    break;
-	case EBADF: // AF_UNIX only
-	case ENOTSOCK: // AF_UNIX only
-	case EROFS: // AF_UNIX only
-	case ENOENT: // AF_UNIX only
-	case ENOTDIR: // AF_UNIX only
-	case ELOOP: // AF_UNIX only
+	case WSAEBADF: // AF_UNIX only
+	case WSAENOTSOCK: // AF_UNIX only
+	case WSAEROFS: // AF_UNIX only
+	case WSAENOENT: // AF_UNIX only
+	case WSAENOTDIR: // AF_UNIX only
+	case WSAELOOP: // AF_UNIX only
 	    e = Impossible;
 	    break;
 	default:
@@ -434,17 +304,6 @@ bool QSocketDevice::bind( const QString& )
     return FALSE;
 }
 
-/*!
-  Specifies how many pending connections a server socket can have.
-  Returns TRUE if the operation was successful, otherwise FALSE.
-
-  The listen() call only applies to sockets where type() is \c Stream,
-  not \c Datagram sockets.  listen() must not be called before bind()
-  or after accept().  It is common to use a \a backlog value of 50 on
-  most Unix systems.
-
-  \sa bind(), accept()
-*/
 
 bool QSocketDevice::listen( int backlog )
 {
@@ -458,14 +317,6 @@ bool QSocketDevice::listen( int backlog )
 }
 
 
-/*!
-  Extracts the first connection from the queue of pending connections
-  for this socket and returns a new socket identifier.  Returns -1
-  if the operation failed.
-
-  \sa bind(), listen()
-*/
-
 int QSocketDevice::accept()
 {
     if ( !isValid() )
@@ -476,34 +327,34 @@ int QSocketDevice::accept()
     // we'll blithely throw away the stuff accept() wrote to a
     if ( s < 0 && e == NoError ) {
 	switch( errno ) {
-	case EPROTOTYPE:
-	case ENOPROTOOPT:
-	case EHOSTDOWN:
-	case EOPNOTSUPP:
+	case WSAEPROTOTYPE:
+	case WSAENOPROTOOPT:
+	case WSAEHOSTDOWN:
+	case WSAEOPNOTSUPP:
 	    //case ENONET:
-	case EHOSTUNREACH:
-	case ENETDOWN:
-	case ENETUNREACH:
-	case ETIMEDOUT:
+	case WSAEHOSTUNREACH:
+	case WSAENETDOWN:
+	case WSAENETUNREACH:
+	case WSAETIMEDOUT:
 	    // in all these cases, an error happened during connection
 	    // setup.  we're not interested in what happened, so we
 	    // just treat it like the client-closed-quickly case.
-	case EPERM:
+	case WSAEPERM:
 	    // firewalling wouldn't let us accept.  we treat it like
 	    // the client-closed-quickly case.
-	case EAGAIN:
+	case WSAEAGAIN:
 	    // the client closed the connection before we got around
 	    // to accept()ing it.
 	    break;
-	case EBADF:
-	case ENOTSOCK:
+	case WSAEBADF:
+	case WSAENOTSOCK:
 	    e = Impossible;
 	    break;
-	case EFAULT:
+	case WSAEFAULT:
 	    e = Bug;
 	    break;
-	case ENOMEM:
-	case ENOBUFS:
+	case WSAENOMEM:
+	case WSAENOBUFS:
 	    e = NoResources;
 	    break;
 	default:
@@ -514,18 +365,6 @@ int QSocketDevice::accept()
     return s;
 }
 
-
-/*!
-  Returns the number of bytes available for reading, or -1 if an
-  error occurred.
-
-  \warning On Microsoft Windows, we use the ioctlsocket() function
-  to determine the number of bytes queued on the socket.
-  According to Microsoft (KB Q125486), ioctlsocket() sometimes
-  return an incorrect number.  The only safe way to determine the
-  amount of data on the socket is to read it using readBlock().
-  QSocket has workarounds to deal with this problem.
-*/
 
 int QSocketDevice::bytesAvailable() const
 {
@@ -538,15 +377,6 @@ int QSocketDevice::bytesAvailable() const
 }
 
 
-/*!
-  Wait upto \a msecs milliseconds for more data to be available.
-  If \a msecs is -1 the call will block indefinitely.
-  This is a blocking call and should be avoided in event driven
-  applications.
-  Returns the number of bytes available for reading, or -1 if an
-  error occurred.
-  \sa bytesAvailable()
-*/
 int QSocketDevice::waitForMore( int msecs )
 {
 //#warning "QSocketDevice::waitForMore() not implemented for windows"
@@ -554,11 +384,6 @@ int QSocketDevice::waitForMore( int msecs )
     return -1;
 }
 
-
-/*!
-  Reads max \a maxlen bytes from the socket into \a data and returns
-  the number of bytes read.  Returns -1 if an error occurred.
-*/
 
 int QSocketDevice::readBlock( char *data, uint maxlen )
 {
@@ -603,20 +428,20 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 	    done = FALSE;
 	} else if ( e == NoError ) {
 	    switch( errno ) {
-	    case EIO:
-	    case EISDIR:
-	    case EBADF:
-	    case EINVAL:
-	    case EFAULT:
-	    case ENOTCONN:
-	    case ENOTSOCK:
+	    case WSAEIO:
+	    case WSAEISDIR:
+	    case WSAEBADF:
+	    case WSAEINVAL:
+	    case WSAEFAULT:
+	    case WSAENOTCONN:
+	    case WSAENOTSOCK:
 		e = Impossible;
 		break;
 		//case ENONET:
-	    case EHOSTUNREACH:
-	    case ENETDOWN:
-	    case ENETUNREACH:
-	    case ETIMEDOUT:
+	    case WSAEHOSTUNREACH:
+	    case WSAENETDOWN:
+	    case WSAENETUNREACH:
+	    case WSAETIMEDOUT:
 		e = NetworkFailure;
 		break;
 	    default:
@@ -628,11 +453,6 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
     return r;
 }
 
-
-/*!
-  Writes \a len bytes from the socket from \a data and returns
-  the number of bytes written.  Returns -1 if an error occurred.
-*/
 
 int QSocketDevice::writeBlock( const char *data, uint len )
 {
@@ -665,27 +485,27 @@ int QSocketDevice::writeBlock( const char *data, uint len )
     while ( !done ) {
 	r = ::send( fd, data, len, 0 );
 	done = TRUE;
-	if ( r < 0 && e == NoError && errno != EAGAIN ) {
+	if ( r < 0 && e == NoError && errno != WSAEAGAIN ) {
 	    switch( errno ) {
-	    case EINTR: // signal - call read() or whatever again
+	    case WSAEINTR: // signal - call read() or whatever again
 		done = FALSE;
 		break;
-	    case ENOSPC:
-	    case EPIPE:
-	    case EIO:
-	    case EISDIR:
-	    case EBADF:
-	    case EINVAL:
-	    case EFAULT:
-	    case ENOTCONN:
-	    case ENOTSOCK:
+	    case WSAENOSPC:
+	    case WSAEPIPE:
+	    case WSAEIO:
+	    case WSAEISDIR:
+	    case WSAEBADF:
+	    case WSAEINVAL:
+	    case WSAEFAULT:
+	    case WSAENOTCONN:
+	    case WSAENOTSOCK:
 		e = Impossible;
 		break;
 		//case ENONET:
-	    case EHOSTUNREACH:
-	    case ENETDOWN:
-	    case ENETUNREACH:
-	    case ETIMEDOUT:
+	    case WSAEHOSTUNREACH:
+	    case WSAENETDOWN:
+	    case WSAENETUNREACH:
+	    case WSAETIMEDOUT:
 		e = NetworkFailure;
 		break;
 	    default:
@@ -748,25 +568,25 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 	done = TRUE;
 	if ( r < 0 && e != EAGAIN && e == NoError ) {
 	    switch( errno ) {
-	    case EINTR: // signal - call read() or whatever again
+	    case WSAEINTR: // signal - call read() or whatever again
 		done = FALSE;
 		break;
-	    case ENOSPC:
-	    case EPIPE:
-	    case EIO:
-	    case EISDIR:
-	    case EBADF:
-	    case EINVAL:
-	    case EFAULT:
-	    case ENOTCONN:
-	    case ENOTSOCK:
+	    case WSAENOSPC:
+	    case WSAEPIPE:
+	    case WSAEIO:
+	    case WSAEISDIR:
+	    case WSAEBADF:
+	    case WSAEINVAL:
+	    case WSAEFAULT:
+	    case WSAENOTCONN:
+	    case WSAENOTSOCK:
 		e = Impossible;
 		break;
 		//case ENONET:
-	    case EHOSTUNREACH:
-	    case ENETDOWN:
-	    case ENETUNREACH:
-	    case ETIMEDOUT:
+	    case WSAEHOSTUNREACH:
+	    case WSAENETDOWN:
+	    case WSAENETUNREACH:
+	    case WSAETIMEDOUT:
 		e = NetworkFailure;
 		break;
 	    default:
@@ -778,11 +598,6 @@ int QSocketDevice::writeBlock( const char * data, uint len,
     return r;
 }
 
-
-
-
-/*!  Fetches information about both ends of the connection - whatever
-  is available. */
 
 void QSocketDevice::fetchConnectionParameters()
 {

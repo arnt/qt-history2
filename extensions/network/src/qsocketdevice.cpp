@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#18 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#19 $
 **
 ** Implementation of Network Extension Library
 **
@@ -26,9 +26,6 @@
 #include "qsocketdevice.h"
 #include "qwindowdefs.h"
 #include <string.h>
-
-
-//#define QSOCKETDEVICE_DEBUG
 
 
 class QSocketDevicePrivate
@@ -102,7 +99,6 @@ Qt developers did not foresee.
   \c QSocketDevice::Stream for a reliable, connection-oriented TCP socket, or
   \c QSocketDevice::Datagram for an unreliable, connectionless UDP socket.
 */
-
 QSocketDevice::QSocketDevice( int socket, Type type, bool inet )
     : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ),
       d( new QSocketDevicePrivate )
@@ -119,7 +115,6 @@ QSocketDevice::QSocketDevice( int socket, Type type, bool inet )
 /*!
   Destroys the socket device and closes the socket if it is open.
 */
-
 QSocketDevice::~QSocketDevice()
 {
     close();
@@ -131,36 +126,38 @@ QSocketDevice::~QSocketDevice()
 }
 
 
-/*! Returns TRUE if this is a valid socket or FALSE if it is an invalid
+/*!
+  Returns TRUE if this is a valid socket or FALSE if it is an invalid
   socket.  This is actually a shortcut for socket() == -1.
 
   \sa socket()
 */
-
-
 bool QSocketDevice::isValid() const
 {
     return socket() != -1;
 }
 
 
-/*! Returns the socket type; \c QSocketDevice::Stream for a reliable,
+/*!
+  \fn Type QSocketDevice::type() const
+
+  Returns the socket type; \c QSocketDevice::Stream for a reliable,
   connection-oriented TCP socket, or \c QSocketDevice::Datagram for an
   unreliable UDP socket.
 
   \sa socket()
 */
-
 QSocketDevice::Type QSocketDevice::type() const
 {
     return t;
 }
 
-/*! Returns the socket number, or -1 if it is an invalid socket.
+
+/*!
+  Returns the socket number, or -1 if it is an invalid socket.
 
   \sa isValid(), type()
 */
-
 int QSocketDevice::socket() const
 {
     return fd;
@@ -178,7 +175,6 @@ int QSocketDevice::socket() const
 
   \sa isValid(), close()
 */
-
 void QSocketDevice::setSocket( int socket, Type type )
 {
     if ( fd != -1 )			// close any open socket
@@ -203,7 +199,6 @@ void QSocketDevice::setSocket( int socket, Type type )
 
   \sa close().
 */
-
 bool QSocketDevice::open( int mode )
 {
     if ( isOpen() || !isValid() )
@@ -221,7 +216,6 @@ bool QSocketDevice::open( int mode )
 
   QSocketDevice does not buffer at all, so this is a no-op.
 */
-
 void QSocketDevice::flush()
 {
 }
@@ -231,7 +225,6 @@ void QSocketDevice::flush()
 
   The size is meaningless for a socket, therefore this function returns 0.
 */
-
 uint QSocketDevice::size() const
 {
     return 0;
@@ -243,7 +236,6 @@ uint QSocketDevice::size() const
   The read/write index is meaningless for a socket, therefore
   this function returns 0.
 */
-
 int QSocketDevice::at() const
 {
     return 0;
@@ -255,7 +247,6 @@ int QSocketDevice::at() const
   The read/write index is meaningless for a socket, therefore
   this function does nothing and returns TRUE.
 */
-
 bool QSocketDevice::at( int )
 {
     return TRUE;
@@ -267,7 +258,6 @@ bool QSocketDevice::at( int )
   The read/write index is meaningless for a socket, therefore
   this always returns FALSE.
 */
-
 bool QSocketDevice::atEnd() const
 {
     return FALSE;
@@ -281,7 +271,6 @@ bool QSocketDevice::atEnd() const
 
   \sa putch() readBlock()
 */
-
 int QSocketDevice::getch()
 {
     char buf[2];
@@ -296,7 +285,6 @@ int QSocketDevice::getch()
 
   \sa getch()
 */
-
 int QSocketDevice::putch( int ch )
 {
     char buf[2];
@@ -310,7 +298,6 @@ int QSocketDevice::putch( int ch )
   This implementation of ungetch -1 (error).  A socket is a sequential
   device and does not allow any ungetch operation.
 */
-
 int QSocketDevice::ungetch( int )
 {
     return -1;
@@ -323,7 +310,6 @@ int QSocketDevice::ungetch( int )
 
   \sa setAddressReusable()
 */
-
 bool QSocketDevice::addressReusable() const
 {
     return option( ReuseAddress );
@@ -342,7 +328,6 @@ bool QSocketDevice::addressReusable() const
 
   \sa addressReusable()
 */
-
 void QSocketDevice::setAddressReusable( bool enable )
 {
     setOption( ReuseAddress, enable );
@@ -353,7 +338,6 @@ void QSocketDevice::setAddressReusable( bool enable )
 
   \sa setReceiveBufferSize()
 */
-
 int QSocketDevice::receiveBufferSize() const
 {
     return option( ReceiveBuffer );
@@ -369,25 +353,25 @@ int QSocketDevice::receiveBufferSize() const
   The default is OS-dependent.  A socket that receives large amounts
   of data is probably best off with a buffer size of 49152.
 */
-
 void QSocketDevice::setReceiveBufferSize( uint size )
 {
     setOption( ReceiveBuffer, size );
 }
 
 
-/*!  Returns the size of the OS send buffer.
+/*!
+  Returns the size of the OS send buffer.
 
   \sa setSendBufferSize()
 */
-
 int QSocketDevice::sendBufferSize() const
 {
     return option( SendBuffer );
 }
 
 
-/*!  Sets the size of the OS send buffer to \a size.
+/*!
+  Sets the size of the OS send buffer to \a size.
 
   The OS send buffer size effectively limits how much data can be in
   transit at any one moment.
@@ -395,66 +379,63 @@ int QSocketDevice::sendBufferSize() const
   The default is OS-dependent.  A socket that sends large amounts of
   data is probably best off with a buffer size of 49152.
 */
-
 void QSocketDevice::setSendBufferSize( uint size )
 {
     setOption( SendBuffer, size );
 }
 
 
-/*!  Returns the port number of this socket device.  This may be 0 for
-a while, but is set to something sensible when there is a sensible
-value it can have.
+/*!
+  Returns the port number of this socket device. This may be 0 for a while,
+  but is set to something sensible when there is a sensible value it can have.
 */
-
 uint QSocketDevice::port() const
 {
     return p;
 }
 
-/*!  Returns the port number of the port this socket device is
-connected to.  This may be 0 for a while, but is set to something
-sensible when there is a sensible value it can have.
 
-Note that for Datagram sockets, this is the source port of the last
-packet received.
+/*!
+  Returns the port number of the port this socket device is connected to. This
+  may be 0 for a while, but is set to something sensible when there is a
+  sensible value it can have.
+
+  Note that for Datagram sockets, this is the source port of the last packet
+  received.
 */
-
 uint QSocketDevice::peerPort() const
 {
     return pp;
 }
 
 
-/*!  Returns the address of this socket device.  This may be
-0.0.0.0 for a while, but is set to something sensible when there is a
-sensible value it can have.
+/*!
+  Returns the address of this socket device.  This may be 0.0.0.0 for a while,
+  but is set to something sensible when there is a sensible value it can have.
 */
-
 QHostAddress QSocketDevice::address() const
 {
     return a;
 }
 
 
-/*!  Returns the address of the port this socket device is connected
-to.  This may be 0.0.0.0 for a while, but is set to something sensible
-when there is a sensible value it can have.
+/*!
+  Returns the address of the port this socket device is connected to. This may
+  be 0.0.0.0 for a while, but is set to something sensible when there is a
+  sensible value it can have.
 
-Note that for Datagram sockets, this is the source address of the last
-packet received.
+  Note that for Datagram sockets, this is the source address of the last packet
+  received.
 */
-
 QHostAddress QSocketDevice::peerAddress() const
 {
     return pa;
 }
 
 
-/*! Returns the first error seen.
-
+/*!
+  Returns the first error seen.
 */
-
 QSocketDevice::Error QSocketDevice::error() const
 {
     return e;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#9 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#10 $
 **
 ** Implementation of Network Extension Library
 **
@@ -27,12 +27,6 @@
 #include "qwindowdefs.h"
 #include <string.h>
 
-
-#if defined(_OS_WIN32_)
-#include <windows.h>
-#endif
-
-#if defined(_OS_UNIX_)
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -44,7 +38,6 @@
 #include <sys/un.h>
 #include <netdb.h>
 #include <errno.h>
-#endif
 
 #ifndef UNIX_PATH_MAX
 #define UNIX_PATH_MAX    108
@@ -58,7 +51,6 @@
   #define SOCK_STREAM 2
  #endif
 #endif
-//#define QSOCKETDEVICE_DEBUG
 
 
 #if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
@@ -104,42 +96,10 @@
 #endif
 
 
-
-
-static void cleanupWinSock() // post-routine
-{
-#if defined(_OS_WIN32_)
-    WSACleanup();
-#if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: WinSock cleanup" );
-#endif
-#endif
-}
-
+// internal
 void QSocketDevice::init()
 {
-#if defined(_OS_WIN32_)
-    static bool init = FALSE;
-    if ( !init ) {
-	WSAData wsadata;
-	bool error = WSAStartup(MAKEWORD(1,1),&wsadata) != 0;
-	if ( error ) {
-#if defined(CHECK_NULL)
-	    qWarning( "QSocketDevice: WinSock initialization failed" );
-#endif
-	    return FALSE;
-	}
-	qAddPostRoutine( cleanupWinSock );
-#if defined(QSOCKETDEVICE_DEBUG) || defined(QSOCKETDEVICE_DEBUG)
-	qDebug( "QSocketDevice: WinSock initialization %s",
-		(error ? "failed" : "OK") );
-#endif
-	init = TRUE;
-    }
-#endif
 }
-
-
 
 
 /*!
@@ -151,7 +111,6 @@ void QSocketDevice::init()
 
   \sa blocking()
 */
-
 QSocketDevice::QSocketDevice( Type type, bool inet )
     : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ), d( 0 )
 {
@@ -204,20 +163,13 @@ QSocketDevice::QSocketDevice( Type type, bool inet )
 
   \sa open()
 */
-
 void QSocketDevice::close()
 {
     if ( fd == -1 || !isOpen() )		// already closed
 	return;
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
-#if defined(_OS_WIN32_)
-    ::closesocket( fd );
-#elif defined(_OS_UNIX_)
     ::close( fd );
-#else
-    #error "This OS is not supported"
-#endif
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::close: Closed socket %x", fd );
 #endif
@@ -237,19 +189,12 @@ void QSocketDevice::close()
 
   \sa setBlocking(), isValid()
 */
-
 bool QSocketDevice::blocking() const
 {
     if ( !isValid() )
 	return TRUE;
-#if defined(_OS_WIN32_)
-    return TRUE;
-#elif defined(_OS_UNIX_)
     int s = fcntl(fd, F_GETFL, 0);
     return !(s >= 0 && ((s & FNDELAY) != 0));
-#else
-    #error "This OS is not supported"
-#endif
 }
 
 
@@ -268,7 +213,6 @@ bool QSocketDevice::blocking() const
 
   \sa blocking(), isValid()
 */
-
 void QSocketDevice::setBlocking( bool enable )
 {
 #if defined(QSOCKETDEVICE_DEBUG)
@@ -276,9 +220,6 @@ void QSocketDevice::setBlocking( bool enable )
 #endif
     if ( !isValid() )
 	return;
-#if defined(_OS_WIN32_)
-    // Do nothing
-#elif defined(_OS_UNIX_)
     int tmp = ::fcntl(fd, F_GETFL, 0);
     if ( tmp >= 0 )
 	tmp = fcntl( fd, F_SETFL, enable ? (tmp&!FNDELAY) : (tmp|FNDELAY) );
@@ -302,16 +243,12 @@ void QSocketDevice::setBlocking( bool enable )
     default:
 	e = UnknownError;
     }
-#else
-#error "This OS is not supported"
-#endif
 }
 
 
 /*!
   Returns a socket option.
 */
-
 int QSocketDevice::option( Option opt ) const
 {
     if ( !isValid() )
@@ -360,7 +297,6 @@ int QSocketDevice::option( Option opt ) const
 /*!
   Sets a socket option.
 */
-
 void QSocketDevice::setOption( Option opt, int v )
 {
     if ( !isValid() )
@@ -409,7 +345,6 @@ void QSocketDevice::setOption( Option opt, int v )
   this just means that you can call connect() again in a little while
   and it'll probably succeed.
 */
-
 bool QSocketDevice::connect( const QHostAddress &addr, uint port )
 {
     if ( !isValid() )
@@ -423,12 +358,6 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
 
     int r = ::connect( fd, (struct sockaddr*)&a,
 		       sizeof(struct sockaddr_in) );
-#if defined(_OS_WIN32_)
-    if ( r == SOCKET_ERROR )
-	return FALSE;
-    fetchConnectionParameters();
-    return TRUE;
-#elif defined(_OS_UNIX_)
     if ( r == 0 ) {
 	fetchConnectionParameters();
 	return TRUE;
@@ -468,11 +397,12 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
 	break;
     }
     return FALSE;
-#else
-    #error "This OS is not supported"
-#endif
 }
 
+
+/*!
+  Fnord???
+*/
 bool QSocketDevice::connect( const QString &localfilename )
 {
     if ( !isValid() )
@@ -485,12 +415,6 @@ bool QSocketDevice::connect( const QString &localfilename )
 
     int r = ::connect( fd, (struct sockaddr*)&a,
 		       sizeof(struct sockaddr_un) );
-#if defined(_OS_WIN32_)
-    if ( r == SOCKET_ERROR )
-	return FALSE;
-    fetchConnectionParameters();
-    return TRUE;
-#elif defined(_OS_UNIX_)
     if ( r == 0 ) {
 	fetchConnectionParameters();
 	return TRUE;
@@ -530,10 +454,8 @@ bool QSocketDevice::connect( const QString &localfilename )
 	break;
     }
     return FALSE;
-#else
-    #error "This OS is not supported"
-#endif
 }
+
 
 /*!
   Assigns a name to an unnamed socket.  If the operation succeeds,
@@ -543,7 +465,6 @@ bool QSocketDevice::connect( const QString &localfilename )
   bind() is used by servers for setting up incoming connections.
   Call bind() before listen().
 */
-
 bool QSocketDevice::bind( const QHostAddress &address, uint port )
 {
     if ( !isValid() )
@@ -589,6 +510,10 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
     return TRUE;
 }
 
+
+/*!
+  Fnord???
+*/
 bool QSocketDevice::bind( const QString & filename )
 {
     if ( !isValid() )
@@ -645,7 +570,6 @@ bool QSocketDevice::bind( const QString & filename )
 
   \sa bind(), accept()
 */
-
 bool QSocketDevice::listen( int backlog )
 {
     if ( !isValid() )
@@ -665,7 +589,6 @@ bool QSocketDevice::listen( int backlog )
 
   \sa bind(), listen()
 */
-
 int QSocketDevice::accept()
 {
     if ( !isValid() )
@@ -726,25 +649,15 @@ int QSocketDevice::accept()
   amount of data on the socket is to read it using readBlock().
   QSocket has workarounds to deal with this problem.
 */
-
 int QSocketDevice::bytesAvailable() const
 {
     if ( !isValid() )
 	return -1;
-#if defined(_OS_WIN32_)
-    u_long nbytes = 0;
-    if ( ::ioctlsocket(fd, FIONREAD, &nbytes) < 0 )
-	return -1;
-    return nbytes;
-#elif defined(_OS_UNIX_)
     // gives shorter than true amounts on Unix domain sockets.
     int nbytes = 0;
     if ( ::ioctl(fd, FIONREAD, (char*)&nbytes) < 0 )
 	return -1;
     return nbytes;
-#else
-    #error "This OS is not supported"
-#endif
 }
 
 
@@ -784,7 +697,6 @@ int QSocketDevice::waitForMore( int msecs )
   Reads max \a maxlen bytes from the socket into \a data and returns
   the number of bytes read.  Returns -1 if an error occurred.
 */
-
 int QSocketDevice::readBlock( char *data, uint maxlen )
 {
 #if defined(CHECK_NULL)
@@ -819,13 +731,7 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 	    pp = ntohs( a.sin_port );
 	    pa = QHostAddress( ntohl( a.sin_addr.s_addr ) );
 	} else {
-#if defined(_OS_WIN32_)
-	    r = ::recv( fd, data, maxlen, 0 );
-#elif defined(_OS_UNIX_)
 	    r = ::read( fd, data, maxlen );
-#else
-#error "This OS is not supported"
-#endif
 	}
 	done = TRUE;
 	if ( r >= 0 || errno == EAGAIN ) {
@@ -864,7 +770,6 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
   Writes \a len bytes from the socket from \a data and returns
   the number of bytes written.  Returns -1 if an error occurred.
 */
-
 int QSocketDevice::writeBlock( const char *data, uint len )
 {
     if ( data == 0 && len != 0 ) {
@@ -894,13 +799,7 @@ int QSocketDevice::writeBlock( const char *data, uint len )
     bool done = FALSE;
     int r = 0;
     while ( !done ) {
-#if defined(_OS_WIN32_)
-	r = ::send( fd, data, len, 0 );
-#elif defined(_OS_UNIX_)
 	r = ::write( fd, data, len );
-#else
-#error "This OS is not supported"
-#endif
 	done = TRUE;
 	if ( r < 0 && e == NoError && errno != EAGAIN ) {
 	    switch( errno ) {
@@ -935,6 +834,9 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 }
 
 
+/*!
+  Fnord???
+*/
 int QSocketDevice::writeBlock( const char * data, uint len,
 			       const QHostAddress & host, uint port )
 {
@@ -969,7 +871,6 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 #endif
 	return -1;
     }
-#if defined(_OS_WIN32_) || defined(_OS_UNIX_)
     struct sockaddr_in a;
     memset( &a, 0, sizeof(a) );
     a.sin_family = AF_INET;
@@ -1013,18 +914,14 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 	    }
 	}
     }
-#else
-#error "This OS is not supported"
-#endif
     return r;
 }
 
 
-
-
-/*!  Fetches information about both ends of the connection - whatever
-  is available. */
-
+/*!
+  Fetches information about both ends of the connection - whatever
+  is available.
+ */
 void QSocketDevice::fetchConnectionParameters()
 {
     if ( !isValid() ) {
@@ -1034,7 +931,6 @@ void QSocketDevice::fetchConnectionParameters()
 	pa = QHostAddress();
 	return;
     }
-#if defined(_OS_UNIX_)
     struct sockaddr_in sa;
     memset( &sa, 0, sizeof(sa) );
     SOCKLEN_T sz;
@@ -1047,7 +943,4 @@ void QSocketDevice::fetchConnectionParameters()
 	pp = ntohs( sa.sin_port );
 	pa = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
     }
-#else
-    // uhm.
-#endif
 }
