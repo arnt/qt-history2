@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#112 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#111 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#112 $";
 #endif
 
 
@@ -609,12 +609,12 @@ static uchar *pat_tbl[] = {
   Begins painting the paint device \e pd and returns TRUE if successful,
   or FALSE if it cannot begin painting.
 
-  \warning
-  This function resets the pen, brush, font and all other painter settings
-  to default values for the painter device.  That means any pen, brush etc.
-  you set before calling begin() will be overwritten.
-  \sa end()
-*/
+  \warning This function resets the pen, brush, font and all other
+  painter settings from the paint device's settings.  Clever
+  techniques like using one painter to write text on several paint
+  devices in order to use the same font and color will \e not work.
+
+  \sa QPaintDevice, end() */
 
 bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 {
