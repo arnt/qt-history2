@@ -38,6 +38,7 @@ QWS_PLATFORM=no
 # Free edition - may only be used under the terms of the QPL or GPL.
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]
 then
+    [ "$QWS_PLATFORM" = "maybe" ] && QWS_PLATFORM=yes
     Edition="free"
     Licensee="Non-Commercial"
     Products="qt-free"
@@ -52,7 +53,7 @@ else
     if [ -f $relpath/.LICENSE ]
     then
 	echo
-	[ "$QWS_PLATFORM" = "maybe" ] && QWS_PLATFORM="yes"
+	[ "$QWS_PLATFORM" = "maybe" ] && QWS_PLATFORM=yes
 	Desc=""
 	if [ -f $HOME/.qt-license ]
 	then
@@ -269,8 +270,8 @@ do
 		then
 			PLATFORM=qws/qnx-rtp-g++
 			XPLATFORM=qws/qnx-rtp-g++
-			CFG_STL="no"
-			CFG_QWS_QVFB="no"
+			CFG_STL=no
+			CFG_QWS_QVFB=no
 		else
 			PLATFORM=qws/linux-generic-g++
 			XPLATFORM=qws/linux-${EMBEDDED}-g++;
@@ -525,14 +526,14 @@ do
 	VAL=`echo $1 | sed "s,^-[^-]*-[^-]*-\([^-]*\).*,\1,"`
 	if [ "$VAR" = "imgfmt" ]
 	then
-	    [ "$OPT" = "qt" ] && OPT="yes"
+	    [ "$OPT" = "qt" ] && OPT=yes
 	    if [ "$OPT" = "no" ] || [ "$OPT" = "yes" ] || [ "$OPT" = "plugin" ]
 	    then
 	        case "$VAL" in
 	        jpeg) CFG_JPEG=$OPT ;;
 	        mng) CFG_MNG=$OPT ;;
 	        png) CFG_PNG=$OPT ;;
-	        *) ERROR="yes" ;;
+	        *) ERROR=yes ;;
 	        esac
             else
 	        ERROR=yes
@@ -806,8 +807,8 @@ then
 	then
 		PLATFORM=qws/qnx-rtp-g++
 		XPLATFORM=qws/qnx-rtp-g++
-		CFG_STL="no"
-		CFG_QWS_QVFB="no"
+		CFG_STL=no
+		CFG_QWS_QVFB=no
 	else
 		PLATFORM=qws/linux-generic-g++
 		XPLATFORM=qws/linux-${EMBEDDED}-g++
@@ -1159,7 +1160,7 @@ then
     # auto-detect Session Management support
     if [ "$CFG_SM" = "auto" ]
     then
-	CFG_SM="yes"
+	CFG_SM=yes
 	$x11tests/sm.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && SM=no
     fi
     # auto-detect Xinerama support
@@ -1873,7 +1874,7 @@ minimal|small|medium|large|full)
     if [ ! -f $relpath/src/tools/qconfig-$CFG_QCONFIG.h ]
     then
 	echo >&2 "No such configuration: $CFG_QCONFIG"
-	OPT_HELP="yes"
+	OPT_HELP=yes
     fi
 esac
 case "$CFG_QCONFIG" in
