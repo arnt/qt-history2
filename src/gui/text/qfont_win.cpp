@@ -387,7 +387,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
     SCRIPT_FOR_CHAR( script, ch );
 
     int width;
-    if ( script >= QFont::Arabic && script <= QFont::Yi || script >= QFont::Han_Japanese) {
+    if ( script >= QFont::Arabic && script <= QFont::Yi || script >= QFont::KatakanaHalfWidth) {
 	// complex script shaping. Have to do some hard work
 	int from = QMAX( 0,  pos - 8 );
 	int to = QMIN( (int)str.length(), pos + 8 );
