@@ -7,21 +7,17 @@ MainWindow::MainWindow ( QWidget * parent, const char * name, WFlags f )
 {
     db = QSqlConnection::database();
     QSqlView masterView( "qsql_master" );
-    QSqlView childView( "qsql_child" );    
-    
     masterView.select();
-    childView.select();
-    
     masterTable->setView( masterView );
     reloadChildTable( 1 );
-    
+
     connect( masterTable, SIGNAL( currentChanged(const QSqlFieldList*)),
 	     SLOT( newMasterSelection(const QSqlFieldList*)));
 }
 
 MainWindow::~MainWindow()
 {
-    
+
 }
 
 void MainWindow::newMasterSelection( const QSqlFieldList* fields )
@@ -32,7 +28,7 @@ void MainWindow::newMasterSelection( const QSqlFieldList* fields )
 
 void MainWindow::reloadChildTable( int masterIdx )
 {
-    QSqlView childView( "qsql_child" );    
+    QSqlView childView( "qsql_child" );
     childView.field("masterid").setIsVisible( FALSE );
     childView.select( "masterId = " + QString::number( masterIdx ) );
     childTable->setView( childView );
