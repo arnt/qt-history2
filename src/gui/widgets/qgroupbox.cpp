@@ -362,9 +362,10 @@ void QGroupBoxPrivate::calculateFrame()
     topMargin = 0;
     QFontMetrics fm = q->fontMetrics();
     if (checkbox) {
-        topMargin = checkbox->sizeHint().height()/2;
         if (va & Qt::AlignTop)
-            topMargin += fm.ascent() - fm.height()/2;
+            topMargin = checkbox->sizeHint().height();
+	else
+	    topMargin = checkbox->sizeHint().height()/2;
     } else if (title.size()) {
         if (va & Qt::AlignVCenter)
             topMargin = fm.height()/2;
