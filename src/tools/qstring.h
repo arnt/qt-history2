@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#32 $
+** $Id: //depot/qt/main/src/tools/qstring.h#33 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -106,7 +106,7 @@ UINT16 qchecksum( const char *s, uint len );
 // QByteArray class
 //
 
-#if defined(DEFAULT_TEMPLATECLASS)
+#if defined(USE_TEMPLATECLASS)
 #define QByteArray QArrayT<char>
 #else
 declare(QArrayM,char);
