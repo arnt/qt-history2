@@ -577,14 +577,14 @@ int QFontEngineWin::minRightBearing() const
 	    ABC *abc = 0;
 	    int n = QT_WA_INLINE( tm.w.tmLastChar - tm.w.tmFirstChar, tm.a.tmLastChar - tm.a.tmFirstChar );
 	    if ( n <= max_font_count ) {
-		abc = new ABC[n];
+		abc = new ABC[n+1];
 		QT_WA( {
 		    GetCharABCWidths(hdc, tm.w.tmFirstChar, tm.w.tmLastChar, abc);
 		}, {
 		    GetCharABCWidthsA(hdc,tm.a.tmFirstChar,tm.a.tmLastChar,abc);
 		} );
 	    } else {
-		abc = new ABC[char_table_entries];
+		abc = new ABC[char_table_entries+1];
 		QT_WA( {
 		    for( int i = 0; i < char_table_entries; i++ )
 			GetCharABCWidths(hdc, char_table[i], char_table[i], abc+i);
