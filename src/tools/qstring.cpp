@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#174 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#175 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -2620,3 +2620,4 @@ QString qt_winQString(void* tc)
 }
 
 #endif // _OS_WIN32_
+

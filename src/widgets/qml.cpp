@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#6 $
 **
 ** Implementation of QML classes
 **
@@ -2512,9 +2512,10 @@ static void cleanup_provider()
  */
 QMLProvider& QMLProvider::defaultProvider()
 {
-    if (!defaultprovider)
+    if (!defaultprovider) {
 	defaultprovider = new QMLProvider;
-    qAddPostRoutine(cleanup_provider);
+	qAddPostRoutine(cleanup_provider);
+    }
     return *defaultprovider;
 }
 
