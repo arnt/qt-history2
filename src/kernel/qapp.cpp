@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#23 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#23 $";
 #endif
 
 
@@ -218,8 +218,9 @@ void QApplication::setPalette( const QPalette &p, bool updateAllWidgets )
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
-	    w->setPalette( *appPal );
 	    ++it;
+	    if ( !w->testFlag(WType_Desktop) )	// (except desktop)
+		w->setPalette( *appPal );
 	}
     }
 }
@@ -238,8 +239,9 @@ cursor has been defined.
 Sets the application cursor to \e c.
 
 This cursor will be displayed in all application widgets until restoreCursor()
-is called.  Here is an example:
+is called.
 
+Example of use:
 \code
 QApplication::setCursor( hourGlassCursor );
 calculate_mandelbrot();		\/ this takes time...
@@ -286,8 +288,9 @@ void QApplication::setFont( const QFont &f,  bool updateAllWidgets )
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
-	    w->setFont( *appFont );
 	    ++it;
+	    if ( !w->testFlag(WType_Desktop) )	// (except desktop)
+		w->setFont( *appFont );
 	}
     }
 }
