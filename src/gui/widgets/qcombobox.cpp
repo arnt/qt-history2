@@ -14,7 +14,8 @@
 
 #include "qcombobox.h"
 #ifndef QT_NO_COMBOBOX
-#include "q3popupmenu.h"
+#include "qmenu.h"
+#include "qaction.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qlistbox.h"
@@ -316,21 +317,22 @@
     than lines, a scrollbar is added.
 */
 
-class QComboBoxPopup : public Q3PopupMenu
+class QComboBoxPopup : public QMenu
 {
 public:
-    QComboBoxPopup(QWidget *parent=0, const char *name=0)
-        : Q3PopupMenu(parent, name)
+    QComboBoxPopup(QWidget *parent = 0)
+        : QMenu(parent)
     {
     }
 
     int itemHeight(int index)
     {
-        return Q3PopupMenu::itemHeight(index);
+        return QMenu::itemHeight(index);
     }
 
 };
 
+#if 0 // For now..
 class QComboBoxPopupItem : public Q3CustomMenuItem
 {
     QListBoxItem *li;
@@ -349,7 +351,7 @@ void QComboBoxPopupItem::paint(QPainter* p, const QPalette&, bool,
     li->paint(p);
     p->restore();
 }
-
+#endif // For now..
 
 class QComboBoxPrivate : public QWidgetPrivate
 {
@@ -470,7 +472,8 @@ QComboBox::QComboBox(QWidget *parent, const char *name)
 
     if (style().styleHint(QStyle::SH_ComboBox_Popup, this) ||
          style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle) {
-        d->setPopupMenu(new QComboBoxPopup(this, "in-combo"));
+        d->setPopupMenu(new QComboBoxPopup(this));
+        d->popup()->setObjectName("in-combo");
         d->popup()->setFont(font());
         connect(d->popup(), SIGNAL(activated(int)),
                              SLOT(internalActivate(int)));
@@ -815,7 +818,7 @@ const QPixmap *QComboBox::pixmap(int index) const
     if (d->usingListBox())
         return d->listBox()->pixmap(index);
     else
-        return d->popup()->pixmap(index);
+        return &(d->popup()->pixmap(index));
 }
 
 /*!
@@ -829,7 +832,7 @@ void QComboBox::changeItem(const QString &t, int index)
     if (d->usingListBox())
         d->listBox()->changeItem(t, index);
     else
-        d->popup()->changeItem(t, index);
+        d->popup()->changeItem(index, t);
     if (index == d->current) {
         if (d->ed) {
             d->ed->setText(text(d->current));
@@ -855,7 +858,7 @@ void QComboBox::changeItem(const QPixmap &im, int index)
     if (d->usingListBox())
         d->listBox()->changeItem(im, index);
     else
-        d->popup()->changeItem(im, index);
+        d->popup()->changeItem(index, im);
     if (index == d->current)
         update();
 }
@@ -876,7 +879,7 @@ void QComboBox::changeItem(const QPixmap &im, const QString &t, int index)
     if (d->usingListBox())
         d->listBox()->changeItem(im, t, index);
     else
-        d->popup()->changeItem(im, t, index);
+        d->popup()->changeItem(index, im, t);
     if (index == d->current)
         update();
 }
@@ -1122,8 +1125,8 @@ void QComboBox::paintEvent(QPaintEvent *)
             p.drawText(clip, AlignCenter | SingleLine, str);
         }
 
-        QPixmap *pix = d->popup()->pixmap(this->d->current);
-        QIconSet *iconSet = d->popup()->iconSet(this->d->current);
+        QPixmap *pix = &(d->popup()->pixmap(this->d->current));
+        QIconSet *iconSet = &(d->popup()->iconSet(this->d->current));
         if (pix || iconSet) {
             QPixmap pm = (pix ? *pix : iconSet->pixmap());
             p.setClipRect(clip);
@@ -1146,7 +1149,7 @@ void QComboBox::paintEvent(QPaintEvent *)
         p.setClipRect(re);
 
         QString str = d->popup()->text(this->d->current);
-        QPixmap *pix = d->popup()->pixmap(this->d->current);
+        QPixmap *pix = &(d->popup()->pixmap(this->d->current));
         if (!str.isNull()) {
             p.save();
             p.setFont(font());
@@ -1272,8 +1275,11 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
          (e->key() == Key_Down && (e->state() & AltButton)) ||
          (!d->ed && e->key() == Key_Space)) {
         if (count()) {
-            if (!d->usingListBox())
+#if 0 // For now..
+            if (!d->usingListBox()) {
                 d->popup()->setActiveItem(this->d->current);
+            }
+#endif // For now..
             popup();
         }
         return;
@@ -1400,8 +1406,9 @@ void QComboBox::popup()
     if(!d->usingListBox() || style().styleHint(QStyle::SH_ComboBox_Popup, this)) {
         if(d->usingListBox()) {
             if(!d->popup()) {
-                QComboBoxPopup *p = new QComboBoxPopup(this, "in-combo");
+                QComboBoxPopup *p = new QComboBoxPopup(this);
                 d->setPopupMenu(p, false);
+                p->setObjectName("in-combo");
                 p->setFont(font());
                 connect(p, SIGNAL(activated(int)), SLOT(internalActivate(int)));
                 connect(p, SIGNAL(highlighted(int)), SLOT(internalHighlight(int)));
@@ -1417,7 +1424,11 @@ void QComboBox::popup()
                     else
                         d->popup()->insertItem(item->text(), i, i);
                 } else {
+#if 0 // For now..
                     d->popup()->insertItem(new QComboBoxPopupItem(item), i, i);
+#else
+                    qWarning("QComboBoxPopupItem not implemented (used Q3CustomMenuItem)");
+#endif // For now..
                 }
             }
         }
@@ -1441,7 +1452,7 @@ void QComboBox::popup()
         int sw = screen.width();                        // screen width
         int sh = screen.height();                        // screen height
         QPoint pos = mapToGlobal(QPoint(0,height()));
-        // ## Similar code is in Q3PopupMenu
+        // ## Similar code is in QMenu
         int x = pos.x();
         int y = pos.y();
 
@@ -1538,11 +1549,13 @@ void QComboBoxPrivate::popDownListBox()
 
 void QComboBoxPrivate::reIndex()
 {
+#if 0 // For now..
     if (!usingListBox()) {
         int cnt = q->count();
         while (cnt--)
             popup()->setId(cnt, cnt);
     }
+#endif // For now..
 }
 
 /*!
@@ -1983,7 +1996,7 @@ void QComboBox::setListBox(QListBox * newListBox)
 
 /*!
     Returns the current list box, or 0 if there is no list box.
-    (QComboBox can use Q3PopupMenu instead of QListBox.) Provided to
+    (QComboBox can use QMenu instead of QListBox.) Provided to
     match setListBox().
 
     \sa setListBox()

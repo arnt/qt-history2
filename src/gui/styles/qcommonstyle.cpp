@@ -17,7 +17,6 @@
 #ifndef QT_NO_STYLE
 
 #include "private/qdialogbuttons_p.h"
-#include "q3menubar.h"
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qcheckbox.h"
@@ -1095,6 +1094,7 @@ void QCommonStyle::drawControl(ControlElement element,
             break;
         }
 
+#if 0 // For now..
 #ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
         {
@@ -1113,6 +1113,7 @@ void QCommonStyle::drawControl(ControlElement element,
             break;
         }
 #endif
+#endif // For now..
 
 #ifndef QT_NO_TOOLBUTTON
     case CE_ToolButtonLabel:
@@ -3115,6 +3116,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
             break;
         }
 
+#if 0 // For now..
 #ifdef QT_COMPAT
     case CT_Q3PopupMenuItem: {
 #ifndef QT_NO_POPUPMENU
@@ -3165,6 +3167,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
             break;
         }
 #endif
+#endif // For now..
     case CT_SpinBox:
         sz.setWidth(qMin(sz.height(), int(sz.width() * 0.2)));
         break;

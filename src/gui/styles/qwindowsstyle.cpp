@@ -16,7 +16,6 @@
 
 #if !defined(QT_NO_STYLE_WINDOWS) || defined(QT_PLUGIN)
 
-#include "q3menubar.h"
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qcleanuphandler.h"
@@ -60,10 +59,12 @@ static bool use2000style = true;
 enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 
 // A friendly class providing access to Q3MenuData's protected member.
+#if 0 // For now..
 class FriendlyMenuData : public Q3MenuData
 {
     friend class QWindowsStyle;
 };
+#endif // For now..
 
 // Private class
 class QWindowsStyle::Private : public QObject
@@ -127,6 +128,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
             }
         }
         break;
+#if 0 // For now..
     case QEvent::KeyRelease:
         if (((QKeyEvent*)e)->key() == Key_Alt) {
             widget = widget->topLevelWidget();
@@ -141,6 +143,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
             }
         }
         break;
+
     case QEvent::FocusIn:
     case QEvent::FocusOut:
         {
@@ -149,11 +152,6 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
             if (menuBar && !menuBarTimer) // delayed repaint to avoid flicker
                 menuBarTimer = menuBar->startTimer(0);
         }
-        break;
-    case QEvent::Close:
-        // Reset widget when closing
-        seenAlt.removeAll(widget);
-        seenAlt.removeAll(widget->topLevelWidget());
         break;
     case QEvent::Timer:
         {
@@ -166,6 +164,12 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
                 return true;
             }
         }
+        break;
+#endif // For now..
+    case QEvent::Close:
+        // Reset widget when closing
+        seenAlt.removeAll(widget);
+        seenAlt.removeAll(widget->topLevelWidget());
         break;
     default:
         break;
@@ -222,10 +226,12 @@ void QWindowsStyle::polish(QWidget *widget)
     QCommonStyle::polish(widget);
     if(QMenu *menu = qt_cast<QMenu*>(widget))
         menu->setCheckable(true);
+#if 0 // For now..
 #ifdef QT_COMPAT
     if(Q3PopupMenu *popup = qt_cast<Q3PopupMenu*>(widget))
         popup->setCheckable(true);
 #endif
+#endif // For now..
 }
 
 /*! \reimp */
@@ -1022,6 +1028,7 @@ void QWindowsStyle::drawControl(ControlElement element,
         }
 #endif
 
+#if 0 // For now..
 #ifdef QT_COMPAT
 #ifndef QT_NO_POPUPMENU
     case CE_Q3PopupMenuItem:
@@ -1213,32 +1220,6 @@ void QWindowsStyle::drawControl(ControlElement element,
             break;
         }
 #endif
-#endif
-
-    case CE_MenuBarItem: {
-        bool active = flags & Style_Active;
-        bool hasFocus = flags & Style_HasFocus;
-        bool down = flags & Style_Down;
-        QRect pr = r;
-
-        p->fillRect(r, pal.brush(QPalette::Button));
-        if (active || hasFocus) {
-            QBrush b = pal.brush(QPalette::Button);
-            if (active && down)
-                p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-            if (active && hasFocus)
-                qDrawShadeRect(p, r.x(), r.y(), r.width(), r.height(),
-                               pal, active && down, 1, 0, &b);
-            if (active && down) {
-                pr.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
-                          pixelMetric(PM_ButtonShiftVertical, widget));
-                p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
-            }
-        }
-        QCommonStyle::drawControl(element, p, widget, pr, pal, flags, opt);
-        break; }
-
-#ifdef QT_COMPAT
     case CE_Q3MenuBarItem: {
         bool active = flags & Style_Active;
         bool hasFocus = flags & Style_HasFocus;
@@ -1262,7 +1243,30 @@ void QWindowsStyle::drawControl(ControlElement element,
         QCommonStyle::drawControl(element, p, widget, pr, pal, flags, opt);
         break; }
 #endif
+#endif // For now..
 
+    case CE_MenuBarItem: {
+        bool active = flags & Style_Active;
+        bool hasFocus = flags & Style_HasFocus;
+        bool down = flags & Style_Down;
+        QRect pr = r;
+
+        p->fillRect(r, pal.brush(QPalette::Button));
+        if (active || hasFocus) {
+            QBrush b = pal.brush(QPalette::Button);
+            if (active && down)
+                p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+            if (active && hasFocus)
+                qDrawShadeRect(p, r.x(), r.y(), r.width(), r.height(),
+                               pal, active && down, 1, 0, &b);
+            if (active && down) {
+                pr.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
+                          pixelMetric(PM_ButtonShiftVertical, widget));
+                p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+            }
+        }
+        QCommonStyle::drawControl(element, p, widget, pr, pal, flags, opt);
+        break; }
     default:
         QCommonStyle::drawControl(element, p, widget, r, pal, flags, opt);
     }
@@ -1448,7 +1452,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType contents,
 #endif
             break;
         }
-
+#if 0 // For now..
 #ifdef QT_COMPAT
     case CT_Q3PopupMenuItem:
         {
@@ -1500,6 +1504,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType contents,
             break;
         }
 #endif
+#endif // For now..
 
     default:
         sz = QCommonStyle::sizeFromContents(contents, widget, sz, opt);
@@ -2320,6 +2325,7 @@ int QWindowsStyle::styleHint(StyleHint hint,
             ret = cues ? 1 : 0;
             // Do nothing if we always paint underlines
             if (!ret && widget && d) {
+#if 0 // For now
                 Q3MenuBar *menuBar = ::qt_cast<Q3MenuBar*>(widget);
                 Q3PopupMenu *popupMenu = 0;
                 if (!menuBar)
@@ -2356,6 +2362,9 @@ int QWindowsStyle::styleHint(StyleHint hint,
                 } else if (d->hasSeenAlt(widget)) {
                     ret = 1;
                 }
+#else
+                ret = 1;
+#endif // For now..
             }
 
         }
