@@ -1591,7 +1591,7 @@ bool QOCI9Result::exec()
 {
     int r = 0;
     ub2 stmtType;
-    QPtrList<void> tmpStorage;
+    QPtrList<QVirtualDestructor> tmpStorage;
     tmpStorage.setAutoDelete( TRUE );
     
     // bind placeholders
