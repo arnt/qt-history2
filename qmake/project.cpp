@@ -1126,6 +1126,45 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			replacement += var[i];
 		    }
 		}
+	    } else if(val.lower() == "fromfile") {
+		if(arg_list.count() != 2) {
+		    fprintf(stderr, "%s:%d: fromfile(file, variable) requires two arguments.\n",
+			    parser.file.latin1(), parser.line_no);
+		} else {
+		    QString file = arg_list[0];
+		    if(QDir::isRelativePath(file)) {
+			QStringList include_roots;
+			include_roots << Option::output_dir;
+			QString pfilewd = QFileInfo(parser.file).dirPath();
+			if(pfilewd.isEmpty())
+			    include_roots << pfilewd;
+			if(Option::output_dir != QDir::currentDirPath())
+			    include_roots << QDir::currentDirPath();
+			for(QStringList::Iterator it = include_roots.begin(); it != include_roots.end(); ++it) {
+			    if(QFile::exists((*it) + QDir::separator() + file)) {
+				file = (*it) + QDir::separator() + file;
+				break;
+			    }
+			}
+		    }
+		    parser_info pi = parser;
+		    int sb = scope_block;
+		    int sf = scope_flag;
+		    TestStatus sc = test_status;
+		    QMap<QString, QStringList> tmp;
+		    bool r = read(file.latin1(), tmp);
+		    if(r) {
+			replacement = tmp[arg_list[1]].join(" ");
+			vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(file);
+		    } else {
+			warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
+				 pi.file.latin1(), pi.line_no, file.latin1());
+		    }
+		    parser = pi;
+		    test_status = sc;
+		    scope_flag = sf;
+		    scope_block = sb;
+		}
 	    } else if(val.lower() == "list") {
 		static int x = 0;
 		replacement.sprintf(".QMAKE_INTERNAL_TMP_VAR_%d", x++);
