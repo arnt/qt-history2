@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#129 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#130 $
 **
 ** Definition of QPainter class
 **
@@ -39,10 +39,6 @@
 #include "qwmatrix.h"
 #endif // QT_H
 
-
-#if defined(_WS_WIN_)
-struct QWinFont;
-#endif
 
 class QTextCodec;
 
@@ -316,10 +312,12 @@ protected:
     HPEN	hpen;				// current pen
     HBRUSH	hbrush;				// current brush
     HBITMAP	hbrushbm;			// current brush bitmap
+    HFONT	hfont;				// current font
     HPALETTE	holdpal;
-    uint	pixmapBrush	: 1;
-    uint	nocolBrush	: 1;
-    QWinFont   *winFont;
+    void       *textmet;			// text metrics
+    uint	pixmapBrush : 1;
+    uint	nocolBrush  : 1;
+    uint	killFont    : 1;
     void       *textMetric();
     void	nativeXForm( bool );
 #elif defined(_WS_X11_)
@@ -587,6 +585,15 @@ inline QRect QPainter::boundingRect( const QRect &r, int tf,
     return boundingRect( r.x(), r.y(), r.width(), r.height(), tf, str, len,
 			 i );
 }
+
+#if defined(_WS_WIN_)
+inline void *QPainter::textMetric()
+{
+    if ( testf(DirtyFont) )
+	updateFont();
+    return textmet;
+}
+#endif
 
 
 #endif // QPAINTER_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#159 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#160 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -32,20 +32,6 @@
 
 
 extern Qt::WindowsVersion qt_winver;	// defined in qapplication_win.cpp
-
-/*
-  QWinFont holds extra font settings for the painter.
-*/
-
-struct QWinFont
-{
-    bool	killFont;
-    HANDLE	hfont;
-    union {
-	TEXTMETRICA	a;
-	TEXTMETRICW	w;
-    } tm;
-};
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
@@ -354,10 +340,11 @@ void QPainter::init()
     hpen = 0;
     hbrush = 0;
     hbrushbm = 0;
+    hfont = 0;
+    textmet = 0;
     txop = txinv = 0;
-    pixmapBrush = nocolBrush = FALSE;
+    pixmapBrush = nocolBrush = killFont = FALSE;
     penRef = brushRef = 0;
-    winFont = 0;
 }
 
 
@@ -374,21 +361,6 @@ void QPainter::setFont( const QFont &font )
 }
 
 
-void *QPainter::textMetric()
-{
-    if ( !isActive() )
-	return 0;
-    if ( winFont == 0 || testf(DirtyFont) )
-	updateFont();
-#ifdef UNICODE
-    if ( qt_winver == WV_NT )
-	return &winFont->tm.w;
-    else
-#endif
-	return &winFont->tm.a;
-}
-
-
 void QPainter::updateFont()
 {
     clearf(DirtyFont);
@@ -398,9 +370,9 @@ void QPainter::updateFont()
 	if ( !pdev->cmd( QPaintDevice::PdcSetFont, this, param ) || !hdc )
 	    return;
     }
-    HANDLE hfont;
+    HANDLE hfont_old = hfont;
+    bool   killFont_old = killFont;
     bool   ownFont = pdev->devType() == QInternal::Printer;
-    bool   killFont;
     if ( ownFont ) {
 	bool stockFont;
 	hfont = cfont.create( &stockFont, hdc, testf(VxF) );
@@ -410,28 +382,31 @@ void QPainter::updateFont()
 	killFont = FALSE;
     }
     SelectObject( hdc, hfont );
-    if ( winFont ) {
-	if ( winFont->killFont )
-	    DeleteObject( winFont->hfont );
-    } else {
-	winFont = new QWinFont;
-	CHECK_PTR( winFont );
+    if ( hfont_old && killFont_old)
+	DeleteObject( hfont_old );
+    if ( !textmet ) {
+#ifdef UNICODE
+	if ( qt_winver == WV_NT ) {
+	    textmet = new char[sizeof(TEXTMETRICW)];
+	} else
+#endif
+	{
+	    textmet = new char[sizeof(TEXTMETRICA)];
+	}
     }
-    winFont->killFont = killFont;
-    winFont->hfont = hfont;
 #ifdef UNICODE
     if ( qt_winver == WV_NT ) {
 	if ( ownFont )
-	    GetTextMetricsW( hdc, &winFont->tm.w );
+	    GetTextMetricsW( hdc, (TEXTMETRICW*)textmet );
 	else
-	    memcpy( &winFont->tm.w, cfont.textMetric(), sizeof(TEXTMETRICW) );
+	    memcpy( textmet, cfont.textMetric(), sizeof(TEXTMETRICW) );
     } else
 #endif
     {
 	if ( ownFont )
-	    GetTextMetricsA( hdc, &winFont->tm.a );
+	    GetTextMetricsA( hdc, (TEXTMETRICA*)textmet );
 	else
-	    memcpy( &winFont->tm.a, cfont.textMetric(), sizeof(TEXTMETRICA) );
+	    memcpy( textmet, cfont.textMetric(), sizeof(TEXTMETRICA) );
     }
 }
 
@@ -707,7 +682,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     wx = wy = vx = vy = 0;			// default view origins
     ww = 0;
 
-    if ( dt == QInternal::Widget ) {			// device is a widget
+    if ( dt == QInternal::Widget ) {		// device is a widget
 	QWidget *w = (QWidget*)pdev;
 	cfont = w->font();			// use widget font
 	cpen = QPen( w->foregroundColor() );	// use widget fg color
@@ -837,12 +812,15 @@ bool QPainter::end()
 	hbrushbm = 0;
 	pixmapBrush = nocolBrush = FALSE;
     }
-    if ( winFont ) {
+    if ( hfont ) {
 	SelectObject( hdc, stock_sysfont );
-	if ( winFont->killFont )
-	    DeleteObject( winFont->hfont );
-	delete winFont;
-	winFont = 0;
+	if ( killFont ) {
+	    DeleteObject( hfont );
+	    killFont = FALSE;
+	}
+	hfont = 0;
+	delete [] (char*)textmet;
+	textmet = 0;
     }
     if ( holdpal ) {
 	SelectPalette( hdc, holdpal, TRUE );
