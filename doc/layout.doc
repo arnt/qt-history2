@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: layout.doc,v 2.8 1999/05/21 09:32:35 warwick Exp $
+** $Id: layout.doc,v 2.9 1999/05/21 09:35:03 warwick Exp $
 **
 ** Explanation of the layout subsystem
 **
@@ -195,7 +195,8 @@ QWidget::resizeEvent() resizeEvent()\endlink to calculate the
 required distribution of sizes and call \link QWidget::setGeometry()
 setGeometry()\endlink on each child.
 
-The widget will get a \c LayoutHint event when the layout needs to be
+The widget will get an event with \link QEvent::type() type \endlink
+\c LayoutHint when the layout needs to be
 recalculated. Reimplement \link QWidget::event() event()\endlink
 to be notified of \c LayoutHint events.
 
