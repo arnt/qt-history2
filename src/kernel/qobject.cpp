@@ -393,6 +393,7 @@ QObject::~QObject()
 	    obj = tmp->next();
 	}
 	delete tmp;
+	senderObjects = 0;
     }
     if ( connections ) {			// disconnect receivers
 	for ( int i = 0; i < (int) connections->size(); i++ ) {
