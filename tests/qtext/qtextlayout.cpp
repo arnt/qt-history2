@@ -163,9 +163,9 @@ QTextRow::~QTextRow()
     endEmbed->deref();
 }
 
-void QTextRow::paint(QPainter &painter, int _x, int _y, HAlignment hAlign)
+void QTextRow::paint(QPainter &painter, int _x, int _y, QTextAreaCursor *cursor, HAlignment hAlign)
 {
-    printf("QTextRow::paint\n");
+    //    printf("QTextRow::paint\n");
 
     QRichTextString::Char *chr;
     int cw;
@@ -181,23 +181,30 @@ void QTextRow::paint(QPainter &painter, int _x, int _y, HAlignment hAlign)
 	_x += bRect.width() - tw;
     }
 
-    QRichTextFormat *lastFormat = reorderedText.at(0).format;
-    int startX = reorderedText.at(0).x;
-    QString buffer = reorderedText.at(0).c;
+    QRichTextFormat *lastFormat = 0;
+    int startX = 0;
+    QString buffer;
     bw = cw;
-	
-    for ( i = 1 ; i < reorderedText.length(); i++ ) {
+
+    int curx = -1;
+    int curh;
+    
+    for ( i = 0 ; i < reorderedText.length(); i++ ) {
 	chr = &reorderedText.at( i );
 	cw = chr->format->width( chr->c );
 
-#if 0
-	// check for cursor mark
-	if ( cursor && this == cursor->parag() && i == cursor->index() ) {
-	    curx = chr->x;
-	    curh = h;
-	    cury = cy;
+	if(!lastFormat) {
+	    lastFormat = chr->format;
+	    int startX = chr->x;
+	    QString buffer = chr->c;
+	    bw = cw;
 	}
-#endif	
+	
+	// check for cursor mark
+	if ( cursor && this == cursor->row() && i == cursor->index() ) {
+	    curx = chr->x;
+	    curh = chr->format->height();
+	}
 
 #if 0
 	// check if selection state changed
@@ -242,6 +249,12 @@ void QTextRow::paint(QPainter &painter, int _x, int _y, HAlignment hAlign)
 	drawBuffer( painter, _x, _y, buffer, startX, bw, false,
 			 lastFormat, i, 0, 0, QColorGroup() );
     }
+
+    // if we should draw a cursor, draw it now
+    if ( curx != -1 && cursor ) {
+	printf("painting cursor at %d/%d\n", curx, _y);
+	painter.fillRect( QRect( _x + bRect.x() + curx, _y + bRect.y(), 1, curh ), Qt::black );
+    }
 }
 
 void QTextRow::drawBuffer( QPainter &painter, int x, int y, const QString &buffer, int startX,
@@ -262,7 +275,7 @@ void QTextRow::drawBuffer( QPainter &painter, int x, int y, const QString &buffe
 	}
     }
 #endif
-    printf("painting %s to %d/%d\n", buffer.latin1(), startX, bRect.y() );
+    //printf("painting %s to %d/%d\n", buffer.latin1(), startX, bRect.y() );
     if ( buffer != "\t" )
 	painter.drawText( x + startX + bRect.x(), y + bRect.y() + baseline, buffer );
 }
@@ -922,12 +935,12 @@ QRect QTextArea::lineRect(int x, int y, int h) const
     return QRect(x, y, width, 10000);
 }
 
-void QTextArea::paint(QPainter &p, int x, int y)
+void QTextArea::paint(QPainter &p, int x, int y, QTextAreaCursor *c)
 {
     //printf("QTextarea::paint\n");
     QParagraph *par = first;
     while ( par ) {
-	par->paint(p, x, y);
+	par->paint(p, x, y, c);
 	par = par->next();
     }
 }
@@ -941,7 +954,7 @@ QParagraph *QTextArea::lastParagraph() const
 {
     return last;
 }
-    
+
 
 // ==============================================================
 
@@ -960,7 +973,7 @@ QTextAreaCursor::QTextAreaCursor( QTextArea *a )
 	    leftToRight = false;
 	} else
 	    idx = 0;
-    } else 
+    } else
 	idx = 0;
     tmpIndex = -1;
 }
@@ -1038,7 +1051,7 @@ void QTextAreaCursor::gotoRight()
 
 void QTextAreaCursor::gotoUp()
 {
-    if ( tmpIndex == -1 ) 
+    if ( tmpIndex == -1 )
 	tmpIndex = idx;
     if ( line->prev() ) {
 	line = line->prev();
@@ -1047,12 +1060,12 @@ void QTextAreaCursor::gotoUp()
 	line = parag->last();
     } else
 	return;
-    idx = QMAX(line->length(), tmpIndex);
+    idx = QMIN(line->length(), tmpIndex);
 }
 
 void QTextAreaCursor::gotoDown()
 {
-    if ( tmpIndex == -1 ) 
+    if ( tmpIndex == -1 )
 	tmpIndex = idx;
     if ( line->next() ) {
 	line = line->next();
@@ -1061,7 +1074,7 @@ void QTextAreaCursor::gotoDown()
 	line = parag->first();
     } else
 	return;
-    idx = QMAX(line->length(), tmpIndex);
+    idx = QMIN(line->length(), tmpIndex);
 }
 
 void QTextAreaCursor::gotoLineEnd()
@@ -1455,8 +1468,9 @@ QParagraph::QParagraph(const QRichTextString &t, QTextArea *a, QParagraph *lastP
 {
     area = a;
     firstRow = lastRow = 0;
-    p = n = 0;
-    
+    p = lastPar;
+    n = 0;
+
     hAlign = AlignAuto;
 
     // get last paragraph so we know where we want to place the next line
@@ -1490,7 +1504,7 @@ void QParagraph::layout()
     formatter.format(this, 0);
 }
 
-void QParagraph::paint(QPainter &p, int x, int y)
+void QParagraph::paint(QPainter &p, int x, int y, QTextAreaCursor *c)
 {
     //printf("QParagraph::paint\n");
     // #### add a check if we need to paint at all!!!
@@ -1506,7 +1520,7 @@ void QParagraph::paint(QPainter &p, int x, int y)
     y += yPos;
     QTextRow *line = first();
     while(line) {
-	line->paint(p, x, y, align);
+	line->paint(p, x, y, c, align);
 	line = line->next();
     }
 }

@@ -67,15 +67,39 @@ MyView::MyView()
 
     area->appendParagraph( QRichTextString(aStr, f) );
     //   area->appendParagraph(aStr);
+
+    cursor = new QTextAreaCursor(area);
 }
 
 
 void MyView::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    area->paint(p, 0, 0);
+    area->paint(p, 0, 0, cursor);
 }
 
+void MyView::keyPressEvent(QKeyEvent *e)
+{
+    printf("keyPressevent\n");
+    switch(e->key()) {
+    case Key_Left:
+	cursor->gotoLeft();
+	break;
+    case Key_Right:
+	cursor->gotoRight();
+	break;
+    case Key_Up:
+	cursor->gotoUp();
+	break;
+    case Key_Down:
+	cursor->gotoDown();
+	break;
+    default: 
+	break;
+    }
+    repaint(true);
+    return;
+}
 
 int main(int argc, char **argv)
 {

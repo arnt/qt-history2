@@ -21,8 +21,10 @@ public:
     MyView();
 protected:
     virtual void paintEvent(QPaintEvent *);
-
+    virtual void keyPressEvent(QKeyEvent *e);
+    
     QTextArea *area;
+    QTextAreaCursor *cursor;
 };
 
 

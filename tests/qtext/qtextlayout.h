@@ -15,6 +15,7 @@ class QRichTextFormat;
 class QParagraph;
 class QTextArea;
 class QTextEditFormat;
+class QTextAreaCursor;
 
 // ### move to qnamespace for 3.0
 enum HAlignment { AlignAuto, AlignLeft, AlignRight, AlignJustify };
@@ -110,7 +111,7 @@ public:
     int from() { return start; }
     int length() { return len; }
 
-    virtual void paint(QPainter &p, int x, int y, HAlignment = AlignAuto);
+    virtual void paint(QPainter &p, int x, int y, QTextAreaCursor *, HAlignment = AlignAuto);
 
     void setPosition(int _x, int _y);
     int width() const { return bRect.width(); }
@@ -124,7 +125,7 @@ public:
     QRect boundingRect();
 
     bool hasComplexText() const { return complexText; }
-    
+
 private:
     bool checkComplexText();
     void bidiReorderLine();
@@ -159,14 +160,14 @@ public:
     QRect boundingRect() const { return bRect; }
     QPoint nextLine() const;
 
-    void paint(QPainter &p, int x, int y);
+    void paint(QPainter &p, int x, int y, QTextAreaCursor *c);
     QRichTextString *string() { return &text; }
 
     QParagraph *prev() const { return p; }
     QParagraph *next() const { return n; }
     void setPrev( QParagraph *prev ) { p = prev; }
     void setNext( QParagraph *next ) { n = next; }
-    
+
     QTextRow *first() const { return firstRow; }
     QTextRow *last() const { return lastRow; }
     void setFirst(QTextRow *r) { firstRow = r; }
@@ -185,7 +186,7 @@ private:
     QTextRow *firstRow;
     QTextRow *lastRow;
     QParagraph *p, *n;
-    
+
     QRichTextString text;
 
     int xPos;
@@ -211,10 +212,10 @@ public:
 
     QParagraph *firstParagraph() const;
     QParagraph *lastParagraph() const;
-    
+
     virtual QParagraph *createParagraph(const QRichTextString &text, QParagraph *before);
 
-    void paint(QPainter &p, int x, int y);
+    void paint(QPainter &p, int x, int y, QTextAreaCursor *c = 0);
 
 private:
     int width;
@@ -231,7 +232,7 @@ public:
     QTextRow *row() const { return line; }
     int index() const;
 
-    QParagraph *paragraph() const;
+    QParagraph *paragraph() const { return parag; }
     void setParagraph( QParagraph *s );
 
     void gotoLeft();
@@ -628,5 +629,46 @@ inline QRichTextFormat *QRichTextFormatCollection::defaultFormat() const
     return defFormat;
 }
 
+// =============================================================================
+
+inline int QTextAreaCursor::index() const
+{
+    return idx;
+}
+
+inline void QTextAreaCursor::setIndex( int i )
+{
+    tmpIndex = -1;
+    idx = i;
+}
+
+inline bool QTextAreaCursor::checkParens()
+{
+#if 0
+    QChar c( string->at( idx )->c );
+    if ( c == '{' || c == '(' || c == '[' ) {
+	return checkOpenParen();
+    } else if ( idx > 0 ) {
+	c = string->at( idx - 1 )->c;
+	if ( c == '}' || c == ')' || c == ']' ) {
+	    return checkClosedParen();
+	}
+    }
+#endif
+    return FALSE;
+}
+
+inline void QTextAreaCursor::setParagraph( QParagraph *s )
+{
+    idx = 0;
+    parag = s;
+    tmpIndex = -1;
+}
+
+inline void QTextAreaCursor::checkIndex()
+{
+    if ( idx >= line->length() )
+	idx = line->length() - 1;
+}
 
 #endif
