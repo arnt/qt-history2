@@ -1596,7 +1596,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw < 0 || maxh < 0) {
         qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
                 "are not possible",
-                 objectName().isEmpty() ? QLatin1String("unnamed") : objectName(),
+                 objectName().isEmpty() ? "unnamed" : objectName().latin1(),
                  metaObject()->className(), maxw, maxh);
         maxw = qMax(maxw, 0);
         maxh = qMax(maxh, 0);

@@ -133,7 +133,7 @@ Q_GLOBAL_STATIC(QWindowsMimeList, mimeList);
       and supported by QTextDrag.
       \i CF_TEXT - converted to "text/plain;charset=system" or "text/plain"
       and supported by QTextDrag.
-      \i CF_DIB - converted to "image/*", where * is
+      \i CF_DIB - converted to "image/...", where ... is
       a \link QImage::outputFormats() Qt image format\endlink,
       and supported by QImageDrag.
       \i CF_HDROP - converted to "text/uri-list",

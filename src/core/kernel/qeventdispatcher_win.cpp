@@ -28,7 +28,7 @@ struct QSockNot {
 typedef QHash<int, QSockNot *> QSNDict;
 
 struct TimerInfo {                                // internal timer info
-    uint     ind;                                // - Qt timer identifier - 1
+    int     ind;                                // - Qt timer identifier - 1
     uint     id;                                // - Windows timer identifier
     QObject *obj;                                // - object to receive events
 };
@@ -207,7 +207,7 @@ static HWND qt_create_sn_window(QEventDispatcherWin32 *eventDispatcher)
 #endif
 
     if (!wnd) {
-        qWarning("Failed to create socket notifier receiver window: %d\n", GetLastError());
+        qWarning("Failed to create socket notifier receiver window: %d\n", (int)GetLastError());
     }
     return wnd;
 }

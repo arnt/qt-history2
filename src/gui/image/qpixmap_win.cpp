@@ -1266,7 +1266,7 @@ int QPixmapData::allocCell(const QPixmap *p)
     HDC dc = p->getDC();
 
     HDC mcp_dc = mcp->mem_dc.hdc;
-    HGDIOBJ old_mcp_bm;
+    HGDIOBJ old_mcp_bm = INVALID_HANDLE_VALUE;
     if (!mcp->mem_dc.hdc) {
         mcp_dc = mcp->mem_dc.hdc ? mcp->mem_dc.hdc : CreateCompatibleDC(0);
         old_mcp_bm = SelectObject(mcp_dc, mcp->hbm());
@@ -1314,7 +1314,7 @@ void QPixmapData::freeCell(QPixmapData *data, bool terminate)
             data->hbm = CreateBitmap(data->w, data->h, 1, 1, 0);
         HDC hdc = data->mem_dc.hdc;
         HDC mcp_dc = mcp->mem_dc.hdc;
-        HGDIOBJ old_mcp_bm;
+        HGDIOBJ old_mcp_bm = INVALID_HANDLE_VALUE;
         if (!mcp->mem_dc.hdc) {
             mcp_dc = mcp->mem_dc.hdc ? mcp->mem_dc.hdc : CreateCompatibleDC(0);
             old_mcp_bm = SelectObject(mcp_dc, mcp->hbm());

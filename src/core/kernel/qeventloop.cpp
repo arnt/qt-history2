@@ -80,6 +80,7 @@ int QEventLoop::exec(ProcessEventsFlags flags)
 
     QEventLoop *eventLoop = data->eventLoops.pop();
     Q_ASSERT_X(eventLoop == this, "QEventLoop::exec()", "internal error");
+    Q_UNUSED(eventLoop); // --release warning
 
     return d->returnCode;
 }

@@ -968,10 +968,6 @@ void QApplication::setMainWidget(QWidget *mainWidget)
   QApplication cursor stack
  *****************************************************************************/
 
-typedef QList<QCursor*> QCursorList;
-
-static QCursorList *cursorStack = 0;
-
 void QApplication::setOverrideCursor(const QCursor &cursor)
 {
     qApp->d->cursor_list.prepend(cursor);
@@ -1007,9 +1003,7 @@ void qt_set_cursor(QWidget *w, const QCursor& /* c */)
         return;
     QWidget* cW = QWidget::find(curWin);
     if (!cW || cW->topLevelWidget() != w->topLevelWidget() ||
-         !cW->isVisible() || !cW->underMouse()
-         /* ##### || cursorStack */
-         )
+         !cW->isVisible() || !cW->underMouse())
         return;
 
     SetCursor(cW->cursor().handle());

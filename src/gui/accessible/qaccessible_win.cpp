@@ -154,6 +154,8 @@ public:
     {
     }
 
+    virtual ~QWindowsEnumerate() {}
+
     HRESULT STDMETHODCALLTYPE QueryInterface(REFIID, LPVOID *);
     ULONG STDMETHODCALLTYPE AddRef();
     ULONG STDMETHODCALLTYPE Release();
@@ -262,7 +264,7 @@ public:
     {
     }
 
-    ~QWindowsAccessible()
+    virtual ~QWindowsAccessible()
     {
         delete accessible;
     }
