@@ -403,8 +403,9 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
         s << (Q_UINT8)(p.style() | p.capStyle() | p.joinStyle());
     if (s.version() < 7)
         s << (Q_UINT8)p.width();
-    else
-        s << p.width();
+    else {
+        s << (float)p.width();
+    }
     return s << p.color();
 }
 
