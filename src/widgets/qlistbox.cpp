@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#56 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#55 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#56 $")
 
 
 declare(QListM, QLBItem);
@@ -77,8 +77,9 @@ static inline bool checkIndex( const char *method, int count, int index )
 
   Each item in a QListBox can contain either a text or a pixmap.  One of
   the items can be the current item.  The highlighted() signal is emitted
-  when the user selects a new current item, and selected() is emitted when
-  the user actually selects the current item.
+  when the user highlights a new current item; selected() is emitted when
+  the user double-clicks on an item or presses return when an item is
+  highlighted.
 
   If the user does not select anything, no signals are emitted and
   currentItem() returns -1.
@@ -1136,7 +1137,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	case Key_Return:
 	case Key_Enter:
 	    if ( currentItem() >= 0 )
-	    emit selected( currentItem());
+		emit selected( currentItem());
 	    break;
 	default:
 	    break;
