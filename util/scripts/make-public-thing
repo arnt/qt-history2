@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#25 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#26 $
 
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
@@ -138,7 +138,10 @@ done
 ";
 
 # Generate and check-in [changes to] the documentation
-if ( !$skipdoc ) {
+if ( $skipdoc ) {
+    $skipdocexcl = "--exclude /local/lib/cvs/qt/html";
+} else {
+    $skipdocexcl = "";
     print SH "
     for a in tutorial/t{,1}[0-9]; do cp -f \$a/Makefile.in \$a/Makefile ; done
     perl util/qdoc/qdoc
@@ -170,7 +173,7 @@ rm -rf makefiles tmake
 rm -rf src/Makefile.win32-dll
 rm -rf src/*.pro
 chmod a+x $base/cvs/qt/bin/*,v
-rsync -avz --delete $base/cvs/qt bahamas:/local/lib/cvs
+rsync -avz $skipdocexcl --delete $base/cvs/qt bahamas:/local/lib/cvs
 #rsync --dry-run -avz --delete $base/cvs/qt bahamas:/local/lib/cvs
 ";
 
