@@ -237,7 +237,7 @@ void FormWindow::closeEvent( QCloseEvent *e )
 
 void FormWindow::paintGrid( QWidget *w, QPaintEvent *e )
 {
-    if ( !mainWindow() && !mainWindow()->showGrid() )
+    if ( !mainWindow() || !mainWindow()->showGrid() )
 	return;
     QPixmap grid;
     QString grid_name;
