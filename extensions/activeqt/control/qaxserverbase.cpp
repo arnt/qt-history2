@@ -128,7 +128,7 @@ public:
     typedef QMap<QUuid,IConnectionPoint*> ConnectionPoints;
     typedef QMap<QUuid,IConnectionPoint*>::Iterator ConnectionPointsIterator;
 
-    QAxServerBase( const QString &classname );
+    QAxServerBase( const QString &classname, IUnknown *outerUnknown );
     QAxServerBase( QObject *o );
 
     void init();
@@ -146,6 +146,9 @@ public:
 // IUnknown
     unsigned long WINAPI AddRef()
     {
+	if ( m_outerUnknown )
+	    return m_outerUnknown->AddRef();
+
 	EnterCriticalSection( &refCountSection );
 	unsigned long r = ++ref;
 	LeaveCriticalSection( &refCountSection );
@@ -154,6 +157,9 @@ public:
     }
     unsigned long WINAPI Release()
     {
+    	if ( m_outerUnknown )
+	    return m_outerUnknown->Release();
+
 	EnterCriticalSection( &refCountSection );
 	unsigned long r = --ref;
 	LeaveCriticalSection( &refCountSection );
@@ -165,6 +171,7 @@ public:
 	return r;
     }
     HRESULT WINAPI QueryInterface( REFIID iid, void **iface );
+    HRESULT InternalQueryInterface( REFIID iid, void **iface );
 
 // IAxServerBase
     IUnknown *clientSite() const
@@ -341,6 +348,7 @@ private:
     QIntDict<QMetaProperty>* proplist;
     QMap<int, DISPID>* proplist2;
 
+    IUnknown *m_outerUnknown;
     IAdviseSink *m_spAdviseSink;
     IOleAdviseHolder *m_spOleAdviseHolder;
     IOleClientSite *m_spClientSite;
@@ -348,6 +356,68 @@ private:
     IOleInPlaceFrame *m_spInPlaceFrame;
     ITypeInfo *m_spTypeInfo;
     IStorage *m_spStorage;
+};
+
+class QAxServerAggregate : public IUnknown
+{
+public:
+    QAxServerAggregate( const QString &className, IUnknown *outerUnknown )
+	: m_outerUnknown( outerUnknown ), ref(0)
+    {
+	object = new QAxServerBase( className, outerUnknown );
+
+	InitializeCriticalSection( &refCountSection );
+	InitializeCriticalSection( &createWindowSection );
+    }
+    ~QAxServerAggregate()
+    {
+	DeleteCriticalSection( &refCountSection );
+	DeleteCriticalSection( &createWindowSection );
+
+	delete object;
+    }
+
+// IUnknown
+    unsigned long WINAPI AddRef()
+    {
+	EnterCriticalSection( &refCountSection );
+	unsigned long r = ++ref;
+	LeaveCriticalSection( &refCountSection );
+
+	return r;
+    }
+    unsigned long WINAPI Release()
+    {
+	EnterCriticalSection( &refCountSection );
+	unsigned long r = --ref;
+	LeaveCriticalSection( &refCountSection );
+
+	if ( !r ) {
+	    delete this;
+	    return 0;
+	}
+	return r;
+    }
+    HRESULT WINAPI QueryInterface( REFIID iid, void **iface )
+    {
+	*iface = 0;
+	
+	HRESULT res = E_NOINTERFACE;
+	if ( iid == IID_IUnknown ) {
+	    *iface = (IUnknown*)this;
+	    AddRef();
+	    return S_OK;
+	}
+	return object->InternalQueryInterface( iid, iface );
+    }
+
+private:
+    QAxServerBase *object;
+    IUnknown *m_outerUnknown;
+    unsigned long ref;
+
+    CRITICAL_SECTION refCountSection;
+    CRITICAL_SECTION createWindowSection;
 };
 
 IDispatch *create_object_wrapper( QObject *o )
@@ -705,7 +775,7 @@ public:
     // IClassFactory
     HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
     {
-	if ( pUnkOuter )
+	if ( pUnkOuter && iid != IID_IUnknown )
 	    return CLASS_E_NOAGGREGATION;
 
 	// Make sure a QApplication instance is present (inprocess case)
@@ -720,9 +790,20 @@ public:
 	    } );
 	}
 
-	// Create the ActiveX wrapper
-	QAxServerBase *activeqt = new QAxServerBase( className );
-	return activeqt->QueryInterface( iid, ppObject );
+	HRESULT res;
+	// Create the ActiveX wrapper - aggregate if requested
+	if ( pUnkOuter ) {
+	    QAxServerAggregate *aggregate = new QAxServerAggregate( className, pUnkOuter );
+	    res = aggregate->QueryInterface( iid, ppObject );
+	    if (FAILED(res))
+		delete aggregate;
+	} else {
+	    QAxServerBase *activeqt = new QAxServerBase( className, pUnkOuter );
+	    res = activeqt->QueryInterface( iid, ppObject );
+	    if (FAILED(res))
+		delete activeqt;
+	}
+	return res;
     }
     HRESULT WINAPI LockServer( BOOL fLock )
     {
@@ -765,10 +846,11 @@ HRESULT GetClassObject( REFIID clsid, REFIID iid, void **ppUnk )
     The constructor is called by the QClassFactory object provided by
     the COM server for the respective CLSID.
 */
-QAxServerBase::QAxServerBase( const QString &classname )
-: aggregatedObject( 0 ), ref( 0 ), class_name( classname ),
+QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
+: aggregatedObject(0), ref(0), class_name(classname),
   slotlist(0), signallist(0),proplist(0), proplist2(0),
-  m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0)
+  m_hWnd(0), m_hWndCD(m_hWnd), hmenuShared(0), hwndMenuOwner(0),
+  m_outerUnknown(outerUnknown)
 {
     init();
     points[qAxFactory()->eventsID(class_name)] = new QAxConnection( this, qAxFactory()->eventsID(class_name) );
@@ -780,9 +862,10 @@ QAxServerBase::QAxServerBase( const QString &classname )
     Constructs a QAxServerBase object wrapping \a o.
 */
 QAxServerBase::QAxServerBase( QObject *o )
-: aggregatedObject( 0 ), ref( 0 ),
+: aggregatedObject(0), ref( 0),
   slotlist(0), signallist(0),proplist(0), proplist2(0),
-  m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0)
+  m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0),
+  m_outerUnknown(0)
 {
     init();
 
@@ -888,6 +971,14 @@ QAxServerBase::~QAxServerBase()
     QueryInterface implementation.
 */
 HRESULT WINAPI QAxServerBase::QueryInterface( REFIID iid, void **iface )
+{
+    if ( m_outerUnknown )
+	return m_outerUnknown->QueryInterface( iid, iface );
+
+    return InternalQueryInterface( iid, iface );
+}
+
+HRESULT QAxServerBase::InternalQueryInterface( REFIID iid, void **iface )
 {
     *iface = 0;
 
