@@ -5154,7 +5154,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 
     // ### hack. The last char in the paragraph is always invisible, and somehow sometimes has a wrong format. It changes between
     // layouting and printing. This corrects some layouting errors in BiDi mode due to this.
-    if ( len > 1 ) {
+    if ( len > 1 && ( !c->format() || !c->format()->isAnchor() ) ) {
 	c->format()->removeRef();
 	c->setFormat( string->at( len - 2 ).format() );
 	c->format()->addRef();
@@ -5350,7 +5350,7 @@ QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
     cachedFormat = createFormat( f, c );
     cachedFormat->collection = this;
     cKey.insert( cachedFormat->key(), cachedFormat );
-    if ( cachedFormat->key() != key ) 
+    if ( cachedFormat->key() != key )
 	qWarning("ASSERT: keys for format not identical: '%s '%s'", cachedFormat->key().latin1(), key.latin1() );
 #ifdef DEBUG_COLLECTION
     qDebug( "format of font and col '%s' - worst case", cachedFormat->key().latin1() );
