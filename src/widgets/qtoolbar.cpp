@@ -267,16 +267,16 @@ void QToolBar::setUpGM()
 			else
 			    f->setFrameStyle( QFrame::NoFrame );
 		    }
-		} else if ( w->maximumSize() == QSize(QWIDGETSIZE_MAX,
-						      QWIDGETSIZE_MAX)
-			    && w->minimumSize() == QSize(0,0) ) {
-		    QSize s( w->sizeHint() );
-		    if ( s.width() > 0 && s.height() > 0 )
-			w->setMinimumSize( s );
-		    else if ( s.width() > 0 )
-			w->setMinimumWidth( s.width() );
-		    else if ( s.height() > 0 )
-			w->setMinimumHeight( s.width() );
+// 		} else if ( w->maximumSize() == QSize(QWIDGETSIZE_MAX,
+// 						      QWIDGETSIZE_MAX)
+// 			    && w->minimumSize() == QSize(0,0) ) {
+// 		    QSize s( w->sizeHint() );
+// 		    if ( s.width() > 0 && s.height() > 0 )
+// 			w->setMinimumSize( s );
+// 		    else if ( s.width() > 0 )
+// 			w->setMinimumWidth( s.width() );
+// 		    else if ( s.height() > 0 )
+// 			w->setMinimumHeight( s.width() );
 		}
 		b->addWidget( w, w == sw ? 42 : 0 );
 	    }
@@ -316,7 +316,7 @@ QMainWindow * QToolBar::mainWindow()
   Sets \a w to be expanded if this toolbar is requested to stretch
   (because QMainWindow right-justifies the dock it's in or stretchable()
   of this toolbar is TRUE).
-  
+
   If you call setStretchableWidget() and the toolbar is not stretchable
   yet, setStretchable( TRUE ) is called.
 
