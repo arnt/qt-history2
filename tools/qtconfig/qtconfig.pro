@@ -10,3 +10,4 @@ IMAGEFILE	= images.cpp
 PROJECTNAME	= Qt Configuration
 LANGUAGE	= C++
 {SOURCES+=images.cpp}
+DESTDIR		= ../../bin

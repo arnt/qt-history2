@@ -4,4 +4,5 @@ win32:SUBDIRS	= designer \
 		  linguist
 unix:SUBDIRS	= designer \
 		  assistant \
-		  linguist
+		  linguist \
+		  qtconfig
