@@ -386,8 +386,15 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 	pm.cloneX11Data( this );
 #endif
 	bitBlt( &pm, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
-	if ( !ignoreMask && data->mask )		// copy the mask
-	    pm.setMask( data->selfmask ? *((QBitmap*)&pm) : *data->mask );
+	if ( !ignoreMask ) {
+#if defined(Q_WS_X11) && !defined(QT_NO_XRENDER)
+	    if ( data->alphapm )
+		qt_x11_copy_alpha_pixmap(&pm, this);
+	    else
+#endif
+		if ( data->mask )		// copy the mask
+		    pm.setMask( data->selfmask ? *((QBitmap*)&pm) : *data->mask );
+	}
     }
     return pm;
 }
@@ -415,9 +422,14 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	if ( !isNull() ) {
 	    bitBlt( this, 0, 0, &pixmap, 0, 0, pixmap.width(), pixmap.height(),
 		    CopyROP, TRUE );
-	    if ( pixmap.mask() )
-		setMask( pixmap.data->selfmask ? *((QBitmap*)(this))
-					       : *pixmap.mask() );
+#if defined(Q_WS_X11) && !defined(QT_NO_XRENDER)
+	    if ( pixmap.data->alphapm )
+		qt_x11_copy_alpha_pixmap(this, &pixmap);
+	    else
+#endif
+		if ( pixmap.mask() )
+		    setMask( pixmap.data->selfmask ? *((QBitmap*)(this))
+			                           : *pixmap.mask() );
 	}
 	pixmap.data->deref();
     } else {
@@ -615,15 +627,20 @@ void QPixmap::resize( int w, int h )
 	bitBlt( &pm, 0, 0, this, 0, 0,		// copy old pixmap
 		QMIN(width(), w),
 		QMIN(height(),h), CopyROP, TRUE );
-    if ( data->mask ) {				// resize mask as well
-	if ( data->selfmask ) {			// preserve self-mask
-	    pm.setMask( *((QBitmap*)&pm) );
-	} else {				// independent mask
-	    QBitmap m = *data->mask;
-	    m.resize( w, h );
-	    pm.setMask( m );
+#if defined(Q_WS_X11) && !defined(QT_NO_XRENDER)
+    if (data->alphapm)
+	qWarning("QPixmap::resize: TODO: resize alpha data");
+    else
+#endif // Q_WS_X11
+	if ( data->mask ) {				// resize mask as well
+	    if ( data->selfmask ) {			// preserve self-mask
+		pm.setMask( *((QBitmap*)&pm) );
+	    } else {				// independent mask
+		QBitmap m = *data->mask;
+		m.resize( w, h );
+		pm.setMask( m );
+	    }
 	}
-    }
     *this = pm;
 }
 

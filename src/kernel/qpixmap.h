@@ -129,7 +129,7 @@ public:
 			      int conversion_flags=0 );
     bool	save( const QString& fileName, const char* format, int quality = -1 ) const;
 #endif
-    
+
 #if defined(Q_WS_WIN)
     HBITMAP	hbm()		const;
 #endif
@@ -228,6 +228,14 @@ private:
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QImage* src,
 				 int, int, int, int, int conversion_flags );
+
+#if defined(Q_WS_X11) && !defined(QT_NO_XRENDER)
+    friend void qt_x11_copy_alpha_pixmap(QPixmap *dst, const QPixmap *src);
+    friend void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
+					 const QPixmap *src, int sx = 0, int sy = 0,
+					 int sw = -1, int sh = -1, bool fill = FALSE);
+#endif
+
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;

@@ -1676,6 +1676,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     if ( !xi ) {				// error, return null pixmap
 	QPixmap pm;
 	pm.data->bitmap = data->bitmap;
+	pm.data->alphapm = data->alphapm;
 	return pm;
     }
 
@@ -1784,8 +1785,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 #if defined(QT_MITSHM)
 	}
 #endif
-	if ( data->mask )			// xform mask, too
-	    pm.setMask( data->mask->xForm(matrix) );
+
+	bool domask = (data->mask != 0);
 
 #ifndef QT_NO_XRENDER
 	// transform the alpha channel
@@ -1807,6 +1808,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 		if (qt_xForm_helper( mat, axi->xoffset, type, bpp, dptr, w,
 				     0, h, sptr, sbpl, ws, hs )) {
+		    domask = FALSE;
 		    delete pm.data->alphapm;
 		    pm.data->alphapm = new QPixmap; // create a null pixmap
 
@@ -1849,6 +1851,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	}
 #endif
 
+	if ( domask )			// xform mask, too
+	    pm.setMask( data->mask->xForm(matrix) );
 	return pm;
     }
 }
@@ -1894,3 +1898,80 @@ void QPixmap::x11SetScreen( int screen )
     setX11Data( xd );
     convertFromImage( img );
 }
+
+#ifndef QT_NO_XRENDER
+
+/*!
+  \internal
+  helper for blitting alpha data into another pixmap
+*/
+void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
+			      const QPixmap *src, int sx = 0, int sy = 0,
+			      int sw = -1, int sh = -1, bool fill = FALSE)
+{
+    if (! dst || ! src || ! src->data->alphapm)
+	return;
+
+    // create an alpha pixmap for dst if it doesn't exist
+    if ( ! dst->data->alphapm ) {
+	dst->data->alphapm = new QPixmap;
+
+	// setup pixmap d
+	dst->data->alphapm->data->w = dst->width();
+	dst->data->alphapm->data->h = dst->height();
+	dst->data->alphapm->data->d = 8;
+
+	// create 8bpp pixmap and render picture
+	dst->data->alphapm->hd =
+	    XCreatePixmap(dst->x11Display(),
+			  RootWindow(dst->x11Display(), dst->x11Screen()),
+			  dst->width(), dst->height(), 8);
+
+	XRenderPictFormat *format = 0;
+	XRenderPictFormat req;
+	ulong mask = PictFormatType | PictFormatDepth | PictFormatAlphaMask;
+	req.type = PictTypeDirect;
+	req.depth = 8;
+	req.direct.alphaMask = 0xff;
+	format = XRenderFindFormat(dst->x11Display(), mask, &req, 0);
+	if (format)
+	    dst->data->alphapm->rendhd =
+		XRenderCreatePicture(dst->x11Display(), dst->data->alphapm->hd,
+				     format, 0, 0);
+    }
+
+    if (sw < 0)
+	sw = src->width() - sx;
+    if (sh < 0)
+	sh = src->height() - sy;
+
+    GC gc = XCreateGC(dst->x11Display(), dst->data->alphapm->hd, 0, 0);
+    if (fill) {
+	XSetForeground(dst->x11Display(), gc,
+		       WhitePixel(dst->x11Display(), dst->x11Screen()));
+	XFillRectangle(dst->x11Display(), dst->handle(), gc, 0, 0,
+		       dst->width(), dst->height());
+    }
+    XCopyArea(dst->x11Display(), src->data->alphapm->hd, dst->data->alphapm->hd, gc,
+	      sx, sy, sw, sh, dx, dy);
+    XFreeGC(dst->x11Display(), gc);
+}
+
+/*!
+  \internal
+  helper for copying alpha data into another pixmap
+*/
+void qt_x11_copy_alpha_pixmap(QPixmap *dst, const QPixmap *src)
+{
+    if (! dst || ! src)
+	return;
+
+    // delete any alpha pixmap dst might have
+    delete dst->data->alphapm;
+    dst->data->alphapm = 0;
+
+    // blit the alpha channel
+    qt_x11_blit_alpha_pixmap(dst, 0, 0, src, 0, 0, dst->width(), dst->height(), TRUE);
+}
+
+#endif // !QT_NO_XRENDER
