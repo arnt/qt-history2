@@ -5,6 +5,7 @@
 #include "qatomic.h"
 #include "qiterator.h"
 #include "qlist.h"
+//#include "qpair.h" ###
 #endif // QT_H
 
 #ifndef QT_NO_STL
@@ -27,7 +28,6 @@ inline uint qHash(unsigned long key) { return (uint)key; }
 Q_CORE_EXPORT uint qHash(const QByteArray &key);
 Q_CORE_EXPORT uint qHash(const QString &key);
 
-// We assume that size(const T *) >= sizeof(ulong)
 template <class T> inline uint qHash(const T *key)
 {
     if (sizeof(const T *) > sizeof(uint))
@@ -133,12 +133,45 @@ class QHash
 	QHashNode<Key, T> *e;
     };
 
+    static inline Node *concrete(QHashData::Node *node) {
+	return reinterpret_cast<Node *>(node);
+    }
+
 public:
     inline QHash() : d(&QHashData::shared_null) { ++d->ref; }
     inline QHash(const QHash<Key, T> &other) : d(other.d) { ++d->ref; }
     inline ~QHash() { if (!--d->ref) freeData(d); }
 
-    QHash &operator=(const QHash &other);
+    QHash<Key, T> &operator=(const QHash<Key, T> &other);
+
+    bool operator==(const QHash<Key, T> &other) const;
+    inline bool operator!=(const QHash<Key, T> &other) const { return !(*this == other); }
+
+    inline int size() const { return d->size; }
+    inline bool isEmpty() const { return d->size == 0; }
+    inline bool operator!() const { return d->size == 0; }
+
+    void reserve(int size);
+    inline int capacity() const { return d->numBuckets; }
+
+    inline void detach() { if (d->ref != 1) detach_helper(); }
+    inline bool isDetached() const { return d->ref == 1; }
+
+    void clear();
+
+    int remove(const Key &key);
+    T take(const Key &key); // ### on its way out
+
+    bool contains(const Key &key) const;
+    const T value(const Key &key) const;
+    const T value(const Key &key, const T &defaultValue) const;
+    T &operator[](const Key &key);
+    const T operator[](const Key &key) const;
+
+    QList<Key> keys() const;
+    QList<T> values() const;
+    QList<T> values(const Key &key) const;
+    int count(const Key &key) const;
 
     class Iterator
     {
@@ -150,15 +183,16 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
-	inline operator Node *() const { return reinterpret_cast<Node *>(i); }
-	explicit inline Iterator(void *node = 0) { i = reinterpret_cast<QHashData::Node *>(node); }
+	inline operator QHashData::Node *() const { return i; }
+        inline Iterator() : i(0) { }
+	explicit inline Iterator(void *node) : i(reinterpret_cast<QHashData::Node *>(node)) { }
 
-	inline const Key &key() const { return reinterpret_cast<Node *>(i)->key; }
-	inline T &value() const { return reinterpret_cast<Node *>(i)->value; }
+	inline const Key &key() const { return concrete(i)->key; }
+	inline T &value() const { return concrete(i)->value; }
 #ifdef QT_COMPAT
-	inline QT_COMPAT T &data() const { return reinterpret_cast<Node *>(i)->value; }
+	inline QT_COMPAT T &data() const { return concrete(i)->value; }
 #endif
-	inline T &operator*() const { return reinterpret_cast<Node *>(i)->value; }
+	inline T &operator*() const { return concrete(i)->value; }
 	inline bool operator==(const Iterator &o) { return i == o.i; }
 	inline bool operator!=(const Iterator &o) { return i != o.i; }
 
@@ -195,18 +229,19 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
-	inline operator Node *() const { return reinterpret_cast<Node *>(i); }
+	inline operator QHashData::Node *() const { return i; }
+        inline ConstIterator() : i(0) { }
+	explicit inline ConstIterator(void *node)
+	    : i(reinterpret_cast<QHashData::Node *>(node)) { }
 	inline ConstIterator(const Iterator &o)
         { i = reinterpret_cast<const ConstIterator &>(o).i; }
-	explicit inline ConstIterator(void *node = 0)
-        { i = reinterpret_cast<QHashData::Node *>(node); }
 
-	inline const Key &key() const { return reinterpret_cast<Node *>(i)->key; }
-	inline const T &value() const { return reinterpret_cast<Node *>(i)->value; }
+	inline const Key &key() const { return concrete(i)->key; }
+	inline const T &value() const { return concrete(i)->value; }
 #ifdef QT_COMPAT
-	inline QT_COMPAT const T &data() const { return reinterpret_cast<Node *>(i)->value; }
+	inline QT_COMPAT const T &data() const { return concrete(i)->value; }
 #endif
-	inline const T &operator*() const { return reinterpret_cast<Node *>(i)->value; }
+	inline const T &operator*() const { return concrete(i)->value; }
 	inline bool operator==(const ConstIterator &o) { return i == o.i; }
 	inline bool operator!=(const ConstIterator &o) { return i != o.i; }
 
@@ -233,42 +268,7 @@ public:
     };
     friend class ConstIterator;
 
-    inline void detach() { if (d->ref != 1) detach_helper(); }
-    inline bool isDetached() const { return d->ref == 1; }
-
-    inline int size() const { return d->size; }
-    inline int count() const { return d->size; }
-    inline bool isEmpty() const { return !d->size; }
-    int count(const Key &key) const;
-
-    void clear();
-
-    // ### QPair<Iterator, bool> insert(const value_type &x);
-    Iterator insert(const Key &key, const T &value);
-    Iterator insertMulti(const Key &key, const T &value);
-
-    int remove(const Key &key);
-    Iterator erase(Iterator it);
-#ifdef QT_COMPAT
-    inline QT_COMPAT Iterator remove(Iterator it) { return erase(it); }
-#endif
-
-#ifdef QT_COMPAT
-    inline QT_COMPAT Iterator replace(const Key &key, const T &value) { return insert(key, value); }
-#endif
-
-    bool contains(const Key &key) const;
-    Iterator find(const Key &key);
-    ConstIterator find(const Key &key) const;
-    const T value(const Key &key) const;
-    const T value(const Key &key, const T &defaultValue) const;
-    T &operator[](const Key &key);
-    const T operator[](const Key &key) const;
-
-    QList<Key> keys() const;
-    QList<T> values() const;
-    QList<T> values(const Key &key) const;
-
+    // STL style
     inline Iterator begin() { detach(); return Iterator(d->firstNode()); }
     inline ConstIterator begin() const { return ConstIterator(d->firstNode()); }
     inline ConstIterator constBegin() const { return ConstIterator(d->firstNode()); }
@@ -280,41 +280,52 @@ public:
     }
     inline ConstIterator end() const { return ConstIterator(e); }
     inline ConstIterator constEnd() const { return ConstIterator(e); }
+    Iterator erase(Iterator it);
+    // ### QPair<Iterator, bool> insert(const value_type &x);
 
-    T take(const Key &key);
-    // ### Iterator take(const Iterator &) ?
+    // more Qt
+    inline int count() const { return d->size; }
+    Iterator find(const Key &key);
+    ConstIterator find(const Key &key) const;
+    Iterator insert(const Key &key, const T &value);
+    Iterator insertMulti(const Key &key, const T &value);
+#ifdef QT_COMPAT
+    inline QT_COMPAT Iterator replace(const Key &key, const T &value) { return insert(key, value); }
+#endif
+    QHash<Key, T> &operator+=(const QHash<Key, T> &other);
+    inline QHash<Key, T> operator+(const QHash<Key, T> &other) const
+    { QHash<Key, T> result = *this; result += other; return result; }
+
+    // should vanish soon
     bool autoDelete() const { return d->autoDelete == static_cast<void *>(this); }
     void setAutoDelete(bool enable);
 
-    inline int capacity() const { return d->numBuckets; }
-    void reserve(int size);
+    // STL compatibility
+    typedef Iterator iterator;
+    typedef ConstIterator const_iterator;
+    inline bool empty() const { return isEmpty(); }
 
     inline bool ensure_constructed()
     { if (!d) { d = &QHashData::shared_null; ++d->ref; return false; } return true; }
 
-    // stl compatibility
-    typedef Iterator iterator;
-    typedef ConstIterator const_iterator;
-    bool empty() const { return isEmpty(); }
-
 private:
     void detach_helper();
     void freeData(QHashData* d);
-    Node **node_find(const Key &key, uint *hp = 0) const;
-    Node *node_create(uint h, const Key &key, const T &value, Node **nextNode);
-    static QHashData::Node *node_duplicate(QHashData::Node *node);
+    Node **findNode(const Key &key, uint *hp = 0) const;
+    Node *createNode(uint h, const Key &key, const T &value, Node **nextNode);
+    static QHashData::Node *duplicateNode(QHashData::Node *node);
 };
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE QHashData::Node *QHash<Key, T>::node_duplicate(QHashData::Node *node)
+Q_INLINE_TEMPLATE QHashData::Node *QHash<Key, T>::duplicateNode(QHashData::Node *node)
 {
-    Node *c = reinterpret_cast<Node *>(node);
-    return reinterpret_cast<QHashData::Node *>(new Node(c->key, c->value));
+    Node *concreteNode = concrete(node);
+    return reinterpret_cast<QHashData::Node *>(new Node(concreteNode->key, concreteNode->value));
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QHash<Key, T>::Node *
-QHash<Key, T>::node_create(uint h, const Key &key, const T &value, Node **nextNode)
+QHash<Key, T>::createNode(uint h, const Key &key, const T &value, Node **nextNode)
 {
     Node *node = new Node(key, value);
     node->h = h;
@@ -322,6 +333,17 @@ QHash<Key, T>::node_create(uint h, const Key &key, const T &value, Node **nextNo
     *nextNode = node;
     ++d->size;
     return node;
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator+=(const QHash<Key, T> &other)
+{
+    QHash<Key, T>::ConstIterator it = other.begin();
+    while (it != other.end()) {
+	insert(it.key(), it.value());
+	++it;
+    }
+    return *this;
 }
 
 template <class Key, class T>
@@ -351,14 +373,14 @@ Q_INLINE_TEMPLATE void QHash<Key, T>::clear()
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE void QHash<Key, T>::detach_helper()
 {
-    QHashData *x = d->detach_helper(node_duplicate);
+    QHashData *x = d->detach_helper(duplicateNode);
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
   	freeData(x);
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator=(const QHash &other)
+Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator=(const QHash<Key, T> &other)
 {
     if (d != other.d) {
 	QHashData *x = other.d;
@@ -373,7 +395,7 @@ Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator=(const QHash &other)
 template <class Key, class T>
 Q_INLINE_TEMPLATE const T QHash<Key, T>::value(const Key &key) const
 {
-    Node *node = *node_find(key);
+    Node *node = *findNode(key);
     if (node == e) {
 	T t;
 	qInit(t);
@@ -386,7 +408,7 @@ Q_INLINE_TEMPLATE const T QHash<Key, T>::value(const Key &key) const
 template <class Key, class T>
 Q_INLINE_TEMPLATE const T QHash<Key, T>::value(const Key &key, const T &defaultValue) const
 {
-    Node *node = *node_find(key);
+    Node *node = *findNode(key);
     if (node == e) {
 	return defaultValue;
     } else {
@@ -398,7 +420,7 @@ template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QList<T> QHash<Key, T>::values(const Key &key) const
 {
     QList<T> list;
-    Node *node = *node_find(key);
+    Node *node = *findNode(key);
     if (node != e) {
 	do {
 	    list.append(node->value);
@@ -411,7 +433,7 @@ template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE int QHash<Key, T>::count(const Key &key) const
 {
     int cnt = 0;
-    Node *node = *node_find(key);
+    Node *node = *findNode(key);
     if (node != e) {
 	do {
 	    ++cnt;
@@ -433,9 +455,9 @@ Q_INLINE_TEMPLATE T &QHash<Key, T>::operator[](const Key &key)
     d->mightGrow();
 
     uint h;
-    Node **node = node_find(key, &h);
+    Node **node = findNode(key, &h);
     if (*node == e)
-	return node_create(h, key, T(), node)->value;
+	return createNode(h, key, T(), node)->value;
     return (*node)->value;
 }
 
@@ -447,9 +469,9 @@ Q_INLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::insert(const K
     d->mightGrow();
 
     uint h;
-    Node **node = node_find(key, &h);
+    Node **node = findNode(key, &h);
     if (*node == e)
-	return Iterator(node_create(h, key, value, node));
+	return Iterator(createNode(h, key, value, node));
 
     if (d->autoDelete == this)
 	qDelete((*node)->value);
@@ -465,8 +487,8 @@ Q_INLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::insertMulti(co
     d->mightGrow();
 
     uint h;
-    Node **nextNode = node_find(key, &h);
-    return Iterator(node_create(h, key, value, nextNode));
+    Node **nextNode = findNode(key, &h);
+    return Iterator(createNode(h, key, value, nextNode));
 }
 
 template <class Key, class T>
@@ -475,7 +497,7 @@ Q_OUTOFLINE_TEMPLATE int QHash<Key, T>::remove(const Key &key)
     detach();
 
     int oldSize = d->size;
-    Node **node = node_find(key);
+    Node **node = findNode(key);
     if ((*node) != e) {
 	do {
 	    if (d->autoDelete == this)
@@ -495,7 +517,7 @@ Q_OUTOFLINE_TEMPLATE T QHash<Key, T>::take(const Key &key)
 {
     detach();
 
-    Node **node = node_find(key);
+    Node **node = findNode(key);
     T t;
     if ((*node) != e) {
 	t = (*node)->value;
@@ -548,25 +570,25 @@ Q_INLINE_TEMPLATE void QHash<Key, T>::reserve(int size)
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QHash<Key, T>::ConstIterator QHash<Key, T>::find(const Key &key) const
 {
-    return ConstIterator(*node_find(key));
+    return ConstIterator(*findNode(key));
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::find(const Key &key)
 {
     detach();
-    return Iterator(*node_find(key));
+    return Iterator(*findNode(key));
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE bool QHash<Key, T>::contains(const Key &key) const
 {
-    return *node_find(key) != e;
+    return *findNode(key) != e;
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::Node **QHash<Key, T>::node_find(const Key &key,
-									     uint *hp) const
+Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::Node **QHash<Key, T>::findNode(const Key &key,
+									    uint *hp) const
 {
     Node **node;
     uint h = qHash(key);
@@ -581,6 +603,26 @@ Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::Node **QHash<Key, T>::node_find(con
     if (hp)
 	*hp = h;
     return node;
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE bool QHash<Key, T>::operator==(const QHash<Key, T> &other) const
+{
+    if (size() != other.size())
+	return false;
+    if (d == other.d)
+	return true;
+
+    Iterator it1 = begin();
+    Iterator it2 = other.begin();
+
+    while (it1 != end()) {
+	if (it1.key() != it2.key() || it1.value() != it2.value())
+	    return false;
+	++it2;
+	++it1;
+    }
+    return true;
 }
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(QHash)
