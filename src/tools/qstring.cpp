@@ -12564,7 +12564,7 @@ QString QString::arg(QChar a, int fieldwidth) const
 
 /*! \overload
 
-  \a is formatted according to the \a fmt format specified, which is
+  \a a is formatted according to the \a fmt format specified, which is
   'g' by default and can be any of 'f', 'F', 'e', 'E', 'g' or 'G', all
   of which have the same meaning as for sprintf().  \a prec determines
   the precision, just as for number() and sprintf().
