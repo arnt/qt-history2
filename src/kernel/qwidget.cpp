@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#55 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#54 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#55 $";
 #endif
 
 /*!
@@ -527,6 +527,7 @@ This code fragment switches to a bold version of whatever font is being used:
 void QWidget::setFont( const QFont &font )
 {
     fnt = font;
+    fnt.handle();				// force load font
     update();
 }
 
