@@ -142,7 +142,8 @@ struct QIconViewPrivate
     QFontMetrics *fm;
     int minLeftBearing, minRightBearing;
     bool containerUpdateLocked;
-
+    bool firstSizeHint;
+    
     struct ItemContainer {
 	ItemContainer( ItemContainer *pr, ItemContainer *nx, const QRect &r )
 	    : p( pr ), n( nx ), rect( r ) {
@@ -2022,7 +2023,8 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->minRightBearing = d->fm->minRightBearing();
     d->firstContainer = d->lastContainer = 0;
     d->containerUpdateLocked = FALSE;
-
+    d->firstSizeHint = TRUE;
+    
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -4741,12 +4743,13 @@ void QIconView::sort( bool ascending )
 
 QSize QIconView::sizeHint() const
 {
-    if ( d->dirty ) {
+    if ( d->dirty && d->firstSizeHint ) {
 	( (QIconView*)this )->resizeContents( QMAX( 400, contentsWidth() ),
 					      QMAX( 400, contentsHeight() ) );
 	( (QIconView*)this )->alignItemsInGrid( FALSE );
+	d->firstSizeHint = FALSE;
     }
-
+    
     d->dirty = TRUE;
 
     return QSize( QMIN( 400, contentsWidth() + style().scrollBarExtent().width()),
