@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#20 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#21 $
 **
 ** Definition of QPaintDevice class
 **
@@ -31,6 +31,8 @@
 
 #define PDF_EXTDEV	0x10
 #define PDF_PAINTACTIVE 0x20
+#define PDF_FONTMET	0x30
+#define PDF_FONTINF	0x40
 
 
 // Painter device command param (defined in qpaintdc.h)
@@ -40,8 +42,6 @@ union QPDevCmdParam;
 
 class QPaintDevice				// device for QPainter
 {
-friend class QPainter;
-friend class QPaintDeviceMetrics;
 public:
     virtual ~QPaintDevice();
 
@@ -76,6 +76,10 @@ protected:
 
     uint     devFlags;				// device flags
 
+    friend class QPainter;
+    friend class QPaintDeviceMetrics;
+    friend class QFontMetrics;
+    friend class QFontInfo;
     friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
 			int, int, int, int, RasterOp );
 };
