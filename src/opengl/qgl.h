@@ -42,10 +42,10 @@
 #include <qwidget.h>
 #endif // QT_H
 
-#if !defined(QT_CLEAN_NAMESPACE)
+#ifndef QT_NO_COMPAT
 #define QGL_VERSION	450
 #define QGL_VERSION_STR	"4.5"
-#define qGLVersion() qVersion()
+Q_EXPORT const char *qGLVersion();
 #endif
 
 #if !(defined(Q_WGL) || defined(Q_GLX))

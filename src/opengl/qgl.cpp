@@ -47,6 +47,14 @@ static QGLFormat* qgl_default_overlay_format = 0;
 static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 
+#ifndef QT_NO_COMPAT
+const char *qGLVersion()
+{
+    qObsolete( 0, "qGLVersion", "qVersion" );
+    return QGL_VERSION_STR;
+}
+#endif
+
 
 /*! \class QGL qgl.h
   \brief The QGL class is a namespace for miscellaneous identifiers
