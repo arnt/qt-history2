@@ -880,9 +880,9 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 		vrect = visualRect( QRect(x + w - hh - 6, y + (hh / 2), hh, hh), r );
 		drawPrimitive(arrow, p,
 			      vrect, cg,
-			      ((act && mi->isEnabled()) ?
+			      ((act && !dis) ?
 			       Style_Down : Style_Default) |
-			      ((mi->isEnabled()) ? Style_Enabled : Style_Default));
+			      ((!dis) ? Style_Enabled : Style_Default));
 	    }
 	    break;
 	}

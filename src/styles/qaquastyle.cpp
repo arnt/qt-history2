@@ -811,7 +811,7 @@ void QAquaStyle::drawControl(ControlElement element,
 
 	const QColorGroup & g = cg;
 	QColorGroup itemg = g;
-	bool dis = !mi->isEnabled();
+	bool dis = !(flags&Style_Enabled);
 	int tab = opt.tabWidth();
 	int maxpmw = opt.maxIconWidth();
 	bool checked = mi->isChecked();
@@ -986,7 +986,7 @@ void QAquaStyle::drawControl(ControlElement element,
 			      g2, Style_Enabled);
 	    } else {
 		drawPrimitive(arrow, p, QRect(xpos, y + h / 2 - dim / 2, dim, dim),
-			      cg, mi->isEnabled() ? Style_Enabled : Style_Default);
+			      cg, !dis ? Style_Enabled : Style_Default);
 	    }
 	}
 #endif

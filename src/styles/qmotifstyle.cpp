@@ -1133,10 +1133,10 @@ void QMotifStyle::drawControl( ControlElement element,
 		if ( act )
 		    drawPrimitive(arrow, p, vr, cg,
 				  (Style_Down |
-				   (mi->isEnabled() ? Style_Enabled : Style_Default)));
+				  (dis ? Style_Default : Style_Enabled)) );
 		else
 		    drawPrimitive(arrow, p, vr, cg,
-				  (mi->isEnabled() ? Style_Enabled : Style_Default));
+				  (dis ? Style_Default : Style_Enabled));
 	    }
 
 	    break;

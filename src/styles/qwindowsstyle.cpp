@@ -633,7 +633,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 
 	    int tab = opt.tabWidth();
 	    int maxpmw = opt.maxIconWidth();
-	    bool dis = ! mi->isEnabled();
+	    bool dis = !(flags&Style_Enabled);
 	    bool checkable = popupmenu->isCheckable();
 	    bool act = flags & Style_Active;
 	    int x, y, w, h;
@@ -801,10 +801,10 @@ void QWindowsStyle::drawControl( ControlElement element,
 				    discol, white );
 
 		    drawPrimitive(arrow, p, vrect,
-				  g2, Style_Enabled);
+				  g2, dis ? Style_Default : Style_Enabled);
 		} else {
 		    drawPrimitive(arrow, p, vrect,
-				  cg, mi->isEnabled() ? Style_Enabled : Style_Default);
+				  cg, dis ? Style_Default : Style_Enabled );
 		}
 	    }
 

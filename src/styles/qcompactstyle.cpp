@@ -156,7 +156,7 @@ void QCompactStyle::drawControl( ControlElement element, QPainter *p, const QWid
 
 	    int tab = opt.tabWidth();
 	    int maxpmw = opt.maxIconWidth();
-	    bool dis = ! mi->isEnabled();
+	    bool dis = !(flags & Style_Enabled);
 	    bool checkable = popupmenu->isCheckable();
 	    bool act = flags & Style_Active;
 	    int x, y, w, h;
@@ -303,7 +303,7 @@ void QCompactStyle::drawControl( ControlElement element, QPainter *p, const QWid
 				  g2, Style_Enabled);
 		} else {
 		    drawPrimitive(PE_ArrowRight, p, QRect(x+w - motifArrowHMargin - motifItemFrame - dim, y + h / 2 - dim / 2, dim, dim),
-				  g, mi->isEnabled() ? Style_Enabled : Style_Default);
+				  g, !dis ? Style_Enabled : Style_Default);
 		}
 	    }
 	}
