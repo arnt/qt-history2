@@ -751,7 +751,7 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	break;
     case EXPORT_PACKAGE:
 	MainWindow::self->fileExport( wi->type() == WorkspaceItem::SourceFileType ?
-				      wi->sourceFile : wi->formFile );
+				      (QObject*)wi->sourceFile : (QObject*)wi->formFile );
 	break;
     case TOGGLE_PACKAGE:
 	project->setModified( TRUE );
