@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#54 $
 **
 ** Implementation of QObject class
 **
@@ -16,136 +16,108 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#53 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#54 $";
 #endif
 
 
-/*! \class QObject qobject.h
-
+/*----------------------------------------------------------------------------
+  \class QObject qobject.h
   \brief The QObject class is the base class of all Qt objects that can
   deal with signals, slots and events.
 
-  Qt uses a very powerful mechanism, signals that are connected to
-  slots, for communication between objects.  An object has zero or
-  more signals and zero or more slots, and a signal may be connected
-  to a slot in any object.
+  Qt provides a very powerful mechanism for seamless object communication;
+  signal/slot connections.  The signal/slot mechanism is an advanced way of
+  making traditional callback routines.
 
-  When an object has changed in some way that might be interesting, it
-  emits a signal to tell whoever is interested.	 If that signal is
-  connected to any slots, those slots get called.
+  Example:
+  \code
+    //
+    // MyObject must inherit QObject to use signals and slots.
+    //
 
-  That is. the calling or emitting object doesn't need to know or care
-  what slot the signal is connected to.	 It works much like the
-  traditional callback mechanism, but it isn't necessary to write null
-  pointer checks or for loops all the time.
+    class MyObject : public QObject
+    {
+        Q_OBJECT				// required for signals/slots
+    public:
+        MyObject( QObject *parent=0, const char *name );
 
-  QScrollBar is a good example.	 In order to use it, you create a
-  scroll bar, connect its newValue() signal to a slot which
-  e.g. scrolls your widget.  Then, if it suits you, you can connect
-  e.g.	QScrollBar::nextLine() to a suitable slot.  nextLine() is
-  useless in most cases but if you need it, it's there.
+    signals:
+	void	minuteTimeout();
 
-  */
+    private slots:
+	void	secondTimeout();
+
+    private:
+        QTimer *timer;
+	int	secs;
+    };
+
+    //
+    // Initializes MyObject and sets up a timer.
+    // The QTime::timeout() signal is emitted at a specified millisecond
+    // interval (here: 1 second).
+    // This timeout signal is connected to the internal secondTimeout()
+    // slot of MyObject.
+    //
+
+    MyObject::MyObject( QObject *parent=0, const char *name )
+        : QObject( parent, name )
+    {
+	secs = 0;				// 0 seconds so far
+        timer = new QTimer;
+	connect( timer, SIGNAL(timeout()), SLOT(secondTimeout()) );
+	timer->start( 1000 );			// start 1 second timer
+    }
+
+    //
+    // secondTimeout() is activated by the QTimer::timeout() signal
+    //
+
+    void MyObject::secondTimeout()
+    {
+        debug( "Timer activation" );
+	if ( ++secs == 60 ) {			// 60 seconds elapsed
+	    secs = 0;				// reset counter, and
+	    emit minuteTimeout();		// emit a new signal
+	}
+    }
+  \endcode
+
+  When an object has changed in some way that might be interesting for
+  the outside world, it emits a signal to tell whoever is listening.
+  All slots that are connected to this signal will be activated (called).
+  It is even possible to connect a signal directly to another signal.
+
+  There is no limitation on how many slots that can be connected to
+  a signal.  The slots will be activated in the order they were connected
+  to the signal.
+
+  Notice that the \c Q_OBJECT macro is mandatory for any object that
+  implement signals or slots.  You also need to run the moc
+  program (Meta Object Compiler) on the source file to generate some
+  C++ code that performs the actual slot activation.
+
+  The signal/slot mechanism allows objects to easily reused, because the
+  object that emits signals does not need to know what the signals are
+  connected to.
+
+  All Qt widgets inherit QObject and they make heavy use of signals and
+  slots.  A QScrollBar, for example, emits
+  \link QScrollBar::newValue() newValue()\endlink whenever the scroll bar
+  value change.
+
+  Meta objects are useful for doing more than connection signals to slots.
+  They also allow the programmer to obtain information about the class to
+  which an object is instantiated from (see isA() and inherits()) or to
+  produce a list of child objects that inherit a particular class
+  (see queryList()).
+ ----------------------------------------------------------------------------*/
 
 
-/*!
-\class QSenderObject qobject.h
-\brief Internal object used for sending signals.
-*/
-
-
-/*!
-\fn QMetaObject *QObject::metaObject() const
-Returns a pointer to the meta object of this object.
-
-A meta object contains information about a class that inherits QObject:
-class name, super class name, signals and slots. Every class that contains
-the \c Q_OBJECT macro will also have a meta object.
-
-The meta object information is required by the signal/slot connection
-mechanism.  The functions isA() and inherits() also make use of the
-meta object.
-
-The meta object is created by the initMetaObject() function, which is
-generated by the meta object compiler and called from the class constructor.
-
-\warning
-If this function returns 0, the constructor probably forgot to call
-initMetaObject(). */
-
-/*!
-\fn const char *QObject::name() const
-Returns the name of this object.
-
-The object name is set by the constructor or the setName() function.
-The object name is not very useful in the current version of Qt, but
-will become increasingly important in the future.
-
-The queryList() function searches the object tree for objects that
-matches a particular object name.
-
-\sa setName() and className(). */
-
-
-/*!
-\fn bool QObject::isWidgetType() const
-Returns TRUE if the object is a widget, or FALSE if not.
-
-Calling this function is equivalent to calling inherits("QWidget"),
-except that it is much faster.
-*/
-
-/*!
-\fn bool QObject::highPriority() const
-Returns TRUE if the object is a high priority object, or FALSE if it is a
-standard priority object.
-
-High priority objects are placed first in list of children,
-on the assumption that they will be referenced very often.
-
-Currently only QAccel objects are high priority.
-*/
-
-/*!
-\fn const QObjectList *QObject::children() const
-Returns a list of child objects.
-
-This function is not for the inexperienced.
-
-\sa parent(), insertChild() and removeChild().
-*/
-
-/*!
-\fn QObject *QObject::parent() const
-Returns a pointer to the parent object.
-
-\sa children().
-*/
-
-/*! \fn bool QObject::connect( QObject *sender, const char *signal, const char *member ) const
-
-  Connects \e signal from object \e sender to \e member in this
-  object. */
-
-/*! \overload bool QObject::disconnect( const char *signal, const QObject *receiver, const char *member )
-
-  Disconnects \e signal from \e member of \e receiver. 
-
-  A signal-slot connection is removed cleanly when either of the objects
-  involved are destroyed. */
-
-/*! \overload bool QObject::disconnect( const QObject *receiver, const char *member )
-
-  Disconnects all signals in this object from \e member of \e receiver.
-
-  A signal-slot connection is removed cleanly when either of the objects
-  involved are destroyed. */
-
-/*!
-\fn QObject *QObject::sender()
-Returns a pointer to the object that sent the last signal received by
-this object.
-*/
+/*----------------------------------------------------------------------------
+  \class QSenderObject qobject.h
+  \brief Internal object used for sending signals.
+ ----------------------------------------------------------------------------*/
 
 
 /* Remove white space from SIGNAL and SLOT names */
@@ -201,23 +173,24 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 }
 
 
-// ---------------------------------------------------------------------------
-// QObject member functions
-//
+/*****************************************************************************
+  QObject member functions
+ *****************************************************************************/
 
-/*!
-Constructs an object with parent objects \e parent and a \e name.
+/*----------------------------------------------------------------------------
+  Constructs an object with parent objects \e parent and a \e name.
 
-The parent of an object may be viewed as the object's owner. For
-instance, a dialog box is the parent of the "ok" and "cancel"
-buttons inside it.
+  The parent of an object may be viewed as the object's owner. For
+  instance, a \link QDialog dialog box\endlink is the parent of the
+  "ok" and "cancel" buttons inside it.
 
-The destructor of a parent object destroys all child objects.
+  The destructor of a parent object destroys all child objects.
 
-Setting \e parent to 0 constructs an object with no parent.
-If the object is a widget, it will become a top-level window.
+  Setting \e parent to 0 constructs an object with no parent.
+  If the object is a widget, it will become a top-level window.
 
-\sa parent() and name(). */
+  \sa parent(), name()
+ ----------------------------------------------------------------------------*/
 
 QObject::QObject( QObject *parent, const char *name )
 {
@@ -240,11 +213,11 @@ QObject::QObject( QObject *parent, const char *name )
 	parentObj->insertChild( this );
 }
 
-/*!
-Destroys the object and all its children objects.
+/*----------------------------------------------------------------------------
+  Destroys the object and all its children objects.
 
-All signals to and from the object are automatically disconnected.
-*/
+  All signals to and from the object are automatically disconnected.
+ ----------------------------------------------------------------------------*/
 
 QObject::~QObject()
 {
@@ -295,41 +268,77 @@ QObject::~QObject()
 }
 
 
-/*!
-Returns TRUE if this object is an instance of a specified class,
-otherwise FALSE.
+/*----------------------------------------------------------------------------
+  \fn QMetaObject *QObject::metaObject() const
+  Returns a pointer to the meta object of this object.
 
-\code
-  QTimer *t = new QTimer;	// QTimer inherits QObject
-  t->isA("QTime");		// returns TRUE
-  t->isA("QObject");		// returns FALSE
-\endcode
+  A meta object contains information about a class that inherits QObject:
+  class name, super class name, signals and slots. Every class that contains
+  the \c Q_OBJECT macro will also have a meta object.
 
-\sa inherits().
-*/
+  The meta object information is required by the signal/slot connection
+  mechanism.  The functions isA() and inherits() also make use of the
+  meta object.
+
+  The meta object is created by the initMetaObject() function, which is
+  generated by the meta object compiler and called from the class constructor.
+
+  \warning
+  If this function returns 0, the constructor probably forgot to call
+  initMetaObject().
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  Returns the class name of this object.
+
+  This function is generated by the moc program (Meta Object Compiler).
+
+  \warning
+  This function will return an invalid name if the class constructor did not
+  call initMetaObject() or if the class definition lacks the \c Q_OBJECT macro.
+
+  \sa name()
+ ----------------------------------------------------------------------------*/
+
+const char *QObject::className() const
+{
+    return "QObject";
+}
+
+
+/*----------------------------------------------------------------------------
+  Returns TRUE if this object is an instance of a specified class,
+  otherwise FALSE.
+
+  Example:
+  \code
+    QTimer *t = new QTimer;		// QTimer inherits QObject
+    t->isA("QTime");			// returns TRUE
+    t->isA("QObject");			// returns FALSE
+  \endcode
+
+  \sa inherits(), metaObject()
+ ----------------------------------------------------------------------------*/
 
 bool QObject::isA( const char *clname ) const	// test if is-a class
 {
     return strcmp(className(),clname) == 0;
 }
 
-/*!
-Returns TRUE if this object is an instance of a class that inherits
-\e clname.  (A class is considered to inherit itself.)
+/*----------------------------------------------------------------------------
+  Returns TRUE if this object is an instance of a class that inherits
+  \e clname.  (A class is considered to inherit itself.)
 
-\code
-  QTimer *t = new QTimer;	\/ QTimer inherits QObject
-  t->inherits("QTimer");	\/ returns TRUE
-  t->inherits("QObject");	\/ returns TRUE
-  t->inherits("QButton");	\/ returns FALSE
-\endcode
+  Example:
+  \code
+    QTimer *t = new QTimer;		// QTimer inherits QObject
+    t->inherits("QTimer");		// returns TRUE
+    t->inherits("QObject");		// returns TRUE
+    t->inherits("QButton");		// returns FALSE
+  \endcode
 
-This function may be used to determine whether a given object
-supports certain features.  Qt uses it to implement keyboard
-accelerators, for instance: A keyboard accelerator is an object for
-which <code>inherits("QAccel")</code> is TRUE.
-
-\sa isA(). */
+  \sa isA(), metaObject()
+ ----------------------------------------------------------------------------*/
 
 bool QObject::inherits( const char *clname ) const
 {						// test if inherits class
@@ -343,66 +352,82 @@ bool QObject::inherits( const char *clname ) const
 }
 
 
-/*!
-\fn const char *QObject::className() const
-Returns the class name of this object.
+/*----------------------------------------------------------------------------
+  \fn const char *QObject::name() const
+  Returns the name of this object.
 
-\warning
-This function will return an invalid name if the class constructor did not
-call initMetaObject() or if the class definition lacks the \c Q_OBJECT macro.
+  The object name is set by the constructor or by the setName() function.
+  The object name is not very useful in the current version of Qt, but
+  will become increasingly important in the future.
 
-\sa name().
-*/
+  The queryList() function searches the object tree for objects that
+  matches a particular object name.
 
-const char *QObject::className() const		// get name of class
-{
-    return "QObject";
-}
+  \sa setName(), className()
+ ----------------------------------------------------------------------------*/
 
+/*----------------------------------------------------------------------------
+  Sets the name of this object to \e name.
 
-/*!
-Sets the name of this object to \e name.
+  The object name is not very useful in the current version of Qt, but
+  it will become increasingly important in the future.
 
-The object name is not very useful in the current version of Qt, but
-it will become increasingly important in the future.
+  The queryList() function searches the object tree for objects that
+  matches a particular object name.
 
-The queryList() function searches the object tree for objects that
-matches a particular object name.
+  \sa name()
+ ----------------------------------------------------------------------------*/
 
-\sa name().
-*/
-
-void QObject::setName( const char *name )	// set object name
+void QObject::setName( const char *name )
 {
     if ( objname )
 	delete objname;
     objname = name ? strdup(name) : 0;
 }
 
+/*----------------------------------------------------------------------------
+  \fn bool QObject::isWidgetType() const
+  Returns TRUE if the object is a widget, or FALSE if not.
 
-/*!
-This virtual function receives events to an object and must
-returns TRUE if the event was recognized and processed.
+  Calling this function is equivalent to calling inherits("QWidget"),
+  except that it is much faster.
+ ----------------------------------------------------------------------------*/
 
-The event() function can be reimplemented to customize the behavior
-of an object.
-\sa QWidget::event() and installEventFilter().
-*/
+/*----------------------------------------------------------------------------
+  \fn bool QObject::highPriority() const
+  Returns TRUE if the object is a high priority object, or FALSE if it is a
+  standard priority object.
+
+  High priority objects are placed first in list of children,
+  on the assumption that they will be referenced very often.
+
+  Currently only QAccel objects are high priority.
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  This virtual function receives events to an object and must
+  return TRUE if the event was recognized and processed.
+
+  The event() function can be reimplemented to customize the behavior
+  of an object.
+  \sa QWidget::event(), installEventFilter()
+ ----------------------------------------------------------------------------*/
 
 bool QObject::event( QEvent *e )		// receive event
 {
     return activate_filters( e );
 }
 
-/*!
-Filters events if this object has been installed as an event filter for
-another object.
+/*----------------------------------------------------------------------------
+  Filters events if this object has been installed as an event filter for
+  another object.
 
-The reimplementation of this virtual function must return TRUE if the
-event should be stopped, or FALSE if the event should be dispatched normally.
+  The reimplementation of this virtual function must return TRUE if the
+  event should be stopped, or FALSE if the event should be dispatched normally.
 
-\sa installEventFilter().
-*/
+  \sa installEventFilter()
+ ----------------------------------------------------------------------------*/
 
 bool QObject::eventFilter( QObject *, QEvent * )
 {
@@ -412,30 +437,32 @@ bool QObject::eventFilter( QObject *, QEvent * )
 
 bool QObject::activate_filters( QEvent *e )	// activate event filters
 {
-    register QObject *obj = eventFilters ? eventFilters->first() : 0;
-    bool stop = FALSE;
+    if ( !eventFilters )			// no event filter
+	return FALSE;
+    QObjectListIt it( *eventFilters );
+    register QObject *obj = it.current();
     while ( obj ) {				// send to all filters
-	stop = obj->eventFilter( this, e );	//   until one returns TRUE
-	if ( stop )
-	    break;
-	obj = eventFilters->next();
+	++it;					//   until one returns TRUE
+	if ( obj->eventFilter(this,e) )
+	    return TRUE;
+	obj = it.current();
     }
-    return stop;				// don't do anything with it
+    return FALSE;				// don't do anything with it
 }
 
-/*!
-\fn bool QObject::signalsBlocked() const
-Returns TRUE if signals are blocked, or FALSE if signals are not blocked.
+/*----------------------------------------------------------------------------
+  \fn bool QObject::signalsBlocked() const
+  Returns TRUE if signals are blocked, or FALSE if signals are not blocked.
 
-Signals are not blocked by default.
-\sa blockSignals().
-*/
+  Signals are not blocked by default.
+  \sa blockSignals()
+ ----------------------------------------------------------------------------*/
 
-/*!
-Blocks signals if \e block is TRUE, or unblocks signals if \e block is FALSE.
+/*----------------------------------------------------------------------------
+  Blocks signals if \e block is TRUE, or unblocks signals if \e block is FALSE.
 
-Emitted signals disappear into hyperspace if signals are blocked.
-*/
+  Emitted signals disappear into hyperspace if signals are blocked.
+ ----------------------------------------------------------------------------*/
 
 void QObject::blockSignals( bool block )
 {
@@ -449,22 +476,25 @@ void QObject::blockSignals( bool block )
 // one timer might be active.
 //
 
-/*!
-Starts a timer and returns a timer identifier.
+/*----------------------------------------------------------------------------
+  Starts a timer and returns a timer identifier.
 
-A timer event will occur every \e interval milliseconds until killTimer()
-or killTimers() is called.
-If \e interval is 0, then timer event occurs as often as possible.
+  A timer event will occur every \e interval milliseconds until killTimer()
+  or killTimers() is called.
+  If \e interval is 0, then timer event occurs as often as possible.
 
-The virtual event() function is called with the QTimerEvent event parameter
-class when a timer event occurs.
-Widgets dispatch timer events to the QWidget::timerEvent() event handler.
-Reimplement this virtual function to get timer events if your object is
-a widget.  If your object is not a widget, you must reimplement the event()
-function to get timer events.
+  The virtual event() function is called with the QTimerEvent event parameter
+  class when a timer event occurs.
+  Widgets dispatch timer events to the QWidget::timerEvent() event handler.
+  Reimplement this virtual function to get timer events if your object is
+  a widget.  If your object is not a widget, you must reimplement the event()
+  function to get timer events.
 
-\sa QTimerEvent, killTimer(), killTimers() and QWidget::timerEvent().
-*/
+  The QTimer class provides a high-level programming interface with one-shot
+  timers and timer signals instead of events.
+
+  \sa QTimerEvent, killTimer(), killTimers(), QWidget::timerEvent()
+ ----------------------------------------------------------------------------*/
 
 int QObject::startTimer( long interval )
 {
@@ -472,25 +502,25 @@ int QObject::startTimer( long interval )
     return qStartTimer( interval, (QObject *)this );
 }
 
-/*!
-Kills the timer with the identifier \e id.
+/*----------------------------------------------------------------------------
+  Kills the timer with the identifier \e id.
 
-The timer identifer is returned by startTimer() when a
-timer event is started.
+  The timer identifer is returned by startTimer() when a
+  timer event is started.
 
-\sa startTimer(), killTimers() and QWidget::timerEvent().
-*/
+  \sa startTimer(), killTimers(), QWidget::timerEvent()
+ ----------------------------------------------------------------------------*/
 
 void QObject::killTimer( int id )		// kill timer events
 {
     qKillTimer( id );
 }
 
-/*!
-Kills all timers that this object has started.
+/*----------------------------------------------------------------------------
+  Kills all timers that this object has started.
 
-\sa killTimer(), startTimer() and QWidget::timerEvent().
-*/
+  \sa killTimer(), startTimer(), QWidget::timerEvent()
+ ----------------------------------------------------------------------------*/
 
 void QObject::killTimers()			// kill all timers for object
 {
@@ -528,40 +558,59 @@ static void objSearch( QObjectList *result,
 }
 
 
-/*!
-Returns a list of child objects found by a query.
+/*----------------------------------------------------------------------------
+  \fn QObject *QObject::parent() const
+  Returns a pointer to the parent object.
+  \sa children()
+ ----------------------------------------------------------------------------*/
 
-The query is specified by:
-\arg \e inheritsClass is the name of the base class that an object should
-inherit. Any class will be matched if \e inheritsClass is 0.
-\arg \e objName is the object name to search for. Any object name will be
-matched if \e objName is 0.
-\arg \e regexpMatch specifies whether \e objName is a regular expression
-(default) or not.
-\arg \e recursiveSearch must be \c TRUE (default) if you want to search
-the entire object tree, or \c FALSE if you want the search to traverse
-just the 1st level child objects of this object.
+/*----------------------------------------------------------------------------
+  \fn const QObjectList *QObject::children() const
+  Returns a list of child objects.
 
-This examples show how to set a special font for all child widgets that
-inherit the QButton widget:
-\code
-  QObjectList  *list = myView->queryList( "QButton" );
-  QObjectListIt it( *list );		// iterate over the buttons
-  QFont		newFont( "Courier", 24 );
-  while ( it.current() ) {
-      it.current()->setFont( newFont );
-      ++it;
-  }
-  delete list;				// delete the search results
-\endcode
+  This function is not for the inexperienced.
 
-The QObjectList class is defined in the qobjcoll.h header file.
+  \sa queryList(), parent(), insertChild(), removeChild()
+ ----------------------------------------------------------------------------*/
 
-\warning
-Throw the list away as soon you have finished using it.
-You can get in serious trouble if you for instance try to access
-an object that has been deleted.
-*/
+
+/*----------------------------------------------------------------------------
+  Returns a list of child objects found by a query.
+
+  The query is specified by:
+  \arg \e inheritsClass is the name of the base class that an object should
+  inherit. Any class will be matched if \e inheritsClass is 0.
+  \arg \e objName is the object name to search for. Any object name will be
+  matched if \e objName is 0.
+  \arg \e regexpMatch specifies whether \e objName is a regular expression
+  (default) or not.
+  \arg \e recursiveSearch must be \c TRUE (default) if you want to search
+  the entire object tree, or \c FALSE if you want the search to traverse
+  just the 1st level child objects of this object.
+
+  Example:
+  \code
+    //
+    // Sets a Courier 24 point fonts for all children in myWidget that
+    // inherit QButton (i.e. QPushButton, QCheckBox, QRadioButton).
+    //
+    QObjectList  *list = myWidget->queryList( "QButton" );
+    QObjectListIt it( *list );			// iterate over the buttons
+    QFont	  newFont( "Courier", 24 );
+    while ( it.current() ) {
+	it.current()->setFont( newFont );
+	++it;
+    }
+    delete list;				// delete the search results
+  \endcode
+
+  The QObjectList class is defined in the qobjcoll.h header file.
+
+  \warning
+  Throw the list away as soon you have finished using it.
+  You can get in serious trouble if you for instance try to access
+  an object that has been deleted.
+ ----------------------------------------------------------------------------*/
 
 QObjectList *QObject::queryList( const char *inheritsClass,
 				 const char *objName,
@@ -583,12 +632,12 @@ QObjectList *QObject::queryList( const char *inheritsClass,
 }
 
 
-/*!
-Returns a list of objects/slot pairs that are connected to the
-signal, or 0 if nothing is connected to it.
+/*----------------------------------------------------------------------------
+  Returns a list of objects/slot pairs that are connected to the
+  signal, or 0 if nothing is connected to it.
 
-This function is for internal use.
-*/
+  This function is for internal use.
+ ----------------------------------------------------------------------------*/
 
 QConnectionList *QObject::receivers( const char *signal ) const
 {						// get receiver
@@ -604,14 +653,14 @@ QConnectionList *QObject::receivers( const char *signal ) const
 }
 
 
-/*!
-Inserts an object \e obj into the list of child objects.
+/*----------------------------------------------------------------------------
+  Inserts an object \e obj into the list of child objects.
 
-\warning
-This function cannot be used to make a widget a child widget of
-another.  Child widgets can only be created by setting the parent
-widget in the constructor.
-*/
+  \warning
+  This function cannot be used to make a widget a child widget of
+  another.  Child widgets can only be created by setting the parent
+  widget in the constructor.
+ ----------------------------------------------------------------------------*/
 
 void QObject::insertChild( QObject *obj )	// add object object
 {
@@ -633,13 +682,13 @@ void QObject::insertChild( QObject *obj )	// add object object
 	childObjects->append( obj );		// normal priority appends
 }
 
-/*!
-Removes the child object \e obj from the list of children.
+/*----------------------------------------------------------------------------
+  Removes the child object \e obj from the list of children.
 
-\warning
-This function will not remove a child widget from the screen.
-It will only remove it from the parent widget's list of children.
-*/
+  \warning
+  This function will not remove a child widget from the screen.
+  It will only remove it from the parent widget's list of children.
+ ----------------------------------------------------------------------------*/
 
 void QObject::removeChild( QObject *obj )	// remove child object
 {
@@ -652,15 +701,16 @@ void QObject::removeChild( QObject *obj )	// remove child object
     }
 }
 
-/*!
-Adds an event filter object for this object.
+/*----------------------------------------------------------------------------
+  Adds an event filter object for this object.
 
-An event filter is another object that receives all events that are
-sent to this object via the eventFilter() function.
-The event filter returns TRUE if the event should be stopped, or
-FALSE if the event can be dispatched normally.
+  An event filter is another object that receives all events that are
+  sent to this object via the eventFilter() function.
+  The event filter returns TRUE if the event should be stopped, or
+  FALSE if the event can be dispatched normally.
 
-\sa removeEventFilter(), eventFilter() and event(). */
+  \sa removeEventFilter(), eventFilter(), event()
+ ----------------------------------------------------------------------------*/
 
 void QObject::installEventFilter( const QObject *obj )
 {						// add event filter object
@@ -671,9 +721,10 @@ void QObject::installEventFilter( const QObject *obj )
     eventFilters->insert( 0, obj );
 }
 
-/*!
-Removes an event filter object from this object.
-\sa installEventFilter(), eventFilter() and event(). */
+/*----------------------------------------------------------------------------
+  Removes an event filter object from this object.
+  \sa installEventFilter(), eventFilter(), event()
+ ----------------------------------------------------------------------------*/
 
 void QObject::removeEventFilter( const QObject *obj )
 {						// remove event filter object
@@ -687,9 +738,9 @@ void QObject::removeEventFilter( const QObject *obj )
 }
 
 
-// ---------------------------------------------------------------------------
-// Signal connection management
-//
+/*****************************************************************************
+  Signal connection management
+ *****************************************************************************/
 
 #if defined(CHECK_RANGE)
 
@@ -738,8 +789,29 @@ static void err_member_notfound( int code, QObject *object, const char *member,
 
 #endif // CHECK_RANGE
 
-/*! Connects \e signal from object \e sender to \e member in object \e
-  receiver.  \sa disconnect(). */
+
+/*----------------------------------------------------------------------------
+  \fn bool QObject::connect( QObject *sender, const char *signal, const char *member ) const
+
+  Connects \e signal from object \e sender to \e member in this
+  object.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QObject *QObject::sender()
+  Returns a pointer to the object that sent the last signal received by
+  this object.
+
+  Getting access to the sender might be very practical when lots
+  of signals are connected to a single slot, however, it violates
+  the object-oriented principle of modularity.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  Connects \e signal from object \e sender to \e member in object \e
+  receiver.
+  \sa disconnect()
+ ----------------------------------------------------------------------------*/
 
 bool QObject::connect( QObject *sender,		const char *signal,
 		       const QObject *receiver, const char *member )
@@ -833,51 +905,70 @@ bool QObject::connect( QObject *sender,		const char *signal,
 }
 
 
-/*!
-Disconnects \e signal in object \e sender from \e member in object \e
-receiver.
+/*----------------------------------------------------------------------------
+  \overload bool QObject::disconnect( const char *signal, const QObject *receiver, const char *member )
 
-A signal-slot connection is removed cleanly when either of the objects
-involved are destroyed.
+  Disconnects \e signal from \e member of \e receiver. 
 
-disconnect is typically used in three ways, as the following examples
-show.
+  A signal-slot connection is removed cleanly when either of the objects
+  involved are destroyed.
+ ----------------------------------------------------------------------------*/
 
-<ol>
-<li>Disconnect everything connected to an object's signals:
-\code
-  disconnect( myObject );
-\endcode
-<li> Disconnect everything connected to a signal:
-\code
-  disconnect( myObject, SIGNAL(mySignal()) );
-\endcode
-<li> Disconnect a specific receiver.
-\code
-  disconnect( myObject, 0, myReceiver, 0 );
-\endcode
-</ol>
+/*----------------------------------------------------------------------------
+  \overload bool QObject::disconnect( const QObject *receiver, const char *member )
 
-0 may be used as a wildcard in three of the four arguments, meaning
-"any signal", "any receiving object" or "any slot in the receiving
-object" respectively.
+  Disconnects all signals in this object from \e member of \e receiver.
 
-The \e sender has no default and may never be 0.  (You cannot
-disconnect signals from more than one object.)
+  A signal-slot connection is removed cleanly when either of the objects
+  involved are destroyed.
+ ----------------------------------------------------------------------------*/
 
-If \e signal is 0, it disconnects \e receiver and \e member from any
-signal.  If not, only the specified signal is disconnected.
+/*----------------------------------------------------------------------------
+  Disconnects \e signal in object \e sender from \e member in object \e
+  receiver.
 
-If \e receiver is 0, it disconnects anything connected to \e signal.
-If not, slots in objects other than \e receiver are not disconnected.
+  A signal-slot connection is removed cleanly when either of the objects
+  involved are destroyed.
 
-If \e member is 0, it disconnects anything that is connected to \e
-receiver.  If not, only slots named \e member will be disconnected,
-and all other slots are left alone.  The \e member must be 0 if \e
-receiver is left out, so you cannot disconnect a specifically-named
-slot on all objects.
+  disconnect() is typically used in three ways, as the following examples
+  show.
 
-\sa connect(). */
+  <ol>
+  <li> Disconnect everything connected to an object's signals:
+  \code
+    disconnect( myObject );
+  \endcode
+  <li> Disconnect everything connected to a signal:
+  \code
+    disconnect( myObject, SIGNAL(mySignal()) );
+  \endcode
+  <li> Disconnect a specific receiver.
+  \code
+    disconnect( myObject, 0, myReceiver, 0 );
+  \endcode
+  </ol>
+
+  0 may be used as a wildcard in three of the four arguments, meaning
+  "any signal", "any receiving object" or "any slot in the receiving
+  object" respectively.
+
+  The \e sender has no default and may never be 0.  (You cannot
+  disconnect signals from more than one object.)
+
+  If \e signal is 0, it disconnects \e receiver and \e member from any
+  signal.  If not, only the specified signal is disconnected.
+
+  If \e receiver is 0, it disconnects anything connected to \e signal.
+  If not, slots in objects other than \e receiver are not disconnected.
+
+  If \e member is 0, it disconnects anything that is connected to \e
+  receiver.  If not, only slots named \e member will be disconnected,
+  and all other slots are left alone.  The \e member must be 0 if \e
+  receiver is left out, so you cannot disconnect a specifically-named
+  slot on all objects.
+
+  \sa connect()
+ ----------------------------------------------------------------------------*/
 
 bool QObject::disconnect( QObject *sender, const char *signal,
 			  const QObject *receiver, const char *member )
@@ -989,6 +1080,13 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 }
 
 
+/*----------------------------------------------------------------------------
+  \internal
+  Returns the meta object for this object. If there is no meta object,
+  it calls initMetaObject() and makes another try.
+  \sa metaObject()
+ ----------------------------------------------------------------------------*/
+
 QMetaObject *QObject::queryMetaObject() const	// get meta object
 {
     register QObject *x = (QObject *)this;	// fake const
@@ -1012,10 +1110,10 @@ void QObject::initMetaObject()			// initialize meta object
 }
 
 
-// ---------------------------------------------------------------------------
-// Signal activation with the most frequently used parameter/argument types.
-// All other combinations are generated by the meta object compiler.
-//
+/*****************************************************************************
+  Signal activation with the most frequently used parameter/argument types.
+  All other combinations are generated by the meta object compiler.
+ *****************************************************************************/
 
 void QObject::activate_signal( const char *signal )
 {
@@ -1072,9 +1170,9 @@ ACTIVATE_SIGNAL_WITH_PARAM( long )
 ACTIVATE_SIGNAL_WITH_PARAM( const char * )
 
 
-// ---------------------------------------------------------------------------
-// QObject debugging output routines; to be removed before real version 1.0.
-//
+/*****************************************************************************
+  QObject debugging output routines; to be removed before real version 1.0.
+ *****************************************************************************/
 
 static void dumpRecursive( int level, QObject *object )
 {
@@ -1094,6 +1192,11 @@ static void dumpRecursive( int level, QObject *object )
     }
 #endif
 }
+
+/*----------------------------------------------------------------------------
+  Dumps a tree of children to the debug device.  Prints out
+  all signal connections.
+ ----------------------------------------------------------------------------*/
 
 void QObject::dumpObjectTree()
 {
