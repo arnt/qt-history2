@@ -511,7 +511,9 @@ QBitmap QPixmap::mask() const
         mask = QBitmap::fromImage(toImage().createAlphaMask());
     } else
 #endif
-    {
+    if (depth() == 1) {
+        mask = *this;
+    } else {
         mask = data->mask_to_bitmap();
     }
     return mask;
@@ -559,7 +561,13 @@ void QPixmap::setMask(const QBitmap &newmask)
                          data->picture, 0, 0, 0, 0, 0, 0, data->w, data->h);
     } else
 #endif
-    {
+    if (depth() == 1) {
+        XGCValues vals;
+        vals.function = GXand;
+        GC gc = XCreateGC(X11->display, data->hd, GCFunction, &vals);
+        XCopyArea(X11->display, newmask.handle(), data->hd, gc, 0, 0, width(), height(), 0, 0);
+        XFreeGC(X11->display, gc);
+    } else {
         if (data->x11_mask)
             XFreePixmap(X11->display, data->x11_mask);
         data->x11_mask = QPixmapData::bitmap_to_mask(newmask, data->xinfo.screen());
