@@ -595,7 +595,9 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 	    if ( draggedItem == &addItem ) {
 		draggedItem = createItem();
 		itemCreated = TRUE;
-	    } else if ( draggedItem == &addSeparator && !hasSeparator ) {
+	    } else if ( draggedItem == &addSeparator ) {
+                if (hasSeparator) // we can only have one separator
+                    return;
 		draggedItem = createItem();
 		draggedItem->setSeparator( TRUE );
 		draggedItem->setMenuText( "separator" );
@@ -629,8 +631,12 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 		dropConfirmed = FALSE;
 		hideItem();
 		itemList.takeAt( idx )->setVisible( TRUE );
+		hasSeparator = isSeparator || hasSeparator;
+		itemList.takeAt( idx )->setVisible( TRUE );
 		showItem();
-	    }
+	    } else {
+		hasSeparator = isSeparator || hasSeparator;
+            }
 	    update();
 	}
     }
@@ -669,7 +675,7 @@ void MenuBarEditor::dropEvent( QDropEvent * e )
 
     if ( MenuBarEditorItemPtrDrag::decode( e, &i ) ) {
 	draggedItem = 0;
-	hideItem(); //FIXME: remove
+	hideItem();
 	dropInPlace( i, e->pos() );
 	e->accept();
     }
