@@ -47,6 +47,7 @@
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
 
 QByteArray qMakeOraDate( const QDateTime& dt );
+static ub2 csid_UTF8 = 871; // UTF8 not defined in Oracle 8 libraries
 
 class QOCIPrivate
 {
@@ -68,7 +69,7 @@ public:
 	if ( ext->bindMethod() == QSqlExtension::BindByName ) {
 	    QMap<QString, QVariant>::Iterator it;
 	    for ( it = ext->values.begin(); it != ext->values.end(); ++it ) {
-		OCIBind * hbnd = 0; // XXX dealloc?
+		OCIBind * hbnd = 0;
 		switch ( it.data().type() ) {
 		    case QVariant::ByteArray: {
 			// this is for RAW, LONG RAW and BLOB fields..
@@ -122,21 +123,31 @@ public:
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
 		    case QVariant::String: {
-			// ### unicode!
-			QCString * str = new QCString( it.data().asString().local8Bit() );
+			QCString * str = new QCString( it.data().asString().utf8() );
 			tmpStorage.append( str );
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
-					   it.key().length()+1,
+					   it.key().length(),
 					   (ub1 *) str->data(),
-					   str->length()+1,
+					   str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
 					   SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			if ( r == 0 ) {
+			    r = OCIAttrSet( (void*) hbnd,
+					    OCI_HTYPE_BIND,
+					    (void*) &csid_UTF8,
+					    (ub4) 0,
+					    (ub4) OCI_ATTR_CHARSET_ID,
+					    err );
+			    if ( r != 0 ) {
+				r = 0; /* non-fatal error */
+			    }
+			}
 			break; }
 		    default:
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
-					   it.key().length()+1,
+					   it.key().length(),
 					   (ub1 *) it.data().asString().local8Bit().data(),
 					   it.data().asString().length()+1,
 					   SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
@@ -201,15 +212,25 @@ public:
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
 		    case QVariant::String: {
-			// ### unicode!
-			QCString * str = new QCString( val.asString().local8Bit() );
+			QCString * str = new QCString( val.asString().utf8() );
 			tmpStorage.append( str );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (ub1 *) str->data(),
-					  str->length() + 1, // oracle uses this as a limit to find the terminating 0..
+ 					  (ub1 *) str->data(),
+					  str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
 					  SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			if ( r == 0 ) {
+			    r = OCIAttrSet( (void*) hbnd,
+					    OCI_HTYPE_BIND,
+					    (void*) &csid_UTF8,
+					    (ub4) 0,
+					    (ub4) OCI_ATTR_CHARSET_ID,
+					    err );
+			    if ( r != 0 ) {
+				r = 0; /* non-fatal error */
+			    }
+			}
 			break; }
 		    default:
 			r = OCIBindByPos( sql, &hbnd, err,
@@ -565,7 +586,6 @@ public:
 	ub4 dataSize(0);
 	OCIDefine* dfn = 0;
 	int r;
-	static ub2 csid_UTF8   = 871; // UTF8 not defined in Oracle 8 libraries
 
 	OCIParam* param = 0;
 	sb4 parmStatus = 0;
@@ -1512,7 +1532,6 @@ int QOCI9Result::numRowsAffected()
 bool QOCI9Result::prepare( const QString& query )
 {
     int r = 0;
-    extension()->clearValues(); // clear any placeholder values
     if ( cols ) {
 	delete cols;
 	cols = 0;
