@@ -24,7 +24,7 @@
 #include <qpainter.h>
 #include <qsplitter.h>
 #include <qstackedbox.h>
-#include <qvbox.h>
+#include <qvboxwidget.h>
 
 #include <qdebug.h>
 
@@ -134,7 +134,7 @@ DemoViewer::DemoViewer(QWidget *parent)
 
     QSplitter *horSplit = new QSplitter(Qt::Horizontal, this);
 
-    QVBox *vbox = new QVBox(horSplit);
+    QVBoxWidget *vbox = new QVBoxWidget(horSplit);
     vbox->setMargin(6);
     vbox->setSpacing(6);
     QGroupBox *categories = new QGroupBox("Categories", vbox);

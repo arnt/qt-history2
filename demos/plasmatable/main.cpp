@@ -11,7 +11,7 @@
  ****************************************************************************/
 
 #include <qapplication.h>
-#include <qhbox.h>
+#include <qhboxwidget.h>
 #include <qtableview.h>
 #include <qheaderview.h>
 #include "plasmamodel.h"
@@ -20,7 +20,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QHBox page;
+    QHBoxWidget page;
 
     int rc = 100;
     int cc = 160;
