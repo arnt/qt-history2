@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#34 $
+# $Id: //depot/qt/main/GNUmakefile.inc#35 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -117,7 +117,7 @@ ifeq ($(LIBTARGET),1)
 endif
 	@mkdir -p .obj/$(PROJOBJ)static-debug
 	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)static-debug" $(PROJECT).pro -o GNUmakefile$(PROJMAK).static-debug \
-	    "CONFIG+=staticlib debug"
+	    "CONFIG+=staticlib debug" $(TMAKEHACK)
 
 GNUmakefile$(PROJMAK).static-release: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
