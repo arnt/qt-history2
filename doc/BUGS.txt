@@ -70,3 +70,6 @@ QFileDialog
 
 QMainWindow/QToolBar
     Toolbar dragging produces rubbish qt-bugs/arc-07/15183
+
+QApplication (win32)
+    Don't reset everything on every WM_SETTINGCHANGE event
