@@ -17,7 +17,7 @@
 #include "q3valuelist.h"
 
 template<class T>
-class QT_COMPAT Q3ValueStack : public Q3ValueList<T>
+class Q3ValueStack : public Q3ValueList<T>
 {
 public:
     Q3ValueStack() {}

@@ -25,7 +25,7 @@
 #endif
 
 template <typename T>
-class QT_COMPAT Q3ValueListIterator : public QLinkedList<T>::iterator
+class Q3ValueListIterator : public QLinkedList<T>::iterator
 {
 public:
     inline Q3ValueListIterator<T>() :
@@ -37,7 +37,7 @@ public:
 };
 
 template <typename T>
-class QT_COMPAT Q3ValueListConstIterator : public QLinkedList<T>::const_iterator
+class Q3ValueListConstIterator : public QLinkedList<T>::const_iterator
 {
 public:
     inline Q3ValueListConstIterator<T>() {}
@@ -50,7 +50,7 @@ public:
 };
 
 template <typename T>
-class QT_COMPAT Q3ValueList : public QLinkedList<T>
+class Q3ValueList : public QLinkedList<T>
 {
 public:
     typedef T value_type;
