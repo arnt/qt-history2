@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#51 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#52 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -44,8 +44,6 @@
 #include "qplatformdefs.h"
 #include "qsocketdevice.h"
 #include "qwindowdefs.h"
-
-#include <errno.h>
 
 // Tru64 redefines accept() to _accept() when _XOPEN_SOURCE_EXTENDED is
 // defined.  This breaks our sources.

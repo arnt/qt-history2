@@ -50,9 +50,6 @@
 #include "qtimer.h"
 #include "qcleanuphandler.h"
 
-#include <errno.h>
-
-
 //#define QT_QPROCESS_DEBUG
 
 

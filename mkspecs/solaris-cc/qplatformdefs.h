@@ -10,9 +10,10 @@
 // make <sys/ioctl.h> include <sys/filio.h> to #define FIONREAD
 #ifndef BSD_COMP
 #  define BSD_COMP
-#endif                                                                          
+#endif
 
 #include <unistd.h>
+#include <sys/types.h>
 
 
 // We are hot - unistd.h should have turned on the specific APIs we requested
@@ -22,15 +23,22 @@
 #include <thread.h>
 #endif
 
+
+#include <ctype.h>
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <grp.h>
+#include <limits.h>
+#include <locale.h>
 #include <pwd.h>
 #include <signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 
 #include <netinet/in.h>
 
-#include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/time.h>
@@ -89,10 +97,10 @@ extern "C" int usleep(useconds_t);
 // On Solaris 2.5.1, XPG4v2 is not specified, sockets use int.
 #if defined(_XOPEN_UNIX)
 // Solaris 2.6 and better!
-#  define QT_SOCKLEN_T	size_t
+#define QT_SOCKLEN_T size_t
 #else
 // Solaris 2.5.1.
-#  define QT_SOCKLEN_T	int
+#define QT_SOCKLEN_T int
 #endif
 
 

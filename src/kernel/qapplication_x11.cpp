@@ -83,12 +83,6 @@ static int qt_thread_pipe[2];
 
 #include "qt_x11.h"
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <locale.h>
-#include <errno.h>
-
-
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN
 // Some X libraries are built with setlocale #defined to _Xsetlocale,

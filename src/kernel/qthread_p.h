@@ -59,7 +59,6 @@
 #include "qintdict.h"
 #endif
 #endif // QT_H
-#include <errno.h>
 
 static QMutex *dictMutex = 0;
 #ifdef QWS
