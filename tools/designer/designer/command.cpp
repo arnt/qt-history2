@@ -1256,6 +1256,7 @@ void PopulateListBoxCommand::execute()
 	else
 	    (void)new QListBoxText( listbox, i.text );
     }
+    formWindow()->mainWindow()->propertyeditor()->refetchData();
 }
 
 void PopulateListBoxCommand::unexecute()
@@ -1268,6 +1269,7 @@ void PopulateListBoxCommand::unexecute()
 	else
 	    (void)new QListBoxText( listbox, i.text );
     }
+    formWindow()->mainWindow()->propertyeditor()->refetchData();
 }
 
 // ------------------------------------------------------------
