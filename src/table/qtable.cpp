@@ -4984,13 +4984,15 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 
     QTableItem *i = item( row, col );
     QString oldContent;
-    if ( i ) {
+    if ( i )
 	oldContent = i->content();
-        if ( replace )
-	    clearCell( row, col );
-    }
 
-    setCellContentFromEditor( row, col );
+    if ( !i || replace ) {
+	setCellContentFromEditor( row, col );
+	i = item( row, col );
+    } else {
+	i->setContentFromEditor( editor );
+    }
 
     if ( row == editRow && col == editCol )
 	setEditMode( NotEditing, -1, -1 );
@@ -4998,11 +5000,7 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
     viewport()->setFocus();
     updateCell( row, col );
 
-    bool emitValueChanged = TRUE;
-    if ( i )
-	emitValueChanged = (oldContent != i->content());
-
-    if ( emitValueChanged )
+    if (!i || (oldContent != i->content()))
 	emit valueChanged( row, col );
 
     clearCellWidget( row, col );
