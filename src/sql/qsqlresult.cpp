@@ -78,7 +78,7 @@ public:
     QSqlResult::BindMethod bindm;
     
     QString executedQuery;
-    QMap<int, QSql::ParameterType> types;
+    QMap<int, QSql::ParamType> types;
     QVector<QVariant> values;
     typedef QMap<QString, int> IndexMap;
     IndexMap index;
@@ -494,7 +494,7 @@ bool QSqlResult::exec()
     return ret;
 }
 
-void QSqlResult::bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType tp )
+void QSqlResult::bindValue( const QString& placeholder, const QVariant& val, QSql::ParamType tp )
 {
     d->bindm = BindByName;
     // if the index has already been set when doing emulated named
@@ -514,7 +514,7 @@ void QSqlResult::bindValue( const QString& placeholder, const QVariant& val, QSq
 	d->types[ idx ] = tp;
 }
 
-void QSqlResult::bindValue( int pos, const QVariant& val, QSql::ParameterType tp )
+void QSqlResult::bindValue( int pos, const QVariant& val, QSql::ParamType tp )
 {
     d->bindm = BindByPosition;
     QString nm( ":f" + QString::number( pos ) );
@@ -526,7 +526,7 @@ void QSqlResult::bindValue( int pos, const QVariant& val, QSql::ParameterType tp
 	d->types[ pos ] = tp;
 }
 
-void QSqlResult::addBindValue( const QVariant& val, QSql::ParameterType tp )
+void QSqlResult::addBindValue( const QVariant& val, QSql::ParamType tp )
 {
     d->bindm = BindByPosition;
     bindValue( d->bindCount, val, tp );
@@ -548,12 +548,12 @@ QVariant QSqlResult::boundValue( int pos ) const
     return d->values.at( pos );
 }
 
-QSql::ParameterType QSqlResult::bindValueType( const QString& placeholder ) const
+QSql::ParamType QSqlResult::bindValueType( const QString& placeholder ) const
 {
     return d->types.value( d->index.value( placeholder, -1 ), QSql::In );
 }
 
-QSql::ParameterType QSqlResult::bindValueType( int pos ) const
+QSql::ParamType QSqlResult::bindValueType( int pos ) const
 {
     if ( pos < 0 || pos >= d->values.count() )
 	return QSql::In;
@@ -599,7 +599,7 @@ bool QSqlResult::hasOutValues() const
 {
     if ( d->types.isEmpty() )
 	return FALSE;
-    QMap<int, QSql::ParameterType>::ConstIterator it;
+    QMap<int, QSql::ParamType>::ConstIterator it;
     for ( it = d->types.constBegin(); it != d->types.constEnd(); ++it ) {
 	if ( it.data() != QSql::In )
 	    return TRUE;

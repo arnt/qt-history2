@@ -50,11 +50,13 @@ public:
     };
 
     enum ParameterType {
-	In = 1,
-	Out = 2,
-	InOut = 3  //InOut = In | Out
+	In = 0x00000001,
+	Out = 0x00000002,
+	InOut = 0x00000003, // In | Out
+	Binary = 0x00000004
     };
-
+    typedef QFlags<ParameterType> ParamType;
+    
     enum TableType { 
 	Tables = 0x01,
 	SystemTables = 0x02,

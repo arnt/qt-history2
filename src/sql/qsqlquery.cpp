@@ -949,7 +949,7 @@ bool QSqlQuery::exec()
 
     \sa addBindValue(), prepare(), exec()
 */
-void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType type )
+void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val, QSql::ParamType type )
 {
     if ( !d->sqlResult )
 	return;
@@ -966,7 +966,7 @@ void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val, QSql
 
     \sa addBindValue(), prepare(), exec()
 */
-void QSqlQuery::bindValue( int pos, const QVariant& val, QSql::ParameterType type )
+void QSqlQuery::bindValue( int pos, const QVariant& val, QSql::ParamType type )
 {
     if ( !d->sqlResult )
 	return;
@@ -982,7 +982,7 @@ void QSqlQuery::bindValue( int pos, const QVariant& val, QSql::ParameterType typ
 
     \sa bindValue(), prepare(), exec()
 */
-void QSqlQuery::addBindValue( const QVariant& val, QSql::ParameterType type )
+void QSqlQuery::addBindValue( const QVariant& val, QSql::ParamType type )
 {
     if ( !d->sqlResult )
 	return;
