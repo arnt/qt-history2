@@ -235,7 +235,7 @@ public:
     void copySelectedText( int id );
     void removeSelectedText( int id, QTextEditCursor *cursor );
     void indentSelection( int id );
-    
+
     void setCompletionEnabled( bool b );
     bool isCompletionEnabled() const;
 
@@ -272,7 +272,7 @@ private:
     void setRichText( const QString &text );
     QString richText( QTextEditParag *p = 0, bool formatted = FALSE ) const;
     QString plainText( QTextEditParag *p = 0, bool formatted = FALSE, bool untabify = FALSE ) const;
-    
+
 private:
     struct Selection {
 	QTextEditParag *startParag, *endParag;
@@ -317,7 +317,7 @@ public:
 	
     };
 
-    QTextEditString( QTextEditParag *p );
+    QTextEditString();
 
     QString toString() const;
 
@@ -332,7 +332,6 @@ public:
 
 private:
     QArray<Char> data;
-    QTextEditParag *parag;
     QString cache;
 
 };

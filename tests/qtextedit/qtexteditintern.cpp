@@ -1526,8 +1526,7 @@ bool QTextEditDocument::inSelection( int selId, const QPoint &pos ) const
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextEditString::QTextEditString( QTextEditParag *p )
-    : parag( p )
+QTextEditString::QTextEditString()
 {
 }
 
@@ -1610,7 +1609,7 @@ QTextEditParag::QTextEditParag( QTextEditDocument *d, QTextEditParag *pr, QTextE
     firstHilite = TRUE;
     lastLenForCompletion = -1;
 
-    str = new QTextEditString( this );
+    str = new QTextEditString();
 
     left = depth = 0;
 }
