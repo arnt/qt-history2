@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#201 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#202 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -3279,7 +3279,7 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 		break;
 	    b = buf24;
 	    while ( p < end ) {
-		*p++ = (b[0] << 16) | (b[1] << 8) | b[2];
+		*p++ = qRgb(b[2],b[1],b[0]);
 		b += 3;
 	    }
 	}
@@ -3394,9 +3394,10 @@ bool qt_write_dib( QDataStream& s, QImage image )
 	    QRgb *end = p + image.width();
 	    b = buf;
 	    while ( p < end ) {
-		*b++ = (uchar)(*p);
-		*b++ = (uchar)(*p >> 8);
-		*b++ = (uchar)(*p >> 16);
+		*b++ = qBlue(*p);
+		*b++ = qGreen(*p);
+		*b++ = qRed(*p);
+		p++;
 	    }
 	}
 	d->writeBlock( (char*)buf, bpl_bmp );
