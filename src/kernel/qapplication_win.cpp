@@ -23,7 +23,6 @@
 #include "qlibrary.h"
 #include "qmetaobject.h"
 #include "qmime.h"
-#include "qmutex.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
 #include "qsessionmanager.h"
@@ -35,6 +34,10 @@
 #if defined(QT_NON_COMMERCIAL)
 #include "qnc_win.h"
 #endif
+
+#ifdef QT_THREAD_SUPPRORT
+#include "qmutex.h"
+#endif // QT_THREAD_SUPPORT
 
 #include "private/qapplication_p.h"
 #include "private/qinternal_p.h"
