@@ -199,6 +199,8 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
     SelectObject( hdc, hfont );
     unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
 
+    int xo = x;
+
     if ( !reverse ) {
 	// hack to get symbol fonts working on Win95. See also QFontEngine constructor
 #ifndef Q_OS_TEMP
@@ -218,11 +220,13 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 #endif
 	{
 	    bool haveOffsets = FALSE;
+	    int w = 0;
 	    for( int i = 0; i < numGlyphs; i++ ) {
 		if ( offsets[i].x || offsets[i].y ) {
 		    haveOffsets = TRUE;
 		    break;
 		}
+		w += advances[i];
 	    }
 
 	    if ( haveOffsets ) {
@@ -237,6 +241,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	    } else {
 		// fast path
 		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, (wchar_t *)glyphs, numGlyphs, advances );
+		x += w;
 	    }
 	}
     } else {
@@ -251,6 +256,26 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
     	    ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, &chr, 1, 0 );
 	    x += *advances;
 	}
+    }
+
+
+    if ( textFlags & Underline ) {
+	int lw = lineThickness();
+	int yp = y + underlinePosition();
+	Rectangle( hdc, xo, yp, x, yp + lw );
+
+    }
+    if ( textFlags & Overline ) {
+	int lw = lineThickness();
+	int yp = y - ascent() - 1;
+	Rectangle( hdc, xo, yp, x, yp + lw );
+
+    }
+    if ( textFlags & StrikeOut ) {
+	int lw = lineThickness();
+	int yp = y - ascent()/3;
+	Rectangle( hdc, xo, yp, x, yp + lw );
+
     }
 }
 
