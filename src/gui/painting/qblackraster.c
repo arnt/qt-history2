@@ -25,46 +25,46 @@
 
 #include <qglobal.h>
 
-typedef long FT_F26Dot6;
-typedef int FT_Error;
-typedef int FT_Int;
-typedef unsigned int FT_UInt;
-typedef long FT_Long;
-typedef unsigned long FT_ULong;
-#define FT_Int64  qint64
-#define FT_Byte uchar
+typedef long QT_FT_F26Dot6;
+typedef int QT_FT_Error;
+typedef int QT_FT_Int;
+typedef unsigned int QT_FT_UInt;
+typedef long QT_FT_Long;
+typedef unsigned long QT_FT_ULong;
+#define QT_FT_Int64  qint64
+#define QT_FT_Byte uchar
 
-#define FT_TRACE1 if (0) printf
-#define FT_TRACE6 if (0) printf
+#define QT_FT_TRACE1 if (0) printf
+#define QT_FT_TRACE6 if (0) printf
 
 #define Raster_Err_Ok 0
 #define Raster_Err_Cannot_Render_Glyph 1
 
-#define FT_LOCAL_DEF(x) static x
+#define QT_FT_LOCAL_DEF(x) static x
 
-#define FT_BEGIN_HEADER
-#define FT_END_HEADER
+#define QT_FT_BEGIN_HEADER
+#define QT_FT_END_HEADER
 #include <private/qrasterdefs_p.h>
 #include <private/qblackraster_p.h>
 
-static FT_Long FT_MulDiv(FT_Long  a, FT_Long  b, FT_Long  c)
+static QT_FT_Long QT_FT_MulDiv(QT_FT_Long  a, QT_FT_Long  b, QT_FT_Long  c)
 {
-    FT_Int   s;
-    FT_Long  d;
+    QT_FT_Int   s;
+    QT_FT_Long  d;
 
     s = 1;
     if ( a < 0 ) { a = -a; s = -1; }
     if ( b < 0 ) { b = -b; s = -s; }
     if ( c < 0 ) { c = -c; s = -s; }
 
-    d = (FT_Long)( c > 0 ? ( (FT_Int64)a * b + ( c >> 1 ) ) / c
+    d = (QT_FT_Long)( c > 0 ? ( (QT_FT_Int64)a * b + ( c >> 1 ) ) / c
                    : 0x7FFFFFFFL );
 
     return ( s > 0 ) ? d : -d;
 }
 
 #include <string.h>
-#define FT_MEM_ZERO(x, len) memset(x, 0, len);
+#define QT_FT_MEM_ZERO(x, len) memset(x, 0, len);
 #include <stdio.h>
 
 
@@ -172,28 +172,28 @@ static FT_Long FT_MulDiv(FT_Long  a, FT_Long  b, FT_Long  c)
 
 /*************************************************************************/
 /*                                                                       */
-/* The macro FT_COMPONENT is used in trace mode.  It is an implicit      */
-/* parameter of the FT_TRACE() and FT_ERROR() macros, used to print/log  */
+/* The macro QT_FT_COMPONENT is used in trace mode.  It is an implicit      */
+/* parameter of the QT_FT_TRACE() and QT_FT_ERROR() macros, used to print/log  */
 /* messages during execution.                                            */
 /*                                                                       */
-#undef  FT_COMPONENT
-#define FT_COMPONENT  trace_raster
+#undef  QT_FT_COMPONENT
+#define QT_FT_COMPONENT  trace_raster
 
 
 /* This macro is used to indicate that a function parameter is unused. */
 /* Its purpose is simply to reduce compiler warnings.  Note also that  */
 /* simply defining it as `(void)x' doesn't avoid warnings with certain */
 /* ANSI compilers (e.g. LCC).                                          */
-#define FT_UNUSED( x )  (x) = (x)
+#define QT_FT_UNUSED( x )  (x) = (x)
 
 /* Disable the tracing mechanism for simplicity -- developers can      */
 /* activate it easily by redefining these two macros.                  */
-#ifndef FT_ERROR
-#define FT_ERROR( x )  do ; while ( 0 )     /* nothing */
+#ifndef QT_FT_ERROR
+#define QT_FT_ERROR( x )  do ; while ( 0 )     /* nothing */
 #endif
 
-#ifndef FT_TRACE
-#define FT_TRACE( x )  do ; while ( 0 )     /* nothing */
+#ifndef QT_FT_TRACE
+#define QT_FT_TRACE( x )  do ; while ( 0 )     /* nothing */
 #endif
 
 #define Raster_Err_None          0
@@ -205,8 +205,8 @@ static FT_Long FT_MulDiv(FT_Long  a, FT_Long  b, FT_Long  c)
 
 
 
-#ifndef FT_MEM_SET
-#define FT_MEM_SET( d, s, c )  ft_memset( d, s, c )
+#ifndef QT_FT_MEM_SET
+#define QT_FT_MEM_SET( d, s, c )  qt_ft_memset( d, s, c )
 #endif
 
 
@@ -216,9 +216,9 @@ static FT_Long FT_MulDiv(FT_Long  a, FT_Long  b, FT_Long  c)
 #define FMulDiv( a, b, c )  ( (a) * (b) / (c) )
 
 /* On the other hand, SMulDiv means `Slow MulDiv', and is used typically */
-/* for clipping computations.  It simply uses the FT_MulDiv() function   */
+/* for clipping computations.  It simply uses the QT_FT_MulDiv() function   */
 /* defined in `ftcalc.h'.                                                */
-#define SMulDiv  FT_MulDiv
+#define SMulDiv  QT_FT_MulDiv
 
 /* The rasterizer is a very general purpose component; please leave */
 /* the following redefinitions there (you never know your target    */
@@ -313,7 +313,7 @@ typedef TProfile*         PProfile;
 
 struct  TProfile_
 {
-    FT_F26Dot6  X;           /* current coordinate during sweep        */
+    QT_FT_F26Dot6  X;           /* current coordinate during sweep        */
     PProfile    link;        /* link to next profile - various purpose */
     PLong       offset;      /* start of profile's data in render pool */
     int         flow;        /* Profile orientation: Asc/Descending    */
@@ -351,7 +351,7 @@ typedef struct  TBand_
 #define RAS_VARS       /* void */
 #define RAS_VAR        /* void */
 
-#define FT_UNUSED_RASTER  do ; while ( 0 )
+#define QT_FT_UNUSED_RASTER  do ; while ( 0 )
 
 
 #else /* TT_STATIC_RASTER */
@@ -363,7 +363,7 @@ typedef struct  TBand_
 #define RAS_VARS       raster,
 #define RAS_VAR        raster
 
-#define FT_UNUSED_RASTER  FT_UNUSED( raster )
+#define QT_FT_UNUSED_RASTER  QT_FT_UNUSED( raster )
 
 
 #endif /* TT_STATIC_RASTER */
@@ -379,8 +379,8 @@ Function_Sweep_Init( RAS_ARGS Short*  min,
 
 typedef void
 Function_Sweep_Span( RAS_ARGS Short       y,
-                     FT_F26Dot6  x1,
-                     FT_F26Dot6  x2,
+                     QT_FT_F26Dot6  x1,
+                     QT_FT_F26Dot6  x2,
                      PProfile    left,
                      PProfile    right );
 
@@ -419,7 +419,7 @@ struct  TRaster_Instance_
     PLong     maxBuff;              /* Profiles buffer size                */
     PLong     top;                  /* Current cursor in buffer            */
 
-    FT_Error  error;
+    QT_FT_Error  error;
 
     Int       numTurns;             /* number of Y-turns in outline        */
 
@@ -443,7 +443,7 @@ struct  TRaster_Instance_
 
     TStates   state;                /* rendering state                     */
 
-    FT_Outline  outline;
+    QT_FT_Outline  outline;
 
     Long      traceOfs;             /* current offset in target bitmap     */
     Long      traceG;               /* current offset in target pixmap     */
@@ -469,20 +469,20 @@ struct  TRaster_Instance_
 #if 0
     PByte       flags;              /* current flags table                 */
     PUShort     outs;               /* current outlines table              */
-    FT_Vector*  coords;
+    QT_FT_Vector*  coords;
 
     UShort      nPoints;            /* number of points in current glyph   */
     Short       nContours;          /* number of contours in current glyph */
 #endif
 
-    FT_SpanFunc black_spans;
+    QT_FT_SpanFunc black_spans;
     void *      user_data;
     Bool        odd_even;           /* True for odd even fills             */
-    FT_BBox     clip_box;           /* The clipping box */
+    QT_FT_BBox     clip_box;           /* The clipping box */
 };
 
 
-#ifdef FT_CONFIG_OPTION_STATIC_RASTER
+#ifdef QT_FT_CONFIG_OPTION_STATIC_RASTER
 
 static TRaster_Instance  cur_ras;
 #define ras  cur_ras
@@ -491,7 +491,7 @@ static TRaster_Instance  cur_ras;
 
 #define ras  (*raster)
 
-#endif /* FT_CONFIG_OPTION_STATIC_RASTER */
+#endif /* QT_FT_CONFIG_OPTION_STATIC_RASTER */
 
 
 /*************************************************************************/
@@ -531,7 +531,7 @@ Set_High_Precision( RAS_ARGS Int  High )
         ras.precision_jitter = 2;
     }
 
-    FT_TRACE6( "Set_High_Precision(%s)\n", High ? "true" : "false" );
+    QT_FT_TRACE6( "Set_High_Precision(%s)\n", High ? "true" : "false" );
 
     ras.precision       = 1 << ras.precision_bits;
     ras.precision_half  = ras.precision / 2;
@@ -575,16 +575,16 @@ New_Profile( RAS_ARGS TStates  aState )
     {
     case Ascending_State:
         ras.cProfile->flow = Flow_Up;
-        FT_TRACE6( "\nNew ascending profile = %lx\n", (long)ras.cProfile );
+        QT_FT_TRACE6( "\nNew ascending profile = %lx\n", (long)ras.cProfile );
         break;
 
     case Descending_State:
         ras.cProfile->flow = Flow_Down;
-        FT_TRACE6( "\nNew descending profile = %lx\n", (long)ras.cProfile );
+        QT_FT_TRACE6( "\nNew descending profile = %lx\n", (long)ras.cProfile );
         break;
 
     default:
-        FT_ERROR(( "New_Profile: invalid profile direction!\n" ));
+        QT_FT_ERROR(( "New_Profile: invalid profile direction!\n" ));
         ras.error = Raster_Err_Invalid;
         return FAILURE;
     }
@@ -626,14 +626,14 @@ End_Profile( RAS_ARG )
 
     if ( h < 0 )
     {
-        FT_ERROR(( "End_Profile: negative height encountered!\n" ));
+        QT_FT_ERROR(( "End_Profile: negative height encountered!\n" ));
         ras.error = Raster_Err_Neg_Height;
         return FAILURE;
     }
 
     if ( h > 0 )
     {
-        FT_TRACE6( "Ending profile %lx, start = %ld, height = %ld top=%p\n\n",
+        QT_FT_TRACE6( "Ending profile %lx, start = %ld, height = %ld top=%p\n\n",
                    (long)ras.cProfile, ras.cProfile->start, h,ras.top );
 
         oldProfile           = ras.cProfile;
@@ -649,7 +649,7 @@ End_Profile( RAS_ARG )
 
     if ( ras.top >= ras.maxBuff )
     {
-        FT_TRACE1( "overflow in End_Profile\n" );
+        QT_FT_TRACE1( "overflow in End_Profile\n" );
         ras.error = Raster_Err_Overflow;
         return FAILURE;
     }
@@ -928,7 +928,7 @@ Line_Up( RAS_ARGS Long  x1,
         if (FRAC(y2) == 0 && ras.cProfile->flow == Flow_Up)
             --e2;
     }
-    FT_TRACE6("Line_Up y1=%f, y2=%f, e1=%d, e2=%d f1=%d\n", y1/64.,  y2/64., e1, e2, f1);
+    QT_FT_TRACE6("Line_Up y1=%f, y2=%f, e1=%d, e2=%d f1=%d\n", y1/64.,  y2/64., e1, e2, f1);
 
     if ( f1 > 0 )
     {
@@ -943,7 +943,7 @@ Line_Up( RAS_ARGS Long  x1,
         ras.cProfile->start = e1;
         ras.fresh           = FALSE;
     }
-    FT_TRACE6("e1 = start=%d, e2=%d\n", e1, e2);
+    QT_FT_TRACE6("e1 = start=%d, e2=%d\n", e1, e2);
 
     size = e2 - e1 + 1;
     if ( ras.top + size >= ras.maxBuff )
@@ -968,14 +968,14 @@ Line_Up( RAS_ARGS Long  x1,
     Ax  = -Dy;
     top = ras.top;
 
-    FT_TRACE6("line_up (%f/%f)->(%f/%f), flow=%s\n",
+    QT_FT_TRACE6("line_up (%f/%f)->(%f/%f), flow=%s\n",
               x1/64., y1/64., x2/64., y2/64.,
               ras.cProfile->flow == Flow_Up ? "Flow_Up" : "Flow_Down");
 
     while ( size > 0 )
     {
         *top++ = x1;
-        FT_TRACE6("    x=%f y=%d\n", x1/64., e2+1-size);
+        QT_FT_TRACE6("    x=%f y=%d\n", x1/64., e2+1-size);
 
         x1 += Ix;
         Ax += Rx;
@@ -1107,7 +1107,7 @@ Bezier_Up( RAS_ARGS Int        degree,
         ras.fresh = FALSE;
     }
 
-    FT_TRACE6("bezier_up: y1=%f, y2=%f, e1=%f, e2=%f\n", y1/64.,  y2/64., e/64., e2/64.);
+    QT_FT_TRACE6("bezier_up: y1=%f, y2=%f, e1=%f, e2=%f\n", y1/64.,  y2/64., e/64., e2/64.);
 
     if ( e2 < e )
         goto Fin;
@@ -1119,7 +1119,7 @@ Bezier_Up( RAS_ARGS Int        degree,
         return FAILURE;
     }
 
-    FT_TRACE6("       Flow = %s start=%d, e=%f, e2=%f y1=%f, y2=%f\n",
+    QT_FT_TRACE6("       Flow = %s start=%d, e=%f, e2=%f y1=%f, y2=%f\n",
               ras.cProfile->flow == Flow_Up ? "Flow_Up" : "Flow_Down",
               ras.cProfile->start, e/64., e2/64.,y1/64.,y2/64.);
 
@@ -1141,7 +1141,7 @@ Bezier_Up( RAS_ARGS Int        degree,
             {
                 *top++ = arc[degree].x + FMulDiv( arc[0].x-arc[degree].x,
                                                   e - y1, y2 - y1 );
-                FT_TRACE6("  x=%f y=%f\n",
+                QT_FT_TRACE6("  x=%f y=%f\n",
                           (arc[degree].x + FMulDiv( arc[0].x-arc[degree].x,
                                                     e - y1, y2 - y1 ))/64., e/64.);
                 arc -= degree;
@@ -1153,7 +1153,7 @@ Bezier_Up( RAS_ARGS Int        degree,
             if ( y2 == e )
             {
                 *top++     = arc[0].x;
-                FT_TRACE6("  x=%f y=%f\n", arc[0].x/64., e/64.);
+                QT_FT_TRACE6("  x=%f y=%f\n", arc[0].x/64., e/64.);
 
                 e += ras.precision;
             }
@@ -1164,7 +1164,7 @@ Bezier_Up( RAS_ARGS Int        degree,
 Fin:
     ras.top  = top;
     ras.arc -= degree;
-    FT_TRACE6("    currently %d points in profile, start=%d top=%p\n", ras.top - ras.cProfile->offset, ras.cProfile->start, ras.top);
+    QT_FT_TRACE6("    currently %d points in profile, start=%d top=%p\n", ras.top - ras.cProfile->offset, ras.cProfile->start, ras.top);
     return SUCCESS;
 }
 
@@ -1242,7 +1242,7 @@ Line_To( RAS_ARGS Long  x,
          Long  y )
 {
     /* First, detect a change of direction */
-    FT_TRACE6( "Line_To (%f/%f)->(%f/%f)\n", ras.lastX/64., ras.lastY/64., x/64., y/64. );
+    QT_FT_TRACE6( "Line_To (%f/%f)->(%f/%f)\n", ras.lastX/64., ras.lastY/64., x/64., y/64. );
 
     switch ( ras.state )
     {
@@ -1341,7 +1341,7 @@ Conic_To( RAS_ARGS Long  cx,
     Long     y1, y2, y3, x3, ymin, ymax;
     TStates  state_bez;
 
-    FT_TRACE6( "Conic_To (%f/%f)-(%f/%f)\n", cx/64., cy/64., x/64., y/64. );
+    QT_FT_TRACE6( "Conic_To (%f/%f)-(%f/%f)\n", cx/64., cy/64., x/64., y/64. );
 
     ras.arc      = ras.arcs;
     ras.arc[2].x = ras.lastX;
@@ -1458,7 +1458,7 @@ Cubic_To( RAS_ARGS Long  cx1,
     Long     y1, y2, y3, y4, x4, ymin1, ymax1, ymin2, ymax2;
     TStates  state_bez;
 
-    FT_TRACE6( "Cubic_To (%f/%f)-(%f/%f)-(%f/%f)-(%f/%f)\n",
+    QT_FT_TRACE6( "Cubic_To (%f/%f)-(%f/%f)-(%f/%f)-(%f/%f)\n",
                ras.lastX/64., ras.lastY/64., cx1/64., cy1/64., cx2/64., cy2/64., x/64., y/64. );
 
     ras.arc      = ras.arcs;
@@ -1586,13 +1586,13 @@ Decompose_Curve( RAS_ARGS UShort  first,
                  UShort  last,
                  int     flipped )
 {
-    FT_Vector   v_last;
-    FT_Vector   v_control;
-    FT_Vector   v_start;
+    QT_FT_Vector   v_last;
+    QT_FT_Vector   v_control;
+    QT_FT_Vector   v_start;
 
-    FT_Vector*  points;
-    FT_Vector*  point;
-    FT_Vector*  limit;
+    QT_FT_Vector*  points;
+    QT_FT_Vector*  point;
+    QT_FT_Vector*  limit;
     char*       tags;
 
     unsigned    tag;       /* current point's state           */
@@ -1616,17 +1616,17 @@ Decompose_Curve( RAS_ARGS UShort  first,
 
     point = points + first;
     tags  = ras.outline.tags  + first;
-    tag   = FT_CURVE_TAG( tags[0] );
+    tag   = QT_FT_CURVE_TAG( tags[0] );
 
     /* A contour cannot start with a cubic control point! */
-    if ( tag == FT_CURVE_TAG_CUBIC )
+    if ( tag == QT_FT_CURVE_TAG_CUBIC )
         goto Invalid_Outline;
 
     /* check first point to determine origin */
-    if ( tag == FT_CURVE_TAG_CONIC )
+    if ( tag == QT_FT_CURVE_TAG_CONIC )
     {
         /* first point is conic control.  Yes, this happens. */
-        if ( FT_CURVE_TAG( ras.outline.tags[last] ) == FT_CURVE_TAG_ON )
+        if ( QT_FT_CURVE_TAG( ras.outline.tags[last] ) == QT_FT_CURVE_TAG_ON )
         {
             /* start at last point if it is on the curve */
             v_start = v_last;
@@ -1654,11 +1654,11 @@ Decompose_Curve( RAS_ARGS UShort  first,
         point++;
         tags++;
 
-        tag = FT_CURVE_TAG( tags[0] );
+        tag = QT_FT_CURVE_TAG( tags[0] );
 
         switch ( tag )
         {
-        case FT_CURVE_TAG_ON:  /* emit a single line_to */
+        case QT_FT_CURVE_TAG_ON:  /* emit a single line_to */
         {
             Long  x, y;
 
@@ -1673,7 +1673,7 @@ Decompose_Curve( RAS_ARGS UShort  first,
             continue;
         }
 
-        case FT_CURVE_TAG_CONIC:  /* consume conic arcs */
+        case QT_FT_CURVE_TAG_CONIC:  /* consume conic arcs */
             v_control.x = SCALED( point[0].x );
             v_control.y = SCALED( point[0].y );
 
@@ -1683,13 +1683,13 @@ Decompose_Curve( RAS_ARGS UShort  first,
         Do_Conic:
             if ( point < limit )
             {
-                FT_Vector  v_middle;
+                QT_FT_Vector  v_middle;
                 Long       x, y;
 
 
                 point++;
                 tags++;
-                tag = FT_CURVE_TAG( tags[0] );
+                tag = QT_FT_CURVE_TAG( tags[0] );
 
                 x = SCALED( point[0].x );
                 y = SCALED( point[0].y );
@@ -1697,14 +1697,14 @@ Decompose_Curve( RAS_ARGS UShort  first,
                 if ( flipped )
                     SWAP_( x, y );
 
-                if ( tag == FT_CURVE_TAG_ON )
+                if ( tag == QT_FT_CURVE_TAG_ON )
                 {
                     if ( Conic_To( RAS_VARS v_control.x, v_control.y, x, y ) )
                         goto Fail;
                     continue;
                 }
 
-                if ( tag != FT_CURVE_TAG_CONIC )
+                if ( tag != QT_FT_CURVE_TAG_CONIC )
                     goto Invalid_Outline;
 
                 v_middle.x = ( v_control.x + x ) / 2;
@@ -1726,13 +1726,13 @@ Decompose_Curve( RAS_ARGS UShort  first,
 
             goto Close;
 
-        default:  /* FT_CURVE_TAG_CUBIC */
+        default:  /* QT_FT_CURVE_TAG_CUBIC */
         {
             Long  x1, y1, x2, y2, x3, y3;
 
 
             if ( point + 1 > limit                             ||
-                 FT_CURVE_TAG( tags[1] ) != FT_CURVE_TAG_CUBIC )
+                 QT_FT_CURVE_TAG( tags[1] ) != QT_FT_CURVE_TAG_CUBIC )
                 goto Invalid_Outline;
 
             point += 2;
@@ -2004,8 +2004,8 @@ static void
 Vertical_Sweep_Init( RAS_ARGS Short*  min,
                      Short*  max )
 {
-    FT_UNUSED( min );
-    FT_UNUSED( max );
+    QT_FT_UNUSED( min );
+    QT_FT_UNUSED( max );
 }
 
 
@@ -2040,7 +2040,7 @@ Draw_Sweep( RAS_ARG )
 
     TProfileList profile_list;
 
-    FT_Span spans[MAX_SPANS];
+    QT_FT_Span spans[MAX_SPANS];
     Int span_count;
 
     /* Init empty linked lists */
@@ -2318,12 +2318,12 @@ Render_Single_Pass( RAS_ARGS Bool  flipped )
 /* <Return>                                                              */
 /*    FreeType error code.  0 means success.                             */
 /*                                                                       */
-FT_LOCAL_DEF( FT_Error )
+QT_FT_LOCAL_DEF( QT_FT_Error )
     Render_Glyph( RAS_ARG )
 {
-    FT_Error  error;
+    QT_FT_Error  error;
 
-    FT_TRACE6("Render_Glyph:\n");
+    QT_FT_TRACE6("Render_Glyph:\n");
 
     Set_High_Precision( RAS_VARS FALSE );
     ras.scale_shift    = ras.precision_shift;
@@ -2340,17 +2340,17 @@ FT_LOCAL_DEF( FT_Error )
     if ( ( error = Render_Single_Pass( RAS_VARS 0 ) ) != 0 )
         return error;
 
-    FT_TRACE6("End Render_Glyph:\n\n");
+    QT_FT_TRACE6("End Render_Glyph:\n\n");
 
     return Raster_Err_Ok;
 }
 
 
 
-FT_LOCAL_DEF( FT_Error )
+QT_FT_LOCAL_DEF( QT_FT_Error )
     Render_Gray_Glyph( RAS_ARG )
 {
-    FT_UNUSED_RASTER;
+    QT_FT_UNUSED_RASTER;
 
     return Raster_Err_Cannot_Render_Glyph;
 }
@@ -2362,20 +2362,20 @@ FT_LOCAL_DEF( FT_Error )
 
 /* #### a static instance might be a bad idea... */
 static int
-ft_black_new( void*      memory,
-              FT_Raster  *araster )
+qt_ft_black_new( void*      memory,
+              QT_FT_Raster  *araster )
 {
     static TRaster_Instance the_raster;
 
-    *araster = (FT_Raster) &the_raster;
-    FT_MEM_ZERO( &the_raster, sizeof ( the_raster ) );
+    *araster = (QT_FT_Raster) &the_raster;
+    QT_FT_MEM_ZERO( &the_raster, sizeof ( the_raster ) );
 
     return 0;
 }
 
 
 static void
-ft_black_done( FT_Raster  raster )
+qt_ft_black_done( QT_FT_Raster  raster )
 {
     /* nothing */
 //     raster->init = 0;
@@ -2383,7 +2383,7 @@ ft_black_done( FT_Raster  raster )
 
 
 static void
-ft_black_reset( TRaster_Instance*  raster,
+qt_ft_black_reset( TRaster_Instance*  raster,
                 const char*        pool_base,
                 long               pool_size )
 {
@@ -2397,23 +2397,23 @@ ft_black_reset( TRaster_Instance*  raster,
 
 
 static void
-ft_black_set_mode( TRaster_Instance*  raster,
+qt_ft_black_set_mode( TRaster_Instance*  raster,
                    unsigned long      mode,
                    const char*        palette )
 {
 
-    FT_UNUSED( raster );
-    FT_UNUSED( mode );
-    FT_UNUSED( palette );
+    QT_FT_UNUSED( raster );
+    QT_FT_UNUSED( mode );
+    QT_FT_UNUSED( palette );
 
 }
 
 
 static int
-ft_black_render( TRaster_Instance*  raster,
-                 FT_Raster_Params*  params )
+qt_ft_black_render( TRaster_Instance*  raster,
+                 QT_FT_Raster_Params*  params )
 {
-    FT_Outline*  outline    = (FT_Outline*)params->source;
+    QT_FT_Outline*  outline    = (QT_FT_Outline*)params->source;
 
     if ( !raster || !raster->buff || !raster->sizeBuff )
         return Raster_Err_Not_Ini;
@@ -2434,7 +2434,7 @@ ft_black_render( TRaster_Instance*  raster,
     ras.user_data = params->user;
     ras.outline  = *outline;
 
-    if (!(params->flags & FT_RASTER_FLAG_CLIP))
+    if (!(params->flags & QT_FT_RASTER_FLAG_CLIP))
         return Raster_Err_Invalid;
 
     ras.minX_dev = (short)params->clip_box.xMin;
@@ -2442,22 +2442,22 @@ ft_black_render( TRaster_Instance*  raster,
 
     ras.clip_box = params->clip_box;
 
-    ras.odd_even = (outline->flags & FT_OUTLINE_EVEN_ODD_FILL);
+    ras.odd_even = (outline->flags & QT_FT_OUTLINE_EVEN_ODD_FILL);
 
-    return ( ( params->flags & FT_RASTER_FLAG_AA )
+    return ( ( params->flags & QT_FT_RASTER_FLAG_AA )
              ? Render_Gray_Glyph( raster )
              : Render_Glyph( raster ) );
 }
 
 
-const FT_Raster_Funcs  qt_ft_standard_raster =
+const QT_FT_Raster_Funcs  qt_ft_standard_raster =
 {
-    FT_GLYPH_FORMAT_OUTLINE,
-    (FT_Raster_New_Func)     ft_black_new,
-    (FT_Raster_Reset_Func)   ft_black_reset,
-    (FT_Raster_Set_Mode_Func)ft_black_set_mode,
-    (FT_Raster_Render_Func)  ft_black_render,
-    (FT_Raster_Done_Func)    ft_black_done
+    QT_FT_GLYPH_FORMAT_OUTLINE,
+    (QT_FT_Raster_New_Func)     qt_ft_black_new,
+    (QT_FT_Raster_Reset_Func)   qt_ft_black_reset,
+    (QT_FT_Raster_Set_Mode_Func)qt_ft_black_set_mode,
+    (QT_FT_Raster_Render_Func)  qt_ft_black_render,
+    (QT_FT_Raster_Done_Func)    qt_ft_black_done
 };
 
 

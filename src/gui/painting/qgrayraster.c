@@ -32,8 +32,8 @@
   /*     cc -c -D_STANDALONE_ ftgrays.c                                    */
   /*                                                                       */
   /* The renderer can be initialized with a call to                        */
-  /* `ft_gray_raster.raster_new'; an anti-aliased bitmap can be generated  */
-  /* with a call to `ft_gray_raster.raster_render'.                        */
+  /* `qt_ft_gray_raster.raster_new'; an anti-aliased bitmap can be generated  */
+  /* with a call to `qt_ft_gray_raster.raster_render'.                        */
   /*                                                                       */
   /* See the comments and documentation in the file `ftimage.h' for more   */
   /* details on how the raster works.                                      */
@@ -86,34 +86,34 @@
 
   /*************************************************************************/
   /*                                                                       */
-  /* The macro FT_COMPONENT is used in trace mode.  It is an implicit      */
-  /* parameter of the FT_TRACE() and FT_ERROR() macros, used to print/log  */
+  /* The macro QT_FT_COMPONENT is used in trace mode.  It is an implicit      */
+  /* parameter of the QT_FT_TRACE() and QT_FT_ERROR() macros, used to print/log  */
   /* messages during execution.                                            */
   /*                                                                       */
-#undef  FT_COMPONENT
-#define FT_COMPONENT  trace_smooth
+#undef  QT_FT_COMPONENT
+#define QT_FT_COMPONENT  trace_smooth
 
 
 #define ErrRaster_MemoryOverflow   -4
 
 
-#include <string.h>             /* for ft_memcpy() */
+#include <string.h>             /* for qt_ft_memcpy() */
 #include <setjmp.h>
 #include <limits.h>
-#define FT_UINT_MAX  UINT_MAX
+#define QT_FT_UINT_MAX  UINT_MAX
 
-#define ft_memset   memset
+#define qt_ft_memset   memset
 
-#define ft_setjmp   setjmp
-#define ft_longjmp  longjmp
-#define ft_jmp_buf  jmp_buf
+#define qt_ft_setjmp   setjmp
+#define qt_ft_longjmp  longjmp
+#define qt_ft_jmp_buf  jmp_buf
 
 
 #define ErrRaster_Invalid_Mode     -2
 #define ErrRaster_Invalid_Outline  -1
 
-#define FT_BEGIN_HEADER
-#define FT_END_HEADER
+#define QT_FT_BEGIN_HEADER
+#define QT_FT_END_HEADER
 
 #include <private/qrasterdefs_p.h>
 #include <private/qgrayraster_p.h>
@@ -122,25 +122,25 @@
   /* Its purpose is simply to reduce compiler warnings.  Note also that  */
   /* simply defining it as `(void)x' doesn't avoid warnings with certain */
   /* ANSI compilers (e.g. LCC).                                          */
-#define FT_UNUSED( x )  (x) = (x)
+#define QT_FT_UNUSED( x )  (x) = (x)
 
   /* Disable the tracing mechanism for simplicity -- developers can      */
   /* activate it easily by redefining these two macros.                  */
-#ifndef FT_ERROR
-#define FT_ERROR( x )  do ; while ( 0 )     /* nothing */
+#ifndef QT_FT_ERROR
+#define QT_FT_ERROR( x )  do ; while ( 0 )     /* nothing */
 #endif
 
-#ifndef FT_TRACE
-#define FT_TRACE( x )  do ; while ( 0 )     /* nothing */
+#ifndef QT_FT_TRACE
+#define QT_FT_TRACE( x )  do ; while ( 0 )     /* nothing */
 #endif
 
 
-#ifndef FT_MEM_SET
-#define FT_MEM_SET( d, s, c )  ft_memset( d, s, c )
+#ifndef QT_FT_MEM_SET
+#define QT_FT_MEM_SET( d, s, c )  qt_ft_memset( d, s, c )
 #endif
 
-#ifndef FT_MEM_ZERO
-#define FT_MEM_ZERO( dest, count )  FT_MEM_SET( dest, 0, count )
+#ifndef QT_FT_MEM_ZERO
+#define QT_FT_MEM_ZERO( dest, count )  QT_FT_MEM_SET( dest, 0, count )
 #endif
 
   /* define this to dump debugging information */
@@ -148,7 +148,7 @@
 
   /* as usual, for the speed hungry :-) */
 
-#ifndef FT_STATIC_RASTER
+#ifndef QT_FT_STATIC_RASTER
 
 
 #define RAS_ARG   PRaster  raster
@@ -160,7 +160,7 @@
 #define ras       (*raster)
 
 
-#else /* FT_STATIC_RASTER */
+#else /* QT_FT_STATIC_RASTER */
 
 
 #define RAS_ARG   /* empty */
@@ -171,7 +171,7 @@
   static TRaster  ras;
 
 
-#endif /* FT_STATIC_RASTER */
+#endif /* QT_FT_STATIC_RASTER */
 
 
   /* must be at least 6 bits! */
@@ -205,7 +205,7 @@
   /*   TYPE DEFINITIONS                                                    */
   /*                                                                       */
 
-  /* don't change the following types to FT_Int or FT_Pos, since we might */
+  /* don't change the following types to QT_FT_Int or QT_FT_Pos, since we might */
   /* need to define them to "float" or "double" when experimenting with   */
   /* new algorithms                                                       */
 
@@ -223,7 +223,7 @@
 #else /* PIXEL_BITS >= 8 */
 
   /* approximately determine the size of integers using an ANSI-C header */
-#if FT_UINT_MAX == 0xFFFFU
+#if QT_FT_UINT_MAX == 0xFFFFU
   typedef long  TArea;
 #else
   typedef int  TArea;
@@ -233,7 +233,7 @@
 
 
   /* maximal number of gray spans in a call to the span callback */
-#define FT_MAX_GRAY_SPANS  32
+#define QT_FT_MAX_GRAY_SPANS  32
 
 
 #ifdef GRAYS_COMPACT
@@ -280,17 +280,17 @@
 
     TPos    last_ey;
 
-    FT_Vector   bez_stack[32 * 3 + 1];
+    QT_FT_Vector   bez_stack[32 * 3 + 1];
     int         lev_stack[32];
 
-    FT_Outline  outline;
-    FT_Bitmap   target;
-    FT_BBox     clip_box;
+    QT_FT_Outline  outline;
+    QT_FT_Bitmap   target;
+    QT_FT_BBox     clip_box;
 
-    FT_Span     gray_spans[FT_MAX_GRAY_SPANS];
+    QT_FT_Span     gray_spans[QT_FT_MAX_GRAY_SPANS];
     int         num_gray_spans;
 
-    FT_Raster_Span_Func  render_span;
+    QT_FT_Raster_Span_Func  render_span;
     void*                render_span_data;
     int                  span_y;
 
@@ -300,7 +300,7 @@
     int  cubic_level;
 
     void*       memory;
-    ft_jmp_buf  jump_buffer;
+    qt_ft_jmp_buf  jump_buffer;
 
 #ifdef GRAYS_USE_GAMMA
     unsigned char  gamma[257];
@@ -333,9 +333,9 @@
   static void
   gray_compute_cbox( RAS_ARG )
   {
-    FT_Outline*  outline = &ras.outline;
-    FT_Vector*   vec     = outline->points;
-    FT_Vector*   limit   = vec + outline->n_points;
+    QT_FT_Outline*  outline = &ras.outline;
+    QT_FT_Vector*   vec     = outline->points;
+    QT_FT_Vector*   limit   = vec + outline->n_points;
 
 
     if ( outline->n_points <= 0 )
@@ -383,7 +383,7 @@
     if ( !ras.invalid && ( ras.area | ras.cover ) )
     {
       if ( ras.num_cells >= ras.max_cells )
-        ft_longjmp( ras.jump_buffer, 1 );
+        qt_ft_longjmp( ras.jump_buffer, 1 );
 
       cell        = ras.cells + ras.num_cells++;
       cell->x     = (TCoord)(ras.ex - ras.min_ex);
@@ -740,7 +740,7 @@
 
 
   static void
-  gray_split_conic( FT_Vector*  base )
+  gray_split_conic( QT_FT_Vector*  base )
   {
     TPos  a, b;
 
@@ -760,13 +760,13 @@
 
 
   static void
-  gray_render_conic( RAS_ARG_ FT_Vector*  control,
-                              FT_Vector*  to )
+  gray_render_conic( RAS_ARG_ QT_FT_Vector*  control,
+                              QT_FT_Vector*  to )
   {
     TPos        dx, dy;
     int         top, level;
     int*        levels;
-    FT_Vector*  arc;
+    QT_FT_Vector*  arc;
 
 
     dx = DOWNSCALE( ras.x ) + to->x - ( control->x << 1 );
@@ -867,7 +867,7 @@
 
 
   static void
-  gray_split_cubic( FT_Vector*  base )
+  gray_split_cubic( QT_FT_Vector*  base )
   {
     TPos  a, b, c, d;
 
@@ -895,14 +895,14 @@
 
 
   static void
-  gray_render_cubic( RAS_ARG_ FT_Vector*  control1,
-                              FT_Vector*  control2,
-                              FT_Vector*  to )
+  gray_render_cubic( RAS_ARG_ QT_FT_Vector*  control1,
+                              QT_FT_Vector*  control2,
+                              QT_FT_Vector*  to )
   {
     TPos        dx, dy, da, db;
     int         top, level;
     int*        levels;
-    FT_Vector*  arc;
+    QT_FT_Vector*  arc;
 
 
     dx = DOWNSCALE( ras.x ) + to->x - ( control1->x << 1 );
@@ -1207,8 +1207,8 @@
 
 
   static int
-  gray_move_to( FT_Vector*  to,
-                FT_Raster   raster )
+  gray_move_to( QT_FT_Vector*  to,
+                QT_FT_Raster   raster )
   {
     TPos  x, y;
 
@@ -1228,8 +1228,8 @@
 
 
   static int
-  gray_line_to( FT_Vector*  to,
-                FT_Raster   raster )
+  gray_line_to( QT_FT_Vector*  to,
+                QT_FT_Raster   raster )
   {
     gray_render_line( (PRaster)raster,
                       UPSCALE( to->x ), UPSCALE( to->y ) );
@@ -1238,9 +1238,9 @@
 
 
   static int
-  gray_conic_to( FT_Vector*  control,
-                 FT_Vector*  to,
-                 FT_Raster   raster )
+  gray_conic_to( QT_FT_Vector*  control,
+                 QT_FT_Vector*  to,
+                 QT_FT_Raster   raster )
   {
     gray_render_conic( (PRaster)raster, control, to );
     return 0;
@@ -1248,10 +1248,10 @@
 
 
   static int
-  gray_cubic_to( FT_Vector*  control1,
-                 FT_Vector*  control2,
-                 FT_Vector*  to,
-                 FT_Raster   raster )
+  gray_cubic_to( QT_FT_Vector*  control1,
+                 QT_FT_Vector*  control2,
+                 QT_FT_Vector*  to,
+                 QT_FT_Raster   raster )
   {
     gray_render_cubic( (PRaster)raster, control1, control2, to );
     return 0;
@@ -1261,11 +1261,11 @@
   static void
   gray_render_span( int       y,
                     int       count,
-                    FT_Span*  spans,
+                    QT_FT_Span*  spans,
                     PRaster   raster )
   {
     unsigned char*  p;
-    FT_Bitmap*      map = &raster->target;
+    QT_FT_Bitmap*      map = &raster->target;
 
 
     /* first of all, compute the scanline offset */
@@ -1284,7 +1284,7 @@
 
       if ( coverage )
 #if 1
-        FT_MEM_SET( p + spans->x, (unsigned char)coverage, spans->len );
+        QT_FT_MEM_SET( p + spans->x, (unsigned char)coverage, spans->len );
 #else /* 1 */
       {
         q     = p + spans->x;
@@ -1333,7 +1333,7 @@
                        TPos    area,
                        int     acount )
   {
-    FT_Span*   span;
+    QT_FT_Span*   span;
     int        count;
     int        coverage;
 
@@ -1348,7 +1348,7 @@
     if ( coverage < 0 )
       coverage = -coverage;
 
-    if ( ras.outline.flags & FT_OUTLINE_EVEN_ODD_FILL )
+    if ( ras.outline.flags & QT_FT_OUTLINE_EVEN_ODD_FILL )
     {
       coverage &= 511;
 
@@ -1381,7 +1381,7 @@
         return;
       }
 
-      if ( ras.span_y != y || count >= FT_MAX_GRAY_SPANS )
+      if ( ras.span_y != y || count >= QT_FT_MAX_GRAY_SPANS )
       {
         if ( ras.render_span && count > 0 )
           ras.render_span( ras.span_y, count, ras.gray_spans,
@@ -1424,13 +1424,13 @@
 
 
   static void
-  gray_sweep( RAS_ARG_ FT_Bitmap*  target )
+  gray_sweep( RAS_ARG_ QT_FT_Bitmap*  target )
   {
     TCoord  x, y, cover;
     TArea   area;
     PCell   start, cur, limit;
 
-    FT_UNUSED( target );
+    QT_FT_UNUSED( target );
 
 
     if ( ras.num_cells == 0 )
@@ -1503,7 +1503,7 @@
 
     {
       int       n;
-      FT_Span*  span;
+      QT_FT_Span*  span;
 
 
       fprintf( stderr, "y=%3d ", ras.span_y );
@@ -1529,7 +1529,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    FT_Outline_Decompose                                               */
+  /*    QT_FT_Outline_Decompose                                               */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Walks over an outline's structure to decompose it into individual  */
@@ -1553,8 +1553,8 @@
   /*    Error code.  0 means sucess.                                       */
   /*                                                                       */
   static
-  int  FT_Outline_Decompose( FT_Outline*              outline,
-                             const FT_Outline_Funcs*  func_interface,
+  int  QT_FT_Outline_Decompose( QT_FT_Outline*              outline,
+                             const QT_FT_Outline_Funcs*  func_interface,
                              void*                    user )
   {
 #undef SCALED
@@ -1564,12 +1564,12 @@
 #define SCALED( x )  (x)
 #endif
 
-    FT_Vector   v_last;
-    FT_Vector   v_control;
-    FT_Vector   v_start;
+    QT_FT_Vector   v_last;
+    QT_FT_Vector   v_control;
+    QT_FT_Vector   v_start;
 
-    FT_Vector*  point;
-    FT_Vector*  limit;
+    QT_FT_Vector*  point;
+    QT_FT_Vector*  limit;
     char*       tags;
 
     int   n;         /* index of contour in outline     */
@@ -1603,17 +1603,17 @@
 
       point = outline->points + first;
       tags  = outline->tags  + first;
-      tag   = FT_CURVE_TAG( tags[0] );
+      tag   = QT_FT_CURVE_TAG( tags[0] );
 
       /* A contour cannot start with a cubic control point! */
-      if ( tag == FT_CURVE_TAG_CUBIC )
+      if ( tag == QT_FT_CURVE_TAG_CUBIC )
         goto Invalid_Outline;
 
       /* check first point to determine origin */
-      if ( tag == FT_CURVE_TAG_CONIC )
+      if ( tag == QT_FT_CURVE_TAG_CONIC )
       {
         /* first point is conic control.  Yes, this happens. */
-        if ( FT_CURVE_TAG( outline->tags[last] ) == FT_CURVE_TAG_ON )
+        if ( QT_FT_CURVE_TAG( outline->tags[last] ) == QT_FT_CURVE_TAG_ON )
         {
           /* start at last point if it is on the curve */
           v_start = v_last;
@@ -1642,12 +1642,12 @@
         point++;
         tags++;
 
-        tag = FT_CURVE_TAG( tags[0] );
+        tag = QT_FT_CURVE_TAG( tags[0] );
         switch ( tag )
         {
-        case FT_CURVE_TAG_ON:  /* emit a single line_to */
+        case QT_FT_CURVE_TAG_ON:  /* emit a single line_to */
           {
-            FT_Vector  vec;
+            QT_FT_Vector  vec;
 
 
             vec.x = SCALED( point->x );
@@ -1659,7 +1659,7 @@
             continue;
           }
 
-        case FT_CURVE_TAG_CONIC:  /* consume conic arcs */
+        case QT_FT_CURVE_TAG_CONIC:  /* consume conic arcs */
           {
             v_control.x = SCALED( point->x );
             v_control.y = SCALED( point->y );
@@ -1667,18 +1667,18 @@
           Do_Conic:
             if ( point < limit )
             {
-              FT_Vector  vec;
-              FT_Vector  v_middle;
+              QT_FT_Vector  vec;
+              QT_FT_Vector  v_middle;
 
 
               point++;
               tags++;
-              tag = FT_CURVE_TAG( tags[0] );
+              tag = QT_FT_CURVE_TAG( tags[0] );
 
               vec.x = SCALED( point->x );
               vec.y = SCALED( point->y );
 
-              if ( tag == FT_CURVE_TAG_ON )
+              if ( tag == QT_FT_CURVE_TAG_ON )
               {
                 error = func_interface->conic_to( &v_control, &vec, user );
                 if ( error )
@@ -1686,7 +1686,7 @@
                 continue;
               }
 
-              if ( tag != FT_CURVE_TAG_CONIC )
+              if ( tag != QT_FT_CURVE_TAG_CONIC )
                 goto Invalid_Outline;
 
               v_middle.x = ( v_control.x + vec.x ) / 2;
@@ -1704,13 +1704,13 @@
             goto Close;
           }
 
-        default:  /* FT_CURVE_TAG_CUBIC */
+        default:  /* QT_FT_CURVE_TAG_CUBIC */
           {
-            FT_Vector  vec1, vec2;
+            QT_FT_Vector  vec1, vec2;
 
 
             if ( point + 1 > limit                             ||
-                 FT_CURVE_TAG( tags[1] ) != FT_CURVE_TAG_CUBIC )
+                 QT_FT_CURVE_TAG( tags[1] ) != QT_FT_CURVE_TAG_CUBIC )
               goto Invalid_Outline;
 
             point += 2;
@@ -1721,7 +1721,7 @@
 
             if ( point <= limit )
             {
-              FT_Vector  vec;
+              QT_FT_Vector  vec;
 
 
               vec.x = SCALED( point->x );
@@ -1770,21 +1770,21 @@
   gray_convert_glyph_inner( RAS_ARG )
   {
     static
-    const FT_Outline_Funcs  func_interface =
+    const QT_FT_Outline_Funcs  func_interface =
     {
-      (FT_Outline_MoveTo_Func) gray_move_to,
-      (FT_Outline_LineTo_Func) gray_line_to,
-      (FT_Outline_ConicTo_Func)gray_conic_to,
-      (FT_Outline_CubicTo_Func)gray_cubic_to,
+      (QT_FT_Outline_MoveTo_Func) gray_move_to,
+      (QT_FT_Outline_LineTo_Func) gray_line_to,
+      (QT_FT_Outline_ConicTo_Func)gray_conic_to,
+      (QT_FT_Outline_CubicTo_Func)gray_cubic_to,
       0,
       0
     };
 
     volatile int  error = 0;
 
-    if ( ft_setjmp( ras.jump_buffer ) == 0 )
+    if ( qt_ft_setjmp( ras.jump_buffer ) == 0 )
     {
-      error = FT_Outline_Decompose( &ras.outline, &func_interface, &ras );
+      error = QT_FT_Outline_Decompose( &ras.outline, &func_interface, &ras );
       gray_record_cell( RAS_VAR );
     }
     else
@@ -1803,7 +1803,7 @@
     TBand* volatile  band;
     int volatile     n, num_bands;
     TPos volatile    min, max, max_y;
-    FT_BBox*         clip;
+    QT_FT_BBox*         clip;
 
 
     /* Set up state in the raster object */
@@ -1875,7 +1875,7 @@
 #if 1
         error = gray_convert_glyph_inner( RAS_VAR );
 #else
-        error = FT_Outline_Decompose( outline, &func_interface, &ras ) ||
+        error = QT_FT_Outline_Decompose( outline, &func_interface, &ras ) ||
                 gray_record_cell( RAS_VAR );
 #endif
 
@@ -1934,10 +1934,10 @@
 
   static int
   gray_raster_render( PRaster            raster,
-                      FT_Raster_Params*  params )
+                      QT_FT_Raster_Params*  params )
   {
-    FT_Outline*  outline = (FT_Outline*)params->source;
-    FT_Bitmap*   target_map = params->target;
+    QT_FT_Outline*  outline = (QT_FT_Outline*)params->source;
+    QT_FT_Bitmap*   target_map = params->target;
 
 
     if ( !raster || !raster->cells || !raster->max_cells )
@@ -1955,16 +1955,16 @@
       return ErrRaster_Invalid_Outline;
 
     /* if direct mode is not set, we must have a target bitmap */
-    if ( ( params->flags & FT_RASTER_FLAG_DIRECT ) == 0 &&
+    if ( ( params->flags & QT_FT_RASTER_FLAG_DIRECT ) == 0 &&
          ( !target_map || !target_map->buffer )         )
       return -1;
 
     /* this version does not support monochrome rendering */
-    if ( !( params->flags & FT_RASTER_FLAG_AA ) )
+    if ( !( params->flags & QT_FT_RASTER_FLAG_AA ) )
       return ErrRaster_Invalid_Mode;
 
     /* compute clipping box */
-    if ( ( params->flags & FT_RASTER_FLAG_DIRECT ) == 0 )
+    if ( ( params->flags & QT_FT_RASTER_FLAG_DIRECT ) == 0 )
     {
       /* compute clip box from target pixmap */
       ras.clip_box.xMin = 0;
@@ -1972,7 +1972,7 @@
       ras.clip_box.xMax = target_map->width;
       ras.clip_box.yMax = target_map->rows;
     }
-    else if ( params->flags & FT_RASTER_FLAG_CLIP )
+    else if ( params->flags & QT_FT_RASTER_FLAG_CLIP )
     {
       ras.clip_box = params->clip_box;
     }
@@ -1991,12 +1991,12 @@
     if ( target_map )
       ras.target = *target_map;
 
-    ras.render_span      = (FT_Raster_Span_Func)gray_render_span;
+    ras.render_span      = (QT_FT_Raster_Span_Func)gray_render_span;
     ras.render_span_data = &ras;
 
-    if ( params->flags & FT_RASTER_FLAG_DIRECT )
+    if ( params->flags & QT_FT_RASTER_FLAG_DIRECT )
     {
-      ras.render_span      = (FT_Raster_Span_Func)params->gray_spans;
+      ras.render_span      = (QT_FT_Raster_Span_Func)params->gray_spans;
       ras.render_span_data = params->user;
     }
 
@@ -2038,15 +2038,15 @@
 
   static int
   gray_raster_new( void*       memory,
-                   FT_Raster*  araster )
+                   QT_FT_Raster*  araster )
   {
     static TRaster  the_raster;
 
-    FT_UNUSED( memory );
+    QT_FT_UNUSED( memory );
 
 
-    *araster = (FT_Raster)&the_raster;
-    FT_MEM_ZERO( &the_raster, sizeof ( the_raster ) );
+    *araster = (QT_FT_Raster)&the_raster;
+    QT_FT_MEM_ZERO( &the_raster, sizeof ( the_raster ) );
 
 #ifdef GRAYS_USE_GAMMA
     grays_init_gamma( (PRaster)*araster );
@@ -2057,14 +2057,14 @@
 
 
   static void
-  gray_raster_done( FT_Raster  raster )
+  gray_raster_done( QT_FT_Raster  raster )
   {
     /* nothing */
-    FT_UNUSED( raster );
+    QT_FT_UNUSED( raster );
   }
 
   static void
-  gray_raster_reset( FT_Raster    raster,
+  gray_raster_reset( QT_FT_Raster    raster,
                      const char*  pool_base,
                      long         pool_size )
   {
@@ -2078,15 +2078,15 @@
   }
 
 
-  const FT_Raster_Funcs  qt_ft_grays_raster =
+  const QT_FT_Raster_Funcs  qt_ft_grays_raster =
   {
-    FT_GLYPH_FORMAT_OUTLINE,
+    QT_FT_GLYPH_FORMAT_OUTLINE,
 
-    (FT_Raster_New_Func)     gray_raster_new,
-    (FT_Raster_Reset_Func)   gray_raster_reset,
-    (FT_Raster_Set_Mode_Func)0,
-    (FT_Raster_Render_Func)  gray_raster_render,
-    (FT_Raster_Done_Func)    gray_raster_done
+    (QT_FT_Raster_New_Func)     gray_raster_new,
+    (QT_FT_Raster_Reset_Func)   gray_raster_reset,
+    (QT_FT_Raster_Set_Mode_Func)0,
+    (QT_FT_Raster_Render_Func)  gray_raster_render,
+    (QT_FT_Raster_Done_Func)    gray_raster_done
   };
 
 

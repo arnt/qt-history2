@@ -19,15 +19,15 @@
   /*************************************************************************/
   /*                                                                       */
   /* Note: A `raster' is simply a scan-line converter, used to render      */
-  /*       FT_Outlines into FT_Bitmaps.                                    */
+  /*       QT_FT_Outlines into QT_FT_Bitmaps.                                    */
   /*                                                                       */
   /*************************************************************************/
 
 
-#ifndef __FTIMAGE_H__
-#define __FTIMAGE_H__
+#ifndef __QT_FTIMAGE_H__
+#define __QT_FTIMAGE_H__
 
-FT_BEGIN_HEADER
+QT_FT_BEGIN_HEADER
 
 
   /*************************************************************************/
@@ -41,42 +41,42 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* <Type>                                                                */
-  /*    FT_Pos                                                             */
+  /*    QT_FT_Pos                                                             */
   /*                                                                       */
   /* <Description>                                                         */
-  /*    The type FT_Pos is a 32-bit integer used to store vectorial        */
+  /*    The type QT_FT_Pos is a 32-bit integer used to store vectorial        */
   /*    coordinates.  Depending on the context, these can represent        */
   /*    distances in integer font units, or 16,16, or 26.6 fixed float     */
   /*    pixel coordinates.                                                 */
   /*                                                                       */
-  typedef signed long  FT_Pos;
+  typedef signed long  QT_FT_Pos;
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <Struct>                                                              */
-  /*    FT_Vector                                                          */
+  /*    QT_FT_Vector                                                          */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A simple structure used to store a 2D vector; coordinates are of   */
-  /*    the FT_Pos type.                                                   */
+  /*    the QT_FT_Pos type.                                                   */
   /*                                                                       */
   /* <Fields>                                                              */
   /*    x :: The horizontal coordinate.                                    */
   /*    y :: The vertical coordinate.                                      */
   /*                                                                       */
-  typedef struct  FT_Vector_
+  typedef struct  QT_FT_Vector_
   {
-    FT_Pos  x;
-    FT_Pos  y;
+    QT_FT_Pos  x;
+    QT_FT_Pos  y;
 
-  } FT_Vector;
+  } QT_FT_Vector;
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <Struct>                                                              */
-  /*    FT_BBox                                                            */
+  /*    QT_FT_BBox                                                            */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A structure used to hold an outline's bounding box, i.e., the      */
@@ -92,18 +92,18 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    yMax :: The vertical maximum (top-most).                           */
   /*                                                                       */
-  typedef struct  FT_BBox_
+  typedef struct  QT_FT_BBox_
   {
-    FT_Pos  xMin, yMin;
-    FT_Pos  xMax, yMax;
+    QT_FT_Pos  xMin, yMin;
+    QT_FT_Pos  xMax, yMax;
 
-  } FT_BBox;
+  } QT_FT_BBox;
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <Enum>                                                                */
-  /*    FT_Pixel_Mode                                                      */
+  /*    QT_FT_Pixel_Mode                                                      */
   /*                                                                       */
   /* <Description>                                                         */
   /*    An enumeration type used to describe the format of pixels in a     */
@@ -111,78 +111,78 @@ FT_BEGIN_HEADER
   /*    future.                                                            */
   /*                                                                       */
   /* <Values>                                                              */
-  /*    FT_PIXEL_MODE_NONE ::                                              */
+  /*    QT_FT_PIXEL_MODE_NONE ::                                              */
   /*      Value 0 is reserved.                                             */
   /*                                                                       */
-  /*    FT_PIXEL_MODE_MONO ::                                              */
+  /*    QT_FT_PIXEL_MODE_MONO ::                                              */
   /*      A monochrome bitmap, using 1 bit per pixel.  Note that pixels    */
   /*      are stored in most-significant order (MSB), which means that     */
   /*      the left-most pixel in a byte has value 128.                     */
   /*                                                                       */
-  /*    FT_PIXEL_MODE_GRAY ::                                              */
+  /*    QT_FT_PIXEL_MODE_GRAY ::                                              */
   /*      An 8-bit bitmap, generally used to represent anti-aliased glyph  */
   /*      images.  Each pixel is stored in one byte.  Note that the number */
   /*      of value "gray" levels is stored in the `num_bytes' field of     */
-  /*      the @FT_Bitmap structure (it generally is 256).                  */
+  /*      the @QT_FT_Bitmap structure (it generally is 256).                  */
   /*                                                                       */
-  /*    FT_PIXEL_MODE_GRAY2 ::                                             */
+  /*    QT_FT_PIXEL_MODE_GRAY2 ::                                             */
   /*      A 2-bit/pixel bitmap, used to represent embedded anti-aliased    */
   /*      bitmaps in font files according to the OpenType specification.   */
   /*      We haven't found a single font using this format, however.       */
   /*                                                                       */
-  /*    FT_PIXEL_MODE_GRAY4 ::                                             */
+  /*    QT_FT_PIXEL_MODE_GRAY4 ::                                             */
   /*      A 4-bit/pixel bitmap, used to represent embedded anti-aliased    */
   /*      bitmaps in font files according to the OpenType specification.   */
   /*      We haven't found a single font using this format, however.       */
   /*                                                                       */
-  /*    FT_PIXEL_MODE_LCD ::                                               */
+  /*    QT_FT_PIXEL_MODE_LCD ::                                               */
   /*      An 8-bit bitmap, used to represent RGB or BGR decimated glyph    */
   /*      images used for display on LCD displays; the bitmap's width is   */
   /*      three times wider than the original glyph image.  See also       */
-  /*      @FT_RENDER_MODE_LCD.                                             */
+  /*      @QT_FT_RENDER_MODE_LCD.                                             */
   /*                                                                       */
-  /*    FT_PIXEL_MODE_LCD_V ::                                             */
+  /*    QT_FT_PIXEL_MODE_LCD_V ::                                             */
   /*      An 8-bit bitmap, used to represent RGB or BGR decimated glyph    */
   /*      images used for display on rotated LCD displays; the bitmap's    */
   /*      height is three times taller than the original glyph image.      */
-  /*      See also @FT_RENDER_MODE_LCD_V.                                  */
+  /*      See also @QT_FT_RENDER_MODE_LCD_V.                                  */
   /*                                                                       */
-  typedef enum  FT_Pixel_Mode_
+  typedef enum  QT_FT_Pixel_Mode_
   {
-    FT_PIXEL_MODE_NONE = 0,
-    FT_PIXEL_MODE_MONO,
-    FT_PIXEL_MODE_GRAY,
-    FT_PIXEL_MODE_GRAY2,
-    FT_PIXEL_MODE_GRAY4,
-    FT_PIXEL_MODE_LCD,
-    FT_PIXEL_MODE_LCD_V,
+    QT_FT_PIXEL_MODE_NONE = 0,
+    QT_FT_PIXEL_MODE_MONO,
+    QT_FT_PIXEL_MODE_GRAY,
+    QT_FT_PIXEL_MODE_GRAY2,
+    QT_FT_PIXEL_MODE_GRAY4,
+    QT_FT_PIXEL_MODE_LCD,
+    QT_FT_PIXEL_MODE_LCD_V,
 
-    FT_PIXEL_MODE_MAX      /* do not remove */
+    QT_FT_PIXEL_MODE_MAX      /* do not remove */
 
-  } FT_Pixel_Mode;
+  } QT_FT_Pixel_Mode;
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <Enum>                                                                */
-  /*    ft_pixel_mode_xxx                                                  */
+  /*    qt_ft_pixel_mode_xxx                                                  */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A list of deprecated constants.  Use the corresponding             */
-  /*    @FT_Pixel_Mode values instead.                                     */
+  /*    @QT_FT_Pixel_Mode values instead.                                     */
   /*                                                                       */
   /* <Values>                                                              */
-  /*    ft_pixel_mode_none  :: see @FT_PIXEL_MODE_NONE                     */
-  /*    ft_pixel_mode_mono  :: see @FT_PIXEL_MODE_MONO                     */
-  /*    ft_pixel_mode_grays :: see @FT_PIXEL_MODE_GRAY                     */
-  /*    ft_pixel_mode_pal2  :: see @FT_PIXEL_MODE_GRAY2                    */
-  /*    ft_pixel_mode_pal4  :: see @FT_PIXEL_MODE_GRAY4                    */
+  /*    qt_ft_pixel_mode_none  :: see @QT_FT_PIXEL_MODE_NONE                     */
+  /*    qt_ft_pixel_mode_mono  :: see @QT_FT_PIXEL_MODE_MONO                     */
+  /*    qt_ft_pixel_mode_grays :: see @QT_FT_PIXEL_MODE_GRAY                     */
+  /*    qt_ft_pixel_mode_pal2  :: see @QT_FT_PIXEL_MODE_GRAY2                    */
+  /*    qt_ft_pixel_mode_pal4  :: see @QT_FT_PIXEL_MODE_GRAY4                    */
   /*                                                                       */
-#define ft_pixel_mode_none   FT_PIXEL_MODE_NONE
-#define ft_pixel_mode_mono   FT_PIXEL_MODE_MONO
-#define ft_pixel_mode_grays  FT_PIXEL_MODE_GRAY
-#define ft_pixel_mode_pal2   FT_PIXEL_MODE_GRAY2
-#define ft_pixel_mode_pal4   FT_PIXEL_MODE_GRAY4
+#define qt_ft_pixel_mode_none   QT_FT_PIXEL_MODE_NONE
+#define qt_ft_pixel_mode_mono   QT_FT_PIXEL_MODE_MONO
+#define qt_ft_pixel_mode_grays  QT_FT_PIXEL_MODE_GRAY
+#define qt_ft_pixel_mode_pal2   QT_FT_PIXEL_MODE_GRAY2
+#define qt_ft_pixel_mode_pal4   QT_FT_PIXEL_MODE_GRAY4
 
  /* */
 
@@ -191,33 +191,33 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* <Enum>                                                                */
-  /*    FT_Palette_Mode                                                    */
+  /*    QT_FT_Palette_Mode                                                    */
   /*                                                                       */
   /* <Description>                                                         */
   /*    THIS TYPE IS DEPRECATED.  DO NOT USE IT!                           */
   /*                                                                       */
   /*    An enumeration type used to describe the format of a bitmap        */
-  /*    palette, used with ft_pixel_mode_pal4 and ft_pixel_mode_pal8.      */
+  /*    palette, used with qt_ft_pixel_mode_pal4 and qt_ft_pixel_mode_pal8.      */
   /*                                                                       */
   /* <Fields>                                                              */
-  /*    ft_palette_mode_rgb  :: The palette is an array of 3-bytes RGB     */
+  /*    qt_ft_palette_mode_rgb  :: The palette is an array of 3-bytes RGB     */
   /*                            records.                                   */
   /*                                                                       */
-  /*    ft_palette_mode_rgba :: The palette is an array of 4-bytes RGBA    */
+  /*    qt_ft_palette_mode_rgba :: The palette is an array of 4-bytes RGBA    */
   /*                            records.                                   */
   /*                                                                       */
   /* <Note>                                                                */
-  /*    As ft_pixel_mode_pal2, pal4 and pal8 are currently unused by       */
+  /*    As qt_ft_pixel_mode_pal2, pal4 and pal8 are currently unused by       */
   /*    FreeType, these types are not handled by the library itself.       */
   /*                                                                       */
-  typedef enum  FT_Palette_Mode_
+  typedef enum  QT_FT_Palette_Mode_
   {
-    ft_palette_mode_rgb = 0,
-    ft_palette_mode_rgba,
+    qt_ft_palette_mode_rgb = 0,
+    qt_ft_palette_mode_rgba,
 
-    ft_palettte_mode_max   /* do not remove */
+    qt_ft_palettte_mode_max   /* do not remove */
 
-  } FT_Palette_Mode;
+  } QT_FT_Palette_Mode;
 
   /* */
 
@@ -227,7 +227,7 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* <Struct>                                                              */
-  /*    FT_Bitmap                                                          */
+  /*    QT_FT_Bitmap                                                          */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A structure used to describe a bitmap or pixmap to the raster.     */
@@ -251,11 +251,11 @@ FT_BEGIN_HEADER
   /*                    most cases.                                        */
   /*                                                                       */
   /*    num_grays    :: This field is only used with                       */
-  /*                    `FT_PIXEL_MODE_GRAY'; it gives the number of gray  */
+  /*                    `QT_FT_PIXEL_MODE_GRAY'; it gives the number of gray  */
   /*                    levels used in the bitmap.                         */
   /*                                                                       */
   /*    pixel_mode   :: The pixel mode, i.e., how pixel bits are stored.   */
-  /*                    See @FT_Pixel_Mode for possible values.            */
+  /*                    See @QT_FT_Pixel_Mode for possible values.            */
   /*                                                                       */
   /*    palette_mode :: This field is only used with paletted pixel modes; */
   /*                    it indicates how the palette is stored.            */
@@ -276,7 +276,7 @@ FT_BEGIN_HEADER
   /*   Note that no font was found presenting such embedded bitmaps, so    */
   /*   this is currently completely unhandled by the library.              */
   /*                                                                       */
-  typedef struct  FT_Bitmap_
+  typedef struct  QT_FT_Bitmap_
   {
     int             rows;
     int             width;
@@ -287,7 +287,7 @@ FT_BEGIN_HEADER
     char            palette_mode;
     void*           palette;
 
-  } FT_Bitmap;
+  } QT_FT_Bitmap;
 
 
   /*************************************************************************/
@@ -301,7 +301,7 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* <Struct>                                                              */
-  /*    FT_Outline                                                         */
+  /*    QT_FT_Outline                                                         */
   /*                                                                       */
   /* <Description>                                                         */
   /*    This structure is used to describe an outline to the scan-line     */
@@ -312,7 +312,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    n_points   :: The number of points in the outline.                 */
   /*                                                                       */
-  /*    points     :: A pointer to an array of `n_points' FT_Vector        */
+  /*    points     :: A pointer to an array of `n_points' QT_FT_Vector        */
   /*                  elements, giving the outline's point coordinates.    */
   /*                                                                       */
   /*    tags       :: A pointer to an array of `n_points' chars, giving    */
@@ -332,48 +332,48 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    flags      :: A set of bit flags used to characterize the outline  */
   /*                  and give hints to the scan-converter and hinter on   */
-  /*                  how to convert/grid-fit it.  See FT_Outline_Flags.   */
+  /*                  how to convert/grid-fit it.  See QT_FT_Outline_Flags.   */
   /*                                                                       */
-  typedef struct  FT_Outline_
+  typedef struct  QT_FT_Outline_
   {
     short       n_contours;      /* number of contours in glyph        */
     short       n_points;        /* number of points in the glyph      */
 
-    FT_Vector*  points;          /* the outline's points               */
+    QT_FT_Vector*  points;          /* the outline's points               */
     char*       tags;            /* the points flags                   */
     short*      contours;        /* the contour end points             */
 
     int         flags;           /* outline masks                      */
 
-  } FT_Outline;
+  } QT_FT_Outline;
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <Enum>                                                                */
-  /*   FT_OUTLINE_FLAGS                                                    */
+  /*   QT_FT_OUTLINE_FLAGS                                                    */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A list of bit-field constants use for the flags in an outline's    */
   /*    `flags' field.                                                     */
   /*                                                                       */
   /* <Values>                                                              */
-  /*    FT_OUTLINE_NONE           :: Value 0 is reserved.                  */
+  /*    QT_FT_OUTLINE_NONE           :: Value 0 is reserved.                  */
   /*                                                                       */
-  /*    FT_OUTLINE_OWNER          :: If set, this flag indicates that the  */
+  /*    QT_FT_OUTLINE_OWNER          :: If set, this flag indicates that the  */
   /*                                 outline's field arrays (i.e.          */
   /*                                 `points', `flags' & `contours') are   */
   /*                                 `owned' by the outline object, and    */
   /*                                 should thus be freed when it is       */
   /*                                 destroyed.                            */
   /*                                                                       */
-  /*   FT_OUTLINE_EVEN_ODD_FILL   :: By default, outlines are filled using */
+  /*   QT_FT_OUTLINE_EVEN_ODD_FILL   :: By default, outlines are filled using */
   /*                                 the non-zero winding rule.  If set to */
   /*                                 1, the outline will be filled using   */
   /*                                 the even-odd fill rule (only works    */
   /*                                 with the smooth raster).              */
   /*                                                                       */
-  /*   FT_OUTLINE_REVERSE_FILL    :: By default, outside contours of an    */
+  /*   QT_FT_OUTLINE_REVERSE_FILL    :: By default, outside contours of an    */
   /*                                 outline are oriented in clock-wise    */
   /*                                 direction, as defined in the TrueType */
   /*                                 specification.  This flag is set if   */
@@ -383,14 +383,14 @@ FT_BEGIN_HEADER
   /*                                 scan-converter.  However, it is very  */
   /*                                 important for the auto-hinter.        */
   /*                                                                       */
-  /*   FT_OUTLINE_IGNORE_DROPOUTS :: By default, the scan converter will   */
+  /*   QT_FT_OUTLINE_IGNORE_DROPOUTS :: By default, the scan converter will   */
   /*                                 try to detect drop-outs in an outline */
   /*                                 and correct the glyph bitmap to       */
   /*                                 ensure consistent shape continuity.   */
   /*                                 If set, this flag hints the scan-line */
   /*                                 converter to ignore such cases.       */
   /*                                                                       */
-  /*   FT_OUTLINE_HIGH_PRECISION  :: This flag indicates that the          */
+  /*   QT_FT_OUTLINE_HIGH_PRECISION  :: This flag indicates that the          */
   /*                                 scan-line converter should try to     */
   /*                                 convert this outline to bitmaps with  */
   /*                                 the highest possible quality.  It is  */
@@ -399,7 +399,7 @@ FT_BEGIN_HEADER
   /*                                 hint, that might be completely        */
   /*                                 ignored by a given scan-converter.    */
   /*                                                                       */
-  /*   FT_OUTLINE_SINGLE_PASS     :: This flag is set to force a given     */
+  /*   QT_FT_OUTLINE_SINGLE_PASS     :: This flag is set to force a given     */
   /*                                 scan-converter to only use a single   */
   /*                                 pass over the outline to render a     */
   /*                                 bitmap glyph image.  Normally, it is  */
@@ -408,66 +408,66 @@ FT_BEGIN_HEADER
   /*                                 completely ignored by a given         */
   /*                                 scan-converter.                       */
   /*                                                                       */
-#define FT_OUTLINE_NONE             0x0
-#define FT_OUTLINE_OWNER            0x1
-#define FT_OUTLINE_EVEN_ODD_FILL    0x2
-#define FT_OUTLINE_REVERSE_FILL     0x4
-#define FT_OUTLINE_IGNORE_DROPOUTS  0x8
+#define QT_FT_OUTLINE_NONE             0x0
+#define QT_FT_OUTLINE_OWNER            0x1
+#define QT_FT_OUTLINE_EVEN_ODD_FILL    0x2
+#define QT_FT_OUTLINE_REVERSE_FILL     0x4
+#define QT_FT_OUTLINE_IGNORE_DROPOUTS  0x8
 
-#define FT_OUTLINE_HIGH_PRECISION   0x100
-#define FT_OUTLINE_SINGLE_PASS      0x200
+#define QT_FT_OUTLINE_HIGH_PRECISION   0x100
+#define QT_FT_OUTLINE_SINGLE_PASS      0x200
 
 
  /*************************************************************************
   *
   * @enum:
-  *   ft_outline_flags
+  *   qt_ft_outline_flags
   *
   * @description:
   *   These constants are deprecated.  Please use the corresponding
-  *   @FT_OUTLINE_FLAGS values.
+  *   @QT_FT_OUTLINE_FLAGS values.
   *
   * @values:
-  *   ft_outline_none            :: See @FT_OUTLINE_NONE.
-  *   ft_outline_owner           :: See @FT_OUTLINE_OWNER.
-  *   ft_outline_even_odd_fill   :: See @FT_OUTLINE_EVEN_ODD_FILL.
-  *   ft_outline_reverse_fill    :: See @FT_OUTLINE_REVERSE_FILL.
-  *   ft_outline_ignore_dropouts :: See @FT_OUTLINE_IGNORE_DROPOUTS.
-  *   ft_outline_high_precision  :: See @FT_OUTLINE_HIGH_PRECISION.
-  *   ft_outline_single_pass     :: See @FT_OUTLINE_SINGLE_PASS.
+  *   qt_ft_outline_none            :: See @QT_FT_OUTLINE_NONE.
+  *   qt_ft_outline_owner           :: See @QT_FT_OUTLINE_OWNER.
+  *   qt_ft_outline_even_odd_fill   :: See @QT_FT_OUTLINE_EVEN_ODD_FILL.
+  *   qt_ft_outline_reverse_fill    :: See @QT_FT_OUTLINE_REVERSE_FILL.
+  *   qt_ft_outline_ignore_dropouts :: See @QT_FT_OUTLINE_IGNORE_DROPOUTS.
+  *   qt_ft_outline_high_precision  :: See @QT_FT_OUTLINE_HIGH_PRECISION.
+  *   qt_ft_outline_single_pass     :: See @QT_FT_OUTLINE_SINGLE_PASS.
   */
-#define ft_outline_none             FT_OUTLINE_NONE
-#define ft_outline_owner            FT_OUTLINE_OWNER
-#define ft_outline_even_odd_fill    FT_OUTLINE_EVEN_ODD_FILL
-#define ft_outline_reverse_fill     FT_OUTLINE_REVERSE_FILL
-#define ft_outline_ignore_dropouts  FT_OUTLINE_IGNORE_DROPOUTS
-#define ft_outline_high_precision   FT_OUTLINE_HIGH_PRECISION
-#define ft_outline_single_pass      FT_OUTLINE_SINGLE_PASS
+#define qt_ft_outline_none             QT_FT_OUTLINE_NONE
+#define qt_ft_outline_owner            QT_FT_OUTLINE_OWNER
+#define qt_ft_outline_even_odd_fill    QT_FT_OUTLINE_EVEN_ODD_FILL
+#define qt_ft_outline_reverse_fill     QT_FT_OUTLINE_REVERSE_FILL
+#define qt_ft_outline_ignore_dropouts  QT_FT_OUTLINE_IGNORE_DROPOUTS
+#define qt_ft_outline_high_precision   QT_FT_OUTLINE_HIGH_PRECISION
+#define qt_ft_outline_single_pass      QT_FT_OUTLINE_SINGLE_PASS
 
   /* */
 
-#define FT_CURVE_TAG( flag )  ( flag & 3 )
+#define QT_FT_CURVE_TAG( flag )  ( flag & 3 )
 
-#define FT_CURVE_TAG_ON           1
-#define FT_CURVE_TAG_CONIC        0
-#define FT_CURVE_TAG_CUBIC        2
+#define QT_FT_CURVE_TAG_ON           1
+#define QT_FT_CURVE_TAG_CONIC        0
+#define QT_FT_CURVE_TAG_CUBIC        2
 
-#define FT_CURVE_TAG_TOUCH_X      8  /* reserved for the TrueType hinter */
-#define FT_CURVE_TAG_TOUCH_Y     16  /* reserved for the TrueType hinter */
+#define QT_FT_CURVE_TAG_TOUCH_X      8  /* reserved for the TrueType hinter */
+#define QT_FT_CURVE_TAG_TOUCH_Y     16  /* reserved for the TrueType hinter */
 
-#define FT_CURVE_TAG_TOUCH_BOTH  ( FT_CURVE_TAG_TOUCH_X | \
-                                   FT_CURVE_TAG_TOUCH_Y )
+#define QT_FT_CURVE_TAG_TOUCH_BOTH  ( QT_FT_CURVE_TAG_TOUCH_X | \
+                                   QT_FT_CURVE_TAG_TOUCH_Y )
 
-#define  FT_Curve_Tag_On       FT_CURVE_TAG_ON
-#define  FT_Curve_Tag_Conic    FT_CURVE_TAG_CONIC
-#define  FT_Curve_Tag_Cubic    FT_CURVE_TAG_CUBIC
-#define  FT_Curve_Tag_Touch_X  FT_CURVE_TAG_TOUCH_X
-#define  FT_Curve_Tag_Touch_Y  FT_CURVE_TAG_TOUCH_Y
+#define  QT_FT_Curve_Tag_On       QT_FT_CURVE_TAG_ON
+#define  QT_FT_Curve_Tag_Conic    QT_FT_CURVE_TAG_CONIC
+#define  QT_FT_Curve_Tag_Cubic    QT_FT_CURVE_TAG_CUBIC
+#define  QT_FT_Curve_Tag_Touch_X  QT_FT_CURVE_TAG_TOUCH_X
+#define  QT_FT_Curve_Tag_Touch_Y  QT_FT_CURVE_TAG_TOUCH_Y
 
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_Outline_MoveToFunc                                              */
+  /*    QT_FT_Outline_MoveToFunc                                              */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A function pointer type used to describe the signature of a `move  */
@@ -485,15 +485,15 @@ FT_BEGIN_HEADER
   /*    Error code.  0 means success.                                      */
   /*                                                                       */
   typedef int
-  (*FT_Outline_MoveToFunc)( FT_Vector*  to,
+  (*QT_FT_Outline_MoveToFunc)( QT_FT_Vector*  to,
                             void*       user );
 
-#define FT_Outline_MoveTo_Func  FT_Outline_MoveToFunc
+#define QT_FT_Outline_MoveTo_Func  QT_FT_Outline_MoveToFunc
 
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_Outline_LineToFunc                                              */
+  /*    QT_FT_Outline_LineToFunc                                              */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A function pointer type used to describe the signature of a `line  */
@@ -511,15 +511,15 @@ FT_BEGIN_HEADER
   /*    Error code.  0 means success.                                      */
   /*                                                                       */
   typedef int
-  (*FT_Outline_LineToFunc)( FT_Vector*  to,
+  (*QT_FT_Outline_LineToFunc)( QT_FT_Vector*  to,
                             void*       user );
 
-#define  FT_Outline_LineTo_Func  FT_Outline_LineToFunc
+#define  QT_FT_Outline_LineTo_Func  QT_FT_Outline_LineToFunc
 
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_Outline_ConicToFunc                                             */
+  /*    QT_FT_Outline_ConicToFunc                                             */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A function pointer type use to describe the signature of a `conic  */
@@ -541,16 +541,16 @@ FT_BEGIN_HEADER
   /*    Error code.  0 means success.                                      */
   /*                                                                       */
   typedef int
-  (*FT_Outline_ConicToFunc)( FT_Vector*  control,
-                             FT_Vector*  to,
+  (*QT_FT_Outline_ConicToFunc)( QT_FT_Vector*  control,
+                             QT_FT_Vector*  to,
                              void*       user );
 
-#define  FT_Outline_ConicTo_Func  FT_Outline_ConicToFunc
+#define  QT_FT_Outline_ConicTo_Func  QT_FT_Outline_ConicToFunc
 
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_Outline_CubicToFunc                                             */
+  /*    QT_FT_Outline_CubicToFunc                                             */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A function pointer type used to describe the signature of a `cubic */
@@ -572,18 +572,18 @@ FT_BEGIN_HEADER
   /*    Error code.  0 means success.                                      */
   /*                                                                       */
   typedef int
-  (*FT_Outline_CubicToFunc)( FT_Vector*  control1,
-                             FT_Vector*  control2,
-                             FT_Vector*  to,
+  (*QT_FT_Outline_CubicToFunc)( QT_FT_Vector*  control1,
+                             QT_FT_Vector*  control2,
+                             QT_FT_Vector*  to,
                              void*       user );
 
-#define  FT_Outline_CubicTo_Func  FT_Outline_CubicToFunc
+#define  QT_FT_Outline_CubicTo_Func  QT_FT_Outline_CubicToFunc
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <Struct>                                                              */
-  /*    FT_Outline_Funcs                                                   */
+  /*    QT_FT_Outline_Funcs                                                   */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A structure to hold various function pointers used during outline  */
@@ -616,17 +616,17 @@ FT_BEGIN_HEADER
   /*    Set the value of `shift' and `delta' to 0 to get the original      */
   /*    point coordinates.                                                 */
   /*                                                                       */
-  typedef struct  FT_Outline_Funcs_
+  typedef struct  QT_FT_Outline_Funcs_
   {
-    FT_Outline_MoveToFunc   move_to;
-    FT_Outline_LineToFunc   line_to;
-    FT_Outline_ConicToFunc  conic_to;
-    FT_Outline_CubicToFunc  cubic_to;
+    QT_FT_Outline_MoveToFunc   move_to;
+    QT_FT_Outline_LineToFunc   line_to;
+    QT_FT_Outline_ConicToFunc  conic_to;
+    QT_FT_Outline_CubicToFunc  cubic_to;
 
     int                     shift;
-    FT_Pos                  delta;
+    QT_FT_Pos                  delta;
 
-  } FT_Outline_Funcs;
+  } QT_FT_Outline_Funcs;
 
 
   /*************************************************************************/
@@ -640,7 +640,7 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* <Macro>                                                               */
-  /*    FT_IMAGE_TAG                                                       */
+  /*    QT_FT_IMAGE_TAG                                                       */
   /*                                                                       */
   /* <Description>                                                         */
   /*    This macro converts four letter tags into an unsigned long.        */
@@ -650,23 +650,23 @@ FT_BEGIN_HEADER
   /*    should redefine this macro in case of problems to something like   */
   /*    this:                                                              */
   /*                                                                       */
-  /*      #define FT_IMAGE_TAG( value, _x1, _x2, _x3, _x4 )  value         */
+  /*      #define QT_FT_IMAGE_TAG( value, _x1, _x2, _x3, _x4 )  value         */
   /*                                                                       */
   /*    to get a simple enumeration without assigning special numbers.     */
   /*                                                                       */
-#ifndef FT_IMAGE_TAG
-#define FT_IMAGE_TAG( value, _x1, _x2, _x3, _x4 )  \
+#ifndef QT_FT_IMAGE_TAG
+#define QT_FT_IMAGE_TAG( value, _x1, _x2, _x3, _x4 )  \
           value = ( ( (unsigned long)_x1 << 24 ) | \
                     ( (unsigned long)_x2 << 16 ) | \
                     ( (unsigned long)_x3 << 8  ) | \
                       (unsigned long)_x4         )
-#endif /* FT_IMAGE_TAG */
+#endif /* QT_FT_IMAGE_TAG */
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <Enum>                                                                */
-  /*    FT_Glyph_Format                                                    */
+  /*    QT_FT_Glyph_Format                                                    */
   /*                                                                       */
   /* <Description>                                                         */
   /*    An enumeration type used to describe the format of a given glyph   */
@@ -675,65 +675,65 @@ FT_BEGIN_HEADER
   /*    their own format.                                                  */
   /*                                                                       */
   /* <Values>                                                              */
-  /*    FT_GLYPH_FORMAT_NONE ::                                            */
+  /*    QT_FT_GLYPH_FORMAT_NONE ::                                            */
   /*      The value 0 is reserved and does describe a glyph format.        */
   /*                                                                       */
-  /*    FT_GLYPH_FORMAT_COMPOSITE ::                                       */
+  /*    QT_FT_GLYPH_FORMAT_COMPOSITE ::                                       */
   /*      The glyph image is a composite of several other images.  This    */
-  /*      format is _only_ used with @FT_LOAD_NO_RECURSE, and is used to   */
+  /*      format is _only_ used with @QT_FT_LOAD_NO_RECURSE, and is used to   */
   /*      report compound glyphs (like accented characters).               */
   /*                                                                       */
-  /*    FT_GLYPH_FORMAT_BITMAP ::                                          */
+  /*    QT_FT_GLYPH_FORMAT_BITMAP ::                                          */
   /*      The glyph image is a bitmap, and can be described as an          */
-  /*      @FT_Bitmap.  You generally need to access the `bitmap' field of  */
-  /*      the @FT_GlyphSlotRec structure to read it.                       */
+  /*      @QT_FT_Bitmap.  You generally need to access the `bitmap' field of  */
+  /*      the @QT_FT_GlyphSlotRec structure to read it.                       */
   /*                                                                       */
-  /*    FT_GLYPH_FORMAT_OUTLINE ::                                         */
+  /*    QT_FT_GLYPH_FORMAT_OUTLINE ::                                         */
   /*      The glyph image is a vertorial outline made of line segments     */
-  /*      and Bezier arcs; it can be described as an @FT_Outline; you      */
+  /*      and Bezier arcs; it can be described as an @QT_FT_Outline; you      */
   /*      generally want to access the `outline' field of the              */
-  /*      @FT_GlyphSlotRec structure to read it.                           */
+  /*      @QT_FT_GlyphSlotRec structure to read it.                           */
   /*                                                                       */
-  /*    FT_GLYPH_FORMAT_PLOTTER ::                                         */
+  /*    QT_FT_GLYPH_FORMAT_PLOTTER ::                                         */
   /*      The glyph image is a vectorial path with no inside/outside       */
   /*      contours.  Some Type 1 fonts, like those in the Hershey family,  */
   /*      contain glyphs in this format.  These are described as           */
-  /*      @FT_Outline, but FreeType isn't currently capable of rendering   */
+  /*      @QT_FT_Outline, but FreeType isn't currently capable of rendering   */
   /*      them correctly.                                                  */
   /*                                                                       */
-  typedef enum  FT_Glyph_Format_
+  typedef enum  QT_FT_Glyph_Format_
   {
-    FT_IMAGE_TAG( FT_GLYPH_FORMAT_NONE, 0, 0, 0, 0 ),
+    QT_FT_IMAGE_TAG( QT_FT_GLYPH_FORMAT_NONE, 0, 0, 0, 0 ),
 
-    FT_IMAGE_TAG( FT_GLYPH_FORMAT_COMPOSITE, 'c', 'o', 'm', 'p' ),
-    FT_IMAGE_TAG( FT_GLYPH_FORMAT_BITMAP,    'b', 'i', 't', 's' ),
-    FT_IMAGE_TAG( FT_GLYPH_FORMAT_OUTLINE,   'o', 'u', 't', 'l' ),
-    FT_IMAGE_TAG( FT_GLYPH_FORMAT_PLOTTER,   'p', 'l', 'o', 't' )
+    QT_FT_IMAGE_TAG( QT_FT_GLYPH_FORMAT_COMPOSITE, 'c', 'o', 'm', 'p' ),
+    QT_FT_IMAGE_TAG( QT_FT_GLYPH_FORMAT_BITMAP,    'b', 'i', 't', 's' ),
+    QT_FT_IMAGE_TAG( QT_FT_GLYPH_FORMAT_OUTLINE,   'o', 'u', 't', 'l' ),
+    QT_FT_IMAGE_TAG( QT_FT_GLYPH_FORMAT_PLOTTER,   'p', 'l', 'o', 't' )
 
-  } FT_Glyph_Format;
+  } QT_FT_Glyph_Format;
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <Enum>                                                                */
-  /*    ft_glyph_format_xxx                                                */
+  /*    qt_ft_glyph_format_xxx                                                */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A list of decprecated constants.  Use the corresponding            */
-  /*    @FT_Glyph_Format values instead.                                   */
+  /*    @QT_FT_Glyph_Format values instead.                                   */
   /*                                                                       */
   /* <Values>                                                              */
-  /*    ft_glyph_format_none      :: see @FT_GLYPH_FORMAT_NONE             */
-  /*    ft_glyph_format_composite :: see @FT_GLYPH_FORMAT_COMPOSITE        */
-  /*    ft_glyph_format_bitmap    :: see @FT_GLYPH_FORMAT_BITMAP           */
-  /*    ft_glyph_format_outline   :: see @FT_GLYPH_FORMAT_OUTLINE          */
-  /*    ft_glyph_format_plotter   :: see @FT_GLYPH_FORMAT_PLOTTER          */
+  /*    qt_ft_glyph_format_none      :: see @QT_FT_GLYPH_FORMAT_NONE             */
+  /*    qt_ft_glyph_format_composite :: see @QT_FT_GLYPH_FORMAT_COMPOSITE        */
+  /*    qt_ft_glyph_format_bitmap    :: see @QT_FT_GLYPH_FORMAT_BITMAP           */
+  /*    qt_ft_glyph_format_outline   :: see @QT_FT_GLYPH_FORMAT_OUTLINE          */
+  /*    qt_ft_glyph_format_plotter   :: see @QT_FT_GLYPH_FORMAT_PLOTTER          */
   /*                                                                       */
-#define ft_glyph_format_none       FT_GLYPH_FORMAT_NONE
-#define ft_glyph_format_composite  FT_GLYPH_FORMAT_COMPOSITE
-#define ft_glyph_format_bitmap     FT_GLYPH_FORMAT_BITMAP
-#define ft_glyph_format_outline    FT_GLYPH_FORMAT_OUTLINE
-#define ft_glyph_format_plotter    FT_GLYPH_FORMAT_PLOTTER
+#define qt_ft_glyph_format_none       QT_FT_GLYPH_FORMAT_NONE
+#define qt_ft_glyph_format_composite  QT_FT_GLYPH_FORMAT_COMPOSITE
+#define qt_ft_glyph_format_bitmap     QT_FT_GLYPH_FORMAT_BITMAP
+#define qt_ft_glyph_format_outline    QT_FT_GLYPH_FORMAT_OUTLINE
+#define qt_ft_glyph_format_plotter    QT_FT_GLYPH_FORMAT_PLOTTER
 
 
   /*************************************************************************/
@@ -779,19 +779,19 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* <Type>                                                                */
-  /*    FT_Raster                                                          */
+  /*    QT_FT_Raster                                                          */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A handle (pointer) to a raster object.  Each object can be used    */
   /*    independently to convert an outline into a bitmap or pixmap.       */
   /*                                                                       */
-  typedef struct FT_RasterRec_*  FT_Raster;
+  typedef struct QT_FT_RasterRec_*  QT_FT_Raster;
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <Struct>                                                              */
-  /*    FT_Span                                                            */
+  /*    QT_FT_Span                                                            */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A structure used to model a single span of gray (or black) pixels  */
@@ -808,25 +808,25 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Note>                                                                */
   /*    This structure is used by the span drawing callback type named     */
-  /*    FT_SpanFunc which takes the y-coordinate of the span as a          */
+  /*    QT_FT_SpanFunc which takes the y-coordinate of the span as a          */
   /*    a parameter.                                                       */
   /*                                                                       */
   /*    The coverage value is always between 0 and 255, even if the number */
-  /*    of gray levels have been set through FT_Set_Gray_Levels().         */
+  /*    of gray levels have been set through QT_FT_Set_Gray_Levels().         */
   /*                                                                       */
-  typedef struct  FT_Span_
+  typedef struct  QT_FT_Span_
   {
     short           x;
     unsigned short  len;
     unsigned char   coverage;
 
-  } FT_Span;
+  } QT_FT_Span;
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_SpanFunc                                                        */
+  /*    QT_FT_SpanFunc                                                        */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A function used as a call-back by the anti-aliased renderer in     */
@@ -850,7 +850,7 @@ FT_BEGIN_HEADER
   /*    given background bitmap, and even perform translucency.            */
   /*                                                                       */
   /*    Note that the `count' field cannot be greater than a fixed value   */
-  /*    defined by the FT_MAX_GRAY_SPANS configuration macro in            */
+  /*    defined by the QT_FT_MAX_GRAY_SPANS configuration macro in            */
   /*    ftoption.h.  By default, this value is set to 32, which means that */
   /*    if there are more than 32 spans on a given scanline, the callback  */
   /*    will be called several times with the same `y' parameter in order  */
@@ -860,18 +860,18 @@ FT_BEGIN_HEADER
   /*    only for those scanlines that do have `gray' pixels on them.       */
   /*                                                                       */
   typedef void
-  (*FT_SpanFunc)( int       y,
+  (*QT_FT_SpanFunc)( int       y,
                   int       count,
-                  FT_Span*  spans,
+                  QT_FT_Span*  spans,
                   void*     user );
 
-#define FT_Raster_Span_Func   FT_SpanFunc
+#define QT_FT_Raster_Span_Func   QT_FT_SpanFunc
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_Raster_BitTest_Func                                             */
+  /*    QT_FT_Raster_BitTest_Func                                             */
   /*                                                                       */
   /* <Description>                                                         */
   /*    THIS TYPE IS DEPRECATED.  DO NOT USE IT.                           */
@@ -892,7 +892,7 @@ FT_BEGIN_HEADER
   /*   1 if the pixel is `set', 0 otherwise.                               */
   /*                                                                       */
   typedef int
-  (*FT_Raster_BitTest_Func)( int    y,
+  (*QT_FT_Raster_BitTest_Func)( int    y,
                              int    x,
                              void*  user );
 
@@ -900,7 +900,7 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_Raster_BitSet_Func                                              */
+  /*    QT_FT_Raster_BitSet_Func                                              */
   /*                                                                       */
   /* <Description>                                                         */
   /*    THIS TYPE IS DEPRECATED.  DO NOT USE IT.                           */
@@ -920,7 +920,7 @@ FT_BEGIN_HEADER
   /*    1 if the pixel is `set', 0 otherwise.                              */
   /*                                                                       */
   typedef void
-  (*FT_Raster_BitSet_Func)( int    y,
+  (*QT_FT_Raster_BitSet_Func)( int    y,
                             int    x,
                             void*  user );
 
@@ -928,21 +928,21 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*                                                                       */
   /* <Enum>                                                                */
-  /*    FT_RASTER_FLAG_XXX                                                 */
+  /*    QT_FT_RASTER_FLAG_XXX                                                 */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A list of bit flag constants as used in the `flags' field of a     */
-  /*    @FT_Raster_Params structure.                                       */
+  /*    @QT_FT_Raster_Params structure.                                       */
   /*                                                                       */
   /* <Values>                                                              */
-  /*    FT_RASTER_FLAG_DEFAULT :: This value is 0.                         */
+  /*    QT_FT_RASTER_FLAG_DEFAULT :: This value is 0.                         */
   /*                                                                       */
-  /*    FT_RASTER_FLAG_AA      :: This flag is set to indicate that an     */
+  /*    QT_FT_RASTER_FLAG_AA      :: This flag is set to indicate that an     */
   /*                              anti-aliased glyph image should be       */
   /*                              generated.  Otherwise, it will be        */
   /*                              monochrome (1-bit).                      */
   /*                                                                       */
-  /*    FT_RASTER_FLAG_DIRECT  :: This flag is set to indicate direct      */
+  /*    QT_FT_RASTER_FLAG_DIRECT  :: This flag is set to indicate direct      */
   /*                              rendering.  In this mode, client         */
   /*                              applications must provide their own span */
   /*                              callback.  This lets them directly       */
@@ -954,10 +954,10 @@ FT_BEGIN_HEADER
   /*                              Note that for now, direct rendering is   */
   /*                              only possible with anti-aliased glyphs.  */
   /*                                                                       */
-  /*    FT_RASTER_FLAG_CLIP    :: This flag is only used in direct         */
+  /*    QT_FT_RASTER_FLAG_CLIP    :: This flag is only used in direct         */
   /*                              rendering mode.  If set, the output will */
   /*                              be clipped to a box specified in the     */
-  /*                              "clip_box" field of the FT_Raster_Params */
+  /*                              "clip_box" field of the QT_FT_Raster_Params */
   /*                              structure.                               */
   /*                                                                       */
   /*                              Note that by default, the glyph bitmap   */
@@ -965,22 +965,22 @@ FT_BEGIN_HEADER
   /*                              in direct rendering mode where all spans */
   /*                              are generated if no clipping box is set. */
   /*                                                                       */
-#define FT_RASTER_FLAG_DEFAULT  0x0
-#define FT_RASTER_FLAG_AA       0x1
-#define FT_RASTER_FLAG_DIRECT   0x2
-#define FT_RASTER_FLAG_CLIP     0x4
+#define QT_FT_RASTER_FLAG_DEFAULT  0x0
+#define QT_FT_RASTER_FLAG_AA       0x1
+#define QT_FT_RASTER_FLAG_DIRECT   0x2
+#define QT_FT_RASTER_FLAG_CLIP     0x4
 
   /* deprecated */
-#define ft_raster_flag_default  FT_RASTER_FLAG_DEFAULT
-#define ft_raster_flag_aa       FT_RASTER_FLAG_AA
-#define ft_raster_flag_direct   FT_RASTER_FLAG_DIRECT
-#define ft_raster_flag_clip     FT_RASTER_FLAG_CLIP
+#define qt_ft_raster_flag_default  QT_FT_RASTER_FLAG_DEFAULT
+#define qt_ft_raster_flag_aa       QT_FT_RASTER_FLAG_AA
+#define qt_ft_raster_flag_direct   QT_FT_RASTER_FLAG_DIRECT
+#define qt_ft_raster_flag_clip     QT_FT_RASTER_FLAG_CLIP
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <Struct>                                                              */
-  /*    FT_Raster_Params                                                   */
+  /*    QT_FT_Raster_Params                                                   */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A structure to hold the arguments used by a raster's render        */
@@ -990,7 +990,7 @@ FT_BEGIN_HEADER
   /*    target      :: The target bitmap.                                  */
   /*                                                                       */
   /*    source      :: A pointer to the source glyph image (e.g. an        */
-  /*                   FT_Outline).                                        */
+  /*                   QT_FT_Outline).                                        */
   /*                                                                       */
   /*    flags       :: The rendering flags.                                */
   /*                                                                       */
@@ -1011,11 +1011,11 @@ FT_BEGIN_HEADER
   /*                   26.6 fixed-point units).                            */
   /*                                                                       */
   /* <Note>                                                                */
-  /*    An anti-aliased glyph bitmap is drawn if the FT_RASTER_FLAG_AA bit */
+  /*    An anti-aliased glyph bitmap is drawn if the QT_FT_RASTER_FLAG_AA bit */
   /*    flag is set in the `flags' field, otherwise a monochrome bitmap    */
   /*    will be generated.                                                 */
   /*                                                                       */
-  /*    If the FT_RASTER_FLAG_DIRECT bit flag is set in `flags', the       */
+  /*    If the QT_FT_RASTER_FLAG_DIRECT bit flag is set in `flags', the       */
   /*    raster will call the `gray_spans' callback to draw gray pixel      */
   /*    spans, in the case of an aa glyph bitmap, it will call             */
   /*    `black_spans', and `bit_test' and `bit_set' in the case of a       */
@@ -1027,25 +1027,25 @@ FT_BEGIN_HEADER
   /*    rendering a monochrome bitmap, as they are crucial to implement    */
   /*    correct drop-out control as defined in the TrueType specification. */
   /*                                                                       */
-  typedef struct  FT_Raster_Params_
+  typedef struct  QT_FT_Raster_Params_
   {
-    FT_Bitmap*              target;
+    QT_FT_Bitmap*              target;
     void*                   source;
     int                     flags;
-    FT_SpanFunc             gray_spans;
-    FT_SpanFunc             black_spans;
-    FT_Raster_BitTest_Func  bit_test;     /* doesn't work! */
-    FT_Raster_BitSet_Func   bit_set;      /* doesn't work! */
+    QT_FT_SpanFunc             gray_spans;
+    QT_FT_SpanFunc             black_spans;
+    QT_FT_Raster_BitTest_Func  bit_test;     /* doesn't work! */
+    QT_FT_Raster_BitSet_Func   bit_set;      /* doesn't work! */
     void*                   user;
-    FT_BBox                 clip_box;
+    QT_FT_BBox                 clip_box;
 
-  } FT_Raster_Params;
+  } QT_FT_Raster_Params;
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_Raster_NewFunc                                                  */
+  /*    QT_FT_Raster_NewFunc                                                  */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A function used to create a new raster object.                     */
@@ -1062,20 +1062,20 @@ FT_BEGIN_HEADER
   /* <Note>                                                                */
   /*    The `memory' parameter is a typeless pointer in order to avoid     */
   /*    un-wanted dependencies on the rest of the FreeType code.  In       */
-  /*    practice, it is a FT_Memory, i.e., a handle to the standard        */
+  /*    practice, it is a QT_FT_Memory, i.e., a handle to the standard        */
   /*    FreeType memory allocator.  However, this field can be completely  */
   /*    ignored by a given raster implementation.                          */
   /*                                                                       */
   typedef int
-  (*FT_Raster_NewFunc)( void*       memory,
-                        FT_Raster*  raster );
+  (*QT_FT_Raster_NewFunc)( void*       memory,
+                        QT_FT_Raster*  raster );
 
-#define  FT_Raster_New_Func    FT_Raster_NewFunc
+#define  QT_FT_Raster_New_Func    QT_FT_Raster_NewFunc
 
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_Raster_DoneFunc                                                 */
+  /*    QT_FT_Raster_DoneFunc                                                 */
   /*                                                                       */
   /* <Description>                                                         */
   /*    A function used to destroy a given raster object.                  */
@@ -1084,14 +1084,14 @@ FT_BEGIN_HEADER
   /*    raster :: A handle to the raster object.                           */
   /*                                                                       */
   typedef void
-  (*FT_Raster_DoneFunc)( FT_Raster  raster );
+  (*QT_FT_Raster_DoneFunc)( QT_FT_Raster  raster );
 
-#define  FT_Raster_Done_Func   FT_Raster_DoneFunc
+#define  QT_FT_Raster_Done_Func   QT_FT_Raster_DoneFunc
 
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_Raster_ResetFunc                                                */
+  /*    QT_FT_Raster_ResetFunc                                                */
   /*                                                                       */
   /* <Description>                                                         */
   /*    FreeType provides an area of memory called the `render pool',      */
@@ -1116,16 +1116,16 @@ FT_BEGIN_HEADER
   /*    recommended for efficiency purposes.                               */
   /*                                                                       */
   typedef void
-  (*FT_Raster_ResetFunc)( FT_Raster       raster,
+  (*QT_FT_Raster_ResetFunc)( QT_FT_Raster       raster,
                           unsigned char*  pool_base,
                           unsigned long   pool_size );
 
-#define  FT_Raster_Reset_Func   FT_Raster_ResetFunc
+#define  QT_FT_Raster_Reset_Func   QT_FT_Raster_ResetFunc
 
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_Raster_SetModeFunc                                              */
+  /*    QT_FT_Raster_SetModeFunc                                              */
   /*                                                                       */
   /* <Description>                                                         */
   /*    This function is a generic facility to change modes or attributes  */
@@ -1141,16 +1141,16 @@ FT_BEGIN_HEADER
   /*    args   :: A pointer to the new mode/property to use.               */
   /*                                                                       */
   typedef int
-  (*FT_Raster_SetModeFunc)( FT_Raster      raster,
+  (*QT_FT_Raster_SetModeFunc)( QT_FT_Raster      raster,
                             unsigned long  mode,
                             void*          args );
 
-#define  FT_Raster_Set_Mode_Func  FT_Raster_SetModeFunc
+#define  QT_FT_Raster_Set_Mode_Func  QT_FT_Raster_SetModeFunc
 
   /*************************************************************************/
   /*                                                                       */
   /* <FuncType>                                                            */
-  /*    FT_Raster_RenderFunc                                               */
+  /*    QT_FT_Raster_RenderFunc                                               */
   /*                                                                       */
   /* <Description>                                                         */
   /*   Invokes a given raster to scan-convert a given glyph image into a   */
@@ -1159,7 +1159,7 @@ FT_BEGIN_HEADER
   /* <Input>                                                               */
   /*    raster :: A handle to the raster object.                           */
   /*                                                                       */
-  /*    params :: A pointer to a FT_Raster_Params structure used to store  */
+  /*    params :: A pointer to a QT_FT_Raster_Params structure used to store  */
   /*              the rendering parameters.                                */
   /*                                                                       */
   /* <Return>                                                              */
@@ -1167,12 +1167,12 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /* <Note>                                                                */
   /*    The exact format of the source image depends on the raster's glyph */
-  /*    format defined in its FT_Raster_Funcs structure.  It can be an     */
-  /*    FT_Outline or anything else in order to support a large array of   */
+  /*    format defined in its QT_FT_Raster_Funcs structure.  It can be an     */
+  /*    QT_FT_Outline or anything else in order to support a large array of   */
   /*    glyph formats.                                                     */
   /*                                                                       */
   /*    Note also that the render function can fail and return a           */
-  /*    FT_Err_Unimplemented_Feature error code if the raster used does    */
+  /*    QT_FT_Err_Unimplemented_Feature error code if the raster used does    */
   /*    not support direct composition.                                    */
   /*                                                                       */
   /*    XXX: For now, the standard raster doesn't support direct           */
@@ -1182,15 +1182,15 @@ FT_BEGIN_HEADER
   /*         composition).                                                 */
   /*                                                                       */
   typedef int
-  (*FT_Raster_RenderFunc)( FT_Raster          raster,
-                           FT_Raster_Params*  params );
+  (*QT_FT_Raster_RenderFunc)( QT_FT_Raster          raster,
+                           QT_FT_Raster_Params*  params );
 
-#define  FT_Raster_Render_Func    FT_Raster_RenderFunc
+#define  QT_FT_Raster_Render_Func    QT_FT_Raster_RenderFunc
 
   /*************************************************************************/
   /*                                                                       */
   /* <Struct>                                                              */
-  /*    FT_Raster_Funcs                                                    */
+  /*    QT_FT_Raster_Funcs                                                    */
   /*                                                                       */
   /* <Description>                                                         */
   /*   A structure used to describe a given raster class to the library.   */
@@ -1206,22 +1206,22 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*    raster_done   :: The raster destructor.                            */
   /*                                                                       */
-  typedef struct  FT_Raster_Funcs_
+  typedef struct  QT_FT_Raster_Funcs_
   {
-    FT_Glyph_Format         glyph_format;
-    FT_Raster_NewFunc       raster_new;
-    FT_Raster_ResetFunc     raster_reset;
-    FT_Raster_SetModeFunc   raster_set_mode;
-    FT_Raster_RenderFunc    raster_render;
-    FT_Raster_DoneFunc      raster_done;
+    QT_FT_Glyph_Format         glyph_format;
+    QT_FT_Raster_NewFunc       raster_new;
+    QT_FT_Raster_ResetFunc     raster_reset;
+    QT_FT_Raster_SetModeFunc   raster_set_mode;
+    QT_FT_Raster_RenderFunc    raster_render;
+    QT_FT_Raster_DoneFunc      raster_done;
 
-  } FT_Raster_Funcs;
+  } QT_FT_Raster_Funcs;
 
 
   /* */
 
 
-FT_END_HEADER
+QT_FT_END_HEADER
 
 #endif /* __FTIMAGE_H__ */
 

@@ -1,5 +1,5 @@
-#define FT_BEGIN_HEADER
-#define FT_END_HEADER
+#define QT_FT_BEGIN_HEADER
+#define QT_FT_END_HEADER
 #include <private/qrasterdefs_p.h>
 #include <private/qgrayraster_p.h>
 #include <private/qblackraster_p.h>
@@ -36,8 +36,8 @@
 #define qreal_to_fixed(f) (int(f * 64))
 #define qt_swap(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
 
-static FT_Raster qt_gray_raster;
-static FT_Raster qt_black_raster;
+static QT_FT_Raster qt_gray_raster;
+static QT_FT_Raster qt_black_raster;
 
 static void qt_initialize_ft()
 {
@@ -84,14 +84,14 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
 /********************************************************************************
  * Span functions
  */
-typedef void (*qt_span_func)(int y, int count, FT_Span *spans, void *userData);
+typedef void (*qt_span_func)(int y, int count, QT_FT_Span *spans, void *userData);
 
-void qt_span_fill_clipped(int y, int count, FT_Span *spans, void *userData);
-void qt_span_solidfill(int y, int count, FT_Span *spans, void *userData);
-void qt_span_texturefill(int y, int count, FT_Span *spans, void *userData);
-void qt_span_texturefill_xform(int y, int count, FT_Span *spans, void *userData);
-void qt_span_linear_gradient(int y, int count, FT_Span *spans, void *userData);
-void qt_span_clip(int y, int count, FT_Span *spans, void *userData);
+void qt_span_fill_clipped(int y, int count, QT_FT_Span *spans, void *userData);
+void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData);
+void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData);
+void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userData);
+void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData);
+void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData);
 
 struct SolidFillData
 {
@@ -165,7 +165,7 @@ struct ConicalGradientData : public GradientData
 };
 
 
-void qt_scanconvert(FT_Outline *outline, qt_span_func callback, void *userData, FT_BBox *bounds, QRasterPaintEnginePrivate *d);
+void qt_scanconvert(QT_FT_Outline *outline, qt_span_func callback, void *userData, QT_FT_BBox *bounds, QRasterPaintEnginePrivate *d);
 
 
 /*******************************************************************************
@@ -208,7 +208,7 @@ const QPainterPath::Element &qt_path_iterator_noop(int index, PathItData *d)
 /********************************************************************************
  * class QFTOutlineMapper
  *
- * Used to map between QPainterPath and the FT_Outline structure used by the
+ * Used to map between QPainterPath and the QT_FT_Outline structure used by the
  * freetype scanconvertor.
  *
  * The outline mapper uses a path iterator to get points from the path,
@@ -257,9 +257,9 @@ public:
         m_iterator_data.dy = m.dy();
     }
 
-    FT_Outline *convert(const QPainterPath &path)
+    QT_FT_Outline *convert(const QPainterPath &path)
     {
-        FT_Vector pt, last;
+        QT_FT_Vector pt, last;
 
         Q_ASSERT(!path.isEmpty());
         reset();
@@ -270,7 +270,7 @@ public:
         pt.x = qreal_to_fixed(startPt.x);
         pt.y = qreal_to_fixed(startPt.y);
 
-        FT_Vector start = { pt.x, pt.y };
+        QT_FT_Vector start = { pt.x, pt.y };
 
 #ifdef QT_DEBUG_CONVERT
         printf("moveto: %.2f, %.2f\n",
@@ -278,7 +278,7 @@ public:
 #endif
 
         m_points.add(pt);
-        m_tags.add(FT_CURVE_TAG_ON);
+        m_tags.add(QT_FT_CURVE_TAG_ON);
 
         int elmCount = path.elementCount();
 
@@ -304,12 +304,12 @@ public:
                 // implicitly close the path
                 if (start.x != last.x || start.y != last.y) {
                     m_points.add(start);
-                    m_tags.add(FT_CURVE_TAG_ON);
+                    m_tags.add(QT_FT_CURVE_TAG_ON);
                 }
 
                 m_contours.add(m_points.size() - 1);
                 m_points.add(pt);
-                m_tags.add(FT_CURVE_TAG_ON);
+                m_tags.add(QT_FT_CURVE_TAG_ON);
                 start = pt;
                 break;
 
@@ -322,7 +322,7 @@ public:
 #endif
 
                 m_points.add(pt);
-                m_tags.add(FT_CURVE_TAG_ON);
+                m_tags.add(QT_FT_CURVE_TAG_ON);
                 break;
 
             case QPainterPath::CurveToElement:
@@ -344,9 +344,9 @@ public:
                 printf("curveto (end): %.2f, %.2f\n", pt.x / 64.0, pt.y / 64.0);
 #endif
 
-                m_tags.add(FT_CURVE_TAG_CUBIC);         // Control point 1
-                m_tags.add(FT_CURVE_TAG_CUBIC);         // Control point 2
-                m_tags.add(FT_CURVE_TAG_ON);            // End point
+                m_tags.add(QT_FT_CURVE_TAG_CUBIC);         // Control point 1
+                m_tags.add(QT_FT_CURVE_TAG_CUBIC);         // Control point 2
+                m_tags.add(QT_FT_CURVE_TAG_ON);            // End point
                 break;
             }
             last = pt;
@@ -355,7 +355,7 @@ public:
         // close last element
         if (start.x != last.x || start.y != last.y) {
             m_points.add(start);
-            m_tags.add(FT_CURVE_TAG_ON);
+            m_tags.add(QT_FT_CURVE_TAG_ON);
         }
         // There will always be that last contour...
         m_contours.add(m_points.size() - 1);
@@ -368,8 +368,8 @@ public:
         m_outline.contours = m_contours.data();
 
         m_outline.flags = path.fillRule() == Qt::WindingFill
-                          ? FT_OUTLINE_NONE
-                          : FT_OUTLINE_EVEN_ODD_FILL;
+                          ? QT_FT_OUTLINE_NONE
+                          : QT_FT_OUTLINE_EVEN_ODD_FILL;
 
 
 #ifdef QT_DEBUG_CONVERT
@@ -391,10 +391,10 @@ public:
         return &m_outline;
     }
 public:
-    QDataBuffer<FT_Vector> m_points;
+    QDataBuffer<QT_FT_Vector> m_points;
     QDataBuffer<char> m_tags;
     QDataBuffer<short> m_contours;
-    FT_Outline m_outline;
+    QT_FT_Outline m_outline;
     PathItData m_iterator_data;
     qt_path_iterator m_iterator;
 };
@@ -731,7 +731,7 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, FillData *fillData)
 
     Q_D(QRasterPaintEngine);
 
-    FT_BBox clipBox = { 0, 0, d->deviceRect.width(), d->deviceRect.height() };
+    QT_FT_BBox clipBox = { 0, 0, d->deviceRect.width(), d->deviceRect.height() };
 
     Q_ASSERT(d->deviceRect.width() <= d->rasterBuffer->width());
     Q_ASSERT(d->deviceRect.height() <= d->rasterBuffer->height());
@@ -943,7 +943,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     int xmax = qMin(devRect.x() + devRect.width(), d->rasterBuffer->width());
     int xmin = qMax(devRect.x(), 0);
 
-    static QDataBuffer<FT_Span> spans;
+    static QDataBuffer<QT_FT_Span> spans;
     for (int y=ymin; y<ymax; ++y) {
         ARGB *scanline = d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
         // Generate spans for this y coord
@@ -954,7 +954,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             if (x >= xmax) break;
 
             int prev = scanline[x].b;
-            FT_Span span = { x, 0, 255 - scanline[x].b };
+            QT_FT_Span span = { x, 0, 255 - scanline[x].b };
 
             // extend span until we find a different one.
             while (x < xmax && scanline[x].b == prev) ++x;
@@ -1020,7 +1020,7 @@ void QRasterPaintEngine::drawLine(const QLineF &l)
             x1 = qMax(0, x1);
             x2 = qMin(rbw - 1, x2);
 
-            FT_Span span;
+            QT_FT_Span span;
             span.x = x1;
             span.len = x2 - x1 + 1;
             span.coverage = 255;
@@ -1040,7 +1040,7 @@ void QRasterPaintEngine::drawLine(const QLineF &l)
             y1 = qMax(0, y1);
             y2 = qMin(rbh - 1, y2 + 1);
 
-            FT_Span span;
+            QT_FT_Span span;
             span.x = x1;
             span.len = 1;
             span.coverage = 255;
@@ -1082,7 +1082,7 @@ void QRasterPaintEngine::drawRect(const QRectF &r)
         int x1 = qMax(qRound(rect.x()), 0);
         int x2 = qMin(qRound(rect.width() + rect.x()), d->rasterBuffer->width());
 
-        FT_Span span;
+        QT_FT_Span span;
         span.x = x1;
         span.len = x2 - x1;
         span.coverage = 255;
@@ -1280,7 +1280,7 @@ void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::
     if (path.isEmpty())
         return;
 
-    FT_BBox clipBox = { 0, 0, rasterBuffer->width(), rasterBuffer->height() };
+    QT_FT_BBox clipBox = { 0, 0, rasterBuffer->width(), rasterBuffer->height() };
     qt_scanconvert(outlineMapper->convert(path), qt_span_clip, &clipData, &clipBox, this);
 
     // Need to reset the clipspans that where not touched during scan conversion.
@@ -1386,13 +1386,13 @@ void QRasterBuffer::prepareClip(int /*width*/, int height)
 
         Q_ASSERT(m_clipSpans);
         for (int y=0; y<m_height; ++y)
-            qFree((FT_Span *)m_clipSpans[y]);
+            qFree((QT_FT_Span *)m_clipSpans[y]);
         qFree(m_clipSpans);
     }
 
     m_clipSpanCount = (int *) qMalloc(height * sizeof(int));
     m_clipSpanCapacity = (int *) qMalloc(height * sizeof(int));
-    m_clipSpans = (QSpan **) qMalloc(height * sizeof(FT_Span *));
+    m_clipSpans = (QSpan **) qMalloc(height * sizeof(QT_FT_Span *));
     for (int y=0; y<height; ++y) {
         m_clipSpanCapacity[y] = 4;
         m_clipSpanCount[y] = 0;
@@ -1544,7 +1544,7 @@ void QRasterBuffer::resizeClipSpan(int y, int size)
     m_clipSpanCapacity[y] = size;
 }
 
-void qt_span_solidfill(int y, int count, FT_Span *spans, void *userData)
+void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
 {
 //     fprintf(stdout, "qt_span_solidfill, y=%d, count=%d\n", y, count);
 //     fflush(stdout);
@@ -1589,7 +1589,7 @@ void qt_span_solidfill(int y, int count, FT_Span *spans, void *userData)
 }
 
 
-void qt_span_texturefill(int y, int count, FT_Span *spans, void *userData)
+void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
 {
     TextureFillData *data = reinterpret_cast<TextureFillData *>(userData);
     QRasterBuffer *rb = data->rasterBuffer;
@@ -1633,7 +1633,7 @@ void qt_span_texturefill(int y, int count, FT_Span *spans, void *userData)
     }
 }
 
-void qt_span_texturefill_xform(int y, int count, FT_Span *spans, void *userData)
+void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userData)
 {
     TextureFillData *data = reinterpret_cast<TextureFillData *>(userData);
     QRasterBuffer *rb = data->rasterBuffer;
@@ -1694,7 +1694,7 @@ ARGB qt_gradient_pixel(const GradientData *data, double pos)
 } // qt_gradient_pixel
 
 
-void qt_span_linear_gradient(int y, int count, FT_Span *spans, void *userData)
+void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData)
 {
     LinearGradientData *data = reinterpret_cast<LinearGradientData *>(userData);
 
@@ -1726,7 +1726,7 @@ void qt_span_linear_gradient(int y, int count, FT_Span *spans, void *userData)
 }
 
 void qt_intersect_spans(QSpan *clipSpans, int clipSpanCount,
-                        FT_Span *spans, int spanCount,
+                        QT_FT_Span *spans, int spanCount,
                         QSpan **outSpans, int *outCount)
 {
     static QDataBuffer<QSpan> newSpans;
@@ -1767,7 +1767,7 @@ void qt_intersect_spans(QSpan *clipSpans, int clipSpanCount,
 }
 
 void qt_unite_spans(QSpan *clipSpans, int clipSpanCount,
-                    FT_Span *spans, int spanCount,
+                    QT_FT_Span *spans, int spanCount,
                     QSpan **outSpans, int *outCount)
 {
 
@@ -1790,7 +1790,7 @@ void qt_unite_spans(QSpan *clipSpans, int clipSpanCount,
 
     // Fill with new spans
     for (int i=0; i<spanCount; ++i) {
-        FT_Span *s = spans + i;
+        QT_FT_Span *s = spans + i;
         for (int j=s->x; j<s->x + s->len; ++j) {
             buffer[j] += s->coverage;
             if (buffer[j] > 255) buffer[j] = 255;
@@ -1834,7 +1834,7 @@ void qt_unite_spans(QSpan *clipSpans, int clipSpanCount,
 
 
 
-void qt_span_fill_clipped(int y, int spanCount, FT_Span *spans, void *userData)
+void qt_span_fill_clipped(int y, int spanCount, QT_FT_Span *spans, void *userData)
 {
     FillData *fillData = reinterpret_cast<FillData *>(userData);
     QRasterBuffer *rb = fillData->rasterBuffer;
@@ -1846,10 +1846,10 @@ void qt_span_fill_clipped(int y, int spanCount, FT_Span *spans, void *userData)
                        spans, spanCount,
                        &clippedSpans, &clippedSpanCount);
 
-    fillData->callback(y, clippedSpanCount, (FT_Span *) clippedSpans, fillData->data);
+    fillData->callback(y, clippedSpanCount, (QT_FT_Span *) clippedSpans, fillData->data);
 }
 
-void qt_span_clip(int y, int count, FT_Span *spans, void *userData)
+void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData)
 {
     ClipData *clipData = reinterpret_cast<ClipData *>(userData);
     QRasterBuffer *rb = clipData->rasterBuffer;
@@ -1897,16 +1897,16 @@ void qt_span_clip(int y, int count, FT_Span *spans, void *userData)
     fflush(stdout);
 }
 
-void qt_scanconvert(FT_Outline *outline, qt_span_func callback, void *userData,
-                    FT_BBox *boundingBox, QRasterPaintEnginePrivate *d)
+void qt_scanconvert(QT_FT_Outline *outline, qt_span_func callback, void *userData,
+                    QT_FT_BBox *boundingBox, QRasterPaintEnginePrivate *d)
 {
     qt_span_func func = callback;
     void *data = userData;
 
-    FT_Raster_Params rasterParams;
+    QT_FT_Raster_Params rasterParams;
     rasterParams.target = 0;
     rasterParams.source = outline;
-    rasterParams.flags = FT_RASTER_FLAG_CLIP;
+    rasterParams.flags = QT_FT_RASTER_FLAG_CLIP;
     rasterParams.gray_spans = 0;
     rasterParams.black_spans = 0;
     rasterParams.bit_test = 0;
@@ -1915,14 +1915,14 @@ void qt_scanconvert(FT_Outline *outline, qt_span_func callback, void *userData,
     rasterParams.clip_box = *boundingBox;
 
     if (d->antialiased) {
-        rasterParams.flags |= (FT_RASTER_FLAG_AA | FT_RASTER_FLAG_DIRECT);
+        rasterParams.flags |= (QT_FT_RASTER_FLAG_AA | QT_FT_RASTER_FLAG_DIRECT);
         rasterParams.gray_spans = func;
         int error = qt_ft_grays_raster.raster_render(qt_gray_raster, &rasterParams);
         if (error) {
             printf("qt_scanconvert(), gray raster failed...: %d\n", error);
         }
     } else {
-        rasterParams.flags |= FT_RASTER_FLAG_DIRECT;
+        rasterParams.flags |= QT_FT_RASTER_FLAG_DIRECT;
         rasterParams.black_spans = func;
         int error = qt_ft_standard_raster.raster_render(qt_black_raster, &rasterParams);
         if (error) {

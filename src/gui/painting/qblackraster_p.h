@@ -25,7 +25,7 @@
 
 #include <private/qrasterdefs_p.h>
 
-FT_BEGIN_HEADER
+QT_FT_BEGIN_HEADER
 
 
   /*************************************************************************/
@@ -35,14 +35,14 @@ FT_BEGIN_HEADER
   /*                                                                       */
 /* #define _STANDALONE_ */
 
-#ifndef FT_EXPORT_VAR
-#define FT_EXPORT_VAR( x )  extern  x
+#ifndef QT_FT_EXPORT_VAR
+#define QT_FT_EXPORT_VAR( x )  extern  x
 #endif
 
-  FT_EXPORT_VAR( const FT_Raster_Funcs )  qt_ft_standard_raster;
+  QT_FT_EXPORT_VAR( const QT_FT_Raster_Funcs )  qt_ft_standard_raster;
 
 
-FT_END_HEADER
+QT_FT_END_HEADER
 
 #ifdef __cplusplus
     }
