@@ -599,15 +599,15 @@ bool QJpegHandler::write(const QImage &image)
 
 bool QJpegHandler::supportsOption(ImageOption option) const
 {
-    return option == Quality || option == Parameters;
+    return option == Quality;// || option == Parameters;
 }
 
 QVariant QJpegHandler::option(ImageOption option) const
 {
     if (option == Quality)
         return quality;
-    else if (option == Parameters)
-        return parameters;
+//    else if (option == Parameters)
+//        return parameters;
     return QVariant();
 }
 
@@ -615,8 +615,8 @@ void QJpegHandler::setOption(ImageOption option, const QVariant &value)
 {
     if (option == Name)
         quality = value.toInt();
-    else if (option == Parameters)
-        parameters = value.toByteArray();
+//    else if (option == Parameters)
+//        parameters = value.toByteArray();
 }
 
 QByteArray QJpegHandler::name() const

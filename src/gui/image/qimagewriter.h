@@ -53,9 +53,6 @@ public:
     void setDescription(const QString &description);
     QString description() const;
 
-    void setParameters(const QByteArray &parameters);
-    QByteArray parameters() const;
-
     bool canWrite() const;
     bool write(const QImage &image);
 

@@ -11,6 +11,72 @@
 **
 ****************************************************************************/
 
+/*!
+    \class QImageReader
+    \brief The QImageReader class provides a format independent interface
+    for reading images from files or other devices.
+
+    \reentrant
+    \ingroup multimedia
+    \ingroup io
+
+    The most common way to read images is through QImage and QPixmap's
+    constructors, or by calling QImage::load() and
+    QPixmap::load(). QImageReader is a specialized class which gives
+    you more control when reading images. For example, you can read an
+    image into a specific size by calling setScaledSize(), and you can
+    select a clip rect, effectively loading only parts of an image, by
+    calling setClipRect(). Depending on the underlying support in the
+    image format, this can save memory and speed up loading of images.
+
+    To read an image, you start by constructing a QImageReader object.
+    Pass either a file name or a device pointer, and the image format
+    to QImageReader's constructor. You can then set several options,
+    such as the clip rect (by calling setClipRect()) and scaled size
+    (by calling setScaledSize()). canRead() returns the image if the
+    QImageReader can read the image (i.e., the image format is
+    supported and the device is open for reading). Call read() to read
+    the image.
+
+    If any error occurs when reading the image, read() will return a
+    null QImage. You can then call error() to find the type of error
+    that occurred, of errorString() to get a human readable
+    description of what went wrong.
+
+    Call supportedImageFormats() for a list of formats that
+    QImageReader can read. QImageReader supports all built-in image
+    formats, in addition to any image format plugins that support
+    reading.
+
+    \sa QImageReader, QImageIOHandler, QImageIOPlugin
+*/
+
+/*!
+    \enum QImageReader::ImageReaderError
+
+    This enum describes the different types of errors that can occur
+    when reading images with QImageReader.
+
+    \value FileNotFoundError QImageReader was used with a file name,
+    but not file was found with that name. This can also happen if the
+    file name contained no extension, and the file with the correct
+    extension is not supported by Qt.
+
+    \value DeviceError QImageReader encountered a device error when
+    reading the image. You can consult your particular device for more
+    details on what went wrong.
+
+    \value UnsupportedFormatError Qt does not support the requested
+    image format.
+
+    \value InvalidDataError The image data was invalid, and
+    QImageReader was unable to read an image from it. The can happen
+    if the image file is damaged.
+
+    \value UnknownError An unknown error occurred. If you get this
+    value after calling read(), it is most likely caused by a bug in
+    QImageReader.
+*/
 #include "qimagereader.h"
 
 #include <qbytearray.h>
@@ -123,6 +189,9 @@ public:
     QImageReader *q;
 };
 
+/*!
+    \internal
+*/
 QImageReaderPrivate::QImageReaderPrivate(QImageReader *qq)
 {
     device = 0;
@@ -134,12 +203,18 @@ QImageReaderPrivate::QImageReaderPrivate(QImageReader *qq)
     q = qq;
 }
 
+/*!
+    \internal
+*/
 QImageReaderPrivate::~QImageReaderPrivate()
 {
     if (deleteDevice)
         delete device;
 }
 
+/*!
+    \internal
+*/
 bool QImageReaderPrivate::initHandler()
 {
     // check some preconditions
@@ -179,11 +254,19 @@ bool QImageReaderPrivate::initHandler()
     return true;
 }
 
+/*!
+    Constructs an empty QImageReader object. Before reading an image,
+    call setDevice() or setFileName().
+*/
 QImageReader::QImageReader()
     : d(new QImageReaderPrivate(this))
 {
 }
 
+/*!
+    Constructs a QImageReader object with the device \a device and the
+    image format \a format.
+*/
 QImageReader::QImageReader(QIODevice *device, const QByteArray &format)
     : d(new QImageReaderPrivate(this))
 {
@@ -191,6 +274,12 @@ QImageReader::QImageReader(QIODevice *device, const QByteArray &format)
     d->format = format;
 }
 
+/*!
+    Constructs a QImageReader object with the file name \a fileName
+    and the image format \a format.
+
+    \sa setFileName()
+*/
 QImageReader::QImageReader(const QString &fileName, const QByteArray &format)
     : d(new QImageReaderPrivate(this))
 {
@@ -200,21 +289,56 @@ QImageReader::QImageReader(const QString &fileName, const QByteArray &format)
     d->format = format;
 }
 
+/*!
+    Destructs the QImageReader object.
+*/
 QImageReader::~QImageReader()
 {
     delete d;
 }
 
+/*!
+    Sets the format QImageReader will use when reading images, to \a
+    format. \a format is a case insensitive text string. Example:
+
+    \code
+        QImageReader reader;
+        reader.setFormat("png"); // same as reader.setFormat("PNG");
+    \endcode
+
+    You can call supportedImageFormats() for the full list of formats
+    QImageReader supports.
+
+    \sa format()
+*/
 void QImageReader::setFormat(const QByteArray &format)
 {
     d->format = format;
 }
 
+/*!
+    Returns the format QImageReader uses for reading images.
+
+    \sa setFormat()
+*/
 QByteArray QImageReader::format() const
 {
     return d->format;
 }
 
+/*!
+    Sets QImageReader's device to \a device. If a device has already
+    been set, the old device is removed from QImageReader and is
+    otherwise left unchanged.
+
+    If the device is not already open, QImageReader will attempt to
+    open the device in \l QIODevice::ReadOnly mode by calling
+    open(). Note that this does not work for certain devices, such as
+    QProcess, QTcpSocket and QUdpSocket, where more logic is required
+    to open the device.
+
+    \sa device(), setFileName()
+*/
 void QImageReader::setDevice(QIODevice *device)
 {
     if (d->device && d->deleteDevice)
@@ -225,23 +349,53 @@ void QImageReader::setDevice(QIODevice *device)
     d->handler = 0;
 }
 
+/*!
+    Returns the device currently assigned to QImageReader, or 0 if no
+    device has been assigned.
+*/
 QIODevice *QImageReader::device() const
 {
     return d->device;
 }
 
+/*!
+    Sets the file name of QImageReader to \a fileName. Internally,
+    QImageWriter will create a QFile and open it in \l
+    QIODevice::ReadOnly mode, and use this file when writing images.
+
+    \a fileName may or may not include the file extension (i.e., .png
+    or .bmp). If no extension is provided, QImageReader will choose
+    the first file it finds with an extension that matches an image
+    format that it supports.
+
+    \sa fileName(), setDevice(), supportedImageFormats()
+*/
 void QImageReader::setFileName(const QString &fileName)
 {
     setDevice(new QFile(fileName));
     d->deleteDevice = true;
 }
 
+/*!
+    If the currently assigned device is a QFile, or if setFileName()
+    has been called, this function returns the name of the file
+    QImageReader reads from. Otherwise (i.e., if no device has been
+    assigned or the device is not a QFile), an empty QString is
+    returned.
+
+    \sa setFileName(), setDevice()
+*/
 QString QImageReader::fileName() const
 {
     QFile *file = qt_cast<QFile *>(d->device);
     return file ? file->fileName() : QString();
 }
 
+/*!
+    Returns the size of the image. This function may or may not read
+    the entire image, depending on whether the image format supports
+    checking the size of an image before loading it.
+*/
 QSize QImageReader::size() const
 {
     if (!d->initHandler())
@@ -261,36 +415,88 @@ QSize QImageReader::size() const
     return image.size();
 }
 
+/*!
+    Sets the image clip rect (also known as the ROI, or Region Of
+    Interest) to \a rect. The coordinates of \a rect are relative to
+    the untransformed image size, as returned by size().
+
+    \sa clipRect(), setScaledSize(), setScaledClipRect()
+*/
 void QImageReader::setClipRect(const QRect &rect)
 {
     d->clipRect = rect;
 }
 
+/*!
+    Returns the clip rect (also known as the ROI, or Region Of
+    Interest) of the image. If no clip rect has been set, an invalid
+    QRect is returned.
+
+    \sa setClipRect()
+*/
 QRect QImageReader::clipRect() const
 {
     return d->clipRect;
 }
 
+/*!
+    Sets the scaled size of the image to \a size. The scaling is
+    performed after the initial clip rect, but before the scaled clip
+    rect is applied. The algorithm used for scaling depends on the
+    image format. By default (i.e., if the image format does not
+    support scaling), QImageReader will use QImage::scale() with \l
+    SmoothScaling.
+
+    \sa scaledSize(), setClipRect(), setScaledClipRect()
+*/
 void QImageReader::setScaledSize(const QSize &size)
 {
     d->scaledSize = size;
 }
 
+/*!
+    Returns the scaled size of the image.
+
+    \sa setScaledSize()
+*/
 QSize QImageReader::scaledSize() const
 {
     return d->scaledSize;
 }
 
+/*!
+    Sets the scaled clip rect to \a rect. The scaled clip rect is the
+    clip rect (also known as ROI, or Region Of Interest) that is
+    applied after the image has been scaled.
+
+    \sa scaledClipRect(), setScaledSize()
+*/
 void QImageReader::setScaledClipRect(const QRect &rect)
 {
     d->scaledClipRect = rect;
 }
 
+/*!
+    Returns the scaled clip rect of the image.
+
+    \sa setScaledClipRect()
+*/
 QRect QImageReader::scaledClipRect() const
 {
     return d->scaledClipRect;
 }
 
+/*!
+    Returns true if an image can be read for the device (i.e., the
+    image format is supported, and the device seems to contain valid
+    data); otherwise returns false.
+
+    canRead() is a lightweight function that only does a quick test to
+    see if the image data is valid. read() may still return false
+    after canRead() returns true, if the image data is corrupt.
+
+    \sa read(), supportedImageFormats()
+*/
 bool QImageReader::canRead() const
 {
     if (!d->initHandler())
@@ -299,6 +505,17 @@ bool QImageReader::canRead() const
     return d->handler->canRead();
 }
 
+/*!
+    Reads an image from the device. On success, the image that was
+    read is returned; otherwise, a null QImage is returned. You can
+    then call error() to find the type of error that occurred, or
+    errorString() to get a human readable description of the error.
+
+    For image formats that support animation, calling read()
+    repeatedly will return the next frame (or use QMovie).
+
+    \sa canRead(), supportedImageFormats()
+*/
 QImage QImageReader::read()
 {
     if (!d->initHandler())
@@ -379,6 +596,11 @@ QImage QImageReader::read()
     return image;
 }
 
+/*!
+    For image formats that support animation, this function returns
+    the number of times the animation should loop. Otherwise, it
+    returns -1.
+*/
 int QImageReader::loopCount() const
 {
     if (!d->initHandler())
@@ -386,6 +608,13 @@ int QImageReader::loopCount() const
     return d->handler->loopCount();
 }
 
+/*!
+    For image formats that support animation, this function returns
+    the number of images in the animation. Otherwise, -1 is returned.
+
+    Certain animation formats do not support this feature, in which
+    case -1 is returned.
+*/
 int QImageReader::imageCount() const
 {
     if (!d->initHandler())
@@ -393,6 +622,11 @@ int QImageReader::imageCount() const
     return d->handler->imageCount();
 }
 
+/*!
+    For image formats that support animation, this function returns
+    the number of milliseconds to wait until displaying the next frame
+    in the animation. Otherwise, -1 is returned.
+*/
 int QImageReader::nextImageDelay() const
 {
     if (!d->initHandler())
@@ -400,6 +634,11 @@ int QImageReader::nextImageDelay() const
     return d->handler->nextImageDelay();
 }
 
+/*!
+    For image formats that support animation, this function returns
+    the sequence number of the current frame. Otherwise, -1 is
+    returned.
+*/
 int QImageReader::currentImageNumber() const
 {
     if (!d->initHandler())
@@ -407,16 +646,31 @@ int QImageReader::currentImageNumber() const
     return d->handler->currentImageNumber();
 }
 
+/*!
+    Returns the type of error that occurred last.
+
+    \sa ImageReaderError, errorString()
+*/
 QImageReader::ImageReaderError QImageReader::error() const
 {
     return d->imageReaderError;
 }
 
+/*!
+    Returns a human readable description of the last error that
+    occurred.
+
+    \sa error()
+*/
 QString QImageReader::errorString() const
 {
     return d->errorString;
 }
 
+/*!
+    If supported, this function returns the image format of the file
+    \a fileName. Otherwise, an empty string is returned.
+*/
 QByteArray QImageReader::imageFormat(const QString &fileName)
 {
     QFile file(fileName);
@@ -426,6 +680,10 @@ QByteArray QImageReader::imageFormat(const QString &fileName)
     return imageFormat(&file);
 }
 
+/*!
+    If supported, this function returns the image format of the device
+    \a device. Otherwise, an empty string is returned.
+*/
 QByteArray QImageReader::imageFormat(QIODevice *device)
 {
     QImageIOHandler *handler = ::createReadHandler(device, QByteArray());
@@ -434,6 +692,11 @@ QByteArray QImageReader::imageFormat(QIODevice *device)
     return format;
 }
 
+/*!
+    Returns a list of image formats supported by QImageReader.
+
+    \sa setFormat(), QImageWriter::supportedImageFormats()
+*/
 QList<QByteArray> QImageReader::supportedImageFormats()
 {
     QList<QByteArray> formats;

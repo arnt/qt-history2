@@ -52,7 +52,6 @@ public:
         Quality,
         Name,
         SubType,
-        Parameters,
         IncrementalReading,
         Endianness
     };
@@ -84,7 +83,7 @@ class Q_GUI_EXPORT QImageIOPlugin : public QObject, public QImageIOHandlerFactor
     Q_INTERFACES(QImageIOHandlerFactoryInterface:QFactoryInterface)
 public:
     explicit QImageIOPlugin(QObject *parent = 0);
-    inline virtual ~QImageIOPlugin() { }
+    virtual ~QImageIOPlugin();
 
     enum Capability {
         CanRead = 0x1,
