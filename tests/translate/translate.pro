@@ -1,7 +1,5 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
-HEADERS		= qtranslatedialog.h \
-		  translate.h
-SOURCES		= qtranslatedialog.cpp \
-		  translate.cpp
+HEADERS		= translate.h
+SOURCES		= translate.cpp
 TARGET		= translate
