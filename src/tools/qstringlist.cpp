@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#6 $
 **
 ** Implementation of QStringList
 **
@@ -91,4 +91,6 @@ void QStringList::sort()
     qHeapSort(*this);
 }
 
-
+// Explicit template function intances
+Q_EXPORT QDataStream &operator>>( QDataStream &, QStringList& );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QStringList& );
