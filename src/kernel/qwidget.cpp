@@ -516,9 +516,9 @@ inline bool QWidgetMapper::remove( WId id )
 static QFont qt_naturalWidgetFont( QWidget* w ) {
     QFont naturalfont = QApplication::font( w );
     if ( ! w->isTopLevel() ) {
-	if ( ! naturalfont.isCopyOf( QApplication::font() ) )
-	    naturalfont = w->parentWidget()->font().resolve( naturalfont );
-	else
+	if ( ! naturalfont.isCopyOf( QApplication::font() ) ) 
+	    naturalfont = naturalfont.resolve( w->parentWidget()->font() );
+	else 
 	    naturalfont = w->parentWidget()->font();
     }
     return naturalfont;
