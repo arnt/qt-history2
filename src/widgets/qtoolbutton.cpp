@@ -876,6 +876,8 @@ void QToolButton::openPopup()
 
     d->instantPopup = TRUE;
     repaint( FALSE );
+    if ( d->popupTimer )
+	d->popupTimer->stop();
     QGuardedPtr<QToolButton> that = this;
     popupTimerDone();
     if ( !that )
