@@ -495,16 +495,28 @@ while [ -n "$1" ]; do
 	PLATFORM="$VAL"
 	case $PLATFORM in
 	aix-64)
-	    PLATFORM=aix-xlc64
+	    PLATFORM=aix-xlc-64
+	    ;;
+	hpux-o64)
+	    PLATFORM=hpux-acc-o64
+	    ;;
+	hpux-n64)
+	    PLATFORM=hpux-acc-n64
+	    ;;
+	irix-o32)
+	    PLATFORM=irix-cc-o32
+	    ;;
+	irix-n32)
+	    PLATFORM=irix-cc-n32
 	    ;;
 	irix-64)
-	    PLATFORM=irix-n64
+	    PLATFORM=irix-cc-n64
 	    ;;
 	reliant-64)
-	    PLATFORM=reliant-cds64
+	    PLATFORM=reliant-cds-64
 	    ;;
 	solaris-64)
-	    PLATFORM=solaris-cc64
+	    PLATFORM=solaris-cc-64
 	    ;;
 	esac
 	;;
