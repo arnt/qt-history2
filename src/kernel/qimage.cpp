@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#84 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#84 $");
 
 
 /*!
@@ -929,10 +929,10 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
   This function disregards the alpha channel.
 */
 
-QImage QImage::reasonableMask() const
+QImage QImage::reasonableMask( bool clipTightly ) const
 {
     if ( depth() < 32 )
-	return convertDepth( 32 ).reasonableMask();
+	return convertDepth( 32 ).reasonableMask( clipTightly );
 
     QImage m( width(), height(), 1, 0, QImage::LittleEndian );
     // note - need to mask out alpha channel here
@@ -969,6 +969,34 @@ QImage QImage::reasonableMask() const
 		}
 	    }
 	}
+    }
+
+    if ( clipTightly == FALSE ) {
+	debug( "hm?" );
+	ypn = m.scanLine(0);
+	ypc = 0;
+	for ( y = 0; y < h; y++ ) {
+	    ypp = ypc;
+	    ypc = ypn;
+	    ypn = (y == h-1) ? 0 : m.scanLine(y+1);
+	    for ( x = 0; x < w; x++ ) {
+		// this too is slow
+		debug( "hm %d, %d", x, y );
+		if ( (*((QRgb *)scanLine(y) + x)) != background ) {
+		    debug( "okay %d, %d", x, y );
+		    if ( x > 0 )
+			*(ypc + ((x-1) >> 3)) |= (1 << ((x-1) & 7));
+		    if ( x < w-1 )
+			*(ypc + ((x+1) >> 3)) |= (1 << ((x+1) & 7));
+		    if ( y > 0 )
+			*(ypp + (x >> 3)) |= (1 << (x & 7));
+		    if ( y < h-1 )
+			*(ypn + (x >> 3)) |= (1 << (x & 7));
+		}
+	    }
+	}
+    } else {
+	debug( "hm!" );
     }
     return m;
 }

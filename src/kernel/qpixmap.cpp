@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#65 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#65 $");
 
 
 /*!
@@ -388,10 +388,10 @@ void QPixmap::resize( int w, int h )
   \sa QImage::reasonableMask()
 */
 
-QBitmap QPixmap::reasonableMask() const
+QBitmap QPixmap::reasonableMask( bool clipTightly ) const
 {
     QBitmap m;
-    m.convertFromImage( convertToImage().reasonableMask() );
+    m.convertFromImage( convertToImage().reasonableMask( clipTightly ) );
     return m;
 }
 
