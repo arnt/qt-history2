@@ -332,6 +332,11 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, bool *ok )
     ulong size = 0;
     QString e;
     for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
+	if ( handle ) {
+	    RegCloseKey( handle );
+	    handle = 0;
+	}
+
 	QString k = *it + "/" + key;
 	QString f = folder( k );
 	e = entry( k );
@@ -370,6 +375,11 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, bool *ok )
 
     if ( !size && local ) {
 	for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
+	    if ( handle ) {
+		RegCloseKey( handle );
+		handle = 0;
+	    }
+
 	    QString k = *it + "/" + key;
 
 	    QString f = folder( k );
