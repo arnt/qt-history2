@@ -1000,15 +1000,15 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
     int item = itemAtPos( e->pos() );
     if ( !mouseBtDn && !popupvisible) {
-        if ( item >= 0 ) {
-            if ( !hasmouse ) {
-                hasmouse = 1;
-                if ( actItem == item )
-                    actItem = -1; // trigger update
-            }
-            setActiveItem( item, FALSE, FALSE );
-        }
-        return;
+	if ( item >= 0 ) {
+	    if ( !hasmouse ) {
+		hasmouse = 1;
+		if ( actItem == item )
+		    actItem = -1; // trigger update
+	    }
+	}
+	setActiveItem( item, FALSE, FALSE );
+	return;
     }
     if ( item != actItem && item >= 0  && ( popupvisible || mouseBtDn ) )
         setActiveItem( item, TRUE, FALSE );
