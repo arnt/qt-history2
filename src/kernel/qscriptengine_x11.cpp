@@ -1172,12 +1172,13 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	memcpy( reordered, string.unicode() + from, len*sizeof( QChar ) );
     }
 
+    int i;
     int base = 0;
     int reph = -1;
 
 #ifdef INDIC_DEBUG
     IDEBUG("original:");
-    for ( int i = 0; i < len; i++ ) {
+    for (i = 0; i < len; i++) {
 	IDEBUG("    %d: %4x", i, reordered[i]);
     }
 #endif
@@ -1219,7 +1220,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    memset(position, 0, len);
 	    if (script == QFont::Devanagari || script == QFont::Gujarati) {
 		bool vattu = FALSE;
-		for (int i = base; i < len; ++i) {
+		for (i = base; i < len; ++i) {
 		    position[i] = form(uc[i]);
 		    if (position[i] == Consonant) {
 			lastConsonant = i;
@@ -1233,7 +1234,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 		    }
 		}
 	    } else {
-		for (int i = base; i < len; ++i) {
+		for (i = base; i < len; ++i) {
 		    position[i] = form(uc[i]);
 		    if (position[i] == Consonant)
 			lastConsonant = i;
@@ -1241,7 +1242,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 			matra = i;
 		}
 	    }
-	    for (int i = len-1; i > base; i--) {
+	    for (i = len-1; i > base; i--) {
 		if (position[i] != Consonant)
 		    continue;
 
@@ -1272,7 +1273,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    // one.
 	    if ( lastConsonant != base && uc[base+1] == halant ) {
 		IDEBUG("    moving halant from %d to %d!", base+1, lastConsonant);
-		for ( int i = base+1; i < lastConsonant; i++ )
+		for (i = base+1; i < lastConsonant; i++)
 		    uc[i] = uc[i+1];
 		uc[lastConsonant] = halant;
 
@@ -1311,7 +1312,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 		}
 
 		IDEBUG("moving leading ra+halant to position %d", toPos);
-		for ( int i = 2; i < toPos; i++ )
+		for (i = 2; i < toPos; i++)
 		    uc[i-2] = uc[i];
 		uc[toPos-2] = ra;
 		uc[toPos-1] = halant;
@@ -1347,10 +1348,10 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	// pre-base, above-base (Reph), below-base or post-base. This
 	// classification exists on the character code level and is
 	// language-dependent, not font-dependent.
-	for (int i = 0; i < base; ++i)
+	for (i = 0; i < base; ++i)
 	    position[i] = Pre;
 	position[base] = Base;
-	for (int i = base+1; i < len; ++i) {
+	for (i = base+1; i < len; ++i) {
 	    position[i] = indic_position(uc[i]);
 	    // #### replace by adjusting table
 	    if (uc[i] == nukta || uc[i] == halant)
@@ -1367,7 +1368,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    fixed++;
 
 #ifdef INDIC_DEBUG
-	for (int i = fixed; i < len; ++i)
+	for (i = fixed; i < len; ++i)
 	    IDEBUG("position[%d] = %d, form=%d", i, position[i],  form(uc[i]));
 #endif
 	// we continuosly position the matras and vowel marks and increase the fixed
@@ -1379,7 +1380,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	int toMove = 0;
 	while ( finalOrder[toMove].form && fixed < len-1 ) {
 	    //IDEBUG("        fixed = %d, moving form %d with pos %d", fixed, finalOrder[toMove].form, finalOrder[toMove].position );
-	    for ( int i = fixed; i < len; i++ ) {
+	    for ( i = fixed; i < len; i++ ) {
 		if ( form( uc[i] ) == finalOrder[toMove].form &&
 		     position[i] == finalOrder[toMove].position ) {
 		    // need to move this glyph
@@ -1417,7 +1418,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 
     }
     IDEBUG("reordered:");
-    for ( int i = 0; i < len; i++ ) {
+    for (i = 0; i < len; i++) {
 	glyphAttributes[i].mark = FALSE;
 	glyphAttributes[i].clusterStart = FALSE;
 	glyphAttributes[i].justification = 0;
@@ -1449,7 +1450,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    logClusters = (unsigned short *)malloc((len+4)*sizeof(unsigned short));
 	}
 	memset(where, 0, len*sizeof(bool));
-	for (int i = 0; i < len; ++i)
+	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
 
 	openType->init(glyphs, glyphAttributes, len, logClusters, len);
@@ -1462,7 +1463,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'i', 'n', 'i', 't' ), where);
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'n', 'u', 'k', 't' ));
 
-	for (int i = 0; i <= base; ++i)
+	for (i = 0; i <= base; ++i)
 	    where[i] = TRUE;
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'a', 'k', 'h', 'n' ), where);
 
@@ -1473,12 +1474,12 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    where[reph] = where[reph+1] = FALSE;
 	}
 
-	for (int i = base+1; i < len; ++i)
+	for (i = base+1; i < len; ++i)
 	    where[i] = TRUE;
 	if (script == QFont::Devanagari || script == QFont::Gujarati) {
 	    // vattu glyphs need this aswell
 	    bool vattu = FALSE;
-	    for (int i = base-2; i > 1; --i) {
+	    for (i = base-2; i > 1; --i) {
 		if (form(reordered[i]) == Consonant) {
 		    vattu = (!vattu && reordered[i] == ra);
 		    if (vattu) {
@@ -1490,7 +1491,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	}
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), where);
 	memset(where, 0, len*sizeof(bool));
-	for (int i = 0; i < base; ++i)
+	for (i = 0; i < base; ++i)
 	    where[i] = TRUE;
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'h', 'a', 'l', 'f' ), where);
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 'b', 'f' ));
@@ -1522,7 +1523,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    if (prebase != 0) {
 		unsigned short *g = openType->glyphs();
 		unsigned short m = g[0];
-		for (int i = 0; i < prebase; ++i)
+		for (i = 0; i < prebase; ++i)
 		    g[i] = g[i+1];
 		g[prebase] = m;
 	    }
@@ -1532,7 +1533,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 
 	GlyphAttributes *ga = engine->glyphAttributes(si)+si->num_glyphs;
 
-	for (int i = 0; i < newLen; ++i)
+	for (i = 0; i < newLen; ++i)
 	    ga[i] = glyphAttributes[char_map[i]];
 
 
@@ -1564,7 +1565,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 
     // fix logcluster array
     unsigned short *logClusters = engine->logClusters(si)+from-si->position;
-    for (int i = 0; i < syllableLength; ++i)
+    for (i = 0; i < syllableLength; ++i)
 	logClusters[i] = firstGlyph;
 
     if (r != reordered) {
@@ -1801,6 +1802,7 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
 {
     int len = syllableLength;
 
+    int i;
     unsigned short r[64];
     unsigned short *reordered = r;
     GlyphAttributes ga[64];
@@ -1821,7 +1823,7 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
 	str = (QChar *)reordered;
     }
 
-    for ( int i = 0; i < len; i++ ) {
+    for (i = 0; i < len; i++) {
 	glyphAttributes[i].mark = FALSE;
 	glyphAttributes[i].clusterStart = FALSE;
 	glyphAttributes[i].justification = 0;
@@ -1847,7 +1849,7 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
 	unsigned short *logClusters = lc;
 	if (len > 63)
 	    logClusters = (unsigned short *)malloc((len+4)*sizeof(unsigned short));
-	for (int i = 0; i < len; ++i)
+	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
 
 	openType->init(glyphs, glyphAttributes, len, logClusters, len);
@@ -1862,7 +1864,7 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
 
 	int newLen;
 	const int *char_map = openType->mapping(newLen);
-	for (int i = 0; i < newLen; ++i)
+	for (i = 0; i < newLen; ++i)
 	    ga[i] = glyphAttributes[char_map[i]];
 
 	openType->appendTo(engine, si, FALSE);
@@ -1891,7 +1893,7 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
 
     // fix logcluster array
     unsigned short *logClusters = engine->logClusters(si)+from-si->position;
-    for (int i = 0; i < syllableLength; ++i)
+    for (i = 0; i < syllableLength; ++i)
 	logClusters[i] = firstGlyph;
 
     if (gl != glyphs) {
@@ -2210,6 +2212,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 
     int len = syllableLength;
 
+    int i, j;
     unsigned short reordered[16];
     GlyphAttributes glyphAttributes[16];
     glyph_t glyphs[16];
@@ -2232,7 +2235,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 
     if (len > 1) {
 	// rule 2, move COENG+Ro to front
-	for (int i = 1; i < 4; i += 2) {
+	for (i = 1; i < 4; i += 2) {
 	    if (khmer_form(reordered[i]) != Khmer_Coeng)
 		break;
 	    int t = khmer_subscript_type(reordered[i + 1]);
@@ -2253,7 +2256,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 
 	// Rule 3
 	int lastForm = 0;
-	for (int i = 1; i < len; ++i) {
+	for (i = 1; i < len; ++i) {
 	    int form = khmer_form(reordered[i]);
 	    if (form == Khmer_Shift) {
 		if (lastForm == Khmer_AbvV)
@@ -2264,7 +2267,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	}
 
 	// Rule 4 and 5
-	for (int i = 1; i < len; ++i) {
+	for (i = 1; i < len; ++i) {
 	    if (khmer_subscript_type(reordered[i]) == 0xff) {
 		// ### Could be post form for some, but this is what the Uniscribe docs state.
 		properties[i] = AboveForm;
@@ -2276,7 +2279,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	}
     }
 
-    for ( int i = 0; i < len; i++ ) {
+    for (i = 0; i < len; i++) {
 	glyphAttributes[i].mark = FALSE;
 	glyphAttributes[i].clusterStart = FALSE;
 	glyphAttributes[i].justification = 0;
@@ -2296,7 +2299,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	assert (!error);
 
 	unsigned short logClusters[16];
-	for (int i = 0; i < len; ++i)
+	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
 
 
@@ -2313,8 +2316,8 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	    { FT_MAKE_TAG( 'a', 'b', 'v', 'f' ), AboveForm },
 	    { FT_MAKE_TAG( 'p', 's', 't', 'f' ), PostForm }
 	};
-	for (int j = 0; j < 3; ++j) {
-	    for (int i = 0; i < len; ++i)
+	for (j = 0; j < 3; ++j) {
+	    for (i = 0; i < len; ++i)
 		where[i] = (properties[i] & features[j].form);
 	    openType->applyGSUBFeature(features[j].feature, where);
 	}
@@ -2326,7 +2329,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	    FT_MAKE_TAG( 'p', 's', 't', 's' ),
 	    FT_MAKE_TAG( 'c', 'l', 'i', 'g' )
 	};
-	for (int i = 0; i < 5; ++i)
+	for (i = 0; i < 5; ++i)
 	    openType->applyGSUBFeature(features2[i]);
 
 	openType->applyGPOSFeatures();
@@ -2335,7 +2338,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 
 	int newLen;
 	const int *char_map = openType->mapping(newLen);
-	for (int i = 0; i < newLen; ++i)
+	for (i = 0; i < newLen; ++i)
 	    ga[i] = glyphAttributes[char_map[i]];
 
 	openType->appendTo(engine, si, FALSE);
@@ -2361,7 +2364,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 
     // fix logcluster array
     unsigned short *logClusters = engine->logClusters(si)+from-si->position;
-    for (int i = 0; i < syllableLength; ++i)
+    for (i = 0; i < syllableLength; ++i)
 	logClusters[i] = firstGlyph;
 
 }
@@ -2537,6 +2540,7 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 {
     const QChar *ch = string.unicode() + from;
 
+    int i;
     unsigned short composed = 0;
     // see if we can compose the syllable into a modern hangul
     if (syllableLength == 2) {
@@ -2574,14 +2578,14 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 	    logClusters = (unsigned short *)malloc(len * sizeof(unsigned short));
 	}
 
-	for ( int i = 0; i < len; i++ ) {
+	for (i = 0; i < len; i++) {
 	    glyphAttributes[i].mark = FALSE;
 	    glyphAttributes[i].clusterStart = FALSE;
 	    glyphAttributes[i].justification = 0;
 	    glyphAttributes[i].zeroWidth = FALSE;
 	    IDEBUG("    %d: %4x", i, ch[i].unicode());
 	}
-	for (int i = 0; i < len; ++i)
+	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
 	glyphAttributes[0].clusterStart = TRUE;
 
@@ -2607,7 +2611,7 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 
 	int newLen;
 	const int *char_map = openType->mapping(newLen);
-	for (int i = 0; i < newLen; ++i)
+	for (i = 0; i < newLen; ++i)
 	    glyphAttrs[i] = glyphAttributes[char_map[i]];
 
 	openType->appendTo(engine, si, FALSE);
@@ -2641,7 +2645,7 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 						 (si->analysis.bidiLevel %2));
 	assert (!error);
 
-	for ( int i = 0; i < len; i++ ) {
+	for (i = 0; i < len; i++) {
 	    glyphAttributes[i].mark = FALSE;
 	    glyphAttributes[i].clusterStart = FALSE;
 	    glyphAttributes[i].justification = 0;
@@ -2655,7 +2659,7 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 
     // fix logcluster array
     unsigned short *logClusters = engine->logClusters(si)+from-si->position;
-    for (int i = 0; i < syllableLength; ++i)
+    for (i = 0; i < syllableLength; ++i)
 	logClusters[i] = firstGlyph;
 }
 
