@@ -1611,13 +1611,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
 		QKeyEvent a(etype, mychar, chr, modifiers,
 			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
-		if ( qt_dispatchAccelEvent( this, &a ) ) {
+		if(qt_dispatchAccelEvent(widget, &a)) {
 #ifdef DEBUG_KEY_MAPS
-		qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
-		       widget ? widget->className() : "none", widget ? widget->name() : "",
-		       mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
+		    qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
+			   widget ? widget->className() : "none", widget ? widget->name() : "",
+			   mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
 #endif
-			key_event = FALSE;
+		    key_event = FALSE;
 		} else {
 		    HICommand hic;
 		    if(IsMenuKeyEvent(NULL, event, kNilOptions,
