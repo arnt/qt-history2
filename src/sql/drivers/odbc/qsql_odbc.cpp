@@ -79,7 +79,7 @@ public:
     }
 
     inline void clearValues()
-    { fieldCache.fill(QCoreVariant()); }
+    { fieldCache.fill(QCoreVariant()); fieldCacheIdx = 0; }
 
     SQLHANDLE hEnv;
     SQLHANDLE hDbc;
@@ -93,6 +93,7 @@ public:
 
     QSqlRecord rInf;
     QVector<QCoreVariant> fieldCache;
+    int fieldCacheIdx;
 };
 
 static QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
@@ -629,6 +630,7 @@ bool QODBCResult::reset (const QString& query)
 
     d->rInf.clear();
     d->fieldCache.clear();
+    d->fieldCacheIdx = 0;
     // Always reallocate the statement handle - the statement attributes
     // are not reset if SQLFreeStmt() is called which causes some problems.
     if (d->hStmt) {
@@ -809,77 +811,84 @@ QCoreVariant QODBCResult::data(int field)
         qWarning("QODBCResult::data: column %d out of range", field);
         return QCoreVariant();
     }
-    if (field < d->fieldCache.size() && d->fieldCache.at(field).isValid())
+    if (field < d->fieldCacheIdx)
         return d->fieldCache.at(field);
+
     SQLRETURN r(0);
     SQLINTEGER lengthIndicator = 0;
 
-    const QSqlField info = d->rInf.field(field);
-    switch (info.type()) {
+    for (int i = d->fieldCacheIdx; i <= field; ++i) {
+        // some servers do not support fetching column n after we already
+        // fetched column n+1, so cache all previous columns here
+        const QSqlField info = d->rInf.field(i);
+        switch (info.type()) {
         case QCoreVariant::LongLong:
-            d->fieldCache[field] = qGetBigIntData(d->hStmt, field);
+            d->fieldCache[i] = qGetBigIntData(d->hStmt, i);
         break;
         case QCoreVariant::Int:
-            d->fieldCache[field] = qGetIntData(d->hStmt, field);
+            d->fieldCache[i] = qGetIntData(d->hStmt, i);
         break;
         case QCoreVariant::Date:
             DATE_STRUCT dbuf;
             r = SQLGetData(d->hStmt,
-                            field + 1,
+                            i + 1,
                             SQL_C_DATE,
                             (SQLPOINTER)&dbuf,
                             0,
                             &lengthIndicator);
             if ((r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO) && (lengthIndicator != SQL_NULL_DATA))
-                d->fieldCache[field] = QCoreVariant(QDate(dbuf.year, dbuf.month, dbuf.day));
+                d->fieldCache[i] = QCoreVariant(QDate(dbuf.year, dbuf.month, dbuf.day));
             else
-                d->fieldCache[field] = QCoreVariant(QCoreVariant::Date);
+                d->fieldCache[i] = QCoreVariant(QCoreVariant::Date);
         break;
         case QCoreVariant::Time:
             TIME_STRUCT tbuf;
             r = SQLGetData(d->hStmt,
-                            field + 1,
+                            i + 1,
                             SQL_C_TIME,
                             (SQLPOINTER)&tbuf,
                             0,
                             &lengthIndicator);
             if ((r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO) && (lengthIndicator != SQL_NULL_DATA))
-                d->fieldCache[field] = QCoreVariant(QTime(tbuf.hour, tbuf.minute, tbuf.second));
+                d->fieldCache[i] = QCoreVariant(QTime(tbuf.hour, tbuf.minute, tbuf.second));
             else
-                d->fieldCache[field] = QCoreVariant(QCoreVariant::Time);
+                d->fieldCache[i] = QCoreVariant(QCoreVariant::Time);
         break;
         case QCoreVariant::DateTime:
             TIMESTAMP_STRUCT dtbuf;
             r = SQLGetData(d->hStmt,
-                            field + 1,
+                            i + 1,
                             SQL_C_TIMESTAMP,
                             (SQLPOINTER)&dtbuf,
                             0,
                             &lengthIndicator);
             if ((r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO) && (lengthIndicator != SQL_NULL_DATA))
-                d->fieldCache[field] = QCoreVariant(QDateTime(QDate(dtbuf.year, dtbuf.month, dtbuf.day), QTime(dtbuf.hour, dtbuf.minute, dtbuf.second)));
+                d->fieldCache[i] = QCoreVariant(QDateTime(QDate(dtbuf.year, dtbuf.month, dtbuf.day),
+                                                QTime(dtbuf.hour, dtbuf.minute, dtbuf.second)));
             else
-                d->fieldCache[field] = QCoreVariant(QCoreVariant::DateTime);
+                d->fieldCache[i] = QCoreVariant(QCoreVariant::DateTime);
             break;
         case QCoreVariant::ByteArray:
-            d->fieldCache[field] = qGetBinaryData(d->hStmt, field);
+            d->fieldCache[i] = qGetBinaryData(d->hStmt, i);
             break;
         case QCoreVariant::String:
-            d->fieldCache[field] = qGetStringData(d->hStmt, field, info.length(), true);
+            d->fieldCache[i] = qGetStringData(d->hStmt, i, info.length(), true);
             break;
         case QCoreVariant::Double:
             if (info.typeID() == SQL_DECIMAL || info.typeID() == SQL_NUMERIC)
                 // bind Double values as string to prevent loss of precision
-                d->fieldCache[field] = qGetStringData(d->hStmt, field,
-                                                       info.length() + 1, false); // length + 1 for the comma
+                d->fieldCache[i] = qGetStringData(d->hStmt, i,
+                                       info.length() + 1, false); // length + 1 for the comma
             else
-                d->fieldCache[field] = qGetDoubleData(d->hStmt, field);
+                d->fieldCache[i] = qGetDoubleData(d->hStmt, i);
             break;
         // ###        case QCoreVariant::CString:
         default:
-            d->fieldCache[field] = QCoreVariant(qGetStringData(d->hStmt, field,
-                                                              info.length(), false));
+            d->fieldCache[i] = QCoreVariant(qGetStringData(d->hStmt, i,
+                                                           info.length(), false));
             break;
+        }
+        d->fieldCacheIdx = field + 1;
     }
     return d->fieldCache[field];
 }
@@ -888,7 +897,7 @@ bool QODBCResult::isNull(int field)
 {
     if (field < 0 || field > d->fieldCache.size())
         return true;
-    if (!d->fieldCache.at(field).isValid()) {
+    if (field <= d->fieldCacheIdx) {
         // since there is no good way to find out whether the value is NULL
         // without fetching the field we'll fetch it here.
         // (data() also sets the NULL flag)
