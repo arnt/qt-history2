@@ -9,9 +9,9 @@
 class QWidgetPlugIn : public QWidgetInterface, public QPlugIn
 {
 public:
-    QString queryPlugInInterface() { return "QWidgetInterface"; }
-
     QWidgetPlugIn( const QString& filename, LibraryPolicy = Default );
+
+    QCString queryPlugInInterface() const { return "QWidgetInterface"; }
 
     QWidget* create( const QString& classname, QWidget* parent = 0, const char* name = 0 );
 };

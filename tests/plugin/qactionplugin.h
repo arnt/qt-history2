@@ -11,7 +11,7 @@ class QActionPlugIn : public QActionInterface, public QPlugIn
 public:
     QActionPlugIn( const QString& filename, LibraryPolicy = Default );
 
-    QString queryPlugInInterface() { return "QActionInterface"; }
+    QCString queryPlugInInterface() const { return "QActionInterface"; }
 
     QAction* create( const QString& classname, QObject* parent = 0 );
 };

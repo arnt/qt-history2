@@ -31,7 +31,6 @@ public:
     QString author();
 
     QStringList featureList();
-    QApplicationInterface* requestApplicationInterface( const QCString& );
 
 protected:
     bool loadInterface();

@@ -3,7 +3,7 @@
 
 #include <qstringlist.h>
 
-class QApplicationInterface;
+class QClientInterface;
 
 class QPlugInInterface
 {
@@ -16,9 +16,10 @@ public:
     virtual QString author() { return QString::null; }
 
     virtual QStringList featureList() { return QStringList(); }
-    virtual QString queryPlugInInterface() = 0;
-    virtual QApplicationInterface* requestApplicationInterface( const QCString& ) 
-    { 
+    
+    virtual QCString queryPlugInInterface() const = 0;
+    virtual QClientInterface* requestClientInterface( const QCString& ) 
+    {
 	return 0;
     }
 };
