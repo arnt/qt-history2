@@ -168,8 +168,8 @@ extern "C" char *XSetIMValues( XIM /* im */, ... );
 #  include <X11/Xlocale.h>
 #endif // X11R4
 
-#ifdef MITSHM
+#ifdef QT_MITSHM
 #  include <X11/extensions/XShm.h>
-#endif // MITSHM
+#endif // QT_MITSHM
 
 #endif // QT_X11_H

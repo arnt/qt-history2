@@ -45,10 +45,10 @@
 //    2. Qt does not handle the ShmCompletion message, so you will
 //        get strange effects if you xForm() repeatedly.
 //
-// #define MITSHM
+// #define QT_MITSHM
 
-#if defined(Q_OS_WIN32) && defined(MITSHM)
-#undef MITSHM
+#if defined(Q_OS_WIN32) && defined(QT_MITSHM)
+#undef QT_MITSHM
 #endif
 
 #include "qplatformdefs.h"
@@ -80,7 +80,7 @@ inline static void qSafeXDestroyImage( XImage *x )
   MIT Shared Memory Extension support: makes xForm noticeably (~20%) faster.
  *****************************************************************************/
 
-#if defined(MITSHM)
+#if defined(QT_MITSHM)
 
 static bool	       xshminit = FALSE;
 static XShmSegmentInfo xshminfo;
@@ -162,7 +162,7 @@ static bool qt_create_mitshm_buffer( const QPaintDevice* dev, int w, int h )
 //     return FALSE;
 // }
 
-#endif // MITSHM
+#endif // QT_MITSHM
 
 
 /*****************************************************************************
@@ -1743,7 +1743,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	return pm;
     }
 
-#if defined(MITSHM)
+#if defined(QT_MITSHM)
     static bool try_once = TRUE;
     if (try_once) {
 	try_once = FALSE;
@@ -1775,7 +1775,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	dbpl = ((w*bpp+31)/32)*4;
     dbytes = dbpl*h;
 
-#if defined(MITSHM)
+#if defined(QT_MITSHM)
     if ( use_mitshm ) {
 	dptr = (uchar *)xshmimg->data;
 	uchar fillbyte = bpp == 8 ? white.pixel() : 0xff;
@@ -1791,7 +1791,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    memset( dptr, Qt::white.pixel(), dbytes );
 	else
 	    memset( dptr, 0xff, dbytes );
-#if defined(MITSHM)
+#if defined(QT_MITSHM)
     }
 #endif
 
@@ -1830,7 +1830,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     } else {
 	xbpl  = (w*bpp)/8;
 	p_inc = dbpl - xbpl;
-#if defined(MITSHM)
+#if defined(QT_MITSHM)
 	if ( use_mitshm )
 	    p_inc = xshmimg->bytes_per_line - xbpl;
 #endif
@@ -1968,7 +1968,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	GC gc = qt_xget_readonly_gc( x11Screen(), FALSE );
 	QPixmap pm( w, h );
 	pm.data->uninit = FALSE;
-#if defined(MITSHM)
+#if defined(QT_MITSHM)
 	if ( use_mitshm ) {
 	    XCopyArea( dpy, xshmpm, pm.handle(), gc, 0, 0, w, h, 0, 0 );
 	} else {
@@ -1977,7 +1977,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 			       ZPixmap, 0, (char *)dptr, w, h, 32, 0 );
 	    XPutImage( dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
 	    qSafeXDestroyImage( xi );
-#if defined(MITSHM)
+#if defined(QT_MITSHM)
 	}
 #endif
 	if ( data->mask )			// xform mask, too
