@@ -7,6 +7,7 @@
 #include <qcombobox.h>
 #include <qevent.h>
 #include <qgroupbox.h>
+#include <qlistview.h>
 #include <qmenu.h>
 #include <qpaintdevice.h>
 #include <qpainter.h>
@@ -855,6 +856,32 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
         HIThemeDrawButton(qt_glb_mac_rect(comborect, p), &bdi,
                           static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal, 0);
         break; }
+    case CC_ListView: {
+        if (sub & SC_ListView)
+            QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
+        if (sub & (SC_ListViewBranch | SC_ListViewExpand)) {
+            if (opt.isDefault())
+                break;
+            QListViewItem *item = opt.listViewItem()->firstChild();
+            int y = r.y();
+            int h = r.height();
+            int x = r.right() - 10;
+            while (item && y < h) {
+                if (y + item->height() > 0) {
+                    uint myflags = flags;
+                    if (item->isExpandable() || item->childCount()) {
+                        myflags |= Style_Children;
+                        if (item->isOpen())
+                            myflags |= Style_Open;
+                        QRect mr(x, y + item->height() / 2 - 4, 9, 9);
+                        drawPrimitive(PE_TreeBranch, p, mr, pal, myflags, opt);
+                    }
+                }
+                y += item->totalHeight();
+                item = item->nextSibling();
+            }
+        }
+        break; }
     default:
         QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
     }
@@ -1116,6 +1143,7 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOpti
         ret = Qt::AlignHCenter;
         break;
     case SH_TabBar_SelectMouseType:
+    case SH_ListViewExpand_SelectMouseType:
         ret = QEvent::MouseButtonRelease;
         break;
     case SH_ComboBox_Popup:
