@@ -5,7 +5,7 @@
 FORCEDEP=FORCE
 CONTINUEONERROR=-k
 
-all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples
+all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples sub-extensions
 	@echo
 	@echo "The Qt library is now built in ./lib"
 	@echo "The Qt examples are built in the directories in ./examples"
@@ -46,7 +46,10 @@ sub-examples: sub-tools $(FORCEDEP)
 	cd examples && $(MAKE) $(CONTINUEONERROR)
 
 sub-extensions: sub-src $(FORCEDEP)
-	cd extensions && $(MAKE) $(CONTINUEONERROR)
+	@echo
+	@echo "  Extentions are currently not supported in using win32-g++." 
+	@echo
+#	cd extensions && $(MAKE) $(CONTINUEONERROR)
 
 clean:
 	cd tools && $(MAKE) $(CONTINUEONERROR) clean
