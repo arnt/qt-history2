@@ -3718,6 +3718,7 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 #endif
 #ifndef QT_NO_QWS_VGA_16
     } else if(d==4) {
+	printf("Creating a non-VGA16 4-bit QGfxRaster object!!\n");
 	ret = new QGfxRaster<4,QGfxRaster_VGA16>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_16
@@ -3802,6 +3803,10 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 # include "qgfxtransformed_qws.cpp"
 #endif
 
+#if !defined(QT_NO_QWS_VGA_16)
+# include "qgfxvga16_qws.cpp"
+#endif
+
 struct DriverTable
 {
     char *name;
@@ -3826,6 +3831,9 @@ struct DriverTable
 #if !defined(QT_NO_QWS_TRANSFORMED)
     { "Transformed", qt_get_screen_transformed },
 #endif
+#if !defined(QT_NO_QWS_VGA16)
+    { "VGA16", qt_get_screen_vga16 },
+#endif
     { 0,         0 },
 };
 
@@ -3833,7 +3841,7 @@ QScreen *qt_get_screen( int display_id, const char *spec, char *slot, unsigned c
 {
     QString displaySpec( spec );
 
-    if ( displaySpec[0] == ':' || displaySpec.isEmpty() )
+    if ( displaySpec.isEmpty() || displaySpec[0] == ':' )
 	displaySpec = "LinuxFb" + displaySpec;	// default driver
 
     QString driver = displaySpec;
