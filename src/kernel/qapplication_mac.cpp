@@ -487,7 +487,8 @@ enum {
 #endif
     kEventQtRequestTimer = 15,
     kEventQtRequestWakeup = 16,
-    kEventQtRequestShowSheet = 17
+    kEventQtRequestShowSheet = 17,
+    kEventQtRequestActivate = 18
 };
 static EventRef request_updates_pending = NULL;
 void qt_event_request_updates()
@@ -578,6 +579,23 @@ void qt_event_request_wakeup()
 		     kEventPriorityHigh);
     ReleaseEvent(request_wakeup_pending);
 }
+static EventRef request_activate_pending = NULL;
+void qt_event_request_activate(QWidget *w)
+{
+    if(request_activate_pending) {
+	if(IsEventInQueue(GetMainEventQueue(), request_activate_pending))
+	    return;
+#ifdef DEBUG_DROPPED_EVENTS
+	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+#endif
+    }
+
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
+		kEventAttributeUserEvent, &request_activate_pending);
+    SetEventParameter(request_activate_pending, kEventParamQWidget, typeQWidget, sizeof(w), &w);
+    PostEventToQueue(GetMainEventQueue(), request_activate_pending, kEventPriorityHigh);
+    ReleaseEvent(request_activate_pending);
+}
 void qt_event_request_timer(TimerInfo *tmr)
 {
     EventRef tmr_ev = NULL;
@@ -621,6 +639,7 @@ static EventTypeSpec events[] = {
     { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestShowSheet },
     { kEventClassQt, kEventQtRequestContext },
+    { kEventClassQt, kEventQtRequestActivate },
 #ifndef QMAC_QMENUBAR_NO_NATIVE
     { kEventClassQt, kEventQtRequestMenubarUpdate },
 #endif
@@ -1541,6 +1560,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    timeval tm;
 	    memset(&tm, '\0', sizeof(tm));
 	    l->macHandleSelect(&tm);
+	} else if(ekind == kEventQtRequestActivate) {
+	    request_activate_pending = NULL;
+	    QWidget *widget = NULL;
+	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
+			      sizeof(widget), NULL, &widget);
+	    if(widget)
+		widget->setActiveWindow();
 	} else if(ekind == kEventQtRequestContext) {
 	    bool send = FALSE;
 	    if((send = (event == request_context_hold_pending)))
@@ -2254,6 +2280,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			widget->propagateUpdates();
 		}
 	    }
+	} else if(ekind == kEventWindowHidden) {
 	} else if(ekind == kEventWindowShown) {
 	    if(!widget->testWFlags(WType_Popup))
 		widget->topLevelWidget()->setActiveWindow();

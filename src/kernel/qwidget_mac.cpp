@@ -59,6 +59,7 @@ void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
+void qt_event_request_activate(QWidget *); //qapplication_mac.cpp
 void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 bool qt_nograb();
@@ -1470,7 +1471,6 @@ void QWidget::hideWindow()
 	else
 	    ShowHide((WindowPtr)hd, 0); //now we hide
 	SizeWindow((WindowPtr)hd, 0, 0, 1);
-
 	if(isActiveWindow()) {
 	    QWidget *w = NULL;
 	    if(parentWidget())
@@ -1483,7 +1483,7 @@ void QWidget::hideWindow()
 		}
 	    }
 	    if(w && w->isVisible())
-		w->setActiveWindow();
+		qt_event_request_activate(w);
 	}
     } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) { //strange!! ###
 	qt_dirty_wndw_rgn("hide",this, mac_rect(posInWindow(this), geometry().size()));
