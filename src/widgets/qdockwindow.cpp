@@ -428,6 +428,8 @@ void QDockWindowHandle::keyReleaseEvent( QKeyEvent *e )
 
 void QDockWindowHandle::mousePressEvent( QMouseEvent *e )
 {
+    if ( !dockWindow->dockArea )
+	return;
     ctrlDown = ( e->state() & ControlButton ) == ControlButton;
     oldFocus = qApp->focusWidget();
     setFocus();
@@ -515,6 +517,8 @@ void QDockWindowHandle::updateGui()
 
 QSize QDockWindowHandle::minimumSizeHint() const
 {
+    if ( !dockWindow->dockArea )
+	return QSize( 0, 0 );
     int wh = dockWindow->isCloseEnabled() ? 17 : style().pixelMetric( QStyle::PM_DockWindowHandleExtent, this );
     if ( dockWindow->orientation() == Horizontal )
 	return QSize( wh, 0 );
