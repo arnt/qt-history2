@@ -1368,7 +1368,7 @@ QStyle* QWidget::setStyle(const QString &style)
     This value is not updated properly during drag and drop
     operations.
 
-    \sa QEvent::Enter, QEvent::Leave
+    \sa enterEvent(),  leaveEvent()
 */
 
 /*!
