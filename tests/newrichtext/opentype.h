@@ -13,7 +13,8 @@ public:
 
 
     enum Scripts {
-	Arabic = FT_MAKE_TAG( 'a', 'r', 'a', 'b' )
+	Arabic = FT_MAKE_TAG( 'a', 'r', 'a', 'b' ),
+	Syriac = FT_MAKE_TAG( 's', 'y', 'r', 'c' )
     };
 
     bool supportsScript( unsigned int script );
@@ -22,7 +23,7 @@ public:
     bool applyGlyphPositioning( unsigned int script, ShapedItem *shaped );
 
 private:
-    bool loadArabicTables( FT_ULong script);
+    bool loadTables( FT_ULong script);
 
 
     FT_Face face;

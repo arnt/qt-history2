@@ -22,8 +22,11 @@ struct Features {
     unsigned short bit;
 };
 
-// ### keep in sync with Shape enum in scriptenginearabic.cpp
-const Features arabicGSUBFeatures[] = {
+// GPOS features are always applied. We only have to note the GSUB features that should not get
+// applied in all cases here.
+
+// always keep in sync with Shape enum in scriptenginearabic.cpp
+const Features arabicFeatures[] = {
     { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x8000 },
     { FT_MAKE_TAG( 'i', 's', 'o', 'l' ), 0x01 },
     { FT_MAKE_TAG( 'f', 'i', 'n', 'a' ), 0x02 },
@@ -32,19 +35,53 @@ const Features arabicGSUBFeatures[] = {
     { FT_MAKE_TAG( 'r', 'l', 'i', 'g' ), 0x4000 },
     { FT_MAKE_TAG( 'c', 'a', 'l', 't' ), 0x8000 },
     { FT_MAKE_TAG( 'l', 'i', 'g', 'a' ), 0x4000 },
+    { FT_MAKE_TAG( 'd', 'l', 'i', 'g' ), 0x8000 },
     // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
     { FT_MAKE_TAG( 'm', 's', 'e', 't' ), 0x8000 },
     { 0,  0 }
 };
-// required for minimal support are: fina, medi, init and rlig. Some old fonts actually only have liga instead of rlig,
-// so we also accept liga without rlig
 
-static inline bool arabicFoundRequiredFeatures( int found_bits ) {
-    return ((found_bits & 0x400e) == 0x400e );
-}
+const Features syriacFeatures[] = {
+    { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x8000 },
+    { FT_MAKE_TAG( 'i', 's', 'o', 'l' ), 0x01 },
+    { FT_MAKE_TAG( 'f', 'i', 'n', 'a' ), 0x02 },
+    { FT_MAKE_TAG( 'f', 'i', 'n', '2' ), 0x02 },
+    { FT_MAKE_TAG( 'f', 'i', 'n', '3' ), 0x02 },
+    { FT_MAKE_TAG( 'm', 'e', 'd', 'i' ), 0x04 },
+    { FT_MAKE_TAG( 'm', 'e', 'd', '2' ), 0x04 },
+    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), 0x08 },
+    { FT_MAKE_TAG( 'r', 'l', 'i', 'g' ), 0x4000 },
+    { FT_MAKE_TAG( 'c', 'a', 'l', 't' ), 0x8000 },
+    { FT_MAKE_TAG( 'l', 'i', 'g', 'a' ), 0x8000 },
+    { FT_MAKE_TAG( 'd', 'l', 'i', 'g' ), 0x8000 },
+    { 0,  0 }
+};
 
-bool OpenTypeIface::loadArabicTables( FT_ULong script)
+struct SupportedScript {
+    FT_ULong tag;
+    const Features *features;
+    unsigned short required_bits;
+};
+
+static const SupportedScript supported_scripts[] = {
+    { OpenTypeIface::Arabic, arabicFeatures, 0x400e },
+    { OpenTypeIface::Syriac, syriacFeatures, 0x400e },
+    { 0,  0,  0 }
+};
+
+bool OpenTypeIface::loadTables( FT_ULong script)
 {
+    // find script in our list of supported scripts.
+    const SupportedScript *s = supported_scripts;
+    while ( s->tag != 0 ) {
+	if ( s->tag == script )
+	    break;
+	++s;
+    }
+    if ( supported_scripts->tag == 0 )
+	return FALSE;
+
+
     FT_Error error = TT_GSUB_Select_Script( gsub, script, &script_index );
     if ( error ) {
 	qDebug("could not select arabic script: %d", error );
@@ -64,7 +101,7 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
     for( int i = 0; i < numfeatures; i++ ) {
 	TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
 	FT_ULong feature = r->FeatureTag;
-	const Features *f = arabicGSUBFeatures;
+	const Features *f = s->features;
 	while ( f->tag ) {
 	    if ( f->tag == feature ) {
 		found_bits |= f->bit;
@@ -76,8 +113,8 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
 	TT_GSUB_Select_Feature( gsub, f->tag, script_index, 0xffff, &feature_index );
 	TT_GSUB_Add_Feature( gsub, feature_index, f->bit );
 
-	char featureString[5];
-	tag_to_string( featureString, r->FeatureTag );
+// 	char featureString[5];
+// 	tag_to_string( featureString, r->FeatureTag );
 // 	qDebug("found feature '%s' in GSUB table", featureString );
 // 	qDebug("setting bit %x for feature, feature_index = %d", f->bit, feature_index );
     }
@@ -108,7 +145,7 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
 
 
     }
-    if ( !arabicFoundRequiredFeatures( found_bits ) ) {
+    if ( found_bits & s->required_bits == s->required_bits ) {
 	qDebug( "not all required features for arabic found! found_bits=%x", found_bits );
 	TT_GSUB_Clear_Features( gsub );
 	return FALSE;
@@ -123,7 +160,6 @@ OpenTypeIface::OpenTypeIface( FT_Face _face )
     : face( _face ), gdef( 0 ), gsub( 0 ), gpos( 0 ), current_script( 0 )
 {
     hasGDef = hasGSub = hasGPos = TRUE;
-    (void) supportsScript( Arabic );
 }
 
 bool OpenTypeIface::supportsScript( unsigned int script )
@@ -163,11 +199,8 @@ bool OpenTypeIface::supportsScript( unsigned int script )
 	    }
 	}
     }
-    // nothing else implemented currently
-    if ( script != Arabic )
-	return FALSE;
 
-    if ( loadArabicTables( script ) ) {
+    if ( loadTables( script ) ) {
 	current_script = script;
 	return TRUE;
     }
@@ -179,7 +212,7 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
     if ( script != current_script ) {
 	TT_GSUB_Clear_Features( gsub );
 
-	if ( script == Arabic && loadArabicTables( script ) )
+	if ( script == Arabic && loadTables( script ) )
 	    current_script = script;
     }
 
@@ -259,7 +292,7 @@ bool OpenTypeIface::applyGlyphPositioning( unsigned int script, ShapedItem *shap
 	if ( script != current_script ) {
 	    TT_GSUB_Clear_Features( gsub );
 
-	    if ( script == Arabic && loadArabicTables( script ) )
+	    if ( script == Arabic && loadTables( script ) )
 		current_script = script;
 	    else
 		return FALSE;

@@ -233,7 +233,8 @@ void ScriptEngineBasic::position( ShapedItem *shaped )
     d->offsets = (Offset *) realloc( d->offsets, d->num_glyphs * sizeof( Offset ) );
     memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
     d->advances = (Offset *) realloc( d->advances, d->num_glyphs * sizeof( Offset ) );
-    d->ascent = d->descent = 0;
+    d->ascent = d->fontEngine->ascent();
+    d->descent = d->fontEngine->descent();
     for ( int i = 0; i < d->num_glyphs; i++ ) {
 	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
 	d->advances[i].x = gi.xoff;

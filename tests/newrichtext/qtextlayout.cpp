@@ -2,6 +2,7 @@
 
 #include "scriptengine.h"
 #include "scriptenginebasic.h"
+#include "scriptenginesyriac.h"
 #include "scriptenginearabic.h"
 
 #include <stdlib.h>
@@ -131,6 +132,7 @@ const TextLayout *TextLayout::instance()
 	    for ( int i = 1; i < QFont::NScripts; i++ )
 		scriptEngines[i] = scriptEngines[0];
 	    scriptEngines[QFont::Arabic] = new ScriptEngineArabic;
+	    scriptEngines[QFont::Syriac] = new ScriptEngineSyriac;
 	}
     }
     return _instance;

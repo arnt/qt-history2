@@ -2,7 +2,7 @@
 #define SCRIPTENGINEARABIC_H
 
 #include "scriptenginebasic.h"
-
+#include "opentype.h"
 
 class ScriptEngineArabic : public ScriptEngineBasic
 {
@@ -11,9 +11,9 @@ public:
     void shape( ShapedItem *result );
     void position( ShapedItem *result );
 
-private:
-    void openTypeShape( const OpenTypeIface*, ShapedItem *result );
-    void openTypePosition( const OpenTypeIface *, ShapedItem *result );
+protected:
+    void openTypeShape( OpenTypeIface::Scripts, const OpenTypeIface*, ShapedItem *result );
+    void openTypePosition( OpenTypeIface::Scripts, const OpenTypeIface *, ShapedItem *result );
 };
 
 #endif

@@ -145,6 +145,8 @@ void EditWidget::paintEvent( QPaintEvent * )
 	}
 	start = end;
 	y += d->lineBreaks[j].descent;
+// 	painter.drawLine( 0,  y+1,  1000, y+1 );
+// 	y+=3;
     }
 
 }
