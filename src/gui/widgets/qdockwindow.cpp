@@ -584,8 +584,7 @@ void QDockWindowPrivate::toggleView(bool b)
     area.
 */
 QDockWindow::QDockWindow(QWidget *parent, Qt::WFlags flags)
-    : QFrame(*new QDockWindowPrivate, parent,
-              flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
+    : QFrame(*new QDockWindowPrivate, parent, flags)
 {
     Q_D(QDockWindow);
     d->init();
@@ -660,11 +659,10 @@ void QDockWindow::setTopLevel(bool topLevel)
 
     const bool visible = isVisible();
 
-    setParent(parentWidget(), topLevel ? Qt::Tool : Qt::Widget);
+    setWindowFlags(Qt::FramelessWindowHint | (topLevel ? Qt::Tool : Qt::Widget));
 
     if (topLevel) {
-        QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
-        if (layout)
+        if (QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout()))
             layout->invalidate();
     }
 
