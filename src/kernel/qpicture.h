@@ -48,7 +48,7 @@
 class Q_EXPORT QPicture : public QPaintDevice		// picture class
 {
 public:
-    QPicture( int formatVersion = 0 );
+    QPicture( int formatVersion = -1 );
     QPicture( const QPicture & );
    ~QPicture();
 

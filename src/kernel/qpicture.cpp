@@ -19,7 +19,7 @@
 ** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
+** licenses may use this file in accodrance with the Qt Commercial License
 ** Agreement provided with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
@@ -130,7 +130,8 @@ QPicture::QPicture( int formatVersion )
 {
     d = new QPicturePrivate;
 
-    if ( formatVersion != (int)mfhdr_maj ) {
+    // still accept the 0 default from before Qt 3.0.
+    if ( formatVersion > 0 && formatVersion != (int)mfhdr_maj ) {
 	d->formatMajor = formatVersion;
 	d->formatMinor = 0;
 	d->formatOk = FALSE;
@@ -311,7 +312,7 @@ bool QPicture::play( QPainter *painter )
     QDataStream s;
     s.setDevice( &d->pictb );			// attach data stream to buffer
     s.device()->at( 10 );			// go directly to the data
-    s.setVersion( d->formatMajor );
+    s.setVersion( d->formatMajor != 4 ? d->formatMajor : 3 );
 
     Q_UINT8  c, clen;
     Q_UINT32 nrecords;
@@ -619,7 +620,8 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
     bool retVal = TRUE;
     QDataStream s;
     s.setDevice( &pictb );
-    s.setVersion( formatMajor );
+    // when moving up to 4 the QDataStream version remained at 3
+    s.setVersion( formatMajor != 4 ? formatMajor : 3 );
     if ( c ==  PdcBegin ) {			// begin; write header
 	QByteArray empty( 0 );
 	pictb.setBuffer( empty );		// reset byte array in buffer
@@ -755,7 +757,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 		s << *p[0].rect;
 		s << *p[1].image;
 		br = *p[0].rect;
-	    }		
+	    }
 	    break;
 	case PdcSave:
 	case PdcRestore:
@@ -1059,7 +1061,7 @@ bool QPicture::QPicturePrivate::checkFormat()
 	pictb.close();
 	return FALSE;
     }
-    s.setVersion( major );
+    s.setVersion( major != 4 ? major : 3 );
 
     Q_UINT8  c, clen;
     s >> c >> clen;
