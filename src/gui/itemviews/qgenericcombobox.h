@@ -2,7 +2,9 @@
 #define QGENERICCOMBOBOX_H
 
 #ifndef QT_H
-#include <qabstractitemview.h>
+#include <qwidget.h>
+#include <qabstractitemmodel.h>
+#include <qabstractitemdelegate.h>
 #endif
 
 class QGenericListView;
