@@ -50,28 +50,36 @@ static const char * const edit2_xpm[]={
 #include <qapplication.h>
 #include <qpixmap.h>
 #include <qpopupmenu.h>
-#include <qcheckbox.h>
+#include <qmainwindow.h>
 
 int main( int argc, char **argv )
 {
 	QApplication app( argc, argv );
 
-	QTrayWidget widget;
+	QMainWindow mw;
+	app.setMainWidget( &mw );
+
+	QTrayWidget widget( &mw );
 	widget.setIcon( QPixmap( (const char**)edit_xpm ) );
 	widget.setToolTip( "QTrayWidget" );
 
-	QPopupMenu menu( &widget );
-	menu.insertItem( "&Hide in System Tray" ); //, &cb, SLOT( animateClick() ) );
+	QPopupMenu menu;
+	menu.insertItem( "&Hide in System Tray", &widget, SLOT( hide() ) );
 	menu.insertSeparator();
 	menu.insertItem( "&Quit", &app, SLOT(quit()), Qt::CTRL+Qt::Key_Q );
 	widget.setPopup( &menu );
 
-	widget.show();
-
-	QTrayWidget widget2;
+	QTrayWidget widget2( &mw );
 	widget2.setIcon( QPixmap( (const char**)edit2_xpm ) );
-	widget2.setToolTip( "QTrayWidget" );
+	widget2.setToolTip( "QTrayWidget2" );
+
+	QPopupMenu menu2( &widget );
+	menu2.insertItem( "&Show the other guy", &widget, SLOT( show() ) );
+	widget2.setPopup( &menu2 );
+
+	widget.show();
 	widget2.show();
+	mw.show();
 
 	return app.exec();
 }

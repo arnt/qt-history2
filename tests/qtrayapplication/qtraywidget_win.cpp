@@ -165,6 +165,9 @@ QTrayWidget::~QTrayWidget()
 */
 void QTrayWidget::show()
 {
+    if ( isVisible() )
+	return;
+
     d->update( TRUE );
     if ( d->has_icon )
 	setWState( WState_Visible );
@@ -172,6 +175,9 @@ void QTrayWidget::show()
 
 void QTrayWidget::hide()
 {
+    if ( !isVisible() )
+	return;
+
     d->remove();
     if ( !d->has_icon )
 	clearWState( WState_Visible );
@@ -346,11 +352,12 @@ void QTrayWidget::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( e->button() == RightButton ) {
 	if ( d->current_popup ) {
-	    if ( qApp->mainWidget() )
-		qApp->mainWidget()->setActiveWindow();
+	    setActiveWindow();
 	    d->current_popup->grabMouse();
 	    d->current_popup->exec( e->globalPos() );
 	    d->current_popup->releaseMouse();
+	    setActiveWindow();
+
 	    e->accept();
 	    return;
 	}
