@@ -91,7 +91,7 @@ public:
     buttonState   buttonState;
     int buttonTimerId;
     //animated progress bars
-    QList<QProgressBar> progressBars;
+    QPtrList<QProgressBar> progressBars;
     int progressTimerId;
     int progressOff;
     //big focus rects
@@ -293,7 +293,7 @@ void QAquaStyle::timerEvent( QTimerEvent * te )
     } else if( te->timerId() == d->progressTimerId ) {
 	if( !d->progressBars.isEmpty() ) {
 	    d->progressOff++;
-	    for( QListIterator<QProgressBar> it(d->progressBars); it.current(); ++it)
+	    for( QPtrListIterator<QProgressBar> it(d->progressBars); it.current(); ++it)
 		(*it)->repaint( FALSE );
 	}
     }
