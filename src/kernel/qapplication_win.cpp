@@ -1432,10 +1432,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     msg.pt.y = GET_Y_LPARAM( lParam );
     ClientToScreen( msg.hwnd, &msg.pt ); 	// the coords we get are client coords
 
-    // when the hwnd passed in and the hwnd of the window under the
-    // clicked point is the same everything is OK - after popping up a
-    // modal dialog these may not be the same for some reason which
-    // causes mouse press events to be delivered to the wrong window
+    /*
+    // sometimes the autograb is not released, so the clickevent is sent
+    // to the wrong window. We ignore this for now, because it doesn't
+    // cause any problems.
     if ( msg.message == WM_LBUTTONDOWN || msg.message == WM_RBUTTONDOWN || msg.message == WM_MBUTTONDOWN ) {
 	HWND handle = WindowFromPoint( msg.pt );
 	if ( msg.hwnd != handle ) {
@@ -1443,6 +1443,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    hwnd = handle;
 	}
     }
+    */
     
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_WNDPROC
@@ -2590,7 +2591,11 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		}
 		if ( QWidget::mouseGrabber() == 0 )
 		    setAutoCapture( w->winId() );
-		winPostMessage( w->winId(), msg.message, msg.wParam, msg.lParam );
+
+		POINT widgetpt = gpos;
+		ScreenToClient( w->winId(), &widgetpt );
+		LPARAM lParam = MAKELPARAM( widgetpt.x, widgetpt.y );
+		winPostMessage( w->winId(), msg.message, msg.wParam, lParam );
 	    }
 	}
     } else {					// not popup mode
