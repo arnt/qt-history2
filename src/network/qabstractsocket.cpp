@@ -823,7 +823,9 @@ void QAbstractSocketPrivate::flush()
             socketError = socketLayer.socketError();
             socketErrorString = socketLayer.errorString();
             emit q->error(socketError);
-            resetSocketLayer();
+            // an unexpected error so close the socket.
+            if (state != Qt::ClosingState)
+                q->abort();
             break;
         }
 
@@ -1740,6 +1742,9 @@ Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
     Q_LLONG written = length;
     if (d->isBlocking) {
         flush();
+        // check if something happened in the flush
+        if (!isValid())
+            return -1;
         written -= d->writeBuffer.size();
     }
 
