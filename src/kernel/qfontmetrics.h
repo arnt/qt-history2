@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#8 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#9 $
 **
 ** Definition of QFontMetrics class
 **
@@ -14,6 +14,7 @@
 #define QFONTMET_H
 
 #include "qfont.h"
+#include "qrect.h"
 
 class QFontMetrics
 {
@@ -28,6 +29,8 @@ public:
 
     int			width( const char *, int len = -1 ) const;
     int			width( char ) const;
+    QRect               boundingRect(  const char *, int len = -1 ) const;
+    QRect               boundingRect(  char ) const;
     int                 maxWidth() const;
 
     int                 underlinePos()  const;
@@ -40,5 +43,5 @@ private:
     QFont f;
 };
 
-
 #endif // QFONTMET_H
+
