@@ -1,0 +1,15 @@
+#!/bin/sh
+
+cat >.qmake.cache <<EOF
+OBJECTS_DIR=.obj
+MOC_DIR=.moc
+EOF
+
+TOP=`pwd`
+pros=`find . -name '*.pro'`
+for i in $pros; do
+  p=`basename $i`
+  d=`echo $i | sed -e "s,/[^/]*pro$,,"`
+  echo "creating $d/Makefile"
+  cd $TOP/$d && qmake -o Makefile $p
+done
