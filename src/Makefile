@@ -12,9 +12,9 @@ DISTDIR		= /tmp/qt-0.93
 ####### Compiler
 
 #CFLAGS		= -O2 -DNO_DEBUG -DNO_CHECK
-CFLAGS		= -O2 -W -Wall -Wpointer-arith -Wsynth -Wconversion \
-		-Wcast-align # -Woverloaded-virtual -Wshadow -Wcast-qual
-CDBGFLAGS	= -g
+CFLAGS		= -O2 # -W -Wall
+CDBGFLAGS	= -g -W -Wall -Wpointer-arith -Wsynth -Wconversion -Wcast-align
+		 # -Woverloaded-virtual -Wshadow -Wcast-qual
 CSTATICFLAGS	=
 CSHAREDFLAGS	= -fPIC
 CC		= gcc
