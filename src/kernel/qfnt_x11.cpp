@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#74 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#74 $");
 
 
 static const int fontFields = 14;
@@ -102,12 +102,6 @@ inline QFontInternal::QFontInternal( const QString &name )
 {
 }
 
-inline QFontInternal::~QFontInternal()
-{
-    if ( f )
-	XFreeFont(QPaintDevice::x__Display(), f);
-}
-
 inline bool QFontInternal::dirty() const
 {
     return f == 0;
@@ -129,6 +123,11 @@ inline void QFontInternal::reset()
 	XFreeFont( QPaintDevice::x__Display(), f );
 	f = 0;
     }
+}
+
+inline QFontInternal::~QFontInternal()
+{
+    reset();
 }
 
 
@@ -166,6 +165,7 @@ struct QXFontName
 
 typedef Q_DECLARE(QDictM,QXFontName) QFontNameDict;
 
+
 static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
 static QFontNameDict *fontNameDict   = 0;	// dict of matched font names
@@ -194,7 +194,6 @@ QFontData::QFontData( const QFontData &d )
     lineW = d.lineW;
     fin = d.fin;				// safe to copy
 }
-
 
 QFontData &QFontData::operator=( const QFontData &d )
 {
@@ -232,6 +231,8 @@ XFontStruct *qt_get_xfontstruct( QFontData *d )
 
 void QFont::initialize()
 {
+    if ( fontCache )
+	return;
     fontCache = new QFontCache( fontCacheSize, 29, TRUE, FALSE );
     CHECK_PTR( fontCache );
     fontDict  = new QFontDict( 29, TRUE, FALSE );
@@ -249,10 +250,11 @@ void QFont::initialize()
 
 void QFont::cleanup()
 {
-    fontDict->setAutoDelete( TRUE );
     delete defFont;
     defFont = 0;
     delete fontCache;
+    fontCache = 0;
+    fontDict->setAutoDelete( TRUE );
     delete fontDict;
     delete fontNameDict;
 }
@@ -484,7 +486,7 @@ void QFont::updateFontInfo() const
 
 void QFont::load( HANDLE ) const
 {
-    if ( !fontNameDict || !fontCache )		// not initialized
+    if ( !fontCache )				// not initialized
 	return;
 
     QString k = key();
@@ -509,7 +511,7 @@ void QFont::load( HANDLE ) const
     }
 
     d->fin = fontCache->find( n );
-    if ( !d->fin ) {				// font not in cache
+    if ( !d->fin ) {				// font not loaded
 	d->fin = fontDict->find( n );
 	if ( !d->fin ) {			// font was never loaded
 	    d->fin = new QFontInternal( n );

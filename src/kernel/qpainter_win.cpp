@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#64 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,19 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#64 $");
+
+
+/*
+  QWinFont holds extra font settings for the painter.
+*/
+
+struct QWinFont
+{
+    bool	killFont;
+    HANDLE	hfont;
+    TEXTMETRIC	tm;
+};
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -70,7 +82,7 @@ static HANDLE stock_whitePen;
 static HANDLE stock_nullBrush;
 static HANDLE stock_blackBrush;
 static HANDLE stock_whiteBrush;
-static HANDLE stock_font;
+static HANDLE stock_sysfont;
 
 static QHDCObj stock_dummy;
 static void  *stock_ptr = (void *)&stock_dummy;
@@ -191,8 +203,7 @@ static bool obtain_obj( void **ref, HANDLE *obj, uint pix, QHDCObj **cache,
 			*ref = (void *)h;
 			*obj = h->obj;
 			return TRUE;
-		    }
-		    else {			// all objects in use
+		    } else {			// all objects in use
 #if defined(CACHE_STAT)
 			c_numfaults++;
 #endif
@@ -271,7 +282,7 @@ void QPainter::initialize()
     stock_nullBrush  = GetStockObject( NULL_BRUSH );
     stock_blackBrush = GetStockObject( BLACK_BRUSH );
     stock_whiteBrush = GetStockObject( WHITE_BRUSH );
-    stock_font	     = GetStockObject( SYSTEM_FONT );
+    stock_sysfont    = GetStockObject( SYSTEM_FONT );
     init_cache();
 }
 
@@ -297,9 +308,9 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
     if ( pdev == 0 )
 	warning( "QPainter::redirect: The pdev argument cannot be 0" );
 #endif
-    if ( replacement )
+    if ( replacement ) {
 	pdev_dict->insert( (long)pdev, replacement );
-    else {
+    } else {
 	pdev_dict->remove( (long)pdev );
 	if ( pdev_dict->count() == 0 ) {
 	    delete pdev_dict;
@@ -324,7 +335,7 @@ QPainter::QPainter()
     txop = txinv = 0;
     pixmapBrush = nocolBrush = FALSE;
     penRef = brushRef = 0;
-    tm = 0;
+    winFont = 0;
 }
 
 QPainter::~QPainter()
@@ -355,21 +366,50 @@ void QPainter::setFont( const QFont &font )
 }
 
 
+void *QPainter::textMetric()
+{
+    if ( !isActive() )
+	return 0;
+    if ( winFont == 0 || testf(DirtyFont) )
+	updateFont();
+    return &winFont->tm;
+}
+
+
 void QPainter::updateFont()
 {
     clearf(DirtyFont);
-    if ( tm ) {					// delete old text metrics
-	delete tm;
-	tm = 0;
-    }
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].font = &cfont;
 	if ( !pdev->cmd(PDC_SETFONT,this,param) || !hdc )
 	    return;
     }
-    bool give_hdc = pdev->devType() == PDT_PRINTER && !testf(VxF|WxF);
-    SelectObject( hdc, cfont.handle(give_hdc ? hdc : 0) );
+    HANDLE hfont;
+    bool   ownFont = pdev->devType() == PDT_PRINTER;
+    bool   killFont;
+    if ( ownFont ) {
+	bool stockFont;
+	hfont = cfont.create( &stockFont, testf(VxF|WxF) ? 0 : hdc );
+	killFont = !stockFont;
+    } else {
+	hfont = cfont.handle();
+	killFont = FALSE;
+    }
+    SelectObject( hdc, hfont );
+    if ( winFont ) {
+	if ( winFont->killFont )
+	    DeleteObject( winFont->hfont );
+    } else {
+	winFont = new QWinFont;
+	CHECK_PTR( winFont );
+    }
+    winFont->killFont = killFont;
+    winFont->hfont = hfont;
+    if ( ownFont )
+	GetTextMetrics( hdc, &winFont->tm );
+    else
+	memcpy( &winFont->tm, cfont.textMetric(), sizeof(TEXTMETRIC) );
 }
 
 
@@ -580,9 +620,9 @@ bool QPainter::begin( const QPaintDevice *pd )
 	pdev = pdev_dict->find( (long)pd );
 	if ( !pdev )				// no
 	    pdev = (QPaintDevice *)pd;
-    }
-    else
+    } else {
 	pdev = (QPaintDevice *)pd;
+    }
 
     if ( pdev->paintingActive() ) {		// somebody else is already painting
 #if defined(CHECK_STATE)
@@ -602,7 +642,6 @@ bool QPainter::begin( const QPaintDevice *pd )
     else if ( dt == PDT_PIXMAP )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify it
 
-    xfFont = FALSE;
     hdc = 0;
     holdpal = 0;
 
@@ -708,7 +747,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     updatePen();
     updateBrush();
     setf(DirtyFont);
-    updateFont();
+    /* updateFont(); */
     return TRUE;
 }
 
@@ -748,6 +787,13 @@ bool QPainter::end()
 	hbrush = hbrushbm = 0;
 	pixmapBrush = nocolBrush = FALSE;
     }
+    if ( winFont ) {
+	SelectObject( hdc, stock_sysfont );
+	if ( winFont->killFont )
+	    DeleteObject( winFont->hfont );
+	delete winFont;
+	winFont = 0;
+    }
     if ( holdpal ) {
 	SelectPalette( hdc, holdpal, TRUE );
 	RealizePalette( hdc );
@@ -767,11 +813,6 @@ bool QPainter::end()
 	pm->freeMemDC();
 	if ( pm->isOptimized() )
 	    pm->allocMemDC();
-    }
-
-    if ( tm ) {					// delete old text metrics
-	delete tm;
-	tm = 0;
     }
 
     flags = 0;
@@ -881,16 +922,6 @@ void QPainter::setBrushOrigin( int x, int y )
 #endif
 }
 
-/*
-    bool xff = testf(VxF|WxF);
-    if ( xff != (bool)xfFont && pdev->devType() == PDT_PRINTER ) {
-	int ps = cfont.pointSize();		// must reload font
-	cfont.setPointSize( ps+1 );
-	cfont.setPointSize( ps );
-	SelectObject( hdc, cfont.handle(xff ? 0 : hdc) );
-	xfFont = xff;
-    }
-*/
 
 void QPainter::nativeXForm( bool enable )
 {
@@ -1090,8 +1121,7 @@ QRect QPainter::xForm( const QRect &rv ) const
 	QPointArray a( rv );
 	a = xForm( a );
 	return a.boundingRect();
-    }
-    else {					// translation/scale
+    } else {					// translation/scale
 	int x, y, w, h;
 	rv.rect( &x, &y, &w, &h );
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1139,8 +1169,7 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 	QPointArray a( rd );
 	a = xFormDev( a );
 	return a.boundingRect();
-    }
-    else {					// translation/scale
+    } else {					// translation/scale
 	int x, y, w, h;
 	rd.rect( &x, &y, &w, &h );
 	mapInv( x, y, w, h, &x, &y, &w, &h );

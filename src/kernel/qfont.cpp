@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#60 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#60 $");
 
 
 /*!
@@ -947,7 +947,7 @@ QString QFont::key() const
     }
     hex2( bits, p );
     hex2( d->req.weight, p+2 );
-    hex2( d->req.styleHint, p+4 );
+    hex2( d->req.hintSetByUser ? d->req.styleHint : QFont::AnyStyle, p+4 );
     hex2( d->req.charSet, p+6 );
     return s;
 }

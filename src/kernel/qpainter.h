@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#86 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#87 $
 **
 ** Definition of QPainter class
 **
@@ -30,6 +30,11 @@ enum BGMode					// background mode
 enum PaintUnit					// paint unit
     { PixelUnit, LoMetricUnit, HiMetricUnit, LoEnglishUnit, HiEnglishUnit,
       TwipsUnit };
+
+
+#if defined(_WS_WIN_)
+struct QWinFont;
+#endif
 
 
 class QPainter					// painter class
@@ -246,8 +251,8 @@ protected:
     HANDLE	holdpal;
     uint	pixmapBrush	: 1;
     uint	nocolBrush	: 1;
-    uint	xfFont		: 1;
-    void       *tm;
+    QWinFont   *winFont;
+    void       *textMetric();
     void	nativeXForm( bool );
 #elif defined(_WS_PM_)
     HPS		hps;				// presentation space
