@@ -112,10 +112,10 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 		hwnd = ::GetParent( hwnd );
 	    }
 	    if ( ax && msg->hwnd != ax->winId() ) {
-		for ( i=0; (UINT)mouseTbl[i] != message || !mouseTbl[i]; i += 3 )
+		for ( i=0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3 )
 		    ;
 		if ( !mouseTbl[i] )
-		    return FALSE;
+		    return CallNextHookEx( hhook, nCode, wParam, lParam );
 		type   = (QEvent::Type)mouseTbl[++i];	// event type
 		button = mouseTbl[++i];			// which button
 		state  = translateButtonState( msg->wParam, type, button ); // button state
