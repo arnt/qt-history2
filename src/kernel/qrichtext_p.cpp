@@ -57,30 +57,29 @@ int QTextCustomItem::minimumWidth() const { return 0; }
 
 QString QTextCustomItem::richText() const { return QString::null; }
 
-bool QTextCustomItem::enter( QTextCursor *, QTextDocument*& doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, bool atEnd )
+bool QTextCustomItem::enter( QTextCursor *, QTextDocument*&, QTextParagraph *&, int &, int &, int &, bool )
 {
-    doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; Q_UNUSED( atEnd ) return TRUE;
-							
+    return TRUE;
 }
-bool QTextCustomItem::enterAt( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, const QPoint & )
+bool QTextCustomItem::enterAt( QTextCursor *, QTextDocument *&, QTextParagraph *&, int &, int &, int &, const QPoint & )
 {
-    doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; return TRUE;
+    return TRUE;
 }
-bool QTextCustomItem::next( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
+bool QTextCustomItem::next( QTextCursor *, QTextDocument *&, QTextParagraph *&, int &, int &, int & )
 {
-    doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; return TRUE;
+    return TRUE;
 }
-bool QTextCustomItem::prev( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
+bool QTextCustomItem::prev( QTextCursor *, QTextDocument *&, QTextParagraph *&, int &, int &, int & )
 {
-    doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; return TRUE;
+    return TRUE;
 }
-bool QTextCustomItem::down( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
+bool QTextCustomItem::down( QTextCursor *, QTextDocument *&, QTextParagraph *&, int &, int &, int & )
 {
-    doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; return TRUE;
+    return TRUE;
 }
-bool QTextCustomItem::up( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
+bool QTextCustomItem::up( QTextCursor *, QTextDocument *&, QTextParagraph *&, int &, int &, int & )
 {
-    doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; return TRUE;
+    return TRUE;
 }
 #endif // QT_NO_TEXTCUSTOMITEM
 
