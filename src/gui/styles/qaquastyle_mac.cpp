@@ -26,7 +26,6 @@
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
-#include <qrangecontrol.h>
 #include <qsize.h>
 #include <qsizegrip.h>
 #include <qslider.h>
@@ -366,9 +365,13 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
             if(QComboBox *cmb = ::qt_cast<QComboBox *>(w)) {
                 if(cmb->editable())
                     w = cmb->lineEdit();
-            } else if(QSpinWidget *spw = ::qt_cast<QSpinWidget *>(w)) { //transfer to the editor
+            }
+#warning "come back and touch this up --> tws"
+#if 0
+            else if(QSpinWidget *spw = ::qt_cast<QSpinWidget *>(w)) { //transfer to the editor
                 w = spw->editWidget();
             }
+#endif
         } else {
             w = 0;
         }
@@ -392,8 +395,8 @@ bool QAquaAnimate::focusable(const QWidget *w) const
     else if(fp == QMacStyle::FocusDisabled)
         return false;
     return (w && !w->isTopLevel() && w->parentWidget() &&
-            (::qt_cast<QSpinWidget *>(w) /*|| ::qt_cast<QDateTimeEdit *>(w)*/
-            || ::qt_cast<QComboBox *>(w)|| ::qt_cast<QListBox *>(w) || w->inherits("QListView")             || (::qt_cast<QLineEdit *>(w) && ::qt_cast<QSpinWidget *>(w->parentWidget()))
+            (/*::qt_cast<QSpinWidget *>(w) || ::qt_cast<QDateTimeEdit *>(w)
+            ||*/ ::qt_cast<QComboBox *>(w)|| ::qt_cast<QListBox *>(w) || w->inherits("QListView")             || (::qt_cast<QLineEdit *>(w) /*&& ::qt_cast<QSpinWidget *>(w->parentWidget())*/)
 //           || (w->inherits("QTextEdit") && wstatic_cast<const QTextEdit *>(w)->isReadOnly())
              || (::qt_cast<QFrame *>(w) && ::qt_cast<QLineEdit *>(w)
                  && (static_cast<const QFrame *>(w)->frameStyle() != QFrame::NoFrame

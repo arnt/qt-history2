@@ -17,16 +17,14 @@
 
 #ifndef QT_H
 #include "qglobal.h"
-#include "qframe.h"
+#include "qwidget.h"
 #endif // QT_H
 
 #ifndef QT_NO_RANGECONTROL
 
-
 class QRangeControlPrivate;
 
-
-class Q_GUI_EXPORT QRangeControl
+class Q_COMPAT_EXPORT QRangeControl
 {
 public:
     QRangeControl();

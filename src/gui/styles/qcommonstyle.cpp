@@ -27,7 +27,6 @@
 #include "qprogressbar.h"
 #include "qpushbutton.h"
 #include "qradiobutton.h"
-#include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include "qslider.h"
 #include "qspinbox.h"

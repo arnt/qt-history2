@@ -27,7 +27,6 @@
 #include "qmenu.h"
 #include "qpainter.h"
 #include "qpushbutton.h"
-#include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include "qslider.h"
 #include "qstyleoption.h"

@@ -15,7 +15,6 @@
 #include <qpointer.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
-#include <qrangecontrol.h>
 #include <qrubberband.h>
 #include <qscrollbar.h>
 #include <qslider.h>
@@ -554,6 +553,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
     ThemeDrawState tds = d->getDrawState(flags, pal);
     switch (control) {
     case CC_SpinBox: {
+#if 0
         const QSpinWidget *sw = static_cast<const QSpinWidget *>(w);
         if (sub & SC_SpinBoxFrame)
             drawPrimitive(PE_PanelLineEdit, p,
@@ -598,6 +598,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
             HIThemeDrawButton(qt_glb_mac_rect(updown, p), &bdi,
                               static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal, 0);
         }
+#endif
         break; }
     case CC_ComboBox: {
         HIThemeButtonDrawInfo bdi;

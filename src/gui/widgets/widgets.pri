@@ -40,7 +40,6 @@ HEADERS += \
         widgets/qprogressbar.h \
         widgets/qpushbutton.h \
         widgets/qradiobutton.h \
-        widgets/qrangecontrol.h \
         widgets/qrubberband.h \
         widgets/qscrollbar.h \
         widgets/qscrollview.h \
@@ -102,14 +101,12 @@ SOURCES += \
         widgets/qprogressbar.cpp \
         widgets/qpushbutton.cpp \
         widgets/qradiobutton.cpp \
-        widgets/qrangecontrol.cpp \
         widgets/qrubberband.cpp \
         widgets/qscrollbar.cpp \
         widgets/qscrollview.cpp \
         widgets/qsizegrip.cpp \
         widgets/qslider.cpp \
         widgets/qspinbox.cpp \
-        widgets/qspinwidget.cpp \
         widgets/qsplashscreen.cpp \
         widgets/qsplitter.cpp \
         widgets/qstackedbox.cpp \
