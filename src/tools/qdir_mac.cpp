@@ -28,7 +28,7 @@ bool QDir::mkdir(const QString &dirname,bool acceptAbsPath) const
     const char * wingle=
            (const char *)QFile::encodeName(filePath(dirname,
 						    acceptAbsPath));
-    strcpy(bigbuf+1,dirname.wingle);
+    strcpy(bigbuf+1,wingle);
     bigbuf[0]=strlen(wingle);    
     OSErr ret;
     ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
@@ -52,7 +52,7 @@ bool QDir::rmdir(const QString &dirname,bool acceptAbsPath) const
     const char * wingle=
            (const char *)QFile::encodeName(filePath(dirname,
 						    acceptAbsPath));
-    strcpy(bigbuf+1,dirname.wingle);
+    strcpy(bigbuf+1,wingle);
     bigbuf[0]=strlen(wingle);    
     OSErr ret;
     ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
@@ -86,7 +86,15 @@ bool QDir::isRoot() const
 bool QDir::rename(const QString& name,const QString& newName,
 		  bool acceptAbsPaths)
 {
-    return true;
+    if ( name.isEmpty() || newName.isEmpty() ) {
+#if defined(CHECK_NULL)
+        qWarning( "QDir::rename: Empty or null file name(s)" );
+#endif
+        return FALSE;
+    }
+    QString fn1 = filePath( name, acceptAbsPaths );
+    QString fn2 = filePath( newName, acceptAbsPaths );
+    return ::rename(fn1.ascii(), fn2.ascii()) == 0;
 }
 
 bool QDir::setCurrent(const QString& path)
