@@ -10,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>382</width>
-            <height>355</height>
+            <width>378</width>
+            <height>353</height>
         </rect>
     </property>
     <property name="caption">
@@ -161,7 +161,7 @@
                             <cstring>checkCreateSource</cstring>
                         </property>
                         <property name="text">
-                            <string>Always create extra source file</string>
+                            <string>Always create additional .ui.h source file</string>
                         </property>
                         <property name="whatsThis" stdset="0">
                             <string>&lt;p&gt;&lt;b&gt;Always create extra source file&lt;/b&gt;&lt;/p&gt;
