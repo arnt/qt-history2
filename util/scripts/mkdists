@@ -291,6 +291,12 @@ for fullname in $includefiles; do
     ln -sf "../$fullname" "$DISTDIR/qt/include/`basename $fullname`"
 done
 
+#pregenerate moc files
+pushd $DISTDIR/qt/src/moc
+make moc_yacc.cpp
+rm Makefile
+popd
+
 #cleanup documentation directories
 mkdir -p "$DISTDIR/qt/doc"
 mkdir -p "$DISTDIR/qt/doc/html"
