@@ -1058,9 +1058,17 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
     out << "\t** Platform SDK you are using. Download the SDK from msdn.microsoft.com" << endl;
     out << "\t** and make sure that both the system and the Visual Studio environment" << endl;
     out << "\t** use the correct files." << endl;
-    out << "\t/************************************************************************/" << endl;
+    out << "\t**" << endl;
 
-#if __REQUIRED_RPCNDR_H_VERSION__ >= Q_REQUIRED_RPCNDR_H_VERSION
+#if __REQUIRED_RPCNDR_H_VERSION__ < Q_REQUIRED_RPCNDR_H_VERSION
+    out << "\t** Required version of MIDL could not be verified. QRect, QSize and QPoint" << endl;
+    out << "\t** support needs an updated Platform SDK to be installed." << endl;
+    out << "\t*************************************************************************" << endl;
+#else
+    out << "\t************************************************************************/" << endl;
+#endif
+
+    out << endl;
     out << "\t[uuid(" << idQRect << ")]" << endl;
     out << "\tstruct QRect {" << endl;
     out << "\t\tint left;" << endl;
@@ -1079,8 +1087,11 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
     out << "\tstruct QPoint {" << endl;
     out << "\t\tint x;" << endl;
     out << "\t\tint y;" << endl;
-    out << "\t};" << endl << endl;
+    out << "\t};" << endl;
+#if __REQUIRED_RPCNDR_H_VERSION__ < Q_REQUIRED_RPCNDR_H_VERSION
+    out << "\t*/" << endl;
 #endif
+    out << endl;
 
     out << "\t/* Forward declaration of classes that might be used as parameters */" << endl << endl;
 
