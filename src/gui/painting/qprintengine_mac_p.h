@@ -122,7 +122,7 @@ public:
     virtual void drawPoint(const QPointF &p);
     virtual void drawPoints(const QPolygonF &p);
     virtual void drawEllipse(const QRectF &r);
-    virtual void drawPolygon(const QPolygonF &p, PolygonDrawMode mode);
+    virtual void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     virtual void drawTextItem(const QPointF &p, const QTextItem &ti);
     virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,

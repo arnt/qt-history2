@@ -644,10 +644,10 @@ void QMacPrintEngine::drawLines(const QList<QLineF> &lines)
     d->paintEngine->drawLines(lines);
 }
 
-void QMacPrintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
+void QMacPrintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawPolygon(p, mode);
+    d->paintEngine->drawPolygon(points, pointCount, mode);
 }
 
 void QMacPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm,

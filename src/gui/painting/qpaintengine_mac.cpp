@@ -471,7 +471,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
             PolyHandle poly = OpenPoly();
             MoveTo(points[chunk].x()+d->offx+penPoint.x(), points[chunk].y()+d->offy+penPoint.y());
             for(int last_chunk=chunk+5000; chunk < last_chunk; chunk++) {
-                if(chunk == pa.count())
+                if(chunk == pointCount)
                     break;
                 LineTo(points[chunk].x()+d->offx+penPoint.x(), points[chunk].y()+d->offy+penPoint.y());
             }
@@ -520,7 +520,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
                     QPolygon pa;
                     pa.reserve(pointCount);
                     for (int i=0; i<pointCount; ++i)
-                        pa << points[i];
+                        pa.append(points[i].toPoint());
 
                     //create the region
                     QRegion newclip(pa);
@@ -1463,7 +1463,7 @@ QCoreGraphicsPaintEngine::drawPolygon(const QPointF *points, int pointCount, Pol
         CGPathMoveToPoint(path, 0, points[0].x(), points[0].y()+1);
         for(int x = 1; x < pointCount; ++x)
             CGPathAddLineToPoint(path, 0, points[x].x(), points[x].y()+1);
-        if (a[0] != a[pointCount-1])
+        if (points[0] != points[pointCount-1])
             CGPathAddLineToPoint(path, 0, points[0].x(), points[0].y()+1);
         CGContextBeginPath(d->hd);
         d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill
