@@ -1059,21 +1059,18 @@ QTreeWidgetItem::~QTreeWidgetItem()
 {
     for (int i = 0; i < children.count(); ++i) {
         QTreeWidgetItem *child = children.at(i);
-        child->par = 0;
-        child->view = 0;
-        child->model = 0;
+        child->par = 0; // make sure the child doesn't try to remove itself from children list
+        child->view = 0; // make sure the child doesn't try to remove itself from the top level list
         delete child;
     }
     children.clear();
 
     if (model)
         model->invalidatePersistentIndexRow(this);
-    if (par) {
+    if (par)
         par->children.removeAll(this);
-        return;
-    }
-    if (model)
-        model->removeFromTopLevel(this);
+    else if (view)
+        view->takeTopLevelItem(view->indexOfTopLevelItem(this));
 }
 
 /*!
