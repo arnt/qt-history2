@@ -12,6 +12,7 @@ for(QCONF, QCONFIG) {
    else:isEqual(QCONF, opengl):qlib = qopengl
    else:isEqual(QCONF, sql):qlib = qsql
    else:isEqual(QCONF, core):qlib = qcore
+   else:isEqual(QCONF, canvas):qlib = qcanvas
    else:isEqual(QCONF, compat):qlib = q3compat
    else:message("Unknown QCONFIG: $$qlib):qlib =
    !isEmpty(qlib) {
