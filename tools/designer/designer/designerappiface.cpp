@@ -297,6 +297,7 @@ QWidget *DesignerFormWindowImpl::create( const char *className, QWidget *parent,
 {
     QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, name );
     formWindow->insertWidget( w, TRUE );
+    formWindow->killAccels( formWindow->mainContainer() );
     return w;
 }
 
