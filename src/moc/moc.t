@@ -6,9 +6,7 @@
     $tsrc = $project{"TOOLSRC"} . " " . $project{"MOCGEN"};
     $tobj = Objects($tsrc);
     $tobj =~ s=\.\.[\\/]tools[\\/]==g;
-    $project{"SOURCES"} = $tsrc;
     $project{"OBJECTS"} = $tobj;
-    $project{"CLEAN_FILES"} = $project{"TOOLSRC"};
 #$}
 #$ IncludeTemplate("app.t");
 
@@ -24,7 +22,7 @@ LEXOUT  =	lex.yy.c
 YACCIN	=	#$ Expand("YACCINPUT");
 YACCOUT =	y.tab.c
 YACCHDR =	y.tab.h
-MOCGEN  =	mocgen.cpp
+MOCGEN  =	#$ Expand("MOCGEN");
 
 ####### Process lex/yacc files
 
@@ -34,21 +32,24 @@ $(LEXOUT): $(LEXIN)
 $(MOCGEN): moc.y $(LEXOUT)
 	$(YACC) moc.y
 	#$ $text = ($is_unix ? "-rm -f " : "-del ") . '$(MOCGEN)'
-	#$ $text = ($is_unix ? "mv " : "ren ") . '$(YACCOUT) $(MOCGEN)'; 
+	#$ $text = ($is_unix ? "-mv " : "-ren ") . '$(YACCOUT) $(MOCGEN)'; 
 
-####### Use local copy of tools files
+####### Compile the C++ sources
+
+#$ $text = Objects($project{"MOCGEN"}) . ": " . $project{"MOCGEN"};
+	$(CC) -c $(CFLAGS) $(INCPATH) $? -o $@
 
 #${
     if ( $is_unix ) {
-	$cp = "-cp ";
 	$td = "../tools/";
     } else {
-	$cp = "-copy ";
 	$td = "..\\tools\\";
     }
     @s = split(/\s+/,$project{"TOOLSRC"});
     foreach ( @s ) {
 	$text && ($text .= "\n");
-	$text .= $_ . ": " . $td . $_ . "\n\t" . $cp . $td . $_ . " .\n";
+	$text .= Objects($_) . ": " . $td . $_ . "\n\t";
+	$text .= '$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?';
+	$text .= "\n";
     }
 #$}
