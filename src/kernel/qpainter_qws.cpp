@@ -1361,31 +1361,6 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     gfx->blt(x,y,sw,sh);
 }
 
-static void drawTile( QPainter *p, int x, int y, int w, int h,
-                      const QPixmap &pixmap, int xOffset, int yOffset )
-{
-    int yPos, xPos, drawH, drawW, yOff, xOff;
-    yPos = y;
-    yOff = yOffset;
-    while( yPos < y + h ) {
-        drawH = pixmap.height() - yOff;    // Cropping first row
-        if ( yPos + drawH > y + h )        // Cropping last row
-            drawH = y + h - yPos;
-        xPos = x;
-        xOff = xOffset;
-        while( xPos < x + w ) {
-            drawW = pixmap.width() - xOff; // Cropping first column
-            if ( xPos + drawW > x + w )    // Cropping last column
-                drawW = x + w - xPos;
-            p->drawPixmap( xPos, yPos, pixmap, xOff, yOff, drawW, drawH );
-            xPos += drawW;
-            xOff = 0;
-        }
-        yPos += drawH;
-        yOff = 0;
-    }
-}
-
 void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 				const QPixmap &pixmap, int sx, int sy )
 {
