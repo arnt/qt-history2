@@ -42,7 +42,12 @@ MessageHeader &MessageHeader::operator=( const MessageHeader &mh )
 Folder::Folder( Folder *parent, const QString &name )
     : QObject( parent, name ), fName( name )
 {
-    lstMessages.setAutoDelete( TRUE );
+}
+
+Folder::~Folder()
+{
+	for(lstIt = lstMessages.begin(); lstIt != lstMessages.end(); ++lstIt)
+	   delete (*lstIt);
 }
 
 // -----------------------------------------------------------------
@@ -106,7 +111,6 @@ void MessageListItem::paintCell( QPainter *p, const QPalette &pal,
 ListViews::ListViews( QWidget *parent, const char *name )
     : QSplitter( Qt::Horizontal, parent, name )
 {
-    lstFolders.setAutoDelete( TRUE );
 
     folders = new QListView( this );
     folders->header()->setClickEnabled( FALSE );
@@ -159,6 +163,12 @@ ListViews::ListViews( QWidget *parent, const char *name )
     QList<int> lst;
     lst.append( 170 );
     setSizes( lst );
+}
+
+ListViews::~ListViews()
+{
+     for(QList<Folder*>::Iterator it = lstFolders.begin(); it != lstFolders.end(); ++it)
+	delete (*it);
 }
 
 void ListViews::initFolders()

@@ -86,8 +86,7 @@ class Folder : public QObject
 
 public:
     Folder( Folder *parent, const QString &name );
-    ~Folder()
-    { lstIt = lstMessages.begin(); }
+    ~Folder();
 
     void addMessage( Message *m ) { lstMessages.append( m ); }
 
@@ -145,8 +144,7 @@ class ListViews : public QSplitter
 
 public:
     ListViews( QWidget *parent = 0, const char *name = 0 );
-    ~ListViews()
-    {}
+    ~ListViews();
 
 protected:
     void initFolders();
