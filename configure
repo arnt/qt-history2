@@ -702,15 +702,22 @@ exit 130" HUP INT TERM
 fi
 
 # is this a shadow build?
-if [ "$OPT_SHADOW" = "maybe" ]; then
+if [ "$OPT_SHADOW" = "maybe" ]
+then
     OPT_SHADOW=no
-    if [ "$relpath" != "$outpath" ] && [ '!' -e "$outpath/configure" ]; then
-	if [ -L "$outpath" ]; then
-	    test "$relpath" -ef "$outpath" || OPT_SHADOW=yes
+    if [ "$relpath" != "$outpath" ] && [ '!' -e "$outpath/configure" ]
+    then
+	if [ -L "$outpath" ]
+	then
+	    [ "$relpath" -ef "$outpath" ] || OPT_SHADOW=yes
 	else
 	    OPT_SHADOW=yes
         fi
     fi
+fi
+if [ "$OPT_VERBOSE" = "yes" -a "$OPT_SHADOW" = "yes" ]
+then
+    echo "Performing shadow build..."
 fi
 
 ### please add a comment here: what is qdir? why do we set it here?
