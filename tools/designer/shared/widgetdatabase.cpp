@@ -848,6 +848,18 @@ int WidgetDatabase::addCustomWidget( WidgetDatabaseRecord *r )
     return dbcustomcount - 1;
 }
 
+void WidgetDatabase::customWidgetClassNameChanged( const QString &oldName,
+						   const QString &newName )
+{
+    int id = idFromClassName( oldName );
+    if ( id == -1 )
+	return;
+    WidgetDatabaseRecord *r = db[ id ];
+    r->name = newName;
+    className2Id->remove( oldName );
+    className2Id->insert( newName, new int( id ) );
+}
+
 bool WidgetDatabase::isCustomWidget( int id )
 {
     if ( id >= dbcustom && id < dbcustomcount )

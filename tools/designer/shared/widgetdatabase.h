@@ -83,6 +83,7 @@ public:
     static void loadWhatsThis( const QString &docPath );
 
     static bool hasWidget( const QString &name );
+    static void customWidgetClassNameChanged( const QString &oldName, const QString &newName );
 
 };
 

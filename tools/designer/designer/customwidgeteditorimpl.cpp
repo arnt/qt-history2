@@ -230,6 +230,8 @@ void CustomWidgetEditor::classNameChanged( const QString &s )
     if ( !i || !w )
 	return;
 
+    WidgetDatabase::customWidgetClassNameChanged( w->className, s );
+
     checkTimer->stop();
     boxWidgets->blockSignals( TRUE );
     oldName = w->className;
