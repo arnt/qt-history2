@@ -86,30 +86,33 @@ void RppLexer::setupScanTable()
     s_scan_table[128] = &RppLexer::scanUnicodeChar;
 }
 
-QList<Type> RppLexer::lex(TokenSequence *tokenSequence)
+QList<Type> RppLexer::lex(const TokenContainer &tokenContainer)
 {
     QList<Type> tokenTypes;
-    const int numTokens = tokenSequence->count();
+    const int numTokens = tokenContainer.count();
+    QByteArray text = tokenContainer.fullText();
+    m_buffer = text.constData();
     for(int t=0; t<numTokens; ++t) {
-        tokenTypes.append(indentify(tokenSequence->text(t)));
+        TokenEngine::Token token = tokenContainer.token(t);
+        tokenTypes.append(indentify(token.start, token.length));
     }
     return tokenTypes;
 }
 
-Type RppLexer::indentify(QByteArray tokenText)
+Type RppLexer::indentify(int pos, int length)
 {
-    Q_ASSERT(tokenText.count() > 0 );
-    const unsigned char ch = tokenText[0];
-    m_buffer = tokenText;
-    m_ptr = 0;
+    Q_ASSERT(length > 0);
+    m_ptr = pos;
+    m_len = length;
     int kind = 0;
+    const unsigned char ch = m_buffer[pos];
     (this->*s_scan_table[ch < 128 ? ch : 128])(&kind);
     return (Type)kind;
 }
 
 void RppLexer::scanChar(int *kind)
 {
-    *kind = m_buffer[m_ptr++];
+    *kind = m_buffer[m_ptr];
 }
 
 void RppLexer::scanWhiteSpaces(int *kind)
@@ -126,12 +129,12 @@ void RppLexer::scanWhiteSpaces(int *kind)
 
 void RppLexer::scanNewline(int *kind)
 {
-    *kind = m_buffer[0];
+    *kind = m_buffer[m_ptr];
 }
 
 void RppLexer::scanUnicodeChar(int *kind)
 {
-    *kind = m_buffer[0];
+    *kind = m_buffer[m_ptr];
 }
 
 void RppLexer::scanCharLiteral(int *kind)
@@ -296,37 +299,48 @@ void RppLexer::scanOperator(int *kind)
     *kind = m_buffer[m_ptr++];
 }
 
+bool RppLexer::match(char *buf, int len)
+{
+    for(int i=0; i < len; ++i) {
+        if(i >= m_len)
+            return false;
+        if(m_buffer[m_ptr +i] != buf[i])
+            return false;
+    }
+    return true;
+}
+
 void RppLexer::scanKeyword(int *kind)
 {
-    if(m_buffer == "if")
+    if(match("if", 2))
         *kind = Token_directive_if;
-    else if(m_buffer == "elif")
+    else if(match("elif", 4))
         *kind = Token_directive_elif;
-    else if (m_buffer == "else")
+    else if(match("else", 4))
         *kind = Token_directive_else;
-    else if (m_buffer == "line")
+    else if(match("line", 4))
         *kind = Token_directive_line;
-    else if (m_buffer == "else")
+    else if(match("else", 4))
         *kind = Token_directive_else;
-    else if (m_buffer == "line")
+    else if(match("line", 4))
         *kind = Token_directive_line;
-    else if (m_buffer == "endif")
+    else if(match("endif", 5))
         *kind = Token_directive_endif;
-    else if (m_buffer == "ifdef")
+    else if(match("ifdef", 5))
         *kind = Token_directive_ifdef;
-    else if (m_buffer == "error")
+    else if(match("error", 5))
         *kind = Token_directive_error;
-    else if (m_buffer == "undef")
+    else if(match("undef", 5))
         *kind = Token_directive_undef;
-    else if (m_buffer == "pragma")
+    else if(match("pragma", 6))
         *kind = Token_directive_pragma;
-    else if (m_buffer == "ifndef")
+    else if(match("ifndef", 6))
         *kind = Token_directive_ifndef;
-    else if (m_buffer == "define")
+    else if(match("define", 6))
         *kind = Token_directive_define;
-    else if (m_buffer == "include")
+    else if(match("include", 7))
         *kind = Token_directive_include;
-    else if (m_buffer == "defined")
+    else if(match("defined", 7))
         *kind = Token_defined;
     else
         *kind = Token_identifier;

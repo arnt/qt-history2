@@ -25,9 +25,9 @@ class RppLexer
 public:
 
     RppLexer();
-    QList<Type> lex(TokenEngine::TokenSequence *tokenSequence);
+    QList<Type> lex(const TokenEngine::TokenContainer &tokenContainer);
 private:
-    Type indentify(QByteArray tokenText);
+    Type indentify(int pos, int length);
     void setupScanTable();
 
     void scanChar(int *kind);
@@ -43,6 +43,7 @@ private:
     void scanOperator(int *kind);
     void scanKeyword(int *kind);
 
+    bool RppLexer::match(char *buf, int len);
     typedef void (RppLexer::*scan_fun_ptr)(int *kind);
     RppLexer::scan_fun_ptr s_scan_table[128+1];
     int s_attr_table[256];
@@ -55,8 +56,9 @@ private:
         A_Whitespace = 0x04
     };
 
-    QByteArray m_buffer;
+    const char *m_buffer;
     int m_ptr;
+    int m_len;
 };
 
 } //namespace Rpp
