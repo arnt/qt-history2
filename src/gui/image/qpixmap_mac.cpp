@@ -294,13 +294,10 @@ QImage QPixmap::convertToImage() const
     }
 
     QImage image(w, h, d, ncols, QImage::BigEndian);
-    //handle bitmap case (no other indexes supported)
     if(d == 1) {
         image.setNumColors(2);
         image.setColor(0, qRgba(255, 255, 255, 0));
         image.setColor(1, qRgba(0, 0, 0, 0));
-    } else {
-        //no need to copy the clut
     }
 
     Q_ASSERT_X(data->hd, "QPixmap::convertToImage", "No handle");
@@ -308,6 +305,7 @@ QImage QPixmap::convertToImage() const
     QRgb q;
     long *sptr = reinterpret_cast<long *>(GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)))), *srow, r;
     unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
+
     long *aptr = 0, *arow = 0;
     unsigned short abpr = 0;
     if(data->alphapm) {
@@ -389,7 +387,6 @@ QImage QPixmap::convertToImage() const
         } break;
         }
     }
-
     return image;
 }
 
@@ -399,29 +396,21 @@ void QPixmap::fill(const QColor &fillColor)
         return;
     Q_ASSERT_X(data->hd, "QPixmap::fill", "No handle");
 
-    //at the end of this function this will go out of scope and the destructor will restore the state
     QMacSavedPortInfo saveportstate(this);
     detach();                                        // detach other references
-    if(depth() == 1 || depth() == 32) { //small optimization over QD
+    { //we don't know what backend to use, and we cannot paint here
         ulong *dptr = (ulong *)GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
         int dbytes = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)))*height();
         Q_ASSERT_X(dptr && dbytes, "QPixmap::fill", "No dptr or no dbytes");
         QRgb colr = qRgba(fillColor.red(),fillColor.green(), fillColor.blue(), 0);
         if(depth() == 1 || !colr) {
-            memset(dptr, colr ? 0xFF : 0x00, dbytes);
+            memset(dptr, colr ? 0x00 : 0xFF, dbytes);
         } else if(depth() == 32) {
             for(int i = 0; i < (int)(dbytes/sizeof(ulong)); i++)
                 *(dptr + i) = colr;
+        } else {
+            qWarning("Unsure how to fill %d", depth());
         }
-    } else {
-        Rect r;
-        RGBColor rc;
-        rc.red=fillColor.red()*256;
-        rc.green=fillColor.green()*256;
-        rc.blue=fillColor.blue()*256;
-        RGBForeColor(&rc);
-        SetRect(&r,0,0,width(),height());
-        PaintRect(&r);
     }
 }
 
@@ -431,6 +420,11 @@ void QPixmap::detach()
         data->uninit = false;
     else
         *this = copy();
+    //destroy cache
+    if(data->cgimage) {
+        CGImageRelease(data->cgimage);
+        data->cgimage = 0;
+    }
 }
 
 int QPixmap::metric(int m) const
@@ -594,13 +588,13 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     static int serial = 0;
 
     data = new QPixmapData;
+    data->cgimage = 0;
     data->hd = 0;
     data->cg_hd = 0;
     memset(data, 0, sizeof(QPixmapData));
     data->count=1;
     data->uninit=true;
     data->bitmap=bitmap;
-    data->clut = 0;
     data->ser_no=++serial;
     data->optim=optim;
 
@@ -629,11 +623,11 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 #if 1
     if(optim == BestOptim) //try to get it into distant memory
         e = NewGWorld(reinterpret_cast<GWorldPtr *>(&data->hd), 32, &rect,
-                      data->clut ? &data->clut : 0, 0, useDistantHdwrMem | params);
+                      0, 0, useDistantHdwrMem | params);
     if(e != noErr) //oh well I tried
 #endif
         e = NewGWorld(reinterpret_cast<GWorldPtr *>(&data->hd), 32, &rect,
-                      data->clut ? &data->clut : 0, 0, params);
+                      0, 0, params);
 
     /* error? */
     if(e != noErr) {
@@ -784,6 +778,10 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
 {
     if(px.isNull())
         return 0;
+    if(CGImageRef cache_img = px.data->cgimage) {
+        CGImageRetain(cache_img); //for the caller
+        return cache_img;
+    }
 
     const uint bpl = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(&px)));
     char *addr = GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(&px)));
@@ -795,28 +793,28 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
         if(mode == Qt::ComposePixmap) {
             if(const QPixmap *alpha = px.data->alphapm) {
                 char *drow;
-                long *aptr = reinterpret_cast<long *>(GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(alpha)))),
+                long *aptr = reinterpret_cast<long*>(GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(alpha)))),
                      *arow;
                 unsigned short abpr = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(alpha)));
                 const int h = alpha->height(), w = alpha->width();
                 for(int yy=0; yy<h; yy++) {
-                    arow = reinterpret_cast<long *>(reinterpret_cast<char *>(aptr) + (yy * abpr));
+                    arow = reinterpret_cast<long*>(reinterpret_cast<char *>(aptr) + (yy * abpr));
                     drow = addr + (yy * bpl);
-                    for(int xx=0;xx<w;xx++)
+                    for(int xx=0;xx<w;xx++) {
                         *(drow + (xx*4)) = 255-(*(arow + xx) & 0xFF);
+                    }
                 }
             } else if(const QBitmap *mask = px.mask()) {
                 char *drow;
-                long *mptr = reinterpret_cast<long *>(GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(mask)))),
+                long *mptr = reinterpret_cast<long*>(GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(mask)))),
                 *mrow;
                 unsigned short mbpr = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(mask)));
                 const int h = mask->height(), w = mask->width();
                 for(int yy=0; yy<h; yy++) {
-                    mrow = reinterpret_cast<long *>(reinterpret_cast<char *>(mptr) + (yy * mbpr));
+                    mrow = reinterpret_cast<long*>(reinterpret_cast<char*>(mptr) + (yy * mbpr));
                     drow = addr + (yy * bpl);
-                    for(int xx=0;xx<w;xx++) {
+                    for(int xx=0;xx<w;xx++) 
                         *(drow + (xx*4)) = (*(mrow + xx) & 0x01) ? 0 : 255;
-                    }
                 }
             } else {
                 mode = Qt::CopyPixmap; //there isn't really a "mask"
@@ -829,6 +827,10 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
         CGColorSpaceRelease(colorspace);
     }
     CGDataProviderRelease(provider);
+    {
+        px.data->cgimage = image;
+        CGImageRetain(px.data->cgimage);
+    }
     return image;
 }
 
