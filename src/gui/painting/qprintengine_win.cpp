@@ -494,7 +494,7 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
     double ys = 1.0;                    // y stretch
     if ( paint ) {
         bool wxf = paint->matrixEnabled();
-        bool vxf = paint->hasViewXForm();
+        bool vxf = paint->viewTransformEnabled();
 #ifndef QT_NO_IMAGE_TRANSFORMATION
         bool complexWxf = FALSE;
 #endif

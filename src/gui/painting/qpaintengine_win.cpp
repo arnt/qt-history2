@@ -1589,8 +1589,8 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 
     Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
 
-    QPoint gstart = brush.gradientStart();
-    QPoint gstop  = brush.gradientStop();
+    QPointF gstart = brush.gradientStart();
+    QPointF gstop  = brush.gradientStop();
 
     gstart -= rect.topLeft();
     gstop -= rect.topLeft();

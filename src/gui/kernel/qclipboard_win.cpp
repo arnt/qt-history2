@@ -46,9 +46,9 @@ bool QClipboardWatcher::hasFormat(const QString &mime) const
         return false;
 
     bool has = QWindowsMime::converterToMime(mime, pDataObj) != 0;
-    
+
     pDataObj->Release();
-    
+
     return has;
 }
 
@@ -58,10 +58,10 @@ QStringList QClipboardWatcher::formats() const
     IDataObject * pDataObj = 0;
 
     if (OleGetClipboard(&pDataObj) != S_OK && !pDataObj) // Sanity
-        return false;
+        return QStringList();
 
     fmts = QWindowsMime::allMimesForFormats(pDataObj);
-    
+
     pDataObj->Release();
 
     return fmts;
@@ -79,7 +79,7 @@ QVariant QClipboardWatcher::retrieveData(const QString &mime, QVariant::Type typ
 
     if (converter)
         result = converter->convertToMime(mime, type, pDataObj);
-    
+
     pDataObj->Release();
 
     return result;
@@ -88,9 +88,9 @@ QVariant QClipboardWatcher::retrieveData(const QString &mime, QVariant::Type typ
 class QClipboardData
 {
 public:
-    QClipboardData() 
+    QClipboardData()
         : iData(0)
-        , nextClipboardViewer(0) 
+        , nextClipboardViewer(0)
     {
         clipBoardViewer = new QWidget();
         clipBoardViewer->setObjectName("internal clipboard owner");
@@ -157,7 +157,7 @@ void QClipboard::setMimeData(QMimeData *src, Mode mode)
         qErrnoWarning("QClipboard::setMimeData: Failed to set data on clipboard");
         return;
     }
-        
+
 }
 
 void QClipboard::clear(Mode mode)
@@ -224,6 +224,7 @@ void QClipboard::connectNotify(const char *signal)
     if (qstrcmp(signal,SIGNAL(dataChanged())) == 0) {
         // ensure we are up and running
         QClipboardData *d = clipboardData();
+        Q_UNUSED(d);
     }
 }
 
@@ -239,7 +240,7 @@ const QMimeData *QClipboard::mimeData(Mode mode) const
 bool QClipboard::ownsClipboard() const
 {
     QClipboardData *d = clipboardData();
-    
+
     return d->iData && OleIsCurrentClipboard(d->iData) == S_OK;
 }
 

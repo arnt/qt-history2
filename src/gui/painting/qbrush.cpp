@@ -128,7 +128,7 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
 
 
 /*!
-    \fn QPoint QBrush::gradientStart() const
+    \fn QPointF QBrush::gradientStart() const
 
     Returns the gradient's starting color.
 
@@ -137,7 +137,7 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
 
 
 /*!
-    \fn QPoint QBrush::gradientStop() const
+    \fn QPointF QBrush::gradientStop() const
 
     Returns the gradient's ending color.
 
@@ -287,7 +287,7 @@ QBrush::QBrush(const QBrush &b)
     is filled with the color for that corresponding side.
 */
 
-QBrush::QBrush(const QPoint &p1, const QColor &col1, const QPoint &p2, const QColor &col2)
+QBrush::QBrush(const QPointF &p1, const QColor &col1, const QPointF &p2, const QColor &col2)
 {
     init(col1, Qt::LinearGradientPattern);
     QLinGradBrushData *lgd = static_cast<QLinGradBrushData*>(d);

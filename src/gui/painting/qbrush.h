@@ -36,7 +36,7 @@ public:
 
     QBrush(const QBrush &brush);
 
-    QBrush(const QPoint &p1, const QColor &col1, const QPoint &p2, const QColor &col2);
+    QBrush(const QPointF &p1, const QColor &col1, const QPointF &p2, const QColor &col2);
 
     ~QBrush();
     QBrush &operator=(const QBrush &brush);
@@ -52,8 +52,8 @@ public:
     void setPixmap(const QPixmap &pixmap);
 
     inline QColor gradientColor() const;
-    inline QPoint gradientStart() const;
-    inline QPoint gradientStop() const;
+    inline QPointF gradientStart() const;
+    inline QPointF gradientStop() const;
 
     inline operator const QColor&() const;
     bool operator==(const QBrush &b) const;
@@ -104,9 +104,9 @@ struct QTexturedBrushData : public QBrushData
 
 struct QLinGradBrushData : public QBrushData
 {
-    QColor         color2;
-    QPoint      p1;
-    QPoint      p2;
+    QColor color2;
+    QPointF p1;
+    QPointF p2;
 };
 
 inline Qt::BrushStyle QBrush::style() const { return d->style; }
@@ -121,18 +121,18 @@ inline QPixmap *QBrush::pixmap() const
                      ? static_cast<const QTexturedBrushData*>(d)->pixmap : 0;
 }
 
-inline QPoint QBrush::gradientStart() const
+inline QPointF QBrush::gradientStart() const
 {
     return d->style == Qt::LinearGradientPattern
                      ? static_cast<const QLinGradBrushData*>(d)->p1
-                     : QPoint();
+                     : QPointF();
 }
 
-inline QPoint QBrush::gradientStop() const
+inline QPointF QBrush::gradientStop() const
 {
     return d->style == Qt::LinearGradientPattern
                      ? static_cast<const QLinGradBrushData*>(d)->p2
-                     : QPoint();
+                     : QPointF();
 }
 
 inline QColor QBrush::gradientColor() const
