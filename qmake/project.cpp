@@ -102,6 +102,8 @@ static QString varMap(const QString &x)
 	ret = "QMAKE_EXT_CPP_MOC";
     else if(ret == "QMAKE_MOD_MOC")
 	ret = "QMAKE_H_MOD_MOC";
+    else if(ret == "QMAKE_LFLAGS_SHAPP")
+	ret = "QMAKE_LFLAGS_APP";
     return ret;
 }
 
