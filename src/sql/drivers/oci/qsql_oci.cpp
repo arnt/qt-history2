@@ -376,7 +376,8 @@ QSqlError qMakeError( const QString& err, int type, const QOCIPrivate* p )
 QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, int ociscale )
 {
     QVariant::Type type = QVariant::Invalid;
-    if ( ocitype == "VARCHAR2" || ocitype == "VARCHAR" || ocitype == "CHAR" || ocitype == "NVARCHAR2" || ocitype == "NCHAR" )
+    if ( ocitype == "VARCHAR2" || ocitype == "VARCHAR" || ocitype.startsWith( "INTERVAL" ) ||
+	 ocitype == "CHAR" || ocitype == "NVARCHAR2" || ocitype == "NCHAR" )
 	type = QVariant::String;
     else if ( ocitype == "NUMBER" )
 	type = QVariant::Int;
@@ -411,6 +412,8 @@ QVariant::Type qDecodeOCIType( int ocitype )
     case SQLT_AFC:
     case SQLT_VCS:
     case SQLT_AVC:
+    case SQLT_INTERVAL_YM:
+    case SQLT_INTERVAL_DS:
 	type = QVariant::String;
 	break;
     case SQLT_INT:
@@ -638,7 +641,12 @@ public:
 
 	while ( parmStatus == OCI_SUCCESS ) {
 	    OraFieldInfo ofi = qMakeOraField( d, param );
-	    dataSize = ofi.oraLength;
+	    if ( ofi.oraType == SQLT_INTERVAL_YM || ofi.oraType == SQLT_INTERVAL_DS )
+		// since we are binding interval datatype as string,
+		// we are not interested in the number of bytes but characters.
+		dataSize = 50;  // magic number
+	    else
+		dataSize = ofi.oraLength;
 	    QVariant::Type type = ofi.type;
 	    createType( count-1, type );
 	    switch ( type ) {
