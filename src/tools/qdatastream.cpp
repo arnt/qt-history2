@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#46 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#47 $
 **
 ** Implementation of QDataStream class
 **
@@ -113,6 +113,7 @@ QDataStream::QDataStream()
     owndev    = FALSE;
     byteorder = BigEndian;			// default byte order
     printable = FALSE;
+    ver	      = 2;			        // 2 is default for Qt 2.0
     noswap    = systemBigEndian;
 }
 
@@ -128,6 +129,7 @@ QDataStream::QDataStream( QIODevice *d )
     owndev    = FALSE;
     byteorder = BigEndian;			// default byte order
     printable = FALSE;
+    ver	      = 2;
     noswap    = systemBigEndian;
 }
 
@@ -157,6 +159,7 @@ QDataStream::QDataStream( QByteArray a, int mode )
     owndev    = TRUE;
     byteorder = BigEndian;			// default byte order
     printable = FALSE;
+    ver	      = 2;
     noswap    = systemBigEndian;
 }
 
@@ -275,6 +278,25 @@ void QDataStream::setByteOrder( int bo )
   (it is slower and creates bigger output).
 */
 
+
+/*!
+  \fn int QDataStream::version() const
+  Returns the version number of the data serialization format.
+  In Qt 2.0, this number is 2.
+  \sa setVersion()
+*/
+
+/*!
+  \fn void QDataStream::setVersion( int v )
+  Sets the version number of the data serialization format.
+
+  In Qt 2.0, the datastream serialization format of many Qt classes
+  was changed. In order to read data that was created with the
+  QDatastream of Qt 1.x, call this function with the version number \v
+  set to 1.
+
+  \sa version()
+*/
 
 /*****************************************************************************
   QDataStream read functions

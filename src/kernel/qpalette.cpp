@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#44 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -790,8 +790,19 @@ bool QPalette::operator==( const QPalette &p ) const
 
 QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 {
-    for( int r = 0 ; r < QColorGroup::MaxColorRole + 1 ; r++ )
-	s << g.brush( (QColorGroup::ColorRole)r);
+    if ( s.version() == 1 ) {
+	s << g.foreground()
+	  << g.background()
+	  << g.light()
+	  << g.dark()
+	  << g.mid()
+	  << g.text()
+	  << g.base();
+    }
+    else {
+	for( int r = 0 ; r < QColorGroup::MaxColorRole + 1 ; r++ )
+	    s << g.brush( (QColorGroup::ColorRole)r);
+    }
     return s;
 }
 
@@ -802,10 +813,25 @@ QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 
 QDataStream &operator>>( QDataStream &s, QColorGroup &g )
 {
-    QBrush tmp;
-    for( int r = 0 ; r < QColorGroup::MaxColorRole + 1 ; r++ ) {
-	s >> tmp;
-	g.setBrush( (QColorGroup::ColorRole)r, tmp);
+    if ( s.version() == 1 ) {
+	QColor fg, bg, light, dark, mid, text, base;
+	s >> fg >> bg >> light >> dark >> mid >> text >> base;
+	QPalette p( bg );
+	QColorGroup n( p.normal() );
+	n.setColor( QColorGroup::Foreground, fg );
+	n.setColor( QColorGroup::Light, light );
+	n.setColor( QColorGroup::Dark, dark );
+	n.setColor( QColorGroup::Mid, mid );
+	n.setColor( QColorGroup::Text, text );
+	n.setColor( QColorGroup::Base, base );
+	g = n;
+    }
+    else {
+	QBrush tmp;
+	for( int r = 0 ; r < QColorGroup::MaxColorRole + 1 ; r++ ) {
+	    s >> tmp;
+	    g.setBrush( (QColorGroup::ColorRole)r, tmp);
+	}
     }
     return s;
 }

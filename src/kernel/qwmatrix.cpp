@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#28 $
 **
 ** Implementation of QWMatrix class
 **
@@ -486,8 +486,13 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
 
 QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
 {
-    return s << m.m11() << m.m12() << m.m21() << m.m22()
-	     << m.dx()	<< m.dy();
+    if ( s.version() == 1 )
+	s << (float)m.m11() << (float)m.m12() << (float)m.m21() 
+	  << (float)m.m22() << (float)m.dx()  << (float)m.dy();
+    else
+	s << m.m11() << m.m12() << m.m21() << m.m22()
+	  << m.dx() << m.dy();
+    return s;
 }
 
 /*!
@@ -497,9 +502,17 @@ QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
 
 QDataStream &operator>>( QDataStream &s, QWMatrix &m )
 {
-    double m11, m12, m21, m22, dx, dy;
-    s >> m11;  s >> m12;  s >> m21;  s >> m22;
-    s >> dx;   s >> dy;
-    m.setMatrix( m11, m12, m21, m22, dx, dy );
+    if ( s.version() == 1 ) {
+	float m11, m12, m21, m22, dx, dy;
+	s >> m11;  s >> m12;  s >> m21;  s >> m22;
+	s >> dx;   s >> dy;
+	m.setMatrix( m11, m12, m21, m22, dx, dy );
+    }
+    else {
+	double m11, m12, m21, m22, dx, dy;
+	s >> m11;  s >> m12;  s >> m21;  s >> m22;
+	s >> dx;   s >> dy;
+	m.setMatrix( m11, m12, m21, m22, dx, dy );
+    }
     return s;
 }

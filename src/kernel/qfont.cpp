@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#122 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#123 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1077,8 +1077,15 @@ QString QFont::key() const
 
 QDataStream &operator<<( QDataStream &s, const QFont &f )
 {
-    return s << f.d->req.family
-	     << (INT16)f.d->req.pointSize
+    if ( s.version() == 1 ) {
+	QCString fam( f.d->req.family.latin1() );
+	s << fam;
+    }
+    else {
+	s << f.d->req.family;
+    }
+
+    return s << (INT16)f.d->req.pointSize
 	     << (UINT8)f.d->req.styleHint
 	     << (UINT8)f.d->req.charSet
 	     << (UINT8)f.d->req.weight
@@ -1099,7 +1106,15 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
 
     Q_INT16 pointSize;
     Q_UINT8 styleHint, charSet, weight, bits;
-    s >> f.d->req.family;
+
+    if ( s.version() == 1 ) {
+	QCString fam;
+	s >> fam;
+	f.d->req.family = QString( fam );
+    }
+    else {
+	s >> f.d->req.family;
+    }
     s >> pointSize;
     s >> styleHint >> charSet >> weight >> bits;
 

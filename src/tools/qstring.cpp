@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#224 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#225 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12624,8 +12624,15 @@ void QString::subat( uint i )
 
 QDataStream &operator<<( QDataStream &s, const QString &str )
 {
-    return s.writeBytes( (const char*)str.unicode(),
-			 sizeof(QChar)*str.length() );
+    if ( s.version() == 1 ) {
+	QCString l( str.latin1() );
+	s << l;
+    }
+    else {
+	s.writeBytes( (const char*)str.unicode(),
+		      sizeof(QChar)*str.length() );
+    }
+    return s;
 }
 
 /*!
@@ -12635,11 +12642,18 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 
 QDataStream &operator>>( QDataStream &s, QString &str )
 {
-    Q_UINT32 bytes;
-    s >> bytes;					// read size of string
-    str.setLength( bytes/2 );
-    if ( bytes > 0 )				// not null array
-	s.readRawBytes( (char*)str.d->unicode, bytes );
+    if ( s.version() == 1 ) {
+	QCString l;
+	s >> l;
+	str = QString( l );
+    }
+    else {
+	Q_UINT32 bytes;
+	s >> bytes;					// read size of string
+	str.setLength( bytes/2 );
+	if ( bytes > 0 )				// not null array
+	    s.readRawBytes( (char*)str.d->unicode, bytes );
+    }
     return s;
 }
 

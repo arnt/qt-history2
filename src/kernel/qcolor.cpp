@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#92 $
 **
 ** Implementation of QColor class
 **
@@ -716,12 +716,15 @@ void QColor::setLazyAlloc( bool enable )
   \relates QColor
   Writes a color object to the stream.
 
-  Serialization format: RGB value serialized as an UINT32.
+  Serialization format: RGB value serialized as an Q_UINT32.
 */
 
 QDataStream &operator<<( QDataStream &s, const QColor &c )
 {
-    return s << (UINT32)c.rgb();
+    Q_UINT32 p = (Q_UINT32)c.rgb();
+    if ( s.version() == 1 )			// Swap red and blue
+	p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
+    return s << p;
 }
 
 /*!
@@ -731,9 +734,11 @@ QDataStream &operator<<( QDataStream &s, const QColor &c )
 
 QDataStream &operator>>( QDataStream &s, QColor &c )
 {
-    UINT32 rgb;
-    s >> rgb;
-    c.setRgb( rgb );
+    Q_UINT32 p;
+    s >> p;
+    if ( s.version() == 1 )			// Swap red and blue
+	p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
+    c.setRgb( p );
     return s;
 }
 

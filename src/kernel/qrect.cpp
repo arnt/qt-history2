@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#53 $
 **
 ** Implementation of QRect class
 **
@@ -723,8 +723,13 @@ bool operator!=( const QRect &r1, const QRect &r2 )
 
 QDataStream &operator<<( QDataStream &s, const QRect &r )
 {
-    return s << (Q_INT32)r.left() << (Q_INT32)r.top()
-	     << (Q_INT32)r.right() << (Q_INT32)r.bottom();
+    if ( s.version() == 1 )
+	s << (Q_INT16)r.left() << (Q_INT16)r.top()
+	  << (Q_INT16)r.right() << (Q_INT16)r.bottom();
+    else
+	s << (Q_INT32)r.left() << (Q_INT32)r.top()
+	  << (Q_INT32)r.right() << (Q_INT32)r.bottom();
+    return s;
 }
 
 /*!
@@ -735,8 +740,15 @@ QDataStream &operator<<( QDataStream &s, const QRect &r )
 
 QDataStream &operator>>( QDataStream &s, QRect &r )
 {
-    Q_INT32 x1, y1, x2, y2;
-    s >> x1; s >> y1; s >> x2; s >> y2;
-    r.setCoords( x1, y1, x2, y2 );
+    if ( s.version() == 1 ) {
+	Q_INT16 x1, y1, x2, y2;
+	s >> x1; s >> y1; s >> x2; s >> y2;
+	r.setCoords( x1, y1, x2, y2 );
+    }
+    else {
+	Q_INT32 x1, y1, x2, y2;
+	s >> x1; s >> y1; s >> x2; s >> y2;
+	r.setCoords( x1, y1, x2, y2 );
+    }
     return s;
 }

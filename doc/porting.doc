@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.52 1999/05/13 20:50:15 aavit Exp $
+** $Id: porting.doc,v 1.53 1999/05/20 08:00:50 aavit Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -96,6 +96,7 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#QApplication>QApplication</a></b>
  <li><b><a href=#QClipboard>QClipboard</a></b>
  <li><b><a href=#QColor>QColor</a></b>
+ <li><b><a href=#QDataStream>QDataStream</a></b>
  <li><b><a href=#QDialog>QDialog</a></b>
  <li><b><a href=#QDropSite>QDropSite</a></b>
  <li><b><a href=#QEvent>QEvent</a></b>
@@ -538,13 +539,21 @@ but your code may have assumed so on your platform) - this may also produce
 strange color results - use QColor::rgb() if you want a QRgb.
 
 
+<h3><a name=QDataStream>QDataStream</a></h3>
+
+The QDatastream serialization format of most Qt classes is changed in
+Qt 2.0. Use \code QDataStream::setVersion( 1 )\endcode to get a
+datastream object that can read and write Qt 1.x format data streams.
+(### Todo EAa: QRegion possibly an exception )
+
+
 <h3><a name=QRegion>QRegion</a></h3>
 
 <p>
 QDataStream &operator<<( QDataStream &s, const QRegion &r )
 QRegion data files now write in a more efficient form.  The new form
 cannot be read by Qt 1.x, but Qt 2.0 can still read old 1.x data.
-#### CHECK about datastream versioning
+#### TODO EAa: CHECK about datastream versioning
 
 
 <h3><a name=QWidget>QWidget</a></h3>

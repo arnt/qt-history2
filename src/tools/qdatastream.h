@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.h#32 $
+** $Id: //depot/qt/main/src/tools/qdatastream.h#33 $
 **
 ** Definition of QDataStream class
 **
@@ -54,6 +54,9 @@ public:
     bool	 isPrintableData() const;
     void	 setPrintableData( bool );
 
+    int		 version() const;
+    void	 setVersion( int );
+
     QDataStream &operator>>( Q_INT8 &i );
     QDataStream &operator>>( Q_UINT8 &i );
     QDataStream &operator>>( Q_INT16 &i );
@@ -86,6 +89,7 @@ private:
     int		 byteorder;
     bool	 printable;
     bool	 noswap;
+    int		 ver;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -116,6 +120,12 @@ inline bool QDataStream::isPrintableData() const
 
 inline void QDataStream::setPrintableData( bool p )
 { printable = p; }
+
+inline int QDataStream::version() const
+{ return ver; }
+
+inline void QDataStream::setVersion( int v )
+{ ver = v; }
 
 inline QDataStream &QDataStream::operator>>( Q_UINT8 &i )
 { return *this >> (Q_INT8&)i; }
