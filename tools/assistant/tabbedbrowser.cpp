@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-
 #include "tabbedbrowser.h"
 #include "mainwindow.h"
 #include "helpwindow.h"
@@ -212,7 +211,7 @@ void TabbedBrowser::init()
     closeTabButton->setCursor(Qt::arrowCursor);
     closeTabButton->setAutoRaise(true);
     QIconSet is(QString::fromUtf8(":/trolltech/assistant/images/closetab.png"));
-    QPixmap disabledPix = QString::fromUtf8(":/trolltech/assistant/images/d_closetab.png");
+    QPixmap disabledPix(QString::fromUtf8(":/trolltech/assistant/images/d_closetab.png"));
     is.setPixmap(disabledPix, Qt::SmallIconSize, QIconSet::Disabled);
     closeTabButton->setIcon(is);
     closeTabButton->setFixedSize(s, s);
