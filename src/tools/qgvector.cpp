@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#24 $
 **
 ** Implementation of QGVector class
 **
@@ -28,7 +28,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#24 $");
 
 
 #define USE_MALLOC				// comment to use new/delete
@@ -91,6 +91,7 @@ QGVector::QGVector( uint size )			// create vectors with nullptrs
 }
 
 QGVector::QGVector( const QGVector &a )		// make copy of other vector
+    : QCollection( a )
 {
     len = a.len;
     numItems = a.numItems;

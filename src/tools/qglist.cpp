@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#43 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -13,7 +13,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#43 $");
 
 
 /*!
@@ -155,6 +155,7 @@ QGList::QGList()
 */
 
 QGList::QGList( const QGList & list )
+    : QCollection( list )
 {
     firstNode = lastNode = curNode = 0;		// initialize list
     numNodes  = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#51 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#51 $");
 
 
 /*!
@@ -157,6 +157,7 @@ QGDict::QGDict( uint len, bool cs, bool ck, bool th )
 */
 
 QGDict::QGDict( const QGDict & dict )
+    : QCollection( dict )
 {
     vec = new QBucket *[vlen = dict.vlen];	// allocate hash table
     CHECK_PTR( vec );
