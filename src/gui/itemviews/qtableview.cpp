@@ -1018,10 +1018,10 @@ void QTableView::showColumn(int column)
     \internal
 */
 
-void QTableView::resizeRowToContents(int row, bool checkHeader)
+void QTableView::resizeRowToContents(int row)
 {
     int content = rowSizeHint(row);
-    int header = checkHeader ? d->verticalHeader->sectionSizeHint(row) : 0;
+    int header = d->verticalHeader->isHidden() ? 0 : d->verticalHeader->sectionSizeHint(row);
     d->verticalHeader->resizeSection(row, qMax(content, header));
 }
 
@@ -1029,10 +1029,10 @@ void QTableView::resizeRowToContents(int row, bool checkHeader)
     \internal
 */
 
-void QTableView::resizeColumnToContents(int column, bool checkHeader)
+void QTableView::resizeColumnToContents(int column)
 {
     int content = columnSizeHint(column);
-    int header = checkHeader ? d->horizontalHeader->sectionSizeHint(column) : 0;
+    int header = d->horizontalHeader->isHidden() ? 0 : d->horizontalHeader->sectionSizeHint(column);
     d->horizontalHeader->resizeSection(column, qMax(content, header));
 }
 

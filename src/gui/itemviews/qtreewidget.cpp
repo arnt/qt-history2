@@ -542,6 +542,9 @@ QVariant QTreeWidgetItem::data(int column, int role) const
     return QVariant();
 }
 
+#define d d_func()
+#define q q_func()
+
 class QTreeWidgetPrivate : public QTreeViewPrivate
 {
     Q_DECLARE_PUBLIC(QTreeWidget)
@@ -553,9 +556,6 @@ public:
 
 };
 
-#define d d_func()
-#define q q_func()
-
 void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, int button)
 {
     emit q->clicked(model()->item(index), index.column(), button);
@@ -565,7 +565,6 @@ void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
 {
     emit q->doubleClicked(model()->item(index), index.column(), button);
 }
-
 
 /*!
   \class QTreeWidget qtreewidget.h
@@ -707,6 +706,20 @@ void QTreeWidget::removeItem(QTreeWidgetItem *item)
 void QTreeWidget::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
+}
+
+void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(item);
+    QAbstractItemView::openPersistentEditor(index);
+}
+
+void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(item);
+    QAbstractItemView::closePersistentEditor(index);
 }
 
 #include "moc_qtreewidget.cpp"

@@ -133,6 +133,8 @@ signals:
 protected:
     void removeItem(QTableWidgetItem *item);
     void setModel(QAbstractItemModel *model);
+    void openPersistentEditor(QTableWidgetItem *item);
+    void closePersistentEditor(QTableWidgetItem *item);
 
 private:
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));

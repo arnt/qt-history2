@@ -440,6 +440,9 @@ QVariant QListWidgetItem::data(int role) const
     item have the same values for every role; otherwise returns false.
 */
 
+#define d d_func()
+#define q q_func()
+
 class QListWidgetPrivate : public QListViewPrivate
 {
     Q_DECLARE_PUBLIC(QListWidget)
@@ -450,9 +453,6 @@ public:
     void emitDoubleClicked(const QModelIndex &index, int button);
 };
 
-#define d d_func()
-#define q q_func()
-
 void QListWidgetPrivate::emitClicked(const QModelIndex &index, int button)
 {
     emit q->clicked(model()->at(index.row()), button);
@@ -462,7 +462,6 @@ void QListWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
 {
     emit q->doubleClicked(model()->at(index.row()), button);
 }
-
 
 #ifdef QT_COMPAT
 /*!
@@ -646,7 +645,7 @@ void QListWidget::setModel(QAbstractItemModel *model)
 {
     QListView::setModel(model);
 }
-/*
+
 void QListWidget::openPersistentEditor(QListWidgetItem *item)
 {
     Q_ASSERT(item);
@@ -660,6 +659,5 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::closePersistentEditor(index);
 }
-*/
 
 #include "moc_qlistwidget.cpp"

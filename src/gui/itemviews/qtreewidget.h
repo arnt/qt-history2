@@ -82,8 +82,9 @@ public:
     inline QTreeWidgetItem *parent() { return par; }
     inline QTreeWidgetItem *child(int index) { return children.at(index); }
     inline int childCount() const { return children.count(); }
-//    inline bool isSelected() { return view->isSelected(this); }
     inline int columnCount() const { return values.count(); }
+
+    // bool isSelected() { return view->isSelected(this); }
 
 protected:
     QTreeWidgetItem();
@@ -133,6 +134,8 @@ protected:
     void appendItem(QTreeWidgetItem *item);
     void removeItem(QTreeWidgetItem *item);
     void setModel(QAbstractItemModel *model);
+    void openPersistentEditor(QTreeWidgetItem *item);
+    void closePersistentEditor(QTreeWidgetItem *item);
 
 private:
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));

@@ -413,6 +413,9 @@ QVariant QTableWidgetItem::data(int role) const
     \sa \link model-view-programming.html Model/View Programming\endlink
 */
 
+#define d d_func()
+#define q q_func()
+
 class QTableWidgetPrivate : public QTableViewPrivate
 {
     Q_DECLARE_PUBLIC(QTableWidget)
@@ -423,9 +426,6 @@ public:
     void emitDoubleClicked(const QModelIndex &index, int button);
 };
 
-#define d d_func()
-#define q q_func()
-
 void QTableWidgetPrivate::emitClicked(const QModelIndex &index, int button)
 {
     emit q->clicked(model()->item(index), button);
@@ -435,7 +435,6 @@ void QTableWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button
 {
     emit q->doubleClicked(model()->item(index), button);
 }
-
 
 /*!
     \fn void QTableWidget::clicked(QTableWidgetItem *item, int button)
@@ -636,6 +635,20 @@ void QTableWidget::removeItem(QTableWidgetItem *item)
 void QTableWidget::setModel(QAbstractItemModel *model)
 {
     QTableView::setModel(model);
+}
+
+void QTableWidget::openPersistentEditor(QTableWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(item);
+    QAbstractItemView::openPersistentEditor(index);
+}
+
+void QTableWidget::closePersistentEditor(QTableWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(item);
+    QAbstractItemView::closePersistentEditor(index);
 }
 
 #include "moc_qtablewidget.cpp"

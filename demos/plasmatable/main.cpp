@@ -35,9 +35,9 @@ int main(int argc, char *argv[])
     view->verticalHeader()->hide();
 
     for (int c = 0; c < cc; ++c)
-        view->resizeColumnToContents(c, false);
+        view->resizeColumnToContents(c);
     for (int r = 0; r < rc; ++r)
-        view->resizeRowToContents(r, false);
+        view->resizeRowToContents(r);
 
     app.setMainWidget(&page);
 

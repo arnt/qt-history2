@@ -125,8 +125,8 @@ signals:
 protected:
     void removeItem(QListWidgetItem *item);
     void setModel(QAbstractItemModel *model);
-//    void openPersistentEditor(QListWidgetItem *item);
-//    void closePersistentEditor(QListWidgetItem *item);
+    void openPersistentEditor(QListWidgetItem *item);
+    void closePersistentEditor(QListWidgetItem *item);
 
 private:
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
