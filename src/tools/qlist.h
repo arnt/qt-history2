@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#18 $
+** $Id: //depot/qt/main/src/tools/qlist.h#19 $
 **
 ** Definition of QList template/macro class
 **
@@ -103,8 +103,8 @@ public:									      \
     type *operator+=(uint j)  { return (type *)QGListIterator::operator+=(j);}\
     type *operator--()	      { return (type *)QGListIterator::operator--(); }\
     type *operator-=(uint j)  { return (type *)QGListIterator::operator-=(j);}\
-    QListIteratorM(type)& operator=(const QListIteratorM(type)&ci)            \
-			      { QGListIterator::operator=(ci); return *this; }\
+    QListIteratorM(type)& operator=(const QListIteratorM(type)&it)            \
+			      { QGListIterator::operator=(it); return *this; }\
 }
 
 #endif // USE_MACROCLASS
@@ -187,8 +187,8 @@ public:
     type *operator+=(uint j)  { return (type *)QGListIterator::operator+=(j);}
     type *operator--()	      { return (type *)QGListIterator::operator--(); }
     type *operator-=(uint j)  { return (type *)QGListIterator::operator-=(j);}
-    QListIteratorT<type>& operator=(const QListIteratorT<type>&ci)
-			      { QGListIterator::operator=(ci); return *this; }
+    QListIteratorT<type>& operator=(const QListIteratorT<type>&it)
+			      { QGListIterator::operator=(it); return *this; }
 };
 
 
