@@ -320,10 +320,14 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 			    bool do_glyph = TRUE;
 			    if(keycode == Qt::Key_Return)
 				keycode = kMenuReturnGlyph;
+			    else if(keycode == Qt::Key_Enter)
+				keycode = kMenuEnterGlyph;
 			    else if(keycode == Qt::Key_Tab)
 				keycode = kMenuTabRightGlyph;
 			    else if(keycode == Qt::Key_Backspace)
 				keycode = kMenuDeleteLeftGlyph;
+			    else if(keycode == Qt::Key_Delete)
+				keycode = kMenuDeleteRightGlyph;
 			    else if(keycode == Qt::Key_Escape)
 				keycode = kMenuEscapeGlyph;
 			    else if(keycode == Qt::Key_PageUp)
