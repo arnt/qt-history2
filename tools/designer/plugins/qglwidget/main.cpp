@@ -7,7 +7,7 @@
 class OpenGLWidgetInterface : public WidgetInterface
 {
 public:
-    OpenGLWidgetInterface();
+    OpenGLWidgetInterface( QUnknownInterface *parent );
     ~OpenGLWidgetInterface();
 
     bool disconnectNotify();
@@ -27,7 +27,8 @@ private:
     QGuardedCleanUpHandler<QObject> objects;
 };
 
-OpenGLWidgetInterface::OpenGLWidgetInterface()
+OpenGLWidgetInterface::OpenGLWidgetInterface( QUnknownInterface *parent )
+: WidgetInterface( parent )
 {
 }
 
@@ -65,7 +66,7 @@ QWidget* OpenGLWidgetInterface::create( const QString &description, QWidget* par
 QString OpenGLWidgetInterface::group( const QString& description )
 {
     if ( description == "QGLWidget" )
-	return "Rendering";
+	return "Views";
     return QString::null;
 }
 
@@ -113,41 +114,18 @@ public:
     OpenGLPlugIn();
     ~OpenGLPlugIn();
 
-    QUnknownInterface* queryInterface( const QString& );
-    QStringList interfaceList() const;
-
     QString name() const { return "QGLWidget"; }
     QString description() const { return "Qt Designer plugin for the OpenGL widget"; }
     QString author() const { return "Trolltech"; }
-
-private:
-    OpenGLWidgetInterface* gl;
 };
 
 OpenGLPlugIn::OpenGLPlugIn()
-: gl( 0 )
 {
+    new OpenGLWidgetInterface( this );
 }
 
 OpenGLPlugIn::~OpenGLPlugIn()
 {
-    delete gl;
-}
-
-QStringList OpenGLPlugIn::interfaceList() const
-{
-    QStringList list;
-
-    list << "OpenGLWidgetInterface";
-
-    return list;
-}
-
-QUnknownInterface* OpenGLPlugIn::queryInterface( const QString& request )
-{
-    if ( request == "OpenGLWidgetInterface" )
-	return gl ? gl : ( gl = new OpenGLWidgetInterface() );
-    return 0;
 }
 
 Q_EXPORT_INTERFACE( OpenGLPlugIn )
