@@ -64,3 +64,13 @@ QScrollBar:
 QListBox:
 ---------
     removed setStrList(), use clear(); insertStrList( ... , 0 ); instead 
+
+QColor:
+-------
+    setRGB => setRgb
+    getRGB => rgb
+    setHSV => setHsv
+    getHSV => hsv
+
+
+HAAVARD: fontMetrics() m.m. endringene!
