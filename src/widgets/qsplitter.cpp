@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#134 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#135 $
 **
 **  Splitter widget
 **
@@ -45,6 +45,9 @@
 #include "qmemarray.h"
 #include "qobjectlist.h"
 #include "qapplication.h" //sendPostedEvents
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessiblewidget.h"
+#endif
 
 class QSplitterHandle : public QWidget
 {
@@ -66,6 +69,9 @@ protected:
     void mouseMoveEvent( QMouseEvent * );
     void mousePressEvent( QMouseEvent * );
     void mouseReleaseEvent( QMouseEvent * );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
 
 private:
     Qt::Orientation orient;
@@ -141,6 +147,14 @@ void QSplitterHandle::paintEvent( QPaintEvent * )
     s->drawSplitter( &p, 0, 0, width(), height() );
 }
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QSplitterHandle::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::Separator, QString::null, 
+					QString::null, QString::null, QString::null, 
+					QString::null, QString::null, QAccessible::Moveable );
+}
+#endif
 
 class QSplitterLayoutStruct
 {

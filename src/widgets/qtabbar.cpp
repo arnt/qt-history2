@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#157 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#158 $
 **
 ** Implementation of QTab and QTabBar classes
 **
@@ -39,6 +39,9 @@
 #include "qbitmap.h"
 #include "qtoolbutton.h"
 #include "qapplication.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessiblewidget.h"
+#endif
 
 #include <ctype.h>
 
@@ -899,6 +902,14 @@ void QTabBar::resizeEvent( QResizeEvent * )
     updateArrowButtons();
     makeVisible( tab( currentTab() ));
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
+QAccessibleInterface *QTabBar::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::PageTab );
+}
+#endif
 
 void QTabBar::scrollTabs()
 {
