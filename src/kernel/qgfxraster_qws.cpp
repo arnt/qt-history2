@@ -272,7 +272,7 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 
 /*!
   \fn QScreenCursor::~QScreenCursor()
-  Destroys a screen cursor, deleting its gfxes, cursor image and 
+  Destroys a screen cursor, deleting its gfxes, cursor image and
   under-cursor storage
 */
 
@@ -1379,7 +1379,7 @@ inline void QRect::setCoords( int xp1, int yp1, int xp2, int yp2 )
     y1 = (QCOORD)yp1;
     x2 = (QCOORD)xp2;
     y2 = (QCOORD)yp2;
-} 
+}
 
 /*!
   Returns whether the point (\a x, \a y) is in the clip region.
@@ -1668,18 +1668,20 @@ void QGfxRasterBase::setSourcePen()
     setSourceWidgetOffset( 0, 0 );
 }
 
-/*!
+/*! \fn QGfxRasterBase::get_value_32(int sdepth, unsigned char **srcdata, 
+        bool reverse)
 This converts a pixel in an arbitrary source depth (specified by \a sdepth,
 stored at *(*\a srcdata) to a 32 bit value; it's used by blt() where the
 source depth is less than 32 bits and the destination depth is 32 bits.
 *srcdata (the pointer to the data) is auto-incremented by the appropriate
 number of bytes, or decremented if \a reverse is true. If the source has
-a pixel size of less than a byte then auto-incrementing or decrementing 
+a pixel size of less than a byte then auto-incrementing or decrementing
 will happen as necessary; the current position within the byte is stored in
 monobitcount (bit within the byte) and monobitval (value of the current
 byte). In the case of 8-bit source data lookups on the source's colour
 table are performed.
 */
+
 GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 		       int sdepth, unsigned char **srcdata, bool reverse)
 {
@@ -1741,12 +1743,13 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 	if ( pixeltype != srcpixeltype ) {
 	    ret = (ret&0x0000ff)<<16 | (ret&0xff00ff00) | (ret&0xff0000)>>16;
 	}
-#endif	
+#endif
 
     return ret;
 }
 
-/*!
+/*! \fn QGfxRasterBase::get_value_24(int sdepth, unsigned char **srcdata, 
+        bool reverse)
 This is similar to get_value_32, but returns packed 24-bit values
 
 This converts a pixel in an arbitrary source depth (specified by \a sdepth,
@@ -1754,7 +1757,7 @@ stored at *(*\a srcdata) to a 24 bit value; it's used by blt() where the
 source depth is less than 24 bits and the destination depth is 24 bits.
 *srcdata (the pointer to the data) is auto-incremented by the appropriate
 number of bytes, or decremented if \a reverse is true. If the source has
-a pixel size of less than a byte then auto-incrementing or decrementing 
+a pixel size of less than a byte then auto-incrementing or decrementing
 will happen as necessary; the current position within the byte is stored in
 monobitcount (bit within the byte) and monobitval (value of the current
 byte). In the case of 8-bit source data lookups on the source's colour
@@ -1778,7 +1781,8 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_24(
     return ret;
 }
 
-/*!
+/*! \fn QGfxRasterBase::get_value_16(int sdepth, unsigned char **srcdata, 
+        bool reverse)
 This is similar to get_value_32, but returns 16-bit values
 
 This converts a pixel in an arbitrary source depth (specified by \a sdepth,
@@ -1786,7 +1790,7 @@ stored at *(*\a srcdata) to a 16 bit value; it's used by blt() where the
 source depth is less than 16 bits and the destination depth is 16 bits.
 *srcdata (the pointer to the data) is auto-incremented by the appropriate
 number of bytes, or decremented if \a reverse is true. If the source has
-a pixel size of less than a byte then auto-incrementing or decrementing 
+a pixel size of less than a byte then auto-incrementing or decrementing
 will happen as necessary; the current position within the byte is stored in
 monobitcount (bit within the byte) and monobitval (value of the current
 byte). In the case of 8-bit source data lookups on the source's colour
@@ -1797,7 +1801,7 @@ table are performed.
 GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
 		       int sdepth, unsigned char **srcdata, bool reverse)
 {
-#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )    
+#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
     unsigned int ret = 0;
     if ( sdepth == 16 ) {
 	unsigned short int hold = *((unsigned short int *)(*srcdata));
@@ -1851,7 +1855,8 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
 #endif
 }
 
-/*!
+/*! \fn QGfxRasterBase::get_value_8(
+        int sdepth, unsigned char **srcdata, bool reverse)
 This is similar to get_value_32, but returns 8-bit values. Translation
 between different colour palettes and from 32/24/16 bit data to the nearest
 match in the destination's colour palette is performed.
@@ -1861,7 +1866,7 @@ stored at *(*\a srcdata) to a 8 bit value; it's used by blt() where the
 source depth is less than 8 bits and the destination depth is 8 bits.
 *srcdata (the pointer to the data) is auto-incremented by the appropriate
 number of bytes, or decremented if \a reverse is true. If the source has
-a pixel size of less than a byte then auto-incrementing or decrementing 
+a pixel size of less than a byte then auto-incrementing or decrementing
 will happen as necessary; the current position within the byte is stored in
 monobitcount (bit within the byte) and monobitval (value of the current
 byte). In the case of 8-bit source data lookups on the source's colour
@@ -1945,7 +1950,7 @@ stored at *(*\a srcdata) to a 4 bit value; it's used by blt() where the
 source depth is less than 4 bits and the destination depth is 4 bits.
 *srcdata (the pointer to the data) is auto-incremented by the appropriate
 number of bytes, or decremented if \a reverse is true. If the source has
-a pixel size of less than a byte then auto-incrementing or decrementing 
+a pixel size of less than a byte then auto-incrementing or decrementing
 will happen as necessary; the current position within the byte is stored in
 monobitcount (bit within the byte) and monobitval (value of the current
 byte). In the case of 8-bit source data lookups on the source's colour
@@ -2031,7 +2036,7 @@ stored at *(*\a srcdata) to a 1 bit value; it's used by blt() where the
 source depth is less than 1 bit and the destination depth is 1 bit.
 *srcdata (the pointer to the data) is auto-incremented by the appropriate
 number of bytes, or decremented if \a reverse is true. If the source has
-a pixel size of less than a byte then auto-incrementing or decrementing 
+a pixel size of less than a byte then auto-incrementing or decrementing
 will happen as necessary; the current position within the byte is stored in
 monobitcount (bit within the byte) and monobitval (value of the current
 byte). In the case of 8-bit source data lookups on the source's colour
@@ -2107,10 +2112,10 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
  \brief The QGfxRaster class is QGfxRasterBase specialized for a particular bit
  depth, specified by the depth parameter of the template. The type field
  is currently not used. In future versions, it may be used to specify the
- pixel storage format. 
+ pixel storage format.
 
  \internal (for now)
- 
+
  Many operations with QGfxRaster are specified along the lines of
 
  if(depth==32) {
@@ -2118,7 +2123,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
  } else if(depth==16) {
    ...
 
- The intention is that the compiler will release when instantiating a template
+ The intention is that the compiler will realise when instantiating a template
  for a particular depth that it need only include the code for that depth -
  so if you never use an 8-bit gfx, for example, the 8-bit code will not
  be included in your executable. The actual drawing code for software-only
@@ -2127,7 +2132,8 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
  handle.
 */
 
-/*!
+/*! \fn template <const int depth, const int type> 
+  QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
   Constructs a QGfxRaster for a particular depth with a framebuffer pointed
   to by \a b, with a width and height of \a w and \a h (specified in
   pixels, not bytes)
@@ -2146,8 +2152,8 @@ QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
     }
 }
 
-/*!
-\fn QGfxRaster<depth,type>::~QGfxRaster()
+/*! \fn template <const int depth, const int type> 
+  QGfxRaster<depth,type>::~QGfxRaster()
 
 Destroys a QGfxRaster
 */
@@ -2284,6 +2290,7 @@ unpacked:
 
 /*!
 \fn void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
+\overload
 This sets the gfx to use an arbitrary paintdevice as the source for
 future data. It sets up a default alpha-blending value of IgnoreAlpha.
 */
@@ -2763,7 +2770,7 @@ double qatan2( double y, double x )
 
 // Dijkstra's bisection algorithm to find the square root as an integer.
 // The argument n must be in the range 0...1'073'741'823 [2^31-1].
- 
+
 static uint int_sqrt(uint n)
 {
     uint h, p= 0, q= 1, r= n;
@@ -2811,7 +2818,7 @@ static QPoint intersection( const QPointArray& pa, const QPoint& p0, int p, int 
     int offset = denom < 0 ? - denom / 2 : denom / 2;
     int num = b1 * c2 - b2 * c1;
     int x = ( num < 0 ? num - offset : num + offset ) / denom;
- 
+
     num = a2 * c1 - a1 * c2;
     int y = ( num < 0 ? num - offset : num + offset ) / denom;
 
@@ -2867,7 +2874,7 @@ static QPointArray convertThickPolylineToPolygon( const QPointArray &points,int 
 	if ( iy < 0 ) {
 	    niy = iy/2;
 	    iy = (iy-1)/2;
-	} else { 
+	} else {
 	    niy = (iy+1)/2;
 	    iy = iy/2;
 	}
@@ -2984,7 +2991,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 /*!
 \fn void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char* l)
 Draws a line in the current pen colour from x1 to x2 on scanline l,
-ignoring clipping. Used by anything that draws in solid colors - drawLine, 
+ignoring clipping. Used by anything that draws in solid colors - drawLine,
 fillRect, and drawPolygon.
 */
 
@@ -3190,8 +3197,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
  and a mask is set.
  Image data comes from of the setSource calls (in which case the
  variable srcdata points to it) or as a solid value stored in srccol
- (if setSourcePen is used). This method is internal and called from blt and 
- stretchBlt. Its complexity is caused by its need to deal with masks, copying 
+ (if setSourcePen is used). This method is internal and called from blt and
+ stretchBlt. Its complexity is caused by its need to deal with masks, copying
  from right to left or left to right (for overlapping blt's), packing writes
  for performance reasons and arbitrary source and destination depths.
 */
@@ -3495,7 +3502,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 						    unsigned char * alphas)
 This is similar to hImageLineUnclipped but handles the more complex
 alpha blending modes (InlineAlpha, SeparateAlpha, SolidAlpha).
-Blending is a simple averaging between the source and destination r, g and b 
+Blending is a simple averaging between the source and destination r, g and b
 values using the 8-bit source alpha value -
 that is, for each of r, g and b the result is
 
@@ -4440,10 +4447,10 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 }
 
 /*!
-  \fn GFX_INLINE unsigned char * find_pointer(unsigned char * base,int x,int y,
-					   int w, int linestep, int &astat,
-					   unsigned char &ahold,
-					   bool is_bigendian, bool rev)
+  \fn find_pointer(unsigned char * base,int x,int y,
+      int w, int linestep, int &astat,
+      unsigned char &ahold,
+      bool is_bigendian, bool rev)
 
   Finds a pointer to pixel (\a x, \a y) in a bitmap that
   is \a w pixels wide and stored in \a base. \a is_bigendian determines
@@ -4556,8 +4563,8 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
 \fn void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 This corresponds to QPixmap::drawPixmap (into a QPainter with no transformation
 other than a translation) or bitBlt. The source is set up using
-setSource and setSourceWidgetOffset before the blt. rx and ry are the 
-destination coordinates, w and h the size of the rectangle to blt, 
+setSource and setSourceWidgetOffset before the blt. rx and ry are the
+destination coordinates, w and h the size of the rectangle to blt,
 sx and sy the source coordinates relative to the source's widget offset.
 In the case of a pen source sx and sy are ignored. Source and destination
 can overlap and can be of arbitrary (different) depths.
@@ -4595,7 +4602,7 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     if ( topd > 0 ) {
 	ry += topd;
 	sy += topd;
-	h -= topd;	
+	h -= topd;
     }
     int rightd = rx + w - 1 - clipbounds.right();
     if ( rightd > 0 )
@@ -4636,7 +4643,7 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     unsigned char *srcline = srcScanLine(j+srcoffs.y());
 
     // Fast path for 8/16/32 bit same-depth opaque blit. (ie. the common case)
-    if ( srcdepth == depth && alphatype == IgnoreAlpha && 
+    if ( srcdepth == depth && alphatype == IgnoreAlpha &&
 	 pixeltype == srcpixeltype &&
 	 (depth > 8 || (depth == 8 && src_normal_palette)) ) {
 	int bytesPerPixel = depth/8;
@@ -4947,7 +4954,7 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
 /*!
   \class QScreen qgfx_qws.h
   \ingroup qws
-  \brief Descendants of QScreen manage the framebuffer and palette and act as 
+  \brief Descendants of QScreen manage the framebuffer and palette and act as
   factories for the screen cursor and QGfx's. QLinuxFbScreen manages
   a Linux framebuffer; accelerated drivers subclass QLinuxFbScreen.
   There can only be one screen in a Qt/Embedded application.
@@ -5166,7 +5173,7 @@ bool QScreen::supportsDepth(int d) const
 
 /*!
 \fn Qfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
-Creates a gfx on an arbitrary buffer, width and height in pixels, depth 
+Creates a gfx on an arbitrary buffer, width and height in pixels, depth
 and linestep (length in bytes of each line in the buffer). Accelerated
 drivers can check to see if bytes points into graphics memory
 and create an accelerated Gfx.
