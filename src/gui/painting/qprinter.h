@@ -33,7 +33,7 @@ class Q_GUI_EXPORT QPrinter : public QPaintDevice
 {
     Q_DECLARE_PRIVATE(QPrinter)
 public:
-    enum PrinterMode { ScreenResolution, PrinterResolution, HighResolution, Compatible };
+    enum PrinterMode { ScreenResolution, PrinterResolution, HighResolution };
 
     QPrinter(PrinterMode mode = ScreenResolution);
    ~QPrinter();
