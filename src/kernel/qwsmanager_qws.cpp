@@ -206,7 +206,7 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
 	activeRegion = pointInRegion(mousePos);
 	switch (activeRegion) {
 	    case QWSDecoration::Menu:
-		menu(managed->pos());
+		menu(managed->geometry().topLeft());
 		break;
 	    case QWSDecoration::Close:
 		closeBtn->setClicked(TRUE);
