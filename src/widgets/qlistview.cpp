@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#270 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#271 $
 **
 ** Implementation of QListView widget class
 **
@@ -4338,7 +4338,7 @@ QListViewItemIterator::QListViewItemIterator( QListView *lv )
     addToListView();
 }
 
-/*!  Assignment. Makes a copy \e it and returns a reference to its
+/*!  Assignment. Makes a copy of \e it and returns a reference to its
   iterator.
 */
 
