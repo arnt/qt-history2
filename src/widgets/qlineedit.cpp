@@ -185,6 +185,7 @@ struct QLineEditPrivate {
     int id[ 7 ];
     bool dragEnabled;
     int preeditStart, preeditLength;
+    QString txtBuffer;  // semi-persistant storage for text()
 };
 
 QPixmap* QLineEditPrivate::pm = 0;
@@ -444,9 +445,13 @@ void QLineEdit::deselect()
 
 QString QLineEdit::text() const
 {
-    QString s = d->parag->string()->toString();
-    s.remove( s.length() - 1, 1 ); // remove trailing space
-    return s;
+    // only change the text if we need to, this ensure
+    // that multiple calls to text() will get the same value.
+    if ( d->txtBuffer + " " != d->parag->string()->toString() ) {
+	d->txtBuffer = d->parag->string()->toString();
+	d->txtBuffer.remove( d->txtBuffer.length() - 1, 1 );  // remove space
+    }
+    return d->txtBuffer;
 }
 
 
