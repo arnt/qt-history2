@@ -966,11 +966,6 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
 
   \ingroup environment
 
-  \omit
-  THIS CLASS MAY CHANGE A BIT.  PLEASE DO NOT DO COPY EDITING HERE
-  WITHOUT TALKING TO ARNT.
-  \endomit
-
   This class is of no interest to most applications, just for
   translation tools such as
   \link http://www.trolltech.com/linguist/ Qt Linguist \endlink. It is
@@ -983,13 +978,13 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
   and the comment.  Unless you plan to read and write messages
   yourself, you need not worry about the hash value.
 
-  QTranslatorMessage stores this triple or quadruple, the relevant
-  translation if there is any, and the status of the message.
+  QTranslatorMessage stores this triple or quadruple and the relevant
+  translation if there is any.
 
   \sa QTranslator
 */
 
-/*!  Constructs a translator message with extended key ( 0, 0, 0, 0 ) and
+/*!  Constructs a translator message with extended key (0, 0, 0, 0) and
   QString::null as translation.
 */
 
