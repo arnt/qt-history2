@@ -265,7 +265,8 @@ QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw, QIODevice *dev )
 
 QFtpCommand::~QFtpCommand()
 {
-    delete data.ba;
+    if ( data_ba )
+	delete data.ba;
 }
 
 /**********************************************************************
