@@ -2,7 +2,6 @@
 #define DESIGNERAPPIFACE_H
 
 #include <qapplicationinterface.h>
-#include <qmap.h>
 #include <qguardedptr.h>
 
 class MainWindow;
