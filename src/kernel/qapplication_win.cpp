@@ -399,9 +399,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 
   // Install default debug handler
 
-#if defined(Q_CC_MSVC)
     qInstallMsgHandler( msgHandler );
-#endif
 
   // Create command line
 
