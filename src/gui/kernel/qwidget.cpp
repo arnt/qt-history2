@@ -2544,7 +2544,7 @@ QT3_SUPPORT QWidgetMapper *QWidget::wmapper() { return QWidgetPrivate::mapper; }
 /*!
   Returns the background role of the widget.
 
-  The background role defines the brush from the widget's palette that
+  The background role defines the brush from the widget's \l palette that
   is used to render the background.
 
   \sa setBackgroundRole(), foregroundRole()
@@ -2562,7 +2562,7 @@ QPalette::ColorRole QWidget::backgroundRole() const
 /*!
   Sets the background role of the widget to \a role.
 
-  The background role defines the brush from the widget's palette that
+  The background role defines the brush from the widget's \l palette that
   is used to render the background.
 
   \sa backgroundRole(), foregroundRole()
@@ -2600,7 +2600,7 @@ void QWidget::setBackgroundRole(QPalette::ColorRole role)
 /*!
   Returns the foreground role.
 
-  The foreground role defines the color from the widget's palette that
+  The foreground role defines the color from the widget's \l palette that
   is used to draw the foreground.
 
   If no explicit foreground role is set, returns a role that contrasts
@@ -2622,7 +2622,7 @@ QPalette::ColorRole QWidget::foregroundRole() const
 /*!
   Sets the foreground role of the widget to \a role.
 
-  The foreground role defines the color from the widget's palette that
+  The foreground role defines the color from the widget's \l palette that
   is used to draw the foreground.
 
   \sa backgroundRole(), setForegroundRole()
