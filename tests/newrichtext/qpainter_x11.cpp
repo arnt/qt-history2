@@ -3094,7 +3094,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             map( x, y, &x, &y );
     }
 
-    const QTextLayoutIFace *layout = QTextLayoutIFace::instance();
+    const QTextEngine *layout = QTextEngine::instance();
     QScriptItemArray items;
     layout->itemize( items, str );
 
@@ -3114,7 +3114,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	unsigned char levels[256];
 	for ( int i = 0; i < numItems; i++ )
 	    levels[i] = items[i+start].analysis.bidiLevel;
-	QTextLayoutIFace::instance()->bidiReorder( numItems, (unsigned char *)levels, (int *)visualOrder );
+	QTextEngine::instance()->bidiReorder( numItems, (unsigned char *)levels, (int *)visualOrder );
     } else if ( dir == LTR ) {
 	for ( int i = 0; i < numItems; i++ )
 	    visualOrder[i] = i;

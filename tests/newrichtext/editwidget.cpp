@@ -107,7 +107,7 @@ void EditWidget::resizeEvent( QResizeEvent * )
 void EditWidget::paintEvent( QPaintEvent * )
 {
     QPainter painter( this );
-    const QTextLayoutIFace *layout = QTextLayoutIFace::instance();
+    const QTextEngine *layout = QTextEngine::instance();
     int start = 0;
     int y = 5;
     for ( int j = 0; j < d->lineBreaks.size(); j++ ) {
@@ -170,7 +170,7 @@ void EditWidget::recalculate()
 {
     QTime t;
     t.start();
-    const QTextLayoutIFace *layout = QTextLayoutIFace::instance();
+    const QTextEngine *layout = QTextEngine::instance();
 
     layout->itemize( d->items, d->text );
 

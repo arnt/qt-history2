@@ -222,20 +222,20 @@ public:
     QCharAttributesArrayPrivate *d;
 };
 
-class QTextLayoutIFace
+class QTextEngine
 {
 public:
-    static const QTextLayoutIFace *instance();
+    static const QTextEngine *instance();
 
-    virtual void itemize( QScriptItemArray &items, const QString & ) const = 0;
+    void itemize( QScriptItemArray &items, const QString & ) const;
 
-    virtual void attributes( QCharAttributesArray &attrs, const QString &string,
-		     const QScriptItemArray &items, int item ) const = 0;
+    void attributes( QCharAttributesArray &attrs, const QString &string,
+		     const QScriptItemArray &items, int item ) const;
 
     void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const;
 
-    virtual void shape( QShapedItem &shaped, const QFont &f, const QString &string,
-			const QScriptItemArray &items, int item ) const = 0;
+    void shape( QShapedItem &shaped, const QFont &f, const QString &string,
+			const QScriptItemArray &items, int item ) const;
 
     // ### we need something for justification
 
@@ -244,16 +244,20 @@ public:
 	Trailing
     };
 
-    virtual int cursorToX( QShapedItem &shaped, int cpos, Edge edge = Leading ) const = 0;
-    virtual int xToCursor( QShapedItem &shaped, int x ) const = 0;
+    int cursorToX( QShapedItem &shaped, int cpos, Edge edge = Leading ) const;
+    int xToCursor( QShapedItem &shaped, int x ) const;
 
-    virtual int width( QShapedItem &shaped ) const = 0;
-    virtual int width( QShapedItem &shaped, int charFrom, int numChars ) const = 0;
-    virtual bool split( QScriptItemArray &items, int item, QShapedItem &, QCharAttributesArray &,
-			int width, QShapedItem *splitoff = 0 ) const = 0;
+    int width( QShapedItem &shaped ) const;
+    int width( QShapedItem &shaped, int charFrom, int numChars ) const;
+    bool split( QScriptItemArray &items, int item, QShapedItem &, QCharAttributesArray &,
+		int width, QShapedItem *splitoff = 0 ) const;
 
 //    static QScriptProperties scriptProperties( int script );
 
+private:
+    // not in the interface
+    void shape( QShapedItem &shaped ) const;
+    void position( QShapedItem &shaped ) const;
 };
 
 #endif

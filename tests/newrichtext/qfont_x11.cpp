@@ -1278,7 +1278,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	return gi.xoff;
     }
 
-    const QTextLayoutIFace *layout = QTextLayoutIFace::instance();
+    const QTextEngine *layout = QTextEngine::instance();
     QScriptItemArray items;
     layout->itemize( items,  str );
     int i = 0;
@@ -1311,7 +1311,7 @@ int QFontMetrics::width( const QString &str, int len ) const
     if (len == 0)
 	return 0;
 
-    const QTextLayoutIFace *layout = QTextLayoutIFace::instance();
+    const QTextEngine *layout = QTextEngine::instance();
     QScriptItemArray items;
     layout->itemize( items,  str );
     QShapedItem shaped;
@@ -1352,7 +1352,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	return QRect();
 
 
-    const QTextLayoutIFace *layout = QTextLayoutIFace::instance();
+    const QTextEngine *layout = QTextEngine::instance();
     QScriptItemArray items;
     layout->itemize( items,  str );
     QShapedItem shaped;

@@ -19,8 +19,6 @@ Some of the ideas are stolen from the Uniscribe API or from Pango.
 
 
 #if 0
-class QTextItemPrivate;
-
 class QTextItem
 {
 public:
@@ -77,7 +75,7 @@ public:
     };
 
     /* add an additional item boundary eg. for style change */
-    void set( int strPos );
+    void setBoundary( int strPos );
 
     bool validCursorPosition( int strPos );
 
