@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#91 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#91 $");
 
 
 /*!
@@ -100,7 +100,7 @@ static void create_palettes()			// creates default palettes
 			   black, white );
     QColorGroup motif_dis( darkGray, lightGray,
 			   white, lightGray.dark(), gray,
-			   darkGray, white );
+			   darkGray, motif_nor.background() );
     QColorGroup motif_act( black, lightGray,
 			   white, lightGray.dark(), gray,
 			   black, white );
