@@ -229,10 +229,15 @@ MakefileGenerator::init()
 	    decls.append(decl);
 	    impls.append(impl);
 	    depends[impl].append(decl);
+
+	    QString mocable;
 	    if(!v["MOC_DIR"].isEmpty())
-		v["_UIMOC"].append(v["MOC_DIR"].first() + "/moc_" + fi.baseName() + Option::cpp_ext);
+		mocable = v["MOC_DIR"].first() + "/moc_" + fi.baseName() + Option::cpp_ext;
 	    else
-		v["_UIMOC"].append(fi.dirPath() + Option::dir_sep + "moc_" + fi.baseName() + Option::cpp_ext);
+		mocable = fi.dirPath() + Option::dir_sep + "moc_" + fi.baseName() + Option::cpp_ext;
+	    v["_UIMOC"].append(mocable);
+	    mocablesToMOC[decl] = mocable;
+	    mocablesFromMOC[mocable] = decl;
 	}
 	v["OBJECTS"] += (v["UICOBJECTS"] = createObjectList("INTERFACES"));
     }
@@ -276,7 +281,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	    comp = "TMAKE_RUN_CC";
 	    cimp = "TMAKE_RUN_CC_IMP";
 	}
-	if ( !project->variables()["OBJECTS_DIR"].isEmpty() || project->variables()[comp].isEmpty()) {
+	if ( !project->variables()["OBJECTS_DIR"].isEmpty() || project->variables()[cimp].isEmpty()) {
 	    QString p = var(comp);
 	    p.replace(QRegExp("\\$src"), (*sit));
 	    p.replace(QRegExp("\\$obj"), (*oit));
@@ -407,7 +412,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeMocObj(t, "OBJMOC", "SRCMOC");
     writeMocSrc(t, "HEADERS");
     writeMocSrc(t, "SOURCES");
-    writeMocSrc(t, "UICDELCS");
+    writeMocSrc(t, "UICDECLS");
 }
 
 
