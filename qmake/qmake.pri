@@ -19,11 +19,11 @@ HEADERS += project.h property.h generators/makefile.h \
    SOURCES +=  generators/win32/borland_bmake.cpp generators/win32/msvc_nmake.cpp \
                generators/projectgenerator.cpp generators/mac/metrowerks_xml.cpp \
                generators/win32/msvc_dsp.cpp generators/win32/msvc_vcproj.cpp \
-               generators/mac/pbuilder_pbx.cpp generators/win32/msvc_objectmodel.cpp 
+               generators/mac/pbuilder_pbx.cpp generators/win32/msvc_objectmodel.cpp
    HEADERS +=  generators/win32/borland_bmake.h generators/win32/msvc_nmake.h \
                generators/win32/msvc_dsp.h generators/win32/msvc_vcproj.h \
                generators/mac/metrowerks_xml.h generators/win32/mingw_make.h \
-               generators/mac/pbuilder_pbx.h generators/win32/msvc_objectmodel.h 
+               generators/mac/pbuilder_pbx.h generators/win32/msvc_objectmodel.h
 } else {
    DEFINES += QMAKE_OPENSOURCE_EDITION
 }
@@ -31,8 +31,9 @@ HEADERS += project.h property.h generators/makefile.h \
 bootstrap { #Qt code
    DEFINES+=QT_NODLL QT_NO_THREAD
    SOURCES+= \
-        qbitarray.cpp \ 
+        qbitarray.cpp \
         qbuffer.cpp \
+	qbufferedfsfileengine.cpp \
         qbytearray.cpp \
         qbytearraymatcher.cpp \
         qchar.cpp \
@@ -70,6 +71,7 @@ bootstrap { #Qt code
    HEADERS+= \
         qbitarray.h \
         qbuffer.h \
+	qbufferedfsfileengine_p.h
         qbytearray.h \
         qbytearraymatcher.h \
         qchar.h \
@@ -97,7 +99,7 @@ bootstrap { #Qt code
         qurl.h \
         quuid.h \
         qvector.h
- 
+
     unix {
         SOURCES += qfileengine_unix.cpp
         mac {
