@@ -46,6 +46,7 @@ public:
 	BlockRightMargin = 0x1033,
 	BlockFirstLineMargin = 0x1034,
 	BlockIndent = 0x1040,
+	BlockNonBreakableLines = 0x1050,
 
 	// character properties
     	FontFamily = 0x2000,
@@ -303,6 +304,10 @@ public:
     int tableCellColSpan() const
     { return intProperty(TableCellColSpan); }
 
+    void setNonBreakableLines(bool b)
+    { setProperty(BlockNonBreakableLines, b); }
+    bool nonBreakableLines() const
+    { return boolProperty(BlockNonBreakableLines); }
 };
 
 class QTextListFormat : public QTextFormat
