@@ -68,7 +68,7 @@ class QToolBarPrivate : public QWidgetPrivate
 
 public:
     inline QToolBarPrivate()
-        : movable(true), allowedAreas(Qt::AllToolBarAreas), orientation(Qt::Horizontal),
+        : movable(false), allowedAreas(Qt::AllToolBarAreas), orientation(Qt::Horizontal),
           handle(0), extension(0), ignoreActionAddedEvent(false)
     { }
 

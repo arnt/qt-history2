@@ -55,6 +55,8 @@ static QStyleOptionFrame getStyleOption(QToolBar *tb)
 
 void QToolBarPrivate::init()
 {
+    movable = (qt_cast<QMainWindow *>(q->parentWidget()) != 0);
+
     q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
 
     QStyleOptionFrame opt = getStyleOption(q);
@@ -66,6 +68,7 @@ void QToolBarPrivate::init()
 
     handle = new QToolBarHandle(q);
     layout->addWidget(handle);
+    handle->setShown(movable);
 
     extension = new QToolBarExtension(q);
     extension->hide();
@@ -220,14 +223,16 @@ QToolBar::~QToolBar()
     \brief whether the user can move the tool bar either within the
     tool bar area or to another tool bar area.
 
-    This property is true by default.
+    By default, this property is true when the QToolBar is added to a
+    QMainWindow.  This property is always false, and cannot be set to
+    true, when the QToolBar is not added to a QMainWindow.
 
     \sa QToolBar::allowedAreas
 */
 
 void QToolBar::setMovable(bool movable)
 {
-    d->movable = movable;
+    d->movable = movable && (qt_cast<QMainWindow *>(parentWidget()) != 0);
     d->handle->setShown(d->movable);
 }
 
