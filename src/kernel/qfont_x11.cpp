@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#127 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -526,13 +526,13 @@ void QFont::initFontInfo() const
 	else if ( strcmp( tokens[CharsetEncoding], "5" ) == 0 )
 	    f->s.charSet = QFont::Latin5;
 	else if ( strcmp( tokens[CharsetEncoding], "6" ) == 0 )
-	    f->s.charSet = QFont::Latin6;
+	    f->s.charSet = QFont::ISO_8859_6;
 	else if ( strcmp( tokens[CharsetEncoding], "7" ) == 0 )
-	    f->s.charSet = QFont::Latin7;
+	    f->s.charSet = QFont::ISO_8859_7;
 	else if ( strcmp( tokens[CharsetEncoding], "8" ) == 0 )
-	    f->s.charSet = QFont::Latin8;
+	    f->s.charSet = QFont::ISO_8859_8;
 	else if ( strcmp( tokens[CharsetEncoding], "9" ) == 0 )
-	    f->s.charSet = QFont::Latin9;
+	    f->s.charSet = QFont::ISO_8859_9;
     } else if( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
 	       (strcmp( tokens[CharsetEncoding], "r" ) == 0 ||
 		strcmp( tokens[CharsetEncoding], "1" ) == 0) ) {
@@ -754,25 +754,25 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	    else
 		exactMatch = FALSE;
 	    break;
-	case Latin6:
+	case ISO_8859_6:
 	    if ( strcmp( tokens[CharsetEncoding], "6" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
-	case Latin7:
+	case ISO_8859_7:
 	    if ( strcmp( tokens[CharsetEncoding], "7" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
-	case Latin8:
+	case ISO_8859_8:
 	    if ( strcmp( tokens[CharsetEncoding], "8" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
-	case Latin9:
+	case ISO_8859_9:
 	    if ( strcmp( tokens[CharsetEncoding], "9" ) == 0 )
 		score |= CharSetScore;
 	    else
@@ -1422,6 +1422,11 @@ int QFontMetrics::lineSpacing() const
 {
     return leading() + height();
 }
+
+/*! \overload int QFontMetrics::width( char c ) const
+  
+  Provided to aid porting from Qt 1.x.
+*/
 
 /*!
   Returns the logical width of a \e ch in pixels.  This is

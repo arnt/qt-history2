@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#147 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#148 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -3933,7 +3933,7 @@ void* qt_winTchar_new(const QString& str)
 QString qt_winQString(void* tc)
 {
 #ifdef UNICODE
-    
+
     int len=0;
     while ( ((TCHAR*)tc)[len] )
 	len++;

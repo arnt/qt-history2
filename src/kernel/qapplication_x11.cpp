@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#375 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#376 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -458,10 +458,10 @@ static struct {
     { "ISO8859-3", QFont::Latin3 },
     { "ISO8859-4", QFont::Latin4 },
     { "ISO8859-5", QFont::Latin5 },
-    { "ISO8859-6", QFont::Latin6 },
-    { "ISO8859-7", QFont::Latin7 },
-    { "ISO8859-8", QFont::Latin8 },
-    { "ISO8859-9", QFont::Latin9 },
+    { "ISO8859-6", QFont::ISO_8859_6 },
+    { "ISO8859-7", QFont::ISO_8859_7 },
+    { "ISO8859-8", QFont::ISO_8859_8 },
+    { "ISO8859-9", QFont::ISO_8859_9 },
     { "KOI8-R", QFont::KOI8R },
     { "eucJP", QFont::Set_Ja },
     { "eucKO", QFont::Set_Ko },
@@ -499,9 +499,9 @@ static void set_local_font()
 	 !try_locale( latin2locales, lang, QFont::Latin2 ) &&
 	 !try_locale( latin5locales, lang, QFont::Latin5 ) &&
 	 !try_locale( latin6locales, lang, QFont::Latin5 ) &&
-	 !try_locale( latin7locales, lang, QFont::Latin7 ) &&
-	 !try_locale( latin8locales, lang, QFont::Latin8 ) &&
-	 !try_locale( latin9locales, lang, QFont::Latin9 ) )
+	 !try_locale( latin7locales, lang, QFont::ISO_8859_7 ) &&
+	 !try_locale( latin8locales, lang, QFont::ISO_8859_8 ) &&
+	 !try_locale( latin9locales, lang, QFont::ISO_8859_9 ) )
 	QFont::setDefaultFont( QFont( "Helvetica", 12,
 				      QFont::Normal, FALSE, QFont::Latin1 ) );
     if ( lang )				// Avoid purify complaint
