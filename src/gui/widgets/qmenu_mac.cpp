@@ -19,6 +19,7 @@
 #include "qmainwindow.h"
 #include "qdockwindow.h"
 #include "qtoolbar.h"
+#include "qstyle.h"
 
 #include "private/qmenu_p.h"
 #include "private/qmenubar_p.h"
@@ -210,9 +211,9 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
 {
     //fire event
     QMacMenuAction *action = 0;
-    if(GetMenuCommandProperty(menu, command, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), 0, &action) != noErr) 
+    if(GetMenuCommandProperty(menu, command, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), 0, &action) != noErr)
         return false;
-    if(action_e == QAction::Trigger && by_accel && action->ignore_accel) //no, not a real accel (ie tab) 
+    if(action_e == QAction::Trigger && by_accel && action->ignore_accel) //no, not a real accel (ie tab)
         return false;
     action->action->activate(action_e);
 
@@ -479,7 +480,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     data.whichData |= kMenuItemDataIconHandle;
     if(!action->action->icon().isNull() && !qt_mac_no_menubar_icons) {
         data.iconType = kMenuIconRefType;
-        data.iconHandle = (Handle)qt_mac_create_iconref(action->action->icon().pixmap(Qt::SmallIconSize, QIcon::Normal));
+        data.iconHandle = (Handle)qt_mac_create_iconref(action->action->icon().pixmap(22, QIcon::Normal));
     } else {
         data.iconType = kMenuNoIcon;
     }
@@ -495,10 +496,10 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
             data.whichData |= kMenuItemDataStyle;
         data.whichData |= kMenuItemDataFontID;
         ATSUFONDtoFontID(FMGetFontFamilyFromATSFontFamilyRef(
-                             (ATSFontFamilyRef)action->action->font().handle()), 
+                             (ATSFontFamilyRef)action->action->font().handle()),
                          0, (ATSUFontID*)&data.fontID);
     }
-    
+
     data.whichData |= kMenuItemDataSubmenuHandle;
     if(action->action->menu()) { //submenu
         data.submenuHandle = action->action->menu()->macMenu();
@@ -567,7 +568,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     //mark glyph
     data.whichData |= kMenuItemDataMark;
     if(action->action->isChecked()) {
-        if(action->action->actionGroup() && 
+        if(action->action->actionGroup() &&
            action->action->actionGroup()->isExclusive())
             data.mark = diamondMark;
         else
@@ -575,7 +576,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     } else {
         data.mark = noMark;
     }
-        
+
     //actually set it
     SetMenuItemData(action->menu, action->command, true, &data);
 }
@@ -761,7 +762,7 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
         } else {
             QWidget *tlw = q->topLevelWidget();
             if(parent && (QMacMenuBarPrivate::menubars.isEmpty() || !QMacMenuBarPrivate::menubars.contains(tlw)) &&
-               (((parent->isDialog() 
+               (((parent->isDialog()
 #ifndef QT_NO_MAINWINDOW
                   || ::qt_cast<QMainWindow *>(parent)
 #endif
@@ -863,7 +864,7 @@ bool QMenuBar::macUpdateMenuBar()
     if(mb) {
         if(MenuRef menu = mb->macMenu()) {
             SetRootMenu(menu);
-            if(mb != QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(qApp->activeModalWidget())) 
+            if(mb != QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(qApp->activeModalWidget()))
                 qt_mac_set_modal_state(menu, qt_modal_state());
         }
         ret = true;

@@ -1856,7 +1856,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 QIcon::Mode mode = (mi->state & QStyle::State_Enabled) ? QIcon::Normal
                                                                        : QIcon::Disabled;
                 // Always be normal or disabled to follow the Mac style.
-                QPixmap pixmap = mi->icon.pixmap(pixelMetric(PM_SmallIconSize), mode);
+                QPixmap pixmap = mi->icon.pixmap(q->pixelMetric(QStyle::PM_SmallIconSize), mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 QRect cr(xpos, contentRect.y(), checkcol, contentRect.height());
@@ -1952,7 +1952,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                   Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
                                   | Qt::TextSingleLine,
                                   mi->palette,
-                                  mi->icon.pixmap(pixelMetric(PM_SmallIconSize),
+                                  mi->icon.pixmap(q->pixelMetric(QStyle::PM_SmallIconSize),
                           (mi->state & QStyle::State_Enabled) ? QIcon::Normal : QIcon::Disabled),
                                   &mi->palette.buttonText().color());
             } else {
@@ -3535,7 +3535,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 // Always be normal or disabled to follow the Mac style.
                 QIcon::Mode mode = dis ? QIcon::Disabled : QIcon::Normal;
                 QPixmap pixmap;
-                pixmap = mi->icon.pixmap(pixelMetric(PM_SmallIconSize), mode);
+                pixmap = mi->icon.pixmap(q->pixelMetric(QStyle::PM_SmallIconSize), mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 QRect cr(xpos, y, checkcol, h);
@@ -3620,7 +3620,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             if (!mi->icon.isNull()) {
             q->drawItemPixmap(p, mi->rect,
                         Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
-                        mi->palette, mi->icon.pixmap(pixelMetric(PM_SmallIconSize), (mi->state & QStyle::State_Enabled)? QIcon::Normal : QIcon::Disabled),
+                              mi->palette, mi->icon.pixmap(q->pixelMetric(QStyle::PM_SmallIconSize), (mi->state & QStyle::State_Enabled)? QIcon::Normal : QIcon::Disabled),
                         &mi->palette.buttonText().color());
             } else {
                 q->drawItemText(p, mi->rect,
@@ -4669,6 +4669,10 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
 {
     SInt32 ret = 0;
     switch (metric) {
+    case PM_ToolBarIconSize:
+        ret = pixelMetric(PM_LargeIconSize);
+        break;
+
     case PM_FocusFrameVMargin:
     case PM_FocusFrameHMargin:
         GetThemeMetric(kThemeMetricFocusRectOutset, &ret);
@@ -4992,9 +4996,6 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_Button_FocusPolicy:
         ret = Qt::TabFocus;
         break;
-    case SH_ToolBar_IconSize:
-        ret = Qt::LargeIconSize;
-        break;
     case SH_EtchDisabledText:
         ret = false;
         break;
@@ -5256,7 +5257,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                             iconMode = QIcon::Active;
                         QIcon::State iconState = (tb->state & QStyle::State_On) ? QIcon::On
                                                                                 : QIcon::Off;
-                        const QPixmap pixmap = tb->icon.pixmap(Qt::LargeIconSize, iconMode,
+                        const QPixmap pixmap = tb->icon.pixmap(pixelMetric(PM_LargeIconSize), iconMode,
                                                                iconState);
                         int alignment = 0;
                         if (tb->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
