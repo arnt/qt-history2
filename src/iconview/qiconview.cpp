@@ -1662,6 +1662,7 @@ void QIconViewItem::rename()
 	removeRenameBox();
     oldRect = rect();
     renameBox = new QIconViewItemLineEdit( itemText, view->viewport(), this, "qt_renamebox" );
+    iconView()->ensureItemVisible( this );
     QRect tr( textRect( FALSE ) );
     view->addChild( renameBox, tr.x() + ( tr.width() / 2 - renameBox->width() / 2 ), tr.y() - 3 );
     renameBox->selectAll();
