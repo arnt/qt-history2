@@ -15,6 +15,7 @@
 #include "qthread_p.h"
 #include "qthreadstorage.h"
 
+#include "qeventdispatcher_win.h"
 #include <qcoreapplication.h>
 #include <qpointer.h>
 
@@ -72,7 +73,12 @@ unsigned int __stdcall QThreadPrivate::start(void *arg)
     QThread::setTerminationEnabled(true);
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
-    QThreadData::setCurrent(&thr->d_func()->data);
+    QThreadData *data = &thr->d_func()->data;
+    QThreadData::setCurrent(data);
+
+    (void) new QEventDispatcherWin32;
+    Q_ASSERT(data->eventDispatcher != 0);
+    data->eventDispatcher->startingUp();
 
     emit thr->started();
     QThread::setTerminationEnabled(true);
@@ -86,6 +92,7 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
 {
     QThread *thr = reinterpret_cast<QThread *>(arg);
     QThreadPrivate *d = thr->d_func();
+    QThreadData *data = &d->data;
 
     if (lockAnyway)
         d->mutex.lock();
@@ -96,8 +103,12 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
     d->terminated = false;
     emit thr->finished();
 
-    QThreadStorageData::finish(d->data.tls);
-    d->data.tls = 0;
+    data->eventDispatcher->closingDown();
+    delete data->eventDispatcher;
+    data->eventDispatcher = 0;
+
+    QThreadStorageData::finish(data->tls);
+    data->tls = 0;
 
     if (!d->waiters) {
         CloseHandle(d->handle);

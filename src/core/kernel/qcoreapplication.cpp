@@ -30,6 +30,9 @@
 #ifdef Q_OS_UNIX
 #  include "qeventdispatcher_unix.h"
 #endif
+#ifdef Q_OS_WIN
+#  include "qeventdispatcher_win.h"
+#endif
 
 #include <stdlib.h>
 
