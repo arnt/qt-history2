@@ -79,7 +79,7 @@ struct UndoRedoInfo {
 
 struct QLineEditPrivate {
     QLineEditPrivate( QLineEdit * l ):
-	frame(TRUE), readonly( FALSE ),
+	readonly( FALSE ),
 	cursorOn( FALSE ), inDoubleClick( FALSE ),
 	mousePressed( FALSE ),
 	dnd_primed( FALSE ), ed( FALSE ),
@@ -155,7 +155,6 @@ struct QLineEditPrivate {
 	undoRedoInfo.type = t;
     }
 
-    bool frame 			: 1;
     bool readonly 			: 1;
     bool cursorOn 			: 1;
     bool inDoubleClick 		: 1;
@@ -255,7 +254,7 @@ struct QLineEditPrivate {
 */
 
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
-    : QWidget( parent, name, WRepaintNoErase )
+    : QFrame( parent, name, WRepaintNoErase )
 {
     init();
 }
@@ -274,7 +273,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
 
 QLineEdit::QLineEdit( const QString & contents,
 		      QWidget *parent, const char *name )
-    : QWidget( parent, name, WRepaintNoErase )
+    : QFrame( parent, name, WRepaintNoErase )
 {
     init();
     setText( contents );
@@ -318,6 +317,7 @@ void QLineEdit::init()
     setBackgroundMode( PaletteBase );
     setKeyCompression( TRUE );
     setMouseTracking( TRUE );
+    setFrame( TRUE );
 }
 
 
@@ -373,6 +373,9 @@ void QLineEdit::deselect()
 {
     d->selectionStart = 0;
     d->parag->removeSelection( QTextDocument::Standard );
+#ifndef QT_NO_CURSOR
+    setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
     update();
 }
 
@@ -716,8 +719,10 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
 /*!\reimp
 */
 
-void QLineEdit::paintEvent( QPaintEvent * )
+void QLineEdit::drawContents( QPainter *painter )
 {
+    painter->saveWorldMatrix();
+    painter->translate( frameWidth() + margin() + 1, 0 );
     updateOffset();
     const QColorGroup & g = colorGroup();
     QPainter p( d->pm );
@@ -743,35 +748,26 @@ void QLineEdit::paintEvent( QPaintEvent * )
     QTextFormat *f = parag->formatCollection()->format( font(), p.pen().color() );
     parag->setFormat( 0, parag->length(), f );
     f->removeRef();
-    int fw = 0;
-    if ( frame() )
-	fw = style().defaultFrameWidth();
-    QRect r( rect().x(), rect().y(), width() - 2 * ( 2 + fw ), rect().height() );
+    QRect r( rect().x(), rect().y(), width() - 4, rect().height() );
     parag->setDocumentRect( r );
-    parag->invalidate(0);
+    parag->invalidate( 0 );
     parag->format();
-    int xoff = -d->offset + 2 + fw;
-    int yoff = (height() - parag->rect().height())/2;
+    int xoff = 1 - d->offset;
+    int yoff = ( height() - parag->rect().height() ) / 2;
     if ( yoff < 0 )
 	yoff = 0;
-    // Reggie: Strange, if we add fw the text is drawn too much at the
-    // bottom, might be that parag->paint() does some translation
-    // yoff += fw;
     p.translate( xoff, yoff );
     if ( d->mode != NoEcho )
 	parag->paint( p, colorGroup(), d->cursorOn && !d->readonly ? cursor : 0, TRUE );
-    if ( frame() ) {
-	p.translate( -xoff, -yoff );
-	style().drawPanel( &p, 0, 0, width(), height(), colorGroup(),
-			   TRUE, style().defaultFrameWidth() );
-    }
+
     p.end();
 
-    bitBlt( this, 0, 0, d->pm );
+    painter->drawPixmap( 0, 0, *d->pm );
     if ( d->mode == Password ) {
 	delete parag;
 	delete cursor;
     }
+    painter->restoreWorldMatrix();
 }
 
 
@@ -871,7 +867,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 #endif //QT_NO_POPUPMENU
 
     d->inDoubleClick = FALSE;
-    QPoint p( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
+    QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
     QTextParag *par;
     QTextCursor *c;
     d->getTextObjects(&par, &c);
@@ -879,7 +875,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     c->place( p, par );
 #ifndef QT_NO_DRAGANDDROP
     if ( dragEnabled() && hasMarkedText() && echoMode() == Normal && !( e->state() & ShiftButton ) &&
-	 e->button() == LeftButton && inSelection( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), d->parag ) ) {
+	 e->button() == LeftButton && inSelection( e->pos().x() + d->offset - frameWidth() - margin() - 1, d->parag ) ) {
 	d->dndTimer.start( QApplication::startDragTime(), TRUE );
 	d->dnd_primed = TRUE;
 	d->dnd_startpos = e->pos();
@@ -933,7 +929,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !d->mousePressed ) {
 	if ( !isReadOnly() && d->parag->hasSelection( QTextDocument::Standard ) && dragEnabled() ) {
-	    if ( inSelection( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), d->parag ) )
+	    if ( inSelection( e->pos().x() + d->offset - frameWidth() - margin() - 1, d->parag ) )
 		setCursor( arrowCursor );
 	    else
 		setCursor( ibeamCursor );
@@ -965,7 +961,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 
 void QLineEdit::dragSlot()
 {
-    QPoint p( d->lastMovePos.x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
+    QPoint p( d->lastMovePos.x() + d->offset - frameWidth() - margin() - 1, 0 );
     QTextParag *par;
     QTextCursor *c;
     d->getTextObjects(&par, &c);
@@ -985,7 +981,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
     d->dragTimer.stop();
     if ( d->dndTimer.isActive() ) {
 	d->dndTimer.stop();
-	QPoint p( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
+	QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
 	d->cursor->place( p, d->parag );
 	deselect(); // does a repaint
 	return;
@@ -1019,7 +1015,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
     if ( e->button() != LeftButton )
 	return;
 
-    QPoint p( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
+    QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
     QTextParag *par;
     QTextCursor *c;
     d->getTextObjects(&par, &c);
@@ -1302,11 +1298,7 @@ void QLineEdit::clipboardChanged()
 
 void QLineEdit::setFrame( bool enable )
 {
-    if ( d->frame == enable )
-	return;
-
-    d->frame = enable;
-    update();
+    setFrameStyle( enable ? ( WinPanel | Sunken ) : NoFrame  );
 }
 
 
@@ -1320,7 +1312,7 @@ void QLineEdit::setFrame( bool enable )
 
 bool QLineEdit::frame() const
 {
-    return d ? d->frame : TRUE;
+    return frameShape() != NoFrame;
 }
 
 
@@ -1392,14 +1384,7 @@ QSize QLineEdit::sizeHint() const
     QFontMetrics fm( font() );
     int h = fm.height();
     int w = fm.width( 'x' ) * 17; // "some"
-    if ( frame() ) {
-	h += 8;
-	if ( style() == WindowsStyle && h < 22 )
-	    h = 22;
-	return QSize( w + 8, h ).expandedTo( QApplication::globalStrut() );
-    } else {
-	return QSize( w + 4, h + 4 ).expandedTo( QApplication::globalStrut() );
-    }
+    return QSize( w + 4 + frameWidth(), h + 4 + frameWidth() + margin() ).expandedTo( QApplication::globalStrut() );
 }
 
 
@@ -1416,14 +1401,7 @@ QSize QLineEdit::minimumSizeHint() const
     QFontMetrics fm( font() );
     int h = fm.height();
     int w = fm.maxWidth();
-    if ( frame() ) {
-	h += 8;
-	if ( style() == WindowsStyle && h < 22 )
-	    h = 22;
-	return QSize( w + 8, h );
-    } else {
-	return QSize( w + 4, h + 4 );
-    }
+    return QSize( w + 4 + frameWidth(), h + 4 + frameWidth() + margin() );
 }
 
 
@@ -1493,7 +1471,7 @@ void QLineEdit::dragMoveEvent( QDragMoveEvent *e )
 	e->acceptAction();
     else
 	return;
-    QPoint p( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
+    QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
     d->cursor->place( p, d->parag );
     update();
 }
@@ -1516,7 +1494,7 @@ void QLineEdit::dropEvent( QDropEvent *e )
 	if ( e->source() == this && hasMarkedText() )
 	    deselect();
 	if ( !hasMarkedText() ) {
-	    QPoint p( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
+	    QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
 	    d->cursor->place( p, d->parag );
 	}
 	insert( str );
@@ -1804,8 +1782,7 @@ void QLineEdit::updateOffset()
     int textWidth = d->parag->rect().width();
     int w = width();
     int fw = 0;
-    if ( frame() )
-	fw = style().defaultFrameWidth();
+    fw = frameWidth() + margin() + 1;
     w -= 2*fw + 4;
     int cursorPos = d->cursor->x();
 
@@ -1850,6 +1827,9 @@ void QLineEdit::removeSelectedText()
     d->cursor->setIndex( start );
     deselect();
     d->undoRedoInfo.clear();
+#ifndef QT_NO_CURSOR
+    setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
 }
 
 

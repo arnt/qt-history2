@@ -44,13 +44,13 @@ class QValidator;
 class QPopupMenu;
 
 #ifndef QT_H
-#include "qwidget.h"
+#include "qframe.h"
 #include "qstring.h"
 #endif // QT_H
 
 #ifndef QT_NO_LINEEDIT
 
-class Q_EXPORT QLineEdit : public QWidget
+class Q_EXPORT QLineEdit : public QFrame
 {
     Q_OBJECT
     Q_ENUMS( EchoMode )
@@ -155,7 +155,7 @@ protected:
     void keyPressEvent( QKeyEvent * );
     void focusInEvent( QFocusEvent * );
     void focusOutEvent( QFocusEvent * );
-    void paintEvent( QPaintEvent * );
+    void drawContents( QPainter *painter );
     void resizeEvent( QResizeEvent * );
 #ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent * );
