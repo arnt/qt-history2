@@ -294,19 +294,20 @@ typedef QTextStream QTS;
 class Q_CORE_EXPORT QTextIStream : public QTextStream
 {
 public:
-    explicit QTextIStream(const QString *s) : QTextStream(const_cast<QString *>(s), QIODevice::ReadOnly) {}
-    explicit QTextIStream(QByteArray *a) : QTextStream(a, QIODevice::ReadOnly) {}
-    QTextIStream(FILE *f) : QTextStream(f, QIODevice::ReadOnly) {}
+    inline explicit QTextIStream(const QString *s) : QTextStream(const_cast<QString *>(s), QIODevice::ReadOnly) {}
+    inline explicit QTextIStream(QByteArray *a) : QTextStream(a, QIODevice::ReadOnly) {}
+    inline QTextIStream(FILE *f) : QTextStream(f, QIODevice::ReadOnly) {}
 
 private:
     Q_DISABLE_COPY(QTextIStream)
 };
+
 class Q_CORE_EXPORT QTextOStream : public QTextStream
 {
 public:
-    explicit QTextOStream(QString *s) : QTextStream(s, QIODevice::WriteOnly) {}
-    explicit QTextOStream(QByteArray *a) : QTextStream(a, QIODevice::WriteOnly) {}
-    QTextOStream(FILE *f) : QTextStream(f, QIODevice::WriteOnly) {}
+    inline explicit QTextOStream(QString *s) : QTextStream(s, QIODevice::WriteOnly) {}
+    inline explicit QTextOStream(QByteArray *a) : QTextStream(a, QIODevice::WriteOnly) {}
+    inline QTextOStream(FILE *f) : QTextStream(f, QIODevice::WriteOnly) {}
 
 private:
     Q_DISABLE_COPY(QTextOStream)

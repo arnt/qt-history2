@@ -297,17 +297,17 @@ QToolBar::~QToolBar()
     \brief whether the user can move the toolbar within the toolbar area,
     or between toolbar areas
 
-    The default is \c true.
+    By default, this property is true.
 
-    Note: this property only makes sense when the toolbar is in a
+    This property only makes sense if the toolbar is in a
     QMainWindow.
 
-    \sa QToolBar::allowedAreas
+    \sa allowedAreas
 */
 
 void QToolBar::setMovable(bool movable)
 {
-    if (movable == d->movable)
+    if (!movable == !d->movable)
         return;
     d->movable = movable;
     d->handle->setShown(d->movable && (qt_cast<QMainWindow *>(parentWidget()) != 0));
@@ -323,10 +323,10 @@ bool QToolBar::isMovable() const
 
     The default is \c Qt::AllToolBarAreas.
 
-    Note: this property only makes sense when the toolbar is in a
+    This property only makes sense if the toolbar is in a
     QMainWindow.
 
-    \sa QToolBar::isMovable
+    \sa movable
 */
 
 void QToolBar::setAllowedAreas(Qt::ToolBarAreas areas)
@@ -346,7 +346,7 @@ Qt::ToolBarAreas QToolBar::allowedAreas() const
 
     The default is \c Qt::Horizontal.
 
-    Note: the orientation is updated automatically when the toolbar is
+    The orientation is updated automatically when the toolbar is
     managed by QMainWindow.
 */
 

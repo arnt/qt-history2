@@ -359,9 +359,9 @@ void QDockWidgetTitle::mouseReleaseEvent(QMouseEvent *event)
         target = state->floating;
         target.moveTopLeft(event->globalPos() - state->offset);
 
-        if (!dockwidget->isWindow()) {
+        if (!dockwidget->isFloating()) {
             dockwidget->hide();
-            dockwidget->setTopLevel();
+            dockwidget->setFloating(true);
             dockwidget->setGeometry(target);
             dockwidget->show();
         } else {
@@ -454,7 +454,7 @@ void QDockWidgetTitle::toggleTopLevel()
     bool visible = dockwidget->isVisible();
     if (visible)
         dockwidget->hide();
-    dockwidget->setTopLevel(!dockwidget->isWindow());
+    dockwidget->setFloating(!dockwidget->isFloating());
     if (dockwidget->isWindow())
         dockwidget->move(p);
     if (visible)
@@ -515,9 +515,9 @@ void QDockWidgetPrivate::toggleView(bool b)
 
     \ingroup application
 
-    QDockWidget provides the concept of dock windows, also know as
+    QDockWidget provides the concept of dock widgets, also know as
     tool palettes or utility windows.  Dock windows are secondary
-    windows placed in the \e {dock window area} around the \link
+    windows placed in the \e {dock widget area} around the \link
     QMainWindow::centerWidget() center widget\endlink in a
     QMainWindow.
 
@@ -526,14 +526,14 @@ void QDockWidgetPrivate::toggleView(bool b)
 
     Dock windows can be moved inside their current area, moved into
     new areas and floated (e.g. undocked) by the end-user.  The
-    QDockWidget API allows the programmer to restrict the dock windows
+    QDockWidget API allows the programmer to restrict the dock widgets
     ability to move, float and close, as well as the areas in which
     they can be placed.
 
     \section1 Appearance
 
     A QDockWidget consists of a title bar and the content area.  The
-    titlebar displays the dock windows \link QWidget::windowTitle()
+    titlebar displays the dock widgets \link QWidget::windowTitle()
     window title\endlink, a \e float button and a \e close button.
     Depending on the state of the QDockWidget, the \e float and \e
     close buttons may be either disabled or not shown at all.
@@ -555,9 +555,9 @@ void QDockWidgetPrivate::toggleView(bool b)
 
         \list
 
-        \i to an unoccupied dock window area:
+        \i to an unoccupied dock widget area:
 
-        \i to an occupied dock window area:
+        \i to an occupied dock widget area:
 
         \i to top-level:
 
@@ -571,16 +571,16 @@ void QDockWidgetPrivate::toggleView(bool b)
 /*!
     \enum QDockWidget::DockWidgetFeature
 
-    \value DockWidgetClosable   The dock window can be closed.
-    \value DockWidgetMovable    The dock window can be moved between docks
+    \value DockWidgetClosable   The dock widget can be closed.
+    \value DockWidgetMovable    The dock widget can be moved between docks
                                 by the user.
-    \value DockWidgetFloatable  The dock window can be detached from the
+    \value DockWidgetFloatable  The dock widget can be detached from the
                                 main window, and floated as an independent
                                 window.
 
-    \value AllDockWidgetFeatures  The dock window can be closed, moved,
+    \value AllDockWidgetFeatures  The dock widget can be closed, moved,
                                   and floated.
-    \value NoDockWidgetFeatures   The dock window cannot be closed, moved,
+    \value NoDockWidgetFeatures   The dock widget cannot be closed, moved,
                                   or floated.
 
     \omitvalue DockWidgetFeatureMask
@@ -589,7 +589,7 @@ void QDockWidgetPrivate::toggleView(bool b)
 
 /*!
     Constructs a QDockWidget with parent \a parent and window flags \a
-    flags. The dock window will be placed in the left dock window
+    flags. The dock widget will be placed in the left dock widget
     area.
 */
 QDockWidget::QDockWidget(QWidget *parent, Qt::WFlags flags)
@@ -601,7 +601,7 @@ QDockWidget::QDockWidget(QWidget *parent, Qt::WFlags flags)
 
 /*!
     Constructs a QDockWidget with parent \a parent and window flags \a
-    flags. The dock window will be placed in the left dock window
+    flags. The dock widget will be placed in the left dock widget
     area.
 
     The window title is set to \a title. This title is used when the
@@ -619,13 +619,13 @@ QDockWidget::QDockWidget(const QString &title, QWidget *parent, Qt::WFlags flags
 }
 
 /*!
-    Destroys the dock window.
+    Destroys the dock widget.
 */
 QDockWidget::~QDockWidget()
 { }
 
 /*!
-    Returns the widget for the dock window. This function returns zero
+    Returns the widget for the dock widget. This function returns zero
     if the widget has not been set.
 
     \sa setWidget()
@@ -637,7 +637,7 @@ QWidget *QDockWidget::widget() const
 }
 
 /*!
-    Sets the widget for the dock window to \a widget.
+    Sets the widget for the dock widget to \a widget.
 
     \sa widget()
 */
@@ -653,7 +653,7 @@ void QDockWidget::setWidget(QWidget *widget)
 
 /*!
     \property QDockWidget::features
-    \brief whether the dock window is movable, closable, and floatable
+    \brief whether the dock widget is movable, closable, and floatable
 
     \sa DockWidgetFeature
 */
@@ -677,24 +677,31 @@ QDockWidget::DockWidgetFeatures QDockWidget::features() const
 }
 
 /*!
-    Sets the doc window to be \a topLevel.
+    \property QDockWindow::floating
+    \brief whether the dock widget is floating
+
+    A floating dock widget is presented to the user as an independent
+    window "on top" of its parent QMainWindow, instead of being
+    docked in the QMainWindow.
+
+    \sa isWindow()
 */
-void QDockWidget::setTopLevel(bool topLevel)
+void QDockWidget::setFloating(bool floating)
 {
     Q_D(QDockWidget);
-    if (topLevel == isWindow())
+    if (floating == isFloating())
         return;
 
     const bool visible = isVisible();
 
-    setWindowFlags(Qt::FramelessWindowHint | (topLevel ? Qt::Tool : Qt::Widget));
+    setWindowFlags(Qt::FramelessWindowHint | (floating ? Qt::Tool : Qt::Widget));
 
-    if (topLevel) {
+    if (floating) {
         if (QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout()))
             layout->invalidate();
     }
 
-    d->resizer->setActive(topLevel);
+    d->resizer->setActive(floating);
 
     if (visible)
         show();
@@ -704,7 +711,7 @@ void QDockWidget::setTopLevel(bool topLevel)
 
 /*!
     \property QDockWidget::allowedAreas
-    \brief areas where the dock window may be placed
+    \brief areas where the dock widget may be placed
 
     The default is \c Qt::AllDockWidgetAreas.
 
@@ -730,7 +737,7 @@ Qt::DockWidgetAreas QDockWidget::allowedAreas() const
 /*!
     \fn bool QDockWidget::isAreaAllowed(Qt::DockWidgetArea area) const
 
-    Returns true if this dock window can be placed in the given \a area;
+    Returns true if this dock widget can be placed in the given \a area;
     otherwise returns false.
 */
 
@@ -775,9 +782,9 @@ bool QDockWidget::event(QEvent *event)
 
 /*!
   Returns a checkable action that can be used to show or close this
-  dock window.
+  dock widget.
 
-  The action's text is set to the dock window's window title.
+  The action's text is set to the dock widget's window title.
 
   \sa QAction::text QWidget::windowTitle
  */

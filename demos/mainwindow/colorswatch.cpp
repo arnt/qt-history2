@@ -47,9 +47,9 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags f
     floatableAction->setCheckable(true);
     connect(floatableAction, SIGNAL(checked(bool)), SLOT(changeFloatable(bool)));
 
-    topLevelAction = new QAction(tr("Top Level"), this);
-    topLevelAction->setCheckable(true);
-    connect(topLevelAction, SIGNAL(checked(bool)), SLOT(changeTopLevel(bool)));
+    floatingAction = new QAction(tr("Floating"), this);
+    floatingAction->setCheckable(true);
+    connect(floatingAction, SIGNAL(checked(bool)), SLOT(changeTopLevel(bool)));
 
     allowedAreasActions = new QActionGroup(this);
     allowedAreasActions->setExclusive(false);
@@ -103,9 +103,9 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags f
 
     connect(movableAction, SIGNAL(checked(bool)), allowedAreasActions, SLOT(setEnabled(bool)));
 
-    connect(floatableAction, SIGNAL(checked(bool)), topLevelAction, SLOT(setEnabled(bool)));
+    connect(floatableAction, SIGNAL(checked(bool)), floatingAction, SLOT(setEnabled(bool)));
 
-    connect(topLevelAction, SIGNAL(checked(bool)), floatableAction, SLOT(setDisabled(bool)));
+    connect(floatingAction, SIGNAL(checked(bool)), floatableAction, SLOT(setDisabled(bool)));
     connect(movableAction, SIGNAL(checked(bool)), floatableAction, SLOT(setEnabled(bool)));
 
     menu = new QMenu(colorName, this);
@@ -114,7 +114,7 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags f
     menu->addAction(closableAction);
     menu->addAction(movableAction);
     menu->addAction(floatableAction);
-    menu->addAction(topLevelAction);
+    menu->addAction(floatingAction);
     menu->addSeparator();
     menu->addActions(allowedAreasActions->actions());
     menu->addSeparator();
@@ -142,12 +142,12 @@ void ColorSwatch::polishEvent(QEvent *)
     closableAction->setChecked(features() & QDockWidget::DockWidgetClosable);
     if (windowType() == Qt::Drawer) {
         floatableAction->setEnabled(false);
-        topLevelAction->setEnabled(false);
+        floatingAction->setEnabled(false);
         movableAction->setEnabled(false);
     } else {
         floatableAction->setChecked(features() & QDockWidget::DockWidgetFloatable);
-        topLevelAction->setChecked(isWindow());
-        // done after topLevel, to get 'floatable' correctly initialized
+        floatingAction->setChecked(isWindow());
+        // done after floating, to get 'floatable' correctly initialized
         movableAction->setChecked(features() & QDockWidget::DockWidgetMovable);
     }
 
@@ -224,8 +224,8 @@ void ColorSwatch::changeMovable(bool on)
 void ColorSwatch::changeFloatable(bool on)
 { setFeatures(on ? features() | DockWidgetFloatable : features() & ~DockWidgetFloatable); }
 
-void ColorSwatch::changeTopLevel(bool topLevel)
-{ setTopLevel(topLevel); }
+void ColorSwatch::changeFloating(bool floating)
+{ setFloating(floating); }
 
 void ColorSwatch::allowLeft(bool a)
 { allow(Qt::LeftDockWidgetArea, a); }

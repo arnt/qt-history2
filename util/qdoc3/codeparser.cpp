@@ -106,7 +106,8 @@ void CodeParser::processCommonMetaCommand(const Location &location, const QStrin
     } else if (command == COMMAND_MAINCLASS) {
 	node->setStatus(Node::Main);
     } else if ( command == COMMAND_OBSOLETE ) {
-	node->setStatus( Node::Obsolete );
+        if (node->status() != Node::Compat)
+            node->setStatus( Node::Obsolete );
     } else if ( command == COMMAND_NONREENTRANT ) {
 	node->setThreadSafeness(Node::NonReentrant);
     } else if ( command == COMMAND_PRELIMINARY ) {

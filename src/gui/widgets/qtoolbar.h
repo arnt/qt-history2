@@ -40,7 +40,7 @@ public:
     explicit QToolBar(QWidget *parent = 0);
     ~QToolBar();
 
-    void setMovable(bool movable = true);
+    void setMovable(bool movable);
     bool isMovable() const;
 
     void setAllowedAreas(Qt::ToolBarAreas areas);

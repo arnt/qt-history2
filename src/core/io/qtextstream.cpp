@@ -2394,7 +2394,7 @@ bool QTextStream::autoDetectUnicode() const
     \class QTextIStream
     \brief The QTextIStream class is a convenience class for input streams.
 
-    \obsolete
+    \compat
     \reentrant
     \ingroup io
     \ingroup text
@@ -2404,13 +2404,11 @@ bool QTextStream::autoDetectUnicode() const
 
 /*!
     \fn QTextIStream::QTextIStream(const QString *)
-    \obsolete
 
     Use QTextStream(&string, QIODevice::ReadOnly) instead.
 */
 /*!
     \fn QTextIStream::QTextIStream(QByteArray *)
-    \obsolete
 
     Use QTextStream(&byteArray, QIODevice::ReadOnly) instead.
 */
@@ -2424,7 +2422,7 @@ bool QTextStream::autoDetectUnicode() const
     \class QTextOStream
     \brief The QTextOStream class is a convenience class for output streams.
 
-    \obsolete
+    \compat
     \reentrant
     \ingroup io
     \ingroup text
@@ -2527,8 +2525,6 @@ int QTextStream::flagsInternal(int newFlags)
 }
 
 /*!
-    \obsolete
-
     Use setCodec() and setAutoDetectUnicode() instead.
 */
 void QTextStream::setEncoding(Encoding encoding)
@@ -2581,7 +2577,6 @@ void QTextStream::setEncoding(Encoding encoding)
 
 /*!
     \enum QTextStream::Encoding
-    \obsolete
 
     Use fieldAlignment(), padChar(), fieldWidth(), numberFlags(),
     integerBase(), realNumberNotation(), and realNumberNotation
@@ -2598,7 +2593,6 @@ void QTextStream::setEncoding(Encoding encoding)
 
 /*!
     \fn int QTextStream::flags() const
-    \obsolete
 
     Use fieldAlignment(), padChar(), fieldWidth(), numberFlags(),
     integerBase(), realNumberNotation(), and realNumberNotation
@@ -2607,7 +2601,6 @@ void QTextStream::setEncoding(Encoding encoding)
 
 /*!
     \fn int QTextStream::flags(int)
-    \obsolete
 
     Use setFieldAlignment(), setPadChar(), setFieldWidth(),
     setNumberFlags(), setIntegerBase(), setRealNumberNotation(), and
@@ -2616,7 +2609,6 @@ void QTextStream::setEncoding(Encoding encoding)
 
 /*!
     \fn int QTextStream::setf(int)
-    \obsolete
 
     Use setFieldAlignment(), setPadChar(), setFieldWidth(),
     setNumberFlags(), setIntegerBase(), setRealNumberNotation(), and
@@ -2625,7 +2617,6 @@ void QTextStream::setEncoding(Encoding encoding)
 
 /*!
     \fn int QTextStream::setf(int,int)
-    \obsolete
 
     Use setFieldAlignment(), setPadChar(), setFieldWidth(),
     setNumberFlags(), setIntegerBase(), setRealNumberNotation(), and
@@ -2634,7 +2625,6 @@ void QTextStream::setEncoding(Encoding encoding)
 
 /*!
     \fn int QTextStream::unsetf(int)
-    \obsolete
 
     Use setFieldAlignment(), setPadChar(), setFieldWidth(),
     setNumberFlags(), setIntegerBase(), setRealNumberNotation(), and
@@ -2643,35 +2633,30 @@ void QTextStream::setEncoding(Encoding encoding)
 
 /*!
     \fn int QTextStream::width(int)
-    \obsolete
 
     Use setFieldWidth() instead.
 */
 
 /*!
     \fn int QTextStream::fill(int)
-    \obsolete
 
     Use setPadChar() instead.
 */
 
 /*!
     \fn int QTextStream::precision(int)
-    \obsolete
 
     Use setRealNumberPrecision() instead.
 */
 
 /*!
     \fn int QTextStream::read()
-    \obsolete
 
     Use readAll() or readLine() instead.
 */
 
 /*!
     \fn int QTextStream::unsetDevice()
-    \obsolete
 
     This function does nothing anymore; don't call it.
 */

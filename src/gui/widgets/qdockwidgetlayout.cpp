@@ -1105,8 +1105,8 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
 
     if (dockwidget == info.item->widget()) {
         // placed back at original position
-        if (dockwidget->isWindow()) {
-            dockwidget->setTopLevel(false);
+        if (dockwidget->isFloating()) {
+            dockwidget->setFloating(false);
             dockwidget->show();
         }
         DEBUG("END of drop (shortcut - dropped at original position)");
@@ -1193,9 +1193,9 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
             newInfo.is_dropped = false;
         }
 
-        if (dockwidget->isWindow()) {
+        if (dockwidget->isFloating()) {
             // reparent the dock window into the main window
-            dockwidget->setTopLevel(false);
+            dockwidget->setFloating(false);
             dockwidget->show();
         }
     }

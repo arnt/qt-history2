@@ -25,6 +25,7 @@ class Q_GUI_EXPORT QDockWidget : public QFrame
     Q_OBJECT
 
     Q_FLAGS(DockWidgetFeatures)
+    Q_PROPERTY(bool floating READ isFloating WRITE setFloating)
     Q_PROPERTY(DockWidgetFeatures features READ features WRITE setFeatures)
     Q_PROPERTY(Qt::DockWidgetAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
 
@@ -52,7 +53,8 @@ public:
     void setFeatures(DockWidgetFeatures features);
     DockWidgetFeatures features() const;
 
-    void setTopLevel(bool topLevel = true);
+    void setFloating(bool floating);
+    inline bool isFloating() const { return isWindow(); }
 
     void setAllowedAreas(Qt::DockWidgetAreas areas);
     Qt::DockWidgetAreas allowedAreas() const;

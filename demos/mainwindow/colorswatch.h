@@ -27,7 +27,7 @@ class ColorSwatch : public QDockWidget
     QAction *closableAction;
     QAction *movableAction;
     QAction *floatableAction;
-    QAction *topLevelAction;
+    QAction *floatingAction;
 
     QActionGroup *allowedAreasActions;
     QAction *allowLeftAction;
@@ -58,8 +58,7 @@ private slots:
     void changeClosable(bool on);
     void changeMovable(bool on);
     void changeFloatable(bool on);
-
-    void changeTopLevel(bool topLevel);
+    void changeFloating(bool on);
 
     void allowLeft(bool a);
     void allowRight(bool a);
