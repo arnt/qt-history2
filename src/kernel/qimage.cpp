@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#227 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#228 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -115,6 +115,23 @@
 */
 
 
+/*! \enum QImage::Endian
+  
+  This enum type is used to describe the endianness of the CPU and
+  graphics hardware.
+
+  The current values are: <ul>
+  
+  <li> \c IgnoreEndian - does not matter.  Useful for some operations
+  that are independent of endianness
+
+  <li> \c BigEndian - network byte order, like on SPARC and Motorola CPUs.
+
+  <li> \c LittleEndian - PC/Alpha byte order.
+
+  </ul>
+
+*/
 #if defined(_CC_DEC_) && defined(__alpha) && (__DECCXX_VER >= 50190001)
 #pragma message disable narrowptr
 #endif
