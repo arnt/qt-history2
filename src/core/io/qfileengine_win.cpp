@@ -844,10 +844,10 @@ bool QFSFileEngine::link(const QString &newName)
 #endif // QT_NO_COMPONENT
 }
 
-uint
+QFileEngine::FileFlags
 QFSFileEnginePrivate::getPermissions() const
 {
-    int ret = 0;
+    QFileEngine::FileFlags ret = 0;
 
     if((qt_ntfs_permission_lookup > 0) && ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_NT)) {
 	PSID pOwner = 0;

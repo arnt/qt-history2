@@ -76,7 +76,7 @@ protected:
     void init();
 
 #if defined(Q_OS_WIN32)
-    uint getPermissions() const;
+    QFileEngine::FileFlags getPermissions() const;
     QString getLink() const;
 #endif
 };
