@@ -218,12 +218,13 @@ static void qt_mac_debug_palette(const QPalette &pal, const QPalette &pal2, cons
                             "Text", "BrightText", "ButtonText", "Base", "Background", "Shadow",
                             "Highlight", "HighlightedText", "Link", "LinkVisited" };
     if(!where.isNull())
-        qDebug("qt-internal: %s", where.latin1());
+        qDebug("qt-internal: %s", where.toLatin1().constData());
     for(int grp = 0; grp < QPalette::NColorGroups; grp++) {
         for(int role = 0; role < QPalette::NColorRoles; role++) {
             QBrush b = pal.brush((QPalette::ColorGroup)grp, (QPalette::ColorRole)role);
+            QPixmap pm = b.texture();
             qDebug("  %s::%s %d::%d::%d [%p]%s", groups[grp], roles[role], b.color().red(),
-                   b.color().green(), b.color().blue(), b.pixmap(),
+                   b.color().green(), b.color().blue(), pm.isNull() ? 0 : &pm,
                    pal2.brush((QPalette::ColorGroup)grp, (QPalette::ColorRole)role) != b ? " (*)" : "");
         }
     }
@@ -414,7 +415,7 @@ void qt_mac_update_os_settings()
                   (bool)(f_style & ::italic));
 #ifdef DEBUG_PLATFORM_SETTINGS
         qDebug("qt-internal: Font for Application [%s::%d::%d::%d]",
-               fnt.family().latin1(), fnt.pointSize(), fnt.bold(), fnt.italic());
+               fnt.family().toLatin1().constData(), fnt.pointSize(), fnt.bold(), fnt.italic());
 #endif
         QApplication::setFont(fnt);
     }
@@ -435,6 +436,7 @@ void qt_mac_update_os_settings()
             { "QLabel", kThemeSystemFont },
             { "QToolButton", kThemeSmallSystemFont },
             { "QMenuItem", kThemeMenuItemCmdKeyFont },  // It doesn't exist, but its unique.
+            { "QComboLineEdit", kThemeViewsFont },  // It doesn't exist, but its unique.
             { 0, 0 } };
         Str255 f_name;
         SInt16 f_size;
@@ -456,7 +458,7 @@ void qt_mac_update_os_settings()
                 QApplication::setFont(fnt, mac_widget_fonts[i].qt_class);
 #ifdef DEBUG_PLATFORM_SETTINGS
                 qDebug("qt-internal: Font for %s [%s::%d::%d::%d]", mac_widget_fonts[i].qt_class,
-                       fnt.family().latin1(), fnt.pointSize(), fnt.bold(), fnt.italic());
+                       fnt.family().toLatin1().constData(), fnt.pointSize(), fnt.bold(), fnt.italic());
 #endif
             }
         }
@@ -2340,7 +2342,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
                            widget ? widget->metaObject()->className() : "none",
                            widget ? widget->objectName().local8Bit() : "",
-                           asChar, translatedChar, asString.latin1(), ekind == kEventRawKeyRepeat);
+                           asChar, translatedChar, asString.toLatin1().constData(), ekind == kEventRawKeyRepeat);
 #endif
                     key_event = false;
                 } else {
@@ -2349,7 +2351,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         qDebug("KeyEvent: %s::%s overrode Accel: %04x %c %s %d",
                                widget ? widget->metaObject()->className() : "none",
                                widget ? widget->objectName().local8Bit() : "",
-                               asChar, translatedChar, asString.latin1(), ekind == kEventRawKeyRepeat);
+                               asChar, translatedChar, asString.toLatin1().constData(), ekind == kEventRawKeyRepeat);
 #endif
                     }
                 }
@@ -2368,7 +2370,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                        etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
                        widget ? widget->metaObject()->className() : "none",
                        widget ? widget->objectName().local8Bit() : "",
-                       asChar, translatedChar, asString.latin1(), (int)modifiers,
+                       asChar, translatedChar, asString.toLatin1().constData(), int(modifiers),
                        ekind == kEventRawKeyRepeat ? " Repeat" : "");
 #endif
                 /* This is actually wrong - but unfortunatly it is the best that can be
