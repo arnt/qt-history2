@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#323 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#324 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1856,8 +1856,11 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	pSize = atoi(tokens[PixelSize]);
 
 	int reqPSize;
-	if ( request.pointSize != -1 && QPaintDevice::x11AppDpiY() != 75 ) {
-	    reqPSize = int( (request.pointSize * QPaintDevice::x11AppDpiY()) / 720. + 0.5 );
+	if ( request.pointSize != -1 ) {
+	    if ( QPaintDevice::x11AppDpiY() != 75 )
+		reqPSize = int( (request.pointSize * QPaintDevice::x11AppDpiY()) / 720. + 0.5 );
+	    else
+		reqPSize = (request.pointSize +5)/10;
 	} else
 	    reqPSize = request.pixelSize;
 
