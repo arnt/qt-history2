@@ -49,8 +49,8 @@ private:
     bool inUse;
 };
 
-extern void qInitImages();
-extern void qCleanupImages();
+extern void qInitImages_wizards();
+extern void qCleanupImages_wizards();
 
 StandardTemplateWizardInterface::StandardTemplateWizardInterface()
     : inUse( FALSE )
@@ -63,14 +63,14 @@ StandardTemplateWizardInterface::~StandardTemplateWizardInterface()
 
 bool StandardTemplateWizardInterface::init()
 {
-    qInitImages();
+    qInitImages_wizards();
 
     return TRUE;
 }
 
 void StandardTemplateWizardInterface::cleanup()
 {
-    qCleanupImages();
+    qCleanupImages_wizards();
 }
 
 bool StandardTemplateWizardInterface::canUnload() const

@@ -9,14 +9,14 @@
             <x>0</x>
             <y>0</y>
             <width>577</width>
-            <height>395</height>
+            <height>430</height>
         </rect>
     </property>
     <property name="caption">
         <string>Sql Wizard</string>
     </property>
     <property name="icon">
-        <pixmap>logo</pixmap>
+        <pixmap></pixmap>
     </property>
     <property name="layoutMargin" stdset="0">
     </property>
@@ -1906,7 +1906,10 @@ name like "qt%"
                             <cstring>buttonReSortField</cstring>
                         </property>
                         <property name="text">
-                            <string>Resort</string>
+                            <string></string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap>re-sort.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Change field sort from ASC to DESC and back</string>
@@ -2970,8 +2973,6 @@ name like "qt%"
     <tabstop>checkCreateButtonLayout</tabstop>
     <tabstop>checkCreateLayouts</tabstop>
 </tabstops>
-<includes>
-</includes>
 <slots>
     <slot access="protected">init()</slot>
     <slot access="protected">destroy()</slot>
