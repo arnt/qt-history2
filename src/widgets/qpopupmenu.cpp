@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#250 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#251 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -565,12 +565,14 @@ void QPopupMenu::updateSize()
 	    if ( (t=s.find('\t')) >= 0 ) {	// string contains tab
 		w = fm.width( s, t );
 		w -= s.contains('&')*fm.width('&');
+		w += s.contains("&&")*fm.width('&');
 		int tw = fm.width( s.mid(t+1) );
 		if ( tw > tab)
 		    tab = tw;
 	    } else {
 		w += fm.width( s );
 		w -= s.contains('&')*fm.width('&');
+		w += s.contains("&&")*fm.width('&');
 	    }
 	}
 
