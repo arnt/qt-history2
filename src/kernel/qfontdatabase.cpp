@@ -50,7 +50,7 @@
 #include <stdlib.h>
 
 // #define QFONTDATABASE_DEBUG
-#define FONT_MATCH_DEBUG
+// #define FONT_MATCH_DEBUG
 
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
 #  define for if(0){}else for
