@@ -714,7 +714,7 @@ QRect QWindowsXPStyle::subRect(SubRect sr, const QStyleOption *option, const QWi
     QRect rect(option->rect);
     switch(sr) {
     case SR_TabWidgetTabContents:
-        if (const QStyleOptionTabWidgetFrame *twf = qobject_cast<const QStyleOptionTabWidgetFrame *>(option))
+        if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option))
         {
             rect = QWindowsStyle::subRect(sr, option, widget);
             if (sr == SR_TabWidgetTabContents)
@@ -849,7 +849,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         break;
 
     case PE_FrameTabWidget:
-        if (const QStyleOptionTabWidgetFrame *tab = qobject_cast<const QStyleOptionTabWidgetFrame *>(option))
+        if (const QStyleOptionTabWidgetFrame *tab = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option))
         {
             name = "TAB";
             partId = TABP_PANE;
@@ -980,7 +980,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         break;
 
     case PE_FrameWindow:
-        if (const QStyleOptionFrame *frm = qobject_cast<const QStyleOptionFrame *>(option))
+        if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(option))
         {
             name = "WINDOW";
             if (flags & State_Active)
@@ -1083,7 +1083,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
     switch (element) {
     case CE_PushButtonBevel:
-        if (const QStyleOptionButton *btn = qobject_cast<const QStyleOptionButton *>(option))
+        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option))
         {
             name = "BUTTON";
             partId = BP_PUSHBUTTON;
@@ -1104,7 +1104,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         break;
 
     case CE_TabBarTabShape:
-        if (const QStyleOptionTab *tab = qobject_cast<const QStyleOptionTab *>(option))
+        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option))
         {
             name = "TAB";
             bool isDisabled = !(tab->state & State_Enabled);
@@ -1243,7 +1243,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
     case CE_MenuEmptyArea:
     case CE_MenuItem:
-        if (const QStyleOptionMenuItem *menuitem = qobject_cast<const QStyleOptionMenuItem *>(option))
+        if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(option))
         {
             int tab = menuitem->tabWidth;
             bool dis = !(menuitem->state & State_Enabled);
@@ -1364,7 +1364,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         return;
 
     case CE_MenuBarItem:
-        if (const QStyleOptionMenuItem *mbi = qobject_cast<const QStyleOptionMenuItem *>(option))
+        if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option))
         {
             if (mbi->state == QStyleOptionMenuItem::DefaultItem)
                 break;
@@ -1451,7 +1451,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
     switch (cc) {
     case CC_SpinBox:
-        if (const QStyleOptionSpinBox *sb = qobject_cast<const QStyleOptionSpinBox *>(option))
+        if (const QStyleOptionSpinBox *sb = qstyleoption_cast<const QStyleOptionSpinBox *>(option))
         {
             XPThemeData theme(widget, p, "SPIN");
 
@@ -1498,7 +1498,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         break;
 
     case CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qobject_cast<const QStyleOptionComboBox *>(option))
+        if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(option))
         {
             if (sub & SC_ComboBoxEditField) {
                 partId = EP_EDITTEXT;
@@ -1545,7 +1545,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         break;
 
     case CC_ScrollBar:
-        if (const QStyleOptionSlider *scrollbar = qobject_cast<const QStyleOptionSlider *>(option))
+        if (const QStyleOptionSlider *scrollbar = qstyleoption_cast<const QStyleOptionSlider *>(option))
         {
             XPThemeData theme(widget, p, "SCROLLBAR");
             QScrollBar *bar = (QScrollBar*)widget;
@@ -1673,7 +1673,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         break;
 #ifndef QT_NO_SLIDER
     case CC_Slider:
-        if (const QStyleOptionSlider *slider = qobject_cast<const QStyleOptionSlider *>(option))
+        if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option))
         {
             XPThemeData theme(widget, p, "TRACKBAR");
             QSlider *sl = (QSlider*)widget;
@@ -1792,7 +1792,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 #endif
 
     case CC_ToolButton:
-        if (const QStyleOptionToolButton *toolbutton = qobject_cast<const QStyleOptionToolButton *>(option))
+        if (const QStyleOptionToolButton *toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option))
         {
             XPThemeData theme(widget, p, "TOOLBAR");
             QToolButton *tb = (QToolButton*)widget;
@@ -1898,7 +1898,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
 #if 0 // QT_NO_TITLEBAR  ################################
     case CC_TitleBar:
-        if (const QStyleOptionTitleBar *tb = qobject_cast<const QStyleOptionTitleBar *>(opt))
+        if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(opt))
         {
             const QTitleBar *titlebar = (const QTitleBar *)widget;
 
@@ -2294,7 +2294,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
         return 2;
 
     case PM_TabBarBaseOverlap:
-        if (const QStyleOptionTab *tab = qobject_cast<const QStyleOptionTab *>(option)) {
+        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
             int ret = 0;
             switch (tab->shape) {
             case QTabBar::RoundedNorth:
@@ -2414,7 +2414,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
 //#endif
 //        return QRect(); } //are you sure you want to do this? ###
     case CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qobject_cast<const QStyleOptionComboBox *>(option)) {
+        if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
             int x = 0, y = 0, wi = cmb->rect.width(), he = cmb->rect.height();
             int xpos = x;
             xpos += wi - 1 - 16;
@@ -2451,7 +2451,7 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
 
     switch (ct) {
     case CT_MenuItem:
-        if (const QStyleOptionMenuItem *menuitem = qobject_cast<const QStyleOptionMenuItem *>(option))
+        if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(option))
         {
             if (menuitem->menuItemType == QStyleOptionMenuItem::Separator) {
                 sz = QSize(10, windowsSepHeight);

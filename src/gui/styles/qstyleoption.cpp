@@ -62,7 +62,7 @@
 
     When reimplementing QStyle functions that take a QStyleOption
     parameter, you often need to cast the QStyleOption to a subclass.
-    For safety, you can use qobject_cast<T>() to ensure that the pointer
+    For safety, you can use qstyleoption_cast<T>() to ensure that the pointer
     type is correct. For example:
 
     \code
@@ -73,7 +73,7 @@
         {
             if (element == PE_FocusRect) {
                 const QStyleOptionFocusRect *focusRectOption =
-                        qobject_cast<const QStyleOptionFocusRect *>(option);
+                        qstyleoption_cast<const QStyleOptionFocusRect *>(option);
                 if (focusRectOption) {
                     ...
                 }
@@ -83,7 +83,7 @@
         }
     \endcode
 
-    qobject_cast<T>() will return 0 if the object to which \c option
+    qstyleoption_cast<T>() will return 0 if the object to which \c option
     points isn't of the correct type.
 
     \sa QStyle, QStylePainter
@@ -93,7 +93,7 @@
     \enum QStyleOption::OptionType
 
     This enum is used internally by QStyleOption, its subclasses, and
-    qobject_cast() to determine the type of style option. In general you do not need
+    qstyleoption_cast() to determine the type of style option. In general you do not need
     to worry about this unless you want to create your own QStyleOption
     subclass and your own styles.
 
@@ -213,7 +213,7 @@ void QStyleOption::init(const QWidget *widget)
     \brief the version of the style option
 
     This value can be used by subclasses to implement extensions
-    without breaking compatibility. If you use qobject_cast<T>(), you
+    without breaking compatibility. If you use qstyleoption_cast<T>(), you
     normally don't need to check it.
 */
 
@@ -1460,7 +1460,7 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
 */
 
 /*!
-    \fn T qobject_cast<T>(const QStyleOption *option)
+    \fn T qstyleoption_cast<T>(const QStyleOption *option)
     \relates QStyleOption
 
     Returns a T or 0 depending on the \l{QStyleOption::type}{type}
@@ -1476,7 +1476,7 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
         {
             if (element == PE_FocusRect) {
                 const QStyleOptionFocusRect *focusRectOption =
-                        qobject_cast<const QStyleOptionFocusRect *>(option);
+                        qstyleoption_cast<const QStyleOptionFocusRect *>(option);
                 if (focusRectOption) {
                     ...
                 }
@@ -1489,7 +1489,7 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
 */
 
 /*!
-    \fn T qobject_cast<T>(QStyleOption *option)
+    \fn T qstyleoption_cast<T>(QStyleOption *option)
     \overload
     \relates QStyleOption
 
@@ -1543,7 +1543,7 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
     \brief the version of the style hint return container
 
     This value can be used by subclasses to implement extensions
-    without breaking compatibility. If you use qobject_cast<T>(), you
+    without breaking compatibility. If you use qstyleoption_cast<T>(), you
     normally don't need to check it.
 */
 
@@ -1574,7 +1574,7 @@ QStyleHintReturnMask::QStyleHintReturnMask() : QStyleHintReturn(Version, Type)
 }
 
 /*!
-    \fn T qobject_cast<T>(const QStyleHintReturn *hint)
+    \fn T qstyleoption_cast<T>(const QStyleHintReturn *hint)
     \relates QStyleHintReturn
 
     Returns a T or 0 depending on the \l{QStyleHintReturn::type}{type}
@@ -1588,7 +1588,7 @@ QStyleHintReturnMask::QStyleHintReturnMask() : QStyleHintReturn(Version, Type)
         {
             if (stylehint == SH_RubberBand_Mask) {
                 const QStyleHintReturnMask *maskReturn =
-                        qobject_cast<const QStyleHintReturnMask *>(hint);
+                        qstyleoption_cast<const QStyleHintReturnMask *>(hint);
                 if (maskReturn) {
                     ...
                 }
@@ -1601,7 +1601,7 @@ QStyleHintReturnMask::QStyleHintReturnMask() : QStyleHintReturn(Version, Type)
 */
 
 /*!
-    \fn T qobject_cast<T>(QStyleHintReturn *hint)
+    \fn T qstyleoption_cast<T>(QStyleHintReturn *hint)
     \overload
     \relates QStyleHintReturn
 

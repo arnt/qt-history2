@@ -235,7 +235,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         // slider (i.e., the non-tickmark portion). The remaining space is shared
         // equally between the tickmark regions.
     case PM_SliderControlThickness:
-        if (const QStyleOptionSlider *sl = qobject_cast<const QStyleOptionSlider *>(opt)) {
+        if (const QStyleOptionSlider *sl = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             int space = (sl->orientation == Qt::Horizontal) ? sl->rect.height() : sl->rect.width();
             int ticks = sl->tickPosition;
             int n = 0;
@@ -1152,7 +1152,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         }
         break; }
     case PE_PanelButtonCommand:
-        if (const QStyleOptionButton *btn = qobject_cast<const QStyleOptionButton *>(opt)) {
+        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             QBrush fill;
             State flags = opt->state;
             QPalette pal = opt->palette;
@@ -1309,7 +1309,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->restore();
         break;
     case PE_FrameFocusRect:
-        if (const QStyleOptionFocusRect *fropt = qobject_cast<const QStyleOptionFocusRect *>(opt)) {
+        if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(opt)) {
 #if defined (Q_WS_WIN)
             {
                 QMatrix wm = p->deviceMatrix();
@@ -1421,7 +1421,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         }
     case PE_Frame:
     case PE_FrameMenu:
-        if (const QStyleOptionFrame *frame = qobject_cast<const QStyleOptionFrame *>(opt)) {
+        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             if (frame->lineWidth == 2) {
                 QPalette popupPal = frame->palette;
                 if (pe == PE_FrameMenu) {
@@ -1529,7 +1529,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 {
     switch (ce) {
     case CE_MenuItem:
-        if (const QStyleOptionMenuItem *menuitem = qobject_cast<const QStyleOptionMenuItem *>(opt)) {
+        if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             int x, y, w, h;
             menuitem->rect.getRect(&x, &y, &w, &h);
             int tab = menuitem->tabWidth;
@@ -1665,7 +1665,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         }
         break;
     case CE_MenuBarItem:
-        if (const QStyleOptionMenuItem *mbi = qobject_cast<const QStyleOptionMenuItem *>(opt)) {
+        if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             bool active = mbi->state & State_Selected;
             bool hasFocus = mbi->state & State_HasFocus;
             bool down = mbi->state & State_Down;
@@ -1688,7 +1688,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         }
         break;
     case CE_TabBarTabShape:
-        if (const QStyleOptionTab *tab = qobject_cast<const QStyleOptionTab *>(opt)) {
+        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
             bool selected = tab->state & State_Selected;
             bool lastTab = tab->position == QStyleOptionTab::End;
             bool firstTab = tab->position == QStyleOptionTab::Beginning;
@@ -1999,7 +1999,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 {
     switch (cc) {
     case CC_Slider:
-        if (const QStyleOptionSlider *slider = qobject_cast<const QStyleOptionSlider *>(opt)) {
+        if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             int thickness  = pixelMetric(PM_SliderControlThickness, slider, widget);
             int len        = pixelMetric(PM_SliderLength, slider, widget);
             int ticks = slider->tickPosition;
@@ -2203,7 +2203,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
         }
         break;
     case CC_Q3ListView:
-        if (const QStyleOptionQ3ListView *lv = qobject_cast<const QStyleOptionQ3ListView *>(opt)) {
+        if (const QStyleOptionQ3ListView *lv = qstyleoption_cast<const QStyleOptionQ3ListView *>(opt)) {
             int i;
             if (lv->subControls & SC_Q3ListView)
                 QCommonStyle::drawComplexControl(cc, lv, p, widget);
@@ -2357,7 +2357,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
         }
         break;
     case CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qobject_cast<const QStyleOptionComboBox *>(opt)) {
+        if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             if (cmb->subControls & SC_ComboBoxArrow) {
                 State flags = State_None;
 
@@ -2431,7 +2431,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     QSize sz(csz);
     switch (ct) {
     case CT_PushButton:
-        if (const QStyleOptionButton *btn = qobject_cast<const QStyleOptionButton *>(opt)) {
+        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
             int w = sz.width(),
                 h = sz.height();
@@ -2446,7 +2446,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         }
         break;
     case CT_MenuItem:
-        if (const QStyleOptionMenuItem *mi = qobject_cast<const QStyleOptionMenuItem *>(opt)) {
+        if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             int w = sz.width();
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
             if (mi->menuItemType != QStyleOptionMenuItem::Separator && !mi->icon.isNull())
