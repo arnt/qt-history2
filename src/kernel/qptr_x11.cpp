@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#128 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -10,12 +10,16 @@
 **
 *****************************************************************************/
 
+// #define USE_GC_CACHE
+
 #include "qpainter.h"
 #include "qpaintdc.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpmcache.h"
+#if defined(USE_GC_CACHE)
 #include "qcache.h"
+#endif
 #include "qlist.h"
 #include "qintdict.h"
 #include <ctype.h>
@@ -25,7 +29,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#127 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#128 $")
 
 
 // --------------------------------------------------------------------------
@@ -193,6 +197,8 @@ static void cleanup_painter_gc( Display *dpy )
 // QPainter internal GC cache for pens and brushes (advanced)
 //
 
+#if defined(USE_GC_CACHE0)
+
 struct QGCData					// GC pen/brush cache item
 {
     QGCData( const char *k, Display *d, GC g )
@@ -209,7 +215,7 @@ static QGCCache *gc_cache = 0;
 static void init_gc_cache()
 {
     if ( !gc_cache ) {
-	gc_cache = new QGCCache( 64, 211, TRUE, FALSE );
+	gc_cache = new QGCCache( 64, 719, TRUE, FALSE );
 	CHECK_PTR( gc_cache );
     }
 }
@@ -221,39 +227,51 @@ static void cleanup_gc_cache()
 }
 
 
-static char *append_str( char *s, const char *d )
-{
-    while ( *d )
-	*s++ = *d++;
-    return s;
-}
-
 static GC alloc_pen( bool *hit, char **penKey, QPainter *p,
-		     Display *dpy,bool mono )
+		     Display *dpy, bool mono )
 {
     if ( !gc_cache )
 	init_gc_cache();
-    char key[80];
-    char *k = key;
-    QString s;
+    UINT32 n;
+    char   key[80];
+    char  *k = key;
     *k++ = 'p';
-#define KEY_ADD_NUM(x)	k=append_str(k,s.setNum(x)); *k++ = '_'
 
     const QPen &pen = p->pen();
-    KEY_ADD_NUM( pen.style() );
-    KEY_ADD_NUM( pen.width() );
-    KEY_ADD_NUM( pen.color().pixel() );
-//    KEY_ADD_NUM( p->font().serialNumber() );
-    KEY_ADD_NUM( p->backgroundColor().pixel() );
-    KEY_ADD_NUM( p->backgroundMode() );
-    KEY_ADD_NUM( p->rasterOp() );
-    *--k = '\0';
+    *k++ = pen.style() + 'e';
+    *k++ = p->backgroundMode() + 'i';
+    *k++ = p->rasterOp() + 'r';
 
-#undef KEY_ADD_NUM
+    n = pen.width();
+    *k++ = (char)((n>>14) &   3)+'i';
+    *k++ = (char)((n>> 7) & 127)+'k';
+    *k++ = (char)((n)     & 127)+'+';
+
+    n = pen.color().pixel();
+    *k++ = (char)((n>>28) &  15)+'h';
+    *k++ = (char)((n>>21) & 127)+'e';
+    *k++ = (char)((n>>14) & 127)+'l';
+    *k++ = (char)((n>> 7) & 127)+'e';
+    *k++ = (char)((n)     & 127)+'n';
+
+    n = p->backgroundColor().pixel();
+    *k++ = (char)((n>>28) &  15)+'r';
+    *k++ = (char)((n>>21) & 127)+' ';
+    *k++ = (char)((n>>14) & 127)+'e';
+    *k++ = (char)((n>> 7) & 127)+'r';
+    *k++ = (char)((n)     & 127)+' ';
+
+    n = 0; // p->font().serialNumber();
+    *k++ = (char)((n>>28) &  15)+'s';
+    *k++ = (char)((n>>21) & 127)+'a';
+    *k++ = (char)((n>>14) & 127)+'n';
+    *k++ = (char)((n>> 7) & 127)+'t';
+    *k++ = (char)((n)     & 127)+'!';
+
+    *k = '\0';
 
     QGCData *d = gc_cache->find( key );
     if ( !d ) {
-	debug( "  creating new pen" );
 	GC gc = alloc_painter_gc( dpy, p->handle(), mono );
 	d = new QGCData( key, dpy, gc );
 	*hit = FALSE;
@@ -265,12 +283,131 @@ static GC alloc_pen( bool *hit, char **penKey, QPainter *p,
     return d->gc;
 }
 
-static void free_pen( char *key )
+void test_alloc_pen( bool *hit, char **penKey, QPainter *p )
+{
+    alloc_pen( hit, penKey, p, p->device()->display(), FALSE );
+}
+		    
+static inline void free_pen( char *key )
 {    
     if ( !gc_cache )
 	return;
     ASSERT( key != 0 );
 }
+
+#endif  // USE_GC_CACHE0
+
+#if defined(USE_GC_CACHE)
+
+struct QGCItem {
+    GC	    gc;
+    ulong   fgpix;
+    ulong   bgpix;
+    long    fntid;
+    int	    hits;
+};
+
+static bool gc_cache_init = FALSE;
+static const int gc_cache_size = 32;
+static QGCItem *gc_cache[4*gc_cache_size];
+
+
+static void init_gc_cache()
+{
+    if ( !gc_cache_init ) {
+	gc_cache_init = TRUE;
+	QGCItem *g = new QGCItem[4*gc_cache_size];
+	memset( (void*)g, 0, 4*gc_cache_size*sizeof(QGCItem) );
+	for ( int i=0; i<4*gc_cache_size; i++ )
+	    gc_cache[i] = g++;
+    }
+}
+
+static void cleanup_gc_cache()
+{
+    delete [] gc_cache[0];
+}
+
+int g_numhits = 0;
+int g_numcreates = 0;
+int g_numfaults = 0;
+
+
+static GC alloc_pen( bool *hit, int *key, QPainter *p,
+		     Display *dpy, bool mono )
+{
+    if ( !gc_cache )
+	init_gc_cache();
+
+    ulong fgpix = p->pen().color().pixel();
+    ulong bgpix = p->backgroundColor().pixel();
+    long  fntid = 0; // p->font().serialNumber();
+
+    int k = (int)fgpix % gc_cache_size;
+    *key = k;
+    k *= 4;
+
+    QGCItem *g = gc_cache[k];
+    QGCItem *prev = 0;
+    int c = 0;
+    while ( c < 4 && g->gc && (g->fgpix != fgpix || g->bgpix != bgpix ||
+	    g->fntid != fntid) ) {
+	c++;
+	prev = g;
+	g++;
+    }
+
+    if ( c < 4 ) {
+	if ( g->gc ) {				// found gc item
+	    g_numhits++;	// S
+	    g->hits++;
+	    *hit = TRUE;
+	    if ( prev && g->hits > prev->hits ) {
+		QGCItem *t = g;			// keep LRU order
+		gc_cache[k+c] = prev;
+		gc_cache[k+c-1] = t;
+	    }
+	}
+	else {
+	    g_numcreates++;	// S
+	    *hit = FALSE;
+	    g->gc = alloc_painter_gc( dpy, p->handle(), mono );
+	    g->fgpix = fgpix;
+	    g->bgpix = bgpix;
+	    g->fntid = fntid;
+	    g->hits  = 0;
+	}
+    }
+    else {
+	g_numfaults++;	// S
+	*hit = FALSE;
+	g = prev;				// forget the last one
+	g->fgpix = fgpix;
+	g->bgpix = bgpix;
+	g->fntid = fntid;
+	g->hits  = 0;
+    }
+    return g->gc;
+}
+		    
+static inline void free_pen( int key, GC gc )
+{
+#if defined(DEBUG)
+    ASSERT( gc_cache_init );
+#endif
+    QGCItem *g = gc_cache[key*4];
+    int c = 0;
+    while ( c < 4 && g->gc != gc ) {
+	c++;
+	g++;
+    }
+#if defined(DEBUG)
+    ASSERT( c < 4 );
+#endif
+//    free_painter_gc( 0, gc );
+}
+
+#endif  // USE_GC_CACHE
 
 
 // --------------------------------------------------------------------------
@@ -283,7 +420,9 @@ static void free_pen( char *key )
 
 void QPainter::initialize()
 {
+#if defined(USE_GC_CACHE)
     init_gc_cache();
+#endif
 }
 
 /*!
@@ -292,7 +431,12 @@ void QPainter::initialize()
 
 void QPainter::cleanup()
 {
+#if defined(USE_GC_CACHE)
+    debug( "Number of cache hits = %d", g_numhits );
+    debug( "Number of cache creates = %d", g_numcreates );
+    debug( "Number of cache faults = %d", g_numfaults );
     cleanup_gc_cache();
+#endif
     cleanup_painter_gc( qt_xdisplay() );
 }
 
@@ -359,7 +503,10 @@ QPainter::QPainter()
     tabarray = 0;
     tabarraylen = 0;
     ps_stack = 0;
+    gc = gc_brush = 0;
+#if defined(USE_GC_CACHE)
     penKey = brushKey = 0;
+#endif
 }
 
 /*!
@@ -398,9 +545,9 @@ QPainter::~QPainter()
 void QPainter::setFont( const QFont &font )
 {
     if ( cfont.d != font.d ) {
-	setf( DirtyFont );
 	cfont = font;
-	cfont.handle();				// load font now!
+	setf(DirtyFont);
+	updateFont();
     }
 }
 
@@ -415,41 +562,51 @@ void QPainter::setFont( const QFont &font )
 
   The pen defines how to draw lines and outlines, and it also defines
   the text color.
+
   \sa pen()
 */
 
-void QPainter::setPen( const QPen &pen )	// set current pen
+void QPainter::setPen( const QPen &pen )
 {
-    if ( cpen.data != pen.data ) {
-	if ( cpen != pen ) {
-	    setf( DirtyPen );
-	    cpen = pen;
-	}
-    }
+    cpen = pen;
+    updatePen();
 }
 
-/*! Changes the style of the painter's current pen to \e style.
-
-  \sa pen(), QPen, QColor
+/*!
+  Sets a new painter pen with style \c style, width 0 and black color.
+  \sa pen(), QPen
 */
 
-void QPainter::setPen( PenStyle style )		// set solid pen with color
+void QPainter::setPen( PenStyle style )
 {
-    QPen pen( style );
-    setPen( pen );
+    register QPen::QPenData *d = cpen.data;	// low level access
+    if ( d->count != 1 ) {
+	cpen.detach();
+	d = cpen.data;
+    }
+    d->style = style;
+    d->width = 0;
+    d->color = black;
+    updatePen();
 }
 
 /*!
   Sets a new painter pen with style \c SolidLine, width 0 and the specified
   \e color.
-
   \sa pen(), QPen
 */
 
-void QPainter::setPen( const QColor &color )	// set solid pen with color
+void QPainter::setPen( const QColor &color )
 {
-    QPen pen( color, 0, SolidLine );
-    setPen( pen );
+    register QPen::QPenData *d = cpen.data;	// low level access
+    if ( d->count != 1 ) {
+	cpen.detach();
+	d = cpen.data;
+    }
+    d->style = SolidLine;
+    d->width = 0;
+    d->color = color;
+    updatePen();
 }
 
 /*!
@@ -462,55 +619,49 @@ void QPainter::setPen( const QColor &color )	// set solid pen with color
   Sets a new painter brush.
 
   The brush defines how to fill shapes.
+
   \sa brush()
 */
 
-void QPainter::setBrush( const QBrush &brush )	// set current brush
+void QPainter::setBrush( const QBrush &brush )
 {
-    if ( cbrush.data != brush.data ) {
-	if ( cbrush != brush )
-	    setf( DirtyBrush );
-	cbrush = brush;
-    }
+    cbrush = brush;
+    updateBrush();
 }
 
 /*!
   Sets a new painter brush with black color and the specified \e style.
-
-  The brush defines how to fill shapes.
   \sa brush(), QBrush
 */
 
 void QPainter::setBrush( BrushStyle style )	// set brush
 {
-    QBrush brush( style );
-    cbrush = brush;
-    setf( DirtyBrush );
+    register QBrush::QBrushData *d = cbrush.data; // low level access!
+    if ( d->count != 1 ) {
+	cbrush.detach();
+	d = cbrush.data;
+    }
+    d->style = style;
+    d->color = black;
+    updateBrush();
 }
 
 /*!
   Sets a new painter brush with the style \c SolidPattern and the specified
   \e color.
-
-  The brush defines how to fill shapes.
   \sa brush(), QBrush
 */
 
 void QPainter::setBrush( const QColor &color )	// set solid brush width color
 {
     register QBrush::QBrushData *d = cbrush.data; // low level access!
-    if ( d->count == 1 && isActive() && gc_brush &&
-	 d->style == SolidPattern ) {
-	if ( d->color != color ) {
-	    d->color = color;
-	    XSetForeground( dpy, gc_brush, d->color.pixel() );
-	}
+    if ( d->count != 1 ) {
+	cbrush.detach();
+	d = cbrush.data;
     }
-    else {
-	QBrush brush( color );
-	cbrush = brush;
-	setf( DirtyBrush );
-    }
+    d->style = SolidPattern;
+    d->color = color;
+    updateBrush();
 }
 
 
@@ -533,7 +684,6 @@ void QPainter::updatePen()			// update after changed pen
     static char dash_dot_line[]	    = { 7, 3, 2, 3 };
     static char dash_dot_dot_line[] = { 7, 3, 2, 3, 2, 3 };
 
-    clearf( DirtyPen );				// pen becomes clean
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].pen = &cpen;
@@ -541,12 +691,16 @@ void QPainter::updatePen()			// update after changed pen
 	    return;
     }
 
-    bool cacheIt = !testf(ClipOn);
+    int ps = cpen.style();
+
+#if defined(USE_GC_CACHE)
+    bool cacheIt = !testf(ClipOn) && (ps == NoPen || ps == SolidLine)
+	&& cpen.width() == 0 && rop == CopyROP && !testf(MonoDev);
 
     if ( cacheIt ) {
 	if ( gc ) {
 	    if ( testf(OptPen) )
-		free_pen( penKey );
+		free_pen( penKey, gc );
 	    else
 		free_painter_gc( dpy, gc );
 	}
@@ -559,7 +713,7 @@ void QPainter::updatePen()			// update after changed pen
     else {
 	if ( gc ) {
 	    if ( testf(OptPen) ) {
-		free_pen( penKey );
+		free_pen( penKey, gc );
 		gc = alloc_painter_gc( dpy, hd, testf(MonoDev) );
 	    }
 	}
@@ -567,12 +721,13 @@ void QPainter::updatePen()			// update after changed pen
 	    gc = alloc_painter_gc( dpy, hd, testf(MonoDev) );
 	clearf(OptPen);
     }
+#endif
 
-    debug( "setup pen" );
     char *dashes = 0;				// custom pen dashes
     int dash_len = 0;				// length of dash list
     int s = LineSolid;
-    switch( cpen.style() ) {
+
+    switch( ps ) {
 	case NoPen:
 	case SolidLine:
 	    s = LineSolid;
@@ -760,9 +915,9 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 
     dpy = pdev->dpy;				// get display variable
     hd = pdev->hd;				// get handle to drawable
+//    gc = gc_brush = 0;
 
     if ( testf(ExtDev) ) {			// external device
-	gc = 0;
 	if ( !pdev->cmd(PDC_BEGIN,this,0) ) {	// could not begin painting
 	    pdev = 0;
 	    return FALSE;
@@ -775,7 +930,6 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 
     setf( IsActive );				// painter becomes active
     pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
-    gc_brush = 0;
     bro = curPt = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_col = white;				// default background color
@@ -785,7 +939,9 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
-//	gc = alloc_painter_gc( dpy, w->handle() );
+#if !defined(USE_GC_CACHE)
+	gc = alloc_painter_gc( dpy, w->handle() );
+#endif
 	cfont = w->font();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
@@ -814,7 +970,9 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	bool mono = pm->depth() == 1;		// monochrome bitmap
 	if ( mono )
 	    setf( MonoDev );
-//	gc = alloc_painter_gc( dpy, hd, mono ); // create GC
+#if !defined(USE_GC_CACHE)
+	gc = alloc_painter_gc( dpy, hd, mono ); // create GC
+#endif
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
 	if ( reinit ) {
@@ -842,10 +1000,12 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	setRasterOp( CopyROP );			// default raster operation
     }
     else {					// widget or pixmap
+#if defined(USE_GC_CACHE)
 	bg_mode = TransparentMode;
 	rop = CopyROP;
 	updatePen();
-#if 0
+	updateBrush();
+#else
 	XSetBackground( dpy, gc, bg_col.pixel() );
 	bg_mode = TransparentMode;
 	rop = CopyROP;
@@ -884,7 +1044,9 @@ bool QPainter::end()				// end painting
     }
     if ( gc ) {					// restore pen gc
 	if ( testf(OptPen) ) {
-	    free_pen( penKey );
+#if defined(USE_GC_CACHE)
+	    free_pen( penKey, gc );
+#endif
 	}
 	else {
 	    if ( testf(ClipOn) )
@@ -1005,7 +1167,11 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 	if ( !pdev->cmd(PDC_SETROP,this,param) || !hd )
 	    return;
     }
+#if defined(USE_GC_CACHE)
     updatePen();
+#else
+    XSetFunction( dpy, gc, ropCodes[rop] );
+#endif
     if ( gc_brush )
 	XSetFunction( dpy, gc_brush, ropCodes[rop] );
 }
@@ -1473,11 +1639,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 {						// draw rectangle
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	    updateBrush();
+    if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[1];
 	    QRect r( x, y, w, h );
@@ -1537,11 +1699,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	xRnd = 99;
     if ( yRnd >= 100 )
 	yRnd = 99;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	     updateBrush();
+    if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[3];
 	    QRect r( x, y, w, h );
@@ -1672,11 +1830,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 {						// draw ellipse
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	    updateBrush();
+    if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[1];
 	    QRect r( x, y, w, h );
@@ -1739,9 +1893,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 {						// draw arc
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
+    if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[3];
 	    QRect r( x, y, w, h );
@@ -1799,11 +1951,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 {						// draw arc
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	    updateBrush();
+    if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[3];
 	    QRect r( x, y, w, h );
@@ -1881,11 +2029,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 {						// draw chord
     if ( !isActive() )
 	return;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	    updateBrush();
+    if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[3];
 	    QRect r( x, y, w, h );
@@ -1959,9 +2103,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	nlines = (a.size() - index)/2;
     if ( !isActive() || nlines < 1 || index < 0 )
 	return;
-    if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
+    if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPointArray tmp;
 	    if ( nlines == (int)a.size()/2 )
@@ -2004,9 +2146,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
+    if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPointArray tmp;
 	    if ( npoints == (int)a.size() )
@@ -2061,11 +2201,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	return;
     QPointArray axf;
     QPointArray *pa = (QPointArray*)&a;
-    if ( testf(DirtyPen|DirtyBrush|ExtDev|VxF|WxF) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
-	if ( testf(DirtyBrush) )
-	    updateBrush();
+    if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPointArray tmp;
 	    if ( npoints == (int)a.size() )
@@ -2161,9 +2297,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 		a2.setPoint( i, a.point(index+i) );
 	}
     }
-    if ( testf(DirtyPen|ExtDev|WxF) ) {
-	if ( testf(DirtyPen) )
-	    updatePen();
+    if ( testf(ExtDev|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&a2;
@@ -2292,8 +2426,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    VXFORM_P( x, y );
     }
     if ( pixmap.depth() == 1 ) {		// bitmap
-	if ( testf(DirtyPen) )			// bitmap gets pen color
-	    updatePen();
+	XCopyPlane( dpy, pixmap.handle(), hd, gc, sx, sy,
+		    sw, sh, x, y, 1 );
+#if 0
 	bool do_clip = hasClipping();
 	if ( bg_mode == TransparentMode ) {	// set up transparency clipping
 	    XSetClipMask( dpy, gc, pixmap.handle() );
@@ -2308,6 +2443,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    else
 		XSetClipMask( dpy, gc, None );
 	}
+#endif
     }
     else
 	XCopyArea( dpy, pixmap.handle(), hd, gc, sx, sy,
@@ -2371,11 +2507,9 @@ void QPainter::drawText( int x, int y, const char *str, int len )
     if ( len == 0 )				// empty string
 	return;
 
-    if ( testf(DirtyFont|DirtyPen|ExtDev|VxF|WxF) ) {
+    if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
 	if ( testf(DirtyFont) )
 	    updateFont();
-	if ( testf(DirtyPen) )
-	    updatePen();
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
@@ -2544,11 +2678,9 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( len == 0 )				// empty string
 	return;
 
-    if ( testf(DirtyFont|DirtyPen|ExtDev) ) {
+    if ( testf(DirtyFont|ExtDev) ) {
 	if ( testf(DirtyFont) )
 	    updateFont();
-	if ( testf(DirtyPen) )
-	    updatePen();
 	if ( testf(ExtDev) && (tf & DontPrint) == 0 ) {
 	    QPDevCmdParam param[3];
 	    QRect r( x, y, w, h );
