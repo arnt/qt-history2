@@ -124,7 +124,7 @@ struct QWaitConditionPrivate {
 	getchar();
 	mymutex.lock();
 	// Sleep until there are no busy worker threads
-	while( count > 0 ) {
+	while( mycount > 0 ) {
 	    mymutex.unlock();
 	    sleep( 1 );
 	    mymutex.lock();
