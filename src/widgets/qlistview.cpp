@@ -3645,8 +3645,7 @@ void QListView::setCurrentItem( QListViewItem * i )
 	    repaintItem( i );
 	if ( prev )
 	    repaintItem( prev );
-	if ( i )
-	    emit currentChanged( i );
+	emit currentChanged( i );
     }
 }
 
