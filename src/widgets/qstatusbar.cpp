@@ -73,7 +73,7 @@
     To display a \e temporary message, call message() (perhaps by
     connecting a suitable signal to it). To remove a temporary
     message, call clear(). There are two variants of message(): one
-    that displays the message until the next clear() or mesage() and
+    that displays the message until the next clear() or message() and
     one that has a time limit:
 
     \code
