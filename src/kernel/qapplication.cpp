@@ -2288,8 +2288,10 @@ void QApplication::installTranslator( QTranslator * mf )
 
     translators->insert( 0, mf );
 
+#ifndef QT_NO_TRANSLATION_BUILDER
     if ( mf->isEmpty() )
 	return;
+#endif
 
     // hook to set the layout direction of dialogs
     setReverseLayout( qt_detectRTLLanguage() );
