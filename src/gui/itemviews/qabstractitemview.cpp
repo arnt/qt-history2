@@ -2133,7 +2133,7 @@ void QAbstractItemViewPrivate::doDelayedItemsLayout()
 {
     if (!layoutPosted) {
         int slot = q->metaObject()->indexOfSlot("doItemsLayout()");
-        QApplication::postEvent(q, new QMetaCallEvent(slot, q));
+        QApplication::postEvent(q, new QMetaCallEvent(slot));
         layoutPosted = true;
     }
 }
