@@ -64,7 +64,7 @@ inline void qBubbleSort( InputIterator b, InputIterator e )
   // So we have at least two elements in here
   while( b != last )
   {
-    bool swapped = false;
+    bool swapped = FALSE;
     InputIterator swap_pos = b;
     InputIterator x = e;
     InputIterator y = x;
@@ -75,7 +75,7 @@ inline void qBubbleSort( InputIterator b, InputIterator e )
       --y;
       if ( *x < *y )
       {
-	swapped = true;
+	swapped = TRUE;
 	qSwap( *x, *y );
 	swap_pos = y;
       }
