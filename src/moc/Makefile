@@ -4,26 +4,26 @@
 
 ####### Directories
 
-BASEDIR		= $(QTDIR)
-INCDIR		= $(BASEDIR)/include
-LIBDIR		= $(BASEDIR)/lib
+BASEDIR =	$(QTDIR)
+INCDIR	=	$(BASEDIR)/include
+LIBDIR	=	$(BASEDIR)/lib
 
 ####### Compiler
 
-CFLAGS		= -O2
-CC		= gcc
+CFLAGS	=	-O2
+CC	=	gcc
 
-LEX		= flex
-YACC		= yacc -d
+LEX	=	flex
+YACC	=	yacc -d
 
 ####### Files
 
-SOURCES	=	moc.l		moc.y
+SOURCES =	moc.l		moc.y
 LEXOUT	=	lex.yy.c
 YACCOUT =	y.tab.c
-YACCHDR	=	y.tab.h
+YACCHDR =	y.tab.h
 TMPCPP	=	moc.cpp
-TOOLOBJ	=	qbuffer.o	\
+TOOLOBJ =	qbuffer.o	\
 		qcollect.o	\
 		qdatetm.o	\
 		qdstream.o	\
@@ -33,7 +33,7 @@ TOOLOBJ	=	qbuffer.o	\
 		qgvector.o	\
 		qiodev.o	\
 		qstring.o
-OBJECTS	=	moc.o
+OBJECTS =	moc.o
 TARGET	=	moc
 
 ####### Implicit rules
