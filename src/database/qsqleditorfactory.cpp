@@ -37,7 +37,7 @@ QSqlEditorFactory::~QSqlEditorFactory()
 
 QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 {
-    QWidget * w(0);
+    QWidget * w = 0;
 
     switch( v.type() ){
 
