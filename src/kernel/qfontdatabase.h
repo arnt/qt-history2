@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#9 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#10 $
 **
 ** Definition of the QFontDatabase class
 **
@@ -58,10 +58,10 @@ private:
 
     const QStringList &families( bool onlyForLocale = TRUE ) const;
     QStringList styles( const QString &family,
-			       const QString &charSet = QString::null ) const;
-    const QValueList<int> pointSizes( const QString &family,
-				      const QString &style,
-				      const QString &charSet = QString::null );
+			const QString &charSet = QString::null ) const;
+    QValueList<int> pointSizes( const QString &family,
+				const QString &style,
+				const QString &charSet = QString::null );
 
     QFont font( const QString familyName, const QString &style,
 		int pointSize, const QString charSetName = QString::null );
@@ -76,11 +76,11 @@ private:
 		      const QString &style   = QString::null,
 		      const QString &charSet = QString::null ) const;
 
-    const QValueList<int> smoothSizes( const QString &family,
-				      const QString &style,
-				      const QString &charSet = QString::null );
+    QValueList<int> smoothSizes( const QString &family,
+				 const QString &style,
+				 const QString &charSet = QString::null );
 
-    static const QValueList<int> standardSizes();
+    static QValueList<int> standardSizes();
 
     bool italic( const QString &family,
 		 const QString &style,
@@ -96,20 +96,20 @@ private:
 
 
 #if 0
-    const QValueList<QFont::CharSet> charSets( const QString &familyName ) const;
+    QValueList<QFont::CharSet> charSets( const QString &familyName ) const;
     bool  supportsCharSet( const QString &familyName,
 			   const QString &charSet ) const;
     bool  supportsCharSet( const QString &familyName,
 			   QFont::CharSet charSet ) const;
 #endif
 
-const QStringList charSets( const QString &familyName,
-			    bool onlyForLocale = TRUE ) const;
+    QStringList charSets( const QString &familyName,
+			  bool onlyForLocale = TRUE ) const;
 
     QString styleString( const QFont &);
 
-static QString verboseCharSetName( const QString & charSetName );
-static QString charSetSample( const QString & charSetName );
+    static QString verboseCharSetName( const QString & charSetName );
+    static QString charSetSample( const QString & charSetName );
 
 private:
     static void createDatabase();

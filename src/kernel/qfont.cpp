@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#142 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#143 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -981,7 +981,7 @@ QString QFont::encodingName( CharSet cs )
   QApplication::font() instead.
 */
 
-const QFont QFont::defaultFont()
+QFont QFont::defaultFont()
 {
     return QApplication::font();
 }

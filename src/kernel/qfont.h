@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#71 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#72 $
 **
 ** Definition of QFont class
 **
@@ -140,7 +140,7 @@ public:
 
     static QString encodingName( CharSet );
 
-    static const QFont defaultFont();
+    static QFont defaultFont();
     static void setDefaultFont( const QFont & );
 
     static QString substitute( const QString &familyName );

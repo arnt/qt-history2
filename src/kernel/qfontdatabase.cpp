@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#23 $
 **
 ** Implementation of font database class.
 **
@@ -308,7 +308,7 @@ class QtFontFoundry
 public:
     QtFontFoundry( const QString &n ) { nm = n; namesDirty = TRUE; }
 
-    const QString name() const { return nm; }
+    QString name() const { return nm; }
 
     const QStringList &families() const;
     const QtFontFamily *family( const QString &name ) const;
@@ -1649,7 +1649,7 @@ static const QtFontStyle * getStyle( QFontDatabasePrivate *d,
 
 static QValueList<int> emptySizeList;
 
-const QValueList<int> QFontDatabase::pointSizes( const QString &family,
+QValueList<int> QFontDatabase::pointSizes( const QString &family,
 						 const QString &style,
 						 const QString &charSet )
 {
@@ -1677,7 +1677,7 @@ QFont QFontDatabase::font( const QString family, const QString &style,
   is equivalent to pointSizes().
 */
 
-const QValueList<int> QFontDatabase::smoothSizes( const QString &family,
+QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 						  const QString &style,
 						  const QString &charSet )
 {
@@ -1686,7 +1686,7 @@ const QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 }
 
 
-const QValueList<int> QFontDatabase::standardSizes()
+QValueList<int> QFontDatabase::standardSizes()
 {
     return QtFontStyle::standardSizes();
 }
@@ -1715,7 +1715,7 @@ int QFontDatabase::weight( const QString &family,
     return sty ? sty->weight() : -1;
 }
 
-const QStringList QFontDatabase::charSets( const QString &family,
+QStringList QFontDatabase::charSets( const QString &family,
 					   bool onlyForLocale ) const
 {
     const QtFontFamily *fam = d->family( family );
