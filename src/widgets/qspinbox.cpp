@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#14 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -15,6 +15,7 @@
 #include "qpainter.h"
 #include "qkeycode.h"
 #include "qbitmap.h"
+#include "qlined.h"
 
 /*! \class QSpinBox qspinbox.h
 
@@ -26,6 +27,12 @@
   <img src=qspinbox-m.gif> <img src=qspinbox-w.gif>
 */
 
+struct QSpinBoxData {
+    double b, t;
+    int d;
+    double a;
+};
+
 
 /*!  Creates an empty, non-wrapping spin box with TabFocus \link
   setFocusPolicy() focus policy. \endlink.
@@ -36,15 +43,20 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
 {
     d = 0; // not used
     wrap = FALSE;
-    c = 0;
-    l = 0;
     setFocusPolicy( TabFocus );
+
     up = new QPushButton( this, "up" );
-    down = new QPushButton( this, "down" );
     up->setFocusPolicy( QWidget::NoFocus );
-    down->setFocusPolicy( QWidget::NoFocus );
     up->setAutoRepeat( TRUE );
+
+    down = new QPushButton( this, "down" );
+    down->setFocusPolicy( QWidget::NoFocus );
     down->setAutoRepeat( TRUE );
+
+    vi = new QLineEdit( this, "this is not /usr/bin/vi" );
+    vi->setFocusPolicy( QWidget::NoFocus );
+    vi->setFrame( FALSE );
+
     if ( style() == WindowsStyle )
 	setFrameStyle( WinPanel | Sunken );
     else
@@ -53,6 +65,7 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
 
     connect( up, SIGNAL(clicked()), SLOT(next()) );
     connect( down, SIGNAL(clicked()), SLOT(prev()) );
+    connect( vi, SIGNAL(returnPressed()), SLOT(textChanged()) );
 }
 
 
@@ -61,166 +74,37 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
 
 QSpinBox::~QSpinBox()
 {
-    delete l;
-    l = 0;
+    delete d;
 }
 
 
-/*!  Appends a deep copy of \a item to the end of the spin box list.
+/*!  Sets the legal range of the spin box to \a bottom-top inclusive,
+  with \a decimals decimal places.  \a decimals must be at most 8.
+  Here are some examples:
 
-  \sa insert clear()
+  \code
+    s->setRange( 42, 69 ); // integers from 42-69 inclusive
+    s->setRange( 0, 1, 3 ); // 0.000, 0.001, 0.002, ..., 0.999, 1.000
+    s->setRange( 0.1, 360, 1 ); // 0.1, ... 359.8, 359.9, 360.0
+    s->setRange( -32768, 32767 ); // the integers -32768 to 32767 inclusive
+  \endcode
+
+  If you don't set a valid value using setCurrent(), QSpinBox picks
+  one in show() - normally the lowest valid value.
 */
 
-void QSpinBox::append( const char * item )
+void QSpinBox::setRange( double bottom, double top, int decimals )
 {
-    if ( !item )
-	return;
-
-    if ( !l )
-	l = new QStrList;
-
-    l->append( item );
-    enableButtons();
-}
-
-
-/*!  Appends deep copies of \a items to the and of the spin box list.
-
-  \sa insert clear()
-*/
-
-void QSpinBox::append( const char ** items )
-{
-    if ( !items || !*items )
-	return;
-
-    if ( !l )
-	l = new QStrList;
-
-    int i = 0;
-    while ( items[i] )
-	l->append( items[i++] );
-    enableButtons();
-}
-
-
-/*!  Appends deep copies of \a items to the and of the spin box list.
-
-  \sa insert() clear()
-*/
-
-void QSpinBox::append( const QStrList * items )
-{
-    if ( !items || items->count() == 0 )
-	return;
-
-    if ( !l )
-	l = new QStrList;
-
-    QStrListIterator it( *items );
-    const char * tmp;
-    while ( (tmp=it.current()) ) {
-	++it;
-	l->append( tmp );
+    if ( !d )
+	d = new QSpinBoxData;
+    d->b = bottom;
+    d->t = top;
+    d->d = 0;
+    d->a = 1;
+    while ( d->d < 8 && d->d < decimals ) {
+	d->a = d->a / 10;
+	d->d++;
     }
-}
-
-
-/*!  Inserts a deep copy of \a item at position \a index.  The first
-  position is numbered 0.
-
-  The current position is unchanged, so the displayed data may change.
-
-  \sa append() clear() current() text()
-*/
-
-void QSpinBox::insert( const char * item, int index )
-{
-    if ( !item )
-	return;
-
-    if ( !l )
-	l = new QStrList;
-
-    l->insert( index, item );
-    enableButtons();
-    repaint();
-}
-
-
-/*!  Inserts deep copies of \a items starting at position \a index.
-  The first position is numbered 0.
-
-  The current position is unchanged, so the displayed data may change.
-
-  \sa append() clear() current() text()
-*/
-
-void QSpinBox::insert( const char ** items, int index )
-{
-    if ( !items || !*items )
-	return;
-
-    if ( !l )
-	l = new QStrList;
-
-    int i = 0;
-    while ( items[i] )
-	l->insert(  index+i, items[i++] );
-    enableButtons();
-    repaint();
-}
-
-
-/*!  Inserts deep copies of \a items starting at position \a index.
-  The first position is numbered 0.
-
-  The current position is unchanged, so the displayed data may change.
-
-  \sa append() clear() current() text()
-*/
-
-void QSpinBox::insert( const QStrList * items, int index )
-{
-    if ( !items || items->count() == 0 )
-	return;
-
-    if ( !l )
-	l = new QStrList;
-
-    QStrListIterator it( *items );
-    const char * tmp;
-    while ( (tmp=it.current()) ) {
-	++it;
-	l->insert( index++, tmp );
-    }
-    repaint();
-}
-
-
-/*!  Clears the entire list.  This leaves the spin box in limbo
-  until you insert something else it can reasonably display.
-
-  \sa append() insert()
-*/
-
-void QSpinBox::clear()
-{
-    delete l;
-    l = 0;
-    c = 0;
-    enableButtons();
-}
-
-
-/*!  Returns the item at \a index, or 0 if \a index is out of bounds.
-
-  \sa current()
-*/
-
-const char * QSpinBox::text( int index ) const
-{
-    return l ? l->at( index ) : 0;
 }
 
 
@@ -238,48 +122,49 @@ void QSpinBox::setWrapping( bool w )
 
 /*!  \fn bool QSpinBox::wrapping() const
 
-  Returns the most recent setWrapping() value.
+  Returns the current setWrapping() value.
 */
 
 
-/*!  Sets the spin box to display item \a i.
 
-  This function is virtual and is the only way the value ever changes
-  (except in the constructor, of course).
 
-  \sa next() prev() current()
+/*!  Returns the current value of the spin box, or 0 is the current
+  value is unparsable.
 */
 
-void QSpinBox::setCurrent( int i )
+double QSpinBox::current() const
 {
-    if ( c != i ) {
-	c = i;
-	enableButtons();
-	repaint();
-	emit selected( text( i ) );
-    }
+    bool ok = FALSE;
+    double result = QString( vi->text() ).toDouble( &ok );
+    return ok ? result : 0;
 }
 
-/*!  \fn int QSpinBox::current() const
-
-  Returns the most recent setCurrent() value.
-*/
 
 /*!  Moves the spin box to the next value.  This is the same as
   clicking on the pointing-up button, and can be used for e.g.
   keyboard accelerators.
-
-  This function is not virtual, but it calls setCurrent(), which is.
 
   \sa prev(), setCurrent(), current()
 */
 
 void QSpinBox::next()
 {
-    if ( l != 0 && c < count()-1 )
-	setCurrent( c + 1 );
-    else if ( wrapping() )
-	setCurrent( 0 );
+    if ( !d )
+	return;
+
+    bool ok;
+    double c = QString(vi->text()).toDouble( &ok );
+
+    c += d->a;
+
+    QString f;
+    f.sprintf( "%%.%df" );
+    QString s;
+    s.sprintf( f, c );
+    if ( s.toDouble( &ok ) > d->t )
+	c = wrapping() ? d->b : d->t;
+
+    setCurrent( c );
 }
 
 
@@ -287,17 +172,45 @@ void QSpinBox::next()
   clicking on the pointing-down button, and can be used for e.g.
   keyboard accelerators.
 
-  This function is not virtual, but it calls setCurrent(), which is.
-
   \sa next(), setCurrent(), current()
 */
 
 void QSpinBox::prev()
 {
-    if ( c > 0 )
-	setCurrent( c - 1 );
-    else if ( wrapping() && l != 0 )
-	setCurrent( count() - 1 );
+    if ( !d )
+	return;
+
+    bool ok;
+    double c = QString(vi->text()).toDouble( &ok );
+
+    c -= d->a;
+
+    QString f;
+    f.sprintf( "%%.%df" );
+    QString s;
+    s.sprintf( f, c );
+    if ( s.toDouble( &ok ) < d->b )
+	c = wrapping() ? d->t : d->b;
+
+    setCurrent( c );
+}
+
+
+/*!  Sets the current value of the spin box to \a value.  \a value is
+  forced into the legal range.
+*/
+
+void QSpinBox::setCurrent( double value )
+{
+    if ( d && value > d->t )
+	value = d->t;
+    else if ( d && value < d->b )
+	value = d->b;
+    QString f;
+    f.sprintf( "%%.%df" );
+    QString s;
+    s.sprintf( f, value );
+    vi->setText( s );
 }
 
 
@@ -313,58 +226,27 @@ void QSpinBox::prev()
 */
 
 
-/*!  Draws the current value of the spin box using \a p.  The function
-  is called by QFrame::paintEvent() and simply writes the current
-  text and possibly a focus indication.
-*/
-
-void QSpinBox::drawContents( QPainter * p )
-{
-    QRect r = contentsRect();
-    QFontMetrics fm = p->fontMetrics();
-
-    if ( style() == WindowsStyle )
-	p->fillRect( r, colorGroup().base() );
-
-    p->setPen( colorGroup().text() );
-    p->drawText( r.left() + 4,
-		 ( r.height() - fm.height() ) / 2 + fm.ascent() + r.top(),
-		 text( current() ) );
-
-    if ( hasFocus() ) {
-	if ( style() == WindowsStyle ) {
-	    p->drawWinFocusRect( r.left()+1, r.top()+1,
-				 up->pos().x() - r.left() - 2, r.height()-2 );
-	} else {
-	    p->setPen( colorGroup().foreground() );
-	    p->drawRect( r.left()+1, r.top()+1,
-			 up->pos().x() - r.left() - 2, r.height()-2 );
-	}
-    }
-}
-
-
-/*!  Returns a good-looking size for the spin box.  This functions
-  takes into account the font and possible values of the spin box,
-  so it's fairly slow.
+/*!  Returns a good-looking size for the spin box.
 */
 
 QSize QSpinBox::sizeHint() const
-{
+{ // maybe write this around QLineEdit::sizeHint()
     QFontMetrics fm = fontMetrics();
     int h = fm.height();
     if ( h < 22 ) // enough space for the button pixmaps
 	h = 22;
     int w = 40; // never less than 40 pixels for the value
 
-    if ( l && l->first() ) { // find longest string
-	int lw;
-	do {
-	    lw = fm.width( l->current() );
-	    if ( lw > w )
-		w = lw;
-	} while ( l->next() );
+    QString s( "999.99" );
+    if ( d ) {
+	QString f;
+	f.sprintf( "%%.%df", d->d );
+	if ( QABS(d->b) > QABS(d->t) )
+	    s.sprintf( f, d->b );
+	else
+	    s.sprintf( f, d->t );
     }
+    w = fm.width( s );
     
     return QSize( frameWidth() * 2 // right/left frame
 		  + (8*h)/5 // buttons - approximate golden ratio
@@ -377,8 +259,7 @@ QSize QSpinBox::sizeHint() const
 }
 
 
-/*!  Interprets the up and down keys; ignore everything else.
-
+/*!  Interprets the up and down keys; ignores everything else.
 */
 
 void QSpinBox::keyPressEvent( QKeyEvent * e )
@@ -447,6 +328,9 @@ void QSpinBox::resizeEvent( QResizeEvent * e )
 
     up->move( x, frameWidth() );
     down->move( x, height() - frameWidth() - up->height() );
+
+    vi->setGeometry( frameWidth(), frameWidth(),
+		     x - frameWidth(), height() - 2*frameWidth() );
 }
 
 
@@ -456,16 +340,16 @@ void QSpinBox::resizeEvent( QResizeEvent * e )
 
 void QSpinBox::enableButtons()
 {
-    up->setEnabled( l && ( wrapping() || c < count()-1 ) );
-    down->setEnabled( l && ( wrapping() || c > 0 ) );
+    up->setEnabled( wrapping() || (d && current() < d->t) );
+    down->setEnabled( wrapping() || (d && current() > d->b) );
 }
 
 
-/*!
-  Returns the number of items in the spin box.
+/*!  
+
 */
 
-int QSpinBox::count() const
+void QSpinBox::textChanged()
 {
-    return l ? (int)(l->count()) : 0 ;
+    
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#7 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#8 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -15,6 +15,7 @@
 #include "qframe.h"
 
 class QPushButton;
+class QLineEdit;
 struct QSpinBoxData;
 
 
@@ -25,17 +26,9 @@ public:
     QSpinBox( QWidget * parent = 0, const char * name = 0 );
     ~QSpinBox();
 
-    virtual void append( const char * );
-    virtual void append( const char ** );
-    virtual void append( const QStrList * );
-    virtual void insert( const char *, int );
-    virtual void insert( const char **, int );
-    virtual void insert( const QStrList *, int );
-    virtual void clear();
+    virtual void setRange( double bottom, double top, int decimals=0 );
 
-    virtual const char * text( int index ) const;
-    int current() const { return c; }
-    virtual int count() const;
+    double current() const;
 
     virtual void setWrapping( bool w );
     bool wrapping() const { return wrap; }
@@ -43,28 +36,30 @@ public:
     QSize sizeHint() const;
 
 public slots:
-    virtual void setCurrent( int );
+    virtual void setCurrent( double value );
 
-    void next();
-    void prev();
+    virtual void next();
+    virtual void prev();
 
 signals:
-    void selected( const char * );
+    void selected( int );
+    void selected( double );
 
 protected:
-    void drawContents( QPainter * );
     void keyPressEvent( QKeyEvent * );
     void resizeEvent( QResizeEvent * );
 
     void enableButtons();
 
+private slots:
+    void textChanged();
+
 private:
-    int c;
-    QStrList * l;
     struct QSpinBoxData * d;
     bool wrap;
     QPushButton * up;
     QPushButton * down;
+    QLineEdit * vi;
 };
 
 
