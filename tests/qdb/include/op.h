@@ -887,12 +887,12 @@ public:
 
 */
 
-class PushType : public Op
+class PushFieldType : public Op
 {
 public:
-    PushType( const QVariant& id, const QVariant& nameOrNumber )
+    PushFieldType( const QVariant& id, const QVariant& nameOrNumber )
 	: Op( id, nameOrNumber ) {}
-    QString name() const { return "pushtype"; }
+    QString name() const { return "pushfieldtype"; }
     int exec( LocalSQLEnvironment* env )
     {
 	LocalSQLFileDriver* drv = env->fileDriver( p1.toInt() );
