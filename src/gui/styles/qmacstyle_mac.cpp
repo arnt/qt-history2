@@ -278,7 +278,7 @@ void QAquaFocusWidget::paintEvent(QPaintEvent *)
 void QAquaFocusWidget::drawFocusRect(QPainter *p) const
 {
     int fo = focusOutset();
-    if (isQDPainter(p)) {
+    if (isQDPainter(p) || QSysInfo::MacintoshVersion < QSysInfo::MV_10_3) {
         qt_mac_set_port(p);
         QRect r(fo, fo,  width() - (fo*2), height() - (fo*2));
         DrawThemeFocusRect(qt_glb_mac_rect(r, p, TRUE, QRect(1, 1, 1, 1)), true);
