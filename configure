@@ -95,7 +95,6 @@ elif [ -f $relpath/LICENSE.EVAL ]; then
 elif [ -f $relpath/LICENSE.TROLL ]; then
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QNX" = "maybe" ] && PLATFORM_QNX=yes
-    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Edition="troll"
     Licensee="Trolltech"
     Products="qt-internal"
