@@ -94,7 +94,8 @@ int main( int argc, char** argv )
 
     srand(getpid()<<2);
 
-    QFont font("i18n,unifont,cyberbit;helvetica",16,50,FALSE,QFont::Unicode);
+    //QFont font("i18n,unifont,cyberbit;helvetica",16,50,FALSE,QFont::Unicode);
+    QFont font("unifont",16,50,FALSE,QFont::Unicode);
     qApp->setFont(font);
 
     QString lang;
