@@ -171,13 +171,13 @@ bool QLibrary::Private::loadLibrary()
 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
-	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar(library->library(), TRUE) );
+	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar(library->library() + ".dll", TRUE) );
     else
 #endif
-	pHnd = LoadLibraryA(QFile::encodeName(library->library()).data());
+	pHnd = LoadLibraryA(QFile::encodeName( library->library() + ".dll" ).data());
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !pHnd )
-	qSystemWarning( QString("Failed to load library %1!").arg( library->library() ) );
+	qSystemWarning( QString("Failed to load library %1.dll!").arg( library->library() ) );
 #endif
 
     return pHnd != 0;
@@ -222,10 +222,10 @@ bool QLibrary::Private::loadLibrary()
 	return TRUE;
 
     shl_t handle = new shl_t;
-    *handle = shl_load( library->library().latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
+    *handle = shl_load( QString( library->library() + ".so" ).latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !handle )
-	qDebug( "Failed to load library %1!", library->library().latin1() );
+	qDebug( "Failed to load library %1.so!", library->library().latin1() );
 #endif
     pHnd = (void*)handle;
     return pHnd != 0;
@@ -293,15 +293,15 @@ bool QLibrary::Private::loadLibrary()
 
     if(!glibs_loaded)
 	glibs_loaded = new QDict<void>();
-    else if( ( pHnd = glibs_loaded->find(library->library()) ))
+    else if( ( pHnd = glibs_loaded->find(library->library() ) ))
 	return TRUE;
 
 #ifdef DO_MAC_LIBRARY
     NSObjectFileImage img;
-    if( NSCreateObjectFileImageFromFile(library->library(), &img)  != NSObjectFileImageSuccess )
+    if( NSCreateObjectFileImageFromFile(library->library() + ".dylib", &img)  != NSObjectFileImageSuccess )
 	return FALSE;
 
-    pHnd = (void *)NSLinkModule(img, library->library(), NSLINKMODULE_OPTION_PRIVATE);
+    pHnd = (void *)NSLinkModule(img, library->library() + ".dylib", NSLINKMODULE_OPTION_PRIVATE);
     if ( pHnd ) {
 	glibs_loaded->insert( library->library(), pHnd ); //insert it in the loaded hash
 	return pHnd;
@@ -374,7 +374,7 @@ bool QLibrary::Private::loadLibrary()
     if ( pHnd )
 	return TRUE;
 
-    pHnd = dlopen( library->library(), RTLD_LAZY );
+    pHnd = dlopen( QString( library->library() + ".so" ) , RTLD_LAZY );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !pHnd )
 	qWarning( dlerror() );
@@ -441,6 +441,8 @@ void* QLibrary::Private::resolveSymbol( const char* f )
   Creates a QLibrary object for the shared library \a filename.
   The library get's loaded if \a pol is Immediately.
 
+  Note that \a filename must not include the (platform specific) file extension.
+
   \sa setPolicy(), unload()
 */
 QLibrary::QLibrary( const QString& filename, Policy pol )
@@ -481,8 +483,7 @@ QLibrary::~QLibrary()
   \warning
   This function gets called automatically by queryInterface, you should never need
   to call this function. The returned interface is not referenced explicitely, and
-  you should not call \link QUnknownInterface::release release \endlink on the returned
-  interface.
+  you must not call \link QUnknownInterface::release release \endlink it.
 
   \sa setPolicy(), unload(), resolve
 */
@@ -491,23 +492,19 @@ QUnknownInterface* QLibrary::createInstance()
     if ( libfile.isEmpty() )
 	return 0;
 
-    if ( !d->pHnd )
+    if ( !d->pHnd ) {
+	Q_ASSERT( entry == 0 );
 	d->loadLibrary();
+    }
 
     if ( d->pHnd && !entry ) {
 #if QT_DEBUG_COMPONENT == 2
 	qDebug( "%s has been loaded.", libfile.latin1() );
 #endif
-	typedef QUnknownInterface* (*QtLoadInfoProc)();
-	QtLoadInfoProc infoProc;
-	infoProc = (QtLoadInfoProc) d->resolveSymbol( "qt_load_interface" );
-	if ( !infoProc )
-	    infoProc = (QtLoadInfoProc) d->resolveSymbol( "_qt_load_interface" );
-#if QT_DEBUG_COMPONENT == 2
-	if ( !infoProc )
-	    qDebug( "%s: Symbol \"qt_load_interface\" not found.", libfile.latin1() );
-#endif
-	entry = infoProc ? infoProc() : 0;
+	typedef QUnknownInterface* (*UCMProc)();
+	UCMProc ucmProc;
+	ucmProc = (UCMProc) resolve( "qt_load_interface" );
+	entry = ucmProc ? ucmProc() : 0;
 	if ( entry ) {
 	    if ( ( d->libIface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface ) ) ) {
 		if ( !d->libIface->init() ) {
@@ -529,11 +526,6 @@ QUnknownInterface* QLibrary::createInstance()
 	    unload();
 	}
     }
-#if QT_DEBUG_COMPONENT == 2
-    else {
-	qDebug( "%s could not be loaded.", libfile.latin1() );
-    }
-#endif
 
     return entry;
 }
@@ -541,7 +533,7 @@ QUnknownInterface* QLibrary::createInstance()
 /*!
   Returns the address of the exported symbol \a symb. The library gets
   loaded if necessary. The function returns NULL if the symbol could
-  not be resolved or the library not be loaded.
+  not be resolved, or if loading the library failed.
 
   \code
   typedef int (*addProc)( int, int );
@@ -569,7 +561,7 @@ void *QLibrary::resolve( const char* symb )
 }
 
 /*!
-  Returns TRUE if the library is loaded.
+  Returns whether the library is loaded.
 
   \sa unload
 */

@@ -55,24 +55,31 @@ template<class Type>
 class Q_EXPORT QInterfaceManager
 {
 public:
-    QInterfaceManager( const QUuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so; *.dylib", QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+    QInterfaceManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 	: interfaceId( id ), plugDict( 17, cs ), defPol( pol ), casesens( cs )
     {
 	// Every QLibrary object is destroyed on destruction of the manager
 	libDict.setAutoDelete( TRUE );
 	if ( !path.isEmpty() )
-	    addLibraryPath( path, filter );
+	    addLibraryPath( path );
     }
 
-    void addLibraryPath( const QString& path, const QString& filter = "*.dll; *.so; *.dylib" )
+    void addLibraryPath( const QString& path )
     {
 	if ( !QDir( path ).exists( ".", TRUE ) )
 	    return;
-
-	QStringList plugins = QDir(path).entryList( filter );
-
+	
+#if defined(Q_OS_WIN32)
+	QString filter = "dll";
+#elif defined(Q_OS_UNIX)
+	QString filter = "so";
+#elif defined(Q_OS_MACX)
+	QString filter = "dylib";
+#endif
+	QStringList plugins = QDir(path).entryList( "*." + filter );
 	for ( QStringList::Iterator p = plugins.begin(); p != plugins.end(); ++p ) {
 	    QString lib = path + "/" + *p;
+	    lib = lib.left( lib.length() - filter.length() - 1 );
 	    libList.append( lib );
 
 	    if ( defPol == QLibrary::Immediately ) {
@@ -84,7 +91,7 @@ public:
 
     QLibrary* addLibrary( const QString& file )
     {
-	if ( file.isEmpty() || !QFile::exists( file ) )
+	if ( file.isEmpty() )
 	    return 0;
 
 	QLibrary *plugin = 0;
