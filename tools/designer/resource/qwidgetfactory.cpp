@@ -234,10 +234,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		continue;
 	    if ( cit.key()->inherits( "QDesignerDataBrowser" ) )
 		( (QDesignerDataBrowser*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
- 	    else if ( cit.key()->inherits( "QDesignerDataView" ) )
- 		( (QDesignerDataView*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+	    else if ( cit.key()->inherits( "QDesignerDataView" ) )
+		( (QDesignerDataView*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
 	}
-	
+
 	for ( QMap<QString, QStringList>::Iterator it = widgetFactory->dbTables.begin(); it != widgetFactory->dbTables.end(); ++it ) {
 	    QDataTable *table = (QDataTable*)widgetFactory->toplevel->child( it.key(), "QDataTable" );
 	    if ( !table )
@@ -253,11 +253,11 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		c = new QSqlCursor( (*it)[ 1 ] );
 	    } else {
 		db = QSqlDatabase::database( conn );
-		c = new QSqlCursor( (*it)[ 1 ], conn );
+		c = new QSqlCursor( (*it)[ 1 ], TRUE, db );
 	    }
 	    if ( db ) {
 		table->setCursor( c, fieldMap.isEmpty(), TRUE );
-		table->refresh();  //## don't like this, should be done automatically, or elsewhere?
+		table->refresh( QDataTable::RefreshAll );
 	    }
 	}
 #endif
@@ -1187,8 +1187,12 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 	bool isRow;
 	if ( ( isRow = e.tagName() == "row" ) )
 	    table->setNumRows( table->numRows() + 1 );
-	else
-	    table->setNumCols( table->numCols() + 1 );
+	else {
+#ifndef QT_NO_SQL
+	    if ( !isSql )
+#endif
+		table->setNumCols( table->numCols() + 1 );
+	}
 
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
@@ -1227,8 +1231,9 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 		h->setLabel( i, pix, txt );
 	} else {
 #ifndef QT_NO_SQL
-	    if ( isSql )
+	    if ( isSql ) {
 		((QDataTable*)table)->addColumn( field, txt );
+	    }
 	    else
 #endif
 		h->setLabel( i, txt );

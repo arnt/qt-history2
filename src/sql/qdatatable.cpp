@@ -105,6 +105,19 @@ public:
   </ul>
 */
 
+/*! \enum QDataTable::Refresh
+
+  This enum type describes edit confirmations.
+
+  The currently defined values are:
+
+  <ul>
+  <li> \c Data
+  <li> \c Column
+  <li> \c All
+  </ul>
+*/
+
 
 /*!
   \class QDataTable qdatatable.h
@@ -220,6 +233,7 @@ QDataTable::~QDataTable()
 
 void QDataTable::addColumn( const QString& fieldName, const QString& label, const QIconSet& iconset )
 {
+    qDebug("adding col:" + fieldName + " label:" + label);
     d->fld += fieldName;
     d->fldLabel += label;
     d->fldIcon += iconset;
@@ -580,9 +594,8 @@ void QDataTable::resizeEvent ( QResizeEvent * e )
 
 void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 {
-    if ( d->dat.mode() != QSql::None ) {
+    if ( d->dat.mode() != QSql::None )
 	endEdit( d->editRow, d->editCol, TRUE, FALSE );
-    }
     if ( !sqlCursor() ) {
 	QTable::contentsMousePressEvent( e );
 	return;
@@ -1728,26 +1741,35 @@ void QDataTable::sortDescending( int col )
 }
 
 /*! Refreshes the table.  If there is no currently defined cursor (see
-  setCursor()), nothing happens.  If there is a currently defined
-  cursor, and \a refreshCursor is TRUE, the cursor() is refreshed.  If
-  there are currently defined columns, and \a refreshColumns is TRUE,
-  the table column header is refreshed.  Otherwise, only the table
-  data is refreshed according to the currently defined columns (see
-  addColumn())
+  setCursor()), nothing happens. The \mode paramaeter describes the
+  type of refresh that will take place.
 
-  \sa setCursor() addColumn()
+  \sa Refresh setCursor() addColumn()
 */
 
-void QDataTable::refresh( bool refreshCursor, bool refreshColumns )
+void QDataTable::refresh( QDataTable::Refresh mode )
 {
     QSqlCursor* cur = sqlCursor();
     if ( !cur )
 	return;
+    qDebug("refresh mode:" + QString::number( mode ) );
+    bool refreshData = ( (mode & RefreshData) == RefreshData );
+    bool refreshCol = ( (mode & RefreshColumns) == RefreshColumns );
+    if ( ( (mode & RefreshAll) == RefreshAll ) ) {
+	refreshData = TRUE;
+	refreshCol = TRUE;
+    }
+    //##
+    if ( refreshData )
+	qDebug("QDataTable refreshing data");
+    if ( refreshCol )
+	qDebug("QDataTable refreshing cols");
+
     viewport()->setUpdatesEnabled( FALSE );
     d->haveAllRows = FALSE;
-    if ( refreshCursor )
+    if ( refreshData )
 	d->cur.refresh();
-    if ( refreshColumns ) {
+    if ( refreshCol ) {
 	setNumCols( 0 );
 	d->colIndex.clear();
 	if ( d->fld.count() ) {
@@ -1786,12 +1808,12 @@ void QDataTable::refresh( bool refreshCursor, bool refreshColumns )
 
   Refreshes the table.  The cursor is refreshed using the current
   filter, the current sort, and the currently defined columns.
-  Equivalent to calling refresh( TRUE, TRUE ).
+  Equivalent to calling refresh( QDataTable::RefreshAll ).
 */
 
 void QDataTable::refresh()
 {
-    refresh( TRUE, TRUE );
+    refresh( RefreshData );
 }
 
 /*!  \reimp

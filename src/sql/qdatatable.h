@@ -116,7 +116,12 @@ public:
     virtual void setSort( const QStringList& sort );
     virtual void setSort( const QSqlIndex& sort );
 
-    void         refresh( bool refreshCursor, bool refreshColumns );
+    enum Refresh {
+	RefreshData = 1,
+	RefreshColumns = 2,
+	RefreshAll = 3,
+    };
+    void         refresh( Refresh mode );
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
     QString      text ( int row, int col ) const;
