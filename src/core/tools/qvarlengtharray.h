@@ -33,7 +33,7 @@ public:
     inline int size() const { return s; }
     inline bool isEmpty() const { return (s == 0); }
     inline void resize(int size) {
-	if (size > s) realloc(size, qMax(size,a));
+	realloc(size, qMax(size,a));
     }
 
     void reserve(int size) {
