@@ -482,8 +482,10 @@ bool QPainter::end()				// end painting
     if ( testf( FontInf ) )                       // remove references to this
         QFontInfo::reset( this );
 
+#if 0
     if ( pdev->devType() == QInternal::Pixmap )
 	UnlockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle()));
+#endif
 
     //reset the value we got in begin()
     delete saved;
@@ -1645,7 +1647,9 @@ void QPainter::initPaintDevice(bool force) {
 
 	//setup the gworld
 	SetGWorld((GWorldPtr)pm->handle(),0);
+#if 0
 	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+#endif
 
 	//clip out my bounding rect
 	clippedreg = QRegion(0, 0, pm->width(), pm->height());
