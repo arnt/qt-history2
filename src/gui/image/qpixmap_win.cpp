@@ -26,10 +26,9 @@
 
 extern const uchar *qt_get_bitflip_array();                // defined in qimage.cpp
 
-#define DATA_HBM         data->hbm_or_mcpi.hbm
-#define DATA_MCPI         data->hbm_or_mcpi.mcpi
-#define DATA_MCPI_MCP         data->hbm_or_mcpi.mcpi->mcp
-#define DATA_MCPI_OFFSET data->hbm_or_mcpi.mcpi->offset
+#define DATA_MCPI         data->mcpi
+#define DATA_MCPI_MCP         data->mcpi->mcp
+#define DATA_MCPI_OFFSET data->mcpi->offset
 
 static bool mcp_system_unstable = false;
 
@@ -68,7 +67,7 @@ public:
         return n.offset == 0 && n.size == max_height;
     }
     QPixmap *sharedPixmap() const { return pixmap; }
-    HDC             handle()            const { return pixmap->winHDC(); }
+//    HDC             handle()            const { return pixmap->winHDC(); }
     HBITMAP  hbm()            const { return pixmap->hbm(); }
     int             allocCell(int height);
     void     freeCell(int offset, int height);
@@ -77,6 +76,9 @@ private:
     QPixmap          *pixmap;
     int                   max_height;
     FreeList free_list;
+
+public:
+    QPixmapData::MemDC mem_dc;
 };
 
 struct QMCPI { // mem optim for win9x
@@ -84,36 +86,19 @@ struct QMCPI { // mem optim for win9x
     int offset;
 };
 
-static inline HDC alloc_mem_dc(HBITMAP hbm, HBITMAP *old_hbm)
-{
-    HDC hdc = CreateCompatibleDC(qt_display_dc());
-    if (!hdc) {
-        qSystemWarning("alloc_mem_dc: CreateCompatibleDC failed");
-        return hdc;
-    }
-    HPALETTE hpal = QColormap::hPal();
-    if (hpal) {
-        SelectPalette(hdc, hpal, false);
-        RealizePalette(hdc);
-    }
-    *old_hbm = (HBITMAP)SelectObject(hdc, hbm);
-    return hdc;
-}
+inline HBITMAP QPixmapData::bm() const { return mcp ? mcpi->mcp->hbm() : hbm; }
 
 void QPixmap::initAlphaPixmap(uchar *bytes, int length, BITMAPINFO *bmi)
 {
     if (data->mcp)
         freeCell(true);
-    if (!data->hd)
-        data->hd = alloc_mem_dc(0, &data->old_hbm);
+    DeleteObject(data->bm());
 
-    HBITMAP hBitmap = CreateDIBSection((HDC)data->hd, bmi, DIB_RGB_COLORS, (void**)&data->realAlphaBits, NULL, 0);
+    HDC hdc = GetDC(0);
+    data->hbm = CreateDIBSection(hdc, bmi, DIB_RGB_COLORS, (void**)&data->realAlphaBits, NULL, 0);
+    ReleaseDC(0, hdc);
     if (bytes)
         memcpy(data->realAlphaBits, bytes, length);
-
-    DeleteObject(SelectObject((HDC)data->hd, data->old_hbm));
-    data->old_hbm = (HBITMAP)SelectObject((HDC)data->hd, hBitmap);
-    DATA_HBM = hBitmap;
 }
 
 void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
@@ -144,9 +129,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     else if (d < 0 || d == dd)                // compatible pixmap
         data->d = dd;
     if (make_null || w < 0 || h < 0 || data->d == 0) {
-        data->hd = 0;
-        DATA_HBM = 0;
-        data->old_hbm = 0;
+        data->hbm = 0;
         if (!make_null)                        // invalid parameters
             qWarning("QPixmap: Invalid pixmap parameters");
         return;
@@ -154,16 +137,15 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->w = w;
     data->h = h;
     if (data->optim == MemoryOptim && (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
-        data->hd = 0;
         if (allocCell() >= 0)                        // successful
             return;
     }
 
 #ifndef Q_OS_TEMP
     if (data->d == dd)                        // compatible bitmap
-        DATA_HBM = CreateCompatibleBitmap(qt_display_dc(), w, h);
+        data->hbm = CreateCompatibleBitmap(qt_display_dc(), w, h);
     else                                        // monocrome bitmap
-        DATA_HBM = CreateBitmap(w, h, 1, 1, 0);
+        data->hbm = CreateBitmap(w, h, 1, 1, 0);
 #else
         // WinCE must use DIBSections instead of Compatible Bitmaps
         // so it's possible to get the colortable at a later point.
@@ -225,14 +207,12 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
                                      0);
         delete [] bmi_data;
 #endif
-    if (!DATA_HBM) {
+    if (!data->hbm) {
         data->w = 0;
         data->h = 0;
-        data->hd = 0;
         qSystemWarning("QPixmap: Pixmap allocation failed");
         return;
     }
-    data->hd = alloc_mem_dc(DATA_HBM, &data->old_hbm);
 }
 
 
@@ -244,7 +224,7 @@ void QPixmap::deref()
                 data->mcp = false;
                 delete DATA_MCPI;
                 DATA_MCPI = 0;
-                DATA_HBM  = 0;
+                data->hbm = 0;
             } else {
                 freeCell(true);
             }
@@ -253,14 +233,9 @@ void QPixmap::deref()
             delete data->mask;
         if (data->maskpm)
             delete data->maskpm;
-        if (DATA_HBM) {
-            DeleteObject((data->hd ? SelectObject((HDC)data->hd, data->old_hbm) : (HGDIOBJ)DATA_HBM));
-            DATA_HBM = 0;
-            data->old_hbm = 0;
-        }
-        if (data->hd) {
-            DeleteDC((HDC)data->hd);
-            data->hd = 0;
+        if (data->hbm) {
+            DeleteObject(data->hbm);
+            data->hbm = 0;
         }
         delete data->paintEngine;
         delete data;
@@ -312,7 +287,7 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     }
 
 #ifndef Q_OS_TEMP
-    DATA_HBM = CreateBitmap(w, h, 1, 1, newbits);
+    data->hbm = CreateBitmap(w, h, 1, 1, newbits);
 #else
     // WinCE must use DIBSections instead of Compatible Bitmaps
     // so it's possible to get the colortable at a later point.
@@ -344,7 +319,6 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     memcpy(data->ppvBits, newbits, bpl*h);
 #endif
 
-    data->hd = alloc_mem_dc(DATA_HBM, &data->old_hbm );
     delete [] newbits;
     if (defOptim != NormalOptim)
         setOptimization(defOptim);
@@ -399,25 +373,19 @@ void QPixmap::fill(const QColor &fillColor)
     if (isNull())
         return;
     detach();                                        // detach other references
-    HDC dc;
-    int sy;
-    if (data->mcp) {                                // multi-cell pixmap
-        dc = DATA_MCPI_MCP->handle();
-        sy = DATA_MCPI_OFFSET;
-    } else {
-        dc = (HDC)data->hd;
-        sy = 0;
-    }
+
+    HDC dc = getDC();
     if (fillColor == Qt::black) {
-        PatBlt(dc, 0, sy, data->w, data->h, BLACKNESS);
+        PatBlt(dc, 0, 0, data->w, data->h, BLACKNESS);
     } else if (fillColor == Qt::white) {
-        PatBlt(dc, 0, sy, data->w, data->h, WHITENESS);
+        PatBlt(dc, 0, 0, data->w, data->h, WHITENESS);
     } else {
         HBRUSH hbrush = CreateSolidBrush(fillColor.pixel());
         HBRUSH hb_old = (HBRUSH)SelectObject(dc, hbrush);
-        PatBlt(dc, 0, sy, width(), height(), PATCOPY);
+        PatBlt(dc, 0, 0, data->w, data->h, PATCOPY);
         DeleteObject(SelectObject(dc, hb_old));
     }
+    releaseDC(dc);
 }
 
 
@@ -429,14 +397,12 @@ int QPixmap::metric(int m) const
         return height();
     } else {
         int val;
-        HDC dc;
+        HDC dc = GetDC(0);
         QPixmap *spm;
         if (data->mcp) {
             spm = DATA_MCPI_MCP->sharedPixmap();
-            dc  = spm->winHDC();
         } else {
             spm = 0;
-            dc  = winHDC();
         }
         switch (m) {
             case QPaintDeviceMetrics::PdmDpiX:
@@ -463,13 +429,13 @@ int QPixmap::metric(int m) const
                 if (GetDeviceCaps(dc, RASTERCAPS) & RC_PALETTE)
                     val = GetDeviceCaps(dc, SIZEPALETTE);
                 else {
-                    int bpp = GetDeviceCaps((HDC)data->hd, BITSPIXEL);
+                    int bpp = GetDeviceCaps(dc, BITSPIXEL);
                     if(bpp==32)
                         val = INT_MAX;
                     else if(bpp<=8)
-                        val = GetDeviceCaps((HDC)data->hd, NUMCOLORS);
+                        val = GetDeviceCaps(dc, NUMCOLORS);
                     else
-                        val = 1 << (bpp * GetDeviceCaps((HDC)data->hd, PLANES));
+                        val = 1 << (bpp * GetDeviceCaps(dc, PLANES));
                 }
                 break;
             case QPaintDeviceMetrics::PdmDepth:
@@ -479,6 +445,7 @@ int QPixmap::metric(int m) const
                 val = 0;
                 qWarning("QPixmap::metric: Invalid metric command");
         }
+        ReleaseDC(0, dc);
         return val;
     }
 }
@@ -569,7 +536,7 @@ QImage QPixmap::convertToImage() const
     if (mcp)                                        // disable multi cell
         ((QPixmap*)this)->freeCell();
 
-    GetDIBits(qt_display_dc(), DATA_HBM, 0, h, image.bits(), bmi, DIB_RGB_COLORS);
+    GetDIBits(qt_display_dc(), data->bm(), 0, h, image.bits(), bmi, DIB_RGB_COLORS);
 
     // Opaque images need to have alpha channel set to 0xff. Windows ignores
     // this, but we need it for platform consistancy. (OpenGL conversion
@@ -833,15 +800,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
         r->rgbReserved = 0;
     }
 
-    HDC dc;
-    int sy;
-    if (data->mcp) {
-        dc = DATA_MCPI_MCP->handle();
-        sy = DATA_MCPI_OFFSET;
-    } else {
-        dc = winHDC();
-        sy = 0;
-    }
+    HDC dc = getDC();
 
 #ifndef Q_OS_TEMP
     if (hasRealAlpha) {
@@ -878,9 +837,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 
     if (data->realAlphaBits == 0) {
 #ifndef Q_OS_TEMP
-        if (dc)
-            StretchDIBits(dc, 0, sy, w, h, 0, 0, w, h,
-                           image.bits(), bmi, DIB_RGB_COLORS, SRCCOPY);
+        StretchDIBits(dc, 0, 0, w, h, 0, 0, w, h, image.bits(), bmi, DIB_RGB_COLORS, SRCCOPY);
 #else
         DeleteObject(DATA_HBM);
         HDC hdcSrc = handle();
@@ -898,6 +855,8 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
         m = img.createAlphaMask(conversion_flags);
         setMask(m);
     }
+
+    releaseDC(dc);
 
     delete [] bmi_data;
     data->uninit = false;
@@ -921,18 +880,13 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
             h = (r.bottom - r.top);
     }
     QPixmap pm(w, h);
-    HDC dc;
-    int sy;
-    if (pm.data->mcp) {
-        dc = pm.DATA_MCPI_MCP->handle();
-        sy = pm.DATA_MCPI_OFFSET;
-    } else {
-        dc = pm.winHDC();
-        sy = 0;
-    }
+    HDC dc = pm.getDC();
+
     HDC src_dc = GetDC(window);
-    BitBlt(dc, 0, sy, w, h, src_dc, x, y, SRCCOPY);
+    BitBlt(dc, 0, 0, w, h, src_dc, x, y, SRCCOPY);
     ReleaseDC(window, src_dc);
+
+    pm.releaseDC(dc);
     return pm;
 }
 
@@ -956,8 +910,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
 
     QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
 
-    if (matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
-         matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F) {
+    if (matrix.m12() == 0.0F  && matrix.m21() == 0.0F && matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F) {
         if (mat.m11() == 1.0F && mat.m22() == 1.0F)
             return *this;                        // identity matrix
 
@@ -970,35 +923,20 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
             // as the handle might change if this is a multicell pixmap that gets
             // expanded by the constructor in the line below.
             QPixmap pm(w, h, depth(), optimization());
-            HDC dc;
-            int sy;
-            if (data->mcp) {
-                dc = DATA_MCPI_MCP->handle();
-                sy = DATA_MCPI_OFFSET;
-            } else {
-                dc = winHDC();
-                sy = 0;
-            }
-            HDC pm_dc;
-            int pm_sy;
-            if (pm.data->mcp) {
-                pm_dc = pm.multiCellHandle();
-                pm_sy = pm.multiCellOffset();
-            } else {
-                pm_dc = pm.winHDC();
-                pm_sy = 0;
-            }
+            HDC dc = getDC();
+            HDC pm_dc = pm.getDC();
+
 #ifndef Q_OS_TEMP
             SetStretchBltMode(pm_dc, COLORONCOLOR);
 #endif
-            StretchBlt(pm_dc, 0, pm_sy, w, h,        // scale the pixmap
-                    dc, 0, sy, ws, hs, SRCCOPY);
+            StretchBlt(pm_dc, 0, 0, w, h, dc, 0, 0, ws, hs, SRCCOPY);
             if (data->mask) {
-                QBitmap bm =
-                    data->selfmask ? *((QBitmap*)(&pm)) :
-                    data->mask->xForm(matrix);
+                QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
                 pm.setMask(bm);
             }
+
+            releaseDC(dc);
+            pm.releaseDC(pm_dc);
             return pm;
         }
     } else {
@@ -1064,7 +1002,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
         memcpy(sptr, data->realAlphaBits, sbpl*hs);
         result = 1;
     } else {
-        result = GetDIBits(qt_display_dc(), DATA_HBM, 0, hs, sptr, bmi, DIB_RGB_COLORS);
+        result = GetDIBits(qt_display_dc(), data->bm(), 0, hs, sptr, bmi, DIB_RGB_COLORS);
     }
 #else
     if (data->realAlphaBits) {
@@ -1117,15 +1055,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
     delete [] sptr;
 
     QPixmap pm(w, h, depth(), data->bitmap, optimization());
-    HDC pm_dc;
-    int pm_sy;
-    if (pm.data->mcp) {
-        pm_dc = pm.multiCellHandle();
-        pm_sy = pm.multiCellOffset();
-    } else {
-        pm_dc = pm.winHDC();
-        pm_sy = 0;
-    }
+    HDC pm_dc = pm.getDC();
     pm.data->uninit = false;
     bmh->biWidth  = w;
     bmh->biHeight = -h;
@@ -1134,7 +1064,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
         pm.initAlphaPixmap(dptr, dbytes, bmi);
     } else {
 #ifndef Q_OS_TEMP
-        SetDIBitsToDevice(pm_dc, 0, pm_sy, w, h, 0, 0, 0, h, dptr, bmi, DIB_RGB_COLORS);
+        SetDIBitsToDevice(pm_dc, 0, 0, w, h, 0, 0, 0, h, dptr, bmi, DIB_RGB_COLORS);
 #else
         DeleteObject(pm.DATA_HBM);
         HDC hdcSrc = pm.handle();
@@ -1146,13 +1076,15 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
         pm.DATA_HBM = hBitmap;
 #endif
     }
+ 
     delete [] bmi_data;
     delete [] dptr;
     if (data->mask) {
-        QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) :
-                                     data->mask->xForm(matrix);
+        QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
         pm.setMask(bm);
     }
+
+    pm.releaseDC(pm_dc);
     return pm;
 }
 
@@ -1162,7 +1094,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
 */
 HBITMAP QPixmap::hbm() const
 {
-    return data->mcp ? 0 : data->hbm_or_mcpi.hbm;
+    return data->mcp ? 0 : data->hbm;
 }
 
 /*!
@@ -1172,19 +1104,6 @@ HBITMAP QPixmap::hbm() const
 bool QPixmap::isMultiCellPixmap() const
 {
     return data->mcp;
-}
-
-HDC QPixmap::winHDC() const
-{
-    return (HDC)data->hd;
-}
-
-/*!
-  \internal
-*/
-HDC QPixmap::multiCellHandle() const
-{
-    return data->mcp ? DATA_MCPI_MCP->handle() : 0;
 }
 
 /*!
@@ -1378,14 +1297,29 @@ int QPixmap::allocCell()
         }
         list->append(mcp);
     }
-    if (data->hd) {                                // copy into multi cell pixmap
-        BitBlt(mcp->handle(), 0, offset, width(), height(), (HDC)data->hd,
-               0, 0, SRCCOPY);
-        DeleteDC((HDC)data->hd);
-        data->hd = 0;
-        DeleteObject(DATA_HBM);
-        DATA_HBM = 0;
+
+    HDC dc = getDC();
+
+    HDC mcp_dc = mcp->mem_dc.hdc;
+    HGDIOBJ old_mcp_bm;
+    if (!mcp->mem_dc.hdc) {
+        mcp_dc = mcp->mem_dc.hdc ? mcp->mem_dc.hdc : CreateCompatibleDC(0);
+        old_mcp_bm = SelectObject(mcp_dc, mcp->hbm());
+    } else {
+        SetViewportOrgEx(mcp_dc, 0, 0, NULL);
     }
+    // copy into multi cell pixmap
+    BitBlt(mcp_dc, 0, offset, width(), height(), dc, 0, 0, SRCCOPY);
+
+    releaseDC(dc);
+    if(!mcp->mem_dc.hdc) {
+        SelectObject(mcp_dc, old_mcp_bm);
+        DeleteDC(mcp_dc);
+    }
+
+    DeleteObject(data->hbm);
+    data->hbm = 0;
+
     data->mcp = true;
     DATA_MCPI = new QMCPI;
     DATA_MCPI_MCP = mcp;
@@ -1406,16 +1340,28 @@ void QPixmap::freeCell(bool terminate)
     data->mcp = false;
     delete DATA_MCPI;
     DATA_MCPI = 0;
-    Q_ASSERT(data->hd == 0);
     if (terminate) {                                // pixmap is being destroyed
-        DATA_HBM = 0;
+        data->hbm = 0;
     } else {
         if (data->d == defaultDepth())
-            DATA_HBM = CreateCompatibleBitmap(qt_display_dc(), data->w, data->h);
+            data->hbm = CreateCompatibleBitmap(qt_display_dc(), data->w, data->h);
         else
-            DATA_HBM = CreateBitmap(data->w, data->h, 1, 1, 0);
-        data->hd = alloc_mem_dc(DATA_HBM, &data->old_hbm);
-        BitBlt((HDC)data->hd, 0, 0, data->w, data->h, mcp->handle(), 0, offset, SRCCOPY);
+            data->hbm = CreateBitmap(data->w, data->h, 1, 1, 0);
+        HDC hdc = getDC();
+        HDC mcp_dc = mcp->mem_dc.hdc;
+        HGDIOBJ old_mcp_bm;
+        if (!mcp->mem_dc.hdc) {
+            mcp_dc = mcp->mem_dc.hdc ? mcp->mem_dc.hdc : CreateCompatibleDC(0);
+            old_mcp_bm = SelectObject(mcp_dc, mcp->hbm());
+        } else {
+            SetViewportOrgEx(mcp_dc, 0, 0, NULL);
+        }
+        BitBlt(hdc, 0, 0, data->w, data->h, mcp_dc, 0, offset, SRCCOPY);
+        releaseDC(hdc);
+        if(!mcp->mem_dc.hdc) {
+            SelectObject(mcp_dc, old_mcp_bm);
+            DeleteDC(mcp_dc);
+        }
     }
     mcp->freeCell(offset, data->h);
     if (mcp->isEmpty()) {                        // no more cells left
@@ -1490,4 +1436,55 @@ QPaintEngine *QPixmap::paintEngine() const
     if (!data->paintEngine)
         data->paintEngine = new QWin32PaintEngine();
     return data->paintEngine;
+}
+
+
+/*!
+    Returns the window system handle of the widget, for low-level
+    access. Using this function is not portable.
+
+    An HDC aquired with getDC() has to be released with releaseDC().
+*/
+HDC QPixmap::getDC() const
+{
+    QPixmapData::MemDC *mem_dc = data->mcp ? &data->mcpi->mcp->mem_dc : &data->mem_dc;
+
+    if(!mem_dc->hdc) {
+        mem_dc->hdc = CreateCompatibleDC(0);
+        if (!mem_dc->hdc) {
+            qSystemWarning("alloc_mem_dc: CreateCompatibleDC failed");
+            return 0;
+        }
+        HPALETTE hpal = QColormap::hPal();
+        if (hpal) {
+            SelectPalette(mem_dc->hdc, hpal, false);
+            RealizePalette(mem_dc->hdc);
+        }
+        mem_dc->bm = (HBITMAP)SelectObject(mem_dc->hdc, data->bm());
+    }
+    if (data->mcp) 
+        SetViewportOrgEx(mem_dc->hdc, 0, data->mcpi->offset, NULL);
+    ++mem_dc->ref;
+    return mem_dc->hdc;
+}
+
+/*!
+    Releases the HDC aquired by a previous call to getDC().
+    Using this function is not portable.
+*/
+void QPixmap::releaseDC(HDC hdc) const
+{
+    QPixmapData::MemDC *mem_dc = data->mcp ? &data->mcpi->mcp->mem_dc : &data->mem_dc;
+
+    if(hdc != mem_dc->hdc) {
+        qWarning("QPixmap::releaseDC(): releasing wrong DC");
+        return;
+    }
+    --mem_dc->ref;
+    if(mem_dc->ref == 0) {
+        SelectObject(mem_dc->hdc, mem_dc->bm);
+        DeleteDC(mem_dc->hdc);
+        mem_dc->hdc = 0;
+        mem_dc->bm = 0;
+    }
 }

@@ -35,8 +35,6 @@
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
-
-extern HDC qt_winHDC(const QPaintDevice *dev);
 #endif
 
 #include <limits.h>
@@ -1109,10 +1107,10 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         if (const QStyleOptionFocusRect *fropt = qt_cast<const QStyleOptionFocusRect *>(opt)) {
 #if defined (Q_WS_WIN) && !defined(QT_GDIPLUS_SUPPORT)
             {
-                HDC hdc = qt_winHDC(p->device());
-                RECT rect = { opt->rect.left(), opt->rect.top(), opt->rect.right() + 1,
-                    opt->rect.bottom() + 1 };
-                    DrawFocusRect(hdc, &rect);
+                HDC hdc = p->device()->getDC();
+                RECT rect = { opt->rect.left(), opt->rect.top(), opt->rect.right() + 1, opt->rect.bottom() + 1 };
+                DrawFocusRect(hdc, &rect);
+                p->device()->releaseDC(hdc);
             }
 #else
             QRect r = opt->rect;

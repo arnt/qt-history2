@@ -23,6 +23,7 @@ struct QMCPI;
 
 struct QPixmapData { // internal pixmap data
     QPixmapData() : count(1) { }
+
     void ref() { ++count; }
     bool deref() { return !--count; }
     uint count;
@@ -42,7 +43,8 @@ struct QPixmapData { // internal pixmap data
     union {
         HBITMAP hbm; // if mcp == false
         QMCPI *mcpi; // if mcp == true
-    } hbm_or_mcpi;
+    };
+    inline HBITMAP bm() const;
     uchar *realAlphaBits;
 #ifdef Q_OS_TEMP
     uchar *ppvBits; // Pointer to DIBSection bits
@@ -65,11 +67,22 @@ struct QPixmapData { // internal pixmap data
     bool hasAlpha;
 #endif
     QPixmap::Optimization optim;
-#if defined(Q_WS_WIN)
-    HBITMAP old_hbm;
-#endif
     QPaintEngine *paintEngine;
+#ifndef Q_WS_WIN
     Qt::HANDLE hd;
+#else
+    struct MemDC {
+        MemDC() {
+            hdc = 0;
+            ref = 0;
+            bm = 0;
+        }
+        HDC hdc;
+        int ref;
+        HGDIOBJ bm;
+    };
+    MemDC mem_dc;
+#endif
 };
 
 

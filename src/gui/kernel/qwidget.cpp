@@ -6513,10 +6513,21 @@ void QWidget::setShortcutEnabled(int id, bool enable)
 /*!
     Returns the window system handle of the widget, for low-level
     access. Using this function is not portable.
+
+    An HDC aquired with getDC() has to be released with releaseDC().
 */
-HDC QWidget::winHDC() const
+HDC QWidget::getDC() const
 {
     return (HDC) d->hd;
+}
+
+/*!
+    Releases the HDC aquired by a previous call to getDC().
+    Using this function is not portable.
+*/
+void QWidget::releaseDC(HDC hdc) const
+{
+    Q_ASSERT(d->hd == hdc);
 }
 #else
 /*!

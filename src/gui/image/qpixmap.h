@@ -99,6 +99,15 @@ public:
 
 #if defined(Q_WS_WIN)
     HBITMAP hbm() const;
+    HDC getDC() const;
+    void releaseDC(HDC) const;
+
+    // These functions are internal and used by Windows 9x only
+    bool isMultiCellPixmap() const;
+    HBITMAP multiCellBitmap() const;
+    int multiCellOffset() const;
+    int allocCell();
+    void freeCell(bool = false);
 #endif
 
     int serialNumber() const;
@@ -111,16 +120,6 @@ public:
     virtual void detach();
 
     bool isQBitmap() const;
-
-#if defined(Q_WS_WIN)
-    // These functions are internal and used by Windows 9x only
-    bool isMultiCellPixmap() const;
-    HDC multiCellHandle() const;
-    HBITMAP multiCellBitmap() const;
-    int multiCellOffset() const;
-    int allocCell();
-    void freeCell(bool = false);
-#endif
 
 #if defined(Q_WS_QWS)
     virtual unsigned char * scanLine(int) const;
@@ -135,9 +134,6 @@ public:
     Qt::HANDLE xftDrawHandle() const;
 #endif
 
-#ifdef Q_WS_WIN
-    HDC winHDC() const;
-#endif
 #ifndef Q_WS_WIN
     Qt::HANDLE handle() const;
 #endif

@@ -22,8 +22,6 @@
 
 #include <windows.h>
 
-Q_GUI_EXPORT HDC qt_winHDC(const QPaintDevice *device);
-
 class QGLCmapPrivate
 {
 public:
@@ -469,13 +467,14 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         opengl32dll = true;
     }
 
+    bool result = true;
     HDC myDc;
 
     if (deviceIsPixmap()) {
         if (glFormat.plane())
             return false;                // Pixmaps can't have overlay
         win = 0;
-        myDc = static_cast<QPixmap*>(d->paintDevice)->winHDC();
+        myDc = d->paintDevice->getDC();
     }
     else {
         win = ((QWidget*)d->paintDevice)->winId();
@@ -484,31 +483,27 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
     if (!myDc) {
         qWarning("QGLContext::chooseContext(): Paint device cannot be null");
-        if (win)
-            ReleaseDC(win, myDc);
-        return false;
+        result = false;
+        goto end;
     }
 
     if (glFormat.plane()) {
         pixelFormatId = ((QGLWidget*)d->paintDevice)->context()->pixelFormatId;
         if (!pixelFormatId) {                // I.e. the glwidget is invalid
             qWarning("QGLContext::chooseContext(): Cannot create overlay context for invalid widget");
-            if (win)
-                ReleaseDC(win, myDc);
-            return false;
+            result = false;
+            goto end;
         }
 
         rc = wglCreateLayerContext(myDc, glFormat.plane());
         if (!rc) {
             qwglError("QGLContext::chooseContext()", "CreateLayerContext");
-            if (win)
-                ReleaseDC(win, myDc);
-            return false;
+            result = false;
+            goto end;
         }
 
         LAYERPLANEDESCRIPTOR lpfd;
-        wglDescribeLayerPlane(myDc, pixelFormatId, glFormat.plane(),
-                               sizeof(LAYERPLANEDESCRIPTOR), &lpfd);
+        wglDescribeLayerPlane(myDc, pixelFormatId, glFormat.plane(), sizeof(LAYERPLANEDESCRIPTOR), &lpfd);
         glFormat.setDoubleBuffer(lpfd.dwFlags & LPD_DOUBLEBUFFER);
         glFormat.setDepth(lpfd.cDepthBits);
         glFormat.setRgba(lpfd.iPixelType == PFD_TYPE_RGBA);
@@ -521,8 +516,8 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         if (glFormat.rgba()) {
             if (lpfd.dwFlags & LPD_TRANSPARENT)
                 d->transpColor = QColor(lpfd.crTransparent & 0xff,
-                                      (lpfd.crTransparent >> 8) & 0xff,
-                                      (lpfd.crTransparent >> 16) & 0xff);
+                                        (lpfd.crTransparent >> 8) & 0xff,
+                                        (lpfd.crTransparent >> 16) & 0xff);
             else
                 d->transpColor = QColor(0, 0, 0);
         }
@@ -539,66 +534,68 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         if (shareContext && shareContext->isValid())
             d->sharing = (wglShareLists(shareContext->rc, rc) != 0);
 
-        if (win)
-            ReleaseDC(win, myDc);
-        return true;
+        goto end;
+    }
+    {
+        PIXELFORMATDESCRIPTOR pfd;
+        PIXELFORMATDESCRIPTOR realPfd;
+        pixelFormatId = choosePixelFormat(&pfd, myDc);
+        if (pixelFormatId == 0) {
+            qwglError("QGLContext::chooseContext()", "ChoosePixelFormat");
+            result = false;
+            goto end;
+        }
+        DescribePixelFormat(myDc, pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR),
+                             &realPfd);
+        bool overlayRequested = glFormat.hasOverlay();
+        glFormat = pfdToQGLFormat(&realPfd);
+        glFormat.setOverlay(glFormat.hasOverlay() && overlayRequested);
+
+        if (deviceIsPixmap() && !(realPfd.dwFlags & PFD_DRAW_TO_BITMAP)) {
+            qWarning("QGLContext::chooseContext(): Failed to get pixmap rendering context.");
+            result = false;
+            goto end;
+        }
+
+        if (deviceIsPixmap() &&
+             (((QPixmap*)d->paintDevice)->depth() != realPfd.cColorBits)) {
+            qWarning("QGLContext::chooseContext(): Failed to get pixmap rendering context of suitable depth.");
+            result = false;
+            goto end;
+        }
+
+        if (!SetPixelFormat(myDc, pixelFormatId, &realPfd)) {
+            qwglError("QGLContext::chooseContext()", "SetPixelFormat");
+            result = false;
+            goto end;
+        }
+
+        if (!(rc = wglCreateLayerContext(myDc, 0))) {
+            qwglError("QGLContext::chooseContext()", "wglCreateContext");
+            result = false;
+            goto end;
+        }
+
+        if (shareContext && shareContext->isValid())
+            d->sharing = (wglShareLists(shareContext->rc, rc) != 0);
+
+        if(!deviceIsPixmap()) {
+            QRgb* pal = qgl_create_rgb_palette(&realPfd);
+            if (pal) {
+                QGLColormap cmap;
+                cmap.setEntries(256, pal);
+                ((QGLWidget*)d->paintDevice)->setColormap(cmap);
+                delete[] pal;
+            }
+        }
     }
 
-    PIXELFORMATDESCRIPTOR pfd;
-    PIXELFORMATDESCRIPTOR realPfd;
-    pixelFormatId = choosePixelFormat(&pfd, myDc);
-    if (pixelFormatId == 0) {
-        qwglError("QGLContext::chooseContext()", "ChoosePixelFormat");
-        if (win)
-            ReleaseDC(win, myDc);
-        return false;
-    }
-    DescribePixelFormat(myDc, pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR),
-                         &realPfd);
-    bool overlayRequested = glFormat.hasOverlay();
-    glFormat = pfdToQGLFormat(&realPfd);
-    glFormat.setOverlay(glFormat.hasOverlay() && overlayRequested);
-
-    if (deviceIsPixmap() && !(realPfd.dwFlags & PFD_DRAW_TO_BITMAP)) {
-        qWarning("QGLContext::chooseContext(): Failed to get pixmap rendering context.");
-        return false;
-    }
-
-    if (deviceIsPixmap() &&
-         (((QPixmap*)d->paintDevice)->depth() != realPfd.cColorBits)) {
-        qWarning("QGLContext::chooseContext(): Failed to get pixmap rendering context of suitable depth.");
-        return false;
-    }
-
-    if (!SetPixelFormat(myDc, pixelFormatId, &realPfd)) {
-        qwglError("QGLContext::chooseContext()", "SetPixelFormat");
-        if (win)
-            ReleaseDC(win, myDc);
-        return false;
-    }
-
-    if (!(rc = wglCreateLayerContext(myDc, 0))) {
-        qwglError("QGLContext::chooseContext()", "wglCreateContext");
-        if (win)
-            ReleaseDC(win, myDc);
-        return false;
-    }
-
-    if (shareContext && shareContext->isValid())
-        d->sharing = (wglShareLists(shareContext->rc, rc) != 0);
-
+end:
     if (win)
         ReleaseDC(win, myDc);
-
-    QRgb* pal = qgl_create_rgb_palette(&realPfd);
-    if (pal && !deviceIsPixmap()) {
-        QGLColormap cmap;
-        cmap.setEntries(256, pal);
-        ((QGLWidget*)d->paintDevice)->setColormap(cmap);
-        delete[] pal;
-    }
-
-    return true;
+    else if (deviceIsPixmap()) 
+        d->paintDevice->releaseDC(myDc);
+    return result;
 }
 
 
@@ -788,7 +785,7 @@ void QGLContext::makeCurrent()
     if (win)
         dc = GetDC(win);
     else
-        dc = qt_winHDC(d->paintDevice);
+        dc = d->paintDevice->getDC();
     HPALETTE hpal = QColormap::hPal();
     if (hpal) {
         SelectPalette(dc, hpal, false);
@@ -810,12 +807,12 @@ void QGLContext::doneCurrent()
         return;
     currentCtx = 0;
     wglMakeCurrent(0, 0);
-    if (win && dc) {
+    if (win && dc)
         ReleaseDC(win, dc);
-        dc = 0;
-    }
+    else if (dc)
+        d->paintDevice->releaseDC(dc);
+    dc = 0;
 }
-
 
 void QGLContext::swapBuffers() const
 {
@@ -868,7 +865,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
         return;
     if (deviceIsPixmap()) {
         winId = 0;
-        glHdc = qt_winHDC(d->paintDevice);
+        glHdc = d->paintDevice->getDC();
     } else {
         winId = ((QWidget*)d->paintDevice)->winId();
         glHdc = GetDC(winId);
@@ -878,6 +875,8 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
         qWarning("QGLContext::generateFontDisplayLists: Could not generate display lists for font '%s'", fnt.family().latin1());
     if (winId)
         ReleaseDC(winId, glHdc);
+    else if (deviceIsPixmap())
+        d->paintDevice->releaseDC(glHdc);
 }
 
 /*****************************************************************************

@@ -477,7 +477,8 @@ public:
 #endif
 
 #if defined(Q_WS_WIN)
-    HDC winHDC() const;
+    HDC getDC() const;
+    void releaseDC(HDC) const;
 #else
     Qt::HANDLE handle() const;
 #endif

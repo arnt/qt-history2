@@ -330,12 +330,11 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     setActive(true);
     d->pdev = pdev;
 
+    d->hdc = pdev->getDC();
     if (pdev->devType() == QInternal::Widget) {
-        QWidget *w = (QWidget*)pdev;
-        d->usesWidgetDC = (w->winHDC() != 0);
-        if (d->usesWidgetDC) {
-            d->hdc = w->winHDC();                        // during paint event
-        } else {
+        QWidget *w = static_cast<QWidget *>(pdev);
+        d->usesWidgetDC = (d->hdc != 0);
+        if (!d->usesWidgetDC) {
             if (w->testAttribute(Qt::WA_PaintUnclipped)) {
                 d->hdc = GetWindowDC(w->winId());
                 if (w->isTopLevel()) {
@@ -353,8 +352,6 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
             }
             const_cast<QWidgetPrivate *>(w->d)->hd = (Qt::HANDLE)d->hdc;
         }
-    } else if (pdev->devType() == QInternal::Pixmap) {
-        d->hdc = static_cast<QPixmap *>(pdev)->winHDC();
     }
     Q_ASSERT(d->hdc);
 
@@ -423,23 +420,18 @@ bool QWin32PaintEngine::end()
         RealizePalette(d->hdc);
     }
 
-    if (d->pdev->devType() == QInternal::Widget) {
-        if (!d->usesWidgetDC) {
-            QWidget *w = (QWidget*)d->pdev;
-            ReleaseDC(w->isDesktop() ? 0 : w->winId(), d->hdc);
-            const_cast<QWidgetPrivate*>(w->d)->hd = 0;
-        }
-    } else if (d->pdev->devType() == QInternal::Pixmap) {
-        QPixmap *pm = (QPixmap *)d->pdev;
-        if (pm->optimization() == QPixmap::MemoryOptim &&
-             (qt_winver & QSysInfo::WV_DOS_based))
-            pm->allocCell();
-    }
-
     if (GetGraphicsMode(d->hdc)==GM_ADVANCED) {
         if (!ModifyWorldTransform(d->hdc, 0, MWT_IDENTITY))
             qWarning("QWin32PaintEngine::end(). ModifyWorldTransform failed: code: %d\n", GetLastError());
         SetGraphicsMode(d->hdc, GM_COMPATIBLE);
+    }
+
+    if (d->pdev->devType() == QInternal::Widget && !d->usesWidgetDC) {
+        QWidget *w = static_cast<QWidget*>(d->pdev);
+        ReleaseDC(w->isDesktop() ? 0 : w->winId(), d->hdc);
+        const_cast<QWidgetPrivate*>(w->d)->hd = 0;
+    } else {
+        d->pdev->releaseDC(d->hdc);
     }
 
     d->hdc = 0;
@@ -783,15 +775,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
     if (!mask && pixmap.isQBitmap() && d->bgMode == Qt::TransparentMode)
        mask = (QBitmap*) pm;
 
-    HDC pm_dc;
-    int pm_offset;
-    if (pm->isMultiCellPixmap()) {
-        pm_dc = pm->multiCellHandle();
-        pm_offset = pm->multiCellOffset();
-    } else {
-        pm_dc = pm->winHDC();
-        pm_offset = 0;
-    }
+    HDC pm_dc = pm->getDC();
 
     if (mode == Qt::CopyPixmapNoMask)
         mask = 0;
@@ -812,16 +796,14 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
     }
 
     if (pixmap.hasAlphaChannel() && mode == Qt::ComposePixmap) {
-        BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
-                             0,                 // BlendFlags, must be zero
-                             255,               // SourceConstantAlpha, we use pr pixel
-                             AC_SRC_ALPHA       // AlphaFormat
+        const BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
+                                   0,                 // BlendFlags, must be zero
+                                   255,               // SourceConstantAlpha, we use pr pixel
+                                   AC_SRC_ALPHA       // AlphaFormat
         };
         if (!AlphaBlend(d->hdc, r.x(), r.y(), r.width(), r.height(),
-                        pm_dc, sr.x(), sr.y(), sr.width(), sr.height(),
-                        bf)) {
+                        pm_dc, sr.x(), sr.y(), sr.width(), sr.height(), bf)) {
             qSystemWarning("QWin32PaintEngine::drawPixmap, AlphaBlend failed...");
-            return;
         }
     } else if (mask && mode == Qt::ComposePixmap) {
         if (stretch) {
@@ -850,8 +832,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             state->painter->restore();
         } else {
             if (!MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
-                         pm_dc, sr.x(), sr.y()+pm_offset,
-                         mask->hbm(), sr.x(), sr.y()+pm_offset,
+                         pm_dc, sr.x(), sr.y(), mask->hbm(), sr.x(), sr.y(),
                          MAKEROP4(0x00aa0000, SRCCOPY)))
                 qSystemWarning("QWin32PaintEngine::drawPixmap, MaskBlt failed");
         }
@@ -872,6 +853,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             }
         }
     }
+    pm->releaseDC(pm_dc);
 }
 
 void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
@@ -1917,17 +1899,11 @@ bool QGdiplusPaintEngine::begin(QPaintDevice *pdev)
 {
     d->pdev = pdev;
     // Verify the presence of an HDC
-    if (pdev->devType() == QInternal::Widget) {
-        d->hdc = static_cast<QWidget *>(pdev)->winHDC();
-        Q_ASSERT(d->hdc);
-        //     d->graphics = new Graphis(hdc);
-        GdipCreateFromHDC(d->hdc, &d->graphics);
-    } else if (pdev->devType() == QInternal::Pixmap) {
-        d->hdc = static_cast<QPixmap *>(pdev)->winHDC();
-        GdipCreateFromHDC(d->hdc, &d->graphics);
-    } else {
+    d->hdc = pdev->getDC();
+    if(!d->hdc)
         qDebug() << "QGdiplusPaintEngine::begin(), unsupported paint device..." << pdev->devType();
-    }
+
+    GdipCreateFromHDC(d->hdc, &d->graphics);
 
     Q_ASSERT(d->graphics);
 
@@ -1965,6 +1941,7 @@ bool QGdiplusPaintEngine::end()
     d->cachedSolidBrush = 0;
     d->brush = 0;
 
+    d->pdev->releaseDC(d->hdc);
     return true;
 }
 

@@ -23,16 +23,6 @@
 #include "qpaintengine_win.h"
 
 
-Q_GUI_EXPORT HDC qt_winHDC(const QPaintDevice *device) {
-    if (device->devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(device)->winHDC();
-    else if (device->devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(device)->winHDC();
-    else if (device->devType() == QInternal::Printer)
-        return static_cast<const QWin32PaintEngine *>(static_cast<const QPrinter *>(device)->paintEngine())->winHDC();
-    return 0;
-}
-
 QPaintDevice::QPaintDevice(uint devflags)
 {
     if (!qApp) {                                // global constructor
@@ -55,4 +45,18 @@ int QPaintDevice::metric(int) const
 {
     qWarning("QPaintDevice::metrics: Device has no metric information");
     return 0;
+}
+
+
+/*! \internal
+*/
+HDC QPaintDevice::getDC() const
+{
+    return 0;
+}
+
+/*! \internal
+*/
+void QPaintDevice::releaseDC(HDC) const
+{
 }

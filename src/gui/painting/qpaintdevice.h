@@ -41,6 +41,11 @@ public:
     virtual int bytesPerLine() const;
 #endif
 
+#ifdef Q_WS_WIN
+    virtual HDC getDC() const;
+    virtual void releaseDC(HDC hdc) const;
+#endif
+
 protected:
     QPaintDevice(uint devflags);
     virtual int metric(int) const;

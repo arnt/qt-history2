@@ -656,7 +656,7 @@ const QBitmap *QPixmap::mask() const
 void QPixmap::setMask(const QBitmap &newmask)
 {
     const QPixmap *tmp = &newmask;                // dec cxx bug
-    if (data == tmp->data || (tmp->data->hd && tmp->data->hd == data->hd)) {
+    if (data == tmp->data) {
         QPixmap m = tmp->copy(true);
         setMask(*((QBitmap*)&m));
         data->selfmask = true;                        // mask == pixmap
@@ -678,8 +678,7 @@ void QPixmap::setMask(const QBitmap &newmask)
     data->selfmask = false;
 
     if (newmask.width() != width() || newmask.height() != height()) {
-        qWarning("QPixmap::setMask: The pixmap and the mask must have "
-                  "the same size");
+        qWarning("QPixmap::setMask: The pixmap and the mask must have the same size");
         return;
     }
 #if defined(Q_WS_MAC) || (defined(Q_WS_X11) && !defined(QT_NO_XFT))

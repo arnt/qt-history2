@@ -985,6 +985,7 @@ static void drawTile(HDC hdc, int x, int y, int w, int h,
     int yPos, xPos, drawH, drawW, yOff, xOff;
     yPos = y;
     yOff = yOffset;
+    HDC tmp_hdc = pixmap->getDC();
     while(yPos < y + h) {
         drawH = pixmap->height() - yOff;        // Cropping first row
         if (yPos + drawH > y + h)                // Cropping last row
@@ -995,21 +996,14 @@ static void drawTile(HDC hdc, int x, int y, int w, int h,
             drawW = pixmap->width() - xOff;        // Cropping first column
             if (xPos + drawW > x + w)                // Cropping last column
                 drawW = x + w - xPos;
-            if (pixmap->isMultiCellPixmap()) {
-                BitBlt(hdc, xPos, yPos,
-                       drawW, drawH, pixmap->multiCellHandle(),
-                       xOff, yOff+pixmap->multiCellOffset(), SRCCOPY);
-            } else {
-                BitBlt(hdc, xPos, yPos,
-                       drawW, drawH, pixmap->winHDC(),
-                       xOff, yOff, SRCCOPY);
-            }
+            BitBlt(hdc, xPos, yPos, drawW, drawH, tmp_hdc, xOff, yOff, SRCCOPY);
             xPos += drawW;
             xOff = 0;
         }
         yPos += drawH;
         yOff = 0;
     }
+    pixmap->releaseDC(tmp_hdc);
 }
 
 void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap)

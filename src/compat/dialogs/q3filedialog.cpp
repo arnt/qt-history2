@@ -71,7 +71,6 @@
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
 #endif // QT_THREAD_SUPPORT
-Q_GUI_EXPORT HDC qt_winHDC(const QPaintDevice *dev);
 #endif // Q_WS_WIN
 
 #if !defined(Q_OS_TEMP)
@@ -4982,9 +4981,9 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
         if (res) {
             defaultFolder.resize(pixw, pixh);
             initPixmap(defaultFolder);
-            QPainter p(&defaultFolder);
-            DrawIconEx(qt_winHDC(p.device()), 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
-            p.end();
+            HDC dc = defaultFolder.getDC();
+            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
+            defaultFolder.releaseDC(dc);
             defaultFolder.setMask(defaultFolder.createHeuristicMask());
             *closedFolderIcon = defaultFolder;
             DestroyIcon(si);
@@ -5012,9 +5011,9 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
     if (res) {
         defaultFile.resize(pixw, pixh);
         initPixmap(defaultFile);
-        QPainter p(&defaultFile);
-        DrawIconEx(qt_winHDC(p.device()), 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
-        p.end();
+        HDC dc = defaultFile.getDC();
+        DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0, DI_NORMAL);
+        defaultFile.releaseDC(dc);
         defaultFile.setMask(defaultFile.createHeuristicMask());
         *fileIcon = defaultFile;
         DestroyIcon(si);
@@ -5039,9 +5038,9 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
     if (res) {
         defaultExe.resize(pixw, pixh);
         initPixmap(defaultExe);
-        QPainter p(&defaultExe);
-        DrawIconEx(qt_winHDC(p.device()), 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
-        p.end();
+        HDC dc = defaultExe.getDC();
+        DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
+        defaultExe.releaseDC(dc);
         defaultExe.setMask(defaultExe.createHeuristicMask());
         DestroyIcon(si);
     } else {
@@ -5138,9 +5137,9 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
         if (res) {
             pix.resize(pixw, pixh);
             initPixmap(pix);
-            QPainter p(&pix);
-            DrawIconEx(qt_winHDC(p.device()), 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
-            p.end();
+            HDC dc = pix.getDC();
+            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
+            pix.releaseDC(dc);
             pix.setMask(pix.createHeuristicMask());
             DestroyIcon(si);
         } else {
@@ -5184,9 +5183,9 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
         if (res) {
             pix.resize(pixw, pixh);
             initPixmap(pix);
-            QPainter p(&pix);
-            DrawIconEx(qt_winHDC(p.device()), 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
-            p.end();
+            HDC dc = pix.getDC();
+            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
+            pix.releaseDC(dc);
             pix.setMask(pix.createHeuristicMask());
             DestroyIcon(si);
         } else {
