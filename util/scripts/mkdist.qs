@@ -160,7 +160,7 @@ for (var p in validPlatforms) {
 
 	    // replace tags (like THISYEAR etc.)
 	    print("Traversing all txt files and replacing tags...");
-	    replaceTags(platDir, getFileList(platDir), platform, edition);
+	    replaceTags(platDir, getFileList(platDir), platform, edition, platName);
 
   	    // package directory
 	    print("Compressing and packaging file(s)...")
@@ -596,11 +596,12 @@ function qdoc(packageDir)
 /************************************************************
  * goes through all txt files and replaces tags like %VERSION%, %THISYEAR% etc.
  */
-function replaceTags(packageDir, fileList, platform, edition)
+function replaceTags(packageDir, fileList, platform, edition, platName)
 {
     var replace = new Array();
     replace[Date().getYear().toString()] = /\$THISYEAR\$/;
     replace[options["version"]] = /\%VERSION\%/g;
+    replace[platName] = /\%DISTNAME\%/g;
     
     var fileName = new String();
     var absFileName = new String();
