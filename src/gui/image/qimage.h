@@ -27,6 +27,9 @@
 class QIODevice;
 class QStringList;
 template <class T> class QList;
+#ifdef Q_WS_QWS
+class QGfx;
+#endif
 
 class QImageDataMisc; // internal
 #ifndef QT_NO_IMAGE_TEXT
