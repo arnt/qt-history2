@@ -96,7 +96,8 @@ struct QWSCommand
 	GetProperty,
 	SetSelectionOwner,
 	ConvertSelection,
-	RegionAck
+	RegionAck,
+	ChangeAltitude
     };
 
     // data
@@ -178,6 +179,19 @@ struct QWSRegionAckCommand : public QWSCommand
 
     struct SimpleData {
 	int eventid;
+    } simpleData;
+
+};
+
+
+struct QWSChangeAltitudeCommand : public QWSCommand
+{
+    QWSChangeAltitudeCommand() :
+	QWSCommand( QWSCommand::ChangeAltitude, sizeof( simpleData ), (char*)&simpleData ) {}
+
+    struct SimpleData {
+	int windowid;
+	int altitude;
     } simpleData;
 
 };

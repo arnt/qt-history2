@@ -119,17 +119,19 @@
       <dd>
 	<pre>
     int type = QWSEvent::Mouse;
-    int dummy_windowid;
+    int windowid;
     int x_root, y_root, state;
     int time;</pre>
 	This event is sent to the client whenever the mouse moves. All clients
 	<font color=red>[this may change]</font>
 	get all mouse events.
 	The position (<i>x_root</i>, <i>y_root</i>)
-	is relative to the top-left corner of the screen. <i>time</i> is a value
-	in milliseconds that indicates when (relative to some undefined epoch) the
-	mouse event occurred, and should be used by the client to calculate such
-	emergent events as double-clicks.
+	is relative to the top-left corner of the screen. 
+	<i>windowid</i> is the identifier of the window under the mouse.
+	<i>time</i> is a value in milliseconds that indicates when
+	(relative to some undefined epoch) the mouse event occurred,
+	and should be used by the client to calculate such emergent
+	events as double-clicks.
       </p>
       <dt>QWSFocusEvent
       <dd>
@@ -167,14 +169,18 @@
     <pre>
     int type = QWSEvent::RegionAdd;
     int windowid;
+    uint is_ack:1;
     int nrectangles;
     struct {
 	int x, y, width, height;
     } rectangles[nrectangles]; </pre>
     This event is sent to the client whenever rectangles are added to
-    the allocated region of the window.
+    the allocated region of the window <i>windowid</i>.
     These events are also called "exposure" or "paint" events in other window
     systems, as the client is responsible for painting the new area.
+    <p>
+    If <i>is_ack</i> is 1 then this event is in response to a previous
+    QWSRegionCommand from <i>windowid</i>.
     <p>
     The <i>rectangles</i> are in <a href=#yxbanded>YXBanded</a> format.
     </p>
@@ -399,6 +405,21 @@ During processing, clients may send the following commands.
      with id <i>eventid</i>.
     </p>
 
+
+  <a name="change_altitude_command">
+  <dt>QWSChangeAltitudeCommand
+    <dd>
+    Type: <i>QWSCommand::ChangeAltitude</i>
+    <pre>
+    struct SimpleData {
+        int windowid;
+        int altitude;
+    } simpleData;</pre>
+    This command is sent by the client to raise/lower the window
+    with id <i>windowid</i>. <i>altitude</i> is the new position in
+    the stacking order. Currently, only two values are supported:
+    0 for move to top, and -1 for move to bottom. 
+    </p>
 </dl>
 
 <h2>Glossary</h2>

@@ -45,6 +45,8 @@ public:
 		   QObject *parent=0, const char *name=0 );
     ~QServerSocket();
 
+    bool ok() const;
+
     uint port();
     QHostAddress address();
 

@@ -45,7 +45,26 @@ main(int argc, char** argv)
 	m.serve(refresh_delay);
 	return app.exec();
     } else {
-	(void)new QWSServer;
+	int w = 0;
+	int h = 0;
+	if ( argc > 1 ) {
+	    QString s = argv[1];
+	    int x = s.find( "x" );
+	    if ( x > 0 ) {
+		bool ok;
+		QString sub = s.mid(0,x);
+		w = sub.toInt(&ok);
+		sub = s.mid(x+1);
+		if ( ok )
+		    h = sub.toInt(&ok);
+		if ( !ok ) {
+		    w = 0;
+		    h = 0;
+		}
+		qDebug( "%dx%d", w, h );
+	    }
+	}
+	(void)new QWSServer( w, h );
 	return app.exec();
     }
 }

@@ -28,14 +28,20 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/sem.h>
 
 static int get_object_id()
 {
     static int next=1000;
     return next++;
 }
+
+static int semset = 0;
+static key_t semkey = 0;
+
 
 
 /*********************************************************************
@@ -44,16 +50,19 @@ static int get_object_id()
  *
  *********************************************************************/
 //### shmid < 0 means use frame buffer
-QWSClient::QWSClient( int socket, int shmid, int swidth, int sheight,
+QWSClient::QWSClient( QObject* parent, int socket, int shmid, int swidth, int sheight,
 		      int ramid, int fblen, int offscreen, int offscreenlen) :
-    QSocket(socket),
+    QSocket(parent),
     s(socket),
     command(0)
 {
+    setSocket(socket);
+    isClosed = FALSE;
     QWSHeader header;
     header.width = swidth;
     header.height = sheight;
     header.depth = 32;
+    header.semkey = semkey;
     header.shmid = shmid;
     header.ramid = ramid;
     header.fblen = fblen;
@@ -71,7 +80,38 @@ QWSClient::QWSClient( int socket, int shmid, int swidth, int sheight,
     }
 
     flush();
+    
+    connect( this, SIGNAL(closed()), this, SLOT(closeHandler()) );
+    connect( this, SIGNAL(error(int)), this, SLOT(errorHandler(int)) );
 }
+
+void QWSClient::closeHandler()
+{
+    qDebug( "Client %p closed", this );
+    isClosed = TRUE;
+    emit connectionClosed();
+}
+
+void QWSClient::errorHandler( int err )
+{
+    QString s = "Unknown";
+    switch( err ) {
+    case ErrConnectionRefused: 
+	s = "Connection Refused";
+	break;
+    case ErrHostNotFound: 
+	s = "Host Not Found";
+	break;
+    case ErrSocketRead: 
+	s = "Socket Read";
+	break;
+    }
+    qDebug( "Client %p error %d (%s)", this, err, s.ascii() );
+    isClosed = TRUE;
+    flush(); //####We need to clean out the pipes, this in not the the way.
+    emit connectionClosed();
+}
+
 
 int QWSClient::socket() const
 {
@@ -100,13 +140,10 @@ void QWSClient::writeRegion( QRegion reg )
 	rectangle.width = r[i].width();
 	rectangle.height = r[i].height();
 	writeBlock( (char*)&rectangle, sizeof(rectangle) );
-#if 1//DEBUG
-     qDebug( "   writeRegion rect[%d] = (%d,%d) %dx%d", i,
+#ifdef QWS_REGION_DEBUG
+	qDebug( "   writeRegion rect[%d] = (%d,%d) %dx%d", i,
 	     rectangle.x,rectangle.y,rectangle.width,rectangle.height);
-
-
 #endif
-	
     }
     flush();
 }
@@ -170,16 +207,36 @@ struct QWSCommandStruct
     QWSClient *client;
 };
 
-QWSServer::QWSServer( int sw, int sh, QObject *parent=0, const char *name=0 ) :
+
+/*
+  INVARIANT: pending_region_acks is sum of the pending_acks 
+  of the QWSWindow objects in the windows list.
+
+  QWSServer maintains the invariant.
+*/
+
+QWSServer::QWSServer( int sw, int sh, bool simulate, 
+		      QObject *parent=0, const char *name=0 ) :
     QServerSocket(QTFB_PORT,16,parent,name),
     mouseBuf(0), pending_region_acks(0)
 {
+    mouseGrabber = 0;
+    mouseGrabbing = FALSE;
     cursorNeedsUpdate=FALSE;
     cursorPos = QPoint(-1,-1); //no software cursor
     swidth = sw;
     sheight = sh;
 
-    if ( swidth && sheight ) {
+    semkey = ftok("/dev/fb0",'q');
+    semset = semget(semkey,1,IPC_CREAT|0777);
+    if ( semset == -1 ) {
+	perror("Cannot create semaphore for /dev/fb0");
+	exit(1);
+    }
+    int arg = 1;
+    semctl(semset,0,SETVAL,arg);
+
+    if ( simulate ) {
 	// Simulate card with 8 megs of memory or so
 	shmid = shmget(IPC_PRIVATE,/* swidth*sheight*sizeof(QRgb) */
 		       8000000,
@@ -234,11 +291,41 @@ QWSServer::~QWSServer()
 void QWSServer::newConnection( int socket )
 {
     qDebug("New client...");
-    client[socket] = new QWSClient(socket,shmid,swidth,sheight,
+    client[socket] = new QWSClient(this,socket,shmid,swidth,sheight,
 				   ramid,fblen,offscreen,offscreenlen);
     connect( client[socket], SIGNAL(readyRead()),
 	     this, SLOT(doClient()) );
+    connect( client[socket], SIGNAL(connectionClosed()),
+	     this, SLOT(clientClosed()) );
 }
+
+
+
+void QWSServer::clientClosed()
+{
+    qDebug( "QWSServer::clientClosed()" );
+    QWSClient* cl = (QWSClient*)sender();
+
+    QRegion exposed;
+    QListIterator<QWSWindow> it( windows );
+    QWSWindow* w;
+    while (( w = it.current() )) {
+	++it;
+	if ( w->forClient(cl) ) {
+	    if ( mouseGrabber == w )
+		mouseGrabber = 0;
+	    exposed += w->allocation();
+	    pending_region_acks -= w->pending_acks;
+	    windows.removeRef(w);
+	    delete w; //windows is not auto-delete
+	}
+    }
+    client.remove( cl->socket() );
+    delete cl;
+
+    exposeRegion( exposed );
+}
+
 
 QWSCommand* QWSClient::readMoreCommand()
 {
@@ -272,6 +359,9 @@ QWSCommand* QWSClient::readMoreCommand()
 	    case QWSCommand::RegionAck:
 		command = new QWSRegionAckCommand;
 		break;
+	    case QWSCommand::ChangeAltitude:
+		command = new QWSChangeAltitudeCommand;
+		break;
 	    default:
 		qDebug( "QWSClient::readMoreCommand() : Protocol error - got %08x!", command_type );
 	    }
@@ -291,6 +381,11 @@ QWSCommand* QWSClient::readMoreCommand()
     return 0;
 }
 
+
+
+
+
+
 void QWSServer::doClient()
 {
     static bool active = FALSE;
@@ -305,22 +400,24 @@ void QWSServer::doClient()
 
     while ( command ) {
 	if ( command->type == QWSCommand::RegionAck ) {
-	    pending_region_acks--;
+	    int id = ((QWSRegionAckCommand*)command)->simpleData.eventid;
+	    QWSWindow *w = findWindow( id, 0 );
+	    if ( w ) {
+		w->pending_acks--;
+		pending_region_acks--;
+	    } else {
+		qWarning( "Unexpected ack from client %p/%d, ignored",
+			  client, id );
+	    }
+#ifdef QWS_REGION_DEBUG
 	    qDebug( "QWSCommand::RegionAck from %p pending:%d",
 		    client, pending_region_acks);
+#endif	    
 	    if ( pending_region_acks == 0 ) {
 		givePendingRegion();
 	    }
 	    delete command;
 	} else {
-	    /*
-	    if ( command->type == QWSCommand::Region ) {
-		QWSRegionCommand *cmd = (QWSRegionCommand*)command;
-		QWSWindow* w = findWindow(cmd->simpleData.windowid, client);
-		w->region_request_count++;
-		qDebug( "Window %p, region_request_count %d", w,
-			w->region_request_count);
-			}*/
 	    QWSCommandStruct *cs = new QWSCommandStruct( command, client );
 	    commandQueue.enqueue( cs );
 	}
@@ -336,13 +433,7 @@ void QWSServer::doClient()
 	    invokeCreate( (QWSCreateCommand*)cs->command, cs->client );
 	    break;
 	case QWSCommand::Region:
-	    //{	
-	    //	  QWSRegionCommand *cmd = (QWSRegionCommand*)cs->command;
-	    //	  QWSWindow* w = findWindow(cmd->simpleData.windowid,
-	    //				    cs->client);
-	    //	  if ( --w->region_request_count == 0 )
 	    invokeRegion( (QWSRegionCommand*)cs->command, cs->client );
-	    //}
 	    break;
 	case QWSCommand::AddProperty:
 	    invokeAddProperty( (QWSAddPropertyCommand*)cs->command );
@@ -362,6 +453,11 @@ void QWSServer::doClient()
 	case QWSCommand::RegionAck:
 	    qWarning( "QWSServer::doClient() uncaught RegionAck" );
 	    break;
+	case QWSCommand::ChangeAltitude:
+	    invokeSetAltitude( (QWSChangeAltitudeCommand*)cs->command,
+			       cs->client );
+	    break;
+
 	}
 	delete cs->command;
 	delete cs;
@@ -392,21 +488,33 @@ void QWSServer::showCursor()
 		 12,14,
 		 2,4,
 		 0,6 );
-    a.translate( cursorPos.x(), cursorPos.y() );
-    setWindowRegion( 0, QRegion(a) );
+    a.translate( cursorPos.x()-1, cursorPos.y()-1 );
+    setWindowRegion( 0, QRegion(a) & QRegion(0,0,swidth,sheight) );
 }
 
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
     showCursor();
 
+    if ( mouseGrabbing && state == 0 ) {
+	//Note that if a window disappears, mouseGrabbing may be
+	//true while mouseGrabber is 0
+	mouseGrabbing = FALSE;
+	mouseGrabber = 0;
+    }
+    
 
     QWSMouseEvent event;
     event.type = QWSEvent::Mouse;
 
-    QWSWindow *win = windowAt( pos );
+    QWSWindow *win = mouseGrabbing ? mouseGrabber : windowAt( pos );
     event.window = win ? win->id : 0;
 
+    if ( !mouseGrabbing && win && state != 0 ) {
+	//button has been pressed
+	mouseGrabbing = TRUE;
+	mouseGrabber = win;
+    }
     event.x_root=pos.x();
     event.y_root=pos.y();
     event.state=state;
@@ -462,7 +570,9 @@ void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
 
 void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 {
+#ifdef QWS_REGION_DEBUG
     qDebug( "QWSServer::invokeRegion" );
+#endif    
     QWSRegionCommand::Rectangle *rects =
 	(QWSRegionCommand::Rectangle*)cmd->rectangles;
     // XXX would be much faster to build the region directly
@@ -471,7 +581,9 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 	QRect rc(rects[ i ].x, rects[ i ].y, rects[ i ].width, rects[ i ].height);
 	region |= rc;
 	QWSRegionCommand::Rectangle r = rects[ i ];
+#ifdef QWS_REGION_DEBUG
 	qDebug( "    rect: %d %d %d %d", r.x, r.y, r.width, r.height );
+#endif
     }
     QWSWindow* changingw = findWindow(cmd->simpleData.windowid, client);
     if ( !changingw ) {
@@ -484,6 +596,38 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
      }
     setWindowRegion( changingw, region );
 }
+
+
+void QWSServer::invokeSetAltitude( QWSChangeAltitudeCommand *cmd, 
+				   QWSClient *client )
+{
+    int winId = cmd->simpleData.windowid;
+    int alt = cmd->simpleData.altitude;
+#if 0
+    qDebug( "QWSServer::invokeSetAltitude winId %d alt %d)", winId, alt );
+#endif    
+
+    if ( alt != 0 && alt != -1 ) {
+	qWarning( "Only raise() and lower() supported" );
+	return;
+    }
+    
+    QWSWindow* changingw = findWindow(winId, client);
+    if ( !changingw ) {
+	qWarning("Invalid window handle %08x", winId);
+	return;
+    }
+    if ( !changingw->forClient(client) ) {
+       qWarning("Disabled: clients changing other client's altitude");
+        return;
+     }
+    if ( alt < 0 )
+	lowerWindow( changingw, alt );
+    else
+	raiseWindow( changingw, alt );
+}
+
+
 
 void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
 {
@@ -576,8 +720,14 @@ void QWSServer::invokeConvertSelection( QWSConvertSelectionCommand *cmd )
 	    qDebug( "couldn't find window %d", selectionOwner.windowid );
     }
 }
-
-void QWSWindow::addAllocation(QRegion r)
+/*!
+  Adds \a r to the window's allocated region. 
+  
+  If \a isAck is TRUE the event passed to the client has the \c is_ack
+  flag set; ie. the event is in response to a Region command for this
+  window.
+*/
+void QWSWindow::addAllocation( QRegion r, bool isAck )
 {
     QRegion added = r & requested_region;
     allocated_region |= added;
@@ -585,9 +735,10 @@ void QWSWindow::addAllocation(QRegion r)
     QWSRegionAddEvent event;
     event.type = QWSEvent::RegionAdd;
     event.window = id;
+    event.is_ack = isAck;
     event.nrectangles = added.rects().count(); // XXX MAJOR WASTAGE
     c->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
-#if 1//DEBUG
+#ifdef QWS_REGION_DEBUG
 qDebug("Add region (%d rects) to %p/%d",event.nrectangles, c,id);
 #endif
     c->writeRegion( added );
@@ -599,16 +750,16 @@ bool QWSWindow::removeAllocation(QRegion r)
     if ( allocated_region != nr ) {
 	allocated_region = nr;
 
-	static int not_used_yet = 0; // protocol doesn't use this.
+	//static int not_used_yet = 0; // protocol doesn't use this.
 
 	QWSRegionRemoveEvent event;
 	event.type = QWSEvent::RegionRemove;
-	event.eventid = not_used_yet++;;
+	event.eventid = id; //##### hack! reconsider
 	event.window = id;
 	event.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
 	c->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
 
-#if 1 //DEBUG
+#ifdef QWS_REGION_DEBUG
 qDebug("Remove region (%d rects) from %p/%d", event.nrectangles, c, id);
 
 #endif
@@ -640,40 +791,114 @@ QWSWindow* QWSServer::findWindow(int windowid, QWSClient* client)
 	return 0;
 }
 
+
+
+
+void QWSServer::raiseWindow( QWSWindow *changingw, int )
+{
+    //change position in list:
+    QWSWindow *w = windows.first();
+    while ( w ) {
+	if ( w == changingw ) {
+	    windows.take();
+	    windows.prepend( changingw );
+	    break;
+	}
+	w = windows.next();
+    }
+    setWindowRegion( changingw, changingw->requested_region );
+}
+
+
+void QWSServer::lowerWindow( QWSWindow *changingw, int )
+{
+    //lower: must remove region from window first.
+    QRegion visible;
+    visible = changingw->allocation();
+    for (uint i=0; i<windows.count(); i++) {
+	QWSWindow* w = windows.at(i);
+	if ( w != changingw )
+	    visible = visible - w->requested_region;
+	if ( visible.isEmpty() )
+	    break; //widget will be totally hidden;
+    }
+    qDebug( "lower: %p, %d, %d", changingw, changingw->winId(), 
+	    visible.rects().count() );
+    QRegion exposed = changingw->allocation() - visible;
+
+    //the exposed region comes from changingw, so either we have to
+    //wait for acks from changingw, or we don't have to do anything
+    if ( changingw->removeAllocation( exposed )  ) {
+	ASSERT( !pending_region_acks );
+	changingw->pending_acks++;
+	pendingRegion = exposed;
+	pending_region_acks++;
+	pendingAllocation = QRegion();
+	pendingWindex = -1; //slight hack, will repaint server region
+    }
+	
+    //change position in list:
+    
+    QWSWindow *w = windows.first();
+    while ( w ) {
+	if ( w == changingw ) {
+	    windows.take();
+	    windows.append( changingw );
+	    break;
+	}
+	w = windows.next();
+    }
+}
+
+
+
+
+
 /*!
   Changes the requested region of window \a changingw to \a r,
   sends appropriate region change events to all appropriate
   clients, and waits for all required acknowledgements.
 
-
   If \a changingw is 0, the server's reserved region is changed.
+  If \a onlyAllocate is TRUE, the requested region is not changed, only
+  the allocated region. Be careful using this option, it is only really
+  useful if the windows list changes.
 */
-void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
+void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r )
 {
+#ifdef QWS_REGION_DEBUG
     qDebug("setWindowRegion");
+#endif
 
-    if (changingw)
+    QRegion exposed;
+    if (changingw) {
 	changingw->requested_region = r;
-
+	r = r - serverRegion;
+	exposed = changingw->allocation() - r;
+    } else {
+	exposed = serverRegion-r;
+	serverRegion = r;
+    }
     QRegion allocation;
-    QRegion exposed = changingw ? changingw->allocation() - r : serverRegion-r;
     int windex = -1;
 
     // First, take the region away from whichever windows currently have it...
-    if ( changingw == 0 )
-	serverRegion = r;
     bool deeper = changingw == 0;;
     for (uint i=0; i<windows.count(); i++) {
 	QWSWindow* w = windows.at(i);
 	if ( w == changingw ) {
 	    windex = i;
-	    if ( w->removeAllocation(exposed) )
+	    if ( w->removeAllocation(exposed) ) {
+		w->pending_acks++;
 		pending_region_acks++;
+	    }
 	    allocation = r;
 	    deeper = TRUE;
 	} else if ( deeper ) {
-	    if ( w->removeAllocation(r) )
+	    if ( w->removeAllocation(r) ) {
+		w->pending_acks++;
 		pending_region_acks++;
+	    }
 	    r -= w->allocation();
 	} else {
 	    r -= w->allocation();
@@ -693,8 +918,20 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
     pendingRegion = exposed;
 
     if ( pending_region_acks == 0 )
-	    givePendingRegion();
+	givePendingRegion();
 
+}
+
+void QWSServer::exposeRegion( QRegion r )
+{
+    for (uint i=0; i<windows.count(); i++) {
+	if ( r.isEmpty() )
+	    return; // Nothing left for deeper windows
+	QWSWindow* w = windows.at(i);
+	w->addAllocation( r );
+	r -= w->allocation();
+    }
+    paintBackground( r );
 }
 
 void QWSServer::givePendingRegion()
@@ -705,7 +942,7 @@ void QWSServer::givePendingRegion()
     if ( pendingWindex >= 0 ) {
 	QWSWindow* changingw = windows.at( pendingWindex );
 	ASSERT( changingw );
-	changingw->addAllocation(pendingAllocation);
+	changingw->addAllocation( pendingAllocation, TRUE );
     } else {
 	paintServerRegion();
     }
@@ -716,4 +953,5 @@ void QWSServer::givePendingRegion()
 	w->addAllocation(exposed);
 	exposed -= w->allocation();
     }
+    paintBackground( exposed );
 }

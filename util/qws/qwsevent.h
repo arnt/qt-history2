@@ -7,6 +7,7 @@ struct QWSHeader {
     int width;
     int height;
     int depth;
+    int semkey;     // This is semaphone id for the framebuffer
     int shmid;      // This is shmid of framebuffer
     int ramid;	    // This is shmid of main ram - used for font cache etc
     int offscreen;  // Offset to offscreen memory in framebuffer
@@ -46,6 +47,7 @@ struct QWSKeyEvent {
 struct QWSRegionAddEvent {
     int type;
     int window;
+    uint is_ack:1;
     int nrectangles;
     struct {
 	int x, y, width, height;

@@ -93,17 +93,30 @@ QServerSocket::QServerSocket( const QHostAddress & address, int port,
 }
 
 
+/*!
+  Tests that the construction succeeded.
+*/
+bool QServerSocket::ok() const
+{
+    return d->s;
+}
+
 /*!  The common bit of the constructors. */
 
 void QServerSocket::init( const QHostAddress & address, int port, int backlog )
 {
     d->s = new QSocketDevice;
-    d->s->bind( address, port );
-    d->s->listen( backlog );
-    d->n = new QSocketNotifier( d->s->socket(), QSocketNotifier::Read,
-				this, "accepting new connections" );
-    connect( d->n, SIGNAL(activated(int)),
-	     this, SLOT(incomingConnection(int)) );
+    if ( d->s->bind( address, port )
+      && d->s->listen( backlog ) )
+    {
+	d->n = new QSocketNotifier( d->s->socket(), QSocketNotifier::Read,
+				    this, "accepting new connections" );
+	connect( d->n, SIGNAL(activated(int)),
+		 this, SLOT(incomingConnection(int)) );
+    } else {
+	delete d->s;
+	d->s = 0;
+    }
 }
 
 
@@ -142,7 +155,8 @@ void QServerSocket::incomingConnection( int socket )
 
 /*!  Returns the port number on which this object listens.  This is
 always non-zero; if you specify 0 in the constructor, QServerSocket
-picks a port itself and port() returns its number.
+picks a port itself and port() returns its number. ok() must be TRUE before
+calling this function.
 
 \sa address() QSocketDevice::port()
 */
@@ -154,7 +168,8 @@ uint QServerSocket::port()
 
 
 /*!  Returns the address on which this object listens, or 0.0.0.0 if
-this object listens on more than one address.
+this object listens on more than one address. ok() must be TRUE before
+calling this function.
 
 \sa port() QSocketDevice::address()
 */

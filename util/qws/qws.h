@@ -37,20 +37,21 @@ class QWSWindow
 {
     friend class QWSServer;
 public:
-    QWSWindow(int i, QWSClient* client) : id(i), c(client) { }
+    QWSWindow(int i, QWSClient* client) : id(i), c(client), pending_acks(0)
+	{ }
 
     int winId() const { return id; }
     bool forClient(const QWSClient* cl) const { return cl==c; }
     QWSClient* client() const { return c; }
     QRegion allocation() const { return allocated_region; }
 
-    void addAllocation( QRegion );
+    void addAllocation( QRegion, bool isAck = FALSE );
     bool removeAllocation( QRegion );
 
 private:
     int id;
     QWSClient* c;
-
+    short int pending_acks;
     QRegion requested_region;
     QRegion allocated_region;
 };
@@ -68,7 +69,8 @@ class QWSServer : public QServerSocket
     Q_OBJECT
 
 public:
-    QWSServer( int swidth=0, int sheight=0, QObject *parent=0, const char *name=0 );
+    QWSServer( int swidth=0, int sheight=0, bool simulate = FALSE,
+	       QObject *parent=0, const char *name=0 );
     ~QWSServer();
     void newConnection( int socket );
 
@@ -90,6 +92,7 @@ public:
 private:
     void invokeCreate( QWSCreateCommand *cmd, QWSClient *client );
     void invokeRegion( QWSRegionCommand *cmd, QWSClient *client );
+    void invokeSetAltitude( QWSChangeAltitudeCommand *cmd, QWSClient *client );
     void invokeAddProperty( QWSAddPropertyCommand *cmd );
     void invokeSetProperty( QWSSetPropertyCommand *cmd );
     void invokeRemoveProperty( QWSRemovePropertyCommand *cmd );
@@ -99,12 +102,13 @@ private:
 
     void initIO();
     void handleMouseData();
-    void givePendingRegion();
 
     void showCursor();
     void paintServerRegion();
-
+    void paintBackground( QRegion );
+    
 private slots:
+    void clientClosed();
     void doClient();
     void readMouseData();
     void readKeyboardData();
@@ -135,6 +139,8 @@ private:
     } selectionOwner;
     QTime timer;
 
+    QWSWindow *mouseGrabber;
+    bool mouseGrabbing;
     int swidth, sheight;
     int mouseFD;
     int kbdFD;
@@ -154,7 +160,11 @@ private:
     QList<QWSWindow> windows; // first=topmost
     QWSWindow* newWindow(int id, QWSClient* client);
     QWSWindow* findWindow(int windowid, QWSClient* client);
-    void setWindowRegion(QWSWindow*, QRegion r);
+    void setWindowRegion(QWSWindow*, QRegion r );
+    void raiseWindow( QWSWindow *, int = 0);
+    void lowerWindow( QWSWindow *, int = -1);
+    void exposeRegion( QRegion );
+    void givePendingRegion();
     int pending_region_acks;
 };
 
@@ -169,9 +179,10 @@ class QWSMouseEvent;
 
 class QWSClient : public QSocket
 {
+    Q_OBJECT
     friend class QWSServer;
 public:
-    QWSClient( int socket, int shmid, int swidth, int sheight,
+    QWSClient( QObject* parent, int socket, int shmid, int swidth, int sheight,
 	       int ramid, int fblen, int offscreen, int offscreenlen);
 
     int socket() const;
@@ -183,10 +194,15 @@ public:
     void sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int windowid );
     QWSCommand* readMoreCommand();
     void writeRegion( QRegion reg );
-
+signals:
+    void connectionClosed();
+private slots:
+    void closeHandler();
+    void errorHandler( int );
 private:
     int s; // XXX QSocket::d::socket->socket() is this value
     QWSCommand* command;
+    uint isClosed : 1;
 };
 
 #endif

@@ -23,10 +23,6 @@
 static const char *mouseDev = "/dev/mouse";
 static const int mouseBufSize = 100;
 
-    static const int screen_width = 1024; //#####
-    static const int screen_height = 768; //#####
-
-
 /*
   
   int xf86KbdOn()
@@ -204,8 +200,8 @@ void QWSServer::handleMouseData()
 	    int mx = mousePos.x() + dx;
 	    int my = mousePos.y() - dy; // swap coordinate system
 
-	    mousePos.setX( QMIN( QMAX( mx, 0 ), screen_width ) );
-	    mousePos.setY( QMIN( QMAX( my, 0 ), screen_height ) );
+	    mousePos.setX( QMIN( QMAX( mx, 0 ), swidth ) );
+	    mousePos.setY( QMIN( QMAX( my, 0 ), sheight ) );
 
 	    sendMouseEvent( mousePos, bstate );
 	}
@@ -303,7 +299,7 @@ static void close_fb()
   close(qfb.fbfd);
 }
 
-
+//### should use QGfx
 void QWSServer::paintServerRegion()
 {
 
@@ -312,40 +308,68 @@ void QWSServer::paintServerRegion()
 	if ( !fb_open )
 	    open_fb();
 
-#if 1
-	//16bpp
-	ushort *fbp = (ushort*)qfb.fbp;
-	ushort col = 0x0200;
-#else	
-	//32bpp
-	uint *fbp = (uint*)qfb.fbp;
-	uint col = 0x003000;
-#endif
-	//### testcode - should paint properly
-
 	
 	QRegion sr = serverRegion.intersect( QRegion(0,0,fb_vinfo.xres,
 						     fb_vinfo.yres ));
+	
+	
+	//### testcode - should paint properly
+	uint col = fb_vinfo.bits_per_pixel == 32 ? 0x003000 : 0x0200;
 	
 	QArray<QRect> reg = sr.rects();
 	
 	for ( int i = 0;  i < int(reg.count());  i++ ) {
 	    QRect r = reg[i];
 	    for ( int y = r.top(); y <= r.bottom() ; y++ )
-	      for ( int x = r.left(); x <= r.right() ; x++ ) {
-		int l = (x+fb_vinfo.xoffset) * (fb_vinfo.bits_per_pixel/8) +
-			(y+fb_vinfo.yoffset) * fb_finfo.line_length;
-#if 1
-		//16bpp
-		*(fbp+l/sizeof(ushort)) = col;
-#else
-		//32bpp
-		*(fbp+l/sizeof(uint)) = col;
-		col +=0x000200;
-#endif
-	      }
+		for ( int x = r.left(); x <= r.right() ; x++ ) {
+		    int l = (x+fb_vinfo.xoffset) * (fb_vinfo.bits_per_pixel/8) 
+			    + (y+fb_vinfo.yoffset) * fb_finfo.line_length;
+
+		    if ( fb_vinfo.bits_per_pixel == 16 ) {
+			ushort *fbp = (ushort*)qfb.fbp;
+			*(fbp+l/sizeof(ushort)) = col;
+		    } else if ( fb_vinfo.bits_per_pixel == 32 ) {
+			uint *fbp = (uint*)qfb.fbp;
+			*(fbp+l/sizeof(uint)) = col;
+			col +=0x000200;
+		    }
+		}
 	}
     }
 }
 
 
+
+//### should use QGfx
+void QWSServer::paintBackground( QRegion r )
+{
+    if ( shmid == -1 ) {
+    
+	if ( !fb_open )
+	    open_fb();
+
+	
+	//### testcode - should paint properly
+	uint col = fb_vinfo.bits_per_pixel == 32 ? 0x0030e0 : 0x0118;
+	
+	QArray<QRect> reg = r.rects();
+	
+	for ( int i = 0;  i < int(reg.count());  i++ ) {
+	    QRect r = reg[i];
+	    for ( int y = r.top(); y <= r.bottom() ; y++ )
+		for ( int x = r.left(); x <= r.right() ; x++ ) {
+		    int l = (x+fb_vinfo.xoffset) * (fb_vinfo.bits_per_pixel/8) 
+			    + (y+fb_vinfo.yoffset) * fb_finfo.line_length;
+
+		    if ( fb_vinfo.bits_per_pixel == 16 ) {
+			ushort *fbp = (ushort*)qfb.fbp;
+			*(fbp+l/sizeof(ushort)) = col;
+		    } else if ( fb_vinfo.bits_per_pixel == 32 ) {
+			uint *fbp = (uint*)qfb.fbp;
+			*(fbp+l/sizeof(uint)) = col;
+		    }
+		}
+	}
+    }
+    
+}

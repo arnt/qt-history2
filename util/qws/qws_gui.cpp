@@ -52,7 +52,7 @@ void DummyFramebuffer::serve(int refresh_delay)
 	int swidth = width();
 	int sheight = height();
 	setFixedSize(swidth,sheight);
-	server = new QWSServer( swidth, sheight, this );
+	server = new QWSServer( swidth, sheight, TRUE, this );
 	img = QImage( server->frameBuffer(),
 		    swidth, sheight, 32, 0, 0, QImage::BigEndian );
 	startTimer(refresh_delay);
