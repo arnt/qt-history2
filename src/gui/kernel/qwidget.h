@@ -344,7 +344,7 @@ public:
     static QWidget *keyboardGrabber();
 
     // Update/refresh functions
-    bool updatesEnabled() const;
+    inline bool updatesEnabled() const;
     void setUpdatesEnabled(bool enable);
 
 #if 0 //def Q_WS_QWS
