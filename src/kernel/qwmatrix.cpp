@@ -161,15 +161,16 @@ bool qt_old_transformations = TRUE;
 
     QWMatrix offers two transformation modes. Calculations can either
     be done in terms of points (Points mode, the default), or in
-    terms of dimensions (Dimensions mode).
+    terms of area (Area mode).
 
     In Points mode the transformation is applied to the points that
-    form the bounding line of the shape to be transformed. In Areas
-    mode the transformation is applied in a way, that the area that is
-    contained in the region is correctly transformed under the matrix.
+    mark out the shape's bounding line. In Areas mode the
+    transformation is applied in such a way that the area of the
+    contained region is correctly transformed under the matrix.
 
-    \value Points maps points in the shape.
-    \value Areas maps the width and height of the shape.
+    \value Points transformations are applied to the shape's points.
+    \value Areas transformations are applied (e.g. to the width and
+    height) so that the area is transformed.
 
     Example:
 
@@ -177,19 +178,19 @@ bool qt_old_transformations = TRUE;
     \c{QRect( 10, 20, 30, 40 )} and a transformation matrix
     \c{QWMatrix( 2, 0, 0, 2, 0, 0 )} to double the rectangle's size.
 
-    In Points mode, the matrix will map the top-left (10,20) and
+    In Points mode, the matrix will transform the top-left (10,20) and
     the bottom-right (39,59) points producing a rectangle with its
     top-left point at (20,40) and its bottom-right point at (78,118),
     i.e. with a width of 59 and a height of 79.
 
-    In Areas mode, the matrix will transformt the top-left point in
+    In Areas mode, the matrix will transform the top-left point in
     the same way as in Points mode to (20/40), and double the width
     and height, so the bottom-right will become (69,99), i.e. a width
     of 60 and a height of 80.
 
     Because integer arithmetic is used (for speed), rounding
     differences mean that the modes will produce slightly different
-    results given the same shape and the same transformation
+    results given the same shape and the same transformation,
     especially when scaling up. This also means that some operations
     are not commutative.
 
