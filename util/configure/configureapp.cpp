@@ -1622,7 +1622,7 @@ void Configure::generateMakefiles()
 	int i = 0;
 #if !defined(EVAL)
 	QStringList qtProjects;
-	qtProjects << "winmain" << "moc" << "corelib" << "gui" << "network"
+	qtProjects << "winmain" << "tools/moc" << "corelib" << "gui" << "network"
 	    << "opengl" << "sql" << "xml" << "qt3support";
 
         for (i=0;i<qtProjects.size();++i)
