@@ -39,7 +39,7 @@
 #ifndef QT_H
 #include "qdict.h"
 #include "qlibrary.h"
-#include "quuid_p.h"
+#include "quuid.h"
 #include "qstringlist.h"
 #endif // QT_H
 

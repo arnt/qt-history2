@@ -40,7 +40,7 @@
 
 #ifndef QT_H
 #include <qstring.h>
-#include <private/quuid_p.h>
+#include "quuid.h"
 #endif // QT_H
 
 //

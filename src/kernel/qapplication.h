@@ -48,7 +48,7 @@
 #endif // QT_H
 
 #if defined (QT_REMOTE_CONTROL)
-#include <private/quuid_p.h>
+#include "quuid.h"
 #endif
 
 class QSessionManager;

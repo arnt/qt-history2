@@ -37,7 +37,8 @@ tools {
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_H/qmutex.h \
 		  $$TOOLS_P/qmutex_p.h \
-		  $$TOOLS_H/qpluginmanager_p.h \
+		  $$TOOLS_H/qplugin.h \
+		  $$TOOLS_P/qpluginmanager_p.h \
 		  $$TOOLS_H/qptrcollection.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qptrqueue.h \
@@ -57,9 +58,9 @@ tools {
 		  $$TOOLS_H/qvaluestack.h \
 		  $$TOOLS_H/qvaluevector.h \
 		  $$TOOLS_H/qwaitcondition.h \
-		  $$TOOLS_H/qcom_p.h \
-		  $$TOOLS_H/qucom_p.h \
-		  $$TOOLS_H/quuid_p.h
+		  $$TOOLS_P/qcom_p.h \
+		  $$TOOLS_P/qucom_p.h \
+		  $$TOOLS_H/quuid.h
 
 
 	win32:SOURCES += $$TOOLS_CPP/qdir_win.cpp \

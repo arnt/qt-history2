@@ -3,7 +3,7 @@
 
 #ifndef QT_H
 #include "qstringlist.h"
-#include "quuid_p.h"
+#include "quuid.h"
 #endif // QT_H
 
 //

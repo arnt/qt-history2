@@ -33,7 +33,7 @@
 **
 **********************************************************************/
 
-#include <private/quuid_p.h>
+#include "quuid.h"
 
 /*!
   \class QUuid quuid.h
