@@ -47,7 +47,7 @@ static void copy_pixmap(const QPixmap *src, QPixmap *dest, int x, int y, int w, 
 {
     dest->resize(w, h);
     QPainter pt(dest);
-    pt.drawPixmap(0, 0, *src, x, y, w, h, Qt::SourceCopy);
+    pt.drawPixmap(0, 0, *src, x, y, w, h, Qt::CopyPixmap);
 }
 
 void Warpix::setPixmap(const QPixmap &pm)
