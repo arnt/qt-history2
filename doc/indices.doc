@@ -76,8 +76,8 @@ What´s New
 </td>
 <td valign=top>
 <ul>
-<li> \link keyfeatures22.html   Key Features in Qt 3.0 \endlink
-<li> \link changes22.html   Detailed Change Notes for Qt 3.0 \endlink
+<li> \link keyfeatures30.html   Key Features in Qt 3.0 \endlink
+<li> \link changes30.html   Detailed Change Notes for Qt 3.0 \endlink
 <li> \link http://www.trolltech.com/developer/changes/ Change History \endlink
 <li> \link porting.html   Porting from Qt 2.x to Qt 3.x \endlink
 </ul>
