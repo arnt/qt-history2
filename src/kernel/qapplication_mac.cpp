@@ -1393,6 +1393,20 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
 
 //context menu hack
 static EventRef request_context_pending = NULL;
+static void qt_event_request_context(QWidget *w=NULL, EventRef *where=NULL)
+{
+    if(!where)
+	where = &request_context_pending;
+    if(*where || QMacBlockingFunction::blocking())
+	return;
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestContext, GetCurrentEventTime(),
+		kEventAttributeUserEvent, where);
+    if(w)
+	SetEventParameter(*where, kEventParamQWidget, typeQWidget, sizeof(w), &w);
+    PostEventToQueue(GetMainEventQueue(), *where, kEventPriorityStandard);
+    ReleaseEvent(*where);
+}
+static EventRef request_context_hold_pending = NULL;
 QMAC_PASCAL void
 QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
 {
@@ -1400,15 +1414,8 @@ QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
     EventLoopTimerRef otc = mac_context_timer;
     RemoveEventLoopTimer(mac_context_timer);
     mac_context_timer = NULL;
-    if(r != otc || w != qt_button_down ||
-       request_context_pending || QMacBlockingFunction::blocking())
-	return;
-
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestContext, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &request_context_pending);
-    SetEventParameter(request_context_pending, kEventParamQWidget, typeQWidget, sizeof(w), &w);
-    PostEventToQueue(GetMainEventQueue(), request_context_pending, kEventPriorityStandard);
-    ReleaseEvent(request_context_pending);
+    if(r == otc && w == qt_button_down)
+	qt_event_request_context(w, &request_context_hold_pending);
 }
 
 bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, WindowPtr pt)
@@ -1446,7 +1453,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     QApplication *app = (QApplication *)data;
     if(app->macEventFilter(er, event)) //someone else ate it
 	return noErr;
-    QWidget *widget = NULL;
+    QGuardedPtr<QWidget> widget;
 
     /*Only certain event don't remove the context timer (the left hold context menu),
       otherwise we just turn it off. Similarly we assume all events are handled and in
@@ -1509,8 +1516,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    memset(&tm, '\0', sizeof(tm));
 	    l->macHandleSelect(&tm);
 	} else if(ekind == kEventQtRequestContext) {
-	    if(request_context_pending) {
+	    bool send = FALSE;
+	    if((send = (event == request_context_hold_pending))) 
+		request_context_hold_pending = NULL;
+	    else if((send = (event == request_context_pending))) 
 		request_context_pending = NULL;
+	    if(send) {
 		//figure out which widget to send it to
 		QPoint where = QCursor::pos();
 		QWidget *widget = NULL;
@@ -1757,59 +1768,52 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	if(widget) {
 	    QPoint p(where.h, where.v);
 	    QPoint plocal(widget->mapFromGlobal(p));
-	    bool was_context = FALSE;
-	    if(!was_context) {
-		if(etype == QEvent::MouseButtonPress) {
-		    qt_mac_dblclick.active = TRUE;
-		    qt_mac_dblclick.last_modifiers = keys;
-		    qt_mac_dblclick.last_button = button;
-		    qt_mac_dblclick.last_time = GetEventTime(event);
+	    if(etype == QEvent::MouseButtonPress) {
+		qt_mac_dblclick.active = TRUE;
+		qt_mac_dblclick.last_modifiers = keys;
+		qt_mac_dblclick.last_button = button;
+		qt_mac_dblclick.last_time = GetEventTime(event);
+	    }
+	    if(wheel_delta) {
+		QWheelEvent qwe(plocal, p, wheel_delta, state | keys);
+		QApplication::sendSpontaneousEvent(widget, &qwe);
+		if(!qwe.isAccepted() && focus_widget && focus_widget != widget) {
+		    QWheelEvent qwe2(focus_widget->mapFromGlobal(p), p,
+				     wheel_delta, state | keys);
+		    QApplication::sendSpontaneousEvent(focus_widget, &qwe2);
 		}
-		if(wheel_delta) {
-		    QWheelEvent qwe(plocal, p, wheel_delta, state | keys);
-		    QApplication::sendSpontaneousEvent(widget, &qwe);
-		    if(!qwe.isAccepted() && focus_widget && focus_widget != widget) {
-			QWheelEvent qwe2(focus_widget->mapFromGlobal(p), p,
-					  wheel_delta, state | keys);
-			QApplication::sendSpontaneousEvent(focus_widget, &qwe2);
-		    }
-		} else {
+	    } else {
 #ifdef QMAC_SPEAK_TO_ME
-		    if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
-			QVariant v = widget->property("text");
-			if(!v.isValid()) v = widget->property("caption");
-			if(v.isValid()) {
-			    QString s = v.toString();
-			    s.replace(QRegExp("(\\&|\\<[^\\>]*\\>)"), "");
-			    SpeechChannel ch;
-			    NewSpeechChannel(NULL, &ch);
-			    SpeakText(ch, s.latin1(), s.length());
-			}
+		if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
+		    QVariant v = widget->property("text");
+		    if(!v.isValid()) v = widget->property("caption");
+		    if(v.isValid()) {
+			QString s = v.toString();
+			s.replace(QRegExp("(\\&|\\<[^\\>]*\\>)"), "");
+			SpeechChannel ch;
+			NewSpeechChannel(NULL, &ch);
+			SpeakText(ch, s.latin1(), s.length());
 		    }
-#endif
-		    int macButton = button;
-		    if(button == QMouseEvent::LeftButton && (modifiers & controlKey))
-			macButton = QMouseEvent::RightButton;
-		    QMouseEvent qme(etype, plocal, p, macButton, state | keys);
-		    QApplication::sendSpontaneousEvent(widget, &qme);
 		}
+#endif
+		int macButton = button;
+		if(button == QMouseEvent::LeftButton && (modifiers & controlKey))
+		    macButton = QMouseEvent::RightButton;
+		QMouseEvent qme(etype, plocal, p, macButton, state | keys);
+		QApplication::sendSpontaneousEvent(widget, &qme);
 	    }
 	    if(ekind == kEventMouseDown &&
 	       ((button == QMouseEvent::RightButton) ||
-		(button == QMouseEvent::LeftButton && (modifiers & controlKey)))) {
-		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys);
-		QApplication::sendSpontaneousEvent(widget, &cme);
-		was_context = cme.isAccepted();
-	    }
+		(button == QMouseEvent::LeftButton && (modifiers & controlKey)))) 
+		qt_event_request_context();
+
 #ifdef DEBUG_MOUSE_MAPS
 	    const char *event_desc = edesc;
-	    if(was_context)
-		event_desc = "Context Menu";
-	    else if(etype == QEvent::MouseButtonDblClick)
+	    if(etype == QEvent::MouseButtonDblClick)
 		event_desc = "Double Click";
 	    qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d %d %d)", p.x(), p.y(),
-		   plocal.x(), plocal.y(), event_desc, widget, widget->name(),
-		   widget->className(), button, state|keys, wheel_delta);
+		   plocal.x(), plocal.y(), event_desc, widget, widget ? widget->name() : "*Unknown*",
+		   widget ? widget->className() : "*Unknown*", button, state|keys, wheel_delta);
 #endif
 	} else {
 	    handled_event = FALSE;
@@ -2270,7 +2274,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventWindowDeactivated) {
 	    if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
 		DeactivateTSMDocument(doc->document());
-	    if(widget && widget == active_window)
+	    if(widget && active_window == widget)
 		app->setActiveWindow(NULL);
 	} else {
 	    handled_event = FALSE;
@@ -2429,10 +2433,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    RemoveEventLoopTimer(mac_context_timer);
 	    mac_context_timer = NULL;
 	}
-	if(request_context_pending) {
-	    RemoveEventFromQueue(GetMainEventQueue(), request_context_pending);
-	    ReleaseEvent(request_context_pending);
-	    request_context_pending = NULL;
+	if(request_context_hold_pending) {
+	    RemoveEventFromQueue(GetMainEventQueue(), request_context_hold_pending);
+	    ReleaseEvent(request_context_hold_pending);
+	    request_context_hold_pending = NULL;
 	}
     }
 
