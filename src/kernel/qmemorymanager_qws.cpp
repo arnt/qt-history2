@@ -259,7 +259,9 @@ private:
     {
 	int n = max.unicode()-min.unicode()+1;
 	for (int i=0; i<n; i++) {
-	    uint datasize = glyph[i].metrics->linestep * glyph[i].metrics->height;
+	    QSize s( glyph[i].metrics->width, glyph[i].metrics->height );
+	    s = qt_screen->mapToDevice( s );
+	    uint datasize = glyph[i].metrics->linestep * s.height();
 	    f.writeBlock((char*)glyph[i].data, datasize);
 	}
 	if ( less ) less->writeData(f);
@@ -367,7 +369,9 @@ private:
     {
 	int n = max.unicode()-min.unicode()+1;
 	for (int i=0; i<n; i++) {
-	    uint datasize = glyph[i].metrics->linestep * glyph[i].metrics->height;
+	    QSize s( glyph[i].metrics->width, glyph[i].metrics->height );
+	    s = qt_screen->mapToDevice( s );
+	    uint datasize = glyph[i].metrics->linestep * s.height();
 	    glyph[i].data = data; data += datasize;
 	}
 	if ( less )
@@ -380,7 +384,9 @@ private:
     {
 	int n = max.unicode()-min.unicode()+1;
 	for (int i=0; i<n; i++) {
-	    uint datasize = glyph[i].metrics->linestep * glyph[i].metrics->height;
+	    QSize s( glyph[i].metrics->width, glyph[i].metrics->height );
+	    s = qt_screen->mapToDevice( s );
+	    uint datasize = glyph[i].metrics->linestep * s.height();
 	    glyph[i].data = new uchar[datasize];
 	    f.readBlock((char*)glyph[i].data, datasize);
 	}
