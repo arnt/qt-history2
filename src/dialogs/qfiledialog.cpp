@@ -2080,6 +2080,7 @@ void QFileDialog::init()
              this, SLOT( dataTransferProgress( int, int, QNetworkOperation * ) ) );
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
+    nameEdit->setMaxLength( 255 ); //_POSIX_MAX_PATH
     connect( nameEdit, SIGNAL(textChanged(const QString&)),
 	     this,  SLOT(fileNameEditDone()) );
     nameEdit->installEventFilter( this );
