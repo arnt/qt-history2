@@ -641,15 +641,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
 #ifndef Q_OS_TEMP
-#  if 0
-    // ### use this if you encounter problems related alpha blending:
-    if ( FALSE ) {
-#  else
     if ( img.hasAlphaBuffer() &&
 	    d==32 && // ### can we have alpha channel with depth<32bpp?
 	    ( QApplication::winVersion() != Qt::WV_95 &&
 	      QApplication::winVersion() != Qt::WV_NT ) ) {
-#  endif
 	bool hasRealAlpha = FALSE;
 	int i = 0;
 	while ( i<image.height() && !hasRealAlpha ) {
@@ -665,7 +660,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    }
 	    ++i;
 	}
-
+	// ### use this to turn off alpha blending (if you encounter any problems):
+	//hasRealAlpha = FALSE;
 	if ( hasRealAlpha ) {
 	    initAlphaPixmap( image.bits(), image.numBytes(), bmi );
 
@@ -783,51 +779,54 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F ) {
 	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
 	    return *this;			// identity matrix
-	h = qRound( mat.m22()*hs );
-	w = qRound( mat.m11()*ws );
-	h = QABS( h );
-	w = QABS( w );
-	// we have to create the new pixmap before we query the handle of this,
-	// as the handle might change if this is a multicell pixmap that gets
-	// expanded by the constructor in the line below.
-	QPixmap pm( w, h, depth(), optimization() );
-	HDC dc;
-	int sy;
-	if ( data->mcp ) {
-	    dc = DATA_MCPI_MCP->handle();
-	    sy = DATA_MCPI_OFFSET;
-	} else {
-	    dc = handle();
-	    sy = 0;
-	}
-	HDC pm_dc;
-	int pm_sy;
-	if ( pm.data->mcp ) {
-	    pm_dc = pm.multiCellHandle();
-	    pm_sy = pm.multiCellOffset();
-	} else {
-	    pm_dc = pm.handle();
-	    pm_sy = 0;
-	}
+	if ( data->realAlphaBits == 0 ) {
+	    h = qRound( mat.m22()*hs );
+	    w = qRound( mat.m11()*ws );
+	    h = QABS( h );
+	    w = QABS( w );
+	    // we have to create the new pixmap before we query the handle of this,
+	    // as the handle might change if this is a multicell pixmap that gets
+	    // expanded by the constructor in the line below.
+	    QPixmap pm( w, h, depth(), optimization() );
+	    HDC dc;
+	    int sy;
+	    if ( data->mcp ) {
+		dc = DATA_MCPI_MCP->handle();
+		sy = DATA_MCPI_OFFSET;
+	    } else {
+		dc = handle();
+		sy = 0;
+	    }
+	    HDC pm_dc;
+	    int pm_sy;
+	    if ( pm.data->mcp ) {
+		pm_dc = pm.multiCellHandle();
+		pm_sy = pm.multiCellOffset();
+	    } else {
+		pm_dc = pm.handle();
+		pm_sy = 0;
+	    }
 #ifndef Q_OS_TEMP
-	SetStretchBltMode( pm_dc, COLORONCOLOR );
+	    SetStretchBltMode( pm_dc, COLORONCOLOR );
 #endif
-	StretchBlt( pm_dc, 0, pm_sy, w, h,	// scale the pixmap
+	    StretchBlt( pm_dc, 0, pm_sy, w, h,	// scale the pixmap
 		    dc, 0, sy, ws, hs, SRCCOPY );
-	if ( data->mask ) {
-	    QBitmap bm =
-		data->selfmask ? *((QBitmap*)(&pm)) :
-					 data->mask->xForm(matrix);
-	    pm.setMask( bm );
+	    if ( data->mask ) {
+		QBitmap bm =
+		    data->selfmask ? *((QBitmap*)(&pm)) :
+		    data->mask->xForm(matrix);
+		pm.setMask( bm );
+	    }
+	    return pm;
 	}
-	return pm;
-    } else {					// rotation or shearing
-	QPointArray a( QRect(0,0,ws+1,hs+1) );
-	a = mat.map( a );
-	QRect r = a.boundingRect().normalize();
-	w = r.width()-1;
-	h = r.height()-1;
     }
+
+    // rotation or shearing
+    QPointArray a( QRect(0,0,ws+1,hs+1) );
+    a = mat.map( a );
+    QRect r = a.boundingRect().normalize();
+    w = r.width()-1;
+    h = r.height()-1;
 
     mat = trueMatrix( mat, ws, hs ); // true matrix
 
