@@ -4111,6 +4111,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 		break;
 	    if (x11Event( &otherEvent ) )
 		break;
+	    if ( otherEvent.xconfigure.event != otherEvent.xconfigure.window )
+		break;
 	    newSize.setWidth( otherEvent.xconfigure.width );
 	    newSize.setHeight( otherEvent.xconfigure.height );
 	    if ( otherEvent.xconfigure.send_event || trust ) {
