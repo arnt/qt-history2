@@ -1990,7 +1990,8 @@ void QComboBox::setUpListBox()
 
 void QComboBox::setUpLineEdit()
 {
-    setLineEdit( new QLineEdit( this, "combo edit" ) );
+    if ( !d->ed )
+	setLineEdit( new QLineEdit( this, "combo edit" ) );
 }
 
 /*!  Sets the lineedit to use \a edit instead of the current lineedit.
