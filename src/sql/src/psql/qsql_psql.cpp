@@ -332,7 +332,8 @@ QVariant QPSQLResult::data( int i )
 	    ((QSqlDriver*)driver())->commitTransaction();
 	    return QVariant( ba );
 	}
-	char buf[ size ];
+	char* buf;
+	buf = new char[ size ];
 	retval = lo_read( d->connection, fd, buf, size );
 	if (retval < 0) {
 	    qWarning( "QPSQLResult::data: unable to read large object" );
@@ -341,6 +342,7 @@ QVariant QPSQLResult::data( int i )
 	    return QVariant( ba );
 	}
 	ba.duplicate( buf, size );
+	delete [] buf;
 	lo_close( d->connection, fd );
 	((QSqlDriver*)driver())->commitTransaction();
 	return QVariant( ba );
