@@ -78,35 +78,51 @@
     \skipto class
     \printuntil };
 
-    The .NET wrapper class uses keywords that are part of Microsoft's
-    C++ extension to indicate that the class is garbage collected 
-    (\c {__gc}), and that \c StatusString should be accessible as a
-    property in languages that support this concept (\c {__property}).
-    
+    The Qt class has nothing unusual for Qt users, and as even the Qt 
+    specialities like \c Q_PROPERTY, \c slots and \c signals are 
+    implemented with straight C++ they don't cause any trouble when
+    compiling this class with any C++ compiler.
+   
     \quotefile dotnet/wrapper/lib/networker.h
     \skipto class
     \printuntil };
-    \printuntil }
 
-    In addition to writing a wrapper class you also have to convert
-    Qt's and your own datatypes into .NET datatypes, e.g. \c QString 
-    objects need to be converted into a objects of type \c {String*}.
+    The .NET wrapper class uses keywords that are part of Microsoft's
+    C++ extension to indicate that the class is garbage collected
+    (\c {__gc}), and that \c StatusString should be accessible as a
+    property in languages that support this concept (\c {__property}).
+    We also  declare an event function \c statusStringChanged(String*)
+    (\c {__event}), the equivalent of the respective signal in the Qt
+    class.
+
+    Before we can start implementing the wrapper class we need a way to
+    convert Qt's datatypes (and potentionally your own) into .NET 
+    datatypes, e.g. \c QString objects need to be converted into objects 
+    of type \c {String*}.
 
     \quotefile dotnet/wrapper/lib/tools.cpp
     \printuntil }
 
     \printuntil }
 
-    The converter function can then be used in the wrapper class to call 
-    the functions in the native C++ class.
+    The converter functions can then be used in the wrapper class 
+    implementation to call the functions in the native C++ class.
 
     \quotefile dotnet/wrapper/lib/networker.cpp
-    \skipto using
     \printuntil }
 
     \printuntil }
 
-    \printuntil }
+    The constructor and destructor simply create and destroy the Qt
+    object wrapped using the C++ operators \c new and \c delete. Note
+    that the constructor of the \c Worker class doesn't take any 
+    parameters, ie. it cannot be a child of another QObject. Supporting
+    this would make it necessary to reflect changes in the object 
+    hierarchy (ie. when objects are destroyed, or due to calls to 
+    QWidget::reparent()) in the .NET-copy of the object hierarchy.
+    Since C++ that is compiled into bytecode doesn't support standard
+    features like default parameters it would be too much trouble to 
+    implement this for the purpose of this example.
 
     \printuntil }
 
@@ -115,20 +131,31 @@
     performance hit for each function calls, in addition to the type
     conversion.
 
+    \printuntil }
+
+    The property setter calls the native Qt class before firing the 
+    event using the \c __raise keyword. This is necessary as Qt and 
+    .Net use incompatible signal and slot implementations, so we cannot 
+    just connect the Qt signal to the .Net event.
+    The solution provided here is not working as soon as the Qt class
+    emits signals based on internal status changes, which is of course
+    how signals usually work.
+
     That wrapper can now be used in .NET code, e.g. using C++, C#, 
     Visual Basic or any other programming language available for .NET.
 
     \quotefile dotnet/wrapper/main.cs
+    \printuntil [STAThread]
     \printuntil }
     \printuntil }
     \printuntil }
 
-    This is clearly a big effort already for a simple class, and we 
-    haven't even started yet to model elegant and important Qt concepts 
-    like parent/child relations, signals and slots in the .NET wrapper
+    This is clearly a big effort already for a simple class, and we
+    haven't even completely modelled important Qt concepts like
+    parent/child relations or signals and slots in the .NET wrapper
     class.
 
-    In addition this effort is necessary to be able to support your code
+    And all this effort is necessary to be able to support your code
     on a single additional platform - Microsoft .NET - and is useless for
     any other environment, where the wrapper class will not even compile 
     as it uses Microsoft specific C++ extensions.
