@@ -436,6 +436,12 @@ Requires:
 Name: Matrox MGA acceleration
 SeeAlso: ???
 
+Feature: QWS_REPEATER
+Section: Qt/Embedded-specific
+Requires: 
+Name: Repeater display
+SeeAlso: ???
+
 Feature: QWS_VFB
 Section: Qt/Embedded-specific
 Requires:
