@@ -363,8 +363,8 @@ void QTextHTMLImporter::import()
 
             QTextCharFormat charFmt;
             charFmt.setNonDeletable(true);
+            charFmt.setObjectIndex(tableIndices[tableIndices.size() - 1]);
             QTextBlockFormat fmt;
-            fmt.setObjectIndex(tableIndices[tableIndices.size() - 1]);
             if (node->bgColor.isValid())
                 fmt.setBackgroundColor(node->bgColor);
             appendBlock(fmt, charFmt, QTextBeginningOfFrame);
