@@ -64,3 +64,11 @@ New global functions:
 moc:
 ----
   Supports templates.
+
+
+Documentation:
+--------------
+  A tutorial.
+  Template classes (QArray, QList etc.) are documented.
+  Many more links in the examples.
+  Postscript documentation (around 400 pages).
