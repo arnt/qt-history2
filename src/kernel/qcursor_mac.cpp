@@ -463,9 +463,9 @@ void QCursor::update() const
 	    for(int y = 0; y < 16; y++) {
 		for(int x = 0; x < 16; x++) {
 		    int bmi_val = 0, bmmi_val = 0;
-		    if(!bmi.pixel(x, y)) {
-			if(bmmi.pixel(x, y)) 
-			    bmi_val = 1;
+		    if(!bmmi.pixel(x, y)) {
+			if(bmi.pixel(x, y)) 
+			    bmmi_val = 1;
 			else 
 			    bmi_val = bmmi_val = 1;
 		    }
