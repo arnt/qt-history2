@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#7 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#7 $";
 #endif
 
 
@@ -64,7 +64,7 @@ QCursorData::QCursorData()
 
 QCursorData::~QCursorData()
 {
-    Display *dpy = qXDisplay();
+    Display *dpy = qt_xdisplay();
     if ( hcurs )
 	XFreeCursor( dpy, hcurs );
     if ( pm )
@@ -220,14 +220,14 @@ QPoint QCursor::pos()				// get cursor position
     Window child;
     int root_x, root_y, win_x, win_y;
     uint buttons;
-    XQueryPointer( qXDisplay(), qXRootWin(), &root, &child,
+    XQueryPointer( qt_xdisplay(), qt_xrootwin(), &root, &child,
 		   &root_x, &root_y, &win_x, &win_y, &buttons );
     return QPoint( root_x, root_y );
 }
 
 void QCursor::setPos( int x, int y )		// set cursor position
 {
-    XWarpPointer( qXDisplay(), None, qXRootWin(), 0, 0, 0, 0, x, y );
+    XWarpPointer( qt_xdisplay(), None, qt_xrootwin(), 0, 0, 0, 0, x, y );
 }
 
 
@@ -276,7 +276,7 @@ void QCursor::update() const			// update/load cursor
 	cur_ver_bits, mcur_ver_bits, cur_hor_bits, mcur_hor_bits,
 	cur_bdiag_bits, mcur_bdiag_bits, cur_fdiag_bits, mcur_fdiag_bits };
 
-    Display *dpy = qXDisplay();
+    Display *dpy = qt_xdisplay();
     if ( d->cshape == BitMapCursor ) {
 	XColor bg, fg;				// ignore stupid CFront message
 	bg.red = bg.green = bg.blue = 255 << 8;
@@ -290,7 +290,7 @@ void QCursor::update() const			// update/load cursor
 	bg.red = bg.green = bg.blue = 255 << 8;
 	fg.red = fg.green = fg.blue = 0;
 	int i = (d->cshape - SizeVerCursor)*2;
-	Window rootwin = qXRootWin();
+	Window rootwin = qt_xrootwin();
 	d->pm  = XCreateBitmapFromData( dpy, rootwin, cursor_bits[i], 16, 16 );
 	d->pmm = XCreateBitmapFromData( dpy, rootwin, cursor_bits[i+1], 16,16);
 	d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg, &bg, 8, 8 );

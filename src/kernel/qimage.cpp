@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#15 $
 **
 ** Implementation of QImage class
 **
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#15 $";
 #endif
 
 
@@ -225,7 +225,7 @@ int QImageData::systemByteOrder()		// determine system byte order
 int QImageData::systemBitOrder()		// determine hardware bit order
 {
 #if defined(_WS_X11_)
-    return BitmapBitOrder(qXDisplay()) == MSBFirst ? BigEndian : LittleEndian;
+    return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? BigEndian :LittleEndian;
 #else
     return BigEndian;
 #endif

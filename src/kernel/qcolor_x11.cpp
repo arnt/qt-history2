@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#17 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#17 $";
 #endif
 
 
@@ -83,8 +83,8 @@ void QColor::initialize()			// called from startup routines
 {
     if ( g_cmap )				// already initialized
 	return;
-    Display *dpy    = qXDisplay();
-    int      screen = qXScreen();
+    Display *dpy    = qt_xdisplay();
+    int      screen = qt_xscreen();
     int dd  = DefaultDepth( dpy, screen );	// default depth of display
     g_cmap  = DefaultColormap( dpy, screen );	// create colormap
     g_ncols = DisplayCells( dpy, screen );	// number of colors
@@ -210,7 +210,7 @@ bool QColor::alloc()				// allocate color
 	return TRUE;
     }
     XColor col;
-    Display *dpy = qXDisplay();
+    Display *dpy = qt_xdisplay();
     r = (int)(rgb & 0xff);
     g = (int)((rgb >> 8) & 0xff);
     b = (int)((rgb >> 16) & 0xff);
@@ -275,7 +275,7 @@ bool QColor::setNamedColor( const char *name )	// load color from database
     bool ok = FALSE;
     if ( g_cmap  ) {				// initialized
 	XColor col, hw_col;
-	if ( XLookupColor( qXDisplay(), g_cmap, name, &col, &hw_col ) )
+	if ( XLookupColor( qt_xdisplay(), g_cmap, name, &col, &hw_col ) )
 	    ok = setRGB( col.red>>8, col.green>>8, col.blue>>8 );
     }
     else {

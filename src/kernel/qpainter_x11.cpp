@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#65 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#64 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#65 $";
 #endif
 
 
@@ -380,7 +380,7 @@ void QPainter::cleanup()
 {
     delete list;
     list = 0;
-    cleanup_painter_gc( qXDisplay() );
+    cleanup_painter_gc( qt_xdisplay() );
 }
 
 

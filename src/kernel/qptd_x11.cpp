@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#19 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#19 $";
 #endif
 
 
@@ -34,14 +34,14 @@ QPaintDevice::QPaintDevice()
 	return;
     }    
     devFlags = PDT_UNDEF;
-    dpy = qXDisplay();
+    dpy = qt_xdisplay();
     hd = 0;
 }
 
 QPaintDevice::~QPaintDevice()
 {
 #if defined(CHECK_STATE)
-    if ( !qXDisplay() )				// this is a static object
+    if ( !qt_xdisplay() )			// this is a static object
 	warning( "QPaintDevice: Static paint device objects don't release "
 		 "window system resources" );
 #endif
@@ -138,7 +138,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	copy_plane ^= single_plane;
 	((QPixMap*)dst)->setImageDataDirty();
     }
-    GC        gc = qXGetTempGC( mono );
+    GC        gc = qt_xget_temp_gc( mono );
     XGCValues gcvals;
     ulong     gcflags = GCBackground | GCForeground;
 

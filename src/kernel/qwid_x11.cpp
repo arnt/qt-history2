@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#49 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#48 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#49 $";
 #endif
 
 
@@ -62,7 +62,7 @@ bool QWidget::create()				// create widget
     if ( !parentWidget() )
 	setFlag( WType_Overlap );		// overlapping widget
 
-    int	   screen = qXScreen();			// X11 screen
+    int	   screen = qt_xscreen();		// X11 screen
     int	   sw = DisplayWidth( dpy, screen );	// screen width
     int	   sh = DisplayHeight( dpy, screen );	// screen height
     bool   overlap = testFlag( WType_Overlap );
@@ -133,7 +133,7 @@ bool QWidget::create()				// create widget
 	    if ( parentWidget() )		// modal to one widget
 		XSetTransientForHint( dpy, id, parentWidget()->id() );
 	    else				// application-modal
-		XSetTransientForHint( dpy, id, qXRootWin() );
+		XSetTransientForHint( dpy, id, qt_xrootwin() );
 	}
 	XSizeHints size_hints;
 	size_hints.flags = PPosition | PSize | PWinGravity;
@@ -641,7 +641,7 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
 	y2 = 0;
 	h += dy;
     }
-    XCopyArea( dpy, ident, ident, qXGetReadOnlyGC(), x1, y1, w, h, x2, y2 );
+    XCopyArea( dpy, ident, ident, qt_xget_readonly_gc(), x1, y1, w, h, x2, y2);
     if ( children() ) {				// scroll children
 	QPoint pd( dx, dy );
 	QObjectListIt it(*children());
@@ -687,7 +687,7 @@ long QWidget::metric( int m ) const		// get metric information
 	    val = crect.height();
     }
     else {
-	int scr = qXScreen();
+	int scr = qt_xscreen();
 	switch ( m ) {
 	    case PDM_WIDTHMM:
 	        val = ((long)DisplayWidthMM(dpy,scr)*crect.width())/

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#43 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#44 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -126,11 +126,11 @@ typedef struct _XGC *GC;
 typedef struct _XRegion *Region;
 struct QXFontStruct;
 
-Display *qXDisplay();
-int	 qXScreen();
-Window	 qXRootWin();
-GC	 qXGetReadOnlyGC( bool monochrome=FALSE );
-GC	 qXGetTempGC( bool monochrome=FALSE );
+Display *qt_xdisplay();
+int	 qt_xscreen();
+Window	 qt_xrootwin();
+GC	 qt_xget_readonly_gc( bool monochrome=FALSE );
+GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 
 #endif // _WS_X11_
 

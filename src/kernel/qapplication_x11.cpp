@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#54 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#53 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#54 $";
 #endif
 
 
@@ -343,22 +343,22 @@ char *qAppName()				// get application name
     return appName;
 }
 
-Display *qXDisplay()				// get current X display
+Display *qt_xdisplay()				// get current X display
 {
     return appDpy;
 }
 
-int qXScreen()					// get current X screen
+int qt_xscreen()				// get current X screen
 {
     return appScreen;
 }
 
-Window qXRootWin()				// get X root window
+Window qt_xrootwin()				// get X root window
 {
     return appRootWin;
 }
 
-GC qXGetReadOnlyGC( bool monochrome )		// get read-only GC
+GC qt_xget_readonly_gc( bool monochrome )	// get read-only GC
 {
     GC gc;
     if ( monochrome ) {
@@ -377,7 +377,7 @@ GC qXGetReadOnlyGC( bool monochrome )		// get read-only GC
     return gc;
 }
 
-GC qXGetTempGC( bool monochrome )		// get use'n throw GC
+GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
 {
     GC gc;
     if ( monochrome ) {
