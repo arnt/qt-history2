@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#18 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#19 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -43,19 +43,7 @@
 #include "qmap.h"
 #include "qtextstream.h"
 #include "qiodevice.h"
-#include "qpixmap.h"
 #include "qdict.h"
-
-#include <string.h>
-#include <stdlib.h>
-
-#if defined(Q_OS_LINUX)
-#  if defined(__alpha__) || defined(__alpha)
-#    define Q_BROKEN_ALPHA
-#  endif
-#endif
-
-// template class QDict<QDomNodePrivate>;
 
 // NOT REVISED
 
@@ -4117,7 +4105,8 @@ QDomNodePrivate* QDomCDATASectionPrivate::cloneNode( bool deep)
 
 void QDomCDATASectionPrivate::save( QTextStream& s, int ) const
 {
-    // #### How do we escape "]]>" ?
+    // ### How do we escape "]]>" ?
+    // "]]>" is not allowed; so there should be no in value anyway
     s << "<![CDATA[" << value << "]]>";
 }
 
@@ -5092,11 +5081,7 @@ bool QDomDocumentPrivate::setContent( QXmlInputSource& source )
     reader.setLexicalHandler( &hnd );
     reader.setDeclHandler( &hnd );
     reader.setDTDHandler( &hnd );
-#if defined(Q_BROKEN_ALPHA) // #### very ugly hack, ws should really be able to get rid of that
-    reader.setFeature( "http://xml.org/sax/features/namespaces", TRUE );
-#else
     reader.setFeature( "http://xml.org/sax/features/namespaces", FALSE );
-#endif
     reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
     reader.setFeature( "http://trolltech.com/xml/features/report-whitespace-only-CharData", FALSE );
 
@@ -5780,16 +5765,6 @@ bool QDomHandler::startDTD( const QString& name, const QString&, const QString&)
 bool QDomHandler::startElement( const QString&, const QString&, const QString& qName, const QXmlAttributes& atts )
 {
     // tag name
-#if 0
-    // ### do we really need this?
-    if ( node == doc ) {
-	// Has to be a special tag
-	if ( qName != doc->doctype()->nodeName() ) {
-	    // TODO: Exception
-	    return FALSE;
-	}
-    }
-#endif
     QDomNodePrivate* n = doc->createElement( qName );
     node->appendChild( n );
     node = n;
@@ -5798,7 +5773,7 @@ bool QDomHandler::startElement( const QString&, const QString&, const QString& q
     for ( int i=0; i<atts.length(); i++ )
     {
 	if ( !node->isElement() ) {
-	    // TODO: Exception
+	    // ### Exception
 	    return FALSE;
 	}
 	((QDomElementPrivate*)node)->setAttribute( atts.qName(i), atts.value(i) );
