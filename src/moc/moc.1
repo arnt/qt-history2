@@ -1,6 +1,6 @@
 .TH moc 1 "20 November 1997" "Troll Tech AS" \" -*- nroff -*-
 .\"
-.\" $Id: //depot/qt/main/src/moc/moc.1#15 $
+.\" $Id: //depot/qt/main/src/moc/moc.1#16 $
 .\"
 .\" Copyright 1992-1997 Troll Tech AS.  All rights reserved.
 .\" 
@@ -12,7 +12,7 @@
 moc \- generate Qt meta object support code
 .SH SYNOPSIS
 .B moc
-[-o file] [-i] [-f] [-k] [-ldbg] [-dbg] [-nw] [-p path] [-q path] file
+[-o file] [-Dmacro] [-i] [-f[file]] [-k] [-ldbg] [-dbg] [-nw] [-p path] [-q path] file
 .SH DESCRIPTION
 This page documents the Meta Object Compiler for the Qt GUI
 application framework.  The Meta Object Compiler reads one or more C++
@@ -39,7 +39,13 @@ Write output to
 .I file
 rather than to stdout.
 .TP
-.I -f
+.I -Dmacro
+.B moc
+parses and understands #define, #ifdef, #ifndef and #endif in C++
+code. You can define a macro by using the -D option.
+.B NOTE: The #if directive is not supported in this version of moc.
+.TP
+.I -f[file]
 Force the generation of an #include statement in the output.
 This is the default for files whose name matches the regular
 expression .[hH][^.]* (ie. the extension starts with 
@@ -49,6 +55,8 @@ or
 ). This
 option is only useful if you have header files that do not follow the
 standard naming conventions.
+If a file argument is given, the generated moc output will #include
+the specified file instead of the input file.
 .TP
 .I "-i"
 Do not generate an #include statement in the output.  This may be used

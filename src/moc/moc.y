@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#89 $
+** $Id: //depot/qt/main/src/moc/moc.y#90 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#89 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#90 $");
 
 static QString rmWS( const char * );
 
@@ -786,6 +786,7 @@ QString	  className;				// name of parsed class
 QString	  superclassName;			// name of super class
 FuncList  signals;				// signal interface
 FuncList  slots;				// slots interface
+QDict<char> defines;				// simple #defines
 
 FILE  *out;					// output file
 
@@ -798,6 +799,7 @@ int main( int argc, char **argv )
     bool autoInclude = TRUE;
     char *error	     = 0;
     qtPath = "";
+
     for ( int n=1; n<argc && error==0; n++ ) {
 	QString arg = argv[n];
 	if ( arg[0] == '-' ) {			// option
@@ -814,6 +816,13 @@ int main( int argc, char **argv )
 	    } else if ( opt == "i" ) {		// no #include statement
 		noInclude   = TRUE;
 		autoInclude = FALSE;
+	    } else if ( opt[0] == 'D' ) {	// simple -DMACRO
+		int eq = opt.find('=');
+		if ( strlen(opt) > 1 && eq != 0 ) {
+		    defines.insert( opt.mid(1, eq < 0 ? 9999 : eq-1),
+				    qstrdup(eq < 0 ? "" :
+					    (const char*)opt.mid(eq,9999)) );
+		}
 	    } else if ( opt[0] == 'f' ) {	// produce #include statement
 		noInclude   = FALSE;
 		autoInclude = FALSE;
@@ -890,16 +899,17 @@ int main( int argc, char **argv )
 	if ( error )
 	    fprintf( stderr, "moc: %s\n", error );
 	fprintf( stderr, "Usage:  moc [options] <header-file>\n"
-		 "\t-o file  Write output to file rather than stdout\n"
-		 "\t-i       Do not generate an #include statement\n"
-		 "\t-f[file] Force #include, optional file name\n"
-		 "\t-p path  Path prefix for included file\n"
-		 "\t-k       Do not stop on errors\n"
-		 "\t-nw      Do not display warnings\n"
+		 "\t-D[macro] Define a macro (for #ifdef processing\n"
+		 "\t-o file   Write output to file rather than stdout\n"
+		 "\t-i        Do not generate an #include statement\n"
+		 "\t-f[file]  Force #include, optional file name\n"
+		 "\t-p path   Path prefix for included file\n"
+		 "\t-k        Do not stop on errors\n"
+		 "\t-nw       Do not display warnings\n"
 #if 0
-		 "\t-ldbg    lex debug output\n"
-		 "\t-ydbg    yacc debug output\n"
-		 "\t-dbg     test parser, all non-signal members are slots\n"
+		 "\t-ldbg     lex debug output\n"
+		 "\t-ydbg     yacc debug output\n"
+		 "\t-dbg      test parser, all non-signal members are slots\n"
 #endif
 		 );
 	return 1;
@@ -1256,7 +1266,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.23 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.24 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
