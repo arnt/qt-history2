@@ -1,5 +1,5 @@
-# This file contains the mapping of xlfds to mib enum (used to convert unicode to the xlfd encoding)
-# and the QFont::Script's they support
+# This file contains the mapping of xlfds to mib enum (used to convert
+# unicode to the xlfd encoding) and the QFont::Script's they support
 # the format is 'xlfd mib script,...'
 #
 # Latin
@@ -7,6 +7,9 @@ iso8859-1 4 Latin
 iso8859-2 5 Latin
 iso8859-3 6 Latin
 iso8859-4 7 Latin
+iso8859-9 12 Latin
+iso8859-10 13 Latin
+iso8859-13 109 Latin
 iso8859-14 110 Latin
 iso8859-15 111 Latin
 hp-roman8 2004 Latin
@@ -38,7 +41,7 @@ jisx0201*-0 15 KatakanaHalfWidth
 jisx0208*-0 63 Hiragana,Katakana,Han_Japanese
 #
 # Korea
-ksc5601.1987-0 36 Hangul
+ksc5601*-* 36 Hangul,Han
 #
 # Hong Kong
 big5hkscs-0 -2101 Han_TraditionalChinsese
@@ -67,3 +70,4 @@ unicode-* 0 Unicode
 # Other
 *-symbol 0 UnknownScript
 *-fontspecific 0 UnknownScript
+fontspecific-* 0 UnknownScript
