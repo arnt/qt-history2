@@ -117,7 +117,7 @@ protected:
     void focusOutEvent( QFocusEvent * e );
     void resizeEvent( QResizeEvent * e ) { QFrame::resizeEvent( e ); }
 
-    void _resize();
+    void resizeInternals();
     
     void drawItems( QPainter & p );
     void drawItem( QPainter & p, MenuBarEditorItem * i, int & x, int & y, uint & c );

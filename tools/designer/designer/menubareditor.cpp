@@ -226,7 +226,7 @@ void MenuBarEditor::insertItem( MenuBarEditorItem * item, int index )
     } else {
 	itemList.append( item );
     }
-    _resize();
+    resizeInternals();
     if ( hideWhenEmpty && itemList.count() == 1 ) {
 	show();
     }
@@ -256,7 +256,7 @@ void MenuBarEditor::removeItemAt( int index )
     if ( hideWhenEmpty && itemList.count() == 0 ) {
 	hide();
     } else {
-	_resize();
+	resizeInternals();
     }
     uint n = count() + 1;
     if ( currentIndex >=  n ) {
@@ -477,7 +477,7 @@ void MenuBarEditor::hideItem( int index )
     if ( index == -1 ) {
 	index = currentIndex;
     }
-    if ( index < itemList.count() ) {
+    if ( (uint)index < itemList.count() ) {
 	PopupMenuEditor * m = itemList.at( index )->menu();
 	m->hideCurrentItemMenu();
 	m->hide();
@@ -558,7 +558,7 @@ void MenuBarEditor::mousePressEvent( QMouseEvent * e )
     }
 }
 
-void MenuBarEditor::mouseDoubleClickEvent( QMouseEvent * e )
+void MenuBarEditor::mouseDoubleClickEvent( QMouseEvent * )
 {
     currentIndex = findItem( mousePressPos );
     if ( currentIndex > itemList.count() ) {
@@ -827,7 +827,7 @@ void MenuBarEditor::focusOutEvent( QFocusEvent * e )
     update();
 }
 
-void MenuBarEditor::_resize()
+void MenuBarEditor::resizeInternals()
 {
     dropLine->resize( 2, itemHeight );
     updateGeometry();

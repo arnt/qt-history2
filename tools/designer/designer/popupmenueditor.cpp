@@ -367,9 +367,10 @@ bool PopupMenuEditorItem::eventFilter( QObject * o, QEvent * event )
 
 void PopupMenuEditorItem::selfDestruct()
 {
+    hideMenu();
     int i = m->find( anyAction() );//FIXME: support w
     m->remove( i );
-    a = 0;
+    a = 0; // the selfDestruct call was caused by the deletion of one of these items
     g = 0;
     w = 0;
     delete this;
@@ -1217,11 +1218,11 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 
 int PopupMenuEditor::drawAction( QPainter & p, QAction * a, int x, int y )
 {
-    //FIXME: center bitmap
-    p.drawPixmap( x + borderSize, y + borderSize,
-		  a->iconSet().pixmap( QIconSet::Automatic,
-				       QIconSet::Normal ) );
-
+    QPixmap icon = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal );
+    //p.drawPixmap( x + borderSize, y + borderSize, icon );
+    p.drawPixmap( x + ( iconWidth - icon.width() ) / 2,
+		  y + ( iconWidth - icon.height() ) / 2,
+		  icon );
     x += iconWidth;
     p.eraseRect( x, y, textWidth, itemHeight - borderSize ); // erase old text
     p.drawText( x, y, textWidth, itemHeight,
