@@ -599,6 +599,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ScrollBarSlider: {
 	QPixmap tip1, tip2, fill;
 	QBitmap tip1m, tip2m;
+	QRect real_rect;
 	QString act;
 	if(!qAquaActive( cg ) ) 
 	    act = "dis_";
@@ -607,22 +608,21 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    qAquaPixmap( "hsbr_tip_" + act + "left_" + nstr, tip1 );
 	    qAquaPixmap( "hsbr_tip_" + act + "right_" + nstr, tip2 );
 	    qAquaPixmap( "hsbr_" + act + "fill_" + nstr, fill );
-	    p->fillRect( QRect(r.x() + tip1.width(), r.y(), 
-			       r.width() - tip2.width() - tip1.width(), r.height()), 
-			 QBrush( Qt::black, fill ) );
 	    p->drawPixmap( r.x(), r.y(), tip1 );
 	    p->drawPixmap( r.x()+r.width()-tip2.width(), r.y(), tip2 );
+	    real_rect = QRect(r.x() + tip1.width(), r.y(), r.width() - tip2.width() - tip1.width(), 
+			      r.height());
 	} else {
 	    QString nstr = QString::number(r.width());
 	    qAquaPixmap( "vsbr_tip_" + act + "up_" + nstr, tip1 );
 	    qAquaPixmap( "vsbr_tip_" + act + "down_" + nstr, tip2 );
 	    qAquaPixmap( "vsbr_" + act + "fill_" + nstr, fill );
-	    p->fillRect( QRect(r.x(), r.y() + tip1.height(), r.width(), 
-			       r.height() - tip2.height() - tip1.height()), 
-			 QBrush( Qt::black, fill ) );
 	    p->drawPixmap( r.x(), r.y(), tip1 );
 	    p->drawPixmap( r.x(), r.y()+r.height()-tip2.height(), tip2 );
+	    real_rect = QRect(r.x(), r.y() + tip1.height(), r.width(), 
+			      r.height() - tip2.height() - tip1.height());
 	}
+	p->fillRect( real_rect, QBrush( Qt::black, fill ) );
 	break; }
 #endif
     default:
@@ -999,6 +999,9 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     int ret = 0;
     switch(metric) {
+    case PM_ScrollBarSliderMin:
+	ret = 24;
+	break;
     case PM_SpinBoxFrameWidth:
     case PM_ProgressBarChunkWidth:
 	ret = 1;

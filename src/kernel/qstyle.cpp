@@ -1090,6 +1090,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \value PM_ScrollBarExtent  width of a vertical scrollbar and the height of a
          horizontal scrollbar.
+  \value PM_ScrollBarSliderMin the minimum height of a vertical scrollbar's slider
+         and the minimum width of a horiztonal scrollbar slider.
 
 
   \value PM_SliderThickness  total slider thickness.

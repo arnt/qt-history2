@@ -1610,8 +1610,9 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    sliderlen = (scrollbar->pageStep() * maxlen) /
 			(range + scrollbar->pageStep());
 
-	    if ( sliderlen < 9 || range > INT_MAX / 2 )
-		sliderlen = 9;
+	    int slidermin = pixelMetric( PM_ScrollBarSliderMin, widget );
+	    if ( sliderlen < slidermin || range > INT_MAX / 2 )
+		sliderlen = slidermin;
 	    if ( sliderlen > maxlen )
 		sliderlen = maxlen;
 	} else
@@ -1846,6 +1847,10 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     int ret;
 
     switch (m) {
+    case PM_ScrollBarSliderMin:
+	ret = 9;
+	break;
+
     case PM_ButtonMargin:
 	ret = 6;
 	break;

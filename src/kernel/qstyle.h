@@ -344,6 +344,7 @@ public:
 	PM_MaximumDragDistance,
 
 	PM_ScrollBarExtent,
+	PM_ScrollBarSliderMin,
 
 	PM_SliderThickness,	       	// total slider thickness
 	PM_SliderControlThickness,    	// thickness of the business part
