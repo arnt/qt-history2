@@ -1,4 +1,4 @@
-/****************************************************************************
+section/****************************************************************************
 ** $Id: $
 **
 ** Definition of the QString class, and related Unicode
@@ -456,8 +456,8 @@ public:
     enum FieldFlags {
 	SectionDefault             = 0x00,
 	SectionSkipEmpty           = 0x01,
-	SectionIncludeLeadingSeps  = 0x02,
-	SectionIncludeTrailingSeps = 0x04,
+	SectionIncludeLeadingSep   = 0x02,
+	SectionIncludeTrailingSep  = 0x04,
 	SectionCaseInsensitiveSeps = 0x08
     };
     QString     section( QChar sep, int start, int count = 1, int flags = SectionDefault ) const;
