@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.h#2 $
+** $Id: //depot/qt/main/etc/opengl/qgl.h#3 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -23,7 +23,11 @@
 class QGLFormat
 {
 public:
+    enum ColorMode { Rgba, ColorIndex };
+
     QGLFormat();
+    QGLFormat( bool doubleBuffer, ColorMode colorMode, int colorBits,
+	       int depthBits );
     QGLFormat( const QGLFormat & );
     virtual ~QGLFormat();
 
@@ -32,7 +36,6 @@ public:
     bool    doubleBuffer() const;
     void    setDoubleBuffer( bool enable );
 
-    enum ColorMode { Rgba, ColorIndex };
     ColorMode colorMode() const;
     void    setColorMode( ColorMode );
 
@@ -47,21 +50,8 @@ public:
 
     static bool  hasOpenGL();
 
-protected:
-    bool    isDirty() const;
-    void    setDirty( bool );
-    QString createKey() const;
-
-#if defined(_OS_WIN32_)
-    virtual HANDLE  getContext( QPaintDevice * ) const;
-#else
-    virtual void   *getVisualInfo() const;
-    virtual uint    getContext( QPaintDevice * ) const;
-#endif
-
 public:
     struct Internal : /* public */ QShared {
-	bool	    dirty;
 	bool        double_buffer;
 	ColorMode   color_mode;
 	int	    color_bits;
@@ -69,7 +59,6 @@ public:
     };
 
 private:
-    QGLFormat( int );
     void    detach();
 
     Internal *data;
@@ -85,19 +74,19 @@ public:
     const QGLFormat &format() const;
     QPaintDevice    *device() const;
 
-    void    makeCurrent();
-    void    swapBuffers();
+    void	makeCurrent();
+    void	swapBuffers();
 
 private:
-    void    init();
-    void    cleanup();
-    void    doneCurrent();
+    void	init();
+    void	cleanup();
+    void	doneCurrent();
 
-    QGLFormat	  glFormat;
+    QGLFormat	glFormat;
     QPaintDevice *paintDevice;
 #if defined(_OS_WIN32_)
-    bool	  current, tmpdc;
-    HANDLE	  rc, win, dc;
+    bool	current, tmpdc;
+    HANDLE	rc, win, dc;
 #endif
 
 private:	// Disabled copy constructor and operator=
@@ -162,16 +151,6 @@ inline int QGLFormat::colorBits() const
 inline int QGLFormat::depthBits() const
 {
     return data->depth_bits;
-}
-
-inline bool QGLFormat::isDirty() const
-{
-    return data->dirty;
-}
-
-inline void QGLFormat::setDirty( bool dirty )
-{
-    data->dirty = dirty;
 }
 
 //

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.cpp#2 $
+** $Id: //depot/qt/main/etc/opengl/qgl.cpp#3 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -11,23 +11,24 @@
 
 #include "qgl.h"
 
+#if defined(_OS_IRIX_)
+#define INT8  dummy_INT8
+#define INT32 dummy_INT32
+#endif
+
 #if defined(_OS_WIN32_)
 #define USE_WGL
 #else
 #define USE_GLX
-#if defined(_OS_IRIX_)
-#define INT8  dummy_INT8
-#define INT32 dummy_INT32
 #include <GL/glx.h>
-#undef INT8
-#undef INT32
-#else
-#include <GL/glx.h>
-#endif // _OS_IRIX
-#define GLX
 #endif // _OS_WIN32_
 
-RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#2 $");
+#if defined(_OS_IRIX_)
+#undef INT8
+#undef INT32
+#endif
+
+RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#3 $");
 
 
 #if defined(_CC_MSVC_)
@@ -62,7 +63,6 @@ QGLFormat::QGLFormat()
 {
     data = new Internal;
     CHECK_PTR( data );
-    data->dirty		= TRUE;
     data->double_buffer = TRUE;
     data->color_mode    = Rgba;
     data->color_bits    = 24;
@@ -70,11 +70,22 @@ QGLFormat::QGLFormat()
 }
 
 /*!
-  Internal constructor. No initialization is performed. See detach().
+  Constructs a GL format object.
+  \arg \e doubleBuffer Double buffer if TRUE, single buffer if FALSE.
+  \arg \e colorMode QGLFormat::Rgba or QLFormat::ColorIndex.
+  \arg \e colorBits Number of color bits.
+  \arg \e depthBits The depth of the rendering device.
 */
 
-QGLFormat::QGLFormat( int )
+QGLFormat::QGLFormat( bool doubleBuffer, QGLFormat::ColorMode colorMode,
+		      int colorBits, int depthBits )
 {
+    data = new Internal;
+    CHECK_PTR( data );
+    data->double_buffer = doubleBuffer;
+    data->color_mode    = colorMode;
+    data->color_bits    = colorBits;
+    data->depth_bits    = depthBits;
 }
 
 QGLFormat::QGLFormat( const QGLFormat &f )
@@ -93,13 +104,8 @@ QGLFormat::~QGLFormat()
 void QGLFormat::detach()
 {
     if ( data->count != 1 ) {
-	QGLFormat f( 0 );
-	f.data = new Internal;
-	f.data->dirty	      = TRUE;
-	f.data->double_buffer = data->double_buffer;
-	f.data->color_mode    = data->color_mode;
-	f.data->color_bits    = data->color_bits;
-	f.data->depth_bits    = data->depth_bits;
+	QGLFormat f( data->double_buffer, data->color_mode,
+		     data->color_bits, data->depth_bits );
 	*this = f;
     }
 }
@@ -116,15 +122,16 @@ QGLFormat &QGLFormat::operator=( const QGLFormat &f )
 
 
 /*!
-  Enables double buffering for the context if \e enable is TRUE, or disables
-  it if \e enable is FALSE.
+  Specifies double buffering if \e enable is TRUE og single buffering if
+  \e enable is FALSE.
 
   Double buffering is enabled by default.
 
   Double buffering is a technique where graphics is rendered to a memory
-  buffer instead of directly to the screen. When the drawing has been completed,
-  you can call swapBuffers() to exchange the buffer contents with the screen.
-  The result is flicker-free drawing and often better performance.
+  buffer instead of directly to the screen. When the drawing has been
+  completed, you can call swapBuffers() to exchange the buffer contents
+  with the screen.  The result is flicker-free drawing and often better
+  performance.
 
   The new setting does not have any effect before you call makeCurrent().
 
@@ -133,10 +140,7 @@ QGLFormat &QGLFormat::operator=( const QGLFormat &f )
 
 void QGLFormat::setDoubleBuffer( bool enable )
 {
-    if ( data->double_buffer != enable ) {
-	data->double_buffer = enable;
-	data->dirty = TRUE;
-    }
+    data->double_buffer = enable;
 }
 
 
@@ -167,28 +171,22 @@ void QGLFormat::setDoubleBuffer( bool enable )
 
 void QGLFormat::setColorMode( QGLFormat::ColorMode m )
 {
-    if ( data->color_mode != m ) {
+    if ( data->color_mode != m )
 	data->color_mode = m;
-	data->dirty = TRUE;
-    }
 }
 
 
 void QGLFormat::setColorBits( int n )
 {
-    if ( data->color_bits != n ) {
+    if ( data->color_bits != n )
 	data->color_bits = n;
-	data->dirty = TRUE;
-    }
 }
 
 
 void QGLFormat::setDepthBits( int n )
 {
-    if ( data->depth_bits != n ) {
+    if ( data->depth_bits != n )
 	data->depth_bits = n;
-	data->dirty = TRUE;
-    }
 }
 
 
@@ -197,7 +195,7 @@ bool QGLFormat::hasOpenGL()
 #if defined(USE_WGL)
     return TRUE;
 #else
-    return glxQueryExtension(qt_xdisplay(),0,0) != 0;
+    return glXQueryExtension(qt_xdisplay(),0,0) != 0;
 #endif
 }
 
@@ -231,61 +229,13 @@ void QGLFormat::setDefaultFormat( const QGLFormat &f )
   The key is used for optimization purposes (hash table lookup).
 */
 
-QString QGLFormat::createKey() const
+static QString createKey( const QGLFormat &f )
 {
     QString k;
-    k.sprintf( "%d-%d-%d-%d", (int)doubleBuffer(), (int)colorMode(),
-	       colorBits(), depthBits() );
+    k.sprintf( "%d-%d-%d-%d", (int)f.doubleBuffer(), (int)f.colorMode(),
+	       f.colorBits(), f.depthBits() );
     return k;
 }
-
-
-#if defined(USE_WGL)
-
-HANDLE QGLFormat::getContext( QPaintDevice *pdev ) const
-{
-    PIXELFORMATDESCRIPTOR pfd;
-    memset( &pfd, 0, sizeof(PIXELFORMATDESCRIPTOR) );
-    pfd.nSize	 = sizeof(PIXELFORMATDESCRIPTOR);
-    pfd.nVersion = 1;
-    int  f = PFD_SUPPORT_OPENGL;
-    if ( pdev->devType() == PDT_WIDGET ) {
-	f |= PFD_DRAW_TO_WINDOW;
-    } else if ( pdev->devType() == PDT_PIXMAP ) {
-	f |= PFD_DRAW_TO_BITMAP;
-    } else {
-#if defined(CHECK_RANGE)
-	warning( "QGLFormat::getContext: Bad paint device type" );
-#endif
-    }
-    if ( doubleBuffer() )
-	f |= PFD_DOUBLEBUFFER;
-    pfd.dwFlags = f;
-    pfd.iPixelType = colorMode() == Rgba ?
-	PFD_TYPE_RGBA : PFD_TYPE_COLORINDEX;
-    pfd.cColorBits = colorBits();
-    pfd.cDepthBits = depthBits();
-    pfd.iLayerType = PFD_MAIN_PLANE;
-
-    HANDLE dc;
-    HANDLE rc;
-    HANDLE win = 0;
-    int pixelFormatId;
-    if ( pdev->devType() == PDT_WIDGET ) {
-	win = ((QWidget *)pdev)->winId();
-	dc = GetDC( win );
-    } else {
-	dc = pdev->handle();
-    }
-    pixelFormatId = ChoosePixelFormat( dc, &pfd );
-    SetPixelFormat( dc, pixelFormatId, &pfd );
-    rc = wglCreateContext( dc );
-    if ( win )
-	ReleaseDC( win, dc );
-    return rc;
-}
-
-#endif // WGL
 
 
 #if defined(USE_GLX)
@@ -295,7 +245,7 @@ HANDLE QGLFormat::getContext( QPaintDevice *pdev ) const
   the requested QGLFormat.
 */
 
-static int score( const QGLFormat *f, XDisplay *dpy, XVisualInfo *vi )
+static int score( const QGLFormat &f, Display *dpy, XVisualInfo *vi )
 {
     int doubleBuffer;
     int rgbaMode;
@@ -306,19 +256,20 @@ static int score( const QGLFormat *f, XDisplay *dpy, XVisualInfo *vi )
     glXGetConfig( dpy, vi, GLX_BUFFER_SIZE,  &colorBits );
     glXGetConfig( dpy, vi, GLX_DEPTH_SIZE,   &depthBits );
     int score = 0;
-    if ( (doubleBuffer && f->doubleBuffer()) ||
-	!(doubleBuffer || f->doubleBuffer()) )
+    if ( (doubleBuffer && f.doubleBuffer()) ||
+	!(doubleBuffer || f.doubleBuffer()) )
 	score += 1000;
-    if ( (rgbaMode && f->colorMode() == QGLFormat::Rgba) ||
-	!(rgbaMode || f->colorMode() == QGLFormat::Rgba) )
+    if ( (rgbaMode && f.colorMode() == QGLFormat::Rgba) ||
+	!(rgbaMode || f.colorMode() == QGLFormat::Rgba) )
 	score += 2000;
-    if ( colorBits < f->colorBits() )
-	score -= (f->colorBits() - colorBits)*10;
-    if ( depthBits < f->depthBits() )
-	score -= (f->depthBits() - depthBits)*10;
+    if ( colorBits < f.colorBits() )
+	score -= (f.colorBits() - colorBits)*10;
+    if ( depthBits < f.depthBits() )
+	score -= (f.depthBits() - depthBits)*10;
     return score;
 }
 
+#if 0
 void *QGLFormat::getVisualInfo() const
 {
 
@@ -327,6 +278,7 @@ void *QGLFormat::getVisualInfo() const
 uint QGLFormat::getContext( QPaintDevice * ) const
 {
 }
+#endif
 
 #endif // GLX
 
@@ -347,6 +299,10 @@ QGLContext::~QGLContext()
 {
     cleanup();
 }
+
+/*****************************************************************************
+  QGLContext Win32/WGL-specific code
+ *****************************************************************************/
 
 #if defined(USE_WGL)
 
@@ -453,6 +409,35 @@ void QGLContext::swapBuffers()
 
 
 /*****************************************************************************
+  QGLContext Unix/GLX-specific code
+ *****************************************************************************/
+
+#if defined(USE_GLX)
+
+void QGLContext::init()
+{
+}
+
+void QGLContext::cleanup()
+{
+}
+
+void QGLContext::makeCurrent()
+{
+}
+
+void QGLContext::doneCurrent()
+{
+}
+
+void QGLContext::swapBuffers()
+{
+}
+
+#endif // USE_GLX
+
+
+/*****************************************************************************
   QGLWidget implementation
  *****************************************************************************/
 
@@ -522,7 +507,10 @@ void QGLWidget::paintEvent( QPaintEvent * )
 {
     glContext.makeCurrent();
     paintGL();
-    glContext.swapBuffers();
+    if ( glContext.format().doubleBuffer() )
+	glContext.swapBuffers();
+    else
+	glFlush();
     glContext.doneCurrent();
 
 }
