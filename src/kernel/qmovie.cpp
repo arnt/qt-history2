@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#10 $
 **
 ** Implementation of movie classes
 **
@@ -109,14 +109,16 @@ public: // for QMovie
 	changed_area.setRect(0,0,-1,-1);
 	valid_area = changed_area;
 	loop = -1;
+	error = 0;
     }
 
     void flushBuffer()
     {
-	while (buf_usage && !waitingForFrameTick && stepping != 0) {
+	while (buf_usage && !waitingForFrameTick && stepping != 0 && !error) {
 	    int used = decoder->decode(buffer + buf_r,
 			    QMIN(buf_usage, buf_size - buf_r));
 	    if (used<=0) {
+		error = 1;
 		emit dataStatus(QMovie::UnrecognizedFormat);
 		break;
 	    }
@@ -261,7 +263,7 @@ public: // for QMovie
 
     int readyToReceive()
     {
-	if (waitingForFrameTick || stepping == 0 || buf_usage)
+	if (waitingForFrameTick || stepping == 0 || buf_usage || error)
 	    return 0;
 	return buf_size;
     }
@@ -271,6 +273,7 @@ public: // for QMovie
 	while (count && !waitingForFrameTick && stepping != 0) {
 	    int used = decoder->decode(b, count);
 	    if (used<=0) {
+		error = 1;
 		emit dataStatus(QMovie::UnrecognizedFormat);
 		break;
 	    }
@@ -360,6 +363,8 @@ public:
     QPixmap mypixmap;
     QBitmap mymask;
     QColor bg;
+
+    int error;
 };
 
 
@@ -699,7 +704,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.9 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.10 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
