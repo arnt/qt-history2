@@ -774,15 +774,16 @@ void WriteInitialization::initializeListViewItems(const QString &className, cons
         output << "\n";
         output << option.indent << "QListViewItem *" << itemName << " = new QListViewItem(" << varName << ");\n";
 
+        int textCount = 0, pixCount = 0;
         QList<DomProperty*> properties = item->elementProperty();
         for (int i=0; i<properties.size(); ++i) {
             DomProperty *p = properties.at(i);
             if (p->attributeName() == QLatin1String("text"))
-                output << option.indent << itemName << "->setText(" << i << ", "
+                output << option.indent << itemName << "->setText(" << textCount++ << ", "
                        << trCall(p->elementString(), className) << ");\n";
 
             if (p->attributeName() == QLatin1String("pixmap"))
-                output << option.indent << itemName << "->setPixmap(" << i << ", "
+                output << option.indent << itemName << "->setPixmap(" << pixCount++ << ", "
                        << pixCall(p->elementPixmap()) << ");\n";
         }
 
