@@ -2245,7 +2245,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	d->headerFontNumber = 0;
 	pageCount           = 1;		// initialize state
 	dirtyMatrix         = TRUE;
-	d->dirtyClipping    = FALSE;		// No clipping is default.
+	d->dirtyClipping    = TRUE;
 	dirtyNewPage        = FALSE;		// setup done by QPainter
 	// for the first page.
 	d->firstClipOnPage  = TRUE;
@@ -2946,7 +2946,7 @@ void QPSPrinter::clippingSetup( QPainter *paint )
 	for( i = 0 ; i < (int)rects.size() ; i++ ) {
 	    putRect( stream, rects[i] );
 	    stream << "ACR\n";		// add clip rect
-	    if ( pageCount == 1 && !d->boundingBox.isValid() )
+	    if ( pageCount == 1 )
 		d->boundingBox = d->boundingBox.unite( rects[i] );
 	}
 	stream << "CLEND\n";		// end clipping
