@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#95 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -12,6 +12,7 @@
 
 #include "qapp.h"
 #include "qwidget.h"
+#include "qobjcoll.h"
 #include "qwidcoll.h"
 #include "qpainter.h"
 #include "qpmcache.h"
@@ -34,7 +35,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#94 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#95 $";
 #endif
 
 
@@ -538,35 +539,174 @@ void QApplication::restoreCursor()		// restore application cursor
 }
 
 
-/*!
-  Returns a pointer to the widget at position \e (x,y), or a
-  null pointer if the cursor is not over at one of this applications's
-  widgets.
+#if 0
 
-  \warning Not Yet Implemented.
+static bool isLeafWidget( Window win )
+{
+    QWidget *w = QWidget::find( win );    
+    if ( !w || !w->children() )
+	return FALSE;
+    QObjectListIt it( *w->children() );
+    while ( it.current() ) {
+	if ( it.current()->isWidgetType() )
+	    return FALSE;
+	++it;
+    }
+    return TRUE;
+}
+
+static Window findChild( Window win, Atom WM_STATE, bool leaf )
+{
+    Window root, parent, target=0, *children;
+    uint   nchildren;
+    Atom   type = None;
+    int    format, i;
+    ulong  nitems, after;
+    uchar *data;
+    QWidget *w;
+
+    if ( !XQueryTree(appDpy, win, &root, &parent, &children, &nchildren) )
+	return 0;
+    for ( i=nchildren-1; !target && i>=0; i++ ) {
+	w = QWidget::find( children[i] );
+	if ( w )
+	    type = 1;
+	else
+	    XGetWindowProperty( appDpy, children[i], WM_STATE, 0, 0, False,
+				AnyPropertyType, &type, &format, &nitems,
+				&after, &data );
+	if ( type && isLeafWidget(children[i]) )
+	    target = children[i];
+    }
+    for ( i=0; !target && i<(int)nchildren; i++ )
+	target = findChild( children[i], WM_STATE, leaf );
+    if ( children )
+	XFree( (char *)children );
+    return target;
+}
+#endif
+
+static QWidget *findChildWidget( QWidget *p, QPoint pos )
+{
+    if ( p->children() ) {
+	QWidget *w;
+	QObjectListIt it( *p->children() );
+	it.toLast();
+	while ( it.current() ) {
+	    if ( it.current()->isWidgetType() ) {
+		w = (QWidget*)it.current();
+		if ( w->geometry().contains(pos) ) {
+		    QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
+		    return c ? c : w;
+		}
+	    }
+	    --it;
+	}
+    }
+    return 0;
+}
+
+static Window findClientWindow( Window win, Atom WM_STATE, bool leaf )
+{
+    Atom   type = None;
+    int    format, i;
+    ulong  nitems, after;
+    uchar *data;
+    Window root, parent, target=0, *children=0;
+    uint   nchildren;
+    XGetWindowProperty( appDpy, win, WM_STATE, 0, 0, False, AnyPropertyType,
+			&type, &format, &nitems, &after, &data );
+    if ( type )
+	return win;
+    if ( !XQueryTree(appDpy,win,&root,&parent,&children,&nchildren) )
+	return 0;
+    for ( i=nchildren-1; !target && i >= 0; i-- )
+	target = findClientWindow( children[i], WM_STATE, leaf );
+    if ( children )
+	XFree( (char *)children );
+    return target;
+}
+
+
+/*!
+  Returns a pointer to the widget at global screen position \e (x,y), or a
+  null pointer if there is no Qt widget there.
+
+  Returns a child widget if \e child is TRUE or a top level widget if
+  \e child is FALSE.
 
   \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
 */
 
-QWidget *QApplication::widgetAt( int x, int y )
+QWidget *QApplication::widgetAt( int x, int y, bool child )
 {
-#if 0
-    Window root;
-    Window child;
-    int root_x, root_y, win_x, win_y;
-    uint buttons;
-
-    XQueryPointer( qt_xdisplay(), qt_xrootwin(), &root, &child,
-		   &root_x, &root_y, &win_x, &win_y, &buttons );
-
-    reeturn child ? QWidget::find( child ) : 0;
-#endif
-    return 0;
+    Window target;
+    if ( !XTranslateCoordinates(appDpy, appRootWin, appRootWin,
+				x, y, &x, &y, &target) )
+	return 0;
+    if ( !target || target == appRootWin )
+	return 0;
+    static Atom WM_STATE = 0;
+    if ( WM_STATE == 0 )
+	WM_STATE = XInternAtom( appDpy, "WM_STATE", TRUE );
+    if ( !WM_STATE )
+	return 0;
+    target = findClientWindow( target, WM_STATE, TRUE );
+    QWidget *w = QWidget::find( target );
+    if ( !w )
+	return 0;
+    if ( child ) {
+	QWidget *c = findChildWidget( w, w->mapFromParent(QPoint(x,y)) );
+	w = c ? c : w;
+    }
+    return w;
 }
 
 /*!
-  \overload QWidget *QApplication::widgetAt( const QPoint &pos )
+  \overload QWidget *QApplication::widgetAt( const QPoint &pos, bool child )
 */
+
+
+#if 0
+
+/*!
+  Returns the handle pointer to the window at global screen position \e
+  (x,y) or 0 if this function fails.
+
+  Returns a child window if \e child is TRUE or a top level widget if
+  \e child is FALSE.
+
+  \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard(),
+  QPixmap::grabWindow()
+*/
+
+HANDLE QApplication::windowAt( int x, int y, bool child )
+{
+    Window target;
+    if ( !XTranslateCoordinates(appDpy, appRootWin, appRootWin,
+				x, y, &x, &y, &target) )
+	return 0;
+    if ( !target || target == appRootWin )
+	return appRootWin;
+    static Atom WM_STATE = 0;
+    if ( WM_STATE == 0 )
+	WM_STATE = XInternAtom( appDpy, "WM_STATE", TRUE );
+    if ( !WM_STATE )
+	return 0;
+    target = findClientWindow( target, WM_STATE, TRUE );
+    if ( child ) {
+	Window c = findChildWindow( target, w->mapFromParent(QPoint(x,y)) );
+	target = c ? c : target;
+    }
+    return target;
+}
+
+/*!
+  \overload HANDLE QApplication::windowAt( const QPoint &pos, bool child )
+*/
+
+#endif
+
 
 /*!  Flushes the X event queue in the X-Windows implementation.  Does
   nothing on other platforms. \sa syncX() */
