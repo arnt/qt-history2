@@ -81,6 +81,7 @@ void FormFile::setFormWindow( FormWindow *f )
     if ( fw )
 	fw->setFormFile( this );
     parseCode( cod, FALSE );
+    QTimer::singleShot( 0, this, SLOT( notifyFormWindowChange() ) );
 }
 
 void FormFile::setEditor( SourceEditor *e )
@@ -841,4 +842,10 @@ void FormFile::removeConnection( const QString &sender, const QString &signal,
 	iface->removeConnection( sender, signal, receiver, slot, &cod );
     if ( ed )
 	ed->editorInterface()->setText( cod );
+}
+
+void FormFile::notifyFormWindowChange()
+{
+    if ( fw )
+	pro->formOpened( fw );
 }

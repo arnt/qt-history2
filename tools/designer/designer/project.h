@@ -210,6 +210,8 @@ public:
     QWidget *findRealForm( QWidget *wid );
     void designerCreated();
 
+    void formOpened( FormWindow *fw );
+
 signals:
     void projectModified();
     void sourceFileAdded( SourceFile* );
@@ -220,6 +222,7 @@ signals:
     void objectRemoved( QObject * );
     void runtimeError( const QString &message );
     void runFinished();
+    void newFormOpened( FormWindow *fw );
 
 private slots:
     void emitRuntimeError( QObject *, int, const QString & );

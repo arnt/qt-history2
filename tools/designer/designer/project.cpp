@@ -1704,3 +1704,8 @@ void Project::emitRuntimeError( QObject *o, int l, const QString &msg )
     if ( MainWindow::self )
 	MainWindow::self->showErrorMessage( o, l, msg );
 }
+
+void Project::formOpened( FormWindow *fw )
+{
+    emit newFormOpened( fw );
+}

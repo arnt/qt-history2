@@ -105,6 +105,7 @@ signals:
 
 private slots:
     void formWindowChangedSomehow();
+    void notifyFormWindowChange();
 
 private:
     bool isFormWindowModified() const;
