@@ -17,6 +17,12 @@
 #include <qiodevice.h>
 #include <qstringlist.h>
 
+#if defined(Q_OS_WIN32)
+typedef PROCESS_INFORMATION* Q_PID;
+#else
+typedef Q_LONG Q_PID;
+#endif
+
 class QProcessPrivate;
 
 class Q_CORE_EXPORT QProcess : public QIODevice

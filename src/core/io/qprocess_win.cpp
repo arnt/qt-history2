@@ -277,7 +277,7 @@ void QProcessPrivate::startProcess()
                                  0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW,
                                  environment.isEmpty() ? 0 : envlist.data(),
                                  workingDirectory.isEmpty() ? 0 : (WCHAR*)workingDirectory.utf16(),
-                                 &startupInfo, (PROCESS_INFORMATION*)pid);
+                                 &startupInfo, pid);
     } else
 #endif // UNICODE
     {
@@ -323,7 +323,7 @@ void QProcessPrivate::startProcess()
 #endif
 	success = CreateProcessA(0, args.toLocal8Bit().data(),
                                  0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
-                                 workingDirectory.local8Bit(), &startupInfo, (PROCESS_INFORMATION*)pid);
+                                 workingDirectory.local8Bit(), &startupInfo, pid);
 #endif // Q_OS_TEMP
     }
 
@@ -339,7 +339,7 @@ void QProcessPrivate::startProcess()
     processState = QProcess::Running;
 
     if (QAbstractEventDispatcher::instance(q->thread())) {
-        processFinishedNotifier = new QWinEventNotifier(((PROCESS_INFORMATION*)pid)->hProcess, q);
+        processFinishedNotifier = new QWinEventNotifier(pid->hProcess, q);
         QObject::connect(processFinishedNotifier, SIGNAL(activated(HANDLE)), q, SLOT(processDied()));
         processFinishedNotifier->setEnabled(true);
         notifier = new QTimer(q);
@@ -397,7 +397,7 @@ Q_LONGLONG QProcessPrivate::readFromStderr(char *data, Q_LONGLONG maxlen)
 void QProcessPrivate::killProcess()
 {
     if (pid)
-        TerminateProcess(((PROCESS_INFORMATION*)pid)->hProcess, 0xf291);
+        TerminateProcess(pid->hProcess, 0xf291);
 }
 
 bool QProcessPrivate::waitForStarted(int)
@@ -452,7 +452,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::waitForFinished(%d)", msecs);
 #endif
-    if (WaitForSingleObject(((PROCESS_INFORMATION*)pid)->hProcess, msecs) == WAIT_TIMEOUT) {
+    if (WaitForSingleObject(pid->hProcess, msecs) == WAIT_TIMEOUT) {
         processError = QProcess::Timedout;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
         return false;
@@ -465,7 +465,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
 void QProcessPrivate::findExitCode()
 {
     DWORD theExitCode;
-    if (GetExitCodeProcess(((PROCESS_INFORMATION*)pid)->hProcess, &theExitCode)) {
+    if (GetExitCodeProcess(pid->hProcess, &theExitCode)) {
         exitCode = theExitCode;
         //### for now we assume a crash if exit code is less than -1 or the magic number
         if (exitCode == 0xf291 || (int)exitCode < 0)
