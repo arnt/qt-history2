@@ -179,10 +179,10 @@ int QShortcutMap::setShortcutEnabled(const QWidget *owner, int id, bool enable,
     while (i>=0)
     {
         QShortcutEntry entry = d->sequences.at(i);
-        bool removeThis = allOwners ? true : entry.owner == owner;
-        removeThis &= allKeys ? true : entry.keyseq == key;
-        removeThis &= id == 0 ? true : entry.id == id;
-        if (removeThis) {
+        bool enableThis = allOwners ? true : entry.owner == owner;
+        enableThis &= allKeys ? true : entry.keyseq == key;
+        enableThis &= id == 0 ? true : entry.id == id;
+        if (enableThis) {
             d->sequences[i].enabled = enable;
             ++itemsChanged;
         }
