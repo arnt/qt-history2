@@ -321,16 +321,15 @@ QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPoint &point, int *pos
     QRect textrect = br.toRect();
 //     LDEBUG << "    checking block" << bl.position() << "point=" << point
 //            << "    tlrect" << textrect;
-    if (!textrect.contains(point)) {
+
+    if (point.y() < textrect.top()) {
         *position = bl.position();
-        if (point.y() < textrect.top()) {
 //             LDEBUG << "    before pos=" << *position;
-            return PointBefore;
-        } else {
-            *position += bl.length();
+        return PointBefore;
+    } else if (point.y() > textrect.bottom()) {
+        *position += bl.length();
 //             LDEBUG << "    after pos=" << *position;
-            return PointAfter;
-        }
+        return PointAfter;
     }
 
     QPoint pos = point - textrect.topLeft();
