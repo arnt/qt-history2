@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 1.2 1995/12/11 17:30:59 hanord Exp $
+** $Id: shclass.doc,v 1.3 1995/12/18 19:10:18 hanord Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -32,7 +32,7 @@ Qt implements two types of sharing: \e explicit and \e implicit sharing.
 Explicit sharing means that the programmer must relate to the fact that
 objects share common data.  Implicite sharing means that the sharing
 mechanism takes place behind the back of the programmer, who does not
-event know that objects share common data.
+even know that objects share common data.
 
 When dealing with shared objects, there are two ways of copying an object.
 We usually speak about \e deep and \e shallow copies. A deep copy implies
@@ -43,25 +43,25 @@ Object assignment (operator=) for all shared objects is implemented as
 shallow copies.  A deep copy can be made by calling a copy() function.
 
 The benefit of sharing is that a program does not need to duplicate data
-when it is not required, which results in easier memory usage and less
+when it is not required, which results in less memory usage and less
 copying of data.  When a shared object is created, it sets the reference
-count to 1.  The reference count is incremented whenever a new object is
-refers the common data, and decremented when the object dereferences the
-shared data.  The shared data is deleted when the reference count becomes
-zero.
+count to 1.  The reference count is incremented whenever a new object
+references the shared data, and decremented when the object dereferences
+the shared data.  The shared data is deleted when the reference count
+becomes zero.
 
 QString is an example of an shared class that uses explicit sharing.
 Example:
 \code
-				//    a ref/data   b ref/data   c ref/data
-  QString a = "one";		// 1)    1/"one"     -------      -------
-  QString b = "two";		// 2)    1/"one"     1/"two"      -------
-  a = b;			// 3)    2/"two"     2/"two"      -------
-  a[1] = 'a';			// 4)    2/"tao"     2/"tao"      -------
-  QString c = a;		// 5)    3/"tao"     3/"tao"      3/"tao"
-  a.detach();			// 6)    1/"tao"     2/"tao"      2/"tao"
-  a[1] = 'o';			// 7)    1/"too"     2/"tao"      2/"tao"
-  b = a.copy();			// 8)    1/"too"     1/"too"      1/"tao"
+			//    a ref/data   b ref/data   c ref/data
+  QString a = "one";	// 1)    1/"one"     -------      -------
+  QString b = "two";	// 2)    1/"one"     1/"two"      -------
+  a = b;		// 3)    2/"two"     2/"two"      -------
+  a[1] = 'a';		// 4)    2/"tao"     2/"tao"      -------
+  QString c = a;	// 5)    3/"tao"     3/"tao"      3/"tao"
+  a.detach();		// 6)    1/"tao"     2/"tao"      2/"tao"
+  a[1] = 'o';		// 7)    1/"too"     2/"tao"      2/"tao"
+  b = a.copy();		// 8)    1/"too"     1/"too"      1/"tao"
 \endcode
 
 The assignment <code>a = b</code> on line 3 throws away a's original

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 1.11 1995/12/17 14:48:05 hanord Exp $
+** $Id: qlist.doc,v 1.12 1995/12/18 19:10:18 hanord Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -17,6 +17,7 @@
   \brief The QList class is a template class that provides doubly linked lists.
 
   \ingroup collection
+  \ingroup tools
 
   QList is implemented as both a template and a macro class. Define a
   template instance QList\<X\> to create a list that operates on pointers
@@ -61,58 +62,10 @@
 	Ron earns 60000
   \endcode
 
-  The list item's class or type, Employee in our example, must be defined
-  prior to the list definition. Some compilers allow a QList\<X\> before
-  X is defined and assume that X has no destructor.
-
-  \code
-    // Bad code: X's destructor will never be called
-    class X;
-    QList<X> list;
-
-    // Good code: X is defined before it is used
-    class X {
- 	...
-    };
-    QList<X> list;
-  \endcode
-
   A list can also be instantiated through a macro expansion, but this
   is necessary only for compilers that do not support templates. See the
-  \link collectionclasses.html collection classes documentation\endlink
+  \link collection.html collection classes documentation\endlink
   for a general discussion on template-based versus macro-based collections.
-
-  Macro expansion:
-  \code
-      ...
-    declare(QListM,Employee);		// declares the list
-
-    void main()
-    {
-	QListM(Employee) list;		// list of pointers to Employee
-      ...
-  \endcode
-
-  If you want to make your code work for compilers that do not have
-  template support, but use templates if they are available, you
-  can use \c typedef:
-
-  \code
-      ...
-    #if defined(USE_TEMPLATECLASS)
-    typedef QListT<Employee>	     EmployeeList;
-    #else
-    typedef declare(QListM,Employee) EmployeeList;
-    #endif
-
-    void main()
-    {
-	EmployeeList list;		// list of pointers to Employee
-      ...
-  \endcode
-  
-  QListT refers to the QList template and QListM refers to the QList macro.
-  QList defaults to QListT if templates are supported, QListM otherwise.
 
   The list class is indexable and has a \link at() current index\endlink
   and a \link current() current item\endlink.  The first item corresponds
@@ -138,8 +91,8 @@
   item itself. This is called a shallow copy. It is possible to make the
   list copy all of the item's data (known as a deep copy) when an item is
   inserted.  insert(), inSort() and append() call the virtual function
-  QCollection::newItem() for the item to be inserted. Reimplement it if you
-  want deep copies.
+  QCollection::newItem() for the item to be inserted.
+  Inherit a list and reimplement it if you want deep copies.
 
   When removing an item from a list, the virtual function
   QCollection::deleteItem() is called.  QList's default implementation
@@ -156,7 +109,7 @@
   a good example of a list that reimplements newItem(), deleteItem() and
   compareItems()
 
-  \sa QListIterator, \link collectionclasses.html collection classes\endlink
+  \sa QListIterator, \link collection.html collection classes\endlink
  ----------------------------------------------------------------------------*/
 
 
@@ -213,6 +166,8 @@
 
   The inserted item becomes the current list item.
 
+  The \e item must not be a null pointer.
+
   \sa append(), current()
  ----------------------------------------------------------------------------*/
 
@@ -225,6 +180,8 @@
 
   The inserted item becomes the current list item.
 
+  The \e item must not be a null pointer.
+
   \sa insert(), compareItems(), current()
  ----------------------------------------------------------------------------*/
 
@@ -233,6 +190,8 @@
   Inserts the \e item at the end of the list.
 
   The inserted item becomes the current list item.
+
+  The \e item must not be a null pointer.
 
   \sa insert(), current()
  ----------------------------------------------------------------------------*/
@@ -282,7 +241,7 @@
   \fn bool QList::remove( const type *item )
   Removes the first occurence of \e item from the list.
 
-  Returns TRUE if successful, or FALSE if the item cannot be found in the
+  Returns TRUE if successful, or FALSE if the item could not be found in the
   list.
 
   The removed item is deleted if \link QCollection::setAutoDelete()
@@ -343,6 +302,7 @@
   auto-deletion\endlink is enabled.
 
   The first item in the list will become the new current list item.
+  The current item is set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point to
   the item succeeding this item, or the preceding item if the removed item
@@ -362,6 +322,7 @@
   auto-deletion\endlink is enabled.
 
   The first item in the list becomes the new current list item.
+  The current item is set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -378,6 +339,7 @@
   auto-deletion\endlink is enabled.
 
   The last item in the list becomes the new current list item.
+  The current item is set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -627,8 +589,9 @@
   Returns a pointer to the item succeeding the current item.
   Returns null if the current items is null or equal to the last item.
 
-  Makes the succeeding item current if it is the last item or the current
-  item is null.
+  Makes the succeeding item current. If the current item before this
+  function call was the last item, the current item will be set to null.
+  If the current item was null, this function does nothing.
 
   \sa first(), last(), prev(), current()
  ----------------------------------------------------------------------------*/
@@ -638,8 +601,9 @@
   Returns a pointer to the item preceding the current item.
   Returns null if the current items is null or equal to the first item.
 
-  Makes the preceding item current if it is the first item or the current
-  item is null.
+  Makes the preceding item current. If the current item before this
+  function call was the first item, the current item will be set to null.
+  If the current item was null, this function does nothing.
 
   \sa first(), last(), next(), current()
  ----------------------------------------------------------------------------*/
@@ -661,7 +625,8 @@
   \class QListIterator qlist.h
   \brief The QListIterator class provides an iterator for QList collections.
 
-  \ingroup iterators
+  \ingroup collection
+  \ingroup tools
 
   QListIterator is implemented as both a template and a macro class.
   Define a template instance QListIterator\<X\> to create a list iterator
@@ -708,23 +673,10 @@
 	Ron earns 60000
   \endcode
 
-  A macro expansion can be used instead of templates, but then you
-  must first declare a QListIterator:
-
-  Macro expansion:
-  \code
-      ...
-    declare(QListIteratorM,Employee);	  // declares the list iterator
-
-    void main()
-    {
-      ...
-	QListIteratorM(Employee) it;	  // list iterator
-      ...
-  \endcode
-
-  See the \link QList QList documentation\endlink for how to combine
-  templates and macros in the same code.
+  A QListIterator can also be instantiated through a macro expansion, but this
+  is necessary only for compilers that do not support templates. See the
+  \link collection.html collection classes documentation\endlink
+  for a general discussion on template-based versus macro-based collections.
 
   Although QList has member functions to traverse the doubly linked list
   structure, using a list iterator is a much more robust way of traversing
@@ -775,7 +727,7 @@
 	Ron
   \endcode
 
-  \sa QList, \link collectionclasses.html collection classes\endlink
+  \sa QList, \link collection.html collection classes\endlink
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -791,7 +743,7 @@
 
 /*----------------------------------------------------------------------------
   \fn uint QListIterator::count() const
-  Returns the number of items in the list.
+  Returns the number of items in the list this iterator operates on.
   \sa isEmpty()
  ----------------------------------------------------------------------------*/
 
@@ -897,7 +849,7 @@
   It can make deep copies of the strings that are inserted.
 
   The virtual compareItems() function is reimplemented and does a
-  case-sensitive string comparision.
+  case sensitive string comparision.
   The inSort() function will insert strings in a sorted order.
 
   The QStrListIterator class is an iterator for QStrList.
@@ -923,7 +875,7 @@
 /*----------------------------------------------------------------------------
   \class QStrIList qstrlist.h
   \brief The QStrIList class provides a doubly linked list of \c char* with
-case-insensitive compare.
+case insensitive compare.
 
   \ingroup predefcollection
 
@@ -931,7 +883,7 @@ case-insensitive compare.
   It can make deep copies of the strings that are inserted.
 
   The virtual compareItems() function is reimplemented and does a
-  case-insensitive string comparision.
+  case insensitive string comparision.
   The inSort() function will insert strings in a sorted order.
 
   The QStrListIterator class is an iterator for QStrList.

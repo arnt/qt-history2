@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 1.6 1995/12/18 14:41:58 hanord Exp $
+** $Id: qarray.doc,v 1.7 1995/12/18 19:10:18 hanord Exp $
 **
 ** QArray class documentation
 **
@@ -20,9 +20,9 @@
   QArray is implemented as both a template and a macro class. Define a
   template instance QArray\<X\> to create an array that contains X items.
 
-  The QVector collection class is also a kind of array, but like all
-  \link collectionclasses.html collection classes\endlink, it has
-  pointers to the contained items.
+  The QVector collection class is also a kind of array.  Like all
+  \link collection.html collection classes\endlink, it has pointers to the
+  contained items.
 
   QArray stores the array elements directly in the array. It can only
   deal with simple types, i.e. C++ types, structs and classes that have
@@ -101,7 +101,7 @@
 
   \code
       ...
-    #if defined(USE_TEMPLATECLASS)
+    #if defined(USE_TEMPLATECLASS)	// defined in qglobal.h
     typedef QArrayT<X>	       XArray;
     #else
     typedef declare(QArrayM,X) XArray;
@@ -122,17 +122,18 @@
 
 /*----------------------------------------------------------------------------
   \fn QArray::QArray()
-  Constructs a \link isNull() null\endlink array.
+  Constructs a null array.
+  \sa isNull()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QArray::QArray( int size )
   Constructs an array with room for \e size elements.
-  Makes a \link isNull() null\endlink array if \e size == 0.
+  Makes a null array if \e size == 0.
 
   Note that the elements are not initialized.
 
-  \sa resize()
+  \sa resize(), isNull()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -167,7 +168,7 @@
 /*----------------------------------------------------------------------------
   \fn uint QArray::nrefs() const
   Returns the reference count for the shared array data. This reference count
-  is always greater that zero.
+  is always greater than zero.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -183,7 +184,7 @@
   \fn bool QArray::isEmpty() const
   Returns TRUE if the array is empty, i.e. size() == 0, otherwise FALSE.
 
-  isEmpty() is equivalent with isNull() for QArray.  Note that is is not
+  isEmpty() is equivalent with isNull() for QArray.  Note that this is not
   the case for QString::isEmpty().
  ----------------------------------------------------------------------------*/
 
@@ -220,7 +221,7 @@
   Detaches this array from shared array data, i.e. makes a private, deep
   copy of the data.
 
-  Detaching will only be performed if the
+  Copying will only be performed if the
   \link nrefs() reference count\endlink is greater than one.
 
   \sa copy()
@@ -234,30 +235,30 @@
 
 /*----------------------------------------------------------------------------
   \fn QArray<type> &QArray::assign( const QArray<type> &a )
-  Shallow copy. Dereference the current array and references the data
+  Shallow copy. Dereferences the current array and references the data
   contained in \e a instead. Returns a reference to this array.
   \sa operator=()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QArray<type> &QArray::assign( const type *data, uint size )
-  Shallow copy. Dereference the current array and references the
+  Shallow copy. Dereferences the current array and references the
   array data \e data, which contains \e size elements.
   Returns a reference to this array.
 
-  Do not delete \e data later, because QArray takes care of that.
+  Do not delete \e data later, QArray takes care of that.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QArray<type> &QArray::duplicate( const QArray<type> &a )
-  Deep copy. Dereference the current array and obtains a copy of the data
+  Deep copy. Dereferences the current array and obtains a copy of the data
   contained in \e a instead. Returns a reference to this array.
   \sa copy()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QArray<type> &QArray::duplicate( const type *data, uint size )
-  Deep copy. Dereference the current array and obtains a copy of the
+  Deep copy. Dereferences the current array and obtains a copy of the
   array data \e data instead.  Returns a reference to this array.
   \sa copy()
  ----------------------------------------------------------------------------*/
@@ -272,7 +273,7 @@
   array data when raw data has been set.
   Call resetRawData(d,len) to reset the array.
 
-  Setting raw data is useful because it set QArray data without allocating
+  Setting raw data is useful because it sets QArray data without allocating
   memory or copying data.
 
   Example I (intended use):
@@ -306,10 +307,12 @@
 
 /*----------------------------------------------------------------------------
   \fn void QArray::resetRawData( const type *data, uint size )
-  Resets raw data.
+  Resets raw data that was set using setRawData().
 
   The arguments must be the data and length that were passed to
   setRawData().	 This is for consistency checking.
+
+  \sa setRawData()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------

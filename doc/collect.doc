@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 1.8 1995/12/18 18:28:52 hanord Exp $
+** $Id: collect.doc,v 1.9 1995/12/18 19:06:55 hanord Exp $
 **
 ** Qt collection classes documentation
 **
@@ -191,7 +191,9 @@ can use \c typedef:
       EmployeeList list;	// list of pointers to Employee
       ...
 \endcode
-  
+
+\c USE_TEMPLATECLASS is defined in qglobal.h.
+
 QListT refers to the QList template and QListM refers to the QList macro.
 QList defaults to QListT if templates are supported, QListM otherwise.
 
