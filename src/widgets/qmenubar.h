@@ -35,6 +35,7 @@ class Q_EXPORT QMenuBar : public QFrame, public QMenuData
     Q_OBJECT
     Q_ENUMS( Separator )
     Q_PROPERTY( Separator separator READ separator WRITE setSeparator )
+    Q_PROPERTY( bool defaultUp READ isDefaultUp WRITE setDefaultUp )
 	
 public:
     QMenuBar( QWidget *parent=0, const char *name=0 );
@@ -52,6 +53,9 @@ public:
     enum	Separator { Never=0, InWindowsStyle=1 };
     Separator 	separator() const;
     virtual void	setSeparator( Separator when );
+    
+    void	setDefaultUp( bool );
+    bool	isDefaultUp() const;
 
     bool customWhatsThis() const;
 
@@ -110,10 +114,11 @@ private:
     QRect      *irects;
     int		rightSide;
 
-    uint	mseparator	: 1;
+    uint	mseparator : 1;
     uint	waitforalt : 1;
     uint	popupvisible  : 1;
     uint	hasmouse : 1;
+    uint 	defaultup : 1;
 
     friend class QPopupMenu;
 

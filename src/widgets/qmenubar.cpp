@@ -172,6 +172,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     waitforalt = 0;
     popupvisible = 0;
     hasmouse = 0;
+    defaultup = 0;
     if ( parent ) {
 	// filter parent events for resizing
 	parent->installEventFilter( this );
@@ -509,10 +510,10 @@ void QMenuBar::openActPopup()
     int ph = popup->sizeHint().height();
     pos = mapToGlobal(pos);
     int sh = QApplication::desktop()->height();
-    if ( popup->isDefaultUp() || (pos.y() + ph > sh) ) {
+    if ( defaultup || (pos.y() + ph > sh) ) {
 	QPoint t = mapToGlobal( r.topLeft() );
 	t.ry() -= (QCOORD)ph;
-	if ( !popup->isDefaultUp() || t.y() >= 0 )
+	if ( !defaultup || t.y() >= 0 )
 	    pos = t;
     }
 
@@ -1230,3 +1231,31 @@ QSize QMenuBar::minimumSizeHint() const
 {
     return minimumSize();
 }
+
+/*!
+  Sets the default popup orientation. By default, menus pop "down" the
+  screen.  By calling setDefaultUp(TRUE) the menu will pop "up".  You
+  might call this for menus that are \e below the document to which
+  they refer.
+
+  If the menu would not fit on the screen, the other direction is used
+  rather than the default.
+
+  \sa defaultUp();
+*/
+void QMenuBar::setDefaultUp( bool on )
+{
+    defaultup = on;
+}
+
+/*!
+  Returns whether the menus default to popping "down" the screen
+  (the default), or "up".
+
+  \sa setDefaultUp();
+*/
+bool QMenuBar::isDefaultUp() const
+{
+    return defaultup;
+}
+

@@ -36,8 +36,6 @@ class Q_EXPORT QPopupMenu : public QFrame, public QMenuData
 {
     Q_OBJECT
     Q_PROPERTY( bool checkable READ isCheckable WRITE setCheckable )
-    Q_PROPERTY( bool defaultUp READ isDefaultUp WRITE setDefaultUp )
-	// ######### Is activeItem a property ?
 public:
     QPopupMenu( QWidget *parent=0, const char *name=0 );
    ~QPopupMenu();
@@ -47,9 +45,6 @@ public:
 
     virtual void	setCheckable( bool );
     bool	isCheckable() const;
-
-    void	setDefaultUp( bool );
-    bool	isDefaultUp() const;
 
     void	setFont( const QFont & );	// reimplemented set font
     void	show();				// reimplemented show
@@ -136,7 +131,6 @@ private:
     uint checkable : 1;
     uint connectModalRecursionSafety : 1;
     uint tearedOff : 1;
-    uint defaultUp : 1;
     int maxPMWidth;
     int ncols;
     bool	tryMouseEvent( QPopupMenu *, QMouseEvent * );
