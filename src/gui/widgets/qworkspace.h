@@ -80,8 +80,7 @@ private:
     Q_PRIVATE_SLOT(void showOperationMenu());
     Q_PRIVATE_SLOT(void popupOperationMenu(const QPoint&));
     Q_PRIVATE_SLOT(void operationMenuActivated(QAction *));
-    Q_PRIVATE_SLOT(void operationMenuAboutToShow());
-    Q_PRIVATE_SLOT(void toolMenuAboutToShow());
+    Q_PRIVATE_SLOT(void updateActions());
     Q_PRIVATE_SLOT(void scrollBarChanged());
 
 private:        // Disabled copy constructor and operator=

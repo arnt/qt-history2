@@ -244,9 +244,8 @@ private:
     void showOperationMenu();
     void popupOperationMenu(const QPoint&);
     void operationMenuActivated(QAction *);
-    void operationMenuAboutToShow();
-    void toolMenuAboutToShow();
     void scrollBarChanged();
+    void updateActions();
 };
 
 static bool isChildOf(QWidget * child, QWidget * parent)
@@ -308,7 +307,7 @@ QWorkspacePrivate::init()
     d->actions[QWorkspacePrivate::ShadeAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarShadeButton)),
                                                           q->tr("Sh&ade"), q);
 
-    QObject::connect(d->popup, SIGNAL(aboutToShow()), q, SLOT(operationMenuAboutToShow()));
+    QObject::connect(d->popup, SIGNAL(aboutToShow()), q, SLOT(updateActions()));
     QObject::connect(d->popup, SIGNAL(activated(QAction*)), q, SLOT(operationMenuActivated(QAction*)));
     d->popup->addAction(d->actions[QWorkspacePrivate::RestoreAct]);
     d->popup->addAction(d->actions[QWorkspacePrivate::MoveAct]);
@@ -318,7 +317,7 @@ QWorkspacePrivate::init()
     d->popup->addSeparator();
     d->popup->addAction(d->actions[QWorkspacePrivate::CloseAct]);
 
-    QObject::connect(d->toolPopup, SIGNAL(aboutToShow()), q, SLOT(toolMenuAboutToShow()));
+    QObject::connect(d->toolPopup, SIGNAL(aboutToShow()), q, SLOT(updateActions()));
     QObject::connect(d->toolPopup, SIGNAL(activated(QAction*)), q, SLOT(operationMenuActivated(QAction*)));
     d->toolPopup->addAction(d->actions[QWorkspacePrivate::MoveAct]);
     d->toolPopup->addAction(d->actions[QWorkspacePrivate::ResizeAct]);
@@ -1016,7 +1015,7 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
 #endif
     switch (e->type()) {
     case QEvent::HideToParent:
-        if (qstrcmp("QWorkspaceChild", o->className()))
+        if (qstrcmp("QWorkspaceChild", o->metaObject()->className()))
             break;
         if (d->active == o) {
             int a = d->focus.indexOf(d->active);
@@ -1062,7 +1061,7 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
         d->updateWorkspace();
         break;
     case QEvent::ShowToParent:
-        if ((qstrcmp("QWorkspaceChild", o->className()) == 0)
+        if ((qstrcmp("QWorkspaceChild", o->metaObject()->className()) == 0)
              && !d->focus.contains((QWorkspaceChild*)o))
             d->focus.append((QWorkspaceChild*)o);
         d->updateWorkspace();
@@ -1146,11 +1145,11 @@ void QWorkspacePrivate::showMaximizeControls()
              d->maxWindow->windowWidget()->testWFlags(WStyle_Minimize)) {
             QToolButton* iconB = new QToolButton(d->maxcontrols, "iconify");
 #ifndef QT_NO_TOOLTIP
-            QToolTip::add(iconB, q->tr("Minimize"));
+            iconB->setToolTip(q->tr("Minimize"));
 #endif
             l->addWidget(iconB);
             iconB->setFocusPolicy(NoFocus);
-            iconB->setIconSet(q->style().stylePixmap(QStyle::SP_TitleBarMinButton));
+            iconB->setIcon(q->style().stylePixmap(QStyle::SP_TitleBarMinButton));
             iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
             QObject::connect(iconB, SIGNAL(clicked()),
                              q, SLOT(minimizeActiveWindow()));
@@ -1158,11 +1157,11 @@ void QWorkspacePrivate::showMaximizeControls()
 
         QToolButton* restoreB = new QToolButton(d->maxcontrols, "restore");
 #ifndef QT_NO_TOOLTIP
-        QToolTip::add(restoreB, q->tr("Restore Down"));
+        restoreB->setToolTip(q->tr("Restore Down"));
 #endif
         l->addWidget(restoreB);
         restoreB->setFocusPolicy(NoFocus);
-        restoreB->setIconSet(q->style().stylePixmap(QStyle::SP_TitleBarNormalButton));
+        restoreB->setIcon(q->style().stylePixmap(QStyle::SP_TitleBarNormalButton));
         restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         QObject::connect(restoreB, SIGNAL(clicked()),
                          q, SLOT(normalizeActiveWindow()));
@@ -1170,11 +1169,11 @@ void QWorkspacePrivate::showMaximizeControls()
         l->addSpacing(2);
         QToolButton* closeB = new QToolButton(d->maxcontrols, "close");
 #ifndef QT_NO_TOOLTIP
-        QToolTip::add(closeB, q->tr("Close"));
+        closeB->setToolTip(q->tr("Close"));
 #endif
         l->addWidget(closeB);
         closeB->setFocusPolicy(NoFocus);
-        closeB->setIconSet(q->style().stylePixmap(QStyle::SP_TitleBarCloseButton));
+        closeB->setIcon(q->style().stylePixmap(QStyle::SP_TitleBarCloseButton));
         closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         QObject::connect(closeB, SIGNAL(clicked()),
                          q, SLOT(closeActiveWindow()));
@@ -1309,11 +1308,11 @@ void QWorkspacePrivate::popupOperationMenu(const QPoint&  p)
         d->popup->popup(p);
 }
 
-void QWorkspacePrivate::operationMenuAboutToShow()
+void QWorkspacePrivate::updateActions()
 {
-    for (int i = 1; i < 6; i++) {
+    for (int i = 1; i < NCountAct-1; i++) {
         bool enable = d->active != 0;
-        d->popup->setItemEnabled(i, enable);
+        d->actions[i]->setEnabled(enable);
     }
 
     if (!d->active || !d->active->windowWidget())
@@ -1321,39 +1320,33 @@ void QWorkspacePrivate::operationMenuAboutToShow()
 
     QWidget *windowWidget = d->active->windowWidget();
     bool canResize = windowWidget->maximumSize() != windowWidget->minimumSize();
-    d->popup->setItemEnabled(3, canResize);
-    d->popup->setItemEnabled(4, windowWidget->testWFlags(WStyle_Minimize));
-    d->popup->setItemEnabled(5, windowWidget->testWFlags(WStyle_Maximize) && canResize);
+    d->actions[QWorkspacePrivate::ResizeAct]->setEnabled(canResize);
+    d->actions[QWorkspacePrivate::MinimizeAct]->setEnabled(windowWidget->testWFlags(WStyle_Minimize));
+    d->actions[QWorkspacePrivate::MaximizeAct]->setEnabled(windowWidget->testWFlags(WStyle_Maximize) && canResize);
 
     if (d->active == d->maxWindow) {
-        d->popup->setItemEnabled(2, false);
-        d->popup->setItemEnabled(3, false);
-        d->popup->setItemEnabled(5, false);
+        d->actions[QWorkspacePrivate::MoveAct]->setEnabled(false);
+        d->actions[QWorkspacePrivate::ResizeAct]->setEnabled(false);
+        d->actions[QWorkspacePrivate::MaximizeAct]->setEnabled(false);
     } else if (d->active->isVisible()){
-        d->popup->setItemEnabled(1, false);
+        d->actions[QWorkspacePrivate::RestoreAct]->setEnabled(false);
     } else {
-        d->popup->setItemEnabled(2, false);
-        d->popup->setItemEnabled(3, false);
-        d->popup->setItemEnabled(4, false);
+        d->actions[QWorkspacePrivate::MoveAct]->setEnabled(false);
+        d->actions[QWorkspacePrivate::ResizeAct]->setEnabled(false);
+        d->actions[QWorkspacePrivate::MinimizeAct]->setEnabled(false);
     }
-}
-
-void QWorkspacePrivate::toolMenuAboutToShow()
-{
-    if (!d->active || !d->active->windowWidget())
-        return;
-
-    QWidget *windowWidget = d->active->windowWidget();
-    bool canResize = windowWidget->maximumSize() != windowWidget->minimumSize();
-
-    d->toolPopup->setItemEnabled(3, !d->active->shademode && canResize);
-    if (d->active->shademode)
-        d->toolPopup->changeItem(6,
-                                  QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarUnshadeButton)), q->tr("&Unshade"));
-    else
-        d->toolPopup->changeItem(6, QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarShadeButton)), q->tr("Sh&ade"));
-    d->toolPopup->setItemEnabled(6, d->active->windowWidget()->testWFlags(WStyle_MinMax));
-    d->toolPopup->setItemChecked(7, d->active->windowWidget()->testWFlags(WStyle_StaysOnTop));
+    if (d->active->shademode) {
+        d->actions[QWorkspacePrivate::ShadeAct]->setIcon(
+            QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarUnshadeButton)));
+        d->actions[QWorkspacePrivate::ShadeAct]->setText(q->tr("&Unshade"));
+    } else {
+        d->actions[QWorkspacePrivate::ShadeAct]->setIcon(
+            QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarShadeButton)));
+        d->actions[QWorkspacePrivate::ShadeAct]->setText(q->tr("Sh&ade"));
+    }
+    d->actions[QWorkspacePrivate::StaysOnTopAct]->setEnabled(!d->active->shademode && canResize);
+    d->actions[QWorkspacePrivate::StaysOnTopAct]->setChecked(
+        d->active->windowWidget()->testWFlags(WStyle_StaysOnTop));
 }
 
 void QWorkspacePrivate::operationMenuActivated(QAction *action)
