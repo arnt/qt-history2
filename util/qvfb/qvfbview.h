@@ -25,7 +25,8 @@ protected slots:
 protected:
     void drawScreen();
     void sendMouseData( const QPoint &pos, int buttons );
-    void sendKeyboardData( int unicode, int keycode, bool press, bool repeat );
+    void sendKeyboardData( int unicode, int keycode, int modifiers,
+			   bool press, bool repeat );
     virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void contentsMousePressEvent( QMouseEvent *e );
     virtual void contentsMouseReleaseEvent( QMouseEvent *e );
