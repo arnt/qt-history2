@@ -398,8 +398,9 @@ protected:
     uint	clip_serial;			// clipping serial number
 #elif defined(Q_WS_MAC)
     Qt::HANDLE	hd;				// handle to drawable
-    void initPaintDevice(bool force=FALSE);
+    void initPaintDevice(bool force=FALSE, QPoint *off=NULL, QRegion *rgn=NULL);
     friend const QRegion &qt_mac_update_painter(QPainter *, bool);
+    friend class QFontEngineMac;
 #elif defined(Q_WS_QWS)
     QGfx * gfx;
 #endif

@@ -74,16 +74,6 @@ public:
 #endif
 };
 
-const QRegion &qt_mac_update_painter(QPainter *p, bool brush)
-{
-    p->initPaintDevice();
-    if(brush)
-	p->updateBrush();
-    else
-	p->updatePen();
-    return p->d->cache.paintreg;
-}
-
 /*****************************************************************************
   Current "active" QPainter
  *****************************************************************************/
@@ -292,7 +282,7 @@ void QPainter::updatePen()
     if(testf(ExtDev)) {
 	QPDevCmdParam param[1];
 	param[0].pen = &cpen;
-	if(!pdev->cmd( QPaintDevice::PdcSetPen, this, param) || !pdev->handle())
+	if(!pdev->cmd(QPaintDevice::PdcSetPen, this, param) || !pdev->handle())
 	    return;
     }
 
@@ -337,10 +327,10 @@ void QPainter::updatePen()
 
 void QPainter::updateBrush()
 {
-    if(testf( ExtDev)) {
+    if(testf(ExtDev)) {
 	QPDevCmdParam param[1];
 	param[0].brush = &cbrush;
-	if(!pdev->cmd( QPaintDevice::PdcSetBrush,this,param) || !pdev->handle())
+	if(!pdev->cmd(QPaintDevice::PdcSetBrush,this,param) || !pdev->handle())
 	    return;
     }
 
@@ -738,7 +728,7 @@ void QPainter::setRasterOp(RasterOp r)
     if(testf(ExtDev)) {
 	QPDevCmdParam param[1];
 	param[0].ival = r;
-	if( !pdev->cmd( QPaintDevice::PdcSetROP, this, param) || !pdev->handle())
+	if(!pdev->cmd(QPaintDevice::PdcSetROP, this, param) || !pdev->handle())
 	    return;
     }
     if(penRef)
@@ -974,7 +964,7 @@ void QPainter::moveTo(int x, int y)
 #endif
 }
 
-void QPainter::lineTo( int x, int y)
+void QPainter::lineTo(int x, int y)
 {
   if(!isActive())
     return;
@@ -1788,9 +1778,6 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
     if(len == 0 || pos >= (int)str.length())   // empty string
 	return;
 
-    updateBrush();
-    if(testf(DirtyFont))
-	updateFont();
     if(testf(ExtDev)) {
 	QPDevCmdParam param[2];
 	QPoint p(x, y);
@@ -1877,7 +1864,7 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
 	    mat2.map(tfx, tfy, &dx, &dy);     // compute position of bitmap
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
-	    unclippedBitBlt(pdev, x, y, &pm, 0, 0, -1, -1, CopyROP, FALSE, FALSE );
+	    unclippedBitBlt(pdev, x, y, &pm, 0, 0, -1, -1, CopyROP, FALSE, FALSE);
 #ifndef QMAC_NO_CACHE_TEXT_XFORM
 	    if(create_new_bm)
 		ins_text_bitmap(bm_key, wx_bm);
@@ -1886,31 +1873,11 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
 #endif
 	    return;
 	}
-	if(txop == TxTranslate)
-	    map(x, y, &x, &y);
     }
 
     initPaintDevice();
     if(d->cache.paintreg.isEmpty())
 	return;
-
-    x += d->offx;
-    y += d->offy;
-    if(bg_mode == OpaqueMode) {
-	QRect br = fontMetrics().boundingRect(str.mid(pos), len);
-	Rect r;
-	r.left = x + br.x();
-	r.top = y + br.y();
-	r.right = r.left + br.width();
-	r.bottom = r.top + br.height();
-	::RGBColor f;
-	f.red = bg_col.red()*256;
-	f.green = bg_col.green()*256;
-	f.blue = bg_col.blue()*256;
-	RGBForeColor(&f);
-	PaintRect(&r);
-    }
-    updatePen();
 
     QTextLayout layout(str, this);
     layout.beginLayout();
@@ -1939,45 +1906,38 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
 	Q_ASSERT(fe);
 
 	int textFlags = 0;
-	if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
-	if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
-	if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
-
-	fe->draw(this, x + si->x,  y + si->y - ascent, engine, si, textFlags );
+	if(cfont.d->underline) 
+	    textFlags |= QFontEngine::Underline;
+	if(cfont.d->overline) 
+	    textFlags |= QFontEngine::Overline;
+	if(cfont.d->strikeOut) 
+	    textFlags |= QFontEngine::StrikeOut;
+	fe->draw(this, x + si->x,  y + si->y - ascent, engine, si, textFlags);
     }
 }
 
 void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
 {
-    if ( testf(ExtDev) ) {
+    if(testf(ExtDev)) {
         QPDevCmdParam param[2];
         QPoint p(x, y);
         param[0].point = &p;
         param[1].textItem = &ti;
         bool retval = pdev->cmd(QPaintDevice::PdcDrawTextItem, this, param);
-        if ( !retval || !hd )
+        if(!retval || !hd)
             return;
     }
 
     QTextEngine *engine = ti.engine;
     QScriptItem &si = engine->items[ti.item];
-    engine->shape( ti.item );
+    engine->shape(ti.item);
     QFontEngine *fe = si.fontEngine;
 
     Q_ASSERT(fe);
     x += si.x;
     y += si.y;
 
-    initPaintDevice();
-    if(d->cache.paintreg.isEmpty())
-	return;
-
-    x += d->offx;
-    y += d->offy;
-
-    updatePen();
-
-    fe->draw(this, x,  y, engine, &si, textFlags );
+    fe->draw(this, x,  y, engine, &si, textFlags);
 }
 
 QPoint QPainter::pos() const
@@ -1991,7 +1951,7 @@ QPoint QPainter::pos() const
 /*!
     \internal
 */
-void QPainter::initPaintDevice(bool force) {
+void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) {
     bool remade_clip = FALSE;
     if(pdev->devType() == QInternal::Printer) {
 	if(force && pdev->handle()) {
@@ -2079,5 +2039,9 @@ void QPainter::initPaintDevice(bool force) {
 	QMacSavedPortInfo::setClipRegion(d->cache.paintreg);
 	qt_mac_current_painter = this;
     }
+    if(off)
+	*off = QPoint(d->offx, d->offy);
+    if(rgn)
+	*rgn = d->cache.paintreg;
 }
 

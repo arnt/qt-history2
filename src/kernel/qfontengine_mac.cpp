@@ -69,11 +69,48 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
     if( textFlags != 0 )
 	task |= WIDTH; //I need the width for these..
     int w = 0;
-    const QRegion &rgn = qt_mac_update_painter(p, FALSE);
+
+    if(p->txop >= QPainter::TxScale) {
+	qDebug("not yet implemented..");
+//	p->drawText(x, y, QString((QChar *)si->glyphPtr, si->numGlyphs...));
+	return;
+    } else if(p->txop == QPainter::TxTranslate) {
+	p->map(x, y, &x, &y);
+    }
+
+    QPoint off;
+    QRegion rgn;
+    p->initPaintDevice(FALSE, &off, &rgn);
+    if(rgn.isEmpty())
+	return;
+    x += off.x();
+    y += off.y();
 
     glyph_t *glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
     offset_t *offsets = engine->offsets( si );
+    
+#if 0
+    p->updateBrush();
+    if(p->backgroundMode() == Qt::OpaqueMode) {
+	glyph_metrics_t br = boundingBox(glyphs, advances, offsets, si->num_glyphs);
+	Rect r;
+	r.left = x + br.x;
+	r.top = y + br.y;
+	r.right = r.left + br.width;
+	r.bottom = r.top + br.height;
+	::RGBColor f;
+	QColor qf = p->backgroundColor();
+	f.red = qf.red()*256;
+	f.green = qf.green()*256;
+	f.blue = qf.blue()*256;
+	RGBForeColor(&f);
+	PaintRect(&r);
+    }
+#endif
+    p->updatePen();
+    if(p->testf(QPainter::DirtyFont))
+	p->updateFont();
 
     if(si->analysis.bidiLevel % 2 ) {
 	offsets += si->num_glyphs;
