@@ -7,8 +7,9 @@ $charset='iso-8859-1';
 $translator='';
 
 $real_mark = "tr";
-$noop_mark = "tr_noop";
-$scoped_mark = "tr_scoped";
+$noop_mark = "qt_tr_noop";
+$scoped_mark = "qApp->translate";
+$noop_scoped_mark = "qt_translate_noop";
 
 $header='msgid ""
 msgstr ""
@@ -90,7 +91,7 @@ foreach $file ( @ARGV ) {
 		# $4,$5 - two-argument msgid
 		(?:\b
 		    # One of the scoped marks
-		    (?:$scoped_mark)
+		    (?:$scoped_mark|$noop_scoped_mark)
 		    \s*
 		    # The parameters
 		    \(
