@@ -9,12 +9,10 @@ Directories:
 ------------
 bin		Place for Qt executables (moc)
 configs		Platform/compiler configuration files.
-doc		Class documentation outside the source code.
+doc		Qt documentation in HTML and manpage format.
 examples	Qt example programs
 extensions	Qt extensions (OpenGL, Browser Plugin etc.)
-doc		Qt documentation in HTML format
 include		Qt include files
 lib		Place for the Qt library
-man		Qt documentation in manpage format
 src		Qt source code
 tutorial	Source code for the Qt tutorial
