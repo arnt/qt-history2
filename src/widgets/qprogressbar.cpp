@@ -162,7 +162,7 @@ void QProgressBar::setProgress( int progress )
 	 progress > total_steps )
 	return;
 
-    bool forward = progress > progress_val;
+    //bool forward = progress > progress_val;
     progress_val = progress;
     if ( isVisible() ) {
 	if ( setIndicator(progress_str, progress_val, total_steps) ) {
