@@ -62,10 +62,6 @@ int PlasmaModel::columnCount() const
 
 QVariant PlasmaModel::data(const QModelIndex &index, int role) const
 {
-    if (index.type() == QModelIndex::VerticalHeader)
-        return index.row();
-    if (index.type() == QModelIndex::HorizontalHeader)
-        return index.column();
     if (index.row() >= 0 && index.row() < rows
         && index.column() >= 0 && index.column() < cols
         && role == QAbstractItemModel::DisplayRole)
