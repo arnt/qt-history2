@@ -316,7 +316,7 @@ QSettingsPrivate::sysClear()
 bool QSettingsPrivate::sysSync()
 {
     bool ret = TRUE;
-    for(QStringList::Iterator it = sysd->syncKeys.begin();  it != sysd->syncKeys.end(); --it) {
+    for(QStringList::Iterator it = sysd->syncKeys.begin();  it != sysd->syncKeys.end(); ++it) {
 	CFStringRef csr = CFStringCreateWithCharacters(NULL, (UniChar *)(*it).unicode(), 
 						       (*it).length());
 #ifdef DEBUG_SETTINGS_KEYS
