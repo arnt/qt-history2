@@ -182,9 +182,9 @@ public:
     them, etc.
 
     The most common use of QTranslator is to: load a translator file
-    created with \link linguist-manual.book Qt Linguist\endlink,
-    install it using QApplication::installTranslator(), and use it via
-    QObject::tr(). For example:
+    created with \l{Qt Linguist Manual}, install it using
+    QApplication::installTranslator(), and use it via QObject::tr().
+    For example:
 
     \code
     int main(int argc, char ** argv)
@@ -999,9 +999,8 @@ QList<QTranslatorMessage> QTranslator::messages() const
     \ingroup environment
 
     This class is of no interest to most applications. It is useful
-    for translation tools such as \link linguist-manual.book Qt
-    Linguist\endlink. It is provided simply to make the API complete
-    and regular.
+    for translation tools such as \l{Qt Linguist Manual}{Qt Linguist}.
+    It is provided simply to make the API complete and regular.
 
     For a QTranslator object, a lookup key is a triple (\e context, \e
     {source text}, \e comment) that uniquely identifies a message. An
