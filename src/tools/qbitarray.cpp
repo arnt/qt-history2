@@ -78,6 +78,12 @@ QBitArray::QBitArray(int size, bool val)
 */
 
 /*!
+    \fn int QBitArray::count() const
+
+    Synonym for size().
+*/
+
+/*!
     Resizes the bit array to \a size bits.
 
     If the array is expanded, the new bits are set to 0.
@@ -95,9 +101,34 @@ void QBitArray::resize(int size)
 }
 
 /*!
-  Fills the array with with \a val from \a first to \a last.
+    \fn bool QBitArray::isEmpty() const
 
-  \sa fill()
+    Returns true if this bit array is empty; otherwise returns false.
+*/
+
+/*!
+    \fn bool QBitArray::isNull() const
+
+    \internal
+*/
+
+/*!
+    \fn bool QBitArray::ensure_constructed()
+
+    \internal
+*/
+
+/*!
+    \fn  bool QBitArray::fill(bool val, int size = -1)
+
+    \overload
+
+    Fills the array with with \a val from position 0 to the end (or
+    for \a size positions).
+*/
+
+/*!
+    Fills the array with with \a val from \a first to \a last.
 */
 
 void QBitArray::fill(bool val, int first, int last)
@@ -116,10 +147,20 @@ void QBitArray::fill(bool val, int first, int last)
     return;
 }
 
+/*! \fn bool QBitArray::isDetached() const
+  \internal
+*/
+
+
 /*! \fn void QBitArray::detach()
   \internal
 */
 
+/*!
+    \fn bool QBitArray::toggleBit(int i)
+
+    Toggles (inverts) the value of bit \a i.
+*/
 
 /*! \fn bool QBitArray::testBit(int i) const
 
@@ -154,7 +195,7 @@ void QBitArray::fill(bool val, int first, int last)
     \sa clearBit() toggleBit()
 */
 
-/*! \fn bool QBitArray::clearBit(int i) const
+/*! \fn void QBitArray::clearBit(int i)
     Clears the bit at position \a i, i.e. sets it to 0.
 
     \sa setBit(), toggleBit()
@@ -195,6 +236,36 @@ void QBitArray::fill(bool val, int first, int last)
     Implements the [] operator for constant bit arrays.
 */
 
+/*!
+    \overload bool QBitArray::operator[](uint i)
+
+    Implements the [] operator for bit arrays.
+*/
+
+/*!
+    \overload bool QBitArray::operator[](uint i) const
+
+    Implements the [] operator for constant bit arrays.
+*/
+
+/*!
+    \fn QBitArray &QBitArray::operator=(const QBitArray &other)
+
+    Assigns the value of \a other to this bit array.
+*/
+
+/*!
+    \fn bool QBitArray::operator==(const QBitArray& a) const
+
+    \internal
+*/
+
+
+/*!
+    \fn bool QBitArray::operator!=(const QBitArray& a) const
+
+    \internal
+*/
 
 
 /*!
@@ -377,7 +448,7 @@ QBitArray operator^(const QBitArray &a1, const QBitArray &a2)
 */
 
 /*!
-    \fn QBitRef::QBitRef (QBitArray* a, uint i)
+    \fn QBitRef::QBitRef (QBitArray& a, int i)
 
     Constructs a reference to element \a i in the QBitArray \a a.
     This is what QBitArray::operator[] constructs its return value
@@ -385,7 +456,7 @@ QBitArray operator^(const QBitArray &a1, const QBitArray &a2)
 */
 
 /*!
-    \fn QBitRef::operator int() const
+    \fn QBitRef::operator bool() const
 
     Returns the value referenced by the QBitRef.
 */
