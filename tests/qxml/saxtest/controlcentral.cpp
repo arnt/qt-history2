@@ -68,15 +68,8 @@ void ControlCentral::parse( const QString& filename )
     *parseProtocolTS << endl << "******** "
 	<< filename << " ********" << endl;
 
-#if 0
-    QTextStream ts2( &file );
-    QString inputString = ts2.read();
-    QTextStream ts( &inputString, IO_ReadOnly );
-#else
-    QTextStream ts( &file );
-#endif
     QXmlSimpleReader parser;
-    QXmlInputSource source( ts );
+    QXmlInputSource source( &file );
 
     parser.setFeature( "http://xml.org/sax/features/namespaces", TRUE );
     parser.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
@@ -95,7 +88,6 @@ void ControlCentral::parse( const QString& filename )
     file.reset();
     QTextView* src = new QTextView();
     src->setTextFormat( PlainText );
-//    src->setText( ts.read() );
     src->setText( source.data() );
     src->setCaption( "Source for " + filename );
 

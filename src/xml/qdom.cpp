@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#58 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#59 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -47,6 +47,7 @@
 #include "qtextcodec.h"
 #include "qiodevice.h"
 #include "qregexp.h"
+#include "qbuffer.h"
 
 // NOT REVISED
 
@@ -5748,8 +5749,8 @@ bool QDomDocument::setContent( const QByteArray& buffer, bool namespaceProcessin
 {
     if ( !impl )
 	impl = new QDomDocumentPrivate;
-    QTextStream ts( buffer, IO_ReadOnly );
-    QXmlInputSource source( ts );
+    QBuffer buf( buffer );
+    QXmlInputSource source( &buf );
     return IMPL->setContent( source, namespaceProcessing );
 }
 
@@ -5768,8 +5769,7 @@ bool QDomDocument::setContent( QIODevice* dev, bool namespaceProcessing )
 {
     if ( !impl )
 	impl = new QDomDocumentPrivate;
-    QTextStream ts( dev );
-    QXmlInputSource source( ts );
+    QXmlInputSource source( dev );
     return IMPL->setContent( source, namespaceProcessing );
 }
 
