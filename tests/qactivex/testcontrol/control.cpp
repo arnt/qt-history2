@@ -49,12 +49,18 @@ public:
     int number() const { PROP(number) }
     void setNumber( int number ) { SET_PROP(number) }
 
-public:
+
     void repaint()
     {
 	Q_ASSERT( parent() && parent()->isWidgetType() );
 	((QWidget*)parent())->repaint();
     }
+
+public slots:
+    void emitFire() { emit fire(); }
+
+signals:
+    void fire();
 
 private:
     QString m_unicode;
