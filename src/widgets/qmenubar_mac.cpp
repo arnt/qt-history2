@@ -188,7 +188,8 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
 	MenuCommand cmd;
 	GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
 	if(highlight) {
-	    mpb->qpopup->hilitSig(cmd);
+	    if(mpb->qpopup->isItemEnabled(cmd))
+		mpb->qpopup->hilitSig(cmd);
 	} else {
 	    mpb->qpopup->activateItemAt(mpb->qpopup->indexOf(cmd));
 	    HiliteMenu(0);
