@@ -1029,9 +1029,7 @@ bool QGLContext::create( const QGLContext* shareContext )
     is made current.
 
     In some very rare cases the underlying call may fail. If this
-    occurs an error message is output to stderr. (We can't return a
-    bool success indicator since that would break Qt 3.x binary
-    compatibility.)
+    occurs an error message is output to stderr.
 */
 
 
