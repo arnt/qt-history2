@@ -2159,14 +2159,16 @@ void QMainWindow::menuAboutToShow()
 	menu->insertItem( tr( "Customize..." ), this, SLOT( customize() ) );
 }
 
-/*! Shows the dock menu at the position \a globalPos. The menu lists the
+/*!
+    Shows the dock menu at the position \a globalPos. The menu lists the
     dock windows so that they can be shown (or hidden), lined up, and
-    possibly customized.
+    possibly customized. Returns TRUE if the menu is shown; otherwise
+    returns FALSE.
 
-  The default implementation uses the dock window menu which gets
-  created by createDockWindowMenu(). You can reimplement
-  createDockWindowMenu() if you want to use your own specialized popup
-  menu.
+    The default implementation uses the dock window menu which gets
+    created by createDockWindowMenu(). You can reimplement
+    createDockWindowMenu() if you want to use your own specialized
+    popup menu.
 */
 
 bool QMainWindow::showDockMenu( const QPoint &globalPos )
