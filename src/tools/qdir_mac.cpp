@@ -31,7 +31,7 @@ bool QDir::mkdir(const QString &dirname,bool acceptAbsPath) const
            (const char *)QFile::encodeName(filePath(dirname,
 						    acceptAbsPath));
     strcpy(bigbuf+1,wingle);
-    bigbuf[0]=strlen(wingle);    
+    bigbuf[0]=strlen(wingle);
     OSErr ret;
     ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
     if(ret!=noErr) {
@@ -55,7 +55,7 @@ bool QDir::rmdir(const QString &dirname,bool acceptAbsPath) const
            (const char *)QFile::encodeName(filePath(dirname,
 						    acceptAbsPath));
     strcpy(bigbuf+1,wingle);
-    bigbuf[0]=strlen(wingle);    
+    bigbuf[0]=strlen(wingle);
     OSErr ret;
     ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
     if(ret!=noErr) {
@@ -102,6 +102,7 @@ bool QDir::rename(const QString& name,const QString& newName,
 bool QDir::setCurrent(const QString& path)
 {
     qt_cwd=path;
+    return true;
 }
 
 QString QDir::currentDirPath()
@@ -117,6 +118,8 @@ QString QDir::rootDirPath()
 bool QDir::isRelativePath(const QString& path)
 {
     if(path[0]==':')
+	return true;
+    if(path.find(':')>-1)
 	return true;
     return false;
 }
@@ -145,7 +148,7 @@ const QFileInfoList * QDir::drives()
 	    short int drivenum=el->dQDrive;
 	    int driveref=el->dQRefNum;
 	    int driveid=el->dQFSID;
-	    refnum=driveref;	
+	    refnum=driveref;
 	    OSErr ret=GetVInfo(drivenum,(unsigned char *)somebuf,&refnum,
 			       &freebytes);
 	    if(ret!=noErr) {
@@ -154,7 +157,7 @@ const QFileInfoList * QDir::drives()
 		} else {
 		    qWarning("QDir::drives unknown error");
 		}
-	    }	
+	    }
 	    somebuf[somebuf[0]+1]=0;
 	    knownMemoryLeak->append( new QFileInfo(
 				       QString::fromLatin1 ( somebuf+1 ) ) );
