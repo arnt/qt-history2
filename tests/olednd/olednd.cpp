@@ -1,5 +1,5 @@
 #include <qapplication.h>
-#include <qwidget,h>
+#include <qlabel.h>
 
 #include <windows.h>
 #include <ole2.h>          
@@ -12,17 +12,21 @@ initOleDnd( QWidget* w )
 
 class QOleDropSource : public IDropSource
 {
-public:    
-    QOleDropSource();
+    QWidget* src;
+public:
+    QOleDropSource( QWidget* w ) :
+	src(w)
+    {
+    }
 
     /* IUnknown methods */
-    void QueryInterface(REFIID riid, void ** ppvObj);
-    ULONG AddRef();
-    ULONG Release();
+    STDMETHOD(QueryInterface)(REFIID riid, void ** ppvObj);
+    STDMETHOD_(ULONG,AddRef)(void);
+    STDMETHOD_(ULONG,Release)(void);
 
     /* IDropSource methods */
-    void QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState);
-    void GiveFeedback(DWORD dwEffect);
+    STDMETHOD(QueryContinueDrag)(BOOL fEscapePressed, DWORD grfKeyState);
+    STDMETHOD(GiveFeedback)(DWORD dwEffect);
  
 private:
     ULONG m_refs;     
@@ -35,23 +39,23 @@ class QOleDataObject : public IDataObject
 public:
     QOleDataObject( const char* text );
    
-   /* IUnknown methods */
-    HRESULT QueryInterface(REFIID riid, void FAR* FAR* ppvObj);
-    ULONG AddRef();
-    ULONG Release();
+    /* IUnknown methods */
+    STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
+    STDMETHOD_(ULONG,AddRef)(void);
+    STDMETHOD_(ULONG,Release)(void);
 
     /* IDataObject methods */    
-    HRESULT GetData(LPFORMATETC pformatetcIn,  LPSTGMEDIUM pmedium );
-    HRESULT GetDataHere(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium );
-    HRESULT QueryGetData(LPFORMATETC pformatetc );
-    HRESULT GetCanonicalFormatEtc(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut);
-    HRESULT SetData(LPFORMATETC pformatetc, STGMEDIUM FAR * pmedium,
+    STDMETHOD(GetData)(LPFORMATETC pformatetcIn,  LPSTGMEDIUM pmedium );
+    STDMETHOD(GetDataHere)(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium );
+    STDMETHOD(QueryGetData)(LPFORMATETC pformatetc );
+    STDMETHOD(GetCanonicalFormatEtc)(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut);
+    STDMETHOD(SetData)(LPFORMATETC pformatetc, STGMEDIUM FAR * pmedium,
                        BOOL fRelease);
-    HRESULT EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc);
-    HRESULT DAdvise(FORMATETC FAR* pFormatetc, DWORD advf, 
-                       LPADVISESINK pAdvSink, DWORD FAR* pdwConnection);
-    HRESULT DUnadvise(DWORD dwConnection);
-    HRESULT EnumDAdvise(LPENUMSTATDATA FAR* ppenumAdvise);
+    STDMETHOD(EnumFormatEtc)(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc);
+    STDMETHOD(DAdvise)(FORMATETC FAR* pFormatetc, DWORD advf, 
+                      LPADVISESINK pAdvSink, DWORD FAR* pdwConnection);
+    STDMETHOD(DUnadvise)(DWORD dwConnection);
+    STDMETHOD(EnumDAdvise)(LPENUMSTATDATA FAR* ppenumAdvise);
     
 private:
     ULONG m_refs;   
@@ -59,27 +63,6 @@ private:
 };
    
    
-
-class QOleDropSource : public IDropSource {
-    QWidget* src;
-public:
-    QOleDropSource( QWidget* w ) :
-	src(w)
-    {
-    }
-
-
-};
-
-static void
-startDrag( QWidget* w, QPoint pos, const char* text )
-{
-    QOleDataObject *obj = new QOleDataObject(text);
-    QOleDropSource *src = new QIDataSource(w);
-    DWORD effects = DROPEFFECT_COPY /* Need Qt API to allow this | DROPEFFECT_MOVE */;
-    DWORD results;
-    DoDragDrop(obj, src, effects, &results);
-}
 
 class OleDndSource : public QLabel {
     QOleDropSource *src;
@@ -106,6 +89,58 @@ public:
     }
 };
 
+class QOleDropTarget : public IDropTarget
+{
+    QLabel* widget;
+public:    
+    QOleDropTarget( QLabel* w );
+
+    /* IUnknown methods */
+    STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
+    STDMETHOD_(ULONG, AddRef)(void);
+    STDMETHOD_(ULONG, Release)(void);
+
+    /* IDropTarget methods */
+    STDMETHOD(DragEnter)(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
+    STDMETHOD(DragOver)(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
+    STDMETHOD(DragLeave)();
+    STDMETHOD(Drop)(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect); 
+    
+    /* Utility function to read type of drag from key state*/
+    STDMETHOD_(BOOL, QueryDrop)(DWORD grfKeyState, LPDWORD pdwEffect);
+ 
+private:
+    ULONG m_refs;  
+    BOOL m_bAcceptFmt;
+};
+
+class OleDndDestination : public QLabel {
+    QOleDropTarget *dst;
+public:
+    OleDndDestination( QWidget* parent ) :
+	QLabel("DROP HERE",parent)
+    {
+	dst = new QOleDropTarget( this );
+        // The IDropTarget interface is marshaled by OLE using MSHLFLAGS_TABLEWEAK.
+        // (See the MSHLFLAGS enumeration documentation for details). This means 
+        // that OLE does not keep a strong lock on IDropTarget. This will result
+        // in the interface being released after the first drop. To prevent this
+        // from happening we keep a strong lock on IDropTarget by calling 
+        // CoLockObjectExternal.           
+        CoLockObjectExternal(dst, TRUE, TRUE);
+        RegisterDragDrop(winId(), dst);    
+    }
+
+    ~OleDndDestination()
+    {
+        // Revoke the window as a drop target and release the strong lock
+        // using CoLockObjectExternal.          
+        RevokeDragDrop(winId());
+        dst->Release();  
+        CoLockObjectExternal(dst, FALSE, TRUE);
+    }
+};
+
 class Main : public QWidget {
     OleDndSource src;
     OleDndDestination dst;
@@ -114,6 +149,7 @@ public:
         src(this),
 	dst(this)
     {
+	resize(100,100);
     }
 
     void resizeEvent(QResizeEvent*) 
@@ -132,8 +168,9 @@ main(int argc, char**argv)
 
     Main m;
     app.setMainWidget(&m);
+    m.show();
 
-    int r = m.exec();
+    int r = app.exec();
 
     OleUninitialize();
 
@@ -146,7 +183,7 @@ main(int argc, char**argv)
 //---------------------------------------------------------------------
 
 
-HRESULT
+STDMETHODIMP
 QOleDropSource::QueryInterface(REFIID iid, void FAR* FAR* ppv) 
 {
     if(iid == IID_IUnknown || iid == IID_IDropSource)
@@ -182,7 +219,7 @@ QOleDropSource::Release(void)
 //                    IDropSource Methods
 //---------------------------------------------------------------------  
 
-HRESULT
+STDMETHODIMP
 QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {  
      if (fEscapePressed)
@@ -193,7 +230,7 @@ QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
         return NOERROR;                  
 }
 
-HRESULT
+STDMETHODIMP
 QOleDropSource::GiveFeedback(DWORD dwEffect)
 {
     return ResultFromScode(DRAGDROP_S_USEDEFAULTCURSORS);
@@ -261,7 +298,7 @@ QOleDataObject::Release(void)
 //                     (NOTE: must set pformatetcOut->ptd = NULL)
 //---------------------------------------------------------------------  
 
-HRESULT 
+STDMETHODIMP 
 QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium) 
 {   
     HGLOBAL hText; 
@@ -277,11 +314,11 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
        pformatetc->dwAspect == DVASPECT_CONTENT &&
        pformatetc->tymed == TYMED_HGLOBAL)
     {
-        hText = GlobalAlloc(GMEM_SHARE | GMEM_ZEROINIT, sizeof(m_szBuffer)+1);    
+        hText = GlobalAlloc(GMEM_SHARE | GMEM_ZEROINIT, data.length()+1);    
         if (!hText)
             return ResultFromScode(E_OUTOFMEMORY);
         pszText = (LPSTR)GlobalLock(hText);
-        lstrcpy(pszText, m_szBuffer);
+        lstrcpy(pszText, data.data());
         GlobalUnlock(hText);
         
         pmedium->tymed = TYMED_HGLOBAL;
@@ -291,15 +328,14 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
     }
     return ResultFromScode(DATA_E_FORMATETC);
 }
-XX
    
-HRESULT 
+STDMETHODIMP 
 QOleDataObject::GetDataHere(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)  
 {
     return ResultFromScode(DATA_E_FORMATETC);    
 }     
 
-HRESULT 
+STDMETHODIMP 
 QOleDataObject::QueryGetData(LPFORMATETC pformatetc) 
 {   
     // This method is called by the drop target to check whether the source
@@ -311,14 +347,14 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
     else return ResultFromScode(S_FALSE);
 }
 
-HRESULT 
+STDMETHODIMP 
 QOleDataObject::GetCanonicalFormatEtc(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut)
 { 
     pformatetcOut->ptd = NULL; 
     return ResultFromScode(E_NOTIMPL);
 }        
 
-HRESULT 
+STDMETHODIMP 
 QOleDataObject::SetData(LPFORMATETC pformatetc, STGMEDIUM *pmedium, BOOL fRelease)
 {   
     // A data transfer object that is used to transfer data
@@ -328,7 +364,7 @@ QOleDataObject::SetData(LPFORMATETC pformatetc, STGMEDIUM *pmedium, BOOL fReleas
 }
 
 
-HRESULT 
+STDMETHODIMP 
 QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc)
 { 
     // A standard implementation is provided by OleStdEnumFmtEtc_Create
@@ -364,7 +400,7 @@ error:
     return ResultFromScode(sc);
 }
 
-HRESULT 
+STDMETHODIMP 
 QOleDataObject::DAdvise(FORMATETC FAR* pFormatetc, DWORD advf, 
                        LPADVISESINK pAdvSink, DWORD FAR* pdwConnection)
 { 
@@ -372,14 +408,198 @@ QOleDataObject::DAdvise(FORMATETC FAR* pFormatetc, DWORD advf,
 }
    
 
-HRESULT 
+STDMETHODIMP 
 QOleDataObject::DUnadvise(DWORD dwConnection)
 { 
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
 
-HRESULT 
+STDMETHODIMP 
 QOleDataObject::EnumDAdvise(LPENUMSTATDATA FAR* ppenumAdvise)
 { 
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
+
+
+         
+          
+         
+QOleDropTarget::QOleDropTarget( QLabel* w ) :
+    widget(w)
+{
+   m_refs = 1; 
+   m_bAcceptFmt = FALSE;
+}   
+
+//---------------------------------------------------------------------
+//                    IUnknown Methods
+//---------------------------------------------------------------------
+
+
+STDMETHODIMP
+QOleDropTarget::QueryInterface(REFIID iid, void FAR* FAR* ppv) 
+{
+    if(iid == IID_IUnknown || iid == IID_IDropTarget)
+    {
+      *ppv = this;
+      AddRef();
+      return NOERROR;
+    }
+    *ppv = NULL;
+    return ResultFromScode(E_NOINTERFACE);
+}
+
+
+STDMETHODIMP_(ULONG)
+QOleDropTarget::AddRef(void)
+{
+    return ++m_refs;
+}
+
+
+STDMETHODIMP_(ULONG)
+QOleDropTarget::Release(void)
+{
+    if(--m_refs == 0)
+    {
+      delete this;
+      return 0;
+    }
+    return m_refs;
+}  
+
+//---------------------------------------------------------------------
+//                    IDropTarget Methods
+//---------------------------------------------------------------------  
+
+STDMETHODIMP
+QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
+{  
+    FORMATETC fmtetc;
+       
+    fmtetc.cfFormat = CF_TEXT;
+    fmtetc.ptd      = NULL;
+    fmtetc.dwAspect = DVASPECT_CONTENT;  
+    fmtetc.lindex   = -1;
+    fmtetc.tymed    = TYMED_HGLOBAL; 
+    
+    // Does the drag source provide CF_TEXT, which is the only format we accept.    
+    m_bAcceptFmt = (NOERROR == pDataObj->QueryGetData(&fmtetc)) ? TRUE : FALSE;    
+    
+    QueryDrop(grfKeyState, pdwEffect);
+    return NOERROR;
+}
+
+STDMETHODIMP
+QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
+{
+    QueryDrop(grfKeyState, pdwEffect);
+    return NOERROR;
+}
+
+STDMETHODIMP
+QOleDropTarget::DragLeave()
+{   
+    m_bAcceptFmt = FALSE;   
+    return NOERROR;
+}
+
+STDMETHODIMP
+QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)  
+{   
+    FORMATETC fmtetc;   
+    STGMEDIUM medium;   
+    HGLOBAL hText;
+    LPSTR pszText;
+    HRESULT hr;
+     
+    if (QueryDrop(grfKeyState, pdwEffect))
+    {      
+        fmtetc.cfFormat = CF_TEXT;
+        fmtetc.ptd = NULL;
+        fmtetc.dwAspect = DVASPECT_CONTENT;  
+        fmtetc.lindex = -1;
+        fmtetc.tymed = TYMED_HGLOBAL;       
+        
+        // User has dropped on us. Get the CF_TEXT data from drag source
+        hr = pDataObj->GetData(&fmtetc, &medium);
+        if (FAILED(hr))
+            goto error; 
+        
+        // Display the data and release it.
+        hText = medium.hGlobal;
+        pszText = (LPSTR)GlobalLock(hText);
+	widget->setText(pszText);
+        GlobalUnlock(hText);
+        ReleaseStgMedium(&medium);
+    }
+    return NOERROR;      
+    
+error:
+    *pdwEffect = DROPEFFECT_NONE;
+    return hr; 
+}   
+
+/* OleStdGetDropEffect
+** -------------------
+**
+** Convert a keyboard state into a DROPEFFECT.
+**
+** returns the DROPEFFECT value derived from the key state.
+**    the following is the standard interpretation:
+**          no modifier -- Default Drop     (0 is returned)
+**          CTRL        -- DROPEFFECT_COPY
+**          SHIFT       -- DROPEFFECT_MOVE
+**          CTRL-SHIFT  -- DROPEFFECT_LINK
+**
+**    Default Drop: this depends on the type of the target application.
+**    this is re-interpretable by each target application. a typical
+**    interpretation is if the drag is local to the same document
+**    (which is source of the drag) then a MOVE operation is
+**    performed. if the drag is not local, then a COPY operation is
+**    performed.
+*/
+#define OleStdGetDropEffect(grfKeyState)    \
+    ( (grfKeyState & MK_CONTROL) ?          \
+        ( (grfKeyState & MK_SHIFT) ? DROPEFFECT_LINK : DROPEFFECT_COPY ) :  \
+        ( (grfKeyState & MK_SHIFT) ? DROPEFFECT_MOVE : 0 ) )
+
+//---------------------------------------------------------------------
+// QOleDropTarget::QueryDrop: Given key state, determines the type of 
+// acceptable drag and returns the a dwEffect. 
+//---------------------------------------------------------------------   
+STDMETHODIMP_(BOOL)
+QOleDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
+{  
+    DWORD dwOKEffects = *pdwEffect; 
+    
+    if (!m_bAcceptFmt)
+        goto dropeffect_none; 
+     
+    *pdwEffect = OleStdGetDropEffect(grfKeyState);
+    if (*pdwEffect == 0) {
+        // No modifier keys used by user while dragging. Try in order: MOVE, COPY.
+        if (DROPEFFECT_MOVE & dwOKEffects)
+            *pdwEffect = DROPEFFECT_MOVE;
+        else if (DROPEFFECT_COPY & dwOKEffects)
+            *pdwEffect = DROPEFFECT_COPY; 
+        else goto dropeffect_none;   
+    } 
+    else {
+        // Check if the drag source application allows the drop effect desired by user.
+        // The drag source specifies this in DoDragDrop
+        if (!(*pdwEffect & dwOKEffects))
+            goto dropeffect_none; 
+        // We don't accept links
+        if (*pdwEffect == DROPEFFECT_LINK)
+            goto dropeffect_none; 
+    }  
+    return TRUE;
+
+dropeffect_none:
+    *pdwEffect = DROPEFFECT_NONE;
+    return FALSE;
+}   
+    
+                                                                             
+                                                                           
