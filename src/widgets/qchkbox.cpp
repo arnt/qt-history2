@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#39 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#39 $")
 
 
 /*----------------------------------------------------------------------------
@@ -86,19 +86,11 @@ QCheckBox::QCheckBox( const char *text, QWidget *parent, const char *name )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Checks the check box if \e checked is TRUE, or unchecks it if \e checked
+  \fn void QCheckBox::setChecked( bool check )
+  Checks the check box if \e check is TRUE, or unchecks it if \e check
   is FALSE.
   \sa isChecked()
  ----------------------------------------------------------------------------*/
-
-void QCheckBox::setChecked( bool checked )
-{
-    if ( checked )
-	switchOn();
-    else
-	switchOff();
-}
-
 
 
 static int extraWidth( int gs )

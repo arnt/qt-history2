@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#9 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#10 $
 **
 ** Definition of QRadioButton class
 **
@@ -23,7 +23,7 @@ public:
     QRadioButton( QWidget *parent=0, const char *name=0 );
     QRadioButton( const char *text, QWidget *parent=0, const char *name=0 );
 
-    bool    isChecked() const { return isOn(); }
+    bool    isChecked() const;
     void    setChecked( bool check );
 
     void    adjustSize();
@@ -40,4 +40,12 @@ private:
 };
 
 
+inline bool QRadioButton::isChecked() const
+{ return isOn(); }
+
+inline void QRadioButton::setChecked( bool check )
+{ setOn( check ); }
+
+
 #endif // QRADIOBT_H
+

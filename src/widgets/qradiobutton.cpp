@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#37 $
 **
 ** Implementation of QRadioButton class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#37 $")
 
 
 /*----------------------------------------------------------------------------
@@ -93,7 +93,8 @@ QRadioButton::QRadioButton( const char *text, QWidget *parent,
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Checks the radio button if \e checked is TRUE, or unchecks it if \e checked
+  \fn void QRadioButton::setChecked( bool check )
+  Checks the radio button if \e check is TRUE, or unchecks it if \e check
   is FALSE.
 
   Calling this function does not affect other radio buttons unless a radio
@@ -101,14 +102,6 @@ QRadioButton::QRadioButton( const char *text, QWidget *parent,
 
   \sa isChecked()
  ----------------------------------------------------------------------------*/
-
-void QRadioButton::setChecked( bool checked )
-{
-    if ( checked )
-	switchOn();
-    else
-	switchOff();
-}
 
 
 /*----------------------------------------------------------------------------
