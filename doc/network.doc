@@ -38,7 +38,7 @@ static char ident[] = "$Id: classes.doc,v 1.8 1999/04/28 09:53:43 aavit Exp $";
 
 Since version 2.1 Qt offers classes to make network programming
 easier and portable. Basically there are three sets of classes, first very
-basic classes like QSocket, QServerSocket, etc. which allow to work
+basic classes like QSocket, QServerSocket, QDns, etc. which allow to work
 in a portable way with TCP/IP sockets. Then there are classes like
 \c QNetworkProtocol, \c QNetworkOperation which provide an abstract
 layer for implementing network protocols which can be used in Qt, and
@@ -46,7 +46,11 @@ layer for implementing network protocols which can be used in Qt, and
 set of network classes are the passive ones, namely \c QUrl and \c QUrlInfo
 which do URL parsing and similar stuff.
 
-Now, the QSocket classes are not directly related to the QNetwork
+The first set of classes (QSocket, QServerSocket, QDns, QFtp, etc.) is not
+included in Qt but will be released as a seperate extension after the
+Qt 2.1 release.
+
+Also, the QSocket classes are not directly related to the QNetwork
 classes, but QSocket should and will be used for implementing
 network protocols, which are directly related to the QNetwork
 classes. E.g. the QFtp class (implementation of the FTP protocol) uses
@@ -445,8 +449,7 @@ of \c QNetworkProtocol. If this is not possible, you can add own error codes - t
 just normal \c integers. Just be careful that the value of the error code doesn't conflict
 with an existing one.
 
-<h2>QSocket, QServerSocket, etc.</h2>
-
-#### TODO
+Documentation about the low-level classes like QSocket, QDns, etc. will be included
+in the seperate network extension.
 
 */
