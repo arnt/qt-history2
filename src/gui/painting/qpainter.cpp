@@ -1880,7 +1880,7 @@ void QPainter::setBackground(const QBrush &bg)
 void QPainter::setFont(const QFont &font)
 {
 #ifdef QT_DEBUG_DRAW
-    printf("QPainter::setBackground(), family=%s, pointSize=%d\n", font.family().latin1(), font.pointSize());
+    printf("QPainter::setFont(), family=%s, pointSize=%d\n", font.family().latin1(), font.pointSize());
 #endif
 
     d->state->font = font.resolve(d->state->deviceFont);
@@ -2760,7 +2760,7 @@ QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QStrin
 void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &sp, Qt::PixmapDrawingMode mode)
 {
 #ifdef QT_DEBUG_DRAW
-    printf("QPainter::drawPixmap(), target=[%d,%d,%d,%d], pix=[%d,%d], offset=[%d,%d], mode=%d\n",
+    printf("QPainter::drawTiledPixmap(), target=[%d,%d,%d,%d], pix=[%d,%d], offset=[%d,%d], mode=%d\n",
            r.x(), r.y(), r.width(), r.height(),
            pixmap.width(), pixmap.height(),
            sp.x(), sp.y(), mode);
