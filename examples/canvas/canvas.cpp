@@ -1,6 +1,7 @@
 #include <qdatetime.h>
 #include <qmainwindow.h>
 #include <qstatusbar.h>
+#include <qmessagebox.h>
 #include <qmenubar.h>
 #include <qapplication.h>
 #include <qkeycode.h>
@@ -35,9 +36,6 @@ void FigureEditor::contentsMouseMoveEvent(QMouseEvent* e)
 	moving->moveBy(e->pos().x() - moving_start.x(),
 		       e->pos().y() - moving_start.y());
 	moving_start = e->pos();
-
-	// You can call for extra updates whenevever you want.
-	canvas()->update();
     }
 }
 
@@ -150,7 +148,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     QPopupMenu* file = new QPopupMenu;
     file->insertItem("&New view", this, SLOT(newView()), CTRL+Key_N);
     file->insertSeparator();
-    file->insertItem("Quit", qApp, SLOT(quit()), CTRL+Key_Q);
+    file->insertItem("&Quit", qApp, SLOT(quit()), CTRL+Key_Q);
     menu->insertItem("&File", file);
 
     QPopupMenu* edit = new QPopupMenu;
@@ -166,6 +164,11 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     dbf_id = options->insertItem("Double buffer", this, SLOT(toggleDoubleBuffer()));
     options->setItemChecked(dbf_id, TRUE);
     menu->insertItem("&Options",options);
+
+    QPopupMenu* help = new QPopupMenu;
+    help->insertItem("&Help...", this, SLOT(help()));
+    help->setItemChecked(dbf_id, TRUE);
+    menu->insertItem("&Help",help);
 
     statusBar();
 
@@ -194,6 +197,26 @@ void Main::newView()
     qApp->setMainWidget(m);
     m->show();
     qApp->setMainWidget(0);
+}
+
+void Main::help()
+{
+    static QMessageBox* about = new QMessageBox( "Qt Canvas Example",
+	    "<h3>The QCanvas classes example</h3>"
+	    "<ul>"
+		"<li> Press CTRL-S for some sprites."
+		"<li> Press CTRL-C for some circles."
+		"<li> Press CTRL-L for some lines."
+		"<li> Drag the objects around."
+		"<li> Read the code!"
+	    "</ul>", QMessageBox::Information, 1, 0, 0, this, 0, FALSE );
+    about->setButtonText( 1, "Dismiss" );
+    about->show();
+}
+
+void Main::aboutQt()
+{
+    QMessageBox::aboutQt( this, "Qt Canvas Example" );
 }
 
 void Main::toggleDoubleBuffer()
@@ -280,11 +303,12 @@ int main(int argc, char** argv)
     qDebug("sizeof(QLabel)=%d",sizeof(QLabel));
     */
 
-    QCanvas canvas(1000,1000);
+    QCanvas canvas(800,600);
     canvas.setAdvancePeriod(30);
     Main m(canvas);
     qApp->setMainWidget(&m);
     m.show();
+    m.help();
     qApp->setMainWidget(0);
 
     QObject::connect( qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()) );
