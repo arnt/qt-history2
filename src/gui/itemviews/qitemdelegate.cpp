@@ -231,7 +231,7 @@ void QItemDelegate::releaseEditor(EndEditAction action, QWidget *editor,
 {
     if (action == QAbstractItemDelegate::Accepted)
         setModelData(editor, model, index);
-    delete editor;
+    editor->deleteLater();
 }
 
 /*!
@@ -328,14 +328,14 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
             QColor col = option.palette.color(enabled ? QPalette::Normal : QPalette::Disabled,
                                               QPalette::Highlight);
 
-	    // ### some trickery to get alpha blended selections - revisit this when QPixmap has been fixed
- 	    QPixmap fake(pixmap.width(), pixmap.height());
- 	    fake.setMask(*pixmap.mask());
- 	    QPainter p(&fake);
- 	    p.drawPixmap(0, 0, pixmap);
- 	    p.fillRect(fake.rect(), QBrush(QColor(col.red(), col.green(), col.blue(), 90)));
- 	    p.end();
-	    painter->drawPixmap(rect.topLeft(), fake);
+            // ### some trickery to get alpha blended selections - revisit this when QPixmap has been fixed
+            QPixmap fake(pixmap.width(), pixmap.height());
+            fake.setMask(*pixmap.mask());
+            QPainter p(&fake);
+            p.drawPixmap(0, 0, pixmap);
+            p.fillRect(fake.rect(), QBrush(QColor(col.red(), col.green(), col.blue(), 90)));
+            p.end();
+            painter->drawPixmap(rect.topLeft(), fake);
         } else {
             painter->drawPixmap(rect.topLeft(), pixmap);
         }
