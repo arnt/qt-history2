@@ -246,10 +246,10 @@ bool FileDriver::create( const List& data )
     env->output() << "FileDriver::create..." << flush;
 #endif
     if ( !name() ) {
-	ERROR_RETURN( "No table name specified" );
+	ERROR_RETURN( "Unable to create table, no table name specified" );
     }
     if ( !data.count() ) {
-	ERROR_RETURN( "No fields defined, nothing to create" );
+	ERROR_RETURN( "Unable to create table, no fields defined" );
     }
     if ( QFile::exists( env->path() + "/" + name() ) ||
 	 QFile::exists( env->path() + "/" + name() + ".dbf" ) ) {
@@ -262,7 +262,7 @@ bool FileDriver::create( const List& data )
     for ( i = 0; i < data.count(); ++i ) {
 	List fieldDescription = data[i].toList();
 	if ( fieldDescription.count() != 4 ) {
-	    ERROR_RETURN( "Internal error: expected 4 field descriptors, got " +
+	    ERROR_RETURN( "Internal error: Unable to create table, expected 4 field descriptors, got " +
 			  QString::number( fieldDescription.count() ) );
 	}
 	QString name = fieldDescription[0].toString();
@@ -290,16 +290,16 @@ bool FileDriver::create( const List& data )
 	    break;
 	}
 	if ( !x.Type ) {
-	    ERROR_RETURN( "Internal error: Unknown type for field:" + name );
+	    ERROR_RETURN( "Internal error: Unable to create table, unknown type for field:" + name );
 	}
 	xbrec[i] = x;
     }
     memset( &x, 0, sizeof(xbSchema) );
     xbrec[ data.count() ] = x;
-    d->file.SetVersion( 4 );   /* create dbase IV style files */
+    d->file.SetVersion( 4 );   /* dbase IV files */
     xbShort rc = d->file.CreateDatabase( env->path() + "/" + name().latin1(), xbrec.data(), XB_OVERLAY );
     if ( rc != XB_NO_ERROR ) {
-	ERROR_RETURN( "Unable to  create table '" + name() + "': " + QString( xbStrError( rc ) ) );
+	ERROR_RETURN( "Unable to create table '" + name() + "': " + QString( xbStrError( rc ) ) );
     }
 
     d->file.CloseDatabase();   /* Close database and associated indexes */
@@ -315,7 +315,7 @@ bool FileDriver::open()
     env->output() << "FileDriver::open..." << flush;
 #endif
     if ( !name() ) {
-	ERROR_RETURN( "No table name specified" );
+	ERROR_RETURN( "Unable to open table, no table name specified" );
     }
     xbShort rc = d->file.OpenDatabase( env->path() + "/" + name().latin1() );
     if ( rc != XB_NO_ERROR ) {
@@ -336,7 +336,7 @@ bool FileDriver::open()
 	rc = idx->OpenIndex( env->path() + "/" + indexList[i].latin1() );
 	if ( rc != XB_NO_ERROR ) {
 	    delete idx;
-	    ERROR_RETURN( "Unable to open index: " + QString( xbStrError( rc ) ) );
+	    ERROR_RETURN( "Unable to open table index: " + QString( xbStrError( rc ) ) );
 	}
 #ifdef DEBUG_XBASE
 	env->output() << env->path() + "/" + indexList[i].latin1() << " index opened..." << flush;
@@ -445,17 +445,17 @@ bool FileDriver::insert( const List& data )
     if ( !isOpen() )
 	return FALSE;
     if ( !data.count() ) {
-	ERROR_RETURN( "No values to insert" );
+	ERROR_RETURN( "Unable to insert, no values specified" );
     }
     if ( (int)data.count() > d->file.FieldCount() ) {
-	ERROR_RETURN( "Too many values" );
+	ERROR_RETURN( "Unable to insert, too many values" );
     }
     d->file.BlankRecord();
     uint i = 0;
     for ( ; i < data.count(); ++i ) {
 	List insertData = data[i].toList();
 	if ( !insertData.count() ) {
-	    ERROR_RETURN( "Internal error: No insert data" );
+	    ERROR_RETURN( "Internal error: Unable to insert, no insert data" );
 	}
 	QString name;
 	int pos;
@@ -476,12 +476,12 @@ bool FileDriver::insert( const List& data )
 	if ( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) == QVariant::Date ) {
 	    QDate d = val.toDate();
 	    if ( !d.isValid() ) {
-		ERROR_RETURN( "Invalid date '" + val.toString() + "'" );
+		ERROR_RETURN( "Unable to insert, invalid date '" + val.toString() + "'" );
 	    }
 	}
 	xbShort rc = d->putField( pos, val );
 	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( "Unable to put field data: " + QString( xbStrError( rc ) ) );
+	    ERROR_RETURN( "Unable to insert, unable to put field data: " + QString( xbStrError( rc ) ) );
 	}
     }
     xbShort rc = d->file.AppendRecord();
@@ -489,7 +489,7 @@ bool FileDriver::insert( const List& data )
     case XB_NO_ERROR:
 	break;
     default:
-	ERROR_RETURN( "Unable to insert record: " + QString( xbStrError( rc ) ) );
+	ERROR_RETURN( "Unable to insert: " + QString( xbStrError( rc ) ) );
 	break;
     }
     env->setAffectedRows( 1 );
@@ -506,7 +506,7 @@ bool FileDriver::next()
     env->output() << "FileDriver::next..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "Internal error: File not open" );
+	ERROR_RETURN( "Internal error: Unable to get next record, file not open" );
     }
     xbShort rc = XB_NO_ERROR;
     if ( d->file.GetCurRecNo() == 0 ) {
@@ -562,7 +562,7 @@ bool FileDriver::deleteMarked()
     for ( uint i = 0; i < d->marked.count(); ++i ) {
 	xbShort rc = d->file.GetRecord( d->marked[i] );
 	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( "Unable to get record: " + QString( xbStrError( rc  ) ) );
+	    ERROR_RETURN( "Unable to get record for delete: " + QString( xbStrError( rc  ) ) );
 	}
 	rc = d->file.DeleteRecord();
 	if ( rc != XB_NO_ERROR ) {
@@ -583,7 +583,7 @@ bool FileDriver::commit()
     env->output() << "FileDriver::commit..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "Internal error: File not open" );
+	ERROR_RETURN( "Internal error: unable to commit, file not open" );
     }
     if ( d->dopack ) {
 	d->file.PackDatabase( F_SETLKW );
@@ -664,36 +664,36 @@ bool FileDriver::updateMarked( const List& data )
 #endif
     env->setAffectedRows( -1 );
     if ( !isOpen() ) {
-	ERROR_RETURN( "Internal error: File not open" );
+	ERROR_RETURN( "Internal error: unable to update marked, file not open" );
     }
     if ( !d->marked.count() ) {
 	env->setAffectedRows( 0 );
 	return TRUE;
     }
     if ( !data.count() ) {
-	ERROR_RETURN( "Internal error: No fields defined" );
+	ERROR_RETURN( "Internal error: Unable to update marked, no fields defined" );
     }
     if ( (int)data.count() > d->file.FieldCount() ) {
-	ERROR_RETURN( "Internal error: Too many fields" );
+	ERROR_RETURN( "Internal error: Unable to update marked, too many fields" );
     }
     uint i = 0;
     for ( ; i < data.count(); ++i ) {
 	List updateData = data[i].toList();
 	if ( !updateData.count() ) {
-	    ERROR_RETURN( "Internal error: No update data" );
+	    ERROR_RETURN( "Internal error: Unable to update marked, no update data" );
 	}
 	xbShort fieldnum = d->file.GetFieldNo( updateData[0].toString().latin1() );
 	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "Internal error: Field not found:" + updateData[0].toString() );
+	    ERROR_RETURN( "Internal error: Unable to update marked. field not found:" + updateData[0].toString() );
 	}
 	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( updateData[1].type() ) ) {
-	    ERROR_RETURN( "Internal error: Bad type:" + updateData[0].toString() );
+	    ERROR_RETURN( "Internal error: Unable to update marked, bad type:" + updateData[0].toString() );
 	}
     }
     for ( i = 0; i < d->marked.count(); ++i ) {
 	xbShort rc = d->file.GetRecord( d->marked[i] );
 	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( "Unable to get record: " + QString( xbStrError( rc ) ) );
+	    ERROR_RETURN( "Unable to get record for update: " + QString( xbStrError( rc ) ) );
 	}
 	uint j = 0;
 	for ( j = 0; j < data.count(); ++j ) {
@@ -701,7 +701,7 @@ bool FileDriver::updateMarked( const List& data )
 	    xbShort fieldnum = d->file.GetFieldNo( updateData[0].toString().latin1() );
 	    xbShort rc = d->putField( fieldnum, updateData[1] );
 	    if ( rc != XB_NO_ERROR ) {
-		ERROR_RETURN( "Unable to put field data: " + QString( xbStrError( rc )  ) );
+		ERROR_RETURN( "Unable to put record field data: " + QString( xbStrError( rc )  ) );
 	    }
 	}
 	rc = d->file.PutRecord();
@@ -735,7 +735,7 @@ bool FileDriver::nextMarked()
     env->output() << "FileDriver::nextMarked..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "Internal error: File not open" );
+	ERROR_RETURN( "Internal error: Unable to get next marked record, file not open" );
     }
     int next = markedAt() + 1;
     if ( next > (int)d->marked.count()-1 )
@@ -757,44 +757,44 @@ bool FileDriver::update( const List& data )
 #endif
     env->setAffectedRows( -1 );
     if ( !isOpen() ) {
-	ERROR_RETURN( "Internal error: File not open" );
+	ERROR_RETURN( "Internal error: Unable to update, file not open" );
     }
     if ( d->file.GetCurRecNo() == 0 ) {
-	ERROR_RETURN( "Internal error: Not positioned on valid record" );
+	ERROR_RETURN( "Internal error: Unable to update, not positioned on valid record" );
     }
     if ( !data.count() ) {
-	ERROR_RETURN( "Internal error: No update data");
+	ERROR_RETURN( "Internal error: Unable to update, no update data");
     }
     xbShort rc;
     uint i = 0;
     for ( ;  i < data.count(); ++i ) {
 	List updateData = data[i].toList();
 	if ( updateData.count() != 2 ) {
-	    ERROR_RETURN( "Internal error: expected 2 field descriptors, got " +
+	    ERROR_RETURN( "Internal error: Unable to update, expected 2 field descriptors, got " +
 			  QString::number( updateData.count() ) );
 	}
 	List fieldDesc = updateData[0].toList();
 	QString name = fieldDesc[0].toString();
 	xbShort pos = d->file.GetFieldNo( name.latin1() );
 	if ( pos == -1 ) {
-	    ERROR_RETURN( "Field not found:" + name );
+	    ERROR_RETURN( "Unable to update, field not found:" + name );
 	}
 	if ( !name.length() ) {
-	    ERROR_RETURN( "Internal error: " + UNKNOWN_FIELD_NUM + QString::number(pos) );
+	    ERROR_RETURN( "Internal error: Unable to update, " + UNKNOWN_FIELD_NUM + QString::number(pos) );
 	}
 	if ( !canConvert( updateData[1].type(), xbaseTypeToVariant( d->file.GetFieldType( pos ) ) ) ) {
 	    QVariant v; v.cast( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) );
-	    ERROR_RETURN( "Invalid field type:" + QString(updateData[1].typeName()) +
+	    ERROR_RETURN( "Unable to update, invalid field type:" + QString(updateData[1].typeName()) +
 			  ", expected:" + QString( v.typeName() ) );
 	}
 	rc = d->putField( pos, updateData[1] );
 	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( "Unable to put field data: " + QString( xbStrError( rc ) ) );
+	    ERROR_RETURN( "Unable to update field data: " + QString( xbStrError( rc ) ) );
 	}
     }
     rc = d->file.PutRecord();
     if ( rc != XB_NO_ERROR ) {
-	ERROR_RETURN( "Unable to update record: " + QString( xbStrError( rc ) ) );
+	ERROR_RETURN( "Unable to update: " + QString( xbStrError( rc ) ) );
     }
     env->setAffectedRows( 1 );
     d->dopack = TRUE;
@@ -808,7 +808,7 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 			      LocalSQLResultSet* result )
 {
     if ( !data ) {
-	ERROR_RETURN( "Internal error: no data" );
+	ERROR_RETURN( "Internal error: Unable to perform range action, no data" );
     }
     bool dosave = cols && result;
     bool domark = !dosave;
@@ -824,7 +824,7 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 	ERROR_RETURN( "Internal error: File not open" );
     }
     if ( dosave && !cols->count() ) {
-	ERROR_RETURN( "Internal error: No result columns defined" );
+	ERROR_RETURN( "Internal error: Unable to perform range action, no result columns defined" );
     }
     if ( domark ) {
 	clearMarked();
@@ -839,12 +839,7 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 	if ( rangeMarkFieldData.count() != 2 ) {
 	    ERROR_RETURN( "Internal error: Bad range data");
 	}
-	List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
-	if ( rangeMarkFieldDesc.count() != 4 ) {
-	    ERROR_RETURN( "Internal error: expected 4 field descriptors, got " +
-			  QString::number( rangeMarkFieldDesc.count() ) );
-	}
-	QString name = rangeMarkFieldDesc[0].toString();
+	QString name = rangeMarkFieldData[0].toString();
 	QVariant value = rangeMarkFieldData[1];
 	xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 	if (  fieldnum == -1 ) {
@@ -900,8 +895,7 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 			bool actionOK = TRUE;
 			for ( uint k = 0; k < data->count(); ++k ) {
 			    List rangeMarkFieldData = (*data)[k].toList();
-			    List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
-			    QString name = rangeMarkFieldDesc[0].toString();
+			    QString name = rangeMarkFieldData[0].toString();
 			    QVariant value = rangeMarkFieldData[1];
 			    xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 			    QVariant v;

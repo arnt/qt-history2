@@ -1124,7 +1124,8 @@ public:
 	List columns = list[1].toList();
 	env->addResultSet( p2.toInt() );
 	LocalSQLResultSet* result = env->resultSet( p2.toInt() );
-	result->setHeader( columns );
+	if ( !result->setHeader( columns ) )
+	    return FALSE;
 	return drv->rangeSave( range, columns, result );
     }
 };

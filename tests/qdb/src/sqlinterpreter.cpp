@@ -374,7 +374,8 @@ bool ResultSet::setHeader( const List& list )
 	if ( list[i].type() == QVariant::List ) { /* field description */
 	    List fieldDescription = list[i].toList();
 	    if ( fieldDescription.count() != 4 ) {
-		env->setLastError( "Internal error: expected 4 field descriptors, got " +
+		env->setLastError( "Internal error: unable to create result, "
+				   "expected 4 field descriptors, got " +
 				   QString::number( fieldDescription.count() ) );
 		return FALSE;
 	    }
