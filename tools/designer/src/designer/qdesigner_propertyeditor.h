@@ -26,6 +26,9 @@ public:
     virtual ~QDesignerPropertyEditor();
 
     virtual QRect geometryHint() const;
+
+protected:
+    virtual void showEvent(QShowEvent *event);
 };
 
 #endif // QDESIGNER_PROPERTYEDITOR_H

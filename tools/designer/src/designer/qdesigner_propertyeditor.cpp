@@ -48,3 +48,14 @@ QRect QDesignerPropertyEditor::geometryHint() const
     return QRect((g.width() - sz.width() - margin), (margin + g.height() * 1/6) + spacing,
                   sz.width(), sz.height());
 }
+
+void QDesignerPropertyEditor::showEvent(QShowEvent *event)
+{
+    if (AbstractPropertyEditor *e = workbench()->core()->propertyEditor()) {
+        // workaround to update the propertyeditor when it is not visible!
+        e->setObject(e->object()); // ### remove me
+    }
+
+    QDesignerToolWindow::showEvent(event);
+}
+
