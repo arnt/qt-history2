@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#34 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#35 $
 **
 ** Implementation of QFileDialog class
 **
@@ -718,7 +718,7 @@ bool QFileListBox::acceptDrop( const QPoint &pnt, QWidget *source )
 void QFileListBox::setCurrentDropItem( const QPoint &pnt )
 {
     changeDirTimer->stop();
-    
+
     QListBoxItem *item = itemAt( pnt );
     if ( pnt == QPoint( -1, -1 ) )
 	item = 0;
@@ -1358,10 +1358,6 @@ void QFileDialogPrivate::MCItem::paint( QPainter * ptr )
     if ( pm )
 	ptr->drawPixmap( ( h - pm->height() ) / 2, 4, *pm );
 
-    /* If the listbox ever needs multiline items...
-       ptr->drawText( pm ? pm->width() + 6 : 20, ( h - fm.height() ) / 2,
-       fm.width( text() ), fm.height(), Qt::DontClip, text() );
-    */
     ptr->drawText( pm ? pm->width() + 8 : 22, (h - fm.height())/2+fm.ascent()-1,
 		   text() );
 }
@@ -1438,7 +1434,6 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
 {
     init();
     d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
-    //d->url.convertToAbs();
     emit dirEntered( d->url.path() );
     rereadDir();
 }
@@ -1910,14 +1905,6 @@ void QFileDialog::setDir( const QString & pathstr )
 #endif
 
     setUrl( dr );
-
-//     if ( !QFileInfo( dr ).isDir() && QFileInfo( dr ).fileName() != ".." )
-// 	dr = QFileInfo( dr ).dirPath();
-//     d->url = dr;
-//     QUrlInfo i( d->url, nameEdit->text() );
-//     trySetSelection( i, d->url, FALSE );
-//     rereadDir();
-//     emit dirEntered( d->url.path() );
 }
 
 /*!
@@ -3157,7 +3144,6 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	return TRUE;
     } else if ( o == files && e->type() == QEvent::FocusOut &&
 		files->currentItem() && mode() != ExistingFiles ) {
-	//files->setSelected( files->currentItem(), FALSE );
     } else if ( o == files && e->type() == QEvent::KeyPress ) {
 	QTimer::singleShot( 0, this, SLOT(fixupNameEdit()) );
     } else if ( o == nameEdit && e->type() == QEvent::KeyPress ) {
@@ -3372,7 +3358,7 @@ void QFileDialog::clearView()
     d->moreFiles->clear();
     files->setSorting( -1 );
 
-    QString cp( d->url );//.dirPath() );
+    QString cp( d->url );
     int i = d->paths->count() - 1;
     while( i >= 0 && d->paths->text( i ) <= cp )
 	i--;
