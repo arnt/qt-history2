@@ -60,9 +60,10 @@ static void moduleUnlock()
 
 static QMetaObject *tempMetaObj = 0;
 
-#define PropDesignable  0x00001000
-#define PropScriptable	0x00002000
-#define PropStored	0x00004000
+#define NotDesignable	0x00001000
+#define NotScriptable	0x00004000
+#define NotStored	0x00008000
+
 #define PropBindable	0x00008000
 #define PropRequesting	0x00010000
 
@@ -1626,11 +1627,11 @@ QMetaObject *QAxBase::metaObject() const
 				prop->enumData = enumDict.find( ptype );
 			    else
 				prop->enumData = 0;
-			    prop->flags = PropStored;
-			    if ( !(funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE) )
-				prop->flags |= PropDesignable;
-			    if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED) )
-				prop->flags |= PropScriptable;
+
+			    if ( funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE )
+				prop->flags |= NotDesignable;
+			    if ( funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED )
+				prop->flags |= NotScriptable;
 			    if ( funcdesc->wFuncFlags & FUNCFLAG_FREQUESTEDIT )
 				prop->flags |= PropRequesting;
 			    if ( prop->enumData )
@@ -1834,13 +1835,13 @@ QMetaObject *QAxBase::metaObject() const
 			    prop->enumData = enumDict.find( variableType );
 			else
 			    prop->enumData = 0;
-			prop->flags = QMetaProperty::Readable | PropStored;
+			prop->flags = QMetaProperty::Readable;
 			if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) )
 			    prop->flags |= QMetaProperty::Writable;;
-			if ( !(vardesc->wVarFlags & VARFLAG_FNONBROWSABLE) )
-			    prop->flags |= PropDesignable;
-			if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED) )
-			    prop->flags |= PropScriptable;
+			if ( vardesc->wVarFlags & VARFLAG_FNONBROWSABLE )
+			    prop->flags |= NotDesignable;
+			if ( vardesc->wVarFlags & VARFLAG_FRESTRICTED )
+			    prop->flags |= NotScriptable;
 			if ( vardesc->wVarFlags & VARFLAG_FREQUESTEDIT )
 			    prop->flags |= PropRequesting;
 			if ( prop->enumData != 0 )
@@ -2808,11 +2809,11 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 	case 2: // Reset
 	    return TRUE;
 	case 3: // Designable
-	    return prop->flags & PropDesignable;
+	    return !prop->testFlags(NotDesignable);
 	case 4: // Scriptable
-	    return prop->flags & PropScriptable;
+	    return !prop->testFlags(NotScriptable);
 	case 5: // Stored
-	    return prop->flags & PropStored;
+	    return !prop->testFlags(NotStored);
 	default:
 	    break;
 	}
