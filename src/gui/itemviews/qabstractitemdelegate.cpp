@@ -120,23 +120,32 @@ bool QAbstractItemDelegate::event(QEvent *, const QModelIndex &)
 QString QAbstractItemDelegate::ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
                                             const QString &org) const
 {
-    int ellWidth = fontMetrics.width("...");
-    QString text = QString::fromLatin1("");
+    static QString ell("...");
+    int ellWidth = fontMetrics.width(ell);
+    QString text;
     int i = 0;
     int len = org.length();
-    int offset = (align & Qt::AlignRight) ? (len - 1) - i : i;
+    int offset = (align & Qt::AlignRight) ? len - 1 : 0;
+
+    // FIXME: slow !!!
     while (i < len && fontMetrics.width(text + org.at(offset)) + ellWidth < width) {
-	if (align & Qt::AlignRight)
+	if (align & Qt::AlignRight) {
 	    text.prepend(org.at(offset));
-	else
+            offset = (len - 1) - ++i;
+	} else {
 	    text.append(org.at(offset));
-	offset = (align & Qt::AlignRight) ? (len - 1) - ++i : ++i;
+            offset = ++i;
+        }
     }
-    if (text.isEmpty())
-	text = (align & Qt::AlignRight) ? org.right(1) : text = org.left(1);
-    if (align & Qt::AlignRight)
-	text.prepend("...");
-    else
-	text.append("...");
+ 
+    if (align & Qt::AlignRight) {
+        if (text.isEmpty())
+            text = org.right(1);
+        text.prepend(ell);
+    } else {
+        if (text.isEmpty())
+            text = org.left(1);
+	text.append(ell);
+    }
     return text;
 }
