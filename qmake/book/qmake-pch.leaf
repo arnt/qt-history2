@@ -83,7 +83,7 @@ option \Bold precompile_header set. Using this option, you may trigger
 conditional blocks in your .pro file, to add settings when using PCH.
 For example:
 \code
-	precompile_header {
+	precompile_header:!isEmpty(PRECOMPILED_HEADER) {
 	    DEFINES += USING_PCH
 	}
 
