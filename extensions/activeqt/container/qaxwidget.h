@@ -45,12 +45,9 @@ protected:
     bool initialize(IUnknown**);
     virtual bool createHostWindow(bool);
     
-    void enabledChange(bool old);
-    void paletteChange(const QPalette &old);
-    void fontChange(const QFont &old);
-    void windowActivationChange(bool old);
-    
+    void changeEvent(QEvent *e);
     void resizeEvent(QResizeEvent *);
+
     virtual bool translateKeyEvent(int message, int keycode) const;
     virtual void setStatusText(const QString &text);
 

@@ -96,8 +96,6 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
     
-    void show();
-    
     int qt_metacall(QMetaObject::Call, int isignal, void **argv);
     QAxHostWindow *clientSite() const
     {
@@ -111,7 +109,6 @@ protected:
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
     void paintEvent(QPaintEvent *e);
-    void windowActivationChange(bool oldActive);
     
     QAxHostWindow *axhost;
     
@@ -313,10 +310,9 @@ public:
     {
     }
     
-    QSize sizeHint() const;
+    QSize sizeHint() const { return sizehint; }
     QSize minimumSizeHint() const;
     
-    bool invisibleAtRuntime() const;
     bool translateKeyEvent(int message, int keycode) const
     {
         if (!widget)
@@ -327,7 +323,7 @@ public:
     int qt_metacall(QMetaObject::Call, int isignal, void **argv);
     
 protected:
-    void windowActivationChange(bool oldActive);
+    void windowActivationChange();
     
 private:
     struct OleMenuItem {
@@ -494,6 +490,7 @@ QAxHostWindow::QAxHostWindow(QAxWidget *c, bool bInited)
             sizehint.setHeight(MAP_LOGHIM_TO_PIX(hmSize.cy, pdm.logicalDpiY()));
         } else {
             sizehint = QSize(0, 0);
+            host->hide();
         }
         if (!(dwMiscStatus & OLEMISC_NOUIACTIVATE)) {
             host->setFocusPolicy(Qt::StrongFocus);
@@ -1190,22 +1187,6 @@ HRESULT WINAPI QAxHostWindow::SetActiveObject(IOleInPlaceActiveObject *pActiveOb
     return S_OK;
 }
 
-bool QAxHostWindow::invisibleAtRuntime() const
-{
-    if (m_spOleObject) {
-        DWORD dwMiscStatus;
-        m_spOleObject->GetMiscStatus(DVASPECT_CONTENT, &dwMiscStatus);
-        if(dwMiscStatus & OLEMISC_INVISIBLEATRUNTIME)
-            return true;
-    }
-    return false;
-}
-
-QSize QAxHostWindow::sizeHint() const
-{
-    return sizehint;
-}
-
 QSize QAxHostWindow::minimumSizeHint() const
 {
     if (!m_spOleObject)
@@ -1222,7 +1203,7 @@ QSize QAxHostWindow::minimumSizeHint() const
     return QSize();
 }
 
-void QAxHostWindow::windowActivationChange(bool /*oldActive*/)
+void QAxHostWindow::windowActivationChange()
 {
     if (m_spInPlaceActiveObject) {
         QWidget *modal = QApplication::activeModalWidget();
@@ -1247,23 +1228,9 @@ int QAxHostWidget::qt_metacall(QMetaObject::Call call, int isignal, void **argv)
     return -1;
 }
 
-void QAxHostWidget::show()
-{
-    if (axhost && !axhost->invisibleAtRuntime()) {
-        QWidget::show();
-        QApplication::sendPostedEvents(0, QEvent::LayoutRequest);
-        int w = width();
-        int h = height();
-        resize(w-1, h-1);
-        resize(w, h);
-    }
-}
-
 QSize QAxHostWidget::sizeHint() const
 {
-    if (axhost)
-        return axhost->sizeHint();
-    return QWidget::sizeHint();
+    return axhost ? axhost->sizeHint() : QWidget::sizeHint();
 }
 
 QSize QAxHostWidget::minimumSizeHint() const
@@ -1313,6 +1280,13 @@ bool QAxHostWidget::winEvent(MSG *msg)
 bool QAxHostWidget::event(QEvent *e)
 {
     switch (e->type()) {
+    case QEvent::ShowToParent:
+        if (axhost) {
+            qDebug("ShowToParent");
+            RECT rcPos = { x(), y(), x()+size().width(), y()+size().height() };
+            axhost->m_spOleObject->DoVerb(OLEIVERB_SHOW, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos);
+        }
+        break;
     case QEvent::Timer:
         if (axhost && ((QTimerEvent*)e)->timerId() == setFocusTimer) {
             killTimer(setFocusTimer);
@@ -1367,12 +1341,6 @@ void QAxHostWidget::focusOutEvent(QFocusEvent *e)
         return;
     
     axhost->m_spInPlaceObject->UIDeactivate();
-}
-
-void QAxHostWidget::windowActivationChange(bool oldActive)
-{
-    if (axhost)
-        axhost->windowActivationChange(oldActive);
 }
 
 
@@ -1511,6 +1479,10 @@ bool QAxWidget::initialize(IUnknown **ptr)
 */
 bool QAxWidget::createHostWindow(bool initialized)
 {
+#ifdef QT_COMPAT
+    QApplication::sendPostedEvents(0, QEvent::ChildInserted);
+#endif
+
     container = new QAxHostWindow(this, initialized);
     
     if (!hhook) {
@@ -1521,8 +1493,10 @@ bool QAxWidget::createHostWindow(bool initialized)
         })
     }
     ++hhookref;
+
     container->hostWidget()->resize(size());
-    container->hostWidget()->show();
+    if (!container->hostWidget()->isHidden())
+        container->hostWidget()->show();
     
     if (container->hostWidget()->focusPolicy() != Qt::NoFocus) {
         setFocusProxy(container->hostWidget());
@@ -1631,19 +1605,6 @@ int QAxWidget::qt_metacall(QMetaObject::Call call, int id, void **v)
 /*!
     \reimp
 */
-void QAxWidget::enabledChange(bool old)
-{
-    QWidget::enabledChange(old);
-    
-    if (old == isEnabled() || isNull())
-        return;
-    
-    container->emitAmbientPropertyChange(DISPID_AMBIENT_UIDEAD);
-}
-
-/*!
-    \reimp
-*/
 QSize QAxWidget::sizeHint() const
 {
     if (container) {
@@ -1672,42 +1633,26 @@ QSize QAxWidget::minimumSizeHint() const
 /*!
     \reimp
 */
-void QAxWidget::fontChange(const QFont &old)
+void QAxWidget::changeEvent(QEvent *e)
 {
-    QWidget::fontChange(old);
     if (isNull())
         return;
-    
-    container->emitAmbientPropertyChange(DISPID_AMBIENT_FONT);
-}
 
-/*!
-    \reimp
-*/
-void QAxWidget::paletteChange(const QPalette &old)
-{
-    QWidget::paletteChange(old);
-    if (isNull())
-        return;
-    
-    container->emitAmbientPropertyChange(DISPID_AMBIENT_BACKCOLOR);
-    container->emitAmbientPropertyChange(DISPID_AMBIENT_FORECOLOR);
-}
-
-/*!
-    \reimp
-*/
-void QAxWidget::windowActivationChange(bool old)
-{
-    QWidget::windowActivationChange(old);
-    if (isNull())
-        return;
-    
-    IOleInPlaceActiveObject *inplace = 0;
-    queryInterface(IID_IOleInPlaceActiveObject, (void**)&inplace);
-    if (inplace) {
-        inplace->OnFrameWindowActivate(isActiveWindow());
-        inplace->Release();
+    switch (e->type()) {
+    case QEvent::EnabledChange:
+        if (!isEnabled())
+            container->emitAmbientPropertyChange(DISPID_AMBIENT_UIDEAD);
+        break;
+    case QEvent::FontChange:
+        container->emitAmbientPropertyChange(DISPID_AMBIENT_FONT);
+        break;
+    case QEvent::PaletteChange:
+        container->emitAmbientPropertyChange(DISPID_AMBIENT_BACKCOLOR);
+        container->emitAmbientPropertyChange(DISPID_AMBIENT_FORECOLOR);
+        break;
+    case QEvent::ActivationChange:
+        container->windowActivationChange();
+        break;
     }
 }
 
