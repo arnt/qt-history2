@@ -171,7 +171,7 @@ OBJMOC	=	#$ ExpandList("OBJMOC");
 	} else {
 	    $text .= '$(SYSCONF_LINK) $(LFLAGS) ';
 	    if ( Config('dll') ) {
-		$text .= $(SYSCONF_LFLAGS_SHLIB) ';
+		$text .= '$(SYSCONF_LFLAGS_SHLIB) ';
 	    }
 	    $text .= '-o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)';
 	}
