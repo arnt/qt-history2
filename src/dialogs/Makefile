@@ -1,5 +1,5 @@
 #############################################################################
-# Qt Makefile - widgets
+# Qt Makefile - dialogs
 #############################################################################
 
 #######	Directories
@@ -47,7 +47,7 @@ showfiles:
 	@echo $(HEADERS) $(SOURCES) Makefile
 
 include:
-	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/widgets/-'` $(INCDIR)
+	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/dialogs/-'` $(INCDIR)
 
 showheaders:
 	@echo $(HEADERS)
