@@ -576,8 +576,10 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
             goto end;
         }
 
-        if (shareContext && shareContext->isValid())
+        if (shareContext && shareContext->isValid()) {
             d->sharing = (wglShareLists(shareContext->d->rc, d->rc) != 0);
+            const_cast<QGLContext *>(shareContext)->d->sharing = d->sharing;
+	}
 
         if(!deviceIsPixmap()) {
             QRgb* pal = qgl_create_rgb_palette(&realPfd);
