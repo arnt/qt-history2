@@ -87,7 +87,7 @@ static bool qt_mac_scrollbar_arrows_together = FALSE; //whether scroll arrows go
 QAquaFocusWidget::QAquaFocusWidget( )
     : QWidget( NULL, "magicFocusWidget", WResizeNoErase | WRepaintNoErase ), d( NULL )
 {
-    setBackgroundMode(NoBackground);
+//    setBackgroundMode(NoBackground);
 }
 void QAquaFocusWidget::setFocusWidget( QWidget * widget )
 {
@@ -118,7 +118,7 @@ bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
 	if(e->type() == QEvent::ChildRemoved)
 	    o->removeEventFilter(this); //once we're removed, stop listening
 	return TRUE; //block child events
-    } else if (o == d)
+    } else if (o == d) {
 	switch (e->type()) {
 	case QEvent::Hide: 
 	    hide();
@@ -146,6 +146,7 @@ bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
 	default:
 	    break;
 	}
+    }
     return FALSE;
 }
 void QAquaFocusWidget::paintEvent( QPaintEvent * )
@@ -378,8 +379,8 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
 	while(!p->isTopLevel() && !p->testWFlags(WSubWindow))
 	    p = p->parentWidget();
 	if(p && (w->width() < p->width() - 30 || w->height() < p->height() - 40)) {
-	    if(w->inherits("QLineEdit") && p->inherits("QComboBox"))
-		w = p;
+	    if(w->inherits("QLineEdit") && w->parentWidget()->inherits("QComboBox"))
+		w = w->parentWidget();
 	} else {
 	    w = NULL;
 	}

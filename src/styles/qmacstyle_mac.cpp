@@ -40,7 +40,6 @@
 #include <qt_mac.h>
 #include <qtabbar.h>
 #include "private/qtitlebar_p.h"
-#include <Appearance.h>
 #include <qbitmap.h>
 #include <qprogressbar.h>
 #include <qapplication.h>
@@ -165,8 +164,10 @@ QMacStylePrivate::~QMacStylePrivate()
 {
     if(button)
 	DisposeControl(button);
+    button = NULL;
     if(progressbar)
 	DisposeControl(progressbar);
+    progressbar = NULL;
 }
 void QMacStylePrivate::doAnimate(QAquaAnimate::Animates)
 {
@@ -181,7 +182,7 @@ void QMacStylePrivate::doAnimate(QAquaAnimate::Animates)
 }
 void QMacStylePrivate::doFocus(QWidget *w)
 {
-    if (!focusWidget)
+    if (!focusWidget) 
 	focusWidget = new QMacStyleFocusWidget();
     focusWidget->setFocusWidget( w );
 }
@@ -227,13 +228,13 @@ QMacStyle::~QMacStyle()
 {
     if(!(--mac_count))
 	UnregisterAppearanceClient();
+    delete d;
 }
 
 /*! \reimp */
 void QMacStyle::polish( QApplication* app )
 {
     QPalette pal = app->palette();
-
     QPixmap px(200, 200, 32);
     {
 	QPainter p(&px);
@@ -276,6 +277,7 @@ void QMacStyle::polish( QWidget* w )
 	layout->setSpacing( 0 );
 	layout->setMargin( 0 );
     } 
+
 #if 0
     else if(w->inherits("QTitleBar") ) {
 	w->font().setPixelSize(10);
@@ -313,13 +315,18 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 			       SFlags flags,
 			       const QStyleOption& opt ) const
 {
-    ThemeDrawState tds = 0;
-    if(flags & Style_Enabled)
-	tds |= kThemeStateActive;
-    else
-	tds |= kThemeStateInactive;
-    if(flags & Style_Down)
+    ThemeDrawState tds = kThemeStateActive;
+    if(flags & Style_Down) {
 	tds = kThemeStatePressed;
+    } else if(qAquaActive(cg)) {
+	if(!(flags & Style_Enabled))
+	    tds = kThemeStateUnavailable;
+    } else {
+	if(flags & Style_Enabled)
+	    tds = kThemeStateInactive;
+	else
+	    tds = kThemeStateUnavailableInactive;
+    }
 
     switch(pe) {
     case PE_ArrowUp:
@@ -364,13 +371,10 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	}
 	break; }
     case PE_FocusRect:
-	break;     //###
+	break;     //This is not used because of the QAquaFocusRect things..
     case PE_TabBarBase: 
 	DrawThemeTabPane(qt_glb_mac_rect(r, p->device()), tds);
 	break; 
-    case PE_Splitter:
-	DrawThemeSeparator(qt_glb_mac_rect(r, p->device()), tds & ~(kThemeStatePressed));
-	break;
     case PE_HeaderArrow: 
     case PE_HeaderSection: {
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
@@ -441,15 +445,25 @@ void QMacStyle::drawControl( ControlElement element,
 				 SFlags how,
 				 const QStyleOption& opt ) const
 {
-    ThemeDrawState tds = 0;
-    if(how & Style_Enabled || widget->isEnabled())
-	tds |= kThemeStateActive;
-    else
-	tds |= kThemeStateInactive;
-    if(how & Style_Down)
+    ThemeDrawState tds = kThemeStateActive;
+    if(how & Style_Down) {
 	tds = kThemeStatePressed;
+    } else if(qAquaActive(cg)) {
+	if(!(how & Style_Enabled))
+	    tds = kThemeStateUnavailable;
+    } else {
+	if(how & Style_Enabled)
+	    tds = kThemeStateInactive;
+	else
+	    tds = kThemeStateUnavailableInactive;
+    }
     
     switch(element) {
+    case CE_MenuBarBackground: 
+	((QMacPainter*)p)->noop();
+	DrawThemeMenuBarBackground(qt_glb_mac_rect(r, p->device(), FALSE), kThemeMenuBarNormal,
+				   kThemeMenuSquareMenuBar);
+	break; 
     case CE_PopupMenuItem: {
 	if(!widget || opt.isDefault())
 	    break;
@@ -617,8 +631,9 @@ void QMacStyle::drawControl( ControlElement element,
 	if(!widget)
 	    break;
 	const QMenuBar *mbar = (const QMenuBar *)widget;
+	QRect ir(r.x(), 0, r.width(), mbar->height());
 	Rect mrect = *qt_glb_mac_rect(mbar->rect(), p->device()),
-	     irect = *qt_glb_mac_rect(r, p->device());
+	     irect = *qt_glb_mac_rect(ir, p->device(), FALSE);
 	ThemeMenuState tms = kThemeMenuActive;
 	if(!(how & Style_Active))
 	    tms |= kThemeMenuDisabled;
@@ -639,10 +654,10 @@ void QMacStyle::drawControl( ControlElement element,
 	ttdi.max = pbar->totalSteps();
 	ttdi.value = pbar->progress();
 	ttdi.attributes |= kThemeTrackHorizontal;
-	if(widget->isEnabled())
-	    ttdi.enableState |= kThemeTrackActive;
-	if(!pbar->isEnabled())
-	    ttdi.enableState |= kThemeTrackDisabled;
+	if(!qAquaActive(cg))
+	    ttdi.enableState = kThemeTrackInactive;
+	else if(!pbar->isEnabled())
+	    ttdi.enableState = kThemeTrackDisabled;
 	((QMacPainter *)p)->noop();
 	DrawThemeTrack(&ttdi, NULL, NULL, 0);
 	break; }
@@ -650,7 +665,7 @@ void QMacStyle::drawControl( ControlElement element,
 	if(!widget)
 	    break;
 	if(how & Style_Sunken)
-	    tds |= kThemeStatePressed;
+	    tds = kThemeStatePressed;
 	QTabBar * tb = (QTabBar *) widget;
 	ThemeTabStyle tts = kThemeTabNonFront;
 	if(how & Style_Selected) {
@@ -707,11 +722,16 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					SCFlags subActive,
 					const QStyleOption& opt ) const
 {
-    ThemeDrawState tds = 0;
-    if(flags & Style_Enabled)
-	tds |= kThemeStateActive;
-    else
-	tds |= kThemeStateInactive;
+    ThemeDrawState tds = kThemeStateActive;
+    if(qAquaActive(cg)) {
+	if(!(flags & Style_Enabled))
+	    tds = kThemeStateUnavailable;
+    } else {
+	if(flags & Style_Enabled)
+	    tds = kThemeStateInactive;
+	else
+	    tds = kThemeStateUnavailableInactive;
+    }
 
     switch(ctrl) {
     case CC_ToolButton: {
@@ -818,12 +838,12 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
     case CC_SpinWidget: {
 	QSpinWidget * sw = (QSpinWidget *) widget;
 	if((sub & SC_SpinWidgetDown) || (sub & SC_SpinWidgetUp)) {
-	    if(subActive == SC_SpinWidgetDown)
-		tds |= kThemeStatePressedDown;
-	    else if(subActive == SC_SpinWidgetUp)
-		tds |= kThemeStatePressedUp;
 	    if(sw->isUpEnabled() || sw->isDownEnabled())
-		tds &= ~kThemeStateInactive;
+		tds = kThemeStateUnavailable;
+	    if(subActive == SC_SpinWidgetDown)
+		tds = kThemeStatePressedDown;
+	    else if(subActive == SC_SpinWidgetUp)
+		tds = kThemeStatePressedUp;
 	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	    QRect updown = sw->upRect() | sw->downRect();
 	    if(sw->backgroundPixmap())
@@ -901,10 +921,10 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
-	if(widget->isEnabled())
-	    ttdi.enableState |= kThemeTrackActive;
-	if(!scrollbar->isEnabled())
-	    ttdi.enableState |= kThemeTrackDisabled;
+	if(!qAquaActive(cg))
+	    ttdi.enableState = kThemeTrackInactive;
+	else if(!scrollbar->isEnabled())
+	    ttdi.enableState = kThemeTrackDisabled;
 	if(subActive == SC_ScrollBarSubLine)
 	    ttdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed | 
 						  kThemeLeftOutsideArrowPressed;
@@ -937,8 +957,10 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    ttdi.attributes |= kThemeTrackHorizontal;
 	if(widget->isEnabled())
 	    ttdi.enableState |= kThemeTrackActive;
-	if(!sldr->isEnabled())
-	    ttdi.enableState |= kThemeTrackDisabled;
+	if(!qAquaActive(cg))
+	    ttdi.enableState = kThemeTrackInactive;
+	else if(!sldr->isEnabled())
+	    ttdi.enableState = kThemeTrackDisabled;
 	if(sldr->tickmarks() == QSlider::Above)
 	    ttdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
 	else
@@ -1104,10 +1126,10 @@ QRect QMacStyle::querySubControlMetrics( ComplexControl control,
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
-	if(w->isEnabled())
-	    ttdi.enableState |= kThemeTrackActive;
-	if(!scrollbar->isEnabled())
-	    ttdi.enableState |= kThemeTrackDisabled;
+	if(!qAquaActive(scrollbar->colorGroup()))
+	    ttdi.enableState = kThemeTrackInactive;
+	else if(!scrollbar->isEnabled())
+	    ttdi.enableState = kThemeTrackDisabled;
 	ttdi.trackInfo.scrollbar.viewsize = scrollbar->pageStep();
 	switch(sc) {
 	case SC_ScrollBarGroove: {
@@ -1139,10 +1161,10 @@ QRect QMacStyle::querySubControlMetrics( ComplexControl control,
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(sldr->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
-	if(w->isEnabled())
-	    ttdi.enableState |= kThemeTrackActive;
-	if(!sldr->isEnabled())
-	    ttdi.enableState |= kThemeTrackDisabled;
+	if(!qAquaActive(sldr->colorGroup()))
+	    ttdi.enableState = kThemeTrackInactive;
+	else if(!sldr->isEnabled())
+	    ttdi.enableState = kThemeTrackDisabled;
 	if(sldr->tickmarks() == QSlider::Above)
 	    ttdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
 	else
@@ -1210,10 +1232,10 @@ QStyle::SubControl QMacStyle::querySubControl(ComplexControl control,
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
-	if(widget->isEnabled())
-	    ttdi.enableState |= kThemeTrackActive;
-	if(!scrollbar->isEnabled())
-	    ttdi.enableState |= kThemeTrackDisabled;
+	if(!qAquaActive(scrollbar->colorGroup()))
+	    ttdi.enableState = kThemeTrackInactive;
+	else if(!scrollbar->isEnabled())
+	    ttdi.enableState = kThemeTrackDisabled;
 	ttdi.trackInfo.scrollbar.viewsize = scrollbar->pageStep();
 	Point pt = { pos.y(), pos.x() };
 	Rect mrect;
