@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#106 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#105 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#106 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -565,7 +565,7 @@ void QWidget::grabKeyboard()
 	    keyboardGrb->releaseKeyboard();
 	setWFlags( WState_KGrab );
 	if ( !qt_nograb() ) {
-	    XGrabKeyboard( dpy, ident, TRUE, GrabModeSync, GrabModeSync,
+	    XGrabKeyboard( dpy, ident, TRUE, GrabModeAsync, GrabModeAsync,
 			   CurrentTime );
 	    keyboardGrb = this;
 	}
