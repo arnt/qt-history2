@@ -21,15 +21,12 @@ public:
 	Unknown = -1,
 	Separator = 0,
 	Action = 1,
-	ActionGroup = 3,
-	Widget = 4
+	ActionGroup = 3
     };
 
     PopupMenuEditorItem( QAction * action, PopupMenuEditor * menu,
 			 QObject * parent = 0, const char * name = 0 );
     PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu,
-			 QObject * parent = 0, const char * name = 0 );
-    PopupMenuEditorItem( QWidget * widget, PopupMenuEditor * menu,
 			 QObject * parent = 0, const char * name = 0 );
     PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuEditor * menu,
 			 QObject * parent = 0, const char * name = 0 );
@@ -37,31 +34,30 @@ public:
 
     void init();
 
-    ItemType type();
-
-    QAction * action();
-    QActionGroup * actionGroup();
-    QAction * anyAction();
-    QWidget * widget();
-
-    void setSeparator( bool enable );
-    bool isSeparator();
+    ItemType type() const;
+    
+    QAction * action() const { return a; }
+    QActionGroup * actionGroup() const { return g; }
+    QAction * anyAction() const { return ( a ? a : ( QAction * ) g ); }
 
     void setVisible( bool enable );
-    bool isVisible();
+    bool isVisible() const;
 
-    void setRemovable( bool enable );
-    bool isRemovable();
+    void setSeparator( bool enable ) { separator = enable; }
+    bool isSeparator() const { return separator; }
 
-    void setAutoDelete( bool enable );
-    bool isAutoDelete();
+    void setRemovable( bool enable ) { removable = enable; }
+    bool isRemovable() const { return removable; }
+    
+    void setDirty( bool enable ) { dirty = enable; }
+    bool isDirty() const { return dirty; }
 
     void showMenu( int x, int y );
     void hideMenu();
     void focusMenu();
-    PopupMenuEditor * menu() { return s; }
+    PopupMenuEditor * menu() const { return s; }
 
-    int count();
+    int count() const;
 
     bool eventFilter( QObject *, QEvent * event );
     
@@ -73,12 +69,11 @@ protected:
 private:
     QAction * a;
     QActionGroup * g;
-    QWidget * w;
     PopupMenuEditor * s;
     PopupMenuEditor * m;
-    bool separator;
-    bool removable;
-    bool autodelete;
+    int separator : 1;
+    int removable : 1;
+    int dirty : 1;
 };
 
 class FormWindow;
@@ -105,7 +100,6 @@ public:
     void insert( PopupMenuEditorItem * item, int index = -1 );
     void insert( QAction * action, int index = -1 );
     void insert( QActionGroup * actionGroup, int index = -1 );
-    void insert( QWidget * widget, int index = -1 );
     int find( QAction * action );
     int count();
     PopupMenuEditorItem * at( int index );
@@ -162,15 +156,14 @@ protected:
     void focusInEvent( QFocusEvent * e );
     void focusOutEvent( QFocusEvent * e );
 
-    void drawItems( QPainter & p );
-    int drawAction( QPainter & p, QAction * a, int x, int y, int f );
-    int drawActionGroup( QPainter & p, QActionGroup * g, int x, int y, int f );
-    void drawWinFocusRect( QPainter & p, const int y );
+    void drawItems( QPainter * p ) const;
+    void drawAction( QPainter * p, const QAction * a, const QPoint & pt, const int f ) const;
+    void drawWinFocusRect( QPainter * p, const int y ) const;
 
     QSize contentsSize();
-    int itemSize( QPainter & p, PopupMenuEditorItem * i );
-    int actionSize( QPainter & p, QAction * a );
-    int actionGroupSize( QPainter & p, QActionGroup * g );
+    int itemSize( QPainter * p, PopupMenuEditorItem * i );
+    int actionSize( QPainter * p, QAction * a );
+    int actionGroupSize( QPainter * p, QActionGroup * g );
 
     int currentItemYCoord();
     int snapToItem( int y );
