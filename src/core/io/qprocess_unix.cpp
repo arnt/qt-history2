@@ -59,7 +59,8 @@ public:
             action.sa_handler = qt_sa_sigchld_handler;
             action.sa_flags = SA_NOCLDSTOP;
             ::sigaction(SIGCHLD, &action, &oldAction);
-            old_sigchld_handler = qt_sa_old_sigchld_handler = oldAction.sa_handler;
+            if (oldAction.sa_handler != qt_sa_sigchld_handler)
+                old_sigchld_handler = qt_sa_old_sigchld_handler = oldAction.sa_handler;
 
             shutdownNotifier = new QSocketNotifier(qt_qprocess_deadChild_pipe[0],
                                                    QSocketNotifier::Read, this);
