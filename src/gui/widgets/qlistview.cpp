@@ -1947,6 +1947,8 @@ static Q4StyleOptionListView getStyleOption(const QListView *lv, const QListView
     opt.viewportBGRole = vp->backgroundRole();
     opt.itemMargin = lv->itemMargin();
     opt.sortColumn = 0;
+    opt.treeStepSize = lv->treeStepSize();
+    opt.rootIsDecorated = lv->rootIsDecorated();
     bool firstItem = true;
     while (item) {
         Q4StyleOptionListViewItem lvi(0);
@@ -1955,14 +1957,20 @@ static Q4StyleOptionListView getStyleOption(const QListView *lv, const QListView
         lvi.itemY = item->itemPos();
         lvi.childCount = item->childCount();
         lvi.extras = Q4StyleOptionListViewItem::None;
+        lvi.state = QStyle::Style_Default;
+        if (item->isEnabled())
+            lvi.state |= QStyle::Style_Enabled;
+        if (item->isOpen())
+            lvi.state |= QStyle::Style_Open;
         if (item->isExpandable())
             lvi.extras |= Q4StyleOptionListViewItem::Expandable;
         if (item->multiLinesEnabled())
             lvi.extras |= Q4StyleOptionListViewItem::MultiLine;
         if (item->isVisible())
             lvi.extras |= Q4StyleOptionListViewItem::Visible;
-        if (item->isOpen())
-            lvi.extras |= Q4StyleOptionListViewItem::Open;
+        if (item->parent() && item->parent()->rtti() == 1
+            && static_cast<QCheckListItem *>(item->parent())->type() == QCheckListItem::Controller)
+            lvi.extras |= Q4StyleOptionListViewItem::ParentControl;
         opt.items.append(lvi);
         if (!firstItem) {
             item = item->nextSibling();
@@ -2178,16 +2186,22 @@ int QListViewItem::width(const QFontMetrics& fm,
     \sa paintCell() paintBranches() QListView::setAllColumnsShowFocus()
 */
 
-void QListViewItem::paintFocus(QPainter *p, const QPalette &pal,
-                                const QRect & r)
+void QListViewItem::paintFocus(QPainter *p, const QPalette &pal, const QRect &r)
 {
     QListView *lv = listView();
-    if (lv)
-        lv->style().drawPrimitive(QStyle::PE_FocusRect, p, r, pal,
-                                   (isSelected() ?
-                                    QStyle::Style_FocusAtBorder :
-                                    QStyle::Style_Default),
-                                   QStyleOption(isSelected() ? pal.highlight() : pal.base()));
+    if (lv) {
+        Q4StyleOptionFocusRect opt(0);
+        opt.rect = r;
+        opt.palette = pal;
+        if (isSelected()) {
+            opt.state = QStyle::Style_FocusAtBorder;
+            opt.backgroundColor = pal.highlight();
+        } else {
+            opt.state = QStyle::Style_Default;
+            opt.backgroundColor = pal.base();
+        }
+        lv->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, lv);
+    }
 }
 
 
@@ -4160,12 +4174,11 @@ void QListView::contentsMousePressEventEx(QMouseEvent * e)
 
         if (draw < d->drawables.size()) {
             QListViewPrivate::DrawableItem it = d->drawables.at(draw);
+            Q4StyleOptionListView opt = getStyleOption(this, i);
             x1 -= treeStepSize() * (it.l - 1);
-            QStyle::SubControl ctrl =
-                style().querySubControl(QStyle::CC_ListView,
-                                         this, QPoint(x1, e->pos().y()),
-                                         QStyleOption(i));
-            if(ctrl == QStyle::SC_ListViewExpand &&
+            QStyle::SubControl ctrl = style().querySubControl(QStyle::CC_ListView, &opt,
+                                                              QPoint(x1, e->pos().y()), this);
+            if (ctrl == QStyle::SC_ListViewExpand &&
                 e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, this)) {
                 d->buttonDown = false;
                 if (e->button() == LeftButton) {
@@ -4373,10 +4386,10 @@ void QListView::contentsMouseReleaseEventEx(QMouseEvent * e)
         if (draw < d->drawables.size()) {
             int x1 = vp.x() + d->h->offset() - d->h->cellPos(d->h->mapToActual(0)) -
                      (treeStepSize() * (d->drawables.at(draw).l - 1));
-            QStyle::SubControl ctrl = style().querySubControl(QStyle::CC_ListView,
-                                                               this, QPoint(x1, e->pos().y()),
-                                                               QStyleOption(i));
-            if(ctrl == QStyle::SC_ListViewExpand) {
+            Q4StyleOptionListView opt = getStyleOption(this, i);
+            QStyle::SubControl ctrl = style().querySubControl(QStyle::CC_ListView, &opt,
+                                                              QPoint(x1, e->pos().y()), this);
+            if (ctrl == QStyle::SC_ListViewExpand) {
                 bool close = i->isOpen();
                 setOpen(i, !close);
                 // ### Looks dangerous, removed because of reentrance problems
@@ -6586,17 +6599,13 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
         else
             y = (fm.height() + 2 + marg - boxsize) / 2;
 
-        if ((myType == CheckBox) || (myType == CheckBoxController)) {
-            lv->style().drawPrimitive(QStyle::PE_CheckListIndicator, p,
-                                      QRect(x, y, boxsize,
-                                            fm.height() + 2 + marg),
-                                      pal, styleflags, QStyleOption(this));
-        } else { //radio button look
-            lv->style().drawPrimitive(QStyle::PE_CheckListExclusiveIndicator,
-                                              p, QRect(x, y, boxsize,
-                                                       fm.height() + 2 + marg),
-                                              pal, styleflags, QStyleOption(this));
-        }
+        Q4StyleOptionListView opt = getStyleOption(lv, this);
+        opt.rect.setRect(x, y, boxsize, fm.height() + 2 + marg);
+        opt.palette = pal;
+        opt.state = styleflags;
+        lv->style().drawPrimitive((myType == CheckBox || myType == CheckBoxController)
+                                    ? QStyle::PE_CheckListIndicator
+                                    : QStyle::PE_CheckListExclusiveIndicator, &opt, p, lv);
         r += boxsize + 4;
     }
 

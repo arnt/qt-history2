@@ -24,7 +24,6 @@
 #include "qdrawutil.h"
 #include "qgroupbox.h"
 #include "qheader.h"
-#include "qlistview.h"
 #include "qmenu.h"
 #include "qpainter.h"
 #include "qprogressbar.h"
@@ -147,109 +146,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
     activePainter = p;
 
     switch (pe) {
-#ifndef QT_NO_LISTVIEW
-    case PE_CheckListController: {
-        p->drawPixmap(r.topLeft(), QPixmap((const char **)check_list_controller_xpm));
-        break; }
-    case PE_CheckListExclusiveIndicator: {
-        QCheckListItem *item = opt.checkListItem();
-        QListView *lv = item->listView();
-        if(!item)
-            return;
-        int x = r.x(), y = r.y();
-#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-        static const QCOORD pts1[] = {                // dark lines
-            1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-        static const QCOORD pts2[] = {                // black lines
-            2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
-        static const QCOORD pts3[] = {                // background lines
-            2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
-        static const QCOORD pts4[] = {                // white lines
-            2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
-            11,4, 10,3, 10,2 };
-        // static const QCOORD pts5[] = {                // inner fill
-        //    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-        //QPointArray a;
-
-        if (flags & Style_Enabled)
-            p->setPen(pal.text());
-        else
-            p->setPen(QPen(lv->palette().color(QPalette::Disabled, QPalette::Text)));
-        QPointArray a(QCOORDARRLEN(pts1), pts1);
-        a.translate(x, y);
-        //p->setPen(pal.dark());
-        p->drawPolyline(a);
-        a.setPoints(QCOORDARRLEN(pts2), pts2);
-        a.translate(x, y);
-        p->drawPolyline(a);
-        a.setPoints(QCOORDARRLEN(pts3), pts3);
-        a.translate(x, y);
-        //                p->setPen(black);
-        p->drawPolyline(a);
-        a.setPoints(QCOORDARRLEN(pts4), pts4);
-        a.translate(x, y);
-        //                        p->setPen(blue);
-        p->drawPolyline(a);
-        //                a.setPoints(QCOORDARRLEN(pts5), pts5);
-        //                a.translate(x, y);
-        //        QColor fillColor = isDown() ? g.background() : g.base();
-        //        p->setPen(fillColor);
-        //        p->setBrush(fillColor);
-        //        p->drawPolygon(a);
-        if (flags & Style_On) {
-            p->setPen(NoPen);
-            p->setBrush(pal.text());
-            p->drawRect(x+5, y+4, 2, 4);
-            p->drawRect(x+4, y+5, 4, 2);
-        }
-        break; }
-    case PE_CheckListIndicator: {
-        QCheckListItem *item = opt.checkListItem();
-        QListView *lv = item->listView();
-        if(!item)
-            return;
-        int x = r.x(), y = r.y(), w = r.width(), h = r.width(), marg = lv->itemMargin();
-
-        if (flags & Style_Enabled)
-            p->setPen(QPen(pal.text(), 2));
-        else
-            p->setPen(QPen(lv->palette().color(QPalette::Disabled, QPalette::Text),
-                             2));
-        bool parentControl = false;
-        if (item->parent() && item->parent()->rtti() == 1  &&
-             ((QCheckListItem*) item->parent())->type() == QCheckListItem::Controller)
-            parentControl = true;
-        if (flags & Style_Selected && !lv->rootIsDecorated() && !parentControl) {
-            p->fillRect(0, 0, x + marg + w + 4, item->height(),
-                         pal.brush(QPalette::Highlight));
-            if (item->isEnabled())
-                p->setPen(QPen(pal.highlightedText(), 2));
-        }
-
-        if (flags & Style_NoChange)
-            p->setBrush(pal.brush(QPalette::Button));
-        p->drawRect(x+marg, y+2, w-4, h-4);
-        /////////////////////
-        x++;
-        y++;
-        if ((flags & Style_On) || (flags & Style_NoChange)) {
-            QPointArray a(7*2);
-            int i, xx = x+1+marg, yy=y+5;
-            for (i=0; i<3; i++) {
-                a.setPoint(2*i,   xx, yy);
-                a.setPoint(2*i+1, xx, yy+2);
-                xx++; yy++;
-            }
-            yy -= 2;
-            for (i=3; i<7; i++) {
-                a.setPoint(2*i,   xx, yy);
-                a.setPoint(2*i+1, xx, yy+2);
-                xx++; yy--;
-            }
-            p->drawLineSegments(a);
-        }
-        break; }
-#endif
     case PE_HeaderArrow:
         p->save();
         if (flags & Style_Down) {
@@ -691,7 +587,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
         p->drawEllipse(opt->rect);
         break;
     case PE_FocusRect:
-        if (Q4StyleOptionFocusRect *fropt = qt_cast<Q4StyleOptionFocusRect *>(opt)) {
+        if (const Q4StyleOptionFocusRect *fropt = qt_cast<const Q4StyleOptionFocusRect *>(opt)) {
             QColor bg = fropt->backgroundColor;
             QPen oldPen = p->pen();
             if (bg.isValid()) {
@@ -764,7 +660,115 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
     case PE_ProgressBarChunk:
         p->fillRect(opt->rect.x(), opt->rect.y() + 3, opt->rect.width() -2, opt->rect.height() - 6,
                     opt->palette.brush(QPalette::Highlight));
-        break;        
+        break;
+    case PE_CheckListController:
+        p->drawPixmap(opt->rect.topLeft(), QPixmap(check_list_controller_xpm));
+        break;
+    case PE_CheckListExclusiveIndicator:
+        if (const Q4StyleOptionListView *lv = qt_cast<const Q4StyleOptionListView *>(opt)) {
+            if (lv->items.isEmpty())
+                return;
+            int x = lv->rect.x(),
+                y = lv->rect.y();
+#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
+            static const QCOORD pts1[] = {                // dark lines
+                1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
+            static const QCOORD pts2[] = {                // black lines
+                2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
+            static const QCOORD pts3[] = {                // background lines
+                2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
+            static const QCOORD pts4[] = {                // white lines
+                2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
+                11,4, 10,3, 10,2 };
+                // static const QCOORD pts5[] = {                // inner fill
+                //    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+                //QPointArray a;
+
+                if (lv->state & Style_Enabled)
+                    p->setPen(lv->palette.text());
+                else
+                    p->setPen(QPen(lv->viewportPalette.color(QPalette::Disabled, QPalette::Text)));
+                QPointArray a(QCOORDARRLEN(pts1), pts1);
+                a.translate(x, y);
+                //p->setPen(pal.dark());
+                p->drawPolyline(a);
+                a.setPoints(QCOORDARRLEN(pts2), pts2);
+                a.translate(x, y);
+                p->drawPolyline(a);
+                a.setPoints(QCOORDARRLEN(pts3), pts3);
+                a.translate(x, y);
+                //                p->setPen(black);
+                p->drawPolyline(a);
+                a.setPoints(QCOORDARRLEN(pts4), pts4);
+                a.translate(x, y);
+                //                        p->setPen(blue);
+                p->drawPolyline(a);
+                //                a.setPoints(QCOORDARRLEN(pts5), pts5);
+                //                a.translate(x, y);
+                //        QColor fillColor = isDown() ? g.background() : g.base();
+                //        p->setPen(fillColor);
+                //        p->setBrush(fillColor);
+                //        p->drawPolygon(a);
+                if (opt->state & Style_On) {
+                    p->setPen(NoPen);
+                    p->setBrush(opt->palette.text());
+                    p->drawRect(x + 5, y + 4, 2, 4);
+                    p->drawRect(x + 4, y + 5, 4, 2);
+                }
+#undef QCOORDARRLEN
+        }
+        break;
+    case PE_CheckListIndicator:
+        if (const Q4StyleOptionListView *lv = qt_cast<const Q4StyleOptionListView *>(opt)) {
+            if(lv->items.isEmpty())
+                break;
+            Q4StyleOptionListViewItem item = lv->items.at(0);
+            int x = lv->rect.x(),
+                y = lv->rect.y(),
+                w = lv->rect.width(),
+                h = lv->rect.width(),
+                marg = lv->itemMargin;
+
+            if (lv->state & Style_Enabled)
+                p->setPen(QPen(lv->palette.text(), 2));
+            else
+                p->setPen(QPen(lv->viewportPalette.color(QPalette::Disabled, QPalette::Text), 2));
+            if (opt->state & Style_Selected && !lv->rootIsDecorated
+                    && !(item.extras & Q4StyleOptionListViewItem::ParentControl)) {
+                p->fillRect(0, 0, x + marg + w + 4, item.height,
+                            lv->palette.brush(QPalette::Highlight));
+                if (item.state & Style_Enabled)
+                    p->setPen(QPen(lv->palette.highlightedText(), 2));
+            }
+
+            if (lv->state & Style_NoChange)
+                p->setBrush(lv->palette.brush(QPalette::Button));
+            p->drawRect(x + marg, y + 2, w - 4, h - 4);
+            /////////////////////
+            ++x;
+            ++y;
+            if (lv->state & Style_On || lv->state & Style_NoChange) {
+                QPointArray a(7 * 2);
+                int i,
+                    xx = x + 1 + marg,
+                    yy = y + 5;
+                for (i = 0; i < 3; ++i) {
+                    a.setPoint(2 * i,   xx, yy);
+                    a.setPoint(2 * i + 1, xx, yy + 2);
+                    ++xx;
+                    ++yy;
+                }
+                yy -= 2;
+                for (i = 3; i < 7; ++i) {
+                    a.setPoint(2 * i,   xx, yy);
+                    a.setPoint(2 * i + 1, xx, yy + 2);
+                    ++xx;
+                    --yy;
+                }
+                p->drawLineSegments(a);
+            }
+        }
+        break;
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }
@@ -1280,7 +1284,7 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
 {
     switch (ce) {
     case CE_PushButton:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             QRect br = btn->rect;
             int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
             if (btn->state & Style_ButtonDefault) {
@@ -1303,7 +1307,7 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
         }
         break;
     case CE_PushButtonLabel:
-        if (const Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             QRect ir = btn->rect;
             uint tf = AlignVCenter | ShowPrefix | NoAccel;
             if (!btn->icon.isNull()) {
@@ -1341,7 +1345,7 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
         break;
     case CE_RadioButtonLabel:
     case CE_CheckBoxLabel:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             bool isRadio = (ce == CE_RadioButtonLabel);
             uint alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
             if (styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
@@ -1481,7 +1485,7 @@ void QCommonStyle::drawControlMask(ControlElement ce, const Q4StyleOption *opt, 
     QPalette pal(color1,color1,color1,color1,color1,color1,color1,color1,color0);
     switch (ce) {
     case CE_PushButton:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             Q4StyleOptionButton newBtn = *btn;
             newBtn.palette = pal;
             drawPrimitive(PE_ButtonCommand, &newBtn, p, w);
@@ -1797,7 +1801,7 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
     QRect r;
     switch (sr) {
     case SR_PushButtonContents:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             int dx1, dx2;
             dx1 = pixelMetric(PM_DefaultFrameWidth, w);
             if (btn->state & Style_ButtonDefault)
@@ -1808,7 +1812,7 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
         }
         break;
     case SR_PushButtonFocusRect:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             int dbw1 = 0, dbw2 = 0;
             if (btn->state & Style_ButtonDefault) {
                 dbw1 = pixelMetric(PM_ButtonDefaultIndicator, w);
@@ -1840,7 +1844,7 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
         break;
 
     case SR_CheckBoxFocusRect:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             if (btn->text.isEmpty()) {
                 r = subRect(SR_CheckBoxIndicator, opt, w);
                 r.addCoords(1, 1, -1, -1);
@@ -1878,7 +1882,7 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
         }
 
     case SR_RadioButtonFocusRect:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             if (!btn->icon.isNull() && btn->text.isEmpty()) {
                 r = subRect(SR_RadioButtonIndicator, opt, w);
                 r.addCoords(1, 1, -1, -1);
@@ -1899,7 +1903,7 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
         }
         break;
     case SR_SliderFocusRect:
-        if (const Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+        if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
             int tickOffset = pixelMetric(PM_SliderTickmarkOffset, w);
             int thickness  = pixelMetric(PM_SliderControlThickness, w);
             if (slider->orientation == Horizontal)
@@ -1917,7 +1921,7 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
             int textw = 0;
             if (pb->extras & Q4StyleOptionProgressBar::PercentageVisible)
                 textw = fm.width("100%") + 6;
-            
+
             if (pb->extras & Q4StyleOptionProgressBar::IndicatorFollowsStyle
                 || !(pb->extras & Q4StyleOptionProgressBar::CenterIndicator)) {
                 if (sr != SR_ProgressBarLabel)
@@ -1942,7 +1946,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
 {
     switch (cc) {
     case CC_Slider:
-        if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+        if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
             if (slider->parts == SC_SliderTickmarks) {
                 int tickOffset = pixelMetric(PM_SliderTickmarkOffset, widget);
                 int ticks = slider->tickmarks;
@@ -2001,7 +2005,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
         }
         break;
     case CC_ScrollBar:
-        if (const Q4StyleOptionSlider *scrollbar = qt_cast<Q4StyleOptionSlider *>(opt)) {
+        if (const Q4StyleOptionSlider *scrollbar = qt_cast<const Q4StyleOptionSlider *>(opt)) {
             // Since we really get this thing is a const it is not correct to be making
             // changes to it. So make a copy here and reset it for each primitive.
             Q4StyleOptionSlider newScrollbar = *scrollbar;
@@ -2104,7 +2108,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
         }
         break;
     case CC_ListView:
-        if (const Q4StyleOptionListView *lv = qt_cast<Q4StyleOptionListView *>(opt)) {
+        if (const Q4StyleOptionListView *lv = qt_cast<const Q4StyleOptionListView *>(opt)) {
             if (lv->parts & SC_ListView)
                 p->fillRect(lv->rect, lv->viewportPalette.brush(lv->viewportBGRole));
         }
@@ -2126,32 +2130,40 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const Q4Styl
     SubControl sc = SC_None;
     switch (cc) {
     case CC_Slider:
-        if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
-            slider->parts = SC_SliderHandle;
-            QRect r = visualRect(querySubControlMetrics(cc, slider, widget), widget);
+        if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
+            Q4StyleOptionSlider tmpSlider = *slider;
+            tmpSlider.parts = SC_SliderHandle;
+            QRect r = visualRect(querySubControlMetrics(cc, &tmpSlider, widget), widget);
             if (r.isValid() && r.contains(pt)) {
                 sc = SC_SliderHandle;
             } else {
-                slider->parts = SC_SliderGroove;
-                r = visualRect(querySubControlMetrics(cc, slider, widget), widget);
+                tmpSlider.parts = SC_SliderGroove;
+                r = visualRect(querySubControlMetrics(cc, &tmpSlider, widget), widget);
                 if (r.isValid() && r.contains(pt))
                     sc = SC_SliderGroove;
             }
         }
         break;
     case CC_ScrollBar:
-        if (Q4StyleOptionSlider *scrollbar = qt_cast<Q4StyleOptionSlider *>(opt)) {
+        if (const Q4StyleOptionSlider *scrollbar = qt_cast<const Q4StyleOptionSlider *>(opt)) {
+            Q4StyleOptionSlider tmpScrollbar = *scrollbar;
             QRect r;
             uint ctrl = SC_ScrollBarAddLine;
             while (sc == SC_None && ctrl <= SC_ScrollBarGroove) {
-                scrollbar->parts = (QStyle::SubControl)ctrl;
-                r = visualRect(querySubControlMetrics(cc, scrollbar, widget), widget);
+                tmpScrollbar.parts = (QStyle::SubControl)ctrl;
+                r = visualRect(querySubControlMetrics(cc, &tmpScrollbar, widget), widget);
                 if (r.isValid() && r.contains(pt)) {
                     sc = (QStyle::SubControl)ctrl;
                     break;
                 }
                 ctrl <<= 1;
             }
+        }
+        break;
+    case CC_ListView:
+        if (const Q4StyleOptionListView *lv = qt_cast<const Q4StyleOptionListView *>(opt)) {
+            if (pt.x() >= 0 && pt.x() < lv->treeStepSize)
+                sc = SC_ListViewExpand;
         }
         break;
     default:
@@ -2166,7 +2178,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
     QRect ret;
     switch (cc) {
     case CC_Slider:
-        if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+        if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
             int tickOffset = pixelMetric(PM_SliderTickmarkOffset, widget);
             int thickness = pixelMetric(PM_SliderControlThickness, widget);
 
@@ -2197,7 +2209,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
         }
         break;
     case CC_ScrollBar:
-        if (Q4StyleOptionSlider *scrollbar = qt_cast<Q4StyleOptionSlider *>(opt)) {
+        if (const Q4StyleOptionSlider *scrollbar = qt_cast<const Q4StyleOptionSlider *>(opt)) {
             int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
             int maxlen = ((scrollbar->orientation == Qt::Horizontal) ?
                     scrollbar->rect.width() : scrollbar->rect.height()) - (sbextent * 2);
@@ -2959,15 +2971,6 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
     SubControl ret = SC_None;
 
     switch (control) {
-#ifndef QT_NO_LISTVIEW
-    case CC_ListView:
-        {
-            if(pos.x() >= 0 && pos.x() <
-               opt.listViewItem()->listView()->treeStepSize())
-                ret = SC_ListViewExpand;
-            break;
-        }
-#endif
 #ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar:
         {
@@ -3457,7 +3460,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, 
     QSize sz(csz);
     switch (ct) {
     case CT_PushButton:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             int w = csz.width(),
                 h = csz.height(),
                 bm = pixelMetric(PM_ButtonMargin, widget),
@@ -3474,7 +3477,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, 
         break;
     case CT_RadioButton:
     case CT_CheckBox:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             bool isRadio = (ct == CT_RadioButton);
             QRect irect = subRect(isRadio ? SR_RadioButtonIndicator : SR_CheckBoxIndicator,
                                   btn, widget);

@@ -25,7 +25,6 @@
 #include "qevent.h"
 #include "qlabel.h"
 #include "qlistbox.h"
-#include "qlistview.h"
 #include "qmenu.h"
 #include "qpainter.h"
 #include "qpushbutton.h"
@@ -2109,7 +2108,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
         }
         break;
     case PE_FocusRect:
-        if (Q4StyleOptionFocusRect *fropt = qt_cast<Q4StyleOptionFocusRect *>(opt)) {
+        if (const Q4StyleOptionFocusRect *fropt = qt_cast<const Q4StyleOptionFocusRect *>(opt)) {
 #if defined (Q_WS_WIN) && !defined(QT_GDIPLUS_SUPPORT)
             {
                 HDC hdc = p->handle();
@@ -2305,7 +2304,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
 {
     switch (ce) {
     case CE_MenuItem:
-        if (const Q4StyleOptionMenuItem *menuitem = qt_cast<Q4StyleOptionMenuItem *>(opt)) {
+        if (const Q4StyleOptionMenuItem *menuitem = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
             int tab = menuitem->tabWidth;
             int maxpmw = menuitem->maxIconWidth;
             bool dis = !(menuitem->state & Style_Enabled);
@@ -2517,7 +2516,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
 {
     switch (cc) {
     case CC_Slider:
-        if (const Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+        if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
             int thickness  = pixelMetric(PM_SliderControlThickness, widget);
             int len        = pixelMetric(PM_SliderLength, widget);
             int ticks = slider->tickmarks;
@@ -2777,7 +2776,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
                                 // plus or minus
                                 p->setPen(lv->palette.text());
                                 p->drawLine(bx - 2, linebot, bx + 2, linebot);
-                                if (!(child.extras & Q4StyleOptionListViewItem::Open))
+                                if (!(child.state & Style_Open))
                                     p->drawLine(bx, linebot - 2, bx, linebot + 2);
                                 // dotlinery
                                 p->setPen(lv->palette.mid());

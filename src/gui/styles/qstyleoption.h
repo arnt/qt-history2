@@ -64,7 +64,7 @@ struct Q4StyleOptionTab : public Q4StyleOption {
 struct Q4StyleOptionProgressBar : public Q4StyleOption
 {
     enum { Type = ProgressBar };
-    enum Extras { None, CenterIndicator = 0x01, PercentageVisible = 0x02, 
+    enum Extras { None, CenterIndicator = 0x01, PercentageVisible = 0x02,
                   IndicatorFollowsStyle = 0x03 };
     uint extras;
     QString progressString;
@@ -116,7 +116,8 @@ struct Q4StyleOptionSlider : public Q4StyleOptionComplex {
 struct Q4StyleOptionListViewItem : public Q4StyleOption
 {
     enum { Type = ListViewItem };
-    enum Extras { None = 0x00, Expandable = 0x01, MultiLine = 0x02, Visible = 0x04, Open = 0x08 };
+    enum Extras { None = 0x00, Expandable = 0x01, MultiLine = 0x02, Visible = 0x04,
+                  ParentControl = 0x08 };
     uint extras;
     int height;
     int totalHeight;
@@ -134,6 +135,8 @@ struct Q4StyleOptionListView : public Q4StyleOptionComplex {
     QPalette::ColorRole viewportBGRole;
     int sortColumn;
     int itemMargin;
+    int treeStepSize;
+    bool rootIsDecorated;
     Q4StyleOptionListView(int version) : Q4StyleOptionComplex(version, ListView) {}
 };
 
@@ -141,7 +144,15 @@ template <typename T>
 T qt_cast(const Q4StyleOption *opt)
 {
     if (opt->type == static_cast<T>(0)->Type)
-        return static_cast<T>(const_cast<Q4StyleOption *>(opt));
+        return static_cast<T>(opt);
+    return 0;
+}
+
+template <typename T>
+T qt_cast(Q4StyleOption *opt)
+{
+    if (opt->type == static_cast<T>(0)->Type)
+        return static_cast<T>(opt);
     return 0;
 }
 #endif

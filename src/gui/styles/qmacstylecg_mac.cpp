@@ -1624,7 +1624,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
     case PE_CheckListIndicator:
     case PE_IndicatorMask:
     case PE_Indicator:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = tds;
@@ -2018,7 +2018,7 @@ QRect QMacStyleCG::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *
     QRect r;
     switch (sr) {
     case SR_PushButtonContents:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             HIRect inRect = CGRectMake(0, 0, btn->rect.width(), btn->rect.height());
             HIRect outRect;
             HIThemeButtonDrawInfo bdi;
@@ -2051,7 +2051,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
     switch (cc) {
     case CC_Slider:
     case CC_ScrollBar:
-        if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+        if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
             HIThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, &tdi, widget);
             if (cc == CC_Slider) {
@@ -2131,7 +2131,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                         treeOpt.palette = lv->palette;
                         treeOpt.state = lv->state;
                         treeOpt.state |= Style_Children;
-                        if (item.extras & Q4StyleOptionListViewItem::Open)
+                        if (item.state & Style_Open)
                             treeOpt.state |= Style_Open;
                         drawPrimitive(PE_TreeBranch, &treeOpt, p, widget);
                     }
@@ -2151,7 +2151,7 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl cc, const Q4Style
     SubControl sc = SC_None;
     switch (cc) {
     case CC_Slider:
-        if (const Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+        if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
             HIThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, &tdi, widget);
             ControlPartCode part;
@@ -2165,7 +2165,7 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl cc, const Q4Style
         }
         break;
     case CC_ScrollBar:
-        if (const Q4StyleOptionSlider *sb = qt_cast<Q4StyleOptionSlider *>(opt)) {
+        if (const Q4StyleOptionSlider *sb = qt_cast<const Q4StyleOptionSlider *>(opt)) {
             HIScrollBarTrackInfo sbi;
             sbi.version = qt_mac_hitheme_version;
             if (!qAquaActive(sb->palette))
@@ -2212,7 +2212,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
     switch (cc) {
     case CC_Slider:
     case CC_ScrollBar:
-        if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+        if (const Q4StyleOptionSlider *slider = qt_cast<const Q4StyleOptionSlider *>(opt)) {
             HIThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, &tdi, widget);
             HIRect macRect;
