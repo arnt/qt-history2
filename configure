@@ -1571,7 +1571,7 @@ then
 	    -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
     done
 
-    (cd $outpath/qmake; /bin/sh -c "$MAKE" || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
+    (cd $outpath/qmake; $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
 # Work around broken X11 headers when using GCC 2.95 or later
@@ -1871,9 +1871,9 @@ then
 fi
 
 [ '!' -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
-if [ '!' -z "$l_FLAGS" ] || [ '!' -z "$L_FLAGS" ]; then
-    QMAKE_VARS="$QMAKE_VARS \"LIBS+=$L_FLAGS $l_FLAGS\""
-fi
+[ '!' -z "$L_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR+=$L_FLAGS\""
+[ '!' -z "$l_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"LIBS+=$l_FLAGS\""
+
 if [ '!' -z "$R_FLAGS" ]; then
     if grep QMAKE_RPATH $XQMAKESPEC/qmake.conf >/dev/null
     then
