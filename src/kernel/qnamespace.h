@@ -897,7 +897,7 @@ public:
     enum UuidVariant {
 	UV_VarUnknown	=-1,
 	UV_NCS		= 0, // 0 - -
-	UV_Standard	= 2, // 1 0 -
+	UV_DCE		= 2, // 1 0 -
 	UV_Microsoft	= 6, // 1 1 0
 	UV_Reserved	= 7  // 1 1 1
     };
