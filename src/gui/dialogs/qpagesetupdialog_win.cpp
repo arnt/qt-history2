@@ -42,7 +42,6 @@ int QPageSetupDialog::exec()
     memset(&psd, 0, sizeof(PAGESETUPDLG));
     psd.lStructSize = sizeof(PAGESETUPDLG);
     psd.hDevMode = ep->devMode;
-    printf("devmode: %p\n", psd.hDevMode);
     HGLOBAL *tempDevNames = ep->createDevNames();
     psd.hDevNames = tempDevNames;
 
