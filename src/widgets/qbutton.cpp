@@ -1043,7 +1043,7 @@ void QButton::toggle()
 }
 
 /*!
-  Sets the type of toggling behavior.  The default is \a SingleShot.
+  Sets the type of toggling behavior.  The default is \c SingleShot.
 
   Subclasses use this, and present it with a more comfortable interface.
 */

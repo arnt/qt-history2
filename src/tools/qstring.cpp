@@ -12798,7 +12798,6 @@ void QString::setLength( uint newLen )
 }
 
 /*!  
-
   \code
     QString firstName("Joe");
     QString lastName("Bloggs");
@@ -12809,7 +12808,7 @@ void QString::setLength( uint newLen )
   \endcode
   
   This function will return a string that replaces the lowest occurence of 
-  \a %i (i being a positive integer starting from one) with \a a.
+  \c %i (i being a positive integer starting from one) with \a a.
     
   The \a fieldwidth value specifies the minimum amount of space that 
   \a a is padded to.  A positive value will produce right-aligned text, 
@@ -13366,12 +13365,12 @@ int QString::findRev( QChar c, int index, bool cs ) const
     int i = string.findRev( "ana" );      // i == 3
   \endcode
   
-  Finds the first occurrence of the character \a c, starting at
+  Finds the first occurrence of the string \a str, starting at
   position \a index and searching backwards. If the index is -1, 
   the search starts at the last character, if it is -2, at the next
   to last character and so on.
 
-  Returns the position of \a c or -1 if \a c could not be found.
+  Returns the position of \a str or -1 if \a str could not be found.
 
   If \a cs is TRUE then the search is case-sensitive.  If \a cs is
   FALSE then the search is case-insensitive.
@@ -14101,17 +14100,14 @@ int QString::find( const QRegExp &rx, int index ) const
     int i = string.findRev( QRegExp("an") );      // i == 3
   \endcode
   
-  Finds the first occurrence of the character \a c, starting at
+  Finds the first occurrence of the regexp \a rx, starting at
   position \a index and searching backwards. If the index is -1, 
   the search starts at the last character, if it is -2, at the next
   to last character and so on.  (See findRev() for searching from 
   the end of the string).
 
-  Returns the position of \a c or -1 if \a c could not be found.
+  Returns the position of \a rx or -1 if \a rx could not be found.
 
-  If \a cs is TRUE then the search is case-sensitive.  If \a cs is
-  FALSE then the search is case-insensitive.
-  
   This function does not set QRegExp::matchedLength(),
   QRegExp::capturedTexts() and friends. Use QRegExp::searchRev()
   if you need to access both references.
@@ -14127,9 +14123,6 @@ int QString::findRev( const QRegExp &rx, int index ) const
 /*! \overload
 
   Returns the number of times the regexp occurs in the string.
-
-  The match is case-sensitive if \a cs is TRUE or case-insensitive if \e
-  cs if FALSE.
 
   This function counts overlapping occurences, so in the example below, there are four
   instances of "ana" or "ama".
@@ -14647,7 +14640,7 @@ QString QString::number( uint n, int base )
 
 /*! \overload
 
-  Argument \a a is formatted according to the \a fmt format specified,
+  Argument \a n is formatted according to the \a f format specified,
   which is \c g by default, and can be any of the following:
 
   <ul>
@@ -14663,8 +14656,7 @@ QString QString::number( uint n, int base )
 
   \code
     double d = 12.34;
-    QString ds = QString("'E' format, precision 3, gives %1").arg(
-d, 0, 'E', 3);
+    QString ds = QString("'E' format, precision 3, gives %1").arg(d, 0, 'E', 3);
 
     // ds == "1.234E+001"
   \endcode

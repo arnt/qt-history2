@@ -46,7 +46,8 @@
 // NOT REVISED
 /*!
   \class QTab qtabbar.h
-  \brief The structures in a QTabBar.
+  \brief The QTab class provides the structures in a QTabBar.
+  
 
   For custom QTabBar tab headings.
 
@@ -266,7 +267,7 @@ void QTabBar::removeTab( QTab * t )
 
 
 /*!
-  Enables tab \a id if \a enable is TRUE or disables it if \a enable is
+  Enables tab \a id if \a enabled is TRUE or disables it if \a enabled is
   FALSE.  If \a id is currently selected, setTabEnabled() makes
   another tab selected.
 

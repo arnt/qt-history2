@@ -73,7 +73,7 @@ static int sliderStartVal = 0; //##### class member?
   of them you want and setOrientation() to indicate whether the
   slider is to be horizontal or vertical.
 
-  A slider has a default focusPolicy() of \a WeakWheelFocus, i.e., it
+  A slider has a default focusPolicy() of \c WeakWheelFocus, i.e., it
   accepts focus on Tab and uses the mouse wheel and a
   suitable keyboard interface.
 
@@ -128,11 +128,11 @@ QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
 }
 
 /*!  Constructs a slider whose value can never be smaller than \a
-  minValue or greater than \a maxValue, whose line step size is \a
-  lineStep and page step size is \a pageStep and whose value is
-  initially \a value (adjusted using bound()).
+  minValue or greater than \a maxValue, whose page step size is 
+  \a pageStep and whose value is initially \a value (adjusted 
+  using bound()).
 
-  If \a orientation is Vertical the slider is vertical and if it is \a
+  If \a orientation is Vertical the slider is vertical and if it is 
   Horizontal the slider is horizontal.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.

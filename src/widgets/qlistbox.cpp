@@ -801,7 +801,7 @@ QListBox::~QListBox()
 
   \a pnt is the position of the mouse cursor in the global coordinate
   system (QMouseEvent::globalPos()). (If the click's press and release
-  differ by a pixel or two, \a pos is the  position at release time.)
+  differ by a pixel or two, \a pnt is the  position at release time.)
 
   Note that you may not delete any QListBoxItem objects in slots
   connected to this signal.
@@ -827,7 +827,7 @@ QListBox::~QListBox()
 
   \a pnt is the position of the mouse cursor in the global coordinate
   system (QMouseEvent::globalPos()). (If the click's press and release
-  differ by a pixel or two, \a pos is the  position at release time.)
+  differ by a pixel or two, \a pnt is the  position at release time.)
 
   Note that you may not delete any QListBoxItem objects in slots
   connected to this signal.
