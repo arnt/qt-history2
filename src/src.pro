@@ -5,7 +5,7 @@ CONFIG += ordered
 win32:SUBDIRS += winmain
 SUBDIRS += moc core gui sql
 contains(QT_CONFIG, opengl): SUBDIRS +=  opengl
-!contains(QT_PRODUCT, qt-professional):SUBDIRS += xml network
+SUBDIRS += xml network
 contains(QT_CONFIG, compat): SUBDIRS += compat
 
 SUBDIRS += plugins
