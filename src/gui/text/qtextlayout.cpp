@@ -782,6 +782,9 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos,
 
     d->cursorPos = cursorPos;
 
+    if (!d->layoutData)
+        d->itemize();
+
     QPointF position = pos + d->position;
 
     qReal clipy = qReal(INT_MIN/256);
