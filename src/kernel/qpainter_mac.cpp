@@ -323,8 +323,6 @@ void QPainter::updateBrush()
     f.green = cbrush.color().green()*256;
     f.blue = cbrush.color().blue()*256;
     RGBForeColor( &f );
-    if ( pdev->devType() == QInternal::Widget )
-	bg_col = ((QWidget *)pdev)->backgroundColor();
 
     static uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
     static uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };

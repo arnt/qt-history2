@@ -880,6 +880,7 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 	//FIXME
 #endif
     }
+    update();
 }
 
 static int allow_null_pixmaps = 0;
@@ -908,6 +909,7 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 	    createExtra();
 	extra->bg_pix = new QPixmap( pm );
     }
+    update();
 }
 
 void QWidget::setBackgroundEmpty()
