@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#367 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#368 $
 **
 ** Implementation of QWidget class
 **
@@ -2194,9 +2194,10 @@ void QWidget::setFocus()
 		QFocusEvent out( QEvent::FocusOut );
 		QApplication::sendEvent( prev, &out );
 	    }
-	    QFocusEvent in( QEvent::FocusIn );
-	    QApplication::sendEvent( this, &in );
 	}
+	
+	QFocusEvent in( QEvent::FocusIn );
+	QApplication::sendEvent( this, &in );
     }
 }
 
