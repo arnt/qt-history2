@@ -7,5 +7,5 @@ DEPENDPATH	= ../../include
 REQUIRES=table full-config
 
 # MSVC.NET projects do not accept the quotation marks
-win32-msvc.net:contains(TEMPLATE_PREFIX,vc):DEFINES += QT_SOURCE_TREE=$$QT_SOURCE_TREE
+win32-msvc.net:contains(TEMPLATE_PREFIX,vc):DEFINES += QT_SOURCE_TREE=\"$$QT_SOURCE_TREE\"
 else:DEFINES += QT_SOURCE_TREE="\"$$QT_SOURCE_TREE\""
