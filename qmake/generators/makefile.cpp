@@ -1159,7 +1159,7 @@ bool
 MakefileGenerator::processPrlFile(QString &file)
 {
     bool ret = FALSE, try_replace_file=FALSE;
-    QString meta_file;
+    QString meta_file, orig_file = file;
     if(QMakeMetaInfo::libExists(file)) {
 	try_replace_file = TRUE;
 	meta_file = file;
@@ -1211,6 +1211,8 @@ MakefileGenerator::processPrlFile(QString &file)
 	    debug_msg(1, "Processing PRL file: %s", real_meta_file.latin1());
 	    if(!libinfo.readLib(f)) {
 		fprintf(stderr, "Error processing meta file: %s\n", real_meta_file.latin1());
+	    } else if(project->isActiveConfig("no_read_prl_" + libinfo.type().lower())) {
+		debug_msg(2, "Ignored meta file %s [%s]", real_meta_file.latin1(), libinfo.type().latin1()); 
 	    } else {
 		ret = TRUE;
 		QMap<QString, QStringList> &vars = libinfo.variables();
@@ -1232,6 +1234,11 @@ MakefileGenerator::processPrlFile(QString &file)
 	    project->variables()["QMAKE_PRL_INTERNAL_FILES"].append(mf);
 	    project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].append(mf);
 	}
+    }
+    if(try_replace_file && file.isEmpty()) {
+	warn_msg(WarnLogic, "Found prl [%s] file with no target [%s]!", meta_file.latin1(),
+		 orig_file.latin1());
+	file = orig_file;
     }
     return ret;
 }

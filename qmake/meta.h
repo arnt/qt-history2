@@ -24,6 +24,7 @@ class QMakeMetaInfo
     bool readLibtoolFile(const QString &f);
     bool readPkgCfgFile(const QString &f);
     QMap<QString, QStringList> vars;
+    QString meta_type;
     static QMap<QString, QMap<QString, QStringList> > cache_vars;
     void clear();
 public:
@@ -32,6 +33,7 @@ public:
     bool readLib(const QString &lib);
     static QString findLib(const QString &lib);
     static bool libExists(const QString &lib);
+    QString type() const;
 
     bool isEmpty(const QString &v);
     QStringList &values(const QString &v);
@@ -41,6 +43,9 @@ public:
 
 inline bool QMakeMetaInfo::isEmpty(const QString &v)
 { return !vars.contains(v) || vars[v].isEmpty(); }
+
+inline QString QMakeMetaInfo::type() const
+{ return meta_type; }
 
 inline QStringList &QMakeMetaInfo::values(const QString &v)
 { return vars[v]; }

@@ -39,14 +39,17 @@ QMakeMetaInfo::readLib(const QString &lib)
     bool ret = FALSE;
     if(!meta_file.isNull()) {
 	if(meta_file.endsWith(Option::pkgcfg_ext)) {
-	    ret = readPkgCfgFile(meta_file);
+	    if((ret=readPkgCfgFile(meta_file))) 
+		meta_type = "pkgcfg";
 	} else if(meta_file.endsWith(Option::libtool_ext)) {
-	    ret = readLibtoolFile(meta_file);
+	    if((ret=readLibtoolFile(meta_file))) 
+		meta_type = "libtool";
 	} else if(meta_file.endsWith(Option::prl_ext)) {
 	    QMakeProject proj;
 	    if(!proj.read(Option::fixPathToLocalOS(meta_file), 
 			  QDir::currentDirPath(), QMakeProject::ReadProFile))
 		return FALSE;
+	    meta_type = "qmake";
 	    vars = proj.variables();
 	    ret = TRUE;
 	} else {
