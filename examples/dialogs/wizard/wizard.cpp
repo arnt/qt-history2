@@ -53,19 +53,24 @@ Wizard::Wizard(QWidget *parent)
 
 void Wizard::setFirstPage(WizardPage *page)
 {
+    page->resetPage();
     history.append(page);
     switchPage(0);
 }
 
 void Wizard::previousButtonClicked()
 {
-    switchPage(history.takeLast());
+    WizardPage *oldPage = history.takeLast();
+    oldPage->resetPage();
+    switchPage(oldPage);
 }
 
 void Wizard::nextButtonClicked()
 {
     WizardPage *oldPage = history.last();
-    history.append(oldPage->nextPage());
+    WizardPage *newPage = oldPage->nextPage();
+    newPage->resetPage();
+    history.append(newPage);
     switchPage(oldPage);
 }
 
@@ -97,5 +102,9 @@ void Wizard::switchPage(WizardPage *oldPage)
     bool isLastPage = newPage->isLastPage();
     nextButton->setDisabled(isLastPage);
     finishButton->setDisabled(!isLastPage);
+    if (isLastPage)
+        finishButton->setDefault(true);
+    else
+        nextButton->setDefault(true);
     completeStateChanged();
 }

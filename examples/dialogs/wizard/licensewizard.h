@@ -3,11 +3,15 @@
 
 #include "wizard.h"
 
-class TitlePage;
-class EvaluatePage;
-class RegisterPage;
+class QCheckBox;
+class QLabel;
+class QLineEdit;
+class QRadioButton;
 class DetailsPage;
+class EvaluatePage;
 class FinishPage;
+class RegisterPage;
+class TitlePage;
 
 class LicenseWizard : public Wizard
 {
@@ -16,34 +20,22 @@ class LicenseWizard : public Wizard
 public:
     LicenseWizard(QWidget *parent = 0);
 
-private:
     TitlePage *titlePage;
     EvaluatePage *evaluatePage;
     RegisterPage *registerPage;
     DetailsPage *detailsPage;
     FinishPage *finishPage;
-
-    friend class TitlePage;
-    friend class EvaluatePage;
-    friend class RegisterPage;
-    friend class DetailsPage;
-    friend class FinishPage;
 };
 
 class LicenseWizardPage : public WizardPage
 {
 public:
     LicenseWizardPage(LicenseWizard *wizard)
-        : WizardPage(wizard), theWizard(wizard) {}
+        : WizardPage(wizard), wizard(wizard) {}
 
 protected:
-    LicenseWizard *wizard() { return theWizard; }
-
-private:
-    LicenseWizard *theWizard;
+    LicenseWizard *wizard;
 };
-
-#include <qlineedit.h> // ###
 
 class TitlePage : public LicenseWizardPage
 {
@@ -52,10 +44,10 @@ public:
 
     void resetPage();
     WizardPage *nextPage();
-    bool isComplete();
 
-private:
-    QLineEdit *lineEdit;
+    QLabel *topLabel;
+    QRadioButton *evaluateRadioButton;
+    QRadioButton *registerRadioButton;
 };
 
 class EvaluatePage : public LicenseWizardPage
@@ -65,6 +57,14 @@ public:
 
     void resetPage();
     WizardPage *nextPage();
+    bool isComplete();
+
+    QLabel *topLabel;
+    QLabel *nameLabel;
+    QLabel *emailLabel;
+    QLabel *bottomLabel;
+    QLineEdit *nameLineEdit;
+    QLineEdit *emailLineEdit;
 };
 
 class RegisterPage : public LicenseWizardPage
@@ -74,6 +74,14 @@ public:
 
     void resetPage();
     WizardPage *nextPage();
+    bool isComplete();
+
+    QLabel *topLabel;
+    QLabel *nameLabel;
+    QLabel *upgradeKeyLabel;
+    QLabel *bottomLabel;
+    QLineEdit *nameLineEdit;
+    QLineEdit *upgradeKeyLineEdit;
 };
 
 class DetailsPage : public LicenseWizardPage
@@ -83,6 +91,15 @@ public:
 
     void resetPage();
     WizardPage *nextPage();
+    bool isComplete();
+
+    QLabel *topLabel;
+    QLabel *companyLabel;
+    QLabel *emailLabel;
+    QLabel *postalLabel;
+    QLineEdit *companyLineEdit;
+    QLineEdit *emailLineEdit;
+    QLineEdit *postalLineEdit;
 };
 
 class FinishPage : public LicenseWizardPage
@@ -92,6 +109,11 @@ public:
 
     void resetPage();
     bool isLastPage() { return true; }
+    bool isComplete();
+
+    QLabel *topLabel;
+    QLabel *bottomLabel;
+    QCheckBox *agreeCheckBox;
 };
 
 #endif

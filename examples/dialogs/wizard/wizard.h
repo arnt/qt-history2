@@ -32,6 +32,8 @@ public:
 
     void setFirstPage(WizardPage *page);
 
+    QList<WizardPage *> history;
+
 private slots:
     void previousButtonClicked();
     void nextButtonClicked();
@@ -40,13 +42,14 @@ private slots:
 private:
     void switchPage(WizardPage *oldPage);
 
-    QList<WizardPage *> history;
     QPushButton *cancelButton;
     QPushButton *previousButton;
     QPushButton *nextButton;
     QPushButton *finishButton;
     QHBoxLayout *buttonLayout;
     QVBoxLayout *mainLayout;
+
+    friend class WizardPage;
 };
 
 #endif
