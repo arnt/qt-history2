@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#177 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#178 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -151,6 +151,44 @@ static int showLastPartOffset( const QString &s, uint offset, const QFontMetrics
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
+    init();
+}
+
+
+/*!
+  Constructs a line editor whose edit buffer starts out as \a contents.
+
+  The cursor position is set to the end of the line and the maximum buffer
+  size to 32767 characters.
+
+  The \e parent and \e name arguments are sent to the QWidget constructor.
+*/
+
+QLineEdit::QLineEdit( const QString & contents,
+		      QWidget *parent, const char *name )
+    : QWidget( parent, name )
+{
+    init();
+    setText( contents );
+}
+
+
+/*!
+  Destroys the line editor.
+*/
+
+QLineEdit::~QLineEdit()
+{
+    if ( d->pm )
+	delete d->pm;
+    delete d;
+}
+
+
+/*! Contains initialization common to both constructors. */
+
+void QLineEdit::init()
+{
     d = new QLineEditPrivate( this );
     connect( &d->blinkTimer, SIGNAL(timeout()),
 	     this, SLOT(blinkSlot()) );
@@ -172,17 +210,6 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     alignmentFlag = Qt::AlignLeft;
     alignOffset = 0;
     setAcceptDrops( TRUE );
-}
-
-/*!
-  Destroys the line editor.
-*/
-
-QLineEdit::~QLineEdit()
-{
-    if ( d->pm )
-	delete d->pm;
-    delete d;
 }
 
 
