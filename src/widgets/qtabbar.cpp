@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#7 $
 **
 ** Implementation of QTabBar class
 **
@@ -9,7 +9,7 @@
 
 #include "qtabbar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#7 $");
 
 
 QTab::~QTab()
@@ -83,11 +83,11 @@ int QTabBar::addTab( QTab * newTab )
 	QRect r( t->r );
 	while ( (t = l->next()) != 0 )
 	    r = r.unite( t->r );
-	newTab->r.setRect( r.right(), 0, br.width() + 14,
+	newTab->r.setRect( r.right(), 0, br.width() + 24,
 			   QMAX( r.height(), fm.height() + 10 ) );
     } else {
 	newTab->r.setRect( 0, 0,
-			   br.width() + 14, fm.height() + 10 );
+			   br.width() + 24, fm.height() + 10 );
     }
 
     newTab->id = d->id++;
