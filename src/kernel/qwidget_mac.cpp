@@ -965,11 +965,11 @@ void QWidget::showWindow()
 
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
+#if defined( Q_WS_MACX ) && 0
 	//ick, this is needed because docks are updated by it and mac paints immediatly..
 	QApplication::sendPostedEvents(this, QEvent::LayoutHint);
 
-#ifdef Q_WS_MACX  //handle transition
-	if(!isDesktop() &&
+	if(!isDesktop() && //handle transition
 	   qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) {
 	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
 				      kWindowSheetTransitionEffect,
@@ -978,8 +978,7 @@ void QWidget::showWindow()
 #endif
 	//now actually show it
 	ShowHide((WindowPtr)hd, 1);
-	if(!isDesktop())
-	    setActiveWindow();
+	setActiveWindow();
     } else {
 	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
     }
