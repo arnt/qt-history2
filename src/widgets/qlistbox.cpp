@@ -81,6 +81,7 @@ public:
 	layoutDirty( TRUE ),
 	mustPaintAll( TRUE ),
 	dragging( FALSE ),
+	dirtyDrag ( FALSE ),
 	variableHeight( TRUE /* !!! ### FALSE */ ),
 	variableWidth( FALSE )
     {}
@@ -134,6 +135,7 @@ public:
     uint layoutDirty :1;
     uint mustPaintAll :1;
     uint dragging :1;
+    uint dirtyDrag :1;
     uint variableHeight :1;
     uint variableWidth :1;
 
@@ -1956,6 +1958,7 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 			blockSignals( b );
 		    }
 		    setSelected( i, TRUE );
+		    d->dragging = TRUE; // always assume dragging
 		} else if ( e->state() & ControlButton ) {
 		    setSelected( i, !i->isSelected() );
 		    d->pressedSelected = FALSE;
@@ -2038,7 +2041,6 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
     d->ignoreMoves = FALSE;
 
     d->pressedItem = i;
-    emit pressed( i );
     emit pressed( i, e->globalPos() );
     emit mouseButtonPressed( e->button(), i, e->globalPos() );
     if ( d->context_menu )
@@ -2053,6 +2055,14 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 
 void QListBox::mouseReleaseEvent( QMouseEvent *e )
 {
+    if ( d->selectionMode == Extended &&
+	d->dragging ) {
+	d->dragging = FALSE;
+	if (d->current != d->pressedItem) {
+	    updateSelection(); // when we drag, we get an update after we release
+	}
+    }
+
     if ( d->rubber ) {
 	drawRubber();
 	delete d->rubber;
@@ -2220,12 +2230,16 @@ void QListBox::updateSelection()
 	    if ( i )
 		setCurrentItem( i );
 	} else {
-	    if ( d->selectionMode == Extended &&
-		 d->current == d->pressedItem && d->pressedSelected ) {
+	    if ( d->selectionMode == Extended && (
+		 ( d->current == d->pressedItem && d->pressedSelected ) ||
+		(d->dirtyDrag && !d->dragging) ) ) {
+		if (d->dirtyDrag && !d->dragging) // emit after dragging stops
+		    d->dirtyDrag = FALSE;
+		else
+		    clearSelection(); // dont reset drag-selected items
 		d->pressedItem = 0;
 		bool block = signalsBlocked();
 		blockSignals( TRUE );
-		clearSelection();
 		i->s = TRUE;
 		blockSignals( block );
 		emit selectionChanged();
@@ -2243,7 +2257,7 @@ void QListBox::updateSelection()
 			if ( (bool)i->s != (bool)d->select && i->isSelectable() ) {
 			    i->s = d->select;
 			    i->dirty = TRUE;
-			    changed = TRUE;
+			    d->dirtyDrag = changed = TRUE;
 			}
 			i = i->n;
 			rtmp++;
@@ -2251,7 +2265,8 @@ void QListBox::updateSelection()
 		    c++;
 		}
 		if ( changed ) {
-		    emit selectionChanged();
+		    if (!d->dragging) // emit after dragging stops instead
+			emit selectionChanged();
 		    triggerUpdate( FALSE );
 		}
 	    }
