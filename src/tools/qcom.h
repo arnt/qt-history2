@@ -242,6 +242,7 @@ public:		   \
 #    ifdef Q_WS_WIN
 #	ifdef Q_CC_BOR
 #	    define Q_EXPORT_COMPONENT() \
+		class QApplication;\
 		extern Q_EXPORT QApplication *qApp; \
 		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
 		Q_EXTERN_C __declspec(dllexport) int __stdcall ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
@@ -257,6 +258,7 @@ public:		   \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* __stdcall ucm_instantiate()
 #	else
 #	    define Q_EXPORT_COMPONENT() \
+		class QApplication;\
 		extern Q_EXPORT QApplication *qApp; \
 		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
 		Q_EXTERN_C __declspec(dllexport) int ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
@@ -273,6 +275,7 @@ public:		   \
 #	endif
 #    else
 #	define Q_EXPORT_COMPONENT() \
+	    class QApplication;\
 	    extern Q_EXPORT QApplication *qApp; \
 	    extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
 	    Q_EXTERN_C int ucm_initialize( QApplication *theApp, bool *mt, bool *debug ) \
