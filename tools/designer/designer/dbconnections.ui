@@ -148,7 +148,7 @@
                 <cstring>grp</cstring>
             </property>
             <property name="title">
-                <string>Conn&amp;ection</string>
+                <string>Connection</string>
             </property>
             <grid>
                 <property name="name">

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of the QDockWindow class
 **
 ** Created : 001010
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the workspace module of the Qt GUI Toolkit.
 **
@@ -53,7 +53,7 @@
 #include "qcursor.h"
 #include "qstyle.h"
 
-#if defined( Q_WS_MAC9 )
+#if defined(Q_WS_MAC9)
 #define MAC_DRAG_HACK
 #endif
 #ifdef Q_WS_MACX
