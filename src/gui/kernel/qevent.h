@@ -463,6 +463,15 @@ private:
     QString s;
 };
 
+class Q_GUI_EXPORT QWhatsThisClickedEvent : public QEvent
+{
+public:
+    QWhatsThisClickedEvent(const QString &href):QEvent(WhatsThisClicked), s(href){}
+    QString href() const { return s; }
+private:
+    QString s;
+};
+
 
 class Q_GUI_EXPORT QActionEvent : public QEvent
 {

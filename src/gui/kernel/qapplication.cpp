@@ -2769,6 +2769,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     break;
 
     case QEvent::StatusTip:
+    case QEvent::WhatsThisClicked:
     {
         QWidget *w = (QWidget*)receiver;
         while (w) {

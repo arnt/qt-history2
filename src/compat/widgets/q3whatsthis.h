@@ -48,8 +48,6 @@ public:
     virtual QString text(const QPoint &);
     virtual bool clicked(const QString& href);
 
-private slots:
-    void hyperLinkClicked(const QString &);
 };
 
 #endif // QWHATSTHIS_H

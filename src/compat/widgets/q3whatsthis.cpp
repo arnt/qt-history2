@@ -30,26 +30,29 @@ Q3WhatsThis::~Q3WhatsThis()
 
 bool Q3WhatsThis::eventFilter(QObject *o, QEvent *e)
 {
-    if (e->type() == QEvent::WhatsThis && o->isWidgetType()) {
-        QString s = text(static_cast<QHelpEvent*>(e)->pos());
-        if (s.size()) {
-            QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(), s, static_cast<QWidget*>(o));
-            connect(QApplication::activePopupWidget(), SIGNAL(clicked(QString)),
-                    this, SLOT(hyperLinkClicked(QString)));
-        }
+    if (o != parent() || !o->isWidgetType())
+        return false;
 
-        return true;
+    if (e->type() == QEvent::WhatsThis) {
+        QString s = text(static_cast<QHelpEvent*>(e)->pos());
+        if (!s.isEmpty())
+            QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(), s, static_cast<QWidget*>(o));
+    } else if (e->type() == QEvent::WhatsThisClicked) {
+        QString href = static_cast<QWhatsThisClickedEvent*>(e)->href();
+        if (clicked(href))
+            QWhatsThis::hideText();
+    } else {
+        return false;
     }
-    return false;
-}
-void Q3WhatsThis::hyperLinkClicked(const QString &href)
-{
-    if (clicked(href))
-        QWhatsThis::hideText();
+    return true;
 }
 
 QString Q3WhatsThis::text(const QPoint &)
-{ return QString(); }
+{
+    if (parent() && parent()->isWidgetType())
+        return static_cast<QWidget*>(parent())->whatsThis();
+    return QString();
+}
 
 bool Q3WhatsThis::clicked(const QString &)
 { return true;}

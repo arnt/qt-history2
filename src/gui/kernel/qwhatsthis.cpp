@@ -94,7 +94,8 @@
     manually see QWidget::WA_CustomWhatsThis.
 
     ### todo explain QHelpEvent with type QEvent::WhatsThis and the
-    ### showText()/hideText()  functions.
+    ### showText()/hideText() functions. Also explain
+    ### QEvent::WhatsThisClicked to handle hyper links.
 
     \sa QToolTip
 */
@@ -104,12 +105,10 @@ class QWhatsThat : public QWidget
 {
     Q_OBJECT
 public:
-    QWhatsThat(const QString& txt, QWidget* parent);
+    QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor);
     ~QWhatsThat() ;
 
     static QWhatsThat *instance;
-signals:
-    void clicked(const QString &);
 
 protected:
     void mousePressEvent(QMouseEvent*);
@@ -119,6 +118,7 @@ protected:
     void paintEvent(QPaintEvent*);
 
 private:
+    QPointer<QWidget>widget;
     bool pressed;
     QString text;
 #ifndef QT_NO_RICHTEXT
@@ -134,8 +134,8 @@ static int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
 static const int vMargin = 8;
 static const int hMargin = 12;
 
-QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent)
-    : QWidget(parent, WType_Popup | WDestructiveClose), pressed(false), text(txt)
+QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor)
+    : QWidget(parent, WType_Popup | WDestructiveClose), widget(showTextFor),pressed(false), text(txt)
 {
     delete instance;
     instance = this;
@@ -208,15 +208,16 @@ void QWhatsThat::mouseReleaseEvent(QMouseEvent* e)
     if (!pressed)
         return;
 #ifndef QT_NO_RICHTEXT
-    if (e->button() == LeftButton && doc && rect().contains(e->pos())) {
+    if (widget && e->button() == LeftButton && doc && rect().contains(e->pos())) {
         QString a = doc->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
         QString href;
         if (anchor == a)
             href = a;
         anchor = QString::null;
-        if (receivers(SIGNAL(clicked(QString)))) {
-            emit clicked(href);
-            return;
+        if (!href.isEmpty()) {
+            QWhatsThisClickedEvent e(href);
+            if (QApplication::sendEvent(widget, &e))
+                return;
         }
     }
 #endif
@@ -477,10 +478,11 @@ void QWhatsThisPrivate::say(QWidget * widget, const QString &text, int x, int y)
 #if defined(Q_WS_X11)
         QApplication::desktop()->screen(widget ?
                                          widget->x11Info()->screen() :
-                                         QCursor::x11Screen())
+                                        QCursor::x11Screen()),
 #else
-        0
+        0,
 #endif
+        widget
        );
 
 

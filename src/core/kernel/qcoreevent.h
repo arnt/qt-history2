@@ -112,7 +112,7 @@ public:
         ToolTip = 110,
         WhatsThis = 111,
         StatusTip = 112,
-        
+
         AccessibleQueryHelp = 113,              // query help text
         AccessibleQueryDescription = 114,       // query description text
 
@@ -124,6 +124,8 @@ public:
 
         Shortcut = 117,                         // shortcut triggered
         ShortcutOverride = 118,                 // shortcut override request
+
+        WhatsThisClicked = 119,
 
 #ifdef QT_COMPAT
         CaptionChange = WindowTitleChange,
