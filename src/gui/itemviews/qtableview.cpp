@@ -32,12 +32,14 @@ void QTableViewPrivate::init()
     vertical->setModel(model);
     vertical->setSelectionModel(selectionModel);
     vertical->setClickable(true);
+    vertical->setHighlightCurrentSection(true);
     q->setVerticalHeader(vertical);
 
     QHeaderView *horizontal = new QHeaderView(Qt::Horizontal, q);
     horizontal->setModel(model);
     horizontal->setSelectionModel(selectionModel);
     horizontal->setClickable(true);
+    horizontal->setHighlightCurrentSection(true);
     q->setHorizontalHeader(horizontal);
 }
 

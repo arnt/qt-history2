@@ -22,6 +22,7 @@
 #include <qscrollbar.h>
 #include <qrubberband.h>
 #include <private/qlistview_p.h>
+#include <qdebug.h>
 
 #define d d_func()
 #define q q_func()
@@ -718,6 +719,8 @@ void QListView::rowsInserted(const QModelIndex &parent, int, int)
     // FIXME: if the parent is above root() in the tree, nothing will happen
     if (parent == root() && isVisible())
         doItemsLayout();
+    else
+        d->doDelayedItemsLayout();
 }
 
 /*!
@@ -986,8 +989,7 @@ int QListView::verticalOffset() const
 /*!
   \reimp
 */
-QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
-                                         Qt::ButtonState)
+QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
     QModelIndex current = currentItem();
     QRect rect = itemRect(current);
@@ -997,35 +999,44 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     d->intersectVector.clear();
 
     switch (cursorAction) {
-    case MoveLeft:
+    case MoveLeft:{
         while (d->intersectVector.count() == 0) {
             if (rect.left() > spacing)
                 rect.moveLeft(qMax(rect.left() - rect.width() - spacing, 0));
             else // move down
-                rect.moveTopLeft(QPoint(contents.width() - 1, rect.top() - rect.height()));
-            if (rect.top() > contents.height() || rect.bottom() < 0)
+                rect.moveTopLeft(QPoint(contents.width() - 1, rect.top()/* - rect.height()*/));
+            //qDebug() << rect;
+            if (rect.top() > contents.height() || rect.bottom() < 0) {
+                //qDebug() << "breaking";
                 break;
+            }
             if (d->movement == Static)
                 d->intersectingStaticSet(rect);
             else
                 d->intersectingDynamicSet(rect);
+            // FIXME: we should fix the intersection function
+            if (!d->intersectVector.isEmpty() && d->intersectVector.first() == current)
+                d->intersectVector.erase(d->intersectVector.begin());
         }
-        break;
+        break;}
     case MoveRight:
         while (d->intersectVector.count() == 0) {
             if (rect.right() < contents.width())
                 rect.moveLeft(rect.left() + rect.width() + spacing);
             else // move down
                 rect.moveTopLeft(QPoint(0, rect.top() + rect.height() + spacing));
-            if (rect.top() > contents.height() || rect.bottom() < spacing)
+            //qDebug() << rect;
+            if (rect.top() > contents.height() || rect.bottom() < spacing) {
+                //qDebug() << "breaking";
                 break;
+            }
             if (d->movement == Static)
                 d->intersectingStaticSet(rect);
             else
                 d->intersectingDynamicSet(rect);
             // FIXME: we should fix the intersection function
-            if (d->intersectVector.count() && d->intersectVector.first() == current)
-                d->intersectVector.clear();
+            if (!d->intersectVector.isEmpty() && d->intersectVector.first() == current)
+                d->intersectVector.erase(d->intersectVector.begin());
         }
         break;
     case MovePageUp:
@@ -1039,7 +1050,8 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
             if (rect.top() > spacing)
                 rect.moveTop(rect.top() - rect.height() - spacing);
             else // move right
-                rect.moveTopLeft(QPoint(rect.left() - rect.width(), contents.height() - rect.height()));
+                rect.moveTopLeft(QPoint(rect.left() - rect.width(),
+                                        contents.height() - rect.height()));
             if (rect.left() > contents.width() || rect.right() < 0)
                 break;
             if (d->movement == Static)
@@ -1082,6 +1094,8 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     QModelIndex closest;
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
+        if (!(*it).isValid())
+            continue;
         dist = (d->indexToListViewItem(*it).rect().topLeft() - pos).manhattanLength();
         if (dist < minDist || minDist == 0) {
             minDist = dist;
@@ -1176,6 +1190,8 @@ void QListView::doItemsLayout()
     else
         while (!doItemsLayout(100)) // do layout in batches
             qApp->processEvents();
+
+    QAbstractItemView::doItemsLayout();
 }
 
 /*!

@@ -36,6 +36,7 @@ public:
                            QEvent *event, const QModelIndex &index);
     QWidget *persistentEditor(const QModelIndex &index) const;
     void setPersistentEditor(QWidget *editor, const QModelIndex &index);
+    void doDelayedItemsLayout();
 
     mutable QAbstractItemModel *model;
     mutable QAbstractItemDelegate *delegate;
@@ -69,6 +70,7 @@ public:
     int autoScrollCount;
 
     bool dragEnabled;
+    bool layoutPosted;
 };
 
 /*

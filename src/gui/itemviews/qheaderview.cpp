@@ -35,6 +35,7 @@ public:
           sortIndicatorSection(-1),
           movableSections(false),
           clickableSections(false),
+          highlightCurrent(false),
           stretchSections(0),
           sectionIndicator(0) {}
 
@@ -69,6 +70,7 @@ public:
     int target;
     bool movableSections;
     bool clickableSections;
+    bool highlightCurrent;
     int stretchSections;
     QWidget *sectionIndicator;//, *sectionIndicator2;
     QStyleOptionHeader getStyleOption() const;
@@ -401,7 +403,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     int section;
     int width = d->viewport->width();
     int height = d->viewport->height();
-    bool focus = parentWidget() && parentWidget()->hasFocus();
+    bool focus = d->highlightCurrent && parentWidget() && parentWidget()->hasFocus();
     if (d->orientation == Qt::Horizontal) {
         for (int i = start; i <= end; ++i) {
             if (sections[i].hidden)
@@ -1071,6 +1073,7 @@ void QHeaderView::doItemsLayout()
 {
     if (d->stretchSections)
         resizeSections();
+    QAbstractItemView::doItemsLayout();
 }
 
 /*!
@@ -1279,6 +1282,16 @@ void QHeaderView::setClickable(bool clickable)
 bool QHeaderView::isClickable() const
 {
     return d->clickableSections;
+}
+
+void QHeaderView::setHighlightCurrentSection(bool highlight)
+{
+    d->highlightCurrent = highlight;
+}
+
+bool QHeaderView::highlightCurrentSection() const
+{
+    return d->highlightCurrent;
 }
 
 /*!

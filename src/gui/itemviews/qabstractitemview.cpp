@@ -56,7 +56,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         autoScrollMargin(16),
         autoScrollInterval(50),
         autoScrollCount(0),
-        dragEnabled(false)
+        dragEnabled(false),
+        layoutPosted(false)
 {
 }
 
@@ -83,6 +84,8 @@ void QAbstractItemViewPrivate::init()
 
     q->setHorizontalFactor(256);
     q->setVerticalFactor(256);
+    
+    doDelayedItemsLayout();
 }
 
 /*!
@@ -330,8 +333,6 @@ QAbstractItemView::QAbstractItemView(QWidget *parent)
     : QViewport(*(new QAbstractItemViewPrivate), parent)
 {
     d->init();
-    int slot = metaObject()->indexOfSlot("doItemsLayout()");
-    QApplication::postEvent(this, new QMetaCallEvent(QEvent::InvokeSlot, slot, this));
 }
 
 /*!
@@ -341,8 +342,6 @@ QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QWidget *pare
     : QViewport(dd, parent)
 {
     d->init();
-    int slot = metaObject()->indexOfSlot("doItemsLayout()");
-    QApplication::postEvent(this, new QMetaCallEvent(QEvent::InvokeSlot, slot, this));
 }
 
 /*!
@@ -593,8 +592,9 @@ void QAbstractItemView::clearSelections()
 */
 void QAbstractItemView::doItemsLayout()
 {
-    d->viewport->update();
     // do nothing
+    d->layoutPosted = false;
+    d->viewport->update();
 }
 
 /*!
@@ -1375,9 +1375,7 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
         }
     }
     // more changed
-//     if (isVisible())
-//         doItemsLayout();
-    update();
+    d->viewport->update();
 }
 
 /*!
@@ -1758,4 +1756,13 @@ void QAbstractItemViewPrivate::setPersistentEditor(QWidget *editor, const QModel
 {
     QPersistentModelIndex persistent(index, model);
     editors.insert(persistent, editor);
+}
+
+void QAbstractItemViewPrivate::doDelayedItemsLayout()
+{
+    if (!layoutPosted) {
+        int slot = q->metaObject()->indexOfSlot("doItemsLayout()");
+        QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot, slot, q));
+        layoutPosted = true;
+    }
 }
