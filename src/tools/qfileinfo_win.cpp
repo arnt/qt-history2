@@ -363,7 +363,7 @@ bool QFileInfo::permission( int p ) const
 		TRUSTEE_W trustee;
 		if ( p & ( ReadUser | WriteUser | ExeUser) ) {
 		    if ( ptrGetEffectiveRightsFromAclW( pDacl, &currentUserTrusteeW, &access_mask ) != ERROR_SUCCESS )
-			access_mask = -1;
+			access_mask = (ACCESS_MASK)-1; // ###
 		    if ( ( p & ReadUser ) && !( access_mask & ReadMask )   ||
 			( p & WriteUser ) && !( access_mask & WriteMask ) ||
 			( p & ExeUser ) && !( access_mask & ExecMask )      ) {
@@ -374,7 +374,7 @@ bool QFileInfo::permission( int p ) const
 		if ( p & ( ReadGroup | WriteGroup | ExeGroup) ) {
 		    ptrBuildTrusteeWithSidW( &trustee, pGroup );
 		    if ( ptrGetEffectiveRightsFromAclW( pDacl, &trustee, &access_mask ) != ERROR_SUCCESS )
-			access_mask = -1;
+			access_mask = (ACCESS_MASK)-1; // ###
 		    if ( ( p & ReadGroup ) && !( access_mask & ReadMask )   ||
 			( p & WriteGroup ) && !( access_mask & WriteMask ) ||
 			( p & ExeGroup ) && !( access_mask & ExecMask )      ) {
@@ -389,7 +389,7 @@ bool QFileInfo::permission( int p ) const
 		    if ( ptrAllocateAndInitializeSid( &worldAuth, 1, SECURITY_WORLD_RID, 0,0,0,0,0,0,0, &pWorld ) ) {
 			ptrBuildTrusteeWithSidW( &trustee, pWorld );
 			if ( ptrGetEffectiveRightsFromAclW( pDacl, &trustee, &access_mask ) != ERROR_SUCCESS )
-			    access_mask = -1;
+			    access_mask = (ACCESS_MASK)-1; // ###
 			if ( ( p & ReadOther ) && !( access_mask & ReadMask )   ||
 			    ( p & WriteOther ) && !( access_mask & WriteMask ) ||
 			    ( p & ExeOther ) && !( access_mask & ExecMask )      ) {
