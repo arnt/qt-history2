@@ -32,7 +32,7 @@ int MyArea::lineWidth(int x, int y, int h = 0) const
 QRect MyArea::lineRect(int x, int y, int h) const
 {
     if(y>100 && y< 700) {
-	return QRect(sqrt(40000- (y-300)*(y-300)) , y, 700-2*(sqrt(40000- (y-300)*(y-300)) ), h);
+	return QRect((int)sqrt(40000- (y-300)*(y-300)) , y, 700-2*((int) sqrt(40000- (y-300)*(y-300)) ), h);
     }  else {
 	return QRect(0, y, 700, h);
     }
@@ -50,7 +50,7 @@ MyView::MyView()
     QFont fnt("tahoma");
     fnt.setCharSet(QFont::Unicode);
     f->setFont(fnt);
-    
+
     QString aStr = testStr1;
     aStr += aStr;
     QRichTextString string(aStr, f);
@@ -63,7 +63,7 @@ MyView::MyView()
     f->setFont(fnt);
     f->setPointSize(20);
     f->setColor(Qt::red);
-    
+
     area->appendParagraph( QRichTextString(aStr, f) );
     //   area->appendParagraph(aStr);
 }
@@ -72,7 +72,7 @@ MyView::MyView()
 void MyView::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    area->paint(p, 0, 50);
+    area->paint(p, 0, 0);
 }
 
 

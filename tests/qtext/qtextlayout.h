@@ -16,6 +16,9 @@ class QParagraph;
 class QTextArea;
 class QTextEditFormat;
 
+// ### move to qnamespace for 3.0
+enum HAlignment { AlignAuto, AlignLeft, AlignRight, AlignJustify };
+
 
 class QBidiContext {
 public:
@@ -87,7 +90,6 @@ private:
     int len;
     int maxLen;
     QString cache;
-
 };
 
 
@@ -95,7 +97,7 @@ private:
 
 class QTextRow {
 public:
-    QTextRow(const QRichTextString &text, int from, int length, QTextRow *previous);
+    QTextRow(const QRichTextString &text, int from, int length, QTextRow *previous, int baseline, int width);
     virtual ~QTextRow();
 
     QTextRow *previousLine() const { return prev; }
@@ -108,22 +110,24 @@ public:
     int from() { return start; }
     int length() { return len; }
 
-    virtual void paint(QPainter &p, int x, int y);
+    virtual void paint(QPainter &p, int x, int y, HAlignment = AlignAuto);
 
     void setPosition(int _x, int _y);
-    int width() const { return w; }
-    int height() const { return h; }
-    int x() const { return xPos; }
-    int y() const { return yPos; }
+    int width() const { return bRect.width(); }
+    int height() const { return bRect.height(); }
+    int x() const { return bRect.x(); }
+    int y() const { return bRect.y(); }
 
+    int textWidth() const { return tw; }
+    
     void setBoundingRect(const QRect &r);
     QRect boundingRect();
 
 private:
     bool hasComplexText();
     void bidiReorderLine();
-    void drawBuffer( QPainter &painter, const QString &buffer, int startX, int y,
-		     int bw, int h, bool drawSelections,
+    void drawBuffer( QPainter &painter, int x, int y, const QString &buffer, int startX, 
+		     int bw, bool drawSelections,
 		     QRichTextFormat *lastFormat, int i, int *selectionStarts,
 		     int *selectionEnds, const QColorGroup &cg );
 
@@ -134,10 +138,9 @@ private:
     QBidiStatus bidiStatus;
     int start;
     short len;
-    int w;
-    short h;
-    int xPos;
-    int yPos;
+    QRect bRect;
+    short baseline;
+    short tw;
     QRichTextString text;
     QRichTextString reorderedText;
 
@@ -165,6 +168,9 @@ public:
     int x() const { return xPos; }
     int y() const { return yPos; }
 
+    void setHAlignment( HAlignment a ) { hAlign = a; }
+    HAlignment hAlignment() const { return hAlign; }
+
 protected:
     virtual void layout();
 
@@ -178,6 +184,8 @@ private:
     int xPos;
     int yPos;
     QRect bRect;
+
+    HAlignment hAlign;
 };
 
 // =================================================================
@@ -307,7 +315,7 @@ public:
     QRichTextFormatter( QTextArea *a );
     virtual ~QRichTextFormatter() {}
     virtual int format( QParagraph *parag, int start ) = 0;
-    void addLine(QParagraph *p, int from, int to, int height);
+    void addLine(QParagraph *p, int from, int to, int height, int baseline, int width);
 
 protected:
     QTextArea *area;

@@ -132,9 +132,11 @@ void QRichTextString::setFormat( int index, QRichTextFormat *f, bool useCollecti
   used internally.
   Represents one line of text in a Rich Text drawing area
 */
-QTextRow::QTextRow(const QRichTextString &t, int from, int length, QTextRow *previous)
+QTextRow::QTextRow(const QRichTextString &t, int from, int length, QTextRow *previous, int base, int w)
     :  start(from), len(length), text(t), prev(previous), reorderedText()
 {
+    baseline = base;
+    tw = w;
     next = 0;
 
     endEmbed = 0;
@@ -148,8 +150,6 @@ QTextRow::QTextRow(const QRichTextString &t, int from, int length, QTextRow *pre
 	    startEmbed = new QBidiContext( 1, QChar::DirR );
     }
     startEmbed->ref();
-    xPos = yPos = w = h = 0;
-
     hasComplexText();
     bidiReorderLine();
 }
@@ -162,21 +162,24 @@ QTextRow::~QTextRow()
     endEmbed->deref();
 }
 
-void QTextRow::paint(QPainter &painter, int _x, int _y)
+void QTextRow::paint(QPainter &painter, int _x, int _y, HAlignment hAlign)
 {
     printf("QTextRow::paint\n");
-    // no rich text formatting....
-    // ### no alignment
-#if 0
-    painter.drawText(xPos + _x, yPos + _y, reorderedText.toString() );
-#else
+
     QRichTextString::Char *chr;
     int cw;
     int i = 0;
     int bw = 0;
-    int y = yPos + _y;
-    int x = xPos + _x;
-    
+
+    switch(hAlign) {
+    case AlignAuto:
+    case AlignLeft:
+    case AlignJustify:
+	break;
+    case AlignRight:
+	_x += bRect.width() - tw;
+    }
+        
     QRichTextFormat *lastFormat = reorderedText.at(0).format;
     int startX = reorderedText.at(0).x;
     QString buffer = reorderedText.at(0).c;
@@ -209,7 +212,7 @@ void QTextRow::paint(QPainter &painter, int _x, int _y)
 	QColorGroup cg;
 	// if something (format, etc.) changed, draw what we have so far
 	if ( chr->format != lastFormat || buffer == "\t" || chr->c == '\t' ) { // ### || selectionChange ) {
-	    drawBuffer( painter, buffer, startX + x, y, bw, h, false, //drawSelections,
+	    drawBuffer( painter, _x, _y, buffer, startX, bw, false, //drawSelections,
 			     lastFormat, i, 0, 0, cg );
 			     //			     lastFormat, i, selectionStarts, selectionEnds, cg );
 	    buffer = chr->c;
@@ -235,15 +238,13 @@ void QTextRow::paint(QPainter &painter, int _x, int _y)
 #endif
 	//	drawParagBuffer( painter, buffer, startX, y, bw, h, drawSelections,
 	//		 lastFormat, i, selectionStarts, selectionEnds, cg );
-	drawBuffer( painter, buffer, startX + x, y, bw, h, false,
+	drawBuffer( painter, _x, _y, buffer, startX, bw, false,
 			 lastFormat, i, 0, 0, QColorGroup() );
     }
-
-#endif
 }
 
-void QTextRow::drawBuffer( QPainter &painter, const QString &buffer, int startX, int y,
-			   int bw, int h, bool drawSelections,
+void QTextRow::drawBuffer( QPainter &painter, int x, int y, const QString &buffer, int startX,
+			   int bw, bool drawSelections,
 			   QRichTextFormat *lastFormat, int i, int *selectionStarts,
 			   int *selectionEnds, const QColorGroup &cg )
 {	
@@ -260,29 +261,25 @@ void QTextRow::drawBuffer( QPainter &painter, const QString &buffer, int startX,
 	}
     }
 #endif
-    printf("painting %s to %d/%d\n", buffer.latin1(), startX, y);
+    printf("painting %s to %d/%d\n", buffer.latin1(), startX, bRect.y() );
     if ( buffer != "\t" )
-	painter.drawText( startX, y /*+ baseLine*/, buffer );
+	painter.drawText( x + startX + bRect.x(), y + bRect.y() + baseline, buffer );
 }
 
 	
 void QTextRow::setPosition(int _x, int _y)
 {
-    xPos = _x;
-    yPos = _y;
+    bRect.moveTopLeft( QPoint(_x, _y) );
 }
 
 void QTextRow::setBoundingRect(const QRect &r)
 {
-    xPos = r.x();
-    yPos = r.y();
-    w = r.width();
-    h = r.height();
+    bRect = r;
 }
 
 QRect QTextRow::boundingRect()
 {
-    return QRect(xPos, yPos, w, h);
+    return bRect;
 }
 
 bool QTextRow::hasComplexText()
@@ -937,6 +934,8 @@ QParagraph::QParagraph(const QRichTextString &t, QTextArea *a, QParagraph *lastP
     area = a;
     first = last = 0;
 
+    hAlign = AlignAuto;
+    
     //    text.compose();
 
     // get last paragraph so we know where we want to place the next line
@@ -974,12 +973,19 @@ void QParagraph::paint(QPainter &p, int x, int y)
 {
     //printf("QParagraph::paint\n");
     // #### add a check if we need to paint at all!!!
-
+    HAlignment align = hAlign;
+    if(align == AlignAuto) {
+	if(basicDirection(text) == QChar::DirL)
+	    align = AlignLeft;
+	else
+	    align = AlignRight;
+    }
+    
     x += xPos;
     y += yPos;
     QTextRow *line = first;
     while(line) {
-	line->paint(p, x, y);
+	line->paint(p, x, y, align);
 	line = line->nextLine();
     }
 }
@@ -1287,10 +1293,10 @@ QRichTextFormatter::QRichTextFormatter( QTextArea *a )
 {
 }
 
-void QRichTextFormatter::addLine(QParagraph *p, int from, int to, int height)
+void QRichTextFormatter::addLine(QParagraph *p, int from, int to, int height, int baseline, int width)
 {
     printf("addline %d %d\n", from, to - from);
-    QTextRow *line = new QTextRow(*p->string(), from, to - from, p->lastRow());
+    QTextRow *line = new QTextRow(*p->string(), from, to - from, p->lastRow(), baseline, width);
 
     int x = p->x();
     int y = p->y();
@@ -1339,7 +1345,8 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
     int i = start;
     int lastSpace = -1;
     int tmpBaseLine = 0, tmph = 0;
-
+    int baseline = 0, width = 0;
+    
     QRect lineRect = area->lineRect(parag->x() ,parag->y());
     int w = lineRect.width();
     printf("new line at %d/%d width=%d\n", lineRect.x(), lineRect.y(), w);
@@ -1368,8 +1375,12 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
 	if ( x + ww > w ) {
 	    if ( lastSpace != -1 )
 		i = lastSpace;
-	    // ### add baseline
-	    addLine(parag, start, i, h);
+	    else {
+		h = QMAX( h, tmph );
+		baseline = QMAX( baseline, tmpBaseLine );
+		width = x;
+	    }
+	    addLine(parag, start, i, h, baseline, width);
 	    start = i;
 	    int xPos = parag->x();
 	    int yPos = parag->y();
@@ -1380,7 +1391,10 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
 	    lineRect = area->lineRect(xPos, yPos);
 	    w = lineRect.width();
 	    printf("new line at %d/%d width=%d\n", lineRect.x(), lineRect.y(), w);
-	    int h = 0;
+	    h = 0;
+	    tmph = 0;
+	    tmpBaseLine = 0;
+	    baseline = 0;
 	    x  = 0;
 	    lastSpace = -1;
 	    continue;
@@ -1388,7 +1402,9 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
 	    tmpBaseLine = QMAX( tmpBaseLine, c->format->ascent() );
 	    tmph = QMAX( tmph, c->format->height() );
 	    h = QMAX( h, tmph );
+	    baseline = QMAX( baseline, tmpBaseLine );
 	    lastSpace = i;
+	    width = x;
 	    // ### cache lineheight and baseline for the chars up to here!!!
 	} else {
 	    tmpBaseLine = QMAX( tmpBaseLine, c->format->ascent() );
