@@ -42,7 +42,7 @@ void QTextEngine::shapeText(int item) const
     shaper_item.font = font;
     shaper_item.num_glyphs = qMax(int(layoutData->num_glyphs - layoutData->used), shaper_item.length);
     shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
-    if (option.usesDesignMetrics())
+    if (option.useDesignMetrics())
         shaper_item.flags |= DesignMetrics;
 
 //     qDebug("shaping");
@@ -64,7 +64,7 @@ void QTextEngine::shapeText(int item) const
 
     QGlyphLayout *g = shaper_item.glyphs;
     if (this->font(si).d->kerning)
-        font->doKerning(si.num_glyphs, g, option.usesDesignMetrics() ? QFlag(QTextEngine::DesignMetrics) : QFlag(0));
+        font->doKerning(si.num_glyphs, g, option.useDesignMetrics() ? QFlag(QTextEngine::DesignMetrics) : QFlag(0));
 
     si.width = 0;
     QGlyphLayout *end = g + si.num_glyphs;

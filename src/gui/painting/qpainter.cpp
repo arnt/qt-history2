@@ -3463,9 +3463,9 @@ void QPainter::drawText(const QPointF &p, const QString &str)
     d->engine->updateState(d->state);
 
     QTextLayout layout(str, d->state->pfont ? *d->state->pfont : d->state->font);
-    QTextEngine *engine = layout.engine();
+    QTextEngine *engine = layout.d;
     QTextOption option(Qt::AlignLeft|Qt::AlignAbsolute);
-    option.setLayoutDirection(d->state->layoutDirection);
+    option.setTextDirection(d->state->layoutDirection);
     layout.setTextOption(option);
 
     engine->itemize();
@@ -4712,7 +4712,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         qreal lineWidth = wordwrap ? qMax<qreal>(0, r.width()) : 0x01000000;
         if(!wordwrap)
             tf |= Qt::TextIncludeTrailingSpaces;
-        textLayout.setLayoutMode((tf & Qt::TextDontPrint) ? QTextLayout::NoBidi : QTextLayout::MultiLine);
+        textLayout.engine()->ignoreBidi = (tf & Qt::TextDontPrint);
         textLayout.beginLayout();
 
         qreal leading = fm.leading();
@@ -4727,7 +4727,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
             height += leading;
             l.setPosition(QPointF(0., height));
             height += l.ascent() + l.descent();
-            width = qMax(width, l.textWidth());
+            width = qMax(width, l.naturalTextWidth());
         }
         textLayout.endLayout();
     }
@@ -4753,7 +4753,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
             painter->setClipRect(r, Qt::IntersectClip);
         }
 
-        for (int i = 0; i < textLayout.numLines(); i++) {
+        for (int i = 0; i < textLayout.lineCount(); i++) {
             QTextLine line = textLayout.lineAt(i);
 
             line.draw(painter, QPointF(r.x() + xoff + line.x(), r.y() + yoff));

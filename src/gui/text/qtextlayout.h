@@ -10,7 +10,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #ifndef QTEXTLAYOUT_H
 #define QTEXTLAYOUT_H
 
@@ -44,16 +43,13 @@ public:
     qreal descent() const;
     qreal height() const;
 
-    bool isRightToLeft() const;
+    Qt::LayoutDirection textDirection() const;
 
     void setWidth(qreal w);
     void setAscent(qreal a);
     void setDescent(qreal d);
 
-    int at() const;
-
-    QTextEngine *engine() const { return eng; }
-    int item() const { return itm; }
+    int textPosition() const;
 
     int formatIndex() const;
     QTextFormat format() const;
@@ -86,52 +82,39 @@ public:
     void setText(const QString& string);
     QString text() const;
 
-    enum LineBreakStrategy {
-        AtWordBoundaries,
-        AtCharBoundaries
-    };
-
     void setTextOption(const QTextOption &option);
     QTextOption textOption() const;
-
-    void setPalette(const QPalette &);
 
     void setPreeditArea(int position, const QString &text);
     int preeditAreaPosition() const;
     QString preeditAreaText() const;
 
-    struct FormatOverride {
+    struct FormatRange {
         int from;
         int length;
         QTextCharFormat format;
     };
-    void setFormatOverrides(const QList<FormatOverride> &overrides);
-    QList<FormatOverride> formatOverrides() const;
-    void clearFormatOverrides();
+    void setAdditionalFormats(const QList<FormatRange> &overrides);
+    QList<FormatRange> additionalFormats() const;
+    void clearAdditionalFormats();
 
-    enum LayoutModeFlags {
-        MultiLine = 0,
-        NoBidi = 0x1,
-        NoGlyphCache = 0x2000
-    };
-    Q_DECLARE_FLAGS(LayoutMode, LayoutModeFlags)
+    void setCacheEnabled(bool enable);
+    bool cacheEnabled() const;
 
-    void setLayoutMode(LayoutMode m);
     void beginLayout();
     void endLayout();
 
     QTextLine createLine();
 
-    int numLines() const;
+    int lineCount() const;
     QTextLine lineAt(int i) const;
-    QTextLine findLine(int pos) const;
-
+    QTextLine lineForTextPosition(int pos) const;
 
     enum CursorMode {
         SkipCharacters,
         SkipWords
     };
-    bool validCursorPosition(int pos) const;
+    bool isValidCursorPosition(int pos) const;
     int nextCursorPosition(int oldPos, CursorMode mode = SkipCharacters) const;
     int previousCursorPosition(int oldPos, CursorMode mode = SkipCharacters) const;
 
@@ -142,24 +125,21 @@ public:
     void setPosition(const QPointF &p);
 
     QRectF boundingRect() const;
+    // #### get rid
     QRectF rect() const;
 
+    qreal minimumWidth() const;
+    qreal maximumWidth() const;
+
     QTextEngine *engine() const { return d; }
-
-    int minimumWidth() const;
-    int maximumWidth() const;
-
 private:
     QTextLayout(QTextEngine *e) : d(e) {}
-    /* disable copy and assignment */
-    QTextLayout(const QTextLayout &) {}
-    void operator = (const QTextLayout &) {}
+    Q_DISABLE_COPY(QTextLayout)
 
     friend class QPainter;
     friend class QPSPrinter;
     QTextEngine *d;
 };
-Q_DECLARE_OPERATORS_FOR_FLAGS(QTextLayout::LayoutMode);
 
 
 class Q_GUI_EXPORT QTextLine
@@ -175,8 +155,9 @@ public:
     qreal ascent() const;
     qreal descent() const;
     qreal height() const;
-    qreal textWidth() const;
-    QRectF textRect() const;
+
+    qreal naturalTextWidth() const;
+    QRectF naturalTextRect() const;
 
     enum Edge {
         Leading,
@@ -192,15 +173,18 @@ public:
     inline qreal cursorToX(int cursorPos, Edge edge = Leading) const { return cursorToX(&cursorPos, edge); }
     int xToCursor(qreal x, CursorPosition = CursorBetweenCharacters) const;
 
+    // ###################
+    // make line width infinite by default
+//     void setLineWidth(qreal width);
+//     void setNumColumns(int columns);
     void layout(qreal width);
     void layoutFixedColumnWidth(int numColumns);
     void setPosition(const QPointF &pos);
 
-    int from() const;
-    int length() const;
+    int textStart() const;
+    int textLength() const;
 
-    QTextEngine *engine() const { return eng; }
-    int line() const { return i; }
+    int lineNumber() const { return i; }
 
     void draw(QPainter *p, const QPointF &point) const;
 

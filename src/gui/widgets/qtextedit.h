@@ -116,7 +116,7 @@ public:
     void setTabChangesFocus(bool b);
 
     inline QString documentTitle() const
-    { return document()->documentTitle(); }
+    { return document()->metaInformation(QTextDocument::DocumentTitle); }
 
     inline bool isUndoRedoEnabled() const
     { return document()->isUndoRedoEnabled(); }
@@ -129,8 +129,7 @@ public:
     int wrapColumnOrWidth() const;
     void setWrapColumnOrWidth(int w);
 
-    bool find(const QString &exp, QTextDocument::FindFlags options = 0,
-              QTextDocument::FindDirection direction = QTextDocument::FindForward);
+    bool find(const QString &exp, QTextDocument::FindFlags options = 0);
 
     inline QString toPlainText() const
     { return document()->toPlainText(); }

@@ -787,9 +787,8 @@ static void init(QTextEngine *e)
     if(!resolvedUsp10)
         resolveUsp10();
 #endif
-    e->itemization_mode = 0;
-
-    e->pal = 0;
+    e->ignoreBidi = false;
+    e->cacheGlyphs = false;
 
     e->layoutData = 0;
 
@@ -818,7 +817,6 @@ QTextEngine::QTextEngine(const QString &str, QFontPrivate *f)
 
 void QTextEngine::setText(const QString &str)
 {
-    pal = 0;
     invalidate();
     text = str;
 }
@@ -827,7 +825,6 @@ QTextEngine::~QTextEngine()
 {
     if (fnt && !--fnt->ref)
         delete fnt;
-    delete pal;
     delete layoutData;
 }
 
@@ -926,8 +923,8 @@ void QTextEngine::itemize() const
     if (layoutData->string.length() == 0)
         return;
 
-    if (!(itemization_mode & QTextLayout::NoBidi)) {
-        layoutData->hasBidi = bidiItemize(const_cast<QTextEngine *>(this), (option.layoutDirection() == Qt::RightToLeft));
+    if (!ignoreBidi) {
+        layoutData->hasBidi = bidiItemize(const_cast<QTextEngine *>(this), (option.textDirection() == Qt::RightToLeft));
     } else {
         BidiControl control(false);
         int start = 0;

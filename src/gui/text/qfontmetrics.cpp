@@ -446,7 +446,7 @@ int QFontMetrics::width(const QString &str, int len) const
         return 0;
 
     QTextEngine layout(str, d);
-    layout.setMode(QTextEngine::WidthOnly);
+    layout.ignoreBidi = true;
     layout.itemize();
     return qRound(layout.width(0, len));
 }
@@ -518,7 +518,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
         int to = qMin((int)str.length(), pos + 8);
         QString cstr = QString::fromRawData(str.unicode()+from, to-from);
         QTextEngine layout(cstr, d);
-        layout.setMode(QTextEngine::WidthOnly);
+        layout.ignoreBidi = true;
         layout.itemize();
         width = qRound(layout.width(pos-from, 1));
     } else if (::category(ch) == QChar::Mark_NonSpacing) {
@@ -558,7 +558,7 @@ QRect QFontMetrics::boundingRect(const QString &str) const
         return QRect();
 
     QTextEngine layout(str, d);
-    layout.setMode(QTextEngine::WidthOnly);
+    layout.ignoreBidi = true;
     layout.itemize();
     glyph_metrics_t gm = layout.boundingBox(0, str.length());
     return QRect(qRound(gm.x), qRound(gm.y), qRound(gm.width), qRound(gm.height));
@@ -1149,7 +1149,7 @@ qreal QFontMetricsF::rightBearing(QChar ch) const
 qreal QFontMetricsF::width(const QString &str) const
 {
     QTextEngine layout(str, d);
-    layout.setMode(QTextEngine::WidthOnly);
+    layout.ignoreBidi = true;
     layout.itemize();
     return layout.width(0, str.length());
 }
@@ -1221,7 +1221,7 @@ QRectF QFontMetricsF::boundingRect(const QString &str) const
         return QRectF();
 
     QTextEngine layout(str, d);
-    layout.setMode(QTextLayout::NoBidi);
+    layout.ignoreBidi = true;
     layout.itemize();
     glyph_metrics_t gm = layout.boundingBox(0, len);
     return QRectF(gm.x, gm.y, gm.width, gm.height);

@@ -371,7 +371,7 @@ public:
     inline const QString &preeditString() const { return preedit; }
 
     inline const QString &commitString() const { return commit; }
-    inline int replacementFrom() const { return replace_from; }
+    inline int replacementStart() const { return replace_from; }
     inline int replacementLength() const { return replace_length; }
 
     QInputMethodEvent(const QInputMethodEvent &other);
@@ -401,7 +401,7 @@ public:
     inline const QPoint &pos() const { return p; }
     inline Qt::MouseButtons mouseButtons() const { return mouseState; }
     inline Qt::KeyboardModifiers keyboardModifiers() const { return modState; }
-    
+
     inline Qt::DropActions possibleActions() const { return act; }
     inline Qt::DropAction proposedAction() const { return default_action; }
     inline void acceptProposedAction() { drop_action = default_action; accept(); }

@@ -426,12 +426,22 @@ QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 
 
 /*!
-    Returns the document's title.
+    Returns meta information about the document.
 */
-QString QTextDocument::documentTitle() const
+QString QTextDocument::metaInformation(MetaInformation info) const
 {
+    if (info != DocumentTitle)
+        return QString();
     Q_D(const QTextDocument);
     return d->config()->title;
+}
+
+void QTextDocument::setMetaInformation(MetaInformation info, const QString &string)
+{
+    if (info != DocumentTitle)
+        return;
+    Q_D(QTextDocument);
+    d->config()->title = string;
 }
 
 /*!
@@ -496,12 +506,12 @@ void QTextDocument::setHtml(const QString &html)
 */
 
 static bool findInBlock(const QTextBlock &block, const QString &text, const QString &expression, int offset,
-                        QTextDocument::FindFlags options, QTextDocument::FindDirection direction, QTextCursor &cursor)
+                        QTextDocument::FindFlags options, QTextCursor &cursor)
 {
     const Qt::CaseSensitivity cs = (options & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
 
-    const int idx = (direction == QTextDocument::FindForward) ?
-                    text.indexOf(expression, offset, cs) : text.lastIndexOf(expression, offset, cs);
+    const int idx = (options & QTextDocument::FindBackward) ?
+                    text.lastIndexOf(expression, offset, cs) : text.indexOf(expression, offset, cs);
     if (idx == -1)
         return false;
 
@@ -534,7 +544,7 @@ static bool findInBlock(const QTextBlock &block, const QString &text, const QStr
     If the \a position is 0 (the default) the search begins from the beginning
     of the document; otherwise it begins at the specified position.
 */
-QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options, FindDirection direction) const
+QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options) const
 {
     Q_D(const QTextDocument);
 
@@ -546,14 +556,14 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
     QTextCursor cursor;
     QTextBlock block = d->blocksFind(pos);
 
-    if (direction == FindForward) {
+    if (!(options & FindBackward)) {
         while (block.isValid()) {
             int blockOffset = qMax(0, pos - block.position());
             const QString blockText = block.text();
 
             const int blockLength = block.length();
             while (blockOffset < blockLength) {
-                if (findInBlock(block, blockText, expr, blockOffset, options, direction, cursor))
+                if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
                     return cursor;
 
                 blockOffset += expr.length();
@@ -570,7 +580,7 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
             const QString blockText = block.text();
 
             while (blockOffset >= 0) {
-                if (findInBlock(block, blockText, expr, blockOffset, options, direction, cursor))
+                if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
                     return cursor;
 
                 blockOffset -= expr.length();
@@ -600,10 +610,10 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
     By default the search is case-sensitive, and can match text anywhere in the
     document.
 */
-QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, FindFlags options, FindDirection direction) const
+QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, FindFlags options) const
 {
     const int pos = (from.isNull() ? 0 : from.selectionEnd());
-    return find(expr, pos, options, direction);
+    return find(expr, pos, options);
 }
 
 

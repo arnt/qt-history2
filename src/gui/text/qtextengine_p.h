@@ -259,7 +259,6 @@ typedef QVector<QScriptLine> QScriptLineArray;
 
 class QFontPrivate;
 class QTextFormatCollection;
-class QPalette;
 
 class Q_GUI_EXPORT QTextEngine {
 public:
@@ -279,8 +278,6 @@ public:
         DesignMetrics = 0x0002
     };
     Q_DECLARE_FLAGS(ShaperFlags, ShaperFlag)
-
-    void setMode(int mode) { itemization_mode = mode; }
 
     void invalidate();
 
@@ -340,15 +337,14 @@ public:
     QFontPrivate *fnt;
     QTextBlock block;
 
-    unsigned int itemization_mode : 16;
     QTextOption option;
-
-    QPalette *pal;
 
     qreal minWidth;
     qreal maxWidth;
     QRectF boundingRect;
     QPointF position;
+    uint ignoreBidi : 1;
+    uint cacheGlyphs : 1;
 
     int *underlinePositions;
 
@@ -369,7 +365,7 @@ public:
     struct SpecialData {
         int preeditPosition;
         QString preeditText;
-        QList<QTextLayout::FormatOverride> overrides;
+        QList<QTextLayout::FormatRange> overrides;
     };
     SpecialData *specialData;
 

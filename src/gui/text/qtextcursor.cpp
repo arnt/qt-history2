@@ -85,7 +85,7 @@ void QTextCursorPrivate::setX()
     const QTextLayout *layout = block.layout();
     int pos = position - block.position();
 
-    QTextLine line = layout->findLine(pos);
+    QTextLine line = layout->lineForTextPosition(pos);
     if (line.isValid())
         x = line.cursorToX(pos);
 }
@@ -255,7 +255,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
     const QTextLayout *layout = blockIt.layout();
     int relativePos = position - blockIt.position();
-    QTextLine line = layout->findLine(relativePos);
+    QTextLine line = layout->lineForTextPosition(relativePos);
 
     Q_ASSERT(priv->frameAt(position) == priv->frameAt(adjusted_anchor));
 
@@ -272,7 +272,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
         if (!line.isValid())
             break;
-        newPosition = blockIt.position() + line.from();
+        newPosition = blockIt.position() + line.textStart();
 
         break;
     }
@@ -312,7 +312,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         newPosition = priv->previousCursorPosition(position, QTextLayout::SkipWords);
         break;
     case QTextCursor::Up: {
-        int i = line.line() - 1;
+        int i = line.lineNumber() - 1;
         if (i == -1) {
             if (blockIt == priv->blocksBegin())
                 return false;
@@ -336,9 +336,9 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
                 blockIt = blockIt.previous();
             }
             layout = blockIt.layout();
-            i = layout->numLines()-1;
+            i = layout->lineCount()-1;
         }
-        if (layout->numLines()) {
+        if (layout->lineCount()) {
             QTextLine line = layout->lineAt(i);
             newPosition = line.xToCursor(x) + blockIt.position();
         } else {
@@ -352,13 +352,13 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         newPosition = priv->length() - 1;
         break;
     case QTextCursor::EndOfLine: {
-        if (!line.isValid() || line.length() == 0)
+        if (!line.isValid() || line.textLength() == 0)
             break;
-        newPosition = blockIt.position() + line.from() + line.length();
+        newPosition = blockIt.position() + line.textStart() + line.textLength();
         // currently we don't draw the space at the end, so move to the next
         // reasonable position.
         QString text = blockIt.text();
-        if (text.at(line.from() + line.length()-1).isSpace())
+        if (text.at(line.textStart() + line.textLength()-1).isSpace())
             --newPosition;
         break;
     }
@@ -371,7 +371,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         if (relativePos >= len)
             return false;
         relativePos++;
-        while (relativePos < len && !attributes[relativePos].wordStop 
+        while (relativePos < len && !attributes[relativePos].wordStop
                && !attributes[relativePos].whiteSpace
                && !engine->atWordSeparator(relativePos))
             relativePos++;
@@ -402,9 +402,9 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         break;
 
     case QTextCursor::Down: {
-        int i = line.line() + 1;
+        int i = line.lineNumber() + 1;
 
-        if (i >= layout->numLines()) {
+        if (i >= layout->lineCount()) {
             int blockPosition = blockIt.position() + blockIt.length() - 1;
             QTextTable *table = qobject_cast<QTextTable *>(priv->frameAt(blockPosition));
             if (table) {
@@ -430,7 +430,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
             layout = blockIt.layout();
             i = 0;
         }
-        if (layout->numLines()) {
+        if (layout->lineCount()) {
             QTextLine line = layout->lineAt(i);
             newPosition = line.xToCursor(x) + blockIt.position();
         } else {

@@ -35,7 +35,7 @@ static qreal alignLine(QTextEngine *eng, const QScriptLine &line)
     eng->justify(line);
     if (!line.justified) {
         int align = eng->option.alignment();
-        if (align & Qt::AlignJustify && eng->option.layoutDirection() == Qt::RightToLeft)
+        if (align & Qt::AlignJustify && eng->option.textDirection() == Qt::RightToLeft)
             align = Qt::AlignRight;
         if (align & Qt::AlignRight)
             x = line.width - line.textWidth;
@@ -181,7 +181,7 @@ void QTextInlineObject::setDescent(qreal d)
 /*!
   The position of the inline object within the text layout.
 */
-int QTextInlineObject::at() const
+int QTextInlineObject::textPosition() const
 {
     return eng->layoutData->items[itm].position;
 }
@@ -208,9 +208,9 @@ QTextFormat QTextInlineObject::format() const
 /*!
   Returns if the object should be laid out right-to-left or left-to-right.
 */
-bool QTextInlineObject::isRightToLeft() const
+Qt::LayoutDirection QTextInlineObject::textDirection() const
 {
-    return (eng->layoutData->items[itm].analysis.bidiLevel % 2);
+    return (eng->layoutData->items[itm].analysis.bidiLevel % 2 ? Qt::RightToLeft : Qt::LeftToRight);
 }
 
 /*!
@@ -440,17 +440,6 @@ QTextOption QTextLayout::textOption() const
     return d->option;
 }
 
-/*!
-  \internal
-*/
-void QTextLayout::setPalette(const QPalette &p)
-{
-    if (!d->pal)
-        d->pal = new QPalette(p);
-    else
-        *d->pal = p;
-}
-
 void QTextLayout::setPreeditArea(int position, const QString &text)
 {
     if (text.isEmpty()) {
@@ -483,7 +472,7 @@ QString QTextLayout::preeditAreaText() const
 }
 
 
-void QTextLayout::setFormatOverrides(const QList<FormatOverride> &overrides)
+void QTextLayout::setAdditionalFormats(const QList<FormatRange> &overrides)
 {
     if (overrides.isEmpty()) {
         if (!d->specialData)
@@ -501,24 +490,38 @@ void QTextLayout::setFormatOverrides(const QList<FormatOverride> &overrides)
     d->specialData->overrides = overrides;
 }
 
-QList<QTextLayout::FormatOverride> QTextLayout::formatOverrides() const
+QList<QTextLayout::FormatRange> QTextLayout::additionalFormats() const
 {
-    return d->specialData ? d->specialData->overrides : QList<FormatOverride>();
+    return d->specialData ? d->specialData->overrides : QList<FormatRange>();
 }
 
-void QTextLayout::clearFormatOverrides()
+void QTextLayout::clearAdditionalFormats()
 {
-    setFormatOverrides(QList<FormatOverride>());
+    setAdditionalFormats(QList<FormatRange>());
 }
 
 /*!
-    \fn void QTextLayout::setLayoutMode(LayoutMode mode)
+  Enables caching of the complete layout information. Usually
+  QTextLayout throws most of the layouting information away after a
+  call to endLayout() to reduce memory consumption. If you however
+  want to draw the layouted text directly afterwards enabling caching
+  might speed up drawing significantly.
 
-    Sets the layout mode to the given \a mode.
+  \sa cacheEnabled
 */
-void QTextLayout::setLayoutMode(LayoutMode m)
+void QTextLayout::setCacheEnabled(bool enable)
 {
-    d->setMode(m);
+    d->cacheGlyphs = enable;
+}
+
+/*
+  returns true if the complete layouting information is cached.
+
+  \sa setCacheEnabled
+*/
+bool QTextLayout::cacheEnabled() const
+{
+    return d->cacheGlyphs;
 }
 
 /*!
@@ -535,7 +538,7 @@ void QTextLayout::beginLayout()
 */
 void QTextLayout::endLayout()
 {
-    if (d->itemization_mode & NoGlyphCache)
+    if (!d->cacheGlyphs)
         d->freeMemory();
 }
 
@@ -613,7 +616,7 @@ int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
     characters, never between them since that wouldn't make sense. In
     indic languages every syllable forms a grapheme cluster.
 */
-bool QTextLayout::validCursorPosition(int pos) const
+bool QTextLayout::isValidCursorPosition(int pos) const
 {
     const QCharAttributes *attributes = d->attributes();
     if (!attributes || pos < 0 || pos > (int)d->layoutData->string.length())
@@ -660,7 +663,7 @@ QTextLine QTextLayout::createLine()
 
     \sa lineAt()
 */
-int QTextLayout::numLines() const
+int QTextLayout::lineCount() const
 {
     return d->lines.size();
 }
@@ -680,7 +683,7 @@ QTextLine QTextLayout::lineAt(int i) const
 
     \sa validCursorPosition() lineAt()
 */
-QTextLine QTextLayout::findLine(int pos) const
+QTextLine QTextLayout::lineForTextPosition(int pos) const
 {
     for (int i = 0; i < d->lines.size(); ++i) {
         const QScriptLine& line = d->lines[i];
@@ -754,9 +757,9 @@ QRectF QTextLayout::rect() const
 
     \sa maximumWidth()
 */
-int QTextLayout::minimumWidth() const
+qreal QTextLayout::minimumWidth() const
 {
-    return qRound(d->minWidth);
+    return d->minWidth;
 }
 
 /*!
@@ -768,9 +771,9 @@ int QTextLayout::minimumWidth() const
 
     \sa minimumWidth()
 */
-int QTextLayout::maximumWidth() const
+qreal QTextLayout::maximumWidth() const
 {
-    return qRound(d->maxWidth);
+    return d->maxWidth;
 }
 
 /*!
@@ -781,7 +784,7 @@ int QTextLayout::maximumWidth() const
 */
 void QTextLayout::draw(QPainter *p, const QPointF &pos, const QRect &clip) const
 {
-    Q_ASSERT(numLines() != 0);
+    Q_ASSERT(lineCount() != 0);
 
     if (!d->layoutData)
         d->itemize();
@@ -805,7 +808,7 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, const QRect &clip) const
         l.draw(p, position);
     }
 
-    if (d->itemization_mode & NoGlyphCache)
+    if (!d->cacheGlyphs)
         d->freeMemory();
 }
 
@@ -832,7 +835,7 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
             int itm = d->findItem(cursorPosition - 1);
             qreal ascent = sl.ascent;
             qreal descent = sl.descent;
-            bool rightToLeft = (d->option.layoutDirection() == Qt::RightToLeft);
+            bool rightToLeft = (d->option.textDirection() == Qt::RightToLeft);
             if (itm >= 0) {
                 const QScriptItem &si = d->layoutData->items.at(itm);
                 if (si.ascent > 0.0)
@@ -937,7 +940,7 @@ QRect QTextLine::rect() const
 }
 
 
-QRectF QTextLine::textRect() const
+QRectF QTextLine::naturalTextRect() const
 {
     const QScriptLine& sl = eng->lines[i];
     qreal x = sl.x + alignLine(eng, sl);
@@ -1011,7 +1014,7 @@ qreal QTextLine::height() const
     always \<= to width(), and is the minimum width that could be used
     by layout() without changing the line break position.
 */
-qreal QTextLine::textWidth() const
+qreal QTextLine::naturalTextWidth() const
 {
     return eng->lines[i].textWidth;
 }
@@ -1202,7 +1205,7 @@ void QTextLine::setPosition(const QPointF &pos)
     Returns the start of the line from the beginning of the string
     passed to the QTextLayout.
 */
-int QTextLine::from() const
+int QTextLine::textStart() const
 {
     return eng->lines[i].from;
 }
@@ -1212,7 +1215,7 @@ int QTextLine::from() const
 
     \sa textWidth()
 */
-int QTextLine::length() const
+int QTextLine::textLength() const
 {
     return eng->lines[i].length;
 }
@@ -1292,6 +1295,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
 
     if (!line.length)
         return;
+
+    QPen pen = p->pen();
 
     int lineEnd = line.from + line.length;
     // don't draw trailing spaces or take them into the layout.
@@ -1384,8 +1389,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
             else if (valign == QTextCharFormat::AlignSuperScript)
                 itemBaseLine -= (si.ascent + si.descent + 1) / 2;
             f = eng->font(si);
-            if (!c.isValid() && eng->pal)
-                c = eng->pal->color(QPalette::Text);
+            if (!c.isValid())
+                p->setPen(pen);
 
             if (bg.isValid())
                 p->fillRect(QRectF(x, line.y, gf.width, line.height()), bg);
@@ -1411,7 +1416,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
 
             if (eng->specialData) {
                 for (int i = 0; i < eng->specialData->overrides.size(); ++i) {
-                    const QTextLayout::FormatOverride &o = eng->specialData->overrides.at(i);
+                    const QTextLayout::FormatRange &o = eng->specialData->overrides.at(i);
                     int from = qMax(start, o.from) - si.position;
                     int to = qMin(end, o.from + o.length) - si.position;
                     if (from >= to)
@@ -1456,6 +1461,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
         }
         x += gf.width;
     }
+    p->setPen(pen);
 }
 
 /*!

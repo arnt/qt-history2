@@ -338,18 +338,18 @@ QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPoint &point, int *pos
     HitPoint hit = PointInside;
     *position = bl.position();
     int off = 0;
-    for (int i = 0; i < tl->numLines(); ++i) {
+    for (int i = 0; i < tl->lineCount(); ++i) {
         QTextLine line = tl->lineAt(i);
-        const QRect lr = line.textRect().toRect();
+        const QRect lr = line.naturalTextRect().toRect();
         if (lr.top() > pos.y()) {
-            off = qMin(off, line.from());
+            off = qMin(off, line.textStart());
         } else if (lr.bottom() <= pos.y()) {
-            off = qMax(off, line.from() + line.length());
+            off = qMax(off, line.textStart() + line.textLength());
         } else {
             if (lr.left() > pos.x()) {
-                off = line.from();
+                off = line.textStart();
             } else if (lr.right() < pos.x()) {
-                off = line.from() + line.length();
+                off = line.textStart() + line.textLength();
             } else {
                 hit = PointExact;
                 off = line.xToCursor(pos.x());
@@ -570,7 +570,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
         painter->fillRect(r , bgCol);
     }
 
-    QList<QTextLayout::FormatOverride> overrides = tl->formatOverrides();
+    QList<QTextLayout::FormatRange> overrides = tl->additionalFormats();
     bool highlightListItem = false;
     if (context.cursor.hasSelection()) {
         int blpos = bl.position();
@@ -578,14 +578,14 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
         const int selStart = context.cursor.selectionStart() - blpos;
         const int selEnd = context.cursor.selectionEnd() - blpos;
         if (selStart < bllen && selEnd > 0) {
-            QTextLayout::FormatOverride o;
+            QTextLayout::FormatRange o;
             o.from = selStart;
             o.length = selEnd - selStart;
             o.format.setBackgroundColor(context.palette.color(QPalette::Highlight));
             o.format.setTextColor(context.palette.color(QPalette::HighlightedText));
-            QList<QTextLayout::FormatOverride> newOverrides = overrides;
+            QList<QTextLayout::FormatRange> newOverrides = overrides;
             newOverrides.append(o);
-            const_cast<QTextLayout *>(tl)->setFormatOverrides(newOverrides);
+            const_cast<QTextLayout *>(tl)->setAdditionalFormats(newOverrides);
         }
         if (selStart <= 0 && selEnd >= 1)
             highlightListItem = true;
@@ -595,12 +595,11 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
     if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
         drawListItem(offset, painter, context, bl, highlightListItem);
 
-    const_cast<QTextLayout *>(tl)->setPalette(context.palette);
-
+    painter->setPen(context.palette.color(QPalette::Text));
     tl->draw(painter, offset, context.rect);
     if (cursor >= 0)
         tl->drawCursor(painter, offset, cursor);
-    const_cast<QTextLayout *>(tl)->setFormatOverrides(overrides);
+    const_cast<QTextLayout *>(tl)->setAdditionalFormats(overrides);
 }
 
 
@@ -624,7 +623,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
     QPoint pos = offset + bl.layout()->rect().toRect().topLeft();
     Qt::LayoutDirection dir = blockFormat.layoutDirection();
     {
-        QRectF textRect = firstLine.textRect();
+        QRectF textRect = firstLine.naturalTextRect();
         pos += textRect.origin().toPoint();
         if (dir == Qt::RightToLeft)
             pos.rx() += qRound(textRect.width());
@@ -1076,7 +1075,7 @@ void QTextDocumentLayoutPrivate::positionFloat(QTextFrame *frame, QTextLine *cur
         int left, right;
         d->floatMargins(y, pd->currentLayoutStruct, &left, &right);
 //         qDebug() << "have line: right=" << right << "left=" << left << "textWidth=" << currentLine->textWidth();
-        if (right - left < currentLine->textWidth() + fd->size.width()) {
+        if (right - left < currentLine->naturalTextWidth() + fd->size.width()) {
             pd->currentLayoutStruct->pendingFloats.append(frame);
 //             qDebug() << "    adding to pending list";
             return;
@@ -1270,7 +1269,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
     Qt::LayoutDirection dir = blockFormat.layoutDirection();
     Qt::Alignment align = QStyle::visualAlignment(dir, blockFormat.alignment());
     QTextOption option(align);
-    option.setLayoutDirection(dir);
+    option.setTextDirection(dir);
     if (d->blockTextFlags & Qt::TextSingleLine || blockFormat.nonBreakableLines())
         option.setWrapMode(QTextOption::ManualWrap);
     tl->setTextOption(option);
@@ -1298,7 +1297,6 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 
 //    tl->useDesignMetrics(true);
 //     tl->enableKerning(true);
-        tl->setLayoutMode(QTextLayout::NoGlyphCache);
         tl->beginLayout();
         while (1) {
             QTextLine line = tl->createLine();
@@ -1322,22 +1320,23 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
             left = qMax(left, l);
             right = qMin(right, r);
 
-            if (d->fixedColumnWidth == -1 && line.textWidth() > right-left) {
+            if (d->fixedColumnWidth == -1 && line.naturalTextWidth() > right-left) {
                 // float has been added in the meantime, redo
                 layoutStruct->pendingFloats.clear();
                 line.layout(right-left);
-                if (line.textWidth() > right-left) {
+                if (line.naturalTextWidth() > right-left) {
                     layoutStruct->pendingFloats.clear();
                     // lines min width more than what we have
-                    layoutStruct->y = findY(layoutStruct->y, layoutStruct, qRound(line.textWidth()));
+                    layoutStruct->y = findY(layoutStruct->y, layoutStruct, qRound(line.naturalTextWidth()));
                     floatMargins(layoutStruct->y, layoutStruct, &left, &right);
-                    line.layout(qMax<qreal>(line.textWidth(), right-left));
+                    line.layout(qMax<qreal>(line.naturalTextWidth(), right-left));
                 }
             }
 
             line.setPosition(QPoint(left - layoutStruct->x_left, layoutStruct->y - cy));
             layoutStruct->y += qRound(line.ascent() + line.descent() + 1);
-            layoutStruct->widthUsed = qRound(qMax<qreal>(layoutStruct->widthUsed, left - layoutStruct->x_left + line.textWidth()));
+            layoutStruct->widthUsed
+                = qRound(qMax<qreal>(layoutStruct->widthUsed, left - layoutStruct->x_left + line.naturalTextWidth()));
 
             // position floats
             for (int i = 0; i < layoutStruct->pendingFloats.size(); ++i) {
@@ -1353,9 +1352,9 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 
     layoutStruct->y += blockFormat.bottomMargin();
     // ### doesn't take floats into account. would need to do it per line. but how to retrieve then? (Simon)
-    layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, tl->minimumWidth() + blockFormat.leftMargin() + indent);
+    layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, qRound(tl->minimumWidth() + blockFormat.leftMargin() + indent));
 
-    const int maxW = tl->maximumWidth() + blockFormat.leftMargin() + indent;
+    const int maxW = qRound(tl->maximumWidth()) + blockFormat.leftMargin() + indent;
     if (maxW > 0) {
         if (layoutStruct->maximumWidth == INT_MAX)
             layoutStruct->maximumWidth = maxW;
@@ -1553,7 +1552,7 @@ void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat
     QTextBlock b = document()->findBlock(frame->firstPosition());
     QTextLine line;
     if (b.position() <= frame->firstPosition() && b.position() + b.length() > frame->lastPosition())
-        line = b.layout()->lineAt(b.layout()->numLines()-1);
+        line = b.layout()->lineAt(b.layout()->lineCount()-1);
 //     qDebug() << "layoutObject: line.isValid" << line.isValid() << b.position() << b.length() <<
 //         frame->firstPosition() << frame->lastPosition();
     d->positionFloat(frame, line.isValid() ? &line : 0);

@@ -1531,9 +1531,9 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
 
     if (!e->commitString().isEmpty() || e->replacementLength()) {
         int c = cursor->index(); // cursor position after insertion of commit string
-        if (e->replacementFrom() <= 0)
-            c += e->commitString().length() + qMin(-e->replacementFrom(), e->replacementLength());
-        cursor->setIndex(cursor->index() + e->replacementFrom());
+        if (e->replacementStart() <= 0)
+            c += e->commitString().length() + qMin(-e->replacementStart(), e->replacementLength());
+        cursor->setIndex(cursor->index() + e->replacementStart());
         doc->setSelectionStart(Q3TextDocument::Standard, *cursor);
         cursor->setIndex(cursor->index() + e->replacementLength());
         doc->setSelectionEnd(Q3TextDocument::Standard, *cursor);

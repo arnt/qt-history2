@@ -32,10 +32,11 @@ public:
     inline void setAlignment(Qt::Alignment alignment) { align = alignment; }
     inline Qt::Alignment alignment() const { return Qt::Alignment(align); }
 
-    inline void setLayoutDirection(Qt::LayoutDirection aDirection) { this->direction = aDirection; }
-    inline Qt::LayoutDirection layoutDirection() const { return (Qt::LayoutDirection)direction; }
+    inline void setTextDirection(Qt::LayoutDirection aDirection) { this->direction = aDirection; }
+    inline Qt::LayoutDirection textDirection() const { return (Qt::LayoutDirection)direction; }
 
     enum WrapMode {
+        NoWrap,
         WordWrap,
         ManualWrap,
         WrapAnywhere
@@ -53,11 +54,12 @@ public:
     inline void setTabStop(qreal tabStop) { tab = tabStop; }
     inline qreal tabStop() const { return tab; }
 
-    void useDesignMetrics(bool b) { design = b; }
-    bool usesDesignMetrics() const { return design; }
-
     void setTabArray(QList<qreal> tabStops);
     QList<qreal> tabArray() const;
+
+    void setUseDesignMetrics(bool b) { design = b; }
+    bool useDesignMetrics() const { return design; }
+
 private:
     uint align : 8;
     uint wordWrap : 4;

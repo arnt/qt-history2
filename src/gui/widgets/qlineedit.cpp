@@ -1721,10 +1721,10 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
     d->removeSelectedText();
 
     int c = d->cursor; // cursor position after insertion of commit string
-    if (e->replacementFrom() <= 0)
-        c += e->commitString().length() + qMin(-e->replacementFrom(), e->replacementLength());
+    if (e->replacementStart() <= 0)
+        c += e->commitString().length() + qMin(-e->replacementStart(), e->replacementLength());
 
-    d->cursor += e->replacementFrom();
+    d->cursor += e->replacementStart();
 
     // insert commit string
     if (e->replacementLength()) {
@@ -1745,7 +1745,7 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
             continue;
         QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
         if (f.isValid()) {
-            QTextLayout::FormatOverride o;
+            QTextLayout::FormatRange o;
             o.from = a.start + d->cursor;
             o.length = a.length;
             o.format = f;
@@ -1856,9 +1856,6 @@ void QLineEdit::paintEvent(QPaintEvent *)
         bg = pal.brush(QPalette::Background);
         p.fillRect(r, bg);
     }
-    // ### should not be here.
-    d->textLayout.setPalette(pal);
-
     QTextLine line = d->textLayout.lineAt(0);
 
     // locate cursor position
@@ -1869,7 +1866,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
     int minRB = qMax(0, -fm.minRightBearing());
 
 
-    int widthUsed = qRound(line.textWidth()) + 1 + minRB;
+    int widthUsed = qRound(line.naturalTextWidth()) + 1 + minRB;
     if ((minLB + widthUsed) <=  lineRect.width()) {
         Qt::Alignment va = QStyle::visualAlignment(Qt::LayoutDirection(d->direction), QFlag(d->alignment));
         va &= ~(Qt::AlignAbsolute|Qt::AlignVertical_Mask);
@@ -1900,9 +1897,9 @@ void QLineEdit::paintEvent(QPaintEvent *)
     p.setPen(pal.text().color());
     bool supressCursor = d->readOnly;
 
-    QList<QTextLayout::FormatOverride> list = d->formatOverrides;
+    QList<QTextLayout::FormatRange> list = d->formatOverrides;
     if (d->selstart < d->selend || (d->cursorVisible && d->maskData)) {
-        QTextLayout::FormatOverride o;
+        QTextLayout::FormatRange o;
         const QPalette &pal = palette();
         if (d->selstart < d->selend) {
             o.from = d->selstart;
@@ -1918,7 +1915,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
         }
         list.append(o);
     }
-    d->textLayout.setFormatOverrides(list);
+    d->textLayout.setAdditionalFormats(list);
 
     // Asian users see an IM selection text as cursor on candidate
     // selection phase of input method, so the ordinary cursor should be
@@ -2165,7 +2162,7 @@ void QLineEditPrivate::updateTextLayout()
     textLayout.setFont(q->font());
     textLayout.setText(str);
     QTextOption option;
-    option.setLayoutDirection(Qt::LayoutDirection(direction));
+    option.setTextDirection(Qt::LayoutDirection(direction));
     textLayout.setTextOption(option);
 
     textLayout.beginLayout();
@@ -2180,7 +2177,7 @@ int QLineEditPrivate::xToPosInternal(int x, QTextLine::CursorPosition betweenOrO
     Q_Q(const QLineEdit);
     x-= q->contentsRect().x() - hscroll + innerMargin;
     QTextLine l = textLayout.lineAt(0);
-    if (x >= 0 && x < l.textWidth())
+    if (x >= 0 && x < l.naturalTextWidth())
         return l.xToCursor(x, betweenOrOn);
     return x < 0 ? -1 : text.length();
 }

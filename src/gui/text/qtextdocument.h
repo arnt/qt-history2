@@ -89,7 +89,11 @@ public:
     void setDocumentLayout(QAbstractTextDocumentLayout *layout);
     QAbstractTextDocumentLayout *documentLayout() const;
 
-    QString documentTitle() const;
+    enum MetaInformation {
+        DocumentTitle
+    };
+    void setMetaInformation(MetaInformation info, const QString &);
+    QString metaInformation(MetaInformation info) const;
 
     QString toHtml(const QByteArray &encoding = QByteArray()) const;
     void setHtml(const QString &html);
@@ -99,20 +103,14 @@ public:
 
     enum FindFlag
     {
-        FindCaseSensitively = 0x00001,
-        FindWholeWords      = 0x00002
-        // ### more
+        FindBackward        = 0x00001,
+        FindCaseSensitively = 0x00002,
+        FindWholeWords      = 0x00004
     };
     Q_DECLARE_FLAGS(FindFlags, FindFlag)
 
-    enum FindDirection
-    {
-        FindForward,
-        FindBackward
-    };
-
-    QTextCursor find(const QString &expr, int from = 0, FindFlags options = 0, FindDirection direction = FindForward) const;
-    QTextCursor find(const QString &expr, const QTextCursor &from, FindFlags options = 0, FindDirection direction = FindForward) const;
+    QTextCursor find(const QString &expr, int from = 0, FindFlags options = 0) const;
+    QTextCursor find(const QString &expr, const QTextCursor &from, FindFlags options = 0) const;
 
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const;

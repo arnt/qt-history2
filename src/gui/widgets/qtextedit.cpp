@@ -67,7 +67,7 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
         return QTextLine();
 
     const int relativePos = cursor.position() - block.position();
-    return layout->findLine(relativePos);
+    return layout->lineForTextPosition(relativePos);
 }
 
 bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
@@ -542,7 +542,7 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
     QTextLayout *layout = block.layout();
     QPointF layoutPos = layout->position();
     const int relativePos = documentPosition - block.position();
-    QTextLine line = layout->findLine(relativePos);
+    QTextLine line = layout->lineForTextPosition(relativePos);
     if (!line.isValid())
         return;
 
@@ -602,7 +602,7 @@ void QTextEditPrivate::extendWordwiseSelection(int suggestedNewPosition, qreal m
     const int wordEndPos = curs.position();
 
     const QTextLine otherLine = currentTextLine(curs);
-    if (otherLine.from() != line.from()
+    if (otherLine.textStart() != line.textStart()
         || wordEndPos == wordStartPos)
         return;
 
@@ -1847,7 +1847,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
     d->mightStartDrag = false;
     d->setCursorPosition(e->pos());
     QTextLine line = currentTextLine(d->cursor);
-    if (line.isValid() && line.length()) {
+    if (line.isValid() && line.textLength()) {
         d->cursor.select(QTextCursor::WordUnderCursor);
         d->selectionChanged();
         d->setClipboardSelection();
@@ -1964,7 +1964,7 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
     // insert commit string
     if (!e->commitString().isEmpty() || e->replacementLength()) {
         QTextCursor c = d->cursor;
-        c.setPosition(c.position() + e->replacementFrom());
+        c.setPosition(c.position() + e->replacementStart());
         c.setPosition(c.position() + e->replacementLength(), QTextCursor::KeepAnchor);
         c.insertText(e->commitString());
     }
@@ -1972,21 +1972,21 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
     QTextBlock block = d->cursor.block();
     QTextLayout *layout = block.layout();
     layout->setPreeditArea(d->cursor.position() - block.position(), e->preeditString());
-    QList<QTextLayout::FormatOverride> overrides;
+    QList<QTextLayout::FormatRange> overrides;
     for (int i = 0; i < e->attributes().size(); ++i) {
         const QInputMethodEvent::Attribute &a = e->attributes().at(i);
         if (a.type != QInputMethodEvent::TextFormat)
             continue;
         QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
         if (f.isValid()) {
-            QTextLayout::FormatOverride o;
+            QTextLayout::FormatRange o;
             o.from = a.start + d->cursor.position() - block.position();
             o.length = a.length;
             o.format = f;
             overrides.append(o);
         }
     }
-    layout->setFormatOverrides(overrides);
+    layout->setAdditionalFormats(overrides);
     d->cursor.endEditBlock();
     d->doc->documentLayout()->documentChange(block.position(), block.length(), block.length());
 }
@@ -2160,7 +2160,7 @@ QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
     QTextLayout *layout = block.layout();
     QPointF layoutPos = layout->position() + docLayout->frameBoundingRect(frame).topLeft();
     const int relativePos = cursor.position() - block.position();
-    QTextLine line = layout->findLine(relativePos);
+    QTextLine line = layout->lineForTextPosition(relativePos);
     if (!line.isValid())
         return QRect(qRound(layoutPos.x()-5), qRound(layoutPos.y()), 10, 10); // #### correct height
 
@@ -2524,10 +2524,10 @@ void QTextEdit::setWrapColumnOrWidth(int w)
     exp was found and changes the cursor to select the match;
     otherwise returns false;
 */
-bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options, QTextDocument::FindDirection direction)
+bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
 {
     Q_D(QTextEdit);
-    QTextCursor search = d->doc->find(exp, d->cursor, options, direction);
+    QTextCursor search = d->doc->find(exp, d->cursor, options);
     if (search.isNull())
         return false;
 
