@@ -17,8 +17,6 @@
 
 #include "sqlbrowsewindow.h"
 
-// test p4
-
 class ResultWindow : public SqlBrowseWindowBase
 {
     Q_OBJECT
@@ -32,8 +30,6 @@ private:
     QSqlDatabase* db;
     QSqlCursor sql;
 };
-
-//test
 
 #endif
 
