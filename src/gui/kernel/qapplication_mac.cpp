@@ -2463,14 +2463,13 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             }
             if(!handled_event) {
                 if(cmd.commandID == kHICommandQuit) {
+                    handled_event = true;
                     HiliteMenu(0);
                     if (!qt_modal_state()) {
                         QCloseEvent ev;
                         QApplication::sendSpontaneousEvent(app, &ev);
-                        if(ev.isAccepted()) {
-                            handled_event = true;
+                        if(ev.isAccepted()) 
                             app->quit();
-                        }
                     } else {
                         QApplication::beep();
                     }
