@@ -517,8 +517,10 @@ void Main::addMesh()
     int rows = h / dist;
     int cols = w / dist;
 
+#ifndef QT_NO_PROGRESSDIALOG
     QProgressDialog progress( "Creating mesh...", "Abort", rows,
 			      this, "progress", TRUE );
+#endif
     
     QArray<NodeItem*> lastRow(cols);
     for ( int j = 0; j < rows; j++ ) {
@@ -547,11 +549,15 @@ void Main::addMesh()
 	    prev = el;
 	}
 	lastRow[n-1]=prev;
+#ifndef QT_NO_PROGRESSDIALOG
 	progress.setProgress( j );
 	if ( progress.wasCancelled() )
 	    break;
+#endif
     }
+#ifndef QT_NO_PROGRESSDIALOG
     progress.setProgress( rows );
+#endif
     qDebug( "%d nodes, %d edges", nodecount, EdgeItem::count() );
 }
 

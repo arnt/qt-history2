@@ -12,16 +12,34 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+/*
+    We should really have more specific #ifdef checks for some of these
+    example, this rough partitioning is sufficient though for the sample
+    qconfig-*.h files.
+*/
+
 struct {
     const char* label;
     const char* file;
 } command[] = {
+#ifndef QT_NO_TEXTBROWSER
     { "Help Text Browser", "(cd ../helpviewer; exec ../helpviewer/helpviewer)" },
+#endif
+#ifndef QT_NO_CANVAS
     { "Canvas - alpha-blending", "( cd ../canvas; exec ./canvas )" },
+#endif
+#ifndef QT_NO_WIDGETS
     { "Text Editor", "exec ../qwerty/qwerty ../qwerty/unicode.txt" },
+#endif
+#ifndef QT_NO_FILEDIALOG
     { "Scribble Editor", "exec ../scribble/scribble" },
+#endif
+#ifndef QT_NO_TRANSLATION
     { "Internationalization", "( cd ../i18n; exec ./i18n all )" },
+#endif
+#ifndef QT_NO_TRANSFORMATIONS
     { "Magnifier", "exec ../qmag/qmag" },
+#endif
     { 0, 0 }
 };
 
@@ -29,46 +47,80 @@ struct {
     const char* label;
     const char* file;
 } other_command[] = {
+#ifndef QT_NO_TRANSFORMATIONS
     { "aclock", "( cd ../aclock; exec ./aclock; )" },
+#endif
+#if !defined(QT_NO_TABDIALOG) && !defined(QT_NO_FILEDIALOG)
     { "addressbook", "( cd ../addressbook; exec ./addressbook; )" },
+#endif
+#ifndef QT_NO_WIDGETS
     { "buttongroups", "( cd ../buttongroups; exec ./buttongroups; )" },
     { "checklists", "( cd ../checklists; exec ./checklists; )" },
     { "cursor", "( cd ../cursor; exec ./cursor; )" },
     { "customlayout", "( cd ../customlayout; exec ./customlayout; )" },
     { "dclock", "( cd ../dclock; exec ./dclock; )" },
+#endif
+#ifndef QT_NO_DRAGANDDROP
     { "dirview", "( cd ../dirview; exec ./dirview; )" },
+#endif
     //{ "drawdemo", "( cd ../drawdemo; exec ./drawdemo; )" },
     { "drawlines", "( cd ../drawlines; exec ./drawlines; )" },
     //{ "forever", "( cd ../forever; exec ./forever; )" },
     { "hello", "( cd ../hello; exec ./hello; )" },
+#ifndef QT_NO_WIDGETS
     { "layout", "( cd ../layout; exec ./layout; )" },
     { "life", "( cd ../life; exec ./life; )" },
     { "lineedits", "( cd ../lineedits; exec ./lineedits; )" },
     { "listbox", "( cd ../listbox; exec ./listbox; )" },
     { "listboxcombo", "( cd ../listboxcombo; exec ./listboxcombo; )" },
+#endif
+#ifndef QT_NO_WORKSPACE
     { "mdi", "( cd ../mdi; exec ./mdi; )" },
+#endif
+#ifndef QT_NO_WIDGETS
     { "menu", "( cd ../menu; exec ./menu; )" },
+#endif
+#ifndef QT_NO_MOVIE
     { "movies", "( cd ../movies; exec ./movies; )" },
+#endif
+#ifndef QT_NO_WIDGETS
     //{ "picture", "( cd ../picture; exec ./picture; )" },
     { "popup", "( cd ../popup; exec ./popup; )" },
+#endif
+#ifndef QT_NO_PROGRESSDIALOG
     { "progress", "( cd ../progress; exec ./progress; )" },
+#endif
+#ifndef QT_NO_WIDGETS
     { "progressbar", "( cd ../progressbar; exec ./progressbar; )" },
     { "qfd", "( cd ../qfd; exec ./qfd; )" },
     { "rangecontrols", "( cd ../rangecontrols; exec ./rangecontrols; )" },
     { "richtext", "( cd ../richtext; exec ./richtext; )" },
     { "scrollview", "( cd ../scrollview; exec ./scrollview; )" },
+#endif
+#ifndef QT_NO_FILEDIALOG
     { "showimg", "( cd ../showimg; exec ./showimg; )" },
+#endif
+#ifndef QT_NO_WIDGETS
     //{ "sound", "( cd ../sound; exec ./sounds; )" },
     { "splitter", "( cd ../splitter; exec ./splitter; )" },
     { "tabdialog", "( cd ../tabdialog; exec ./tabdialog; )" },
+#endif
+#ifndef QT_NO_TRANSFORMATIONS
     { "table", "( cd ../table; exec ./table; )" },
+#endif
+#ifndef QT_NO_WIDGETS
     { "tetrix", "( cd ../tetrix; exec ./tetrix; )" },
     { "tictac", "( cd ../tictac; exec ./tictac; )" },
     { "tooltip", "( cd ../tooltip; exec ./tooltip; )" },
     { "validator", "( cd ../validator; exec ./validator; )" },
+#endif
+#if !defined(QT_NO_MOVIE) && !defined(QT_NO_TRANSFORMATIONS) // (etc.!)
     { "widgets", "( cd ../widgets; exec ./widgets; )" },
+#endif
+#ifndef QT_NO_WIZARD
     { "wizard", "( cd ../wizard; exec ./wizard; )" },
     //{ "xform", "( cd ../xform; exec ./xform; )" },
+#endif
     { 0, 0 }
 };
 

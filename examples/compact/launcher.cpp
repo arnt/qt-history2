@@ -41,13 +41,28 @@ struct {
     const char* arg1;
     const char* arg2;
 } command[] = {
-    //    { "Info Kiosk - MPEGs", "( cd ../kiosk; exec ./kiosk %1)" },
+#ifndef QT_NO_TEXTBROWSER
     { "Help Text Browser", "../helpviewer", "helpviewer", 0, 0 },
+#endif
+#ifndef QT_NO_CANVAS
     { "Canvas - alpha-blending", "../canvas", "canvas", 0, 0 },
+#endif
+#ifndef QT_NO_WIDGETS
     { "Text Editor", "../qwerty", "qwerty", "unicode.txt", 0 },
+#endif
+#ifndef QT_NO_FILEDIALOG
     { "Scribble Editor", "../scribble", "scribble", 0, 0 },
+#endif
+#ifndef QT_NO_TRANSLATION
     { "Internationalization", "../i18n", "i18n", 0, 0 },
+#endif
+#ifndef QT_NO_TRANSFORMATIONS
     { "Magnifier", "../qmag", "qmag", "-geometry",  "100x100" },
+#endif
+#ifdef QT_NO_WIDGETS // last-resort examples
+    { "Hello world", "../hello", "hello", "-geometry",  "100x100" },
+    { "Draw lines", "../drawlines", "drawlines", "-geometry",  "100x100" },
+#endif
     { 0, 0, 0, 0, 0 }
 };
 
