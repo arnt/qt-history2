@@ -106,6 +106,7 @@ int qtaction_to_xdndaction(QDrag::DropAction a)
       case QDrag::LinkAction:
         return ATOM(XdndActionLink);
       case QDrag::MoveAction:
+      case QDrag::TargetMoveAction:
         return ATOM(XdndActionMove);
       default:
         return ATOM(XdndActionCopy);
@@ -159,6 +160,7 @@ static bool dndCancelled = false;
 
 // Shift/Ctrl handling, and final drop status
 static QDrag::DropAction global_accepted_action = QDrag::CopyAction;
+static QDrag::DropActions possible_actions = QDrag::IgnoreAction;
 
 // for embedding only
 static QWidget* current_embedding_widget  = 0;
@@ -462,7 +464,7 @@ void qt_handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
     }
 
     QDragManager *manager = QDragManager::self();
-    QMimeData *dropData = (qt_xdnd_source_object) ? manager->dragPrivate()->data : manager->dropData;
+    QMimeData *dropData = qt_xdnd_source_object ? manager->dragPrivate()->data : manager->dropData;
 
     XClientMessageEvent response;
     response.type = ClientMessage;
@@ -483,8 +485,10 @@ void qt_handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
 
         QRect answerRect(c->mapToGlobal(p), QSize(1,1));
 
-        QDrag::DropAction accepted_action = xdndaction_to_qtaction(l[4]);
-        QDragMoveEvent me(p, accepted_action, dropData);
+        possible_actions = qt_xdnd_source_object ? manager->dragPrivate()->possible_actions : xdndaction_to_qtaction(l[4]);
+        QDragMoveEvent me(p, possible_actions, dropData);
+
+        QDrag::DropAction accepted_action = QDrag::IgnoreAction;
 
         if (c != qt_xdnd_current_widget) {
             qt_xdnd_target_answerwas = false;
@@ -497,21 +501,19 @@ void qt_handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
                 qt_xdnd_current_position = p;
                 //NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
-                QDragEnterEvent de(p, accepted_action, dropData);
+                QDragEnterEvent de(p, possible_actions, dropData);
                 QApplication::sendEvent(c, &de);
                 if (de.isAccepted()) {
                     me.accept(de.answerRect());
                     accepted_action = de.dropAction();
+                    qt_xdnd_target_answerwas = true;
                 } else {
                     me.ignore(de.answerRect());
                 }
             }
-        } else {
-            if (qt_xdnd_target_answerwas) {
-                me.accept();
-                me.acceptAction(QDragManager::self()->defaultAction() == global_accepted_action);
-            }
         }
+        if (qt_xdnd_target_answerwas)
+            me.accept();
 
          DEBUG() << "qt_handle_xdnd_position action=" << qt_xdnd_atom_to_str(l[4]);
         if (!c->acceptDrops()) {
@@ -523,7 +525,6 @@ void qt_handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
             //NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
             QApplication::sendEvent(c, &me);
-            qt_xdnd_target_answerwas = me.isAccepted();
             if (me.isAccepted()) {
                 response.data.l[1] = 1; // yes
                 accepted_action = me.dropAction();
@@ -679,7 +680,7 @@ void qt_handle_xdnd_drop(QWidget *, const XEvent * xe, bool passive)
 
     if (!passive) {
         QMimeData *dropData = (qt_xdnd_source_object) ? manager->dragPrivate()->data : manager->dropData;
-        QDropEvent de(qt_xdnd_current_position, global_accepted_action, dropData);
+        QDropEvent de(qt_xdnd_current_position, possible_actions, dropData);
         QApplication::sendEvent(qt_xdnd_current_widget, &de);
         if (!de.isAccepted()) {
             // Ignore a failed drag
@@ -820,10 +821,7 @@ void QDragManager::updateCursor()
     QCursor *c;
     if (willDrop) {
         if (global_accepted_action == QDrag::CopyAction) {
-            if (defaultAction() == QDrag::MoveAction)
-                c = moveCursor; // (source can delete)
-            else
-                c = copyCursor;
+            c = copyCursor;
         } else if (global_accepted_action == QDrag::LinkAction) {
             c = linkCursor;
         } else {
@@ -1155,23 +1153,6 @@ bool qt_xdnd_handle_badwindow()
     }
     return false;
 }
-
-
-/*!
-    \class QDragMoveEvent qevent.h
-    \ingroup events
-    \ingroup draganddrop
-    \brief The QDragMoveEvent class provides an event which is sent while a drag and drop action is in progress.
-
-    When a widget \link QWidget::setAcceptDrops() accepts drop
-    events \endlink, it will receive this event repeatedly while the
-    drag is within the widget's boundaries. The widget should examine
-    the event to see what data it \link QDragMoveEvent::provides()
-    provides \endlink, and accept() the drop if appropriate.
-
-    Note that this class inherits most of its functionality from
-    QDropEvent.
-*/
 
 void qt_xdnd_handle_selection_request(const XSelectionRequestEvent * req)
 {

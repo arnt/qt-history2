@@ -1747,6 +1747,23 @@ QDragResponseEvent::QDragResponseEvent(bool accepted)
     : QEvent(DragResponse), a(accepted)
 {}
 
+
+/*!
+    \class QDragMoveEvent qevent.h
+    \ingroup events
+    \ingroup draganddrop
+    \brief The QDragMoveEvent class provides an event which is sent while a drag and drop action is in progress.
+
+    When a widget \link QWidget::setAcceptDrops() accepts drop
+    events \endlink, it will receive this event repeatedly while the
+    drag is within the widget's boundaries. The widget should examine
+    the event to see what data it \link QDragMoveEvent::provides()
+    provides \endlink, and accept() the drop if appropriate.
+
+    Note that this class inherits most of its functionality from
+    QDropEvent.
+*/
+
 /*!
     \class QDragLeaveEvent qevent.h
     \brief The QDragLeaveEvent class provides an event that is sent to a widget when a drag and drop action leaves it.
