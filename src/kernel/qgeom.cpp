@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#24 $
 **
 **  Geometry Management
 **
@@ -11,7 +11,7 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#24 $");
 
 
 
@@ -170,7 +170,7 @@ void QLayout::addChildLayout( QLayout *l )
 */
 
 /*!
-  Starts geometry management - equivalent to show() for widgets.
+  Starts geometry management - analogous to show() for widgets.
   This function should only be called for top level layouts.
 */
 bool QLayout::activate()
