@@ -150,14 +150,14 @@ public:
 	if ( use_xp )
 	    ref++;
 
-	COLORREF cref;	
+	COLORREF cref;
 	// Active Title Bar ( Color 1 in the gradient )
 	cref = GetSysColor(COLOR_ACTIVECAPTION);
 	dockColorActive = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
 	// 3D Objects
 	cref = GetSysColor(COLOR_3DFACE);
 	dockColorInactive = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
-	
+
 	dockCloseActive = new QPixmap( 10, 10 );
 	dockCloseInactive = new QPixmap( 10, 10 );
 	dockCloseActive->fill( dockColorActive );
@@ -343,7 +343,10 @@ struct XPThemeData
 	    if ( !flipped )
 		painter->drawLine( rec.left(), rec.bottom(), rec.right()+1, rec.bottom() );
 	} else {
+	    QRect rt = rec;
+	    rec = painter->xForm( rec );
 	    ulong res = pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
+	    rec = rt;
 	}
     }
 
@@ -733,7 +736,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	break;
 	*/
 	QWindowsStyle::drawPrimitive( op, p, r, cg, flags, opt );
-	return; 
+	return;
 
     case PE_StatusBarSection:
 	name = "STATUS";
@@ -951,7 +954,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    if ( (bar->shape() == QTabBar::RoundedBelow) ||
 		 (bar->shape() == QTabBar::TriangularBelow) )
 		 doFlipp = TRUE;
-		
+
 	    int idx = bar->indexOf( t->identifier() );
 	    int aidx = bar->indexOf( bar->currentTab() );
 	    int lastTab = bar->count()-1;
