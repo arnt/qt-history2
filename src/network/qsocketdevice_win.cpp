@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#14 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#15 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -140,6 +140,10 @@ void QSocketDevice::setBlocking( bool enable )
 #endif
     if ( !isValid() )
 	return;
+
+    // ### error handling?
+    unsigned long dummy;
+    ioctlsocket( fd, FIONBIO, (enable?0:&dummy) );
 }
 
 
