@@ -674,7 +674,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return mw;
     } else if ( className == "QSqlWidget" ) {
 	QWidget *w = new QDesignerSqlWidget( parent, name );
-	w->show();
+	if ( parent )
+	    w->reparent( parent, QPoint( 0, 0 ), TRUE );
 	return w;
     } else if ( className == "QSqlDialog" ) {
 	QWidget *w = new QDesignerSqlDialog( parent, name );
