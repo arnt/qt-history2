@@ -547,7 +547,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
         case QTextListFormat::ListLowerAlpha:
         case QTextListFormat::ListUpperAlpha:
             painter->setFont(font);
-            painter->drawText(r.left(), pos.y() + blockFormat.topMargin() + fontMetrics.ascent(), itemText);
+            painter->drawText(r.left(), pos.y() + fontMetrics.ascent(), itemText);
             break;
         case QTextListFormat::ListSquare:
             painter->fillRect(r, brush);
