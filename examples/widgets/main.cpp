@@ -22,9 +22,9 @@ public:
 	setToolBarsMovable( TRUE );
     }
 
-    void button1Clicked() 
+    void button1Clicked()
     {
-	QStringList styles = QStyleFactory::styles();
+	QStringList styles = QStyleFactory::keys();
 
 	s = (++s)%styles.count();
 	qApp->setStyle( styles[ s] );
@@ -41,7 +41,7 @@ int main( int argc, char **argv )
 {
     QApplication::setColorSpec( QApplication::CustomColor );
     QApplication a( argc, argv );
-    
+
     MyWidgetView* w = new MyWidgetView;
     a.setMainWidget( w );
 
