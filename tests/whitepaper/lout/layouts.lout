@@ -15,12 +15,14 @@ widgets, automatic resizing, sensible minimum and default sizes for
 top-level widgets and automatic repositioning when the contents or
 the font changes. @QDR is optimized for laying out
 widgets using layout managers.
-  automatic layout @Index { Automatic layout }
-  child widget @Index { Child widget }
-  default widget size @Index { Default widget size }
+  automaticlayout @Index { Automatic layout }
+  childwidget @Index { Child widget }
+  defaultwidgetsize @Index { Default widget size }
   font @Index { Font }
+  geometry @Index { Geometry }
+  language @Index { Language }
   layout @Index { Layout }
-  parent widget @Index { Parent widget }
+  parentwidget @Index { Parent widget }
   positioning @Index { Positioning }
   repositioning @Index { Repositioning }
   resizing @Index { Resizing }
@@ -53,8 +55,8 @@ horizontal row from left to right. @Class QVBoxLayout organizes the
 managed widgets in a single vertical column, from top to bottom.
 @Class QGridLayout organizes the managed widgets in a grid of cells;
 widgets may span multiple cells.
-boxlayout @Index { Box layout }
-gridlayout @Index { Grid layout }
+  boxlayout @Index { Box layout }
+  gridlayout @Index { Grid layout }
 @PP
 In most cases, Qt's layout managers pick optimal sizes for managed
 widgets so that windows resize smoothly. If the defaults are
@@ -64,7 +66,6 @@ mechanisms:
 @ListItem {
 @I{Setting a minimum size, a maximum size or a fixed size for
    some child widgets.} 
-  fixedsize @Index { Fixed size }
   maximumsize @Index { Maximum size }
   minimumsize @Index { Minimum size }
 }
@@ -182,9 +183,12 @@ custom layout managers, @F BorderLayout, @F CardLayout and @F
 SimpleFlow, which programmers can use and modify.
   borderlayout @Index { BorderLayout }
   cardlayout @Index { CardLayout }
+  customlayout @Index { Custom layout }
   flowlayout @Index { Flow layout }
+  inheriting @Index { Inheriting }
   qlayout @Index { QLayout }
   simpleflow @Index { SimpleFlow }
+  subclassing @Index { Subclassing }
 @PP
 Qt also includes @Class QSplitter, a splitter bar that end users can
 manipulate. In some design situations, @Class QSplitter may be

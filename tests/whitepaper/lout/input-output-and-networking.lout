@@ -24,6 +24,7 @@ font and a color to the file @File splash.dat:
   binaryserialization @Index { Binary serialization }
   input/output @Index { "Input/output" }
   qdatastream @Index { QDataStream }
+  qstring @Index { QString }
   qtextcodec @Index { QTextCodec }
   qtextstream @Index { QTextStream }
   serialization @Index { Serialization }
@@ -66,12 +67,22 @@ QIODevice subclass. Qt includes the @Class QFile, @Class QBuffer,
 can implement their own custom devices. @Class QIODevice also
 provides low-level functions such as @Func readLine() and @Func
 writeBlock() that can be used independently of any stream.
+  customiodevice @Index { Custom "I/O" device }
+  qbuffer @Index { QBuffer }
+  qfile @Index { QFile }
+  qiodevice @Index { QIODevice }
+  qsocket @Index { QSocket }
+  qsocketdevice @Index { QSocketDevice }
+  socket @Index { Socket }
 @PP
 Directories are read and traversed using @Class QDir. @Class QDir can
 be used to manipulate path names and access the underlying file
 system (e.g. create a directory or delete a file). @Class QFileInfo
 provides more detailed information about a file, such as its size,
 permissions, creation time, last modification time, etc.
+  directory @Index { Directory }
+  qdir @Index { QDir }
+  qfileinfo @Index { QFileInfo }
 @PP
 The following example lists the hidden files in the user's home
 directory along with their size, in decreasing size order:
@@ -95,6 +106,8 @@ protocols. For example, files can be downloaded using FTP like this:
   ftp @Index { FTP }
   http @Index { HTTP }
   networking @Index { Networking }
+  qurl @Index { QUrl }
+  qurloperator @Index { QUrlOperator }
   url @Index { URL }
 @IndentedDisplay @CP @Begin
 QUrlOperator op;
@@ -145,6 +158,7 @@ standard error.
   ipc @Index { IPC }
   asynchronousio @Index { Asynchronous "I/O" }
   process @Index { Process }
+  qprocess @Index { QProcess }
 @PP
 @Class QProcess works asynchronously, reporting the availability of
 data by emitting signals. Qt applications can connect to the signals
@@ -159,10 +173,15 @@ data back to the external program.
 Qt provides a cross-platform interface for writing "TCP/IP" clients
 and servers.
   networking @Index { Networking }
+  tcp @Index { TCP }
+  udp @Index { UDP }
 @PP
 The @Class QSocket class provides an asynchronous buffered TCP
 connection. @Class QSocket is a @Class QIODevice, making it easy to
 use @Class QTextStream and @Class QDataStream on a socket.
+  asynchronousio @Index { Asynchronous "I/O" }
+  qiodevice @Index { QIODevice }
+  qsocket @Index { QSocket }
 @PP
 @Class QSocket is designed to work well within a GUI application. A
 live currency converter application illustrates this:
@@ -198,6 +217,7 @@ Convert button. It opens the connection and sends a @F CONV request
 ccp.banca-monica.nu. @Class QSocket automatically uses @Class QDns to
 resolve @F cpp.banca-monica.nu to its IP address. All these
 operations are non-blocking to keep the user interface responsive.
+  qdns @Index { QDns }
 @PP
 @IndentedDisplay @CP @Begin
 void Converter::updateTargetAmount()
@@ -216,11 +236,17 @@ Simple TCP servers can be implemented by subclassing @Class
 QServerSocket, which works asynchronously like @Class QSocket. @Class
 QServerSocket sets up a listening socket that accepts incoming
 connections, and calls a virtual function to serve the client.
+  asynchronousio @Index { Asynchronous "I/O" }
+  inheriting @Index { Inheriting }
+  qserversocket @Index { QServerSocket }
+  subclassing @Index { Subclassing }
 @PP
 The @Class QSocketDevice class provides a platform-independent
 wrapper for the native socket APIs. It provides the underlying
 functionality for @Class QSocket and @Class QServerSocket, and can be
 used for UDP.
+  qsocketdevice @Index { QSocketDevice }
+  udp @Index { UDP }
 @DP
 @OLREF @LP
 @Href{"http://www.trolltech.com/3.0/xml.html"}@LLP

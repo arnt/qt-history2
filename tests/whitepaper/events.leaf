@@ -18,8 +18,8 @@ and at the object level.
 
 \section1 Event Creation
 
-  \index Key press
-  \index Mouse click
+  \index Keyboard
+  \index Mouse
   \index Resizing
   \index Wheel mouse
 
@@ -56,8 +56,10 @@ QWidget::mouseReleaseEvent(), \Func QWidget::keyPressEvent(), etc.
 Developers can easily reimplement these handlers when writing their
 own widgets or when specializing existing widgets.
 
+  \index Drawing
   \index Flicker
   \index Painting
+  \index Repainting
 
 Some events are sent immediately, while others are queued, ready to
 be dispatched when control returns to the Qt kernel. Qt uses queueing
@@ -74,6 +76,7 @@ event that is destined for the monitored object before the monitored
 object receives the event.
 
   \index QApplication
+  \index notify()
 
 It's also possible to filter all the application's events by
 installing a filter on \c qApp, the unique \Class QApplication

@@ -11,6 +11,8 @@ to suit users screens.
   \index Child widget
   \index Default widget size
   \index Font
+  \index Geometry
+  \index Language
   \index Layout
   \index Parent widget
   \index Positioning
@@ -59,7 +61,6 @@ mechanisms:
 
 \list 1
 
-  \index Fixed size
   \index Maximum size
   \index Minimum size
 
@@ -159,9 +160,12 @@ above.
 
   \index BorderLayout
   \index CardLayout
+  \index Custom layout
   \index Flow layout
+  \index Inheriting
   \index QLayout
   \index SimpleFlow
+  \index Subclassing
 
 Developers can define custom layout managers by subclassing \Class
 QLayout. The \c customlayout example provided with Qt presents three

@@ -8,8 +8,9 @@ styles and custom widgets as independent components.
 \endquote
 
   \index Codec
-  \index Database driver
-  \index Image format
+  \index Custom widget
+  \index Database
+  \index Image
   \index Plugin
   \index Style
 
@@ -19,6 +20,7 @@ styles and custom widgets as independent components.
   \index Dynamic library
   \index Library
   \index Linking
+  \index QLibrary
   \index Shared library
 
 The \Class QLibrary class provides cross-platform dynamic library
@@ -43,10 +45,15 @@ do not apply to Qt plugins.
 
 \section1 Plugins
 
+  \index Inheriting
+  \index Subclassing
+
 Converting a Qt codec, database driver, image format converter, style
 or custom widget into a plugin is achieved by subclassing the
 appropriate plugin base class, implementing a few simple functions,
 and adding a macro.
+
+  \index QStyle
 
 For example, if a developer has created a \Class QStyle subclass
 called \Class CopperStyle that they want to make available as a plugin,
@@ -71,6 +78,8 @@ they would create a subclass like this:
 
     Q_EXPORT_PLUGIN( CopperStylePlugin )
 \endcode
+
+  \index QApplication
 
 The new style can be set like this:
 \code

@@ -15,17 +15,27 @@ containers. Custom widgets can easily be created by subclassing
 existing Qt widgets, or created from scratch on the rare occasions
 when this is necessary.
 
-  \index Controls
+  \index Control
   \index QWidget
-  \index Widgets
+  \index Widget
 
 Widgets are instances of \Class QWidget or one of its subclasses, and
 custom widgets are created by subclassing.
+
+  \index QDialog
+  \index QFrame
+  \index QLabel
+  \index QLineEdit
+  \index QObject
+  \index QSpinBox
+  \index QTimer
 
   \img qwidget-diag.png
   \caption An extract from the \Class QWidget class hierarchy
 
   \index Child widget
+  \index Geometry
+  \index Layout
   \index Parent widget
 
 A widget may contain any number of child widgets. Child widgets are
@@ -51,6 +61,9 @@ Rendering}.
 
   \img hello.png
   \caption Hello Qt!
+
+  \index QApplication
+  \index exec()
 
 The complete source code for a program that displays "Hello Qt!"
 follows:
@@ -186,6 +199,10 @@ The screenshot that shows the \Class {QRadioButton}s and \Class
   \printto endquote
 
 \section1 Custom Widgets
+
+  \index Custom widget
+  \index Inheriting
+  \index Subclassing
 
 Developers can create their own widgets and dialogs by subclassing
 \Class QWidget or one of its subclasses. To illustrate subclassing,

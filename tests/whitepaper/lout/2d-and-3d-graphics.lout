@@ -27,8 +27,8 @@ images in several formats, including BMP, GIF @FootNote { If you are
 in a country that recognizes software patents and where Unisys holds a
 patent on LZW decompression, Unisys may require you to license the
 technology to use GIF. }, JPEG, MNG, PNG, PNM, XBM and XPM.
-  bitmap @Index { Bitmap }
   bmp @Index { BMP }
+  bitmap @Index { Bitmap }
   gif @Index { GIF }
   graphics @Index { Graphics }
   icon @Index { Icon }
@@ -38,6 +38,7 @@ technology to use GIF. }, JPEG, MNG, PNG, PNM, XBM and XPM.
   png @Index { PNG }
   pnm @Index { PNM }
   picture @Index { Picture }
+  qimage @Index { QImage }
   unisys @Index { Unisys }
   xbm @Index { XBM }
   xpm @Index { XPM }
@@ -59,14 +60,14 @@ transformations (e.g. rotations, shears, etc.) and reduce the color
 depth with dithering if desired. Applications can store an `alpha
 channel' in a @Class QImage along with the color data for their own
 purposes (e.g. transparency and alpha-blending).
-  alpha channel @Index { Alpha channel }
+  alphachannel @Index { Alpha channel }
   palette @Index { Palette }
   transformation @Index { Transformation }
   transparency @Index { Transparency }
 @PP
 The @Class QMovie class can be used to display animated images.
-  animation @Index { animation }
-  movie @Index { movie }
+  animation @Index { Animation }
+  movie @Index { Movie }
   qmovie @Index { QMovie }
 @End @SubSubSection
 @SubSubSection
@@ -79,6 +80,8 @@ widgets. It provides primitives as well as advanced functionality
 such as transformations and clipping. All Qt's built-in widgets paint
 themselves using @Class QPainter. Programmers invariably use @Class
 QPainter when implementing their own custom widgets.
+  customwidget @Index { Custom widget }
+  drawing @Index { Drawing }
   painting @Index { Painting }
   qpainter @Index { QPainter }
 @PP
@@ -108,6 +111,8 @@ the widget using a `viewport'.
   viewport @Index { Viewport }
   window @Index { Window }
   worldmatrix @Index { World matrix }
+  height @Index { height() }
+  width @Index { width() }
 @Figure
     @Caption { Qt's @F xform example showing rotated text }
 @IncludeGraphic { "../images/xform.eps" }
@@ -115,6 +120,7 @@ the widget using a `viewport'.
 The code below draws a bar-graph custom widget. It uses a @Class
 QPainter in the reimplementation of @Func paintEvent(), with the
 default coordinate system.
+  customwidget @Index { Custom widget }
   event @Index { Event }
 @IndentedDisplay @CP @Begin
 void BarGraph::paintEvent( QPaintEvent * )
@@ -149,6 +155,9 @@ uses the @Func width(), @Func height() and @Func rect() functions.
 The widget produced by this code is shown below.
   clipping @Index { Clipping }
   flicker @Index { Flicker }
+  height @Index { height() }
+  rect @Index { rect() }
+  width @Index { width() }
 @Figure
     @Caption { Custom widget }
 @IncludeGraphic { "../images/painting.eps" }
@@ -181,7 +190,7 @@ the device. Qt supports the following paint devices:
 @PP
 @BulletList
   bitmap @Index { Bitmap }
-  double buffering @Index { Double buffering }
+  doublebuffering @Index { Double buffering }
   flicker @Index { Flicker }
   image @Index { Image }
   pixmap @Index { Pixmap }
@@ -199,9 +208,10 @@ SVG (W3C's Scalable Vector Graphics) XML format for input and output.
   picture @Index { Picture }
   qpicture @Index { QPicture }
   rotation @Index { Rotation }
+  svg @Index { SVG }
   scale @Index { Scale }
   shear @Index { Shear }
-  svg @Index { SVG }
+  w3c @Index { W3C }
   xml @Index { XML }
 }
 @ListItem { 
@@ -215,7 +225,7 @@ the appropriate print daemon.
 @ListItem { A @Class QWidget is also a paint device, as shown in the earlier
 bar-graph example.
   qwidget @Index { QWidget }
-  widget @Index { widget }
+  widget @Index { Widget }
 }
 @EndList
 @End @SubSubSection
@@ -240,7 +250,10 @@ detection, and can list all the canvas items in a given area. @Class
 QCanvasItem can be subclassed to provide custom item types and to
 extend the functionality of existing types.
   collisiontesting @Index { Collision testing }
+  customcanvasitem @Index { Custom canvas item }
+  inheriting @Index { Inheriting }
   qcanvasitem @Index { QCanvasItem }
+  subclassing @Index { Subclassing }
 @PP
 @Class QCanvas objects are rendered by the @Class QCanvasView class.
 Many @Class QCanvasView objects can show the same @Class QCanvas, but
@@ -272,12 +285,18 @@ achieved by subclassing @Class QGLWidget, a @Class QWidget subclass,
 and drawing with standard OpenGL functions rather than with @Class
 QPainter.
   gl @Index { GL }
+  inheriting @Index { Inheriting }
   opengl @Index { OpenGL }
   qglwidget @Index { QGLWidget }
+  subclassing @Index { Subclassing }
 @PP
 Qt's OpenGL module is available on Windows, X11 and Macintosh, and
 uses the system's OpenGL library (including Mesa).
+  macintosh @Index { Macintosh }
   mesa @Index { Mesa }
+  microsoftwindows @Index { Microsoft Windows }
+  windows @Index { Windows }
+  xwindowsystem @Index { X Window System }
 @Figure
     @Caption { Brain Innovation's BrainVoyager Qt application }
 @Scale @IncludeGraphic { "../images/brain-innovation.eps" }
@@ -288,13 +307,15 @@ index mode, alpha channel, overlays, etc. They can also set the
 colormap manually in color index mode.
   alphachannel @Index { Alpha channel }
   colormap @Index { Colormap }
-  double buffering @Index { Double buffering }
+  doublebuffering @Index { Double buffering }
   overlay @Index { Overlay }
 @PP
 When using Qt, developers write in pure OpenGL. Qt also provides two
 convenience functions, @Func qglClearColor() and @Func qglColor(),
 that accept a @Class QColor argument and work in any mode.
   qcolor @Index { QColor }
+  qglclearcolor @Index { qglClearColor() }
+  qglcolor @Index { qglColor() }
 @End @SubSection
 @SubSection
     @Title { A 3D Example }

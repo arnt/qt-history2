@@ -39,6 +39,7 @@ to obscure bugs in applications.
   \index Embedded Linux
   \index Linux
   \index Macintosh
+  \index Microsoft Windows
   \index Platforms
   \index Unix
   \index Windows
@@ -68,6 +69,7 @@ uses, Qt uses the native Windows file and print dialogs.)
 
   \index Rotation
   \index Transformation
+  \index World matrix
 
 With Qt, the same executable works on Windows 95/98/NT4/ME/2000. Qt
 performs a run-time check for the Windows version, and uses the most

@@ -29,13 +29,13 @@ Another problem with the callback approach is that it tightly binds
 the GUI element to the functionality, making it difficult to develop
 classes independently.
 
-  \index Callbacks
+  \index Callback
   \index Communication
-  \index Events
+  \index Connection
+  \index Event
   \index MFC
   \index Message map
   \index Motif
-  \index Objects
   \index QObject
   \index connect()
 
@@ -48,6 +48,9 @@ slot. Qt's signals and slots mechanism does not require classes to
 have knowledge of each other, which makes it much easier to develop
 highly reusable classes. Signals and slots are type safe, with type
 errors being reported by the compiler rather than by crashes.
+
+  \index clicked()
+  \index quit()
 
 For example, if a \Button Quit button's \Func clicked() signal is
 connected to the application's \Func quit() slot, a user's click on
@@ -72,9 +75,9 @@ appear in the public, protected or private sections of a class.
 
 \section1 A Signals and Slots Example
 
+  \index Inheriting
   \index QObject
-  \index Inheriting in Qt
-  \index Subclassing in Qt
+  \index Subclassing
 
 To benefit from signals and slots, a class must inherit from \Class
 QObject or one of its subclasses and include the \c Q_OBJECT macro in
@@ -156,14 +159,15 @@ their arguments are compatible.
 \section1 Meta Object Compiler
 
   \index Compiler features
-  \index Header file
   \index Meta Object Compiler
   \index moc
-  \index qmake
 
 The signals and slots mechanism is implemented in pure standard C++.
 The implementation uses the C++ preprocessor and the Meta Object
 Compiler (\Cmd moc) included with the Qt toolkit.
+
+  \index Makefile
+  \index qmake
 
 The \Cmd moc reads the application's header files and generates the
 necessary code to support the signals and slots mechanism. Developers

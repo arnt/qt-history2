@@ -12,12 +12,14 @@ implement their own styles using Qt's powerful style engine.
   \index Drawing
   \index Emulation
   \index Font
+  \index Inheriting
   \index Interface emulation
   \index Look and feel
   \index Preferences
   \index Settings
   \index Sound
   \index Style
+  \index Subclassing
   \index System sound
   \index Theme
   \index User settings
@@ -34,6 +36,7 @@ speed and flexibility.
   \index Aqua
   \index CDE
   \index Macintosh
+  \index Microsoft Windows
   \index Motif
   \index MotifPlus
   \index Platinum
@@ -50,7 +53,6 @@ the \c -style command-line option on Unix.
   \caption Comboboxes in the different built-in styles
 
   \index Fade effect
-  \index Menu
   \index Palette
   \index Scroll effect
   \index Tooltip
@@ -63,6 +65,8 @@ fade transition effects for menus and tooltips on Windows.
 
 \section1 Style-aware Widgets
 
+  \index Custom widget
+
 Qt's built-in widgets are style aware. Custom widgets and dialogs are
 almost always combinations of built-in widgets and layouts, and are
 automatically style aware. On the rare occasions when it is necessary
@@ -72,7 +76,10 @@ raw rectangles directly.
 
 \section1 Custom Styles
 
+  \index Custom style
+  \index Inheriting
   \index QCommonStyle
+  \index Subclassing
 
 Custom styles are used to provide a distinct look to an application
 or family of applications. Custom styles can be defined by
@@ -81,8 +88,20 @@ descendent of \Class QCommonStyle. It is easy to make small
 modifications to existing styles by reimplementing one or two virtual
 functions from the appropriate base class.
 
+  \index QAquaStyle
+  \index QCDEStyle
+  \index QCommonStyle
+  \index QMotifPlusStyle
+  \index QMotifStyle
+  \index QPlatinumStyle
+  \index QSGIStyle
+  \index QStyle
+  \index QWindowsStyle
+
   \img qstyle-diag.png
   \caption The full \Class QStyle class hierarchy
+
+  \index QApplication
 
 An application's style can be set like this:
 \code

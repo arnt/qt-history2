@@ -25,6 +25,7 @@ programming.
   \index PNG
   \index PNM
   \index Picture
+  \index QImage
   \index Unisys
   \index XBM
   \index XPM
@@ -64,6 +65,8 @@ The \Class QMovie class can be used to display animated images.
 
 \section2 Painting
 
+  \index Custom widget
+  \index Drawing
   \index Painting
   \index QPainter
 
@@ -94,6 +97,8 @@ a 2-pixel wide dashed red outline:
   \index Viewport
   \index Window
   \index World matrix
+  \index height()
+  \index width()
 
 By default, the top-left corner of a widget is located at coordinates
 (0, 0), and the bottom-right corner is located at (\Func width() - 1,
@@ -105,6 +110,7 @@ the widget using a 'viewport'.
   \img xform.png
   \caption Qt's \c xform example showing rotated text
 
+  \index Custom widget
   \index Event
 
 The code below draws a bar-graph custom widget. It uses a \Class
@@ -117,6 +123,9 @@ default coordinate system.
 
   \index Clipping
   \index Flicker
+  \index height()
+  \index rect()
+  \index width()
 
 The widget is drawn correctly at different sizes because the code
 uses the \Func width(), \Func height() and \Func rect() functions.
@@ -130,7 +139,7 @@ rectangles, polygons, ellipses and bitmaps. Complex regions may be
 created by uniting, intersecting, subtracting and XOR'ing simple
 regions. Clipping can be used to reduce flicker when repainting.
 
-  \index Colors
+  \index Color
   \index HSV
   \index Palette
   \index QColor
@@ -169,6 +178,7 @@ buffering'.
   \index SVG
   \index Scale
   \index Shear
+  \index W3C
   \index XML
 
 \i A \Class QPicture is a vector image that can be scaled, rotated
@@ -204,7 +214,10 @@ represent lines, rectangles, ellipses, texts, pixmaps, animated
 sprites, etc.
 
   \index Collision testing
+  \index Custom canvas item
+  \index Inheriting
   \index QCanvasItem
+  \index Subclassing
 
 Canvas items are instances of \Class QCanvasItem subclasses. They are
 more lightweight than widgets, and they can be quickly moved, hidden,
@@ -235,8 +248,10 @@ suitable for 2D games.
 \section1 3D Graphics
 
   \index GL
+  \index Inheriting
   \index OpenGL
   \index QGLWidget
+  \index Subclassing
 
 OpenGL is a standard API for rendering 3D graphics. Qt developers can
 use OpenGL to draw 3D graphics in their GUI applications. This is
@@ -244,7 +259,11 @@ achieved by subclassing \Class QGLWidget, a \Class QWidget subclass,
 and drawing with standard OpenGL functions rather than with \Class
 QPainter.
 
+  \index Macintosh
   \index Mesa
+  \index Microsoft Windows
+  \index Windows
+  \index X Window System
 
 Qt's OpenGL module is available on Windows, X11 and Macintosh, and
 uses the system's OpenGL library (including Mesa).
@@ -263,6 +282,8 @@ index mode, alpha channel, overlays, etc. They can also set the
 colormap manually in color index mode.
 
   \index QColor
+  \index qglClearColor()
+  \index qglColor()
 
 When using Qt, developers write in pure OpenGL. Qt also provides two
 convenience functions, \Func qglClearColor() and \Func qglColor(),

@@ -44,10 +44,18 @@ private classes.
   \index Algorithm
   \index List
   \index Map
+  \index QMap
+  \index qCopy()
+  \index qFind()
+  \index qHeapSort()
+  \index QStringList
   \index QTL
+  \index QValueList
+  \index QValueStack
+  \index QValueVector
   \index Stack
   \index Value-based collection
-  \index Vectors
+  \index Vector
 
 Qt provides five value-based collection classes: \Class
 QMap\<Key,T\>, \Class QValueList\<T\>, \Class QValueStack\<T\>,
@@ -72,9 +80,21 @@ are left unchanged. When an object is copied, only a pointer is
 passed and a reference count incremented, which is much faster than
 actually copying the data and also saves memory.
 
+  \index QBitmap
+  \index QBrush
+  \index QCursor
+  \index QFont
+  \index QIconSet
+  \index QPalette
+  \index QPen
+  \index QPicture
+  \index QPixmap
+  \index QRegion
+  \index QRegExp
+  \index QString
   \index String
 
-Implicit sharing is used wherever it makes sense: in Qt's value-based
+Sharing is used wherever it makes sense: in Qt's value-based
 collection classes, and in \Class QBitmap, \Class QBrush, \Class
 QCursor, \Class QFont, \Class QIconSet, \Class QPalette, \Class QPen,
 \Class QPicture, \Class QPixmap, \Class QRegion, \Class QRegExp,
@@ -86,6 +106,10 @@ shared \Class QString class makes string processing easy and fast.
   \index Array
   \index Memory array
   \index Plain old data
+  \index QBitArray
+  \index QByteArray
+  \index QMemArray
+  \index QPointArray
 
 Qt also provides the low-level \Class QMemArray\<T\> class with its
 subclasses \Class QBitArray, \Class QByteArray and \Class
@@ -101,6 +125,14 @@ QPointArray. These classes are very efficient for handling basic
   \index List
   \index Ownership
   \index Pointer-based collection
+  \index QCache
+  \index QDict
+  \index QObject
+  \index QPtrList
+  \index QPtrQueue
+  \index QPtrStack
+  \index QPtrVector
+  \index QWidget
   \index Queue
   \index Stack
   \index Vector

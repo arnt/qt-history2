@@ -4,8 +4,9 @@
 @Begin
 @QuotedDisplay { @I {
   codec @Index { Codec }
-  databasedriver @Index { Database driver }
-  imageformat @Index { Image format }
+  customwidget @Index { Custom widget }
+  database @Index { Database }
+  image @Index { Image }
   plugin @Index { Plugin }
   style @Index { Style }
 Qt can access functions from dynamic libraries platform-independently.
@@ -26,6 +27,7 @@ build-time linking.
   dynamiclibrary @Index { Dynamic library }
   library @Index { Library }
   linking @Index { Linking }
+  qlibrary @Index { QLibrary }
   sharedlibrary @Index { Shared library }
 @PP
 Below is an example of the most basic way to dynamically load and use
@@ -53,10 +55,13 @@ Converting a Qt codec, database driver, image format converter, style
 or custom widget into a plugin is achieved by subclassing the
 appropriate plugin base class, implementing a few simple functions,
 and adding a macro.
+  inheriting @Index { Inheriting }
+  subclassing @Index { Subclassing }
 @PP
 For example, if a developer has created a @Class QStyle subclass
 called @Class CopperStyle that they want to make available as a plugin,
 they would create a subclass like this: 
+  qstyle @Index { QStyle }
 @IndentedDisplay @CP @Begin
 class CopperStylePlugin : public QStylePlugin
 {
@@ -79,6 +84,7 @@ Q_EXPORT_PLUGIN( CopperStylePlugin )
 @End @CP
 @PP
 The new style can be set like this:
+  qapplication @Index { QApplication }
 @IndentedDisplay @CP @Begin
 QApplication::setStyle( QStyleFactory::create("CopperStyle") );
 @End @CP

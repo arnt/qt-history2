@@ -15,9 +15,9 @@ support the STL, which provides read-made data structures for storing
 items. Qt provides lists, stacks, queues and dictionaries with
 STL-syntax. Qt's collection classes work with both STL and non-STL
 compilers.
-  stl @Index { STL }
   collectionclass @Index { Collection class }
   container @Index { Container }
+  stl @Index { STL }
 @PP
 Qt's rich set of portable collection classes (`containers')
 and associated iterators are heavily used internally, and are
@@ -54,7 +54,15 @@ STL and Qt containers.
   algorithm @Index { Algorithm }
   list @Index { List }
   map @Index { Map }
+  qmap @Index { QMap }
+  qcopy @Index { qCopy() }
+  qfind @Index { qFind() }
+  qheapsort @Index { qHeapSort() }
+  qstringlist @Index { QStringList }
   qtl @Index { QTL }
+  qvaluelist @Index { QValueList }
+  qvaluestack @Index { QValueStack }
+  qvaluevector @Index { QValueVector }
   stack @Index { Stack }
   valuebasedcollection @Index { Value-based collection }
   vector @Index { Vector }
@@ -72,7 +80,7 @@ actually copying the data and also saves memory.
   referencecounting @Index { Reference counting }
   sharing @Index { Sharing }
 @PP
-Implicit sharing is used wherever it makes sense: in Qt's value-based
+Sharing is used wherever it makes sense: in Qt's value-based
 collection classes, and in @Class QBitmap, @Class QBrush, @Class
 QCursor, @Class QFont, @Class QIconSet, @Class QPalette, @Class QPen,
 @Class QPicture, @Class QPixmap, @Class QRegion, @Class QRegExp,
@@ -80,6 +88,18 @@ QCursor, @Class QFont, @Class QIconSet, @Class QPalette, @Class QPen,
 objects of these classes by value, avoiding the risks related to
 using pointers and hand optimization. In particular, the implicitly
 shared @Class QString class makes string processing easy and fast.
+  qbitmap @Index { QBitmap }
+  qbrush @Index { QBrush }
+  qcursor @Index { QCursor }
+  qfont @Index { QFont }
+  qiconset @Index { QIconSet }
+  qpalette @Index { QPalette }
+  qpen @Index { QPen }
+  qpicture @Index { QPicture }
+  qpixmap @Index { QPixmap }
+  qregion @Index { QRegion }
+  qregexp @Index { QRegExp }
+  qstring @Index { QString }
   string @Index { String }
 @PP
 Qt also provides the low-level @Class QMemArray<T> class with its
@@ -89,6 +109,10 @@ QPointArray. These classes are very efficient for handling basic
   array @Index { Array }
   memoryarray @Index { Memory array }
   plainolddata @Index { Plain old data }
+  qbitarray @Index { QBitArray }
+  qbytearray @Index { QByteArray }
+  qmemarray @Index { QMemArray }
+  qpointarray @Index { QPointArray }
 @End @SubSection
 @SubSection
     @Title { Pointer-based Collections }
@@ -110,6 +134,14 @@ automatically delete them when the collection is destroyed.
   list @Index { List }
   ownership @Index { Ownership }
   pointerbasedcollection @Index { Pointer-based collection }
+  qcache @Index { QCache }
+  qdict @Index { QDict }
+  qobject @Index { QObject }
+  qptrlist @Index { QPtrList }
+  qptrqueue @Index { QPtrQueue }
+  qptrstack @Index { QPtrStack }
+  qptrvector @Index { QPtrVector }
+  qwidget @Index { QWidget }
   queue @Index { Queue }
   stack @Index { Stack }
   vector @Index { Vector }

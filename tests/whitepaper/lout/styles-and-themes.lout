@@ -19,16 +19,18 @@ speed and flexibility.
   drawing @Index { Drawing }
   emulation @Index { Emulation }
   font @Index { Font }
-  interface emulation @Index { Interface emulation }
-  look and feel @Index { Look and feel }
+  inheriting @Index { Inheriting }
+  interfaceemulation @Index { Interface emulation }
+  lookandfeel @Index { Look and feel }
   preferences @Index { Preferences }
   settings @Index { Settings }
   sound @Index { Sound }
   style @Index { Style }
-  system sound @Index { System sound }
+  subclassing @Index { Subclassing }
+  systemsound @Index { System sound }
   theme @Index { Theme }
-  user settings @Index { User settings }
-  widget style @Index { Widget style }
+  usersettings @Index { User settings }
+  widgetstyle @Index { Widget style }
 @BeginSubSections
 @SubSection
     @Title { Built-in Styles }
@@ -43,6 +45,7 @@ the @F -style command-line option on Unix.
   aqua @Index { Aqua }
   cde @Index { CDE }
   macintosh @Index { Macintosh }
+  microsoftwindows @Index { Microsoft Windows }
   motif @Index { Motif }
   motifplus @Index { MotifPlus }
   platinum @Index { Platinum }
@@ -57,11 +60,10 @@ preferences for colors, fonts, sounds, etc. Qt automatically adapts
 to the computer's active theme. For example, Qt supports scroll and
 fade transition effects for menus and tooltips on Windows.
   fadeeffect @Index { Fade effect }
-  menus @Index { Menu }
   palette @Index { Palette }
-  scroll effect @Index { Scroll effect }
-  tooltips @Index { Tooltip }
-  transition effects @Index { Transition effect }
+  scrolleffect @Index { Scroll effect }
+  tooltip @Index { Tooltip }
+  transitioneffect @Index { Transition effect }
 @End @SubSection
 @SubSection
     @Title { Styles-aware Widgets }
@@ -74,6 +76,7 @@ automatically style aware. On the rare occasions when it is necessary
 to write a custom widget from scratch, developers can use @Class
 QStyle to draw primitive user-interface elements rather than drawing
 raw rectangles directly.
+  customwidget @Index { Custom widget }
 @End @SubSection
 @SubSection
     @Title { Custom Styles }
@@ -86,7 +89,10 @@ subclassing @Class QStyle, @Class QCommonStyle or any other
 descendent of @Class QCommonStyle. It is easy to make small
 modifications to existing styles by reimplementing one or two virtual
 functions from the appropriate base class.
+  customstyle @Index { Custom style }
+  inheriting @Index { Inheriting }
   qcommonstyle @Index { QCommonStyle }
+  subclassing @Index { Subclassing }
 @Figure
     @Caption { The full @Class QStyle class hierarchy }
 @Scale @Diag 
@@ -112,8 +118,18 @@ functions from the appropriate base class.
 }
 }
 #@IncludeGraphic { "../images/qstyle-diag.eps" }
+  qaquastyle @Index { QAquaStyle }
+  qcdestyle @Index { QCDEStyle }
+  qcommonstyle @Index { QCommonStyle }
+  qmotifplusstyle @Index { QMotifPlusStyle }
+  qmotifstyle @Index { QMotifStyle }
+  qplatinumstyle @Index { QPlatinumStyle }
+  qsgistyle @Index { QSGIStyle }
+  qstyle @Index { QStyle }
+  qwindowsstyle @Index { QWindowsStyle }
 @PP
 An application's style can be set like this:
+  qapplication @Index { QApplication }
 @IndentedDisplay @CP @Begin
 QApplication::setStyle( new MyCustomStyle );
 @End @CP

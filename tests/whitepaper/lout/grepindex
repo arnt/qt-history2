@@ -1,0 +1,1 @@
+cat *.lout | grep '@Index' | sort -f | uniq -c

@@ -13,7 +13,7 @@ SQL databases. Qt includes native drivers for Oracle, Microsoft SQL
 Server, Sybase Adaptive Server, PostgreSQL, MySQL and ODBC. The
 drivers work on all platforms supported by Qt, and programs can
 access multiple databases using multiple drivers simultaneously.
-  database @Index { database }
+  database @Index { Database }
   microsoftsqlserver @Index { Microsoft SQL Server }
   mysql @Index { MySQL }
   oci @Index { OCI }
@@ -36,6 +36,7 @@ updating and deleting records. Most database designs require that new
 records have a unique key that cannot be guessed by Qt, so insertion
 usually needs a small amount of code to be written. The programmer
 can easily force the user to confirm actions, e.g. deletions.
+  customwidget @Index { Custom widget }
   key @Index { Key }
   primarykey @Index { Primary key }
 @PP
@@ -119,7 +120,9 @@ with their calculated property set to TRUE, and by reimplementing
 @Func QSqlCursor::calculateField().
   calculatedfield @Index { Calculated field }
   foreignkey @Index { Foreign key }
+  inheriting @Index { Inheriting }
   qsqlfield @Index { QSqlField }
+  subclassing @Index { Subclassing }
 @PP
 Database drivers usually supply data as strings, regardless of the
 actual datatype. Qt handles such data seamlessly using the @Class
@@ -131,7 +134,7 @@ used if the database supports transactions.
   qvariant @Index { QVariant }
   rollback @Index { Rollback }
   transaction @Index { Transaction }
-  variant type @Index { Variant type }
+  varianttype @Index { Variant type }
 @End @SubSection
 @SubSection
     @Title { Data-aware Widgets }

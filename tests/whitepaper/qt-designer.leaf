@@ -23,6 +23,8 @@ approach makes design very fast, and the finished forms will scale
 properly to fit whatever window size the end-user prefers. See \l
 Layouts for information about Qt's automatic layouts.
 
+  \index Database
+
 \QD eliminates the time consuming compile, link and run cycle, and
 makes it easy to correct or change designs. \QD's preview options let
 developers see their forms in any style, for example, a Windows
@@ -30,6 +32,8 @@ developer can preview a form in Motif style. \QD provides live
 preview and editing of database data through its tight integration
 with Qt's database classes. See \l Databases for more about Qt's
 database support.
+
+  \index Custom widget
 
 Developers can create both dialog-style applications and main
 window-style applications with menus, toolbars, balloon help, etc.
@@ -39,6 +43,12 @@ applications. \QD uses wizards to make creating toolbars, menus and
 database applications as fast and easy as possible. Programmers can
 create their own custom widgets that can easily be integrated with
 \QD. 
+
+  \index .pro
+  \index Inheriting
+  \index Makefile
+  \index Subclassing
+  \index qmake
 
 \QD supports a project-based approach to application development. A
 project is represented by a \File .pro file, which \Cmd qmake can use
@@ -52,7 +62,9 @@ Icons and other images used in the application are automatically
 shared across all forms in a project to reduce executable size and
 speed up loading.
 
+  \index .ui
   \index XML
+  \index uic
 
 Form designs are stored in XML format in \File .ui files and
 converted into C++ header and source files by the \Cmd uic (User
@@ -88,12 +100,18 @@ searching for words and phrases that occur in the documentation.
   \img assistant-wp.png
   \caption \e {Qt Assistant}
 
+  \index Documentation
+  \index Guide
+  \index Manual
+  \index Reference documentation
+
 Qt's reference documentation consists of around 1,500 HTML pages (over
 2,500 US letter sized pages), which document Qt's classes and tools,
 and which include overviews and introductions to various aspects of Qt
 programming.
 
-  \index HTML viewer
+  \index Custom tag
+  \index HTML
   \index QStyleSheet
   \index QTextEdit
 

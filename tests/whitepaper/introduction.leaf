@@ -54,6 +54,8 @@ fully integrated with \l {Qt Designer}, which offers live preview of
 database data. Qt includes database-specific widgets, and any
 built-in or custom widget can be made data aware. 
 
+  \index .dsp
+  \index Makefile
   \index qmake
 
 Qt programs have native look and feel on all supported platforms

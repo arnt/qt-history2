@@ -50,7 +50,6 @@ positions and sizes, etc.
 The \Class QMainWindow class lays out a set of related widgets to
 provide a framework for typical application main windows.
 
-  \index Size grip
   \img mainwindow.png
   \caption An application main window
 
@@ -75,7 +74,6 @@ this?" help provide balloon help for the user-interface elements.
 \section2 Menus
 
   \index Context menu
-  \index Menu
   \index Popup menu
   \index QMenuBar
   \index QPopupMenu
@@ -98,13 +96,10 @@ Here's an example that creates a \Menu File menu with \NEW, \OPEN and
 \EXIT menu items:
 \code
     QPopupMenu *fileMenu = new QPopupMenu( this );
-    fileMenu->insertItem( "&New", this, SLOT(newFile()),
-			  CTRL+Key_N );
-    fileMenu->insertItem( "&Open...", this, SLOT(open()),
-			  CTRL+Key_O );
+    fileMenu->insertItem( "&New", this, SLOT(newFile()), CTRL+Key_N );
+    fileMenu->insertItem( "&Open...", this, SLOT(open()), CTRL+Key_O );
     fileMenu->insertSeparator();
-    fileMenu->insertItem( "E&xit", qApp, SLOT(quit()),
-			  CTRL+Key_Q );
+    fileMenu->insertItem( "E&xit", qApp, SLOT(quit()), CTRL+Key_Q );
 \endcode
 When a menu item is chosen, the corresponding slot is executed.
 
@@ -126,7 +121,9 @@ Here's how to create a menu bar with \FILE, \EDIT and \HELP menus:
     bar->insertItem( "&Help", helpMenu );
 \endcode
 
+  \index Inheriting
   \index QCustomMenuItem
+  \index Subclassing
 
 Qt's menu system is very flexible. Menu items can be enabled,
 disabled, added or removed dynamically. Menu items with customized
@@ -220,7 +217,6 @@ three kinds of indicators:
 
   \index Accelerator
   \index Action
-  \index Command
   \index Connection
   \index QAction
 
@@ -270,6 +266,7 @@ widget:
 \section1 Multiple Document Interface
 
   \index MDI
+  \index QWorkspace
   \index Workspace
 
 The \Class QWorkspace class provides multiple document interface
@@ -277,6 +274,7 @@ The \Class QWorkspace class provides multiple document interface
 a \Class QMainWindow, but it can be used like any other widget.
 
   \index Caption
+  \index Child widget
   \index Frame
 
 Child widgets of \Class QWorkspace are also ordinary widgets of any
@@ -311,7 +309,6 @@ Screenshots of some of Qt's standard dialogs are presented below.
   \index About box
   \index Error
   \index Fatal error
-  \index Information
   \index Message box
   \index QMessageBox
   \index Warning
@@ -429,6 +426,8 @@ classes.
 Qt provides one \Class QDockWindow subclass, \Class QToolBar. \Class
 QMainWindow automatically provides four dock areas, one on each side
 of the central widget.
+
+  \index Custom dock window
 
 Developers can create custom dock windows by instantiating a \Class
 QDockWindow object and by adding widgets to it. The widgets are laid

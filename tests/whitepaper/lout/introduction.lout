@@ -72,7 +72,9 @@ the target platform. Since Qt's architecture @Xref{qts.architecture}
 takes advantage of the underlying platform, many customers also use Qt
 for single-platform development on both Windows and on Unix because
 they prefer the Qt approach. 
-qmake @Index { qmake }
+  .dsp @Index { .dsp }
+  makefile @Index { Makefile }
+  qmake @Index { qmake }
 @PP
 Qt uses Unicode throughout and has considerable support for l
 internationalization @Xref{internationalization}. Qt includes

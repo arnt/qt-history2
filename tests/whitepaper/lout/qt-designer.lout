@@ -31,6 +31,7 @@ developer can preview a form in Motif style. @QDR provides live
 preview and editing of database data through its tight integration
 with Qt's database classes. See Databases @Xref{databases} for more
 about Qt's database support.
+  database @Index { Database }
 @PP
 Developers can create both dialog-style applications and main
 window-style applications with menus, toolbars, balloon help, etc.
@@ -40,6 +41,7 @@ applications. @QDR uses wizards to make creating toolbars, menus and
 database applications as fast and easy as possible. Programmers can
 create their own custom widgets that can easily be integrated with
 @QDR. 
+  customwidget @Index { Custom widget }
 @PP
 @QDR supports a project-based approach to application development. A
 project is represented by a @File .pro file, which @Cmd qmake can use
@@ -48,6 +50,11 @@ forms and source files as required. Developers can completely separate
 the user interface from the underlying functionality by subclassing,
 or they can keep their source code and forms together by editing the
 form's source directly in @QDR. 
+  .pro @Index { .pro }
+  inheriting @Index { Inheriting }
+  makefile @Index { Makefile }
+  subclassing @Index { Subclassing }
+  qmake @Index { qmake }
 @PP
 Icons and other images used in the application are automatically
 shared across all forms in a project to reduce executable size and
@@ -58,7 +65,9 @@ converted into C++ header and source files by the @Cmd uic (User
 Interface Compiler). The @Cmd qmake build tool automatically
 includes build rules for @Cmd uic in the Makefiles it generates, so
 developers do not need to invoke @Cmd uic themselves.
+  .ui @Index { .ui }
   xml @Index { XML }
+  uic @Index { uic }
 @PP
 Usually forms are compiled into the executable, but in some
 situations customers need to modify the appearance of an application
@@ -94,14 +103,19 @@ Qt's reference documentation consists of around 1,500 HTML pages (over
 2,500 US letter sized pages), which document Qt's classes and tools,
 and which include overviews and introductions to various aspects of Qt
 programming.
-  htmlviewer @Index { HTML viewer }
-  qstylesheet @Index { QStyleSheet }
-  qtextedit @Index { QTextEdit }
+  documentation @Index { Documentation }
+  guide @Index { Guide }
+  manual @Index { Manual }
+  referencedocumentation @Index { Reference documentation }
 @PP
 Qt Assistant is a Qt application that renders Qt's HTML reference
 documentation using @Class QTextEdit. The @Class QTextEdit class
 supports a subset of HTML 3.2, and can also use custom tags that are
 created with the @Class QStyleSheet class.
+  customtag @Index { Custom tag }
+  html @Index { HTML }
+  qstylesheet @Index { QStyleSheet }
+  qtextedit @Index { QTextEdit }
 @End @SubSection
 @BeginSubSections
 @SubSection
@@ -212,4 +226,3 @@ QListViewItem *ClassHierarchy::insertClass( const QString& name,
 @End @SubSection
 @EndSubSections
 @End @Section
-

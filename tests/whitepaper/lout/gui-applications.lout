@@ -85,7 +85,6 @@ vertical list. Pop-up menus can be standalone (e.g. a context menu),
 can appear in a menu bar, or can be a sub-menu of another popup menu.
 Menus can also have tear-off handles.
   contextmenu @Index { Context menu }
-  menu @Index { Menu }
   popupmenu @Index { Popup menu }
   qmenubar @Index { QMenuBar }
   qpopupmenu @Index { QPopupMenu }
@@ -103,13 +102,10 @@ Here's an example that creates a @Menu File menu with
 @I{E{@Underline{x}}it} menu items:
 @IndentedDisplay @CP @Begin
 QPopupMenu *fileMenu = new QPopupMenu( this );
-fileMenu->insertItem( "&New", this, SLOT(newFile()),
-                      CTRL+Key_N );
-fileMenu->insertItem( "&Open...", this, SLOT(open()),
-                      CTRL+Key_O );
+fileMenu->insertItem( "&New", this, SLOT(newFile()), CTRL+Key_N );
+fileMenu->insertItem( "&Open...", this, SLOT(open()), CTRL+Key_O );
 fileMenu->insertSeparator();
-fileMenu->insertItem( "E&xit", qApp, SLOT(quit()),
-                      CTRL+Key_Q );
+fileMenu->insertItem( "E&xit", qApp, SLOT(quit()), CTRL+Key_Q );
 @End @CP
 When a menu item is chosen, the corresponding slot is executed.
 @PP
@@ -135,7 +131,9 @@ Qt's menu system is very flexible. Menu items can be enabled,
 disabled, added or removed dynamically. Menu items with customized
 appearance and behavior can be created by subclassing @Class
 QCustomMenuItem.
+  inheriting @Index { Inheriting }
   qcustommenuitem @Index { QCustomMenuItem }
+  subclassing @Index { Subclassing }
 @End @SubSubSection
 @SubSubSection
     @Title { Toolbars }
@@ -236,7 +234,6 @@ action to a menu or toolbar. Actions that only make sense as menu
 options can be added to menus directly.
   accelerator @Index { Accelerator }
   action @Index { Action }
-  command @Index { Command }
   connection @Index { Connection }
   qaction @Index { QAction }
 @PP
@@ -295,6 +292,7 @@ top-level widgets. Functions such as @Func show(), @Func hide(),
 @Func showMaximized() and @Func setCaption() work in the same way for
 child MDI widgets as for ordinary top-level widgets.
   caption @Index { Caption }
+  childwidget @Index { Child widget }
   frame @Index { Frame }
 @PP
 @Class QWorkspace provides positioning strategies such as cascade
@@ -323,7 +321,6 @@ Screenshots of some of Qt's standard dialogs are presented below.
   aboutbox @Index { About box }
   error @Index { Error }
   fatalerror @Index { Fatal error }
-  information @Index { Information }
   messagebox @Index { Message box }
   qmessagebox @Index { QMessageBox }
   warning @Index { Warning }
@@ -346,7 +343,7 @@ renaming and directory creation. Like most Qt dialogs, @Class
 QFileDialog is resizable, which makes it easy to view long file
 names and large directories.
   directory @Index { Directory }
-  file dialog @Index { File dialog }
+  filedialog @Index { File dialog }
   qfiledialog @Index { QFileDialog }
 @PP
 @Figure
@@ -354,7 +351,7 @@ names and large directories.
 @IncludeGraphic { "../images/qprogressdialog.eps" }
 @PP
 @Class QProgressDialog displays a progress bar and a `Cancel' button.
-  progress bar @Index { Progress bar }
+  progressbar @Index { Progress bar }
   qprogressdialog @Index { QProgressDialog }
 @PP
 @Figure
@@ -446,6 +443,7 @@ QDockWindow object and by adding widgets to it. The widgets are laid
 out side-by-side if the dock area is horizontal (e.g. at the top of
 the main window) and above each other if the area is vertical (e.g.
 at the left of the main window).
+  customdockwindow @Index { Custom dock window }
 @PP
 Dock areas are not bound to @Class QMainWindow; developers can use
 @Class QDockArea in any custom widget. Toolbars and other dock

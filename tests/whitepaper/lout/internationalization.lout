@@ -35,7 +35,6 @@ char. Constructors and operators are provided to automatically convert
 to and from 8-bit strings. Programmers can copy @Class {QString}s by
 value, since they are implicitly shared (copy on write)
 @Xref{collection.classes}, which makes them fast and memory efficient.
-  char @Index { Char }
   implicitsharing @Index { Implicit sharing }
   qchar @Index { QChar }
   qregexp @Index { QRegExp }
@@ -43,6 +42,7 @@ value, since they are implicitly shared (copy on write)
   sharing @Index { Sharing }
   string @Index { String }
   unicode @Index { Unicode }
+  char @Index { char }
 @PP
 @Class QString is more than a 16-bit character string. Functions such
 as @Func QChar::lower() and @Func QChar::isPunct() replace @Func
@@ -75,9 +75,11 @@ subclassing @Class QTextCodec.
   eucjp @Index { EUC-JP }
   gbk @Index { GBK }
   iso8859 @Index { ISO 8859 }
+  inheriting @Index { Inheriting }
   jis @Index { JIS }
   koi8r @Index { KOI8-R }
   shiftjis @Index { Shift-JIS }
+  subclassing @Index { Subclassing }
 @End @SubSection
 @SubSection
     @Title { Text Rendering }
@@ -226,6 +228,7 @@ Trolltech provides French and German translations.
 @PP
 Qt Linguist is a Qt application that helps translators translate
 Qt applications.
+  japanese @Index { Japanese }
 @Figure
     @Caption { @I{Qt Linguist} }
 @Scale @IncludeGraphic { "../images/linguist-wp.eps" }

@@ -43,6 +43,13 @@ custom widgets are created by subclassing.
 }
 }
 #@IncludeGraphic{ "../images/qwidget-diag.eps" }
+  qdialog @Index { QDialog }
+  qframe @Index { QFrame }
+  qlabel @Index { QLabel }
+  qlineedit @Index { QLineEdit }
+  qobject @Index { QObject }
+  qspinbox @Index { QSpinBox }
+  qtimer @Index { QTimer }
 @PP
 A widget may contain any number of child widgets. Child widgets are
 shown within the parent widget's area. A widget with no visible
@@ -55,6 +62,8 @@ layout managers @Xref{layouts}, or manually if preferred. When
 a parent widget is disabled, hidden or deleted, the same action is
 applied to all its child widgets recursively.
   childwidget @Index { Child widget }
+  geometry @Index { Geometry }
+  layout @Index { Layout }
   parentwidget @Index { Parent widget }
 @PP
 Labels, message boxes, tooltips, etc., are not confined to using a
@@ -75,6 +84,8 @@ Rendering @Xref{text.rendering}.
 @PP
 The complete source code for a program that displays ``Hello Qt!''
 follows:
+  qapplication @Index { QApplication }
+  exec @Index { exec() }
 @IndentedDisplay @CP @Begin
 #include <qapplication.h>
 #include <qlabel.h>
@@ -117,24 +128,24 @@ using the Windows style.
     @Caption { Two @Class{QRadioButton}s and two @Class{QCheckBox}es
 	       laid out with a @Class QButtonGroup }
 @IncludeGraphic { "../images/qradiobutton-etc.eps" }
-  comboboxes @Index { Combobox }
+  combobox @Index { Combobox }
   date @Index { Date }
   editor @Index { Editor }
-  lineeditors @Index { Line editor }
-  multilineeditors @Index { Multi-line editor }
+  lineeditor @Index { Line editor }
+  multilineeditor @Index { Multi-line editor }
   qcombobox @Index { QComboBox }
   qdatetimeedit @Index { QDateTimeEdit }
   qgroupbox @Index { QGroupBox }
   qlineedit @Index { QLineEdit }
   qtextedit @Index { QTextEdit }
-  texteditors @Index { Text editor }
+  texteditor @Index { Text editor }
   time @Index { Time }
 @Figure
     @Caption { A @Class QDateTimeEdit, a @Class QLineEdit, a @Class
 	       QTextEdit and a @Class QComboBox laid out with a
 	       @Class QGroupBox }
 @IncludeGraphic { "../images/qdatetimeedit-etc.eps" }
-  dials @Index { Dials }
+  dial @Index { Dial }
   lcd @Index { LCD }
   progressbar @Index { Progress bar }
   qdial @Index { QDial }
@@ -146,8 +157,8 @@ using the Windows style.
   qspinbox @Index { QSpinBox }
   scrollbar @Index { Scroll bar }
   scrollview @Index { Scroll view }
-  sliders @Index { Sliders }
-  spinboxes @Index { Spin boxes }
+  slider @Index { Slider }
+  spinbox @Index { Spin box }
 @Figure
     @Caption { A @Class QDial, a @Class QProgressBar, a @Class QSpinBox,
 	       a @Class QScrollBar, a @Class QLCDNumber and a @Class
@@ -176,7 +187,7 @@ regular expressions can be used for validation.
   inputvalidation @Index { Input validation }
   qcombobox @Index { QComboBox }
   qlineedit @Index { QLineEdit }
-  qvalidator @Index { QRegExp }
+  qregexp @Index { QRegExp }
   qspinbox @Index { QSpinBox }
   qvalidator @Index { QValidator }
   regularexpression @Index { Regular expression }
@@ -190,8 +201,8 @@ QScrollView and can display scroll bars automatically.
   qscrollview @Index { QScrollView }
   qtable @Index { QTable }
   qtextedit @Index { QTextEdit }
-  scrollbar @Index { scroll bar }
-  scrollview @Index { scroll view }
+  scrollbar @Index { Scroll bar }
+  scrollview @Index { Scroll view }
 @PP
 @Class QMenuBar, @Class QStatusBar, @Class QToolBar and related
 widgets are presented in GUI Applications @Xref{gui.applications}.
@@ -202,10 +213,10 @@ and @Class QGLWidget are presented in 3D Graphics @Xref{3d.graphics}.
 @PP
 The screenshot that shows the @Class{QRadioButton}s and
 @Class{QCheckBox}es was produced with the following code:
-  checkbox @Index { checkbox }
+  checkbox @Index { Checkbox }
   qcheckbox @Index { QCheckBox }
   qradiobutton @Index { QRadioButton }
-  radio button @Index { radio button }
+  radiobutton @Index { Radio button }
 @IndentedDisplay @CP @Begin
 parent = new QButtonGroup( 2, Qt::Vertical, "QButtonGroup" );
 radio1 = new QRadioButton( "&Radio 1", parent );
@@ -224,6 +235,9 @@ check2->setChecked( TRUE );
 Developers can create their own widgets and dialogs by subclassing
 @Class QWidget or one of its subclasses. To illustrate subclassing,
 the complete code for a digital clock widget is presented.
+  customwidget @Index { Custom widget }
+  inheriting @Index { Inheriting }
+  subclassing @Index { Subclassing }
 @Figure
     @Caption { Clock widget }
 @IncludeGraphic { "../images/clock.eps" }

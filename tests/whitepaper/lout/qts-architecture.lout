@@ -15,11 +15,11 @@ of the supported platforms, as described in Styles and Themes
 derive their own custom styles to provide a distinct look for their
 applications.
   emulation @Index { Emulation }
-  interface emulation @Index { Interface emulation }
-  look and feel @Index { Look and feel }
+  interfaceemulation @Index { Interface emulation }
+  lookandfeel @Index { Look and feel }
   style @Index { Style }
   theme @Index { Theme }
-  widget style @Index { Widget style }
+  widgetstyle @Index { Widget style }
 @Figure
     @Caption { Qt's Architecture }
 @Tbl
@@ -82,6 +82,7 @@ preferring Qt's fully object-oriented approach.
   embeddedlinux @Index { Embedded Linux }
   linux @Index { Linux }
   macintosh @Index { Macintosh }
+  microsoftwindows @Index { Microsoft Windows }
   platforms @Index { Platforms }
   unix @Index { Unix }
   windows @Index { Windows }
@@ -111,6 +112,7 @@ this example demonstrates, Qt developers are insulated from changes
 in the Windows API.
   rotation @Index { Rotation }
   transformation @Index { Transformation }
+  worldmatrix @Index { World matrix }
 @PP
 Qt supports the Microsoft accessibility interfaces. Unlike Windows's
 common controls, Qt widgets can be extended without losing the
@@ -200,9 +202,9 @@ virtual keyboard; it is easy to write new input methods. By
 selectively choosing features, the memory demands of "Qt/Embedded" can
 be tuned to between 800 KB and 3 MB in ROM.
   alphablending @Index { Alpha-blending }
-  antialiasedfonts @Index { Anti-aliased fonts }
-  fonts @Index { Fonts }
-  inputmethods @Index { Input methods }
+  antialiasedfont @Index { Anti-aliased font }
+  font @Index { Font }
+  inputmethod @Index { Input method }
   memoryconstraints @Index { Memory constraints }
 @PP
 See the "Qt/Embedded" whitepaper for a complete technical overview.

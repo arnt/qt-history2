@@ -70,9 +70,11 @@ as well.
   \index EUC-JP
   \index GBK
   \index ISO 8859
+  \index Inheriting
   \index JIS
   \index KOI8-R
   \index Shift-JIS
+  \index Subclassing
 
 Qt 3.0 supports 37 different encodings, including Big5 and GBK for
 Chinese, EUC-JP, JIS and Shift-JIS for Japanese, KOI8-R for Russian
@@ -228,6 +230,8 @@ Trolltech provides French and German translations.
 
 \e {Qt Linguist} is a Qt application that helps translators translate
 Qt applications.
+
+  \index Japanese
 
   \img linguist-wp.png
   \caption \e {Qt Linguist}

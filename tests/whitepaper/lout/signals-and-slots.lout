@@ -41,11 +41,11 @@ highly reusable classes. Signals and slots are type safe, with type
 errors being reported by the compiler rather than by crashes.
   callback @Index { Callback }
   communication @Index { Communication }
+  connection @Index { Connection }
   event @Index { Event }
-  messagemap @Index { Message map }
   mfc @Index { MFC }
+  messagemap @Index { Message map }
   motif @Index { Motif }
-  object @Index { Object }
   qobject @Index { QObject }
   connect @Index { connect() }
 @PP
@@ -53,6 +53,8 @@ For example, if a @Button Quit button's @Func clicked() signal is
 connected to the application's @Func quit() slot, a user's click on
 @Button Quit makes the application terminate. In code, this is
 written as
+  clicked @Index { clicked() }
+  quit @Index { quit() }
 @IndentedDisplay @CP @Begin
 connect( button, SIGNAL(clicked()), qApp, SLOT(quit()) );
 @End @CP
@@ -78,9 +80,9 @@ QObject or one of its subclasses and include the @F Q_OBJECT macro in
 the class's definition. Signals are declared in the @F signals
 section of the class, while slots are declared in the @F public @F
 slots, @F protected @F slots or @F private @F slots sections.
+  inheriting @Index { Inheriting }
   qobject @Index { QObject }
-  inheritinginqt @Index { Inheriting in Qt }
-  subclassinginqt @Index { Subclassing in Qt }
+  subclassing @Index { Subclassing }
 @PP
 Here's an example @Class QObject subclass:
 @IndentedDisplay @CP @Begin
@@ -161,26 +163,26 @@ The signals and slots mechanism is implemented in pure standard C++.
 The implementation uses the C++ preprocessor and the Meta Object
 Compiler (@Cmd{moc}) included with the Qt toolkit.
   compilerfeatures @Index { Compiler features }
-  headerfiles @Index { Header file }
   metaobjectcompiler @Index { Meta Object Compiler }
   moc @Index { moc }
-  qmake @Index { qmake }
 @PP
 The @Cmd moc reads the application's header files and generates the
 necessary code to support the signals and slots mechanism. Developers
 never have to edit or even look at the generated code. The @Cmd qmake
 build tool generates the correct Makefiles for the target platform.
-  introspection @Index { Introspection }
-  magic @Index { Magic }
-  property @Index { Property }
-  rtti @Index { rtti }
-  runtimetypeinformation @Index { Run-time type information }
-  translation @Index { Translation }
+  makefile @Index { Makefile }
+  qmake @Index { qmake }
 @PP
 In addition to handling signals and slots, @Cmd moc supports Qt's
 translation mechanism, its property system and extended run-time type
 information. The @Cmd moc also makes the cross-platform introspection
 of C++ programs possible.
+  introspection @Index { Introspection }
+  magic @Index { Magic }
+  property @Index { Property }
+  rtti @Index { RTTI }
+  runtimetypeinformation @Index { Run-time type information }
+  translation @Index { Translation }
 @DP
 @OLREF @LP
 @Href{"http://www.trolltech.com/3.0/object.html"}@LLP
