@@ -3005,7 +3005,7 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 	}
     }
     emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
-    
+
     if ( e->button() != LeftButton && context_menu )
 	emit contextMenuRequested( tmpRow, tmpCol, e->globalPos() );
 }
@@ -3905,6 +3905,17 @@ void QTable::setNumRows( int r )
 {
     if ( r < 0 )
 	return;
+    QPtrVector<QTableItem> tmp;
+    tmp.resize( contents.size() );
+    int i;
+    for ( i = 0; i < (int)tmp.size(); ++i ) {
+	QTableItem *item = contents[ i ];
+	if ( item && indexOf( item->row(), item->col() ) == i )
+	    tmp.insert( i, item );
+	else
+	    tmp.insert( i, 0 );
+    }
+
     bool isUpdatesEnabled = leftHeader->isUpdatesEnabled();
     leftHeader->setUpdatesEnabled( FALSE );
     bool updateBefore = r < numRows();
@@ -3925,11 +3936,6 @@ void QTable::setNumRows( int r )
     if ( w > leftMargin() )
 	setLeftMargin( w );
 
-    QPtrVector<QTableItem> tmp;
-    tmp.resize( contents.size() );
-    int i;
-    for ( i = 0; i < (int)tmp.size(); ++i )
-	tmp.insert( i, contents[ i ] );
     contents.setAutoDelete( FALSE );
     contents.clear();
     contents.setAutoDelete( TRUE );
@@ -3971,6 +3977,17 @@ void QTable::setNumCols( int c )
 {
     if ( c < 0 )
 	return;
+    QPtrVector<QTableItem> tmp;
+    tmp.resize( contents.size() );
+    int i;
+    for ( i = 0; i < (int)tmp.size(); ++i ) {
+	QTableItem *item = contents[ i ];
+	if ( item && indexOf( item->row(), item->col() ) == i )
+	    tmp.insert( i, item );
+	else
+	    tmp.insert( i, 0 );
+    }
+
     bool isUpdatesEnabled = topHeader->isUpdatesEnabled();
     topHeader->setUpdatesEnabled( FALSE );
     bool updateBefore = c < numCols();
@@ -3984,11 +4001,6 @@ void QTable::setNumCols( int c )
 	    topHeader->removeLabel( numCols() - 1 );
     }
 
-    QPtrVector<QTableItem> tmp;
-    tmp.resize( contents.size() );
-    int i;
-    for ( i = 0; i < (int)tmp.size(); ++i )
-	tmp.insert( i, contents[ i ] );
     int nc = numCols();
     contents.setAutoDelete( FALSE );
     contents.clear();
