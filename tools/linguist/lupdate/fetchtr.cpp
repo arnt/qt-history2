@@ -28,8 +28,9 @@
 static const char MagicComment[] = "TRANSLATOR ";
 
 /*
-  The first part of this source file is the C++ tokenizer.  We skip most of C++;
-  the only tokens that interest us are defined here.  Thus, the code fragment
+  The first part of this source file is the C++ tokenizer.  We skip
+  most of C++; the only tokens that interest us are defined here.
+  Thus, the code fragment
 
       int main() {
 	  printf( "Hello, world!\n" );
@@ -43,17 +44,18 @@ static const char MagicComment[] = "TRANSLATOR ";
 	  Ident Semicolon
       RightBrace.
 
-  Notice that the left brace and the 0 don't produce any token.  (The left brace
-  is not completely ignored, as it increments yyBraceDepth.)
+  Notice that the left brace and the 0 don't produce any token. (The
+  left brace is not completely ignored, as it increments
+  yyBraceDepth.)
 */
 
-enum { Tok_Eof, Tok_Class, Tok_Tr, Tok_Translate, Tok_Ident, Tok_Comment,
+enum { Tok_Eof, Tok_class, Tok_tr, Tok_translate, Tok_Ident, Tok_Comment,
        Tok_String, Tok_Gulbrandsen, Tok_RightBrace, Tok_LeftParen,
        Tok_RightParen, Tok_Comma, Tok_Semicolon };
 
 /*
-  The tokenizer maintains the following global variables.  The names should be
-  self-explanatory.
+  The tokenizer maintains the following global variables. The names
+  should be self-explanatory.
 */
 static QCString yyName;
 static FILE *yyIn;
@@ -121,23 +123,23 @@ static int getToken()
 	    switch ( yyIdent[0] ) {
 	    case 'Q':
 		if ( strcmp(yyIdent + 1, "T_TR_NOOP") == 0 )
-		    return Tok_Tr;
+		    return Tok_tr;
 		else if ( strcmp(yyIdent + 1, "T_TRANSLATE_NOOP") == 0 )
-		    return Tok_Translate;
+		    return Tok_translate;
 		break;
 	    case 'c':
 		if ( strcmp(yyIdent + 1, "lass") == 0 )
-		    return Tok_Class;
+		    return Tok_class;
 		break;
 	    case 's':
 		if ( strcmp(yyIdent + 1, "truct") == 0 )
-		    return Tok_Class;
+		    return Tok_class;
 		break;
 	    case 't':
 		if ( strcmp(yyIdent + 1, "r") == 0 )
-		    return Tok_Tr;
+		    return Tok_tr;
 		else if ( strcmp(yyIdent + 1, "ranslate") == 0 )
-		    return Tok_Translate;
+		    return Tok_translate;
 	    }
 	    return Tok_Ident;
 	} else {
@@ -281,13 +283,13 @@ static int getToken()
 }
 
 /*
-  The second part of this source file is the parser.  It accomplishes a very
-  easy task:  It finds all strings inside a tr() or translate() call, and
-  possibly finds out the context of the call.  It supports three cases: (1) the
-  context is specified, as in FunnyDialog::tr( "Hello" ) or
-  translate( "FunnyDialog", "Hello" ); (2) the call appears within an inlined
-  method; (3) the call appears within a method defined outside the class
-  definition.
+  The second part of this source file is the parser. It accomplishes
+  a very easy task: It finds all strings inside a tr() or translate()
+  call, and possibly finds out the context of the call. It supports
+  three cases: (1) the context is specified, as in
+  FunnyDialog::tr("Hello") or translate("FunnyDialog", "Hello");
+  (2) the call appears within an inlined function; (3) the call
+  appears within a function defined outside the class definition.
 */
 
 static int yyTok;
@@ -315,9 +317,8 @@ void fetchtr_cpp( const char *name, MetaTranslator *tor,
 		  const char *defaultContext )
 {
     QCString context, text, com;
-    QCString methodContext;
+    QCString functionContext;
     QCString prefix;
-    bool fetchClassName = FALSE;
 
     startTokenizer( name );
     if ( yyIn == 0 )
@@ -326,19 +327,30 @@ void fetchtr_cpp( const char *name, MetaTranslator *tor,
     yyTok = getToken();
     while ( yyTok != Tok_Eof ) {
 	switch ( yyTok ) {
-	case Tok_Class:
-	    if ( yyBraceDepth == 0 && yyParenDepth == 0 )
-		fetchClassName = TRUE;
+	case Tok_class:
+	    /*
+	      Partial support for inlined functions.
+	    */
 	    yyTok = getToken();
+	    if ( yyBraceDepth == 0 && yyParenDepth == 0 ) {
+		functionContext = yyIdent;
+		yyTok = getToken();
+		while ( yyTok == Tok_Gulbrandsen ) {
+		    yyTok = getToken();
+		    functionContext += "::";
+		    functionContext += yyIdent;
+		    yyTok = getToken();
+		}
+	    }
 	    break;
-	case Tok_Tr:
+	case Tok_tr:
 	    yyTok = getToken();
 	    if ( match(Tok_LeftParen) && matchString(&text) ) {
 		com = "";
 		if ( match(Tok_RightParen) || (match(Tok_Comma) &&
 			matchString(&com) && match(Tok_RightParen)) ) {
 		    if ( prefix.isNull() )
-			context = methodContext;
+			context = functionContext;
 		    else
 			context = prefix;
 		    prefix = (const char *) 0;
@@ -347,24 +359,24 @@ void fetchtr_cpp( const char *name, MetaTranslator *tor,
 		}
 	    }
 	    break;
-	case Tok_Translate:
+	case Tok_translate:
 	    yyTok = getToken();
 	    if ( match(Tok_LeftParen) &&
-		    matchString(&context) &&
-		    match(Tok_Comma) &&
-		    matchString(&text) ) {
+		 matchString(&context) &&
+		 match(Tok_Comma) &&
+		 matchString(&text) ) {
 		com = "";
-		if ( match(Tok_RightParen) || (match(Tok_Comma)
-			&& matchString(&com) && match(Tok_RightParen)) )
+		if ( match(Tok_RightParen) ||
+		     (match(Tok_Comma) &&
+		      matchString(&com) &&
+		      match(Tok_RightParen)) )
 		    tor->insert( MetaTranslatorMessage(context, text, com) );
 	    }
 	    break;
 	case Tok_Ident:
-	    if ( fetchClassName ) {
-		methodContext = yyIdent;
-		fetchClassName = FALSE;
-	    }
-	    prefix = yyIdent;
+	    if ( !prefix.isNull() )
+		prefix += "::";
+	    prefix += yyIdent;
 	    yyTok = getToken();
 	    if ( yyTok != Tok_Gulbrandsen )
 		prefix = (const char *) 0;
@@ -385,15 +397,13 @@ void fetchtr_cpp( const char *name, MetaTranslator *tor,
 	    break;
 	case Tok_Gulbrandsen:
 	    if ( yyBraceDepth == 0 && yyParenDepth == 0 )
-		methodContext = prefix;
+		functionContext = prefix;
 	    yyTok = getToken();
-	    if ( yyTok != Tok_Tr )
-		prefix = (const char *) 0;
 	    break;
 	case Tok_RightBrace:
 	case Tok_Semicolon:
 	    if ( yyBraceDepth == 0 )
-		methodContext = defaultContext;
+		functionContext = defaultContext;
 	    yyTok = getToken();
 	    break;
 	default:
