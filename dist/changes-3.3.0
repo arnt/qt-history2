@@ -146,12 +146,12 @@ and QAxScriptEngine, can be used to script COM objects from within Qt
 applications using Windows Script Host.
 
 SAFEARRAY(BSTR) parameters are supported as QStringList. Calling COM
-object methods with out-parameters of type short is now supported (the
-parameters are of type int& in the Qt wrapper), and QVariants used for
-out-parameters don't have to be initialized to the expected type.
-Calling QByteArray functions in out-of-process controls no longer
-returns an error code. The control's client side is set to zero when
-the container releases the control.
+object methods with out-parameters of type short, char and float is 
+now supported (the parameters are of type int& and double& in the Qt 
+wrapper), and QVariants used for out-parameters don't have to be 
+initialized to the expected type. Calling QByteArray functions in 
+out-of-process controls no longer returns an error code. The control's 
+client side is set to zero when the container releases the control.
 
 
 Qt Designer
