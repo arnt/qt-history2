@@ -64,8 +64,10 @@ private:
 private:
     QPoint pressPoint;
     QWidget *dropIndicator;
+    int dragIndex;
     QWidget *dragPage;
     QString dragLabel;
+    QIcon dragIcon;
     bool mousePressed;
     QAction *m_actionDeletePage;
     QAction *m_actionInsertPage;

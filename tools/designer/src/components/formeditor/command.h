@@ -362,6 +362,28 @@ public:
     virtual void undo();
 };
 
+class MoveTabPageCommand: public TabWidgetCommand
+{
+    Q_OBJECT
+public:
+    MoveTabPageCommand(FormWindow *formWindow);
+    virtual ~MoveTabPageCommand();
+
+    virtual void init(QTabWidget *tabWidget, QWidget *page,
+                      const QIcon &icon, const QString &label,
+                      int index, int newIndex);
+
+    virtual void redo();
+    virtual void undo();
+
+private:
+    int m_newIndex;
+    int m_oldIndex;
+    QPointer<QWidget> m_page;
+    QString m_label;
+    QIcon m_icon;
+};
+
 class StackedWidgetCommand: public FormWindowCommand
 {
     Q_OBJECT

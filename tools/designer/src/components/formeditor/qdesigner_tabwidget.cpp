@@ -15,35 +15,12 @@
 #include "command.h"
 #include "formwindow.h"
 
-#include <qapplication.h>
-#include <qtabbar.h>
-#include <qaction.h>
-#include <qevent.h>
+#include <QApplication>
+#include <QTabBar>
+#include <QAction>
+#include <QMouseEvent>
+
 #include <qdebug.h>
-
-#if 0 // ### port me [DnD]
-class TabDrag : public QStoredDrag
-{
-public:
-    TabDrag(long addr, QWidget *parent = 0)
-        : QStoredDrag("designer/tab", parent)
-    { setEncodedData(QByteArray::number(addr)); }
-
-    static bool canDecode(QDragMoveEvent *e)
-    { return e->provides("designer/tab"); }
-
-    static bool decode(QDropEvent *e, long *addr)
-    {
-        QByteArray data = e->data("designer/tab"); 
-        if (data.isEmpty())
-            return false;
-
-        e->accept();
-        *addr = data.toLong();
-        return true;
-    }
-};
-#endif
 
 QDesignerTabWidget::QDesignerTabWidget(QWidget *parent)
     : QTabWidget(parent)
@@ -62,7 +39,7 @@ QDesignerTabWidget::QDesignerTabWidget(QWidget *parent)
     m_actionDeletePage = new QAction(this);
     m_actionDeletePage->setText(tr("Delete Page"));
     connect(m_actionDeletePage, SIGNAL(triggered()), this, SLOT(removeCurrentPage()));
-    
+
     connect(this, SIGNAL(currentChanged(int)),
         this, SLOT(slotCurrentChanged(int)));
 }
@@ -114,15 +91,14 @@ void QDesignerTabWidget::setCurrentTabIcon(const QIcon &tabIcon)
     setTabIcon(currentIndex(), tabIcon);
 }
 
-bool QDesignerTabWidget::eventFilter(QObject *, QEvent *)
+bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
 {
-#if 0 // ### port me [DnD]
     if (o != tabBar())
         return false;
 
     switch (e->type()) {
-        case QEvent::MouseButtonDblClick:
-            break;
+        case QEvent::MouseButtonDblClick: {
+        } break;
 
         case QEvent::MouseButtonPress: {
             QMouseEvent *mev = static_cast<QMouseEvent*>(e);
@@ -130,49 +106,63 @@ bool QDesignerTabWidget::eventFilter(QObject *, QEvent *)
                 mousePressed = true;
                 pressPoint = mev->pos();
             }
-        }
-        break;
+        } break;
 
-        case QEvent::MouseButtonRelease:
+        case QEvent::MouseButtonRelease: {
             mousePressed = false;
-            break;
+        } break;
 
-        case QEvent::MouseMove:
-            if (mousePressed && canMove(static_cast<QMouseEvent*>(e))) {
+        case QEvent::MouseMove: {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
+            if (mousePressed && canMove(mouseEvent)) {
                 mousePressed = false;
-                TabDrag *drg = new TabDrag((long) this, this);
+                QDrag *drg = new QDrag(this);
+                QMimeData *mimeData = new QMimeData();
+                mimeData->setData("designer/tab", QByteArray::number(long(this)));
+                drg->setMimeData(mimeData);
 
-                int index = currentIndex();
+                dragIndex = currentIndex();
                 dragPage = currentWidget();
                 dragLabel = currentTabText();
+                dragIcon = currentTabIcon();
 
-                removeTab(index);
+                removeTab(dragIndex);
 
-                if (!drg->dragMove()) {
-                    insertTab(index, dragPage, dragLabel);
-                    setCurrentIndex(index);
+                QDrag::DropActions dropAction = drg->start(QDrag::MoveAction);
+
+                if (dropAction == 0) {
+                    // abort
+                    insertTab(dragIndex, dragPage, dragIcon, dragLabel);
+                    setCurrentIndex(dragIndex);
                 }
 
                 if (dropIndicator)
                     dropIndicator->hide();
             }
-            break;
+        } break;
 
-        case QEvent::DragLeave:
+        case QEvent::DragLeave: {
             if (dropIndicator)
                 dropIndicator->hide();
-            break;
+        } break;
 
         case QEvent::DragMove: {
-            QDragEnterEvent *de = static_cast<QDragEnterEvent*>(e);
-            if (TabDrag::canDecode(de)) {
-                long addr = 0;
-                TabDrag::decode(de, &addr);
-                if (addr == (long)this)
-                    de->accept();
-                else
-                    return false;
+            QDragMoveEvent *de = static_cast<QDragMoveEvent*>(e);
+
+            long addr = 0;
+            if (const QMimeData *mimeData = de->mimeData()) {
+                bool ok = false;
+                addr = mimeData->data("designer/tab").toLong(&ok);
+                if (!ok) addr = 0;
+                de->acceptProposedAction();
+                de->accept();
             }
+
+            if (long(this) != addr)
+                return false;
+
+            de->accept();
+            de->acceptProposedAction();
 
             int index = 0;
             QRect rect;
@@ -206,53 +196,48 @@ bool QDesignerTabWidget::eventFilter(QObject *, QEvent *)
 
             dropIndicator->setGeometry(pos.x(), pos.y() , 3, rect.height());
             dropIndicator->show();
-        }
-        break;
+        } break;
 
         case QEvent::Drop: {
-            QDragEnterEvent *de = (QDragEnterEvent*) e;
-            if (TabDrag::canDecode(de)) {
-                long addr;
-                TabDrag::decode(de, &addr);
-                if (addr == (long)this) {
-                    int newIndex = 0;
-                    for (; newIndex < count(); newIndex++) {
-                        QRect rc = tabBar()->tabRect(newIndex);
-                        if (rc.contains(de->pos()))
-                            break;
-                    }
+            QDropEvent *de = static_cast<QDropEvent*>(e);
 
-                    if (newIndex == count() -1) {
-                        QRect rect2 = tabBar()->tabRect(newIndex);
-                        rect2.setLeft(rect2.left() + rect2.width() / 2);
-                        if (rect2.contains(de->pos()))
-                            newIndex++;
-                    }
+            long addr = 0;
+            if (const QMimeData *mimeData = de->mimeData()) {
+                bool ok = false;
+                addr = mimeData->data("designer/tab").toLong(&ok);
+                if (!ok) addr = 0;
+            }
 
-                    int oldIndex = 0;
-                    for (; oldIndex < count(); oldIndex++) {
-                        QRect rc = tabBar()->tabRect(oldIndex);
-                        if (rc.contains(pressPoint))
-                            break;
-                    }
+            if (addr == long(this)) {
+                de->acceptProposedAction();
+                de->accept();
 
-#if 0 // ### port me [command]
-                    FormWindow *fw = FormWindow::findFormWindow(this);
-                    MoveTabPageCommand *cmd =
-                        new MoveTabPageCommand(tr("Move Tab Page"), fw, this,
-                                                dragPage, dragLabel, newIndex, oldIndex);
+                int newIndex = 0;
+                for (; newIndex < count(); newIndex++) {
+                    QRect rc = tabBar()->tabRect(newIndex);
+                    if (rc.contains(de->pos()))
+                        break;
+                }
+
+                if (newIndex == count() -1) {
+                    QRect rect2 = tabBar()->tabRect(newIndex);
+                    rect2.setLeft(rect2.left() + rect2.width() / 2);
+                    if (rect2.contains(de->pos()))
+                        newIndex++;
+                }
+
+                if (FormWindow *fw = FormWindow::findFormWindow(this)) {
+                    MoveTabPageCommand *cmd = new MoveTabPageCommand(fw);
+                    insertTab(dragIndex, dragPage, dragIcon, dragLabel);
+                    cmd->init(this, dragPage, dragIcon, dragLabel, dragIndex, newIndex);
                     fw->commandHistory()->push(cmd);
-#endif
-                    de->accept();
                 }
             }
-        }
-        break;
+        } break;
 
         default:
             break;
     }
-#endif
 
     return false;
 }

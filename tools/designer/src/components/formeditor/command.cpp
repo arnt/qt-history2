@@ -730,6 +730,44 @@ void AddTabPageCommand::undo()
     removePage();
 }
 
+// ---- MoveTabPageCommand ----
+MoveTabPageCommand::MoveTabPageCommand(FormWindow *formWindow)
+    : TabWidgetCommand(formWindow)
+{
+}
+
+MoveTabPageCommand::~MoveTabPageCommand()
+{
+}
+
+void MoveTabPageCommand::init(QTabWidget *tabWidget, QWidget *page,
+                      const QIcon &icon, const QString &label,
+                      int index, int newIndex)
+{
+    TabWidgetCommand::init(tabWidget);
+    setDescription(tr("Move Page"));
+
+    m_page = page;
+    m_newIndex = newIndex;
+    m_oldIndex = index;
+    m_label = label;
+    m_icon = icon;
+}
+
+void MoveTabPageCommand::redo()
+{
+    m_tabWidget->removeTab(m_oldIndex);
+    m_tabWidget->insertTab(m_newIndex, m_page, m_icon, m_label);
+    m_tabWidget->setCurrentIndex(m_newIndex);
+}
+
+void MoveTabPageCommand::undo()
+{
+    m_tabWidget->removeTab(m_newIndex);
+    m_tabWidget->insertTab(m_oldIndex, m_page, m_icon, m_label);
+    m_tabWidget->setCurrentIndex(m_oldIndex);
+}
+
 // ---- StackedWidgetCommand ----
 StackedWidgetCommand::StackedWidgetCommand(FormWindow *formWindow)
     : FormWindowCommand(QString::null, formWindow)
