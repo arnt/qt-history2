@@ -23,7 +23,6 @@ void QDnsAgent::run()
 #if !defined (QT_NO_GETADDRINFO)
     // Call getaddrinfo, and place all IPv4 addresses at the start and
     // the IPv6 addresses at the end of the address list in results.
-    addrinfo hints;
     addrinfo *res = 0;
     int result = getaddrinfo(hostName.latin1(), 0, 0, &res);
     if (result == 0) {
