@@ -198,8 +198,8 @@ QGLFormat::QGLFormat()
     \code
     // The rendering in MyGLWidget depends on using
     // stencil buffer and alpha channel
-    MyGLWidget::MyGLWidget(QWidget* parent, const char* name)
-        : QGLWidget(QGLFormat(StencilBuffer | AlphaChannel), parent, name)
+    MyGLWidget::MyGLWidget(QWidget* parent)
+        : QGLWidget(QGLFormat(StencilBuffer | AlphaChannel), parent)
     {
         if (!format().stencil())
             qWarning("Could not get stencil buffer; results will be suboptimal");
@@ -1661,8 +1661,8 @@ const QGLContext* QGLContext::currentContext()
         Q_OBJECT        // must include this if you use Qt signals/slots
 
     public:
-        MyGLDrawer(QWidget *parent, const char *name)
-            : QGLWidget(parent, name) {}
+        MyGLDrawer(QWidget *parent)
+            : QGLWidget(parent) {}
 
     protected:
 
@@ -1747,13 +1747,13 @@ const QGLContext* QGLContext::currentContext()
 */
 
 /*!
-    Constructs an OpenGL widget with a \a parent widget and a \a name.
+    Constructs an OpenGL widget with a \a parent widget.
 
     The \link QGLFormat::defaultFormat() default format\endlink is
     used. The widget will be \link isValid() invalid\endlink if the
     system has no \link QGLFormat::hasOpenGL() OpenGL support\endlink.
 
-    The \a parent, \a name and widget flag, \a f, arguments are passed
+    The \a parent and widget flag, \a f, arguments are passed
     to the QWidget constructor.
 
     If the \a shareWidget parameter points to a valid QGLWidget, this
@@ -1779,7 +1779,7 @@ QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f
 
 
 /*!
-    Constructs an OpenGL widget with parent \a parent, called \a name.
+    Constructs an OpenGL widget with parent \a parent.
 
     The \a format argument specifies the desired \link QGLFormat
     rendering options \endlink. If the underlying OpenGL/Window system
@@ -1790,7 +1790,7 @@ QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f
     The widget will be \link isValid() invalid\endlink if the system
     has no \link QGLFormat::hasOpenGL() OpenGL support\endlink.
 
-    The \a parent, \a name and widget flag, \a f, arguments are passed
+    The \a parent and widget flag, \a f, arguments are passed
     to the QWidget constructor.
 
     If the \a shareWidget parameter points to a valid QGLWidget, this
@@ -1816,7 +1816,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* 
 }
 
 /*!
-    Constructs an OpenGL widget with parent \a parent, called \a name.
+    Constructs an OpenGL widget with parent \a parent.
 
     The \a context argument is a pointer to the QGLContext that
     you wish to be bound to this widget. This allows you to pass in
@@ -1825,7 +1825,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* 
     The widget will be \link isValid() invalid\endlink if the system
     has no \link QGLFormat::hasOpenGL() OpenGL support\endlink.
 
-    The \a parent, \a name and widget flag, \a f, arguments are passed
+    The \a parent and widget flag, \a f, arguments are passed
     to the QWidget constructor.
 
     If the \a shareWidget parameter points to a valid QGLWidget, this
