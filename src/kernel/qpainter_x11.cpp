@@ -3019,11 +3019,16 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
             QFont dfont( cfont );
 	    float det = QABS(m11()*m22() - m12()*m21());
-	    if ( det != 1 ) {
+	    if ( QABS( det -1. ) > 0.01 ) {
 		// det == 1. means we have only a rotation, so no need to change font size.
 		float pixSize = cfont.pixelSize();
-		if ( pixSize == -1 )
-		    pixSize = cfont.deciPointSize() * QPaintDeviceMetrics( pdev ).logicalDpiY() / 720;
+		if ( pixSize == -1 ) {
+		    pixSize = cfont.deciPointSize();
+		    int dpi = QPaintDeviceMetrics( pdev ).logicalDpiY();
+		    if ( dpi < 72 || dpi > 75 )
+			pixSize *= dpi / 72;
+		    pixSize /= 10;
+		}
 		int newSize = (int) (sqrt( det ) * pixSize) - 1;
 		newSize = QMAX( 6, QMIN( newSize, 72 )); // empirical values
 		dfont.setPixelSize( newSize );
