@@ -31,6 +31,10 @@ public:
     QString      trueText() const;
     void         setFalseText( const QString& falseText );
     QString      falseText() const;
+    void         setConfirmEdits( bool confirm );
+    bool         confirmEdits() const;
+    void         setConfirmCancels( bool confirm );
+    bool         confirmCancels() const;
 
     void         addColumn( const QSqlField* field );
     void         removeColumn( uint col );
@@ -60,23 +64,42 @@ public slots:
 			     bool backwards );
 
 protected slots:
-    virtual bool insertCurrent();
-    virtual bool updateCurrent();
-    virtual bool deleteCurrent();
+    virtual void insertCurrent();
+    virtual void updateCurrent();
+    virtual void deleteCurrent();
 
 protected:
-    virtual bool beginInsert();
-    virtual QWidget* beginUpdate ( int row, int col, bool replace );        
-   
-    void         columnWidthChanged( int col );
+    enum Confirm {
+	Yes = 0,
+	No = 1,
+	Cancel = 2
+    };
 
+    friend class QSqlTablePrivate;
+    enum Mode {
+	None,
+	Insert,
+	Update,
+	Delete
+    };
+    
+    virtual Confirm confirmEdit( QSqlTable::Mode m );
+    virtual Confirm confirmCancel( QSqlTable::Mode m );
+    
+    virtual void handleError( const QSqlError& e );
+        
+    virtual bool beginInsert();
+    virtual QWidget* beginUpdate ( int row, int col, bool replace );
     virtual bool primeInsert( QSqlView* view );
     virtual bool primeUpdate( QSqlView* view );
     virtual bool primeDelete( QSqlView* view );
 
     bool         eventFilter( QObject *o, QEvent *e );
-    void         mousePressEvent( QMouseEvent *e );
+    void         contentsMousePressEvent( QMouseEvent* e );
+    void         endEdit( int row, int col, bool accept, bool replace );
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
+    //    void         setCurrentCell( int row, int col );    
+    void         activateNextCell();    
     int          indexOf( uint i ) const;
     void         reset();
     void         setSize( const QSql* sql );
@@ -94,14 +117,13 @@ protected:
     void         clearCell ( int row, int col ) ;
     void         setPixmap ( int row, int col, const QPixmap & pix );
     void         takeItem ( QTableItem * i );
-    void 	 setCellContentFromEditor( int row, int col );
 private slots:
     void         loadNextPage();
     void         loadLine( int l );
     void         setCurrentSelection( int row, int col );
 
 private:
-    QWidget*     beginEdit ( int row, int col, bool replace );    
+    QWidget*     beginEdit ( int row, int col, bool replace );
     void         refresh( QSqlView* view, bool seekPrimary = FALSE );
     void         setNumCols ( int r );
     void         updateRow( int row );
