@@ -627,63 +627,6 @@ void QTextEditPrivate::extendWordwiseSelection(int suggestedNewPosition, qreal m
         setCursorPosition(wordEndPos, QTextCursor::KeepAnchor);
 }
 
-void QTextEditPrivate::doWindowsShiftClickSelection(int suggestedNewPosition)
-{
-    Q_Q(QTextEdit);
-
-    QTextCursor currentWordCursor = cursor;
-
-    bool extendToWordSelection = false;
-
-    if (currentWordCursor.hasSelection()) {
-        currentWordCursor.setPosition(cursor.anchor());
-        extendToWordSelection = true;
-    }
-
-    currentWordCursor.select(QTextCursor::WordUnderCursor);
-
-    if (suggestedNewPosition >= currentWordCursor.selectionStart()
-        && suggestedNewPosition <= currentWordCursor.selectionEnd()) {
-        setCursorPosition(suggestedNewPosition, QTextCursor::KeepAnchor);
-        return;
-    }
-
-    if (suggestedNewPosition < currentWordCursor.anchor())
-        cursor.setPosition(currentWordCursor.position());
-    else
-        cursor.setPosition(currentWordCursor.anchor());
-
-    setCursorPosition(suggestedNewPosition, QTextCursor::KeepAnchor);
-
-    if (extendToWordSelection) {
-        QTextCursor tmp = cursor;
-        tmp.select(QTextCursor::WordUnderCursor);
-
-        if (suggestedNewPosition < currentWordCursor.anchor()) {
-            if (tmp.selectionStart() < suggestedNewPosition)
-                suggestedNewPosition = tmp.selectionStart();
-        } else {
-            if (tmp.selectionEnd() > suggestedNewPosition)
-                suggestedNewPosition = tmp.selectionEnd();
-        }
-
-        setCursorPosition(suggestedNewPosition, QTextCursor::KeepAnchor);
-    }
-}
-
-void QTextEditPrivate::doWindowsCtrlClickSelection(int suggestedNewPosition)
-{
-    Q_Q(QTextEdit);
-
-    if (cursor.hasSelection()) {
-        setCursorPosition(suggestedNewPosition);
-    } else {
-        cursor.movePosition(QTextCursor::StartOfBlock);
-        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-        q->ensureCursorVisible();
-    }
-}
-
 /*!
     \class QTextEdit
     \brief The QTextEdit class provides a widget that is used to edit and display
@@ -1732,27 +1675,19 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
                 return;
         }
 #endif
-
-        if (e->modifiers() == Qt::ShiftModifier) {
-            if (d->selectedWordOnDoubleClick.hasSelection())
-                d->extendWordwiseSelection(cursorPos, pos.x());
-            else
-                d->doWindowsShiftClickSelection(cursorPos);
-        } else if (e->modifiers() == Qt::ControlModifier) {
-            d->doWindowsCtrlClickSelection(cursorPos);
-        } else {
-
-            if (d->cursor.hasSelection()
-                    && cursorPos >= d->cursor.selectionStart()
-                    && cursorPos <= d->cursor.selectionEnd()) {
-                d->mightStartDrag = true;
-                d->dragStartPos = e->globalPos();
-                d->dragStartTimer.start(QApplication::startDragTime(), this);
-                return;
-            }
-
-            d->setCursorPosition(cursorPos);
+        if (d->cursor.hasSelection()
+            && cursorPos >= d->cursor.selectionStart()
+            && cursorPos <= d->cursor.selectionEnd()) {
+            d->mightStartDrag = true;
+            d->dragStartPos = e->globalPos();
+            d->dragStartTimer.start(QApplication::startDragTime(), this);
+            return;
         }
+
+        if (e->modifiers() == Qt::ShiftModifier)
+            d->extendWordwiseSelection(cursorPos, pos.x());
+        else
+            d->setCursorPosition(cursorPos);
     }
 
     d->updateCurrentCharFormatAndSelection();
