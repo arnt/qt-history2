@@ -1295,15 +1295,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 #ifdef QMAC_QMENUBAR_NATIVE //In native menubar mode we offer the event to the menubar first..
 	if(etype == QEvent::KeyPress) {
+#if 0
 	    EventRecord erec;
-#if 1 //I shouldn't have to do this, but the conversion thingy won't work?.. 
 	    erec.what = keyDown;
-	    erec.modifiers = modif;
+	    erec.modifiers = modif;;
 	    erec.message = chr;
-#else
-	    ConvertEventRefToEventRecord(event, &erec);
-#endif
 	    long mi = MenuEvent(&erec);
+#else
+	    long mi = MenuKey(chr);
+#endif
 	    if(mi) {
 		QMenuBar::activate(mi);
 		break;

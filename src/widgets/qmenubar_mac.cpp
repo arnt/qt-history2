@@ -11,6 +11,7 @@
 #include <qintdict.h>
 #include <qstring.h>
 #include <qapplication.h>
+#include <qaccel.h>
 
 const unsigned char * p_str(const char *); //qglobal.cpp
 static MenuRef createPopup(QPopupMenu *d, bool);
@@ -75,12 +76,14 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 		continue;
 	    }
 
-	    QString text = "empty"; //Yes I need this, stupid!
+	    QString text = "empty", accel; //Yes I need this, stupid!
 	    if(!item->isSeparator()) {
 		text = item->text();
 		int st = text.findRev('\t');
-		if(st != -1)
+		if(st != -1) {
+		    accel = text.right(text.length()-(st+1));
 		    text.remove(st, text.length()-st);
+		}
 	    }
 
 	    InsertMenuItemText(ret, no_ampersands(text), id);
@@ -99,20 +102,26 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 		CheckMenuItem(ret, id, item->isChecked() ? true : false);
 		if(item->popup()) {
 		    SetMenuItemHierarchicalMenu(ret, id, createPopup(item->popup(), FALSE));
-		} else if(item->key() != Qt::Key_unknown) {
+		} else {
 		    int k = item->key();
-		    char mod = 0, charcode = 0;
-		    if ( (k & Qt::CTRL) == Qt::CTRL ) 
-			mod |= controlKey;
-		    if ( (k & Qt::ALT) == Qt::ALT ) 
-			mod |= optionKey;
-		    if ( (k & Qt::SHIFT) == Qt::SHIFT ) 
-			mod |= shiftKey;
-		    k &= ~(Qt::SHIFT | Qt::CTRL | Qt::ALT);
-		    charcode = (char)k;
+		    if(k == Qt::Key_unknown && !accel.isEmpty()) 
+			k = QAccel::stringToKey(accel);
 
-		    SetMenuItemModifiers(ret, id, mod);
-		    SetItemCmd(ret, id, charcode);
+		    if( k != Qt::Key_unknown ) {
+			char mod = 0, charcode = 0;
+			if ( (k & Qt::CTRL) == Qt::CTRL ) 
+			    mod |= controlKey;
+			if ( (k & Qt::ALT) == Qt::ALT ) 
+			    mod |= optionKey;
+			if ( (k & Qt::SHIFT) == Qt::SHIFT ) 
+			    mod |= shiftKey;
+			k &= ~(Qt::SHIFT | Qt::CTRL | Qt::ALT);
+			charcode = toupper((char)k);
+			if(charcode >= 'A' && charcode <= 'Z') {
+			    SetMenuItemModifiers(ret, id, mod);
+			    SetItemCmd(ret, id, charcode);
+			}
+		    }
 		}
 	    }
 	    id++;
@@ -142,7 +151,7 @@ static MenuRef createPopup(QPopupMenu *d, bool do_sync)
     SetMenuDefinition(ret, &spec);
 #endif
 
-    if(do_sync)
+    if(1 || do_sync)
 	syncPopup(ret, d);
     return ret;
 }
@@ -176,6 +185,7 @@ bool QMenuBar::activate(long msg)
 #define	HiWrd(aLong)	(((aLong) >> 16) & 0xFFFF)
 #define	LoWrd(aLong)	((aLong) & 0xFFFF)
     short id = HiWrd( msg ),  index = LoWrd( msg );
+    qDebug("Activating %d %d %d", id, index, msg);
 
     //This is a bit hacky, it will probably work in most cases, but I doubt it'll work forever FIXME!?
     int cmd;
