@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdict.h#5 $
+** $Id: //depot/qt/main/src/kernel/qobjectdict.h#6 $
 **
 ** Definition of QObjectDictionary
 **
@@ -30,11 +30,15 @@
 #endif // QT_H
 
 
-// QMetaObject collection
+//
+// The object dictionary is a collection of QMetaObjects
+//
+
 
 #if defined(QT_DLL)
 template class Q_EXPORT QDict<QMetaObject>;
 #endif
+
 
 class Q_EXPORT QObjectDictionary : public QDict<QMetaObject>
 {

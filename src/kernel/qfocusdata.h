@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfocusdata.h#7 $
+** $Id: //depot/qt/main/src/kernel/qfocusdata.h#8 $
 **
 ** Definition of internal QFocusData class
 **
@@ -46,5 +46,6 @@ private:
     QWidgetList	  focusWidgets;
     QWidgetListIt it;
 };
+
 
 #endif // QFOCUSDATA_H
