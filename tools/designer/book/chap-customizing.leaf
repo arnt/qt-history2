@@ -288,8 +288,8 @@ single main window.)
 \section1 Integrating Qt Designer with Visual Studio
 
 \QD can be integrated into Visual Studio 6.0 using the
-\index qmsdev.dsp
-\File qmsdev.dsp file that is supplied with Qt. 
+\index qmsdev.dll
+\File qmsdev.dll file that is supplied with Qt.
 Visual Studio.Net does not support this integration.
 
 \index Visual Studio
@@ -308,7 +308,7 @@ Now click \Menu Tools|Customize. Click the Add-in Macro Files
 tab, then click the \Button Browse button. Change the
 file type to 'Add-ins (.dll)' and navigate to
 \File {Microsoft Visual Studio\Common\MSDev98\AddIns}.
-Click the 
+Click the
 \index qmsdev.dll
 \File qmsdev.dll file, click
 \Button Open, then click \Button Close.
