@@ -487,6 +487,76 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
     }
 }
 
+/*!
+    \class QMenu qmenu.h
+    \brief The QMenu class provides a menu widget for use in QMenuBar
+    or context menus.
+
+    \ingroup application
+    \ingroup basic
+    \mainclass
+
+    A menu widget is a selection menu. It can be either a pull-down
+    menu in a menu bar or a standalone context menu.  Pull-down menus
+    are shown by the menu bar when the user clicks on the respective
+    item or presses the specified shortcut key. Use
+    QMenuBar::addAction() to insert a menu into a menu bar.  Show a
+    context menu either asynchronously with popup() or synchronously
+    with exec().
+
+    Technically, a menu consists of a list of action items. You add
+    actions with addAction(). An action is represented vertically and
+    rendered by QStyle. In addition, items can have a text label, an
+    optional icon drawn on the very left side, and an accelerator key
+    such as "Ctrl+X".
+
+    There are three kinds of action items: separators, action items
+    that perform an action and menu items that show a
+    submenu. Separators are inserted with addSeparator(). For submenus
+    use addMenu(). All other items are considered action items.
+
+    When inserting action items you usually specify a receiver and a
+    slot. The receiver will be notifed whenever the item is selected.
+    In addition, QMenu provides two signals, activated() and
+    highlighted(), which signal the QAction that was triggered from
+    the menu. 
+
+    You clear a menu with clear() and remove single items with
+    removeAction().
+
+    A menu can display check marks for certain items when enabled with
+    setCheckable(true). 
+
+    A QMenu can also provide a tear-off menu. A tear-off menu is a
+    top-level window that contains a copy of the menu. This makes it
+    possible for the user to "tear off" frequently used menus and
+    position them in a convenient place on the screen. If you want
+    that functionality for a certain menu, insert a tear-off handle
+    with setTearOffEnabled(). When using tear-off menus, bear in
+    mind that the concept isn't typically used on Microsoft Windows so
+    users may not be familiar with it. Consider using a QToolBar
+    instead. 
+
+    \link menu-example.html menu/menu.cpp\endlink is an example of
+    QMenuBar and QMenu use.
+
+    \important addAction removeAction clear addSeparator addMenu
+
+    <img src=qmenu-m.png> <img src=qmenu-w.png>
+
+    \sa QMenuBar
+    \link guibooks.html#fowler GUI Design Handbook: Menu, Drop-Down and
+    Pop-Up\endlink
+*/
+
+
+/*!
+    Constructs a menu with parent \a parent.
+
+    Although a popup menu is always a top-level widget, if a parent is
+    passed the popup menu will be deleted when that parent is
+    destroyed (as with any other QObject).
+*/
 QMenu::QMenu(QWidget *parent) : QWidget(*new QMenuPrivate, parent, WType_TopLevel|WType_Popup)
 {
     setFocusPolicy(StrongFocus);
@@ -501,6 +571,9 @@ QMenu::QMenu(QWidget *parent) : QWidget(*new QMenuPrivate, parent, WType_TopLeve
 #endif
 }
 
+/*!
+    Destroys the menu.
+*/
 QMenu::~QMenu()
 {
     if(d->sync)
@@ -509,6 +582,17 @@ QMenu::~QMenu()
         d->tornPopup->close();
 }
 
+/*!
+  \overload
+
+  Appends an action with text \a text to the list of actions.
+
+  This convenience function will create a new QAction, setting its
+  text, append it to the list of actions, and finally return the newly
+  created action.
+
+  \sa QWidget::addAction()
+*/
 QAction *QMenu::addAction(const QString &text)
 {
     QAction *ret = new QAction(text);
@@ -516,6 +600,18 @@ QAction *QMenu::addAction(const QString &text)
     return ret;
 }
 
+/*!
+  \overload
+
+  Appends an action with text \a text and icon \a icon to the list of
+  actions.
+
+  This convenience function will create a new QAction, setting its
+  text and icon, append it to the list of actions, and finally return the
+  newly created action.
+
+  \sa QWidget::addAction()
+*/
 QAction *QMenu::addAction(const QIconSet &icon, const QString &text)
 {
     QAction *ret = new QAction(icon, text);
@@ -523,22 +619,61 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text)
     return ret;
 }
 
+/*!
+  \overload
+
+  Appends an action with text \a text to the list of actions. This
+  will automatically QObject::connect() the created QAction's
+  triggered() signal to object's \a receiver function \a member.
+
+  This convenience function will create a new QAction, setting its
+  text, append it to the list of actions, and finally return the
+  newly created action.
+
+  \sa QWidget::addAction()
+*/
 QAction *QMenu::addAction(const QString &text, const QObject *receiver, const char* member)
 {
     QAction *ret = new QAction(text, this);
-    QObject::connect(ret, SIGNAL(activated()), receiver, member);
+    QObject::connect(ret, SIGNAL(triggered()), receiver, member);
     addAction(ret);
     return ret;
 }
 
+/*!
+  \overload
+
+  Appends an action with text \a text and icon \a icon to the list of
+  actions. This will automatically QObject::connect() the created
+  QAction's triggered() signal to object's \a receiver function \a
+  member.
+
+  This convenience function will create a new QAction, setting its
+  text and icon, append it to the list of actions, and finally
+  return the newly created action.
+
+  \sa QWidget::addAction()
+*/
 QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member)
 {
     QAction *ret = new QAction(icon, text, this);
-    QObject::connect(ret, SIGNAL(activated()), receiver, member);
+    QObject::connect(ret, SIGNAL(triggered()), receiver, member);
     addAction(ret);
     return ret;
 }
 
+/*!
+  \overload
+
+  Appends an action with text \a text and menu \a menu to the list of
+  actions.
+
+  This convenience function will create a new QAction, setting its
+  text and menu, append it to the list of actions, and finally
+  return the newly created action.
+
+  \sa QWidget::addAction()
+*/
 QAction *QMenu::addMenu(const QString &text, QMenu *menu)
 {
     QAction *ret = new QAction(text, menu, this);
@@ -546,6 +681,16 @@ QAction *QMenu::addMenu(const QString &text, QMenu *menu)
     return ret;
 }
 
+/*!
+  \overload
+
+  Appends an action with QAction::separator() set to true.
+
+  This convenience function will create a new QAction, append it to
+  the list of actions, and finally return the newly created action.
+
+  \sa QWidget::addAction()
+*/
 QAction *QMenu::addSeparator()
 {
     QAction *ret = new QAction(this);
@@ -554,6 +699,17 @@ QAction *QMenu::addSeparator()
     return ret;
 }
 
+/*!
+  \overload
+
+  Inserts an action with text \a text and menu \a menu into the list
+  of actions before \a before.
+
+  This convenience function will create a new QAction, insert it to
+  the list of actions, and finally return the newly created action.
+
+  \sa QWidget::insertAction() addMenu()
+*/
 QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
 {
     QAction *ret = new QAction(text, menu, this);
@@ -561,6 +717,17 @@ QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
     return ret;
 }
 
+/*!
+  \overload
+
+  Inserts an action with QAction::separator() set to true into the
+  list of actions before \a before.
+
+  This convenience function will create a new QAction, insert it to
+  the list of actions, and finally return the newly created action.
+
+  \sa QWidget::insertAction() addSeparator()
+*/
 QAction *QMenu::insertSeparator(QAction *before)
 {
     QAction *ret = new QAction(this);
@@ -569,6 +736,15 @@ QAction *QMenu::insertSeparator(QAction *before)
     return ret;
 }
 
+/*!
+    \property QMenu::tearOffEnabled
+    \brief whether the menu supports being torn off
+
+    When true QMenu has a special menu item that creates a copy of the
+    menu when the menu is selected. This "torn-off" copy lives in a
+    separate window. It contains the same menu items as the original
+    menu, with the exception of the tear-off handle.
+*/
 void QMenu::setTearOffEnabled(bool b)
 {
     if(d->tearoff == b)
@@ -587,6 +763,15 @@ bool QMenu::isTearOffEnabled() const
     return d->tearoff;
 }
 
+/*!
+    \property QMenu::checkable
+    \brief whether the display of check marks on menu items is enabled
+
+    When true, the display of check marks on menu items is enabled.
+    Checking is always enabled when in Windows-style.
+
+    \sa QAction::setChecked()
+*/
 void QMenu::setCheckable(bool b)
 {
     if(b == d->checkable)
@@ -603,11 +788,20 @@ bool QMenu::isCheckable() const
     return d->checkable;
 }
 
+/*!  
+  Returns the QAction that is currently highlighted. A null pointer
+  will be returned if no action is currently selected.
+*/
 QAction *QMenu::activeAction() const
 {
     return d->currentAction->action;
 }
 
+/*!
+    Removes all actions.
+
+    \sa removeAction()
+*/
 void QMenu::clear()
 {
     QList<QAction*> acts = actions();
@@ -615,12 +809,27 @@ void QMenu::clear()
         removeAction(acts[i]);
 }
 
+/*!
+  \internal
+  
+  If a menu does not fit on the screen it lays itself out so that it
+  does fit. It is style dependent what layout means (for example, on
+  Windows it will use multiple columns).
+
+  This functions returns the number of columns necessary.
+*/
 int QMenu::columnCount() const
 {
     const_cast<QMenuPrivate*>(d)->updateActions();
     return d->ncols;
 }
 
+/*!
+  \internal
+
+  Return the item at \a pt, or 0 if there is no item there or if it is
+  a separator item (and ignoreSeparator is true).
+*/
 QAction *QMenu::actionAtPos(const QPoint &pt, bool ignoreSeparator) const
 {
     const_cast<QMenuPrivate*>(d)->updateActions();
@@ -631,6 +840,11 @@ QAction *QMenu::actionAtPos(const QPoint &pt, bool ignoreSeparator) const
     return 0;
 }
 
+/*!
+  \internal
+
+  Returns the geometry of action \a act.
+*/
 QRect QMenu::actionGeometry(QAction *act) const
 {
     const_cast<QMenuPrivate*>(d)->updateActions();
@@ -641,6 +855,9 @@ QRect QMenu::actionGeometry(QAction *act) const
     return QRect();
 }
 
+/*!
+    \reimp
+*/
 QSize QMenu::sizeHint() const
 {
     ensurePolished();
@@ -666,6 +883,20 @@ QSize QMenu::sizeHint() const
     return style().sizeFromContents(QStyle::CT_Menu, this, s.expandedTo(QApplication::globalStrut()));
 }
 
+/*!
+    Displays the menu so that the action \a atAction will be at the
+    specified \e global position \a p. To translate a widget's local
+    coordinates into global coordinates, use QWidget::mapToGlobal().
+
+    When positioning a menu with exec() or popup(), bear in mind that
+    you cannot rely on the menu's current size(). For performance
+    reasons, the menu adapts its size only when necessary, so in many
+    cases, the size before and after the show is different. Instead,
+    use sizeHint(). It calculates the proper size depending on the
+    menu's current contents.
+
+    \sa QWidget::mapToGlobal(), exec()
+*/
 void QMenu::popup(const QPoint &p, QAction *atAction)
 {
     if(d->scroll) { //reset scroll state from last popup
@@ -763,11 +994,70 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 #endif
 }
 
+/*!
+    \overload
+
+    Executes this menu synchronously.
+
+    This is equivalent to \c{exec(mapToGlobal(QPoint(0,0)))}. 
+
+    This returns the selected QAction in either the popup menu or one
+    of its submenus, or 0 if no item is selected (normally because the
+    user pressed Esc).
+
+    In most situations you'll want to specify the position yourself,
+    for example at the current mouse position: 
+    \code
+      exec(QCursor::pos()); 
+    \endcode 
+    or aligned to a widget: 
+    \code
+      exec(somewidget.mapToGlobal(QPoint(0,0))); 
+    \endcode
+*/
 QAction *QMenu::exec()
 {
     return exec(mapToGlobal(QPoint(0,0)));
 }
 
+
+/*!
+    \overload
+
+    Executes this menu synchronously.
+
+    Opens the menu so that the action \a action will be at the
+    specified \e global position \a p. To translate a widget's local
+    coordinates into global coordinates, use QWidget::mapToGlobal().
+
+    This returns the selected QAction in either the popup menu or one
+    of its submenus, or 0 if no item is selected (normally because the
+    user pressed Esc).
+
+    Note that all signals are emitted as usual. If you connect a
+    QAction to a slot and call the menu's exec(), you get the result
+    both via the signal-slot connection and in the return value of
+    exec().
+
+    Common usage is to position the menu at the current mouse
+    position:
+    \code
+        exec(QCursor::pos());
+    \endcode
+    or aligned to a widget:
+    \code
+        exec(somewidget.mapToGlobal(QPoint(0, 0)));
+    \endcode
+
+    When positioning a menu with exec() or popup(), bear in mind that
+    you cannot rely on the menu's current size(). For performance
+    reasons, the menu adapts its size only when necessary. So in many
+    cases, the size before and after the show is different. Instead,
+    use sizeHint(). It calculates the proper size depending on the
+    menu's current contents.
+
+    \sa popup(), QWidget::mapToGlobal()
+*/
 QAction *QMenu::exec(const QPoint &p, QAction *action)
 {
     d->sync = 1;
@@ -780,6 +1070,25 @@ QAction *QMenu::exec(const QPoint &p, QAction *action)
     return ret;
 }
 
+/*!
+    \overload
+
+    Executes this menu synchronously.
+
+    This returns the selected QAction in either the popup menu or one
+    of its submenus, or 0 if no item is selected (normally because the
+    user pressed Esc).
+
+    This is equivelant to:
+    \code
+       QMenu menu;
+       foreach (QAction *a, actions)
+          menu->addAction(a);
+       menu.exec(pos, at);
+    \endcode
+
+    \sa popup(), QWidget::mapToGlobal()
+*/
 QAction *QMenu::exec(QList<QAction*> actions, const QPoint &pos, QAction *at)
 {
     QMenu menu;
@@ -788,6 +1097,9 @@ QAction *QMenu::exec(QList<QAction*> actions, const QPoint &pos, QAction *at)
     return menu.exec(pos, at);
 }
 
+/*!
+  \reimp
+*/
 void QMenu::hideEvent(QHideEvent *)
 {
     if(d->sync)
@@ -802,6 +1114,9 @@ void QMenu::hideEvent(QHideEvent *)
     d->causedPopup = 0;
 }
 
+/*!
+  \reimp
+*/
 void QMenu::paintEvent(QPaintEvent *e)
 {
     d->updateActions();
@@ -887,6 +1202,9 @@ void QMenu::paintEvent(QPaintEvent *e)
     style().drawControl(QStyle::CE_MenuEmptyArea, &p, this, rect(), palette());
 }
 
+/*!
+  \reimp
+*/
 void QMenu::mousePressEvent(QMouseEvent *e)
 {
     if(d->mouseEventTaken(e))
@@ -903,6 +1221,9 @@ void QMenu::mousePressEvent(QMouseEvent *e)
     d->setCurrentAction(action, 20);
 }
 
+/*!
+  \reimp
+*/
 void QMenu::mouseReleaseEvent(QMouseEvent *e)
 {
     if(d->mouseEventTaken(e))
@@ -924,6 +1245,9 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
+/*!
+  \reimp
+*/
 void QMenu::changeEvent(QEvent *e)
 {
     if(e->type() == QEvent::StyleChange) {
@@ -944,6 +1268,9 @@ void QMenu::changeEvent(QEvent *e)
     QWidget::changeEvent(e);
 }
 
+/*!
+  \reimp
+*/
 bool
 QMenu::event(QEvent *e)
 {
@@ -957,6 +1284,9 @@ QMenu::event(QEvent *e)
     return QWidget::event(e);
 }
 
+/*!
+  \reimp
+*/
 void QMenu::keyPressEvent(QKeyEvent *e)
 {
     int key = e->key();
@@ -1189,6 +1519,9 @@ void QMenu::keyPressEvent(QKeyEvent *e)
     }
 }
 
+/*!
+  \reimp
+*/
 void QMenu::mouseMoveEvent(QMouseEvent *e)
 {
     if(d->mouseEventTaken(e))
@@ -1217,6 +1550,9 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
+/*!
+  \reimp
+*/
 void QMenu::leaveEvent(QEvent *)
 {
     d->sloppyAction = 0;
@@ -1228,6 +1564,9 @@ void QMenu::leaveEvent(QEvent *)
 #endif
 }
 
+/*!
+  \reimp
+*/
 void
 QMenu::timerEvent(QTimerEvent *e)
 {
@@ -1238,6 +1577,9 @@ QMenu::timerEvent(QTimerEvent *e)
     }
 }
 
+/*!
+  \reimp
+*/
 void QMenu::actionEvent(QActionEvent *e)
 {
     d->itemsDirty = 1;
@@ -1258,12 +1600,18 @@ void QMenu::actionEvent(QActionEvent *e)
         update();
 }
 
+/*!
+  \internal
+*/
 void QMenu::internalSetSloppyAction()
 {
     if(d->sloppyAction)
         d->setCurrentAction(d->sloppyAction, 0);
 }
 
+/*!
+  \internal
+*/
 void QMenu::internalDelayedPopup()
 {
     if(!d->currentAction || !d->currentAction->action || d->currentAction->action->menu() == d->activeMenu)

@@ -29,6 +29,7 @@ private:
     Q_DECLARE_PRIVATE(QMenu);
 
     Q_PROPERTY(bool tearOffEnabled READ isTearOffEnabled WRITE setTearOffEnabled)
+    Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
 
 public:
     QMenu(QWidget *parent = 0);
