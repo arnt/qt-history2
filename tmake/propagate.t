@@ -182,7 +182,7 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 	$text .= '$(DESTDIR)' . $targ . ': $(OBJECTS) $(OBJMOC) ';
 	if ( Project('TEMPLATE') eq "qt.t" ) {
 	    # Qt/Embedded hackery.
-	    $text .= '$(OBJECTS_DIR)/libfreetype.a ';
+	    $text .= '$project{"OBJECTS_DIR"}/libfreetype.a ';
 	}
 	Expand("TARGETDEPS");
 	$text .= "\n\t";
