@@ -1278,7 +1278,8 @@ UnixMakefileGenerator::writeLibtoolFile(const QString &target)
     }
     t << "'\n\n";
 
-    // ### t << "# The name of the static archive.\n";
+    t << "# The name of the static archive.\n"
+      << "old_library='" << lname << ".a'\n\n";
 
     t << "# Libraries that this one depends upon.\n";
     QStringList libs;
