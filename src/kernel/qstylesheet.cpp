@@ -939,6 +939,10 @@ int QStyleSheetItem::lineSpacing() const
 	 \i A larger font size.
     \row \i \c{<small>...</small>}
 	 \i A smaller font size.
+    \row \i \c{<sub>...</sub>}
+	 \i Subscripted text
+    \row \i \c{<sup>...</sup>}
+	 \i Superscripted text
     \row \i \c{<code>...</code>}
 	 \i Indicates code. By default this is the same as
 	    \c{<tt>...</tt>} (typewriter). For larger chunks of code

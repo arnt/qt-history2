@@ -3937,9 +3937,9 @@ void QListViewItem::widthChanged( int c ) const
     This signal is emitted whenever the user presses the mouse button
     in a list view. \a item is the list view item on which the user
     pressed the mouse button, or 0 if the user didn't press the mouse
-    on an item. \a pnt is the position of the mouse cursor, and \a c
-    is the column where the mouse cursor was when the user pressed the
-    mouse button.
+    on an item. \a pnt is the position of the mouse cursor in global
+    coordinates, and \a c is the column where the mouse cursor was
+    when the user pressed the mouse button.
 
     \warning Do not delete any QListViewItem objects in slots
     connected to this signal.
@@ -3992,9 +3992,9 @@ void QListViewItem::widthChanged( int c ) const
     This signal is emitted whenever the user clicks (mouse pressed \e
     and mouse released) in the list view. \a item is the clicked list
     view item, or 0 if the user didn't click on an item. \a pnt is the
-    position where the user has clicked. If \a item is not 0, \a c is
-    the list view column into which the user pressed; if \a item is 0
-    \a{c}'s value is undefined.
+    position where the user has clicked in global coordinates. If \a
+    item is not 0, \a c is the list view column into which the user
+    pressed; if \a item is 0 \a{c}'s value is undefined.
 
     \warning Do not delete any QListViewItem objects in slots
     connected to this signal.

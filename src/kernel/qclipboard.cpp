@@ -44,12 +44,13 @@
     QClipboard *cb = QApplication::clipboard();
 
     // Copy text from the clipboard (paste)
-    QString text = cb->text();
+    QString text = cb->text(QClipboard::Clipboard);
     if ( !text.isNull() )
 	qDebug( "The clipboard contains: " + text );
 
     // Copy text into the clipboard
-    cb->setText( "This text can be pasted by other programs" );
+    cb->setText( "This text can be pasted by other programs",
+		 QClipboard::Clipboard );
     \endcode
 
     QClipboard features some convenience functions to access common data
@@ -63,9 +64,9 @@
     You can clear the clipboard by calling clear().
 
 
-    \section2 Platform Specific Information
+    \section1 Platform Specific Information
 
-    \section3 X11
+    \section2 X11
 
     \list
 
@@ -90,7 +91,7 @@
 
     \endlist
 
-    \section3 Windows
+    \section2 Windows
 
     \list
 
