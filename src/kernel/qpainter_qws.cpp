@@ -328,16 +328,16 @@ static uchar *pat_tbl[] = {
 		pm = new QBitmap( d, d, pat, TRUE );
 		del = !QPixmapCache::insert( key, pm );
             }
-	    if ( cbrush.data->pixmap )
-		delete cbrush.data->pixmap;
-	    cbrush.data->pixmap = new QPixmap( *pm );
+	    if ( cbrush.d->pixmap )
+		delete cbrush.d->pixmap;
+	    cbrush.d->pixmap = new QPixmap( *pm );
 	    if (del) delete pm;
 	}
-	pm = cbrush.data->pixmap;
+	pm = cbrush.d->pixmap;
     }
 
     gfx->setBrush( cbrush );
-    gfx->setBrushPixmap( cbrush.data->pixmap );
+    gfx->setBrushPixmap( cbrush.d->pixmap );
 }
 
 
