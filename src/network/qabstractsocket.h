@@ -104,7 +104,13 @@ public:
     bool seek(Q_LLONG offset);
 
     Q_LLONG read(char *data, Q_LLONG maxlen);
+    
     Q_LLONG write(const char *data, Q_LLONG len);
+#if !defined(Q_NO_USING_KEYWORD)
+    using QIODevice::write;
+#else
+    inline Q_LLONG write(const QByteArray &ba) { return QIODevice::write(ba); }
+#endif
     Q_LLONG readLine(char *data, Q_LLONG maxlen);
     QByteArray readAll();
 
