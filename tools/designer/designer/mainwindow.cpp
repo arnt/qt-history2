@@ -2377,6 +2377,12 @@ void MainWindow::projectSelected( QAction *a )
 
 void MainWindow::openProject( const QString &fn )
 {
+    for ( QMap<QAction*, Project*>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
+	if ( (*it)->fileName() == fn ) {
+	    projectSelected( it.key() );
+	    return;
+	}
+    }
     Project *pro = new Project( fn, "", projectSettingsPluginManager );
     QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
     projects.insert( a, pro );
