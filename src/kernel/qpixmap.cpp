@@ -84,8 +84,11 @@
 
     Note regarding Windows 95 and 98: on Windows 9x the system crashes
     if you create more than about 1000 pixmaps, independent of the
-    size of the pixmaps or installed RAM. Windows NT and 2000 do not
-    have this limitation.
+    size of the pixmaps or installed RAM. Windows NT-systems (including
+    2000, XP and following versions) do not have the same limitation,
+    but depending on the graphics equipment the system will fail to
+    allocate pixmap objects at some point (due to system running out of
+    GDI resources).
 
     Qt tries to work around the resource limitation. If you set the
     pixmap optimization to \c QPixmap::MemoryOptim and the width of
@@ -106,6 +109,9 @@
 	}
 	QPixmap::setDefaultOptimization( QPixmap::NormalOptim );
     \endcode
+
+    In general it is recommended to make as much use of QPixmap's 
+    implicit sharing and the QPixmapCache as possible.
 
     \sa QBitmap, QImage, QImageIO, \link shclass.html Shared Classes\endlink
 */
