@@ -22,12 +22,10 @@ aix-xlc-64
 freebsd-g++
 freebsd-icc
 hpux-acc
-hpux-cc
 hpux-g++
 irix-cc
 irix-cc-64
 irix-g++
-linux-cxx
 linux-ecc-64
 linux-g++
 linux-icc
