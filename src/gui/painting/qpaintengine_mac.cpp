@@ -1045,7 +1045,7 @@ static void qt_mac_dispose_pattern(void *info)
     pat = NULL;
 }
 
-inline bool QWidgetPrivate::qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d)
+inline bool qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d)
 {
     CGContextRef ret = 0;
     if(paint_d->pdev->devType() == QInternal::Widget)
@@ -1097,7 +1097,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
     }
 
     d->pdev = pdev;
-    if(QWidgetPrivate::qt_mac_update_cg(d)) // get handle to drawable
+    if(qt_mac_update_cg(d)) // get handle to drawable
 	CGContextRetain((CGContextRef)d->hd);
     setActive(true);
     assignf(IsActive | DirtyFont);
@@ -1353,7 +1353,7 @@ QCoreGraphicsPaintEngine::updateClipRegion(QPainterState *ps)
     if(d->hd) {
 	if(ps->clipEnabled || ps->clipEnabled != old_clipon) { //reset the clip
 	    CGContextRelease((CGContextRef)d->hd);
-	    if(QWidgetPrivate::qt_mac_update_cg(d))
+	    if(qt_mac_update_cg(d))
 		CGContextRetain((CGContextRef)d->hd);
 	}
 	if(d->hd && ps->clipEnabled)

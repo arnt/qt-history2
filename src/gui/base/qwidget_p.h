@@ -261,7 +261,6 @@ public:
     static void qt_event_request_flush_updates();
     static QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
     static bool qt_window_rgn(WId, short, RgnHandle, bool);
-    static bool qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d);
     QRegion clippedRegion(bool do_children = false);
     uint clippedSerial(bool do_children = true);
 #endif
