@@ -108,6 +108,7 @@ public:
     QSpinBox * lastPage;
     QRadioButton * printAllButton;
     QRadioButton * printRangeButton;
+    QRadioButton * printSelectionButton;
     QComboBox *orientationCombo, *sizeCombo;
 
     QPrinter::PageSize pageSize;
@@ -1186,9 +1187,14 @@ QGroupBox * QPrintDialog::setupOptions()
     d->printRange->insert( d->printAllButton, 0 );
     tll->addWidget( d->printAllButton );
 
+    d->printSelectionButton = new QRadioButton( tr("Print selection"),
+						g, "print selection" );
+    d->printRange->insert( d->printSelectionButton, 1 );
+    tll->addWidget( d->printSelectionButton );
+
     d->printRangeButton = new QRadioButton( tr("Print range"),
 					    g, "print range" );
-    d->printRange->insert( d->printRangeButton, 1 );
+    d->printRange->insert( d->printRangeButton, 2 );
     tll->addWidget( d->printRangeButton );
 
     QBoxLayout * horiz = new QBoxLayout( QBoxLayout::LeftToRight );
@@ -1484,7 +1490,7 @@ void QPrintDialog::okClicked()
 
 void QPrintDialog::printRangeSelected( int id )
 {
-    bool enable = id ? TRUE : FALSE;
+    bool enable = id == 2 ? TRUE : FALSE;
     d->firstPage->setEnabled( enable );
     d->lastPage->setEnabled( enable );
     d->firstPageLabel->setEnabled( enable );
@@ -1568,32 +1574,39 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 	setNumCopies( p->numCopies() );
     }
 
+    if( p ) {
+	uint ranges = p->pageRangeEnabled();
+	if( ranges & QPrinter::All )
+	    d->printAllButton->setEnabled( TRUE );
+	if( ranges & QPrinter::Selection )
+	    d->printSelectionButton->setEnabled( TRUE );
+	if( ranges & QPrinter::Range )
+	    d->printRangeButton->setEnabled( TRUE );
+
+	QPrinter::PageRange range = p->pageRange();
+
+	switch ( range ) {
+	case QPrinter::All:
+	    printRangeSelected( d->printRange->id( d->printAllButton ) );
+	    break;
+	case QPrinter::Selection:
+	    printRangeSelected( d->printRange->id( d->printSelectionButton ) );
+	    break;
+	case QPrinter::Range:
+	    printRangeSelected( d->printRange->id( d->printRangeButton ) );
+	    break;
+	}
+    }
+
     if ( p && p->maxPage() ) {
-	d->printRangeButton->setEnabled( TRUE );
 	d->firstPage->setRange( p->minPage(), p->maxPage() );
 	d->lastPage->setRange( p->minPage(), p->maxPage() );
-	// page range
-	int some = p->maxPage()
-		&& p->fromPage() && p->toPage()
-		&& (p->fromPage() != p->minPage()
-		    || p->toPage() != p->maxPage());
 	if ( p->fromPage() || p->toPage() ) {
 	    setFirstPage( p->fromPage() );
 	    setLastPage( p->toPage() );
 	    d->firstPage->setValue(p->fromPage());
 	    d->lastPage->setValue(p->toPage());
 	}
-	d->printRange->setButton( some );
-	printRangeSelected( some );
-    } else {
-	d->printRange->setButton( 0 );
-	d->printRangeButton->setEnabled( FALSE );
-	d->firstPage->setEnabled( FALSE );
-	d->lastPage->setEnabled( FALSE );
-	d->firstPageLabel->setEnabled( FALSE );
-	d->lastPageLabel->setEnabled( FALSE );
-	d->firstPage->setValue( 1 );
-	d->lastPage->setValue( 1 );
     }
 }
 
