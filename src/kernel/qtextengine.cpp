@@ -813,7 +813,8 @@ QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
 
 QTextEngine::~QTextEngine()
 {
-    if ( fnt ) fnt->deref();
+    if ( fnt && fnt->deref())
+	delete fnt;
     free( memory );
     allocated = 0;
 }
