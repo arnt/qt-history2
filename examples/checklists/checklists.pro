@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {4c707512-cda4-47b0-9d55-0c5af5746a62}
 TEMPLATE	= app
 TARGET		= checklists

@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {89f911f6-6f75-4c74-9947-d5d18ff4977f}
 TEMPLATE	= app
 TARGET		= tetrix

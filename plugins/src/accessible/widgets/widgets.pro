@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {18b63e30-29e9-497b-99ea-cb9283cac28b}
 TEMPLATE = lib
 TARGET  += qtwidgets

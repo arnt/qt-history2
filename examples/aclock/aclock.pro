@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {c95b6a36-ae6a-4c22-a2e3-959ebb091eb5}
 TEMPLATE	= app
 TARGET		= aclock

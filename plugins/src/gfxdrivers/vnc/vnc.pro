@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {c26f7e31-df75-4246-851f-61b1149a7842}
 TEMPLATE = lib
 TARGET	 = qgfxvnc

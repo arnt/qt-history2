@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {4604aee3-4456-42de-9dfa-fc5228b166a9}
 TEMPLATE = lib
 TARGET	 = qnp

@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {fd24a684-d589-46da-b141-e95574cd8ffa}
 TEMPLATE	= app
 TARGET		= menu

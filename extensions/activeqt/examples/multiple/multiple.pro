@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {eba641a0-f85b-4343-981e-3464bb6db413}
 TEMPLATE = lib
 TARGET	 = multipleax

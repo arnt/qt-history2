@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {a92a7ca5-b988-4439-b910-7590d46d2569}
 TEMPLATE = subdirs
 contains(style-plugins, windows)	:SUBDIRS += windows

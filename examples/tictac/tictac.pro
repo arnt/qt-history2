@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {79ccfd9a-23c1-4b63-ada5-0c73f975ad84}
 TEMPLATE	= app
 TARGET		= tictac

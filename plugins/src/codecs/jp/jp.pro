@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {1f137ed1-bc44-44e6-b130-fd8d8d336dff}
 TEMPLATE = lib
 TARGET	 = qjpcodecs

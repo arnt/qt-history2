@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {4fedf5f4-59aa-41ef-a4e0-1c252d86a37a}
 TEMPLATE	= app
 TARGET		= fontdemo

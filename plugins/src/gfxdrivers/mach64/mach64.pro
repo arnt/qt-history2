@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {f71be864-28b1-425d-a2a7-a4c7ada4d22a}
 TEMPLATE = lib
 TARGET	 = qgfxmach64

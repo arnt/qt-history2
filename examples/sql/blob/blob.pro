@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {304b500f-3bd1-4c4c-81cb-fd3ead8b96da}
 TEMPLATE	= app
 TARGET          = blob

@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {c56b7af9-ae4a-42f7-824f-534914caaff7}
 TEMPLATE	= app
 TARGET		= wizard

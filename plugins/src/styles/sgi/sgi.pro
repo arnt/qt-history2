@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {cd6a5416-76b3-484e-96d3-d2e91d2c8e1e}
 TEMPLATE = lib
 TARGET	 = qsgistyle

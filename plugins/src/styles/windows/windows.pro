@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {d20d78eb-798e-4f59-8aa0-7311fa19e85e}
 TEMPLATE = lib
 TARGET	 = qwindowsstyle

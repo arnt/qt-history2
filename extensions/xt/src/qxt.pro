@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID		= {dd5ab041-202d-4856-a3be-763f8d2cc258}
 TEMPLATE	= lib
 TARGET		= qxt

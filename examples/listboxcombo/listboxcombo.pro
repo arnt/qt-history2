@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {5da202de-3f68-490b-bbb7-a50c4f15a92b}
 TEMPLATE	= app
 TARGET		= listboxcombo

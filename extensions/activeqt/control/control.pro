@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {9ffafcf3-43b1-4d6e-a443-731d7c30c86b}
 TEMPLATE = lib
 TARGET   = qaxserver

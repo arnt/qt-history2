@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {36b2cd73-bb13-4b12-9a91-dae1db42eb7a}
 TEMPLATE	= app
 TARGET		= httpd

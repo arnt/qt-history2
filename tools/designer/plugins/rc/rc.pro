@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {28715368-f1ad-40e2-b62a-0e7e412b6c88}
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release plugin

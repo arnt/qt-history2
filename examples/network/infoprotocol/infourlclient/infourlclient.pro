@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {4612786e-30b6-459d-927b-2978355ff7a3}
 TEMPLATE	= app
 TARGET		= infourlclient

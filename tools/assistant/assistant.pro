@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {14e97d81-47c3-478d-b3c5-8e6026e9ab5f}
 TEMPLATE = app
 LANGUAGE = C++

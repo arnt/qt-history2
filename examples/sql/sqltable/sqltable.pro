@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {b31903c5-8eed-4ded-b8ee-2339801253d1}
 TEMPLATE	= app
 TARGET          = sqltable

@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {b002b20e-ca56-479d-87dd-8b51e5c45dd3}
 TEMPLATE	= app
 TARGET		= remotecontrol

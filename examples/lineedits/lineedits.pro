@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {ce3faf37-8160-4c5a-9efb-f1c288c8e85f}
 TEMPLATE	= app
 TARGET		= lineedits

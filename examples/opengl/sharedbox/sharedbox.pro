@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {0fefac7d-569b-41b1-b533-ae2534d31f1c}
 TEMPLATE	= app
 TARGET		= sharedbox

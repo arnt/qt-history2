@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {6fc31776-4929-484b-9b70-ab8ffdaa460d}
 TEMPLATE	= app
 CONFIG		+= qt warn_on

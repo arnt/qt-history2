@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {92f481df-56e8-4305-b1e2-19e613718934}
 TEMPLATE	= app
 TARGET		= qmag

@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {a4228583-38d7-48bb-8c43-60fe2a3df9a0}
 TEMPLATE = lib
 TARGET	 = qcncodecs

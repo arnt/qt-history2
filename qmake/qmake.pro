@@ -2,6 +2,7 @@
 # it is very hard to make qmake build this, when qmake is the thing it builds,
 #once you are boot strapped though, the qmake.pro will offer better coverage of a
 #platform than either of the generic makefiles
+# Project ID used by some IDEs
 GUID = {c5f058ca-cd1b-4b6a-b189-32baa89343ec}
 QMAKE_INCREMENTAL =
 SKIP_DEPENDS += qconfig.h qmodules.h

@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {2c067f3f-3184-4059-9427-696d20b8f440}
 TEMPLATE	= app
 

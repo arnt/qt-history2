@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {d730474b-dba1-4d12-a989-72cf1012c68e}
 TEMPLATE = lib
 TARGET	 = qmotifplusstyle

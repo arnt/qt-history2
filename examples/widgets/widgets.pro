@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {4570bb58-e691-4a86-9598-be542ca25d4b}
 TEMPLATE	= app
 TARGET		= widgets

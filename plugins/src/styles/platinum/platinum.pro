@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {852f12e8-2563-47e7-9a4a-7670da6a8342}
 TEMPLATE = lib
 TARGET	 = qplatinumstyle

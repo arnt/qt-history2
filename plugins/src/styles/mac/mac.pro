@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {6d643b23-919c-4cfb-ba36-0f82ad0c4114}
 TEMPLATE = lib
 TARGET	 = qmacstyle

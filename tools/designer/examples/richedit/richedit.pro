@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {d7965e52-5c1f-41f3-9de5-bb7dc8fa6ded}
 TEMPLATE = app
 TARGET	 = richedit

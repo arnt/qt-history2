@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {683ee727-4157-45d8-a244-729cacf22006}
 CONFIG += qt console
 SOURCES += keyinfo.cpp

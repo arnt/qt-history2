@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {2a81f97c-4003-4399-b97d-904f6f607a27}
 TEMPLATE = lib
 TARGET	 = qsqlpsql

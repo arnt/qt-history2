@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID		= {ea5c487d-fc04-4f9e-8a49-5ff9200a708c}
 TEMPLATE	= app
 TARGET		= qfd

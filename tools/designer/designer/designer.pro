@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {e6b63ae4-d5d9-47de-bcaa-c59984903201}
 TEMPLATE	= lib
 

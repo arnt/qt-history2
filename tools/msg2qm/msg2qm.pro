@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {d45db848-703b-4a53-8aa9-a000716b9ca1}
 TEMPLATE	= app
 DEPENDPATH      = ../../include

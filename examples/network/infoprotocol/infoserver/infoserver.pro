@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {4298e9ce-4f94-4389-b619-3ea510c21d08}
 TEMPLATE	= app
 TARGET		= infoserver

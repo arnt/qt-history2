@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {add7185f-fdfc-40b2-a96c-1ece6e62853d}
 TEMPLATE	= app
 TARGET		= dragdrop

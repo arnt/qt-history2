@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {2d01fa2e-5564-489d-9b3e-eb2444f71b8e}
 TEMPLATE = lib
 TARGET	 = qsqlodbc

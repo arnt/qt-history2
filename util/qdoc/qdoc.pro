@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID		= {e2012d93-bcbc-4700-b477-011f0c10a7ea}
 TEMPLATE	= app
 CONFIG		= warn_on console release qtinc dylib debug

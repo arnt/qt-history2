@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {a34ef9fb-856a-4146-895a-6c399d0536ec}
 TEMPLATE	= app
 TARGET		= box

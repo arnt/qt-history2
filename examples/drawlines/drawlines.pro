@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {309e989c-3c1c-4449-8e7e-7209f130b88d}
 TEMPLATE	= app
 TARGET		= drawlines

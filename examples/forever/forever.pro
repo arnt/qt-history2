@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {9caf9d72-faf9-4673-8830-94d20a373ece}
 TEMPLATE	= app
 TARGET		= forever

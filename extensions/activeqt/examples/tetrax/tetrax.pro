@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {1ccbf5cf-42ef-4cbb-b120-aa109d9a9632}
 TEMPLATE = app
 TARGET	 = tetrax

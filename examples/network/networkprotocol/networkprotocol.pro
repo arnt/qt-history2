@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {58fb6263-538a-4723-822b-d6af93dd809b}
 TEMPLATE	= app
 TARGET		= networkprotocol

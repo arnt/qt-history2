@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {0051e420-b700-4ec5-8c94-03facd2c8fdf}
 TEMPLATE = subdirs
 

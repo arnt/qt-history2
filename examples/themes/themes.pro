@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {d3206dca-c883-4662-927f-8f27a9f0fe9d}
 TEMPLATE	= app
 TARGET		= themes

@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {0210f57c-f92f-40df-9808-a8f312dd9713}
 TEMPLATE	= app
 TARGET		= tabdialog

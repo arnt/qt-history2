@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {fdcda7c7-123c-447f-a7a1-eca948e7abad}
 TEMPLATE	= app
 TARGET		= statistics

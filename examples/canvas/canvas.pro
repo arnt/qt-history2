@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {26e3cba0-2c6d-45f0-8db5-e933da3d53ba}
 TEMPLATE	= app
 TARGET		= canvas

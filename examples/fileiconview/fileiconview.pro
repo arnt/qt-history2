@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {ab5f3bbf-6d38-4c6a-8f55-44c8a5fa51d0}
 TEMPLATE	= app
 TARGET		= fileiconview

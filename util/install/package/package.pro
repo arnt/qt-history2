@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 	 = {0360ffe0-c370-4006-b120-44225bc31e55}
 TEMPLATE = app
 SOURCES = main.cpp

@@ -1,3 +1,4 @@
+# Project ID used by some IDEs
 GUID 		= {37c65906-584c-498b-b801-cf3cc6ee3517}
 TEMPLATE	= app
 TARGET		= xform
