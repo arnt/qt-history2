@@ -335,13 +335,9 @@ void QWizard::setHelpEnabled( bool enable )
 
 
 /*!
+  \fn void QWizard::setFinish( QWidget *, bool )
   \obsolete
 */
-void QWizard::setFinish( QWidget *, bool )
-{
-    // Didn't do anything.
-}
-
 
 /*!
   Enables or disables the "Back" button for pages \a w in the wizard.

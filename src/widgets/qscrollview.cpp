@@ -1218,31 +1218,19 @@ int QScrollView::childY(QWidget* child)
     return d->rec(child)->y;
 }
 
-/*!
+/*! \fn bool QScrollView::childIsVisible(QWidget*)
   \obsolete
 
   Returns TRUE if \a child is visible.  This is equivalent
   to child->isVisible().
 */
-bool QScrollView::childIsVisible(QWidget* child)
-{
-    return child->isVisible();
-}
 
-/*!
+/*! \fn void QScrollView::showChild(QWidget* child, bool y)
   \obsolete
 
   Sets the visibility of \a child. Equivalent to
   QWidget::show() or QWidget::hide().
 */
-void QScrollView::showChild(QWidget* child, bool y)
-{
-    if ( y )
-	child->show();
-    else
-	child->hide();
-}
-
 
 /*!
   This event filter ensures the scrollbars are updated when a single

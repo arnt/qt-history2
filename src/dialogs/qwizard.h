@@ -97,7 +97,8 @@ public slots:
 
     virtual void setHelpEnabled( QWidget *, bool );
 
-    virtual void setFinish(  QWidget *, bool );
+    // obsolete
+    virtual void setFinish(  QWidget *, bool ) {}
 
 protected slots:
     virtual void back();

@@ -1820,7 +1820,9 @@ void QApplication::syncX()	{}		// do nothing
 
 
 
-/*!\obsolete
+/*!
+  \fn void QApplication::setWinStyleHighlightColor( const QColor & )
+  \obsolete
 
   Sets the color used to mark selections in windows style for all widgets
   in the application. Will repaint all widgets if the color is changed.
@@ -1828,26 +1830,15 @@ void QApplication::syncX()	{}		// do nothing
   The default color is \c darkBlue.
   \sa winStyleHighlightColor()
 */
-#ifndef QT_NO_PALETTE
-void QApplication::setWinStyleHighlightColor( const QColor &c )
-{
-    QPalette p( palette() );
-    p.setColor( QColorGroup::Highlight, c );
-    setPalette( p, TRUE);
-}
 
-
-/*!\obsolete
+/*!
+  \fn const QColor& QApplication::winStyleHighlightColor()
+  \obsolete
 
   Returns the color used to mark selections in windows style.
 
   \sa setWinStyleHighlightColor()
 */
-const QColor& QApplication::winStyleHighlightColor()
-{
-    return palette().active().highlight();
-}
-#endif
 
 /*!
   \fn Qt::WindowsVersion QApplication::winVersion()

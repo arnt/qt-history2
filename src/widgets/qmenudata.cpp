@@ -830,20 +830,18 @@ QPixmap *QMenuData::pixmap( int id ) const
     return mi ? mi->pixmap() : 0;
 }
 
-/*!\obsolete
+/*!
+  \fn void QMenuData::changeItem( const QString &, int )
+  \obsolete
 
   Changes the text of the menu item \a id. If the item has an icon,
   the icon remains unchanged.
 
   \sa text()
 */
-
-void QMenuData::changeItem( const QString &text, int id )
-{
-    changeItem( id, text);
-}
-
-/*!\obsolete
+/*!
+  \fn void QMenuData::changeItem( const QPixmap &, int )
+  \obsolete
 
   Changes the pixmap of the menu item \a id. If the item has an icon,
   the icon remains unchanged.
@@ -851,23 +849,14 @@ void QMenuData::changeItem( const QString &text, int id )
   \sa pixmap()
 */
 
-void QMenuData::changeItem( const QPixmap &pixmap, int id )
-{
-    changeItem( id, pixmap );
-}
-
-/*!\obsolete
+/*!
+  \fn void QMenuData::changeItem( const QIconSet &, const QString &, int )
+  \obsolete
 
   Changes the icon and text of the menu item \a id.
 
   \sa pixmap()
 */
-
-void QMenuData::changeItem( const QIconSet &icon, const QString &text, int id )
-{
-    changeItem( id, icon, text );
-}
-
 
 /*!
   Changes the text of the menu item \a id. If the item has an icon,

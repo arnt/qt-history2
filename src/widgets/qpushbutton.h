@@ -81,8 +81,14 @@ public:
     bool	isDefault()	const	{ return defButton; }
     virtual void setDefault( bool def );
 
-    virtual void setIsMenuButton( bool );
-    bool	isMenuButton() const;
+    virtual void setIsMenuButton( bool enable ) {  // obsolete functions
+	if ( (bool)hasMenuArrow == enable )
+	    return;
+	hasMenuArrow = enable ? 1 : 0;
+	update();
+	updateGeometry();
+    }
+    bool	isMenuButton() const { return hasMenuArrow; }
 
     void setPopup( QPopupMenu* popup );
     QPopupMenu* popup() const;

@@ -932,18 +932,15 @@ int QSlider::thickness() const
     return thick;
 }
 
-/*! \obsolete
+/*! 
+  \fn void QSlider::drawTicks( QPainter *, int, int, int ) const
+  \obsolete
   \overload
 
   Do not reimplement this function, it's only there for compatibility
   reasons. It simply calls the other version with colorGroup() as the
   second argument.
 */
-
-void QSlider::drawTicks( QPainter *p, int dist, int w, int i ) const
-{
-    drawTicks( p, colorGroup(), dist, w, i);
-}
 
 /*!
   Using \a p, draws tickmarks at a distance of \a dist from the edge

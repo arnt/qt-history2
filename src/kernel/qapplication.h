@@ -164,8 +164,15 @@ public:
     QString	     translate( const char *, const char *,
 				const char * ) const;
 #ifndef QT_NO_PALETTE
-    static void      setWinStyleHighlightColor( const QColor & );
-    static const QColor &winStyleHighlightColor();
+    // obsolete functions
+    static void      setWinStyleHighlightColor( const QColor &c ) {
+	QPalette p( palette() );
+	p.setColor( QColorGroup::Highlight, c );
+	setPalette( p, TRUE);
+    }
+    static const QColor &winStyleHighlightColor() {
+	return palette().active().highlight();
+    }
 #endif
     static void      setDesktopSettingsAware( bool );
     static bool      desktopSettingsAware();

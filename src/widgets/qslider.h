@@ -130,8 +130,9 @@ protected:
     virtual void paintSlider( QPainter *, const QColorGroup&, const QRect & );
     void	drawTicks( QPainter *, const QColorGroup&, int, int, int=1 ) const;
 
+    // obsolete
     void	drawWinGroove( QPainter *,  QCOORD );
-    void	drawTicks( QPainter *,  int, int, int=1 ) const;
+    void	drawTicks( QPainter *p,  int dist, int w, int i=1 ) const { drawTicks( p, colorGroup(), dist, w, i); }
 
     virtual int	thickness() const;
 

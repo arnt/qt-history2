@@ -791,16 +791,11 @@ void QTranslator::insert( const QTranslatorMessage& message )
 }
 
 
-/*! \overload
+/*! 
+  \fn void QTranslator::insert( const char *, const char *, const QString & )
+  \overload
   \obsolete
 */
-
-void QTranslator::insert( const char * context, const char * sourceText,
-			  const QString & translation )
-{
-    insert( QTranslatorMessage(context, sourceText, "", translation) );
-}
-
 
 /*!  Removes \a message from this translator.
 
@@ -816,33 +811,24 @@ void QTranslator::remove( const QTranslatorMessage& message )
 }
 
 
-/*! \overload
+/*! 
+  \fn void QTranslator::remove( const char *, const char * )
+  \overload
   \obsolete
 
   Removes the translation associated to the key ( \a context, \a sourceText,
   "" ) from this translator.
 */
 
-void QTranslator::remove( const char *context, const char *sourceText )
-{
-    remove( QTranslatorMessage(context, sourceText, "") );
-}
-
-
-/*! \obsolete
+/*! 
+  \fn QString QTranslator::find( const char*, const char*, const char* ) const
+  \obsolete
 
   Returns the translation for the key ( \a context, \a sourceText,
   \a comment ), or QString::null if there is none in this translator.
 
   Please use findMessage() instead.
 */
-
-QString QTranslator::find( const char* context, const char* sourceText,
-			   const char* comment ) const
-{
-    return findMessage( context, sourceText, comment ).translation();
-}
-
 
 /*!  Returns the QTranslatorMessage for the key
   ( \a context, \a sourceText, \a comment ).

@@ -77,8 +77,13 @@ public:
     virtual void moveChild( QWidget* child, int x, int y );
     int childX(QWidget* child);
     int childY(QWidget* child);
-    bool childIsVisible(QWidget* child);
-    void showChild(QWidget* child, bool yes=TRUE);
+    bool childIsVisible(QWidget* child) { return child->isVisible(); } // obsolete functions
+    void showChild(QWidget* child, bool yes=TRUE) { 
+	if ( yes )
+	    child->show();
+	else
+	    child->hide();
+    }
 
     enum ScrollBarMode { Auto, AlwaysOff, AlwaysOn };
 

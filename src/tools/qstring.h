@@ -496,7 +496,7 @@ public:
 	}
 
     const QChar* unicode() const { return d->unicode; }
-    const char* ascii() const;
+    const char* ascii() const { return latin1(); }
     const char* latin1() const;
     static QString fromLatin1(const char*, int len=-1);
 #ifndef QT_NO_TEXTCODEC

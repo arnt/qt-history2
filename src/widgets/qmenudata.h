@@ -213,10 +213,11 @@ public:
     void	changeItem( int id, const QIconSet &icon, const QString &text );
     void	changeItem( int id, const QIconSet &icon, const QPixmap &pixmap );
 
-    void	changeItem( const QString &text, int id ); // obsolete
-    void	changeItem( const QPixmap &pixmap, int id ); // obsolete
-    void	changeItem( const QIconSet &icon, const QString &text, int id ); // obsolete
-
+    void	changeItem( const QString &text, int id ) { changeItem( id, text); } // obsolete
+    void	changeItem( const QPixmap &pixmap, int id ) { changeItem( id, pixmap ); } // obsolete
+    void	changeItem( const QIconSet &icon, const QString &text, int id ) {	// obsolete
+	changeItem( id, icon, text ); 
+    } 
 
     bool	isItemEnabled( int id ) const;
     void	setItemEnabled( int id, bool enable );

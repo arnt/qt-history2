@@ -59,8 +59,8 @@ public:
     bool	isBlocked()	 const		{ return QObject::signalsBlocked(); }
     void	block( bool b )		{ QObject::blockSignals( b ); }
 
-    void	setParameter( int value );
-    int		parameter() const;
+    void	setParameter( int value ) { val = value; }
+    int		parameter() const { return val.toInt(); }
 #endif
 
     void	activate();

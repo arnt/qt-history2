@@ -586,7 +586,9 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
 
 
 
-/*!  \obsolete
+/*!  
+  \fn void QPushButton::setIsMenuButton( bool )
+  \obsolete
 
   Tells this button to draw a menu indication triangle if \a enable
   is TRUE,  and to not draw one if \a enable is FALSE (the default).
@@ -597,28 +599,15 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
   \sa isMenuButton()
 */
 
-void QPushButton::setIsMenuButton( bool enable )
-{
-    if ( (bool)hasMenuArrow == enable )
-	return;
-    hasMenuArrow = enable ? 1 : 0;
-    update();
-    updateGeometry();
-}
-
-
-/*!  \obsolete
+/*! 
+  \fn bool QPushButton::isMenuButton() const
+  \obsolete
 
   Returns TRUE if this button indicates to the user that pressing
   it will pop up a menu, and FALSE otherwise.  The default is FALSE.
 
   \sa setIsMenuButton()
 */
-
-bool QPushButton::isMenuButton() const
-{
-    return hasMenuArrow;
-}
 
 
 /*!

@@ -192,24 +192,18 @@ void  QSignal::activate()
 
 
 /*!
+  \fn void  QSignal::activate()
   \obsolete
 
   Sets the signal's parameter to \a value
- */
-void QSignal::setParameter( int value )
-{
-    val = value;
-}
+*/
 
 /*!
+  \fn int QSignal::parameter() const
   \obsolete
 
   Returns the signal's parameter.
- */
-int QSignal::parameter() const
-{
-    return val.toInt();
-}
+*/
 
 /*!
   Sets the signal's parameter to \a value

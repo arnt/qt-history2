@@ -686,14 +686,12 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 }
 
 
-/*!\obsolete
+/*!
+  \fn void QListViewItem::removeItem( QListViewItem * )
+  \obsolete
 
   This function has been renamed takeItem().
 */
-void QListViewItem::removeItem( QListViewItem * item )
-{
-    takeItem( item );
-}
 
 
 /*!
@@ -5312,15 +5310,12 @@ int QListViewItem::itemPos() const
 }
 
 
-/*!\obsolete
+/*!
+  \fn void QListView::removeItem( QListViewItem * )
+  \obsolete
 
   This function has been renamed takeItem().
 */
-
-void QListView::removeItem( QListViewItem * i )
-{
-    takeItem( i );
-}
 
 /*!  Removes \a i from the list view; \a i must be a top-level item.
   The warnings regarding QListViewItem::takeItem( i ) apply to this

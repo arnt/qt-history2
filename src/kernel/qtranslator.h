@@ -107,7 +107,9 @@ public:
     QTranslator( QObject * parent, const char * name = 0 );
     ~QTranslator();
 
-    QString find( const char *, const char *, const char * comment = 0 ) const;
+    QString find( const char *context, const char *sourceText, const char * comment = 0 ) const {
+	return findMessage( context, sourceText, comment ).translation(); 
+    }
     virtual QTranslatorMessage findMessage( const char *, const char *,
 				    const char * ) const;
 
@@ -123,9 +125,13 @@ public:
     void clear();
 
     void insert( const QTranslatorMessage& );
-    void insert( const char *, const char *, const QString & );
+    void insert( const char *context, const char *sourceText, const QString &translation ) { 
+	insert( QTranslatorMessage(context, sourceText, "", translation) ); 
+    }
     void remove( const QTranslatorMessage& );
-    void remove( const char *, const char * );
+    void remove( const char *context, const char *sourceText ) { 
+	remove( QTranslatorMessage(context, sourceText, "") ); 
+    }
     bool contains( const char *, const char *, const char * comment = 0 ) const;
 
     void squeeze( SaveMode = Everything );

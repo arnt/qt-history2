@@ -13991,14 +13991,12 @@ const char* QString::latin1() const
     return d->ascii;
 }
 
-/*! \obsolete
+/*! 
+  \fn const char* QString::ascii() const
+  \obsolete
 
   This functions simply calls latin1() and returns the result.
 */
-const char* QString::ascii() const
-{
-    return latin1();
-}
 
 #ifndef QT_NO_TEXTCODEC
 /*!

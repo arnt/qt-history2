@@ -1067,43 +1067,20 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
   Static QMessageBox functions
  *****************************************************************************/
 
-/*!\obsolete
+/*!\fn int QMessageBox::message( const QString &,const QString&,const QString&,QWidget*,const char * )
+  \obsolete
   Opens a modal message box directly using the specified parameters.
 
   Please use information(), warning() or critical() instead.
 */
 
-int QMessageBox::message( const QString &caption,
-			  const QString& text,
-			  const QString& buttonText,
-			  QWidget    *parent,
-			  const char * )
-{
-    return QMessageBox::information( parent, caption, text,
-				     buttonText.isEmpty()
-				     ? tr("OK") : buttonText ) == 0;
-}
-
-
-/*!\obsolete
+/*! \fn bool QMessageBox::query( const QString &,const QString&,const QString&,const QString&,QWidget *, const char * )
+  \obsolete
   Queries the user using a modal message box with two buttons.
   Note that \a caption is not always shown, it depends on the window manager.
 
   Please use information(), warning() or critical() instead.
 */
-
-bool QMessageBox::query( const QString &caption,
-			 const QString& text,
-			 const QString& yesButtonText,
-			 const QString& noButtonText,
-			 QWidget *parent, const char * )
-{
-    return QMessageBox::information( parent, caption, text,
-				     yesButtonText.isEmpty()
-				     ? tr("OK") : yesButtonText,
-				     noButtonText ) == 0;
-}
-
 
 /*!
   Opens an information message box with a caption, a text and up to three

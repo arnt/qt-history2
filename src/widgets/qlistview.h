@@ -95,7 +95,7 @@ public:
 
     virtual void insertItem( QListViewItem * );
     virtual void takeItem( QListViewItem * );
-    virtual void removeItem( QListViewItem * ); //obsolete, use takeItem instead
+    virtual void removeItem( QListViewItem *item ) { takeItem( item ); } //obsolete, use takeItem instead
 
     int height() const;
     virtual void invalidateHeight();
@@ -226,8 +226,7 @@ public:
 
     virtual void insertItem( QListViewItem * );
     virtual void takeItem( QListViewItem * );
-    // ### should we remove that one for 3.0?
-    virtual void removeItem( QListViewItem * ); // obsolete, use takeItem instead
+    virtual void removeItem( QListViewItem *item ) { takeItem( item ); } // obsolete, use takeItem instead
 
     virtual void clear();
 

@@ -91,9 +91,9 @@ public:
     int headerWidth() const;
     
     virtual void setCellSize( int , int ); // obsolete, do not use
-    int		cellSize( int ) const; // obsolete, do not use
+    int		cellSize( int i ) const { return sectionSize( mapToSection(i) ); } // obsolete, do not use
     int		cellPos( int ) const; // obsolete, do not use
-    int		cellAt( int ) const; // obsolete, do not use
+    int		cellAt( int pos ) const { return mapToIndex( sectionAt(pos + offset()) ); } // obsolete, do not use
 
     int 	offset() const;
 

@@ -103,7 +103,7 @@ public:
     int	   blue()   const;
 
     void   hsv( int *h, int *s, int *v ) const;
-    void   getHsv( int &h, int &s, int &v ) const;
+    void   getHsv( int &h, int &s, int &v ) const { hsv( &h, &s, &v ); }
     void   setHsv( int h, int s, int v );
 
     QColor light( int f = 150 ) const;

@@ -279,7 +279,7 @@ void QHeader::showEvent( QShowEvent *e )
   which sorts the specified column (or row).
 */
 
-/*!
+/*! \fn int QHeader::cellSize( int ) const
   \obsolete
 
   Use sectionSize() instead!
@@ -287,11 +287,6 @@ void QHeader::showEvent( QShowEvent *e )
   Returns the size in pixels of the section which is displayed at
   the index \a i.
 */
-
-int QHeader::cellSize( int i ) const
-{
-    return sectionSize( mapToSection(i) );
-}
 
 /*!
   \obsolete
@@ -457,7 +452,7 @@ void QHeader::unMarkLine( int idx )
     repaint( x, y, x2-x+1, y2-y+1 );
 }
 
-/*!
+/*! \fn int QHeader::cellAt( int ) const
   \obsolete
 
   Use sectionAt() instead!
@@ -466,12 +461,6 @@ void QHeader::unMarkLine( int idx )
   \a pos in widget coordinates, or -1 if \a pos is outside the header
   sections.
 */
-
-int QHeader::cellAt( int pos ) const
-{
-    return mapToIndex( sectionAt(pos + offset()) );
-}
-
 
 /*!
   Tries to find a line that is not a neighbor of  \c handleIdx.

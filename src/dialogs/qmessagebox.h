@@ -114,14 +114,23 @@ public:
     static int message( const QString &caption,
 			const QString& text, 
 			const QString& buttonText=QString::null,
-			QWidget *parent=0, const char *name=0 );
+			QWidget *parent=0, const char *name=0 ) {
+	return QMessageBox::information( parent, caption, text,
+				     buttonText.isEmpty()
+				     ? tr("OK") : buttonText ) == 0;    
+    }
 
 /* OBSOLETE */
     static bool query( const QString &caption,
 		       const QString& text, 
 		       const QString& yesButtonText=QString::null,
 		       const QString& noButtonText=QString::null,
-		       QWidget *parent=0, const char *name=0 );
+		       QWidget *parent=0, const char *name=0 ) {
+        return QMessageBox::information( parent, caption, text,
+				     yesButtonText.isEmpty()
+				     ? tr("OK") : yesButtonText,
+				     noButtonText ) == 0;
+    }
 
     QString	text() const;
     void	setText( const QString &);

@@ -418,13 +418,10 @@ void QColor::setNamedColor( const QString& name )
 #undef max
 #undef min
 
-/*! \obsolete */
-
-void QColor::getHsv( int &h, int &s, int &v ) const
-{
-    hsv( &h, &s, &v );
-}
-
+/*! 
+  \fn void QColor::getHsv( int &h, int &s, int &v ) const
+  \obsolete 
+*/
 
 /*!
   Returns the current RGB value as HSV.
