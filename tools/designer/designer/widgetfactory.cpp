@@ -19,7 +19,6 @@
 **********************************************************************/
 
 #include <qvariant.h> // HP-UX compiler need this here
-#include <iostream.h>
 #include "widgetfactory.h"
 #include <widgetdatabase.h>
 #include "metadatabase.h"

@@ -17,7 +17,7 @@
 ** not clear to you.
 **
 **********************************************************************/
-#include <iostream.h>
+
 #include <qvariant.h> // HP-UX compiler needs this here
 
 #include "propertyeditor.h"

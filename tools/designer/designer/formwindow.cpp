@@ -18,7 +18,6 @@
 **
 **********************************************************************/
 
-#include <iostream.h>
 #include "formwindow.h"
 #include "defs.h"
 #include "mainwindow.h"
