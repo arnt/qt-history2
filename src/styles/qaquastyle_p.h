@@ -11836,13 +11836,16 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 	for(int x = 0; x < im.width(); x++) {
 	    for(int y = 0; y < im.height(); y++) {
 		QRgb c = im.pixel(x, y);
-		c = (qRed(c) + qGreen(c) + qBlue(c)) / 3;
-		if(aquaMode == AquaModeGraphite)
-		    c = qRgb(c, c, c);
-		else if(aquaMode == AquaModeCherry)
-		    c = qRgb(c, 0, 0);
-		else if(aquaMode == AquaModeLime)
-		    c = qRgb(0, c, 0);
+		if(aquaMode == AquaModeGraphite) {
+		    char p = (qRed(c) + qGreen(c) + qBlue(c)) / 3;
+		    c = qRgb(p, p, p);
+		} else if(aquaMode == AquaModeCherry || aquaMode == AquaModeLime) {
+		    char r = qRed(c), g = qGreen(c), b = qBlue(c);
+		    if(aquaMode == AquaModeCherry)
+			c = qRgb(b, g, r);
+		    else
+			c = qRgb(r, b, g);
+		} 
 		im.setPixel(x, y, c);
 	    }
 	    p = im;
