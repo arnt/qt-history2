@@ -123,11 +123,11 @@ public:
 
 #ifndef QT_NO_MEMBER_TEMPLATES
     template<typename T>
-    inline T findChild(const QString &name) const
+    inline T findChild(const QString &name = QString()) const
     { return qFindChild<T>(this, name); }
 
     template<typename T>
-    inline QList<T> findChildren(const QString &name) const
+    inline QList<T> findChildren(const QString &name = QString()) const
     { return qFindChildren<T>(this, name); }
 
 #ifndef QT_NO_REGEXP
@@ -353,11 +353,11 @@ template <> inline IFace *qobject_cast_helper<IFace *>(const QObject *object, IF
 #else
 
 template<typename T>
-inline T qFindChild(const QObject *o, const QString &name)
+inline T qFindChild(const QObject *o, const QString &name = QString())
 { return static_cast<T>(qt_qFindChild_helper(o, name, reinterpret_cast<T>(0)->staticMetaObject)); }
 
 template<typename T>
-inline QList<T> qFindChildren(const QObject *o, const QString &name)
+inline QList<T> qFindChildren(const QObject *o, const QString &name = QString())
 {
     QList<T> list;
     qt_qFindChildren_helper(o, name, 0, reinterpret_cast<T>(0)->staticMetaObject,

@@ -1223,36 +1223,51 @@ QObjectList QObject::queryList(const char *inheritsClass,
 #endif
 
 /*! \fn T *QObject::findChild(const QString &name) const
+
     Returns the child of this object that can be casted into type T and
     that is called \a name, or 0 if there is no such object.
     A null string matches all object names.
     The search is performed recursively.
+
+    If there is more than one child matching the search, the most direct ancestor
+    is returned. If there are several direct ancestors, it is undefined which one
+    will be returned. In that case, findChildren() should be used.
+
+    This example returns a child \l{QPushButton} of \c{parentWidget}
+    named \c{"button1"}:
+
+    \code
+    QPushButton *button = parentWidget->findChild<QPushButton *>("button1");
+    \endcode
+
+    This example returns a \l{QListWidget} child of \c{parentWidget}:
+
+    \code
+    QListWidget *list = parentWidget->findChild<QListWidget *>();
+    \endcode
 
     \sa findChildren()
 */
 
 /*!
     \fn QList<T> QObject::findChildren(const QString &name) const
-    Returns the children of this object with the given \a name that can be
+    Returns all children of this object with the given \a name that can be
     cast to type T, or an empty list if there are no such objects.
     A null string matches all object names.
     The search is performed recursively.
 
-    The following examples show how to find a list of child \l{QWidget}s of
-    the specified \c{parentWidget}:
+    The following example shows how to find a list of child \l{QWidget}s of
+    the specified \c{parentWidget} named \c{widgetname}:
 
     \code
-    QList<QWidget*> widgets = parentWidget.findChildren<QWidget *>("widgetname");
-    QList<QWidget*> allWidgets = parentWidget.findChildren<QWidget *>(QString());
+    QList<QWidget *> widgets = parentWidget.findChildren<QWidget *>("widgetname");
     \endcode
 
-    The second example obtains all QWidget children of the \c{parentWidget}.
+    This example returns all \c{QPushButton}s that are children of \c{parentWidget}:
 
     \code
-    QList<QWidget*> widgets = parentWidget.findChildren<QWidget *>("");
+    QList<QPushButton *> allPButtons = parentWidget.findChildren<QPushButton *>();
     \endcode
-
-    This example returns all widgets with no name assigned.
 
     \sa findChild()
 */
