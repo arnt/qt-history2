@@ -53,6 +53,9 @@ class QFontStylePrivate; /* Don't touch! */
 class QtFontStyle;
 class QtFontFamily;
 class QtFontFoundry;
+#ifdef Q_WS_QWS
+class QDiskFont;
+#endif
 
 class QFontDatabasePrivate;
 
@@ -83,6 +86,9 @@ public:
     static QString scriptName(QFont::Script);
     static QString scriptSample(QFont::Script);
 
+#ifdef Q_WS_QWS
+    static void qwsAddDiskFont( QDiskFont *qdf );
+#endif
 
     // For source compatibility with < 3.0
 #ifndef QT_NO_COMPAT
