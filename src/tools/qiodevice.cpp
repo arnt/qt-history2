@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#45 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#46 $
 **
 ** Implementation of QIODevice class
 **
@@ -446,6 +446,27 @@ bool QIODevice::atEnd() const
 */
 
 /*!
+  This convenience function returns all of the remaining data in
+  the device.  Note that this only works for 
+  \link isDirectAccess() <em>direct access</em>\endlink devices,
+  such as QFile.
+*/
+QByteArray QIODevice::readAll()
+{
+    int n = size()-at();
+    QByteArray ba(size()-at());
+    char* c = ba.data();
+    while ( n ) {
+	int r = readBlock( c, n );
+	if ( r < 0 )
+	    return QByteArray();
+	n -= r;
+	c += r;
+    }
+    return ba;
+}
+
+/*!
   \fn int QIODevice::writeBlock( const char *data, uint len )
   Writes \e len bytes from \e p to the I/O device and returns the number of
   bytes actually written.
@@ -454,6 +475,15 @@ bool QIODevice::atEnd() const
 
   \sa readBlock()
 */
+
+/*!
+  This convenience function is the same as calling
+  writeBlock( data.data(), data.size() ).
+*/
+int QIODevice::writeBlock( const QByteArray& data )
+{
+    return writeBlock( data.data(), data.size() );
+}
 
 /*!
   Reads a line of text, up to \e maxlen bytes including a terminating
