@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#15 $
 **
 ** Implementation of QTimer class
 **
@@ -12,7 +12,7 @@
 
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#15 $");
 
 
 /*----------------------------------------------------------------------------
@@ -56,7 +56,6 @@ const int INV_TIMER = -1;			// invalid timer id
   Notice that the destructor of the parent object will destroy this timer
   object.
  ----------------------------------------------------------------------------*/
-  
 
 QTimer::QTimer( QObject *parent, const char *name )
     : QObject( parent, name )
@@ -119,9 +118,9 @@ int QTimer::start( int msec, bool sshot )
 
 void QTimer::changeInterval( int msec )
 {
-    if ( id == INV_TIMER )			// create new timer
+    if ( id == INV_TIMER ) {			// create new timer
 	start( msec );
-    else {
+    } else {
 	killTimer( id );			// restart timer
 	id = startTimer( msec );
     }

@@ -71,7 +71,7 @@ $(LEXOUT): moc.l
 
 $(TMPCPP): moc.y $(LEXOUT)
 	$(YACC) moc.y
-	del $(TMPCPP)
+	-del $(TMPCPP)
 	ren $(YACCOUT) $(TMPCPP)
 
 ####### Compile the .cpp files
