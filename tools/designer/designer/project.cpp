@@ -376,13 +376,19 @@ bool Project::DatabaseConnection::connect()
     }
 
     connection->close();
+    loaded = TRUE;
 
     return TRUE;
 }
 
 bool Project::DatabaseConnection::sync()
 {
-    return TRUE;
+    if ( loaded )
+	return TRUE;
+    connect();
+    if ( loaded )
+	return TRUE;
+    return FALSE;
 }
 
 QStringList Project::databaseConnectionList()
@@ -396,8 +402,11 @@ QStringList Project::databaseConnectionList()
 QStringList Project::databaseTableList( const QString &connection )
 {
     DatabaseConnection *conn = databaseConnection( connection );
-    if ( !conn )
+    if ( !conn ) {
+	qDebug("no connection returned");
 	return QStringList();
+    }
+    conn->sync();
     return conn->tables;
 }
 
@@ -406,6 +415,7 @@ QStringList Project::databaseFieldList( const QString &connection, const QString
     DatabaseConnection *conn = databaseConnection( connection );
     if ( !conn )
 	return QStringList();
+    conn->sync();
     return conn->fields[ table ];
 }
 
