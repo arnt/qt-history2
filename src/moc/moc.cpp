@@ -232,10 +232,15 @@ bool Moc::parseClassHead(ClassDef *def)
     def->classname = name;
     if (test(COLON)) {
         do {
+            test(VIRTUAL);
+
             if (!test(PUBLIC)
                  && !test(PROTECTED)
                  && !test(PRIVATE))
                 error();
+
+            test(VIRTUAL);
+
             def->superclassList += parseType();
         } while (test(COMMA));
     }
