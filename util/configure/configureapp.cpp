@@ -378,7 +378,7 @@ void Configure::parseCmdLine()
 
         else if( configCmdLine.at(i) == "-qt-sql-sqlite" )
             dictionary[ "SQL_SQLITE" ] = "yes";
-        else if( configCmdLine.at(i) == "-plugin-sql-db2" )
+        else if( configCmdLine.at(i) == "-plugin-sql-sqlite" )
             dictionary[ "SQL_SQLITE" ] = "plugin";
         else if( configCmdLine.at(i) == "-no-sql-sqlite" )
             dictionary[ "SQL_SQLITE" ] = "no";
