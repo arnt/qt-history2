@@ -1,8 +1,8 @@
-<!doctype HTML public "-//IETF//DTD HTML 2.0 Level 2//EN">
-<html><head>
+<!doctype HTML public "-//W3C//DTD HTML 3.2//EN">
+<html><head><meta name="robots" content="noindex,noarchive">
 <title>Qt Toolkit - GLWidget Class</title>
-</head><body>
-<h1>GLWidget Class Reference</h1>
+</head><body bgcolor="#ffffff">
+<h1 align=center>GLWidget Class Reference</h1>
 <hr>
 <p>
 The GLWidget is an OpenGL wrapper class.
@@ -14,68 +14,72 @@ Inherits QWidget.
 <p><a href="glwidget-members.html">List of all member functions.</a>
 <h2>Public Members</h2>
 <ul>
-<li><a href="glwidget.html#1"><strong>GLWidget</strong></a> (QWidget* parent=0, const char* name=0) 
+<li><a href="glwidget.html#a0"><strong>GLWidget</strong></a> (QWidget* parent=0, const char* name=0) 
 </ul>
 <h2>Public Slots</h2>
 <ul>
-<li>void <a href="glwidget.html#4"><strong>updateGL</strong></a> () 
+<li>void <a href="glwidget.html#a3"><strong>updateGL</strong></a> () 
 </ul>
 <h2>Static Public Members</h2>
 <ul>
-<li>bool <a href="glwidget.html#13"><strong>doubleBuffer</strong></a> () 
-<li>void <a href="glwidget.html#14"><strong>setDoubleBuffer</strong></a> (bool enable) 
+<li>bool <a href="glwidget.html#b2"><strong>doubleBuffer</strong></a> () 
+<li>void <a href="glwidget.html#b3"><strong>setDoubleBuffer</strong></a> (bool enable) 
 </ul>
 <h2>Protected Members</h2>
 <ul>
-<li>virtual void <a href="glwidget.html#5"><strong>paintGL</strong></a> () 
-<li>virtual void <a href="glwidget.html#6"><strong>resizeGL</strong></a> (int w, int h) 
-<li>void <a href="glwidget.html#7"><strong>swapBuffers</strong></a> () 
-<li>void <a href="glwidget.html#8"><strong>makeCurrentGL</strong></a> () 
-<li>void <a href="glwidget.html#9"><strong>paintEvent</strong></a> (QPaintEvent*) 
-<li>void <a href="glwidget.html#10"><strong>resizeEvent</strong></a> (QResizeEvent*) 
+<li>virtual void <a href="glwidget.html#a4"><strong>paintGL</strong></a> () 
+<li>virtual void <a href="glwidget.html#a5"><strong>resizeGL</strong></a> (int w, int h) 
+<li>void <a href="glwidget.html#a6"><strong>swapBuffers</strong></a> () 
+<li>void <a href="glwidget.html#a7"><strong>makeCurrentGL</strong></a> () 
+<li>void <a href="glwidget.html#a8"><strong>paintEvent</strong></a> (QPaintEvent*) 
+<li>void <a href="glwidget.html#a9"><strong>resizeEvent</strong></a> (QResizeEvent*) 
 </ul>
-<hr><h2><a name="details">Detailed Description</a></h2>
+<hr><h2><a name="details"></a>Detailed Description</h2>
 The GLWidget is an OpenGL wrapper class.
 <p>
 To create your own OpenGL widget, make a subclass of GLWidget and
-reimplement the virtual functions <a href="glwidget.html#5">paintGL</a>() and <a href="glwidget.html#6">resizeGL</a>().
+reimplement the virtual functions <a href="glwidget.html#a4">paintGL</a>() and <a href="glwidget.html#a5">resizeGL</a>().
 Study the Nurb class for an example.
 <p>The GLWidget is a very thin wrapper and it probably lacks functionality.
 Please give feedback to hanord@troll.no.
 
 <hr><h2>Member Function Documentation</h2>
-<h3> <a name="1">GLWidget::GLWidget</a> ( QWidget *parent=0, const char *name=0)</h3>
+<h3> <a name="a0"></a>GLWidget::GLWidget ( QWidget *parent=0, const char *name=0)</h3>
 <p>Create an OpenGL widget with a <em>parent</em> widget and a <em>name.</em>
-<h3>bool <a name="13">GLWidget::doubleBuffer</a> () <code>[static]</code></h3>
+<h3>bool <a name="b2"></a>GLWidget::doubleBuffer () <code>[static]</code></h3>
 <p>Returns TRUE if double buffering is enabled, otherwise FALSE.
-<p>See also:  <a href="glwidget.html#14">setDoubleBuffer</a>().
-<h3>void <a name="8">GLWidget::makeCurrentGL</a> () <code>[protected]</code></h3>
+<p>See also:  <a href="glwidget.html#b3">setDoubleBuffer</a>().
+<h3>void <a name="a7"></a>GLWidget::makeCurrentGL () <code>[protected]</code></h3>
 <p>Makes this widget the current GL object. GLWidget takes care of this
-before calling <a href="glwidget.html#5">paintGL</a>() or <a href="glwidget.html#6">resizeGL</a>().
-<h3>void <a name="9">GLWidget::paintEvent</a> ( QPaintEvent *) <code>[protected]</code></h3>
-<p>Handles paint events. Calls the virtual function <a href="glwidget.html#5">paintGL</a>().
-<h3>void <a name="5">GLWidget::paintGL</a> () <code>[virtual protected]</code></h3>
+before calling <a href="glwidget.html#a4">paintGL</a>() or <a href="glwidget.html#a5">resizeGL</a>().
+<h3>void <a name="a8"></a>GLWidget::paintEvent ( QPaintEvent *) <code>[protected]</code></h3>
+<p>Handles paint events. Calls the virtual function <a href="glwidget.html#a4">paintGL</a>().
+<h3>void <a name="a4"></a>GLWidget::paintGL () <code>[virtual protected]</code></h3>
 <p>This virtual function is called whenever the widget needs to be painted.
 Reimplement it in a subclass.
-<h3>void <a name="10">GLWidget::resizeEvent</a> ( QResizeEvent *) <code>[protected]</code></h3>
-<p>Handles resize events. Calls the virtual function <a href="glwidget.html#6">resizeGL</a>().
-<h3>void <a name="6">GLWidget::resizeGL</a> ( int, int) <code>[virtual protected]</code></h3>
+<h3>void <a name="a9"></a>GLWidget::resizeEvent ( QResizeEvent *) <code>[protected]</code></h3>
+<p>Handles resize events. Calls the virtual function <a href="glwidget.html#a5">resizeGL</a>().
+<h3>void <a name="a5"></a>GLWidget::resizeGL ( int, int) <code>[virtual protected]</code></h3>
 <p>This virtual function is called whenever the widget has been resized.
 Reimplement it in a subclass.
-<h3>void <a name="14">GLWidget::setDoubleBuffer</a> ( bool enable) <code>[static]</code></h3>
+<h3>void <a name="b3"></a>GLWidget::setDoubleBuffer ( bool enable) <code>[static]</code></h3>
 <p>Enables or disables double buffering. The default setting is TRUE.
 <p>Call this static function before you create any GLWidgets.
-<h3>void <a name="7">GLWidget::swapBuffers</a> () <code>[protected]</code></h3>
-<p>Handles paint events. Calls the virtual function <a href="glwidget.html#5">paintGL</a>().
-<h3>void <a name="4">GLWidget::updateGL</a> () <code>[slot]</code></h3>
+<h3>void <a name="a6"></a>GLWidget::swapBuffers () <code>[protected]</code></h3>
+<p>Handles paint events. Calls the virtual function <a href="glwidget.html#a4">paintGL</a>().
+<h3>void <a name="a3"></a>GLWidget::updateGL () <code>[slot]</code></h3>
 <p>Updates the widget. Does not clear the background first.
-
+<hr><p>
+This file is part of the <a href="qt.html">Qt toolkit</a>,
+<a href="license.html">copyright &copy;</a> 1995-96
+<a href="troll.html">Troll Tech</a>, all rights reserved.
 <p>
 It was generated from the following files:
 <ul>
-<li>glwidget.h
-<li>glwidget.cpp</ul>
+<li>glwidget.h: 1996/09/24
+<li>glwidget.cpp: 1997/01/23
+</ul>
 <hr><address>
-Generated at 09:24, 1996/06/25 for Qt version 0.98 by the <a href="mailto:www@troll.no">webmaster</a> at <a href="http://www.troll.no/">Troll Tech</a>
+Generated at 13:35, 1997/02/21 for Qt version 0.92 by the <a href="mailto:www@troll.no">webmaster</a> at <a href="http://www.troll.no/">Troll Tech</a>
 </address>
 </body></html>

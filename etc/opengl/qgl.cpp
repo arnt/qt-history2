@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.cpp#8 $
+** $Id: //depot/qt/main/etc/opengl/qgl.cpp#9 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -19,7 +19,7 @@
 #undef  INT32
 #endif
 
-RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#9 $");
 
 
 #if defined(_CC_MSVC_)
@@ -38,13 +38,13 @@ RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#8 $");
 
   A rendering context has several characteristics:
   <ul>
-  \link setDoubleBuffer() Double or single buffering.\endlink
-  \link setDepth() Depth buffer.\endlink
-  \link setRgba() RGBA or color index mode.\endlink
-  \link setAlpha() Alpha blending.\endlink
-  \link setAccum() Accumulation buffer.\endlink
-  \link setStencil() Stencil buffer.\endlink
-  \link setStereo() Stereo buffer.\endlink
+  <li> \link setDoubleBuffer() Double or single buffering.\endlink
+  <li> \link setDepth() Depth buffer.\endlink
+  <li> \link setRgba() RGBA or color index mode.\endlink
+  <li> \link setAlpha() Alpha blending.\endlink
+  <li> \link setAccum() Accumulation buffer.\endlink
+  <li> \link setStencil() Stencil buffer.\endlink
+  <li> \link setStereo() Stereo buffer.\endlink
   </ul>
 
   You create and tell a QGLFormat object what rendering options
@@ -81,7 +81,7 @@ RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#8 $");
     }
   \endcode
 
-  <em>Implementation note:<em>
+  <em>Implementation note:</em>
   QGLFormat objects use implicit sharing. This is an internal
   optimization that minimizes copying and memory overhead.
   When you pass a QGLFormat as an argument to a function,or
@@ -96,14 +96,14 @@ RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#8 $");
 /*!
   Constructs a QGLFormat object with the default settings:
   <ul>
-  \link setDoubleBuffer() Double buffer:\endlink Enabled if \a doubleBuffer
-  is TRUE, otherwise single buffer.
-  \link setDepth() Depth buffer:\endlink Enabled.
-  \link setRgba() RGBA:\endlink Enabled (i.e. color index disabled).
-  \link setAlpha() Alpha channel:\endlink Disabled.
-  \link setAccum() Accumulator buffer:\endlink Disabled.
-  \link setStencil() Stencil buffer:\endlink Disabled.
-  \link setStereo() Stereo:\endlink Disabled.
+  <li> \link setDoubleBuffer() Double buffer:\endlink Enabled if
+  \a doubleBuffer is TRUE, otherwise single buffer.
+  <li> \link setDepth() Depth buffer:\endlink Enabled.
+  <li> \link setRgba() RGBA:\endlink Enabled (i.e. color index disabled).
+  <li> \link setAlpha() Alpha channel:\endlink Disabled.
+  <li> \link setAccum() Accumulator buffer:\endlink Disabled.
+  <li> \link setStencil() Stencil buffer:\endlink Disabled.
+  <li> \link setStereo() Stereo:\endlink Disabled.
   </ul>
 */
 
@@ -976,6 +976,10 @@ void QGLWidget::setContext( QGLContext *context )
     if ( visible )
         hide();
     XVisualInfo *vi = (XVisualInfo*)glcx->vi;
+    if ( XVisualIDFromVisual(vi->visual) ==
+	 XVisualIDFromVisual((Visual*)QPaintDevice::x11Visual()) )
+	return;
+
     /*
       Here we can optimize:
 	1) Create one colormap for each visual.
@@ -1082,61 +1086,14 @@ toolkit, such as Motif on the X platform, Microsoft Foundation Classes
 
 The OpenGL support classes in Qt are:
 <ul>
-<li> <strong>QGLWidget:</strong> An easy-to-use Qt widget for rendering
-    OpenGL scenes.
-<li> <strong>QGLContext:</strong> An OpenGL context.
-<li> <strong>QGLFormat:</strong> Defines the attributes/format of a
-     context.
+<li> <strong>\link QGLWidget QGLWidget\endlink:</strong> An easy-to-use Qt
+  widget for rendering OpenGL scenes.
+<li> <strong>\link QGLContext QGLContext\endlink:</strong> An OpenGL context.
+<li> <strong>\link QGLFormat QGLFormat\endlink:</strong> Spesifies the
+device settings of a context.
 </ul>
 
 Many applications need only the high-level QGLWidget class. The other QGL
 classes provide advanced features.
-
-
-<h2>A Widget Sceleton</h2>
-
-The code below outlines how to write an OpenGL widget using Qt.
-
-\code
-#include <qgl.h>
-#include <qapp.h>
-
-class Sceleton : public QGLWidget
-{
-    Q_OBJECT
-public:
-    Sceleton( QWidget *parent=0, const char *name=0 );
-protected:
-    void resizeGL( int, int );
-    void paintGL();
-private:
-    // Your private stuff here
-};
-
-Sceleton::Sceleton( QWidget *parent, const char *name )
-    : QGLWidget( parent, name )
-{
-    // Initialize private stuff
-}
-
-void Sceleton::resizeGL( int width, int height )
-{
-    // Define the projection and viewport here
-}
-
-void Sceleton::paintGL()
-{
-    // Draw the scene
-}
-
-int main( int argc, char **argv )
-{
-    QApplication a( argc, argv );
-    Sceleton w;
-    a.setMainWidget( &w );
-    w.show();
-    return a.exec();
-}
-\endcode
 
 */
