@@ -502,7 +502,7 @@ QPixmap QPixmap::alphaChannel() const
   Sets the alpha channel of this pixmap to \a alpha. Overwrites any previous
   alpha channel that was set on the pixmap.
  */
-void setAlphaChannel(const QPixmap &alpha)
+void QPixmap::setAlphaChannel(const QPixmap &alpha)
 {
     // ############ PIXMAP
 }
@@ -520,7 +520,8 @@ QBitmap QPixmap::mask() const
     QBitmap mask(data->w, data->h);
 #ifndef QT_NO_XFT
     if (X11->use_xrender) {
-        // ##########
+        // #### slow - there must be a better way..
+        return QBitmap::fromImage(toImage().createAlphaMask());
     } else
 #endif
     {
