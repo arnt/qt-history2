@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#41 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#41 $")
 
 
 /*----------------------------------------------------------------------------
@@ -307,15 +307,15 @@ void QColor::hsv( int *h, int *s, int *v ) const
 
 void QColor::setHsv( int h, int s, int v )
 {
-    int r, g, b;
 #if defined(CHECK_RANGE)
     if ( h < -1 || (uint)s > 255 || (uint)v > 255 ) {
-	warning( "QColor::setHsv:  HSV parameters out of range" );
+	warning( "QColor::setHsv: HSV parameters out of range" );
 	return;
     }
 #endif
+    int r=v, g=v, b=v;
     if ( s == 0 || h == -1 )			// achromatic case
-	r = g = b = v;
+	;
     else {					// chromatic case
 	if ( (uint)h >= 360 )
 	    h %= 360;
