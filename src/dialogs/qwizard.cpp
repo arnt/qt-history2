@@ -668,6 +668,8 @@ void QWizard::removePage( QWidget * page )
     if ( i+1 == (int) d->pages.size() )
 	d->pages.resize( i );
     d->ws->removeWidget( page );
+    if ( pageCount() > 0 )
+	showPage( QWizard::page( 0 ) );
 }
 
 
