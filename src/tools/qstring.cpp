@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#432 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#433 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12972,16 +12972,18 @@ QString QString::arg( QChar a, int fieldwidth ) const
 
 /*! \overload
 
-  Argument \a a is formatted according to the \a fmt format specified,
-  which is \c g by default, and can be any of the following:
+  <a name="arg-formats"></a>
 
-  <ul>
-  <li> \c e - format as [-]9.9e[+|-]999
-  <li> \c E - format as [-]9.9E[+|-]999
-  <li> \c f - format as [-]9.9
-  <li> \c g - use \e or \f format, whichever is the most concise
-  <li> \c G - use \E or \f format, whichever is the most concise
-  </ul>
+  Argument \a a is formatted according to the \a fmt format specified,
+  which is \c g by default and can be any of the following:
+
+  \list
+  \i \c e - format as [-]9.9e[+|-]999
+  \i \c E - format as [-]9.9E[+|-]999
+  \i \c f - format as [-]9.9
+  \i \c g - use \c e or \c f format, whichever is the most concise
+  \i \c G - use \c E or \c f format, whichever is the most concise
+  \endlist
 
   In all cases the number of digits after the decimal point is equal
   to the precision specified in \a prec.
@@ -13029,11 +13031,11 @@ static QCleanupHandler<QRegExp> qt_regexp_cleanup;
   arbitrary list of arguments.  The format string supports all
   the escape sequences of printf() in the standard C library.
 
-  The %s escape sequence expects a utf8() encoded string.
-  The format string \e cformat is expected to be in latin1. If you need a unicode
-  format string, use QString::arg() instead. For typesafe
-  string building, with full Unicode support, you can use QTextOStream
-  like this:
+  The %s escape sequence expects a utf8() encoded string. The format
+  string \e cformat is expected to be in latin1. If you need a
+  unicode format string, use arg() instead. For typesafe string
+  building, with full Unicode support, you can use QTextOStream like
+  this:
 
   \code
     QString str;
@@ -14557,8 +14559,8 @@ QString &QString::setNum( ulong n, int base )
   with precision \a prec, and returns a reference to the
   string.
 
-  The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See arg() for
-  an explanation of the formats.
+  The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See
+  \link #arg-formats arg \endlink() for an explanation of the formats.
 */
 
 QString &QString::setNum( double n, char f, int prec )
@@ -14598,8 +14600,8 @@ QString &QString::setNum( double n, char f, int prec )
   with precision \a prec, and returns a reference to the
   string.
 
-  The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See arg() for
-  an explanation of the formats.
+  The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See
+  \link #arg-formats arg \endlink() for an explanation of the formats.
 */
 
 
@@ -14669,8 +14671,8 @@ QString QString::number( uint n, int base )
   \i \c e - format as [-]9.9e[+|-]999
   \i \c E - format as [-]9.9E[+|-]999
   \i \c f - format as [-]9.9
-  \i \c g - use \e or \f format, whichever is the most concise
-  \i \c G - use \E or \f format, whichever is the most concise
+  \i \c g - use \c e or \c f format, whichever is the most concise
+  \i \c G - use \c E or \c f format, whichever is the most concise
   \endlist
 
   In all cases the number of digits after the decimal point is equal
