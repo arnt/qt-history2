@@ -308,23 +308,27 @@ static const char * const normalize_xpm[] = {
 "                "};
 
 static const char * const shade_xpm[] = {
-"12 12 2 1",
+"16 16 2 1",
 "       s None  c None",
 "X      c #000000",
-"           ",
-"           ",
-"           ",
-"     X     ",
-"    XXX    ",
-"   XXXXX   ",
-"  XXXXXXX  ",
-"           ",
-"           ",
-"           ",
-"           ",
-"           ",
-"           ",
-"           "};
+"               ",
+"               ",
+"               ",
+"               ",
+"               ",
+"       X       ",
+"      XXX      ",
+"     XXXXX     ",
+"    XXXXXXX    ",
+"               ",
+"               ",
+"               ",
+"               ",
+"               ",
+"               ",
+"               ",
+"               ",
+"               "};
 
 
 #endif // !_WS_WIN_
@@ -1394,8 +1398,10 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* window
     titleL->setAlignment( AlignLeft | AlignVCenter | SingleLine );
     QFont f = font();
     f.setBold( TRUE );
+#ifdef _WS_WIN_ // Don't scale fonts on X
     if ( window && window->testWFlags( WStyle_Tool ) )
 	f.setPointSize( f.pointSize() - 1 );
+#endif
     titleL->setFont( f );
 
     iconL = new QLabel( this, "icon" );
@@ -2394,8 +2400,8 @@ void QWorkspaceChildTitleLabel::drawLabel( const QString& text )
 	    p.drawLine( x, frameWidth(), x, height()-2*frameWidth() );
 	}
     } else {
-	p.fillRect( frameWidth(), frameWidth(), width()-2*frameWidth(), 
-	    height()-2*frameWidth(), left );
+	p.fillRect( frameWidth(), frameWidth(), width()-2*frameWidth()+1, 
+	    height()-2*frameWidth()+1, left );
     }
     p.setPen( textc );
     p.drawText( indent()+frameWidth(), frameWidth(), width()-2*frameWidth(), 
