@@ -41,52 +41,56 @@
 #ifndef QT_NO_BIG_CODECS
 
 
-extern int qt_UnicodeToGb18030(uint unicode, uchar *gbchar);
+extern int qt_UnicodeToGbk(uint unicode, uchar *gbchar);
 
 
-int QFontGB2312Codec::heuristicContentMatch(const char *, int) const
+int QFontGb2312Codec::heuristicContentMatch(const char *, int) const
 {
     return 0;
 }
 
 
-QFontGB2312Codec::QFontGB2312Codec()
+QFontGb2312Codec::QFontGb2312Codec()
 {
+    //qDebug("QFontGb2312Codec::QFontGb2312Codec()");
 }
 
 
-const char* QFontGB2312Codec::name() const
+const char* QFontGb2312Codec::name() const
 {
+    //qDebug("QFontGb2312Codec::name() = \"gb2312.1980-0\"");
     return "gb2312.1980-0";
 }
 
 
-int QFontGB2312Codec::mibEnum() const
+int QFontGb2312Codec::mibEnum() const
 {
+    //qDebug("QFontGb2312Codec::mibEnum() = 57");
     return 57;
 }
 
 
-QString QFontGB2312Codec::toUnicode(const char* /*chars*/, int /*len*/) const
+QString QFontGb2312Codec::toUnicode(const char* /*chars*/, int /*len*/) const
 {
-    return QString();
+    return QString::null;
 }
 
 
-QCString QFontGB2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+QCString QFontGb2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
     QCString result(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 
+    //qDebug("QFontGb2312Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
     for ( int i = 0; i < lenInOut; i++ ) {
 	QChar ch(*ucp++);
 	uchar buf[8];
 
-	int len = qt_UnicodeToGb18030( ch.unicode(), buf );
+	int len = qt_UnicodeToGbk( ch.unicode(), buf );
 
-	if ( len == 2 && buf[0] > 0xa0 && buf[1] > 0xa0  ) {
-	    *rdata++ = buf[0] & 0x7f ;
+	if ( len == 2 && buf[0] > 0xa0 && buf[1] > 0xa0 ) {
+	    *rdata++ = buf[0] & 0x7f;
 	    *rdata++ = buf[1] & 0x7f;
 	} else {
 	    //white square
@@ -101,12 +105,162 @@ QCString QFontGB2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 }
 
 
-bool QFontGB2312Codec::canEncode( QChar ch ) const
+bool QFontGb2312Codec::canEncode( QChar ch ) const
 {
     uchar buf[4];
-    int len = qt_UnicodeToGb18030( ch.unicode(), buf );
-    return ( len == 2 && buf[0] > 0xa0 && buf[1] > 0xa0  );
+    int len = qt_UnicodeToGbk( ch.unicode(), buf );
+    //qDebug("QFontGb2312Codec::canEncode( QChar ch = %02X%02X )", ch.row(), ch.cell());
+    return ( len == 2 && buf[0] > 0xa0 && buf[1] > 0xa0 );
 }
+
+//==========================================================================
+
+
+int QFontGbkCodec::heuristicContentMatch(const char *, int) const
+{
+    return 0;
+}
+
+
+int QFontGbkCodec::heuristicNameMatch(const char* hint) const
+{
+    //qDebug("QFontGbkCodec::heuristicNameMatch(const char* hint = \"%s\")", hint);
+    return ( qstricmp(hint, "gbk-0") == 0 ||
+	     qstricmp(hint, "gb18030.2000-0") == 0 )
+        ? 13 : 0;
+}
+
+
+QFontGbkCodec::QFontGbkCodec()
+{
+    //qDebug("QFontGbkCodec::QFontGbkCodec()");
+}
+
+
+const char* QFontGbkCodec::name() const
+{
+    //qDebug("QFontGbkCodec::name() = \"gbk-0\"");
+    return "gbk-0";
+}
+
+
+int QFontGbkCodec::mibEnum() const
+{
+    //qDebug("QFontGbkCodec::mibEnum() = -113");
+    return -113;
+}
+
+
+QString QFontGbkCodec::toUnicode(const char* /*chars*/, int /*len*/) const
+{
+    return QString::null;
+}
+
+
+QCString QFontGbkCodec::fromUnicode(const QString& uc, int& lenInOut ) const
+{
+    QCString result(lenInOut * 2 + 1);
+    uchar *rdata = (uchar *) result.data();
+    const QChar *ucp = uc.unicode();
+
+    //qDebug("QFontGbkCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
+    for ( int i = 0; i < lenInOut; i++ ) {
+	QChar ch(*ucp++);
+	uchar buf[8];
+
+	int len = qt_UnicodeToGbk( ch.unicode(), buf );
+
+	if ( len == 2 ) {
+	    *rdata++ = buf[0];
+	    *rdata++ = buf[1];
+	} else {
+	    //white square
+	    *rdata++ = 0xa1;
+	    *rdata++ = 0xf5;
+	}
+    }
+
+    lenInOut *= 2;
+
+    return result;
+}
+
+
+bool QFontGbkCodec::canEncode( QChar ch ) const
+{
+    if (ch.unicode() >= 0x4e00 && ch.unicode() <= 0x9fa5)
+        return TRUE;
+    uchar buf[4];
+    int len = qt_UnicodeToGbk( ch.unicode(), buf );
+    //qDebug("QFontGbkCodec::canEncode( QChar ch = %02X%02X )", ch.row(), ch.cell());
+    return ( len == 2 );
+}
+
+//==========================================================================
+
+int QFontGb18030_0Codec::heuristicContentMatch(const char *, int) const
+{
+    return 0;
+}
+
+
+QFontGb18030_0Codec::QFontGb18030_0Codec()
+{
+    //qDebug("QFontGb18030_0Codec::QFontGb18030_0Codec()");
+}
+
+
+const char* QFontGb18030_0Codec::name() const
+{
+    //qDebug("QFontGb18030_0Codec::name() = \"gb18030-0\"");
+    return "gb18030-0";
+}
+
+
+int QFontGb18030_0Codec::mibEnum() const
+{
+    //qDebug("QFontGb18030_0Codec::mibEnum() = -114");
+    return -114;
+}
+
+
+QString QFontGb18030_0Codec::toUnicode(const char* /*chars*/, int /*len*/) const
+{
+    return QString::null;
+}
+
+
+QCString QFontGb18030_0Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+{
+    QCString result(lenInOut * 2 + 1);
+    uchar *rdata = (uchar *) result.data();
+    const QChar *ucp = uc.unicode();
+
+    //qDebug("QFontGb18030_0Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
+    for ( int i = 0; i < lenInOut; i++ ) {
+	QChar ch(*ucp++);
+	if (ch.row () > 0 && !(ch.row () >= 0xd8 && ch.row () < 0xe0)) {
+	    *rdata++ = ch.row();
+	    *rdata++ = ch.cell();
+	} else {
+	    *rdata++ = 0xff;
+	    *rdata++ = 0xfd;
+	}
+    }
+
+    lenInOut *= 2;
+
+    return result;
+}
+
+
+bool QFontGb18030_0Codec::canEncode( QChar ch ) const
+{
+    //qDebug("QFontGb18030_0Codec::canEncode( QChar ch = %02X%02X )", ch.row(), ch.cell());
+    return (ch.row () > 0 && !(ch.row () >= 0xd8 && ch.row () < 0xe0));
+}
+
+//==========================================================================
 
 
 #endif // QT_NO_BIG_CODECS

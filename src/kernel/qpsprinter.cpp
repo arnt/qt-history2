@@ -1303,7 +1303,7 @@ static QString wrapDSC( const QString &str )
 }
 
 static QString toString( const float num )
-{    
+{
     long intNum = (long) num;
     QString ret = QString::number( intNum );
     return ret += "." + QString::number( (long)((num - intNum) * 1000) );
@@ -4493,7 +4493,7 @@ QPSPrinterFontTraditionalChinese::QPSPrinterFontTraditionalChinese(const QFont& 
 
 QString QPSPrinterFontTraditionalChinese::extension() const
 {
-    return "-B5-H";
+    return "-ETen-B5-H";
 }
 
 // ----------- simplified chinese ------------
@@ -4598,18 +4598,18 @@ public:
 
 QPSPrinterFontSimplifiedChinese::QPSPrinterFontSimplifiedChinese(const QFont& f)
 {
-    codec = QTextCodec::codecForMib( 2025 ); // gbk
+    codec = QTextCodec::codecForMib( 114 ); // GB18030
     int type = getPsFontType( f );
     psname = makePSFontName( f, type );
     QString best = "[ /" + psname + " 1.0 0.0 ]";
     replacementList.append( best );
-    qDebug("simplified chinese: fontname is %s, psname=%s", f.family().latin1(), psname.latin1() );
+    //qDebug("simplified chinese: fontname is %s, psname=%s", f.family().latin1(), psname.latin1() );
     appendReplacements( replacementList, SimplifiedReplacements, type );
 }
 
 QString QPSPrinterFontSimplifiedChinese::extension() const
 {
-    return "-GBK-EUC-H";
+    return "-GBK2K-H";
 }
 
 #endif
@@ -4703,10 +4703,16 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 		script = QFont::Hangul;
 		break;
 
-	    case 57: // GB 2312-1980
-	    case 2025: // GBK
-	    case -2500: // GB18030
+	    case 57: // gb2312.1980-0
+	    case 113: // GBK
+	    case -113: // gbk-0
+	    case 114: // GB18030
+	    case -114: // gb18030-0
+	    case 2025: // GB2312
 	    case 2026: // Big5
+	    case -2026: // Big5-HKSCS
+	    case 2101: // big5-0, big5.eten-0
+	    case -2101: // big5hkscs-0, hkscs-1
 		break;
 
 	    case 16: // JIS7
@@ -4827,17 +4833,23 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
 	    if ( script == QFont::Hiragana )
 		p = new QPSPrinterFontJapanese( f );
-	    else if ( script == QFont::Hangul)
+	    else if ( script == QFont::Hangul )
 		p = new QPSPrinterFontKorean( f );
 	    else if ( script == QFont::Han ) {
 		QTextCodec *lc = QTextCodec::codecForLocale();
 		switch( lc->mibEnum() ) {
-		    case 57: // GB 2312-1980
-		    case 2025: // GBK
-		    case -2500:
+		    case 2025: // GB2312
+		    case 57: // gb2312.1980-0
+		    case 113: // GBK
+		    case -113: // gbk-0
+		    case 114: // GB18030
+		    case -114: // gb18030-0
 			p = new QPSPrinterFontSimplifiedChinese( f );
 			break;
 		    case 2026: // Big5
+		    case -2026: // big5-0, big5.eten-0
+		    case 2101: // Big5-HKSCS
+		    case -2101: // big5hkscs-0, hkscs-1
 			p = new QPSPrinterFontTraditionalChinese( f );
 			break;
 		    default:

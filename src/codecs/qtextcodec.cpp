@@ -214,9 +214,12 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
   The supported encodings are:
     \list
   \i Big5 -- Chinese
+  \i Big5-HKSCS -- Chinese
   \i eucJP -- Japanese
   \i eucKR -- Korean
+  \i GB2312 -- Chinese
   \i GBK -- Chinese
+  \i GB18030 -- Chinese
   \i JIS7 -- Japanese
   \i Shift-JIS -- Japanese
   \i TSCII -- Tamil
@@ -360,7 +363,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
    \code
    QTextEncoder* makeEncoder() const
    \endcode
-   Return a QTextDecoder.
+   Return a QTextEncoder.
 
    \code
    QCString fromUnicode(const QString& uc, int& lenInOut ) const
@@ -454,7 +457,7 @@ int QTextCodec::heuristicNameMatch(const char* hint) const
 }
 
 
-// returns a string cotnaining the letters and numbers from input,
+// returns a string containing the letters and numbers from input,
 // with a space separating run of a character class.  e.g. "iso8859-1"
 // becomes "iso 8859 1"
 static QString lettersAndNumbers( const char * input )
@@ -828,7 +831,7 @@ QTextCodec* QTextCodec::codecForLocale()
 	if ( ctype && *ctype != 0 && strcmp (ctype, "C") != 0 )
 	    try_by_name = lang;
 
-	// Now do the quessing.
+	// Now do the guessing.
 	if ( lang && *lang && !localeMapper && try_by_name && *try_by_name ) {
 	    if ( try_locale_list( iso8859_15locales, lang ) )
 		localeMapper = codecForName( "ISO 8859-15" );
@@ -2765,8 +2768,10 @@ static void setupBuiltinCodecs()
 #endif
 #ifndef QT_NO_BIG_CODECS
     (void)new QBig5Codec;
+    (void)new QBig5hkscsCodec;
     (void)new QEucJpCodec;
     (void)new QEucKrCodec;
+    (void)new QGb2312Codec;
     (void)new QGbkCodec;
     (void)new QGb18030Codec;
     (void)new QJisCodec;

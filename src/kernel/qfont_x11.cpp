@@ -103,22 +103,26 @@ static const char * const katakana_encodings[] = { "jisx0208.1983-0", 0 };
 static const char * const hangul_encodings[] = { "ksc5601.1987-0", 0 };
 static const char * const bopomofo_encodings[] = { "gb2312.1980-0", 0 };
 static const char * const unicode_encodings[] = { "iso10646-1", "unicode-*", 0 };
-static const char * const hanx11_encodings[] = { "big5*-*", 0 };
+static const char * const hanx11_encodings[] = { "gb18030-0", /* "gb18030.2000-1", */ "gb18030.2000-0", "big5-0", "big5hkscs-0" };
 static const char * const latinA2_encodings[] = { "iso8859-2", 0 };
 static const char * const latinA3_encodings[] = { "iso8859-3", 0 };
 static const char * const latinA4_encodings[] = { "iso8859-4", 0 };
 static const char * const latinA14_encodings[] = { "iso8859-14", 0 };
 static const char * const latinA15_encodings[] = { "iso8859-15", 0 };
 
-// we select on of these at initialization time for Han use
+// we select one of these at initialization time for Han use
 static const char * const hancn_encodings[] =
-{ "gb18030-0", /*"gb18030.2000-1",*/ "gb18030.2000-0", "gbk-0", "gb2312.1980-0", "big5*-*", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
+    { "gbk-0", "gb2312.1980-0", "big5-0", "big5hkscs-0", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
+static const char * const hancngb18030_encodings[] =
+    { "gb18030-0", /* "gb18030.2000-1", */ "gb18030.2000-0", "gbk-0", "gb2312.1980-0", "big5-0", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
+static const char * const hanhk_encodings[] =
+    { "big5hkscs-0", "hkscs-1", "big5-0", "gb2312.1980-0", "gbk-0", "jisx0208.1983-0", "ksc5601.1987-0", "gb18030-0", 0 };
 static const char * const hanjp_encodings[] =
-    { "jisx0208.1983-0", "gb2312.1980-0", "big5*-*", "ksc5601.1987-0", 0 };
+    { "jisx0208.1983-0", "gb2312.1980-0", "big5-0", "ksc5601.1987-0", "big5hkscs-0", "gbk-0", 0 };
 static const char * const hankr_encodings[] =
-    { "ksc5601.1987-0", "jisx0208.1983-0", "gb2312.1980-0", "big5*-*", 0 };
+    { "ksc5601.1987-0", "jisx0208.1983-0", "gb2312.1980-0", "big5-0", "big5hkscs-0", "gbk-0", 0 };
 static const char * const hantw_encodings[] =
-    { "big5*-*", "gb2312.1980-0", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
+    { "big5-0", "gb2312.1980-0", "jisx0208.1983-0", "ksc5601.1987-0", "big5hkscs-0", "gbk-0", 0 };
 
 static struct
 {
@@ -205,7 +209,7 @@ static struct
     { 0, empty_encodings },
     // Mongolian
     { 0, empty_encodings },
-
+gb18030
     // CurrencySymbols
     { 0, empty_encodings },
     // LetterlikeSymbols
@@ -2846,8 +2850,11 @@ void QFont::initialize()
     if ( ! codecs_once ) {
 	(void) new QFontJis0208Codec;
 	(void) new QFontKsc5601Codec;
-	(void) new QFontGB2312Codec;
+	(void) new QFontGb2312Codec;
+	(void) new QFontGbkCodec;
+	(void) new QFontGb18030_0Codec;
 	(void) new QFontBig5Codec;
+	(void) new QFontBig5hkscsCodec;
 	(void) new QFontArabic68Codec;
 	codecs_once = TRUE;
     }
@@ -2870,13 +2877,29 @@ void QFont::initialize()
     // and change the script_table[Han].list to an appropriate list
     if (codec) {
 	switch (codec->mibEnum()) {
-	case 57: // GB 2312-1980
-	case 2025: // GBK
-	case -2025: // GB18030
+	case 2025: // GB2312
+	case 57: // gb2312.1980-0
+	case 113: // GBK
+	case -113: // gbk-0
 	    script_table[QFont::Han].list = hancn_encodings;
 	    break;
+
+	case 114: // GB18030
+	case -114: // gb18030-0
+	    script_table[QFont::Han].list = hancngb18030_encodings;
+	    script_table[QFont::Mongolian].list = hancngb18030_encodings;
+	    script_table[QFont::Tibetan].list = hancngb18030_encodings;
+	    script_table[QFont::Yi].list = hancngb18030_encodings;
+	    break;
+
 	case 2026: // Big5
+	case -2026: // big5-0, big5-eten.0
 	    script_table[QFont::Han].list = hantw_encodings;
+	    break;
+
+	case 2101: // Big5-HKSCS
+	case -2101: // big5hkscs-0, hkscs-1
+	    script_table[QFont::Han].list = hanhk_encodings;
 	    break;
 
 	case 36: // KS C 5601

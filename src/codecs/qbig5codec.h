@@ -65,5 +65,22 @@ public:
     int heuristicNameMatch(const char* hint) const;
 };
 
+class QBig5hkscsCodec : public QTextCodec {
+public:
+    virtual int mibEnum() const;
+    const char* name() const;
+
+    QTextDecoder* makeDecoder() const;
+
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::fromUnicode;
+#endif
+    QCString fromUnicode(const QString& uc, int& len_in_out) const;
+    QString toUnicode(const char* chars, int len) const;
+
+    int heuristicContentMatch(const char* chars, int len) const;
+    int heuristicNameMatch(const char* hint) const;
+};
+
 #endif
 #endif

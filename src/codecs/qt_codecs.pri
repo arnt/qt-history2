@@ -38,6 +38,7 @@ tools {
 
 	x11:SOURCES += $$CODECS_CPP/qfontarcodec.cpp \
 		       $$CODECS_CPP/qfontcncodec.cpp \
+	               $$CODECS_CPP/qfonthkcodec.cpp \
 	               $$CODECS_CPP/qfontjpcodec.cpp \
 		       $$CODECS_CPP/qfontkrcodec.cpp \
 		       $$CODECS_CPP/qfonttwcodec.cpp

@@ -1,13 +1,13 @@
 /****************************************************************************
 ** $Id$
 **
-** Taiwan Font utilities for X11
+** Hong Kong Font utilities for X11
 **
-** Created : 20010130
+** Created : 20020902
 **
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
-** This file is part of the tools module of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file
@@ -43,50 +43,50 @@
 extern int qt_UnicodeToBig5hkscs(uint wc, uchar *r);
 
 
-int QFontBig5Codec::heuristicContentMatch(const char *, int) const
+int QFontBig5hkscsCodec::heuristicContentMatch(const char *, int) const
 {
     return 0;
 }
 
 
-int QFontBig5Codec::heuristicNameMatch(const char* hint) const
+int QFontBig5hkscsCodec::heuristicNameMatch(const char* hint) const
 {
-    //qDebug("QFontBig5Codec::heuristicNameMatch(const char* hint = \"%s\")", hint);
-    return ( qstricmp(hint, "big5-0") == 0 ||
-	     qstricmp(hint, "big5.eten-0") == 0 )
+    //qDebug("QFontBig5hkscsCodec::heuristicNameMatch(const char* hint = \"%s\")", hint);
+    return ( qstricmp(hint, "big5hkscs-0") == 0 ||
+	     qstricmp(hint, "hkscs-1") == 0 )
 	? 13 : 0;
 }
 
 
-QFontBig5Codec::QFontBig5Codec()
+QFontBig5hkscsCodec::QFontBig5hkscsCodec()
 {
-    //qDebug("QFontBig5Codec::QFontBig5Codec()");
+    //qDebug("QFontBig5hkscsCodec::QFontBig5hkscsCodec()");
 }
 
 
-const char* QFontBig5Codec::name() const
+const char* QFontBig5hkscsCodec::name() const
 {
-    //qDebug("QFontBig5Codec::name() = \"big5-0\"");
-    return "big5-0";
+    //qDebug("QFontBig5hkscsCodec::name() = \"big5hkscs-0\"");
+    return "big5hkscs-0";
 }
 
 
-int QFontBig5Codec::mibEnum() const
+int QFontBig5hkscsCodec::mibEnum() const
 {
-    //qDebug("QFontBig5Codec::mibEnum() = -2026");
-    return -2026;
+    //qDebug("QFontBig5hkscsCodec::mibEnum() = -2101");
+    return -2101;
 }
 
 
-QString QFontBig5Codec::toUnicode(const char* /*chars*/, int /*len*/) const
+QString QFontBig5hkscsCodec::toUnicode(const char* /*chars*/, int /*len*/) const
 {
     return QString::null;
 }
 
 
-QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+QCString QFontBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    //qDebug("QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
+    //qDebug("QFontBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
     QCString result(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
@@ -103,8 +103,7 @@ QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 		ch = QChar( ch.cell()-' ', 255 );
 	}
 #endif
-	if ( qt_UnicodeToBig5hkscs( ch.unicode(), c ) == 2 &&
-	     c[0] >= 0xa1 && c[0] <= 0xf9 ) {
+	if ( qt_UnicodeToBig5hkscs( ch.unicode(), c ) == 2) {
 	    *rdata++ = c[0];
 	    *rdata++ = c[1];
 	} else {
@@ -118,12 +117,11 @@ QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 }
 
 
-bool QFontBig5Codec::canEncode( QChar ch ) const
+bool QFontBig5hkscsCodec::canEncode( QChar ch ) const
 {
-    //qDebug("QFontBig5Codec::canEncode( QChar ch = %02X%02X )", ch.row(), ch.cell());
+    //qDebug("QFontBig5hkscsCodec::canEncode( QChar ch = %02X%02X )", ch.row(), ch.cell());
     uchar c[2];
-    return ( qt_UnicodeToBig5hkscs( ch.unicode(), c ) == 2 &&
-	 c[0] >= 0xa1 && c[0] <= 0xf9 );
+    return ( qt_UnicodeToBig5hkscs( ch.unicode(), c ) == 2 );
 }
 
 #endif // QT_NO_BIG_CODECS

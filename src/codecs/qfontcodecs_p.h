@@ -133,10 +133,65 @@ public:
 
 
 
-class QFontGB2312Codec : public QTextCodec
+class QFontGb2312Codec : public QTextCodec
 {
 public:
-    QFontGB2312Codec();
+    QFontGb2312Codec();
+
+    // Return the official name for the encoding.
+    const char* name() const ;
+
+    // Return the MIB enum for the encoding if it is listed in the
+    // IANA character-sets encoding file.
+    int mibEnum() const ;
+
+    // Converts len characters from chars to Unicode.
+    QString toUnicode(const char* chars, int len) const ;
+
+    // Converts lenInOut characters (of type QChar) from the start of
+    // the string uc, returning a QCString result, and also returning
+    // the length of the result in lenInOut.
+    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    int heuristicContentMatch(const char *, int) const;
+    bool canEncode( QChar ) const;
+};
+
+
+
+
+class QFontGbkCodec : public QTextCodec
+{
+public:
+    QFontGbkCodec();
+
+    // Return the official name for the encoding.
+    const char* name() const ;
+
+    // Return the MIB enum for the encoding if it is listed in the
+    // IANA character-sets encoding file.
+    int mibEnum() const ;
+
+    // Converts len characters from chars to Unicode.
+    QString toUnicode(const char* chars, int len) const ;
+
+    // Converts lenInOut characters (of type QChar) from the start of
+    // the string uc, returning a QCString result, and also returning
+    // the length of the result in lenInOut.
+    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    int heuristicContentMatch(const char *, int) const;
+    int heuristicNameMatch(const char* hint) const;
+    bool canEncode( QChar ) const;
+};
+
+
+
+
+class QFontGb18030_0Codec : public QTextCodec
+{
+public:
+    QFontGb18030_0Codec();
 
     // Return the official name for the encoding.
     const char* name() const ;
@@ -190,6 +245,37 @@ public:
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
     int heuristicContentMatch(const char *, int) const;
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::canEncode;
+#endif
+    int heuristicNameMatch(const char* hint) const;
+    bool canEncode( QChar ) const;
+};
+
+
+
+class QFontBig5hkscsCodec : public QTextCodec
+{
+public:
+    QFontBig5hkscsCodec();
+
+    // Return the official name for the encoding.
+    const char* name() const ;
+
+    // Return the MIB enum for the encoding if it is listed in the
+    // IANA character-sets encoding file.
+    int mibEnum() const ;
+
+    // Converts len characters from chars to Unicode.
+    QString toUnicode(const char* chars, int len) const ;
+
+    // Converts lenInOut characters (of type QChar) from the start of
+    // the string uc, returning a QCString result, and also returning
+    // the length of the result in lenInOut.
+    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    int heuristicContentMatch(const char *, int) const;
+    int heuristicNameMatch(const char* hint) const;
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif

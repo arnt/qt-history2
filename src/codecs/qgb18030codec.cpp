@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Implementation of QGb18030Codec template/macro class
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -38,7 +38,7 @@
   \brief The QGb18030Codec class provides conversion to and from the Chinese
   GB18030/GBK/GB2312 encoding.
 
-      \omit Last updated: November 26, 2001 \endomit
+      \omit Last updated: September, 3, 2002 \endomit
 
   GBK, formally the Chinese Internal Code Specification, is a commonly
   used extension of GB 2312-80.  Microsoft Windows uses it under the
@@ -46,12 +46,12 @@
 
   GBK has been superceded by the new Chinese national standard
   GB 18030-2000, which added a 4-byte encoding while remaining
-  compatible with GB2312 and GBK.  The new GB18030-2000 may be described
+  compatible with GB2312 and GBK.  The new GB 18030-2000 may be described
   as a special encoding of Unicode 3.x and ISO-10646-1.
 
   Special thanks to charset gurus Markus Scherer (IBM),
   Dirk Meyer (Adobe Systems) and Ken Lunde (Adobe Systems) for publishing
-  an excellent GB 18030-200 summary and specification on the Internet.
+  an excellent GB 18030-2000 summary and specification on the Internet.
   Some must-read documents are:
   \list
     \i
@@ -84,8 +84,8 @@
   \legalese
 
   Copyright (C) 2000 TurboLinux, Inc.  Written by Justin Yu and Sean Chen.
-  Copyright (C) 2001 Turbolinux, Inc.  Written by James Su.
-  Copyright (C) 2001 ThizLinux Laboratory Ltd.  Written by Anthony Fok.
+  Copyright (C) 2001, 2002 Turbolinux, Inc.  Written by James Su.
+  Copyright (C) 2001, 2002 ThizLinux Laboratory Ltd.  Written by Anthony Fok.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -121,6 +121,7 @@
 
 #define InRange(c, lower, upper)  (((c) >= (lower)) && ((c) <= (upper)))
 #define IsLatin(c)	((c) <= 0x7F)
+#define IsByteInGb2312(c)	(InRange((c), 0xA1, 0xFE))
 #define Is1stByte(c)	(InRange((c), 0x81, 0xFE))
 #define Is2ndByteIn2Bytes(c)	(InRange((c), 0x40, 0xFE) && (c) != 0x7F)
 #define Is2ndByteIn4Bytes(c)	(InRange((c), 0x30, 0x39))
@@ -145,7 +146,8 @@ typedef struct {
 } indexTbl_t;
 
 static uint qt_Gb18030ToUnicode(const uchar *gbstr, int& len);
-int qt_UnicodeToGb18030(uint unicode, uchar *gbchar);
+static int qt_UnicodeToGb18030(uint unicode, uchar *gbchar);
+int qt_UnicodeToGbk(uint unicode, uchar *gbchar);
 
 /*! \internal */
 QGb18030Codec::QGb18030Codec()
@@ -153,23 +155,27 @@ QGb18030Codec::QGb18030Codec()
 }
 
 /*! \reimp */
-int QGb18030Codec::mibEnum() const
+const char* QGb18030Codec::name() const
 {
-    /* There is no MIBEnum for GB18030 now (GB2312 uses 2025).
-       We use -2025 for now
-       See http://www.iana.org/assignments/character-sets
-    */
-    return -2025;
+    //qDebug("QGb18030Codec::name() = \"GB18030\"");
+    return "GB18030";
 }
 
 /*! \reimp */
-QCString QGb18030Codec::fromUnicode(const QString& uc, int& len_in_out) const
+int QGb18030Codec::mibEnum() const
 {
-    int l = QMIN((int)uc.length(),(len_in_out<0)?(int)uc.length():len_in_out);
+    return 114;
+}
+
+/*! \reimp */
+QCString QGb18030Codec::fromUnicode(const QString& uc, int& lenInOut) const
+{
+    int l = QMIN((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
     int rlen = l*4+1;
     QCString rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
 
+    //qDebug("QGb18030Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
 	int len;
@@ -178,7 +184,7 @@ QCString QGb18030Codec::fromUnicode(const QString& uc, int& len_in_out) const
 	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
 	    // ASCII
 	    *cursor++ = ch.cell();
-	} else if ( (len = qt_UnicodeToGb18030(ch.unicode(), buf)) != 0 ) {
+	} else if ( (len = qt_UnicodeToGb18030(ch.unicode(), buf)) >= 2 ) {
 	    for (int j=0; j<len; j++)
 		*cursor++ = buf[j];
 	} else {
@@ -187,8 +193,8 @@ QCString QGb18030Codec::fromUnicode(const QString& uc, int& len_in_out) const
 	}
     }
 
-    len_in_out = cursor - (uchar*)rstr.data();
-    rstr.truncate(len_in_out);
+    lenInOut = cursor - (uchar*)rstr.data();
+    rstr.truncate(lenInOut);
     return rstr;
 }
 
@@ -198,6 +204,7 @@ QString QGb18030Codec::toUnicode(const char* chars, int len) const
     QString result;
     int clen;
 
+    //qDebug("QGb18030Codec::toUnicode(const char* chars, int len = %d)", len);
     for (int i=0; i<len; ) {
 	uchar ch = chars[i];
 
@@ -227,16 +234,11 @@ QString QGb18030Codec::toUnicode(const char* chars, int len) const
 }
 
 /*! \reimp */
-const char* QGb18030Codec::name() const
-{
-    return "GB18030";
-}
-
-/*! \reimp */
 int QGb18030Codec::heuristicNameMatch(const char* hint) const
 {
     int score = 0;
     bool zh = FALSE;
+    //qDebug("QGb18030Codec::heuristicNameMatch(const char* hint = \"%s\")", hint);
     if (qstrnicmp(hint, "zh_CN", 5) == 0){
 	score += 10;
 	zh = TRUE;
@@ -261,6 +263,7 @@ int QGb18030Codec::heuristicNameMatch(const char* hint) const
 int QGb18030Codec::heuristicContentMatch(const char* chars, int len) const
 {
     int score = 0;
+    //qDebug("QGb18030Codec::heuristicContentMatch(const char* chars, int len = %d)", len);
     for (int i=0; i<len; i++) {
 	uchar ch = chars[i];
 	// No nulls allowed.
@@ -312,6 +315,7 @@ public:
     QString toUnicode(const char* chars, int len)
     {
 	QString result;
+	//qDebug("QGb18030Decoder::toUnicode(const char* chars, int len = %d)", len);
 	for (int i=0; i<len; i++) {
 	    uchar ch = chars[i];
 	    switch (nbuf) {
@@ -384,6 +388,7 @@ public:
 /*! \reimp */
 QTextDecoder* QGb18030Codec::makeDecoder() const
 {
+    //qDebug("QGb18030Codec::makeDecoder()");
     return new QGb18030Decoder();
 }
 
@@ -399,9 +404,9 @@ QTextDecoder* QGb18030Codec::makeDecoder() const
   name code page 936.
 
   The GBK encoding has been superceded by the GB18030 encoding and
-  GB18030 is compatible to GBK. For this reason the QGbkCodec class is
-  implemented in terms of the GB18030 codec and uses it for conversion from
-  and to Unicode.
+  GB18030 is backward compatible to GBK.  For this reason the QGbkCodec class
+  is implemented in terms of the GB18030 codec and uses its 1-byte and
+  2-byte portion for conversion from and to Unicode.
 
   The QGbkCodec is kept mainly for compatibility reasons with older software.
 */
@@ -416,7 +421,7 @@ QGbkCodec::QGbkCodec()
 /*! \reimp */
 int QGbkCodec::mibEnum() const
 {
-    return 2025;
+    return 113;
 }
 
 /*! \reimp */
@@ -425,24 +430,19 @@ const char* QGbkCodec::name() const
     return "GBK";
 }
 
-/*!
-    Returns the codec's mime name.
-*/
-const char* QGbkCodec::mimeName() const
-{
-    return "GB2312";
-}
-
 /*! \reimp */
 int QGbkCodec::heuristicNameMatch(const char* hint) const
 {
+#if 0
     // these are needed so that the X11 fonts behave correctly.
     if (qstricmp (hint, "gbk-0") == 0 ||
 	qstricmp (hint, "gb18030.2000-0") == 0)
         return 13;
+#endif
 
     int score = 0;
     bool zh = FALSE;
+    //qDebug("QGbkCodec::heuristicNameMatch(const char* hint = \"%s\")", hint);
     if (qstrnicmp(hint, "zh_CN", 5) == 0){
 	score += 10;
 	zh = TRUE;
@@ -459,7 +459,200 @@ int QGbkCodec::heuristicNameMatch(const char* hint) const
     if (p) {
     	if (qstricmp(p, "GBK") == 0)
       	    return score + 6;
-	else if (qstricmp(p, "GB2312") == 0)
+    }
+    return QTextCodec::heuristicNameMatch(hint);
+}
+
+/*! \reimp */
+int QGbkCodec::heuristicContentMatch(const char* /*chars*/, int /*len*/) const
+{
+    //qDebug("QGbkCodec::heuristicContentMatch(const char* /*chars*/, int /*len*/)");
+    return 0;
+}
+
+class QGbkDecoder : public QTextDecoder {
+    uchar buf[2];
+    int nbuf;
+public:
+    QGbkDecoder() : nbuf(0)
+    {
+    }
+    QString toUnicode(const char* chars, int len)
+    {
+	QString result;
+
+	//qDebug("QGbkDecoder::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
+	for (int i=0; i<len; i++) {
+	    uchar ch = chars[i];
+	    switch (nbuf) {
+	      case 0:
+		if ( ch < 0x80 ) {
+		    // ASCII
+		    result += QChar(ch);
+		} else if ( Is1stByte(ch) ) {
+		    // GBK 1st byte?
+		    buf[0] = ch;
+		    nbuf = 1;
+		} else {
+		    // Invalid
+		    result += QChar::replacement;
+		}
+		break;
+	      case 1:
+		// GBK 2nd byte
+		if ( Is2ndByteIn2Bytes(ch) ) {
+		    buf[1] = ch;
+		    int clen = 2;
+		    uint u = qt_Gb18030ToUnicode(buf, clen);
+		    if (clen == 2) {
+			result += QValidChar(u);
+		    } else {
+			result += QChar::replacement;
+		    }
+		    nbuf = 0;
+		} else {
+		    // Error
+		    result += QChar::replacement;
+		    nbuf = 0;
+		}
+	        break;
+	    }
+	}
+	return result;
+    }
+};
+
+/*! \reimp */
+QTextDecoder* QGbkCodec::makeDecoder() const
+{
+    //qDebug("QGbkCodec::makeDecoder()");
+    return new QGbkDecoder();
+}
+
+/*! \reimp */
+QCString QGbkCodec::fromUnicode(const QString& uc, int& lenInOut) const
+{
+    int l = QMIN((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
+    int rlen = l*2+1;
+    QCString rstr(rlen);
+    uchar* cursor = (uchar*)rstr.data();
+
+    //qDebug("QGbkCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
+    for (int i=0; i<l; i++) {
+	QChar ch = uc[i];
+	int len;
+	uchar buf[2];
+
+	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
+	    // ASCII
+	    *cursor++ = ch.cell();
+	} else if ( (len = qt_UnicodeToGbk(ch.unicode(), buf)) == 2 ) {
+	    *cursor++ = buf[0];
+	    *cursor++ = buf[1];
+	} else {
+	    // Error
+	    *cursor++ = '?';	// unknown char
+	}
+    }
+
+    lenInOut = cursor - (uchar*)rstr.data();
+    rstr.truncate(lenInOut);
+    return rstr;
+}
+
+/*! \reimp */
+QString QGbkCodec::toUnicode(const char* chars, int len) const
+{
+    QString result;
+    int clen;
+
+    //qDebug("QGbkCodec::toUnicode(const char* chars, int len = %d)", len);
+    for (int i=0; i<len; ) {
+	uchar ch = chars[i];
+
+	if ( IsLatin(ch) ) {
+	    // ASCII
+	    result += QChar(ch);
+	    i++;
+	} else if ( Is1stByte(ch) ) {
+	    // GBK ?
+	    clen = len - i;
+	    uint u = qt_Gb18030ToUnicode( (const uchar*)(chars + i), clen );
+
+	    if (clen == 2) {
+		result += QValidChar(u);
+		i += 2;
+	    } else if (clen == 4) {
+		result += QChar::replacement;
+		i += 4;
+	    } else if (i < len) {
+		result += QChar::replacement;
+		i++;
+	    }
+	} else {
+	    // Invalid or undefined
+	    result += QChar::replacement;
+	    i++;
+	}
+    }
+    return result;
+}
+
+
+/*! \class QGb2312Codec
+    \ingroup i18n
+
+  \brief The QGb2312Codec class provides conversion to and from the Chinese
+  GB2312 encoding.
+
+  The GB2312 encoding has been superceded by the GB18030 encoding and
+  GB18030 is backward compatible to GB2312.  For this reason the QGb2312Codec
+  class is implemented in terms of the GB18030 codec and uses its
+  0xA1A1-0xFEFE subset for conversion from and to Unicode.
+
+  The QGb2312Codec is kept mainly for compatibility reasons with older software.
+*/
+
+
+/*! reimp */
+QGb2312Codec::QGb2312Codec()
+    : QGb18030Codec()
+{
+}
+
+/*! \reimp */
+int QGb2312Codec::mibEnum() const
+{
+    return 2025;
+}
+
+/*! \reimp */
+const char* QGb2312Codec::name() const
+{
+    return "GB2312";
+}
+
+/*! \reimp */
+int QGb2312Codec::heuristicNameMatch(const char* hint) const
+{
+    int score = 0;
+    bool zh = FALSE;
+    //qDebug("QGb2312Codec::heuristicNameMatch(const char* hint = \"%s\")", hint);
+    if (qstrnicmp(hint, "zh_CN", 5) == 0){
+	score += 10;
+	zh = TRUE;
+    }
+    const char *p;
+    if ( zh ) {
+    	p = strchr(hint, '.');
+        if ( p == 0 )
+      	    return score;
+        p++;
+    } else {
+    	p = hint;
+    }
+    if (p) {
+	if (qstricmp(p, "GB2312") == 0)
 	    return score + 7;
 	else if (qstricmp(p, "eucCN") == 0)
 	    return score + 4;
@@ -471,27 +664,139 @@ int QGbkCodec::heuristicNameMatch(const char* hint) const
 }
 
 /*! \reimp */
-int QGbkCodec::heuristicContentMatch(const char* /*chars*/, int /*len*/) const
+int QGb2312Codec::heuristicContentMatch(const char* /*chars*/, int /*len*/) const
 {
+    //qDebug("QGb2312Codec::heuristicContentMatch(const char* /*chars*/, int /*len*/)");
     return 0;
 }
 
+class QGb2312Decoder : public QTextDecoder {
+    uchar buf[2];
+    int nbuf;
+public:
+    QGb2312Decoder() : nbuf(0)
+    {
+    }
+    QString toUnicode(const char* chars, int len)
+    {
+	QString result;
+	//qDebug("QGb2312Decoder::toUnicode(const char* chars, int len = %d)", len);
+	for (int i=0; i<len; i++) {
+	    uchar ch = chars[i];
+	    switch (nbuf) {
+	      case 0:
+		if ( ch < 0x80 ) {
+		    // ASCII
+		    result += QChar(ch);
+		} else if ( IsByteInGb2312(ch) ) {
+		    // GB2312 1st byte?
+		    buf[0] = ch;
+		    nbuf = 1;
+		} else {
+		    // Invalid
+		    result += QChar::replacement;
+		}
+		break;
+	      case 1:
+		// GB2312 2nd byte
+		if ( IsByteInGb2312(ch) ) {
+		    buf[1] = ch;
+		    int clen = 2;
+		    uint u = qt_Gb18030ToUnicode(buf, clen);
+		    if (clen == 2) {
+			result += QValidChar(u);
+		    } else {
+			result += QChar::replacement;
+		    }
+		    nbuf = 0;
+		} else {
+		    // Error
+		    result += QChar::replacement;
+		    nbuf = 0;
+		}
+	        break;
+	    }
+	}
+	return result;
+    }
+};
+
 /*! \reimp */
-QTextDecoder* QGbkCodec::makeDecoder() const
+QTextDecoder* QGb2312Codec::makeDecoder() const
 {
-    return QGb18030Codec::makeDecoder();
+    //qDebug("QGb2312Codec::makeDecoder()");
+    return new QGb2312Decoder();
 }
 
 /*! \reimp */
-QCString QGbkCodec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QGb2312Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    return QGb18030Codec::fromUnicode( uc, len_in_out );
+    int l = QMIN((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
+    int rlen = l*2+1;
+    QCString rstr(rlen);
+    uchar* cursor = (uchar*)rstr.data();
+
+    //qDebug("QGb2312Codec::fromUnicode(const QString& uc, int& lenInOut = %d) const", lenInOut);
+    for (int i=0; i<l; i++) {
+	QChar ch = uc[i];
+	int len;
+	uchar buf[2];
+
+	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
+	    // ASCII
+	    *cursor++ = ch.cell();
+	} else if ( ((len = qt_UnicodeToGbk(ch.unicode(), buf)) == 2) &&
+		    (buf[0] >= 0xA1) && (buf[1] >= 0xA1) ) {
+	    *cursor++ = buf[0];
+	    *cursor++ = buf[1];
+	} else {
+	    // Error
+	    *cursor++ = '?';	// unknown char
+	}
+    }
+
+    lenInOut = cursor - (uchar*)rstr.data();
+    rstr.truncate(lenInOut);
+    return rstr;
 }
 
 /*! \reimp */
-QString QGbkCodec::toUnicode(const char* chars, int len) const
+QString QGb2312Codec::toUnicode(const char* chars, int len) const
 {
-    return QGb18030Codec::toUnicode( chars, len );
+    QString result;
+    int clen;
+
+    //qDebug("QGb2312Codec::toUnicode(const char* chars, int len = %d)", len);
+    for (int i=0; i<len; ) {
+	uchar ch = chars[i];
+
+	if ( IsLatin(ch) ) {
+	    // ASCII
+	    result += QChar(ch);
+	    i++;
+	} else if ( Is1stByte(ch) ) {
+	    // GB2312 ?
+
+	    clen = len - i;
+	    uint u = qt_Gb18030ToUnicode( (const uchar*)(chars + i), clen );
+
+	    if (clen == 2 || clen == 4) {
+		if ( clen == 2 && IsByteInGb2312(ch) && IsByteInGb2312((uchar)(chars[i+1])) )
+		    result += QValidChar(u);
+		else
+		    result += QChar::replacement;
+		i += clen;
+	    } else if (i < len) {
+		result += QChar::replacement;
+		i++;
+	    }
+	} else {
+	    // Invalid or undefined
+	    result += QChar::replacement;
+	    i++;
+	}
+    }
+    return result;
 }
 
 
@@ -8816,9 +9121,9 @@ static uint qt_Gb18030ToUnicode(const uchar *gbstr, int& len) {
 		    i -= 672;
 		if (InRange(first, 0xAA, 0xAF))
 		    i -= (first - 0xAA) * 94;
-		if (first > 0xaf)
+		if (first > 0xAF)
 		    i -= 564;
-		if (first >= 0xf8)
+		if (first >= 0xF8)
 		    i -= (first - 0xF8) * 94;
 
 		uni = (uint)gb18030_2byte_to_ucs[i];
@@ -8877,7 +9182,7 @@ static uint qt_Gb18030ToUnicode(const uchar *gbstr, int& len) {
 
 
 int qt_UnicodeToGb18030(uint uni, uchar *gbchar) {
-    /* Returns the bytesize of the GB18030 character */
+    /* Returns the bytesize of the GB18030 character. */
     uint	gb, gb4lin;
     indexTbl_t	u2g;
 
@@ -8899,7 +9204,7 @@ int qt_UnicodeToGb18030(uint uni, uchar *gbchar) {
 		gb = tblEntry;
 	    }
 	    else {
-		// 4-byte GB18030 stored in a special compact format;
+		// 4-byte GB18030 stored in a special compact format
 		uchar	a, b;
 		a = 0x81;
 		b = 0x30 + (tblEntry >> 11);
@@ -8923,7 +9228,7 @@ int qt_UnicodeToGb18030(uint uni, uchar *gbchar) {
 	    }
 	}
 	else {
-	    // Use algorithm (4-byte GB18030)
+	    // 4-byte GB18030 calculated algorithmically
 	    gb4lin = u2g.algOffset + (uni & 0xFF);
 	    // Yikes, my index table could not cover all the bases...
 	    if (InRange(uni, 0x49B8, 0x49FF))
@@ -8945,12 +9250,12 @@ int qt_UnicodeToGb18030(uint uni, uchar *gbchar) {
 	}
     }
     else if (InRange(uni, 0x10000, 0x10FFFF)) {
-	// Qt 2.3.x does not support 32-bit Unicode yet, but what the heck...
+	// Qt 3.x does not support beyond BMP yet, but what the heck...
 	// (U+10000 = GB+90308130) to (U+10FFFF = GB+E3329A35)
 	gb = gb4lin_to_gb(0x1E248 + uni);
     }
     else {
-	// Surrogate area and other undefined/reserved areas
+	// Surrogate area and other undefined/reserved areas (discard)
 	*gbchar = 0;
 	return 0;
     }
@@ -8966,6 +9271,66 @@ int qt_UnicodeToGb18030(uint uni, uchar *gbchar) {
 	gbchar[3] = (uchar)(gb & 0xFF);
 	return 4;
     }
+}
+
+
+int qt_UnicodeToGbk(uint uni, uchar *gbchar) {
+    /* Returns the bytesize of the GBK character. */
+    /* Intended for improving performance of GB2312 and GBK functions. */
+    uint	gb;
+    indexTbl_t	u2g;
+
+    if ( IsLatin(uni) ) {
+	*gbchar = (uchar)uni;
+	return 1;
+    }
+    else if (uni <= 0xD7FF || InRange(uni, 0xE766, 0xFFFF)) {
+	u2g = ucs_to_gb18030_index[uni >> 8];
+
+	if ((uni & 0xFF) >= u2g.tblBegin && (uni & 0xFF) <= u2g.tblEnd) {
+	    // Use mapping table (2-byte GBK or 4-byte GB18030)
+	    uint tblEntry;
+
+	    tblEntry = ucs_to_gb18030[uni - u2g.tblOffset];
+
+	    if (tblEntry > 0x8000) {
+		// GBK
+		gb = tblEntry;
+	    }
+	    else {
+	        // 4-byte GB18030 stored in a special compact format (discard)
+		*gbchar = 0;
+		return 0;
+	    }
+	}
+	else {
+	    // 4-byte GB18030 calculated algorithmically (discard)
+	    *gbchar = 0;
+	    return 0;
+	}
+    }
+    else if (InRange(uni, 0xE000, 0xE765)) {
+	// User-defined areas in GB18030 (2-byte)
+	if (uni <= 0xE233)
+	    gb = 0xAAA1 + (((uni - 0xE000) / 94) << 8) + (uni - 0xE000) % 94;
+	else if (uni <= 0xE4C5)
+	    gb = 0xF8A1 + (((uni - 0xE234) / 94) << 8) + (uni - 0xE234) % 94;
+	else {
+	    gb = 0xA140 + (((uni - 0xE4C6) / 96) << 8) + (uni - 0xE4C6) % 96;
+	    // Skip the gap at 0x7F
+	    if ((gb & 0xFF) >= 0x7F)
+		gb++;
+	}
+    }
+    else {
+	// Surrogate area and other undefined/reserved areas (discard)
+	*gbchar = 0;
+	return 0;
+    }
+
+    gbchar[0] = (uchar)((gb >> 8) & 0xFF);
+    gbchar[1] = (uchar)(gb & 0xFF);
+    return 2;
 }
 
 #endif
