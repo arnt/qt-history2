@@ -51,6 +51,7 @@ static QList<QRegExp> makeFiltersList( const QString &filter )
     return ret;
 }
 
+   
 QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info, 
 				 void *myd, NavFilterModes)
 {	
@@ -85,6 +86,19 @@ QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 	}
     }
     return true;
+}
+static NavObjectFilterUPP mac_navUPP = NULL;
+static void cleanup_navUPP() 
+{
+    DisposeNavObjectFilterUPP(mac_navUPP);
+    mac_navUPP = NULL;
+}
+static const NavObjectFilterUPP make_navUPP() 
+{
+    if(mac_navUPP) 
+	return mac_navUPP;
+    qAddPostRoutine( cleanup_navUPP );
+    return mac_navUPP = NewNavObjectFilterUPP(qt_mac_nav_filter);
 }
 
 const unsigned char * p_str(const char *, int len=-1);
@@ -144,7 +158,7 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
     NavReplyRecord ret;
     QList<QRegExp> filts = makeFiltersList(filter);
     NavGetFile(use_initial ? &initial : NULL, &ret, &options, NULL, NULL, 
-	       NewNavObjectFilterUPP(qt_mac_nav_filter), NULL, (void *) (filts.isEmpty() ? NULL : &filts));
+	       make_navUPP(), NULL, (void *) (filts.isEmpty() ? NULL : &filts));
     filts.setAutoDelete(TRUE);
     filts.clear();
 
@@ -191,7 +205,7 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
     return retstrl;
 }
 
-QString QFileDialog::macGetSaveFileName( const QString &initialSelection,
+QString QFileDialog::macGetSaveFileName( const QString &,
 					 const QString &filter,
 					 QString* initialDirectory,
 					 QWidget *parent, const char* /*name*/,
@@ -257,8 +271,11 @@ QString QFileDialog::macGetSaveFileName( const QString &initialSelection,
     char tmp[sizeof(Str63)+2];
     tmp[0] = '/';
 
-    if((err = NewAlias( NULL, &FSSpec, &alias )) != noErr) 
+    if((err = NewAliasMinimal( &FSSpec, &alias )) != noErr) {
+	qDebug("%d", err);
 	goto put_name_out;
+    }
+
 
     while(1) {
 	GetAliasInfo(alias, (AliasInfoType)x++, str);
@@ -273,6 +290,7 @@ QString QFileDialog::macGetSaveFileName( const QString &initialSelection,
     if(use_initial)
 	AEDisposeDesc(&initial);
     NavDisposeReply(&ret);
+    qDebug("%s", retstr.latin1());
     return retstr;
 }
 
