@@ -32,7 +32,7 @@ public:
     QString mdPixmapKey( int pixmap );
     void mdSetExportMacro( const QString &macro );
     QString mdExportMacro();
-    const QWidgetList widgetList() const { return objects; }
+    QWidgetList widgetList() const { return objects; }
 
 private:
     QWidgetList objects;

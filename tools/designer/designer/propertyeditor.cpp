@@ -2812,7 +2812,11 @@ void PropertyList::setupProperties()
 		continue;
 	}
 
-	if ( p->designable(w) || w->isA("PropertyObject") ) {
+	bool isPropertyObject = w->isA( "PropertyObject" );
+	
+	if ( ( p->designable(w) ||
+	       isPropertyObject && p->designable( ( (PropertyObject*)w )->widgetList().first() ) ) &&
+	     ( !isPropertyObject || qstrcmp( p->name(), "name" ) != 0 ) ) {
 	    if ( p->isSetType() ) {
 		if ( QString( p->name() ) == "alignment" ) {
 		    QStringList lst;
