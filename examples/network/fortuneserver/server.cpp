@@ -51,7 +51,7 @@ void Server::sendFortune()
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(7);
+    out.setVersion(QDataStream::Qt_4_0);
     out << (Q_UINT16)0;
     out << fortunes.at(std::rand() % fortunes.size());
     out.device()->seek(0);

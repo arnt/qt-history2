@@ -63,13 +63,13 @@ void Client::requestNewFortune()
 
 void Client::readFortune()
 {
+    QDataStream in(tcpSocket);
+    in.setVersion(QDataStream::Qt_4_0);
+
     if (blockSize == 0) {
         if (tcpSocket->bytesAvailable() < sizeof(Q_UINT16))
             return;
 
-        Q_UINT16 blockSize;
-        QDataStream in(tcpSocket);
-        in.setVersion(7);
         in >> blockSize;
     }
 
@@ -77,14 +77,11 @@ void Client::readFortune()
         return;
 
     QString nextFortune;
-    QDataStream in(tcpSocket);
     in >> nextFortune;
-
     if (nextFortune == currentFortune) {
         requestNewFortune();
         return;
     }
-
     currentFortune = nextFortune;
     statusLabel->setText(currentFortune);
 }

@@ -29,7 +29,7 @@ void Thread::run()
 
     Q_UINT16 blockSize;
     QDataStream in(&socket);
-    in.setVersion(7);
+    in.setVersion(QDataStream::Qt_4_0);
     in >> blockSize;
 
     while (socket.bytesAvailable() < blockSize) {
