@@ -29,10 +29,60 @@ QButtonGroup:
   Exclusive group setting added (isExclusive and setExclusive).
 
 
+QCache/QIntCache:
+-----------------
+  Using int/uint instead of long/ulong.
+
+
 QDataStream:
 -----------
   Removed serialization of int and uint. Doesn't work anymore when
   INT32 and UINT32 are int and uint.
+
+
+QDate/QTime/QDateTime:
+----------------------
+  Using int/uint instead of long/ulong (MS-DOS required long).
+
+
+QFileInfo:
+----------
+  size() returns uint, 0 if the size cannot be fetched (was -1).
+
+
+QIODevice/QBuffer/QFile:
+------------------------
+  Using int/uint instead of long/ulong.
+
+
+QPainter:
+---------
+  drawBezier draws cubic bezier, requires 4 control points.
+
+
+QPointArray:
+------------
+  move() is obsolete, use translate() instead.
+
+
+QRect:
+------
+  move() is obsolete, use translate() instead.
+
+
+QRegion:
+-------
+  move() is obsolete, use translate() instead.
+
+
+QSocketNotifier:
+----------------
+  enabled() is obsolete. Use isEnabled() instead.
+
+
+QTextStream:
+------------
+  int used instead of long (flags() etc.)
 
 
 QWidget:
@@ -42,3 +92,8 @@ QWidget:
   These functions are called from setStyle(), setBackgroundColor() etc.
   You can reimplement them to if you need to know when widget properties
   changed and to optimize updates.
+
+  enable(), disable() and isDisabled() are obsolete.
+  Use setEnabled(TRUE/FALSE) and !isEnabled() instead.
+
+  enableUpdates() obsolete, use isUpdatesEnabled()/setUpdatesEnabled().
