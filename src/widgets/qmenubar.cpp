@@ -11,7 +11,7 @@
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
+1** LICENSE.QPL included in the packaging of this file.
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -40,7 +40,7 @@
 // the relevant declarations in a private header?
 #include "qmainwindow.h"
 #ifndef QT_NO_MENUBAR
-#define  INCLUDE_MENUITEM_DEF
+#define	 INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
 #include "qpopupmenu.h"
 #include "qaccel.h"
@@ -99,12 +99,12 @@ public:
 /*! \enum QMenuBar::Separator
 
   This enum type is used to decide whether QMenuBar should draw a
-  separator line at its bottom.  The possible values are:
+  separator line at its bottom.	 The possible values are:
 
-  \value Never  In many applications there is already a separator,
+  \value Never	In many applications there is already a separator,
   and having two looks stupid.
 
-  \value InWindowsStyle  In some other applications a separator
+  \value InWindowsStyle	 In some other applications a separator
   looks good in Windows style, but nowhere else.
 
  */
@@ -140,25 +140,25 @@ public:
 
 // Motif style parameters
 
-static const int motifBarHMargin        = 2;    // menu bar hor margin to item
-static const int motifBarVMargin        = 1;    // menu bar ver margin to item
-static const int motifItemFrame         = 2;    // menu item frame width
-static const int motifItemHMargin       = 5;    // menu item hor text margin
-static const int motifItemVMargin       = 4;    // menu item ver text margin
+static const int motifBarHMargin	= 2;	// menu bar hor margin to item
+static const int motifBarVMargin	= 1;	// menu bar ver margin to item
+static const int motifItemFrame		= 2;	// menu item frame width
+static const int motifItemHMargin	= 5;	// menu item hor text margin
+static const int motifItemVMargin	= 4;	// menu item ver text margin
 
 /*
 
 +-----------------------------
 |      BarFrame
 |   +-------------------------
-|   |      V  BarMargin
-|   |   +---------------------
+|   |	   V  BarMargin
+|   |	+---------------------
 |   | H |      ItemFrame
-|   |   |  +-----------------
-|   |   |  |                       \
-|   |   |  |  ^  T E X T   ^        | ItemVMargin
-|   |   |  |  |            |       /
-|   |   |      ItemHMargin
+|   |	|  +-----------------
+|   |	|  |			   \
+|   |	|  |  ^	 T E X T   ^	    | ItemVMargin
+|   |	|  |  |		   |	   /
+|   |	|      ItemHMargin
 |   |
 |
 
@@ -194,24 +194,24 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     defaultup = 0;
     toggleclose = 0;
     if ( parent ) {
-        // filter parent events for resizing
-        parent->installEventFilter( this );
+	// filter parent events for resizing
+	parent->installEventFilter( this );
 
-        // filter top-level-widget events for accelerators
-        QWidget *tlw = topLevelWidget();
-        if ( tlw != parent )
-            tlw->installEventFilter( this );
+	// filter top-level-widget events for accelerators
+	QWidget *tlw = topLevelWidget();
+	if ( tlw != parent )
+	    tlw->installEventFilter( this );
     }
-
+    
     setFrameStyle( QFrame::MenuBarPanel );
 
     QFontMetrics fm = fontMetrics();
     int gs = style();
     int h;
     if ( gs == WindowsStyle ) {
-        h = 2 + fm.height() + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
+	h = 2 + fm.height() + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
     } else {
-        h =  style().defaultFrameWidth() + motifBarVMargin + fm.height()
+	h =  style().defaultFrameWidth() + motifBarVMargin + fm.height()
 	     + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
     }
 
@@ -219,11 +219,11 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     resize( width(), h );
 
     switch ( gs ) {
-        case WindowsStyle:
-            setMouseTracking( TRUE );
-            break;
-        default:
-            break;
+	case WindowsStyle:
+	    setMouseTracking( TRUE );
+	    break;
+	default:
+	    break;
     }
     setBackgroundMode( PaletteButton );
 }
@@ -235,15 +235,15 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 void QMenuBar::styleChange( QStyle& old )
 {
     switch ( style().guiStyle() ) {
-        case WindowsStyle:
-            setMouseTracking( TRUE );
-            break;
-        case MotifStyle:
-            setLineWidth( style().defaultFrameWidth() );
-            setMouseTracking( FALSE );
-            break;
-        default:
-            break;
+	case WindowsStyle:
+	    setMouseTracking( TRUE );
+	    break;
+	case MotifStyle:
+	    setLineWidth( style().defaultFrameWidth() );
+	    setMouseTracking( FALSE );
+	    break;
+	default:
+	    break;
     }
     setFrameStyle( QFrame::MenuBarPanel );
     updateGeometry();
@@ -264,8 +264,8 @@ QMenuBar::~QMenuBar()
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     macRemoveNativeMenubar();
 #endif
-    if ( irects )               // Avoid purify complaint.
-        delete [] irects;
+    if ( irects )		// Avoid purify complaint.
+	delete [] irects;
 }
 
 /*!
@@ -276,7 +276,7 @@ void QMenuBar::updateItem( int id )
 {
     int i = indexOf( id );
     if ( i >= 0 && irects )
-        repaint( irects[i], FALSE );
+	repaint( irects[i], FALSE );
 }
 
 
@@ -294,19 +294,19 @@ void QMenuBar::menuContentsChanged()
 #ifndef QT_NO_ACCEL
     setupAccelerators();
 #endif
-    badSize = TRUE;                             // might change the size
+    badSize = TRUE;				// might change the size
     calculateRects();
     if ( isVisible() ) {
-        update();
+	update();
 #ifndef QT_NO_MAINWINDOW
-        if ( parent() && parent()->inherits( "QMainWindow" ) ) {
-            ( (QMainWindow*)parent() )->triggerLayout();
-            ( (QMainWindow*)parent() )->update();
-        }
+	if ( parent() && parent()->inherits( "QMainWindow" ) ) {
+	    ( (QMainWindow*)parent() )->triggerLayout();
+	    ( (QMainWindow*)parent() )->update();
+	}
 #endif
 #ifndef QT_NO_LAYOUT
-        if ( parentWidget() && parentWidget()->layout() )
-            parentWidget()->layout()->activate();
+	if ( parentWidget() && parentWidget()->layout() )
+	    parentWidget()->layout()->activate();
 #endif
     }
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -316,15 +316,15 @@ void QMenuBar::menuContentsChanged()
 
     bool all_hidden = TRUE;
     if(irects) {
-        for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
-            all_hidden = irects[i].isEmpty();
+	for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
+	    all_hidden = irects[i].isEmpty();
     }
      if(all_hidden) {
-        if(isVisible())
-            hide();
+	if(isVisible())
+	    hide();
     } else {
-        if(!isVisible())
-            show();
+	if(!isVisible())
+	    show();
     }
 }
 
@@ -347,20 +347,20 @@ void QMenuBar::menuStateChanged()
 
 void QMenuBar::menuInsPopup( QPopupMenu *popup )
 {
-    popup->parentMenu = this;                   // set parent menu
+    popup->parentMenu = this;			// set parent menu
     connect( popup, SIGNAL(activatedRedirect(int)),
-             SLOT(subActivated(int)) );
+	     SLOT(subActivated(int)) );
     connect( popup, SIGNAL(highlightedRedirect(int)),
-             SLOT(subHighlighted(int)) );
+	     SLOT(subHighlighted(int)) );
 }
 
 void QMenuBar::menuDelPopup( QPopupMenu *popup )
 {
     popup->parentMenu = 0;
     popup->disconnect( SIGNAL(activatedRedirect(int)), this,
-                       SLOT(subActivated(int)) );
+		       SLOT(subActivated(int)) );
     popup->disconnect( SIGNAL(highlightedRedirect(int)), this,
-                       SLOT(subHighlighted(int)) );
+		       SLOT(subHighlighted(int)) );
 }
 
 void QMenuBar::frameChanged()
@@ -383,87 +383,90 @@ void QMenuBar::frameChanged()
 bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 {
     if ( object == parent() && object && !object->inherits( "QToolBar" ) &&
-         event->type() == QEvent::Resize ) {
-        QResizeEvent *e = (QResizeEvent *)event;
-        int w = e->size().width();
-        setGeometry( 0, y(), w, heightForWidth(w) );
-        return FALSE;
+	 event->type() == QEvent::Resize ) {
+	QResizeEvent *e = (QResizeEvent *)event;
+	int w = e->size().width();
+	setGeometry( 0, y(), w, heightForWidth(w) );
+	return FALSE;
     }
 
-    if ( /*style() != WindowsStyleQT_NO_COMPAT ########## ||*/
-         !isVisible() ||
-         !object->isWidgetType() ||
-         !( event->type() == QEvent::Accel ||
-            event->type() == QEvent::KeyPress ||
-            event->type() == QEvent::KeyRelease ) )
-        return FALSE;
+    if (  !isVisible() ||
+	  !object->isWidgetType() ||
+	  !( event->type() == QEvent::Accel ||
+	     event->type() == QEvent::KeyPress ||
+	     event->type() == QEvent::KeyRelease ) ||
+	  style() != WindowsStyle )
+	return FALSE;
 
 #ifndef QT_NO_ACCEL
     // look for Alt press and Alt-anything press
     if ( event->type() == QEvent::Accel ) {
-        QWidget * f = ((QWidget *)object)->focusWidget();
-        QKeyEvent * ke = (QKeyEvent *) event;
-        if ( f ) { // ### this thinks alt and meta are the same
-            if ( ke->key() == Key_Alt || ke->key() == Key_Meta ) {
-                if ( waitforalt ) {
-                    waitforalt = 0;
-                    if ( object->parent() )
-                        object->removeEventFilter( this );
-                    ke->accept();
-                    return TRUE;
-                } else if ( hasFocus() ) {
-                    setAltMode( FALSE );
-                    ke->accept();
-                    return TRUE;
-                } else {
-                    waitforalt = 1;
-                    if ( f != object )
-                        f->installEventFilter( this );
-                }
-            } else if ( ke->key() == Key_Control || ke->key() == Key_Shift)
-                setAltMode( FALSE );
-        }
-        // ### ! block all accelerator events when the menu bar is active
-        if ( qApp && qApp->focusWidget() == this ) {
-            return TRUE;
-        }
+	QWidget * f = ((QWidget *)object)->focusWidget();
+	QKeyEvent * ke = (QKeyEvent *) event;
+	if ( f ) { // ### this thinks alt and meta are the same
+	    if ( ke->key() == Key_Alt || ke->key() == Key_Meta ) {
+		if ( waitforalt ) {
+		    waitforalt = 0;
+		    if ( object->parent() )
+			object->removeEventFilter( this );
+		    ke->accept();
+		    return TRUE;
+		} else if ( hasFocus() ) {
+		    setAltMode( FALSE );
+		    ke->accept();
+		    return TRUE;
+		} else {
+		    waitforalt = 1;
+		    if ( f != object )
+			f->installEventFilter( this );
+		}
+	    } else if ( ke->key() == Key_Control || ke->key() == Key_Shift) {
+		setAltMode( FALSE );
+	    }
+	}
+	// ### ! block all accelerator events when the menu bar is active
+	if ( qApp && qApp->focusWidget() == this ) {
+	    return TRUE;
+	}
 
-        return FALSE;
+	return FALSE;
     }
 #endif
     // look for Alt release
     if ( ((QWidget*)object)->focusWidget() == object ||
-         (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0) ) {
-        if ( waitforalt &&
-             event->type() == QEvent::KeyRelease &&
-             (((QKeyEvent *)event)->key() == Key_Alt ||
-              ((QKeyEvent *)event)->key() == Key_Meta) ) {
-            if ( !hasmouse || actItem < 0 )
-                setActiveItem( 0, FALSE );
-            setAltMode( TRUE );
-            if ( object->parent() )
-                object->removeEventFilter( this );
-            QWidget * tlw = ((QWidget *)object)->topLevelWidget();
-            if ( tlw ) {
-                // ### !
-                // make sure to be the first event filter, so we can kill
-                // accelerator events before the accelerators get to them.
-                tlw->removeEventFilter( this );
-                tlw->installEventFilter( this );
-            }
-            return TRUE;
-        } else if ( (event->type() == QEvent::KeyPress ||
-                     event->type() == QEvent::KeyRelease) &&
-                    !(((QKeyEvent *)event)->key() == Key_Alt ||
-                      ((QKeyEvent *)event)->key() == Key_Meta) ) {
-            if ( object->parent() )
-                object->removeEventFilter( this );
-            setAltMode( FALSE );
-        }
+	 (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0) ) {
+	if ( event->type() == QEvent::KeyRelease &&
+	     (((QKeyEvent *)event)->key() == Key_Alt ||
+	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
+	    if ( !waitforalt ) {
+		setAltMode( FALSE );
+		return FALSE; 
+	    }
+	    if ( !hasmouse || actItem < 0 )
+		setActiveItem( 0, FALSE );
+	    setAltMode( TRUE );
+	    if ( object->parent() )
+		object->removeEventFilter( this );
+	    QWidget * tlw = ((QWidget *)object)->topLevelWidget();
+	    if ( tlw ) {
+		// ### !
+		// make sure to be the first event filter, so we can kill
+		// accelerator events before the accelerators get to them.
+		tlw->removeEventFilter( this );
+		tlw->installEventFilter( this );
+	    }
+	    return TRUE;
+	} else if ( (event->type() == QEvent::KeyPress ) &&
+		    !(((QKeyEvent *)event)->key() == Key_Alt ||
+		      ((QKeyEvent *)event)->key() == Key_Meta) ) {
+	    if ( object->parent() )
+		object->removeEventFilter( this );
+	    setAltMode( FALSE );
+	}
     }
 
 
-    return FALSE;                               // don't stop event
+    return FALSE;				// don't stop event
 }
 
 
@@ -495,8 +498,8 @@ void QMenuBar::subHighlighted( int id )
 #ifndef QT_NO_ACCEL
 void QMenuBar::accelActivated( int id )
 {
-    if ( !isEnabled() )                         // the menu bar is disabled
-        return;
+    if ( !isEnabled() )				// the menu bar is disabled
+	return;
     setActiveItem( indexOf( id ) );
 }
 #endif
@@ -509,21 +512,21 @@ void QMenuBar::accelActivated( int id )
 #ifndef QT_NO_ACCEL
 void QMenuBar::accelDestroyed()
 {
-    autoaccel = 0;                              // don't delete it twice!
+    autoaccel = 0;				// don't delete it twice!
 }
 #endif
 
 bool QMenuBar::tryMouseEvent( QPopupMenu *, QMouseEvent *e )
 {
     QPoint pos = mapFromGlobal( e->globalPos() );
-    if ( !rect().contains( pos ) )              // outside
-        return FALSE;
+    if ( !rect().contains( pos ) )		// outside
+	return FALSE;
     int item = itemAtPos( pos );
     if ( item == -1 && (e->type() == QEvent::MouseButtonPress ||
-                        e->type() == QEvent::MouseButtonRelease) ) {
-        hidePopups();
-        goodbye();
-        return FALSE;
+			e->type() == QEvent::MouseButtonRelease) ) {
+	hidePopups();
+	goodbye();
+	return FALSE;
     }
     QMouseEvent ee( e->type(), pos, e->globalPos(), e->button(), e->state() );
     event( &ee );
@@ -541,53 +544,53 @@ void QMenuBar::goodbye( bool cancelled )
 {
     mouseBtDn = FALSE;
     popupvisible = 0;
-    if ( cancelled /*&& style() == WindowsStyleQT_NO_COMPAT ##########*/ )
-        setAltMode( TRUE );
+    if ( cancelled && style() == WindowsStyle )
+	setAltMode( TRUE );
     else
-        setAltMode( FALSE );
+	setAltMode( FALSE );
 }
 
 
 void QMenuBar::openActPopup()
 {
     if ( actItem < 0 )
-        return;
+	return;
     QPopupMenu *popup = mitems->at(actItem)->popup();
     if ( !popup || !popup->isEnabled() )
-        return;
+	return;
 
     QRect  r = itemRect( actItem );
     bool reverse = QApplication::reverseLayout();
     QPoint pos = r.bottomLeft() + QPoint(0,1);
     if( reverse ) {
-        pos = r.bottomRight() + QPoint(0,1);
-        pos.rx() -= popup->sizeHint().width();
+	pos = r.bottomRight() + QPoint(0,1);
+	pos.rx() -= popup->sizeHint().width();
     }
 
     int ph = popup->sizeHint().height();
     pos = mapToGlobal(pos);
     int sh = QApplication::desktop()->height();
     if ( defaultup || (pos.y() + ph > sh) ) {
-        QPoint t = mapToGlobal( r.topLeft() );
-        if( reverse ) {
-            t = mapToGlobal( r.topRight() );
-            t.rx() -= popup->sizeHint().width();
-        }
-        t.ry() -= (QCOORD)ph;
-        if ( !defaultup || t.y() >= 0 )
-            pos = t;
+	QPoint t = mapToGlobal( r.topLeft() );
+	if( reverse ) {
+	    t = mapToGlobal( r.topRight() );
+	    t.rx() -= popup->sizeHint().width();
+	}
+	t.ry() -= (QCOORD)ph;
+	if ( !defaultup || t.y() >= 0 )
+	    pos = t;
     }
 
     //avoid circularity
     if ( popup->isVisible() )
-        return;
+	return;
 
     if (popup->parentMenu != this ){
-        // reuse
-        if (popup->parentMenu)
-            popup->parentMenu->menuDelPopup(popup);
-        popup->selfItem  = mitems->at(actItem);
-        menuInsPopup(popup);
+	// reuse
+	if (popup->parentMenu)
+	    popup->parentMenu->menuDelPopup(popup);
+	popup->selfItem	 = mitems->at(actItem);
+	menuInsPopup(popup);
     }
 
     popup->snapToMouse = FALSE;
@@ -605,10 +608,10 @@ void QMenuBar::hidePopups()
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
-        ++it;
-        if ( mi->popup() ) {
-            mi->popup()->hide();
-        }
+	++it;
+	if ( mi->popup() ) {
+	    mi->popup()->hide();
+	}
     }
 }
 
@@ -624,24 +627,24 @@ void QMenuBar::show()
     setupAccelerators();
 #endif
     if ( parentWidget() )
-        resize( parentWidget()->width(), height() );
+	resize( parentWidget()->width(), height() );
     calculateRects();
 
     //If all elements are invisible no reason for me to be visible either
     bool all_hidden = TRUE;
     if(irects) {
-        for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
-            all_hidden = irects[i].isEmpty();
+	for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
+	    all_hidden = irects[i].isEmpty();
     }
     if(all_hidden) {
-        QWidget::hide();
+	QWidget::hide();
     } else {
-        QWidget::show();
+	QWidget::show();
     }
 
 #ifndef QT_NO_MAINWINDOW
     if ( parent() && parent()->inherits( "QMainWindow" ) ) //### ugly workaround
-        ( (QMainWindow*)parent() )->triggerLayout();
+	( (QMainWindow*)parent() )->triggerLayout();
 #endif
     raise();
 }
@@ -658,7 +661,7 @@ void QMenuBar::hide()
     hidePopups();
 #ifndef QT_NO_MAINWINDOW
     if ( parent() && parent()->inherits( "QMainWindow" ) ) //### ugly workaround
-                ( (QMainWindow*)parent() )->triggerLayout();
+		( (QMainWindow*)parent() )->triggerLayout();
 #endif
 }
 
@@ -672,7 +675,7 @@ void QMenuBar::fontChange( const QFont & f )
     badSize = TRUE;
     updateGeometry();
     if ( isVisible() )
-        calculateRects();
+	calculateRects();
     QWidget::fontChange( f );
 }
 
@@ -682,7 +685,7 @@ void QMenuBar::fontChange( const QFont & f )
  *****************************************************************************/
 
 /*!
-  This function serves two different purposes.  If the parameter is negative,
+  This function serves two different purposes.	If the parameter is negative,
   it updates the irects member for the current width and resizes.  Otherwise,
   it does the same calculations for the GIVEN width and returns the height
   to which it WOULD have resized.  A bit tricky, but both operations require
@@ -873,16 +876,16 @@ int QMenuBar::itemAtPos( const QPoint &pos )
 {
     calculateRects();
     if ( !irects )
-        return -1;
+	return -1;
     int i = 0;
     while ( i < (int)mitems->count() ) {
-        if ( !irects[i].isEmpty() && irects[i].contains( pos ) ) {
-            QMenuItem *mi = mitems->at(i);
-            return mi->isSeparator() ? -1 : i;
-        }
-        ++i;
+	if ( !irects[i].isEmpty() && irects[i].contains( pos ) ) {
+	    QMenuItem *mi = mitems->at(i);
+	    return mi->isSeparator() ? -1 : i;
+	}
+	++i;
     }
-    return -1;                                  // no match
+    return -1;					// no match
 }
 
 
@@ -969,11 +972,11 @@ void QMenuBar::drawContents( QPainter *p )
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
-        return;
-    mouseBtDn = TRUE;                           // mouse button down
+	return;
+    mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
     if ( item == actItem && popupvisible )
-        toggleclose = 1;
+	toggleclose = 1;
     setActiveItem( item, TRUE, FALSE );
 }
 
@@ -983,19 +986,19 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
-        return;
+	return;
     if ( !mouseBtDn )
-        return;
-    mouseBtDn = FALSE;                          // mouse button up
+	return;
+    mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );
     if ( item >= 0 && !mitems->at(item)->isEnabled() ||
-         actItem >= 0 && !mitems->at(actItem)->isEnabled() ) {
-        hidePopups();
-        return;
+	 actItem >= 0 && !mitems->at(actItem)->isEnabled() ) {
+	hidePopups();
+	return;
     }
     bool showMenu = TRUE;
     if ( toggleclose && style() == WindowsStyle && actItem == item )
-        showMenu = FALSE;
+	showMenu = FALSE;
     setActiveItem( item, showMenu, !hasMouseTracking() );
     toggleclose = 0;
 }
@@ -1018,7 +1021,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	return;
     }
     if ( item != actItem && item >= 0  && ( popupvisible || mouseBtDn ) )
-        setActiveItem( item, TRUE, FALSE );
+	setActiveItem( item, TRUE, FALSE );
 }
 
 
@@ -1029,7 +1032,7 @@ void QMenuBar::leaveEvent( QEvent * e )
     hasmouse = 0;
     int actId = idAt( actItem );
     if ( !hasFocus() && !popupvisible )
-        actItem = -1;
+	actItem = -1;
     updateItem( actId );
     QFrame::leaveEvent( e );
 }
@@ -1040,76 +1043,76 @@ void QMenuBar::leaveEvent( QEvent * e )
 void QMenuBar::keyPressEvent( QKeyEvent *e )
 {
     if ( actItem < 0 )
-        return;
+	return;
 
     QMenuItem  *mi = 0;
     int dx = 0;
 
     switch ( e->key() ) {
     case Key_Left:
-        dx = -1;
-        break;
+	dx = -1;
+	break;
 
     case Key_Right:
     case Key_Tab:
-        dx = 1;
-        break;
+	dx = 1;
+	break;
 
     case Key_Up:
     case Key_Down:
     case Key_Enter:
     case Key_Return:
-        if ( style() == WindowsStyle )
-            setActiveItem( actItem );
-        break;
+	if ( style() == WindowsStyle )
+	    setActiveItem( actItem );
+	break;
 
     case Key_Escape:
-        setAltMode( FALSE );
-        break;
+	setAltMode( FALSE );
+	break;
     }
 
-    if ( dx ) {                                 // highlight next/prev
-        register int i = actItem;
-        int c = mitems->count();
-        int n = c;
-        while ( n-- ) {
-            i = i + dx;
-            if ( i == c )
-                i = 0;
-            else if ( i < 0 )
-                i = c - 1;
-            mi = mitems->at( i );
-            // ### fix windows-style traversal - currently broken due to
-            // QMenuBar's reliance on QPopupMenu
-            if ( /* (style() == WindowsStyle || */ mi->isEnabled() /* ) */
-                 && !mi->isSeparator() )
-                break;
-        }
-        setActiveItem( i, popupvisible   );
-    } else if ( !e->state() && e->text().length()==1 ) {
-        QChar c = e->text()[0].upper();
+    if ( dx ) {					// highlight next/prev
+	register int i = actItem;
+	int c = mitems->count();
+	int n = c;
+	while ( n-- ) {
+	    i = i + dx;
+	    if ( i == c )
+		i = 0;
+	    else if ( i < 0 )
+		i = c - 1;
+	    mi = mitems->at( i );
+	    // ### fix windows-style traversal - currently broken due to
+	    // QMenuBar's reliance on QPopupMenu
+	    if ( /* (style() == WindowsStyle || */ mi->isEnabled() /* ) */
+		 && !mi->isSeparator() )
+		break;
+	}
+	setActiveItem( i, popupvisible	 );
+    } else if ( ( !e->state() || ( e->state() & (MetaButton|AltButton) ) ) && e->text().length()==1 ) {
+	QChar c = e->text()[0].upper();
 
-        QMenuItemListIt it(*mitems);
-        register QMenuItem *m;
-        int indx = 0;
-        while ( (m=it.current()) ) {
-            ++it;
-            QString s = m->text();
-            if ( !s.isEmpty() ) {
-                int i = s.find( '&' );
-                if ( i >= 0 )
-                {
-                    if ( s[i+1].upper() == c ) {
-                        mi = m;
-                        break;
-                    }
-                }
-            }
-            indx++;
-        }
-        if ( mi ) {
-            setActiveItem( indx );
-        }
+	QMenuItemListIt it(*mitems);
+	register QMenuItem *m;
+	int indx = 0;
+	while ( (m=it.current()) ) {
+	    ++it;
+	    QString s = m->text();
+	    if ( !s.isEmpty() ) {
+		int i = s.find( '&' );
+		if ( i >= 0 )
+		{
+		    if ( s[i+1].upper() == c ) {
+			mi = m;
+			break;
+		    }
+		}
+	    }
+	    indx++;
+	}
+	if ( mi ) {
+	    setActiveItem( indx );
+	}
     }
 }
 
@@ -1120,10 +1123,10 @@ void QMenuBar::resizeEvent( QResizeEvent *e )
 {
     QFrame::resizeEvent( e );
     if ( badSize )
-        return;
+	return;
     badSize = TRUE;
     if ( isVisible() )
-        calculateRects();
+	calculateRects();
 }
 
 /*!  Sets actItem to \a i and calls repaint for the
@@ -1136,60 +1139,60 @@ void QMenuBar::resizeEvent( QResizeEvent *e )
 void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 {
     if ( i == actItem && (uint)show == popupvisible )
-        return;
+	return;
 
     QMenuItem* mi = 0;
     if ( i >= 0 )
-        mi = mitems->at( i );
+	mi = mitems->at( i );
     if ( mi && !mi->isEnabled() )
-        return;
+	return;
 
     popupvisible = i >= 0 ? (show) : 0;
     actItemDown = popupvisible;
 
     if ( i < 0 || actItem < 0 ) {
-        // just one item needs repainting
-        int n = QMAX( actItem, i );
-        actItem = i;
-        if ( irects && n >= 0 )
-            repaint( irects[n], FALSE );
+	// just one item needs repainting
+	int n = QMAX( actItem, i );
+	actItem = i;
+	if ( irects && n >= 0 )
+	    repaint( irects[n], FALSE );
     } else if ( QABS(i-actItem) == 1 ) {
-        // two neighbouring items need repainting
-        int o = actItem;
-        actItem = i;
-        if ( irects )
-            repaint( irects[i].unite( irects[o] ), FALSE );
+	// two neighbouring items need repainting
+	int o = actItem;
+	actItem = i;
+	if ( irects )
+	    repaint( irects[i].unite( irects[o] ), FALSE );
     } else {
-        // two non-neighbouring items need repainting
-        int o = actItem;
-        actItem = i;
-        if ( irects ) {
-            repaint( irects[o], FALSE );
-            repaint( irects[i], FALSE );
-        }
+	// two non-neighbouring items need repainting
+	int o = actItem;
+	actItem = i;
+	if ( irects ) {
+	    repaint( irects[o], FALSE );
+	    repaint( irects[i], FALSE );
+	}
     }
 
     hidePopups();
 
     if ( !popupvisible && actItem >= 0 ) {
-        QRect mfrect = irects[actItem];
-        setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
+	QRect mfrect = irects[actItem];
+	setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
     }
 
     if ( actItem < 0 || !popupvisible || !mi  )
-        return;
+	return;
 
     QPopupMenu *popup = mi->popup();
     if ( popup ) {
-        emit highlighted( mi->id() );
-        openActPopup();
-        if ( activate_first_item )
-            popup->setFirstItemActive();
-    } else {                            // not a popup
-        goodbye( FALSE );
-        if ( mi->signal() )                     // activate signal
-            mi->signal()->activate();
-        emit activated( mi->id() );
+	emit highlighted( mi->id() );
+	openActPopup();
+	if ( activate_first_item )
+	    popup->setFirstItemActive();
+    } else {				// not a popup
+	goodbye( FALSE );
+	if ( mi->signal() )			// activate signal
+	    mi->signal()->activate();
+	emit activated( mi->id() );
     }
 
 }
@@ -1200,17 +1203,17 @@ void QMenuBar::setAltMode( bool enable )
     waitforalt = 0;
     actItemDown = FALSE;
     if ( enable ) {
-        if ( !QMenuData::d->aWidget )
-            QMenuData::d->aWidget = qApp->focusWidget();
-        setFocus();
-        updateItem( idAt( actItem ) );
+	if ( !QMenuData::d->aWidget )
+	    QMenuData::d->aWidget = qApp->focusWidget();
+	setFocus();
+	updateItem( idAt( actItem ) );
     } else {
-        if ( QMenuData::d->aWidget )
-            QMenuData::d->aWidget->setFocus();
-        int actId = idAt( actItem );
-        actItem = -1;
-        updateItem( actId );
-        QMenuData::d->aWidget = 0;
+	if ( QMenuData::d->aWidget )
+	    QMenuData::d->aWidget->setFocus();
+	int actId = idAt( actItem );
+	actItem = -1;
+	updateItem( actId );
+	QMenuData::d->aWidget = 0;
     }
 }
 
@@ -1225,36 +1228,36 @@ void QMenuBar::setupAccelerators()
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
-        ++it;
-        if ( !mi->isEnabled() ) // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
-            continue;
-        QString s = mi->text();
-        if ( !s.isEmpty() ) {
-            int i = QAccel::shortcutKey( s );
-            if ( i ) {
-                if ( !autoaccel ) {
-                    autoaccel = new QAccel( this );
-                    Q_CHECK_PTR( autoaccel );
-                    autoaccel->setIgnoreWhatsThis( TRUE );
-                    connect( autoaccel, SIGNAL(activated(int)),
-                             SLOT(accelActivated(int)) );
-                    connect( autoaccel, SIGNAL(destroyed()),
-                             SLOT(accelDestroyed()) );
-                }
-                autoaccel->insertItem( i, mi->id() );
-            }
-        }
-        if ( mi->popup() ) {
-            // reuse
-            QPopupMenu* popup = mi->popup();
-            if (popup->parentMenu)
-                popup->parentMenu->menuDelPopup(popup);
-            popup->selfItem  = mi;
-            menuInsPopup(popup);
-            popup->updateAccel( this );
-            if ( !popup->isEnabled() )
-                popup->enableAccel( FALSE );
-        }
+	++it;
+	if ( !mi->isEnabled() ) // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
+	    continue;
+	QString s = mi->text();
+	if ( !s.isEmpty() ) {
+	    int i = QAccel::shortcutKey( s );
+	    if ( i ) {
+		if ( !autoaccel ) {
+		    autoaccel = new QAccel( this );
+		    Q_CHECK_PTR( autoaccel );
+		    autoaccel->setIgnoreWhatsThis( TRUE );
+		    connect( autoaccel, SIGNAL(activated(int)),
+			     SLOT(accelActivated(int)) );
+		    connect( autoaccel, SIGNAL(destroyed()),
+			     SLOT(accelDestroyed()) );
+		}
+		autoaccel->insertItem( i, mi->id() );
+	    }
+	}
+	if ( mi->popup() ) {
+	    // reuse
+	    QPopupMenu* popup = mi->popup();
+	    if (popup->parentMenu)
+		popup->parentMenu->menuDelPopup(popup);
+	    popup->selfItem  = mi;
+	    menuInsPopup(popup);
+	    popup->updateAccel( this );
+	    if ( !popup->isEnabled() )
+		popup->enableAccel( FALSE );
+	}
     }
 }
 #endif
@@ -1273,9 +1276,9 @@ bool QMenuBar::customWhatsThis() const
 void QMenuBar::focusInEvent( QFocusEvent * )
 {
     if ( actItem < 0 )
-        setActiveItem( 0, FALSE );
+	setActiveItem( 0, FALSE );
     else if ( !popupvisible )
-        updateItem( idAt( actItem ) );
+	updateItem( idAt( actItem ) );
 }
 
 /*!\reimp
@@ -1284,7 +1287,7 @@ void QMenuBar::focusOutEvent( QFocusEvent * )
 {
     updateItem( idAt( actItem ) );
     if ( !popupvisible )
-        setAltMode( FALSE );
+	setAltMode( FALSE );
 }
 
 /*!
@@ -1295,11 +1298,11 @@ QSize QMenuBar::sizeHint() const
 {
     int h = height();
     if ( badSize )
-        h = ( (QMenuBar*)this )->calculateRects();
+	h = ( (QMenuBar*)this )->calculateRects();
     QSize s( 2*frameWidth(),0);
     if ( irects ) {
-        for ( int i = 0; i < (int)mitems->count(); ++i )
-            s.setWidth( s.width() + irects[ i ].width() + 2 );
+	for ( int i = 0; i < (int)mitems->count(); ++i )
+	    s.setWidth( s.width() + irects[ i ].width() + 2 );
     }
     s.setHeight( h );
     return s.expandedTo( QApplication::globalStrut() );
@@ -1312,7 +1315,7 @@ QSize QMenuBar::sizeHint() const
 QSize QMenuBar::minimumSize() const
 {
     if ( parent() && parent()->inherits( "QToolBar" ) )
-        return sizeHint();
+	return sizeHint();
     return QFrame::minimumSize();
 }
 
@@ -1353,9 +1356,9 @@ bool QMenuBar::isDefaultUp() const
 void QMenuBar::activateItemAt( int index )
 {
     if ( index >= 0 && index < (int) mitems->count() )
-        setActiveItem( index );
+	setActiveItem( index );
     else
-        goodbye( FALSE );
+	goodbye( FALSE );
 }
 
 #endif // QT_NO_MENUBAR
