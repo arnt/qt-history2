@@ -417,7 +417,6 @@ public:
 
     virtual bool isNested() const;
     virtual int minimumWidth() const;
-    virtual int widthHint() const;
 
     virtual QString richText() const;
 
@@ -461,7 +460,6 @@ public:
 
     Placement placement() const { return place; }
     void setPainter( QPainter*, bool );
-    int widthHint() const { return width; }
     int minimumWidth() const { return width; }
 
     QString richText() const;
@@ -659,16 +657,14 @@ public:
 
     QString richText() const;
 
-    int minimumWidth() const { return layout ? layout->minimumSize().width() : 0; }
-    int widthHint() const { return ( layout ? layout->sizeHint().width() : 0 ) + 2 * outerborder; }
+    int minimumWidth() const;
 
     QPtrList<QTextTableCell> tableCells() const { return cells; }
 
-    QRect geometry() const { return layout ? layout->geometry() : QRect(); }
     bool isStretching() const { return stretch; }
 
 private:
-    void format( int &w );
+    void format( int w );
     void addCell( QTextTableCell* cell );
 
 private:
@@ -1338,7 +1334,7 @@ private:
     QMap<int, QTextParagSelection> &selections() const;
     QPtrVector<QStyleSheetItem> &styleSheetItemsVec() const;
     QPtrList<QTextCustomItem> &floatingItems() const;
-        
+
     QMap<int, QTextParagLineStart*> lineStarts;
     int invalid;
     QRect r;

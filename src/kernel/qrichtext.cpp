@@ -3576,7 +3576,7 @@ QTextStringChar *QTextStringChar::clone() const
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
-    : invalid( 0 ), p( pr ), n( nx ), doc( d ), mSelections( 0 ), align( 0 ), 
+    : invalid( 0 ), p( pr ), n( nx ), doc( d ), mSelections( 0 ), align( 0 ),
       mStyleSheetItemsVec( 0 ), listS( QStyleSheetItem::ListDisc ),
       numSubParag( -1 ), tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ), 
 #ifndef QT_NO_TEXTCUSTOMITEM      
@@ -3921,7 +3921,6 @@ void QTextParag::format( int start, bool doMove )
     invalid = -1;
     string()->setTextChanged( FALSE );
 }
-
 
 int QTextParag::lineHeightOfChar( int i, int *bl, int *y ) const
 {
@@ -4821,7 +4820,7 @@ int QTextParag::leftMargin() const
 	    }
 	}
     }
-    
+
     m = scale ( m, painter() );
 
     ( (QTextParag*)this )->lm = m;
@@ -4845,7 +4844,7 @@ int QTextParag::firstLineMargin() const
 	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
 	}
     }
-    
+
     m = scale( m, painter() );
 
     ( (QTextParag*)this )->flm = m;
@@ -5442,19 +5441,21 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    ww = 0;
 #ifndef QT_NO_TEXTCUSTOMITEM
 	if ( c->isCustom() && c->customItem()->ownLine() ) {
+	    QTextCustomItem* ci = c->customItem();
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 	    QTextParagLineStart *lineStart2 = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
-	    c->customItem()->resize( parag->painter(), dw );
+	    ci->resize( parag->painter(), dw );
 	    if ( x != left || w != dw )
 		fullWidth = FALSE;
-	    if ( c->customItem()->isNested() && // it's a table
-		 ( !fullWidth || !( (QTextTable*)c->customItem() )->isStretching()  ) &&
-		 ((QTextTable*)c->customItem() )->geometry().width() < w ) {
+	    if ( ci->isNested() && // it's a table
+		 ( !fullWidth || !( (QTextTable*)ci )->isStretching()  ) &&
+		 ci->width < w ) {
 		if ( align & Qt::AlignHCenter )
-		    x = ( w - ( (QTextTable*)c->customItem() )->geometry().width() ) / 2;
-		else if ( align & Qt::AlignRight )
-		    x = w - ( (QTextTable*)c->customItem() )->geometry().width();
+		    x = ( w - ci->width ) / 2;
+		else if ( align & Qt::AlignRight ) {
+		    x = w - ci->width;
+		}
 	    }
 	    c->x = x;
 	    curLeft = x;
@@ -5478,7 +5479,10 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    lastBreak = -2;
 	    x = 0xffffff;
 	    minw = QMAX( minw, tminw );
-	    int tw = QMAX( c->customItem()->minimumWidth(), QMIN( c->customItem()->widthHint(), c->customItem()->width ) );
+
+	    int tw = ci->minimumWidth();
+	    // the next line breaks support/arc-20/40253
+	    //int tw = QMAX( c->customItem()->minimumWidth(), QMIN( c->customItem()->widthHint(), c->customItem()->width ) );
 	    if ( tw < 32000 )
 		tminw = tw;
 	    else
@@ -6384,8 +6388,6 @@ QTextHorizontalLine::QTextHorizontalLine( QTextDocument *p, const QMap<QString, 
     height = tmpheight = 8;
     if ( attr.find( "color" ) != attr.end() )
 	color = QColor( *attr.find( "color" ) );
-    else if ( attr.find( "COLOR" ) != attr.end() )
-	color = QColor( *attr.find( "COLOR" ) );
 }
 
 QTextHorizontalLine::~QTextHorizontalLine()
@@ -7014,7 +7016,7 @@ QString QTextDocument::parseOpenTag(const QString& doc, int& pos,
 	}
 	else
 	    value = s_TRUE;
-	attr.insert(key, value );
+	attr.insert(key.lower(), value );
 	eatSpace(doc, pos, TRUE);
     }
 
@@ -7399,22 +7401,29 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 #endif
 }
 
+int QTextTable::minimumWidth() const
+{ 
+    return (layout ? layout->minimumSize().width() : 0) + 2 * outerborder; 
+}
+
 void QTextTable::resize( QPainter* p, int nwidth )
 {
     if ( fixwidth && cachewidth != 0 )
 	return;
     if ( nwidth == cachewidth )
 	return;
+    
+    
     cachewidth = nwidth;
     int w = nwidth;
     painter = p;
+
     format( w );
-    if ( nwidth >= 32000 )
-	nwidth = w;
+    
     if ( stretch )
 	nwidth = nwidth * stretch / 100;
 
-    width = nwidth + 2*outerborder;
+    width = nwidth;
     layout->invalidate();
     int shw = layout->sizeHint().width() + 2*outerborder;
     int mw = layout->minimumSize().width() + 2*outerborder;
@@ -7435,21 +7444,13 @@ void QTextTable::resize( QPainter* p, int nwidth )
     height = layout->geometry().height()+2*outerborder;
 }
 
-void QTextTable::format( int &w )
+void QTextTable::format( int w )
 {
     for ( int i = 0; i < (int)cells.count(); ++i ) {
 	QTextTableCell *cell = cells.at( i );
-	cell->richText()->doLayout( painter, QWIDGETSIZE_MAX );
-	cell->cached_sizehint = cell->richText()->widthUsed() + 2 * ( innerborder + 4 );
-	if ( cell->cached_sizehint > 32000 ) // nested table in paragraph
-	    cell->cached_sizehint = cell->minimumSize().width();
-	cell->richText()->doLayout( painter, cell->cached_sizehint );
-	cell->cached_width = -1;
+ 	cell->richText()->doLayout( painter, w-2*outerborder );
+ 	cell->cached_width = w-2*outerborder;
     }
-    w = widthHint();
-    layout->invalidate();
-    layout->activate();
-    width = minimumWidth();
 }
 
 void QTextTable::addCell( QTextTableCell* cell )
@@ -7779,30 +7780,26 @@ QTextTableCell::~QTextTableCell()
 
 QSize QTextTableCell::sizeHint() const
 {
-    if ( cached_sizehint != -1 )
- 	return QSize( cached_sizehint, 0 );
-    QTextTableCell *that = (QTextTableCell*)this;
-    if ( stretch_ == 100 ) {
-	return QSize( ( that->cached_sizehint = QWIDGETSIZE_MAX ), 0 );
-    } else if ( stretch_ > 0 ) {
-	return QSize( QMAX( QMAX( richtext->widthUsed(), minw ),
-			    parent->width * stretch_ / 100 - 2*parent->cellspacing - 2*parent->cellpadding ), 0 );
+    int extra = 2 * ( parent->innerborder + parent->cellpadding);
+    int used = richtext->widthUsed() + extra;
+    
+    if  (stretch_ ) {
+	int w = parent->width * stretch_ / 100 - 2*parent->cellspacing - 2*parent->cellpadding;
+	return QSize( QMIN( w, maxw ), 0 );
     }
-    return QSize( ( that->cached_sizehint = richtext->widthUsed() + 2 * ( parent->innerborder + parent->cellpadding + 4 ) ), 0 );
+
+    return QSize( used, 0 );
 }
 
 QSize QTextTableCell::minimumSize() const
 {
-    if ( stretch_ )
-	return QSize( QMAX( QMAX( richtext->widthUsed(), minw ),
-			    parent->width * stretch_ / 100 - 2*parent->cellspacing - 2*parent->cellpadding), 0 );
-    return QSize(QMAX( richtext->minimumWidth(), minw ),0);
+    int extra = 2 * ( parent->innerborder + parent->cellpadding);
+    return QSize( QMAX( richtext->minimumWidth() + extra, minw), 0 );
 }
 
 QSize QTextTableCell::maximumSize() const
 {
-    return QSize( QMAX( richtext->widthUsed(), maxw), QWIDGETSIZE_MAX );
-//     return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+    return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
 }
 
 QSizePolicy::ExpandData QTextTableCell::expanding() const
@@ -7834,14 +7831,15 @@ bool QTextTableCell::hasHeightForWidth() const
 
 int QTextTableCell::heightForWidth( int w ) const
 {
+    int extra = 2 * ( parent->innerborder + parent->cellpadding + 4 );
     w = QMAX( minw, w );
 
     if ( cached_width != w ) {
 	QTextTableCell* that = (QTextTableCell*) this;
-	that->richtext->doLayout( painter(), w - 2 * parent->cellpadding );
+	that->richtext->doLayout( painter(), w - extra );
 	that->cached_width = w;
     }
-    return richtext->height() + 2 * parent->innerborder + 2* parent->cellpadding;
+    return richtext->height() + extra;
 }
 
 void QTextTableCell::setPainter( QPainter* p, bool adjust )
@@ -7861,7 +7859,7 @@ QPainter* QTextTableCell::painter() const
 
 int QTextTableCell::horizontalAlignmentOffset() const
 {
-    return parent->cellpadding;
+    return parent->cellpadding + parent->innerborder;
 }
 
 int QTextTableCell::verticalAlignmentOffset() const
@@ -7869,7 +7867,7 @@ int QTextTableCell::verticalAlignmentOffset() const
     if ( (align & Qt::AlignVCenter ) == Qt::AlignVCenter )
 	return ( geom.height() - richtext->height() ) / 2;
     else if ( ( align & Qt::AlignBottom ) == Qt::AlignBottom )
-	return geom.height() - parent->cellpadding - richtext->height();
+	return geom.height() - parent->cellpadding - richtext->height()  ;
     return parent->cellpadding;
 }
 

@@ -54,7 +54,6 @@ void QTextCustomItem::invalidate() {}
 
 bool QTextCustomItem::isNested() const { return FALSE; }
 int QTextCustomItem::minimumWidth() const { return 0; }
-int QTextCustomItem::widthHint() const { return 0; }
 
 QString QTextCustomItem::richText() const { return QString::null; }
 
