@@ -2603,7 +2603,8 @@ void QFont::initialize()
 }
 
 
-/*!
+/*! \internal
+
   Internal function that cleans up the font system.
 */
 void QFont::cleanup()
@@ -2685,7 +2686,7 @@ QString QFont::rawName() const
 
 /*!
   Sets a font by its system specific name. The function is in
-  particular useful under X, where system font settings ( for example
+  particular useful under X, where system font settings (for example
   X resources) are usually available as XLFD (X Logical Font
   Description) only. You can pass an XLFD as \a name to this function.
 
@@ -2697,7 +2698,7 @@ QString QFont::rawName() const
   If Qt's internal font database cannot resolve the raw name, the font
   becomes a raw font with \a name as family.
 
-  Note that the present implementation does not handle handle
+  Note that the present implementation does not handle
   wildcards in XLFDs well, and that font aliases (file \c fonts.alias
   in the font directory on X11) are not supported.
 

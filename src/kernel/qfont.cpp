@@ -81,7 +81,7 @@
   \printuntil times
 
   12pt (the default if nothing else is specified) Times, normal weight,
-  roman (i.e. non-italic) is used for the pushbutton label.
+  roman (i.e. non-italic) is used for the label of the defaultButton push button.
 
   \walkthrough fonts/simple-qfont-demo/viewer.cpp
   \skipto sansSerifButton
@@ -100,10 +100,10 @@
   (Code taken from \link simple-font-demo-example.html
   fonts/simple-qfont-demo/viewer.cpp \endlink)
 
-  The default QFont constructor keeps a copy of the application's default
-  font, QApplication::font().
+  The default QFont constructor without any arguments
+  keeps a copy of the application's default font, QApplication::font().
 
-  You can also change these attributes of an existing QFont object
+  You can change the attributes of an existing QFont object
   using functions such as setFamily(), setPointSize(), setWeight() and
   setItalic().
 
@@ -111,21 +111,21 @@
   whether the font is underlined or not; setStrikeOut() can be used to get
   overstrike (a horizontal line through the middle of the characters);
   setFixedPitch() determines whether Qt should give preference to
-  fixed-pitch (also known as fixed-width or typewriter fonts)
-  or variable-pitch fonts when it needs to choose an installed font.
+  fixed-pitch (also known as monospace, fixed-width or typewriter fonts)
+  or variable-pitch (proportional) fonts when it needs to choose an installed font.
 
   setStyleHint() can be used to offer
   more general help to the font matching algorithm, and on X11
   setRawName() can be used to bypass the entire font matching and use an
   X11 XLFD (X Logical Font Description).
 
-  Of course there is also a reader function for each of these set*()
+  Of course there is also a reader function for each of the set*()
   functions. Note that the reader functions return the values
   previously set, \e not the attributes of the actual window system
-  font that will be used for drawing. You can get information about
-  the font that will be used for drawing by using QFontInfo, but be
-  aware that QFontInfo may be slow and that its results depend on what
-  fonts are installed.
+  font that will be used for drawing. Information about
+  the font that will be used for drawing can be obtained by using QFontInfo, but be
+  aware that QFontInfo may be slow and that its results depend on 
+  which fonts are installed.
 
   In general font handling and loading are costly operations,
   especially on X11.  The QFont class contains extensive optimizations
@@ -150,13 +150,12 @@
   You can get a complete list of the fallback families using substitutions().
 
   Finally, QApplication::setFont() allows you to set the default font.
-  The default default font is chosen at application startup from a set
+  the default default font is chosen at application startup from a set
   of common installed fonts that support the correct character set for
   the current locale. Of course, the initialization algorithm has a
   default, too: The default default default font!
 
   The font matching algorithm works as follows:
-
   First an available font family is found. If the requested is not
   available the styleHint() is used to select a replacement family. If
   the style hint has not been set, "helvetica" will be used.
@@ -197,10 +196,9 @@
   printer.
 
   For more general information on fonts, see the
-  <a href="http://www.nwalsh.com/comp.fonts/FAQ/">comp.fonts FAQ</a>
-  and for more general information on encodings, see
-  <a href="http://czyborra.com/charsets/">Roman Czyborra's page</a>
-  about that.
+  \link http://www.nwalsh.com/comp.fonts/FAQ/ comp.fonts FAQ.\endlink
+  Information on encodings can be found on
+  \link http://czyborra.com/charsets/ Roman Czyborra's respective page.\endlink
 
   \sa QFontMetrics QFontInfo QFontDatabase QApplication::setFont()
   QWidget::setFont() QPainter::setFont() QFont::StyleHint
@@ -212,7 +210,8 @@
   The QFont::Script enum represents \link unicode.html Unicode \endlink
   allocated scripts. For exhaustive
   coverage see \link http://www.amazon.com/exec/obidos/ASIN/0201616335/trolltech/t
-  The Unicode Standard Version 3.0 \endlink.
+  The Unicode Standard Version 3.0 \endlink. 
+  The following scripts are supported:
 
   Modern European alphabetic scripts (left to right):
 
@@ -256,15 +255,15 @@
   \value Kannada is another South Indian script used to write the Kannada language of
          Karnataka state/India and some minority languages.
   \value Malayalam is used to write the Malayalam language of Kerala state/India.
-  \value Sinhala is used Sri Lanka's majority language Sinhala and is also employed
-         to write Pali, Sanskrit and Tamil.
+  \value Sinhala is used for Sri Lanka's majority language Sinhala and is also employed
+         to write Pali, Sanskrit, and Tamil.
   \value Thai is used to write Thai and other Southeast Asian languages. 
   \value Lao is a language and script quite similar to Thai.
   \value Tibetan is the script used to write Tibetan in several countries like Tibet, 
          the bordering Indian regions, or Nepal. It is also used in the Buddist
-         philosophy and liturgy in the Mongolian cultural area.
+         philosophy and liturgy of the Mongolian cultural area.
   \value Myanmar is mainly used to write the Burmese language of Myanmar (former Burma).
-  \value Khmer is the official kanguage of Kampuchea.
+  \value Khmer is the official language of Kampuchea.
 
   East Asian scripts (traditionally top-down, right to left, modern often horizontal
          left to right):
@@ -285,7 +284,7 @@
   \value Ethiopic is a syllabary used by several Central East African languages.  
   \value Cherokee is a left-to-right syllabic script used to write the Cherokee language.
   \value CanadianAboriginal consists of the syllabics used by some Canadian aboriginal societies.
-  \value Mongolian is the traditional (and recently restored) script used to write Mongolian. 
+  \value Mongolian is the traditional (and recently reintroduced) script used to write Mongolian. 
 
   Symbols:
 
@@ -358,8 +357,8 @@ void QFont::detach()
 }
 
 
-/*!
-  Constructs a font object that refers to the default font.
+/*! Constructs a font object that refers to the default font.
+  The settings for this font are copied from the default QApplication font.
 
   \sa QApplication::setFont(), QApplication::font()
 */
@@ -371,14 +370,12 @@ QFont::QFont()
 }
 
 
-/*!
-  Constructs a font object with the specified \a family, \a pointSize,
-  \a weight and \a italic settings. The settings for this font are copied
-  from the default QApplication font.
+/*! Constructs a font object with the specified \a family, \a pointSize,
+  \a weight and \a italic settings. 
 
   If \a pointSize is less than or equal to 0 it is set to 1.
 
-  \sa setFamily(), setPointSize(), setWeight(), setItalic(), QApplication::font()
+  \sa Weight, setFamily(), setPointSize(), setWeight(), setItalic(), QApplication::font()
 */
 QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
 {
@@ -413,7 +410,7 @@ QFont::~QFont()
 }
 
 
-/*! Assigns \a font to this font and returns a reference to this font.
+/*! Assigns \a font to this font and returns a reference to it.
 */
 QFont &QFont::operator=( const QFont &font )
 {
@@ -442,7 +439,7 @@ QFont &QFont::operator=( const QFont &font )
   (Code taken from \link simple-font-demo-example.html
   fonts/simple-qfont-demo/viewer.cpp \endlink)
 
-  \sa setFamily(), substitute()
+  \sa substitutes substitute()
 */
 QString QFont::family() const
 {
@@ -450,7 +447,7 @@ QString QFont::family() const
 }
 
 
-/*! Sets the \a family name of the font (e.g. "Helvetica" or "times").
+/*! Defines the \a family name of the font (e.g. "Helvetica" or "times").
 
   The family name is case insensitive.
 
@@ -480,10 +477,10 @@ int QFont::deciPointSize() const
 }
 
 
-/*! Returns the point size set by setPointSize().
+/*! Returns the point size of \e this font.
 
   Use QFontInfo to find the point size of the window system font
-  actually used.
+  actually used:
 
    \walkthrough fonts/simple-qfont-demo/viewer.cpp
    \skipto messageText
@@ -539,9 +536,10 @@ void QFont::setPointSize( int pointSize )
 }
 
 
-/*!
-  Sets the point size to \a pointSize. The point size must be greater
+/*! Sets the point size to \a pointSize. The point size must be greater
   than zero. The requested precision may not be achieved on all platforms.
+
+  \sa pointSizeFloat() setPointSize() setPixelSize()
 */
 void QFont::setPointSizeFloat( float pointSize )
 {
@@ -562,9 +560,8 @@ void QFont::setPointSizeFloat( float pointSize )
 }
 
 
-/*!
-  Returns the requested height of characters in the font in points (1/72 inch). Returns -1 if a font size in
-  pixels was requested.
+/*! Returns the requested height of characters in the font in points (1/72 inch). 
+  If the font size was determined in pixels, this function returns -1.
 
   \sa pointSize() pixelSize() QFontInfo::pointSize() QFontInfo::pixelSize()
 */
@@ -574,15 +571,14 @@ float QFont::pointSizeFloat() const
 }
 
 
-/*!
-  Sets the height in pixels of font characters shown on
-  the screen or printer to \a pixelSize.
+/*! Sets the height of font characters shown on
+  the screen or printer to \a pixelSize pixels.
 
   This way of specifying a font size makes the font device dependent, and the
-  resulting font will vary in size on  devices with different  resolutions. setPointSize()
+  resulting font will vary in size on devices with different resolutions. setPointSize()
   is the device independent approach.
 
-  \sa pixelSize() setPointSize()
+  \sa pixelSize()
 */
 void QFont::setPixelSize( int pixelSize )
 {
@@ -602,13 +598,12 @@ void QFont::setPixelSize( int pixelSize )
     setPixelSizeFloat(float(pixelSize));
 }
 
-/*!
-  Returns the pixel height of characters in the font if shown on
-  the screen. Will return -1 if a font size in points was requested.
+/*! Returns the pixel height of characters in the font if shown on
+  the screen. Will return -1 if the font size was set in points.
 
   Use the QFontInfo class to get the real height of the font.
 
-  \sa setPointSize() QFontInfo::pointSize() QFontInfo::pixelSize()
+  \sa setPixelSize() pointSize() QFontInfo::pointSize() QFontInfo::pixelSize()
 */
 int QFont::pixelSize() const
 {
@@ -616,9 +611,10 @@ int QFont::pixelSize() const
 }
 
 
-/*!
+/*! \obsolete
+
   Sets the logical pixel height of font characters when shown on
-  the screen to \a pixelSize().
+  the screen to \a pixelSize.
 */
 void QFont::setPixelSizeFloat( float pixelSize )
 {
@@ -626,10 +622,10 @@ void QFont::setPixelSizeFloat( float pixelSize )
 }
 
 
-/*! Returns the value set by setItalic().
+/*! Returns whether an italic font should be used (TRUE) or not (FALSE).
 
-  Use QFontInfo to find the italic value of the window system font actually
-  used.
+  Use QFontInfo to find out whether the window system font actually
+  used is italic.
 
   \sa setItalic()
 */
@@ -669,12 +665,19 @@ int QFont::weight() const
 
 /*! \enum QFont::Weight
 
-  Contains the predefined font weights:
-  \value Light (25)
-  \value Normal (50)
-  \value DemiBold (63)
-  \value Bold (75)
-  \value Black (87)
+  The weight of a font is a measure for its thickness.
+
+  Qt uses a weighting scale from 0 to 99 similar but not
+  equal to the scales used in Windows or CSS. A thickness of
+  0 leads to an ultralight, 99 to an extremely black font. 
+
+  This enum contains the predefined font weights:
+
+  \value Light 25
+  \value Normal 50
+  \value DemiBold 63
+  \value Bold 75
+  \value Black 87
 */
 
 /*! Sets the weight (or boldness) to \a weight, which should be a value
@@ -719,7 +722,7 @@ void QFont::setWeight( int weight )
 
 /*! \fn bool QFont::bold() const
 
-  Returns TRUE if weight() is a value greater than \c QFont::Normal,
+  Returns TRUE if weight() is a value greater than \link Weight QFont::Normal \endlink,
   otherwise FALSE.
 
   \sa weight(), setBold(), QFontInfo::bold()
@@ -727,10 +730,10 @@ void QFont::setWeight( int weight )
 
 /*! \fn void QFont::setBold( bool enable )
 
-  Sets the weight to \c QFont::Bold if \a enable is TRUE, or to
-  \c QFont::Normal if \a enable is FALSE.
+  Sets the weight to \link Weight QFont::Bold \endlink if \a enable is TRUE, or to
+  \link Weight QFont::Normal \endlink if \a enable is FALSE.
 
-  Use setWeight() to set the weight to other values.
+  Use setWeight() to set the boldness of \e this font to other values.
 
   \sa bold(), setWeight()
 */
@@ -792,10 +795,12 @@ void QFont::setStrikeOut( bool enable )
 }
 
 
-/*! Returns the value set by setFixedPitch().
+/*! If this function returns TRUE a monospaced
+  font is preferred, if FALSE a proportional font will be used if possible.
 
-  Use QFontInfo to find the fixed pitch value of the window system font
-  actually used.
+  QFontInfo reveals whether the window system font
+  actually used fits this requirement.
+
   \sa setFixedPitch(), QFontInfo::fixedPitch()
 */
 bool QFont::fixedPitch() const
@@ -804,7 +809,8 @@ bool QFont::fixedPitch() const
 }
 
 
-/*! Sets fixed pitch on or off, depending on the value of \a enable.
+/*! Sets monospacing on or off, depending on the value of \a enable (TRUE or
+  FALSE respectively).
 
   A fixed pitch font is a font where all characters have the same width.
 
@@ -820,8 +826,7 @@ void QFont::setFixedPitch( bool enable )
 }
 
 
-/*!
-  Returns the StyleStratgie set by setStyleHint()
+/*! Returns the StyleStratgie set by setStyleHint().
 
   \sa setStyleHint()
 */
@@ -831,8 +836,7 @@ QFont::StyleStrategy QFont::styleStrategy() const
 }
 
 
-/*!
-  Returns the StyleHint set by setStyleHint().
+/*! Returns the StyleHint set by setStyleHint().
 
   \sa setStyleHint(), QFontInfo::styleHint()
 */
@@ -842,36 +846,45 @@ QFont::StyleHint QFont::styleHint() const
 }
 
 
-/*!
-  \enum QFont::StyleHint
+/*! \enum QFont::StyleHint
 
-  Style hints are used by the font matching algorithm when a selected
-  font family cannot be found and is used to find an appropriate
-  default family.
+  Style hints are used by the font matching algorithm to find an appropriate
+  default family if a selected font family is not available.
 
-  The style hint value of \c AnyStyle leaves the task of finding a
+  \value AnyStyle leaves the task of finding a
   good default family to the font matching algorithm.
 
-  The other available style hints are \c QFont::SansSerif, \c
-  QFont::TypeWriter, \c QFont::OldEnglish, \c QFont::System
+  \value SansSerif prefers sans serif fonts.
+  \value Helvetica indicates the same as \c SansSerif.
+
+  \value Serif chooses fonts with serifs.  
+  \value Times is the same as \c Serif.
+
+  \value TypeWriter prefers fixed-pitch fonts.
+  \value Courier has the same meaning as \c TypeWriter.
+
+  \value OldEnglish prefers decorative fonts.
+  \value Decorative is the same as \c OldEnglish.
+
+  \value System defers to system fonts. 
 */
 
-/*!
-  \enum QFont::StyleStrategy
+/*! \enum QFont::StyleStrategy
 
   The style strategy tells the font matching algorithm what type
   of fonts should be used to find an appropriate default family.
 
-  The algorithm won't prefer any type of font if \c NoStratgie is
-  provided.
+  The following strategies are available:
 
-  The other available strategys are \c QFont::PreferBitmap, \c
-  QFont::PreferDevice, \c QFont::PreferOutline, \c QFont::ForceOutline
+  \value PreferDefault
+  \value PreferBitmap prefers bitmap fonts (as opposed to outline fonts).
+  \value PreferDevice prefers device fonts.
+  \value PreferOutline prefers outline fonts (as opposed to bitmap fonts).
+  \value ForceOutline forces the use of outline fonts.
 
-  Any of these may be ORed with a indicator whether exact matching or
-  good quality should be preferred.
-
-  \c QFont::PreferMatch, \c QFont::PreferQuality
+  Any of these may be ORed with an indicator whether 
+  \value PreferMatch exact matching or
+  \value PreferQuality good quality should be preferred.
 */
 
 /*! Sets the style hint and strategy to \a hint and \a strategy,
@@ -938,8 +951,7 @@ void QFont::setRawMode( bool enable )
 }
 
 
-/*!
-  Returns TRUE if a window system font exactly matching the settings
+/*! Returns TRUE if a window system font exactly matching the settings
   of this font is available.
 
   \sa QFontInfo
@@ -952,14 +964,14 @@ bool QFont::exactMatch() const
 }
 
 
-/*! Returns TRUE if the this font is equal to \a f, or FALSE if they are
+/*! Returns TRUE if this font is equal to \a f, or FALSE if they are
   different.
 
   Two QFonts are equal if their font attributes are equal.  If
-  rawMode() is enabled for both fonts, then only the family fields are
+  rawMode() is enabled for both fonts, only the family fields are
   compared.
 
-  \sa operator!=()
+  \sa operator!=() isCopyOf()
 */
 bool QFont::operator==( const QFont &f ) const
 {
@@ -967,11 +979,11 @@ bool QFont::operator==( const QFont &f ) const
 }
 
 
-/*! Returns TRUE if the this font is different from \a f, or FALSE if they are
+/*! Returns TRUE if this font is different from \a f, or FALSE if they are
   equal.
 
   Two QFonts are different if their font attributes are different.  If
-  rawMode() is enabled for both fonts, then only the family fields are
+  rawMode() is enabled for both fonts, only the family fields are
   compared.
 
   \sa operator==()
@@ -982,8 +994,7 @@ bool QFont::operator!=( const QFont &f ) const
 }
 
 
-/*!
-  Returns TRUE if this font and \a f are copies of each other,
+/*! Returns TRUE if this font and \a f are copies of each other,
   i.e. one of them was created as a copy of the other and neither was
   subsequently modified.  This is much stricter than equality.
 
@@ -995,8 +1006,9 @@ bool QFont::isCopyOf( const QFont & f ) const
 }
 
 
-/*!
-  Returns the family name that corresponds to the current style hint.
+/*! Returns the family name that corresponds to the current style hint.
+
+  \sa StyleHint styleHint() setStyleHint()
 */
 QString QFont::defaultFamily() const
 {
@@ -1004,8 +1016,9 @@ QString QFont::defaultFamily() const
 }
 
 
-/*!
- Returns a last resort family name for the font matching algorithm.
+/*! Returns a last resort family name for the font matching algorithm.
+
+  \sa lastResortFont()
 */
 QString QFont::lastResortFamily() const
 {
@@ -1013,13 +1026,14 @@ QString QFont::lastResortFamily() const
 }
 
 
-/*!
-  Returns a last resort raw font name for the font matching algorithm.
+/*! Returns a last resort raw font name for the font matching algorithm.
   This is used if even the last resort family is not available. It returns
   \e something, almost no matter what.
 
   The current implementation tries a wide variety of common fonts, returning
-  the first one it finds. The implementation may change at any time.
+  the first one it finds. This implementation may change at any time.
+
+  \sa lastResortFamily() rawName()
 */
 QString QFont::lastResortFont() const
 {
@@ -1027,9 +1041,9 @@ QString QFont::lastResortFont() const
 }
 
 
-/*!
-  Returns the value set by setRawMode().
-  \sa setRawMode()
+/*! Returns whether raw mode is used for font name matching (TRUE) or not (FALSE). 
+
+  \sa setRawMode() rawName()
 */
 bool QFont::rawMode() const
 {
@@ -1038,10 +1052,8 @@ bool QFont::rawMode() const
 
 
 /*! \obsolete
-  Returns the QApplication default font.
 
-  This function will be removed in a future version of Qt. Please use
-  QApplication::font() instead.
+  Please use QApplication::font() instead.
 */
 QFont QFont::defaultFont()
 {
@@ -1155,11 +1167,8 @@ QStringList QFont::substitutes(const QString &familyName)
 
 
 /*! Inserts the family name \a substituteName into the substitution
-  table for \a familyName, i.e. \a substituteName can be used if \a familyName is not
+  table for \a familyName. Afterwards \a substituteName can be used if \a familyName is not
   available. The search for \a familyName is case insensitive.
-
-  The family name \a substituteName is appended to the substitution list
-  for \a familyName if it already exists in the substitution table.
 
   \walkthrough fonts/simple-qfont-demo/viewer.cpp
   \skipto insertSubstitution(
@@ -1167,6 +1176,12 @@ QStringList QFont::substitutes(const QString &familyName)
 
   (Code taken from \link simple-font-demo-example.html
   fonts/simple-qfont-demo/viewer.cpp \endlink)
+
+  The family name \a substituteName is appended to the substitution list
+  for \a familyName only if it does not already exist in the substitution table.
+  If \a substituteName is the first substitute, a new substitution table is automatically
+  created.
+
   \sa insertSubstitutions() removeSubstitution() substitutions() substitute() substitutes()
 */
 void QFont::insertSubstitution(const QString &familyName,
@@ -1188,9 +1203,6 @@ void QFont::insertSubstitution(const QString &familyName,
 /*! Inserts the list of families \a substituteNames into the substitution
   table for \a familyName.  The search for \a familyName is case insensitive.
 
-  The list \a substituteNames will be appended to the substitution list for
-  \a familyName if it already exists in the substitution table.
-
   \walkthrough fonts/simple-qfont-demo/viewer.cpp
   \skipto QStringList substitutes
   \printline substitutes;
@@ -1201,6 +1213,10 @@ void QFont::insertSubstitution(const QString &familyName,
 
   (Code taken from \link simple-font-demo-example.html
   fonts/simple-qfont-demo/viewer.cpp \endlink)
+
+  A member of \a substituteNames is appended to the substitution list for
+  \a familyName only if it does not already exist in the substitution table.
+  In case of a previously non-existing substitution table a new one is created automatically.
 
   \sa insertSubstitution, removeSubstitution, substitutions(), substitute()
 */
@@ -1227,7 +1243,7 @@ void QFont::insertSubstitutions(const QString &familyName,
 /*! Removes the substitution list for \a familyName from the substitution table.
   The search for \a familyName is case insensitive.
 
-  \sa insertSubstitution(), substitutions(), substitute()
+  \sa insertSubstitutions(), insertSubstitution(), substitutions(), substitute()
 */
 void QFont::removeSubstitution( const QString &familyName )
 { // ### function name should be removeSubstitutions() or
@@ -1239,8 +1255,7 @@ void QFont::removeSubstitution( const QString &familyName )
 
 #ifndef QT_NO_STRINGLIST
 
-/*!
-  Returns a sorted list of substituted family names.
+/*! Returns a sorted list of substituted family names.
 
   \sa insertSubstitution(), removeSubstitution(), substitute()
 */
@@ -1306,10 +1321,10 @@ static void set_font_bits( Q_UINT8 bits, QFontDef *f )
 #endif
 
 
-/*!
-  Returns the font's key, which is a textual representation of the font
+/*! Returns the font's key, a textual representation of the font
   settings. It is typically used to insert and find fonts in a
   dictionary or a cache.
+
   \sa QMap
 */
 QString QFont::key() const
@@ -1318,8 +1333,7 @@ QString QFont::key() const
 }
 
 
-/*!
-  Returns a description of this font.  The description is a comma-separated
+/*! Returns a description of this font.  The description is a comma-separated
   list of the various attributes, perfectly suited for use in QSettings.
 
   \sa fromString()
@@ -1340,11 +1354,8 @@ QString QFont::toString() const
 }
 
 
-/*!
-  Sets this font to match the description \a descrip.  The description
-  is a comma-separated list of the attributes, as returned by toString().
-
-  \sa toString()
+/*! Sets this font to match the description \a descrip.  The description
+  is a comma-separated list of the font attributes, as returned by toString().
  */
 bool QFont::fromString(const QString &descrip)
 {
@@ -2072,8 +2083,8 @@ int QFontInfo::weight() const
   \sa weight(), QFont::bold()
 */
 
-/*!
-  Returns the underline value of the matched window system font.
+/*! Returns the underline value of the matched window system font.
+
   \sa QFont::underline()
 
   \internal
@@ -2087,8 +2098,8 @@ bool QFontInfo::underline() const
 }
 
 
-/*!
-  Returns the strike out value of the matched window system font.
+/*! Returns the strike out value of the matched window system font.
+
   \sa QFont::strikeOut()
 
   \internal Here we read the strikeOut flag directly from the QFont.
@@ -2100,9 +2111,9 @@ bool QFontInfo::strikeOut() const
 }
 
 
-/*!
-  Returns the fixed pitch value of the matched window system font.
+/*! Returns the fixed pitch value of the matched window system font.
   A fixed pitch font is a font that has constant character pixel width.
+
   \sa QFont::fixedPitch()
 */
 bool QFontInfo::fixedPitch() const
@@ -2111,8 +2122,7 @@ bool QFontInfo::fixedPitch() const
 }
 
 
-/*!
-  Returns the style of the matched window system font.
+/*! Returns the style of the matched window system font.
 
   Currently only returns the hint set in QFont.
 
@@ -2124,8 +2134,7 @@ QFont::StyleHint QFontInfo::styleHint() const
 }
 
 
-/*!
-  Returns TRUE if the font is a raw mode font.
+/*! Returns TRUE if the font is a raw mode font.
 
   If it is a raw mode font, all other functions in QFontInfo will return the
   same values set in the QFont, regardless of the font actually used.
@@ -2138,8 +2147,7 @@ bool QFontInfo::rawMode() const
 }
 
 
-/*!
-  Returns TRUE if the matched window system font is exactly the one specified
+/*! Returns TRUE if the matched window system font is exactly the one specified
   by the font.
 
   \sa QFont::exactMatch()
