@@ -34,9 +34,11 @@
     Use setMargin() to add space around the grid itself, and
     setSpacing() to add space between the widgets.
 
+    If you just need a layout (not a widget) use QGridLayout instead.
+
     \img qgrid-m.png QGrid
 
-    \sa QVBox QHBox QGridLayout
+    \sa QVBox QHBox
 */
 
 /*!

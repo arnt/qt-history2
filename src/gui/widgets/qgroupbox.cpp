@@ -76,7 +76,10 @@ public:
     box's child widgets.
 
     QGroupBox also lets you set the \l title (normally set in the
-    constructor) and the title's alignment().
+    constructor) and the title's alignment(). If setCheckable(true) is
+    called then the group box is checkable(), and it can be
+    setChecked(). Checkable group boxes child widgets are enabled or
+    disabled depending on whether or not the group box is checked().
 
     To minimize space consumption, you can remove the right, left and
     bottom edges of the frame with setFlat().
