@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.4 1997/09/30 14:02:58 warwick Exp $
+** $Id: index.doc,v 1.5 1997/12/12 19:01:41 warwick Exp $
 **
 ** Index page
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: index.doc,v 1.4 1997/09/30 14:02:58 warwick Exp $";
+static char ident[] = "$Id: index.doc,v 1.5 1997/12/12 19:01:41 warwick Exp $";
 #endif
 
 /*! \page index.html
@@ -52,7 +52,8 @@ WWW browser supporting the same protocol.
  <li>Read the <a href=annotated.html>plugin class documentation</a>, and
 	examine the <a href=examples.html>example plugins</a>.
  <li>Do most of your development as a stand-alone Qt application - debugging
-	Netscape Plugins is cumbersome.
+	Netscape Plugins is cumbersome.  You may want to use <tt>signal(2)</tt>
+	in your plugin to enable core-dumps if your browser disables them.
  <li>Note the platform-specific build steps below.
  <li>Read about the raw plugin interface
 	<a href=http://developer.netscape.com/library/documentation/communicator/plugin/index.htm>
