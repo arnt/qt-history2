@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#16 $
 **
 ** Implementation of QLocalFs class
 **
@@ -29,6 +29,8 @@
 #include "qurlinfo.h"
 #include "qapplication.h"
 #include "qurloperator.h"
+
+#define QLOCALFS_MAX_BYTES 1024
 
 // NOT REVISED
 
@@ -194,11 +196,32 @@ void QLocalFs::operationGet( QNetworkOperation *op )
     }
 
     QByteArray s;
-    s.resize( f.size() );
-    f.readBlock( s.data(), f.size() );
-    // #### todo progress
-    emit dataTransferProgress( f.size(), f.size(), op );
-    emit data( s, op );
+    emit dataTransferProgress( 0, f.size(), op );
+    if ( f.size() < QLOCALFS_MAX_BYTES ) {
+	s.resize( f.size() );
+	f.readBlock( s.data(), f.size() );
+	emit data( s, op );
+	emit dataTransferProgress( f.size(), f.size(), op );
+    } else {
+	s.resize( QLOCALFS_MAX_BYTES );
+	int remaining = f.size();
+	while ( remaining > 0 ) {
+	    if ( remaining >= QLOCALFS_MAX_BYTES ) {
+		f.readBlock( s.data(), QLOCALFS_MAX_BYTES );
+		emit data( s, op );
+		emit dataTransferProgress( f.size() - remaining, f.size(), op );
+		remaining -= QLOCALFS_MAX_BYTES;
+	    } else {
+		s.resize( remaining );
+		f.readBlock( s.data(), remaining );
+		emit data( s, op );
+		emit dataTransferProgress( f.size() - remaining, f.size(), op );
+		remaining -= remaining;
+	    }
+	    qApp->processEvents();
+	}
+	emit dataTransferProgress( f.size(), f.size(), op );
+    }
     op->setState( StDone );
     f.close();
     emit finished( op );
@@ -223,9 +246,23 @@ void QLocalFs::operationPut( QNetworkOperation *op )
 	return;
     }
 
-    f.writeBlock( op->rawArg2(), op->rawArg2().size() );
-    // #### todo progress
-    emit dataTransferProgress( op->rawArg2().size(), op->rawArg2().size(), op );
+    QByteArray ba( op->rawArg2() );
+    emit dataTransferProgress( 0, ba.size(), op );
+    if ( ba.size() < QLOCALFS_MAX_BYTES ) {
+	f.writeBlock( ba.data(), ba.size() );
+	emit dataTransferProgress( ba.size(), ba.size(), op );
+    } else {
+	int i = 0;
+	while ( i + QLOCALFS_MAX_BYTES < (int)ba.size() - 1 ) {
+	    f.writeBlock( &ba.data()[ i ], QLOCALFS_MAX_BYTES );
+	    emit dataTransferProgress( i + QLOCALFS_MAX_BYTES, ba.size(), op );
+	    i += QLOCALFS_MAX_BYTES;
+	    qApp->processEvents();
+	}
+	if ( i < (int)ba.size() - 1 )
+	    f.writeBlock( &ba.data()[ i ], ba.size() - i );
+	emit dataTransferProgress( ba.size(), ba.size(), op );
+    }
     op->setState( StDone );
     f.close();
     emit finished( op );

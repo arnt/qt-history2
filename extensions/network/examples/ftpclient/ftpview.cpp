@@ -68,7 +68,7 @@ FtpViewItem::FtpViewItem( QListView *parent, const QUrlInfo &i )
     : QListViewItem( parent, i.name() ), info( i )
 {
 }
-    
+
 QString FtpViewItem::key( int c, bool ) const
 {
     switch ( c ) {
@@ -88,7 +88,7 @@ QString FtpViewItem::key( int c, bool ) const
 	return s;
     }
     }
-    
+
     return text( c );
 }
 
@@ -102,10 +102,10 @@ QString FtpViewItem::text( int c ) const
     case 2:
 	return info.lastModified().toString();
     }
-    
+
     return "????";
 }
- 
+
 QPixmap *FtpViewItem::pixmap( int c ) const
 {
     if ( !folderIcon )
@@ -118,7 +118,7 @@ QPixmap *FtpViewItem::pixmap( int c ) const
 	return fileIcon;
     return 0;
 }
-    
+
 
 FtpView::FtpView( QWidget *parent )
     : QListView( parent )
@@ -126,6 +126,7 @@ FtpView::FtpView( QWidget *parent )
     addColumn( tr( "Name" ) );
     addColumn( tr( "Size" ) );
     addColumn( tr( "Last Modified" ) );
+    setColumnAlignment( 1, Qt::AlignRight );
     setShowSortIndicator( TRUE );
     setAllColumnsShowFocus( TRUE );
     setSelectionMode( Extended );
@@ -135,7 +136,7 @@ FtpView::FtpView( QWidget *parent )
     connect( this, SIGNAL( returnPressed( QListViewItem * ) ),
 	     this, SLOT( slotSelected( QListViewItem * ) ) );
 }
-    
+
 void FtpView::slotInsertEntry( const QUrlInfo &info )
 {
     if ( info.name() != ".." && info.name() != "." && info.name()[ 0 ] == '.' )
@@ -149,7 +150,7 @@ void FtpView::slotSelected( QListViewItem *item )
 {
     if ( !item )
 	return;
-    
+
     FtpViewItem *i = (FtpViewItem*)item;
     if ( i->entryInfo().isDir() )
 	emit itemSelected( i->entryInfo() );
@@ -164,6 +165,6 @@ QValueList<QUrlInfo> FtpView::selectedItems() const
 	    lst << ( (FtpViewItem*)it.current() )->entryInfo();
 	}
     }
-    
+
     return lst;
 }

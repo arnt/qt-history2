@@ -23,13 +23,14 @@
 #include <qprogressbar.h>
 #include <qdir.h>
 #include <qlinedialog.h>
+#include <qapplication.h>
 
 FtpMainWindow::FtpMainWindow()
     : QMainWindow(),
       localOperator( "/" )
 {
     setup();
-    
+
     connect( &localOperator, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
 	     leftView, SLOT( slotInsertEntry( const QUrlInfo & ) ) );
     connect( &localOperator, SIGNAL( start( QNetworkOperation * ) ),
@@ -60,17 +61,17 @@ void FtpMainWindow::setupLeftSide()
     QVBox *layout = new QVBox( splitter );
     layout->setSpacing( 5 );
     layout->setMargin( 5 );
-    
+
     QHBox *h = new QHBox( layout );
     h->setSpacing( 5 );
     QLabel *l = new QLabel( tr( "Local Path:" ), h );
     l->setFixedWidth( l->sizeHint().width() );
     localCombo = new QComboBox( TRUE, h );
     localCombo->insertItem( "/" );
-    
+
     connect( localCombo, SIGNAL( activated( const QString & ) ),
 	     this, SLOT( slotLocalDirChanged( const QString & ) ) );
-    
+
     leftView = new FtpView( layout );
 
     QHBox *bottom = new QHBox( layout );
@@ -81,7 +82,7 @@ void FtpMainWindow::setupLeftSide()
 	     this, SLOT( slotLocalMkdir() ) );
     connect( bRemove, SIGNAL( clicked() ),
 	     this, SLOT( slotLocalRemove() ) );
-    
+
     splitter->setResizeMode( layout, QSplitter::Stretch );
 }
 
@@ -102,7 +103,7 @@ void FtpMainWindow::setupRightSide()
     portSpin = new QSpinBox( 0, 32767, 1, h );
     portSpin->setValue( 21 );
     portSpin->setFixedWidth( portSpin->sizeHint().width() );
-    
+
     h = new QHBox( layout );
     h->setSpacing( 5 );
     l = new QLabel( tr( "Remote Path:" ), h );
@@ -119,9 +120,9 @@ void FtpMainWindow::setupRightSide()
     l->setFixedWidth( l->sizeHint().width() );
     passLined = new QLineEdit( h );
     passLined->setEchoMode( QLineEdit::Password );
-    
+
     rightView = new FtpView( layout );
-    
+
     QHBox *bottom = new QHBox( layout );
     bottom->setSpacing( 5 );
     QPushButton *bMkdir = new QPushButton( tr( "New Directory" ), bottom );
@@ -136,20 +137,20 @@ void FtpMainWindow::setupRightSide()
     connect( remotePathCombo, SIGNAL( activated( const QString & ) ),
 	     this, SLOT( slotRemoteDirChanged( const QString & ) ) );
 }
- 
+
 void FtpMainWindow::setupCenterCommandBar()
 {
     QVBox *w = new QVBox( splitter );
     splitter->setResizeMode( w, QSplitter::FollowSizeHint );
     w->setSpacing( 5 );
     w->setMargin( 5 );
-    
+
     QPushButton *bConnect = new QPushButton( tr( "&Connect" ), w );
     (void)new QWidget( w );
     QPushButton *bUpload = new QPushButton( tr( "== &Upload ==>" ), w );
     QPushButton *bDownload = new QPushButton( tr( "<== &Download ==" ), w );
     (void)new QWidget( w );
-    
+
     connect( bConnect, SIGNAL( clicked() ),
 	     this, SLOT( slotConnect() ) );
     connect( bUpload, SIGNAL( clicked() ),
@@ -165,12 +166,12 @@ void FtpMainWindow::setup()
     setupLeftSide();
     setupCenterCommandBar();
     setupRightSide();
-    
+
     progressLabel1 = new QLabel( tr( "No Operation in Progress" ), mainWidget );
     progressBar1 = new QProgressBar( mainWidget );
     progressLabel2 = new QLabel( tr( "No Operation in Progress" ), mainWidget );
     progressBar2 = new QProgressBar( mainWidget );
-    
+
     progressLabel1->hide();
     progressBar1->hide();
     progressLabel2->hide();
@@ -235,7 +236,7 @@ void FtpMainWindow::slotUpload()
     QValueList<QUrlInfo> files = leftView->selectedItems();
     if ( files.isEmpty() )
 	return;
-    
+
     QStringList lst;
     QValueList<QUrlInfo>::Iterator it = files.begin();
     for ( ; it != files.end(); ++it )
@@ -248,7 +249,7 @@ void FtpMainWindow::slotDownload()
     QValueList<QUrlInfo> files = rightView->selectedItems();
     if ( files.isEmpty() )
 	return;
-    
+
     QStringList lst;
     QValueList<QUrlInfo>::Iterator it = files.begin();
     for ( ; it != files.end(); ++it )
@@ -260,11 +261,12 @@ void FtpMainWindow::slotLocalStart( QNetworkOperation *op )
 {
     if ( !op )
 	return;
-    
+
     if ( op->operation() == QNetworkProtocol::OpListChildren )
 	leftView->clear();
-    else if ( op->operation() == QNetworkProtocol::OpGet ||
-	      op->operation() == QNetworkProtocol::OpPut ) {
+    else if ( op->operation() == QNetworkProtocol::OpGet ) {
+	progressBar1->setTotalSteps( 0 );
+	progressBar1->reset();
     }
 }
 
@@ -289,6 +291,9 @@ void FtpMainWindow::slotLocalFinished( QNetworkOperation *op )
 	localOperator.listChildren();
 	progressLabel1->hide();
 	progressBar1->hide();
+    } else if ( op->operation() == QNetworkProtocol::OpGet ) {
+	progressBar1->setTotalSteps( 0 );
+	progressBar1->reset();
     }
 
 }
@@ -300,6 +305,10 @@ void FtpMainWindow::slotRemoteStart( QNetworkOperation *op )
 
     if ( op->operation() == QNetworkProtocol::OpListChildren )
 	rightView->clear();
+    else if ( op->operation() == QNetworkProtocol::OpGet ) {
+	progressBar2->setTotalSteps( 0 );
+	progressBar2->reset();
+    }
 }
 
 void FtpMainWindow::slotRemoteFinished( QNetworkOperation *op )
@@ -329,25 +338,31 @@ void FtpMainWindow::slotRemoteFinished( QNetworkOperation *op )
 	remoteOperator.listChildren();
 	progressLabel2->hide();
 	progressBar2->hide();
+    } else if ( op->operation() == QNetworkProtocol::OpGet ) {
+	progressBar2->setTotalSteps( 0 );
+	progressBar2->reset();
     }
 }
 
-void FtpMainWindow::slotLocalDataTransferProgress( int bytesDone, int bytesTotal, 
+void FtpMainWindow::slotLocalDataTransferProgress( int bytesDone, int bytesTotal,
 						   QNetworkOperation *op )
 {
     if ( !op )
 	return;
-    
+
     if ( !progressBar1->isVisible() ) {
 	if ( bytesDone < bytesTotal) {
 	    progressLabel1->show();
 	    progressBar1->show();
+	    progressBar1->setTotalSteps( bytesTotal );
 	    progressBar1->setProgress( 0 );
+	    progressBar1->reset();
 	} else
 	    return;
     }
 
-    progressBar1->setTotalSteps( bytesTotal );
+    if ( progressBar1->totalSteps() == bytesTotal )
+	progressBar1->setTotalSteps( bytesTotal );
     
     if ( op->operation() == QNetworkProtocol::OpGet )
 	progressLabel1->setText( tr( "Read: %1" ).arg( op->arg1() ) );
@@ -355,11 +370,11 @@ void FtpMainWindow::slotLocalDataTransferProgress( int bytesDone, int bytesTotal
 	progressLabel1->setText( tr( "Write: %1" ).arg( op->arg1() ) );
     else
 	return;
-    
+
     progressBar1->setProgress( bytesDone );
 }
 
-void FtpMainWindow::slotRemoteDataTransferProgress( int bytesDone, int bytesTotal, 
+void FtpMainWindow::slotRemoteDataTransferProgress( int bytesDone, int bytesTotal,
 						    QNetworkOperation *op )
 {
     if ( !op )
@@ -369,20 +384,23 @@ void FtpMainWindow::slotRemoteDataTransferProgress( int bytesDone, int bytesTota
 	if ( bytesDone < bytesTotal) {
 	    progressLabel2->show();
 	    progressBar2->show();
+	    progressBar2->setTotalSteps( bytesTotal );
 	    progressBar2->setProgress( 0 );
+	    progressBar2->reset();
 	} else
 	    return;
     }
-    
-    progressBar2->setTotalSteps( bytesTotal );
-    
+
+    if ( progressBar2->totalSteps() != bytesTotal )
+	progressBar2->setTotalSteps( bytesTotal );
+
     if ( op->operation() == QNetworkProtocol::OpGet )
-	progressLabel2->setText( tr( "Read: %1" ).arg( op->arg2() ) );
+	progressLabel2->setText( tr( "Read: %1" ).arg( op->arg1() ) );
     else if ( op->operation() == QNetworkProtocol::OpPut )
-	progressLabel2->setText( tr( "Write: %1" ).arg( op->arg2() ) );
+	progressLabel2->setText( tr( "Write: %1" ).arg( op->arg1() ) );
     else
 	return;
-    
+
     progressBar2->setProgress( bytesDone );
 }
 
@@ -390,7 +408,7 @@ void FtpMainWindow::slotLocalMkdir()
 {
     bool ok = FALSE;
     QString name = QLineDialog::getText( tr( "Directory Name:" ), QString::null, &ok, this );
-    
+
     if ( !name.isEmpty() && ok )
 	localOperator.mkdir( name );
 }
@@ -403,7 +421,7 @@ void FtpMainWindow::slotRemoteMkdir()
 {
     bool ok = FALSE;
     QString name = QLineDialog::getText( tr( "Directory Name:" ), QString::null, &ok, this );
-    
+
     if ( !name.isEmpty() && ok )
 	remoteOperator.mkdir( name );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#21 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#22 $
 **
 ** Implementation of Network Extension Library
 **
@@ -56,6 +56,7 @@ protected:
     bool connectionReady, passiveMode;
     int getTotalSize, getDoneSize;
     bool startGetOnFail;
+    int putToWrite, putWritten, putOffset;
     
 private:
     bool checkConnection( QNetworkOperation *op );
@@ -76,7 +77,8 @@ protected slots:
     void dataConnected();
     void dataClosed();
     void dataReadyRead();
-
+    void dataBytesWritten( int nbytes );
+    
 };
 
 #endif
