@@ -530,7 +530,7 @@ void VcprojGenerator::initLinkerTool()
 	break;
     case SharedLib:
 	vcProject.Configuration.linker.parseOptions( project->variables()["MSVCPROJ_LIBOPTIONS"] );
-	vcProject.Configuration.linker.OutputFile = project->first( "DLLDESTDIR" );
+	vcProject.Configuration.linker.OutputFile = project->first( "DESTDIR" );
 	break;
     case StaticLib: //unhandled - added to remove warnings..
 	break;
@@ -543,7 +543,6 @@ void VcprojGenerator::initLinkerTool()
     	vcProject.Configuration.linker.OutputFile += '\\';
 
     vcProject.Configuration.linker.OutputFile += project->first("MSVCPROJ_TARGET");
-    vcProject.Configuration.linker.ProgramDatabaseFile = project->first("OBJECTS_DIR") + project->first("QMAKE_ORIG_TARGET") + ".pdb";
 
     if ( project->isActiveConfig("debug") ){
 	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_DEBUG"] );
@@ -599,6 +598,12 @@ void VcprojGenerator::initPostBuildEventTools()
     if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() ) {
 	vcProject.Configuration.postBuild.Description = var("QMAKE_POST_LINK");
 	vcProject.Configuration.postBuild.CommandLine = var("QMAKE_POST_LINK");
+    }
+    if ( !project->variables()["MSVCPROJ_COPY_DLL"].isEmpty() ) {
+	if ( !vcProject.Configuration.postBuild.CommandLine.isEmpty() )
+	    vcProject.Configuration.postBuild.CommandLine += " && ";
+	vcProject.Configuration.postBuild.Description += var("MSVCPROJ_COPY_DLL_DESC");
+	vcProject.Configuration.postBuild.CommandLine += var("MSVCPROJ_COPY_DLL");
     }
     if( project->isActiveConfig( "activeqt" ) ) {
 	QString name = project->first( "QMAKE_ORIG_TARGET" );
@@ -939,6 +944,15 @@ void VcprojGenerator::initOld()
     if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
 
+    // /VERSION:x.yz -------------------------------------------------
+    if ( !project->variables()["VERSION"].isEmpty() ) {
+	QString version = project->variables()["VERSION"][0];
+	int firstDot = version.find( "." );
+	QString major = version.left( firstDot );
+	QString minor = version.right( version.length() - firstDot - 1 );
+	minor.replace( ".", "" );
+	project->variables()["QMAKE_LFLAGS"].append( "/VERSION:" + major + "." + minor );
+    }
 
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     // Update -lname to name.lib, and -Ldir to
@@ -1050,31 +1064,27 @@ void VcprojGenerator::initOld()
     if ( project->first("TARGET").startsWith("$(QTDIR)") )
 	dest.replace( QRegExp("\\$\\(QTDIR\\)"), getenv("QTDIR") );
     project->variables()["MSVCPROJ_TARGET"] = dest;
-    if ( project->isActiveConfig("dll") ) {
-	QString imp = project->first( "DESTDIR" );
-	if( !imp.isNull() && !imp.endsWith( "\\" ) )
-	    imp += "\\";
-	imp += dest;
-	imp.replace(QRegExp("\\.dll"), ".lib");
-	project->variables()["MSVCPROJ_LIBOPTIONS"] += QString("/IMPLIB:") + imp;
-    }
 
     // DLL COPY ------------------------------------------------------
     if ( project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty() ) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
-	QString copydll = "# Begin Special Build Tool\n"
-			"TargetPath=" + dest + "\n"
-			"SOURCE=$(InputPath)\n"
-			"PostBuild_Desc=Copy DLL to " + project->first("DLLDESTDIR") + "\n"
-			"PostBuild_Cmds=";
-
+	QString copydll("");
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
-	    copydll += "copy \"" + dest + "\" \"" + *dlldir + "\"\t";
+	    if ( !copydll.isEmpty() )
+		copydll += " && ";
+	    copydll += "copy -Y &quot;" + dest + "&quot; &quot;" + *dlldir + "&quot;";
 	}
 
-	copydll += "\n# End Special Build Tool";
-	project->variables()["MSVCPROJ_COPY_DLL_REL"].append( copydll );
-	project->variables()["MSVCPROJ_COPY_DLL_DBG"].append( copydll );
+	QString deststr( "Copy " + dest + " to " );
+	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ) {
+	    deststr += *dlldir;
+	    ++dlldir;
+	    if ( dlldir != dlldirs.end() )
+		deststr += ", ";
+	}
+
+	project->variables()["MSVCPROJ_COPY_DLL"].append( copydll );
+	project->variables()["MSVCPROJ_COPY_DLL_DESC"].append( deststr );
     }
 
     // ACTIVEQT ------------------------------------------------------

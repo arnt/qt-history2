@@ -957,7 +957,7 @@ VCLinkerTool::VCLinkerTool()
 	IgnoreImportLibrary( unset ),
 	LargeAddressAware( addrAwareDefault ),
 	LinkDLL( unset ),
-	LinkIncremental( linkIncrementalYes ),
+	LinkIncremental( linkIncrementalDefault ),
 	LinkTimeCodeGeneration( unset ),
 	MapExports( unset ),
 	MapLines( unset ),
@@ -1019,7 +1019,7 @@ QTextStream &operator<<( QTextStream &strm, const VCLinkerTool &tool )
     if ( tool.OptimizeForWindows98 != optWin98Default )	    strm << EPair( _OptimizeForWindows98, tool.OptimizeForWindows98 );
     if ( tool.OptimizeReferences != optReferencesDefault )  strm << EPair( _OptimizeReferences, tool.OptimizeReferences );
     strm << SPair( _OutputFile, tool.OutputFile );
-    strm << SPair( _ProgramDatabaseFile, tool.ProgramDatabaseFile );
+    strm << _ProgramDatabaseFile << tool.ProgramDatabaseFile << "\"";
     strm << TPair( _RegisterOutput, tool.RegisterOutput );
     strm << TPair( _ResourceOnlyDLL, tool.ResourceOnlyDLL );
     strm << TPair( _SetChecksum, tool.SetChecksum );
