@@ -200,7 +200,10 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
 
     bool showGrid = d->showGrid;
     int gridSize = showGrid ? 1 : 0;
-    QPen gridPen = QPen(colorGroup().foreground(), 0, d->gridStyle);
+    int gridHint = style().styleHint(QStyle::SH_Table_GridLineColor, this);
+    QColor gridColor = gridHint != -1 ? static_cast<QRgb>(gridHint) : colorGroup().mid();
+    QPen gridPen = QPen(gridColor, 0, d->gridStyle);
+    
     QItemSelectionModel *sels = selectionModel();
     QGenericHeader *leftHeader = d->leftHeader;
     QGenericHeader *topHeader = d->topHeader;
