@@ -769,13 +769,14 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		pendingFormats.remove( f );
 	    }
 	} else {
-	    pos++;
 	    if ( paraState == OutsidePara ) {
 		if ( !ch.isSpace() ) {
 		    enterPara();
 		    appendChar( ch );
 		}
+		pos++;
 	    } else {
+		pos++;
 		if ( ch == '\n' ) {
 		    if ( paraState == InsideSingleLinePara || isBlankLine() ) {
 			leavePara();
