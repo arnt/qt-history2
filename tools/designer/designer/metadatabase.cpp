@@ -1050,6 +1050,25 @@ QString MetaDataBase::eventFunction( QObject *o, const QString &event )
     return *r->eventFunctions.find( event );
 }
 
+QString MetaDataBase::eventOfFunction( QObject *o, const QString &func )
+{
+    if ( !o )
+	return QString::null;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QString::null;
+    }
+
+    for ( QMap<QString, QString>::Iterator it = r->eventFunctions.begin(); it != r->eventFunctions.end(); ++it ) {
+	if ( NormalizeObject::normalizeSignalSlot( *it ) == NormalizeObject::normalizeSignalSlot( func ) )
+	    return it.key();
+    }
+    return QString::null;
+}
+
 void MetaDataBase::setEditor( bool b )
 {
     editorInstalled = b;

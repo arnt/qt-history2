@@ -194,6 +194,7 @@ public:
     static QValueList<EventDescription> events( QObject *o );
     static bool setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function );
     static QString eventFunction( QObject *o, const QString &event );
+    static QString eventOfFunction( QObject *o, const QString &func );
     static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies );
     static QMap<QString, QString> functionBodies( QObject *o );
 

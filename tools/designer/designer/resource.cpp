@@ -209,6 +209,10 @@ bool Resource::load( QIODevice* dev, const QString& filename )
     while ( toolbars.tagName() != "toolbars" && !toolbars.isNull() )
 	toolbars = toolbars.nextSibling().toElement();
 
+    QDomElement functions = firstWidget;
+    while ( functions.tagName() != "functions" && !functions.isNull() )
+	functions = functions.nextSibling().toElement();
+
     if ( !imageCollection.isNull() )
 	loadImageCollection( imageCollection );
     if ( !customWidgets.isNull() )
@@ -225,6 +229,8 @@ bool Resource::load( QIODevice* dev, const QString& filename )
 
     if ( !connections.isNull() )
 	loadConnections( connections );
+    if ( !functions.isNull() )
+	loadFunctions( functions );
     if ( !tabOrder.isNull() )
 	loadTabOrder( tabOrder );
 
@@ -280,6 +286,7 @@ bool Resource::save( QIODevice* dev )
 	saveImageCollection( ts, 0 );
     if ( !MetaDataBase::connections( formwindow ).isEmpty() || !MetaDataBase::slotList( formwindow ).isEmpty() )
 	saveConnections( ts, 0 );
+    saveFunctions( ts, 0 );
     saveTabOrder( ts, 0 );
     ts << "</UI>" << endl;
 
@@ -2030,4 +2037,37 @@ void Resource::loadToolBars( const QDomElement &e )
 	}
 	n = n.nextSibling().toElement();
     }
+}
+
+void Resource::saveFunctions( QTextStream &ts, int indent )
+{
+    QMap<QString, QString> functionBodies = MetaDataBase::functionBodies( formwindow );
+    if ( functionBodies.isEmpty() )
+	return;
+    ts << makeIndent( indent ) << "<functions>" << endl;
+    ++indent;
+    for ( QMap<QString, QString>::Iterator it = functionBodies.begin(); it != functionBodies.end(); ++it ) {
+	ts << makeIndent( indent ) << "<function name=\"" << entitize( it.key() ) << "\" ";
+	QString event = MetaDataBase::eventOfFunction( formwindow, it.key() );
+	if ( !event.isEmpty() )
+	    ts << "event=\"" << entitize( event ) << "\"";
+	ts << ">" << entitize( *it ) << "</function>" << endl;
+    }
+    --indent;
+    ts << makeIndent( indent ) << "</functions>" << endl;
+}
+
+void Resource::loadFunctions( const QDomElement &e )
+{
+    QDomElement n = e.firstChild().toElement();
+    QMap<QString, QString> bodies;
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "function" ) {
+	    QString name = n.attribute( "name" );
+	    QString body = n.firstChild().toText().data();
+	    bodies.insert( name, body );
+	}
+	n = n.nextSibling().toElement();
+    }
+    MetaDataBase::setFunctionBodies( formwindow, bodies );
 }

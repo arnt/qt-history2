@@ -91,6 +91,7 @@ private:
     void savePixmap( const QPixmap &p, QTextStream &ts, int indent );
     void saveActions( const QList<QAction> &actions, QTextStream &ts, int indent );
     void saveToolBars( QMainWindow *mw, QTextStream &ts, int indent );
+    void saveFunctions( QTextStream &ts, int indent );
 
     QObject *createObject( const QDomElement &e, QWidget *parent, QLayout* layout = 0, const QString& className = QString::null );
     QWidget *createSpacer( const QDomElement &e, QWidget *parent, QLayout *layout, Qt::Orientation o );
@@ -109,6 +110,7 @@ private:
     void loadToolBars( const QDomElement &n );
     QColorGroup loadColorGroup( const QDomElement &e );
     QPixmap loadPixmap( const QDomElement &e );
+    void loadFunctions( const QDomElement &e );
 
 private:
     MainWindow *mainwindow;

@@ -1397,6 +1397,8 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 
 bool MainWindow::fileSave()
 {
+    if ( sourceEditors.first() )
+	sourceEditors.first()->save();
     if ( !formWindow() )
 	return FALSE;
     if ( formWindow()->fileName().isEmpty() ) {

@@ -357,16 +357,19 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 	    switch ( type ) {
 	    case HBox:
 		l = new QHBoxLayout( layout );
+		MetaDataBase::addEntry( l );
 		l->setSpacing( spacing );
 		l->setMargin( margin );
 		return l;
 	    case VBox:
 		l = new QVBoxLayout( layout );
+		MetaDataBase::addEntry( l );
 		l->setSpacing( spacing );
 		l->setMargin( margin );
 		return l;
 	    case Grid: {
 		l = new QDesignerGridLayout( layout );
+		MetaDataBase::addEntry( l );
 		l->setSpacing( spacing );
 		l->setMargin( margin );
 		return l;
@@ -379,6 +382,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 	    switch ( type ) {
 	    case HBox:
 		l = new QHBoxLayout( widget );
+		MetaDataBase::addEntry( l );
 		if ( widget ) {
 		    MetaDataBase::setMargin( widget, margin );
 		    MetaDataBase::setSpacing( widget, spacing );
@@ -389,6 +393,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 		return l;
 	    case VBox:
 		l = new QVBoxLayout( widget );
+		MetaDataBase::addEntry( l );
 		if ( widget ) {
 		    MetaDataBase::setMargin( widget, margin );
 		    MetaDataBase::setSpacing( widget, spacing );
@@ -399,6 +404,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 		return l;
 	    case Grid: {
 		l = new QDesignerGridLayout( widget );
+		MetaDataBase::addEntry( l );
 		if ( widget ) {
 		    MetaDataBase::setMargin( widget, margin );
 		    MetaDataBase::setSpacing( widget, spacing );
