@@ -38,13 +38,10 @@
 HelpWindow::HelpWindow( const QString& home_, const QString& _path,
 			QWidget* parent, const char *name )
     : QMainWindow( parent, name, WDestructiveClose ),
-      pathCombo( 0 ), selectedURL(),
-      path( QFileInfo( home_ ).dirPath( TRUE ), "*.html *.htm" )
+      pathCombo( 0 ), selectedURL()
 {
     readHistory();
     readBookmarks();
-
-    fileList = path.entryList();
 
     browser = new QTextBrowser( this );
     browser->mimeSourceFactory()->setFilePath( _path );
@@ -70,14 +67,19 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
     file->insertItem( tr("&Close"), this, SLOT( close() ), ALT | Key_Q );
     file->insertItem( tr("E&xit"), qApp, SLOT( closeAllWindows() ), ALT | Key_X );
 
+    // The same three icons are used twice each.
+    QIconSet icon_back( QPixmap("back.xpm") );
+    QIconSet icon_forward( QPixmap("forward.xpm") );
+    QIconSet icon_home( QPixmap("home.xpm") );
+
     QPopupMenu* go = new QPopupMenu( this );
-    backwardId = go->insertItem( QPixmap("back.xpm"),
+    backwardId = go->insertItem( icon_back,
 				 tr("&Backward"), browser, SLOT( backward() ),
 				 ALT | Key_Left );
-    forwardId = go->insertItem( QPixmap("forward.xpm"),
+    forwardId = go->insertItem( icon_forward,
 				tr("&Forward"), browser, SLOT( forward() ),
 				ALT | Key_Right );
-    go->insertItem( QPixmap("home.xpm"), tr("&Home"), browser, SLOT( home() ) );
+    go->insertItem( icon_home, tr("&Home"), browser, SLOT( home() ) );
 
     QPopupMenu* help = new QPopupMenu( this );
     help->insertItem( tr("&About ..."), this, SLOT( about() ) );
@@ -119,13 +121,13 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
     addToolBar( toolbar, "Toolbar");
     QToolButton* button;
 
-    button = new QToolButton( QPixmap("back.xpm"), tr("Backward"), "", browser, SLOT(backward()), toolbar );
+    button = new QToolButton( icon_back, tr("Backward"), "", browser, SLOT(backward()), toolbar );
     connect( browser, SIGNAL( backwardAvailable(bool) ), button, SLOT( setEnabled(bool) ) );
     button->setEnabled( FALSE );
-    button = new QToolButton( QPixmap("forward.xpm"), tr("Forward"), "", browser, SLOT(forward()), toolbar );
+    button = new QToolButton( icon_forward, tr("Forward"), "", browser, SLOT(forward()), toolbar );
     connect( browser, SIGNAL( forwardAvailable(bool) ), button, SLOT( setEnabled(bool) ) );
     button->setEnabled( FALSE );
-    button = new QToolButton( QPixmap("home.xpm"), tr("Home"), "", browser, SLOT(home()), toolbar );
+    button = new QToolButton( icon_home, tr("Home"), "", browser, SLOT(home()), toolbar );
 
     toolbar->addSeparator();
 
@@ -163,8 +165,6 @@ void HelpWindow::textChanged()
 
     selectedURL = caption();
     if ( !selectedURL.isEmpty() && pathCombo ) {
-	path = QDir( QFileInfo( selectedURL ).dirPath( TRUE ), "*.html *.htm" );
-	fileList = path.entryList();
 	bool exists = FALSE;
 	int i;
 	for ( i = 0; i < pathCombo->count(); ++i ) {
@@ -225,9 +225,11 @@ void HelpWindow::aboutQt()
 
 void HelpWindow::openFile()
 {
+#if QT_FEATURE_FILEDIALOG 
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
 	browser->setSource( fn );
+#endif
 }
 
 void HelpWindow::newWindow()
@@ -237,6 +239,7 @@ void HelpWindow::newWindow()
 
 void HelpWindow::print()
 {
+#if QT_FEATURE_PRINTER
     QPrinter printer;
     printer.setFullPage(TRUE);
     if ( printer.setup() ) {
@@ -267,13 +270,12 @@ void HelpWindow::print()
 	    page++;
 	} while (TRUE);
     }
+#endif
 }
 
 void HelpWindow::pathSelected( const QString &_path )
 {
     browser->setSource( _path );
-    path = QDir( QFileInfo( _path ).dirPath( TRUE ), "*.html *.htm" );
-    fileList = path.entryList();
     QMap<int, QString>::Iterator it = mHistory.begin();
     bool exists = FALSE;
     for ( ; it != mHistory.end(); ++it ) {

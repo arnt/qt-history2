@@ -51,8 +51,7 @@ private:
     QComboBox *pathCombo;
     int backwardId, forwardId;
     QString selectedURL;
-    QDir path;
-    QStringList fileList, history, bookmarks;
+    QStringList history, bookmarks;
     QMap<int, QString> mHistory, mBookmarks;
     QPopupMenu *hist, *bookm;
     
