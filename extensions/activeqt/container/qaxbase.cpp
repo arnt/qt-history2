@@ -506,10 +506,6 @@ public:
     {
         // protect initialization
         QMutexLocker locker(&cache_mutex);
-        if (!mo_cache_ref) {
-            qRegisterMetaType("IUnknown*", &ptr);
-            qRegisterMetaType("IDispatch*", &disp);
-        }
         mo_cache_ref++;
     }
 
@@ -3251,7 +3247,8 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
                     qvar = *(QVariant*)v[0];
                     proptype = 0;
                 } else if (t == QVariant::UserType) {
-                    qVariantSet(qvar, *(void**)v[0], prop.typeName());
+                    qvar = QVariant(qRegisterMetaType<void*>(prop.typeName()), (void**)v[0]);
+//                    qVariantSet(qvar, *(void**)v[0], prop.typeName());
                 } else {
                     proptype = 0;
                     qvar = QCoreVariant(t, v[0]);
@@ -3338,9 +3335,9 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
             qvar = QVariant(vt, v[p + 1]);
         if (!qvar.isValid()) {
             if (type == "IDispatch*")
-                qVariantSet(qvar, *(IDispatch**)v[p+1], "IDispatch*");
+                qVariantSet(qvar, *(IDispatch**)v[p+1]);
             else if (type == "IUnknown*")
-                qVariantSet(qvar, *(IUnknown**)v[p+1], "IUnknown*");
+                qVariantSet(qvar, *(IUnknown**)v[p+1]);
             else if (type == "QVariant")
                 qvar = *(QVariant*)v[p + 1];
             else if (mo->indexOfEnumerator(type) != -1)
@@ -3518,7 +3515,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
                 QChar cc = *c;
                 ++c;
                 ++index;
-                switch(cc.latin1()) {
+                switch(cc.toLatin1()) {
                 case 'n':
                     if (inEscape)
                         cc = '\n';
@@ -3880,7 +3877,8 @@ QAxObject *QAxBase::querySubObject(const char *name, QList<QVariant> &vars)
                 object = new QAxObject(res.pdispVal, qObject());
             } else if (QMetaType::type(rettype)) {
                 QVariant qvar = VARIANTToQVariant(res, rettype, 0);
-                qVariantGet(qvar, object, rettype);
+                object = *(QAxObject**)qvar.constData();
+//                qVariantGet(qvar, object, rettype);
                 res.pdispVal->AddRef();
             }
             ((QAxBase*)object)->d->tryCache = true;
@@ -3892,7 +3890,8 @@ QAxObject *QAxBase::querySubObject(const char *name, QList<QVariant> &vars)
                 object = new QAxObject(res.punkVal, qObject());
             } else if (QMetaType::type(rettype)) {
                 QVariant qvar = VARIANTToQVariant(res, rettype, 0);
-                qVariantGet(qvar, object, rettype);
+                object = *(QAxObject**)qvar.constData();
+//                qVariantGet(qvar, object, rettype);
                 res.punkVal->AddRef();
             }
             ((QAxBase*)object)->d->tryCache = true;
@@ -4119,13 +4118,15 @@ QVariant QAxBase::asVariant() const
     QByteArray cn(className());
     if (cn == "QAxObject" || cn == "QAxBase") {
         if (d->dispatch())
-            qVariantSet(qvar, d->dispatch(), "IDispatch*");
+            qVariantSet(qvar, d->dispatch());
         else if (d->ptr)
-            qVariantSet(qvar, d->ptr, "IUnknown*");
+            qVariantSet(qvar, d->ptr);
     } else {
         cn = cn.mid(cn.lastIndexOf(':') + 1);
+        QObject *object = qObject();
         if (QMetaType::type(cn))
-            qVariantSet(qvar, qObject(), cn + "*");
+            qvar = QVariant(qRegisterMetaType<QObject*>(cn + "*"), &object);
+//            qVariantSet(qvar, qObject(), cn + "*");
     }
 
     return qvar;

@@ -18,11 +18,14 @@
 #include <QtCore/quuid.h>
 #include <QtCore/qfactoryinterface.h>
 #include <QtCore/qmetaobject.h>
+#include <QtCore/qmetatype.h>
 #include <QtCore/qstringlist.h>
+
 
 class QWidget;
 struct QMetaObject;
 class QSettings;
+struct IUnknown;
 struct IDispatch;
 
 class QAxFactory
@@ -179,6 +182,7 @@ public:
 
 #define QAXCLASS(Class) \
             factory = new QAxClass<Class>(typeLibID(), appID()); \
+            qRegisterMetaType<Class*>(#Class"*"); \
             keys = factory->featureList(); \
             for (it = keys.begin(); it != keys.end(); ++it) { \
                 factoryKeys += *it; \
@@ -188,6 +192,7 @@ public:
 
 #define QAXTYPE(Class) \
             factory = new QAxClass<Class>(typeLibID(), appID()); \
+            qRegisterMetaType<Class*>(#Class"*"); \
             keys = factory->featureList(); \
             for (it = keys.begin(); it != keys.end(); ++it) { \
                 factoryKeys += *it; \
@@ -248,5 +253,8 @@ public:
         return impl;					\
     }
 
+
+Q_DECLARE_METATYPE(IUnknown*)
+Q_DECLARE_METATYPE(IDispatch*)
 
 #endif // QAXFACTORY_H

@@ -24,6 +24,7 @@
 #include <QtGui/qvariant.h>
 
 struct IUnknown;
+struct IDispatch;
 struct QUuid;
 class QAxEventSink;
 class QAxObject;
@@ -178,5 +179,8 @@ inline QDataStream &operator <<(QDataStream &s, const QAxBase &c)
     return s;
 }
 #endif // QT_NO_DATASTREAM
+
+Q_DECLARE_METATYPE(IUnknown*)
+Q_DECLARE_METATYPE(IDispatch*)
 
 #endif // QAXBASE_H

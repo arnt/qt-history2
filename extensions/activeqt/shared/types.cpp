@@ -573,8 +573,8 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
 #ifdef QAX_SERVER
             } else if (qAxFactory()->metaObject(subType)) {
                 arg.vt = VT_DISPATCH;
-                void *user;
-                qVariantGet(qvar, user, qvar.typeName());
+                void *user = *(void**)qvar.constData();
+//                qVariantGet(qvar, user, qvar.typeName());
                 if (!user) {
                     arg.pdispVal = 0;
                 } else {
@@ -582,8 +582,8 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
                 }
 #else
             } else if (QMetaType::type(subType)) {
-                QAxObject *object = 0;
-                qVariantGet(qvar, object, subType);
+                QAxObject *object = *(QAxObject**)qvar.constData();
+//                qVariantGet(qvar, object, subType);
                 arg.vt = VT_DISPATCH;
                 object->queryInterface(IID_IDispatch, (void**)&arg.pdispVal);
 #endif
@@ -689,7 +689,8 @@ bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeN
         *(QPoint*)data = var.toPoint();
         break;
     case QVariant::UserType:
-        qVariantGet(var, *(void**)data, typeName);
+        *(void**)data = *(void**)var.constData();
+//        qVariantGet(var, *(void**)data, typeName);
         break;
     default:
         qWarning("QVariantToVoidStar: Unhandled QVariant type.");
@@ -878,22 +879,27 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
                 if (iface) {
                     QObject *qObj = iface->qObject();
                     iface->Release();
-                    qVariantSet(var, qObj, qObj ? QByteArray(qObj->metaObject()->className()) + "*" : typeName);
+                    var = QVariant(qRegisterMetaType<QObject*>(qObj ? QByteArray(qObj->metaObject()->className()) + "*" : typeName), &qObj);
+//                    qVariantSet(var, qObj, qObj ? QByteArray(qObj->metaObject()->className()) + "*" : typeName);
                 } else
 #endif
                 {
                     if (!typeName.isEmpty()) {
                         if (arg.vt & VT_BYREF) {
-                            qVariantSet(var, arg.ppdispVal, "IDispatch**");
+                            var = QVariant(qRegisterMetaType<IDispatch**>("IDispatch**"), &arg.ppdispVal);
+//                            qVariantSet(var, arg.ppdispVal, "IDispatch**");
                         } else {
 #ifndef QAX_SERVER
                             if (typeName != "IDispatch*" && QMetaType::type(typeName)) {
                                 int metaType = QMetaType::type(typeName.left(typeName.lastIndexOf('*')));
                                 Q_ASSERT(metaType != 0);
-                                qVariantSet(var, qax_createObjectWrapper(metaType, disp), typeName);
+                                QAxObject *object = (QAxObject*)qax_createObjectWrapper(metaType, disp);
+                                var = QVariant(QMetaType::type(typeName), &object);
+//                                qVariantSet(var, qax_createObjectWrapper(metaType, disp), typeName);
                             } else
 #endif
-                                qVariantSet(var, disp, typeName);
+                                var = QVariant(qRegisterMetaType<IDispatch*>(typeName), &disp);
+//                                qVariantSet(var, disp, typeName);
                         }
                     }
                 }
@@ -908,7 +914,8 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
                 unkn = *arg.ppunkVal;
             else
                 unkn = arg.punkVal;
-            qVariantSet(var, unkn, "IUnknown*");
+            qVariantSet(var, unkn);
+//            qVariantSet(var, unkn, "IUnknown*");
         }
         break;
     case VT_ARRAY|VT_VARIANT:

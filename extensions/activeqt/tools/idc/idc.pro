@@ -2,7 +2,7 @@ TEMPLATE        = app
 TARGET          = idc
 
 CONFIG         += console warn_off qtinc
-CONFIG	       -= qt
+QT =
 DESTDIR         = ../../../../bin
 
 DEFINES        += QT_NO_THREAD QT_LITE_UNICODE QT_NO_CODECS QT_NO_COMPONENT QT_NO_STL QT_NODLL QT_NO_DATASTREAM \
@@ -28,7 +28,8 @@ SOURCES		+= ../../../../src/core/global/qglobal.cpp \
                ../../../../src/core/tools/qvsnprintf.cpp \
                ../../../../src/core/kernel/qinternal.cpp
 
-SOURCES		+= ../../../../src/core/io/qdir.cpp \
+SOURCES		+= ../../../../src/core/io/qbufferedfsfileengine.cpp \
+               ../../../../src/core/io/qdir.cpp \
                ../../../../src/core/io/qfile.cpp \
                ../../../../src/core/io/qfileinfo.cpp \
                ../../../../src/core/io/qfileengine.cpp \

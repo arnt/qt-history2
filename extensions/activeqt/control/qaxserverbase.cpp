@@ -2009,9 +2009,11 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
                         QVariant::Type vt = QVariant::nameToType(ptype);
                         if (vt == QVariant::UserType) {
                             if (ptype.endsWith('*')) {
-                                qVariantSet(variant, *(void**)(argv[p + 1]), ptype);
+                                variant = QVariant(QMetaType::type(ptype), (void**)argv[p+1]);
+//                                qVariantSet(variant, *(void**)(argv[p + 1]), ptype);
                             } else {
-                                qVariantSet(variant, argv[p + 1], ptype);
+                                variant = QVariant(QMetaType::type(ptype), argv[p+1]);
+//                                qVariantSet(variant, argv[p + 1], ptype);
                             }
                         } else {
                             variant = QVariant(vt, argv[p + 1]);
@@ -2461,7 +2463,8 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		}
                 if (!type.isEmpty() && pvarResult) {
                     if (!varp[0].isValid() && type != "QVariant")
-                        qVariantSet(varp[0], argv_pointer[0], type);
+                        varp[0] = QVariant(QMetaType::type(type), argv_pointer);
+//                        qVariantSet(varp[0], argv_pointer[0], type);
 		    ok = QVariantToVARIANT(varp[0], *pvarResult, type);
                 }
 	    }
