@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#93 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#93 $");
 
 
 /*!
@@ -815,9 +815,7 @@ void QComboBox::internalClickTimeout()
 void QComboBox::setBackgroundColor( const QColor &color )
 {
     QWidget::setBackgroundColor( color );
-    if ( d->usingListBox )
-	d->listBox->setBackgroundColor( color );
-    else
+    if ( !d->usingListBox )
 	d->popup->setBackgroundColor( color );
 }
 
@@ -1095,26 +1093,14 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 {
     int c;
     switch ( e->key() ) {
-    case Key_Return:
-    case Key_Enter:
-	if ( style() == MotifStyle ) {
-	    e->ignore();
-	    break;
-	}
-	// fall through for motif
+    case Key_Space:
 	e->accept();
 	popup();
-	break;
-    case Key_Space:
-	if ( d->usingListBox ) {
-	    e->accept();
-	    popup();
-	}
 	break;
     case Key_Left:
 	if ( style() != WindowsStyle ) {
 	    e->ignore();
-	    break;
+	    return;
 	}
 	// fall through for windows
     case Key_Up:
@@ -1128,7 +1114,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
     case Key_Right:
 	if ( style() == MotifStyle ) {
 	    e->ignore();
-	    break;
+	    return;
 	}
 	// fall through for windows
     case Key_Down:
@@ -1141,8 +1127,13 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	break;
     default:
 	e->ignore();
-	break;
+	return;
     }
+
+    c = currentItem();
+    if ( text( c ) )
+	emit activated( text( c ) );
+    emit activated( c );
 }
 
 
@@ -1272,17 +1263,23 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		    setCurrentItem( c-1 );
 		else
 		    setCurrentItem( count()-1 );
-		return TRUE;
+		break;
 	    case Key_Down:
 		c = currentItem();
 		if ( ++c < count() )
 		    setCurrentItem( c );
 		else
 		    setCurrentItem( 0 );
-		return TRUE;
+		break;
 	    default:
+		return FALSE;
 		break;
 	    }
+	    c = currentItem();
+	    if ( text( c ) )
+		emit activated( text( c ) );
+	    emit activated( c );
+	    return TRUE;
 	} else if ( (event->type() == Event_FocusIn ||
 		     event->type() == Event_FocusOut ) ) {
 	    // to get the focus indication right
