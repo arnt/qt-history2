@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#66 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#66 $");
 
 
 /*!
@@ -207,29 +207,30 @@ QColor::QColor( const QColor &c )
     pix	   = c.pix;
 }
 
+
 /*!
   Sets the RGB value to that of the named color.
 
   The "#RRGGBB" color format is supported on all platforms, where
   RR, GG, and BB and hex digits.
 
-  Under X11, this function also searches the X color database for the
-  color and sets the RGB value.  The color will be set to invalid if
-  such a color does not exist.  
+  A color name may also be a color in the X color database (rgb.txt) ,
+  e.g.  "steelblue" or "gainsboro".  The X color names also work under
+  Qt for Windows.
 */
 
 void QColor::setNamedColor( const char *name )
 {
-    if ( !name ) {
-	setRgb(0,0,0);
-    } if ( name[0]=='#' ) {
+    if ( strlen(name) == 0 ) {
+	setRgb( 0, 0, 0 );
+    } else if ( name[0]=='#' ) {
 	QString hex = name+1;
 	int bpc = (strlen(name)-1)/3;
 	int i=0;
 	int r = strtol(hex.mid(i,bpc),0,16)*256/(1<<(4*bpc)); i+=bpc;
 	int g = strtol(hex.mid(i,bpc),0,16)*256/(1<<(4*bpc)); i+=bpc;
 	int b = strtol(hex.mid(i,bpc),0,16)*256/(1<<(4*bpc));
-	setRgb(r,g,b);
+	setRgb( r, g, b );
     } else {
 	setSystemNamedColor( name );
     }
