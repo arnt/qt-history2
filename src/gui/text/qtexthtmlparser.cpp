@@ -648,7 +648,6 @@ void QTextHtmlParser::parseTag()
     node->isListItem = (node->id == Html_li);
     node->isListStart = (node->id == Html_ol || node->id == Html_ul);
     node->isTableCell = (node->id == Html_td || node->id == Html_th);
-    node->isAnchor = (node->id == Html_a);
 
     resolveParent();
     resolveNode();
@@ -847,6 +846,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         case Html_a:
             fontUnderline = true;
             color = Qt::blue; // ####
+            isAnchor = true;
             break;
         case Html_em:
         case Html_i:
