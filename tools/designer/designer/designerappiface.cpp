@@ -101,8 +101,8 @@ void DesignerFormWindowInterface::reconnect()
     for ( QObject *o = l->first(); o; o = l->next() ) {
 	for ( QValueList<Connect1>::Iterator it = connects1.begin(); it != connects1.end(); ++it )
 	    connect( (FormWindow*)o, (*it).signal, (*it).target, (*it).slot );
-	for ( QValueList<Connect2>::Iterator it = connects2.begin(); it != connects2.end(); ++it )
-	    connect( (*it).sender, (*it).signal, (FormWindow*)o, (*it).slot );
+	for ( QValueList<Connect2>::Iterator it2 = connects2.begin(); it2 != connects2.end(); ++it2 )
+	    connect( (*it2).sender, (*it2).signal, (FormWindow*)o, (*it2).slot );
     }
 }
 
