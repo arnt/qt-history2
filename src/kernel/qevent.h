@@ -455,7 +455,7 @@ private:
 
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug, QEvent *);
+QDebug operator<<(QDebug, const QEvent *);
 #endif
 
 #endif // QEVENT_H

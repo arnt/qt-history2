@@ -1905,7 +1905,7 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 
 #if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug dbg, QEvent *e) {
+QDebug operator<<(QDebug dbg, const QEvent *e) {
 
     // More useful event output could be added here
 
@@ -1973,11 +1973,11 @@ QDebug operator<<(QDebug dbg, QEvent *e) {
 	n = "Quit";
 	break;
     default:
-	dbg.nospace() << "QEvent(" << (void *)e << ", type = " << e->type() << ')';
+	dbg.nospace() << "QEvent(" << (const void *)e << ", type = " << e->type() << ')';
 	return dbg.space();
     }
 
-    dbg.nospace() << 'Q' << n << "Event(" << (void *)e << ')';
+    dbg.nospace() << 'Q' << n << "Event(" << (const void *)e << ')';
     return dbg.space();
 }
 #endif
