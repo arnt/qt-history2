@@ -381,7 +381,7 @@ win32:OBJECTS__DIR = c:\myproject\tmp
 \target UI_DIR
 \section3 UI_DIR
 
-This variable specifies the directory where all intermediate files fro uic
+This variable specifies the directory where all intermediate files from uic
 should be placed. This variable overrides both UI_SOURCES_DIR and
 UI_HEADERS_DIR.
 
@@ -1855,10 +1855,10 @@ for you.
 
 The cache file (mentioned above in the options) is a special file \e
 qmake will read to find settings not specified in the \c qmake.conf
-file, the .pro file, or the command line. If neither \c -path or \c
--nocache are specified, \e qmake will try to find a file called \c
-.qmake.cache in parent directories.  If it fails to find this file, it
-will silently ignore this step of processing.
+file, the .pro file, or the command line. If \c -nocache is specified,
+\e qmake will try to find a file called \c .qmake.cache in parent
+directories.  If it fails to find this file, it will silently ignore
+this step of processing.
 
 \target LibDepend
 \section2 Library Dependencies
@@ -1948,5 +1948,3 @@ they are:
 \i QMAKE_EXT_H - Changes interpretation all files with these suffixes to be
                    C header files. 
 \endlist
-
-
