@@ -133,8 +133,8 @@ public:
 
 signals:
     void         currentChanged( const QSqlRecord* record );
-    void         beginInsert( QSqlRecord* buf );
-    void         beginUpdate( QSqlRecord* buf );
+    void         primeInsert( QSqlRecord* buf );
+    void         primeUpdate( QSqlRecord* buf );
     void         beforeInsert( QSqlRecord* buf );
     void         beforeUpdate( QSqlRecord* buf );
     void         beforeDelete( QSqlRecord* buf );

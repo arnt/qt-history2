@@ -785,7 +785,7 @@ bool QSqlTable::beginInsert()
     setNumRows( d->insertPreRows + 1 );
     setCurrentCell( row, 0 );
     d->editBuffer = sqlCursor()->primeInsert();
-    emit beginInsert( d->editBuffer );
+    emit primeInsert( d->editBuffer );
     d->mode = QSqlTable::Insert;
     int lastRow = row;
     int lastY = contentsY() + visibleHeight();
@@ -832,7 +832,7 @@ QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
     d->mode = QSqlTable::Update;
     if ( sqlCursor()->seek( row ) ) {
 	d->editBuffer = sqlCursor()->primeUpdate();
-	emit beginUpdate( d->editBuffer );
+	emit primeUpdate( d->editBuffer );
 	return QTable::beginEdit( row, col, replace );
     }
     return 0;
@@ -1550,9 +1550,10 @@ int QSqlTable::fieldAlignment( const QSqlField* /*field*/ )
 
 void QSqlTable::setSize( QSqlCursor* sql )
 {
-    if ( !sql->isActive() ) {
-	sql->select( sql->filter(), sql->sort() );
-    }
+    // ##is this required anymore?
+//     if ( !sql->isActive() ) {
+//	sql->select( sql->filter(), sql->sort() );
+//     }
     if ( sql->driver()->hasQuerySizeSupport() ) {
 	setVScrollBarMode( Auto );
 	disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
@@ -1801,14 +1802,18 @@ bool QSqlTable::findBuffer( const QSqlIndex& idx, int atHint )
   record.
 */
 
-/*! \fn void QSqlTable::beginInsert( QSqlRecord* buf )
-  This signal is emitted when an insert is beginning on the cursor's edit buffer.
-  The \a buf parameter points to the record buffer being inserted.
+/*! \fn void QSqlTable::primeInsert( QSqlRecord* buf )
+  This signal is emitted after the cursor is primed for insert by the
+  table, when an insert action is beginning on the table.  The \a buf
+  parameter points to the record buffer being inserted.  Connect to
+  this signal in order to, for example, prime the record buffer with
+  default data values.
 */
 
-/*! \fn void QSqlTable::beginUpdate( QSqlRecord* buf )
-  This signal is emitted when an update is beginning on the cursor's edit buffer.
-  The \a buf parameter points to the record buffer being updated.
+/*! \fn void QSqlTable::primeUpdate( QSqlRecord* buf )
+  This signal is emitted after the cursor is primed for update by the
+  table, when an update action is beginning on the table.  The \a buf
+  parameter points to the record buffer being updates.  Connect to this signal to ###?
 */
 
 /*! \fn void QSqlTable::beforeInsert( QSqlRecord* buf )
