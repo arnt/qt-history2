@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.13 1999/10/18 10:46:01 aavit Exp $
+** $Id: qarray.doc,v 2.14 1999/10/21 18:39:32 aavit Exp $
 **
 ** QArray class documentation
 **
@@ -116,7 +116,7 @@
     x.i = '5';
     x.c = 't';
     int i = a.find( x );          // May return -1 if the pad bytes differ
-  \endocde
+  \endcode
 
   To workaround this, make sure that you use a struct where sizeof()
   returns the same as the sum of the sizes of the members, either by

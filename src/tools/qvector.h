@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvector.h#17 $
+** $Id: //depot/qt/main/src/tools/qvector.h#18 $
 **
 ** Definition of QVector template/macro class
 **
@@ -44,7 +44,7 @@ public:
     uint  size()    const		{ return QGVector::size(); }
     uint  count()   const		{ return QGVector::count(); }
     bool  isEmpty() const		{ return QGVector::count() == 0; }
-    bool  isNull()  const		{ return QGVector::size() == 0; }     \
+    bool  isNull()  const		{ return QGVector::size() == 0; }
     bool  resize( uint size )		{ return QGVector::resize(size); }
     bool  insert( uint i, const type *d){ return QGVector::insert(i,(Item)d); }
     bool  remove( uint i )		{ return QGVector::remove(i); }
