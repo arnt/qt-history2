@@ -1345,7 +1345,8 @@ QString QStyleSheet::convertFromPlainText( const QString& plain, QStyleSheetItem
 	} else {
 	    if ( mode == QStyleSheetItem::WhiteSpacePre && plain[i] == '\t' ){
 		rich += 0x00a0U;
-		while ( col % 4 ) {
+		++col;
+		while ( col % 8 ) {
 		    rich += 0x00a0U;
 		    ++col;
 		}

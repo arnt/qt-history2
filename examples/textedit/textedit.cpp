@@ -204,13 +204,17 @@ void TextEdit::load( const QString &f )
     if ( !QFile::exists( f ) )
 	return;
     QTextEdit *edit = new QTextEdit( tabWidget );
+    edit->setTextFormat( RichText );
     doConnections( edit );
     tabWidget->addTab( edit, QFileInfo( f ).fileName() );
     QFile file( f );
     if ( !file.open( IO_ReadOnly ) )
 	return;
     QTextStream ts( &file );
-    edit->setText( ts.read() );
+    QString txt = ts.read();
+    if ( !QStyleSheet::mightBeRichText( txt ) )
+	txt = QStyleSheet::convertFromPlainText( txt, QStyleSheetItem::WhiteSpacePre );
+    edit->setText( txt );
     tabWidget->showPage( edit );
     edit->viewport()->setFocus();
     filenames.replace( edit, f );
@@ -297,9 +301,14 @@ void TextEdit::filePrint()
 	QRect body( margin * dpix / 72, margin * dpiy / 72,
 		    metrics.width() - margin * dpix / 72 * 2,
 		    metrics.height() - margin * dpiy / 72 * 2 );
-	QFont font( "times", 10 );
-	QSimpleRichText richText( currentEditor()->text(), font, currentEditor()->context(), currentEditor()->styleSheet(),
-				  currentEditor()->mimeSourceFactory(), body.height() );
+	QFont font( currentEditor()->QWidget::font() );
+ 	font.setPointSize( 10 ); // we define 10pt to be a nice base size for printing
+
+	QSimpleRichText richText( currentEditor()->text(), font, 
+				  currentEditor()->context(), 
+				  currentEditor()->styleSheet(), 
+				  currentEditor()->mimeSourceFactory(), 
+				  body.height() );
 	richText.setWidth( &p, body.width() );
 	QRect view( body );
 	int page = 1;

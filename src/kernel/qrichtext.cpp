@@ -2940,6 +2940,18 @@ bool QTextDocument::find( const QString &expr, bool cs, bool wo, bool forward,
 void QTextDocument::setTextFormat( Qt::TextFormat f )
 {
     txtFormat = f;
+    
+    /*Suboptimal workaround: if the text format is set to richtext, we
+     define our paragraph to be a real rich text paragarph so we to
+     get the proper margin hints defined in the stylesheet
+     */
+    if ( txtFormat == Qt::RichText && fParag && fParag == lParag && fParag->length() <= 1 
+	 && styleSheet()->item("p") ) {
+	QPtrVector<QStyleSheetItem> v = fParag->styleSheetItems();
+	v.resize( v.size() + 1 );
+	v.insert( v.size() - 1, styleSheet()->item( "p" ) );
+	fParag->setStyleSheetItems( v );
+    }
 }
 
 Qt::TextFormat QTextDocument::textFormat() const
@@ -5316,6 +5328,11 @@ void QTextParag::copyParagData( QTextParag *parag )
     QColor *c = parag->backgroundColor();
     if ( c )
 	setBackgroundColor( *c );
+    utm = parag->utm;
+    ubm = parag->ubm;
+    urm = parag->urm;
+    ulm = parag->ulm;
+    uflm = parag->uflm;
 }
 
 void QTextParag::show()
@@ -6551,7 +6568,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		format.setPointSize( int( scaleFontsFactor * style.mid( 10, style.length() - 12 ).toInt() ) );
 	    } if ( style.startsWith("font-style:" ) ) {
 		QString s = style.mid( 11 );
-		if ( s == "normal" ) 
+		if ( s == "normal" )
 		    format.fn.setItalic( FALSE );
 		else if ( s == "italic" || s == "oblique" )
 		    format.fn.setItalic( TRUE );
