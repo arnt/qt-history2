@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#13 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#13 $");
 
 
 /*!
@@ -488,7 +488,7 @@ void QBoxLayout::addMaxStrut( int size)
   QWidget::setMaximumSize() maximum size. \endlink
 
   Alignment is perpendicular to direction(), alignment in the
-  serial direction is done with addSpacing().
+  serial direction is done with addStretch().
 
   For horizontal boxes,	 the possible alignments are
   <ul>
