@@ -181,8 +181,6 @@ void I18nDemo::windowActivated(QWidget *w)
     }
 
     Wrapper *wrapper = (Wrapper *) w;
-    if (isVisible())
-	qApp->installTranslator(&wrapper->translator);
 
     windowMenu->setItemChecked(wrapper->id, TRUE);
     lastwrapper = wrapper;
