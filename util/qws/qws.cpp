@@ -81,10 +81,10 @@ QWSClient::QWSClient( QObject* parent, int socket, int shmid, int swidth, int sh
 
     flush();
 
-    QSocketNotifier* sn = new QSocketNotifier(socket,QSocketNotifier::Read,this);
-    QObject::connect(sn,SIGNAL(activated(int)),this,SIGNAL(readyRead()));
-    //connect( this, SIGNAL(closed()), this, SLOT(closeHandler()) );
-    //connect( this, SIGNAL(error(int)), this, SLOT(errorHandler(int)) );
+    QSocketNotifier* snr = new QSocketNotifier(socket,QSocketNotifier::Read,this);
+    QObject::connect(snr,SIGNAL(activated(int)),this,SIGNAL(readyRead()));
+    QSocketNotifier* sne = new QSocketNotifier(socket,QSocketNotifier::Exception,this);
+    QObject::connect(sne,SIGNAL(activated(int)),this,SIGNAL(errorHandler()));
 }
 
 QWSClient::~QWSClient()
@@ -99,28 +99,15 @@ void QWSClient::closeHandler()
     isClosed = TRUE;
     emit connectionClosed();
 }
+*/
 
-void QWSClient::errorHandler( int err )
+void QWSClient::errorHandler()
 {
-
-    QString s = "Unknown";
-    switch( err ) {
-    case ErrConnectionRefused:
-	s = "Connection Refused";
-	break;
-    case ErrHostNotFound:
-	s = "Host Not Found";
-	break;
-    case ErrSocketRead:
-	s = "Socket Read";
-	break;
-    }
-    qDebug( "Client %p error %d (%s)", this, err, s.ascii() );
+    qDebug( "Client %p error %d", this, error() );
     isClosed = TRUE;
     flush(); //####We need to clean out the pipes, this in not the the way.
     emit connectionClosed();
 }
-*/
 
 void QWSClient::sendSimpleEvent( void* event, uint size )
 {

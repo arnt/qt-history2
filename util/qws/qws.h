@@ -203,12 +203,9 @@ public:
     void writeRegion( QRegion reg );
 signals:
     void readyRead();
-/*
     void connectionClosed();
 private slots:
-    void closeHandler();
-    void errorHandler( int );
-*/
+    void errorHandler();
 private:
     QWSCommand* command;
     uint isClosed : 1;
