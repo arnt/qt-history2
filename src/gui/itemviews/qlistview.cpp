@@ -1125,14 +1125,11 @@ void QListView::doItemsLayout(const QRect &bounds,
 */
 void QListView::doStaticLayout(const QRect &bounds, int first, int last)
 {
-    bool wrap = d->wrap;
+    const bool useItemSize = !d->gridSize.isValid();
+    const int spacing = useItemSize ? d->spacing : 0; // if we are using a grid ,we don't use spacing
+    const QPoint topLeft = d->initStaticLayout(bounds, spacing, first);
+    const QStyleOptionViewItem option = viewOptions();
     int layoutWraps = d->layoutWraps;
-    QVector<int> hiddenRows = d->hiddenRows;
-
-    bool useItemSize = !d->gridSize.isValid();
-    int spacing = useItemSize ? d->spacing : 0; // if we are using a grid ,we don't use spacing
-    QPoint topLeft = d->initStaticLayout(bounds, spacing, first);
-    QStyleOptionViewItem option = viewOptions();
 
     // The static layout data structures are as follows:
     // One vector of positions along an axis for each item
@@ -1177,7 +1174,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
     }
     
     for (int row = first; row <= last; ++row) {
-        if (hiddenRows.contains(row)) {
+        if (d->hiddenRows.contains(row)) {
             flowPositions->append(flowPosition);
         } else {
             // if we are not using a grid, we need to find the deltas
@@ -1193,7 +1190,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
                 }
             }
             // create static wrap
-            if (wrap && (flowPosition >= wrapEndPosition)) {
+            if (d->wrap && (flowPosition >= wrapEndPosition)) {
                 flowPosition = spacing + wrapStartPosition;
                 wrapPosition += spacing + deltaWrapPosition;
                 ++layoutWraps;
