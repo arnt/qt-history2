@@ -360,7 +360,7 @@ static QString matchArrayBrackets()
 static void prependToType( QString *type, const QString& prefix )
 {
     if ( !type->isEmpty() && !prefix.isEmpty() ) {
-	QChar left = prefix[prefix.length() - 1];
+	QChar left = prefix[(int)prefix.length() - 1];
 	QChar right = (*type)[0];
 
 	// style can be enforced here
@@ -568,7 +568,7 @@ static void matchTranslationUnit( QValueList<CppFunction> *flist )
 	    break;
 
 	yyTok = getToken();
-	int startBody = yyPos;
+	startBody = yyPos;
 	CppFunction func = matchFunctionPrototype( FALSE );
 	if ( !func.scopedName().isEmpty() ) {
 	    setBody( &func, yyIn.mid(startBody, endBody - startBody) );
