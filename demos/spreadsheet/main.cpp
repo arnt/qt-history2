@@ -36,13 +36,16 @@ public:
         { return QTableWidgetItem::data(QAbstractItemModel::DisplayRole).toString(); }
 
     QPoint convertCoords(const QString coords) const;
+
+private:
+    mutable bool isResolving;
 };
 
 SpreadSheetItem::SpreadSheetItem()
-    : QTableWidgetItem() {}
+    : QTableWidgetItem(), isResolving(false) {}
 
 SpreadSheetItem::SpreadSheetItem(const QString &text)
-    : QTableWidgetItem(text) {}
+    : QTableWidgetItem(text), isResolving(false) {}
 
 QVariant SpreadSheetItem::data(int role) const
 {
@@ -85,7 +88,7 @@ QVariant SpreadSheetItem::display() const
 {
     // check if the string is actially a formula or not
     QString formula = this->formula();
-    QStringList list = formula.split(" ");
+    QStringList list = formula.split(' ');
     if (list.count() != 3)
         return formula; // its a normal string
 
@@ -99,6 +102,12 @@ QVariant SpreadSheetItem::display() const
     if (!start || !end)
         return "Error: Item does not exist!";
 
+    // avoid looping dependencies
+    if (isResolving)
+        return QVariant();
+    isResolving = true;
+
+    QVariant result;
     if (op == "sum") {
         int sum = 0;
         for (int r = tableWidget()->row(start); r <= tableWidget()->row(end); ++r)
@@ -107,19 +116,21 @@ QVariant SpreadSheetItem::display() const
                 if (tableItem != this)
                     sum += tableItem->text().toInt();
             }
-        return (sum);
+        result = sum;
     } else if (op == "+") {
-        return (start->text().toInt() + end->text().toInt());
+        result = (start->text().toInt() + end->text().toInt());
     } else if (op == "-") {
-        return (start->text().toInt() - end->text().toInt());
+        result = (start->text().toInt() - end->text().toInt());
     } else if (op == "*") {
-        return (start->text().toInt() * end->text().toInt());
+        result = (start->text().toInt() * end->text().toInt());
     } else if (op == "/") {
-        return (start->text().toInt() / end->text().toInt());
+        result = (start->text().toInt() / end->text().toInt());
     } else {
-        return "Error: Operation does not exist!";
+        result = "Error: Operation does not exist!";
     }
-    return QVariant::Invalid;
+
+    isResolving = false;
+    return result;
 }
 
 QPoint SpreadSheetItem::convertCoords(const QString coords) const
