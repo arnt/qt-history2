@@ -55,9 +55,9 @@ public:
     virtual QIconSet icon(int column) const;
     virtual void setText(int column, const QString &text);
     virtual void setIcon(int column, const QIconSet &icon);
-
-    QVariant data(int column, int role) const;
-    void setData(int column, int role, const QVariant &value);
+    
+    virtual QVariant data(int column, int role) const;
+    virtual void setData(int column, int role, const QVariant &value);
 
 private:
     QTreeWidgetItem();
@@ -90,11 +90,17 @@ class Q_GUI_EXPORT QTreeWidget : public QTreeView
 public:
     QTreeWidget(QWidget *parent = 0);
 
+    int columnCount() const;
     void setColumnCount(int columns);
-    void setColumnText(int column, const QString &text);
-    void setColumnIcon(int column, const QIconSet &icon);
+
     QString columnText(int column) const;
+    void setColumnText(int column, const QString &text);
+
     QIconSet columnIcon(int column) const;
+    void setColumnIcon(int column, const QIconSet &icon);
+
+    QVariant columnData(int column, int role) const;
+    void setColumnData(int column, int role, const QVariant &value);
 
 protected:
     void append(QTreeWidgetItem *item);

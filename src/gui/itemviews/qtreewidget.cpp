@@ -18,6 +18,7 @@ class QTreeModel : public QAbstractItemModel
 {
     friend class QTreeWidget;
     friend class QTreeWidgetItem;
+
 public:
     QTreeModel(int columns = 0, QObject *parent = 0);
     ~QTreeModel();
@@ -27,8 +28,11 @@ public:
 
     virtual void setColumnText(int column, const QString &text);
     virtual void setColumnIcon(int column, const QIconSet &icon);
+    virtual void setColumnData(int column, int role, const QVariant &value);
+    
     QString columnText(int column) const;
     QIconSet columnIcon(int column) const;
+    QVariant columnData(int column, int role) const;
 
     QTreeWidgetItem *item(const QModelIndex &index) const;
 
@@ -65,8 +69,6 @@ private:
 
   \ingroup model-view
     \mainclass
-
-
 */
 
 /*!
@@ -118,7 +120,8 @@ void QTreeModel::setColumnCount(int columns)
 /*!
   \internal
 
-  Returns the number of columns in the tree model.*/
+  Returns the number of columns in the tree model.
+*/
 
 int QTreeModel::columnCount() const
 {
@@ -128,7 +131,8 @@ int QTreeModel::columnCount() const
 /*!
   \internal
 
-  Sets the column text for the \a column to the given \a text.*/
+  Sets the column text for the \a column to the given \a text.
+*/
 
 void QTreeModel::setColumnText(int column, const QString &text)
 {
@@ -140,7 +144,8 @@ void QTreeModel::setColumnText(int column, const QString &text)
   \internal
 
   Sets the icon set for the \a column to the icon set specified by
-  \a icon.*/
+  \a icon.
+*/
 
 void QTreeModel::setColumnIcon(int column, const QIconSet &icon)
 {
@@ -151,7 +156,20 @@ void QTreeModel::setColumnIcon(int column, const QIconSet &icon)
 /*!
   \internal
 
-  Returns the text for the given \a column in the tree model.*/
+  Sets the value for the \a column and \a role to the value specified by \a value.
+*/
+
+void QTreeModel::setColumnData(int column, int role, const QVariant &value)
+{
+    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
+    setData(index, role, value);
+}
+
+/*!
+  \internal
+
+  Returns the text for the given \a column in the tree model.
+*/
 
 QString QTreeModel::columnText(int column) const
 {
@@ -162,7 +180,8 @@ QString QTreeModel::columnText(int column) const
 /*!
   \internal
 
-  Returns the icon set for the given \a column.*/
+  Returns the icon set for the given \a column.
+*/
 
 QIconSet QTreeModel::columnIcon(int column) const
 {
@@ -173,9 +192,22 @@ QIconSet QTreeModel::columnIcon(int column) const
 /*!
   \internal
 
+  Returns the value set for the given \a column and \a role.
+*/
+
+QVariant QTreeModel::columnData(int column, int role) const
+{
+    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
+    return data(index, role);
+}
+
+/*!
+  \internal
+
   Returns the tree view item corresponding to the \a index given.
 
-  \sa QModelIndex*/
+  \sa QModelIndex
+*/
 
 QTreeWidgetItem *QTreeModel::item(const QModelIndex &index) const
 {
@@ -189,7 +221,8 @@ QTreeWidgetItem *QTreeModel::item(const QModelIndex &index) const
 /*!
   \internal
 
-  Returns the model index that refers to the tree view \a item.*/
+  Returns the model index that refers to the tree view \a item.
+*/
 
 QModelIndex QTreeModel::index(QTreeWidgetItem *item) const
 {
@@ -204,7 +237,8 @@ QModelIndex QTreeModel::index(QTreeWidgetItem *item) const
   \internal
 
   Returns the model index with the given \a row, \a column, \a type,
-  and \a parent.*/
+  and \a parent.
+*/
 
 QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent,
                               QModelIndex::Type type) const
@@ -231,7 +265,8 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent,
 /*!
   \internal
 
-  Returns the parent model index of the index given as the \a child.*/
+  Returns the parent model index of the index given as the \a child.
+*/
 
 QModelIndex QTreeModel::parent(const QModelIndex &child) const
 {
@@ -247,7 +282,8 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 /*!
   \internal
 
-  Returns the number of rows in the \a parent model index.*/
+  Returns the number of rows in the \a parent model index.
+*/
 
 int QTreeModel::rowCount(const QModelIndex &parent) const
 {
@@ -263,7 +299,8 @@ int QTreeModel::rowCount(const QModelIndex &parent) const
   \internal
 
   Returns the number of columns in the item referred to by the given
-  \a index.*/
+  \a index.
+*/
 
 int QTreeModel::columnCount(const QModelIndex &) const
 {
@@ -274,7 +311,8 @@ int QTreeModel::columnCount(const QModelIndex &) const
   \internal
 
   Returns the data corresponding to the given model \a index and
-  \a role.*/
+  \a role.
+*/
 
 QVariant QTreeModel::data(const QModelIndex &index, int role) const
 {
@@ -292,7 +330,8 @@ QVariant QTreeModel::data(const QModelIndex &index, int role) const
   Sets the data for the item specified by the \a index and \a role
   to that referred to by the \a value.
 
-  Returns true if successful; otherwise returns false.*/
+  Returns true if successful; otherwise returns false.
+*/
 
 bool QTreeModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
@@ -314,7 +353,8 @@ bool QTreeModel::setData(const QModelIndex &index, int role, const QVariant &val
   \a row. Returns true if successful; otherwise returns false.
 
   If no valid parent is given, the item will be inserted into this
-  tree model at the row given.*/
+  tree model at the row given.
+*/
 
 bool QTreeModel::insertRows(int row, const QModelIndex &parent, int)
 {
@@ -334,7 +374,8 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int)
   \internal
 
   Removes the given \a row from the \a parent item, and returns true
-  if successful; otherwise false is returned. */
+  if successful; otherwise false is returned.
+*/
 
 bool QTreeModel::removeRows(int row, const QModelIndex &parent, int)
 {
@@ -618,7 +659,9 @@ void QTreeWidgetItem::setColumnCount(int count)
 }
 
 /*!
+    Returns the text stored in the \a column.
 
+  \sa data() QAbstractItemModel::Role
 */
 
 QString QTreeWidgetItem::text(int column) const
@@ -630,6 +673,12 @@ QString QTreeWidgetItem::text(int column) const
     return QString::null;
 }
 
+/*!
+    Returns the icon stored in the \a column.
+
+  \sa data() QAbstractItemModel::Role
+*/
+
 QIconSet QTreeWidgetItem::icon(int column) const
 {
     const QVector<Data> column_values = values.at(column);
@@ -638,6 +687,12 @@ QIconSet QTreeWidgetItem::icon(int column) const
             return column_values.at(i).value.toIcon();
     return QIconSet();
 }
+
+/*!
+    Sets the text for the item specified by the \a column to the given \a text.
+
+    \sa text() setIcon()
+*/
 
 void QTreeWidgetItem::setText(int column, const QString &text)
 {
@@ -651,6 +706,12 @@ void QTreeWidgetItem::setText(int column, const QString &text)
         }
     values[column].append(Data(QAbstractItemModel::DisplayRole, text));
 }
+
+/*!
+    Sets the icon for the item specified by the \a column to the given \a icon.
+
+    \sa icon() setText()
+*/
 
 void QTreeWidgetItem::setIcon(int column, const QIconSet &icon)
 {
@@ -689,8 +750,6 @@ QVariant QTreeWidgetItem::data(int column, int role) const
 /*!
     Sets the data for the item specified by the \a column and \a role
     to the given \a value.
-
-    Returns true if successful; otherwise returns false.
 */
 
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
@@ -748,7 +807,8 @@ public:
 
 /*!
   Constructs a tree view with the given \a parent widget, using the default
-  model.*/
+  model
+*/
 
 QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeViewPrivate(), parent)
@@ -757,31 +817,27 @@ QTreeWidget::QTreeWidget(QWidget *parent)
 }
 
 /*!
-  Sets the number of \a columns in the tree view.*/
+  Retuns the number of header columns in the view.
+*/
+
+int QTreeWidget::columnCount() const
+{
+    return d->model()->columnCount();
+}
+
+/*!
+  Sets the number of header \a columns in the tree view.
+*/
 
 void QTreeWidget::setColumnCount(int columns)
 {
     d->model()->setColumnCount(columns);
 }
 
-/*!
-  Sets the text for the \a column to the \a text given.*/
-
-void QTreeWidget::setColumnText(int column, const QString &text)
-{
-    d->model()->setColumnText(column, text);
-}
 
 /*!
-  Sets the icon set for the \a column to that specified by \a icon.*/
-
-void QTreeWidget::setColumnIcon(int column, const QIconSet &icon)
-{
-    d->model()->setColumnIcon(column, icon);
-}
-
-/*!
-  Returns the text for the given \a column in the tree view.*/
+  Returns the text for the given header \a column in the tree view.
+*/
 
 QString QTreeWidget::columnText(int column) const
 {
@@ -789,7 +845,17 @@ QString QTreeWidget::columnText(int column) const
 }
 
 /*!
-  Returns the icon set for the given \a column in the tree view.*/
+  Sets the text for the header \a column to the \a text given.
+*/
+
+void QTreeWidget::setColumnText(int column, const QString &text)
+{
+    d->model()->setColumnText(column, text);
+}
+
+/*!
+  Returns the icon set for the given header \a column in the tree view.
+*/
 
 QIconSet QTreeWidget::columnIcon(int column) const
 {
@@ -797,7 +863,35 @@ QIconSet QTreeWidget::columnIcon(int column) const
 }
 
 /*!
-  Appends a tree view \a item to the tree view.*/
+  Sets the icon set for the header \a column to that specified by \a icon.
+*/
+
+void QTreeWidget::setColumnIcon(int column, const QIconSet &icon)
+{
+    d->model()->setColumnIcon(column, icon);
+}
+
+/*!
+  Returns the value set for the given header \a column and \a role in the tree view.
+*/
+
+QVariant QTreeWidget::columnData(int column, int role) const
+{
+    return d->model()->columnData(column, role);
+}
+
+/*!
+  Sets the value for the given header \a column and \a role to that specified by \a value.
+*/
+
+void QTreeWidget::setColumnData(int column, int role, const QVariant &value)
+{
+    d->model()->setColumnData(column, role, value);
+}
+    
+/*!
+  Appends a tree view \a item to the tree view.
+*/
 
 void QTreeWidget::append(QTreeWidgetItem *item)
 {
