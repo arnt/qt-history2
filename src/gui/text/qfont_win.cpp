@@ -59,7 +59,7 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
     }
     int lfh = qAbs(lf.lfHeight);
     Q_ASSERT(shared_dc);
-    qf.setPointSizeFloat(lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY));
+    qf.setPointSizeF(lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY));
     qf.setUnderline(false);
     qf.setOverline(false);
     qf.setStrikeOut(false);

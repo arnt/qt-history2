@@ -806,8 +806,8 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos,
 
     QPointF position = pos + d->position;
 
-    float clipy = INT_MIN;
-    float clipe = INT_MAX;
+    float clipy = (float)INT_MIN;
+    float clipe = (float)INT_MAX;
     if (cr.isValid()) {
         clipy = cr.y() - position.y();
         clipe = clipy + cr.height();
@@ -1049,7 +1049,7 @@ void QTextLine::layout(float width)
 void QTextLine::layoutFixedColumnWidth(int numColumns)
 {
     QScriptLine &line = eng->lines[i];
-    line.width = INT_MAX >> 6;
+    line.width = (float)(INT_MAX >> 6);
     line.length = 0;
     line.textWidth = 0;
     layout_helper(numColumns);
