@@ -1,222 +1,171 @@
-<!DOCTYPE UI><UI>
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>AboutDialog</class>
 <include location="local" impldecl="in declaration">splashloader.h</include>
 <pixmapfunction>splashScreen</pixmapfunction>
-<widget>
-    <class>QDialog</class>
-    <property stdset="1">
-        <name>name</name>
+<widget class="QDialog">
+    <property name="name">
         <cstring>AboutDialog</cstring>
     </property>
-    <property stdset="1">
-        <name>geometry</name>
+    <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>492</width>
-            <height>370</height>
+            <width>484</width>
+            <height>562</height>
         </rect>
     </property>
-    <property stdset="1">
-        <name>caption</name>
+    <property name="caption">
         <string>Qt Designer</string>
     </property>
-    <property stdset="1">
-        <name>sizeGripEnabled</name>
+    <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
     <vbox>
-        <property stdset="1">
-            <name>margin</name>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
             <number>11</number>
         </property>
-        <property stdset="1">
-            <name>spacing</name>
+        <property name="spacing">
             <number>6</number>
         </property>
-        <widget>
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel">
+            <property name="name">
                 <cstring>PixmapLabel1</cstring>
             </property>
-            <property stdset="1">
-                <name>frameShadow</name>
-                <enum>Plain</enum>
-            </property>
-            <property stdset="1">
-                <name>frameShape</name>
+            <property name="frameShape">
                 <enum>NoFrame</enum>
             </property>
-            <property stdset="1">
-                <name>pixmap</name>
+            <property name="frameShadow">
+                <enum>Plain</enum>
+            </property>
+            <property name="pixmap">
                 <pixmap></pixmap>
             </property>
-            <property stdset="1">
-                <name>scaledContents</name>
+            <property name="scaledContents">
                 <bool>false</bool>
             </property>
-            <property stdset="1">
-                <name>alignment</name>
-                <set>AlignCenter</set>
+            <property name="alignment">
+                <set>AlignAuto|AlignCenter</set>
             </property>
-            <property>
-                <name>hAlign</name>
+            <property name="hAlign" stdset="0">
             </property>
         </widget>
-        <widget>
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel">
+            <property name="name">
                 <cstring>TextLabel1</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
-                <string>Version 1.0</string>
+            <property name="text">
+                <string>Version 2.0</string>
             </property>
-            <property stdset="1">
-                <name>alignment</name>
-                <set>AlignCenter</set>
+            <property name="alignment">
+                <set>AlignAuto|AlignCenter</set>
             </property>
-            <property>
-                <name>hAlign</name>
+            <property name="hAlign" stdset="0">
             </property>
         </widget>
-        <widget>
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel">
+            <property name="name">
                 <cstring>TextLabel1_2</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
-                <string>Copyright (C) 2000 Trolltech AS</string>
+            <property name="text">
+                <string>Copyright (C) 2000-2001 Trolltech AS</string>
             </property>
-            <property stdset="1">
-                <name>alignment</name>
-                <set>AlignCenter</set>
+            <property name="alignment">
+                <set>AlignAuto|AlignCenter</set>
             </property>
-            <property>
-                <name>hAlign</name>
+            <property name="hAlign" stdset="0">
             </property>
         </widget>
-        <widget>
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel">
+            <property name="name">
                 <cstring>TextLabel1_3</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
-                <string>This program is licensed to you under the terms of the GNU General Public License Version 2 as published by the Free Software Foundation. This gives you legal permission to copy, distribute and/or modify this software under certain conditions. For details, see the file 'COPYING' that came with this software distribution. If you did not get the file, send email to info@trolltech.com.
+            <property name="text">
+                <string>&lt;p&gt;This program is licensed to you under the terms of the GNU General Public License Version 2 as published by the Free Software Foundation. This gives you legal permission to copy, distribute and/or modify this software under certain conditions. For details, see the file 'COPYING' that came with this software distribution. If you did not get the file, send email to info@trolltech.com.&lt;/p&gt;
 
-The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.</string>
+&lt;p&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;/p&gt;</string>
             </property>
-            <property stdset="1">
-                <name>alignment</name>
-                <set>WordBreak|AlignVCenter|AlignLeft</set>
+            <property name="alignment">
+                <set>WordBreak|AlignAuto|AlignVCenter|AlignLeft</set>
             </property>
-            <property stdset="1">
-                <name>font</name>
-                <font>
-                    <pointsize>10</pointsize>
-                </font>
-            </property>
-            <property>
-                <name>wordwrap</name>
+            <property name="wordwrap" stdset="0">
             </property>
         </widget>
         <spacer>
-            <property>
-                <name>name</name>
+            <property name="name" stdset="0">
                 <cstring>Spacer3</cstring>
             </property>
-            <property stdset="1">
-                <name>orientation</name>
+            <property name="orientation">
                 <enum>Vertical</enum>
             </property>
-            <property stdset="1">
-                <name>sizeType</name>
+            <property name="sizeType">
                 <enum>Expanding</enum>
             </property>
-            <property>
-                <name>sizeHint</name>
+            <property name="sizeHint">
                 <size>
                     <width>20</width>
                     <height>20</height>
                 </size>
             </property>
         </spacer>
-        <widget>
-            <class>QLayoutWidget</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLayoutWidget">
+            <property name="name">
                 <cstring>Layout1</cstring>
             </property>
             <hbox>
-                <property stdset="1">
-                    <name>margin</name>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
                     <number>0</number>
                 </property>
-                <property stdset="1">
-                    <name>spacing</name>
+                <property name="spacing">
                     <number>6</number>
                 </property>
                 <spacer>
-                    <property>
-                        <name>name</name>
+                    <property name="name" stdset="0">
                         <cstring>Spacer2</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
+                    <property name="sizeHint">
                         <size>
                             <width>20</width>
                             <height>20</height>
                         </size>
                     </property>
                 </spacer>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>PushButton1</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;OK</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
-                    <property stdset="1">
-                        <name>default</name>
+                    <property name="default">
                         <bool>true</bool>
                     </property>
                 </widget>
                 <spacer>
-                    <property>
-                        <name>name</name>
+                    <property name="name" stdset="0">
                         <cstring>Spacer1</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
+                    <property name="sizeHint">
                         <size>
                             <width>20</width>
                             <height>20</height>
@@ -234,5 +183,15 @@ The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRAN
         <receiver>AboutDialog</receiver>
         <slot>accept()</slot>
     </connection>
+    <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
 </connections>
+<functions>
+    <function name="destroy()" >{
+    
+}</function>
+    <function name="init()" >{
+    
+}</function>
+</functions>
 </UI>
