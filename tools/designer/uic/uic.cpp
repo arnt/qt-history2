@@ -519,8 +519,8 @@ void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass,
 	} else if ( n.tagName() == "separator" ) {
 	    out << indent << parent << "->insertSeparator();" << endl;
 	}
+	++i;
     }
-    ++i;
 }
 
 /*!
