@@ -405,8 +405,10 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 
     // have to emit here as a menu might be setup in a slot connected
     // to aboutToShow which will change the size of the menu
+    bool s = supressAboutToShow;
     supressAboutToShow = TRUE;
-    emit aboutToShow();
+    if ( !s)
+	emit aboutToShow();
 
     QWidget *desktop = QApplication::desktop();
     int sw = desktop->width();			// screen width
