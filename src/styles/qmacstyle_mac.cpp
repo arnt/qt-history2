@@ -788,7 +788,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	}
 	break; }
     case PE_RubberBand:
-	p->fillRect(r, cg.highlight());
+	p->fillRect(r, pal.highlight());
 	break;
     default:
 	QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
