@@ -1,5 +1,5 @@
 #qmake code
-OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o \
+OBJS=project.o main.o makefile.o unixmake2.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o \
      projectgenerator.o metrowerks_xml.o
 vpath %.cpp generators/:generators/win32:generators/unix:generators/mac
 
@@ -45,6 +45,9 @@ makefile.o: makefile.cpp
 	$(CXX) -c -o $@ $(CFLAGS) $^
 
 metrowerks_xml.o: metrowerks_xml.cpp
+	$(CXX) -c -o $@ $(CFLAGS) $^
+
+unixmake2.o: unixmake2.cpp
 	$(CXX) -c -o $@ $(CFLAGS) $^
 
 unixmake.o: unixmake.cpp

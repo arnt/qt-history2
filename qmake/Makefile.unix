@@ -1,5 +1,5 @@
 #qmake code
-OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o \
+OBJS=project.o main.o makefile.o unixmake2.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o \
      projectgenerator.o metrowerks_xml.o
 
 #qt code
@@ -116,6 +116,9 @@ makefile.o: generators/makefile.cpp
 
 unixmake.o: generators/unix/unixmake.cpp
 	$(CXX) -c -o $@ $(CFLAGS) generators/unix/unixmake.cpp
+
+unixmake2.o: generators/unix/unixmake2.cpp
+	$(CXX) -c -o $@ $(CFLAGS) generators/unix/unixmake2.cpp
 
 borland_bmake.o: generators/win32/borland_bmake.cpp
 	$(CXX) -c -o $@ $(CFLAGS) generators/win32/borland_bmake.cpp
