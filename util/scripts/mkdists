@@ -453,7 +453,7 @@ mv ${TMP_FILE} $qglobal
 
 #fix $Id
 if [ "x$DO_ID" = "xyes" ]; then
-    status "Marking \$ID\$..."
+    status "Marking \$Id\$..."
     for a in `find $DISTDIR/qt/`; do
 	if [ -f $a ] && [ ! -x $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
 	    execut=444
@@ -461,7 +461,7 @@ if [ "x$DO_ID" = "xyes" ]; then
 
 	    mtime=`ls -l $a | awk '{ print $6,$7,$8 }'` #mtime is pretty bogus, but a quick hack..
 	    tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${VERSION_STR}   edited $mtime"
-	    sed "s,\(\$Id[:] \)[^\\$]*\\$,\1 ${tag_ID} \$,g" $a >${TMP_FILE}
+	    sed "s,\$Id[^\\$]*\\$,\$Id: ${tag_ID} \$,g" $a >${TMP_FILE}
 	    rm -f $a
 	    mv ${TMP_FILE} $a
 	    chmod $execut $a
