@@ -803,7 +803,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         int r = entries.indexOf(entry);
         idx = index(r, column, idx); // will check row and lazily populate
         if (!idx.isValid()) {
-            qWarning("index: the path '%s' could not be found\n", path.latin1());
+            qWarning(QString("index: the path '%1' could not be found\n").arg(path).latin1());
             return QModelIndex();
         }
     }
@@ -819,8 +819,16 @@ QModelIndex QDirModel::index(const QString &path, int column) const
 
 QString QDirModel::path(const QModelIndex &index) const
 {
-    if (index.isValid())
-        return QDir::cleanPath(fileInfo(index).absoluteFilePath());
+    if (index.isValid()) {
+        QFileInfo fi = fileInfo(index);
+        if (d->resolveSymlinks && fi.isSymLink()) {
+            QString link = fi.readLink();
+            if (link.at(link.size() - 1) == QDir::separator())
+                link.chop(1);
+            return QDir::cleanPath(link);
+        }
+        return QDir::cleanPath(fi.absoluteFilePath());
+    }
     return QString(); // root path
 }
 
@@ -1028,23 +1036,23 @@ QDirModelPrivate::QDirNode *QDirModelPrivate::parent(QDirNode *child) const
 QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent) const
 {
     QFileInfoList info;
-    if (!parent)
+    if (!parent) {
         info = rootChildren();
-    else if (parent->info.isDir())
-        info = entryInfoList(parent->info.filePath());
+    } else if (parent->info.isDir()) {
+        if (d->resolveSymlinks && parent->info.isSymLink()) {
+            QString link = parent->info.readLink();
+            if (link.at(link.size() - 1) == QDir::separator())
+                link.chop(1);
+            info = entryInfoList(link);
+        } else {
+            info = entryInfoList(parent->info.filePath());
+        }
+    }
     
     QVector<QDirNode> nodes(info.count());
     for (int i = 0; i < info.count(); ++i) {
         nodes[i].parent = parent;
-        // FIXME: we should only resolve when the user _enters_ the directory.
-//         if (d->resolveSymlinks && info.at(i).isSymLink()) {
-//             QString link = info.at(i).readLink();
-//             if (link.at(link.size() - 1) == QDir::separator())
-//                 link.chop(1);
-//             nodes[i].info = QFileInfo(link);
-//         } else {
-            nodes[i].info = info.at(i);
-//        }
+        nodes[i].info = info.at(i);
     }
 
     return nodes;
