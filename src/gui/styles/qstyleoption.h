@@ -25,68 +25,70 @@ struct Q_GUI_EXPORT QStyleOption {
     int version;
     int type;
     QStyle::SFlags state;
-    QRect rect;             // Rect has overloaded meanings.
+    QRect rect;
     QPalette palette;
-    enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider, Frame, ProgressBar,
-           ListView, ListViewItem, Header, DockWindow, SpinBox, ToolButton, ComboBox, ToolBox,
-           TitleBar, ViewItem, CustomBase = 0xf0000000 };
-    enum { Type = Default };
-    QStyleOption(int optionversion, int optiontype = Default);
+    enum OptionType { SO_Default, SO_FocusRect, SO_Button, SO_Tab, SO_MenuItem, SO_Complex,
+                      SO_Slider, SO_Frame, SO_ProgressBar, SO_ListView, SO_ListViewItem,
+                      SO_Header, SO_DockWindow, SO_SpinBox, SO_ToolButton, SO_ComboBox,
+                      SO_ToolBox, SO_TitleBar, SO_ViewItem,
+                      SO_CustomBase = 0xf000000 };
+    enum { Type = SO_Default };
+    QStyleOption(int optionversion, int optiontype = SO_Default);
     void init(const QWidget *w);
 };
 
 struct QStyleOptionFocusRect  : public QStyleOption {
-    enum { Type = FocusRect };
+    enum { Type = SO_FocusRect };
     QColor backgroundColor;
-    QStyleOptionFocusRect(int version) : QStyleOption(version, FocusRect) {}
+    QStyleOptionFocusRect(int version) : QStyleOption(version, SO_FocusRect) {}
 };
 
 struct QStyleOptionFrame : public QStyleOption {
-    enum { Type = Frame };
+    enum { Type = SO_Frame };
     int lineWidth;
     int midLineWidth;
-    QStyleOptionFrame(int version) : QStyleOption(version, Frame) {}
+    QStyleOptionFrame(int version) : QStyleOption(version, SO_Frame) {}
 };
 
 struct QStyleOptionHeader : public QStyleOption {
-    enum { Type = Header };
+    enum { Type = SO_Header };
     int section;
     QString text;
     QIconSet icon;
-    QStyleOptionHeader(int version) : QStyleOption(version, Header) {}
+    QStyleOptionHeader(int version) : QStyleOption(version, SO_Header) {}
 };
 
 struct QStyleOptionButton : public QStyleOption {
-    enum { Type = Button };
+    enum { Type = SO_Button };
     enum Extras { None = 0x00, Flat = 0x01, HasMenu = 0x02 };
     uint extras;
     QString text;
     QIconSet icon;
-    QStyleOptionButton(int version) : QStyleOption(version, Button) {}
+    QStyleOptionButton(int version) : QStyleOption(version, SO_Button) {}
 };
 
 struct QStyleOptionTab : public QStyleOption {
-    enum { Type = Tab };
+    enum { Type = SO_Tab };
     QTabBar::Shape tabshape;
     QString text;
     QIconSet icon;
-    QStyleOptionTab(int version) : QStyleOption(version, Tab) {}
+    QStyleOptionTab(int version) : QStyleOption(version, SO_Tab) {}
 };
 
 struct QStyleOptionProgressBar : public QStyleOption
 {
-    enum { Type = ProgressBar };
+    enum { Type = SO_ProgressBar };
     enum Extras { None, CenterIndicator = 0x01, PercentageVisible = 0x02,
                   IndicatorFollowsStyle = 0x03 };
     uint extras;
     QString progressString;
     int totalSteps;
     int progress;
-    QStyleOptionProgressBar(int version) : QStyleOption(version, ProgressBar) {}
+    QStyleOptionProgressBar(int version) : QStyleOption(version, SO_ProgressBar) {}
 };
 
 struct QStyleOptionMenuItem : public QStyleOption {
-    enum { Type = MenuItem };
+    enum { Type = SO_MenuItem };
     enum MenuItemType { Normal, Separator, SubMenu, Scroller, TearOff, Margin, EmptyArea, Q3Custom };
     enum CheckState { NotCheckable, Checked, Unchecked };
     MenuItemType menuItemType;
@@ -98,19 +100,19 @@ struct QStyleOptionMenuItem : public QStyleOption {
     int tabWidth;
     QSize q3CustomItemSizeHint;
     bool q3CustomItemFullSpan;
-    QStyleOptionMenuItem(int version) : QStyleOption(version, MenuItem) {}
+    QStyleOptionMenuItem(int version) : QStyleOption(version, SO_MenuItem) {}
 };
 
 struct QStyleOptionComplex : public QStyleOption
 {
-    enum { Type = Complex };
+    enum { Type = SO_Complex };
     QStyle::SCFlags parts;
     QStyle::SCFlags activeParts;
-    QStyleOptionComplex(int version, int type = Complex) : QStyleOption(version, type) {}
+    QStyleOptionComplex(int version, int type = SO_Complex) : QStyleOption(version, type) {}
 };
 
 struct QStyleOptionSlider : public QStyleOptionComplex {
-    enum { Type = Slider };
+    enum { Type = SO_Slider };
     Qt::Orientation orientation;
     int minimum;
     int maximum;
@@ -122,21 +124,21 @@ struct QStyleOptionSlider : public QStyleOptionComplex {
     int sliderValue;
     int singleStep;
     int pageStep;
-    QStyleOptionSlider(int version) : QStyleOptionComplex(version, Slider) {}
+    QStyleOptionSlider(int version) : QStyleOptionComplex(version, SO_Slider) {}
 };
 
 struct QStyleOptionSpinBox : public QStyleOptionComplex {
-    enum { Type = SpinBox };
+    enum { Type = SO_SpinBox };
     QAbstractSpinBox::ButtonSymbols buttonSymbols;
     QAbstractSpinBox::StepEnabled stepEnabled;
     double percentage;
     bool slider;
-    QStyleOptionSpinBox(int version) : QStyleOptionComplex(version, SpinBox) {}
+    QStyleOptionSpinBox(int version) : QStyleOptionComplex(version, SO_SpinBox) {}
 };
 
 struct QStyleOptionListViewItem : public QStyleOption
 {
-    enum { Type = ListViewItem };
+    enum { Type = SO_ListViewItem };
     enum Extras { None = 0x00, Expandable = 0x01, MultiLine = 0x02, Visible = 0x04,
                   ParentControl = 0x08 };
     uint extras;
@@ -144,11 +146,11 @@ struct QStyleOptionListViewItem : public QStyleOption
     int totalHeight;
     int itemY;
     int childCount;
-    QStyleOptionListViewItem(int version) : QStyleOption(version, ListViewItem) {}
+    QStyleOptionListViewItem(int version) : QStyleOption(version, SO_ListViewItem) {}
 };
 
 struct QStyleOptionListView : public QStyleOptionComplex {
-    enum { Type = ListView };
+    enum { Type = SO_ListView };
     // List of listview items. The first item corresponds to the old ListViewItem we passed,
     // all the other items are its children
     QList<QStyleOptionListViewItem> items;
@@ -158,20 +160,20 @@ struct QStyleOptionListView : public QStyleOptionComplex {
     int itemMargin;
     int treeStepSize;
     bool rootIsDecorated;
-    QStyleOptionListView(int version) : QStyleOptionComplex(version, ListView) {}
+    QStyleOptionListView(int version) : QStyleOptionComplex(version, SO_ListView) {}
 };
 
 struct QStyleOptionDockWindow : public QStyleOption
 {
-    enum { Type = DockWindow };
+    enum { Type = SO_DockWindow };
     bool docked;
     bool isCloseEnabled;
-    QStyleOptionDockWindow(int version) : QStyleOption(version , DockWindow) {}
+    QStyleOptionDockWindow(int version) : QStyleOption(version , SO_DockWindow) {}
 };
 
 struct QStyleOptionToolButton : public QStyleOptionComplex
 {
-    enum { Type = ToolButton };
+    enum { Type = SO_ToolButton };
     enum Extras { None = 0x00, Arrow = 0x01, TextLabel = 0x02, Menu = 0x04, PopupDelay = 0x08,
                   BigPixmap = 0x10 };
     uint extras;
@@ -184,48 +186,48 @@ struct QStyleOptionToolButton : public QStyleOptionComplex
     QPoint pos;
     QFont font;
     QToolButton::TextPosition textPosition;
-    QStyleOptionToolButton(int version) : QStyleOptionComplex(version, ToolButton) {}
+    QStyleOptionToolButton(int version) : QStyleOptionComplex(version, SO_ToolButton) {}
 };
 
 struct QStyleOptionComboBox : public QStyleOptionComplex
 {
-    enum { Type = ComboBox };
+    enum { Type = SO_ComboBox };
     bool editable;
     QRect popupRect;
-    QStyleOptionComboBox(int version) : QStyleOptionComplex(version, ComboBox) {}
+    QStyleOptionComboBox(int version) : QStyleOptionComplex(version, SO_ComboBox) {}
 };
 
 struct QStyleOptionToolBox : public QStyleOption
 {
-    enum { Type = ToolBox };
+    enum { Type = SO_ToolBox };
     QString text;
     QIconSet icon;
     QPalette::ColorRole bgRole;
     QPalette::ColorRole currentWidgetBGRole;
     QPalette currentWidgetPalette;
-    QStyleOptionToolBox(int version) : QStyleOption(version, ToolBox) {};
+    QStyleOptionToolBox(int version) : QStyleOption(version, SO_ToolBox) {};
 };
 
 struct QStyleOptionTitleBar : public QStyleOptionComplex
 {
-    enum { Type = TitleBar };
+    enum { Type = SO_TitleBar };
     QString text;
     QPixmap icon;
     int titleBarState;
     Qt::WFlags titleBarFlags;
-    QStyleOptionTitleBar(int version) : QStyleOptionComplex(version, TitleBar) {};
+    QStyleOptionTitleBar(int version) : QStyleOptionComplex(version, SO_TitleBar) {};
 };
 
 struct QStyleOptionViewItem : public QStyleOption
 {
-    enum { Type = ViewItem };
+    enum { Type = SO_ViewItem };
     enum Position { Left, Right, Top, Bottom };
     enum Size { Large, Small };
     int displayAlignment;
     int decorationAlignment;
     Position decorationPosition;
     Size decorationSize;
-    QStyleOptionViewItem(int version) : QStyleOption(version, ViewItem) {}
+    QStyleOptionViewItem(int version) : QStyleOption(version, SO_ViewItem) {}
 };
 
 template <typename T>

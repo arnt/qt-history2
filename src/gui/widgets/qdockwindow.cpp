@@ -113,7 +113,7 @@ void QDockWindowTitleButton::paintEvent(QPaintEvent *)
     QPainter p(this);
 
     QRect r = rect();
-    QStyleOption opt(0, QStyleOption::Default);
+    QStyleOption opt(0);
     opt.rect = r;
     opt.palette = palette();
     opt.state = QStyle::Style_AutoRaise;

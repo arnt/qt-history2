@@ -36,7 +36,7 @@ public:
 #define q q_func()
 QStyleOption QRubberBandPrivate::getStyleOption() const
 {
-    QStyleOption opt(0, QStyleOption::Default);
+    QStyleOption opt(0);
     opt.rect = rect;
     opt.palette = q->palette();
     opt.state = QStyle::Style_Default;

@@ -4127,7 +4127,7 @@ void QListBox::drawRubber()
         return;
     QPainter p(viewport());
     // p.setRasterOp(NotROP); // ### fix - use qrubberband instead
-    QStyleOption opt(0, QStyleOption::Default);
+    QStyleOption opt(0);
     opt.rect = d->rubber->normalize();
     opt.palette = palette();
     opt.state = QStyle::Style_Rectangle;

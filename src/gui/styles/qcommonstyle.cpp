@@ -891,7 +891,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                     break;
                 }
                 rect.moveBy(shiftX, shiftY);
-                QStyleOption arrowOpt(0, QStyleOption::Default);
+                QStyleOption arrowOpt(0);
                 arrowOpt.rect = rect;
                 arrowOpt.palette = tb->palette;
                 arrowOpt.state = tb->state;
@@ -1448,7 +1448,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (toolbutton->activeParts & SC_ToolButtonMenu)
                 mflags |= Style_Down;
 
-            QStyleOption tool(0, QStyleOption::Default);
+            QStyleOption tool(0);
             tool.palette = pal2;
             if (toolbutton->parts & SC_ToolButton) {
                 if (bflags & (Style_Down | Style_On | Style_Raised)) {
@@ -1520,7 +1520,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             bool down = false;
             QPixmap pm;
 
-            QStyleOption tool(0, QStyleOption::Default);
+            QStyleOption tool(0);
             tool.palette = tb->palette;
             if (tb->parts & SC_TitleBarCloseButton) {
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarCloseButton,

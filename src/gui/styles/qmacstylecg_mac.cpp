@@ -1232,7 +1232,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                     QStyleOptionListViewItem item = lv->items.at(i);
                     if (y + item.height > 0 && (item.childCount > 0
                         || item.extras & QStyleOptionListViewItem::Expandable)) {
-                        QStyleOption treeOpt(0, QStyleOption::Default);
+                        QStyleOption treeOpt(0);
                         treeOpt.rect.setRect(x, y + item.height / 2 - 4, 9, 9);
                         treeOpt.palette = lv->palette;
                         treeOpt.state = lv->state;

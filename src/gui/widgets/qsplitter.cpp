@@ -89,7 +89,7 @@ QSplitterHandle::QSplitterHandle(Qt::Orientation o, QSplitter *parent,
 QSize QSplitterHandle::sizeHint() const
 {
     int hw = s->handleWidth();
-    QStyleOption opt(0, QStyleOption::Default);
+    QStyleOption opt(0);
     opt.rect = s->rect();
     opt.palette = s->palette();
     opt.state = QStyle::Style_Default;

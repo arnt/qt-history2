@@ -146,7 +146,7 @@ void QSizeGrip::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
     painter.setClipRegion(e->region());
-    QStyleOption opt(0, QStyleOption::Default);
+    QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
