@@ -6,4 +6,3 @@
 
 */
 
-#include "qwinfunctions_wce.cpp"
