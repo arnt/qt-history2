@@ -11,11 +11,11 @@ public:
     virtual void setRowCount(int rows);
     virtual void setColumnCount(int columns);
 
-    virtual void insertRow(int at);
-    virtual void insertColumn(int at);
+    virtual bool insertRow(const QModelIndex &parent, int at);
+    virtual bool insertColumn(const QModelIndex &parent, int at);
 
-    virtual void removeRow(int at);
-    virtual void removeColumn(int at);
+    virtual bool removeRow(const QModelIndex &parent, int at);
+    virtual bool removeColumn(const QModelIndex &parent, int at);
 
     virtual void setText(int row, int column, const QString &text);
     virtual void setIconSet(int row, int column, const QIconSet &iconSet);
@@ -116,28 +116,32 @@ void QTableModel::setColumnCount(int columns)
         emit contentsRemoved(0, topLeft, bottomRight);
 }
 
-void QTableModel::insertRow(int)
+bool QTableModel::insertRow(const QModelIndex &parent, int)
 {
 // FIXME: not implemented
     qDebug("insertRow: not implemented");
+    return false;
 }
 
-void QTableModel::insertColumn(int)
+bool QTableModel::insertColumn(const QModelIndex &parent, int)
 {
 // FIXME: not implemented
     qDebug("insertColumn: not implemented");
+    return false;
 }
 
-void QTableModel::removeRow(int)
+bool QTableModel::removeRow(const QModelIndex &parent, int)
 {
 // FIXME: not implemented
     qDebug("removeRow: not implemented");
+    return false;
 }
 
-void QTableModel::removeColumn(int)
+bool QTableModel::removeColumn(const QModelIndex &parent, int)
 {
 // FIXME: not implemented
     qDebug("removeColumn: not implemented");
+    return false;
 }
 
 void QTableModel::setText(int row, int column, const QString &text)

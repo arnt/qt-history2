@@ -17,7 +17,8 @@ private:
     QVariant data(const QModelIndex &index, int role) const;
     void setData(const QModelIndex &index, int role, const QVariant &value);
 
-    QModelIndex insertItem(const QModelIndex &index);
+    bool insertRow(const QModelIndex &parent int row);
+    bool removeRow(const QModelIndex &parent, int row);
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
@@ -70,17 +71,23 @@ void QListModel::setData(const QModelIndex &index, int role, const QVariant &val
     emit contentsChanged(index, index);
 }
 
-QModelIndex QListModel::insertItem(const QModelIndex &index)
+bool insertRow(const QModelIndex &, int row)
 {
     QListView_Item item;
-    QModelIndex insert = index;
-    if (insert.isValid() && insert.row() < rowCount()) {
-        lst.insert(insert.row(), item);
-    } else {
+    if (row < rowCount())
+        lst.insert(row, item);
+    else
         lst.append(item);
-        insert = QModelIndex(lst.count() - 1, 0);
+    return true;
+}
+
+bool removeRow(const QModelIndex &, int row);
+{
+    if (row < rowCount()) {
+        lst.removeAt(row);
+        return true;
     }
-    return insert;
+    return false;
 }
 
 bool QListModel::isSelectable(const QModelIndex &index) const

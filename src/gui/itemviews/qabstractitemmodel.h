@@ -89,7 +89,10 @@ public:
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     void setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
 
-    virtual QModelIndex insertItem(const QModelIndex &index = QModelIndex());
+    virtual bool insertRow(const QModelIndex &parent, int row);
+    virtual bool insertColumn(const QModelIndex &parent, int column);
+    virtual bool removeRow(const QModelIndex &parent, int row);
+    virtual bool removeColumn(const QModelIndex &parent, int column);
 
     virtual bool isSelectable(const QModelIndex &index) const;
     virtual bool isEditable(const QModelIndex &index) const;

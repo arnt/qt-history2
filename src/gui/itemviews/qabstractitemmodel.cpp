@@ -151,16 +151,24 @@ void QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
         setData(index, it.key(), it.value());
 }
 
-/*!
-  Inserts a new item at QModelIndex, or if QModelIndex is invalid or out
-  of bounds appends at the end of the model.  Returns and invalid
-  QModelIndex on failure or the QModelIndex of the inserted item.
-*/
-
-QModelIndex QAbstractItemModel::insertItem(const QModelIndex &)
+bool QAbstractItemModel::insertRow(const QModelIndex &parent, int row)
 {
-    // read-only does nothing
-    return QModelIndex();
+    return false;
+}
+
+bool QAbstractItemModel::insertColumn(const QModelIndex &parent, int column)
+{
+    return false;
+}
+
+bool QAbstractItemModel::removeRow(const QModelIndex &parent, int row)
+{
+    return false;
+}
+
+bool QAbstractItemModel::removeColumn(const QModelIndex &parent, int column)
+{
+    return false;
 }
 
 bool QAbstractItemModel::isSelectable(const QModelIndex &) const
