@@ -218,7 +218,7 @@ else
 fi
 
 # licensed modules depend on type of commercial license
-MODULES="styles tools core widgets dialogs iconview workspace compat"
+MODULES="styles tools kernel widgets dialogs iconview workspace compat"
 [ "$PLATFORM_QWS" = "yes" ] && [ "$Products" = "qt-professional" ] && MODULES="$MODULES network"
 [ "$Products" != "qt-professional" ] && MODULES="$MODULES network canvas table xml opengl sql"
 CFG_MODULES_AVAILABLE=$MODULES
