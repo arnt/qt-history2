@@ -1393,6 +1393,12 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
     if(project->isActiveConfig("yacc_no_name_mangle") && l.count() > 1)
 	warn_msg(WarnLogic, "yacc_no_name_mangle specified, but multiple parsers expected."
 		 "This can lead to link problems.\n");
+    QString default_out_h = "y.tab.h", default_out_c = "y.tab.c";
+    if(!project->isEmpty("QMAKE_YACC_HEADER"))
+	default_out_h = project->first("QMAKE_YACC_HEADER");
+    if(!project->isEmpty("QMAKE_YACC_SOURCE"))
+	default_out_c = project->first("QMAKE_YACC_SOURCE");
+    QRegExp regexpBase("\\$base");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
 	QString dir = fileFixify(Option::output_dir);
@@ -1401,14 +1407,22 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 	QString impl = dir + fi.baseName(TRUE) + Option::yacc_mod + Option::cpp_ext.first();
 	QString decl = dir + fi.baseName(TRUE) + Option::yacc_mod + Option::h_ext.first();
 
-	QString yaccflags = "$(YACCFLAGS)";
-	if(!project->isActiveConfig("yacc_no_name_mangle"))
-	    yaccflags += " -p " + fi.baseName(TRUE);
+	QString yaccflags = "$(YACCFLAGS)", mangle = "y";
+	if(!project->isActiveConfig("yacc_no_name_mangle")) {
+	    mangle = fi.baseName(TRUE);
+	    yaccflags += " -p " + mangle;
+	} 
+	QString out_h = default_out_h, out_c = default_out_c;
+	if(!mangle.isEmpty()) {
+	    out_h.replace(regexpBase, mangle);
+	    out_c.replace(regexpBase, mangle);
+	}
+
 	t << impl << ": " << (*it) << "\n\t"
-	  << ( "$(YACC) " + yaccflags + " " ) << (*it) << "\n\t"
+	  << "$(YACC) " << yaccflags << " " << (*it) << "\n\t"
 	  << "-$(DEL_FILE) " << impl << " " << decl << "\n\t"
-	  << "-$(MOVE) y.tab.h " << decl << "\n\t"
-	  << "-$(MOVE) y.tab.c " << impl << endl << endl;
+	  << "-$(MOVE) " << out_h << " " << decl << "\n\t"
+	  << "-$(MOVE) " << out_c << " " << impl << endl << endl;
 	t << decl << ": " << impl << endl << endl;
     }
 }
@@ -1420,6 +1434,10 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
     if(project->isActiveConfig("yacc_no_name_mangle") && l.count() > 1)
 	warn_msg(WarnLogic, "yacc_no_name_mangle specified, but multiple parsers expected.\n"
 		 "This can lead to link problems.\n");
+    QString default_out_c = "lex.$base.c";
+    if(!project->isEmpty("QMAKE_LEX_SOURCE"))
+	default_out_c = project->first("QMAKE_LEX_SOURCE");
+    QRegExp regexpBase("\\$base");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
 	QString dir = fileFixify(Option::output_dir);
@@ -1432,10 +1450,14 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 	    stub = fi.baseName(TRUE);
 	    lexflags += " -P" + stub;
 	}
+	QString out_c = default_out_c;
+	if(!stub.isEmpty()) 
+	    out_c.replace(regexpBase, stub);
+
 	t << impl << ": " << (*it) << " " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
 	  << ( "$(LEX) " + lexflags + " " ) << (*it) << "\n\t"
 	  << "-$(DEL_FILE) " << impl << " " << "\n\t"
-	  << "-$(MOVE) lex." << stub << ".c " << impl << endl << endl;
+	  << "-$(MOVE) " << out_c << " " << impl << endl << endl;
     }
 }
 
