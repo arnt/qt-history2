@@ -54,22 +54,24 @@
 
 // font description
 struct QFontDef {
-    QString	family;
+    QString family;
 
-    short	pointSize;
-    short	lbearing;
-    short	rbearing;
+    short pointSize;
+    short lbearing;
+    short rbearing;
 
-    uint	styleHint	: 8;
-    uint	styleStrategy	: 8;
-    uint	weight		: 8;
-    uint	italic		: 1;
-    uint	underline	: 1;
-    uint	strikeOut	: 1;
-    uint	fixedPitch	: 1;
-    uint	hintSetByUser	: 1;
-    uint	rawMode		: 1;
-    uint	dirty		: 1;
+    uchar styleHint;
+    uchar styleStrategy;
+    uchar weight;
+    
+    bool italic;
+    bool underline;
+    bool strikeOut;
+    bool fixedPitch;
+    bool hintSetByUser;
+    bool rawMode;
+    
+    bool dirty;
 };
 
 
@@ -88,8 +90,6 @@ public:
     { ; }
 
     ~QFontStruct();
-
-    bool deref();
 
     Qt::HANDLE handle;
     QCString name;
@@ -145,7 +145,7 @@ public:
     // the above enum you *MUST* update this number to be equal to the new NScripts
     // value, lest you suffer firey death at the hand of qFatal().
 #define NSCRIPTSEGCSHACK 19
-    
+
     static Script scriptForChar(const QChar &c);
 
 
@@ -180,7 +180,7 @@ public:
 	actual.hintSetByUser = FALSE;
 	actual.rawMode = FALSE;
 	actual.dirty = TRUE;
-
+	
 #ifndef QT_NO_COMPAT
 	// charset = QFont::AnyCharSet;
 #endif
@@ -277,7 +277,7 @@ public:
     public:
 	// X fontstruct handles for each character set
 	QFontStruct *fontstruct[NSCRIPTSEGCSHACK];
-	
+
 	QFontX11Data()
 	{
 	    for (int i = 0; i < QFontPrivate::NScripts; i++) {
@@ -287,37 +287,30 @@ public:
 
 	QFontX11Data(const QFontX11Data &xd)
 	{
-	    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-		if (xd.fontstruct[i] &&
-		    xd.fontstruct[i] != (QFontStruct *) -1 &&
-		    xd.fontstruct[i] != xd.fontstruct[QFontPrivate::UNICODE]) {
-		    xd.fontstruct[i]->ref();
+	    QFontStruct *qfs;
+
+	    for (int i = 0; i < QFontPrivate::NScripts; i++) {
+		qfs = xd.fontstruct[i];
+
+		if (qfs && qfs != (QFontStruct *) -1) {
+		    qfs->ref();
 		}
 
-		fontstruct[i] = xd.fontstruct[i];
+		fontstruct[i] = qfs;
 	    }
-
-	    if (xd.fontstruct[QFontPrivate::UNICODE] &&
-		xd.fontstruct[QFontPrivate::UNICODE] != (QFontStruct *) -1) {
-		xd.fontstruct[QFontPrivate::UNICODE]->ref();
-	    }
-
-	    fontstruct[QFontPrivate::UNICODE] = xd.fontstruct[QFontPrivate::UNICODE];
 	}
 
 	~QFontX11Data()
 	{
-	    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-		if (fontstruct[i] &&
-		    fontstruct[i] != (QFontStruct *) -1 &&
-		    fontstruct[i] != fontstruct[QFontPrivate::UNICODE]) {
-		    fontstruct[i]->deref();
-		}
-	    }
+	    QFontStruct *qfs;
 
-	    if (fontstruct[QFontPrivate::UNICODE] &&
-		fontstruct[QFontPrivate::UNICODE] != (QFontStruct *) -1) {
-		fontstruct[QFontPrivate::UNICODE]->deref();
+	    for (int i = 0; i < QFontPrivate::NScripts; i++) {
+		qfs = fontstruct[i];
+		fontstruct[i] = 0;
+
+		if (qfs && qfs != (QFontStruct *) -1) {
+		    qfs->deref();
+		}
 	    }
 	}
     } x11data;

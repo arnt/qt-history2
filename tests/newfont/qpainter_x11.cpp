@@ -2676,7 +2676,7 @@ struct qt_truple
     qt_truple()
 	: script((QFontPrivate::Script) -1), stroffset(-1), xoffset(0)
     { ; }
-    
+
     QCString mapped;
     QFontPrivate::Script script;
     int stroffset;
@@ -2845,10 +2845,10 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		if (! cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
 		    continue;
 		}
-		
+
 		f = (XFontStruct *)
 		    cfont.d->x11data.fontstruct[truples[currt - 1].script]->handle;
-
+		
 		// 2b. string width (this is for the PREVIOUS truple)
 		if (cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec) {
 		    truples[currt - 1].mapped =
@@ -2887,7 +2887,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	}
     }
 
-
     if (currt != 0) {
 	cfont.d->load(truples[currt - 1].script);
 	if (cfont.d->x11data.fontstruct[truples[currt - 1].script]) {
@@ -2923,8 +2922,11 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		}
 	    }
 	}
+    } else {
+	// make sure the last font for the text is at least loaded
+	cfont.d->load(truples[currt].script);
     }
-
+    
     // step 3
     for (i = 0; i < len; i++) {
 	// step 4... if nothing is found, the for-condition will
@@ -2982,17 +2984,23 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 
     // step 7
     delete [] truples;
-
+    
     if ( cfont.underline() || cfont.strikeOut() ) {
 	QFontMetrics fm = fontMetrics();
 	int lw = fm.lineWidth();
 	int tw = fm.width( str, len );
-	if ( cfont.underline() )		// draw underline effect
+	
+	// draw underline effect
+	if ( cfont.underline() ) {
 	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(),
 			    tw, lw );
-	if ( cfont.strikeOut() )		// draw strikeout effect
+	}
+	
+	// draw strikeout effect
+	if ( cfont.strikeOut() ) {
 	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(),
 			    tw, lw );
+	}
     }
 }
 

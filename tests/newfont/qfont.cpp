@@ -1291,11 +1291,11 @@ static Q_UINT8 get_font_bits( const QFontDef &f )
 
 
 #ifndef QT_NO_DATASTREAM
+
 /*
   Internal function. Sets boolean font settings (except dirty)
   from an unsigned 8-bit number. Used for serialization etc.
 */
-
 static void set_font_bits( Q_UINT8 bits, QFontDef *f )
 {
     f->italic        = (bits & 0x01) != 0;
@@ -1305,7 +1305,9 @@ static void set_font_bits( Q_UINT8 bits, QFontDef *f )
     f->hintSetByUser = (bits & 0x10) != 0;
     f->rawMode       = (bits & 0x20) != 0;
 }
+
 #endif
+
 
 /* NOT USED
 static void hex2( uchar n, char *s )
@@ -1556,15 +1558,12 @@ QFontMetrics::QFontMetrics( const QFont &font )
     d->ref();
 
     d->load(QFontPrivate::defaultScript);
+    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+	if (d->x11data.fontstruct[i]) {
+	    d->load((QFontPrivate::Script) i);
+	}
+    }
 
-    /*
-      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-      if (d->x11data.fontstruct[i]) {
-      d->load((QFontPrivate::Script) i);
-      }
-      }
-    */
-    
     painter = 0;
     flags = 0;
 
@@ -1594,14 +1593,11 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     d->ref();
 
     d->load(QFontPrivate::defaultScript);
-
-    /*
-      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-      if (d->x11data.fontstruct[i]) {
-      d->load((QFontPrivate::Script) i);
-      }
-      }
-    */
+    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+	if (d->x11data.fontstruct[i]) {
+	    d->load((QFontPrivate::Script) i);
+	}
+    }
     
     flags = 0;
 
@@ -1902,10 +1898,15 @@ QFontInfo::QFontInfo( const QFont &font )
     d->ref();
 
     d->load(QFontPrivate::defaultScript);
-	
+    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+	if (d->x11data.fontstruct[i]) {
+	    d->load((QFontPrivate::Script) i);
+	}
+    }
+
     painter = 0;
     flags = 0;
-	
+
     if ( font.underline() )
 	setUnderlineFlag();
     if ( font.strikeOut() )
@@ -1922,7 +1923,7 @@ QFontInfo::QFontInfo( const QFont &font )
 QFontInfo::QFontInfo( const QPainter *p )
 {
     painter = (QPainter *) p;
-    
+
 #if defined(CHECK_STATE)
     if ( !painter->isActive() )
 	qWarning( "QFontInfo: Get font info between QPainter::begin() "
@@ -1934,9 +1935,14 @@ QFontInfo::QFontInfo( const QPainter *p )
     d->ref();
 
     d->load(QFontPrivate::defaultScript);
-    
+    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+	if (d->x11data.fontstruct[i]) {
+	    d->load((QFontPrivate::Script) i);
+	}
+    }
+
     flags = 0;
-    
+
     insertFontInfo( this );
 }
 

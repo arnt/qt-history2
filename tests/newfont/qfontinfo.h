@@ -72,8 +72,7 @@ public:
 private:
     QFontInfo( const QPainter * );
     static void reset( const QPainter * );
-    // const QFontDef *spec() const;
-
+    
     QFontPrivate *d;
     QPainter *painter;
     int flags;

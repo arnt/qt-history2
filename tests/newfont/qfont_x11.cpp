@@ -60,6 +60,9 @@
 #include "qfontencodings_p.h"
 
 
+// #define Q_SUPERFONT_METRICS
+
+
 // to get which font encodings are installed:
 // xlsfonts | egrep -- "^-.*-.*-.*$" | cut -f 14- -d- | sort | uniq
 
@@ -144,7 +147,7 @@ static int qt_x11indices[QFontPrivate::NScripts + 1] = {
 // QFontCache
 // **********************************************************************
 static const int qtReserveCost = 1024*100;
-static const int qtFontCacheSize = 1024*1024*4;
+static const int qtFontCacheSize = 1024*1024; // ### *4
 static const int qtFontCacheCount = 61;
 
 
@@ -168,6 +171,8 @@ void QFontDict::deleteItem(Item d)
     if (qfs == (QFontStruct *) -1) {
 	return;
     }
+
+    // qDebug("QFD: deleting item %p %s %d", qfs, (const char *) qfs->name, qfs->count);
 
     if (qfs->count == 0 ||
 	qfs->deref()) {
@@ -196,6 +201,8 @@ void QFontCache::deleteItem(Item d)
     if (qfs == (QFontStruct *) -1) {
 	return;
     }
+
+    // qDebug("QFC: deleting item %p %s %d", qfs, (const char *) qfs->name, qfs->count);
 
     if (qfs->count == 0 ||
 	qfs->deref()) {
@@ -247,7 +254,7 @@ void qX11ClearFontNameCache()
 
 QFontStruct::~QFontStruct()
 {
-    qDebug("QFS::~QFS: deleted with count %d", count);
+    // qDebug("UNLOAD: %s - %p %d", (const char *) name, this, count);
 
     if (fontCache) {
 	(void) fontCache->take(name);
@@ -264,15 +271,28 @@ QFontStruct::~QFontStruct()
 }
 
 
-bool QFontStruct::deref()
-{
-    if (count == 0) {
-	qDebug("QFS::deref: NEGATIVE REFCOUNT!  WHAT IS WRONG WITH BIDI TT FONTS?");
-	// int *foo = 0; *foo = 0;
-    }
+/*
+  void QFontStruct::ref()
+  {
+  QShared::ref();
 
-    return QShared::deref();
-}
+  qDebug("QFS::ref  : %p %d", this, count);
+  }
+
+
+  bool QFontStruct::deref()
+  {
+  if (count == 0) {
+  qDebug("QFS::deref: NEGATIVE REFCOUNT!");
+  // int *foo = 0; *foo = 0;
+  }
+
+  bool ret = QShared::deref();
+  qDebug("QFS::deref: %p %d", this, count);
+
+  return ret;
+  }
+*/
 
 
 
@@ -364,7 +384,7 @@ QString QFontPrivate::lastResortFont() const
     }
 
 #if defined(CHECK_NULL)
-    qFatal( "QFont::lastResortFont: Cannot find any reasonable font" );
+    qFatal( "QFontPrivate::lastResortFont: Cannot find any reasonable font" );
 #endif
 
     return last;
@@ -1042,7 +1062,7 @@ void QFontPrivate::computeLineWidth(QFontPrivate::Script script)
 // fill the actual fontdef with data from the loaded font
 void QFontPrivate::initFontInfo(QFontPrivate::Script script)
 {
-    if (! actual.dirty) return;
+    // if (! actual.dirty) return;
 
     actual.lbearing = SHRT_MIN;
     actual.rbearing = SHRT_MIN;
@@ -1051,6 +1071,7 @@ void QFontPrivate::initFontInfo(QFontPrivate::Script script)
     if (exactMatch) {
 	actual = request;
 	actual.dirty = FALSE;
+	
 	return;
     }
 
@@ -1070,6 +1091,7 @@ void QFontPrivate::initFontInfo(QFontPrivate::Script script)
 	actual.family = QString::fromLatin1(x11data.fontstruct[script]->name);
 	actual.rawMode = TRUE;
 	exactMatch = FALSE;
+	
 	return;
     }
 
@@ -1101,43 +1123,54 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
     }
 
     if (request.dirty) {
-	if (x11data.fontstruct[script] &&
-	    x11data.fontstruct[script] != (QFontStruct *) -1) {
+	// dirty font needs to have the fontstruct deref'ed
+	QFontStruct *qfs = x11data.fontstruct[script];
+	x11data.fontstruct[script] = 0;
+
+	if (qfs && qfs != (QFontStruct *) -1) {
 	    // only deref here... we will let the cache take care of cleaning up
 	    // while the application is running
-	    if (x11data.fontstruct[script] !=
-		x11data.fontstruct[QFontPrivate::UNICODE]) {
-		x11data.fontstruct[script]->deref();
-	    }
-
-	    x11data.fontstruct[script] = 0;
+	    qfs->deref();
 	}
 
 	// dirty unicode also if the font is dirty
-	if (x11data.fontstruct[QFontPrivate::UNICODE] &&
-	    x11data.fontstruct[QFontPrivate::UNICODE] != (QFontStruct *) -1) {
+     	qfs = x11data.fontstruct[QFontPrivate::UNICODE];
+	x11data.fontstruct[QFontPrivate::UNICODE] = 0;
+
+	if (qfs && qfs != (QFontStruct *) -1) {
 	    // only deref here... we will let the cache take care of cleaning up
 	    // while the application is running
-	    x11data.fontstruct[QFontPrivate::UNICODE]->deref();
-	    x11data.fontstruct[QFontPrivate::UNICODE] = 0;
+	    qfs->deref();
 	}
     }
 
     // look for a unicode font first, and see if it has the script that we want...
     if (tryUnicode) {
-	if (! x11data.fontstruct[QFontPrivate::UNICODE]) {
-	    // qDebug("QFontPrivate::load: trying to load unicode font");
+	QFontStruct *qfs = x11data.fontstruct[QFontPrivate::UNICODE];
+
+	if (! qfs) {
+	    // qDebug("QFP::load: trying to load unicode font");
 	    load(QFontPrivate::UNICODE, FALSE);
+	    qfs = x11data.fontstruct[QFontPrivate::UNICODE];
 	}
 
-	if (x11data.fontstruct[QFontPrivate::UNICODE] != (QFontStruct *) -1) {
+	if (qfs != (QFontStruct *) -1) {
+	    // hit the font cache to keep this unicode font alive a little longer
+	    fontCache->find(qfs->name);
+
 	    bool hasChar = FALSE;
 	    QChar ch;
 
-	    XFontStruct *f =
-		(XFontStruct *) x11data.fontstruct[QFontPrivate::UNICODE]->handle;
+	    XFontStruct *f = (XFontStruct *) qfs->handle;
 
-	    if (f->per_char) {
+	    if (f->per_char &&
+		f->min_byte1 == 0 && f->max_byte1 >= 0xff &&
+		f->min_char_or_byte2 == 0 && f->max_char_or_byte2 >= 0xff) {
+		// qDebug("QFP::load: unicode font has individual charstructs");
+		// qDebug("QFP::load: m1 %d x1 %d m2 %d x2 %d",
+		// f->min_byte1, f->max_byte1,
+		// f->min_char_or_byte2, f->max_char_or_byte2);
+
 		XCharStruct *xcs = f->per_char + 0xfffe;
 
 		if (xcs && xcs->width + xcs->ascent + xcs->descent == 0) {
@@ -1184,14 +1217,12 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 		// "0x%04d for %d %s",
 		// this, ch.unicode(), script, qt_x11encodings[script]);
 
-		x11data.fontstruct[script] = x11data.fontstruct[QFontPrivate::UNICODE];
-		// x11data.fontstruct[script]->ref();
+		x11data.fontstruct[script] = qfs;
+		qfs->ref();
 
-		// x11data.fontName[script] = x11data.fontName[QFontPrivate::UNICODE];
-
-		// x11data.codec[script] = 0;
+		initFontInfo(script);
 		request.dirty = FALSE;
-
+		
 		return;
 		// } else {
 		// qDebug("QFontPrivate::load: unicode font doesn't have char 0x%04d",
@@ -1228,14 +1259,10 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
 	if (name.isNull()) {
 	    // no font name... this can only happen with Unicode
-	    // qDebug("QFontPrivate::load: no font name - this must be unicode (%d %s)",
-	    // script, qt_x11encodings[script]);
-
-	    // qDebug("negative caching here!");
+	    // qDebug("QFP::load: no font name - this must be unicode (%d %s)",
+	    // script, qt_x11encodings[script][qt_x11indices[script]]);
 
 	    name = k + "NU";
-	    // x11data.fontstruct[script] = (QFontStruct *) -1;
-	    // return;
 	}
 
 	// qDebug("QFontPrivate::load: putting '%s' into name dict", name.latin1());
@@ -1261,15 +1288,20 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 	// is not the way I want to do this, but unfortunately QCache doesn't grok
 	// QShared subclasses (the cache will delete items even if something is still
 	// holding references)
-	qfs = fontDict->find(n.data());
+	qfs = fontDict->find((const char *) n);
     }
 
     if (qfs) {
 	// Found font in either cache or dict...
-	if (qfs != (QFontStruct *) -1)
-	    qfs->ref();
 	x11data.fontstruct[script] = qfs;
-
+	
+	if (qfs != (QFontStruct *) -1) {
+	    qfs->ref();
+	    
+	    initFontInfo(script);
+	    request.dirty = FALSE;
+	}
+	
 	return;
     }
 
@@ -1278,7 +1310,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
     // qDebug("QFontPrivate::load: %p loading font for %d %s\n\t%s", this,
     // script, qt_x11encodings[script], (const char *) n);
-    qDebug("QFP::load: %s", (const char *) n);
+    // qDebug("LOAD  : %s", (const char *) n);
 
     if (! (f = XLoadQueryFont(QPaintDevice::x11AppDisplay(),
 			      (const char *) n))) {
@@ -1294,7 +1326,6 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 	    // Didn't get unicode font, set to sentinel and return
 	    // qDebug("no unicode font, doing negative caching");
 	    x11data.fontstruct[script] = (QFontStruct *) -1;
-
 	    fontCache->insert((const char *) n, x11data.fontstruct[script], 1);
 
 	    return;
@@ -1318,6 +1349,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
     if (size > fontCache->maxCost() + qtReserveCost)
 	fontCache->setMaxCost(size + qtReserveCost);
 
+    // qfs->count is one when created
     qfs = new QFontStruct((Qt::HANDLE) f, n);
     x11data.fontstruct[script] = qfs;
 
@@ -1325,22 +1357,24 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
     // get unicode -> font encoding codec
     if (script < QFontPrivate::UNICODE) {
 	qfs->codec =
-	    QTextCodec::codecForName((qt_x11encodings[script])[(qt_x11indices[script])]);
+	    QTextCodec::codecForName(qt_x11encodings[script][qt_x11indices[script]]);
     }
 
-    if (qfs->codec) {
-	qDebug("QFP::load: got codec %s for script %d %s",
-	       qfs->codec->name(), script,
-	       qt_x11encodings[script][(qt_x11indices[script])]);
-    }
+    // if (qfs->codec) {
+    // qDebug("QFP::load: got codec %s for script %d %s",
+    // qfs->codec->name(), script,
+    // qt_x11encodings[script][(qt_x11indices[script])]);
+    // }
 
-    request.dirty = FALSE;
     initFontInfo(script);
+    request.dirty = FALSE;
 
     // Insert font into the font cache and font dict
     bool inserted;
 
     inserted = fontCache->insert(qfs->name, qfs, size);
+    // one ref in the fontcache
+    qfs->ref();
 
 #if defined(CHECK_STATE)
     if (! inserted)
@@ -1348,6 +1382,8 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 #endif
 
     fontDict->insert(qfs->name, qfs);
+    // one ref in the font dict
+    qfs->ref();
 }
 
 
@@ -1483,7 +1519,6 @@ void QFont::cleanup()
     delete fontCache;
     fontCache = 0;
 
-
     fontDict->setAutoDelete(TRUE);
     delete fontDict;
     fontDict = 0;
@@ -1498,22 +1533,22 @@ void QFont::cleanup()
 */
 void QFont::cacheStatistics()
 {
-#if defined(DEBUG)
+    
+#if defined(QT_DEBUG)
+    
     fontCache->statistics();
-
-    qDebug("QFont::cacheStatistics: not fully implemented");
-
-    /*
-      QFontCacheIt it(*fontCache);
-      QFontPrivate *fin;
-      qDebug( "{" );
-      while ( (fin = it.current()) ) {
-      ++it;
-      qDebug( "   [%s]", fin->name() );
-      }
-      qDebug( "}" );
-    */
+    
+    QFontCacheIt it(*fontCache);
+    QFontStruct *qfs;
+    qDebug( "{" );
+    while ( (qfs = it.current()) ) {
+	++it;
+	qDebug( "   [%s]", (const char *) qfs->name );
+    }
+    qDebug( "}" );
+    
 #endif
+      
 }
 
 
@@ -1703,10 +1738,17 @@ void QFont::setPixelSizeFloat( float pixelSize )
 */
 int QFontMetrics::ascent() const
 {
+    
+#ifdef Q_SUPERFONT_METRICS
+    
     XFontStruct *f;
     int a = 0, aa;
     for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+	// dont load new scripts...
 	if (! d->x11data.fontstruct[i]) continue;
+
+	// but keep old ones up to date...
+	d->load((QFontPrivate::Script) i);
 
 	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
 	aa = f->max_bounds.ascent;
@@ -1715,6 +1757,19 @@ int QFontMetrics::ascent() const
     }
 
     return printerAdjusted(a);
+    
+#else // !Q_SUPERFONT_METRICS
+    
+    d->load(QFontPrivate::defaultScript);
+    if (! d->x11data.fontstruct[QFontPrivate::defaultScript])
+	return 0;
+    
+    XFontStruct *f =
+	(XFontStruct *) d->x11data.fontstruct[QFontPrivate::defaultScript]->handle;
+    return f->max_bounds.ascent;
+    
+#endif // Q_SUPERFONT_METRICS
+    
 }
 
 
@@ -1729,10 +1784,15 @@ int QFontMetrics::ascent() const
 */
 int QFontMetrics::descent() const
 {
+    
+#ifdef Q_SUPERFONT_METRICS
+    
     XFontStruct *f;
     int c = 0, cc;
     for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
 	if (! d->x11data.fontstruct[i]) continue;
+
+	d->load((QFontPrivate::Script) i);
 
 	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
 	cc = f->max_bounds.descent - 1;
@@ -1741,6 +1801,19 @@ int QFontMetrics::descent() const
     }
 
     return printerAdjusted(c);
+    
+#else // !Q_SUPERFONT_METRICS
+    
+    d->load(QFontPrivate::defaultScript);
+    if (! d->x11data.fontstruct[QFontPrivate::defaultScript])
+	return 0;
+    
+    XFontStruct *f =
+	(XFontStruct *) d->x11data.fontstruct[QFontPrivate::defaultScript]->handle;
+    return f->max_bounds.descent - 1;
+    
+#endif // Q_SUPERFONT_METRICS
+    
 }
 
 
@@ -1754,12 +1827,10 @@ bool QFontMetrics::inFont(QChar ch) const
     if (script == QFontPrivate::UnknownScript)
 	return FALSE;
 
-    // if (! d->x11data.fontstruct[script]) {
     d->load(script);
-
-    if (! d->x11data.fontstruct[script])
+    if (! d->x11data.fontstruct[script]) {
 	return FALSE;
-    // }
+    }
 
     XFontStruct *f = (XFontStruct *) d->x11data.fontstruct[script]->handle;
 
@@ -1770,7 +1841,7 @@ bool QFontMetrics::inFont(QChar ch) const
 		ch.row() <= f->max_byte1);
     } else if (ch.row()) {
         uint ch16 = ch.unicode();
-        return (ch16 >= f->min_char_or_byte2 &&
+	return (ch16 >= f->min_char_or_byte2 &&
 		ch16 <= f->max_char_or_byte2);
     }
 
@@ -1806,7 +1877,7 @@ XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, QChar ch)
 	    ch = QChar((ushort)f->default_char);
 	    // qDebug("charStr: after: 0x%04x", ch.unicode());
 	}
-	
+
 	return f->per_char +
 	    ((ch.row() - f->min_byte1)
 	     * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
@@ -1821,7 +1892,7 @@ XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, QChar ch)
 	    ch16 = f->default_char;
 	    // qDebug("charStr: after 0x%04x", ch16);
 	}
-	
+
 	return f->per_char + ch16;
     }
 
@@ -1833,7 +1904,7 @@ XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, QChar ch)
 	ch = QChar((uchar)f->default_char);
 	// qDebug("charStr: char not in font, using default");
     }
-    
+
     return f->per_char + ch.cell() - f->min_char_or_byte2;
 }
 
@@ -1856,12 +1927,9 @@ int QFontMetrics::leftBearing(QChar ch) const
 
     if (script == QFontPrivate::UnknownScript) return 0;
 
-    // if (! d->x11data.fontstruct[script]) {
     d->load(script);
-
     if (! d->x11data.fontstruct[script])
 	return 0;
-    // }
 
     XCharStruct *xcs =
 	charStr(d->x11data.fontstruct[script]->codec,
@@ -1888,12 +1956,9 @@ int QFontMetrics::rightBearing(QChar ch) const
 
     if (script == QFontPrivate::UnknownScript) return 0;
 
-    if (! d->x11data.fontstruct[script]) {
-	d->load(script);
-
-	if (! d->x11data.fontstruct[script])
-	    return 0;
-    }
+    d->load(script);
+    if (! d->x11data.fontstruct[script])
+	return 0;
 
     XCharStruct *xcs =
 	charStr(d->x11data.fontstruct[script]->codec,
@@ -1918,6 +1983,8 @@ int QFontMetrics::minLeftBearing() const
 
     for(int i = 0; i < QFontPrivate::NScripts - 1; i++) {
 	if (! d->x11data.fontstruct[i]) continue;
+
+	d->load((QFontPrivate::Script) i);
 
 	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
 	if (f->min_bounds.lbearing < mlb)
@@ -1952,6 +2019,8 @@ int QFontMetrics::minRightBearing() const
 
 		continue;
 	    }
+
+	    d->load((QFontPrivate::Script) i);
 
 	    f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
 
@@ -1993,10 +2062,15 @@ int QFontMetrics::minRightBearing() const
 */
 int QFontMetrics::height() const
 {
+
+#ifdef Q_SUPERFONT_METRICS
+    
     XFontStruct *f;
     int h = 0, hh;
     for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
 	if (! d->x11data.fontstruct[i]) continue;
+
+	d->load((QFontPrivate::Script) i);
 
 	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
 	hh = printerAdjusted(f->max_bounds.ascent + f->max_bounds.descent);
@@ -2005,6 +2079,19 @@ int QFontMetrics::height() const
     }
 
     return h;
+    
+#else // !Q_SUPERFONT_METRICS
+    
+    d->load(QFontPrivate::defaultScript);
+    if (! d->x11data.fontstruct[QFontPrivate::defaultScript])
+	return 0;
+    
+    XFontStruct *f =
+	(XFontStruct *) d->x11data.fontstruct[QFontPrivate::defaultScript]->handle;
+    return f->max_bounds.ascent + f->max_bounds.descent;
+    
+#endif // Q_SUPERFONT_METRICS
+    
 }
 
 
@@ -2017,10 +2104,15 @@ int QFontMetrics::height() const
 */
 int QFontMetrics::leading() const
 {
+    
+#ifdef Q_SUPERFONT_METRICS
+    
     XFontStruct *f;
     int l = 0, ll;
     for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
 	if (! d->x11data.fontstruct[i]) continue;
+
+	d->load((QFontPrivate::Script) i);
 
 	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
 	ll = printerAdjusted(f->ascent + f->descent - f->max_bounds.ascent -
@@ -2030,6 +2122,20 @@ int QFontMetrics::leading() const
     }
 
     return l;
+    
+#else // !Q_SUPERFONT_METRICS
+    
+    d->load(QFontPrivate::defaultScript);
+    if (! d->x11data.fontstruct[QFontPrivate::defaultScript])
+	return 0;
+    
+    XFontStruct *f =
+	(XFontStruct *) d->x11data.fontstruct[QFontPrivate::defaultScript]->handle;
+    
+    return f->ascent + f->descent - f->max_bounds.ascent - f->max_bounds.descent;
+    
+#endif // Q_SUPERFONT_METRICS
+    
 }
 
 
@@ -2098,23 +2204,25 @@ int QFontMetrics::width(QChar ch) const
 */
 int QFontMetrics::width( const QString &str, int len ) const
 {
-    if ( len < 0 ) len = str.length();
-
+    if (len < 0)
+	len = str.length();
+    if (len == 0) 
+	return 0;
+    
     // this algorithm is similar to the one used for painting
     const QChar *uc = str.unicode();
     QFontPrivate::Script currs = QFontPrivate::UnknownScript, tmp;
     XFontStruct *f;
+    int i;
+    
     QCString mapped;
     int currw = 0;
     int lasts = -1;
-    int i;
-
+    
     for (i = 0; i < len; i++) {
 	tmp = QFontPrivate::scriptForChar(*uc++);
 
 	if (tmp != currs && tmp != QFontPrivate::UnknownScript) {
-	    currs = tmp;
-
 	    if (lasts >= 0) {
 		d->load(currs);
 		if (! d->x11data.fontstruct[currs]) continue;
@@ -2148,6 +2256,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 		}
 	    }
 
+	    currs = tmp;
 	    lasts = i;
 	}
     }
@@ -2162,7 +2271,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 		mapped = d->x11data.fontstruct[currs]->codec->
 			 fromUnicode(str.mid(lasts, i - lasts));
 	    }
-
+	    
 	    if (mapped.isNull()) {
 		if (f->max_byte1) {
 		    // we are dealing with unicode text and a unicode font - YAY
@@ -2234,8 +2343,6 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	tmp = QFontPrivate::scriptForChar(*uc++);
 
 	if (tmp != currs && tmp != QFontPrivate::UnknownScript) {
-	    currs = tmp;
-
 	    if (lasts >= 0) {
 		d->load(currs);
 		if (! d->x11data.fontstruct[currs]) continue;
@@ -2289,6 +2396,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 		}
 	    }
 
+	    currs = tmp;
 	    lasts = i;
 	}
     }
@@ -2369,7 +2477,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     }
 
     if ( !underline && !strikeOut ) {
-	width  = overall.rbearing - startX;
+	width = overall.rbearing - startX;
     } else {
 	if ( startX > 0 )
 	    startX = 0;
@@ -2419,6 +2527,8 @@ int QFontMetrics::maxWidth() const
     for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
 	if (! d->x11data.fontstruct[i]) continue;
 
+	d->load((QFontPrivate::Script) i);
+
 	f = (XFontStruct *) d->x11data.fontstruct[i]->handle;
 	ww = printerAdjusted(f->max_bounds.width);
 	if (ww > w)
@@ -2438,9 +2548,7 @@ int QFontMetrics::underlinePos() const
 {
     int pos = ((lineWidth() * 2) + 3) / 6;
 
-    if (pos)
-	return pos;
-    return 1;
+    return pos ? pos : 1;
 }
 
 
@@ -2452,10 +2560,8 @@ int QFontMetrics::underlinePos() const
 int QFontMetrics::strikeOutPos() const
 {
     int pos = ascent() / 3;
-
-    if (pos)
-	return printerAdjusted(pos);
-    return 1;
+    
+    return pos ? pos : 1;
 }
 
 
