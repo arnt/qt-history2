@@ -222,9 +222,10 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	
     case PO_Indicator: {
 #ifndef QT_NO_BUTTON
-	bool on = flags & PStyle_Off;
-	bool showUp = !( flags ^ on );
-	QBrush fill;
+	bool on = flags & PStyle_On;
+	bool down = flags & PStyle_Sunken;
+	bool showUp = !( down ^ on );
+	QBrush fill = showUp || flags & PStyle_NoChange ? cg.brush( QColorGroup::Button ) : cg.brush(QColorGroup::Mid );
 	if ( flags & PStyle_NoChange ) {
 	    qDrawPlainRect( p, r, cg.text(),
 			    1, &fill );
@@ -563,100 +564,101 @@ void QMotifStyle::drawControl( ControlElement element,
  	if ( p->brush().style() != NoBrush )
  	    p->setBrush( NoBrush );
 	break; }
-    case CE_TabBarTab: {
-	QRect br = r;
-	int o;
-	QTabBar *tb;
-	bool selected = how & CStyle_Selected;
-	tb = (QTabBar *)widget;
-	o = pixelMetric( PM_DefaultFrameWidth ) > 1 ? 1 : 0;
-	if ( tb->shape() == QTabBar::RoundedAbove ) {
-	    if ( o ) {
-		p->setPen( cg.light() );
-		p->drawLine( br.left(), br.bottom(), br.right(), br.bottom() );
-		p->setPen( cg.light() );
-		p->drawLine( br.left(), br.bottom() - 1, br.right(),
-			     br.bottom() - 1 );
-		if ( br.left() == 0 )
-		    p->drawPoint( tb->rect().bottomLeft() );
-	    } else {
-		p->setPen( cg.light() );
-		p->drawLine( br.left(), br.bottom(), br.right(), br.bottom() );
-	    }
+    // this case isn't tested, but it might work :)
+    //    case CE_TabBarTab: {
+// 	QRect br = r;
+// 	int o;
+// 	QTabBar *tb;
+// 	bool selected = how & CStyle_Selected;
+// 	tb = (QTabBar *)widget;
+// 	o = pixelMetric( PM_DefaultFrameWidth ) > 1 ? 1 : 0;
+// 	if ( tb->shape() == QTabBar::RoundedAbove ) {
+// 	    if ( o ) {
+// 		p->setPen( cg.light() );
+// 		p->drawLine( br.left(), br.bottom(), br.right(), br.bottom() );
+// 		p->setPen( cg.light() );
+// 		p->drawLine( br.left(), br.bottom() - 1, br.right(),
+// 			     br.bottom() - 1 );
+// 		if ( br.left() == 0 )
+// 		    p->drawPoint( tb->rect().bottomLeft() );
+// 	    } else {
+// 		p->setPen( cg.light() );
+// 		p->drawLine( br.left(), br.bottom(), br.right(), br.bottom() );
+// 	    }
 	
-	    if ( selected ) {
-		p->fillRect( QRect( br.left() + 1, br.bottom() - o,
-				    br.width() - 3, 2 ),
-			     tb->palette().active().brush(QColorGroup::Background));
-		p->setPen( cg.background() );
-		p->drawLine( br.left() + 1, br.bottom(),
-			     br.right() - 2, br.bottom());
-		if ( o )
-		    p->drawLine( br.left() + 1, br.bottom() - 1,
-				 br.right() - 2, br.bottom() - 1 );
-		p->drawLine( br.left() + 1, br.bottom(),
-			     br.left() + 1, br.top() + 2 );
-		p->setPen( cg.light() );
-	    } else {
-		p->setPen( cg.light() );
-		br.setRect( br.left() + 2, br.top() + 2,
-			   r.width() - 4, r.height() - 2 );
-	    }
-	    p->drawLine( br.left(), br.bottom() - 1, br.left(), br.top() + 2 );
-	    p->drawPoint( br.left() + 1, br.top() + 1 );
-	    p->drawLine( br.left() + 2, br.top(), br.right() - 2, br.top() );
-	    p->drawPoint( br.left(), br.bottom() );
+// 	    if ( selected ) {
+// 		p->fillRect( QRect( br.left() + 1, br.bottom() - o,
+// 				    br.width() - 3, 2 ),
+// 			     tb->palette().active().brush(QColorGroup::Background));
+// 		p->setPen( cg.background() );
+// 		p->drawLine( br.left() + 1, br.bottom(),
+// 			     br.right() - 2, br.bottom());
+// 		if ( o )
+// 		    p->drawLine( br.left() + 1, br.bottom() - 1,
+// 				 br.right() - 2, br.bottom() - 1 );
+// 		p->drawLine( br.left() + 1, br.bottom(),
+// 			     br.left() + 1, br.top() + 2 );
+// 		p->setPen( cg.light() );
+// 	    } else {
+// 		p->setPen( cg.light() );
+// 		br.setRect( br.left() + 2, br.top() + 2,
+// 			   r.width() - 4, r.height() - 2 );
+// 	    }
+// 	    p->drawLine( br.left(), br.bottom() - 1, br.left(), br.top() + 2 );
+// 	    p->drawPoint( br.left() + 1, br.top() + 1 );
+// 	    p->drawLine( br.left() + 2, br.top(), br.right() - 2, br.top() );
+// 	    p->drawPoint( br.left(), br.bottom() );
 	
-	    if ( o ) {
-		p->drawLine( br.left() + 1, br.bottom(), br.left() + 1,
-			     br.top() + 2 );
-		p->drawLine( br.left() + 2, br.bottom() - 1,
-			     br.right() - 2, br.top() + 1 );
-	    }
-	    p->setPen( cg.dark() );
-	    p->drawLine( br.right() - 1, br.top() + 2, br.right() - 1,
-			 br.bottom() - 1 + (selected ? o : - o ) );
-	    if ( o ) {
-		p->drawPoint( br.right() - 1, br.top() + 1 );
-		p->drawLine( br.right(), br.top() + 2, br.right(),
-			     br.bottom() - (selected ? 1: 1 + o) );
-	    }
-	} else if ( tb->shape() == QTabBar::RoundedBelow ) {
-	    if ( selected ) {
-		p->fillRect( QRect( br.left() + 1, br.top(), br.width() - 3, 1 ),
-			     tb->palette().active().brush(QColorGroup::Background));
-		p->setPen( cg.background() );
-		p->drawLine( br.left() + 1, br.top(), br.right() - 2, br.top() );
-		p->drawLine( br.left() + 1, br.top(),
-			     br.left() + 1, br.bottom() - 2);
-		p->setPen( cg.dark() );
-	    } else {
-		p->setPen( cg.dark() );
-		p->drawLine( br.left(), br.top(), br.right(), br.top() );
-		br.setRect( br.left() + 2, br.top(),
-			   br.width() - 4, br.height() - 2);
-	    }
+// 	    if ( o ) {
+// 		p->drawLine( br.left() + 1, br.bottom(), br.left() + 1,
+// 			     br.top() + 2 );
+// 		p->drawLine( br.left() + 2, br.bottom() - 1,
+// 			     br.right() - 2, br.top() + 1 );
+// 	    }
+// 	    p->setPen( cg.dark() );
+// 	    p->drawLine( br.right() - 1, br.top() + 2, br.right() - 1,
+// 			 br.bottom() - 1 + (selected ? o : - o ) );
+// 	    if ( o ) {
+// 		p->drawPoint( br.right() - 1, br.top() + 1 );
+// 		p->drawLine( br.right(), br.top() + 2, br.right(),
+// 			     br.bottom() - (selected ? 1: 1 + o) );
+// 	    }
+// 	} else if ( tb->shape() == QTabBar::RoundedBelow ) {
+// 	    if ( selected ) {
+// 		p->fillRect( QRect( br.left() + 1, br.top(), br.width() - 3, 1 ),
+// 			     tb->palette().active().brush(QColorGroup::Background));
+// 		p->setPen( cg.background() );
+// 		p->drawLine( br.left() + 1, br.top(), br.right() - 2, br.top() );
+// 		p->drawLine( br.left() + 1, br.top(),
+// 			     br.left() + 1, br.bottom() - 2);
+// 		p->setPen( cg.dark() );
+// 	    } else {
+// 		p->setPen( cg.dark() );
+// 		p->drawLine( br.left(), br.top(), br.right(), br.top() );
+// 		br.setRect( br.left() + 2, br.top(),
+// 			   br.width() - 4, br.height() - 2);
+// 	    }
 	
-	    p->drawLine( br.right() - 1, br.top(),
-			 br.right() - 1, br.bottom() - 2 );
-	    p->drawPoint( br.right() - 2, br.bottom() - 2 );
-	    p->drawLine( br.right() - 2, br.bottom() - 1,
-			 br.left() + 1, r.bottom() - 1 );
-	    p->drawPoint( br.left() + 1, br.bottom() - 2 );
-	    if ( pixelMetric( PM_DefaultFrameWidth ) > 1 ) {
-		p->drawLine( br.right(), br.top(),
-			     br.right(), br.bottom() - 1 );
-		p->drawPoint( br.right() - 1, br.bottom() - 1 );
-		p->drawLine( br.right() - 1, br.bottom(),
-			     br.left() + 2, br.bottom() );
-	    }
+// 	    p->drawLine( br.right() - 1, br.top(),
+// 			 br.right() - 1, br.bottom() - 2 );
+// 	    p->drawPoint( br.right() - 2, br.bottom() - 2 );
+// 	    p->drawLine( br.right() - 2, br.bottom() - 1,
+// 			 br.left() + 1, r.bottom() - 1 );
+// 	    p->drawPoint( br.left() + 1, br.bottom() - 2 );
+// 	    if ( pixelMetric( PM_DefaultFrameWidth ) > 1 ) {
+// 		p->drawLine( br.right(), br.top(),
+// 			     br.right(), br.bottom() - 1 );
+// 		p->drawPoint( br.right() - 1, br.bottom() - 1 );
+// 		p->drawLine( br.right() - 1, br.bottom(),
+// 			     br.left() + 2, br.bottom() );
+// 	    }
 	
-	    p->setPen( cg.light() );
-	    p->drawLine( br.left(), br.top(), br.left(), br.bottom() - 2 );
-	} else {
-	    QCommonStyle::drawControl( element, p, widget, br, cg, how, data );
-	}
-	break; }
+// 	    p->setPen( cg.light() );
+// 	    p->drawLine( br.left(), br.top(), br.left(), br.bottom() - 2 );
+// 	} else {
+// 	    QCommonStyle::drawControl( element, p, widget, br, cg, how, data );
+// 	}
+// 	break; }
     default:
 	QCommonStyle::drawControl( element, p, widget, r, cg, how, data );
 	break;

@@ -407,57 +407,25 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	break; }
 
     case PO_Indicator: {
-	// make sure the indicator is square
-	QRect ir = r;
-
-	if (r.width() < r.height()) {
-	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
-	    ir.setHeight(r.width());
-	} else if (r.height() < r.width()) {
-	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
-	    ir.setWidth(r.height());
-	}
-
 	if (flags & PStyle_NoChange) {
 	    p->setPen(cg.foreground());
-	    p->fillRect(ir, cg.brush(QColorGroup::Button));
-	    p->drawRect(ir);
-	    p->drawLine(ir.topLeft(), ir.bottomRight());
+	    p->fillRect(r, cg.brush(QColorGroup::Button));
+	    p->drawRect(r);
+	    p->drawLine(r.topLeft(), r.bottomRight());
 	} else
-	    qDrawShadePanel(p, ir.x(), ir.y(), ir.width(), ir.height(),
+	    qDrawShadePanel(p, r.x(), r.y(), r.width(), r.height(),
 			    cg, flags & (PStyle_Sunken | PStyle_On), 1,
 			    &cg.brush(QColorGroup::Button));
 	break; }
 
     case PO_IndicatorMask: {
-	// make sure the indicator is square
-	QRect ir = r;
-
-	if (r.width() < r.height()) {
-	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
-	    ir.setHeight(r.width());
-	} else if (r.height() < r.width()) {
-	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
-	    ir.setWidth(r.height());
-	}
-
-	p->fillRect(ir, color1);
+	p->fillRect(r, color1);
 	break; }
 
     case PO_ExclusiveIndicator: {
-	// make sure the indicator is square
 	QRect ir = r;
-
-	if (r.width() < r.height()) {
-	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
-	    ir.setHeight(r.width());
-	} else if (r.height() < r.width()) {
-	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
-	    ir.setWidth(r.height());
-	}
-
 	p->setPen(cg.dark());
-	p->drawArc(ir, 0, 5760);
+	p->drawArc(r, 0, 5760);
 
 	if (flags & (PStyle_Sunken | PStyle_On)) {
 	    ir.addCoords(2, 2, -2, -2);
@@ -468,20 +436,9 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	break; }
 
     case PO_ExclusiveIndicatorMask: {
-	// make sure the indicator is square
-	QRect ir = r;
-
-	if (r.width() < r.height()) {
-	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
-	    ir.setHeight(r.width());
-	} else if (r.height() < r.width()) {
-	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
-	    ir.setWidth(r.height());
-	}
-
 	p->setPen(color1);
 	p->setBrush(color1);
-	p->drawEllipse(ir);
+	p->drawEllipse(r);
 	break; }
 
     case PO_DockWindowHandle: {
@@ -548,7 +505,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 		      &cg.buttonText() );
 	}
 	break; }
-    
+
     case PO_GroupBoxFrame: {
 	void ** sdata = (void **) data;
 	if ( !sdata )
@@ -680,6 +637,16 @@ void QCommonStyle::drawControl( ControlElement element,
 	break; }
 
     case CE_CheckBox: {
+	// many people expect to checkbox to be square, do that here.
+	QRect ir = r;
+
+	if (r.width() < r.height()) {
+	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
+	    ir.setHeight(r.width());
+	} else if (r.height() < r.width()) {
+	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
+	    ir.setWidth(r.height());
+	}
 	QCheckBox *checkbox = (QCheckBox *) widget;
 
 	if (checkbox->isDown())
@@ -691,7 +658,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	else if (checkbox->state() == QButton::NoChange)
 	    flags |= PStyle_NoChange;
 
-	drawPrimitive(PO_Indicator, p, r, cg, flags, data);
+	drawPrimitive(PO_Indicator, p, ir, cg, flags, data);
 	break; }
 
     case CE_CheckBoxLabel: {
@@ -706,6 +673,16 @@ void QCommonStyle::drawControl( ControlElement element,
 	break; }
 
     case CE_RadioButton: {
+	// many people expect to checkbox to be square, do that here.
+	QRect ir = r;
+
+	if (r.width() < r.height()) {
+	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
+	    ir.setHeight(r.width());
+	} else if (r.height() < r.width()) {
+	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
+	    ir.setWidth(r.height());
+	}
 	QRadioButton *radiobutton = (QRadioButton *) widget;
 
 	if (radiobutton->isDown())
@@ -1271,13 +1248,13 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 #endif //QT_NO_TITLEBAR
       	break; }
 
-    case CC_SpinWidget: 
+    case CC_SpinWidget:
 	switch( controls ) {
 	case SC_SpinWidgetUp:
 	case SC_SpinWidgetDown: {
 	    QSpinWidget * sw = (QSpinWidget *) widget;
 	    PFlags flags = PStyle_Default;
-	    PrimitiveOperation op = (controls == SC_SpinWidgetUp) ? 
+	    PrimitiveOperation op = (controls == SC_SpinWidgetUp) ?
 		PO_SpinWidgetUp : PO_SpinWidgetDown;
 
 	    flags |= PStyle_Enabled;
