@@ -161,7 +161,7 @@ private:
     int defMargin;
     int defSpacing;
     QString code;
-
+    QString uiFileVersion;
 };
 
 #endif

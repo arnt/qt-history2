@@ -396,6 +396,7 @@ QWidget *QWidgetFactory::createFromUiFile( QDomDocument doc, QObject *connector,
 {
     DomTool::fixDocument( doc );
 
+    uiFileVersion = doc.firstChild().toElement().attribute("version");
     QDomElement e = doc.firstChild().toElement().firstChild().toElement();
 
     QDomElement variables = e;
@@ -2357,12 +2358,17 @@ void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
 {
     QDomElement n = e;
     QAction *a = 0;
+    bool hasMenuText = FALSE;
     if ( n.tagName() == "action" ) {
 	a = new QAction( parent );
 	QDomElement n2 = n.firstChild().toElement();
+	
 	while ( !n2.isNull() ) {
 	    if ( n2.tagName() == "property" ) {
-		setProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+		QString prop(n2.attribute("name"));
+		if (prop == "menuText")
+		    hasMenuText = TRUE;
+		setProperty( a, prop, n2.firstChild().toElement() );
 	    }
 	    n2 = n2.nextSibling().toElement();
 	}
@@ -2373,7 +2379,10 @@ void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
 	QDomElement n2 = n.firstChild().toElement();
 	while ( !n2.isNull() ) {
 	    if ( n2.tagName() == "property" ) {
-		setProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+		QString prop(n2.attribute("name"));
+		if (prop == "menuText")
+		    hasMenuText = TRUE;
+		setProperty( a, prop, n2.firstChild().toElement() );
 	    } else if ( n2.tagName() == "action" ||
 			n2.tagName() == "actiongroup" ) {
 		loadChildAction( a, n2 );
@@ -2384,6 +2393,9 @@ void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
 	if ( !parent->inherits( "QAction" ) )
 	    actionList.append( a );
     }
+
+    if (a && !hasMenuText && !a->text().isEmpty() && uiFileVersion < "3.3")
+	a->setMenuText(a->text());
 }
 
 void QWidgetFactory::loadActions( const QDomElement &e )
