@@ -503,7 +503,7 @@ QUnknownInterface* QLibrary::createInstance()
 #endif
 	typedef QUnknownInterface* (*UCMProc)();
 	UCMProc ucmProc;
-	ucmProc = (UCMProc) resolve( "qt_load_interface" );
+	ucmProc = (UCMProc) resolve( "ucm_instantiate" );
 	entry = ucmProc ? ucmProc() : 0;
 	if ( entry ) {
 	    if ( ( d->libIface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface ) ) ) {

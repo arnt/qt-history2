@@ -113,10 +113,10 @@ public:
 #ifndef Q_EXPORT_INTERFACE
     #ifdef Q_WS_WIN
 	#define Q_EXPORT_INTERFACE() \
-	    Q_EXTERN_C __declspec(dllexport) QUnknownInterface *qt_load_interface()
+	    Q_EXTERN_C __declspec(dllexport) QUnknownInterface *ucm_instantiate()
     #else
 	#define Q_EXPORT_INTERFACE() \
-	    Q_EXTERN_C QUnknownInterface *qt_load_interface()
+	    Q_EXTERN_C QUnknownInterface *ucm_instantiate()
     #endif
 #endif
 
