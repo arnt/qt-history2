@@ -33,6 +33,9 @@
 #define TEXT_SPEED              4
 
 #define PI_X_2                  6.283185307
+#ifndef M_PI
+#define M_PI 3.141592654
+#endif
 
 struct
 {

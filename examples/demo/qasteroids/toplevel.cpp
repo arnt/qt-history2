@@ -15,7 +15,6 @@
 #include "toplevel.h"
 #include "ledmeter.h"
 
-#include <X11/Xlib.h>
 
 #define SB_SCORE	1
 #define SB_LEVEL	2
