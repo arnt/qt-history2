@@ -122,7 +122,7 @@ void QSqlDatabase::init( const QString& type )
      	d->driver = ((QSqlDriverPlugIn*)pi)->create( type );
     if ( !d->driver ) {
 #ifdef CHECK_RANGE
-	qWarning("QSqlDatabase warning: driver not loaded");
+	qWarning("QSqlDatabase warning: %s driver not loaded", type.data());
 #endif
 	d->driver = new QNullDriver();
     }
