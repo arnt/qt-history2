@@ -2935,7 +2935,7 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     if ( itm && !itm->isEnabled() ) {
 	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
 	if ( e->button() != LeftButton && context_menu )
-	    emit contextMenuRequested( tmpRow, tmpCol, mapToGlobal( contentsToViewport( e->pos() ) ) );
+	    emit contextMenuRequested( tmpRow, tmpCol, e->globalPos() );
 	return;
     }
 
@@ -3004,10 +3004,10 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 	    }
 	}
     }
-
     emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
+    
     if ( e->button() != LeftButton && context_menu )
-	emit contextMenuRequested( tmpRow, tmpCol, mapToGlobal( contentsToViewport( e->pos() ) ) );
+	emit contextMenuRequested( tmpRow, tmpCol, e->globalPos() );
 }
 
 /*! \reimp
