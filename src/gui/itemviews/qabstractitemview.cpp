@@ -1795,10 +1795,8 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
 QStyleOptionViewItem QAbstractItemView::viewOptions() const
 {
     QStyleOptionViewItem option;
-    option.palette = palette();
-    option.font = font();
-    option.state = (isEnabled() ? QStyle::State_Enabled : QStyle::State_None);
-    option.state |= (isActiveWindow() ? QStyle::State_Active : QStyle::State_None);
+    option.init(this);
+    option.state &= ~QStyle::State_HasFocus;
     if (d->iconSize.isValid()) {
         option.decorationSize = d->iconSize;
     } else {
@@ -1808,7 +1806,6 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     option.decorationPosition = QStyleOptionViewItem::Left;
     option.decorationAlignment = Qt::AlignCenter;
     option.displayAlignment = Qt::AlignLeft|Qt::AlignVCenter;
-    option.direction = layoutDirection();
     return option;
 }
 

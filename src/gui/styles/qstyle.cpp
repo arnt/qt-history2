@@ -543,7 +543,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value State_Sunken
     \value State_Top
     \value State_UpArrow
-    \value State_NoKeyboardFocusChange
+    \value State_KeyboardFocusChange
     \omitvalue State_Default
 
     \sa drawPrimitive()

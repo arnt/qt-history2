@@ -90,12 +90,10 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
 {
     QStyleOptionTab opt;
     const QTabBarPrivate::Tab *ptab = &tabList.at(tab);
+    opt.init(q);
+    opt.state &= ~QStyle::State_HasFocus;
     opt.rect = q->tabRect(tab);
-    opt.palette = q->palette();
-    opt.fontMetrics = q->fontMetrics();
-    opt.direction = q->layoutDirection();
     bool isCurrent = tab == currentIndex;
-    opt.state = QStyle::State_None;
     opt.row = 0;
     if (tab == pressedIndex)
         opt.state |= QStyle::State_Sunken;

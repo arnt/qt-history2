@@ -774,10 +774,11 @@ bool QAbstractButton::event(QEvent *e)
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (d->shortcutId != se->shortcutId())
             return false;
-        if (se->isAmbiguous())
-            setFocus();
-        else
+        setFocus();
+        if (!se->isAmbiguous())
             animateClick();
+        else
+            window()->setAttribute(Qt::WA_KeyboardFocusChange);
         return true;
     }
     return QWidget::event(e);

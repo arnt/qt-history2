@@ -3214,8 +3214,14 @@ bool QWidget::focusNextPrevChild(bool next)
         }
         test = test->d_func()->focus_next;
     }
-    if (w == f)
+    if (w == f) {
+        extern bool qt_in_tab_key_event; // defined in qapplication.cpp
+        if (qt_in_tab_key_event) {
+            w->window()->setAttribute(Qt::WA_KeyboardFocusChange);
+            w->update();
+        }
         return false;
+    }
     w->setFocus(next ? Qt::TabFocusReason : Qt::BacktabFocusReason);
     return true;
 }
@@ -3753,15 +3759,19 @@ void QWidgetPrivate::show_helper()
 
 
     // popup handling: new popups and tools need to be raised, and
-    // exisiting popups must be closed.
+    // exisiting popups must be closed. Also propagate the current
+    // windows's KeyboardFocusChange status.
     if (q->isWindow()) {
-        if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup) || q->windowType() == Qt::ToolTip)
+        if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup) || q->windowType() == Qt::ToolTip) {
             q->raise();
-        else
+            if (q->parentWidget() && q->parentWidget()->window()->testAttribute(Qt::WA_KeyboardFocusChange))
+                q->setAttribute(Qt::WA_KeyboardFocusChange);
+        } else {
             while (QApplication::activePopupWidget()) {
                 if (!QApplication::activePopupWidget()->close())
                     break;
             }
+        }
     }
 
     // On Windows, show the popup now so that our own focus handling
@@ -3934,6 +3944,8 @@ void QWidget::setVisible(bool visible)
             }
             setAttribute(Qt::WA_Resized, false);
         }
+
+        setAttribute(Qt::WA_KeyboardFocusChange, false);
 
         if (isWindow() || parentWidget()->isVisible())
             d->show_helper();
@@ -4384,15 +4396,12 @@ bool QWidget::event(QEvent *e)
     case QEvent::KeyPress: {
         QKeyEvent *k = (QKeyEvent *)e;
         bool res = false;
-        if (!(k->modifiers() & Qt::ControlModifier || k->modifiers() & Qt::AltModifier)) {
-            if (k->key() == Qt::Key_Backtab ||
-                 (k->key() == Qt::Key_Tab &&
-                  (k->modifiers() & Qt::ShiftModifier))) {
+        if (!(k->modifiers() & (Qt::ControlModifier | Qt::AltModifier))) {
+            if (k->key() == Qt::Key_Backtab
+                || (k->key() == Qt::Key_Tab && (k->modifiers() & Qt::ShiftModifier)))
                 res = focusNextPrevChild(false);
-
-            } else if (k->key() == Qt::Key_Tab) {
+            else if (k->key() == Qt::Key_Tab)
                 res = focusNextPrevChild(true);
-            }
             if (res)
                 break;
         }

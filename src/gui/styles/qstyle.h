@@ -87,7 +87,8 @@ public:
         State_Children =      0x00080000,
         State_Item =          0x00100000,
         State_Sibling =       0x00200000,
-        State_Editing =       0x00400000
+        State_Editing =       0x00400000,
+        State_KeyboardFocusChange = 0x00800000
     };
     Q_DECLARE_FLAGS(State, StateFlag)
 

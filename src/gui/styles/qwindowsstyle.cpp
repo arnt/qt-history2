@@ -1101,10 +1101,8 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         break;
     case PE_FrameFocusRect:
         if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(opt)) {
-#if 0  // enable after beta2
             if (!(fropt->state & State_KeyboardFocusChange))
                 return;
-#endif
             QRect r = opt->rect;
             p->save();
             p->setBackgroundMode(Qt::TransparentMode);

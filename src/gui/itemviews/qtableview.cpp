@@ -386,12 +386,12 @@ void QTableView::paintEvent(QPaintEvent *e)
             if (index.isValid()) {
                 option.rect = QRect(colp, rowp, colw, rowh);
                 option.state = state;
-                option.state |= ((sels && sels->isSelected(index))
-                                 ? QStyle::State_Selected : QStyle::State_None);
+                if (sels && sels->isSelected(index))
+                    option.state |= QStyle::State_Selected;
                 if ((model()->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
                     option.state &= ~QStyle::State_Enabled;
-                option.state |= (focus && index == current
-                                 ? QStyle::State_HasFocus : QStyle::State_None);
+                if (focus && index == current)
+                        option.state |= QStyle::State_HasFocus;
                 painter.fillRect(colp, rowp, colw, rowh,
                                  (option.state & QStyle::State_Selected
                                   ? option.palette.highlight() : option.palette.base()));

@@ -306,7 +306,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         painter->drawRect(fill.adjusted(0,0,-1,-1));
         painter->restore();
     }
-    
+
     QRect textRect = rect.adjusted(textMargin, 0, 0, 0);
     QFont font = painter->font();
     painter->setFont(option.font);
@@ -351,16 +351,13 @@ void QItemDelegate::drawFocus(QPainter *painter,
 {
     if (option.state & QStyle::State_HasFocus) {
         QStyleOptionFocusRect o;
+        o.QStyleOption::operator=(option);
         o.rect.setRect(rect.x() - border, rect.y() - border,
                        rect.width() + border * 2, rect.height() + border * 2);
-        o.palette = option.palette;
-        o.state = QStyle::State_None;
-        QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
-                                  ? QPalette::Normal : QPalette::Disabled;
-        if (option.state & QStyle::State_Selected)
-            o.backgroundColor = option.palette.color(cg, QPalette::Highlight);
-        else
-            o.backgroundColor = option.palette.color(cg, QPalette::Background);
+        QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled) ?
+                                  QPalette::Normal : QPalette::Disabled;
+        o.backgroundColor = option.palette.color(cg, (option.state & QStyle::State_Selected) ?
+                                                 QPalette::Highlight : QPalette::Background);
         QApplication::style()->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter);
     }
 }

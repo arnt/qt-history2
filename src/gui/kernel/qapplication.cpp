@@ -360,6 +360,7 @@ int QApplicationPrivate::wheel_scroll_lines = 3;                // number of lin
 #endif
 bool qt_is_gui_used;
 bool Q_GUI_EXPORT qt_tab_all_widgets = true;
+bool qt_in_tab_key_event = false;
 QRect qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;
@@ -1178,12 +1179,16 @@ void QApplication::setStyle(QStyle *style)
 #ifdef QT3_SUPPORT
                     w->styleChange(*old);
 #endif
-                    if (w->isVisible())
-                        w->update();
+                    w->update();
                 }
             }
         }
         delete old;
+    }
+    if(QApplicationPrivate::focus_widget) {
+        QFocusEvent in(QEvent::FocusIn, Qt::OtherFocusReason);
+        QApplication::sendEvent(QApplicationPrivate::focus_widget->style(), &in);
+        QApplicationPrivate::focus_widget->update();
     }
 }
 
@@ -1668,6 +1673,9 @@ QWidget *QApplication::focusWidget()
 void QApplication::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
 {
     if (focus != QApplicationPrivate::focus_widget) {
+        if (focus && (reason == Qt::BacktabFocusReason || reason == Qt::TabFocusReason)
+            && qt_in_tab_key_event)
+            focus->window()->setAttribute(Qt::WA_KeyboardFocusChange);
         QWidget *prev = QApplicationPrivate::focus_widget;
         QApplicationPrivate::focus_widget = focus;
 
@@ -2719,11 +2727,17 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             if (d->use_compat() && d->qt_tryComposeUnicode(w, key))
                 break;
 #endif
-            // Try looking for a Shortcut before sending key events
-            if (key->type()==QEvent::KeyPress)
+            if (key->type()==QEvent::KeyPress) {
+                // Try looking for a Shortcut before sending key events
                 if (res = qApp->d->shortcutMap.tryShortcutEvent(w, key))
                     return res;
-
+                qt_in_tab_key_event = (key->key() == Qt::Key_Backtab
+                                       || key->key() == Qt::Key_Tab
+                                       || key->key() == Qt::Key_Left
+                                       || key->key() == Qt::Key_Up
+                                       || key->key() == Qt::Key_Right
+                                       || key->key() == Qt::Key_Down);
+            }
             bool def = key->isAccepted();
             while (w) {
                 if (def)
@@ -2735,6 +2749,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                     break;
                 w = w->parentWidget();
             }
+            qt_in_tab_key_event = false;
         }
         break;
     case QEvent::MouseButtonPress:

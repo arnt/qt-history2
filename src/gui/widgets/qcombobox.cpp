@@ -51,7 +51,6 @@ QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &op
                                                   const QModelIndex &index) const
 {
     QStyleOptionMenuItem menuOption;
-
     menuOption.palette = QApplication::palette("QMenu");
     menuOption.state = QStyle::State_None;
     if (mCombo->window()->isActiveWindow())
@@ -388,8 +387,6 @@ QStyleOptionComboBox ItemViewContainer::comboStyleOption() const
     opt.rect = combo->rect();
     opt.palette = combo->palette();
     opt.init(combo);
-    if (combo->isEditable() && combo->lineEdit()->hasFocus())
-        opt.state |= QStyle::State_HasFocus;
     opt.subControls = QStyle::SC_All;
     opt.activeSubControls = QStyle::SC_None;
     opt.editable = combo->isEditable();
@@ -693,12 +690,9 @@ QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
 {
     Q_Q(const QComboBox);
     QStyleOptionComboBox opt;
-    opt.state = QStyle::State_None;
-    opt.rect = q->rect();
-    opt.palette = q->palette();
     opt.init(q);
-    if (q->isEditable() && q->lineEdit()->hasFocus())
-        opt.state |= QStyle::State_HasFocus;
+    if (!q->isEditable() && q->hasFocus())
+        opt.state |= QStyle::State_Selected;
     opt.subControls = QStyle::SC_All;
     if (arrowState == QStyle::State_Sunken) {
         opt.activeSubControls = QStyle::SC_ComboBoxArrow;

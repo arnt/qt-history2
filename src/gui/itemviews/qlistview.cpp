@@ -868,8 +868,8 @@ void QListView::paintEvent(QPaintEvent *e)
         Q_ASSERT((*it).isValid());
         option.rect = visualRect(*it);
         option.state = state;
-        option.state |= (selections && selections->isSelected(*it)
-                         ? QStyle::State_Selected : QStyle::State_None);
+        if (selections && selections->isSelected(*it))
+            option.state |= QStyle::State_Selected;
         if ((model()->flags(*it) & QAbstractItemModel::ItemIsEnabled) == 0)
             option.state &= ~QStyle::State_Enabled;
         if (focus && current == *it) {

@@ -166,6 +166,8 @@ void QStyleOption::init(const QWidget *widget)
         state |= QStyle::State_Enabled;
     if (widget->hasFocus())
         state |= QStyle::State_HasFocus;
+    if (widget->window()->testAttribute(Qt::WA_KeyboardFocusChange))
+        state |= QStyle::State_KeyboardFocusChange;
     if (widget->underMouse())
         state |= QStyle::State_MouseOver;
     if (widget->window()->isActiveWindow())
@@ -249,6 +251,7 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
 QStyleOptionFocusRect::QStyleOptionFocusRect()
     : QStyleOption(Version, SO_FocusRect)
 {
+    state |= QStyle::State_KeyboardFocusChange; // assume we had one, will be corrected in init()
 }
 
 /*!
@@ -257,6 +260,7 @@ QStyleOptionFocusRect::QStyleOptionFocusRect()
 QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
     : QStyleOption(version, SO_FocusRect)
 {
+    state |= QStyle::State_KeyboardFocusChange;  // assume we had one, will be corrected in init()
 }
 
 /*!

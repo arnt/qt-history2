@@ -22,6 +22,7 @@
 #include "qpicture.h"
 #include "qapplication.h"
 #include "qtextdocument.h"
+#include "qabstractbutton.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qframe_p.h"
@@ -129,13 +130,15 @@ public:
     mnemonic (see QKeysequence) that will set the keyboard focus to
     the other widget (called the QLabel's "buddy"). For example:
     \code
-    QLineEdit* phoneEdit = new QLineEdit(this, "phoneEdit");
-    QLabel* phoneLabel = new QLabel(phoneEdit, "&Phone:", this, "phoneLabel");
+    QLineEdit* phoneEdit = new QLineEdit(this);
+    QLabel* phoneLabel = new QLabel("&Phone:", this);
+    phoneLabel->setBuddy(phoneEdit);
     \endcode
 
     In this example, keyboard focus is transferred to the label's
-    buddy (the QLineEdit) when the user presses Alt+P. You can
-    also use the setBuddy() function to accomplish the same thing.
+    buddy (the QLineEdit) when the user presses Alt+P. If the buddy
+    was a button (inheriting from QAbstractButton), triggering the
+    mnemonic would emulate a button click.
 
     \inlineimage macintosh-label.png Screenshot in Macintosh style
     \inlineimage windows-label.png Screenshot in Windows style
@@ -704,17 +707,14 @@ bool QLabel::event(QEvent *e)
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (se->shortcutId() == d->shortcutId) {
-            if (d->lbuddy) {
-                QWidget * w = d->lbuddy;
-                while (w->focusProxy())
-                    w = w->focusProxy();
-                if (!w->hasFocus() &&
-                    w->isEnabled() &&
-                    w->isVisible() &&
-                    w->focusPolicy() != Qt::NoFocus) {
-                    w->setFocus(Qt::ShortcutFocusReason);
-                }
-            }
+            QWidget * w = d->lbuddy;
+            QAbstractButton *button = qobject_cast<QAbstractButton *>(w);
+            if (w->focusPolicy() != Qt::NoFocus)
+                w->setFocus(Qt::ShortcutFocusReason);
+            if (button && !se->isAmbiguous())
+                button->animateClick();
+            else
+                window()->setAttribute(Qt::WA_KeyboardFocusChange);
             return true;
         }
     }

@@ -640,9 +640,10 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         if (!modelIndex.isValid())
             continue;
         opt.state = state;
-        opt.state |= (focus && current == modelIndex ? QStyle::State_HasFocus : QStyle::State_None);
-        opt.state |= (selectionModel() && selectionModel()->isSelected(modelIndex)
-                     ? QStyle::State_Selected : QStyle::State_None);
+        if (selectionModel()->isSelected(modelIndex))
+            opt.state |= QStyle::State_Selected;
+        if (focus && current == modelIndex)
+            opt.state |= QStyle::State_HasFocus;
         if ((model()->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
             opt.state &= ~QStyle::State_Enabled;
         if (headerSection == 0) {

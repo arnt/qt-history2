@@ -55,7 +55,7 @@ void QSliderPrivate::init()
     pressedControl = QStyle::SC_None;
     tickInterval = 0;
     tickPosition = QSlider::NoTicks;
-    q->setFocusPolicy(Qt::TabFocus);
+    q->setFocusPolicy(Qt::WheelFocus);
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
     if (orientation == Qt::Vertical)
         sp.transpose();
@@ -123,7 +123,7 @@ bool QSliderPrivate::updateHoverControl(const QPoint &pos)
         q->update(lastHoverRect);
         q->update(d->hoverRect);
         return true;
-    } 
+    }
     return !doesHover;
 }
 
@@ -346,7 +346,7 @@ bool QSlider::event(QEvent *event)
     case QEvent::HoverEnter:
     case QEvent::HoverLeave:
     case QEvent::HoverMove:
-    if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event)) 
+    if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event))
         d->updateHoverControl(he->pos());
         break;
     default:
