@@ -333,8 +333,12 @@ QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy(const QWidget *w)
         if (QMacStylePrivate::PolicyState::sizeMap.contains(w))
             ret = QMacStylePrivate::PolicyState::sizeMap[w];
         if(ret == SizeDefault) {
-            for(QWidget *p = w->parentWidget(); ret == SizeDefault && p; p = p->parentWidget()) {
-                ret = widgetSizePolicy(p);
+	    for(QWidget *p = w->parentWidget(); p; p = p->parentWidget()) {
+                if (QMacStylePrivate::PolicyState::sizeMap.contains(p)) {
+                    ret = QMacStylePrivate::PolicyState::sizeMap[p];
+                    if(ret != SizeDefault)
+                        break;
+                }
                 if(p->isTopLevel())
                     break;
             }
