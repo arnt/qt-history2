@@ -43,7 +43,7 @@ private:
 class Q_EXPORT QAccessibleApplication : public QAccessibleObject
 {
 public:
-    QAccessibleApplication(QApplication *object);
+    QAccessibleApplication();
 
     // hierarchy
     int		childCount() const;

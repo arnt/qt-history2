@@ -45,10 +45,10 @@ public:
 */
 
 /*!
-  Creates a QAccessibleWidget object for \a o.
-  \a role, \a name, \a description, \a value, \a help, \a defAction,
-  \a accelerator and \a state are optional parameters for static values
-  of the object's property.
+    Creates a QAccessibleWidget object for \a o.
+    \a role, \a name, \a description, \a value, \a help, \a defAction,
+    \a accelerator and \a state are optional parameters for static values
+    of the object's property.
 */
 QAccessibleWidget::QAccessibleWidget( QObject *o, Role role, QString name,
     QString description, QString value, QString help, QString defAction, QString accelerator, State state )
@@ -65,12 +65,17 @@ QAccessibleWidget::QAccessibleWidget( QObject *o, Role role, QString name,
     d->accelerator = accelerator;
 }
 
+/*!
+    Destroys this object.
+*/
 QAccessibleWidget::~QAccessibleWidget()
 {
     delete d;
 }
 
-/*! Returns the widget. */
+/*!
+    Returns the widget.
+*/
 QWidget *QAccessibleWidget::widget() const
 {
     Q_ASSERT(object()->isWidgetType());

@@ -103,21 +103,19 @@ bool QAccessibleObject::isValid() const
 
 /*!
     \class QAccessibleApplication qaccessibleobject.h
-    \brief The QAccessibleObject class implements parts of the
-    QAccessibleInterface for QObjects.
-
-    \ingroup misc
-
-    This class is mainly provided for convenience. All subclasses of
-    the QAccessibleInterface should use this class as the base class.
+    \brief The QAccessibleApplication class implements the QAccessibleInterface for QApplication.
+    \internal
 */
 
-QAccessibleApplication::QAccessibleApplication(QApplication *object)
-: QAccessibleObject(object)
+/*!
+    Creates a QAccessibleApplication for the QApplication object referenced by qApp.
+*/
+QAccessibleApplication::QAccessibleApplication()
+: QAccessibleObject(qApp)
 {
-    Q_ASSERT(object == qApp);
 }
 
+// all toplevel widgets except popups and the desktop
 static QWidgetList topLevelWidgets()
 {
     QWidgetList list;
@@ -131,12 +129,13 @@ static QWidgetList topLevelWidgets()
     return list;
 }
 
-// hierarchy
+/*! \reimp */
 int QAccessibleApplication::childCount() const
 {
     return topLevelWidgets().count();
 }
 
+/*! \reimp */
 int QAccessibleApplication::indexOfChild(const QAccessibleInterface *child) const
 {
     if (!child->object()->isWidgetType())
@@ -149,6 +148,7 @@ int QAccessibleApplication::indexOfChild(const QAccessibleInterface *child) cons
     return index;
 }
 
+/*! \reimp */
 bool QAccessibleApplication::queryChild( int control, QAccessibleInterface **iface ) const
 {
     *iface = 0;
@@ -165,13 +165,14 @@ bool QAccessibleApplication::queryChild( int control, QAccessibleInterface **ifa
     return QAccessible::queryAccessibleInterface( o, iface );
 }
 
+/*! \reimp */
 bool QAccessibleApplication::queryParent( QAccessibleInterface **iface ) const
 {
     *iface = 0;
     return FALSE;
 }
 
-// navigation
+/*! \reimp */
 int QAccessibleApplication::childAt( int x, int y ) const
 {
     const QWidgetList tlw(topLevelWidgets());
@@ -183,11 +184,13 @@ int QAccessibleApplication::childAt( int x, int y ) const
     return -1;
 }
 
+/*! \reimp */
 QRect QAccessibleApplication::rect( int ) const
 {
     return QRect();
 }
 
+/*! \reimp */
 int QAccessibleApplication::navigate( NavDirection dir, int startControl ) const
 {
 #if defined(QT_DEBUG)
@@ -222,7 +225,7 @@ int QAccessibleApplication::navigate( NavDirection dir, int startControl ) const
     return -1;
 }
 
-// properties and state
+/*! \reimp */
 QString QAccessibleApplication::text( Text t, int ) const
 {
     switch (t) {
@@ -239,31 +242,36 @@ QString QAccessibleApplication::text( Text t, int ) const
     return QString();
 }
 
+/*! \reimp */
 void QAccessibleApplication::setText( Text t, int, const QString &text )
 {
 }
 
+/*! \reimp */
 QAccessible::Role QAccessibleApplication::role( int ) const
 {
     return Application;
 }
 
+/*! \reimp */
 QAccessible::State QAccessibleApplication::state( int ) const
 {
     return Normal;
 }
 
+/*! \reimp */
 QMemArray<int> QAccessibleApplication::selection() const
 {
     return QMemArray<int>();
 }
 
-// methods
+/*! \reimp */
 bool QAccessibleApplication::doDefaultAction( int child )
 {
     return setFocus( child );
 }
 
+/*! \reimp */
 bool QAccessibleApplication::setFocus( int )
 {
     QWidget *w = qApp->mainWidget();
@@ -275,11 +283,13 @@ bool QAccessibleApplication::setFocus( int )
     return TRUE;
 }
 
+/*! \reimp */
 bool QAccessibleApplication::setSelected( int, bool, bool )
 {
     return FALSE;
 }
 
+/*! \reimp */
 void QAccessibleApplication::clearSelection()
 {
 }
