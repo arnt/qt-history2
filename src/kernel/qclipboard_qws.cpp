@@ -271,14 +271,4 @@ bool QClipboard::ownsClipboard() const
 }
 
 
-void QClipboard::setSelectionMode(bool)
-{
-}
-
-
-bool QClipboard::selectionModeEnabled() const
-{
-    return FALSE;
-}
-
 #endif // QT_NO_CLIPBOARD

@@ -61,8 +61,7 @@ class QM_EXPORT_FTP QFtp : public QNetworkProtocol
     Q_OBJECT
 
 public:
-    QFtp(); // ### Qt 4.0: get rid of this overload
-    QFtp( QObject *parent, const char *name=0 );
+    QFtp( QObject *parent = 0, const char *name = 0 );
     virtual ~QFtp();
 
     int supportedOperations() const;

@@ -62,6 +62,12 @@ class QIODevice;
 class QHttpPrivate;
 class QHttpRequest;
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+QM_TEMPLATE_EXTERN_HTTP template class QM_EXPORT_HTTP QMap<QString, QString>;
+// MOC_SKIP_END
+#endif
+
 class QM_EXPORT_HTTP QHttpHeader
 {
 public:
@@ -168,8 +174,7 @@ class QM_EXPORT_HTTP QHttp : public QNetworkProtocol
     Q_OBJECT
 
 public:
-    QHttp();
-    QHttp( QObject* parent, const char* name = 0 ); // ### Qt 4.0: make parent=0 and get rid of the QHttp() constructor
+    QHttp( QObject* parent = 0, const char* name = 0 );
     QHttp( const QString &hostname, Q_UINT16 port=80, QObject* parent=0, const char* name = 0 );
     virtual ~QHttp();
 
@@ -248,7 +253,6 @@ private slots:
 
 private:
     QHttpPrivate *d;
-    void *unused; // ### Qt 4.0: remove this (in for binary compatibility)
     int bytesRead;
 
     int addRequest( QHttpRequest * );

@@ -85,18 +85,6 @@ bool QClipboard::ownsClipboard() const
     return FALSE;
 }
 
-
-void QClipboard::setSelectionMode(bool)
-{
-}
-
-
-bool QClipboard::selectionModeEnabled() const
-{
-    return FALSE;
-}
-
-
 void QClipboard::ownerDestroyed()
 {
     if ( inClipboardChain ) {

@@ -264,38 +264,6 @@ bool QClipboard::ownsClipboard() const
 }
 
 
-/*! \obsolete
-
-    Use the QClipboard::data(), QClipboard::setData() and related functions
-    which take a QClipboard::Mode argument.
-
-    Sets the clipboard selection mode. If \a enable is TRUE, then
-    subsequent calls to QClipboard::setData() and other functions
-    which put data into the clipboard will put the data into the mouse
-    selection, otherwise the data will be put into the clipboard.
-
-    \sa supportsSelection(), selectionModeEnabled()
-*/
-void QClipboard::setSelectionMode(bool enable)
-{
-    inSelectionMode_obsolete = enable;
-}
-
-
-/*! \obsolete
-
-    Use the QClipboard::data(), QClipboard::setData() and related functions
-    which take a QClipboard::Mode argument.
-
-    Returns the selection mode.
-
-    \sa setSelectionMode(), supportsSelection()
-*/
-bool QClipboard::selectionModeEnabled() const
-{
-    return inSelectionMode_obsolete;
-}
-
 
 // event filter function... captures interesting events while
 // qt_xclb_wait_for_event is running the event loop

@@ -367,6 +367,7 @@ public slots:
     void		resize( const QSize & );
     virtual void	setGeometry( int x, int y, int w, int h );
     virtual void	setGeometry( const QRect & ); // ### make non virtual in Qt 4?
+    virtual void  	adjustSize();
 
 public:
     virtual bool	close( bool alsoDelete );
@@ -388,10 +389,6 @@ public:
     virtual int heightForWidth(int) const;
 
     QRegion	clipRegion() const;
-
-// ### move together with other slots in Qt 4.0
-public slots:
-    virtual void  	adjustSize();
 
 public:
 #ifndef QT_NO_LAYOUT

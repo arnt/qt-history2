@@ -126,7 +126,7 @@ public:
 	ErrPermissionDenied
     };
 
-    QNetworkProtocol();
+    QNetworkProtocol( QObject *parent = 0, const char *name = 0 );
     virtual ~QNetworkProtocol();
 
     virtual void setUrl( QUrlOperator *u );

@@ -1182,23 +1182,14 @@ static void delete_d( const QFtp* foo )
     \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator QHttp
 */
 
-/*!
-    Constructs a QFtp object.
-*/
-QFtp::QFtp() : QNetworkProtocol()
-{
-    init();
-}
 
 /*!
     Constructs a QFtp object. The \a parent and \a name parameters
     are passed to the QObject constructor.
 */
-QFtp::QFtp( QObject *parent, const char *name ) : QNetworkProtocol()
+QFtp::QFtp( QObject *parent, const char *name ) 
+: QNetworkProtocol( parent, name )
 {
-    if ( parent )
-	parent->insertChild( this );
-    setName( name );
     init();
 }
 

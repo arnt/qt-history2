@@ -198,20 +198,6 @@ QString QClipboard::text( QString &subtype, Mode mode ) const
     return r;
 }
 
-/*! \obsolete
-    This function uses the QClipboard::text() function which takes
-    a QClipboard::Mode argument.  The value of the mode argument is
-    determined by the return value of selectionModeEnabled().
-    If selectionModeEnabled() returns TRUE, the mode argument is
-    QClipboard::Selection, otherwise the mode argument is
-    QClipboard::Clipboard.
-*/
-// ### remove 4.0
-QString QClipboard::text( QString& subtype ) const
-{
-    return text( subtype, selectionModeEnabled() ? Selection : Clipboard );
-}
-
 /*!
     Returns the clipboard text as plain text, or a null string if the
     clipboard does not contain any text.
@@ -230,20 +216,6 @@ QString QClipboard::text( Mode mode ) const
     return text( subtype, mode );
 }
 
-/*! \obsolete
-    This function uses the QClipboard::text() function which takes
-    a QClipboard::Mode argument.  The value of the mode argument is
-    determined by the return value of selectionModeEnabled().
-    If selectionModeEnabled() returns TRUE, the mode argument is
-    QClipboard::Selection, otherwise the mode argument is
-    QClipboard::Clipboard.
-*/
-// ### remove 4.0
-QString QClipboard::text() const
-{
-    return text( selectionModeEnabled() ? Selection : Clipboard );
-}
-
 /*!
     Copies \a text into the clipboard as plain text.
 
@@ -258,20 +230,6 @@ QString QClipboard::text() const
 void QClipboard::setText( const QString &text, Mode mode )
 {
     setData( new QTextDrag(text), mode );
-}
-
-/*! \obsolete
-    This function uses the QClipboard::setText() function which takes
-    a QClipboard::Mode argument.  The value of the mode argument is
-    determined by the return value of selectionModeEnabled().
-    If selectionModeEnabled() returns TRUE, the mode argument is
-    QClipboard::Selection, otherwise the mode argument is
-    QClipboard::Clipboard.
-*/
-// ### remove 4.0
-void QClipboard::setText( const QString &text )
-{
-    setText( text, selectionModeEnabled() ? Selection : Clipboard );
 }
 
 /*!
@@ -294,20 +252,6 @@ QImage QClipboard::image( Mode mode ) const
     return r;
 }
 
-/*! \obsolete
-    This function uses the QClipboard::image() function which takes
-    a QClipboard::Mode argument.  The value of the mode argument is
-    determined by the return value of selectionModeEnabled().
-    If selectionModeEnabled() returns TRUE, the mode argument is
-    QClipboard::Selection, otherwise the mode argument is
-    QClipboard::Clipboard.
-*/
-// ### remove 4.0
-QImage QClipboard::image() const
-{
-    return image( selectionModeEnabled() ? Selection : Clipboard );
-}
-
 /*!
     Copies \a image into the clipboard.
 
@@ -327,20 +271,6 @@ QImage QClipboard::image() const
 void QClipboard::setImage( const QImage &image, Mode mode )
 {
     setData( new QImageDrag( image ), mode );
-}
-
-/*! \obsolete
-    This function uses the QClipboard::setImage() function which takes
-    a QClipboard::Mode argument.  The value of the mode argument is
-    determined by the return value of selectionModeEnabled().
-    If selectionModeEnabled() returns TRUE, the mode argument is
-    QClipboard::Selection, otherwise the mode argument is
-    QClipboard::Clipboard.
-*/
-// ### remove 4.0
-void QClipboard::setImage( const QImage &image )
-{
-    setImage( image, selectionModeEnabled() ? Selection : Clipboard );
 }
 
 /*!
@@ -365,20 +295,6 @@ QPixmap QClipboard::pixmap( Mode mode ) const
     return r;
 }
 
-/*! \obsolete
-    This function uses the QClipboard::pixmap() function which takes
-    a QClipboard::Mode argument.  The value of the mode argument is
-    determined by the return value of selectionModeEnabled().
-    If selectionModeEnabled() returns TRUE, the mode argument is
-    QClipboard::Selection, otherwise the mode argument is
-    QClipboard::Clipboard.
-*/
-// ### remove 4.0
-QPixmap QClipboard::pixmap() const
-{
-    return pixmap( selectionModeEnabled() ? Selection : Clipboard );
-}
-
 /*!
     Copies \a pixmap into the clipboard. Note that this is slower
     than setImage() because it needs to convert the QPixmap to a
@@ -398,20 +314,6 @@ void QClipboard::setPixmap( const QPixmap &pixmap, Mode mode )
     setData( new QImageDrag( pixmap.convertToImage() ), mode );
 }
 
-/*! \obsolete
-    This function uses the QClipboard::setPixmap() function which takes
-    a QClipboard::Mode argument.  The value of the mode argument is
-    determined by the return value of selectionModeEnabled().
-    If selectionModeEnabled() returns TRUE, the mode argument is
-    QClipboard::Selection, otherwise the mode argument is
-    QClipboard::Clipboard.
-*/
-// ### remove 4.0
-void QClipboard::setPixmap( const QPixmap &pixmap )
-{
-    setPixmap( pixmap, selectionModeEnabled() ? Selection : Clipboard );
-}
-
 
 /*! \fn QMimeSource *QClipboard::data( Mode mode ) const
     Returns a reference to a QMimeSource representation of the current
@@ -425,20 +327,6 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
 
     \sa setData()
 */
-
-/*! \obsolete
-    This function uses the QClipboard::data() function which takes
-    a QClipboard::Mode argument.  The value of the mode argument is
-    determined by the return value of selectionModeEnabled().
-    If selectionModeEnabled() returns TRUE, the mode argument is
-    QClipboard::Selection, otherwise the mode argument is
-    QClipboard::Clipboard.
-*/
-// ### remove 4.0
-QMimeSource *QClipboard::data() const
-{
-    return data( selectionModeEnabled() ? Selection : Clipboard );
-}
 
 /*! \fn void QClipboard::setData( QMimeSource *src, Mode mode )
     Sets the clipboard data to \a src. Ownership of the data is
@@ -464,20 +352,6 @@ QMimeSource *QClipboard::data() const
     \sa data()
 */
 
-/*! \obsolete
-    This function uses the QClipboard::setData() function which takes
-    a QClipboard::Mode argument.  The value of the mode argument is
-    determined by the return value of selectionModeEnabled().
-    If selectionModeEnabled() returns TRUE, the mode argument is
-    QClipboard::Selection, otherwise the mode argument is
-    QClipboard::Clipboard.
-*/
-// ### remove 4.0
-void QClipboard::setData( QMimeSource *src )
-{
-    setData( src, selectionModeEnabled() ? Selection : Clipboard );
-}
-
 /*! \fn void QClipboard::clear( Mode mode )
     Clear the clipboard contents.
 
@@ -490,18 +364,6 @@ void QClipboard::setData( QMimeSource *src )
     \sa QClipboard::Mode, supportsSelection()
 */
 
-/*! \obsolete
-    This function uses the QClipboard::clear() function which takes
-    a QClipboard::Mode argument.  The value of the mode argument is
-    determined by the return value of selectionModeEnabled().
-    If selectionModeEnabled() returns TRUE, the mode argument is
-    QClipboard::Selection, otherwise the mode argument is QClipboard::Clipboard.
-*/
-// ### remove 4.0
-void QClipboard::clear()
-{
-    clear( selectionModeEnabled() ? Selection : Clipboard );
-}
 
 #endif // QT_NO_MIMECLIPBOARD
 #endif // QT_NO_CLIPBOARD

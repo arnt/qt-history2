@@ -116,14 +116,15 @@ public:
   (it should tell the user what they are expected to enter). The \a parent
   is the dialog's parent widget. The widget is called \a name. If \a
   modal is TRUE (the default) the dialog will be modal. The \a type
-  parameter is used to specify which type of dialog to construct.
+  parameter is used to specify which type of dialog to construct. The \a f
+  parameter is passed on to the QDialog constructor.
 
   \sa getText(), getInteger(), getDouble(), getItem()
 */
 
 QInputDialog::QInputDialog( const QString &label, QWidget* parent,
-			    const char* name, bool modal, Type type )
-    : QDialog( parent, name, modal )
+			    const char* name, bool modal, Type type, WFlags f )
+    : QDialog( parent, name, modal, f )
 {
     d = new QInputDialogPrivate;
     d->lineEdit = 0;
@@ -273,7 +274,7 @@ QInputDialog::~QInputDialog()
     will use. If \a ok is not-null \e *\a ok will be set to TRUE if the
     user pressed OK and to FALSE if the user pressed Cancel. The
     dialog's parent is \a parent; the dialog is called \a name. The
-    dialog will be modal.
+    dialog will be modal and uses the widget flags \a f.
 
     This function returns the text which has been entered in the line
     edit. It will not return an empty string.
@@ -295,11 +296,11 @@ QInputDialog::~QInputDialog()
 
 QString QInputDialog::getText( const QString &caption, const QString &label,
 			       QLineEdit::EchoMode mode, const QString &text,
-			       bool *ok, QWidget *parent, const char *name )
+			       bool *ok, QWidget *parent, const char *name, WFlags f )
 {
     QInputDialog *dlg = new QInputDialog( label, parent,
 					  name ? name : "qt_inputdlg_gettext",
-					  TRUE, LineEdit );
+					  TRUE, LineEdit, f );
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( caption );
@@ -331,8 +332,8 @@ QString QInputDialog::getText( const QString &caption, const QString &label,
 
     If \a ok is not-null *\a ok will be set to TRUE if the user
     pressed OK and to FALSE if the user pressed Cancel. The dialog's
-    parent is \a parent; the dialog is called \a name. The dialog will
-    be modal.
+    parent is \a parent; the dialog is called \a name. The
+    dialog will be modal and uses the widget flags \a f.
 
     This function returns the integer which has been entered by the user.
 
@@ -353,11 +354,11 @@ QString QInputDialog::getText( const QString &caption, const QString &label,
 
 int QInputDialog::getInteger( const QString &caption, const QString &label,
 			      int value, int minValue, int maxValue, int step, bool *ok,
-			      QWidget *parent, const char *name )
+			      QWidget *parent, const char *name, WFlags f )
 {
     QInputDialog *dlg = new QInputDialog( label, parent,
 					  name ? name : "qt_inputdlg_getint",
-					  TRUE, SpinBox );
+					  TRUE, SpinBox, f );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( caption );
 #endif
@@ -388,8 +389,8 @@ int QInputDialog::getInteger( const QString &caption, const QString &label,
 
     If \a ok is not-null \e *\a ok will be set to TRUE if the user
     pressed OK and to FALSE if the user pressed Cancel. The dialog's
-    parent is \a parent; the dialog is called \a name. The dialog will
-    be modal.
+    parent is \a parent; the dialog is called \a name. The
+    dialog will be modal and uses the widget flags \a f.
 
     This function returns the floating point number which has been
     entered by the user.
@@ -412,10 +413,10 @@ int QInputDialog::getInteger( const QString &caption, const QString &label,
 double QInputDialog::getDouble( const QString &caption, const QString &label,
 				double value, double minValue, double maxValue,
 				int decimals, bool *ok, QWidget *parent,
-				const char *name )
+				const char *name, WFlags f )
 {
     QInputDialog dlg( label, parent,
-		      name ? name : "qt_inputdlg_getdbl", TRUE, LineEdit );
+		      name ? name : "qt_inputdlg_getdbl", TRUE, LineEdit, f );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setCaption( caption );
 #endif
@@ -441,8 +442,8 @@ double QInputDialog::getDouble( const QString &caption, const QString &label,
 
     If \a ok is not-null \e *\a ok will be set to TRUE if the user
     pressed OK and to FALSE if the user pressed Cancel. The dialog's
-    parent is \a parent; the dialog is called \a name. The dialog will
-    be modal.
+    parent is \a parent; the dialog is called \a name. The
+    dialog will be modal and uses the widget flags \a f.
 
     This function returns the text of the current item, or if \a
     editable is TRUE, the current text of the combobox.
@@ -466,9 +467,9 @@ double QInputDialog::getDouble( const QString &caption, const QString &label,
 
 QString QInputDialog::getItem( const QString &caption, const QString &label, const QStringList &list,
 			       int current, bool editable,
-			       bool *ok, QWidget *parent, const char *name )
+			       bool *ok, QWidget *parent, const char *name, WFlags f )
 {
-    QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_getitem", TRUE, editable ? EditableComboBox : ComboBox );
+    QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_getitem", TRUE, editable ? EditableComboBox : ComboBox, f );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( caption );
 #endif

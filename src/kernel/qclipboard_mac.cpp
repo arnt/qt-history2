@@ -401,16 +401,6 @@ void QClipboard::setData( QMimeSource *src, Mode mode )
     emit dataChanged();
 }
 
-void QClipboard::setSelectionMode(bool)
-{
-}
-
-
-bool QClipboard::selectionModeEnabled() const
-{
-    return FALSE; //nei takk
-}
-
 bool QClipboard::supportsSelection() const
 {
     return FALSE; //nei takk

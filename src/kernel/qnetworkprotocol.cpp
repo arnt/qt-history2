@@ -376,10 +376,13 @@ public:
 /*!
     Constructor of the network protocol base class. Does some
     initialization and connecting of signals and slots.
+
+    The parameters \a parent and \a name are passed on to the 
+    QObject constructor.
 */
 
-QNetworkProtocol::QNetworkProtocol()
-    : QObject()
+QNetworkProtocol::QNetworkProtocol( QObject *parent, const char *name )
+    : QObject( parent, name )
 {
     d = new QNetworkProtocolPrivate( this );
 

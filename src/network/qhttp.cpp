@@ -1163,38 +1163,26 @@ QString QHttpRequestHeader::toString() const
 */
 
 /*!
-    Constructs a QHttp object.
-*/
-QHttp::QHttp()
-{
-    init();
-}
-
-/*!
     Constructs a QHttp object. The parameters \a parent and \a name
-    are passed on to the QObject constructor.
+    are passed on to the QNetworkProtocol constructor.
 */
 QHttp::QHttp( QObject* parent, const char* name )
+: QNetworkProtocol( parent, name )
 {
-    if ( parent )
-	parent->insertChild( this );
-    setName( name );
     init();
 }
 
 /*!
     Constructs a QHttp object. Subsequent requests are done by
     connecting to the server \a hostname on port \a port. The
-    parameters \a parent and \a name are passed on to the QObject
-    constructor.
+    parameters \a parent and \a name are passed on to the 
+    QNetworkProtocol constructor.
 
     \sa setHost()
 */
 QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const char* name )
+: QNetworkProtocol( parent, name )
 {
-    if ( parent )
-	parent->insertChild( this );
-    setName( name );
     init();
 
     d->hostname = hostname;
