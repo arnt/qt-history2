@@ -930,7 +930,7 @@ const QCharAttributes *QTextEngine::attributes()
         int script = si.analysis.script;
 #ifdef Q_WS_WIN
         if(hasUsp10) {
-            script = (QFont::Script)qt_scriptForChar(string.at(si.position).unicode());
+            script = (QFont::Script)qt_scriptForChar(layoutData->string.at(si.position).unicode());
         }
 #endif
         Q_ASSERT(script < QFont::NScripts);

@@ -464,8 +464,8 @@ static inline bool isAsian(unsigned short ch)
 // This function does uses Uniscribe to do the script analysis and creates items from this.
 static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir)
 {
-    QScriptItemArray &items = engine->items;
-    const QChar *text = engine->string.unicode();
+    QScriptItemArray &items = engine->layoutData->items;
+    const QChar *text = engine->layoutData->string.unicode();
 
     if (start > stop) {
         // #### the algorithm is currently not really safe against this. Still needs fixing.
@@ -570,7 +570,7 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 
 void QTextEngine::shapeText(int item) const
 {
-    QScriptItem &si = items[item];
+    QScriptItem &si = layoutData->items[item];
 
     if (si.num_glyphs)
         return;
@@ -582,7 +582,7 @@ void QTextEngine::shapeText(int item) const
     Q_ASSERT(len > 0);
     Q_UNUSED(len); // --release warning
 
-    si.glyph_data_offset = used;
+    si.glyph_data_offset = layoutData->used;
 
     QFont fnt = font(si);
     QFontPrivate *fp = fnt.d;
@@ -592,7 +592,7 @@ void QTextEngine::shapeText(int item) const
         if (script == QFont::Latin && script_prop->fAmbiguousCharSet) {
             // either some asian language or something Uniscribe doesn't recognise
             // we look at the first character to find out what it is
-            script = (QFont::Script)qt_scriptForChar(string.unicode()[si.position].unicode());
+            script = (QFont::Script)qt_scriptForChar(layoutData->string.unicode()[si.position].unicode());
             if ((script >= QFont::Han && script <= QFont::Yi)
                 || script == QFont::KatakanaHalfWidth || script == QFont::UnknownScript) {
                 // maybe some asian language
@@ -602,7 +602,7 @@ void QTextEngine::shapeText(int item) const
                     if (fe->type() == QFontEngine::Box)
                         continue;
 
-                    if (fe->canRender(string.unicode()+from, len)) {
+                    if (fe->canRender(layoutData->string.unicode()+from, len)) {
                         script = tryScripts[i];
                         break;
                     }
@@ -626,7 +626,7 @@ void QTextEngine::shapeText(int item) const
 
 
         do {
-            res = ScriptShape(hdc, &fontEngine->script_cache, (WCHAR *)string.unicode() + from, len,
+            res = ScriptShape(hdc, &fontEngine->script_cache, (WCHAR *)layoutData->string.unicode() + from, len,
                                l, &si.analysis, glyphs.data(), logClusters.data(), glyphAttributes.data(),
                                &si.num_glyphs);
             if (res == E_PENDING) {
@@ -659,7 +659,7 @@ void QTextEngine::shapeText(int item) const
         si.width = abc.abcA + abc.abcB + abc.abcC;
 
         ensureSpace(si.num_glyphs);
-        si.glyph_data_offset = used;
+        si.glyph_data_offset = layoutData->used;
         QGlyphLayout *g = this->glyphs(&si);
         for(int i = 0; i < si.num_glyphs; ++i) {
             g[i].glyph = glyphs[i];
@@ -682,18 +682,18 @@ void QTextEngine::shapeText(int item) const
 
         QShaperItem shaper_item;
         shaper_item.script = si.analysis.script;
-        shaper_item.string = &string;
+        shaper_item.string = &layoutData->string;
         shaper_item.from = si.position;
         shaper_item.length = length(item);
         shaper_item.font = fontEngine;
-        shaper_item.num_glyphs = qMax(num_glyphs - used, shaper_item.length);
+        shaper_item.num_glyphs = qMax(layoutData->num_glyphs - layoutData->used, shaper_item.length);
         shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
         if (option.usesDesignMetrics())
             shaper_item.flags |= DesignMetrics;
 
         while (1) {
             ensureSpace(shaper_item.num_glyphs);
-            shaper_item.num_glyphs = num_glyphs - used;
+            shaper_item.num_glyphs = layoutData->num_glyphs - layoutData->used;
             shaper_item.glyphs = glyphs(&si);
             shaper_item.log_clusters = logClusters(&si);
             if (qt_scriptEngines[shaper_item.script].shape(&shaper_item))
@@ -726,6 +726,6 @@ void QTextEngine::shapeText(int item) const
     si.ascent = fontEngine->ascent();
     si.descent = fontEngine->descent();
 
-    used += si.num_glyphs;
+    layoutData->used += si.num_glyphs;
 }
 
