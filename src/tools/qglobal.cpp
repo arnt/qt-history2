@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#29 $
 **
 ** Global functions
 **
@@ -11,13 +11,13 @@
 *****************************************************************************/
 
 #include "qglobal.h"
+#include "qdict.h"
+#include "qstring.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <qdict.h>
-#include <qstring.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#29 $")
 
 
 /*----------------------------------------------------------------------------
