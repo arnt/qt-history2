@@ -16,9 +16,9 @@
 
 #if defined(Q_WS_X11)
 
-#include "qpixmap.h"
 #include "qapplication.h"
-
+#include "qdesktopwidget.h"
+#include "qpixmap.h"
 #include "qintdict.h"
 #define INT8  dummy_INT8
 #define INT32 dummy_INT32
