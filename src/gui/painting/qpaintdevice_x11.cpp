@@ -629,73 +629,57 @@ int QPaintDevice::resolution() const
 
 Display *QPaintDevice::x11Display() const
 {
-    if (devType() == QInternal::Widget) // ### fix these in all fu's below
-        return static_cast<const QWidget *>(this)->x11Info()->display();
-    else if (devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(this)->x11Info()->display();
+    if (x11Info())
+	return x11Info()->display();
     return QX11Info::appDisplay();
 }
 
 int QPaintDevice::x11Screen() const
 {
-    if (devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(this)->x11Info()->screen();
-    else if (devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(this)->x11Info()->screen();
+    if (x11Info())
+	return x11Info()->screen();
     return QX11Info::appScreen();
 }
 
 void *QPaintDevice::x11Visual() const
 {
-    if (devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(this)->x11Info()->visual();
-    else if (devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(this)->x11Info()->visual();
+    if (x11Info())
+	return x11Info()->visual();
     return QX11Info::appVisual();
 }
 
 int QPaintDevice::x11Depth() const
 {
-    if (devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(this)->x11Info()->depth();
-    else if (devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(this)->x11Info()->depth();
+    if (x11Info())
+        return x11Info()->depth();
     return QX11Info::appDepth();
 }
 
 int QPaintDevice::x11Cells() const
 {
-    if (devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(this)->x11Info()->cells();
-    else if (devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(this)->x11Info()->cells();
+    if (x11Info())
+	return x11Info()->cells();
     return QX11Info::appCells();
 }
 
 Qt::HANDLE QPaintDevice::x11Colormap() const
 {
-    if (devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(this)->x11Info()->colormap();
-    else if (devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(this)->x11Info()->colormap();
+    if (x11Info())
+	return x11Info()->colormap();
     return QX11Info::appColormap();
 }
 
 bool QPaintDevice::x11DefaultColormap() const
 {
-    if (devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(this)->x11Info()->defaultColormap();
-    else if (devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(this)->x11Info()->defaultColormap();
+    if (x11Info())
+	return x11Info()->defaultColormap();
     return QX11Info::appDefaultColormap();
 }
 
 bool QPaintDevice::x11DefaultVisual() const
 {
-    if (devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(this)->x11Info()->defaultVisual();
-    else if (devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(this)->x11Info()->defaultVisual();
+    if (x11Info())
+	return x11Info()->defaultVisual();
     return QX11Info::appDefaultVisual();
 }
 
@@ -781,4 +765,12 @@ int QPaintDevice::x11AppDpiY(int screen)
     return QX11Info::appDpiY(screen);
 }
 
+QX11Info *QPaintDevice::x11Info() const
+{
+    if (devType() == QInternal::Widget)
+        return static_cast<const QWidget *>(this)->x11Info();
+    else if (devType() == QInternal::Pixmap)
+        return static_cast<const QPixmap *>(this)->x11Info();
+    return 0;
+}
 #endif

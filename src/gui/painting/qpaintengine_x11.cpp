@@ -1272,9 +1272,9 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     // since we can't scale pixmaps this should always hold
     Q_ASSERT(r.width() == sr.width() && r.height() == sr.height());
 
-    if (d->pdev->x11Screen() != pixmap.x11Info()->screen()) {
+    if (d->pdev->x11Info() && d->pdev->x11Info()->screen() != pixmap.x11Info()->screen()) {
         QPixmap* p = (QPixmap*) &pixmap;
-        p->x11SetScreen(d->pdev->x11Screen());
+        p->x11SetScreen(d->pdev->x11Info()->screen());
     }
 
     QPixmap::x11SetDefaultScreen(pixmap.x11Info()->screen());

@@ -25,14 +25,15 @@ class QWSDisplay;
 class QGfx;
 #endif
 
+#if defined(Q_WS_X11)
+class QX11Info;
+class QX11PaintEngine;
+#endif
+
 class QIODevice;
 class QString;
 class QApplicationPrivate;
 class QPaintEngine;
-class QX11Info;
-
-//######################
-//#define QT_OLD_GFX
 
 class Q_GUI_EXPORT QPaintDevice                                // device for QPainter
 {
@@ -108,12 +109,16 @@ protected:
 #if defined(Q_WS_X11)
     friend void qt_init(QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE);
     friend void qt_cleanup();
+    friend class QX11PaintEngine;
 #endif
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QPaintDevice(const QPaintDevice &);
     QPaintDevice &operator=(const QPaintDevice &);
+#endif
+#if defined(Q_WS_X11)
+    QX11Info *x11Info() const;
 #endif
 
 #if defined(Q_WS_X11) && defined(QT_COMPAT)
