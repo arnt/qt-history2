@@ -496,9 +496,9 @@ void QScrollBar::wheelEvent( QWheelEvent *e )
 	offset_owner = this;
 	offset = 0;
     }
-    e->accept();
-    if ( e->orientation() != orient )
+    if ( e->orientation() != orient && !rect().contains(e->pos()) )
 	return;
+    e->accept();
     int step = QMIN( QApplication::wheelScrollLines()*lineStep(),
 		     pageStep() );
     if ( ( e->state() & ControlButton ) || ( e->state() & ShiftButton ) )

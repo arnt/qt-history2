@@ -508,7 +508,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 #ifndef QT_NO_WHEELEVENT
 void QSlider::wheelEvent( QWheelEvent * e )
 {
-    if ( e->orientation()!=orientation() )
+    if ( e->orientation() != orientation() && !rect().contains(e->pos()) )
 	return;
 
     static float offset = 0;
