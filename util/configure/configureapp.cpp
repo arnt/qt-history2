@@ -1121,6 +1121,11 @@ void Configure::generateConfigfiles()
 	    outStream << "#define QT_NO_STYLE_CDE" << endl;
 	    outStream << "#endif" << endl;
 	}
+        if (dictionary["ACCESSIBILITY"] == "no") {
+            outStream << "#ifndef QT_NO_ACCESSIBILITY" << endl
+                      << "#define QT_NO_ACCESSIBILITY" << endl
+                      << "#endif" << endl;
+        }
 	outFile.close();
         if (!writeToFile("#include \"../../src/core/global/qconfig.h\"\n",
                          dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/qconfig.h")
