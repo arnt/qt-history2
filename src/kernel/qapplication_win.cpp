@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#392 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#393 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2384,9 +2384,14 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    if ( releaseAfter ) {
 		popupButtonFocus = 0;
 	    }
+	} else if ( popupChild ){
+	    QMouseEvent e( type,
+		popupChild->mapFromGlobal(QPoint(gpos.x,gpos.y)),
+		QPoint(gpos.x,gpos.y), button, state );
+	    QApplication::sendEvent( popupChild, &e );
 	} else {
 	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	    QApplication::sendEvent( popup, &e );
+	    QApplication::sendEvent( popupChild ? popupChild : popup, &e );
 	}
 
 	if ( releaseAfter )

@@ -3527,9 +3527,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		popupButtonFocus = 0;
 		popupOfPopupButtonFocus = 0;
 	    }
+	} else if ( popupChild ) {
+	    QMouseEvent e( type, popupChild->mapFromGlobal(globalPos),
+			   globalPos, button, state );
+	    QApplication::sendEvent( popupChild, &e );
 	} else {
 	    QMouseEvent e( type, pos, globalPos, button, state );
-	    QApplication::sendEvent( popup, &e );
+	    QApplication::sendEvent( popupChild ? popupChild : popup, &e );
 	}
 
 	if ( releaseAfter )
