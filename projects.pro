@@ -28,7 +28,6 @@ INSTALLS += htmldocs
 translations.files = $$QT_BUILD_TREE/translations/*.qm
 INSTALLS += translations
 
-
 #qmake
 qmake.path=$$bins.path
 qmake.files=$$QT_BUILD_TREE/bin/qmake #exe itself
@@ -36,7 +35,7 @@ INSTALLS += qmake
 
 #mkspecs
 mkspecs.path=$$data.path/mkspecs
-mkspecs.files=$$QT_SOURCE_TREE/mkspecs/*
+mkspecs.files=$$QT_SOURCE_TREE/mkspecs/* $$QT_BUILD_TREE/mkspecs/.qt.config
 mkspecs.commands = $(SYMLINK) $$QMAKESPEC $$mkspecs.path/default
 INSTALLS += mkspecs
 
