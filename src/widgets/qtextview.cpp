@@ -436,7 +436,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	break;
     default: {
 	    if ( e->text().length() &&
-		 !( e->state() & AltButton ) && !( e->state() & MetaButton ) &&
+//		 !( e->state() & AltButton ) && !( e->state() & MetaButton ) &&
 		 ( !e->ascii() || e->ascii() >= 32 ) ||
 		 ( e->text() == "\t" && !( e->state() & ControlButton ) ) ) {
 		clearUndoRedoInfo = FALSE;
