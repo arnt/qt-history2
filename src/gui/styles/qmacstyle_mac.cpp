@@ -177,7 +177,7 @@ QRegion QAquaFocusWidget::focusRegion() const
         pix.fill(fillColor);
         QPainter p(&pix);
         drawFocusRect(&p);
-        img = pix;
+        img = pix.toImage();
     }
     QImage mask(img.width(), img.height(), 1, 2, QImage::LittleEndian);
     for (int y = 0; y < img.height(); y++) {
@@ -3289,8 +3289,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                         QMacSavedPortInfo savedInfo(&buffer_mask);
                         DrawThemeButton(buff_rct, bkind, &mask_info, 0, 0, 0, 0);
                     }
-                    QImage img = buffer.convertToImage(),
-                           maskimg = buffer_mask.convertToImage();
+                    QImage img = buffer.toImage(), maskimg = buffer_mask.toImage();
                     QImage mask_out(img.width(), img.height(), 1, 2, QImage::LittleEndian);
                     for (int y = 0; y < img.height(); ++y) {
                         //calculate a mask
@@ -4893,7 +4892,7 @@ QPixmap QMacStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
     QPixmap px = pixmap;
     switch (pixmaptype) {
     case QStyle::PT_Disabled: {
-        QImage img = px;
+        QImage img = px.toImage();
         img.setAlphaBuffer(true);
         QRgb pixel;
         int imgh = img.height();
@@ -4908,7 +4907,7 @@ QPixmap QMacStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
         px = img;
         break; }
     case QStyle::PT_Active: {
-        QImage img = px;
+        QImage img = px.toImage();
         img.setAlphaBuffer(true);
         int imgh = img.height();
         int imgw = img.width();
