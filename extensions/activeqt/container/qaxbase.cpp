@@ -2340,61 +2340,60 @@ QString QAxBase::generateDocumentation()
 	    detail += "\tQObject::connect( sender, SIGNAL(someSignal" + params + "), object, SLOT(" + name + params + ") );";
 	    detail += "</pre>\n";
 	    const QMetaData *slotdata = mo->slot( mo->findSlot( slot.latin1(), TRUE ), TRUE );
-	    Q_ASSERT(slotdata);
-	    if ( slotdata ) {
-		const QUMethod *slotmethod = slotdata->method;
-		int pcount = slotmethod->count;
-		QVariant::Type rettype = QVariant::Invalid;
-		bool retval = FALSE;
-		bool outparams = FALSE;
-		bool allVariants = TRUE;
-		for ( int p = 0; p < slotmethod->count; ++p ) {
-		    if ( !p && slotmethod->parameters->inOut == QUParameter::Out ) {
-			pcount--;
-			retval = TRUE;
-			rettype = QVariant::nameToType( it.data() );
-		    }
-		    if ( p && slotmethod->parameters->inOut & QUParameter::Out )
-			outparams = TRUE;
-		    if ( allVariants && QUType::isEqual( slotmethod->parameters[p].type, &static_QUType_ptr ) )
-			allVariants = FALSE;
+	    if ( !slotdata )
+		continue;
+	    const QUMethod *slotmethod = slotdata->method;
+	    int pcount = slotmethod->count;
+	    QVariant::Type rettype = QVariant::Invalid;
+	    bool retval = FALSE;
+	    bool outparams = FALSE;
+	    bool allVariants = TRUE;
+	    for ( int p = 0; p < slotmethod->count; ++p ) {
+		if ( !p && slotmethod->parameters->inOut == QUParameter::Out ) {
+		    pcount--;
+		    retval = TRUE;
+		    rettype = QVariant::nameToType( it.data() );
 		}
-		if ( allVariants ) {
-		    detail += "<p>Or call the function directly:<pre>\n";
-		    if ( retval && rettype != QVariant::Invalid ) {
-			if ( outparams ) {
-			    detail += "\tQValueList<QVariant> params;\n";
-			    for ( int p = 0; p < pcount; ++p )
-				detail += "\tparams &lt;&lt; var" + QString::number(p+1) + ";\n";
-			    detail += "\t" + QCString(QVariant::typeToName(rettype)) + " res = ";
-			    detail += "object->dynamicCall( \"" + name + params + "\", params ).to";
-			    detail += QCString(QVariant::typeToName(rettype)) + "();\n";
-			} else {
-			    detail += "\t" + QCString(QVariant::typeToName(rettype)) + " res = ";
-			    detail += "object->dynamicCall( \"" + name + params + "\"";
-			    for ( int p = 0; p < pcount; ++p )
-				detail += ", var" + QString::number(p+1);
-			    detail += " ).to" + QCString(QVariant::typeToName(rettype)) + "();\n";
-			}
-		    } else if ( retval ) {
-			detail += "\tUse querySubObject to get the returning COM object";
-		    } else { // no return value
-			if ( outparams ) {
-			    detail += "\tQValueList<QVariant> params;\n";
-			    for ( int p = 0; p < pcount; ++p )
-				detail += "\tparams &lt;&lt; var" + QString::number(p+1) + ";\n";
-			    detail += "\tobject->dynamicCall( \"" + name + params + "\", params );\n";
-			} else {
-			    detail += "\tobject->dynamicCall( \"" + name + params + "\"";
-			    for ( int p = 0; p < pcount; ++p )
-				detail += ", var" + QString::number(p+1);
-			    detail += " );\n";
-			}
+		if ( p && slotmethod->parameters->inOut & QUParameter::Out )
+		    outparams = TRUE;
+		if ( allVariants && QUType::isEqual( slotmethod->parameters[p].type, &static_QUType_ptr ) )
+		    allVariants = FALSE;
+	    }
+	    if ( allVariants ) {
+		detail += "<p>Or call the function directly:<pre>\n";
+		if ( retval && rettype != QVariant::Invalid ) {
+		    if ( outparams ) {
+			detail += "\tQValueList<QVariant> params;\n";
+			for ( int p = 0; p < pcount; ++p )
+			    detail += "\tparams &lt;&lt; var" + QString::number(p+1) + ";\n";
+			detail += "\t" + QCString(QVariant::typeToName(rettype)) + " res = ";
+			detail += "object->dynamicCall( \"" + name + params + "\", params ).to";
+			detail += QCString(QVariant::typeToName(rettype)) + "();\n";
+		    } else {
+			detail += "\t" + QCString(QVariant::typeToName(rettype)) + " res = ";
+			detail += "object->dynamicCall( \"" + name + params + "\"";
+			for ( int p = 0; p < pcount; ++p )
+			    detail += ", var" + QString::number(p+1);
+			detail += " ).to" + QCString(QVariant::typeToName(rettype)) + "();\n";
 		    }
-		    detail += "</pre>\n";
-		} else {
-		    detail += "<p>This function has parameters of unsupported types and cannot be called.";
+		} else if ( retval ) {
+		    detail += "\tUse querySubObject to get the returning COM object";
+		} else { // no return value
+		    if ( outparams ) {
+			detail += "\tQValueList<QVariant> params;\n";
+			for ( int p = 0; p < pcount; ++p )
+			    detail += "\tparams &lt;&lt; var" + QString::number(p+1) + ";\n";
+			detail += "\tobject->dynamicCall( \"" + name + params + "\", params );\n";
+		    } else {
+			detail += "\tobject->dynamicCall( \"" + name + params + "\"";
+			for ( int p = 0; p < pcount; ++p )
+			    detail += ", var" + QString::number(p+1);
+			detail += " );\n";
+		    }
 		}
+		detail += "</pre>\n";
+	    } else {
+		detail += "<p>This function has parameters of unsupported types and cannot be called.";
 	    }
 
 	    methodDetails << detail;
@@ -2451,7 +2450,8 @@ QString QAxBase::generateDocumentation()
 	    docuFromName( typeInfo, name, detail );
 	    QVariant::Type vartype = QVariant::nameToType( type );
 	    const QMetaProperty *prop = mo->property( mo->findProperty( name.latin1() ) );
-	    Q_ASSERT( prop );
+	    if ( !prop )
+		continue;
 
 	    if ( vartype == QVariant::Invalid && prop->isEnumType() )
 		vartype = QVariant::Int;
