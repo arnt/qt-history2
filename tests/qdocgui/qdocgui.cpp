@@ -73,15 +73,36 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 	}
 	if ( !editText.isNull() ) {
 	    if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
-		subdir = "/";
-	    else
-		subdir = "/src/";
-	    filename = qtdirenv + subdir + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
+		filename = qtdirenv + '/' + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
+	    else if ( item->parent()->parent()->text(0).startsWith( "include" ) ) {
+		QFile f;
+		QString fileText = item->parent()->text(0).replace(QRegExp( "\\.h$"), ".doc");
+		f.setName(qtdirenv + "/doc/" + fileText);
+		if ( f.exists() )
+		    filename = qtdirenv + "/doc/" + fileText;
+		else {
+		    fileText = item->parent()->text(0).replace(QRegExp( "\\.h$"), ".cpp");
+		    QDir d;
+		    d.setPath( qtdirenv + "/src/" );
+		    QStringList lst = d.entryList( "*", QDir::Dirs );
+		    QStringList::Iterator i = lst.begin();
+		    while ( i != lst.end() ) {
+			f.setName(qtdirenv + "/src/" + (*i) + '/' + fileText);
+			if ( f.exists() ) {
+			    filename = qtdirenv + "/src/" + (*i) + '/' + fileText;
+			    break;
+			}
+			++i;
+		    }
+		} 
+	    } else
+		filename = qtdirenv + "/src/" + item->parent()->parent()->text(0) + "/src/" + item->parent()->text(0);
+	    
 	    QString itemtext = item->text(0);
 	    QRegExp rxp( "(\\d+)" );
 	    int foundpos = rxp.search( itemtext, 5 );
 	    if ( foundpos != -1 ) {
-		// yes!
+		// yes! 
 		if ( QDir::home().dirName() == QString("jasmin") ) {
 		    QProcess *p4 = new QProcess( this );
 		    p4->addArgument( QString("p4") );
@@ -94,7 +115,7 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 		procedit = new QProcess( this );
 		procedit->addArgument( editText );
 		procedit->addArgument( QString("+" + linenumber) );
-		procedit->addArgument( filename );
+		procedit->addArgument( " " + filename );
 		connect( procedit, SIGNAL(processExited()), this, SLOT(editorFinished()));
 		if ( !procedit->start() ) {
 		    // Fix for crappy editors
