@@ -395,7 +395,10 @@ void MetaDataBase::addConnection( QObject *o, QObject *sender, const QCString &s
 	QString rec = receiver->name();
 	if ( receiver == ( (FormWindow*)o )->mainContainer() )
 	    rec = "this";
-	( (FormWindow*)o )->formFile()->addConnection( sender->name(), signal, rec, slot );
+	QString sen = sender->name();
+	if ( sender == ( (FormWindow*)o )->mainContainer() )
+	    sen = "this";
+	( (FormWindow*)o )->formFile()->addConnection( sen, signal, rec, slot );
     }
 }
 
