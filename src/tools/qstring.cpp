@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#110 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#111 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -456,6 +456,13 @@ int ucstrnicmp( const ushort *a, const ushort *b, int l )
     return uctolower(*a) - uctolower(*b);
 }
 
+/*!
+  This utility function converts the NUL-terminated 8-bit string
+  \a str to Unicode, returning the result and setting \a l to
+  the length of the Unicode string.
+
+  The caller is responsible for deleting the return value with delete[].
+*/
 ushort* Q2String::asciiToUnicode(const char *str, uint& l)
 {
     if (!str) {
@@ -470,6 +477,12 @@ ushort* Q2String::asciiToUnicode(const char *str, uint& l)
     return result;
 }
 
+/*!
+  This utility function converts \a l 16-bit characters from
+  \a uc to ASCII, returning a NUL-terminated string.
+
+  The caller is responsible for deleting the string with delete[].
+*/
 char* Q2String::unicodeToAscii(const ushort *uc, uint l)
 {
     if (!uc) {
@@ -600,6 +613,9 @@ Q2String::Q2String( const char *str, uint maxlen )
 	truncate( maxlen-1 );
 }
 
+/*!
+  Deallocates any space reserved solely by this Q2String.
+*/
 Q2String::~Q2String()
 {
     deref();
@@ -1729,7 +1745,7 @@ Q2String &Q2String::setNum( double n, char f, int prec )
   \obsolete because at() now auto-expands anyway.
 
   Sets the character at position \e index to \e c and expands the
-  string if necessary, filling with spaces.
+  string if necessary, filling with character-0.
 */
 void Q2String::setExpand( uint index, ushort c )
 {
@@ -1749,8 +1765,8 @@ void Q2String::setExpand( uint index, ushort c )
 
 
 /*!
-  \fn Q2String& Q2String::append( const char *str )
-  Appends \e str to the string and returns a reference to the string.
+  \fn Q2String& Q2String::append( const Q2String& str )
+  Appends \e str to the string and returns a reference to the result.
   Equivalent to operator+=().
  */
 
@@ -1786,6 +1802,13 @@ char* Q2String::ascii() const
 }
 
 /*!
+  \fn const ushort* Q2String::unicode() const
+
+  Returns the Unicode representation of the string.  The result
+  remains valid until the string is modified.
+*/
+
+/*!
   Warning - result will be deleted after 100 calls to this function.
 */
 Q2String::operator const char *() const
@@ -1809,8 +1832,33 @@ Q2String::operator const char *() const
 }
 
 /*!
+  \fn ushort Q2String::at( uint ) const
+
+  Returns the character at \a i, or 0 if \a i is beyond the length
+  of the string.
+*/
+
+/*!
+  \fn ushort operator[](int) const
+
+  Returns the character at \a i, or 0 if \a i is beyond the length
+  of the string.
+*/
+
+/*!
+  \fn ushort& operator[](int)
+
   Returns a reference to the character at \a i, expanding
-  the string with spaces if necessary.
+  the string with character-0 if necessary.  The resulting reference
+  can then be assigned to, or otherwise used immediately, but
+  becomes invalid once further modifications are made to the string.
+*/
+
+/*!
+  Returns a reference to the character at \a i, expanding
+  the string with character-0 if necessary.  The resulting reference
+  can then be assigned to, or otherwise used immediately, but
+  becomes invalid once further modifications are made to the string.
 */
 ushort& Q2String::at( uint i )
 {
@@ -1825,7 +1873,7 @@ ushort& Q2String::at( uint i )
 	    truncate( newmax );
 	}
 	for ( uint j=ol; j<=i; j++ )
-	    d->unicode[j]=' ';
+	    d->unicode[j]=0;
 	d->len = i+1;
     }
 
