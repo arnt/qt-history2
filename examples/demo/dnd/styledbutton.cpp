@@ -143,13 +143,13 @@ void StyledButton::resizeEvent( QResizeEvent* e )
 void StyledButton::drawButton( QPainter *paint )
 {
     style().drawPrimitive(QStyle::PE_ButtonBevel, paint, rect(), colorGroup(),
-			  isDown() ? QStyle::PStyle_Sunken : QStyle::PStyle_Default);
+			  isDown() ? QStyle::Style_Sunken : QStyle::Style_Default);
     drawButtonLabel(paint);
 
     if (hasFocus())
 	style().drawPrimitive(QStyle::PE_FocusRect, paint,
 			      style().subRect(QStyle::SR_PushButtonFocusRect, this),
-			      colorGroup(), QStyle::PStyle_Default);
+			      colorGroup(), QStyle::Style_Default);
 }
 
 void StyledButton::drawButtonLabel( QPainter *paint )
