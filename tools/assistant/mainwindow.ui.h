@@ -41,9 +41,9 @@ void MainWindow::init()
     goActions = QList<QAction*>();
     goActionDocFiles = new QMap<QAction*,QString>;
 
-    if (!windows )
+    if (!windows)
 	windows = new QList<MainWindow*>;
-    windows->append(this );
+    windows->append(this);
     tabs = new TabbedBrowser(this, "qt_assistant_tabbedbrowser");
     setCentralWidget(tabs);
     settingsDia = 0;
@@ -96,8 +96,8 @@ void MainWindow::setup()
     if(setupCompleted)
  return;
 
-    qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
-    statusBar()->message( tr( "Initializing Qt Assistant..." ) );
+    qApp->setOverrideCursor(QCursor( Qt::WaitCursor));
+    statusBar()->message(tr( "Initializing Qt Assistant..." ));
     setupCompleted = true;
     helpDock->initialize();
     connect(actionGoPrevious, SIGNAL(activated()), tabs, SLOT(backward()));
@@ -469,8 +469,10 @@ void MainWindow::showSettingsDialog(int page)
 	settingsDia = new SettingsDialog(this);
     }
     QFontDatabase fonts;
+    settingsDia->fontCombo->clear();
     settingsDia->fontCombo->insertStringList(fonts.families());
     settingsDia->fontCombo->lineEdit()->setText(tabs->browserFont().family());
+    settingsDia->fixedfontCombo->clear();
     settingsDia->fixedfontCombo->insertStringList(fonts.families());
     settingsDia->fixedfontCombo->lineEdit()->setText(tabs->styleSheet()->item("pre")->fontFamily());
     settingsDia->linkUnderlineCB->setChecked(tabs->linkUnderline());
